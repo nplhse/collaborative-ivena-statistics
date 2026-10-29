@@ -12,8 +12,7 @@ On Uberspace you manage **user** services (not root). Create `~/.config/systemd/
 
 Replace:
 
-- `YOUR_USERNAME` with your Uberspace account name
-- `/home/YOUR_USERNAME/html` with your Deployer `deploy_path` if different
+- `<deploy_path>` with the absolute `deploy_path` of the host in your `hosts.yaml`, on Uberspace u8 usually `/home/<your-username>/www` ([paths on the server](deployment.md#paths-on-the-server)); systemd does not expand `~`
 - `/usr/bin/php` with the output of `which php` on the server
 
 **Important:** `WorkingDirectory` must end with `/current` (the Deployer symlink), not a fixed `releases/N` path.
@@ -26,7 +25,7 @@ StartLimitBurst=5
 
 [Service]
 Type=simple
-WorkingDirectory=/home/YOUR_USERNAME/www/current
+WorkingDirectory=<deploy_path>/current
 Environment=APP_ENV=prod
 Environment=APP_DEBUG=0
 
@@ -60,10 +59,10 @@ After changing the unit file, always run `systemctl --user daemon-reload` before
 
 ## Smoke test
 
-Before relying on systemd, run the consumer manually from the deploy path:
+Before relying on systemd, run the consumer manually from the current release ([paths on the server](deployment.md#paths-on-the-server)):
 
 ```bash
-cd ~/html/current
+cd <deploy_path>/current
 php bin/console messenger:consume async_priority_high async_priority_low async_mail scheduler_default -vv --time-limit=30
 ```
 

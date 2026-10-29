@@ -68,10 +68,10 @@ A restore replaces the whole catalog with a **complete** package (`meta.complete
 
 ### Production → private repository
 
-The private copies of the catalog live in a separate private Git repository outside this one.
+The private copies of the catalog live in a separate private Git repository outside this one. Run on the server from the current release ([paths on the server](../../05-operations/deployment.md#paths-on-the-server)):
 
 ```bash
-cd ~/www/current
+cd <deploy_path>/current
 php bin/console app:reference:export --notes="monthly export"
 php bin/console app:reference:validate --source=var/reference/catalog-<timestamp>.json
 ```
@@ -117,7 +117,7 @@ FIXTURES_REFERENCE_PACKAGE=var/reference/catalog.json FIXTURES_CATALOG_MAPPING=v
 php bin/console app:generate:check-catalog
 ```
 
-The mapping file binds the generator's names to the private labels; see [fixtures.md](../../03-development/fixtures.md#generator-on-another-catalog). Both files stay in `var/reference/` and are never committed.
+The mapping file binds the generator's names to the private labels; see [synthetic-data-generator.md](../../03-development/synthetic-data-generator.md#generator-on-another-catalog). Both files stay in `var/reference/` and are never committed.
 
 ### Adding a few rows to an existing installation
 

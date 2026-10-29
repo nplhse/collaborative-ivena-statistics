@@ -7,10 +7,10 @@ Operational guide for PostgreSQL, import files, and media uploads.
 | Asset | Default path (local) | Production (Deployer shared) |
 |-------|----------------------|------------------------------|
 | PostgreSQL database | from `DATABASE_URL` | from `shared/.env.local` → `DATABASE_URL` |
-| Import uploads | `var/imports/` | `~/www/shared/var/imports/` (adjust to your `deploy_path`) |
-| Media uploads | `public/uploads/media/` | `~/www/shared/public/uploads/media/` |
-| Reference catalog packages | `var/reference/` | `~/www/shared/var/reference/` — private; keep copies in the private data repository, not in these backups only ([ADR 020](../02-architecture/decisions/020-portable-reference-catalog.md)) |
-| Secrets | `.env.local` | `~/www/shared/.env.local` — **back up separately**, never inside DB dumps |
+| Import uploads | `var/imports/` | `<deploy_path>/shared/var/imports/` ([paths on the server](deployment.md#paths-on-the-server)) |
+| Media uploads | `public/uploads/media/` | `<deploy_path>/shared/public/uploads/media/` |
+| Reference catalog packages | `var/reference/` | `<deploy_path>/shared/var/reference/` — private; keep copies in the private data repository, not in these backups only ([ADR 020](../02-architecture/decisions/020-portable-reference-catalog.md)) |
+| Secrets | `.env.local` | `<deploy_path>/shared/.env.local` — **back up separately**, never inside DB dumps |
 
 Backups are written to `var/backups/` locally (override with `BACKUP_DIR`).
 
@@ -139,22 +139,22 @@ Deployer keeps persistent data outside release directories ([deployment.md](depl
 
 ### Manual backup commands
 
-From the project root on the server (`~/www/current` or similar):
+From the current release on the server (`<deploy_path>/current`):
 
 ```bash
 # Database (requires pg_dump on PATH and DATABASE_URL in environment)
-cd ~/www/current
+cd <deploy_path>/current
 set -a && source ../shared/.env.local && set +a
 BACKUP_DIR=~/backups ./bin/ops/backup-database.sh
 
 # Files (shared paths)
 BACKUP_DIR=~/backups \
-  IMPORTS_DIR=~/www/shared/var/imports \
-  MEDIA_DIR=~/www/shared/public/uploads/media \
+  IMPORTS_DIR=<deploy_path>/shared/var/imports \
+  MEDIA_DIR=<deploy_path>/shared/public/uploads/media \
   ./bin/ops/backup-files.sh
 
 # Secrets (store encrypted or offline — not in the git repo)
-cp ~/www/shared/.env.local ~/backups/env-local-$(date -u +%Y%m%d).bak
+cp <deploy_path>/shared/.env.local ~/backups/env-local-$(date -u +%Y%m%d).bak
 chmod 600 ~/backups/env-local-*.bak
 ```
 
@@ -166,10 +166,10 @@ Schedule regular backups on the server (example — adjust paths and times):
 
 ```cron
 # Daily database dump at 03:00 UTC
-0 3 * * * cd ~/www/current && set -a && source ../shared/.env.local && set +a && BACKUP_DIR=~/backups ./bin/ops/backup-database.sh >> ~/backups/backup.log 2>&1
+0 3 * * * cd <deploy_path>/current && set -a && source ../shared/.env.local && set +a && BACKUP_DIR=~/backups ./bin/ops/backup-database.sh >> ~/backups/backup.log 2>&1
 
 # Weekly file archive on Sunday 04:00 UTC
-0 4 * * 0 BACKUP_DIR=~/backups IMPORTS_DIR=~/www/shared/var/imports MEDIA_DIR=~/www/shared/public/uploads/media ~/www/current/bin/ops/backup-files.sh >> ~/backups/backup.log 2>&1
+0 4 * * 0 BACKUP_DIR=~/backups IMPORTS_DIR=<deploy_path>/shared/var/imports MEDIA_DIR=<deploy_path>/shared/public/uploads/media <deploy_path>/current/bin/ops/backup-files.sh >> ~/backups/backup.log 2>&1
 
 # Retention: delete dumps older than 30 days
 15 5 * * * find ~/backups -name 'ivena-stats-*' -mtime +30 -delete
@@ -199,7 +199,7 @@ Cron is configured on Uberspace outside this repository.
 2. Restore from the latest good `.dump`:
 
    ```bash
-   cd ~/www/current
+   cd <deploy_path>/current
    set -a && source ../shared/.env.local && set +a
    RESTORE_CONFIRM=yes BACKUP_FILE=~/backups/ivena-stats-db-YYYYMMDD-HHMMSS.dump ./bin/ops/restore-database.sh
    ```
@@ -218,8 +218,8 @@ Cron is configured on Uberspace outside this repository.
 ### 2. Import and media files
 
 ```bash
-cd ~/www
-tar -xzf ~/backups/ivena-stats-files-YYYYMMDD-HHMMSS.tar.gz -C ~/www/shared
+cd <deploy_path>
+tar -xzf ~/backups/ivena-stats-files-YYYYMMDD-HHMMSS.tar.gz -C <deploy_path>/shared
 # archives contain paths relative to their source roots (var/imports, public/uploads/media)
 ```
 
@@ -230,8 +230,8 @@ Verify permissions on `shared/var/imports` and `shared/public/uploads/media` (wr
 Only if the secrets file was lost or corrupted:
 
 ```bash
-cp ~/backups/env-local-YYYYMMDD.bak ~/www/shared/.env.local
-chmod 600 ~/www/shared/.env.local
+cp ~/backups/env-local-YYYYMMDD.bak <deploy_path>/shared/.env.local
+chmod 600 <deploy_path>/shared/.env.local
 systemctl --user restart messenger
 ```
 

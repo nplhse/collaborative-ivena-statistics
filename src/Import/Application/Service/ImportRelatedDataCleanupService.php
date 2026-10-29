@@ -18,6 +18,7 @@ use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGro
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 
 final readonly class ImportRelatedDataCleanupService
 {
@@ -32,6 +33,7 @@ final readonly class ImportRelatedDataCleanupService
         private ProjectionOverviewChangeDetectorInterface $projectionOverviewChangeDetector,
         private MaterializedViewRefresherInterface $materializedViewRefresher,
         private ClosureRebuildRequestInterface $closureRebuildScheduler,
+        #[Target('import')]
         private LoggerInterface $importLogger,
         private ImportFileStorage $fileStorage,
     ) {

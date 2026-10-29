@@ -15,6 +15,7 @@ use App\Import\Infrastructure\Security\Voter\ImportVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
@@ -37,6 +38,7 @@ final readonly class DeleteImportsMessageHandler
         private ImportRelatedDataCleanupService $relatedDataCleanup,
         private AuthorizationCheckerInterface $authorizationChecker,
         private ImportBulkDeletionPublisherInterface $publisher,
+        #[Target('import')]
         private LoggerInterface $importLogger,
     ) {
     }

@@ -35,7 +35,6 @@
 | [closed-department-assignments.md](closed-department-assignments.md) | Notzuweisungen / forced assignments |
 | [closure-analytics.md](closure-analytics.md) | Interval-based closure analytics |
 | [closure-architecture.md](closure-architecture.md) | Source rows, analysis intervals, events, and the volume projection |
-| [closure-architecture-assessment.md](closure-architecture-assessment.md) | Bestandsaufnahme vom 5. Oktober 2026; Entscheidungen stehen in closure-architecture.md |
 | [hospital-population.md](hospital-population.md) | Hospital population dashboard (Participation / Coverage / Beds / Allocations) |
 | [directional-indicators.md](directional-indicators.md) | Shared delta colour, sign, and unit |
 | [ranking-table.md](ranking-table.md) | Ranking table separate from DataTable |

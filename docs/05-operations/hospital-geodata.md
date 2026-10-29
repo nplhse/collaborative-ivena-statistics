@@ -80,7 +80,7 @@ php bin/console app:geo:fetch-isochrones --state-id=<stateId> --participating-on
 
 `--force` on isochrones is needed when cutting over files that have no `properties.origin` yet. After that, a later geocode that moves a hospital is picked up by `app:geo:fetch-isochrones --apply` **without** `--force`.
 
-On production, run from the current release after deploy (`cd ~/www/current`). Keep `var/geo/hospital-isochrones` as a Deployer **shared** directory so files survive releases. See [deployment.md](deployment.md).
+On production, run from the current release after deploy (`cd <deploy_path>/current`, see [paths on the server](deployment.md#paths-on-the-server)). Keep `var/geo/hospital-isochrones` as a Deployer **shared** directory so files survive releases. See [deployment.md](deployment.md).
 
 ## First-time setup or cut-over from city centroids
 

@@ -9,6 +9,7 @@
 | Document | Type | Description |
 |----------|------|-------------|
 | [deployment.md](deployment.md) | Guide | Deployer, prerequisites, deploy flow |
+| [upgrading.md](upgrading.md) | Runbook | Configuration changes and one-time commands when upgrading an existing installation |
 | [messenger-workers.md](messenger-workers.md) | Guide | systemd worker setup on Uberspace |
 | [messenger-monitoring.md](messenger-monitoring.md) | Guide | Messenger page, scheduler job runs, health checks, retention, runbooks |
 | [transactional-mail.md](transactional-mail.md) | Guide | Mail transport, `APP_URL`, deliverability |
@@ -26,14 +27,15 @@
 ## Reading order
 
 1. [deployment.md](deployment.md)
-2. [messenger-workers.md](messenger-workers.md)
-3. [messenger-monitoring.md](messenger-monitoring.md)
-4. [backup-restore.md](backup-restore.md)
-5. [health-check.md](health-check.md)
-6. [troubleshooting.md](troubleshooting.md)
-7. [audit-log-maintenance.md](audit-log-maintenance.md) (when cleaning up historical audit noise)
-8. [hospital-geodata.md](hospital-geodata.md) (when geocoding hospitals or fetching isochrones for a state)
-9. [demo-environment.md](demo-environment.md) (when preparing a presentation)
-10. [Indication corruption repair](../04-features/import/repair-indication-corruption.md) (when applying issue 521 on production)
+2. [upgrading.md](upgrading.md) (before deploying a new release to an existing installation)
+3. [messenger-workers.md](messenger-workers.md)
+4. [messenger-monitoring.md](messenger-monitoring.md)
+5. [backup-restore.md](backup-restore.md)
+6. [health-check.md](health-check.md)
+7. [troubleshooting.md](troubleshooting.md)
+8. [audit-log-maintenance.md](audit-log-maintenance.md) (when cleaning up historical audit noise)
+9. [hospital-geodata.md](hospital-geodata.md) (when geocoding hospitals or fetching isochrones for a state)
+10. [demo-environment.md](demo-environment.md) (when preparing a presentation)
+11. [Indication corruption repair](../04-features/import/repair-indication-corruption.md) (when applying issue 521 on production)
 
 Other role-based paths: [../README.md#reading-paths](../README.md#reading-paths)

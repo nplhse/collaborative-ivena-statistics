@@ -11,6 +11,7 @@ use App\Shared\Infrastructure\Monitoring\JobRun\JobRunTrace;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceWindow;
 use Psr\Log\LoggerInterface;
 use Sentry\State\HubInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 
 /**
  * Records one closure rebuild run: a job_run row, a Sentry transaction with spans per pass, hospital,
@@ -45,6 +46,7 @@ final class ClosureRebuildTelemetry
         private readonly JobRunRecorder $recorder,
         private readonly JobRunThresholdConfig $thresholdConfig,
         private readonly HubInterface $hub,
+        #[Target('closure_rebuild')]
         private readonly LoggerInterface $closureRebuildLogger,
     ) {
     }

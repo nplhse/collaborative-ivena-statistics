@@ -195,8 +195,6 @@ deptrac:
       - App\Content\Infrastructure\Repository\PostCommentRepository
     App\Content\Domain\Entity\PostTag:
       - App\Content\Infrastructure\Repository\PostTagRepository
-    App\Content\Infrastructure\Repository\PostRepository:
-      - App\Content\UI\Http\DTO\BlogListQueryParametersDTO
     App\Content\UI\Http\Controller\BlogController:
       - App\Content\Infrastructure\Repository\PostCategoryRepository
       - App\Content\Infrastructure\Repository\PostCommentRepository
@@ -204,8 +202,6 @@ deptrac:
       - App\Content\Infrastructure\Repository\PostTagRepository
     App\Content\UI\Http\Controller\DefaultController:
       - App\Content\Infrastructure\Repository\PostRepository
-    App\Content\UI\Http\Controller\PageController:
-      - App\Content\Infrastructure\Repository\PageRepository
     App\Engagement\Application\MonthlyReminderSender:
       - App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository
       - App\User\Domain\Entity\User
@@ -286,14 +282,6 @@ deptrac:
       - App\Import\UI\Http\DTO\ImportRejectQueryParametersDTO
     App\Import\Infrastructure\Query\ListImportsQuery:
       - App\Import\UI\Http\DTO\ListImportQueryParametersDTO
-      - App\User\Domain\Entity\User
-    App\Import\Infrastructure\Repository\ImportRepository:
-      - App\User\Domain\Entity\User
-    App\Import\Infrastructure\Resolver\Strategy\IndicationCreationStrategy:
-      - App\User\Domain\Entity\User
-    App\Import\Infrastructure\Security\Voter\ImportVoter:
-      - App\User\Domain\Entity\User
-      - App\User\Domain\Security\UserRole
     App\Import\UI\Console\Command\AnalyzeImportRejectsCommand:
       - App\Import\Infrastructure\Analysis\Export\RejectAnalysisExporterRegistry
     App\Import\UI\Form\ImportCreateType:
@@ -414,7 +402,6 @@ deptrac:
       - App\Statistics\Infrastructure\Query\Overview\CountDistinctHospitalsForStateQuery
     App\Statistics\Application\StatisticsScopeResolver:
       - App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByCohortQuery
-      - App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByDispatchAreaQuery
       - App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByStateQuery
     App\Statistics\Application\SummarizedReport\TransportTimeProfile\TransportTimeProfileBuilder:
       - App\Statistics\UI\Http\Navigation\StatisticsQueryKeys
@@ -439,7 +426,6 @@ deptrac:
       - App\Statistics\Infrastructure\MaterializedView\MaterializedViewRefresher
       - App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups
     App\Statistics\UI\Console\Command\RebuildAllocationStatsProjectionCommand:
-      - App\Statistics\Infrastructure\MaterializedView\MaterializedViewRefresher
       - App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups
     App\Statistics\UI\Console\Command\RefreshMaterializedViewsCommand:
       - App\Statistics\Infrastructure\MaterializedView\MaterializedViewRefresher
@@ -459,7 +445,3 @@ deptrac:
     App\User\Infrastructure\Security\LoginFormAuthenticator:
       - App\User\UI\Form\LoginType
       - App\User\UI\Http\DTO\LoginTypeDTO
-    App\User\UI\Http\Controller\RegistrationController:
-      - App\User\Infrastructure\Security\EmailVerifier
-    App\User\UI\Http\Controller\SettingsController:
-      - App\User\Infrastructure\Security\EmailVerifier

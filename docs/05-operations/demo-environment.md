@@ -245,7 +245,7 @@ APP_ENV=demo php bin/console app:generate:run:list
 APP_ENV=demo php bin/console app:generate:run:show
 ```
 
-Without `--from`/`--to` the dataset ends with the month before last, so the last complete month is left for the CSV upload below. A hospital that already has generated data is refused unless `--existing=fill` or `--existing=replace` is given; real uploads are never touched. Details: [fixtures.md](../03-development/fixtures.md#datasets-for-several-hospitals-and-months).
+Without `--from`/`--to` the dataset ends with the month before last, so the last complete month is left for the CSV upload below. A hospital that already has generated data is refused unless `--existing=fill` or `--existing=replace` is given; real uploads are never touched. Details: [synthetic-data-generator.md](../03-development/synthetic-data-generator.md#datasets-for-several-hospitals-and-months).
 
 See [ADR 023](../02-architecture/decisions/023-demo-environment.md#generation-runs-791-step-3).
 

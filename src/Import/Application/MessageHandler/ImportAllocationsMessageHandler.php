@@ -38,6 +38,7 @@ use App\Shared\Infrastructure\Audit\AuditContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -51,6 +52,7 @@ final readonly class ImportAllocationsMessageHandler
         private AllocationImporterFactory $importFactory,
         private RowReaderFactory $rowReaderFactory,
         private RejectWriterFactory $rejectWriterFactory,
+        #[Target('import')]
         private LoggerInterface $importLogger,
         private EventDispatcherInterface $dispatcher,
         private ImportPreviousRunCleanupService $previousRunCleanupService,

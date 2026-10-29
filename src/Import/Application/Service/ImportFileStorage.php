@@ -7,6 +7,7 @@ namespace App\Import\Application\Service;
 use App\Import\Application\Exception\ImportFilePathOutsideBaseException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
@@ -19,6 +20,7 @@ final readonly class ImportFileStorage
         #[Autowire(param: 'app.imports_base_dir')]
         private string $importsBaseDir,
         private Filesystem $filesystem,
+        #[Target('import')]
         private LoggerInterface $importLogger,
     ) {
     }

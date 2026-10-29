@@ -7,6 +7,7 @@ namespace App\Import\Application\Repair;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 
 final readonly class QuoteBrokenImportDiscoveryService
 {
@@ -14,6 +15,7 @@ final readonly class QuoteBrokenImportDiscoveryService
     public function __construct(
         private Connection $connection,
         private ImportSourceFileGate $sourceFileGate,
+        #[Target('import')]
         private LoggerInterface $importLogger,
     ) {
     }

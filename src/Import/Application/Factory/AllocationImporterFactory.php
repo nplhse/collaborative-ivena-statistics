@@ -11,6 +11,7 @@ use App\Import\Application\Contracts\RowTypeDetectorInterface;
 use App\Import\Application\Service\AllocationImporter;
 use App\Import\Application\Service\AllocationRowProcessorRegistry;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 
 final readonly class AllocationImporterFactory
 {
@@ -18,6 +19,7 @@ final readonly class AllocationImporterFactory
         private RowTypeDetectorInterface $rowTypeDetector,
         private AllocationRowProcessorRegistry $processorRegistry,
         private AllocationPersisterInterface $persister,
+        #[Target('import')]
         private LoggerInterface $importLogger,
     ) {
     }

@@ -2,7 +2,7 @@
 
 **Audience:** Developers and operators who start, requeue or debug imports.
 
-An **import run** is one deliberate processing request for an import: an upload, a reprocess from the import detail page, one `app:import:start` call, or one item of an `app:import:requeue-all` batch. Every run is stored as an `ImportRun` row (`import_run` table) in the `Import` context. Background and rules: [ADR 016](../../02-architecture/decisions/016-notification-system.md#import-runs-importrun_finished).
+An **import run** is one deliberate processing request for an import: an upload, a reprocess from the import detail page, one `app:import:start` call, or one item of an `app:import:requeue-all` batch. Every run is stored as an `ImportRun` row (`import_run` table) in the `Import` context. Background and rules: [ADR 016](../../02-architecture/decisions/016-notification-system.md#import-runs-importcompleted-importfailed).
 
 ## What a run stores
 
