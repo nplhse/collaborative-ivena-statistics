@@ -2,6 +2,8 @@
 
 This application is deployed with [Deployer](https://deployer.org/) using the Symfony recipe. Production runs on [Uberspace](https://uberspace.de/) with a **user systemd** service for the Symfony Messenger worker.
 
+Upgrading an existing installation to a new release needs configuration changes and one-time commands that a deploy does not run: see [upgrading.md](upgrading.md).
+
 ## Quick operations
 
 Most common commands:
