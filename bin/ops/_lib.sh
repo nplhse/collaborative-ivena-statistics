@@ -69,9 +69,9 @@ ops_database_user_from_url() {
     echo "${userinfo%%:*}"
 }
 
-# pg_restore -l lines to skip (PostGIS / extensions from shared hosting dumps).
+# pg_restore -l lines to skip (pre-created public schema and PostGIS objects).
 ops_pg_restore_toc_exclude_ere() {
-    echo 'EXTENSION|spatial_ref_sys|geometry_columns|geography_columns'
+    echo 'EXTENSION|spatial_ref_sys|geometry_columns|geography_columns|^[0-9]+; [0-9]+ [0-9]+ SCHEMA - public( |$)'
 }
 
 # Extra pg_dump flags so backups stay app-schema-only on hosts with PostGIS in public.

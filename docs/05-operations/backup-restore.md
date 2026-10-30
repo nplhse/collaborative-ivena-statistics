@@ -213,7 +213,7 @@ Cron is configured on Uberspace outside this repository.
 
 4. Smoke test: `curl -sS https://<host>/health | jq` (expect HTTP 200, `checks.database: ok`), then login, import list, statistics dashboard.
 
-`restore-database.sh` drops and recreates schema `public` (`DROP SCHEMA public CASCADE`), then restores from the dump without `--clean`. PostGIS extensions and tables (`spatial_ref_sys`, …) listed in the dump TOC are skipped so restores work on plain Postgres (e.g. local Docker) even when the dump came from a host with PostGIS. Schema drift after restore is unlikely if the dump matches the deployed code version; if not, run `php bin/console doctrine:migrations:status`.
+`restore-database.sh` drops and recreates schema `public` (`DROP SCHEMA public CASCADE`), then restores from the dump without `--clean`. The `SCHEMA - public` TOC entry is skipped because the script already created that schema. PostGIS extensions and tables (`spatial_ref_sys`, …) listed in the dump TOC are skipped so restores work on plain Postgres (e.g. local Docker) even when the dump came from a host with PostGIS. Schema drift after restore is unlikely if the dump matches the deployed code version; if not, run `php bin/console doctrine:migrations:status`.
 
 ### 2. Import and media files
 
