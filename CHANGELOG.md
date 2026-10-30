@@ -259,6 +259,8 @@ Existing installations: follow the [upgrade guide](docs/05-operations/upgrading.
 - **fixtures:** Describe the limitations of the synthetic data generator (#874) ([#885](https://github.com/nplhse/collaborative-ivena-statistics/pull/885))
 - **deployment:** Recommend trusted hosts and proxies for production (#925) ([#932](https://github.com/nplhse/collaborative-ivena-statistics/pull/932))
 - Add a changelog with the 0.2-beta section ([#941](https://github.com/nplhse/collaborative-ivena-statistics/pull/941))
+- **changelog:** Align the #943 entry and list #941 ([#945](https://github.com/nplhse/collaborative-ivena-statistics/pull/945))
+- **changelog:** List the last pull requests before the release ([#948](https://github.com/nplhse/collaborative-ivena-statistics/pull/948))
 
 ### Tests
 
@@ -297,6 +299,7 @@ Existing installations: follow the [upgrade guide](docs/05-operations/upgrading.
   - **operations:** Add the v0.1-beta to v0.2-beta upgrade guide (#926) ([#937](https://github.com/nplhse/collaborative-ivena-statistics/pull/937))
   - **fixtures:** Move the generator guide out of fixtures.md (#926) ([#938](https://github.com/nplhse/collaborative-ivena-statistics/pull/938))
   - **statistics:** Remove the closure architecture assessment (#926) ([#939](https://github.com/nplhse/collaborative-ivena-statistics/pull/939))
+- Update the app version to v0.2-beta ([#946](https://github.com/nplhse/collaborative-ivena-statistics/pull/946))
 
 ### Dependencies
 
