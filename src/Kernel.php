@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 final class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
-    public const string APP_VERSION = 'v0.1-beta';
+    public const string APP_VERSION = 'v0.2-beta';
 
     #[\Override]
     public function boot(): void
