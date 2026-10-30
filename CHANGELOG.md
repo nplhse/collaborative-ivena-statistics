@@ -209,7 +209,7 @@ Existing installations: follow the [upgrade guide](docs/05-operations/upgrading.
 - **fixtures:** Free discarded Faker generators before seeding (#891) ([#924](https://github.com/nplhse/collaborative-ivena-statistics/pull/924))
 - **statistics:** Limit the explorer hospital dimension to admins (#925) ([#930](https://github.com/nplhse/collaborative-ivena-statistics/pull/930))
 - **shared:** Reject backslashes and control characters in redirect targets (#925) ([#931](https://github.com/nplhse/collaborative-ivena-statistics/pull/931))
-- **ops**: skip pre-created public schema during database restore ([#943](https://github.com/nplhse/collaborative-ivena-statistics/pull/943))
+- **ops:** Skip pre-created public schema during database restore ([#943](https://github.com/nplhse/collaborative-ivena-statistics/pull/943))
 
 ### Performance
 
@@ -258,6 +258,7 @@ Existing installations: follow the [upgrade guide](docs/05-operations/upgrading.
 - Conventional commits, English and side-finding issues for agents ([#882](https://github.com/nplhse/collaborative-ivena-statistics/pull/882))
 - **fixtures:** Describe the limitations of the synthetic data generator (#874) ([#885](https://github.com/nplhse/collaborative-ivena-statistics/pull/885))
 - **deployment:** Recommend trusted hosts and proxies for production (#925) ([#932](https://github.com/nplhse/collaborative-ivena-statistics/pull/932))
+- Add a changelog with the 0.2-beta section ([#941](https://github.com/nplhse/collaborative-ivena-statistics/pull/941))
 
 ### Tests
 
