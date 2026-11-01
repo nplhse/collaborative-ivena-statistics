@@ -889,6 +889,18 @@
         <source>admin.user.action.access_grants</source>
         <target>Zugriffsberechtigungen</target>
       </trans-unit>
+      <trans-unit id="admUserCreatedAtDe" resname="admin.user.field.created_at">
+        <source>admin.user.field.created_at</source>
+        <target>Erstellt am</target>
+      </trans-unit>
+      <trans-unit id="admUserFilterParticipantDe" resname="admin.user.filter.participant_permissions">
+        <source>admin.user.filter.participant_permissions</source>
+        <target>Hat Teilnehmer-Berechtigungen</target>
+      </trans-unit>
+      <trans-unit id="admUserHelpIndexDe" resname="admin.user.help.index">
+        <source>admin.user.help.index</source>
+        <target>Sortieren Sie nach „Erstellt am“, um die neuesten Registrierungen zuerst zu sehen. „Hat Teilnehmer-Berechtigungen“ folgt der Rollenhierarchie, Administratoren zählen also als Teilnehmer. Eine fehlende Teilnehmer-Rolle ist kein Grund, ein Konto zu löschen.</target>
+      </trans-unit>
       <trans-unit id="admImportRejectsDe" resname="admin.import.action.rejects">
         <source>admin.import.action.rejects</source>
         <target>Zurückweisungen</target>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\UI\Http\Controller\User;
 
 use App\Admin\Application\Service\HospitalPermissionLabelFormatter;
+use App\Admin\UI\Filter\IdSetFilter;
 use App\Admin\UI\Http\Controller\Hospital\HospitalAccessGrantCrudController;
 use App\Admin\UI\Http\Controller\Hospital\HospitalCrudController;
 use App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository;
@@ -14,10 +15,12 @@ use App\User\Application\Event\UserBecameParticipant;
 use App\User\Application\Event\UserRegistered;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
+use App\User\Infrastructure\Query\UserIdsWithEffectiveRoleQuery;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Option\EA;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
@@ -31,6 +34,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -58,6 +62,7 @@ final class UserCrudController extends AbstractCrudController
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly HospitalAccessGrantRepository $hospitalAccessGrantRepository,
+        private readonly UserIdsWithEffectiveRoleQuery $userIdsWithEffectiveRole,
     ) {
     }
 
@@ -74,7 +79,20 @@ final class UserCrudController extends AbstractCrudController
             ->setEntityLabelInSingular('User')
             ->setEntityLabelInPlural('Users')
             ->setSearchFields(['id', 'username', 'email'])
-            ->setDefaultSort(['username' => 'ASC']);
+            ->setDefaultSort(['username' => 'ASC'])
+            ->setHelp(Crud::PAGE_INDEX, new TranslatableMessage('admin.user.help.index', domain: 'admin'));
+    }
+
+    #[\Override]
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(DateTimeFilter::new('createdAt', new TranslatableMessage('admin.user.field.created_at', domain: 'admin')))
+            ->add(IdSetFilter::new(
+                'participantPermissions',
+                new TranslatableMessage('admin.user.filter.participant_permissions', domain: 'admin'),
+                fn (): array => ($this->userIdsWithEffectiveRole)(UserRole::PARTICIPANT),
+            ));
     }
 
     #[\Override]
@@ -248,6 +266,9 @@ final class UserCrudController extends AbstractCrudController
             ->hideOnIndex();
         yield BooleanField::new('credentialsExpired')
             ->hideOnIndex();
+        yield DateTimeField::new('createdAt', new TranslatableMessage('admin.user.field.created_at', domain: 'admin'))
+            ->setFormat('dd.MM.yyyy HH:mm')
+            ->onlyOnIndex();
         yield ChoiceField::new('roles')
             ->setChoices([
                 'Admin' => UserRole::ADMIN,
@@ -284,7 +305,7 @@ final class UserCrudController extends AbstractCrudController
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
         yield IdField::new('id')
             ->onlyOnDetail();
-        yield DateTimeField::new('createdAt', 'Created')
+        yield DateTimeField::new('createdAt', new TranslatableMessage('admin.user.field.created_at', domain: 'admin'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->onlyOnDetail();
         yield DateTimeField::new('updatedAt', 'Updated')

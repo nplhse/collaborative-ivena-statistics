@@ -8,7 +8,7 @@ Legend: **Full** = create/edit/delete; **Read** = index/detail only; **—** = n
 
 | Entity | CRUD controller | Mode | Notes |
 |--------|-----------------|------|-------|
-| User | `UserCrudController` | Full | concise index; detail has locale, reminder preference, owned hospitals, access grants, timestamps; [conditional delete](#user-accounts) |
+| User | `UserCrudController` | Full | concise index with creation date; [review filters](#review-recent-registrations); detail has locale, reminder preference, owned hospitals, access grants, timestamps; [conditional delete](#user-accounts) |
 | Hospital | `HospitalCrudController` | Full | coordinates, access grants and timestamps on detail |
 | HospitalAccessGrant | `HospitalAccessGrantCrudController` | Full | permission mask UI |
 | Allocation | `AllocationCrudController` | Full | secondary transport/indications, notes |
@@ -72,3 +72,12 @@ Take an account out of use with **disable** (`isEnabled`) unless it is unused an
 **Delete** is offered on index, detail, and edit when the user does not own hospitals and is not the signed-in admin. Batch delete stays disabled.
 
 Do **not** cascade-remove hospitals or allocations. Reassign (or clear) `Hospital.owner` in Hospital CRUD first. Users are also referenced from many non-nullable `createdBy` columns; a delete that still hits a foreign key flashes an error instead of a 500. Disable remains available in every case.
+
+### Review recent registrations
+
+The user index shows **Created at** and can be sorted by it (newest first). Two filters can be combined with each other and with the sort order:
+
+- **Created at**: date range (or a single comparison) on `User.createdAt`.
+- **Has participant permissions**: yes/no on the effective roles, that is the stored roles plus `ROLE_USER`, expanded through the role hierarchy in `security.yaml` (`UserIdsWithEffectiveRoleQuery`). `ROLE_ADMIN` therefore counts as a participant; the enabled flag and hospital grants are not considered. See [permission-model.md](../02-architecture/permission-model.md#global-roles).
+
+Filters, sorting and page stay in the URL through pagination, the detail page and its "back to list" link. After a delete, or a blocked delete, the admin returns to the same filtered list. The filters only help to find accounts; nothing is classified or deleted automatically, and a missing participant role is no reason on its own to delete an account.

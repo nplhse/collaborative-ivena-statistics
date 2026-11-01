@@ -889,6 +889,18 @@
         <source>admin.user.action.access_grants</source>
         <target>Access grants</target>
       </trans-unit>
+      <trans-unit id="admUserCreatedAt" resname="admin.user.field.created_at">
+        <source>admin.user.field.created_at</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="admUserFilterParticipant" resname="admin.user.filter.participant_permissions">
+        <source>admin.user.filter.participant_permissions</source>
+        <target>Has participant permissions</target>
+      </trans-unit>
+      <trans-unit id="admUserHelpIndex" resname="admin.user.help.index">
+        <source>admin.user.help.index</source>
+        <target>Sort by “Created at” to see the newest registrations first. “Has participant permissions” follows the role hierarchy, so administrators count as participants. A missing participant role is not a reason to delete an account.</target>
+      </trans-unit>
       <trans-unit id="admImportRejects" resname="admin.import.action.rejects">
         <source>admin.import.action.rejects</source>
         <target>Rejects</target>
