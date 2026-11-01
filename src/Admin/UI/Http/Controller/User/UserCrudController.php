@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\UI\Http\Controller\User;
 
 use App\Admin\Application\Service\HospitalPermissionLabelFormatter;
+use App\Admin\UI\Filter\IdSetFilter;
 use App\Admin\UI\Http\Controller\Hospital\HospitalAccessGrantCrudController;
 use App\Admin\UI\Http\Controller\Hospital\HospitalCrudController;
 use App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository;
@@ -14,15 +15,23 @@ use App\User\Application\Event\UserBecameParticipant;
 use App\User\Application\Event\UserRegistered;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
+use App\User\Infrastructure\Query\UserIdsWithEffectiveRoleQuery;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query\Expr\OrderBy;
+use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Option\EA;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\BatchActionDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Exception\EntityRemoveException;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -31,6 +40,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -58,6 +68,7 @@ final class UserCrudController extends AbstractCrudController
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly HospitalAccessGrantRepository $hospitalAccessGrantRepository,
+        private readonly UserIdsWithEffectiveRoleQuery $userIdsWithEffectiveRole,
     ) {
     }
 
@@ -77,12 +88,54 @@ final class UserCrudController extends AbstractCrudController
             ->setDefaultSort(['username' => 'ASC']);
     }
 
+    /**
+     * Sorts usernames case-insensitively, like the user list in the frontend; the database
+     * collation would put every capitalised name before the lowercase ones.
+     */
+    #[\Override]
+    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
+    {
+        $queryBuilder = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
+
+        /** @var list<OrderBy> $orderByParts */
+        $orderByParts = $queryBuilder->getDQLPart('orderBy');
+        $queryBuilder->resetDQLPart('orderBy');
+        foreach ($orderByParts as $orderBy) {
+            $parts = $orderBy->getParts();
+            if (1 === \count($parts) && 1 === preg_match('/^(\w+)\.username (ASC|DESC)$/i', $parts[0], $match)) {
+                $queryBuilder
+                    ->addSelect(\sprintf('LOWER(%s.username) AS HIDDEN usernameSort', $match[1]))
+                    ->addOrderBy('usernameSort', $match[2])
+                    ->addOrderBy($match[1].'.username', $match[2]);
+
+                continue;
+            }
+
+            $queryBuilder->add('orderBy', $orderBy, true);
+        }
+
+        return $queryBuilder;
+    }
+
+    #[\Override]
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(DateTimeFilter::new('createdAt', new TranslatableMessage('admin.user.field.created_at', domain: 'admin')))
+            ->add(IdSetFilter::new(
+                'participantPermissions',
+                new TranslatableMessage('admin.user.filter.participant_permissions', domain: 'admin'),
+                fn (): array => ($this->userIdsWithEffectiveRole)(UserRole::PARTICIPANT),
+            ));
+    }
+
     #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         return $actions
             ->disable(Action::BATCH_DELETE)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_INDEX, $this->createNewestNonParticipantsAction())
             ->add(Crud::PAGE_INDEX, $this->createImpersonateAction())
             ->add(Crud::PAGE_DETAIL, $this->createImpersonateAction())
             ->add(Crud::PAGE_DETAIL, $this->createAccessGrantsAction())
@@ -174,6 +227,27 @@ final class UserCrudController extends AbstractCrudController
         );
     }
 
+    /**
+     * Shortcut for reviewing recent registrations: accounts without participant permissions,
+     * newest first.
+     */
+    private function createNewestNonParticipantsAction(): Action
+    {
+        return Action::new(
+            'newestNonParticipants',
+            new TranslatableMessage('admin.user.action.newest_non_participants', domain: 'admin'),
+            'fas fa-user-clock',
+        )
+            ->createAsGlobalAction()
+            ->linkToUrl(fn (): string => $this->adminUrlGenerator
+                ->unsetAll()
+                ->setController(self::class)
+                ->setAction(Action::INDEX)
+                ->set(EA::FILTERS, ['participantPermissions' => '0'])
+                ->set(EA::SORT, ['createdAt' => 'DESC'])
+                ->generateUrl());
+    }
+
     private function createAccessGrantsAction(): Action
     {
         return Action::new(
@@ -248,6 +322,9 @@ final class UserCrudController extends AbstractCrudController
             ->hideOnIndex();
         yield BooleanField::new('credentialsExpired')
             ->hideOnIndex();
+        yield DateTimeField::new('createdAt', new TranslatableMessage('admin.user.field.created_at', domain: 'admin'))
+            ->setFormat('dd.MM.yyyy HH:mm')
+            ->onlyOnIndex();
         yield ChoiceField::new('roles')
             ->setChoices([
                 'Admin' => UserRole::ADMIN,
@@ -284,7 +361,7 @@ final class UserCrudController extends AbstractCrudController
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
         yield IdField::new('id')
             ->onlyOnDetail();
-        yield DateTimeField::new('createdAt', 'Created')
+        yield DateTimeField::new('createdAt', new TranslatableMessage('admin.user.field.created_at', domain: 'admin'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->onlyOnDetail();
         yield DateTimeField::new('updatedAt', 'Updated')

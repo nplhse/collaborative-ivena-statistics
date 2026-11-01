@@ -889,6 +889,18 @@
         <source>admin.user.action.access_grants</source>
         <target>Zugriffsberechtigungen</target>
       </trans-unit>
+      <trans-unit id="admUserCreatedAtDe" resname="admin.user.field.created_at">
+        <source>admin.user.field.created_at</source>
+        <target>Erstellt am</target>
+      </trans-unit>
+      <trans-unit id="admUserFilterParticipantDe" resname="admin.user.filter.participant_permissions">
+        <source>admin.user.filter.participant_permissions</source>
+        <target>Hat Teilnehmer-Berechtigungen</target>
+      </trans-unit>
+      <trans-unit id="admUserNewestNonPartDe" resname="admin.user.action.newest_non_participants">
+        <source>admin.user.action.newest_non_participants</source>
+        <target>Evtl. unbekannte Nutzer</target>
+      </trans-unit>
       <trans-unit id="admImportRejectsDe" resname="admin.import.action.rejects">
         <source>admin.import.action.rejects</source>
         <target>Zurückweisungen</target>
