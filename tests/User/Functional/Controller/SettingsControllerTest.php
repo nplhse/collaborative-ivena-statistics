@@ -189,6 +189,74 @@ final class SettingsControllerTest extends WebTestCase
         $browser->click('Resend verification email')->assertSee('Please wait before requesting another verification email.');
     }
 
+    public function testResendVerificationForVerifiedUserReturnsToAccountPage(): void
+    {
+        $user = UserFactory::new([
+            'email' => 'resend-verified@example.test',
+            'isVerified' => true,
+            'username' => 'resend-verified-user',
+        ])->create();
+
+        $browser = $this->loginWithConsent($this->browser(), 'resend-verified-user');
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        $user->setIsVerified(false);
+        \Zenstruck\Foundry\Persistence\save($user);
+
+        $browser->visit('/settings/account')->assertSee('Resend verification email');
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        $user->setIsVerified(true);
+        \Zenstruck\Foundry\Persistence\save($user);
+
+        $browser
+            ->click('Resend verification email')
+            ->assertOn('/settings/account')
+            ->assertSee('Your email is already verified.')
+        ;
+    }
+
+    public function testEmailChangeReturnsToAccountPage(): void
+    {
+        $user = UserFactory::new([
+            'email' => 'email-change@example.test',
+            'isVerified' => true,
+            'username' => 'email-change-user',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'email-change-user')
+            ->visit('/settings/email')
+            ->fillField('settings_email[email]', 'email-changed@example.test')
+            ->click('Save email')
+            ->assertOn('/settings/account')
+            ->assertSee('Email address updated. Please verify your new email.')
+            ->assertSeeElement('input[value="email-changed@example.test"][readonly]')
+        ;
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        self::assertSame('email-changed@example.test', $user->getEmail());
+        self::assertFalse($user->isVerified());
+    }
+
+    public function testPasswordChangeReturnsToAccountPage(): void
+    {
+        UserFactory::new([
+            'email' => 'pwd-change@example.test',
+            'isVerified' => true,
+            'username' => 'pwd-change-user',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'pwd-change-user')
+            ->visit('/settings/password')
+            ->fillField('Current password', 'password')
+            ->fillField('New password', 'Gr33n-Valley-Lantern-42!')
+            ->fillField('Repeat new password', 'Gr33n-Valley-Lantern-42!')
+            ->click('Save password')
+            ->assertOn('/settings/account')
+            ->assertSee('Password updated.')
+        ;
+    }
+
     public function testRememberMeUserIsRedirectedToConfirmPasswordForPasswordPage(): void
     {
         UserFactory::new([
