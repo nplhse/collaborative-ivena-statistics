@@ -46,7 +46,7 @@ research. Real clinical data is never part of the repository; local work uses sy
     tests ([testing.md](docs/03-development/testing.md#time-in-code-and-tests), ADR 021).
   - New analytical reads go into query classes under `Infrastructure/Query/`, not into large
     repositories (ADR 009).
-- Migrations: never edit one that is already on `main`; new ones follow
+- Migrations: never edit one that is already on `develop` or `main`; new ones follow
   [development-workflow.md](docs/03-development/development-workflow.md#migrations).
 
 ## Changes to statistics
@@ -100,6 +100,22 @@ Details and the single check targets: [development-workflow.md](docs/03-developm
   - Breaking changes get `!` after the type/scope and a `BREAKING CHANGE:` footer.
 - One logical change per commit; the pull request title summarises the whole change in the same
   format.
+
+## Branches and releases
+
+The project follows Gitflow with `main` as the default branch (ADR 024). Steps and checklists:
+[development-workflow.md](docs/03-development/development-workflow.md#branches-releases-and-hotfixes).
+
+- Branch from `origin/develop` and open pull requests with `gh pr create --base develop`. GitHub
+  proposes `main`; a pull request into `main` from any other branch fails the source branch check.
+- `main` only receives `release/*` and `hotfix/*` pull requests. Create those branches, bump the
+  version, publish a release or tag only when the user asks for it.
+- Larger issues: integration branch from `develop`, one pull request per step into it, final pull
+  request into `develop`.
+- Merge commits only. Never rebase or force-push `main`, `develop`, `release/*`, `hotfix/*` or an
+  integration branch.
+- Do not edit `CHANGELOG.md` in regular pull requests; the section is written on the release or
+  hotfix branch.
 
 ## Side findings
 

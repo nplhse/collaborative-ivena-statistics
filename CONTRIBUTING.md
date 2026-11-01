@@ -8,10 +8,14 @@ Coding agents start at [AGENTS.md](AGENTS.md). It points to the same documentati
 However, you should follow the following simple guidelines for your contribution to be properly received:
 
 -   Contributions are accepted via pull requests on
-    [GitHub](https://github.com/nplhse/collaborative-ivena-statistics). Work on a branch from `main` and open the
-    pull request against `main`. Larger issues use an integration branch `feature/<topic>`: each step gets its own
-    branch and pull request into it, and a final pull request to `main` closes the issue. A switch to the
-    [GitFlow branching model](http://nvie.com/posts/a-successful-git-branching-model/) is planned after beta v0.2.
+    [GitHub](https://github.com/nplhse/collaborative-ivena-statistics). The project follows the
+    [Gitflow branching model](http://nvie.com/posts/a-successful-git-branching-model/) with `main` as the default
+    branch: work on a branch from `develop` and open the pull request against `develop` (GitHub proposes `main`).
+    `main` only receives release and hotfix branches. Larger issues use an integration branch `feature/<topic>`
+    from `develop`: each step gets its own branch and pull request into it, and a final pull request to `develop`
+    closes the issue. Pull requests do not edit `CHANGELOG.md`; it is written when a release is prepared. Details:
+    [branches, releases and hotfixes](docs/03-development/development-workflow.md#branches-releases-and-hotfixes)
+    and [ADR 024](docs/02-architecture/decisions/024-gitflow-with-main-as-default-branch.md).
 -   Please keep in mind, that this project follows [SemVer v2.0.0](http://semver.org/).
 -   Commit messages and pull request titles follow
     [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/), for example

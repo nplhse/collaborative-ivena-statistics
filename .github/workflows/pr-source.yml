@@ -1,0 +1,29 @@
+name: "Pull request source"
+
+# Gitflow (ADR 024): main only receives release/* and hotfix/* branches.
+# Regular pull requests go to develop; change the base if this check fails.
+on:
+    pull_request:
+        branches:
+            - main
+        types: [opened, reopened, synchronize, edited]
+
+permissions: {}
+
+jobs:
+    source-branch:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check the source branch
+              env:
+                  HEAD_REF: ${{ github.head_ref }}
+              run: |
+                  case "$HEAD_REF" in
+                      release/*|hotfix/*)
+                          echo "Source branch $HEAD_REF may be merged into main."
+                          ;;
+                      *)
+                          echo "::error::Pull requests into main must come from release/* or hotfix/*, not $HEAD_REF. Change the base to develop (or, for a Dependabot security update, to a hotfix branch)."
+                          exit 1
+                          ;;
+                  esac

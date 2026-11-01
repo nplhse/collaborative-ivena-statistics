@@ -16,9 +16,11 @@ First-time setup details: [../01-getting-started/local-setup.md](../01-getting-s
 A new worktree has no `vendor/`, no `node_modules/`, no local env files and cold caches for the code checks. `bin/worktree-init` takes all of that from an existing checkout, so checks and tests run right away:
 
 ```bash
-git worktree add -b feature/my-topic ../my-topic origin/main
+git worktree add -b feature/my-topic ../my-topic origin/develop
 bin/worktree-init ../my-topic
 ```
+
+Branch from `origin/develop` for regular work, from `origin/main` only for a hotfix ([Branches, releases and hotfixes](#branches-releases-and-hotfixes)).
 
 What it does, from the main checkout (or the checkout given as second argument):
 
@@ -184,7 +186,70 @@ New migrations:
 
 - Generate them with `php bin/console doctrine:migrations:diff` (or `make:migration`) and review the SQL.
 - Name the version with the actual current time, `Version<YYYYMMDDHHMMSS>` (`date '+%Y%m%d%H%M%S'`), never a rounded value such as `Version20261014190000`. If you rename one that already ran locally, update `doctrine_migration_versions` too.
-- Never edit a migration that is already on `main`; add a new one instead.
+- Never edit a migration that is already on `develop` (or on `main`); add a new one instead. Other checkouts and the next release already depend on it.
+
+## Branches, releases and hotfixes
+
+The project follows Gitflow with `main` as the default branch ([ADR 024](../02-architecture/decisions/024-gitflow-with-main-as-default-branch.md)). `main` holds the released state only; regular work goes to `develop`.
+
+| Branch | From | Pull request into |
+|---|---|---|
+| `feature/*`, `fix/*`, `docs/*`, … | `develop` | `develop` |
+| integration branch `feature/<topic>` | `develop` | `develop` (steps: into the integration branch) |
+| `release/<version>` | `develop` | `main`, then `main` back into `develop` |
+| `hotfix/<version>` | `main` | `main`, then `main` back into `develop` |
+
+- Every change goes through a pull request; nothing is pushed directly to `main` or `develop`.
+- GitHub proposes `main` as the base. Open regular pull requests with `gh pr create --base develop`. The workflow *Pull request source* fails pull requests into `main` that do not come from `release/*` or `hotfix/*`; change their base to `develop`.
+- Merge with merge commits. Never rebase or force-push `main`, `develop`, `release/*`, `hotfix/*` or an integration branch.
+- Pull requests do not edit `CHANGELOG.md`; the section is written on the release or hotfix branch ([Changelog](#changelog)).
+- Larger issues keep the integration branch with one pull request per step. The integration branch starts from `develop`; its final pull request into `develop` closes the issue.
+
+### Releases
+
+Release `0.3-beta` as an example. Every step on the release branch is a pull request into `release/0.3-beta`; the branch only takes fixes, version and docs, no new features.
+
+1. **Milestone:** no open issues or pull requests left in the milestone; move what does not make it.
+2. **Branch:** create `release/0.3-beta` from `origin/develop` and push it.
+3. **Version:** set `APP_VERSION` in `src/Kernel.php` to `v0.3-beta`. It feeds the footer, the health check and the Sentry release.
+4. **Changelog:** write the `## [0.3-beta] - <date>` section ([Changelog](#changelog)), with a short summary and, if needed, a link to the upgrade guide.
+5. **Upgrade guide:** add a section for the new version to [upgrading.md](../05-operations/upgrading.md) (configuration changes, preconditions, one-time commands), or state that none are needed.
+6. **Security policy:** update the supported versions in [SECURITY.md](../../SECURITY.md).
+7. **Security audit:** run the pre-release security review and `make audit`; fix findings on the release branch or record follow-up issues.
+8. **Pull request into `main`:** open `release/0.3-beta` → `main` and wait until the GitHub checks are green.
+9. **Release notes:** create a draft GitHub release `v0.3-beta` (pre-release during the beta) with target `main`. Generate the notes from the changelog section, point links into `docs/` at the tag (`blob/v0.3-beta/docs/…`) and add a full-changelog compare link. Review the order and wording of the entries.
+10. **Merge and publish:** merge the pull request into `main`, then publish the draft. Publishing creates the tag on the merge commit.
+11. **Back-merge:** open a pull request `main` → `develop` and merge it, so `develop` contains the version, the changelog and every fix from the release branch.
+12. **Deploy** `main` and follow the upgrade guide on the server.
+
+### Hotfixes
+
+A hotfix fixes the released version: a security problem or a critical bug that cannot wait for the next release. During the beta only the latest beta gets hotfixes ([SECURITY.md](../../SECURITY.md)).
+
+1. Create `hotfix/0.2.1-beta` from `origin/main`.
+2. Fix with a test, as small as possible. Bump `APP_VERSION` to `v0.2.1-beta` and add a `## [0.2.1-beta] - <date>` section to the changelog.
+3. Open the pull request into `main`, then follow steps 9 to 12 of the release checklist with `v0.2.1-beta`.
+4. If a release branch is open, also merge the hotfix into it, or make sure the back-merge into `develop` reaches it.
+
+**Dependabot security updates** open pull requests against `main` with the labels `security` and `hotfix`. Decide per pull request:
+
+- The dependency reaches production: create a hotfix branch from `main`, change the Dependabot pull request's base to it, merge it there and continue with step 2.
+- Development-only dependency or no runtime impact: close it; the next version update on `develop` brings the fix.
+
+### Changelog
+
+[CHANGELOG.md](../../CHANGELOG.md) follows Keep a Changelog. Each release or hotfix section is written once, on its branch, from the pull requests merged since the previous tag:
+
+```bash
+gh pr list --state merged --search "merged:>=<date of the previous tag>" --limit 500 \
+  --json number,title,baseRefName,author,mergedAt
+```
+
+- Group the entries by the Conventional Commits type of the pull request title: Features, Bug fixes, Performance, Refactoring, Documentation, Tests, Build, Continuous integration, Chores, Dependencies, Merges.
+- One line per pull request: scope in bold, description capitalised, link to the pull request, for example ``- **import:** Skip empty rows (#123) ([#124](…/pull/124))``.
+- Step pull requests into an integration branch are nested below the pull request that merged the integration branch.
+- Dependabot updates are one line with the count and all links; back-merges and merges of `develop` into integration branches are one line under Merges.
+- Update the compare links at the bottom of the file.
 
 ## Tips
 
