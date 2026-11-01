@@ -1525,6 +1525,54 @@
         <source>usage_analytics.accesses.note.partial</source>
         <target>Counted from {date}</target>
       </trans-unit>
+      <trans-unit id="uaNav01" resname="usage_analytics.privacy_note">
+        <source>usage_analytics.privacy_note</source>
+        <target>Aggregated usage insights only. No individual users, no user search, no raw identifiers. Usage events require analytics cookie consent.</target>
+      </trans-unit>
+      <trans-unit id="uaNav02" resname="usage_analytics.menu.section">
+        <source>usage_analytics.menu.section</source>
+        <target>Usage analytics</target>
+      </trans-unit>
+      <trans-unit id="uaNav03" resname="usage_analytics.menu.overview">
+        <source>usage_analytics.menu.overview</source>
+        <target>Overview</target>
+      </trans-unit>
+      <trans-unit id="uaNav04" resname="usage_analytics.menu.accesses">
+        <source>usage_analytics.menu.accesses</source>
+        <target>Accesses</target>
+      </trans-unit>
+      <trans-unit id="uaNav05" resname="usage_analytics.menu.adoption">
+        <source>usage_analytics.menu.adoption</source>
+        <target>Adoption</target>
+      </trans-unit>
+      <trans-unit id="uaNav06" resname="usage_analytics.menu.journeys">
+        <source>usage_analytics.menu.journeys</source>
+        <target>Journeys</target>
+      </trans-unit>
+      <trans-unit id="uaNav07" resname="usage_analytics.menu.performance">
+        <source>usage_analytics.menu.performance</source>
+        <target>Performance</target>
+      </trans-unit>
+      <trans-unit id="uaNav08" resname="usage_analytics.tile.overview">
+        <source>usage_analytics.tile.overview</source>
+        <target>Requests, retention, feature areas</target>
+      </trans-unit>
+      <trans-unit id="uaNav09" resname="usage_analytics.tile.accesses">
+        <source>usage_analytics.tile.accesses</source>
+        <target>Page views per month and year since counting started</target>
+      </trans-unit>
+      <trans-unit id="uaNav10" resname="usage_analytics.tile.adoption">
+        <source>usage_analytics.tile.adoption</source>
+        <target>Events, roles, engagement depth</target>
+      </trans-unit>
+      <trans-unit id="uaNav11" resname="usage_analytics.tile.journeys">
+        <source>usage_analytics.tile.journeys</source>
+        <target>Entry and exit routes, navigation</target>
+      </trans-unit>
+      <trans-unit id="uaNav12" resname="usage_analytics.tile.performance">
+        <source>usage_analytics.tile.performance</source>
+        <target>Latency and DB load by feature area</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

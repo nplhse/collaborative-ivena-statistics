@@ -19,7 +19,7 @@
     {{ include('@Admin/dashboard/_failed_imports_table.html.twig') }}
 
     {% for section in dashboard_sections %}
-        <h3 class="h5 text-secondary text-uppercase mb-3">{{ section.title }}</h3>
+        <h3 class="h5 text-secondary text-uppercase mb-3">{{ section.title|trans }}</h3>
         <div class="row mb-4">
             {% for tile in section.tiles %}
                 <div class="col-12 col-sm-6 col-lg-4 mb-3">
@@ -31,14 +31,14 @@
                                         {% if tile.icon %}
                                             <i class="{{ tile.icon }} fa-lg text-secondary" aria-hidden="true"></i>
                                         {% endif %}
-                                        <h4 class="card-title h5 mb-0">{{ tile.label }}</h4>
+                                        <h4 class="card-title h5 mb-0">{{ tile.label|trans }}</h4>
                                     </div>
                                     {% if tile.badge %}
                                         <span class="badge rounded-pill bg-{{ tile.badge.style }}">{{ tile.badge.value }}</span>
                                     {% endif %}
                                 </div>
                                 {% if tile.description %}
-                                    <p class="card-text text-secondary small mb-0">{{ tile.description }}</p>
+                                    <p class="card-text text-secondary small mb-0">{{ tile.description|trans }}</p>
                                 {% endif %}
                             </div>
                         </div>
