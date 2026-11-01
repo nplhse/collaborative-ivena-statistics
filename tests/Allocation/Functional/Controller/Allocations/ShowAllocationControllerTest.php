@@ -38,8 +38,12 @@ final class ShowAllocationControllerTest extends WebTestCase
     use Factories;
     use InteractsWithAuthenticatedUser;
 
-    /** Baseline with eager-loaded allocation graph: ~12 queries (1 allocation + shared layout); pre-fix N+1 path was 27+. */
-    private const int MAX_QUERIES = 15;
+    /**
+     * Baseline with eager-loaded allocation graph: ~12 queries (1 allocation + shared layout); pre-fix N+1 path was 27+.
+     * Plus, since Symfony 8.1.10 collects profiler data after kernel.terminate, the 4 queries of
+     * AnalyticsRequestSubscriber::onKernelTerminate() (consent lookup, then START TRANSACTION, INSERT analytics_request, COMMIT).
+     */
+    private const int MAX_QUERIES = 19;
 
     public function testShowUsesBoundedQueryCount(): void
     {
