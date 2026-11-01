@@ -10,7 +10,7 @@ Collaborative IVENA Statistics is an open-source platform for analysing emergenc
 
 Developed as a collaborative initiative in Hesse, Germany, the project brings together routinely collected data from participating hospitals to better understand emergency patient flows, explore patterns in clinical care, and support multicentre emergency care research.
 
-**[Explore the platform](https://versorgungsforschung.io)** (login required) - **[Documentation](docs/README.md)** - **[Contributing](CONTRIBUTING.md)**
+**[Explore the platform](https://versorgungsforschung.io)** (login required) - **[Documentation](docs/README.md)** - **[Roadmap](docs/roadmap.md)** - **[Contributing](CONTRIBUTING.md)**
 
 ![IVENA Statistics Dashboard](assets/images/home/dashboard.png)
 
