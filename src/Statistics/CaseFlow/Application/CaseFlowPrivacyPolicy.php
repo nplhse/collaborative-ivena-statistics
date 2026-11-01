@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Statistics\CaseFlow\Application;
 
+use App\Statistics\Application\ScopePrivacyPolicy;
+
 final class CaseFlowPrivacyPolicy
 {
-    public const int MIN_HOSPITALS_PER_DESTINATION_POOL = 2;
+    public const int MIN_HOSPITALS_PER_DESTINATION_POOL = ScopePrivacyPolicy::MIN_HOSPITALS;
 
     public const int MIN_CASES_PER_CELL = 10;
 

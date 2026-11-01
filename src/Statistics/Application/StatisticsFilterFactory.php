@@ -95,14 +95,14 @@ final readonly class StatisticsFilterFactory
             }
         }
 
-        if (StatisticsFilterScope::State === $scope && (null === $stateId || ($this->countDistinctHospitalsForStateQuery)($stateId) < 2)) {
+        if (StatisticsFilterScope::State === $scope && (null === $stateId || ($this->countDistinctHospitalsForStateQuery)($stateId) < ScopePrivacyPolicy::MIN_HOSPITALS)) {
             $scope = StatisticsFilterScope::Public;
             $stateId = null;
             $notice = StatisticsFilterNotice::StateInvalid;
             $requiresPublicRedirect = true;
         }
 
-        if (StatisticsFilterScope::DispatchArea === $scope && (null === $dispatchAreaId || ($this->countDistinctHospitalsForDispatchAreaQuery)($dispatchAreaId) < 2)) {
+        if (StatisticsFilterScope::DispatchArea === $scope && (null === $dispatchAreaId || ($this->countDistinctHospitalsForDispatchAreaQuery)($dispatchAreaId) < ScopePrivacyPolicy::MIN_HOSPITALS)) {
             $scope = StatisticsFilterScope::Public;
             $dispatchAreaId = null;
             $notice = StatisticsFilterNotice::DispatchAreaInvalid;

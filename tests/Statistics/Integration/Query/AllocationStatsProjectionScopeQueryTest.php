@@ -67,6 +67,13 @@ final class AllocationStatsProjectionScopeQueryTest extends KernelTestCase
             'tier' => HospitalTier::FULL,
             'location' => HospitalLocation::URBAN,
         ]);
+        $hospitalC = HospitalFactory::createOne([
+            'name' => 'ScopeQueryHospitalC',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
 
         SpecialityFactory::createOne(['name' => 'ScopeQuerySpec']);
         DepartmentFactory::createOne(['name' => 'ScopeQueryDept']);
@@ -79,6 +86,7 @@ final class AllocationStatsProjectionScopeQueryTest extends KernelTestCase
 
         $importA = ImportFactory::createOne(['name' => 'ScopeQueryImportA', 'hospital' => $hospitalA, 'createdBy' => $user]);
         $importB = ImportFactory::createOne(['name' => 'ScopeQueryImportB', 'hospital' => $hospitalB, 'createdBy' => $user]);
+        $importC = ImportFactory::createOne(['name' => 'ScopeQueryImportC', 'hospital' => $hospitalC, 'createdBy' => $user]);
 
         $allocationDefaults = [
             'state' => $state,
@@ -102,10 +110,12 @@ final class AllocationStatsProjectionScopeQueryTest extends KernelTestCase
 
         AllocationFactory::createOne(array_merge($allocationDefaults, ['import' => $importA, 'hospital' => $hospitalA]));
         AllocationFactory::createOne(array_merge($allocationDefaults, ['import' => $importB, 'hospital' => $hospitalB]));
+        AllocationFactory::createOne(array_merge($allocationDefaults, ['import' => $importC, 'hospital' => $hospitalC]));
 
         $rebuilder = self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class);
         $rebuilder->rebuildForImport($importA->getId());
         $rebuilder->rebuildForImport($importB->getId());
+        $rebuilder->rebuildForImport($importC->getId());
 
         $this->refreshStatisticsMaterializedViews();
 
@@ -113,13 +123,13 @@ final class AllocationStatsProjectionScopeQueryTest extends KernelTestCase
         $stateId = $state->getId();
         $dispatchAreaId = $dispatchArea->getId();
 
-        self::assertSame([$hospitalA->getId(), $hospitalB->getId()], $query->distinctHospitalIdsForState($stateId));
-        self::assertSame(2, $query->countDistinctHospitalsForState($stateId));
-        self::assertContains($stateId, $query->stateIdsWithAtLeastDistinctHospitals(2));
+        self::assertSame([$hospitalA->getId(), $hospitalB->getId(), $hospitalC->getId()], $query->distinctHospitalIdsForState($stateId));
+        self::assertSame(3, $query->countDistinctHospitalsForState($stateId));
+        self::assertContains($stateId, $query->stateIdsWithAtLeastDistinctHospitals(3));
 
-        self::assertSame([$hospitalA->getId(), $hospitalB->getId()], $query->distinctHospitalIdsForDispatchArea($dispatchAreaId));
-        self::assertSame(2, $query->countDistinctHospitalsForDispatchArea($dispatchAreaId));
-        self::assertContains($dispatchAreaId, $query->dispatchAreaIdsWithAtLeastDistinctHospitals(2));
+        self::assertSame([$hospitalA->getId(), $hospitalB->getId(), $hospitalC->getId()], $query->distinctHospitalIdsForDispatchArea($dispatchAreaId));
+        self::assertSame(3, $query->countDistinctHospitalsForDispatchArea($dispatchAreaId));
+        self::assertContains($dispatchAreaId, $query->dispatchAreaIdsWithAtLeastDistinctHospitals(3));
 
         $dominant = $query->dominantLocationTierForHospitalIds([$hospitalA->getId(), $hospitalB->getId()]);
         self::assertSame(
@@ -159,7 +169,7 @@ final class AllocationStatsProjectionScopeQueryTest extends KernelTestCase
         );
 
         self::assertEqualsCanonicalizing(
-            [$hospitalA->getId(), $hospitalB->getId()],
+            [$hospitalA->getId(), $hospitalB->getId(), $hospitalC->getId()],
             $scopeCriteria->hospitalIds,
         );
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\Cohort;
 
+use App\Statistics\Application\ScopePrivacyPolicy;
 use App\Statistics\Infrastructure\Query\Overview\CountDistinctHospitalsByCohortQuery;
 
 final class HospitalCohortEligibilityChecker
@@ -16,7 +17,7 @@ final class HospitalCohortEligibilityChecker
     ) {
     }
 
-    public function hasMinimumParticipants(HospitalCohort $cohort, int $minimumParticipants = 2): bool
+    public function hasMinimumParticipants(HospitalCohort $cohort, int $minimumParticipants = ScopePrivacyPolicy::MIN_HOSPITALS): bool
     {
         $cacheKey = $cohort->key->value().'|'.$minimumParticipants;
         if (\array_key_exists($cacheKey, $this->memo)) {

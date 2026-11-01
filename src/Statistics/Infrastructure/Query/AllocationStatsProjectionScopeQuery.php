@@ -142,7 +142,7 @@ final readonly class AllocationStatsProjectionScopeQuery
     /**
      * @return list<int>
      */
-    public function stateIdsWithAtLeastDistinctHospitals(int $minimumParticipants = 2): array
+    public function stateIdsWithAtLeastDistinctHospitals(int $minimumParticipants): array
     {
         /** @var list<int|string> $raw */
         $raw = $this->entityManager->createQueryBuilder()
@@ -161,7 +161,7 @@ final readonly class AllocationStatsProjectionScopeQuery
     /**
      * @return list<int>
      */
-    public function dispatchAreaIdsWithAtLeastDistinctHospitals(int $minimumParticipants = 2): array
+    public function dispatchAreaIdsWithAtLeastDistinctHospitals(int $minimumParticipants): array
     {
         /** @var list<int|string> $raw */
         $raw = $this->entityManager->createQueryBuilder()

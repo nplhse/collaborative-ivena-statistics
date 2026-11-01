@@ -32,7 +32,7 @@ They are created by migration `Version20260519125102` (with unique indexes requi
 Typical flow:
 
 1. Controllers resolve filters (`StatisticsFilterFactory`, `ComparisonScopeResolver`).
-2. Scope resolution may use **materialized views** (e.g. `CountDistinctHospitalsForStateQuery`, `GetDistinctHospitalIdsByStateQuery`) to enforce rules such as “state scope requires at least two hospitals”.
+2. Scope resolution may use **materialized views** (e.g. `CountDistinctHospitalsForStateQuery`, `GetDistinctHospitalIdsByStateQuery`) to enforce rules such as “state scope requires at least three hospitals” (`ScopePrivacyPolicy::MIN_HOSPITALS`).
 3. Dashboard and overview queries often read from the views for performance.
 4. Deeper or legacy comparisons may still use `AllocationStatsProjectionScopeQuery`, which queries `allocation_stats_projection` directly.
 

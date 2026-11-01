@@ -157,10 +157,22 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
             'owner' => $user,
             'createdBy' => $user,
         ]);
+        // Third hospital with cases from area A: dispatch area scopes need ScopePrivacyPolicy::MIN_HOSPITALS (3).
+        // It lies in area B like Klinik B, so the catchment count of area A stays at Klinik A's 12 cases.
+        $hospitalC = HospitalFactory::createOne([
+            'name' => 'GeoSegDaKlinikC',
+            'state' => $state,
+            'dispatchArea' => $areaB,
+            'tier' => HospitalTier::BASIC,
+            'location' => HospitalLocation::RURAL,
+            'owner' => $user,
+            'createdBy' => $user,
+        ]);
 
         $this->seedCatalog();
         $importA = ImportFactory::createOne(['name' => 'GeoSegDaImportA', 'hospital' => $hospitalA, 'createdBy' => $user]);
         $importB = ImportFactory::createOne(['name' => 'GeoSegDaImportB', 'hospital' => $hospitalB, 'createdBy' => $user]);
+        $importC = ImportFactory::createOne(['name' => 'GeoSegDaImportC', 'hospital' => $hospitalC, 'createdBy' => $user]);
 
         AllocationFactory::createMany(12, [
             'import' => $importA,
@@ -180,10 +192,20 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
             'urgency' => AllocationUrgency::EMERGENCY,
             'createdAt' => new \DateTimeImmutable('2026-04-02 09:00:00'),
         ]);
+        AllocationFactory::createMany(4, [
+            'import' => $importC,
+            'hospital' => $hospitalC,
+            'state' => $state,
+            'dispatchArea' => $areaA,
+            'gender' => AllocationGender::FEMALE,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'createdAt' => new \DateTimeImmutable('2026-04-02 09:00:00'),
+        ]);
 
         $rebuilder = self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class);
         $rebuilder->rebuildForImport($importA->getId());
         $rebuilder->rebuildForImport($importB->getId());
+        $rebuilder->rebuildForImport($importC->getId());
         $this->refreshStatisticsMaterializedViews();
 
         $query = [

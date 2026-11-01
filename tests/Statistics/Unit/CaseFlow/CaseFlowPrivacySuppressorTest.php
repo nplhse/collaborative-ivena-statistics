@@ -79,6 +79,29 @@ final class CaseFlowPrivacySuppressorTest extends TestCase
         self::assertSame(CaseFlowPrivacyPolicy::SUPPRESSED_POOL_KEY, $slices[1]->poolKey);
     }
 
+    public function testSuppressDestinationPoolsNeedsThreeHospitalsPerPool(): void
+    {
+        // Both pools have enough cases; only the hospital count decides (#934).
+        $rows = [
+            new CaseFlowDestinationPoolRow('3', 40, 3),
+            new CaseFlowDestinationPoolRow('1', 25, 2),
+        ];
+
+        /** @var array<string, string> $labelKeysByPoolKey */
+        $labelKeysByPoolKey = [
+            (string) AllocationStatsHospitalTierProjectionCode::Full->value => 'stats.case_flow.tier.full',
+            (string) AllocationStatsHospitalTierProjectionCode::Basic->value => 'stats.case_flow.tier.basic',
+        ];
+
+        $slices = $this->suppressor->suppressDestinationPools($rows, $labelKeysByPoolKey);
+
+        self::assertCount(2, $slices);
+        self::assertSame((string) AllocationStatsHospitalTierProjectionCode::Full->value, $slices[0]->poolKey);
+        self::assertSame(40, $slices[0]->caseCount);
+        self::assertSame(CaseFlowPrivacyPolicy::SUPPRESSED_POOL_KEY, $slices[1]->poolKey);
+        self::assertSame(25, $slices[1]->caseCount);
+    }
+
     public function testSuppressDestinationHospitalsDropsSmallNPins(): void
     {
         $rows = [
