@@ -68,13 +68,6 @@
                                         {% endif %}
                                     </div>
 
-                                    <h4 class="subheader mb-3">{{ 'label.password'|trans({}, 'user') }}</h4>
-                                    <div class="row g-3 align-items-end mb-4">
-                                        <div class="col-md-4 d-grid">
-                                            <a class="btn" href="{{ path('app_settings_password') }}">{{ 'label.settings.set_new_password'|trans({}, 'user') }}</a>
-                                        </div>
-                                    </div>
-
                                     <h4 class="subheader mb-3">{{ 'label.settings.language'|trans({}, 'user') }}</h4>
                                     {{ form_start(localeForm) }}
                                         <p class="text-secondary mb-3">{{ 'help.settings.language'|trans({}, 'user') }}</p>
