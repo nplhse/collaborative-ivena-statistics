@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Analytics\Infrastructure\Http;
 
 use App\Analytics\Application\RequestTracking\AnalyticsUserKeyGenerator;
+use App\Analytics\Application\RequestTracking\CountedAccessClassifier;
 use App\Analytics\Application\RequestTracking\FeatureAreaResolver;
 use App\Analytics\Application\RequestTracking\RequestAnalyticsRecorder;
 use App\Analytics\Application\RequestTracking\UserAgentNormalizer;
@@ -55,6 +56,7 @@ final readonly class AnalyticsRequestSubscriber
         private UserAgentNormalizer $userAgentNormalizer,
         private AnalyticsUserKeyGenerator $analyticsUserKeyGenerator,
         private RequestAnalyticsRecorder $recorder,
+        private CountedAccessClassifier $countedAccessClassifier,
         private Security $security,
         private LoggerInterface $logger,
         private ManagerRegistry $doctrine,
@@ -174,7 +176,27 @@ final readonly class AnalyticsRequestSubscriber
             sessionKey: $keys['sessionKey'],
             browserFamily: $ua['browserFamily'],
             deviceType: $ua['deviceType'],
+            countedAccess: $this->countedAccessClassifier->isCountedAccess(
+                method: $request->getMethod(),
+                httpStatus: $statusCode,
+                routeName: $routeName,
+                deviceType: $ua['deviceType'],
+                isFrameRequest: $request->headers->has('Turbo-Frame'),
+                isBackgroundRequest: $this->isBackgroundRequest($request),
+            ),
         );
+    }
+
+    /**
+     * XHR/fetch calls and browser or Turbo prefetches are no page views.
+     */
+    private function isBackgroundRequest(Request $request): bool
+    {
+        if ($request->isXmlHttpRequest()) {
+            return true;
+        }
+
+        return array_any(['Sec-Purpose', 'Purpose', 'X-Sec-Purpose', 'X-Purpose'], fn (string $header): bool => str_contains(strtolower((string) $request->headers->get($header)), 'prefetch'));
     }
 
     private function resolveAnalyticsConsent(Request $request): bool
