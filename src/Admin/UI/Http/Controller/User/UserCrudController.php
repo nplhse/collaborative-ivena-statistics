@@ -17,6 +17,10 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use App\User\Infrastructure\Query\UserIdsWithEffectiveRoleQuery;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query\Expr\OrderBy;
+use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -26,6 +30,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Option\EA;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\BatchActionDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Exception\EntityRemoveException;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -80,6 +86,35 @@ final class UserCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('Users')
             ->setSearchFields(['id', 'username', 'email'])
             ->setDefaultSort(['username' => 'ASC']);
+    }
+
+    /**
+     * Sorts usernames case-insensitively, like the user list in the frontend; the database
+     * collation would put every capitalised name before the lowercase ones.
+     */
+    #[\Override]
+    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
+    {
+        $queryBuilder = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
+
+        /** @var list<OrderBy> $orderByParts */
+        $orderByParts = $queryBuilder->getDQLPart('orderBy');
+        $queryBuilder->resetDQLPart('orderBy');
+        foreach ($orderByParts as $orderBy) {
+            $parts = $orderBy->getParts();
+            if (1 === \count($parts) && 1 === preg_match('/^(\w+)\.username (ASC|DESC)$/i', $parts[0], $match)) {
+                $queryBuilder
+                    ->addSelect(\sprintf('LOWER(%s.username) AS HIDDEN usernameSort', $match[1]))
+                    ->addOrderBy('usernameSort', $match[2])
+                    ->addOrderBy($match[1].'.username', $match[2]);
+
+                continue;
+            }
+
+            $queryBuilder->add('orderBy', $orderBy, true);
+        }
+
+        return $queryBuilder;
     }
 
     #[\Override]

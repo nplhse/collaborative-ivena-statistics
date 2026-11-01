@@ -48,6 +48,24 @@ final class UserCrudFilterTest extends WebTestCase
         self::assertStringContainsString('01.09.2026 08:00', $crawler->filter('table tbody')->text());
     }
 
+    public function testDefaultSortIsUsernameAscendingIgnoringCase(): void
+    {
+        $client = self::createClient();
+        $this->createUser('Zoe', '2026-10-01 10:00');
+        $this->createUser('anna', '2026-10-02 10:00');
+        $this->createUser('Bernd', '2026-10-03 10:00');
+        $this->createUser('carl', '2026-10-04 10:00');
+        $client->loginUser($this->createAdmin());
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user');
+        self::assertResponseIsSuccessful();
+        self::assertSame(['anna', 'Bernd', 'carl', 'filter-admin', 'Zoe'], $this->usernames($crawler));
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user?sort[username]=DESC');
+        self::assertResponseIsSuccessful();
+        self::assertSame(['Zoe', 'filter-admin', 'carl', 'Bernd', 'anna'], $this->usernames($crawler));
+    }
+
     public function testCombinedFiltersListRecentNonParticipantsNewestFirst(): void
     {
         $client = self::createClient();
