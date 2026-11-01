@@ -40,7 +40,7 @@ php bin/console app:statistics:refresh-mviews
 | `reference` | Users (dependency) and the complete synthetic reference catalog |
 | `participation` | Reference catalog plus participating hospitals, owners and the demo grant |
 | `allocations` | Participation plus pattern-based synthetic allocations and imports |
-| `content` | English demo CMS pages |
+| `content` | English demo CMS pages, including a nested user guide (`/guide`, three levels, some pages for signed-in users only) |
 | `minimal` | Small scenario for fast smoke tests |
 | `dev` | Reference + allocations + content (full local demo) |
 | `statistics` | Reference data, participation and allocations used by statistics integration tests |
