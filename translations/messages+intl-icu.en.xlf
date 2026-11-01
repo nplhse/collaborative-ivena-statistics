@@ -997,7 +997,7 @@
       </trans-unit>
       <trans-unit id="NkgZk7H" resname="text.settings.account_intro">
         <source>text.settings.account_intro</source>
-        <target>Manage your account profile, email, and password.</target>
+        <target>Manage your profile details, email address and language.</target>
       </trans-unit>
       <trans-unit id="notif05" resname="text.settings.notifications_intro">
         <source>text.settings.notifications_intro</source>
