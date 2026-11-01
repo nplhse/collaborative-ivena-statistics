@@ -239,6 +239,57 @@ final class AnalyticsDailyAggregationServiceTest extends DatabaseKernelTestCase
         self::assertSame(1, $this->countRequestsOn($unaggregatedExpired));
     }
 
+    public function testReAggregatingAPurgedDayKeepsItsAggregates(): void
+    {
+        $expired = AnalyticsCalendar::daysAgo(40)->setTime(9, 0);
+        $this->saveRequest($expired, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-p', 'session-p', []);
+        $this->saveRequest($expired->modify('+5 minutes'), 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-p', 'session-p', []);
+        $this->saveRequest($expired->modify('+10 minutes'), 'app_home', FeatureArea::Home, false, null, null, 'session-q', []);
+        $this->eventRepository->save(new AnalyticsProductEvent(
+            eventName: UsageEventName::ANALYSIS_EXPLORER_RUN,
+            featureArea: FeatureArea::Analysis,
+            analyticsUserKey: 'user-p',
+            occurredAt: $expired,
+        ));
+
+        $this->aggregationService->aggregateForDate($expired);
+        $this->retentionService->purgeExpiredRaw();
+        self::assertSame(0, $this->countRequestsOn($expired));
+        self::assertSame(0, $this->countEventsOn($expired));
+
+        $rerun = $this->aggregationService->aggregateForDate($expired);
+
+        self::assertTrue($rerun->keptExisting);
+        self::assertSame(0, $rerun->aggregateRowsWritten);
+        $date = $expired->format('Y-m-d');
+        self::assertSame(3, (int) $this->connection->fetchOne(
+            'SELECT SUM(request_count) FROM analytics_request_daily WHERE date = :date',
+            ['date' => $date],
+        ));
+        self::assertSame(1, (int) $this->connection->fetchOne(
+            'SELECT SUM(event_count) FROM analytics_event_daily WHERE date = :date',
+            ['date' => $date],
+        ));
+        self::assertSame(3, (int) $this->connection->fetchOne(
+            'SELECT raw_request_count FROM analytics_aggregation_run WHERE date = :date',
+            ['date' => $date],
+        ));
+    }
+
+    public function testDayWithoutRawRowsAndWithoutMarkerIsStillAggregated(): void
+    {
+        $emptyDay = AnalyticsCalendar::daysAgo(45);
+
+        $result = $this->aggregationService->aggregateForDate($emptyDay);
+
+        self::assertFalse($result->keptExisting);
+        self::assertSame(1, $result->aggregateRowsWritten);
+        self::assertSame(0, (int) $this->connection->fetchOne(
+            'SELECT raw_request_count FROM analytics_aggregation_run WHERE date = :date',
+            ['date' => $emptyDay->format('Y-m-d')],
+        ));
+    }
+
     public function testScheduledRunAggregatesYesterdayCatchUpAndCleansExpiredRaw(): void
     {
         $expired = AnalyticsCalendar::daysAgo(40)->setTime(8, 0);

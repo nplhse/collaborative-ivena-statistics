@@ -37,6 +37,15 @@ final readonly class AnalyticsDayAggregationQuery
         ));
     }
 
+    public function hasAggregationRun(\DateTimeImmutable $day): bool
+    {
+        return false !== $this->connection->fetchOne(
+            'SELECT 1 FROM analytics_aggregation_run WHERE date = :date',
+            ['date' => AnalyticsCalendar::startOfDay($day)->format('Y-m-d')],
+            ['date' => ParameterType::STRING],
+        );
+    }
+
     /**
      * @return list<array{
      *     featureArea: string,
