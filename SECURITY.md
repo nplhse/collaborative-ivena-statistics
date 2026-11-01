@@ -4,9 +4,33 @@ We take the security of this software product and services running seriously
 and appreciate any reports of vulnerabilities.
 
 ## Supported Versions
-| Version | Supported          |
-| ------- | ------------------ |
-| alpha   | :white_check_mark: |
+
+The project is in its beta phase. During the beta only the latest released beta
+receives hotfixes, for security problems as well as critical bugs. Hotfixes are
+released as patch versions of that beta (for example `v0.2.1-beta`).
+
+| Version        | Supported                                                         |
+| -------------- | ----------------------------------------------------------------- |
+| v0.2-beta      | :white_check_mark: security and critical bug fixes                |
+| v0.1-beta      | :warning: security fixes until v0.3-beta (planned for 2026-12-31) |
+| alpha (v0.0.x) | :x:                                                               |
+
+When v0.3-beta is released, it becomes the only supported version. The support
+policy for v1.0 and later will be defined before the v1.0 release.
+
+## How we keep the project secure
+
+-   Before every release we run an internal security audit, assisted by AI
+    coding agents (for example Claude). It covers common risks such as the
+    [OWASP Top 10](https://owasp.org/www-project-top-ten/) and established
+    practices for Symfony and modern web applications. Findings are fixed
+    before the release or tracked as follow-up issues.
+-   Dependabot opens version and security updates for our dependencies, and
+    `composer audit` is part of the release checks, so known vulnerabilities
+    in dependencies are fixed quickly.
+-   `roave/security-advisories` prevents installing dependency versions with
+    known vulnerabilities, and a Psalm taint analysis runs on every pull
+    request.
 
 ## Reporting a Vulnerability
 If you believe you have found a security vulnerability in this repository,

@@ -2,7 +2,7 @@ name: Security Scan
 
 on:
     push:
-        branches: [ "main" ]
+        branches: [ "main", "develop" ]
         paths-ignore:
             - 'docs/**'
             - '**.md'
@@ -13,10 +13,10 @@ on:
     schedule:
         - cron: '33 20 * * 5'
 
-# Cancel superseded runs on PR branches. On main every run gets its own group,
-# so no push is cancelled or dropped from the queue.
+# Cancel superseded runs on PR branches. On main and develop every run gets its own
+# group, so no push is cancelled or dropped from the queue.
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref }}
+    group: ${{ github.workflow }}-${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.run_id || github.ref }}
     cancel-in-progress: true
 
 permissions:

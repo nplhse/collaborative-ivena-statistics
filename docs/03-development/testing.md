@@ -134,6 +134,7 @@ make lint-trans-de  # lint DE catalogue only
 - Codecov: [`codecov.yml`](../../codecov.yml)
 - Linting: `.github/workflows/lint.yml`
 - Security scan: `.github/workflows/security.yml` — Psalm taint analysis (`vendor/bin/psalm --taint-analysis`, same version and `psalm.xml` as `make psalm`), results go to GitHub code scanning as SARIF
+- Pushes to `main` and `develop` run Linting, Testsuite and Security Scan; the weekly security scan runs on the default branch (`main`)
 
 ## Rector and EasyAdmin CRUD lifecycle hooks
 

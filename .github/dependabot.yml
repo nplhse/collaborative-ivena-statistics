@@ -1,13 +1,17 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
+# Dependabot configuration for Gitflow (ADR 024).
+# Version updates go to `develop`. Security updates always target the default
+# branch (`main`) and cannot be redirected with `target-branch`, so each
+# ecosystem has a second entry without `target-branch` that only exists to
+# label and prefix those security pull requests as hotfix candidates.
+# Options of an entry with `target-branch` do not apply to security updates.
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
 updates:
-    # Enable version updates for Composer
+    # Composer: version updates into develop
     - package-ecosystem: "composer"
       directory: "/"
+      target-branch: "develop"
       schedule:
           interval: "weekly"
           day: "sunday"
@@ -30,9 +34,26 @@ updates:
       ignore:
           - dependency-name: "roave/security-advisories"
 
-    # Enable version updates for npm (JS dev tooling)
+    # Composer: security updates only, against main (limit 0 disables version updates)
+    - package-ecosystem: "composer"
+      directory: "/"
+      schedule:
+          interval: "weekly"
+          day: "sunday"
+      open-pull-requests-limit: 0
+      labels:
+          - "dependencies"
+          - "security"
+          - "hotfix"
+      commit-message:
+          prefix: "fix(security)"
+      ignore:
+          - dependency-name: "roave/security-advisories"
+
+    # npm (JS dev tooling): version updates into develop
     - package-ecosystem: "npm"
       directory: "/"
+      target-branch: "develop"
       schedule:
           interval: "weekly"
           day: "sunday"
@@ -45,9 +66,24 @@ updates:
                   - "globals"
                   - "prettier"
 
-    # Enable version updates for GitHub Actions
+    # npm: security updates only, against main (limit 0 disables version updates)
+    - package-ecosystem: "npm"
+      directory: "/"
+      schedule:
+          interval: "weekly"
+          day: "sunday"
+      open-pull-requests-limit: 0
+      labels:
+          - "dependencies"
+          - "security"
+          - "hotfix"
+      commit-message:
+          prefix: "fix(security)"
+
+    # GitHub Actions: version updates into develop
     - package-ecosystem: "github-actions"
       directory: "/"
+      target-branch: "develop"
       schedule:
           interval: "weekly"
           day: "sunday"

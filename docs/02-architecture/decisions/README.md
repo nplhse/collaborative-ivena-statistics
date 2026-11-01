@@ -39,6 +39,7 @@ Each ADR includes:
 | [021](021-wall-clock-access.md) | Read the current time only through the Symfony clock | accepted |
 | [022](022-synthetic-data-generation.md) | Synthetic data generation with hospital profiles, pattern packages and scenario overlays | accepted |
 | [023](023-demo-environment.md) | Separate demo environment with its own database, storage and synthetic data | accepted |
+| [024](024-gitflow-with-main-as-default-branch.md) | Gitflow with `main` as the default branch | accepted |
 
 ## Template
 
