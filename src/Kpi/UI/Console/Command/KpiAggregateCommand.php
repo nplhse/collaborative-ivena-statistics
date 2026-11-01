@@ -93,11 +93,7 @@ final readonly class KpiAggregateCommand
         $yesterday = $this->clock->now()->setTimezone($tz)->modify('yesterday');
         $dates = [];
         for ($offset = 0; $offset < $days; ++$offset) {
-            $day = $yesterday->modify(sprintf('-%d days', $offset));
-            if (false === $day) {
-                throw new \InvalidArgumentException('Failed to compute aggregation date.');
-            }
-            $dates[] = $day;
+            $dates[] = $yesterday->sub(new \DateInterval(sprintf('P%dD', $offset)));
         }
 
         return array_reverse($dates);

@@ -171,7 +171,7 @@ final class ClosureTimelineController extends AbstractController
         if ($criteria->period->from instanceof \DateTimeImmutable && $from < $criteria->period->from) {
             $from = $criteria->period->from;
         }
-        if ($criteria->period->toExclusive instanceof \DateTimeImmutable && (null === $to || $to > $criteria->period->toExclusive)) {
+        if ($criteria->period->toExclusive instanceof \DateTimeImmutable && (!$to instanceof \DateTimeImmutable || $to > $criteria->period->toExclusive)) {
             $to = $criteria->period->toExclusive;
         }
 

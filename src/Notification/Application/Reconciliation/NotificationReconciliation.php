@@ -85,7 +85,7 @@ final readonly class NotificationReconciliation
 
         foreach ($this->registry->definitions() as $definition) {
             $start = $now->sub($definition->deduplicationInterval());
-            if (null === $earliest || $start > $earliest) {
+            if (!$earliest instanceof \DateTimeImmutable || $start > $earliest) {
                 $earliest = $start;
             }
         }

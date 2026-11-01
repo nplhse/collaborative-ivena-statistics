@@ -37,12 +37,6 @@ return RectorConfig::configure()
         Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class => [$entityPath],
         Rector\Php81\Rector\Property\ReadOnlyPropertyRector::class => [$entityPath],
         Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector::class => [$entityPath],
-        // PHP-CS-Fixer shortens the FQCN; Rector would otherwise rewrite it on every run.
-        Rector\Arguments\Rector\ClassMethod\ReplaceArgumentDefaultValueRector::class => [
-            __DIR__.'/src/Analytics/Infrastructure/Http/AnalyticsCookieManager.php',
-            __DIR__.'/src/Shared/Infrastructure/Consent/CookieConsentService.php',
-            __DIR__.'/src/Shared/Infrastructure/Locale/LocaleCookieManager.php',
-        ],
     ])
     ->withCache(__DIR__.'/var/cache/rector')
     ->withParallel();
