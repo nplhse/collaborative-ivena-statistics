@@ -28,9 +28,7 @@ final class EngagementDepthResolver
             UsageEventName::IMPORT_COMPLETED,
             UsageEventName::IMPORT_REPROCESSED => 2,
             UsageEventName::USER_REGISTERED,
-            UsageEventName::USER_EMAIL_CONFIRMED,
-            UsageEventName::USER_BECAME_PARTICIPANT,
-            UsageEventName::ONBOARDING_STEP_COMPLETED => 0,
+            UsageEventName::USER_BECAME_PARTICIPANT => 0,
             default => 0,
         };
     }

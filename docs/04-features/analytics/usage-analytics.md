@@ -107,9 +107,7 @@ Event names live in `App\Analytics\Domain\UsageEventName`. Context must be non-P
 | `explore.allocation.opened` / `hospital` / `indication` | Explore show controllers |
 | `benchmarking.opened` | Benchmarking page |
 | `user.registered` | `UserRegistered` listener |
-| `user.email_confirmed` | Email verification |
 | `user.became_participant` | Grant participant |
-| `onboarding.step.completed` | Onboarding progress (`step` in context) |
 
 ## Feature areas
 
@@ -147,13 +145,13 @@ There is no level 4. It was "filters used", derived from query parameter names, 
 without replacement because URL parameters do not show filter use (#952, #988). The other levels
 keep their numbers.
 
-## Onboarding funnel
+## Onboarding
 
-Steps (unique `analytics_user_key`):
-
-`user.registered` → `user.email_confirmed` → `user.became_participant` → `import.completed` → `analysis.explorer.run` → `analysis.explorer.exported_csv`
-
-Conversion % is step N → N+1. **Reliable only with analytics consent + user keys**; anonymous traffic stays in request aggregates only.
+Onboarding is not analysed in the admin backend (#950). The onboarding steps and their progress
+(`user_onboarding_step`) work as before, but completing a step records no usage event, and there is
+no onboarding funnel or time-to-first report. The former events `onboarding.step.completed` and
+`user.email_confirmed` are no longer recorded; stored rows were deleted by migration
+`Version20261101201114`.
 
 ## Admin insights
 
@@ -163,9 +161,9 @@ Menu section **Usage analytics** (above System), one page per topic:
 |------|-------|----------|
 | Overview | `/admin/operations/usage-analytics/overview` | Requests, DAU/WAU/MAU, feature areas, auth split, top routes |
 | Adoption | `…/adoption` | Top events, events by role, role × area, engagement depth |
-| Journeys | `…/journeys` | Onboarding funnel, time-to-first, entry/exit/transitions |
+| Journeys | `…/journeys` | Entry/exit routes and transitions |
 | Performance | `…/performance` | Latency/queries/errors by area, slowest routes, prioritization hints |
 
 `/admin/operations/usage-analytics` redirects to Overview. No per-user search or raw identifiers.
 
-Count-based widgets (requests, feature areas, routes, event counts) combine daily aggregates with raw rows for today and any unaggregated gaps. Distinct-user and sequence metrics (DAU/WAU/MAU, funnels, engagement depth, journeys, p95) stay on the raw 30-day window. Details: [aggregation-and-retention.md](aggregation-and-retention.md).
+Count-based widgets (requests, feature areas, routes, event counts) combine daily aggregates with raw rows for today and any unaggregated gaps. Distinct-user and sequence metrics (DAU/WAU/MAU, engagement depth, journeys, p95) stay on the raw 30-day window. Details: [aggregation-and-retention.md](aggregation-and-retention.md).

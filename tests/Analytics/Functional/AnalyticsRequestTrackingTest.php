@@ -113,7 +113,7 @@ final class AnalyticsRequestTrackingTest extends WebTestCase
         $pages = [
             '/admin/operations/usage-analytics/overview' => ['Usage analytics — Overview', 'Requests today', 'Feature areas'],
             '/admin/operations/usage-analytics/adoption' => ['Usage analytics — Adoption', 'Top usage events', 'Engagement depth'],
-            '/admin/operations/usage-analytics/journeys' => ['Usage analytics — Journeys', 'Onboarding funnel', 'Time to first value', 'Navigation'],
+            '/admin/operations/usage-analytics/journeys' => ['Usage analytics — Journeys', 'Navigation', 'Entry routes'],
             '/admin/operations/usage-analytics/performance' => ['Usage analytics — Performance', 'By feature area', 'Slowest routes'],
         ];
 
