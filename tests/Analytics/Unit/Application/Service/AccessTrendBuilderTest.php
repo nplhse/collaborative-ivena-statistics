@@ -96,6 +96,14 @@ final class AccessTrendBuilderTest extends TestCase
         self::assertSame(1, $trend->total());
     }
 
+    public function testRejectsAnInvalidDay(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid day "2026-0x-01".');
+
+        $this->builder->build([['date' => '2026-0x-01', 'authenticated' => 1, 'anonymous' => 0]], $this->day('2026-11-02'));
+    }
+
     /**
      * @return array{0: string, 1: int, 2: int, 3: bool, 4: bool} key, signed in, anonymous, current, starts before counting
      */
