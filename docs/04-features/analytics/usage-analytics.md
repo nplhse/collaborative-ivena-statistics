@@ -14,7 +14,7 @@ Tables are created by migration `Version20260804151958` (run with normal deploy 
 
 ## Privacy
 
-Stored: route name, feature area, status, duration, DB query count/time, authenticated flag, primary role, normalized browser/device, optional pseudonymous keys, usage event names + non-PII context.
+Stored: route name, feature area, status, duration, DB query count/time, authenticated flag, primary role, normalized browser/device, whether the request counts as an access, optional pseudonymous keys, usage event names + non-PII context.
 
 Not stored: IP, full URLs, query parameters (names or values), SQL, raw user agent, referrer, POST/form bodies, Symfony session id, user id.
 
@@ -128,6 +128,46 @@ php bin/console dbal:run-sql "DELETE FROM analytics_request WHERE feature_area =
 ```
 
 Do **not** delete `analytics_product_event` rows for this cleanup.
+
+## Counted accesses
+
+Every tracked request stores `analytics_request.counted_access`: whether it counts as an **access**,
+that is a normal page view. Access counts are request counts after the filters below; they are not
+visitors, users or sessions. The rule lives in `CountedAccessClassifier`.
+
+A request counts when all of the following hold:
+
+| Condition | Not counted |
+|-----------|-------------|
+| Method `GET` or `HEAD` | `POST`, `DELETE`, … (forms, actions) |
+| Status 2xx | Redirects (3xx), client and server errors (4xx, 5xx) |
+| No `Turbo-Frame` header | Frame loads and frame navigation |
+| Not XHR (`X-Requested-With`) and no prefetch (`Sec-Purpose`, `Purpose`, `X-Sec-Purpose`) | Background calls, Turbo and browser prefetches |
+| Device type is not `Bot` | Recognised crawlers and link previews (`UserAgentNormalizer`) |
+| Route is a page route | Technical endpoints (`robots.txt`, `sitemap.xml`, RSS, health, locale switch, cookie routes), Live Components, polling and JSON endpoints, lazily loaded frames and partials (route list plus suffixes `_frame`, `_drawer`), downloads and CSV exports (`_export_csv`) |
+
+Requests that are not tracked at all are not counted either: the Admin UI, the profiler, assets and
+notification polling ([admin area exclusion](#admin-area-exclusion)). Bots that send a normal browser
+user agent cannot be recognised without invasive tracking and are counted.
+
+When a route is added that only serves a frame, a partial or a file, add it to
+`CountedAccessClassifier::NON_PAGE_ROUTES` (or give it one of the suffixes). A test fails when a
+listed route no longer exists.
+
+### Rows recorded before the flag
+
+Rows recorded before `counted_access` existed are `NULL`. Classify them once after the deploy:
+
+```bash
+php bin/console app:analytics:classify-accesses          # preview
+php bin/console app:analytics:classify-accesses --apply  # write
+```
+
+Only the stored fields are available for them (status, route, device type). Method and request
+headers were not recorded, so frame navigations on page routes and non-GET requests with a 2xx
+response are counted for these rows. Already classified rows are never changed; running the command
+again is safe. Raw rows only exist for the last `ANALYTICS_RAW_RETENTION_DAYS` days
+([aggregation-and-retention.md](aggregation-and-retention.md)); older days cannot be classified.
 
 ## Engagement depth (levels)
 

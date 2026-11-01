@@ -82,6 +82,8 @@ php bin/console app:analytics:aggregate --cleanup-only --dry-run
 
 First deploy: run `app:analytics:aggregate --days=…` to backfill existing history, then let the scheduler catch up and purge.
 
+`app:analytics:classify-accesses` marks raw requests recorded before the counted-access flag existed ([usage-analytics.md](usage-analytics.md#rows-recorded-before-the-flag)). Run it soon after the deploy that adds the flag: raw rows older than the retention period are deleted and cannot be classified later.
+
 ## Configuration
 
 `ANALYTICS_RAW_RETENTION_DAYS` (default `30`) in `.env`. Not required by `app:env:check`.

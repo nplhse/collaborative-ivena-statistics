@@ -33,6 +33,7 @@ final readonly class RequestAnalyticsRecorder
         ?string $sessionKey,
         BrowserFamily $browserFamily,
         DeviceType $deviceType,
+        bool $countedAccess,
     ): void {
         $this->repository->save(new AnalyticsRequest(
             $occurredAt,
@@ -49,6 +50,7 @@ final readonly class RequestAnalyticsRecorder
             $sessionKey,
             $browserFamily,
             $deviceType,
+            $countedAccess,
         ));
     }
 }
