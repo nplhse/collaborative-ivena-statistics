@@ -107,7 +107,7 @@ The project follows Gitflow with `main` as the default branch (ADR 024). Steps a
 [development-workflow.md](docs/03-development/development-workflow.md#branches-releases-and-hotfixes).
 
 - Branch from `origin/develop` and open pull requests with `gh pr create --base develop`. GitHub
-  proposes `main`; a pull request into `main` from any other branch fails the source branch check.
+  proposes `main`, so check the base before creating the pull request.
 - Code reaches `main` only through `release/*` and `hotfix/*` pull requests. Create those branches,
   bump the version, publish a release or tag only when the user asks for it.
 - Exception for documentation that describes the released state (README, `AGENTS.md`,

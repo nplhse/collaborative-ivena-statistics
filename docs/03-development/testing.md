@@ -134,7 +134,6 @@ make lint-trans-de  # lint DE catalogue only
 - Codecov: [`codecov.yml`](../../codecov.yml)
 - Linting: `.github/workflows/lint.yml`
 - Security scan: `.github/workflows/security.yml` — Psalm taint analysis (`vendor/bin/psalm --taint-analysis`, same version and `psalm.xml` as `make psalm`), results go to GitHub code scanning as SARIF
-- Pull request source: `.github/workflows/pr-source.yml` — fails pull requests into `main` that do not come from `release/*` or `hotfix/*` and are not a `docs/*` branch that only changes Markdown files and `docs/**` ([ADR 024](../02-architecture/decisions/024-gitflow-with-main-as-default-branch.md))
 - Pushes to `main` and `develop` run Linting, Testsuite and Security Scan; the weekly security scan runs on the default branch (`main`)
 
 ## Rector and EasyAdmin CRUD lifecycle hooks

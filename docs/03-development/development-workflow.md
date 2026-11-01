@@ -201,7 +201,7 @@ The project follows Gitflow with `main` as the default branch ([ADR 024](../02-a
 | `docs/*`, documentation only | `main` | `main`, then `main` back into `develop` |
 
 - Every change goes through a pull request; nothing is pushed directly to `main` or `develop`.
-- GitHub proposes `main` as the base. Open regular pull requests with `gh pr create --base develop`. The workflow *Pull request source* fails pull requests into `main` that do not come from `release/*` or `hotfix/*` and are not a documentation-only `docs/*` branch; change their base to `develop`.
+- GitHub proposes `main` as the base. Open regular pull requests with `gh pr create --base develop`. A pull request with the wrong base can be moved to `develop` with *Edit* on the pull request. Direct pushes to `main` and `develop` are blocked by the GitHub rulesets; which pull requests go into `main` is the maintainer's decision.
 - **Documentation on `main`:** a fix to docs that describe the released state (README, `AGENTS.md`, `CONTRIBUTING.md`, `SECURITY.md`, operations guides, …) may go to `main` without a release: branch `docs/<topic>` from `origin/main`, change only Markdown files and `docs/**`, open the pull request into `main`, then merge `main` back into `develop` through a pull request. No version bump and no tag; the next release lists the pull request in its changelog. Docs for behaviour that is not released yet go to `develop` with the change.
 - Merge with merge commits. Never rebase or force-push `main`, `develop`, `release/*`, `hotfix/*` or an integration branch.
 - Pull requests do not edit `CHANGELOG.md`; the section is written on the release or hotfix branch ([Changelog](#changelog)).

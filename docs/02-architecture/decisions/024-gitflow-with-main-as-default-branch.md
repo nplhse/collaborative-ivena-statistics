@@ -31,14 +31,14 @@ The project has a single maintainer, so the model must not depend on reviews by 
 - Larger issues keep the integration branch with step pull requests. The integration branch starts from `develop` and its final pull request goes to `develop`.
 - Nothing is pushed directly to `main` or `develop`; every change goes through a pull request.
 - Code reaches `main` only through `release/*` and `hotfix/*`. After every such merge the release is tagged and `main` is merged back into `develop` through a pull request.
-- Documentation-only changes may go to `main` directly through a pull request from a `docs/*` branch, without a release or tag: the README, agent instructions (`AGENTS.md`, `CLAUDE.md`), `CONTRIBUTING.md`, `SECURITY.md` or other docs that describe the released state. The pull request may only touch Markdown files and `docs/**`, and `main` is merged back into `develop` afterwards. Docs for unreleased behaviour go to `develop` with that behaviour.
+- Documentation-only changes may go to `main` directly through a pull request from a `docs/*` branch, without a release or tag: the README, agent instructions (`AGENTS.md`, `CLAUDE.md`), `CONTRIBUTING.md`, `SECURITY.md` or other docs that describe the released state. Such a pull request changes documentation only, and `main` is merged back into `develop` afterwards. Docs for unreleased behaviour go to `develop` with that behaviour.
 - Merges are merge commits. Shared branches (`main`, `develop`, `release/*`, `hotfix/*`, integration branches) are never rebased or force-pushed.
 
 ### `main` stays the default branch
 
 - Clones and coding agents read `AGENTS.md` and the docs from the default branch, so rules about the workflow are merged into `main` as well as `develop` (this ADR came in through a pull request to `main` before `develop` existed).
 - Deployer deploys the default branch, which is now always a released and tagged state. `deploy.php` is unchanged.
-- GitHub and `gh pr create` propose `main` as the base. Pull requests for regular work name `--base develop` explicitly; a workflow fails pull requests into `main` that do not come from `release/*` or `hotfix/*` and are not a `docs/*` branch that only changes documentation.
+- GitHub and `gh pr create` propose `main` as the base. Pull requests for regular work name `--base develop` explicitly. There is no automatic check of the source branch: the maintainer decides which pull requests go into `main`, and GitHub rulesets block direct pushes.
 
 ### Versions and changelog
 
@@ -56,7 +56,7 @@ The project has a single maintainer, so the model must not depend on reviews by 
 - A released version can be fixed without shipping unreleased work, and `main` always shows the code that runs in production.
 - README, agent instructions and other docs can be corrected on the default branch right away, without waiting for a release. `main` then holds commits without a tag; they are documentation only and reach `develop` through the back-merge.
 - Every change needs one more step: release and hotfix branches have to be merged back into `develop`, and forgetting it loses the fix in the next release.
-- Every pull request for regular work has to name `develop` as its base, because GitHub defaults to `main`. A wrong base is caught by the source branch check, not prevented.
+- Every pull request for regular work has to name `develop` as its base, because GitHub defaults to `main`. A wrong base is only noticed in review; the base of an open pull request can be changed.
 - The changelog is written once per release instead of per pull request. Pull requests no longer conflict on `CHANGELOG.md`, but the release branch has to collect and sort the entries.
 - CI runs on pushes to `main` and `develop` and on every pull request.
 - With a single maintainer, rulesets on `main` and `develop` require pull requests and status checks but no approvals. GitHub does not let authors approve their own pull requests. This is revisited when a second maintainer joins.
