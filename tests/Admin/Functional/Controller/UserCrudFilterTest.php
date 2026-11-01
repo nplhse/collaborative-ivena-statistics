@@ -65,6 +65,27 @@ final class UserCrudFilterTest extends WebTestCase
         self::assertSame(['recent-user-b', 'recent-user-a'], $this->usernames($crawler));
     }
 
+    public function testShortcutButtonOpensNewestNonParticipants(): void
+    {
+        $client = self::createClient();
+        $this->createUser('older-user', '2026-09-10 10:00');
+        $this->createUser('newer-user', '2026-10-20 10:00');
+        $this->createUser('participant', '2026-10-25 10:00', [UserRole::PARTICIPANT]);
+        $client->loginUser($this->createAdmin());
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('.content-header-help');
+
+        $button = $crawler->filter('a.action-newestNonParticipants');
+        self::assertCount(1, $button);
+        self::assertSame('Newest without participant permissions', trim($button->text()));
+
+        $crawler = $client->click($button->link());
+        self::assertResponseIsSuccessful();
+        self::assertSame(['newer-user', 'older-user'], $this->usernames($crawler));
+    }
+
     public function testParticipantFilterCountsRolesInheritedFromAdmin(): void
     {
         $client = self::createClient();

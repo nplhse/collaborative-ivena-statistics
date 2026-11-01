@@ -79,8 +79,7 @@ final class UserCrudController extends AbstractCrudController
             ->setEntityLabelInSingular('User')
             ->setEntityLabelInPlural('Users')
             ->setSearchFields(['id', 'username', 'email'])
-            ->setDefaultSort(['username' => 'ASC'])
-            ->setHelp(Crud::PAGE_INDEX, new TranslatableMessage('admin.user.help.index', domain: 'admin'));
+            ->setDefaultSort(['username' => 'ASC']);
     }
 
     #[\Override]
@@ -101,6 +100,7 @@ final class UserCrudController extends AbstractCrudController
         return $actions
             ->disable(Action::BATCH_DELETE)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_INDEX, $this->createNewestNonParticipantsAction())
             ->add(Crud::PAGE_INDEX, $this->createImpersonateAction())
             ->add(Crud::PAGE_DETAIL, $this->createImpersonateAction())
             ->add(Crud::PAGE_DETAIL, $this->createAccessGrantsAction())
@@ -190,6 +190,27 @@ final class UserCrudController extends AbstractCrudController
                 ->unset(EA::ENTITY_ID)
                 ->generateUrl(),
         );
+    }
+
+    /**
+     * Shortcut for reviewing recent registrations: accounts without participant permissions,
+     * newest first.
+     */
+    private function createNewestNonParticipantsAction(): Action
+    {
+        return Action::new(
+            'newestNonParticipants',
+            new TranslatableMessage('admin.user.action.newest_non_participants', domain: 'admin'),
+            'fas fa-user-clock',
+        )
+            ->createAsGlobalAction()
+            ->linkToUrl(fn (): string => $this->adminUrlGenerator
+                ->unsetAll()
+                ->setController(self::class)
+                ->setAction(Action::INDEX)
+                ->set(EA::FILTERS, ['participantPermissions' => '0'])
+                ->set(EA::SORT, ['createdAt' => 'DESC'])
+                ->generateUrl());
     }
 
     private function createAccessGrantsAction(): Action

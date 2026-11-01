@@ -75,7 +75,7 @@ Do **not** cascade-remove hospitals or allocations. Reassign (or clear) `Hospita
 
 ### Review recent registrations
 
-The user index shows **Created at** and can be sorted by it (newest first). Two filters can be combined with each other and with the sort order:
+The user index shows **Created at** and can be sorted by it (newest first). The button **Newest without participant permissions** opens the list with the participant filter set to "no" and sorted by **Created at**, newest first. Two filters can be combined with each other and with the sort order:
 
 - **Created at**: date range (or a single comparison) on `User.createdAt`.
 - **Has participant permissions**: yes/no on the effective roles, that is the stored roles plus `ROLE_USER`, expanded through the role hierarchy in `security.yaml` (`UserIdsWithEffectiveRoleQuery`). `ROLE_ADMIN` therefore counts as a participant; the enabled flag and hospital grants are not considered. See [permission-model.md](../02-architecture/permission-model.md#global-roles).
