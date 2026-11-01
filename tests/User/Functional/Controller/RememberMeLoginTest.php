@@ -90,7 +90,7 @@ final class RememberMeLoginTest extends WebTestCase
 
         $this->useRememberMeSessionOnly($client, $cookies['rememberMe'], $cookies['consentSubject']);
 
-        $client->request(Request::METHOD_GET, '/settings');
+        $client->request(Request::METHOD_GET, '/settings/account');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h2', 'Account Settings');

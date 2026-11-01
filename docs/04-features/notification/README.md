@@ -165,7 +165,7 @@ Hospital access comes from `NotificationHospitalAccessInterface`, implemented in
 
 ## Preferences
 
-Users choose how they want to be notified on **Settings → Notifications** (`/settings/notifications`, `NotificationSettingsController` in the Notification context; the page uses the settings layout of the User context).
+Users choose how they want to be notified on **Settings → Notifications** (`/settings/notifications`, `NotificationSettingsController` in the Notification context; the page uses the settings layout of the User context and is one of the areas listed in `SettingsNavigationExtension`, which feeds the tiles of the settings overview `/settings` and the section navigation of every settings page).
 
 - **Layout:** one table per category with a column per channel (labelled *Web*, *E-Mail*, *Toast*; the in-app channel is called "Web" on the page; only channels some offered type has). The first row sets the whole category; *Set n notifications individually* expands the rows of its types. Categories with type overrides start expanded.
 - **One checkbox per channel** shows whether the channel is used now: for a type its own override, else the category override, else the type's default; for a category its override, else the common default of its types. When the configurable types of a category are currently set differently for a channel, the category checkbox is shown partly ticked (indeterminate), also right after loading the page.

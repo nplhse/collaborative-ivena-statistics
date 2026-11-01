@@ -29,7 +29,7 @@ final class ConfirmPasswordControllerTest extends WebTestCase
 
         $client = $this->createRememberMeOnlyClient('remember-user');
 
-        $client->request(Request::METHOD_GET, '/settings');
+        $client->request(Request::METHOD_GET, '/settings/account');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h2', 'Account Settings');

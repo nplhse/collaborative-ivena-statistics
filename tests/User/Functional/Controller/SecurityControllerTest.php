@@ -132,7 +132,8 @@ final class SecurityControllerTest extends WebTestCase
             ->fillField('Password', 'password')
             ->click('Sign in')
             ->assertSuccessful()
-            ->assertSee('Account Settings')
+            ->assertOn('/settings')
+            ->assertSeeElement('[data-testid="settings-overview"]')
         ;
     }
 

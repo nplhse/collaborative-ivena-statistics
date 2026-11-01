@@ -57,7 +57,8 @@ final readonly class SitemapProvider
         'app_explore_secondary_transport_list' => ['labelKey' => 'link.secondary_transports', 'labelDomain' => 'shared'],
         'app_explore_speciality_list' => ['labelKey' => 'link.specialities', 'labelDomain' => 'shared'],
         'app_explore_indication_raw_review_worklist' => ['labelKey' => 'title.indication.review_worklist', 'labelDomain' => 'allocation'],
-        'app_settings_index' => ['labelKey' => 'label.settings.my_account', 'labelDomain' => 'user'],
+        'app_settings_index' => ['labelKey' => 'title.settings', 'labelDomain' => 'user'],
+        'app_settings_account' => ['labelKey' => 'label.settings.my_account', 'labelDomain' => 'user'],
         'app_settings_email' => ['labelKey' => 'label.settings.change_email', 'labelDomain' => 'user'],
         'app_settings_password' => ['labelKey' => 'label.settings.set_new_password', 'labelDomain' => 'user'],
         'app_settings_notifications' => ['labelKey' => 'label.settings.notifications', 'labelDomain' => 'user'],
@@ -144,6 +145,7 @@ final readonly class SitemapProvider
             'labelKey' => 'sitemap.section.account',
             'entries' => [
                 ['route' => 'app_settings_index', 'visibility' => self::VISIBILITY_AUTHENTICATED],
+                ['route' => 'app_settings_account', 'visibility' => self::VISIBILITY_AUTHENTICATED],
                 ['route' => 'app_settings_email', 'visibility' => self::VISIBILITY_AUTHENTICATED],
                 ['route' => 'app_settings_password', 'visibility' => self::VISIBILITY_AUTHENTICATED],
                 ['route' => 'app_settings_notifications', 'visibility' => self::VISIBILITY_AUTHENTICATED],

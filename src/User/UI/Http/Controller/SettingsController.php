@@ -39,8 +39,14 @@ final class SettingsController extends AbstractController
     ) {
     }
 
-    #[Route('/settings', name: 'app_settings_index', methods: ['GET', 'POST'])]
-    public function index(Request $request): Response
+    #[Route('/settings', name: 'app_settings_index', methods: ['GET'])]
+    public function index(): Response
+    {
+        return $this->render('@User/settings/index.html.twig');
+    }
+
+    #[Route('/settings/account', name: 'app_settings_account', methods: ['GET', 'POST'])]
+    public function account(Request $request): Response
     {
         $user = $this->requireUser();
         $automaticDefaultLocale = $this->localeResolver->resolveAutomaticDefault($request);
@@ -70,13 +76,13 @@ final class SettingsController extends AbstractController
 
             $this->addFlash('success', new TranslatableMessage('flash.settings.locale.updated', domain: 'user'));
 
-            $response = $this->redirectToRoute('app_settings_index');
+            $response = $this->redirectToRoute('app_settings_account');
             $response->headers->setCookie($cookie);
 
             return $response;
         }
 
-        return $this->render('@User/settings/index.html.twig', [
+        return $this->render('@User/settings/account.html.twig', [
             'localeForm' => $localeForm,
         ]);
     }
@@ -95,7 +101,7 @@ final class SettingsController extends AbstractController
         if ($user->isVerified()) {
             $this->addFlash('info', new TranslatableMessage('flash.settings.email.already_verified', domain: 'user'));
 
-            return $this->redirectToRoute('app_settings_index');
+            return $this->redirectToRoute('app_settings_account');
         }
 
         $limiterKey = sprintf(
@@ -109,13 +115,13 @@ final class SettingsController extends AbstractController
         if (!$limit->isAccepted()) {
             $this->addFlash('warning', new TranslatableMessage('flash.settings.email.resend_rate_limited', domain: 'user'));
 
-            return $this->redirectToRoute('app_settings_index');
+            return $this->redirectToRoute('app_settings_account');
         }
 
         $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user);
         $this->addFlash('success', new TranslatableMessage('flash.settings.email.verification_resent', domain: 'user'));
 
-        return $this->redirectToRoute('app_settings_index');
+        return $this->redirectToRoute('app_settings_account');
     }
 
     #[Route('/settings/email', name: 'app_settings_email')]
@@ -148,7 +154,7 @@ final class SettingsController extends AbstractController
 
             $this->addFlash('success', new TranslatableMessage('flash.settings.email.updated_verify_required', domain: 'user'));
 
-            return $this->redirectToRoute('app_settings_index');
+            return $this->redirectToRoute('app_settings_account');
         }
 
         return $this->render('@User/settings/email.html.twig', [
@@ -190,7 +196,7 @@ final class SettingsController extends AbstractController
 
             $this->addFlash('success', new TranslatableMessage('flash.settings.password.updated', domain: 'user'));
 
-            return $this->redirectToRoute('app_settings_index');
+            return $this->redirectToRoute('app_settings_account');
         }
 
         return $this->render('@User/settings/password.html.twig', [

@@ -6,6 +6,7 @@ namespace App\Tests\User\Functional\Controller;
 
 use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\User\Domain\Factory\UserFactory;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Browser\Test\HasBrowser;
@@ -19,7 +20,7 @@ final class SettingsControllerTest extends WebTestCase
     use Factories;
     use HasBrowser;
 
-    public function testAuthenticatedUserCanOpenSettingsOverview(): void
+    public function testSettingsOverviewShowsTilesInsteadOfTheAccountForm(): void
     {
         UserFactory::new([
             'email' => 'settings@example.test',
@@ -30,7 +31,106 @@ final class SettingsControllerTest extends WebTestCase
         $this->loginWithConsent($this->browser(), 'settings-user')
             ->visit('/settings')
             ->assertSuccessful()
-            ->assertSee('Account Settings')
+            ->assertSeeIn('h2', 'Settings')
+            ->assertNotSeeElement('select[name="settings_locale[locale]"]')
+            ->assertNotSeeElement('[data-testid="settings-section-nav"]')
+            ->assertElementCount('[data-testid="settings-overview"] a.settings-tile', 4)
+            ->assertElementAttributeContains('[data-testid="settings-tile-account"]', 'href', '/settings/account')
+            ->assertElementAttributeContains('[data-testid="settings-tile-email"]', 'href', '/settings/email')
+            ->assertElementAttributeContains('[data-testid="settings-tile-password"]', 'href', '/settings/password')
+            ->assertElementAttributeContains('[data-testid="settings-tile-notifications"]', 'href', '/settings/notifications')
+            ->assertSeeIn('[data-testid="settings-tile-account"]', 'My Account')
+            ->assertSeeIn('[data-testid="settings-tile-account"]', 'Username, email verification status and language.')
+            ->assertSeeIn('[data-testid="settings-tile-notifications"]', 'Notifications')
+        ;
+    }
+
+    public function testSettingsOverviewTilesLeadToWorkingPages(): void
+    {
+        UserFactory::new([
+            'email' => 'settings-tiles@example.test',
+            'isVerified' => true,
+            'username' => 'settings-tiles-user',
+        ])->create();
+
+        $browser = $this->loginWithConsent($this->browser(), 'settings-tiles-user');
+
+        foreach (['account' => 'Account Settings', 'email' => 'Change email', 'password' => 'Change password', 'notifications' => 'Notifications'] as $tile => $heading) {
+            $browser
+                ->visit('/settings')
+                ->click(sprintf('[data-testid="settings-tile-%s"]', $tile))
+                ->assertSuccessful()
+                ->assertSeeIn('h2', $heading)
+            ;
+        }
+    }
+
+    public function testSettingsOverviewIsShownInGerman(): void
+    {
+        UserFactory::new([
+            'email' => 'settings-de@example.test',
+            'isVerified' => true,
+            'username' => 'settings-de-user',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'settings-de-user')
+            ->visit('/locale/switch/de?_target_path=/settings')
+            ->assertOn('/settings')
+            ->assertSuccessful()
+            ->assertSeeIn('h2', 'Einstellungen')
+            ->assertSeeIn('[data-testid="settings-tile-account"]', 'Mein Konto')
+            ->assertSeeIn('[data-testid="settings-tile-notifications"]', 'Legen Sie fest, welche Benachrichtigungen Sie wie erhalten.')
+        ;
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function settingsSectionPages(): iterable
+    {
+        yield 'account' => ['/settings/account', 'My Account'];
+        yield 'email' => ['/settings/email', 'Change email'];
+        yield 'password' => ['/settings/password', 'Set new password'];
+        yield 'notifications' => ['/settings/notifications', 'Notifications'];
+    }
+
+    #[DataProvider('settingsSectionPages')]
+    public function testSettingsPageMarksItsSectionAndLinksBackToOverview(string $path, string $activeSection): void
+    {
+        UserFactory::new([
+            'email' => 'settings-section@example.test',
+            'isVerified' => true,
+            'username' => 'settings-section-user',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'settings-section-user')
+            ->visit($path)
+            ->assertSuccessful()
+            ->assertSeeIn('[data-testid="settings-section-nav"] [aria-current="page"]', $activeSection)
+            ->assertElementCount('[data-testid="settings-section-nav"] [aria-current="page"]', 1)
+            ->assertElementAttributeContains('[data-testid="settings-back-to-overview"]', 'href', '/settings')
+            ->click('All settings')
+            ->assertOn('/settings')
+            ->assertSeeElement('[data-testid="settings-overview"]')
+        ;
+    }
+
+    public function testAccountPageShowsProfileDetailsAndLanguageForm(): void
+    {
+        UserFactory::new([
+            'email' => 'settings-account@example.test',
+            'isVerified' => true,
+            'username' => 'settings-account-user',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'settings-account-user')
+            ->visit('/settings/account')
+            ->assertSuccessful()
+            ->assertSeeIn('h2', 'Account Settings')
+            ->assertSee('Profile Details')
+            ->assertSeeElement('input[value="settings-account-user"][readonly]')
+            ->assertSeeElement('input[value="settings-account@example.test"][readonly]')
+            ->assertSeeElement('select[name="settings_locale[locale]"]')
         ;
     }
 
@@ -49,7 +149,7 @@ final class SettingsControllerTest extends WebTestCase
         \Zenstruck\Foundry\Persistence\save($user);
 
         $browser
-            ->visit('/settings')
+            ->visit('/settings/account')
             ->assertSuccessful()
             ->assertSee('Resend verification email')
         ;
@@ -74,7 +174,7 @@ final class SettingsControllerTest extends WebTestCase
         \Zenstruck\Foundry\Persistence\save($user);
 
         $browser
-            ->visit('/settings')
+            ->visit('/settings/account')
             ->assertSuccessful()
         ;
 
@@ -99,7 +199,7 @@ final class SettingsControllerTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/settings');
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('h2', 'Account Settings');
+        self::assertSelectorTextContains('h2', 'Settings');
 
         $client->request(Request::METHOD_GET, '/settings/password');
         self::assertResponseIsSuccessful();
@@ -185,12 +285,13 @@ final class SettingsControllerTest extends WebTestCase
 
         $browser = $this->loginWithConsent($this->browser(), 'locale-settings-user');
         $browser
-            ->visit('/settings')
+            ->visit('/settings/account')
             ->assertSuccessful()
             ->assertSee('Language')
             ->selectFieldOption('settings_locale[locale]', 'de')
             ->click('Save')
             ->assertSuccessful()
+            ->assertOn('/settings/account')
             ->assertSee('Spracheinstellung gespeichert.')
         ;
 
@@ -208,7 +309,7 @@ final class SettingsControllerTest extends WebTestCase
         ])->create();
 
         $this->loginWithConsent($this->browser(), 'locale-default-user')
-            ->visit('/settings')
+            ->visit('/settings/account')
             ->assertSuccessful()
             ->assertSee('English (automatic default)')
         ;
