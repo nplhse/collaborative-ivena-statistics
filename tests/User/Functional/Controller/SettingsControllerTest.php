@@ -20,7 +20,7 @@ final class SettingsControllerTest extends WebTestCase
     use Factories;
     use HasBrowser;
 
-    public function testSettingsOverviewShowsTilesInsteadOfTheAccountForm(): void
+    public function testSettingsOverviewShowsTilesInsideTheSettingsCard(): void
     {
         UserFactory::new([
             'email' => 'settings@example.test',
@@ -33,7 +33,8 @@ final class SettingsControllerTest extends WebTestCase
             ->assertSuccessful()
             ->assertSeeIn('h2', 'Settings')
             ->assertNotSeeElement('select[name="settings_locale[locale]"]')
-            ->assertNotSeeElement('[data-testid="settings-section-nav"]')
+            ->assertSeeIn('[data-testid="settings-section-nav"] [aria-current="page"]', 'Overview')
+            ->assertNotSeeElement('[data-testid="settings-back-to-overview"]')
             ->assertElementCount('[data-testid="settings-overview"] a.settings-tile', 4)
             ->assertElementAttributeContains('[data-testid="settings-tile-account"]', 'href', '/settings/account')
             ->assertElementAttributeContains('[data-testid="settings-tile-email"]', 'href', '/settings/email')

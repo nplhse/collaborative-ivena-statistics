@@ -13,7 +13,6 @@
             <div class="row g-2 align-items-center">
                 <div class="col">
                     <h2 class="page-title">{{ 'title.settings'|trans({}, 'user') }}</h2>
-                    <div class="text-secondary mt-1">{{ 'text.settings.overview_intro'|trans({}, 'user') }}</div>
                 </div>
             </div>
         </div>
@@ -23,25 +22,36 @@
 {% block page_body %}
     <div class="page-body">
         <div class="container-xl">
-            <nav aria-label="{{ 'label.settings.sections_nav'|trans({}, 'user') }}">
-                <ul class="row row-cards list-unstyled mb-0" data-testid="settings-overview">
-                    {% for section in settings_sections() %}
-                        <li class="col-12 col-md-6 col-xl-3">
-                            <a href="{{ path(section.route) }}" class="card card-link card-link-pop h-100 settings-tile" data-testid="settings-tile-{{ section.key }}">
-                                <span class="card-body d-flex align-items-start gap-3">
-                                    <span class="avatar bg-primary-lt text-primary flex-shrink-0">
-                                        <twig:ux:icon :name="section.icon" class="icon" aria-hidden="true" />
-                                    </span>
-                                    <span class="d-block text-break">
-                                        <span class="d-block fw-semibold text-body">{{ section.labelKey|trans({}, 'user') }}</span>
-                                        <span class="d-block text-secondary mt-1">{{ section.descriptionKey|trans({}, 'user') }}</span>
-                                    </span>
-                                </span>
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </nav>
+            <div class="card">
+                <div class="row g-0">
+                    {{ include('@User/settings/_sidebar.html.twig', {active: 'overview'}) }}
+                    <div class="col-12 col-md-9">
+                        <div class="card-header">
+                            <h3 class="card-title">{{ 'label.settings.overview'|trans({}, 'user') }}</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-secondary">{{ 'text.settings.overview_intro'|trans({}, 'user') }}</p>
+                            <ul class="row g-3 list-unstyled mb-0" data-testid="settings-overview">
+                                {% for section in settings_sections() %}
+                                    <li class="col-12 col-lg-6">
+                                        <a href="{{ path(section.route) }}" class="card card-link card-link-pop h-100 settings-tile" data-testid="settings-tile-{{ section.key }}">
+                                            <span class="card-body d-flex align-items-start gap-3">
+                                                <span class="avatar bg-primary-lt text-primary flex-shrink-0">
+                                                    <twig:ux:icon :name="section.icon" class="icon" aria-hidden="true" />
+                                                </span>
+                                                <span class="d-block text-break">
+                                                    <span class="d-block fw-semibold text-body">{{ section.labelKey|trans({}, 'user') }}</span>
+                                                    <span class="d-block text-secondary mt-1">{{ section.descriptionKey|trans({}, 'user') }}</span>
+                                                </span>
+                                            </span>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

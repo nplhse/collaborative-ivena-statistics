@@ -1,14 +1,23 @@
-{# Section navigation of the single settings pages. Small screens only get the link back to the overview, so the form comes first. #}
+{#
+    Section navigation of the settings card. On small screens the overview tiles take its place:
+    the overview shows no navigation, the single pages only a link back to the overview, so the content comes first.
+#}
 <div class="col-12 col-md-3 border-end">
-    <div class="card-body py-2 border-bottom d-md-none">
-        <a href="{{ path('app_settings_index') }}" class="d-inline-flex align-items-center gap-1" data-testid="settings-back-to-overview">
-            <twig:ux:icon name="tabler:arrow-left" class="icon" aria-hidden="true" />
-            {{ 'label.settings.back_to_overview'|trans({}, 'user') }}
-        </a>
-    </div>
+    {% if active != 'overview' %}
+        <div class="card-body py-2 border-bottom d-md-none">
+            <a href="{{ path('app_settings_index') }}" class="d-inline-flex align-items-center gap-1" data-testid="settings-back-to-overview">
+                <twig:ux:icon name="tabler:arrow-left" class="icon" aria-hidden="true" />
+                {{ 'label.settings.back_to_overview'|trans({}, 'user') }}
+            </a>
+        </div>
+    {% endif %}
     <nav class="card-body d-none d-md-block" aria-label="{{ 'label.settings.sections_nav'|trans({}, 'user') }}" data-testid="settings-section-nav">
         <div class="list-group list-group-transparent">
-            <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="{{ path('app_settings_index') }}">
+            <a
+                class="list-group-item list-group-item-action d-flex align-items-center gap-2{{ active == 'overview' ? ' active' : '' }}"
+                href="{{ path('app_settings_index') }}"
+                {% if active == 'overview' %}aria-current="page"{% endif %}
+            >
                 <twig:ux:icon name="tabler:layout-grid" class="icon" aria-hidden="true" />
                 {{ 'label.settings.overview'|trans({}, 'user') }}
             </a>
