@@ -11,6 +11,10 @@ Related: [usage-analytics.md](usage-analytics.md), [../../02-architecture/messen
 | Last 30 calendar days plus today (default) | Detailed rows in `analytics_request` and `analytics_product_event` |
 | Older completed days | Daily aggregate tables only |
 
+**Retention:** raw rows are deleted after `ANALYTICS_RAW_RETENTION_DAYS` (default 30), and only for
+days with a successful aggregation run. Daily aggregate tables are kept indefinitely; nothing deletes
+them, so long-term totals such as the [counted accesses](#counted-accesses-per-day) stay available.
+
 A calendar **day** is always **Europe/Berlin** (`00:00` inclusive to next `00:00` exclusive), matching request collection (`TIMESTAMP WITHOUT TIME ZONE` stored as naive Berlin time).
 
 ## Daily aggregation
