@@ -35,20 +35,17 @@ final class EngagementDepthResolver
         };
     }
 
-    public function levelForFeatureArea(string $featureArea, bool $hasFilters): int
+    /**
+     * Level 4 ("filters used") was derived from URL parameters and removed in #988;
+     * the other levels keep their numbers.
+     */
+    public function levelForFeatureArea(string $featureArea): int
     {
-        $base = match ($featureArea) {
+        return match ($featureArea) {
             'export' => 5,
-            'analysis' => $hasFilters ? 4 : 2,
-            'statistics', 'explore', 'import' => 2,
+            'analysis', 'statistics', 'explore', 'import' => 2,
             'dashboard' => 1,
             default => 0,
         };
-
-        if ($hasFilters && \in_array($featureArea, ['statistics', 'analysis'], true)) {
-            return max($base, 4);
-        }
-
-        return $base;
     }
 }

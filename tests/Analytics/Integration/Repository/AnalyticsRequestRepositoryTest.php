@@ -22,7 +22,7 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
         $this->repository = self::getContainer()->get(AnalyticsRequestRepository::class);
     }
 
-    public function testAggregatesCoverCountsRoutesAuthRetentionAndFilters(): void
+    public function testAggregatesCoverCountsRoutesAuthAndRetention(): void
     {
         // Noon in Europe/Berlin so "today" counts stay valid around midnight.
         $today = $this->repository->startOfToday()->modify('+12 hours');
@@ -37,7 +37,6 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
             userRole: 'ROLE_PARTICIPANT',
             analyticsUserKey: $userKey,
             sessionKey: $session,
-            queryParamNames: [],
             durationMs: 100,
             dbQueryCount: 2,
         );
@@ -49,7 +48,6 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
             userRole: 'ROLE_PARTICIPANT',
             analyticsUserKey: $userKey,
             sessionKey: $session,
-            queryParamNames: ['period', 'scope'],
             durationMs: 400,
             dbQueryCount: 12,
         );
@@ -61,7 +59,6 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
             userRole: null,
             analyticsUserKey: null,
             sessionKey: $session,
-            queryParamNames: [],
             durationMs: 150,
             dbQueryCount: 3,
         );
@@ -75,7 +72,6 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
                 userRole: 'ROLE_ADMIN',
                 analyticsUserKey: 'user-key-agg-2',
                 sessionKey: 'session-agg-2',
-                queryParamNames: ['period'],
                 durationMs: 800 + ($i * 10),
                 dbQueryCount: 20,
             );
@@ -114,7 +110,9 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
 
         $levels = $this->repository->maxRequestLevelsByUserSince($from);
         self::assertArrayHasKey($userKey, $levels);
-        self::assertGreaterThanOrEqual(4, $levels[$userKey]);
+        // Dashboard (1) and analysis (2), no level from query parameters any more.
+        self::assertSame(2, $levels[$userKey]);
+        self::assertSame(2, $levels['user-key-agg-2']);
 
         $entries = $this->repository->topEntryRoutesSince($from);
         self::assertNotEmpty($entries);
@@ -131,16 +129,6 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
             \in_array('app_stats_dashboard', $fromRoutes, true)
             || \in_array('app_stats_analysis_explorer', $fromRoutes, true),
         );
-
-        $filterParams = $this->repository->topFilterParamsSince($from);
-        self::assertNotEmpty($filterParams);
-        self::assertContains('period', array_column($filterParams, 'paramName'));
-
-        $filterByArea = $this->repository->filterUsageByAreaSince($from);
-        self::assertNotEmpty($filterByArea);
-        $analysisFilter = array_find($filterByArea, fn ($row): bool => 'analysis' === $row['featureArea']);
-        self::assertNotNull($analysisFilter);
-        self::assertGreaterThan(0, $analysisFilter['withFilters']);
 
         $perf = $this->repository->performanceByAreaSince($from);
         self::assertNotEmpty($perf);
@@ -195,9 +183,6 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
         ));
     }
 
-    /**
-     * @param list<string> $queryParamNames
-     */
     private function saveRequest(
         \DateTimeImmutable $occurredAt,
         ?string $routeName,
@@ -206,7 +191,6 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
         ?string $userRole,
         ?string $analyticsUserKey,
         ?string $sessionKey,
-        array $queryParamNames,
         int $durationMs = 100,
         int $dbQueryCount = 1,
     ): void {
@@ -225,7 +209,6 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
             sessionKey: $sessionKey,
             browserFamily: BrowserFamily::Chrome,
             deviceType: DeviceType::Desktop,
-            queryParamNames: $queryParamNames,
         ));
     }
 }

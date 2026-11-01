@@ -35,8 +35,6 @@ Only **completed** days are aggregated by the scheduler (yesterday and catch-up)
 | `analytics_aggregation_run` | date | Marker required before raw cleanup |
 | `analytics_request_daily` | date + area + route + auth + role | counts, error counts, duration/query sums |
 | `analytics_event_daily` | date + event + area + role | event counts |
-| `analytics_filter_param_daily` | date + param | usage counts |
-| `analytics_filter_area_daily` | date + area | with/without filter counts |
 | `analytics_transition_daily` | date + from/to route | transition counts (within that day) |
 | `analytics_session_boundary_daily` | date + route + entry/exit | session counts (within that day) |
 | `analytics_uniques_daily` | date | daily distinct users/visitors/sessions (not summable across days) |
@@ -47,7 +45,7 @@ Admin Usage Analytics views keep their existing 7-/30-day windows.
 
 | Metric | Source |
 |--------|--------|
-| Request counts, feature areas, top routes, auth split, role × area, event counts, filter counts | Aggregate tables for completed days with a run marker, plus raw rows for today and any unaggregated gaps |
+| Request counts, feature areas, top routes, auth split, role × area, event counts | Aggregate tables for completed days with a run marker, plus raw rows for today and any unaggregated gaps |
 | DAU/WAU/MAU, funnel uniques, engagement depth, time-to-first, unique users, p95, journeys | Raw tables (not reconstructable from daily counts) |
 
 Failed aggregation never deletes the corresponding raw day, so those metrics stay available until the day is successfully rolled up.

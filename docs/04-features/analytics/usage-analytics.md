@@ -14,9 +14,9 @@ Tables are created by migration `Version20260804151958` (run with normal deploy 
 
 ## Privacy
 
-Stored: route name, feature area, status, duration, DB query count/time, authenticated flag, primary role, normalized browser/device, non-empty query **parameter names**, optional pseudonymous keys, usage event names + non-PII context.
+Stored: route name, feature area, status, duration, DB query count/time, authenticated flag, primary role, normalized browser/device, optional pseudonymous keys, usage event names + non-PII context.
 
-Not stored: IP, full URLs, query values, SQL, raw user agent, referrer, POST/form bodies, Symfony session id, user id.
+Not stored: IP, full URLs, query parameters (names or values), SQL, raw user agent, referrer, POST/form bodies, Symfony session id, user id.
 
 ## Cookie consent (`analytics` preference)
 
@@ -141,8 +141,11 @@ Derived in the dashboard (not stored). Max level per `analytics_user_key` over 3
 | 1 | Dashboard viewed | Feature area `dashboard` |
 | 2 | Statistics / Explore / Import | Areas or open/import events |
 | 3 | Analysis run | `analysis.explorer.run` |
-| 4 | Filters used | Non-empty `query_param_names` on analysis/statistics |
 | 5 | Export | `analysis.explorer.exported_csv` or area `export` |
+
+There is no level 4. It was "filters used", derived from query parameter names, and was removed
+without replacement because URL parameters do not show filter use (#952, #988). The other levels
+keep their numbers.
 
 ## Onboarding funnel
 
@@ -161,9 +164,8 @@ Menu section **Usage analytics** (above System), one page per topic:
 | Overview | `/admin/operations/usage-analytics/overview` | Requests, DAU/WAU/MAU, feature areas, auth split, top routes |
 | Adoption | `…/adoption` | Top events, events by role, role × area, engagement depth |
 | Journeys | `…/journeys` | Onboarding funnel, time-to-first, entry/exit/transitions |
-| Filters | `…/filters` | Filter parameter names, with/without filters by area |
 | Performance | `…/performance` | Latency/queries/errors by area, slowest routes, prioritization hints |
 
 `/admin/operations/usage-analytics` redirects to Overview. No per-user search or raw identifiers.
 
-Count-based widgets (requests, feature areas, routes, filters, event counts) combine daily aggregates with raw rows for today and any unaggregated gaps. Distinct-user and sequence metrics (DAU/WAU/MAU, funnels, engagement depth, journeys, p95) stay on the raw 30-day window. Details: [aggregation-and-retention.md](aggregation-and-retention.md).
+Count-based widgets (requests, feature areas, routes, event counts) combine daily aggregates with raw rows for today and any unaggregated gaps. Distinct-user and sequence metrics (DAU/WAU/MAU, funnels, engagement depth, journeys, p95) stay on the raw 30-day window. Details: [aggregation-and-retention.md](aggregation-and-retention.md).

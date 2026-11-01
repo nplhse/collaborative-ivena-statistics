@@ -6,7 +6,6 @@ namespace App\Analytics\Infrastructure\Http;
 
 use App\Analytics\Application\RequestTracking\AnalyticsUserKeyGenerator;
 use App\Analytics\Application\RequestTracking\FeatureAreaResolver;
-use App\Analytics\Application\RequestTracking\QueryParameterNameExtractor;
 use App\Analytics\Application\RequestTracking\RequestAnalyticsRecorder;
 use App\Analytics\Application\RequestTracking\UserAgentNormalizer;
 use App\Analytics\Infrastructure\Doctrine\AnalyticsQueryCounter;
@@ -54,7 +53,6 @@ final readonly class AnalyticsRequestSubscriber
         private CookieConsentService $cookieConsentService,
         private FeatureAreaResolver $featureAreaResolver,
         private UserAgentNormalizer $userAgentNormalizer,
-        private QueryParameterNameExtractor $queryParameterNameExtractor,
         private AnalyticsUserKeyGenerator $analyticsUserKeyGenerator,
         private RequestAnalyticsRecorder $recorder,
         private Security $security,
@@ -176,7 +174,6 @@ final readonly class AnalyticsRequestSubscriber
             sessionKey: $keys['sessionKey'],
             browserFamily: $ua['browserFamily'],
             deviceType: $ua['deviceType'],
-            queryParamNames: $this->queryParameterNameExtractor->extract($request->query->all()),
         );
     }
 

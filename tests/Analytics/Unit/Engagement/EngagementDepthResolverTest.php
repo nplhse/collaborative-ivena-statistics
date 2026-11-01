@@ -31,14 +31,21 @@ final class EngagementDepthResolverTest extends TestCase
     {
         $resolver = new EngagementDepthResolver();
 
-        self::assertSame(1, $resolver->levelForFeatureArea('dashboard', false));
-        self::assertSame(2, $resolver->levelForFeatureArea('analysis', false));
-        self::assertSame(4, $resolver->levelForFeatureArea('analysis', true));
-        self::assertSame(2, $resolver->levelForFeatureArea('statistics', false));
-        self::assertSame(4, $resolver->levelForFeatureArea('statistics', true));
-        self::assertSame(2, $resolver->levelForFeatureArea('explore', false));
-        self::assertSame(2, $resolver->levelForFeatureArea('import', true));
-        self::assertSame(5, $resolver->levelForFeatureArea('export', false));
-        self::assertSame(0, $resolver->levelForFeatureArea('other', false));
+        self::assertSame(1, $resolver->levelForFeatureArea('dashboard'));
+        self::assertSame(2, $resolver->levelForFeatureArea('analysis'));
+        self::assertSame(2, $resolver->levelForFeatureArea('statistics'));
+        self::assertSame(2, $resolver->levelForFeatureArea('explore'));
+        self::assertSame(2, $resolver->levelForFeatureArea('import'));
+        self::assertSame(5, $resolver->levelForFeatureArea('export'));
+        self::assertSame(0, $resolver->levelForFeatureArea('other'));
+    }
+
+    public function testNoSourceProducesTheRemovedLevelFour(): void
+    {
+        $resolver = new EngagementDepthResolver();
+
+        foreach (['home', 'dashboard', 'statistics', 'analysis', 'explore', 'import', 'export', 'admin', 'blog', 'pages', 'other'] as $area) {
+            self::assertNotSame(4, $resolver->levelForFeatureArea($area), $area);
+        }
     }
 }

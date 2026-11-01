@@ -49,8 +49,8 @@ final class AnalyticsDailyAggregationServiceTest extends DatabaseKernelTestCase
     public function testAggregateForDateIsIdempotentAndWritesMarkerForEmptyDays(): void
     {
         $day = AnalyticsCalendar::daysAgo(2)->setTime(12, 0);
-        $this->saveRequest($day, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-a', 'session-a', ['period']);
-        $this->saveRequest($day->modify('+1 hour'), 'app_stats_analysis_explorer', FeatureArea::Analysis, true, 'ROLE_PARTICIPANT', 'user-a', 'session-a', []);
+        $this->saveRequest($day, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-a', 'session-a');
+        $this->saveRequest($day->modify('+1 hour'), 'app_stats_analysis_explorer', FeatureArea::Analysis, true, 'ROLE_PARTICIPANT', 'user-a', 'session-a');
         $this->eventRepository->save(new AnalyticsProductEvent(
             eventName: UsageEventName::ANALYSIS_EXPLORER_RUN,
             featureArea: FeatureArea::Analysis,
@@ -80,14 +80,6 @@ final class AnalyticsDailyAggregationServiceTest extends DatabaseKernelTestCase
         self::assertSame(1, (int) $this->connection->fetchOne(
             'SELECT event_count FROM analytics_event_daily WHERE date = :date AND event_name = :event',
             ['date' => $day->format('Y-m-d'), 'event' => UsageEventName::ANALYSIS_EXPLORER_RUN],
-        ));
-        self::assertSame(1, (int) $this->connection->fetchOne(
-            'SELECT usage_count FROM analytics_filter_param_daily WHERE date = :date AND param_name = :param',
-            ['date' => $day->format('Y-m-d'), 'param' => 'period'],
-        ));
-        self::assertSame(1, (int) $this->connection->fetchOne(
-            'SELECT with_filters FROM analytics_filter_area_daily WHERE date = :date AND feature_area = :area',
-            ['date' => $day->format('Y-m-d'), 'area' => FeatureArea::Dashboard->value],
         ));
         self::assertSame(1, (int) $this->connection->fetchOne(
             'SELECT transition_count FROM analytics_transition_daily WHERE date = :date AND from_route = :fromRoute AND to_route = :toRoute',
@@ -123,12 +115,12 @@ final class AnalyticsDailyAggregationServiceTest extends DatabaseKernelTestCase
         $yesterday = AnalyticsCalendar::yesterday()->setTime(11, 0);
         $today = AnalyticsCalendar::startOfToday()->setTime(12, 0);
 
-        $this->saveRequest($twoDaysAgo, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-h', 'session-h', []);
-        $this->saveRequest($twoDaysAgo->modify('+30 minutes'), 'app_stats_analysis_explorer', FeatureArea::Analysis, true, 'ROLE_PARTICIPANT', 'user-h', 'session-h', ['period']);
-        $this->saveRequest($twoDaysAgo->modify('+40 minutes'), 'app_explore_allocation', FeatureArea::Explore, false, null, null, 'session-h2', []);
-        $this->saveRequest($yesterday, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_ADMIN', 'user-y', 'session-y', []);
-        $this->saveRequest($yesterday->modify('+15 minutes'), 'app_home', FeatureArea::Home, false, null, null, 'session-y2', []);
-        $this->saveRequest($today, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-t', 'session-t', ['period']);
+        $this->saveRequest($twoDaysAgo, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-h', 'session-h');
+        $this->saveRequest($twoDaysAgo->modify('+30 minutes'), 'app_stats_analysis_explorer', FeatureArea::Analysis, true, 'ROLE_PARTICIPANT', 'user-h', 'session-h');
+        $this->saveRequest($twoDaysAgo->modify('+40 minutes'), 'app_explore_allocation', FeatureArea::Explore, false, null, null, 'session-h2');
+        $this->saveRequest($yesterday, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_ADMIN', 'user-y', 'session-y');
+        $this->saveRequest($yesterday->modify('+15 minutes'), 'app_home', FeatureArea::Home, false, null, null, 'session-y2');
+        $this->saveRequest($today, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-t', 'session-t');
         $this->eventRepository->save(new AnalyticsProductEvent(
             eventName: UsageEventName::ANALYSIS_EXPLORER_RUN,
             featureArea: FeatureArea::Analysis,
@@ -191,16 +183,6 @@ final class AnalyticsDailyAggregationServiceTest extends DatabaseKernelTestCase
         $eventsByRole = $this->reportingQuery->eventsByRoleSince($from);
         self::assertSame('ROLE_PARTICIPANT', $eventsByRole[0]['userRole'] ?? null);
         self::assertSame(2, $eventsByRole[0]['eventCount'] ?? 0);
-
-        $filters = $this->reportingQuery->topFilterParamsSince($from);
-        self::assertSame('period', $filters[0]['paramName'] ?? null);
-        self::assertSame(2, $filters[0]['usageCount'] ?? 0);
-
-        $filterAreas = $this->reportingQuery->filterUsageByAreaSince($from);
-        $dashboardFilters = array_find($filterAreas, fn ($row): bool => 'dashboard' === $row['featureArea']);
-        self::assertNotNull($dashboardFilters);
-        self::assertSame(1, $dashboardFilters['withFilters']);
-        self::assertSame(2, $dashboardFilters['withoutFilters']);
     }
 
     public function testCleanupDeletesOnlyAggregatedDaysOlderThanRetention(): void
@@ -209,9 +191,9 @@ final class AnalyticsDailyAggregationServiceTest extends DatabaseKernelTestCase
         $recent = AnalyticsCalendar::daysAgo(5)->setTime(9, 0);
         $unaggregatedExpired = AnalyticsCalendar::daysAgo(35)->setTime(9, 0);
 
-        $this->saveRequest($expired, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-old', 'session-old', []);
-        $this->saveRequest($recent, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-new', 'session-new', []);
-        $this->saveRequest($unaggregatedExpired, 'app_home', FeatureArea::Home, false, null, null, 'session-gap', []);
+        $this->saveRequest($expired, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-old', 'session-old');
+        $this->saveRequest($recent, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-new', 'session-new');
+        $this->saveRequest($unaggregatedExpired, 'app_home', FeatureArea::Home, false, null, null, 'session-gap');
         $this->eventRepository->save(new AnalyticsProductEvent(
             eventName: UsageEventName::USER_REGISTERED,
             analyticsUserKey: 'user-old',
@@ -242,9 +224,9 @@ final class AnalyticsDailyAggregationServiceTest extends DatabaseKernelTestCase
     public function testReAggregatingAPurgedDayKeepsItsAggregates(): void
     {
         $expired = AnalyticsCalendar::daysAgo(40)->setTime(9, 0);
-        $this->saveRequest($expired, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-p', 'session-p', []);
-        $this->saveRequest($expired->modify('+5 minutes'), 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-p', 'session-p', []);
-        $this->saveRequest($expired->modify('+10 minutes'), 'app_home', FeatureArea::Home, false, null, null, 'session-q', []);
+        $this->saveRequest($expired, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-p', 'session-p');
+        $this->saveRequest($expired->modify('+5 minutes'), 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-p', 'session-p');
+        $this->saveRequest($expired->modify('+10 minutes'), 'app_home', FeatureArea::Home, false, null, null, 'session-q');
         $this->eventRepository->save(new AnalyticsProductEvent(
             eventName: UsageEventName::ANALYSIS_EXPLORER_RUN,
             featureArea: FeatureArea::Analysis,
@@ -295,8 +277,8 @@ final class AnalyticsDailyAggregationServiceTest extends DatabaseKernelTestCase
         $expired = AnalyticsCalendar::daysAgo(40)->setTime(8, 0);
         $yesterday = AnalyticsCalendar::yesterday()->setTime(8, 0);
 
-        $this->saveRequest($expired, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-s', 'session-s', []);
-        $this->saveRequest($yesterday, 'app_stats_analysis_explorer', FeatureArea::Analysis, true, 'ROLE_PARTICIPANT', 'user-s', 'session-s', ['period']);
+        $this->saveRequest($expired, 'app_stats_dashboard', FeatureArea::Dashboard, true, 'ROLE_PARTICIPANT', 'user-s', 'session-s');
+        $this->saveRequest($yesterday, 'app_stats_analysis_explorer', FeatureArea::Analysis, true, 'ROLE_PARTICIPANT', 'user-s', 'session-s');
 
         $scheduled = self::getContainer()->get(AnalyticsScheduledAggregationService::class);
         $result = $scheduled->run();
@@ -308,9 +290,6 @@ final class AnalyticsDailyAggregationServiceTest extends DatabaseKernelTestCase
         self::assertGreaterThanOrEqual(1, $result->rawRowsDeleted);
     }
 
-    /**
-     * @param list<string> $queryParamNames
-     */
     private function saveRequest(
         \DateTimeImmutable $occurredAt,
         ?string $routeName,
@@ -319,7 +298,6 @@ final class AnalyticsDailyAggregationServiceTest extends DatabaseKernelTestCase
         ?string $userRole,
         ?string $analyticsUserKey,
         ?string $sessionKey,
-        array $queryParamNames,
     ): void {
         $this->requestRepository->save(new AnalyticsRequest(
             occurredAt: $occurredAt,
@@ -336,7 +314,6 @@ final class AnalyticsDailyAggregationServiceTest extends DatabaseKernelTestCase
             sessionKey: $sessionKey,
             browserFamily: BrowserFamily::Firefox,
             deviceType: DeviceType::Desktop,
-            queryParamNames: $queryParamNames,
         ));
     }
 

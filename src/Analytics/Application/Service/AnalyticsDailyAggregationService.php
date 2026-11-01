@@ -8,8 +8,6 @@ use App\Analytics\Application\DTO\AnalyticsAggregationResult;
 use App\Analytics\Domain\AnalyticsCalendar;
 use App\Analytics\Domain\Entity\AnalyticsAggregationRun;
 use App\Analytics\Domain\Entity\AnalyticsEventDaily;
-use App\Analytics\Domain\Entity\AnalyticsFilterAreaDaily;
-use App\Analytics\Domain\Entity\AnalyticsFilterParamDaily;
 use App\Analytics\Domain\Entity\AnalyticsRequestDaily;
 use App\Analytics\Domain\Entity\AnalyticsSessionBoundaryDaily;
 use App\Analytics\Domain\Entity\AnalyticsTransitionDaily;
@@ -57,8 +55,6 @@ final readonly class AnalyticsDailyAggregationService
 
             $rowsWritten += $this->persistRequestDaily($calendarDate);
             $rowsWritten += $this->persistEventDaily($calendarDate);
-            $rowsWritten += $this->persistFilterParams($calendarDate);
-            $rowsWritten += $this->persistFilterAreas($calendarDate);
             $rowsWritten += $this->persistTransitions($calendarDate);
             $rowsWritten += $this->persistSessionBoundaries($calendarDate);
             $rowsWritten += $this->persistUniques($calendarDate);
@@ -118,37 +114,6 @@ final readonly class AnalyticsDailyAggregationService
                 featureArea: $featureArea,
                 userRole: $row['userRole'],
                 eventCount: $row['eventCount'],
-            ));
-            ++$count;
-        }
-
-        return $count;
-    }
-
-    private function persistFilterParams(\DateTimeImmutable $date): int
-    {
-        $count = 0;
-        foreach ($this->aggregationQuery->fetchFilterParams($date) as $row) {
-            $this->entityManager->persist(new AnalyticsFilterParamDaily(
-                date: $date,
-                paramName: $row['paramName'],
-                usageCount: $row['usageCount'],
-            ));
-            ++$count;
-        }
-
-        return $count;
-    }
-
-    private function persistFilterAreas(\DateTimeImmutable $date): int
-    {
-        $count = 0;
-        foreach ($this->aggregationQuery->fetchFilterAreas($date) as $row) {
-            $this->entityManager->persist(new AnalyticsFilterAreaDaily(
-                date: $date,
-                featureArea: FeatureArea::from($row['featureArea']),
-                withFilters: $row['withFilters'],
-                withoutFilters: $row['withoutFilters'],
             ));
             ++$count;
         }

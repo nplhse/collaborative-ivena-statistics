@@ -39,7 +39,6 @@ final class AnalyticsAggregateCommandTest extends DatabaseKernelTestCase
             sessionKey: 'cmd-session',
             browserFamily: BrowserFamily::Chrome,
             deviceType: DeviceType::Desktop,
-            queryParamNames: [],
         ));
 
         $command = self::getContainer()->get(AnalyticsAggregateCommand::class);
@@ -110,7 +109,6 @@ final class AnalyticsAggregateCommandTest extends DatabaseKernelTestCase
             sessionKey: 'dry-session',
             browserFamily: BrowserFamily::Safari,
             deviceType: DeviceType::Mobile,
-            queryParamNames: [],
         ));
         self::getContainer()->get(AnalyticsDailyAggregationService::class)->aggregateForDate($expired);
 
@@ -174,7 +172,6 @@ final class AnalyticsAggregateCommandTest extends DatabaseKernelTestCase
             sessionKey: 'kept-session',
             browserFamily: BrowserFamily::Safari,
             deviceType: DeviceType::Mobile,
-            queryParamNames: [],
         ));
         self::getContainer()->get(AnalyticsDailyAggregationService::class)->aggregateForDate($expired);
         self::getContainer()->get(AnalyticsRawRetentionService::class)->purgeExpiredRaw();
@@ -222,7 +219,6 @@ final class AnalyticsAggregateCommandTest extends DatabaseKernelTestCase
             sessionKey: 'purge-session',
             browserFamily: BrowserFamily::Safari,
             deviceType: DeviceType::Mobile,
-            queryParamNames: [],
         ));
         self::getContainer()->get(AnalyticsDailyAggregationService::class)->aggregateForDate($expired);
 
