@@ -11,6 +11,10 @@ final readonly class AnalyticsAggregationResult
         public int $rawRequestCount,
         public int $rawEventCount,
         public int $aggregateRowsWritten,
+        /** True when an aggregated day without raw rows was left unchanged. */
+        public bool $keptExisting = false,
+        /** Requests of the day without counted-access flag; the day gets no access counts then. */
+        public int $unclassifiedRequests = 0,
     ) {
     }
 }

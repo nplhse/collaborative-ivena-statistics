@@ -72,9 +72,17 @@ final readonly class AnalyticsAggregateCommand
         $totalRequests = 0;
         $totalEvents = 0;
         $daysWithData = 0;
+        $daysKept = 0;
+        $daysWithoutAccessCounts = 0;
 
         foreach ($dates as $aggregationDate) {
             $result = $this->aggregationService->aggregateForDate($aggregationDate);
+            if ($result->keptExisting) {
+                ++$daysKept;
+            }
+            if ($result->unclassifiedRequests > 0) {
+                ++$daysWithoutAccessCounts;
+            }
             $totalRows += $result->aggregateRowsWritten;
             $totalRequests += $result->rawRequestCount;
             $totalEvents += $result->rawEventCount;
@@ -94,7 +102,15 @@ final readonly class AnalyticsAggregateCommand
             $this->formatPeriodSuffix($dates),
         );
 
-        if (0 === $totalRequests && 0 === $totalEvents) {
+        if ($daysWithoutAccessCounts > 0) {
+            $summary .= sprintf(' %d day(s) have unclassified requests and got no access counts; run app:analytics:classify-accesses --apply and aggregate them again.', $daysWithoutAccessCounts);
+        }
+
+        if ($daysKept > 0) {
+            $summary .= sprintf(' %d already aggregated day(s) without raw rows kept unchanged.', $daysKept);
+        }
+
+        if (0 === $totalRequests && 0 === $totalEvents && 0 === $daysKept) {
             $summary .= ' No raw analytics rows in the selected period.';
         }
 

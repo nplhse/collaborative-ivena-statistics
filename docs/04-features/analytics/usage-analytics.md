@@ -14,9 +14,9 @@ Tables are created by migration `Version20260804151958` (run with normal deploy 
 
 ## Privacy
 
-Stored: route name, feature area, status, duration, DB query count/time, authenticated flag, primary role, normalized browser/device, non-empty query **parameter names**, optional pseudonymous keys, usage event names + non-PII context.
+Stored: route name, feature area, status, duration, DB query count/time, authenticated flag, primary role, normalized browser/device, whether the request counts as an access, optional pseudonymous keys, usage event names + non-PII context.
 
-Not stored: IP, full URLs, query values, SQL, raw user agent, referrer, POST/form bodies, Symfony session id, user id.
+Not stored: IP, full URLs, query parameters (names or values), SQL, raw user agent, referrer, POST/form bodies, Symfony session id, user id.
 
 ## Cookie consent (`analytics` preference)
 
@@ -107,9 +107,7 @@ Event names live in `App\Analytics\Domain\UsageEventName`. Context must be non-P
 | `explore.allocation.opened` / `hospital` / `indication` | Explore show controllers |
 | `benchmarking.opened` | Benchmarking page |
 | `user.registered` | `UserRegistered` listener |
-| `user.email_confirmed` | Email verification |
 | `user.became_participant` | Grant participant |
-| `onboarding.step.completed` | Onboarding progress (`step` in context) |
 
 ## Feature areas
 
@@ -131,6 +129,46 @@ php bin/console dbal:run-sql "DELETE FROM analytics_request WHERE feature_area =
 
 Do **not** delete `analytics_product_event` rows for this cleanup.
 
+## Counted accesses
+
+Every tracked request stores `analytics_request.counted_access`: whether it counts as an **access**,
+that is a normal page view. Access counts are request counts after the filters below; they are not
+visitors, users or sessions. The rule lives in `CountedAccessClassifier`.
+
+A request counts when all of the following hold:
+
+| Condition | Not counted |
+|-----------|-------------|
+| Method `GET` or `HEAD` | `POST`, `DELETE`, … (forms, actions) |
+| Status 2xx | Redirects (3xx), client and server errors (4xx, 5xx) |
+| No `Turbo-Frame` header | Frame loads and frame navigation |
+| Not XHR (`X-Requested-With`) and no prefetch (`Sec-Purpose`, `Purpose`, `X-Sec-Purpose`) | Background calls, Turbo and browser prefetches |
+| Device type is not `Bot` | Recognised crawlers and link previews (`UserAgentNormalizer`) |
+| Route is a page route | Technical endpoints (`robots.txt`, `sitemap.xml`, RSS, health, locale switch, cookie routes), Live Components, polling and JSON endpoints, lazily loaded frames and partials (route list plus suffixes `_frame`, `_drawer`), downloads and CSV exports (`_export_csv`) |
+
+Requests that are not tracked at all are not counted either: the Admin UI, the profiler, assets and
+notification polling ([admin area exclusion](#admin-area-exclusion)). Bots that send a normal browser
+user agent cannot be recognised without invasive tracking and are counted.
+
+When a route is added that only serves a frame, a partial or a file, add it to
+`CountedAccessClassifier::NON_PAGE_ROUTES` (or give it one of the suffixes). A test fails when a
+listed route no longer exists.
+
+### Rows recorded before the flag
+
+Rows recorded before `counted_access` existed are `NULL`. Classify them once after the deploy:
+
+```bash
+php bin/console app:analytics:classify-accesses          # preview
+php bin/console app:analytics:classify-accesses --apply  # write
+```
+
+Only the stored fields are available for them (status, route, device type). Method and request
+headers were not recorded, so frame navigations on page routes and non-GET requests with a 2xx
+response are counted for these rows. Already classified rows are never changed; running the command
+again is safe. Raw rows only exist for the last `ANALYTICS_RAW_RETENTION_DAYS` days
+([aggregation-and-retention.md](aggregation-and-retention.md)); older days cannot be classified.
+
 ## Engagement depth (levels)
 
 Derived in the dashboard (not stored). Max level per `analytics_user_key` over 30 days from events and requests:
@@ -141,16 +179,19 @@ Derived in the dashboard (not stored). Max level per `analytics_user_key` over 3
 | 1 | Dashboard viewed | Feature area `dashboard` |
 | 2 | Statistics / Explore / Import | Areas or open/import events |
 | 3 | Analysis run | `analysis.explorer.run` |
-| 4 | Filters used | Non-empty `query_param_names` on analysis/statistics |
 | 5 | Export | `analysis.explorer.exported_csv` or area `export` |
 
-## Onboarding funnel
+There is no level 4. It was "filters used", derived from query parameter names, and was removed
+without replacement because URL parameters do not show filter use (#952, #988). The other levels
+keep their numbers.
 
-Steps (unique `analytics_user_key`):
+## Onboarding
 
-`user.registered` → `user.email_confirmed` → `user.became_participant` → `import.completed` → `analysis.explorer.run` → `analysis.explorer.exported_csv`
-
-Conversion % is step N → N+1. **Reliable only with analytics consent + user keys**; anonymous traffic stays in request aggregates only.
+Onboarding is not analysed in the admin backend (#950). The onboarding steps and their progress
+(`user_onboarding_step`) work as before, but completing a step records no usage event, and there is
+no onboarding funnel or time-to-first report. The former events `onboarding.step.completed` and
+`user.email_confirmed` are no longer recorded; stored rows were deleted by migration
+`Version20261101201114`.
 
 ## Admin insights
 
@@ -159,11 +200,25 @@ Menu section **Usage analytics** (above System), one page per topic:
 | Page | Route | Contents |
 |------|-------|----------|
 | Overview | `/admin/operations/usage-analytics/overview` | Requests, DAU/WAU/MAU, feature areas, auth split, top routes |
+| Accesses | `…/accesses` | Counted accesses (page views) in total, per year and per month since the counting started, monthly chart |
 | Adoption | `…/adoption` | Top events, events by role, role × area, engagement depth |
-| Journeys | `…/journeys` | Onboarding funnel, time-to-first, entry/exit/transitions |
-| Filters | `…/filters` | Filter parameter names, with/without filters by area |
+| Journeys | `…/journeys` | Entry/exit routes and transitions |
 | Performance | `…/performance` | Latency/queries/errors by area, slowest routes, prioritization hints |
 
 `/admin/operations/usage-analytics` redirects to Overview. No per-user search or raw identifiers.
 
-Count-based widgets (requests, feature areas, routes, filters, event counts) combine daily aggregates with raw rows for today and any unaggregated gaps. Distinct-user and sequence metrics (DAU/WAU/MAU, funnels, engagement depth, journeys, p95) stay on the raw 30-day window. Details: [aggregation-and-retention.md](aggregation-and-retention.md).
+### Accesses page
+
+Long-term view of [counted accesses](#counted-accesses), built by `AccessTrendService` from
+`analytics_access_daily` plus raw requests of days not aggregated yet
+([aggregation-and-retention.md](aggregation-and-retention.md#counted-accesses-per-day)):
+
+- **Total** since the counting started, split into signed in and anonymous, with the start date
+  ("Counted since"). Nothing before that date is counted or shown.
+- **Per year and per month**, newest first, from the period the counting started in to the current
+  one. A period without counted accesses shows 0.
+- **Incomplete periods** are marked: the current month and year ("Not over yet") and the period in
+  which the counting started ("Counted from …"). The chart draws them lighter.
+- **Time zone:** days, months and years are Europe/Berlin calendar periods.
+
+Count-based widgets (requests, feature areas, routes, event counts) combine daily aggregates with raw rows for today and any unaggregated gaps. Distinct-user and sequence metrics (DAU/WAU/MAU, engagement depth, journeys, p95) stay on the raw 30-day window. Details: [aggregation-and-retention.md](aggregation-and-retention.md).

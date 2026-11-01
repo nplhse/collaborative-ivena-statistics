@@ -38,6 +38,56 @@ final readonly class AnalyticsDayAggregationQuery
     }
 
     /**
+     * Counted accesses of one Berlin day, split by authentication, plus the number of requests
+     * that are not classified yet (counted_access IS NULL).
+     *
+     * @return array{authenticated: int, anonymous: int, unclassified: int}
+     */
+    public function fetchAccessCounts(\DateTimeImmutable $day): array
+    {
+        [$from, $to] = AnalyticsCalendar::dayBounds($day);
+
+        $row = $this->connection->fetchAssociative(
+            <<<'SQL'
+                SELECT COUNT(*) FILTER (WHERE counted_access AND is_authenticated) AS authenticated,
+                       COUNT(*) FILTER (WHERE counted_access AND NOT is_authenticated) AS anonymous,
+                       COUNT(*) FILTER (WHERE counted_access IS NULL) AS unclassified
+                FROM analytics_request
+                WHERE occurred_at >= :from AND occurred_at < :to
+                SQL,
+            $this->boundParams($from, $to),
+            $this->boundTypes(),
+        );
+
+        return [
+            'authenticated' => $this->toInt($row['authenticated'] ?? 0),
+            'anonymous' => $this->toInt($row['anonymous'] ?? 0),
+            'unclassified' => $this->toInt($row['unclassified'] ?? 0),
+        ];
+    }
+
+    /**
+     * Whether accesses were counted on an earlier day, i.e. the day lies inside the counted period.
+     */
+    public function hasAccessCountsBefore(\DateTimeImmutable $day): bool
+    {
+        return false !== $this->connection->fetchOne(
+            'SELECT 1 FROM analytics_access_daily WHERE date < :date LIMIT 1',
+            ['date' => AnalyticsCalendar::startOfDay($day)->format('Y-m-d')],
+            ['date' => ParameterType::STRING],
+        );
+    }
+
+    public function hasAggregationRun(\DateTimeImmutable $day): bool
+    {
+        return false !== $this->connection->fetchOne(
+            'SELECT 1 FROM analytics_aggregation_run WHERE date = :date',
+            ['date' => AnalyticsCalendar::startOfDay($day)->format('Y-m-d')],
+            ['date' => ParameterType::STRING],
+        );
+    }
+
+    /**
      * @return list<array{
      *     featureArea: string,
      *     routeName: string|null,
@@ -126,79 +176,6 @@ final readonly class AnalyticsDayAggregationQuery
                 'featureArea' => null !== $row['feature_area'] ? (string) $row['feature_area'] : null,
                 'userRole' => (string) ($row['user_role'] ?? 'unknown'),
                 'eventCount' => $this->toInt($row['event_count'] ?? 0),
-            ];
-        }
-
-        return $result;
-    }
-
-    /**
-     * @return list<array{paramName: string, usageCount: int}>
-     */
-    public function fetchFilterParams(\DateTimeImmutable $day): array
-    {
-        [$from, $to] = AnalyticsCalendar::dayBounds($day);
-
-        $rows = $this->connection->fetchAllAssociative(
-            <<<'SQL'
-                SELECT param_name,
-                       COUNT(*)::int AS usage_count
-                FROM analytics_request r
-                CROSS JOIN LATERAL jsonb_array_elements_text(r.query_param_names::jsonb) AS param_name
-                WHERE r.occurred_at >= :from
-                  AND r.occurred_at < :to
-                  AND jsonb_typeof(r.query_param_names::jsonb) = 'array'
-                GROUP BY param_name
-                SQL,
-            $this->boundParams($from, $to),
-            $this->boundTypes(),
-        );
-
-        $result = [];
-        foreach ($rows as $row) {
-            $result[] = [
-                'paramName' => (string) $row['param_name'],
-                'usageCount' => $this->toInt($row['usage_count'] ?? 0),
-            ];
-        }
-
-        return $result;
-    }
-
-    /**
-     * @return list<array{featureArea: string, withFilters: int, withoutFilters: int}>
-     */
-    public function fetchFilterAreas(\DateTimeImmutable $day): array
-    {
-        [$from, $to] = AnalyticsCalendar::dayBounds($day);
-
-        $rows = $this->connection->fetchAllAssociative(
-            <<<'SQL'
-                SELECT feature_area,
-                       COUNT(*) FILTER (
-                           WHERE jsonb_typeof(query_param_names::jsonb) = 'array'
-                             AND jsonb_array_length(query_param_names::jsonb) > 0
-                       )::int AS with_filters,
-                       COUNT(*) FILTER (
-                           WHERE jsonb_typeof(query_param_names::jsonb) <> 'array'
-                              OR jsonb_array_length(query_param_names::jsonb) = 0
-                       )::int AS without_filters
-                FROM analytics_request
-                WHERE occurred_at >= :from
-                  AND occurred_at < :to
-                  AND feature_area IN ('analysis', 'statistics', 'explore', 'dashboard')
-                GROUP BY feature_area
-                SQL,
-            $this->boundParams($from, $to),
-            $this->boundTypes(),
-        );
-
-        $result = [];
-        foreach ($rows as $row) {
-            $result[] = [
-                'featureArea' => (string) $row['feature_area'],
-                'withFilters' => $this->toInt($row['with_filters'] ?? 0),
-                'withoutFilters' => $this->toInt($row['without_filters'] ?? 0),
             ];
         }
 

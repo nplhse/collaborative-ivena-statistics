@@ -18,9 +18,6 @@ final readonly class RequestAnalyticsRecorder
     ) {
     }
 
-    /**
-     * @param list<string> $queryParamNames
-     */
     public function record(
         \DateTimeImmutable $occurredAt,
         ?string $routeName,
@@ -36,7 +33,7 @@ final readonly class RequestAnalyticsRecorder
         ?string $sessionKey,
         BrowserFamily $browserFamily,
         DeviceType $deviceType,
-        array $queryParamNames,
+        bool $countedAccess,
     ): void {
         $this->repository->save(new AnalyticsRequest(
             $occurredAt,
@@ -53,7 +50,7 @@ final readonly class RequestAnalyticsRecorder
             $sessionKey,
             $browserFamily,
             $deviceType,
-            $queryParamNames,
+            $countedAccess,
         ));
     }
 }

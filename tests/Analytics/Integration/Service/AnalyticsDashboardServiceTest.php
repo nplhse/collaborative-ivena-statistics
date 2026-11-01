@@ -45,7 +45,6 @@ final class AnalyticsDashboardServiceTest extends DatabaseKernelTestCase
             sessionKey: $session,
             browserFamily: BrowserFamily::Firefox,
             deviceType: DeviceType::Desktop,
-            queryParamNames: [],
         ));
         $requestRepository->save(new AnalyticsRequest(
             occurredAt: $today->modify('-50 minutes'),
@@ -62,7 +61,6 @@ final class AnalyticsDashboardServiceTest extends DatabaseKernelTestCase
             sessionKey: $session,
             browserFamily: BrowserFamily::Firefox,
             deviceType: DeviceType::Desktop,
-            queryParamNames: ['period'],
         ));
 
         $eventRepository->save(new AnalyticsProductEvent(
@@ -95,17 +93,12 @@ final class AnalyticsDashboardServiceTest extends DatabaseKernelTestCase
         self::assertNotEmpty($adoption->topEvents);
         self::assertNotEmpty($adoption->engagementDepth);
         self::assertSame(0, $adoption->engagementDepth[0]['level']);
+        self::assertSame([0, 1, 2, 3, 5], array_column($adoption->engagementDepth, 'level'));
         self::assertGreaterThanOrEqual(1, array_sum(array_column($adoption->engagementDepth, 'userCount')));
 
         $journeys = $service->getJourneys();
-        self::assertNotEmpty($journeys->onboardingFunnel);
         self::assertNotEmpty($journeys->entryRoutes);
         self::assertNotEmpty($journeys->exitRoutes);
-        self::assertCount(3, $journeys->timeToFirst);
-
-        $filters = $service->getFilters();
-        self::assertNotEmpty($filters->topFilterParams);
-        self::assertContains('period', array_column($filters->topFilterParams, 'paramName'));
 
         $performance = $service->getPerformance();
         self::assertNotEmpty($performance->performanceByArea);

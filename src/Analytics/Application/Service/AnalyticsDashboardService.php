@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\Analytics\Application\Service;
 
 use App\Analytics\Application\DTO\UsageAnalyticsAdoptionDto;
-use App\Analytics\Application\DTO\UsageAnalyticsFiltersDto;
 use App\Analytics\Application\DTO\UsageAnalyticsJourneysDto;
 use App\Analytics\Application\DTO\UsageAnalyticsOverviewDto;
 use App\Analytics\Application\DTO\UsageAnalyticsPerformanceDto;
 use App\Analytics\Domain\AnalyticsCalendar;
-use App\Analytics\Domain\UsageEventName;
 use App\Analytics\Infrastructure\Query\AnalyticsReportingQuery;
 use App\Analytics\Infrastructure\Repository\AnalyticsProductEventRepository;
 use App\Analytics\Infrastructure\Repository\AnalyticsRequestRepository;
@@ -22,17 +20,8 @@ final readonly class AnalyticsDashboardService
         1 => 'Dashboard viewed',
         2 => 'Statistics / Explore / Import',
         3 => 'Analysis run',
-        4 => 'Filters used',
+        // Level 4 ("filters used") was derived from URL parameters and removed in #988.
         5 => 'Export created',
-    ];
-
-    private const array FUNNEL_STEPS = [
-        UsageEventName::USER_REGISTERED,
-        UsageEventName::USER_EMAIL_CONFIRMED,
-        UsageEventName::USER_BECAME_PARTICIPANT,
-        UsageEventName::IMPORT_COMPLETED,
-        UsageEventName::ANALYSIS_EXPLORER_RUN,
-        UsageEventName::ANALYSIS_EXPLORER_EXPORTED_CSV,
     ];
 
     /** @psalm-suppress PossiblyUnusedMethod */
@@ -74,24 +63,11 @@ final readonly class AnalyticsDashboardService
     public function getJourneys(): UsageAnalyticsJourneysDto
     {
         $from7 = AnalyticsCalendar::daysAgo(6);
-        $from30 = AnalyticsCalendar::daysAgo(29);
 
         return new UsageAnalyticsJourneysDto(
-            onboardingFunnel: $this->eventRepository->onboardingFunnelSince($from30, self::FUNNEL_STEPS),
             entryRoutes: $this->requestRepository->topEntryRoutesSince($from7),
             exitRoutes: $this->requestRepository->topExitRoutesSince($from7),
             transitions: $this->requestRepository->topTransitionsSince($from7),
-            timeToFirst: $this->eventRepository->timeToFirstMetrics($from30),
-        );
-    }
-
-    public function getFilters(): UsageAnalyticsFiltersDto
-    {
-        $from7 = AnalyticsCalendar::daysAgo(6);
-
-        return new UsageAnalyticsFiltersDto(
-            topFilterParams: $this->reportingQuery->topFilterParamsSince($from7),
-            filterUsageByArea: $this->reportingQuery->filterUsageByAreaSince($from7),
         );
     }
 

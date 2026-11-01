@@ -1,4 +1,5 @@
 import { Application } from '@hotwired/stimulus';
+import AccessTrendChartController from './controllers/access-trend-chart_controller.js';
 import AdminKpiChartController from './controllers/admin-kpi-chart_controller.js';
 import CheckboxSelectAllController from './controllers/checkbox-select-all_controller.js';
 import ConfirmSubmitController from './controllers/confirm-submit_controller.js';
@@ -9,6 +10,7 @@ import VichFilePreviewController from './controllers/vich-file-preview_controlle
 import './styles/admin-kpi.css';
 
 const application = Application.start();
+application.register('access-trend-chart', AccessTrendChartController);
 application.register('admin-kpi-chart', AdminKpiChartController);
 application.register('checkbox-select-all', CheckboxSelectAllController);
 application.register('confirm-submit', ConfirmSubmitController);

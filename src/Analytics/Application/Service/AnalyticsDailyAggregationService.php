@@ -6,10 +6,9 @@ namespace App\Analytics\Application\Service;
 
 use App\Analytics\Application\DTO\AnalyticsAggregationResult;
 use App\Analytics\Domain\AnalyticsCalendar;
+use App\Analytics\Domain\Entity\AnalyticsAccessDaily;
 use App\Analytics\Domain\Entity\AnalyticsAggregationRun;
 use App\Analytics\Domain\Entity\AnalyticsEventDaily;
-use App\Analytics\Domain\Entity\AnalyticsFilterAreaDaily;
-use App\Analytics\Domain\Entity\AnalyticsFilterParamDaily;
 use App\Analytics\Domain\Entity\AnalyticsRequestDaily;
 use App\Analytics\Domain\Entity\AnalyticsSessionBoundaryDaily;
 use App\Analytics\Domain\Entity\AnalyticsTransitionDaily;
@@ -35,20 +34,33 @@ final readonly class AnalyticsDailyAggregationService
         $calendarDate = AnalyticsCalendar::startOfDay($date);
 
         return $this->entityManager->wrapInTransaction(function () use ($calendarDate): AnalyticsAggregationResult {
+            $rawRequestCount = $this->aggregationQuery->countRequests($calendarDate);
+            $rawEventCount = $this->aggregationQuery->countEvents($calendarDate);
+
+            // Raw rows of an aggregated day are deleted after the retention period. Rebuilding
+            // such a day would replace its aggregates with zeros, so keep them as they are.
+            if (0 === $rawRequestCount && 0 === $rawEventCount && $this->aggregationQuery->hasAggregationRun($calendarDate)) {
+                return new AnalyticsAggregationResult(
+                    date: $calendarDate->format('Y-m-d'),
+                    rawRequestCount: 0,
+                    rawEventCount: 0,
+                    aggregateRowsWritten: 0,
+                    keptExisting: true,
+                );
+            }
+
             $this->aggregateStore->deleteByDate($calendarDate);
             $this->entityManager->clear();
 
-            $rawRequestCount = $this->aggregationQuery->countRequests($calendarDate);
-            $rawEventCount = $this->aggregationQuery->countEvents($calendarDate);
             $rowsWritten = 0;
 
             $rowsWritten += $this->persistRequestDaily($calendarDate);
             $rowsWritten += $this->persistEventDaily($calendarDate);
-            $rowsWritten += $this->persistFilterParams($calendarDate);
-            $rowsWritten += $this->persistFilterAreas($calendarDate);
             $rowsWritten += $this->persistTransitions($calendarDate);
             $rowsWritten += $this->persistSessionBoundaries($calendarDate);
             $rowsWritten += $this->persistUniques($calendarDate);
+            $accessCounts = $this->aggregationQuery->fetchAccessCounts($calendarDate);
+            $rowsWritten += $this->persistAccesses($calendarDate, $rawRequestCount, $accessCounts);
 
             $this->entityManager->persist(new AnalyticsAggregationRun(
                 date: $calendarDate,
@@ -65,8 +77,33 @@ final readonly class AnalyticsDailyAggregationService
                 rawRequestCount: $rawRequestCount,
                 rawEventCount: $rawEventCount,
                 aggregateRowsWritten: $rowsWritten,
+                unclassifiedRequests: $accessCounts['unclassified'],
             );
         });
+    }
+
+    /**
+     * Writes the day's counted accesses (#950) when they can be counted, also when they are zero:
+     * - a day with requests needs every request classified;
+     * - a day without requests counts as zero only inside the counted period, i.e. after a day
+     *   with access counts. Before that the day stays outside the counted period.
+     *
+     * @param array{authenticated: int, anonymous: int, unclassified: int} $accessCounts
+     */
+    private function persistAccesses(\DateTimeImmutable $date, int $rawRequestCount, array $accessCounts): int
+    {
+        if ($accessCounts['unclassified'] > 0) {
+            return 0;
+        }
+
+        if (0 === $rawRequestCount && !$this->aggregationQuery->hasAccessCountsBefore($date)) {
+            return 0;
+        }
+
+        $this->entityManager->persist(new AnalyticsAccessDaily($date, true, $accessCounts['authenticated']));
+        $this->entityManager->persist(new AnalyticsAccessDaily($date, false, $accessCounts['anonymous']));
+
+        return 2;
     }
 
     private function persistRequestDaily(\DateTimeImmutable $date): int
@@ -105,37 +142,6 @@ final readonly class AnalyticsDailyAggregationService
                 featureArea: $featureArea,
                 userRole: $row['userRole'],
                 eventCount: $row['eventCount'],
-            ));
-            ++$count;
-        }
-
-        return $count;
-    }
-
-    private function persistFilterParams(\DateTimeImmutable $date): int
-    {
-        $count = 0;
-        foreach ($this->aggregationQuery->fetchFilterParams($date) as $row) {
-            $this->entityManager->persist(new AnalyticsFilterParamDaily(
-                date: $date,
-                paramName: $row['paramName'],
-                usageCount: $row['usageCount'],
-            ));
-            ++$count;
-        }
-
-        return $count;
-    }
-
-    private function persistFilterAreas(\DateTimeImmutable $date): int
-    {
-        $count = 0;
-        foreach ($this->aggregationQuery->fetchFilterAreas($date) as $row) {
-            $this->entityManager->persist(new AnalyticsFilterAreaDaily(
-                date: $date,
-                featureArea: FeatureArea::from($row['featureArea']),
-                withFilters: $row['withFilters'],
-                withoutFilters: $row['withoutFilters'],
             ));
             ++$count;
         }

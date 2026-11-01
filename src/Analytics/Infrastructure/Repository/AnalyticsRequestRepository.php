@@ -226,14 +226,10 @@ final class AnalyticsRequestRepository extends ServiceEntityRepository
     public function maxRequestLevelsByUserSince(\DateTimeImmutable $from): array
     {
         $conn = $this->getEntityManager()->getConnection();
-        /** @var list<array{analytics_user_key: string, feature_area: string, has_filters: bool|int|string}> $rows */
+        /** @var list<array{analytics_user_key: string, feature_area: string}> $rows */
         $rows = $conn->fetchAllAssociative(
             <<<'SQL'
-                SELECT analytics_user_key,
-                       feature_area,
-                       CASE WHEN jsonb_typeof(query_param_names::jsonb) = 'array'
-                                 AND jsonb_array_length(query_param_names::jsonb) > 0
-                            THEN true ELSE false END AS has_filters
+                SELECT DISTINCT analytics_user_key, feature_area
                 FROM analytics_request
                 WHERE occurred_at >= :from
                   AND analytics_user_key IS NOT NULL
@@ -244,10 +240,7 @@ final class AnalyticsRequestRepository extends ServiceEntityRepository
         $levels = [];
         foreach ($rows as $row) {
             $key = $row['analytics_user_key'];
-            $level = $this->engagementDepthResolver->levelForFeatureArea(
-                $row['feature_area'],
-                (bool) $row['has_filters'],
-            );
+            $level = $this->engagementDepthResolver->levelForFeatureArea($row['feature_area']);
             $levels[$key] = max($levels[$key] ?? 0, $level);
         }
 
@@ -315,92 +308,6 @@ final class AnalyticsRequestRepository extends ServiceEntityRepository
                 'fromRoute' => $row['from_route'],
                 'toRoute' => $row['to_route'],
                 'transitionCount' => (int) $row['transition_count'],
-            ];
-        }
-
-        return $result;
-    }
-
-    /**
-     * @return list<array{paramName: string, usageCount: int}>
-     */
-    public function topFilterParamsSince(\DateTimeImmutable $from, int $limit = 15): array
-    {
-        $conn = $this->getEntityManager()->getConnection();
-        /** @var list<array{param_name: string, usage_count: int|string}> $rows */
-        $rows = $conn->fetchAllAssociative(
-            <<<'SQL'
-                SELECT param_name, COUNT(*) AS usage_count
-                FROM analytics_request r
-                CROSS JOIN LATERAL jsonb_array_elements_text(r.query_param_names::jsonb) AS param_name
-                WHERE r.occurred_at >= :from
-                  AND jsonb_typeof(r.query_param_names::jsonb) = 'array'
-                GROUP BY param_name
-                ORDER BY usage_count DESC
-                LIMIT :limit
-            SQL,
-            [
-                'from' => $from->format('Y-m-d H:i:s'),
-                'limit' => $limit,
-            ],
-            [
-                'from' => Types::STRING,
-                'limit' => Types::INTEGER,
-            ],
-        );
-
-        $result = [];
-        foreach ($rows as $row) {
-            $result[] = [
-                'paramName' => $row['param_name'],
-                'usageCount' => (int) $row['usage_count'],
-            ];
-        }
-
-        return $result;
-    }
-
-    /**
-     * @return list<array{featureArea: string, withFilters: int, withoutFilters: int, withFiltersPercent: float}>
-     */
-    public function filterUsageByAreaSince(\DateTimeImmutable $from): array
-    {
-        $conn = $this->getEntityManager()->getConnection();
-        /** @var list<array{feature_area: string, with_filters: int|string, without_filters: int|string}> $rows */
-        $rows = $conn->fetchAllAssociative(
-            <<<'SQL'
-                SELECT feature_area,
-                       COUNT(*) FILTER (
-                           WHERE jsonb_typeof(query_param_names::jsonb) = 'array'
-                             AND jsonb_array_length(query_param_names::jsonb) > 0
-                       ) AS with_filters,
-                       COUNT(*) FILTER (
-                           WHERE jsonb_typeof(query_param_names::jsonb) <> 'array'
-                              OR jsonb_array_length(query_param_names::jsonb) = 0
-                       ) AS without_filters
-                FROM analytics_request
-                WHERE occurred_at >= :from
-                  AND feature_area IN ('analysis', 'statistics', 'explore', 'dashboard')
-                GROUP BY feature_area
-                ORDER BY feature_area
-            SQL,
-            ['from' => $from->format('Y-m-d H:i:s')],
-        );
-
-        $result = [];
-        foreach ($rows as $row) {
-            $with = (int) $row['with_filters'];
-            $without = (int) $row['without_filters'];
-            $total = $with + $without;
-            $withFiltersPercent = 0.0;
-            if ($total > 0) {
-                $withFiltersPercent = round(((float) $with / (float) $total) * 100.0, 1);
-            }
-            $result[] = [
-                'featureArea' => $row['feature_area'],
-                'withFilters' => $with,
-                'withoutFilters' => $without,
-                'withFiltersPercent' => $withFiltersPercent,
             ];
         }
 

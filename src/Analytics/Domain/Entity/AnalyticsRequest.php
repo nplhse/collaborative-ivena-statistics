@@ -66,13 +66,13 @@ class AnalyticsRequest
     #[ORM\Column(length: 16, enumType: DeviceType::class)]
     private DeviceType $deviceType;
 
-    /** @var list<string> */
-    #[ORM\Column(type: Types::JSON)]
-    private array $queryParamNames;
-
     /**
-     * @param list<string> $queryParamNames
+     * Whether the request counts as an access (page view, #950). Null for rows recorded
+     * before the classification existed and not yet backfilled.
      */
+    #[ORM\Column(nullable: true)]
+    private ?bool $countedAccess;
+
     public function __construct(
         \DateTimeImmutable $occurredAt,
         ?string $routeName,
@@ -88,7 +88,7 @@ class AnalyticsRequest
         ?string $sessionKey,
         BrowserFamily $browserFamily,
         DeviceType $deviceType,
-        array $queryParamNames,
+        ?bool $countedAccess = null,
     ) {
         $this->occurredAt = $occurredAt;
         $this->routeName = $routeName;
@@ -104,7 +104,7 @@ class AnalyticsRequest
         $this->sessionKey = $sessionKey;
         $this->browserFamily = $browserFamily;
         $this->deviceType = $deviceType;
-        $this->queryParamNames = $queryParamNames;
+        $this->countedAccess = $countedAccess;
     }
 
     public function getId(): ?int
@@ -182,11 +182,8 @@ class AnalyticsRequest
         return $this->deviceType;
     }
 
-    /**
-     * @return list<string>
-     */
-    public function getQueryParamNames(): array
+    public function isCountedAccess(): ?bool
     {
-        return $this->queryParamNames;
+        return $this->countedAccess;
     }
 }

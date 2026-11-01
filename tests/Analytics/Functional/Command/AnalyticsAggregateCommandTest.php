@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Analytics\Functional\Command;
 
 use App\Analytics\Application\Service\AnalyticsDailyAggregationService;
+use App\Analytics\Application\Service\AnalyticsRawRetentionService;
 use App\Analytics\Domain\AnalyticsCalendar;
 use App\Analytics\Domain\Entity\AnalyticsRequest;
 use App\Analytics\Domain\Enum\BrowserFamily;
@@ -38,7 +39,6 @@ final class AnalyticsAggregateCommandTest extends DatabaseKernelTestCase
             sessionKey: 'cmd-session',
             browserFamily: BrowserFamily::Chrome,
             deviceType: DeviceType::Desktop,
-            queryParamNames: [],
         ));
 
         $command = self::getContainer()->get(AnalyticsAggregateCommand::class);
@@ -109,7 +109,6 @@ final class AnalyticsAggregateCommandTest extends DatabaseKernelTestCase
             sessionKey: 'dry-session',
             browserFamily: BrowserFamily::Safari,
             deviceType: DeviceType::Mobile,
-            queryParamNames: [],
         ));
         self::getContainer()->get(AnalyticsDailyAggregationService::class)->aggregateForDate($expired);
 
@@ -154,6 +153,71 @@ final class AnalyticsAggregateCommandTest extends DatabaseKernelTestCase
         self::assertStringContainsString('No raw analytics rows in the selected period.', $tester->getDisplay());
     }
 
+    public function testCommandKeepsAggregatesOfPurgedDays(): void
+    {
+        self::bootKernel();
+        $expired = AnalyticsCalendar::daysAgo(40)->setTime(10, 0);
+        self::getContainer()->get(AnalyticsRequestRepository::class)->save(new AnalyticsRequest(
+            occurredAt: $expired,
+            routeName: 'app_home',
+            featureArea: FeatureArea::Home,
+            httpStatus: 200,
+            durationMs: 80,
+            dbQueryCount: 1,
+            dbTimeMs: 20,
+            isAuthenticated: false,
+            userRole: null,
+            analyticsUserKey: null,
+            visitorKey: 'kept-visitor',
+            sessionKey: 'kept-session',
+            browserFamily: BrowserFamily::Safari,
+            deviceType: DeviceType::Mobile,
+        ));
+        self::getContainer()->get(AnalyticsDailyAggregationService::class)->aggregateForDate($expired);
+        self::getContainer()->get(AnalyticsRawRetentionService::class)->purgeExpiredRaw();
+
+        $tester = new CommandTester(self::getContainer()->get(AnalyticsAggregateCommand::class));
+        $tester->execute(['--date' => $expired->format('Y-m-d'), '--no-cleanup' => true]);
+
+        $tester->assertCommandIsSuccessful();
+        $display = (string) preg_replace('/\s+/', ' ', $tester->getDisplay());
+        self::assertStringContainsString('1 already aggregated day(s) without raw rows kept unchanged.', $display);
+        self::assertStringNotContainsString('No raw analytics rows', $display);
+        self::assertSame(1, (int) self::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT SUM(request_count) FROM analytics_request_daily WHERE date = :date',
+            ['date' => $expired->format('Y-m-d')],
+        ));
+    }
+
+    public function testCommandReportsDaysWithUnclassifiedRequests(): void
+    {
+        self::bootKernel();
+        $day = AnalyticsCalendar::daysAgo(3)->setTime(10, 0);
+        self::getContainer()->get(AnalyticsRequestRepository::class)->save(new AnalyticsRequest(
+            occurredAt: $day,
+            routeName: 'app_home',
+            featureArea: FeatureArea::Home,
+            httpStatus: 200,
+            durationMs: 80,
+            dbQueryCount: 1,
+            dbTimeMs: 20,
+            isAuthenticated: false,
+            userRole: null,
+            analyticsUserKey: null,
+            visitorKey: null,
+            sessionKey: null,
+            browserFamily: BrowserFamily::Safari,
+            deviceType: DeviceType::Mobile,
+        ));
+
+        $tester = new CommandTester(self::getContainer()->get(AnalyticsAggregateCommand::class));
+        $tester->execute(['--date' => $day->format('Y-m-d'), '--no-cleanup' => true]);
+
+        $tester->assertCommandIsSuccessful();
+        $display = (string) preg_replace('/\s+/', ' ', $tester->getDisplay());
+        self::assertStringContainsString('1 day(s) have unclassified requests and got no access counts', $display);
+    }
+
     public function testCommandRejectsInvalidDaysOption(): void
     {
         self::bootKernel();
@@ -184,7 +248,6 @@ final class AnalyticsAggregateCommandTest extends DatabaseKernelTestCase
             sessionKey: 'purge-session',
             browserFamily: BrowserFamily::Safari,
             deviceType: DeviceType::Mobile,
-            queryParamNames: [],
         ));
         self::getContainer()->get(AnalyticsDailyAggregationService::class)->aggregateForDate($expired);
 
