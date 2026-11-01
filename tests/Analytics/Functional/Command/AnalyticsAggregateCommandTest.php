@@ -189,6 +189,35 @@ final class AnalyticsAggregateCommandTest extends DatabaseKernelTestCase
         ));
     }
 
+    public function testCommandReportsDaysWithUnclassifiedRequests(): void
+    {
+        self::bootKernel();
+        $day = AnalyticsCalendar::daysAgo(3)->setTime(10, 0);
+        self::getContainer()->get(AnalyticsRequestRepository::class)->save(new AnalyticsRequest(
+            occurredAt: $day,
+            routeName: 'app_home',
+            featureArea: FeatureArea::Home,
+            httpStatus: 200,
+            durationMs: 80,
+            dbQueryCount: 1,
+            dbTimeMs: 20,
+            isAuthenticated: false,
+            userRole: null,
+            analyticsUserKey: null,
+            visitorKey: null,
+            sessionKey: null,
+            browserFamily: BrowserFamily::Safari,
+            deviceType: DeviceType::Mobile,
+        ));
+
+        $tester = new CommandTester(self::getContainer()->get(AnalyticsAggregateCommand::class));
+        $tester->execute(['--date' => $day->format('Y-m-d'), '--no-cleanup' => true]);
+
+        $tester->assertCommandIsSuccessful();
+        $display = (string) preg_replace('/\s+/', ' ', $tester->getDisplay());
+        self::assertStringContainsString('1 day(s) have unclassified requests and got no access counts', $display);
+    }
+
     public function testCommandRejectsInvalidDaysOption(): void
     {
         self::bootKernel();

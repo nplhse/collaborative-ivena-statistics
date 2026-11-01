@@ -37,6 +37,47 @@ final readonly class AnalyticsDayAggregationQuery
         ));
     }
 
+    /**
+     * Counted accesses of one Berlin day, split by authentication, plus the number of requests
+     * that are not classified yet (counted_access IS NULL).
+     *
+     * @return array{authenticated: int, anonymous: int, unclassified: int}
+     */
+    public function fetchAccessCounts(\DateTimeImmutable $day): array
+    {
+        [$from, $to] = AnalyticsCalendar::dayBounds($day);
+
+        $row = $this->connection->fetchAssociative(
+            <<<'SQL'
+                SELECT COUNT(*) FILTER (WHERE counted_access AND is_authenticated) AS authenticated,
+                       COUNT(*) FILTER (WHERE counted_access AND NOT is_authenticated) AS anonymous,
+                       COUNT(*) FILTER (WHERE counted_access IS NULL) AS unclassified
+                FROM analytics_request
+                WHERE occurred_at >= :from AND occurred_at < :to
+                SQL,
+            $this->boundParams($from, $to),
+            $this->boundTypes(),
+        );
+
+        return [
+            'authenticated' => $this->toInt($row['authenticated'] ?? 0),
+            'anonymous' => $this->toInt($row['anonymous'] ?? 0),
+            'unclassified' => $this->toInt($row['unclassified'] ?? 0),
+        ];
+    }
+
+    /**
+     * Whether accesses were counted on an earlier day, i.e. the day lies inside the counted period.
+     */
+    public function hasAccessCountsBefore(\DateTimeImmutable $day): bool
+    {
+        return false !== $this->connection->fetchOne(
+            'SELECT 1 FROM analytics_access_daily WHERE date < :date LIMIT 1',
+            ['date' => AnalyticsCalendar::startOfDay($day)->format('Y-m-d')],
+            ['date' => ParameterType::STRING],
+        );
+    }
+
     public function hasAggregationRun(\DateTimeImmutable $day): bool
     {
         return false !== $this->connection->fetchOne(

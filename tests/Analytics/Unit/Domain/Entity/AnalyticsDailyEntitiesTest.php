@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Analytics\Unit\Domain\Entity;
 
+use App\Analytics\Domain\Entity\AnalyticsAccessDaily;
 use App\Analytics\Domain\Entity\AnalyticsAggregationRun;
 use App\Analytics\Domain\Entity\AnalyticsEventDaily;
 use App\Analytics\Domain\Entity\AnalyticsRequestDaily;
@@ -86,5 +87,16 @@ final class AnalyticsDailyEntitiesTest extends TestCase
         self::assertSame(8, $uniques->getDau());
         self::assertSame(11, $uniques->getDistinctVisitors());
         self::assertSame(13, $uniques->getDistinctSessions());
+    }
+
+    public function testAccessDailyExposesConstructorValues(): void
+    {
+        $date = new \DateTimeImmutable('2026-10-31');
+        $entity = new AnalyticsAccessDaily($date, false, 7);
+
+        self::assertNull($entity->getId());
+        self::assertSame($date, $entity->getDate());
+        self::assertFalse($entity->isAuthenticated());
+        self::assertSame(7, $entity->getAccessCount());
     }
 }
