@@ -1,19 +1,37 @@
+{#
+    Section navigation of the settings card. On small screens the overview tiles take its place:
+    the overview shows no navigation, the single pages only a link back to the overview, so the content comes first.
+#}
 <div class="col-12 col-md-3 border-end">
-    <div class="card-body">
-        <h4 class="subheader">{{ 'label.settings.my_account'|trans({}, 'user') }}</h4>
-        <div class="list-group list-group-transparent">
-            <a class="list-group-item list-group-item-action d-flex align-items-center{{ active == 'account' ? ' active' : '' }}" href="{{ path('app_settings_index') }}">
-                {{ 'label.settings.my_account'|trans({}, 'user') }}
-            </a>
-            <a class="list-group-item list-group-item-action d-flex align-items-center{{ active == 'email' ? ' active' : '' }}" href="{{ path('app_settings_email') }}">
-                {{ 'label.settings.change_email'|trans({}, 'user') }}
-            </a>
-            <a class="list-group-item list-group-item-action d-flex align-items-center{{ active == 'password' ? ' active' : '' }}" href="{{ path('app_settings_password') }}">
-                {{ 'label.settings.set_new_password'|trans({}, 'user') }}
-            </a>
-            <a class="list-group-item list-group-item-action d-flex align-items-center{{ active == 'notifications' ? ' active' : '' }}" href="{{ path('app_settings_notifications') }}">
-                {{ 'label.settings.notifications'|trans({}, 'user') }}
+    {% if active != 'overview' %}
+        {# No card-body class: Tabler would then draw a top border on the navigation below, even while this link is hidden. #}
+        <div class="px-3 py-2 border-bottom d-md-none">
+            <a href="{{ path('app_settings_index') }}" class="d-inline-flex align-items-center gap-1" data-testid="settings-back-to-overview">
+                <twig:ux:icon name="tabler:arrow-left" class="icon" aria-hidden="true" />
+                {{ 'label.settings.back_to_overview'|trans({}, 'user') }}
             </a>
         </div>
-    </div>
+    {% endif %}
+    <nav class="card-body d-none d-md-block" aria-label="{{ 'label.settings.sections_nav'|trans({}, 'user') }}" data-testid="settings-section-nav">
+        <div class="list-group list-group-transparent">
+            <a
+                class="list-group-item list-group-item-action d-flex align-items-center gap-2{{ active == 'overview' ? ' active' : '' }}"
+                href="{{ path('app_settings_index') }}"
+                {% if active == 'overview' %}aria-current="page"{% endif %}
+            >
+                <twig:ux:icon name="tabler:layout-grid" class="icon" aria-hidden="true" />
+                {{ 'label.settings.overview'|trans({}, 'user') }}
+            </a>
+            {% for section in settings_sections() %}
+                <a
+                    class="list-group-item list-group-item-action d-flex align-items-center gap-2{{ active == section.key ? ' active' : '' }}"
+                    href="{{ path(section.route) }}"
+                    {% if active == section.key %}aria-current="page"{% endif %}
+                >
+                    <twig:ux:icon :name="section.icon" class="icon" aria-hidden="true" />
+                    {{ section.labelKey|trans({}, 'user') }}
+                </a>
+            {% endfor %}
+        </div>
+    </nav>
 </div>

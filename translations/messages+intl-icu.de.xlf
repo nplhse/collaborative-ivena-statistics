@@ -1295,7 +1295,7 @@
       </trans-unit>
       <trans-unit id="De14215967" resname="text.settings.account_intro">
         <source>text.settings.account_intro</source>
-        <target>Verwalten Sie Ihr Benutzerprofil, Ihre E-Mail-Adresse und Ihr Passwort.</target>
+        <target>Verwalten Sie Ihre Profildetails, Ihre E-Mail-Adresse und Ihre Sprache.</target>
       </trans-unit>
       <trans-unit id="Deaea59dac" resname="text.settings.notifications_intro">
         <source>text.settings.notifications_intro</source>

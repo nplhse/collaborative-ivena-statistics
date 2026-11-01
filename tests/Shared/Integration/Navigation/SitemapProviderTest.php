@@ -162,9 +162,10 @@ final class SitemapProviderTest extends KernelTestCase
         self::assertSame('Import', $dataExchangeSection->links[0]->label);
 
         $accountSection = $this->findSection('account');
-        self::assertCount(5, $accountSection->links);
-        self::assertSame('My hospitals', $accountSection->links[4]->label);
-        self::assertSame('My Account', $accountSection->links[0]->label);
+        self::assertCount(6, $accountSection->links);
+        self::assertSame('My hospitals', $accountSection->links[5]->label);
+        self::assertSame('Settings', $accountSection->links[0]->label);
+        self::assertSame('My Account', $accountSection->links[1]->label);
     }
 
     public function testExportLinkOnlyVisibleInDataExchangeSectionWhenUserCanExport(): void

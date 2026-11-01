@@ -329,6 +329,38 @@
         <source>label.settings.notifications</source>
         <target>Benachrichtigungen</target>
       </trans-unit>
+      <trans-unit id="setOv01" resname="label.settings.overview">
+        <source>label.settings.overview</source>
+        <target>Übersicht</target>
+      </trans-unit>
+      <trans-unit id="setOv02" resname="label.settings.back_to_overview">
+        <source>label.settings.back_to_overview</source>
+        <target>Alle Einstellungen</target>
+      </trans-unit>
+      <trans-unit id="setOv03" resname="label.settings.sections_nav">
+        <source>label.settings.sections_nav</source>
+        <target>Einstellungsbereiche</target>
+      </trans-unit>
+      <trans-unit id="setOv04" resname="text.settings.overview_intro">
+        <source>text.settings.overview_intro</source>
+        <target>Wählen Sie den Bereich, den Sie ansehen oder ändern möchten.</target>
+      </trans-unit>
+      <trans-unit id="setOv05" resname="text.settings.section.account">
+        <source>text.settings.section.account</source>
+        <target>Benutzername, Status der E-Mail-Bestätigung und Sprache.</target>
+      </trans-unit>
+      <trans-unit id="setOv06" resname="text.settings.section.email">
+        <source>text.settings.section.email</source>
+        <target>Ändern Sie die E-Mail-Adresse Ihres Kontos.</target>
+      </trans-unit>
+      <trans-unit id="setOv07" resname="text.settings.section.password">
+        <source>text.settings.section.password</source>
+        <target>Wählen Sie ein neues Passwort für die Anmeldung.</target>
+      </trans-unit>
+      <trans-unit id="setOv08" resname="text.settings.section.notifications">
+        <source>text.settings.section.notifications</source>
+        <target>Legen Sie fest, welche Benachrichtigungen Sie wie erhalten.</target>
+      </trans-unit>
       <trans-unit id="Decbd56947" resname="label.settings.notifications.monthly_reminder">
         <source>label.settings.notifications.monthly_reminder</source>
         <target>Monatliche Erinnerung zur Dateneinreichung</target>

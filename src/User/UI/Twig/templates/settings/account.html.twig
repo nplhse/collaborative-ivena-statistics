@@ -1,0 +1,90 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.settings.account'|trans({}, 'user') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'title.settings', path: path('app_settings_index') },
+                { label: 'label.settings.my_account', label_domain: 'user' },
+            ]"
+        />
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'title.settings.account'|trans({}, 'user') }}</h2>
+                    <div class="text-secondary mt-1">{{ 'text.settings.account_intro'|trans({}, 'messages') }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_body %}
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-cards">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="row g-0">
+                            {{ include('@User/settings/_sidebar.html.twig', {active: 'account'}) }}
+                            <div class="col-12 col-md-9 d-flex flex-column">
+                                <div class="card-header">
+                                    <h3 class="card-title">{{ 'label.settings.my_account'|trans({}, 'user') }}</h3>
+                                </div>
+                                <div class="card-body flex-grow-1">
+                                    <h4 class="subheader mb-3">{{ 'label.settings.profile_details'|trans({}, 'user') }}</h4>
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <label class="form-label" for="settings-username">{{ 'label.username'|trans({}, 'messages') }}</label>
+                                            {# Read-only fields use Tabler's disabled look but stay focusable and copyable. #}
+                                            <input id="settings-username" class="form-control bg-surface-secondary text-secondary" value="{{ app.user.userIdentifier }}" readonly />
+                                            <small class="form-text">{{ 'help.settings.username_fixed'|trans({}, 'user') }}</small>
+                                        </div>
+                                    </div>
+
+                                    <h4 class="subheader mb-3">{{ 'label.email'|trans({}, 'user') }}</h4>
+                                    <div class="row g-3 align-items-end mb-2">
+                                        <div class="col-md-8">
+                                            <label class="form-label" for="settings-email">{{ 'label.email_address'|trans({}, 'user') }}</label>
+                                            <input id="settings-email" class="form-control bg-surface-secondary text-secondary" value="{{ app.user.email }}" readonly />
+                                        </div>
+                                        <div class="col-md-4 d-grid">
+                                            <a class="btn" href="{{ path('app_settings_email') }}">{{ 'label.settings.change_email'|trans({}, 'user') }}</a>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <small class="form-text d-flex align-items-center gap-2">
+                                            <span>{{ 'label.settings.verification_status'|trans({}, 'user') }}</span>
+                                            <span class="badge {{ app.user.isVerified ? 'bg-green text-green-fg' : 'bg-yellow text-yellow-fg' }}">
+                                                {{ app.user.isVerified ? 'label.verified'|trans({}, 'messages') : 'label.not_verified'|trans({}, 'messages') }}
+                                            </span>
+                                        </small>
+                                        {% if not app.user.isVerified %}
+                                            <form method="post" action="{{ path('app_settings_resend_verification') }}" class="mt-2">
+                                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('resend_verification_email') }}">
+                                                <button class="btn btn-outline-secondary" type="submit">{{ 'label.settings.resend_verification'|trans({}, 'user') }}</button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+
+                                    <h4 class="subheader mb-3">{{ 'label.settings.language'|trans({}, 'user') }}</h4>
+                                    {# The save button sits in the card footer; the resend form above rules out one form around the whole card. #}
+                                    {{ form_start(localeForm, {attr: {id: 'settings-locale-form'}}) }}
+                                        <p class="text-secondary mb-3">{{ 'help.settings.language'|trans({}, 'user') }}</p>
+                                        {{ form_row(localeForm.locale) }}
+                                    {{ form_end(localeForm) }}
+                                </div>
+                                <div class="card-footer d-flex justify-content-end gap-2">
+                                    <a class="btn btn-link" href="{{ path('app_settings_index') }}">{{ 'action.cancel'|trans({}, 'messages') }}</a>
+                                    <button class="btn btn-primary" type="submit" form="settings-locale-form">{{ 'label.btn.save'|trans({}, 'messages') }}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
