@@ -200,10 +200,25 @@ Menu section **Usage analytics** (above System), one page per topic:
 | Page | Route | Contents |
 |------|-------|----------|
 | Overview | `/admin/operations/usage-analytics/overview` | Requests, DAU/WAU/MAU, feature areas, auth split, top routes |
+| Accesses | `…/accesses` | Counted accesses (page views) in total, per year and per month since the counting started, monthly chart |
 | Adoption | `…/adoption` | Top events, events by role, role × area, engagement depth |
 | Journeys | `…/journeys` | Entry/exit routes and transitions |
 | Performance | `…/performance` | Latency/queries/errors by area, slowest routes, prioritization hints |
 
 `/admin/operations/usage-analytics` redirects to Overview. No per-user search or raw identifiers.
+
+### Accesses page
+
+Long-term view of [counted accesses](#counted-accesses), built by `AccessTrendService` from
+`analytics_access_daily` plus raw requests of days not aggregated yet
+([aggregation-and-retention.md](aggregation-and-retention.md#counted-accesses-per-day)):
+
+- **Total** since the counting started, split into signed in and anonymous, with the start date
+  ("Counted since"). Nothing before that date is counted or shown.
+- **Per year and per month**, newest first, from the period the counting started in to the current
+  one. A period without counted accesses shows 0.
+- **Incomplete periods** are marked: the current month and year ("Not over yet") and the period in
+  which the counting started ("Counted from …"). The chart draws them lighter.
+- **Time zone:** days, months and years are Europe/Berlin calendar periods.
 
 Count-based widgets (requests, feature areas, routes, event counts) combine daily aggregates with raw rows for today and any unaggregated gaps. Distinct-user and sequence metrics (DAU/WAU/MAU, engagement depth, journeys, p95) stay on the raw 30-day window. Details: [aggregation-and-retention.md](aggregation-and-retention.md).

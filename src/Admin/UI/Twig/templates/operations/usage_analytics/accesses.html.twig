@@ -1,0 +1,125 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% trans_default_domain 'admin' %}
+
+{% macro period_note(period, trend) %}
+    {% if not period.isComplete %}<div class="d-flex flex-column align-items-start gap-1 mt-1">{% endif %}
+    {% if period.isCurrent %}
+        <span class="badge text-bg-warning ms-0">{{ 'usage_analytics.accesses.note.current'|trans }}</span>
+    {% endif %}
+    {% if period.startsBeforeCounting %}
+        <span class="badge text-bg-secondary ms-0">{{ 'usage_analytics.accesses.note.partial'|trans({date: trend.countingSince|format_date('medium', timezone: 'Europe/Berlin')}) }}</span>
+    {% endif %}
+    {% if not period.isComplete %}</div>{% endif %}
+{% endmacro %}
+
+{% block content_title %}{{ 'usage_analytics.accesses.title'|trans }}{% endblock %}
+
+{% block main %}
+    {% import _self as accesses %}
+    {{ include('@Admin/operations/usage_analytics/_privacy_note.html.twig') }}
+
+    <p class="text-secondary mb-4">{{ 'usage_analytics.accesses.definition'|trans }}</p>
+
+    {% if not trend.hasData %}
+        <div class="alert alert-secondary" data-testid="accesses-empty">{{ 'usage_analytics.accesses.empty'|trans }}</div>
+    {% else %}
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-4">
+                <div class="card h-100"><div class="card-body">
+                    <div class="text-secondary small">{{ 'usage_analytics.accesses.total'|trans }}</div>
+                    <div class="fs-2 fw-bold" data-testid="accesses-total">{{ trend.total|number_format(0, ',', '.') }}</div>
+                    <div class="text-secondary small" data-testid="accesses-counted-since">
+                        {{ 'usage_analytics.accesses.counted_since'|trans({date: trend.countingSince|format_date('medium', timezone: 'Europe/Berlin')}) }}
+                    </div>
+                </div></div>
+            </div>
+            <div class="col-sm-6 col-xl-4">
+                <div class="card h-100"><div class="card-body">
+                    <div class="text-secondary small">{{ 'usage_analytics.accesses.signed_in'|trans }}</div>
+                    <div class="fs-2 fw-bold">{{ trend.authenticated|number_format(0, ',', '.') }}</div>
+                </div></div>
+            </div>
+            <div class="col-sm-6 col-xl-4">
+                <div class="card h-100"><div class="card-body">
+                    <div class="text-secondary small">{{ 'usage_analytics.accesses.anonymous'|trans }}</div>
+                    <div class="fs-2 fw-bold">{{ trend.anonymous|number_format(0, ',', '.') }}</div>
+                </div></div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">{{ 'usage_analytics.accesses.chart.title'|trans }}</div>
+            <div class="card-body">
+                <div data-controller="access-trend-chart"
+                     data-access-trend-chart-months-value="{{ trend.months|map(month => {
+                         label: month.start|format_date(pattern: 'MMM yyyy', timezone: 'Europe/Berlin'),
+                         signedIn: month.authenticated,
+                         anonymous: month.anonymous,
+                         incomplete: not month.isComplete,
+                     })|json_encode|e('html_attr') }}"
+                     data-access-trend-chart-labels-value="{{ {
+                         signedIn: 'usage_analytics.accesses.signed_in'|trans,
+                         anonymous: 'usage_analytics.accesses.anonymous'|trans,
+                         incomplete: 'usage_analytics.accesses.chart.incomplete'|trans,
+                     }|json_encode|e('html_attr') }}">
+                    <div data-access-trend-chart-target="chart" role="img" aria-label="{{ 'usage_analytics.accesses.chart.title'|trans }}"></div>
+                </div>
+                <p class="text-secondary small mb-0 mt-2">{{ 'usage_analytics.accesses.chart.hint'|trans }}</p>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-2">
+            <div class="col-xl-5">
+                <div class="card h-100">
+                    <div class="card-header">{{ 'usage_analytics.accesses.years.title'|trans }}</div>
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0" data-testid="accesses-years">
+                            <thead><tr>
+                                <th>{{ 'usage_analytics.accesses.column.year'|trans }}</th>
+                                <th class="text-end">{{ 'usage_analytics.accesses.signed_in'|trans }}</th>
+                                <th class="text-end">{{ 'usage_analytics.accesses.anonymous'|trans }}</th>
+                                <th class="text-end">{{ 'usage_analytics.accesses.column.total'|trans }}</th>
+                            </tr></thead>
+                            <tbody>
+                                {% for year in trend.years|reverse %}
+                                    <tr>
+                                        <td>{{ year.key }}{{ accesses.period_note(year, trend) }}</td>
+                                        <td class="text-end">{{ year.authenticated|number_format(0, ',', '.') }}</td>
+                                        <td class="text-end">{{ year.anonymous|number_format(0, ',', '.') }}</td>
+                                        <td class="text-end fw-semibold">{{ year.total|number_format(0, ',', '.') }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-7">
+                <div class="card h-100">
+                    <div class="card-header">{{ 'usage_analytics.accesses.months.title'|trans }}</div>
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0" data-testid="accesses-months">
+                            <thead><tr>
+                                <th>{{ 'usage_analytics.accesses.column.month'|trans }}</th>
+                                <th class="text-end">{{ 'usage_analytics.accesses.signed_in'|trans }}</th>
+                                <th class="text-end">{{ 'usage_analytics.accesses.anonymous'|trans }}</th>
+                                <th class="text-end">{{ 'usage_analytics.accesses.column.total'|trans }}</th>
+                            </tr></thead>
+                            <tbody>
+                                {% for month in trend.months|reverse %}
+                                    <tr>
+                                        <td>{{ month.start|format_date(pattern: 'MMMM yyyy', timezone: 'Europe/Berlin') }}{{ accesses.period_note(month, trend) }}</td>
+                                        <td class="text-end">{{ month.authenticated|number_format(0, ',', '.') }}</td>
+                                        <td class="text-end">{{ month.anonymous|number_format(0, ',', '.') }}</td>
+                                        <td class="text-end fw-semibold">{{ month.total|number_format(0, ',', '.') }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
