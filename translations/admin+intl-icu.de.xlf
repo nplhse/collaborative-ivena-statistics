@@ -1457,6 +1457,74 @@
         <source>admin.job_run.metric.deleted_job_runs</source>
         <target>Gelöschte Job-Läufe</target>
       </trans-unit>
+      <trans-unit id="uaAcc01de" resname="usage_analytics.accesses.title">
+        <source>usage_analytics.accesses.title</source>
+        <target>Nutzungsanalyse — Zugriffe</target>
+      </trans-unit>
+      <trans-unit id="uaAcc02de" resname="usage_analytics.accesses.definition">
+        <source>usage_analytics.accesses.definition</source>
+        <target>Ein Zugriff ist ein Seitenaufruf: eine erfolgreiche Anfrage an eine Seite. Erkannte Bots, Turbo-Frames, Hintergrundanfragen, Downloads, Weiterleitungen und Fehler werden nicht gezählt. Zugriffe sind Anfragen, keine Besucher oder Sitzungen.</target>
+      </trans-unit>
+      <trans-unit id="uaAcc03de" resname="usage_analytics.accesses.empty">
+        <source>usage_analytics.accesses.empty</source>
+        <target>Noch keine Zugriffe gezählt.</target>
+      </trans-unit>
+      <trans-unit id="uaAcc04de" resname="usage_analytics.accesses.total">
+        <source>usage_analytics.accesses.total</source>
+        <target>Zugriffe insgesamt</target>
+      </trans-unit>
+      <trans-unit id="uaAcc05de" resname="usage_analytics.accesses.counted_since">
+        <source>usage_analytics.accesses.counted_since</source>
+        <target>Gezählt seit {date}</target>
+      </trans-unit>
+      <trans-unit id="uaAcc06de" resname="usage_analytics.accesses.signed_in">
+        <source>usage_analytics.accesses.signed_in</source>
+        <target>Angemeldet</target>
+      </trans-unit>
+      <trans-unit id="uaAcc07de" resname="usage_analytics.accesses.anonymous">
+        <source>usage_analytics.accesses.anonymous</source>
+        <target>Anonym</target>
+      </trans-unit>
+      <trans-unit id="uaAcc08de" resname="usage_analytics.accesses.chart.title">
+        <source>usage_analytics.accesses.chart.title</source>
+        <target>Zugriffe pro Monat</target>
+      </trans-unit>
+      <trans-unit id="uaAcc09de" resname="usage_analytics.accesses.chart.incomplete">
+        <source>usage_analytics.accesses.chart.incomplete</source>
+        <target>unvollständig</target>
+      </trans-unit>
+      <trans-unit id="uaAcc10de" resname="usage_analytics.accesses.chart.hint">
+        <source>usage_analytics.accesses.chart.hint</source>
+        <target>Hellere Balken: Monat noch nicht vorbei oder Zählung im Laufe des Monats begonnen.</target>
+      </trans-unit>
+      <trans-unit id="uaAcc11de" resname="usage_analytics.accesses.years.title">
+        <source>usage_analytics.accesses.years.title</source>
+        <target>Pro Jahr</target>
+      </trans-unit>
+      <trans-unit id="uaAcc12de" resname="usage_analytics.accesses.months.title">
+        <source>usage_analytics.accesses.months.title</source>
+        <target>Pro Monat</target>
+      </trans-unit>
+      <trans-unit id="uaAcc13de" resname="usage_analytics.accesses.column.year">
+        <source>usage_analytics.accesses.column.year</source>
+        <target>Jahr</target>
+      </trans-unit>
+      <trans-unit id="uaAcc14de" resname="usage_analytics.accesses.column.month">
+        <source>usage_analytics.accesses.column.month</source>
+        <target>Monat</target>
+      </trans-unit>
+      <trans-unit id="uaAcc15de" resname="usage_analytics.accesses.column.total">
+        <source>usage_analytics.accesses.column.total</source>
+        <target>Gesamt</target>
+      </trans-unit>
+      <trans-unit id="uaAcc16de" resname="usage_analytics.accesses.note.current">
+        <source>usage_analytics.accesses.note.current</source>
+        <target>Läuft noch</target>
+      </trans-unit>
+      <trans-unit id="uaAcc17de" resname="usage_analytics.accesses.note.partial">
+        <source>usage_analytics.accesses.note.partial</source>
+        <target>Gezählt ab {date}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

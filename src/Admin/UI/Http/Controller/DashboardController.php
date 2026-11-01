@@ -42,6 +42,7 @@ use App\Admin\UI\Http\Controller\Speciality\SpecialityCrudController;
 use App\Admin\UI\Http\Controller\State\StateCrudController;
 use App\Admin\UI\Http\Controller\Statistics\SavedExplorerViewCrudController;
 use App\Admin\UI\Http\Controller\User\UserCrudController;
+use App\Analytics\Application\Service\AccessTrendService;
 use App\Analytics\Application\Service\AnalyticsDashboardService;
 use App\Feedback\Infrastructure\Repository\FeedbackRepository;
 use App\Kpi\Application\Service\KpiDashboardService;
@@ -74,6 +75,7 @@ final class DashboardController extends AbstractDashboardController
         private readonly AnalyticsDashboardService $analyticsDashboardService,
         private readonly StorageReportService $storageReportService,
         private readonly MessengerMonitoringService $messengerMonitoringService,
+        private readonly AccessTrendService $accessTrendService,
     ) {
     }
 
@@ -139,6 +141,14 @@ final class DashboardController extends AbstractDashboardController
     {
         return $this->render('@Admin/operations/usage_analytics/overview.html.twig', [
             'overview' => $this->analyticsDashboardService->getOverview(),
+        ]);
+    }
+
+    #[AdminRoute(path: '/operations/usage-analytics/accesses', name: 'operations_usage_analytics_accesses')]
+    public function usageAnalyticsAccesses(): Response
+    {
+        return $this->render('@Admin/operations/usage_analytics/accesses.html.twig', [
+            'trend' => $this->accessTrendService->getTrend(),
         ]);
     }
 
@@ -383,6 +393,12 @@ final class DashboardController extends AbstractDashboardController
                         'route' => 'app_admin_dashboard_operations_usage_analytics_overview',
                     ],
                     [
+                        'label' => 'Accesses',
+                        'description' => 'Page views per month and year since counting started',
+                        'icon' => 'fas fa-chart-column',
+                        'route' => 'app_admin_dashboard_operations_usage_analytics_accesses',
+                    ],
+                    [
                         'label' => 'Adoption',
                         'description' => 'Events, roles, engagement depth',
                         'icon' => 'fas fa-chart-line',
@@ -509,6 +525,7 @@ final class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section('Usage analytics');
         yield MenuItem::linkToRoute('Overview', 'fas fa-gauge-high', 'app_admin_dashboard_operations_usage_analytics_overview');
+        yield MenuItem::linkToRoute('Accesses', 'fas fa-chart-column', 'app_admin_dashboard_operations_usage_analytics_accesses');
         yield MenuItem::linkToRoute('Adoption', 'fas fa-chart-line', 'app_admin_dashboard_operations_usage_analytics_adoption');
         yield MenuItem::linkToRoute('Journeys', 'fas fa-route', 'app_admin_dashboard_operations_usage_analytics_journeys');
         yield MenuItem::linkToRoute('Performance', 'fas fa-tachometer-alt', 'app_admin_dashboard_operations_usage_analytics_performance');
