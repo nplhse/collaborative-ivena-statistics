@@ -78,7 +78,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             ],
         ]);
 
-        PageFactory::new()->withoutAutorefresh()->create([
+        $about = $this->createPage([
             'title' => 'About us',
             'slug' => 'about-us',
             'path' => '/about-us',
@@ -202,6 +202,78 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
                 ],
             ],
         ]);
+
+        $this->subpage($about, 'Participating hospitals', 'participating-hospitals', 0, Page::VISIBILITY_AUTHENTICATED,
+            '<p>Hospitals that share their IVENA allocation data with the platform. Visible to signed-in users only.</p>');
+
+        $this->loadGuidePages();
+    }
+
+    /**
+     * A nested user guide, so the page navigation shows several levels.
+     */
+    private function loadGuidePages(): void
+    {
+        $guide = $this->createPage([
+            'title' => 'User guide',
+            'slug' => 'guide',
+            'path' => '/guide',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'sortOrder' => 30,
+            'content' => $this->richtext('<p>How to work with Collaborative IVENA Statistics, from the first import to the benchmark charts.</p>'),
+        ]);
+
+        $this->subpage($guide, 'Getting started', 'getting-started', 0, Page::VISIBILITY_PUBLIC,
+            '<p>Request an account, ask your hospital owner for access, and open the statistics dashboard.</p>');
+
+        $import = $this->subpage($guide, 'Importing data', 'importing-data', 1, Page::VISIBILITY_PUBLIC,
+            '<p>Upload IVENA allocation exports as CSV files and follow their processing on the import page.</p>');
+        $this->subpage($import, 'Preparing the IVENA export', 'preparing-the-export', 0, Page::VISIBILITY_PUBLIC,
+            '<p>Export one quarter at a time and keep the default column set of the IVENA allocation export.</p>');
+        $rejects = $this->subpage($import, 'Handling rejected rows', 'rejected-rows', 1, Page::VISIBILITY_PUBLIC,
+            '<p>Rows that fail the plausibility checks are listed in the import report. Fix them in IVENA and import the file again.</p>');
+        $this->subpage($rejects, 'Common rejection reasons', 'rejection-reasons', 0, Page::VISIBILITY_PUBLIC,
+            '<p>Missing arrival time, unknown department code, or an age outside the plausible range.</p>');
+
+        $statistics = $this->subpage($guide, 'Statistics and benchmarking', 'statistics', 2, Page::VISIBILITY_PUBLIC,
+            '<p>Compare your allocations with anonymised peer groups by state, dispatch area or hospital cohort.</p>');
+        $this->subpage($statistics, 'Reading the benchmark charts', 'benchmark-charts', 0, Page::VISIBILITY_AUTHENTICATED,
+            '<p>Each chart shows your hospital next to the median of its comparison group. Visible to signed-in users only.</p>');
+    }
+
+    private function subpage(Page $parent, string $title, string $slug, int $sortOrder, string $visibility, string $html): Page
+    {
+        return $this->createPage([
+            'title' => $title,
+            'slug' => $slug,
+            'parent' => $parent,
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'visibility' => $visibility,
+            'sortOrder' => $sortOrder,
+            'content' => $this->richtext($html),
+        ]);
+    }
+
+    /**
+     * @param array<string, mixed> $attributes
+     */
+    private function createPage(array $attributes): Page
+    {
+        $page = PageFactory::new()->withoutAutorefresh()->create($attributes);
+        if (!$page instanceof Page) {
+            throw new \LogicException('PageFactory did not create a page.');
+        }
+
+        return $page;
+    }
+
+    /**
+     * @return list<array{type: string, enabled: bool, data: array{html: string}}>
+     */
+    private function richtext(string $html): array
+    {
+        return [['type' => 'richtext', 'enabled' => true, 'data' => ['html' => $html]]];
     }
 
     private function loadBlog(): void
