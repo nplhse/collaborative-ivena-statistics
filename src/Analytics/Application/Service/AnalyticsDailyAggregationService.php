@@ -6,6 +6,7 @@ namespace App\Analytics\Application\Service;
 
 use App\Analytics\Application\DTO\AnalyticsAggregationResult;
 use App\Analytics\Domain\AnalyticsCalendar;
+use App\Analytics\Domain\Entity\AnalyticsAccessDaily;
 use App\Analytics\Domain\Entity\AnalyticsAggregationRun;
 use App\Analytics\Domain\Entity\AnalyticsEventDaily;
 use App\Analytics\Domain\Entity\AnalyticsRequestDaily;
@@ -58,6 +59,8 @@ final readonly class AnalyticsDailyAggregationService
             $rowsWritten += $this->persistTransitions($calendarDate);
             $rowsWritten += $this->persistSessionBoundaries($calendarDate);
             $rowsWritten += $this->persistUniques($calendarDate);
+            $accessCounts = $this->aggregationQuery->fetchAccessCounts($calendarDate);
+            $rowsWritten += $this->persistAccesses($calendarDate, $rawRequestCount, $accessCounts);
 
             $this->entityManager->persist(new AnalyticsAggregationRun(
                 date: $calendarDate,
@@ -74,8 +77,33 @@ final readonly class AnalyticsDailyAggregationService
                 rawRequestCount: $rawRequestCount,
                 rawEventCount: $rawEventCount,
                 aggregateRowsWritten: $rowsWritten,
+                unclassifiedRequests: $accessCounts['unclassified'],
             );
         });
+    }
+
+    /**
+     * Writes the day's counted accesses (#950) when they can be counted, also when they are zero:
+     * - a day with requests needs every request classified;
+     * - a day without requests counts as zero only inside the counted period, i.e. after a day
+     *   with access counts. Before that the day stays outside the counted period.
+     *
+     * @param array{authenticated: int, anonymous: int, unclassified: int} $accessCounts
+     */
+    private function persistAccesses(\DateTimeImmutable $date, int $rawRequestCount, array $accessCounts): int
+    {
+        if ($accessCounts['unclassified'] > 0) {
+            return 0;
+        }
+
+        if (0 === $rawRequestCount && !$this->aggregationQuery->hasAccessCountsBefore($date)) {
+            return 0;
+        }
+
+        $this->entityManager->persist(new AnalyticsAccessDaily($date, true, $accessCounts['authenticated']));
+        $this->entityManager->persist(new AnalyticsAccessDaily($date, false, $accessCounts['anonymous']));
+
+        return 2;
     }
 
     private function persistRequestDaily(\DateTimeImmutable $date): int

@@ -14,6 +14,7 @@ final readonly class AnalyticsDailyAggregateStore
         'analytics_transition_daily',
         'analytics_session_boundary_daily',
         'analytics_uniques_daily',
+        'analytics_access_daily',
         'analytics_aggregation_run',
     ];
 

@@ -38,6 +38,25 @@ Only **completed** days are aggregated by the scheduler (yesterday and catch-up)
 | `analytics_transition_daily` | date + from/to route | transition counts (within that day) |
 | `analytics_session_boundary_daily` | date + route + entry/exit | session counts (within that day) |
 | `analytics_uniques_daily` | date | daily distinct users/visitors/sessions (not summable across days) |
+| `analytics_access_daily` | date + auth | counted accesses (page views, [definition](usage-analytics.md#counted-accesses)); only for counted days, see below |
+
+### Counted accesses per day
+
+`analytics_access_daily` holds the counted accesses of a day, one row for signed-in and one for
+anonymous requests. A day has these two rows exactly when its accesses could be counted, also when
+both counts are zero, so a day without rows is outside the counted period, not a day without accesses:
+
+- A day with requests gets rows only when **every** request of the day has `counted_access` set.
+  A day with unclassified requests (recorded before the flag, not yet backfilled) gets no rows; the
+  command reports it.
+- A day without requests gets zero rows only when an earlier day already has rows, i.e. after the
+  counting started. Empty days before that (for example markers written before tracking began)
+  stay outside the counted period.
+- The counting starts at the first day with rows. Aggregate days in ascending order, as the
+  scheduler and `--days` do, so that empty days after the start get their zero rows.
+
+The rows follow the same idempotency and retention rules as the other tables: rebuilt with the
+day while raw rows exist, kept unchanged once the raw rows are deleted, never deleted by retention.
 
 ## What reporting uses
 
@@ -83,6 +102,18 @@ php bin/console app:analytics:aggregate --cleanup-only --dry-run
 First deploy: run `app:analytics:aggregate --days=…` to backfill existing history, then let the scheduler catch up and purge.
 
 `app:analytics:classify-accesses` marks raw requests recorded before the counted-access flag existed ([usage-analytics.md](usage-analytics.md#rows-recorded-before-the-flag)). Run it soon after the deploy that adds the flag: raw rows older than the retention period are deleted and cannot be classified later.
+
+To count accesses for the days that still have raw rows, classify them and then aggregate those
+days again (already aggregated days are rebuilt from their raw rows; days whose raw rows are gone
+stay unchanged):
+
+```bash
+php bin/console app:analytics:classify-accesses --apply
+php bin/console app:analytics:aggregate --days=31 --no-cleanup
+```
+
+`--days` should cover the retention period plus one day. The counting then starts at the oldest day
+that still had raw rows.
 
 ## Configuration
 
