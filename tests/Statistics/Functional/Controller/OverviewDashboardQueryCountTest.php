@@ -25,10 +25,10 @@ final class OverviewDashboardQueryCountTest extends WebTestCase
 
     /**
      * Includes the primary-key lookup of the header notification badge (ADR 016) and, since Symfony 8.1.10
-     * collects profiler data after kernel.terminate, the 4 queries of AnalyticsRequestSubscriber::onKernelTerminate()
-     * (consent lookup, then START TRANSACTION, INSERT analytics_request, COMMIT).
+     * collects profiler data after kernel.terminate, the 3 queries of AnalyticsRequestSubscriber::onKernelTerminate()
+     * (START TRANSACTION, INSERT analytics_request, COMMIT; the consent is reused from kernel.response).
      */
-    private const int MAX_SYNC_QUERIES = 35;
+    private const int MAX_SYNC_QUERIES = 34;
 
     public function testOverviewDashboardUsesBoundedQueryCountWithoutSelfBenchmark(): void
     {

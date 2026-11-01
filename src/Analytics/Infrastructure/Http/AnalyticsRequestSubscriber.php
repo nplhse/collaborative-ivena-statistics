@@ -10,7 +10,6 @@ use App\Analytics\Application\RequestTracking\QueryParameterNameExtractor;
 use App\Analytics\Application\RequestTracking\RequestAnalyticsRecorder;
 use App\Analytics\Application\RequestTracking\UserAgentNormalizer;
 use App\Analytics\Infrastructure\Doctrine\AnalyticsQueryCounter;
-use App\Shared\Domain\Entity\CookieConsent;
 use App\Shared\Infrastructure\Consent\CookieConsentService;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
@@ -34,6 +33,9 @@ final readonly class AnalyticsRequestSubscriber
     private const string ATTR_STARTED_AT = '_analytics_started_at';
 
     private const string ATTR_TRACK = '_analytics_track';
+
+    /** Analytics consent resolved on kernel.response, reused on kernel.terminate after the EntityManager clear. */
+    private const string ATTR_ANALYTICS_CONSENT = '_analytics_consent';
 
     /** @var list<string> */
     private const array SKIP_ROUTE_PREFIXES = [
@@ -93,12 +95,9 @@ final readonly class AnalyticsRequestSubscriber
             return;
         }
 
-        $consent = $this->resolveConsent($request);
-        $this->cookieManager->applyCookies(
-            $request,
-            $event->getResponse(),
-            $this->cookieConsentService->hasAnalyticsConsent($consent),
-        );
+        $analyticsConsent = $this->resolveAnalyticsConsent($request);
+        $request->attributes->set(self::ATTR_ANALYTICS_CONSENT, $analyticsConsent);
+        $this->cookieManager->applyCookies($request, $event->getResponse(), $analyticsConsent);
     }
 
     #[AsEventListener(event: KernelEvents::TERMINATE)]
@@ -139,8 +138,11 @@ final readonly class AnalyticsRequestSubscriber
         $dbTimeMs = $this->queryCounter->getTimeMs();
         $this->queryCounter->disable();
 
-        $consent = $this->resolveConsent($request);
-        $analyticsConsent = $this->cookieConsentService->hasAnalyticsConsent($consent);
+        $analyticsConsent = $request->attributes->get(self::ATTR_ANALYTICS_CONSENT);
+        if (!\is_bool($analyticsConsent)) {
+            $analyticsConsent = $this->resolveAnalyticsConsent($request);
+        }
+
         $keys = $this->cookieManager->resolveKeys($request, $analyticsConsent);
 
         $securityUser = $this->security->getUser();
@@ -178,14 +180,15 @@ final readonly class AnalyticsRequestSubscriber
         );
     }
 
-    private function resolveConsent(Request $request): CookieConsent
+    private function resolveAnalyticsConsent(Request $request): bool
     {
         $user = $this->security->getUser();
-
-        return $this->cookieConsentService->resolveForRequest(
+        $consent = $this->cookieConsentService->resolveForRequest(
             $request,
             $user instanceof User ? $user : null,
         );
+
+        return $this->cookieConsentService->hasAnalyticsConsent($consent);
     }
 
     private function resolvePrimaryRole(User $user): string
