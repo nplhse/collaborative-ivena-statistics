@@ -899,7 +899,7 @@
       </trans-unit>
       <trans-unit id="admUserNewestNonPart" resname="admin.user.action.newest_non_participants">
         <source>admin.user.action.newest_non_participants</source>
-        <target>Newest without participant permissions</target>
+        <target>Possibly unknown users</target>
       </trans-unit>
       <trans-unit id="admImportRejects" resname="admin.import.action.rejects">
         <source>admin.import.action.rejects</source>

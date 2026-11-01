@@ -76,10 +76,11 @@ final class UserCrudFilterTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, '/admin/user');
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('.content-header-help');
+        self::assertSame(['filter-admin', 'newer-user', 'older-user', 'participant'], $this->usernames($crawler), 'Default sort is username ascending.');
 
         $button = $crawler->filter('a.action-newestNonParticipants');
         self::assertCount(1, $button);
-        self::assertSame('Newest without participant permissions', trim($button->text()));
+        self::assertSame('Possibly unknown users', trim($button->text()));
 
         $crawler = $client->click($button->link());
         self::assertResponseIsSuccessful();
