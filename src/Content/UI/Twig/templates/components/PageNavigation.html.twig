@@ -6,12 +6,12 @@
     {% set heading = this.heading ?? 'page.navigation.title'|trans({}, 'content') %}
     <twig:Card :body="false" {{ ...attributes.defaults({class: 'page-navigation', 'data-testid': 'page-navigation'}) }}>
         <twig:block name="header">
-            <h3 class="card-title d-flex align-items-center gap-2 mb-0" id="{{ headingId }}">
-                <twig:ux:icon name="tabler:sitemap" class="icon" aria-hidden="true" />
+            <h3 class="card-title d-flex align-items-center gap-2" id="{{ headingId }}">
+                <twig:ux:icon name="tabler:sitemap" class="w-4 h-4" aria-hidden="true" />
                 {{ heading }}
             </h3>
         </twig:block>
-        <nav class="card-body p-2" aria-labelledby="{{ headingId }}" data-controller="page-navigation">
+        <nav class="card-body py-2" aria-labelledby="{{ headingId }}" data-controller="page-navigation">
             <ul class="page-nav-list list-unstyled mb-0">
                 {{ include('@Content/components/_page_navigation_nodes.html.twig', {nodes: nodes, navId: navId}, with_context: false) }}
             </ul>

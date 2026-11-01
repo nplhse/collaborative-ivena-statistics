@@ -62,8 +62,10 @@ No template picks a subtree automatically yet. Add one only for a concrete use c
 - `PageController::show` stores the shown page's ID in the request attribute
   `PageNavigationTreeProvider::CURRENT_PAGE_ATTRIBUTE`. Every instance on the page reads it, so templates do not
   pass the current page.
-- The current page gets `aria-current="page"` and a highlighted row (bar, background and bold text, not colour
-  alone). Its ancestors are marked as well (`is-ancestor`).
+- The current page gets `aria-current="page"` and semibold text in the body colour (weight, not colour alone).
+  Its ancestors are marked as well (`is-ancestor`) and use the body colour; other entries are muted. The style
+  follows the table of contents in the same sidebar: plain text links, no backgrounds, hover only changes the
+  text colour.
 - Initially open: the ancestors of the current page and the current page itself when it has children, and the
   root with `includeRoot`. Everything else is collapsed. Without a current page (dashboard) all branches are
   collapsed.
@@ -78,7 +80,8 @@ No template picks a subtree automatically yet. Add one only for a concrete use c
   (`aria-expanded`, `aria-controls`, label "Subpages of {title}" / `page.navigation.toggle`). Leaf pages have no
   button.
 - IDs are prefixed per instance, so several navigations on one page stay valid and independent.
-- Rows and toggles are at least 2.75rem high; long titles wrap; focus uses `:focus-visible`.
+- Rows are compact; on touch screens (`pointer: coarse`) rows get more padding and toggles are 2.75rem. Long
+  titles wrap; focus uses `:focus-visible`.
 
 ## Queries
 

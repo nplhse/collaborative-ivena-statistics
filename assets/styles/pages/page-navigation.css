@@ -1,80 +1,92 @@
-/* Page navigation component (@Content/components/PageNavigation.html.twig) */
+/*
+ * Page navigation component (@Content/components/PageNavigation.html.twig).
+ * Plain text links like the table of contents in the same sidebar: no backgrounds, colour and weight only.
+ */
 
 .page-navigation .page-nav-branch {
-    margin-left: 0.75rem;
-    padding-left: 0.5rem;
+    margin-left: 0.25rem;
+    padding-left: 0.75rem;
     border-left: 1px solid var(--tblr-border-color);
 }
 
 .page-navigation .page-nav-row {
     display: flex;
     align-items: flex-start;
-    gap: 0.125rem;
+    gap: 0.25rem;
 }
 
 .page-navigation .page-nav-link {
-    display: flex;
     flex: 1 1 auto;
-    align-items: center;
     min-width: 0;
-    min-height: 2.75rem;
-    padding: 0.375rem 0.625rem;
-    border-left: 3px solid transparent;
-    border-radius: var(--tblr-border-radius);
+    padding: 0.25rem 0;
     color: var(--tblr-secondary);
-    line-height: 1.35;
+    line-height: 1.4;
     overflow-wrap: anywhere;
     text-decoration: none;
 }
 
 .page-navigation .page-nav-link:hover {
-    background: var(--tblr-bg-surface-secondary);
     color: var(--tblr-body-color);
 }
 
 .page-navigation .page-nav-item.is-ancestor > .page-nav-row > .page-nav-link {
     color: var(--tblr-body-color);
-    font-weight: var(--tblr-font-weight-medium);
 }
 
+/* Weight, not only colour, marks the current page. */
 .page-navigation .page-nav-link[aria-current="page"] {
-    border-left-color: var(--tblr-primary);
-    background: rgba(var(--tblr-primary-rgb), 0.08);
-    color: var(--tblr-primary);
-    font-weight: var(--tblr-font-weight-bold);
+    color: var(--tblr-body-color);
+    font-weight: var(--tblr-font-weight-semibold, 600);
 }
 
 .page-navigation .page-nav-toggle {
     display: inline-flex;
-    flex: 0 0 2.75rem;
+    flex: 0 0 auto;
     align-items: center;
     justify-content: center;
-    width: 2.75rem;
-    height: 2.75rem;
+    width: 1.75rem;
+    height: 1.75rem;
     padding: 0;
     border: 0;
     border-radius: var(--tblr-border-radius);
     background: transparent;
     color: var(--tblr-secondary);
+    opacity: 0.7;
 }
 
 .page-navigation .page-nav-toggle:hover {
-    background: var(--tblr-bg-surface-secondary);
     color: var(--tblr-body-color);
-}
-
-.page-navigation .page-nav-link:focus-visible,
-.page-navigation .page-nav-toggle:focus-visible {
-    outline: 2px solid var(--tblr-primary);
-    outline-offset: 1px;
+    opacity: 1;
 }
 
 .page-navigation .page-nav-toggle-icon {
+    width: 1rem;
+    height: 1rem;
     transition: transform 0.15s ease;
 }
 
 .page-navigation .page-nav-toggle[aria-expanded="false"] .page-nav-toggle-icon {
     transform: rotate(-90deg);
+}
+
+.page-navigation .page-nav-link:focus-visible,
+.page-navigation .page-nav-toggle:focus-visible {
+    border-radius: var(--tblr-border-radius);
+    outline: 2px solid var(--tblr-primary);
+    outline-offset: 2px;
+    opacity: 1;
+}
+
+/* Larger touch targets on touch screens only. */
+@media (pointer: coarse) {
+    .page-navigation .page-nav-link {
+        padding: 0.625rem 0;
+    }
+
+    .page-navigation .page-nav-toggle {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
