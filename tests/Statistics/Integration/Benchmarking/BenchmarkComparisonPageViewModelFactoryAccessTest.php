@@ -109,6 +109,13 @@ final class BenchmarkComparisonPageViewModelFactoryAccessTest extends KernelTest
             'tier' => HospitalTier::FULL,
             'location' => HospitalLocation::URBAN,
         ]);
+        $hospitalC = HospitalFactory::createOne([
+            'name' => 'ComparisonVmHospitalC',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
 
         SpecialityFactory::createOne(['name' => 'ComparisonVmSpec']);
         DepartmentFactory::createOne(['name' => 'ComparisonVmDept']);
@@ -117,6 +124,7 @@ final class BenchmarkComparisonPageViewModelFactoryAccessTest extends KernelTest
 
         $importA = ImportFactory::createOne(['name' => 'ComparisonVmImportA', 'hospital' => $hospitalA, 'createdBy' => $user]);
         $importB = ImportFactory::createOne(['name' => 'ComparisonVmImportB', 'hospital' => $hospitalB, 'createdBy' => $user]);
+        $importC = ImportFactory::createOne(['name' => 'ComparisonVmImportC', 'hospital' => $hospitalC, 'createdBy' => $user]);
 
         AllocationFactory::createOne([
             'import' => $importA,
@@ -138,10 +146,21 @@ final class BenchmarkComparisonPageViewModelFactoryAccessTest extends KernelTest
             'createdAt' => new \DateTimeImmutable('2025-06-02 11:00:00'),
             'arrivalAt' => new \DateTimeImmutable('2025-06-02 11:20:00'),
         ]);
+        AllocationFactory::createOne([
+            'import' => $importC,
+            'hospital' => $hospitalC,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'gender' => AllocationGender::FEMALE,
+            'urgency' => AllocationUrgency::INPATIENT,
+            'createdAt' => new \DateTimeImmutable('2025-06-02 11:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2025-06-02 11:20:00'),
+        ]);
 
         $rebuilder = self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class);
         $rebuilder->rebuildForImport($importA->getId());
         $rebuilder->rebuildForImport($importB->getId());
+        $rebuilder->rebuildForImport($importC->getId());
         $this->refreshStatisticsMaterializedViews();
 
         $stateModel = $this->factory->create(

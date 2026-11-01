@@ -18,7 +18,7 @@ final readonly class GetEligibleDispatchAreaIdsQuery
     /**
      * @return list<int>
      */
-    public function __invoke(int $minimumParticipants = 2): array
+    public function __invoke(int $minimumParticipants): array
     {
         $this->materializedViewsInstaller->ensureInstalled();
 

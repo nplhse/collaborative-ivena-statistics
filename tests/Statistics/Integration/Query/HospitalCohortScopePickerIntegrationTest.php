@@ -63,6 +63,13 @@ final class HospitalCohortScopePickerIntegrationTest extends KernelTestCase
             'tier' => HospitalTier::BASIC,
             'location' => HospitalLocation::URBAN,
         ]);
+        $hospitalC = HospitalFactory::createOne([
+            'name' => 'CohortPickerHospitalC',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::BASIC,
+            'location' => HospitalLocation::URBAN,
+        ]);
 
         SpecialityFactory::createOne(['name' => 'CohortPickerSpec']);
         DepartmentFactory::createOne(['name' => 'CohortPickerDept']);
@@ -75,6 +82,7 @@ final class HospitalCohortScopePickerIntegrationTest extends KernelTestCase
 
         $importA = ImportFactory::createOne(['name' => 'CohortPickerImportA', 'hospital' => $hospitalA, 'createdBy' => $user]);
         $importB = ImportFactory::createOne(['name' => 'CohortPickerImportB', 'hospital' => $hospitalB, 'createdBy' => $user]);
+        $importC = ImportFactory::createOne(['name' => 'CohortPickerImportC', 'hospital' => $hospitalC, 'createdBy' => $user]);
 
         $allocationDefaults = [
             'state' => $state,
@@ -98,10 +106,12 @@ final class HospitalCohortScopePickerIntegrationTest extends KernelTestCase
 
         AllocationFactory::createOne(array_merge($allocationDefaults, ['import' => $importA, 'hospital' => $hospitalA]));
         AllocationFactory::createOne(array_merge($allocationDefaults, ['import' => $importB, 'hospital' => $hospitalB]));
+        AllocationFactory::createOne(array_merge($allocationDefaults, ['import' => $importC, 'hospital' => $hospitalC]));
 
         $rebuilder = self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class);
         $rebuilder->rebuildForImport($importA->getId());
         $rebuilder->rebuildForImport($importB->getId());
+        $rebuilder->rebuildForImport($importC->getId());
 
         $this->refreshStatisticsMaterializedViews();
 

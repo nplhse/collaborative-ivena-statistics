@@ -300,6 +300,18 @@ final class CaseFlowControllerTest extends WebTestCase
             'latitude' => 50.80,
             'longitude' => 8.77,
         ]);
+        // Third hospital with cases from area A: dispatch area scopes need ScopePrivacyPolicy::MIN_HOSPITALS (3).
+        $hospitalC = HospitalFactory::createOne([
+            'name' => 'CaseFlowDaKlinikC',
+            'state' => $state,
+            'dispatchArea' => $areaA,
+            'tier' => HospitalTier::BASIC,
+            'location' => HospitalLocation::URBAN,
+            'owner' => $user,
+            'createdBy' => $user,
+            'latitude' => 51.20,
+            'longitude' => 9.40,
+        ]);
 
         SpecialityFactory::createOne(['name' => 'CaseFlowDaSpec']);
         DepartmentFactory::createOne(['name' => 'CaseFlowDaDept']);
@@ -308,6 +320,7 @@ final class CaseFlowControllerTest extends WebTestCase
 
         $importA = ImportFactory::createOne(['name' => 'CaseFlowDaImportA', 'hospital' => $hospitalA, 'createdBy' => $user]);
         $importB = ImportFactory::createOne(['name' => 'CaseFlowDaImportB', 'hospital' => $hospitalB, 'createdBy' => $user]);
+        $importC = ImportFactory::createOne(['name' => 'CaseFlowDaImportC', 'hospital' => $hospitalC, 'createdBy' => $user]);
 
         AllocationFactory::createMany(7, [
             'import' => $importA,
@@ -340,9 +353,21 @@ final class CaseFlowControllerTest extends WebTestCase
             'arrivalAt' => new \DateTimeImmutable('2026-04-03 11:22:00'),
         ]);
 
+        AllocationFactory::createMany(2, [
+            'import' => $importC,
+            'hospital' => $hospitalC,
+            'state' => $state,
+            'dispatchArea' => $areaA,
+            'gender' => AllocationGender::MALE,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'createdAt' => new \DateTimeImmutable('2026-04-04 12:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-04-04 12:15:00'),
+        ]);
+
         $rebuilder = self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class);
         $rebuilder->rebuildForImport($importA->getId());
         $rebuilder->rebuildForImport($importB->getId());
+        $rebuilder->rebuildForImport($importC->getId());
         $this->refreshStatisticsMaterializedViews();
 
         $crawler = $client->request(Request::METHOD_GET, '/statistics/case-flow', [
@@ -356,8 +381,9 @@ final class CaseFlowControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-case-flow-dispatch-flow-outflow"]');
         $this->assertSelectorNotExists('[data-testid="stats-case-flow-urgency-structure"]');
         $this->assertSelectorTextSame('[data-testid="stats-case-flow-flow-inflow-count"]', '3');
-        $this->assertSelectorTextSame('[data-testid="stats-case-flow-flow-local-count"]', '11');
-        $this->assertSelectorTextSame('[data-testid="stats-case-flow-flow-total-count"]', '14');
+        // Origin area A: 7 to Klinik A, 4 to Klinik B, 2 to Klinik C = 13; plus 3 from area B to Klinik A = 16.
+        $this->assertSelectorTextSame('[data-testid="stats-case-flow-flow-local-count"]', '13');
+        $this->assertSelectorTextSame('[data-testid="stats-case-flow-flow-total-count"]', '16');
 
         $payloadJson = (string) $crawler->filter('[data-controller="case-flow-charts"]')->attr('data-case-flow-charts-payload-value');
         $payload = json_decode(html_entity_decode($payloadJson, ENT_QUOTES), true, 512, JSON_THROW_ON_ERROR);

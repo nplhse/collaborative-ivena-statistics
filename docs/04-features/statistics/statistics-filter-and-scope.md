@@ -60,8 +60,10 @@ Overview (`GET /statistics/`) is the exception: `OverviewDefaultPeriodResolver` 
 - Anonymous users → `public`
 - Missing hospital ID → `my_hospitals`
 - No hospital access → `my_hospitals` or `public`
-- Cohort too small → `public` with notice `cohort_too_small`
-- State/dispatch area with fewer than 2 hospitals → `public` with `state_invalid` / `dispatch_area_invalid`
+- Cohort with fewer than 3 hospitals → `public` with notice `cohort_too_small`
+- State/dispatch area with fewer than 3 hospitals → `public` with `state_invalid` / `dispatch_area_invalid`
+
+The minimum of 3 hospitals is `ScopePrivacyPolicy::MIN_HOSPITALS`. With two hospitals, a participant who knows the figures of their own hospital could subtract them from the scope total and get those of the other one (#934). The scope choices in the filter only offer states, dispatch areas and cohorts that reach the minimum, and Case Flow uses the same minimum for destination pools.
 
 Dispatch-area eligibility uses distinct hospitals that appear with that origin `dispatch_area_id` (count MV). Filtering then uses `dispatch_area_id = :id` on `allocation_stats_projection` via `StatisticsScopeCriteria.dispatchAreaId`.
 

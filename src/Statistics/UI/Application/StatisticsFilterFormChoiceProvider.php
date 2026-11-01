@@ -14,6 +14,7 @@ use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
 use App\Statistics\Application\Cohort\HospitalCohortResolver;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
+use App\Statistics\Application\ScopePrivacyPolicy;
 use App\Statistics\Application\StatisticsHospitalScopeLabelResolver;
 use App\Statistics\Application\StatisticsPeriodNavigation;
 use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
@@ -474,8 +475,8 @@ final class StatisticsFilterFormChoiceProvider
     private function eligibleStateIds(StatisticsFilterScopeChoicePolicy $policy): array
     {
         return match ($policy) {
-            StatisticsFilterScopeChoicePolicy::RegisteredHospitals => ($this->eligibleStateIdsQuery)(2),
-            StatisticsFilterScopeChoicePolicy::AllocationStatistics => $this->projectionScopeQuery->stateIdsWithAtLeastDistinctHospitals(2),
+            StatisticsFilterScopeChoicePolicy::RegisteredHospitals => ($this->eligibleStateIdsQuery)(ScopePrivacyPolicy::MIN_HOSPITALS),
+            StatisticsFilterScopeChoicePolicy::AllocationStatistics => $this->projectionScopeQuery->stateIdsWithAtLeastDistinctHospitals(ScopePrivacyPolicy::MIN_HOSPITALS),
         };
     }
 
@@ -485,8 +486,8 @@ final class StatisticsFilterFormChoiceProvider
     private function eligibleDispatchAreaIds(StatisticsFilterScopeChoicePolicy $policy): array
     {
         return match ($policy) {
-            StatisticsFilterScopeChoicePolicy::RegisteredHospitals => ($this->eligibleDispatchAreaIdsQuery)(2),
-            StatisticsFilterScopeChoicePolicy::AllocationStatistics => $this->projectionScopeQuery->dispatchAreaIdsWithAtLeastDistinctHospitals(2),
+            StatisticsFilterScopeChoicePolicy::RegisteredHospitals => ($this->eligibleDispatchAreaIdsQuery)(ScopePrivacyPolicy::MIN_HOSPITALS),
+            StatisticsFilterScopeChoicePolicy::AllocationStatistics => $this->projectionScopeQuery->dispatchAreaIdsWithAtLeastDistinctHospitals(ScopePrivacyPolicy::MIN_HOSPITALS),
         };
     }
 

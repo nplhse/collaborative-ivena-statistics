@@ -9,9 +9,9 @@ namespace App\Statistics\UI\Application;
  */
 enum StatisticsFilterScopeChoicePolicy: string
 {
-    /** States/areas with at least two registered hospitals (materialized overview views). */
+    /** States/areas with at least ScopePrivacyPolicy::MIN_HOSPITALS hospitals (materialized overview views). */
     case RegisteredHospitals = 'registered_hospitals';
 
-    /** States/areas with allocation statistics from at least two hospitals. */
+    /** States/areas with allocation statistics from at least ScopePrivacyPolicy::MIN_HOSPITALS hospitals. */
     case AllocationStatistics = 'allocation_statistics';
 }

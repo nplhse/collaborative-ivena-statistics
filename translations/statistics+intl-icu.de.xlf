@@ -3299,7 +3299,7 @@
       </trans-unit>
       <trans-unit id="De45f6dc1e" resname="stats.filter.scope.cohort_too_small">
         <source>stats.filter.scope.cohort_too_small</source>
-        <target>Die gewählte Kohorte umfasst weniger als 2 teilnehmende Krankenhäuser. Es werden stattdessen alle Zuweisungen angezeigt.</target>
+        <target>Die gewählte Kohorte umfasst weniger als 3 teilnehmende Krankenhäuser. Es werden stattdessen alle Zuweisungen angezeigt.</target>
       </trans-unit>
       <trans-unit id="De6ed671b9" resname="stats.filter.scope.dispatch_area">
         <source>stats.filter.scope.dispatch_area</source>
