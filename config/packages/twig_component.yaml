@@ -5,3 +5,4 @@ twig_component:
         App\Twig\Components\: 'components/'
         App\Shared\UI\Twig\Components\: 'components/'
         App\Statistics\UI\Twig\Components\: '@Statistics/components/'
+        App\Content\UI\Twig\Components\: '@Content/components/'

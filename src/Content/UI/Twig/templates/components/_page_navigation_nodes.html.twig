@@ -1,0 +1,23 @@
+{% for node in nodes %}
+    {% set branchId = navId ~ '-branch-' ~ node.pageId %}
+    <li class="page-nav-item{{ node.current ? ' is-current' }}{{ node.ancestor ? ' is-ancestor' }}">
+        <div class="page-nav-row">
+            <a href="{{ node.url }}" class="page-nav-link"{% if node.current %} aria-current="page"{% endif %}>{{ node.title }}</a>
+            {% if node.hasChildren %}
+                <button type="button"
+                        class="page-nav-toggle"
+                        aria-expanded="{{ node.expanded ? 'true' : 'false' }}"
+                        aria-controls="{{ branchId }}"
+                        aria-label="{{ 'page.navigation.toggle'|trans({title: node.title}, 'content') }}"
+                        data-action="page-navigation#toggle">
+                    <twig:ux:icon name="tabler:chevron-down" class="icon page-nav-toggle-icon" aria-hidden="true" />
+                </button>
+            {% endif %}
+        </div>
+        {% if node.hasChildren %}
+            <ul id="{{ branchId }}" class="page-nav-list page-nav-branch list-unstyled mb-0"{% if not node.expanded %} hidden{% endif %}>
+                {{ include('@Content/components/_page_navigation_nodes.html.twig', {nodes: node.children, navId: navId}, with_context: false) }}
+            </ul>
+        {% endif %}
+    </li>
+{% endfor %}

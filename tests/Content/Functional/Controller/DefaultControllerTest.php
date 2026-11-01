@@ -93,9 +93,9 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorExists('a[href="/statistics/"]');
         self::assertSelectorExists('a[href="/blog"]');
         self::assertSelectorTextContains('body', 'Latest blog posts');
-        self::assertSelectorTextContains('body', 'Pages');
         self::assertSelectorTextContains('body', 'No published posts yet.');
-        self::assertSelectorTextContains('body', 'No pages available.');
+        // Without visible pages the page navigation is not rendered at all.
+        self::assertSelectorNotExists('[data-testid="page-navigation"]');
         self::assertSelectorExists('[data-testid="dashboard-metrics"]');
         self::assertSelectorExists('[data-testid="dashboard-metric-allocations"]');
         self::assertSelectorExists('[data-testid="dashboard-metric-hospitals"]');
@@ -342,8 +342,8 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorExists('a[href="/blog/dashboard-sidebar-post"]');
         self::assertSelectorTextContains('body', 'Dashboard Sidebar Post');
         self::assertSelectorTextNotContains('body', 'No published posts yet.');
-        self::assertSelectorTextContains('body', 'Dashboard Guide');
-        self::assertSelectorTextNotContains('body', 'No pages available.');
+        self::assertSelectorTextContains('[data-testid="page-navigation"]', 'Dashboard Guide');
+        self::assertSelectorNotExists('[data-testid="page-navigation"] [aria-current]');
     }
 
     public function testDashboardStaysUsableWhenActivityFrameIsSeparate(): void

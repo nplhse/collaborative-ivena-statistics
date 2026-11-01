@@ -1,0 +1,84 @@
+/* Page navigation component (@Content/components/PageNavigation.html.twig) */
+
+.page-navigation .page-nav-branch {
+    margin-left: 0.75rem;
+    padding-left: 0.5rem;
+    border-left: 1px solid var(--tblr-border-color);
+}
+
+.page-navigation .page-nav-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.125rem;
+}
+
+.page-navigation .page-nav-link {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    min-width: 0;
+    min-height: 2.75rem;
+    padding: 0.375rem 0.625rem;
+    border-left: 3px solid transparent;
+    border-radius: var(--tblr-border-radius);
+    color: var(--tblr-secondary);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+}
+
+.page-navigation .page-nav-link:hover {
+    background: var(--tblr-bg-surface-secondary);
+    color: var(--tblr-body-color);
+}
+
+.page-navigation .page-nav-item.is-ancestor > .page-nav-row > .page-nav-link {
+    color: var(--tblr-body-color);
+    font-weight: var(--tblr-font-weight-medium);
+}
+
+.page-navigation .page-nav-link[aria-current="page"] {
+    border-left-color: var(--tblr-primary);
+    background: rgba(var(--tblr-primary-rgb), 0.08);
+    color: var(--tblr-primary);
+    font-weight: var(--tblr-font-weight-bold);
+}
+
+.page-navigation .page-nav-toggle {
+    display: inline-flex;
+    flex: 0 0 2.75rem;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--tblr-border-radius);
+    background: transparent;
+    color: var(--tblr-secondary);
+}
+
+.page-navigation .page-nav-toggle:hover {
+    background: var(--tblr-bg-surface-secondary);
+    color: var(--tblr-body-color);
+}
+
+.page-navigation .page-nav-link:focus-visible,
+.page-navigation .page-nav-toggle:focus-visible {
+    outline: 2px solid var(--tblr-primary);
+    outline-offset: 1px;
+}
+
+.page-navigation .page-nav-toggle-icon {
+    transition: transform 0.15s ease;
+}
+
+.page-navigation .page-nav-toggle[aria-expanded="false"] .page-nav-toggle-icon {
+    transform: rotate(-90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-navigation .page-nav-toggle-icon {
+        transition: none;
+    }
+}

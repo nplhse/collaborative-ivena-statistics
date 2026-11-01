@@ -10,6 +10,7 @@ Use these instead of copying Tabler page-header, card, modal, badge, alert, filt
 | A content section | `Card` |
 | An entity or catalog list (Explore, Import, Users) | `DataTable` |
 | A statistics ranking (Top Lists, Insights directories) | [`Statistics:RankingTable`](../04-features/statistics/ranking-table.md) |
+| Navigation through editorial pages (full tree or a section) | [`Content:PageNavigation`](../04-features/content/page-navigation.md) |
 | An empty result set | `EmptyState` |
 | A notice, flash, or validation message | `Alert` |
 | A short status | `Badge` |

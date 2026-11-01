@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Content\UI\Http\Controller;
 
 use App\Content\Application\Dashboard\DashboardMetricsService;
-use App\Content\Application\Page\PageSidebarDataProvider;
 use App\Content\Infrastructure\Repository\PostRepository;
 use App\Onboarding\Application\OnboardingProgressService;
 use App\User\Domain\Entity\User;
@@ -18,7 +17,6 @@ final class DefaultController extends AbstractController
     public function __construct(
         private readonly DashboardMetricsService $dashboardMetricsService,
         private readonly PostRepository $postRepository,
-        private readonly PageSidebarDataProvider $pageSidebarDataProvider,
         private readonly OnboardingProgressService $onboardingProgressService,
     ) {
     }
@@ -38,7 +36,6 @@ final class DefaultController extends AbstractController
                 'metrics' => $metrics,
                 'recentPosts' => $this->postRepository->findPublishedForIndex(5),
                 'onboardingCard' => $onboardingCard,
-                'pageTree' => $this->pageSidebarDataProvider->getPageTree(),
             ]);
         }
 

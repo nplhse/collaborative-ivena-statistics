@@ -215,6 +215,54 @@ final class PageControllerTest extends WebTestCase
         self::assertSelectorTextNotContains('[data-testid="page-sidebar"]', 'Nur Mitglieder');
     }
 
+    public function testSidebarNavigationMarksCurrentPageAndExpandsItsAncestors(): void
+    {
+        $client = self::createClient();
+
+        $handbook = PageFactory::createOne([
+            'title' => 'Handbook',
+            'slug' => 'handbook',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+        ]);
+        $chapter = PageFactory::createOne([
+            'title' => 'Chapter',
+            'slug' => 'chapter',
+            'parent' => $handbook,
+            'status' => PageTranslation::STATUS_PUBLISHED,
+        ]);
+        PageFactory::createOne([
+            'title' => 'Section',
+            'slug' => 'section',
+            'parent' => $chapter,
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Section</p>']]],
+        ]);
+        $other = PageFactory::createOne([
+            'title' => 'Other',
+            'slug' => 'other',
+            'sortOrder' => 1,
+            'status' => PageTranslation::STATUS_PUBLISHED,
+        ]);
+        PageFactory::createOne([
+            'title' => 'Other child',
+            'slug' => 'other-child',
+            'parent' => $other,
+            'status' => PageTranslation::STATUS_PUBLISHED,
+        ]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/handbook/chapter/section');
+
+        self::assertResponseIsSuccessful();
+        $navigation = $crawler->filter('[data-testid="page-sidebar"] [data-testid="page-navigation"]');
+        self::assertCount(1, $navigation);
+        self::assertSame('Section', $navigation->filter('[aria-current="page"]')->text());
+        // Parent pages stay links of their own.
+        self::assertCount(1, $navigation->filter('a[href="/handbook"]'));
+        self::assertSame('true', $navigation->filter('button[aria-label="Subpages of Handbook"]')->attr('aria-expanded'));
+        self::assertSame('true', $navigation->filter('button[aria-label="Subpages of Chapter"]')->attr('aria-expanded'));
+        self::assertSame('false', $navigation->filter('button[aria-label="Subpages of Other"]')->attr('aria-expanded'));
+    }
+
     public function testPublishedLanguageAlternatesAreLinkedAndLocaleSwitchRedirectsToSiblingPath(): void
     {
         $client = self::createClient();

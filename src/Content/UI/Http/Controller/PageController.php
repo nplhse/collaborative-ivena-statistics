@@ -6,6 +6,7 @@ namespace App\Content\UI\Http\Controller;
 
 use App\Content\Application\Page\PageAccessChecker;
 use App\Content\Application\Page\PageLocaleAlternateLinkBuilder;
+use App\Content\Application\Page\PageNavigationTreeProvider;
 use App\Content\Application\Page\PageSidebarDataProvider;
 use App\Content\Application\Page\PageTableOfContentsBuilder;
 use App\Content\Application\Page\PageTranslationResolver;
@@ -50,6 +51,7 @@ final class PageController extends AbstractController
             throw $this->createAccessDeniedException($this->translator->trans('error.page.auth_required', [], 'errors'));
         }
 
+        $request->attributes->set(PageNavigationTreeProvider::CURRENT_PAGE_ATTRIBUTE, $page->getId());
         $request->attributes->set(
             'locale_switch_targets',
             $this->pageLocaleAlternateLinkBuilder->localeSwitchTargets(
@@ -68,7 +70,6 @@ final class PageController extends AbstractController
             'content' => $tableOfContents->content,
             'toc' => $tableOfContents->isEmpty() ? [] : $tableOfContents->items,
             'breadcrumbItems' => $this->buildBreadcrumbItems($page, $translation),
-            'currentPage' => $page,
             ...$this->pageSidebarDataProvider->getData(),
         ]);
     }

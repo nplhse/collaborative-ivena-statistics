@@ -28,23 +28,7 @@
     {% endif %}
 
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title d-flex align-items-center gap-2">
-                    <twig:ux:icon name="tabler:sitemap" class="w-4 h-4" />
-                    {{ 'dashboard.pages.card_title'|trans({}, 'content') }}
-                </h3>
-            </div>
-            <div class="card-body">
-                {% if pageTree is empty %}
-                    <p class="text-secondary mb-0">{{ 'dashboard.pages.empty'|trans({}, 'content') }}</p>
-                {% else %}
-                    <ul class="list-unstyled mb-0">
-                        {{ include('@Content/page/_page_tree_nodes.html.twig', {nodes: pageTree, currentPage: currentPage|default(null)}, false) }}
-                    </ul>
-                {% endif %}
-            </div>
-        </div>
+        <twig:Content:PageNavigation />
     </div>
 
     <div class="col-12">
