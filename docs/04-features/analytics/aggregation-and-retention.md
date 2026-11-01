@@ -21,6 +21,11 @@ A calendar **day** is always **Europe/Berlin** (`00:00` inclusive to next `00:00
 2. Rebuilds daily statistics from raw rows in the Berlin day window
 3. Writes `analytics_aggregation_run` (including empty days with `0/0/0`)
 
+A day that already has a run marker but no raw rows left (raw data deleted by retention) is **not**
+rebuilt: its aggregates and marker stay unchanged, and the command reports it as "kept unchanged".
+Re-running `app:analytics:aggregate --date/--days` over older days is therefore safe and never
+replaces historical totals with zeros.
+
 Only **completed** days are aggregated by the scheduler (yesterday and catch-up). The current day is never rolled up automatically.
 
 ### Tables

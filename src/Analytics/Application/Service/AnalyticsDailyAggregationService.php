@@ -35,11 +35,24 @@ final readonly class AnalyticsDailyAggregationService
         $calendarDate = AnalyticsCalendar::startOfDay($date);
 
         return $this->entityManager->wrapInTransaction(function () use ($calendarDate): AnalyticsAggregationResult {
+            $rawRequestCount = $this->aggregationQuery->countRequests($calendarDate);
+            $rawEventCount = $this->aggregationQuery->countEvents($calendarDate);
+
+            // Raw rows of an aggregated day are deleted after the retention period. Rebuilding
+            // such a day would replace its aggregates with zeros, so keep them as they are.
+            if (0 === $rawRequestCount && 0 === $rawEventCount && $this->aggregationQuery->hasAggregationRun($calendarDate)) {
+                return new AnalyticsAggregationResult(
+                    date: $calendarDate->format('Y-m-d'),
+                    rawRequestCount: 0,
+                    rawEventCount: 0,
+                    aggregateRowsWritten: 0,
+                    keptExisting: true,
+                );
+            }
+
             $this->aggregateStore->deleteByDate($calendarDate);
             $this->entityManager->clear();
 
-            $rawRequestCount = $this->aggregationQuery->countRequests($calendarDate);
-            $rawEventCount = $this->aggregationQuery->countEvents($calendarDate);
             $rowsWritten = 0;
 
             $rowsWritten += $this->persistRequestDaily($calendarDate);
