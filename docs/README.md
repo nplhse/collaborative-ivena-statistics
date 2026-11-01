@@ -17,6 +17,7 @@ Entry point for project documentation.
 
 | Topic | Document |
 |-------|----------|
+| Roadmap (project phases) | [roadmap.md](roadmap.md) |
 | Getting started | [01-getting-started/local-setup.md](01-getting-started/local-setup.md) |
 | Architecture | [02-architecture/overview.md](02-architecture/overview.md) |
 | Configuration | [06-reference/configuration.md](06-reference/configuration.md) |

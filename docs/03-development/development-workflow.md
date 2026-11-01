@@ -217,12 +217,13 @@ Release `0.3-beta` as an example. Every step on the release branch is a pull req
 4. **Changelog:** write the `## [0.3-beta] - <date>` section ([Changelog](#changelog)), with a short summary and, if needed, a link to the upgrade guide.
 5. **Upgrade guide:** add a section for the new version to [upgrading.md](../05-operations/upgrading.md) (configuration changes, preconditions, one-time commands), or state that none are needed.
 6. **Security policy:** update the supported versions in [SECURITY.md](../../SECURITY.md).
-7. **Security audit:** run the pre-release security review and `make audit`; fix findings on the release branch or record follow-up issues.
-8. **Pull request into `main`:** open `release/0.3-beta` → `main` and wait until the GitHub checks are green.
-9. **Release notes:** create a draft GitHub release `v0.3-beta` (pre-release during the beta) with target `main`. Generate the notes from the changelog section, point links into `docs/` at the tag (`blob/v0.3-beta/docs/…`) and add a full-changelog compare link. Review the order and wording of the entries.
-10. **Merge and publish:** merge the pull request into `main`, then publish the draft. Publishing creates the tag on the merge commit.
-11. **Back-merge:** open a pull request `main` → `develop` and merge it, so `develop` contains the version, the changelog and every fix from the release branch.
-12. **Deploy** `main` and follow the upgrade guide on the server.
+7. **Roadmap:** in [roadmap.md](../roadmap.md), move the finished phase to "Looking back" with a short summary, update the status table and adjust the outlook if the plan for later phases has changed.
+8. **Security audit:** run the pre-release security review and `make audit`; fix findings on the release branch or record follow-up issues.
+9. **Pull request into `main`:** open `release/0.3-beta` → `main` and wait until the GitHub checks are green.
+10. **Release notes:** create a draft GitHub release `v0.3-beta` (pre-release during the beta) with target `main`. Generate the notes from the changelog section, point links into `docs/` at the tag (`blob/v0.3-beta/docs/…`) and add a full-changelog compare link. Review the order and wording of the entries.
+11. **Merge and publish:** merge the pull request into `main`, then publish the draft. Publishing creates the tag on the merge commit.
+12. **Back-merge:** open a pull request `main` → `develop` and merge it, so `develop` contains the version, the changelog and every fix from the release branch.
+13. **Deploy** `main` and follow the upgrade guide on the server.
 
 ### Hotfixes
 
@@ -230,7 +231,7 @@ A hotfix fixes the released version: a security problem or a critical bug that c
 
 1. Create `hotfix/0.2.1-beta` from `origin/main`.
 2. Fix with a test, as small as possible. Bump `APP_VERSION` to `v0.2.1-beta` and add a `## [0.2.1-beta] - <date>` section to the changelog.
-3. Open the pull request into `main`, then follow steps 9 to 12 of the release checklist with `v0.2.1-beta`.
+3. Open the pull request into `main`, then follow steps 10 to 13 of the release checklist with `v0.2.1-beta`.
 4. If a release branch is open, also merge the hotfix into it, or make sure the back-merge into `develop` reaches it.
 
 **Dependabot security updates** open pull requests against `main` with the labels `security` and `hotfix`. Decide per pull request:
