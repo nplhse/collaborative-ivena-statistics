@@ -138,15 +138,7 @@
                         {% endfor %}
                     </div>
                 </twig:Card>
-                <twig:Card title="{{ 'dashboard.pages.card_title'|trans({}, 'content') }}">
-                    {% if pageTree is empty %}
-                        <p class="text-secondary mb-0">{{ 'dashboard.pages.empty'|trans({}, 'content') }}</p>
-                    {% else %}
-                        <ul class="list-unstyled mb-0">
-                            {{ include('@Content/page/_page_tree_nodes.html.twig', {nodes: pageTree}, false) }}
-                        </ul>
-                    {% endif %}
-                </twig:Card>
+                <twig:Content:PageNavigation />
             </div>
         </div>
     </div>

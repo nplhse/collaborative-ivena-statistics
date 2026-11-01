@@ -180,8 +180,9 @@ deptrac:
       - App\Content\Infrastructure\Repository\PageRepository
     App\Content\Application\Page\PageNavigationProvider:
       - App\Content\Infrastructure\Repository\PageRepository
-    App\Content\Application\Page\PageSidebarDataProvider:
+    App\Content\Application\Page\PageNavigationTreeProvider:
       - App\Content\Infrastructure\Repository\PageRepository
+    App\Content\Application\Page\PageSidebarDataProvider:
       - App\Content\Infrastructure\Repository\PostRepository
     App\Content\Domain\Entity\Media:
       - App\Content\Infrastructure\Repository\MediaRepository

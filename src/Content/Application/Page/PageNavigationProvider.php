@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Content\Application\Page;
 
 use App\Content\Application\Page\DTO\PageNavigationLink;
+use App\Content\Application\Page\DTO\PageNavigationNode;
 use App\Content\Application\Page\DTO\PublishedPageLink;
 use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Entity\PageTranslation;
@@ -39,7 +40,7 @@ final class PageNavigationProvider implements NavigationPageLinksProviderInterfa
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly PageAccessChecker $pageAccessChecker,
         private readonly AuthorizationCheckerInterface $authorizationChecker,
-        private readonly PageNavigationTreeBuilder $pageNavigationTreeBuilder,
+        private readonly PageNavigationTreeProvider $pageNavigationTreeProvider,
         private readonly PageTranslationResolver $pageTranslationResolver,
         private readonly RequestStack $requestStack,
     ) {
@@ -160,34 +161,24 @@ final class PageNavigationProvider implements NavigationPageLinksProviderInterfa
      */
     public function getVisiblePublishedPageTree(): array
     {
-        [$pages, $displayByPageId] = $this->collectVisiblePagesWithDisplay();
-
-        return $this->buildSitemapPageNodes($this->pageNavigationTreeBuilder->build($pages, $displayByPageId));
+        return $this->toSitemapPageNodes($this->pageNavigationTreeProvider->visibleTree());
     }
 
     /**
-     * @param array<int, array{page: Page, title: string, path: string, children: array<int, mixed>}> $nodes
+     * @param list<PageNavigationNode> $nodes
      *
      * @return list<SitemapPageNode>
      */
-    private function buildSitemapPageNodes(array $nodes): array
+    private function toSitemapPageNodes(array $nodes): array
     {
-        $tree = [];
-
-        foreach ($nodes as $node) {
-            $url = $this->buildUrlFromPath($node['path']);
-            if (null === $url) {
-                continue;
-            }
-
-            $tree[] = new SitemapPageNode(
-                url: $url,
-                label: $node['title'],
-                children: $this->buildSitemapPageNodes($node['children']),
-            );
-        }
-
-        return $tree;
+        return array_map(
+            fn (PageNavigationNode $node): SitemapPageNode => new SitemapPageNode(
+                url: $node->url,
+                label: $node->title,
+                children: $this->toSitemapPageNodes($node->children),
+            ),
+            $nodes,
+        );
     }
 
     /**
@@ -263,41 +254,6 @@ final class PageNavigationProvider implements NavigationPageLinksProviderInterfa
         }
 
         return $links;
-    }
-
-    /**
-     * @return array{0: list<Page>, 1: array<int, array{title: string, path: string}>}
-     */
-    private function collectVisiblePagesWithDisplay(): array
-    {
-        $locale = $this->currentLocale();
-        $pages = [];
-        /** @var array<int, array{title: string, path: string}> $displayByPageId */
-        $displayByPageId = [];
-
-        foreach ($this->pageRepository->findAllWithPublishedTranslation() as $page) {
-            $translation = $this->pageTranslationResolver->resolveForDisplay($page, $locale);
-            if (!$translation instanceof PageTranslation) {
-                continue;
-            }
-
-            if (!$this->pageAccessChecker->canView($page, $translation)) {
-                continue;
-            }
-
-            $pageId = $page->getId();
-            if (null === $pageId) {
-                continue;
-            }
-
-            $pages[] = $page;
-            $displayByPageId[$pageId] = [
-                'title' => (string) $translation->getTitle(),
-                'path' => (string) $translation->getPath(),
-            ];
-        }
-
-        return [$pages, $displayByPageId];
     }
 
     private function resolveTranslation(Page $page): ?PageTranslation

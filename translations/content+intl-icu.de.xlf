@@ -269,14 +269,6 @@
         <source>dashboard.next_steps.import.title</source>
         <target>Neue Zuweisungen importieren</target>
       </trans-unit>
-      <trans-unit id="Deb78f6f9c" resname="dashboard.pages.card_title">
-        <source>dashboard.pages.card_title</source>
-        <target>Seiten</target>
-      </trans-unit>
-      <trans-unit id="Dea084441e" resname="dashboard.pages.empty">
-        <source>dashboard.pages.empty</source>
-        <target>Keine Seiten vorhanden.</target>
-      </trans-unit>
       <trans-unit id="De8eedec5d" resname="dashboard.participant_access.contact_feedback">
         <source>dashboard.participant_access.contact_feedback</source>
         <target>Nachricht über Feedback senden</target>
@@ -1064,6 +1056,14 @@
       <trans-unit id="DePageToc003" resname="page.toc.title">
         <source>page.toc.title</source>
         <target>Auf dieser Seite</target>
+      </trans-unit>
+      <trans-unit id="DePageNav001" resname="page.navigation.title">
+        <source>page.navigation.title</source>
+        <target>Seiten</target>
+      </trans-unit>
+      <trans-unit id="DePageNav002" resname="page.navigation.toggle">
+        <source>page.navigation.toggle</source>
+        <target>Unterseiten von {title}</target>
       </trans-unit>
       <trans-unit id="actTitleDe" resname="title.activity">
         <source>title.activity</source>

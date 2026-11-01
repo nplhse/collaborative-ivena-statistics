@@ -101,14 +101,6 @@
         <source>dashboard.participant_access.contact_feedback</source>
         <target>Send a message via feedback</target>
       </trans-unit>
-      <trans-unit id="dshPgTit" resname="dashboard.pages.card_title">
-        <source>dashboard.pages.card_title</source>
-        <target>Pages</target>
-      </trans-unit>
-      <trans-unit id="dshPgEmp" resname="dashboard.pages.empty">
-        <source>dashboard.pages.empty</source>
-        <target>No pages available.</target>
-      </trans-unit>
       <trans-unit id="dshBlgTit" resname="dashboard.blog.recent_title">
         <source>dashboard.blog.recent_title</source>
         <target>Latest blog posts</target>
@@ -1064,6 +1056,14 @@
       <trans-unit id="pageToc003" resname="page.toc.title">
         <source>page.toc.title</source>
         <target>On this page</target>
+      </trans-unit>
+      <trans-unit id="pageNav001" resname="page.navigation.title">
+        <source>page.navigation.title</source>
+        <target>Pages</target>
+      </trans-unit>
+      <trans-unit id="pageNav002" resname="page.navigation.toggle">
+        <source>page.navigation.toggle</source>
+        <target>Subpages of {title}</target>
       </trans-unit>
       <trans-unit id="actTitleEn" resname="title.activity">
         <source>title.activity</source>
