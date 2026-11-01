@@ -174,6 +174,16 @@ make warmup   # does not touch the database
 
 For schema changes on an existing database, prefer `make upgrade-dev` over `purge` or `reset`.
 
+### Keep `config/reference.php` current
+
+`config/reference.php` holds the array shapes for PHP configuration (IDE autocompletion, static analysis). Symfony generates it and [recommends committing it](https://symfony.com/blog/new-in-symfony-7-4-better-php-configuration); the framework-bundle recipe deliberately does not ignore it ([symfony/recipes#1560](https://github.com/symfony/recipes/issues/1560)). It stays tracked here.
+
+- Symfony rewrites it whenever a debug container is compiled: `cache:clear` or `cache:warmup` in `dev` or `test`, and therefore also `composer install` and `make upgrade-dev`. `demo` and `prod` run without debug and do not touch it.
+- The content does not depend on the environment: it covers every bundle and every environment from `config/bundles.php`. It changes when bundles are added or removed, when a new environment appears, or when a dependency update changes a bundle's configuration tree.
+- Regenerate it (`php bin/console cache:clear`) and commit it in the same pull request whenever you change `composer.lock`, `config/bundles.php` or add an environment.
+- Dependabot pull requests cannot regenerate it, so after dependency updates the file is often out of date and shows up as a diff in the next checkout. Do not discard that diff: commit it as its own commit, `chore(config): regenerate config/reference.php`, in your pull request.
+- Never edit it by hand. PHPStan skips it (`excludePaths` in `phpstan.dist.neon`).
+
 ### Migrations
 
 ```bash
