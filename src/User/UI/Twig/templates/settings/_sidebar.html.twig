@@ -4,7 +4,8 @@
 #}
 <div class="col-12 col-md-3 border-end">
     {% if active != 'overview' %}
-        <div class="card-body py-2 border-bottom d-md-none">
+        {# No card-body class: Tabler would then draw a top border on the navigation below, even while this link is hidden. #}
+        <div class="px-3 py-2 border-bottom d-md-none">
             <a href="{{ path('app_settings_index') }}" class="d-inline-flex align-items-center gap-1" data-testid="settings-back-to-overview">
                 <twig:ux:icon name="tabler:arrow-left" class="icon" aria-hidden="true" />
                 {{ 'label.settings.back_to_overview'|trans({}, 'user') }}
