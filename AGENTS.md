@@ -108,8 +108,13 @@ The project follows Gitflow with `main` as the default branch (ADR 024). Steps a
 
 - Branch from `origin/develop` and open pull requests with `gh pr create --base develop`. GitHub
   proposes `main`; a pull request into `main` from any other branch fails the source branch check.
-- `main` only receives `release/*` and `hotfix/*` pull requests. Create those branches, bump the
-  version, publish a release or tag only when the user asks for it.
+- Code reaches `main` only through `release/*` and `hotfix/*` pull requests. Create those branches,
+  bump the version, publish a release or tag only when the user asks for it.
+- Exception for documentation that describes the released state (README, `AGENTS.md`,
+  `CONTRIBUTING.md`, `SECURITY.md`, other docs): a `docs/*` branch from `origin/main` that changes only
+  Markdown files and `docs/**` may go into `main`, followed by a back-merge of `main` into `develop`.
+  Use it when the user asks for it or the change only corrects docs of released behaviour; docs for
+  unreleased behaviour go to `develop`.
 - Larger issues: integration branch from `develop`, one pull request per step into it, final pull
   request into `develop`.
 - Merge commits only. Never rebase or force-push `main`, `develop`, `release/*`, `hotfix/*` or an

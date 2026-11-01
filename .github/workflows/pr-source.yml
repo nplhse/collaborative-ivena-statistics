@@ -1,6 +1,7 @@
 name: "Pull request source"
 
-# Gitflow (ADR 024): main only receives release/* and hotfix/* branches.
+# Gitflow (ADR 024): code reaches main only through release/* and hotfix/*.
+# docs/* branches may go to main when they change only Markdown files and docs/**.
 # Regular pull requests go to develop; change the base if this check fails.
 on:
     pull_request:
@@ -8,7 +9,8 @@ on:
             - main
         types: [opened, reopened, synchronize, edited]
 
-permissions: {}
+permissions:
+    pull-requests: read
 
 jobs:
     source-branch:
@@ -16,14 +18,29 @@ jobs:
         steps:
             - name: Check the source branch
               env:
+                  GH_TOKEN: ${{ github.token }}
                   HEAD_REF: ${{ github.head_ref }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  REPO: ${{ github.repository }}
               run: |
                   case "$HEAD_REF" in
                       release/*|hotfix/*)
                           echo "Source branch $HEAD_REF may be merged into main."
+                          exit 0
+                          ;;
+                      docs/*)
+                          files=$(gh api --paginate "repos/$REPO/pulls/$PR_NUMBER/files" --jq '.[].filename')
+                          other=$(printf '%s\n' "$files" | grep -Ev '^docs/|\.md$' || true)
+                          if [ -z "$other" ]; then
+                              echo "Documentation-only pull request from $HEAD_REF may be merged into main."
+                              exit 0
+                          fi
+                          echo "::error::A docs/* pull request into main may only change Markdown files and docs/**. Other files:"
+                          printf '%s\n' "$other"
+                          exit 1
                           ;;
                       *)
-                          echo "::error::Pull requests into main must come from release/* or hotfix/*, not $HEAD_REF. Change the base to develop (or, for a Dependabot security update, to a hotfix branch)."
+                          echo "::error::Pull requests into main must come from release/* or hotfix/*, or be a documentation-only docs/* branch, not $HEAD_REF. Change the base to develop (or, for a Dependabot security update, to a hotfix branch)."
                           exit 1
                           ;;
                   esac
