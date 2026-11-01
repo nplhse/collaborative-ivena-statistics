@@ -37,11 +37,7 @@ final class UsageEventName
 
     public const string USER_REGISTERED = 'user.registered';
 
-    public const string USER_EMAIL_CONFIRMED = 'user.email_confirmed';
-
     public const string USER_BECAME_PARTICIPANT = 'user.became_participant';
-
-    public const string ONBOARDING_STEP_COMPLETED = 'onboarding.step.completed';
 
     private function __construct()
     {

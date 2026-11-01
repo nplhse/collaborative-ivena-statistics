@@ -97,10 +97,8 @@ final class AnalyticsDashboardServiceTest extends DatabaseKernelTestCase
         self::assertGreaterThanOrEqual(1, array_sum(array_column($adoption->engagementDepth, 'userCount')));
 
         $journeys = $service->getJourneys();
-        self::assertNotEmpty($journeys->onboardingFunnel);
         self::assertNotEmpty($journeys->entryRoutes);
         self::assertNotEmpty($journeys->exitRoutes);
-        self::assertCount(3, $journeys->timeToFirst);
 
         $performance = $service->getPerformance();
         self::assertNotEmpty($performance->performanceByArea);

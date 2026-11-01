@@ -390,7 +390,7 @@ final class DashboardController extends AbstractDashboardController
                     ],
                     [
                         'label' => 'Journeys',
-                        'description' => 'Onboarding funnel, navigation, time-to-first',
+                        'description' => 'Entry and exit routes, navigation',
                         'icon' => 'fas fa-route',
                         'route' => 'app_admin_dashboard_operations_usage_analytics_journeys',
                     ],

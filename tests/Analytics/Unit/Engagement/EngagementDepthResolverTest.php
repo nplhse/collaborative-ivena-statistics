@@ -23,7 +23,7 @@ final class EngagementDepthResolverTest extends TestCase
         self::assertSame(2, $resolver->levelForEventName(UsageEventName::EXPLORE_ALLOCATION_OPENED));
         self::assertSame(2, $resolver->levelForEventName(UsageEventName::IMPORT_STARTED));
         self::assertSame(0, $resolver->levelForEventName(UsageEventName::USER_REGISTERED));
-        self::assertSame(0, $resolver->levelForEventName(UsageEventName::ONBOARDING_STEP_COMPLETED));
+        self::assertSame(0, $resolver->levelForEventName(UsageEventName::USER_BECAME_PARTICIPANT));
         self::assertSame(0, $resolver->levelForEventName('unknown.event'));
     }
 

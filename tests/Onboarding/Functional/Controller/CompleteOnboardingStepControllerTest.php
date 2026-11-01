@@ -9,9 +9,14 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Onboarding\Domain\Enum\OnboardingStepKey;
 use App\Onboarding\Infrastructure\Repository\UserOnboardingStepRepository;
+use App\Shared\Infrastructure\Consent\CookieConsentService;
+use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -37,6 +42,41 @@ final class CompleteOnboardingStepControllerTest extends WebTestCase
         self::assertResponseRedirects('/');
         $repo = $client->getContainer()->get(UserOnboardingStepRepository::class);
         self::assertNotNull($repo->findForUserAndStep($user, OnboardingStepKey::RequestClinicAccess));
+    }
+
+    public function testCompletingAStepRecordsNoAnalyticsEvent(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $container = $client->getContainer();
+        $consentService = $container->get(CookieConsentService::class);
+        $appUser = $container->get(EntityManagerInterface::class)->find(User::class, $user->getId());
+        self::assertInstanceOf(User::class, $appUser);
+        // Analytics consent is looked up by the consent subject cookie; with it, the old code stored an event.
+        $subjectId = 'onboarding-analytics-subject';
+        $cookieName = $consentService->subjectCookieName();
+        $consentService->applyPreference(
+            $consentService->resolveForRequest(Request::create('/', cookies: [$cookieName => $subjectId]), $appUser),
+            true,
+            $appUser,
+        );
+        $client->getCookieJar()->set(new Cookie($cookieName, $subjectId));
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+        $token = $this->csrfToken($client, 'onboarding_complete_'.OnboardingStepKey::RequestClinicAccess->value);
+
+        $client->request(Request::METHOD_POST, '/onboarding/steps/request_clinic_access/complete', [
+            '_token' => $token,
+        ]);
+
+        // The step is still stored; onboarding is no longer analysed in the backend (#950).
+        self::assertResponseRedirects('/');
+        $repo = $container->get(UserOnboardingStepRepository::class);
+        self::assertNotNull($repo->findForUserAndStep($user, OnboardingStepKey::RequestClinicAccess));
+        self::assertSame(0, (int) $container->get(Connection::class)->fetchOne(
+            "SELECT COUNT(*) FROM analytics_product_event WHERE event_name = 'onboarding.step.completed'",
+        ));
     }
 
     public function testCannotMarkStepThreeBeforeStepTwo(): void
