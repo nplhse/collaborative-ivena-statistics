@@ -66,13 +66,6 @@ class AnalyticsRequest
     #[ORM\Column(length: 16, enumType: DeviceType::class)]
     private DeviceType $deviceType;
 
-    /** @var list<string> */
-    #[ORM\Column(type: Types::JSON)]
-    private array $queryParamNames;
-
-    /**
-     * @param list<string> $queryParamNames
-     */
     public function __construct(
         \DateTimeImmutable $occurredAt,
         ?string $routeName,
@@ -88,7 +81,6 @@ class AnalyticsRequest
         ?string $sessionKey,
         BrowserFamily $browserFamily,
         DeviceType $deviceType,
-        array $queryParamNames,
     ) {
         $this->occurredAt = $occurredAt;
         $this->routeName = $routeName;
@@ -104,7 +96,6 @@ class AnalyticsRequest
         $this->sessionKey = $sessionKey;
         $this->browserFamily = $browserFamily;
         $this->deviceType = $deviceType;
-        $this->queryParamNames = $queryParamNames;
     }
 
     public function getId(): ?int
@@ -180,13 +171,5 @@ class AnalyticsRequest
     public function getDeviceType(): DeviceType
     {
         return $this->deviceType;
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function getQueryParamNames(): array
-    {
-        return $this->queryParamNames;
     }
 }

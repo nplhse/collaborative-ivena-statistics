@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Analytics\Application\Service;
 
 use App\Analytics\Application\DTO\UsageAnalyticsAdoptionDto;
-use App\Analytics\Application\DTO\UsageAnalyticsFiltersDto;
 use App\Analytics\Application\DTO\UsageAnalyticsJourneysDto;
 use App\Analytics\Application\DTO\UsageAnalyticsOverviewDto;
 use App\Analytics\Application\DTO\UsageAnalyticsPerformanceDto;
@@ -22,7 +21,7 @@ final readonly class AnalyticsDashboardService
         1 => 'Dashboard viewed',
         2 => 'Statistics / Explore / Import',
         3 => 'Analysis run',
-        4 => 'Filters used',
+        // Level 4 ("filters used") was derived from URL parameters and removed in #988.
         5 => 'Export created',
     ];
 
@@ -82,16 +81,6 @@ final readonly class AnalyticsDashboardService
             exitRoutes: $this->requestRepository->topExitRoutesSince($from7),
             transitions: $this->requestRepository->topTransitionsSince($from7),
             timeToFirst: $this->eventRepository->timeToFirstMetrics($from30),
-        );
-    }
-
-    public function getFilters(): UsageAnalyticsFiltersDto
-    {
-        $from7 = AnalyticsCalendar::daysAgo(6);
-
-        return new UsageAnalyticsFiltersDto(
-            topFilterParams: $this->reportingQuery->topFilterParamsSince($from7),
-            filterUsageByArea: $this->reportingQuery->filterUsageByAreaSince($from7),
         );
     }
 

@@ -6,8 +6,6 @@ namespace App\Tests\Analytics\Unit\Domain\Entity;
 
 use App\Analytics\Domain\Entity\AnalyticsAggregationRun;
 use App\Analytics\Domain\Entity\AnalyticsEventDaily;
-use App\Analytics\Domain\Entity\AnalyticsFilterAreaDaily;
-use App\Analytics\Domain\Entity\AnalyticsFilterParamDaily;
 use App\Analytics\Domain\Entity\AnalyticsRequestDaily;
 use App\Analytics\Domain\Entity\AnalyticsSessionBoundaryDaily;
 use App\Analytics\Domain\Entity\AnalyticsTransitionDaily;
@@ -67,19 +65,6 @@ final class AnalyticsDailyEntitiesTest extends TestCase
         self::assertSame(FeatureArea::Analysis, $event->getFeatureArea());
         self::assertSame('ROLE_ADMIN', $event->getUserRole());
         self::assertSame(2, $event->getEventCount());
-
-        $filterArea = new AnalyticsFilterAreaDaily($date, FeatureArea::Explore, 3, 7);
-        self::assertNull($filterArea->getId());
-        self::assertSame($date, $filterArea->getDate());
-        self::assertSame(FeatureArea::Explore, $filterArea->getFeatureArea());
-        self::assertSame(3, $filterArea->getWithFilters());
-        self::assertSame(7, $filterArea->getWithoutFilters());
-
-        $filterParam = new AnalyticsFilterParamDaily($date, 'period', 6);
-        self::assertNull($filterParam->getId());
-        self::assertSame($date, $filterParam->getDate());
-        self::assertSame('period', $filterParam->getParamName());
-        self::assertSame(6, $filterParam->getUsageCount());
 
         $transition = new AnalyticsTransitionDaily($date, 'app_home', 'app_stats_dashboard', 4);
         self::assertNull($transition->getId());

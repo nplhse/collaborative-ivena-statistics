@@ -158,14 +158,6 @@ final class DashboardController extends AbstractDashboardController
         ]);
     }
 
-    #[AdminRoute(path: '/operations/usage-analytics/filters', name: 'operations_usage_analytics_filters')]
-    public function usageAnalyticsFilters(): Response
-    {
-        return $this->render('@Admin/operations/usage_analytics/filters.html.twig', [
-            'filters' => $this->analyticsDashboardService->getFilters(),
-        ]);
-    }
-
     #[AdminRoute(path: '/operations/usage-analytics/performance', name: 'operations_usage_analytics_performance')]
     public function usageAnalyticsPerformance(): Response
     {
@@ -403,12 +395,6 @@ final class DashboardController extends AbstractDashboardController
                         'route' => 'app_admin_dashboard_operations_usage_analytics_journeys',
                     ],
                     [
-                        'label' => 'Filters',
-                        'description' => 'Filter parameter adoption',
-                        'icon' => 'fas fa-filter',
-                        'route' => 'app_admin_dashboard_operations_usage_analytics_filters',
-                    ],
-                    [
                         'label' => 'Performance',
                         'description' => 'Latency and DB load by feature area',
                         'icon' => 'fas fa-tachometer-alt',
@@ -525,7 +511,6 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToRoute('Overview', 'fas fa-gauge-high', 'app_admin_dashboard_operations_usage_analytics_overview');
         yield MenuItem::linkToRoute('Adoption', 'fas fa-chart-line', 'app_admin_dashboard_operations_usage_analytics_adoption');
         yield MenuItem::linkToRoute('Journeys', 'fas fa-route', 'app_admin_dashboard_operations_usage_analytics_journeys');
-        yield MenuItem::linkToRoute('Filters', 'fas fa-filter', 'app_admin_dashboard_operations_usage_analytics_filters');
         yield MenuItem::linkToRoute('Performance', 'fas fa-tachometer-alt', 'app_admin_dashboard_operations_usage_analytics_performance');
 
         yield MenuItem::section('System');
