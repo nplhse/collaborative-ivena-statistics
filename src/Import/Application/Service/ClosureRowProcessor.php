@@ -29,6 +29,24 @@ final readonly class ClosureRowProcessor
     }
 
     /**
+     * One row per department and care level; a grouped record yields several.
+     *
+     * @param array<string, string> $record
+     *
+     * @return list<array<string, string>>
+     *
+     * @throws RowRejectException
+     */
+    public function split(array $record): array
+    {
+        try {
+            return $this->mapper->split($record);
+        } catch (ImportException $e) {
+            throw new RowRejectException(messages: [$e->summarize()], context: $e->context());
+        }
+    }
+
+    /**
      * @param array<string, string> $row
      *
      * @throws RowRejectException
