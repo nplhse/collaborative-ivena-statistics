@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\ClosureAnalytics\Infrastructure\Projection;
 
 use App\Statistics\Application\Contract\ClosureVolumeProjectionRebuildInterface;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeBurdenCache;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceWindow;
 use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildTelemetry;
@@ -34,6 +35,7 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
         private readonly ClosureRebuildTelemetry $telemetry,
         private readonly ClosureVolumeReferenceConfig $config,
         private readonly ClosureVolumeRebuildPlanner $planner,
+        private readonly ClosureVolumeBurdenCache $burdenCache,
     ) {
     }
 
@@ -256,6 +258,9 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
         } catch (\Throwable $exception) {
             $this->scheduler->release($claimed->requestIds, $exception);
             throw $exception;
+        } finally {
+            // Also after a failure: hospitals rebuilt before it already changed.
+            $this->burdenCache->clear();
         }
         $this->scheduler->complete($claimed->requestIds);
         $this->maxPartitionBytes = $this->rebuilder->maxPartitionBytes;
