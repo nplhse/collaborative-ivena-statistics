@@ -12,6 +12,23 @@ cd <deploy_path>/current
 
 Commands that write data preview by default. Run them without `--apply` first, read the output, then apply. A command that finds nothing to do can be skipped.
 
+## v0.2.1-beta → v0.2.2-beta
+
+Hotfix for the closure analytics overview, which ran out of PHP memory ([#1011](https://github.com/nplhse/collaborative-ivena-statistics/issues/1011)). No configuration changes, no migrations and no one-time commands.
+
+### Before the deploy
+
+**Back up** the database and files ([backup-restore.md](backup-restore.md)).
+
+### Deploy
+
+Deploy as usual.
+
+### Check
+
+- `GET /health` reports `ok` and the footer shows `v0.2.2-beta`.
+- `/statistics/closure-analytics` opens for a participant and for an administrator. The two volume cards show a skeleton first and then their values.
+
 ## v0.2-beta → v0.2.1-beta
 
 Hotfix for closure-list imports ([#1003](https://github.com/nplhse/collaborative-ivena-statistics/issues/1003), [#1004](https://github.com/nplhse/collaborative-ivena-statistics/issues/1004)). No configuration changes and no migrations.
