@@ -331,14 +331,23 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all_time');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('[data-testid="stats-closure-kpis"]', 'Actual closure time');
-        $this->assertSelectorTextContains('[data-testid="stats-closure-kpi-deviation"]', 'Deviation of observed and expected assignments');
-        $this->assertSelectorTextContains('[data-testid="stats-closure-kpi-share"]', 'Share of expected hospital volume');
-        $this->assertSelectorCount(3, '[data-testid="stats-closure-kpis"] > div');
+        $this->assertSelectorCount(3, '[data-testid="stats-closure-kpis"] .card');
+        $this->assertSelectorExists('turbo-frame#stats-closure-volume-burden[src*="/statistics/closure-analytics/volume-burden?"][loading="lazy"]');
+        $this->assertSelectorExists('turbo-frame#stats-closure-volume-burden [data-testid="stats-closure-volume-burden-placeholder"][aria-busy="true"]');
+        $this->assertSelectorNotExists('[data-testid="stats-closure-kpi-deviation"]');
         $this->assertSelectorNotExists('[data-testid="stats-closure-volume"]');
         $this->assertSelectorNotExists('[data-testid="stats-closure-coverage"]');
         $this->assertSelectorTextNotContains('[data-testid="stats-closure-kpis"]', 'Intervals');
         $this->assertSelectorNotExists('[data-testid="stats-closure-duration-load"]');
         $this->assertSelectorExists('[data-testid="stats-closure-tab-duration"]');
+
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/volume-burden?scope=public&period=all_time');
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('turbo-frame#stats-closure-volume-burden');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-kpi-deviation"]', 'Deviation of observed and expected assignments');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-kpi-share"]', 'Share of expected hospital volume');
+        $this->assertSelectorNotExists('[data-testid="stats-closure-volume-burden-placeholder"]');
+
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics/duration?scope=public&period=all_time');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-closure-tab-duration"].active');

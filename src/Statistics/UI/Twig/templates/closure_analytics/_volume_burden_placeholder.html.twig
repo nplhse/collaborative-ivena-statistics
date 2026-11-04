@@ -1,0 +1,15 @@
+{# Skeleton for the lazy-loaded volume burden cards (deviation and share). #}
+<div class="row row-deck row-cards g-3 h-100" data-testid="stats-closure-volume-burden-placeholder" aria-busy="true" aria-live="polite">
+    {% for i in 1..2 %}
+        <div class="col-12 col-lg-6">
+            <div class="card h-100 placeholder-glow">
+                <div class="card-body">
+                    <div class="placeholder placeholder-xs col-7 mb-3"></div>
+                    <div class="placeholder col-4 mb-3" style="height: 1.75rem;"></div>
+                    <div class="placeholder placeholder-xs col-9"></div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    <span class="visually-hidden">{{ 'stats.closure.volume.loading'|trans({}, 'statistics') }}</span>
+</div>

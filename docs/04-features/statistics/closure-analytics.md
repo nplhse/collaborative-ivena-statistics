@@ -434,7 +434,11 @@ during closures, and that expectation as a share of the hospital's expected
 volume. It does not replace the duration tab and it does not claim lost
 patients, diversion or a causal effect. Deviation is observed minus expected.
 A relative deviation is omitted when the expectation is zero or missing. The
-separate volume block is not shown on the overview.
+separate volume block is not shown on the overview. Both volume cards load in
+the lazy Turbo Frame `stats-closure-volume-burden`
+(`/statistics/closure-analytics/volume-burden`, same query as the page), so the
+rest of the overview does not wait for the calculation. Until they arrive, a
+skeleton of both cards shows that they are still loading.
 
 The primary series is the closed department (`scope = department` in
 `closure_volume_hour`). The closed departments and care levels are listed in

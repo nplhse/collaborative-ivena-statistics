@@ -32,6 +32,7 @@ use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureEventAllocationQ
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureEventQuery;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureIntervalDetailQuery;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureProfileQuery;
+use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureTemporalQuery;
 use App\Statistics\ClosureAnalytics\UI\Twig\ClosureEventTableColumns;
 use App\Statistics\ClosureAnalytics\UI\Twig\ClosureIntervalTableColumns;
 use App\Statistics\ClosureAnalytics\UI\Twig\ClosureRecurringProfileTableColumns;
@@ -86,6 +87,7 @@ final class ClosureAnalyticsController extends AbstractController
         private readonly ClosureProfileQuery $profiles,
         private readonly ClosureEventLocalGroupResolver $localGroupResolver,
         private readonly ClosureCoverageQuery $coverage,
+        private readonly ClosureTemporalQuery $temporalQuery,
         private readonly TranslatorInterface $translator,
     ) {
     }
@@ -151,11 +153,33 @@ final class ClosureAnalyticsController extends AbstractController
             'closureUnitPreferences' => $unitPreferences,
             'closureUnitPreferenceKey' => $unitSchema->key,
             'closureUnitPreferencesPersisted' => $user instanceof User,
-            'volumeBurden' => $dashboard->hasIntervals()
-                ? $this->volume->burden($criteria, ClosureVolumeStratum::All)
-                : null,
+            // The burden walks every closure hour of the scope; the frame keeps it from delaying the page (#1011).
+            'volumeBurdenFrameUrl' => $this->generateUrl('app_stats_closure_analytics_volume_burden', $request->query->all()),
             // Import gaps only make sense for one hospital; the scope already respects access rights.
             'dataCoverage' => 1 === \count($scopedHospitalIds) ? $this->coverage->imports($scopedHospitalIds[0]) : null,
+        ]);
+    }
+
+    #[Route('/statistics/closure-analytics/volume-burden', name: 'app_stats_closure_analytics_volume_burden', methods: ['GET'])]
+    public function volumeBurden(
+        Request $request,
+        #[CurrentUser] ?User $user,
+        #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
+    ): Response {
+        $redirect = $this->redirectAssignedScope($request, $user, 'app_stats_closure_analytics_volume_burden');
+        if ($redirect instanceof Response) {
+            return $redirect;
+        }
+        $criteria = $this->criteriaFactory->create(
+            $user,
+            $filter,
+            ClosureAnalyticsFilterRequestResolver::fromRequest($request),
+        );
+
+        return $this->render('@Statistics/closure_analytics/_volume_burden_frame.html.twig', [
+            'volumeBurden' => $this->temporalQuery->fetchMetrics($criteria)->closureCount > 0
+                ? $this->volume->burden($criteria, ClosureVolumeStratum::All)
+                : null,
         ]);
     }
 
