@@ -14,7 +14,7 @@ Commands that write data preview by default. Run them without `--apply` first, r
 
 ## v0.2.1-beta → v0.2.2-beta
 
-Hotfix for the closure analytics overview, which ran out of PHP memory ([#1011](https://github.com/nplhse/collaborative-ivena-statistics/issues/1011)). No configuration changes, no migrations and no one-time commands.
+Hotfix for the closure analytics overview, which ran out of PHP memory ([#1011](https://github.com/nplhse/collaborative-ivena-statistics/issues/1011)), and Symfony 8.1.11 for the security advisories of 2026-11-04. No configuration changes, no migrations and no one-time commands.
 
 ### Before the deploy
 
