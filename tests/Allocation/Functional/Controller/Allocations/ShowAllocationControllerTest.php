@@ -103,6 +103,8 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::ensureKernelShutdown();
 
         $client = $this->createClientAsParticipant();
+        // Count only the request: the profiler would otherwise include creating the logged-in user.
+        $client->getContainer()->get('doctrine.debug_data_holder')->reset();
         $client->enableProfiler();
 
         $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocationPublicId);
