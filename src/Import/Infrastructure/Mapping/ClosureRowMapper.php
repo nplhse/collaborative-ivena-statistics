@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\Infrastructure\Mapping;
 
 use App\Import\Application\DTO\ClosureRowDTO;
+use App\Import\Application\Exception\ImportException;
 
 /**
  * Only this class knows IVENA closure-list column names.
@@ -12,6 +13,54 @@ use App\Import\Application\DTO\ClosureRowDTO;
  */
 final readonly class ClosureRowMapper
 {
+    /**
+     * Columns that a grouped export fills with one value per line, line i of each column
+     * belonging together.
+     */
+    private const array LIST_COLUMNS = ['fachgebiet', 'fachbereich', 'behandlungsdringlichkeit'];
+
+    /**
+     * Split a grouped record into one row per department and care level.
+     *
+     * Some hospitals export one record per closure unit. Speciality, department and care
+     * level then hold one value per line, and the lines belong together by position. Every
+     * other column applies to each of them. A record with one value per column is returned
+     * unchanged.
+     *
+     * @param array<string, string> $row
+     *
+     * @return list<array<string, string>>
+     *
+     * @throws ImportException when the lists differ in length
+     */
+    public function split(array $row): array
+    {
+        $lists = [];
+        foreach (self::LIST_COLUMNS as $key) {
+            $lists[$key] = preg_split('/\R/u', $row[$key] ?? '') ?: [''];
+        }
+
+        $counts = array_map(count(...), $lists);
+        if (1 === max($counts)) {
+            return [$row];
+        }
+
+        if (1 !== count(array_unique($counts))) {
+            throw new ImportException(message: sprintf('Grouped closure lists differ in length: speciality %d, department %d, care level %d', $counts['fachgebiet'], $counts['fachbereich'], $counts['behandlungsdringlichkeit']), field: 'department', value: implode('/', $counts), codeStr: 'GROUPED_LIST_MISMATCH');
+        }
+
+        $rows = [];
+        for ($i = 0, $n = $counts['fachbereich']; $i < $n; ++$i) {
+            $split = $row;
+            foreach ($lists as $key => $values) {
+                $split[$key] = trim($values[$i]);
+            }
+            $rows[] = $split;
+        }
+
+        return $rows;
+    }
+
     /**
      * @param array<string, string> $row
      */
