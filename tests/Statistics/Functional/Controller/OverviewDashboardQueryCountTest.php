@@ -33,6 +33,8 @@ final class OverviewDashboardQueryCountTest extends WebTestCase
     public function testOverviewDashboardUsesBoundedQueryCountWithoutSelfBenchmark(): void
     {
         $client = $this->createClientAsRoleUser();
+        // Count only the request: the profiler would otherwise include creating the logged-in user.
+        $client->getContainer()->get('doctrine.debug_data_holder')->reset();
         $client->enableProfiler();
 
         $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=month&year=2025&month=6');

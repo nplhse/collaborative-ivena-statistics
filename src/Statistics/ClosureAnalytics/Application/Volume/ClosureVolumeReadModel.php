@@ -31,25 +31,7 @@ final readonly class ClosureVolumeReadModel
         if (!$periodTo instanceof \DateTimeImmutable || $periodTo > $now) {
             $periodTo = $now;
         }
-        $slices = [];
-        foreach ($this->query->affectedRows($criteria, $stratum) as $row) {
-            $start = new \DateTimeImmutable((string) $row['bucket_start']);
-            $end = new \DateTimeImmutable((string) $row['bucket_end']);
-            $overlap = ClosureVolumeClock::overlapSeconds($start, $end, $criteria->period->from, $periodTo);
-            $slices[] = new ClosureVolumeBurdenSlice(
-                (int) $row['hospital_id'],
-                (int) $row['department_id'],
-                (string) $row['metric_kind'],
-                ClosureVolumeClock::wall($start)->format('Y-m-d H:i:s'),
-                $this->nullableFloat($row['observed_area']),
-                $this->nullableFloat($row['expected_area']),
-                (int) $row['bucket_seconds'],
-                $overlap,
-                ClosureVolumeClock::wall(new \DateTimeImmutable((string) $row['reference_cutoff'])),
-                (int) $row['speciality_id'],
-            );
-        }
-        $totals = $this->burdenAggregator->aggregate($slices);
+        $totals = $this->burdenAggregator->aggregate($this->burdenSlices($criteria, $stratum, $periodTo));
         $hospital = $this->hospitalExpected($hospitalIds, $criteria->period->from, $periodTo, $stratum);
 
         return new ClosureVolumeBurdenView(
@@ -66,6 +48,32 @@ final readonly class ClosureVolumeReadModel
             $this->config->window,
             $this->config->minimumReferenceSlots,
         );
+    }
+
+    /**
+     * Built one at a time: a scope can hold well over 100,000 closure hours.
+     *
+     * @return \Generator<int, ClosureVolumeBurdenSlice>
+     */
+    private function burdenSlices(ClosureAnalyticsCriteria $criteria, ClosureVolumeStratum $stratum, \DateTimeImmutable $periodTo): \Generator
+    {
+        foreach ($this->query->affectedRows($criteria, $stratum) as $row) {
+            $start = new \DateTimeImmutable((string) $row['bucket_start']);
+            $end = new \DateTimeImmutable((string) $row['bucket_end']);
+            $overlap = ClosureVolumeClock::overlapSeconds($start, $end, $criteria->period->from, $periodTo);
+            yield new ClosureVolumeBurdenSlice(
+                (int) $row['hospital_id'],
+                (int) $row['department_id'],
+                (string) $row['metric_kind'],
+                ClosureVolumeClock::wall($start)->format('Y-m-d H:i:s'),
+                $this->nullableFloat($row['observed_area']),
+                $this->nullableFloat($row['expected_area']),
+                (int) $row['bucket_seconds'],
+                $overlap,
+                ClosureVolumeClock::wall(new \DateTimeImmutable((string) $row['reference_cutoff'])),
+                (int) $row['speciality_id'],
+            );
+        }
     }
 
     public function detail(
@@ -215,27 +223,22 @@ final readonly class ClosureVolumeReadModel
         }
         $from = ClosureVolumeClock::wall($from);
         $refFrom = $from->modify(sprintf('-%d weeks', $this->config->window->totalWeeks()));
-        $byHospital = [];
-        foreach ($this->query->hospitalHours($hospitalIds, $refFrom, $to) as $row) {
-            $hospitalId = (int) $row['hospital_id'];
-            $hour = (string) $row['hour_start'];
-            $byHospital[$hospitalId]['covered'][substr($hour, 0, 10)] = true;
-            $byHospital[$hospitalId]['counts'][$row['urgency_code'].'|base|'.$hour] = (int) $row['base_count'];
-            $byHospital[$hospitalId]['counts'][$row['urgency_code'].'|resus|'.$hour] = (int) $row['resus_count'];
-            $byHospital[$hospitalId]['counts'][$row['urgency_code'].'|cathlab|'.$hour] = (int) $row['cathlab_count'];
-        }
 
         $expected = 0.0;
         $known = false;
         $partial = false;
+        // One hospital at a time, so only one hospital's hourly counts are held in memory.
         foreach ($hospitalIds as $hospitalId) {
-            $measured = $this->baseline->measure(
-                $from,
-                $to,
-                $byHospital[$hospitalId]['counts'] ?? [],
-                $byHospital[$hospitalId]['covered'] ?? [],
-                $stratum,
-            );
+            $counts = [];
+            $covered = [];
+            foreach ($this->query->hospitalHours([$hospitalId], $refFrom, $to) as $row) {
+                $hour = (string) $row['hour_start'];
+                $covered[substr($hour, 0, 10)] = true;
+                $counts[$row['urgency_code'].'|base|'.$hour] = (int) $row['base_count'];
+                $counts[$row['urgency_code'].'|resus|'.$hour] = (int) $row['resus_count'];
+                $counts[$row['urgency_code'].'|cathlab|'.$hour] = (int) $row['cathlab_count'];
+            }
+            $measured = $this->baseline->measure($from, $to, $counts, $covered, $stratum);
             if (null !== $measured['expected']) {
                 $expected += $measured['expected'];
                 $known = true;

@@ -43,9 +43,14 @@ final class ClosureAnalyticsVolumeAccessTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=hospital&hospital='.$own['hospitalId'].'&period=all_time');
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-closure-kpi-deviation"]');
-        $this->assertSelectorExists('[data-testid="stats-closure-kpi-share"]');
+        $this->assertSelectorExists('[data-testid="stats-closure-volume-burden-placeholder"]');
         $this->assertSelectorNotExists('[data-testid="stats-closure-volume"]');
+        $this->assertSelectorTextNotContains('body', 'Foreign Volume Hospital');
+
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/volume-burden?scope=hospital&hospital='.$own['hospitalId'].'&period=all_time');
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('turbo-frame#stats-closure-volume-burden [data-testid="stats-closure-kpi-deviation"]');
+        $this->assertSelectorExists('turbo-frame#stats-closure-volume-burden [data-testid="stats-closure-kpi-share"]');
         $this->assertSelectorTextNotContains('body', 'Foreign Volume Hospital');
 
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics/intervals/'.$foreign['intervalId']);
