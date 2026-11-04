@@ -41,9 +41,11 @@ final readonly class ClosureVolumeProjectionQuery
     }
 
     /**
-     * @return list<array<string, int|string|null>>
+     * Streamed and ordered so that duplicates of one population hour are adjacent, earliest reference cutoff first.
+     *
+     * @return iterable<array<string, int|string|null>>
      */
-    public function affectedRows(ClosureAnalyticsCriteria $criteria, ClosureVolumeStratum $stratum): array
+    public function affectedRows(ClosureAnalyticsCriteria $criteria, ClosureVolumeStratum $stratum): iterable
     {
         if ([] === ($criteria->scope->hospitalIds ?? [])) {
             return [];
@@ -54,8 +56,8 @@ final readonly class ClosureVolumeProjectionQuery
         $types['volume_metrics'] = ArrayParameterType::STRING;
         $types['volume_scope'] = ParameterType::STRING;
 
-        /** @var list<array<string, int|string|null>> $rows */
-        $rows = $this->connection->fetchAllAssociative(<<<SQL
+        /** @var iterable<array<string, int|string|null>> $rows */
+        $rows = $this->connection->iterateAssociative(<<<SQL
 WITH {$base}
 SELECT h.hospital_id, h.speciality_id, h.department_id, h.metric_kind,
        h.bucket_start, h.bucket_end, h.observed_area, h.expected_area,
@@ -69,6 +71,7 @@ WHERE h.scope = :volume_scope
   AND h.in_closure = TRUE
   AND h.metric_kind IN (:volume_metrics)
   AND h.closure_relevance <> 'none'
+ORDER BY h.hospital_id, h.speciality_id, h.department_id, h.metric_kind, h.bucket_start, h.reference_cutoff, h.event_id
 SQL, $params, $types);
 
         return $rows;
@@ -182,16 +185,16 @@ SQL,
     /**
      * @param list<int> $hospitalIds
      *
-     * @return list<array<string, int|string>>
+     * @return iterable<array<string, int|string>>
      */
-    public function hospitalHours(array $hospitalIds, \DateTimeImmutable $from, \DateTimeImmutable $to): array
+    public function hospitalHours(array $hospitalIds, \DateTimeImmutable $from, \DateTimeImmutable $to): iterable
     {
         if ([] === $hospitalIds) {
             return [];
         }
 
-        /** @var list<array<string, int|string>> $rows */
-        $rows = $this->connection->fetchAllAssociative(
+        /** @var iterable<array<string, int|string>> $rows */
+        $rows = $this->connection->iterateAssociative(
             <<<'SQL'
 SELECT hospital_id,
        urgency_code,

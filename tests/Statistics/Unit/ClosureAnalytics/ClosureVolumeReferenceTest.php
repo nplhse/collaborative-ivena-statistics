@@ -393,6 +393,64 @@ final class ClosureVolumeReferenceTest extends TestCase
         self::assertSame(2, $totals->sliceCount);
     }
 
+    public function testStreamedSlicesKeepTheEarliestOverlappingCutoffPerHourAndWeightBoundaryHours(): void
+    {
+        $cutoff = new \DateTimeImmutable('2026-06-02 10:00:00');
+        $slices = static function () use ($cutoff): \Generator {
+            // 10:00: the later cutoff arrives first; the earlier one (observed 2, expected 4) wins.
+            yield new ClosureVolumeBurdenSlice(1, 7, 'emergency', '2026-06-02 10:00:00', 9, 9, 3600, 3600, $cutoff->modify('+1 hour'));
+            yield new ClosureVolumeBurdenSlice(1, 7, 'emergency', '2026-06-02 10:00:00', 2, 4, 3600, 3600, $cutoff);
+            // 11:00: the earliest cutoff lies outside the period and is skipped; half of the next one counts (6 * 0.5, 8 * 0.5).
+            yield new ClosureVolumeBurdenSlice(1, 7, 'emergency', '2026-06-02 11:00:00', 100, 100, 3600, 0, $cutoff->modify('-1 hour'));
+            yield new ClosureVolumeBurdenSlice(1, 7, 'emergency', '2026-06-02 11:00:00', 6, 8, 3600, 1800, $cutoff);
+            // 12:00: no expected area marks the reference as partial.
+            yield new ClosureVolumeBurdenSlice(1, 7, 'emergency', '2026-06-02 12:00:00', 1, null, 3600, 3600, $cutoff);
+        };
+
+        $totals = new ClosureVolumeBurdenAggregator()->aggregate($slices());
+
+        self::assertEqualsWithDelta(2.0 + 3.0 + 1.0, $totals->observedArea ?? 0.0, 0.0001);
+        self::assertEqualsWithDelta(4.0 + 4.0, $totals->expectedArea ?? 0.0, 0.0001);
+        self::assertTrue($totals->partialReference);
+        self::assertFalse($totals->partialObservation);
+        self::assertSame(3, $totals->sliceCount);
+    }
+
+    public function testBucketGeneratorYieldsTheSameBucketsAsSplit(): void
+    {
+        $start = new \DateTimeImmutable('2026-10-24 22:15:00', ClosureVolumeClock::zone());
+        $end = new \DateTimeImmutable('2026-10-25 04:45:00', ClosureVolumeClock::zone());
+
+        self::assertEquals(ClosureVolumeClock::split($start, $end), iterator_to_array(ClosureVolumeClock::buckets($start, $end), false));
+        self::assertSame([], iterator_to_array(ClosureVolumeClock::buckets($end, $start), false));
+    }
+
+    public function testHospitalBaselineSumsAllUrgenciesOfTheStratum(): void
+    {
+        $baseline = new ClosureVolumeHospitalBaseline(
+            new ClosureVolumeReferenceConfig(8, 0, 4),
+            new ClosureVolumeReferenceCalendar(),
+            $this->selector(4),
+        );
+        $counts = $this->hospitalCounts(4);
+        foreach ($this->hospitalCounts(2) as $key => $count) {
+            $counts['2'.substr($key, 1)] = $count;
+        }
+
+        $measured = $baseline->measure(
+            new \DateTimeImmutable('2026-06-02 10:00:00'),
+            new \DateTimeImmutable('2026-06-02 11:00:00'),
+            $counts,
+            $this->coveredAround('2026-06-02'),
+            ClosureVolumeStratum::All,
+        );
+
+        // Urgency 1 expects 4 and urgency 2 expects 2 per Tuesday 10:00; urgency 3 has a zero reference.
+        self::assertEqualsWithDelta(6.0, $measured['expected'] ?? 0.0, 0.0001);
+        self::assertEqualsWithDelta(6.0, $measured['observed'] ?? 0.0, 0.0001);
+        self::assertFalse($measured['partial']);
+    }
+
     public function testHospitalShareUsesSummedNumeratorsAndDenominators(): void
     {
         $share = ClosureVolumeDeviation::share(10 + 10, 100 + 1000);

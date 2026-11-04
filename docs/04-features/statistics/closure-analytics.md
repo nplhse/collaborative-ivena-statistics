@@ -521,6 +521,13 @@ department course view runs a second `draftsForEvent` (speciality) only to build
 the optional ratio reference line; `volumeSeries=speciality` replaces the primary
 series instead of overlaying it.
 
+Overview burden must not hold the filtered closure hours in memory: a single
+hospital already reaches more than 100,000 rows. `affectedRows` streams them
+ordered by population hour and reference cutoff, and the aggregator keeps only
+the current hour, so the earliest cutoff still wins per population hour. The
+hospital baseline loads hourly counts one hospital at a time and walks the
+period hours with `ClosureVolumeClock::buckets()` instead of a list.
+
 ## Deferred allocation matching
 
 SK-aware joins for the course-tab assignment list on the detail page and Explore
