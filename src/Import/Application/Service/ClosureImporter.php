@@ -42,22 +42,31 @@ final readonly class ClosureImporter
         try {
             $lineNo = 1;
 
-            foreach ($this->reader->rowsAssoc() as $row) {
-                ++$total;
+            // A row is one department and care level. A grouped record counts as several
+            // rows; its rejects share the record's line number.
+            foreach ($this->reader->rowsAssoc() as $record) {
                 ++$lineNo;
 
                 try {
-                    $this->processor->process($row, $import, $profile);
-                    ++$ok;
+                    $rows = $this->processor->split($record);
                 } catch (RowRejectException $e) {
-                    $messages = $e->messages();
-                    $this->rejectWriter->write($row, $messages, $lineNo);
+                    ++$total;
                     ++$rejected;
+                    $this->reject($record, $e, $lineNo);
 
-                    $this->logger->warning('closure.reject.row_rejected', array_merge([
-                        'line' => $lineNo,
-                        'messages' => $messages,
-                    ], $e->context()));
+                    continue;
+                }
+
+                foreach ($rows as $row) {
+                    ++$total;
+
+                    try {
+                        $this->processor->process($row, $import, $profile);
+                        ++$ok;
+                    } catch (RowRejectException $e) {
+                        ++$rejected;
+                        $this->reject($row, $e, $lineNo);
+                    }
                 }
             }
 
@@ -91,6 +100,20 @@ final readonly class ClosureImporter
 
             throw $e;
         }
+    }
+
+    /**
+     * @param array<string, string> $row
+     */
+    private function reject(array $row, RowRejectException $e, int $lineNo): void
+    {
+        $messages = $e->messages();
+        $this->rejectWriter->write($row, $messages, $lineNo);
+
+        $this->logger->warning('closure.reject.row_rejected', array_merge([
+            'line' => $lineNo,
+            'messages' => $messages,
+        ], $e->context()));
     }
 
     /**
