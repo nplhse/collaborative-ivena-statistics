@@ -335,6 +335,8 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorExists('turbo-frame#stats-closure-volume-burden[src*="/statistics/closure-analytics/volume-burden?"][loading="lazy"]');
         $this->assertSelectorExists('turbo-frame#stats-closure-volume-burden [data-testid="stats-closure-volume-burden-placeholder"][aria-busy="true"]');
         $this->assertSelectorNotExists('[data-testid="stats-closure-kpi-deviation"]');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-volume-burden-placeholder"]', 'Deviation of observed and expected assignments');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-volume-burden-placeholder"]', 'Share of expected hospital volume');
         $this->assertSelectorNotExists('[data-testid="stats-closure-volume"]');
         $this->assertSelectorNotExists('[data-testid="stats-closure-coverage"]');
         $this->assertSelectorTextNotContains('[data-testid="stats-closure-kpis"]', 'Intervals');
