@@ -13,6 +13,7 @@ use App\Import\Application\Mapping\ClosureCareLevelCatalog;
 use App\Import\Application\Mapping\ClosureFacilityKindCatalog;
 use App\Import\Application\Mapping\ClosureIntervalClock;
 use App\Import\Application\Mapping\ClosureReasonCatalog;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ClosureCatalogAndClockTest extends TestCase
@@ -71,18 +72,55 @@ final class ClosureCatalogAndClockTest extends TestCase
         self::assertSame(1270, ClosureIntervalDuration::minutesBetween($times['startsAt'], $times['endsAt']));
     }
 
-    public function testClockRejectsWallClockDurationAcrossDst(): void
+    /**
+     * IVENA reports some closures across a DST switch with the difference of the clock
+     * times. The stored duration stays the elapsed time.
+     *
+     * @param int $declared IVENA duration
+     * @param int $elapsed  derived from start and end
+     */
+    #[DataProvider('provideWallClockDurationsAcrossDst')]
+    public function testClockAcceptsWallClockDurationAcrossDst(
+        string $startsOn,
+        string $startsAt,
+        string $endsOn,
+        string $endsAt,
+        int $declared,
+        int $elapsed,
+    ): void {
+        $times = new ClosureIntervalClock()->resolve($startsOn, $startsAt, $endsOn, $endsAt, $declared, $startsOn.' '.$startsAt, $startsOn.' '.$startsAt);
+
+        self::assertSame($elapsed, ClosureIntervalDuration::minutesBetween($times['startsAt'], $times['endsAt']));
+    }
+
+    /**
+     * @return iterable<string, array{0: string, 1: string, 2: string, 3: string, 4: int, 5: int}>
+     */
+    public static function provideWallClockDurationsAcrossDst(): iterable
+    {
+        // 07:30 CET to 08:30 CEST: 25 h on the clock, 24 h elapsed.
+        yield 'spring, overnight 24 h closure' => ['28.03.2026', '07:30:00', '29.03.2026', '08:30:00', 1500, 1440];
+        // 09:50 CET to 08:00 CEST: 22 h 10 min on the clock, 21 h 10 min elapsed.
+        yield 'spring, overnight to a fixed end' => ['28.03.2026', '09:50:00', '29.03.2026', '08:00:00', 1330, 1270];
+        // 01:30 CET to 03:30 CEST: 2 h on the clock, 1 h elapsed.
+        yield 'spring, inside the night' => ['29.03.2026', '01:30:00', '29.03.2026', '03:30:00', 120, 60];
+        // 12:00 CEST to 12:00 CET: 24 h on the clock, 25 h elapsed.
+        yield 'autumn, overnight' => ['24.10.2026', '12:00:00', '25.10.2026', '12:00:00', 1440, 1500];
+    }
+
+    public function testClockStillAcceptsElapsedDurationInAutumn(): void
+    {
+        $times = new ClosureIntervalClock()->resolve('24.10.2026', '12:00:00', '25.10.2026', '12:00:00', 1500, '24.10.2026 12:00:00', '24.10.2026 12:00:00');
+
+        self::assertSame(1500, ClosureIntervalDuration::minutesBetween($times['startsAt'], $times['endsAt']));
+    }
+
+    public function testClockRejectsDurationThatMatchesNeitherElapsedNorClockTime(): void
     {
         $this->expectException(ImportException::class);
-        new ClosureIntervalClock()->resolve(
-            '28.03.2026',
-            '09:50:00',
-            '29.03.2026',
-            '08:00:00',
-            1330,
-            '28.03.2026 09:55:00',
-            '28.03.2026 09:55:00',
-        );
+        $this->expectExceptionMessage('Closure duration 1400 does not match elapsed minutes 1440 or clock difference 1500');
+
+        new ClosureIntervalClock()->resolve('28.03.2026', '07:30:00', '29.03.2026', '08:30:00', 1400, '28.03.2026 07:30:00', '28.03.2026 07:30:00');
     }
 
     public function testClockRejectsEndThatIsNotAfterStart(): void
