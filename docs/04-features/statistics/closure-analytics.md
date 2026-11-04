@@ -438,7 +438,13 @@ separate volume block is not shown on the overview. Both volume cards load in
 the lazy Turbo Frame `stats-closure-volume-burden`
 (`/statistics/closure-analytics/volume-burden`, same query as the page), so the
 rest of the overview does not wait for the calculation. Until they arrive, a
-skeleton of both cards shows that they are still loading.
+skeleton of both cards shows that they are still loading. The result is cached
+per criteria and stratum in the pool `cache.statistics.closure_volume`
+(`ClosureVolumeBurdenCache`). Every closure analysis or volume rebuild clears the
+pool, so new imports show at once; otherwise an entry lives 24 hours. For a
+period that runs until today the cards can therefore lag up to 24 hours behind
+the current time. After a manual change to the projection tables, clear it with
+`php bin/console cache:pool:clear cache.statistics.closure_volume`.
 
 The primary series is the closed department (`scope = department` in
 `closure_volume_hour`). The closed departments and care levels are listed in

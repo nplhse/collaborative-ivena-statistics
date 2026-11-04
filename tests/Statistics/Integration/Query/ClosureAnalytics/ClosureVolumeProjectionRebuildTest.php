@@ -25,6 +25,7 @@ use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeAnchorBuilder;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeBurdenCache;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourPlanner;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeMetricKind;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeProvisionalReason;
@@ -54,6 +55,37 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
     use ClockSensitiveTrait;
     use Factories;
     use RebuildsClosureAnalysis;
+
+    public function testBurdenCacheServesRepeatedRequestsUntilTheNextRebuild(): void
+    {
+        self::bootKernel();
+        $seed = $this->seedComparableTuesday();
+        $connection = self::getContainer()->get(Connection::class);
+        $this->insertClosure($connection, $seed, $seed['departmentId'], '2026-06-02 10:00:00', '2026-06-02 11:00:00', 'cached');
+        $this->insertClosure($connection, $seed, $seed['foreignDepartmentId'], '2026-06-02 10:00:00', '2026-06-02 11:00:00', 'foreign', $seed['foreignHospitalId'], $seed['foreignImportId']);
+        $this->rebuildAllocations($seed['importId'], $seed['foreignImportId']);
+        $this->rebuildClosureAnalysis();
+        $volume = self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class);
+        $volume->rebuild();
+        $cache = self::getContainer()->get(ClosureVolumeBurdenCache::class);
+        $criteria = $this->criteria([$seed['hospitalId']], new StatisticsPeriodBounds(
+            new \DateTimeImmutable('2026-06-02 10:00:00'),
+            new \DateTimeImmutable('2026-06-02 11:00:00'),
+        ));
+
+        $first = $cache->burden($criteria, ClosureVolumeStratum::Sk1);
+        self::assertTrue($first->built);
+        self::assertNotNull($first->observedArea);
+
+        // Without a rebuild the stored result is served even though the projection changed underneath.
+        $connection->executeStatement('DELETE FROM closure_volume_hour WHERE hospital_id = :hospital', ['hospital' => $seed['hospitalId']]);
+        self::assertEquals($first, $cache->burden($criteria, ClosureVolumeStratum::Sk1));
+        self::assertFalse(self::getContainer()->get(ClosureVolumeReadModel::class)->burden($criteria, ClosureVolumeStratum::Sk1)->built);
+
+        // Any rebuild clears the cache, here one that only touches the other hospital.
+        $volume->rebuild(null, [$seed['foreignHospitalId']]);
+        self::assertFalse($cache->burden($criteria, ClosureVolumeStratum::Sk1)->built);
+    }
 
     public function testRebuildIsRepeatableAndUnitesOverlappingClosuresWithoutForeignLeakage(): void
     {

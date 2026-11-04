@@ -23,6 +23,7 @@ use App\Statistics\ClosureAnalytics\Application\ClosureUnitTableRows;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsFilter;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventRow;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureIntervalRow;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeBurdenCache;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReadModel;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeSeriesScope;
@@ -88,6 +89,7 @@ final class ClosureAnalyticsController extends AbstractController
         private readonly ClosureEventLocalGroupResolver $localGroupResolver,
         private readonly ClosureCoverageQuery $coverage,
         private readonly ClosureTemporalQuery $temporalQuery,
+        private readonly ClosureVolumeBurdenCache $burdenCache,
         private readonly TranslatorInterface $translator,
     ) {
     }
@@ -178,7 +180,7 @@ final class ClosureAnalyticsController extends AbstractController
 
         return $this->render('@Statistics/closure_analytics/_volume_burden_frame.html.twig', [
             'volumeBurden' => $this->temporalQuery->fetchMetrics($criteria)->closureCount > 0
-                ? $this->volume->burden($criteria, ClosureVolumeStratum::All)
+                ? $this->burdenCache->burden($criteria, ClosureVolumeStratum::All)
                 : null,
         ]);
     }
