@@ -23,7 +23,7 @@ Sample used in tests: `tests/Import/Fixtures/closure_import_sample.csv`. Do not 
 | `Fachbereich` | Department | Existing name lookup, including department aliases. Unknown names reject the row. |
 | `Behandlungsdringlichkeit` | `ClosureCareLevel` | Notfallversorgung, Stationäre Versorgung, and Ambulante Versorgung are SK1–SK3. `Sonstige` is stored and is not an SK. |
 | `Datum` / `Uhrzeit` of start and end | `starts_at`, `ends_at` | Europe/Berlin wall clock. End must be after start. |
-| `Schließungs-Dauer (Minuten)` | Checked, not stored | Compared with elapsed minutes in Europe/Berlin, so the spring-forward hour matches IVENA. A mismatch rejects the row. Duration is derived later from start and end. |
+| `Schließungs-Dauer (Minuten)` | Checked, not stored | Must match either the elapsed minutes in Europe/Berlin or the difference of the local clock times. The two differ only across a DST switch, and IVENA reports both: a closure from 07:30 on the day before the spring switch to 08:30 the next day can be listed as 1440 (elapsed) or 1500 (clock). Any other value rejects the row (`DURATION_MISMATCH`). The stored duration is always derived from start and end, so it is the elapsed time. |
 | `Grund` | `ClosureReason` | Shared catalog: Überlastung der Notaufnahme, keine Bettenkapazitäten, Technische Störung, OP-Meldung, `k.A.`. `k.A.` is its own category. Unknown text rejects the row. |
 | `Schließungseinheit` | `closure_unit` | Optional hospital-local snapshot. Empty stays null. A later rename in IVENA does not rewrite old rows. Index: `(hospital_id, closure_unit)`. |
 | `Gruppen-Schließungs-ID` | `source_group_id` | Optional IVENA action id, not a group catalog. Index: `source_group_id`. |
