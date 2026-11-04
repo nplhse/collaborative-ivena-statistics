@@ -8,11 +8,18 @@ Allocation imports are unchanged. The flag `departmentWasClosed` on allocations 
 
 ## File
 
-IVENA export `Schließungsliste`: semicolon-separated, quoted, often ISO-8859-1. The existing CSV reader detects that encoding and normalizes headers to snake_case.
+IVENA export `Schließungsliste`: semicolon-separated, often ISO-8859-1. Some exports quote every cell, others only cells that contain line breaks. The existing CSV reader detects the encoding and normalizes headers to snake_case. A quoted cell may span several physical lines; its line breaks are kept as LF (for example in remarks). One record may span up to 64 KiB. A quote that never closes keeps only its first line, and the following lines are read as records of their own.
 
 One row is one interval for one department and one care level. The same closure is repeated across departments and care levels. Rows that share department, care level, and time but differ in closure unit, group id, reason, or remark are stored as separate intervals. There is no deduplication.
 
-Sample used in tests: `tests/Import/Fixtures/closure_import_sample.csv`. Do not commit a full production export; those files contain staff names.
+IVENA exports a closure in one of two layouts, depending on how the hospital set up its closure units:
+
+- **Flat:** one record per department and care level. Each record is one row.
+- **Grouped:** one record per closure unit. `Fachgebiet`, `Fachbereich` and `Behandlungsdringlichkeit` hold one value per line, and line *i* of each column belongs together. The record is split into one row per line; every other column applies to each row. A record whose three lists differ in length is rejected as one row (`GROUPED_LIST_MISMATCH`), and nothing from it is stored.
+
+Both layouts give the same rows, so counts and durations stay comparable across hospitals. `row_count`, the stored and rejected counts, and the rejection ratio of the import status count rows, not source records. Rejects of a split record share the line number of that record. The line number counts records with the header as 1; it is not the physical line in the file when cells span several lines and show the single department and care level that failed.
+
+Samples used in tests: `tests/Import/Fixtures/closure_import_sample.csv` (flat) and the grouped records built in `ClosureImportFeatureTest`. Do not commit a full production export; those files contain staff names.
 
 ## Stored columns
 
@@ -23,7 +30,7 @@ Sample used in tests: `tests/Import/Fixtures/closure_import_sample.csv`. Do not 
 | `Fachbereich` | Department | Existing name lookup, including department aliases. Unknown names reject the row. |
 | `Behandlungsdringlichkeit` | `ClosureCareLevel` | Notfallversorgung, Stationäre Versorgung, and Ambulante Versorgung are SK1–SK3. `Sonstige` is stored and is not an SK. |
 | `Datum` / `Uhrzeit` of start and end | `starts_at`, `ends_at` | Europe/Berlin wall clock. End must be after start. |
-| `Schließungs-Dauer (Minuten)` | Checked, not stored | Compared with elapsed minutes in Europe/Berlin, so the spring-forward hour matches IVENA. A mismatch rejects the row. Duration is derived later from start and end. |
+| `Schließungs-Dauer (Minuten)` | Checked, not stored | Must match either the elapsed minutes in Europe/Berlin or the difference of the local clock times. The two differ only across a DST switch, and IVENA reports both: a closure from 07:30 on the day before the spring switch to 08:30 the next day can be listed as 1440 (elapsed) or 1500 (clock). Any other value rejects the row (`DURATION_MISMATCH`). The stored duration is always derived from start and end, so it is the elapsed time. |
 | `Grund` | `ClosureReason` | Shared catalog: Überlastung der Notaufnahme, keine Bettenkapazitäten, Technische Störung, OP-Meldung, `k.A.`. `k.A.` is its own category. Unknown text rejects the row. |
 | `Schließungseinheit` | `closure_unit` | Optional hospital-local snapshot. Empty stays null. A later rename in IVENA does not rewrite old rows. Index: `(hospital_id, closure_unit)`. |
 | `Gruppen-Schließungs-ID` | `source_group_id` | Optional IVENA action id, not a group catalog. Index: `source_group_id`. |

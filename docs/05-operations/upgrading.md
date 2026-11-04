@@ -12,6 +12,47 @@ cd <deploy_path>/current
 
 Commands that write data preview by default. Run them without `--apply` first, read the output, then apply. A command that finds nothing to do can be skipped.
 
+## v0.2-beta → v0.2.1-beta
+
+Hotfix for closure-list imports ([#1003](https://github.com/nplhse/collaborative-ivena-statistics/issues/1003), [#1004](https://github.com/nplhse/collaborative-ivena-statistics/issues/1004)). No configuration changes and no migrations.
+
+### Before the deploy
+
+**Back up** the database and files ([backup-restore.md](backup-restore.md)).
+
+### Deploy
+
+Deploy as usual.
+
+### After the deploy
+
+Closure imports that failed before the hotfix keep their old result until they run again. Two kinds are affected:
+
+- grouped exports (one record per closure unit) that failed with almost every row rejected;
+- imports with `DURATION_MISMATCH` rejects for closures across a daylight saving time switch.
+
+1. **Find them** (read only):
+
+   ```bash
+   php bin/console dbal:run-sql "SELECT i.id, i.status, i.rows_rejected FROM import i WHERE i.type = 'Closure' AND (i.status = 'Failed' OR EXISTS (SELECT 1 FROM import_reject r WHERE r.import_id = i.id AND r.messages::text LIKE '%DURATION_MISMATCH%')) ORDER BY i.id"
+   ```
+
+2. **Run each of them again.** `app:import:requeue-all` only handles allocation imports, so start closure imports one by one. The command dispatches right away; the source file must still be on disk ([closure-import.md](../04-features/import/closure-import.md#requeue)):
+
+   ```bash
+   php bin/console app:import:start <IMPORT_ID>
+   ```
+
+   A worker must consume `async_priority_high`. Each successful run schedules one closure analysis rebuild for its hospital.
+
+Allocation imports do not need to run again. Text fields stored before the hotfix may have lost their line breaks; that is tracked in [#1006](https://github.com/nplhse/collaborative-ivena-statistics/issues/1006).
+
+### Check
+
+- `GET /health` reports `ok` and the footer shows `v0.2.1-beta`.
+- The re-run closure imports end as `Completed` or `Partial`. Remaining rejects are unknown departments or reasons, not `GROUPED_LIST_MISMATCH` or `DURATION_MISMATCH` ([closure-import.md](../04-features/import/closure-import.md#rejects)).
+- Closure Analytics lists the closures of the affected hospitals.
+
 ## v0.1-beta → v0.2-beta
 
 ### Before the deploy

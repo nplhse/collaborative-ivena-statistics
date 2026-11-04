@@ -44,6 +44,21 @@ final class SplCsvRowReader implements RowReaderInterface
     private readonly IvenaQuotedCsvParser $csvParser;
     private ?int $expectedColumnCount = null;
 
+    /**
+     * Physical lines read ahead for a quoted field that never closed. They are read again
+     * as records of their own.
+     *
+     * @var list<string>
+     */
+    private array $pendingLines = [];
+
+    /**
+     * Upper bound for one record that spans several physical lines. IVENA closure exports
+     * list up to a few hundred departments in one cell (a few KB); a quote that never
+     * closes must not swallow the rest of the file.
+     */
+    private const int MAX_RECORD_BYTES = 65536;
+
     public function __construct(
         \SplFileObject $file,
         private readonly EncodingDetector $detector,
@@ -86,9 +101,8 @@ final class SplCsvRowReader implements RowReaderInterface
     #[\Override]
     public function rows(): iterable
     {
-        while (!$this->file->eof()) {
-            $row = $this->readCsvRow();
-            if (false === $row || $row === [null]) {
+        while (false !== ($row = $this->readCsvRow())) {
+            if ($row === [null]) {
                 continue;
             }
 
@@ -98,7 +112,7 @@ final class SplCsvRowReader implements RowReaderInterface
                 if (0 === $i) {
                     $cell = $this->stripBom($cell);
                 }
-                $cell = $this->nfc($cell);
+                $cell = $this->nfc($this->normalizeLineBreaks($cell));
                 $utf8[] = \trim($cell);
             }
             $allEmpty = array_all($utf8, fn (string $cell): bool => '' === $cell);
@@ -143,7 +157,7 @@ final class SplCsvRowReader implements RowReaderInterface
             if (0 === $i) {
                 $cell = $this->stripBom($cell);
             }
-            $cell = $this->nfc($cell);
+            $cell = $this->nfc($this->normalizeLineBreaks($cell));
             $out[] = \trim($cell);
         }
 
@@ -151,28 +165,56 @@ final class SplCsvRowReader implements RowReaderInterface
     }
 
     /**
-     * Read one CSV record. A quoted field may continue on the next physical line.
-     * A line that already has the expected column count is left intact, so an
-     * unescaped inner quote does not swallow the following row.
+     * Read one CSV record. A quoted field may continue on the next physical lines; its
+     * line breaks stay part of the field. A line that already has the expected column
+     * count is left intact, so an unescaped inner quote does not swallow the following row.
+     * A quote that does not close before the end of the file or MAX_RECORD_BYTES keeps
+     * only the first line; the lines read ahead are read again as records of their own.
      *
      * @return array<int,string|null>|false
      */
     private function readCsvRow(): array|false
     {
-        if ($this->file->eof()) {
+        $first = $this->nextLine();
+        if (null === $first) {
             return false;
         }
 
-        $line = $this->file->fgets();
+        $line = $first;
         $parsed = $this->parseRecord($line);
-        $parts = 0;
-        while ($parts < 20 && !$this->file->eof() && $this->quotedFieldContinues($line, $parsed)) {
-            ++$parts;
-            $line .= $this->file->fgets();
+        $readAhead = [];
+        while ($this->quotedFieldContinues($line, $parsed)) {
+            $next = \strlen($line) <= self::MAX_RECORD_BYTES ? $this->nextLine() : null;
+            if (null === $next) {
+                $this->pendingLines = [...$readAhead, ...$this->pendingLines];
+
+                return $this->parseRecord($first);
+            }
+
+            $readAhead[] = $next;
+            $line .= $next;
             $parsed = $this->parseRecord($line);
         }
 
         return $parsed;
+    }
+
+    private function nextLine(): ?string
+    {
+        if ([] !== $this->pendingLines) {
+            return \array_shift($this->pendingLines);
+        }
+
+        if ($this->file->eof()) {
+            return null;
+        }
+
+        return $this->file->fgets();
+    }
+
+    private function normalizeLineBreaks(string $value): string
+    {
+        return \str_replace(["\r\n", "\r"], "\n", $value);
     }
 
     /**

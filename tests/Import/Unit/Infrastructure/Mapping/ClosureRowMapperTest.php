@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Unit\Infrastructure\Mapping;
 
+use App\Import\Application\Exception\ImportException;
 use App\Import\Infrastructure\Mapping\ClosureRowMapper;
 use PHPUnit\Framework\TestCase;
 
@@ -94,5 +95,54 @@ final class ClosureRowMapperTest extends TestCase
 
         self::assertSame('32.01.2026', $dto->startsOn);
         self::assertSame('32.01.25 10:00', $dto->sourceRecordedAt);
+    }
+
+    public function testSplitKeepsAFlatRowUnchanged(): void
+    {
+        $row = [
+            'schliessungseinheit' => 'ITS',
+            'fachgebiet' => 'Innere Medizin',
+            'fachbereich' => 'Kardiologie',
+            'behandlungsdringlichkeit' => 'Notfallversorgung',
+            'bemerkung' => "Zeile 1\nZeile 2",
+        ];
+
+        self::assertSame([$row], new ClosureRowMapper()->split($row));
+    }
+
+    public function testSplitTurnsAGroupedRecordIntoOneRowPerLine(): void
+    {
+        $rows = new ClosureRowMapper()->split([
+            'schliessungseinheit' => 'ITS abmelden',
+            'fachgebiet' => "Chirurgie\nChirurgie \nInnere Medizin",
+            'fachbereich' => "Chir. Intensiv \nChir. Intensiv\nKardiologie",
+            'behandlungsdringlichkeit' => "Notfallversorgung\nStationäre Versorgung\r\nNotfallversorgung",
+            'datum_schliessungs_beginn' => '01.01.2026',
+        ]);
+
+        self::assertSame([
+            ['Chirurgie', 'Chir. Intensiv', 'Notfallversorgung'],
+            ['Chirurgie', 'Chir. Intensiv', 'Stationäre Versorgung'],
+            ['Innere Medizin', 'Kardiologie', 'Notfallversorgung'],
+        ], array_map(
+            static fn (array $row): array => [$row['fachgebiet'], $row['fachbereich'], $row['behandlungsdringlichkeit']],
+            $rows,
+        ));
+        foreach ($rows as $row) {
+            self::assertSame('ITS abmelden', $row['schliessungseinheit']);
+            self::assertSame('01.01.2026', $row['datum_schliessungs_beginn']);
+        }
+    }
+
+    public function testSplitRejectsListsOfDifferentLength(): void
+    {
+        $this->expectException(ImportException::class);
+        $this->expectExceptionMessage('Grouped closure lists differ in length: speciality 2, department 2, care level 1');
+
+        new ClosureRowMapper()->split([
+            'fachgebiet' => "Chirurgie\nInnere Medizin",
+            'fachbereich' => "Chir. Intensiv\nKardiologie",
+            'behandlungsdringlichkeit' => 'Notfallversorgung',
+        ]);
     }
 }
