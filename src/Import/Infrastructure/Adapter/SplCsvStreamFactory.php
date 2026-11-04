@@ -21,9 +21,11 @@ final readonly class SplCsvStreamFactory
         string $escape = '',
         bool $readCsv = true,
     ): \SplFileObject {
-        $flags = \SplFileObject::SKIP_EMPTY | \SplFileObject::DROP_NEW_LINE;
+        // Without READ_CSV the caller joins physical lines of a quoted field itself and needs
+        // the line breaks; the record terminator is stripped by the parser.
+        $flags = \SplFileObject::SKIP_EMPTY;
         if ($readCsv) {
-            $flags |= \SplFileObject::READ_CSV;
+            $flags |= \SplFileObject::READ_CSV | \SplFileObject::DROP_NEW_LINE;
         }
 
         if ('UTF-8' === $sourceEncoding) {
