@@ -434,7 +434,17 @@ during closures, and that expectation as a share of the hospital's expected
 volume. It does not replace the duration tab and it does not claim lost
 patients, diversion or a causal effect. Deviation is observed minus expected.
 A relative deviation is omitted when the expectation is zero or missing. The
-separate volume block is not shown on the overview.
+separate volume block is not shown on the overview. Both volume cards load in
+the lazy Turbo Frame `stats-closure-volume-burden`
+(`/statistics/closure-analytics/volume-burden`, same query as the page), so the
+rest of the overview does not wait for the calculation. Until they arrive, a
+skeleton of both cards shows that they are still loading. The result is cached
+per criteria and stratum in the pool `cache.statistics.closure_volume`
+(`ClosureVolumeBurdenCache`). Every closure analysis or volume rebuild clears the
+pool, so new imports show at once; otherwise an entry lives 24 hours. For a
+period that runs until today the cards can therefore lag up to 24 hours behind
+the current time. After a manual change to the projection tables, clear it with
+`php bin/console cache:pool:clear cache.statistics.closure_volume`.
 
 The primary series is the closed department (`scope = department` in
 `closure_volume_hour`). The closed departments and care levels are listed in
@@ -520,6 +530,13 @@ should use indexes on `(event_id, scope, …)`. The speciality reference on the
 department course view runs a second `draftsForEvent` (speciality) only to build
 the optional ratio reference line; `volumeSeries=speciality` replaces the primary
 series instead of overlaying it.
+
+Overview burden must not hold the filtered closure hours in memory: a single
+hospital already reaches more than 100,000 rows. `affectedRows` streams them
+ordered by population hour and reference cutoff, and the aggregator keeps only
+the current hour, so the earliest cutoff still wins per population hour. The
+hospital baseline loads hourly counts one hospital at a time and walks the
+period hours with `ClosureVolumeClock::buckets()` instead of a list.
 
 ## Deferred allocation matching
 

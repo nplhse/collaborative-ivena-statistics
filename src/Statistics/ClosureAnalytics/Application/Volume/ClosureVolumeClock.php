@@ -55,13 +55,23 @@ final class ClosureVolumeClock
      */
     public static function split(\DateTimeImmutable $start, \DateTimeImmutable $end): array
     {
+        return iterator_to_array(self::buckets($start, $end), false);
+    }
+
+    /**
+     * The buckets of split() one at a time, so long periods do not hold every hour in memory.
+     *
+     * @return \Generator<int, ClosureVolumeBucket>
+     */
+    public static function buckets(\DateTimeImmutable $start, \DateTimeImmutable $end): \Generator
+    {
         $start = self::wall($start);
         $end = self::wall($end);
         if ($start >= $end) {
-            return [];
+            return;
         }
 
-        $buckets = [];
+        $previous = null;
         $cursor = $start->getTimestamp();
         $endTs = $end->getTimestamp();
         while ($cursor < $endTs) {
@@ -73,11 +83,9 @@ final class ClosureVolumeClock
             }
             $pieceEndAt = new \DateTimeImmutable('@'.$pieceEnd)->setTimezone(self::zone());
             $hour = (int) $at->format('G');
-            $previous = [] === $buckets ? null : $buckets[array_key_last($buckets)];
             if ($previous instanceof ClosureVolumeBucket && $previous->start->format('Y-m-d H') === $at->format('Y-m-d H')) {
                 // Second pass of the repeated hour after the clocks went back.
-                array_pop($buckets);
-                $buckets[] = new ClosureVolumeBucket(
+                $previous = new ClosureVolumeBucket(
                     $previous->start,
                     $pieceEndAt,
                     $previous->weekday,
@@ -89,7 +97,10 @@ final class ClosureVolumeClock
 
                 continue;
             }
-            $buckets[] = new ClosureVolumeBucket(
+            if ($previous instanceof ClosureVolumeBucket) {
+                yield $previous;
+            }
+            $previous = new ClosureVolumeBucket(
                 $at,
                 $pieceEndAt,
                 (int) $at->format('N'),
@@ -99,8 +110,9 @@ final class ClosureVolumeClock
             );
             $cursor = $pieceEnd;
         }
-
-        return $buckets;
+        if ($previous instanceof ClosureVolumeBucket) {
+            yield $previous;
+        }
     }
 
     public static function overlapSeconds(

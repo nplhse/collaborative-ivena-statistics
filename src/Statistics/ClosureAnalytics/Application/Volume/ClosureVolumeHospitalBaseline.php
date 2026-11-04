@@ -43,13 +43,10 @@ final readonly class ClosureVolumeHospitalBaseline
         $urgencyCode = $stratum->urgencyCode();
         $urgencies = null === $urgencyCode ? [1, 2, 3] : [$urgencyCode];
         $storage = $stratum->storageStratum();
-        $expected = 0.0;
-        $observed = 0.0;
-        $expectedKnown = false;
-        $observedKnown = false;
-        $partial = false;
-        $buckets = $this->periodBuckets($from, $to);
-
+        $hourlyByUrgency = [];
+        $ratesByUrgency = [];
+        $expectedByUrgency = [];
+        $observedByUrgency = [];
         foreach ($urgencies as $urgency) {
             $hourly = [];
             $prefix = $urgency.'|'.$storage.'|';
@@ -59,48 +56,42 @@ final readonly class ClosureVolumeHospitalBaseline
                 }
             }
             $slots = $this->calendar->build($from, $this->config->window->totalWeeks(), $hourly, $coveredDays, []);
-            $rates = $this->ratesForSlots($slots);
-            foreach ($buckets as $bucket) {
-                $rate = $rates[$bucket->weekday.'|'.$bucket->hour];
-                $value = $rate->expectedForSeconds($bucket->seconds);
+            $hourlyByUrgency[$urgency] = $hourly;
+            $ratesByUrgency[$urgency] = $this->ratesForSlots($slots);
+            $expectedByUrgency[$urgency] = 0.0;
+            $observedByUrgency[$urgency] = 0.0;
+        }
+        $expectedKnown = false;
+        $observedKnown = false;
+        $partial = false;
+
+        // One pass over the period: a period of several years has tens of thousands of hours.
+        foreach (ClosureVolumeClock::buckets($from, $to) as $bucket) {
+            $rateKey = $bucket->weekday.'|'.$bucket->hour;
+            $covered = isset($coveredDays[$bucket->start->format('Y-m-d')]);
+            $hourKey = $bucket->start->format('Y-m-d H:00:00');
+            foreach ($urgencies as $urgency) {
+                $value = $ratesByUrgency[$urgency][$rateKey]->expectedForSeconds($bucket->seconds);
                 if (null === $value) {
                     $partial = true;
                 } else {
-                    $expected += $value;
+                    $expectedByUrgency[$urgency] += $value;
                     $expectedKnown = true;
                 }
-                $day = $bucket->start->format('Y-m-d');
-                if (!isset($coveredDays[$day])) {
+                if (!$covered) {
                     $partial = true;
                     continue;
                 }
-                $hourKey = $bucket->start->format('Y-m-d H:00:00');
-                $observed += (float) ($hourly[$hourKey] ?? 0) * ((float) $bucket->seconds / 3600.0);
+                $observedByUrgency[$urgency] += (float) ($hourlyByUrgency[$urgency][$hourKey] ?? 0) * ((float) $bucket->seconds / 3600.0);
                 $observedKnown = true;
             }
         }
 
         return [
-            'expected' => $expectedKnown ? $expected : null,
-            'observed' => $observedKnown ? $observed : null,
+            'expected' => $expectedKnown ? array_sum($expectedByUrgency) : null,
+            'observed' => $observedKnown ? array_sum($observedByUrgency) : null,
             'partial' => $partial,
         ];
-    }
-
-    /**
-     * @return list<ClosureVolumeBucket>
-     */
-    private function periodBuckets(\DateTimeImmutable $from, \DateTimeImmutable $to): array
-    {
-        static $key = '';
-        static $buckets = [];
-        $next = $from->format('Y-m-d H:i:s').'|'.$to->format('Y-m-d H:i:s');
-        if ($key !== $next) {
-            $key = $next;
-            $buckets = ClosureVolumeClock::split($from, $to);
-        }
-
-        return $buckets;
     }
 
     /**

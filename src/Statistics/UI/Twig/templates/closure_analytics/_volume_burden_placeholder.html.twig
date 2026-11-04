@@ -1,0 +1,21 @@
+{# Skeleton for the lazy-loaded volume burden cards: same markup and titles as _volume_burden_kpis, placeholders for the values. #}
+<div class="row row-deck row-cards g-3 h-100" data-testid="stats-closure-volume-burden-placeholder" aria-busy="true" aria-live="polite">
+    <div class="col-12 col-lg-6">
+        <div class="card h-100"><div class="card-body placeholder-glow">
+            <div class="subheader">{{ 'stats.closure.kpi.volume_deviation'|trans({}, 'statistics') }}</div>
+            <div class="d-flex align-items-baseline gap-2 mt-2 mb-0">
+                <div class="h1 mb-0"><span class="placeholder" style="width: 4.5rem;"></span></div>
+                <div class="text-muted"><span class="placeholder" style="width: 3rem;"></span></div>
+            </div>
+            <div class="text-muted small"><span class="placeholder mw-100" style="width: 11rem;"></span></div>
+        </div></div>
+    </div>
+    <div class="col-12 col-lg-6">
+        <div class="card h-100"><div class="card-body placeholder-glow">
+            <div class="subheader">{{ 'stats.closure.volume.share'|trans({}, 'statistics') }}</div>
+            <div class="h1 mt-2 mb-0"><span class="placeholder" style="width: 3.5rem;"></span></div>
+            <div class="text-muted small"><span class="placeholder mw-100" style="width: 14rem;"></span></div>
+        </div></div>
+    </div>
+    <span class="visually-hidden">{{ 'stats.closure.volume.loading'|trans({}, 'statistics') }}</span>
+</div>
