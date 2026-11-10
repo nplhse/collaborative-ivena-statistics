@@ -2837,16 +2837,16 @@
         },
         {
             "name": "sentry/sentry",
-            "version": "4.34.0",
+            "version": "4.36.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-php.git",
-                "reference": "3d8f4e56becb10ede64e2ac6f8077f6434715461"
+                "reference": "7df5eefacff197c0aae0925a4848e3f91719d37c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/3d8f4e56becb10ede64e2ac6f8077f6434715461",
-                "reference": "3d8f4e56becb10ede64e2ac6f8077f6434715461",
+                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/7df5eefacff197c0aae0925a4848e3f91719d37c",
+                "reference": "7df5eefacff197c0aae0925a4848e3f91719d37c",
                 "shasum": ""
             },
             "require": {
@@ -2918,7 +2918,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-php/issues",
-                "source": "https://github.com/getsentry/sentry-php/tree/4.34.0"
+                "source": "https://github.com/getsentry/sentry-php/tree/4.36.0"
             },
             "funding": [
                 {
@@ -2930,20 +2930,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2026-10-08T11:25:58+00:00"
+            "time": "2026-11-05T16:26:18+00:00"
         },
         {
             "name": "sentry/sentry-symfony",
-            "version": "5.14.0",
+            "version": "5.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-symfony.git",
-                "reference": "6bd9934008e97efb418dcfd05eb44df548eaab80"
+                "reference": "2ece43fa05d86ff88702a0f1ccfb028991ea6783"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-symfony/zipball/6bd9934008e97efb418dcfd05eb44df548eaab80",
-                "reference": "6bd9934008e97efb418dcfd05eb44df548eaab80",
+                "url": "https://api.github.com/repos/getsentry/sentry-symfony/zipball/2ece43fa05d86ff88702a0f1ccfb028991ea6783",
+                "reference": "2ece43fa05d86ff88702a0f1ccfb028991ea6783",
                 "shasum": ""
             },
             "require": {
@@ -3020,7 +3020,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-symfony/issues",
-                "source": "https://github.com/getsentry/sentry-symfony/tree/5.14.0"
+                "source": "https://github.com/getsentry/sentry-symfony/tree/5.15.0"
             },
             "funding": [
                 {
@@ -3032,7 +3032,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2026-10-08T13:18:44+00:00"
+            "time": "2026-10-29T14:23:18+00:00"
         },
         {
             "name": "symfony/asset",
@@ -3286,16 +3286,16 @@
         },
         {
             "name": "symfony/cache-contracts",
-            "version": "v3.7.1",
+            "version": "v3.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/cache-contracts.git",
-                "reference": "9789738bc19af1106dc54d6afba9a0b467516cf2"
+                "reference": "af26a91232085b7edd4e04be62f75e7c25159ece"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/cache-contracts/zipball/9789738bc19af1106dc54d6afba9a0b467516cf2",
-                "reference": "9789738bc19af1106dc54d6afba9a0b467516cf2",
+                "url": "https://api.github.com/repos/symfony/cache-contracts/zipball/af26a91232085b7edd4e04be62f75e7c25159ece",
+                "reference": "af26a91232085b7edd4e04be62f75e7c25159ece",
                 "shasum": ""
             },
             "require": {
@@ -3309,7 +3309,7 @@
                     "name": "symfony/contracts"
                 },
                 "branch-alias": {
-                    "dev-main": "3.7-dev"
+                    "dev-main": "3.8-dev"
                 }
             },
             "autoload": {
@@ -3342,7 +3342,7 @@
                 "standards"
             ],
             "support": {
-                "source": "https://github.com/symfony/cache-contracts/tree/v3.7.1"
+                "source": "https://github.com/symfony/cache-contracts/tree/v3.8.1"
             },
             "funding": [
                 {
@@ -3362,7 +3362,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-06-05T06:23:12+00:00"
+            "time": "2026-09-26T07:05:14+00:00"
         },
         {
             "name": "symfony/clock",
@@ -4965,16 +4965,16 @@
         },
         {
             "name": "symfony/http-client-contracts",
-            "version": "v3.7.3",
+            "version": "v3.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-client-contracts.git",
-                "reference": "35be0019e2c2c9fba80f9dc033290a5240f7b44f"
+                "reference": "f9f94260f787446c6fd430b2ae1969fe41ae1ba8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-client-contracts/zipball/35be0019e2c2c9fba80f9dc033290a5240f7b44f",
-                "reference": "35be0019e2c2c9fba80f9dc033290a5240f7b44f",
+                "url": "https://api.github.com/repos/symfony/http-client-contracts/zipball/f9f94260f787446c6fd430b2ae1969fe41ae1ba8",
+                "reference": "f9f94260f787446c6fd430b2ae1969fe41ae1ba8",
                 "shasum": ""
             },
             "require": {
@@ -4987,7 +4987,7 @@
                     "name": "symfony/contracts"
                 },
                 "branch-alias": {
-                    "dev-main": "3.7-dev"
+                    "dev-main": "3.8-dev"
                 }
             },
             "autoload": {
@@ -5023,7 +5023,7 @@
                 "standards"
             ],
             "support": {
-                "source": "https://github.com/symfony/http-client-contracts/tree/v3.7.3"
+                "source": "https://github.com/symfony/http-client-contracts/tree/v3.8.1"
             },
             "funding": [
                 {
@@ -5043,7 +5043,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-04T08:41:16+00:00"
+            "time": "2026-10-04T15:04:25+00:00"
         },
         {
             "name": "symfony/http-foundation",
