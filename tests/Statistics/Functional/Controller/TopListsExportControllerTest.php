@@ -278,6 +278,6 @@ final class TopListsExportControllerTest extends WebTestCase
      */
     private function csvContainsLabel(array $lines, string $label, int $column = 3): bool
     {
-        return array_any(\array_slice($lines, 1), fn ($row): bool => ($row[$column] ?? null) === $label);
+        return array_any(\array_slice($lines, 1), fn (array $row): bool => ($row[$column] ?? null) === $label);
     }
 }
