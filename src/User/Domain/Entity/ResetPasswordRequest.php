@@ -9,7 +9,11 @@ use Doctrine\ORM\Mapping as ORM;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestTrait;
 
-/** @psalm-suppress UnusedClass, PossiblyUnusedProperty */
+/**
+ * @implements ResetPasswordRequestInterface<User>
+ *
+ * @psalm-suppress UnusedClass, PossiblyUnusedProperty
+ */
 #[ORM\Entity(repositoryClass: ResetPasswordRequestRepository::class)]
 class ResetPasswordRequest implements ResetPasswordRequestInterface
 {
