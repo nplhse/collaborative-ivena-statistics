@@ -127,9 +127,11 @@ Registered only when `APP_ENV=test` (`config/services/foundry_test.yaml`):
 
 1. **Before reset** — `OverviewMaterializedViewsInstaller::resetInstallationState()` clears the in-memory “already installed” flag.
 
-2. **Foundry reset** — inner resetter drops the database, recreates it, and runs migrations (DAMA disables static connections before this step).
+2. **Foundry reset** — inner resetter drops the database, recreates it, and runs migrations (DAMA disables static connections before this step). To drop the database, Foundry terminates every other backend, including a static connection DAMA opened for an earlier test class without `#[ResetDatabase]`.
 
-3. **After reset** — `OverviewMaterializedViewsInstaller::ensureInstalled()` recreates the overview views if they are absent (normally already created by migrations).
+3. **Drop stale connections** — `DamaStaticConnections::forgetAll()` clears DAMA's kept connections, so the next test opens a fresh one instead of reusing the terminated backend (#887; otherwise filtered runs fail with `terminating connection due to administrator command`). DAMA has no public API for this; the helper clears `StaticDriver::$connections` via reflection and throws if a DAMA upgrade removes that property. `tests/Shared/Integration/Doctrine/DamaStaticConnectionsTest` guards the behaviour.
+
+4. **After reset** — `OverviewMaterializedViewsInstaller::ensureInstalled()` recreates the overview views if they are absent (normally already created by migrations).
 
 This wiring does **not** run in `prod` or `dev`; it does not change runtime behavior outside tests.
 
@@ -179,6 +181,7 @@ self::getContainer()
 | View registry | `StatisticsMaterializedViewGroups` | Groups and view names |
 | Drop before reset | `StatisticsMaterializedViewDropper` | Test reset hook (DBAL) |
 | Foundry decorator | `App\Tests\Support\Foundry\MaterializedViewAwareOrmResetter` | Test env only |
+| DAMA connection reset | `App\Tests\Support\Foundry\DamaStaticConnections` | Called by the decorator after the reset (#887) |
 | Install / refresh helper | `OverviewMaterializedViewsInstaller` | Test install + `refreshIfInstalled()` |
 | Refresh service | `MaterializedViewRefresher` | Used by console command, handler, import cleanup, and test trait |
 | Structural change detector | `ProjectionOverviewChangeDetector` | Decides when handler/cleanup should refresh overview MVs |

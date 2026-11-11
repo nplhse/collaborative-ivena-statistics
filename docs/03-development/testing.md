@@ -146,6 +146,7 @@ After an EasyAdmin upgrade, run `composer install` so `vendor/` matches `compose
 
 - Tests using `#[ResetDatabase]` or `DatabaseKernelTestCase` belong under `tests/*/Integration/` (or higher layers), not `tests/*/Unit/`: the CI unit job runs ParaTest without PostgreSQL.
 - Missing test database or wrong `DATABASE_URL`
+- `terminating connection due to administrator command` in a filtered run: the first `#[ResetDatabase]` reset terminates DAMA's kept connections; `MaterializedViewAwareOrmResetter` drops them afterwards ([details](../04-features/statistics/projection-and-materialized-views.md#test-only-reset-decorator), #887). If it shows up again after a DAMA upgrade, check `DamaStaticConnections`.
 - Materialized views not refreshed in statistics-related tests
 - Missing `fixtures.scale` in test env (see `config/packages/test/fixtures.yaml`)
 - Queue expectations in tests vs `when@test` routing (sync)
