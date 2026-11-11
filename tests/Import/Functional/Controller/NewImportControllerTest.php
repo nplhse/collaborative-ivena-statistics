@@ -14,6 +14,7 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Import\Application\Service\DevelopmentHospitalOverride;
 use App\Import\Application\Service\FileUploader;
 use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Domain\Entity\Import;
@@ -25,6 +26,7 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Filesystem\Filesystem;
@@ -296,6 +298,66 @@ final class NewImportControllerTest extends WebTestCase
         self::assertNull($em->getRepository(Import::class)->findOneBy(['name' => 'Rate Limited Import']));
     }
 
+    public function testHospitalOverrideIsUnavailableOutsideDevelopment(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $client->loginUser($owner);
+
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[name="import_create[hospitalOverride]"]');
+
+        $this->postAllocationUpload($client, $crawler->filter('form')->form()['import_create[_token]']->getValue(), 'Forged Override Import', $hospitalId, ['hospitalOverride' => '1']);
+
+        // The field does not exist outside dev, so the posted value is an extra field and the form is invalid.
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('form[name="import_create"]');
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        self::assertNull($em->getRepository(Import::class)->findOneBy(['name' => 'Forged Override Import']));
+    }
+
+    public function testHospitalOverrideIsRecordedInDevelopment(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        self::getContainer()->set(DevelopmentHospitalOverride::class, new DevelopmentHospitalOverride('dev'));
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $client->loginUser($owner);
+
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('input[type="checkbox"][name="import_create[hospitalOverride]"]');
+        $token = $crawler->filter('form')->form()['import_create[_token]']->getValue();
+
+        $this->postAllocationUpload($client, $token, 'Override Import', $hospitalId, ['hospitalOverride' => '1']);
+        self::assertResponseRedirects();
+        $this->postAllocationUpload($client, $token, 'Plain Import', $hospitalId);
+        self::assertResponseRedirects();
+
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->clear();
+        $override = $em->getRepository(Import::class)->findOneBy(['name' => 'Override Import']);
+        self::assertInstanceOf(Import::class, $override);
+        self::assertTrue($override->isHospitalOverride());
+        self::assertSame($hospitalId, $override->getHospital()?->getId(), 'The selected hospital stays the target.');
+        self::assertGreaterThan(0, (int) $override->getRowsPassed(), 'Allocation rows are stored on the selected hospital.');
+
+        $plain = $em->getRepository(Import::class)->findOneBy(['name' => 'Plain Import']);
+        self::assertInstanceOf(Import::class, $plain);
+        self::assertFalse($plain->isHospitalOverride(), 'Without the checkbox nothing is overridden.');
+
+        $client->request(Request::METHOD_GET, '/import/'.$override->getId());
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Imported with the development-only target hospital override.');
+
+        @\unlink((string) $override->getFilePath());
+        @\unlink((string) $plain->getFilePath());
+    }
+
     public function testSubmitWithXlsxShowsValidationErrorAndDoesNotPersist(): void
     {
         [$owner, $hospitalId] = $this->createOwnerWithHospital();
@@ -521,5 +583,21 @@ final class NewImportControllerTest extends WebTestCase
         self::assertNotNull($freshOwner);
 
         return [$freshOwner, (int) $hospital->getId()];
+    }
+
+    /**
+     * @param array<string, string> $extra additional form fields
+     */
+    private function postAllocationUpload(KernelBrowser $client, string $token, string $name, int $hospitalId, array $extra = []): void
+    {
+        $uploadPath = sys_get_temp_dir().'/allocation_import_sample_'.bin2hex(random_bytes(4)).'.csv';
+        self::assertTrue(copy($this->fixturesDir.'/allocation_import_sample.csv', $uploadPath));
+
+        $client->request(
+            Request::METHOD_POST,
+            '/import/new',
+            ['import_create' => ['name' => $name, 'hospital' => (string) $hospitalId, '_token' => $token, ...$extra]],
+            ['import_create' => ['file' => new UploadedFile($uploadPath, 'allocation_import_sample.csv', 'text/csv', null, true)]],
+        );
     }
 }

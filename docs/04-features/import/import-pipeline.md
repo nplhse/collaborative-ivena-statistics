@@ -37,6 +37,15 @@ The file input uses `accept=".csv,.txt"`. Windows may report CSV exports as `app
 
 User-facing messages are in the `validators` domain (`validation.import.*`); help text on the form uses `label.import.helpFile` in the `import` domain.
 
+## Development-only target hospital override
+
+In the `dev` environment the upload form has an extra checkbox, **Override target hospital (development only)** (#878). It lets a developer load a real allocation or closure export into a fictional demo hospital and is recorded on the import (`hospital_override`, `hospital_override_source_label`).
+
+- Allocations are always stored on the selected hospital; the file's `Krankenhaus-Kurzname` is not compared, so the flag only records the intent.
+- Closures: the flag lets a single file hospital name that matches another catalog hospital pass (details: [closure-import.md](closure-import.md#development-only-target-hospital-override)).
+- Permissions, validation, duplicate handling and reference resolution do not change. Outside `dev` the option does not exist and a stored flag has no effect.
+- These imports are real operational data, not synthetic data; the synthetic data generator never replaces them.
+
 ## Technical flow
 
 1. Create import in the UI (file + context)

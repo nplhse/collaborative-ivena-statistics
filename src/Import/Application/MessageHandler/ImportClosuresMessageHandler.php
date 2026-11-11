@@ -22,6 +22,7 @@ use App\Import\Application\Factory\RowReaderFactory;
 use App\Import\Application\Mapping\ClosureHospitalGuard;
 use App\Import\Application\Mapping\ClosureHospitalProfile;
 use App\Import\Application\Message\ImportClosuresMessage;
+use App\Import\Application\Service\DevelopmentHospitalOverride;
 use App\Import\Application\Service\ImportCreatorPermissionCheck;
 use App\Import\Application\Service\ImportDataCoverageCalculator;
 use App\Import\Application\Service\ImportExportPeriodDeriver;
@@ -72,6 +73,7 @@ final readonly class ImportClosuresMessageHandler
         private ImportExportPeriodDeriver $exportPeriodDeriver,
         private ImportDataCoverageCalculator $dataCoverageCalculator,
         private ImportRunTelemetryInterface $telemetry,
+        private DevelopmentHospitalOverride $hospitalOverride,
     ) {
     }
 
@@ -110,7 +112,7 @@ final readonly class ImportClosuresMessageHandler
                 throw new \RuntimeException('Import not found after refresh');
             }
 
-            $this->applyResult($fresh, $summary, $writer, $this->runtimeSince($started));
+            $this->applyResult($fresh, $summary, $writer, $this->runtimeSince($started), $profile);
             $this->flushWithImportIntent('import.run.finished', $fresh);
 
             return $summary;
@@ -187,7 +189,7 @@ final readonly class ImportClosuresMessageHandler
             $writer->start($import);
 
             $this->telemetry->startSpan('import.profile', ['hospital_id' => $hospitalId]);
-            $profile = $this->hospitalProfile($hospitalId, $source);
+            $profile = $this->hospitalProfile($import, $hospitalId, $source);
             $this->telemetry->finishSpan();
             $reader = $this->telemetry->timedReader($this->rowReaderFactory->createFromCsvFile($source));
             $this->telemetry->startRows();
@@ -198,8 +200,8 @@ final readonly class ImportClosuresMessageHandler
             $this->telemetry->startSpan('import.finish');
             $outcome = $this->runLifecycle->finish(
                 $context,
-                function (Import $fresh) use ($summary, $writer, $runtimeMs): ImportRunOutcome {
-                    $this->applyResult($fresh, $summary, $writer, $runtimeMs);
+                function (Import $fresh) use ($summary, $writer, $runtimeMs, $profile): ImportRunOutcome {
+                    $this->applyResult($fresh, $summary, $writer, $runtimeMs, $profile);
                     $this->telemetry->evaluated($fresh);
 
                     return ImportRunOutcome::fromEvaluatedImport($fresh);
@@ -255,8 +257,10 @@ final readonly class ImportClosuresMessageHandler
         );
     }
 
-    private function applyResult(Import $fresh, ImportSummary $summary, RejectWriterInterface $writer, int $runtimeMs): void
+    private function applyResult(Import $fresh, ImportSummary $summary, RejectWriterInterface $writer, int $runtimeMs, ClosureHospitalProfile $profile): void
     {
+        $fresh->setHospitalOverrideSourceLabel($profile->overriddenFileLabel);
+
         $absRejectPath = $writer->getPath();
         if ($summary->rejected > 0 && \is_string($absRejectPath) && '' !== $absRejectPath) {
             $fresh->setRejectFilePath($this->fileStorage->toRelative($absRejectPath));
@@ -310,7 +314,7 @@ final readonly class ImportClosuresMessageHandler
 
             $startedRun = false;
             try {
-                $profile = $this->hospitalProfile($hospitalId, $filePath);
+                $profile = $this->hospitalProfile($import, $hospitalId, $filePath);
                 $reader = $this->rowReaderFactory->createFromCsvFile($filePath);
                 $startedRun = true;
                 $this->run($import, $reader, $writer, $profile);
@@ -436,7 +440,7 @@ final readonly class ImportClosuresMessageHandler
         return (int) \round((\microtime(true) - $started) * 1000.0);
     }
 
-    private function hospitalProfile(int $hospitalId, string $filePath): ClosureHospitalProfile
+    private function hospitalProfile(Import $import, int $hospitalId, string $filePath): ClosureHospitalProfile
     {
         $scanReader = $this->rowReaderFactory->createFromCsvFile($filePath);
 
@@ -444,7 +448,27 @@ final readonly class ImportClosuresMessageHandler
             $hospitalId,
             $this->hospitalRepository->findIdNameMap(),
             $this->hospitalGuard->distinctShortNames($scanReader->rowsAssoc()),
+            $this->allowsHospitalOverride($import),
         );
+    }
+
+    /**
+     * The stored override flag counts only in the development environment (#878); elsewhere the
+     * normal hospital checks apply, for example when a development database is processed elsewhere.
+     */
+    private function allowsHospitalOverride(Import $import): bool
+    {
+        if (!$import->isHospitalOverride()) {
+            return false;
+        }
+
+        if ($this->hospitalOverride->isAvailable()) {
+            return true;
+        }
+
+        $this->importLogger->warning('closure.import.hospital_override.ignored', ['id' => $import->getId()]);
+
+        return false;
     }
 
     private function resolvePermissionFailure(Import $import): ?ImportRunReasonCode

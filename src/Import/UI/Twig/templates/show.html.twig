@@ -79,6 +79,20 @@
                                     {{ import.hospital.dispatchArea }} · {{ import.hospital.state }}
                                 </span>
                             </div>
+
+                            {% if import.hospitalOverride %}
+                                <div class="alert alert-warning mb-0" role="status">
+                                    <div class="d-flex align-items-start gap-2">
+                                        <twig:ux:icon name="tabler:arrows-exchange" class="w-4 h-4 mt-1" />
+                                        <div>
+                                            <div class="fw-bold">{{ 'label.import.hospitalOverride.notice'|trans({}, 'import') }}</div>
+                                            {% if import.hospitalOverrideSourceLabel %}
+                                                <div class="text-secondary small">{{ 'label.import.hospitalOverride.sourceLabel'|trans({label: import.hospitalOverrideSourceLabel}, 'import') }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
                         </twig:Card>
                     </div>
 

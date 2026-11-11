@@ -7,6 +7,7 @@ namespace App\Import\UI\Form;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
+use App\Import\Application\Service\DevelopmentHospitalOverride;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Domain\Validation\Constraints\ImportSourceFile;
@@ -16,6 +17,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -35,6 +37,7 @@ final class ImportCreateType extends AbstractType
     public function __construct(
         private readonly HospitalRepository $hospitalRepository,
         private readonly Security $security,
+        private readonly DevelopmentHospitalOverride $hospitalOverride,
         #[Autowire(param: 'app.imports_max_size')]
         private readonly string $maxSize = '5M',
     ) {
@@ -73,6 +76,16 @@ final class ImportCreateType extends AbstractType
                 ],
                 'help' => 'label.import.type.help',
                 'constraints' => [new Assert\NotNull()],
+            ]);
+        }
+
+        // Development only (#878): outside `dev` the field does not exist, so a posted value is an extra field.
+        if ($this->hospitalOverride->isAvailable()) {
+            $builder->add('hospitalOverride', CheckboxType::class, [
+                'mapped' => false,
+                'required' => false,
+                'label' => 'label.import.hospitalOverride',
+                'help' => 'label.import.hospitalOverride.help',
             ]);
         }
 
