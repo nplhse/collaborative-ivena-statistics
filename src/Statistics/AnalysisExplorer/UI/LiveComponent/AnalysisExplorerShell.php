@@ -30,6 +30,7 @@ use App\Statistics\AnalysisExplorer\Domain\Exception\SavedExplorerViewForbiddenE
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\AnalysisExplorer\UI\Form\ExplorerEditFormType;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
+use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsSourceDataProbe;
 use App\Statistics\Domain\Entity\SavedExplorerView;
@@ -546,7 +547,7 @@ final class AnalysisExplorerShell
             $scopeGroup = 'my_hospitals';
         }
 
-        $formData->scopePeriod = new StatisticsScopePeriodFormData(scopeGroup: $scopeGroup, period: 'all');
+        $formData->scopePeriod = new StatisticsScopePeriodFormData(scopeGroup: $scopeGroup, period: StatisticsFilterPeriod::Last12Months->value);
         $this->editFormData = $this->editFormNormalizer->normalize($formData);
         $this->resetForm();
         $this->submitForm(false);

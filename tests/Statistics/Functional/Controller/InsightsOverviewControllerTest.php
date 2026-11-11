@@ -71,7 +71,7 @@ final class InsightsOverviewControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();
@@ -163,7 +163,7 @@ final class InsightsOverviewControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();
@@ -182,7 +182,7 @@ final class InsightsOverviewControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights', [
             'scope' => 'hospital_cohort',
             'cohort' => 'urban_basic',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseRedirects();

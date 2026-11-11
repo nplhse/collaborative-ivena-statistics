@@ -933,8 +933,8 @@
         <source>stats.filter.period_label</source>
         <target>Period</target>
       </trans-unit>
-      <trans-unit id="statsFlt06" resname="stats.filter.period.all">
-        <source>stats.filter.period.all</source>
+      <trans-unit id="statsFlt06" resname="stats.filter.period.last_12_months">
+        <source>stats.filter.period.last_12_months</source>
         <target>Last 12 months</target>
       </trans-unit>
       <trans-unit id="statsFlt06b" resname="stats.filter.period.all_time">

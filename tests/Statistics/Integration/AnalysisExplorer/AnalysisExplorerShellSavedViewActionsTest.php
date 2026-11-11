@@ -24,7 +24,7 @@ final class AnalysisExplorerShellSavedViewActionsTest extends AnalysisExplorerSh
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
 
         $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
@@ -110,7 +110,7 @@ final class AnalysisExplorerShellSavedViewActionsTest extends AnalysisExplorerSh
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
         $state = $mapper->toStateArray($viewFactory->createDefault($filter));
         $foreign = $service->create($owner, 'Foreign view', $state, 'Owned elsewhere');

@@ -79,7 +79,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $query = [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_segment' => 'travel:10_20',
             'geo_profile' => 'urgency',
         ];
@@ -210,7 +210,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
 
         $query = [
             'scope' => 'dispatch_area:'.$areaA->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_segment' => 'origin:'.$areaA->getId(),
             'geo_profile' => 'overview',
             'urgency' => '1',
@@ -279,7 +279,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_profile' => 'urgency',
         ]);
 
@@ -302,7 +302,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_profile' => 'demographics',
         ]);
         $this->assertResponseIsSuccessful();
@@ -314,7 +314,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_profile' => 'age',
         ]);
         $this->assertResponseIsSuccessful();
@@ -325,7 +325,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_profile' => 'resources',
         ]);
         $this->assertResponseIsSuccessful();
@@ -336,7 +336,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_profile' => 'features',
         ]);
         $this->assertResponseIsSuccessful();
@@ -350,7 +350,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_segment' => 'origin:not-a-number',
         ]);
         $this->assertResponseIsSuccessful();
@@ -392,7 +392,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-case-flow-segment-suppressed"]');
@@ -402,7 +402,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_segment' => 'origin:'.$area->getId(),
             'geo_profile' => 'gender',
         ]);

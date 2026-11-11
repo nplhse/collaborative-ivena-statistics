@@ -19,10 +19,10 @@ final class StatisticsPageViewModelFactoryTest extends KernelTestCase
         $factory = self::getContainer()->get(StatisticsPageViewModelFactory::class);
 
         $model = $factory->create(
-            new Request(query: ['scope' => 'public', 'period' => 'all']),
+            new Request(query: ['scope' => 'public', 'period' => 'last_12_months']),
             'app_stats_dashboard',
             null,
-            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::Last12Months),
         );
 
         self::assertFalse($model->showScopeSecondaryPicker);

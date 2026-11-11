@@ -43,7 +43,7 @@ final class AnalysisExplorerShellDispatchScopeRegressionTest extends AnalysisExp
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
         $defaultConfig = $viewFactory->createDefault($filter);
 
@@ -63,7 +63,7 @@ final class AnalysisExplorerShellDispatchScopeRegressionTest extends AnalysisExp
                 $formName => [
                     'scopePeriod' => [
                         'scopeGroup' => 'dispatch_area',
-                        'period' => 'all',
+                        'period' => 'last_12_months',
                     ],
                     'rowDimension' => 'time',
                     'rowGrain' => 'month',
@@ -84,7 +84,7 @@ final class AnalysisExplorerShellDispatchScopeRegressionTest extends AnalysisExp
                     'scopePeriod' => [
                         'scopeGroup' => 'dispatch_area',
                         'scopeDetail' => (string) $dispatchAreaId,
-                        'period' => 'all',
+                        'period' => 'last_12_months',
                     ],
                     'rowDimension' => 'time',
                     'rowGrain' => 'month',

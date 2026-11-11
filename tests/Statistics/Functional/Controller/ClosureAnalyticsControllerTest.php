@@ -425,7 +425,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         self::assertStringContainsString('closedHours', (string) $client->getResponse()->getContent());
         self::assertStringNotContainsString('closedShares', (string) $client->getResponse()->getContent());
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=last_12_months');
         $this->assertResponseIsSuccessful();
         $rollingChart = (string) $client->getResponse()->getContent();
         $currentMonth = $this->currentMonthStart();
@@ -434,7 +434,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics?scope=public&period=all&unitsColumns=name&unitsColumnOrder=name',
+            '/statistics/closure-analytics?scope=public&period=last_12_months&unitsColumns=name&unitsColumnOrder=name',
         );
         $this->assertResponseIsSuccessful();
         $unitHeaders = $client->getCrawler()->filter('[data-testid="stats-closure-units"] th')->each(
@@ -744,7 +744,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/timeline/frame?scope=public&period=all',
+            '/statistics/closure-analytics/timeline/frame?scope=public&period=last_12_months',
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="closure-timeline-grid"]');
@@ -753,7 +753,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/timeline/frame?scope=public&period=all&timeline_grain=month&timeline_from='.$this->currentMonthStart()->format('Y-m-d'),
+            '/statistics/closure-analytics/timeline/frame?scope=public&period=last_12_months&timeline_grain=month&timeline_from='.$this->currentMonthStart()->format('Y-m-d'),
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('.closure-timeline-cell--closed');

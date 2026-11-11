@@ -79,7 +79,7 @@ final class ClosureDevelopmentSeriesTest extends TestCase
             StatisticsScopeCriteria::public(),
             $period,
             $grain,
-            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::Last12Months),
         );
     }
 }

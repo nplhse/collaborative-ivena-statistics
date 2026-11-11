@@ -120,14 +120,14 @@ final class HospitalCohortScopePickerIntegrationTest extends KernelTestCase
         );
 
         $pageModel = self::getContainer()->get(StatisticsPageViewModelFactory::class)->create(
-            new Request(query: ['scope' => 'public', 'period' => 'all']),
+            new Request(query: ['scope' => 'public', 'period' => 'last_12_months']),
             'app_stats_dashboard',
             null,
             new StatisticsFilter(
                 StatisticsFilterScope::Public,
                 null,
                 null,
-                StatisticsFilterPeriod::All,
+                StatisticsFilterPeriod::Last12Months,
             ),
         );
 

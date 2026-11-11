@@ -29,7 +29,7 @@ final class DataQualityPopulationResolverTest extends TestCase
             $this->createMock(HospitalAccessInterface::class),
         );
 
-        $filter = new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All);
+        $filter = new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::Last12Months);
         $result = $resolver->resolve($filter, null);
 
         self::assertSame([$snapshot], $result);
@@ -68,7 +68,7 @@ final class DataQualityPopulationResolverTest extends TestCase
 
         $resolver = new DataQualityPopulationResolver($query, new HospitalCohortResolver(), $access);
 
-        $filter = new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All);
+        $filter = new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::Last12Months);
         $user = $this->createMock(\App\User\Domain\Entity\User::class);
 
         self::assertSame([$snapshot], $resolver->resolve($filter, $user));
@@ -92,7 +92,7 @@ final class DataQualityPopulationResolverTest extends TestCase
             StatisticsFilterScope::HospitalCohort,
             null,
             $cohortKey,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
         );
 
         self::assertSame([], $resolver->resolve($filter, null));

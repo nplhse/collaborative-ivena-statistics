@@ -70,7 +70,7 @@ final readonly class BenchmarkComparisonPeriodViewModelFactory
         /** @var list<array{0: StatisticsFilterPeriod, 1: string}> $modes */
         $modes = [
             [StatisticsFilterPeriod::AllTime, 'stats.filter.period.all_time'],
-            [StatisticsFilterPeriod::All, 'stats.filter.period.all'],
+            [StatisticsFilterPeriod::Last12Months, 'stats.filter.period.last_12_months'],
             [StatisticsFilterPeriod::Year, 'stats.filter.period.year'],
             [StatisticsFilterPeriod::Quarter, 'stats.filter.period.quarter'],
             [StatisticsFilterPeriod::Month, 'stats.filter.period.month'],
@@ -79,7 +79,7 @@ final readonly class BenchmarkComparisonPeriodViewModelFactory
         $items = [];
         foreach ($modes as [$period, $translationKey]) {
             $target = match ($period) {
-                StatisticsFilterPeriod::All => $this->filterWithPeriod($filter, StatisticsFilterPeriod::All, null, null, null),
+                StatisticsFilterPeriod::Last12Months => $this->filterWithPeriod($filter, StatisticsFilterPeriod::Last12Months, null, null, null),
                 StatisticsFilterPeriod::AllTime => $this->filterWithPeriod($filter, StatisticsFilterPeriod::AllTime, null, null, null),
                 StatisticsFilterPeriod::Year => $this->filterWithPeriod($filter, StatisticsFilterPeriod::Year, $filter->referenceYear ?? $currentYear, null, null),
                 StatisticsFilterPeriod::Quarter => $this->filterWithPeriod(
@@ -227,7 +227,7 @@ final readonly class BenchmarkComparisonPeriodViewModelFactory
     private function periodRemoveKeys(StatisticsFilter $filter): array
     {
         return match ($filter->period) {
-            StatisticsFilterPeriod::AllTime, StatisticsFilterPeriod::All => StatisticsQueryKeys::REMOVE_COMPARISON_PERIOD_DEPENDENT,
+            StatisticsFilterPeriod::AllTime, StatisticsFilterPeriod::Last12Months => StatisticsQueryKeys::REMOVE_COMPARISON_PERIOD_DEPENDENT,
             StatisticsFilterPeriod::Year => StatisticsQueryKeys::REMOVE_COMPARISON_QUARTER_DEPENDENT,
             StatisticsFilterPeriod::Quarter => StatisticsQueryKeys::REMOVE_COMPARISON_MONTH_DEPENDENT,
             StatisticsFilterPeriod::Month => [StatisticsQueryKeys::COMPARISON_QUARTER],
@@ -258,7 +258,7 @@ final readonly class BenchmarkComparisonPeriodViewModelFactory
 
     private function showsStepNavigation(StatisticsFilter $filter): bool
     {
-        return !\in_array($filter->period, [StatisticsFilterPeriod::AllTime, StatisticsFilterPeriod::All], true);
+        return !\in_array($filter->period, [StatisticsFilterPeriod::AllTime, StatisticsFilterPeriod::Last12Months], true);
     }
 
     private function periodLabel(StatisticsFilter $filter, string $locale): string
@@ -266,7 +266,7 @@ final readonly class BenchmarkComparisonPeriodViewModelFactory
         $now = $this->clock->now();
 
         return match ($filter->period) {
-            StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all', [], 'statistics', $locale),
+            StatisticsFilterPeriod::Last12Months => $this->translator->trans('stats.filter.period.last_12_months', [], 'statistics', $locale),
             StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time', [], 'statistics', $locale),
             StatisticsFilterPeriod::Year => (string) ($filter->referenceYear ?? $now->format('Y')),
             StatisticsFilterPeriod::Quarter => $this->translator->trans(
@@ -289,7 +289,7 @@ final readonly class BenchmarkComparisonPeriodViewModelFactory
     private function primaryDropdownLabel(StatisticsFilter $filter, string $locale): string
     {
         return match ($filter->period) {
-            StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all', [], 'statistics', $locale),
+            StatisticsFilterPeriod::Last12Months => $this->translator->trans('stats.filter.period.last_12_months', [], 'statistics', $locale),
             StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time', [], 'statistics', $locale),
             StatisticsFilterPeriod::Year => $this->translator->trans('stats.filter.period.year', [], 'statistics', $locale),
             StatisticsFilterPeriod::Quarter => $this->translator->trans('stats.filter.period.quarter', [], 'statistics', $locale),

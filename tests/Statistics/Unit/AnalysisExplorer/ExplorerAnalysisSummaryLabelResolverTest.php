@@ -31,14 +31,14 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
     {
         $resolver = $this->resolver([
             'stats.analysis_explorer.summary.scope.all_hospitals' => 'all hospitals',
-            'stats.filter.period.all' => 'Last 12 months',
+            'stats.filter.period.last_12_months' => 'Last 12 months',
         ]);
 
         $filter = new StatisticsFilter(
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
 
         self::assertSame('all hospitals', $resolver->scopeLabel($filter, null));
@@ -60,7 +60,7 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
             scope: StatisticsFilterScope::MyHospitals,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
 
         self::assertSame('all hospitals', $resolver->scopeLabel($filter, $user));
@@ -81,7 +81,7 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
             scope: StatisticsFilterScope::MyHospitals,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
 
         self::assertSame('My hospitals', $resolver->scopeLabel($filter, $user));
@@ -108,7 +108,7 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
                 scope: StatisticsFilterScope::Hospital,
                 hospitalId: 17,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
             ), null),
         );
         self::assertSame(
@@ -117,7 +117,7 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
                 scope: StatisticsFilterScope::Hospital,
                 hospitalId: 99,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
             ), null),
         );
         self::assertSame(
@@ -126,7 +126,7 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
                 scope: StatisticsFilterScope::Hospital,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
             ), null),
         );
     }
@@ -146,7 +146,7 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
                 scope: StatisticsFilterScope::HospitalCohort,
                 hospitalId: null,
                 cohortType: new HospitalCohortKey(HospitalLocation::URBAN, HospitalTier::BASIC),
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
             ), null),
         );
         self::assertSame(
@@ -155,7 +155,7 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
                 scope: StatisticsFilterScope::HospitalCohort,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
             ), null),
         );
     }
@@ -193,7 +193,7 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
                 scope: StatisticsFilterScope::State,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
                 stateId: 3,
             ), null),
         );
@@ -203,7 +203,7 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
                 scope: StatisticsFilterScope::State,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
                 stateId: 9,
             ), null),
         );
@@ -213,7 +213,7 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
                 scope: StatisticsFilterScope::DispatchArea,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
                 dispatchAreaId: 5,
             ), null),
         );
@@ -223,7 +223,7 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
                 scope: StatisticsFilterScope::DispatchArea,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
                 dispatchAreaId: null,
             ), null),
         );
@@ -232,7 +232,7 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
     public function testPeriodLabelsCoverAllModes(): void
     {
         $resolver = $this->resolver([
-            'stats.filter.period.all' => 'Last 12 months',
+            'stats.filter.period.last_12_months' => 'Last 12 months',
             'stats.filter.period.all_time' => 'All time',
             'stats.dashboard.heading.quarter' => 'Q{quarter} {year}',
         ]);
@@ -243,7 +243,7 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
             )),
         );
         self::assertSame(

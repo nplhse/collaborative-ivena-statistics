@@ -76,7 +76,7 @@ final class InsightsDimensionControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();
@@ -105,7 +105,7 @@ final class InsightsDimensionControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'view' => 'groups',
         ]);
 
@@ -154,7 +154,7 @@ final class InsightsDimensionControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();
@@ -191,7 +191,7 @@ final class InsightsDimensionControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'sort' => 'alpha',
         ]);
 
@@ -219,7 +219,7 @@ final class InsightsDimensionControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();
@@ -239,7 +239,7 @@ final class InsightsDimensionControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/hospitals', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseStatusCodeSame(404);
@@ -253,7 +253,7 @@ final class InsightsDimensionControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indication-groups', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'q' => 'cardio',
         ]);
 
@@ -275,7 +275,7 @@ final class InsightsDimensionControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'q' => 'Searchable',
         ]);
 
@@ -293,7 +293,7 @@ final class InsightsDimensionControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments', [
             'scope' => 'hospital_cohort',
             'cohort' => 'urban_basic',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseRedirects();

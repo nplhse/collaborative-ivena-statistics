@@ -21,7 +21,7 @@ final class BenchmarkComparisonPageViewModelFactoryTest extends KernelTestCase
         $model = $factory->create(
             new Request(query: [
                 'scope' => 'public',
-                'period' => 'all',
+                'period' => 'last_12_months',
                 'comparison_scope' => 'public',
                 'comparison_period' => 'all_time',
             ]),
@@ -34,7 +34,7 @@ final class BenchmarkComparisonPageViewModelFactoryTest extends KernelTestCase
         self::assertTrue($model->scopePrimaryMenu[0]['active']);
         self::assertStringContainsString('comparison_scope=public', $model->scopePrimaryMenu[0]['url']);
         self::assertStringContainsString('scope=public', $model->scopePrimaryMenu[0]['url']);
-        self::assertStringContainsString('period=all', $model->scopePrimaryMenu[0]['url']);
+        self::assertStringContainsString('period=last_12_months', $model->scopePrimaryMenu[0]['url']);
     }
 
     public function testBuildsComparisonPeriodUrlsWithComparisonKeys(): void
@@ -45,7 +45,7 @@ final class BenchmarkComparisonPageViewModelFactoryTest extends KernelTestCase
         $model = $factory->create(
             new Request(query: [
                 'scope' => 'public',
-                'period' => 'all',
+                'period' => 'last_12_months',
                 'comparison_scope' => 'public',
                 'comparison_period' => 'year',
                 'comparison_year' => '2024',

@@ -30,10 +30,10 @@ final class StatisticsPageViewModelFactoryAccessTest extends DatabaseKernelTestC
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
         $model = $this->factory->create(
-            new Request(query: ['scope' => 'public', 'period' => 'all']),
+            new Request(query: ['scope' => 'public', 'period' => 'last_12_months']),
             'app_stats_dashboard',
             $user,
-            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::Last12Months),
         );
 
         self::assertFalse($this->hasMenuKey($model->scopePrimaryMenu, 'my_hospitals_group'));
@@ -48,10 +48,10 @@ final class StatisticsPageViewModelFactoryAccessTest extends DatabaseKernelTestC
         HospitalFactory::createOne(['owner' => $user]);
 
         $model = $this->factory->create(
-            new Request(query: ['scope' => 'my_hospitals', 'period' => 'all']),
+            new Request(query: ['scope' => 'my_hospitals', 'period' => 'last_12_months']),
             'app_stats_dashboard',
             $user,
-            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::Last12Months),
         );
 
         self::assertTrue($this->hasMenuKey($model->scopePrimaryMenu, 'my_hospitals_group'));
@@ -66,10 +66,10 @@ final class StatisticsPageViewModelFactoryAccessTest extends DatabaseKernelTestC
         HospitalFactory::createMany(2);
 
         $model = $this->factory->create(
-            new Request(query: ['scope' => 'my_hospitals', 'period' => 'all']),
+            new Request(query: ['scope' => 'my_hospitals', 'period' => 'last_12_months']),
             'app_stats_dashboard',
             $user,
-            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::Last12Months),
         );
 
         self::assertTrue($this->hasMenuKey($model->scopePrimaryMenu, 'my_hospitals_group'));
@@ -84,10 +84,10 @@ final class StatisticsPageViewModelFactoryAccessTest extends DatabaseKernelTestC
         HospitalFactory::createMany(3);
 
         $model = $this->factory->create(
-            new Request(query: ['scope' => 'my_hospitals', 'period' => 'all']),
+            new Request(query: ['scope' => 'my_hospitals', 'period' => 'last_12_months']),
             'app_stats_dashboard',
             $user,
-            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::Last12Months),
         );
 
         self::assertSame('Hospitals', $this->menuLabel($model->scopePrimaryMenu, 'my_hospitals_group'));
@@ -99,10 +99,10 @@ final class StatisticsPageViewModelFactoryAccessTest extends DatabaseKernelTestC
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
         $model = $this->factory->create(
-            new Request(query: ['scope' => 'public', 'period' => 'all']),
+            new Request(query: ['scope' => 'public', 'period' => 'last_12_months']),
             'app_stats_analysis_library',
             $user,
-            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::Last12Months),
         );
 
         self::assertFalse($this->hasMenuKey($model->scopePrimaryMenu, 'my_hospitals_group'));
@@ -113,10 +113,10 @@ final class StatisticsPageViewModelFactoryAccessTest extends DatabaseKernelTestC
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
 
         $model = $this->factory->create(
-            new Request(query: ['scope' => 'my_hospitals', 'period' => 'all']),
+            new Request(query: ['scope' => 'my_hospitals', 'period' => 'last_12_months']),
             'app_stats_dashboard',
             $user,
-            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::Last12Months),
         );
 
         self::assertTrue($model->showUnscopedHint);
@@ -134,10 +134,10 @@ final class StatisticsPageViewModelFactoryAccessTest extends DatabaseKernelTestC
         \Zenstruck\Foundry\Persistence\save($nonParticipating);
 
         $model = $this->factory->create(
-            new Request(query: ['scope' => 'my_hospitals', 'period' => 'all']),
+            new Request(query: ['scope' => 'my_hospitals', 'period' => 'last_12_months']),
             'app_stats_dashboard',
             $user,
-            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::Last12Months),
         );
 
         self::assertCount(1, $model->accessibleHospitals);
@@ -155,10 +155,10 @@ final class StatisticsPageViewModelFactoryAccessTest extends DatabaseKernelTestC
         \Zenstruck\Foundry\Persistence\save($nonParticipating);
 
         $model = $this->factory->create(
-            new Request(query: ['scope' => 'my_hospitals', 'period' => 'all']),
+            new Request(query: ['scope' => 'my_hospitals', 'period' => 'last_12_months']),
             'app_stats_dashboard',
             $user,
-            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::Last12Months),
         );
 
         $ids = array_column($model->accessibleHospitals, 'id');

@@ -89,7 +89,7 @@ final readonly class ExplorerConfigPreviewFactory
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
             ),
             presentation: $presentation,
             title: $title,

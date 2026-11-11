@@ -112,7 +112,7 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
             ),
             presentation: new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(
                 chartType: $capabilities->defaultChartType,
@@ -134,7 +134,7 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
             ),
             presentation: new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(
                 chartType: ChartPresentationType::Bar,
@@ -173,7 +173,7 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         ));
 
         self::assertContains(AnalysisDimensionKey::Hospital, $unscoped->dimensions);

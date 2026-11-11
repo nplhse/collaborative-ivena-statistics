@@ -3261,8 +3261,8 @@
         <source>stats.filter.hospital_label</source>
         <target>Krankenhaus</target>
       </trans-unit>
-      <trans-unit id="De9d5693b1" resname="stats.filter.period.all">
-        <source>stats.filter.period.all</source>
+      <trans-unit id="De9d5693b1" resname="stats.filter.period.last_12_months">
+        <source>stats.filter.period.last_12_months</source>
         <target>Letzte 12 Monate</target>
       </trans-unit>
       <trans-unit id="De1c3d21e5" resname="stats.filter.period.all_time">

@@ -27,7 +27,7 @@ final class InsightsSearchControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/insights/search', [
             'q' => 'Searchable',
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ], server: ['HTTP_ACCEPT' => 'application/json']);
 
         self::assertResponseIsSuccessful();
@@ -55,7 +55,7 @@ final class InsightsSearchControllerTest extends WebTestCase
             'q' => 'Searchable',
             'dimension' => 'assignments',
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ], server: ['HTTP_ACCEPT' => 'application/json']);
 
         self::assertResponseIsSuccessful();
@@ -72,7 +72,7 @@ final class InsightsSearchControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/insights/search', [
             'q' => 'S',
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ], server: ['HTTP_ACCEPT' => 'application/json']);
 
         self::assertResponseIsSuccessful();

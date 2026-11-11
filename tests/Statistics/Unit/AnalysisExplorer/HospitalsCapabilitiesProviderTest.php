@@ -29,7 +29,7 @@ final class HospitalsCapabilitiesProviderTest extends TestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         ));
 
         $config = new AnalysisViewConfig(
@@ -42,7 +42,7 @@ final class HospitalsCapabilitiesProviderTest extends TestCase
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
             ),
             presentation: new PresentationConfig(chartType: ChartPresentationType::GroupedBar),
             title: 'Hospitals by tier (participation compare)',
@@ -110,7 +110,7 @@ final class HospitalsCapabilitiesProviderTest extends TestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         ));
     }
 
@@ -130,7 +130,7 @@ final class HospitalsCapabilitiesProviderTest extends TestCase
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
             ),
             presentation: new PresentationConfig(chartType: $chartType),
             title: 'Hospitals',

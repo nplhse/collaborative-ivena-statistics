@@ -104,7 +104,7 @@ final class ExplorerMetricProfileRegistryTest extends TestCase
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
             ),
             presentation: new PresentationConfig(chartType: ChartPresentationType::BoxPlot),
             title: 'Beds distribution',

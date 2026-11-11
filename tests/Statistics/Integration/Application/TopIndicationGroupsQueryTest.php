@@ -92,7 +92,7 @@ final class TopIndicationGroupsQueryTest extends KernelTestCase
         $result = self::getContainer()->get(TopIndicationGroupsQuery::class)->fetch(
             new StatisticsContext(
                 $user,
-                new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, StatisticsFilterPeriod::All),
+                new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, StatisticsFilterPeriod::Last12Months),
             ),
             10,
         );

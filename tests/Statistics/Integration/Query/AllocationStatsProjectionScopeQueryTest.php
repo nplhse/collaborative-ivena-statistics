@@ -147,7 +147,7 @@ final class AllocationStatsProjectionScopeQueryTest extends KernelTestCase
                 StatisticsFilterScope::State,
                 null,
                 null,
-                StatisticsFilterPeriod::All,
+                StatisticsFilterPeriod::Last12Months,
                 stateId: $stateId,
             ),
         );
@@ -162,7 +162,7 @@ final class AllocationStatsProjectionScopeQueryTest extends KernelTestCase
                     StatisticsFilterScope::State,
                     null,
                     null,
-                    StatisticsFilterPeriod::All,
+                    StatisticsFilterPeriod::Last12Months,
                     stateId: $stateId,
                 ),
             ),
@@ -174,14 +174,14 @@ final class AllocationStatsProjectionScopeQueryTest extends KernelTestCase
         );
 
         $pageModel = self::getContainer()->get(StatisticsPageViewModelFactory::class)->create(
-            new Request(query: ['scope' => sprintf('state:%d', $stateId), 'period' => 'all']),
+            new Request(query: ['scope' => sprintf('state:%d', $stateId), 'period' => 'last_12_months']),
             'app_stats_dashboard',
             null,
             new StatisticsFilter(
                 StatisticsFilterScope::State,
                 null,
                 null,
-                StatisticsFilterPeriod::All,
+                StatisticsFilterPeriod::Last12Months,
                 stateId: $stateId,
             ),
         );

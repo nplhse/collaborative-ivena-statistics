@@ -18,19 +18,19 @@ final class CaseFlowCriteriaTest extends TestCase
     public function testDetectsSingleHospitalAndDispatchAreaScopes(): void
     {
         $hospital = $this->criteria(
-            new StatisticsFilter(StatisticsFilterScope::Hospital, 12, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Hospital, 12, null, StatisticsFilterPeriod::Last12Months),
         );
         $dispatchArea = $this->criteria(
             new StatisticsFilter(
                 StatisticsFilterScope::DispatchArea,
                 null,
                 null,
-                StatisticsFilterPeriod::All,
+                StatisticsFilterPeriod::Last12Months,
                 dispatchAreaId: 15,
             ),
         );
         $public = $this->criteria(
-            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::Last12Months),
         );
 
         self::assertTrue($hospital->isSingleHospital());
@@ -49,7 +49,7 @@ final class CaseFlowCriteriaTest extends TestCase
                 StatisticsFilterScope::State,
                 null,
                 null,
-                StatisticsFilterPeriod::All,
+                StatisticsFilterPeriod::Last12Months,
                 stateId: 7,
             ),
         );

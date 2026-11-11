@@ -45,7 +45,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer?dataSource=hospitals&scope=public&period=all',
+            '/statistics/analysis/explorer?dataSource=hospitals&scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -61,7 +61,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer?dataSource=hospitals&scope=public&period=all',
+            '/statistics/analysis/explorer?dataSource=hospitals&scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -79,7 +79,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer/hospitals-by-tier?scope=public&period=all',
+            '/statistics/analysis/explorer/hospitals-by-tier?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -98,7 +98,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer/beds-distribution-by-tier?scope=public&period=all',
+            '/statistics/analysis/explorer/beds-distribution-by-tier?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -118,7 +118,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer/transport-time-distribution-by-urgency?scope=public&period=all',
+            '/statistics/analysis/explorer/transport-time-distribution-by-urgency?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -141,7 +141,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer/hospitals-by-tier-compare?scope=public&period=all',
+            '/statistics/analysis/explorer/hospitals-by-tier-compare?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -161,7 +161,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer?dataSource=unknown&scope=public&period=all',
+            '/statistics/analysis/explorer?dataSource=unknown&scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -177,7 +177,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer?scope=public&period=all',
+            '/statistics/analysis/explorer?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -231,7 +231,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/locale/switch/de?_target_path=/statistics/analysis/explorer/allocations-over-time?scope=public&period=all',
+            '/locale/switch/de?_target_path=/statistics/analysis/explorer/allocations-over-time?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -250,7 +250,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer/transport-time-bucket-distribution?scope=public&period=all',
+            '/statistics/analysis/explorer/transport-time-bucket-distribution?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -276,7 +276,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer/overview-clinical-resources?scope=public&period=all',
+            '/statistics/analysis/explorer/overview-clinical-resources?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -304,7 +304,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            sprintf('/statistics/analysis/explorer/%s?scope=public&period=all', $slug),
+            sprintf('/statistics/analysis/explorer/%s?scope=public&period=last_12_months', $slug),
         );
 
         $this->assertResponseIsSuccessful();
@@ -326,7 +326,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer/unknown-view?scope=public&period=all',
+            '/statistics/analysis/explorer/unknown-view?scope=public&period=last_12_months',
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
@@ -352,7 +352,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $client->followRedirects(true);
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer/urgency-distribution?scope=public&period=all',
+            '/statistics/analysis/explorer/urgency-distribution?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -373,7 +373,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer/allocations-over-time?scope=public&period=all',
+            '/statistics/analysis/explorer/allocations-over-time?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -404,7 +404,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $client->followRedirects(true);
         $crawler = $client->request(
             Request::METHOD_GET,
-            sprintf('/statistics/analysis/explorer/%d?scope=public&period=all', $viewId),
+            sprintf('/statistics/analysis/explorer/%d?scope=public&period=last_12_months', $viewId),
         );
 
         $this->assertResponseIsSuccessful();
@@ -426,7 +426,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer?scope=public&period=all&guide=time_series&grain=month&metric=allocation_count',
+            '/statistics/analysis/explorer?scope=public&period=last_12_months&guide=time_series&grain=month&metric=allocation_count',
         );
 
         $this->assertResponseIsSuccessful();
@@ -443,7 +443,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer?scope=public&period=all&guide=matrix&row=weekday&column=hour&metric=allocation_count',
+            '/statistics/analysis/explorer?scope=public&period=last_12_months&guide=matrix&row=weekday&column=hour&metric=allocation_count',
         );
 
         $this->assertResponseIsSuccessful();
@@ -461,7 +461,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer?scope=public&period=all&guide=distribution&row=urgency&metric=resus_rate',
+            '/statistics/analysis/explorer?scope=public&period=last_12_months&guide=distribution&row=urgency&metric=resus_rate',
         );
 
         $this->assertResponseIsSuccessful();
@@ -479,7 +479,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer?scope=public&period=all&guide=not-a-goal',
+            '/statistics/analysis/explorer?scope=public&period=last_12_months&guide=not-a-goal',
         );
 
         $this->assertResponseIsSuccessful();
@@ -497,11 +497,11 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analytics/view/allocations_by_month?scope=public&period=all',
+            '/statistics/analytics/view/allocations_by_month?scope=public&period=last_12_months',
         );
 
         $this->assertResponseRedirects(
-            '/statistics/analysis/explorer/allocations-over-time?scope=public&period=all',
+            '/statistics/analysis/explorer/allocations-over-time?scope=public&period=last_12_months',
             301,
         );
     }
@@ -515,7 +515,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer/gender-over-time?scope=public&period=all&chartTop=5',
+            '/statistics/analysis/explorer/gender-over-time?scope=public&period=last_12_months&chartTop=5',
         );
 
         $this->assertResponseIsSuccessful();

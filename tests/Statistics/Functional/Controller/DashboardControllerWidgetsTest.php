@@ -155,11 +155,11 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
 
         $resourcesHref = (string) $crawler->filter('[data-testid="stats-cross-nav-overview-resources"]')->attr('href');
         self::assertStringContainsString('/statistics/analysis/explorer/overview-clinical-resources', $resourcesHref);
-        self::assertStringContainsString('period=all', $resourcesHref);
+        self::assertStringContainsString('period=last_12_months', $resourcesHref);
 
         $clinicalHref = (string) $crawler->filter('[data-testid="stats-cross-nav-overview-indicators"]')->attr('href');
         self::assertStringContainsString('/statistics/analysis/explorer/overview-clinical-features', $clinicalHref);
-        self::assertStringContainsString('period=all', $clinicalHref);
+        self::assertStringContainsString('period=last_12_months', $clinicalHref);
     }
 
     public function testOverviewTopReportsLazyEndpointRendersAllCards(): void
@@ -217,7 +217,7 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
         $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/?scope=public&period=all',
+            '/statistics/?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();

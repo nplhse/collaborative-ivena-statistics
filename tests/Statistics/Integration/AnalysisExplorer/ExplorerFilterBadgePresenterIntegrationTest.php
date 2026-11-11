@@ -114,7 +114,7 @@ final class ExplorerFilterBadgePresenterIntegrationTest extends KernelTestCase
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
             ),
             presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
             title: 'Filtered view',

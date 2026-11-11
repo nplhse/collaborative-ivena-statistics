@@ -171,7 +171,7 @@ final readonly class MonthlyReminderContentBuilder
             'month' => $period['reportingMonth'],
             StatisticsQueryKeys::COMPARISON_SCOPE => StatisticsFilterScope::Hospital->value,
             StatisticsQueryKeys::COMPARISON_HOSPITAL => $hospitalId,
-            StatisticsQueryKeys::COMPARISON_PERIOD => StatisticsFilterPeriod::All->value,
+            StatisticsQueryKeys::COMPARISON_PERIOD => StatisticsFilterPeriod::Last12Months->value,
         ], UrlGeneratorInterface::ABSOLUTE_URL);
         $benchmarkingUrl = $this->urlGenerator->generate('app_stats_benchmarking', [
             'scope' => StatisticsFilterScope::Hospital->value,

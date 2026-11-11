@@ -72,7 +72,7 @@ final class CaseFlowControllerTest extends WebTestCase
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
 
         $this->loginAsRoleUser($client);
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/case-flow?scope=public&period=all');
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/case-flow?scope=public&period=last_12_months');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-kpis"]', '15');
@@ -96,7 +96,7 @@ final class CaseFlowControllerTest extends WebTestCase
     public function testCaseFlowPageIsDisplayedForPublicScope(): void
     {
         $client = $this->createClientAsRoleUser();
-        $client->request(Request::METHOD_GET, '/statistics/case-flow?scope=public&period=all');
+        $client->request(Request::METHOD_GET, '/statistics/case-flow?scope=public&period=last_12_months');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-case-flow-heading-title"]');
@@ -117,7 +117,7 @@ final class CaseFlowControllerTest extends WebTestCase
     public function testStackedBarIsHiddenForPublicScope(): void
     {
         $client = $this->createClientAsRoleUser();
-        $client->request(Request::METHOD_GET, '/statistics/case-flow?scope=public&period=all');
+        $client->request(Request::METHOD_GET, '/statistics/case-flow?scope=public&period=last_12_months');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="stats-case-flow-stacked-bar"]');
@@ -129,7 +129,7 @@ final class CaseFlowControllerTest extends WebTestCase
         $this->seedEligibleUrbanBasicCohort($client);
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/case-flow?scope=hospital_cohort:urban_basic&period=all',
+            '/statistics/case-flow?scope=hospital_cohort:urban_basic&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -144,7 +144,7 @@ final class CaseFlowControllerTest extends WebTestCase
     public function testCaseFlowPageDoesNotExposeForeignHospitalNames(): void
     {
         $client = $this->createClientAsRoleUser();
-        $client->request(Request::METHOD_GET, '/statistics/case-flow?scope=public&period=all');
+        $client->request(Request::METHOD_GET, '/statistics/case-flow?scope=public&period=last_12_months');
 
         $this->assertResponseIsSuccessful();
         $content = (string) $client->getResponse()->getContent();
@@ -156,7 +156,7 @@ final class CaseFlowControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/case-flow?scope=public&period=all',
+            '/statistics/case-flow?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -178,7 +178,7 @@ final class CaseFlowControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/case-flow?scope=my_hospitals&period=all',
+            '/statistics/case-flow?scope=my_hospitals&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -194,7 +194,7 @@ final class CaseFlowControllerTest extends WebTestCase
         $client->followRedirects(false);
         $client->request(
             Request::METHOD_GET,
-            '/statistics/case-flow?scope=my_hospitals&period=all',
+            '/statistics/case-flow?scope=my_hospitals&period=last_12_months',
         );
 
         $this->assertResponseStatusCodeSame(302);
@@ -254,7 +254,7 @@ final class CaseFlowControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         $this->assertResponseIsSuccessful();
@@ -372,7 +372,7 @@ final class CaseFlowControllerTest extends WebTestCase
 
         $crawler = $client->request(Request::METHOD_GET, '/statistics/case-flow', [
             'scope' => 'dispatch_area:'.$areaA->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         $this->assertResponseIsSuccessful();
@@ -460,7 +460,7 @@ final class CaseFlowControllerTest extends WebTestCase
             $crawler = $client->request(Request::METHOD_GET, '/statistics/case-flow', [
                 'scope' => 'hospital',
                 'hospital' => (string) $hospital->getId(),
-                'period' => 'all',
+                'period' => 'last_12_months',
             ]);
 
             $this->assertResponseIsSuccessful();

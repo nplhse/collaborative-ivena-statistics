@@ -119,7 +119,7 @@ final class DashboardControllerPeriodTest extends DashboardControllerTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/?scope=public&period=all',
+            '/statistics/?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -151,7 +151,7 @@ final class DashboardControllerPeriodTest extends DashboardControllerTestCase
         $this->assertResponseIsSuccessful();
         $this->assertGreaterThan(
             0,
-            $crawler->filter('[data-testid="stats-analysis-context-period"] option[value="all"]')->count(),
+            $crawler->filter('[data-testid="stats-analysis-context-period"] option[value="last_12_months"]')->count(),
         );
     }
 
@@ -168,7 +168,7 @@ final class DashboardControllerPeriodTest extends DashboardControllerTestCase
 
         $this->assertResponseRedirects();
         $location = (string) $client->getResponse()->headers->get('Location');
-        self::assertStringContainsString('period=all', $location);
+        self::assertStringContainsString('period=last_12_months', $location);
         self::assertStringContainsString('scope=public', $location);
     }
 
@@ -180,7 +180,7 @@ final class DashboardControllerPeriodTest extends DashboardControllerTestCase
         $client->request(Request::METHOD_GET, '/statistics/?scope=public');
 
         $this->assertResponseIsSuccessful();
-        self::assertStringNotContainsString('period=all', $client->getRequest()->getUri());
+        self::assertStringNotContainsString('period=last_12_months', $client->getRequest()->getUri());
         $this->assertSelectorTextContains('[data-testid="stats-analysis-context-period-summary"]', 'All time');
     }
 

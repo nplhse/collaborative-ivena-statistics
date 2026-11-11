@@ -27,7 +27,7 @@ final class BenchmarkSelectionTypeTest extends KernelTestCase
 
         $formFactory = self::getContainer()->get(FormFactoryInterface::class);
         $form = $formFactory->create(BenchmarkSelectionType::class, new BenchmarkSelectionFormData(
-            new BenchmarkSelectionSideFormData('public', null, 'all'),
+            new BenchmarkSelectionSideFormData('public', null, 'last_12_months'),
             new BenchmarkSelectionSideFormData('public', null, 'all_time'),
         ), [
             'locale' => 'en',
@@ -36,7 +36,7 @@ final class BenchmarkSelectionTypeTest extends KernelTestCase
         $form->submit([
             'primary' => [
                 'scopeGroup' => 'public',
-                'period' => 'all',
+                'period' => 'last_12_months',
             ],
             'comparison' => [
                 'scopeGroup' => 'public',
@@ -57,7 +57,7 @@ final class BenchmarkSelectionTypeTest extends KernelTestCase
         $data = $form->getData();
         self::assertInstanceOf(BenchmarkSelectionFormData::class, $data);
         self::assertSame('public', $data->primary->scopeGroup);
-        self::assertSame('all', $data->primary->period);
+        self::assertSame('last_12_months', $data->primary->period);
         self::assertSame('public', $data->comparison->scopeGroup);
         self::assertSame('all_time', $data->comparison->period);
     }

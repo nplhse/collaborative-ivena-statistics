@@ -42,7 +42,7 @@ final class InsightCompareFilterResolverTest extends TestCase
         $primary = $this->publicAllFilter();
         $request = Request::create('/statistics/insights/compare', Request::METHOD_GET, [
             StatisticsQueryKeys::SCOPE => StatisticsFilterScope::Public->value,
-            StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::All->value,
+            StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::Last12Months->value,
         ]);
 
         self::assertSame($primary, $this->resolver()->resolve($request, null, $primary));
@@ -95,7 +95,7 @@ final class InsightCompareFilterResolverTest extends TestCase
             StatisticsFilterScope::Public,
             null,
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
         );
     }
 }

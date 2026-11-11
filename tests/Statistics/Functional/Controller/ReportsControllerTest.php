@@ -143,7 +143,7 @@ final class ReportsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/reports/transport_time_profile?scope=public&period=all',
+            '/statistics/reports/transport_time_profile?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -152,7 +152,7 @@ final class ReportsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-ttp-empty"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-context"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-context-trigger"]');
-        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="all"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="last_12_months"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="year"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-explorer-link"]');
         $this->assertSelectorExists('.page-header [data-testid="stats-ttp-explorer-link"].btn');

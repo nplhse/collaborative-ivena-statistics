@@ -49,7 +49,7 @@ final class AnalysisExplorerExportControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer?scope=public&period=all',
+            '/statistics/analysis/explorer?scope=public&period=last_12_months',
         );
         $this->assertResponseIsSuccessful();
 
@@ -62,14 +62,14 @@ final class AnalysisExplorerExportControllerTest extends WebTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
         $state = $mapper->toStateArray($viewFactory->createDefault($filter));
         $token = $this->csrfToken($client, 'explorer_export_csv');
 
         $client->request(
             Request::METHOD_POST,
-            '/statistics/analysis/explorer/export/table.csv?scope=public&period=all',
+            '/statistics/analysis/explorer/export/table.csv?scope=public&period=last_12_months',
             [
                 '_token' => $token,
                 'appliedConfigState' => json_encode($state, \JSON_THROW_ON_ERROR),
@@ -91,7 +91,7 @@ final class AnalysisExplorerExportControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_POST,
-            '/statistics/analysis/explorer/export/table.csv?scope=public&period=all',
+            '/statistics/analysis/explorer/export/table.csv?scope=public&period=last_12_months',
             [
                 '_token' => 'invalid-token',
                 'appliedConfigState' => '{}',
@@ -109,7 +109,7 @@ final class AnalysisExplorerExportControllerTest extends WebTestCase
         $userId = $user->getId();
         self::assertNotNull($userId);
 
-        $client->request(Request::METHOD_GET, '/statistics/analysis/explorer?scope=public&period=all');
+        $client->request(Request::METHOD_GET, '/statistics/analysis/explorer?scope=public&period=last_12_months');
         self::assertResponseIsSuccessful();
         $token = $this->csrfToken($client, 'explorer_export_csv');
 
@@ -120,7 +120,7 @@ final class AnalysisExplorerExportControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_POST,
-            '/statistics/analysis/explorer/export/table.csv?scope=public&period=all',
+            '/statistics/analysis/explorer/export/table.csv?scope=public&period=last_12_months',
             [
                 '_token' => $token,
                 'appliedConfigState' => '{}',
@@ -262,7 +262,7 @@ final class AnalysisExplorerExportControllerTest extends WebTestCase
         $token = $this->csrfToken($client, 'explorer_export_csv');
         $client->request(
             Request::METHOD_POST,
-            '/statistics/analysis/explorer/export/table.csv?scope=public&period=all',
+            '/statistics/analysis/explorer/export/table.csv?scope=public&period=last_12_months',
             [
                 '_token' => $token,
                 'appliedConfigState' => json_encode($state, \JSON_THROW_ON_ERROR),
@@ -297,7 +297,7 @@ final class AnalysisExplorerExportControllerTest extends WebTestCase
         $client = self::createClient();
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
         $client->loginUser($user);
-        $client->request(Request::METHOD_GET, '/statistics/analysis/explorer?scope=public&period=all');
+        $client->request(Request::METHOD_GET, '/statistics/analysis/explorer?scope=public&period=last_12_months');
         $this->assertResponseIsSuccessful();
 
         return $client;

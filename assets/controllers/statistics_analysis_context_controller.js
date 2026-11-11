@@ -251,7 +251,9 @@ export default class extends Controller {
             return;
         }
 
-        const period = this.hasPeriodSelectTarget ? this.periodSelectTarget.value : 'all';
+        const period = this.hasPeriodSelectTarget
+            ? this.periodSelectTarget.value
+            : 'last_12_months';
         this.toggleGroup(this.yearGroupTargetOrNull(), PERIODS_WITH_YEAR.includes(period));
         this.toggleGroup(this.quarterGroupTargetOrNull(), PERIODS_WITH_QUARTER.includes(period));
         this.toggleGroup(this.monthGroupTargetOrNull(), PERIODS_WITH_MONTH.includes(period));

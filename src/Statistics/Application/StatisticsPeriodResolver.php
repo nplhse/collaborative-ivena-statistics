@@ -12,7 +12,7 @@ use Symfony\Component\Clock\Clock;
 /**
  * Resolves the evaluation time window for allocations/imports from {@see StatisticsFilter}.
  *
- * period=all matches the overview: rolling 12 months from {@see StatisticsPeriod::overviewPeriodStart()},
+ * period=last_12_months matches the overview: rolling 12 months from {@see StatisticsPeriod::overviewPeriodStart()},
  * with no explicit upper bound (only createdAt >= from).
  *
  * period=all_time: no created_at lower bound in queries; callers use earliest row when a start label is needed.
@@ -24,7 +24,7 @@ final class StatisticsPeriodResolver
         $now = Clock::get()->now();
 
         return match ($filter->period) {
-            StatisticsFilterPeriod::All => new StatisticsPeriodBounds(
+            StatisticsFilterPeriod::Last12Months => new StatisticsPeriodBounds(
                 StatisticsPeriod::overviewPeriodStart(),
             ),
             StatisticsFilterPeriod::AllTime => new StatisticsPeriodBounds(null),

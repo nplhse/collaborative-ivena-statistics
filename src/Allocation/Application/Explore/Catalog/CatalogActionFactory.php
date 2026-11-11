@@ -206,7 +206,7 @@ final readonly class CatalogActionFactory
                 url: $this->urlGenerator->generate('app_stats_benchmarking', [
                     StatisticsQueryKeys::SCOPE => StatisticsFilterScope::Hospital->value,
                     StatisticsQueryKeys::HOSPITAL => $id,
-                    StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::All->value,
+                    StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::Last12Months->value,
                     StatisticsQueryKeys::COMPARISON_SCOPE => StatisticsFilterScope::HospitalCohort->value,
                     StatisticsQueryKeys::COMPARISON_PERIOD => StatisticsFilterPeriod::AllTime->value,
                 ]),

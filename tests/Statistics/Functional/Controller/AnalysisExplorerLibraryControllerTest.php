@@ -34,7 +34,7 @@ final class AnalysisExplorerLibraryControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/library?scope=public&period=all',
+            '/statistics/analysis/library?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -85,7 +85,7 @@ final class AnalysisExplorerLibraryControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/library?scope=public&period=all&tab=all&category=allocations',
+            '/statistics/analysis/library?scope=public&period=last_12_months&tab=all&category=allocations',
         );
 
         $this->assertResponseIsSuccessful();
@@ -122,7 +122,7 @@ final class AnalysisExplorerLibraryControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/library?scope=public&period=all&search=gender',
+            '/statistics/analysis/library?scope=public&period=last_12_months&search=gender',
         );
 
         $this->assertResponseIsSuccessful();
@@ -142,7 +142,7 @@ final class AnalysisExplorerLibraryControllerTest extends WebTestCase
         $client->followRedirects(true);
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/locale/switch/de?_target_path=/statistics/analysis/library?scope=public&period=all',
+            '/locale/switch/de?_target_path=/statistics/analysis/library?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -168,7 +168,7 @@ final class AnalysisExplorerLibraryControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/library?scope=public&period=all&search=Private+hint',
+            '/statistics/analysis/library?scope=public&period=last_12_months&search=Private+hint',
         );
 
         $this->assertResponseIsSuccessful();
@@ -183,7 +183,7 @@ final class AnalysisExplorerLibraryControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/library?scope=public&period=all',
+            '/statistics/analysis/library?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();

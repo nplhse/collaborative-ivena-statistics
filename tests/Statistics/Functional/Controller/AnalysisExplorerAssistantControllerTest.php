@@ -32,7 +32,7 @@ final class AnalysisExplorerAssistantControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/assistant?scope=public&period=all',
+            '/statistics/analysis/assistant?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -84,7 +84,7 @@ final class AnalysisExplorerAssistantControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/assistant?scope=public&period=all',
+            '/statistics/analysis/assistant?scope=public&period=last_12_months',
         );
         $this->submitButton($client, 'Development over time');
 
@@ -96,7 +96,7 @@ final class AnalysisExplorerAssistantControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-assistant-step-context"][aria-current="step"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-assistant-scope"] option[value="public"][selected]');
-        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-assistant-period"] option[value="all"][selected]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-assistant-period"] option[value="last_12_months"][selected]');
         $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-assistant-grain"]');
 
         $this->submitChoices($client, 'Next', [
@@ -164,7 +164,7 @@ final class AnalysisExplorerAssistantControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/assistant?scope=public&period=all',
+            '/statistics/analysis/assistant?scope=public&period=last_12_months',
         );
         $this->submitButton($client, 'Distribution of a characteristic');
         $this->submitButton($client, 'Allocations');
@@ -278,7 +278,7 @@ final class AnalysisExplorerAssistantControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/assistant?scope=public&period=all',
+            '/statistics/analysis/assistant?scope=public&period=last_12_months',
         );
         $this->submitButton($client, 'Relationship between two characteristics');
         $this->submitButton($client, 'Allocations');
@@ -352,7 +352,7 @@ final class AnalysisExplorerAssistantControllerTest extends WebTestCase
         $client = $this->createClientAsParticipant();
         $client->followRedirects(false);
 
-        $client->request(Request::METHOD_GET, '/statistics/analysis/assistant?scope=hospital_cohort&cohort=urban_basic&period=all');
+        $client->request(Request::METHOD_GET, '/statistics/analysis/assistant?scope=hospital_cohort&cohort=urban_basic&period=last_12_months');
 
         $this->assertResponseRedirects();
         $location = (string) $client->getResponse()->headers->get('Location');
@@ -360,7 +360,7 @@ final class AnalysisExplorerAssistantControllerTest extends WebTestCase
         self::assertStringContainsString('scope=public', $location);
         self::assertStringNotContainsString('cohort=', $location);
 
-        $client->request(Request::METHOD_GET, '/statistics/analysis/assistant/cancel?scope=hospital_cohort&cohort=urban_basic&period=all');
+        $client->request(Request::METHOD_GET, '/statistics/analysis/assistant/cancel?scope=hospital_cohort&cohort=urban_basic&period=last_12_months');
 
         $this->assertResponseRedirects();
         $location = (string) $client->getResponse()->headers->get('Location');
@@ -384,11 +384,11 @@ final class AnalysisExplorerAssistantControllerTest extends WebTestCase
         self::assertNotNull($hospital?->getId());
 
         foreach ([
-            '/statistics/analysis/assistant?scope=state&state='.$state->getId().'&period=all',
-            '/statistics/analysis/assistant?scope=dispatch_area&dispatch_area='.$dispatchArea->getId().'&period=all',
-            '/statistics/analysis/assistant?scope=hospital_cohort&cohort=urban_basic&period=all',
-            '/statistics/analysis/assistant?scope=my_hospitals&period=all',
-            '/statistics/analysis/assistant?scope=hospital&hospital='.$hospital->getId().'&period=all',
+            '/statistics/analysis/assistant?scope=state&state='.$state->getId().'&period=last_12_months',
+            '/statistics/analysis/assistant?scope=dispatch_area&dispatch_area='.$dispatchArea->getId().'&period=last_12_months',
+            '/statistics/analysis/assistant?scope=hospital_cohort&cohort=urban_basic&period=last_12_months',
+            '/statistics/analysis/assistant?scope=my_hospitals&period=last_12_months',
+            '/statistics/analysis/assistant?scope=hospital&hospital='.$hospital->getId().'&period=last_12_months',
         ] as $url) {
             $client->request(Request::METHOD_GET, $url);
             $this->assertResponseIsSuccessful();

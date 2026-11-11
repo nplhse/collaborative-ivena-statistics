@@ -26,21 +26,21 @@ final class CaseFlowModeResolverTest extends TestCase
 
     public function testResolvesHospitalOriginForHospitalScope(): void
     {
-        $filter = new StatisticsFilter(StatisticsFilterScope::Hospital, 1, null, StatisticsFilterPeriod::All);
+        $filter = new StatisticsFilter(StatisticsFilterScope::Hospital, 1, null, StatisticsFilterPeriod::Last12Months);
 
         self::assertSame(CaseFlowMode::HospitalOrigin, $this->resolver->resolve($filter));
     }
 
     public function testResolvesHospitalOriginForMyHospitalsScope(): void
     {
-        $filter = new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All);
+        $filter = new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::Last12Months);
 
         self::assertSame(CaseFlowMode::HospitalOrigin, $this->resolver->resolve($filter));
     }
 
     public function testResolvesSystemFlowForPublicScope(): void
     {
-        $filter = new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All);
+        $filter = new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::Last12Months);
 
         self::assertSame(CaseFlowMode::SystemFlow, $this->resolver->resolve($filter));
     }
@@ -51,7 +51,7 @@ final class CaseFlowModeResolverTest extends TestCase
             StatisticsFilterScope::HospitalCohort,
             null,
             new HospitalCohortKey(HospitalLocation::URBAN, HospitalTier::FULL),
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
         );
 
         self::assertSame(CaseFlowMode::SystemFlow, $this->resolver->resolve($filter));
@@ -63,7 +63,7 @@ final class CaseFlowModeResolverTest extends TestCase
             StatisticsFilterScope::DispatchArea,
             null,
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
             dispatchAreaId: 15,
         );
 

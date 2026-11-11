@@ -23,7 +23,7 @@ final class ComparisonScopeResolverTest extends DatabaseKernelTestCase
             StatisticsFilterScope::Public,
             null,
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
         );
         $comparisonFilter = $resolver->resolve(
             new Request(query: ['comparison_scope' => 'hospital_cohort:urban_basic']),
@@ -31,7 +31,7 @@ final class ComparisonScopeResolverTest extends DatabaseKernelTestCase
             $primaryFilter,
         );
 
-        self::assertSame('all', $comparisonFilter->period->value);
+        self::assertSame('last_12_months', $comparisonFilter->period->value);
         self::assertContains($comparisonFilter->scope->value, ['hospital_cohort', 'public']);
     }
 
@@ -93,7 +93,7 @@ final class ComparisonScopeResolverTest extends DatabaseKernelTestCase
         $comparisonFilter = $resolver->resolve(
             new Request(query: ['comparison_scope' => 'public']),
             null,
-            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::Last12Months),
         );
 
         self::assertSame(StatisticsFilterScope::Public, $comparisonFilter->scope);
@@ -107,7 +107,7 @@ final class ComparisonScopeResolverTest extends DatabaseKernelTestCase
         $comparisonFilter = $resolver->resolve(
             new Request(query: ['comparison_scope' => 'state:999999']),
             null,
-            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::Last12Months),
         );
 
         self::assertSame(StatisticsFilterScope::Public, $comparisonFilter->scope);
@@ -123,7 +123,7 @@ final class ComparisonScopeResolverTest extends DatabaseKernelTestCase
         $comparisonFilter = $resolver->resolve(
             new Request(query: ['comparison_scope' => 'public']),
             $user,
-            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::Last12Months),
         );
 
         self::assertSame(StatisticsFilterScope::Public, $comparisonFilter->scope);

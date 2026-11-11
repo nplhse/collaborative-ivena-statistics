@@ -29,7 +29,7 @@ final class AnalysisExplorerShellDispatchOpenEditTest extends AnalysisExplorerSh
             scope: StatisticsFilterScope::DispatchArea,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
             stateId: null,
             dispatchAreaId: $dispatchAreaId,
         );

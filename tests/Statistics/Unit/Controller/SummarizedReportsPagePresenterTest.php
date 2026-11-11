@@ -71,7 +71,7 @@ final class SummarizedReportsPagePresenterTest extends TestCase
         self::assertStringNotContainsString('type=', $model->indexUrl);
         foreach ($model->periodNavigation->primaryMenu as $item) {
             self::assertArrayHasKey('url', $item);
-            self::assertStringNotContainsString('period=all', (string) $item['url']);
+            self::assertStringNotContainsString('period=last_12_months', (string) $item['url']);
             self::assertStringNotContainsString('period=year', (string) $item['url']);
         }
     }
@@ -93,7 +93,7 @@ final class SummarizedReportsPagePresenterTest extends TestCase
         $reportType->method('descriptionTranslationKey')->willReturn('stats.reports.types.transport_time_profile.description');
 
         $request = new Request(
-            query: ['scope' => 'public', 'period' => 'all'],
+            query: ['scope' => 'public', 'period' => 'last_12_months'],
             attributes: ['_route' => 'app_stats_reports_show', 'type' => 'transport_time_profile'],
         );
         $request->setLocale('en');
