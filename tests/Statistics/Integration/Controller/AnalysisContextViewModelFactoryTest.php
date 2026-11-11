@@ -39,7 +39,7 @@ final class AnalysisContextViewModelFactoryTest extends KernelTestCase
         self::assertSame('public', $model->appliedScopeGroup);
         self::assertSame('year', $model->appliedPeriod);
         self::assertSame(2024, $model->appliedYear);
-        self::assertArrayHasKey('all', $model->periodChoices);
+        self::assertArrayHasKey('last_12_months', $model->periodChoices);
         self::assertArrayHasKey('year', $model->periodChoices);
         self::assertNotEmpty($model->yearChoices);
         self::assertSame('2', $model->preservedQuery['gender'] ?? null);
@@ -58,7 +58,7 @@ final class AnalysisContextViewModelFactoryTest extends KernelTestCase
             new Request(query: ['scope' => 'public']),
             'app_stats_reports',
             null,
-            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::Last12Months),
             'All assignments',
             '',
             AnalysisContextPeriodMode::Hidden,
@@ -79,13 +79,13 @@ final class AnalysisContextViewModelFactoryTest extends KernelTestCase
             new Request(),
             'app_stats_dashboard',
             null,
-            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::Last12Months),
             'All assignments',
             'Last 12 months',
         );
 
         self::assertSame('public', $model->defaultScopeGroup);
-        self::assertSame('all', $model->defaultPeriod);
+        self::assertSame('last_12_months', $model->defaultPeriod);
     }
 
     public function testMonthOnlyModeKeepsYearAndMonthKeys(): void

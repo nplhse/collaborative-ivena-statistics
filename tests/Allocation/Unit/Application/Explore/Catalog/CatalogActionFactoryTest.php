@@ -175,7 +175,7 @@ final class CatalogActionFactoryTest extends TestCase
                 'app_stats_benchmarking' === $route
                     && ($params['scope'] ?? null) === 'hospital'
                     && ($params['hospital'] ?? null) === 9
-                    && ($params['period'] ?? null) === 'all'
+                    && ($params['period'] ?? null) === 'last_12_months'
                     && ($params['comparison_scope'] ?? null) === 'hospital_cohort'
                     && ($params['comparison_period'] ?? null) === 'all_time' => '/statistics/benchmarking?scope=hospital',
                 default => throw new \InvalidArgumentException($route.' '.json_encode($params)),

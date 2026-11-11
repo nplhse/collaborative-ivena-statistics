@@ -26,7 +26,7 @@ final class BenchmarkSelectionQueryBuilderTest extends TestCase
     public function buildMapsPrimaryAndComparisonScopes(): void
     {
         $data = new BenchmarkSelectionFormData(
-            new BenchmarkSelectionSideFormData('state', '3', 'all'),
+            new BenchmarkSelectionSideFormData('state', '3', 'last_12_months'),
             new BenchmarkSelectionSideFormData('hospital_cohort', 'urban_acute', 'all_time'),
         );
 
@@ -35,7 +35,7 @@ final class BenchmarkSelectionQueryBuilderTest extends TestCase
         self::assertSame('male', $query['gender']);
         self::assertSame('state:3', $query[StatisticsQueryKeys::SCOPE]);
         self::assertSame('3', $query[StatisticsQueryKeys::STATE]);
-        self::assertSame('all', $query[StatisticsQueryKeys::PERIOD]);
+        self::assertSame('last_12_months', $query[StatisticsQueryKeys::PERIOD]);
         self::assertSame('hospital_cohort:urban_acute', $query[StatisticsQueryKeys::COMPARISON_SCOPE]);
         self::assertSame('urban_acute', $query[StatisticsQueryKeys::COMPARISON_COHORT]);
         self::assertSame('all_time', $query[StatisticsQueryKeys::COMPARISON_PERIOD]);
@@ -64,7 +64,7 @@ final class BenchmarkSelectionQueryBuilderTest extends TestCase
     public function buildMapsDispatchAreaAndMyHospitalsWithoutHospitalDetail(): void
     {
         $data = new BenchmarkSelectionFormData(
-            new BenchmarkSelectionSideFormData('dispatch_area', '9', StatisticsFilterPeriod::All->value),
+            new BenchmarkSelectionSideFormData('dispatch_area', '9', StatisticsFilterPeriod::Last12Months->value),
             new BenchmarkSelectionSideFormData('my_hospitals', null, StatisticsFilterPeriod::AllTime->value),
         );
 
@@ -114,7 +114,7 @@ final class BenchmarkSelectionQueryBuilderTest extends TestCase
     #[Test]
     public function mergePrimarySideWritesCompareFlagKeepsComparisonAndResetsPage(): void
     {
-        $primary = new BenchmarkSelectionSideFormData('public', null, 'all');
+        $primary = new BenchmarkSelectionSideFormData('public', null, 'last_12_months');
         $query = $this->builder->mergePrimarySide($primary, [
             'report' => 'top_diagnoses',
             'page' => 2,
@@ -128,7 +128,7 @@ final class BenchmarkSelectionQueryBuilderTest extends TestCase
         self::assertSame('top_diagnoses', $query['report']);
         self::assertSame('male', $query['gender']);
         self::assertSame('public', $query[StatisticsQueryKeys::SCOPE]);
-        self::assertSame('all', $query[StatisticsQueryKeys::PERIOD]);
+        self::assertSame('last_12_months', $query[StatisticsQueryKeys::PERIOD]);
         self::assertSame('state:3', $query[StatisticsQueryKeys::COMPARISON_SCOPE]);
         self::assertArrayNotHasKey('page', $query);
         self::assertArrayNotHasKey(StatisticsQueryKeys::HOSPITAL, $query);
@@ -167,7 +167,7 @@ final class BenchmarkSelectionQueryBuilderTest extends TestCase
     {
         $data = new BenchmarkSelectionFormData(
             new BenchmarkSelectionSideFormData('public', null, 'year', 2021),
-            new BenchmarkSelectionSideFormData('state', '3', 'all'),
+            new BenchmarkSelectionSideFormData('state', '3', 'last_12_months'),
         );
 
         $query = $this->builder->promoteComparison($data, [
@@ -182,7 +182,7 @@ final class BenchmarkSelectionQueryBuilderTest extends TestCase
         self::assertSame(50, $query['limit']);
         self::assertSame('state:3', $query[StatisticsQueryKeys::SCOPE]);
         self::assertSame('3', $query[StatisticsQueryKeys::STATE]);
-        self::assertSame('all', $query[StatisticsQueryKeys::PERIOD]);
+        self::assertSame('last_12_months', $query[StatisticsQueryKeys::PERIOD]);
         self::assertArrayNotHasKey(StatisticsQueryKeys::COMPARE, $query);
         self::assertArrayNotHasKey('page', $query);
         self::assertArrayNotHasKey(StatisticsQueryKeys::COMPARISON_SCOPE, $query);

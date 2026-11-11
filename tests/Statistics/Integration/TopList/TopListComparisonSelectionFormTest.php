@@ -25,11 +25,11 @@ final class TopListComparisonSelectionFormTest extends WebTestCase
         $user = UserFactory::createOne(['username' => 'top-list-compare-b-'.bin2hex(random_bytes(4))]);
 
         $testComponent = $this->createLiveComponent('TopListComparisonSelectionForm', [
-            'initialData' => new BenchmarkSelectionSideFormData('public', null, 'all'),
+            'initialData' => new BenchmarkSelectionSideFormData('public', null, 'last_12_months'),
             'preservedQuery' => [
                 'report' => 'top_diagnoses',
                 StatisticsQueryKeys::SCOPE => 'public',
-                StatisticsQueryKeys::PERIOD => 'all',
+                StatisticsQueryKeys::PERIOD => 'last_12_months',
                 StatisticsQueryKeys::PAGE => 2,
                 'gender' => 'male',
             ],
@@ -67,11 +67,11 @@ final class TopListComparisonSelectionFormTest extends WebTestCase
         $user = UserFactory::createOne(['username' => 'top-list-compare-a-'.bin2hex(random_bytes(4))]);
 
         $testComponent = $this->createLiveComponent('TopListComparisonSelectionForm', [
-            'initialData' => new BenchmarkSelectionSideFormData('public', null, 'all'),
+            'initialData' => new BenchmarkSelectionSideFormData('public', null, 'last_12_months'),
             'preservedQuery' => [
                 'report' => 'top_diagnoses',
                 StatisticsQueryKeys::SCOPE => 'public',
-                StatisticsQueryKeys::PERIOD => 'all',
+                StatisticsQueryKeys::PERIOD => 'last_12_months',
                 StatisticsQueryKeys::COMPARE => '1',
                 StatisticsQueryKeys::COMPARISON_SCOPE => 'public',
                 StatisticsQueryKeys::COMPARISON_PERIOD => 'all_time',
@@ -112,11 +112,11 @@ final class TopListComparisonSelectionFormTest extends WebTestCase
         $stateId = (string) $scope['state']->getId();
 
         $testComponent = $this->createLiveComponent('TopListComparisonSelectionForm', [
-            'initialData' => new BenchmarkSelectionSideFormData('public', null, 'all'),
+            'initialData' => new BenchmarkSelectionSideFormData('public', null, 'last_12_months'),
             'preservedQuery' => [
                 'report' => 'top_diagnoses',
                 StatisticsQueryKeys::SCOPE => 'public',
-                StatisticsQueryKeys::PERIOD => 'all',
+                StatisticsQueryKeys::PERIOD => 'last_12_months',
             ],
             'locale' => 'en',
             'side' => 'comparison',
@@ -152,7 +152,7 @@ final class TopListComparisonSelectionFormTest extends WebTestCase
             'preservedQuery' => [
                 'report' => 'top_diagnoses',
                 StatisticsQueryKeys::SCOPE => 'public',
-                StatisticsQueryKeys::PERIOD => 'all',
+                StatisticsQueryKeys::PERIOD => 'last_12_months',
             ],
             'locale' => 'en',
             'side' => 'comparison',
@@ -183,11 +183,11 @@ final class TopListComparisonSelectionFormTest extends WebTestCase
         $user = UserFactory::createOne(['username' => 'top-list-invalid-'.bin2hex(random_bytes(4))]);
 
         $testComponent = $this->createLiveComponent('TopListComparisonSelectionForm', [
-            'initialData' => new BenchmarkSelectionSideFormData('public', null, 'all'),
+            'initialData' => new BenchmarkSelectionSideFormData('public', null, 'last_12_months'),
             'preservedQuery' => [
                 'report' => 'top_diagnoses',
                 StatisticsQueryKeys::SCOPE => 'public',
-                StatisticsQueryKeys::PERIOD => 'all',
+                StatisticsQueryKeys::PERIOD => 'last_12_months',
             ],
             'locale' => 'en',
             'side' => 'comparison',

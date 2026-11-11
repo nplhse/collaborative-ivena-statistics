@@ -16,7 +16,7 @@ final class TimeSeriesGrainResolverTest extends TestCase
         self::assertSame(TimeSeriesGrain::Day, TimeSeriesGrainResolver::resolve(StatisticsFilterPeriod::Month));
         self::assertSame(TimeSeriesGrain::Month, TimeSeriesGrainResolver::resolve(StatisticsFilterPeriod::Quarter));
         self::assertSame(TimeSeriesGrain::Month, TimeSeriesGrainResolver::resolve(StatisticsFilterPeriod::Year));
-        self::assertSame(TimeSeriesGrain::Month, TimeSeriesGrainResolver::resolve(StatisticsFilterPeriod::All));
+        self::assertSame(TimeSeriesGrain::Month, TimeSeriesGrainResolver::resolve(StatisticsFilterPeriod::Last12Months));
         self::assertSame(TimeSeriesGrain::Month, TimeSeriesGrainResolver::resolve(StatisticsFilterPeriod::AllTime));
     }
 
@@ -40,7 +40,7 @@ final class TimeSeriesGrainResolverTest extends TestCase
     public function testDoesNotClampOpenPeriods(): void
     {
         self::assertSame('year', TimeSeriesGrainResolver::clampGrainValue(StatisticsFilterPeriod::AllTime, 'year'));
-        self::assertSame('month', TimeSeriesGrainResolver::clampGrainValue(StatisticsFilterPeriod::All, 'month'));
-        self::assertSame('year', TimeSeriesGrainResolver::clampGrainValue(StatisticsFilterPeriod::All, 'year'));
+        self::assertSame('month', TimeSeriesGrainResolver::clampGrainValue(StatisticsFilterPeriod::Last12Months, 'month'));
+        self::assertSame('year', TimeSeriesGrainResolver::clampGrainValue(StatisticsFilterPeriod::Last12Months, 'year'));
     }
 }

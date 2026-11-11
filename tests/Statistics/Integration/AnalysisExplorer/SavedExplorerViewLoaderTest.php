@@ -121,7 +121,7 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
         );
 
         $stored = $this->loader->load('allocations-over-time', $filter, null);
-        self::assertSame('all', $stored->state['query']['period']['type'] ?? null);
+        self::assertSame('last_12_months', $stored->state['query']['period']['type'] ?? null);
 
         $copied = $this->loader->load('allocations-over-time', $filter, null, null, false, true);
         self::assertSame('year', $copied->state['query']['period']['type'] ?? null);
@@ -198,7 +198,7 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
                 'dataSource' => 'allocations',
                 'query' => [
                     'scope' => ['group' => 'public', 'detail' => null],
-                    'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+                    'period' => ['type' => 'last_12_months', 'year' => null, 'quarter' => null, 'month' => null],
                     'metric' => 'allocation_count',
                     'dimension' => 'time',
                     'grain' => 'month',
@@ -235,7 +235,7 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
                 'dataSource' => 'allocations',
                 'query' => [
                     'scope' => ['group' => 'public', 'detail' => null],
-                    'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+                    'period' => ['type' => 'last_12_months', 'year' => null, 'quarter' => null, 'month' => null],
                     'metrics' => ['allocation_count'],
                     'visualMetric' => 'allocation_count',
                     'rows' => ['dimension' => 'time', 'grain' => 'month'],
@@ -260,7 +260,7 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
     }
 }

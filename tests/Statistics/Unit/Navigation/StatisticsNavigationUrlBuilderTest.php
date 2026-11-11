@@ -23,15 +23,15 @@ final class StatisticsNavigationUrlBuilderTest extends TestCase
                 'app_stats_benchmarking',
                 self::callback(static fn (array $params): bool => 'public' === ($params['scope'] ?? null)
                     && !isset($params['hospital'])
-                    && 'all' === ($params['period'] ?? null)),
+                    && 'last_12_months' === ($params['period'] ?? null)),
             )
-            ->willReturn('/statistics/benchmarking?scope=public&period=all');
+            ->willReturn('/statistics/benchmarking?scope=public&period=last_12_months');
 
         $builder = new StatisticsNavigationUrlBuilder($router);
         $request = Request::create('/statistics/benchmarking', Request::METHOD_GET, [
             'scope' => 'hospital',
             'hospital' => '5',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_segment' => 'origin:15',
             'geo_profile' => 'urgency',
         ]);
@@ -44,7 +44,7 @@ final class StatisticsNavigationUrlBuilderTest extends TestCase
         );
 
         self::assertSame('public', $params['scope']);
-        self::assertSame('all', $params['period']);
+        self::assertSame('last_12_months', $params['period']);
         self::assertArrayNotHasKey('hospital', $params);
         self::assertArrayNotHasKey('geo_segment', $params);
         self::assertArrayNotHasKey('geo_profile', $params);
@@ -83,7 +83,7 @@ final class StatisticsNavigationUrlBuilderTest extends TestCase
             ->willReturn('/explore/department/11111111-1111-4111-8111-111111111111');
 
         $builder = new StatisticsNavigationUrlBuilder($router);
-        $request = Request::create('/statistics/top-lists/top_departments?scope=public&period=all');
+        $request = Request::create('/statistics/top-lists/top_departments?scope=public&period=last_12_months');
         $target = new StatisticWidgetNavigationTarget(
             'stats.top_lists.nav.catalog_entry',
             'app_explore_department_show',

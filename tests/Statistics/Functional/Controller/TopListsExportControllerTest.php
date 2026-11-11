@@ -41,7 +41,7 @@ final class TopListsExportControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $this->seedTopListExportData();
 
-        $csv = $this->exportCsv($client, '/statistics/top-lists/top_diagnoses/export.csv?scope=public&period=all');
+        $csv = $this->exportCsv($client, '/statistics/top-lists/top_diagnoses/export.csv?scope=public&period=last_12_months');
 
         self::assertResponseHeaderSame('content-type', 'text/csv; charset=UTF-8');
         $disposition = $client->getResponse()->headers->get('Content-Disposition');
@@ -67,11 +67,11 @@ final class TopListsExportControllerTest extends WebTestCase
 
         $top10 = $this->csvLines($this->exportCsv(
             $client,
-            '/statistics/top-lists/top_diagnoses/export.csv?scope=public&period=all&limit=10',
+            '/statistics/top-lists/top_diagnoses/export.csv?scope=public&period=last_12_months&limit=10',
         ));
         $all = $this->csvLines($this->exportCsv(
             $client,
-            '/statistics/top-lists/top_diagnoses/export.csv?scope=public&period=all&limit=all&per_page=25&page=2',
+            '/statistics/top-lists/top_diagnoses/export.csv?scope=public&period=last_12_months&limit=all&per_page=25&page=2',
         ));
 
         self::assertCount(11, $top10);
@@ -92,7 +92,7 @@ final class TopListsExportControllerTest extends WebTestCase
         ));
         $emergency = $this->csvLines($this->exportCsv(
             $client,
-            '/statistics/top-lists/top_diagnoses/export.csv?scope=public&period=all&urgency=1',
+            '/statistics/top-lists/top_diagnoses/export.csv?scope=public&period=last_12_months&urgency=1',
         ));
 
         self::assertTrue($this->csvContainsLabel($year2024, 'Export Historic Only'));
@@ -110,7 +110,7 @@ final class TopListsExportControllerTest extends WebTestCase
 
         $csv = $this->exportCsv(
             $client,
-            '/statistics/top-lists/top_diagnoses/export.csv?scope=public&period=year&year=2024&compare=1&comparison_scope=public&comparison_period=all',
+            '/statistics/top-lists/top_diagnoses/export.csv?scope=public&period=year&year=2024&compare=1&comparison_scope=public&comparison_period=last_12_months',
         );
         $disposition = $client->getResponse()->headers->get('Content-Disposition');
         self::assertNotNull($disposition);
@@ -135,7 +135,7 @@ final class TopListsExportControllerTest extends WebTestCase
 
         $lines = $this->csvLines($this->exportCsv(
             $client,
-            '/statistics/top-lists/top_diagnoses/export.csv?scope=public&period=all',
+            '/statistics/top-lists/top_diagnoses/export.csv?scope=public&period=last_12_months',
         ));
 
         self::assertSame('Bereich', $lines[0][0]);
@@ -157,7 +157,7 @@ final class TopListsExportControllerTest extends WebTestCase
 
         $lines = $this->csvLines($this->exportCsv(
             $client,
-            '/statistics/top-lists/top_diagnoses/export.csv?scope=public&period=year&year=2024&compare=1&comparison_scope=public&comparison_period=all',
+            '/statistics/top-lists/top_diagnoses/export.csv?scope=public&period=year&year=2024&compare=1&comparison_scope=public&comparison_period=last_12_months',
         ));
 
         self::assertSame('Vergleich A', $lines[0][0]);
@@ -197,7 +197,7 @@ final class TopListsExportControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses/export.csv?scope=public&period=all',
+            '/statistics/top-lists/top_diagnoses/export.csv?scope=public&period=last_12_months',
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_TOO_MANY_REQUESTS);

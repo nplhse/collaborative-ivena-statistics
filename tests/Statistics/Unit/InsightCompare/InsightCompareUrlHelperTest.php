@@ -27,7 +27,7 @@ final class InsightCompareUrlHelperTest extends TestCase
         $helper = $this->helper();
         $request = Request::create('/statistics/insights/compare', Request::METHOD_GET, [
             StatisticsQueryKeys::SCOPE => StatisticsFilterScope::Public->value,
-            StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::All->value,
+            StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::Last12Months->value,
             StatisticsQueryKeys::SUBJECT_A_DIMENSION => InsightDimensionKey::Indications->value,
             StatisticsQueryKeys::SUBJECT_A_ID => '12',
             StatisticsQueryKeys::SUBJECT_B_DIMENSION => InsightDimensionKey::Departments->value,
@@ -43,7 +43,7 @@ final class InsightCompareUrlHelperTest extends TestCase
         self::assertSame(InsightDimensionKey::Indications->value, $params['dimension']);
         self::assertSame('12', $params['id']);
         self::assertSame(StatisticsFilterScope::Public->value, $params[StatisticsQueryKeys::SCOPE]);
-        self::assertSame(StatisticsFilterPeriod::All->value, $params[StatisticsQueryKeys::PERIOD]);
+        self::assertSame(StatisticsFilterPeriod::Last12Months->value, $params[StatisticsQueryKeys::PERIOD]);
         self::assertArrayNotHasKey(StatisticsQueryKeys::SUBJECT_A_DIMENSION, $params);
         self::assertArrayNotHasKey(StatisticsQueryKeys::SUBJECT_B_ID, $params);
         self::assertArrayNotHasKey(StatisticsQueryKeys::COMPARISON_SCOPE, $params);
@@ -54,10 +54,10 @@ final class InsightCompareUrlHelperTest extends TestCase
     public function testSwapWithoutComparisonQueryOnlyExchangesSubjects(): void
     {
         $helper = $this->helper();
-        $primary = $this->publicFilter(StatisticsFilterPeriod::All);
+        $primary = $this->publicFilter(StatisticsFilterPeriod::Last12Months);
         $request = Request::create('/statistics/insights/compare', Request::METHOD_GET, [
             StatisticsQueryKeys::SCOPE => StatisticsFilterScope::Public->value,
-            StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::All->value,
+            StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::Last12Months->value,
             StatisticsQueryKeys::SUBJECT_A_DIMENSION => InsightDimensionKey::Indications->value,
             StatisticsQueryKeys::SUBJECT_A_ID => '12',
             StatisticsQueryKeys::SUBJECT_B_DIMENSION => InsightDimensionKey::Departments->value,
@@ -79,7 +79,7 @@ final class InsightCompareUrlHelperTest extends TestCase
         self::assertSame(InsightDimensionKey::Indications->value, $params[StatisticsQueryKeys::SUBJECT_B_DIMENSION]);
         self::assertSame('12', $params[StatisticsQueryKeys::SUBJECT_B_ID]);
         self::assertSame(StatisticsFilterScope::Public->value, $params[StatisticsQueryKeys::SCOPE]);
-        self::assertSame(StatisticsFilterPeriod::All->value, $params[StatisticsQueryKeys::PERIOD]);
+        self::assertSame(StatisticsFilterPeriod::Last12Months->value, $params[StatisticsQueryKeys::PERIOD]);
         self::assertSame('keep-me', $params['view']);
         self::assertArrayNotHasKey(StatisticsQueryKeys::COMPARISON_SCOPE, $params);
         self::assertArrayNotHasKey(StatisticsQueryKeys::COMPARISON_PERIOD, $params);
@@ -88,11 +88,11 @@ final class InsightCompareUrlHelperTest extends TestCase
     public function testSwapWithComparisonQueryExchangesFiltersAndSubjects(): void
     {
         $helper = $this->helper();
-        $primary = $this->publicFilter(StatisticsFilterPeriod::All);
+        $primary = $this->publicFilter(StatisticsFilterPeriod::Last12Months);
         $comparison = $this->publicFilter(StatisticsFilterPeriod::Year, 2024);
         $request = Request::create('/statistics/insights/compare', Request::METHOD_GET, [
             StatisticsQueryKeys::SCOPE => StatisticsFilterScope::Public->value,
-            StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::All->value,
+            StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::Last12Months->value,
             StatisticsQueryKeys::COMPARISON_SCOPE => StatisticsFilterScope::Public->value,
             StatisticsQueryKeys::COMPARISON_PERIOD => StatisticsFilterPeriod::Year->value,
             StatisticsQueryKeys::COMPARISON_YEAR => '2024',
@@ -115,7 +115,7 @@ final class InsightCompareUrlHelperTest extends TestCase
         self::assertSame(StatisticsFilterPeriod::Year->value, $params[StatisticsQueryKeys::PERIOD]);
         self::assertSame('2024', $params[StatisticsQueryKeys::YEAR]);
         self::assertSame(StatisticsFilterScope::Public->value, $params[StatisticsQueryKeys::COMPARISON_SCOPE]);
-        self::assertSame(StatisticsFilterPeriod::All->value, $params[StatisticsQueryKeys::COMPARISON_PERIOD]);
+        self::assertSame(StatisticsFilterPeriod::Last12Months->value, $params[StatisticsQueryKeys::COMPARISON_PERIOD]);
         self::assertArrayNotHasKey(StatisticsQueryKeys::COMPARISON_YEAR, $params);
         self::assertArrayNotHasKey(StatisticsQueryKeys::COMPARE, $params);
     }
@@ -126,13 +126,13 @@ final class InsightCompareUrlHelperTest extends TestCase
             StatisticsFilterScope::Public,
             null,
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
         );
         $b = new StatisticsFilter(
             StatisticsFilterScope::Public,
             null,
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
             notice: null,
             requiresPublicRedirect: true,
         );

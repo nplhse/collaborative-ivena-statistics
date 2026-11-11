@@ -40,7 +40,7 @@ final readonly class OverviewDefaultPeriodResolver
         }
 
         return $monthsWithData >= self::MIN_MONTHS_WITH_DATA
-            ? StatisticsFilterPeriod::All
+            ? StatisticsFilterPeriod::Last12Months
             : StatisticsFilterPeriod::AllTime;
     }
 }

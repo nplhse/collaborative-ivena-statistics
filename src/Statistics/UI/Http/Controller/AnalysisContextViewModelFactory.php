@@ -161,7 +161,7 @@ final readonly class AnalysisContextViewModelFactory
             $filter->referenceQuarter ?? $currentQuarter,
             $appliedMonth,
             $defaultScopeGroup,
-            StatisticsFilterPeriod::All->value,
+            StatisticsFilterPeriod::Last12Months->value,
             $currentYear,
             $currentQuarter,
             $currentMonth,

@@ -13,7 +13,7 @@ final class OverviewSelfBenchmarkFactoryTest extends TestCase
     public function testUsesRollingAllWhenPrimaryIsBounded(): void
     {
         self::assertSame(
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
             OverviewSelfBenchmarkFactory::baselinePeriodFor(StatisticsFilterPeriod::Month),
         );
     }
@@ -22,7 +22,7 @@ final class OverviewSelfBenchmarkFactoryTest extends TestCase
     {
         self::assertSame(
             StatisticsFilterPeriod::AllTime,
-            OverviewSelfBenchmarkFactory::baselinePeriodFor(StatisticsFilterPeriod::All),
+            OverviewSelfBenchmarkFactory::baselinePeriodFor(StatisticsFilterPeriod::Last12Months),
         );
     }
 }

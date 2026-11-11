@@ -22,7 +22,7 @@ final class StatisticsScopeResolverTest extends DatabaseKernelTestCase
 
         $criteria = $resolver->resolveCriteria(new StatisticsContext(
             null,
-            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::Last12Months),
         ));
 
         self::assertNull($criteria->hospitalIds);
@@ -35,7 +35,7 @@ final class StatisticsScopeResolverTest extends DatabaseKernelTestCase
 
         $criteria = $resolver->resolveCriteria(new StatisticsContext(
             null,
-            new StatisticsFilter(StatisticsFilterScope::Hospital, 12, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Hospital, 12, null, StatisticsFilterPeriod::Last12Months),
         ));
 
         self::assertSame([12], $criteria->hospitalIds);
@@ -52,7 +52,7 @@ final class StatisticsScopeResolverTest extends DatabaseKernelTestCase
                 StatisticsFilterScope::State,
                 null,
                 null,
-                StatisticsFilterPeriod::All,
+                StatisticsFilterPeriod::Last12Months,
                 stateId: 999999,
             ),
         ));
@@ -71,7 +71,7 @@ final class StatisticsScopeResolverTest extends DatabaseKernelTestCase
                 StatisticsFilterScope::HospitalCohort,
                 null,
                 new HospitalCohortKey(\App\Allocation\Domain\Enum\HospitalLocation::URBAN, \App\Allocation\Domain\Enum\HospitalTier::BASIC),
-                StatisticsFilterPeriod::All,
+                StatisticsFilterPeriod::Last12Months,
             ),
         ));
 
@@ -89,7 +89,7 @@ final class StatisticsScopeResolverTest extends DatabaseKernelTestCase
 
         $criteria = $resolver->resolveCriteria(new StatisticsContext(
             $user,
-            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::Last12Months),
         ));
 
         self::assertSame([], $criteria->hospitalIds);
@@ -106,7 +106,7 @@ final class StatisticsScopeResolverTest extends DatabaseKernelTestCase
                 StatisticsFilterScope::DispatchArea,
                 null,
                 null,
-                StatisticsFilterPeriod::All,
+                StatisticsFilterPeriod::Last12Months,
                 dispatchAreaId: 10,
             ),
         ));

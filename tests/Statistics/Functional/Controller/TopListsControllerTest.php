@@ -37,7 +37,7 @@ final class TopListsControllerTest extends WebTestCase
     public function testIndexListsAvailableTopLists(): void
     {
         $client = $this->createClientAsRoleUser();
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/top-lists?scope=public&period=all');
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/top-lists?scope=public&period=last_12_months');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-top-lists-index"]');
@@ -50,12 +50,12 @@ final class TopListsControllerTest extends WebTestCase
         $href = $crawler->filter('[data-testid="stats-top-lists-card-top_diagnoses"]')->attr('href');
         $this->assertStringContainsString('/statistics/top-lists/top_diagnoses', $href);
         $this->assertStringContainsString('scope=public', (string) $href);
-        $this->assertStringContainsString('period=all', (string) $href);
+        $this->assertStringContainsString('period=last_12_months', (string) $href);
         $this->assertSelectorNotExists('[data-testid="stats-scope"]');
         $this->assertSelectorNotExists('[data-testid="stats-scope-primary"]');
         $this->assertSelectorNotExists('[data-testid="stats-period-primary"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-context-trigger"]');
-        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="all"][selected]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="last_12_months"][selected]');
         $this->assertSelectorExists('[data-testid="stats-analysis-context-period-summary"]');
         $this->assertSelectorNotExists('[data-testid="stats-period-navigation"]');
         $this->assertSelectorTextContains(
@@ -94,7 +94,7 @@ final class TopListsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists?scope=public&period=all&report=top_diagnoses',
+            '/statistics/top-lists?scope=public&period=last_12_months&report=top_diagnoses',
         );
 
         $this->assertResponseRedirects();
@@ -138,7 +138,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=all',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -166,7 +166,7 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertNotNull($exportHref);
         $this->assertStringContainsString('/statistics/top-lists/top_diagnoses/export.csv', $exportHref);
         $this->assertStringContainsString('scope=public', $exportHref);
-        $this->assertStringContainsString('period=all', $exportHref);
+        $this->assertStringContainsString('period=last_12_months', $exportHref);
         $this->assertSelectorNotExists('[data-testid="stats-top-lists-compare-enable"].btn-outline-primary');
         $catalogHref = $crawler->filter('[data-testid="stats-top-lists-catalog-link"]')->attr('href');
         $this->assertSame('/explore/indication', $catalogHref);
@@ -221,7 +221,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_departments?scope=public&period=all',
+            '/statistics/top-lists/top_departments?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -270,7 +270,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_departments?scope=public&period=all&limit=50',
+            '/statistics/top-lists/top_departments?scope=public&period=last_12_months&limit=50',
         );
 
         $this->assertResponseIsSuccessful();
@@ -320,7 +320,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            sprintf('/statistics/top-lists/%s?scope=public&period=all', $reportKey),
+            sprintf('/statistics/top-lists/%s?scope=public&period=last_12_months', $reportKey),
         );
 
         $this->assertResponseIsSuccessful();
@@ -372,7 +372,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_secondary_diagnoses?scope=public&period=all',
+            '/statistics/top-lists/top_secondary_diagnoses?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -417,7 +417,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_infections?scope=public&period=all',
+            '/statistics/top-lists/top_infections?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -462,7 +462,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_secondary_transports?scope=public&period=all',
+            '/statistics/top-lists/top_secondary_transports?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -505,7 +505,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_secondary_transports?scope=public&period=all',
+            '/statistics/top-lists/top_secondary_transports?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -546,7 +546,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_secondary_transports?scope=public&period=year&year=2021&compare=1&comparison_scope=public&comparison_period=all',
+            '/statistics/top-lists/top_secondary_transports?scope=public&period=year&year=2021&compare=1&comparison_scope=public&comparison_period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -561,7 +561,7 @@ final class TopListsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=all&limit=10',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=last_12_months&limit=10',
         );
 
         $this->assertResponseIsSuccessful();
@@ -574,7 +574,7 @@ final class TopListsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=all&limit=100',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=last_12_months&limit=100',
         );
 
         $this->assertResponseIsSuccessful();
@@ -582,7 +582,7 @@ final class TopListsControllerTest extends WebTestCase
         $allLink = $crawler->filter('[data-testid="stats-top-lists-limit-all"]')->link();
         $this->assertStringContainsString('limit=all', $allLink->getUri());
 
-        $client->request(Request::METHOD_GET, '/statistics/top-lists/top_diagnoses?scope=public&period=all&limit=all');
+        $client->request(Request::METHOD_GET, '/statistics/top-lists/top_diagnoses?scope=public&period=last_12_months&limit=all');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-top-lists-limit-all"].active');
         $this->assertSelectorExists('[data-testid="stats-top-lists-compare-enable"]');
@@ -617,7 +617,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=year&year=2021&compare=1&comparison_scope=public&comparison_period=all',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=year&year=2021&compare=1&comparison_scope=public&comparison_period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -671,7 +671,7 @@ final class TopListsControllerTest extends WebTestCase
         $swapQuery = $this->queryParamsFromHref($crawler->filter('[data-testid="stats-top-lists-compare-swap"]')->attr('href'));
         self::assertSame('1', $swapQuery['compare'] ?? null);
         self::assertSame('public', $swapQuery['scope'] ?? null);
-        self::assertSame('all', $swapQuery['period'] ?? null);
+        self::assertSame('last_12_months', $swapQuery['period'] ?? null);
         self::assertSame('public', $swapQuery['comparison_scope'] ?? null);
         self::assertSame('year', $swapQuery['comparison_period'] ?? null);
         self::assertSame('2021', (string) ($swapQuery['comparison_year'] ?? ''));
@@ -684,7 +684,7 @@ final class TopListsControllerTest extends WebTestCase
         $continueBQuery = $this->queryParamsFromHref($crawler->filter('[data-testid="stats-top-lists-compare-continue-b"]')->attr('href'));
         self::assertArrayNotHasKey('compare', $continueBQuery);
         self::assertSame('public', $continueBQuery['scope'] ?? null);
-        self::assertSame('all', $continueBQuery['period'] ?? null);
+        self::assertSame('last_12_months', $continueBQuery['period'] ?? null);
         self::assertArrayNotHasKey('comparison_scope', $continueBQuery);
         self::assertArrayNotHasKey('comparison_period', $continueBQuery);
     }
@@ -715,7 +715,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=all&compare=1',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=last_12_months&compare=1',
         );
 
         $this->assertResponseIsSuccessful();
@@ -734,7 +734,7 @@ final class TopListsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=all&limit=invalid',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=last_12_months&limit=invalid',
         );
 
         $this->assertResponseIsSuccessful();
@@ -746,7 +746,7 @@ final class TopListsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=all&limit=10&per_page=50',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=last_12_months&limit=10&per_page=50',
         );
 
         $this->assertResponseIsSuccessful();
@@ -762,7 +762,7 @@ final class TopListsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=all&per_page=invalid',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=last_12_months&per_page=invalid',
         );
 
         $this->assertResponseIsSuccessful();
@@ -817,7 +817,7 @@ final class TopListsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=all',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -830,7 +830,7 @@ final class TopListsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=all&gender=2&age_group=30_39&page=2',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=last_12_months&gender=2&age_group=30_39&page=2',
         );
 
         $this->assertResponseIsSuccessful();
@@ -853,7 +853,7 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="statistics-filter-feature"]');
         $this->assertSelectorNotExists('#statistics-filter-form input.form-control');
         $this->assertSelectorExists('#statistics-filter-form input[type="hidden"][name="scope"][value="public"]');
-        $this->assertSelectorExists('#statistics-filter-form input[type="hidden"][name="period"][value="all"]');
+        $this->assertSelectorExists('#statistics-filter-form input[type="hidden"][name="period"][value="last_12_months"]');
         $this->assertSelectorNotExists('#statistics-filter-form input[type="hidden"][name="gender"]');
         $this->assertSelectorNotExists('#statistics-filter-form input[type="hidden"][name="page"]');
         $this->assertSelectorExists('#statistics-filters-drawer .offcanvas-footer');
@@ -867,7 +867,7 @@ final class TopListsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=all',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -910,7 +910,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=all&urgency=1',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=last_12_months&urgency=1',
         );
 
         $this->assertResponseIsSuccessful();
@@ -926,7 +926,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=year&year=2021&compare=1&comparison_scope=public&comparison_period=all',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=year&year=2021&compare=1&comparison_scope=public&comparison_period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -957,7 +957,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=year&year=2021&compare=1&comparison_scope=public&comparison_period=all',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=year&year=2021&compare=1&comparison_scope=public&comparison_period=last_12_months',
         );
 
         $continueHref = $crawler->filter('[data-testid="stats-top-lists-compare-continue-a"]')->attr('href');
@@ -982,7 +982,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=year&year=2021&compare=1&comparison_scope=public&comparison_period=all',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=year&year=2021&compare=1&comparison_scope=public&comparison_period=last_12_months',
         );
 
         $continueHref = $crawler->filter('[data-testid="stats-top-lists-compare-continue-b"]')->attr('href');
@@ -995,7 +995,7 @@ final class TopListsControllerTest extends WebTestCase
         $query = $this->queryParamsFromHref($client->getRequest()->getRequestUri());
         self::assertArrayNotHasKey('compare', $query);
         self::assertSame('public', $query['scope'] ?? null);
-        self::assertSame('all', $query['period'] ?? null);
+        self::assertSame('last_12_months', $query['period'] ?? null);
         self::assertArrayNotHasKey('comparison_scope', $query);
         self::assertArrayNotHasKey('comparison_period', $query);
     }

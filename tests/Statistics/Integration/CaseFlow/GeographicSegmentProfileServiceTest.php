@@ -91,7 +91,7 @@ final class GeographicSegmentProfileServiceTest extends KernelTestCase
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
 
         $criteria = new CaseFlowCriteria(
-            new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, StatisticsFilterPeriod::Last12Months),
             new StatisticsScopeCriteria([$hospital->getId()]),
             new StatisticsPeriodBounds(null),
             CaseFlowMode::HospitalOrigin,
@@ -241,7 +241,7 @@ final class GeographicSegmentProfileServiceTest extends KernelTestCase
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
 
         $criteria = new CaseFlowCriteria(
-            new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, StatisticsFilterPeriod::Last12Months),
             new StatisticsScopeCriteria([$hospital->getId()]),
             new StatisticsPeriodBounds(null),
             CaseFlowMode::HospitalOrigin,

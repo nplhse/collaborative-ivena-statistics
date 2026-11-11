@@ -123,7 +123,7 @@ final class OverviewPeriodComparisonServiceIntegrationTest extends KernelTestCas
                 StatisticsFilterScope::Public,
                 null,
                 null,
-                StatisticsFilterPeriod::All,
+                StatisticsFilterPeriod::Last12Months,
             ),
         );
 

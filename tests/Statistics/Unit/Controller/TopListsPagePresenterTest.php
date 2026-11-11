@@ -78,13 +78,13 @@ final class TopListsPagePresenterTest extends TestCase
         );
         $presenter = $this->presenter($router);
 
-        $request = new Request(query: ['scope' => 'public', 'period' => 'all', 'compare' => '1']);
+        $request = new Request(query: ['scope' => 'public', 'period' => 'last_12_months', 'compare' => '1']);
         $ranking = new TopListRanking([
             new TopListRankedRow('1', 'STEMI', 4, 100.0, 1, 1, '11111111-1111-4111-8111-111111111111'),
         ], 4);
         $topLists = [$this->definition('top_diagnoses')];
         $requestModel = new TopListsRequestModel('top_diagnoses', TopListLimit::of(10), compare: true);
-        $primaryFilter = new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All);
+        $primaryFilter = new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::Last12Months);
         $comparisonFilter = new StatisticsFilter(
             StatisticsFilterScope::State,
             null,
@@ -113,7 +113,7 @@ final class TopListsPagePresenterTest extends TestCase
         self::assertTrue($model->compareEnabled);
         self::assertNotNull($model->primaryFormData);
         self::assertSame('public', $model->primaryFormData->scopeGroup);
-        self::assertSame('all', $model->primaryFormData->period);
+        self::assertSame('last_12_months', $model->primaryFormData->period);
         self::assertNotNull($model->comparisonFormData);
         self::assertSame('state', $model->comparisonFormData->scopeGroup);
         self::assertSame('3', $model->comparisonFormData->scopeDetail);
@@ -141,16 +141,16 @@ final class TopListsPagePresenterTest extends TestCase
         );
         $presenter = $this->presenter($router);
 
-        $request = new Request(query: ['scope' => 'public', 'period' => 'all']);
+        $request = new Request(query: ['scope' => 'public', 'period' => 'last_12_months']);
         $ranking = new TopListRanking([], 0);
         $topLists = [$this->definition('top_diagnoses')];
         $requestModel = new TopListsRequestModel('top_diagnoses', TopListLimit::of(10));
-        $primaryFilter = new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All);
+        $primaryFilter = new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::Last12Months);
         $comparisonFilter = new StatisticsFilter(
             StatisticsFilterScope::HospitalCohort,
             null,
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
         );
 
         $model = $presenter->present(

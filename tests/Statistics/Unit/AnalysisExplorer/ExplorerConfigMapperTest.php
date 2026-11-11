@@ -31,7 +31,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
 
         $config = $container->get(DefaultAnalysisViewFactory::class)->createDefault($filter);
@@ -63,7 +63,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
 
         $config = $container->get(DefaultAnalysisViewFactory::class)->createDefault($filter)
@@ -122,7 +122,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         ))
             ->withAxes(AnalysisAxisRef::time(AnalysisDimensionGrain::Year), null)
             ->withPresentation(new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(chartType: ChartPresentationType::Line));
@@ -146,7 +146,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         ))
             ->withAxes(
                 AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
@@ -176,7 +176,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
             'dataSource' => 'allocations',
             'query' => [
                 'scope' => ['group' => 'public', 'detail' => null],
-                'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+                'period' => ['type' => 'last_12_months', 'year' => null, 'quarter' => null, 'month' => null],
                 'metrics' => ['allocation_count'],
                 'visualMetric' => 'allocation_count',
                 'dimension' => 'gender',
@@ -201,7 +201,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
             'dataSource' => 'allocations',
             'query' => [
                 'scope' => ['group' => 'public', 'detail' => null],
-                'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+                'period' => ['type' => 'last_12_months', 'year' => null, 'quarter' => null, 'month' => null],
                 'metric' => 'allocation_count',
                 'rows' => ['dimension' => 'time', 'grain' => 'month'],
             ],
@@ -213,6 +213,37 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         self::assertSame(AnalysisMetricKey::AllocationCount, $config->visualMetricKey);
     }
 
+    /**
+     * #1017: stored period identifiers round-trip; a state without period falls back to the
+     * rolling 12-month default.
+     */
+    public function testStoredPeriodIdentifiersMapToTheMatchingFilterPeriod(): void
+    {
+        self::bootKernel();
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+
+        $state = static fn (?string $type): array => [
+            'schemaVersion' => 2,
+            'dataSource' => 'allocations',
+            'query' => array_filter([
+                'scope' => ['group' => 'public', 'detail' => null],
+                'period' => null === $type ? null : ['type' => $type, 'year' => null, 'quarter' => null, 'month' => null],
+                'metrics' => ['allocation_count'],
+                'visualMetric' => 'allocation_count',
+                'rows' => ['dimension' => 'time', 'grain' => 'month'],
+            ], static fn (mixed $value): bool => null !== $value),
+            'presentation' => ['chartType' => 'bar'],
+            'title' => 'Allocations over time',
+        ];
+
+        self::assertSame(StatisticsFilterPeriod::Last12Months, $mapper->viewConfigFromState($state('last_12_months'), null)->statisticsFilter->period);
+        self::assertSame(StatisticsFilterPeriod::AllTime, $mapper->viewConfigFromState($state('all_time'), null)->statisticsFilter->period);
+        self::assertSame(StatisticsFilterPeriod::Last12Months, $mapper->viewConfigFromState($state(null), null)->statisticsFilter->period);
+
+        $roundTrip = $mapper->toStateArray($mapper->viewConfigFromState($state('all_time'), null));
+        self::assertSame('all_time', $roundTrip['query']['period']['type']);
+    }
+
     public function testLegacyFlatStateIsUpgraded(): void
     {
         self::bootKernel();
@@ -220,7 +251,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
 
         $config = $mapper->viewConfigFromState([
             'scopeGroup' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'dimensionGrain' => 'year',
             'chartType' => 'line',
             'title' => 'Allocations over time',
@@ -241,7 +272,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
             'dataSource' => 'allocations',
             'query' => [
                 'scope' => ['group' => 'public', 'detail' => null],
-                'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+                'period' => ['type' => 'last_12_months', 'year' => null, 'quarter' => null, 'month' => null],
                 'metrics' => ['allocation_count'],
                 'visualMetric' => 'allocation_count',
                 'dimension' => 'gender',
@@ -266,7 +297,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         ))
             ->withPresentation(new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(
                 chartType: ChartPresentationType::Bar,
@@ -284,7 +315,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
             'dataSource' => 'allocations',
             'query' => [
                 'scope' => ['group' => 'public', 'detail' => null],
-                'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+                'period' => ['type' => 'last_12_months', 'year' => null, 'quarter' => null, 'month' => null],
                 'metrics' => ['allocation_count'],
                 'visualMetric' => 'allocation_count',
                 'rows' => ['dimension' => 'time', 'grain' => 'month'],
@@ -303,7 +334,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
 
         $filterState = [
             'scope' => ['group' => 'public', 'detail' => null],
-            'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+            'period' => ['type' => 'last_12_months', 'year' => null, 'quarter' => null, 'month' => null],
         ];
 
         $config = $mapper->buildViewConfig($filterState, [
@@ -326,7 +357,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
 
         $filterState = [
             'scope' => ['group' => 'public', 'detail' => null],
-            'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+            'period' => ['type' => 'last_12_months', 'year' => null, 'quarter' => null, 'month' => null],
         ];
 
         $config = $mapper->buildViewConfig($filterState, [
@@ -348,7 +379,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         )));
 
         $merged = $mapper->mergeChartRowLimitIntoState($state, ExplorerChartRowLimit::Top5);
@@ -388,7 +419,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         )));
 
         self::assertArrayNotHasKey('mode', $state['presentation']);
@@ -404,7 +435,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
             'dataSource' => 'allocations',
             'query' => [
                 'scope' => ['group' => 'public', 'detail' => null],
-                'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+                'period' => ['type' => 'last_12_months', 'year' => null, 'quarter' => null, 'month' => null],
                 'metrics' => ['allocation_count'],
                 'visualMetric' => 'allocation_count',
                 'rows' => ['dimension' => 'not_a_dimension', 'grain' => 'total'],
@@ -445,7 +476,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         )));
         unset($state['schemaVersion']);
         $state['dataSource'] = '';
@@ -463,7 +494,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         )));
 
         $invalidStates = [];

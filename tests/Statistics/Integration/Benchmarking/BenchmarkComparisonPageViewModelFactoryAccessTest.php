@@ -83,7 +83,7 @@ final class BenchmarkComparisonPageViewModelFactoryAccessTest extends KernelTest
             new Request(query: ['comparison_scope' => 'my_hospitals']),
             'app_stats_benchmarking',
             $user,
-            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::Last12Months),
         );
 
         self::assertTrue($model->showUnscopedHint);
@@ -265,7 +265,7 @@ final class BenchmarkComparisonPageViewModelFactoryAccessTest extends KernelTest
             new Request(query: ['comparison_scope' => 'my_hospitals']),
             'app_stats_benchmarking',
             $user,
-            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::Last12Months),
         );
 
         self::assertTrue($this->hasMenuKey($model->scopePrimaryMenu, 'my_hospitals_group'));

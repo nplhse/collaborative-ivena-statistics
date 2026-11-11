@@ -24,7 +24,7 @@ final class AnalysisExplorerShellAuthTest extends AnalysisExplorerShellTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
 
         $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
@@ -61,7 +61,7 @@ final class AnalysisExplorerShellAuthTest extends AnalysisExplorerShellTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
 
         $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
@@ -99,7 +99,7 @@ final class AnalysisExplorerShellAuthTest extends AnalysisExplorerShellTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
 
         $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
@@ -151,7 +151,7 @@ final class AnalysisExplorerShellAuthTest extends AnalysisExplorerShellTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
 
         $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
@@ -184,7 +184,7 @@ final class AnalysisExplorerShellAuthTest extends AnalysisExplorerShellTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
 
         $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
@@ -274,7 +274,7 @@ final class AnalysisExplorerShellAuthTest extends AnalysisExplorerShellTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
 
         $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
@@ -312,7 +312,7 @@ final class AnalysisExplorerShellAuthTest extends AnalysisExplorerShellTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
 
         $render = $this->createLiveComponent('AnalysisExplorerShell', [

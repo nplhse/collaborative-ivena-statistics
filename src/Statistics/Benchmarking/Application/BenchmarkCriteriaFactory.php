@@ -54,7 +54,7 @@ final readonly class BenchmarkCriteriaFactory
         $now = $this->clock->now();
 
         return match ($filter->period) {
-            StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all', [], 'statistics'),
+            StatisticsFilterPeriod::Last12Months => $this->translator->trans('stats.filter.period.last_12_months', [], 'statistics'),
             StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time', [], 'statistics'),
             StatisticsFilterPeriod::Year => (string) ($filter->referenceYear ?? (int) $now->format('Y')),
             StatisticsFilterPeriod::Quarter => $this->translator->trans(

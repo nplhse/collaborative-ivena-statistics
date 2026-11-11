@@ -14,7 +14,7 @@ final class DashboardControllerScopeTest extends DashboardControllerTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/?scope=public&period=all',
+            '/statistics/?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -48,7 +48,7 @@ final class DashboardControllerScopeTest extends DashboardControllerTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/?scope=hospital_cohort:urban_basic&period=all',
+            '/statistics/?scope=hospital_cohort:urban_basic&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -62,7 +62,7 @@ final class DashboardControllerScopeTest extends DashboardControllerTestCase
         $client = $this->createClientAsRoleUser();
         $client->followRedirects(false);
 
-        $client->request(Request::METHOD_GET, '/statistics/?scope=state&period=all');
+        $client->request(Request::METHOD_GET, '/statistics/?scope=state&period=last_12_months');
 
         $this->assertResponseStatusCodeSame(302);
         $location = (string) $client->getResponse()->headers->get('Location');
@@ -74,7 +74,7 @@ final class DashboardControllerScopeTest extends DashboardControllerTestCase
         $client = $this->createClientAsRoleUser();
         $client->followRedirects(false);
 
-        $client->request(Request::METHOD_GET, '/statistics/?scope=state&state=999999&period=all');
+        $client->request(Request::METHOD_GET, '/statistics/?scope=state&state=999999&period=last_12_months');
 
         $this->assertResponseStatusCodeSame(302);
         $location = (string) $client->getResponse()->headers->get('Location');
@@ -84,7 +84,7 @@ final class DashboardControllerScopeTest extends DashboardControllerTestCase
     public function testScopeSidebarShowsHospitalCohortGroup(): void
     {
         $client = $this->createClientAsRoleUser();
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=last_12_months');
 
         $this->assertResponseIsSuccessful();
         $crawler->filter('#statistics-filters-drawer .offcanvas-body')->reduce(

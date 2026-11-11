@@ -480,7 +480,7 @@ final class AnalysisExplorerLibraryPageViewModelFactoryTest extends KernelTestCa
                 .ExplorerLibraryQueryKeys::CHART.'=line&'
                 .ExplorerLibraryQueryKeys::GRAIN.'=month&'
                 .ExplorerLibraryQueryKeys::PAGE.'=2&'
-                .'scope=public&period=all',
+                .'scope=public&period=last_12_months',
                 Request::METHOD_GET,
             ),
             $user,
@@ -490,7 +490,7 @@ final class AnalysisExplorerLibraryPageViewModelFactoryTest extends KernelTestCa
         foreach ($page->tabs as $tab) {
             self::assertStringContainsString(ExplorerLibraryQueryKeys::TAB.'='.$tab['key'], $tab['url']);
             self::assertStringContainsString('scope=public', $tab['url']);
-            self::assertStringContainsString('period=all', $tab['url']);
+            self::assertStringContainsString('period=last_12_months', $tab['url']);
             foreach ([
                 ExplorerLibraryQueryKeys::SEARCH,
                 ExplorerLibraryQueryKeys::CATEGORY,

@@ -22,7 +22,7 @@ final class InsightsLegacyRedirectControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication-insights', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseRedirects();
@@ -30,7 +30,7 @@ final class InsightsLegacyRedirectControllerTest extends WebTestCase
         self::assertStringContainsString('/statistics/insights', $location);
         self::assertStringNotContainsString('indication-insights', $location);
         self::assertStringContainsString('scope=public', $location);
-        self::assertStringContainsString('period=all', $location);
+        self::assertStringContainsString('period=last_12_months', $location);
     }
 
     public function testLegacyIndicationDashboardRedirectsToCanonicalShow(): void
@@ -41,7 +41,7 @@ final class InsightsLegacyRedirectControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/42', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseRedirects();
@@ -58,7 +58,7 @@ final class InsightsLegacyRedirectControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication-group/7', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseRedirects();
@@ -76,7 +76,7 @@ final class InsightsLegacyRedirectControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/compare', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'indication_a' => '1',
             'indication_b' => '2',
         ]);

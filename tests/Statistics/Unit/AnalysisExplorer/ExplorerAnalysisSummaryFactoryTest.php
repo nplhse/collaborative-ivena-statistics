@@ -338,7 +338,7 @@ final class ExplorerAnalysisSummaryFactoryTest extends TestCase
                 scope: StatisticsFilterScope::State,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
                 stateId: 1,
             ),
             presentation: new PresentationConfig(ChartPresentationType::Bar),
@@ -372,7 +372,7 @@ final class ExplorerAnalysisSummaryFactoryTest extends TestCase
             scope: StatisticsFilterScope::DispatchArea,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
             dispatchAreaId: 2,
         ));
 
@@ -391,7 +391,7 @@ final class ExplorerAnalysisSummaryFactoryTest extends TestCase
                 scope: StatisticsFilterScope::Hospital,
                 hospitalId: 1,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
             ),
             presentation: new PresentationConfig(ChartPresentationType::Bar),
             title: 'Hospitals',
@@ -582,7 +582,7 @@ final class ExplorerAnalysisSummaryFactoryTest extends TestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
     }
 

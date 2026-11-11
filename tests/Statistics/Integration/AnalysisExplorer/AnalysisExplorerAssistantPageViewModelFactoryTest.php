@@ -95,7 +95,7 @@ final class AnalysisExplorerAssistantPageViewModelFactoryTest extends KernelTest
         $cohort = $this->factory->scopeQueryFromSide(new StatisticsScopePeriodFormData(
             scopeGroup: 'hospital_cohort',
             scopeDetail: 'urban_basic',
-            period: StatisticsFilterPeriod::All->value,
+            period: StatisticsFilterPeriod::Last12Months->value,
         ));
         self::assertSame('urban_basic', $cohort[StatisticsQueryKeys::COHORT]);
         self::assertArrayNotHasKey(StatisticsQueryKeys::YEAR, $cohort);
@@ -124,7 +124,7 @@ final class AnalysisExplorerAssistantPageViewModelFactoryTest extends KernelTest
         $draft->filterIndicationId = 6;
         $draft->filterSecondaryIndicationId = 7;
         $draft->filterIndicationGroupId = 8;
-        $draft->scopePeriod = new StatisticsScopePeriodFormData(period: StatisticsFilterPeriod::All->value);
+        $draft->scopePeriod = new StatisticsScopePeriodFormData(period: StatisticsFilterPeriod::Last12Months->value);
 
         $page = $this->factory->create($this->filter(), $draft);
 
@@ -217,7 +217,7 @@ final class AnalysisExplorerAssistantPageViewModelFactoryTest extends KernelTest
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
     }
 

@@ -49,14 +49,14 @@ final class AnalysisContextHeaderTest extends DashboardControllerTestCase
         $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/case-flow?scope=public&period=all&gender=2',
+            '/statistics/case-flow?scope=public&period=last_12_months&gender=2',
         );
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="statistics-filters-drawer-trigger"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-context-form"] input[name="gender"][value="2"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-context-form"] input[name="scope"][value="public"]');
-        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="all"][selected]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="last_12_months"][selected]');
 
         $hiddenNames = $crawler->filter('[data-testid="stats-analysis-context-form"] input[type="hidden"]')->each(
             static fn ($node): string => (string) $node->attr('name'),
@@ -70,14 +70,14 @@ final class AnalysisContextHeaderTest extends DashboardControllerTestCase
         $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/case-flow?scope=public&period=all&gender=2',
+            '/statistics/case-flow?scope=public&period=last_12_months&gender=2',
         );
 
         $this->assertResponseIsSuccessful();
         $form = $crawler->filter('[data-testid="stats-analysis-context-form"]')->form();
         $values = $form->getPhpValues();
         self::assertSame('public', $values['scope'] ?? null);
-        self::assertSame('all', $values['period'] ?? null);
+        self::assertSame('last_12_months', $values['period'] ?? null);
         self::assertSame('2', $values['gender'] ?? null);
         self::assertArrayNotHasKey('year', $values);
         self::assertArrayNotHasKey('month', $values);
@@ -198,7 +198,7 @@ final class AnalysisContextHeaderTest extends DashboardControllerTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/insights?scope=public&period=all',
+            '/statistics/insights?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -214,13 +214,13 @@ final class AnalysisContextHeaderTest extends DashboardControllerTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closed-department-assignments?scope=public&period=all',
+            '/statistics/closed-department-assignments?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-analysis-context-trigger"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-context-modal"]');
-        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="all"][selected]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="last_12_months"][selected]');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-context-location"]', 'All assignments');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-context-period-summary"]', 'Last 12 months');
     }
@@ -250,7 +250,7 @@ final class AnalysisContextHeaderTest extends DashboardControllerTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/?scope=hospital&hospital='.$hospital->getId().'&period=all',
+            '/statistics/?scope=hospital&hospital='.$hospital->getId().'&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();

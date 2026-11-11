@@ -88,7 +88,7 @@ final class InsightsCompareControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/compare', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'indication_a' => (string) $indicationA->getId(),
             'indication_b' => (string) $indicationB->getId(),
         ]);
@@ -201,7 +201,7 @@ final class InsightsCompareControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/compare', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'indication_a' => (string) $indicationA->getId(),
             'indication_b' => (string) $indicationB->getId(),
         ]);
@@ -221,7 +221,7 @@ final class InsightsCompareControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/compare', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'subject_a_dimension' => 'indications',
             'subject_a_id' => (string) $indication->getId(),
             'subject_b_dimension' => 'indications',
@@ -244,7 +244,7 @@ final class InsightsCompareControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/compare', [
             'scope' => 'hospital',
             'hospital' => (string) $fixture['hospitalId'],
-            'period' => 'all',
+            'period' => 'last_12_months',
             'subject_a_type' => 'single',
             'subject_a_id' => (string) $fixture['indicationCId'],
             'subject_b_type' => 'group',
@@ -277,7 +277,7 @@ final class InsightsCompareControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/compare', [
             'scope' => 'hospital',
             'hospital' => (string) $fixture['hospitalId'],
-            'period' => 'all',
+            'period' => 'last_12_months',
             'subject_a_type' => 'group',
             'subject_a_id' => (string) $fixture['groupId'],
             'subject_b_type' => 'group',
@@ -300,7 +300,7 @@ final class InsightsCompareControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/compare', [
             'scope' => 'hospital',
             'hospital' => (string) $fixture['hospitalId'],
-            'period' => 'all',
+            'period' => 'last_12_months',
             'subject_a_type' => 'single',
             'subject_a_id' => (string) $fixture['indicationAId'],
             'subject_b_type' => 'group',
@@ -322,7 +322,7 @@ final class InsightsCompareControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/compare', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'subject_a_dimension' => 'indications',
             'subject_a_id' => (string) $indication->getId(),
             'subject_b_dimension' => 'indication-groups',
@@ -343,7 +343,7 @@ final class InsightsCompareControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/compare', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'subject_a_dimension' => 'indication-groups',
             'subject_a_id' => (string) $group->getId(),
             'subject_b_dimension' => 'indication-groups',
@@ -462,7 +462,7 @@ final class InsightsCompareControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/compare', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseRedirects();
@@ -521,7 +521,7 @@ final class InsightsCompareControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments/compare', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'subject_a_id' => (string) $assignmentA->getId(),
             'subject_b_id' => (string) $assignmentB->getId(),
         ]);
@@ -541,7 +541,7 @@ final class InsightsCompareControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/compare', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'subject_a_dimension' => 'assignments',
             'subject_a_id' => (string) $assignment->getId(),
             'subject_b_dimension' => 'assignments',
@@ -563,7 +563,7 @@ final class InsightsCompareControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/compare', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'subject_a_dimension' => 'assignments',
             'subject_a_id' => '999999',
             'subject_b_dimension' => 'assignments',
@@ -584,7 +584,7 @@ final class InsightsCompareControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/compare', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'subject_a_dimension' => 'assignments',
             'subject_a_id' => 'abc',
             'subject_b_dimension' => 'assignments',
@@ -603,7 +603,7 @@ final class InsightsCompareControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/compare', [
             'scope' => 'hospital_cohort',
             'cohort' => 'urban_basic',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'subject_a_dimension' => 'assignments',
             'subject_a_id' => '1',
             'subject_b_dimension' => 'assignments',
@@ -625,7 +625,7 @@ final class InsightsCompareControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/compare', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'indication_a' => (string) $indicationA->getId(),
             'indication_b' => (string) $indicationB->getId(),
         ]);
@@ -766,14 +766,14 @@ final class InsightsCompareControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/compare', [
             'scope' => 'hospital',
             'hospital' => (string) $hospitalA->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'subject_a_dimension' => 'indications',
             'subject_a_id' => (string) $indicationA->getId(),
             'subject_b_dimension' => 'indications',
             'subject_b_id' => (string) $indicationB->getId(),
             'comparison_scope' => 'hospital',
             'comparison_hospital' => (string) $hospitalB->getId(),
-            'comparison_period' => 'all',
+            'comparison_period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();
@@ -818,7 +818,7 @@ final class InsightsCompareControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/compare', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'subject_a_dimension' => 'indications',
             'subject_a_id' => (string) $indication->getId(),
             'subject_b_dimension' => 'assignments',

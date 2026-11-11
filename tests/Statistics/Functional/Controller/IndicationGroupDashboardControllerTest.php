@@ -40,7 +40,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indication-groups/'.$fixture['groupId'], [
             'scope' => 'hospital',
             'hospital' => (string) $fixture['hospitalId'],
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();
@@ -128,7 +128,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indication-groups/'.$group->getId(), [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();
@@ -151,7 +151,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indication-groups/'.$group->getId(), [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();
@@ -199,7 +199,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indication-groups/'.$group->getId(), [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();

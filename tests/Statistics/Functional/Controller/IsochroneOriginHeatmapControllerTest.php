@@ -39,7 +39,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
     public function testOverviewOmitsFrameOutsideHospitalScope(): void
     {
         $client = $this->createClientAsRoleUser();
-        $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
+        $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=last_12_months');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="stats-isochrone-origin-map-frame"]');
@@ -54,7 +54,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, '/statistics/', [
             'scope' => 'hospital',
             'hospital' => (string) $fixture['hospitalId'],
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         $this->assertResponseIsSuccessful();
@@ -75,7 +75,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
             'scope' => 'hospital',
             'hospital' => (string) $fixture['hospitalId'],
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         $this->assertResponseIsSuccessful();
@@ -92,7 +92,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
-                'period' => 'all',
+                'period' => 'last_12_months',
                 'departmentWasClosed' => $value,
             ]);
             $this->assertResponseIsSuccessful();
@@ -108,7 +108,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
-                'period' => 'all',
+                'period' => 'last_12_months',
             ]);
 
             $this->assertResponseIsSuccessful();
@@ -131,7 +131,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             $crawler = $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
-                'period' => 'all',
+                'period' => 'last_12_months',
                 'dimension' => 'specialities',
                 'id' => (string) $fixture['specialityId'],
             ]);
@@ -174,7 +174,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
-                'period' => 'all',
+                'period' => 'last_12_months',
             ],
         );
 
@@ -196,7 +196,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
-                'period' => 'all',
+                'period' => 'last_12_months',
                 'indicationId' => (string) $fixture['indicationId'],
             ]);
 
@@ -216,7 +216,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
-                'period' => 'all',
+                'period' => 'last_12_months',
                 'indicationId' => '999999',
             ]);
 
@@ -225,7 +225,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
-                'period' => 'all',
+                'period' => 'last_12_months',
                 'groupId' => '999999',
             ]);
 
@@ -257,7 +257,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
-                'period' => 'all',
+                'period' => 'last_12_months',
             ],
         );
 
@@ -272,7 +272,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
             'scope' => 'hospital',
             'hospital' => (string) $fixture['hospitalId'],
-            'period' => 'all',
+            'period' => 'last_12_months',
             'dimension' => 'indication-groups',
             'id' => (string) $group->getId(),
         ]);

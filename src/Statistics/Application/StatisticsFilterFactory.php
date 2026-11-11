@@ -237,7 +237,7 @@ final readonly class StatisticsFilterFactory
 
     private function parsePeriod(string $raw): StatisticsFilterPeriod
     {
-        return StatisticsFilterPeriod::tryFrom($raw) ?? StatisticsFilterPeriod::All;
+        return StatisticsFilterPeriod::tryFrom($raw) ?? StatisticsFilterPeriod::Last12Months;
     }
 
     private function parseCohortType(string $raw): ?HospitalCohortKey

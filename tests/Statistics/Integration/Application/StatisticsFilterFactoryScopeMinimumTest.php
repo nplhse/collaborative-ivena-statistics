@@ -118,7 +118,7 @@ final class StatisticsFilterFactoryScopeMinimumTest extends DatabaseKernelTestCa
     private function createFilter(string $scope, string $cohort = ''): StatisticsFilter
     {
         return self::getContainer()->get(StatisticsFilterFactory::class)->createFromInput(
-            new StatisticsFilterInput($scope, '', $cohort, '', '', 'all', null, null, null, true),
+            new StatisticsFilterInput($scope, '', $cohort, '', '', 'last_12_months', null, null, null, true),
             null,
         );
     }

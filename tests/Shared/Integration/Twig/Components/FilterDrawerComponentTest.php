@@ -96,7 +96,7 @@ final class FilterDrawerComponentTest extends KernelTestCase
         self::assertInstanceOf(RequestStack::class, $requestStack);
         $requestStack->push(Request::create('/statistics/top-lists/top_diagnoses', 'GET', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'gender' => '2',
             'page' => '2',
         ]));
@@ -112,7 +112,7 @@ final class FilterDrawerComponentTest extends KernelTestCase
             self::assertInstanceOf(FilterDrawer::class, $component);
             self::assertSame([
                 'scope' => 'public',
-                'period' => 'all',
+                'period' => 'last_12_months',
             ], $component->getPreservedQueryFields());
 
             $rendered = $this->renderTwigComponent('FilterDrawer', [
@@ -125,7 +125,7 @@ final class FilterDrawerComponentTest extends KernelTestCase
             $form = $rendered->crawler()->filter('#statistics-filter-form');
 
             self::assertCount(1, $form->filter('input[type="hidden"][name="scope"][value="public"]'));
-            self::assertCount(1, $form->filter('input[type="hidden"][name="period"][value="all"]'));
+            self::assertCount(1, $form->filter('input[type="hidden"][name="period"][value="last_12_months"]'));
             self::assertCount(0, $form->filter('input[type="hidden"][name="gender"]'));
             self::assertCount(0, $form->filter('input[type="hidden"][name="page"]'));
         } finally {

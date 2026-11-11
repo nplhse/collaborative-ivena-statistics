@@ -19,7 +19,7 @@ final class StatisticsContextFactoryTest extends TestCase
             StatisticsFilterScope::Public,
             null,
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
         );
 
         $context = $factory->create(null, $filter);

@@ -47,8 +47,8 @@ final readonly class OverviewSelfBenchmarkFactory
 
     public static function baselinePeriodFor(StatisticsFilterPeriod $primaryPeriod): StatisticsFilterPeriod
     {
-        return StatisticsFilterPeriod::All === $primaryPeriod
+        return StatisticsFilterPeriod::Last12Months === $primaryPeriod
             ? StatisticsFilterPeriod::AllTime
-            : StatisticsFilterPeriod::All;
+            : StatisticsFilterPeriod::Last12Months;
     }
 }
