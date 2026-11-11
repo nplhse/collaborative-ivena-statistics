@@ -9,6 +9,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Message\ImportClosuresMessage;
+use App\Import\Application\Service\DevelopmentHospitalOverride;
 use App\Import\Application\Service\FileChecksumCalculator;
 use App\Import\Application\Service\FileUploader;
 use App\Import\Application\Service\ImportRunLifecycle;
@@ -53,6 +54,7 @@ final class NewImportController extends AbstractController
         private readonly AuditContext $auditContext,
         private readonly HospitalPermissionAccess $hospitalPermissionAccess,
         private readonly ImportRunLifecycle $runLifecycle,
+        private readonly DevelopmentHospitalOverride $hospitalOverride,
     ) {
     }
 
@@ -148,7 +150,8 @@ final class NewImportController extends AbstractController
             ->setFileSize($clientSize)
             ->setRunCount(0)
             ->setRunTime(0)
-            ->setRowCount(0);
+            ->setRowCount(0)
+            ->setHospitalOverride($this->resolveHospitalOverride($form));
 
         $checksum = $this->checksumCalculator->forPath($targetPath);
         $import->setFileChecksum($checksum);
@@ -198,6 +201,20 @@ final class NewImportController extends AbstractController
         $type = $form->get('type')->getData();
 
         return $type instanceof ImportType ? $type : ImportType::ALLOCATION;
+    }
+
+    /**
+     * The explicit development-only target hospital override (#878); never set outside `dev`.
+     *
+     * @param FormInterface<mixed> $form
+     */
+    private function resolveHospitalOverride(FormInterface $form): bool
+    {
+        if (!$this->hospitalOverride->isAvailable() || !$form->has('hospitalOverride')) {
+            return false;
+        }
+
+        return true === $form->get('hospitalOverride')->getData();
     }
 
     /**

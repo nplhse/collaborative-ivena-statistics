@@ -194,6 +194,8 @@ php bin/console app:generate:dataset --retry=<run id>                           
 - **Checks before writing.** Environment, pattern package and catalog, the period, and per hospital: participating, an owner with participant access, dispatch area and state, a usable profile, no other run still writing it. A blocked hospital refuses the whole run and the plan names what is missing; `--skip-blocked` leaves blocked hospitals out instead, and the summary lists them with the reason.
 - **Existing data (`--existing`).** Real imports (every import that is not a synthetic marker, such as uploads and `app:demo:csv`) are never touched: a hospital with real data in the period is blocked in every mode.
 
+  This includes a real export loaded into a fictional demo hospital with the development-only target hospital override ([import-pipeline.md](../04-features/import/import-pipeline.md#development-only-target-hospital-override)): a fictional hospital does not make imported operational data synthetic, and such imports are never replaced.
+
   | Mode | Generated months in the period | Scenario imports in the period |
   |---|---|---|
   | `refuse` (default) | block the hospital | block the hospital |

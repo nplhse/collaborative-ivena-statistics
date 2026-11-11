@@ -58,6 +58,16 @@ The import is always stored on the hospital selected when the upload starts. Tha
 
 A catalog name that normalizes to more than one hospital is not treated as a unique contradiction. There is no alias list and no fuzzy match. Hospitals have no external id. The long `Krankenhaus` column is an address line, not an id.
 
+### Development-only target hospital override
+
+For local development a real closure export can be loaded into a fictional demo hospital (#878). In the `dev` environment the upload form shows **Override target hospital (development only)**. When it is ticked, a single `Krankenhaus-Kurzname` that names a different catalog hospital no longer rejects the rows (`HOSPITAL_CONFLICT`); the rows are stored on the selected hospital.
+
+- Only the hospital assignment changes. Parsing, the closure catalogs, speciality and department resolution, duplicate handling and rejects stay as without the override. Specialities and departments are one global catalog; there is no per-hospital list of departments, so a row with an unknown speciality or department is rejected as usual.
+- A file with several hospital names is still checked row by row (`HOSPITAL_MISMATCH`). The override does not spread one file across hospitals.
+- The import records `hospital_override = true`; when a conflicting name was bypassed, `hospital_override_source_label` keeps it. The import page shows a notice with that name.
+- Outside `dev` the field does not exist (a posted value makes the form invalid) and a stored flag is ignored: the run applies the normal checks and logs `closure.import.hospital_override.ignored`. The check is `DevelopmentHospitalOverride`.
+- The rows stay real operational data. Assigning them to a fictional hospital does not make them synthetic ([synthetic-data-generator.md](../../03-development/synthetic-data-generator.md)).
+
 ## Rejects
 
 Invalid rows are rejected with a message and are not stored. The same reject writer, import status, and deletion cleanup as allocation imports apply. Deleting an import removes its closure intervals.

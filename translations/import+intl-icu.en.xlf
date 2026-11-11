@@ -325,6 +325,22 @@
         <source>label.import.type.closure</source>
         <target>Closure list (beta)</target>
       </trans-unit>
+      <trans-unit id="impHospOverrideEn" resname="label.import.hospitalOverride">
+        <source>label.import.hospitalOverride</source>
+        <target>Override target hospital (development only)</target>
+      </trans-unit>
+      <trans-unit id="impHospOverrideHelpEn" resname="label.import.hospitalOverride.help">
+        <source>label.import.hospitalOverride.help</source>
+        <target>Store the file on the selected hospital even when it names a different catalog hospital. Only for loading real exports into fictional demo hospitals. All other checks still apply, and the rows stay real operational data.</target>
+      </trans-unit>
+      <trans-unit id="impHospOverrideNoticeEn" resname="label.import.hospitalOverride.notice">
+        <source>label.import.hospitalOverride.notice</source>
+        <target>Imported with the development-only target hospital override. These rows are real operational data, not synthetic data.</target>
+      </trans-unit>
+      <trans-unit id="impHospOverrideSrcEn" resname="label.import.hospitalOverride.sourceLabel">
+        <source>label.import.hospitalOverride.sourceLabel</source>
+        <target>Hospital named in the file: {label}</target>
+      </trans-unit>
       <trans-unit id="impTypeHelpEn" resname="label.import.type.help">
         <source>label.import.type.help</source>
         <target>Closure lists are a beta and stay hidden without the Closure beta role.</target>

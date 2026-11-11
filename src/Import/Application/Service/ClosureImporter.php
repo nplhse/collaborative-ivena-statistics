@@ -34,6 +34,13 @@ final readonly class ClosureImporter
             ]);
         }
 
+        if (null !== $profile->overriddenFileLabel) {
+            $this->logger->info('closure.import.hospital_override', [
+                'file_label' => $profile->overriddenFileLabel,
+                'selected_hospital' => $profile->selectedDisplayName,
+            ]);
+        }
+
         $this->processor->warm();
         $this->persister->clear();
 

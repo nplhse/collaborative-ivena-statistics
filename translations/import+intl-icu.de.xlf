@@ -325,6 +325,22 @@
         <source>label.import.type.closure</source>
         <target>Schließungsliste (Beta)</target>
       </trans-unit>
+      <trans-unit id="impHospOverrideDe" resname="label.import.hospitalOverride">
+        <source>label.import.hospitalOverride</source>
+        <target>Zielklinik überschreiben (nur Entwicklung)</target>
+      </trans-unit>
+      <trans-unit id="impHospOverrideHelpDe" resname="label.import.hospitalOverride.help">
+        <source>label.import.hospitalOverride.help</source>
+        <target>Speichert die Datei auf der ausgewählten Klinik, auch wenn sie eine andere Klinik aus dem Katalog nennt. Nur zum Laden echter Exporte in fiktive Demo-Kliniken. Alle anderen Prüfungen gelten weiter, die Zeilen bleiben echte Betriebsdaten.</target>
+      </trans-unit>
+      <trans-unit id="impHospOverrideNoticeDe" resname="label.import.hospitalOverride.notice">
+        <source>label.import.hospitalOverride.notice</source>
+        <target>Mit der Zielklinik-Überschreibung (nur Entwicklung) importiert. Diese Zeilen sind echte Betriebsdaten, keine synthetischen Daten.</target>
+      </trans-unit>
+      <trans-unit id="impHospOverrideSrcDe" resname="label.import.hospitalOverride.sourceLabel">
+        <source>label.import.hospitalOverride.sourceLabel</source>
+        <target>In der Datei genannte Klinik: {label}</target>
+      </trans-unit>
       <trans-unit id="impTypeHelpDe" resname="label.import.type.help">
         <source>label.import.type.help</source>
         <target>Schließungslisten sind eine Beta und nur mit der Rolle Closure beta sichtbar.</target>

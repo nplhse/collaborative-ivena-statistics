@@ -9,6 +9,10 @@ namespace App\Import\Application\Mapping;
  *
  * The selected hospital stays the assignment target. This profile only decides
  * whether a row's short name is a harmless label or a real contradiction.
+ *
+ * With the development-only hospital override (#878) a single file label that names another
+ * catalog hospital is accepted; `overriddenFileLabel` holds that label. Files with several
+ * hospital labels are still checked row by row.
  */
 final readonly class ClosureHospitalProfile
 {
@@ -28,6 +32,8 @@ final readonly class ClosureHospitalProfile
         public array $hospitalIdsByNormalizedName,
         public array $catalogDisplayByNormalized,
         public ?string $differingFileLabel,
+        public bool $hospitalOverride = false,
+        public ?string $overriddenFileLabel = null,
     ) {
     }
 }

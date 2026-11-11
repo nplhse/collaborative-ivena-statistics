@@ -35,6 +35,9 @@
                     {% if form.type is defined %}
                         {{ form_row(form.type) }}
                     {% endif %}
+                    {% if form.hospitalOverride is defined %}
+                        {{ form_row(form.hospitalOverride) }}
+                    {% endif %}
                     {{ form_row(form.file) }}
                     {{ form_row(form.submit) }}
                 {{ form_end(form) }}

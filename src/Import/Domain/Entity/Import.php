@@ -109,6 +109,19 @@ class Import implements \Stringable
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['jsonb' => true])]
     private ?array $dataCoverage = null;
 
+    /**
+     * The target hospital was chosen through the development-only hospital override (#878).
+     * The rows stay operational data; the override only replaced the hospital assignment.
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $hospitalOverride = false;
+
+    /**
+     * Hospital label of the source file that the development override replaced, when one conflicted.
+     */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $hospitalOverrideSourceLabel = null;
+
     #[ORM\Column()]
     private \DateTimeImmutable $createdAt;
 
@@ -430,6 +443,30 @@ class Import implements \Stringable
         $this->exportPeriodSource = $source;
 
         return true;
+    }
+
+    public function isHospitalOverride(): bool
+    {
+        return $this->hospitalOverride;
+    }
+
+    public function setHospitalOverride(bool $hospitalOverride): static
+    {
+        $this->hospitalOverride = $hospitalOverride;
+
+        return $this;
+    }
+
+    public function getHospitalOverrideSourceLabel(): ?string
+    {
+        return $this->hospitalOverrideSourceLabel;
+    }
+
+    public function setHospitalOverrideSourceLabel(?string $hospitalOverrideSourceLabel): static
+    {
+        $this->hospitalOverrideSourceLabel = $hospitalOverrideSourceLabel;
+
+        return $this;
     }
 
     public function getDataCoverage(): ?ImportDataCoverage
