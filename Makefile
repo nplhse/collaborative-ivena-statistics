@@ -80,6 +80,7 @@ upgrade-dev: ## Update deps and schema (dev, keeps existing DB data)
 	@$(CONSOLE) doctrine:migrations:migrate --no-interaction --allow-no-migration
 	@$(SYMFONY) composer upgrade-test-env
 	@$(CONSOLE) importmap:install
+	@$(CONSOLE) assets:install public
 	@$(CONSOLE) asset-map:compile
 	@$(CONSOLE) cache:clear
 	@$(CONSOLE) cache:warmup
@@ -90,6 +91,7 @@ upgrade-prod: ## Update deps and schema (prod-like, keeps existing DB data)
 	@$(PROD_ENV) $(CONSOLE) doctrine:migrations:migrate --no-interaction --allow-no-migration
 	rm -rf public/assets/*
 	@$(CONSOLE) importmap:install
+	@$(PROD_ENV) $(CONSOLE) assets:install public
 	@$(PROD_ENV) $(CONSOLE) asset-map:compile
 	@$(PROD_ENV) $(CONSOLE) cache:clear
 	@$(PROD_ENV) $(CONSOLE) cache:warmup

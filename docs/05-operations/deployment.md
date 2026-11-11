@@ -182,7 +182,7 @@ Do not use demo-fixture accounts in production. After setup, existing users can 
 
 Typical order (Symfony recipe plus project tasks):
 
-1. New release is prepared and vendors installed (`composer install --no-dev`)
+1. New release is prepared and vendors installed (`composer install --no-dev`; its Composer `auto-scripts` also run `assets:install`, which copies bundle assets such as EasyAdmin to `public/bundles/`)
 2. Asset map compile and cache warmup
 3. **`messenger:stop`** — `messenger:stop-workers` on the **previous** release (graceful shutdown)
 4. Database migrations
