@@ -293,9 +293,13 @@
         <source>statistics.distribution.age.90_99</source>
         <target>90–99 (and older)</target>
       </trans-unit>
+      <trans-unit id="statsAgeAdults" resname="statistics.distribution.age.adults">
+        <source>statistics.distribution.age.adults</source>
+        <target>Adults (18 and over)</target>
+      </trans-unit>
       <trans-unit id="KtY8Hdy" resname="statistics.distribution.age.under_18">
         <source>statistics.distribution.age.under_18</source>
-        <target>Under 18</target>
+        <target>Children &amp; adolescents (under 18)</target>
       </trans-unit>
       <trans-unit id="statsAgeOv80" resname="statistics.distribution.age.over_80">
         <source>statistics.distribution.age.over_80</source>
@@ -828,6 +832,10 @@
       <trans-unit id="statsPerNav04" resname="stats.period.navigation.parent">
         <source>stats.period.navigation.parent</source>
         <target>up</target>
+      </trans-unit>
+      <trans-unit id="statsFltAgeHint" resname="stats.filter.age_group.missing_age_hint">
+        <source>stats.filter.age_group.missing_age_hint</source>
+        <target>Cases without a recorded age are excluded when an age group is selected.</target>
       </trans-unit>
       <trans-unit id="statsFlt01" resname="stats.filter.scope_label">
         <source>stats.filter.scope_label</source>

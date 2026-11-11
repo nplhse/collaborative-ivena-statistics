@@ -41,9 +41,13 @@
         <source>statistics.distribution.age.over_80</source>
         <target>80 und älter</target>
       </trans-unit>
+      <trans-unit id="statsAgeAdults" resname="statistics.distribution.age.adults">
+        <source>statistics.distribution.age.adults</source>
+        <target>Erwachsene (ab 18)</target>
+      </trans-unit>
       <trans-unit id="KtY8Hdy" resname="statistics.distribution.age.under_18">
         <source>statistics.distribution.age.under_18</source>
-        <target>Unter 18</target>
+        <target>Kinder &amp; Jugendliche (unter 18)</target>
       </trans-unit>
       <trans-unit id="De2c576d9f" resname="statistics.distribution.age.unknown">
         <source>statistics.distribution.age.unknown</source>
@@ -3336,6 +3340,10 @@
       <trans-unit id="De470b0b8a" resname="stats.filter.scope.state_invalid">
         <source>stats.filter.scope.state_invalid</source>
         <target>Das gewählte Bundesland hat nicht genügend Krankenhäuser in den Statistikdaten. Es werden stattdessen alle Zuweisungen angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="statsFltAgeHint" resname="stats.filter.age_group.missing_age_hint">
+        <source>stats.filter.age_group.missing_age_hint</source>
+        <target>Fälle ohne erfasstes Alter werden bei Auswahl einer Altersgruppe nicht mitgezählt.</target>
       </trans-unit>
       <trans-unit id="Deb3d8bb5d" resname="stats.filter.scope_label">
         <source>stats.filter.scope_label</source>

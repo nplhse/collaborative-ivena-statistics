@@ -847,6 +847,12 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="statistics-filter-age-group"]');
         $this->assertSelectorExists('[data-testid="statistics-filter-age-group"] option[value="under_18"]');
         $this->assertSelectorExists('[data-testid="statistics-filter-age-group"] option[value="over_80"]');
+        $this->assertSelectorTextContains('[data-testid="statistics-filter-age-group"] option[value="under_18"]', 'Children & adolescents (under 18)');
+        $this->assertSelectorTextContains('[data-testid="statistics-filter-age-group"] option[value="adults"]', 'Adults (18 and over)');
+        $this->assertSelectorTextContains(
+            '[data-testid="statistics-filter-age-group-hint"]',
+            'Cases without a recorded age are excluded when an age group is selected.',
+        );
         $this->assertSelectorNotExists('[data-testid="statistics-filter-age-group"] option[value="unknown"]');
         $this->assertSelectorExists('[data-testid="statistics-filter-department"]');
         $this->assertSelectorExists('[data-testid="statistics-filter-requires-resus"]');

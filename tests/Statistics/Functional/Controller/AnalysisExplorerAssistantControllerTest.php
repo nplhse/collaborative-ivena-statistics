@@ -119,6 +119,10 @@ final class AnalysisExplorerAssistantControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-assistant-step-filters"][aria-current="step"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-assistant-filters"]');
+        $this->assertSelectorTextContains(
+            '[data-testid="stats-analysis-explorer-assistant-filters"]',
+            'Cases without a recorded age are excluded when an age group is selected.',
+        );
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-assistant-next"]:not([disabled])');
 
         $this->submitButton($client, 'Next');

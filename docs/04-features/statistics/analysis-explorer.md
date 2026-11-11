@@ -282,7 +282,7 @@ Analysis filters narrow the allocation set **before** row/column grouping. They 
 | `urgency` | `filterUrgency` | `equals` | Readable labels (emergency/inpatient/outpatient) |
 | `transport_type` | `filterTransportType` | `equals` | |
 | `gender` | `filterGender` | `equals` | |
-| `age_group` | `filterAgeGroup` | `equals` | Includes aggregate buckets |
+| `age_group` | `filterAgeGroup` | `equals` | Aggregate buckets `under_18`, `adults` (18 and over), `over_80` plus decade buckets; cases without age are excluded, see [Age group filter](statistics-filter-and-scope.md#age-group-filter) |
 | `resus` / `cpr` / `ventilation` | boolean fields | `equals` | `0` / `1` |
 | `assignment` | `filterAssignmentId` | `equals` | |
 

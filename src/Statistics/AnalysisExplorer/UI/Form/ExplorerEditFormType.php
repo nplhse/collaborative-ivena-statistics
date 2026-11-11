@@ -98,7 +98,7 @@ final class ExplorerEditFormType extends AbstractType
             ->add('filterUrgency', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.urgency', 'choices' => [], 'required' => false, 'placeholder' => 'label.all_urgencies']))
             ->add('filterTransportType', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.transport_type', 'choices' => [], 'required' => false, 'placeholder' => 'label.all_transport_types']))
             ->add('filterGender', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.gender', 'choices' => [], 'required' => false, 'placeholder' => 'label.all_genders']))
-            ->add('filterAgeGroup', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.age_group', 'choices' => [], 'required' => false, 'placeholder' => 'label.all_age_groups']))
+            ->add('filterAgeGroup', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.age_group', 'choices' => [], 'required' => false, 'placeholder' => 'label.all_age_groups', 'help' => 'stats.filter.age_group.missing_age_hint']))
             ->add('filterResus', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.requires_resus', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
             ->add('filterCpr', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.is_cpr', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
             ->add('filterVentilation', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.is_ventilated', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
@@ -495,6 +495,7 @@ final class ExplorerEditFormType extends AbstractType
             'choices' => $this->flipChoices($this->filterChoiceProvider->ageGroupChoices()),
             'required' => false,
             'placeholder' => 'label.all_age_groups',
+            'help' => 'stats.filter.age_group.missing_age_hint',
             'disabled' => $disabled || $isAxis('age_group'),
         ]));
         $form->add('filterResus', PreTranslatedChoiceType::class, $this->messagesField([
