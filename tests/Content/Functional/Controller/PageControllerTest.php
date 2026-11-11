@@ -310,6 +310,87 @@ final class PageControllerTest extends WebTestCase
         self::assertSelectorTextContains('.page-content-blocks', 'About DE');
     }
 
+    public function testPathOfOtherLocaleRedirectsToPublishedSiblingInRequestLocale(): void
+    {
+        $client = self::createClient();
+        $this->createBilingualPage();
+
+        $client->request(Request::METHOD_GET, '/guide-en', server: ['HTTP_ACCEPT_LANGUAGE' => 'de-DE,de;q=0.9']);
+
+        self::assertResponseStatusCodeSame(302);
+        self::assertResponseRedirects('/handbuch-de');
+
+        $client->followRedirect();
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1.fw-bold', 'Handbuch');
+        self::assertSelectorTextContains('.page-content-blocks', 'Guide DE');
+    }
+
+    public function testRedirectToSiblingPreservesQueryString(): void
+    {
+        $client = self::createClient();
+        $this->createBilingualPage();
+
+        $client->request(Request::METHOD_GET, '/guide-en?a=1&b=two', server: ['HTTP_ACCEPT_LANGUAGE' => 'de']);
+
+        self::assertResponseRedirects('/handbuch-de?a=1&b=two', 302);
+    }
+
+    public function testPathMatchingRequestLocaleIsShownWithoutRedirect(): void
+    {
+        $client = self::createClient();
+        $this->createBilingualPage();
+
+        $client->request(Request::METHOD_GET, '/handbuch-de', server: ['HTTP_ACCEPT_LANGUAGE' => 'de']);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1.fw-bold', 'Handbuch');
+        self::assertSelectorTextContains('.page-content-blocks', 'Guide DE');
+    }
+
+    public function testPathOfOtherLocaleIsShownWhenNoSiblingIsPublishedInRequestLocale(): void
+    {
+        $client = self::createClient();
+        $this->createBilingualPage(germanStatus: PageTranslation::STATUS_DRAFT);
+
+        $client->request(Request::METHOD_GET, '/guide-en', server: ['HTTP_ACCEPT_LANGUAGE' => 'de']);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1.fw-bold', 'Guide');
+        self::assertSelectorTextContains('.page-content-blocks', 'Guide EN');
+    }
+
+    private function createBilingualPage(string $germanStatus = PageTranslation::STATUS_PUBLISHED): void
+    {
+        $page = PageFactory::new()->withoutDefaultTranslation()->create([
+            'title' => 'Guide',
+            'slug' => 'guide-root',
+            'path' => '/guide-root-legacy',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+        ]);
+
+        PageTranslationFactory::createOne([
+            'page' => $page,
+            'locale' => SupportedLocales::DEFAULT,
+            'title' => 'Guide',
+            'slug' => 'guide-en',
+            'path' => '/guide-en',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'content' => [['type' => 'richtext', 'enabled' => true, 'data' => ['html' => '<p>Guide EN</p>']]],
+        ]);
+
+        PageTranslationFactory::createOne([
+            'page' => $page,
+            'locale' => SupportedLocales::GERMAN,
+            'title' => 'Handbuch',
+            'slug' => 'handbuch-de',
+            'path' => '/handbuch-de',
+            'status' => $germanStatus,
+            'content' => [['type' => 'richtext', 'enabled' => true, 'data' => ['html' => '<p>Guide DE</p>']]],
+        ]);
+    }
+
     public function testSidebarShowsAuthenticatedPagesForLoggedInUser(): void
     {
         $client = self::createClient();

@@ -14,6 +14,7 @@ use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Infrastructure\Repository\PageTranslationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -51,13 +52,17 @@ final class PageController extends AbstractController
             throw $this->createAccessDeniedException($this->translator->trans('error.page.auth_required', [], 'errors'));
         }
 
-        $request->attributes->set(PageNavigationTreeProvider::CURRENT_PAGE_ATTRIBUTE, $page->getId());
-        $request->attributes->set(
-            'locale_switch_targets',
-            $this->pageLocaleAlternateLinkBuilder->localeSwitchTargets(
-                $this->pageLocaleAlternateLinkBuilder->build($page, $translation),
-            ),
+        $localeSwitchTargets = $this->pageLocaleAlternateLinkBuilder->localeSwitchTargets(
+            $this->pageLocaleAlternateLinkBuilder->build($page, $translation),
         );
+
+        $siblingRedirect = $this->redirectToRequestLocaleSibling($request, $translation, $normalizedPath, $localeSwitchTargets);
+        if ($siblingRedirect instanceof RedirectResponse) {
+            return $siblingRedirect;
+        }
+
+        $request->attributes->set(PageNavigationTreeProvider::CURRENT_PAGE_ATTRIBUTE, $page->getId());
+        $request->attributes->set('locale_switch_targets', $localeSwitchTargets);
 
         $tableOfContents = $this->pageTableOfContentsBuilder->build(
             $translation->getContent(),
@@ -72,6 +77,43 @@ final class PageController extends AbstractController
             'breadcrumbItems' => $this->buildBreadcrumbItems($page, $translation),
             ...$this->pageSidebarDataProvider->getData(),
         ]);
+    }
+
+    /**
+     * Opening a page via the path of another locale redirects to the published sibling in the
+     * request locale, so article, navigation and UI share one language (#993). Without such a
+     * sibling the requested translation is shown as before.
+     *
+     * The redirect is temporary (302): the target depends on the visitor's locale (user setting,
+     * cookie or Accept-Language), so the requested URL itself stays valid and must not be cached
+     * as permanently moved. The target translation has the request locale, so it never redirects
+     * again.
+     *
+     * @param array<string, string> $localeSwitchTargets locale => path of published, viewable translations
+     */
+    private function redirectToRequestLocaleSibling(
+        Request $request,
+        PageTranslation $translation,
+        string $normalizedPath,
+        array $localeSwitchTargets,
+    ): ?RedirectResponse {
+        $requestLocale = $request->getLocale();
+        if ($translation->getLocale() === $requestLocale) {
+            return null;
+        }
+
+        $targetPath = $localeSwitchTargets[$requestLocale] ?? null;
+        if (null === $targetPath || $targetPath === $normalizedPath) {
+            return null;
+        }
+
+        $targetUrl = $this->generateUrl('app_page_show', ['path' => trim($targetPath, '/')]);
+        $queryString = $request->getQueryString();
+        if (null !== $queryString) {
+            $targetUrl .= '?'.$queryString;
+        }
+
+        return $this->redirect($targetUrl, Response::HTTP_FOUND);
     }
 
     /**
