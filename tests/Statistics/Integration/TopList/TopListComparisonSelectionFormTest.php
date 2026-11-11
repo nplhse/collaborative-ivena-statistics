@@ -54,7 +54,7 @@ final class TopListComparisonSelectionFormTest extends WebTestCase
         self::assertStringContainsString('/statistics/top-lists/top_diagnoses', $location);
         self::assertStringContainsString(StatisticsQueryKeys::COMPARE.'=1', $location);
         self::assertStringContainsString(StatisticsQueryKeys::SCOPE.'=public', $location);
-        self::assertStringContainsString(StatisticsQueryKeys::PERIOD.'=all', $location);
+        self::assertStringContainsString(StatisticsQueryKeys::PERIOD.'=last_12_months', $location);
         self::assertStringContainsString(StatisticsQueryKeys::COMPARISON_SCOPE.'=public', $location);
         self::assertStringContainsString(StatisticsQueryKeys::COMPARISON_PERIOD.'=year', $location);
         self::assertStringContainsString(StatisticsQueryKeys::COMPARISON_YEAR.'=', $location);
