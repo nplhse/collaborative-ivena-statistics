@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\UI\Http\Controller;
 
-use App\Analytics\Application\UsageEvents\UsageAnalytics;
-use App\Analytics\Domain\Enum\FeatureArea;
-use App\Analytics\Domain\UsageEventName;
 use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactoryRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAssistantConfigResolver;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
@@ -59,7 +56,6 @@ final class AnalysisExplorerController extends AbstractController
         private readonly ExplorerViewActivityPresenter $activityPresenter,
         private readonly UrlGeneratorInterface $router,
         private readonly TranslatorInterface $translator,
-        private readonly UsageAnalytics $usageAnalytics,
     ) {
     }
 
@@ -95,8 +91,6 @@ final class AnalysisExplorerController extends AbstractController
             }
         }
         $appliedState = $this->mergeChartTopQueryOverride($request, $appliedState);
-
-        $this->usageAnalytics->record(UsageEventName::ANALYSIS_EXPLORER_OPENED, FeatureArea::Analysis);
 
         return $this->renderExplorer($pageContext, array_merge(
             $this->buildViewPresentation(null, $user),
@@ -139,8 +133,6 @@ final class AnalysisExplorerController extends AbstractController
         if ([] !== $loadResult->warnings) {
             $initialConfigWarning = $this->translator->trans($loadResult->warnings[0], [], 'statistics');
         }
-
-        $this->usageAnalytics->record(UsageEventName::ANALYSIS_SAVED_VIEW_OPENED, FeatureArea::Analysis);
 
         return $this->renderExplorer($pageContext, array_merge(
             $this->buildViewPresentation($loadResult->view, $user),

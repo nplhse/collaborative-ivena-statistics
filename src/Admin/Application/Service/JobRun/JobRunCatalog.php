@@ -147,6 +147,7 @@ final class JobRunCatalog
             'skip_reason' => self::FORMAT_TEXT,
             'days_processed' => self::FORMAT_COUNT,
             'raw_requests' => self::FORMAT_COUNT,
+            // No longer recorded since #989; kept so that older job runs keep their format and label.
             'raw_events' => self::FORMAT_COUNT,
             'aggregate_rows' => self::FORMAT_COUNT,
             'raw_rows_deleted' => self::FORMAT_COUNT,

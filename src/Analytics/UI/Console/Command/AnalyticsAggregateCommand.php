@@ -70,7 +70,6 @@ final readonly class AnalyticsAggregateCommand
     {
         $totalRows = 0;
         $totalRequests = 0;
-        $totalEvents = 0;
         $daysWithData = 0;
         $daysKept = 0;
         $daysWithoutAccessCounts = 0;
@@ -85,18 +84,16 @@ final readonly class AnalyticsAggregateCommand
             }
             $totalRows += $result->aggregateRowsWritten;
             $totalRequests += $result->rawRequestCount;
-            $totalEvents += $result->rawEventCount;
-            if ($result->rawRequestCount > 0 || $result->rawEventCount > 0) {
+            if ($result->rawRequestCount > 0) {
                 ++$daysWithData;
             }
         }
 
         $dayCount = \count($dates);
         $summary = sprintf(
-            'Analytics aggregation finished: %d aggregate row(s) written from %d request(s) and %d event(s); %d of %d day(s) with data%s.',
+            'Analytics aggregation finished: %d aggregate row(s) written from %d request(s); %d of %d day(s) with data%s.',
             $totalRows,
             $totalRequests,
-            $totalEvents,
             $daysWithData,
             $dayCount,
             $this->formatPeriodSuffix($dates),
@@ -110,7 +107,7 @@ final readonly class AnalyticsAggregateCommand
             $summary .= sprintf(' %d already aggregated day(s) without raw rows kept unchanged.', $daysKept);
         }
 
-        if (0 === $totalRequests && 0 === $totalEvents && 0 === $daysKept) {
+        if (0 === $totalRequests && 0 === $daysKept) {
             $summary .= ' No raw analytics rows in the selected period.';
         }
 
@@ -123,10 +120,9 @@ final readonly class AnalyticsAggregateCommand
         $verb = $dryRun ? 'would delete' : 'deleted';
         $dateCount = \count($result->datesCleaned);
         $message = sprintf(
-            'Raw retention %s %d request(s) and %d event(s) across %d aggregated day(s) older than %d day(s).',
+            'Raw retention %s %d request(s) across %d aggregated day(s) older than %d day(s).',
             $verb,
             $result->requestsDeleted,
-            $result->eventsDeleted,
             $dateCount,
             $this->retentionService->retentionDays(),
         );

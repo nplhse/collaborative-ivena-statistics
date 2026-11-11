@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Import\UI\Http\Controller;
 
-use App\Analytics\Application\UsageEvents\UsageAnalytics;
-use App\Analytics\Domain\Enum\FeatureArea;
-use App\Analytics\Domain\UsageEventName;
 use App\Import\Application\Exception\DispatchException;
 use App\Import\Application\Exception\ImportCreatorMissingException;
 use App\Import\Application\Exception\ImportNotFoundException;
@@ -35,7 +32,6 @@ final class ReprocessImportController extends AbstractController
 {
     public function __construct(
         private readonly ImportStartDispatcher $dispatcher,
-        private readonly UsageAnalytics $usageAnalytics,
         #[Target('import')]
         private readonly LoggerInterface $importLogger,
     ) {
@@ -74,7 +70,6 @@ final class ReprocessImportController extends AbstractController
             return $this->redirectToRoute('app_import_show', ['id' => $importId]);
         }
 
-        $this->usageAnalytics->record(UsageEventName::IMPORT_REPROCESSED, FeatureArea::Import);
         $this->addFlash('success', new TranslatableMessage('flash.import.reprocess_queued', domain: 'import'));
 
         return $this->redirectToRoute('app_import_processing', ['id' => $importId]);

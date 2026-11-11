@@ -1527,7 +1527,7 @@
       </trans-unit>
       <trans-unit id="uaNav01de" resname="usage_analytics.privacy_note">
         <source>usage_analytics.privacy_note</source>
-        <target>Nur zusammengefasste Nutzungsdaten. Keine einzelnen Personen, keine Personensuche, keine Rohkennungen. Nutzungsereignisse setzen die Einwilligung in Analyse-Cookies voraus.</target>
+        <target>Nur zusammengefasste Nutzungsdaten. Keine einzelnen Personen, keine Personensuche, keine Rohkennungen. Besucher-, Sitzungs- und Nutzerschlüssel werden nur mit Einwilligung in Analyse-Cookies gespeichert.</target>
       </trans-unit>
       <trans-unit id="uaNav02de" resname="usage_analytics.menu.section">
         <source>usage_analytics.menu.section</source>
@@ -1541,14 +1541,6 @@
         <source>usage_analytics.menu.accesses</source>
         <target>Zugriffe</target>
       </trans-unit>
-      <trans-unit id="uaNav05de" resname="usage_analytics.menu.adoption">
-        <source>usage_analytics.menu.adoption</source>
-        <target>Nutzung</target>
-      </trans-unit>
-      <trans-unit id="uaNav06de" resname="usage_analytics.menu.journeys">
-        <source>usage_analytics.menu.journeys</source>
-        <target>Nutzerpfade</target>
-      </trans-unit>
       <trans-unit id="uaNav07de" resname="usage_analytics.menu.performance">
         <source>usage_analytics.menu.performance</source>
         <target>Performance</target>
@@ -1560,14 +1552,6 @@
       <trans-unit id="uaNav09de" resname="usage_analytics.tile.accesses">
         <source>usage_analytics.tile.accesses</source>
         <target>Seitenaufrufe pro Monat und Jahr seit Zählbeginn</target>
-      </trans-unit>
-      <trans-unit id="uaNav10de" resname="usage_analytics.tile.adoption">
-        <source>usage_analytics.tile.adoption</source>
-        <target>Ereignisse, Rollen, Nutzungstiefe</target>
-      </trans-unit>
-      <trans-unit id="uaNav11de" resname="usage_analytics.tile.journeys">
-        <source>usage_analytics.tile.journeys</source>
-        <target>Einstiegs- und Ausstiegsseiten, Navigation</target>
       </trans-unit>
       <trans-unit id="uaNav12de" resname="usage_analytics.tile.performance">
         <source>usage_analytics.tile.performance</source>

@@ -16,7 +16,6 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Registration\RegistrationIdentityGuard;
 use App\User\Infrastructure\Repository\UserRepository;
-use Doctrine\DBAL\Connection;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -447,34 +446,6 @@ final class RegistrationControllerTest extends WebTestCase
 
         \Zenstruck\Foundry\Persistence\refresh($user);
         self::assertTrue($user->isVerified());
-    }
-
-    public function testVerifyEmailRecordsNoAnalyticsEvent(): void
-    {
-        $user = UserFactory::new([
-            'isVerified' => false,
-            'username' => 'verify-no-event',
-        ])->create();
-
-        /** @var VerifyEmailHelperInterface $helper */
-        $helper = self::getContainer()->get(VerifyEmailHelperInterface::class);
-        $signedUrl = $helper->generateSignature(
-            'app_verify_email',
-            (string) $user->getId(),
-            (string) $user->getEmail(),
-            ['id' => (string) $user->getId()],
-        )->getSignedUrl();
-
-        // With analytics consent the old code stored a user.email_confirmed event (#950).
-        $this->acceptAnalyticsCookies($this->browser())
-            ->visit($signedUrl)
-            ->assertSuccessful()
-            ->assertSee('Your email address has been confirmed. You can sign in now.')
-        ;
-
-        self::assertSame(0, (int) self::getContainer()->get(Connection::class)->fetchOne(
-            "SELECT COUNT(*) FROM analytics_product_event WHERE event_name = 'user.email_confirmed'",
-        ));
     }
 
     public function testRegistrationPasswordFieldHasAccessibleVisibilityToggle(): void

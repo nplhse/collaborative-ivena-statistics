@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Analytics\Integration\Service;
 
 use App\Analytics\Application\Service\AnalyticsDashboardService;
-use App\Analytics\Domain\Entity\AnalyticsProductEvent;
 use App\Analytics\Domain\Entity\AnalyticsRequest;
 use App\Analytics\Domain\Enum\BrowserFamily;
 use App\Analytics\Domain\Enum\DeviceType;
 use App\Analytics\Domain\Enum\FeatureArea;
-use App\Analytics\Domain\UsageEventName;
-use App\Analytics\Infrastructure\Repository\AnalyticsProductEventRepository;
 use App\Analytics\Infrastructure\Repository\AnalyticsRequestRepository;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 
@@ -22,7 +19,6 @@ final class AnalyticsDashboardServiceTest extends DatabaseKernelTestCase
         self::bootKernel();
 
         $requestRepository = self::getContainer()->get(AnalyticsRequestRepository::class);
-        $eventRepository = self::getContainer()->get(AnalyticsProductEventRepository::class);
         $service = self::getContainer()->get(AnalyticsDashboardService::class);
 
         // Noon in Europe/Berlin so requestsToday stays valid around midnight.
@@ -63,42 +59,12 @@ final class AnalyticsDashboardServiceTest extends DatabaseKernelTestCase
             deviceType: DeviceType::Desktop,
         ));
 
-        $eventRepository->save(new AnalyticsProductEvent(
-            eventName: UsageEventName::USER_REGISTERED,
-            featureArea: null,
-            analyticsUserKey: $userKey,
-            visitorKey: 'dashboard-visitor-1',
-            sessionKey: $session,
-            context: ['user_role' => 'ROLE_USER'],
-            occurredAt: $today->modify('-10 days'),
-        ));
-        $eventRepository->save(new AnalyticsProductEvent(
-            eventName: UsageEventName::ANALYSIS_EXPLORER_RUN,
-            featureArea: FeatureArea::Analysis,
-            analyticsUserKey: $userKey,
-            visitorKey: 'dashboard-visitor-1',
-            sessionKey: $session,
-            context: ['user_role' => 'ROLE_PARTICIPANT'],
-            occurredAt: $today->modify('-2 days'),
-        ));
-
         $overview = $service->getOverview();
         self::assertGreaterThanOrEqual(2, $overview->requestsToday);
         self::assertNotEmpty($overview->featureAreas);
         self::assertNotEmpty($overview->topRoutes);
         self::assertGreaterThanOrEqual(1, $overview->authenticationSplit['authenticated']);
         self::assertGreaterThanOrEqual(1, $overview->retention['dau']);
-
-        $adoption = $service->getAdoption();
-        self::assertNotEmpty($adoption->topEvents);
-        self::assertNotEmpty($adoption->engagementDepth);
-        self::assertSame(0, $adoption->engagementDepth[0]['level']);
-        self::assertSame([0, 1, 2, 3, 5], array_column($adoption->engagementDepth, 'level'));
-        self::assertGreaterThanOrEqual(1, array_sum(array_column($adoption->engagementDepth, 'userCount')));
-
-        $journeys = $service->getJourneys();
-        self::assertNotEmpty($journeys->entryRoutes);
-        self::assertNotEmpty($journeys->exitRoutes);
 
         $performance = $service->getPerformance();
         self::assertNotEmpty($performance->performanceByArea);

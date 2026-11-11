@@ -30,7 +30,7 @@ final readonly class AnalyticsRawRetentionService
         $eligibleDates = $this->eligibleDates($cutoff);
 
         if ([] === $eligibleDates) {
-            return new AnalyticsRetentionResult(0, 0, []);
+            return new AnalyticsRetentionResult(0, []);
         }
 
         $dateStrings = array_map(
@@ -41,22 +41,18 @@ final readonly class AnalyticsRawRetentionService
         if ($dryRun) {
             return new AnalyticsRetentionResult(
                 requestsDeleted: $this->countRawForDates('analytics_request', $eligibleDates),
-                eventsDeleted: $this->countRawForDates('analytics_product_event', $eligibleDates),
                 datesCleaned: $dateStrings,
             );
         }
 
         $requestsDeleted = 0;
-        $eventsDeleted = 0;
         foreach ($eligibleDates as $date) {
             [$from, $to] = AnalyticsCalendar::dayBounds($date);
             $requestsDeleted += $this->deleteRawBetween('analytics_request', $from, $to);
-            $eventsDeleted += $this->deleteRawBetween('analytics_product_event', $from, $to);
         }
 
         return new AnalyticsRetentionResult(
             requestsDeleted: $requestsDeleted,
-            eventsDeleted: $eventsDeleted,
             datesCleaned: $dateStrings,
         );
     }

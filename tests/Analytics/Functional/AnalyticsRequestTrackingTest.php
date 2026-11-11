@@ -113,8 +113,6 @@ final class AnalyticsRequestTrackingTest extends WebTestCase
 
         $pages = [
             '/admin/operations/usage-analytics/overview' => ['Usage analytics — Overview', 'Requests today', 'Feature areas'],
-            '/admin/operations/usage-analytics/adoption' => ['Usage analytics — Adoption', 'Top usage events', 'Engagement depth'],
-            '/admin/operations/usage-analytics/journeys' => ['Usage analytics — Journeys', 'Navigation', 'Entry routes'],
             '/admin/operations/usage-analytics/performance' => ['Usage analytics — Performance', 'By feature area', 'Slowest routes'],
         ];
 
@@ -128,11 +126,19 @@ final class AnalyticsRequestTrackingTest extends WebTestCase
             self::assertStringNotContainsString('user_id', $html);
             self::assertStringNotContainsString('User ID', $html);
             self::assertStringNotContainsString('usage-analytics/filters', $html);
+            self::assertStringNotContainsString('usage-analytics/adoption', $html);
+            self::assertStringNotContainsString('usage-analytics/journeys', $html);
         }
 
         // The filter usage page was removed (#988).
         $client->request(Request::METHOD_GET, '/admin/operations/usage-analytics/filters');
         self::assertResponseStatusCodeSame(404);
+
+        // The adoption and journey pages were removed (#989).
+        foreach (['adoption', 'journeys'] as $removedPage) {
+            $client->request(Request::METHOD_GET, '/admin/operations/usage-analytics/'.$removedPage);
+            self::assertResponseStatusCodeSame(404);
+        }
     }
 
     public function testAdminAreaRequestsAreNotTracked(): void

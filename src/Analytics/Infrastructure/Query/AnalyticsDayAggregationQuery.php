@@ -26,17 +26,6 @@ final readonly class AnalyticsDayAggregationQuery
         ));
     }
 
-    public function countEvents(\DateTimeImmutable $day): int
-    {
-        [$from, $to] = AnalyticsCalendar::dayBounds($day);
-
-        return $this->toInt($this->connection->fetchOne(
-            'SELECT COUNT(*) FROM analytics_product_event WHERE occurred_at >= :from AND occurred_at < :to',
-            $this->boundParams($from, $to),
-            $this->boundTypes(),
-        ));
-    }
-
     /**
      * Counted accesses of one Berlin day, split by authentication, plus the number of requests
      * that are not classified yet (counted_access IS NULL).
@@ -143,136 +132,6 @@ final readonly class AnalyticsDayAggregationQuery
     }
 
     /**
-     * @return list<array{
-     *     eventName: string,
-     *     featureArea: string|null,
-     *     userRole: string,
-     *     eventCount: int
-     * }>
-     */
-    public function fetchEventDaily(\DateTimeImmutable $day): array
-    {
-        [$from, $to] = AnalyticsCalendar::dayBounds($day);
-
-        $rows = $this->connection->fetchAllAssociative(
-            <<<'SQL'
-                SELECT event_name,
-                       feature_area,
-                       COALESCE(context->>'user_role', 'unknown') AS user_role,
-                       COUNT(*)::int AS event_count
-                FROM analytics_product_event
-                WHERE occurred_at >= :from
-                  AND occurred_at < :to
-                GROUP BY event_name, feature_area, COALESCE(context->>'user_role', 'unknown')
-                SQL,
-            $this->boundParams($from, $to),
-            $this->boundTypes(),
-        );
-
-        $result = [];
-        foreach ($rows as $row) {
-            $result[] = [
-                'eventName' => (string) $row['event_name'],
-                'featureArea' => null !== $row['feature_area'] ? (string) $row['feature_area'] : null,
-                'userRole' => (string) ($row['user_role'] ?? 'unknown'),
-                'eventCount' => $this->toInt($row['event_count'] ?? 0),
-            ];
-        }
-
-        return $result;
-    }
-
-    /**
-     * @return list<array{fromRoute: string, toRoute: string, transitionCount: int}>
-     */
-    public function fetchTransitions(\DateTimeImmutable $day): array
-    {
-        [$from, $to] = AnalyticsCalendar::dayBounds($day);
-
-        $rows = $this->connection->fetchAllAssociative(
-            <<<'SQL'
-                WITH ordered AS (
-                    SELECT session_key,
-                           route_name,
-                           occurred_at,
-                           LEAD(route_name) OVER (PARTITION BY session_key ORDER BY occurred_at, id) AS next_route
-                    FROM analytics_request
-                    WHERE occurred_at >= :from
-                      AND occurred_at < :to
-                      AND session_key IS NOT NULL
-                      AND route_name IS NOT NULL
-                )
-                SELECT route_name AS from_route,
-                       next_route AS to_route,
-                       COUNT(*)::int AS transition_count
-                FROM ordered
-                WHERE next_route IS NOT NULL
-                  AND next_route <> route_name
-                GROUP BY route_name, next_route
-                SQL,
-            $this->boundParams($from, $to),
-            $this->boundTypes(),
-        );
-
-        $result = [];
-        foreach ($rows as $row) {
-            $result[] = [
-                'fromRoute' => (string) $row['from_route'],
-                'toRoute' => (string) $row['to_route'],
-                'transitionCount' => $this->toInt($row['transition_count'] ?? 0),
-            ];
-        }
-
-        return $result;
-    }
-
-    /**
-     * @return list<array{routeName: string, kind: string, sessionCount: int}>
-     */
-    public function fetchSessionBoundaries(\DateTimeImmutable $day): array
-    {
-        [$from, $to] = AnalyticsCalendar::dayBounds($day);
-
-        $rows = $this->connection->fetchAllAssociative(
-            <<<'SQL'
-                WITH ranked AS (
-                    SELECT session_key,
-                           route_name,
-                           ROW_NUMBER() OVER (PARTITION BY session_key ORDER BY occurred_at ASC, id ASC) AS rn_first,
-                           ROW_NUMBER() OVER (PARTITION BY session_key ORDER BY occurred_at DESC, id DESC) AS rn_last
-                    FROM analytics_request
-                    WHERE occurred_at >= :from
-                      AND occurred_at < :to
-                      AND session_key IS NOT NULL
-                      AND route_name IS NOT NULL
-                )
-                SELECT route_name, 'entry' AS kind, COUNT(*)::int AS session_count
-                FROM ranked
-                WHERE rn_first = 1
-                GROUP BY route_name
-                UNION ALL
-                SELECT route_name, 'exit' AS kind, COUNT(*)::int AS session_count
-                FROM ranked
-                WHERE rn_last = 1
-                GROUP BY route_name
-                SQL,
-            $this->boundParams($from, $to),
-            $this->boundTypes(),
-        );
-
-        $result = [];
-        foreach ($rows as $row) {
-            $result[] = [
-                'routeName' => (string) $row['route_name'],
-                'kind' => (string) $row['kind'],
-                'sessionCount' => $this->toInt($row['session_count'] ?? 0),
-            ];
-        }
-
-        return $result;
-    }
-
-    /**
      * @return array{dau: int, distinctVisitors: int, distinctSessions: int}|null
      */
     public function fetchUniques(\DateTimeImmutable $day): ?array
@@ -320,10 +179,6 @@ final readonly class AnalyticsDayAggregationQuery
                 FROM (
                     SELECT DISTINCT CAST(occurred_at AS date) AS d
                     FROM analytics_request
-                    WHERE occurred_at < :today
-                    UNION
-                    SELECT DISTINCT CAST(occurred_at AS date) AS d
-                    FROM analytics_product_event
                     WHERE occurred_at < :today
                 ) days
                 WHERE d < :before

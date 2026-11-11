@@ -104,32 +104,6 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
         self::assertGreaterThanOrEqual(2, $retention['mau']);
         self::assertGreaterThanOrEqual(2, $retention['sessionsLast7Days']);
 
-        $matrix = $this->repository->roleAreaMatrixSince($from);
-        self::assertNotEmpty($matrix);
-        self::assertContains('ROLE_PARTICIPANT', array_column($matrix, 'userRole'));
-
-        $levels = $this->repository->maxRequestLevelsByUserSince($from);
-        self::assertArrayHasKey($userKey, $levels);
-        // Dashboard (1) and analysis (2), no level from query parameters any more.
-        self::assertSame(2, $levels[$userKey]);
-        self::assertSame(2, $levels['user-key-agg-2']);
-
-        $entries = $this->repository->topEntryRoutesSince($from);
-        self::assertNotEmpty($entries);
-        self::assertContains('app_stats_dashboard', array_column($entries, 'routeName'));
-
-        $exits = $this->repository->topExitRoutesSince($from);
-        self::assertNotEmpty($exits);
-        self::assertContains('app_explore_allocation', array_column($exits, 'routeName'));
-
-        $transitions = $this->repository->topTransitionsSince($from);
-        self::assertNotEmpty($transitions);
-        $fromRoutes = array_column($transitions, 'fromRoute');
-        self::assertTrue(
-            \in_array('app_stats_dashboard', $fromRoutes, true)
-            || \in_array('app_stats_analysis_explorer', $fromRoutes, true),
-        );
-
         $perf = $this->repository->performanceByAreaSince($from);
         self::assertNotEmpty($perf);
         self::assertArrayHasKey('avgDurationMs', $perf[0]);

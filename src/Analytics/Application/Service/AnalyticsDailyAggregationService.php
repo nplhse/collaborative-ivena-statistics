@@ -8,13 +8,9 @@ use App\Analytics\Application\DTO\AnalyticsAggregationResult;
 use App\Analytics\Domain\AnalyticsCalendar;
 use App\Analytics\Domain\Entity\AnalyticsAccessDaily;
 use App\Analytics\Domain\Entity\AnalyticsAggregationRun;
-use App\Analytics\Domain\Entity\AnalyticsEventDaily;
 use App\Analytics\Domain\Entity\AnalyticsRequestDaily;
-use App\Analytics\Domain\Entity\AnalyticsSessionBoundaryDaily;
-use App\Analytics\Domain\Entity\AnalyticsTransitionDaily;
 use App\Analytics\Domain\Entity\AnalyticsUniquesDaily;
 use App\Analytics\Domain\Enum\FeatureArea;
-use App\Analytics\Domain\Enum\SessionBoundaryKind;
 use App\Analytics\Infrastructure\Persistence\AnalyticsDailyAggregateStore;
 use App\Analytics\Infrastructure\Query\AnalyticsDayAggregationQuery;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,15 +31,13 @@ final readonly class AnalyticsDailyAggregationService
 
         return $this->entityManager->wrapInTransaction(function () use ($calendarDate): AnalyticsAggregationResult {
             $rawRequestCount = $this->aggregationQuery->countRequests($calendarDate);
-            $rawEventCount = $this->aggregationQuery->countEvents($calendarDate);
 
             // Raw rows of an aggregated day are deleted after the retention period. Rebuilding
             // such a day would replace its aggregates with zeros, so keep them as they are.
-            if (0 === $rawRequestCount && 0 === $rawEventCount && $this->aggregationQuery->hasAggregationRun($calendarDate)) {
+            if (0 === $rawRequestCount && $this->aggregationQuery->hasAggregationRun($calendarDate)) {
                 return new AnalyticsAggregationResult(
                     date: $calendarDate->format('Y-m-d'),
                     rawRequestCount: 0,
-                    rawEventCount: 0,
                     aggregateRowsWritten: 0,
                     keptExisting: true,
                 );
@@ -55,9 +49,6 @@ final readonly class AnalyticsDailyAggregationService
             $rowsWritten = 0;
 
             $rowsWritten += $this->persistRequestDaily($calendarDate);
-            $rowsWritten += $this->persistEventDaily($calendarDate);
-            $rowsWritten += $this->persistTransitions($calendarDate);
-            $rowsWritten += $this->persistSessionBoundaries($calendarDate);
             $rowsWritten += $this->persistUniques($calendarDate);
             $accessCounts = $this->aggregationQuery->fetchAccessCounts($calendarDate);
             $rowsWritten += $this->persistAccesses($calendarDate, $rawRequestCount, $accessCounts);
@@ -65,7 +56,6 @@ final readonly class AnalyticsDailyAggregationService
             $this->entityManager->persist(new AnalyticsAggregationRun(
                 date: $calendarDate,
                 rawRequestCount: $rawRequestCount,
-                rawEventCount: $rawEventCount,
                 aggregateRowsWritten: $rowsWritten,
             ));
             ++$rowsWritten;
@@ -75,7 +65,6 @@ final readonly class AnalyticsDailyAggregationService
             return new AnalyticsAggregationResult(
                 date: $calendarDate->format('Y-m-d'),
                 rawRequestCount: $rawRequestCount,
-                rawEventCount: $rawEventCount,
                 aggregateRowsWritten: $rowsWritten,
                 unclassifiedRequests: $accessCounts['unclassified'],
             );
@@ -121,59 +110,6 @@ final readonly class AnalyticsDailyAggregationService
                 sumDurationMs: $row['sumDurationMs'],
                 sumDbQueryCount: $row['sumDbQueryCount'],
                 sumDbTimeMs: $row['sumDbTimeMs'],
-            ));
-            ++$count;
-        }
-
-        return $count;
-    }
-
-    private function persistEventDaily(\DateTimeImmutable $date): int
-    {
-        $count = 0;
-        foreach ($this->aggregationQuery->fetchEventDaily($date) as $row) {
-            $featureArea = null;
-            if (null !== $row['featureArea'] && '' !== $row['featureArea']) {
-                $featureArea = FeatureArea::tryFrom($row['featureArea']);
-            }
-            $this->entityManager->persist(new AnalyticsEventDaily(
-                date: $date,
-                eventName: $row['eventName'],
-                featureArea: $featureArea,
-                userRole: $row['userRole'],
-                eventCount: $row['eventCount'],
-            ));
-            ++$count;
-        }
-
-        return $count;
-    }
-
-    private function persistTransitions(\DateTimeImmutable $date): int
-    {
-        $count = 0;
-        foreach ($this->aggregationQuery->fetchTransitions($date) as $row) {
-            $this->entityManager->persist(new AnalyticsTransitionDaily(
-                date: $date,
-                fromRoute: $row['fromRoute'],
-                toRoute: $row['toRoute'],
-                transitionCount: $row['transitionCount'],
-            ));
-            ++$count;
-        }
-
-        return $count;
-    }
-
-    private function persistSessionBoundaries(\DateTimeImmutable $date): int
-    {
-        $count = 0;
-        foreach ($this->aggregationQuery->fetchSessionBoundaries($date) as $row) {
-            $this->entityManager->persist(new AnalyticsSessionBoundaryDaily(
-                date: $date,
-                routeName: $row['routeName'],
-                kind: SessionBoundaryKind::from($row['kind']),
-                sessionCount: $row['sessionCount'],
             ));
             ++$count;
         }

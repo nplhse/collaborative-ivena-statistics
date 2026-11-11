@@ -4,30 +4,17 @@ declare(strict_types=1);
 
 namespace App\Analytics\Application\Service;
 
-use App\Analytics\Application\DTO\UsageAnalyticsAdoptionDto;
-use App\Analytics\Application\DTO\UsageAnalyticsJourneysDto;
 use App\Analytics\Application\DTO\UsageAnalyticsOverviewDto;
 use App\Analytics\Application\DTO\UsageAnalyticsPerformanceDto;
 use App\Analytics\Domain\AnalyticsCalendar;
 use App\Analytics\Infrastructure\Query\AnalyticsReportingQuery;
-use App\Analytics\Infrastructure\Repository\AnalyticsProductEventRepository;
 use App\Analytics\Infrastructure\Repository\AnalyticsRequestRepository;
 
 final readonly class AnalyticsDashboardService
 {
-    private const array DEPTH_LABELS = [
-        0 => 'Registered / low engagement',
-        1 => 'Dashboard viewed',
-        2 => 'Statistics / Explore / Import',
-        3 => 'Analysis run',
-        // Level 4 ("filters used") was derived from URL parameters and removed in #988.
-        5 => 'Export created',
-    ];
-
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private AnalyticsRequestRepository $requestRepository,
-        private AnalyticsProductEventRepository $eventRepository,
         private AnalyticsReportingQuery $reportingQuery,
     ) {
     }
@@ -44,30 +31,6 @@ final readonly class AnalyticsDashboardService
             topRoutes: $this->reportingQuery->topRoutesSince($from7),
             authenticationSplit: $this->reportingQuery->authenticationSplitSince($from7),
             retention: $this->requestRepository->retentionSnapshot(),
-        );
-    }
-
-    public function getAdoption(): UsageAnalyticsAdoptionDto
-    {
-        $from7 = AnalyticsCalendar::daysAgo(6);
-        $from30 = AnalyticsCalendar::daysAgo(29);
-
-        return new UsageAnalyticsAdoptionDto(
-            topEvents: $this->reportingQuery->topEventsSince($from7),
-            eventsByRole: $this->reportingQuery->eventsByRoleSince($from7),
-            roleAreaMatrix: $this->reportingQuery->roleAreaMatrixSince($from7),
-            engagementDepth: $this->buildEngagementDepth($from30),
-        );
-    }
-
-    public function getJourneys(): UsageAnalyticsJourneysDto
-    {
-        $from7 = AnalyticsCalendar::daysAgo(6);
-
-        return new UsageAnalyticsJourneysDto(
-            entryRoutes: $this->requestRepository->topEntryRoutesSince($from7),
-            exitRoutes: $this->requestRepository->topExitRoutesSince($from7),
-            transitions: $this->requestRepository->topTransitionsSince($from7),
         );
     }
 
@@ -90,33 +53,5 @@ final readonly class AnalyticsDashboardService
             slowestRoutes: $this->requestRepository->slowestRoutesSince($from7),
             performanceInsights: $this->requestRepository->buildPerformanceInsights($insightsInput),
         );
-    }
-
-    /**
-     * @return list<array{level: int, label: string, userCount: int}>
-     */
-    private function buildEngagementDepth(\DateTimeImmutable $from): array
-    {
-        $levels = $this->eventRepository->maxEventLevelsByUserSince($from);
-        foreach ($this->requestRepository->maxRequestLevelsByUserSince($from) as $key => $level) {
-            $levels[$key] = max($levels[$key] ?? 0, $level);
-        }
-
-        $counts = array_fill_keys(array_keys(self::DEPTH_LABELS), 0);
-        foreach ($levels as $level) {
-            $clamped = max(0, min(5, $level));
-            ++$counts[$clamped];
-        }
-
-        $result = [];
-        foreach (self::DEPTH_LABELS as $level => $label) {
-            $result[] = [
-                'level' => $level,
-                'label' => $label,
-                'userCount' => $counts[$level],
-            ];
-        }
-
-        return $result;
     }
 }

@@ -1527,7 +1527,7 @@
       </trans-unit>
       <trans-unit id="uaNav01" resname="usage_analytics.privacy_note">
         <source>usage_analytics.privacy_note</source>
-        <target>Aggregated usage insights only. No individual users, no user search, no raw identifiers. Usage events require analytics cookie consent.</target>
+        <target>Aggregated usage insights only. No individual users, no user search, no raw identifiers. Visitor, session and user keys are only stored with analytics cookie consent.</target>
       </trans-unit>
       <trans-unit id="uaNav02" resname="usage_analytics.menu.section">
         <source>usage_analytics.menu.section</source>
@@ -1541,14 +1541,6 @@
         <source>usage_analytics.menu.accesses</source>
         <target>Accesses</target>
       </trans-unit>
-      <trans-unit id="uaNav05" resname="usage_analytics.menu.adoption">
-        <source>usage_analytics.menu.adoption</source>
-        <target>Adoption</target>
-      </trans-unit>
-      <trans-unit id="uaNav06" resname="usage_analytics.menu.journeys">
-        <source>usage_analytics.menu.journeys</source>
-        <target>Journeys</target>
-      </trans-unit>
       <trans-unit id="uaNav07" resname="usage_analytics.menu.performance">
         <source>usage_analytics.menu.performance</source>
         <target>Performance</target>
@@ -1560,14 +1552,6 @@
       <trans-unit id="uaNav09" resname="usage_analytics.tile.accesses">
         <source>usage_analytics.tile.accesses</source>
         <target>Page views per month and year since counting started</target>
-      </trans-unit>
-      <trans-unit id="uaNav10" resname="usage_analytics.tile.adoption">
-        <source>usage_analytics.tile.adoption</source>
-        <target>Events, roles, engagement depth</target>
-      </trans-unit>
-      <trans-unit id="uaNav11" resname="usage_analytics.tile.journeys">
-        <source>usage_analytics.tile.journeys</source>
-        <target>Entry and exit routes, navigation</target>
       </trans-unit>
       <trans-unit id="uaNav12" resname="usage_analytics.tile.performance">
         <source>usage_analytics.tile.performance</source>

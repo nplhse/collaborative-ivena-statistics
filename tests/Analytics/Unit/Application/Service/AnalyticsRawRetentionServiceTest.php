@@ -27,21 +27,19 @@ final class AnalyticsRawRetentionServiceTest extends TestCase
 
         self::assertSame([], $result->datesCleaned);
         self::assertSame(0, $result->requestsDeleted);
-        self::assertSame(0, $result->eventsDeleted);
         self::assertSame(0, $result->rawRowsDeleted());
     }
 
     public function testDryRunCoercesNumericStringsAndIgnoresNonNumericCounts(): void
     {
         $connection = $this->createStub(Connection::class);
-        $connection->method('fetchFirstColumn')->willReturn(['2026-01-01']);
+        $connection->method('fetchFirstColumn')->willReturn(['2026-01-01', '2026-01-02']);
         $connection->method('fetchOne')->willReturnOnConsecutiveCalls('2', 'not-a-number');
         $service = new AnalyticsRawRetentionService($connection, 30);
 
         $result = $service->purgeExpiredRaw(true);
 
-        self::assertSame(['2026-01-01'], $result->datesCleaned);
+        self::assertSame(['2026-01-01', '2026-01-02'], $result->datesCleaned);
         self::assertSame(2, $result->requestsDeleted);
-        self::assertSame(0, $result->eventsDeleted);
     }
 }
