@@ -1,0 +1,29 @@
+/*
+ * Floating feedback button (Feedback context, feedback_widget.html.twig).
+ * On phones it is smaller and the site footer reserves space below its content, so the last actions
+ * and footer links can always be scrolled clear of the button (#983). Desktop stays unchanged.
+ */
+.feedback-widget__fab {
+    z-index: 1030;
+    padding: 1rem;
+}
+
+.feedback-widget__trigger {
+    width: 3.5rem;
+    height: 3.5rem;
+}
+
+@media (max-width: 767.98px) {
+    .feedback-widget__fab {
+        padding: 0 calc(0.75rem + env(safe-area-inset-right, 0px)) calc(0.75rem + env(safe-area-inset-bottom, 0px)) 0;
+    }
+
+    .feedback-widget__trigger {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+
+    body:has(.feedback-widget) .site-footer {
+        padding-bottom: calc(2.75rem + 1.5rem + env(safe-area-inset-bottom, 0px));
+    }
+}

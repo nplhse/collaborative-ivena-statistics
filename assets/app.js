@@ -9,3 +9,4 @@ import '@tabler/core/dist/css/tabler.min.css';
 import '@tabler/core';
 
 import './styles/footer.css';
+import './styles/feedback-widget.css';
