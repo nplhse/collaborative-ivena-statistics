@@ -59,12 +59,13 @@
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label" for="statistics-filter-age-group">{{ 'label.age_group'|trans({}, 'messages') }}</label>
-                                    <select id="statistics-filter-age-group" name="age_group" class="form-select" data-testid="statistics-filter-age-group">
+                                    <select id="statistics-filter-age-group" name="age_group" class="form-select" aria-describedby="statistics-filter-age-group-hint" data-testid="statistics-filter-age-group">
                                         <option value="">{{ 'label.all'|trans({}, 'messages') }}</option>
                                         {% for value, label in drawerChoices.age_group|default([]) %}
                                             <option value="{{ value }}" {{ drawerValues.age_group == value ? 'selected' }}>{{ label }}</option>
                                         {% endfor %}
                                     </select>
+                                    <div id="statistics-filter-age-group-hint" class="form-hint" data-testid="statistics-filter-age-group-hint">{{ 'stats.filter.age_group.missing_age_hint'|trans({}, 'statistics') }}</div>
                                 </div>
                             </div>
                         </div>

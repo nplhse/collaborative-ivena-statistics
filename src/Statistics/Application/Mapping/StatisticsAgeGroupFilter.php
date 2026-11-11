@@ -7,22 +7,27 @@ namespace App\Statistics\Application\Mapping;
 /**
  * Age-group filter values for drawer and explorer filters.
  *
- * Aggregate buckets (under_18, over_80) complement the decade buckets from {@see DimensionRegistry}.
+ * Every value excludes cases without a recorded age (`age IS NULL`); those only count when no age group is selected.
+ *
+ * Aggregate buckets (under_18, adults, over_80) complement the decade buckets from {@see DimensionRegistry}.
  */
 final class StatisticsAgeGroupFilter
 {
     public const string UNDER_18 = 'under_18';
+    public const string ADULTS = 'adults';
     public const string OVER_80 = 'over_80';
 
     /** @var list<string> */
     public const array AGGREGATE_KEYS = [
         self::UNDER_18,
+        self::ADULTS,
         self::OVER_80,
     ];
 
     /** @var array<string, string> */
     public const array AGGREGATE_TRANSLATION_KEYS = [
         self::UNDER_18 => 'statistics.distribution.age.under_18',
+        self::ADULTS => 'statistics.distribution.age.adults',
         self::OVER_80 => 'statistics.distribution.age.over_80',
     ];
 
@@ -40,6 +45,7 @@ final class StatisticsAgeGroupFilter
     {
         return match ($key) {
             self::UNDER_18 => sprintf('%s IS NOT NULL AND %s < 18', $ageColumn, $ageColumn),
+            self::ADULTS => sprintf('%s IS NOT NULL AND %s >= 18', $ageColumn, $ageColumn),
             self::OVER_80 => sprintf('%s >= 80', $ageColumn),
             '0_18' => sprintf('%s IS NOT NULL AND %s <= 18', $ageColumn, $ageColumn),
             '19_29' => sprintf('%s >= 19 AND %s <= 29', $ageColumn, $ageColumn),

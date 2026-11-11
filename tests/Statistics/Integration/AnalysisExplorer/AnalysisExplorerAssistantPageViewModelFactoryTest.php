@@ -130,7 +130,7 @@ final class AnalysisExplorerAssistantPageViewModelFactoryTest extends KernelTest
 
         self::assertNotNull($page->summaryPresentation);
         $filters = $this->line($page->summaryLines, 'filters');
-        self::assertStringContainsString('Under 18', $filters);
+        self::assertStringContainsString('Children & adolescents (under 18)', $filters);
         self::assertStringContainsString('Requires Resus', $filters);
         self::assertStringContainsString(':', $filters);
         $column = '';

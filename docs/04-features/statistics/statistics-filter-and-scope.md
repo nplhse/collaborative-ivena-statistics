@@ -86,6 +86,36 @@ Insights Compare does **not** use that default cohort. Side A uses the header/pr
 
 Permission checks use `HospitalPermission::Statistics` or `HospitalPermission::Benchmarking` depending on the page.
 
+## Age group filter
+
+The filter drawer and the Analysis Explorer share one age-group filter: URL key `age_group`
+(`StatisticsDrawerFilter::ageGroup`), Explorer field `filterAgeGroup` (saved views store it in
+`configJson.query.filters[]` with `dimensionKey: age_group`). Values and SQL conditions live in
+`StatisticsAgeGroupFilter`; the choice list comes from `AnalysisFilterChoiceProvider::ageGroupChoices()`.
+
+| Value | UI label (EN / DE) | Condition |
+|-------|--------------------|-----------|
+| *(empty)* | All / Alle | No age restriction; cases without age are counted |
+| `under_18` | Children & adolescents (under 18) / Kinder & Jugendliche (unter 18) | `age IS NOT NULL AND age < 18` |
+| `adults` | Adults (18 and over) / Erwachsene (ab 18) | `age IS NOT NULL AND age >= 18` |
+| `over_80` | 80 and older / 80 und älter | `age >= 80` |
+| `0_18` … `90_99` | Decade buckets from `DimensionRegistry` | `age` between the bounds |
+
+The adult threshold is 18 (#181): a patient aged 18 counts as an adult.
+
+**Missing age.** Cases without a recorded age cannot be assigned to an age group, so every
+age-group value excludes them, from numerator and denominator alike. They only count when no age
+group is selected. There is no "unknown" option. The drawer and the Explorer show this as a hint
+under the age-group field. Today the import rejects rows without an age (`AllocationRowDTO`, range
+1–99), but `allocation_stats_projection.age` is nullable, so the rule is part of the filter
+definition and covered by tests.
+
+**Where it applies.** Every query on Top Lists (including CSV export; the comparison side gets the
+same filter), Case Flow (the public baseline used for insights stays unfiltered) and the Analysis
+Explorer (including export; dropped when `age_group` is a row or column axis). The monthly report
+shows the drawer but applies the filter only to part of its numbers. Overview, Benchmarking and
+Insights (including Compare) do not read `age_group`.
+
 ## Entry points
 
 - `StatisticsFilterValueResolver` — controller argument resolver

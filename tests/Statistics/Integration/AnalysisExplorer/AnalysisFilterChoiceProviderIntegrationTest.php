@@ -69,6 +69,12 @@ final class AnalysisFilterChoiceProviderIntegrationTest extends KernelTestCase
 
         self::assertArrayHasKey(StatisticsAgeGroupFilter::UNDER_18, $choices);
         self::assertArrayHasKey(StatisticsAgeGroupFilter::OVER_80, $choices);
+        self::assertSame('Children & adolescents (under 18)', $choices[StatisticsAgeGroupFilter::UNDER_18]);
+        self::assertSame('Adults (18 and over)', $choices[StatisticsAgeGroupFilter::ADULTS]);
+        self::assertSame(
+            [StatisticsAgeGroupFilter::UNDER_18, StatisticsAgeGroupFilter::ADULTS, StatisticsAgeGroupFilter::OVER_80],
+            \array_slice(array_keys($choices), 0, 3),
+        );
         self::assertArrayHasKey('30_39', $choices);
         self::assertArrayNotHasKey('unknown', $choices);
     }

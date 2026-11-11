@@ -32,6 +32,18 @@ final class ProjectionDrawerFilterApplierTest extends TestCase
         ));
     }
 
+    public function testAppliesAdultsAgeGroupFilter(): void
+    {
+        $qb = $this->createQueryBuilderMock();
+        $qb->expects(self::once())
+            ->method('andWhere')
+            ->with('p.age IS NOT NULL AND p.age >= 18');
+
+        $this->applier->apply($qb, new StatisticsDrawerFilter(
+            ageGroup: StatisticsAgeGroupFilter::ADULTS,
+        ));
+    }
+
     public function testAppliesClinicalBooleanFilters(): void
     {
         $qb = $this->createQueryBuilderMock();
