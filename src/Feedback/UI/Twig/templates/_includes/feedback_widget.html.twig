@@ -5,15 +5,15 @@
     data-feedback-context-route-value="{{ form._source_route.vars.value|e('html_attr') }}"
     data-feedback-context-route-params-value="{{ form._source_route_params.vars.value|e('html_attr') }}"
 >
-    <div class="dropup position-fixed bottom-0 end-0 p-3" style="z-index: 1030;">
+    <div class="dropup position-fixed bottom-0 end-0 feedback-widget__fab">
         <button
             type="button"
-            class="btn btn-primary rounded-circle shadow d-inline-flex align-items-center justify-content-center p-0"
-            style="width: 3.5rem; height: 3.5rem;"
+            class="btn btn-primary rounded-circle shadow d-inline-flex align-items-center justify-content-center p-0 feedback-widget__trigger"
             data-bs-toggle="offcanvas"
             data-bs-target="#feedbackOffcanvas"
             aria-controls="feedbackOffcanvas"
             title="{{ 'feedback.widget.open'|trans({}, 'feedback') }}"
+            aria-label="{{ 'feedback.widget.open'|trans({}, 'feedback') }}"
         >
             <twig:ux:icon name="tabler:message-circle" width="1.25rem" height="1.25rem" class="flex-shrink-0"/>
         </button>
