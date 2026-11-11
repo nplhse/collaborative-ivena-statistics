@@ -10,9 +10,6 @@ final readonly class AnalyticsDailyAggregateStore
 {
     private const array TABLES = [
         'analytics_request_daily',
-        'analytics_event_daily',
-        'analytics_transition_daily',
-        'analytics_session_boundary_daily',
         'analytics_uniques_daily',
         'analytics_access_daily',
         'analytics_aggregation_run',

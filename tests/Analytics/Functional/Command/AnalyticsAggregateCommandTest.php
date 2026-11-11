@@ -150,7 +150,8 @@ final class AnalyticsAggregateCommandTest extends DatabaseKernelTestCase
         self::assertSame(0, $exitCode);
         self::assertStringContainsString('2 day(s)', $tester->getDisplay());
         self::assertStringContainsString('…', $tester->getDisplay());
-        self::assertStringContainsString('No raw analytics rows in the selected period.', $tester->getDisplay());
+        // The summary wraps at the console width; compare without line breaks.
+        self::assertStringContainsString('No raw analytics rows in the selected period.', (string) preg_replace('/\s+/', ' ', $tester->getDisplay()));
     }
 
     public function testCommandKeepsAggregatesOfPurgedDays(): void

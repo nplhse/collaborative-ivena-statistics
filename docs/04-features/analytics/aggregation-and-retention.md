@@ -8,7 +8,7 @@ Related: [usage-analytics.md](usage-analytics.md), [../../02-architecture/messen
 
 | Window | Storage |
 |--------|---------|
-| Last 30 calendar days plus today (default) | Detailed rows in `analytics_request` and `analytics_product_event` |
+| Last 30 calendar days plus today (default) | Detailed rows in `analytics_request` |
 | Older completed days | Daily aggregate tables only |
 
 **Retention:** raw rows are deleted after `ANALYTICS_RAW_RETENTION_DAYS` (default 30), and only for
@@ -23,7 +23,7 @@ A calendar **day** is always **Europe/Berlin** (`00:00` inclusive to next `00:00
 
 1. Deletes existing aggregate rows and the run marker for that date
 2. Rebuilds daily statistics from raw rows in the Berlin day window
-3. Writes `analytics_aggregation_run` (including empty days with `0/0/0`)
+3. Writes `analytics_aggregation_run` (including empty days with a raw request count of 0)
 
 A day that already has a run marker but no raw rows left (raw data deleted by retention) is **not**
 rebuilt: its aggregates and marker stay unchanged, and the command reports it as "kept unchanged".
@@ -38,9 +38,6 @@ Only **completed** days are aggregated by the scheduler (yesterday and catch-up)
 |-------|-------|-------------------|
 | `analytics_aggregation_run` | date | Marker required before raw cleanup |
 | `analytics_request_daily` | date + area + route + auth + role | counts, error counts, duration/query sums |
-| `analytics_event_daily` | date + event + area + role | event counts |
-| `analytics_transition_daily` | date + from/to route | transition counts (within that day) |
-| `analytics_session_boundary_daily` | date + route + entry/exit | session counts (within that day) |
 | `analytics_uniques_daily` | date | daily distinct users/visitors/sessions (not summable across days) |
 | `analytics_access_daily` | date + auth | counted accesses (page views, [definition](usage-analytics.md#counted-accesses)); only for counted days, see below |
 
@@ -68,8 +65,8 @@ Admin Usage Analytics views keep their existing 7-/30-day windows.
 
 | Metric | Source |
 |--------|--------|
-| Request counts, feature areas, top routes, auth split, role × area, event counts | Aggregate tables for completed days with a run marker, plus raw rows for today and any unaggregated gaps |
-| DAU/WAU/MAU, engagement depth, unique users, p95, journeys | Raw tables (not reconstructable from daily counts) |
+| Request counts, feature areas, top routes, auth split | Aggregate tables for completed days with a run marker, plus raw rows for today and any unaggregated gaps |
+| DAU/WAU/MAU, sessions, p95 | Raw tables (not reconstructable from daily counts) |
 | Accesses page (total, years, months) | `analytics_access_daily` for days with rows, plus raw rows for days without rows when all their requests are classified (today, days not aggregated yet); never both for one day |
 
 Failed aggregation never deletes the corresponding raw day, so those metrics stay available until the day is successfully rolled up.

@@ -11,9 +11,6 @@ use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
-use App\Analytics\Application\UsageEvents\UsageAnalytics;
-use App\Analytics\Domain\Enum\FeatureArea;
-use App\Analytics\Domain\UsageEventName;
 use App\User\Domain\Entity\User;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,7 +26,6 @@ final class ShowHospitalController extends AbstractController
         private readonly CatalogActionFactory $actionFactory,
         private readonly CatalogAllocationYearUrlFactory $yearUrlFactory,
         private readonly HospitalPermissionAccess $hospitalPermissionAccess,
-        private readonly UsageAnalytics $usageAnalytics,
     ) {
     }
 
@@ -55,12 +51,6 @@ final class ShowHospitalController extends AbstractController
             && $this->hospitalPermissionAccess->hasPermission($user, $id, HospitalPermission::Import);
         $canViewBenchmarking = $user instanceof User
             && $this->hospitalPermissionAccess->hasPermission($user, $id, HospitalPermission::Benchmarking);
-
-        $this->usageAnalytics->record(
-            UsageEventName::EXPLORE_HOSPITAL_OPENED,
-            FeatureArea::Explore,
-            ['entity' => 'hospital'],
-        );
 
         $coverage = $this->coverageQuery->forHospital($id, $revealSensitiveMetrics);
 

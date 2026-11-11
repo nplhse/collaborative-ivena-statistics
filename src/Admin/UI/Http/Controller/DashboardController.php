@@ -152,22 +152,6 @@ final class DashboardController extends AbstractDashboardController
         ]);
     }
 
-    #[AdminRoute(path: '/operations/usage-analytics/adoption', name: 'operations_usage_analytics_adoption')]
-    public function usageAnalyticsAdoption(): Response
-    {
-        return $this->render('@Admin/operations/usage_analytics/adoption.html.twig', [
-            'adoption' => $this->analyticsDashboardService->getAdoption(),
-        ]);
-    }
-
-    #[AdminRoute(path: '/operations/usage-analytics/journeys', name: 'operations_usage_analytics_journeys')]
-    public function usageAnalyticsJourneys(): Response
-    {
-        return $this->render('@Admin/operations/usage_analytics/journeys.html.twig', [
-            'journeys' => $this->analyticsDashboardService->getJourneys(),
-        ]);
-    }
-
     #[AdminRoute(path: '/operations/usage-analytics/performance', name: 'operations_usage_analytics_performance')]
     public function usageAnalyticsPerformance(): Response
     {
@@ -399,18 +383,6 @@ final class DashboardController extends AbstractDashboardController
                         'route' => 'app_admin_dashboard_operations_usage_analytics_accesses',
                     ],
                     [
-                        'label' => new TranslatableMessage('usage_analytics.menu.adoption', domain: 'admin'),
-                        'description' => new TranslatableMessage('usage_analytics.tile.adoption', domain: 'admin'),
-                        'icon' => 'fas fa-chart-line',
-                        'route' => 'app_admin_dashboard_operations_usage_analytics_adoption',
-                    ],
-                    [
-                        'label' => new TranslatableMessage('usage_analytics.menu.journeys', domain: 'admin'),
-                        'description' => new TranslatableMessage('usage_analytics.tile.journeys', domain: 'admin'),
-                        'icon' => 'fas fa-route',
-                        'route' => 'app_admin_dashboard_operations_usage_analytics_journeys',
-                    ],
-                    [
                         'label' => new TranslatableMessage('usage_analytics.menu.performance', domain: 'admin'),
                         'description' => new TranslatableMessage('usage_analytics.tile.performance', domain: 'admin'),
                         'icon' => 'fas fa-tachometer-alt',
@@ -526,8 +498,6 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::section(new TranslatableMessage('usage_analytics.menu.section', domain: 'admin'));
         yield MenuItem::linkToRoute(new TranslatableMessage('usage_analytics.menu.overview', domain: 'admin'), 'fas fa-gauge-high', 'app_admin_dashboard_operations_usage_analytics_overview');
         yield MenuItem::linkToRoute(new TranslatableMessage('usage_analytics.menu.accesses', domain: 'admin'), 'fas fa-chart-column', 'app_admin_dashboard_operations_usage_analytics_accesses');
-        yield MenuItem::linkToRoute(new TranslatableMessage('usage_analytics.menu.adoption', domain: 'admin'), 'fas fa-chart-line', 'app_admin_dashboard_operations_usage_analytics_adoption');
-        yield MenuItem::linkToRoute(new TranslatableMessage('usage_analytics.menu.journeys', domain: 'admin'), 'fas fa-route', 'app_admin_dashboard_operations_usage_analytics_journeys');
         yield MenuItem::linkToRoute(new TranslatableMessage('usage_analytics.menu.performance', domain: 'admin'), 'fas fa-tachometer-alt', 'app_admin_dashboard_operations_usage_analytics_performance');
 
         yield MenuItem::section('System');

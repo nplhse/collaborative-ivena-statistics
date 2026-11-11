@@ -6,7 +6,6 @@
 
 - Automatic request tracking into `analytics_request`
 - Consent preference `analytics` (optional; essential cookies remain required)
-- Usage events into `analytics_product_event` via `UsageAnalytics` (consent-gated)
 - Admin insights under `/admin/operations/usage-analytics/*` (menu section above System)
 - **Local only:** measurement runs on this application’s servers — no external analytics providers (no Google Analytics, Matomo cloud, etc.). Server-side error monitoring (e.g. Sentry) is separate and not controlled by this cookie preference.
 
@@ -14,7 +13,7 @@ Tables are created by migration `Version20260804151958` (run with normal deploy 
 
 ## Privacy
 
-Stored: route name, feature area, status, duration, DB query count/time, authenticated flag, primary role, normalized browser/device, whether the request counts as an access, optional pseudonymous keys, usage event names + non-PII context.
+Stored: route name, feature area, status, duration, DB query count/time, authenticated flag, primary role, normalized browser/device, whether the request counts as an access, optional pseudonymous keys.
 
 Not stored: IP, full URLs, query parameters (names or values), SQL, raw user agent, referrer, POST/form bodies, Symfony session id, user id.
 
@@ -58,23 +57,21 @@ There is no dedicated `app:…` reset command; use `dbal:run-sql` as above. See 
 
 ## Consent and keys
 
-| Situation | Requests | Usage events |
-|-----------|----------|--------------|
-| No analytics consent | Anonymous metrics (no keys) | **Not stored** |
-| Analytics consent | + visitor/session cookies | Stored with keys |
-| Consent + logged-in user | + HMAC user key via `APP_SECRET` | + HMAC user key |
+| Situation | Requests |
+|-----------|----------|
+| No analytics consent | Anonymous metrics (no keys) |
+| Analytics consent | + visitor/session cookies |
+| Consent + logged-in user | + HMAC user key via `APP_SECRET` |
 
 ### Analytics cookies (only with analytics consent)
 
 | Cookie | Purpose |
 |--------|---------|
 | `analytics_visitor` | Long-lived visitor key |
-| `analytics_session` | Session key for navigation paths |
+| `analytics_session` | Session key for session counts |
 | `consent_subject_id` | Shared consent subject (essential; not analytics-specific) |
 
 Without analytics consent the analytics cookies are cleared on response.
-
-Worker / async paths use `UsageAnalytics::recordForUser()` and persist only if that user has a stored consent row with `analytics=true`.
 
 ## Secrets
 
@@ -82,40 +79,13 @@ Pseudonymous analytics user keys use HMAC-SHA256 with `APP_SECRET` (`%kernel.sec
 
 **Risk:** Rotating `APP_SECRET` changes future `analytics_user_key` values. Existing rows keep old keys, so retention across the rotation boundary breaks. Treat rotation as a deliberate continuity break.
 
-## Recording usage events
-
-```php
-$this->usageAnalytics->record(UsageEventName::ANALYSIS_EXPLORER_RUN, FeatureArea::Analysis);
-// Worker / no request:
-$this->usageAnalytics->recordForUser(UsageEventName::IMPORT_COMPLETED, $user, FeatureArea::Import);
-```
-
-Event names live in `App\Analytics\Domain\UsageEventName`. Context must be non-PII (e.g. `step`, `entity`, `user_role`) — **no** hospital/patient IDs or filter values.
-
-### Event catalog
-
-| Event | Typical hook |
-|-------|----------------|
-| `analysis.library.opened` | Analysis Explorer library |
-| `analysis.explorer.opened` | Explorer (no saved view) |
-| `analysis.saved_view.opened` | Explorer saved view |
-| `analysis.explorer.run` | Explorer re-run |
-| `analysis.saved_view.created` | Saved view create |
-| `analysis.explorer.exported_csv` | CSV export |
-| `import.started` | New import dispatch |
-| `import.completed` | `ImportCompleted` listener |
-| `explore.allocation.opened` / `hospital` / `indication` | Explore show controllers |
-| `benchmarking.opened` | Benchmarking page |
-| `user.registered` | `UserRegistered` listener |
-| `user.became_participant` | Grant participant |
-
 ## Feature areas
 
 Resolved from Symfony route names: `home`, `dashboard`, `statistics`, `analysis`, `explore`, `import`, `export`, `admin`, `blog`, `pages`, `other`.
 
 ### Admin area exclusion
 
-Requests under the Admin UI (`app_admin_*` routes / path `/admin`) are **not** written to `analytics_request`. Product events and normal app usage (including by users with `ROLE_ADMIN`) remain tracked.
+Requests under the Admin UI (`app_admin_*` routes / path `/admin`) are **not** written to `analytics_request`. Normal app usage (including by users with `ROLE_ADMIN`) remains tracked.
 
 After deploying this exclusion, remove historical admin request rows once (optional but recommended so Overview/Performance are not skewed):
 
@@ -126,8 +96,6 @@ php bin/console dbal:run-sql "SELECT COUNT(*) AS n FROM analytics_request WHERE 
 # Delete
 php bin/console dbal:run-sql "DELETE FROM analytics_request WHERE feature_area = 'admin' OR route_name LIKE 'app_admin_%'"
 ```
-
-Do **not** delete `analytics_product_event` rows for this cleanup.
 
 ## Counted accesses
 
@@ -169,21 +137,21 @@ response are counted for these rows. Already classified rows are never changed; 
 again is safe. Raw rows only exist for the last `ANALYTICS_RAW_RETENTION_DAYS` days
 ([aggregation-and-retention.md](aggregation-and-retention.md)); older days cannot be classified.
 
-## Engagement depth (levels)
+## Removed analytics
 
-Derived in the dashboard (not stored). Max level per `analytics_user_key` over 30 days from events and requests:
+These analyses were removed without replacement; their tables and stored rows were dropped by
+migration `Version20261111213946`:
 
-| Level | Meaning | Signal |
-|------:|---------|--------|
-| 0 | Registered / low engagement | Auth/registration events without deeper use |
-| 1 | Dashboard viewed | Feature area `dashboard` |
-| 2 | Statistics / Explore / Import | Areas or open/import events |
-| 3 | Analysis run | `analysis.explorer.run` |
-| 5 | Export | `analysis.explorer.exported_csv` or area `export` |
-
-There is no level 4. It was "filters used", derived from query parameter names, and was removed
-without replacement because URL parameters do not show filter use (#952, #988). The other levels
-keep their numbers.
+- **Usage events, adoption and engagement depth** (#989): event names recorded in controllers and
+  listeners (`analysis.explorer.run`, `import.completed`, `benchmarking.opened`, …), stored in
+  `analytics_product_event` and `analytics_event_daily`, and the admin page *Adoption*. The
+  underlying domain events (`ImportCompleted`, `UserRegistered`, …) and their other listeners are
+  unchanged.
+- **Journeys** (#989): entry and exit routes and route transitions per session
+  (`analytics_session_boundary_daily`, `analytics_transition_daily`) and the admin page *Journeys*.
+  The session key is still stored on requests and counted on Overview ("Sessions").
+- **Filter usage** (#988): derived from query parameter names, which are no longer stored
+  ([Privacy](#privacy)).
 
 ## Onboarding
 
@@ -201,8 +169,6 @@ Menu section **Usage analytics** (above System), one page per topic:
 |------|-------|----------|
 | Overview | `/admin/operations/usage-analytics/overview` | Requests, DAU/WAU/MAU, feature areas, auth split, top routes |
 | Accesses | `…/accesses` | Counted accesses (page views) in total, per year and per month since the counting started, monthly chart |
-| Adoption | `…/adoption` | Top events, events by role, role × area, engagement depth |
-| Journeys | `…/journeys` | Entry/exit routes and transitions |
 | Performance | `…/performance` | Latency/queries/errors by area, slowest routes, prioritization hints |
 
 `/admin/operations/usage-analytics` redirects to Overview. No per-user search or raw identifiers.
@@ -221,4 +187,4 @@ Long-term view of [counted accesses](#counted-accesses), built by `AccessTrendSe
   which the counting started ("Counted from …"). The chart draws them lighter.
 - **Time zone:** days, months and years are Europe/Berlin calendar periods.
 
-Count-based widgets (requests, feature areas, routes, event counts) combine daily aggregates with raw rows for today and any unaggregated gaps. Distinct-user and sequence metrics (DAU/WAU/MAU, engagement depth, journeys, p95) stay on the raw 30-day window. Details: [aggregation-and-retention.md](aggregation-and-retention.md).
+Count-based widgets (requests, feature areas, routes) combine daily aggregates with raw rows for today and any unaggregated gaps. Distinct-user metrics (DAU/WAU/MAU, sessions) and p95 stay on the raw 30-day window. Details: [aggregation-and-retention.md](aggregation-and-retention.md).

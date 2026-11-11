@@ -6,13 +6,9 @@ namespace App\Tests\Analytics\Unit\Domain\Entity;
 
 use App\Analytics\Domain\Entity\AnalyticsAccessDaily;
 use App\Analytics\Domain\Entity\AnalyticsAggregationRun;
-use App\Analytics\Domain\Entity\AnalyticsEventDaily;
 use App\Analytics\Domain\Entity\AnalyticsRequestDaily;
-use App\Analytics\Domain\Entity\AnalyticsSessionBoundaryDaily;
-use App\Analytics\Domain\Entity\AnalyticsTransitionDaily;
 use App\Analytics\Domain\Entity\AnalyticsUniquesDaily;
 use App\Analytics\Domain\Enum\FeatureArea;
-use App\Analytics\Domain\Enum\SessionBoundaryKind;
 use PHPUnit\Framework\TestCase;
 
 final class AnalyticsDailyEntitiesTest extends TestCase
@@ -51,35 +47,12 @@ final class AnalyticsDailyEntitiesTest extends TestCase
         $date = new \DateTimeImmutable('2026-05-11');
         $aggregatedAt = new \DateTimeImmutable('2026-05-12 02:15:00');
 
-        $run = new AnalyticsAggregationRun($date, 9, 3, 5, $aggregatedAt);
+        $run = new AnalyticsAggregationRun($date, 9, 5, $aggregatedAt);
         self::assertNull($run->getId());
         self::assertSame($date, $run->getDate());
         self::assertSame($aggregatedAt, $run->getAggregatedAt());
         self::assertSame(9, $run->getRawRequestCount());
-        self::assertSame(3, $run->getRawEventCount());
         self::assertSame(5, $run->getAggregateRowsWritten());
-
-        $event = new AnalyticsEventDaily($date, 'analysis_explorer.run', FeatureArea::Analysis, 'ROLE_ADMIN', 2);
-        self::assertNull($event->getId());
-        self::assertSame($date, $event->getDate());
-        self::assertSame('analysis_explorer.run', $event->getEventName());
-        self::assertSame(FeatureArea::Analysis, $event->getFeatureArea());
-        self::assertSame('ROLE_ADMIN', $event->getUserRole());
-        self::assertSame(2, $event->getEventCount());
-
-        $transition = new AnalyticsTransitionDaily($date, 'app_home', 'app_stats_dashboard', 4);
-        self::assertNull($transition->getId());
-        self::assertSame($date, $transition->getDate());
-        self::assertSame('app_home', $transition->getFromRoute());
-        self::assertSame('app_stats_dashboard', $transition->getToRoute());
-        self::assertSame(4, $transition->getTransitionCount());
-
-        $boundary = new AnalyticsSessionBoundaryDaily($date, 'app_home', SessionBoundaryKind::Exit, 2);
-        self::assertNull($boundary->getId());
-        self::assertSame($date, $boundary->getDate());
-        self::assertSame('app_home', $boundary->getRouteName());
-        self::assertSame(SessionBoundaryKind::Exit, $boundary->getKind());
-        self::assertSame(2, $boundary->getSessionCount());
 
         $uniques = new AnalyticsUniquesDaily($date, 8, 11, 13);
         self::assertNull($uniques->getId());

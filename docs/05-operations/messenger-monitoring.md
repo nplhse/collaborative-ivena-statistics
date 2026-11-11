@@ -49,7 +49,7 @@ Every scheduler job writes a `job_run` row, with the trigger `scheduler`. Jobs w
 |-----|---------|----------|-------------------------|----------------------|
 | `kpi_daily` | `GenerateDailyKpisMessage` | every 6 h | 420 | `days_processed`, `days_with_data`, `rows` |
 | `monthly_reminder` | `SendMonthlySubmissionRemindersMessage` | daily 08:00 | 1500 | `hospitals`, `queued`, `skipped`, `skipped_<reason>` |
-| `analytics_aggregation` | `AggregateDailyAnalyticsMessage` | daily 02:15 | 1500 | `days_processed`, `raw_requests`, `raw_events`, `aggregate_rows`, `raw_rows_deleted` |
+| `analytics_aggregation` | `AggregateDailyAnalyticsMessage` | daily 02:15 | 1500 | `days_processed`, `raw_requests`, `aggregate_rows`, `raw_rows_deleted` (`raw_events` only in runs before #989) |
 | `notification_cleanup` | `CleanUpNotificationsMessage` | daily 02:45 | 1500 | `deleted_notifications`, `deleted_deduplication_keys`, `corrected_recipients` |
 | `notification_reconcile` | `ReconcileNotificationsMessage` | hourly :17 | 120 | `published`, `deliveries_resumed` |
 | `storage_measurement` | `MeasureStorageMessage` | daily 03:30 | 1500 | `level`, `failures` |

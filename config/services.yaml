@@ -72,8 +72,6 @@ services:
     App\Allocation\Application\Contracts\HospitalIsochroneStoreInterface: '@App\Allocation\Infrastructure\Geo\HospitalIsochroneFileStore'
     App\Allocation\Application\Contracts\HospitalIsochroneClientInterface: '@App\Allocation\Infrastructure\Http\OpenRouteServiceIsochroneClient'
     App\Allocation\Application\Contracts\PreparedLocationStoreInterface: '@App\Allocation\Infrastructure\Geo\PreparedLocationFileStore'
-    App\Analytics\Application\UsageEvents\UsageEventContextResolverInterface: '@App\Analytics\Application\UsageEvents\UsageEventContextResolver'
-    App\Analytics\Application\UsageEvents\UsageEventRecorderInterface: '@App\Analytics\Application\UsageEvents\UsageEventRecorder'
     App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolverInterface: '@App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolver'
     App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryFilterLabelsInterface: '@App\Statistics\AnalysisExplorer\Application\ExplorerFilterBadgePresenter'
 

@@ -326,8 +326,6 @@ deptrac:
       - App\Kpi\Infrastructure\Repository\KpiDailyRepository
     App\Analytics\Domain\Entity\AnalyticsRequest:
       - App\Analytics\Infrastructure\Repository\AnalyticsRequestRepository
-    App\Analytics\Domain\Entity\AnalyticsProductEvent:
-      - App\Analytics\Infrastructure\Repository\AnalyticsProductEventRepository
     App\Onboarding\Application\OnboardingProgressService:
       - App\Onboarding\Infrastructure\Repository\UserOnboardingStepRepository
     App\Onboarding\Application\OnboardingStepCatalog:

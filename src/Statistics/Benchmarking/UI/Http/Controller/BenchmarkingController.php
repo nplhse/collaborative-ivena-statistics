@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace App\Statistics\Benchmarking\UI\Http\Controller;
 
 use App\Allocation\Domain\Enum\HospitalPermission;
-use App\Analytics\Application\UsageEvents\UsageAnalytics;
-use App\Analytics\Domain\Enum\FeatureArea;
-use App\Analytics\Domain\UsageEventName;
 use App\Statistics\Application\ComparisonScopeResolver;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\StatisticsContextFactory;
@@ -47,7 +44,6 @@ final class BenchmarkingController extends AbstractController
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
         private readonly BenchmarkSelectionFormDataFactory $benchmarkSelectionFormDataFactory,
-        private readonly UsageAnalytics $usageAnalytics,
     ) {
     }
 
@@ -103,8 +99,6 @@ final class BenchmarkingController extends AbstractController
             $pageViewModel,
             $overviewPeriodViewModel,
         );
-
-        $this->usageAnalytics->record(UsageEventName::BENCHMARKING_OPENED, FeatureArea::Statistics);
 
         return $this->render('@Statistics/benchmarking/index.html.twig', [
             'dataQualityReport' => $dataQualityReport,
