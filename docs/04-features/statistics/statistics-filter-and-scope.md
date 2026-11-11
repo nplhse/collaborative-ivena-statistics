@@ -27,9 +27,20 @@ Hospital and dispatch area are orthogonal: destination hospital ≠ origin dispa
 
 ## Periods
 
-`StatisticsFilterPeriod`: `all`, `all_time`, `year`, `quarter`, `month`.
+`StatisticsFilterPeriod`: `last_12_months`, `all_time`, `year`, `quarter`, `month`.
 
-Period is only the query window (`[from, toExclusive)` via `StatisticsPeriodResolver`). Time-series charts use a separate bucket size from `TimeSeriesGrainResolver` (`year`/`quarter`/`all`/`all_time` → month, `month` → day) and `TimeSeriesAxisFiller`:
+- `last_12_months`: rolling window from the first day of the month eleven months before the current one (`StatisticsPeriod::overviewPeriodStart()`), no upper bound. Example: on 2026-11-11 it starts at 2025-12-01 00:00.
+- `all_time`: whole history, no lower and no upper bound.
+
+### Identifier `all` (transition, #1017)
+
+Up to v0.3 the identifier `all` meant the rolling 12-month window, which contradicted its name. It was renamed to `last_12_months`; labels and numbers did not change.
+
+- **v0.3 (transition):** `LegacyAllPeriodRedirectSubscriber` redirects GET requests to statistics controllers with `period=all` or `comparison_period=all` to the same URL with `last_12_months` (302), so old bookmarks and e-mail links show the same numbers. `all` is not an enum value; inside the application it is never produced, and an unknown value falls back to the default (`last_12_months`).
+- **Saved explorer views** that stored `all` were rewritten to `last_12_months` by migration `Version20261111214028`.
+- **v0.4-beta:** the redirect is removed and `all` becomes the identifier for the whole history (the value of `StatisticsFilterPeriod::AllTime`).
+
+Period is only the query window (`[from, toExclusive)` via `StatisticsPeriodResolver`). Time-series charts use a separate bucket size from `TimeSeriesGrainResolver` (`year`/`quarter`/`last_12_months`/`all_time` → month, `month` → day) and `TimeSeriesAxisFiller`:
 
 - Monthly series omit the in-progress calendar month, even if it already has rows.
 - Daily series (month period) include today and leave later days off the axis; past days without cases stay `0`.
@@ -49,9 +60,9 @@ Admins can still select `my_hospitals` explicitly via `?scope=my_hospitals`.
 
 ## Default period (no `period` query parameter)
 
-`StatisticsFilterInputFactory` defaults to `all` (rolling 12 months from `StatisticsPeriod::overviewPeriodStart()`). Explicit `?period=all_time` remains the full-history window. Invalid period strings already fall back to `all` in `StatisticsFilterFactory::parsePeriod()`.
+`StatisticsFilterInputFactory` defaults to `last_12_months` (rolling 12 months from `StatisticsPeriod::overviewPeriodStart()`). Explicit `?period=all_time` remains the full-history window. Invalid period strings fall back to `last_12_months` in `StatisticsFilterFactory::parsePeriod()`.
 
-Overview (`GET /statistics/`) is the exception: `OverviewDefaultPeriodResolver` uses `all` only when at least 7 months in that window have data; otherwise it keeps `all_time`. When the resolver chooses `all` and the URL has no `period`, `DashboardController` redirects to `?period=all`.
+Overview (`GET /statistics/`) is the exception: `OverviewDefaultPeriodResolver` uses `last_12_months` only when at least 7 months in that window have data; otherwise it keeps `all_time`. When the resolver chooses `last_12_months` and the URL has no `period`, `DashboardController` redirects to `?period=last_12_months`.
 
 ## Resolution and fallbacks
 

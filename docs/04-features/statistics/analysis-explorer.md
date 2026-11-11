@@ -204,7 +204,7 @@ Charts can optionally show only the **top 5** or **top 10** row buckets (primary
   "dataSource": "allocations",
   "query": {
     "scope": { "group": "public", "detail": null },
-    "period": { "type": "all", "year": null, "quarter": null, "month": null },
+    "period": { "type": "last_12_months", "year": null, "quarter": null, "month": null },
     "metrics": ["allocation_count"],
     "visualMetric": "allocation_count",
     "rows": { "dimension": "time", "grain": "month" },
@@ -240,7 +240,7 @@ v1–v3 configs with known fields are upgraded on load via `ExplorerConfigMapper
   "dataSource": "hospitals",
   "query": {
     "scope": { "group": "public", "detail": null },
-    "period": { "type": "all", "year": null, "quarter": null, "month": null },
+    "period": { "type": "last_12_months", "year": null, "quarter": null, "month": null },
     "hospitalPopulation": "participating",
     "metrics": ["hospital_count"],
     "visualMetric": "hospital_count",

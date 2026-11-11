@@ -12,7 +12,7 @@ Administrators previously defaulted to `my_hospitals`, which resolves to **all**
 
 ### Single hospital (earlier)
 
-Request: `GET /statistics/?hospital=40&period=all&scope=hospital`
+Request: `GET /statistics/?hospital=40&period=last_12_months&scope=hospital`
 
 | Metric | Value |
 |--------|-------|
@@ -21,9 +21,9 @@ Request: `GET /statistics/?hospital=40&period=all&scope=hospital`
 
 Dominant: Self-benchmark ~570 ms, metrics ~354 ms, slice ~38 ms.
 
-### Public `period=all` (after admin default)
+### Public `period=last_12_months` (after admin default)
 
-Request: `GET /statistics/?period=all`
+Request: `GET /statistics/?period=last_12_months`
 
 | Metric | Value |
 |--------|-------|
@@ -38,7 +38,7 @@ Dominant:
 | ~1671 ms | Self-benchmark core metrics (same tautological union where) |
 | ~127 ms | `OverviewSliceQuery` |
 
-Self-benchmark compares `period=all` (primary) to `all_time` (comparison). Public + `all_time` → comparison predicate `1 = 1`.
+Self-benchmark compares `period=last_12_months` (primary) to `all_time` (comparison). Public + `all_time` → comparison predicate `1 = 1`.
 
 ## Mitigation (Aug 2026)
 
