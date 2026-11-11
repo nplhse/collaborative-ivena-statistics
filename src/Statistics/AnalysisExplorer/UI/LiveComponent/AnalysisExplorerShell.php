@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\UI\LiveComponent;
 
-use App\Analytics\Application\UsageEvents\UsageAnalytics;
-use App\Analytics\Domain\Enum\FeatureArea;
-use App\Analytics\Domain\UsageEventName;
 use App\Statistics\AnalysisExplorer\Application\AnalysisExecution;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigValidator;
@@ -259,7 +256,6 @@ final class AnalysisExplorerShell
         private readonly ExplorerFilterBadgePresenter $filterBadgePresenter,
         private readonly HospitalAccessInterface $hospitalAccess,
         private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly UsageAnalytics $usageAnalytics,
         private readonly StatisticsSourceDataProbe $sourceDataProbe,
     ) {
     }
@@ -1037,10 +1033,6 @@ final class AnalysisExplorerShell
 
         $this->emptyReason = $execution->emptyReason;
         $this->result = $execution->result;
-        if (null === $execution->warningKey && 'scope_forbidden' !== $execution->emptyReason) {
-            $this->usageAnalytics->record(UsageEventName::ANALYSIS_EXPLORER_RUN, FeatureArea::Analysis);
-        }
-
         $this->canImport = $this->sourceDataProbe->canImport($this->resolveUser());
 
         $this->chartSpecs = $execution->chartSpecs;

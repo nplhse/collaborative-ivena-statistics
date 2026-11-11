@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Analytics\Infrastructure\Repository;
 
-use App\Analytics\Application\Engagement\EngagementDepthResolver;
 use App\Analytics\Domain\AnalyticsCalendar;
 use App\Analytics\Domain\Entity\AnalyticsRequest;
 use App\Analytics\Domain\Enum\FeatureArea;
@@ -20,7 +19,6 @@ final class AnalyticsRequestRepository extends ServiceEntityRepository
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         ManagerRegistry $registry,
-        private readonly EngagementDepthResolver $engagementDepthResolver,
     ) {
         parent::__construct($registry, AnalyticsRequest::class);
     }
@@ -190,131 +188,6 @@ final class AnalyticsRequestRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return list<array{userRole: string, featureArea: string, requestCount: int}>
-     */
-    public function roleAreaMatrixSince(\DateTimeImmutable $from): array
-    {
-        /** @var list<array{userRole: string|null, featureArea: FeatureArea|string, requestCount: int|string}> $rows */
-        $rows = $this->createQueryBuilder('r')
-            ->select('r.userRole AS userRole', 'r.featureArea AS featureArea', 'COUNT(r.id) AS requestCount')
-            ->where('r.occurredAt >= :from')
-            ->andWhere('r.userRole IS NOT NULL')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->groupBy('r.userRole', 'r.featureArea')
-            ->orderBy('requestCount', 'DESC')
-            ->setMaxResults(50)
-            ->getQuery()
-            ->getArrayResult();
-
-        $result = [];
-        foreach ($rows as $row) {
-            $area = $row['featureArea'];
-            $featureArea = $area instanceof FeatureArea ? $area->value : $area;
-            $result[] = [
-                'userRole' => $row['userRole'] ?? 'unknown',
-                'featureArea' => $featureArea,
-                'requestCount' => (int) $row['requestCount'],
-            ];
-        }
-
-        return $result;
-    }
-
-    /**
-     * @return array<string, int> analytics_user_key => max request-derived level
-     */
-    public function maxRequestLevelsByUserSince(\DateTimeImmutable $from): array
-    {
-        $conn = $this->getEntityManager()->getConnection();
-        /** @var list<array{analytics_user_key: string, feature_area: string}> $rows */
-        $rows = $conn->fetchAllAssociative(
-            <<<'SQL'
-                SELECT DISTINCT analytics_user_key, feature_area
-                FROM analytics_request
-                WHERE occurred_at >= :from
-                  AND analytics_user_key IS NOT NULL
-            SQL,
-            ['from' => $from->format('Y-m-d H:i:s')],
-        );
-
-        $levels = [];
-        foreach ($rows as $row) {
-            $key = $row['analytics_user_key'];
-            $level = $this->engagementDepthResolver->levelForFeatureArea($row['feature_area']);
-            $levels[$key] = max($levels[$key] ?? 0, $level);
-        }
-
-        return $levels;
-    }
-
-    /**
-     * @return list<array{routeName: string, sessionCount: int}>
-     */
-    public function topEntryRoutesSince(\DateTimeImmutable $from, int $limit = 10): array
-    {
-        return $this->sessionBoundaryRoutes($from, 'ASC', $limit);
-    }
-
-    /**
-     * @return list<array{routeName: string, sessionCount: int}>
-     */
-    public function topExitRoutesSince(\DateTimeImmutable $from, int $limit = 10): array
-    {
-        return $this->sessionBoundaryRoutes($from, 'DESC', $limit);
-    }
-
-    /**
-     * @return list<array{fromRoute: string, toRoute: string, transitionCount: int}>
-     */
-    public function topTransitionsSince(\DateTimeImmutable $from, int $limit = 20): array
-    {
-        $conn = $this->getEntityManager()->getConnection();
-        /** @var list<array{from_route: string, to_route: string, transition_count: int|string}> $rows */
-        $rows = $conn->fetchAllAssociative(
-            <<<'SQL'
-                WITH ordered AS (
-                    SELECT session_key,
-                           route_name,
-                           occurred_at,
-                           LEAD(route_name) OVER (PARTITION BY session_key ORDER BY occurred_at, id) AS next_route
-                    FROM analytics_request
-                    WHERE occurred_at >= :from
-                      AND session_key IS NOT NULL
-                      AND route_name IS NOT NULL
-                )
-                SELECT route_name AS from_route,
-                       next_route AS to_route,
-                       COUNT(*) AS transition_count
-                FROM ordered
-                WHERE next_route IS NOT NULL
-                  AND next_route <> route_name
-                GROUP BY route_name, next_route
-                ORDER BY transition_count DESC
-                LIMIT :limit
-            SQL,
-            [
-                'from' => $from->format('Y-m-d H:i:s'),
-                'limit' => $limit,
-            ],
-            [
-                'from' => Types::STRING,
-                'limit' => Types::INTEGER,
-            ],
-        );
-
-        $result = [];
-        foreach ($rows as $row) {
-            $result[] = [
-                'fromRoute' => $row['from_route'],
-                'toRoute' => $row['to_route'],
-                'transitionCount' => (int) $row['transition_count'],
-            ];
-        }
-
-        return $result;
-    }
-
-    /**
      * @return list<array{featureArea: string, requestCount: int, avgDurationMs: float, p95DurationMs: float, avgQueries: float, errorRatePercent: float}>
      */
     public function performanceByAreaSince(\DateTimeImmutable $from): array
@@ -435,53 +308,6 @@ final class AnalyticsRequestRepository extends ServiceEntityRepository
         }
 
         return \array_slice($insights, 0, 5);
-    }
-
-    /**
-     * @return list<array{routeName: string, sessionCount: int}>
-     */
-    private function sessionBoundaryRoutes(\DateTimeImmutable $from, string $order, int $limit): array
-    {
-        $conn = $this->getEntityManager()->getConnection();
-        $rankOrder = 'DESC' === $order ? 'DESC' : 'ASC';
-        /** @var list<array{route_name: string, session_count: int|string}> $rows */
-        $rows = $conn->fetchAllAssociative(
-            <<<SQL
-                WITH ranked AS (
-                    SELECT session_key,
-                           route_name,
-                           ROW_NUMBER() OVER (PARTITION BY session_key ORDER BY occurred_at $rankOrder, id $rankOrder) AS rn
-                    FROM analytics_request
-                    WHERE occurred_at >= :from
-                      AND session_key IS NOT NULL
-                      AND route_name IS NOT NULL
-                )
-                SELECT route_name, COUNT(*) AS session_count
-                FROM ranked
-                WHERE rn = 1
-                GROUP BY route_name
-                ORDER BY session_count DESC
-                LIMIT :limit
-            SQL,
-            [
-                'from' => $from->format('Y-m-d H:i:s'),
-                'limit' => $limit,
-            ],
-            [
-                'from' => Types::STRING,
-                'limit' => Types::INTEGER,
-            ],
-        );
-
-        $result = [];
-        foreach ($rows as $row) {
-            $result[] = [
-                'routeName' => $row['route_name'],
-                'sessionCount' => (int) $row['session_count'],
-            ];
-        }
-
-        return $result;
     }
 
     public function startOfToday(): \DateTimeImmutable

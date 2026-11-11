@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\UI\Http\Controller;
 
-use App\Analytics\Application\UsageEvents\UsageAnalytics;
-use App\Analytics\Domain\Enum\FeatureArea;
-use App\Analytics\Domain\UsageEventName;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
@@ -30,7 +27,6 @@ final class AnalysisExplorerLibraryController extends AbstractController
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
-        private readonly UsageAnalytics $usageAnalytics,
     ) {
     }
 
@@ -66,8 +62,6 @@ final class AnalysisExplorerLibraryController extends AbstractController
             $pageViewModel,
             $overviewPeriodViewModel,
         );
-
-        $this->usageAnalytics->record(UsageEventName::ANALYSIS_LIBRARY_OPENED, FeatureArea::Analysis);
 
         return $this->render('@Statistics/analysis_explorer_library/library.html.twig', [
             'dataQualityReport' => $dataQualityReport,
