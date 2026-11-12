@@ -78,10 +78,10 @@ final class FeedbackSubmitFormType extends AbstractType
                 'required' => false,
                 'data' => '',
             ])
+            // No `data` option: it would override the render time FeedbackWidgetController sets.
             ->add('renderedAt', HiddenType::class, [
                 'mapped' => false,
                 'required' => false,
-                'data' => '',
             ]);
 
         if ($guestRequired) {
