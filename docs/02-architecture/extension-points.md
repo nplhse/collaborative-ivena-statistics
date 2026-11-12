@@ -125,6 +125,24 @@ route, without a dependency from `Allocation` on them. Route names start with `a
 so the Explore subnav marks the glossary as active. Rules for such pages:
 [explore-glossary.md](../04-features/allocation/explore-glossary.md).
 
+## Allocation case file sections
+
+**Tag:** `allocation.case_section`
+
+**Interface:** `AllocationCaseSectionProviderInterface` (`src/Allocation/Application/CaseFile/`)
+
+**Registry:** `AllocationCaseSectionRegistry`, rendered by the Twig function `allocation_case_sections(allocation)` in
+`@Allocation/allocations/show.html.twig` (main column, below origin and destination)
+
+**Implementations:** `HospitalCourseCaseSectionProvider` (encounter card "Hospital course", #1055)
+
+Lets other contexts add a card with case-level data to the allocation case file without a dependency from
+`Allocation` on them. A section names a Twig template of the providing context and its variables; the
+template renders the whole card. Providers check access themselves (the page itself only needs
+`AllocationVoter::VIEW`) and return no section for users who may not see it. Keep the check free of
+database queries for ordinary participants (check roles before grants): the case file has a query
+budget (`ShowAllocationControllerTest`).
+
 ## Import data removers
 
 **Tag:** `import.data_remover`
