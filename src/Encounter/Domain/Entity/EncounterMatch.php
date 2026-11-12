@@ -114,7 +114,11 @@ class EncounterMatch
         ?string $matcherVersion = null,
         bool $conflict = false,
     ) {
-        if ($allocation->getHospital()?->getId() !== $encounter->getHospital()->getId()) {
+        $allocationHospital = $allocation->getHospital();
+        $allocationHospitalId = $allocationHospital?->getId();
+        $sameHospital = $allocationHospital === $encounter->getHospital()
+            || (null !== $allocationHospitalId && $allocationHospitalId === $encounter->getHospital()->getId());
+        if (!$sameHospital) {
             throw new \InvalidArgumentException('Visit and allocation must belong to the same hospital.');
         }
 
