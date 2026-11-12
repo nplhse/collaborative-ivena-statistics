@@ -21,4 +21,20 @@ final readonly class HospitalImportSummary
         public ?\DateTimeImmutable $ownLastUploadAt,
     ) {
     }
+
+    /**
+     * Imports that ended: successful (completed or partial), failed or cancelled. Pending ones are not finished.
+     */
+    public function finished(): int
+    {
+        return $this->relevant + $this->failed + $this->cancelled;
+    }
+
+    /**
+     * Share of successful imports among the finished ones, in percent, or null before any import finished.
+     */
+    public function successRate(): ?int
+    {
+        return ImportSuccessRate::percent($this->relevant, $this->finished());
+    }
 }

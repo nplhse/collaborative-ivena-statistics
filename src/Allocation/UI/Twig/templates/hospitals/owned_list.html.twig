@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}Meine Kliniken - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.hospitals.my'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
 
 {% block page_header %}
     <div class="container-xl">
@@ -15,7 +15,7 @@
                 <div class="col">
                     <h2 class="page-title">{{ 'title.hospitals.my'|trans({}, 'allocation') }}</h2>
                     <div class="text-body-secondary mt-1">
-                        {{ scope.count }} {{ 'label.hospital'|trans({}, 'messages') }}
+                        {{ 'my_hospitals.header.count'|trans({count: scope.count}, 'allocation') }}
                     </div>
                 </div>
             </div>
@@ -24,107 +24,29 @@
 {% endblock %}
 
 {% block page_content %}
-        {% if overview %}
-            <div class="row row-cards mb-3" data-testid="my-hospitals-summary">
-                <div class="col-sm-6 col-lg-4">
-                    <div class="card card-sm h-100">
-                        <div class="card-body">
-                            <div class="subheader">{{ 'my_hospitals.summary.allocations'|trans({}, 'allocation') }}</div>
-                            <div class="h2 mb-0" data-testid="my-hospitals-summary-allocations">{{ overview.allocationCount|format_number }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-lg-4">
-                    <div class="card card-sm h-100">
-                        <div class="card-body">
-                            <div class="subheader">{{ 'my_hospitals.summary.data_period'|trans({}, 'allocation') }}</div>
-                            <div class="h3 mb-0" data-testid="my-hospitals-summary-period">
-                                {% if overview.firstAllocationAt and overview.lastAllocationAt %}
-                                    {{ overview.firstAllocationAt|format_date('medium') }} – {{ overview.lastAllocationAt|format_date('medium') }}
-                                {% else %}
-                                    {{ 'my_hospitals.summary.no_data'|trans({}, 'allocation') }}
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% if overview.imports %}
-                    <div class="col-sm-6 col-lg-4">
-                        <div class="card card-sm h-100">
-                            <div class="card-body">
-                                <div class="subheader">{{ 'my_hospitals.summary.last_upload'|trans({}, 'allocation') }}</div>
-                                <div class="h3 mb-0" data-testid="my-hospitals-summary-last-upload">
-                                    {{ overview.imports.lastUploadAt ? overview.imports.lastUploadAt|format_date('medium') : 'my_hospitals.summary.no_upload'|trans({}, 'allocation') }}
-                                </div>
-                                {% if overview.imports.hospitals < overview.hospitalCount %}
-                                    <div class="text-body-secondary small">{{ 'my_hospitals.summary.basis'|trans({count: overview.imports.hospitals, total: overview.hospitalCount}, 'allocation') }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-        {% endif %}
+    {% if overview %}
+        {{ include('@Allocation/hospitals/_my_hospitals_summary.html.twig') }}
 
+        <div class="row row-cards" data-testid="my-hospitals-cards">
+            {% for status in overview.hospitals %}
+                <div class="col-12">
+                    {{ include('@Allocation/hospitals/_my_hospitals_card.html.twig') }}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
         <div class="card">
-            <div class="table-responsive">
-                <table class="table table-vcenter card-table">
-                    <thead>
-                    <tr>
-                        <th>{{ 'label.name'|trans({}, 'messages') }}</th>
-                        <th>{{ 'label.dispatch_area'|trans({}, 'messages') }}</th>
-                        <th>{{ 'label.state'|trans({}, 'messages') }}</th>
-                        <th>{{ 'label.location'|trans({}, 'messages') }}</th>
-                        <th>{{ 'label.tier'|trans({}, 'messages') }}</th>
-                        <th>{{ 'label.size'|trans({}, 'messages') }}</th>
-                        <th class="w-1"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% import '@Shared/_macros/badges.html.twig' as badges %}
-                    {% for entry in scope.entries %}
-                        {% set hospital = entry.hospital %}
-                        <tr>
-                            <td>
-                                <a href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}">
-                                    {{ hospital.name }}
-                                </a>
-                            </td>
-                            <td>{{ hospital.dispatchArea }}</td>
-                            <td>{{ hospital.state }}</td>
-                            <td>{{ badges.render('hospital_location', hospital.location.value) }}</td>
-                            <td>{% if hospital.tier %}{{ badges.render('hospital_tier', hospital.tier.value) }}{% endif %}</td>
-                            <td>{{ badges.render('hospital_size', hospital.size.value, hospital.beds) }}</td>
-                            <td class="text-nowrap">
-                                {% if is_granted(constant('App\\Allocation\\Infrastructure\\Security\\Voter\\HospitalVoter::MANAGE_ACCESS_GRANTS'), hospital) %}
-                                    <a class="btn btn-sm btn-outline-secondary me-1" href="{{ path('app_hospitals_edit_access', {id: hospital.id}) }}">
-                                        {{ 'label.hospital_access_grants.manage'|trans({}, 'messages') }}
-                                    </a>
-                                {% endif %}
-                                {% if is_granted(constant('App\\Allocation\\Infrastructure\\Security\\Voter\\HospitalVoter::EDIT'), hospital) %}
-                                    <a class="btn btn-sm btn-outline-primary" href="{{ path('app_hospitals_edit', {id: hospital.id}) }}">
-                                        {{ 'label.edit'|trans({}, 'messages') }}
-                                    </a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="7">
-                                <twig:EmptyState
-                                    title="{{ 'empty.owned.title'|trans({}, 'allocation') }}"
-                                    description="{{ 'empty.owned.description'|trans({}, 'allocation') }}"
-                                    icon="tabler:building-hospital"
-                                >
-                                    <twig:block name="actions">
-                                        <a class="btn btn-primary" href="{{ path('app_default') }}" target="_top">{{ 'empty.owned.cta'|trans({}, 'allocation') }}</a>
-                                    </twig:block>
-                                </twig:EmptyState>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+            <div class="card-body">
+                <twig:EmptyState
+                    title="{{ 'empty.owned.title'|trans({}, 'allocation') }}"
+                    description="{{ 'empty.owned.description'|trans({}, 'allocation') }}"
+                    icon="tabler:building-hospital"
+                >
+                    <twig:block name="actions">
+                        <a class="btn btn-primary" href="{{ path('app_default') }}" target="_top">{{ 'empty.owned.cta'|trans({}, 'allocation') }}</a>
+                    </twig:block>
+                </twig:EmptyState>
             </div>
         </div>
+    {% endif %}
 {% endblock %}

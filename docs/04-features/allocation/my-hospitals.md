@@ -100,6 +100,27 @@ of a single hospital.
 
 Partial, missing and current months are never compared, and a peak or a quiet month is not labelled an error.
 
+### Page
+
+The page (`owned_list.html.twig` with `_my_hospitals_summary.html.twig` and `_my_hospitals_card.html.twig`) shows:
+
+- **At most four summary tiles**: available allocations (and from how many hospitals), data period, imports with
+  their success rate (`IMPORT` on at least one hospital), and complete months of the last twelve months
+  (`STATISTICS`). A tile resting on fewer hospitals than listed says so ("Based on 1 of 2 hospitals").
+  - *Imports* counts finished imports: successful (completed or partial) plus failed and cancelled; pending ones
+    are not finished. The *success rate* is successful / finished, rounded to whole percent.
+  - *Complete months* counts the complete months of the window in which every hospital that delivered data
+    covered every day.
+- **One full-width card per hospital** (most users have one or two): master data badges (labelled from `md` up),
+  *Owner* or *Shared with you*, and a data grid with data period, allocations, complete months (`STATISTICS`),
+  imports as "successful of finished" with the success rate, partial and pending ones apart, latest upload and own
+  uploads (`IMPORT`).
+- **Quick actions** in the card footer: *View statistics* (`scope=hospital:ID`, `STATISTICS`, only with data),
+  *View imports* (the hospital's import list) and *Upload new import* (`IMPORT`). **Administrative actions** (edit,
+  manage access) sit in the card's menu and follow `HospitalVoter`. The hospital name opens its Explore page.
+- **Empty states**: no hospital (the existing empty state), a hospital without allocations (upload as primary
+  action; a hint when imports failed or are still running), no data in the summary period ("No data yet").
+
 ### Queries and cache
 
 `HospitalDataSnapshotQuery` (Statistics, port `HospitalDataSnapshotReaderInterface`) reads all requested
@@ -117,5 +138,6 @@ across a month change and for every viewer. Clearing and warming the entries aft
 - `tests/Allocation/Integration/Application/Hospital/MyHospitalsScopeResolverTest.php` (owner, grants, grant
   without `VIEW`, administrator with and without own hospitals, no hospitals)
 - `tests/Allocation/Functional/Controller/Hospitals/ParticipantHospitalsControllerTest.php` (listing, actions, summary per permission)
+- `tests/Allocation/Functional/Controller/Hospitals/MyHospitalsOverviewTest.php` (cards and summary per permission tier, basis, empty states, German page)
 - `tests/Allocation/Unit/Application/Hospital/MyHospitals/` (month states, gaps, window, hints, cache, permissions and aggregates)
 - `tests/Statistics/Integration/Query/MyHospitals/HospitalDataSnapshotQueryTest.php` (import statuses, failed rows excluded, midnight rule, coverage fallback)

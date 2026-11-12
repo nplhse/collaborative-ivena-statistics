@@ -88,8 +88,8 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h2.page-title', 'My Hospitals');
-        self::assertSelectorTextContains('table', 'Owned Hospital');
-        self::assertSelectorTextNotContains('table', 'Foreign Hospital');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-cards"]', 'Owned Hospital');
+        self::assertSelectorTextNotContains('[data-testid="my-hospitals-cards"]', 'Foreign Hospital');
     }
 
     public function testHospitalsIndexShowsGrantedHospitalsWithoutEditActions(): void
@@ -128,8 +128,8 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/hospitals');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('table', 'Granted Hospital');
-        self::assertSelectorTextNotContains('table', 'Grant Without View');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-cards"]', 'Granted Hospital');
+        self::assertSelectorTextNotContains('[data-testid="my-hospitals-cards"]', 'Grant Without View');
         self::assertSelectorNotExists('a[href="/hospitals/'.$granted->getId().'/edit"]');
         self::assertSelectorNotExists('a[href="/hospitals/'.$granted->getId().'/edit/access"]');
     }
@@ -150,8 +150,8 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/hospitals');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('table', 'Admin Hospital');
-        self::assertSelectorTextNotContains('table', 'Foreign Hospital');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-cards"]', 'Admin Hospital');
+        self::assertSelectorTextNotContains('[data-testid="my-hospitals-cards"]', 'Foreign Hospital');
     }
 
     public function testHospitalsIndexShowsDataSummaryPerPermission(): void
@@ -198,14 +198,16 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-testid="my-hospitals-summary-allocations"]', '3');
         self::assertSelectorTextContains('[data-testid="my-hospitals-summary-period"]', 'Feb 1, 2026');
         self::assertSelectorTextContains('[data-testid="my-hospitals-summary-period"]', 'Feb 28, 2026');
-        self::assertSelectorTextContains('[data-testid="my-hospitals-summary-last-upload"]', 'Mar 10, 2026');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-card-last-upload"]', 'Mar 10, 2026');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-summary-success-rate"]', '100 % successful');
 
         $client->loginUser($viewer);
         $client->request(Request::METHOD_GET, '/hospitals');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-testid="my-hospitals-summary-allocations"]', '3');
-        self::assertSelectorNotExists('[data-testid="my-hospitals-summary-last-upload"]', 'Uploads need the IMPORT permission.');
+        self::assertSelectorNotExists('[data-testid="my-hospitals-summary-imports"]', 'Imports need the IMPORT permission.');
+        self::assertSelectorNotExists('[data-testid="my-hospitals-card-last-upload"]');
     }
 
     public function testHospitalsIndexShowsNoSummaryWithoutHospitals(): void
