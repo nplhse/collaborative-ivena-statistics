@@ -807,7 +807,7 @@
       </trans-unit>
       <trans-unit id="EncK6FCD734E" resname="encounter.key_change.flash.changed">
         <source>encounter.key_change.flash.changed</source>
-        <target>The pseudonym key was changed; key generation {generation} begins. {option, select, delete {The existing encounter data is being deleted; uploads are possible again once that has finished.} other {The existing encounter data was kept.}}</target>
+        <target>The key has been changed. {option, select, delete {Your existing encounters are being deleted. You can upload files again as soon as that is done.} other {Your existing encounters have been kept. From now on, please only upload files made with the new key file.}}</target>
       </trans-unit>
       <trans-unit id="EncK7C138908" resname="encounter.key_change.flash.in_progress">
         <source>encounter.key_change.flash.in_progress</source>

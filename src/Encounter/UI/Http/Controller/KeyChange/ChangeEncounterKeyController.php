@@ -57,7 +57,7 @@ final class ChangeEncounterKeyController extends AbstractController
             } else {
                 $actor = $this->getUser();
                 try {
-                    $generation = $this->keyChanger->change($hospital, $data['option'], $actor instanceof User ? $actor : null);
+                    $this->keyChanger->change($hospital, $data['option'], $actor instanceof User ? $actor : null);
                 } catch (EncounterKeyChangeInProgressException) {
                     $this->addFlash('error', new TranslatableMessage('encounter.key_change.flash.in_progress', domain: 'encounter'));
 
@@ -66,7 +66,7 @@ final class ChangeEncounterKeyController extends AbstractController
 
                 $this->addFlash('success', new TranslatableMessage(
                     'encounter.key_change.flash.changed',
-                    ['option' => $data['option']->value, 'generation' => $generation],
+                    ['option' => $data['option']->value],
                     'encounter',
                 ));
 

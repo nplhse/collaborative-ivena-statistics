@@ -58,6 +58,8 @@ final class EncounterKeyChangeControllerTest extends WebTestCase
 
         self::assertResponseRedirects($this->url());
         self::assertSame(['key_generation' => 2, 'key_change_in_progress' => false], $this->keyState());
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('body', 'The key has been changed. Your existing encounters have been kept.');
     }
 
     public function testWrongHospitalNameChangesNothing(): void

@@ -807,7 +807,7 @@
       </trans-unit>
       <trans-unit id="EncK6FCD734E" resname="encounter.key_change.flash.changed">
         <source>encounter.key_change.flash.changed</source>
-        <target>Der Pseudonymschlüssel wurde gewechselt; Schlüsselgeneration {generation} beginnt. {option, select, delete {Die vorhandenen Behandlungsdaten werden gelöscht; Uploads sind wieder möglich, sobald das abgeschlossen ist.} other {Die vorhandenen Behandlungsdaten wurden behalten.}}</target>
+        <target>Der Schlüssel wurde gewechselt. {option, select, delete {Ihre bisherigen Behandlungsfälle werden jetzt gelöscht. Sobald das erledigt ist, können Sie wieder Dateien hochladen.} other {Ihre bisherigen Behandlungsfälle bleiben erhalten. Laden Sie ab jetzt bitte nur noch Dateien hoch, die mit der neuen Schlüsseldatei erstellt wurden.}}</target>
       </trans-unit>
       <trans-unit id="EncK7C138908" resname="encounter.key_change.flash.in_progress">
         <source>encounter.key_change.flash.in_progress</source>
