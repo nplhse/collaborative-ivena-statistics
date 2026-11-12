@@ -44,8 +44,8 @@ A separate grant in the `Encounter` context (user, hospital, actions), checked b
   Removing that access removes the encounter grant.
 - Grants are managed by the hospital owner and by administrators, the same people who manage hospital
   access grants. An owner can grant themselves case access explicitly. Every change is audited.
-- The key change (ADR 026) is reserved for the hospital owner, also towards administrators; no grant
-  and no administrator role allows it.
+- The key change (ADR 026) is reserved for the hospital owner and administrators; no grant action
+  allows it.
 - Import diagnostics (status, counts, reject codes, match diagnostics) never open file content.
   Reprocessing a retained file shows no content either.
 - Descriptive aggregates of the own hospital need the beta role, any encounter grant on the hospital

@@ -8,7 +8,7 @@ namespace App\Encounter\Application\Security;
  * Security attributes checked by EncounterVoter, always with the Hospital of the requested object as
  * subject (ADR 027). Routes for encounter objects resolve that hospital first.
  *
- * ROLE_ADMIN holds every grant action implicitly, so it passes every attribute except CHANGE_KEY.
+ * ROLE_ADMIN holds every grant action implicitly and passes every attribute.
  */
 final class EncounterAttribute
 {
@@ -33,7 +33,7 @@ final class EncounterAttribute
     /** Reprocessing a retained upload file without showing its content. Grant action UPLOAD. */
     public const string REPROCESS_SOURCE_FILE = 'ENCOUNTER_REPROCESS_SOURCE_FILE';
 
-    /** Changing the pseudonym key (ADR 026). Hospital owner only; no grant and no admin role allows it. */
+    /** Changing the pseudonym key (ADR 026). Hospital owner or ROLE_ADMIN; no grant action allows it. */
     public const string CHANGE_KEY = 'ENCOUNTER_CHANGE_KEY';
 
     /** Managing the encounter grants of the hospital. Hospital owner or ROLE_ADMIN. */

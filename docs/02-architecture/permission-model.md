@@ -72,11 +72,11 @@ by the hospital bitmask:
 - `ROLE_ENCOUNTER_BETA` controls the pilot pages; `ROLE_ADMIN` inherits it. The role itself grants no case access.
 - A separate encounter grant per user and hospital with the actions `UPLOAD`, `REVIEW` (implies
   `VIEW_CASES`) and `VIEW_CASES`, checked by `EncounterVoter`. `UPLOAD` covers imports and access to
-  the retained upload files; it does not include the key change; only the hospital owner may change the encounter key ([ADR 026](decisions/026-encounter-pseudonym-key.md)).
+  the retained upload files; it does not include the key change; only the hospital owner or an administrator may change the encounter key ([ADR 026](decisions/026-encounter-pseudonym-key.md)).
 - Hospital ownership and hospital grants do **not** imply an encounter grant. This is a deliberate
   exception to `HospitalPermissionAccess`.
-- `ROLE_ADMIN` counts as holding every grant action on every hospital without a stored grant. The key
-  change stays with the hospital owner. An administrator impersonating a user has that user's rights
+- `ROLE_ADMIN` counts as holding every grant action on every hospital without a stored grant. This
+  includes the key change. An administrator impersonating a user has that user's rights
   only.
 - Owners and administrators manage encounter grants; only users with access to the hospital can
   receive one. Changes are audited.
@@ -97,7 +97,7 @@ Implementation:
   | `ENCOUNTER_REVIEW` | grant action `REVIEW` |
   | `ENCOUNTER_VIEW_CASES` | grant action `VIEW_CASES` (also set by `REVIEW`) |
   | `ENCOUNTER_VIEW_AGGREGATES` | any grant action and hospital permission `STATISTICS` |
-  | `ENCOUNTER_CHANGE_KEY` | hospital owner; no grant and no admin role |
+  | `ENCOUNTER_CHANGE_KEY` | hospital owner or `ROLE_ADMIN`; no grant action |
   | `ENCOUNTER_MANAGE_GRANTS` | hospital owner or `ROLE_ADMIN` |
 
 - Grant management: `/hospitals/{id}/edit/encounter-access` (list, add, edit, remove), linked in the

@@ -23,7 +23,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  *
  * Every attribute needs ROLE_ENCOUNTER_BETA. ROLE_ADMIN counts as holding every grant action on
  * every hospital without a stored grant. Hospital ownership and hospital access grants never imply an
- * encounter grant. The key change stays with the hospital owner, also towards administrators.
+ * encounter grant. The key change is for the hospital owner or ROLE_ADMIN; no grant action allows it.
  * Impersonation needs no special case: the token carries the impersonated user's roles and grants.
  *
  * @extends Voter<string, Hospital>
@@ -71,7 +71,7 @@ final class EncounterVoter extends Voter
         }
 
         return match ($attribute) {
-            EncounterAttribute::CHANGE_KEY => $this->isOwner($user, $subject),
+            EncounterAttribute::CHANGE_KEY,
             EncounterAttribute::MANAGE_GRANTS => $this->isOwner($user, $subject) || $this->isAdmin($token),
             EncounterAttribute::UPLOAD,
             EncounterAttribute::VIEW_SOURCE_FILE,

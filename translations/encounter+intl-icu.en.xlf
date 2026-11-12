@@ -87,7 +87,7 @@
       </trans-unit>
       <trans-unit id="EncCA963B15" resname="encounter.grant.key_change_hint">
         <source>encounter.grant.key_change_hint</source>
-        <target>None of these actions allows changing the pseudonym key. Only the hospital owner can change it.</target>
+        <target>None of these actions allows changing the pseudonym key. Only the hospital owner or an administrator can change it.</target>
       </trans-unit>
       <trans-unit id="Enc31EF4F08" resname="encounter.grant.field.user">
         <source>encounter.grant.field.user</source>

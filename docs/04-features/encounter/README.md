@@ -63,7 +63,7 @@ Overviews cross both attributes, for example "EMS arrival, not linked".
 |---|---|
 | Pilot pages and navigation | `ROLE_ENCOUNTER_BETA` (inherited by `ROLE_ADMIN`) |
 | Upload | beta role + encounter grant `UPLOAD` on the hospital, or `ROLE_ADMIN` |
-| Key change | hospital owner only (not administrators) |
+| Key change | hospital owner or `ROLE_ADMIN` (no grant action allows it) |
 | Match review | beta role + encounter grant `REVIEW` (implies `VIEW_CASES`), or `ROLE_ADMIN` |
 | Case-level views, case card on an allocation | beta role + encounter grant `VIEW_CASES`, or `ROLE_ADMIN` |
 | Descriptive aggregates of the own hospital | beta role + any encounter grant + `STATISTICS`, or `ROLE_ADMIN` |

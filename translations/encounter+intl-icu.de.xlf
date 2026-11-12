@@ -87,7 +87,7 @@
       </trans-unit>
       <trans-unit id="EncCA963B15" resname="encounter.grant.key_change_hint">
         <source>encounter.grant.key_change_hint</source>
-        <target>Keine dieser Aktionen erlaubt den Wechsel des Pseudonymisierungsschlüssels. Nur der Krankenhaus-Eigentümer kann ihn wechseln.</target>
+        <target>Keine dieser Aktionen erlaubt den Wechsel des Pseudonymisierungsschlüssels. Nur der Krankenhaus-Eigentümer oder eine Administratorin bzw. ein Administrator kann ihn wechseln.</target>
       </trans-unit>
       <trans-unit id="Enc31EF4F08" resname="encounter.grant.field.user">
         <source>encounter.grant.field.user</source>

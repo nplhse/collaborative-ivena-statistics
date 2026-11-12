@@ -20,7 +20,7 @@ use Zenstruck\Foundry\Test\Factories;
 
 /**
  * Access matrix of ADR 027. Each case names the user's relation to the hospital explicitly.
- * Administrators hold every grant action implicitly, except the key change.
+ * Administrators hold every grant action implicitly and may change the key.
  */
 #[ResetDatabase]
 final class EncounterVoterTest extends KernelTestCase
@@ -150,17 +150,24 @@ final class EncounterVoterTest extends KernelTestCase
         self::assertSame(VoterInterface::ACCESS_DENIED, $this->vote($uploader, $hospital, EncounterAttribute::CHANGE_KEY));
     }
 
-    public function testAdminCannotChangeKeyEvenWithAllActions(): void
+    public function testAdminMayChangeKeyWithoutGrantOrOwnership(): void
     {
         $hospital = $this->hospital($this->user());
-        $admin = $this->admin();
-        $this->hospitalGrant($hospital, $admin);
-        $this->encounterGrant($hospital, $admin, EncounterGrantAction::cases());
 
-        self::assertSame(VoterInterface::ACCESS_DENIED, $this->vote($admin, $hospital, EncounterAttribute::CHANGE_KEY));
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $this->vote($this->admin(), $hospital, EncounterAttribute::CHANGE_KEY));
     }
 
-    public function testOnlyOwnerWithBetaRoleMayChangeKey(): void
+    public function testAllGrantActionsDoNotAllowKeyChange(): void
+    {
+        $hospital = $this->hospital($this->user());
+        $member = $this->user();
+        $this->hospitalGrant($hospital, $member);
+        $this->encounterGrant($hospital, $member, EncounterGrantAction::cases());
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $this->vote($member, $hospital, EncounterAttribute::CHANGE_KEY));
+    }
+
+    public function testOwnerWithBetaRoleMayChangeKey(): void
     {
         $owner = $this->user();
         $hospital = $this->hospital($owner);
