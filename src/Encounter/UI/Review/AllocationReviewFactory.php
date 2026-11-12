@@ -109,6 +109,8 @@ final readonly class AllocationReviewFactory
                 'can_confirm' => !isset($elsewhere[$candidate->encounterId]) && MatchStatus::Confirmed !== ($own[$candidate->encounterId]['status'] ?? null),
                 'can_reject' => isset($own[$candidate->encounterId]) && MatchStatus::Rejected !== $own[$candidate->encounterId]['status'],
                 'total_level' => $this->totalLevel($candidate->points),
+                // Unclear: the agreement among all candidates stays below the auto-accept threshold.
+                'unclear' => $candidate->score < $this->settings->autoAcceptThreshold,
                 'extended' => $this->mts($extended['encounters'][$candidate->encounterId] ?? null),
             ];
         }

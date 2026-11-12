@@ -460,10 +460,12 @@ both compared values and the contribution (for, against, neutral or missing) and
 allocations proposed for the same visit. The total is coloured by what it would mean for a sole candidate
 (`MatchPlanner::agreementAlone()`): "fits well" (green) reaches the auto-accept threshold (8 points and more
 by default), "fits partly" (yellow) the proposal threshold (4–7), "hardly fits" (red) neither. It rates the
-features only; the agreement beside it also accounts for competing candidates. A collapsed section "Extended information (MTS, IVENA)" adds, for
+features only; the agreement beside it also accounts for competing candidates. A section "Extended information (MTS, IVENA)" adds, for
 unclear cases, IVENA urgency and normalized indication beside MTS category, diagram and indicator of the visit
 (`MatchReviewQuery::extendedInfo()`). They are no matching features (ADR 029) and the page says so: later
-analyses compare exactly these between IVENA and the ED. Whether a decision used them is not recorded. The card header names the current link and its origin (automatic:
+analyses compare exactly these between IVENA and the ED. It is collapsed for a clear candidate and opens by
+itself, marked "unclear case", when the candidate's agreement among all candidates stays below the auto-accept
+threshold. Whether a decision used them is not recorded. The card header names the current link and its origin (automatic:
 score and pass). The linked visit is chosen first, else the open proposal with the highest stored score, else
 the candidate with the most points. The Stimulus controller `encounter-match-review` switches the comparison
 and enables only the decisions that apply to the chosen visit; the server checks again. The score is labelled

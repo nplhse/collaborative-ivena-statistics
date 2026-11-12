@@ -1429,6 +1429,10 @@
         <source>encounter.review.extended.indicator</source>
         <target>MTS indicator</target>
       </trans-unit>
+      <trans-unit id="Enc569C6A95" resname="encounter.review.extended.unclear">
+        <source>encounter.review.extended.unclear</source>
+        <target>unclear case: opened</target>
+      </trans-unit>
       <trans-unit id="Enc3DD215B3" resname="encounter.review.period.range">
         <source>encounter.review.period.range</source>
         <target>{from} – {to}</target>
