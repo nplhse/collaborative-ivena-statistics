@@ -382,7 +382,8 @@ Implemented in #1052: development, tests and the demo use generated encounters o
 allocations with known true links, never real data. The generator creates linked visits with time
 and age noise, self-presenters, EMS arrivals without allocation, repeat visits under one case number,
 visits without ED admission time and late assessments; it writes them straight into the database
-(fixture group `encounters`, part of `dev`) or as canonical `ed_visit` files with a test key file,
+(fixture group `encounters`, part of `dev`; the demo user `foo` gets the beta role and an encounter
+grant with `UPLOAD`, `REVIEW` and `VIEW_CASES` for its hospital) or as canonical `ed_visit` files with a test key file,
 overlapping exports and a truth file (`app:generate:encounter-files`). Details:
 [synthetic-data-generator.md](../../03-development/synthetic-data-generator.md#encounter-data).
 
