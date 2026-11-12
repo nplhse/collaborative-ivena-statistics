@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Encounter\Functional\Controller;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Encounter\Application\Import\EncounterSourceFileRetention;
 use App\Encounter\Domain\Entity\EncounterImport;
 use App\Encounter\Domain\Enum\EncounterGrantAction;
 use App\Import\Domain\Entity\Import;
@@ -16,6 +17,7 @@ use App\Tests\Support\Encounter\EncounterTestFixtures;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\DomCrawler\Field\ChoiceFormField;
 use Symfony\Component\DomCrawler\Field\FileFormField;
 use Symfony\Component\DomCrawler\Form;
@@ -27,11 +29,13 @@ use Zenstruck\Foundry\Test\Factories;
 
 /**
  * Encounter imports on the generic import pages (#1048, ADR 027): upload form, list, detail page,
- * reprocess and delete, all with the encounter grant UPLOAD.
+ * reprocess, download and delete, all with the encounter grant UPLOAD; reprocess and download only while
+ * the upload file is kept (#1049).
  */
 #[ResetDatabase]
 final class EncounterImportControllerTest extends WebTestCase
 {
+    use ClockSensitiveTrait;
     use EncounterImportRunner;
     use EncounterTestFixtures;
     use Factories;
@@ -193,6 +197,59 @@ final class EncounterImportControllerTest extends WebTestCase
         $this->entityManager()->clear();
         self::assertSame(2, $this->entityManager()->find(Import::class, $importId)?->getRunCount());
         self::assertSame(1, $this->encounterCount($importId));
+    }
+
+    public function testUploaderDownloadsAndReprocessesOnlyWhileTheFileIsKept(): void
+    {
+        self::mockTime('2026-10-01 10:00:00');
+        $importId = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()->visit('a', '2026-09-30T08:15')->build(), 'retained');
+
+        self::mockTime('2026-10-30 10:00:00');
+        $this->client->loginUser($this->uploader);
+        $this->client->request(Request::METHOD_GET, '/import/'.$importId);
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-test="encounter-source-file"]', 'Kept until Oct 31, 2026 (30 days after upload)');
+        self::assertSelectorExists('a[href="/import/'.$importId.'/source-file"]');
+        self::assertSelectorExists('#import-reprocess-modal');
+        $this->client->request(Request::METHOD_GET, '/import/'.$importId.'/source-file');
+        self::assertResponseIsSuccessful();
+
+        self::mockTime('2026-11-01 10:00:00');
+        $retention = self::getContainer()->get(EncounterSourceFileRetention::class);
+        self::assertInstanceOf(EncounterSourceFileRetention::class, $retention);
+        self::assertSame([$importId], $retention->run()->deleted);
+
+        $this->client->request(Request::METHOD_GET, '/import/'.$importId);
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-test="encounter-source-file"]', 'File deleted on Nov 1, 2026');
+        self::assertSelectorNotExists('a[href="/import/'.$importId.'/source-file"]');
+        self::assertSelectorNotExists('#import-reprocess-modal');
+        self::assertSelectorNotExists('[data-test="encounter-source-deleted"]', 'The immediate-deletion notice is only for identifying content.');
+        self::assertSelectorTextContains('[data-test="count-inserted"]', '1');
+
+        $this->client->request(Request::METHOD_GET, '/import/'.$importId.'/source-file');
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        $this->client->request(Request::METHOD_POST, '/import/'.$importId.'/reprocess', ['_token' => 'irrelevant']);
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        self::assertSame(1, $this->encounterCount($importId), 'Imported encounters stay.');
+    }
+
+    public function testOnlyUploadersAndAdministratorsDownloadTheEncounterFile(): void
+    {
+        $importId = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()->visit('a', '2026-09-30T08:15')->build(), 'download rights');
+        $viewer = $this->user();
+        $this->hospitalGrant($this->hospital, $viewer);
+        $this->encounterGrant($this->hospital, $viewer, [EncounterGrantAction::ViewCases, EncounterGrantAction::Review]);
+
+        foreach ([$viewer, $this->owner()] as $user) {
+            $this->client->loginUser($user);
+            $this->client->request(Request::METHOD_GET, '/import/'.$importId.'/source-file');
+            self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        }
+
+        $this->client->loginUser($this->admin());
+        $this->client->request(Request::METHOD_GET, '/import/'.$importId.'/source-file');
+        self::assertResponseIsSuccessful();
     }
 
     public function testUploaderDeletesAnImportAndOnlyItsVisits(): void

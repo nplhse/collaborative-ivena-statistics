@@ -21,6 +21,7 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -39,10 +40,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *   produced with the data preparation tool and holds no direct identifiers, stored with user and
  *   time on `encounter_import` (audited) together with the key generation at upload. Refused while
  *   the hospital's key change is in progress (ADR 026).
- * - List and detail: only for UPLOAD on the hospital (ADR 027); reprocess and delete as well.
- *   Downloading the source file stays with administrators until source file retention (#1049).
- * - Detail page section: counts, file rejection, row rejects and suspected duplicates, never file
- *   content or cell values.
+ * - List and detail: only for UPLOAD on the hospital (ADR 027); reprocess, download and delete as well.
+ *   Reprocess and download only while the upload file is kept (ADR 025, #1049).
+ * - Detail page section: counts, file rejection, until when the file is kept or when it was deleted,
+ *   row rejects and suspected duplicates, never file content or cell values.
  *
  * @psalm-suppress UnusedClass Tagged via ImportTypeExtensionInterface.
  */
@@ -67,6 +68,8 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
         private TranslatorInterface $translator,
         private UrlGeneratorInterface $urlGenerator,
         private ClockInterface $clock,
+        #[Autowire(param: 'app.encounter.source_file_retention_days')]
+        private int $sourceFileRetentionDays,
     ) {
     }
 
@@ -188,10 +191,9 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
             'VIEW' => true,
             'DELETE' => $this->decide($token, EncounterAttribute::DELETE_IMPORT, $hospital),
             'REPROCESS' => $this->decide($token, EncounterAttribute::REPROCESS_SOURCE_FILE, $hospital)
-                && true !== $this->encounterImports->findForImportId((int) $import->getId())?->isSourceFileDeleted()
-                && $this->fileStorage->exists($import->getFilePath()),
-            'DOWNLOAD_SOURCE' => $this->accessDecisionManager->decide($token, [UserRole::ADMIN])
-                && $this->decide($token, EncounterAttribute::DOWNLOAD_SOURCE_FILE, $hospital),
+                && $this->keepsSourceFile($import),
+            'DOWNLOAD_SOURCE' => $this->decide($token, EncounterAttribute::DOWNLOAD_SOURCE_FILE, $hospital)
+                && $this->keepsSourceFile($import),
             default => false,
         };
     }
@@ -207,10 +209,23 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
 
         return new ImportTypeDetailSection('@Encounter/imports/_import_section.html.twig', [
             'encounter_import' => $encounterImport,
+            'source_file_retention_days' => $this->sourceFileRetentionDays,
+            'source_file_kept_until' => $encounterImport->isSourceFileDeleted()
+                ? null
+                : $import->getCreatedAt()->modify(\sprintf('+%d days', $this->sourceFileRetentionDays)),
             'rejects' => $this->report->rejects($importId, self::LIST_LIMIT),
             'suspected_duplicates' => $this->report->suspectedDuplicates($importId, self::LIST_LIMIT),
             'list_limit' => self::LIST_LIMIT,
         ]);
+    }
+
+    /**
+     * The upload file is neither deleted (identifying content, retention) nor missing on disk.
+     */
+    private function keepsSourceFile(Import $import): bool
+    {
+        return true !== $this->encounterImports->findForImportId((int) $import->getId())?->isSourceFileDeleted()
+            && $this->fileStorage->exists($import->getFilePath());
     }
 
     private function decide(TokenInterface $token, string $attribute, Hospital $hospital): bool

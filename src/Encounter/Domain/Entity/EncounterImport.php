@@ -17,6 +17,8 @@ use Doctrine\ORM\Mapping as ORM;
  * - The upload confirmation (file produced with the tool, no direct identifiers) with user and time.
  * - The key generation of the hospital at upload (ADR 026); every commit of a run checks it again.
  * - What the last run read from the manifest, why it rejected the file, and its row counts.
+ * - Whether and when the uploaded file was deleted: at once for a file that may hold direct
+ *   identifiers, otherwise by the daily retention job (ADR 025, #1049). Imported encounters stay.
  *
  * Never holds file content or cell values.
  */
@@ -64,9 +66,13 @@ class EncounterImport
     #[ORM\Column(length: 32, nullable: true, enumType: EncounterFileRejection::class)]
     private ?EncounterFileRejection $fileRejection = null;
 
-    /** True once the source file was deleted because it may hold direct identifiers. */
+    /** True once the source file was deleted, at once (direct identifiers) or after the retention period. */
     #[ORM\Column(options: ['default' => false])]
     private bool $sourceFileDeleted = false;
+
+    /** When the source file was deleted; null for deletions before #1049 and while the file is kept. */
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $sourceFileDeletedAt = null;
 
     #[ORM\Column(options: ['default' => 0])]
     private int $inserted = 0;
@@ -122,10 +128,22 @@ class EncounterImport
         $this->toolVersion = $toolVersion;
     }
 
-    public function rejectFile(EncounterFileRejection $reason, bool $sourceFileDeleted): void
+    public function rejectFile(EncounterFileRejection $reason): void
     {
         $this->fileRejection = $reason;
-        $this->sourceFileDeleted = $this->sourceFileDeleted || $sourceFileDeleted;
+    }
+
+    /**
+     * Records that the uploaded file is gone. The first deletion date is kept.
+     */
+    public function markSourceFileDeleted(\DateTimeImmutable $deletedAt): void
+    {
+        if ($this->sourceFileDeleted) {
+            return;
+        }
+
+        $this->sourceFileDeleted = true;
+        $this->sourceFileDeletedAt = $deletedAt;
     }
 
     public function recordCounts(int $inserted, int $duplicates, int $skipped, int $rejected, int $suspectedDuplicates): void
@@ -196,6 +214,11 @@ class EncounterImport
     public function isSourceFileDeleted(): bool
     {
         return $this->sourceFileDeleted;
+    }
+
+    public function getSourceFileDeletedAt(): ?\DateTimeImmutable
+    {
+        return $this->sourceFileDeletedAt;
     }
 
     public function getInserted(): int

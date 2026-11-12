@@ -123,11 +123,11 @@ An existing import can be processed again from its stored source file with **Rep
 
 At the end of each run the import stores which days its records cover, shown on the detail page with potential gaps. Details: [data-coverage.md](data-coverage.md)
 
-## Source file download (admin)
+## Source file download
 
 Administrators can download the original uploaded CSV from the import detail page (`/import/{id}`). The file is served through `DownloadImportSourceFileController` at `/import/{id}/source-file` — not via a public path under `var/imports/`.
 
-- Access requires `ROLE_ADMIN` and `ImportVoter::DOWNLOAD_SOURCE`
+- Access requires `ImportVoter::DOWNLOAD_SOURCE`: `ROLE_ADMIN` for allocation and closure imports; for encounter imports the encounter grant `UPLOAD` (or `ROLE_ADMIN`) while the file is kept ([encounter README](../encounter/README.md#upload-file-retention))
 - The download link is shown only when the voter grants access
 - Missing or deleted source files return HTTP 404
 - Downloads are recorded with audit intent `import.source_file.downloaded`
@@ -145,7 +145,7 @@ Useful tests:
 - `tests/Import/Functional/Command/StartImportCommandTest.php`
 - `tests/Import/Functional/Command/RequeueAllImportsCommandTest.php`
 - `tests/Import/Unit/Application/Service/ImportStartDispatcherTest.php`
-- `tests/Import/Functional/Controller/DownloadImportSourceFileControllerTest.php` (admin source file download)
+- `tests/Import/Functional/Controller/DownloadImportSourceFileControllerTest.php` (source file download)
 - `tests/Import/Unit/Service/ImportUploadGuardTest.php`
 - `tests/Import/Integration/Validator/Constraints/ImportSourceFileValidatorTest.php`
 
@@ -171,7 +171,9 @@ of the other types, and the import pages. The Encounter context contributes thro
 its workflow dispatcher (`import.workflow_dispatcher`) and `EncounterImportTypeExtension`
 (`import.type_extension`): the type in the upload form with its extra fields and checks, access for
 `ImportVoter` and `ListImportsQuery` by the encounter grants, and a section on the detail page. Message
-(`ImportEncountersMessage`) and handler belong to the Encounter context. Details:
+(`ImportEncountersMessage`) and handler belong to the Encounter context. Encounter upload files are
+deleted after a retention period by a daily job of the Encounter context; files of other import types
+are kept until their import is deleted. Details:
 [encounter README](../encounter/README.md#import).
 
 ## Related documentation

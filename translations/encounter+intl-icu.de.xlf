@@ -633,6 +633,22 @@
         <source>encounter.import.field.tool_version</source>
         <target>Werkzeugversion</target>
       </trans-unit>
+      <trans-unit id="EncI63556295" resname="encounter.import.field.source_file">
+        <source>encounter.import.field.source_file</source>
+        <target>Hochgeladene Datei</target>
+      </trans-unit>
+      <trans-unit id="EncI74BB0378" resname="encounter.import.source_file.deleted_on">
+        <source>encounter.import.source_file.deleted_on</source>
+        <target>Datei gelöscht am {date}</target>
+      </trans-unit>
+      <trans-unit id="EncI724CD7F8" resname="encounter.import.source_file.deleted">
+        <source>encounter.import.source_file.deleted</source>
+        <target>Datei gelöscht</target>
+      </trans-unit>
+      <trans-unit id="EncI03C7CAE9" resname="encounter.import.source_file.kept_until">
+        <source>encounter.import.source_file.kept_until</source>
+        <target>Aufbewahrt bis {date} ({days, plural, one {# Tag} other {# Tage}} nach dem Hochladen), danach gelöscht</target>
+      </trans-unit>
       <trans-unit id="EncIC392E5AE" resname="encounter.import.field.key_generation">
         <source>encounter.import.field.key_generation</source>
         <target>Schlüsselgeneration</target>
