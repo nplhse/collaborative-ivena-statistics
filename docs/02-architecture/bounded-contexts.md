@@ -20,6 +20,7 @@ Each bounded context under `src/` follows the layered structure described in [ov
 | `Notification` | Personal notifications: definitions, preferences, inbox and delivery (ADR 016) |
 | `Storage` | Storage monitoring: daily measurement, capacity levels, storage health check and admin notifications (ADR 017) |
 | `DataFixtures` | Reference YAML, pattern-based demo data, dev/test fixture groups |
+| `Encounter` | In development (#1043): encounter data from hospital systems (ED visits), import of the canonical exchange format, matching with allocations, encounter access grants (ADR 025–029) |
 
 ## Statistics submodules
 
