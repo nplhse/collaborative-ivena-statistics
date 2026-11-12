@@ -44,6 +44,15 @@ final class CachedHospitalDataSnapshotReaderTest extends TestCase
         self::assertSame([[1, 2], [2]], $inner->calls, 'Refresh reads once; the next read is served from the cache.');
     }
 
+    public function testEmptyRefreshDoesNotRead(): void
+    {
+        $inner = new RecordingSnapshotReader();
+
+        new CachedHospitalDataSnapshotReader($inner, new ArrayAdapter())->refresh([]);
+
+        self::assertSame([], $inner->calls);
+    }
+
     public function testRefreshDropsHospitalsTheReaderNoLongerKnows(): void
     {
         $cache = new ArrayAdapter();
