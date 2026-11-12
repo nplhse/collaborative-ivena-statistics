@@ -83,6 +83,10 @@ Rules:
   are rounded half up by the tool (`99.5` → `100`, `99.49` → `99`) before the range check; the server
   rejects a glucose value with decimals.
 - Plausibility ranges and catalogs are finalised in #1048 and #1051 and documented here.
+- MTS diagram and indicator codes: until the MTS catalog is fixed (#1048, #1056), the tool derives the
+  code from the German label (lowercase, umlauts transliterated, other characters `_`, at most 64
+  characters), for example `Abdominelle Schmerzen bei Erwachsenen` → `abdominelle_schmerzen_bei_erwachsenen`;
+  the labels are listed in `src/Encounter/UI/DataPrep/catalogs/mts-de.json`.
 
 ## Visit fingerprint `ed-visit:v1`
 
@@ -107,6 +111,8 @@ case_key          = hex(HMAC-SHA256(key, "case:v1|" + case_number))
   `Aufnahme ZNA`.
 
 ## ORBIS MTS profile (public part)
+
+Implemented by the [data preparation tool](data-preparation-tool.md#orbis-mts-value-mapping-profile-v1), which also lists the value mapping.
 
 Source: ORBIS MTS export, cp1252, `;`, quoted cells, timestamps `dd.mm.yyyy  HH:MM:SS` (two spaces),
 trailing empty column.
@@ -146,3 +152,5 @@ file for the tool:
 - disposition texts specific to the hospital, if any
 
 Unmapped values become `unknown` / empty and are listed in the tool's preview.
+
+File format: [data-preparation-tool.md](data-preparation-tool.md#local-map-private-per-hospital).

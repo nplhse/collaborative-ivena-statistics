@@ -20,7 +20,8 @@ Decisions: [ADR 025](../../02-architecture/decisions/025-encounter-data-context-
 
 ## Flow
 
-1. The hospital downloads the data preparation tool (one HTML file) from the encounter import page.
+1. The hospital downloads the data preparation tool (one HTML file) from the encounter page
+   ([data-preparation-tool.md](data-preparation-tool.md)).
 2. In the browser, the tool reads the vendor export and the hospital's key file, drops identifying
    columns, computes the visit fingerprint and writes a canonical `ed_visit` file
    ([exchange-format.md](exchange-format.md)).
@@ -31,6 +32,10 @@ Decisions: [ADR 025](../../02-architecture/decisions/025-encounter-data-context-
    proposals and conflicts.
 6. Uploaded files are kept for 30 days for error analysis (`app.encounter.source_file_retention_days`);
    files recognised as raw HIS exports are deleted immediately.
+
+Implemented in #1051: the tool v1 with the ORBIS MTS profile, its download on `/encounter`, the
+public update check `/data-prep/latest.json` and the version options `app.encounter.data_prep`
+([data-preparation-tool.md](data-preparation-tool.md)).
 
 ## Model
 
