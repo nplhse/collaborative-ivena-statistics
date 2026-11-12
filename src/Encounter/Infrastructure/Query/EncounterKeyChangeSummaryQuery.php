@@ -22,26 +22,16 @@ final readonly class EncounterKeyChangeSummaryQuery implements EncounterKeyChang
     }
 
     /**
-     * @return array{generation: int, key_change_in_progress: bool, check_value_registered: bool, encounters: int, imports: int, encounters_by_generation: array<int, int>}
+     * @return array{generation: int, key_change_in_progress: bool, encounters: int, imports: int}
      */
     #[\Override]
     public function forHospital(int $hospitalId): array
     {
         $state = $this->connection->fetchAssociative(
-            'SELECT key_generation, key_change_in_progress, active_check_value FROM encounter_key_state WHERE hospital_id = ?',
+            'SELECT key_generation, key_change_in_progress FROM encounter_key_state WHERE hospital_id = ?',
             [$hospitalId],
         );
-
-        /** @var array<int|string, int|string> $byGeneration */
-        $byGeneration = $this->connection->fetchAllKeyValue(
-            'SELECT key_generation, COUNT(*) FROM encounter WHERE hospital_id = ? GROUP BY key_generation ORDER BY key_generation',
-            [$hospitalId],
-        );
-        $encountersByGeneration = [];
-        foreach ($byGeneration as $generation => $count) {
-            $encountersByGeneration[(int) $generation] = (int) $count;
-        }
-
+        $encounters = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM encounter WHERE hospital_id = ?', [$hospitalId]);
         $imports = (int) $this->connection->fetchOne(
             'SELECT COUNT(*) FROM import i INNER JOIN encounter_import ei ON ei.import_id = i.id WHERE i.hospital_id = ?',
             [$hospitalId],
@@ -50,10 +40,8 @@ final readonly class EncounterKeyChangeSummaryQuery implements EncounterKeyChang
         return [
             'generation' => false === $state ? EncounterKeyState::FIRST_GENERATION : (int) $state['key_generation'],
             'key_change_in_progress' => false !== $state && (bool) $state['key_change_in_progress'],
-            'check_value_registered' => false !== $state && null !== $state['active_check_value'],
-            'encounters' => array_sum($encountersByGeneration),
+            'encounters' => $encounters,
             'imports' => $imports,
-            'encounters_by_generation' => $encountersByGeneration,
         ];
     }
 }

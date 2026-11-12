@@ -789,78 +789,6 @@
         <source>encounter.key_change.title</source>
         <target>Change pseudonym key</target>
       </trans-unit>
-      <trans-unit id="EncK0E7CFC15" resname="encounter.key_change.intro">
-        <source>encounter.key_change.intro</source>
-        <target>Change the key only if the key file was lost, may be known to people who should not have it, or must be replaced for another reason. The key change starts a new key generation; files created with the old key file are rejected afterwards.</target>
-      </trans-unit>
-      <trans-unit id="EncK4DC45624" resname="encounter.key_change.summary.generation">
-        <source>encounter.key_change.summary.generation</source>
-        <target>Current key generation</target>
-      </trans-unit>
-      <trans-unit id="EncK97D42BD6" resname="encounter.key_change.summary.check_value">
-        <source>encounter.key_change.summary.check_value</source>
-        <target>Key file of this generation</target>
-      </trans-unit>
-      <trans-unit id="EncKFA7F6D90" resname="encounter.key_change.summary.registered">
-        <source>encounter.key_change.summary.registered</source>
-        <target>registered by the first upload</target>
-      </trans-unit>
-      <trans-unit id="EncKD4EAB635" resname="encounter.key_change.summary.not_registered">
-        <source>encounter.key_change.summary.not_registered</source>
-        <target>not registered yet (no upload with this generation)</target>
-      </trans-unit>
-      <trans-unit id="EncKABD6AFDC" resname="encounter.key_change.summary.encounters">
-        <source>encounter.key_change.summary.encounters</source>
-        <target>Encounters</target>
-      </trans-unit>
-      <trans-unit id="EncKABF845A8" resname="encounter.key_change.summary.by_generation">
-        <source>encounter.key_change.summary.by_generation</source>
-        <target>generation {generation}: {count}</target>
-      </trans-unit>
-      <trans-unit id="EncK6F74F18A" resname="encounter.key_change.summary.imports">
-        <source>encounter.key_change.summary.imports</source>
-        <target>Encounter imports</target>
-      </trans-unit>
-      <trans-unit id="EncKD9EC40CD" resname="encounter.key_change.in_progress">
-        <source>encounter.key_change.in_progress</source>
-        <target>A key change of this hospital is in progress: the existing encounter data is being deleted. Uploads are refused until it has finished.</target>
-      </trans-unit>
-      <trans-unit id="EncK9B5EAA1B" resname="encounter.key_change.warning.title">
-        <source>encounter.key_change.warning.title</source>
-        <target>This cannot be undone</target>
-      </trans-unit>
-      <trans-unit id="EncK335F2231" resname="encounter.key_change.warning.uploads">
-        <source>encounter.key_change.warning.uploads</source>
-        <target>While the key changes, new encounter uploads of this hospital are refused.</target>
-      </trans-unit>
-      <trans-unit id="EncK91643323" resname="encounter.key_change.warning.old_imports">
-        <source>encounter.key_change.warning.old_imports</source>
-        <target>Uploads made with the old key that are still waiting or running fail without writing data.</target>
-      </trans-unit>
-      <trans-unit id="EncK3FCA88B5" resname="encounter.key_change.warning.key_file">
-        <source>encounter.key_change.warning.key_file</source>
-        <target>Afterwards everyone uploading for this hospital needs the new key file. Create it with the data preparation tool; the first upload registers it. Files made with the old key file are rejected.</target>
-      </trans-unit>
-      <trans-unit id="EncK662FC6F3" resname="encounter.key_change.warning.delete">
-        <source>encounter.key_change.warning.delete</source>
-        <target>Delete: all {encounters, plural, one {# encounter} other {# encounters}} of this hospital and their {imports, plural, one {# import} other {# imports}} with links to allocations, review decisions and uploaded files are deleted in the background. Case counts and analyses then contain no encounter data of this hospital until new files are uploaded.</target>
-      </trans-unit>
-      <trans-unit id="EncKE1BE16CB" resname="encounter.key_change.warning.keep">
-        <source>encounter.key_change.warning.keep</source>
-        <target>Keep: existing encounters stay and remain linked, marked with their key generation. Do not export and upload periods that were already uploaded: with the new key the same visits get new fingerprints, are not recognised as duplicates and are counted twice in case counts and analyses.</target>
-      </trans-unit>
-      <trans-unit id="EncK3BB98257" resname="encounter.key_change.field.option">
-        <source>encounter.key_change.field.option</source>
-        <target>Existing encounter data</target>
-      </trans-unit>
-      <trans-unit id="EncK05558616" resname="encounter.key_change.option.delete">
-        <source>encounter.key_change.option.delete</source>
-        <target>Delete existing encounter data</target>
-      </trans-unit>
-      <trans-unit id="EncK30077A31" resname="encounter.key_change.option.keep">
-        <source>encounter.key_change.option.keep</source>
-        <target>Keep existing encounter data (only upload new periods afterwards)</target>
-      </trans-unit>
       <trans-unit id="EncK2E283C73" resname="encounter.key_change.field.confirm_name">
         <source>encounter.key_change.field.confirm_name</source>
         <target>Hospital name</target>
@@ -884,6 +812,62 @@
       <trans-unit id="EncK7C138908" resname="encounter.key_change.flash.in_progress">
         <source>encounter.key_change.flash.in_progress</source>
         <target>A key change of this hospital is already in progress.</target>
+      </trans-unit>
+      <trans-unit id="EncK5EA27D78" resname="encounter.key_change.purpose">
+        <source>encounter.key_change.purpose</source>
+        <target>The key file of your hospital lets the server recognise an encounter in later uploads, for example when a period is exported twice, without learning who the patient is. Only your hospital holds the key file; the server never sees it.</target>
+      </trans-unit>
+      <trans-unit id="EncK1B276828" resname="encounter.key_change.when.title">
+        <source>encounter.key_change.when.title</source>
+        <target>When should you change the key?</target>
+      </trans-unit>
+      <trans-unit id="EncKDB77CEBD" resname="encounter.key_change.when.text">
+        <source>encounter.key_change.when.text</source>
+        <target>Only if the key file was lost or may have been seen by unauthorised people.</target>
+      </trans-unit>
+      <trans-unit id="EncK6F19160A" resname="encounter.key_change.consequence.title">
+        <source>encounter.key_change.consequence.title</source>
+        <target>What happens?</target>
+      </trans-unit>
+      <trans-unit id="EncKF3A6D507" resname="encounter.key_change.consequence.key_file">
+        <source>encounter.key_change.consequence.key_file</source>
+        <target>Everyone uploading for this hospital needs the new key file. Files made with the old one are rejected.</target>
+      </trans-unit>
+      <trans-unit id="EncKD715CC22" resname="encounter.key_change.consequence.no_matching">
+        <source>encounter.key_change.consequence.no_matching</source>
+        <target>Encounters uploaded so far can no longer be matched with new uploads. You decide what happens to them.</target>
+      </trans-unit>
+      <trans-unit id="EncK3BB98257" resname="encounter.key_change.field.option">
+        <source>encounter.key_change.field.option</source>
+        <target>Existing encounters</target>
+      </trans-unit>
+      <trans-unit id="EncK05558616" resname="encounter.key_change.option.delete">
+        <source>encounter.key_change.option.delete</source>
+        <target>Delete</target>
+      </trans-unit>
+      <trans-unit id="EncK6CE50DCA" resname="encounter.key_change.option.delete_help">
+        <source>encounter.key_change.option.delete_help</source>
+        <target>{encounters, plural, =0 {There are no encounters yet.} one {# encounter from {imports, plural, one {# import} other {# imports}} is deleted.} other {# encounters from {imports, plural, one {# import} other {# imports}} are deleted.}} Afterwards you can upload any period again.</target>
+      </trans-unit>
+      <trans-unit id="EncK30077A31" resname="encounter.key_change.option.keep">
+        <source>encounter.key_change.option.keep</source>
+        <target>Keep</target>
+      </trans-unit>
+      <trans-unit id="EncKC8492A04" resname="encounter.key_change.option.keep_help">
+        <source>encounter.key_change.option.keep_help</source>
+        <target>The encounters stay. Afterwards only upload new periods; periods uploaded before would be counted twice.</target>
+      </trans-unit>
+      <trans-unit id="EncKDCB2AC3F" resname="encounter.key_change.irreversible">
+        <source>encounter.key_change.irreversible</source>
+        <target>This cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="EncKC2D24303" resname="encounter.key_change.summary">
+        <source>encounter.key_change.summary</source>
+        <target>Key generation {generation} · {encounters, plural, one {# encounter} other {# encounters}} · {imports, plural, one {# import} other {# imports}}</target>
+      </trans-unit>
+      <trans-unit id="EncKD9EC40CD" resname="encounter.key_change.in_progress">
+        <source>encounter.key_change.in_progress</source>
+        <target>The key is being changed and the existing encounters are being deleted. Uploads are possible again once that has finished.</target>
       </trans-unit>
     </body>
   </file>

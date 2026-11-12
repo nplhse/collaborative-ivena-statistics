@@ -193,14 +193,15 @@ from the encounter section of the hospital edit pages for the hospital owner and
 (`EncounterAttribute::CHANGE_KEY`, beta role required). Users with an encounter grant, also `UPLOAD`, get
 403.
 
-The page shows the current key generation, whether its check value is registered, the hospital's
-encounters (per generation once there is more than one) and encounter imports. Links and review
-decisions are added to the counts with matching (#1053) and review (#1054). The person confirms by
-choosing **delete** or **keep** and typing the hospital name exactly. The warning names the consequences:
-uploads are refused during the change, waiting or running uploads with the old key fail without writing,
-everyone needs the new key file, "delete" removes the encounter data from case counts and analyses, and
-with "keep" exporting already uploaded periods again counts the same visits twice, because the new key
-gives them other fingerprints and duplicate detection works only within one generation.
+The page explains in a few sentences what the key file is for (recognising visits again without the
+server learning who the patient is), when to change it (only if the key file was lost or may have been
+seen by unauthorised people) and what follows: everyone needs the new key file, and visits uploaded so
+far can no longer be matched with new uploads. The person then chooses **delete** (shows how many
+encounters and imports go; afterwards any period can be uploaded again) or **keep** (only upload new
+periods afterwards, otherwise visits are counted twice, because the new key gives them other fingerprints
+and duplicate detection works only within one generation) and types the hospital name exactly. A line at
+the bottom shows the key generation and the counts. Links and review decisions are added to the counts
+with matching (#1053) and review (#1054).
 
 Flow (`EncounterKeyChanger`, one transaction holding the key state lock that the import commit takes):
 
