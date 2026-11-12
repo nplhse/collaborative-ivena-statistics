@@ -26,12 +26,14 @@ use App\Encounter\Domain\Enum\Sex;
 use App\Encounter\Domain\Enum\VitalsReference;
 use App\Tests\Support\Encounter\EncounterDataFixtures;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 #[ResetDatabase]
 final class EncounterRepositoryTest extends KernelTestCase
 {
+    use ClockSensitiveTrait;
     use EncounterDataFixtures;
     use Factories;
 
@@ -43,6 +45,7 @@ final class EncounterRepositoryTest extends KernelTestCase
 
     public function testInsertStoresEveryFieldOfTheVisit(): void
     {
+        self::mockTime('2026-11-12 09:30:00');
         $hospital = $this->encounterHospital();
         $import = $this->encounterImport($hospital, 'A');
         $department = DepartmentFactory::createOne(['name' => 'Internal medicine']);
@@ -92,7 +95,7 @@ final class EncounterRepositoryTest extends KernelTestCase
 
         self::assertNotNull($visit->getId());
         self::assertSame(self::fingerprintFor('2026-10-12'), $visit->getVisitFingerprint());
-        self::assertInstanceOf(\DateTimeImmutable::class, $visit->getCreatedAt());
+        self::assertEquals(new \DateTimeImmutable('2026-11-12 09:30:00'), $visit->getCreatedAt());
         self::assertSame($hospital->getId(), $visit->getHospital()->getId());
         self::assertSame($import->getId(), $visit->getImport()->getId());
         self::assertSame(2, $visit->getKeyGeneration());

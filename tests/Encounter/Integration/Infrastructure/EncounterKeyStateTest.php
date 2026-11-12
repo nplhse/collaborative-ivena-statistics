@@ -8,12 +8,14 @@ use App\Encounter\Domain\Entity\EncounterKeyState;
 use App\Tests\Support\Encounter\EncounterDataFixtures;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 #[ResetDatabase]
 final class EncounterKeyStateTest extends KernelTestCase
 {
+    use ClockSensitiveTrait;
     use EncounterDataFixtures;
     use Factories;
 
@@ -25,6 +27,7 @@ final class EncounterKeyStateTest extends KernelTestCase
 
     public function testNewStateStartsAtFirstGenerationWithoutCheckValue(): void
     {
+        self::mockTime('2026-11-12 09:30:00');
         $hospital = $this->encounterHospital();
         $em = $this->encounterEntityManager();
         $em->persist(new EncounterKeyState($hospital));
@@ -40,7 +43,7 @@ final class EncounterKeyStateTest extends KernelTestCase
         self::assertNull($state->getActiveCheckValue());
         self::assertSame([], $state->getRetiredCheckValues());
         self::assertFalse($state->isKeyChangeInProgress());
-        self::assertInstanceOf(\DateTimeImmutable::class, $state->getCreatedAt());
+        self::assertEquals(new \DateTimeImmutable('2026-11-12 09:30:00'), $state->getCreatedAt());
     }
 
     public function testRetiredCheckValuesAreRecognised(): void
