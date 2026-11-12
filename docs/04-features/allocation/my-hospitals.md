@@ -68,22 +68,23 @@ records from `data_coverage` when no export period is stored. Overlapping import
 
 | State | Rule |
 |-------|------|
-| `outside` | not covered, before the first or after the last covered month: the hospital did not deliver this month, no gap |
-| `missing` | not covered, between covered months: a *possible* gap |
-| `partial` | some days covered, or allocations without a known period |
-| `covered` | every day covered, with allocations |
-| `covered_zero` | every day covered, no allocations |
+| `covered` | allocations, and imports cover every day |
+| `partial` | allocations, but imports cover only some days, or no period is known |
+| `no_allocations` | an import's period covers the month, but it has no allocations |
+| `missing` | no allocations and no import covers it, between the periods of imports: a *possible* gap, an import may be missing |
+| `outside` | no allocations and no import covers it, after the last import: no data delivered yet |
 | `in_progress` | the current month, whatever its coverage; never compared |
 
-Derived export periods start and end at the first and last record of a file, so `covered_zero` says that exports
-span the month, not that the hospital confirmed zero cases. Days without records inside one import stay on the
-import detail page ([data-coverage.md](../import/data-coverage.md)).
+A month without allocations never counts as covered, even when an import's period spans it: derived export periods
+run from the first to the last row of a file and manual ones are maintained by hand, so neither proves a month
+without cases. Only a month that no import covers, between covered periods, is a possible gap. Days without records
+inside one import stay on the import detail page ([data-coverage.md](../import/data-coverage.md)).
 
 The twelve-month view uses the window of `last_12_months` (`StatisticsPeriod::overviewPeriodStart()`): eleven
-complete months and the current one. *Fully covered months* counts `covered` and `covered_zero` in it. Per month,
-the aggregate shows the allocations, how many hospitals delivered data (state other than `outside`), how many
-covered it fully, and the names of hospitals with a `missing` or `partial` month, so a total never hides the gap
-of a single hospital.
+complete months and the current one. *Fully covered months* counts `covered` in it. Per month, the aggregate
+(`OverviewMonth`) counts the allocations, how many hospitals delivered data (state other than `outside`) and how many
+covered it fully; the summary's complete months need every delivering hospital to cover the month, so a total never
+hides the gap of a single hospital.
 
 ### Hints
 
@@ -118,6 +119,17 @@ The page (`owned_list.html.twig` with `_my_hospitals_summary.html.twig` and `_my
 - **Quick actions** in the card footer: *View statistics* (`scope=hospital:ID`, `STATISTICS`, only with data),
   *View imports* (the hospital's import list) and *Upload new import* (`IMPORT`). **Administrative actions** (edit,
   manage access) sit in the card's menu and follow `HospitalVoter`. The hospital name opens its Explore page.
+- **Data coverage** (`_my_hospitals_coverage.html.twig`, `STATISTICS`): in the right third next to the cards (from
+  `lg` up, below them on smaller screens), a heatmap in the style of the import coverage calendar, one block per
+  hospital with data, stacked, one row per year (January to December), one cell per month
+  from the first month with data to the current month (`HospitalDataStatus::$history`). Cells use the import
+  calendar's classes: four shades of the primary colour by volume relative to the hospital's busiest month
+  (`covered`), hatched (`partial`), amber for a gap between imports (`missing`), white "no data" for months
+  without allocations inside an import (`no_allocations`) or after the last import (`outside`), white with a dashed
+  frame for the current month (`in_progress`); future months stay empty. A gap between two imports stands out more
+  than months that simply have not been delivered yet. Each cell has a title and a screen-reader text with month,
+  state and numbers. Peaks and quiet months are only shaded, never marked as problems. The heatmap replaces a
+  separate volume chart: the volume trend is the shading, details are one click away in the statistics.
 - **Empty states**: no hospital (the existing empty state), a hospital without allocations (upload as primary
   action; a hint when imports failed or are still running), no data in the summary period ("No data yet").
 
@@ -138,6 +150,6 @@ across a month change and for every viewer. Clearing and warming the entries aft
 - `tests/Allocation/Integration/Application/Hospital/MyHospitalsScopeResolverTest.php` (owner, grants, grant
   without `VIEW`, administrator with and without own hospitals, no hospitals)
 - `tests/Allocation/Functional/Controller/Hospitals/ParticipantHospitalsControllerTest.php` (listing, actions, summary per permission)
-- `tests/Allocation/Functional/Controller/Hospitals/MyHospitalsOverviewTest.php` (cards and summary per permission tier, basis, empty states, German page)
+- `tests/Allocation/Functional/Controller/Hospitals/MyHospitalsOverviewTest.php` (cards and summary per permission tier, basis, empty states, German page, coverage heatmap rows and states)
 - `tests/Allocation/Unit/Application/Hospital/MyHospitals/` (month states, gaps, window, hints, cache, permissions and aggregates)
 - `tests/Statistics/Integration/Query/MyHospitals/HospitalDataSnapshotQueryTest.php` (import statuses, failed rows excluded, midnight rule, coverage fallback)

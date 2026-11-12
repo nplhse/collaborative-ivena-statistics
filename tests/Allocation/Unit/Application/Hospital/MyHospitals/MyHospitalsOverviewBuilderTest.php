@@ -46,12 +46,15 @@ final class MyHospitalsOverviewBuilderTest extends TestCase
         self::assertSame(67, $full->imports->successRate());
         self::assertSame('2026-10-01', $full->imports->ownLastUploadAt?->format('Y-m-d'));
         self::assertCount(12, $full->months ?? []);
+        // History runs from the first month with data (September 2026) to the current month.
+        self::assertSame(['2026-09', '2026-10', '2026-11'], array_map(static fn ($month): string => $month->month->format('Y-m'), $full->history ?? []));
         self::assertSame(2, $full->fullyCoveredMonths); // September and October 2026
         self::assertSame([DataStatusFindingType::ImportFailed], $this->findingTypes($full));
 
         self::assertSame(50, $viewOnly->allocationCount);
         self::assertNull($viewOnly->imports);
         self::assertNull($viewOnly->months);
+        self::assertNull($viewOnly->history);
         self::assertNull($viewOnly->fullyCoveredMonths);
         self::assertNull($viewOnly->gaps);
         // The failed import and the gap are hidden; only "not updated" needs no more than VIEW.
@@ -100,7 +103,6 @@ final class MyHospitalsOverviewBuilderTest extends TestCase
         self::assertSame('2026-09', $september->month->format('Y-m'));
         self::assertSame(2, $september->hospitals);
         self::assertSame(1, $september->coveredHospitals);
-        self::assertSame(['Gap Hospital'], $september->hospitalsWithGaps);
         self::assertNull($overview->imports);
 
         // August (only Gap Hospital delivers, fully) and October (both fully) count; September does not.

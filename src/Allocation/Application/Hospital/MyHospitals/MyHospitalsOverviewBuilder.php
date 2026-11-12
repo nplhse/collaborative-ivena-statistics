@@ -99,6 +99,7 @@ final readonly class MyHospitalsOverviewBuilder
             lastAllocationAt: $snapshot->lastAllocationAt,
             imports: $imports,
             months: $months,
+            history: null === $months ? null : $history,
             fullyCoveredMonths: $fullyCovered,
             gaps: null === $months ? null : $gaps,
             findings: $findings,
@@ -174,21 +175,18 @@ final readonly class MyHospitalsOverviewBuilder
             return null;
         }
 
-        /** @var array<string, array{month: \DateTimeImmutable, allocations: int, hospitals: int, covered: int, gaps: list<string>, inProgress: bool}> $months */
+        /** @var array<string, array{month: \DateTimeImmutable, allocations: int, hospitals: int, covered: int, inProgress: bool}> $months */
         $months = [];
         foreach ($statuses as $status) {
             foreach ($status->months ?? [] as $month) {
                 $key = $month->month->format('Y-m');
-                $months[$key] ??= ['month' => $month->month, 'allocations' => 0, 'hospitals' => 0, 'covered' => 0, 'gaps' => [], 'inProgress' => MonthCoverageState::InProgress === $month->state];
+                $months[$key] ??= ['month' => $month->month, 'allocations' => 0, 'hospitals' => 0, 'covered' => 0, 'inProgress' => MonthCoverageState::InProgress === $month->state];
                 $months[$key]['allocations'] += $month->allocations;
                 if (MonthCoverageState::Outside !== $month->state) {
                     ++$months[$key]['hospitals'];
                 }
                 if ($month->state->isFullyCovered()) {
                     ++$months[$key]['covered'];
-                }
-                if (MonthCoverageState::Missing === $month->state || MonthCoverageState::Partial === $month->state) {
-                    $months[$key]['gaps'][] = (string) $status->entry->hospital->getName();
                 }
             }
         }
@@ -199,7 +197,6 @@ final readonly class MyHospitalsOverviewBuilder
                 $month['allocations'],
                 $month['hospitals'],
                 $month['covered'],
-                $month['gaps'],
                 $month['inProgress'],
             ),
             $months,

@@ -17,7 +17,11 @@ use App\Allocation\Application\DTO\MyHospitals\MonthStatus;
 final class MonthlyCoverageClassifier
 {
     /**
-     * Months from the first month with data or coverage up to the current month, oldest first.
+     * Months from the first month with allocations or coverage up to the current month, oldest first.
+     *
+     * A finished month counts as covered only when it has allocations and imports cover every day of it. A month
+     * without allocations is never covered: inside an import's period it has no allocations, between the periods of
+     * imports it is a possible gap (an import may be missing), after the last import it has no data yet.
      *
      * @return list<MonthStatus>
      */
@@ -32,23 +36,25 @@ final class MonthlyCoverageClassifier
             return [];
         }
 
-        $firstCovered = [] === $intervals ? null : $intervals[0]->firstDay->modify('first day of this month');
-        $lastCovered = [] === $intervals ? null : $intervals[\count($intervals) - 1]->lastDay->modify('first day of this month');
+        $firstCovered = [] === $intervals ? null : $intervals[0]->firstDay->modify('first day of this month')->format('Y-m');
+        $lastCovered = [] === $intervals ? null : $intervals[\count($intervals) - 1]->lastDay->modify('first day of this month')->format('Y-m');
 
         $months = [];
         for ($month = $firstMonth; $month <= $currentMonth; $month = $month->modify('+1 month')) {
+            $key = $month->format('Y-m');
             $monthEnd = $month->modify('last day of this month');
             $days = (int) $monthEnd->format('j');
             $coveredDays = $this->coveredDays($intervals, $month, min($monthEnd, $today));
-            $allocations = $snapshot->monthlyVolumes[$month->format('Y-m')] ?? 0;
-            $outside = !$firstCovered instanceof \DateTimeImmutable || !$lastCovered instanceof \DateTimeImmutable || $month < $firstCovered || $month > $lastCovered;
+            $allocations = $snapshot->monthlyVolumes[$key] ?? 0;
+            $betweenImports = null !== $firstCovered && null !== $lastCovered && $key > $firstCovered && $key < $lastCovered;
 
             $state = match (true) {
-                $month->format('Y-m') === $currentMonth->format('Y-m') => MonthCoverageState::InProgress,
-                $coveredDays >= $days => $allocations > 0 ? MonthCoverageState::Covered : MonthCoverageState::CoveredZero,
-                $coveredDays > 0, $allocations > 0 => MonthCoverageState::Partial,
-                $outside => MonthCoverageState::Outside,
-                default => MonthCoverageState::Missing,
+                $key === $currentMonth->format('Y-m') => MonthCoverageState::InProgress,
+                $allocations > 0 && $coveredDays >= $days => MonthCoverageState::Covered,
+                $allocations > 0 => MonthCoverageState::Partial,
+                $coveredDays > 0 => MonthCoverageState::NoAllocations,
+                $betweenImports => MonthCoverageState::Missing,
+                default => MonthCoverageState::Outside,
             };
 
             $months[] = new MonthStatus($month, $state, $allocations, $coveredDays, $days);
