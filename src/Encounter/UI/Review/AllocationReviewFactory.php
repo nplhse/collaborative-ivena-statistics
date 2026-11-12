@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Encounter\UI\Review;
 
+use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\Encounter\Application\Catalog\MtsCatalog;
+use App\Encounter\Application\Catalog\MtsCatalogEntry;
 use App\Encounter\Application\Contract\MatchCandidateReaderInterface;
 use App\Encounter\Application\Contract\MatchReviewReaderInterface;
 use App\Encounter\Application\Contract\MatchSwapFinderInterface;
@@ -15,6 +18,7 @@ use App\Encounter\Application\Matching\MatchPlanner;
 use App\Encounter\Domain\Enum\AnchorSource;
 use App\Encounter\Domain\Enum\ArrivalMode;
 use App\Encounter\Domain\Enum\MatchStatus;
+use App\Encounter\UI\Glossary\MtsNames;
 
 /**
  * View data of the review page of one allocation (#1054): the allocation, every candidate visit of the
@@ -33,6 +37,8 @@ final readonly class AllocationReviewFactory
         private MatchReviewReaderInterface $review,
         private MatchSwapFinderInterface $swaps,
         private MatchingSettings $settings,
+        private MtsCatalog $mtsCatalog,
+        private MtsNames $mtsNames,
     ) {
     }
 
@@ -83,6 +89,8 @@ final readonly class AllocationReviewFactory
             }
         }
 
+        $extended = $this->review->extendedInfo($allocationId, array_map(static fn (\App\Encounter\Application\Matching\PlannedMatch $c): int => $c->encounterId, $scored));
+
         $candidates = [];
         foreach ($scored as $candidate) {
             $encounter = $byId[$candidate->encounterId];
@@ -100,6 +108,7 @@ final readonly class AllocationReviewFactory
                 'is_link' => null !== $link && $link['encounter_id'] === $candidate->encounterId,
                 'can_confirm' => !isset($elsewhere[$candidate->encounterId]) && MatchStatus::Confirmed !== ($own[$candidate->encounterId]['status'] ?? null),
                 'can_reject' => isset($own[$candidate->encounterId]) && MatchStatus::Rejected !== $own[$candidate->encounterId]['status'],
+                'extended' => $this->mts($extended['encounters'][$candidate->encounterId] ?? null),
             ];
         }
 
@@ -117,13 +126,42 @@ final readonly class AllocationReviewFactory
         }
         $selected ??= $scored[0]->encounterId ?? null;
 
+        $urgency = null === $extended['allocation']['urgency'] ? null : AllocationUrgency::tryFrom($extended['allocation']['urgency']);
+
         return [
             'allocation' => $allocation,
+            'allocation_extended' => [
+                'urgency_label' => $urgency?->label(),
+                'urgency_code' => $urgency?->skLabel(),
+                'indication' => null === $extended['allocation']['indication_name'] ? null : trim(($extended['allocation']['indication_code'] ?? '').' '.$extended['allocation']['indication_name']),
+            ],
             'link' => $link,
             'selected' => $selected,
             'candidates' => $candidates,
             'swaps' => $this->swaps->forAllocation($hospitalId, $matching),
             'window' => $window,
+        ];
+    }
+
+    /**
+     * MTS triage of a visit with display names (MTS glossary, #1056); codes not in the catalog are shown as
+     * stored.
+     *
+     * @param array{category: ?string, diagram: ?string, indicator: ?string}|null $triage
+     *
+     * @return array{category: ?string, diagram: ?string, indicator: ?string}
+     */
+    private function mts(?array $triage): array
+    {
+        $diagramCode = $triage['diagram'] ?? null;
+        $indicatorCode = $triage['indicator'] ?? null;
+        $diagram = null === $diagramCode ? null : $this->mtsCatalog->diagram($diagramCode);
+        $indicator = null === $indicatorCode ? null : $this->mtsCatalog->indicator($indicatorCode);
+
+        return [
+            'category' => $triage['category'] ?? null,
+            'diagram' => $diagram instanceof MtsCatalogEntry ? $this->mtsNames->diagram($diagram)->name : $diagramCode,
+            'indicator' => $indicator instanceof MtsCatalogEntry ? $this->mtsNames->indicator($indicator)->name : $indicatorCode,
         ];
     }
 

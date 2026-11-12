@@ -1397,6 +1397,26 @@
         <source>encounter.review.points_total</source>
         <target>Total points</target>
       </trans-unit>
+      <trans-unit id="Enc9A2C1548" resname="encounter.review.extended.title">
+        <source>encounter.review.extended.title</source>
+        <target>Extended information (MTS, IVENA)</target>
+      </trans-unit>
+      <trans-unit id="EncC1BE31AD" resname="encounter.review.extended.hint">
+        <source>encounter.review.extended.hint</source>
+        <target>Optional context for unclear cases. These details are no matching features: later analyses compare them between IVENA and the emergency department, so use them only when the features above leave the decision open.</target>
+      </trans-unit>
+      <trans-unit id="EncC4B213D6" resname="encounter.review.extended.urgency">
+        <source>encounter.review.extended.urgency</source>
+        <target>Urgency / triage</target>
+      </trans-unit>
+      <trans-unit id="Enc48083ED7" resname="encounter.review.extended.indication">
+        <source>encounter.review.extended.indication</source>
+        <target>Indication / MTS diagram</target>
+      </trans-unit>
+      <trans-unit id="Enc64849B95" resname="encounter.review.extended.indicator">
+        <source>encounter.review.extended.indicator</source>
+        <target>MTS indicator</target>
+      </trans-unit>
       <trans-unit id="Enc3DD215B3" resname="encounter.review.period.range">
         <source>encounter.review.period.range</source>
         <target>{from} – {to}</target>

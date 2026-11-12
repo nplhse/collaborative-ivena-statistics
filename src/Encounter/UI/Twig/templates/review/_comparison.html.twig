@@ -60,6 +60,39 @@
         </table>
     </div>
 
+    <details class="mt-3" data-test="encounter-review-extended">
+        <summary class="fw-medium">{{ 'encounter.review.extended.title'|trans({}, 'encounter') }}</summary>
+        <p class="text-secondary small mt-2">{{ 'encounter.review.extended.hint'|trans({}, 'encounter') }}</p>
+        <div class="table-responsive">
+            <table class="table table-sm table-vcenter mb-0">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>{{ 'encounter.review.column.ivena'|trans({}, 'encounter') }}</th>
+                        <th>{{ 'encounter.review.column.ed'|trans({}, 'encounter') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-test="extended-urgency">
+                        <td class="fw-medium py-2">{{ 'encounter.review.extended.urgency'|trans({}, 'encounter') }}</td>
+                        <td class="py-2">{% if allocation_extended.urgency_label %}{{ allocation_extended.urgency_code }} · {{ allocation_extended.urgency_label|trans({}, 'messages') }}{% else %}–{% endif %}</td>
+                        <td class="py-2">{% if candidate.extended.category %}{{ ('encounter.mts.category.' ~ candidate.extended.category ~ '.name')|trans({}, 'encounter') }}{% else %}{{ 'encounter.review.value.not_documented'|trans({}, 'encounter') }}{% endif %}</td>
+                    </tr>
+                    <tr data-test="extended-indication">
+                        <td class="fw-medium py-2">{{ 'encounter.review.extended.indication'|trans({}, 'encounter') }}</td>
+                        <td class="py-2">{{ allocation_extended.indication ?? '–' }}</td>
+                        <td class="py-2">{{ candidate.extended.diagram ?? 'encounter.review.value.not_documented'|trans({}, 'encounter') }}</td>
+                    </tr>
+                    <tr data-test="extended-indicator">
+                        <td class="fw-medium py-2">{{ 'encounter.review.extended.indicator'|trans({}, 'encounter') }}</td>
+                        <td class="py-2">–</td>
+                        <td class="py-2">{{ candidate.extended.indicator ?? 'encounter.review.value.not_documented'|trans({}, 'encounter') }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </details>
+
     {% if candidate.rival_allocations is not empty %}
         <p class="text-secondary small mt-3 mb-0" data-test="encounter-review-rivals">
             {{ 'encounter.review.rivals'|trans({}, 'encounter') }}

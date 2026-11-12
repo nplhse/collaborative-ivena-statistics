@@ -155,6 +155,13 @@ final class MatchReviewControllerTest extends WebTestCase
         self::assertSame('neutral', $this->comparison($crawler, $other)->filter('[data-test="feature-age"]')->attr('data-direction'));
         self::assertStringContainsString('d-none', (string) $crawler->filter('[data-test="encounter-review-comparison"][data-encounter="'.$other.'"]')->attr('class'));
         self::assertSelectorTextContains('[data-test="encounter-review-header-status"]', 'Linked automatically');
+        self::assertSelectorExists('[data-test="encounter-review-candidates-card"] [data-test="encounter-review-candidate"]');
+
+        // The optional MTS/IVENA context is collapsed; the fixture visit has no triage documented.
+        $extended = $crawler->filter('[data-test="encounter-review-comparison"][data-encounter="'.$best.'"] details[data-test="encounter-review-extended"]');
+        self::assertCount(1, $extended);
+        self::assertNull($extended->attr('open'));
+        self::assertStringContainsString('not documented', $extended->filter('[data-test="extended-urgency"]')->text());
         self::assertSelectorTextContains('[data-test="encounter-review-leave-open"]', 'Leave open');
         self::assertSelectorExists('[data-test="encounter-review-actions"] [data-test="encounter-review-confirm"]');
         self::assertSelectorExists('[data-test="encounter-review-actions"] [data-test="encounter-review-reject"]');

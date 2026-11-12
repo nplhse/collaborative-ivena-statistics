@@ -371,6 +371,46 @@ SQL,
     }
 
     /**
+     * Optional context for unclear cases (#1054): IVENA urgency and normalized indication of the allocation,
+     * MTS category, diagram and indicator of the visits. None of these is a matching feature (ADR 029).
+     *
+     * @param list<int> $encounterIds
+     *
+     * @return array{allocation: array{urgency: ?int, indication_code: ?int, indication_name: ?string}, encounters: array<int, array{category: ?string, diagram: ?string, indicator: ?string}>}
+     */
+    #[\Override]
+    public function extendedInfo(int $allocationId, array $encounterIds): array
+    {
+        /** @var array{urgency: int|string|null, indication_code: int|string|null, indication_name: ?string}|false $allocation */
+        $allocation = $this->connection->fetchAssociative(
+            'SELECT a.urgency, n.code AS indication_code, n.name AS indication_name FROM allocation a LEFT JOIN indication_normalized n ON n.id = a.indication_normalized_id WHERE a.id = :id',
+            ['id' => $allocationId],
+            ['id' => Types::INTEGER],
+        );
+
+        /** @var list<array{id: int|string, mts_category: ?string, mts_diagram: ?string, mts_indicator: ?string}> $rows */
+        $rows = [] === $encounterIds ? [] : $this->connection->fetchAllAssociative(
+            'SELECT id, mts_category, mts_diagram, mts_indicator FROM encounter WHERE id = ANY(CAST(:ids AS INT[]))',
+            ['ids' => '{'.implode(',', $encounterIds).'}'],
+            ['ids' => Types::STRING],
+        );
+
+        $encounters = [];
+        foreach ($rows as $row) {
+            $encounters[(int) $row['id']] = ['category' => $row['mts_category'], 'diagram' => $row['mts_diagram'], 'indicator' => $row['mts_indicator']];
+        }
+
+        return [
+            'allocation' => [
+                'urgency' => false === $allocation || null === $allocation['urgency'] ? null : (int) $allocation['urgency'],
+                'indication_code' => false === $allocation || null === $allocation['indication_code'] ? null : (int) $allocation['indication_code'],
+                'indication_name' => false === $allocation ? null : $allocation['indication_name'],
+            ],
+            'encounters' => $encounters,
+        ];
+    }
+
+    /**
      * Stored rows touching the given visits: the allocation's own pairs and the visits' links elsewhere.
      *
      * @param list<int> $encounterIds

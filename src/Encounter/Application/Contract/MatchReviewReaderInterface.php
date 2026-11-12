@@ -88,6 +88,16 @@ interface MatchReviewReaderInterface
     public function allocation(int $hospitalId, int $allocationId): ?array;
 
     /**
+     * Optional context for unclear cases: IVENA urgency and normalized indication of the allocation, MTS
+     * category, diagram and indicator of the visits. None of these is a matching feature (ADR 029).
+     *
+     * @param list<int> $encounterIds
+     *
+     * @return array{allocation: array{urgency: ?int, indication_code: ?int, indication_name: ?string}, encounters: array<int, array{category: ?string, diagram: ?string, indicator: ?string}>}
+     */
+    public function extendedInfo(int $allocationId, array $encounterIds): array;
+
+    /**
      * Stored rows touching the given visits: the allocation's own pairs and the visits' links elsewhere.
      *
      * @param list<int> $encounterIds

@@ -1397,6 +1397,26 @@
         <source>encounter.review.points_total</source>
         <target>Summe der Punkte</target>
       </trans-unit>
+      <trans-unit id="Enc9A2C1548" resname="encounter.review.extended.title">
+        <source>encounter.review.extended.title</source>
+        <target>Erweiterte Informationen (MTS, IVENA)</target>
+      </trans-unit>
+      <trans-unit id="EncC1BE31AD" resname="encounter.review.extended.hint">
+        <source>encounter.review.extended.hint</source>
+        <target>Optionaler Kontext für unklare Fälle. Diese Angaben sind keine Abgleichsmerkmale: Spätere Auswertungen vergleichen sie zwischen IVENA und Notaufnahme. Nutzen Sie sie daher nur, wenn die Merkmale oben die Entscheidung offen lassen.</target>
+      </trans-unit>
+      <trans-unit id="EncC4B213D6" resname="encounter.review.extended.urgency">
+        <source>encounter.review.extended.urgency</source>
+        <target>Dringlichkeit / Triage</target>
+      </trans-unit>
+      <trans-unit id="Enc48083ED7" resname="encounter.review.extended.indication">
+        <source>encounter.review.extended.indication</source>
+        <target>Indikation / MTS-Diagramm</target>
+      </trans-unit>
+      <trans-unit id="Enc64849B95" resname="encounter.review.extended.indicator">
+        <source>encounter.review.extended.indicator</source>
+        <target>MTS-Indikator</target>
+      </trans-unit>
       <trans-unit id="Enc3DD215B3" resname="encounter.review.period.range">
         <source>encounter.review.period.range</source>
         <target>{from} – {to}</target>
