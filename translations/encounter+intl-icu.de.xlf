@@ -781,6 +781,110 @@
         <source>encounter.import.field.confirmation_help</source>
         <target>Bereiten Sie den Export zuerst mit dem Datenaufbereitungs-Werkzeug von der &lt;a href="{url}"&gt;Behandlungsdaten-Seite&lt;/a&gt; auf; Rohexporte werden abgelehnt und gelöscht.</target>
       </trans-unit>
+      <trans-unit id="EncK8C1F12FD" resname="encounter.hospital_edit.key_change">
+        <source>encounter.hospital_edit.key_change</source>
+        <target>Pseudonymschlüssel wechseln</target>
+      </trans-unit>
+      <trans-unit id="EncK98BAB407" resname="encounter.key_change.title">
+        <source>encounter.key_change.title</source>
+        <target>Pseudonymschlüssel wechseln</target>
+      </trans-unit>
+      <trans-unit id="EncK0E7CFC15" resname="encounter.key_change.intro">
+        <source>encounter.key_change.intro</source>
+        <target>Wechseln Sie den Schlüssel nur, wenn die Schlüsseldatei verloren ist, Unbefugten bekannt sein kann oder aus einem anderen Grund ersetzt werden muss. Der Wechsel beginnt eine neue Schlüsselgeneration; Dateien, die mit der alten Schlüsseldatei erstellt wurden, werden danach abgelehnt.</target>
+      </trans-unit>
+      <trans-unit id="EncK4DC45624" resname="encounter.key_change.summary.generation">
+        <source>encounter.key_change.summary.generation</source>
+        <target>Aktuelle Schlüsselgeneration</target>
+      </trans-unit>
+      <trans-unit id="EncK97D42BD6" resname="encounter.key_change.summary.check_value">
+        <source>encounter.key_change.summary.check_value</source>
+        <target>Schlüsseldatei dieser Generation</target>
+      </trans-unit>
+      <trans-unit id="EncKFA7F6D90" resname="encounter.key_change.summary.registered">
+        <source>encounter.key_change.summary.registered</source>
+        <target>mit dem ersten Upload registriert</target>
+      </trans-unit>
+      <trans-unit id="EncKD4EAB635" resname="encounter.key_change.summary.not_registered">
+        <source>encounter.key_change.summary.not_registered</source>
+        <target>noch nicht registriert (kein Upload mit dieser Generation)</target>
+      </trans-unit>
+      <trans-unit id="EncKABD6AFDC" resname="encounter.key_change.summary.encounters">
+        <source>encounter.key_change.summary.encounters</source>
+        <target>Behandlungsfälle</target>
+      </trans-unit>
+      <trans-unit id="EncKABF845A8" resname="encounter.key_change.summary.by_generation">
+        <source>encounter.key_change.summary.by_generation</source>
+        <target>Generation {generation}: {count}</target>
+      </trans-unit>
+      <trans-unit id="EncK6F74F18A" resname="encounter.key_change.summary.imports">
+        <source>encounter.key_change.summary.imports</source>
+        <target>Behandlungsdaten-Importe</target>
+      </trans-unit>
+      <trans-unit id="EncKD9EC40CD" resname="encounter.key_change.in_progress">
+        <source>encounter.key_change.in_progress</source>
+        <target>Für dieses Krankenhaus läuft ein Schlüsselwechsel: Die vorhandenen Behandlungsdaten werden gelöscht. Uploads sind erst wieder möglich, wenn das abgeschlossen ist.</target>
+      </trans-unit>
+      <trans-unit id="EncK9B5EAA1B" resname="encounter.key_change.warning.title">
+        <source>encounter.key_change.warning.title</source>
+        <target>Das lässt sich nicht rückgängig machen</target>
+      </trans-unit>
+      <trans-unit id="EncK335F2231" resname="encounter.key_change.warning.uploads">
+        <source>encounter.key_change.warning.uploads</source>
+        <target>Während des Wechsels werden neue Behandlungsdaten-Uploads dieses Krankenhauses abgelehnt.</target>
+      </trans-unit>
+      <trans-unit id="EncK91643323" resname="encounter.key_change.warning.old_imports">
+        <source>encounter.key_change.warning.old_imports</source>
+        <target>Mit dem alten Schlüssel hochgeladene Dateien, die noch warten oder laufen, schlagen fehl, ohne Daten zu schreiben.</target>
+      </trans-unit>
+      <trans-unit id="EncK3FCA88B5" resname="encounter.key_change.warning.key_file">
+        <source>encounter.key_change.warning.key_file</source>
+        <target>Danach braucht jede Person, die für dieses Krankenhaus hochlädt, die neue Schlüsseldatei. Erstellen Sie sie mit dem Datenaufbereitungswerkzeug; der erste Upload registriert sie. Mit der alten Schlüsseldatei erstellte Dateien werden abgelehnt.</target>
+      </trans-unit>
+      <trans-unit id="EncK662FC6F3" resname="encounter.key_change.warning.delete">
+        <source>encounter.key_change.warning.delete</source>
+        <target>Löschen: Alle {encounters, plural, one {# Behandlungsfall} other {# Behandlungsfälle}} dieses Krankenhauses und ihre {imports, plural, one {# Import} other {# Importe}} werden mit Verknüpfungen zu Zuweisungen, Prüfentscheidungen und hochgeladenen Dateien im Hintergrund gelöscht. Fallzahlen und Auswertungen enthalten dann keine Behandlungsdaten dieses Krankenhauses, bis neue Dateien hochgeladen werden.</target>
+      </trans-unit>
+      <trans-unit id="EncKE1BE16CB" resname="encounter.key_change.warning.keep">
+        <source>encounter.key_change.warning.keep</source>
+        <target>Behalten: Vorhandene Behandlungsfälle bleiben mit ihren Verknüpfungen erhalten und sind an ihrer Schlüsselgeneration erkennbar. Exportieren und laden Sie keine Zeiträume erneut hoch, die bereits hochgeladen wurden: Mit dem neuen Schlüssel erhalten dieselben Besuche neue Fingerabdrücke, werden nicht als Duplikate erkannt und in Fallzahlen und Auswertungen doppelt gezählt.</target>
+      </trans-unit>
+      <trans-unit id="EncK3BB98257" resname="encounter.key_change.field.option">
+        <source>encounter.key_change.field.option</source>
+        <target>Vorhandene Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="EncK05558616" resname="encounter.key_change.option.delete">
+        <source>encounter.key_change.option.delete</source>
+        <target>Vorhandene Behandlungsdaten löschen</target>
+      </trans-unit>
+      <trans-unit id="EncK30077A31" resname="encounter.key_change.option.keep">
+        <source>encounter.key_change.option.keep</source>
+        <target>Vorhandene Behandlungsdaten behalten (danach nur neue Zeiträume hochladen)</target>
+      </trans-unit>
+      <trans-unit id="EncK2E283C73" resname="encounter.key_change.field.confirm_name">
+        <source>encounter.key_change.field.confirm_name</source>
+        <target>Name des Krankenhauses</target>
+      </trans-unit>
+      <trans-unit id="EncK689CE650" resname="encounter.key_change.field.confirm_name_help">
+        <source>encounter.key_change.field.confirm_name_help</source>
+        <target>Geben Sie „{name}“ zur Bestätigung ein.</target>
+      </trans-unit>
+      <trans-unit id="EncK03E145A2" resname="encounter.key_change.field.confirm_name_mismatch">
+        <source>encounter.key_change.field.confirm_name_mismatch</source>
+        <target>Der Name stimmt nicht mit diesem Krankenhaus überein.</target>
+      </trans-unit>
+      <trans-unit id="EncKBE6D0024" resname="encounter.key_change.action.submit">
+        <source>encounter.key_change.action.submit</source>
+        <target>Schlüssel wechseln</target>
+      </trans-unit>
+      <trans-unit id="EncK6FCD734E" resname="encounter.key_change.flash.changed">
+        <source>encounter.key_change.flash.changed</source>
+        <target>Der Pseudonymschlüssel wurde gewechselt; Schlüsselgeneration {generation} beginnt. {option, select, delete {Die vorhandenen Behandlungsdaten werden gelöscht; Uploads sind wieder möglich, sobald das abgeschlossen ist.} other {Die vorhandenen Behandlungsdaten wurden behalten.}}</target>
+      </trans-unit>
+      <trans-unit id="EncK7C138908" resname="encounter.key_change.flash.in_progress">
+        <source>encounter.key_change.flash.in_progress</source>
+        <target>Für dieses Krankenhaus läuft bereits ein Schlüsselwechsel.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

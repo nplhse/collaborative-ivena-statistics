@@ -83,6 +83,7 @@ when@test:
                 App\Import\Application\Message\ImportAllocationsMessage: sync
                 App\Import\Application\Message\ImportClosuresMessage: sync
                 App\Encounter\Application\Message\ImportEncountersMessage: sync
+                App\Encounter\Application\Message\DeleteEncounterDataAfterKeyChangeMessage: sync
                 App\Import\Application\Message\DeleteImportsMessage: sync
                 App\Statistics\Application\Message\RebuildAllocationStatsProjection: sync
                 App\Statistics\Application\Message\RebuildClosureVolumeProjection: sync

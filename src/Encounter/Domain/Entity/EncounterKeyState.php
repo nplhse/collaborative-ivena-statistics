@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Domain\Entity;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Clock\Clock;
@@ -15,11 +16,13 @@ use Symfony\Component\Clock\Clock;
  *
  * Every encounter stores the generation it was imported with; duplicate detection works within one
  * generation only. The encounter import registers the first check value of a generation and rejects
- * retired ones (EncounterKeyStateRepository::lockForImport()); the key change that increments the
- * generation and sets `keyChangeInProgress` belongs to #1050. A hospital without a row is at
- * generation 1 with no registered check value.
+ * retired ones (EncounterKeyStateRepository::lockForImport()). The key change (#1050, EncounterKeyChanger)
+ * increments the generation, retires the active check value and sets `keyChangeInProgress` until the
+ * existing data is kept or deleted. A hospital without a row is at generation 1 with no registered
+ * check value. Changes through the ORM are audited; the import's check value registration is not.
  */
 #[ORM\Entity]
+#[Audit\Audited]
 #[ORM\Table(name: 'encounter_key_state')]
 #[ORM\UniqueConstraint(name: 'uniq_encounter_key_state_hospital', fields: ['hospital'])]
 class EncounterKeyState
@@ -95,6 +98,32 @@ class EncounterKeyState
     public function isKeyChangeInProgress(): bool
     {
         return $this->keyChangeInProgress;
+    }
+
+    /**
+     * Starts a key change (ADR 026): new uploads are refused, the generation moves on and the active
+     * check value is retired, so imports of the old generation can no longer write or register it.
+     */
+    public function beginKeyChange(): void
+    {
+        if ($this->keyChangeInProgress) {
+            throw new \LogicException('A key change is already in progress.');
+        }
+
+        $this->keyChangeInProgress = true;
+        ++$this->keyGeneration;
+        if (null !== $this->activeCheckValue && !$this->isRetired($this->activeCheckValue)) {
+            $this->retiredCheckValues = [...$this->retiredCheckValues, $this->activeCheckValue];
+        }
+        $this->activeCheckValue = null;
+    }
+
+    /**
+     * Ends the key change; the next upload registers the check value of the new generation.
+     */
+    public function completeKeyChange(): void
+    {
+        $this->keyChangeInProgress = false;
     }
 
     public function getCreatedAt(): \DateTimeImmutable

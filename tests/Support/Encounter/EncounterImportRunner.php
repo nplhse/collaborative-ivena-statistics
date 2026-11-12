@@ -28,6 +28,17 @@ trait EncounterImportRunner
 
     private function uploadEncounterFile(Hospital $hospital, User $creator, string $content, string $name, int $keyGeneration = 1): int
     {
+        $importId = $this->storeEncounterFile($hospital, $creator, $content, $name, $keyGeneration);
+        $this->runEncounterImport($importId, ImportRunTrigger::Upload, (int) $creator->getId());
+
+        return $importId;
+    }
+
+    /**
+     * Stores the file and the pending import like an upload, without registering or running a run.
+     */
+    private function storeEncounterFile(Hospital $hospital, User $creator, string $content, string $name, int $keyGeneration = 1): int
+    {
         $storedPath = sprintf('var/imports/test-encounter/%s.csv', bin2hex(random_bytes(8)));
         $absolutePath = $this->projectDir().'/'.$storedPath;
         new Filesystem()->dumpFile($absolutePath, $content);
@@ -55,10 +66,7 @@ trait EncounterImportRunner
         $em->persist(new EncounterImport($import, 'ed_visit', $keyGeneration, $creatorReference, new \DateTimeImmutable('2026-11-01 10:00')));
         $em->flush();
 
-        $importId = (int) $import->getId();
-        $this->runEncounterImport($importId, ImportRunTrigger::Upload, (int) $creator->getId());
-
-        return $importId;
+        return (int) $import->getId();
     }
 
     private function runEncounterImport(int $importId, ImportRunTrigger $trigger = ImportRunTrigger::Reprocess, ?int $userId = null): void
