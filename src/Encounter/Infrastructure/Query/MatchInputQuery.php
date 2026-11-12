@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Encounter\Infrastructure\Query;
 
+use App\Encounter\Application\Contract\MatchCandidateReaderInterface;
 use App\Encounter\Application\Matching\MatchingAllocation;
 use App\Encounter\Application\Matching\MatchingEncounter;
 use App\Encounter\Domain\Enum\ArrivalMode;
@@ -18,7 +19,7 @@ use Doctrine\DBAL\Types\Types;
  * Reads what the matcher compares (ADR 029): allocations and visits of one hospital and the existing
  * links and decisions that touch them.
  */
-final readonly class MatchInputQuery
+final readonly class MatchInputQuery implements MatchCandidateReaderInterface
 {
     public function __construct(
         private Connection $connection,
@@ -57,10 +58,36 @@ SQL,
     }
 
     /**
+     * One allocation of the hospital, or null (match review, #1054).
+     */
+    #[\Override]
+    public function allocation(int $hospitalId, int $allocationId): ?MatchingAllocation
+    {
+        $arrivalAt = $this->connection->fetchOne(
+            'SELECT arrival_at FROM allocation WHERE id = :id AND hospital_id = :hospital',
+            ['id' => $allocationId, 'hospital' => $hospitalId],
+            ['id' => Types::INTEGER, 'hospital' => Types::INTEGER],
+        );
+        if (!\is_string($arrivalAt)) {
+            return null;
+        }
+
+        $from = new \DateTimeImmutable($arrivalAt);
+        foreach ($this->allocations($hospitalId, $from, $from->modify('+1 second'), null) as $allocation) {
+            if ($allocation->id === $allocationId) {
+                return $allocation;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Visits whose matching anchor (ED admission, else first assessment contact) lies in [from, to].
      *
      * @return list<MatchingEncounter>
      */
+    #[\Override]
     public function encounters(int $hospitalId, \DateTimeImmutable $from, \DateTimeImmutable $to, ?int $ignoreImportId): array
     {
         // The fingerprint anchor (anchor_at, indexed) is the first assessment contact when there is one;

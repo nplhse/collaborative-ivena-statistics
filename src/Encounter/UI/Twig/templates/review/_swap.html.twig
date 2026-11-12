@@ -1,0 +1,25 @@
+{# A swap proposal; with `form` the apply button (needs allocation CSRF token and the period). #}
+<div data-test="encounter-review-swap">
+    <div class="fw-medium">{{ ('encounter.review.swap.kind.' ~ swap.kind)|trans({}, 'encounter') }}</div>
+    <ul class="list-unstyled mb-2 small">
+        <li>
+            <a href="{{ path('app_encounter_review_allocation', {id: hospital_id, allocationId: swap.allocationId}|merge(query)) }}">{{ 'encounter.review.allocation'|trans({id: swap.allocationId}, 'encounter') }}</a>:
+            {{ 'encounter.review.swap.move'|trans({from: swap.currentEncounterId, to: swap.newEncounterId(), before: swap.currentPoints, after: swap.newLink.points}, 'encounter') }}
+        </li>
+        {% if swap.otherLink %}
+            <li>
+                <a href="{{ path('app_encounter_review_allocation', {id: hospital_id, allocationId: swap.otherAllocationId()}|merge(query)) }}">{{ 'encounter.review.allocation'|trans({id: swap.otherAllocationId()}, 'encounter') }}</a>:
+                {{ 'encounter.review.swap.takes'|trans({visit: swap.currentEncounterId, points: swap.otherLink.points}, 'encounter') }}
+            </li>
+        {% endif %}
+        <li class="text-secondary">{{ 'encounter.review.swap.gain'|trans({links: swap.linkGain(), points: swap.pointsGain()}, 'encounter') }}</li>
+    </ul>
+    {% if form %}
+        <form method="post" action="{{ path('app_encounter_review_swap', {id: hospital_id, allocationId: swap.allocationId}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('encounter_review_' ~ hospital_id) }}">
+            <input type="hidden" name="swap" value="{{ swap.key() }}">
+            {% for name, value in query %}<input type="hidden" name="{{ name }}" value="{{ value }}">{% endfor %}
+            <button type="submit" class="btn btn-sm btn-primary" data-test="encounter-review-apply-swap">{{ 'encounter.review.swap.apply'|trans({}, 'encounter') }}</button>
+        </form>
+    {% endif %}
+</div>

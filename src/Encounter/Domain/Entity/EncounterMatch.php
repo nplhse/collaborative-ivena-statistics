@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Domain\Enum\AnchorSource;
 use App\Encounter\Domain\Enum\MatchStatus;
+use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -24,8 +25,12 @@ use Doctrine\ORM\Mapping as ORM;
  * key change "delete") and with its allocation (ON DELETE CASCADE from `allocation`: deletion or
  * reprocess of the allocation import). Effective links are one-to-one (partial unique indexes); one row
  * per pair.
+ *
+ * Audited: manual decisions go through the entity under the review's audit intents
+ * (`encounter.match.decided`, `encounter.match.swapped`); the matcher's rows are written without the ORM.
  */
 #[ORM\Entity]
+#[Audit\Audited]
 #[ORM\Table(name: 'encounter_match')]
 #[ORM\UniqueConstraint(name: 'uniq_encounter_match_pair', fields: ['allocation', 'encounter'])]
 #[ORM\UniqueConstraint(name: 'uniq_encounter_match_effective_allocation', fields: ['allocation'], options: ['where' => "(status IN ('auto_accepted', 'confirmed'))"])]

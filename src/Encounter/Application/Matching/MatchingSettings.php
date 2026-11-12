@@ -47,6 +47,19 @@ final readonly class MatchingSettings
         return [1 => $this->pass1, 2 => $this->pass2];
     }
 
+    /**
+     * Window of the match review (#1054): the widest bounds of all passes, every arrival route.
+     */
+    public function reviewWindow(): PassWindow
+    {
+        return new PassWindow(
+            $this->widestMinutesBefore(),
+            $this->widestMinutesAfter(),
+            max($this->pass1->maxAgeDifference, $this->pass2->maxAgeDifference),
+            false,
+        );
+    }
+
     /** Largest minutes before the arrival over all passes. */
     public function widestMinutesBefore(): int
     {

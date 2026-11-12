@@ -1,0 +1,45 @@
+{# Custom cells of the review lists; `context` carries hospital_id and the list query. #}
+{% set review_link = path('app_encounter_review_allocation', {id: context.hospital_id, allocationId: row.allocation_id ?? 0}|merge(context.query)) %}
+{% if column.key == 'arrival' %}
+    <a href="{{ review_link }}" data-test="encounter-review-item">{{ row.arrival_at|date('d.m.Y H:i') }}</a>
+{% elseif column.key == 'anchor' %}
+    {{ row.anchor_at|date('d.m.Y H:i') }}
+    {% if row.substitute %}
+        <twig:Badge variant="purple" title="{{ 'encounter.review.substitute_help'|trans({}, 'encounter') }}">{{ 'encounter.review.substitute'|trans({}, 'encounter') }}</twig:Badge>
+    {% endif %}
+{% elseif column.key == 'difference' %}
+    {{ 'encounter.review.minutes'|trans({minutes: row.time_difference_minutes}, 'encounter') }}
+{% elseif column.key == 'agreement' %}
+    {% if row.score is not null %}{{ row.score|format_number({fraction_digit: 2}) }}{% else %}–{% endif %}
+    <small class="text-secondary d-block">{{ 'encounter.review.points_pass'|trans({points: row.points ?? '–', pass: row.pass ?? '–'}, 'encounter') }}</small>
+{% elseif column.key == 'patient' %}
+    {{ ('encounter.review.value.sex_' ~ row.gender)|trans({}, 'encounter') }}, {{ row.allocation_age }}
+    <span class="text-secondary">↔</span>
+    {{ ('encounter.review.value.sex_' ~ row.sex)|trans({}, 'encounter') }}, {{ row.encounter_age }}
+    <small class="text-secondary d-block">{{ ('encounter.review.value.route_' ~ row.arrival_route)|trans({}, 'encounter') }}</small>
+{% elseif column.key == 'status' %}
+    {{ include('@Encounter/review/_status.html.twig', {pair: row}) }}
+{% elseif column.key == 'allocation' %}
+    <a href="{{ review_link }}" data-test="encounter-review-item">{{ row.arrival_at|date('d.m.Y H:i') }}</a>
+    <small class="text-secondary d-block">
+        {{ ('encounter.review.value.sex_' ~ row.gender)|trans({}, 'encounter') }}, {{ row.age }}
+        · {{ (row.with_physician ? 'encounter.review.value.with_physician' : 'encounter.review.value.without_physician')|trans({}, 'encounter') }}
+        {% if row.work_accident %}· {{ 'encounter.review.feature.work_accident'|trans({}, 'encounter') }}{% endif %}
+    </small>
+{% elseif column.key == 'visit' %}
+    <span data-test="encounter-review-item">{{ 'encounter.review.visit'|trans({id: row.encounter_id}, 'encounter') }}</span>
+    <small class="text-secondary d-block">
+        {{ ('encounter.review.value.sex_' ~ row.sex)|trans({}, 'encounter') }}, {{ row.age }}
+        · {{ ('encounter.review.value.mode_' ~ (row.arrival_mode ?? 'none'))|trans({}, 'encounter') }}
+    </small>
+{% elseif column.key == 'route' %}
+    {{ ('encounter.review.value.route_' ~ row.arrival_route)|trans({}, 'encounter') }}
+{% elseif column.key == 'proposal' %}
+    {% if row.proposal_allocation_id %}
+        <a href="{{ path('app_encounter_review_allocation', {id: context.hospital_id, allocationId: row.proposal_allocation_id}|merge(context.query)) }}">{{ 'encounter.review.open_proposal'|trans({}, 'encounter') }}</a>
+    {% else %}
+        <span class="text-secondary">{{ 'encounter.review.no_open_proposal'|trans({}, 'encounter') }}</span>
+    {% endif %}
+{% elseif column.key == 'swap' %}
+    {{ include('@Encounter/review/_swap.html.twig', {swap: row, hospital_id: context.hospital_id, query: context.query, form: false}) }}
+{% endif %}

@@ -330,7 +330,7 @@ Summary of [ADR 029](../../02-architecture/decisions/029-encounter-allocation-ma
 - Pass 1 reserves both sides; later runs only fill gaps and never reassign links. The review may
   propose a targeted swap.
 
-Implemented in #1053 (matcher version `1.0.0`). No pages yet: the review is #1054, linked analyses #1055.
+Implemented in #1053 (matcher version `1.0.0`); the review in #1054 ([Match review](#match-review)), linked analyses follow in #1055.
 
 **Table `encounter_match`**, one row per pair of allocation and visit: `status` (`auto_accepted`,
 `proposed`, `confirmed`, `rejected`), `conflict`, `score`, `points`, `contributions` (points per feature),
@@ -396,8 +396,84 @@ prints counts only. Synthetic encounters loaded by the fixtures are not matched 
 (0.50), `pass1` and `pass2` with `minutes_before`, `minutes_after`, `max_age_difference` (20/45/2 and
 30/90/5). A change applies from the next run; existing links stay.
 
-**Read model**: `EncounterKeyChangeSummaryQuery` counts links and decisions per hospital; pages follow
-with #1054 and #1055.
+**Read model**: `EncounterKeyChangeSummaryQuery` counts links and decisions per hospital;
+`MatchReviewQuery` reads the review (below).
+
+## Match review
+
+Implemented in #1054. Pages under `/encounter/review` (linked from `/encounter`): beta role + encounter
+grant `REVIEW` on the hospital, or `ROLE_ADMIN`. With one reviewable hospital the entry opens it directly;
+administrators see every hospital with encounter data. Another hospital's page answers 403, an allocation
+of another hospital under one's own hospital 404.
+
+**Period**: `from`/`to` (whole days, at most 92); by default the calendar month of the hospital's latest
+visit. Allocations count by expected IVENA arrival, visits by matching anchor (ED admission, else first
+assessment contact), both on the stored local wall clock.
+
+**Overview with denominators** (`MatchReviewQuery::summary()`):
+
+| Count | Population and rule |
+|---|---|
+| Allocations in the period | denominator of the next four rows; each allocation counts once |
+| Linked automatically | has an `auto_accepted` row |
+| Linked by confirmation | has a `confirmed` row |
+| Open proposal, not linked | no effective link, at least one `proposed` row; *of which in conflict*: one of them is an open conflict |
+| Not linked, no proposal | neither |
+| Rejected pairs | `rejected` rows of the period's allocations (pairs, not allocations) |
+| Swap proposals | see below |
+| Visits by arrival route | per route: total, linked (effective link), unlinked; a self-presenter without link is not an error |
+
+A proposal is in **open conflict** while it carries `conflict` and another allocation's conflict proposal
+for the same visit is still open; once one side is decided, the rest counts as an ordinary proposal.
+
+**Lists** (filter `filter`): proposals, conflicts, automatic, confirmed, rejected (pairs, by IVENA
+arrival), allocations without proposal, unlinked visits (optionally `route=ems|self|unknown`, with the
+allocation of the visit's best open proposal) and swap proposals. DataTable with mobile cards.
+
+**Allocation page** (`/encounter/review/{hospital}/allocations/{allocation}`): expected IVENA arrival,
+sex, age, physician, work accident; the current link with its origin (automatic: score and pass); every
+candidate visit of the **review window** (`MatchingSettings::reviewWindow()`: widest bounds of all passes,
+every arrival route, −30 … +90 min, age ±5 by default) with ED admission or the marked substitute (first
+assessment contact), time difference, agreement among all candidates of that window and the stored score
+of the pass that found the pair, and per feature both compared values and the contribution (for, against,
+neutral or missing). It also shows the visit's link to another allocation, other allocations proposed for
+the same visit, and the allocation's swap proposal. The score is labelled "agreement" ("Übereinstimmung")
+and explained as a ranking, not a probability (ADR 029).
+
+**Decisions** (`MatchDecider`, one transaction under the matcher's per-hospital lock, CSRF token per
+hospital):
+
+| Action | Effect |
+|---|---|
+| Confirm | the pair becomes `confirmed` (created from its review-window scoring if the matcher had not stored it; `pass` empty) |
+| Change | confirming another candidate while the allocation is linked: the old pair becomes `rejected`, the new one `confirmed` |
+| Reject | a stored pair (proposal, automatic or confirmed link) becomes `rejected`; it is never proposed again |
+| Leave open | writes nothing (back to the list) |
+
+A visit linked to another allocation cannot be confirmed (one-to-one); the page says so and points to
+swaps. After a link is made, open proposals touching either side are removed, as at the end of a run,
+which resolves a conflict. Every decision sets `decided_by`/`decided_at` and is audited with intent
+`encounter.match.decided` (`decision` confirm/change/reject, previous status, replaced visit); manual
+decisions are sticky for later runs. A rejected link frees both sides; the review does not start a run,
+the next triggered run fills the gap.
+
+**Swap proposals** (`SwapPlanner`, pure; `MatchSwapFinder` loads the period with a margin). Only
+automatic links are considered; confirmed links stay as a person decided them. For an automatic link A–W
+and an unlinked visit V in A's review window (A–V not rejected):
+
+1. *Chain*: an unlinked allocation B has W in its review window (B–W not rejected): link A–V and B–W, one
+   link more. Among several B the one with most points.
+2. *Replacement*: otherwise, if A–V has more points than A–W: link A–V, W becomes unlinked.
+
+Every new pair must reach the proposal threshold as the only candidate (2^points / (2^points + 2^4) ≥
+0.50, i.e. at least 4 points). Per allocation the best proposal is kept (chain first, then points gain);
+overlapping proposals are dropped. Applying a swap is a person's decision: A–W becomes `rejected`, the new
+pairs `confirmed`; audited with intent `encounter.match.swapped`. A swap that no longer matches the
+current links is refused.
+
+Example (tested in `MatchReviewControllerTest`): A at 10:00 is linked automatically to W at 10:10
+(9 points). B at 10:05, age 72, would score 7 with W; the self-presenter V at 10:05 scores 6 with A. The
+chain A–V + B–W gives one link more and 6 + 7 − 9 = 4 points more.
 
 ## Statistics in the pilot
 

@@ -1,0 +1,2 @@
+{# Share of a denominator, rounded to whole percent; "–" without denominator. #}
+{% macro percent(count, total) %}{{ total > 0 ? (count / total)|format_number(style: 'percent') : '–' }}{% endmacro %}
