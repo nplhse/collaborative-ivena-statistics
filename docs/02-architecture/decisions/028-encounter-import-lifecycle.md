@@ -21,15 +21,21 @@ Forces:
 
 - Each encounter (= one ED visit) has an internal `visit_uid`.
 - Duplicate detection uses a **visit fingerprint** computed in the tool as a keyed HMAC (ADR 026)
-  with a versioned rule (`ed-visit:v1`). The rule is determined from the source fields in #1045;
-  the first candidate is the normalised administrative case number together with the ED admission time
-  in its original second resolution, with the time anchor used (and its fallback) part of the input.
-  Seconds may enter the fingerprint while the exchanged timestamps stay at minute precision. Triage,
-  vitals and disposition are not part of the fingerprint.
+  with a versioned rule. Rule `ed-visit:v1` (#1045): normalised administrative case number, the time
+  anchor in its original second resolution and the anchor used. The anchor is the first contact of
+  the initial assessment, or the ED admission time when that is missing. The initial assessment comes
+  first because ED admission times can be missing for whole periods and be entered later, which would
+  change the fingerprint. The exchanged timestamps stay at minute precision. Triage, vitals and
+  disposition are not part of the fingerprint. Exact normalisation and input format:
+  [exchange-format.md](../../04-features/encounter/exchange-format.md#visit-fingerprint-ed-visitv1).
 - The server enforces uniqueness of `(hospital, key generation, fingerprint)` with a database
   constraint, so parallel imports cannot create the same visit twice.
-- How rows without a reliable time anchor are handled (skipped, or imported with a visible notice and
-  without duplicate detection) is decided in #1045.
+- Rows without any time anchor are skipped and counted in the import report; they get no encounter.
+- The rule could not be tested across two real exports before the pilot. Its stability is measured in
+  operation: every file also carries the case pseudonym, and the import reports a **suspected
+  duplicate** when a new visit has the same case pseudonym as an existing visit and a time anchor
+  within 15 minutes of it. Suspected duplicates are reported, not merged. A rule change becomes
+  `ed-visit:v2`.
 
 ### Import
 
