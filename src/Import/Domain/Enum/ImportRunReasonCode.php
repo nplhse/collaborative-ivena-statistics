@@ -22,6 +22,8 @@ enum ImportRunReasonCode: string
     case RejectionRatioExceeded = 'rejection_ratio_exceeded';
     case ProcessingError = 'processing_error';
     case RetriesExhausted = 'retries_exhausted';
+    /** Encounter import: the hospital's pseudonym key generation changed after the upload (ADR 026). */
+    case KeyGenerationChanged = 'key_generation_changed';
 
     public function describe(): string
     {
@@ -39,6 +41,7 @@ enum ImportRunReasonCode: string
             self::RejectionRatioExceeded => 'Import exceeded the maximum allowed rejection ratio',
             self::ProcessingError => 'Import processing failed',
             self::RetriesExhausted => 'Import processing failed repeatedly and was given up',
+            self::KeyGenerationChanged => 'The pseudonym key generation of the hospital changed after the upload',
         };
     }
 }

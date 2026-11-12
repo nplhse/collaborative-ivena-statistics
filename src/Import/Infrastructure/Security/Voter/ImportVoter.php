@@ -62,6 +62,12 @@ final class ImportVoter extends Voter
             return false;
         }
 
+        // Encounter imports are opened and reprocessed on the encounter pages with the encounter grants
+        // (ADR 027); hospital access does not reach them through the import pages.
+        if (ImportType::ENCOUNTER === $subject->getType()) {
+            return false;
+        }
+
         $hospitalId = $subject->getHospital()?->getId();
 
         if (self::VIEW === $attribute) {

@@ -82,6 +82,16 @@ final readonly class ImportDetailViewFactory
                 ],
                 coverage: $coverage,
             ),
+            // Encounter imports have their own pages (ImportVoter denies them here); kept for completeness.
+            ImportType::ENCOUNTER => new ImportDetailView(
+                typeLabel: $this->trans('label.import.type.encounter'),
+                importedRecordsLabel: $this->trans('import.summary.encounters_imported', ['count' => $importedCount]),
+                showsDeduplication: true,
+                deleteConfirmation: $this->confirmation($import, 'import.delete.modal.body'),
+                reprocessConfirmation: $this->confirmation($import, 'import.reprocess.modal.body'),
+                recordActions: [],
+                coverage: $coverage,
+            ),
         };
     }
 

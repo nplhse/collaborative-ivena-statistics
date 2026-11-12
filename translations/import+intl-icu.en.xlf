@@ -325,6 +325,10 @@
         <source>label.import.type.closure</source>
         <target>Closure list (beta)</target>
       </trans-unit>
+      <trans-unit id="impTypeEncounterEn" resname="label.import.type.encounter">
+        <source>label.import.type.encounter</source>
+        <target>Encounter data (beta)</target>
+      </trans-unit>
       <trans-unit id="impHospOverrideEn" resname="label.import.hospitalOverride">
         <source>label.import.hospitalOverride</source>
         <target>Override target hospital (development only)</target>
@@ -352,6 +356,10 @@
       <trans-unit id="impSumClosEn" resname="import.summary.closures_imported">
         <source>import.summary.closures_imported</source>
         <target>{count, plural, one {# Closure imported} other {# Closures imported}}</target>
+      </trans-unit>
+      <trans-unit id="impSumEncEn" resname="import.summary.encounters_imported">
+        <source>import.summary.encounters_imported</source>
+        <target>{count, plural, one {# Encounter imported} other {# Encounters imported}}</target>
       </trans-unit>
       <trans-unit id="impFldImpEn" resname="import.field.imported_records">
         <source>import.field.imported_records</source>

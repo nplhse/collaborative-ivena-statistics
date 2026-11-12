@@ -44,6 +44,10 @@ final readonly class ListImportsQuery
                 ->setParameter('accessibleHospitalIds', $accessibleHospitalIds);
         }
 
+        // Encounter imports are listed on the encounter pages only (ADR 027).
+        $qb->andWhere('i.type != :hiddenEncounterType')
+            ->setParameter('hiddenEncounterType', ImportType::ENCOUNTER);
+
         if (!\in_array(UserRole::CLOSURE_BETA, $user->getRoles(), true)) {
             $qb->andWhere('i.type != :hiddenClosureType')
                 ->setParameter('hiddenClosureType', ImportType::CLOSURE);
