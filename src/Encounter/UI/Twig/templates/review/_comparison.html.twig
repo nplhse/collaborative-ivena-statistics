@@ -1,3 +1,12 @@
+{# Both tables share these column widths, so the extended rows line up under the features. #}
+{% set comparison_columns %}
+    <colgroup>
+        <col style="width: 22%">
+        <col style="width: 26%">
+        <col style="width: 30%">
+        <col style="width: 22%">
+    </colgroup>
+{% endset %}
 {# Side-by-side comparison of the allocation and one candidate visit: what each side documents per feature and what it contributes. Expects `allocation`, `candidate`. #}
 <div class="card-body">
     <div class="row g-3 align-items-stretch mb-3">
@@ -29,6 +38,7 @@
 
     <div class="table-responsive">
         <table class="table table-sm table-vcenter mb-0" data-test="encounter-review-features">
+            {{ comparison_columns }}
             <thead>
                 <tr>
                     <th>{{ 'encounter.review.column.feature'|trans({}, 'encounter') }}</th>
@@ -70,12 +80,14 @@
         <summary class="fw-medium">{{ 'encounter.review.extended.title'|trans({}, 'encounter') }}</summary>
         <p class="text-secondary small mt-2">{{ 'encounter.review.extended.hint'|trans({}, 'encounter') }}</p>
         <div class="table-responsive">
-            <table class="table table-sm table-vcenter mb-0">
+            <table class="table table-sm table-vcenter mb-0" data-test="encounter-review-extended-table">
+                {{ comparison_columns }}
                 <thead>
                     <tr>
-                        <th></th>
+                        <th>{{ 'encounter.review.column.feature'|trans({}, 'encounter') }}</th>
                         <th>{{ 'encounter.review.column.ivena'|trans({}, 'encounter') }}</th>
                         <th>{{ 'encounter.review.column.ed'|trans({}, 'encounter') }}</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -83,16 +95,19 @@
                         <td class="fw-medium py-2">{{ 'encounter.review.extended.urgency'|trans({}, 'encounter') }}</td>
                         <td class="py-2">{% if allocation_extended.urgency_label %}{{ allocation_extended.urgency_code }} · {{ allocation_extended.urgency_label|trans({}, 'messages') }}{% else %}–{% endif %}</td>
                         <td class="py-2">{% if candidate.extended.category %}{{ ('encounter.mts.category.' ~ candidate.extended.category ~ '.name')|trans({}, 'encounter') }}{% else %}{{ 'encounter.review.value.not_documented'|trans({}, 'encounter') }}{% endif %}</td>
+                        <td></td>
                     </tr>
                     <tr data-test="extended-indication">
                         <td class="fw-medium py-2">{{ 'encounter.review.extended.indication'|trans({}, 'encounter') }}</td>
                         <td class="py-2">{{ allocation_extended.indication ?? '–' }}</td>
                         <td class="py-2">{{ candidate.extended.diagram ?? 'encounter.review.value.not_documented'|trans({}, 'encounter') }}</td>
+                        <td></td>
                     </tr>
                     <tr data-test="extended-indicator">
                         <td class="fw-medium py-2">{{ 'encounter.review.extended.indicator'|trans({}, 'encounter') }}</td>
                         <td class="py-2">–</td>
                         <td class="py-2">{{ candidate.extended.indicator ?? 'encounter.review.value.not_documented'|trans({}, 'encounter') }}</td>
+                        <td></td>
                     </tr>
                 </tbody>
             </table>
