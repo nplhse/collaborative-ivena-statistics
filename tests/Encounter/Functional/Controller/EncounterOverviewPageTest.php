@@ -56,39 +56,81 @@ final class EncounterOverviewPageTest extends WebTestCase
     {
         $this->encounterGrant($this->hospitalA, $this->ownerA, [EncounterGrantAction::Upload]);
         $this->client->loginUser($this->ownerA);
+        $period = ['from' => '2026-10-10', 'to' => '2026-10-12'];
 
-        $crawler = $this->page($this->hospitalA, ['from' => '2026-10-10', 'to' => '2026-10-12']);
+        $crawler = $this->page($this->hospitalA, $period);
+        self::assertSame('9', $this->text($crawler, '[data-kpi="visits"] [data-testid="encounter-kpi-value"]'));
+        self::assertStringContainsString('10.10.2026 – 12.10.2026', $this->text($crawler, '[data-testid="encounter-overview-context-period"]'));
+        self::assertSelectorExists('[data-testid="encounter-overview-active-filters"]');
+        self::assertSame('5', $this->text($crawler, '[data-testid="encounter-routes-segment"][data-key="ems"] [data-testid="encounter-count"]'));
+        self::assertSame('< 5', $this->text($crawler, '[data-testid="encounter-routes-segment"][data-key="self"] [data-testid="encounter-count"]'));
+        self::assertSame('45 min', $this->text($crawler, '[data-kpi="physician"] [data-testid="encounter-kpi-value"]'));
+        self::assertSame('180 min', $this->text($crawler, '[data-kpi="length_of_stay"] [data-testid="encounter-kpi-value"]'));
+        self::assertSame('< 5', $this->text($crawler, '[data-kpi="ems_linked"] [data-testid="encounter-kpi-value"]'), '4 of 5 EMS arrivals linked: suppressed.');
+        self::assertSame('5', $this->text($crawler, '[data-testid="encounter-links-row"][data-key="not_linked"] [data-testid="encounter-count"]'));
 
-        self::assertSame('9', $this->text($crawler, '[data-testid="encounter-coverage-visits"]'));
-        self::assertSame('3', $this->text($crawler, '[data-testid="encounter-coverage-days"]'));
-        self::assertSame('2', $this->text($crawler, '[data-testid="encounter-coverage-imports"]'));
-        self::assertStringContainsString('11 visits', $this->text($crawler, '[data-testid="encounter-coverage-all-time"]'));
-
+        $crawler = $this->page($this->hospitalA, $period + ['tab' => 'link']);
         $total = '[data-testid="encounter-route-link-row"][data-route="total"]';
         self::assertSame('< 5', $this->text($crawler, $total.' [data-testid="encounter-count"][data-key="automatic"]'), '3 automatic links are suppressed.');
         self::assertSame('5', $this->text($crawler, $total.' [data-testid="encounter-count"][data-key="not_linked"]'));
         self::assertSame('9', $this->text($crawler, $total.' [data-testid="encounter-count"][data-key="total"]'));
         self::assertSame('–', $this->text($crawler, '[data-route="self"] [data-testid="encounter-count"][data-key="automatic"]'));
 
+        $crawler = $this->page($this->hospitalA, $period + ['tab' => 'process']);
         $assessment = '[data-testid="encounter-process-row"][data-interval="admission_to_assessment"]';
         self::assertSame('17.5 min', $this->text($crawler, $assessment.' [data-testid="encounter-process-median"]'));
         self::assertSame('11.3 – 23.8 min', $this->text($crawler, $assessment.' [data-testid="encounter-process-iqr"]'));
         self::assertSame('6', $this->text($crawler, $assessment.' [data-testid="encounter-process-valid"]'));
         self::assertSame('< 5', $this->text($crawler, $assessment.' [data-testid="encounter-process-missing"]'));
         self::assertSame('180 min', $this->text($crawler, '[data-interval="admission_to_discharge"] [data-testid="encounter-process-median"]'));
+        self::assertCount(3, $crawler->filter('[data-testid="encounter-process-box"]'));
+        self::assertSelectorNotExists('[data-testid="encounter-process-box"] [data-controller="encounter-overview-chart"]', 'Every MTS category has fewer than 5 durations.');
 
+        $crawler = $this->page($this->hospitalA, $period + ['tab' => 'distributions']);
         self::assertSame('< 5', $this->text($crawler, '[data-testid="encounter-categories-row"][data-key="orange"] [data-testid="encounter-count"]'));
         self::assertCount(5, $crawler->filter('[data-testid="encounter-diagrams-row"]'), 'Three diagrams, other, not documented.');
+
+        $crawler = $this->page($this->hospitalA, $period + ['tab' => 'coverage']);
+        self::assertSame('9', $this->text($crawler, '[data-testid="encounter-coverage-period"] [data-testid="encounter-coverage-visits"]'));
+        self::assertSame('3', $this->text($crawler, '[data-testid="encounter-coverage-period"] [data-testid="encounter-coverage-days"]'));
+        self::assertSame('2', $this->text($crawler, '[data-testid="encounter-coverage-period"] [data-testid="encounter-coverage-imports"]'));
+        self::assertSame('11', $this->text($crawler, '[data-testid="encounter-coverage-all"] [data-testid="encounter-coverage-visits"]'));
     }
 
     public function testPeriodWithoutVisitsShowsTheEmptyState(): void
     {
         $this->client->loginUser($this->admin());
 
-        $crawler = $this->page($this->hospitalA, ['from' => '2026-11-01', 'to' => '2026-11-30']);
-
-        self::assertSame('0', $this->text($crawler, '[data-testid="encounter-coverage-visits"]'));
+        $this->page($this->hospitalA, ['period' => 'month', 'month' => '2026-11']);
         self::assertSelectorExists('[data-testid="encounter-overview-empty"]');
+
+        $crawler = $this->page($this->hospitalA, ['period' => 'month', 'month' => '2026-11', 'tab' => 'coverage']);
+        self::assertSame('0', $this->text($crawler, '[data-testid="encounter-coverage-period"] [data-testid="encounter-coverage-visits"]'));
+    }
+
+    public function testDrawerSelectsHospitalPeriodAndTab(): void
+    {
+        $this->client->loginUser($this->admin());
+
+        $this->client->request(Request::METHOD_GET, '/encounter/hospital', ['hospital' => $this->hospitalB->getId(), 'period' => 'year', 'year' => '2026', 'tab' => 'process']);
+        self::assertResponseRedirects('/encounter/hospital/'.$this->hospitalB->getId().'?period=year&year=2026&tab=process');
+
+        $crawler = $this->page($this->hospitalA, ['period' => 'month', 'month' => '2026-10']);
+        self::assertSame('2026-10', $crawler->filter('select[name="month"] option[selected]')->attr('value'));
+        self::assertSame('October 2026', $this->text($crawler, '[data-testid="encounter-overview-context-period"]'));
+        self::assertCount(2, $crawler->filter('select[name="hospital"] option'), 'Administrators choose among hospitals with visits.');
+    }
+
+    public function testDrawerRefusesAHospitalWithoutAggregates(): void
+    {
+        $this->encounterGrant($this->hospitalA, $this->ownerA, [EncounterGrantAction::Upload]);
+        $this->client->loginUser($this->ownerA);
+
+        $this->client->request(Request::METHOD_GET, '/encounter/hospital', ['hospital' => $this->hospitalB->getId()]);
+        self::assertResponseStatusCodeSame(403);
+
+        $crawler = $this->page($this->hospitalA);
+        self::assertCount(0, $crawler->filter('select[name="hospital"]'), 'One hospital only: no choice.');
     }
 
     public function testAccessNeedsAGrantAndTheStatisticsPermissionOnThatHospital(): void
@@ -137,8 +179,8 @@ final class EncounterOverviewPageTest extends WebTestCase
         self::assertCount(2, $crawler->filter('[data-testid="encounter-overview-hospital"]'));
 
         $crawler = $this->page($this->hospitalB, ['from' => '2026-10-10', 'to' => '2026-10-12']);
-        self::assertSame('6', $this->text($crawler, '[data-testid="encounter-coverage-visits"]'));
-        self::assertSame('6', $this->text($crawler, '[data-testid="encounter-categories-row"][data-key="red"] [data-testid="encounter-count"]'));
+        self::assertSame('6', $this->text($crawler, '[data-kpi="visits"] [data-testid="encounter-kpi-value"]'));
+        self::assertSame('6', $this->text($crawler, '[data-testid="encounter-categories-bar-segment"][data-key="red"] [data-testid="encounter-count"]'));
     }
 
     public function testGermanPageHasNoMissingTranslations(): void

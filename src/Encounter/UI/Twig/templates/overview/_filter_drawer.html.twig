@@ -1,0 +1,76 @@
+{# Filter drawer of the encounter overview: hospital and period. Submits to the select route, which opens the chosen hospital. #}
+{% set d = 'encounter' %}
+{% set p = overview.period %}
+<twig:FilterDrawer
+    id="encounter-overview-drawer"
+    formId="encounter-overview-filter-form"
+    formAction="{{ path('app_encounter_hospital_overview_select') }}"
+    resetUrl="{{ path('app_encounter_hospital_overview', {id: hospital.id}|merge(tab != 'overview' ? {tab: tab} : {})) }}"
+    :showReset="not p.isAllTime()"
+    testId="encounter-overview-drawer"
+    applyTestId="encounter-overview-drawer-apply"
+>
+    <input type="hidden" name="tab" value="{{ tab }}">
+    {% if hospital_choices|length > 1 %}
+        <div class="mb-4">
+            <label class="form-label" for="encounter-filter-hospital">{{ 'encounter.overview_page.filter.hospital'|trans({}, d) }}</label>
+            <select class="form-select" id="encounter-filter-hospital" name="hospital" data-testid="encounter-filter-hospital">
+                {% for id, name in hospital_choices %}
+                    <option value="{{ id }}" {{ id == hospital.id ? 'selected' }}>{{ name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    {% else %}
+        <input type="hidden" name="hospital" value="{{ hospital.id }}">
+    {% endif %}
+
+    <fieldset class="mb-2">
+        <legend class="form-label">{{ 'encounter.overview_page.filter.period'|trans({}, d) }}</legend>
+        {% for preset in ['all_time', 'last_12_months'] %}
+            <label class="form-check">
+                <input class="form-check-input" type="radio" name="period" value="{{ preset }}" {{ p.preset.value == preset ? 'checked' }} data-testid="encounter-filter-period-{{ preset }}">
+                <span class="form-check-label">{{ ('encounter.overview_page.period.' ~ preset)|trans({}, d) }}</span>
+            </label>
+        {% endfor %}
+
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <label class="form-check mb-0 flex-shrink-0">
+                <input class="form-check-input" type="radio" name="period" value="year" {{ p.preset.value == 'year' ? 'checked' }} {{ period_years is empty ? 'disabled' }} data-testid="encounter-filter-period-year">
+                <span class="form-check-label">{{ 'encounter.overview_page.period.year'|trans({}, d) }}</span>
+            </label>
+            <select class="form-select form-select-sm" name="year" aria-label="{{ 'encounter.overview_page.period.year'|trans({}, d) }}" {{ period_years is empty ? 'disabled' }}>
+                {% for year in period_years %}
+                    <option value="{{ year }}" {{ p.preset.value == 'year' and p.from|date('Y') == year ? 'selected' }}>{{ year }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <label class="form-check mb-0 flex-shrink-0">
+                <input class="form-check-input" type="radio" name="period" value="month" {{ p.preset.value == 'month' ? 'checked' }} {{ period_months is empty ? 'disabled' }} data-testid="encounter-filter-period-month">
+                <span class="form-check-label">{{ 'encounter.overview_page.period.month'|trans({}, d) }}</span>
+            </label>
+            <select class="form-select form-select-sm" name="month" aria-label="{{ 'encounter.overview_page.period.month'|trans({}, d) }}" {{ period_months is empty ? 'disabled' }}>
+                {% for month in period_months %}
+                    <option value="{{ month|date('Y-m') }}" {{ p.preset.value == 'month' and p.from|date('Y-m') == month|date('Y-m') ? 'selected' }}>{{ month|format_date(pattern: 'MMMM yyyy') }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <label class="form-check">
+            <input class="form-check-input" type="radio" name="period" value="custom" {{ p.preset.value == 'custom' ? 'checked' }} data-testid="encounter-filter-period-custom">
+            <span class="form-check-label">{{ 'encounter.overview_page.period.custom'|trans({}, d) }}</span>
+        </label>
+        <div class="row g-2 ms-3">
+            <div class="col-6">
+                <label class="form-label small" for="encounter-period-from">{{ 'field.dateFrom'|trans({}, 'messages') }}</label>
+                <input type="date" class="form-control form-control-sm" id="encounter-period-from" name="from" value="{{ p.preset.value == 'custom' and p.from ? p.from|date('Y-m-d') }}">
+            </div>
+            <div class="col-6">
+                <label class="form-label small" for="encounter-period-to">{{ 'field.dateTo'|trans({}, 'messages') }}</label>
+                <input type="date" class="form-control form-control-sm" id="encounter-period-to" name="to" value="{{ p.preset.value == 'custom' and p.to ? p.to|date('Y-m-d') }}">
+            </div>
+        </div>
+    </fieldset>
+    <div class="form-text">{{ 'encounter.overview_page.period.hint'|trans({}, d) }}</div>
+</twig:FilterDrawer>

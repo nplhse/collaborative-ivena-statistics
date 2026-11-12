@@ -1,0 +1,39 @@
+{# Coverage tab: what the figures rest on, as the data coverage card of the closure analytics. #}
+{% set coverage = overview.coverage %}
+{% set all = overview.allTimeCoverage %}
+<div class="card" data-testid="encounter-coverage">
+    {{ include('@Encounter/overview/_card_header.html.twig', {
+        title: 'encounter.overview_page.coverage.title'|trans({}, d),
+        info: 'encounter.overview_page.period.hint'|trans({}, d),
+    }) }}
+    <div class="card-body">
+        <div class="row g-3">
+            {% for block in [
+                {key: 'period', title: 'encounter.overview_page.coverage.in_period'|trans({}, d), c: coverage},
+                {key: 'all', title: 'encounter.overview_page.coverage.all_data'|trans({}, d), c: all},
+            ] %}
+                <div class="col-12 col-lg-6" data-testid="encounter-coverage-{{ block.key }}">
+                    <div class="subheader mb-2">{{ block.title }}</div>
+                    <div class="datagrid">
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.overview_page.coverage.range'|trans({}, d) }}</div>
+                            <div class="datagrid-content" data-testid="encounter-coverage-range">{{ block.c.firstAnchor ? block.c.firstAnchor|date('d.m.Y') ~ ' – ' ~ block.c.lastAnchor|date('d.m.Y') : '–' }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.overview_page.coverage.visits'|trans({}, d) }}</div>
+                            <div class="datagrid-content" data-testid="encounter-coverage-visits">{{ block.c.visits|format_number }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.overview_page.coverage.days'|trans({}, d) }}</div>
+                            <div class="datagrid-content" data-testid="encounter-coverage-days">{{ block.c.days|format_number }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.overview_page.coverage.imports'|trans({}, d) }}</div>
+                            <div class="datagrid-content" data-testid="encounter-coverage-imports">{{ block.c.imports|format_number }}</div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

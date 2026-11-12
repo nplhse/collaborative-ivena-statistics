@@ -12,6 +12,8 @@ use App\Encounter\Application\Overview\OverviewCount;
 use App\Encounter\Application\Overview\ProcessInterval;
 use App\Encounter\Application\Overview\ProcessTimeRow;
 use App\Encounter\Application\Overview\RouteLinkRow;
+use App\Encounter\Application\Overview\TimeBucket;
+use App\Encounter\Application\Overview\TimeGrain;
 use App\Encounter\Infrastructure\Query\EncounterOverviewQuery;
 use App\Tests\Support\Encounter\EncounterDataFixtures;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
@@ -105,6 +107,57 @@ final class EncounterOverviewQueryTest extends KernelTestCase
         $discharge = $query->processTime($this->hospitalId(), $this->period(), ProcessInterval::AdmissionToDischarge);
         self::assertSame([5, 3, 0, 1], [$discharge->valid, $discharge->missing, $discharge->negative, $discharge->implausible], '0 and exactly 1440 minutes count, 1560 does not.');
         self::assertSame([120.0, 180.0, 240.0], [$discharge->q1, $discharge->median, $discharge->q3]);
+    }
+
+    /**
+     * 12 October 2026 is a Monday. Week of 5 October: B2 (Saturday, unknown) and V1–V7 (Sunday): EMS V1–V4,
+     * self V5, V6, unknown V7, B2. Week of 12 October: B3 (EMS). Months: everything in October.
+     */
+    public function testVisitsPerWeekAndMonthByArrivalRoute(): void
+    {
+        self::assertSame([
+            '2026-10-05' => ['ems' => 4, 'self' => 2, 'unknown' => 2],
+            '2026-10-12' => ['ems' => 1],
+        ], $this->query()->visitsByBucket($this->hospitalId(), $this->period(), TimeGrain::Week));
+        self::assertSame([
+            '2026-10-01' => ['ems' => 5, 'self' => 2, 'unknown' => 2],
+        ], $this->query()->visitsByBucket($this->hospitalId(), $this->period(), TimeGrain::Month));
+
+        $series = $this->overview($this->period())->timeSeries;
+        self::assertSame(
+            ['2026-10-05 8', '2026-10-12 -'],
+            array_map(static fn (TimeBucket $bucket): string => $bucket->start->format('Y-m-d').' '.($bucket->total->shownValue() ?? '-'), $series),
+            '1 visit in the second week is suppressed.',
+        );
+
+        $allTime = $this->overview(EncounterPeriod::allTime())->timeSeries;
+        self::assertSame(['2026-10-05', '2026-10-12'], array_map(static fn (TimeBucket $bucket): string => $bucket->start->format('Y-m-d'), $allTime), 'B1 (Friday 9 Oct) and B4 (Tuesday 13 Oct) fall into the same two weeks.');
+    }
+
+    /**
+     * Admission → first assessment per category: red 5 (V1), orange 10 and 15 (V2, V3), yellow 20 (V4),
+     * green 25 (V5), blue 30 (V7). Orange: P10 = 10 + 0.1 × 5 = 10.5, Q1 11.25, median 12.5, Q3 13.75,
+     * P90 14.5. No category reaches 5 durations, so the box plot shows none.
+     */
+    public function testProcessTimesPerMtsCategory(): void
+    {
+        $rows = [];
+        foreach ($this->query()->processTimeByCategory($this->hospitalId(), $this->period(), ProcessInterval::AdmissionToAssessment) as $row) {
+            $rows[$row->category] = [$row->valid, $row->p10, $row->q1, $row->median, $row->q3, $row->p90];
+        }
+
+        self::assertSame([
+            'blue' => [1, 30.0, 30.0, 30.0, 30.0, 30.0],
+            'green' => [1, 25.0, 25.0, 25.0, 25.0, 25.0],
+            'orange' => [2, 10.5, 11.25, 12.5, 13.75, 14.5],
+            'red' => [1, 5.0, 5.0, 5.0, 5.0, 5.0],
+            'yellow' => [1, 20.0, 20.0, 20.0, 20.0, 20.0],
+        ], $rows);
+
+        $boxes = $this->overview($this->period())->processBoxes['admission_to_assessment'];
+        self::assertSame(['red', 'orange', 'yellow', 'green', 'blue'], array_map(static fn (\App\Encounter\Application\Overview\ProcessTimeBox $box): string => $box->category, $boxes));
+        self::assertSame([true, true, true, true, true], array_map(static fn (\App\Encounter\Application\Overview\ProcessTimeBox $box): bool => $box->suppressed, $boxes));
+        self::assertNull($boxes[1]->values);
     }
 
     public function testOverviewSuppressesSmallCellsAndStatesDenominators(): void

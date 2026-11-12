@@ -10,7 +10,10 @@ use App\Encounter\Application\Overview\EncounterOverviewFactory;
 use App\Encounter\Application\Overview\EncounterPeriod;
 use App\Encounter\Application\Overview\OverviewCount;
 use App\Encounter\Application\Overview\ProcessInterval;
+use App\Encounter\Application\Overview\ProcessTimeBox;
+use App\Encounter\Application\Overview\ProcessTimeDistribution;
 use App\Encounter\Application\Overview\ProcessTimeStatistics;
+use App\Encounter\Application\Overview\TimeGrain;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -75,6 +78,20 @@ final class EncounterOverviewFactoryTest extends TestCase
         self::assertSame(30.0, $overview->processTimes[0]->median);
     }
 
+    public function testBoxNeedsFiveDurationsAndShowsP10ToP90(): void
+    {
+        self::assertNull(new ProcessTimeBox('red', new ProcessTimeDistribution('red', 4, 1.0, 2.0, 3.0, 4.0, 5.0))->values);
+        self::assertSame([1.0, 2.0, 3.0, 4.0, 5.0], new ProcessTimeBox('red', new ProcessTimeDistribution('red', 5, 1.0, 2.0, 3.0, 4.0, 5.0))->values);
+    }
+
+    public function testWeeksUpTo120DaysThenMonths(): void
+    {
+        $first = new \DateTimeImmutable('2026-01-01 08:00');
+        self::assertSame(TimeGrain::Week, TimeGrain::forSpan($first, $first->modify('+120 days')));
+        self::assertSame(TimeGrain::Month, TimeGrain::forSpan($first, $first->modify('+121 days')));
+        self::assertSame(TimeGrain::Week, TimeGrain::forSpan(null, null));
+    }
+
     /**
      * @param array<string, int> $diagrams
      * @param array<string, int> $categories
@@ -89,6 +106,8 @@ final class EncounterOverviewFactoryTest extends TestCase
         $reader->method('visitsByDiagram')->willReturn($diagrams);
         $reader->method('visitsByDisposition')->willReturn([]);
         $reader->method('visitsByCareLevel')->willReturn($careLevels);
+        $reader->method('processTimeByCategory')->willReturn([]);
+        $reader->method('visitsByBucket')->willReturn([]);
         $reader->method('processTime')->willReturnCallback(static fn (int $hospital, EncounterPeriod $period, ProcessInterval $interval): ProcessTimeStatistics => new ProcessTimeStatistics($interval, $validDurations, 0, 0, 0, 20.0, 30.0, 40.0));
 
         return new EncounterOverviewFactory($reader);

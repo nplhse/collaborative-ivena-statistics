@@ -8,7 +8,9 @@ use App\Encounter\Application\Contract\EncounterOverviewReaderInterface;
 use App\Encounter\Application\Overview\EncounterCoverage;
 use App\Encounter\Application\Overview\EncounterPeriod;
 use App\Encounter\Application\Overview\ProcessInterval;
+use App\Encounter\Application\Overview\ProcessTimeDistribution;
 use App\Encounter\Application\Overview\ProcessTimeStatistics;
+use App\Encounter\Application\Overview\TimeGrain;
 use App\Encounter\Domain\Enum\Disposition;
 use App\Encounter\Domain\Enum\MatchStatus;
 use Doctrine\DBAL\ArrayParameterType;
@@ -145,6 +147,56 @@ final readonly class EncounterOverviewQuery implements EncounterOverviewReaderIn
             $float($row['median']),
             $float($row['q3']),
         );
+    }
+
+    #[\Override]
+    public function processTimeByCategory(int $hospitalId, EncounterPeriod $period, ProcessInterval $interval): array
+    {
+        [$start, $end] = self::INTERVAL_COLUMNS[$interval->value];
+        [$where, $parameters, $types] = $this->where($hospitalId, $period);
+
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT category, COUNT(*) AS valid,'
+            .' percentile_cont(0.1) WITHIN GROUP (ORDER BY d) AS p10,'
+            .' percentile_cont(0.25) WITHIN GROUP (ORDER BY d) AS q1,'
+            .' percentile_cont(0.5) WITHIN GROUP (ORDER BY d) AS median,'
+            .' percentile_cont(0.75) WITHIN GROUP (ORDER BY d) AS q3,'
+            .' percentile_cont(0.9) WITHIN GROUP (ORDER BY d) AS p90'
+            .sprintf(' FROM (SELECT COALESCE(e.mts_category, \'\') AS category, FLOOR(EXTRACT(EPOCH FROM (e.%2$s - e.%1$s)) / 60) AS d FROM encounter e WHERE %3$s) durations', $start, $end, $where)
+            .' WHERE d BETWEEN 0 AND :max_minutes GROUP BY category ORDER BY category',
+            $parameters + ['max_minutes' => ProcessInterval::MAX_PLAUSIBLE_MINUTES],
+            $types,
+        );
+
+        $float = static fn (mixed $value): ?float => null === $value ? null : (float) $value;
+
+        return array_map(static fn (array $row): ProcessTimeDistribution => new ProcessTimeDistribution(
+            (string) $row['category'],
+            (int) $row['valid'],
+            $float($row['p10']),
+            $float($row['q1']),
+            $float($row['median']),
+            $float($row['q3']),
+            $float($row['p90']),
+        ), $rows);
+    }
+
+    #[\Override]
+    public function visitsByBucket(int $hospitalId, EncounterPeriod $period, TimeGrain $grain): array
+    {
+        [$where, $parameters, $types] = $this->where($hospitalId, $period);
+        $rows = $this->connection->fetchAllAssociative(
+            sprintf('SELECT CAST(date_trunc(\'%s\', e.anchor_at) AS date) AS bucket, e.arrival_route AS route, COUNT(*) AS visits FROM encounter e WHERE %s GROUP BY 1, 2 ORDER BY 1, 2', $grain->value, $where),
+            $parameters,
+            $types,
+        );
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[(string) $row['bucket']][(string) $row['route']] = (int) $row['visits'];
+        }
+
+        return $counts;
     }
 
     #[\Override]

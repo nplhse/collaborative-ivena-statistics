@@ -1,0 +1,24 @@
+{# Distribution card as in the statistics overview: one progress bar per row (OverviewCount), share of the card's denominator. Rows without visits are left out. #}
+<div class="card" data-testid="{{ testid }}">
+    {{ include('@Encounter/overview/_card_header.html.twig') }}
+    <div class="card-body">
+        {% set shown = rows|filter(r => r.count.suppressed or r.count.value > 0) %}
+        {% for row in shown %}
+            <div class="{{ loop.last ? '' : 'mb-2' }}" data-testid="{{ testid }}-row" data-key="{{ row.key }}">
+                <div class="d-flex justify-content-between align-items-center mb-1 gap-2">
+                    <span class="text-truncate">{{ labels[row.key] ?? row.key }}</span>
+                    <span class="text-secondary text-nowrap">
+                        <span data-testid="encounter-count">{{ include('@Encounter/glossary/_count.html.twig', {count: row.count}) }}</span>
+                        {% if row.share is not null %}&nbsp;&nbsp;{{ row.share|format_number({fraction_digit: 1}) }}&nbsp;%{% endif %}
+                    </span>
+                </div>
+                <div class="progress progress-sm">
+                    <div class="progress-bar {{ colors[row.key] ?? '' }}" style="width: {{ row.share ?? 0 }}%" role="progressbar"
+                         aria-valuenow="{{ row.share ?? 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-secondary mb-0">–</p>
+        {% endfor %}
+    </div>
+</div>

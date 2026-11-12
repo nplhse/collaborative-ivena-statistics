@@ -7,7 +7,9 @@ namespace App\Encounter\Application\Contract;
 use App\Encounter\Application\Overview\EncounterCoverage;
 use App\Encounter\Application\Overview\EncounterPeriod;
 use App\Encounter\Application\Overview\ProcessInterval;
+use App\Encounter\Application\Overview\ProcessTimeDistribution;
 use App\Encounter\Application\Overview\ProcessTimeStatistics;
+use App\Encounter\Application\Overview\TimeGrain;
 
 /**
  * Descriptive aggregates of the stored visits of exactly one hospital (#1055). Every method counts
@@ -58,6 +60,22 @@ interface EncounterOverviewReaderInterface
     public function visitsByCareLevel(int $hospitalId, EncounterPeriod $period): array;
 
     public function processTime(int $hospitalId, EncounterPeriod $period, ProcessInterval $interval): ProcessTimeStatistics;
+
+    /**
+     * Valid durations of the interval per initial MTS category ('' = not documented), same validity
+     * rules as processTime().
+     *
+     * @return list<ProcessTimeDistribution>
+     */
+    public function processTimeByCategory(int $hospitalId, EncounterPeriod $period, ProcessInterval $interval): array;
+
+    /**
+     * Visits per bucket (first day of the ISO week or month, `Y-m-d`, by the time anchor) and arrival
+     * route. Buckets without visits are left out.
+     *
+     * @return array<string, array<string, int>> bucket => route => visits
+     */
+    public function visitsByBucket(int $hospitalId, EncounterPeriod $period, TimeGrain $grain): array;
 
     /**
      * Hospitals that have at least one stored visit, as id => name, ordered by name.

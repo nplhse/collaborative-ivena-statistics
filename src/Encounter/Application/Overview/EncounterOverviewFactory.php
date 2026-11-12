@@ -41,15 +41,30 @@ final readonly class EncounterOverviewFactory
         $careLevelDenominator = array_sum($careLevels);
 
         $processTimes = [];
+        $processBoxes = [];
         foreach (ProcessInterval::cases() as $interval) {
             $processTimes[] = new ProcessTimeRow($this->reader->processTime($hospitalId, $period, $interval));
+            $processBoxes[$interval->value] = $this->boxes($this->reader->processTimeByCategory($hospitalId, $period, $interval));
+        }
+
+        $grain = TimeGrain::forSpan($coverage->firstAnchor, $coverage->lastAnchor);
+
+        $routeLinkCounts = $this->reader->visitsByRouteAndLink($hospitalId, $period);
+        $routes = [];
+        $links = [MatchStatus::AutoAccepted->value => 0, MatchStatus::Confirmed->value => 0, EncounterOverviewReaderInterface::NOT_LINKED => 0];
+        foreach (ArrivalRoute::cases() as $route) {
+            $byLink = $routeLinkCounts[$route->value] ?? [];
+            $routes[] = new OverviewCount($route->value, array_sum($byLink), $visits);
+            foreach ($byLink as $link => $count) {
+                $links[$link] = ($links[$link] ?? 0) + $count;
+            }
         }
 
         return new EncounterOverview(
             period: $period,
             coverage: $coverage,
             allTimeCoverage: $allTime,
-            routeLink: $this->routeLink($this->reader->visitsByRouteAndLink($hospitalId, $period)),
+            routeLink: $this->routeLink($routeLinkCounts),
             categories: $this->ordered($this->reader->visitsByCategory($hospitalId, $period), array_map(static fn (MtsCategory $category): string => $category->value, MtsCategory::cases()), $visits),
             diagrams: $diagrams,
             diagramsShown: $diagramsShown,
@@ -57,7 +72,72 @@ final readonly class EncounterOverviewFactory
             careLevels: $this->ordered($careLevels, array_map(static fn (CareLevel $level): string => $level->value, CareLevel::cases()), $careLevelDenominator),
             careLevelDenominator: $careLevelDenominator,
             processTimes: $processTimes,
+            grain: $grain,
+            timeSeries: 0 === $visits ? [] : $this->timeSeries($this->reader->visitsByBucket($hospitalId, $period, $grain), $grain, $coverage),
+            processBoxes: $processBoxes,
+            routes: $routes,
+            links: [
+                new OverviewCount('automatic', $links[MatchStatus::AutoAccepted->value], $visits),
+                new OverviewCount('confirmed', $links[MatchStatus::Confirmed->value], $visits),
+                new OverviewCount('not_linked', $links[EncounterOverviewReaderInterface::NOT_LINKED], $visits),
+            ],
         );
+    }
+
+    /**
+     * Every bucket from the first to the last visit of the period, empty ones as 0.
+     *
+     * @param array<string, array<string, int>> $counts
+     *
+     * @return list<TimeBucket>
+     */
+    private function timeSeries(array $counts, TimeGrain $grain, EncounterCoverage $coverage): array
+    {
+        if (!$coverage->firstAnchor instanceof \DateTimeImmutable || !$coverage->lastAnchor instanceof \DateTimeImmutable) {
+            return [];
+        }
+
+        $routes = array_map(static fn (ArrivalRoute $route): string => $route->value, ArrivalRoute::cases());
+        $step = TimeGrain::Week === $grain ? '+1 week' : '+1 month';
+        $bucket = $this->bucketStart($coverage->firstAnchor, $grain);
+        $last = $this->bucketStart($coverage->lastAnchor, $grain);
+
+        $series = [];
+        while ($bucket <= $last) {
+            $series[] = new TimeBucket($bucket, $counts[$bucket->format('Y-m-d')] ?? [], $routes);
+            $bucket = $bucket->modify($step);
+        }
+
+        return $series;
+    }
+
+    private function bucketStart(\DateTimeImmutable $at, TimeGrain $grain): \DateTimeImmutable
+    {
+        $day = new \DateTimeImmutable($at->format('Y-m-d'));
+
+        return TimeGrain::Week === $grain ? $day->modify('monday this week') : $day->modify('first day of this month');
+    }
+
+    /**
+     * @param list<ProcessTimeDistribution> $distributions
+     *
+     * @return list<ProcessTimeBox>
+     */
+    private function boxes(array $distributions): array
+    {
+        $byCategory = [];
+        foreach ($distributions as $distribution) {
+            $byCategory[$distribution->category] = $distribution;
+        }
+
+        $boxes = [];
+        foreach ([...array_map(static fn (MtsCategory $category): string => $category->value, MtsCategory::cases()), self::NOT_DOCUMENTED] as $category) {
+            if (isset($byCategory[$category])) {
+                $boxes[] = new ProcessTimeBox($category, $byCategory[$category]);
+            }
+        }
+
+        return $boxes;
     }
 
     /**

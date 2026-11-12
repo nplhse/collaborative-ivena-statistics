@@ -407,9 +407,15 @@ care level. No cross-hospital aggregates.
 
 ### Hospital overview
 
-Implemented in #1055. Page `/encounter/hospital/{id}` ("Encounter data" / "Behandlungsdaten"), linked from
+Implemented in #1055. Page `/encounter/hospital/{id}` ("Analysis" / "Auswertung"), linked from
 the pilot entry page `/encounter`, which lists every hospital the user may see aggregates of
-(administrators: every hospital with stored visits). Access: `EncounterAttribute::VIEW_AGGREGATES` on
+(administrators: every hospital with stored visits). It follows the layout of the statistics pages:
+hospital and period are context buttons in the page header that open a filter drawer (hospital choice
+among the same hospitals, submitted to `/encounter/hospital`, which redirects; period presets below);
+an active period shows as a filter badge; the content is split into tabs (`?tab=`): overview (KPI deck,
+segmented bars for arrival route and MTS categories, visits over time, distribution cards), process
+times (box plots and table), IVENA link (route × link), distributions (full tables) and data coverage.
+Definitions sit in info popovers on the card titles. Access: `EncounterAttribute::VIEW_AGGREGATES` on
 that hospital, i.e. beta role + any encounter grant + hospital permission `STATISTICS` (the owner holds
 it), or `ROLE_ADMIN`. Every figure belongs to exactly this hospital; the page never adds up hospitals and
 compares with none. Reads: `EncounterOverviewQuery` (`Infrastructure/Query/`, ADR 009) behind
@@ -420,7 +426,7 @@ compares with none. Reads: `EncounterOverviewQuery` (`Infrastructure/Query/`, AD
 | Aspect | Rule |
 |---|---|
 | Population | All stored visits of the hospital (self-presenters, EMS arrivals with and without allocation, unknown route), all key generations, all imports. |
-| Period | Optional `from` and `to` days (`?from=YYYY-MM-DD&to=YYYY-MM-DD`), both inclusive; without them all data. A visit belongs to the period by its time anchor `anchor_at` (first assessment contact, else ED admission; local wall clock as exchanged), the same day the import coverage uses: `anchor_at >= from 00:00 AND anchor_at < to + 1 day 00:00`. Swapped bounds are put in order; invalid dates leave the bound open. |
+| Period | Drawer presets (`EncounterPeriodPreset`, `?period=`): all data (default), last 12 months (from the first day of the month eleven months before today, open end, as in Statistics), a year (`year=YYYY`, 1 January – 31 December), a month (`month=YYYY-MM`) or an own period (`from`/`to` days, both inclusive); incomplete input means all data. A visit belongs to the period by its time anchor `anchor_at` (first assessment contact, else ED admission; local wall clock as exchanged), the same day the import coverage uses: `anchor_at >= from 00:00 AND anchor_at < to + 1 day 00:00`. Swapped bounds are put in order; invalid dates leave the bound open. |
 | Filters | None besides hospital and period. |
 | Small cells | Counts from 1 to 4 are shown as `< 5` (ADR 012, `MtsCount`, `CatalogPrivacyPolicy::MIN_ALLOCATIONS`), without share, and left out of charts (`null`); 0 is shown as a dash. No complementary suppression: totals are shown when they reach 5, as in the MTS glossary. |
 | Comparison groups | None. |
@@ -434,6 +440,9 @@ compares with none. Reads: `EncounterOverviewQuery` (`Infrastructure/Query/`, AD
 | MTS categories | Visits per initial `mts_category`, in MTS order red … blue | All visits of the period | "Not documented" row for visits without category. Retriage not counted. |
 | Top presentations (MTS diagrams) | The 10 most frequent initial `mts_diagram` codes (ties by code), then "other diagrams" (sum of the rest) | All visits of the period | "Not documented" row. Names from the MTS catalog (`MtsNames`); unknown codes shown as code. |
 | Process times | Median, Q1 and Q3 of the valid durations (PostgreSQL `percentile_cont`, linear interpolation), counted visits | – | Per interval: "time missing" (one of the two timestamps empty), "negative" (end before start), "over 24 h" (more than `ProcessInterval::MAX_PLAUSIBLE_MINUTES` = 1440). They are excluded from median and IQR and shown as counts. Median and IQR need at least 5 valid durations. |
+| KPIs (overview tab) | visits; EMS arrivals linked (automatic or confirmed) of all EMS arrivals; median arrival → first physician and arrival → ED discharge with IQR; admitted to this hospital of all visits | as stated | a suppressed numerator shows `< 5` instead of a share |
+| Visits over time | visits per bucket and arrival route; buckets are calendar weeks (Monday) when the visits of the period span at most 120 days (`TimeGrain`), else months; every bucket from the first to the last visit, empty ones as 0 | – | buckets with 1–4 visits per route are gaps in the chart |
+| Process time box plots | per interval and initial MTS category: P10, Q1, median, Q3, P90 of the valid durations (whiskers P10/P90, never minimum or maximum, which describe single visits) | – | only categories with at least 5 valid durations are drawn |
 | Disposition | Visits per `disposition_code` in code order | All visits of the period | "Not documented" row. |
 | Care level | Visits per `disposition_care_level` among visits with disposition `admitted` or `transferred_external` | These admissions and transfers | "Not documented" row for such visits without care level; `unknown` (ward not mappable) is a level of its own. |
 
@@ -456,8 +465,10 @@ to first assessment of 5, 10, 15, 20, 25 and 30 minutes give Q1 = 10 + 0.25 × 5
 one after exactly 1440 minutes counts. A visit at 00:00 on the first day and one at 23:59 on the last
 day are in the period, visits at 23:59 the day before and 00:00 the day after are not.
 
-Charts (`encounter-overview-chart` Stimulus controller, ApexCharts): route × link as stacked bars, MTS
-categories in their colours. Tables carry the exact figures.
+Charts (`encounter-overview-chart` Stimulus controller, ApexCharts): visits over time and route × link as
+stacked bars, process times as horizontal box plots; the segmented bars and distribution cards reuse
+the markup of the statistics overview. Tables on the IVENA link, process times and distributions tabs
+carry the exact figures.
 
 ### Case card "Hospital course"
 
