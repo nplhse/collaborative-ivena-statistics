@@ -14,10 +14,19 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">{{ 'title.hospitals.my'|trans({}, 'allocation') }}</h2>
-                    <div class="text-body-secondary mt-1">
-                        {{ 'my_hospitals.header.count'|trans({count: scope.count}, 'allocation') }}
+                    <div class="text-body-secondary mt-1" data-testid="my-hospitals-header-count">
+                        {% if selection.isAll %}
+                            {{ 'my_hospitals.header.count'|trans({count: scope.count}, 'allocation') }}
+                        {% else %}
+                            {{ 'my_hospitals.header.selected'|trans({total: scope.count}, 'allocation') }}
+                        {% endif %}
                     </div>
                 </div>
+                {% if selection.canChoose %}
+                    <div class="col-auto ms-auto d-print-none">
+                        {{ include('@Allocation/hospitals/_my_hospitals_selection.html.twig') }}
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>

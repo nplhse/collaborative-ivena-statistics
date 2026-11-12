@@ -257,6 +257,71 @@ final class MyHospitalsOverviewTest extends WebTestCase
         self::assertSelectorTextContains('[data-testid="my-hospitals-summary-success-rate"]', '0 % successful');
     }
 
+    public function testSelectionNarrowsCardsAndSummaryToOneHospital(): void
+    {
+        $alpha = $this->hospitalWithData('Alpha Hospital');
+        $this->hospitalWithData('Beta Hospital');
+
+        $this->client->loginUser($this->owner);
+        $this->client->request(Request::METHOD_GET, '/hospitals', ['hospital' => $alpha->getPublicIdString()]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(1, self::CARD);
+        self::assertSelectorTextContains(self::CARD, 'Alpha Hospital');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-summary-allocations"]', '3');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-header-count"]', '1 of 2 hospitals');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-selection-toggle"]', 'Alpha Hospital');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-selection-option"].active', 'Alpha Hospital');
+        self::assertSelectorNotExists('[data-testid="my-hospitals-selection-all"].active');
+    }
+
+    public function testAllHospitalsAreTheDefault(): void
+    {
+        $this->hospitalWithData('Alpha Hospital');
+        $this->hospitalWithData('Beta Hospital');
+
+        $this->client->loginUser($this->owner);
+        $this->client->request(Request::METHOD_GET, '/hospitals');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(2, self::CARD);
+        self::assertSelectorTextContains('[data-testid="my-hospitals-summary-allocations"]', '6');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-header-count"]', '2 hospitals');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-selection-toggle"]', 'All hospitals');
+        self::assertSelectorExists('[data-testid="my-hospitals-selection-all"].active');
+        self::assertSelectorCount(2, '[data-testid="my-hospitals-selection-option"]');
+    }
+
+    public function testForeignOrMalformedSelectionShowsAllOwnHospitals(): void
+    {
+        $this->hospitalWithData('Alpha Hospital');
+        $this->hospitalWithData('Beta Hospital');
+        $foreign = $this->hospitalWithData('Foreign Hospital', UserFactory::createOne());
+
+        $this->client->loginUser($this->owner);
+        $this->client->request(Request::METHOD_GET, '/hospitals', ['hospital' => $foreign->getPublicIdString()]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(2, self::CARD);
+        self::assertSelectorTextNotContains('.page-wrapper', 'Foreign Hospital');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-header-count"]', '2 hospitals');
+
+        $this->client->request(Request::METHOD_GET, '/hospitals?hospital[]=abc');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(2, self::CARD);
+    }
+
+    public function testSingleHospitalHasNoSelection(): void
+    {
+        $this->hospitalWithData('Alpha Hospital');
+
+        $this->client->loginUser($this->owner);
+        $this->client->request(Request::METHOD_GET, '/hospitals');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="my-hospitals-selection"]');
+    }
+
     public function testGermanPageHasNoMissingTranslations(): void
     {
         $german = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'], 'locale' => 'de']);

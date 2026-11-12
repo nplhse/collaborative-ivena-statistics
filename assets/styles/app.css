@@ -1795,6 +1795,13 @@ a.catalog-year-heatmap-cell:focus-visible {
     gap: 3px;
 }
 
+/* Hospital selection of My Hospitals: a list that scrolls when a user holds many hospitals. */
+.my-hospitals-selection-menu {
+    max-width: min(24rem, calc(100vw - 2rem));
+    max-height: 22rem;
+    overflow-y: auto;
+}
+
 /* My Hospitals (#971): data coverage per hospital, one row per year, cells as in the import coverage calendar.
    The twelve month columns share the card width; cells stay square (aspect-ratio) up to a maximum size. */
 .my-hospitals-coverage {
