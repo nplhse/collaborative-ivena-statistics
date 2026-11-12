@@ -11,7 +11,7 @@ Configured in `config/packages/messenger.yaml`:
 | Transport | Purpose |
 |-----------|---------|
 | `async_priority_high` | Import processing |
-| `async_priority_low` | Statistics rebuild, KPI aggregation, analytics aggregation, notification retention and reconciliation, storage measurement |
+| `async_priority_low` | Statistics rebuild, My Hospitals cache warming, KPI aggregation, analytics aggregation, notification retention and reconciliation, storage measurement |
 | `async_mail` | Transactional and bulk mail (rate-limited) |
 | `scheduler_default` | Symfony Scheduler messages |
 | `failed` | Failed message store |
@@ -26,6 +26,7 @@ Default DSN: `doctrine://default?auto_setup=0` (PostgreSQL `messenger_messages` 
 | `ImportClosuresMessage` | `async_priority_high` |
 | `DeleteImportsMessage` (bulk deletion from the import list) | `async_priority_low` |
 | `RebuildAllocationStatsProjection` | `async_priority_low` |
+| `WarmHospitalDataSnapshot` (My Hospitals cache, one hospital; see [my-hospitals.md](../04-features/allocation/my-hospitals.md#cache)) | `async_priority_low` |
 | `GenerateDailyKpisMessage` | `async_priority_low` |
 | `SendMonthlySubmissionRemindersMessage` | `async_priority_low` |
 | `AggregateDailyAnalyticsMessage` | `async_priority_low` |

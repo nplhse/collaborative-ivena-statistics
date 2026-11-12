@@ -31,4 +31,38 @@ final class CachedHospitalDataSnapshotReaderTest extends TestCase
         self::assertSame([], new CachedHospitalDataSnapshotReader($inner, new ArrayAdapter())->read([]));
         self::assertSame([], $inner->calls);
     }
+
+    public function testRefreshOverwritesCachedEntries(): void
+    {
+        $inner = new RecordingSnapshotReader();
+        $reader = new CachedHospitalDataSnapshotReader($inner, new ArrayAdapter());
+        $reader->read([1, 2]);
+
+        $reader->refresh([2, 2]);
+        $reader->read([1, 2]);
+
+        self::assertSame([[1, 2], [2]], $inner->calls, 'Refresh reads once; the next read is served from the cache.');
+    }
+
+    public function testRefreshDropsHospitalsTheReaderNoLongerKnows(): void
+    {
+        $cache = new ArrayAdapter();
+        new CachedHospitalDataSnapshotReader(new RecordingSnapshotReader(), $cache)->read([1]);
+
+        new CachedHospitalDataSnapshotReader(new ForgettingSnapshotReader(), $cache)->refresh([1]);
+
+        self::assertFalse($cache->hasItem('hospital_data_snapshot.v1.1'));
+    }
+
+    public function testForgottenHospitalsAreReadAgain(): void
+    {
+        $inner = new RecordingSnapshotReader();
+        $reader = new CachedHospitalDataSnapshotReader($inner, new ArrayAdapter());
+        $reader->read([1, 2]);
+
+        $reader->forget([1]);
+        $reader->read([1, 2]);
+
+        self::assertSame([[1, 2], [1]], $inner->calls);
+    }
 }
