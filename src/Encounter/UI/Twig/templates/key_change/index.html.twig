@@ -56,7 +56,10 @@
                         {% do form.option.setRendered %}
                     </div>
                     <div class="alert alert-danger mb-0" role="alert" data-test="encounter-key-change-safety">
-                        <h4 class="alert-title">{{ 'encounter.key_change.safety.title'|trans({}, 'encounter') }}</h4>
+                        <h4 class="alert-title text-danger d-flex align-items-center gap-2">
+                            <twig:ux:icon name="tabler:alert-triangle" class="icon" aria-hidden="true" />
+                            {{ 'encounter.key_change.safety.title'|trans({}, 'encounter') }}
+                        </h4>
                         <p>{{ 'encounter.key_change.safety.text'|trans({}, 'encounter') }}</p>
                         {{ form_row(form.confirmName, {attr: {
                             'data-encounter-key-change-target': 'name',
