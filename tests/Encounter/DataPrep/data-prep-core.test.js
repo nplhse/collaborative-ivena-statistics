@@ -168,7 +168,7 @@ describe('transformation of the synthetic sample', () => {
             retriage_at: '',
             disposition: 'admitted',
             care_level: 'icu',
-            admitting_department: 'internal_medicine',
+            admitting_department: 'Innere Medizin',
             vitals_reference: 'documented_initial',
             vitals_measured_at: '',
             bp_systolic: '145',
@@ -252,7 +252,7 @@ describe('transformation of the synthetic sample', () => {
             'or',
             'unmapped station keeps the level of the disposition text',
         );
-        assert.equal(operation.admitting_department, 'trauma_surgery');
+        assert.equal(operation.admitting_department, 'Unfallchirurgie, Allgemein');
         assert.equal(operation.pain_score, '');
         assert.equal(operation.mts_diagram, '', 'unknown diagrams stay empty');
     });
@@ -357,7 +357,23 @@ describe('key file', () => {
 });
 
 describe('local map', () => {
-    it('rejects unknown care levels, invalid department codes and dispositions', () => {
+    it('maps departments to names of the reference catalog', () => {
+        const map = (departments) => ({ format: 'encounter-local-map', version: 1, departments });
+        const loaded = prep.loadLocalMap(
+            map({ 'GCH X': 'Gefäßchirurgie', 'ACH X': 'Allgemein- und Viszeralchirurgie' }),
+            profile,
+        );
+        assert.equal(loaded.departments.get('gch x'), 'Gefäßchirurgie');
+        for (const invalid of ['a"b', 'x'.repeat(65), 'tab\there', ' Leading', '', 42]) {
+            assert.throws(
+                () => prep.loadLocalMap(map({ X: invalid }), profile),
+                /invalid-local-map/,
+                String(invalid),
+            );
+        }
+    });
+
+    it('rejects unknown care levels, invalid department names and dispositions', () => {
         const map = (data) => ({ format: 'encounter-local-map', version: 1, ...data });
         assert.throws(
             () => prep.loadLocalMap(map({ stations: { ITS: 'intensive' } }), profile),
@@ -490,6 +506,17 @@ describe('versions', () => {
         assert.equal(
             prep.updateState('1.0.0', { version: '1.2.0', minVersion: '1.1.0' }),
             'blocked',
+        );
+    });
+
+    it('cuts catalog codes at 64 characters without a trailing underscore', () => {
+        const code = prep.catalogCode(`${'a'.repeat(63)} b`);
+        assert.equal(code, 'a'.repeat(63));
+        assert.match(
+            prep.catalogCode(
+                'Veränderter Bewusstseinszustand vollständig durch Alkoholgenuss erklärbar',
+            ),
+            /^[a-z0-9_]{1,64}$/,
         );
     });
 

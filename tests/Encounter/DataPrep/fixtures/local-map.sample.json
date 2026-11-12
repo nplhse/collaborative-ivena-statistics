@@ -4,8 +4,8 @@
     "profile": "orbis-mts",
     "hospital": "Synthetic test hospital",
     "departments": {
-        "INN TEST": "internal_medicine",
-        "UCH TEST": "trauma_surgery"
+        "INN TEST": "Innere Medizin",
+        "UCH TEST": "Unfallchirurgie, Allgemein"
     },
     "stations": {
         "ITS TEST": "icu",
