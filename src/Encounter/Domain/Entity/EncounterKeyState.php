@@ -14,12 +14,10 @@ use Symfony\Component\Clock\Clock;
  * registered for it and the retired check values of earlier generations.
  *
  * Every encounter stores the generation it was imported with; duplicate detection works within one
- * generation only. This step (#1047) only models the state. Registering the first check value and
- * rejecting retired ones belong to the import (#1048); the key change that increments the generation
- * and sets `keyChangeInProgress` belongs to #1050. A hospital without a row is at generation 1 with
- * no registered check value.
- *
- * @psalm-suppress UnusedClass Doctrine mapping of #1047; read and written by #1048 and #1050.
+ * generation only. The encounter import registers the first check value of a generation and rejects
+ * retired ones (EncounterKeyStateRepository::lockForImport()); the key change that increments the
+ * generation and sets `keyChangeInProgress` belongs to #1050. A hospital without a row is at
+ * generation 1 with no registered check value.
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'encounter_key_state')]
