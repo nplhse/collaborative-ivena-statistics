@@ -110,28 +110,33 @@ final class EncounterOverviewQueryTest extends KernelTestCase
     }
 
     /**
-     * 12 October 2026 is a Monday. Week of 5 October: B2 (Saturday, unknown) and V1–V7 (Sunday): EMS V1–V4,
-     * self V5, V6, unknown V7, B2. Week of 12 October: B3 (EMS). Months: everything in October.
+     * Days: B2 on 10 October (unknown), V1–V7 on 11 October (EMS V1–V4, self V5, V6, unknown V7), B3 on
+     * 12 October (EMS). Month: all nine in October. Without an axis from the statistics page, the
+     * series runs from the first to the last bucket with visits, empty ones as 0.
      */
-    public function testVisitsPerWeekAndMonthByArrivalRoute(): void
+    public function testVisitsPerDayAndMonthByArrivalRoute(): void
     {
         self::assertSame([
-            '2026-10-05' => ['ems' => 4, 'self' => 2, 'unknown' => 2],
+            '2026-10-10' => ['unknown' => 1],
+            '2026-10-11' => ['ems' => 4, 'self' => 2, 'unknown' => 1],
             '2026-10-12' => ['ems' => 1],
-        ], $this->query()->visitsByBucket($this->hospitalId(), $this->period(), TimeGrain::Week));
+        ], $this->query()->visitsByBucket($this->hospitalId(), $this->period(), TimeGrain::Day));
         self::assertSame([
             '2026-10-01' => ['ems' => 5, 'self' => 2, 'unknown' => 2],
         ], $this->query()->visitsByBucket($this->hospitalId(), $this->period(), TimeGrain::Month));
 
-        $series = $this->overview($this->period())->timeSeries;
+        $days = $this->overview($this->period(), TimeGrain::Day)->timeSeries;
         self::assertSame(
-            ['2026-10-05 8', '2026-10-12 -'],
-            array_map(static fn (TimeBucket $bucket): string => $bucket->start->format('Y-m-d').' '.($bucket->total->shownValue() ?? '-'), $series),
-            '1 visit in the second week is suppressed.',
+            ['2026-10-10 -', '2026-10-11 7', '2026-10-12 -'],
+            array_map(static fn (TimeBucket $bucket): string => $bucket->start->format('Y-m-d').' '.($bucket->total->shownValue() ?? '-'), $days),
+            'Single visits on the 10th and 12th are suppressed.',
         );
 
-        $allTime = $this->overview(EncounterPeriod::allTime())->timeSeries;
-        self::assertSame(['2026-10-05', '2026-10-12'], array_map(static fn (TimeBucket $bucket): string => $bucket->start->format('Y-m-d'), $allTime), 'B1 (Friday 9 Oct) and B4 (Tuesday 13 Oct) fall into the same two weeks.');
+        $allTime = $this->overview(EncounterPeriod::allTime(), TimeGrain::Day)->timeSeries;
+        self::assertSame(['2026-10-09', '2026-10-10', '2026-10-11', '2026-10-12', '2026-10-13'], array_map(static fn (TimeBucket $bucket): string => $bucket->start->format('Y-m-d'), $allTime));
+
+        $axis = $this->overview($this->period(), TimeGrain::Month, static fn (array $visits): array => ['2026-09', ...array_keys($visits), '2026-11'])->timeSeries;
+        self::assertSame(['2026-09-01 0', '2026-10-01 9', '2026-11-01 0'], array_map(static fn (TimeBucket $bucket): string => $bucket->start->format('Y-m-d').' '.$bucket->total->shownValue(), $axis), 'The statistics axis decides the buckets; it receives the visits per key.');
     }
 
     /**
@@ -253,12 +258,15 @@ final class EncounterOverviewQueryTest extends KernelTestCase
         return $shown;
     }
 
-    private function overview(EncounterPeriod $period): EncounterOverview
+    /**
+     * @param \Closure(array<string, int>): list<string>|null $axis
+     */
+    private function overview(EncounterPeriod $period, TimeGrain $grain = TimeGrain::Month, ?\Closure $axis = null): EncounterOverview
     {
         $factory = self::getContainer()->get(EncounterOverviewFactory::class);
         self::assertInstanceOf(EncounterOverviewFactory::class, $factory);
 
-        return $factory->create($this->hospitalId(), $period);
+        return $factory->create($this->hospitalId(), $period, $grain, $axis);
     }
 
     private function query(): EncounterOverviewQuery

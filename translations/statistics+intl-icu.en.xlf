@@ -7672,18 +7672,6 @@
         <source>stats.encounter.kpi.visits</source>
         <target>Visits</target>
       </trans-unit>
-      <trans-unit id="statsEncca16d3d1" resname="stats.encounter.kpi.visits_detail">
-        <source>stats.encounter.kpi.visits_detail</source>
-        <target>on {days, number} days from {imports, plural, one {# import} other {# imports}}</target>
-      </trans-unit>
-      <trans-unit id="statsEnc02b299da" resname="stats.encounter.kpi.ems_linked">
-        <source>stats.encounter.kpi.ems_linked</source>
-        <target>EMS arrivals linked</target>
-      </trans-unit>
-      <trans-unit id="statsEncba99cec1" resname="stats.encounter.kpi.ems_linked_detail">
-        <source>stats.encounter.kpi.ems_linked_detail</source>
-        <target>{linked, number} of {total, number} EMS arrivals</target>
-      </trans-unit>
       <trans-unit id="statsEncfd22bfbd" resname="stats.encounter.kpi.physician">
         <source>stats.encounter.kpi.physician</source>
         <target>Median arrival → physician</target>
@@ -7695,10 +7683,6 @@
       <trans-unit id="statsEnc759cc0e1" resname="stats.encounter.kpi.admitted">
         <source>stats.encounter.kpi.admitted</source>
         <target>Admitted to this hospital</target>
-      </trans-unit>
-      <trans-unit id="statsEncc5bacfe7" resname="stats.encounter.kpi.admitted_detail">
-        <source>stats.encounter.kpi.admitted_detail</source>
-        <target>of all visits</target>
       </trans-unit>
       <trans-unit id="statsEnccc6c49f0" resname="stats.encounter.kpi.iqr">
         <source>stats.encounter.kpi.iqr</source>
@@ -7716,10 +7700,6 @@
         <source>stats.encounter.info.categories</source>
         <target>Initial triage; retriage is not counted. Shares are of all visits.</target>
       </trans-unit>
-      <trans-unit id="statsEnc58c5f423" resname="stats.encounter.info.ems_linked">
-        <source>stats.encounter.info.ems_linked</source>
-        <target>EMS arrivals with an automatic or confirmed link to an IVENA allocation, of all EMS arrivals. Open proposals count as not linked.</target>
-      </trans-unit>
       <trans-unit id="statsEnc39568f70" resname="stats.encounter.info.process">
         <source>stats.encounter.info.process</source>
         <target>Recomputed from the documented timestamps in whole minutes of the local time. Counted are durations from 0 to {hours, number} hours; negative ones, longer ones and visits without both times are excluded. Median and quartiles are shown from {threshold, number} counted visits on.</target>
@@ -7736,41 +7716,13 @@
         <source>stats.encounter.info.care_levels</source>
         <target>Visits admitted to this hospital or transferred to another one ({visits, number}); shares are of these visits.</target>
       </trans-unit>
-      <trans-unit id="statsEnc43c81ae3" resname="stats.encounter.info.time_series">
-        <source>stats.encounter.info.time_series</source>
-        <target>Visits per calendar week (Monday) by the day of their first assessment, or per month for spans over {days, number} days. Counts below 5 are left out of the chart.</target>
-      </trans-unit>
-      <trans-unit id="statsEnce072cc17" resname="stats.encounter.info.links">
-        <source>stats.encounter.info.links</source>
-        <target>Automatic links are effective and count as linked; their origin is shown separately. Visits with only an open proposal or a rejected pair count as not linked. Shares are of all visits.</target>
-      </trans-unit>
       <trans-unit id="statsEnc37221ce6" resname="stats.encounter.info.diagrams">
         <source>stats.encounter.info.diagrams</source>
         <target>Most frequent diagrams of the initial triage (ties by code). Shares are of all visits of the period.</target>
       </trans-unit>
-      <trans-unit id="statsEncf63997a0" resname="stats.encounter.time_series.title_week">
-        <source>stats.encounter.time_series.title_week</source>
-        <target>Visits per week</target>
-      </trans-unit>
-      <trans-unit id="statsEnc470299be" resname="stats.encounter.time_series.title_month">
-        <source>stats.encounter.time_series.title_month</source>
-        <target>Visits per month</target>
-      </trans-unit>
-      <trans-unit id="statsEnc043c471b" resname="stats.encounter.route_link.short_title">
-        <source>stats.encounter.route_link.short_title</source>
-        <target>IVENA link</target>
-      </trans-unit>
-      <trans-unit id="statsEncb1314360" resname="stats.encounter.details">
-        <source>stats.encounter.details</source>
-        <target>Details</target>
-      </trans-unit>
       <trans-unit id="statsEncc55f030b" resname="stats.encounter.show_all">
         <source>stats.encounter.show_all</source>
         <target>Show all</target>
-      </trans-unit>
-      <trans-unit id="statsEncda15813e" resname="stats.encounter.mts.top_short">
-        <source>stats.encounter.mts.top_short</source>
-        <target>Top {top, number} presentations</target>
       </trans-unit>
       <trans-unit id="statsEnc20967f62" resname="stats.encounter.coverage.title">
         <source>stats.encounter.coverage.title</source>
@@ -7791,6 +7743,30 @@
       <trans-unit id="statsEnc78bada98" resname="stats.encounter.no_access">
         <source>stats.encounter.no_access</source>
         <target>You may not see encounter data of any hospital. This needs an encounter grant and the hospital permission "Statistics".</target>
+      </trans-unit>
+      <trans-unit id="statsEncc5bacfe7" resname="stats.encounter.kpi.admitted_detail">
+        <source>stats.encounter.kpi.admitted_detail</source>
+        <target>{admitted, number} of {visits, number} visits</target>
+      </trans-unit>
+      <trans-unit id="statsEnc5534fc9f" resname="stats.encounter.info.admitted">
+        <source>stats.encounter.info.admitted</source>
+        <target>Visits with disposition "admitted to this hospital", of all visits of the period. Transfers to another hospital are not included.</target>
+      </trans-unit>
+      <trans-unit id="statsEnc6e8c587b" resname="stats.encounter.time_series.title_day">
+        <source>stats.encounter.time_series.title_day</source>
+        <target>Visits per day</target>
+      </trans-unit>
+      <trans-unit id="statsEnc470299be" resname="stats.encounter.time_series.title_month">
+        <source>stats.encounter.time_series.title_month</source>
+        <target>Visits per month</target>
+      </trans-unit>
+      <trans-unit id="statsEnc07e64cb9" resname="stats.encounter.time_series.empty">
+        <source>stats.encounter.time_series.empty</source>
+        <target>No completed month in this period yet.</target>
+      </trans-unit>
+      <trans-unit id="statsEnc43c81ae3" resname="stats.encounter.info.time_series">
+        <source>stats.encounter.info.time_series</source>
+        <target>Visits by the day of their first assessment, as in the statistics overview: per day for a month, per month otherwise; the current month is left out until it is complete. Counts below 5 are left out of the chart.</target>
       </trans-unit>
     </body>
   </file>

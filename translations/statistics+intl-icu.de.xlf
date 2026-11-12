@@ -7672,18 +7672,6 @@
         <source>stats.encounter.kpi.visits</source>
         <target>Besuche</target>
       </trans-unit>
-      <trans-unit id="statsEncca16d3d1" resname="stats.encounter.kpi.visits_detail">
-        <source>stats.encounter.kpi.visits_detail</source>
-        <target>an {days, number} Tagen aus {imports, plural, one {# Import} other {# Importen}}</target>
-      </trans-unit>
-      <trans-unit id="statsEnc02b299da" resname="stats.encounter.kpi.ems_linked">
-        <source>stats.encounter.kpi.ems_linked</source>
-        <target>RD-Ankünfte verknüpft</target>
-      </trans-unit>
-      <trans-unit id="statsEncba99cec1" resname="stats.encounter.kpi.ems_linked_detail">
-        <source>stats.encounter.kpi.ems_linked_detail</source>
-        <target>{linked, number} von {total, number} RD-Ankünften</target>
-      </trans-unit>
       <trans-unit id="statsEncfd22bfbd" resname="stats.encounter.kpi.physician">
         <source>stats.encounter.kpi.physician</source>
         <target>Median Ankunft → Arzt</target>
@@ -7695,10 +7683,6 @@
       <trans-unit id="statsEnc759cc0e1" resname="stats.encounter.kpi.admitted">
         <source>stats.encounter.kpi.admitted</source>
         <target>Stationäre Aufnahme im Haus</target>
-      </trans-unit>
-      <trans-unit id="statsEncc5bacfe7" resname="stats.encounter.kpi.admitted_detail">
-        <source>stats.encounter.kpi.admitted_detail</source>
-        <target>aller Besuche</target>
       </trans-unit>
       <trans-unit id="statsEnccc6c49f0" resname="stats.encounter.kpi.iqr">
         <source>stats.encounter.kpi.iqr</source>
@@ -7716,10 +7700,6 @@
         <source>stats.encounter.info.categories</source>
         <target>Ersteinschätzung; Re-Triage wird nicht gezählt. Anteile beziehen sich auf alle Besuche.</target>
       </trans-unit>
-      <trans-unit id="statsEnc58c5f423" resname="stats.encounter.info.ems_linked">
-        <source>stats.encounter.info.ems_linked</source>
-        <target>Rettungsdienst-Ankünfte mit automatischer oder bestätigter Verknüpfung zu einer IVENA-Zuweisung, bezogen auf alle Rettungsdienst-Ankünfte. Offene Vorschläge zählen als nicht verknüpft.</target>
-      </trans-unit>
       <trans-unit id="statsEnc39568f70" resname="stats.encounter.info.process">
         <source>stats.encounter.info.process</source>
         <target>Aus den dokumentierten Zeitstempeln in ganzen Minuten Ortszeit berechnet. Gezählt werden Dauern von 0 bis {hours, number} Stunden; negative, längere Dauern und Besuche ohne beide Zeiten sind ausgeschlossen. Median und Quartile werden ab {threshold, number} gezählten Besuchen gezeigt.</target>
@@ -7736,41 +7716,13 @@
         <source>stats.encounter.info.care_levels</source>
         <target>Besuche mit stationärer Aufnahme im Haus oder Verlegung ({visits, number}); Anteile beziehen sich auf diese Besuche.</target>
       </trans-unit>
-      <trans-unit id="statsEnc43c81ae3" resname="stats.encounter.info.time_series">
-        <source>stats.encounter.info.time_series</source>
-        <target>Besuche je Kalenderwoche (Montag) nach dem Tag ihrer Ersteinschätzung, bei Zeiträumen über {days, number} Tagen je Monat. Anzahlen unter 5 fehlen im Diagramm.</target>
-      </trans-unit>
-      <trans-unit id="statsEnce072cc17" resname="stats.encounter.info.links">
-        <source>stats.encounter.info.links</source>
-        <target>Automatische Verknüpfungen sind wirksam und zählen als verknüpft; ihre Herkunft wird getrennt gezeigt. Besuche mit nur offenem Vorschlag oder abgelehntem Paar zählen als nicht verknüpft. Anteile beziehen sich auf alle Besuche.</target>
-      </trans-unit>
       <trans-unit id="statsEnc37221ce6" resname="stats.encounter.info.diagrams">
         <source>stats.encounter.info.diagrams</source>
         <target>Häufigste Diagramme der Ersteinschätzung (bei Gleichstand nach Code). Anteile beziehen sich auf alle Besuche des Zeitraums.</target>
       </trans-unit>
-      <trans-unit id="statsEncf63997a0" resname="stats.encounter.time_series.title_week">
-        <source>stats.encounter.time_series.title_week</source>
-        <target>Besuche je Woche</target>
-      </trans-unit>
-      <trans-unit id="statsEnc470299be" resname="stats.encounter.time_series.title_month">
-        <source>stats.encounter.time_series.title_month</source>
-        <target>Besuche je Monat</target>
-      </trans-unit>
-      <trans-unit id="statsEnc043c471b" resname="stats.encounter.route_link.short_title">
-        <source>stats.encounter.route_link.short_title</source>
-        <target>IVENA-Verknüpfung</target>
-      </trans-unit>
-      <trans-unit id="statsEncb1314360" resname="stats.encounter.details">
-        <source>stats.encounter.details</source>
-        <target>Details</target>
-      </trans-unit>
       <trans-unit id="statsEncc55f030b" resname="stats.encounter.show_all">
         <source>stats.encounter.show_all</source>
         <target>Alle anzeigen</target>
-      </trans-unit>
-      <trans-unit id="statsEncda15813e" resname="stats.encounter.mts.top_short">
-        <source>stats.encounter.mts.top_short</source>
-        <target>Top {top, number} Präsentationen</target>
       </trans-unit>
       <trans-unit id="statsEnc20967f62" resname="stats.encounter.coverage.title">
         <source>stats.encounter.coverage.title</source>
@@ -7791,6 +7743,30 @@
       <trans-unit id="statsEnc78bada98" resname="stats.encounter.no_access">
         <source>stats.encounter.no_access</source>
         <target>Sie dürfen für kein Krankenhaus Behandlungsdaten sehen. Dafür sind eine Behandlungsdaten-Freigabe und die Krankenhausberechtigung „Statistik“ nötig.</target>
+      </trans-unit>
+      <trans-unit id="statsEncc5bacfe7" resname="stats.encounter.kpi.admitted_detail">
+        <source>stats.encounter.kpi.admitted_detail</source>
+        <target>{admitted, number} von {visits, number} Besuchen</target>
+      </trans-unit>
+      <trans-unit id="statsEnc5534fc9f" resname="stats.encounter.info.admitted">
+        <source>stats.encounter.info.admitted</source>
+        <target>Besuche mit Verbleib „stationäre Aufnahme im Haus“, bezogen auf alle Besuche des Zeitraums. Verlegungen in ein anderes Krankenhaus zählen nicht mit.</target>
+      </trans-unit>
+      <trans-unit id="statsEnc6e8c587b" resname="stats.encounter.time_series.title_day">
+        <source>stats.encounter.time_series.title_day</source>
+        <target>Besuche je Tag</target>
+      </trans-unit>
+      <trans-unit id="statsEnc470299be" resname="stats.encounter.time_series.title_month">
+        <source>stats.encounter.time_series.title_month</source>
+        <target>Besuche je Monat</target>
+      </trans-unit>
+      <trans-unit id="statsEnc07e64cb9" resname="stats.encounter.time_series.empty">
+        <source>stats.encounter.time_series.empty</source>
+        <target>In diesem Zeitraum gibt es noch keinen abgeschlossenen Monat.</target>
+      </trans-unit>
+      <trans-unit id="statsEnc43c81ae3" resname="stats.encounter.info.time_series">
+        <source>stats.encounter.info.time_series</source>
+        <target>Besuche nach dem Tag ihrer Ersteinschätzung, wie in der Statistik-Übersicht: je Tag bei einem Monat, sonst je Monat; der laufende Monat fehlt, bis er abgeschlossen ist. Anzahlen unter 5 fehlen im Diagramm.</target>
       </trans-unit>
     </body>
   </file>

@@ -84,12 +84,11 @@ final class EncounterOverviewFactoryTest extends TestCase
         self::assertSame([1.0, 2.0, 3.0, 4.0, 5.0], new ProcessTimeBox('red', new ProcessTimeDistribution('red', 5, 1.0, 2.0, 3.0, 4.0, 5.0))->values);
     }
 
-    public function testWeeksUpTo120DaysThenMonths(): void
+    public function testBucketKeysFollowTheStatisticsTimeSeries(): void
     {
-        $first = new \DateTimeImmutable('2026-01-01 08:00');
-        self::assertSame(TimeGrain::Week, TimeGrain::forSpan($first, $first->modify('+120 days')));
-        self::assertSame(TimeGrain::Month, TimeGrain::forSpan($first, $first->modify('+121 days')));
-        self::assertSame(TimeGrain::Week, TimeGrain::forSpan(null, null));
+        $day = new \DateTimeImmutable('2026-10-11');
+        self::assertSame('2026-10-11', TimeGrain::Day->key($day));
+        self::assertSame('2026-10', TimeGrain::Month->key($day));
     }
 
     /**

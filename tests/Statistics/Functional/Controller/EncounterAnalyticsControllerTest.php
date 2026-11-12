@@ -69,8 +69,11 @@ final class EncounterAnalyticsControllerTest extends WebTestCase
         self::assertSame('< 5', $this->text($crawler, '[data-testid="encounter-routes-segment"][data-key="self"] [data-testid="encounter-count"]'));
         self::assertSame('45 min', $this->text($crawler, '[data-kpi="physician"] [data-testid="encounter-kpi-value"]'));
         self::assertSame('180 min', $this->text($crawler, '[data-kpi="length_of_stay"] [data-testid="encounter-kpi-value"]'));
-        self::assertSame('< 5', $this->text($crawler, '[data-kpi="ems_linked"] [data-testid="encounter-kpi-value"]'), '4 of 7 EMS arrivals linked: suppressed.');
-        self::assertSame('7', $this->text($crawler, '[data-testid="encounter-links-row"][data-key="not_linked"] [data-testid="encounter-count"]'));
+        self::assertSame('< 5', $this->text($crawler, '[data-kpi="admitted"] [data-testid="encounter-kpi-value"]'), 'V1, V2, V4 admitted: suppressed.');
+        self::assertCount(4, $crawler->filter('[data-testid="encounter-kpi"]'));
+        self::assertSame('< 5', $this->text($crawler, '[data-testid="encounter-categories-bar-segment"][data-key="red"] [data-testid="encounter-count"]'));
+        self::assertSame('Visits per day', $this->text($crawler, '[data-testid="encounter-time-series"] .card-title'), 'A month period is drawn per day, as in the statistics overview.');
+        self::assertCount(3, $crawler->filter('[data-testid="encounter-top-diagrams-row"]'));
         self::assertStringContainsString($this->hospitalName($this->hospitalA), $this->text($crawler, '[data-testid="stats-analysis-context-location"]'));
 
         $crawler = $this->page($this->hospitalA, self::OCTOBER + ['tab' => 'link']);

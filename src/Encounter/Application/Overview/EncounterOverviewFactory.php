@@ -30,7 +30,13 @@ final readonly class EncounterOverviewFactory
     ) {
     }
 
-    public function create(int $hospitalId, EncounterPeriod $period): EncounterOverview
+    /**
+     * @param \Closure(array<string, int>): list<string>|null $timeAxis bucket keys to draw (`YYYY-MM-DD` or
+     *                                                                  `YYYY-MM`) from the visits per key; the statistics page passes
+     *                                                                  its axis rules (zero buckets, no incomplete month). Without it:
+     *                                                                  every bucket from the first to the last visit.
+     */
+    public function create(int $hospitalId, EncounterPeriod $period, TimeGrain $grain = TimeGrain::Month, ?\Closure $timeAxis = null): EncounterOverview
     {
         $coverage = $this->reader->coverage($hospitalId, $period);
         $allTime = $period->isAllTime() ? $coverage : $this->reader->coverage($hospitalId, EncounterPeriod::allTime());
@@ -46,8 +52,6 @@ final readonly class EncounterOverviewFactory
             $processTimes[] = new ProcessTimeRow($this->reader->processTime($hospitalId, $period, $interval));
             $processBoxes[$interval->value] = $this->boxes($this->reader->processTimeByCategory($hospitalId, $period, $interval));
         }
-
-        $grain = TimeGrain::forSpan($coverage->firstAnchor, $coverage->lastAnchor);
 
         $routeLinkCounts = $this->reader->visitsByRouteAndLink($hospitalId, $period);
         $routes = [];
@@ -73,7 +77,7 @@ final readonly class EncounterOverviewFactory
             careLevelDenominator: $careLevelDenominator,
             processTimes: $processTimes,
             grain: $grain,
-            timeSeries: 0 === $visits ? [] : $this->timeSeries($this->reader->visitsByBucket($hospitalId, $period, $grain), $grain, $coverage),
+            timeSeries: 0 === $visits ? [] : $this->timeSeries($this->reader->visitsByBucket($hospitalId, $period, $grain), $grain, $timeAxis),
             processBoxes: $processBoxes,
             routes: $routes,
             links: [
@@ -85,37 +89,59 @@ final readonly class EncounterOverviewFactory
     }
 
     /**
-     * Every bucket from the first to the last visit of the period, empty ones as 0.
+     * Buckets of the axis with visits per arrival route; buckets without visits as 0.
      *
-     * @param array<string, array<string, int>> $counts
+     * @param array<string, array<string, int>>               $counts   bucket start `Y-m-d` => route => visits
+     * @param \Closure(array<string, int>): list<string>|null $timeAxis
      *
      * @return list<TimeBucket>
      */
-    private function timeSeries(array $counts, TimeGrain $grain, EncounterCoverage $coverage): array
+    private function timeSeries(array $counts, TimeGrain $grain, ?\Closure $timeAxis): array
     {
-        if (!$coverage->firstAnchor instanceof \DateTimeImmutable || !$coverage->lastAnchor instanceof \DateTimeImmutable) {
-            return [];
+        $byKey = [];
+        foreach ($counts as $start => $routes) {
+            $byKey[$grain->key(new \DateTimeImmutable($start))] = $routes;
         }
 
-        $routes = array_map(static fn (ArrivalRoute $route): string => $route->value, ArrivalRoute::cases());
-        $step = TimeGrain::Week === $grain ? '+1 week' : '+1 month';
-        $bucket = $this->bucketStart($coverage->firstAnchor, $grain);
-        $last = $this->bucketStart($coverage->lastAnchor, $grain);
+        $totals = [];
+        foreach ($byKey as $key => $routes) {
+            $totals[$key] = (int) array_sum($routes);
+        }
+        $keys = $timeAxis instanceof \Closure ? $timeAxis($totals) : $this->observedAxis(array_keys($totals), $grain);
 
+        $routes = array_map(static fn (ArrivalRoute $route): string => $route->value, ArrivalRoute::cases());
         $series = [];
-        while ($bucket <= $last) {
-            $series[] = new TimeBucket($bucket, $counts[$bucket->format('Y-m-d')] ?? [], $routes);
-            $bucket = $bucket->modify($step);
+        foreach ($keys as $key) {
+            $start = new \DateTimeImmutable(TimeGrain::Day === $grain ? $key : $key.'-01');
+            $series[] = new TimeBucket($start, $byKey[$key] ?? [], $routes);
         }
 
         return $series;
     }
 
-    private function bucketStart(\DateTimeImmutable $at, TimeGrain $grain): \DateTimeImmutable
+    /**
+     * @param list<string> $keys
+     *
+     * @return list<string>
+     */
+    private function observedAxis(array $keys, TimeGrain $grain): array
     {
-        $day = new \DateTimeImmutable($at->format('Y-m-d'));
+        if ([] === $keys) {
+            return [];
+        }
 
-        return TimeGrain::Week === $grain ? $day->modify('monday this week') : $day->modify('first day of this month');
+        sort($keys);
+        $step = TimeGrain::Day === $grain ? '+1 day' : '+1 month';
+        $bucket = new \DateTimeImmutable(TimeGrain::Day === $grain ? $keys[0] : $keys[0].'-01');
+        $last = end($keys);
+
+        $axis = [];
+        while ($grain->key($bucket) <= $last) {
+            $axis[] = $grain->key($bucket);
+            $bucket = $bucket->modify($step);
+        }
+
+        return $axis;
     }
 
     /**

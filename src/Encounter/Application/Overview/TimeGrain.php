@@ -5,22 +5,17 @@ declare(strict_types=1);
 namespace App\Encounter\Application\Overview;
 
 /**
- * Bucket size of the visits time series (#1055): calendar weeks (Monday) for spans up to
- * MAX_WEEK_SPAN_DAYS, calendar months above.
+ * Bucket size of the visits time series (#1055). The statistics page chooses it from the statistics
+ * period as every statistics time series does: a month period in days, every other period in months.
  */
 enum TimeGrain: string
 {
-    case Week = 'week';
+    case Day = 'day';
     case Month = 'month';
 
-    public const int MAX_WEEK_SPAN_DAYS = 120;
-
-    public static function forSpan(?\DateTimeImmutable $first, ?\DateTimeImmutable $last): self
+    /** Key of a bucket starting at $start, as the statistics time series use it: `YYYY-MM-DD` or `YYYY-MM`. */
+    public function key(\DateTimeImmutable $start): string
     {
-        if (!$first instanceof \DateTimeImmutable || !$last instanceof \DateTimeImmutable) {
-            return self::Week;
-        }
-
-        return $first->diff($last)->days > self::MAX_WEEK_SPAN_DAYS ? self::Month : self::Week;
+        return self::Day === $this ? $start->format('Y-m-d') : $start->format('Y-m');
     }
 }

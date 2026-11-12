@@ -1,0 +1,23 @@
+{# Distribution card for few categories: segmented bar, then one category per line (dot, label, count, share). Suppressed segments are not drawn; the line shows "< 5". #}
+<div class="card" data-testid="{{ testid }}">
+    {{ include('@Statistics/encounter_analytics/_card_header.html.twig') }}
+    <div class="card-body py-3">
+        <div class="progress progress-separated mb-2">
+            {% for seg in segments %}
+                {% if seg.share is not null %}
+                    <div class="progress-bar {{ colors[seg.key] ?? 'bg-secondary' }}" style="width: {{ seg.share }}%" aria-label="{{ labels[seg.key] ?? seg.key }}"></div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% for seg in segments|filter(s => s.count.suppressed or s.count.value > 0) %}
+            <div class="d-flex align-items-center gap-2 py-1" data-testid="{{ testid }}-segment" data-key="{{ seg.key }}">
+                <span class="legend {{ colors[seg.key] ?? 'bg-secondary' }}"></span>
+                <span class="text-truncate">{{ labels[seg.key] ?? seg.key }}</span>
+                <span class="ms-auto text-secondary text-nowrap">
+                    <span data-testid="encounter-count">{{ include('@Encounter/glossary/_count.html.twig', {count: seg.count}) }}</span>
+                    {% if seg.share is not null %}&nbsp;&nbsp;{{ seg.share|format_number({fraction_digit: 1}) }}&nbsp;%{% endif %}
+                </span>
+            </div>
+        {% endfor %}
+    </div>
+</div>

@@ -7,11 +7,15 @@ namespace App\Statistics\UI\Http\Controller;
 use App\Encounter\Application\Overview\AggregateHospitalScope;
 use App\Encounter\Application\Overview\EncounterOverviewFactory;
 use App\Encounter\Application\Overview\EncounterPeriod;
+use App\Encounter\Application\Overview\TimeGrain;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsPeriodResolver;
+use App\Statistics\Application\TimeSeries\TimeSeriesAxisFiller;
+use App\Statistics\Application\TimeSeries\TimeSeriesGrainResolver;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -41,6 +45,7 @@ final class EncounterAnalyticsController extends AbstractController
         private readonly EncounterOverviewFactory $overviewFactory,
         private readonly AnalysisContextViewModelFactory $analysisContextFactory,
         private readonly OverviewPeriodViewModelFactory $periodViewModelFactory,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -63,7 +68,15 @@ final class EncounterAnalyticsController extends AbstractController
         }
 
         $bounds = StatisticsPeriodResolver::resolve($filter);
-        $overview = $this->overviewFactory->create($requested, EncounterPeriod::fromBounds($bounds->from, $bounds->toExclusive));
+        // Same time axis as every statistics time series: days for a month, months otherwise; no incomplete month.
+        $statisticsGrain = TimeSeriesGrainResolver::resolve($filter->period);
+        $now = $this->clock->now();
+        $overview = $this->overviewFactory->create(
+            $requested,
+            EncounterPeriod::fromBounds($bounds->from, $bounds->toExclusive),
+            TimeGrain::from($statisticsGrain->value),
+            static fn (array $visitsByKey): array => array_column(TimeSeriesAxisFiller::fill($statisticsGrain, $bounds, $visitsByKey, $now), 'key'),
+        );
         $period = $this->periodViewModelFactory->create($request, self::ROUTE, $filter);
         $tab = \in_array($request->query->getString('tab'), self::TABS, true) ? $request->query->getString('tab') : self::TABS[0];
         $tabQuery = $request->query->all();

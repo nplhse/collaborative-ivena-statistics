@@ -19,7 +19,7 @@ final readonly class EncounterOverview
      * @param list<OverviewCount>                 $dispositions dispositions in code order, then ''; of all visits
      * @param list<OverviewCount>                 $careLevels   care levels, then ''; of admissions and external transfers
      * @param list<ProcessTimeRow>                $processTimes
-     * @param list<TimeBucket>                    $timeSeries   every bucket of the covered span, empty ones included
+     * @param list<TimeBucket>                    $timeSeries   buckets of the time axis, empty ones included
      * @param array<string, list<ProcessTimeBox>> $processBoxes interval => boxes in MTS order, then ''
      * @param list<OverviewCount>                 $routes       visits per arrival route (ems, self, unknown); of all visits
      * @param list<OverviewCount>                 $links        visits per link status (automatic, confirmed, not_linked); of all visits
@@ -36,7 +36,7 @@ final readonly class EncounterOverview
         public array $careLevels,
         public int $careLevelDenominator,
         public array $processTimes,
-        public TimeGrain $grain = TimeGrain::Week,
+        public TimeGrain $grain = TimeGrain::Month,
         public array $timeSeries = [],
         public array $processBoxes = [],
         public array $routes = [],
