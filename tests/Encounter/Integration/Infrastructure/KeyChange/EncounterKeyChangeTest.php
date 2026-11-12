@@ -254,7 +254,6 @@ final class EncounterKeyChangeTest extends KernelTestCase
         $actor = $this->entityManager()->find(User::class, (int) $this->owner->getId());
 
         $changer->change($hospital, $option, $actor);
-        $this->entityManager()->clear();
 
         return $this->keyState()['generation'];
     }

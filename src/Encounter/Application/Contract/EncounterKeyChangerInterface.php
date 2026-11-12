@@ -15,6 +15,8 @@ use App\User\Domain\Entity\User;
 interface EncounterKeyChangerInterface
 {
     /**
+     * Moves the hospital to the next key generation; read it from the key state afterwards.
+     *
      * @throws EncounterKeyChangeInProgressException
      */
     public function change(Hospital $hospital, EncounterKeyChangeOption $option, ?User $actor): void;
