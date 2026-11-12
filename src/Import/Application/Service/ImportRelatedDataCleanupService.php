@@ -7,6 +7,7 @@ namespace App\Import\Application\Service;
 use App\Allocation\Infrastructure\Repository\AllocationRepository;
 use App\Allocation\Infrastructure\Repository\ClosureIntervalRepository;
 use App\Allocation\Infrastructure\Repository\MciCaseRepository;
+use App\Import\Application\Contracts\ImportDataRemoverInterface;
 use App\Import\Application\DTO\ImportDataRemoval;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Repository\ImportRejectRepository;
@@ -18,6 +19,7 @@ use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGro
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 
 final readonly class ImportRelatedDataCleanupService
@@ -36,6 +38,9 @@ final readonly class ImportRelatedDataCleanupService
         #[Target('import')]
         private LoggerInterface $importLogger,
         private ImportFileStorage $fileStorage,
+        /** @var iterable<ImportDataRemoverInterface> */
+        #[AutowireIterator(ImportDataRemoverInterface::TAG)]
+        private iterable $dataRemovers = [],
     ) {
     }
 
@@ -58,20 +63,26 @@ final readonly class ImportRelatedDataCleanupService
         $importId = (int) $import->getId();
         $needsMaterializedViewRefresh = $this->projectionOverviewChangeDetector->willRemoveHospitalsFromProjection($importId);
 
-        $counts = $this->em->wrapInTransaction(function () use ($import, $importId): array {
+        [$counts, $contributedCounts] = $this->em->wrapInTransaction(function () use ($import, $importId): array {
             $assessmentIds = $this->collectAssessmentIdsForImport($importId);
 
-            return [
+            // Data of other contexts first: it may reference the import's own rows.
+            $contributedCounts = [];
+            foreach ($this->dataRemovers as $remover) {
+                $contributedCounts[$remover->key()] = $remover->removeForImport($importId);
+            }
+
+            return [[
                 'projection' => $this->statsProjectionRebuilder->deleteForImport($importId),
                 'rejects' => $this->importRejectRepository->deleteByImport($import),
                 'allocations' => $this->allocationRepository->deleteByImport($import),
                 'closure_intervals' => $this->closureIntervalRepository->deleteByImport($import),
                 'assessments' => $this->deleteAssessmentsByIds($assessmentIds),
                 'mci_cases' => $this->mciCaseRepository->deleteByImport($import),
-            ];
+            ], $contributedCounts];
         });
 
-        return new ImportDataRemoval($counts, $needsMaterializedViewRefresh);
+        return new ImportDataRemoval($counts, $needsMaterializedViewRefresh, $contributedCounts);
     }
 
     /**
@@ -110,6 +121,15 @@ final readonly class ImportRelatedDataCleanupService
             $counts['closure_intervals'],
             $counts['mci_cases'],
         );
+
+        foreach ($removal->contributedCounts as $key => $deleted) {
+            if ($deleted > 0) {
+                $this->importLogger->info('import.'.$key.'.cleared', [
+                    'import_id' => $importId,
+                    'deleted' => $deleted,
+                ]);
+            }
+        }
 
         return $deferredRefresh;
     }

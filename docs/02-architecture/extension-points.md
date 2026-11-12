@@ -110,16 +110,37 @@ Lets other contexts add a sidebar group with links to the hospital edit pages wi
 the page. A page that wants its link highlighted passes `activeSection: '<section key>.<link key>'` to the
 edit shell.
 
-## Encounter schemas (planned)
+## Import data removers
+
+**Tag:** `import.data_remover`
+
+**Interface:** `ImportDataRemoverInterface` (`src/Import/Application/Contracts/`)
+
+**Consumer:** `ImportRelatedDataCleanupService::removeRows()`, used by import deletion and by the cleanup
+before a reprocess or a redelivered run
+
+**Implementations:** `EncounterImportDataRemover` (encounters created by the import, #1047)
+
+Lets a context that stores rows per import remove them together with the import's own rows, in the same
+transaction, without a dependency from `Import` on that context. `key()` names the count in the cleanup
+log (`import.<key>.cleared`). Removers run before the allocation rows are deleted.
+
+## Encounter schemas
 
 **Tag:** `encounter.dimension`
 
-**Interface:** `EncounterDimensionInterface`
+**Interface:** `EncounterDimensionInterface` (`src/Encounter/Application/Dimension/`)
 
-Introduced with the encounter data model (#1047). Each schema of the canonical exchange format
-(`ed_visit`; later `inpatient_stay`, `diagnosis`, `procedure`) provides its field contract, row
-validation and persistence. Vendor formats are not server extensions; they are source profiles of
-the data preparation tool. See [ADR 025](decisions/025-encounter-data-context-and-exchange-format.md).
+**Registry:** `EncounterDimensionRegistry` (by schema name)
+
+**Implementations:** `EdVisitDimension` (`ed_visit` v1, #1047)
+
+Each schema of the canonical exchange format (`ed_visit`; later `inpatient_stay`, `diagnosis`,
+`procedure`) provides its supported versions and, per version, the field contract in header order:
+name, type (`EncounterFieldType`), required flag, code list and range. Parsing and validating files
+against the contract is the encounter import (#1048). Vendor formats are not server extensions; they
+are source profiles of the data preparation tool. See
+[ADR 025](decisions/025-encounter-data-context-and-exchange-format.md).
 
 ## Related documentation
 

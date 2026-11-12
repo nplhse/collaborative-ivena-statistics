@@ -133,7 +133,7 @@ jobs:
               uses: shivammathur/setup-php@v2
               with:
                   coverage: pcov
-                  extensions: "intl, mbstring, pdo_pgsql, zip"
+                  extensions: "intl, mbstring, pdo_pgsql, pgsql, zip"
                   php-version: '8.4'
                   tools: composer:v2
 
