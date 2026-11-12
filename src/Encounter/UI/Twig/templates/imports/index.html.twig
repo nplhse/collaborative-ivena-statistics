@@ -1,0 +1,62 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+{% import '@Shared/_macros/status.html.twig' as macros %}
+
+{% block title %}{{ 'encounter.import.list.title'|trans({}, 'encounter') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    {{ include('@Encounter/imports/_header.html.twig', {
+        title: 'encounter.import.list.title'|trans({}, 'encounter'),
+        breadcrumbs: [
+            {label: 'encounter.nav', label_domain: 'encounter', path: path('app_encounter_index')},
+            {label: 'encounter.import.list.title', label_domain: 'encounter'},
+        ],
+    }) }}
+{% endblock %}
+
+{% block page_content %}
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">{{ 'encounter.import.list.title'|trans({}, 'encounter') }}</h3>
+            {% if can_upload %}
+                <div class="card-actions">
+                    <a class="btn btn-primary" href="{{ path('app_encounter_import_new') }}" data-test="encounter-import-new">
+                        <twig:ux:icon name="tabler:file-import" class="w-3 h-3" />&nbsp;{{ 'encounter.import.action.new'|trans({}, 'encounter') }}
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        {% if imports is empty %}
+            <div class="card-body">
+                <p class="text-secondary mb-0" data-test="encounter-imports-empty">{{ 'encounter.import.list.empty'|trans({}, 'encounter') }}</p>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table card-table table-vcenter">
+                    <thead>
+                        <tr>
+                            <th>{{ 'encounter.import.field.name'|trans({}, 'encounter') }}</th>
+                            <th>{{ 'encounter.import.field.hospital'|trans({}, 'encounter') }}</th>
+                            <th>{{ 'encounter.import.field.status'|trans({}, 'encounter') }}</th>
+                            <th class="text-end">{{ 'encounter.import.count.inserted'|trans({}, 'encounter') }}</th>
+                            <th class="text-end">{{ 'encounter.import.count.duplicates'|trans({}, 'encounter') }}</th>
+                            <th>{{ 'encounter.import.field.created_at'|trans({}, 'encounter') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for encounter_import in imports %}
+                            {% set import = encounter_import.import %}
+                            <tr data-test="encounter-import-row">
+                                <td><a href="{{ path('app_encounter_import_show', {id: import.id}) }}">{{ import.name }}</a></td>
+                                <td>{{ import.hospital.name }}</td>
+                                <td>{{ macros.import_status(import.status.value) }}</td>
+                                <td class="text-end">{{ encounter_import.inserted|format_number }}</td>
+                                <td class="text-end">{{ encounter_import.duplicates|format_number }}</td>
+                                <td>{{ import.createdAt|format_datetime('short', 'short') }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

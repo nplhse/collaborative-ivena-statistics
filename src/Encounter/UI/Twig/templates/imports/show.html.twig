@@ -1,0 +1,179 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+{% import '@Shared/_macros/status.html.twig' as macros %}
+
+{% block title %}{{ import.name }} - {{ 'encounter.import.list.title'|trans({}, 'encounter') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    {{ include('@Encounter/imports/_header.html.twig', {
+        title: import.name,
+        breadcrumbs: [
+            {label: 'encounter.nav', label_domain: 'encounter', path: path('app_encounter_index')},
+            {label: 'encounter.import.list.title', label_domain: 'encounter', path: path('app_encounter_imports')},
+            {label: import.name, translatable: false},
+        ],
+    }) }}
+{% endblock %}
+
+{% block page_content %}
+    {% if encounter_import.fileRejection is not null %}
+        <div class="alert alert-danger" role="alert" data-test="encounter-file-rejection">
+            <h4 class="alert-title">{{ 'encounter.import.rejected.title'|trans({}, 'encounter') }}</h4>
+            <div>{{ ('encounter.import.rejection.' ~ encounter_import.fileRejection.value)|trans({}, 'encounter') }}</div>
+            {% if encounter_import.sourceFileDeleted %}
+                <div class="mt-1" data-test="encounter-source-deleted">{{ 'encounter.import.rejected.source_deleted'|trans({}, 'encounter') }}</div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="row row-cards">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ 'encounter.import.report.title'|trans({}, 'encounter') }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="datagrid">
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.import.field.status'|trans({}, 'encounter') }}</div>
+                            <div class="datagrid-content">{{ macros.import_status(import.status.value) }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.import.field.hospital'|trans({}, 'encounter') }}</div>
+                            <div class="datagrid-content">{{ import.hospital.name }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.import.count.total'|trans({}, 'encounter') }}</div>
+                            <div class="datagrid-content" data-test="count-total">{{ import.rowCount|format_number }}</div>
+                        </div>
+                        {% for key in ['inserted', 'duplicates', 'skipped', 'rejected', 'suspectedDuplicates'] %}
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ ('encounter.import.count.' ~ key)|trans({}, 'encounter') }}</div>
+                                <div class="datagrid-content" data-test="count-{{ key }}">{{ attribute(encounter_import, key)|format_number }}</div>
+                            </div>
+                        {% endfor %}
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.import.field.profile'|trans({}, 'encounter') }}</div>
+                            <div class="datagrid-content">{{ encounter_import.profile ?? '–' }}{% if encounter_import.profileVersion %} v{{ encounter_import.profileVersion }}{% endif %}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.import.field.tool_version'|trans({}, 'encounter') }}</div>
+                            <div class="datagrid-content">{{ encounter_import.toolVersion ?? '–' }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.import.field.key_generation'|trans({}, 'encounter') }}</div>
+                            <div class="datagrid-content">{{ encounter_import.keyGeneration }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.import.field.confirmation'|trans({}, 'encounter') }}</div>
+                            <div class="datagrid-content" data-test="encounter-confirmation">
+                                {{ encounter_import.confirmedBy.username ?? '–' }}, {{ encounter_import.confirmedAt|format_datetime('short', 'short') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3" data-test="encounter-suspected-duplicates">
+                <div class="card-header">
+                    <h3 class="card-title">{{ 'encounter.import.suspected.title'|trans({}, 'encounter') }}</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-secondary">{{ 'encounter.import.suspected.intro'|trans({}, 'encounter') }}</p>
+                    {% if suspected_duplicates is empty %}
+                        <p class="text-secondary mb-0">{{ 'encounter.import.suspected.empty'|trans({}, 'encounter') }}</p>
+                    {% endif %}
+                </div>
+                {% if suspected_duplicates is not empty %}
+                    <div class="table-responsive">
+                        <table class="table card-table table-vcenter">
+                            <thead>
+                                <tr>
+                                    <th>{{ 'encounter.import.column.line'|trans({}, 'encounter') }}</th>
+                                    <th>{{ 'encounter.import.column.difference_minutes'|trans({}, 'encounter') }}</th>
+                                    <th>{{ 'encounter.import.column.anchor'|trans({}, 'encounter') }}</th>
+                                    <th>{{ 'encounter.import.column.existing_import'|trans({}, 'encounter') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for duplicate in suspected_duplicates %}
+                                    <tr data-test="suspected-duplicate-row">
+                                        <td>{{ duplicate.line }}</td>
+                                        <td>{{ duplicate.difference_minutes }}</td>
+                                        <td>{{ ('encounter.import.anchor.' ~ duplicate.anchor_source)|trans({}, 'encounter') }} / {{ ('encounter.import.anchor.' ~ duplicate.existing_anchor_source)|trans({}, 'encounter') }}</td>
+                                        <td>{{ duplicate.existing_import_name }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="card mt-3" data-test="encounter-rejects">
+                <div class="card-header">
+                    <h3 class="card-title">{{ 'encounter.import.rejects.title'|trans({}, 'encounter') }}</h3>
+                </div>
+                {% if rejects is empty %}
+                    <div class="card-body">
+                        <p class="text-secondary mb-0">{{ 'encounter.import.rejects.empty'|trans({}, 'encounter') }}</p>
+                    </div>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table card-table table-vcenter">
+                            <thead>
+                                <tr>
+                                    <th>{{ 'encounter.import.column.line'|trans({}, 'encounter') }}</th>
+                                    <th>{{ 'encounter.import.column.errors'|trans({}, 'encounter') }}</th>
+                                    <th>{{ 'encounter.import.column.profile_version'|trans({}, 'encounter') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reject in rejects %}
+                                    <tr data-test="reject-row">
+                                        <td>{{ reject.line }}</td>
+                                        <td><code>{{ reject.errors|join(', ') }}</code></td>
+                                        <td>{{ reject.profile_version ?? '–' }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if rejects|length >= list_limit %}
+                        <div class="card-footer text-secondary">{{ 'encounter.import.list_limited'|trans({limit: list_limit}, 'encounter') }}</div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ 'encounter.import.reprocess.title'|trans({}, 'encounter') }}</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-secondary" data-test="encounter-reprocess-warning">{{ 'encounter.import.reprocess.warning'|trans({}, 'encounter') }}</p>
+                    {% if can_reprocess and import.status.value != 'Running' %}
+                        <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#encounter-import-reprocess-modal">
+                            <twig:ux:icon name="tabler:refresh" class="w-3 h-3" />&nbsp;{{ 'encounter.import.action.reprocess'|trans({}, 'encounter') }}
+                        </button>
+                    {% elseif not can_reprocess %}
+                        <p class="text-secondary mb-0">{{ 'encounter.import.reprocess.unavailable'|trans({}, 'encounter') }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if can_reprocess and import.status.value != 'Running' %}
+        <twig:ConfirmModal
+            id="encounter-import-reprocess-modal"
+            :title="'encounter.import.reprocess.title'|trans({}, 'encounter')"
+            :message="'encounter.import.reprocess.warning'|trans({}, 'encounter')"
+            :action="path('app_encounter_import_reprocess', {id: import.id})"
+            :csrfToken="csrf_token('encounter_import_reprocess_' ~ import.id)"
+            :confirmLabel="'encounter.import.action.reprocess'|trans({}, 'encounter')"
+            :cancelLabel="'action.cancel'|trans({}, 'messages')"
+            confirmVariant="primary"
+        />
+    {% endif %}
+{% endblock %}

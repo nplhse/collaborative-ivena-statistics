@@ -1,0 +1,36 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'encounter.import.new.title'|trans({}, 'encounter') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    {{ include('@Encounter/imports/_header.html.twig', {
+        title: 'encounter.import.new.title'|trans({}, 'encounter'),
+        breadcrumbs: [
+            {label: 'encounter.nav', label_domain: 'encounter', path: path('app_encounter_index')},
+            {label: 'encounter.import.list.title', label_domain: 'encounter', path: path('app_encounter_imports')},
+            {label: 'encounter.import.new.title', label_domain: 'encounter'},
+        ],
+    }) }}
+{% endblock %}
+
+{% block page_content %}
+    <div class="card">
+        {{ form_start(form) }}
+        <div class="card-body">
+            <div class="alert alert-info" role="note">
+                <p class="mb-1">{{ 'encounter.import.new.intro'|trans({}, 'encounter') }}</p>
+                <a href="{{ path('app_encounter_index') }}" data-test="encounter-tool-link">{{ 'encounter.import.new.tool_link'|trans({}, 'encounter') }}</a>
+            </div>
+            {{ form_row(form.hospital) }}
+            {{ form_row(form.name) }}
+            {{ form_row(form.schema) }}
+            {{ form_row(form.file) }}
+            {{ form_row(form.confirmation) }}
+        </div>
+        <div class="card-footer d-flex justify-content-end gap-2">
+            <a class="btn btn-link" href="{{ path('app_encounter_imports') }}">{{ 'action.cancel'|trans({}, 'messages') }}</a>
+            <button class="btn btn-primary" type="submit">{{ 'encounter.import.action.upload'|trans({}, 'encounter') }}</button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
