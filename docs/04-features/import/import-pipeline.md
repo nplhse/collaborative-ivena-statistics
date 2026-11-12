@@ -106,7 +106,8 @@ When an import is deleted (UI, admin or a [bulk deletion](bulk-actions.md#delete
 - Related allocations, assessments, MCI cases, and projection rows
 - Rows other contexts stored for the import, through `ImportDataRemoverInterface` implementations
   ([extension point](../../02-architecture/extension-points.md#import-data-removers)); today the encounters the import
-  created ([encounter README](../encounter/README.md#model))
+  created ([encounter README](../encounter/README.md#model)) and the encounter links of its allocations or
+  visits ([matching](../encounter/README.md#matching))
 - Batch-run history entries for that import
 - The uploaded source file under `var/imports/...`
 - The reject CSV file, if one was written during processing
