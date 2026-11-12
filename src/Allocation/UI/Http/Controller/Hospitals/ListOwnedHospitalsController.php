@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\Controller\Hospitals;
 
-use App\Allocation\Infrastructure\Repository\HospitalRepository;
+use App\Allocation\Application\Hospital\MyHospitals\MyHospitalsScopeResolver;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,7 +15,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class ListOwnedHospitalsController extends AbstractController
 {
     public function __construct(
-        private readonly HospitalRepository $hospitalRepository,
+        private readonly MyHospitalsScopeResolver $myHospitalsScopeResolver,
     ) {
     }
 
@@ -28,7 +28,7 @@ final class ListOwnedHospitalsController extends AbstractController
         }
 
         return $this->render('@Allocation/hospitals/owned_list.html.twig', [
-            'hospitals' => $this->hospitalRepository->findOwnedByUser($user),
+            'scope' => $this->myHospitalsScopeResolver->resolve($user),
         ]);
     }
 }

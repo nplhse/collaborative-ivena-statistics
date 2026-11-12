@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Functional\Controller\Hospitals;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Tests\Support\Translation\AssertsNoMissingTranslations;
@@ -77,6 +80,68 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h2.page-title', 'My Hospitals');
         self::assertSelectorTextContains('table', 'Owned Hospital');
+        self::assertSelectorTextNotContains('table', 'Foreign Hospital');
+    }
+
+    public function testHospitalsIndexShowsGrantedHospitalsWithoutEditActions(): void
+    {
+        $client = self::createClient();
+
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $grantee = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+
+        $granted = HospitalFactory::createOne([
+            'name' => 'Granted Hospital',
+            'owner' => $owner,
+            'createdBy' => $owner,
+        ]);
+        $withoutView = HospitalFactory::createOne([
+            'name' => 'Grant Without View',
+            'owner' => $owner,
+            'createdBy' => $owner,
+        ]);
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $granted,
+            'user' => $grantee,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View]),
+            'createdBy' => $owner,
+        ]);
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $withoutView,
+            'user' => $grantee,
+            'permissions' => 0,
+            'createdBy' => $owner,
+        ]);
+
+        $client->loginUser($grantee);
+        $client->request(Request::METHOD_GET, '/hospitals');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('table', 'Granted Hospital');
+        self::assertSelectorTextNotContains('table', 'Grant Without View');
+        self::assertSelectorNotExists('a[href="/hospitals/'.$granted->getId().'/edit"]');
+        self::assertSelectorNotExists('a[href="/hospitals/'.$granted->getId().'/edit/access"]');
+    }
+
+    public function testHospitalsIndexDoesNotListForeignHospitalsForAdmin(): void
+    {
+        $client = self::createClient();
+
+        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+
+        HospitalFactory::createOne(['name' => 'Admin Hospital', 'owner' => $admin, 'createdBy' => $admin]);
+        HospitalFactory::createOne(['name' => 'Foreign Hospital', 'owner' => $owner, 'createdBy' => $owner]);
+
+        $client->loginUser($admin);
+        $client->request(Request::METHOD_GET, '/hospitals');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('table', 'Admin Hospital');
         self::assertSelectorTextNotContains('table', 'Foreign Hospital');
     }
 

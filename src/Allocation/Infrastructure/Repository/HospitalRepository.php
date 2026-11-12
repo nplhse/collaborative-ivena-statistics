@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Allocation\Infrastructure\Repository;
 
 use App\Allocation\Application\Contracts\HospitalLookupInterface;
+use App\Allocation\Application\Contracts\MyHospitalsReaderInterface;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Entity\HospitalAccessGrant;
 use App\Allocation\Domain\Entity\State;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalPermission;
@@ -18,13 +20,14 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Hospital>
  */
-final class HospitalRepository extends ServiceEntityRepository implements HospitalLookupInterface
+final class HospitalRepository extends ServiceEntityRepository implements HospitalLookupInterface, MyHospitalsReaderInterface
 {
     use PublicIdRepositoryTrait;
 
@@ -169,20 +172,37 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
     }
 
     /**
-     * @return list<Hospital>
+     * Unlike {@see getQueryBuilderForHospitalsWithPermission()} there is no admin bypass.
+     *
+     * @return list<array{hospital: Hospital, owned: bool, grantPermissions: int|null}>
      */
-    public function findOwnedByUser(User $user): array
+    #[\Override]
+    public function findOwnedOrGrantedForUser(User $user): array
     {
-        /** @var list<Hospital> $hospitals */
-        $hospitals = $this->createQueryBuilder('h')
-            ->innerJoin('h.owner', 'o')
-            ->andWhere('o = :user')
-            ->setParameter('user', $user->getId())
+        $userId = $user->getId();
+        if (null === $userId) {
+            return [];
+        }
+
+        /** @var list<array{0: Hospital, ownerId: int|string|null, grantPermissions: int|string|null}> $rows */
+        $rows = $this->createQueryBuilder('h')
+            ->addSelect('IDENTITY(h.owner) AS ownerId', 'g.permissions AS grantPermissions')
+            ->leftJoin(HospitalAccessGrant::class, 'g', Join::WITH, 'g.hospital = h AND IDENTITY(g.user) = :userId')
+            ->andWhere('IDENTITY(h.owner) = :userId OR g.id IS NOT NULL')
+            ->setParameter('userId', $userId, Types::INTEGER)
             ->orderBy('h.name', 'ASC')
+            ->addOrderBy('h.id', 'ASC')
             ->getQuery()
             ->getResult();
 
-        return $hospitals;
+        return array_map(
+            static fn (array $row): array => [
+                'hospital' => $row[0],
+                'owned' => null !== $row['ownerId'] && (int) $row['ownerId'] === $userId,
+                'grantPermissions' => null === $row['grantPermissions'] ? null : (int) $row['grantPermissions'],
+            ],
+            $rows,
+        );
     }
 
     public function hospitalListQuery(HospitalQueryParametersDTO $queryParametersDTO): QueryBuilder

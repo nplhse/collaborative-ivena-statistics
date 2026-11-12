@@ -4,6 +4,7 @@
 
 | Document | Description |
 |----------|-------------|
+| [my-hospitals.md](my-hospitals.md) | My Hospitals page: listed hospitals and permissions |
 | [explore-allocation-list.md](explore-allocation-list.md) | Allocation list route and filters |
 | [explore-mci-cases.md](explore-mci-cases.md) | MCI case list, MCI ID index, and cross-reference |
 | [orientation-map.md](orientation-map.md) | Explore orientation map (pins, isochrones, Hessen polygons) |
