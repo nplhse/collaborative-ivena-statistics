@@ -28,7 +28,7 @@ A separate grant in the `Encounter` context (user, hospital, actions), checked b
 
 | Action | Allows |
 |---|---|
-| `UPLOAD` | encounter imports for the hospital, viewing and downloading its retained upload files, reprocessing them; does **not** include the key change |
+| `UPLOAD` | encounter imports for the hospital, viewing and downloading its retained upload files, reprocessing them and deleting them; does **not** include the key change |
 | `REVIEW` | match review decisions; implies `VIEW_CASES` |
 | `VIEW_CASES` | case-level views: visit lists, the case card on an allocation, direct URLs |
 

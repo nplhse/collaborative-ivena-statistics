@@ -10,11 +10,15 @@ enum ImportType: string
 
     case CLOSURE = 'Closure';
 
+    /** Canonical encounter exchange files (ADR 025); processed by the Encounter context. */
+    case ENCOUNTER = 'Encounter';
+
     public function getType(): string
     {
         return match ($this) {
             self::ALLOCATION => self::ALLOCATION->value,
             self::CLOSURE => self::CLOSURE->value,
+            self::ENCOUNTER => self::ENCOUNTER->value,
         };
     }
 
@@ -26,6 +30,7 @@ enum ImportType: string
         return [
             self::ALLOCATION->value,
             self::CLOSURE->value,
+            self::ENCOUNTER->value,
         ];
     }
 }

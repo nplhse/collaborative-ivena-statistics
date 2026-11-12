@@ -82,11 +82,20 @@ Rules:
 - Glucose is exchanged in whole mg/dl. Sources with decimals (ORBIS writes for example `999.99 mg/dl`)
   are rounded half up by the tool (`99.5` → `100`, `99.49` → `99`) before the range check; the server
   rejects a glucose value with decimals.
-- Plausibility ranges and catalogs are finalised in #1048 and #1051 and documented here.
-- MTS diagram and indicator codes: until the MTS catalog is fixed (#1048, #1056), the tool derives the
-  code from the German label (lowercase, umlauts transliterated, other characters `_`, cut at 64
-  characters without leading or trailing `_`), for example `Abdominelle Schmerzen bei Erwachsenen` → `abdominelle_schmerzen_bei_erwachsenen`;
-  the labels are listed in `src/Encounter/UI/DataPrep/catalogs/mts-de.json`.
+- The server checks every field against this table (#1048): ranges are inclusive, temperature has at most
+  one decimal, integers have none, timestamps are exactly `YYYY-MM-DDTHH:MM`. A value outside its range
+  or code list rejects the row, never the file.
+- MTS diagram and indicator codes (and their retriage counterparts): until the MTS catalog is fixed
+  (#1056), the tool derives the code from the German label (lowercase, umlauts transliterated, other
+  characters `_`; the slug is cut at 64 characters before leading and trailing `_` are trimmed, #1073),
+  for example `Abdominelle Schmerzen bei Erwachsenen` → `abdominelle_schmerzen_bei_erwachsenen`; the
+  labels are listed in `src/Encounter/UI/DataPrep/catalogs/mts-de.json`. The server accepts any value
+  matching `^[a-z0-9_]{1,64}$` and rejects the row otherwise.
+- `admitting_department` is the name of a department of the reference catalog (case-insensitive); an
+  unknown or ambiguous name rejects the row.
+- Unknown manifest keys are ignored; required are the eight keys of the example line.
+- What the server rejects as a whole file and what it deletes at once:
+  [README, Import](README.md#import).
 
 ## Visit fingerprint `ed-visit:v1`
 

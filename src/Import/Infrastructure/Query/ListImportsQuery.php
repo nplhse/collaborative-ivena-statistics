@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Import\Infrastructure\Query;
 
+use App\Import\Application\Contracts\ImportTypeExtensionInterface;
 use App\Import\Application\Service\ImportListAccess;
+use App\Import\Application\Service\ImportTypeExtensionRegistry;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportBatchRunItem;
 use App\Import\Domain\Enum\ImportStatus;
@@ -21,6 +23,7 @@ final readonly class ListImportsQuery
     public function __construct(
         private EntityManagerInterface $entityManager,
         private ImportListAccess $importListAccess,
+        private ImportTypeExtensionRegistry $typeExtensions,
     ) {
     }
 
@@ -37,11 +40,37 @@ final readonly class ListImportsQuery
             ->leftJoin('i.createdBy', 'createdBy')
             ->leftJoin('i.updatedBy', 'updatedBy');
 
-        if ([] === $accessibleHospitalIds) {
+        // Types of other contexts (`import.type_extension`) are visible on the hospitals the extension
+        // names, for example encounter imports with the encounter grants (ADR 027); all other types on
+        // the hospitals the user can access.
+        $extensions = $this->typeExtensions->all();
+        $visibility = $qb->expr()->orX();
+        if ([] !== $accessibleHospitalIds) {
+            $regular = $qb->expr()->andX('h.id IN (:accessibleHospitalIds)');
+            $qb->setParameter('accessibleHospitalIds', $accessibleHospitalIds);
+            if ([] !== $extensions) {
+                $regular->add('i.type NOT IN (:extensionTypes)');
+                $qb->setParameter('extensionTypes', array_map(static fn (ImportTypeExtensionInterface $extension): ImportType => $extension::importType(), $extensions));
+            }
+
+            $visibility->add($regular);
+        }
+
+        foreach ($extensions as $index => $extension) {
+            $hospitalIds = $extension->visibleHospitalIds($user);
+            if ([] === $hospitalIds) {
+                continue;
+            }
+
+            $visibility->add(sprintf('i.type = :extensionType%1$d AND h.id IN (:extensionHospitals%1$d)', $index));
+            $qb->setParameter('extensionType'.$index, $extension::importType())
+                ->setParameter('extensionHospitals'.$index, $hospitalIds);
+        }
+
+        if (0 === $visibility->count()) {
             $qb->andWhere('1 = 0');
         } else {
-            $qb->andWhere('h.id IN (:accessibleHospitalIds)')
-                ->setParameter('accessibleHospitalIds', $accessibleHospitalIds);
+            $qb->andWhere($visibility);
         }
 
         if (!\in_array(UserRole::CLOSURE_BETA, $user->getRoles(), true)) {

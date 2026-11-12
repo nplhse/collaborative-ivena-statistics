@@ -605,6 +605,182 @@
         <source>encounter.data_prep.js.report_unlisted_hint</source>
         <target>Diese MTS-Indikatoren stehen noch nicht in der mitgelieferten Liste. Sie werden als aus der Bezeichnung abgeleitete Codes geschrieben; prüfen Sie, dass es MTS-Indikatoren und kein Freitext sind.</target>
       </trans-unit>
+      <trans-unit id="EncI683DD62D" resname="encounter.overview.imports_intro">
+        <source>encounter.overview.imports_intro</source>
+        <target>Mit dem Datenaufbereitungs-Werkzeug erstellte Dateien werden auf der Import-Seite hochgeladen (Typ „Behandlungsdaten“); ihre Berichte stehen in der Import-Liste.</target>
+      </trans-unit>
+      <trans-unit id="EncI4E173CBA" resname="encounter.import.action.new">
+        <source>encounter.import.action.new</source>
+        <target>Datei hochladen</target>
+      </trans-unit>
+      <trans-unit id="EncI41D05A47" resname="encounter.import.field.schema">
+        <source>encounter.import.field.schema</source>
+        <target>Schema</target>
+      </trans-unit>
+      <trans-unit id="EncIB73A2A3D" resname="encounter.import.field.schema_help">
+        <source>encounter.import.field.schema_help</source>
+        <target>Art der Daten in der Datei. Sie muss zum Schema in der ersten Zeile der Datei passen.</target>
+      </trans-unit>
+      <trans-unit id="EncI5609204C" resname="encounter.import.field.confirmation">
+        <source>encounter.import.field.confirmation</source>
+        <target>Ich bestätige, dass diese Datei mit dem Datenaufbereitungs-Werkzeug erstellt wurde und keine direkten Identifikatoren enthält (Namen, Geburtsdaten, Fallnummern, Freitext).</target>
+      </trans-unit>
+      <trans-unit id="EncI0416FB7A" resname="encounter.import.field.profile">
+        <source>encounter.import.field.profile</source>
+        <target>Quellprofil</target>
+      </trans-unit>
+      <trans-unit id="EncIA7245510" resname="encounter.import.field.tool_version">
+        <source>encounter.import.field.tool_version</source>
+        <target>Werkzeugversion</target>
+      </trans-unit>
+      <trans-unit id="EncIC392E5AE" resname="encounter.import.field.key_generation">
+        <source>encounter.import.field.key_generation</source>
+        <target>Schlüsselgeneration</target>
+      </trans-unit>
+      <trans-unit id="EncI6CF25B17" resname="encounter.import.key_change_in_progress">
+        <source>encounter.import.key_change_in_progress</source>
+        <target>Für dieses Krankenhaus läuft ein Schlüsselwechsel. Uploads sind wieder möglich, sobald er abgeschlossen ist.</target>
+      </trans-unit>
+      <trans-unit id="EncI937AD525" resname="encounter.import.report.title">
+        <source>encounter.import.report.title</source>
+        <target>Importbericht</target>
+      </trans-unit>
+      <trans-unit id="EncI58589B56" resname="encounter.import.count.inserted">
+        <source>encounter.import.count.inserted</source>
+        <target>Neue Besuche</target>
+      </trans-unit>
+      <trans-unit id="EncI84913CD1" resname="encounter.import.count.duplicates">
+        <source>encounter.import.count.duplicates</source>
+        <target>Bekannte Besuche (übersprungen)</target>
+      </trans-unit>
+      <trans-unit id="EncIA61CED99" resname="encounter.import.count.skipped">
+        <source>encounter.import.count.skipped</source>
+        <target>Zeilen ohne Zeitanker</target>
+      </trans-unit>
+      <trans-unit id="EncI30B16508" resname="encounter.import.count.rejected">
+        <source>encounter.import.count.rejected</source>
+        <target>Abgelehnte Zeilen</target>
+      </trans-unit>
+      <trans-unit id="EncI80DB5639" resname="encounter.import.count.suspectedDuplicates">
+        <source>encounter.import.count.suspectedDuplicates</source>
+        <target>Mögliche Duplikate</target>
+      </trans-unit>
+      <trans-unit id="EncI5408211E" resname="encounter.import.rejected.title">
+        <source>encounter.import.rejected.title</source>
+        <target>Die Datei wurde abgelehnt</target>
+      </trans-unit>
+      <trans-unit id="EncI65DD6B29" resname="encounter.import.rejected.source_deleted">
+        <source>encounter.import.rejected.source_deleted</source>
+        <target>Die Datei wurde sofort gelöscht, weil sie direkte Identifikatoren enthalten kann.</target>
+      </trans-unit>
+      <trans-unit id="EncI63C98054" resname="encounter.import.rejection.raw_export">
+        <source>encounter.import.rejection.raw_export</source>
+        <target>Dies ist keine Datei des Datenaufbereitungs-Werkzeugs: Das Manifest fehlt oder die Kopfzeile enthält Quellspalten wie Namen oder Fallnummern. Bereiten Sie den Export zuerst mit dem Werkzeug auf.</target>
+      </trans-unit>
+      <trans-unit id="EncIEB0B2CD1" resname="encounter.import.rejection.identifying_content">
+        <source>encounter.import.rejection.identifying_content</source>
+        <target>Die Datei enthält Werte, die wie direkte Identifikatoren aussehen (Datumsangaben in Nicht-Datumsfeldern, Namen oder langer Freitext).</target>
+      </trans-unit>
+      <trans-unit id="EncI7BAA317D" resname="encounter.import.rejection.encoding_invalid">
+        <source>encounter.import.rejection.encoding_invalid</source>
+        <target>Die Datei ist kein gültiges UTF-8.</target>
+      </trans-unit>
+      <trans-unit id="EncIF2E63DF8" resname="encounter.import.rejection.manifest_invalid">
+        <source>encounter.import.rejection.manifest_invalid</source>
+        <target>Die erste Zeile (Manifest) der Datei ist unvollständig oder fehlerhaft.</target>
+      </trans-unit>
+      <trans-unit id="EncIE0E3B87E" resname="encounter.import.rejection.schema_unsupported">
+        <source>encounter.import.rejection.schema_unsupported</source>
+        <target>Schema oder Schemaversion der Datei werden nicht unterstützt oder weichen vom gewählten Schema ab.</target>
+      </trans-unit>
+      <trans-unit id="EncIED5AEF06" resname="encounter.import.rejection.profile_unsupported">
+        <source>encounter.import.rejection.profile_unsupported</source>
+        <target>Das in der Datei genannte Quellprofil wird nicht akzeptiert.</target>
+      </trans-unit>
+      <trans-unit id="EncIEBBB1203" resname="encounter.import.rejection.tool_version_too_old">
+        <source>encounter.import.rejection.tool_version_too_old</source>
+        <target>Die Datei wurde mit einer veralteten Version des Datenaufbereitungs-Werkzeugs erstellt. Laden Sie das aktuelle Werkzeug herunter und bereiten Sie den Export erneut auf.</target>
+      </trans-unit>
+      <trans-unit id="EncI56182C46" resname="encounter.import.rejection.fingerprint_rule_unsupported">
+        <source>encounter.import.rejection.fingerprint_rule_unsupported</source>
+        <target>Die Fingerabdruck-Regel der Datei wird nicht unterstützt.</target>
+      </trans-unit>
+      <trans-unit id="EncI8F2F6F0B" resname="encounter.import.rejection.header_mismatch">
+        <source>encounter.import.rejection.header_mismatch</source>
+        <target>Die Kopfzeile entspricht nicht genau der Schemaversion.</target>
+      </trans-unit>
+      <trans-unit id="EncI36A2249F" resname="encounter.import.rejection.row_count_mismatch">
+        <source>encounter.import.rejection.row_count_mismatch</source>
+        <target>Die Zeilenzahl weicht von der Angabe im Manifest ab.</target>
+      </trans-unit>
+      <trans-unit id="EncI8849F355" resname="encounter.import.rejection.key_check_retired">
+        <source>encounter.import.rejection.key_check_retired</source>
+        <target>Die Datei wurde mit einer ersetzten Schlüsseldatei aufbereitet. Verwenden Sie die aktuelle Schlüsseldatei des Krankenhauses.</target>
+      </trans-unit>
+      <trans-unit id="EncICE41A0AE" resname="encounter.import.rejection.key_check_mismatch">
+        <source>encounter.import.rejection.key_check_mismatch</source>
+        <target>Die Datei wurde mit einer anderen Schlüsseldatei aufbereitet als die früheren Uploads des Krankenhauses.</target>
+      </trans-unit>
+      <trans-unit id="EncI23544636" resname="encounter.import.suspected.title">
+        <source>encounter.import.suspected.title</source>
+        <target>Mögliche Duplikate</target>
+      </trans-unit>
+      <trans-unit id="EncI0BD12C6A" resname="encounter.import.suspected.intro">
+        <source>encounter.import.suspected.intro</source>
+        <target>Neue Besuche mit demselben Fall-Pseudonym wie ein vorhandener Besuch und einem Zeitanker innerhalb von 15 Minuten. Sie wurden importiert, nicht zusammengeführt.</target>
+      </trans-unit>
+      <trans-unit id="EncIA5C8B36D" resname="encounter.import.suspected.empty">
+        <source>encounter.import.suspected.empty</source>
+        <target>Keine möglichen Duplikate.</target>
+      </trans-unit>
+      <trans-unit id="EncIF1D0CA39" resname="encounter.import.rejects.title">
+        <source>encounter.import.rejects.title</source>
+        <target>Abgelehnte Zeilen</target>
+      </trans-unit>
+      <trans-unit id="EncI50A086AA" resname="encounter.import.rejects.empty">
+        <source>encounter.import.rejects.empty</source>
+        <target>Keine abgelehnten Zeilen.</target>
+      </trans-unit>
+      <trans-unit id="EncI63666C2F" resname="encounter.import.column.line">
+        <source>encounter.import.column.line</source>
+        <target>Zeile</target>
+      </trans-unit>
+      <trans-unit id="EncI022908E5" resname="encounter.import.column.errors">
+        <source>encounter.import.column.errors</source>
+        <target>Feld und Fehler</target>
+      </trans-unit>
+      <trans-unit id="EncI9CEA6D84" resname="encounter.import.column.profile_version">
+        <source>encounter.import.column.profile_version</source>
+        <target>Profilversion</target>
+      </trans-unit>
+      <trans-unit id="EncIE06A1A64" resname="encounter.import.column.difference_minutes">
+        <source>encounter.import.column.difference_minutes</source>
+        <target>Abstand (Min.)</target>
+      </trans-unit>
+      <trans-unit id="EncI5D45C437" resname="encounter.import.column.anchor">
+        <source>encounter.import.column.anchor</source>
+        <target>Zeitanker (neu / vorhanden)</target>
+      </trans-unit>
+      <trans-unit id="EncI77DACD50" resname="encounter.import.column.existing_import">
+        <source>encounter.import.column.existing_import</source>
+        <target>Import des vorhandenen Besuchs</target>
+      </trans-unit>
+      <trans-unit id="EncI5DF27660" resname="encounter.import.anchor.assessment">
+        <source>encounter.import.anchor.assessment</source>
+        <target>Erstkontakt Ersteinschätzung</target>
+      </trans-unit>
+      <trans-unit id="EncI942247EC" resname="encounter.import.anchor.admission">
+        <source>encounter.import.anchor.admission</source>
+        <target>Aufnahme ZNA</target>
+      </trans-unit>
+      <trans-unit id="EncIA19F3E1E" resname="encounter.import.list_limited">
+        <source>encounter.import.list_limited</source>
+        <target>Es werden nur die ersten {limit} Einträge angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="EncI45065675" resname="encounter.import.field.confirmation_help">
+        <source>encounter.import.field.confirmation_help</source>
+        <target>Bereiten Sie den Export zuerst mit dem Datenaufbereitungs-Werkzeug von der &lt;a href="{url}"&gt;Behandlungsdaten-Seite&lt;/a&gt; auf; Rohexporte werden abgelehnt und gelöscht.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

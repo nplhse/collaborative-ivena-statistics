@@ -8,6 +8,7 @@ use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Import\Application\Service\ImportCreatorPermissionCheck;
 use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Application\Service\ImportListAccess;
+use App\Import\Application\Service\ImportTypeExtensionRegistry;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
 use App\User\Domain\Entity\User;
@@ -35,6 +36,7 @@ final class ImportVoter extends Voter
         private readonly HospitalPermissionAccess $hospitalPermissionAccess,
         private readonly ImportCreatorPermissionCheck $creatorPermissionCheck,
         private readonly ImportFileStorage $fileStorage,
+        private readonly ImportTypeExtensionRegistry $typeExtensions,
     ) {
     }
 
@@ -60,6 +62,13 @@ final class ImportVoter extends Voter
 
         if ($this->closureBetaDenied($subject, $user)) {
             return false;
+        }
+
+        // Types owned by another context decide access themselves (`import.type_extension`), for example
+        // encounter imports with the encounter grants (ADR 027).
+        $extension = $this->typeExtensions->for($subject->getType());
+        if ($extension instanceof \App\Import\Application\Contracts\ImportTypeExtensionInterface) {
+            return $extension->vote($attribute, $subject, $token);
         }
 
         $hospitalId = $subject->getHospital()?->getId();

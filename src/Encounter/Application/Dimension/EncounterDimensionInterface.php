@@ -28,8 +28,6 @@ interface EncounterDimensionInterface
      * Schema versions the server accepts (`schema_version=…`), ascending.
      *
      * @return list<int>
-     *
-     * @psalm-suppress PossiblyUnusedMethod Called by the encounter import (#1048).
      */
     public function versions(): array;
 
@@ -39,8 +37,16 @@ interface EncounterDimensionInterface
      * @return list<EncounterField>
      *
      * @throws \InvalidArgumentException for a version not in versions()
-     *
-     * @psalm-suppress PossiblyUnusedMethod Called by the encounter import (#1048).
      */
     public function fields(int $version): array;
+
+    /**
+     * Fingerprint rules (`fingerprint=…` in the manifest) the server accepts for one version. A rule
+     * change gets a new rule name (ADR 028).
+     *
+     * @return list<string>
+     *
+     * @throws \InvalidArgumentException for a version not in versions()
+     */
+    public function fingerprintRules(int $version): array;
 }

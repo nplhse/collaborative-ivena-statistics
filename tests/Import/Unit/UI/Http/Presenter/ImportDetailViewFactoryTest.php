@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Import\Unit\UI\Http\Presenter;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Import\Application\Service\ImportTypeExtensionRegistry;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\UI\Http\Presenter\Coverage\ImportCoverageViewFactory;
@@ -104,7 +105,7 @@ final class ImportDetailViewFactoryTest extends TestCase
             },
         );
 
-        return new ImportDetailViewFactory($translator, $urlGenerator, new ImportCoverageViewFactory());
+        return new ImportDetailViewFactory($translator, $urlGenerator, new ImportCoverageViewFactory(), new ImportTypeExtensionRegistry());
     }
 
     private function import(

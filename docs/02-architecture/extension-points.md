@@ -125,6 +125,37 @@ Lets a context that stores rows per import remove them together with the import'
 transaction, without a dependency from `Import` on that context. `key()` names the count in the cleanup
 log (`import.<key>.cleared`). Removers run before the allocation rows are deleted.
 
+## Import workflow dispatchers
+
+**Tag:** `import.workflow_dispatcher`
+
+**Interface:** `ImportTypeWorkflowDispatcherInterface` (`src/Import/Application/Contracts/`), keyed by
+`importType()`
+
+**Consumer:** `ImportStartDispatcher` (reprocess, `app:import:start`, batch requeue)
+
+**Implementations:** `ImportEncountersDispatcher` (`ImportType::ENCOUNTER`, #1048)
+
+Lets a context that processes its own import type register and queue runs of it without a dependency from
+`Import` on that context. Allocation and closure imports keep their direct dispatchers. The type itself is a
+case of `ImportType`; the processing context owns message, handler, pages and access checks.
+
+## Import type extensions
+
+**Tag:** `import.type_extension`
+
+**Interface:** `ImportTypeExtensionInterface` (`src/Import/Application/Contracts/`)
+
+**Registry:** `ImportTypeExtensionRegistry`; consumers `ImportCreateType` / `NewImportController` (upload form),
+`ImportVoter`, `ListImportsQuery` and `ImportDetailViewFactory` (`detail.typeSection` on the detail page)
+
+**Implementations:** `EncounterImportTypeExtension` (`ImportType::ENCOUNTER`, #1048)
+
+Lets an import type of another context use the generic import pages: whether the user may choose the
+type, the hospitals they may upload it for and see it on, extra unmapped form fields with their checks,
+own state created with the import, the decision for every `ImportVoter` attribute and a section on the
+detail page. The type also needs a workflow dispatcher (above) for its runs.
+
 ## Encounter schemas
 
 **Tag:** `encounter.dimension`
@@ -137,8 +168,9 @@ log (`import.<key>.cleared`). Removers run before the allocation rows are delete
 
 Each schema of the canonical exchange format (`ed_visit`; later `inpatient_stay`, `diagnosis`,
 `procedure`) provides its supported versions and, per version, the field contract in header order:
-name, type (`EncounterFieldType`), required flag, code list and range. Parsing and validating files
-against the contract is the encounter import (#1048). Vendor formats are not server extensions; they
+name, type (`EncounterFieldType`), required flag, code list and range, plus the accepted fingerprint
+rules per version (`fingerprintRules()`). The encounter import (#1048) validates files against the
+contract (`EncounterFileValidator`, `EdVisitRowMapper`). Vendor formats are not server extensions; they
 are source profiles of the data preparation tool. See
 [ADR 025](decisions/025-encounter-data-context-and-exchange-format.md).
 

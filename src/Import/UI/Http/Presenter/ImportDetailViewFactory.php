@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Import\UI\Http\Presenter;
 
+use App\Import\Application\Service\ImportTypeExtensionRegistry;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\UI\Http\Presenter\Coverage\ImportCoverageViewFactory;
@@ -25,6 +26,7 @@ final readonly class ImportDetailViewFactory
         private TranslatorInterface $translator,
         private UrlGeneratorInterface $urlGenerator,
         private ImportCoverageViewFactory $coverageViewFactory,
+        private ImportTypeExtensionRegistry $typeExtensions,
     ) {
     }
 
@@ -81,6 +83,17 @@ final readonly class ImportDetailViewFactory
                     ),
                 ],
                 coverage: $coverage,
+            ),
+            // Owned by the Encounter context, which adds its report section (`import.type_extension`).
+            ImportType::ENCOUNTER => new ImportDetailView(
+                typeLabel: $this->trans('label.import.type.encounter'),
+                importedRecordsLabel: $this->trans('import.summary.encounters_imported', ['count' => $importedCount]),
+                showsDeduplication: true,
+                deleteConfirmation: $this->confirmation($import, 'import.delete.modal.body.encounter'),
+                reprocessConfirmation: $this->confirmation($import, 'import.reprocess.modal.body.encounter'),
+                recordActions: [],
+                coverage: $coverage,
+                typeSection: $this->typeExtensions->for($type)?->detailSection($import),
             ),
         };
     }

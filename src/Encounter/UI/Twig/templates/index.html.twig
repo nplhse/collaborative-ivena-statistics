@@ -22,6 +22,13 @@
         </div>
     </div>
 
+    <div class="card mt-3" data-test="encounter-imports-link">
+        <div class="card-body d-flex align-items-center justify-content-between gap-2">
+            <span class="text-secondary">{{ 'encounter.overview.imports_intro'|trans({}, 'encounter') }}</span>
+            <a class="btn btn-outline-primary" href="{{ path('app_import_new') }}">{{ 'encounter.import.action.new'|trans({}, 'encounter') }}</a>
+        </div>
+    </div>
+
     <div class="card mt-3">
         <div class="card-header">
             <h3 class="card-title">{{ 'encounter.overview.my_grants'|trans({}, 'encounter') }}</h3>

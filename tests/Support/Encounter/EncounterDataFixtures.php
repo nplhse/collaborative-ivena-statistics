@@ -41,10 +41,10 @@ trait EncounterDataFixtures
     }
 
     /**
-     * The import type ENCOUNTER arrives with the encounter import (#1048); until then any type serves
-     * as owning import.
+     * Owning import of directly inserted visits. Without encounter state (EncounterImport): these tests
+     * do not run the import; EncounterImportRunner does.
      */
-    private function encounterImport(Hospital $hospital, string $name, ImportType $type = ImportType::CLOSURE): Import
+    private function encounterImport(Hospital $hospital, string $name, ImportType $type = ImportType::ENCOUNTER): Import
     {
         return ImportFactory::createOne([
             'name' => $name,

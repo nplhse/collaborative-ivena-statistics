@@ -325,6 +325,10 @@
         <source>label.import.type.closure</source>
         <target>Closure list (beta)</target>
       </trans-unit>
+      <trans-unit id="impTypeEncounterEn" resname="label.import.type.encounter">
+        <source>label.import.type.encounter</source>
+        <target>Encounter data (beta)</target>
+      </trans-unit>
       <trans-unit id="impHospOverrideEn" resname="label.import.hospitalOverride">
         <source>label.import.hospitalOverride</source>
         <target>Override target hospital (development only)</target>
@@ -352,6 +356,10 @@
       <trans-unit id="impSumClosEn" resname="import.summary.closures_imported">
         <source>import.summary.closures_imported</source>
         <target>{count, plural, one {# Closure imported} other {# Closures imported}}</target>
+      </trans-unit>
+      <trans-unit id="impSumEncEn" resname="import.summary.encounters_imported">
+        <source>import.summary.encounters_imported</source>
+        <target>{count, plural, one {# Encounter imported} other {# Encounters imported}}</target>
       </trans-unit>
       <trans-unit id="impFldImpEn" resname="import.field.imported_records">
         <source>import.field.imported_records</source>
@@ -616,6 +624,18 @@
       <trans-unit id="impCovG5En" resname="import.coverage.gaps.column.days">
         <source>import.coverage.gaps.column.days</source>
         <target>Duration</target>
+      </trans-unit>
+      <trans-unit id="imp8A59819E" resname="import.delete.modal.body.encounter">
+        <source>import.delete.modal.body.encounter</source>
+        <target>Delete the encounter import “{name}”? All visits it created are removed, with their IVENA links and review decisions, its rejects and the uploaded file. Visits of other imports stay. This cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="impDEBC5472" resname="import.reprocess.modal.body.encounter">
+        <source>import.reprocess.modal.body.encounter</source>
+        <target>Reprocess the encounter import “{name}”? All visits it created are removed first, with their IVENA links and review decisions, and the retained file is imported again. Links and review decisions of this import are lost.</target>
+      </trans-unit>
+      <trans-unit id="imp1B9478E5" resname="label.import.encounter.fields">
+        <source>label.import.encounter.fields</source>
+        <target>Only for encounter data (beta)</target>
       </trans-unit>
     </body>
   </file>

@@ -18,13 +18,16 @@ use App\Encounter\Domain\Enum\VitalsReference;
 /**
  * Schema `ed_visit`: one row = one ED visit (docs/04-features/encounter/exchange-format.md).
  *
- * Field contract only; the import (#1048) parses files against it and maps rows onto Encounter.
+ * Field contract; the encounter import (#1048) validates files against it and maps rows onto Encounter.
  *
  * @psalm-suppress UnusedClass Tagged via EncounterDimensionInterface.
  */
 final readonly class EdVisitDimension implements EncounterDimensionInterface
 {
     public const string SCHEMA = 'ed_visit';
+
+    /** Visit fingerprint rule of #1045 (exchange-format.md, "Visit fingerprint ed-visit:v1"). */
+    public const string FINGERPRINT_RULE_V1 = 'ed-visit:v1';
 
     #[\Override]
     public function schema(): string
@@ -39,11 +42,17 @@ final readonly class EdVisitDimension implements EncounterDimensionInterface
     }
 
     #[\Override]
+    public function fingerprintRules(int $version): array
+    {
+        $this->assertVersion($version);
+
+        return [self::FINGERPRINT_RULE_V1];
+    }
+
+    #[\Override]
     public function fields(int $version): array
     {
-        if (1 !== $version) {
-            throw new \InvalidArgumentException(sprintf('Unknown version %d of encounter schema "%s".', $version, self::SCHEMA));
-        }
+        $this->assertVersion($version);
 
         $timestamp = static fn (string $name): EncounterField => new EncounterField($name, EncounterFieldType::Timestamp);
         $integer = static fn (string $name, int $min, int $max): EncounterField => new EncounterField($name, EncounterFieldType::Integer, false, [], $min, $max);
@@ -103,5 +112,12 @@ final readonly class EdVisitDimension implements EncounterDimensionInterface
             $flag('tetanus_protected'),
             EncounterField::codeSet('isolation', IsolationCode::class),
         ];
+    }
+
+    private function assertVersion(int $version): void
+    {
+        if (1 !== $version) {
+            throw new \InvalidArgumentException(sprintf('Unknown version %d of encounter schema "%s".', $version, self::SCHEMA));
+        }
     }
 }
