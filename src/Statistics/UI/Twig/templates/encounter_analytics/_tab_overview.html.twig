@@ -1,4 +1,4 @@
-{# Overview tab: four KPI cards, then 2/3 (visits over time, disposition, care level) and 1/3 (arrival route, MTS categories, top 10 presentations). #}
+{# Overview tab: four KPI cards, then 2/3 (visits over time, disposition, care level) and 1/3 (arrival route, MTS categories, top 10 presentations, data coverage). #}
 {% set coverage = overview.coverage %}
 {% set admitted = overview.dispositions|filter(r => r.key == 'admitted')|first %}
 {% set physician = overview.processTimes[1] %}
@@ -13,7 +13,6 @@
             key: 'visits',
             title: 'stats.encounter.kpi.visits'|trans({}, 'statistics'),
             value: coverage.visits|format_number,
-            info: 'stats.encounter.info.population'|trans({}, 'statistics'),
         }) }}
     </div>
     <div class="col-12 col-md-6 col-lg-3">
@@ -22,7 +21,6 @@
             title: 'stats.encounter.kpi.admitted'|trans({}, 'statistics'),
             value: admitted.share is not null ? admitted.share|format_number({fraction_digit: 1}) ~ ' %' : (admitted.count.suppressed ? suppressed_label : '–'),
             detail: admitted.count.value is not null ? 'stats.encounter.kpi.admitted_detail'|trans({admitted: admitted.count.value, visits: coverage.visits}, 'statistics') : null,
-            info: 'stats.encounter.info.admitted'|trans({}, 'statistics'),
         }) }}
     </div>
     <div class="col-12 col-md-6 col-lg-3">
@@ -31,7 +29,6 @@
             title: 'stats.encounter.kpi.physician'|trans({}, 'statistics'),
             value: fmt.minutes(physician.median),
             detail: physician.suppressed ? 'stats.encounter.process.suppressed'|trans({threshold: threshold}, 'statistics') : 'stats.encounter.kpi.iqr'|trans({q1: physician.q1|round(1), q3: physician.q3|round(1)}, 'statistics'),
-            info: 'encounter.process.admission_to_physician.definition'|trans({}, d) ~ ' ' ~ 'stats.encounter.info.process'|trans({hours: max_hours, threshold: threshold}, 'statistics'),
         }) }}
     </div>
     <div class="col-12 col-md-6 col-lg-3">
@@ -40,7 +37,6 @@
             title: 'stats.encounter.kpi.length_of_stay'|trans({}, 'statistics'),
             value: fmt.minutes(discharge.median),
             detail: discharge.suppressed ? 'stats.encounter.process.suppressed'|trans({threshold: threshold}, 'statistics') : 'stats.encounter.kpi.iqr'|trans({q1: discharge.q1|round(1), q3: discharge.q3|round(1)}, 'statistics'),
-            info: 'encounter.process.admission_to_discharge.definition'|trans({}, d) ~ ' ' ~ 'stats.encounter.info.process'|trans({hours: max_hours, threshold: threshold}, 'statistics'),
         }) }}
     </div>
 </div>
@@ -51,7 +47,6 @@
             <div class="card" data-testid="encounter-time-series">
                 {{ include('@Statistics/encounter_analytics/_card_header.html.twig', {
                     title: ('stats.encounter.time_series.title_' ~ overview.grain.value)|trans({}, 'statistics'),
-                    info: 'stats.encounter.info.time_series'|trans({}, 'statistics'),
                 }) }}
                 <div class="card-body">
                     {% if overview.timeSeries is empty %}
@@ -74,7 +69,6 @@
             {{ include('@Statistics/encounter_analytics/_bar_list_card.html.twig', {
                 testid: 'encounter-dispositions-card',
                 title: 'stats.encounter.disposition.title'|trans({}, 'statistics'),
-                info: 'stats.encounter.info.dispositions'|trans({}, 'statistics'),
                 rows: overview.dispositions,
                 labels: disposition_labels,
                 colors: {},
@@ -82,7 +76,6 @@
             {{ include('@Statistics/encounter_analytics/_bar_list_card.html.twig', {
                 testid: 'encounter-care-levels-card',
                 title: 'stats.encounter.care_level.title'|trans({}, 'statistics'),
-                info: 'stats.encounter.info.care_levels'|trans({visits: overview.careLevelDenominator}, 'statistics'),
                 rows: overview.careLevels,
                 labels: care_level_labels,
                 colors: {},
@@ -94,7 +87,6 @@
             {{ include('@Statistics/encounter_analytics/_compact_distribution_card.html.twig', {
                 testid: 'encounter-routes',
                 title: 'stats.encounter.column.arrival_route'|trans({}, 'statistics'),
-                info: 'stats.encounter.info.routes'|trans({}, 'statistics'),
                 segments: overview.routes,
                 labels: route_labels,
                 colors: route_colors,
@@ -102,7 +94,6 @@
             {{ include('@Statistics/encounter_analytics/_compact_distribution_card.html.twig', {
                 testid: 'encounter-categories-bar',
                 title: 'stats.encounter.mts.categories'|trans({}, 'statistics'),
-                info: 'stats.encounter.info.categories'|trans({}, 'statistics'),
                 segments: overview.categories,
                 labels: category_labels,
                 colors: category_colors,
@@ -110,12 +101,12 @@
             {{ include('@Statistics/encounter_analytics/_bar_list_card.html.twig', {
                 testid: 'encounter-top-diagrams',
                 title: 'stats.encounter.mts.diagrams'|trans({top: overview.diagramsShown}, 'statistics'),
-                info: 'stats.encounter.info.diagrams'|trans({}, 'statistics'),
                 rows: overview.diagrams|filter(r => r.key != 'other' and r.key != ''),
                 labels: diagram_labels,
                 colors: {},
                 link: {url: path('app_stats_encounter_analytics', tabQuery|merge({tab: 'distributions'})), label: 'stats.encounter.show_all'|trans({}, 'statistics')},
             }) }}
+            {{ include('@Statistics/encounter_analytics/_coverage_card.html.twig') }}
         </div>
     </div>
 </div>

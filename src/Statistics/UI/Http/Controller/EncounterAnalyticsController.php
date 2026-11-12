@@ -38,7 +38,7 @@ final class EncounterAnalyticsController extends AbstractController
 {
     public const string ROUTE = 'app_stats_encounter_analytics';
 
-    public const array TABS = ['overview', 'process', 'link', 'distributions', 'coverage'];
+    public const array TABS = ['overview', 'process', 'link', 'distributions'];
 
     public function __construct(
         private readonly AggregateHospitalScope $hospitalScope,

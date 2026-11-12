@@ -6,7 +6,6 @@
             <div class="card h-100" data-testid="encounter-process-box" data-interval="{{ row.interval.value }}">
                 {{ include('@Statistics/encounter_analytics/_card_header.html.twig', {
                     title: ('encounter.process.' ~ row.interval.value ~ '.label')|trans({}, d),
-                    info: ('encounter.process.' ~ row.interval.value ~ '.definition')|trans({}, d) ~ ' ' ~ 'stats.encounter.info.box_plot'|trans({threshold: threshold}, 'statistics'),
                 }) }}
                 <div class="card-body">
                     {% if boxes is empty %}
@@ -31,7 +30,6 @@
 <div class="card">
     {{ include('@Statistics/encounter_analytics/_card_header.html.twig', {
         title: 'stats.encounter.process.title'|trans({}, 'statistics'),
-        info: 'stats.encounter.info.process'|trans({hours: max_hours, threshold: threshold}, 'statistics'),
     }) }}
     <div class="table-responsive">
         <table class="table card-table table-vcenter" data-testid="encounter-process-times">

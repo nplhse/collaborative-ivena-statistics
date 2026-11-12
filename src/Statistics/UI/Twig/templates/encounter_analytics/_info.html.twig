@@ -1,9 +1,0 @@
-{# Info button with a popover explaining a figure: population, denominator, exclusions. #}
-<button type="button"
-        class="btn btn-ghost-secondary btn-sm btn-icon p-1 ms-1"
-        data-controller="encounter-info-popover"
-        data-bs-content="{{ text|e('html_attr') }}"
-        aria-label="{{ text|e('html_attr') }}"
-        data-testid="encounter-info">
-    <twig:ux:icon name="tabler:info-circle" style="height: 1.1em;" />
-</button>

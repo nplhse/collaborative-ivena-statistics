@@ -1,8 +1,7 @@
-{# Card header with title, optional info popover and optional action link. #}
+{# Card header with title and optional action link. #}
 <div class="card-header py-2">
     <h3 class="card-title mb-0 d-flex align-items-center">
         {{ title }}
-        {% if info is defined and info %}{{ include('@Statistics/encounter_analytics/_info.html.twig', {text: info}) }}{% endif %}
     </h3>
     {% if link is defined and link %}
         <div class="card-actions">

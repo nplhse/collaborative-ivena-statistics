@@ -3,7 +3,6 @@
 <div class="card">
     {{ include('@Statistics/encounter_analytics/_card_header.html.twig', {
         title: 'stats.encounter.route_link.title'|trans({}, 'statistics'),
-        info: 'stats.encounter.route_link.intro'|trans({}, 'statistics') ~ ' ' ~ 'stats.encounter.route_link.note'|trans({}, 'statistics'),
     }) }}
     <div class="card-body">
         <div data-controller="encounter-overview-chart" data-encounter-overview-chart-chart-value="{{ {

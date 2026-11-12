@@ -40,7 +40,6 @@ Custom controllers live in `assets/controllers/*_controller.js`. Examples:
 | `benchmarking-charts` | Benchmarking |
 | `analysis-chart`, `generic-analysis-chart` | Analysis views |
 | `encounter-overview-chart` | Bar and box plot charts of the encounter overview; suppressed counts arrive as `null` and are not drawn |
-| `encounter-info-popover` | Info buttons with definitions on encounter overview cards (Tabler `Popover`) |
 | `catalog-orientation-map` | Explore allocation/hospital orientation map (Leaflet, Turf) |
 | `result-count-mirror` | Copies DataTable `#result-count` into the page header after Turbo frame loads |
 | `bulk-selection` | Row selection, count and toolbar for DataTable bulk actions and the notification inbox |

@@ -95,7 +95,11 @@ final class EncounterAnalyticsControllerTest extends WebTestCase
         self::assertSame('< 5', $this->text($crawler, '[data-testid="encounter-categories-row"][data-key="red"] [data-testid="encounter-count"]'), 'V1, B1, B4.');
         self::assertCount(5, $crawler->filter('[data-testid="encounter-diagrams-row"]'), 'Three diagrams, other, not documented.');
 
-        $crawler = $this->page($this->hospitalA, self::OCTOBER + ['tab' => 'coverage']);
+        $crawler = $this->page($this->hospitalA, self::OCTOBER);
+        self::assertSelectorNotExists('[data-testid="encounter-info"]');
+        self::assertSelectorNotExists('[data-testid="encounter-overview-method"]');
+        self::assertSelectorNotExists('[data-testid="encounter-overview-tab-coverage"]');
+        self::assertSame('11', $this->text($crawler, '[data-testid="encounter-coverage-all"] [data-testid="encounter-coverage-visits"]'));
         self::assertSame('11', $this->text($crawler, '[data-testid="encounter-coverage-period"] [data-testid="encounter-coverage-visits"]'));
         self::assertSame('5', $this->text($crawler, '[data-testid="encounter-coverage-period"] [data-testid="encounter-coverage-days"]'));
         self::assertSame('2', $this->text($crawler, '[data-testid="encounter-coverage-period"] [data-testid="encounter-coverage-imports"]'));
@@ -105,8 +109,10 @@ final class EncounterAnalyticsControllerTest extends WebTestCase
     {
         $this->client->loginUser($this->admin());
 
-        $this->page($this->hospitalA, ['period' => 'month', 'year' => '2026', 'month' => '11']);
+        $crawler = $this->page($this->hospitalA, ['period' => 'month', 'year' => '2026', 'month' => '9']);
         self::assertSelectorExists('[data-testid="encounter-overview-empty"]');
+        self::assertSame('0', $this->text($crawler, '[data-testid="encounter-coverage-period"] [data-testid="encounter-coverage-visits"]'));
+        self::assertSame('09.10.2026 – 13.10.2026', $this->text($crawler, '[data-testid="encounter-coverage-all"] [data-testid="encounter-coverage-range"]'), 'Shows where the data lie.');
     }
 
     public function testScopeIsAlwaysExactlyOneAllowedHospital(): void
@@ -177,7 +183,7 @@ final class EncounterAnalyticsControllerTest extends WebTestCase
     public function testGermanPageHasNoMissingTranslations(): void
     {
         $this->client->loginUser($this->admin());
-        foreach (['overview', 'process', 'link', 'distributions', 'coverage'] as $tab) {
+        foreach (['overview', 'process', 'link', 'distributions'] as $tab) {
             $this->client->enableProfiler();
             $this->client->request(Request::METHOD_GET, '/statistics/encounter-analytics', ['scope' => 'hospital', 'hospital' => (string) $this->hospitalA->getId(), 'tab' => $tab] + self::OCTOBER, server: ['HTTP_Accept-Language' => 'de-DE,de;q=0.9']);
 

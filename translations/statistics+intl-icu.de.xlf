@@ -7524,10 +7524,6 @@
       <trans-unit id="statsClosureCoverage09" resname="stats.closure.coverage.no_gaps"><source>stats.closure.coverage.no_gaps</source><target>Keine Lücken zwischen den Importen.</target></trans-unit>
       <trans-unit id="statsClosureCoverage10" resname="stats.closure.coverage.gaps"><source>stats.closure.coverage.gaps</source><target>{count, plural, one {# Lücke} other {# Lücken}}</target></trans-unit>
       <trans-unit id="statsClosureCoverage11" resname="stats.closure.coverage.gap_days"><source>stats.closure.coverage.gap_days</source><target>{count, plural, one {# Tag} other {# Tage}}</target></trans-unit>
-      <trans-unit id="statsEncee3934ee" resname="stats.encounter.period.hint">
-        <source>stats.encounter.period.hint</source>
-        <target>Ein Besuch zählt am Tag seines Ersteinschätzungskontakts, ohne dokumentierte Ersteinschätzung am Tag der Aufnahme ZNA. Der Zeitraum ist der Statistik-Zeitraum aus dem Seitenkopf.</target>
-      </trans-unit>
       <trans-unit id="statsEnce745af45" resname="stats.encounter.coverage.visits">
         <source>stats.encounter.coverage.visits</source>
         <target>Besuche</target>
@@ -7559,14 +7555,6 @@
       <trans-unit id="statsEnc27bc9f25" resname="stats.encounter.route_link.title">
         <source>stats.encounter.route_link.title</source>
         <target>Ankunftsart und IVENA-Verknüpfung</target>
-      </trans-unit>
-      <trans-unit id="statsEnc4a52cf90" resname="stats.encounter.route_link.intro">
-        <source>stats.encounter.route_link.intro</source>
-        <target>Alle Besuche des Zeitraums. Die Ankunftsart stammt aus der dokumentierten Ankunftsart des Exports, die Verknüpfung aus dem Abgleich mit IVENA-Zuweisungen; beides ist unabhängig. Rettungsdienst-Ankünfte ohne Zuweisung und Selbstvorsteller gehören zur Grundgesamtheit.</target>
-      </trans-unit>
-      <trans-unit id="statsEncba85a9c0" resname="stats.encounter.route_link.note">
-        <source>stats.encounter.route_link.note</source>
-        <target>Anteile beziehen sich auf die Besuche der Zeile. Automatische Verknüpfungen sind wirksam und zählen als verknüpft; ihre Herkunft wird getrennt gezeigt. Besuche mit nur offenem Vorschlag oder abgelehntem Paar zählen als nicht verknüpft.</target>
       </trans-unit>
       <trans-unit id="statsEnc399b8a87" resname="stats.encounter.column.arrival_route">
         <source>stats.encounter.column.arrival_route</source>
@@ -7636,10 +7624,6 @@
         <source>stats.encounter.care_level.title</source>
         <target>Versorgungsstufe nach Aufnahme oder Verlegung</target>
       </trans-unit>
-      <trans-unit id="statsEnc40eafe99" resname="stats.encounter.method">
-        <source>stats.encounter.method</source>
-        <target>Beschreibende Zahlen nur dieses Krankenhauses; kein Vergleich mit anderen Krankenhäusern. Anzahlen über 0 und unter {threshold, number} werden als „&lt; {threshold, number}“ gezeigt und in Diagrammen ausgelassen. Besuche aller Schlüsselgenerationen werden gezählt.</target>
-      </trans-unit>
       <trans-unit id="statsEncdfc19f88" resname="stats.encounter.pretitle">
         <source>stats.encounter.pretitle</source>
         <target>Behandlungsdaten (Beta)</target>
@@ -7664,10 +7648,6 @@
         <source>stats.encounter.tabs.distributions</source>
         <target>Verteilungen</target>
       </trans-unit>
-      <trans-unit id="statsEnce27b59fd" resname="stats.encounter.tabs.coverage">
-        <source>stats.encounter.tabs.coverage</source>
-        <target>Datenabdeckung</target>
-      </trans-unit>
       <trans-unit id="statsEncb4e4d393" resname="stats.encounter.kpi.visits">
         <source>stats.encounter.kpi.visits</source>
         <target>Besuche</target>
@@ -7687,38 +7667,6 @@
       <trans-unit id="statsEnccc6c49f0" resname="stats.encounter.kpi.iqr">
         <source>stats.encounter.kpi.iqr</source>
         <target>IQR {q1, number} – {q3, number} min</target>
-      </trans-unit>
-      <trans-unit id="statsEnc40781274" resname="stats.encounter.info.population">
-        <source>stats.encounter.info.population</source>
-        <target>Alle Besuche dieses Krankenhauses im Zeitraum: Selbstvorsteller und Rettungsdienst-Ankünfte mit und ohne Zuweisung, alle Schlüsselgenerationen. Kein anderes Krankenhaus wird gezählt.</target>
-      </trans-unit>
-      <trans-unit id="statsEnc69284cd7" resname="stats.encounter.info.routes">
-        <source>stats.encounter.info.routes</source>
-        <target>Dokumentierte Ankunftsart des Exports; unbekannt = „Anderes“ oder leer. Anteile beziehen sich auf alle Besuche.</target>
-      </trans-unit>
-      <trans-unit id="statsEnc13caf405" resname="stats.encounter.info.categories">
-        <source>stats.encounter.info.categories</source>
-        <target>Ersteinschätzung; Re-Triage wird nicht gezählt. Anteile beziehen sich auf alle Besuche.</target>
-      </trans-unit>
-      <trans-unit id="statsEnc39568f70" resname="stats.encounter.info.process">
-        <source>stats.encounter.info.process</source>
-        <target>Aus den dokumentierten Zeitstempeln in ganzen Minuten Ortszeit berechnet. Gezählt werden Dauern von 0 bis {hours, number} Stunden; negative, längere Dauern und Besuche ohne beide Zeiten sind ausgeschlossen. Median und Quartile werden ab {threshold, number} gezählten Besuchen gezeigt.</target>
-      </trans-unit>
-      <trans-unit id="statsEnc8b1983c8" resname="stats.encounter.info.box_plot">
-        <source>stats.encounter.info.box_plot</source>
-        <target>Box: Q1 bis Q3 mit Median; Antennen: 10. und 90. Perzentil (kein Minimum oder Maximum, da sie einzelne Besuche beschreiben). Nur MTS-Kategorien mit mindestens {threshold, number} gezählten Besuchen.</target>
-      </trans-unit>
-      <trans-unit id="statsEnc94a9d2e2" resname="stats.encounter.info.dispositions">
-        <source>stats.encounter.info.dispositions</source>
-        <target>Anteile beziehen sich auf alle Besuche des Zeitraums.</target>
-      </trans-unit>
-      <trans-unit id="statsEnc698446e8" resname="stats.encounter.info.care_levels">
-        <source>stats.encounter.info.care_levels</source>
-        <target>Besuche mit stationärer Aufnahme im Haus oder Verlegung ({visits, number}); Anteile beziehen sich auf diese Besuche.</target>
-      </trans-unit>
-      <trans-unit id="statsEnc37221ce6" resname="stats.encounter.info.diagrams">
-        <source>stats.encounter.info.diagrams</source>
-        <target>Häufigste Diagramme der Ersteinschätzung (bei Gleichstand nach Code). Anteile beziehen sich auf alle Besuche des Zeitraums.</target>
       </trans-unit>
       <trans-unit id="statsEncc55f030b" resname="stats.encounter.show_all">
         <source>stats.encounter.show_all</source>
@@ -7748,10 +7696,6 @@
         <source>stats.encounter.kpi.admitted_detail</source>
         <target>{admitted, number} von {visits, number} Besuchen</target>
       </trans-unit>
-      <trans-unit id="statsEnc5534fc9f" resname="stats.encounter.info.admitted">
-        <source>stats.encounter.info.admitted</source>
-        <target>Besuche mit Verbleib „stationäre Aufnahme im Haus“, bezogen auf alle Besuche des Zeitraums. Verlegungen in ein anderes Krankenhaus zählen nicht mit.</target>
-      </trans-unit>
       <trans-unit id="statsEnc6e8c587b" resname="stats.encounter.time_series.title_day">
         <source>stats.encounter.time_series.title_day</source>
         <target>Besuche je Tag</target>
@@ -7763,10 +7707,6 @@
       <trans-unit id="statsEnc07e64cb9" resname="stats.encounter.time_series.empty">
         <source>stats.encounter.time_series.empty</source>
         <target>In diesem Zeitraum gibt es noch keinen abgeschlossenen Monat.</target>
-      </trans-unit>
-      <trans-unit id="statsEnc43c81ae3" resname="stats.encounter.info.time_series">
-        <source>stats.encounter.info.time_series</source>
-        <target>Besuche nach dem Tag ihrer Ersteinschätzung, wie in der Statistik-Übersicht: je Tag bei einem Monat, sonst je Monat; der laufende Monat fehlt, bis er abgeschlossen ist. Anzahlen unter 5 fehlen im Diagramm.</target>
       </trans-unit>
     </body>
   </file>

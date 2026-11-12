@@ -79,9 +79,12 @@
         {% set diagram_labels = diagram_labels|merge({(row.key): encounter_mts_diagram_name(row.key)}) %}
     {% endfor %}
 
-    {% if overview.empty and tab != 'coverage' %}
-        <div data-testid="encounter-overview-empty">
-            <twig:EmptyState title="{{ 'stats.encounter.empty'|trans({}, 'statistics') }}" icon="tabler:calendar-off" />
+    {% if overview.empty %}
+        <div class="row g-3">
+            <div class="col-12 col-lg-8" data-testid="encounter-overview-empty">
+                <twig:EmptyState title="{{ 'stats.encounter.empty'|trans({}, 'statistics') }}" icon="tabler:calendar-off" />
+            </div>
+            <div class="col-12 col-lg-4">{{ include('@Statistics/encounter_analytics/_coverage_card.html.twig') }}</div>
         </div>
     {% elseif tab == 'overview' %}
         {{ include('@Statistics/encounter_analytics/_tab_overview.html.twig') }}
@@ -89,13 +92,8 @@
         {{ include('@Statistics/encounter_analytics/_tab_process.html.twig') }}
     {% elseif tab == 'link' %}
         {{ include('@Statistics/encounter_analytics/_tab_link.html.twig') }}
-    {% elseif tab == 'distributions' %}
-        {{ include('@Statistics/encounter_analytics/_tab_distributions.html.twig') }}
     {% else %}
-        {{ include('@Statistics/encounter_analytics/_tab_coverage.html.twig') }}
+        {{ include('@Statistics/encounter_analytics/_tab_distributions.html.twig') }}
     {% endif %}
 
-    <p class="small text-secondary mt-3 mb-0" data-testid="encounter-overview-method">
-        {{ 'stats.encounter.method'|trans({threshold: threshold}, 'statistics') }}
-    </p>
 {% endblock %}
