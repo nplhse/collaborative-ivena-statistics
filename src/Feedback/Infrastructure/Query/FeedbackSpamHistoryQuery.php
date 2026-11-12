@@ -13,6 +13,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Looks up earlier feedback (normal and quarantined) within the history window for the spam check.
+ *
+ * @psalm-suppress UnusedClass Wired via #[AsAlias] for FeedbackSpamHistoryLookupInterface.
  */
 #[AsAlias(FeedbackSpamHistoryLookupInterface::class)]
 final readonly class FeedbackSpamHistoryQuery implements FeedbackSpamHistoryLookupInterface
