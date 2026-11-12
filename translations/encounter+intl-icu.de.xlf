@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="Enc3A23D4AA" resname="encounter.nav">
+        <source>encounter.nav</source>
+        <target>Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="Enc0BF25EFC" resname="encounter.title">
+        <source>encounter.title</source>
+        <target>Pilot Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="Enc6614071F" resname="encounter.overview.intro">
+        <source>encounter.overview.intro</source>
+        <target>Pilot zur Verknüpfung von Notaufnahmebesuchen mit IVENA-Zuweisungen. Upload, Prüfung der Verknüpfungen und Fallansichten folgen in späteren Schritten des Pilots.</target>
+      </trans-unit>
+      <trans-unit id="Enc87A19749" resname="encounter.overview.my_grants">
+        <source>encounter.overview.my_grants</source>
+        <target>Mein Zugriff auf Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="Enc6D9D7FDA" resname="encounter.overview.no_grants">
+        <source>encounter.overview.no_grants</source>
+        <target>Sie haben für kein Krankenhaus Zugriff auf Behandlungsdaten. Der Krankenhaus-Eigentümer oder eine Administratorin bzw. ein Administrator kann ihn erteilen.</target>
+      </trans-unit>
+      <trans-unit id="Enc0EF249EE" resname="encounter.hospital_edit.title">
+        <source>encounter.hospital_edit.title</source>
+        <target>Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="Enc81B4B32C" resname="encounter.hospital_edit.grants">
+        <source>encounter.hospital_edit.grants</source>
+        <target>Zugriff auf Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="Enc5C7B5045" resname="encounter.hospital_edit.grants_new">
+        <source>encounter.hospital_edit.grants_new</source>
+        <target>Zugriff auf Behandlungsdaten erteilen</target>
+      </trans-unit>
+      <trans-unit id="Enc806B25EC" resname="encounter.grant.title">
+        <source>encounter.grant.title</source>
+        <target>Zugriff auf Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="EncDD77428C" resname="encounter.grant.intro">
+        <source>encounter.grant.intro</source>
+        <target>Der Zugriff auf Behandlungsdaten wird ausdrücklich pro Person erteilt. Krankenhaus-Eigentum, Krankenhausberechtigungen und die Administrationsrolle schließen ihn nicht ein. Nur Personen mit Zugang zu diesem Krankenhaus können ihn erhalten.</target>
+      </trans-unit>
+      <trans-unit id="EncA13402E6" resname="encounter.grant.empty">
+        <source>encounter.grant.empty</source>
+        <target>Bisher hat niemand Zugriff auf die Behandlungsdaten dieses Krankenhauses.</target>
+      </trans-unit>
+      <trans-unit id="Enc5769743C" resname="encounter.grant.edit_title">
+        <source>encounter.grant.edit_title</source>
+        <target>Zugriff auf Behandlungsdaten von {username}</target>
+      </trans-unit>
+      <trans-unit id="EncF7855259" resname="encounter.grant.column.user">
+        <source>encounter.grant.column.user</source>
+        <target>Benutzer</target>
+      </trans-unit>
+      <trans-unit id="EncEE0A89E1" resname="encounter.grant.column.hospital">
+        <source>encounter.grant.column.hospital</source>
+        <target>Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="EncB497F2D1" resname="encounter.grant.column.actions">
+        <source>encounter.grant.column.actions</source>
+        <target>Zugriff</target>
+      </trans-unit>
+      <trans-unit id="EncAB049FA1" resname="encounter.grant.column.created_at">
+        <source>encounter.grant.column.created_at</source>
+        <target>Erteilt</target>
+      </trans-unit>
+      <trans-unit id="Enc640A81DB" resname="encounter.grant.action_edit">
+        <source>encounter.grant.action_edit</source>
+        <target>Bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="Enc89CC36AE" resname="encounter.grant.action_delete">
+        <source>encounter.grant.action_delete</source>
+        <target>Entfernen</target>
+      </trans-unit>
+      <trans-unit id="Enc8A5511D8" resname="encounter.grant.action_save">
+        <source>encounter.grant.action_save</source>
+        <target>Speichern</target>
+      </trans-unit>
+      <trans-unit id="EncFD78E29F" resname="encounter.grant.confirm_delete">
+        <source>encounter.grant.confirm_delete</source>
+        <target>Diesen Zugriff auf Behandlungsdaten entfernen?</target>
+      </trans-unit>
+      <trans-unit id="EncCA963B15" resname="encounter.grant.key_change_hint">
+        <source>encounter.grant.key_change_hint</source>
+        <target>Keine dieser Aktionen erlaubt den Wechsel des Pseudonymisierungsschlüssels. Nur der Krankenhaus-Eigentümer kann ihn wechseln.</target>
+      </trans-unit>
+      <trans-unit id="Enc31EF4F08" resname="encounter.grant.field.user">
+        <source>encounter.grant.field.user</source>
+        <target>Benutzer</target>
+      </trans-unit>
+      <trans-unit id="Enc8FDBC3AC" resname="encounter.grant.field.user_help">
+        <source>encounter.grant.field.user_help</source>
+        <target>Eigentümer und Benutzer mit Zugang zu diesem Krankenhaus, die noch keinen Zugriff auf Behandlungsdaten haben.</target>
+      </trans-unit>
+      <trans-unit id="EncB6E2A273" resname="encounter.grant.field.user_placeholder">
+        <source>encounter.grant.field.user_placeholder</source>
+        <target>Benutzer auswählen</target>
+      </trans-unit>
+      <trans-unit id="Enc4A2D8DAD" resname="encounter.grant.field.actions">
+        <source>encounter.grant.field.actions</source>
+        <target>Aktionen</target>
+      </trans-unit>
+      <trans-unit id="Enc2134DBCF" resname="encounter.grant.field.actions_help">
+        <source>encounter.grant.field.actions_help</source>
+        <target>Prüfen schließt das Ansehen von Fällen ein.</target>
+      </trans-unit>
+      <trans-unit id="EncB57EB536" resname="encounter.grant.action.upload">
+        <source>encounter.grant.action.upload</source>
+        <target>Hochladen</target>
+      </trans-unit>
+      <trans-unit id="Enc553C37EB" resname="encounter.grant.action.upload_help">
+        <source>encounter.grant.action.upload_help</source>
+        <target>Importe von Behandlungsdaten und die aufbewahrten Upload-Dateien dieses Krankenhauses.</target>
+      </trans-unit>
+      <trans-unit id="Enc46231F3B" resname="encounter.grant.action.review">
+        <source>encounter.grant.action.review</source>
+        <target>Verknüpfungen prüfen</target>
+      </trans-unit>
+      <trans-unit id="Enc634B9400" resname="encounter.grant.action.review_help">
+        <source>encounter.grant.action.review_help</source>
+        <target>Entscheidungen über vorgeschlagene Verknüpfungen; schließt das Ansehen von Fällen ein.</target>
+      </trans-unit>
+      <trans-unit id="EncBC604A2D" resname="encounter.grant.action.view_cases">
+        <source>encounter.grant.action.view_cases</source>
+        <target>Fälle ansehen</target>
+      </trans-unit>
+      <trans-unit id="EncBCF05A2E" resname="encounter.grant.action.view_cases_help">
+        <source>encounter.grant.action.view_cases_help</source>
+        <target>Besuchslisten, die Fallkarte an einer Zuweisung und direkte Links auf Fälle.</target>
+      </trans-unit>
+      <trans-unit id="Enc4A1B1797" resname="encounter.grant.flash.created">
+        <source>encounter.grant.flash.created</source>
+        <target>Zugriff auf Behandlungsdaten erteilt.</target>
+      </trans-unit>
+      <trans-unit id="Enc91987C9E" resname="encounter.grant.flash.updated">
+        <source>encounter.grant.flash.updated</source>
+        <target>Zugriff auf Behandlungsdaten geändert.</target>
+      </trans-unit>
+      <trans-unit id="Enc58438C4A" resname="encounter.grant.flash.deleted">
+        <source>encounter.grant.flash.deleted</source>
+        <target>Zugriff auf Behandlungsdaten entfernt.</target>
+      </trans-unit>
+      <trans-unit id="EncC5A34E64" resname="encounter.grant.flash.not_a_member">
+        <source>encounter.grant.flash.not_a_member</source>
+        <target>Nur Benutzer mit Zugang zu diesem Krankenhaus können Zugriff auf Behandlungsdaten erhalten.</target>
+      </trans-unit>
+      <trans-unit id="EncBBECC456" resname="encounter.grant.flash.duplicate">
+        <source>encounter.grant.flash.duplicate</source>
+        <target>Dieser Benutzer hat bereits Zugriff auf die Behandlungsdaten dieses Krankenhauses.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

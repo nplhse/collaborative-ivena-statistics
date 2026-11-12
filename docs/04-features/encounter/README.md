@@ -72,7 +72,21 @@ Overviews cross both attributes, for example "EMS arrival, not linked".
 | Manage encounter grants of a hospital | hospital owner or `ROLE_ADMIN` |
 | Import status, counts, reject codes, match diagnostics without case details or file content | `ROLE_ADMIN` |
 
-Hospital ownership, hospital grants and `ROLE_ADMIN` do not imply an encounter grant. Details:
+Hospital ownership, hospital grants and `ROLE_ADMIN` do not imply an encounter grant. Every row
+needs `ROLE_ENCOUNTER_BETA` first, including grant management and the key change, so a hospital owner
+needs the beta role to manage encounter grants.
+
+Implemented in #1046:
+
+- Pilot entry page `/encounter` with a navigation entry for the beta role; it lists the user's own
+  encounter grants until the later steps add their pages.
+- Grant management at `/hospitals/{id}/edit/encounter-access`, linked from the hospital edit pages.
+  Candidates are the owner (who can grant themselves case access) and users with a hospital access
+  grant. Removing someone's hospital access, or changing the owner, removes their encounter grant.
+- `EncounterVoter` with the attributes in `EncounterAttribute`; later steps check them on the hospital
+  of the requested object. File download auditing comes with source file retention (#1049).
+
+Details:
 [ADR 027](../../02-architecture/decisions/027-encounter-access-grants.md),
 [permission-model.md](../../02-architecture/permission-model.md#encounter-grants).
 

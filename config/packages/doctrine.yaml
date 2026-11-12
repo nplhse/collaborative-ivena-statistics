@@ -71,6 +71,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Kpi/Domain/Entity'
                 prefix: 'App\Kpi\Domain\Entity'
+            Encounter:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Encounter/Domain/Entity'
+                prefix: 'App\Encounter\Domain\Entity'
             Engagement:
                 type: attribute
                 is_bundle: false

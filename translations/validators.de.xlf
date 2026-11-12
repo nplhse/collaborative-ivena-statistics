@@ -869,6 +869,14 @@
         <source>error.export.date_range_invalid</source>
         <target>Das Start-Datum darf nicht nach dem End-Datum liegen.</target>
       </trans-unit>
+      <trans-unit id="EncValAC01F2BD" resname="validation.encounter.grant.user_required">
+        <source>validation.encounter.grant.user_required</source>
+        <target>Bitte einen Benutzer auswählen.</target>
+      </trans-unit>
+      <trans-unit id="EncValEE8E9EFC" resname="validation.encounter.grant.actions_required">
+        <source>validation.encounter.grant.actions_required</source>
+        <target>Bitte mindestens eine Aktion auswählen.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

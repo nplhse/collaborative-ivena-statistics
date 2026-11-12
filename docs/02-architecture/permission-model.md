@@ -15,8 +15,9 @@ Defined in `src/User/Domain/Security/UserRole.php`:
 | `ROLE_ADMIN` | EasyAdmin back office, impersonation; receives the admin notifications (`admin.*`), each admin chooses them on the notification settings page |
 | `ROLE_REVIEW_INDICATIONS` | Indication raw review worklist |
 | `ROLE_CLOSURE_BETA` | Opt-in beta switch for closure-list imports and Closure Analytics. Not part of the role hierarchy, so `ROLE_ADMIN` does not grant it. Assign it on the user in EasyAdmin. It is not a public role. |
+| `ROLE_ENCOUNTER_BETA` | Participation in the encounter data pilot: `/encounter`, the navigation entry and the encounter grant pages. Inherited by `ROLE_ADMIN`. Grants no case access. Assign it on the user in EasyAdmin. |
 
-`ROLE_ADMIN` inherits `ROLE_PARTICIPANT` and `ROLE_REVIEW_INDICATIONS` only. `ROLE_CLOSURE_BETA` stays explicit so production users and the first testers stay separate.
+`ROLE_ADMIN` inherits `ROLE_PARTICIPANT`, `ROLE_REVIEW_INDICATIONS` and `ROLE_ENCOUNTER_BETA` only. `ROLE_CLOSURE_BETA` stays explicit so production users and the first testers stay separate.
 
 ## Hospital permissions (bitmask)
 
@@ -49,6 +50,7 @@ Grants are stored in `HospitalAccessGrant` as an integer mask and validated via 
 | `ImportVoter` | `VIEW`, `DELETE`, `DOWNLOAD_SOURCE` | `Import` |
 | `ExportVoter` | `EXPORT` | (none) |
 | `IndicationRawReviewVoter` | `VIEW`, `EDIT_MATCH`, `REVIEW` | `IndicationRaw` |
+| `EncounterVoter` | `EncounterAttribute::*` (see [Encounter grants](#encounter-grants)) | `Hospital` |
 
 `AllocationVoter::VIEW` requires `ROLE_PARTICIPANT` (not merely `ROLE_USER`) and applies to **any** allocation — it does **not** check `HospitalPermission::View`. Path `access_control` on `/explore` also requires `ROLE_PARTICIPANT`.
 
@@ -62,7 +64,7 @@ Import, export, clinic management, and hospital-scoped statistics filters remain
 
 ## Encounter grants
 
-In development (#1046), decided in [ADR 027](decisions/027-encounter-access-grants.md).
+Decided in [ADR 027](decisions/027-encounter-access-grants.md), implemented in #1046.
 
 Encounter data (hospital ED visits) does not follow the collaborative Explore rule and is not covered
 by the hospital bitmask:
@@ -76,6 +78,35 @@ by the hospital bitmask:
 - Owners and administrators manage encounter grants; only users with access to the hospital can
   receive one. Changes are audited.
 - Case-level requests check the grant on the hospital of the requested visit or allocation.
+
+Implementation:
+
+- `EncounterAccessGrant` (`src/Encounter/Domain/Entity/`, table `encounter_access_grant`): one row per
+  user and hospital with the flags `can_upload`, `can_review`, `can_view_cases`. Check constraints keep
+  at least one action and `REVIEW` ⇒ `VIEW_CASES`. Deleting the hospital or the user deletes the grant.
+- `EncounterVoter` votes on the attributes in `App\Encounter\Application\Security\EncounterAttribute`
+  with the `Hospital` as subject. Every attribute needs `ROLE_ENCOUNTER_BETA` first:
+
+  | Attribute | Granted when |
+  |---|---|
+  | `ENCOUNTER_UPLOAD`, `ENCOUNTER_VIEW_SOURCE_FILE`, `ENCOUNTER_DOWNLOAD_SOURCE_FILE` | grant action `UPLOAD` |
+  | `ENCOUNTER_REPROCESS_SOURCE_FILE` | grant action `UPLOAD`, or `ROLE_ADMIN` |
+  | `ENCOUNTER_REVIEW` | grant action `REVIEW` |
+  | `ENCOUNTER_VIEW_CASES` | grant action `VIEW_CASES` (also set by `REVIEW`) |
+  | `ENCOUNTER_VIEW_AGGREGATES` | any grant action and hospital permission `STATISTICS` |
+  | `ENCOUNTER_CHANGE_KEY` | hospital owner; no grant and no admin role |
+  | `ENCOUNTER_MANAGE_GRANTS` | hospital owner or `ROLE_ADMIN` |
+
+- Grant management: `/hospitals/{id}/edit/encounter-access` (list, add, edit, remove), linked in the
+  sidebar of the hospital edit pages. Only the owner and users with a hospital access grant appear as
+  candidates; the server rejects anyone else. Changes run under the audit intents
+  `encounter.access_grant.created`, `.updated` and `.deleted`.
+- Losing hospital access removes the encounter grant: a Doctrine `onFlush` listener in `Encounter`
+  (`RevokeEncounterGrantsOnHospitalAccessLoss`) reacts when a hospital access grant is deleted or moved
+  and when a hospital gets another owner, and removes the encounter grant in the same flush unless the
+  user is still owner or still holds a hospital access grant. The deletion is audited under the intent of
+  the change that caused it (for example `hospital.access_grant.deleted`). Allocation does not know the
+  listener.
 
 ## Benchmarking vs. statistics
 
