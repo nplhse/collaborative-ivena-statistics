@@ -15,7 +15,7 @@
                 <div class="col">
                     <h2 class="page-title">{{ 'title.hospitals.my'|trans({}, 'allocation') }}</h2>
                     <div class="text-body-secondary mt-1">
-                        {{ hospitals|length }} {{ 'label.hospital'|trans({}, 'messages') }}
+                        {{ scope.count }} {{ 'label.hospital'|trans({}, 'messages') }}
                     </div>
                 </div>
             </div>
@@ -40,7 +40,8 @@
                     </thead>
                     <tbody>
                     {% import '@Shared/_macros/badges.html.twig' as badges %}
-                    {% for hospital in hospitals %}
+                    {% for entry in scope.entries %}
+                        {% set hospital = entry.hospital %}
                         <tr>
                             <td>
                                 <a href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}">
@@ -58,9 +59,11 @@
                                         {{ 'label.hospital_access_grants.manage'|trans({}, 'messages') }}
                                     </a>
                                 {% endif %}
-                                <a class="btn btn-sm btn-outline-primary" href="{{ path('app_hospitals_edit', {id: hospital.id}) }}">
-                                    {{ 'label.edit'|trans({}, 'messages') }}
-                                </a>
+                                {% if is_granted(constant('App\\Allocation\\Infrastructure\\Security\\Voter\\HospitalVoter::EDIT'), hospital) %}
+                                    <a class="btn btn-sm btn-outline-primary" href="{{ path('app_hospitals_edit', {id: hospital.id}) }}">
+                                        {{ 'label.edit'|trans({}, 'messages') }}
+                                    </a>
+                                {% endif %}
                             </td>
                         </tr>
                     {% else %}
