@@ -210,7 +210,7 @@ error analysis and reprocessing after a bug fix (ADR 025, #1049).
 - Allocation and closure imports are not affected.
 
 **Afterwards**: a successful run with new visits dispatches `EncountersImported` (hospital, import, anchor
-days of the inserted visits) for the matcher (#1053). Nothing consumes it yet.
+days of the inserted visits); the matcher reruns those days ([Matching](#matching)).
 
 ## Key change
 
@@ -229,8 +229,8 @@ and duplicate detection works only within one generation) and types the hospital
 confirmation box. The button stays disabled until the name matches (`encounter-key-change` Stimulus
 controller; the server checks the name again). The button opens a confirmation modal (the shared `Modal`
 component, as for deleting an import) that names the consequence of the chosen option; its button submits
-the form. Links and review decisions are added to the counts
-with matching (#1053) and review (#1054).
+the form. The "delete" texts also name the IVENA links (automatic or confirmed) and the
+review decisions (confirmed or rejected) of the hospital that go with the visits.
 
 Flow (`EncounterKeyChanger`, one transaction holding the key state lock that the import commit takes):
 
@@ -329,6 +329,75 @@ Summary of [ADR 029](../../02-architecture/decisions/029-encounter-allocation-ma
   `proposed` (≥ 0.50) needs a decision; manual decisions are sticky.
 - Pass 1 reserves both sides; later runs only fill gaps and never reassign links. The review may
   propose a targeted swap.
+
+Implemented in #1053 (matcher version `1.0.0`). No pages yet: the review is #1054, linked analyses #1055.
+
+**Table `encounter_match`**, one row per pair of allocation and visit: `status` (`auto_accepted`,
+`proposed`, `confirmed`, `rejected`), `conflict`, `score`, `points`, `contributions` (points per feature),
+`pass`, `matcher_version`, `time_anchor` (`admission`, or `assessment` as marked substitute),
+`time_difference_minutes` (anchor − IVENA arrival), `decided_by`/`decided_at` (manual decisions only;
+a check constraint enforces it) and `created_at`. Partial unique indexes make effective links
+(`auto_accepted`, `confirmed`) one-to-one on both sides. The row goes with its visit, its allocation and
+its hospital (`ON DELETE CASCADE`); a deleted user leaves the decision with `decided_by` empty.
+
+**Score**: each candidate visit of an allocation weighs 2^points, the "no match" option 2^4; a
+candidate's score is its share of the total weight (`MatchPlanner`, points in `FeatureScorer`). The
+points and the "no match" weight are set by judgement, not estimated (ADR 029); calibration follows
+#1057. Changing them changes the matcher version.
+
+| Feature | Points |
+|---|---|
+| time: matching anchor − IVENA arrival | −5 … +15 min: +4; −20 … −6 or +16 … +30: +2; +31 … +45: 0; otherwise (pass 2): −2 |
+| sex | equal: +2; male vs female: −4; one side diverse: 0 |
+| age difference | 0: +2; 1: +1; 2: 0; 3–5 (pass 2): −2 |
+| arrival route | EMS: +1; unknown: 0; self-presenter (pass 2): −2 |
+| physician vehicle ↔ IVENA "with physician" | physician vehicle and physician: +2; one of them only (physician vehicle without, ambulance or patient transport with): −1; otherwise 0 |
+| work accident ↔ IVENA work accident | both: +2; one side only: −1; neither: 0 |
+
+Example: arrival 10:00, ED admission 10:07, same sex and age, ambulance: 4 + 2 + 2 + 1 = 9 points; alone
+it scores 512 / (16 + 512) = 0.9697 and becomes `auto_accepted`. A second visit at 10:06 with the same
+values gives both 512 / 1040 = 0.4923: nothing is proposed. Times are compared on the local wall clock
+at minute precision.
+
+**Runs** (`EncounterMatcher`, one transaction under a per-hospital advisory lock that the review takes too):
+
+1. Scope: the allocations of one hospital whose IVENA arrival falls on the given days; candidate visits
+   from the pass windows around them, whatever their day.
+2. Existing effective links reserve both sides; rejected pairs are left out; open proposals of the
+   scope's allocations are dropped and recomputed. Links and manual decisions are never changed.
+3. Pass 1, then pass 2 (`MatchPlanner`, pure). Within a pass all claims are computed first; a claim
+   ≥ auto-accept becomes a link unless another allocation also reaches it for the same visit (then all
+   such claims become proposals with `conflict` and nothing is reserved). A pair proposed in pass 1 keeps
+   its pass-1 result.
+4. Proposals touching a side that is now linked are removed.
+
+**Triggers** (`MatchEncountersMessage`, queue `low`):
+
+| Event | Days |
+|---|---|
+| `EncountersImported` (encounter import with new visits) | the visits' anchor days, each widened by one day on both sides |
+| `ImportCompleted` of an allocation import, if the hospital has encounter data | the arrival days of its allocations |
+| Deletion or reprocess of an allocation or encounter import (`EncounterMatchDataRemover`) | the arrival days of its allocations and the days around its visits; the import's rows are left out and the run waits 30 s for the deletion to commit |
+
+Deleting, reprocessing or requeueing an allocation import removes the links and manual decisions of
+its allocations (ADR 029, as ADR 028 does for encounter imports). The reprocessed import gets new
+allocation ids; the next run links them again automatically, manual decisions have to be made again.
+The allocation import pages do not warn about it (Import does not depend on Encounter); the import docs
+do ([import pipeline](../import/import-pipeline.md#reprocessing), [batch requeue](../import/batch-requeue.md#reimport-cleanup)).
+
+**Proposals across runs**: open proposals are not kept; each run recomputes those of its allocations. A
+pair proposed in pass 1 keeps its pass-1 score when pass 2 sees it again, and proposals touching a side
+that is linked at the end of the run are removed.
+
+**Manual run**: `php bin/console app:encounter:match --hospital=<id> --from=YYYY-MM-DD [--to=YYYY-MM-DD]`
+prints counts only. Synthetic encounters loaded by the fixtures are not matched until it runs.
+
+**Configuration** (`app.encounter.matching`): `auto_accept_threshold` (0.90), `proposal_threshold`
+(0.50), `pass1` and `pass2` with `minutes_before`, `minutes_after`, `max_age_difference` (20/45/2 and
+30/90/5). A change applies from the next run; existing links stay.
+
+**Read model**: `EncounterKeyChangeSummaryQuery` counts links and decisions per hospital; pages follow
+with #1054 and #1055.
 
 ## Statistics in the pilot
 

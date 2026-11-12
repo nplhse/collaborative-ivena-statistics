@@ -50,6 +50,11 @@ final class AppExtension extends Extension
 
         // Encounter upload file retention and data preparation tool (ADR 025)
         $container->setParameter('app.encounter.source_file_retention_days', $config['encounter']['source_file_retention_days']);
+        $matchingConfig = $config['encounter']['matching'];
+        $container->setParameter('app.encounter.matching.auto_accept_threshold', $matchingConfig['auto_accept_threshold']);
+        $container->setParameter('app.encounter.matching.proposal_threshold', $matchingConfig['proposal_threshold']);
+        $container->setParameter('app.encounter.matching.pass1', $matchingConfig['pass1']);
+        $container->setParameter('app.encounter.matching.pass2', $matchingConfig['pass2']);
         $dataPrepConfig = $config['encounter']['data_prep'];
         $container->setParameter('app.encounter.data_prep.version', $dataPrepConfig['version']);
         $container->setParameter('app.encounter.data_prep.min_version', $dataPrepConfig['min_version']);

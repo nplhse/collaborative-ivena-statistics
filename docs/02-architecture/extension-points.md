@@ -119,11 +119,14 @@ edit shell.
 **Consumer:** `ImportRelatedDataCleanupService::removeRows()`, used by import deletion and by the cleanup
 before a reprocess or a redelivered run
 
-**Implementations:** `EncounterImportDataRemover` (encounters created by the import, #1047)
+**Implementations:** `EncounterImportDataRemover` (encounters created by the import, #1047),
+`EncounterMatchDataRemover` (links, proposals and decisions of the import's allocations or visits, then a
+matcher rerun for the freed hospital-days, #1053; priority 10, so it runs while the visits still exist)
 
 Lets a context that stores rows per import remove them together with the import's own rows, in the same
 transaction, without a dependency from `Import` on that context. `key()` names the count in the cleanup
-log (`import.<key>.cleared`). Removers run before the allocation rows are deleted.
+log (`import.<key>.cleared`). Removers run before the allocation rows are deleted, in descending priority
+(`#[AsTaggedItem(priority: …)]`).
 
 ## Import workflow dispatchers
 

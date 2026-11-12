@@ -106,7 +106,8 @@ When an import is deleted (UI, admin or a [bulk deletion](bulk-actions.md#delete
 - Related allocations, assessments, MCI cases, and projection rows
 - Rows other contexts stored for the import, through `ImportDataRemoverInterface` implementations
   ([extension point](../../02-architecture/extension-points.md#import-data-removers)); today the encounters the import
-  created ([encounter README](../encounter/README.md#model))
+  created ([encounter README](../encounter/README.md#model)) and the encounter links of its allocations or
+  visits ([matching](../encounter/README.md#matching))
 - Batch-run history entries for that import
 - The uploaded source file under `var/imports/...`
 - The reject CSV file, if one was written during processing
@@ -118,6 +119,12 @@ File paths are resolved and removed through `ImportFileStorage` (Symfony `Filesy
 ## Reprocessing
 
 An existing import can be processed again from its stored source file with **Reprocess import** on the detail page, or with `app:import:start`. Both register a new run; the handler removes the data of the previous run first. Details: [import-runs.md](import-runs.md#reprocessing-from-the-detail-page)
+
+> **Hospitals with encounter data:** reprocessing or requeueing an allocation import removes the IVENA
+> links and the manual review decisions of its allocations. The matcher links the new allocations again
+> automatically; manual decisions have to be made again
+> ([ADR 029](../../02-architecture/decisions/029-encounter-allocation-matching.md#runs)). The pages and
+> commands do not warn about this, because Import does not depend on Encounter.
 
 ## Data coverage
 

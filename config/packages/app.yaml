@@ -85,6 +85,13 @@ app:
         # Days an upload file is kept for error analysis and reprocessing before the daily job deletes it
         # (ADR 025, docs/04-features/encounter/README.md#upload-file-retention). Imported encounters stay.
         source_file_retention_days: 30
+        # Matcher of ED visits and IVENA allocations (ADR 029, docs/04-features/encounter/README.md#matching).
+        # Changing a value changes which pairs are linked from the next run on; existing links stay.
+        matching:
+            auto_accept_threshold: 0.90
+            proposal_threshold: 0.50
+            pass1: { minutes_before: 20, minutes_after: 45, max_age_difference: 2 }
+            pass2: { minutes_before: 30, minutes_after: 90, max_age_difference: 5 }
         # Offline data preparation tool (ADR 025): raise version with every change to the tool or a
         # bundled profile; raise min_version to block older tools (docs/04-features/encounter/data-preparation-tool.md).
         data_prep:
