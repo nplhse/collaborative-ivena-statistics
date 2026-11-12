@@ -78,8 +78,13 @@ app:
             overdue_after_minutes: 120
         monitoring_retention:
             overdue_after_minutes: 1500
+        encounter_source_file_retention:
+            overdue_after_minutes: 1500
 
     encounter:
+        # Days an upload file is kept for error analysis and reprocessing before the daily job deletes it
+        # (ADR 025, docs/04-features/encounter/README.md#upload-file-retention). Imported encounters stay.
+        source_file_retention_days: 30
         # Offline data preparation tool (ADR 025): raise version with every change to the tool or a
         # bundled profile; raise min_version to block older tools (docs/04-features/encounter/data-preparation-tool.md).
         data_prep:

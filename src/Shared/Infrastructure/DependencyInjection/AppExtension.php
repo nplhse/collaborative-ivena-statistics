@@ -48,7 +48,8 @@ final class AppExtension extends Extension
         $container->setParameter('app.messenger_monitoring.retention', $config['messenger_monitoring']['retention']);
         $container->setParameter('app.messenger_monitoring.health', $config['messenger_monitoring']['health']);
 
-        // Encounter data preparation tool (ADR 025)
+        // Encounter upload file retention and data preparation tool (ADR 025)
+        $container->setParameter('app.encounter.source_file_retention_days', $config['encounter']['source_file_retention_days']);
         $dataPrepConfig = $config['encounter']['data_prep'];
         $container->setParameter('app.encounter.data_prep.version', $dataPrepConfig['version']);
         $container->setParameter('app.encounter.data_prep.min_version', $dataPrepConfig['min_version']);

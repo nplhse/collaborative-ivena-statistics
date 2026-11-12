@@ -170,6 +170,35 @@ final class AppConfigurationTest extends TestCase
         self::assertSame(['version' => '1.0.0', 'min_version' => '1.0.0', 'released_at' => '2026-11-12'], $processed['encounter']['data_prep']);
     }
 
+    public function testEncounterSourceFileRetentionDefaultsToThirtyDays(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig()]);
+
+        self::assertSame(30, $processed['encounter']['source_file_retention_days']);
+    }
+
+    #[DataProvider('invalidEncounterSourceFileRetentionDays')]
+    public function testEncounterSourceFileRetentionMustBeAPositiveInteger(mixed $days): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        new Processor()->processConfiguration(new AppConfiguration(), [[
+            ...$this->minimalConfig(),
+            'encounter' => ['source_file_retention_days' => $days],
+        ]]);
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function invalidEncounterSourceFileRetentionDays(): iterable
+    {
+        yield 'zero' => [0];
+        yield 'negative' => [-1];
+        yield 'string' => ['30'];
+        yield 'float' => [30.5];
+    }
+
     /**
      * @param array<string, string> $dataPrep
      */

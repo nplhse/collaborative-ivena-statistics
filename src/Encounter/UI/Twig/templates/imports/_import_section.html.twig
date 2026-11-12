@@ -3,7 +3,7 @@
     <div class="alert alert-danger" role="alert" data-test="encounter-file-rejection">
         <h4 class="alert-title">{{ 'encounter.import.rejected.title'|trans({}, 'encounter') }}</h4>
         <div>{{ ('encounter.import.rejection.' ~ encounter_import.fileRejection.value)|trans({}, 'encounter') }}</div>
-        {% if encounter_import.sourceFileDeleted %}
+        {% if encounter_import.sourceFileDeleted and encounter_import.fileRejection.deletesSourceFile %}
             <div class="mt-1" data-test="encounter-source-deleted">{{ 'encounter.import.rejected.source_deleted'|trans({}, 'encounter') }}</div>
         {% endif %}
     </div>
@@ -32,6 +32,20 @@
             <div class="datagrid-item">
                 <div class="datagrid-title">{{ 'encounter.import.field.key_generation'|trans({}, 'encounter') }}</div>
                 <div class="datagrid-content">{{ encounter_import.keyGeneration }}</div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'encounter.import.field.source_file'|trans({}, 'encounter') }}</div>
+                <div class="datagrid-content" data-test="encounter-source-file">
+                    {% if encounter_import.sourceFileDeleted %}
+                        {% if encounter_import.sourceFileDeletedAt is not null %}
+                            {{ 'encounter.import.source_file.deleted_on'|trans({date: encounter_import.sourceFileDeletedAt|format_date('medium')}, 'encounter') }}
+                        {% else %}
+                            {{ 'encounter.import.source_file.deleted'|trans({}, 'encounter') }}
+                        {% endif %}
+                    {% else %}
+                        {{ 'encounter.import.source_file.kept_until'|trans({date: source_file_kept_until|format_date('medium'), days: source_file_retention_days}, 'encounter') }}
+                    {% endif %}
+                </div>
             </div>
             <div class="datagrid-item">
                 <div class="datagrid-title">{{ 'encounter.import.field.confirmation'|trans({}, 'encounter') }}</div>

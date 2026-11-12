@@ -35,6 +35,7 @@ use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -68,6 +69,7 @@ final readonly class ImportEncountersMessageHandler
         private EncounterFileImporter $fileImporter,
         private AuditContext $auditContext,
         private EventDispatcherInterface $eventDispatcher,
+        private ClockInterface $clock,
         #[Target('import')]
         private LoggerInterface $importLogger,
     ) {
@@ -184,7 +186,11 @@ final readonly class ImportEncountersMessageHandler
             ImportRunReasonCode::InvalidFile,
             function (Import $fresh) use ($reason, $deleted, $runtimeMs): void {
                 $fresh->markAsFailed($runtimeMs);
-                $this->encounterImportOf($fresh)->rejectFile($reason, $deleted);
+                $encounterImport = $this->encounterImportOf($fresh);
+                $encounterImport->rejectFile($reason);
+                if ($deleted) {
+                    $encounterImport->markSourceFileDeleted($this->clock->now());
+                }
             },
         );
     }

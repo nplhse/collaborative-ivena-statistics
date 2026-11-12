@@ -31,7 +31,8 @@ Decisions: [ADR 025](../../02-architecture/decisions/025-encounter-data-context-
 5. Matching links encounters with IVENA allocations; automatic links are effective, people review
    proposals and conflicts.
 6. Uploaded files are kept for 30 days for error analysis (`app.encounter.source_file_retention_days`);
-   files recognised as raw HIS exports are deleted immediately.
+   files recognised as raw HIS exports are deleted immediately
+   ([upload file retention](#upload-file-retention)).
 
 Implemented in #1051: the tool v1 with the ORBIS MTS profile, its download on `/encounter`, the
 public update check `/data-prep/latest.json` and the version options `app.encounter.data_prep`
@@ -160,8 +161,9 @@ page lists them for users with `UPLOAD`, without case keys or timestamps. They a
 `UPLOAD` on their hospital (or `ROLE_ADMIN`); hospital ownership or hospital grants alone do not show them
 (ADR 027). The detail page adds an encounter section: new visits, known visits, skipped and rejected
 rows, suspected duplicates, profile, tool version, key generation, confirmation, file rejection, the
-reject list and the suspected-duplicate list. No file content. Downloading the source file stays with
-administrators until source file retention (#1049).
+reject list and the suspected-duplicate list, and until when the upload file is kept or when it was
+deleted. No file content. **Download** (`/import/{id}/source-file`) with `UPLOAD` on the hospital (or
+`ROLE_ADMIN`), only while the file is kept; downloads are audited (`import.source_file.downloaded`).
 
 | Count | Meaning |
 |---|---|
@@ -182,6 +184,30 @@ before that links and review decisions of the import are lost.
 and review decisions, its rejects, report, suspected-duplicate records and source file. Visits of other
 imports stay (ADR 028). The confirmation dialog says so; the deletion is audited like every import
 deletion.
+
+### Upload file retention
+
+Accepted files and files rejected for a possible processing error are kept for
+`app.encounter.source_file_retention_days` days (default 30, positive integer, no env variable) for
+error analysis and reprocessing after a bug fix (ADR 025, #1049).
+
+- The age counts from the upload (`import.created_at`); a reprocess does not extend it. A file is
+  deleted once it is older than the retention: uploaded on 1 October 10:00, it is kept on 30 October
+  and deleted by the run on 1 November.
+- The daily scheduler job `encounter_source_file_retention` (03:10 Europe/Berlin,
+  `DeleteExpiredEncounterSourceFilesMessage`, `EncounterSourceFileRetention`) deletes the files and
+  stores the date in `encounter_import.source_file_deleted_at`. It is recorded in `job_run` with the
+  counters `deleted_files`, `missing_files`, `failed_deletions` and `retention_days`
+  ([messenger-monitoring.md](../../05-operations/messenger-monitoring.md#scheduler-jobs-in-the-run-log)).
+- Imports with a pending or running run are left for the next day. A file that is already gone is
+  marked as deleted; a failed deletion is logged and retried the next day.
+- Manual run: `php bin/console app:encounter:delete-expired-source-files [--dry-run]` (import ids only;
+  not recorded as a job run).
+- Afterwards the detail page shows "File deleted on …"; download and reprocess are no longer offered
+  and refused. The import record, its report, rejects and the imported encounters stay.
+- Files recognised as raw HIS exports or with identifying content are deleted by the import at once,
+  with the date of that run.
+- Allocation and closure imports are not affected.
 
 **Afterwards**: a successful run with new visits dispatches `EncountersImported` (hospital, import, anchor
 days of the inserted visits) for the matcher (#1053). Nothing consumes it yet.
@@ -284,7 +310,7 @@ Implemented in #1046:
   Candidates are the owner (who can grant themselves case access) and users with a hospital access
   grant. Removing someone's hospital access, or changing the owner, removes their encounter grant.
 - `EncounterVoter` with the attributes in `EncounterAttribute`; later steps check them on the hospital
-  of the requested object. File download auditing comes with source file retention (#1049).
+  of the requested object. Downloads of upload files are audited like every import source file download.
 
 Details:
 [ADR 027](../../02-architecture/decisions/027-encounter-access-grants.md),
