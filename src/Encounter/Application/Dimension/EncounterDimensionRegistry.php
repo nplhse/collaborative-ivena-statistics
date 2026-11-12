@@ -8,8 +8,6 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 /**
  * All encounter schemas known to the server, by schema name (extension point `encounter.dimension`).
- *
- * @psalm-suppress UnusedClass Extension point of #1047; the encounter import (#1048) is its first consumer.
  */
 final readonly class EncounterDimensionRegistry
 {
@@ -18,6 +16,8 @@ final readonly class EncounterDimensionRegistry
 
     /**
      * @param iterable<EncounterDimensionInterface> $dimensions
+     *
+     * @psalm-suppress PossiblyUnusedMethod Autowired.
      */
     public function __construct(
         #[AutowireIterator(EncounterDimensionInterface::TAG)]

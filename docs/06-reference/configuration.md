@@ -61,6 +61,7 @@ Custom app settings in `config/packages/app.yaml` (via `AppExtension`):
 | `app.blog.title` / `app.blog.description` | — | Blog metadata |
 | `app.import.reject_writer` | `db` | Reject persistence: `db` or `csv` |
 | `app.import.csv_reject_dir` | `var/import_rejects` | CSV reject output directory |
+| `app.encounter.min_tool_version` | `0.3.0` | Lowest data preparation tool version whose encounter files are accepted; older files are rejected as a whole ([encounter import](../04-features/encounter/README.md#import)) |
 | `app.registration.blocked_email_domains` | `.ru` | Domain suffixes that silently suppress registration (exact domain or TLD; case-insensitive, label-based; UI matches a successful registration) |
 | `app.feedback.spam.*` | — | Feedback spam detection thresholds |
 | `app.meta.copyright_start_year` | `2025` | Start year for footer copyright range (`© 2025–{current year}`) |

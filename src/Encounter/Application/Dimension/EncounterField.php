@@ -7,8 +7,6 @@ namespace App\Encounter\Application\Dimension;
 /**
  * Contract of one column of a canonical exchange file. Empty cells are null; `required` fields must
  * not be empty. Rules across fields (for example "one of two timestamps") belong to the import.
- *
- * @psalm-suppress PossiblyUnusedProperty Read by the encounter import (#1048).
  */
 final readonly class EncounterField
 {
