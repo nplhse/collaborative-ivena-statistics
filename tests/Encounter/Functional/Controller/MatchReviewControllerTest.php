@@ -157,6 +157,10 @@ final class MatchReviewControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-test="encounter-review-header-status"]', 'Linked automatically');
         self::assertSelectorExists('[data-test="encounter-review-candidates-card"] [data-test="encounter-review-candidate"]');
 
+        // 9 points would reach the auto-accept threshold alone (512 / 528); 5 points only 32 / 48 = 0.67.
+        self::assertSame('match', $this->comparison($crawler, $best)->filter('[data-test="encounter-review-total"]')->attr('data-level'));
+        self::assertSame('proposal', $this->comparison($crawler, $other)->filter('[data-test="encounter-review-total"]')->attr('data-level'));
+
         // The optional MTS/IVENA context is collapsed; the fixture visit has no triage documented.
         $extended = $crawler->filter('[data-test="encounter-review-comparison"][data-encounter="'.$best.'"] details[data-test="encounter-review-extended"]');
         self::assertCount(1, $extended);

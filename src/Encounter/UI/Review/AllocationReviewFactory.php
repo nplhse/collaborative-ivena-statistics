@@ -108,6 +108,7 @@ final readonly class AllocationReviewFactory
                 'is_link' => null !== $link && $link['encounter_id'] === $candidate->encounterId,
                 'can_confirm' => !isset($elsewhere[$candidate->encounterId]) && MatchStatus::Confirmed !== ($own[$candidate->encounterId]['status'] ?? null),
                 'can_reject' => isset($own[$candidate->encounterId]) && MatchStatus::Rejected !== $own[$candidate->encounterId]['status'],
+                'total_level' => $this->totalLevel($candidate->points),
                 'extended' => $this->mts($extended['encounters'][$candidate->encounterId] ?? null),
             ];
         }
@@ -141,6 +142,22 @@ final readonly class AllocationReviewFactory
             'swaps' => $this->swaps->forAllocation($hospitalId, $matching),
             'window' => $window,
         ];
+    }
+
+    /**
+     * What the total points would mean for a pair that is the only candidate (agreement against the "no
+     * match" option alone): `match` reaches the auto-accept threshold, `proposal` the proposal threshold,
+     * `weak` neither. With the default thresholds: 8 points and more, 4 to 7, below 4.
+     */
+    private function totalLevel(int $points): string
+    {
+        $agreement = MatchPlanner::agreementAlone($points);
+
+        return match (true) {
+            $agreement >= $this->settings->autoAcceptThreshold => 'match',
+            $agreement >= $this->settings->proposalThreshold => 'proposal',
+            default => 'weak',
+        };
     }
 
     /**

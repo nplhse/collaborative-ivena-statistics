@@ -1397,6 +1397,18 @@
         <source>encounter.review.points_total</source>
         <target>Summe der Punkte</target>
       </trans-unit>
+      <trans-unit id="EncA54BEF6D" resname="encounter.review.total_level.match">
+        <source>encounter.review.total_level.match</source>
+        <target>passt gut</target>
+      </trans-unit>
+      <trans-unit id="Enc5669AAAA" resname="encounter.review.total_level.proposal">
+        <source>encounter.review.total_level.proposal</source>
+        <target>passt teilweise</target>
+      </trans-unit>
+      <trans-unit id="EncD6E13B48" resname="encounter.review.total_level.weak">
+        <source>encounter.review.total_level.weak</source>
+        <target>passt kaum</target>
+      </trans-unit>
       <trans-unit id="Enc9A2C1548" resname="encounter.review.extended.title">
         <source>encounter.review.extended.title</source>
         <target>Erweiterte Informationen (MTS, IVENA)</target>

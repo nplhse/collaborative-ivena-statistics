@@ -457,7 +457,10 @@ that window, the stored score of the pass that found the pair, and its status or
 The comparison column sets the chosen candidate against the allocation: expected IVENA arrival and ED admission (or the
 marked substitute, first assessment contact) side by side with the agreement between them, then per feature
 both compared values and the contribution (for, against, neutral or missing) and the total points, and other
-allocations proposed for the same visit. A collapsed section "Extended information (MTS, IVENA)" adds, for
+allocations proposed for the same visit. The total is coloured by what it would mean for a sole candidate
+(`MatchPlanner::agreementAlone()`): "fits well" (green) reaches the auto-accept threshold (8 points and more
+by default), "fits partly" (yellow) the proposal threshold (4–7), "hardly fits" (red) neither. It rates the
+features only; the agreement beside it also accounts for competing candidates. A collapsed section "Extended information (MTS, IVENA)" adds, for
 unclear cases, IVENA urgency and normalized indication beside MTS category, diagram and indicator of the visit
 (`MatchReviewQuery::extendedInfo()`). They are no matching features (ADR 029) and the page says so: later
 analyses compare exactly these between IVENA and the ED. Whether a decision used them is not recorded. The card header names the current link and its origin (automatic:

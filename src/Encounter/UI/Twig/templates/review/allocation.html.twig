@@ -57,21 +57,19 @@
         <div class="col-lg-8">
             <div class="card h-100" data-test="encounter-review-decision">
                 <div class="card-header">
-                    <div>
-                        <h3 class="card-title">{{ 'encounter.review.comparison_title'|trans({}, 'encounter') }}</h3>
-                        <div class="text-secondary small mt-1" data-test="encounter-review-current">
-                            {% if link %}
-                                {{ 'encounter.review.linked_to'|trans({visit: link.encounter_id}, 'encounter') }}
-                                {% if link.status.value == 'auto_accepted' %}
-                                    <span data-test="encounter-review-automatic-origin">{{ 'encounter.review.automatic_origin'|trans({score: link.score|format_number({fraction_digit: 2}), pass: link.pass ?? '–'}, 'encounter') }}</span>
-                                {% elseif link.decided_at %}
-                                    {{ 'encounter.review.decided_by'|trans({user: link.decided_by ?? '–', at: link.decided_at|date('d.m.Y H:i')}, 'encounter') }}
-                                {% endif %}
-                            {% else %}
-                                <span data-test="encounter-review-not-linked">{{ 'encounter.review.not_linked'|trans({}, 'encounter') }}</span>
-                            {% endif %}
-                        </div>
-                    </div>
+                    <h3 class="card-title">{{ 'encounter.review.comparison_title'|trans({}, 'encounter') }}</h3>
+                </div>
+                <div class="card-body border-bottom py-2 text-secondary small" data-test="encounter-review-current">
+                    {% if link %}
+                        {{ 'encounter.review.linked_to'|trans({visit: link.encounter_id}, 'encounter') }}
+                        {% if link.status.value == 'auto_accepted' %}
+                            <span data-test="encounter-review-automatic-origin">{{ 'encounter.review.automatic_origin'|trans({score: link.score|format_number({fraction_digit: 2}), pass: link.pass ?? '–'}, 'encounter') }}</span>
+                        {% elseif link.decided_at %}
+                            {{ 'encounter.review.decided_by'|trans({user: link.decided_by ?? '–', at: link.decided_at|date('d.m.Y H:i')}, 'encounter') }}
+                        {% endif %}
+                    {% else %}
+                        <span data-test="encounter-review-not-linked">{{ 'encounter.review.not_linked'|trans({}, 'encounter') }}</span>
+                    {% endif %}
                 </div>
                 {% if candidates is empty %}
                     <div class="card-body">

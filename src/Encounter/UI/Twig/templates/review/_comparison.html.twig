@@ -54,7 +54,13 @@
             <tfoot>
                 <tr>
                     <td colspan="3" class="fw-medium">{{ 'encounter.review.points_total'|trans({}, 'encounter') }}</td>
-                    <td class="text-end fw-medium">{{ '%+d'|format(candidate.points) }}</td>
+                    <td class="text-end">
+                        {% set total = {match: 'green', proposal: 'yellow', weak: 'red'}[candidate.total_level] %}
+                        <twig:Badge :variant="total" title="{{ ('encounter.review.total_level.' ~ candidate.total_level)|trans({}, 'encounter') }}" data-test="encounter-review-total" data-level="{{ candidate.total_level }}">
+                            <span class="fw-bold">{{ '%+d'|format(candidate.points) }}</span>
+                            <span class="d-none d-md-inline"> · {{ ('encounter.review.total_level.' ~ candidate.total_level)|trans({}, 'encounter') }}</span>
+                        </twig:Badge>
+                    </td>
                 </tr>
             </tfoot>
         </table>
