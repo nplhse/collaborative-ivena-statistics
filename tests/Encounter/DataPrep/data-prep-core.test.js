@@ -252,7 +252,7 @@ describe('transformation of the synthetic sample', () => {
             'or',
             'unmapped station keeps the level of the disposition text',
         );
-        assert.equal(operation.admitting_department, 'Unfallchirurgie, Allgemein');
+        assert.equal(operation.admitting_department, 'Unfallchirurgie');
         assert.equal(operation.pain_score, '');
         assert.equal(operation.mts_diagram, '', 'unknown diagrams stay empty');
     });
@@ -364,7 +364,18 @@ describe('local map', () => {
             profile,
         );
         assert.equal(loaded.departments.get('gch x'), 'Gefäßchirurgie');
-        for (const invalid of ['a"b', 'x'.repeat(65), 'tab\there', ' Leading', '', 42]) {
+        for (const invalid of [
+            'Chirurgie, Allgemein',
+            'Chirurgie,Allgemein',
+            'Station Dr. Muster',
+            'Neu ab 01.01.2027',
+            'a"b',
+            'x'.repeat(65),
+            'tab\there',
+            ' Leading',
+            '',
+            42,
+        ]) {
             assert.throws(
                 () => prep.loadLocalMap(map({ X: invalid }), profile),
                 /invalid-local-map/,

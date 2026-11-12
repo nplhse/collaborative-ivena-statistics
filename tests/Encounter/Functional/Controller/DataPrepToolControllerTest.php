@@ -30,7 +30,7 @@ final class DataPrepToolControllerTest extends WebTestCase
         self::assertSame([], $response->headers->getCookies(), 'The update check must not set cookies.');
         self::assertFalse($response->headers->has('Set-Cookie'));
         self::assertSame([
-            'version' => '1.0.1',
+            'version' => '1.0.2',
             'minVersion' => '1.0.0',
             'releasedAt' => '2026-11-12',
             'downloadUrl' => 'http://localhost/encounter/data-prep/download',
@@ -56,7 +56,7 @@ final class DataPrepToolControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         $response = $client->getResponse();
-        self::assertSame('attachment; filename=encounter-data-prep-1.0.1.html', $response->headers->get('Content-Disposition'));
+        self::assertSame('attachment; filename=encounter-data-prep-1.0.2.html', $response->headers->get('Content-Disposition'));
         $html = (string) $response->getContent();
 
         self::assertStringContainsString(
@@ -79,6 +79,6 @@ final class DataPrepToolControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         $link = $crawler->filter('[data-test="encounter-data-prep"] a[href="/encounter/data-prep/download"]');
         self::assertCount(1, $link);
-        self::assertSame('encounter-data-prep-1.0.1.html', $link->attr('download'));
+        self::assertSame('encounter-data-prep-1.0.2.html', $link->attr('download'));
     }
 }
