@@ -18,7 +18,7 @@ use Doctrine\DBAL\Connection;
 
 /**
  * Two queries for any number of hospitals: allocation imports from `import`, and monthly volumes from
- * `allocation_stats_projection` (index `idx_asp_hospital_created`). Projection rows count only when their import is
+ * `allocation_stats_projection` (by hospital, year and month). Projection rows count only when their import is
  * completed or partial, so failed imports never add allocations.
  */
 final readonly class HospitalDataSnapshotQuery implements HospitalDataSnapshotReaderInterface
@@ -61,11 +61,15 @@ final readonly class HospitalDataSnapshotQuery implements HospitalDataSnapshotRe
      */
     private function monthlyVolumes(array $hospitalIds): array
     {
-        /** @var list<array{hospital_id: int|string, month: string, allocations: int|string, first_at: string, last_at: string}> $rows */
+        // Grouped by the projection's year and month columns, not date_trunc(): Postgres has statistics for them,
+        // expects a few groups and aggregates by hash instead of sorting every row (EXPLAIN on the prod mirror:
+        // 80 hospitals, 2.3M rows, 3.3 s → 0.8 s; see my-hospitals-overview.md).
+        /** @var list<array{hospital_id: int|string, created_year: int|string, created_month: int|string, allocations: int|string, first_at: string, last_at: string}> $rows */
         $rows = $this->connection->fetchAllAssociative(
             <<<'SQL'
             SELECT p.hospital_id,
-                   to_char(date_trunc('month', p.created_at), 'YYYY-MM') AS month,
+                   p.created_year,
+                   p.created_month,
                    COUNT(*) AS allocations,
                    MIN(p.created_at) AS first_at,
                    MAX(p.created_at) AS last_at
@@ -73,8 +77,8 @@ final readonly class HospitalDataSnapshotQuery implements HospitalDataSnapshotRe
             INNER JOIN import i ON i.id = p.import_id
             WHERE p.hospital_id IN (:hospitalIds)
               AND i.status IN (:relevantStatuses)
-            GROUP BY p.hospital_id, date_trunc('month', p.created_at)
-            ORDER BY p.hospital_id, date_trunc('month', p.created_at)
+            GROUP BY p.hospital_id, p.created_year, p.created_month
+            ORDER BY p.hospital_id, p.created_year, p.created_month
             SQL,
             ['hospitalIds' => $hospitalIds, 'relevantStatuses' => $this->relevantStatuses()],
             ['hospitalIds' => ArrayParameterType::INTEGER, 'relevantStatuses' => ArrayParameterType::STRING],
@@ -83,7 +87,7 @@ final readonly class HospitalDataSnapshotQuery implements HospitalDataSnapshotRe
         $byHospital = [];
         foreach ($rows as $row) {
             $byHospital[(int) $row['hospital_id']][] = [
-                'month' => $row['month'],
+                'month' => \sprintf('%04d-%02d', (int) $row['created_year'], (int) $row['created_month']),
                 'allocations' => (int) $row['allocations'],
                 'first_at' => $row['first_at'],
                 'last_at' => $row['last_at'],
