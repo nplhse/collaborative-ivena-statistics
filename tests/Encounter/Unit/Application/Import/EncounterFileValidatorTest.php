@@ -72,6 +72,9 @@ final class EncounterFileValidatorTest extends TestCase
         yield 'not UTF-8' => [$valid()->visit('b', '2026-10-01T09:00', overrides: ['mts_diagram' => "Bauch\xFC"])->build(), EncounterFileRejection::EncodingInvalid];
         yield 'manifest without key check' => [$valid()->manifest('key_check', null)->build(), EncounterFileRejection::ManifestInvalid];
         yield 'manifest with malformed key check' => [$valid()->manifest('key_check', 'xyz')->build(), EncounterFileRejection::ManifestInvalid];
+        yield 'manifest key twice' => [str_replace(';rows=', ';schema=ed_visit;rows=', $valid()->build()), EncounterFileRejection::ManifestInvalid];
+        yield 'manifest part without value' => [str_replace(';rows=', ';broken;rows=', $valid()->build()), EncounterFileRejection::ManifestInvalid];
+        yield 'rows not a number' => [$valid()->manifest('rows', 'many')->build(), EncounterFileRejection::ManifestInvalid];
         yield 'malformed tool version' => [$valid()->manifest('tool', 'latest')->build(), EncounterFileRejection::ManifestInvalid];
         yield 'unknown schema' => [$valid()->manifest('schema', 'inpatient_stay')->build(), EncounterFileRejection::SchemaUnsupported];
         yield 'unknown schema version' => [$valid()->manifest('schema_version', '2')->build(), EncounterFileRejection::SchemaUnsupported];
