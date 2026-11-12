@@ -110,6 +110,21 @@ Lets other contexts add a sidebar group with links to the hospital edit pages wi
 the page. A page that wants its link highlighted passes `activeSection: '<section key>.<link key>'` to the
 edit shell.
 
+## Explore glossary entries
+
+**Tag:** `allocation.catalog_glossary_entry`
+
+**Interface:** `CatalogGlossaryEntryProviderInterface` (`src/Allocation/Application/Explore/Catalog/`)
+
+**Registry:** `CatalogGlossaryEntryRegistry`, rendered on the glossary hub `@Allocation/glossary/index.html.twig`
+
+**Implementations:** `EncounterGlossaryEntryProvider` (MTS glossary, #1056)
+
+Lets other contexts add a card to the Explore glossary hub that links to a glossary page on their own
+route, without a dependency from `Allocation` on them. Route names start with `app_explore_glossary_`
+so the Explore subnav marks the glossary as active. Rules for such pages:
+[explore-glossary.md](../04-features/allocation/explore-glossary.md).
+
 ## Import data removers
 
 **Tag:** `import.data_remover`
