@@ -1,0 +1,5 @@
+{# One OverviewCount as table cells: count (suppressed below the threshold) and share. #}
+<td class="text-end" data-testid="encounter-count" data-key="{{ row.key }}">{{ include('@Encounter/glossary/_count.html.twig', {count: row.count}) }}</td>
+{% if with_share ?? true %}
+    <td class="text-end text-secondary" data-testid="encounter-share">{{ row.share is null ? '' : row.share|format_number({max_fraction_digit: 1}) ~ ' %' }}</td>
+{% endif %}

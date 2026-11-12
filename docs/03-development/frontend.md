@@ -39,6 +39,7 @@ Custom controllers live in `assets/controllers/*_controller.js`. Examples:
 | `hospital-population-charts`, `hospital-population-map` | Hospital population |
 | `benchmarking-charts` | Benchmarking |
 | `analysis-chart`, `generic-analysis-chart` | Analysis views |
+| `encounter-overview-chart` | Bar charts of the encounter overview; suppressed counts arrive as `null` and are not drawn |
 | `catalog-orientation-map` | Explore allocation/hospital orientation map (Leaflet, Turf) |
 | `result-count-mirror` | Copies DataTable `#result-count` into the page header after Turbo frame loads |
 | `bulk-selection` | Row selection, count and toolbar for DataTable bulk actions and the notification inbox |

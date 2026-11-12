@@ -1,0 +1,269 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set d = 'encounter' %}
+{% set threshold = constant('App\\Encounter\\Application\\Glossary\\MtsCount::THRESHOLD') %}
+
+{% block title %}{{ 'encounter.overview_page.title'|trans({}, d) }}: {{ hospital.name }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <twig:PageHeader :title="'encounter.overview_page.title'|trans({}, 'encounter')" :pretitle="hospital.name">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'encounter.nav'|trans({}, 'encounter'), translatable: false, path: path('app_encounter_index') },
+                { label: hospital.name, translatable: false }
+            ]" />
+        </twig:block>
+    </twig:PageHeader>
+{% endblock %}
+
+{% block page_content %}
+    {% set coverage = overview.coverage %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-2 align-items-end" data-testid="encounter-period-form">
+                <div class="col-sm-auto">
+                    <label class="form-label" for="encounter-period-from">{{ 'encounter.overview_page.period.from'|trans({}, d) }}</label>
+                    <input type="date" class="form-control" id="encounter-period-from" name="from" value="{{ overview.period.from ? overview.period.from|date('Y-m-d') }}">
+                </div>
+                <div class="col-sm-auto">
+                    <label class="form-label" for="encounter-period-to">{{ 'encounter.overview_page.period.to'|trans({}, d) }}</label>
+                    <input type="date" class="form-control" id="encounter-period-to" name="to" value="{{ overview.period.to ? overview.period.to|date('Y-m-d') }}">
+                </div>
+                <div class="col-sm-auto">
+                    <button type="submit" class="btn btn-primary">{{ 'encounter.overview_page.period.apply'|trans({}, d) }}</button>
+                    {% if not overview.period.isAllTime() %}
+                        <a class="btn btn-link" href="{{ path('app_encounter_hospital_overview', {id: hospital.id}) }}">{{ 'encounter.overview_page.period.reset'|trans({}, d) }}</a>
+                    {% endif %}
+                </div>
+            </form>
+            <p class="small text-secondary mt-2 mb-0">{{ 'encounter.overview_page.period.hint'|trans({}, d) }}</p>
+        </div>
+    </div>
+
+    <div class="row row-cards mb-3" data-testid="encounter-coverage">
+        {% for key, value in {
+            visits: coverage.visits|format_number,
+            days: coverage.days|format_number,
+            imports: coverage.imports|format_number,
+            range: coverage.firstAnchor ? coverage.firstAnchor|date('d.m.Y') ~ ' – ' ~ coverage.lastAnchor|date('d.m.Y') : '–',
+        } %}
+            <div class="col-sm-6 col-lg-3">
+                <div class="card card-sm">
+                    <div class="card-body">
+                        <div class="subheader">{{ ('encounter.overview_page.coverage.' ~ key)|trans({}, d) }}</div>
+                        <div class="h2 mb-0" data-testid="encounter-coverage-{{ key }}">{{ value }}</div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        {% if not overview.period.isAllTime() and overview.allTimeCoverage.firstAnchor %}
+            <div class="col-12">
+                <p class="small text-secondary mb-0" data-testid="encounter-coverage-all-time">
+                    {{ 'encounter.overview_page.coverage.all_time'|trans({
+                        visits: overview.allTimeCoverage.visits,
+                        first: overview.allTimeCoverage.firstAnchor|date('d.m.Y'),
+                        last: overview.allTimeCoverage.lastAnchor|date('d.m.Y'),
+                    }, d) }}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if overview.empty %}
+        <div class="card" data-testid="encounter-overview-empty">
+            <div class="card-body">
+                <p class="text-secondary mb-0">{{ 'encounter.overview_page.empty'|trans({}, d) }}</p>
+            </div>
+        </div>
+    {% else %}
+        {# Arrival route × IVENA link #}
+        {% set routeLabels = {
+            ems: 'encounter.arrival_route.ems'|trans({}, d),
+            self: 'encounter.arrival_route.self'|trans({}, d),
+            unknown: 'encounter.arrival_route.unknown'|trans({}, d),
+            total: 'encounter.overview_page.total'|trans({}, d),
+        } %}
+        {% set routeRows = overview.routeLink|filter(r => r.route != 'total') %}
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">{{ 'encounter.overview_page.route_link.title'|trans({}, d) }}</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-secondary">{{ 'encounter.overview_page.route_link.intro'|trans({}, d) }}</p>
+                <div data-controller="encounter-overview-chart" data-encounter-overview-chart-chart-value="{{ {
+                    categories: routeRows|map(r => routeLabels[r.route]),
+                    stacked: true,
+                    horizontal: true,
+                    series: [
+                        {name: 'encounter.link.automatic'|trans({}, d), color: '#206bc4', data: routeRows|map(r => r.automatic.shownValue)},
+                        {name: 'encounter.link.confirmed'|trans({}, d), color: '#2fb344', data: routeRows|map(r => r.confirmed.shownValue)},
+                        {name: 'encounter.link.not_linked'|trans({}, d), color: '#adb5bd', data: routeRows|map(r => r.notLinked.shownValue)},
+                    ],
+                }|json_encode|e('html_attr') }}"></div>
+            </div>
+            <div class="table-responsive">
+                <table class="table card-table table-vcenter" data-testid="encounter-route-link">
+                    <thead>
+                        <tr>
+                            <th>{{ 'encounter.overview_page.column.arrival_route'|trans({}, d) }}</th>
+                            <th class="text-end" colspan="2">{{ 'encounter.link.automatic'|trans({}, d) }}</th>
+                            <th class="text-end" colspan="2">{{ 'encounter.link.confirmed'|trans({}, d) }}</th>
+                            <th class="text-end" colspan="2">{{ 'encounter.link.linked'|trans({}, d) }}</th>
+                            <th class="text-end" colspan="2">{{ 'encounter.link.not_linked'|trans({}, d) }}</th>
+                            <th class="text-end">{{ 'encounter.overview_page.total'|trans({}, d) }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in overview.routeLink %}
+                            <tr data-testid="encounter-route-link-row" data-route="{{ row.route }}" class="{{ row.route == 'total' ? 'fw-semibold' }}">
+                                <td>{{ routeLabels[row.route] }}</td>
+                                {{ include('@Encounter/overview/_count_cell.html.twig', {row: row.automatic}) }}
+                                {{ include('@Encounter/overview/_count_cell.html.twig', {row: row.confirmed}) }}
+                                {{ include('@Encounter/overview/_count_cell.html.twig', {row: row.linked}) }}
+                                {{ include('@Encounter/overview/_count_cell.html.twig', {row: row.notLinked}) }}
+                                {{ include('@Encounter/overview/_count_cell.html.twig', {row: row.total, with_share: false}) }}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer small text-secondary">{{ 'encounter.overview_page.route_link.note'|trans({}, d) }}</div>
+        </div>
+
+        {# MTS #}
+        {% set categoryLabels = {'': 'encounter.overview_page.not_documented'|trans({}, d)} %}
+        {% for row in overview.categories|filter(r => r.key != '') %}
+            {% set categoryLabels = categoryLabels|merge({(row.key): ('encounter.mts.category.' ~ row.key ~ '.name')|trans({}, d)}) %}
+        {% endfor %}
+        {% set namedCategories = overview.categories|filter(r => r.key != '') %}
+        <div class="row row-cards mb-3">
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ 'encounter.overview_page.mts.categories'|trans({}, d) }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div data-controller="encounter-overview-chart" data-encounter-overview-chart-chart-value="{{ {
+                            categories: namedCategories|map(r => categoryLabels[r.key]),
+                            colors: ['#d63939', '#f76707', '#f59f00', '#2fb344', '#206bc4'],
+                            series: [{name: 'encounter.overview_page.column.visits'|trans({}, d), data: namedCategories|map(r => r.shownValue)}],
+                        }|json_encode|e('html_attr') }}"></div>
+                    </div>
+                    {{ include('@Encounter/overview/_count_table.html.twig', {
+                        rows: overview.categories,
+                        labels: categoryLabels,
+                        testid: 'encounter-categories',
+                        label_header: 'encounter.course.field.category'|trans({}, d),
+                    }) }}
+                    <div class="card-footer small text-secondary">{{ 'encounter.overview_page.mts.note'|trans({}, d) }}</div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ 'encounter.overview_page.mts.diagrams'|trans({top: overview.diagramsShown}, d) }}</h3>
+                    </div>
+                    {{ include('@Encounter/overview/_count_table.html.twig', {
+                        rows: overview.diagrams,
+                        labels: diagram_names|merge({
+                            other: 'encounter.overview_page.mts.other_diagrams'|trans({}, d),
+                            '': 'encounter.overview_page.not_documented'|trans({}, d),
+                        }),
+                        testid: 'encounter-diagrams',
+                        label_header: 'encounter.course.field.diagram'|trans({}, d),
+                    }) }}
+                    <div class="card-footer small text-secondary">{{ 'encounter.overview_page.mts.diagrams_note'|trans({top: constant('App\\Encounter\\Application\\Overview\\EncounterOverviewFactory::TOP_DIAGRAMS')}, d) }}</div>
+                </div>
+            </div>
+        </div>
+
+        {# Process times #}
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">{{ 'encounter.overview_page.process.title'|trans({}, d) }}</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table card-table table-vcenter" data-testid="encounter-process-times">
+                    <thead>
+                        <tr>
+                            <th>{{ 'encounter.overview_page.process.interval'|trans({}, d) }}</th>
+                            <th class="text-end">{{ 'encounter.overview_page.process.median'|trans({}, d) }}</th>
+                            <th class="text-end">{{ 'encounter.overview_page.process.iqr'|trans({}, d) }}</th>
+                            <th class="text-end">{{ 'encounter.overview_page.process.valid'|trans({}, d) }}</th>
+                            <th class="text-end">{{ 'encounter.overview_page.process.missing'|trans({}, d) }}</th>
+                            <th class="text-end">{{ 'encounter.overview_page.process.negative'|trans({}, d) }}</th>
+                            <th class="text-end">{{ 'encounter.overview_page.process.implausible'|trans({hours: constant('App\\Encounter\\Application\\Overview\\ProcessInterval::MAX_PLAUSIBLE_MINUTES') / 60}, d) }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in overview.processTimes %}
+                            <tr data-testid="encounter-process-row" data-interval="{{ row.interval.value }}">
+                                <td>
+                                    <div>{{ ('encounter.process.' ~ row.interval.value ~ '.label')|trans({}, d) }}</div>
+                                    <div class="small text-secondary">{{ ('encounter.process.' ~ row.interval.value ~ '.definition')|trans({}, d) }}</div>
+                                </td>
+                                {% if row.suppressed %}
+                                    <td class="text-end text-secondary" colspan="2" data-testid="encounter-process-suppressed">{{ 'encounter.overview_page.process.suppressed'|trans({threshold: threshold}, d) }}</td>
+                                {% else %}
+                                    <td class="text-end text-nowrap" data-testid="encounter-process-median">{{ 'encounter.unit.minutes_decimal'|trans({minutes: row.median|round(1)}, d) }}</td>
+                                    <td class="text-end text-nowrap" data-testid="encounter-process-iqr">{{ row.q1|round(1)|format_number({max_fraction_digit: 1}) }} – {{ 'encounter.unit.minutes_decimal'|trans({minutes: row.q3|round(1)}, d) }}</td>
+                                {% endif %}
+                                <td class="text-end" data-testid="encounter-process-valid">{{ include('@Encounter/glossary/_count.html.twig', {count: row.valid}) }}</td>
+                                <td class="text-end" data-testid="encounter-process-missing">{{ include('@Encounter/glossary/_count.html.twig', {count: row.missing}) }}</td>
+                                <td class="text-end" data-testid="encounter-process-negative">{{ include('@Encounter/glossary/_count.html.twig', {count: row.negative}) }}</td>
+                                <td class="text-end" data-testid="encounter-process-implausible">{{ include('@Encounter/glossary/_count.html.twig', {count: row.implausible}) }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer small text-secondary">{{ 'encounter.overview_page.process.note'|trans({hours: constant('App\\Encounter\\Application\\Overview\\ProcessInterval::MAX_PLAUSIBLE_MINUTES') / 60, threshold: threshold}, d) }}</div>
+        </div>
+
+        {# Disposition and care level #}
+        {% set dispositionLabels = {'': 'encounter.overview_page.not_documented'|trans({}, d)} %}
+        {% for row in overview.dispositions|filter(r => r.key != '') %}
+            {% set dispositionLabels = dispositionLabels|merge({(row.key): ('encounter.disposition.' ~ row.key)|trans({}, d)}) %}
+        {% endfor %}
+        {% set careLevelLabels = {'': 'encounter.overview_page.not_documented'|trans({}, d)} %}
+        {% for row in overview.careLevels|filter(r => r.key != '') %}
+            {% set careLevelLabels = careLevelLabels|merge({(row.key): ('encounter.care_level.' ~ row.key)|trans({}, d)}) %}
+        {% endfor %}
+        <div class="row row-cards mb-3">
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ 'encounter.overview_page.disposition.title'|trans({}, d) }}</h3>
+                    </div>
+                    {{ include('@Encounter/overview/_count_table.html.twig', {
+                        rows: overview.dispositions,
+                        labels: dispositionLabels,
+                        testid: 'encounter-dispositions',
+                        label_header: 'encounter.course.field.disposition'|trans({}, d),
+                    }) }}
+                    <div class="card-footer small text-secondary">{{ 'encounter.overview_page.disposition.note'|trans({}, d) }}</div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ 'encounter.overview_page.care_level.title'|trans({}, d) }}</h3>
+                    </div>
+                    {{ include('@Encounter/overview/_count_table.html.twig', {
+                        rows: overview.careLevels,
+                        labels: careLevelLabels,
+                        testid: 'encounter-care-levels',
+                        label_header: 'encounter.course.field.care_level'|trans({}, d),
+                    }) }}
+                    <div class="card-footer small text-secondary">{{ 'encounter.overview_page.care_level.note'|trans({visits: overview.careLevelDenominator}, d) }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body small text-secondary" data-testid="encounter-overview-method">
+                {{ 'encounter.overview_page.method'|trans({threshold: threshold}, d) }}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

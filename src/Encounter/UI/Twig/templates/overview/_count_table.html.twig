@@ -1,0 +1,20 @@
+{# Table of OverviewCount rows: label, count, share of the stated denominator. #}
+<div class="table-responsive">
+    <table class="table card-table table-vcenter" data-testid="{{ testid }}">
+        <thead>
+            <tr>
+                <th>{{ label_header }}</th>
+                <th class="text-end">{{ 'encounter.overview_page.column.visits'|trans({}, 'encounter') }}</th>
+                <th class="text-end">{{ 'encounter.overview_page.column.share'|trans({}, 'encounter') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+                <tr data-testid="{{ testid }}-row" data-key="{{ row.key }}">
+                    <td>{{ labels[row.key] ?? row.key }}</td>
+                    {{ include('@Encounter/overview/_count_cell.html.twig', {row: row}) }}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
