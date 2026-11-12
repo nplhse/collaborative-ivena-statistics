@@ -12,7 +12,7 @@
             ]" />
         </twig:block>
         <twig:block name="context">
-            {{ include('@Encounter/review/_period_context.html.twig') }}
+            {{ include('@Encounter/review/_period_context.html.twig', {period: context.period}) }}
         </twig:block>
         <twig:block name="actions">
             <a class="btn" href="{{ path('app_encounter_review_hospital', {id: hospital.id}|merge(context.period.query())) }}">
@@ -37,22 +37,29 @@
                 </div>
                 <table class="table card-table table-vcenter">
                     <tbody>
-                        {% for key, segment_name in {automatic: 'automatic', confirmed: 'confirmed', proposed: 'proposed', conflicts: 'conflicts', no_proposal: 'no_proposal'} %}
+                        {% set targets = {
+                            automatic: {segment: 'done', status: 'auto_accepted'},
+                            confirmed: {segment: 'done', status: 'confirmed'},
+                            proposed: {segment: 'open'},
+                            conflicts: {segment: 'open', kind: 'conflicts'},
+                            no_proposal: {segment: 'no_proposal'},
+                        } %}
+                        {% for key, target in targets %}
                             <tr data-test="summary-{{ key }}">
                                 <td{% if key == 'conflicts' %} class="ps-4 text-secondary"{% endif %}>
-                                    <a class="text-reset" href="{{ path('app_encounter_review_hospital', base|merge({segment: segment_name})) }}">{{ ('encounter.review.summary.' ~ key)|trans({}, 'encounter') }}</a>
+                                    <a class="text-reset" href="{{ path('app_encounter_review_hospital', base|merge(target)) }}">{{ ('encounter.review.summary.' ~ key)|trans({}, 'encounter') }}</a>
                                 </td>
                                 <td class="text-end">{{ summary[key]|format_number }}</td>
                                 <td class="text-end text-secondary w-1">{{ review.percent(summary[key], summary.allocations) }}</td>
                             </tr>
                         {% endfor %}
                         <tr data-test="summary-rejected">
-                            <td class="text-secondary"><a class="text-reset" href="{{ path('app_encounter_review_hospital', base|merge({segment: 'rejected'})) }}">{{ 'encounter.review.summary.rejected'|trans({}, 'encounter') }}</a></td>
+                            <td class="text-secondary"><a class="text-reset" href="{{ path('app_encounter_review_hospital', base|merge({segment: 'done', status: 'rejected'})) }}">{{ 'encounter.review.summary.rejected'|trans({}, 'encounter') }}</a></td>
                             <td class="text-end">{{ summary.rejected|format_number }}</td>
                             <td></td>
                         </tr>
                         <tr data-test="summary-swaps">
-                            <td class="text-secondary"><a class="text-reset" href="{{ path('app_encounter_review_hospital', base|merge({segment: 'swaps'})) }}">{{ 'encounter.review.summary.swaps'|trans({}, 'encounter') }}</a></td>
+                            <td class="text-secondary"><a class="text-reset" href="{{ path('app_encounter_review_hospital', base|merge({segment: 'open', kind: 'swaps'})) }}">{{ 'encounter.review.summary.swaps'|trans({}, 'encounter') }}</a></td>
                             <td class="text-end">{{ swap_count|format_number }}</td>
                             <td></td>
                         </tr>
@@ -82,7 +89,7 @@
                                 <td class="text-end">{{ counts.total|format_number }}</td>
                                 <td class="text-end">{{ counts.linked|format_number }} <span class="text-secondary">{{ review.percent(counts.linked, counts.total) }}</span></td>
                                 <td class="text-end">
-                                    <a href="{{ path('app_encounter_review_hospital', {id: hospital.id}|merge(context.period.query())|merge({segment: 'unlinked_visits', route: route_value})) }}">{{ counts.unlinked|format_number }}</a>
+                                    <a href="{{ path('app_encounter_review_visits', base|merge({route: route_value})) }}" data-test="summary-unlinked-link">{{ counts.unlinked|format_number }}</a>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -93,5 +100,5 @@
         </div>
     </div>
 
-    {{ include('@Encounter/review/_period_drawer.html.twig', {route_name: 'app_encounter_review_overview'}) }}
+    {{ include('@Encounter/review/_period_drawer.html.twig', {route_name: 'app_encounter_review_overview', period: context.period, keep: [], context: null}) }}
 {% endblock %}

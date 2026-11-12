@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Encounter\Application\Review;
 
 use App\Encounter\Application\Contract\MatchReviewReaderInterface;
-use App\Encounter\Application\Contract\MatchSwapFinderInterface;
 
 /**
  * Walks through the allocations of a review segment in list order (#1054), like the indication review
@@ -21,7 +20,7 @@ final readonly class MatchReviewNavigator
     /** @psalm-suppress PossiblyUnusedMethod Autowired. */
     public function __construct(
         private MatchReviewReaderInterface $review,
-        private MatchSwapFinderInterface $swaps,
+        private OpenReviewItems $open,
     ) {
     }
 
@@ -56,15 +55,8 @@ final readonly class MatchReviewNavigator
      */
     private function ids(int $hospitalId, ReviewContext $context): array
     {
-        if (!$context->filter->isNavigable()) {
-            return [];
-        }
-
-        if (ReviewFilter::Swaps === $context->filter) {
-            return array_map(
-                static fn (SwapProposal $proposal): int => $proposal->allocationId,
-                $this->swaps->between($hospitalId, $context->period->from, $context->period->toExclusive()),
-            );
+        if (ReviewFilter::Open === $context->filter) {
+            return array_map(static fn (array $item): int => (int) $item['allocation_id'], $this->open->items($hospitalId, $context));
         }
 
         return $this->review->segmentAllocationIds($hospitalId, $context);

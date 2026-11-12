@@ -989,37 +989,49 @@
         <source>encounter.review.summary.unlinked</source>
         <target>Nicht verknüpft</target>
       </trans-unit>
-      <trans-unit id="EncAC1B55B0" resname="encounter.review.filter.proposed">
-        <source>encounter.review.filter.proposed</source>
-        <target>Vorschläge</target>
-      </trans-unit>
-      <trans-unit id="EncFB023577" resname="encounter.review.filter.conflicts">
-        <source>encounter.review.filter.conflicts</source>
-        <target>Konflikte</target>
-      </trans-unit>
-      <trans-unit id="Enc90F5BFFB" resname="encounter.review.filter.automatic">
-        <source>encounter.review.filter.automatic</source>
-        <target>Automatisch</target>
-      </trans-unit>
-      <trans-unit id="EncC0E881D9" resname="encounter.review.filter.confirmed">
-        <source>encounter.review.filter.confirmed</source>
-        <target>Bestätigt</target>
-      </trans-unit>
-      <trans-unit id="Enc6C6E89D3" resname="encounter.review.filter.rejected">
-        <source>encounter.review.filter.rejected</source>
-        <target>Abgelehnt</target>
-      </trans-unit>
       <trans-unit id="EncCE3D6E5A" resname="encounter.review.filter.no_proposal">
         <source>encounter.review.filter.no_proposal</source>
-        <target>Zuweisungen ohne Vorschlag</target>
+        <target>Ohne Vorschlag</target>
       </trans-unit>
-      <trans-unit id="Enc50C1CBC2" resname="encounter.review.filter.unlinked_visits">
-        <source>encounter.review.filter.unlinked_visits</source>
+      <trans-unit id="EncA968E14E" resname="encounter.review.filter.open">
+        <source>encounter.review.filter.open</source>
+        <target>Zu prüfen</target>
+      </trans-unit>
+      <trans-unit id="EncCD0F4C82" resname="encounter.review.filter.done">
+        <source>encounter.review.filter.done</source>
+        <target>Erledigt</target>
+      </trans-unit>
+      <trans-unit id="EncBB192B41" resname="encounter.review.kind.label">
+        <source>encounter.review.kind.label</source>
+        <target>Art</target>
+      </trans-unit>
+      <trans-unit id="Enc21C33D18" resname="encounter.review.kind.all">
+        <source>encounter.review.kind.all</source>
+        <target>Alle</target>
+      </trans-unit>
+      <trans-unit id="EncC0D42596" resname="encounter.review.kind.conflicts">
+        <source>encounter.review.kind.conflicts</source>
+        <target>Nur Konflikte</target>
+      </trans-unit>
+      <trans-unit id="Enc0C143012" resname="encounter.review.kind.swaps">
+        <source>encounter.review.kind.swaps</source>
+        <target>Nur Tauschvorschläge</target>
+      </trans-unit>
+      <trans-unit id="Enc08805B89" resname="encounter.review.kind.swap_badge">
+        <source>encounter.review.kind.swap_badge</source>
+        <target>Tauschvorschlag</target>
+      </trans-unit>
+      <trans-unit id="Enc50D33C73" resname="encounter.review.proposal_count">
+        <source>encounter.review.proposal_count</source>
+        <target>{count, plural, one {# Vorschlag} other {# Vorschläge}}</target>
+      </trans-unit>
+      <trans-unit id="Enc9D42CD94" resname="encounter.review.visits.title">
+        <source>encounter.review.visits.title</source>
         <target>Nicht verknüpfte Besuche</target>
       </trans-unit>
-      <trans-unit id="Enc4E85B550" resname="encounter.review.filter.swaps">
-        <source>encounter.review.filter.swaps</source>
-        <target>Tauschvorschläge</target>
+      <trans-unit id="EncDFCFB487" resname="encounter.review.visits.intro">
+        <source>encounter.review.visits.intro</source>
+        <target>Notaufnahme-Besuche des Zeitraums ohne automatische oder bestätigte Verknüpfung. Die meisten sind Selbstvorsteller, für die keine Zuweisung zu erwarten ist. Ein Besuch mit offenem Vorschlag führt zur Prüfung seiner Zuweisung.</target>
       </trans-unit>
       <trans-unit id="Enc95843750" resname="encounter.review.route_all">
         <source>encounter.review.route_all</source>
@@ -1064,10 +1076,6 @@
       <trans-unit id="Enc8F1AF180" resname="encounter.review.column.route">
         <source>encounter.review.column.route</source>
         <target>Zugangsweg</target>
-      </trans-unit>
-      <trans-unit id="Enc6DF1ACB2" resname="encounter.review.column.swap">
-        <source>encounter.review.column.swap</source>
-        <target>Tausch</target>
       </trans-unit>
       <trans-unit id="Enc927CEBB9" resname="encounter.review.column.feature">
         <source>encounter.review.column.feature</source>

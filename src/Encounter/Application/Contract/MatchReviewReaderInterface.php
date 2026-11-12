@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Encounter\Application\Contract;
 
 use App\Encounter\Application\Review\ReviewContext;
-use App\Encounter\Application\Review\ReviewFilter;
 use App\Encounter\Application\Review\ReviewPeriod;
 use App\Encounter\Domain\Enum\ArrivalRoute;
 use App\Encounter\Domain\Enum\MatchStatus;
@@ -37,16 +36,27 @@ interface MatchReviewReaderInterface
     public function summary(int $hospitalId, ReviewPeriod $period): array;
 
     /**
-     * Pairs of one status list (proposed, conflicts, automatic, confirmed, rejected) in the context's order.
+     * Decided pairs of the "done" segment in the context's order.
      *
      * @return list<array<string, mixed>>
      */
-    public function pairs(int $hospitalId, ReviewContext $context, int $offset, int $limit): array;
+    public function donePairs(int $hospitalId, ReviewContext $context, int $offset, int $limit): array;
 
-    public function countPairs(int $hospitalId, ReviewPeriod $period, ReviewFilter $filter): int;
+    public function countDonePairs(int $hospitalId, ReviewContext $context): int;
 
     /**
-     * Allocation ids of a pair segment or of "no proposal", each once, in the order of the list.
+     * One row per allocation of the "open" segment, by IVENA arrival: allocations without link with their
+     * best open proposal, and the given allocations with a swap proposal with their automatic link. Each row
+     * carries `open_conflict`, `proposals` and `swap`.
+     *
+     * @param list<int> $swapAllocationIds
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function openItems(int $hospitalId, ReviewPeriod $period, array $swapAllocationIds): array;
+
+    /**
+     * Allocation ids of "no proposal" or "done", each once, in the order of the list.
      *
      * @return list<int>
      */

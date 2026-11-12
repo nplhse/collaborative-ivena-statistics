@@ -141,19 +141,17 @@ SQL,
     }
 
     /**
-     * Pairs of one status list (proposed, conflicts, automatic, confirmed, rejected) in the context's order.
+     * Decided pairs of the "done" segment (automatic or confirmed links, rejected pairs, or one of them) in the
+     * context's order.
      *
      * @return list<array<string, mixed>>
      */
     #[\Override]
-    public function pairs(int $hospitalId, ReviewContext $context, int $offset, int $limit): array
+    public function donePairs(int $hospitalId, ReviewContext $context, int $offset, int $limit): array
     {
-        $period = $context->period;
-        $filter = $context->filter;
-
         return array_map($this->pairRow(...), $this->connection->fetchAllAssociative(
             <<<SQL
-SELECT m.id, m.status, m.conflict, {$this->openConflict()} AS open_conflict, m.score, m.points, m.pass, m.time_anchor,
+SELECT m.id, m.status, m.conflict, false AS open_conflict, m.score, m.points, m.pass, m.time_anchor,
        m.time_difference_minutes, m.decided_at, u.username AS decided_by,
        a.id AS allocation_id, a.arrival_at, a.gender, a.age AS allocation_age,
        e.id AS encounter_id, {$this->anchor()} AS anchor_at, e.sex, e.age AS encounter_age, e.arrival_route
@@ -161,50 +159,99 @@ FROM encounter_match m
 JOIN allocation a ON a.id = m.allocation_id
 JOIN encounter e ON e.id = m.encounter_id
 LEFT JOIN "user" u ON u.id = m.decided_by_id
-WHERE {$this->pairCondition($filter)}
+WHERE {$this->doneCondition()}
 ORDER BY {$this->pairOrder($context)}
 LIMIT :limit OFFSET :offset
 SQL,
-            [...$this->periodParameters($hospitalId, $period), 'status' => $this->statusOf($filter), 'limit' => $limit, 'offset' => $offset],
-            [...$this->periodTypes(), 'status' => Types::STRING, 'limit' => Types::INTEGER, 'offset' => Types::INTEGER],
+            [...$this->doneParameters($hospitalId, $context), 'limit' => $limit, 'offset' => $offset],
+            [...$this->doneTypes(), 'limit' => Types::INTEGER, 'offset' => Types::INTEGER],
         ));
     }
 
     #[\Override]
-    public function countPairs(int $hospitalId, ReviewPeriod $period, ReviewFilter $filter): int
+    public function countDonePairs(int $hospitalId, ReviewContext $context): int
     {
         return (int) $this->connection->fetchOne(
-            "SELECT COUNT(*) FROM encounter_match m JOIN allocation a ON a.id = m.allocation_id WHERE {$this->pairCondition($filter)}",
-            [...$this->periodParameters($hospitalId, $period), 'status' => $this->statusOf($filter)],
-            [...$this->periodTypes(), 'status' => Types::STRING],
+            "SELECT COUNT(*) FROM encounter_match m JOIN allocation a ON a.id = m.allocation_id WHERE {$this->doneCondition()}",
+            $this->doneParameters($hospitalId, $context),
+            $this->doneTypes(),
         );
     }
 
     /**
-     * Allocation ids of a pair segment or of "no proposal", each once, in the order of the list.
+     * Allocation ids of "no proposal" or "done", each once, in the order of the list.
      *
      * @return list<int>
      */
     #[\Override]
     public function segmentAllocationIds(int $hospitalId, ReviewContext $context): array
     {
-        $parameters = $this->periodParameters($hospitalId, $context->period);
-        $types = $this->periodTypes();
-        if (ReviewFilter::NoProposal === $context->filter) {
-            $ids = $this->connection->fetchFirstColumn(
+        $ids = ReviewFilter::NoProposal === $context->filter
+            ? $this->connection->fetchFirstColumn(
                 "SELECT a.id FROM allocation a WHERE {$this->noProposalCondition()} ORDER BY a.arrival_at, a.id",
-                $parameters,
-                $types,
+                $this->periodParameters($hospitalId, $context->period),
+                $this->periodTypes(),
+            )
+            : $this->connection->fetchFirstColumn(
+                "SELECT a.id FROM encounter_match m JOIN allocation a ON a.id = m.allocation_id WHERE {$this->doneCondition()} ORDER BY {$this->pairOrder($context)}",
+                $this->doneParameters($hospitalId, $context),
+                $this->doneTypes(),
             );
-        } else {
-            $ids = $this->connection->fetchFirstColumn(
-                "SELECT a.id FROM encounter_match m JOIN allocation a ON a.id = m.allocation_id WHERE {$this->pairCondition($context->filter)} ORDER BY {$this->pairOrder($context)}",
-                [...$parameters, 'status' => $this->statusOf($context->filter)],
-                [...$types, 'status' => Types::STRING],
-            );
-        }
 
         return array_values(array_unique(array_map(intval(...), $ids)));
+    }
+
+    /**
+     * One row per allocation of the "open" segment, by IVENA arrival: allocations without link that have an
+     * open proposal (with their best one), and the given allocations with a swap proposal (with their current
+     * automatic link).
+     *
+     * @param list<int> $swapAllocationIds
+     *
+     * @return list<array<string, mixed>>
+     */
+    #[\Override]
+    public function openItems(int $hospitalId, ReviewPeriod $period, array $swapAllocationIds): array
+    {
+        $rows = $this->connection->fetchAllAssociative(
+            <<<SQL
+WITH best AS (
+    SELECT DISTINCT ON (m.allocation_id) m.*
+    FROM encounter_match m
+    JOIN allocation a ON a.id = m.allocation_id
+    WHERE m.hospital_id = :hospital AND a.arrival_at >= :from AND a.arrival_at < :to
+      AND (
+          (m.status = 'proposed' AND NOT EXISTS (
+              SELECT 1 FROM encounter_match l WHERE l.allocation_id = m.allocation_id AND l.status IN ('auto_accepted', 'confirmed')
+          ))
+          OR (m.status = 'auto_accepted' AND m.allocation_id = ANY(CAST(:swaps AS INT[])))
+      )
+    ORDER BY m.allocation_id, (m.status = 'auto_accepted') DESC, m.score DESC NULLS LAST, m.id
+)
+SELECT m.id, m.status, m.conflict, m.score, m.points, m.pass, m.time_anchor, m.time_difference_minutes,
+       NULL AS decided_at, NULL AS decided_by,
+       EXISTS (
+           SELECT 1 FROM encounter_match m WHERE m.allocation_id = a.id AND {$this->openConflict()}
+       ) AS open_conflict,
+       (SELECT COUNT(*) FROM encounter_match p WHERE p.allocation_id = a.id AND p.status = 'proposed') AS proposals,
+       a.id AS allocation_id, a.arrival_at, a.gender, a.age AS allocation_age,
+       e.id AS encounter_id, {$this->anchor()} AS anchor_at, e.sex, e.age AS encounter_age, e.arrival_route
+FROM best m
+JOIN allocation a ON a.id = m.allocation_id
+JOIN encounter e ON e.id = m.encounter_id
+ORDER BY a.arrival_at, a.id
+SQL,
+            [...$this->periodParameters($hospitalId, $period), 'swaps' => '{'.implode(',', $swapAllocationIds).'}'],
+            [...$this->periodTypes(), 'swaps' => Types::STRING],
+        );
+
+        $swaps = array_fill_keys($swapAllocationIds, true);
+
+        return array_map(fn (array $row): array => [
+            ...$this->pairRow($row),
+            'proposals' => (int) $row['proposals'],
+            'swap' => isset($swaps[(int) $row['allocation_id']]),
+        ], $rows);
     }
 
     /**
@@ -446,15 +493,29 @@ SQL,
         ];
     }
 
-    private function pairCondition(ReviewFilter $filter): string
+    private function doneCondition(): string
     {
-        $condition = 'm.hospital_id = :hospital AND a.arrival_at >= :from AND a.arrival_at < :to AND m.status = :status';
+        return 'm.hospital_id = :hospital AND a.arrival_at >= :from AND a.arrival_at < :to AND m.status = ANY(CAST(:statuses AS TEXT[]))';
+    }
 
-        return match ($filter) {
-            ReviewFilter::Proposed => $condition.' AND NOT '.$this->openConflict(),
-            ReviewFilter::Conflicts => $condition.' AND '.$this->openConflict(),
-            default => $condition,
-        };
+    /**
+     * @return array{hospital: int, from: \DateTimeImmutable, to: \DateTimeImmutable, statuses: string}
+     */
+    private function doneParameters(int $hospitalId, ReviewContext $context): array
+    {
+        $statuses = $context->status instanceof MatchStatus
+            ? [$context->status->value]
+            : [MatchStatus::AutoAccepted->value, MatchStatus::Confirmed->value, MatchStatus::Rejected->value];
+
+        return [...$this->periodParameters($hospitalId, $context->period), 'statuses' => '{'.implode(',', $statuses).'}'];
+    }
+
+    /**
+     * @return array{hospital: string, from: string, to: string, statuses: string}
+     */
+    private function doneTypes(): array
+    {
+        return [...$this->periodTypes(), 'statuses' => Types::STRING];
     }
 
     private function pairOrder(ReviewContext $context): string
@@ -466,16 +527,6 @@ SQL,
             'difference' => "m.time_difference_minutes {$direction}, a.arrival_at, a.id, m.id",
             default => "a.arrival_at {$direction}, a.id {$direction}, m.score DESC NULLS LAST, m.id",
         };
-    }
-
-    private function statusOf(ReviewFilter $filter): string
-    {
-        $status = $filter->status();
-        if (!$status instanceof MatchStatus) {
-            throw new \InvalidArgumentException(sprintf('The filter "%s" lists no pairs.', $filter->value));
-        }
-
-        return $status->value;
     }
 
     private function noProposalCondition(): string

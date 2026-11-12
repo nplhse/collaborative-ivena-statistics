@@ -412,16 +412,25 @@ assessment contact), both on the stored local wall clock.
 
 **Layout** follows the indication review ([indication-normalization.md](../allocation/indication-normalization.md#review-worklist)):
 
-- **Worklist** `/encounter/review/{hospital}`: one DataTable with a tab per segment and its row count, the period
-  (and for unlinked visits the arrival route) in a filter drawer, sortable by arrival, agreement and time
-  difference in the pair segments, a "Review" action per row and mobile cards. "Start review" opens the
-  first allocation of the segment.
+- **Worklist** `/encounter/review/{hospital}`: one DataTable with three tabs and their counts (below), the
+  period and the tab's filter in a filter drawer, sortable by arrival, agreement and time difference
+  ("to review" and "done"), a "Review" action per row and mobile cards. "Start review" opens the first
+  allocation of the tab.
 - **Allocation page**: context on the left, the decision on the right, actions at the bottom (see below).
   "Leave open" skips to the next allocation; confirm, change, reject and swaps continue with the next one
-  too (`MatchReviewNavigator`, same order as the list); at the end of the segment the list opens again.
-  Segment, period, route and sort order travel in the query string (`ReviewContext`).
+  too (`MatchReviewNavigator`, same order as the list); at the end of the tab the list opens again.
+  Tab, filter, period and sort order travel in the query string (`ReviewContext`).
 - **Overview** `/encounter/review/{hospital}/overview`: the counts with denominators below, each linked to its
-  segment.
+  tab and filter.
+- **Unlinked visits** `/encounter/review/{hospital}/visits`: visits without link, optionally by arrival route
+  (`route=ems|self|unknown`), reached from the overview's counts. Nothing is decided there; a visit with an
+  open proposal links to the review of that allocation.
+
+| Tab (`segment`) | Rows | Filter |
+|---|---|---|
+| To review (`open`) | one per allocation that needs a person: no link and an open proposal (with the best one and the number of proposals), or a swap proposal (with its automatic link); conflict and swap shown as badges (`OpenReviewItems`) | `kind=conflicts` or `kind=swaps` |
+| Without proposal (`no_proposal`) | one per allocation without link and without proposal | – |
+| Done (`done`) | one per decided pair: automatic or confirmed link, rejected pair | `status=auto_accepted`, `confirmed` or `rejected` |
 
 **Overview with denominators** (`MatchReviewQuery::summary()`):
 
@@ -438,11 +447,6 @@ assessment contact), both on the stored local wall clock.
 
 A proposal is in **open conflict** while it carries `conflict` and another allocation's conflict proposal
 for the same visit is still open; once one side is decided, the rest counts as an ordinary proposal.
-
-**Segments** (`segment`): proposals, conflicts, automatic, confirmed, rejected (pairs), allocations without
-proposal, unlinked visits (optionally `route=ems|self|unknown`, with the allocation of the visit's best open
-proposal) and swap proposals. Every segment but the unlinked visits can be walked through allocation by
-allocation.
 
 **Allocation page** (`/encounter/review/{hospital}/allocations/{allocation}`). The context card shows the
 expected IVENA arrival, sex, age, physician, work accident, the current link with its origin (automatic:
