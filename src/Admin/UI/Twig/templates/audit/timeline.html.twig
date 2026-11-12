@@ -1,0 +1,88 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+{% import '@Admin/audit/_macros.html.twig' as audit %}
+
+{% block configured_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/admin-kpi.css') }}">
+{% endblock %}
+
+{% block content_title %}{{ 'audit.timeline.title'|trans({}, 'admin') }}{% endblock %}
+
+{% block main %}
+    <p class="text-secondary">{{ 'audit.timeline.help'|trans({}, 'admin') }}</p>
+
+    {% if not filter.isEmpty %}
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3" data-audit-active-filters>
+            <span class="fw-semibold">{{ 'audit.timeline.active_filters'|trans({}, 'admin') }}</span>
+            {% for key, value in filter.toQuery %}
+                <span class="badge text-bg-light border">{{ ('audit.filter.' ~ key)|trans({}, 'admin') }}: <span class="font-monospace">{{ value }}</span></span>
+            {% endfor %}
+            <a href="{{ path('app_admin_dashboard_audit_timeline') }}">{{ 'audit.timeline.reset_filters'|trans({}, 'admin') }}</a>
+        </div>
+    {% endif %}
+
+    {% if page.items is empty %}
+        <p class="text-secondary" data-audit-empty>{{ 'audit.timeline.empty'|trans({}, 'admin') }}</p>
+    {% else %}
+        <ol class="ea-audit-timeline list-unstyled mb-3">
+            {% for item in page.items %}
+                <li class="ea-audit-item">
+                    {% if item.entries is defined %}
+                        {% set stack = item %}
+                        {% set first = stack.first %}
+                        <details class="ea-audit-stack" data-audit-stack="{{ stack.requestId }}">
+                            <summary class="d-flex flex-wrap align-items-baseline gap-2">
+                                {{ audit.time(first.occurredAt) }}
+                                <span>{{ audit.actor(first) }}</span>
+                                <span class="fw-semibold">
+                                    <i class="fa-solid fa-layer-group fa-fw" aria-hidden="true"></i>
+                                    {{ stack.intent ?? 'audit.timeline.request'|trans({}, 'admin') }}
+                                </span>
+                                <span class="text-secondary small">{{ stack.entityNames|join(', ') }}</span>
+                                <span class="badge text-bg-secondary">{{ ('audit.origin.' ~ first.origin)|trans({}, 'admin') }}</span>
+                                {% if stack.complete %}
+                                    <span class="badge text-bg-light border">{{ 'audit.timeline.request_entries'|trans({count: stack.entries|length}, 'admin') }}</span>
+                                {% else %}
+                                    <span class="badge text-bg-warning" data-audit-partial>{{ 'audit.timeline.request_partial'|trans({shown: stack.entries|length, total: stack.stats.total}, 'admin') }}</span>
+                                {% endif %}
+                                {% if not filter.isEmpty and stack.stats.matching < stack.stats.total %}
+                                    <span class="text-secondary small">{{ 'audit.timeline.request_matching'|trans({matching: stack.stats.matching, total: stack.stats.total}, 'admin') }}</span>
+                                {% endif %}
+                                {% if stack.legacy %}
+                                    <span class="badge text-bg-light border" title="{{ 'audit.timeline.legacy_help'|trans({}, 'admin') }}">{{ 'audit.timeline.legacy'|trans({}, 'admin') }}</span>
+                                {% endif %}
+                            </summary>
+                            <div class="ea-audit-stack-body">
+                                <ol class="list-unstyled mb-2">
+                                    {% for entry in stack.ownEntries %}
+                                        <li>{{ audit.entry(entry, entry.actorId != first.actorId) }}</li>
+                                    {% endfor %}
+                                </ol>
+                                {% if stack.backgroundEntries is not empty %}
+                                    <p class="fw-semibold small mb-1">{{ 'audit.timeline.background'|trans({}, 'admin') }}</p>
+                                    <ol class="list-unstyled mb-2">
+                                        {% for entry in stack.backgroundEntries %}
+                                            <li>{{ audit.entry(entry, entry.actorId != first.actorId) }}</li>
+                                        {% endfor %}
+                                    </ol>
+                                {% endif %}
+                                <a href="{{ path('app_admin_dashboard_audit_request', {requestId: stack.requestId}|merge(filter.toQuery)) }}">{{ 'audit.timeline.open_request'|trans({}, 'admin') }}</a>
+                            </div>
+                        </details>
+                    {% else %}
+                        {{ audit.entry(item) }}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ol>
+    {% endif %}
+
+    <nav class="d-flex gap-3" aria-label="{{ 'audit.timeline.pagination'|trans({}, 'admin') }}">
+        {% if not is_first_page %}
+            <a href="{{ path('app_admin_dashboard_audit_timeline', filter.toQuery) }}">{{ 'audit.timeline.newest'|trans({}, 'admin') }}</a>
+        {% endif %}
+        {% if page.next is not null %}
+            <a href="{{ path('app_admin_dashboard_audit_timeline', filter.toQuery|merge({after: page.next.encode})) }}" rel="next" data-audit-older>{{ 'audit.timeline.older'|trans({}, 'admin') }}</a>
+        {% endif %}
+    </nav>
+{% endblock %}
