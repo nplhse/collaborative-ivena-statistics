@@ -53,14 +53,7 @@ final readonly class CachedHospitalDataSnapshotReader
         }
 
         if ([] !== $missing) {
-            foreach ($this->reader->read($missing) as $hospitalId => $snapshot) {
-                $cached[$hospitalId] = $snapshot;
-                $item = $this->cache->getItem($this->key($hospitalId));
-                $item->set($snapshot);
-                $item->expiresAfter(self::TTL_SECONDS);
-                $this->cache->saveDeferred($item);
-            }
-            $this->cache->commit();
+            $cached += $this->store($missing);
         }
 
         $result = [];
@@ -71,6 +64,52 @@ final readonly class CachedHospitalDataSnapshotReader
         }
 
         return $result;
+    }
+
+    /**
+     * Reads the hospitals again and overwrites their entries, whether they were cached or not.
+     *
+     * @param list<int> $hospitalIds
+     */
+    public function refresh(array $hospitalIds): void
+    {
+        $hospitalIds = array_values(array_unique($hospitalIds));
+        if ([] === $hospitalIds) {
+            return;
+        }
+
+        $stored = $this->store($hospitalIds);
+        // A hospital the reader no longer knows must not keep an old entry.
+        $this->forget(array_values(array_diff($hospitalIds, array_keys($stored))));
+    }
+
+    /**
+     * @param list<int> $hospitalIds
+     */
+    public function forget(array $hospitalIds): void
+    {
+        if ([] !== $hospitalIds) {
+            $this->cache->deleteItems(array_map($this->key(...), $hospitalIds));
+        }
+    }
+
+    /**
+     * @param list<int> $hospitalIds
+     *
+     * @return array<int, HospitalDataSnapshot>
+     */
+    private function store(array $hospitalIds): array
+    {
+        $snapshots = $this->reader->read($hospitalIds);
+        foreach ($snapshots as $hospitalId => $snapshot) {
+            $item = $this->cache->getItem($this->key($hospitalId));
+            $item->set($snapshot);
+            $item->expiresAfter(self::TTL_SECONDS);
+            $this->cache->saveDeferred($item);
+        }
+        $this->cache->commit();
+
+        return $snapshots;
     }
 
     private function key(int $hospitalId): string

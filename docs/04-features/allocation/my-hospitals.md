@@ -149,15 +149,56 @@ The page (`owned_list.html.twig` with `_my_hospitals_summary.html.twig` and `_my
 
 ### Queries and cache
 
+`MyHospitalsScopeResolver` reads the hospitals with their state and dispatch area (shown on every card) and the
+user's grants in one query.
+
 `HospitalDataSnapshotQuery` (Statistics, port `HospitalDataSnapshotReaderInterface`) reads all requested
-hospitals in two queries: the allocation imports from `import`, and monthly counts from the projection
-(index `idx_asp_hospital_created`, joined to `import` for the status). The result is a `HospitalDataSnapshot` per
-hospital with raw data only.
+hospitals in two queries: the allocation imports from `import`, and monthly counts from the projection, joined to
+`import` for the status. The monthly counts are grouped by the projection columns `created_year` and
+`created_month`, not by `date_trunc('month', created_at)`: Postgres keeps statistics for those columns, expects
+a few hundred groups and aggregates by hash. With `date_trunc` it expected one group per row and sorted every row
+on disk. The result is a `HospitalDataSnapshot` per hospital with raw data only.
+
+`EXPLAIN (ANALYZE, BUFFERS)` on the production mirror (80 hospitals, 2.3 million projection rows, 1,100 imports,
+`work_mem` 4 MB, warm buffers):
+
+| Hospitals | Projection rows | `date_trunc` | year/month columns |
+|-----------|-----------------|--------------|--------------------|
+| 1 (largest) | 221,000 | 133 ms | 54 ms |
+| 5 (largest) | 802,000 | 876 ms | 193 ms |
+| all 80 | 2.3 million | 3.3 s | 0.8 s |
+
+The import query takes less than 5 ms in every case. These are cold-cache costs: they apply only when a page view
+finds no entry.
+
+#### Cache
 
 `CachedHospitalDataSnapshotReader` keeps one snapshot per hospital in the pool
-`cache.allocation.hospital_data_status` (24 hours) and reads all missing hospitals in one call. Permissions, the
-viewer's own uploads, the current month, the window and the hints are derived per request, so an entry stays valid
-across a month change and for every viewer. Clearing and warming the entries after an import follows with #971.
+`cache.allocation.hospital_data_status` (24 hours as a safety net) and reads all missing hospitals in one call.
+Permissions, the viewer's own uploads, the current month, the window and the hints are derived per request, so an
+entry stays valid across a month change and for every viewer.
+
+Entries are dropped and rebuilt when their data changes. The Import and Statistics contexts call
+`HospitalDataSnapshotInvalidatorInterface`, which deletes the entries and dispatches one
+`WarmHospitalDataSnapshot` message per hospital (`async_priority_low`). The handler reads the hospital again and
+overwrites its entry. Two places trigger it:
+
+- `HospitalDataSnapshotInvalidationListener` (Import, Doctrine `onFlush`/`postFlush`). It reacts when an
+  allocation import is created, deleted, or changes a field the snapshot reads: hospital, status, type, rejected
+  rows, export period, data coverage, upload time, uploader. This covers uploads, the end of every import run
+  (completed, partial, failed, cancelled), deletions and hospital overrides. Progress updates while an import runs
+  change none of these fields and keep the entry. Closure imports are ignored.
+- `AllocationStatsProjectionRebuilder::rebuildForImport()` and `deleteForImport()` (Statistics), after the
+  projection rows of an import changed. This covers the rebuild handler, the rebuild command, repairs, backfills
+  and data removal.
+
+On the Doctrine transport the warm message is stored in the transaction of the change and only runs after the
+commit. A page view between deletion and warming reads the hospital itself; the warm message overwrites what it
+cached. Warming twice only reads twice, so the two triggers of one import (end of run, then projection) need no
+coordination. A full projection rebuild queues one warm message per import; each reads one hospital.
+
+`MyHospitalsQueryCountTest` checks that the page needs the same number of queries for 2 and for 5 hospitals,
+with and without cached snapshots, and that cached snapshots save the two snapshot queries.
 
 ## Tests
 
@@ -165,6 +206,8 @@ across a month change and for every viewer. Clearing and warming the entries aft
   without `VIEW`, administrator with and without own hospitals, no hospitals)
 - `tests/Allocation/Functional/Controller/Hospitals/ParticipantHospitalsControllerTest.php` (listing, actions, summary per permission)
 - `tests/Allocation/Functional/Controller/Hospitals/MyHospitalsOverviewTest.php` (cards and summary per permission tier, basis, empty states, German page, coverage heatmap rows and states, selection of one or all hospitals, foreign and malformed IDs, hints per permission, collapsed in their card)
-- `tests/Allocation/Unit/Application/Hospital/MyHospitals/` (month states, gaps, window, hints, cache, permissions and aggregates, selection)
+- `tests/Allocation/Unit/Application/Hospital/MyHospitals/` (month states, gaps, window, hints, cache refresh and invalidation, permissions and aggregates, selection)
 - `tests/Allocation/Integration/Translation/MyHospitalsFindingTranslationTest.php` (every hint type formats in English and German)
 - `tests/Statistics/Integration/Query/MyHospitals/HospitalDataSnapshotQueryTest.php` (import statuses, failed rows excluded, midnight rule, coverage fallback)
+- `tests/Allocation/Functional/Controller/Hospitals/MyHospitalsQueryCountTest.php` (same number of queries for 2 and 5 hospitals, with and without cache)
+- `tests/Import/Integration/Infrastructure/HospitalDataSnapshotInvalidationTest.php` (new, ended, deleted and moved imports and projection rebuilds refresh the cache; progress updates and closure imports keep it)
