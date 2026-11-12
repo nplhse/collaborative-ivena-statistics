@@ -15,9 +15,7 @@ use App\User\Domain\Entity\User;
 interface EncounterKeyChangerInterface
 {
     /**
-     * @return int the new key generation
-     *
      * @throws EncounterKeyChangeInProgressException
      */
-    public function change(Hospital $hospital, EncounterKeyChangeOption $option, ?User $actor): int;
+    public function change(Hospital $hospital, EncounterKeyChangeOption $option, ?User $actor): void;
 }

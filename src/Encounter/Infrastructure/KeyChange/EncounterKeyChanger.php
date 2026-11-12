@@ -51,7 +51,7 @@ final readonly class EncounterKeyChanger implements EncounterKeyChangerInterface
     }
 
     #[\Override]
-    public function change(Hospital $hospital, EncounterKeyChangeOption $option, ?User $actor): int
+    public function change(Hospital $hospital, EncounterKeyChangeOption $option, ?User $actor): void
     {
         $hospitalId = (int) $hospital->getId();
 
@@ -99,7 +99,5 @@ final readonly class EncounterKeyChanger implements EncounterKeyChangerInterface
             option: $option,
             actorUsername: $actor?->getUserIdentifier() ?? '',
         ));
-
-        return $generation;
     }
 }
