@@ -5,7 +5,7 @@
     "hospital": "Synthetic test hospital",
     "departments": {
         "INN TEST": "Innere Medizin",
-        "UCH TEST": "Unfallchirurgie, Allgemein"
+        "UCH TEST": "Unfallchirurgie"
     },
     "stations": {
         "ITS TEST": "icu",

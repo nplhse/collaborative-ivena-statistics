@@ -3,7 +3,8 @@
 **Audience:** Developers of the tool, its profiles and the encounter import; pilot coordinators who
 support hospitals.
 
-**Status:** v1 with the ORBIS MTS profile (#1051; 1.0.1: department names in the local map, MTS indicators from the first real test run), part of the encounter data pilot (#1043).
+**Status:** v1 with the ORBIS MTS profile (#1051; 1.0.1: department names in the local map, MTS indicators from the first real test run; 1.0.2: the
+local map rejects department names the import would take for personal data), part of the encounter data pilot (#1043).
 
 Decisions: [ADR 025](../../02-architecture/decisions/025-encounter-data-context-and-exchange-format.md)
 (tool, CSP, profiles), [ADR 026](../../02-architecture/decisions/026-encounter-pseudonym-key.md) (key
@@ -122,7 +123,7 @@ JSON file next to the key file and loads it per run (optional):
 | Key | Effect |
 |---|---|
 | `profile` | optional; a map for another profile is rejected |
-| `departments` | source department code (`Stat_Fachrichtung`, else `Med. Fachabteilungskürzel`) → `admitting_department`: the name of a department of the reference catalog as the import resolves it (case-insensitive); 1–64 characters, no `;`, `"`, control characters or surrounding spaces. The tool cannot check the catalog offline; the import rejects rows with an unknown or ambiguous name |
+| `departments` | source department code (`Stat_Fachrichtung`, else `Med. Fachabteilungskürzel`) → `admitting_department`: the name of a department of the reference catalog as the import resolves it (case-insensitive); 1–64 characters, no `;`, `"`, control characters or surrounding spaces, and nothing the import's content check would take for a person's name (`Word, Word`, a title like `Dr.` or `Herr` before a capitalised word) or a date; such a value would reject the whole file on the server. The tool cannot check the catalog offline; the import rejects rows with an unknown or ambiguous name |
 | `stations` | `Stat_Station` → `care_level` (`ward`, `monitoring`, `icu`, `or`, `unknown`) for `admitted` |
 | `dispositions` | additional or overriding `Entlassung` texts → `disposition` and optional `careLevel` (only with `admitted` or `transferred_external`) |
 
@@ -197,9 +198,9 @@ The allow-list is the profile: a column the profile does not map is dropped. Rul
 ## Content check
 
 Before saving, the tool checks every value that reaches the output, and the raw labels of the MTS
-diagram and indicator columns before they become codes. `admitting_department` is not checked: its
-values come from the hospital's own local map (catalog names such as `Chirurgie, Allgemein` would look
-like names), not from the export.
+diagram and indicator columns before they become codes. `admitting_department` is not checked here: its
+values come from the hospital's own local map, which is checked when it is loaded (see the local map
+format).
 
 | Finding | Pattern |
 |---|---|

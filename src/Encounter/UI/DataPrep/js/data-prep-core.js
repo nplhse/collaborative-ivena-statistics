@@ -28,9 +28,18 @@
         'gcs',
     ];
     /** Name of a department of the reference catalog, as the import resolves it (#1048). */
+    // Patterns of the server's content check (IdentifyingContentDetector, #1048): a value that matches
+    // rejects the whole file there, so the local map must not produce one.
+    const SERVER_NAME_LIKE =
+        /\p{Lu}\p{Ll}+\s*,\s*\p{Lu}\p{Ll}+|\b(?:Dr|Prof|Herr|Frau|Mr|Mrs|Ms)\.?\s+\p{Lu}/u;
+    const SERVER_DATE_LIKE =
+        /\b\d{1,2}\.\d{1,2}\.\d{2,4}\b|\b\d{4}-\d{2}-\d{2}\b|\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/;
+
     function isDepartmentName(value) {
         return (
             typeof value === 'string' &&
+            !SERVER_NAME_LIKE.test(value) &&
+            !SERVER_DATE_LIKE.test(value) &&
             value.length >= 1 &&
             value.length <= 64 &&
             value.trim() === value &&
@@ -43,7 +52,8 @@
             )
         );
     }
-    // Values from the hospital's own local map, not from the export: no name or free-text check.
+    // Values from the hospital's own local map, not from the export: checked when the map is loaded
+    // (isDepartmentName), not by the content check of the run.
     const LOCAL_MAP_FIELDS = ['admitting_department'];
 
     // ------------------------------------------------------------------ text helpers
