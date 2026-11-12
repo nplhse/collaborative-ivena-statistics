@@ -8,6 +8,10 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\DataFixtures\Encounter\Application\SyntheticVisit;
 use App\DataFixtures\Encounter\Infrastructure\SyntheticEncounterLoader;
 use App\DataFixtures\FixtureVolumeResolver;
+use App\Encounter\Domain\Entity\EncounterAccessGrant;
+use App\Encounter\Domain\Enum\EncounterGrantAction;
+use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
@@ -25,7 +29,8 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
  * The `encounters` fixture group on the synthetic allocations of the test preset (#1052): the demo
  * hospital of `foo` gets one encounter import for each of the last three months of the period (the
  * test preset has two: August and September 2026), built from its allocations; no other hospital gets
- * encounter data; the files command writes the same visits.
+ * encounter data; `foo` gets the pilot role and an encounter grant for it; the files command writes
+ * the same visits.
  */
 #[ResetDatabase]
 final class EncounterFixtureTest extends KernelTestCase
@@ -52,6 +57,19 @@ final class EncounterFixtureTest extends KernelTestCase
                 array_column($imports, 'file_path'),
             );
             self::assertSame([$hospitalId], array_map(intval(...), $connection->fetchFirstColumn('SELECT DISTINCT hospital_id FROM encounter')));
+
+            // foo owns the hospital and gets the pilot role and an encounter grant for it, and nothing else.
+            $foo = $this->entityManager()->getRepository(User::class)->findOneBy(['username' => 'foo']);
+            self::assertInstanceOf(User::class, $foo);
+            self::assertSame((int) $foo->getId(), (int) $hospital->getOwner()?->getId(), 'foo has hospital access as owner');
+            self::assertContains(UserRole::ENCOUNTER_BETA, $foo->getRoles());
+            $grants = $this->entityManager()->getRepository(EncounterAccessGrant::class)->findBy(['user' => $foo]);
+            self::assertCount(1, $grants);
+            self::assertSame($hospitalId, (int) $grants[0]->getHospital()->getId());
+            self::assertSame([EncounterGrantAction::Upload, EncounterGrantAction::Review, EncounterGrantAction::ViewCases], $grants[0]->getActions());
+            $admin = $this->entityManager()->getRepository(User::class)->findOneBy(['username' => 'admin']);
+            self::assertInstanceOf(User::class, $admin);
+            self::assertNotContains(UserRole::ENCOUNTER_BETA, $admin->getRoles(), 'admin inherits the role instead');
 
             // Same seed, same visits: the loader generates exactly what the fixture stored.
             $loader = self::getContainer()->get(SyntheticEncounterLoader::class);
