@@ -79,6 +79,14 @@ app:
         monitoring_retention:
             overdue_after_minutes: 1500
 
+    encounter:
+        # Offline data preparation tool (ADR 025): raise version with every change to the tool or a
+        # bundled profile; raise min_version to block older tools (docs/04-features/encounter/data-preparation-tool.md).
+        data_prep:
+            version: '1.0.0'
+            min_version: '1.0.0'
+            released_at: '2026-11-12'
+
     storage:
         # Usage in percent of the capacity reference at which each level starts (ADR 017).
         thresholds:

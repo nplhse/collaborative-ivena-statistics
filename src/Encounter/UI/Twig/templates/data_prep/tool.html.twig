@@ -1,0 +1,223 @@
+{#- Offline data preparation tool (ADR 025, #1051): one self-contained file, no external resources. -#}
+{%- set p = 'encounter.data_prep.tool.' -%}
+{%- set js = 'encounter.data_prep.js.' -%}
+{%- set messages = {
+    updateCurrent: (js ~ 'update_current')|trans({}, 'encounter'),
+    updateAvailable: (js ~ 'update_available')|trans({}, 'encounter'),
+    updateBlocked: (js ~ 'update_blocked')|trans({}, 'encounter'),
+    updateUnavailable: (js ~ 'update_unavailable')|trans({}, 'encounter'),
+    keyLoaded: (js ~ 'key_loaded')|trans({}, 'encounter'),
+    keyRemembered: (js ~ 'key_remembered')|trans({}, 'encounter'),
+    keyGenerated: (js ~ 'key_generated')|trans({}, 'encounter'),
+    keyCheck: (js ~ 'key_check')|trans({}, 'encounter'),
+    keyLabelRequired: (js ~ 'key_label_required')|trans({}, 'encounter'),
+    keyInvalid: (js ~ 'key_invalid')|trans({}, 'encounter'),
+    'keyError_not-a-key-file': (js ~ 'key_error_not_a_key_file')|trans({}, 'encounter'),
+    'keyError_invalid-key': (js ~ 'key_invalid')|trans({}, 'encounter'),
+    'keyError_check-mismatch': (js ~ 'key_error_check_mismatch')|trans({}, 'encounter'),
+    keyRememberFailed: (js ~ 'key_remember_failed')|trans({}, 'encounter'),
+    mapLoaded: (js ~ 'map_loaded')|trans({}, 'encounter'),
+    mapInvalid: (js ~ 'map_invalid')|trans({}, 'encounter'),
+    mapDepartments: (js ~ 'map_departments')|trans({}, 'encounter'),
+    mapStations: (js ~ 'map_stations')|trans({}, 'encounter'),
+    mapDispositions: (js ~ 'map_dispositions')|trans({}, 'encounter'),
+    profileUnknown: (js ~ 'profile_unknown')|trans({}, 'encounter'),
+    profileDetected: (js ~ 'profile_detected')|trans({}, 'encounter'),
+    rows: (js ~ 'rows')|trans({}, 'encounter'),
+    columnSource: (js ~ 'column_source')|trans({}, 'encounter'),
+    columnStatus: (js ~ 'column_status')|trans({}, 'encounter'),
+    columnTarget: (js ~ 'column_target')|trans({}, 'encounter'),
+    status_kept: (js ~ 'status_kept')|trans({}, 'encounter'),
+    status_transformed: (js ~ 'status_transformed')|trans({}, 'encounter'),
+    status_dropped: (js ~ 'status_dropped')|trans({}, 'encounter'),
+    usedFor: (js ~ 'used_for')|trans({}, 'encounter'),
+    reason_identifying: (js ~ 'reason_identifying')|trans({}, 'encounter'),
+    reason_staff: (js ~ 'reason_staff')|trans({}, 'encounter'),
+    reason_freeText: (js ~ 'reason_free_text')|trans({}, 'encounter'),
+    reason_derived: (js ~ 'reason_derived')|trans({}, 'encounter'),
+    reason_internal: (js ~ 'reason_internal')|trans({}, 'encounter'),
+    reason_notUsed: (js ~ 'reason_not_used')|trans({}, 'encounter'),
+    reason_notInProfile: (js ~ 'reason_not_in_profile')|trans({}, 'encounter'),
+    running: (js ~ 'running')|trans({}, 'encounter'),
+    runFailed: (js ~ 'run_failed')|trans({}, 'encounter'),
+    reportItem: (js ~ 'report_item')|trans({}, 'encounter'),
+    reportCount: (js ~ 'report_count')|trans({}, 'encounter'),
+    reportKind: (js ~ 'report_kind')|trans({}, 'encounter'),
+    reportField: (js ~ 'report_field')|trans({}, 'encounter'),
+    reportReason: (js ~ 'report_reason')|trans({}, 'encounter'),
+    reportValue: (js ~ 'report_value')|trans({}, 'encounter'),
+    reportRowsRead: (js ~ 'report_rows_read')|trans({}, 'encounter'),
+    reportRowsWritten: (js ~ 'report_rows_written')|trans({}, 'encounter'),
+    skipped_noCaseNumber: (js ~ 'skipped_no_case_number')|trans({}, 'encounter'),
+    skipped_noAnchor: (js ~ 'skipped_no_anchor')|trans({}, 'encounter'),
+    skipped_noAge: (js ~ 'skipped_no_age')|trans({}, 'encounter'),
+    skipped_noSex: (js ~ 'skipped_no_sex')|trans({}, 'encounter'),
+    skipped_duplicate: (js ~ 'skipped_duplicate')|trans({}, 'encounter'),
+    reportAnchorAssessment: (js ~ 'report_anchor_assessment')|trans({}, 'encounter'),
+    reportAnchorAdmission: (js ~ 'report_anchor_admission')|trans({}, 'encounter'),
+    reportAgeFromBirthDate: (js ~ 'report_age_from_birth_date')|trans({}, 'encounter'),
+    reportAgeClamped: (js ~ 'report_age_clamped')|trans({}, 'encounter'),
+    reportCareLevelUnknown: (js ~ 'report_care_level_unknown')|trans({}, 'encounter'),
+    reportPeriod: (js ~ 'report_period')|trans({}, 'encounter'),
+    reportEmptiedTitle: (js ~ 'report_emptied_title')|trans({}, 'encounter'),
+    reportVitalsEmptied: (js ~ 'report_vitals_emptied')|trans({}, 'encounter'),
+    reportInvalidValues: (js ~ 'report_invalid_values')|trans({}, 'encounter'),
+    invalid_outOfRange: (js ~ 'invalid_out_of_range')|trans({}, 'encounter'),
+    invalid_unparseable: (js ~ 'invalid_unparseable')|trans({}, 'encounter'),
+    invalid_timestamp: (js ~ 'invalid_timestamp')|trans({}, 'encounter'),
+    reportUnmappedTitle: (js ~ 'report_unmapped_title')|trans({}, 'encounter'),
+    reportUnmappedHint: (js ~ 'report_unmapped_hint')|trans({}, 'encounter'),
+    reportUnlistedTitle: (js ~ 'report_unlisted_title')|trans({}, 'encounter'),
+    reportUnlistedHint: (js ~ 'report_unlisted_hint')|trans({}, 'encounter'),
+    none: (js ~ 'none')|trans({}, 'encounter'),
+    contentPassed: (js ~ 'content_passed')|trans({}, 'encounter'),
+    contentFailed: (js ~ 'content_failed')|trans({}, 'encounter'),
+    content_date: (js ~ 'content_date')|trans({}, 'encounter'),
+    content_name: (js ~ 'content_name')|trans({}, 'encounter'),
+    content_freeText: (js ~ 'content_free_text')|trans({}, 'encounter'),
+    firstLine: (js ~ 'first_line')|trans({}, 'encounter'),
+    previewOf: (js ~ 'preview_of')|trans({}, 'encounter'),
+    saved: (js ~ 'saved')|trans({}, 'encounter'),
+} -%}
+{%- set config = {
+    version: release.version,
+    latestUrl: latest_url,
+    schema: schema,
+    profiles: profiles,
+    catalogs: catalogs,
+    messages: messages,
+} -%}
+<!DOCTYPE html>
+<html lang="{{ app.request.locale|default('de') }}">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src {{ latest_url }}; base-uri 'none'; form-action 'none'">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="encounter-data-prep {{ release.version }}">
+    <title>{{ (p ~ 'title')|trans({}, 'encounter') }} {{ release.version }}</title>
+    <style>
+        :root { color-scheme: light; --fg: #1d273b; --muted: #5f6b7a; --line: #dce1e7; --bg: #f6f8fb; --accent: #206bc4; --ok: #2fb344; --warn: #f59f00; --err: #d63939; }
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+        body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--fg); background: var(--bg); }
+        header, main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+        header { padding-top: 24px; }
+        h1 { margin: 0 0 4px; font-size: 1.5rem; }
+        h2 { margin: 0 0 8px; font-size: 1.15rem; }
+        h3 { margin: 16px 0 8px; font-size: 1rem; }
+        section { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 16px; margin-bottom: 16px; }
+        p { margin: 0 0 8px; }
+        .hint, .muted { color: var(--muted); }
+        .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+        label { font-weight: 600; }
+        input[type="text"] { padding: 6px 8px; border: 1px solid var(--line); border-radius: 4px; min-width: 240px; }
+        button { padding: 6px 14px; border: 1px solid var(--accent); border-radius: 4px; background: var(--accent); color: #fff; font: inherit; cursor: pointer; }
+        button.secondary { background: #fff; color: var(--accent); }
+        button:disabled { opacity: .45; cursor: not-allowed; }
+        .status { padding: 8px 12px; border-left: 4px solid var(--accent); background: #eef4fb; margin: 8px 0; }
+        .status[data-kind="success"] { border-color: var(--ok); background: #edf8ef; }
+        .status[data-kind="warning"] { border-color: var(--warn); background: #fff6e5; }
+        .status[data-kind="error"] { border-color: var(--err); background: #fcebeb; }
+        .grid { border-collapse: collapse; width: 100%; font-size: .875rem; }
+        .grid th, .grid td { border: 1px solid var(--line); padding: 4px 8px; text-align: left; vertical-align: top; white-space: nowrap; }
+        .grid th { background: var(--bg); }
+        .scroll { overflow-x: auto; }
+        ol.steps { margin: 0; padding-left: 20px; }
+        footer { max-width: 1100px; margin: 0 auto; padding: 0 16px 24px; color: var(--muted); font-size: .8rem; }
+    </style>
+</head>
+<body>
+<header>
+    <h1>{{ (p ~ 'title')|trans({}, 'encounter') }}</h1>
+    <p class="muted">{{ (p ~ 'version')|trans({}, 'encounter') }} {{ release.version }} · {{ release.releasedAt }}</p>
+    <p>{{ (p ~ 'intro')|trans({}, 'encounter') }}</p>
+    <p id="update-status" class="status" hidden></p>
+    <p><a id="update-link" href="#" hidden rel="noreferrer">{{ (p ~ 'update_link')|trans({}, 'encounter') }}</a></p>
+</header>
+<main>
+    <section aria-labelledby="key-title">
+        <h2 id="key-title">1. {{ (p ~ 'key_title')|trans({}, 'encounter') }}</h2>
+        <p class="hint">{{ (p ~ 'key_hint')|trans({}, 'encounter') }}</p>
+        <div class="row">
+            <label for="key-file">{{ (p ~ 'key_load')|trans({}, 'encounter') }}</label>
+            <input type="file" id="key-file" accept=".json,application/json">
+        </div>
+        <div class="row">
+            <input type="checkbox" id="key-remember">
+            <label for="key-remember">{{ (p ~ 'key_remember')|trans({}, 'encounter') }}</label>
+            <button type="button" id="key-forget" class="secondary" hidden>{{ (p ~ 'key_forget')|trans({}, 'encounter') }}</button>
+        </div>
+        <p class="hint">{{ (p ~ 'key_remember_hint')|trans({}, 'encounter') }}</p>
+        <details>
+            <summary>{{ (p ~ 'key_generate_title')|trans({}, 'encounter') }}</summary>
+            <p class="hint">{{ (p ~ 'key_generate_hint')|trans({}, 'encounter') }}</p>
+            <div class="row">
+                <label for="key-label">{{ (p ~ 'key_label')|trans({}, 'encounter') }}</label>
+                <input type="text" id="key-label" maxlength="80" autocomplete="off">
+                <button type="button" id="key-generate" class="secondary">{{ (p ~ 'key_generate')|trans({}, 'encounter') }}</button>
+            </div>
+        </details>
+        <p id="key-status" class="status" hidden></p>
+    </section>
+
+    <section aria-labelledby="map-title">
+        <h2 id="map-title">2. {{ (p ~ 'map_title')|trans({}, 'encounter') }}</h2>
+        <p class="hint">{{ (p ~ 'map_hint')|trans({}, 'encounter') }}</p>
+        <div class="row">
+            <label for="map-file">{{ (p ~ 'map_load')|trans({}, 'encounter') }}</label>
+            <input type="file" id="map-file" accept=".json,application/json">
+        </div>
+        <p id="map-status" class="status" hidden></p>
+    </section>
+
+    <section aria-labelledby="source-title">
+        <h2 id="source-title">3. {{ (p ~ 'source_title')|trans({}, 'encounter') }}</h2>
+        <p class="hint">{{ (p ~ 'source_hint')|trans({}, 'encounter') }}</p>
+        <div class="row">
+            <label for="source-file">{{ (p ~ 'source_load')|trans({}, 'encounter') }}</label>
+            <input type="file" id="source-file" accept=".csv,text/csv,text/plain">
+        </div>
+        <p id="source-status" class="status" hidden></p>
+        <div id="column-preview" class="scroll"></div>
+    </section>
+
+    <section aria-labelledby="run-title">
+        <h2 id="run-title">4. {{ (p ~ 'run_title')|trans({}, 'encounter') }}</h2>
+        <p class="hint">{{ (p ~ 'run_hint')|trans({}, 'encounter') }}</p>
+        <div class="row">
+            <button type="button" id="run" disabled>{{ (p ~ 'run')|trans({}, 'encounter') }}</button>
+        </div>
+        <p id="run-status" class="status" hidden></p>
+        <div id="result-section" hidden>
+            <h3>{{ (p ~ 'content_title')|trans({}, 'encounter') }}</h3>
+            <div id="content-check"></div>
+            <h3>{{ (p ~ 'report_title')|trans({}, 'encounter') }}</h3>
+            <div id="report" class="scroll"></div>
+            <h3>{{ (p ~ 'preview_title')|trans({}, 'encounter') }}</h3>
+            <div id="output-preview"></div>
+        </div>
+    </section>
+
+    <section aria-labelledby="save-title">
+        <h2 id="save-title">5. {{ (p ~ 'save_title')|trans({}, 'encounter') }}</h2>
+        <p class="hint">{{ (p ~ 'save_hint')|trans({}, 'encounter') }}</p>
+        <div class="row" id="content-ack-row" hidden>
+            <input type="checkbox" id="content-ack">
+            <label for="content-ack">{{ (p ~ 'content_ack')|trans({}, 'encounter') }}</label>
+        </div>
+        <div class="row">
+            <button type="button" id="save" disabled>{{ (p ~ 'save')|trans({}, 'encounter') }}</button>
+        </div>
+        <p id="save-status" class="status" hidden></p>
+    </section>
+</main>
+<footer>{{ (p ~ 'footer')|trans({}, 'encounter') }}</footer>
+<script type="application/json" id="data-prep-config">{{ config|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_PRESERVE_ZERO_FRACTION'))|raw }}</script>
+{% for script in scripts %}
+<script>
+{{ script|raw }}
+</script>
+{% endfor %}
+</body>
+</html>

@@ -43,6 +43,11 @@ final readonly class CookieConsentRequestSubscriber
             return false;
         }
 
+        // Stateless routes (for example the public update check of the data preparation tool) set no cookies.
+        if (true === $request->attributes->get('_stateless')) {
+            return false;
+        }
+
         $path = $request->getPathInfo();
 
         return !str_starts_with($path, '/_');

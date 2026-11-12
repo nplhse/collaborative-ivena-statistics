@@ -157,6 +157,454 @@
         <source>encounter.overview.admin_access</source>
         <target>As an administrator you have encounter access to every hospital without a grant.</target>
       </trans-unit>
+      <trans-unit id="Enc9B4AE2D8" resname="encounter.data_prep.overview.title">
+        <source>encounter.data_prep.overview.title</source>
+        <target>Data preparation tool</target>
+      </trans-unit>
+      <trans-unit id="Enc25E79088" resname="encounter.data_prep.overview.intro">
+        <source>encounter.data_prep.overview.intro</source>
+        <target>The tool turns the ED export of your hospital information system into a pseudonymised file for the upload. It runs offline in the browser: names, dates of birth, staff and free text never leave your computer.</target>
+      </trans-unit>
+      <trans-unit id="EncA4467F2E" resname="encounter.data_prep.overview.download">
+        <source>encounter.data_prep.overview.download</source>
+        <target>Download tool</target>
+      </trans-unit>
+      <trans-unit id="Enc61110276" resname="encounter.data_prep.overview.version">
+        <source>encounter.data_prep.overview.version</source>
+        <target>Version</target>
+      </trans-unit>
+      <trans-unit id="Enc504C7213" resname="encounter.data_prep.overview.profiles">
+        <source>encounter.data_prep.overview.profiles</source>
+        <target>Supported exports: ORBIS MTS export.</target>
+      </trans-unit>
+      <trans-unit id="EncE937AD5F" resname="encounter.data_prep.overview.local_files">
+        <source>encounter.data_prep.overview.local_files</source>
+        <target>Open the downloaded file in a current browser (double-click). Keep the key file and, if used, the local map file in your team folder.</target>
+      </trans-unit>
+      <trans-unit id="EncE697213F" resname="encounter.data_prep.tool.title">
+        <source>encounter.data_prep.tool.title</source>
+        <target>Encounter data preparation</target>
+      </trans-unit>
+      <trans-unit id="EncD007BD03" resname="encounter.data_prep.tool.version">
+        <source>encounter.data_prep.tool.version</source>
+        <target>Version</target>
+      </trans-unit>
+      <trans-unit id="EncCC9624A9" resname="encounter.data_prep.tool.intro">
+        <source>encounter.data_prep.tool.intro</source>
+        <target>This file works offline. It reads the export of your hospital information system, keeps only the agreed fields, pseudonymises the case number and saves a file for the upload. Names, dates of birth, staff and free text are not written to that file. The only request the file makes is a version check at start.</target>
+      </trans-unit>
+      <trans-unit id="Enc427DAA95" resname="encounter.data_prep.tool.update_link">
+        <source>encounter.data_prep.tool.update_link</source>
+        <target>Download the current version</target>
+      </trans-unit>
+      <trans-unit id="EncEDF782B1" resname="encounter.data_prep.tool.key_title">
+        <source>encounter.data_prep.tool.key_title</source>
+        <target>Key file</target>
+      </trans-unit>
+      <trans-unit id="Enc1AAA1FB7" resname="encounter.data_prep.tool.key_hint">
+        <source>encounter.data_prep.tool.key_hint</source>
+        <target>All users of your hospital use the same key file. It is needed to recognise the same visit in later exports. Keep it in your team folder; it never leaves the hospital.</target>
+      </trans-unit>
+      <trans-unit id="EncC6F76D82" resname="encounter.data_prep.tool.key_load">
+        <source>encounter.data_prep.tool.key_load</source>
+        <target>Load key file</target>
+      </trans-unit>
+      <trans-unit id="EncB57EBCA1" resname="encounter.data_prep.tool.key_remember">
+        <source>encounter.data_prep.tool.key_remember</source>
+        <target>Remember on this computer</target>
+      </trans-unit>
+      <trans-unit id="Enc978EDFD4" resname="encounter.data_prep.tool.key_remember_hint">
+        <source>encounter.data_prep.tool.key_remember_hint</source>
+        <target>Convenience only: the browser may delete stored data. The key file in your team folder remains authoritative.</target>
+      </trans-unit>
+      <trans-unit id="EncA1E63D44" resname="encounter.data_prep.tool.key_forget">
+        <source>encounter.data_prep.tool.key_forget</source>
+        <target>Forget key</target>
+      </trans-unit>
+      <trans-unit id="Enc1FB372C9" resname="encounter.data_prep.tool.key_generate_title">
+        <source>encounter.data_prep.tool.key_generate_title</source>
+        <target>No key file yet? Create one</target>
+      </trans-unit>
+      <trans-unit id="Enc76F07BB9" resname="encounter.data_prep.tool.key_generate_hint">
+        <source>encounter.data_prep.tool.key_generate_hint</source>
+        <target>Create the key file only once per hospital. A new key makes earlier visits unrecognisable and needs a key change on the server.</target>
+      </trans-unit>
+      <trans-unit id="Enc3BC7F5CE" resname="encounter.data_prep.tool.key_label">
+        <source>encounter.data_prep.tool.key_label</source>
+        <target>Label</target>
+      </trans-unit>
+      <trans-unit id="EncD0FAC62E" resname="encounter.data_prep.tool.key_generate">
+        <source>encounter.data_prep.tool.key_generate</source>
+        <target>Create and save key file</target>
+      </trans-unit>
+      <trans-unit id="Enc78CFAA47" resname="encounter.data_prep.tool.map_title">
+        <source>encounter.data_prep.tool.map_title</source>
+        <target>Local map (optional)</target>
+      </trans-unit>
+      <trans-unit id="EncFC392063" resname="encounter.data_prep.tool.map_hint">
+        <source>encounter.data_prep.tool.map_hint</source>
+        <target>Hospital-specific assignments of departments, stations and discharge texts. The file stays in your hospital. Without it, the admitting department stays empty and the care level comes from the discharge text only.</target>
+      </trans-unit>
+      <trans-unit id="EncAAD3F09D" resname="encounter.data_prep.tool.map_load">
+        <source>encounter.data_prep.tool.map_load</source>
+        <target>Load local map</target>
+      </trans-unit>
+      <trans-unit id="Enc5A8F287B" resname="encounter.data_prep.tool.source_title">
+        <source>encounter.data_prep.tool.source_title</source>
+        <target>Export file</target>
+      </trans-unit>
+      <trans-unit id="EncAE53E045" resname="encounter.data_prep.tool.source_hint">
+        <source>encounter.data_prep.tool.source_hint</source>
+        <target>Select the CSV export. The export format is detected from its header.</target>
+      </trans-unit>
+      <trans-unit id="Enc7C99D876" resname="encounter.data_prep.tool.source_load">
+        <source>encounter.data_prep.tool.source_load</source>
+        <target>Load export</target>
+      </trans-unit>
+      <trans-unit id="Enc71179F78" resname="encounter.data_prep.tool.run_title">
+        <source>encounter.data_prep.tool.run_title</source>
+        <target>Prepare</target>
+      </trans-unit>
+      <trans-unit id="EncAE4C87F6" resname="encounter.data_prep.tool.run_hint">
+        <source>encounter.data_prep.tool.run_hint</source>
+        <target>Check the report and the content check before saving.</target>
+      </trans-unit>
+      <trans-unit id="EncD99B43A5" resname="encounter.data_prep.tool.run">
+        <source>encounter.data_prep.tool.run</source>
+        <target>Prepare data</target>
+      </trans-unit>
+      <trans-unit id="Enc852F18E4" resname="encounter.data_prep.tool.content_title">
+        <source>encounter.data_prep.tool.content_title</source>
+        <target>Content check</target>
+      </trans-unit>
+      <trans-unit id="Enc7AEB9440" resname="encounter.data_prep.tool.report_title">
+        <source>encounter.data_prep.tool.report_title</source>
+        <target>Report</target>
+      </trans-unit>
+      <trans-unit id="EncD54BDCC8" resname="encounter.data_prep.tool.preview_title">
+        <source>encounter.data_prep.tool.preview_title</source>
+        <target>Preview of the output</target>
+      </trans-unit>
+      <trans-unit id="Enc59EDCE0A" resname="encounter.data_prep.tool.save_title">
+        <source>encounter.data_prep.tool.save_title</source>
+        <target>Save</target>
+      </trans-unit>
+      <trans-unit id="EncF1F88301" resname="encounter.data_prep.tool.save_hint">
+        <source>encounter.data_prep.tool.save_hint</source>
+        <target>Saves the pseudonymised file (UTF-8 CSV) for the upload on the encounter page.</target>
+      </trans-unit>
+      <trans-unit id="Enc432BC8B7" resname="encounter.data_prep.tool.content_ack">
+        <source>encounter.data_prep.tool.content_ack</source>
+        <target>I have checked the findings of the content check: the values are not personal data.</target>
+      </trans-unit>
+      <trans-unit id="EncF46283E9" resname="encounter.data_prep.tool.save">
+        <source>encounter.data_prep.tool.save</source>
+        <target>Save file</target>
+      </trans-unit>
+      <trans-unit id="EncD46C92F3" resname="encounter.data_prep.tool.footer">
+        <source>encounter.data_prep.tool.footer</source>
+        <target>Collaborative IVENA Statistics · encounter data pilot · this file works without installation and sends no data.</target>
+      </trans-unit>
+      <trans-unit id="Enc37B7302D" resname="encounter.data_prep.js.update_current">
+        <source>encounter.data_prep.js.update_current</source>
+        <target>This is the current version.</target>
+      </trans-unit>
+      <trans-unit id="Enc7FDC47C0" resname="encounter.data_prep.js.update_available">
+        <source>encounter.data_prep.js.update_available</source>
+        <target>A newer version is available:</target>
+      </trans-unit>
+      <trans-unit id="EncBD247984" resname="encounter.data_prep.js.update_blocked">
+        <source>encounter.data_prep.js.update_blocked</source>
+        <target>This version is no longer supported. Processing is blocked. Latest version:</target>
+      </trans-unit>
+      <trans-unit id="Enc64FB63AA" resname="encounter.data_prep.js.update_unavailable">
+        <source>encounter.data_prep.js.update_unavailable</source>
+        <target>The version check could not reach the server (offline or blocked by a proxy). The tool still works; the server checks the version on upload.</target>
+      </trans-unit>
+      <trans-unit id="EncBDEC9510" resname="encounter.data_prep.js.key_loaded">
+        <source>encounter.data_prep.js.key_loaded</source>
+        <target>Key loaded</target>
+      </trans-unit>
+      <trans-unit id="EncFE0457A7" resname="encounter.data_prep.js.key_remembered">
+        <source>encounter.data_prep.js.key_remembered</source>
+        <target>Remembered key loaded</target>
+      </trans-unit>
+      <trans-unit id="Enc9FB6B555" resname="encounter.data_prep.js.key_generated">
+        <source>encounter.data_prep.js.key_generated</source>
+        <target>Key file created and saved. Store it in your team folder.</target>
+      </trans-unit>
+      <trans-unit id="Enc308E18ED" resname="encounter.data_prep.js.key_check">
+        <source>encounter.data_prep.js.key_check</source>
+        <target>check value</target>
+      </trans-unit>
+      <trans-unit id="EncECE6DDCB" resname="encounter.data_prep.js.key_label_required">
+        <source>encounter.data_prep.js.key_label_required</source>
+        <target>Enter a label for the key file.</target>
+      </trans-unit>
+      <trans-unit id="EncFAEAF7A4" resname="encounter.data_prep.js.key_invalid">
+        <source>encounter.data_prep.js.key_invalid</source>
+        <target>The key file is invalid.</target>
+      </trans-unit>
+      <trans-unit id="EncE72359CC" resname="encounter.data_prep.js.key_error_not_a_key_file">
+        <source>encounter.data_prep.js.key_error_not_a_key_file</source>
+        <target>This is not a key file of the tool.</target>
+      </trans-unit>
+      <trans-unit id="EncB4789538" resname="encounter.data_prep.js.key_error_check_mismatch">
+        <source>encounter.data_prep.js.key_error_check_mismatch</source>
+        <target>The key file is damaged: its check value does not match the key.</target>
+      </trans-unit>
+      <trans-unit id="Enc97413ABB" resname="encounter.data_prep.js.key_remember_failed">
+        <source>encounter.data_prep.js.key_remember_failed</source>
+        <target>The browser could not store the key. Load the key file for each run.</target>
+      </trans-unit>
+      <trans-unit id="EncD49CDE3F" resname="encounter.data_prep.js.map_loaded">
+        <source>encounter.data_prep.js.map_loaded</source>
+        <target>Local map loaded</target>
+      </trans-unit>
+      <trans-unit id="EncC6AF4606" resname="encounter.data_prep.js.map_invalid">
+        <source>encounter.data_prep.js.map_invalid</source>
+        <target>The local map is invalid</target>
+      </trans-unit>
+      <trans-unit id="Enc34B81E82" resname="encounter.data_prep.js.map_departments">
+        <source>encounter.data_prep.js.map_departments</source>
+        <target>departments</target>
+      </trans-unit>
+      <trans-unit id="Enc25538FC6" resname="encounter.data_prep.js.map_stations">
+        <source>encounter.data_prep.js.map_stations</source>
+        <target>stations</target>
+      </trans-unit>
+      <trans-unit id="EncACC7645F" resname="encounter.data_prep.js.map_dispositions">
+        <source>encounter.data_prep.js.map_dispositions</source>
+        <target>discharge texts</target>
+      </trans-unit>
+      <trans-unit id="Enc13A96F03" resname="encounter.data_prep.js.profile_unknown">
+        <source>encounter.data_prep.js.profile_unknown</source>
+        <target>The export format was not recognised. Please use a supported export.</target>
+      </trans-unit>
+      <trans-unit id="Enc22F48A05" resname="encounter.data_prep.js.profile_detected">
+        <source>encounter.data_prep.js.profile_detected</source>
+        <target>Export format</target>
+      </trans-unit>
+      <trans-unit id="Enc2F97F4C3" resname="encounter.data_prep.js.rows">
+        <source>encounter.data_prep.js.rows</source>
+        <target>rows</target>
+      </trans-unit>
+      <trans-unit id="Enc68815082" resname="encounter.data_prep.js.column_source">
+        <source>encounter.data_prep.js.column_source</source>
+        <target>Source column</target>
+      </trans-unit>
+      <trans-unit id="Enc4996F8FD" resname="encounter.data_prep.js.column_status">
+        <source>encounter.data_prep.js.column_status</source>
+        <target>Treatment</target>
+      </trans-unit>
+      <trans-unit id="EncDEBD8614" resname="encounter.data_prep.js.column_target">
+        <source>encounter.data_prep.js.column_target</source>
+        <target>Output field / reason</target>
+      </trans-unit>
+      <trans-unit id="EncAD0C57EC" resname="encounter.data_prep.js.status_kept">
+        <source>encounter.data_prep.js.status_kept</source>
+        <target>kept</target>
+      </trans-unit>
+      <trans-unit id="Enc3B1E7828" resname="encounter.data_prep.js.status_transformed">
+        <source>encounter.data_prep.js.status_transformed</source>
+        <target>transformed</target>
+      </trans-unit>
+      <trans-unit id="Enc1E5BA35C" resname="encounter.data_prep.js.status_dropped">
+        <source>encounter.data_prep.js.status_dropped</source>
+        <target>dropped</target>
+      </trans-unit>
+      <trans-unit id="Enc01904EC0" resname="encounter.data_prep.js.used_for">
+        <source>encounter.data_prep.js.used_for</source>
+        <target>used only inside the tool for</target>
+      </trans-unit>
+      <trans-unit id="EncBCB59A6B" resname="encounter.data_prep.js.reason_identifying">
+        <source>encounter.data_prep.js.reason_identifying</source>
+        <target>identifying</target>
+      </trans-unit>
+      <trans-unit id="Enc4189AE87" resname="encounter.data_prep.js.reason_staff">
+        <source>encounter.data_prep.js.reason_staff</source>
+        <target>staff</target>
+      </trans-unit>
+      <trans-unit id="EncBCBA2F97" resname="encounter.data_prep.js.reason_free_text">
+        <source>encounter.data_prep.js.reason_free_text</source>
+        <target>free text</target>
+      </trans-unit>
+      <trans-unit id="Enc260B7389" resname="encounter.data_prep.js.reason_derived">
+        <source>encounter.data_prep.js.reason_derived</source>
+        <target>derived</target>
+      </trans-unit>
+      <trans-unit id="Enc65B80B5B" resname="encounter.data_prep.js.reason_internal">
+        <source>encounter.data_prep.js.reason_internal</source>
+        <target>hospital-internal unit</target>
+      </trans-unit>
+      <trans-unit id="EncCE87FA08" resname="encounter.data_prep.js.reason_not_used">
+        <source>encounter.data_prep.js.reason_not_used</source>
+        <target>not used in this version</target>
+      </trans-unit>
+      <trans-unit id="EncC787BD10" resname="encounter.data_prep.js.reason_not_in_profile">
+        <source>encounter.data_prep.js.reason_not_in_profile</source>
+        <target>not in the profile</target>
+      </trans-unit>
+      <trans-unit id="Enc078E01BF" resname="encounter.data_prep.js.running">
+        <source>encounter.data_prep.js.running</source>
+        <target>Preparing …</target>
+      </trans-unit>
+      <trans-unit id="EncF570E024" resname="encounter.data_prep.js.run_failed">
+        <source>encounter.data_prep.js.run_failed</source>
+        <target>Preparation failed</target>
+      </trans-unit>
+      <trans-unit id="Enc9E1F6186" resname="encounter.data_prep.js.report_item">
+        <source>encounter.data_prep.js.report_item</source>
+        <target>Item</target>
+      </trans-unit>
+      <trans-unit id="Enc268C8D05" resname="encounter.data_prep.js.report_count">
+        <source>encounter.data_prep.js.report_count</source>
+        <target>Count</target>
+      </trans-unit>
+      <trans-unit id="EncF0FCF3CD" resname="encounter.data_prep.js.report_kind">
+        <source>encounter.data_prep.js.report_kind</source>
+        <target>Kind</target>
+      </trans-unit>
+      <trans-unit id="EncD3F03EA8" resname="encounter.data_prep.js.report_field">
+        <source>encounter.data_prep.js.report_field</source>
+        <target>Field</target>
+      </trans-unit>
+      <trans-unit id="Enc05AFA8DE" resname="encounter.data_prep.js.report_reason">
+        <source>encounter.data_prep.js.report_reason</source>
+        <target>Reason</target>
+      </trans-unit>
+      <trans-unit id="Enc972067A0" resname="encounter.data_prep.js.report_value">
+        <source>encounter.data_prep.js.report_value</source>
+        <target>Source value</target>
+      </trans-unit>
+      <trans-unit id="Enc778AE1A0" resname="encounter.data_prep.js.report_rows_read">
+        <source>encounter.data_prep.js.report_rows_read</source>
+        <target>Rows read</target>
+      </trans-unit>
+      <trans-unit id="EncFFA9136E" resname="encounter.data_prep.js.report_rows_written">
+        <source>encounter.data_prep.js.report_rows_written</source>
+        <target>Visits written</target>
+      </trans-unit>
+      <trans-unit id="Enc6BF2B7A1" resname="encounter.data_prep.js.skipped_no_case_number">
+        <source>encounter.data_prep.js.skipped_no_case_number</source>
+        <target>Skipped: no case number</target>
+      </trans-unit>
+      <trans-unit id="Enc72E4FB8D" resname="encounter.data_prep.js.skipped_no_anchor">
+        <source>encounter.data_prep.js.skipped_no_anchor</source>
+        <target>Skipped: no first assessment contact and no ED admission</target>
+      </trans-unit>
+      <trans-unit id="Enc0F0FAE52" resname="encounter.data_prep.js.skipped_no_age">
+        <source>encounter.data_prep.js.skipped_no_age</source>
+        <target>Skipped: no age</target>
+      </trans-unit>
+      <trans-unit id="EncF9DD7F03" resname="encounter.data_prep.js.skipped_no_sex">
+        <source>encounter.data_prep.js.skipped_no_sex</source>
+        <target>Skipped: no sex</target>
+      </trans-unit>
+      <trans-unit id="EncFC628DFB" resname="encounter.data_prep.js.skipped_duplicate">
+        <source>encounter.data_prep.js.skipped_duplicate</source>
+        <target>Skipped: same visit twice in the file</target>
+      </trans-unit>
+      <trans-unit id="EncEC65FE88" resname="encounter.data_prep.js.report_anchor_assessment">
+        <source>encounter.data_prep.js.report_anchor_assessment</source>
+        <target>Anchor: first assessment contact</target>
+      </trans-unit>
+      <trans-unit id="Enc52B3953C" resname="encounter.data_prep.js.report_anchor_admission">
+        <source>encounter.data_prep.js.report_anchor_admission</source>
+        <target>Anchor: ED admission (fallback)</target>
+      </trans-unit>
+      <trans-unit id="Enc14504944" resname="encounter.data_prep.js.report_age_from_birth_date">
+        <source>encounter.data_prep.js.report_age_from_birth_date</source>
+        <target>Age from date of birth</target>
+      </trans-unit>
+      <trans-unit id="EncA4C99111" resname="encounter.data_prep.js.report_age_clamped">
+        <source>encounter.data_prep.js.report_age_clamped</source>
+        <target>Age limited to 1–99</target>
+      </trans-unit>
+      <trans-unit id="EncC5359242" resname="encounter.data_prep.js.report_care_level_unknown">
+        <source>encounter.data_prep.js.report_care_level_unknown</source>
+        <target>Care level unknown</target>
+      </trans-unit>
+      <trans-unit id="Enc855BA64B" resname="encounter.data_prep.js.report_period">
+        <source>encounter.data_prep.js.report_period</source>
+        <target>Period (anchor)</target>
+      </trans-unit>
+      <trans-unit id="Enc022CB19B" resname="encounter.data_prep.js.report_emptied_title">
+        <source>encounter.data_prep.js.report_emptied_title</source>
+        <target>Emptied values</target>
+      </trans-unit>
+      <trans-unit id="EncD6F026E3" resname="encounter.data_prep.js.report_vitals_emptied">
+        <source>encounter.data_prep.js.report_vitals_emptied</source>
+        <target>Vital sign</target>
+      </trans-unit>
+      <trans-unit id="EncECD90E6E" resname="encounter.data_prep.js.report_invalid_values">
+        <source>encounter.data_prep.js.report_invalid_values</source>
+        <target>Value</target>
+      </trans-unit>
+      <trans-unit id="EncF2F9B1AF" resname="encounter.data_prep.js.invalid_out_of_range">
+        <source>encounter.data_prep.js.invalid_out_of_range</source>
+        <target>out of range</target>
+      </trans-unit>
+      <trans-unit id="Enc59B290C0" resname="encounter.data_prep.js.invalid_unparseable">
+        <source>encounter.data_prep.js.invalid_unparseable</source>
+        <target>not readable</target>
+      </trans-unit>
+      <trans-unit id="EncD57ED8DE" resname="encounter.data_prep.js.invalid_timestamp">
+        <source>encounter.data_prep.js.invalid_timestamp</source>
+        <target>not a timestamp</target>
+      </trans-unit>
+      <trans-unit id="EncD9F57C63" resname="encounter.data_prep.js.report_unmapped_title">
+        <source>encounter.data_prep.js.report_unmapped_title</source>
+        <target>Unmapped values</target>
+      </trans-unit>
+      <trans-unit id="EncC06EF95C" resname="encounter.data_prep.js.report_unmapped_hint">
+        <source>encounter.data_prep.js.report_unmapped_hint</source>
+        <target>These values have no canonical code and are written as empty (care level: unknown). They are shown only here and are not part of the output. Extend the local map if needed.</target>
+      </trans-unit>
+      <trans-unit id="Enc23A704D9" resname="encounter.data_prep.js.none">
+        <source>encounter.data_prep.js.none</source>
+        <target>None.</target>
+      </trans-unit>
+      <trans-unit id="Enc7E817CF3" resname="encounter.data_prep.js.content_passed">
+        <source>encounter.data_prep.js.content_passed</source>
+        <target>No conspicuous values found.</target>
+      </trans-unit>
+      <trans-unit id="EncF987C5CB" resname="encounter.data_prep.js.content_failed">
+        <source>encounter.data_prep.js.content_failed</source>
+        <target>Conspicuous values found. Check the source columns before saving; saving needs your confirmation.</target>
+      </trans-unit>
+      <trans-unit id="Enc34955A1F" resname="encounter.data_prep.js.content_date">
+        <source>encounter.data_prep.js.content_date</source>
+        <target>date-like value</target>
+      </trans-unit>
+      <trans-unit id="Enc67AB3B08" resname="encounter.data_prep.js.content_name">
+        <source>encounter.data_prep.js.content_name</source>
+        <target>name-like value</target>
+      </trans-unit>
+      <trans-unit id="Enc3EC546F7" resname="encounter.data_prep.js.content_free_text">
+        <source>encounter.data_prep.js.content_free_text</source>
+        <target>long free text</target>
+      </trans-unit>
+      <trans-unit id="Enc716A2465" resname="encounter.data_prep.js.first_line">
+        <source>encounter.data_prep.js.first_line</source>
+        <target>First line</target>
+      </trans-unit>
+      <trans-unit id="Enc037CA23F" resname="encounter.data_prep.js.preview_of">
+        <source>encounter.data_prep.js.preview_of</source>
+        <target>Rows shown:</target>
+      </trans-unit>
+      <trans-unit id="Enc4509AC6F" resname="encounter.data_prep.js.saved">
+        <source>encounter.data_prep.js.saved</source>
+        <target>File saved. Upload it on the encounter page.</target>
+      </trans-unit>
+      <trans-unit id="Enc5F6D3010" resname="encounter.data_prep.js.report_unlisted_title">
+        <source>encounter.data_prep.js.report_unlisted_title</source>
+        <target>New catalog values</target>
+      </trans-unit>
+      <trans-unit id="EncEDDD5557" resname="encounter.data_prep.js.report_unlisted_hint">
+        <source>encounter.data_prep.js.report_unlisted_hint</source>
+        <target>These MTS indicators are not in the bundled list yet. They are written as codes derived from the label; check that they are MTS indicators and not free text.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

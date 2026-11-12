@@ -6,11 +6,12 @@
         "node": ">=22.13.0"
     },
     "scripts": {
-        "lint": "eslint assets/",
-        "lint:fix": "eslint assets/ --fix",
-        "format": "prettier --write \"assets/**/*.js\"",
-        "format:check": "prettier --check \"assets/**/*.js\"",
-        "check:js": "npm run format:check && npm run lint"
+        "lint": "eslint assets/ src/Encounter/UI/DataPrep/js/ tests/Encounter/DataPrep/",
+        "lint:fix": "eslint assets/ src/Encounter/UI/DataPrep/js/ tests/Encounter/DataPrep/ --fix",
+        "format": "prettier --write \"assets/**/*.js\" \"src/Encounter/UI/DataPrep/**/*.{js,json}\" \"tests/Encounter/DataPrep/**/*.{js,json}\"",
+        "format:check": "prettier --check \"assets/**/*.js\" \"src/Encounter/UI/DataPrep/**/*.{js,json}\" \"tests/Encounter/DataPrep/**/*.{js,json}\"",
+        "test:js": "node --test \"tests/Encounter/DataPrep/*.test.js\"",
+        "check:js": "npm run format:check && npm run lint && npm run test:js"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",

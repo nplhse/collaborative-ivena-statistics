@@ -14,6 +14,11 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/|^/_ux/inspector\.js$
             security: false
+        # Public update check of the offline data preparation tool (ADR 025): no session, no cookies.
+        data_prep:
+            pattern: ^/data-prep/
+            stateless: true
+            security: false
         main:
             lazy: true
             provider: app_user_provider

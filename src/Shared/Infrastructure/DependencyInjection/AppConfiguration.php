@@ -165,6 +165,36 @@ final class AppConfiguration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('encounter')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->arrayNode('data_prep')
+                            ->info('Version of the offline data preparation tool (ADR 025, #1051), published at /data-prep/latest.json.')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->scalarNode('version')
+                                    ->info('Version of the tool the server renders; raise it with every change to the tool or a bundled profile.')
+                                    ->defaultValue('1.0.0')
+                                    ->validate()->ifTrue(static fn (mixed $v): bool => !self::isVersion($v))->thenInvalid('Expected a version like 1.2.3, got %s.')->end()
+                                ->end()
+                                ->scalarNode('min_version')
+                                    ->info('Tools below this version block processing; the import rejects their files.')
+                                    ->defaultValue('1.0.0')
+                                    ->validate()->ifTrue(static fn (mixed $v): bool => !self::isVersion($v))->thenInvalid('Expected a version like 1.2.3, got %s.')->end()
+                                ->end()
+                                ->scalarNode('released_at')
+                                    ->info('Release date of the version (YYYY-MM-DD).')
+                                    ->defaultValue('2026-11-12')
+                                    ->validate()->ifTrue(static fn (mixed $v): bool => !is_string($v) || 1 !== preg_match('/^\d{4}-\d{2}-\d{2}$/', $v))->thenInvalid('Expected a date like 2026-11-12, got %s.')->end()
+                                ->end()
+                            ->end()
+                            ->validate()
+                                ->ifTrue(static fn (array $c): bool => version_compare($c['min_version'], $c['version'], '>'))
+                                ->thenInvalid('min_version must not be higher than version. Got %s.')
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
                 ->arrayNode('storage')
                     ->addDefaultsIfNotSet()
                     ->children()
@@ -244,5 +274,10 @@ final class AppConfiguration implements ConfigurationInterface
         ;
 
         return $treeBuilder;
+    }
+
+    private static function isVersion(mixed $value): bool
+    {
+        return is_string($value) && 1 === preg_match('/^\d+\.\d+\.\d+$/', $value);
     }
 }
