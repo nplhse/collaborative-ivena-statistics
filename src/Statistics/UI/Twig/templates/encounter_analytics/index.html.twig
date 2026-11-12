@@ -81,10 +81,12 @@
 
     {% if overview.empty %}
         <div class="row g-3">
-            <div class="col-12 col-lg-8" data-testid="encounter-overview-empty">
-                <twig:EmptyState title="{{ 'stats.encounter.empty'|trans({}, 'statistics') }}" icon="tabler:calendar-off" />
+            <div class="col-12 col-lg-8 d-grid gap-3">
+                <div data-testid="encounter-overview-empty">
+                    <twig:EmptyState title="{{ 'stats.encounter.empty'|trans({}, 'statistics') }}" icon="tabler:calendar-off" />
+                </div>
+                {{ include('@Statistics/encounter_analytics/_coverage_card.html.twig') }}
             </div>
-            <div class="col-12 col-lg-4">{{ include('@Statistics/encounter_analytics/_coverage_card.html.twig') }}</div>
         </div>
     {% elseif tab == 'overview' %}
         {{ include('@Statistics/encounter_analytics/_tab_overview.html.twig') }}

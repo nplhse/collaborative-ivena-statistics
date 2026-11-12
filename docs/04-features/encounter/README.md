@@ -417,8 +417,8 @@ hospitals of `AggregateHospitalScope` (`EncounterAttribute::VIEW_AGGREGATES`: be
 grant + hospital permission `STATISTICS`; administrators every hospital with stored visits) and no "my
 hospitals" aggregate; any other scope in the URL (public, state, cohort, another hospital) is redirected
 to `scope=hospital&hospital=<id>` of an allowed hospital. Users without such a hospital see a notice;
-without the beta role the page is forbidden. Content tabs (`?tab=`): overview (four KPI cards: visits, admitted, median arrival → physician, median length of stay in the ED; left two thirds: visits over time by arrival route, disposition, care level; right third: arrival route, MTS categories, top 10 presentations, data coverage of the period and of all
-stored data), process times (box plots and table), IVENA link (route × link) and distributions (full
+without the beta role the page is forbidden. Content tabs (`?tab=`): overview (four KPI cards: visits, admitted, median arrival → physician, median length of stay in the ED; left two thirds: visits over time by arrival route, data coverage of the period and of all stored data,
+disposition, care level; right third: arrival route, MTS categories, top 10 presentations), process times (box plots and table), IVENA link (route × link) and distributions (full
 tables). The page carries no explanatory texts; the definitions are documented here. Every figure belongs to exactly one hospital; the page never adds up
 hospitals and compares with none. Reads: `EncounterOverviewQuery` (`Infrastructure/Query/`, ADR 009)
 behind `EncounterOverviewReaderInterface`; suppression and ordering: `EncounterOverviewFactory`.

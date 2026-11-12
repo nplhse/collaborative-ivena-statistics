@@ -1,4 +1,4 @@
-{# Overview tab: four KPI cards, then 2/3 (visits over time, disposition, care level) and 1/3 (arrival route, MTS categories, top 10 presentations, data coverage). #}
+{# Overview tab: four KPI cards, then 2/3 (visits over time, data coverage, disposition, care level) and 1/3 (arrival route, MTS categories, top 10 presentations). #}
 {% set coverage = overview.coverage %}
 {% set admitted = overview.dispositions|filter(r => r.key == 'admitted')|first %}
 {% set physician = overview.processTimes[1] %}
@@ -66,6 +66,7 @@
                     {% endif %}
                 </div>
             </div>
+            {{ include('@Statistics/encounter_analytics/_coverage_card.html.twig') }}
             {{ include('@Statistics/encounter_analytics/_bar_list_card.html.twig', {
                 testid: 'encounter-dispositions-card',
                 title: 'stats.encounter.disposition.title'|trans({}, 'statistics'),
@@ -106,7 +107,6 @@
                 colors: {},
                 link: {url: path('app_stats_encounter_analytics', tabQuery|merge({tab: 'distributions'})), label: 'stats.encounter.show_all'|trans({}, 'statistics')},
             }) }}
-            {{ include('@Statistics/encounter_analytics/_coverage_card.html.twig') }}
         </div>
     </div>
 </div>
