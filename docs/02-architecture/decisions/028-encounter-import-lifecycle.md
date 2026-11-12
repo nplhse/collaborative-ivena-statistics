@@ -41,6 +41,14 @@ Forces:
 - There are no historical row versions and no replacement of whole cases. Corrections of known visits
   in later exports are not applied.
 
+### Reprocessing
+
+Reprocessing an import (after a bug fix or for any other reason) works as for allocation and closure
+imports: the run first removes all data the import created — its visits with their clinical data,
+IVENA links and review decisions — and then processes the retained file completely again with the
+same duplicate check. Rows that belong to other imports are skipped again; the import's own rows are
+created anew. Reprocessing is only possible while the file is retained (ADR 025).
+
 ### Deletion
 
 Deleting an import removes the visits it created, with their clinical data, IVENA links and review
@@ -62,9 +70,8 @@ created by B disappear.
 
 - Corrections in later exports are ignored; adopting them requires deleting the owning import and
   importing again (which removes its links and decisions)
-- Reprocessing a retained file after a bug fix only adds visits that were not created before (for
-  example after a failed run). If the bug stored wrong values, reprocessing does not correct them;
-  the rule is again: delete the import and import again, losing its links and review decisions
+- Reprocessing, like deletion, removes the links and review decisions of the import's visits; they are
+  rebuilt only by matching (automatic links) or by people (decisions)
 - Deleting an import can remove visits that a later overlapping export also contained; that export
   must be reprocessed to restore them
 - A changed fingerprint input (for example an ED admission time entered later) makes the same visit
