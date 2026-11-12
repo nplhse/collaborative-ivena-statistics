@@ -29,17 +29,34 @@
     <div class="page-body">
         <div class="container-xl">
             <twig:Card>
-                {{ form_start(form, {attr: {enctype: 'multipart/form-data', 'data-turbo': 'false'}}) }}
+                {# Option values of the types whose extra fields (`import.type_extension`) are shown. #}
+                {% set extension_type_values = [] %}
+                {% if form.type is defined %}
+                    {% for choice in form.type.vars.choices %}
+                        {% if choice.data.value in extension_types|default([]) %}
+                            {% set extension_type_values = extension_type_values|merge([choice.value]) %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                {{ form_start(form, {attr: {
+                    enctype: 'multipart/form-data',
+                    'data-turbo': 'false',
+                    'data-controller': 'import-type-fields',
+                    'data-import-type-fields-types-value': extension_type_values|json_encode,
+                }}) }}
                     {{ form_row(form.name) }}
                     {{ form_row(form.hospital) }}
                     {% if form.type is defined %}
-                        {{ form_row(form.type) }}
+                        {{ form_row(form.type, {attr: {
+                            'data-import-type-fields-target': 'type',
+                            'data-action': 'change->import-type-fields#toggle',
+                        }}) }}
                     {% endif %}
                     {% if form.hospitalOverride is defined %}
                         {{ form_row(form.hospitalOverride) }}
                     {% endif %}
                     {% if extension_fields|default([]) is not empty %}
-                        <fieldset class="form-fieldset" data-test="import-type-extension-fields">
+                        <fieldset class="form-fieldset" data-test="import-type-extension-fields" data-import-type-fields-target="section">
                             <div class="form-label text-secondary">{{ 'label.import.encounter.fields'|trans({}, 'import') }}</div>
                             {% for name in extension_fields %}
                                 {{ form_row(attribute(form, name)) }}

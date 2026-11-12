@@ -233,6 +233,7 @@ final class NewImportController extends AbstractController
         return $this->render('@Import/new.html.twig', [
             'form' => $form->createView(),
             'extension_fields' => $extensionFields,
+            'extension_types' => array_map(static fn (ImportTypeExtensionInterface $extension): string => $extension::importType()->value, $extensions),
         ]);
     }
 

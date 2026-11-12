@@ -102,6 +102,12 @@ final class EncounterImportControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('select[name="import_create[type]"]', 'Encounter data (beta)');
         self::assertSelectorExists('[data-test="import-type-extension-fields"] a[href="/encounter"]');
+        // The encounter fields are shown only while the encounter type is selected (import-type-fields controller).
+        self::assertSelectorExists('[data-test="import-type-extension-fields"][data-import-type-fields-target="section"]');
+        $encounterOption = $crawler->filter('select[name="import_create[type]"] option')
+            ->reduce(static fn ($option): bool => str_contains($option->text(), 'Encounter data'))
+            ->attr('value');
+        self::assertSame(json_encode([$encounterOption]), $crawler->filter('form[name="import_create"]')->attr('data-import-type-fields-types-value'));
         self::assertCount(1, $crawler->filter('select[name="import_create[hospital]"] option[value="'.$this->hospital->getId().'"]'));
     }
 
