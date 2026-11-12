@@ -342,8 +342,8 @@ its hospital (`ON DELETE CASCADE`); a deleted user leaves the decision with `dec
 
 **Score**: each candidate visit of an allocation weighs 2^points, the "no match" option 2^4; a
 candidate's score is its share of the total weight (`MatchPlanner`, points in `FeatureScorer`). The
-points are judgement, not estimates; calibration follows #1057. Changing them changes the matcher
-version.
+points and the "no match" weight are set by judgement, not estimated (ADR 029); calibration follows
+#1057. Changing them changes the matcher version.
 
 | Feature | Points |
 |---|---|
@@ -379,9 +379,15 @@ at minute precision.
 | `ImportCompleted` of an allocation import, if the hospital has encounter data | the arrival days of its allocations |
 | Deletion or reprocess of an allocation or encounter import (`EncounterMatchDataRemover`) | the arrival days of its allocations and the days around its visits; the import's rows are left out and the run waits 30 s for the deletion to commit |
 
-Deleting or reprocessing an allocation import removes the links and decisions of its allocations; a
-reprocessed allocation import gets new allocation ids and is matched again automatically, manual
-decisions on its allocations are lost (as for encounter imports, ADR 028).
+Deleting, reprocessing or requeueing an allocation import removes the links and manual decisions of
+its allocations (ADR 029, as ADR 028 does for encounter imports). The reprocessed import gets new
+allocation ids; the next run links them again automatically, manual decisions have to be made again.
+The allocation import pages do not warn about it (Import does not depend on Encounter); the import docs
+do ([import pipeline](../import/import-pipeline.md#reprocessing), [batch requeue](../import/batch-requeue.md#reimport-cleanup)).
+
+**Proposals across runs**: open proposals are not kept; each run recomputes those of its allocations. A
+pair proposed in pass 1 keeps its pass-1 score when pass 2 sees it again, and proposals touching a side
+that is linked at the end of the run are removed.
 
 **Manual run**: `php bin/console app:encounter:match --hospital=<id> --from=YYYY-MM-DD [--to=YYYY-MM-DD]`
 prints counts only. Synthetic encounters loaded by the fixtures are not matched until it runs.

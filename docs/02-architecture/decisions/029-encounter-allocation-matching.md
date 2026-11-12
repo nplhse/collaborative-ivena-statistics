@@ -35,6 +35,8 @@ no ground truth.
 - Score 0.0–1.0 from weighted features, with competition: all candidates of an allocation and a
   "no match" option share the score, so two similar candidates both score low.
 - The feature contributions and the matcher version are stored with every link.
+- The weights of matcher v1 (feature points and the "no match" option) are set by judgement, not
+  estimated; the match validation (#1057) calibrates them.
 - The score describes agreement ("Übereinstimmung"). It is shown as a hit probability only after
   calibration.
 
@@ -67,6 +69,12 @@ confirmation in the pilot.
   it is applied only by a person.
 - Reruns run via Messenger for the affected hospital-days after encounter or allocation imports and
   deletions.
+- Open proposals are not kept: each run recomputes the proposals of the allocations it covers. A pair
+  proposed in pass 1 keeps its pass-1 score when pass 2 sees it again; proposals touching a side that
+  is linked at the end of the run are removed.
+- Deleting, reprocessing or requeueing an allocation import removes the links and manual decisions of
+  its allocations (as ADR 028 does for the visits of an encounter import). A reprocessed import gets new
+  allocations; the next run links them again automatically, manual decisions must be made again.
 
 ### Review
 
@@ -95,6 +103,8 @@ results.
 - Until calibration, the score is a ranking, not a probability
 - Wrong IVENA times or ages reduce linkage; such allocations remain unlinked
 - Greedy reservation in pass 1 can miss a better global assignment; only a person can swap
+- Reprocessing or requeueing an allocation import loses the manual decisions on its allocations; they
+  have to be made again
 
 ## Alternatives
 
