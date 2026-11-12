@@ -60,6 +60,27 @@ final class AuditSessionRefSubscriberTest extends TestCase
         self::assertSame(self::EXISTING_REF, $request->getSession()->get(AuditSessionRefSubscriber::SESSION_ATTRIBUTE));
     }
 
+    public function testLoginWithoutSessionSetsNoReference(): void
+    {
+        $context = new AuditContext();
+
+        $this->subscriber($context)->onLoginSuccess($this->loginEvent(Request::create('/'), 'alice', null));
+
+        self::assertNull($context->getSessionRef());
+    }
+
+    public function testSubRequestIsIgnored(): void
+    {
+        $context = new AuditContext();
+        $request = $this->requestWithSession(self::EXISTING_REF, previous: true);
+
+        $this->subscriber($context, new User())->onKernelRequest(
+            new RequestEvent($this->createStub(HttpKernelInterface::class), $request, HttpKernelInterface::SUB_REQUEST),
+        );
+
+        self::assertNull($context->getSessionRef());
+    }
+
     public function testRequestWithoutPreviousSessionGetsNoReference(): void
     {
         $context = new AuditContext();
