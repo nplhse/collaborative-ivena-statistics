@@ -14,4 +14,18 @@ enum MtsCategory: string
     case Yellow = 'yellow';
     case Green = 'green';
     case Blue = 'blue';
+
+    /**
+     * Target time from the first assessment contact to the first physician contact, in minutes.
+     */
+    public function physicianContactTargetMinutes(): int
+    {
+        return match ($this) {
+            self::Red => 0,
+            self::Orange => 10,
+            self::Yellow => 30,
+            self::Green => 90,
+            self::Blue => 120,
+        };
+    }
 }

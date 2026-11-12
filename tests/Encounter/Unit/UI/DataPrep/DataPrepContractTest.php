@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Encounter\Unit\UI\DataPrep;
 
+use App\Encounter\Application\Catalog\MtsCatalog;
 use App\Encounter\Application\Dimension\EdVisitDimension;
 use App\Encounter\Application\Dimension\EncounterField;
 use App\Encounter\Domain\Enum\CareLevel;
@@ -67,7 +68,8 @@ final class DataPrepContractTest extends TestCase
                 self::assertSame([], array_values(array_diff($codes, $allowed)), sprintf('Unknown codes for "%s".', $name));
             }
             if ('catalog' === $rule['type'] && isset($rule['catalog'])) {
-                $catalog = $this->json(self::SOURCE.'/catalogs/'.$rule['catalog'].'.json');
+                self::assertSame(MtsCatalog::ID, $rule['catalog'], 'The tool bundles the shared MTS catalog only.');
+                $catalog = new MtsCatalog()->data();
                 self::assertIsList($catalog[$rule['list']] ?? null, sprintf('Catalog list "%s/%s" is missing.', $rule['catalog'], $rule['list']));
                 self::assertContains($rule['unlisted'], ['empty', 'code']);
             }

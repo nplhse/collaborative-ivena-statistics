@@ -85,11 +85,12 @@ Rules:
 - The server checks every field against this table (#1048): ranges are inclusive, temperature has at most
   one decimal, integers have none, timestamps are exactly `YYYY-MM-DDTHH:MM`. A value outside its range
   or code list rejects the row, never the file.
-- MTS diagram and indicator codes (and their retriage counterparts): until the MTS catalog is fixed
-  (#1056), the tool derives the code from the German label (lowercase, umlauts transliterated, other
+- MTS diagram and indicator codes (and their retriage counterparts): the tool derives the code from
+  the German label (lowercase, umlauts transliterated, other
   characters `_`; the slug is cut at 64 characters before leading and trailing `_` are trimmed, #1073),
   for example `Abdominelle Schmerzen bei Erwachsenen` → `abdominelle_schmerzen_bei_erwachsenen`; the
-  labels are listed in `src/Encounter/UI/DataPrep/catalogs/mts-de.json`. The server accepts any value
+  labels are listed in the MTS catalog `src/Encounter/Application/Catalog/mts-de.json`, which the MTS
+  glossary reads too (`MtsCatalog`, #1056). The server accepts any value
   matching `^[a-z0-9_]{1,64}$` and rejects the row otherwise.
 - `admitting_department` is the name of a department of the reference catalog (case-insensitive); an
   unknown or ambiguous name rejects the row.

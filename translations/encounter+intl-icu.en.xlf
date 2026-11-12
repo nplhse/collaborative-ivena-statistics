@@ -897,6 +897,318 @@
         <source>encounter.key_change.modal.keep</source>
         <target>Your existing encounters are kept. Afterwards only upload new periods. This cannot be undone.</target>
       </trans-unit>
+      <trans-unit id="EncBABE30DE" resname="encounter.mts.glossary.title">
+        <source>encounter.mts.glossary.title</source>
+        <target>Manchester Triage System (MTS)</target>
+      </trans-unit>
+      <trans-unit id="Enc9655D6B5" resname="encounter.mts.glossary.intro">
+        <source>encounter.mts.glossary.intro</source>
+        <target>Triage categories, presentation diagrams and indicators of the encounter data pilot.</target>
+      </trans-unit>
+      <trans-unit id="Enc379B2FEC" resname="encounter.mts.glossary.names_note">
+        <source>encounter.mts.glossary.names_note</source>
+        <target>Names only, without discriminator texts or flowcharts. The German names are the source: diagrams show their English chart name where a well-known one exists, indicators keep their German name. Both lists contain the entries seen in the participating hospitals; the full MTS has more.</target>
+      </trans-unit>
+      <trans-unit id="EncE8A4B853" resname="encounter.mts.section.categories">
+        <source>encounter.mts.section.categories</source>
+        <target>Triage categories</target>
+      </trans-unit>
+      <trans-unit id="Enc45DD8851" resname="encounter.mts.section.diagrams">
+        <source>encounter.mts.section.diagrams</source>
+        <target>Presentation diagrams</target>
+      </trans-unit>
+      <trans-unit id="EncF9FA181F" resname="encounter.mts.section.indicators">
+        <source>encounter.mts.section.indicators</source>
+        <target>Indicators</target>
+      </trans-unit>
+      <trans-unit id="Enc4406A237" resname="encounter.mts.column.colour">
+        <source>encounter.mts.column.colour</source>
+        <target>Colour</target>
+      </trans-unit>
+      <trans-unit id="Enc85D7A287" resname="encounter.mts.column.target">
+        <source>encounter.mts.column.target</source>
+        <target>Target time to first physician contact</target>
+      </trans-unit>
+      <trans-unit id="Enc55D14B58" resname="encounter.mts.column.encounters">
+        <source>encounter.mts.column.encounters</source>
+        <target>Encounters</target>
+      </trans-unit>
+      <trans-unit id="Enc90B3ED1D" resname="encounter.mts.target_minutes">
+        <source>encounter.mts.target_minutes</source>
+        <target>{minutes, plural, =0 {immediately} one {# minute} other {# minutes}}</target>
+      </trans-unit>
+      <trans-unit id="Enc9ED060FA" resname="encounter.mts.target_note">
+        <source>encounter.mts.target_note</source>
+        <target>Target times count from the first assessment contact. Counts use the category of the initial triage, not the retriage.</target>
+      </trans-unit>
+      <trans-unit id="Enc731985BE" resname="encounter.mts.category.red.name">
+        <source>encounter.mts.category.red.name</source>
+        <target>Immediate</target>
+      </trans-unit>
+      <trans-unit id="Enc597A0F4F" resname="encounter.mts.category.orange.name">
+        <source>encounter.mts.category.orange.name</source>
+        <target>Very urgent</target>
+      </trans-unit>
+      <trans-unit id="Enc9F8C4B8C" resname="encounter.mts.category.yellow.name">
+        <source>encounter.mts.category.yellow.name</source>
+        <target>Urgent</target>
+      </trans-unit>
+      <trans-unit id="EncEB46CBEE" resname="encounter.mts.category.green.name">
+        <source>encounter.mts.category.green.name</source>
+        <target>Standard</target>
+      </trans-unit>
+      <trans-unit id="Enc06CE6178" resname="encounter.mts.category.blue.name">
+        <source>encounter.mts.category.blue.name</source>
+        <target>Non-urgent</target>
+      </trans-unit>
+      <trans-unit id="EncE1C815FE" resname="encounter.mts.category.red.colour">
+        <source>encounter.mts.category.red.colour</source>
+        <target>Red</target>
+      </trans-unit>
+      <trans-unit id="Enc69E696A4" resname="encounter.mts.category.orange.colour">
+        <source>encounter.mts.category.orange.colour</source>
+        <target>Orange</target>
+      </trans-unit>
+      <trans-unit id="EncF3D81E3A" resname="encounter.mts.category.yellow.colour">
+        <source>encounter.mts.category.yellow.colour</source>
+        <target>Yellow</target>
+      </trans-unit>
+      <trans-unit id="Enc24C1DB9F" resname="encounter.mts.category.green.colour">
+        <source>encounter.mts.category.green.colour</source>
+        <target>Green</target>
+      </trans-unit>
+      <trans-unit id="Enc7382B829" resname="encounter.mts.category.blue.colour">
+        <source>encounter.mts.category.blue.colour</source>
+        <target>Blue</target>
+      </trans-unit>
+      <trans-unit id="EncDD87C41F" resname="encounter.mts.counts.scope">
+        <source>encounter.mts.counts.scope</source>
+        <target>Counts: encounters of {hospitals, plural, one {the hospital} other {the # hospitals}} whose encounter data you may see (initial triage). Values below {threshold} are not shown.</target>
+      </trans-unit>
+      <trans-unit id="Enc629391ED" resname="encounter.mts.counts.scope_all">
+        <source>encounter.mts.counts.scope_all</source>
+        <target>Counts: encounters of all hospitals, as administrators may see all encounter data (initial triage). Values below {threshold} are not shown.</target>
+      </trans-unit>
+      <trans-unit id="Enc26995604" resname="encounter.mts.counts.none">
+        <source>encounter.mts.counts.none</source>
+        <target>Counts are shown only to users with access to the encounter data of a hospital, and only for those hospitals.</target>
+      </trans-unit>
+      <trans-unit id="Enc53AE5781" resname="encounter.mts.counts.suppressed">
+        <source>encounter.mts.counts.suppressed</source>
+        <target>&lt; {threshold}</target>
+      </trans-unit>
+      <trans-unit id="Enc1C7F400E" resname="encounter.mts.counts.suppressed_hint">
+        <source>encounter.mts.counts.suppressed_hint</source>
+        <target>Fewer than {threshold} encounters; the exact number is not shown.</target>
+      </trans-unit>
+      <trans-unit id="EncE7FBFA0C" resname="encounter.mts.not_in_catalog">
+        <source>encounter.mts.not_in_catalog</source>
+        <target>not in the catalog</target>
+      </trans-unit>
+      <trans-unit id="EncB8F1E8E5" resname="encounter.mts.german_name">
+        <source>encounter.mts.german_name</source>
+        <target>German name</target>
+      </trans-unit>
+      <trans-unit id="Enc302761E5" resname="encounter.mts.diagram.type">
+        <source>encounter.mts.diagram.type</source>
+        <target>MTS presentation diagram</target>
+      </trans-unit>
+      <trans-unit id="Enc981B60F9" resname="encounter.mts.diagram.encounters">
+        <source>encounter.mts.diagram.encounters</source>
+        <target>Encounters with this diagram</target>
+      </trans-unit>
+      <trans-unit id="Enc8E6635B8" resname="encounter.mts.diagram.indicators">
+        <source>encounter.mts.diagram.indicators</source>
+        <target>Indicators seen with this diagram</target>
+      </trans-unit>
+      <trans-unit id="Enc38924CD0" resname="encounter.mts.diagram.indicators_need_access">
+        <source>encounter.mts.diagram.indicators_need_access</source>
+        <target>Which indicators occur with this diagram is taken from encounter data. It is shown only to users with access to the encounter data of a hospital.</target>
+      </trans-unit>
+      <trans-unit id="Enc40E2807E" resname="encounter.mts.diagram.indicators_none">
+        <source>encounter.mts.diagram.indicators_none</source>
+        <target>No encounters with this diagram in the hospitals whose encounter data you may see.</target>
+      </trans-unit>
+      <trans-unit id="EncB5AEB9AB" resname="encounter.mts.diagram.filter_label">
+        <source>encounter.mts.diagram.filter_label</source>
+        <target>Filter indicators</target>
+      </trans-unit>
+      <trans-unit id="Enc8BBFBBBD" resname="encounter.mts.diagram.filter_placeholder">
+        <source>encounter.mts.diagram.filter_placeholder</source>
+        <target>Name or code</target>
+      </trans-unit>
+      <trans-unit id="Enc058F2E6C" resname="encounter.mts.diagram.filter_submit">
+        <source>encounter.mts.diagram.filter_submit</source>
+        <target>Filter</target>
+      </trans-unit>
+      <trans-unit id="Enc5B998206" resname="encounter.mts.diagram.filter_reset">
+        <source>encounter.mts.diagram.filter_reset</source>
+        <target>Reset</target>
+      </trans-unit>
+      <trans-unit id="EncAF723129" resname="encounter.mts.diagram.filter_no_match">
+        <source>encounter.mts.diagram.filter_no_match</source>
+        <target>No indicator matches the filter.</target>
+      </trans-unit>
+      <trans-unit id="Enc146FE9A6" resname="encounter.mts.diagram.without_indicator">
+        <source>encounter.mts.diagram.without_indicator</source>
+        <target>No indicator documented</target>
+      </trans-unit>
+      <trans-unit id="Enc56BD41F4" resname="encounter.mts.diagram_name.abdominelle_schmerzen_bei_erwachsenen">
+        <source>encounter.mts.diagram_name.abdominelle_schmerzen_bei_erwachsenen</source>
+        <target>Abdominal pain in adults</target>
+      </trans-unit>
+      <trans-unit id="Enc1CA7C7B1" resname="encounter.mts.diagram_name.abdominelle_schmerzen_bei_kindern">
+        <source>encounter.mts.diagram_name.abdominelle_schmerzen_bei_kindern</source>
+        <target>Abdominal pain in children</target>
+      </trans-unit>
+      <trans-unit id="Enc45801289" resname="encounter.mts.diagram_name.abszesse_und_lokale_infektionen">
+        <source>encounter.mts.diagram_name.abszesse_und_lokale_infektionen</source>
+        <target>Abscesses and local infections</target>
+      </trans-unit>
+      <trans-unit id="Enc2B1E8B75" resname="encounter.mts.diagram_name.allergie">
+        <source>encounter.mts.diagram_name.allergie</source>
+        <target>Allergy</target>
+      </trans-unit>
+      <trans-unit id="Enc54D9028E" resname="encounter.mts.diagram_name.angriff_zustand_nach">
+        <source>encounter.mts.diagram_name.angriff_zustand_nach</source>
+        <target>Assault</target>
+      </trans-unit>
+      <trans-unit id="EncEFD903E1" resname="encounter.mts.diagram_name.atemproblem_bei_erwachsenen">
+        <source>encounter.mts.diagram_name.atemproblem_bei_erwachsenen</source>
+        <target>Shortness of breath in adults</target>
+      </trans-unit>
+      <trans-unit id="EncB19B17D3" resname="encounter.mts.diagram_name.auffaelliges_verhalten">
+        <source>encounter.mts.diagram_name.auffaelliges_verhalten</source>
+        <target>Behaving strangely</target>
+      </trans-unit>
+      <trans-unit id="EncF57B6A3D" resname="encounter.mts.diagram_name.betrunkener_eindruck">
+        <source>encounter.mts.diagram_name.betrunkener_eindruck</source>
+        <target>Apparently drunk</target>
+      </trans-unit>
+      <trans-unit id="Enc24937E42" resname="encounter.mts.diagram_name.bisse_und_stiche">
+        <source>encounter.mts.diagram_name.bisse_und_stiche</source>
+        <target>Bites and stings</target>
+      </trans-unit>
+      <trans-unit id="EncD6B61E2C" resname="encounter.mts.diagram_name.chemikalienkontakt">
+        <source>encounter.mts.diagram_name.chemikalienkontakt</source>
+        <target>Exposure to chemicals</target>
+      </trans-unit>
+      <trans-unit id="Enc901A0B44" resname="encounter.mts.diagram_name.diabetes">
+        <source>encounter.mts.diagram_name.diabetes</source>
+        <target>Diabetes</target>
+      </trans-unit>
+      <trans-unit id="EncE10B795B" resname="encounter.mts.diagram_name.durchfaelle_und_erbrechen">
+        <source>encounter.mts.diagram_name.durchfaelle_und_erbrechen</source>
+        <target>Diarrhoea and vomiting</target>
+      </trans-unit>
+      <trans-unit id="Enc23A4A35C" resname="encounter.mts.diagram_name.extremitaetenprobleme">
+        <source>encounter.mts.diagram_name.extremitaetenprobleme</source>
+        <target>Limb problems</target>
+      </trans-unit>
+      <trans-unit id="EncAF123911" resname="encounter.mts.diagram_name.fremdkoerper">
+        <source>encounter.mts.diagram_name.fremdkoerper</source>
+        <target>Foreign body</target>
+      </trans-unit>
+      <trans-unit id="Enc6BDCF601" resname="encounter.mts.diagram_name.gastrointestinale_blutung">
+        <source>encounter.mts.diagram_name.gastrointestinale_blutung</source>
+        <target>GI bleeding</target>
+      </trans-unit>
+      <trans-unit id="Enc2F5609DB" resname="encounter.mts.diagram_name.gesichtsprobleme">
+        <source>encounter.mts.diagram_name.gesichtsprobleme</source>
+        <target>Facial problems</target>
+      </trans-unit>
+      <trans-unit id="Enc7791069C" resname="encounter.mts.diagram_name.halsschmerz">
+        <source>encounter.mts.diagram_name.halsschmerz</source>
+        <target>Sore throat</target>
+      </trans-unit>
+      <trans-unit id="Enc161EDFFA" resname="encounter.mts.diagram_name.hautausschlaege">
+        <source>encounter.mts.diagram_name.hautausschlaege</source>
+        <target>Rashes</target>
+      </trans-unit>
+      <trans-unit id="Enc936BDB44" resname="encounter.mts.diagram_name.herzklopfen">
+        <source>encounter.mts.diagram_name.herzklopfen</source>
+        <target>Palpitations</target>
+      </trans-unit>
+      <trans-unit id="Enc29010D2D" resname="encounter.mts.diagram_name.hodenschmerz">
+        <source>encounter.mts.diagram_name.hodenschmerz</source>
+        <target>Testicular pain</target>
+      </trans-unit>
+      <trans-unit id="Enc436854A7" resname="encounter.mts.diagram_name.kollaps">
+        <source>encounter.mts.diagram_name.kollaps</source>
+        <target>Collapsed adult</target>
+      </trans-unit>
+      <trans-unit id="EncCA8794D0" resname="encounter.mts.diagram_name.kopfschmerz">
+        <source>encounter.mts.diagram_name.kopfschmerz</source>
+        <target>Headache</target>
+      </trans-unit>
+      <trans-unit id="Enc70BC28C5" resname="encounter.mts.diagram_name.kopfverletzung">
+        <source>encounter.mts.diagram_name.kopfverletzung</source>
+        <target>Head injury</target>
+      </trans-unit>
+      <trans-unit id="Enc93D5744B" resname="encounter.mts.diagram_name.krampfanfall">
+        <source>encounter.mts.diagram_name.krampfanfall</source>
+        <target>Fits</target>
+      </trans-unit>
+      <trans-unit id="EncCDB06BB4" resname="encounter.mts.diagram_name.nackenschmerz">
+        <source>encounter.mts.diagram_name.nackenschmerz</source>
+        <target>Neck pain</target>
+      </trans-unit>
+      <trans-unit id="EncD1DC54F2" resname="encounter.mts.diagram_name.ohrenprobleme">
+        <source>encounter.mts.diagram_name.ohrenprobleme</source>
+        <target>Ear problems</target>
+      </trans-unit>
+      <trans-unit id="EncD0C1429C" resname="encounter.mts.diagram_name.psychische_erkrankung">
+        <source>encounter.mts.diagram_name.psychische_erkrankung</source>
+        <target>Mental illness</target>
+      </trans-unit>
+      <trans-unit id="Enc6BAD43AA" resname="encounter.mts.diagram_name.rueckenschmerz">
+        <source>encounter.mts.diagram_name.rueckenschmerz</source>
+        <target>Back pain</target>
+      </trans-unit>
+      <trans-unit id="EncDF504075" resname="encounter.mts.diagram_name.schweres_trauma">
+        <source>encounter.mts.diagram_name.schweres_trauma</source>
+        <target>Major trauma</target>
+      </trans-unit>
+      <trans-unit id="Enc3464EC60" resname="encounter.mts.diagram_name.selbstverletzung">
+        <source>encounter.mts.diagram_name.selbstverletzung</source>
+        <target>Self-harm</target>
+      </trans-unit>
+      <trans-unit id="EncD75EA83B" resname="encounter.mts.diagram_name.sexualinfektion">
+        <source>encounter.mts.diagram_name.sexualinfektion</source>
+        <target>Sexually acquired infection</target>
+      </trans-unit>
+      <trans-unit id="EncADFF6B7E" resname="encounter.mts.diagram_name.stuerze">
+        <source>encounter.mts.diagram_name.stuerze</source>
+        <target>Falls</target>
+      </trans-unit>
+      <trans-unit id="Enc42BF4F65" resname="encounter.mts.diagram_name.thoraxschmerz">
+        <source>encounter.mts.diagram_name.thoraxschmerz</source>
+        <target>Chest pain</target>
+      </trans-unit>
+      <trans-unit id="Enc82A97DF9" resname="encounter.mts.diagram_name.ueberdosierung_und_vergiftung">
+        <source>encounter.mts.diagram_name.ueberdosierung_und_vergiftung</source>
+        <target>Overdose and poisoning</target>
+      </trans-unit>
+      <trans-unit id="Enc0181539D" resname="encounter.mts.diagram_name.unwohlsein_bei_erwachsenen">
+        <source>encounter.mts.diagram_name.unwohlsein_bei_erwachsenen</source>
+        <target>Unwell adult</target>
+      </trans-unit>
+      <trans-unit id="Enc359D6444" resname="encounter.mts.diagram_name.unwohlsein_bei_kindern">
+        <source>encounter.mts.diagram_name.unwohlsein_bei_kindern</source>
+        <target>Unwell child</target>
+      </trans-unit>
+      <trans-unit id="Enc60B0EB2B" resname="encounter.mts.diagram_name.urologisches_problem">
+        <source>encounter.mts.diagram_name.urologisches_problem</source>
+        <target>Urinary problems</target>
+      </trans-unit>
+      <trans-unit id="Enc3C6800FB" resname="encounter.mts.diagram_name.verbrennungen_und_verbruehungen">
+        <source>encounter.mts.diagram_name.verbrennungen_und_verbruehungen</source>
+        <target>Burns and scalds</target>
+      </trans-unit>
+      <trans-unit id="EncEF530A30" resname="encounter.mts.diagram_name.wunden">
+        <source>encounter.mts.diagram_name.wunden</source>
+        <target>Wounds</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

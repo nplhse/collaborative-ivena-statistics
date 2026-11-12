@@ -897,6 +897,162 @@
         <source>encounter.key_change.modal.keep</source>
         <target>Ihre bisherigen Behandlungsfälle bleiben erhalten. Laden Sie danach nur noch neue Zeiträume hoch. Das lässt sich nicht rückgängig machen.</target>
       </trans-unit>
+      <trans-unit id="EncBABE30DE" resname="encounter.mts.glossary.title">
+        <source>encounter.mts.glossary.title</source>
+        <target>Manchester-Triage-System (MTS)</target>
+      </trans-unit>
+      <trans-unit id="Enc9655D6B5" resname="encounter.mts.glossary.intro">
+        <source>encounter.mts.glossary.intro</source>
+        <target>Triagekategorien, Präsentationsdiagramme und Indikatoren des Pilots Behandlungsdaten.</target>
+      </trans-unit>
+      <trans-unit id="Enc379B2FEC" resname="encounter.mts.glossary.names_note">
+        <source>encounter.mts.glossary.names_note</source>
+        <target>Nur Namen, ohne Indikatorbeschreibungen und Flussdiagramme. Quelle sind die deutschen Namen. Beide Listen enthalten die in den teilnehmenden Kliniken gesehenen Einträge; das vollständige MTS umfasst mehr.</target>
+      </trans-unit>
+      <trans-unit id="EncE8A4B853" resname="encounter.mts.section.categories">
+        <source>encounter.mts.section.categories</source>
+        <target>Triagekategorien</target>
+      </trans-unit>
+      <trans-unit id="Enc45DD8851" resname="encounter.mts.section.diagrams">
+        <source>encounter.mts.section.diagrams</source>
+        <target>Präsentationsdiagramme</target>
+      </trans-unit>
+      <trans-unit id="EncF9FA181F" resname="encounter.mts.section.indicators">
+        <source>encounter.mts.section.indicators</source>
+        <target>Indikatoren</target>
+      </trans-unit>
+      <trans-unit id="Enc4406A237" resname="encounter.mts.column.colour">
+        <source>encounter.mts.column.colour</source>
+        <target>Farbe</target>
+      </trans-unit>
+      <trans-unit id="Enc85D7A287" resname="encounter.mts.column.target">
+        <source>encounter.mts.column.target</source>
+        <target>Zielzeit bis zum ersten Arztkontakt</target>
+      </trans-unit>
+      <trans-unit id="Enc55D14B58" resname="encounter.mts.column.encounters">
+        <source>encounter.mts.column.encounters</source>
+        <target>Behandlungsfälle</target>
+      </trans-unit>
+      <trans-unit id="Enc90B3ED1D" resname="encounter.mts.target_minutes">
+        <source>encounter.mts.target_minutes</source>
+        <target>{minutes, plural, =0 {sofort} one {# Minute} other {# Minuten}}</target>
+      </trans-unit>
+      <trans-unit id="Enc9ED060FA" resname="encounter.mts.target_note">
+        <source>encounter.mts.target_note</source>
+        <target>Die Zielzeiten zählen ab dem ersten Ersteinschätzungskontakt. Gezählt wird die Kategorie der Ersteinschätzung, nicht der Zweiteinschätzung.</target>
+      </trans-unit>
+      <trans-unit id="Enc731985BE" resname="encounter.mts.category.red.name">
+        <source>encounter.mts.category.red.name</source>
+        <target>Sofort</target>
+      </trans-unit>
+      <trans-unit id="Enc597A0F4F" resname="encounter.mts.category.orange.name">
+        <source>encounter.mts.category.orange.name</source>
+        <target>Sehr dringend</target>
+      </trans-unit>
+      <trans-unit id="Enc9F8C4B8C" resname="encounter.mts.category.yellow.name">
+        <source>encounter.mts.category.yellow.name</source>
+        <target>Dringend</target>
+      </trans-unit>
+      <trans-unit id="EncEB46CBEE" resname="encounter.mts.category.green.name">
+        <source>encounter.mts.category.green.name</source>
+        <target>Normal</target>
+      </trans-unit>
+      <trans-unit id="Enc06CE6178" resname="encounter.mts.category.blue.name">
+        <source>encounter.mts.category.blue.name</source>
+        <target>Nicht dringend</target>
+      </trans-unit>
+      <trans-unit id="EncE1C815FE" resname="encounter.mts.category.red.colour">
+        <source>encounter.mts.category.red.colour</source>
+        <target>Rot</target>
+      </trans-unit>
+      <trans-unit id="Enc69E696A4" resname="encounter.mts.category.orange.colour">
+        <source>encounter.mts.category.orange.colour</source>
+        <target>Orange</target>
+      </trans-unit>
+      <trans-unit id="EncF3D81E3A" resname="encounter.mts.category.yellow.colour">
+        <source>encounter.mts.category.yellow.colour</source>
+        <target>Gelb</target>
+      </trans-unit>
+      <trans-unit id="Enc24C1DB9F" resname="encounter.mts.category.green.colour">
+        <source>encounter.mts.category.green.colour</source>
+        <target>Grün</target>
+      </trans-unit>
+      <trans-unit id="Enc7382B829" resname="encounter.mts.category.blue.colour">
+        <source>encounter.mts.category.blue.colour</source>
+        <target>Blau</target>
+      </trans-unit>
+      <trans-unit id="EncDD87C41F" resname="encounter.mts.counts.scope">
+        <source>encounter.mts.counts.scope</source>
+        <target>Anzahlen: Behandlungsfälle {hospitals, plural, one {der Klinik} other {der # Kliniken}}, deren Behandlungsdaten Sie sehen dürfen (Ersteinschätzung). Werte unter {threshold} werden nicht angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="Enc629391ED" resname="encounter.mts.counts.scope_all">
+        <source>encounter.mts.counts.scope_all</source>
+        <target>Anzahlen: Behandlungsfälle aller Kliniken, da Administratoren alle Behandlungsdaten sehen dürfen (Ersteinschätzung). Werte unter {threshold} werden nicht angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="Enc26995604" resname="encounter.mts.counts.none">
+        <source>encounter.mts.counts.none</source>
+        <target>Anzahlen sehen nur Personen mit Zugriff auf die Behandlungsdaten einer Klinik, und nur für diese Kliniken.</target>
+      </trans-unit>
+      <trans-unit id="Enc53AE5781" resname="encounter.mts.counts.suppressed">
+        <source>encounter.mts.counts.suppressed</source>
+        <target>&lt; {threshold}</target>
+      </trans-unit>
+      <trans-unit id="Enc1C7F400E" resname="encounter.mts.counts.suppressed_hint">
+        <source>encounter.mts.counts.suppressed_hint</source>
+        <target>Weniger als {threshold} Behandlungsfälle; die genaue Zahl wird nicht angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="EncE7FBFA0C" resname="encounter.mts.not_in_catalog">
+        <source>encounter.mts.not_in_catalog</source>
+        <target>nicht im Katalog</target>
+      </trans-unit>
+      <trans-unit id="EncB8F1E8E5" resname="encounter.mts.german_name">
+        <source>encounter.mts.german_name</source>
+        <target>Deutscher Name</target>
+      </trans-unit>
+      <trans-unit id="Enc302761E5" resname="encounter.mts.diagram.type">
+        <source>encounter.mts.diagram.type</source>
+        <target>MTS-Präsentationsdiagramm</target>
+      </trans-unit>
+      <trans-unit id="Enc981B60F9" resname="encounter.mts.diagram.encounters">
+        <source>encounter.mts.diagram.encounters</source>
+        <target>Behandlungsfälle mit diesem Diagramm</target>
+      </trans-unit>
+      <trans-unit id="Enc8E6635B8" resname="encounter.mts.diagram.indicators">
+        <source>encounter.mts.diagram.indicators</source>
+        <target>Mit diesem Diagramm gesehene Indikatoren</target>
+      </trans-unit>
+      <trans-unit id="Enc38924CD0" resname="encounter.mts.diagram.indicators_need_access">
+        <source>encounter.mts.diagram.indicators_need_access</source>
+        <target>Welche Indikatoren mit diesem Diagramm vorkommen, stammt aus den Behandlungsdaten. Es wird nur Personen mit Zugriff auf die Behandlungsdaten einer Klinik angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="Enc40E2807E" resname="encounter.mts.diagram.indicators_none">
+        <source>encounter.mts.diagram.indicators_none</source>
+        <target>Keine Behandlungsfälle mit diesem Diagramm in den Kliniken, deren Behandlungsdaten Sie sehen dürfen.</target>
+      </trans-unit>
+      <trans-unit id="EncB5AEB9AB" resname="encounter.mts.diagram.filter_label">
+        <source>encounter.mts.diagram.filter_label</source>
+        <target>Indikatoren filtern</target>
+      </trans-unit>
+      <trans-unit id="Enc8BBFBBBD" resname="encounter.mts.diagram.filter_placeholder">
+        <source>encounter.mts.diagram.filter_placeholder</source>
+        <target>Name oder Code</target>
+      </trans-unit>
+      <trans-unit id="Enc058F2E6C" resname="encounter.mts.diagram.filter_submit">
+        <source>encounter.mts.diagram.filter_submit</source>
+        <target>Filtern</target>
+      </trans-unit>
+      <trans-unit id="Enc5B998206" resname="encounter.mts.diagram.filter_reset">
+        <source>encounter.mts.diagram.filter_reset</source>
+        <target>Zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="EncAF723129" resname="encounter.mts.diagram.filter_no_match">
+        <source>encounter.mts.diagram.filter_no_match</source>
+        <target>Kein Indikator passt zum Filter.</target>
+      </trans-unit>
+      <trans-unit id="Enc146FE9A6" resname="encounter.mts.diagram.without_indicator">
+        <source>encounter.mts.diagram.without_indicator</source>
+        <target>Kein Indikator dokumentiert</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

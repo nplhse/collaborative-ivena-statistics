@@ -1,0 +1,14 @@
+{# Explains where the counts come from, or that there are none. Expects `has_counts` and `scope`. #}
+{% if has_counts %}
+    <twig:Alert type="info" class="mb-3" data-testid="mts-counts-scope">
+        {% if scope.allHospitals %}
+            {{ 'encounter.mts.counts.scope_all'|trans({threshold: constant('App\\Encounter\\Application\\Glossary\\MtsCount::THRESHOLD')}, 'encounter') }}
+        {% else %}
+            {{ 'encounter.mts.counts.scope'|trans({hospitals: scope.hospitalIds|length, threshold: constant('App\\Encounter\\Application\\Glossary\\MtsCount::THRESHOLD')}, 'encounter') }}
+        {% endif %}
+    </twig:Alert>
+{% else %}
+    <twig:Alert type="info" class="mb-3" data-testid="mts-counts-none">
+        {{ 'encounter.mts.counts.none'|trans({}, 'encounter') }}
+    </twig:Alert>
+{% endif %}

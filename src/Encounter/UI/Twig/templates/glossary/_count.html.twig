@@ -1,0 +1,8 @@
+{# One MtsCount cell value: suppressed counts show "< threshold", zero shows a dash. #}
+{%- if count.suppressed -%}
+    <span class="text-secondary" title="{{ 'encounter.mts.counts.suppressed_hint'|trans({threshold: constant('App\\Encounter\\Application\\Glossary\\MtsCount::THRESHOLD')}, 'encounter') }}" data-testid="mts-count-suppressed">{{ 'encounter.mts.counts.suppressed'|trans({threshold: constant('App\\Encounter\\Application\\Glossary\\MtsCount::THRESHOLD')}, 'encounter') }}</span>
+{%- elseif count.value == 0 -%}
+    <span class="text-secondary">–</span>
+{%- else -%}
+    {{ count.value|format_number }}
+{%- endif -%}
