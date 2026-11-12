@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\UI\Http\Controller;
 
 use App\Encounter\Application\Contract\EncounterAccessGrantRepositoryInterface;
+use App\Encounter\UI\DataPrep\DataPrepRelease;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,6 +21,7 @@ final class EncounterOverviewController extends AbstractController
 {
     public function __construct(
         private readonly EncounterAccessGrantRepositoryInterface $grantRepository,
+        private readonly DataPrepRelease $dataPrepRelease,
     ) {
     }
 
@@ -30,6 +32,7 @@ final class EncounterOverviewController extends AbstractController
 
         return $this->render('@Encounter/index.html.twig', [
             'grants' => $user instanceof User ? $this->grantRepository->findForUser($user) : [],
+            'data_prep' => $this->dataPrepRelease,
         ]);
     }
 }
