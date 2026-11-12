@@ -32,7 +32,7 @@ Timestamps: `YYYY-MM-DDTHH:MM`, Europe/Berlin local time, minute precision.
 
 | Group | Field | Type / values | Required |
 |---|---|---|---|
-| keys | `visit_fingerprint` | hex HMAC of the fingerprint rule input, prefix `ed-visit:v1` ([ADR 028](../../02-architecture/decisions/028-encounter-import-lifecycle.md), rule from #1045) | yes |
+| keys | `visit_fingerprint` | hex HMAC of the fingerprint rule input, prefix `ed-visit:v1` ([ADR 028](../../02-architecture/decisions/028-encounter-import-lifecycle.md), rule from #1045) | yes, provisional until #1045 |
 | | `case_key` | hex HMAC pseudonym of the administrative case number, prefix `case:v1`; not used for grouping or as a key | no |
 | demographics | `age` | integer 1–99 (< 1 → 1, ≥ 100 → 99) | yes |
 | | `sex` | `M`, `F`, `X` | yes |
@@ -40,8 +40,8 @@ Timestamps: `YYYY-MM-DDTHH:MM`, Europe/Berlin local time, minute precision.
 | | `referral_source` | `self`, `ems`, `emergency_physician`, `hospital_transfer`, `physician`, `kv_practice`, `other` | no |
 | | `admission_type` | `emergency`, `elective` | no |
 | | `case_status` | `outpatient`, `inpatient`, `pre_inpatient`, `post_inpatient` | no |
-| times | `ed_admission_at` | timestamp | one of the two |
-| | `first_assessment_contact_at` | timestamp | one of the two |
+| times | `ed_admission_at` | timestamp | one of the two, provisional until #1045 |
+| | `first_assessment_contact_at` | timestamp | one of the two, provisional until #1045 |
 | | `assessment_start_at`, `assessment_end_at` | timestamp | no |
 | | `physician_target_at` | timestamp (latest physician contact by MTS target time) | no |
 | | `first_physician_at` | timestamp | no |
@@ -78,6 +78,10 @@ Rules:
 - Admission within the own hospital (`admitted`) and external transfer (`transferred_external`) are
   separate dispositions; an unmappable ward gives `care_level = unknown`.
 - The arrival anchor for matching is `ed_admission_at`, fallback `first_assessment_contact_at`.
+- **Provisional:** `visit_fingerprint` and the required time anchor follow the current candidate rule.
+  #1045 decides how rows without a reliable time anchor are handled (skipped, or imported with a
+  visible notice and without duplicate detection, see [ADR 028](../../02-architecture/decisions/028-encounter-import-lifecycle.md)).
+  If they are imported, both requirements change in schema version 1 before it is released.
 - Durations are not part of the format; they are computed from timestamps.
 - Plausibility ranges and catalogs are finalised in #1048 and #1051 and documented here.
 

@@ -69,8 +69,8 @@ by the hospital bitmask:
 
 - `ROLE_ENCOUNTER_BETA` controls the pilot pages; `ROLE_ADMIN` inherits it. It grants no case access.
 - A separate encounter grant per user and hospital with the actions `UPLOAD`, `REVIEW` (implies
-  `VIEW_CASES`) and `VIEW_CASES`, checked by `EncounterVoter`. `UPLOAD` does not include the key
-  change; only the hospital owner may change the encounter key ([ADR 026](decisions/026-encounter-pseudonym-key.md)).
+  `VIEW_CASES`) and `VIEW_CASES`, checked by `EncounterVoter`. `UPLOAD` covers imports and access to
+  the retained upload files; it does not include the key change; only the hospital owner may change the encounter key ([ADR 026](decisions/026-encounter-pseudonym-key.md)).
 - Hospital ownership, hospital grants and `ROLE_ADMIN` do **not** imply an encounter grant. This is a
   deliberate exception to `HospitalPermissionAccess`.
 - Owners and administrators manage encounter grants; only users with access to the hospital can

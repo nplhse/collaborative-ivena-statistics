@@ -42,12 +42,20 @@ no ground truth.
 
 | Status | Rule |
 |---|---|
-| `auto_accepted` | score ≥ auto-accept threshold (default 0.90) and no conflict; **an effective link** for the case card and linked analyses; its automatic origin stays visible |
+| `auto_accepted` | score ≥ auto-accept threshold (default 0.90) and no conflict (below); **an effective link** for the case card and linked analyses; its automatic origin stays visible |
 | `proposed` | score ≥ proposal threshold (default 0.50); not effective until confirmed |
 | `confirmed` | manual decision, effective |
 | `rejected` | manual decision; the pair is never proposed again |
 
-Thresholds live in the `app:` config tree. Links are one-to-one. Automatic links do not need manual
+Thresholds live in the `app:` config tree. Links are one-to-one.
+
+**Conflict:** within one pass, the competing claims are checked **before** any reservation. If two or
+more allocations reach the auto-accept threshold for the same visit in the same pass, none of them
+becomes `auto_accepted`; the claims are marked as conflict and go to the review as proposals. (Two
+visits cannot both reach the threshold for one allocation, because candidates share the score.)
+Allocations and visits of an unresolved conflict are not reserved, so later passes may fill them
+only with the same check.
+ Automatic links do not need manual
 confirmation in the pilot.
 
 ### Runs

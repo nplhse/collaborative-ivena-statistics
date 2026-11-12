@@ -28,7 +28,7 @@ A separate grant in the `Encounter` context (user, hospital, actions), checked b
 
 | Action | Allows |
 |---|---|
-| `UPLOAD` | encounter imports for the hospital; does **not** include the key change |
+| `UPLOAD` | encounter imports for the hospital, viewing and downloading its retained upload files, reprocessing them; does **not** include the key change |
 | `REVIEW` | match review decisions; implies `VIEW_CASES` |
 | `VIEW_CASES` | case-level views: visit lists, the case card on an allocation, direct URLs |
 
@@ -40,8 +40,10 @@ A separate grant in the `Encounter` context (user, hospital, actions), checked b
   access grants. An owner can grant themselves case access explicitly. Every change is audited.
 - The key change (ADR 026) is reserved for the hospital owner; no grant and no administrator role
   allows it.
-- Administrators without a grant see import status, counts and match diagnostics without case
-  details. Case-level access needs a grant like for anyone else.
+- Administrators without a grant see import status, counts, reject codes and match diagnostics
+  without case details. They may trigger reprocessing of a retained file after a bug fix, which shows
+  no content. Viewing or downloading a retained upload file and case-level access need a grant like
+  for anyone else; import diagnostics alone never open file content.
 - Descriptive aggregates of the own hospital need the beta role, any encounter grant on the hospital
   and the existing `STATISTICS` permission.
 

@@ -67,8 +67,10 @@ Overviews cross both attributes, for example "EMS arrival, not linked".
 | Match review | beta role + encounter grant `REVIEW` (implies `VIEW_CASES`) |
 | Case-level views, case card on an allocation | beta role + encounter grant `VIEW_CASES` |
 | Descriptive aggregates of the own hospital | beta role + any encounter grant + `STATISTICS` |
+| View or download a retained upload file | beta role + encounter grant `UPLOAD` on the hospital |
+| Reprocess a retained upload file | beta role + `UPLOAD`, or `ROLE_ADMIN` (shows no file content) |
 | Manage encounter grants of a hospital | hospital owner or `ROLE_ADMIN` |
-| Import status, counts, match diagnostics without case details | `ROLE_ADMIN` |
+| Import status, counts, reject codes, match diagnostics without case details or file content | `ROLE_ADMIN` |
 
 Hospital ownership, hospital grants and `ROLE_ADMIN` do not imply an encounter grant. Details:
 [ADR 027](../../02-architecture/decisions/027-encounter-access-grants.md),
@@ -82,7 +84,8 @@ Summary of [ADR 029](../../02-architecture/decisions/029-encounter-allocation-ma
 - Features: time difference, sex, age difference, arrival route, physician vehicle, work accident.
   MTS category, MTS diagram and admitting department are not used.
 - Score 0.0–1.0 with competition between candidates, shown as agreement with feature contributions.
-- `auto_accepted` (≥ 0.90, no conflict) is an effective link with visible automatic origin;
+- `auto_accepted` (≥ 0.90, no conflict: no other allocation reaches 0.90 for the same visit in the
+  same pass) is an effective link with visible automatic origin;
   `proposed` (≥ 0.50) needs a decision; manual decisions are sticky.
 - Pass 1 reserves both sides; later runs only fill gaps and never reassign links. The review may
   propose a targeted swap.

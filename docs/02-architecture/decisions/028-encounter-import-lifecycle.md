@@ -62,6 +62,9 @@ created by B disappear.
 
 - Corrections in later exports are ignored; adopting them requires deleting the owning import and
   importing again (which removes its links and decisions)
+- Reprocessing a retained file after a bug fix only adds visits that were not created before (for
+  example after a failed run). If the bug stored wrong values, reprocessing does not correct them;
+  the rule is again: delete the import and import again, losing its links and review decisions
 - Deleting an import can remove visits that a later overlapping export also contained; that export
   must be reprocessed to restore them
 - A changed fingerprint input (for example an ED admission time entered later) makes the same visit
