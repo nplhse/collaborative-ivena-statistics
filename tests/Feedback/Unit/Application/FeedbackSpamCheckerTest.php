@@ -5,10 +5,22 @@ declare(strict_types=1);
 namespace App\Tests\Feedback\Unit\Application;
 
 use App\Feedback\Application\FeedbackSpamChecker;
+use App\Feedback\Application\FeedbackSpamCheckResult;
+use App\Feedback\Application\FeedbackSpamHistory;
+use App\Feedback\Application\FeedbackSpamVerdict;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Weights: too fast 4, missing render timestamp 1, missing page context 4, URL 4 (+2 for a second one),
+ * HTML 3, keywords 1 each up to 3, blocked link domain 6, spam pattern 6, token-only message 3, very long
+ * message 2, repeated guest email 3, duplicate message 3; signed-in users −2.
+ * Quarantine at 6 for guests and 8 for signed-in users.
+ */
 final class FeedbackSpamCheckerTest extends TestCase
 {
+    private const int NOW = 1_762_934_400;
+
     private function createChecker(): FeedbackSpamChecker
     {
         return new FeedbackSpamChecker(
@@ -19,176 +31,185 @@ final class FeedbackSpamCheckerTest extends TestCase
             authenticatedThreshold: 8,
             authenticatedScoreBonus: 2,
             keywords: ['casino', 'crypto', 'loan', 'viagra', 'seo', 'backlink', 'guest post'],
+            blockedLinkDomains: ['telegra.ph'],
+            patterns: ['/\bearn\s+\$[\d,.]+\s+(?:per|a)\s+month\b/i'],
         );
     }
 
-    public function testHoneypotFilledIsSpam(): void
-    {
-        $result = $this->createChecker()->check(
-            message: 'Legitimate looking text.',
-            honeypotValue: 'https://spam.example',
-            renderedAtTimestamp: time() - 10,
-            submittedAtTimestamp: time(),
-            isAuthenticated: false,
+    private function check(
+        string $message,
+        bool $isAuthenticated = false,
+        bool $hasPageContext = true,
+        ?int $renderedAt = self::NOW - 20,
+        string $honeypot = '',
+        FeedbackSpamHistory $history = new FeedbackSpamHistory(),
+    ): FeedbackSpamCheckResult {
+        return $this->createChecker()->check(
+            message: $message,
+            honeypotValue: $honeypot,
+            renderedAtTimestamp: $renderedAt,
+            submittedAtTimestamp: self::NOW,
+            isAuthenticated: $isAuthenticated,
+            hasPageContext: $hasPageContext,
+            history: $history,
         );
-
-        self::assertTrue($result->isSpam());
-        self::assertContains('honeypot_filled', $result->getReasons());
     }
 
-    public function testVeryFastSubmissionIsSpamForAnonymous(): void
+    public function testHoneypotFilledIsRejected(): void
     {
-        $now = time();
-        $result = $this->createChecker()->check(
-            message: 'Quick submission',
-            honeypotValue: '',
-            renderedAtTimestamp: $now - 1,
-            submittedAtTimestamp: $now,
-            isAuthenticated: false,
-        );
+        $result = $this->check('Legitimate looking text.', honeypot: 'https://spam.example');
 
-        self::assertTrue($result->isSpam());
-        self::assertContains('submitted_too_fast', $result->getReasons());
+        self::assertSame(FeedbackSpamVerdict::REJECT, $result->verdict);
+        self::assertSame(['honeypot_filled'], $result->getReasons());
     }
 
-    public function testSingleUrlAloneIsNotSpamForAnonymous(): void
+    public function testMessageAboveMaxLengthIsRejected(): void
     {
-        $result = $this->createChecker()->check(
-            message: 'See https://a.example for details.',
-            honeypotValue: '',
-            renderedAtTimestamp: time() - 20,
-            submittedAtTimestamp: time(),
-            isAuthenticated: false,
-        );
+        $result = $this->check(str_repeat('a', 4001));
 
-        self::assertFalse($result->isSpam());
-        self::assertSame(4, $result->getScore());
-        self::assertContains('contains_url', $result->getReasons());
-        self::assertNotContains('multiple_urls', $result->getReasons());
+        self::assertSame(FeedbackSpamVerdict::REJECT, $result->verdict);
+        self::assertSame(100, $result->getScore());
+        self::assertSame(['message_too_long'], $result->getReasons());
     }
 
-    public function testMultipleLinksIncreaseSpamScore(): void
+    /**
+     * @param list<string> $reasons
+     */
+    #[DataProvider('singleWeakSignals')]
+    public function testASingleWeakSignalIsAccepted(string $message, bool $hasPageContext, ?int $renderedAt, FeedbackSpamHistory $history, int $score, array $reasons): void
     {
-        $result = $this->createChecker()->check(
-            message: 'See https://a.example and https://b.example for details.',
-            honeypotValue: '',
-            renderedAtTimestamp: time() - 20,
-            submittedAtTimestamp: time(),
-            isAuthenticated: false,
-        );
+        $result = $this->check($message, hasPageContext: $hasPageContext, renderedAt: $renderedAt, history: $history);
 
-        self::assertTrue($result->isSpam());
-        self::assertContains('contains_url', $result->getReasons());
-        self::assertContains('multiple_urls', $result->getReasons());
-        self::assertGreaterThanOrEqual(6, $result->getScore());
+        self::assertSame(FeedbackSpamVerdict::ACCEPT, $result->verdict);
+        self::assertSame($score, $result->getScore());
+        self::assertSame($reasons, $result->getReasons());
     }
 
-    public function testHtmlContentIncreasesSpamScore(): void
+    /**
+     * @return iterable<string, array{string, bool, ?int, FeedbackSpamHistory, int, list<string>}>
+     */
+    public static function singleWeakSignals(): iterable
     {
-        $result = $this->createChecker()->check(
-            message: '<a href="https://spam.example">click</a>',
-            honeypotValue: '',
-            renderedAtTimestamp: time() - 20,
-            submittedAtTimestamp: time(),
-            isAuthenticated: false,
-        );
+        $none = new FeedbackSpamHistory();
 
-        self::assertGreaterThanOrEqual(3, $result->getScore());
-        self::assertContains('contains_html', $result->getReasons());
+        yield 'short message' => ['Ok', true, self::NOW - 20, $none, 0, []];
+        yield 'fast submission' => ['Quick note', true, self::NOW - 1, $none, 4, ['submitted_too_fast']];
+        yield 'one link' => ['Screenshot: https://example.test/shot.png', true, self::NOW - 20, $none, 4, ['contains_url']];
+        yield 'no page context' => ['Hi, I wanted to know your price.', false, self::NOW - 20, $none, 4, ['missing_page_context']];
+        yield 'no page context, no timestamp' => ['Hi, I wanted to know your price.', false, null, $none, 5, ['missing_render_timestamp', 'missing_page_context']];
+        yield 'repeated guest email' => ['Follow-up to my question', true, self::NOW - 20, new FeedbackSpamHistory(earlierEntriesFromGuestEmail: 1), 3, ['repeated_guest_email']];
+        yield 'same message as before' => ['The export is broken', true, self::NOW - 20, new FeedbackSpamHistory(earlierEntriesWithSameMessage: 2), 3, ['duplicate_message']];
+        yield 'token-like message' => ['MEYJTJ679293MARTHHDF', true, self::NOW - 20, $none, 3, ['token_only_message']];
+        yield 'two keywords' => ['crypto loan', true, self::NOW - 20, $none, 2, ['spam_keywords']];
     }
 
-    public function testAuthenticatedUserIsLessStrictForMultipleUrls(): void
+    /**
+     * @param list<string> $reasons
+     */
+    #[DataProvider('quarantinedSubmissions')]
+    public function testCombinedOrHardSignalsAreQuarantined(string $message, bool $hasPageContext, FeedbackSpamHistory $history, int $score, array $reasons): void
     {
-        $now = time();
+        $result = $this->check($message, hasPageContext: $hasPageContext, history: $history);
+
+        self::assertSame(FeedbackSpamVerdict::QUARANTINE, $result->verdict);
+        self::assertSame($score, $result->getScore());
+        self::assertSame($reasons, $result->getReasons());
+    }
+
+    /**
+     * Synthetic messages modelled on the spam seen in production.
+     *
+     * @return iterable<string, array{string, bool, FeedbackSpamHistory, int, list<string>}>
+     */
+    public static function quarantinedSubmissions(): iterable
+    {
+        $none = new FeedbackSpamHistory();
+
+        yield 'link to blocked domain' => [
+            'Read the news and get rich https://telegra.ph/news-123',
+            true, $none, 10, ['contains_url', 'blocked_link_domain'],
+        ];
+        yield 'blocked subdomain, no page context' => [
+            'Look https://www.telegra.ph/x',
+            false, $none, 14, ['missing_page_context', 'contains_url', 'blocked_link_domain'],
+        ];
+        yield 'spam pattern' => [
+            'Read the news and earn $50,000,000 per month',
+            true, $none, 6, ['spam_pattern'],
+        ];
+        yield 'token, no page context' => [
+            'MERYTRH679293MARTHHDF',
+            false, $none, 7, ['missing_page_context', 'token_only_message'],
+        ];
+        yield 'price question, repeated email, no page context' => [
+            'Hola, quería saber tu precio.',
+            false, new FeedbackSpamHistory(earlierEntriesFromGuestEmail: 1), 7, ['missing_page_context', 'repeated_guest_email'],
+        ];
+        yield 'same message from another address, no page context' => [
+            'Hola, quería saber tu precio.',
+            false, new FeedbackSpamHistory(earlierEntriesWithSameMessage: 1), 7, ['missing_page_context', 'duplicate_message'],
+        ];
+        yield 'two links' => [
+            'See https://a.example and https://b.example for deals.',
+            true, $none, 6, ['contains_url', 'multiple_urls'],
+        ];
+    }
+
+    public function testLinkOnAnotherDomainEndingInTheBlockedNameIsNotBlocked(): void
+    {
+        $result = $this->check('See https://nottelegra.ph/page');
+
+        self::assertSame(['contains_url'], $result->getReasons());
+        self::assertSame(FeedbackSpamVerdict::ACCEPT, $result->verdict);
+    }
+
+    public function testTokenRuleNeedsLettersAndDigits(): void
+    {
+        self::assertNotContains('token_only_message', $this->check('Dankeschoenvielmals')->getReasons());
+        self::assertNotContains('token_only_message', $this->check('123456789012345')->getReasons());
+        self::assertNotContains('token_only_message', $this->check('Fehler 4711 im Export')->getReasons());
+    }
+
+    public function testSignedInUsersGetABonusAndAHigherThreshold(): void
+    {
         $message = 'Visit https://a.example and https://b.example please';
 
-        $anonymousResult = $this->createChecker()->check(
-            message: $message,
-            honeypotValue: '',
-            renderedAtTimestamp: $now - 20,
-            submittedAtTimestamp: $now,
-            isAuthenticated: false,
-        );
-        $authenticatedResult = $this->createChecker()->check(
-            message: $message,
-            honeypotValue: '',
-            renderedAtTimestamp: $now - 20,
-            submittedAtTimestamp: $now,
-            isAuthenticated: true,
-        );
+        $guest = $this->check($message);
+        $user = $this->check($message, isAuthenticated: true);
 
-        self::assertTrue($anonymousResult->isSpam());
-        self::assertFalse($authenticatedResult->isSpam());
-        self::assertGreaterThan(0, $authenticatedResult->getScore());
-        self::assertGreaterThan($authenticatedResult->getScore(), $anonymousResult->getScore());
+        self::assertSame([6, FeedbackSpamVerdict::QUARANTINE], [$guest->getScore(), $guest->verdict]);
+        self::assertSame([4, FeedbackSpamVerdict::ACCEPT], [$user->getScore(), $user->verdict]);
     }
 
-    public function testMissingRenderedTimestampAddsReasonForAnonymous(): void
+    public function testSignedInUsersAreNotScoredForMissingTimestampOrPageContext(): void
     {
-        $result = $this->createChecker()->check(
-            message: 'No rendered timestamp provided.',
-            honeypotValue: '',
-            renderedAtTimestamp: null,
-            submittedAtTimestamp: time(),
-            isAuthenticated: false,
-        );
+        $result = $this->check('No context provided.', isAuthenticated: true, hasPageContext: false, renderedAt: null);
 
-        self::assertContains('missing_render_timestamp', $result->getReasons());
-        self::assertGreaterThanOrEqual(1, $result->getScore());
+        self::assertSame(0, $result->getScore());
+        self::assertSame([], $result->getReasons());
     }
 
-    public function testMissingRenderedTimestampDoesNotPenalizeAuthenticated(): void
+    public function testHtmlContentIncreasesTheScore(): void
     {
-        $result = $this->createChecker()->check(
-            message: 'No rendered timestamp provided.',
-            honeypotValue: '',
-            renderedAtTimestamp: null,
-            submittedAtTimestamp: time(),
-            isAuthenticated: true,
-        );
+        $result = $this->check('<b>bold</b> text');
 
-        self::assertNotContains('missing_render_timestamp', $result->getReasons());
+        self::assertSame(3, $result->getScore());
+        self::assertSame(['contains_html'], $result->getReasons());
     }
 
     public function testKeywordScoreIsCappedAtThree(): void
     {
-        $result = $this->createChecker()->check(
-            message: 'casino crypto loan viagra seo backlink guest post',
-            honeypotValue: '',
-            renderedAtTimestamp: time() - 20,
-            submittedAtTimestamp: time(),
-            isAuthenticated: false,
-        );
+        $result = $this->check('casino crypto loan viagra seo backlink guest post');
 
-        self::assertContains('spam_keywords', $result->getReasons());
+        self::assertSame(['spam_keywords'], $result->getReasons());
         self::assertSame(3, $result->getScore());
     }
 
     public function testVeryLongMessageAddsReason(): void
     {
-        $result = $this->createChecker()->check(
-            message: str_repeat('a', 1801),
-            honeypotValue: '',
-            renderedAtTimestamp: time() - 20,
-            submittedAtTimestamp: time(),
-            isAuthenticated: false,
-        );
+        $result = $this->check(str_repeat('word ', 361));
 
-        self::assertContains('very_long_message', $result->getReasons());
-    }
-
-    public function testMessageAboveMaxLengthIsHardRejected(): void
-    {
-        $result = $this->createChecker()->check(
-            message: str_repeat('a', 4001),
-            honeypotValue: '',
-            renderedAtTimestamp: time() - 20,
-            submittedAtTimestamp: time(),
-            isAuthenticated: false,
-        );
-
-        self::assertTrue($result->isSpam());
-        self::assertSame(100, $result->getScore());
-        self::assertContains('message_too_long', $result->getReasons());
+        self::assertSame(['very_long_message'], $result->getReasons());
+        self::assertSame(2, $result->getScore());
     }
 }

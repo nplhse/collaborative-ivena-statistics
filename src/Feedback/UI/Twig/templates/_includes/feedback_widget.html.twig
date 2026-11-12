@@ -35,6 +35,9 @@
             {{ form_row(form.category, {attr: {'data-feedback-context-target': 'category'}}) }}
             {{ form_row(form.message, {attr: {'data-feedback-context-target': 'message'}}) }}
             {{ form_widget(form.extraContext) }}
+            <div class="visually-hidden" aria-hidden="true">
+                {{ form_row(form.subject) }}
+            </div>
             <div class="d-grid gap-2 mt-3">
                 <button type="submit" class="btn btn-primary">{{ 'feedback.widget.submit'|trans({}, 'feedback') }}</button>
             </div>
