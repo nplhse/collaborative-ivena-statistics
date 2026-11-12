@@ -55,7 +55,7 @@ Timestamps: `YYYY-MM-DDTHH:MM`, Europe/Berlin local time, minute precision.
 | | `retriage_category`, `retriage_diagram`, `retriage_indicator`, `retriage_at` | as above | no |
 | disposition | `disposition` | `home`, `to_physician`, `kv_practice`, `against_advice`, `left_before_completion`, `admitted`, `transferred_external`, `died`, `other` | no |
 | | `care_level` | for `admitted` and `transferred_external`: `ward`, `monitoring`, `icu`, `or`, `unknown`; otherwise empty | no |
-| | `admitting_department` | department code of the reference catalog | no |
+| | `admitting_department` | name of a department of the reference catalog (case-insensitive, at most 64 characters) | no |
 | vitals | `vitals_reference` | `admission_measurement` (measurement with documented reference to the admission, `vitals_measured_at` set) or `documented_initial` (documented first value without assured time reference) | if any vital is set |
 | | `vitals_measured_at` | timestamp; only with `admission_measurement` | no |
 | | `bp_systolic`, `bp_diastolic` | mmHg, 40–300 / 20–200 | no |
@@ -89,9 +89,8 @@ Rules:
   (#1056), the tool derives the code from the German label (lowercase, umlauts transliterated, other
   characters `_`; the slug is cut at 64 characters before leading and trailing `_` are trimmed, #1073),
   for example `Abdominelle Schmerzen bei Erwachsenen` → `abdominelle_schmerzen_bei_erwachsenen`; the
-  labels are listed in
-  `src/Encounter/UI/DataPrep/catalogs/mts-de.json`. The server accepts any value matching
-  `^[a-z0-9_]{1,64}$` and rejects the row otherwise.
+  labels are listed in `src/Encounter/UI/DataPrep/catalogs/mts-de.json`. The server accepts any value
+  matching `^[a-z0-9_]{1,64}$` and rejects the row otherwise.
 - `admitting_department` is the name of a department of the reference catalog (case-insensitive); an
   unknown or ambiguous name rejects the row.
 - Unknown manifest keys are ignored; required are the eight keys of the example line.
@@ -157,7 +156,7 @@ trailing empty column.
 Hospital-specific unit codes are never part of the public profile. Each hospital keeps a local map
 file for the tool:
 
-- department codes → reference catalog departments (`admitting_department`)
+- hospital department codes → names of reference catalog departments (`admitting_department`)
 - station codes → care level (`icu`, `monitoring`, `ward`)
 - disposition texts specific to the hospital, if any
 

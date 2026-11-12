@@ -27,7 +27,24 @@
         'spo2',
         'gcs',
     ];
-    const DEPARTMENT_CODE = /^[A-Za-z0-9_.-]{1,64}$/;
+    /** Name of a department of the reference catalog, as the import resolves it (#1048). */
+    function isDepartmentName(value) {
+        return (
+            typeof value === 'string' &&
+            value.length >= 1 &&
+            value.length <= 64 &&
+            value.trim() === value &&
+            ![...value].some(
+                (char) =>
+                    char === ';' ||
+                    char === '"' ||
+                    char.charCodeAt(0) < 32 ||
+                    char.charCodeAt(0) === 127,
+            )
+        );
+    }
+    // Values from the hospital's own local map, not from the export: no name or free-text check.
+    const LOCAL_MAP_FIELDS = ['admitting_department'];
 
     // ------------------------------------------------------------------ text helpers
 
@@ -270,8 +287,8 @@
             .normalize('NFD')
             .replace(/[̀-ͯ]/g, '')
             .replace(/[^a-z0-9]+/g, '_')
-            .replace(/^_+|_+$/g, '')
-            .slice(0, 64);
+            .slice(0, 64)
+            .replace(/^_+|_+$/g, '');
     }
 
     function mapCode(rule, value) {
@@ -391,8 +408,8 @@
             throw new Error('profile-mismatch');
         }
         const errors = [];
-        for (const [source, code] of Object.entries(data.departments ?? {})) {
-            if (!DEPARTMENT_CODE.test(String(code))) {
+        for (const [source, name] of Object.entries(data.departments ?? {})) {
+            if (!isDepartmentName(name)) {
                 errors.push(`departments.${source}`);
             }
         }
@@ -717,10 +734,8 @@
             }
 
             for (const field of outputHeader) {
-                if (
-                    fieldsByName.get(field).type !== 'timestamp' &&
-                    fieldsByName.get(field).type !== 'hmac'
-                ) {
+                const type = fieldsByName.get(field).type;
+                if (type !== 'timestamp' && type !== 'hmac' && !LOCAL_MAP_FIELDS.includes(field)) {
                     check(field, null, out[field] ?? '');
                 }
             }

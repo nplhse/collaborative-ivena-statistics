@@ -3,7 +3,7 @@
 **Audience:** Developers of the tool, its profiles and the encounter import; pilot coordinators who
 support hospitals.
 
-**Status:** v1 with the ORBIS MTS profile (#1051), part of the encounter data pilot (#1043).
+**Status:** v1 with the ORBIS MTS profile (#1051; 1.0.1: department names in the local map, MTS indicators from the first real test run), part of the encounter data pilot (#1043).
 
 Decisions: [ADR 025](../../02-architecture/decisions/025-encounter-data-context-and-exchange-format.md)
 (tool, CSP, profiles), [ADR 026](../../02-architecture/decisions/026-encounter-pseudonym-key.md) (key
@@ -43,7 +43,7 @@ from the `encounter` domain (`encounter.data_prep.*`) in the locale of the user 
 | `min_version` | tools below it block processing; the import (#1048) rejects their files |
 | `released_at` | release date shown in the tool and in `latest.json` |
 
-Raise `version` with every change to the scripts, the template, a bundled profile or the schema copy.
+Raise `version` with every change to the scripts, the template, a bundled profile, catalog or the schema copy.
 Raise `min_version` when older tools write wrong data.
 
 `GET /data-prep/latest.json` returns `{version, minVersion, releasedAt, downloadUrl}` with
@@ -95,7 +95,8 @@ only, browsers may clear it, and the file stays the source of truth. "Forget key
 
 ## Local map (private, per hospital)
 
-Hospital-specific codes are never part of the public profile or the server. Each hospital keeps a
+Hospital-specific codes are never part of the public profile, the repository or the server; keep the
+real local map next to the key file (for development under the git-ignored `var/demo/`). Each hospital keeps a
 JSON file next to the key file and loads it per run (optional):
 
 ```json
@@ -105,7 +106,7 @@ JSON file next to the key file and loads it per run (optional):
     "profile": "orbis-mts",
     "hospital": "ZNA Musterklinik",
     "departments": {
-        "INN XYZ": "<department code of the reference catalog>"
+        "INN XYZ": "<name of a department of the reference catalog>"
     },
     "stations": {
         "ITS XYZ": "icu",
@@ -121,7 +122,7 @@ JSON file next to the key file and loads it per run (optional):
 | Key | Effect |
 |---|---|
 | `profile` | optional; a map for another profile is rejected |
-| `departments` | source department code (`Stat_Fachrichtung`, else `Med. Fachabteilungskürzel`) → `admitting_department`; codes match `[A-Za-z0-9_.-]{1,64}`, the import checks them against the catalog |
+| `departments` | source department code (`Stat_Fachrichtung`, else `Med. Fachabteilungskürzel`) → `admitting_department`: the name of a department of the reference catalog as the import resolves it (case-insensitive); 1–64 characters, no `;`, `"`, control characters or surrounding spaces. The tool cannot check the catalog offline; the import rejects rows with an unknown or ambiguous name |
 | `stations` | `Stat_Station` → `care_level` (`ward`, `monitoring`, `icu`, `or`, `unknown`) for `admitted` |
 | `dispositions` | additional or overriding `Entlassung` texts → `disposition` and optional `careLevel` (only with `admitted` or `transferred_external`) |
 
@@ -151,7 +152,7 @@ The allow-list is the profile: a column the profile does not map is dropped. Rul
 | Age | leading number of `Alter`; without it, age at the anchor date from `Geburtsdatum`; then clamped to 1–99 |
 | Timestamps | `dd.mm.yyyy HH:MM[:SS]` with any whitespace between date and time; output `YYYY-MM-DDTHH:MM`, seconds cut; invalid values are emptied and counted |
 | Codes | profile map, case-insensitive; optional `prefixes`; empty markers (`-- keine --`) give empty; other values give empty and are listed as unmapped |
-| MTS diagram, indicator | catalog code derived from the label: lowercase, umlauts transliterated, other characters `_` (`Abdominelle Schmerzen bei Erwachsenen` → `abdominelle_schmerzen_bei_erwachsenen`); provisional until the MTS catalog is fixed (#1048, #1056). Diagrams must be in `catalogs/mts-de.json`, otherwise empty and listed as unmapped; indicators not in the (open) list keep their code and are listed as "new catalog values" |
+| MTS diagram, indicator | catalog code derived from the label: lowercase, umlauts transliterated, other characters `_`, cut at 64 characters, no leading or trailing `_` (`Abdominelle Schmerzen bei Erwachsenen` → `abdominelle_schmerzen_bei_erwachsenen`); provisional until the MTS catalog is fixed (#1048, #1056). Diagrams must be in `catalogs/mts-de.json`, otherwise empty and listed as unmapped; indicators not in the (open) list keep their code and are listed as "new catalog values" |
 | Disposition | local map first, then the profile; `care_level` only for `admitted` (station map, else the level of the disposition text, else `unknown`) and `transferred_external` (level of the text, else `unknown`); an unmapped station is listed |
 | Vitals | unit stripped, decimal comma accepted; integers except temperature (one decimal, half up) and glucose (rounded half up to whole mg/dl); out of range or unreadable → empty and counted per field; `vitals_reference = documented_initial` if any vital is set |
 | Flags | `ja` → `1`; empty → empty; other values → empty and listed |
@@ -196,7 +197,9 @@ The allow-list is the profile: a column the profile does not map is dropped. Rul
 ## Content check
 
 Before saving, the tool checks every value that reaches the output, and the raw labels of the MTS
-diagram and indicator columns before they become codes:
+diagram and indicator columns before they become codes. `admitting_department` is not checked: its
+values come from the hospital's own local map (catalog names such as `Chirurgie, Allgemein` would look
+like names), not from the export.
 
 | Finding | Pattern |
 |---|---|
