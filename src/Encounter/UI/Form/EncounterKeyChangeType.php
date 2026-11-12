@@ -37,7 +37,10 @@ final class EncounterKeyChangeType extends AbstractType
             ->add('confirmName', TextType::class, [
                 'label' => 'encounter.key_change.field.confirm_name',
                 'help' => 'encounter.key_change.field.confirm_name_help',
-                'help_translation_parameters' => ['name' => $options['hospital_name']],
+                // The name is escaped here because the help is rendered as HTML to emphasise it.
+                'help_translation_parameters' => ['name' => '<strong><em>'.htmlspecialchars($options['hospital_name'], \ENT_QUOTES).'</em></strong>'],
+                'help_html' => true,
+                'help_attr' => ['class' => 'text-danger'],
                 'attr' => ['autocomplete' => 'off', 'spellcheck' => 'false'],
                 'constraints' => [new NotBlank()],
             ]);

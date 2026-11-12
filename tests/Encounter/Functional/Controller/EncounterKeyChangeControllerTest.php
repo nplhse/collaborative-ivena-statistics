@@ -68,6 +68,23 @@ final class EncounterKeyChangeControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'The key has been changed. Your existing encounters have been kept.');
     }
 
+    public function testHospitalNameInTheHintIsEmphasisedAndEscaped(): void
+    {
+        $hospital = $this->entityManager()->find(Hospital::class, (int) $this->hospital->getId());
+        self::assertInstanceOf(Hospital::class, $hospital);
+        $hospital->setName('Klinik <A & B>');
+        $this->entityManager()->flush();
+
+        $this->client->loginUser($this->owner);
+        $crawler = $this->client->request(Request::METHOD_GET, $this->url());
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString(
+            '<strong><em>Klinik &lt;A &amp; B&gt;</em></strong>',
+            $crawler->filter('#encounter_key_change_confirmName_help')->html(),
+        );
+    }
+
     public function testWrongHospitalNameChangesNothing(): void
     {
         $this->client->loginUser($this->owner);
