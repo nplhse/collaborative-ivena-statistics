@@ -66,6 +66,7 @@ final class EncounterVoterTest extends KernelTestCase
     {
         yield from self::caseLevelAttributes();
         yield 'reprocess source file' => [EncounterAttribute::REPROCESS_SOURCE_FILE];
+        yield 'delete import' => [EncounterAttribute::DELETE_IMPORT];
         yield 'manage grants' => [EncounterAttribute::MANAGE_GRANTS];
     }
 
@@ -146,6 +147,7 @@ final class EncounterVoterTest extends KernelTestCase
         self::assertSame(VoterInterface::ACCESS_GRANTED, $this->vote($uploader, $hospital, EncounterAttribute::UPLOAD));
         self::assertSame(VoterInterface::ACCESS_GRANTED, $this->vote($uploader, $hospital, EncounterAttribute::DOWNLOAD_SOURCE_FILE));
         self::assertSame(VoterInterface::ACCESS_GRANTED, $this->vote($uploader, $hospital, EncounterAttribute::REPROCESS_SOURCE_FILE));
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $this->vote($uploader, $hospital, EncounterAttribute::DELETE_IMPORT));
         self::assertSame(VoterInterface::ACCESS_DENIED, $this->vote($uploader, $hospital, EncounterAttribute::VIEW_CASES));
         self::assertSame(VoterInterface::ACCESS_DENIED, $this->vote($uploader, $hospital, EncounterAttribute::CHANGE_KEY));
     }
@@ -186,6 +188,15 @@ final class EncounterVoterTest extends KernelTestCase
         $this->encounterGrant($hospital, $member, [EncounterGrantAction::ViewCases]);
 
         self::assertSame(VoterInterface::ACCESS_DENIED, $this->vote($member, $hospital, EncounterAttribute::REPROCESS_SOURCE_FILE));
+        self::assertSame(VoterInterface::ACCESS_DENIED, $this->vote($member, $hospital, EncounterAttribute::DELETE_IMPORT));
+    }
+
+    public function testOwnerWithoutGrantMayNotDeleteImports(): void
+    {
+        $owner = $this->user();
+        $hospital = $this->hospital($owner);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $this->vote($owner, $hospital, EncounterAttribute::DELETE_IMPORT));
     }
 
     public function testAggregatesNeedAnyGrantAndStatisticsPermission(): void

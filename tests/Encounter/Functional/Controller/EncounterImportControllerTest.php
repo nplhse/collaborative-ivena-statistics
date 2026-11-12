@@ -206,6 +206,56 @@ final class EncounterImportControllerTest extends WebTestCase
         self::assertSame(1, $this->encounterCount($importId));
     }
 
+    public function testUploaderDeletesAnImportAndOnlyItsVisits(): void
+    {
+        $kept = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build(), 'kept');
+        $deleted = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->visit('b', '2026-10-01T09:15')->build(), 'to delete');
+        self::assertSame(1, $this->encounterCount($deleted));
+        self::assertTrue($this->sourceFileExists($deleted));
+        $this->entityManager()->clear();
+        $import = $this->entityManager()->find(Import::class, $deleted);
+        self::assertInstanceOf(Import::class, $import);
+        $sourcePath = $this->projectDir().'/'.$import->getFilePath();
+
+        $this->client->loginUser($this->uploader);
+        $crawler = $this->client->request(Request::METHOD_GET, '/encounter/imports/'.$deleted);
+        self::assertSelectorExists('[data-test="encounter-delete-warning"]');
+        $token = $crawler->filter('#encounter-import-delete-modal input[name="_token"]')->attr('value');
+        $this->client->request(Request::METHOD_POST, '/encounter/imports/'.$deleted.'/delete', ['_token' => $token]);
+
+        self::assertResponseRedirects('/encounter/imports');
+        $this->entityManager()->clear();
+        self::assertNull($this->entityManager()->find(Import::class, $deleted));
+        self::assertSame(0, $this->encounterCount($deleted));
+        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter_import WHERE import_id = ?', [$deleted]));
+        self::assertFileDoesNotExist($sourcePath);
+        self::assertSame(1, $this->encounterCount($kept), 'Visits of other imports stay.');
+        $audit = $this->connection()->fetchOne(
+            "SELECT metadata FROM audit_log WHERE entity_class = ? AND action = 'delete'",
+            [EncounterImport::class],
+        );
+        self::assertIsString($audit);
+        self::assertStringContainsString('encounter.import.deleted', $audit);
+    }
+
+    public function testViewCasesUserAndOwnerWithoutGrantCannotDelete(): void
+    {
+        $importId = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build(), 'protected');
+        $viewer = $this->user();
+        $this->hospitalGrant($this->hospital, $viewer);
+        $this->encounterGrant($this->hospital, $viewer, [EncounterGrantAction::ViewCases]);
+        $owner = $this->hospital->getOwner();
+        self::assertInstanceOf(User::class, $owner);
+
+        foreach ([$viewer, $owner] as $user) {
+            $this->client->loginUser($user);
+            $this->client->request(Request::METHOD_POST, '/encounter/imports/'.$importId.'/delete', ['_token' => 'irrelevant']);
+            self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        }
+
+        self::assertSame(1, $this->encounterCount($importId));
+    }
+
     public function testEncounterImportsAreNotListedOnTheGenericImportPage(): void
     {
         $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build(), 'hidden encounter import');

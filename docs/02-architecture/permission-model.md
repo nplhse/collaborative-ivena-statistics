@@ -71,8 +71,8 @@ by the hospital bitmask:
 
 - `ROLE_ENCOUNTER_BETA` controls the pilot pages; `ROLE_ADMIN` inherits it. The role itself grants no case access.
 - A separate encounter grant per user and hospital with the actions `UPLOAD`, `REVIEW` (implies
-  `VIEW_CASES`) and `VIEW_CASES`, checked by `EncounterVoter`. `UPLOAD` covers imports and access to
-  the retained upload files; it does not include the key change; only the hospital owner or an administrator may change the encounter key ([ADR 026](decisions/026-encounter-pseudonym-key.md)).
+  `VIEW_CASES`) and `VIEW_CASES`, checked by `EncounterVoter`. `UPLOAD` covers imports (including
+  reprocessing and deleting them) and access to the retained upload files; it does not include the key change; only the hospital owner or an administrator may change the encounter key ([ADR 026](decisions/026-encounter-pseudonym-key.md)).
 - Hospital ownership and hospital grants do **not** imply an encounter grant. This is a deliberate
   exception to `HospitalPermissionAccess`.
 - `ROLE_ADMIN` counts as holding every grant action on every hospital without a stored grant. This
@@ -93,7 +93,7 @@ Implementation:
 
   | Attribute | Granted when |
   |---|---|
-  | `ENCOUNTER_UPLOAD`, `ENCOUNTER_VIEW_SOURCE_FILE`, `ENCOUNTER_DOWNLOAD_SOURCE_FILE`, `ENCOUNTER_REPROCESS_SOURCE_FILE` | grant action `UPLOAD` |
+  | `ENCOUNTER_UPLOAD`, `ENCOUNTER_VIEW_SOURCE_FILE`, `ENCOUNTER_DOWNLOAD_SOURCE_FILE`, `ENCOUNTER_REPROCESS_SOURCE_FILE`, `ENCOUNTER_DELETE_IMPORT` | grant action `UPLOAD` |
   | `ENCOUNTER_REVIEW` | grant action `REVIEW` |
   | `ENCOUNTER_VIEW_CASES` | grant action `VIEW_CASES` (also set by `REVIEW`) |
   | `ENCOUNTER_VIEW_AGGREGATES` | any grant action and hospital permission `STATISTICS` |

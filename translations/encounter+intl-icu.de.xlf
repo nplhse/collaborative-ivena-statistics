@@ -409,6 +409,22 @@
         <source>encounter.import.reprocess.unavailable</source>
         <target>Die Datei wird nicht mehr aufbewahrt, daher kann dieser Import nicht neu verarbeitet werden.</target>
       </trans-unit>
+      <trans-unit id="EncI8FE7FECD" resname="encounter.import.delete.title">
+        <source>encounter.import.delete.title</source>
+        <target>Import löschen</target>
+      </trans-unit>
+      <trans-unit id="EncIE0F84719" resname="encounter.import.delete.warning">
+        <source>encounter.import.delete.warning</source>
+        <target>Beim Löschen werden alle Besuche dieses Imports mit ihren IVENA-Verknüpfungen und Prüfentscheidungen, seine abgelehnten Zeilen und die hochgeladene Datei entfernt. Besuche anderer Importe bleiben erhalten. Das lässt sich nicht rückgängig machen.</target>
+      </trans-unit>
+      <trans-unit id="EncI185ABA27" resname="encounter.import.action.delete">
+        <source>encounter.import.action.delete</source>
+        <target>Import löschen</target>
+      </trans-unit>
+      <trans-unit id="EncI18C07858" resname="encounter.import.flash.deleted">
+        <source>encounter.import.flash.deleted</source>
+        <target>Der Behandlungsdaten-Import wurde gelöscht.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

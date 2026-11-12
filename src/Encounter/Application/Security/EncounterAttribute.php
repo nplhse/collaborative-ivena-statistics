@@ -33,6 +33,9 @@ final class EncounterAttribute
     /** Reprocessing a retained upload file without showing its content. Grant action UPLOAD. */
     public const string REPROCESS_SOURCE_FILE = 'ENCOUNTER_REPROCESS_SOURCE_FILE';
 
+    /** Deleting an encounter import with its visits, links and review decisions. Grant action UPLOAD. */
+    public const string DELETE_IMPORT = 'ENCOUNTER_DELETE_IMPORT';
+
     /** Changing the pseudonym key (ADR 026). Hospital owner or ROLE_ADMIN; no grant action allows it. */
     public const string CHANGE_KEY = 'ENCOUNTER_CHANGE_KEY';
 
@@ -47,6 +50,7 @@ final class EncounterAttribute
         self::VIEW_SOURCE_FILE,
         self::DOWNLOAD_SOURCE_FILE,
         self::REPROCESS_SOURCE_FILE,
+        self::DELETE_IMPORT,
         self::CHANGE_KEY,
         self::MANAGE_GRANTS,
     ];

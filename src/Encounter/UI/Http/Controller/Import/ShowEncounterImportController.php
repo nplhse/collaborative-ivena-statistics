@@ -49,6 +49,7 @@ final class ShowEncounterImportController extends AbstractController
             'rejects' => $this->report->rejects($id, self::LIST_LIMIT),
             'suspected_duplicates' => $this->report->suspectedDuplicates($id, self::LIST_LIMIT),
             'list_limit' => self::LIST_LIMIT,
+            'can_delete' => $this->isGranted(EncounterAttribute::DELETE_IMPORT, $hospital),
             'can_reprocess' => $this->isGranted(EncounterAttribute::REPROCESS_SOURCE_FILE, $hospital)
                 && !$encounterImport->isSourceFileDeleted()
                 && $this->fileStorage->exists($import->getFilePath()),

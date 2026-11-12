@@ -409,6 +409,22 @@
         <source>encounter.import.reprocess.unavailable</source>
         <target>The file is no longer retained, so this import cannot be reprocessed.</target>
       </trans-unit>
+      <trans-unit id="EncI8FE7FECD" resname="encounter.import.delete.title">
+        <source>encounter.import.delete.title</source>
+        <target>Delete import</target>
+      </trans-unit>
+      <trans-unit id="EncIE0F84719" resname="encounter.import.delete.warning">
+        <source>encounter.import.delete.warning</source>
+        <target>Deleting removes all visits this import created, with their IVENA links and review decisions, its rejects and the uploaded file. Visits of other imports stay. This cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="EncI185ABA27" resname="encounter.import.action.delete">
+        <source>encounter.import.action.delete</source>
+        <target>Delete import</target>
+      </trans-unit>
+      <trans-unit id="EncI18C07858" resname="encounter.import.flash.deleted">
+        <source>encounter.import.flash.deleted</source>
+        <target>The encounter import was deleted.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

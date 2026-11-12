@@ -163,6 +163,11 @@ coverage counts the valid visits of the file (new and known) per day of their ti
 (their links and review decisions go with them) and imports the retained file again. The page warns
 before that links and review decisions of the import are lost.
 
+**Delete** (`POST /encounter/imports/{id}/delete`, `UPLOAD` via `EncounterAttribute::DELETE_IMPORT`): goes
+through `ImportDeletionService` like every import deletion and removes the import's visits with their
+IVENA links and review decisions, its rejects, report, suspected-duplicate records and source file. Visits
+of other imports stay (ADR 028). The page warns before; the deletion is audited (`encounter.import.deleted`).
+
 **Afterwards**: a successful run with new visits dispatches `EncountersImported` (hospital, import, anchor
 days of the inserted visits) for the matcher (#1053). Nothing consumes it yet.
 
@@ -202,6 +207,7 @@ Overviews cross both attributes, for example "EMS arrival, not linked".
 | Descriptive aggregates of the own hospital | beta role + any encounter grant + `STATISTICS`, or `ROLE_ADMIN` |
 | View or download a retained upload file | beta role + encounter grant `UPLOAD` on the hospital, or `ROLE_ADMIN` |
 | Reprocess a retained upload file | beta role + `UPLOAD`, or `ROLE_ADMIN` (shows no file content) |
+| Delete an encounter import | beta role + `UPLOAD`, or `ROLE_ADMIN` |
 | Manage encounter grants of a hospital | hospital owner or `ROLE_ADMIN` |
 | Import status, counts, reject codes, match diagnostics without case details or file content | `ROLE_ADMIN` |
 

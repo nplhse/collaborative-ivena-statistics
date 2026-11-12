@@ -161,6 +161,22 @@
                     {% endif %}
                 </div>
             </div>
+
+            {% if can_delete %}
+                <div class="card mt-3" data-test="encounter-import-delete">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ 'encounter.import.delete.title'|trans({}, 'encounter') }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-secondary" data-test="encounter-delete-warning">{{ 'encounter.import.delete.warning'|trans({}, 'encounter') }}</p>
+                        {% if import.status.value != 'Running' %}
+                            <button type="button" class="btn btn-outline-danger w-100" data-bs-toggle="modal" data-bs-target="#encounter-import-delete-modal">
+                                {{ 'encounter.import.action.delete'|trans({}, 'encounter') }}
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 
@@ -174,6 +190,19 @@
             :confirmLabel="'encounter.import.action.reprocess'|trans({}, 'encounter')"
             :cancelLabel="'action.cancel'|trans({}, 'messages')"
             confirmVariant="primary"
+        />
+    {% endif %}
+
+    {% if can_delete and import.status.value != 'Running' %}
+        <twig:ConfirmModal
+            id="encounter-import-delete-modal"
+            :title="'encounter.import.delete.title'|trans({}, 'encounter')"
+            :message="'encounter.import.delete.warning'|trans({}, 'encounter')"
+            :action="path('app_encounter_import_delete', {id: import.id})"
+            :csrfToken="csrf_token('encounter_import_delete_' ~ import.id)"
+            :confirmLabel="'encounter.import.action.delete'|trans({}, 'encounter')"
+            :cancelLabel="'action.cancel'|trans({}, 'messages')"
+            confirmVariant="danger"
         />
     {% endif %}
 {% endblock %}

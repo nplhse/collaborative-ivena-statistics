@@ -76,7 +76,8 @@ final class EncounterVoter extends Voter
             EncounterAttribute::UPLOAD,
             EncounterAttribute::VIEW_SOURCE_FILE,
             EncounterAttribute::DOWNLOAD_SOURCE_FILE,
-            EncounterAttribute::REPROCESS_SOURCE_FILE => $this->grantAllows($token, $user, $subject, EncounterGrantAction::Upload),
+            EncounterAttribute::REPROCESS_SOURCE_FILE,
+            EncounterAttribute::DELETE_IMPORT => $this->grantAllows($token, $user, $subject, EncounterGrantAction::Upload),
             EncounterAttribute::REVIEW => $this->grantAllows($token, $user, $subject, EncounterGrantAction::Review),
             EncounterAttribute::VIEW_CASES => $this->grantAllows($token, $user, $subject, EncounterGrantAction::ViewCases),
             EncounterAttribute::VIEW_AGGREGATES => $this->hasAnyGrant($token, $user, $subject)
