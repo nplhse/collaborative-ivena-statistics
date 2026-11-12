@@ -44,6 +44,49 @@ Decisions: [ADR 025](../../02-architecture/decisions/025-encounter-data-context-
   does not group encounters. No patient-level key.
 - `Allocation` is not changed and has no reference to encounter data.
 
+Implemented in #1047:
+
+- **One table `encounter`, one row per visit.** Groups of the `ed_visit` contract are Doctrine
+  embeddables in the same row: `EncounterTimes` (no prefix), `Triage` (`mts_*`), `Retriage`
+  (`retriage_*`), `EncounterDisposition` (`disposition_code`, `disposition_care_level`) and
+  `InitialVitals` (`vitals_*`). The admitting department is a foreign key to the department catalog
+  (`SET NULL` when the department is deleted). Code lists are backed enums in
+  `src/Encounter/Domain/Enum/`; the isolation set is a sorted JSON list of codes. MTS diagram and
+  indicator are stored as codes until the MTS catalog is fixed (#1048, #1056). No dimension tables:
+  every field belongs to exactly one visit.
+- **Identity:** internal `visit_uid` (UUID v7), unique `(hospital_id, key_generation,
+  visit_fingerprint)`. The row also stores the fingerprint anchor (`anchor_at`, `anchor_source`:
+  first assessment contact, else ED admission, minute precision as exchanged); the matching anchor of
+  ADR 029 (ED admission first) is derived from the timestamps and stored with the link (#1053).
+- **Invariants** checked by the entity and, where cheap, by check constraints: age 1–99, key
+  generation ≥ 1, a time anchor exists, care level only with `admitted` or `transferred_external`,
+  vitals need a reference when any value is set, `vitals_measured_at` only with
+  `admission_measurement`. Plausibility ranges of the file are checked by the import (#1048).
+- **Flags** `work_accident` and `tetanus_protected` are `false` when not documented; the export only
+  marks "yes", so `false` means unknown, not "no".
+- **Insert:** `EncounterRepository::insertIfNew()` runs `INSERT … ON CONFLICT (hospital_id,
+  key_generation, visit_fingerprint) DO NOTHING RETURNING id` and returns `Inserted` or `Duplicate`.
+  A second session inserting the same visit waits for the first and then inserts nothing, so parallel
+  imports cannot create a visit twice. A known visit is never updated. New visits are never persisted
+  through the EntityManager.
+- **Owning import:** `import_id` (`ON DELETE CASCADE`). Deleting an import and the cleanup before a
+  reprocess both go through `ImportRelatedDataCleanupService`, which calls `EncounterImportDataRemover`
+  ([extension point](../../02-architecture/extension-points.md#import-data-removers)); it deletes
+  exactly the visits the import created. Links and review decisions (#1053, #1054) must reference
+  `encounter` with `ON DELETE CASCADE` so they go with their visit.
+- **Key state:** `encounter_key_state`, one row per hospital: `key_generation` (starts at 1),
+  `active_check_value`, `retired_check_values`, `key_change_in_progress`. Only the model exists; the
+  import (#1048) registers and checks check values, the key change (#1050) moves the generation.
+- **Schemas:** `EncounterDimensionInterface` (tag `encounter.dimension`) with `EdVisitDimension` as
+  field contract of `ed_visit` v1
+  ([extension point](../../02-architecture/extension-points.md#encounter-schemas)).
+
+Example (tested in `EncounterImportLifecycleTest`): import A has visits on 1, 5, 10, 12 and 15 October,
+import B on 10, 12, 15, 20 and 31 October. B inserts the 20th and 31st and counts three duplicates.
+Deleting B leaves A's five visits; deleting A instead leaves only B's two, and B must be reprocessed
+to restore the 10th, 12th and 15th. Reprocessing B removes its two visits and creates them anew
+(new `visit_uid`); A's visits keep theirs.
+
 ## Population
 
 Self-presenters and EMS arrivals without IVENA link are part of the pilot population on purpose.

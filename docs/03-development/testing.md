@@ -75,6 +75,15 @@ Database tests make up most of the CI time. Keep them fast without weakening wha
 
 To find slow tests, run the suite and then `php bin/report-slowest-tests 25`, or read the JUnit file of a CI run. Profile a single test with `XDEBUG_MODE=profile` before changing it; the cause is not always the data setup.
 
+## Tests with two database sessions
+
+DAMA runs every test inside one uncommitted transaction, so a second connection sees none of its
+fixtures. A test that needs real concurrency (for example two imports inserting the same encounter)
+commits a minimal fixture through its own plain DBAL connection with raw SQL (no audit rows), removes
+it in `tearDown()`, and sends the competing statement asynchronously with the `pgsql` extension
+(`pg_send_query_params`), which CI installs. Example: `ConcurrentEncounterInsertTest`. Each ParaTest
+worker has its own database, so the committed rows never reach another worker.
+
 ## Time in code and tests
 
 Application code never reads the wall clock directly (ADR [021](../02-architecture/decisions/021-wall-clock-access.md)). Otherwise `mockTime()` cannot control it and tests depend on the real date.
