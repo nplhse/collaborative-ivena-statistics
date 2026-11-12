@@ -82,7 +82,8 @@ Implemented in #1047:
   `encounter` with `ON DELETE CASCADE` so they go with their visit.
 - **Key state:** `encounter_key_state`, one row per hospital: `key_generation` (starts at 1),
   `active_check_value`, `retired_check_values`, `key_change_in_progress`. The import registers and
-  checks check values ([Import](#import)); the key change (#1050) moves the generation.
+  checks check values ([Import](#import)); the [key change](#key-change) moves the generation. Changes
+  through the ORM (the key change) are audited; the import's registration of a check value is not.
 - **Schemas:** `EncounterDimensionInterface` (tag `encounter.dimension`) with `EdVisitDimension` as
   field contract of `ed_visit` v1
   ([extension point](../../02-architecture/extension-points.md#encounter-schemas)).
@@ -184,6 +185,50 @@ deletion.
 
 **Afterwards**: a successful run with new visits dispatches `EncountersImported` (hospital, import, anchor
 days of the inserted visits) for the matcher (#1053). Nothing consumes it yet.
+
+## Key change
+
+Implemented in #1050 (ADR 026). Page `/hospitals/{id}/edit/encounter-key` ("Change pseudonym key"), linked
+from the encounter section of the hospital edit pages for the hospital owner and administrators
+(`EncounterAttribute::CHANGE_KEY`, beta role required). Users with an encounter grant, also `UPLOAD`, get
+403.
+
+The page explains in a few sentences what the key file is for (recognising visits again without the
+server learning who the patient is), when to change it (only if the key file was lost or may have been
+seen by unauthorised people) and what follows: everyone needs the new key file, and visits uploaded so
+far can no longer be matched with new uploads. The person then chooses **delete** (shows how many
+encounters and imports go; afterwards any period can be uploaded again) or **keep** (only upload new
+periods afterwards, otherwise visits are counted twice, because the new key gives them other fingerprints
+and duplicate detection works only within one generation) and types the hospital name exactly in a red
+confirmation box. The button stays disabled until the name matches (`encounter-key-change` Stimulus
+controller; the server checks the name again). The button opens a confirmation modal (the shared `Modal`
+component, as for deleting an import) that names the consequence of the chosen option; its button submits
+the form. Links and review decisions are added to the counts
+with matching (#1053) and review (#1054).
+
+Flow (`EncounterKeyChanger`, one transaction holding the key state lock that the import commit takes):
+
+1. Refused when a key change of the hospital is already in progress.
+2. `key_change_in_progress` is set, `key_generation` incremented, the active check value moved to the
+   retired values (`active_check_value` becomes empty). The audit entry of `encounter_key_state` carries
+   the intent `encounter.key.changed` with `option`, `previous_generation` and `generation`.
+3. Imports uploaded with the old generation can no longer write: a queued run fails before it starts, a
+   running one in its commit, both with `key_generation_changed` and without data ([Import](#import)).
+   A file carrying a retired check value is rejected with `key_check_retired`.
+4. **keep**: the change ends in the same transaction. Existing visits keep their `visit_uid` and
+   generation; their links stay effective. Old imports stay listed; a reprocess fails with
+   `key_generation_changed` and keeps their visits.
+   **delete**: `DeleteEncounterDataAfterKeyChangeMessage` is queued in the same transaction (worker,
+   queue `low`). The worker deletes every encounter import of the hospital with an earlier generation
+   through `ImportDeletionService`: visits with links and review decisions, rejects, report, suspected
+   duplicates, source and reject files. An import that is still running is retried after a minute
+   (Messenger retry strategy of the transport, at most three times; then the message is in the failed
+   transport and the change stays in progress until it is retried). Afterwards it ends the change under
+   the audit intent `encounter.key.change_completed`. Uploads stay refused until then.
+5. The next upload registers the check value of the new generation.
+
+Administrators get `admin.encounter_key_changed` (hospital, username, new generation, option) once per
+hospital and generation ([notifications](../notification/README.md#notification-types)).
 
 ## Population
 

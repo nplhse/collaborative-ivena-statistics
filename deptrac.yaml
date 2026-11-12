@@ -658,7 +658,8 @@ deptrac:
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
-        # Encounter (ADR 025, 027) may use Allocation, Import, Shared and User; no context may use Encounter.
+        # Encounter (ADR 025, 027) may use Allocation, Import, Shared and User, its infrastructure also Notification
+        # (admin notification of a key change, ADR 026); no context may use Encounter.
         Encounter_Domain:
             - Allocation_Domain
             - Import_Domain
@@ -686,6 +687,8 @@ deptrac:
             - Encounter_Domain
             - Import_Application
             - Import_Domain
+            - Notification_Application
+            - Notification_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure

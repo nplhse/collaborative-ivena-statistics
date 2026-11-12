@@ -537,6 +537,18 @@
         <source>storage.email.category_value</source>
         <target>{category, select, database {Datenbank} imports {Importe} media {Medien} application {Anwendung} temporary {Temporäre Dateien} other {Sonstiges}}: {size}</target>
       </trans-unit>
+      <trans-unit id="Ntf90C992DA" resname="admin.encounter_key_changed.title">
+        <source>admin.encounter_key_changed.title</source>
+        <target>Pseudonymschlüssel gewechselt: {hospitalName}</target>
+      </trans-unit>
+      <trans-unit id="NtfBE78881E" resname="admin.encounter_key_changed.message">
+        <source>admin.encounter_key_changed.message</source>
+        <target>{username} hat den Pseudonymschlüssel der Behandlungsdaten von {hospitalName} gewechselt (Schlüsselgeneration {generation}). {option, select, delete {Die vorhandenen Behandlungsdaten werden gelöscht.} other {Die vorhandenen Behandlungsdaten wurden behalten.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf56F80BDB" resname="admin.encounter_key_changed.label">
+        <source>admin.encounter_key_changed.label</source>
+        <target>Wechsel des Pseudonymschlüssels (Behandlungsdaten)</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

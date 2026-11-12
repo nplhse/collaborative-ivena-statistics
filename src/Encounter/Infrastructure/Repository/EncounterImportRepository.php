@@ -40,4 +40,20 @@ final class EncounterImportRepository extends ServiceEntityRepository implements
     {
         return $this->findOneBy(['import' => $import]);
     }
+
+    /**
+     * Ids of the hospital's encounter imports uploaded with a key generation before the given one,
+     * ascending (key change with the option "delete", ADR 026).
+     *
+     * @return list<int>
+     */
+    public function importIdsBeforeGeneration(int $hospitalId, int $keyGeneration): array
+    {
+        $ids = $this->getEntityManager()->getConnection()->fetchFirstColumn(
+            'SELECT i.id FROM import i INNER JOIN encounter_import ei ON ei.import_id = i.id WHERE i.hospital_id = ? AND ei.key_generation < ? ORDER BY i.id',
+            [$hospitalId, $keyGeneration],
+        );
+
+        return array_map(intval(...), $ids);
+    }
 }
