@@ -1193,6 +1193,30 @@
         <source>catalog.department.aliases.hint</source>
         <target>Andere Schreibweisen aus Importen. Kein amtliches Verzeichnis.</target>
       </trans-unit>
+      <trans-unit id="myHospSumAllocDe" resname="my_hospitals.summary.allocations">
+        <source>my_hospitals.summary.allocations</source>
+        <target>Verfügbare Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="myHospSumPeriodDe" resname="my_hospitals.summary.data_period">
+        <source>my_hospitals.summary.data_period</source>
+        <target>Datenzeitraum</target>
+      </trans-unit>
+      <trans-unit id="myHospSumNoDataDe" resname="my_hospitals.summary.no_data">
+        <source>my_hospitals.summary.no_data</source>
+        <target>Noch keine Daten</target>
+      </trans-unit>
+      <trans-unit id="myHospSumLastUpDe" resname="my_hospitals.summary.last_upload">
+        <source>my_hospitals.summary.last_upload</source>
+        <target>Letzter Upload</target>
+      </trans-unit>
+      <trans-unit id="myHospSumNoUpDe" resname="my_hospitals.summary.no_upload">
+        <source>my_hospitals.summary.no_upload</source>
+        <target>Noch kein Upload</target>
+      </trans-unit>
+      <trans-unit id="myHospSumBasisDe" resname="my_hospitals.summary.basis">
+        <source>my_hospitals.summary.basis</source>
+        <target>Basis: {count} von {total} Kliniken</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

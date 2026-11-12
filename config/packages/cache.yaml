@@ -19,6 +19,8 @@ framework:
                 adapter: cache.app
             cache.statistics.closure_volume:
                 adapter: cache.app
+            cache.allocation.hospital_data_status:
+                adapter: cache.app
 
 when@test:
     framework:
@@ -29,4 +31,6 @@ when@test:
                 cache.allocation.reference_data:
                     adapter: cache.adapter.array
                 cache.statistics.closure_volume:
+                    adapter: cache.adapter.array
+                cache.allocation.hospital_data_status:
                     adapter: cache.adapter.array

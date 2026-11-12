@@ -24,6 +24,48 @@
 {% endblock %}
 
 {% block page_content %}
+        {% if overview %}
+            <div class="row row-cards mb-3" data-testid="my-hospitals-summary">
+                <div class="col-sm-6 col-lg-4">
+                    <div class="card card-sm h-100">
+                        <div class="card-body">
+                            <div class="subheader">{{ 'my_hospitals.summary.allocations'|trans({}, 'allocation') }}</div>
+                            <div class="h2 mb-0" data-testid="my-hospitals-summary-allocations">{{ overview.allocationCount|format_number }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-4">
+                    <div class="card card-sm h-100">
+                        <div class="card-body">
+                            <div class="subheader">{{ 'my_hospitals.summary.data_period'|trans({}, 'allocation') }}</div>
+                            <div class="h3 mb-0" data-testid="my-hospitals-summary-period">
+                                {% if overview.firstAllocationAt and overview.lastAllocationAt %}
+                                    {{ overview.firstAllocationAt|format_date('medium') }} – {{ overview.lastAllocationAt|format_date('medium') }}
+                                {% else %}
+                                    {{ 'my_hospitals.summary.no_data'|trans({}, 'allocation') }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% if overview.imports %}
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="card card-sm h-100">
+                            <div class="card-body">
+                                <div class="subheader">{{ 'my_hospitals.summary.last_upload'|trans({}, 'allocation') }}</div>
+                                <div class="h3 mb-0" data-testid="my-hospitals-summary-last-upload">
+                                    {{ overview.imports.lastUploadAt ? overview.imports.lastUploadAt|format_date('medium') : 'my_hospitals.summary.no_upload'|trans({}, 'allocation') }}
+                                </div>
+                                {% if overview.imports.hospitals < overview.hospitalCount %}
+                                    <div class="text-body-secondary small">{{ 'my_hospitals.summary.basis'|trans({count: overview.imports.hospitals, total: overview.hospitalCount}, 'allocation') }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
         <div class="card">
             <div class="table-responsive">
                 <table class="table table-vcenter card-table">

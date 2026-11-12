@@ -1193,6 +1193,30 @@
         <source>catalog.department.aliases.hint</source>
         <target>Other spellings from imports. Not an official directory.</target>
       </trans-unit>
+      <trans-unit id="myHospSumAllocEn" resname="my_hospitals.summary.allocations">
+        <source>my_hospitals.summary.allocations</source>
+        <target>Available allocations</target>
+      </trans-unit>
+      <trans-unit id="myHospSumPeriodEn" resname="my_hospitals.summary.data_period">
+        <source>my_hospitals.summary.data_period</source>
+        <target>Data period</target>
+      </trans-unit>
+      <trans-unit id="myHospSumNoDataEn" resname="my_hospitals.summary.no_data">
+        <source>my_hospitals.summary.no_data</source>
+        <target>No data yet</target>
+      </trans-unit>
+      <trans-unit id="myHospSumLastUpEn" resname="my_hospitals.summary.last_upload">
+        <source>my_hospitals.summary.last_upload</source>
+        <target>Latest upload</target>
+      </trans-unit>
+      <trans-unit id="myHospSumNoUpEn" resname="my_hospitals.summary.no_upload">
+        <source>my_hospitals.summary.no_upload</source>
+        <target>No upload yet</target>
+      </trans-unit>
+      <trans-unit id="myHospSumBasisEn" resname="my_hospitals.summary.basis">
+        <source>my_hospitals.summary.basis</source>
+        <target>Based on {count} of {total} hospitals</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
