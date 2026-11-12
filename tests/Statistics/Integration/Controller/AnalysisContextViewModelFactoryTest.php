@@ -8,6 +8,7 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\UI\Http\Controller\AnalysisContextPeriodMode;
+use App\Statistics\UI\Http\Controller\AnalysisContextScopeMode;
 use App\Statistics\UI\Http\Controller\AnalysisContextViewModelFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,6 +69,30 @@ final class AnalysisContextViewModelFactoryTest extends KernelTestCase
         self::assertTrue($model->hidePeriod);
         self::assertNotContains('period', $model->formQueryKeys);
         self::assertContains('scope', $model->formQueryKeys);
+    }
+
+    public function testAssignedHospitalModeOffersSingleHospitalsWithoutAggregate(): void
+    {
+        self::bootKernel();
+        $factory = self::getContainer()->get(AnalysisContextViewModelFactory::class);
+
+        $model = $factory->create(
+            new Request(query: ['scope' => 'hospital', 'hospital' => '7']),
+            'app_stats_reports',
+            null,
+            new StatisticsFilter(StatisticsFilterScope::Hospital, 7, null, StatisticsFilterPeriod::Last12Months),
+            'Klinikum B',
+            'Last 12 months',
+            scopeMode: AnalysisContextScopeMode::AssignedHospital,
+            assignedHospitals: [3 => 'Klinikum A', 7 => 'Klinikum B'],
+        );
+
+        self::assertSame(['hospital:3' => 'Klinikum A', 'hospital:7' => 'Klinikum B'], $model->hospitalChoices, 'No "my hospitals" entry: hospitals are never added up.');
+        self::assertSame(['hospital:7'], $model->selectedHospitalIds);
+        self::assertSame('Klinikum B', $model->locationLabel);
+        self::assertSame(['my_hospitals'], array_keys($model->scopeGroupChoices));
+        self::assertSame([], $model->stateChoices);
+        self::assertTrue($model->scopeMode->isAssigned());
     }
 
     public function testDefaultsToPublicScopeForAnonymousUsers(): void

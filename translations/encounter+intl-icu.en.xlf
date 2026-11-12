@@ -1209,6 +1209,306 @@
         <source>encounter.mts.diagram_name.wunden</source>
         <target>Wounds</target>
       </trans-unit>
+      <trans-unit id="Enc29E965B0" resname="encounter.course.title">
+        <source>encounter.course.title</source>
+        <target>Hospital course</target>
+      </trans-unit>
+      <trans-unit id="Enc7107F208" resname="encounter.course.beta">
+        <source>encounter.course.beta</source>
+        <target>Encounter data (beta)</target>
+      </trans-unit>
+      <trans-unit id="Enc1268E1C5" resname="encounter.course.no_link">
+        <source>encounter.course.no_link</source>
+        <target>No emergency department visit is linked to this allocation. Proposals appear in the match review; this card shows automatic and confirmed links only.</target>
+      </trans-unit>
+      <trans-unit id="Enc93337359" resname="encounter.course.origin.automatic">
+        <source>encounter.course.origin.automatic</source>
+        <target>Linked automatically</target>
+      </trans-unit>
+      <trans-unit id="EncE22EABE6" resname="encounter.course.origin.confirmed">
+        <source>encounter.course.origin.confirmed</source>
+        <target>Linked after confirmation</target>
+      </trans-unit>
+      <trans-unit id="Enc1B2AFB47" resname="encounter.course.origin.automatic_hint">
+        <source>encounter.course.origin.automatic_hint</source>
+        <target>The matcher linked this visit on its own because the agreement was high and no other allocation competed for it. Nobody has checked it.</target>
+      </trans-unit>
+      <trans-unit id="EncDC0F1599" resname="encounter.course.origin.confirmed_hint">
+        <source>encounter.course.origin.confirmed_hint</source>
+        <target>A person confirmed this link in the match review.</target>
+      </trans-unit>
+      <trans-unit id="EncA6B06A5A" resname="encounter.course.agreement">
+        <source>encounter.course.agreement</source>
+        <target>Agreement {percent} %</target>
+      </trans-unit>
+      <trans-unit id="Enc48A5BE10" resname="encounter.course.anchor.admission">
+        <source>encounter.course.anchor.admission</source>
+        <target>ED admission {minutes} min from IVENA arrival</target>
+      </trans-unit>
+      <trans-unit id="EncE4D1D672" resname="encounter.course.anchor.assessment">
+        <source>encounter.course.anchor.assessment</source>
+        <target>first assessment {minutes} min from IVENA arrival (no ED admission time)</target>
+      </trans-unit>
+      <trans-unit id="Enc12B23EF8" resname="encounter.course.section.triage">
+        <source>encounter.course.section.triage</source>
+        <target>Triage (MTS)</target>
+      </trans-unit>
+      <trans-unit id="EncA1A8940C" resname="encounter.course.section.process_times">
+        <source>encounter.course.section.process_times</source>
+        <target>Process times</target>
+      </trans-unit>
+      <trans-unit id="Enc065D9313" resname="encounter.course.section.disposition">
+        <source>encounter.course.section.disposition</source>
+        <target>Disposition</target>
+      </trans-unit>
+      <trans-unit id="Enc1D6E2AAE" resname="encounter.course.section.timeline">
+        <source>encounter.course.section.timeline</source>
+        <target>Timeline</target>
+      </trans-unit>
+      <trans-unit id="Enc2D17BDE9" resname="encounter.course.section.vitals">
+        <source>encounter.course.section.vitals</source>
+        <target>Initial vitals</target>
+      </trans-unit>
+      <trans-unit id="Enc867E0627" resname="encounter.course.field.category">
+        <source>encounter.course.field.category</source>
+        <target>MTS category</target>
+      </trans-unit>
+      <trans-unit id="Enc215F9C53" resname="encounter.course.field.diagram">
+        <source>encounter.course.field.diagram</source>
+        <target>Presentation (diagram)</target>
+      </trans-unit>
+      <trans-unit id="EncED972332" resname="encounter.course.field.indicator">
+        <source>encounter.course.field.indicator</source>
+        <target>Indicator</target>
+      </trans-unit>
+      <trans-unit id="EncAC40A3E9" resname="encounter.course.field.pain_score">
+        <source>encounter.course.field.pain_score</source>
+        <target>Pain score</target>
+      </trans-unit>
+      <trans-unit id="EncCDB6FD3B" resname="encounter.course.field.disposition">
+        <source>encounter.course.field.disposition</source>
+        <target>Disposition</target>
+      </trans-unit>
+      <trans-unit id="EncA11F154B" resname="encounter.course.field.care_level">
+        <source>encounter.course.field.care_level</source>
+        <target>Care level</target>
+      </trans-unit>
+      <trans-unit id="EncBC77FDBB" resname="encounter.course.field.department">
+        <source>encounter.course.field.department</source>
+        <target>Admitting department</target>
+      </trans-unit>
+      <trans-unit id="Enc51E05251" resname="encounter.course.implausible">
+        <source>encounter.course.implausible</source>
+        <target>excluded from statistics</target>
+      </trans-unit>
+      <trans-unit id="Enc70A4DF63" resname="encounter.course.relative">
+        <source>encounter.course.relative</source>
+        <target>{minutes} min</target>
+      </trans-unit>
+      <trans-unit id="EncEF0EF7D1" resname="encounter.course.timeline_day">
+        <source>encounter.course.timeline_day</source>
+        <target>Times on {day} or later, local time. Minutes are relative to the ED admission.</target>
+      </trans-unit>
+      <trans-unit id="EncE4F7F725" resname="encounter.course.event.ivena_arrival">
+        <source>encounter.course.event.ivena_arrival</source>
+        <target>IVENA arrival</target>
+      </trans-unit>
+      <trans-unit id="Enc762A4E2D" resname="encounter.course.event.ed_admission">
+        <source>encounter.course.event.ed_admission</source>
+        <target>ED admission</target>
+      </trans-unit>
+      <trans-unit id="EncF3715BDD" resname="encounter.course.event.first_assessment">
+        <source>encounter.course.event.first_assessment</source>
+        <target>First assessment (MTS)</target>
+      </trans-unit>
+      <trans-unit id="EncC470806A" resname="encounter.course.event.first_physician">
+        <source>encounter.course.event.first_physician</source>
+        <target>First physician contact</target>
+      </trans-unit>
+      <trans-unit id="EncD0A1FD86" resname="encounter.course.event.vitals_measured">
+        <source>encounter.course.event.vitals_measured</source>
+        <target>Vitals measured</target>
+      </trans-unit>
+      <trans-unit id="Enc30B1BF9B" resname="encounter.course.event.treatment_end">
+        <source>encounter.course.event.treatment_end</source>
+        <target>End of treatment</target>
+      </trans-unit>
+      <trans-unit id="EncF784C7BE" resname="encounter.course.event.ed_discharge">
+        <source>encounter.course.event.ed_discharge</source>
+        <target>ED discharge</target>
+      </trans-unit>
+      <trans-unit id="Enc3463537D" resname="encounter.course.vitals.none">
+        <source>encounter.course.vitals.none</source>
+        <target>No vitals documented.</target>
+      </trans-unit>
+      <trans-unit id="Enc5F0B474B" resname="encounter.course.vitals.admission_measurement">
+        <source>encounter.course.vitals.admission_measurement</source>
+        <target>Measured at admission at {time} (on the timeline).</target>
+      </trans-unit>
+      <trans-unit id="Enc9885D3E0" resname="encounter.course.vitals.admission_measurement_no_time">
+        <source>encounter.course.vitals.admission_measurement_no_time</source>
+        <target>Measured at admission, time not documented.</target>
+      </trans-unit>
+      <trans-unit id="Enc431A3149" resname="encounter.course.vitals.documented_initial">
+        <source>encounter.course.vitals.documented_initial</source>
+        <target>Documented first value</target>
+      </trans-unit>
+      <trans-unit id="Enc26F62FCD" resname="encounter.course.vitals.documented_initial_hint">
+        <source>encounter.course.vitals.documented_initial_hint</source>
+        <target>The first values in the record. When they were measured is not assured, so they are not placed on the timeline.</target>
+      </trans-unit>
+      <trans-unit id="Enc06800918" resname="encounter.course.vitals.blood_pressure">
+        <source>encounter.course.vitals.blood_pressure</source>
+        <target>Blood pressure</target>
+      </trans-unit>
+      <trans-unit id="Enc6B914F8F" resname="encounter.course.vitals.heart_rate">
+        <source>encounter.course.vitals.heart_rate</source>
+        <target>Heart rate</target>
+      </trans-unit>
+      <trans-unit id="Enc450E9EF2" resname="encounter.course.vitals.respiratory_rate">
+        <source>encounter.course.vitals.respiratory_rate</source>
+        <target>Respiratory rate</target>
+      </trans-unit>
+      <trans-unit id="Enc7A638564" resname="encounter.course.vitals.spo2">
+        <source>encounter.course.vitals.spo2</source>
+        <target>SpO₂</target>
+      </trans-unit>
+      <trans-unit id="Enc6F381C39" resname="encounter.course.vitals.temperature">
+        <source>encounter.course.vitals.temperature</source>
+        <target>Temperature</target>
+      </trans-unit>
+      <trans-unit id="Enc2A4893E9" resname="encounter.course.vitals.glucose">
+        <source>encounter.course.vitals.glucose</source>
+        <target>Blood glucose</target>
+      </trans-unit>
+      <trans-unit id="Enc742D5BE8" resname="encounter.course.vitals.gcs">
+        <source>encounter.course.vitals.gcs</source>
+        <target>GCS</target>
+      </trans-unit>
+      <trans-unit id="EncF7E28F8C" resname="encounter.process.admission_to_assessment.label">
+        <source>encounter.process.admission_to_assessment.label</source>
+        <target>Arrival → first assessment</target>
+      </trans-unit>
+      <trans-unit id="Enc06664B82" resname="encounter.process.admission_to_assessment.definition">
+        <source>encounter.process.admission_to_assessment.definition</source>
+        <target>From the ED admission to the first assessment contact (MTS triage).</target>
+      </trans-unit>
+      <trans-unit id="Enc7E9E65BB" resname="encounter.process.admission_to_physician.label">
+        <source>encounter.process.admission_to_physician.label</source>
+        <target>Arrival → first physician</target>
+      </trans-unit>
+      <trans-unit id="EncD943D6BD" resname="encounter.process.admission_to_physician.definition">
+        <source>encounter.process.admission_to_physician.definition</source>
+        <target>From the ED admission to the first physician contact.</target>
+      </trans-unit>
+      <trans-unit id="Enc1A70B6EE" resname="encounter.process.admission_to_discharge.label">
+        <source>encounter.process.admission_to_discharge.label</source>
+        <target>Arrival → ED discharge</target>
+      </trans-unit>
+      <trans-unit id="EncCA7DD19C" resname="encounter.process.admission_to_discharge.definition">
+        <source>encounter.process.admission_to_discharge.definition</source>
+        <target>From the ED admission until the patient leaves the emergency department (length of stay in the ED).</target>
+      </trans-unit>
+      <trans-unit id="Enc253C18A2" resname="encounter.unit.minutes">
+        <source>encounter.unit.minutes</source>
+        <target>{minutes} min</target>
+      </trans-unit>
+      <trans-unit id="Enc41B5CA8E" resname="encounter.unit.minutes_decimal">
+        <source>encounter.unit.minutes_decimal</source>
+        <target>{minutes, number} min</target>
+      </trans-unit>
+      <trans-unit id="Enc87FB2B2A" resname="encounter.disposition.home">
+        <source>encounter.disposition.home</source>
+        <target>Home</target>
+      </trans-unit>
+      <trans-unit id="Enc9BB24800" resname="encounter.disposition.to_physician">
+        <source>encounter.disposition.to_physician</source>
+        <target>To a practice physician</target>
+      </trans-unit>
+      <trans-unit id="Enc7A4937A3" resname="encounter.disposition.kv_practice">
+        <source>encounter.disposition.kv_practice</source>
+        <target>To the out-of-hours practice (KV)</target>
+      </trans-unit>
+      <trans-unit id="Enc12E67D13" resname="encounter.disposition.against_advice">
+        <source>encounter.disposition.against_advice</source>
+        <target>Left against medical advice</target>
+      </trans-unit>
+      <trans-unit id="EncB49EC0DE" resname="encounter.disposition.left_before_completion">
+        <source>encounter.disposition.left_before_completion</source>
+        <target>Left before treatment was completed</target>
+      </trans-unit>
+      <trans-unit id="Enc92DB4D6F" resname="encounter.disposition.admitted">
+        <source>encounter.disposition.admitted</source>
+        <target>Admitted to this hospital</target>
+      </trans-unit>
+      <trans-unit id="EncFCF5D83A" resname="encounter.disposition.transferred_external">
+        <source>encounter.disposition.transferred_external</source>
+        <target>Transferred to another hospital</target>
+      </trans-unit>
+      <trans-unit id="EncD2634BE4" resname="encounter.disposition.died">
+        <source>encounter.disposition.died</source>
+        <target>Died</target>
+      </trans-unit>
+      <trans-unit id="Enc9520A832" resname="encounter.disposition.other">
+        <source>encounter.disposition.other</source>
+        <target>Other</target>
+      </trans-unit>
+      <trans-unit id="EncFB34B718" resname="encounter.care_level.ward">
+        <source>encounter.care_level.ward</source>
+        <target>Normal ward</target>
+      </trans-unit>
+      <trans-unit id="Enc9AC59C2C" resname="encounter.care_level.monitoring">
+        <source>encounter.care_level.monitoring</source>
+        <target>Monitoring / intermediate care</target>
+      </trans-unit>
+      <trans-unit id="EncA5B1B3CA" resname="encounter.care_level.icu">
+        <source>encounter.care_level.icu</source>
+        <target>Intensive care</target>
+      </trans-unit>
+      <trans-unit id="Enc769BEDCE" resname="encounter.care_level.or">
+        <source>encounter.care_level.or</source>
+        <target>Operating room</target>
+      </trans-unit>
+      <trans-unit id="Enc066DED79" resname="encounter.care_level.unknown">
+        <source>encounter.care_level.unknown</source>
+        <target>Unknown ward</target>
+      </trans-unit>
+      <trans-unit id="EncBAFA6A76" resname="encounter.arrival_route.ems">
+        <source>encounter.arrival_route.ems</source>
+        <target>EMS</target>
+      </trans-unit>
+      <trans-unit id="Enc6183CEF7" resname="encounter.arrival_route.self">
+        <source>encounter.arrival_route.self</source>
+        <target>Self-presenter</target>
+      </trans-unit>
+      <trans-unit id="EncC32149A8" resname="encounter.arrival_route.unknown">
+        <source>encounter.arrival_route.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="Enc1746C732" resname="encounter.link.automatic">
+        <source>encounter.link.automatic</source>
+        <target>Linked automatically</target>
+      </trans-unit>
+      <trans-unit id="Enc6D60A546" resname="encounter.link.confirmed">
+        <source>encounter.link.confirmed</source>
+        <target>Linked after confirmation</target>
+      </trans-unit>
+      <trans-unit id="EncBAC588C0" resname="encounter.link.linked">
+        <source>encounter.link.linked</source>
+        <target>Linked in total</target>
+      </trans-unit>
+      <trans-unit id="EncB1EA3B71" resname="encounter.link.not_linked">
+        <source>encounter.link.not_linked</source>
+        <target>Not linked</target>
+      </trans-unit>
+      <trans-unit id="Enc23316E5C" resname="encounter.overview_page.index_title">
+        <source>encounter.overview_page.index_title</source>
+        <target>Encounter data overview</target>
+      </trans-unit>
+      <trans-unit id="EncA92DB0C1" resname="encounter.overview_page.index_none">
+        <source>encounter.overview_page.index_none</source>
+        <target>You may not see aggregates of any hospital. This needs an encounter grant and the hospital permission "Statistics".</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

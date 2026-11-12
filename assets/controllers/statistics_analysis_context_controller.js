@@ -136,7 +136,7 @@ export default class extends Controller {
     }
 
     resetToDefault() {
-        if ('assigned_hospitals' === this.scopeModeValue) {
+        if (this.isAssignedMode()) {
             this.resetAssignedHospitals();
             if (this.hasPeriodSelectTarget) {
                 this.periodSelectTarget.value = this.defaultPeriodValue;
@@ -182,7 +182,7 @@ export default class extends Controller {
     }
 
     prepareSubmit() {
-        if ('assigned_hospitals' === this.scopeModeValue) {
+        if (this.isAssignedMode()) {
             this.prepareAssignedHospitalSubmit();
             this.syncDisabledFields();
 
@@ -199,7 +199,24 @@ export default class extends Controller {
         }
     }
 
+    isAssignedMode() {
+        return ['assigned_hospitals', 'assigned_hospital'].includes(this.scopeModeValue);
+    }
+
     resetAssignedHospitals() {
+        if ('assigned_hospital' === this.scopeModeValue) {
+            // One hospital at a time: reset to the first one, there is no aggregate.
+            const first = this.hasAssignedHospitalsTarget
+                ? this.assignedHospitalsTarget.options[0]?.value
+                : undefined;
+            if (undefined !== first) {
+                this.assignedHospitalsTarget.value = first;
+                this.applyAssignedHospitalValue(first);
+            }
+
+            return;
+        }
+
         if (this.hasAssignedHospitalsTarget) {
             this.assignedHospitalsTarget.value = 'my_hospitals';
         }

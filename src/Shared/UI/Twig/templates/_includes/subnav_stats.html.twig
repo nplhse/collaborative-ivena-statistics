@@ -51,6 +51,16 @@
                             </span>
                         </a>
                     </li>
+                    {% if is_granted('ROLE_ENCOUNTER_BETA') %}
+                        <li class="nav-item {{ route starts with 'app_stats_encounter_analytics' ? 'active' : '' }}">
+                            <a class="nav-link" href="{{ path('app_stats_encounter_analytics') }}" data-testid="stats-subnav-encounter-analytics">
+                                <span class="nav-link-title">
+                                    <twig:ux:icon name="tabler:stethoscope" style="height: 1.2em;" />
+                                    {{ 'link.stats.encounter_analytics'|trans({}, 'shared') }}
+                                </span>
+                            </a>
+                        </li>
+                    {% endif %}
                     {% if is_granted('ROLE_CLOSURE_BETA') %}
                         <li class="nav-item {{ route starts with 'app_stats_closure_analytics' ? 'active' : '' }}">
                             <a class="nav-link" href="{{ path('app_stats_closure_analytics') }}">

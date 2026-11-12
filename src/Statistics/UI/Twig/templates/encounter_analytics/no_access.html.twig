@@ -1,0 +1,29 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{# Beta user without VIEW_AGGREGATES on any hospital (#1055). #}
+{% block title %}{{ 'stats.encounter.heading'|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}{{ include('@Shared/_includes/subnav_stats.html.twig') }}{% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
+            { label: 'stats.encounter.heading', label_domain: 'statistics' }
+        ]" />
+        <div class="page-header d-print-none">
+            <div class="page-pretitle">{{ 'stats.encounter.pretitle'|trans({}, 'statistics') }}</div>
+            <h2 class="page-title mb-0">{{ 'stats.encounter.heading'|trans({}, 'statistics') }}</h2>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div data-testid="encounter-overview-no-access">
+        <twig:EmptyState title="{{ 'stats.encounter.no_access'|trans({}, 'statistics') }}" icon="tabler:building-hospital" />
+    </div>
+{% endblock %}

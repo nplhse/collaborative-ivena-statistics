@@ -16,6 +16,7 @@
 | CaseFlow | `/statistics/case-flow` | Regional flow metrics and maps |
 | ClosedDepartmentAssignments | `/statistics/closed-department-assignments` | Notzuweisungen / forced assignments (one lazy rankings frame for the six cards; KPI + grouping-sets slice on first paint) |
 | ClosureAnalytics | `/statistics/closure-analytics` | Hospital-local source groups, clusters and single intervals, speciality volume series, estimated observation coverage, overlap-aware actual closure time, timeline drilldown, and weekday/time heatmap |
+| Encounter analytics (beta) | `/statistics/encounter-analytics` | Descriptive encounter data of one hospital (ED visits, IVENA link, MTS triage, process times, disposition); figures from the Encounter context, see [encounter README](../encounter/README.md#hospital-overview) |
 | HospitalPopulation | `/statistics/hospital-population/{section}` | Hospital population: Participation, Coverage, Beds, Allocations |
 | Isochrone origin heatmap | Overview / Insights / closed-department analysis (hospital scope) | Lazy travel-time isochrone map |
 

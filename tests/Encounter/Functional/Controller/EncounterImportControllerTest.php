@@ -153,16 +153,18 @@ final class EncounterImportControllerTest extends WebTestCase
 
     public function testDetailPageShowsCodesButNoCellValuesAndIsHiddenFromUsersWithoutGrant(): void
     {
+        // The rejected cell value is a 5-digit sentinel (range 20–300) that does not occur on the page by
+        // chance; a short value such as 377 also matched a random CSRF token in CI.
         $importId = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()
             ->visit('a', '2026-10-01T08:15')
-            ->visit('b', '2026-10-01T09:15', overrides: ['heart_rate' => '377'])
+            ->visit('b', '2026-10-01T09:15', overrides: ['heart_rate' => '98765'])
             ->build(), 'with reject');
 
         $this->client->loginUser($this->uploader);
         $this->client->request(Request::METHOD_GET, '/import/'.$importId);
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-test="reject-row"]', 'heart_rate: out_of_range');
-        self::assertStringNotContainsString('377', (string) $this->client->getResponse()->getContent());
+        self::assertStringNotContainsString('98765', (string) $this->client->getResponse()->getContent());
 
         // The hospital owner has hospital access but no encounter grant (ADR 027).
         $this->client->loginUser($this->owner());

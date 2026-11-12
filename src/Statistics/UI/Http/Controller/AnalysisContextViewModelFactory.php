@@ -30,6 +30,9 @@ final readonly class AnalysisContextViewModelFactory
     ) {
     }
 
+    /**
+     * @param array<int, string> $assignedHospitals hospital id => name; only read with AnalysisContextScopeMode::AssignedHospital
+     */
     public function create(
         Request $request,
         string $routeName,
@@ -40,6 +43,7 @@ final readonly class AnalysisContextViewModelFactory
         AnalysisContextPeriodMode $periodMode = AnalysisContextPeriodMode::Full,
         ?OverviewPeriodViewModel $monthPeriodViewModel = null,
         AnalysisContextScopeMode $scopeMode = AnalysisContextScopeMode::Standard,
+        array $assignedHospitals = [],
     ): AnalysisContextViewModel {
         $locale = $request->getLocale();
         $now = $this->clock->now();
@@ -96,6 +100,21 @@ final readonly class AnalysisContextViewModelFactory
         $scopeGroupChoices = $this->choiceProvider->scopePrimaryChoices($user, $locale);
         $defaultScopeGroup = $this->defaultScopeGroup($user);
         $selectedHospitalIds = [];
+        if (AnalysisContextScopeMode::AssignedHospital === $scopeMode) {
+            $scopeGroupChoices = [
+                'my_hospitals' => $this->translator->trans('stats.filter.hospital_label', [], 'statistics', $locale),
+            ];
+            $stateChoices = [];
+            $dispatchAreaChoices = [];
+            $cohortChoices = [];
+            $hospitalChoices = [];
+            foreach ($assignedHospitals as $id => $name) {
+                $hospitalChoices['hospital:'.$id] = $name;
+            }
+            $defaultScopeGroup = 'my_hospitals';
+            $selectedKey = 'hospital:'.($filter->hospitalId ?? 0);
+            $selectedHospitalIds = isset($hospitalChoices[$selectedKey]) ? [$selectedKey] : [];
+        }
         if (AnalysisContextScopeMode::AssignedHospitals === $scopeMode) {
             $scopeGroupChoices = [
                 'my_hospitals' => $scopeGroupChoices['my_hospitals']
@@ -139,6 +158,9 @@ final readonly class AnalysisContextViewModelFactory
             $cohortChoices,
             $hospitalChoices,
         );
+        if (AnalysisContextScopeMode::AssignedHospital === $scopeMode && [] !== $selectedHospitalIds) {
+            $locationLabel = $hospitalChoices[$selectedHospitalIds[0]];
+        }
         if (AnalysisContextScopeMode::AssignedHospitals === $scopeMode
             && ['my_hospitals'] === $selectedHospitalIds
             && isset($hospitalChoices['my_hospitals'])

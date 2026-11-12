@@ -34,7 +34,7 @@ Aligned with ADR 007–009:
 - **Shared:** may depend on Shared layers and `User` only (ADR 008 exception); must not depend on feature contexts such as Feedback, Content, or Allocation
 - **Admin:** may depend on all production context layers (CRUD back office)
 - **No production context → Admin UI** (e.g. no imports of `Admin\UI\…Controller` for URL generation)
-- **Documented partnerships:** Import/Allocation/Statistics/Engagement edges as defined in ADR 007
+- **Documented partnerships:** Import/Allocation/Statistics/Engagement edges as defined in ADR 007; `Statistics_UI` → `Encounter_Application` for the encounter analytics page (#1055, see [bounded-contexts.md](bounded-contexts.md))
 
 Pragmatic gaps (Doctrine `repositoryClass` on entities, Application → Infrastructure queries, UI → Infrastructure forms) are recorded in the baseline until refactors remove them.
 
