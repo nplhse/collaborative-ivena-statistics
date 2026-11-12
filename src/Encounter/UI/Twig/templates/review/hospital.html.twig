@@ -1,8 +1,8 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% set query = period.query()|merge({filter: filter.value}) %}
-
 {% block title %}{{ 'encounter.review.title'|trans({}, 'encounter') }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
+
+{% block turbo_drive %}data-turbo=true{% endblock %}
 
 {% block page_header %}
     <twig:PageHeader :title="'encounter.review.title'|trans({}, 'encounter')" :pretitle="hospital.name">
@@ -13,144 +13,73 @@
                 { label: hospital.name, translatable: false }
             ]" />
         </twig:block>
+        <twig:block name="context">
+            {{ include('@Encounter/review/_period_context.html.twig') }}
+            {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
+        </twig:block>
+        <twig:block name="actions">
+            <a class="btn" href="{{ path('app_encounter_review_overview', {id: hospital.id}|merge(context.period.query())) }}" data-test="encounter-review-overview-link">
+                <twig:ux:icon name="tabler:chart-bar" class="w-3 h-3 me-1" /> {{ 'encounter.review.overview.link'|trans({}, 'encounter') }}
+            </a>
+            {% if context.filter.isNavigable() %}
+                <a class="btn btn-primary" href="{{ path('app_encounter_review_start', {id: hospital.id}|merge(context.query())) }}" data-test="encounter-review-start">
+                    {{ 'encounter.review.action.start'|trans({}, 'encounter') }} <twig:ux:icon name="tabler:arrow-right" class="w-3 h-3 ms-1" />
+                </a>
+            {% endif %}
+            <twig:FilterDrawerTrigger
+                drawerId="encounter-review-filters"
+                :activeCount="context.route ? 1 : 0"
+                openTestId="encounter-review-filters-toggle"
+            />
+        </twig:block>
     </twig:PageHeader>
 {% endblock %}
 
 {% block page_content %}
-    {% import '@Encounter/review/_macros.html.twig' as review %}
-    <form method="get" class="card mb-3" data-test="encounter-review-period">
-        <div class="card-body d-flex flex-wrap align-items-end gap-2">
-            <input type="hidden" name="filter" value="{{ filter.value }}">
-            <div>
-                <label class="form-label" for="review-from">{{ 'encounter.review.period.from'|trans({}, 'encounter') }}</label>
-                <input class="form-control" type="date" id="review-from" name="from" value="{{ period.from|date('Y-m-d') }}">
-            </div>
-            <div>
-                <label class="form-label" for="review-to">{{ 'encounter.review.period.to'|trans({}, 'encounter') }}</label>
-                <input class="form-control" type="date" id="review-to" name="to" value="{{ period.to|date('Y-m-d') }}">
-            </div>
-            <button type="submit" class="btn btn-outline-primary">{{ 'encounter.review.period.apply'|trans({}, 'encounter') }}</button>
-            <small class="text-secondary w-100">{{ 'encounter.review.period.help'|trans({days: constant('App\\Encounter\\Application\\Review\\ReviewPeriod::MAX_DAYS')}, 'encounter') }}</small>
-        </div>
-    </form>
-
-    <twig:Alert type="info" :message="'encounter.review.agreement_note'|trans({}, 'encounter')" data-test="encounter-review-agreement-note" />
-
-    <div class="row row-cards mb-3">
-        <div class="col-lg-6">
-            <div class="card h-100" data-test="encounter-review-summary-allocations">
-                <div class="card-header">
-                    <h3 class="card-title">{{ 'encounter.review.summary.allocations'|trans({count: summary.allocations}, 'encounter') }}</h3>
-                </div>
-                <table class="table card-table table-vcenter">
-                    <tbody>
-                        {% for key in ['automatic', 'confirmed', 'proposed', 'conflicts', 'no_proposal'] %}
-                            <tr data-test="summary-{{ key }}">
-                                <td{% if key == 'conflicts' %} class="ps-4 text-secondary"{% endif %}>{{ ('encounter.review.summary.' ~ key)|trans({}, 'encounter') }}</td>
-                                <td class="text-end">{{ summary[key]|format_number }}</td>
-                                <td class="text-end text-secondary w-1">{{ review.percent(summary[key], summary.allocations) }}</td>
-                            </tr>
-                        {% endfor %}
-                        <tr data-test="summary-rejected">
-                            <td class="text-secondary">{{ 'encounter.review.summary.rejected'|trans({}, 'encounter') }}</td>
-                            <td class="text-end">{{ summary.rejected|format_number }}</td>
-                            <td></td>
-                        </tr>
-                        <tr data-test="summary-swaps">
-                            <td class="text-secondary">{{ 'encounter.review.summary.swaps'|trans({}, 'encounter') }}</td>
-                            <td class="text-end">{{ swap_count|format_number }}</td>
-                            <td></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="card-footer text-secondary small">{{ 'encounter.review.summary.allocations_help'|trans({}, 'encounter') }}</div>
-            </div>
-        </div>
-        <div class="col-lg-6">
-            <div class="card h-100" data-test="encounter-review-summary-visits">
-                <div class="card-header">
-                    <h3 class="card-title">{{ 'encounter.review.summary.visits'|trans({count: summary.visits_total}, 'encounter') }}</h3>
-                </div>
-                <table class="table card-table table-vcenter">
-                    <thead>
-                        <tr>
-                            <th>{{ 'encounter.review.column.route'|trans({}, 'encounter') }}</th>
-                            <th class="text-end">{{ 'encounter.review.summary.total'|trans({}, 'encounter') }}</th>
-                            <th class="text-end">{{ 'encounter.review.summary.linked'|trans({}, 'encounter') }}</th>
-                            <th class="text-end">{{ 'encounter.review.summary.unlinked'|trans({}, 'encounter') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for route_value, counts in summary.visits %}
-                            <tr data-test="summary-visits-{{ route_value }}">
-                                <td>{{ ('encounter.review.value.route_' ~ route_value)|trans({}, 'encounter') }}</td>
-                                <td class="text-end">{{ counts.total|format_number }}</td>
-                                <td class="text-end">{{ counts.linked|format_number }} <span class="text-secondary">{{ review.percent(counts.linked, counts.total) }}</span></td>
-                                <td class="text-end">
-                                    <a href="{{ path('app_encounter_review_hospital', {id: hospital.id}|merge(period.query())|merge({filter: 'unlinked_visits', route: route_value})) }}">{{ counts.unlinked|format_number }}</a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <div class="card-footer text-secondary small">{{ 'encounter.review.summary.visits_help'|trans({}, 'encounter') }}</div>
-            </div>
-        </div>
-    </div>
-
-    <ul class="nav nav-pills flex-wrap gap-1 mb-3" data-test="encounter-review-filters">
-        {% for option in filters %}
-            <li class="nav-item">
-                <a class="nav-link{{ option == filter ? ' active' }}" {% if option == filter %}aria-current="page"{% endif %}
-                   href="{{ path('app_encounter_review_hospital', {id: hospital.id}|merge(period.query())|merge({filter: option.value})) }}">{{ option.labelKey()|trans({}, 'encounter') }}</a>
-            </li>
-        {% endfor %}
-    </ul>
-
-    {% if filter.value == 'unlinked_visits' %}
-        <div class="btn-group mb-3 flex-wrap" role="group" data-test="encounter-review-routes">
-            <a class="btn btn-sm {{ route is null ? 'btn-primary' : 'btn-outline-primary' }}" href="{{ path('app_encounter_review_hospital', {id: hospital.id}|merge(query)) }}">{{ 'encounter.review.route_all'|trans({}, 'encounter') }}</a>
-            {% for option in routes %}
-                <a class="btn btn-sm {{ route == option ? 'btn-primary' : 'btn-outline-primary' }}" href="{{ path('app_encounter_review_hospital', {id: hospital.id}|merge(query)|merge({route: option.value})) }}">{{ ('encounter.review.value.route_' ~ option.value)|trans({}, 'encounter') }}</a>
-            {% endfor %}
-        </div>
-    {% endif %}
-
     {% set cell = '@Encounter/review/_cell.html.twig' %}
+    {% set action = {key: 'action', type: 'custom', label: '', align: 'end', cellTemplate: cell, mobileAction: true, mobileMenuTemplate: '@Encounter/review/_menu_action.html.twig'} %}
     {% set columns = {
         no_proposal: [
-            {key: 'allocation', type: 'custom', label: 'encounter.review.column.allocation', labelDomain: 'encounter', cellTemplate: cell},
+            {key: 'allocation', type: 'custom', label: 'encounter.review.column.arrival', labelDomain: 'encounter', cellTemplate: cell},
+            {key: 'allocation_details', type: 'custom', label: 'encounter.review.column.allocation', labelDomain: 'encounter', cellTemplate: cell},
+            action,
         ],
         unlinked_visits: [
             {key: 'anchor', type: 'custom', label: 'encounter.review.column.anchor', labelDomain: 'encounter', cellTemplate: cell},
             {key: 'visit', type: 'custom', label: 'encounter.review.column.visit', labelDomain: 'encounter', cellTemplate: cell},
             {key: 'route', type: 'custom', label: 'encounter.review.column.route', labelDomain: 'encounter', cellTemplate: cell},
-            {key: 'proposal', type: 'custom', label: 'encounter.review.column.proposal', labelDomain: 'encounter', cellTemplate: cell},
+            action,
         ],
         swaps: [
             {key: 'swap', type: 'custom', label: 'encounter.review.column.swap', labelDomain: 'encounter', cellTemplate: cell},
+            action,
         ],
-    }[filter.value] ?? [
-        {key: 'arrival', type: 'custom', label: 'encounter.review.column.arrival', labelDomain: 'encounter', cellTemplate: cell},
+    }[context.filter.value] ?? [
+        {key: 'arrival', type: 'custom', label: 'encounter.review.column.arrival', labelDomain: 'encounter', cellTemplate: cell, sortable: true, sortKey: 'arrival'},
         {key: 'anchor', type: 'custom', label: 'encounter.review.column.anchor', labelDomain: 'encounter', cellTemplate: cell},
-        {key: 'difference', type: 'custom', label: 'encounter.review.column.difference', labelDomain: 'encounter', cellTemplate: cell},
-        {key: 'agreement', type: 'custom', label: 'encounter.review.column.agreement', labelDomain: 'encounter', cellTemplate: cell},
+        {key: 'difference', type: 'custom', label: 'encounter.review.column.difference', labelDomain: 'encounter', cellTemplate: cell, sortable: true, sortKey: 'difference'},
+        {key: 'agreement', type: 'custom', label: 'encounter.review.column.agreement', labelDomain: 'encounter', cellTemplate: cell, sortable: true, sortKey: 'agreement'},
         {key: 'patient', type: 'custom', label: 'encounter.review.column.patient', labelDomain: 'encounter', cellTemplate: cell},
         {key: 'status', type: 'custom', label: 'encounter.review.column.status', labelDomain: 'encounter', cellTemplate: cell},
+        action,
     ] %}
 
     <div data-test="encounter-review-list">
         <twig:DataTable
-            :title="filter.labelKey()|trans({}, 'encounter')"
-            :paginator="items"
-            paginationRoute="app_encounter_review_hospital"
-            :columns="columns"
-            :cellContext="{hospital_id: hospital.id, query: query}"
             mobileLayout="cards"
             :mobilePrimaryColumn="columns[0].key"
-            mobileBreakpoint="md"
+            mobileBreakpoint="lg"
+            :paginator="paginator"
+            paginationRoute="app_encounter_review_hospital"
+            :sortBy="context.filter.listsPairs() ? context.sortBy : null"
+            :orderBy="context.filter.listsPairs() ? context.orderBy : null"
+            :tabs="tabs"
+            :columns="columns"
+            :cellContext="{hospital_id: hospital.id, query: context.query()}"
             emptyTitle="{{ 'encounter.review.empty'|trans({}, 'encounter') }}"
-            emptyIcon="tabler:link"
+            emptyIcon="tabler:checks"
         />
     </div>
+
+    {{ include('@Encounter/review/_period_drawer.html.twig', {route_name: 'app_encounter_review_hospital'}) }}
 {% endblock %}

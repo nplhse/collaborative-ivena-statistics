@@ -410,6 +410,19 @@ of another hospital under one's own hospital 404.
 visit. Allocations count by expected IVENA arrival, visits by matching anchor (ED admission, else first
 assessment contact), both on the stored local wall clock.
 
+**Layout** follows the indication review ([indication-normalization.md](../allocation/indication-normalization.md#review-worklist)):
+
+- **Worklist** `/encounter/review/{hospital}`: one DataTable with a tab per segment and its row count, the period
+  (and for unlinked visits the arrival route) in a filter drawer, sortable by arrival, agreement and time
+  difference in the pair segments, a "Review" action per row and mobile cards. "Start review" opens the
+  first allocation of the segment.
+- **Allocation page**: context on the left, the decision on the right, actions at the bottom (see below).
+  "Leave open" skips to the next allocation; confirm, change, reject and swaps continue with the next one
+  too (`MatchReviewNavigator`, same order as the list); at the end of the segment the list opens again.
+  Segment, period, route and sort order travel in the query string (`ReviewContext`).
+- **Overview** `/encounter/review/{hospital}/overview`: the counts with denominators below, each linked to its
+  segment.
+
 **Overview with denominators** (`MatchReviewQuery::summary()`):
 
 | Count | Population and rule |
@@ -426,29 +439,34 @@ assessment contact), both on the stored local wall clock.
 A proposal is in **open conflict** while it carries `conflict` and another allocation's conflict proposal
 for the same visit is still open; once one side is decided, the rest counts as an ordinary proposal.
 
-**Lists** (filter `filter`): proposals, conflicts, automatic, confirmed, rejected (pairs, by IVENA
-arrival), allocations without proposal, unlinked visits (optionally `route=ems|self|unknown`, with the
-allocation of the visit's best open proposal) and swap proposals. DataTable with mobile cards.
+**Segments** (`segment`): proposals, conflicts, automatic, confirmed, rejected (pairs), allocations without
+proposal, unlinked visits (optionally `route=ems|self|unknown`, with the allocation of the visit's best open
+proposal) and swap proposals. Every segment but the unlinked visits can be walked through allocation by
+allocation.
 
-**Allocation page** (`/encounter/review/{hospital}/allocations/{allocation}`): expected IVENA arrival,
-sex, age, physician, work accident; the current link with its origin (automatic: score and pass); every
+**Allocation page** (`/encounter/review/{hospital}/allocations/{allocation}`). The context card shows the
+expected IVENA arrival, sex, age, physician, work accident, the current link with its origin (automatic:
+score and pass) and the swap proposal. The decision card lists every
 candidate visit of the **review window** (`MatchingSettings::reviewWindow()`: widest bounds of all passes,
 every arrival route, −30 … +90 min, age ±5 by default) with ED admission or the marked substitute (first
 assessment contact), time difference, agreement among all candidates of that window and the stored score
-of the pass that found the pair, and per feature both compared values and the contribution (for, against,
-neutral or missing). It also shows the visit's link to another allocation, other allocations proposed for
+of the pass that found the pair, as a choice; the chosen candidate's comparison shows per feature both
+compared values and the contribution (for, against, neutral or missing). The linked visit is chosen first,
+else the open proposal with the highest stored score. The Stimulus controller `encounter-match-review`
+switches the comparison and enables only the decisions that apply to the chosen visit; the server checks
+again. It also shows the visit's link to another allocation, other allocations proposed for
 the same visit, and the allocation's swap proposal. The score is labelled "agreement" ("Übereinstimmung")
 and explained as a ranking, not a probability (ADR 029).
 
-**Decisions** (`MatchDecider`, one transaction under the matcher's per-hospital lock, CSRF token per
-hospital):
+**Decisions** (form `MatchReviewDecisionType` on the allocation page; `MatchDecider`, one transaction under
+the matcher's per-hospital lock):
 
 | Action | Effect |
 |---|---|
 | Confirm | the pair becomes `confirmed` (created from its review-window scoring if the matcher had not stored it; `pass` empty) |
 | Change | confirming another candidate while the allocation is linked: the old pair becomes `rejected`, the new one `confirmed` |
-| Reject | a stored pair (proposal, automatic or confirmed link) becomes `rejected`; it is never proposed again |
-| Leave open | writes nothing (back to the list) |
+| Reject | a stored pair (proposal, automatic or confirmed link) becomes `rejected`; it is never proposed again; a candidate without stored pair cannot be rejected |
+| Leave open | writes nothing; continues with the next allocation of the segment |
 
 A visit linked to another allocation cannot be confirmed (one-to-one); the page says so and points to
 swaps. After a link is made, open proposals touching either side are removed, as at the end of a run,

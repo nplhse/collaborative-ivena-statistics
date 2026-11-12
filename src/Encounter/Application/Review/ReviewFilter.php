@@ -38,6 +38,23 @@ enum ReviewFilter: string
         };
     }
 
+    /**
+     * Segments whose items are allocations, so "start" and "skip" can walk through them. Unlinked visits
+     * have no allocation of their own.
+     */
+    public function isNavigable(): bool
+    {
+        return self::UnlinkedVisits !== $this;
+    }
+
+    /**
+     * Segments that list pairs and can be sorted by agreement and time difference as well.
+     */
+    public function listsPairs(): bool
+    {
+        return $this->status() instanceof MatchStatus;
+    }
+
     /** @psalm-suppress PossiblyUnusedMethod Used by the review templates. */
     public function labelKey(): string
     {

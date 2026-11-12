@@ -1,4 +1,4 @@
-{# A swap proposal; with `form` the apply button (needs allocation CSRF token and the period). #}
+{# A swap proposal; with `form` the apply button, bound to a form element rendered outside the decision form (forms cannot nest). #}
 <div data-test="encounter-review-swap">
     <div class="fw-medium">{{ ('encounter.review.swap.kind.' ~ swap.kind)|trans({}, 'encounter') }}</div>
     <ul class="list-unstyled mb-2 small">
@@ -15,11 +15,10 @@
         <li class="text-secondary">{{ 'encounter.review.swap.gain'|trans({links: swap.linkGain(), points: swap.pointsGain()}, 'encounter') }}</li>
     </ul>
     {% if form %}
-        <form method="post" action="{{ path('app_encounter_review_swap', {id: hospital_id, allocationId: swap.allocationId}) }}">
-            <input type="hidden" name="_token" value="{{ csrf_token('encounter_review_' ~ hospital_id) }}">
-            <input type="hidden" name="swap" value="{{ swap.key() }}">
-            {% for name, value in query %}<input type="hidden" name="{{ name }}" value="{{ value }}">{% endfor %}
-            <button type="submit" class="btn btn-sm btn-primary" data-test="encounter-review-apply-swap">{{ 'encounter.review.swap.apply'|trans({}, 'encounter') }}</button>
-        </form>
+        <input type="hidden" name="_token" value="{{ csrf_token('encounter_review_swap') }}" form="{{ form_id }}">
+        <input type="hidden" name="swap" value="{{ swap.key() }}" form="{{ form_id }}">
+        <button type="submit" class="btn btn-sm btn-primary" form="{{ form_id }}" data-test="encounter-review-apply-swap">
+            <twig:ux:icon name="tabler:arrows-exchange" class="w-3 h-3 me-1" /> {{ 'encounter.review.swap.apply'|trans({}, 'encounter') }}
+        </button>
     {% endif %}
 </div>

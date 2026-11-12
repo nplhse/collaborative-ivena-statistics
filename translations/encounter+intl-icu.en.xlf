@@ -915,7 +915,7 @@
       </trans-unit>
       <trans-unit id="Enc43624B40" resname="encounter.review.allocation_title">
         <source>encounter.review.allocation_title</source>
-        <target>Review allocation</target>
+        <target>Review allocation {arrival}</target>
       </trans-unit>
       <trans-unit id="Enc77699171" resname="encounter.review.agreement_note">
         <source>encounter.review.agreement_note</source>
@@ -928,10 +928,6 @@
       <trans-unit id="EncD62A9027" resname="encounter.review.period.to">
         <source>encounter.review.period.to</source>
         <target>To</target>
-      </trans-unit>
-      <trans-unit id="Enc63CC9540" resname="encounter.review.period.apply">
-        <source>encounter.review.period.apply</source>
-        <target>Show</target>
       </trans-unit>
       <trans-unit id="Enc7386F9C1" resname="encounter.review.period.help">
         <source>encounter.review.period.help</source>
@@ -1069,10 +1065,6 @@
         <source>encounter.review.column.route</source>
         <target>Arrival route</target>
       </trans-unit>
-      <trans-unit id="Enc242AB0D2" resname="encounter.review.column.proposal">
-        <source>encounter.review.column.proposal</source>
-        <target>Proposal</target>
-      </trans-unit>
       <trans-unit id="Enc6DF1ACB2" resname="encounter.review.column.swap">
         <source>encounter.review.column.swap</source>
         <target>Swap</target>
@@ -1129,10 +1121,6 @@
         <source>encounter.review.minutes</source>
         <target>{minutes} min</target>
       </trans-unit>
-      <trans-unit id="EncFE82CED8" resname="encounter.review.points">
-        <source>encounter.review.points</source>
-        <target>{points} points</target>
-      </trans-unit>
       <trans-unit id="EncBF4F42E8" resname="encounter.review.points_pass">
         <source>encounter.review.points_pass</source>
         <target>{points} points · pass {pass}</target>
@@ -1147,7 +1135,7 @@
       </trans-unit>
       <trans-unit id="Enc3A9FDEC4" resname="encounter.review.open_proposal">
         <source>encounter.review.open_proposal</source>
-        <target>Open proposal</target>
+        <target>Review proposal</target>
       </trans-unit>
       <trans-unit id="Enc537E5182" resname="encounter.review.no_open_proposal">
         <source>encounter.review.no_open_proposal</source>
@@ -1171,15 +1159,11 @@
       </trans-unit>
       <trans-unit id="Enc80A19C19" resname="encounter.review.not_linked">
         <source>encounter.review.not_linked</source>
-        <target>Not linked. Confirm a candidate below or leave the allocation open.</target>
+        <target>Not linked.</target>
       </trans-unit>
       <trans-unit id="EncB44683A0" resname="encounter.review.automatic_origin">
         <source>encounter.review.automatic_origin</source>
         <target>Linked automatically by the matcher (agreement {score}, pass {pass}). It is effective without confirmation.</target>
-      </trans-unit>
-      <trans-unit id="EncB51E38B3" resname="encounter.review.candidates">
-        <source>encounter.review.candidates</source>
-        <target>Candidate visits: {count, number}</target>
       </trans-unit>
       <trans-unit id="Enc289245C5" resname="encounter.review.candidates_help">
         <source>encounter.review.candidates_help</source>
@@ -1191,11 +1175,7 @@
       </trans-unit>
       <trans-unit id="Enc75A82C67" resname="encounter.review.stored_score">
         <source>encounter.review.stored_score</source>
-        <target>stored: {score} (pass {pass})</target>
-      </trans-unit>
-      <trans-unit id="Enc58B79D3B" resname="encounter.review.linked_elsewhere">
-        <source>encounter.review.linked_elsewhere</source>
-        <target>This visit has a link ({status}) to</target>
+        <target>stored {score}, pass {pass}</target>
       </trans-unit>
       <trans-unit id="Enc2AE04260" resname="encounter.review.rivals">
         <source>encounter.review.rivals</source>
@@ -1396,6 +1376,82 @@
       <trans-unit id="EncAF136C6F" resname="encounter.review.swap.apply">
         <source>encounter.review.swap.apply</source>
         <target>Apply swap</target>
+      </trans-unit>
+      <trans-unit id="Enc3DD215B3" resname="encounter.review.period.range">
+        <source>encounter.review.period.range</source>
+        <target>{from} – {to}</target>
+      </trans-unit>
+      <trans-unit id="Enc18EFA355" resname="encounter.review.overview.link">
+        <source>encounter.review.overview.link</source>
+        <target>Overview</target>
+      </trans-unit>
+      <trans-unit id="Enc9D443B1E" resname="encounter.review.overview.title">
+        <source>encounter.review.overview.title</source>
+        <target>Match review overview</target>
+      </trans-unit>
+      <trans-unit id="Enc9A73872D" resname="encounter.review.overview.worklist">
+        <source>encounter.review.overview.worklist</source>
+        <target>Worklist</target>
+      </trans-unit>
+      <trans-unit id="EncA7BB1B50" resname="encounter.review.action.start">
+        <source>encounter.review.action.start</source>
+        <target>Start review</target>
+      </trans-unit>
+      <trans-unit id="EncA8A33928" resname="encounter.review.action.review">
+        <source>encounter.review.action.review</source>
+        <target>Review</target>
+      </trans-unit>
+      <trans-unit id="EncE8157DE6" resname="encounter.review.flash.segment_empty">
+        <source>encounter.review.flash.segment_empty</source>
+        <target>There is nothing to review in this list.</target>
+      </trans-unit>
+      <trans-unit id="EncD3D94940" resname="encounter.review.flash.segment_done">
+        <source>encounter.review.flash.segment_done</source>
+        <target>No further allocations in this list.</target>
+      </trans-unit>
+      <trans-unit id="Enc19637761" resname="encounter.review.header_status.auto_accepted">
+        <source>encounter.review.header_status.auto_accepted</source>
+        <target>Linked automatically</target>
+      </trans-unit>
+      <trans-unit id="Enc673DC234" resname="encounter.review.header_status.confirmed">
+        <source>encounter.review.header_status.confirmed</source>
+        <target>Confirmed link</target>
+      </trans-unit>
+      <trans-unit id="EncCDC6F1B7" resname="encounter.review.header_status.proposed">
+        <source>encounter.review.header_status.proposed</source>
+        <target>Open proposal</target>
+      </trans-unit>
+      <trans-unit id="Enc9F750DA8" resname="encounter.review.header_status.conflict">
+        <source>encounter.review.header_status.conflict</source>
+        <target>Conflict</target>
+      </trans-unit>
+      <trans-unit id="Enc678C5DE4" resname="encounter.review.header_status.not_linked">
+        <source>encounter.review.header_status.not_linked</source>
+        <target>Not linked</target>
+      </trans-unit>
+      <trans-unit id="Enc84BAFF91" resname="encounter.review.context">
+        <source>encounter.review.context</source>
+        <target>Context</target>
+      </trans-unit>
+      <trans-unit id="Enc79198FA4" resname="encounter.review.decision">
+        <source>encounter.review.decision</source>
+        <target>Decision</target>
+      </trans-unit>
+      <trans-unit id="EncF08C5C6E" resname="encounter.review.comparison">
+        <source>encounter.review.comparison</source>
+        <target>Comparison with visit #{id}</target>
+      </trans-unit>
+      <trans-unit id="Enc7333A9BB" resname="encounter.review.linked_elsewhere_short">
+        <source>encounter.review.linked_elsewhere_short</source>
+        <target>Linked to allocation #{id}</target>
+      </trans-unit>
+      <trans-unit id="EncA487748B" resname="encounter.review.agreement_short">
+        <source>encounter.review.agreement_short</source>
+        <target>agreement {agreement} · {points} points</target>
+      </trans-unit>
+      <trans-unit id="Enc389E5C89" resname="encounter.review.error.not_stored">
+        <source>encounter.review.error.not_stored</source>
+        <target>Only a proposed or linked pair can be rejected.</target>
       </trans-unit>
       <trans-unit id="EncBABE30DE" resname="encounter.mts.glossary.title">
         <source>encounter.mts.glossary.title</source>

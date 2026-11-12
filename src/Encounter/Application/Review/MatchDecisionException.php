@@ -18,6 +18,9 @@ final class MatchDecisionException extends \RuntimeException
     /** The visit lies outside the allocation's review window. */
     public const string NOT_A_CANDIDATE = 'not_a_candidate';
 
+    /** Only a stored pair (proposal or link) can be rejected. */
+    public const string NOT_STORED = 'not_stored';
+
     /** The pair already has this decision. */
     public const string UNCHANGED = 'unchanged';
 

@@ -21,6 +21,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\DomCrawler\Field\ChoiceFormField;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -82,7 +83,7 @@ final class MatchReviewControllerTest extends WebTestCase
         $crawler = $this->client->request(Request::METHOD_GET, '/encounter/review');
         self::assertResponseRedirects($this->hospitalUrl());
 
-        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'?from=2026-10-01&to=2026-10-31');
+        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'/overview?from=2026-10-01&to=2026-10-31');
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-test="encounter-review-summary-allocations"] .card-title', '3');
         self::assertSame(['1', '0', '1', '1', '0'], array_map(
@@ -95,19 +96,26 @@ final class MatchReviewControllerTest extends WebTestCase
         self::assertSame(['1', '0', '1'], $this->rowCells($crawler, 'summary-visits-self'));
         self::assertSelectorTextContains('[data-test="encounter-review-agreement-note"]', 'not a probability');
 
-        // Default list: proposals.
+        // Worklist, by default the proposals; one tab per segment with its count of rows.
+        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'?from=2026-10-01&to=2026-10-31');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-test="encounter-review-period"]', '01.10.2026 – 31.10.2026');
+        self::assertStringContainsString('Proposals (1)', $crawler->filter('[data-test="encounter-review-list"]')->text());
+        self::assertStringContainsString('Automatic (1)', $crawler->filter('[data-test="encounter-review-list"]')->text());
+        self::assertStringContainsString('Allocations without proposal (1)', $crawler->filter('[data-test="encounter-review-list"]')->text());
+        self::assertStringContainsString('Unlinked visits (2)', $crawler->filter('[data-test="encounter-review-list"]')->text());
         self::assertCount(1, $crawler->filter('[data-test="encounter-review-list"] tbody [data-test="encounter-review-item"]'));
         self::assertStringContainsString('/allocations/'.$proposed->getId(), (string) $crawler->filter('[data-test="encounter-review-list"] tbody [data-test="encounter-review-item"]')->attr('href'));
         self::assertSelectorTextContains('[data-test="encounter-review-list"] tbody', '0.8');
 
-        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'?from=2026-10-01&to=2026-10-31&filter=automatic');
+        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'?from=2026-10-01&to=2026-10-31&segment=automatic');
         self::assertStringContainsString('/allocations/'.$linked->getId(), (string) $crawler->filter('[data-test="encounter-review-list"] tbody [data-test="encounter-review-item"]')->attr('href'));
         self::assertSelectorTextContains('[data-test="encounter-review-list"] tbody', 'Automatic link');
 
-        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'?from=2026-10-01&to=2026-10-31&filter=no_proposal');
+        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'?from=2026-10-01&to=2026-10-31&segment=no_proposal');
         self::assertSelectorTextContains('[data-test="encounter-review-list"] tbody', '12.10.2026 14:00');
 
-        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'?from=2026-10-01&to=2026-10-31&filter=unlinked_visits&route=self');
+        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'?from=2026-10-01&to=2026-10-31&segment=unlinked_visits&route=self');
         self::assertCount(1, $crawler->filter('[data-test="encounter-review-list"] tbody [data-test="encounter-review-item"]'));
         self::assertSelectorTextContains('[data-test="encounter-review-list"] tbody', 'Self-presenter');
     }
@@ -133,12 +141,20 @@ final class MatchReviewControllerTest extends WebTestCase
         self::assertSame((string) $best, $candidates->eq(0)->attr('data-encounter'));
         self::assertStringContainsString('0.91', $candidates->eq(0)->filter('[data-test="encounter-review-agreement"]')->text());
         // Both visits are in pass 1 (the second one at +30 minutes, age ±2), so the stored score is the same.
-        self::assertStringContainsString('stored: 0.91 (pass 1)', $candidates->eq(0)->filter('[data-test="encounter-review-agreement"]')->text());
-        self::assertSame(['for', 'for', 'for', 'for', 'neutral', 'neutral'], $candidates->eq(0)->filter('[data-test="encounter-review-features"] tbody tr')->each(static fn (Crawler $row): string => (string) $row->attr('data-direction')));
+        self::assertStringContainsString('stored 0.91, pass 1', $candidates->eq(0)->filter('[data-test="encounter-review-agreement"]')->text());
         self::assertStringContainsString('0.06', $candidates->eq(1)->filter('[data-test="encounter-review-agreement"]')->text());
         self::assertSelectorExists('[data-test="encounter-review-substitute"]');
-        self::assertSame('neutral', $candidates->eq(1)->filter('[data-test="feature-age"]')->attr('data-direction'));
+
+        // The linked visit is chosen; its comparison is shown, the other one's is hidden until chosen.
+        self::assertSame((string) $best, $crawler->filter('input[name="match_review[encounter]"][checked]')->attr('value'));
+        self::assertSame(['for', 'for', 'for', 'for', 'neutral', 'neutral'], $this->comparison($crawler, $best)->filter('tbody tr')->each(static fn (Crawler $row): string => (string) $row->attr('data-direction')));
+        $other = (int) $candidates->eq(1)->attr('data-encounter');
+        self::assertSame('neutral', $this->comparison($crawler, $other)->filter('[data-test="feature-age"]')->attr('data-direction'));
+        self::assertStringContainsString('d-none', (string) $crawler->filter('[data-test="encounter-review-comparison"][data-encounter="'.$other.'"]')->attr('class'));
+        self::assertSelectorTextContains('[data-test="encounter-review-header-status"]', 'Linked automatically');
         self::assertSelectorTextContains('[data-test="encounter-review-leave-open"]', 'Leave open');
+        self::assertSelectorExists('[data-test="encounter-review-actions"] [data-test="encounter-review-confirm"]');
+        self::assertSelectorExists('[data-test="encounter-review-actions"] [data-test="encounter-review-reject"]');
     }
 
     public function testConfirmingAProposalIsAuditedAndStaysAfterARerun(): void
@@ -151,9 +167,11 @@ final class MatchReviewControllerTest extends WebTestCase
         $this->client->loginUser($this->reviewer);
         $this->decide($allocation, $visit, 'confirm');
 
-        self::assertResponseRedirects($this->allocationUrl($allocation));
+        // The only proposal is decided: back to the list of the segment.
+        self::assertStringContainsString($this->hospitalUrl().'?', (string) $this->client->getResponse()->headers->get('Location'));
         $this->client->followRedirect();
         self::assertSelectorTextContains('body', 'The link has been confirmed.');
+        self::assertSelectorTextContains('body', 'No further allocations in this list.');
         self::assertSame([sprintf('%d-%d confirmed 0.8000', $allocation->getId(), $visit)], $this->matchRows($this->hospital));
         $match = $this->match($allocation, $visit);
         self::assertSame($this->reviewer->getId(), $match->getDecidedBy()?->getId());
@@ -219,16 +237,17 @@ final class MatchReviewControllerTest extends WebTestCase
         $this->matchDay($this->hospital);
 
         $this->client->loginUser($this->reviewer);
-        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'?from=2026-10-01&to=2026-10-31&filter=conflicts');
+        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'?from=2026-10-01&to=2026-10-31&segment=conflicts');
         self::assertCount(2, $crawler->filter('[data-test="encounter-review-list"] tbody [data-test="encounter-review-conflict"]'));
+        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'/overview?from=2026-10-01&to=2026-10-31');
         self::assertSame('2', trim($crawler->filter('[data-test="summary-conflicts"] td')->eq(1)->text()));
         $crawler = $this->client->request(Request::METHOD_GET, $this->allocationUrl($first));
         self::assertSelectorTextContains('[data-test="encounter-review-rivals"]', 'Allocation #'.$second->getId());
 
-        $this->decide($first, $visit, 'confirm');
+        $this->decide($first, $visit, 'confirm', '?segment=conflicts');
 
         self::assertSame([sprintf('%d-%d confirmed 0.9697 conflict', $first->getId(), $visit)], $this->matchRows($this->hospital));
-        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'?from=2026-10-01&to=2026-10-31&filter=conflicts');
+        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'/overview?from=2026-10-01&to=2026-10-31');
         self::assertSame('0', trim($crawler->filter('[data-test="summary-conflicts"] td')->eq(1)->text()));
         self::assertSame(['1', '1'], [
             trim($crawler->filter('[data-test="summary-confirmed"] td')->eq(1)->text()),
@@ -238,15 +257,19 @@ final class MatchReviewControllerTest extends WebTestCase
 
     public function testAVisitLinkedElsewhereCannotBeTakenWithoutASwap(): void
     {
+        // The visit at 10:05 is linked to the allocation at 10:00 (0.9697); for the allocation at 10:20 it
+        // is a candidate (−15 minutes) but linked elsewhere.
         $first = $this->allocationAt($this->hospital, $this->ivena, '10:00');
-        $second = $this->allocationAt($this->hospital, $this->ivena, '14:00');
+        $second = $this->allocationAt($this->hospital, $this->ivena, '10:20');
         $visit = $this->visitAt($this->hospital, $this->ed, '10:05');
-        $this->visitAt($this->hospital, $this->ed, '14:05');
         $this->matchDay($this->hospital);
         $before = $this->matchRows($this->hospital);
 
         $this->client->loginUser($this->reviewer);
+        $crawler = $this->client->request(Request::METHOD_GET, $this->allocationUrl($second));
+        self::assertSelectorTextContains('[data-test="encounter-review-linked-elsewhere"]', 'Linked to allocation #'.$first->getId());
         $this->decide($second, $visit, 'confirm');
+        self::assertResponseRedirects($this->allocationUrl($second).'?from=2026-10-01&to=2026-10-31&segment=proposed');
         $this->client->followRedirect();
 
         self::assertSelectorTextContains('body', 'This visit is linked to another allocation.');
@@ -267,8 +290,9 @@ final class MatchReviewControllerTest extends WebTestCase
         self::assertStringContainsString(sprintf('%d-%d auto_accepted', $a->getId(), $w), implode('|', $this->matchRows($this->hospital)));
 
         $this->client->loginUser($this->reviewer);
-        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'?from=2026-10-01&to=2026-10-31&filter=swaps');
+        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'/overview?from=2026-10-01&to=2026-10-31');
         self::assertSame('1', trim($crawler->filter('[data-test="summary-swaps"] td')->eq(1)->text()));
+        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'?from=2026-10-01&to=2026-10-31&segment=swaps');
         self::assertSelectorTextContains('[data-test="encounter-review-list"]', 'One more link');
 
         $crawler = $this->client->request(Request::METHOD_GET, $this->allocationUrl($a));
@@ -290,19 +314,88 @@ final class MatchReviewControllerTest extends WebTestCase
 
     public function testAnOutdatedSwapChangesNothing(): void
     {
+        // The chain of testApplyingAChainSwapLinksBothAllocations, but the posted swap names other visits.
         $a = $this->allocationAt($this->hospital, $this->ivena, '10:00');
+        $this->allocationAt($this->hospital, $this->ivena, '10:05', age: 72);
         $this->visitAt($this->hospital, $this->ed, '10:10');
+        $this->visitAt($this->hospital, $this->ed, '10:05', mode: ArrivalMode::Self);
         $this->matchDay($this->hospital);
         $before = $this->matchRows($this->hospital);
 
         $this->client->loginUser($this->reviewer);
-        $this->client->request(Request::METHOD_POST, $this->allocationUrl($a).'/swap', [
-            '_token' => $this->csrfToken($a),
-            'swap' => $a->getId().':1:2:0',
-        ]);
+        $crawler = $this->client->request(Request::METHOD_GET, $this->allocationUrl($a));
+        $form = $crawler->filter('[data-test="encounter-review-apply-swap"]')->form();
+        $form['swap']->setValue($a->getId().':1:2:0');
+        $this->client->submit($form);
         $this->client->followRedirect();
 
         self::assertSelectorTextContains('body', 'The swap is no longer proposed');
+        self::assertSame($before, $this->matchRows($this->hospital));
+    }
+
+    public function testStartSkipAndDecisionsWalkThroughTheSegment(): void
+    {
+        // Three proposals (visit 20 minutes later at age 71: 6 points, 0.80) at 12:00, 14:00 and 16:00.
+        $first = $this->allocationAt($this->hospital, $this->ivena, '12:00');
+        $second = $this->allocationAt($this->hospital, $this->ivena, '14:00');
+        $third = $this->allocationAt($this->hospital, $this->ivena, '16:00');
+        $this->visitAt($this->hospital, $this->ed, '12:20', age: 71);
+        $secondVisit = $this->visitAt($this->hospital, $this->ed, '14:20', age: 71);
+        $this->visitAt($this->hospital, $this->ed, '16:20', age: 71);
+        $this->matchDay($this->hospital);
+
+        $this->client->loginUser($this->reviewer);
+        $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl());
+        $this->client->click($crawler->filter('[data-test="encounter-review-start"]')->link());
+        self::assertResponseRedirects($this->allocationUrl($first).'?from=2026-10-01&to=2026-10-31&segment=proposed');
+
+        // Leave open: the next allocation; nothing is written.
+        $crawler = $this->client->followRedirect();
+        self::assertSelectorTextContains('[data-test="encounter-review-header-status"]', 'Open proposal');
+        $this->client->click($crawler->filter('[data-test="encounter-review-leave-open"]')->link());
+        self::assertResponseRedirects($this->allocationUrl($second).'?from=2026-10-01&to=2026-10-31&segment=proposed');
+        self::assertCount(3, array_filter($this->matchRows($this->hospital), static fn (string $row): bool => str_contains($row, 'proposed')));
+
+        // A decision leaves the segment and continues with the allocation behind it.
+        $this->decide($second, $secondVisit, 'confirm');
+        self::assertResponseRedirects($this->allocationUrl($third).'?from=2026-10-01&to=2026-10-31&segment=proposed');
+
+        // Skipping the last one ends at the list.
+        $crawler = $this->client->followRedirect();
+        $this->client->click($crawler->filter('[data-test="encounter-review-leave-open"]')->link());
+        self::assertResponseRedirects($this->hospitalUrl().'?from=2026-10-01&to=2026-10-31&segment=proposed');
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('body', 'No further allocations in this list.');
+    }
+
+    public function testStartingAnEmptySegmentStaysOnTheList(): void
+    {
+        $this->allocationAt($this->hospital, $this->ivena, '10:00');
+        $this->visitAt($this->hospital, $this->ed, '10:05');
+        $this->matchDay($this->hospital);
+
+        $this->client->loginUser($this->reviewer);
+        $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'/start?segment=conflicts');
+
+        self::assertResponseRedirects($this->hospitalUrl().'?from=2026-10-01&to=2026-10-31&segment=conflicts');
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('body', 'There is nothing to review in this list.');
+    }
+
+    public function testRejectingAPairThatIsNotStoredIsRefused(): void
+    {
+        // The visit at 11:30 (+90 minutes) is a candidate of the review window but no stored pair.
+        $allocation = $this->allocationAt($this->hospital, $this->ivena, '10:00');
+        $this->visitAt($this->hospital, $this->ed, '10:05');
+        $candidate = $this->visitAt($this->hospital, $this->ed, '11:30');
+        $this->matchDay($this->hospital);
+        $before = $this->matchRows($this->hospital);
+
+        $this->client->loginUser($this->reviewer);
+        $this->decide($allocation, $candidate, 'reject');
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('body', 'Only a proposed or linked pair can be rejected.');
         self::assertSame($before, $this->matchRows($this->hospital));
     }
 
@@ -327,7 +420,7 @@ final class MatchReviewControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
         $this->client->request(Request::METHOD_GET, $this->allocationUrl($allocation));
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
-        $this->client->request(Request::METHOD_POST, $this->allocationUrl($allocation).'/decide', ['decision' => 'reject', 'encounter' => $visit]);
+        $this->client->request(Request::METHOD_POST, $this->allocationUrl($allocation), ['match_review' => ['encounter' => $visit, 'reject' => '']]);
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
         $this->client->request(Request::METHOD_GET, '/encounter/review');
         self::assertSelectorExists('[data-test="encounter-review-no-hospitals"]');
@@ -338,7 +431,7 @@ final class MatchReviewControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
         $this->client->request(Request::METHOD_GET, '/encounter/review/'.$this->hospital->getId().'/allocations/'.$otherAllocation->getId());
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
-        $this->client->request(Request::METHOD_POST, '/encounter/review/'.$this->hospital->getId().'/allocations/'.$otherAllocation->getId().'/decide', ['_token' => $this->csrfToken($allocation), 'decision' => 'confirm', 'encounter' => $visit]);
+        $this->client->request(Request::METHOD_POST, '/encounter/review/'.$this->hospital->getId().'/allocations/'.$otherAllocation->getId(), ['match_review' => ['encounter' => $visit, 'confirm' => '']]);
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         // Without the beta role a grant does not help.
@@ -363,30 +456,31 @@ final class MatchReviewControllerTest extends WebTestCase
         $this->matchDay($this->hospital);
 
         $this->client->loginUser($this->reviewer);
-        $this->client->request(Request::METHOD_POST, $this->allocationUrl($allocation).'/decide', ['_token' => 'wrong', 'decision' => 'reject', 'encounter' => $visit]);
+        $this->client->request(Request::METHOD_POST, $this->allocationUrl($allocation), ['match_review' => ['_token' => 'wrong', 'encounter' => $visit, 'reject' => '']]);
 
-        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
         self::assertSame([sprintf('%d-%d auto_accepted 0.9697', $allocation->getId(), $visit)], $this->matchRows($this->hospital));
     }
 
-    private function decide(Allocation $allocation, int $visit, string $decision): void
+    /**
+     * Chooses the visit on the allocation page and submits "confirm" or "reject", as a person does.
+     */
+    private function decide(Allocation $allocation, int $visit, string $decision, string $query = ''): void
     {
-        $this->client->request(Request::METHOD_POST, $this->allocationUrl($allocation).'/decide', [
-            '_token' => $this->csrfToken($allocation),
-            'decision' => $decision,
-            'encounter' => $visit,
-        ]);
+        $crawler = $this->client->request(Request::METHOD_GET, $this->allocationUrl($allocation).$query);
+        $form = $crawler->filter('[data-test="encounter-review-'.$decision.'"]')->form();
+        $choice = $form['match_review[encounter]'];
+        self::assertInstanceOf(ChoiceFormField::class, $choice);
+        $choice->select((string) $visit);
+        $this->client->submit($form);
     }
 
     /**
-     * The token as the allocation page renders it (CSRF tokens live in the session).
+     * Feature comparison of one candidate on the allocation page.
      */
-    private function csrfToken(Allocation $allocation): string
+    private function comparison(Crawler $crawler, int $visit): Crawler
     {
-        $crawler = $this->client->request(Request::METHOD_GET, $this->allocationUrl($allocation));
-        $token = $crawler->filter('form input[name="_token"]');
-
-        return $token->count() > 0 ? (string) $token->first()->attr('value') : 'missing';
+        return $crawler->filter('[data-test="encounter-review-comparison"][data-encounter="'.$visit.'"] [data-test="encounter-review-features"]');
     }
 
     private function hospitalUrl(): string

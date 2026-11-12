@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Encounter\Application\Contract;
 
+use App\Encounter\Application\Review\ReviewContext;
 use App\Encounter\Application\Review\ReviewFilter;
 use App\Encounter\Application\Review\ReviewPeriod;
 use App\Encounter\Domain\Enum\ArrivalRoute;
@@ -36,13 +37,20 @@ interface MatchReviewReaderInterface
     public function summary(int $hospitalId, ReviewPeriod $period): array;
 
     /**
-     * Pairs of one status list (proposed, conflicts, automatic, confirmed, rejected), by IVENA arrival.
+     * Pairs of one status list (proposed, conflicts, automatic, confirmed, rejected) in the context's order.
      *
      * @return list<array<string, mixed>>
      */
-    public function pairs(int $hospitalId, ReviewPeriod $period, ReviewFilter $filter, int $offset, int $limit): array;
+    public function pairs(int $hospitalId, ReviewContext $context, int $offset, int $limit): array;
 
     public function countPairs(int $hospitalId, ReviewPeriod $period, ReviewFilter $filter): int;
+
+    /**
+     * Allocation ids of a pair segment or of "no proposal", each once, in the order of the list.
+     *
+     * @return list<int>
+     */
+    public function segmentAllocationIds(int $hospitalId, ReviewContext $context): array;
 
     /**
      * Allocations without link and without proposal, by IVENA arrival.

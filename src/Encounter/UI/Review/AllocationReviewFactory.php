@@ -98,12 +98,29 @@ final readonly class AllocationReviewFactory
                 'linked_elsewhere' => $elsewhere[$candidate->encounterId] ?? null,
                 'rival_allocations' => $rivals[$candidate->encounterId] ?? [],
                 'is_link' => null !== $link && $link['encounter_id'] === $candidate->encounterId,
+                'can_confirm' => !isset($elsewhere[$candidate->encounterId]) && MatchStatus::Confirmed !== ($own[$candidate->encounterId]['status'] ?? null),
+                'can_reject' => isset($own[$candidate->encounterId]) && MatchStatus::Rejected !== $own[$candidate->encounterId]['status'],
             ];
         }
+
+        // Chosen when the page opens: the linked visit, else the open proposal with the highest stored
+        // score, else the candidate with the most points (candidates come ordered by points).
+        $selected = $link['encounter_id'] ?? null;
+        if (null === $selected) {
+            $bestScore = -1.0;
+            foreach ($own as $encounterId => $row) {
+                if (MatchStatus::Proposed === $row['status'] && ($row['score'] ?? 0.0) > $bestScore) {
+                    $bestScore = $row['score'] ?? 0.0;
+                    $selected = $encounterId;
+                }
+            }
+        }
+        $selected ??= $scored[0]->encounterId ?? null;
 
         return [
             'allocation' => $allocation,
             'link' => $link,
+            'selected' => $selected,
             'candidates' => $candidates,
             'swaps' => $this->swaps->forAllocation($hospitalId, $matching),
             'window' => $window,

@@ -1,12 +1,13 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% set query = period.query()|merge(back_query|filter((v, k) => k == 'filter')) %}
-{% set list_url = path('app_encounter_review_hospital', {id: hospital.id}|merge(query)) %}
+{% set list_url = path('app_encounter_review_hospital', {id: hospital.id}|merge(context.query())) %}
+{% set skip_url = path('app_encounter_review_skip', {id: hospital.id, allocationId: allocation.id}|merge(context.query())|merge(position is not null ? {pos: position} : {})) %}
+{% set header_variants = {auto_accepted: 'azure', confirmed: 'green', proposed: 'yellow', conflict: 'orange', not_linked: 'secondary'} %}
 
-{% block title %}{{ 'encounter.review.allocation_title'|trans({}, 'encounter') }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'encounter.review.allocation_title'|trans({arrival: allocation.arrival_at|date('d.m.Y H:i')}, 'encounter') }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
 
 {% block page_header %}
-    <twig:PageHeader :title="'encounter.review.allocation_title'|trans({}, 'encounter')" :pretitle="hospital.name">
+    <twig:PageHeader :title="'encounter.review.allocation_title'|trans({arrival: allocation.arrival_at|date('d.m.Y H:i')}, 'encounter')" :pretitle="hospital.name">
         <twig:block name="breadcrumbs">
             <twig:Breadcrumbs :items="[
                 { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
@@ -14,181 +15,164 @@
                 { label: allocation.arrival_at|date('d.m.Y H:i'), translatable: false }
             ]" />
         </twig:block>
+        <twig:block name="context">
+            <twig:Badge :variant="header_variants[header_status]" data-test="encounter-review-header-status">{{ ('encounter.review.header_status.' ~ header_status)|trans({}, 'encounter') }}</twig:Badge>
+            <span class="text-secondary ms-2">{{ context.filter.labelKey()|trans({}, 'encounter') }}</span>
+        </twig:block>
         <twig:block name="actions">
-            <a class="btn" href="{{ list_url }}" data-test="encounter-review-leave-open">{{ 'encounter.review.action.leave_open'|trans({}, 'encounter') }}</a>
+            <a class="btn" href="{{ skip_url }}" data-test="encounter-review-leave-open">
+                {{ 'encounter.review.action.leave_open'|trans({}, 'encounter') }}
+                <twig:ux:icon name="tabler:player-skip-forward" class="w-3 h-3 ms-1" />
+            </a>
         </twig:block>
     </twig:PageHeader>
 {% endblock %}
 
 {% block page_content %}
-    {% set token = csrf_token('encounter_review_' ~ hospital.id) %}
-    <div class="row row-cards mb-3">
-        <div class="col-md-6">
-            <div class="card h-100" data-test="encounter-review-allocation">
-                <div class="card-header"><h3 class="card-title">{{ 'encounter.review.ivena'|trans({}, 'encounter') }}</h3></div>
+    {% set radios = {} %}
+    {% for child in form.encounter %}
+        {% set radios = radios|merge({('v' ~ child.vars.value): child}) %}
+    {% endfor %}
+
+    {{ form_start(form, {attr: {
+        id: 'encounter-review-form',
+        'data-controller': 'encounter-match-review',
+        'data-encounter-match-review-linked-value': link ? link.encounter_id : 0,
+        'data-encounter-match-review-confirm-label-value': 'encounter.review.action.confirm'|trans({}, 'encounter'),
+        'data-encounter-match-review-change-label-value': 'encounter.review.action.change'|trans({}, 'encounter'),
+    }}) }}
+
+    <div class="row row-cards">
+        <div class="col-lg-5">
+            <div class="card" data-test="encounter-review-context">
+                <div class="card-header">
+                    <h3 class="card-title">{{ 'encounter.review.context'|trans({}, 'encounter') }}</h3>
+                </div>
                 <div class="card-body">
-                    <div class="datagrid">
-                        <div class="datagrid-item">
-                            <div class="datagrid-title">{{ 'encounter.review.expected_arrival'|trans({}, 'encounter') }}</div>
-                            <div class="datagrid-content">{{ allocation.arrival_at|date('d.m.Y H:i') }}</div>
-                        </div>
-                        <div class="datagrid-item">
-                            <div class="datagrid-title">{{ 'encounter.review.feature.sex'|trans({}, 'encounter') }} · {{ 'encounter.review.feature.age'|trans({}, 'encounter') }}</div>
-                            <div class="datagrid-content">{{ ('encounter.review.value.sex_' ~ allocation.gender)|trans({}, 'encounter') }}, {{ allocation.age }}</div>
-                        </div>
-                        <div class="datagrid-item">
-                            <div class="datagrid-title">{{ 'encounter.review.feature.physician'|trans({}, 'encounter') }}</div>
-                            <div class="datagrid-content">{{ (allocation.with_physician ? 'encounter.review.value.with_physician' : 'encounter.review.value.without_physician')|trans({}, 'encounter') }}</div>
-                        </div>
-                        <div class="datagrid-item">
-                            <div class="datagrid-title">{{ 'encounter.review.feature.work_accident'|trans({}, 'encounter') }}</div>
-                            <div class="datagrid-content">{{ (allocation.work_accident ? 'encounter.review.value.yes' : 'encounter.review.value.no')|trans({}, 'encounter') }}</div>
-                        </div>
+                    <h4 class="subheader">{{ 'encounter.review.ivena'|trans({}, 'encounter') }}</h4>
+                    <dl class="row" data-test="encounter-review-allocation">
+                        <dt class="col-5">{{ 'encounter.review.expected_arrival'|trans({}, 'encounter') }}</dt>
+                        <dd class="col-7">{{ allocation.arrival_at|date('d.m.Y H:i') }}</dd>
+                        <dt class="col-5">{{ 'encounter.review.feature.sex'|trans({}, 'encounter') }} · {{ 'encounter.review.feature.age'|trans({}, 'encounter') }}</dt>
+                        <dd class="col-7">{{ ('encounter.review.value.sex_' ~ allocation.gender)|trans({}, 'encounter') }}, {{ allocation.age }}</dd>
+                        <dt class="col-5">{{ 'encounter.review.feature.physician'|trans({}, 'encounter') }}</dt>
+                        <dd class="col-7">{{ (allocation.with_physician ? 'encounter.review.value.with_physician' : 'encounter.review.value.without_physician')|trans({}, 'encounter') }}</dd>
+                        <dt class="col-5">{{ 'encounter.review.feature.work_accident'|trans({}, 'encounter') }}</dt>
+                        <dd class="col-7">{{ (allocation.work_accident ? 'encounter.review.value.yes' : 'encounter.review.value.no')|trans({}, 'encounter') }}</dd>
+                    </dl>
+
+                    <h4 class="subheader">{{ 'encounter.review.current'|trans({}, 'encounter') }}</h4>
+                    <div data-test="encounter-review-current">
+                        {% if link %}
+                            <p class="mb-1">{{ 'encounter.review.linked_to'|trans({visit: link.encounter_id}, 'encounter') }}</p>
+                            {{ include('@Encounter/review/_status.html.twig', {pair: link}) }}
+                            {% if link.status.value == 'auto_accepted' %}
+                                <p class="text-secondary small mt-2 mb-0" data-test="encounter-review-automatic-origin">{{ 'encounter.review.automatic_origin'|trans({score: link.score|format_number({fraction_digit: 2}), pass: link.pass ?? '–'}, 'encounter') }}</p>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-secondary mb-0" data-test="encounter-review-not-linked">{{ 'encounter.review.not_linked'|trans({}, 'encounter') }}</p>
+                        {% endif %}
                     </div>
+
+                    {% for swap in swaps %}
+                        <h4 class="subheader mt-3">{{ 'encounter.review.swap.title'|trans({}, 'encounter') }}</h4>
+                        <p class="text-secondary small">{{ 'encounter.review.swap.intro'|trans({}, 'encounter') }}</p>
+                        {{ include('@Encounter/review/_swap.html.twig', {swap: swap, hospital_id: hospital.id, query: context.query(), form: true, form_id: 'encounter-review-swap-form-' ~ loop.index}) }}
+                    {% endfor %}
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card h-100" data-test="encounter-review-current">
-                <div class="card-header"><h3 class="card-title">{{ 'encounter.review.current'|trans({}, 'encounter') }}</h3></div>
+
+        <div class="col-lg-7">
+            <div class="card" data-test="encounter-review-decision">
+                <div class="card-header">
+                    <h3 class="card-title">{{ 'encounter.review.decision'|trans({}, 'encounter') }}</h3>
+                </div>
                 <div class="card-body">
-                    {% if link %}
-                        <p class="mb-2">{{ 'encounter.review.linked_to'|trans({visit: link.encounter_id}, 'encounter') }}</p>
-                        {{ include('@Encounter/review/_status.html.twig', {pair: link}) }}
-                        {% if link.status.value == 'auto_accepted' %}
-                            <p class="text-secondary small mt-2 mb-0" data-test="encounter-review-automatic-origin">{{ 'encounter.review.automatic_origin'|trans({score: link.score|format_number({fraction_digit: 2}), pass: link.pass ?? '–'}, 'encounter') }}</p>
-                        {% endif %}
+                    <p class="text-secondary small">{{ 'encounter.review.candidates_help'|trans({before: window.minutesBefore, after: window.minutesAfter, age: window.maxAgeDifference}, 'encounter') }}</p>
+                    {{ form_errors(form) }}
+                    {{ form_errors(form.encounter) }}
+
+                    {% if candidates is empty %}
+                        <twig:EmptyState :title="'encounter.review.no_candidates'|trans({}, 'encounter')" icon="tabler:link-off" />
                     {% else %}
-                        <p class="text-secondary mb-0" data-test="encounter-review-not-linked">{{ 'encounter.review.not_linked'|trans({}, 'encounter') }}</p>
+                        <div class="list-group mb-3" data-test="encounter-review-candidates">
+                            {% for candidate in candidates %}
+                                {% set stored = candidate.stored %}
+                                {% set radio = radios['v' ~ candidate.encounter_id] %}
+                                <label class="list-group-item d-flex gap-3 align-items-start" data-test="encounter-review-candidate" data-encounter="{{ candidate.encounter_id }}">
+                                    {# The candidate row is the label; the theme's radio widget would add its own. #}
+                                    <input type="radio" class="form-check-input flex-shrink-0 mt-1" id="{{ radio.vars.id }}" name="{{ radio.vars.full_name }}" value="{{ radio.vars.value }}"
+                                        {{ radio.vars.checked ? 'checked' }} required
+                                        data-action="encounter-match-review#select" data-encounter-match-review-target="choice"
+                                        data-can-confirm="{{ candidate.can_confirm ? '1' : '0' }}" data-can-reject="{{ candidate.can_reject ? '1' : '0' }}">
+                                    {% do radio.setRendered() %}
+                                    <span class="flex-fill">
+                                        <span class="d-flex flex-wrap justify-content-between gap-2">
+                                            <strong>{{ 'encounter.review.visit'|trans({id: candidate.encounter_id}, 'encounter') }}</strong>
+                                            <span class="d-inline-flex flex-wrap gap-1">
+                                                {% if stored %}{{ include('@Encounter/review/_status.html.twig', {pair: stored|merge({open_conflict: stored.conflict and candidate.rival_allocations is not empty, decided_at: null})}) }}{% endif %}
+                                                {% if candidate.linked_elsewhere %}
+                                                    <twig:Badge variant="secondary" data-test="encounter-review-linked-elsewhere">{{ 'encounter.review.linked_elsewhere_short'|trans({id: candidate.linked_elsewhere.allocation_id}, 'encounter') }}</twig:Badge>
+                                                {% endif %}
+                                            </span>
+                                        </span>
+                                        <span class="d-block text-secondary small">
+                                            {{ candidate.anchor_at|date('d.m.Y H:i') }}
+                                            {% if candidate.substitute %}
+                                                <twig:Badge variant="purple" data-test="encounter-review-substitute">{{ 'encounter.review.substitute'|trans({}, 'encounter') }}</twig:Badge>
+                                            {% endif %}
+                                            · {{ 'encounter.review.minutes'|trans({minutes: candidate.time_difference_minutes}, 'encounter') }}
+                                            · <span data-test="encounter-review-agreement">{{ 'encounter.review.agreement_short'|trans({agreement: candidate.agreement|format_number({fraction_digit: 2}), points: candidate.points}, 'encounter') }}{% if stored and stored.score is not null and stored.pass %} ({{ 'encounter.review.stored_score'|trans({score: stored.score|format_number({fraction_digit: 2}), pass: stored.pass}, 'encounter') }}){% endif %}</span>
+                                        </span>
+                                        {% if candidate.rival_allocations is not empty %}
+                                            <span class="d-block text-secondary small" data-test="encounter-review-rivals">
+                                                {{ 'encounter.review.rivals'|trans({}, 'encounter') }}
+                                                {% for rival in candidate.rival_allocations %}
+                                                    <a href="{{ path('app_encounter_review_allocation', {id: hospital.id, allocationId: rival}|merge(context.query())) }}">{{ 'encounter.review.allocation'|trans({id: rival}, 'encounter') }}</a>{{ not loop.last ? ', ' }}
+                                                {% endfor %}
+                                            </span>
+                                        {% endif %}
+                                    </span>
+                                </label>
+                            {% endfor %}
+                        </div>
+
+                        {% for candidate in candidates %}
+                            <div class="{{ candidate.encounter_id != form.encounter.vars.value ? 'd-none' }}" data-encounter-match-review-target="panel" data-encounter="{{ candidate.encounter_id }}" data-test="encounter-review-comparison">
+                                <h4 class="subheader">{{ 'encounter.review.comparison'|trans({id: candidate.encounter_id}, 'encounter') }}</h4>
+                                {{ include('@Encounter/review/_features.html.twig', {features: candidate.features}) }}
+                            </div>
+                        {% endfor %}
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
-    {% if swaps is not empty %}
-        <div class="card mb-3 border-primary" data-test="encounter-review-swaps">
-            <div class="card-header"><h3 class="card-title">{{ 'encounter.review.swap.title'|trans({}, 'encounter') }}</h3></div>
-            <div class="card-body">
-                <p class="text-secondary">{{ 'encounter.review.swap.intro'|trans({}, 'encounter') }}</p>
-                {% for swap in swaps %}
-                    {{ include('@Encounter/review/_swap.html.twig', {swap: swap, hospital_id: hospital.id, query: query, form: true}) }}
-                {% endfor %}
-            </div>
-        </div>
-    {% endif %}
-
-    <h3 class="mb-2">{{ 'encounter.review.candidates'|trans({count: candidates|length}, 'encounter') }}</h3>
-    <p class="text-secondary small">{{ 'encounter.review.candidates_help'|trans({before: window.minutesBefore, after: window.minutesAfter, age: window.maxAgeDifference}, 'encounter') }}</p>
-
-    {% if candidates is empty %}
-        <twig:EmptyState :title="'encounter.review.no_candidates'|trans({}, 'encounter')" icon="tabler:link-off" />
-    {% endif %}
-
-    {% for candidate in candidates %}
-        {% set stored = candidate.stored %}
-        <div class="card mb-3{{ candidate.is_link ? ' border-green' }}" data-test="encounter-review-candidate" data-encounter="{{ candidate.encounter_id }}">
-            <div class="card-header flex-wrap gap-2">
-                <h4 class="card-title mb-0">{{ 'encounter.review.visit'|trans({id: candidate.encounter_id}, 'encounter') }}</h4>
-                <div class="card-actions d-flex flex-wrap gap-1 align-items-center">
-                    {% if stored %}{{ include('@Encounter/review/_status.html.twig', {pair: stored|merge({open_conflict: stored.conflict and candidate.rival_allocations is not empty})}) }}{% endif %}
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="datagrid mb-3">
-                    <div class="datagrid-item">
-                        <div class="datagrid-title">{{ 'encounter.review.column.anchor'|trans({}, 'encounter') }}</div>
-                        <div class="datagrid-content">
-                            {{ candidate.anchor_at|date('d.m.Y H:i') }}
-                            {% if candidate.substitute %}
-                                <twig:Badge variant="purple" data-test="encounter-review-substitute">{{ 'encounter.review.substitute'|trans({}, 'encounter') }}</twig:Badge>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="datagrid-item">
-                        <div class="datagrid-title">{{ 'encounter.review.column.difference'|trans({}, 'encounter') }}</div>
-                        <div class="datagrid-content">{{ 'encounter.review.minutes'|trans({minutes: candidate.time_difference_minutes}, 'encounter') }}</div>
-                    </div>
-                    <div class="datagrid-item">
-                        <div class="datagrid-title">{{ 'encounter.review.column.agreement'|trans({}, 'encounter') }}</div>
-                        <div class="datagrid-content" data-test="encounter-review-agreement">
-                            {{ candidate.agreement|format_number({fraction_digit: 2}) }}
-                            <small class="text-secondary">{{ 'encounter.review.points'|trans({points: candidate.points}, 'encounter') }}</small>
-                            {% if stored and stored.score is not null and stored.pass %}
-                                <small class="text-secondary d-block">{{ 'encounter.review.stored_score'|trans({score: stored.score|format_number({fraction_digit: 2}), pass: stored.pass}, 'encounter') }}</small>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-sm table-vcenter mb-2" data-test="encounter-review-features">
-                        <thead>
-                            <tr>
-                                <th>{{ 'encounter.review.column.feature'|trans({}, 'encounter') }}</th>
-                                <th>{{ 'encounter.review.column.ivena'|trans({}, 'encounter') }}</th>
-                                <th>{{ 'encounter.review.column.ed'|trans({}, 'encounter') }}</th>
-                                <th class="text-end">{{ 'encounter.review.column.contribution'|trans({}, 'encounter') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for feature in candidate.features %}
-                                <tr data-test="feature-{{ feature.feature }}" data-direction="{{ feature.direction }}">
-                                    <td>{{ ('encounter.review.feature.' ~ feature.feature)|trans({}, 'encounter') }}</td>
-                                    {% for value in [feature.ivena, feature.ed] %}
-                                        <td>{{ value starts with 'key:' ? ('encounter.review.value.' ~ value[4:])|trans({}, 'encounter') : value }}</td>
-                                    {% endfor %}
-                                    <td class="text-end text-nowrap">
-                                        {% set variant = {for: 'green', against: 'red', neutral: 'secondary'}[feature.direction] %}
-                                        {% set direction = ('encounter.review.direction.' ~ feature.direction)|trans({}, 'encounter') %}
-                                        <twig:Badge :variant="variant" title="{{ direction }}"><span class="d-none d-md-inline">{{ direction }} </span><span class="visually-hidden d-md-none">{{ direction }} </span>{{ '%+d'|format(feature.points) }}</twig:Badge>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-
-                {% if candidate.linked_elsewhere %}
-                    <p class="text-secondary small mb-2" data-test="encounter-review-linked-elsewhere">
-                        {{ 'encounter.review.linked_elsewhere'|trans({status: ('encounter.review.status.' ~ candidate.linked_elsewhere.status.value)|trans({}, 'encounter')}, 'encounter') }}
-                        <a href="{{ path('app_encounter_review_allocation', {id: hospital.id, allocationId: candidate.linked_elsewhere.allocation_id}|merge(query)) }}">{{ 'encounter.review.allocation'|trans({id: candidate.linked_elsewhere.allocation_id}, 'encounter') }}</a>
-                    </p>
-                {% endif %}
-                {% if candidate.rival_allocations is not empty %}
-                    <p class="text-secondary small mb-2" data-test="encounter-review-rivals">
-                        {{ 'encounter.review.rivals'|trans({}, 'encounter') }}
-                        {% for rival in candidate.rival_allocations %}
-                            <a href="{{ path('app_encounter_review_allocation', {id: hospital.id, allocationId: rival}|merge(query)) }}">{{ 'encounter.review.allocation'|trans({id: rival}, 'encounter') }}</a>{{ not loop.last ? ', ' }}
-                        {% endfor %}
-                    </p>
-                {% endif %}
-
-                <div class="d-flex flex-wrap gap-2">
-                    {% if not candidate.linked_elsewhere and (stored is null or stored.status.value != 'confirmed') %}
-                        <form method="post" action="{{ path('app_encounter_review_decide', {id: hospital.id, allocationId: allocation.id}) }}">
-                            <input type="hidden" name="_token" value="{{ token }}">
-                            <input type="hidden" name="decision" value="confirm">
-                            <input type="hidden" name="encounter" value="{{ candidate.encounter_id }}">
-                            {% for name, value in query %}<input type="hidden" name="{{ name }}" value="{{ value }}">{% endfor %}
-                            <button type="submit" class="btn btn-success" data-test="encounter-review-confirm">
-                                {{ (link and not candidate.is_link ? 'encounter.review.action.change' : 'encounter.review.action.confirm')|trans({}, 'encounter') }}
-                            </button>
-                        </form>
-                    {% endif %}
-                    {% if stored and stored.status.value != 'rejected' %}
-                        <form method="post" action="{{ path('app_encounter_review_decide', {id: hospital.id, allocationId: allocation.id}) }}">
-                            <input type="hidden" name="_token" value="{{ token }}">
-                            <input type="hidden" name="decision" value="reject">
-                            <input type="hidden" name="encounter" value="{{ candidate.encounter_id }}">
-                            {% for name, value in query %}<input type="hidden" name="{{ name }}" value="{{ value }}">{% endfor %}
-                            <button type="submit" class="btn btn-outline-danger" data-test="encounter-review-reject">{{ 'encounter.review.action.reject'|trans({}, 'encounter') }}</button>
-                        </form>
-                    {% endif %}
+    <div class="card mt-3" data-test="encounter-review-actions">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center w-100 gap-2">
+                <a href="{{ list_url }}" class="btn btn-link px-0">{{ 'action.cancel'|trans({}, 'messages') }}</a>
+                <div class="d-flex flex-wrap align-items-center justify-content-end flex-grow-1 gap-2">
+                    {{ form_widget(form.reject, {
+                        label: '<span class="d-inline-flex align-items-center gap-1">' ~ ux_icon('tabler:ban', {class: 'w-3 h-3'}) ~ ('encounter.review.action.reject'|trans({}, 'encounter')|e) ~ '</span>',
+                        label_html: true,
+                        attr: {class: 'btn btn-outline-danger', 'data-encounter-match-review-target': 'reject', 'data-test': 'encounter-review-reject'},
+                    }) }}
+                    {{ form_widget(form.confirm, {
+                        label: '<span data-encounter-match-review-target="confirmLabel">' ~ ('encounter.review.action.confirm'|trans({}, 'encounter')|e) ~ '</span>' ~ ux_icon('tabler:circle-check', {class: 'w-3 h-3 ms-1'}),
+                        label_html: true,
+                        attr: {class: 'btn btn-success', 'data-encounter-match-review-target': 'confirm', 'data-test': 'encounter-review-confirm'},
+                    }) }}
                 </div>
             </div>
         </div>
+    </div>
+
+    {{ form_end(form) }}
+
+    {% for swap in swaps %}
+        <form id="encounter-review-swap-form-{{ loop.index }}" method="post" action="{{ path('app_encounter_review_swap', {id: hospital.id, allocationId: swap.allocationId}|merge(context.query())) }}"></form>
     {% endfor %}
-
-    <a class="btn" href="{{ list_url }}">{{ 'encounter.review.action.leave_open'|trans({}, 'encounter') }}</a>
 {% endblock %}

@@ -31,6 +31,8 @@ use Psr\Clock\ClockInterface;
  * are sticky: no matcher run changes a `confirmed` or `rejected` pair. After a link is made, open
  * proposals touching either side are removed, as the matcher does at the end of a run, which also
  * resolves a conflict.
+ *
+ * @psalm-suppress UnusedClass Autowired as MatchDeciderInterface.
  */
 final readonly class MatchDecider implements MatchDeciderInterface
 {
@@ -119,7 +121,7 @@ final readonly class MatchDecider implements MatchDeciderInterface
 
             $pair = $this->row($allocationId, $encounterId);
             if (!$pair instanceof EncounterMatch) {
-                throw new MatchDecisionException(MatchDecisionException::NOT_A_CANDIDATE);
+                throw new MatchDecisionException(MatchDecisionException::NOT_STORED);
             }
             if (MatchStatus::Rejected === $pair->getStatus()) {
                 throw new MatchDecisionException(MatchDecisionException::UNCHANGED);

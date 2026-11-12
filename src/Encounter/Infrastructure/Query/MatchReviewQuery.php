@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Infrastructure\Query;
 
 use App\Encounter\Application\Contract\MatchReviewReaderInterface;
+use App\Encounter\Application\Review\ReviewContext;
 use App\Encounter\Application\Review\ReviewFilter;
 use App\Encounter\Application\Review\ReviewPeriod;
 use App\Encounter\Domain\Enum\ArrivalRoute;
@@ -140,13 +141,16 @@ SQL,
     }
 
     /**
-     * Pairs of one status list (proposed, conflicts, automatic, confirmed, rejected), by IVENA arrival.
+     * Pairs of one status list (proposed, conflicts, automatic, confirmed, rejected) in the context's order.
      *
      * @return list<array<string, mixed>>
      */
     #[\Override]
-    public function pairs(int $hospitalId, ReviewPeriod $period, ReviewFilter $filter, int $offset, int $limit): array
+    public function pairs(int $hospitalId, ReviewContext $context, int $offset, int $limit): array
     {
+        $period = $context->period;
+        $filter = $context->filter;
+
         return array_map($this->pairRow(...), $this->connection->fetchAllAssociative(
             <<<SQL
 SELECT m.id, m.status, m.conflict, {$this->openConflict()} AS open_conflict, m.score, m.points, m.pass, m.time_anchor,
@@ -158,7 +162,7 @@ JOIN allocation a ON a.id = m.allocation_id
 JOIN encounter e ON e.id = m.encounter_id
 LEFT JOIN "user" u ON u.id = m.decided_by_id
 WHERE {$this->pairCondition($filter)}
-ORDER BY a.arrival_at, a.id, m.score DESC NULLS LAST, m.id
+ORDER BY {$this->pairOrder($context)}
 LIMIT :limit OFFSET :offset
 SQL,
             [...$this->periodParameters($hospitalId, $period), 'status' => $this->statusOf($filter), 'limit' => $limit, 'offset' => $offset],
@@ -174,6 +178,33 @@ SQL,
             [...$this->periodParameters($hospitalId, $period), 'status' => $this->statusOf($filter)],
             [...$this->periodTypes(), 'status' => Types::STRING],
         );
+    }
+
+    /**
+     * Allocation ids of a pair segment or of "no proposal", each once, in the order of the list.
+     *
+     * @return list<int>
+     */
+    #[\Override]
+    public function segmentAllocationIds(int $hospitalId, ReviewContext $context): array
+    {
+        $parameters = $this->periodParameters($hospitalId, $context->period);
+        $types = $this->periodTypes();
+        if (ReviewFilter::NoProposal === $context->filter) {
+            $ids = $this->connection->fetchFirstColumn(
+                "SELECT a.id FROM allocation a WHERE {$this->noProposalCondition()} ORDER BY a.arrival_at, a.id",
+                $parameters,
+                $types,
+            );
+        } else {
+            $ids = $this->connection->fetchFirstColumn(
+                "SELECT a.id FROM encounter_match m JOIN allocation a ON a.id = m.allocation_id WHERE {$this->pairCondition($context->filter)} ORDER BY {$this->pairOrder($context)}",
+                [...$parameters, 'status' => $this->statusOf($context->filter)],
+                [...$types, 'status' => Types::STRING],
+            );
+        }
+
+        return array_values(array_unique(array_map(intval(...), $ids)));
     }
 
     /**
@@ -423,6 +454,17 @@ SQL,
             ReviewFilter::Proposed => $condition.' AND NOT '.$this->openConflict(),
             ReviewFilter::Conflicts => $condition.' AND '.$this->openConflict(),
             default => $condition,
+        };
+    }
+
+    private function pairOrder(ReviewContext $context): string
+    {
+        $direction = 'desc' === $context->orderBy ? 'DESC' : 'ASC';
+
+        return match ($context->sortBy) {
+            'agreement' => "m.score {$direction} NULLS LAST, a.arrival_at, a.id, m.id",
+            'difference' => "m.time_difference_minutes {$direction}, a.arrival_at, a.id, m.id",
+            default => "a.arrival_at {$direction}, a.id {$direction}, m.score DESC NULLS LAST, m.id",
         };
     }
 

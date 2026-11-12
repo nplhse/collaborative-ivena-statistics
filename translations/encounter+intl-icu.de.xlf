@@ -915,7 +915,7 @@
       </trans-unit>
       <trans-unit id="Enc43624B40" resname="encounter.review.allocation_title">
         <source>encounter.review.allocation_title</source>
-        <target>Zuweisung prüfen</target>
+        <target>Zuweisung {arrival} prüfen</target>
       </trans-unit>
       <trans-unit id="Enc77699171" resname="encounter.review.agreement_note">
         <source>encounter.review.agreement_note</source>
@@ -928,10 +928,6 @@
       <trans-unit id="EncD62A9027" resname="encounter.review.period.to">
         <source>encounter.review.period.to</source>
         <target>Bis</target>
-      </trans-unit>
-      <trans-unit id="Enc63CC9540" resname="encounter.review.period.apply">
-        <source>encounter.review.period.apply</source>
-        <target>Anzeigen</target>
       </trans-unit>
       <trans-unit id="Enc7386F9C1" resname="encounter.review.period.help">
         <source>encounter.review.period.help</source>
@@ -1069,10 +1065,6 @@
         <source>encounter.review.column.route</source>
         <target>Zugangsweg</target>
       </trans-unit>
-      <trans-unit id="Enc242AB0D2" resname="encounter.review.column.proposal">
-        <source>encounter.review.column.proposal</source>
-        <target>Vorschlag</target>
-      </trans-unit>
       <trans-unit id="Enc6DF1ACB2" resname="encounter.review.column.swap">
         <source>encounter.review.column.swap</source>
         <target>Tausch</target>
@@ -1129,10 +1121,6 @@
         <source>encounter.review.minutes</source>
         <target>{minutes} min</target>
       </trans-unit>
-      <trans-unit id="EncFE82CED8" resname="encounter.review.points">
-        <source>encounter.review.points</source>
-        <target>{points} Punkte</target>
-      </trans-unit>
       <trans-unit id="EncBF4F42E8" resname="encounter.review.points_pass">
         <source>encounter.review.points_pass</source>
         <target>{points} Punkte · Durchlauf {pass}</target>
@@ -1147,7 +1135,7 @@
       </trans-unit>
       <trans-unit id="Enc3A9FDEC4" resname="encounter.review.open_proposal">
         <source>encounter.review.open_proposal</source>
-        <target>Offenen Vorschlag öffnen</target>
+        <target>Vorschlag prüfen</target>
       </trans-unit>
       <trans-unit id="Enc537E5182" resname="encounter.review.no_open_proposal">
         <source>encounter.review.no_open_proposal</source>
@@ -1171,15 +1159,11 @@
       </trans-unit>
       <trans-unit id="Enc80A19C19" resname="encounter.review.not_linked">
         <source>encounter.review.not_linked</source>
-        <target>Nicht verknüpft. Bestätigen Sie unten einen Kandidaten oder lassen Sie die Zuweisung offen.</target>
+        <target>Nicht verknüpft.</target>
       </trans-unit>
       <trans-unit id="EncB44683A0" resname="encounter.review.automatic_origin">
         <source>encounter.review.automatic_origin</source>
         <target>Automatisch vom Abgleich verknüpft (Übereinstimmung {score}, Durchlauf {pass}). Die Verknüpfung gilt auch ohne Bestätigung.</target>
-      </trans-unit>
-      <trans-unit id="EncB51E38B3" resname="encounter.review.candidates">
-        <source>encounter.review.candidates</source>
-        <target>Kandidaten-Besuche: {count, number}</target>
       </trans-unit>
       <trans-unit id="Enc289245C5" resname="encounter.review.candidates_help">
         <source>encounter.review.candidates_help</source>
@@ -1191,11 +1175,7 @@
       </trans-unit>
       <trans-unit id="Enc75A82C67" resname="encounter.review.stored_score">
         <source>encounter.review.stored_score</source>
-        <target>gespeichert: {score} (Durchlauf {pass})</target>
-      </trans-unit>
-      <trans-unit id="Enc58B79D3B" resname="encounter.review.linked_elsewhere">
-        <source>encounter.review.linked_elsewhere</source>
-        <target>Dieser Besuch ist verknüpft ({status}) mit</target>
+        <target>gespeichert {score}, Durchlauf {pass}</target>
       </trans-unit>
       <trans-unit id="Enc2AE04260" resname="encounter.review.rivals">
         <source>encounter.review.rivals</source>
@@ -1396,6 +1376,82 @@
       <trans-unit id="EncAF136C6F" resname="encounter.review.swap.apply">
         <source>encounter.review.swap.apply</source>
         <target>Tausch übernehmen</target>
+      </trans-unit>
+      <trans-unit id="Enc3DD215B3" resname="encounter.review.period.range">
+        <source>encounter.review.period.range</source>
+        <target>{from} – {to}</target>
+      </trans-unit>
+      <trans-unit id="Enc18EFA355" resname="encounter.review.overview.link">
+        <source>encounter.review.overview.link</source>
+        <target>Übersicht</target>
+      </trans-unit>
+      <trans-unit id="Enc9D443B1E" resname="encounter.review.overview.title">
+        <source>encounter.review.overview.title</source>
+        <target>Übersicht der Abgleichsprüfung</target>
+      </trans-unit>
+      <trans-unit id="Enc9A73872D" resname="encounter.review.overview.worklist">
+        <source>encounter.review.overview.worklist</source>
+        <target>Arbeitsliste</target>
+      </trans-unit>
+      <trans-unit id="EncA7BB1B50" resname="encounter.review.action.start">
+        <source>encounter.review.action.start</source>
+        <target>Prüfung starten</target>
+      </trans-unit>
+      <trans-unit id="EncA8A33928" resname="encounter.review.action.review">
+        <source>encounter.review.action.review</source>
+        <target>Prüfen</target>
+      </trans-unit>
+      <trans-unit id="EncE8157DE6" resname="encounter.review.flash.segment_empty">
+        <source>encounter.review.flash.segment_empty</source>
+        <target>In dieser Liste gibt es nichts zu prüfen.</target>
+      </trans-unit>
+      <trans-unit id="EncD3D94940" resname="encounter.review.flash.segment_done">
+        <source>encounter.review.flash.segment_done</source>
+        <target>Keine weiteren Zuweisungen in dieser Liste.</target>
+      </trans-unit>
+      <trans-unit id="Enc19637761" resname="encounter.review.header_status.auto_accepted">
+        <source>encounter.review.header_status.auto_accepted</source>
+        <target>Automatisch verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc673DC234" resname="encounter.review.header_status.confirmed">
+        <source>encounter.review.header_status.confirmed</source>
+        <target>Bestätigte Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="EncCDC6F1B7" resname="encounter.review.header_status.proposed">
+        <source>encounter.review.header_status.proposed</source>
+        <target>Offener Vorschlag</target>
+      </trans-unit>
+      <trans-unit id="Enc9F750DA8" resname="encounter.review.header_status.conflict">
+        <source>encounter.review.header_status.conflict</source>
+        <target>Konflikt</target>
+      </trans-unit>
+      <trans-unit id="Enc678C5DE4" resname="encounter.review.header_status.not_linked">
+        <source>encounter.review.header_status.not_linked</source>
+        <target>Nicht verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc84BAFF91" resname="encounter.review.context">
+        <source>encounter.review.context</source>
+        <target>Kontext</target>
+      </trans-unit>
+      <trans-unit id="Enc79198FA4" resname="encounter.review.decision">
+        <source>encounter.review.decision</source>
+        <target>Entscheidung</target>
+      </trans-unit>
+      <trans-unit id="EncF08C5C6E" resname="encounter.review.comparison">
+        <source>encounter.review.comparison</source>
+        <target>Vergleich mit Besuch #{id}</target>
+      </trans-unit>
+      <trans-unit id="Enc7333A9BB" resname="encounter.review.linked_elsewhere_short">
+        <source>encounter.review.linked_elsewhere_short</source>
+        <target>Verknüpft mit Zuweisung #{id}</target>
+      </trans-unit>
+      <trans-unit id="EncA487748B" resname="encounter.review.agreement_short">
+        <source>encounter.review.agreement_short</source>
+        <target>Übereinstimmung {agreement} · {points} Punkte</target>
+      </trans-unit>
+      <trans-unit id="Enc389E5C89" resname="encounter.review.error.not_stored">
+        <source>encounter.review.error.not_stored</source>
+        <target>Nur ein vorgeschlagenes oder verknüpftes Paar kann abgelehnt werden.</target>
       </trans-unit>
       <trans-unit id="EncBABE30DE" resname="encounter.mts.glossary.title">
         <source>encounter.mts.glossary.title</source>
