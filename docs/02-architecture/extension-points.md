@@ -94,6 +94,22 @@ To add a new data source, also implement `DataSourceCapabilitiesProviderInterfac
 
 See [../04-features/notification/README.md](../04-features/notification/README.md).
 
+## Hospital edit sections
+
+**Tag:** `allocation.hospital_edit_section`
+
+**Interface:** `HospitalEditSectionProviderInterface` (`src/Allocation/Application/Hospital/EditSection/`)
+
+**Registry:** `HospitalEditSectionRegistry`, rendered by the Twig function `hospital_edit_sections(hospital)` in
+`@Allocation/hospitals/_edit_shell.html.twig`
+
+**Implementations:** `EncounterHospitalEditSectionProvider` (encounter access grants, #1046)
+
+Lets other contexts add a sidebar group with links to the hospital edit pages without a dependency from
+`Allocation` on them. Providers check access themselves and return no section for users who may not open
+the page. A page that wants its link highlighted passes `activeSection: '<section key>.<link key>'` to the
+edit shell.
+
 ## Encounter schemas (planned)
 
 **Tag:** `encounter.dimension`
