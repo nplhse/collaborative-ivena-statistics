@@ -50,10 +50,11 @@ final class EncounterKeyChangeControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-test="encounter-key-change-option-keep"]', 'counted twice');
         self::assertSelectorTextContains('[data-test="encounter-key-change-option-delete"]', 'There are no encounters yet.');
         self::assertSelectorExists('[data-test="encounter-key-change-safety"] input[name="encounter_key_change[confirmName]"]');
-        self::assertSelectorExists('[data-test="encounter-key-change-safety"] button[type="submit"][data-encounter-key-change-target="submit"]');
-        $form = $crawler->filter('form[name="encounter_key_change"]');
-        self::assertSame('encounter-key-change', $form->attr('data-controller'));
-        self::assertSame((string) $this->hospital->getName(), $form->attr('data-encounter-key-change-hospital-name-value'));
+        self::assertSelectorExists('[data-test="encounter-key-change-safety"] button[data-bs-target="#encounter-key-change-modal"][data-encounter-key-change-target="submit"]');
+        self::assertSelectorExists('[data-test="encounter-key-change-modal"] button[type="submit"][form="encounter-key-change-form"]');
+        $controller = $crawler->filter('[data-controller="encounter-key-change"]');
+        self::assertSame((string) $this->hospital->getName(), $controller->attr('data-encounter-key-change-hospital-name-value'));
+        self::assertStringContainsString('only upload new periods', (string) $controller->attr('data-encounter-key-change-keep-message-value'));
         self::assertSelectorExists('a[href="'.$this->url().'"]');
 
         $form = $crawler->filter('form[name="encounter_key_change"]')->form();

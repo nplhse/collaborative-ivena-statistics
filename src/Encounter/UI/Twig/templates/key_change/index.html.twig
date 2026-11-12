@@ -31,12 +31,14 @@
                     <li>{{ 'encounter.key_change.consequence.no_matching'|trans({}, 'encounter') }}</li>
                 </ul>
 
+                <div data-controller="encounter-key-change"
+                     data-encounter-key-change-hospital-name-value="{{ hospital.name }}"
+                     data-encounter-key-change-delete-message-value="{{ 'encounter.key_change.modal.delete'|trans({encounters: summary.encounters, imports: summary.imports}, 'encounter') }}"
+                     data-encounter-key-change-keep-message-value="{{ 'encounter.key_change.modal.keep'|trans({}, 'encounter') }}">
                 {{ form_start(form, {attr: {
+                    id: 'encounter-key-change-form',
                     'data-test': 'encounter-key-change-form',
-                    'data-controller': 'encounter-key-change',
-                    'data-action': 'submit->encounter-key-change#confirm',
-                    'data-encounter-key-change-hospital-name-value': hospital.name,
-                    'data-encounter-key-change-delete-message-value': 'encounter.key_change.confirm_delete'|trans({encounters: summary.encounters, imports: summary.imports}, 'encounter'),
+                    'data-encounter-key-change-target': 'form',
                 }}) }}
                     <div class="mb-3">
                         <h4>{{ 'encounter.key_change.field.option'|trans({}, 'encounter') }}</h4>
@@ -60,9 +62,22 @@
                             'data-encounter-key-change-target': 'name',
                             'data-action': 'input->encounter-key-change#update',
                         }}) }}
-                        <button class="btn btn-danger" type="submit" data-encounter-key-change-target="submit">{{ 'encounter.key_change.action.submit'|trans({}, 'encounter') }}</button>
+                        <button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#encounter-key-change-modal" data-encounter-key-change-target="submit">{{ 'encounter.key_change.action.submit'|trans({}, 'encounter') }}</button>
                     </div>
                 {{ form_end(form) }}
+
+                <twig:Modal id="encounter-key-change-modal" :title="'encounter.key_change.modal.title'|trans({}, 'encounter')" size="sm" :scrollable="false"
+                            data-action="show.bs.modal->encounter-key-change#prepare"
+                            data-test="encounter-key-change-modal">
+                    <div class="modal-body">
+                        <p class="mb-0" data-encounter-key-change-target="message"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">{{ 'action.cancel'|trans({}, 'messages') }}</button>
+                        <button type="submit" form="encounter-key-change-form" class="btn btn-danger">{{ 'encounter.key_change.action.submit'|trans({}, 'encounter') }}</button>
+                    </div>
+                </twig:Modal>
+                </div>
             {% endif %}
         {% endblock %}
         {% block edit_footer %}

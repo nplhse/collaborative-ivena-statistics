@@ -1,17 +1,18 @@
 import { Controller } from '@hotwired/stimulus';
 
 /*
- * Key change form (encounter data, ADR 026): the submit button stays disabled until the hospital name is
- * typed exactly, and choosing "delete" asks once more before the form is sent. The server checks the name
- * again; without JavaScript the form still works.
+ * Key change form (encounter data, ADR 026): the button stays disabled until the hospital name is typed
+ * exactly. It opens a confirmation modal whose text names the consequence of the chosen option; the
+ * modal's button submits the form. The server checks the name and the option again.
  */
 /* stimulusFetch: 'lazy' */
 export default class extends Controller {
-    static targets = ['name', 'submit'];
+    static targets = ['form', 'name', 'submit', 'message'];
 
     static values = {
         hospitalName: String,
         deleteMessage: String,
+        keepMessage: String,
     };
 
     connect() {
@@ -22,10 +23,16 @@ export default class extends Controller {
         this.submitTarget.disabled = this.nameTarget.value.trim() !== this.hospitalNameValue.trim();
     }
 
-    confirm(event) {
-        const option = this.element.querySelector('input[type="radio"]:checked');
-        if (option?.value === 'delete' && !window.confirm(this.deleteMessageValue)) {
+    // show.bs.modal: an incomplete form shows its validation messages instead of the modal.
+    prepare(event) {
+        if (!this.formTarget.reportValidity()) {
             event.preventDefault();
+
+            return;
         }
+
+        const option = this.formTarget.querySelector('input[type="radio"]:checked');
+        this.messageTarget.textContent =
+            option?.value === 'delete' ? this.deleteMessageValue : this.keepMessageValue;
     }
 }

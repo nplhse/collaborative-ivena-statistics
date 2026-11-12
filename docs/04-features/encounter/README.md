@@ -201,7 +201,9 @@ encounters and imports go; afterwards any period can be uploaded again) or **kee
 periods afterwards, otherwise visits are counted twice, because the new key gives them other fingerprints
 and duplicate detection works only within one generation) and types the hospital name exactly in a red
 confirmation box. The button stays disabled until the name matches (`encounter-key-change` Stimulus
-controller; the server checks the name again), and with **delete** a browser dialog asks once more. Links and review decisions are added to the counts
+controller; the server checks the name again). The button opens a confirmation modal (the shared `Modal`
+component, as for deleting an import) that names the consequence of the chosen option; its button submits
+the form. Links and review decisions are added to the counts
 with matching (#1053) and review (#1054).
 
 Flow (`EncounterKeyChanger`, one transaction holding the key state lock that the import commit takes):

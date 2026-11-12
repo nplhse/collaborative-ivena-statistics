@@ -869,9 +869,17 @@
         <source>encounter.key_change.safety.text</source>
         <target>Changing the key cannot be undone. To be safe, type the name of the hospital first.</target>
       </trans-unit>
-      <trans-unit id="EncKE40DA444" resname="encounter.key_change.confirm_delete">
-        <source>encounter.key_change.confirm_delete</source>
-        <target>{encounters, plural, =0 {The key will be changed.} one {# encounter from {imports, plural, one {# import} other {# imports}} will be deleted permanently.} other {# encounters from {imports, plural, one {# import} other {# imports}} will be deleted permanently.}} This cannot be undone. Continue?</target>
+      <trans-unit id="EncK090962E7" resname="encounter.key_change.modal.title">
+        <source>encounter.key_change.modal.title</source>
+        <target>Change the key?</target>
+      </trans-unit>
+      <trans-unit id="EncK93915DFB" resname="encounter.key_change.modal.delete">
+        <source>encounter.key_change.modal.delete</source>
+        <target>{encounters, plural, =0 {There are no encounters to delete.} one {# encounter from {imports, plural, one {# import} other {# imports}} will be deleted permanently.} other {# encounters from {imports, plural, one {# import} other {# imports}} will be deleted permanently.}} This cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="EncK28607B43" resname="encounter.key_change.modal.keep">
+        <source>encounter.key_change.modal.keep</source>
+        <target>Your existing encounters are kept. Afterwards only upload new periods. This cannot be undone.</target>
       </trans-unit>
     </body>
   </file>
