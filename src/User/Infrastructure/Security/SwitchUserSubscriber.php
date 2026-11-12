@@ -107,15 +107,7 @@ final readonly class SwitchUserSubscriber
             $metadata['impersonatorUserId'] = $actorId;
         }
 
-        $clientIp = $this->auditContext->getClientIp();
-        if (null !== $clientIp && '' !== $clientIp) {
-            $metadata['clientIp'] = $clientIp;
-        }
-
-        $userAgent = $this->auditContext->getUserAgent();
-        if (null !== $userAgent && '' !== $userAgent) {
-            $metadata['userAgent'] = $userAgent;
-        }
+        $metadata = [...$metadata, ...$this->auditContext->requestMetadata()];
 
         $this->entityManager->persist(new AuditEntry(
             $this->clock->now(),
@@ -127,6 +119,7 @@ final readonly class SwitchUserSubscriber
             null !== $subjectId ? (string) $subjectId : null,
             [],
             $metadata,
+            $this->auditContext->getSessionRef(),
         ));
         $this->entityManager->flush();
     }
