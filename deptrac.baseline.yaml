@@ -137,8 +137,6 @@ deptrac:
       - App\Allocation\Infrastructure\Security\Voter\HospitalVoter
     App\Allocation\UI\Http\Controller\Hospitals\ListHospitalsController:
       - App\Allocation\Infrastructure\Repository\HospitalRepository
-    App\Allocation\UI\Http\Controller\Hospitals\ListOwnedHospitalsController:
-      - App\Allocation\Infrastructure\Repository\HospitalRepository
     App\Allocation\UI\Http\Controller\Hospitals\NewHospitalAccessGrantController:
       - App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository
       - App\Allocation\Infrastructure\Security\Voter\HospitalVoter

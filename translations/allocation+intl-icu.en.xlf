@@ -1193,6 +1193,238 @@
         <source>catalog.department.aliases.hint</source>
         <target>Other spellings from imports. Not an official directory.</target>
       </trans-unit>
+      <trans-unit id="myHospSumAllocEn" resname="my_hospitals.summary.allocations">
+        <source>my_hospitals.summary.allocations</source>
+        <target>Available allocations</target>
+      </trans-unit>
+      <trans-unit id="myHospSumPeriodEn" resname="my_hospitals.summary.data_period">
+        <source>my_hospitals.summary.data_period</source>
+        <target>Data period</target>
+      </trans-unit>
+      <trans-unit id="myHospSumNoDataEn" resname="my_hospitals.summary.no_data">
+        <source>my_hospitals.summary.no_data</source>
+        <target>No data yet</target>
+      </trans-unit>
+      <trans-unit id="myHospSumNoUpEn" resname="my_hospitals.summary.no_upload">
+        <source>my_hospitals.summary.no_upload</source>
+        <target>No upload yet</target>
+      </trans-unit>
+      <trans-unit id="myHospSumBasisEn" resname="my_hospitals.summary.basis">
+        <source>my_hospitals.summary.basis</source>
+        <target>Based on {count} of {total} hospitals</target>
+      </trans-unit>
+      <trans-unit id="myHospHeadCountEn" resname="my_hospitals.header.count">
+        <source>my_hospitals.header.count</source>
+        <target>{count, plural, one {# hospital} other {# hospitals}}</target>
+      </trans-unit>
+      <trans-unit id="myHospHeadSelectedEn" resname="my_hospitals.header.selected">
+        <source>my_hospitals.header.selected</source>
+        <target>1 of {total} hospitals</target>
+      </trans-unit>
+      <trans-unit id="myHospSelAllEn" resname="my_hospitals.selection.all">
+        <source>my_hospitals.selection.all</source>
+        <target>All hospitals</target>
+      </trans-unit>
+      <trans-unit id="myHospFindCountEn" resname="my_hospitals.finding.count">
+        <source>my_hospitals.finding.count</source>
+        <target>{count, plural, one {# hint} other {# hints}}</target>
+      </trans-unit>
+      <trans-unit id="myHospFindImportFailedEn" resname="my_hospitals.finding.import_failed">
+        <source>my_hospitals.finding.import_failed</source>
+        <target>The import of {date} failed.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindImportCancelledEn" resname="my_hospitals.finding.import_cancelled">
+        <source>my_hospitals.finding.import_cancelled</source>
+        <target>The import of {date} was cancelled.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindImportRejectsEn" resname="my_hospitals.finding.import_rejects">
+        <source>my_hospitals.finding.import_rejects</source>
+        <target>{amount, plural, one {# row} other {# rows}} of the import of {date} could not be taken over.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindImportDayGapsEn" resname="my_hospitals.finding.import_day_gaps">
+        <source>my_hospitals.finding.import_day_gaps</source>
+        <target>The import of {date} has {amount, plural, one {# day} other {# days}} without records.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindNotUpdatedEn" resname="my_hospitals.finding.not_updated">
+        <source>my_hospitals.finding.not_updated</source>
+        <target>The latest allocation is from {date}, {amount} days ago.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindPossibleGapEn" resname="my_hospitals.finding.possible_gap">
+        <source>my_hospitals.finding.possible_gap</source>
+        <target>{amount, plural, one {No data for {month}} other {No data from {month} to {end}}} although imports cover the time before and after. An import may be missing.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindVolumeChangeEn" resname="my_hospitals.finding.volume_change">
+        <source>my_hospitals.finding.volume_change</source>
+        <target>{month}: {amount} % {direction, select, up {more} other {fewer}} allocations than in the months before.</target>
+      </trans-unit>
+      <trans-unit id="myHospSumWithDataEn" resname="my_hospitals.summary.with_data">
+        <source>my_hospitals.summary.with_data</source>
+        <target>from {count, plural, one {# hospital} other {# hospitals}} with data</target>
+      </trans-unit>
+      <trans-unit id="myHospSumPeriodHintEn" resname="my_hospitals.summary.data_period_hint">
+        <source>my_hospitals.summary.data_period_hint</source>
+        <target>First to latest allocation</target>
+      </trans-unit>
+      <trans-unit id="myHospSumImportsEn" resname="my_hospitals.summary.imports">
+        <source>my_hospitals.summary.imports</source>
+        <target>Imports</target>
+      </trans-unit>
+      <trans-unit id="myHospSumLastUpOnEn" resname="my_hospitals.summary.last_upload_on">
+        <source>my_hospitals.summary.last_upload_on</source>
+        <target>Latest upload {date}</target>
+      </trans-unit>
+      <trans-unit id="myHospSumCovEn" resname="my_hospitals.summary.coverage">
+        <source>my_hospitals.summary.coverage</source>
+        <target>Complete months</target>
+      </trans-unit>
+      <trans-unit id="myHospSumCovHintEn" resname="my_hospitals.summary.coverage_hint">
+        <source>my_hospitals.summary.coverage_hint</source>
+        <target>Fully covered in the last 12 months</target>
+      </trans-unit>
+      <trans-unit id="myHospCovValueEn" resname="my_hospitals.coverage_value">
+        <source>my_hospitals.coverage_value</source>
+        <target>{covered} of {total}</target>
+      </trans-unit>
+      <trans-unit id="myHospCardOwnedEn" resname="my_hospitals.card.owned">
+        <source>my_hospitals.card.owned</source>
+        <target>Owner</target>
+      </trans-unit>
+      <trans-unit id="myHospCardSharedEn" resname="my_hospitals.card.shared">
+        <source>my_hospitals.card.shared</source>
+        <target>Shared with you</target>
+      </trans-unit>
+      <trans-unit id="myHospCardAllocEn" resname="my_hospitals.card.allocations">
+        <source>my_hospitals.card.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="myHospCardPeriodEn" resname="my_hospitals.card.data_period">
+        <source>my_hospitals.card.data_period</source>
+        <target>Data period</target>
+      </trans-unit>
+      <trans-unit id="myHospCardCovEn" resname="my_hospitals.card.coverage">
+        <source>my_hospitals.card.coverage</source>
+        <target>Complete months</target>
+      </trans-unit>
+      <trans-unit id="myHospCardImportsEn" resname="my_hospitals.card.imports">
+        <source>my_hospitals.card.imports</source>
+        <target>Imports</target>
+      </trans-unit>
+      <trans-unit id="myHospCardImpPartialEn" resname="my_hospitals.card.imports_partial">
+        <source>my_hospitals.card.imports_partial</source>
+        <target>{count} of them partial</target>
+      </trans-unit>
+      <trans-unit id="myHospCardImpPendingEn" resname="my_hospitals.card.imports_pending">
+        <source>my_hospitals.card.imports_pending</source>
+        <target>{count} in progress</target>
+      </trans-unit>
+      <trans-unit id="myHospCardLastUpEn" resname="my_hospitals.card.last_upload">
+        <source>my_hospitals.card.last_upload</source>
+        <target>Latest upload</target>
+      </trans-unit>
+      <trans-unit id="myHospCardOwnEn" resname="my_hospitals.card.own_uploads">
+        <source>my_hospitals.card.own_uploads</source>
+        <target>Your uploads</target>
+      </trans-unit>
+      <trans-unit id="myHospCardNoDataEn" resname="my_hospitals.card.no_data">
+        <source>my_hospitals.card.no_data</source>
+        <target>No allocations have been imported for this hospital yet.</target>
+      </trans-unit>
+      <trans-unit id="myHospCardNoDataProbEn" resname="my_hospitals.card.no_data_problems">
+        <source>my_hospitals.card.no_data_problems</source>
+        <target>No allocations yet: the imports so far did not complete. Check the imports.</target>
+      </trans-unit>
+      <trans-unit id="myHospCardNoDataPendEn" resname="my_hospitals.card.no_data_pending">
+        <source>my_hospitals.card.no_data_pending</source>
+        <target>No allocations yet: an import is still being processed.</target>
+      </trans-unit>
+      <trans-unit id="myHospActStatsEn" resname="my_hospitals.action.statistics">
+        <source>my_hospitals.action.statistics</source>
+        <target>View statistics</target>
+      </trans-unit>
+      <trans-unit id="myHospActImportsEn" resname="my_hospitals.action.imports">
+        <source>my_hospitals.action.imports</source>
+        <target>View imports</target>
+      </trans-unit>
+      <trans-unit id="myHospActUploadEn" resname="my_hospitals.action.upload">
+        <source>my_hospitals.action.upload</source>
+        <target>Upload new import</target>
+      </trans-unit>
+      <trans-unit id="myHospSuccessRateEn" resname="my_hospitals.success_rate">
+        <source>my_hospitals.success_rate</source>
+        <target>{rate} % successful</target>
+      </trans-unit>
+      <trans-unit id="myHospSumNoImportsEn" resname="my_hospitals.summary.no_imports">
+        <source>my_hospitals.summary.no_imports</source>
+        <target>No imports yet</target>
+      </trans-unit>
+      <trans-unit id="myHospCardImpSuccessEn" resname="my_hospitals.card.imports_success">
+        <source>my_hospitals.card.imports_success</source>
+        <target>{successful} of {finished} successful</target>
+      </trans-unit>
+      <trans-unit id="myHospCardMenuEn" resname="my_hospitals.card.menu">
+        <source>my_hospitals.card.menu</source>
+        <target>More actions</target>
+      </trans-unit>
+      <trans-unit id="myHospStCoveredEn" resname="my_hospitals.month.state.covered">
+        <source>my_hospitals.month.state.covered</source>
+        <target>{allocations, plural, one {# allocation} other {# allocations}}, fully covered</target>
+      </trans-unit>
+      <trans-unit id="myHospStPartialEn" resname="my_hospitals.month.state.partial">
+        <source>my_hospitals.month.state.partial</source>
+        <target>{allocations, plural, one {# allocation} other {# allocations}}, {covered} of {days} days covered</target>
+      </trans-unit>
+      <trans-unit id="myHospStMissingEn" resname="my_hospitals.month.state.missing">
+        <source>my_hospitals.month.state.missing</source>
+        <target>No import covers this month (possible gap)</target>
+      </trans-unit>
+      <trans-unit id="myHospStOutsideEn" resname="my_hospitals.month.state.outside">
+        <source>my_hospitals.month.state.outside</source>
+        <target>No data delivered yet</target>
+      </trans-unit>
+      <trans-unit id="myHospStInProgressEn" resname="my_hospitals.month.state.in_progress">
+        <source>my_hospitals.month.state.in_progress</source>
+        <target>{allocations, plural, one {# allocation} other {# allocations}} so far, month in progress</target>
+      </trans-unit>
+      <trans-unit id="myHospLegPartialEn" resname="my_hospitals.legend.partial">
+        <source>my_hospitals.legend.partial</source>
+        <target>Partly covered</target>
+      </trans-unit>
+      <trans-unit id="myHospLegMissingEn" resname="my_hospitals.legend.missing">
+        <source>my_hospitals.legend.missing</source>
+        <target>Gap between imports</target>
+      </trans-unit>
+      <trans-unit id="myHospLegOutsideEn" resname="my_hospitals.legend.outside">
+        <source>my_hospitals.legend.outside</source>
+        <target>No data</target>
+      </trans-unit>
+      <trans-unit id="myHospLegInProgEn" resname="my_hospitals.legend.in_progress">
+        <source>my_hospitals.legend.in_progress</source>
+        <target>Current month</target>
+      </trans-unit>
+      <trans-unit id="myHospCovTitleEn" resname="my_hospitals.coverage.title">
+        <source>my_hospitals.coverage.title</source>
+        <target>Data coverage</target>
+      </trans-unit>
+      <trans-unit id="myHospCovSubEn" resname="my_hospitals.coverage.subtitle">
+        <source>my_hospitals.coverage.subtitle</source>
+        <target>Every month since the first data, one row per year</target>
+      </trans-unit>
+      <trans-unit id="myHospLegLessEn" resname="my_hospitals.legend.less">
+        <source>my_hospitals.legend.less</source>
+        <target>Less</target>
+      </trans-unit>
+      <trans-unit id="myHospLegMoreEn" resname="my_hospitals.legend.more">
+        <source>my_hospitals.legend.more</source>
+        <target>More</target>
+      </trans-unit>
+      <trans-unit id="myHospLegVolumeEn" resname="my_hospitals.legend.volume">
+        <source>my_hospitals.legend.volume</source>
+        <target>Volume</target>
+      </trans-unit>
+      <trans-unit id="myHospStNoAllocEn" resname="my_hospitals.month.state.no_allocations">
+        <source>my_hospitals.month.state.no_allocations</source>
+        <target>Covered by an import, but no allocations</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

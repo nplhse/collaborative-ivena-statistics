@@ -40,6 +40,8 @@ Grants are stored in `HospitalAccessGrant` as an integer mask and validated via 
 - **Owners** have all permissions on their hospitals.
 - **Granted users** have permissions according to their grant mask.
 
+Exception: My Hospitals (`/hospitals`) lists only hospitals an administrator owns or was granted, not all of them. See [my-hospitals.md](../04-features/allocation/my-hospitals.md).
+
 ## Voters
 
 | Voter | Attributes | Subject |
