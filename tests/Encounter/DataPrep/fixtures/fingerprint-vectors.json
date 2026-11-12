@@ -1,0 +1,38 @@
+{
+    "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+    "keyCheck": "d38023a584daada902a2d80af9711bfba55dc414eac482a8a66ed454a7a2d119",
+    "vectors": [
+        {
+            "caseNumber": "00012345",
+            "anchorSource": "assessment",
+            "anchor": "05.10.2026  08:17:05",
+            "input": "ed-visit:v1|00012345|assessment|2026-10-05T08:17:05",
+            "visitFingerprint": "0e4cedf937c33b0c39eae78afe3e6202023e65f5c1a9cd0b0d6bcb1e3bf925e0",
+            "caseKey": "2bf3f27f2fc648f1fa7a509494a18f4d38bb2408aa15015865c5466f610d1ded"
+        },
+        {
+            "caseNumber": "0001-2345",
+            "anchorSource": "assessment",
+            "anchor": "20.10.2026  10:04:00",
+            "input": "ed-visit:v1|00012345|assessment|2026-10-20T10:04:00",
+            "visitFingerprint": "24b1d65c91483571fd715368368e4ecdc4b9dcdfc329e81e670c2d173600403f",
+            "caseKey": "2bf3f27f2fc648f1fa7a509494a18f4d38bb2408aa15015865c5466f610d1ded"
+        },
+        {
+            "caseNumber": "00023456",
+            "anchorSource": "admission",
+            "anchor": "06.10.2026  23:59:59",
+            "input": "ed-visit:v1|00023456|admission|2026-10-06T23:59:59",
+            "visitFingerprint": "79edc3ed8b12e12e8dd3b54bb6d7c1988f93b74b1ac941b55af8b33c68266b1e",
+            "caseKey": "39cfa876315fd190a222b640f1f13e4d409e13ed328d175133943bda979402f8"
+        },
+        {
+            "caseNumber": "A-778",
+            "anchorSource": "admission",
+            "anchor": "01.01.2027  00:00",
+            "input": "ed-visit:v1|778|admission|2027-01-01T00:00:00",
+            "visitFingerprint": "ba29e556fb100f151af58fed61ed189b2ceb47bbc932e9e2a8b5dd693b9e6886",
+            "caseKey": "9103af196f759ec5784afbb5303874fddb1475b5f2f7c94618a7855cbf6b82d5"
+        }
+    ]
+}
