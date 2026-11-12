@@ -29,4 +29,28 @@ final readonly class MyHospitalsOverview
     {
         return \count($this->hospitals);
     }
+
+    public function hospitalsWithData(): int
+    {
+        return \count(array_filter($this->hospitals, static fn (HospitalDataStatus $status): bool => $status->hasData()));
+    }
+
+    /**
+     * Complete months of the twelve-month view (the current month excluded).
+     */
+    public function completeMonths(): int
+    {
+        return \count(array_filter($this->months ?? [], static fn (OverviewMonth $month): bool => !$month->inProgress));
+    }
+
+    /**
+     * Complete months in which every hospital that delivered data covered every day.
+     */
+    public function fullyCoveredMonths(): int
+    {
+        return \count(array_filter(
+            $this->months ?? [],
+            static fn (OverviewMonth $month): bool => !$month->inProgress && $month->hospitals > 0 && $month->coveredHospitals === $month->hospitals,
+        ));
+    }
 }

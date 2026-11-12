@@ -34,4 +34,16 @@ final readonly class HospitalDataStatus
     {
         return $this->allocationCount > 0;
     }
+
+    /**
+     * Complete months of the twelve-month view, or null without STATISTICS.
+     */
+    public function completeMonths(): ?int
+    {
+        if (null === $this->months) {
+            return null;
+        }
+
+        return \count(array_filter($this->months, static fn (MonthStatus $month): bool => MonthCoverageState::InProgress !== $month->state));
+    }
 }

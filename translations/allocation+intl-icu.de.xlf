@@ -1205,17 +1205,125 @@
         <source>my_hospitals.summary.no_data</source>
         <target>Noch keine Daten</target>
       </trans-unit>
-      <trans-unit id="myHospSumLastUpDe" resname="my_hospitals.summary.last_upload">
-        <source>my_hospitals.summary.last_upload</source>
-        <target>Letzter Upload</target>
-      </trans-unit>
       <trans-unit id="myHospSumNoUpDe" resname="my_hospitals.summary.no_upload">
         <source>my_hospitals.summary.no_upload</source>
         <target>Noch kein Upload</target>
       </trans-unit>
       <trans-unit id="myHospSumBasisDe" resname="my_hospitals.summary.basis">
         <source>my_hospitals.summary.basis</source>
-        <target>Basis: {count} von {total} Kliniken</target>
+        <target>Basis: {count} von {total} Krankenhäusern</target>
+      </trans-unit>
+      <trans-unit id="myHospHeadCountDe" resname="my_hospitals.header.count">
+        <source>my_hospitals.header.count</source>
+        <target>{count, plural, one {# Krankenhaus} other {# Krankenhäuser}}</target>
+      </trans-unit>
+      <trans-unit id="myHospSumWithDataDe" resname="my_hospitals.summary.with_data">
+        <source>my_hospitals.summary.with_data</source>
+        <target>aus {count, plural, one {# Krankenhaus} other {# Krankenhäusern}} mit Daten</target>
+      </trans-unit>
+      <trans-unit id="myHospSumPeriodHintDe" resname="my_hospitals.summary.data_period_hint">
+        <source>my_hospitals.summary.data_period_hint</source>
+        <target>Erste bis neueste Zuweisung</target>
+      </trans-unit>
+      <trans-unit id="myHospSumImportsDe" resname="my_hospitals.summary.imports">
+        <source>my_hospitals.summary.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="myHospSumLastUpOnDe" resname="my_hospitals.summary.last_upload_on">
+        <source>my_hospitals.summary.last_upload_on</source>
+        <target>Letzter Upload am {date}</target>
+      </trans-unit>
+      <trans-unit id="myHospSumCovDe" resname="my_hospitals.summary.coverage">
+        <source>my_hospitals.summary.coverage</source>
+        <target>Vollständige Monate</target>
+      </trans-unit>
+      <trans-unit id="myHospSumCovHintDe" resname="my_hospitals.summary.coverage_hint">
+        <source>my_hospitals.summary.coverage_hint</source>
+        <target>In den letzten 12 Monaten vollständig abgedeckt</target>
+      </trans-unit>
+      <trans-unit id="myHospCovValueDe" resname="my_hospitals.coverage_value">
+        <source>my_hospitals.coverage_value</source>
+        <target>{covered} von {total}</target>
+      </trans-unit>
+      <trans-unit id="myHospCardOwnedDe" resname="my_hospitals.card.owned">
+        <source>my_hospitals.card.owned</source>
+        <target>Inhaber</target>
+      </trans-unit>
+      <trans-unit id="myHospCardSharedDe" resname="my_hospitals.card.shared">
+        <source>my_hospitals.card.shared</source>
+        <target>Für dich freigegeben</target>
+      </trans-unit>
+      <trans-unit id="myHospCardAllocDe" resname="my_hospitals.card.allocations">
+        <source>my_hospitals.card.allocations</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="myHospCardPeriodDe" resname="my_hospitals.card.data_period">
+        <source>my_hospitals.card.data_period</source>
+        <target>Datenzeitraum</target>
+      </trans-unit>
+      <trans-unit id="myHospCardCovDe" resname="my_hospitals.card.coverage">
+        <source>my_hospitals.card.coverage</source>
+        <target>Vollständige Monate</target>
+      </trans-unit>
+      <trans-unit id="myHospCardImportsDe" resname="my_hospitals.card.imports">
+        <source>my_hospitals.card.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="myHospCardImpPartialDe" resname="my_hospitals.card.imports_partial">
+        <source>my_hospitals.card.imports_partial</source>
+        <target>davon {count} teilweise</target>
+      </trans-unit>
+      <trans-unit id="myHospCardImpPendingDe" resname="my_hospitals.card.imports_pending">
+        <source>my_hospitals.card.imports_pending</source>
+        <target>{count} in Bearbeitung</target>
+      </trans-unit>
+      <trans-unit id="myHospCardLastUpDe" resname="my_hospitals.card.last_upload">
+        <source>my_hospitals.card.last_upload</source>
+        <target>Letzter Upload</target>
+      </trans-unit>
+      <trans-unit id="myHospCardOwnDe" resname="my_hospitals.card.own_uploads">
+        <source>my_hospitals.card.own_uploads</source>
+        <target>Deine Uploads</target>
+      </trans-unit>
+      <trans-unit id="myHospCardNoDataDe" resname="my_hospitals.card.no_data">
+        <source>my_hospitals.card.no_data</source>
+        <target>Für dieses Krankenhaus wurden noch keine Zuweisungen importiert.</target>
+      </trans-unit>
+      <trans-unit id="myHospCardNoDataProbDe" resname="my_hospitals.card.no_data_problems">
+        <source>my_hospitals.card.no_data_problems</source>
+        <target>Noch keine Zuweisungen: Die bisherigen Importe wurden nicht abgeschlossen. Prüfe die Importe.</target>
+      </trans-unit>
+      <trans-unit id="myHospCardNoDataPendDe" resname="my_hospitals.card.no_data_pending">
+        <source>my_hospitals.card.no_data_pending</source>
+        <target>Noch keine Zuweisungen: Ein Import wird gerade verarbeitet.</target>
+      </trans-unit>
+      <trans-unit id="myHospActStatsDe" resname="my_hospitals.action.statistics">
+        <source>my_hospitals.action.statistics</source>
+        <target>Statistiken ansehen</target>
+      </trans-unit>
+      <trans-unit id="myHospActImportsDe" resname="my_hospitals.action.imports">
+        <source>my_hospitals.action.imports</source>
+        <target>Importe ansehen</target>
+      </trans-unit>
+      <trans-unit id="myHospActUploadDe" resname="my_hospitals.action.upload">
+        <source>my_hospitals.action.upload</source>
+        <target>Neuen Import hochladen</target>
+      </trans-unit>
+      <trans-unit id="myHospSuccessRateDe" resname="my_hospitals.success_rate">
+        <source>my_hospitals.success_rate</source>
+        <target>{rate} % erfolgreich</target>
+      </trans-unit>
+      <trans-unit id="myHospSumNoImportsDe" resname="my_hospitals.summary.no_imports">
+        <source>my_hospitals.summary.no_imports</source>
+        <target>Noch keine Importe</target>
+      </trans-unit>
+      <trans-unit id="myHospCardImpSuccessDe" resname="my_hospitals.card.imports_success">
+        <source>my_hospitals.card.imports_success</source>
+        <target>{successful} von {finished} erfolgreich</target>
+      </trans-unit>
+      <trans-unit id="myHospCardMenuDe" resname="my_hospitals.card.menu">
+        <source>my_hospitals.card.menu</source>
+        <target>Weitere Aktionen</target>
       </trans-unit>
     </body>
   </file>

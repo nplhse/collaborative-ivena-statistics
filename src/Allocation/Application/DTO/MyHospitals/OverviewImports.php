@@ -18,4 +18,17 @@ final readonly class OverviewImports
         public ?\DateTimeImmutable $ownLastUploadAt,
     ) {
     }
+
+    /**
+     * Finished imports: successful plus failed or cancelled (`problems`).
+     */
+    public function finished(): int
+    {
+        return $this->relevant + $this->problems;
+    }
+
+    public function successRate(): ?int
+    {
+        return ImportSuccessRate::percent($this->relevant, $this->finished());
+    }
 }

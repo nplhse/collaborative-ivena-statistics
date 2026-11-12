@@ -41,6 +41,9 @@ final class MyHospitalsOverviewBuilderTest extends TestCase
         self::assertNotNull($full->imports);
         self::assertSame(2, $full->imports->relevant);
         self::assertSame(1, $full->imports->ownImports);
+        // Two successful and one failed import: 2 of 3 finished, 66.7 % rounds to 67.
+        self::assertSame(3, $full->imports->finished());
+        self::assertSame(67, $full->imports->successRate());
         self::assertSame('2026-10-01', $full->imports->ownLastUploadAt?->format('Y-m-d'));
         self::assertCount(12, $full->months ?? []);
         self::assertSame(2, $full->fullyCoveredMonths); // September and October 2026
@@ -71,6 +74,8 @@ final class MyHospitalsOverviewBuilderTest extends TestCase
         self::assertSame(1, $overview->imports->hospitals);
         self::assertSame(2, $overview->imports->relevant);
         self::assertSame(1, $overview->imports->problems);
+        self::assertSame(3, $overview->imports->finished());
+        self::assertSame(67, $overview->imports->successRate());
 
         self::assertSame(1, $overview->statisticsHospitals);
         self::assertNotNull($overview->months);
@@ -97,6 +102,11 @@ final class MyHospitalsOverviewBuilderTest extends TestCase
         self::assertSame(1, $september->coveredHospitals);
         self::assertSame(['Gap Hospital'], $september->hospitalsWithGaps);
         self::assertNull($overview->imports);
+
+        // August (only Gap Hospital delivers, fully) and October (both fully) count; September does not.
+        self::assertSame(11, $overview->completeMonths());
+        self::assertSame(2, $overview->fullyCoveredMonths());
+        self::assertSame(2, $overview->hospitalsWithData());
     }
 
     /**

@@ -1,0 +1,161 @@
+{#
+    One hospital on My Hospitals (#971), spanning the full width. Parts follow the permissions: imports need IMPORT,
+    coverage and statistics need STATISTICS. Administrative actions sit in the menu, quick actions in the footer.
+#}
+{% import '@Shared/_macros/badges.html.twig' as badges %}
+{% set hospital = status.entry.hospital %}
+{% set canEdit = is_granted(constant('App\\Allocation\\Infrastructure\\Security\\Voter\\HospitalVoter::EDIT'), hospital) %}
+{% set canManageAccess = is_granted(constant('App\\Allocation\\Infrastructure\\Security\\Voter\\HospitalVoter::MANAGE_ACCESS_GRANTS'), hospital) %}
+{% set showStatistics = status.months is not null and status.hasData %}
+<div class="card" data-testid="my-hospitals-card" data-hospital-id="{{ hospital.id }}">
+    <div class="card-header">
+        <div>
+            <h3 class="card-title">
+                <a href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}">{{ hospital.name }}</a>
+            </h3>
+            <div class="text-body-secondary small">{{ hospital.dispatchArea }} · {{ hospital.state }}</div>
+        </div>
+        <div class="card-actions d-flex align-items-center gap-2">
+            <span class="badge {{ status.entry.owned ? 'bg-primary-lt' : 'bg-secondary-lt' }}">
+                {{ (status.entry.owned ? 'my_hospitals.card.owned' : 'my_hospitals.card.shared')|trans({}, 'allocation') }}
+            </span>
+            {% if canEdit or canManageAccess %}
+                <div class="dropdown">
+                    <button
+                        type="button"
+                        class="btn btn-action"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        aria-label="{{ 'my_hospitals.card.menu'|trans({}, 'allocation') }}"
+                        title="{{ 'my_hospitals.card.menu'|trans({}, 'allocation') }}"
+                        data-testid="my-hospitals-card-menu"
+                    >
+                        <twig:ux:icon name="tabler:dots-vertical" class="icon" />
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        {% if canEdit %}
+                            <a class="dropdown-item" href="{{ path('app_hospitals_edit', {id: hospital.id}) }}">
+                                <twig:ux:icon name="tabler:pencil" class="icon dropdown-item-icon" />
+                                {{ 'label.edit'|trans({}, 'messages') }}
+                            </a>
+                        {% endif %}
+                        {% if canManageAccess %}
+                            <a class="dropdown-item" href="{{ path('app_hospitals_edit_access', {id: hospital.id}) }}">
+                                <twig:ux:icon name="tabler:users" class="icon dropdown-item-icon" />
+                                {{ 'label.hospital_access_grants.manage'|trans({}, 'messages') }}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="d-flex flex-wrap align-items-center gap-2 gap-md-3 mb-3" data-testid="my-hospitals-card-badges">
+            <span>
+                <span class="text-body-secondary small d-none d-md-inline me-1">{{ 'label.location'|trans({}, 'messages') }}:</span>
+                {{ badges.render('hospital_location', hospital.location.value) }}
+            </span>
+            {% if hospital.tier %}
+                <span>
+                    <span class="text-body-secondary small d-none d-md-inline me-1">{{ 'label.tier'|trans({}, 'messages') }}:</span>
+                    {{ badges.render('hospital_tier', hospital.tier.value) }}
+                </span>
+            {% endif %}
+            <span>
+                <span class="text-body-secondary small d-none d-md-inline me-1">{{ 'label.size'|trans({}, 'messages') }}:</span>
+                {{ badges.render('hospital_size', hospital.size.value, hospital.beds) }}
+            </span>
+        </div>
+
+        {% if not status.hasData %}
+            <div class="text-body-secondary mb-3" data-testid="my-hospitals-card-no-data">
+                {% if status.imports and (status.imports.failed + status.imports.cancelled) > 0 %}
+                    {{ 'my_hospitals.card.no_data_problems'|trans({}, 'allocation') }}
+                {% elseif status.imports and status.imports.pending > 0 %}
+                    {{ 'my_hospitals.card.no_data_pending'|trans({}, 'allocation') }}
+                {% else %}
+                    {{ 'my_hospitals.card.no_data'|trans({}, 'allocation') }}
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="datagrid">
+            {% if status.hasData %}
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'my_hospitals.card.data_period'|trans({}, 'allocation') }}</div>
+                    <div class="datagrid-content" data-testid="my-hospitals-card-period">
+                        {{ status.firstAllocationAt|format_date('medium') }} – {{ status.lastAllocationAt|format_date('medium') }}
+                    </div>
+                </div>
+            {% endif %}
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'my_hospitals.card.allocations'|trans({}, 'allocation') }}</div>
+                <div class="datagrid-content" data-testid="my-hospitals-card-allocations">{{ status.allocationCount|format_number }}</div>
+            </div>
+            {% if status.months is not null %}
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'my_hospitals.card.coverage'|trans({}, 'allocation') }}</div>
+                    <div class="datagrid-content" data-testid="my-hospitals-card-coverage">
+                        {{ 'my_hospitals.coverage_value'|trans({covered: status.fullyCoveredMonths, total: status.completeMonths}, 'allocation') }}
+                    </div>
+                </div>
+            {% endif %}
+            {% if status.imports %}
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'my_hospitals.card.imports'|trans({}, 'allocation') }}</div>
+                    <div class="datagrid-content" data-testid="my-hospitals-card-imports">
+                        {% if status.imports.finished > 0 %}
+                            {{ 'my_hospitals.card.imports_success'|trans({successful: status.imports.relevant, finished: status.imports.finished}, 'allocation') }}
+                            <span class="{{ status.imports.successRate < 100 ? 'text-warning' : 'text-success' }}">({{ (status.imports.successRate / 100)|format_percent_number }})</span>
+                        {% else %}
+                            {{ 'my_hospitals.summary.no_imports'|trans({}, 'allocation') }}
+                        {% endif %}
+                        {% for key, count in {partial: status.imports.partial, pending: status.imports.pending} %}
+                            {% if count > 0 %}
+                                <div class="small text-body-secondary">{{ ('my_hospitals.card.imports_' ~ key)|trans({count: count}, 'allocation') }}</div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'my_hospitals.card.last_upload'|trans({}, 'allocation') }}</div>
+                    <div class="datagrid-content" data-testid="my-hospitals-card-last-upload">
+                        {{ status.imports.lastUploadAt ? status.imports.lastUploadAt|format_date('medium') : 'my_hospitals.summary.no_upload'|trans({}, 'allocation') }}
+                    </div>
+                </div>
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'my_hospitals.card.own_uploads'|trans({}, 'allocation') }}</div>
+                    <div class="datagrid-content" data-testid="my-hospitals-card-own-uploads">
+                        {{ status.imports.ownImports|format_number }}
+                        {% if status.imports.ownLastUploadAt %}
+                            <div class="small text-body-secondary">{{ 'my_hospitals.summary.last_upload_on'|trans({date: status.imports.ownLastUploadAt|format_date('medium')}, 'allocation') }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% if showStatistics or status.imports %}
+        <div class="card-footer py-2">
+            <div class="btn-list">
+                {% if showStatistics %}
+                    <a class="btn btn-sm" href="{{ path('app_stats_dashboard', {scope: 'hospital:' ~ hospital.id}) }}" data-testid="my-hospitals-card-statistics">
+                        <twig:ux:icon name="tabler:chart-bar" class="icon" />
+                        {{ 'my_hospitals.action.statistics'|trans({}, 'allocation') }}
+                    </a>
+                {% endif %}
+                {% if status.imports %}
+                    <a class="btn btn-sm" href="{{ path('app_import_index', {hospitalId: hospital.id}) }}" data-testid="my-hospitals-card-imports-link">
+                        <twig:ux:icon name="tabler:list-details" class="icon" />
+                        {{ 'my_hospitals.action.imports'|trans({}, 'allocation') }}
+                    </a>
+                    <a class="btn btn-sm {{ status.hasData ? '' : 'btn-primary' }}" href="{{ path('app_import_new') }}" data-testid="my-hospitals-card-upload">
+                        <twig:ux:icon name="tabler:file-import" class="icon" />
+                        {{ 'my_hospitals.action.upload'|trans({}, 'allocation') }}
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
