@@ -1429,10 +1429,6 @@
         <source>encounter.review.extended.indicator</source>
         <target>MTS-Indikator</target>
       </trans-unit>
-      <trans-unit id="Enc569C6A95" resname="encounter.review.extended.unclear">
-        <source>encounter.review.extended.unclear</source>
-        <target>unklarer Fall: aufgeklappt</target>
-      </trans-unit>
       <trans-unit id="Enc3DD215B3" resname="encounter.review.period.range">
         <source>encounter.review.period.range</source>
         <target>{from} – {to}</target>

@@ -464,8 +464,8 @@ features only; the agreement beside it also accounts for competing candidates. A
 unclear cases, IVENA urgency and normalized indication beside MTS category, diagram and indicator of the visit
 (`MatchReviewQuery::extendedInfo()`). They are no matching features (ADR 029) and the page says so: later
 analyses compare exactly these between IVENA and the ED. It is collapsed for a clear candidate and opens by
-itself, marked "unclear case", when the candidate's agreement among all candidates stays below the auto-accept
-threshold. Whether a decision used them is not recorded. The card header names the current link and its origin (automatic:
+itself when the candidate's agreement among all candidates stays below the auto-accept threshold. Decisions
+made with this section open are deliberately not marked. The card header names the current link and its origin (automatic:
 score and pass). The linked visit is chosen first, else the open proposal with the highest stored score, else
 the candidate with the most points. The Stimulus controller `encounter-match-review` switches the comparison
 and enables only the decisions that apply to the chosen visit; the server checks again. The score is labelled

@@ -77,12 +77,7 @@
     </div>
 
     <details class="mt-3" data-test="encounter-review-extended" {{ candidate.unclear ? 'open' }}>
-        <summary class="fw-medium">
-            {{ 'encounter.review.extended.title'|trans({}, 'encounter') }}
-            {% if candidate.unclear %}
-                <twig:Badge variant="yellow" data-test="encounter-review-unclear">{{ 'encounter.review.extended.unclear'|trans({}, 'encounter') }}</twig:Badge>
-            {% endif %}
-        </summary>
+        <summary class="fw-medium">{{ 'encounter.review.extended.title'|trans({}, 'encounter') }}</summary>
         <p class="text-secondary small mt-2">{{ 'encounter.review.extended.hint'|trans({}, 'encounter') }}</p>
         <div class="table-responsive">
             <table class="table table-sm table-vcenter mb-0" data-test="encounter-review-extended-table">
