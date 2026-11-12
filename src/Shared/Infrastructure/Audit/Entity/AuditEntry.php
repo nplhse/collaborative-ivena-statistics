@@ -188,4 +188,28 @@ class AuditEntry
     {
         return $this->metadata;
     }
+
+    /** @psalm-suppress PossiblyUnusedMethod Read by the audit timeline (#955, next step) and tests. */
+    public function getIntent(): ?string
+    {
+        return $this->intent;
+    }
+
+    /** @psalm-suppress PossiblyUnusedMethod Read by the audit timeline (#955, next step) and tests. */
+    public function getOutcome(): ?string
+    {
+        return $this->outcome;
+    }
+
+    /** @psalm-suppress PossiblyUnusedMethod Read by the audit timeline (#955, next step) and tests. */
+    public function getRequestIdKind(): string
+    {
+        return $this->requestIdKind;
+    }
+
+    /** @psalm-suppress PossiblyUnusedMethod Read by the audit timeline (#955, next step) and tests. */
+    public function getSessionRef(): ?string
+    {
+        return $this->sessionRef;
+    }
 }
