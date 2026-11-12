@@ -1217,6 +1217,14 @@
         <source>my_hospitals.header.count</source>
         <target>{count, plural, one {# hospital} other {# hospitals}}</target>
       </trans-unit>
+      <trans-unit id="myHospHeadSelectedEn" resname="my_hospitals.header.selected">
+        <source>my_hospitals.header.selected</source>
+        <target>1 of {total} hospitals</target>
+      </trans-unit>
+      <trans-unit id="myHospSelAllEn" resname="my_hospitals.selection.all">
+        <source>my_hospitals.selection.all</source>
+        <target>All hospitals</target>
+      </trans-unit>
       <trans-unit id="myHospSumWithDataEn" resname="my_hospitals.summary.with_data">
         <source>my_hospitals.summary.with_data</source>
         <target>from {count, plural, one {# hospital} other {# hospitals}} with data</target>

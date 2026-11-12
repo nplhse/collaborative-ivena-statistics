@@ -24,6 +24,15 @@ The permissions per hospital are carried in `MyHospitalsEntry::$permissionMask` 
 to show a hospital's information only with the matching permission. Edit and access-grant actions stay behind `HospitalVoter::EDIT`
 and `HospitalVoter::MANAGE_ACCESS_GRANTS`, so grant holders see neither.
 
+### Selection
+
+With more than one listed hospital, the page header offers a choice (`_my_hospitals_selection.html.twig`): all
+hospitals (the default) or a single one, as `?hospital=<public ID>`. `MyHospitalsSelection` looks the ID up among the
+listed hospitals; an ID outside them (another user's hospital, a malformed value) is ignored and the page shows all
+hospitals. The summary tiles, the cards and the data coverage follow the selection; the header names it (the toggle
+shows the hospital's name, the subtitle "1 of 2 hospitals"). There is no selection of several but not all hospitals.
+The statistics of a hospital are reached from its card.
+
 ## Data status
 
 `MyHospitalsOverviewBuilder` builds the data status of the listed hospitals (`MyHospitalsOverview`, one
@@ -150,6 +159,6 @@ across a month change and for every viewer. Clearing and warming the entries aft
 - `tests/Allocation/Integration/Application/Hospital/MyHospitalsScopeResolverTest.php` (owner, grants, grant
   without `VIEW`, administrator with and without own hospitals, no hospitals)
 - `tests/Allocation/Functional/Controller/Hospitals/ParticipantHospitalsControllerTest.php` (listing, actions, summary per permission)
-- `tests/Allocation/Functional/Controller/Hospitals/MyHospitalsOverviewTest.php` (cards and summary per permission tier, basis, empty states, German page, coverage heatmap rows and states)
-- `tests/Allocation/Unit/Application/Hospital/MyHospitals/` (month states, gaps, window, hints, cache, permissions and aggregates)
+- `tests/Allocation/Functional/Controller/Hospitals/MyHospitalsOverviewTest.php` (cards and summary per permission tier, basis, empty states, German page, coverage heatmap rows and states, selection of one or all hospitals, foreign and malformed IDs)
+- `tests/Allocation/Unit/Application/Hospital/MyHospitals/` (month states, gaps, window, hints, cache, permissions and aggregates, selection)
 - `tests/Statistics/Integration/Query/MyHospitals/HospitalDataSnapshotQueryTest.php` (import statuses, failed rows excluded, midnight rule, coverage fallback)
