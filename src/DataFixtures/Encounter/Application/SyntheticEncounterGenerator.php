@@ -31,7 +31,7 @@ final readonly class SyntheticEncounterGenerator
 
     private const array HOUR_WEIGHTS = [2, 1, 1, 1, 1, 1, 2, 3, 5, 7, 8, 8, 7, 7, 7, 7, 7, 7, 6, 6, 5, 4, 3, 2];
 
-    /** MTS diagram codes as the tool derives them from the German labels (catalogs/mts-de.json). */
+    /** MTS diagram codes as the tool derives them from the German labels (MtsCatalog, mts-de.json). */
     private const array MTS_DIAGRAMS = [
         'thoraxschmerz' => 3,
         'atemproblem_bei_erwachsenen' => 3,

@@ -23,7 +23,7 @@ never leave the computer.
 | Core (parse, transform, HMAC, content check; no DOM, no network) | `src/Encounter/UI/DataPrep/js/data-prep-core.js` |
 | Page logic | `src/Encounter/UI/DataPrep/js/data-prep-app.js` |
 | Public profiles (declarative JSON) | `src/Encounter/UI/DataPrep/profiles/` |
-| MTS catalog (German labels of diagrams and indicators, reusable for #1056) | `src/Encounter/UI/DataPrep/catalogs/mts-de.json` |
+| MTS catalog (German labels of diagrams and indicators), shared with the MTS glossary (#1056) | `src/Encounter/Application/Catalog/mts-de.json`, read by `MtsCatalog` |
 | `ed_visit` v1 field contract for the tool | `src/Encounter/UI/DataPrep/schema/ed_visit.v1.json` (must equal `EdVisitDimension`, checked by `DataPrepContractTest`) |
 | Template | `src/Encounter/UI/Twig/templates/data_prep/tool.html.twig` |
 | Renderer, version | `DataPrepToolRenderer`, `DataPrepRelease` in `src/Encounter/UI/DataPrep/` |
@@ -153,7 +153,7 @@ The allow-list is the profile: a column the profile does not map is dropped. Rul
 | Age | leading number of `Alter`; without it, age at the anchor date from `Geburtsdatum`; then clamped to 1–99 |
 | Timestamps | `dd.mm.yyyy HH:MM[:SS]` with any whitespace between date and time; output `YYYY-MM-DDTHH:MM`, seconds cut; invalid values are emptied and counted |
 | Codes | profile map, case-insensitive; optional `prefixes`; empty markers (`-- keine --`) give empty; other values give empty and are listed as unmapped |
-| MTS diagram, indicator | catalog code derived from the label: lowercase, umlauts transliterated, other characters `_`, cut at 64 characters, no leading or trailing `_` (`Abdominelle Schmerzen bei Erwachsenen` → `abdominelle_schmerzen_bei_erwachsenen`); provisional until the MTS catalog is fixed (#1048, #1056). Diagrams must be in `catalogs/mts-de.json`, otherwise empty and listed as unmapped; indicators not in the (open) list keep their code and are listed as "new catalog values" |
+| MTS diagram, indicator | catalog code derived from the label: lowercase, umlauts transliterated, other characters `_`, cut at 64 characters, no leading or trailing `_` (`Abdominelle Schmerzen bei Erwachsenen` → `abdominelle_schmerzen_bei_erwachsenen`); the same rule as `MtsCatalog::code()` on the server (#1056). Diagrams must be in the MTS catalog `mts-de.json`, otherwise empty and listed as unmapped; indicators not in the (open) list keep their code and are listed as "new catalog values" |
 | Disposition | local map first, then the profile; `care_level` only for `admitted` (station map, else the level of the disposition text, else `unknown`) and `transferred_external` (level of the text, else `unknown`); an unmapped station is listed |
 | Vitals | unit stripped, decimal comma accepted; integers except temperature (one decimal, half up) and glucose (rounded half up to whole mg/dl); out of range or unreadable → empty and counted per field; `vitals_reference = documented_initial` if any vital is set |
 | Flags | `ja` → `1`; empty → empty; other values → empty and listed |
@@ -217,7 +217,8 @@ content again. The check reduces the risk, it does not find every identifier (AD
 1. Add `profiles/<id>.json` with `detect.requiredColumns`, `keys`, `age`, `fields` (rule types `code`,
    `timestamp`, `catalog`, `integer`, `vital`, `bloodPressure`, `flag`, `codeSet`, `disposition`,
    `department`) and `dropped`.
-2. Register it in `DataPrepToolRenderer::PROFILES` (catalogs in `DataPrepToolRenderer::CATALOGS`).
+2. Register it in `DataPrepToolRenderer::PROFILES`. The renderer bundles the MTS catalog from `MtsCatalog`; a
+   change to `src/Encounter/Application/Catalog/mts-de.json` changes the tool and the MTS glossary.
 3. Add a synthetic sample and tests; `DataPrepContractTest` checks the codes against the schema.
 4. Raise `app.encounter.data_prep.version`.
 

@@ -66,6 +66,7 @@ final class DataPrepToolControllerTest extends WebTestCase
         self::assertStringContainsString('globalThis.EncounterDataPrep', $html, 'core script is inlined');
         self::assertStringContainsString('"id":"orbis-mts"', $html, 'public profile is bundled');
         self::assertStringContainsString('"name":"visit_fingerprint"', $html, 'field contract is bundled');
+        self::assertStringContainsString('"mts-de":{"id":"mts-de"', $html, 'the shared MTS catalog (MtsCatalog, #1056) is bundled');
         self::assertDoesNotMatchRegularExpression('/<(script|link|img|iframe)[^>]+(src|href)=/i', $html, 'no external resources');
         self::assertSame(1, preg_match_all('/https?:\/\//', strip_tags($html)), 'the update check is the only URL');
     }

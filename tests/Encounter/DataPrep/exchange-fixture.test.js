@@ -17,7 +17,11 @@ const json = (url) => JSON.parse(readFileSync(url, 'utf8'));
 
 const profile = json(new URL('profiles/orbis-mts.json', base));
 const schema = json(new URL('schema/ed_visit.v1.json', base));
-const catalogs = { 'mts-de': json(new URL('catalogs/mts-de.json', base)) };
+const catalogs = {
+    'mts-de': json(
+        new URL('../../../src/Encounter/Application/Catalog/mts-de.json', import.meta.url),
+    ),
+};
 const vectors = json(new URL('fingerprint-vectors.json', fixtures));
 const output = new URL('orbis-mts-sample.ed_visit.csv', fixtures);
 

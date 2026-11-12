@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Encounter\UI\DataPrep;
 
+use App\Encounter\Application\Catalog\MtsCatalog;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;
@@ -11,13 +12,12 @@ use Twig\Environment;
 /**
  * Renders the offline data preparation tool as one self-contained HTML file (ADR 025, #1051):
  * inlined scripts, the `ed_visit` field contract and the bundled public profiles. Hospital-specific
- * local maps are never bundled.
+ * local maps are never bundled. The MTS catalog is shared with the MTS glossary (MtsCatalog, #1056).
  */
 final readonly class DataPrepToolRenderer
 {
     private const array SCRIPTS = ['js/data-prep-core.js', 'js/data-prep-app.js'];
     private const array PROFILES = ['profiles/orbis-mts.json'];
-    private const array CATALOGS = ['mts-de' => 'catalogs/mts-de.json'];
     private const string SCHEMA = 'schema/ed_visit.v1.json';
 
     /** @psalm-suppress PossiblyUnusedMethod Wired by the container. */
@@ -25,6 +25,7 @@ final readonly class DataPrepToolRenderer
         private Environment $twig,
         private UrlGeneratorInterface $urlGenerator,
         private DataPrepRelease $release,
+        private MtsCatalog $mtsCatalog,
         #[Autowire('%kernel.project_dir%/src/Encounter/UI/DataPrep')]
         private string $sourceDirectory,
     ) {
@@ -47,7 +48,7 @@ final readonly class DataPrepToolRenderer
             'scripts' => $scripts,
             'schema' => $this->decode(self::SCHEMA),
             'profiles' => array_map($this->decode(...), self::PROFILES),
-            'catalogs' => array_map($this->decode(...), self::CATALOGS),
+            'catalogs' => [MtsCatalog::ID => $this->mtsCatalog->data()],
         ]);
     }
 
