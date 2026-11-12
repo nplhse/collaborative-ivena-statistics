@@ -1802,6 +1802,23 @@ a.catalog-year-heatmap-cell:focus-visible {
     overflow-y: auto;
 }
 
+/* Hints in a My Hospitals card: a count that expands to the list; the chevron turns when open. */
+.my-hospitals-findings-chevron {
+    transition: transform 0.15s ease-in-out;
+}
+
+.my-hospitals-findings-toggle:not(.collapsed) .my-hospitals-findings-chevron {
+    transform: rotate(180deg);
+}
+
+/* The icon box is as high as one line of text, so the icon sits centred on the (first) line of the hint. */
+.my-hospitals-finding-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    height: calc(1em * var(--tblr-body-line-height, 1.4285714286));
+}
+
 /* My Hospitals (#971): data coverage per hospital, one row per year, cells as in the import coverage calendar.
    The twelve month columns share the card width; cells stay square (aspect-ratio) up to a maximum size. */
 .my-hospitals-coverage {

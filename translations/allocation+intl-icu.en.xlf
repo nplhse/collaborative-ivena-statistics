@@ -1225,6 +1225,38 @@
         <source>my_hospitals.selection.all</source>
         <target>All hospitals</target>
       </trans-unit>
+      <trans-unit id="myHospFindCountEn" resname="my_hospitals.finding.count">
+        <source>my_hospitals.finding.count</source>
+        <target>{count, plural, one {# hint} other {# hints}}</target>
+      </trans-unit>
+      <trans-unit id="myHospFindImportFailedEn" resname="my_hospitals.finding.import_failed">
+        <source>my_hospitals.finding.import_failed</source>
+        <target>The import of {date} failed.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindImportCancelledEn" resname="my_hospitals.finding.import_cancelled">
+        <source>my_hospitals.finding.import_cancelled</source>
+        <target>The import of {date} was cancelled.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindImportRejectsEn" resname="my_hospitals.finding.import_rejects">
+        <source>my_hospitals.finding.import_rejects</source>
+        <target>{amount, plural, one {# row} other {# rows}} of the import of {date} could not be taken over.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindImportDayGapsEn" resname="my_hospitals.finding.import_day_gaps">
+        <source>my_hospitals.finding.import_day_gaps</source>
+        <target>The import of {date} has {amount, plural, one {# day} other {# days}} without records.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindNotUpdatedEn" resname="my_hospitals.finding.not_updated">
+        <source>my_hospitals.finding.not_updated</source>
+        <target>The latest allocation is from {date}, {amount} days ago.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindPossibleGapEn" resname="my_hospitals.finding.possible_gap">
+        <source>my_hospitals.finding.possible_gap</source>
+        <target>{amount, plural, one {No data for {month}} other {No data from {month} to {end}}} although imports cover the time before and after. An import may be missing.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindVolumeChangeEn" resname="my_hospitals.finding.volume_change">
+        <source>my_hospitals.finding.volume_change</source>
+        <target>{month}: {amount} % {direction, select, up {more} other {fewer}} allocations than in the months before.</target>
+      </trans-unit>
       <trans-unit id="myHospSumWithDataEn" resname="my_hospitals.summary.with_data">
         <source>my_hospitals.summary.with_data</source>
         <target>from {count, plural, one {# hospital} other {# hospitals}} with data</target>

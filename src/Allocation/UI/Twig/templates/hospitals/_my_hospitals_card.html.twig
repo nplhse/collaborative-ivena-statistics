@@ -136,6 +136,31 @@
             {% endif %}
         </div>
     </div>
+    {% if status.findings is not empty %}
+        {% set findingsId = 'my-hospitals-findings-' ~ hospital.id %}
+        <div class="card-body border-top py-2" data-testid="my-hospitals-card-findings">
+            <button
+                type="button"
+                class="btn btn-sm btn-ghost-warning collapsed my-hospitals-findings-toggle"
+                data-bs-toggle="collapse"
+                data-bs-target="#{{ findingsId }}"
+                aria-expanded="false"
+                aria-controls="{{ findingsId }}"
+                data-testid="my-hospitals-card-findings-toggle"
+            >
+                <twig:ux:icon name="tabler:alert-circle" class="icon" />
+                {{ 'my_hospitals.finding.count'|trans({count: status.findings|length}, 'allocation') }}
+                <twig:ux:icon name="tabler:chevron-down" class="icon ms-1 my-hospitals-findings-chevron" />
+            </button>
+            <div class="collapse" id="{{ findingsId }}">
+                <div class="d-flex flex-column gap-2 pt-2 pb-1">
+                    {% for finding in status.findings %}
+                        {{ include('@Allocation/hospitals/_my_hospitals_finding.html.twig') }}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
     {% if showStatistics or status.imports %}
         <div class="card-footer py-2">
             <div class="btn-list">
