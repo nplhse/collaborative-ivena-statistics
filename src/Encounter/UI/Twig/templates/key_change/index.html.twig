@@ -33,7 +33,7 @@
 
                 <div data-controller="encounter-key-change"
                      data-encounter-key-change-hospital-name-value="{{ hospital.name }}"
-                     data-encounter-key-change-delete-message-value="{{ 'encounter.key_change.modal.delete'|trans({encounters: summary.encounters, imports: summary.imports}, 'encounter') }}"
+                     data-encounter-key-change-delete-message-value="{{ 'encounter.key_change.modal.delete'|trans({encounters: summary.encounters, imports: summary.imports, links: summary.links, decisions: summary.decisions}, 'encounter') }}"
                      data-encounter-key-change-keep-message-value="{{ 'encounter.key_change.modal.keep'|trans({}, 'encounter') }}">
                 {{ form_start(form, {attr: {
                     id: 'encounter-key-change-form',
@@ -48,7 +48,7 @@
                                 <input class="form-check-input" type="radio" id="{{ choice.vars.id }}" name="{{ choice.vars.full_name }}" value="{{ choice.vars.value }}" required{{ choice.vars.checked ? ' checked' }}>
                                 <label class="form-check-label" for="{{ choice.vars.id }}">
                                     <strong>{{ ('encounter.key_change.option.' ~ choice.vars.value)|trans({}, 'encounter') }}</strong>
-                                    <span class="d-block text-secondary">{{ ('encounter.key_change.option.' ~ choice.vars.value ~ '_help')|trans({encounters: summary.encounters, imports: summary.imports}, 'encounter') }}</span>
+                                    <span class="d-block text-secondary">{{ ('encounter.key_change.option.' ~ choice.vars.value ~ '_help')|trans({encounters: summary.encounters, imports: summary.imports, links: summary.links, decisions: summary.decisions}, 'encounter') }}</span>
                                 </label>
                             </div>
                             {% do choice.setRendered %}

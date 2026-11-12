@@ -863,7 +863,7 @@
       </trans-unit>
       <trans-unit id="EncK6CE50DCA" resname="encounter.key_change.option.delete_help">
         <source>encounter.key_change.option.delete_help</source>
-        <target>{encounters, plural, =0 {There are no encounters yet.} one {# encounter from {imports, plural, one {# import} other {# imports}} is deleted.} other {# encounters from {imports, plural, one {# import} other {# imports}} are deleted.}} Afterwards you can upload any period again.</target>
+        <target>{encounters, plural, =0 {There are no encounters yet.} one {# encounter from {imports, plural, one {# import} other {# imports}} is deleted.} other {# encounters from {imports, plural, one {# import} other {# imports}} are deleted.}} {links, plural, =0 {} one {# IVENA link goes with them.} other {# IVENA links go with them.}} {decisions, plural, =0 {} one {# review decision goes with them.} other {# review decisions go with them.}} Afterwards you can upload any period again.</target>
       </trans-unit>
       <trans-unit id="EncK30077A31" resname="encounter.key_change.option.keep">
         <source>encounter.key_change.option.keep</source>
@@ -891,7 +891,7 @@
       </trans-unit>
       <trans-unit id="EncK93915DFB" resname="encounter.key_change.modal.delete">
         <source>encounter.key_change.modal.delete</source>
-        <target>{encounters, plural, =0 {There are no encounters to delete.} one {# encounter from {imports, plural, one {# import} other {# imports}} will be deleted permanently.} other {# encounters from {imports, plural, one {# import} other {# imports}} will be deleted permanently.}} This cannot be undone.</target>
+        <target>{encounters, plural, =0 {There are no encounters to delete.} one {# encounter from {imports, plural, one {# import} other {# imports}} will be deleted permanently.} other {# encounters from {imports, plural, one {# import} other {# imports}} will be deleted permanently.}} {links, plural, =0 {} one {# IVENA link goes with them.} other {# IVENA links go with them.}} {decisions, plural, =0 {} one {# review decision goes with them.} other {# review decisions go with them.}} This cannot be undone.</target>
       </trans-unit>
       <trans-unit id="EncK28607B43" resname="encounter.key_change.modal.keep">
         <source>encounter.key_change.modal.keep</source>

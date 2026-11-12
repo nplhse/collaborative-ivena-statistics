@@ -10,7 +10,7 @@ namespace App\Encounter\Application\Contract;
 interface EncounterKeyChangeSummaryReaderInterface
 {
     /**
-     * @return array{key_change_in_progress: bool, encounters: int, imports: int}
+     * @return array{key_change_in_progress: bool, encounters: int, imports: int, links: int, decisions: int}
      */
     public function forHospital(int $hospitalId): array;
 }

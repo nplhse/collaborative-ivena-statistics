@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -173,6 +174,28 @@ final class AppConfiguration implements ConfigurationInterface
                             ->defaultValue(30)
                             ->min(1)
                         ->end()
+                        ->arrayNode('matching')
+                            ->info('Thresholds and candidate windows of the matcher that links ED visits with IVENA allocations (ADR 029, #1053).')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->floatNode('auto_accept_threshold')
+                                    ->info('Score from which a pair becomes an effective automatic link (no conflict).')
+                                    ->defaultValue(0.90)
+                                    ->min(0.01)->max(1.0)
+                                ->end()
+                                ->floatNode('proposal_threshold')
+                                    ->info('Score from which a pair is proposed for review.')
+                                    ->defaultValue(0.50)
+                                    ->min(0.01)->max(1.0)
+                                ->end()
+                                ->append($this->matchingPass('pass1', 'Pass 1: EMS arrivals only.', 20, 45, 2))
+                                ->append($this->matchingPass('pass2', 'Pass 2: remaining allocations, all arrival routes.', 30, 90, 5))
+                            ->end()
+                            ->validate()
+                                ->ifTrue(static fn (array $c): bool => $c['proposal_threshold'] > $c['auto_accept_threshold'])
+                                ->thenInvalid('proposal_threshold must not be higher than auto_accept_threshold. Got %s.')
+                            ->end()
+                        ->end()
                         ->arrayNode('data_prep')
                             ->info('Version of the offline data preparation tool (ADR 025, #1051), published at /data-prep/latest.json.')
                             ->addDefaultsIfNotSet()
@@ -279,6 +302,21 @@ final class AppConfiguration implements ConfigurationInterface
         ;
 
         return $treeBuilder;
+    }
+
+    private function matchingPass(string $name, string $info, int $minutesBefore, int $minutesAfter, int $maxAgeDifference): ArrayNodeDefinition
+    {
+        $node = new TreeBuilder($name)->getRootNode();
+        $node
+            ->info($info.' Candidate window around the IVENA arrival and largest age difference.')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->integerNode('minutes_before')->defaultValue($minutesBefore)->min(0)->end()
+                ->integerNode('minutes_after')->defaultValue($minutesAfter)->min(0)->end()
+                ->integerNode('max_age_difference')->defaultValue($maxAgeDifference)->min(0)->end()
+            ->end();
+
+        return $node;
     }
 
     private static function isVersion(mixed $value): bool
