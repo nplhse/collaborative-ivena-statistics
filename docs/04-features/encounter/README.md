@@ -330,7 +330,7 @@ Summary of [ADR 029](../../02-architecture/decisions/029-encounter-allocation-ma
 - Pass 1 reserves both sides; later runs only fill gaps and never reassign links. The review may
   propose a targeted swap.
 
-Implemented in #1053 (matcher version `1.0.0`); the review in #1054 ([Match review](#match-review)), linked analyses follow in #1055.
+Implemented in #1053 (matcher version `1.0.0`). The review is #1054 ([Match review](#match-review)); the overview and the case card (#1055) show links as described in [Statistics in the pilot](#statistics-in-the-pilot).
 
 **Table `encounter_match`**, one row per pair of allocation and visit: `status` (`auto_accepted`,
 `proposed`, `confirmed`, `rejected`), `conflict`, `score`, `points`, `contributions` (points per feature),
@@ -397,7 +397,8 @@ prints counts only. Synthetic encounters loaded by the fixtures are not matched 
 30/90/5). A change applies from the next run; existing links stay.
 
 **Read model**: `EncounterKeyChangeSummaryQuery` counts links and decisions per hospital;
-`MatchReviewQuery` reads the review (below).
+`EncounterOverviewQuery` and `HospitalCourseQuery` read them for the pages of #1055; `MatchReviewQuery` reads
+the review (below).
 
 ## Match review
 
@@ -510,8 +511,99 @@ chain A–V + B–W gives one link more and 6 + 7 − 9 = 4 points more.
 
 Descriptive only, for the own hospital: coverage, encounters by arrival route and link status, MTS
 categories and diagrams, process times recomputed from timestamps (median, IQR), disposition and
-care level. No cross-hospital aggregates. Each figure documents population, filters, numerator and
-denominator, missing values and period boundaries when it is implemented (#1055).
+care level. No cross-hospital aggregates.
+
+### Hospital overview
+
+Implemented in #1055. Statistics page `/statistics/encounter-analytics` ("Encounter data (beta)" in the
+statistics sub-navigation, title "Analysis" / "Auswertung"; `EncounterAnalyticsController` in `Statistics/UI`),
+also linked from the pilot entry page `/encounter` for every hospital the user may see aggregates of. It
+uses the statistics building blocks: the scope and period picker (`Statistics:AnalysisContext`) in
+`AnalysisContextScopeMode::AssignedHospital`, the statistics filter (`StatisticsFilterValueResolver`) and
+period window (`StatisticsPeriodResolver`), and the statistics page layout. The picker offers exactly the
+hospitals of `AggregateHospitalScope` (`EncounterAttribute::VIEW_AGGREGATES`: beta role + any encounter
+grant + hospital permission `STATISTICS`; administrators every hospital with stored visits) and no "my
+hospitals" aggregate; any other scope in the URL (public, state, cohort, another hospital) is redirected
+to `scope=hospital&hospital=<id>` of an allowed hospital. Users without such a hospital see a notice;
+without the beta role the page is forbidden. Content tabs (`?tab=`): overview (four KPI cards: visits, admitted, median arrival → physician, median length of stay in the ED; left two thirds: visits over time by arrival route, data coverage of the period and of all stored data,
+disposition, care level; right third: arrival route, MTS categories, top 10 presentations), process times (box plots and table), IVENA link (route × link) and distributions (full
+tables). The page carries no explanatory texts; the definitions are documented here. Every figure belongs to exactly one hospital; the page never adds up
+hospitals and compares with none. Reads: `EncounterOverviewQuery` (`Infrastructure/Query/`, ADR 009)
+behind `EncounterOverviewReaderInterface`; suppression and ordering: `EncounterOverviewFactory`.
+Statistics depends on these Encounter application contracts (documented partnership,
+[bounded-contexts.md](../../02-architecture/bounded-contexts.md)); Encounter does not depend on Statistics.
+
+**Common rules for every figure:**
+
+| Aspect | Rule |
+|---|---|
+| Population | All stored visits of the hospital (self-presenters, EMS arrivals with and without allocation, unknown route), all key generations, all imports. |
+| Period | The statistics period of the picker (`period`, `year`, `quarter`, `month`): last 12 months (default, from the first day of the month eleven months before today, open end), all time, a calendar year, quarter or month ([statistics-filter-and-scope.md](../statistics/statistics-filter-and-scope.md#periods)). Its window `[from, toExclusive)` becomes whole days (`EncounterPeriod::fromBounds()`). A visit belongs to the period by its time anchor `anchor_at` (first assessment contact, else ED admission; local wall clock as exchanged), the same day the import coverage uses: `anchor_at >= from 00:00 AND anchor_at < toExclusive`. |
+| Filters | None besides hospital and period. |
+| Small cells | Counts from 1 to 4 are shown as `< 5` (ADR 012, `MtsCount`, `CatalogPrivacyPolicy::MIN_ALLOCATIONS`), without share, and left out of charts (`null`); 0 is shown as a dash. No complementary suppression: totals are shown when they reach 5, as in the MTS glossary. |
+| Comparison groups | None. |
+
+**Figures:**
+
+| Figure | Numerator | Denominator (shares) | Missing or unknown values |
+|---|---|---|---|
+| Coverage | Visits, distinct owning imports, distinct anchor days, first and last anchor in the period; below, the same for all data | – (not suppressed: they describe the uploaded data, not patients) | – |
+| Arrival route × IVENA link | Visits per route (`ems`, `self`, `unknown` from `arrival_route`) and link: linked automatically (`auto_accepted`), linked after confirmation (`confirmed`), linked in total (both), not linked | Visits of the row (route), last row all visits | Route `unknown` = `arrival_mode` `other` or empty. Not linked = no effective link: no pair, only an open proposal, or a rejected pair. Automatic links count as linked; their origin is a column of its own. |
+| MTS categories | Visits per initial `mts_category`, in MTS order red … blue | All visits of the period | "Not documented" row for visits without category. Retriage not counted. |
+| Top presentations (MTS diagrams) | The 10 most frequent initial `mts_diagram` codes (ties by code), then "other diagrams" (sum of the rest) | All visits of the period | "Not documented" row. Names from the MTS catalog (`MtsNames`); unknown codes shown as code. |
+| Process times | Median, Q1 and Q3 of the valid durations (PostgreSQL `percentile_cont`, linear interpolation), counted visits | – | Per interval: "time missing" (one of the two timestamps empty), "negative" (end before start), "over 24 h" (more than `ProcessInterval::MAX_PLAUSIBLE_MINUTES` = 1440). They are excluded from median and IQR and shown as counts. Median and IQR need at least 5 valid durations. |
+| KPIs (overview tab, four cards) | visits; admitted to this hospital (disposition `admitted`) of all visits; median arrival → first physician and median arrival → ED discharge, each with IQR | as stated | a suppressed count shows `< 5` instead of a share; medians need 5 valid durations |
+| Visits over time | visits per bucket and arrival route with the statistics time axis (`TimeSeriesGrainResolver`, `TimeSeriesAxisFiller`, [statistics-filter-and-scope.md](../statistics/statistics-filter-and-scope.md#periods)): days for a month period, months otherwise; empty buckets as 0; the current month is not drawn until complete; open periods start at the first month with visits | – | buckets with 1–4 visits per route are gaps in the chart |
+| Process time box plots | per interval and initial MTS category: P10, Q1, median, Q3, P90 of the valid durations (whiskers P10/P90, never minimum or maximum, which describe single visits) | – | only categories with at least 5 valid durations are drawn |
+| Disposition | Visits per `disposition_code` in code order | All visits of the period | "Not documented" row. |
+| Care level | Visits per `disposition_care_level` among visits with disposition `admitted` or `transferred_external` | These admissions and transfers | "Not documented" row for such visits without care level; `unknown` (ward not mappable) is a level of its own. |
+
+**Process time intervals** (`ProcessInterval`), recomputed from the stored timestamps, never taken from the
+export. All start at the ED admission (`ed_admission_at`, "Aufnahme ZNA", the documented arrival in the
+emergency department); durations are whole minutes of the local wall clock (a visit spanning the switch
+to or from daylight saving time is off by one hour). Valid: 0 to 1440 minutes, both inclusive.
+
+| Interval | Start → end |
+|---|---|
+| Arrival → first assessment | `ed_admission_at` → `first_assessment_contact_at` |
+| Arrival → first physician | `ed_admission_at` → `first_physician_at` |
+| Arrival → ED discharge | `ed_admission_at` → `ed_discharge_at` (length of stay in the ED) |
+
+Visits without ED admission (only a first assessment contact) are "time missing" in all three.
+
+Example (tested in `EncounterOverviewQueryTest`, data in `OverviewDataFixtures`): durations from admission
+to first assessment of 5, 10, 15, 20, 25 and 30 minutes give Q1 = 10 + 0.25 × 5 = 11.25, median
+(15 + 20) / 2 = 17.5 and Q3 = 20 + 0.75 × 5 = 23.75; a discharge after 1560 minutes is "over 24 h",
+one after exactly 1440 minutes counts. A visit at 00:00 on the first day and one at 23:59 on the last
+day are in the period, visits at 23:59 the day before and 00:00 the day after are not.
+
+Charts (`encounter-overview-chart` Stimulus controller, ApexCharts): visits over time and route × link as
+stacked bars, process times as horizontal box plots; the segmented bars and distribution cards reuse
+the markup of the statistics overview. Tables on the IVENA link, process times and distributions tabs
+carry the exact figures.
+
+### Case card "Hospital course"
+
+Implemented in #1055. Card on the allocation case file (`/explore/allocation/{publicId}`), contributed
+through the [allocation case file extension point](../../02-architecture/extension-points.md#allocation-case-file-sections)
+(`HospitalCourseCaseSectionProvider`); Allocation does not depend on Encounter. Shown only with
+`EncounterAttribute::VIEW_CASES` on the allocation's hospital (grant `VIEW_CASES` or `REVIEW` with the
+beta role, or `ROLE_ADMIN`); everyone else sees the case file without it.
+
+- Reads the effective link of the allocation (`auto_accepted` or `confirmed`, `HospitalCourseQuery`).
+  Without one the card says that no visit is linked; proposals belong to the match review (#1054).
+- **Link:** origin "linked automatically" (nobody checked it) or "linked after confirmation", the
+  agreement score in percent (rounded down) and the time difference between matching anchor and IVENA
+  arrival.
+- **Triage:** initial MTS category, diagram (catalog name), indicator, pain score.
+- **Timeline:** IVENA arrival, ED admission, first assessment, first physician, treatment end, ED
+  discharge, in time order, each with minutes relative to the ED admission. Vitals appear on it only
+  with `vitals_reference = admission_measurement` and a measurement time.
+- **Process times:** the three intervals of the overview for this visit; a value outside 0–1440 minutes
+  is marked as excluded from the statistics.
+- **Disposition:** disposition, care level, admitting department.
+- **Vitals:** with `documented_initial` labelled "documented first value" with the note that the time
+  of measurement is not assured, and never placed on the timeline.
 
 ## MTS glossary
 

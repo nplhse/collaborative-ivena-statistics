@@ -1649,6 +1649,306 @@
         <source>encounter.mts.diagram.without_indicator</source>
         <target>Kein Indikator dokumentiert</target>
       </trans-unit>
+      <trans-unit id="Enc29E965B0" resname="encounter.course.title">
+        <source>encounter.course.title</source>
+        <target>Behandlungsverlauf</target>
+      </trans-unit>
+      <trans-unit id="Enc7107F208" resname="encounter.course.beta">
+        <source>encounter.course.beta</source>
+        <target>Behandlungsdaten (Beta)</target>
+      </trans-unit>
+      <trans-unit id="Enc1268E1C5" resname="encounter.course.no_link">
+        <source>encounter.course.no_link</source>
+        <target>Mit dieser Zuweisung ist kein Notaufnahmebesuch verknüpft. Vorschläge erscheinen in der Zuordnungsprüfung; diese Karte zeigt nur automatische und bestätigte Verknüpfungen.</target>
+      </trans-unit>
+      <trans-unit id="Enc93337359" resname="encounter.course.origin.automatic">
+        <source>encounter.course.origin.automatic</source>
+        <target>Automatisch verknüpft</target>
+      </trans-unit>
+      <trans-unit id="EncE22EABE6" resname="encounter.course.origin.confirmed">
+        <source>encounter.course.origin.confirmed</source>
+        <target>Nach Bestätigung verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc1B2AFB47" resname="encounter.course.origin.automatic_hint">
+        <source>encounter.course.origin.automatic_hint</source>
+        <target>Der Abgleich hat diesen Besuch selbstständig verknüpft, weil die Übereinstimmung hoch war und keine andere Zuweisung in Frage kam. Niemand hat ihn geprüft.</target>
+      </trans-unit>
+      <trans-unit id="EncDC0F1599" resname="encounter.course.origin.confirmed_hint">
+        <source>encounter.course.origin.confirmed_hint</source>
+        <target>Eine Person hat diese Verknüpfung in der Zuordnungsprüfung bestätigt.</target>
+      </trans-unit>
+      <trans-unit id="EncA6B06A5A" resname="encounter.course.agreement">
+        <source>encounter.course.agreement</source>
+        <target>Übereinstimmung {percent} %</target>
+      </trans-unit>
+      <trans-unit id="Enc48A5BE10" resname="encounter.course.anchor.admission">
+        <source>encounter.course.anchor.admission</source>
+        <target>Aufnahme ZNA {minutes} min zur IVENA-Ankunft</target>
+      </trans-unit>
+      <trans-unit id="EncE4D1D672" resname="encounter.course.anchor.assessment">
+        <source>encounter.course.anchor.assessment</source>
+        <target>Ersteinschätzung {minutes} min zur IVENA-Ankunft (keine Aufnahmezeit)</target>
+      </trans-unit>
+      <trans-unit id="Enc12B23EF8" resname="encounter.course.section.triage">
+        <source>encounter.course.section.triage</source>
+        <target>Ersteinschätzung (MTS)</target>
+      </trans-unit>
+      <trans-unit id="EncA1A8940C" resname="encounter.course.section.process_times">
+        <source>encounter.course.section.process_times</source>
+        <target>Prozesszeiten</target>
+      </trans-unit>
+      <trans-unit id="Enc065D9313" resname="encounter.course.section.disposition">
+        <source>encounter.course.section.disposition</source>
+        <target>Verbleib</target>
+      </trans-unit>
+      <trans-unit id="Enc1D6E2AAE" resname="encounter.course.section.timeline">
+        <source>encounter.course.section.timeline</source>
+        <target>Zeitverlauf</target>
+      </trans-unit>
+      <trans-unit id="Enc2D17BDE9" resname="encounter.course.section.vitals">
+        <source>encounter.course.section.vitals</source>
+        <target>Erste Vitalwerte</target>
+      </trans-unit>
+      <trans-unit id="Enc867E0627" resname="encounter.course.field.category">
+        <source>encounter.course.field.category</source>
+        <target>MTS-Kategorie</target>
+      </trans-unit>
+      <trans-unit id="Enc215F9C53" resname="encounter.course.field.diagram">
+        <source>encounter.course.field.diagram</source>
+        <target>Präsentation (Diagramm)</target>
+      </trans-unit>
+      <trans-unit id="EncED972332" resname="encounter.course.field.indicator">
+        <source>encounter.course.field.indicator</source>
+        <target>Indikator</target>
+      </trans-unit>
+      <trans-unit id="EncAC40A3E9" resname="encounter.course.field.pain_score">
+        <source>encounter.course.field.pain_score</source>
+        <target>Schmerzskala</target>
+      </trans-unit>
+      <trans-unit id="EncCDB6FD3B" resname="encounter.course.field.disposition">
+        <source>encounter.course.field.disposition</source>
+        <target>Verbleib</target>
+      </trans-unit>
+      <trans-unit id="EncA11F154B" resname="encounter.course.field.care_level">
+        <source>encounter.course.field.care_level</source>
+        <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="EncBC77FDBB" resname="encounter.course.field.department">
+        <source>encounter.course.field.department</source>
+        <target>Aufnehmende Fachabteilung</target>
+      </trans-unit>
+      <trans-unit id="Enc51E05251" resname="encounter.course.implausible">
+        <source>encounter.course.implausible</source>
+        <target>in Statistiken ausgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="Enc70A4DF63" resname="encounter.course.relative">
+        <source>encounter.course.relative</source>
+        <target>{minutes} min</target>
+      </trans-unit>
+      <trans-unit id="EncEF0EF7D1" resname="encounter.course.timeline_day">
+        <source>encounter.course.timeline_day</source>
+        <target>Zeiten ab {day}, Ortszeit. Minuten relativ zur Aufnahme ZNA.</target>
+      </trans-unit>
+      <trans-unit id="EncE4F7F725" resname="encounter.course.event.ivena_arrival">
+        <source>encounter.course.event.ivena_arrival</source>
+        <target>IVENA-Ankunft</target>
+      </trans-unit>
+      <trans-unit id="Enc762A4E2D" resname="encounter.course.event.ed_admission">
+        <source>encounter.course.event.ed_admission</source>
+        <target>Aufnahme ZNA</target>
+      </trans-unit>
+      <trans-unit id="EncF3715BDD" resname="encounter.course.event.first_assessment">
+        <source>encounter.course.event.first_assessment</source>
+        <target>Ersteinschätzung (MTS)</target>
+      </trans-unit>
+      <trans-unit id="EncC470806A" resname="encounter.course.event.first_physician">
+        <source>encounter.course.event.first_physician</source>
+        <target>Erster Arztkontakt</target>
+      </trans-unit>
+      <trans-unit id="EncD0A1FD86" resname="encounter.course.event.vitals_measured">
+        <source>encounter.course.event.vitals_measured</source>
+        <target>Vitalwerte gemessen</target>
+      </trans-unit>
+      <trans-unit id="Enc30B1BF9B" resname="encounter.course.event.treatment_end">
+        <source>encounter.course.event.treatment_end</source>
+        <target>Behandlungsende</target>
+      </trans-unit>
+      <trans-unit id="EncF784C7BE" resname="encounter.course.event.ed_discharge">
+        <source>encounter.course.event.ed_discharge</source>
+        <target>Entlassung ZNA</target>
+      </trans-unit>
+      <trans-unit id="Enc3463537D" resname="encounter.course.vitals.none">
+        <source>encounter.course.vitals.none</source>
+        <target>Keine Vitalwerte dokumentiert.</target>
+      </trans-unit>
+      <trans-unit id="Enc5F0B474B" resname="encounter.course.vitals.admission_measurement">
+        <source>encounter.course.vitals.admission_measurement</source>
+        <target>Bei Aufnahme um {time} gemessen (im Zeitverlauf).</target>
+      </trans-unit>
+      <trans-unit id="Enc9885D3E0" resname="encounter.course.vitals.admission_measurement_no_time">
+        <source>encounter.course.vitals.admission_measurement_no_time</source>
+        <target>Bei Aufnahme gemessen, Zeit nicht dokumentiert.</target>
+      </trans-unit>
+      <trans-unit id="Enc431A3149" resname="encounter.course.vitals.documented_initial">
+        <source>encounter.course.vitals.documented_initial</source>
+        <target>Dokumentierter Erstwert</target>
+      </trans-unit>
+      <trans-unit id="Enc26F62FCD" resname="encounter.course.vitals.documented_initial_hint">
+        <source>encounter.course.vitals.documented_initial_hint</source>
+        <target>Die ersten Werte der Dokumentation. Wann sie gemessen wurden, ist nicht gesichert; daher stehen sie nicht im Zeitverlauf.</target>
+      </trans-unit>
+      <trans-unit id="Enc06800918" resname="encounter.course.vitals.blood_pressure">
+        <source>encounter.course.vitals.blood_pressure</source>
+        <target>Blutdruck</target>
+      </trans-unit>
+      <trans-unit id="Enc6B914F8F" resname="encounter.course.vitals.heart_rate">
+        <source>encounter.course.vitals.heart_rate</source>
+        <target>Herzfrequenz</target>
+      </trans-unit>
+      <trans-unit id="Enc450E9EF2" resname="encounter.course.vitals.respiratory_rate">
+        <source>encounter.course.vitals.respiratory_rate</source>
+        <target>Atemfrequenz</target>
+      </trans-unit>
+      <trans-unit id="Enc7A638564" resname="encounter.course.vitals.spo2">
+        <source>encounter.course.vitals.spo2</source>
+        <target>SpO₂</target>
+      </trans-unit>
+      <trans-unit id="Enc6F381C39" resname="encounter.course.vitals.temperature">
+        <source>encounter.course.vitals.temperature</source>
+        <target>Temperatur</target>
+      </trans-unit>
+      <trans-unit id="Enc2A4893E9" resname="encounter.course.vitals.glucose">
+        <source>encounter.course.vitals.glucose</source>
+        <target>Blutzucker</target>
+      </trans-unit>
+      <trans-unit id="Enc742D5BE8" resname="encounter.course.vitals.gcs">
+        <source>encounter.course.vitals.gcs</source>
+        <target>GCS</target>
+      </trans-unit>
+      <trans-unit id="EncF7E28F8C" resname="encounter.process.admission_to_assessment.label">
+        <source>encounter.process.admission_to_assessment.label</source>
+        <target>Ankunft → Ersteinschätzung</target>
+      </trans-unit>
+      <trans-unit id="Enc06664B82" resname="encounter.process.admission_to_assessment.definition">
+        <source>encounter.process.admission_to_assessment.definition</source>
+        <target>Von der Aufnahme ZNA bis zum ersten Ersteinschätzungskontakt (MTS).</target>
+      </trans-unit>
+      <trans-unit id="Enc7E9E65BB" resname="encounter.process.admission_to_physician.label">
+        <source>encounter.process.admission_to_physician.label</source>
+        <target>Ankunft → erster Arztkontakt</target>
+      </trans-unit>
+      <trans-unit id="EncD943D6BD" resname="encounter.process.admission_to_physician.definition">
+        <source>encounter.process.admission_to_physician.definition</source>
+        <target>Von der Aufnahme ZNA bis zum ersten Arztkontakt.</target>
+      </trans-unit>
+      <trans-unit id="Enc1A70B6EE" resname="encounter.process.admission_to_discharge.label">
+        <source>encounter.process.admission_to_discharge.label</source>
+        <target>Ankunft → Entlassung ZNA</target>
+      </trans-unit>
+      <trans-unit id="EncCA7DD19C" resname="encounter.process.admission_to_discharge.definition">
+        <source>encounter.process.admission_to_discharge.definition</source>
+        <target>Von der Aufnahme ZNA bis zum Verlassen der Notaufnahme (Verweildauer in der ZNA).</target>
+      </trans-unit>
+      <trans-unit id="Enc253C18A2" resname="encounter.unit.minutes">
+        <source>encounter.unit.minutes</source>
+        <target>{minutes} min</target>
+      </trans-unit>
+      <trans-unit id="Enc41B5CA8E" resname="encounter.unit.minutes_decimal">
+        <source>encounter.unit.minutes_decimal</source>
+        <target>{minutes, number} min</target>
+      </trans-unit>
+      <trans-unit id="Enc87FB2B2A" resname="encounter.disposition.home">
+        <source>encounter.disposition.home</source>
+        <target>Nach Hause</target>
+      </trans-unit>
+      <trans-unit id="Enc9BB24800" resname="encounter.disposition.to_physician">
+        <source>encounter.disposition.to_physician</source>
+        <target>Zum niedergelassenen Arzt</target>
+      </trans-unit>
+      <trans-unit id="Enc7A4937A3" resname="encounter.disposition.kv_practice">
+        <source>encounter.disposition.kv_practice</source>
+        <target>In die KV-Bereitschaftspraxis</target>
+      </trans-unit>
+      <trans-unit id="Enc12E67D13" resname="encounter.disposition.against_advice">
+        <source>encounter.disposition.against_advice</source>
+        <target>Gegen ärztlichen Rat</target>
+      </trans-unit>
+      <trans-unit id="EncB49EC0DE" resname="encounter.disposition.left_before_completion">
+        <source>encounter.disposition.left_before_completion</source>
+        <target>Vor Behandlungsabschluss gegangen</target>
+      </trans-unit>
+      <trans-unit id="Enc92DB4D6F" resname="encounter.disposition.admitted">
+        <source>encounter.disposition.admitted</source>
+        <target>Stationäre Aufnahme im Haus</target>
+      </trans-unit>
+      <trans-unit id="EncFCF5D83A" resname="encounter.disposition.transferred_external">
+        <source>encounter.disposition.transferred_external</source>
+        <target>Verlegung in ein anderes Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="EncD2634BE4" resname="encounter.disposition.died">
+        <source>encounter.disposition.died</source>
+        <target>Verstorben</target>
+      </trans-unit>
+      <trans-unit id="Enc9520A832" resname="encounter.disposition.other">
+        <source>encounter.disposition.other</source>
+        <target>Sonstiges</target>
+      </trans-unit>
+      <trans-unit id="EncFB34B718" resname="encounter.care_level.ward">
+        <source>encounter.care_level.ward</source>
+        <target>Normalstation</target>
+      </trans-unit>
+      <trans-unit id="Enc9AC59C2C" resname="encounter.care_level.monitoring">
+        <source>encounter.care_level.monitoring</source>
+        <target>Überwachung / IMC</target>
+      </trans-unit>
+      <trans-unit id="EncA5B1B3CA" resname="encounter.care_level.icu">
+        <source>encounter.care_level.icu</source>
+        <target>Intensivstation</target>
+      </trans-unit>
+      <trans-unit id="Enc769BEDCE" resname="encounter.care_level.or">
+        <source>encounter.care_level.or</source>
+        <target>OP</target>
+      </trans-unit>
+      <trans-unit id="Enc066DED79" resname="encounter.care_level.unknown">
+        <source>encounter.care_level.unknown</source>
+        <target>Station unbekannt</target>
+      </trans-unit>
+      <trans-unit id="EncBAFA6A76" resname="encounter.arrival_route.ems">
+        <source>encounter.arrival_route.ems</source>
+        <target>Rettungsdienst</target>
+      </trans-unit>
+      <trans-unit id="Enc6183CEF7" resname="encounter.arrival_route.self">
+        <source>encounter.arrival_route.self</source>
+        <target>Selbstvorsteller</target>
+      </trans-unit>
+      <trans-unit id="EncC32149A8" resname="encounter.arrival_route.unknown">
+        <source>encounter.arrival_route.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="Enc1746C732" resname="encounter.link.automatic">
+        <source>encounter.link.automatic</source>
+        <target>Automatisch verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc6D60A546" resname="encounter.link.confirmed">
+        <source>encounter.link.confirmed</source>
+        <target>Bestätigt verknüpft</target>
+      </trans-unit>
+      <trans-unit id="EncBAC588C0" resname="encounter.link.linked">
+        <source>encounter.link.linked</source>
+        <target>Verknüpft gesamt</target>
+      </trans-unit>
+      <trans-unit id="EncB1EA3B71" resname="encounter.link.not_linked">
+        <source>encounter.link.not_linked</source>
+        <target>Nicht verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc23316E5C" resname="encounter.overview_page.index_title">
+        <source>encounter.overview_page.index_title</source>
+        <target>Übersicht Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="EncA92DB0C1" resname="encounter.overview_page.index_none">
+        <source>encounter.overview_page.index_none</source>
+        <target>Sie dürfen für kein Krankenhaus Auswertungen sehen. Dafür sind eine Behandlungsdaten-Freigabe und die Krankenhausberechtigung „Statistik“ nötig.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

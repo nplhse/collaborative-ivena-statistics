@@ -199,6 +199,11 @@
                     </div>
                 </twig:Card>
             </div>
+            {% for section in allocation_case_sections(allocation) %}
+                <div class="col-12 mb-3" data-case-section="{{ section.key }}">
+                    {{ include(section.template, section.context) }}
+                </div>
+            {% endfor %}
         </div>
         <div class="col-lg-4">
             <div class="row row-cards">

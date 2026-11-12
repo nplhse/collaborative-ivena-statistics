@@ -98,10 +98,10 @@
 
                         <input type="hidden"
                                name="scope"
-                               value="{{ context.scopeMode.value == 'assigned_hospitals' ? (context.appliedScope == 'hospital' ? 'hospital' : 'my_hospitals') : context.appliedScope }}"
+                               value="{{ context.scopeMode.value == 'assigned_hospital' ? 'hospital' : (context.scopeMode.value == 'assigned_hospitals' ? (context.appliedScope == 'hospital' ? 'hospital' : 'my_hospitals') : context.appliedScope) }}"
                                data-statistics-analysis-context-target="scope">
 
-                        {% if context.scopeMode.value == 'assigned_hospitals' %}
+                        {% if context.scopeMode.isAssigned() %}
                             {% if context.hospitalChoices|length > 0 %}
                                 <input type="hidden"
                                        name="hospital"

@@ -1,0 +1,28 @@
+{# Data coverage of the hospital: what the figures of the selected period rest on, and all stored data. #}
+{% set blocks = [
+    {key: 'period', title: 'stats.encounter.coverage.in_period'|trans({}, 'statistics'), c: overview.coverage},
+    {key: 'all', title: 'stats.encounter.coverage.all_data'|trans({}, 'statistics'), c: overview.allTimeCoverage},
+] %}
+<div class="card" data-testid="encounter-coverage">
+    {{ include('@Statistics/encounter_analytics/_card_header.html.twig', {title: 'stats.encounter.coverage.title'|trans({}, 'statistics')}) }}
+    <div class="card-body py-3">
+        <div class="row g-4">
+        {% for block in blocks %}
+            <div class="col-12 col-md-6" data-testid="encounter-coverage-{{ block.key }}">
+                <div class="subheader mb-1">{{ block.title }}</div>
+                {% for item in [
+                    {key: 'range', value: block.c.firstAnchor ? block.c.firstAnchor|date('d.m.Y') ~ ' – ' ~ block.c.lastAnchor|date('d.m.Y') : '–'},
+                    {key: 'visits', value: block.c.visits|format_number},
+                    {key: 'days', value: block.c.days|format_number},
+                    {key: 'imports', value: block.c.imports|format_number},
+                ] %}
+                    <div class="d-flex align-items-center gap-2 py-1">
+                        <span class="text-secondary">{{ ('stats.encounter.coverage.' ~ item.key)|trans({}, 'statistics') }}</span>
+                        <span class="ms-auto text-nowrap" data-testid="encounter-coverage-{{ item.key }}">{{ item.value }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+</div>

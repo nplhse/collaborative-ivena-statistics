@@ -1,0 +1,45 @@
+{# IVENA link tab: arrival route × link status as stacked bars and table. #}
+{% set route_rows = overview.routeLink|filter(r => r.route != 'total') %}
+<div class="card">
+    {{ include('@Statistics/encounter_analytics/_card_header.html.twig', {
+        title: 'stats.encounter.route_link.title'|trans({}, 'statistics'),
+    }) }}
+    <div class="card-body">
+        <div data-controller="encounter-overview-chart" data-encounter-overview-chart-chart-value="{{ {
+            categories: route_rows|map(r => route_labels[r.route]),
+            stacked: true,
+            horizontal: true,
+            series: [
+                {name: link_labels.automatic, color: '#206bc4', data: route_rows|map(r => r.automatic.shownValue)},
+                {name: link_labels.confirmed, color: '#2fb344', data: route_rows|map(r => r.confirmed.shownValue)},
+                {name: link_labels.not_linked, color: '#adb5bd', data: route_rows|map(r => r.notLinked.shownValue)},
+            ],
+        }|json_encode|e('html_attr') }}"></div>
+    </div>
+    <div class="table-responsive">
+        <table class="table card-table table-vcenter" data-testid="encounter-route-link">
+            <thead>
+                <tr>
+                    <th>{{ 'stats.encounter.column.arrival_route'|trans({}, 'statistics') }}</th>
+                    <th class="text-end" colspan="2">{{ link_labels.automatic }}</th>
+                    <th class="text-end" colspan="2">{{ link_labels.confirmed }}</th>
+                    <th class="text-end" colspan="2">{{ 'encounter.link.linked'|trans({}, d) }}</th>
+                    <th class="text-end" colspan="2">{{ link_labels.not_linked }}</th>
+                    <th class="text-end">{{ 'stats.encounter.total'|trans({}, 'statistics') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in overview.routeLink %}
+                    <tr data-testid="encounter-route-link-row" data-route="{{ row.route }}" class="{{ row.route == 'total' ? 'fw-semibold' }}">
+                        <td>{{ route_labels[row.route] }}</td>
+                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.automatic}) }}
+                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.confirmed}) }}
+                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.linked}) }}
+                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.notLinked}) }}
+                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.total, with_share: false}) }}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

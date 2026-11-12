@@ -1,0 +1,146 @@
+{# Case card "Hospital course" on the allocation case file (#1055), contributed by Encounter. #}
+{% set d = 'encounter' %}
+<div class="card" data-testid="encounter-hospital-course">
+    <div class="card-header">
+        <h3 class="card-title mb-0">{{ 'encounter.course.title'|trans({}, d) }}</h3>
+        <div class="card-actions">
+            <span class="badge bg-azure-lt">{{ 'encounter.course.beta'|trans({}, d) }}</span>
+        </div>
+    </div>
+    {% if course is null %}
+        <div class="card-body" data-testid="encounter-hospital-course-none">
+            <p class="text-secondary mb-0">{{ 'encounter.course.no_link'|trans({}, d) }}</p>
+        </div>
+    {% else %}
+        {% set encounter = course.encounter %}
+        {% set link = course.link %}
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3" data-testid="encounter-course-link">
+                {% if course.automatic %}
+                    <span class="badge bg-blue-lt" data-testid="encounter-course-origin" data-origin="automatic">{{ 'encounter.course.origin.automatic'|trans({}, d) }}</span>
+                {% else %}
+                    <span class="badge bg-green-lt" data-testid="encounter-course-origin" data-origin="confirmed">{{ 'encounter.course.origin.confirmed'|trans({}, d) }}</span>
+                {% endif %}
+                {% if course.agreementPercent is not null %}
+                    <span class="text-secondary" data-testid="encounter-course-agreement">
+                        {{ 'encounter.course.agreement'|trans({percent: course.agreementPercent|round(0, 'floor')}, d) }}
+                    </span>
+                {% endif %}
+                <span class="text-secondary">· {{ ('encounter.course.anchor.' ~ link.timeAnchor.value)|trans({minutes: (link.timeDifferenceMinutes > 0 ? '+' : '') ~ link.timeDifferenceMinutes}, d) }}</span>
+            </div>
+            <p class="small text-secondary">{{ (course.automatic ? 'encounter.course.origin.automatic_hint' : 'encounter.course.origin.confirmed_hint')|trans({}, d) }}</p>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <h4 class="subheader">{{ 'encounter.course.section.triage'|trans({}, d) }}</h4>
+                    <div class="datagrid" data-testid="encounter-course-triage">
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.course.field.category'|trans({}, d) }}</div>
+                            <div class="datagrid-content" data-testid="encounter-course-category">
+                                {% if encounter.triage.category %}
+                                    <span class="badge bg-{{ encounter.triage.category.value }} me-1"></span>
+                                    {{ ('encounter.mts.category.' ~ encounter.triage.category.value ~ '.name')|trans({}, d) }}
+                                {% else %}–{% endif %}
+                            </div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.course.field.diagram'|trans({}, d) }}</div>
+                            <div class="datagrid-content">{{ diagram_name ?? '–' }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.course.field.indicator'|trans({}, d) }}</div>
+                            <div class="datagrid-content">{{ indicator_name ?? '–' }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.course.field.pain_score'|trans({}, d) }}</div>
+                            <div class="datagrid-content">{{ encounter.triage.painScore ?? '–' }}</div>
+                        </div>
+                    </div>
+
+                    <h4 class="subheader mt-4">{{ 'encounter.course.section.process_times'|trans({}, d) }}</h4>
+                    <dl class="row mb-0" data-testid="encounter-course-intervals">
+                        {% for value in course.intervals %}
+                            <dt class="col-7 fw-normal text-secondary">{{ ('encounter.process.' ~ value.interval.value ~ '.label')|trans({}, d) }}</dt>
+                            <dd class="col-5 mb-1" data-testid="encounter-course-interval" data-interval="{{ value.interval.value }}">
+                                {% if value.minutes is null %}
+                                    –
+                                {% else %}
+                                    {{ 'encounter.unit.minutes'|trans({minutes: value.minutes}, d) }}
+                                    {% if not value.plausible %}
+                                        <span class="badge bg-warning-lt ms-1" data-testid="encounter-course-implausible">{{ 'encounter.course.implausible'|trans({}, d) }}</span>
+                                    {% endif %}
+                                {% endif %}
+                            </dd>
+                        {% endfor %}
+                    </dl>
+
+                    <h4 class="subheader mt-4">{{ 'encounter.course.section.disposition'|trans({}, d) }}</h4>
+                    <div class="datagrid" data-testid="encounter-course-disposition">
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.course.field.disposition'|trans({}, d) }}</div>
+                            <div class="datagrid-content">{{ encounter.disposition.code ? ('encounter.disposition.' ~ encounter.disposition.code.value)|trans({}, d) : '–' }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.course.field.care_level'|trans({}, d) }}</div>
+                            <div class="datagrid-content">{{ encounter.disposition.careLevel ? ('encounter.care_level.' ~ encounter.disposition.careLevel.value)|trans({}, d) : '–' }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.course.field.department'|trans({}, d) }}</div>
+                            <div class="datagrid-content">{{ encounter.admittingDepartment ? encounter.admittingDepartment.name : '–' }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h4 class="subheader">{{ 'encounter.course.section.timeline'|trans({}, d) }}</h4>
+                    <ul class="list-unstyled mb-0" data-testid="encounter-course-timeline">
+                        {% for event in course.timeline %}
+                            <li class="d-flex gap-2 mb-1" data-testid="encounter-course-event" data-event="{{ event.key }}">
+                                <span class="fw-semibold font-monospace">{{ event.at|date('H:i') }}</span>
+                                <span>{{ ('encounter.course.event.' ~ event.key)|trans({}, d) }}</span>
+                                {% if event.minutesFromAdmission is not null and event.key != 'ed_admission' %}
+                                    <span class="text-secondary ms-auto">{{ 'encounter.course.relative'|trans({minutes: (event.minutesFromAdmission > 0 ? '+' : '') ~ event.minutesFromAdmission}, d) }}</span>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    {% if course.timeline is not empty %}
+                        <p class="small text-secondary mt-1 mb-0">{{ 'encounter.course.timeline_day'|trans({day: (course.timeline|first).at|date('d.m.Y')}, d) }}</p>
+                    {% endif %}
+
+                    <h4 class="subheader mt-4">{{ 'encounter.course.section.vitals'|trans({}, d) }}</h4>
+                    {% set vitals = encounter.vitals %}
+                    {% if vitals.reference is null %}
+                        <p class="text-secondary mb-0" data-testid="encounter-course-vitals-none">{{ 'encounter.course.vitals.none'|trans({}, d) }}</p>
+                    {% else %}
+                        <p class="small mb-2" data-testid="encounter-course-vitals-reference" data-reference="{{ vitals.reference.value }}">
+                            {% if course.vitalsOnTimeline %}
+                                {{ 'encounter.course.vitals.admission_measurement'|trans({time: vitals.measuredAt|date('H:i')}, d) }}
+                            {% elseif vitals.reference.value == 'admission_measurement' %}
+                                {{ 'encounter.course.vitals.admission_measurement_no_time'|trans({}, d) }}
+                            {% else %}
+                                <span class="badge bg-secondary-lt me-1">{{ 'encounter.course.vitals.documented_initial'|trans({}, d) }}</span>
+                                <span class="text-secondary">{{ 'encounter.course.vitals.documented_initial_hint'|trans({}, d) }}</span>
+                            {% endif %}
+                        </p>
+                        <div class="datagrid" data-testid="encounter-course-vitals">
+                            {% for field, value in {
+                                blood_pressure: vitals.bpSystolic is not null or vitals.bpDiastolic is not null ? (vitals.bpSystolic ?? '–') ~ '/' ~ (vitals.bpDiastolic ?? '–') ~ ' mmHg' : null,
+                                heart_rate: vitals.heartRate is not null ? vitals.heartRate ~ ' /min' : null,
+                                respiratory_rate: vitals.respiratoryRate is not null ? vitals.respiratoryRate ~ ' /min' : null,
+                                spo2: vitals.spo2 is not null ? vitals.spo2 ~ ' %' : null,
+                                temperature: vitals.temperature is not null ? vitals.temperature|format_number({fraction_digit: 1}) ~ ' °C' : null,
+                                glucose: vitals.glucose is not null ? vitals.glucose ~ ' mg/dl' : null,
+                                gcs: vitals.gcs,
+                            } %}
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ ('encounter.course.vitals.' ~ field)|trans({}, d) }}</div>
+                                    <div class="datagrid-content" data-vital="{{ field }}">{{ value ?? '–' }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
