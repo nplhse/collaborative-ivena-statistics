@@ -266,6 +266,21 @@ categories and diagrams, process times recomputed from timestamps (median, IQR),
 care level. No cross-hospital aggregates. Each figure documents population, filters, numerator and
 denominator, missing values and period boundaries when it is implemented (#1055).
 
+## Synthetic data
+
+Implemented in #1052: development, tests and the demo use generated encounters of synthetic
+allocations with known true links, never real data. The generator creates linked visits with time
+and age noise, self-presenters, EMS arrivals without allocation, repeat visits under one case number,
+visits without ED admission time and late assessments; it writes them straight into the database
+(fixture group `encounters`, part of `dev`) or as canonical `ed_visit` files with a test key file,
+overlapping exports and a truth file (`app:generate:encounter-files`). Details:
+[synthetic-data-generator.md](../../03-development/synthetic-data-generator.md#encounter-data).
+
+The contract between the tool and the import is tested end to end: `exchange-fixture.test.js` runs
+the tool core on the synthetic ORBIS-like sample and keeps its output in
+`tests/Encounter/DataPrep/fixtures/orbis-mts-sample.ed_visit.csv`; `DataPrepToolOutputImportTest`
+imports that file and expects no file or row rejects.
+
 ## Governance
 
 Before the first real upload the pilot hospital documents the data flow:
