@@ -33,7 +33,7 @@ final readonly class EncounterFileValidator
     public function __construct(
         private EncounterDimensionRegistry $dimensions,
         private IdentifyingContentDetector $contentDetector,
-        #[Autowire(param: 'app.encounter.min_tool_version')]
+        #[Autowire(param: 'app.encounter.data_prep.min_version')]
         private string $minToolVersion,
     ) {
     }

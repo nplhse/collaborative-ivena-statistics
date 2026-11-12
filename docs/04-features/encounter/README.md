@@ -113,7 +113,7 @@ fails with `invalid_file` and the reason is stored as `encounter_import.file_rej
 | `manifest_invalid` | a manifest key is missing, `schema_version`/`rows` are no integers, `key_check` is no 64-digit hex, `tool` is no `x.y.z` | kept |
 | `schema_unsupported` | schema differs from the one chosen at upload, or the version is not supported | kept |
 | `profile_unsupported` | profile not `[a-z0-9-]`, profile version no positive integer | kept |
-| `tool_version_too_old` | `tool` below `app.encounter.min_tool_version` (default `0.3.0`) | kept |
+| `tool_version_too_old` | `tool` below `app.encounter.data_prep.min_version` (default `1.0.0`) | kept |
 | `fingerprint_rule_unsupported` | not a rule of the schema version (`ed-visit:v1`) | kept |
 | `header_mismatch` | header differs from the schema version in any way (order, missing or extra column) | kept |
 | `row_count_mismatch` | number of data rows differs from `rows` | kept |

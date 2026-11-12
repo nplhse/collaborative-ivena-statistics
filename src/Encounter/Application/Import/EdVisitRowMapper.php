@@ -43,6 +43,7 @@ final class EdVisitRowMapper
     private const string TIMESTAMP_FORMAT = 'Y-m-d\TH:i';
     private const string TIMEZONE = 'Europe/Berlin';
     private const string ADMITTING_DEPARTMENT = 'admitting_department';
+    private const string MTS_CODE_PATTERN = '/^[a-z0-9_]{1,64}$/';
     private const array VITAL_FIELDS = ['bp_systolic', 'bp_diastolic', 'heart_rate', 'temperature', 'respiratory_rate', 'glucose', 'spo2', 'gcs'];
 
     /** @var array<string, Department|null> */
@@ -166,11 +167,12 @@ final class EdVisitRowMapper
             return EncounterRowError::InvalidFormat;
         }
 
-        if (self::ADMITTING_DEPARTMENT === $field->name && !$this->department($value) instanceof Department) {
-            return EncounterRowError::InvalidCode;
+        if (self::ADMITTING_DEPARTMENT !== $field->name) {
+            // MTS diagram and indicator: interim slugs of the German label until the catalog is fixed (#1056).
+            return 1 === preg_match(self::MTS_CODE_PATTERN, $value) ? $value : EncounterRowError::InvalidFormat;
         }
 
-        return $value;
+        return $this->department($value) instanceof Department ? $value : EncounterRowError::InvalidCode;
     }
 
     private function department(string $name): ?Department

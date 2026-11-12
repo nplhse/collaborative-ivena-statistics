@@ -22,7 +22,7 @@ final class EdVisitFileBuilder
         'schema_version' => '1',
         'profile' => 'orbis-mts',
         'profile_version' => '1',
-        'tool' => '0.3.0',
+        'tool' => '1.0.0',
         'key_check' => self::KEY_CHECK,
         'fingerprint' => 'ed-visit:v1',
     ];

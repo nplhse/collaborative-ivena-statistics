@@ -32,8 +32,9 @@ app:
             - .ru
 
     encounter:
-        # Files of older data preparation tool versions are rejected (ADR 025).
-        min_tool_version: '0.3.0'
+        data_prep:
+            # Files of older data preparation tool versions are rejected by the import (ADR 025).
+            min_version: '1.0.0'
 
     closure_volume:
         reference_weeks_before: 4

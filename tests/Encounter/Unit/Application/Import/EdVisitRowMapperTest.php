@@ -119,6 +119,8 @@ final class EdVisitRowMapperTest extends TestCase
         yield 'gcs below 3' => [['gcs' => '2'], ['gcs: out_of_range']];
         yield 'flag no' => [['work_accident' => '0'], ['work_accident: invalid_code']];
         yield 'unknown isolation code' => [['isolation' => 'mrsa,flu'], ['isolation: invalid_code']];
+        yield 'MTS code with uppercase letters' => [['mts_diagram' => 'Bauchschmerzen'], ['mts_diagram: invalid_format']];
+        yield 'MTS code with space' => [['retriage_indicator' => 'starke schmerzen'], ['retriage_indicator: invalid_format']];
         yield 'unknown department' => [['admitting_department' => 'Raumfahrtmedizin'], ['admitting_department: invalid_code']];
         yield 'care level without admission' => [['disposition' => 'home', 'care_level' => 'ward'], ['care_level: inconsistent']];
         yield 'vital without reference' => [['vitals_reference' => '', 'heart_rate' => '80'], ['vitals_reference: required']];

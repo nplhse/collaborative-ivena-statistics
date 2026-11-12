@@ -32,7 +32,7 @@ final class EncounterFileValidatorTest extends TestCase
         self::assertSame('ed_visit', $manifest->schema);
         self::assertSame(1, $manifest->schemaVersion);
         self::assertSame('orbis-mts', $manifest->profile);
-        self::assertSame('0.3.0', $manifest->toolVersion);
+        self::assertSame('1.0.0', $manifest->toolVersion);
         self::assertSame(EdVisitFileBuilder::KEY_CHECK, $manifest->keyCheck);
         self::assertSame(2, $manifest->rows);
         self::assertCount(\count(EdVisitFileBuilder::headerV1()), $fields);
@@ -49,9 +49,9 @@ final class EncounterFileValidatorTest extends TestCase
 
     public function testNewerToolVersionIsAccepted(): void
     {
-        [$manifest] = $this->validate(EdVisitFileBuilder::create()->manifest('tool', '0.10.0')->visit('a', '2026-10-01T08:15')->build());
+        [$manifest] = $this->validate(EdVisitFileBuilder::create()->manifest('tool', '1.10.0')->visit('a', '2026-10-01T08:15')->build());
 
-        self::assertSame('0.10.0', $manifest->toolVersion);
+        self::assertSame('1.10.0', $manifest->toolVersion);
     }
 
     /**
@@ -76,7 +76,7 @@ final class EncounterFileValidatorTest extends TestCase
         yield 'unknown schema' => [$valid()->manifest('schema', 'inpatient_stay')->build(), EncounterFileRejection::SchemaUnsupported];
         yield 'unknown schema version' => [$valid()->manifest('schema_version', '2')->build(), EncounterFileRejection::SchemaUnsupported];
         yield 'malformed profile' => [$valid()->manifest('profile', 'ORBIS MTS')->build(), EncounterFileRejection::ProfileUnsupported];
-        yield 'tool below minimum version' => [$valid()->manifest('tool', '0.2.9')->build(), EncounterFileRejection::ToolVersionTooOld];
+        yield 'tool below minimum version' => [$valid()->manifest('tool', '0.9.9')->build(), EncounterFileRejection::ToolVersionTooOld];
         yield 'unknown fingerprint rule' => [$valid()->manifest('fingerprint', 'ed-visit:v2')->build(), EncounterFileRejection::FingerprintRuleUnsupported];
         yield 'missing column' => [$valid()->header(\array_slice($header, 0, -1))->build(), EncounterFileRejection::HeaderMismatch];
         yield 'columns in another order' => [$valid()->header([$header[1], $header[0], ...\array_slice($header, 2)])->build(), EncounterFileRejection::HeaderMismatch];
@@ -130,7 +130,7 @@ final class EncounterFileValidatorTest extends TestCase
         $validator = new EncounterFileValidator(
             new EncounterDimensionRegistry([new EdVisitDimension()]),
             new IdentifyingContentDetector(),
-            '0.3.0',
+            '1.0.0',
         );
 
         return $validator->validate(new EncounterFileReader()->read($content), $schema);

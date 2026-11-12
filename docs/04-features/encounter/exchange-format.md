@@ -85,9 +85,9 @@ Rules:
 - The server checks every field against this table (#1048): ranges are inclusive, temperature has at most
   one decimal, integers have none, timestamps are exactly `YYYY-MM-DDTHH:MM`. A value outside its range
   or code list rejects the row, never the file.
-- `mts_diagram`, `mts_indicator` and their retriage counterparts are codes of at most 64 characters
-  without control characters until the MTS catalog is fixed (#1056). Avoid commas between capitalised
-  words (`Surname, Given name`): the server's content check treats that as a name and rejects the file.
+- `mts_diagram`, `mts_indicator` and their retriage counterparts are interim slugs of the German label
+  (`^[a-z0-9_]{1,64}$`: lowercase ASCII, ä→ae, ö→oe, ü→ue, ß→ss, other characters → `_`) until the MTS
+  catalog is fixed (#1056); any other value rejects the row.
 - `admitting_department` is the name of a department of the reference catalog (case-insensitive); an
   unknown or ambiguous name rejects the row.
 - Unknown manifest keys are ignored; required are the eight keys of the example line.
