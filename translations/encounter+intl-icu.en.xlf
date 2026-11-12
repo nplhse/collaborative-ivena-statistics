@@ -1157,10 +1157,6 @@
         <source>encounter.review.expected_arrival</source>
         <target>Expected arrival</target>
       </trans-unit>
-      <trans-unit id="Enc42DAA028" resname="encounter.review.current">
-        <source>encounter.review.current</source>
-        <target>Current link</target>
-      </trans-unit>
       <trans-unit id="Enc674CBF87" resname="encounter.review.linked_to">
         <source>encounter.review.linked_to</source>
         <target>Linked to visit #{visit}.</target>
@@ -1385,6 +1381,22 @@
         <source>encounter.review.swap.apply</source>
         <target>Apply swap</target>
       </trans-unit>
+      <trans-unit id="Enc886ED411" resname="encounter.review.comparison_title">
+        <source>encounter.review.comparison_title</source>
+        <target>Comparison</target>
+      </trans-unit>
+      <trans-unit id="EncFF96BE86" resname="encounter.review.candidate_choice">
+        <source>encounter.review.candidate_choice</source>
+        <target>Candidate visits ({count, number})</target>
+      </trans-unit>
+      <trans-unit id="EncCE5AF804" resname="encounter.review.visit_heading">
+        <source>encounter.review.visit_heading</source>
+        <target>ED visit #{id}</target>
+      </trans-unit>
+      <trans-unit id="Enc96E86DCD" resname="encounter.review.points_total">
+        <source>encounter.review.points_total</source>
+        <target>Total points</target>
+      </trans-unit>
       <trans-unit id="Enc3DD215B3" resname="encounter.review.period.range">
         <source>encounter.review.period.range</source>
         <target>{from} – {to}</target>
@@ -1436,18 +1448,6 @@
       <trans-unit id="Enc678C5DE4" resname="encounter.review.header_status.not_linked">
         <source>encounter.review.header_status.not_linked</source>
         <target>Not linked</target>
-      </trans-unit>
-      <trans-unit id="Enc84BAFF91" resname="encounter.review.context">
-        <source>encounter.review.context</source>
-        <target>Context</target>
-      </trans-unit>
-      <trans-unit id="Enc79198FA4" resname="encounter.review.decision">
-        <source>encounter.review.decision</source>
-        <target>Decision</target>
-      </trans-unit>
-      <trans-unit id="EncF08C5C6E" resname="encounter.review.comparison">
-        <source>encounter.review.comparison</source>
-        <target>Comparison with visit #{id}</target>
       </trans-unit>
       <trans-unit id="Enc7333A9BB" resname="encounter.review.linked_elsewhere_short">
         <source>encounter.review.linked_elsewhere_short</source>

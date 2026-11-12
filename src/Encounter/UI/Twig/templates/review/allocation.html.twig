@@ -42,112 +42,80 @@
         'data-encounter-match-review-change-label-value': 'encounter.review.action.change'|trans({}, 'encounter'),
     }}) }}
 
-    <div class="row row-cards">
-        <div class="col-lg-5">
-            <div class="card" data-test="encounter-review-context">
-                <div class="card-header">
-                    <h3 class="card-title">{{ 'encounter.review.context'|trans({}, 'encounter') }}</h3>
-                </div>
-                <div class="card-body">
-                    <h4 class="subheader">{{ 'encounter.review.ivena'|trans({}, 'encounter') }}</h4>
-                    <dl class="row" data-test="encounter-review-allocation">
-                        <dt class="col-5">{{ 'encounter.review.expected_arrival'|trans({}, 'encounter') }}</dt>
-                        <dd class="col-7">{{ allocation.arrival_at|date('d.m.Y H:i') }}</dd>
-                        <dt class="col-5">{{ 'encounter.review.feature.sex'|trans({}, 'encounter') }} · {{ 'encounter.review.feature.age'|trans({}, 'encounter') }}</dt>
-                        <dd class="col-7">{{ ('encounter.review.value.sex_' ~ allocation.gender)|trans({}, 'encounter') }}, {{ allocation.age }}</dd>
-                        <dt class="col-5">{{ 'encounter.review.feature.physician'|trans({}, 'encounter') }}</dt>
-                        <dd class="col-7">{{ (allocation.with_physician ? 'encounter.review.value.with_physician' : 'encounter.review.value.without_physician')|trans({}, 'encounter') }}</dd>
-                        <dt class="col-5">{{ 'encounter.review.feature.work_accident'|trans({}, 'encounter') }}</dt>
-                        <dd class="col-7">{{ (allocation.work_accident ? 'encounter.review.value.yes' : 'encounter.review.value.no')|trans({}, 'encounter') }}</dd>
-                    </dl>
-
-                    <h4 class="subheader">{{ 'encounter.review.current'|trans({}, 'encounter') }}</h4>
-                    <div data-test="encounter-review-current">
-                        {% if link %}
-                            <p class="mb-1">{{ 'encounter.review.linked_to'|trans({visit: link.encounter_id}, 'encounter') }}</p>
-                            {{ include('@Encounter/review/_status.html.twig', {pair: link}) }}
-                            {% if link.status.value == 'auto_accepted' %}
-                                <p class="text-secondary small mt-2 mb-0" data-test="encounter-review-automatic-origin">{{ 'encounter.review.automatic_origin'|trans({score: link.score|format_number({fraction_digit: 2}), pass: link.pass ?? '–'}, 'encounter') }}</p>
-                            {% endif %}
-                        {% else %}
-                            <p class="text-secondary mb-0" data-test="encounter-review-not-linked">{{ 'encounter.review.not_linked'|trans({}, 'encounter') }}</p>
-                        {% endif %}
-                    </div>
-
-                    {% for swap in swaps %}
-                        <h4 class="subheader mt-3">{{ 'encounter.review.swap.title'|trans({}, 'encounter') }}</h4>
-                        <p class="text-secondary small">{{ 'encounter.review.swap.intro'|trans({}, 'encounter') }}</p>
-                        {{ include('@Encounter/review/_swap.html.twig', {swap: swap, hospital_id: hospital.id, query: context.query(), form: true, form_id: 'encounter-review-swap-form-' ~ loop.index}) }}
-                    {% endfor %}
-                </div>
-            </div>
+    {% for swap in swaps %}
+        <div class="alert alert-info" role="status">
+            <h4 class="alert-heading">{{ 'encounter.review.swap.title'|trans({}, 'encounter') }}</h4>
+            <p class="mb-2">{{ 'encounter.review.swap.intro'|trans({}, 'encounter') }}</p>
+            {{ include('@Encounter/review/_swap.html.twig', {swap: swap, hospital_id: hospital.id, query: context.query(), form: true, form_id: 'encounter-review-swap-form-' ~ loop.index}) }}
         </div>
+    {% endfor %}
 
-        <div class="col-lg-7">
-            <div class="card" data-test="encounter-review-decision">
-                <div class="card-header">
-                    <h3 class="card-title">{{ 'encounter.review.decision'|trans({}, 'encounter') }}</h3>
-                </div>
-                <div class="card-body">
-                    <p class="text-secondary small">{{ 'encounter.review.candidates_help'|trans({before: window.minutesBefore, after: window.minutesAfter, age: window.maxAgeDifference}, 'encounter') }}</p>
-                    {{ form_errors(form) }}
-                    {{ form_errors(form.encounter) }}
-
-                    {% if candidates is empty %}
-                        <twig:EmptyState :title="'encounter.review.no_candidates'|trans({}, 'encounter')" icon="tabler:link-off" />
+    <div class="card" data-test="encounter-review-decision">
+        <div class="card-header flex-wrap gap-2">
+            <div>
+                <h3 class="card-title">{{ 'encounter.review.comparison_title'|trans({}, 'encounter') }}</h3>
+                <div class="text-secondary small mt-1" data-test="encounter-review-current">
+                    {% if link %}
+                        {{ 'encounter.review.linked_to'|trans({visit: link.encounter_id}, 'encounter') }}
+                        {% if link.status.value == 'auto_accepted' %}
+                            <span data-test="encounter-review-automatic-origin">{{ 'encounter.review.automatic_origin'|trans({score: link.score|format_number({fraction_digit: 2}), pass: link.pass ?? '–'}, 'encounter') }}</span>
+                        {% elseif link.decided_at %}
+                            {{ 'encounter.review.decided_by'|trans({user: link.decided_by ?? '–', at: link.decided_at|date('d.m.Y H:i')}, 'encounter') }}
+                        {% endif %}
                     {% else %}
-                        <div class="list-group mb-3" data-test="encounter-review-candidates">
-                            {% for candidate in candidates %}
-                                {% set stored = candidate.stored %}
-                                {% set radio = radios['v' ~ candidate.encounter_id] %}
-                                <label class="list-group-item d-flex gap-3 align-items-start" data-test="encounter-review-candidate" data-encounter="{{ candidate.encounter_id }}">
-                                    {# The candidate row is the label; the theme's radio widget would add its own. #}
-                                    <input type="radio" class="form-check-input flex-shrink-0 mt-1" id="{{ radio.vars.id }}" name="{{ radio.vars.full_name }}" value="{{ radio.vars.value }}"
-                                        {{ radio.vars.checked ? 'checked' }} required
-                                        data-action="encounter-match-review#select" data-encounter-match-review-target="choice"
-                                        data-can-confirm="{{ candidate.can_confirm ? '1' : '0' }}" data-can-reject="{{ candidate.can_reject ? '1' : '0' }}">
-                                    {% do radio.setRendered() %}
-                                    <span class="flex-fill">
-                                        <span class="d-flex flex-wrap justify-content-between gap-2">
-                                            <strong>{{ 'encounter.review.visit'|trans({id: candidate.encounter_id}, 'encounter') }}</strong>
-                                            <span class="d-inline-flex flex-wrap gap-1">
-                                                {% if stored %}{{ include('@Encounter/review/_status.html.twig', {pair: stored|merge({open_conflict: stored.conflict and candidate.rival_allocations is not empty, decided_at: null})}) }}{% endif %}
-                                                {% if candidate.linked_elsewhere %}
-                                                    <twig:Badge variant="secondary" data-test="encounter-review-linked-elsewhere">{{ 'encounter.review.linked_elsewhere_short'|trans({id: candidate.linked_elsewhere.allocation_id}, 'encounter') }}</twig:Badge>
-                                                {% endif %}
-                                            </span>
-                                        </span>
-                                        <span class="d-block text-secondary small">
-                                            {{ candidate.anchor_at|date('d.m.Y H:i') }}
-                                            {% if candidate.substitute %}
-                                                <twig:Badge variant="purple" data-test="encounter-review-substitute">{{ 'encounter.review.substitute'|trans({}, 'encounter') }}</twig:Badge>
-                                            {% endif %}
-                                            · {{ 'encounter.review.minutes'|trans({minutes: candidate.time_difference_minutes}, 'encounter') }}
-                                            · <span data-test="encounter-review-agreement">{{ 'encounter.review.agreement_short'|trans({agreement: candidate.agreement|format_number({fraction_digit: 2}), points: candidate.points}, 'encounter') }}{% if stored and stored.score is not null and stored.pass %} ({{ 'encounter.review.stored_score'|trans({score: stored.score|format_number({fraction_digit: 2}), pass: stored.pass}, 'encounter') }}){% endif %}</span>
-                                        </span>
-                                        {% if candidate.rival_allocations is not empty %}
-                                            <span class="d-block text-secondary small" data-test="encounter-review-rivals">
-                                                {{ 'encounter.review.rivals'|trans({}, 'encounter') }}
-                                                {% for rival in candidate.rival_allocations %}
-                                                    <a href="{{ path('app_encounter_review_allocation', {id: hospital.id, allocationId: rival}|merge(context.query())) }}">{{ 'encounter.review.allocation'|trans({id: rival}, 'encounter') }}</a>{{ not loop.last ? ', ' }}
-                                                {% endfor %}
-                                            </span>
-                                        {% endif %}
-                                    </span>
-                                </label>
-                            {% endfor %}
-                        </div>
-
-                        {% for candidate in candidates %}
-                            <div class="{{ candidate.encounter_id != form.encounter.vars.value ? 'd-none' }}" data-encounter-match-review-target="panel" data-encounter="{{ candidate.encounter_id }}" data-test="encounter-review-comparison">
-                                <h4 class="subheader">{{ 'encounter.review.comparison'|trans({id: candidate.encounter_id}, 'encounter') }}</h4>
-                                {{ include('@Encounter/review/_features.html.twig', {features: candidate.features}) }}
-                            </div>
-                        {% endfor %}
+                        <span data-test="encounter-review-not-linked">{{ 'encounter.review.not_linked'|trans({}, 'encounter') }}</span>
                     {% endif %}
                 </div>
             </div>
         </div>
+
+        {{ form_errors(form) }}
+        {{ form_errors(form.encounter) }}
+
+        {% if candidates is empty %}
+            <div class="card-body">
+                <twig:EmptyState :title="'encounter.review.no_candidates'|trans({}, 'encounter')" icon="tabler:link-off" />
+            </div>
+        {% else %}
+            <div class="card-body border-bottom py-3">
+                <div class="subheader mb-2">{{ 'encounter.review.candidate_choice'|trans({count: candidates|length}, 'encounter') }}</div>
+                <div class="d-flex flex-wrap gap-2" data-test="encounter-review-candidates">
+                    {% for candidate in candidates %}
+                        {% set stored = candidate.stored %}
+                        {% set radio = radios['v' ~ candidate.encounter_id] %}
+                        <label class="form-selectgroup-item flex-fill" data-test="encounter-review-candidate" data-encounter="{{ candidate.encounter_id }}">
+                            {# The candidate box is the label; the theme's radio widget would add its own. #}
+                            <input type="radio" class="form-selectgroup-input" id="{{ radio.vars.id }}" name="{{ radio.vars.full_name }}" value="{{ radio.vars.value }}"
+                                {{ radio.vars.checked ? 'checked' }} required
+                                data-action="encounter-match-review#select" data-encounter-match-review-target="choice"
+                                data-can-confirm="{{ candidate.can_confirm ? '1' : '0' }}" data-can-reject="{{ candidate.can_reject ? '1' : '0' }}">
+                            {% do radio.setRendered() %}
+                            <span class="form-selectgroup-label d-flex flex-column align-items-start gap-1 text-start h-100">
+                                <span class="d-flex flex-wrap gap-1 align-items-center">
+                                    <strong>{{ 'encounter.review.visit'|trans({id: candidate.encounter_id}, 'encounter') }}</strong>
+                                    {% if stored %}{{ include('@Encounter/review/_status.html.twig', {pair: stored|merge({open_conflict: stored.conflict and candidate.rival_allocations is not empty, decided_at: null})}) }}{% endif %}
+                                    {% if candidate.linked_elsewhere %}
+                                        <twig:Badge variant="secondary" data-test="encounter-review-linked-elsewhere">{{ 'encounter.review.linked_elsewhere_short'|trans({id: candidate.linked_elsewhere.allocation_id}, 'encounter') }}</twig:Badge>
+                                    {% endif %}
+                                </span>
+                                <span class="text-secondary small" data-test="encounter-review-agreement">
+                                    {{ candidate.anchor_at|date('H:i') }} · {{ 'encounter.review.minutes'|trans({minutes: candidate.time_difference_minutes}, 'encounter') }}
+                                    · {{ 'encounter.review.agreement_short'|trans({agreement: candidate.agreement|format_number({fraction_digit: 2}), points: candidate.points}, 'encounter') }}{% if stored and stored.score is not null and stored.pass %} ({{ 'encounter.review.stored_score'|trans({score: stored.score|format_number({fraction_digit: 2}), pass: stored.pass}, 'encounter') }}){% endif %}
+                                </span>
+                            </span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% for candidate in candidates %}
+                <div class="{{ candidate.encounter_id != form.encounter.vars.value ? 'd-none' }}" data-encounter-match-review-target="panel" data-encounter="{{ candidate.encounter_id }}" data-test="encounter-review-comparison">
+                    {{ include('@Encounter/review/_comparison.html.twig', {candidate: candidate}) }}
+                </div>
+            {% endfor %}
+
+            <div class="card-footer text-secondary small">{{ 'encounter.review.candidates_help'|trans({before: window.minutesBefore, after: window.minutesAfter, age: window.maxAgeDifference}, 'encounter') }}</div>
+        {% endif %}
     </div>
 
     <div class="card mt-3" data-test="encounter-review-actions">

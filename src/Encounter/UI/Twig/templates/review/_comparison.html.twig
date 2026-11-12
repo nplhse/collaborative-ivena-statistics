@@ -1,0 +1,71 @@
+{# Side-by-side comparison of the allocation and one candidate visit: what each side documents per feature and what it contributes. Expects `allocation`, `candidate`. #}
+<div class="card-body">
+    <div class="row g-3 align-items-stretch mb-3">
+        <div class="col-md-5">
+            <div class="border rounded p-3 h-100" data-test="encounter-review-allocation">
+                <div class="subheader">{{ 'encounter.review.ivena'|trans({}, 'encounter') }}</div>
+                <div class="h3 mb-0">{{ allocation.arrival_at|date('d.m.Y H:i') }}</div>
+                <div class="text-secondary small">{{ 'encounter.review.expected_arrival'|trans({}, 'encounter') }}</div>
+            </div>
+        </div>
+        <div class="col-md-2 d-flex flex-column align-items-center justify-content-center text-center">
+            <div class="h2 mb-0" data-test="encounter-review-agreement-value">{{ candidate.agreement|format_number({fraction_digit: 2}) }}</div>
+            <div class="text-secondary small">{{ 'encounter.review.column.agreement'|trans({}, 'encounter') }}</div>
+            <div class="text-secondary small">{{ 'encounter.review.minutes'|trans({minutes: candidate.time_difference_minutes}, 'encounter') }}</div>
+        </div>
+        <div class="col-md-5">
+            <div class="border rounded p-3 h-100">
+                <div class="subheader">{{ 'encounter.review.visit_heading'|trans({id: candidate.encounter_id}, 'encounter') }}</div>
+                <div class="h3 mb-0">{{ candidate.anchor_at|date('d.m.Y H:i') }}</div>
+                <div class="text-secondary small">
+                    {{ 'encounter.review.column.anchor'|trans({}, 'encounter') }}
+                    {% if candidate.substitute %}
+                        <twig:Badge variant="purple" data-test="encounter-review-substitute" title="{{ 'encounter.review.substitute_help'|trans({}, 'encounter') }}">{{ 'encounter.review.substitute'|trans({}, 'encounter') }}</twig:Badge>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-vcenter mb-0" data-test="encounter-review-features">
+            <thead>
+                <tr>
+                    <th>{{ 'encounter.review.column.feature'|trans({}, 'encounter') }}</th>
+                    <th>{{ 'encounter.review.column.ivena'|trans({}, 'encounter') }}</th>
+                    <th>{{ 'encounter.review.column.ed'|trans({}, 'encounter') }}</th>
+                    <th class="text-end">{{ 'encounter.review.column.contribution'|trans({}, 'encounter') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for feature in candidate.features %}
+                    <tr data-test="feature-{{ feature.feature }}" data-direction="{{ feature.direction }}">
+                        <td class="fw-medium py-2">{{ ('encounter.review.feature.' ~ feature.feature)|trans({}, 'encounter') }}</td>
+                        {% for value in [feature.ivena, feature.ed] %}
+                            <td class="py-2">{{ value starts with 'key:' ? ('encounter.review.value.' ~ value[4:])|trans({}, 'encounter') : value }}</td>
+                        {% endfor %}
+                        <td class="text-end text-nowrap py-2">
+                            {% set direction = ('encounter.review.direction.' ~ feature.direction)|trans({}, 'encounter') %}
+                            <twig:Badge :variant="{for: 'green', against: 'red', neutral: 'secondary'}[feature.direction]" title="{{ direction }}"><span class="d-none d-md-inline">{{ direction }} </span><span class="visually-hidden d-md-none">{{ direction }} </span>{{ '%+d'|format(feature.points) }}</twig:Badge>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="fw-medium">{{ 'encounter.review.points_total'|trans({}, 'encounter') }}</td>
+                    <td class="text-end fw-medium">{{ '%+d'|format(candidate.points) }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    {% if candidate.rival_allocations is not empty %}
+        <p class="text-secondary small mt-3 mb-0" data-test="encounter-review-rivals">
+            {{ 'encounter.review.rivals'|trans({}, 'encounter') }}
+            {% for rival in candidate.rival_allocations %}
+                <a href="{{ path('app_encounter_review_allocation', {id: hospital.id, allocationId: rival}|merge(context.query())) }}">{{ 'encounter.review.allocation'|trans({id: rival}, 'encounter') }}</a>{{ not loop.last ? ', ' }}
+            {% endfor %}
+        </p>
+    {% endif %}
+</div>

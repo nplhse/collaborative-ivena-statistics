@@ -416,7 +416,7 @@ assessment contact), both on the stored local wall clock.
   period and the tab's filter in a filter drawer, sortable by arrival, agreement and time difference
   ("to review" and "done"), a "Review" action per row and mobile cards. "Start review" opens the first
   allocation of the tab.
-- **Allocation page**: context on the left, the decision on the right, actions at the bottom (see below).
+- **Allocation page**: the comparison in the centre, actions at the bottom (see below).
   "Leave open" skips to the next allocation; confirm, change, reject and swaps continue with the next one
   too (`MatchReviewNavigator`, same order as the list); at the end of the tab the list opens again.
   Tab, filter, period and sort order travel in the query string (`ReviewContext`).
@@ -448,19 +448,19 @@ assessment contact), both on the stored local wall clock.
 A proposal is in **open conflict** while it carries `conflict` and another allocation's conflict proposal
 for the same visit is still open; once one side is decided, the rest counts as an ordinary proposal.
 
-**Allocation page** (`/encounter/review/{hospital}/allocations/{allocation}`). The context card shows the
-expected IVENA arrival, sex, age, physician, work accident, the current link with its origin (automatic:
-score and pass) and the swap proposal. The decision card lists every
-candidate visit of the **review window** (`MatchingSettings::reviewWindow()`: widest bounds of all passes,
-every arrival route, −30 … +90 min, age ±5 by default) with ED admission or the marked substitute (first
-assessment contact), time difference, agreement among all candidates of that window and the stored score
-of the pass that found the pair, as a choice; the chosen candidate's comparison shows per feature both
-compared values and the contribution (for, against, neutral or missing). The linked visit is chosen first,
-else the open proposal with the highest stored score. The Stimulus controller `encounter-match-review`
-switches the comparison and enables only the decisions that apply to the chosen visit; the server checks
-again. It also shows the visit's link to another allocation, other allocations proposed for
-the same visit, and the allocation's swap proposal. The score is labelled "agreement" ("Übereinstimmung")
-and explained as a ranking, not a probability (ADR 029).
+**Allocation page** (`/encounter/review/{hospital}/allocations/{allocation}`). A swap proposal, if any, is
+shown above. The comparison card lists every candidate visit of the **review window**
+(`MatchingSettings::reviewWindow()`: widest bounds of all passes, every arrival route, −30 … +90 min, age
+±5 by default) as a choice, with the visit's anchor time, time difference, agreement among all candidates of
+that window, the stored score of the pass that found the pair, and its status or link to another allocation.
+Below, the chosen candidate is set against the allocation: expected IVENA arrival and ED admission (or the
+marked substitute, first assessment contact) side by side with the agreement between them, then per feature
+both compared values and the contribution (for, against, neutral or missing) and the total points, and other
+allocations proposed for the same visit. The card header names the current link and its origin (automatic:
+score and pass). The linked visit is chosen first, else the open proposal with the highest stored score, else
+the candidate with the most points. The Stimulus controller `encounter-match-review` switches the comparison
+and enables only the decisions that apply to the chosen visit; the server checks again. The score is labelled
+"agreement" ("Übereinstimmung") and explained as a ranking, not a probability (ADR 029).
 
 **Decisions** (form `MatchReviewDecisionType` on the allocation page; `MatchDecider`, one transaction under
 the matcher's per-hospital lock):
