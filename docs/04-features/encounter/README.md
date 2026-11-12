@@ -40,8 +40,8 @@ Decisions: [ADR 025](../../02-architecture/decisions/025-encounter-data-context-
   hospital and key generation.
 - Each encounter belongs to the import that created it. Deleting that import removes it, with its
   links and review decisions.
-- The administrative case number may be carried as an optional pseudonym; it does not group
-  encounters. No patient-level key.
+- The administrative case number is carried as a pseudonym only to report suspected duplicates; it
+  does not group encounters. No patient-level key.
 - `Allocation` is not changed and has no reference to encounter data.
 
 ## Population

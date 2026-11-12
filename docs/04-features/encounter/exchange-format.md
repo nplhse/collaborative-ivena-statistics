@@ -32,16 +32,16 @@ Timestamps: `YYYY-MM-DDTHH:MM`, Europe/Berlin local time, minute precision.
 
 | Group | Field | Type / values | Required |
 |---|---|---|---|
-| keys | `visit_fingerprint` | hex HMAC of the fingerprint rule input, prefix `ed-visit:v1` ([ADR 028](../../02-architecture/decisions/028-encounter-import-lifecycle.md), rule from #1045) | yes, provisional until #1045 |
-| | `case_key` | hex HMAC pseudonym of the administrative case number, prefix `case:v1`; not used for grouping or as a key | no |
+| keys | `visit_fingerprint` | hex HMAC of the fingerprint rule input, prefix `ed-visit:v1` ([ADR 028](../../02-architecture/decisions/028-encounter-import-lifecycle.md), rule [below](#visit-fingerprint-ed-visitv1)) | yes |
+| | `case_key` | hex HMAC pseudonym of the administrative case number, prefix `case:v1`; used only for the suspected-duplicate check, not for grouping or as a key | yes |
 | demographics | `age` | integer 1–99 (< 1 → 1, ≥ 100 → 99) | yes |
 | | `sex` | `M`, `F`, `X` | yes |
 | arrival | `arrival_mode` | `self`, `ambulance`, `patient_transport`, `physician_vehicle`, `other` | no |
 | | `referral_source` | `self`, `ems`, `emergency_physician`, `hospital_transfer`, `physician`, `kv_practice`, `other` | no |
 | | `admission_type` | `emergency`, `elective` | no |
 | | `case_status` | `outpatient`, `inpatient`, `pre_inpatient`, `post_inpatient` | no |
-| times | `ed_admission_at` | timestamp | one of the two, provisional until #1045 |
-| | `first_assessment_contact_at` | timestamp | one of the two, provisional until #1045 |
+| times | `ed_admission_at` | timestamp | one of the two (rows without both are skipped by the tool) |
+| | `first_assessment_contact_at` | timestamp | one of the two |
 | | `assessment_start_at`, `assessment_end_at` | timestamp | no |
 | | `physician_target_at` | timestamp (latest physician contact by MTS target time) | no |
 | | `first_physician_at` | timestamp | no |
@@ -78,12 +78,30 @@ Rules:
 - Admission within the own hospital (`admitted`) and external transfer (`transferred_external`) are
   separate dispositions; an unmappable ward gives `care_level = unknown`.
 - The arrival anchor for matching is `ed_admission_at`, fallback `first_assessment_contact_at`.
-- **Provisional:** `visit_fingerprint` and the required time anchor follow the current candidate rule.
-  #1045 decides how rows without a reliable time anchor are handled (skipped, or imported with a
-  visible notice and without duplicate detection, see [ADR 028](../../02-architecture/decisions/028-encounter-import-lifecycle.md)).
-  If they are imported, both requirements change in schema version 1 before it is released.
 - Durations are not part of the format; they are computed from timestamps.
 - Plausibility ranges and catalogs are finalised in #1048 and #1051 and documented here.
+
+## Visit fingerprint `ed-visit:v1`
+
+Decided in #1045, see [ADR 028](../../02-architecture/decisions/028-encounter-import-lifecycle.md).
+
+```
+anchor_source = "assessment" if first assessment contact is set, else "admission"
+anchor        = that timestamp in source resolution, formatted YYYY-MM-DDTHH:MM:SS (Europe/Berlin)
+case_number   = case number with all non-digits removed, leading zeros kept
+input         = "ed-visit:v1|" + case_number + "|" + anchor_source + "|" + anchor
+visit_fingerprint = hex(HMAC-SHA256(key, input))
+case_key          = hex(HMAC-SHA256(key, "case:v1|" + case_number))
+```
+
+- Rows without case number or without both timestamps are skipped and counted in the tool's report.
+- If the source has no seconds, `:00` is used.
+- Known limits: a visit whose first assessment contact is entered later (untriaged visits) changes
+  its fingerprint; the import reports such cases as suspected duplicates (same `case_key`, anchor
+  within 15 minutes). Two visits of one case with the same anchor second would collide; none was
+  observed.
+- ORBIS profile: first assessment contact = `Erstkontakt Ersteinschätzung`, ED admission =
+  `Aufnahme ZNA`.
 
 ## ORBIS MTS profile (public part)
 
@@ -92,7 +110,7 @@ trailing empty column.
 
 | ORBIS column | Treatment |
 |---|---|
-| `Fallnummer` | input of `visit_fingerprint` (with the time anchor, rule from #1045); optional `case_key` |
+| `Fallnummer` | input of `visit_fingerprint` and `case_key` |
 | `Patientenname`, `Geburtsdatum`, `Fall-ID` | dropped (date of birth only as age fallback inside the tool) |
 | `Arzt des Erstkontakt`, `Ersteinschätzer`, `Zweiteinschätzer`, `VerantwortlicherArzt`, `VerantwortlichePflege` | dropped (staff) |
 | `Grund des Kommens`, `Bemerkung`, `Allergien`, `GrundUeberschreitungAK`, `GrundManuelleAenderungAK`, `AnmerkungDauerAufenthalt`, `IsolationSonstiges` | dropped (free text) |

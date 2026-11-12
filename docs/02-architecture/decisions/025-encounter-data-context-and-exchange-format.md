@@ -45,8 +45,8 @@ from existing pages are contributed by `Encounter`.
 - **One `Encounter` is exactly one ED visit** of a hospital, with triage, process times, disposition,
   initial vitals, flags and at most one link to an IVENA allocation.
 - Its identity is a visit fingerprint computed in the tool (ADR 026, ADR 028). The administrative case
-  number may be carried as an optional pseudonym; in the pilot it neither groups visits nor serves as
-  a key.
+  number is carried as a pseudonym for the suspected-duplicate check only; it neither groups visits
+  nor serves as a key.
 - There is no patient-level key.
 - `Allocation` gets no reference to encounter data.
 - The pilot population is every ED visit of the export. Self-presenters and EMS arrivals without
