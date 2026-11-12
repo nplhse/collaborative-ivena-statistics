@@ -31,7 +31,13 @@
                     <li>{{ 'encounter.key_change.consequence.no_matching'|trans({}, 'encounter') }}</li>
                 </ul>
 
-                {{ form_start(form, {attr: {'data-test': 'encounter-key-change-form'}}) }}
+                {{ form_start(form, {attr: {
+                    'data-test': 'encounter-key-change-form',
+                    'data-controller': 'encounter-key-change',
+                    'data-action': 'submit->encounter-key-change#confirm',
+                    'data-encounter-key-change-hospital-name-value': hospital.name,
+                    'data-encounter-key-change-delete-message-value': 'encounter.key_change.confirm_delete'|trans({encounters: summary.encounters, imports: summary.imports}, 'encounter'),
+                }}) }}
                     <div class="mb-3">
                         <h4>{{ 'encounter.key_change.field.option'|trans({}, 'encounter') }}</h4>
                         {{ form_errors(form.option) }}
@@ -47,9 +53,15 @@
                         {% endfor %}
                         {% do form.option.setRendered %}
                     </div>
-                    {{ form_row(form.confirmName) }}
-                    <p class="text-secondary mb-2">{{ 'encounter.key_change.irreversible'|trans({}, 'encounter') }}</p>
-                    <button class="btn btn-danger" type="submit">{{ 'encounter.key_change.action.submit'|trans({}, 'encounter') }}</button>
+                    <div class="alert alert-danger mb-0" role="alert" data-test="encounter-key-change-safety">
+                        <h4 class="alert-title">{{ 'encounter.key_change.safety.title'|trans({}, 'encounter') }}</h4>
+                        <p>{{ 'encounter.key_change.safety.text'|trans({}, 'encounter') }}</p>
+                        {{ form_row(form.confirmName, {attr: {
+                            'data-encounter-key-change-target': 'name',
+                            'data-action': 'input->encounter-key-change#update',
+                        }}) }}
+                        <button class="btn btn-danger" type="submit" data-encounter-key-change-target="submit">{{ 'encounter.key_change.action.submit'|trans({}, 'encounter') }}</button>
+                    </div>
                 {{ form_end(form) }}
             {% endif %}
         {% endblock %}

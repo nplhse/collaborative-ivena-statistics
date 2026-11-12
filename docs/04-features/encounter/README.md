@@ -199,7 +199,9 @@ seen by unauthorised people) and what follows: everyone needs the new key file, 
 far can no longer be matched with new uploads. The person then chooses **delete** (shows how many
 encounters and imports go; afterwards any period can be uploaded again) or **keep** (only upload new
 periods afterwards, otherwise visits are counted twice, because the new key gives them other fingerprints
-and duplicate detection works only within one generation) and types the hospital name exactly. Links and review decisions are added to the counts
+and duplicate detection works only within one generation) and types the hospital name exactly in a red
+confirmation box. The button stays disabled until the name matches (`encounter-key-change` Stimulus
+controller; the server checks the name again), and with **delete** a browser dialog asks once more. Links and review decisions are added to the counts
 with matching (#1053) and review (#1054).
 
 Flow (`EncounterKeyChanger`, one transaction holding the key state lock that the import commit takes):

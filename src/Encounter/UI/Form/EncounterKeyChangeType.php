@@ -38,7 +38,7 @@ final class EncounterKeyChangeType extends AbstractType
                 'label' => 'encounter.key_change.field.confirm_name',
                 'help' => 'encounter.key_change.field.confirm_name_help',
                 'help_translation_parameters' => ['name' => $options['hospital_name']],
-                'attr' => ['autocomplete' => 'off'],
+                'attr' => ['autocomplete' => 'off', 'spellcheck' => 'false'],
                 'constraints' => [new NotBlank()],
             ]);
     }

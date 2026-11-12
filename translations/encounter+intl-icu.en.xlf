@@ -857,13 +857,21 @@
         <source>encounter.key_change.option.keep_help</source>
         <target>The encounters stay. Afterwards only upload new periods; periods uploaded before would be counted twice.</target>
       </trans-unit>
-      <trans-unit id="EncKDCB2AC3F" resname="encounter.key_change.irreversible">
-        <source>encounter.key_change.irreversible</source>
-        <target>This cannot be undone.</target>
-      </trans-unit>
       <trans-unit id="EncKD9EC40CD" resname="encounter.key_change.in_progress">
         <source>encounter.key_change.in_progress</source>
         <target>The key is being changed and the existing encounters are being deleted. Uploads are possible again once that has finished.</target>
+      </trans-unit>
+      <trans-unit id="EncK3577E96B" resname="encounter.key_change.safety.title">
+        <source>encounter.key_change.safety.title</source>
+        <target>Please confirm</target>
+      </trans-unit>
+      <trans-unit id="EncK8B879043" resname="encounter.key_change.safety.text">
+        <source>encounter.key_change.safety.text</source>
+        <target>Changing the key cannot be undone. To be safe, type the name of the hospital first.</target>
+      </trans-unit>
+      <trans-unit id="EncKE40DA444" resname="encounter.key_change.confirm_delete">
+        <source>encounter.key_change.confirm_delete</source>
+        <target>{encounters, plural, =0 {The key will be changed.} one {# encounter from {imports, plural, one {# import} other {# imports}} will be deleted permanently.} other {# encounters from {imports, plural, one {# import} other {# imports}} will be deleted permanently.}} This cannot be undone. Continue?</target>
       </trans-unit>
     </body>
   </file>
