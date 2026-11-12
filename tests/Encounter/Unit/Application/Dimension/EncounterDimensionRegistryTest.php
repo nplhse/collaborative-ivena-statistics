@@ -12,6 +12,11 @@ use PHPUnit\Framework\TestCase;
 
 final class EncounterDimensionRegistryTest extends TestCase
 {
+    public function testEdVisitHasVersionOne(): void
+    {
+        self::assertSame(['ed_visit', [1]], [new EdVisitDimension()->schema(), new EdVisitDimension()->versions()]);
+    }
+
     public function testEdVisitV1HeaderMatchesTheExchangeFormat(): void
     {
         $names = array_map(static fn (EncounterField $field): string => $field->name, new EdVisitDimension()->fields(1));

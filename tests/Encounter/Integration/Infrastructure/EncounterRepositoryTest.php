@@ -90,6 +90,9 @@ final class EncounterRepositoryTest extends KernelTestCase
         $visit = $em->getRepository(Encounter::class)->findOneBy(['visitFingerprint' => self::fingerprintFor('2026-10-12')]);
         self::assertInstanceOf(Encounter::class, $visit);
 
+        self::assertNotNull($visit->getId());
+        self::assertSame(self::fingerprintFor('2026-10-12'), $visit->getVisitFingerprint());
+        self::assertInstanceOf(\DateTimeImmutable::class, $visit->getCreatedAt());
         self::assertSame($hospital->getId(), $visit->getHospital()->getId());
         self::assertSame($import->getId(), $visit->getImport()->getId());
         self::assertSame(2, $visit->getKeyGeneration());
@@ -106,15 +109,24 @@ final class EncounterRepositoryTest extends KernelTestCase
 
         $times = $visit->getTimes();
         self::assertEquals($at('10:02'), $times->getEdAdmissionAt());
+        self::assertEquals($at('10:05'), $times->getFirstAssessmentContactAt());
+        self::assertEquals($at('10:06'), $times->getAssessmentStartAt());
         self::assertEquals($at('10:09'), $times->getAssessmentEndAt());
+        self::assertEquals($at('10:15'), $times->getPhysicianTargetAt());
+        self::assertEquals($at('10:14'), $times->getFirstPhysicianAt());
+        self::assertEquals($at('13:40'), $times->getTreatmentEndAt());
+        self::assertEquals($at('10:20'), $times->getAdminAdmissionAt());
         self::assertEquals($at('13:55'), $times->getEdDischargeAt());
         self::assertEquals(new \DateTimeImmutable('2026-10-19 11:00'), $times->getAdminDischargeAt());
         self::assertNull($times->getPreInpatientAdmissionAt());
 
         self::assertSame(MtsCategory::Orange, $visit->getTriage()->getCategory());
+        self::assertSame('chest_pain', $visit->getTriage()->getDiagram());
         self::assertSame('cardiac_pain', $visit->getTriage()->getIndicator());
         self::assertSame(7, $visit->getTriage()->getPainScore());
         self::assertSame(MtsCategory::Yellow, $visit->getRetriage()->getCategory());
+        self::assertSame('chest_pain', $visit->getRetriage()->getDiagram());
+        self::assertSame('pleuritic_pain', $visit->getRetriage()->getIndicator());
         self::assertEquals($at('11:30'), $visit->getRetriage()->getAt());
 
         self::assertTrue($visit->getDisposition()->isAdmission());
