@@ -14,6 +14,7 @@ use App\Encounter\Domain\Entity\Triage;
 use App\Encounter\Domain\Enum\AdmissionType;
 use App\Encounter\Domain\Enum\AnchorSource;
 use App\Encounter\Domain\Enum\ArrivalMode;
+use App\Encounter\Domain\Enum\ArrivalRoute;
 use App\Encounter\Domain\Enum\CareLevel;
 use App\Encounter\Domain\Enum\CaseStatus;
 use App\Encounter\Domain\Enum\Disposition;
@@ -98,6 +99,7 @@ final class EncounterRepositoryTest extends KernelTestCase
         self::assertSame(81, $visit->getAge());
         self::assertSame(Sex::Diverse, $visit->getSex());
         self::assertSame(ArrivalMode::PhysicianVehicle, $visit->getArrivalMode());
+        self::assertSame(ArrivalRoute::Ems, $visit->getArrivalRoute());
         self::assertSame(ReferralSource::EmergencyPhysician, $visit->getReferralSource());
         self::assertSame(AdmissionType::Emergency, $visit->getAdmissionType());
         self::assertSame(CaseStatus::Inpatient, $visit->getCaseStatus());
@@ -127,8 +129,8 @@ final class EncounterRepositoryTest extends KernelTestCase
             $vitals->getRespiratoryRate(), $vitals->getGlucose(), $vitals->getSpo2(), $vitals->getGcs(),
         ]);
 
-        self::assertTrue($visit->isWorkAccident());
-        self::assertTrue($visit->isTetanusProtected());
+        self::assertTrue($visit->getWorkAccident());
+        self::assertTrue($visit->getTetanusProtected());
         self::assertSame([IsolationCode::Covid19, IsolationCode::Mrsa], $visit->getIsolation());
     }
 
@@ -156,7 +158,9 @@ final class EncounterRepositoryTest extends KernelTestCase
         self::assertEquals(new \DateTimeImmutable('2026-10-13 00:01'), $visit->getAnchorAt());
         self::assertNull($visit->getVitals()->getReference());
         self::assertNull($visit->getDisposition()->getCode());
-        self::assertFalse($visit->isWorkAccident());
+        self::assertNull($visit->getWorkAccident(), 'not documented');
+        self::assertNull($visit->getTetanusProtected(), 'not documented');
+        self::assertSame(ArrivalRoute::Unknown, $visit->getArrivalRoute());
         self::assertSame([], $visit->getIsolation());
     }
 }

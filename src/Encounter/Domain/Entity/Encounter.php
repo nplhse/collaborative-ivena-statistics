@@ -9,6 +9,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Domain\Enum\AdmissionType;
 use App\Encounter\Domain\Enum\AnchorSource;
 use App\Encounter\Domain\Enum\ArrivalMode;
+use App\Encounter\Domain\Enum\ArrivalRoute;
 use App\Encounter\Domain\Enum\CaseStatus;
 use App\Encounter\Domain\Enum\IsolationCode;
 use App\Encounter\Domain\Enum\ReferralSource;
@@ -37,6 +38,7 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\UniqueConstraint(name: 'uniq_encounter_visit_uid', fields: ['visitUid'])]
 #[ORM\Index(name: 'idx_encounter_case_key', fields: ['hospital', 'keyGeneration', 'caseKey'])]
 #[ORM\Index(name: 'idx_encounter_hospital_anchor', fields: ['hospital', 'anchorAt'])]
+#[ORM\Index(name: 'idx_encounter_hospital_route_anchor', fields: ['hospital', 'arrivalRoute', 'anchorAt'])]
 class Encounter
 {
     private const string HEX_HMAC_PATTERN = '/^[0-9a-f]{64}$/';
@@ -83,6 +85,10 @@ class Encounter
     #[ORM\Column(type: Types::STRING, length: 32, nullable: true, enumType: ArrivalMode::class)]
     private ?ArrivalMode $arrivalMode;
 
+    /** Derived from the arrival mode and stored so that queries can filter on it (EMS, self, unknown). */
+    #[ORM\Column(type: Types::STRING, length: 16, enumType: ArrivalRoute::class)]
+    private ArrivalRoute $arrivalRoute;
+
     #[ORM\Column(type: Types::STRING, length: 32, nullable: true, enumType: ReferralSource::class)]
     private ?ReferralSource $referralSource;
 
@@ -111,13 +117,13 @@ class Encounter
     #[ORM\Embedded(class: InitialVitals::class, columnPrefix: 'vitals_')]
     private InitialVitals $vitals;
 
-    /** `1` in the export; false means not documented (unknown), not "no". */
-    #[ORM\Column(options: ['default' => false])]
-    private bool $workAccident;
+    /** true = documented yes (`1` in the export); null = not documented (unknown). Never false (constructor type and check constraint). */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
+    private ?bool $workAccident;
 
-    /** `1` in the export; false means not documented (unknown), not "no". */
-    #[ORM\Column(options: ['default' => false])]
-    private bool $tetanusProtected;
+    /** true = documented yes (`1` in the export); null = not documented (unknown). Never false (constructor type and check constraint). */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
+    private ?bool $tetanusProtected;
 
     /** @var list<string> sorted, distinct {@see IsolationCode} values */
     #[ORM\Column(type: Types::JSON, options: ['jsonb' => true, 'default' => '[]'])]
@@ -147,8 +153,8 @@ class Encounter
         EncounterDisposition $disposition = new EncounterDisposition(),
         ?Department $admittingDepartment = null,
         InitialVitals $vitals = new InitialVitals(),
-        bool $workAccident = false,
-        bool $tetanusProtected = false,
+        ?true $workAccident = null,
+        ?true $tetanusProtected = null,
         array $isolation = [],
     ) {
         if ($keyGeneration < 1) {
@@ -181,6 +187,7 @@ class Encounter
         $this->sex = $sex;
         $this->times = $times;
         $this->arrivalMode = $arrivalMode;
+        $this->arrivalRoute = ArrivalRoute::fromArrivalMode($arrivalMode);
         $this->referralSource = $referralSource;
         $this->admissionType = $admissionType;
         $this->caseStatus = $caseStatus;
@@ -257,6 +264,11 @@ class Encounter
         return $this->arrivalMode;
     }
 
+    public function getArrivalRoute(): ArrivalRoute
+    {
+        return $this->arrivalRoute;
+    }
+
     public function getReferralSource(): ?ReferralSource
     {
         return $this->referralSource;
@@ -302,12 +314,18 @@ class Encounter
         return $this->vitals;
     }
 
-    public function isWorkAccident(): bool
+    /**
+     * true = documented yes, null = not documented (unknown).
+     */
+    public function getWorkAccident(): ?bool
     {
         return $this->workAccident;
     }
 
-    public function isTetanusProtected(): bool
+    /**
+     * true = documented yes, null = not documented (unknown).
+     */
+    public function getTetanusProtected(): ?bool
     {
         return $this->tetanusProtected;
     }

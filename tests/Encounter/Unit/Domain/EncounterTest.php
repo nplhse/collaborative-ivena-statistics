@@ -11,6 +11,8 @@ use App\Encounter\Domain\Entity\EncounterTimes;
 use App\Encounter\Domain\Entity\InitialVitals;
 use App\Encounter\Domain\Entity\Triage;
 use App\Encounter\Domain\Enum\AnchorSource;
+use App\Encounter\Domain\Enum\ArrivalMode;
+use App\Encounter\Domain\Enum\ArrivalRoute;
 use App\Encounter\Domain\Enum\CareLevel;
 use App\Encounter\Domain\Enum\Disposition;
 use App\Encounter\Domain\Enum\Sex;
@@ -38,6 +40,26 @@ final class EncounterTest extends TestCase
 
         self::assertSame(AnchorSource::Admission, $times->anchorSource());
         self::assertEquals(new \DateTimeImmutable('2026-10-12 10:02'), $times->anchorAt());
+    }
+
+    /**
+     * @return iterable<string, array{?ArrivalMode, ArrivalRoute}>
+     */
+    public static function arrivalRoutes(): iterable
+    {
+        yield 'ambulance (RTW)' => [ArrivalMode::Ambulance, ArrivalRoute::Ems];
+        yield 'patient transport (KTW)' => [ArrivalMode::PatientTransport, ArrivalRoute::Ems];
+        yield 'physician vehicle (NAW/NEF/ITW)' => [ArrivalMode::PhysicianVehicle, ArrivalRoute::Ems];
+        yield 'self-presenter' => [ArrivalMode::Self, ArrivalRoute::Self];
+        yield 'other' => [ArrivalMode::Other, ArrivalRoute::Unknown];
+        yield 'empty' => [null, ArrivalRoute::Unknown];
+    }
+
+    #[DataProvider('arrivalRoutes')]
+    public function testArrivalRouteIsDerivedFromArrivalMode(?ArrivalMode $mode, ArrivalRoute $route): void
+    {
+        self::assertSame($route, ArrivalRoute::fromArrivalMode($mode));
+        self::assertSame($route, $this->encounter(arrivalMode: $mode)->getArrivalRoute());
     }
 
     public function testVisitWithoutTimeAnchorIsRejected(): void
@@ -114,6 +136,7 @@ final class EncounterTest extends TestCase
         ?string $fingerprint = null,
         int $keyGeneration = 1,
         ?EncounterTimes $times = null,
+        ?ArrivalMode $arrivalMode = null,
     ): Encounter {
         return new Encounter(
             hospital: new Hospital(),
@@ -124,6 +147,7 @@ final class EncounterTest extends TestCase
             age: $age,
             sex: Sex::Female,
             times: $times ?? new EncounterTimes(edAdmissionAt: new \DateTimeImmutable('2026-10-12 10:02')),
+            arrivalMode: $arrivalMode,
         );
     }
 }

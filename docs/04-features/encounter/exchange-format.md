@@ -36,7 +36,7 @@ Timestamps: `YYYY-MM-DDTHH:MM`, Europe/Berlin local time, minute precision.
 | | `case_key` | hex HMAC pseudonym of the administrative case number, prefix `case:v1`; used only for the suspected-duplicate check, not for grouping or as a key | yes |
 | demographics | `age` | integer 1–99 (< 1 → 1, ≥ 100 → 99) | yes |
 | | `sex` | `M`, `F`, `X` | yes |
-| arrival | `arrival_mode` | `self`, `ambulance`, `patient_transport`, `physician_vehicle`, `other` | no |
+| arrival | `arrival_mode` | `self`, `ambulance`, `patient_transport`, `physician_vehicle`, `other`; the server derives the arrival route from it ([mapping](README.md#population)) | no |
 | | `referral_source` | `self`, `ems`, `emergency_physician`, `hospital_transfer`, `physician`, `kv_practice`, `other` | no |
 | | `admission_type` | `emergency`, `elective` | no |
 | | `case_status` | `outpatient`, `inpatient`, `pre_inpatient`, `post_inpatient` | no |
@@ -62,11 +62,11 @@ Timestamps: `YYYY-MM-DDTHH:MM`, Europe/Berlin local time, minute precision.
 | | `heart_rate` | /min, 20–300 | no |
 | | `temperature` | °C, 25.0–45.0 | no |
 | | `respiratory_rate` | /min, 3–80 | no |
-| | `glucose` | mg/dl, 10–1500 | no |
+| | `glucose` | mg/dl, integer, 10–1500 (decimals rounded by the tool, see rules) | no |
 | | `spo2` | %, 30–100 | no |
 | | `gcs` | 3–15 | no |
-| flags | `work_accident` | `1` or empty (unknown) | no |
-| | `tetanus_protected` | `1` or empty (unknown) | no |
+| flags | `work_accident` | `1` (documented yes) or empty (not documented, unknown); there is no value for "no" | no |
+| | `tetanus_protected` | `1` (documented yes) or empty (not documented, unknown) | no |
 | | `isolation` | comma-separated codes: `gastroenteritis`, `clostridioides`, `covid19`, `mdro`, `mrsa`, `esbl`, `pseudomonas`, `tb`, `other` | no |
 
 Rules:
@@ -79,6 +79,9 @@ Rules:
   separate dispositions; an unmappable ward gives `care_level = unknown`.
 - The arrival anchor for matching is `ed_admission_at`, fallback `first_assessment_contact_at`.
 - Durations are not part of the format; they are computed from timestamps.
+- Glucose is exchanged in whole mg/dl. Sources with decimals (ORBIS writes for example `999.99 mg/dl`)
+  are rounded half up by the tool (`99.5` → `100`, `99.49` → `99`) before the range check; the server
+  rejects a glucose value with decimals.
 - Plausibility ranges and catalogs are finalised in #1048 and #1051 and documented here.
 
 ## Visit fingerprint `ed-visit:v1`
@@ -129,8 +132,8 @@ trailing empty column.
 | second-assessment columns | `retriage_*` |
 | `Entlassung` | `disposition` and, with the local map, `care_level` |
 | `Stat_Fachrichtung`, `Med. Fachabteilungskürzel` | `admitting_department` via the local map |
-| `Blutdruck`, `Puls`, `Temperatur`, `Atemfrequenz`, `Blutzucker`, `Sauerstoffsaettigung`, `GCS` | vitals (units stripped, ranges checked) |
-| `BG`, `Tetanusschutz` (`ja` / empty) | `work_accident`, `tetanus_protected` |
+| `Blutdruck`, `Puls`, `Temperatur`, `Atemfrequenz`, `Blutzucker`, `Sauerstoffsaettigung`, `GCS` | vitals (units stripped, glucose rounded half up to whole mg/dl, ranges checked) |
+| `BG`, `Tetanusschutz` (`ja` / empty) | `work_accident`, `tetanus_protected` (`ja` → `1`, anything else → empty) |
 | `Isolation`, `Infektiös` | `isolation` |
 
 ### Local map (private, per hospital)

@@ -62,8 +62,9 @@ Implemented in #1047:
   generation ≥ 1, a time anchor exists, care level only with `admitted` or `transferred_external`,
   vitals need a reference when any value is set, `vitals_measured_at` only with
   `admission_measurement`. Plausibility ranges of the file are checked by the import (#1048).
-- **Flags** `work_accident` and `tetanus_protected` are `false` when not documented; the export only
-  marks "yes", so `false` means unknown, not "no".
+- **Flags** `work_accident` and `tetanus_protected` are nullable: `true` = documented yes, `null` = not
+  documented (unknown). The export only marks "yes", so there is no `false`; a check constraint
+  rejects it.
 - **Insert:** `EncounterRepository::insertIfNew()` runs `INSERT … ON CONFLICT (hospital_id,
   key_generation, visit_fingerprint) DO NOTHING RETURNING id` and returns `Inserted` or `Duplicate`.
   A second session inserting the same visit waits for the first and then inserts nothing, so parallel
@@ -94,8 +95,19 @@ Two separate attributes describe each encounter:
 
 | Attribute | Values | Source |
 |---|---|---|
-| Arrival route | EMS, self-presenter, unknown | documented in the clinical export |
+| Arrival route | EMS, self-presenter, unknown | derived from the documented `arrival_mode` of the clinical export |
 | IVENA link | linked (automatic), linked (confirmed), not linked | matching |
+
+Arrival route mapping (`ArrivalRoute::fromArrivalMode()`, stored as `encounter.arrival_route` so queries
+can filter on it; a check constraint keeps it consistent with `arrival_mode`):
+
+| `arrival_mode` | ORBIS `Transport` | Arrival route |
+|---|---|---|
+| `ambulance` | `RTW` | EMS |
+| `patient_transport` | `KTW` | EMS |
+| `physician_vehicle` | `NAW/NEF/ITW` | EMS (a special case, usually an RTW with an emergency physician) |
+| `self` | `Ohne` | self-presenter |
+| `other`, empty | `Anderes`, empty | unknown |
 
 A missing link says nothing about the arrival route. EMS arrivals without an allocation are normal.
 Overviews cross both attributes, for example "EMS arrival, not linked".
