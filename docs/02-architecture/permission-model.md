@@ -60,6 +60,22 @@ Explore is a **collaborative** overview: participants may list and open allocati
 
 Import, export, clinic management, and hospital-scoped statistics filters remain grant-based via `HospitalPermissionAccess`.
 
+## Encounter grants
+
+In development (#1046), decided in [ADR 027](decisions/027-encounter-access-grants.md).
+
+Encounter data (hospital ED visits) does not follow the collaborative Explore rule and is not covered
+by the hospital bitmask:
+
+- `ROLE_ENCOUNTER_BETA` controls the pilot pages; `ROLE_ADMIN` inherits it. It grants no case access.
+- A separate encounter grant per user and hospital with the actions `UPLOAD`, `REVIEW` (implies
+  `VIEW_CASES`) and `VIEW_CASES`, checked by `EncounterVoter`.
+- Hospital ownership, hospital grants and `ROLE_ADMIN` do **not** imply an encounter grant. This is a
+  deliberate exception to `HospitalPermissionAccess`.
+- Owners and administrators manage encounter grants; only users with access to the hospital can
+  receive one. Changes are audited.
+- Case-level requests check the grant on the hospital of the requested visit or allocation.
+
 ## Benchmarking vs. statistics
 
 Benchmarking pages require `HospitalPermission::Benchmarking` (or admin/owner). Other statistics pages require `HospitalPermission::Statistics`.

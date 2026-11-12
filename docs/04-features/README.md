@@ -17,6 +17,7 @@
 | [analytics/](analytics/) | Server-side usage analytics |
 | [notification/](notification/) | Personal notifications: inbox, toasts, email |
 | [storage/](storage/) | Storage monitoring: daily measurement, Disk Usage page, capacity alerts |
+| [encounter/](encounter/) | Encounter data pilot (in development): hospital ED data linked with allocations |
 
 ## Reading order
 

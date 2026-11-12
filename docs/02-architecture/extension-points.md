@@ -94,6 +94,17 @@ To add a new data source, also implement `DataSourceCapabilitiesProviderInterfac
 
 See [../04-features/notification/README.md](../04-features/notification/README.md).
 
+## Encounter schemas (planned)
+
+**Tag:** `encounter.dimension`
+
+**Interface:** `EncounterDimensionInterface`
+
+Introduced with the encounter data model (#1047). Each schema of the canonical exchange format
+(`ed_visit`; later `inpatient_stay`, `diagnosis`, `procedure`) provides its field contract, row
+validation and persistence. Vendor formats are not server extensions; they are source profiles of
+the data preparation tool. See [ADR 025](decisions/025-encounter-data-context-and-exchange-format.md).
+
 ## Related documentation
 
 - [../04-features/import/import-pipeline.md](../04-features/import/import-pipeline.md)
