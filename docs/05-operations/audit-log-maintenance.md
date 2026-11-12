@@ -84,6 +84,7 @@ Run a new import with valid ABCD columns and confirm no new `Assessment` `create
 
 ## Related documentation
 
+- Fields, producers and correlation: [audit-log.md](audit-log.md)
 - Import pipeline and audit suppression: [../04-features/import/import-pipeline.md](../04-features/import/import-pipeline.md)
 - CLI reference: [../06-reference/console-commands.md](../06-reference/console-commands.md)
 - Troubleshooting: [troubleshooting.md](troubleshooting.md)
