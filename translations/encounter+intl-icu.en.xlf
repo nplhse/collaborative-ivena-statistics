@@ -43,11 +43,11 @@
       </trans-unit>
       <trans-unit id="EncDD77428C" resname="encounter.grant.intro">
         <source>encounter.grant.intro</source>
-        <target>Encounter access is granted explicitly per person. Hospital ownership, hospital access grants and the administrator role do not include it. Only people with access to this hospital can receive it.</target>
+        <target>Encounter access is granted explicitly per person. Hospital ownership and hospital access grants do not include it. Only people with access to this hospital can receive it. Administrators have encounter access to every hospital without a grant.</target>
       </trans-unit>
       <trans-unit id="EncA13402E6" resname="encounter.grant.empty">
         <source>encounter.grant.empty</source>
-        <target>Nobody has encounter access for this hospital yet.</target>
+        <target>Nobody has encounter access for this hospital yet. Administrators have it without a grant.</target>
       </trans-unit>
       <trans-unit id="Enc5769743C" resname="encounter.grant.edit_title">
         <source>encounter.grant.edit_title</source>
@@ -152,6 +152,10 @@
       <trans-unit id="EncBBECC456" resname="encounter.grant.flash.duplicate">
         <source>encounter.grant.flash.duplicate</source>
         <target>This user already has encounter access for this hospital.</target>
+      </trans-unit>
+      <trans-unit id="EncAdmAcc1" resname="encounter.overview.admin_access">
+        <source>encounter.overview.admin_access</source>
+        <target>As an administrator you have encounter access to every hospital without a grant.</target>
       </trans-unit>
     </body>
   </file>

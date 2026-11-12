@@ -15,7 +15,7 @@ Defined in `src/User/Domain/Security/UserRole.php`:
 | `ROLE_ADMIN` | EasyAdmin back office, impersonation; receives the admin notifications (`admin.*`), each admin chooses them on the notification settings page |
 | `ROLE_REVIEW_INDICATIONS` | Indication raw review worklist |
 | `ROLE_CLOSURE_BETA` | Opt-in beta switch for closure-list imports and Closure Analytics. Not part of the role hierarchy, so `ROLE_ADMIN` does not grant it. Assign it on the user in EasyAdmin. It is not a public role. |
-| `ROLE_ENCOUNTER_BETA` | Participation in the encounter data pilot: `/encounter`, the navigation entry and the encounter grant pages. Inherited by `ROLE_ADMIN`. Grants no case access. Assign it on the user in EasyAdmin. |
+| `ROLE_ENCOUNTER_BETA` | Participation in the encounter data pilot: `/encounter`, the navigation entry and the encounter grant pages. Inherited by `ROLE_ADMIN`. The role itself grants no case access. Assign it on the user in EasyAdmin. |
 
 `ROLE_ADMIN` inherits `ROLE_PARTICIPANT`, `ROLE_REVIEW_INDICATIONS` and `ROLE_ENCOUNTER_BETA` only. `ROLE_CLOSURE_BETA` stays explicit so production users and the first testers stay separate.
 
@@ -69,12 +69,15 @@ Decided in [ADR 027](decisions/027-encounter-access-grants.md), implemented in #
 Encounter data (hospital ED visits) does not follow the collaborative Explore rule and is not covered
 by the hospital bitmask:
 
-- `ROLE_ENCOUNTER_BETA` controls the pilot pages; `ROLE_ADMIN` inherits it. It grants no case access.
+- `ROLE_ENCOUNTER_BETA` controls the pilot pages; `ROLE_ADMIN` inherits it. The role itself grants no case access.
 - A separate encounter grant per user and hospital with the actions `UPLOAD`, `REVIEW` (implies
   `VIEW_CASES`) and `VIEW_CASES`, checked by `EncounterVoter`. `UPLOAD` covers imports and access to
   the retained upload files; it does not include the key change; only the hospital owner may change the encounter key ([ADR 026](decisions/026-encounter-pseudonym-key.md)).
-- Hospital ownership, hospital grants and `ROLE_ADMIN` do **not** imply an encounter grant. This is a
-  deliberate exception to `HospitalPermissionAccess`.
+- Hospital ownership and hospital grants do **not** imply an encounter grant. This is a deliberate
+  exception to `HospitalPermissionAccess`.
+- `ROLE_ADMIN` counts as holding every grant action on every hospital without a stored grant. The key
+  change stays with the hospital owner. An administrator impersonating a user has that user's rights
+  only.
 - Owners and administrators manage encounter grants; only users with access to the hospital can
   receive one. Changes are audited.
 - Case-level requests check the grant on the hospital of the requested visit or allocation.
@@ -85,12 +88,12 @@ Implementation:
   user and hospital with the flags `can_upload`, `can_review`, `can_view_cases`. Check constraints keep
   at least one action and `REVIEW` ⇒ `VIEW_CASES`. Deleting the hospital or the user deletes the grant.
 - `EncounterVoter` votes on the attributes in `App\Encounter\Application\Security\EncounterAttribute`
-  with the `Hospital` as subject. Every attribute needs `ROLE_ENCOUNTER_BETA` first:
+  with the `Hospital` as subject. Every attribute needs `ROLE_ENCOUNTER_BETA` first. "Grant action"
+  includes the implicit actions of `ROLE_ADMIN`:
 
   | Attribute | Granted when |
   |---|---|
-  | `ENCOUNTER_UPLOAD`, `ENCOUNTER_VIEW_SOURCE_FILE`, `ENCOUNTER_DOWNLOAD_SOURCE_FILE` | grant action `UPLOAD` |
-  | `ENCOUNTER_REPROCESS_SOURCE_FILE` | grant action `UPLOAD`, or `ROLE_ADMIN` |
+  | `ENCOUNTER_UPLOAD`, `ENCOUNTER_VIEW_SOURCE_FILE`, `ENCOUNTER_DOWNLOAD_SOURCE_FILE`, `ENCOUNTER_REPROCESS_SOURCE_FILE` | grant action `UPLOAD` |
   | `ENCOUNTER_REVIEW` | grant action `REVIEW` |
   | `ENCOUNTER_VIEW_CASES` | grant action `VIEW_CASES` (also set by `REVIEW`) |
   | `ENCOUNTER_VIEW_AGGREGATES` | any grant action and hospital permission `STATISTICS` |
@@ -99,7 +102,7 @@ Implementation:
 
 - Grant management: `/hospitals/{id}/edit/encounter-access` (list, add, edit, remove), linked in the
   sidebar of the hospital edit pages. Only the owner and users with a hospital access grant appear as
-  candidates; the server rejects anyone else. Changes run under the audit intents
+  candidates; the server rejects anyone else. Administrators need no stored grant. Changes run under the audit intents
   `encounter.access_grant.created`, `.updated` and `.deleted`.
 - Losing hospital access removes the encounter grant: a Doctrine `onFlush` listener in `Encounter`
   (`RevokeEncounterGrantsOnHospitalAccessLoss`) reacts when a hospital access grant is deleted or moved

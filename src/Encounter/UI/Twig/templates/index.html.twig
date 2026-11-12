@@ -16,6 +16,9 @@
     <div class="card">
         <div class="card-body">
             <p class="text-secondary">{{ 'encounter.overview.intro'|trans({}, 'encounter') }}</p>
+            {% if is_granted('ROLE_ADMIN') %}
+                <p class="text-secondary mb-0" data-test="encounter-admin-access">{{ 'encounter.overview.admin_access'|trans({}, 'encounter') }}</p>
+            {% endif %}
         </div>
     </div>
 

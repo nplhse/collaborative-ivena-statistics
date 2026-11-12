@@ -43,11 +43,11 @@
       </trans-unit>
       <trans-unit id="EncDD77428C" resname="encounter.grant.intro">
         <source>encounter.grant.intro</source>
-        <target>Der Zugriff auf Behandlungsdaten wird ausdrücklich pro Person erteilt. Krankenhaus-Eigentum, Krankenhausberechtigungen und die Administrationsrolle schließen ihn nicht ein. Nur Personen mit Zugang zu diesem Krankenhaus können ihn erhalten.</target>
+        <target>Der Zugriff auf Behandlungsdaten wird ausdrücklich pro Person erteilt. Krankenhaus-Eigentum und Krankenhausberechtigungen schließen ihn nicht ein. Nur Personen mit Zugang zu diesem Krankenhaus können ihn erhalten. Administratorinnen und Administratoren haben ohne Berechtigung Zugriff auf die Behandlungsdaten aller Krankenhäuser.</target>
       </trans-unit>
       <trans-unit id="EncA13402E6" resname="encounter.grant.empty">
         <source>encounter.grant.empty</source>
-        <target>Bisher hat niemand Zugriff auf die Behandlungsdaten dieses Krankenhauses.</target>
+        <target>Bisher hat niemand Zugriff auf die Behandlungsdaten dieses Krankenhauses. Administratorinnen und Administratoren haben ihn ohne Berechtigung.</target>
       </trans-unit>
       <trans-unit id="Enc5769743C" resname="encounter.grant.edit_title">
         <source>encounter.grant.edit_title</source>
@@ -152,6 +152,10 @@
       <trans-unit id="EncBBECC456" resname="encounter.grant.flash.duplicate">
         <source>encounter.grant.flash.duplicate</source>
         <target>Dieser Benutzer hat bereits Zugriff auf die Behandlungsdaten dieses Krankenhauses.</target>
+      </trans-unit>
+      <trans-unit id="EncAdmAcc1" resname="encounter.overview.admin_access">
+        <source>encounter.overview.admin_access</source>
+        <target>Als Administratorin oder Administrator haben Sie ohne Berechtigung Zugriff auf die Behandlungsdaten aller Krankenhäuser.</target>
       </trans-unit>
     </body>
   </file>

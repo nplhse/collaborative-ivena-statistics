@@ -14,8 +14,9 @@ use Symfony\Component\Clock\Clock;
 /**
  * Explicit case-level access of one user to the encounter data of one hospital (ADR 027).
  *
- * Independent of hospital ownership, hospital access grants and ROLE_ADMIN. A grant always holds at
- * least one action; REVIEW implies VIEW_CASES (also enforced by a check constraint).
+ * Independent of hospital ownership and hospital access grants. Administrators need no stored grant;
+ * EncounterVoter treats them as holding every action. A grant always holds at least one action; REVIEW
+ * implies VIEW_CASES (also enforced by a check constraint).
  */
 #[Audit\Audited]
 #[ORM\Entity]

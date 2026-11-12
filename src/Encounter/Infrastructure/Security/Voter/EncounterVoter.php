@@ -21,8 +21,10 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 /**
  * Access to encounter data of one hospital (ADR 027).
  *
- * Every attribute needs ROLE_ENCOUNTER_BETA. Hospital ownership, hospital access grants and
- * ROLE_ADMIN never imply an encounter grant; the exceptions are spelled out per attribute.
+ * Every attribute needs ROLE_ENCOUNTER_BETA. ROLE_ADMIN counts as holding every grant action on
+ * every hospital without a stored grant. Hospital ownership and hospital access grants never imply an
+ * encounter grant. The key change stays with the hospital owner, also towards administrators.
+ * Impersonation needs no special case: the token carries the impersonated user's roles and grants.
  *
  * @extends Voter<string, Hospital>
  *
@@ -71,24 +73,36 @@ final class EncounterVoter extends Voter
         return match ($attribute) {
             EncounterAttribute::CHANGE_KEY => $this->isOwner($user, $subject),
             EncounterAttribute::MANAGE_GRANTS => $this->isOwner($user, $subject) || $this->isAdmin($token),
-            EncounterAttribute::REPROCESS_SOURCE_FILE => $this->isAdmin($token)
-                || $this->grantAllows($user, $subject, EncounterGrantAction::Upload),
             EncounterAttribute::UPLOAD,
             EncounterAttribute::VIEW_SOURCE_FILE,
-            EncounterAttribute::DOWNLOAD_SOURCE_FILE => $this->grantAllows($user, $subject, EncounterGrantAction::Upload),
-            EncounterAttribute::REVIEW => $this->grantAllows($user, $subject, EncounterGrantAction::Review),
-            EncounterAttribute::VIEW_CASES => $this->grantAllows($user, $subject, EncounterGrantAction::ViewCases),
-            EncounterAttribute::VIEW_AGGREGATES => $this->grantRepository->findForUserAndHospital($user, $subject) instanceof EncounterAccessGrant
+            EncounterAttribute::DOWNLOAD_SOURCE_FILE,
+            EncounterAttribute::REPROCESS_SOURCE_FILE => $this->grantAllows($token, $user, $subject, EncounterGrantAction::Upload),
+            EncounterAttribute::REVIEW => $this->grantAllows($token, $user, $subject, EncounterGrantAction::Review),
+            EncounterAttribute::VIEW_CASES => $this->grantAllows($token, $user, $subject, EncounterGrantAction::ViewCases),
+            EncounterAttribute::VIEW_AGGREGATES => $this->hasAnyGrant($token, $user, $subject)
                 && $this->hospitalPermissionAccess->hasPermission($user, (int) $subject->getId(), HospitalPermission::Statistics),
             default => false,
         };
     }
 
-    private function grantAllows(User $user, Hospital $hospital, EncounterGrantAction $action): bool
+    /**
+     * Administrators hold every grant action implicitly (ADR 027).
+     */
+    private function grantAllows(TokenInterface $token, User $user, Hospital $hospital, EncounterGrantAction $action): bool
     {
+        if ($this->isAdmin($token)) {
+            return true;
+        }
+
         $grant = $this->grantRepository->findForUserAndHospital($user, $hospital);
 
         return $grant instanceof EncounterAccessGrant && $grant->allows($action);
+    }
+
+    private function hasAnyGrant(TokenInterface $token, User $user, Hospital $hospital): bool
+    {
+        return $this->isAdmin($token)
+            || $this->grantRepository->findForUserAndHospital($user, $hospital) instanceof EncounterAccessGrant;
     }
 
     private function isOwner(User $user, Hospital $hospital): bool

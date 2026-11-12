@@ -62,17 +62,19 @@ Overviews cross both attributes, for example "EMS arrival, not linked".
 | Action | Needs |
 |---|---|
 | Pilot pages and navigation | `ROLE_ENCOUNTER_BETA` (inherited by `ROLE_ADMIN`) |
-| Upload | beta role + encounter grant `UPLOAD` on the hospital |
-| Key change | hospital owner only |
-| Match review | beta role + encounter grant `REVIEW` (implies `VIEW_CASES`) |
-| Case-level views, case card on an allocation | beta role + encounter grant `VIEW_CASES` |
-| Descriptive aggregates of the own hospital | beta role + any encounter grant + `STATISTICS` |
-| View or download a retained upload file | beta role + encounter grant `UPLOAD` on the hospital |
+| Upload | beta role + encounter grant `UPLOAD` on the hospital, or `ROLE_ADMIN` |
+| Key change | hospital owner only (not administrators) |
+| Match review | beta role + encounter grant `REVIEW` (implies `VIEW_CASES`), or `ROLE_ADMIN` |
+| Case-level views, case card on an allocation | beta role + encounter grant `VIEW_CASES`, or `ROLE_ADMIN` |
+| Descriptive aggregates of the own hospital | beta role + any encounter grant + `STATISTICS`, or `ROLE_ADMIN` |
+| View or download a retained upload file | beta role + encounter grant `UPLOAD` on the hospital, or `ROLE_ADMIN` |
 | Reprocess a retained upload file | beta role + `UPLOAD`, or `ROLE_ADMIN` (shows no file content) |
 | Manage encounter grants of a hospital | hospital owner or `ROLE_ADMIN` |
 | Import status, counts, reject codes, match diagnostics without case details or file content | `ROLE_ADMIN` |
 
-Hospital ownership, hospital grants and `ROLE_ADMIN` do not imply an encounter grant. Every row
+Hospital ownership and hospital grants do not imply an encounter grant. `ROLE_ADMIN` holds every
+grant action on every hospital without a stored grant; an administrator impersonating a user has that
+user's rights only. Every row
 needs `ROLE_ENCOUNTER_BETA` first, including grant management and the key change, so a hospital owner
 needs the beta role to manage encounter grants.
 

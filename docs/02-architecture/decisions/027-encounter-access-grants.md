@@ -20,7 +20,7 @@ actions for uploading, reviewing matches and viewing cases.
 ### Beta role
 
 `ROLE_ENCOUNTER_BETA` controls participation in the pilot: navigation and encounter pages. It is
-inherited by `ROLE_ADMIN`. It grants no access to case data.
+inherited by `ROLE_ADMIN`. The role itself grants no access to case data.
 
 ### Encounter grants
 
@@ -32,18 +32,22 @@ A separate grant in the `Encounter` context (user, hospital, actions), checked b
 | `REVIEW` | match review decisions; implies `VIEW_CASES` |
 | `VIEW_CASES` | case-level views: visit lists, the case card on an allocation, direct URLs |
 
-- Hospital ownership, VIEW or other hospital grants and `ROLE_ADMIN` do **not** imply an encounter
-  grant. This deliberately deviates from `HospitalPermissionAccess` for this data.
+- Hospital ownership and VIEW or other hospital grants do **not** imply an encounter grant. This
+  deliberately deviates from `HospitalPermissionAccess` for this data.
+- Administrators (`ROLE_ADMIN`) are treated as holding every grant action (`UPLOAD`, `REVIEW`,
+  `VIEW_CASES`) on every hospital without a stored grant. Platform administrators can always reach
+  the data technically; the access model says so instead of pretending otherwise. They do not appear as
+  grant candidates unless they also have access to the hospital.
+- Impersonation needs no special rule: an administrator impersonating a user has exactly that user's
+  rights.
 - Only users with access to the hospital (owner or hospital grant) can receive an encounter grant.
   Removing that access removes the encounter grant.
 - Grants are managed by the hospital owner and by administrators, the same people who manage hospital
   access grants. An owner can grant themselves case access explicitly. Every change is audited.
-- The key change (ADR 026) is reserved for the hospital owner; no grant and no administrator role
-  allows it.
-- Administrators without a grant see import status, counts, reject codes and match diagnostics
-  without case details. They may trigger reprocessing of a retained file after a bug fix, which shows
-  no content. Viewing or downloading a retained upload file and case-level access need a grant like
-  for anyone else; import diagnostics alone never open file content.
+- The key change (ADR 026) is reserved for the hospital owner, also towards administrators; no grant
+  and no administrator role allows it.
+- Import diagnostics (status, counts, reject codes, match diagnostics) never open file content.
+  Reprocessing a retained file shows no content either.
 - Descriptive aggregates of the own hospital need the beta role, any encounter grant on the hospital
   and the existing `STATISTICS` permission.
 
@@ -61,14 +65,16 @@ A separate grant in the `Encounter` context (user, hospital, actions), checked b
 
 **Positive:**
 
-- Case access is a conscious, per-person, per-hospital decision, visible in the audit log
+- Case access is a conscious, per-person, per-hospital decision, visible in the audit log; the only
+  standing exception is the platform administrators, which is stated openly
 - Uploading, reviewing and viewing can be given to different people
 - IVENA access and encounter access stay independent
 
 **Negative:**
 
 - A second grant model next to ADR 002 that owners and administrators must maintain
-- Administrators need an explicit grant for support cases that require case details
+- Administrators see all encounter data of all hospitals; owners and hospital grants still do not
+  imply access. Hospitals must know this (governance: recipients)
 - The hospital pages need a link to encounter grant management without a dependency from
   `Allocation` on `Encounter`
 
@@ -76,8 +82,11 @@ A separate grant in the `Encounter` context (user, hospital, actions), checked b
 
 - **Reuse VIEW/IMPORT grants plus the beta role**: rejected; everyone with VIEW on a hospital would
   see case data once they get the role.
-- **New bit in the hospital bitmask**: rejected; owners and administrators get all bits implicitly,
-  and the bitmask has no room for an exception per bit.
+- **New bit in the hospital bitmask**: rejected; owners get all bits implicitly, and the bitmask has
+  no room for an exception per bit.
+- **Administrators only with an explicit grant**: rejected in review of #1046; administrators can
+  reach all data anyway (database, impersonation), so a grant requirement would suggest a protection
+  that does not exist and only slow down support.
 - **Collaborative visibility as in ADR 011**: rejected; case-level clinical data is not shared across
   hospitals.
 

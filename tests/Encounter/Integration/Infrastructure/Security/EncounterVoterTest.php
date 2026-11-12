@@ -12,6 +12,7 @@ use App\Tests\Support\Encounter\EncounterTestFixtures;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Security\Core\Authentication\Token\SwitchUserToken;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -19,6 +20,7 @@ use Zenstruck\Foundry\Test\Factories;
 
 /**
  * Access matrix of ADR 027. Each case names the user's relation to the hospital explicitly.
+ * Administrators hold every grant action implicitly, except the key change.
  */
 #[ResetDatabase]
 final class EncounterVoterTest extends KernelTestCase
@@ -57,12 +59,36 @@ final class EncounterVoterTest extends KernelTestCase
         self::assertSame(VoterInterface::ACCESS_DENIED, $this->vote($owner, $hospital, $attribute));
     }
 
-    #[DataProvider('caseLevelAttributes')]
-    public function testAdminWithoutGrantIsDenied(string $attribute): void
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function adminAttributes(): iterable
+    {
+        yield from self::caseLevelAttributes();
+        yield 'reprocess source file' => [EncounterAttribute::REPROCESS_SOURCE_FILE];
+        yield 'manage grants' => [EncounterAttribute::MANAGE_GRANTS];
+    }
+
+    #[DataProvider('adminAttributes')]
+    public function testAdminIsGrantedWithoutStoredGrant(string $attribute): void
     {
         $hospital = $this->hospital($this->user());
 
-        self::assertSame(VoterInterface::ACCESS_DENIED, $this->vote($this->admin(), $hospital, $attribute));
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $this->vote($this->admin(), $hospital, $attribute));
+    }
+
+    public function testImpersonatingAdminHasOnlyTheImpersonatedUsersRights(): void
+    {
+        $owner = $this->user();
+        $hospital = $this->hospital($owner);
+        $member = $this->user();
+        $this->hospitalGrant($hospital, $member);
+        $this->encounterGrant($hospital, $member, [EncounterGrantAction::ViewCases]);
+        $admin = $this->admin();
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $this->voteAs($owner, $admin, $hospital, EncounterAttribute::VIEW_CASES));
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $this->voteAs($member, $admin, $hospital, EncounterAttribute::VIEW_CASES));
+        self::assertSame(VoterInterface::ACCESS_DENIED, $this->voteAs($member, $admin, $hospital, EncounterAttribute::DOWNLOAD_SOURCE_FILE));
     }
 
     #[DataProvider('caseLevelAttributes')]
@@ -145,16 +171,6 @@ final class EncounterVoterTest extends KernelTestCase
         self::assertSame(VoterInterface::ACCESS_DENIED, $this->vote($ownerWithoutBeta, $otherHospital, EncounterAttribute::CHANGE_KEY));
     }
 
-    public function testAdminWithoutUploadCannotViewOrDownloadRetainedFileButMayReprocess(): void
-    {
-        $hospital = $this->hospital($this->user());
-        $admin = $this->admin();
-
-        self::assertSame(VoterInterface::ACCESS_DENIED, $this->vote($admin, $hospital, EncounterAttribute::VIEW_SOURCE_FILE));
-        self::assertSame(VoterInterface::ACCESS_DENIED, $this->vote($admin, $hospital, EncounterAttribute::DOWNLOAD_SOURCE_FILE));
-        self::assertSame(VoterInterface::ACCESS_GRANTED, $this->vote($admin, $hospital, EncounterAttribute::REPROCESS_SOURCE_FILE));
-    }
-
     public function testViewCasesGrantDoesNotAllowReprocessing(): void
     {
         $hospital = $this->hospital($this->user());
@@ -202,5 +218,13 @@ final class EncounterVoterTest extends KernelTestCase
     private function vote(User $user, Hospital $hospital, string $attribute): int
     {
         return $this->voter->vote(new UsernamePasswordToken($user, 'main', $user->getRoles()), $hospital, [$attribute]);
+    }
+
+    private function voteAs(User $impersonated, User $admin, Hospital $hospital, string $attribute): int
+    {
+        $original = new UsernamePasswordToken($admin, 'main', $admin->getRoles());
+        $token = new SwitchUserToken($impersonated, 'main', $impersonated->getRoles(), $original);
+
+        return $this->voter->vote($token, $hospital, [$attribute]);
     }
 }

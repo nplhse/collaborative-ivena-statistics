@@ -113,6 +113,23 @@ final class EncounterAccessGrantControllerTest extends WebTestCase
         self::assertSelectorExists('[data-test="encounter-grants-empty"]');
     }
 
+    public function testAdminIsNotOfferedAsCandidateWithoutHospitalAccess(): void
+    {
+        $client = self::createClient();
+        $owner = $this->user();
+        $hospital = $this->hospital($owner);
+        $admin = $this->admin();
+
+        $client->loginUser($owner);
+        $crawler = $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit/encounter-access/new');
+        self::assertResponseIsSuccessful();
+
+        $options = $crawler->filter('select[name="encounter_access_grant[user]"] option')->each(
+            static fn ($option): string => trim($option->text()),
+        );
+        self::assertNotContains((string) $admin->getUsername(), $options);
+    }
+
     public function testHospitalMemberCannotManageGrants(): void
     {
         $client = self::createClient();
@@ -200,6 +217,12 @@ final class EncounterAccessGrantControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-test="nav-encounter"]');
         self::assertSelectorExists('[data-test="encounter-no-grants"]');
+        self::assertSelectorNotExists('[data-test="encounter-admin-access"]');
+
+        $client->loginUser($this->admin());
+        $client->request(Request::METHOD_GET, '/encounter');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-test="encounter-admin-access"]');
     }
 
     /**
