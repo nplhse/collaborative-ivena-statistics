@@ -36,29 +36,6 @@ final class EncounterImportRepository extends ServiceEntityRepository implements
             ->getOneOrNullResult();
     }
 
-    #[\Override]
-    public function findForHospitals(array $hospitals, int $limit = 200): array
-    {
-        if ([] === $hospitals) {
-            return [];
-        }
-
-        /** @var list<EncounterImport> $imports */
-        $imports = $this->createQueryBuilder('ei')
-            ->addSelect('i', 'h')
-            ->innerJoin('ei.import', 'i')
-            ->innerJoin('i.hospital', 'h')
-            ->where('i.hospital IN (:hospitals)')
-            ->setParameter('hospitals', $hospitals)
-            ->orderBy('i.createdAt', 'DESC')
-            ->addOrderBy('i.id', 'DESC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
-
-        return $imports;
-    }
-
     public function findForImport(Import $import): ?EncounterImport
     {
         return $this->findOneBy(['import' => $import]);

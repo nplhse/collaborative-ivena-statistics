@@ -140,6 +140,22 @@ Lets a context that processes its own import type register and queue runs of it 
 `Import` on that context. Allocation and closure imports keep their direct dispatchers. The type itself is a
 case of `ImportType`; the processing context owns message, handler, pages and access checks.
 
+## Import type extensions
+
+**Tag:** `import.type_extension`
+
+**Interface:** `ImportTypeExtensionInterface` (`src/Import/Application/Contracts/`)
+
+**Registry:** `ImportTypeExtensionRegistry`; consumers `ImportCreateType` / `NewImportController` (upload form),
+`ImportVoter`, `ListImportsQuery` and `ImportDetailViewFactory` (`detail.typeSection` on the detail page)
+
+**Implementations:** `EncounterImportTypeExtension` (`ImportType::ENCOUNTER`, #1048)
+
+Lets an import type of another context use the generic import pages: whether the user may choose the
+type, the hospitals they may upload it for and see it on, extra unmapped form fields with their checks,
+own state created with the import, the decision for every `ImportVoter` attribute and a section on the
+detail page. The type also needs a workflow dispatcher (above) for its runs.
+
 ## Encounter schemas
 
 **Tag:** `encounter.dimension`

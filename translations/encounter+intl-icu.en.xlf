@@ -159,51 +159,11 @@
       </trans-unit>
       <trans-unit id="EncI683DD62D" resname="encounter.overview.imports_intro">
         <source>encounter.overview.imports_intro</source>
-        <target>Upload files prepared with the data preparation tool and see the reports of earlier uploads.</target>
-      </trans-unit>
-      <trans-unit id="EncI62695A17" resname="encounter.import.list.title">
-        <source>encounter.import.list.title</source>
-        <target>Encounter imports</target>
-      </trans-unit>
-      <trans-unit id="EncIDE2615E7" resname="encounter.import.list.empty">
-        <source>encounter.import.list.empty</source>
-        <target>No encounter imports yet.</target>
+        <target>Files prepared with the data preparation tool are uploaded on the import page (type "Encounter data"); their reports are in the import list.</target>
       </trans-unit>
       <trans-unit id="EncI4E173CBA" resname="encounter.import.action.new">
         <source>encounter.import.action.new</source>
         <target>Upload file</target>
-      </trans-unit>
-      <trans-unit id="EncI4EEF4385" resname="encounter.import.action.upload">
-        <source>encounter.import.action.upload</source>
-        <target>Upload</target>
-      </trans-unit>
-      <trans-unit id="EncI328D5D6D" resname="encounter.import.action.reprocess">
-        <source>encounter.import.action.reprocess</source>
-        <target>Reprocess import</target>
-      </trans-unit>
-      <trans-unit id="EncI02FB8F03" resname="encounter.import.new.title">
-        <source>encounter.import.new.title</source>
-        <target>Upload encounter file</target>
-      </trans-unit>
-      <trans-unit id="EncI311F71AE" resname="encounter.import.new.intro">
-        <source>encounter.import.new.intro</source>
-        <target>Only files written by the data preparation tool are accepted. Raw exports of the hospital information system are rejected and deleted.</target>
-      </trans-unit>
-      <trans-unit id="EncI01D4F496" resname="encounter.import.new.tool_link">
-        <source>encounter.import.new.tool_link</source>
-        <target>Get the data preparation tool</target>
-      </trans-unit>
-      <trans-unit id="EncID343D760" resname="encounter.import.field.hospital">
-        <source>encounter.import.field.hospital</source>
-        <target>Hospital</target>
-      </trans-unit>
-      <trans-unit id="EncI3CBC2FF1" resname="encounter.import.field.hospital_placeholder">
-        <source>encounter.import.field.hospital_placeholder</source>
-        <target>Choose a hospital</target>
-      </trans-unit>
-      <trans-unit id="EncIB2AAF62E" resname="encounter.import.field.name">
-        <source>encounter.import.field.name</source>
-        <target>Name</target>
       </trans-unit>
       <trans-unit id="EncI41D05A47" resname="encounter.import.field.schema">
         <source>encounter.import.field.schema</source>
@@ -213,25 +173,9 @@
         <source>encounter.import.field.schema_help</source>
         <target>Kind of data in the file. It must match the schema in the file's first line.</target>
       </trans-unit>
-      <trans-unit id="EncIFD58B1A8" resname="encounter.import.field.file">
-        <source>encounter.import.field.file</source>
-        <target>File</target>
-      </trans-unit>
-      <trans-unit id="EncI7EEF550A" resname="encounter.import.field.file_help">
-        <source>encounter.import.field.file_help</source>
-        <target>CSV file written by the data preparation tool.</target>
-      </trans-unit>
       <trans-unit id="EncI5609204C" resname="encounter.import.field.confirmation">
         <source>encounter.import.field.confirmation</source>
         <target>I confirm that this file was produced with the data preparation tool and contains no direct identifiers (names, dates of birth, case numbers, free text).</target>
-      </trans-unit>
-      <trans-unit id="EncI5DB5BC4E" resname="encounter.import.field.status">
-        <source>encounter.import.field.status</source>
-        <target>Status</target>
-      </trans-unit>
-      <trans-unit id="EncI52C7C455" resname="encounter.import.field.created_at">
-        <source>encounter.import.field.created_at</source>
-        <target>Uploaded</target>
       </trans-unit>
       <trans-unit id="EncI0416FB7A" resname="encounter.import.field.profile">
         <source>encounter.import.field.profile</source>
@@ -249,21 +193,9 @@
         <source>encounter.import.key_change_in_progress</source>
         <target>A key change is in progress for this hospital. Uploads are possible again once it is finished.</target>
       </trans-unit>
-      <trans-unit id="EncI9FA4DF70" resname="encounter.import.flash.created">
-        <source>encounter.import.flash.created</source>
-        <target>The file was uploaded and is being processed.</target>
-      </trans-unit>
-      <trans-unit id="EncI3FA1A749" resname="encounter.import.flash.source_file_missing">
-        <source>encounter.import.flash.source_file_missing</source>
-        <target>The uploaded file is no longer available, so the import cannot be reprocessed.</target>
-      </trans-unit>
       <trans-unit id="EncI937AD525" resname="encounter.import.report.title">
         <source>encounter.import.report.title</source>
         <target>Import report</target>
-      </trans-unit>
-      <trans-unit id="EncI0F2FEFFB" resname="encounter.import.count.total">
-        <source>encounter.import.count.total</source>
-        <target>Rows</target>
       </trans-unit>
       <trans-unit id="EncI58589B56" resname="encounter.import.count.inserted">
         <source>encounter.import.count.inserted</source>
@@ -397,33 +329,9 @@
         <source>encounter.import.list_limited</source>
         <target>Only the first {limit} entries are shown.</target>
       </trans-unit>
-      <trans-unit id="EncI972CAF3E" resname="encounter.import.reprocess.title">
-        <source>encounter.import.reprocess.title</source>
-        <target>Reprocess</target>
-      </trans-unit>
-      <trans-unit id="EncI1F9C2A67" resname="encounter.import.reprocess.warning">
-        <source>encounter.import.reprocess.warning</source>
-        <target>Reprocessing first removes all visits this import created, with their IVENA links and review decisions, and then imports the retained file again. Links and review decisions of this import are lost.</target>
-      </trans-unit>
-      <trans-unit id="EncI39E0CFBA" resname="encounter.import.reprocess.unavailable">
-        <source>encounter.import.reprocess.unavailable</source>
-        <target>The file is no longer retained, so this import cannot be reprocessed.</target>
-      </trans-unit>
-      <trans-unit id="EncI8FE7FECD" resname="encounter.import.delete.title">
-        <source>encounter.import.delete.title</source>
-        <target>Delete import</target>
-      </trans-unit>
-      <trans-unit id="EncIE0F84719" resname="encounter.import.delete.warning">
-        <source>encounter.import.delete.warning</source>
-        <target>Deleting removes all visits this import created, with their IVENA links and review decisions, its rejects and the uploaded file. Visits of other imports stay. This cannot be undone.</target>
-      </trans-unit>
-      <trans-unit id="EncI185ABA27" resname="encounter.import.action.delete">
-        <source>encounter.import.action.delete</source>
-        <target>Delete import</target>
-      </trans-unit>
-      <trans-unit id="EncI18C07858" resname="encounter.import.flash.deleted">
-        <source>encounter.import.flash.deleted</source>
-        <target>The encounter import was deleted.</target>
+      <trans-unit id="EncI45065675" resname="encounter.import.field.confirmation_help">
+        <source>encounter.import.field.confirmation_help</source>
+        <target>Prepare the export with the data preparation tool from the &lt;a href="{url}"&gt;encounter page&lt;/a&gt; first; raw exports are rejected and deleted.</target>
       </trans-unit>
     </body>
   </file>

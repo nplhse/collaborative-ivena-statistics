@@ -159,51 +159,11 @@
       </trans-unit>
       <trans-unit id="EncI683DD62D" resname="encounter.overview.imports_intro">
         <source>encounter.overview.imports_intro</source>
-        <target>Mit dem Datenaufbereitungs-Werkzeug erstellte Dateien hochladen und die Berichte früherer Uploads ansehen.</target>
-      </trans-unit>
-      <trans-unit id="EncI62695A17" resname="encounter.import.list.title">
-        <source>encounter.import.list.title</source>
-        <target>Behandlungsdaten-Importe</target>
-      </trans-unit>
-      <trans-unit id="EncIDE2615E7" resname="encounter.import.list.empty">
-        <source>encounter.import.list.empty</source>
-        <target>Noch keine Behandlungsdaten-Importe.</target>
+        <target>Mit dem Datenaufbereitungs-Werkzeug erstellte Dateien werden auf der Import-Seite hochgeladen (Typ „Behandlungsdaten“); ihre Berichte stehen in der Import-Liste.</target>
       </trans-unit>
       <trans-unit id="EncI4E173CBA" resname="encounter.import.action.new">
         <source>encounter.import.action.new</source>
         <target>Datei hochladen</target>
-      </trans-unit>
-      <trans-unit id="EncI4EEF4385" resname="encounter.import.action.upload">
-        <source>encounter.import.action.upload</source>
-        <target>Hochladen</target>
-      </trans-unit>
-      <trans-unit id="EncI328D5D6D" resname="encounter.import.action.reprocess">
-        <source>encounter.import.action.reprocess</source>
-        <target>Import neu verarbeiten</target>
-      </trans-unit>
-      <trans-unit id="EncI02FB8F03" resname="encounter.import.new.title">
-        <source>encounter.import.new.title</source>
-        <target>Behandlungsdaten-Datei hochladen</target>
-      </trans-unit>
-      <trans-unit id="EncI311F71AE" resname="encounter.import.new.intro">
-        <source>encounter.import.new.intro</source>
-        <target>Es werden nur Dateien angenommen, die das Datenaufbereitungs-Werkzeug geschrieben hat. Rohexporte des Krankenhausinformationssystems werden abgelehnt und gelöscht.</target>
-      </trans-unit>
-      <trans-unit id="EncI01D4F496" resname="encounter.import.new.tool_link">
-        <source>encounter.import.new.tool_link</source>
-        <target>Zum Datenaufbereitungs-Werkzeug</target>
-      </trans-unit>
-      <trans-unit id="EncID343D760" resname="encounter.import.field.hospital">
-        <source>encounter.import.field.hospital</source>
-        <target>Krankenhaus</target>
-      </trans-unit>
-      <trans-unit id="EncI3CBC2FF1" resname="encounter.import.field.hospital_placeholder">
-        <source>encounter.import.field.hospital_placeholder</source>
-        <target>Krankenhaus auswählen</target>
-      </trans-unit>
-      <trans-unit id="EncIB2AAF62E" resname="encounter.import.field.name">
-        <source>encounter.import.field.name</source>
-        <target>Name</target>
       </trans-unit>
       <trans-unit id="EncI41D05A47" resname="encounter.import.field.schema">
         <source>encounter.import.field.schema</source>
@@ -213,25 +173,9 @@
         <source>encounter.import.field.schema_help</source>
         <target>Art der Daten in der Datei. Sie muss zum Schema in der ersten Zeile der Datei passen.</target>
       </trans-unit>
-      <trans-unit id="EncIFD58B1A8" resname="encounter.import.field.file">
-        <source>encounter.import.field.file</source>
-        <target>Datei</target>
-      </trans-unit>
-      <trans-unit id="EncI7EEF550A" resname="encounter.import.field.file_help">
-        <source>encounter.import.field.file_help</source>
-        <target>Vom Datenaufbereitungs-Werkzeug geschriebene CSV-Datei.</target>
-      </trans-unit>
       <trans-unit id="EncI5609204C" resname="encounter.import.field.confirmation">
         <source>encounter.import.field.confirmation</source>
         <target>Ich bestätige, dass diese Datei mit dem Datenaufbereitungs-Werkzeug erstellt wurde und keine direkten Identifikatoren enthält (Namen, Geburtsdaten, Fallnummern, Freitext).</target>
-      </trans-unit>
-      <trans-unit id="EncI5DB5BC4E" resname="encounter.import.field.status">
-        <source>encounter.import.field.status</source>
-        <target>Status</target>
-      </trans-unit>
-      <trans-unit id="EncI52C7C455" resname="encounter.import.field.created_at">
-        <source>encounter.import.field.created_at</source>
-        <target>Hochgeladen</target>
       </trans-unit>
       <trans-unit id="EncI0416FB7A" resname="encounter.import.field.profile">
         <source>encounter.import.field.profile</source>
@@ -249,21 +193,9 @@
         <source>encounter.import.key_change_in_progress</source>
         <target>Für dieses Krankenhaus läuft ein Schlüsselwechsel. Uploads sind wieder möglich, sobald er abgeschlossen ist.</target>
       </trans-unit>
-      <trans-unit id="EncI9FA4DF70" resname="encounter.import.flash.created">
-        <source>encounter.import.flash.created</source>
-        <target>Die Datei wurde hochgeladen und wird verarbeitet.</target>
-      </trans-unit>
-      <trans-unit id="EncI3FA1A749" resname="encounter.import.flash.source_file_missing">
-        <source>encounter.import.flash.source_file_missing</source>
-        <target>Die hochgeladene Datei ist nicht mehr vorhanden, daher kann der Import nicht neu verarbeitet werden.</target>
-      </trans-unit>
       <trans-unit id="EncI937AD525" resname="encounter.import.report.title">
         <source>encounter.import.report.title</source>
         <target>Importbericht</target>
-      </trans-unit>
-      <trans-unit id="EncI0F2FEFFB" resname="encounter.import.count.total">
-        <source>encounter.import.count.total</source>
-        <target>Zeilen</target>
       </trans-unit>
       <trans-unit id="EncI58589B56" resname="encounter.import.count.inserted">
         <source>encounter.import.count.inserted</source>
@@ -397,33 +329,9 @@
         <source>encounter.import.list_limited</source>
         <target>Es werden nur die ersten {limit} Einträge angezeigt.</target>
       </trans-unit>
-      <trans-unit id="EncI972CAF3E" resname="encounter.import.reprocess.title">
-        <source>encounter.import.reprocess.title</source>
-        <target>Neu verarbeiten</target>
-      </trans-unit>
-      <trans-unit id="EncI1F9C2A67" resname="encounter.import.reprocess.warning">
-        <source>encounter.import.reprocess.warning</source>
-        <target>Beim Neuverarbeiten werden zuerst alle Besuche dieses Imports mit ihren IVENA-Verknüpfungen und Prüfentscheidungen entfernt, dann wird die aufbewahrte Datei erneut importiert. Verknüpfungen und Prüfentscheidungen dieses Imports gehen verloren.</target>
-      </trans-unit>
-      <trans-unit id="EncI39E0CFBA" resname="encounter.import.reprocess.unavailable">
-        <source>encounter.import.reprocess.unavailable</source>
-        <target>Die Datei wird nicht mehr aufbewahrt, daher kann dieser Import nicht neu verarbeitet werden.</target>
-      </trans-unit>
-      <trans-unit id="EncI8FE7FECD" resname="encounter.import.delete.title">
-        <source>encounter.import.delete.title</source>
-        <target>Import löschen</target>
-      </trans-unit>
-      <trans-unit id="EncIE0F84719" resname="encounter.import.delete.warning">
-        <source>encounter.import.delete.warning</source>
-        <target>Beim Löschen werden alle Besuche dieses Imports mit ihren IVENA-Verknüpfungen und Prüfentscheidungen, seine abgelehnten Zeilen und die hochgeladene Datei entfernt. Besuche anderer Importe bleiben erhalten. Das lässt sich nicht rückgängig machen.</target>
-      </trans-unit>
-      <trans-unit id="EncI185ABA27" resname="encounter.import.action.delete">
-        <source>encounter.import.action.delete</source>
-        <target>Import löschen</target>
-      </trans-unit>
-      <trans-unit id="EncI18C07858" resname="encounter.import.flash.deleted">
-        <source>encounter.import.flash.deleted</source>
-        <target>Der Behandlungsdaten-Import wurde gelöscht.</target>
+      <trans-unit id="EncI45065675" resname="encounter.import.field.confirmation_help">
+        <source>encounter.import.field.confirmation_help</source>
+        <target>Bereiten Sie den Export zuerst mit dem Datenaufbereitungs-Werkzeug von der &lt;a href="{url}"&gt;Behandlungsdaten-Seite&lt;/a&gt; auf; Rohexporte werden abgelehnt und gelöscht.</target>
       </trans-unit>
     </body>
   </file>

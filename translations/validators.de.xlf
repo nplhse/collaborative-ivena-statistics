@@ -881,6 +881,10 @@
         <source>validation.encounter.import.confirmation_required</source>
         <target>Bestätigen Sie, dass die Datei mit dem Datenaufbereitungs-Werkzeug erstellt wurde und keine direkten Identifikatoren enthält.</target>
       </trans-unit>
+      <trans-unit id="EncVal796CE2AF" resname="validation.encounter.import.schema_required">
+        <source>validation.encounter.import.schema_required</source>
+        <target>Wählen Sie das Schema der Behandlungsdaten-Datei.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -26,7 +26,8 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Encounter upload, report and reprocess pages (#1048, ADR 027).
+ * Encounter imports on the generic import pages (#1048, ADR 027): upload form, list, detail page,
+ * reprocess and delete, all with the encounter grant UPLOAD.
  */
 #[ResetDatabase]
 final class EncounterImportControllerTest extends WebTestCase
@@ -58,10 +59,7 @@ final class EncounterImportControllerTest extends WebTestCase
     {
         $this->removeEncounterFiles();
         $filesystem = new Filesystem();
-        foreach ($this->uploads as $path) {
-            $filesystem->remove($path);
-        }
-
+        $filesystem->remove($this->uploads);
         foreach ($this->entityManager()->getRepository(Import::class)->findAll() as $import) {
             $filesystem->remove($this->projectDir().'/'.$import->getFilePath());
         }
@@ -69,24 +67,13 @@ final class EncounterImportControllerTest extends WebTestCase
         parent::tearDown();
     }
 
-    public function testUploaderUploadsAFileWithConfirmation(): void
+    public function testUploaderUploadsAnEncounterFileWithTheImportForm(): void
     {
-        $this->client->loginUser($this->uploader);
-        $crawler = $this->client->request(Request::METHOD_GET, '/encounter/imports/new');
-        self::assertResponseIsSuccessful();
-        self::assertSelectorExists('a[data-test="encounter-tool-link"][href="/encounter"]');
-
-        $form = $crawler->filter('form[name="encounter_import"]')->form();
-        $form['encounter_import[hospital]'] = (string) $this->hospital->getId();
-        $form['encounter_import[name]'] = 'October visits';
-        $form['encounter_import[schema]'] = 'ed_visit';
-        $this->checkbox($form, 'encounter_import[confirmation]')->tick();
-        $this->fileField($form, 'encounter_import[file]')->upload($this->file(EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->visit('b', '2026-10-01T09:15')->build()));
-        $this->client->submit($form);
+        $this->submitUpload('October visits', EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->visit('b', '2026-10-01T09:15')->build());
 
         $import = $this->entityManager()->getRepository(Import::class)->findOneBy(['name' => 'October visits']);
         self::assertInstanceOf(Import::class, $import);
-        self::assertResponseRedirects('/encounter/imports/'.$import->getId());
+        self::assertResponseRedirects('/import/'.$import->getId().'/processing');
         self::assertSame(ImportType::ENCOUNTER, $import->getType());
         self::assertSame(ImportStatus::COMPLETED, $import->getStatus());
 
@@ -100,26 +87,31 @@ final class EncounterImportControllerTest extends WebTestCase
             [EncounterImport::class],
         );
         self::assertIsString($audit, 'The confirmation is audited.');
-        self::assertStringContainsString('encounter.import.created', $audit);
+        self::assertStringContainsString('import.created', $audit);
 
-        $this->client->followRedirect();
+        $this->client->request(Request::METHOD_GET, '/import/'.$import->getId());
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-test="count-inserted"]', '2');
-        self::assertSelectorExists('[data-test="encounter-reprocess-warning"]');
+    }
+
+    public function testFormOffersTheToolLinkAndEncounterFields(): void
+    {
+        $this->client->loginUser($this->uploader);
+        $crawler = $this->client->request(Request::METHOD_GET, '/import/new');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('select[name="import_create[type]"]', 'Encounter data (beta)');
+        self::assertSelectorExists('[data-test="import-type-extension-fields"] a[href="/encounter"]');
+        self::assertCount(1, $crawler->filter('select[name="import_create[hospital]"] option[value="'.$this->hospital->getId().'"]'));
     }
 
     public function testUploadWithoutConfirmationIsRefused(): void
     {
-        $this->client->loginUser($this->uploader);
-        $crawler = $this->client->request(Request::METHOD_GET, '/encounter/imports/new');
-        $form = $crawler->filter('form[name="encounter_import"]')->form();
-        $form['encounter_import[hospital]'] = (string) $this->hospital->getId();
-        $form['encounter_import[name]'] = 'Unconfirmed';
-        $this->fileField($form, 'encounter_import[file]')->upload($this->file(EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build()));
-        $this->client->submit($form);
+        $this->submitUpload('Unconfirmed', EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build(), confirm: false);
 
-        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
-        self::assertCount(0, $this->entityManager()->getRepository(EncounterImport::class)->findAll());
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.invalid-feedback, .form-error-message, .invalid-feedback.d-block');
+        self::assertCount(0, $this->entityManager()->getRepository(Import::class)->findAll());
     }
 
     public function testUploadIsRefusedWhileTheKeyChangeIsInProgress(): void
@@ -129,32 +121,27 @@ final class EncounterImportControllerTest extends WebTestCase
             [$this->hospital->getId()],
         );
 
-        $this->client->loginUser($this->uploader);
-        $crawler = $this->client->request(Request::METHOD_GET, '/encounter/imports/new');
-        $form = $crawler->filter('form[name="encounter_import"]')->form();
-        $form['encounter_import[hospital]'] = (string) $this->hospital->getId();
-        $form['encounter_import[name]'] = 'During key change';
-        $this->checkbox($form, 'encounter_import[confirmation]')->tick();
-        $this->fileField($form, 'encounter_import[file]')->upload($this->file(EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build()));
-        $this->client->submit($form);
+        $this->submitUpload('During key change', EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build());
 
-        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertResponseIsSuccessful();
         self::assertCount(0, $this->entityManager()->getRepository(Import::class)->findAll());
     }
 
-    public function testHospitalMemberWithoutUploadGrantCannotUpload(): void
+    public function testHospitalMemberWithoutUploadGrantIsNotOfferedEncounterUploads(): void
     {
         $viewer = $this->user();
         $this->hospitalGrant($this->hospital, $viewer);
         $this->encounterGrant($this->hospital, $viewer, [EncounterGrantAction::ViewCases]);
 
         $this->client->loginUser($viewer);
-        $this->client->request(Request::METHOD_GET, '/encounter/imports/new');
+        $this->client->request(Request::METHOD_GET, '/import/new');
 
-        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        self::assertResponseIsSuccessful();
+        self::assertStringNotContainsString('Encounter data (beta)', (string) $this->client->getResponse()->getContent());
+        self::assertSelectorNotExists('[data-test="import-type-extension-fields"]');
     }
 
-    public function testReportShowsCodesButNoCellValuesAndIsHiddenFromOtherUsers(): void
+    public function testDetailPageShowsCodesButNoCellValuesAndIsHiddenFromUsersWithoutGrant(): void
     {
         $importId = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()
             ->visit('a', '2026-10-01T08:15')
@@ -162,17 +149,13 @@ final class EncounterImportControllerTest extends WebTestCase
             ->build(), 'with reject');
 
         $this->client->loginUser($this->uploader);
-        $this->client->request(Request::METHOD_GET, '/encounter/imports/'.$importId);
+        $this->client->request(Request::METHOD_GET, '/import/'.$importId);
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-test="reject-row"]', 'heart_rate: out_of_range');
         self::assertStringNotContainsString('377', (string) $this->client->getResponse()->getContent());
 
-        // The hospital owner has no encounter grant: not found, also on the generic import pages.
-        $owner = $this->hospital->getOwner();
-        self::assertInstanceOf(User::class, $owner);
-        $this->client->loginUser($owner);
-        $this->client->request(Request::METHOD_GET, '/encounter/imports/'.$importId);
-        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        // The hospital owner has hospital access but no encounter grant (ADR 027).
+        $this->client->loginUser($this->owner());
         $this->client->request(Request::METHOD_GET, '/import/'.$importId);
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -182,27 +165,27 @@ final class EncounterImportControllerTest extends WebTestCase
         $importId = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::rawVendorExport(), 'raw');
 
         $this->client->loginUser($this->uploader);
-        $this->client->request(Request::METHOD_GET, '/encounter/imports/'.$importId);
+        $this->client->request(Request::METHOD_GET, '/import/'.$importId);
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-test="encounter-file-rejection"]');
         self::assertSelectorExists('[data-test="encounter-source-deleted"]');
-        self::assertSelectorNotExists('#encounter-import-reprocess-modal');
+        self::assertSelectorNotExists('#import-reprocess-modal');
         self::assertStringNotContainsString('Muster', (string) $this->client->getResponse()->getContent());
     }
 
-    public function testUploaderReprocessesAnImport(): void
+    public function testUploaderReprocessesAnImportAfterTheWarning(): void
     {
         $importId = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build(), 'reprocess me');
 
         $this->client->loginUser($this->uploader);
-        $crawler = $this->client->request(Request::METHOD_GET, '/encounter/imports/'.$importId);
-        $token = $crawler->filter('#encounter-import-reprocess-modal input[name="_token"]')->attr('value');
-        $this->client->request(Request::METHOD_POST, '/encounter/imports/'.$importId.'/reprocess', ['_token' => $token]);
+        $crawler = $this->client->request(Request::METHOD_GET, '/import/'.$importId);
+        $modal = $crawler->filter('#import-reprocess-modal');
+        self::assertStringContainsString('review decisions', $modal->text());
+        $this->client->request(Request::METHOD_POST, '/import/'.$importId.'/reprocess', ['_token' => $modal->filter('input[name="_token"]')->attr('value')]);
 
-        self::assertResponseRedirects('/encounter/imports/'.$importId);
+        self::assertResponseRedirects('/import/'.$importId.'/processing');
         $this->entityManager()->clear();
-        $import = $this->entityManager()->find(Import::class, $importId);
-        self::assertSame(2, $import?->getRunCount());
+        self::assertSame(2, $this->entityManager()->find(Import::class, $importId)?->getRunCount());
         self::assertSame(1, $this->encounterCount($importId));
     }
 
@@ -211,31 +194,28 @@ final class EncounterImportControllerTest extends WebTestCase
         $kept = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build(), 'kept');
         $deleted = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->visit('b', '2026-10-01T09:15')->build(), 'to delete');
         self::assertSame(1, $this->encounterCount($deleted));
-        self::assertTrue($this->sourceFileExists($deleted));
-        $this->entityManager()->clear();
         $import = $this->entityManager()->find(Import::class, $deleted);
         self::assertInstanceOf(Import::class, $import);
         $sourcePath = $this->projectDir().'/'.$import->getFilePath();
+        self::assertFileExists($sourcePath);
 
         $this->client->loginUser($this->uploader);
-        $crawler = $this->client->request(Request::METHOD_GET, '/encounter/imports/'.$deleted);
-        self::assertSelectorExists('[data-test="encounter-delete-warning"]');
-        $token = $crawler->filter('#encounter-import-delete-modal input[name="_token"]')->attr('value');
-        $this->client->request(Request::METHOD_POST, '/encounter/imports/'.$deleted.'/delete', ['_token' => $token]);
+        $crawler = $this->client->request(Request::METHOD_GET, '/import/'.$deleted);
+        $modal = $crawler->filter('#import-delete-modal');
+        self::assertStringContainsString('Visits of other imports stay', $modal->text());
+        $this->client->request(Request::METHOD_POST, '/import/'.$deleted.'/delete', ['_token' => $modal->filter('input[name="_token"]')->attr('value')]);
 
-        self::assertResponseRedirects('/encounter/imports');
+        self::assertResponseRedirects('/import');
         $this->entityManager()->clear();
         self::assertNull($this->entityManager()->find(Import::class, $deleted));
         self::assertSame(0, $this->encounterCount($deleted));
         self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter_import WHERE import_id = ?', [$deleted]));
         self::assertFileDoesNotExist($sourcePath);
         self::assertSame(1, $this->encounterCount($kept), 'Visits of other imports stay.');
-        $audit = $this->connection()->fetchOne(
-            "SELECT metadata FROM audit_log WHERE entity_class = ? AND action = 'delete'",
-            [EncounterImport::class],
-        );
-        self::assertIsString($audit);
-        self::assertStringContainsString('encounter.import.deleted', $audit);
+        self::assertSame(1, (int) $this->connection()->fetchOne(
+            "SELECT COUNT(*) FROM audit_log WHERE entity_class = ? AND entity_id = ? AND action = 'delete'",
+            [Import::class, (string) $deleted],
+        ));
     }
 
     public function testViewCasesUserAndOwnerWithoutGrantCannotDelete(): void
@@ -244,34 +224,56 @@ final class EncounterImportControllerTest extends WebTestCase
         $viewer = $this->user();
         $this->hospitalGrant($this->hospital, $viewer);
         $this->encounterGrant($this->hospital, $viewer, [EncounterGrantAction::ViewCases]);
-        $owner = $this->hospital->getOwner();
-        self::assertInstanceOf(User::class, $owner);
 
-        foreach ([$viewer, $owner] as $user) {
+        foreach ([$viewer, $this->owner()] as $user) {
             $this->client->loginUser($user);
-            $this->client->request(Request::METHOD_POST, '/encounter/imports/'.$importId.'/delete', ['_token' => 'irrelevant']);
-            self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+            $this->client->request(Request::METHOD_POST, '/import/'.$importId.'/delete', ['_token' => 'irrelevant']);
+            self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
         }
 
         self::assertSame(1, $this->encounterCount($importId));
     }
 
-    public function testEncounterImportsAreNotListedOnTheGenericImportPage(): void
+    public function testImportListShowsEncounterImportsOnlyToUploaders(): void
     {
-        $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build(), 'hidden encounter import');
-        $owner = $this->hospital->getOwner();
-        self::assertInstanceOf(User::class, $owner);
-        $owner->setRoles(['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_ENCOUNTER_BETA']);
+        $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build(), 'listed encounter import');
 
-        $this->client->loginUser($owner);
+        $this->client->loginUser($this->owner());
         $this->client->request(Request::METHOD_GET, '/import');
         self::assertResponseIsSuccessful();
-        self::assertStringNotContainsString('hidden encounter import', (string) $this->client->getResponse()->getContent());
+        self::assertStringNotContainsString('listed encounter import', (string) $this->client->getResponse()->getContent());
 
         $this->client->loginUser($this->uploader);
-        $this->client->request(Request::METHOD_GET, '/encounter/imports');
+        $this->client->request(Request::METHOD_GET, '/import');
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('[data-test="encounter-import-row"]', 'hidden encounter import');
+        self::assertStringContainsString('listed encounter import', (string) $this->client->getResponse()->getContent());
+    }
+
+    private function submitUpload(string $name, string $content, bool $confirm = true): void
+    {
+        $this->client->loginUser($this->uploader);
+        $crawler = $this->client->request(Request::METHOD_GET, '/import/new');
+        $form = $crawler->filter('form[name="import_create"]')->form();
+        $form['import_create[name]'] = $name;
+        $form['import_create[hospital]'] = (string) $this->hospital->getId();
+        $form['import_create[type]'] = $crawler->filter('select[name="import_create[type]"] option')
+            ->reduce(static fn ($option): bool => str_contains($option->text(), 'Encounter data'))
+            ->attr('value') ?? '';
+        $form['import_create[encounterSchema]'] = 'ed_visit';
+        if ($confirm) {
+            $this->checkbox($form, 'import_create[encounterConfirmation]')->tick();
+        }
+
+        $this->fileField($form, 'import_create[file]')->upload($this->file($content));
+        $this->client->submit($form);
+    }
+
+    private function owner(): User
+    {
+        $owner = $this->hospital->getOwner();
+        self::assertInstanceOf(User::class, $owner);
+
+        return $owner;
     }
 
     private function checkbox(Form $form, string $name): ChoiceFormField

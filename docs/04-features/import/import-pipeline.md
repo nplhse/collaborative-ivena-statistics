@@ -10,8 +10,8 @@ Upload/dispatch is separated from processing in the worker.
 - Allocation records
 - MCI/MANV-related rows
 - Closure intervals, when the upload is a closure list and the user has `ROLE_CLOSURE_BETA` ([closure-import.md](closure-import.md))
-- Encounters (ED visits) from canonical `ed_visit` files, uploaded on the encounter pages with the encounter
-  grants (`ImportType::ENCOUNTER`, [encounter README](../encounter/README.md#import))
+- Encounters (ED visits) from canonical `ed_visit` files (`ImportType::ENCOUNTER`), with the encounter beta
+  role and grant `UPLOAD` ([encounter README](../encounter/README.md#import))
 - Rejected rows are recorded as rejects
 
 Source: CSV or plain-text files (`.csv`, `.txt`) uploaded through the import UI.
@@ -167,10 +167,12 @@ number, field, error code and profile version only, never the row or a cell valu
 
 `ImportType::ENCOUNTER` reuses the import runs (`ImportRunLifecycle`, `ImportRunCommitGuard`), the
 previous-run cleanup, deletion (`ImportDeletionService` with `EncounterImportDataRemover`) and the data coverage
-of the other types. Everything else belongs to the Encounter context: upload form, message
-(`ImportEncountersMessage`), handler, pages under `/encounter/imports` and the access checks of the encounter
-grants. The generic import pages neither list nor open encounter imports (`ListImportsQuery`,
-`ImportVoter`). Details: [encounter README](../encounter/README.md#import).
+of the other types, and the import pages. The Encounter context contributes through two extension points:
+its workflow dispatcher (`import.workflow_dispatcher`) and `EncounterImportTypeExtension`
+(`import.type_extension`): the type in the upload form with its extra fields and checks, access for
+`ImportVoter` and `ListImportsQuery` by the encounter grants, and a section on the detail page. Message
+(`ImportEncountersMessage`) and handler belong to the Encounter context. Details:
+[encounter README](../encounter/README.md#import).
 
 ## Related documentation
 

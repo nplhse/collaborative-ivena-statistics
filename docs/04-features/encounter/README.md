@@ -94,13 +94,19 @@ Implemented in #1048. `ImportType::ENCOUNTER` runs through the import runs of th
 (queue, supersede, guarded commits, cleanup before a reprocess, deletion); the rest lives in the Encounter
 context.
 
-**Upload** (`/encounter/imports/new`, list at `/encounter/imports`): beta role and `UPLOAD` on the hospital
-(or `ROLE_ADMIN`). The form has hospital, name, schema (`ed_visit`), the CSV file and a required
-confirmation that the file was produced with the data preparation tool and contains no direct
-identifiers. The confirmation is stored on `encounter_import` (`confirmed_by`, `confirmed_at`) and
-audited (`encounter.import.created`), together with the hospital's key generation at upload. Uploads
-are refused while the hospital's key change is in progress. The page links to the `/encounter`
-overview for the tool (#1051). Encounter imports never appear on the generic import pages.
+Encounter imports use the same import pages as allocation and closure imports (upload form, list,
+detail page, processing page, reprocess and delete). The Encounter context plugs into them through the
+`import.type_extension` extension point (`EncounterImportTypeExtension`), so `Import` does not depend
+on it.
+
+**Upload** (`/import/new`, type "Encounter data (beta)"): offered to users with the beta role and
+`UPLOAD` on at least one hospital (or `ROLE_ADMIN`); the hospital list then also contains the hospitals
+with `UPLOAD`, even without the hospital permission `Import`. For this type the form has a schema
+(`ed_visit`) and a required confirmation that the file was produced with the data preparation tool and
+contains no direct identifiers; its help links to the `/encounter` page for the tool (#1051). The
+confirmation is stored on `encounter_import` (`confirmed_by`, `confirmed_at`, audited with the import
+creation), together with the hospital's key generation at upload. Uploads are refused while the
+hospital's key change is in progress.
 
 **File checks** (`EncounterFileReader`, `EncounterFileValidator`), each rejecting the whole file; the run
 fails with `invalid_file` and the reason is stored as `encounter_import.file_rejection`:
@@ -144,10 +150,12 @@ generation (earlier, or earlier in the same file) and a time anchor at most 15 m
 and recorded in `encounter_suspected_duplicate` (line, minutes, anchor sources, both visits). The report
 page lists them for users with `UPLOAD`, without case keys or timestamps. They are never merged.
 
-**Report** (`/encounter/imports/{id}`, `UPLOAD` on the hospital, otherwise not found): status, rows,
-new visits, known visits, skipped and rejected rows, suspected duplicates, profile, tool version, key
-generation, confirmation, file rejection, the reject list and the suspected-duplicate list. No file
-content.
+**List and detail page** (`/import`, `/import/{id}`): encounter imports are listed and opened only with
+`UPLOAD` on their hospital (or `ROLE_ADMIN`); hospital ownership or hospital grants alone do not show them
+(ADR 027). The detail page adds an encounter section: new visits, known visits, skipped and rejected
+rows, suspected duplicates, profile, tool version, key generation, confirmation, file rejection, the
+reject list and the suspected-duplicate list. No file content. Downloading the source file stays with
+administrators until source file retention (#1049).
 
 | Count | Meaning |
 |---|---|
@@ -159,14 +167,15 @@ content.
 The import status follows the rejection ratio as for other imports (`ImportEvaluation`). The data
 coverage counts the valid visits of the file (new and known) per day of their time anchor.
 
-**Reprocess** (`POST /encounter/imports/{id}/reprocess`, `UPLOAD`): the run removes the import's visits
+**Reprocess** (`/import/{id}/reprocess`, `UPLOAD`, only while the file is retained): the run removes the import's visits
 (their links and review decisions go with them) and imports the retained file again. The page warns
 before that links and review decisions of the import are lost.
 
-**Delete** (`POST /encounter/imports/{id}/delete`, `UPLOAD` via `EncounterAttribute::DELETE_IMPORT`): goes
-through `ImportDeletionService` like every import deletion and removes the import's visits with their
-IVENA links and review decisions, its rejects, report, suspected-duplicate records and source file. Visits
-of other imports stay (ADR 028). The page warns before; the deletion is audited (`encounter.import.deleted`).
+**Delete** (`/import/{id}/delete`, `UPLOAD` via `EncounterAttribute::DELETE_IMPORT`): goes through
+`ImportDeletionService` like every import deletion and removes the import's visits with their IVENA links
+and review decisions, its rejects, report, suspected-duplicate records and source file. Visits of other
+imports stay (ADR 028). The confirmation dialog says so; the deletion is audited like every import
+deletion.
 
 **Afterwards**: a successful run with new visits dispatches `EncountersImported` (hospital, import, anchor
 days of the inserted visits) for the matcher (#1053). Nothing consumes it yet.

@@ -625,6 +625,18 @@
         <source>import.coverage.gaps.column.days</source>
         <target>Duration</target>
       </trans-unit>
+      <trans-unit id="imp8A59819E" resname="import.delete.modal.body.encounter">
+        <source>import.delete.modal.body.encounter</source>
+        <target>Delete the encounter import “{name}”? All visits it created are removed, with their IVENA links and review decisions, its rejects and the uploaded file. Visits of other imports stay. This cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="impDEBC5472" resname="import.reprocess.modal.body.encounter">
+        <source>import.reprocess.modal.body.encounter</source>
+        <target>Reprocess the encounter import “{name}”? All visits it created are removed first, with their IVENA links and review decisions, and the retained file is imported again. Links and review decisions of this import are lost.</target>
+      </trans-unit>
+      <trans-unit id="imp1B9478E5" resname="label.import.encounter.fields">
+        <source>label.import.encounter.fields</source>
+        <target>Only for encounter data (beta)</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

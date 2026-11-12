@@ -38,6 +38,14 @@
                     {% if form.hospitalOverride is defined %}
                         {{ form_row(form.hospitalOverride) }}
                     {% endif %}
+                    {% if extension_fields|default([]) is not empty %}
+                        <fieldset class="form-fieldset" data-test="import-type-extension-fields">
+                            <div class="form-label text-secondary">{{ 'label.import.encounter.fields'|trans({}, 'import') }}</div>
+                            {% for name in extension_fields %}
+                                {{ form_row(attribute(form, name)) }}
+                            {% endfor %}
+                        </fieldset>
+                    {% endif %}
                     {{ form_row(form.file) }}
                     {{ form_row(form.submit) }}
                 {{ form_end(form) }}

@@ -7,12 +7,15 @@ namespace App\Import\UI\Http\Controller;
 use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Import\Application\Contracts\ImportTypeExtensionInterface;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Message\ImportClosuresMessage;
 use App\Import\Application\Service\DevelopmentHospitalOverride;
 use App\Import\Application\Service\FileChecksumCalculator;
 use App\Import\Application\Service\FileUploader;
 use App\Import\Application\Service\ImportRunLifecycle;
+use App\Import\Application\Service\ImportStartDispatcher;
+use App\Import\Application\Service\ImportTypeExtensionRegistry;
 use App\Import\Application\Service\ImportUploadGuard;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportRun;
@@ -55,6 +58,8 @@ final class NewImportController extends AbstractController
         private readonly HospitalPermissionAccess $hospitalPermissionAccess,
         private readonly ImportRunLifecycle $runLifecycle,
         private readonly DevelopmentHospitalOverride $hospitalOverride,
+        private readonly ImportTypeExtensionRegistry $typeExtensions,
+        private readonly ImportStartDispatcher $startDispatcher,
     ) {
     }
 
@@ -63,8 +68,11 @@ final class NewImportController extends AbstractController
         #[Autowire(service: 'limiter.import_create')]
         RateLimiterFactory $importCreateLimiter,
     ): Response {
+        $currentUser = $this->getUser();
+        $extensions = $currentUser instanceof User ? $this->typeExtensions->availableTo($currentUser) : [];
         $form = $this->createForm(ImportCreateType::class, null, [
             'include_closure_type' => $this->isGranted(UserRole::CLOSURE_BETA),
+            'type_extensions' => $extensions,
         ]);
         $form->handleRequest($request);
 
@@ -77,16 +85,34 @@ final class NewImportController extends AbstractController
         }
 
         if (!$form->isSubmitted() || !$form->isValid()) {
-            return $this->render('@Import/new.html.twig', [
-                'form' => $form->createView(),
-            ]);
+            return $this->renderUploadForm($form, $extensions);
         }
 
         /** @var Hospital $hospital */
         $hospital = $form->get('hospital')->getData();
         $user = $this->getUser();
         $hospitalId = $hospital->getId();
-        if (!$user instanceof User || null === $hospitalId || !$this->hospitalPermissionAccess->hasPermission($user, $hospitalId, HospitalPermission::Import)) {
+        $importType = $this->resolveImportType($form);
+        $extension = $this->typeExtensions->for($importType);
+        if (!$user instanceof User || null === $hospitalId) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if ($extension instanceof ImportTypeExtensionInterface) {
+            // Types of other contexts decide access themselves (`import.type_extension`).
+            if (!$extension->isAvailableTo($user) || !\in_array($hospitalId, $extension->uploadHospitalIds($user), true)) {
+                throw $this->createAccessDeniedException();
+            }
+
+            $errors = $extension->validateUpload($form, $hospital, $user);
+            foreach ($errors as $field => $message) {
+                $form->get($form->has($field) ? $field : 'file')->addError(new FormError($message));
+            }
+
+            if ([] !== $errors) {
+                return $this->renderUploadForm($form, $extensions);
+            }
+        } elseif (!$this->hospitalPermissionAccess->hasPermission($user, $hospitalId, HospitalPermission::Import)) {
             throw $this->createAccessDeniedException();
         }
 
@@ -101,7 +127,6 @@ final class NewImportController extends AbstractController
             return $this->redirectToRoute('app_import_new');
         }
 
-        $importType = $this->resolveImportType($form);
         if (ImportType::CLOSURE === $importType && !$this->isGranted(UserRole::CLOSURE_BETA)) {
             throw $this->createAccessDeniedException();
         }
@@ -119,9 +144,7 @@ final class NewImportController extends AbstractController
         if (!$file instanceof UploadedFile) {
             $this->addFlash('error', new TranslatableMessage('flash.import.no_file_uploaded', domain: 'import'));
 
-            return $this->render('@Import/new.html.twig', [
-                'form' => $form->createView(),
-            ]);
+            return $this->renderUploadForm($form, $extensions);
         }
 
         $clientMime = $file->getClientMimeType();
@@ -133,9 +156,7 @@ final class NewImportController extends AbstractController
             $message = $this->translator->trans('validation.import.excel_rejected', [], 'validators');
             $form->get('file')->addError(new FormError($message));
 
-            return $this->render('@Import/new.html.twig', [
-                'form' => $form->createView(),
-            ]);
+            return $this->renderUploadForm($form, $extensions);
         }
 
         $import = new Import()
@@ -157,6 +178,7 @@ final class NewImportController extends AbstractController
         $import->setFileChecksum($checksum);
 
         $this->em->persist($import);
+        $extension?->onImportCreated($import, $form, $user);
         $this->auditContext->beginIntent('import.created', []);
         try {
             $this->em->flush();
@@ -168,6 +190,14 @@ final class NewImportController extends AbstractController
 
         if (null === $importId) {
             throw new \LogicException('Persisted Import entity has no ID.');
+        }
+
+        if ($extension instanceof ImportTypeExtensionInterface) {
+            // Registered and queued by the type's workflow dispatcher (`import.workflow_dispatcher`).
+            $this->startDispatcher->dispatch($importId, $userId, ImportRunTrigger::Upload);
+            $this->addFlash('success', new TranslatableMessage('flash.import.created', domain: 'import'));
+
+            return $this->redirectToRoute('app_import_processing', ['id' => $importId]);
         }
 
         // Registration and message are committed together; a failure leaves neither behind.
@@ -187,6 +217,23 @@ final class NewImportController extends AbstractController
         $this->addFlash('success', new TranslatableMessage('flash.import.created', domain: 'import'));
 
         return $this->redirectToRoute('app_import_processing', ['id' => $importId]);
+    }
+
+    /**
+     * @param FormInterface<mixed>               $form
+     * @param list<ImportTypeExtensionInterface> $extensions
+     */
+    private function renderUploadForm(FormInterface $form, array $extensions): Response
+    {
+        $extensionFields = [];
+        foreach ($extensions as $extension) {
+            $extensionFields = [...$extensionFields, ...$extension->formFields()];
+        }
+
+        return $this->render('@Import/new.html.twig', [
+            'form' => $form->createView(),
+            'extension_fields' => $extensionFields,
+        ]);
     }
 
     /**
