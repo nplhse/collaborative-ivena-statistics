@@ -1,0 +1,101 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{# Encounter data overview (#1055): one hospital, statistics period; figures from the Encounter context. #}
+{% set d = 'encounter' %}
+{% set threshold = constant('App\\Encounter\\Application\\Glossary\\MtsCount::THRESHOLD') %}
+{% set max_hours = constant('App\\Encounter\\Application\\Overview\\ProcessInterval::MAX_PLAUSIBLE_MINUTES') / 60 %}
+
+{% block title %}{{ 'stats.encounter.heading'|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}{{ include('@Shared/_includes/subnav_stats.html.twig') }}{% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
+            { label: 'stats.encounter.heading', label_domain: 'statistics' }
+        ]" />
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col min-w-0">
+                    <div class="page-pretitle">{{ 'stats.encounter.pretitle'|trans({}, 'statistics') }}</div>
+                    <h2 class="page-title mb-0" data-testid="encounter-overview-heading">{{ 'stats.encounter.heading'|trans({}, 'statistics') }}</h2>
+                </div>
+                {{ include('@Statistics/_header_controls.html.twig') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <nav class="overflow-x-auto mb-4" aria-label="{{ 'stats.encounter.tabs.label'|trans({}, 'statistics') }}" data-testid="encounter-overview-tabs">
+        <ul class="nav nav-tabs analytics-library-tabs flex-nowrap" role="tablist">
+            {% for key in tabs %}
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link{{ tab == key ? ' active' }}"
+                       href="{{ path('app_stats_encounter_analytics', tabQuery|merge(key != 'overview' ? {tab: key} : {})) }}"
+                       {% if tab == key %}aria-current="page"{% endif %}
+                       data-testid="encounter-overview-tab-{{ key }}">
+                        {{ ('stats.encounter.tabs.' ~ key)|trans({}, 'statistics') }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </nav>
+
+    {% set route_labels = {
+        ems: 'encounter.arrival_route.ems'|trans({}, d),
+        self: 'encounter.arrival_route.self'|trans({}, d),
+        unknown: 'encounter.arrival_route.unknown'|trans({}, d),
+        total: 'stats.encounter.total'|trans({}, 'statistics'),
+    } %}
+    {% set route_colors = {ems: 'bg-blue', self: 'bg-teal', unknown: 'bg-secondary'} %}
+    {% set link_labels = {
+        automatic: 'encounter.link.automatic'|trans({}, d),
+        confirmed: 'encounter.link.confirmed'|trans({}, d),
+        not_linked: 'encounter.link.not_linked'|trans({}, d),
+    } %}
+    {% set link_colors = {automatic: 'bg-blue', confirmed: 'bg-green', not_linked: 'bg-secondary'} %}
+    {% set not_documented = 'stats.encounter.not_documented'|trans({}, 'statistics') %}
+    {% set category_labels = {'': not_documented} %}
+    {% for row in overview.categories|filter(r => r.key != '') %}
+        {% set category_labels = category_labels|merge({(row.key): ('encounter.mts.category.' ~ row.key ~ '.name')|trans({}, d)}) %}
+    {% endfor %}
+    {% set category_colors = {red: 'bg-red', orange: 'bg-orange', yellow: 'bg-yellow', green: 'bg-green', blue: 'bg-blue', '': 'bg-secondary'} %}
+    {% set disposition_labels = {'': not_documented} %}
+    {% for row in overview.dispositions|filter(r => r.key != '') %}
+        {% set disposition_labels = disposition_labels|merge({(row.key): ('encounter.disposition.' ~ row.key)|trans({}, d)}) %}
+    {% endfor %}
+    {% set care_level_labels = {'': not_documented} %}
+    {% for row in overview.careLevels|filter(r => r.key != '') %}
+        {% set care_level_labels = care_level_labels|merge({(row.key): ('encounter.care_level.' ~ row.key)|trans({}, d)}) %}
+    {% endfor %}
+    {% set diagram_labels = {other: 'stats.encounter.mts.other_diagrams'|trans({}, 'statistics'), '': not_documented} %}
+    {% for row in overview.diagrams|filter(r => r.key != '' and r.key != 'other') %}
+        {% set diagram_labels = diagram_labels|merge({(row.key): encounter_mts_diagram_name(row.key)}) %}
+    {% endfor %}
+
+    {% if overview.empty and tab != 'coverage' %}
+        <div data-testid="encounter-overview-empty">
+            <twig:EmptyState title="{{ 'stats.encounter.empty'|trans({}, 'statistics') }}" icon="tabler:calendar-off" />
+        </div>
+    {% elseif tab == 'overview' %}
+        {{ include('@Statistics/encounter_analytics/_tab_overview.html.twig') }}
+    {% elseif tab == 'process' %}
+        {{ include('@Statistics/encounter_analytics/_tab_process.html.twig') }}
+    {% elseif tab == 'link' %}
+        {{ include('@Statistics/encounter_analytics/_tab_link.html.twig') }}
+    {% elseif tab == 'distributions' %}
+        {{ include('@Statistics/encounter_analytics/_tab_distributions.html.twig') }}
+    {% else %}
+        {{ include('@Statistics/encounter_analytics/_tab_coverage.html.twig') }}
+    {% endif %}
+
+    <p class="small text-secondary mt-3 mb-0" data-testid="encounter-overview-method">
+        {{ 'stats.encounter.method'|trans({threshold: threshold}, 'statistics') }}
+    </p>
+{% endblock %}

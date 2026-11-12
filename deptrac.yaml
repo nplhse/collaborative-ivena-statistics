@@ -1122,6 +1122,8 @@ deptrac:
             - Allocation_UI
             - Analytics_Application
             - Analytics_Domain
+            # Documented partnership (#1055): the encounter analytics page reads Encounter's overview contracts.
+            - Encounter_Application
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure

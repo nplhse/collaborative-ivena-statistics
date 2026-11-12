@@ -1,0 +1,21 @@
+{# Distributions tab: full tables of MTS categories, diagrams, disposition and care level. #}
+<div class="row row-cards">
+    {% for table in [
+        {rows: overview.categories, labels: category_labels, testid: 'encounter-categories', title: 'stats.encounter.mts.categories'|trans({}, 'statistics'), header: 'encounter.course.field.category'|trans({}, d), info: 'stats.encounter.info.categories'|trans({}, 'statistics')},
+        {rows: overview.diagrams, labels: diagram_labels, testid: 'encounter-diagrams', title: 'stats.encounter.mts.diagrams'|trans({top: overview.diagramsShown}, 'statistics'), header: 'encounter.course.field.diagram'|trans({}, d), info: 'stats.encounter.info.diagrams'|trans({}, 'statistics')},
+        {rows: overview.dispositions, labels: disposition_labels, testid: 'encounter-dispositions', title: 'stats.encounter.disposition.title'|trans({}, 'statistics'), header: 'encounter.course.field.disposition'|trans({}, d), info: 'stats.encounter.info.dispositions'|trans({}, 'statistics')},
+        {rows: overview.careLevels, labels: care_level_labels, testid: 'encounter-care-levels', title: 'stats.encounter.care_level.title'|trans({}, 'statistics'), header: 'encounter.course.field.care_level'|trans({}, d), info: 'stats.encounter.info.care_levels'|trans({visits: overview.careLevelDenominator}, 'statistics')},
+    ] %}
+        <div class="col-12 col-lg-6">
+            <div class="card h-100">
+                {{ include('@Statistics/encounter_analytics/_card_header.html.twig', {title: table.title, info: table.info}) }}
+                {{ include('@Statistics/encounter_analytics/_count_table.html.twig', {
+                    rows: table.rows,
+                    labels: table.labels,
+                    testid: table.testid,
+                    label_header: table.header,
+                }) }}
+            </div>
+        </div>
+    {% endfor %}
+</div>

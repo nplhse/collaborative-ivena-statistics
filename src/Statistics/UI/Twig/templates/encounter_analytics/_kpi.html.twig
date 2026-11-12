@@ -1,7 +1,7 @@
 {# KPI tile as in the statistics overview: subheader, large value, muted detail. #}
 <div class="card" data-testid="encounter-kpi" data-kpi="{{ key }}">
     <div class="card-body">
-        <div class="subheader d-flex align-items-center">{{ title }}{% if info is defined and info %}{{ include('@Encounter/overview/_info.html.twig', {text: info}) }}{% endif %}</div>
+        <div class="subheader d-flex align-items-center">{{ title }}{% if info is defined and info %}{{ include('@Statistics/encounter_analytics/_info.html.twig', {text: info}) }}{% endif %}</div>
         <div class="h1 mt-2 mb-0" data-testid="encounter-kpi-value">{{ value }}</div>
         {% if detail is defined and detail %}<div class="text-secondary">{{ detail }}</div>{% endif %}
     </div>

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Encounter\UI\Overview;
+namespace App\Encounter\Application\Overview;
 
 use App\Encounter\Application\Contract\EncounterAccessGrantRepositoryInterface;
 use App\Encounter\Application\Contract\EncounterOverviewReaderInterface;
@@ -12,10 +12,11 @@ use App\User\Domain\Security\UserRole;
 use Symfony\Bundle\SecurityBundle\Security;
 
 /**
- * Hospitals whose encounter overview the current user may open (#1055): administrators every hospital
- * with stored visits, everyone else the hospitals of their encounter grants with VIEW_AGGREGATES.
+ * Hospitals whose encounter data the current user may see as descriptive aggregates (#1055):
+ * administrators every hospital with stored visits, everyone else the hospitals of their encounter
+ * grants with VIEW_AGGREGATES. Read by the encounter analytics page in Statistics, one hospital at a time.
  */
-final readonly class OverviewHospitalChoices
+final readonly class AggregateHospitalScope
 {
     /** @psalm-suppress PossiblyUnusedMethod Wired by the container. */
     public function __construct(

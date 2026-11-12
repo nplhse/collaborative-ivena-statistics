@@ -541,6 +541,10 @@
         <source>label.data_table.row_details_link</source>
         <target>Details ansehen</target>
       </trans-unit>
+      <trans-unit id="sharedEnc7e2c697c" resname="link.stats.encounter_analytics">
+        <source>link.stats.encounter_analytics</source>
+        <target>Behandlungsdaten (Beta)</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

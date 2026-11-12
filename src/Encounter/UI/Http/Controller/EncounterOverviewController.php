@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Encounter\UI\Http\Controller;
 
 use App\Encounter\Application\Contract\EncounterAccessGrantRepositoryInterface;
+use App\Encounter\Application\Overview\AggregateHospitalScope;
 use App\Encounter\UI\DataPrep\DataPrepRelease;
-use App\Encounter\UI\Overview\OverviewHospitalChoices;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,7 +23,7 @@ final class EncounterOverviewController extends AbstractController
     public function __construct(
         private readonly EncounterAccessGrantRepositoryInterface $grantRepository,
         private readonly DataPrepRelease $dataPrepRelease,
-        private readonly OverviewHospitalChoices $hospitalChoices,
+        private readonly AggregateHospitalScope $hospitalChoices,
     ) {
     }
 

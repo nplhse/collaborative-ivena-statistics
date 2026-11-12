@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Encounter\Unit\Application\Overview;
 
 use App\Encounter\Application\Overview\EncounterPeriod;
-use App\Encounter\Application\Overview\EncounterPeriodPreset;
 use PHPUnit\Framework\TestCase;
 
 final class EncounterPeriodTest extends TestCase
@@ -39,45 +38,16 @@ final class EncounterPeriodTest extends TestCase
     }
 
     /**
-     * Today: 12 November 2026.
+     * Statistics windows are half-open with midnight bounds; the encounter period keeps whole days.
      */
-    public function testPresetsFillWholeCalendarDays(): void
+    public function testTakesTheStatisticsWindowAsWholeDays(): void
     {
-        $today = new \DateTimeImmutable('2026-11-12 15:30');
+        $october = EncounterPeriod::fromBounds(new \DateTimeImmutable('2026-10-01 00:00'), new \DateTimeImmutable('2026-11-01 00:00'));
+        self::assertSame(['2026-10-01', '2026-10-31'], [$october->from?->format('Y-m-d'), $october->to?->format('Y-m-d')]);
+        self::assertSame('2026-11-01 00:00', $october->endExclusive()?->format('Y-m-d H:i'));
 
-        $last12 = EncounterPeriod::fromPreset('last_12_months', null, null, null, null, $today);
-        self::assertSame(['2025-12-01', null], $this->bounds($last12), 'First day of the month eleven months back, open end, as in Statistics.');
-        self::assertSame(['period' => 'last_12_months'], $last12->queryParameters());
-
-        $year = EncounterPeriod::fromPreset('year', '2026', null, null, null, $today);
-        self::assertSame(['2026-01-01', '2026-12-31'], $this->bounds($year));
-        self::assertSame(['period' => 'year', 'year' => '2026'], $year->queryParameters());
-
-        $february = EncounterPeriod::fromPreset('month', null, '2028-02', null, null, $today);
-        self::assertSame(['2028-02-01', '2028-02-29'], $this->bounds($february), 'Leap year.');
-        self::assertSame(EncounterPeriodPreset::Month, $february->preset);
-
-        $custom = EncounterPeriod::fromPreset('custom', null, null, '2026-10-10', '2026-10-12', $today);
-        self::assertSame(['period' => 'custom', 'from' => '2026-10-10', 'to' => '2026-10-12'], $custom->queryParameters());
-        self::assertSame(['2026-10-10', '2026-10-12'], $this->bounds(EncounterPeriod::fromPreset(null, null, null, '2026-10-10', '2026-10-12', $today)), 'Dates without preset are an own period.');
-    }
-
-    public function testIncompletePresetsFallBackToAllData(): void
-    {
-        $today = new \DateTimeImmutable('2026-11-12');
-
-        foreach ([['year', '26', null], ['month', null, '2026-13'], ['custom', null, null], ['unknown', null, null], [null, null, null]] as [$preset, $year, $month]) {
-            $period = EncounterPeriod::fromPreset($preset, $year, $month, null, null, $today);
-            self::assertTrue($period->isAllTime(), (string) $preset);
-            self::assertSame([], $period->queryParameters());
-        }
-    }
-
-    /**
-     * @return array{?string, ?string}
-     */
-    private function bounds(EncounterPeriod $period): array
-    {
-        return [$period->from?->format('Y-m-d'), $period->to?->format('Y-m-d')];
+        $last12 = EncounterPeriod::fromBounds(new \DateTimeImmutable('2025-12-01 00:00'), null);
+        self::assertNull($last12->to);
+        self::assertTrue(EncounterPeriod::fromBounds(null, null)->isAllTime());
     }
 }

@@ -1,7 +1,0 @@
-{%- set p = overview.period -%}
-{%- if p.preset.value == 'all_time' -%}{{ 'encounter.overview_page.period.all_time'|trans({}, 'encounter') }}
-{%- elseif p.preset.value == 'last_12_months' -%}{{ 'encounter.overview_page.period.last_12_months'|trans({}, 'encounter') }}
-{%- elseif p.preset.value == 'year' -%}{{ p.from|date('Y') }}
-{%- elseif p.preset.value == 'month' -%}{{ p.from|format_date(pattern: 'MMMM yyyy') }}
-{%- else -%}{{ p.from ? p.from|date('d.m.Y') : '…' }} – {{ p.to ? p.to|date('d.m.Y') : '…' }}
-{%- endif -%}

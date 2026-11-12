@@ -4,13 +4,13 @@
         {% set boxes = (overview.processBoxes[row.interval.value] ?? [])|filter(b => not b.suppressed) %}
         <div class="col-12 col-xl-4">
             <div class="card h-100" data-testid="encounter-process-box" data-interval="{{ row.interval.value }}">
-                {{ include('@Encounter/overview/_card_header.html.twig', {
+                {{ include('@Statistics/encounter_analytics/_card_header.html.twig', {
                     title: ('encounter.process.' ~ row.interval.value ~ '.label')|trans({}, d),
-                    info: ('encounter.process.' ~ row.interval.value ~ '.definition')|trans({}, d) ~ ' ' ~ 'encounter.overview_page.info.box_plot'|trans({threshold: threshold}, d),
+                    info: ('encounter.process.' ~ row.interval.value ~ '.definition')|trans({}, d) ~ ' ' ~ 'stats.encounter.info.box_plot'|trans({threshold: threshold}, 'statistics'),
                 }) }}
                 <div class="card-body">
                     {% if boxes is empty %}
-                        <p class="text-secondary mb-0">{{ 'encounter.overview_page.process.suppressed'|trans({threshold: threshold}, d) }}</p>
+                        <p class="text-secondary mb-0">{{ 'stats.encounter.process.suppressed'|trans({threshold: threshold}, 'statistics') }}</p>
                     {% else %}
                         <div data-controller="encounter-overview-chart" data-encounter-overview-chart-chart-value="{{ {
                             type: 'boxPlot',
@@ -29,21 +29,21 @@
 </div>
 
 <div class="card">
-    {{ include('@Encounter/overview/_card_header.html.twig', {
-        title: 'encounter.overview_page.process.title'|trans({}, d),
-        info: 'encounter.overview_page.info.process'|trans({hours: max_hours, threshold: threshold}, d),
+    {{ include('@Statistics/encounter_analytics/_card_header.html.twig', {
+        title: 'stats.encounter.process.title'|trans({}, 'statistics'),
+        info: 'stats.encounter.info.process'|trans({hours: max_hours, threshold: threshold}, 'statistics'),
     }) }}
     <div class="table-responsive">
         <table class="table card-table table-vcenter" data-testid="encounter-process-times">
             <thead>
                 <tr>
-                    <th>{{ 'encounter.overview_page.process.interval'|trans({}, d) }}</th>
-                    <th class="text-end">{{ 'encounter.overview_page.process.median'|trans({}, d) }}</th>
-                    <th class="text-end">{{ 'encounter.overview_page.process.iqr'|trans({}, d) }}</th>
-                    <th class="text-end">{{ 'encounter.overview_page.process.valid'|trans({}, d) }}</th>
-                    <th class="text-end">{{ 'encounter.overview_page.process.missing'|trans({}, d) }}</th>
-                    <th class="text-end">{{ 'encounter.overview_page.process.negative'|trans({}, d) }}</th>
-                    <th class="text-end">{{ 'encounter.overview_page.process.implausible'|trans({hours: max_hours}, d) }}</th>
+                    <th>{{ 'stats.encounter.process.interval'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.encounter.process.median'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.encounter.process.iqr'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.encounter.process.valid'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.encounter.process.missing'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.encounter.process.negative'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.encounter.process.implausible'|trans({hours: max_hours}, 'statistics') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -54,7 +54,7 @@
                             <div class="small text-secondary">{{ ('encounter.process.' ~ row.interval.value ~ '.definition')|trans({}, d) }}</div>
                         </td>
                         {% if row.suppressed %}
-                            <td class="text-end text-secondary" colspan="2" data-testid="encounter-process-suppressed">{{ 'encounter.overview_page.process.suppressed'|trans({threshold: threshold}, d) }}</td>
+                            <td class="text-end text-secondary" colspan="2" data-testid="encounter-process-suppressed">{{ 'stats.encounter.process.suppressed'|trans({threshold: threshold}, 'statistics') }}</td>
                         {% else %}
                             <td class="text-end text-nowrap" data-testid="encounter-process-median">{{ 'encounter.unit.minutes_decimal'|trans({minutes: row.median|round(1)}, d) }}</td>
                             <td class="text-end text-nowrap" data-testid="encounter-process-iqr">{{ row.q1|round(1)|format_number({max_fraction_digit: 1}) }} – {{ 'encounter.unit.minutes_decimal'|trans({minutes: row.q3|round(1)}, d) }}</td>

@@ -1,6 +1,6 @@
 {# Distribution card as in the statistics overview: one progress bar per row (OverviewCount), share of the card's denominator. Rows without visits are left out. #}
 <div class="card" data-testid="{{ testid }}">
-    {{ include('@Encounter/overview/_card_header.html.twig') }}
+    {{ include('@Statistics/encounter_analytics/_card_header.html.twig') }}
     <div class="card-body">
         {% set shown = rows|filter(r => r.count.suppressed or r.count.value > 0) %}
         {% for row in shown %}

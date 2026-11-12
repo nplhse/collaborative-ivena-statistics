@@ -1,9 +1,9 @@
 {# IVENA link tab: arrival route × link status as stacked bars and table. #}
 {% set route_rows = overview.routeLink|filter(r => r.route != 'total') %}
 <div class="card">
-    {{ include('@Encounter/overview/_card_header.html.twig', {
-        title: 'encounter.overview_page.route_link.title'|trans({}, d),
-        info: 'encounter.overview_page.route_link.intro'|trans({}, d) ~ ' ' ~ 'encounter.overview_page.route_link.note'|trans({}, d),
+    {{ include('@Statistics/encounter_analytics/_card_header.html.twig', {
+        title: 'stats.encounter.route_link.title'|trans({}, 'statistics'),
+        info: 'stats.encounter.route_link.intro'|trans({}, 'statistics') ~ ' ' ~ 'stats.encounter.route_link.note'|trans({}, 'statistics'),
     }) }}
     <div class="card-body">
         <div data-controller="encounter-overview-chart" data-encounter-overview-chart-chart-value="{{ {
@@ -21,23 +21,23 @@
         <table class="table card-table table-vcenter" data-testid="encounter-route-link">
             <thead>
                 <tr>
-                    <th>{{ 'encounter.overview_page.column.arrival_route'|trans({}, d) }}</th>
+                    <th>{{ 'stats.encounter.column.arrival_route'|trans({}, 'statistics') }}</th>
                     <th class="text-end" colspan="2">{{ link_labels.automatic }}</th>
                     <th class="text-end" colspan="2">{{ link_labels.confirmed }}</th>
                     <th class="text-end" colspan="2">{{ 'encounter.link.linked'|trans({}, d) }}</th>
                     <th class="text-end" colspan="2">{{ link_labels.not_linked }}</th>
-                    <th class="text-end">{{ 'encounter.overview_page.total'|trans({}, d) }}</th>
+                    <th class="text-end">{{ 'stats.encounter.total'|trans({}, 'statistics') }}</th>
                 </tr>
             </thead>
             <tbody>
                 {% for row in overview.routeLink %}
                     <tr data-testid="encounter-route-link-row" data-route="{{ row.route }}" class="{{ row.route == 'total' ? 'fw-semibold' }}">
                         <td>{{ route_labels[row.route] }}</td>
-                        {{ include('@Encounter/overview/_count_cell.html.twig', {row: row.automatic}) }}
-                        {{ include('@Encounter/overview/_count_cell.html.twig', {row: row.confirmed}) }}
-                        {{ include('@Encounter/overview/_count_cell.html.twig', {row: row.linked}) }}
-                        {{ include('@Encounter/overview/_count_cell.html.twig', {row: row.notLinked}) }}
-                        {{ include('@Encounter/overview/_count_cell.html.twig', {row: row.total, with_share: false}) }}
+                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.automatic}) }}
+                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.confirmed}) }}
+                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.linked}) }}
+                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.notLinked}) }}
+                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.total, with_share: false}) }}
                     </tr>
                 {% endfor %}
             </tbody>

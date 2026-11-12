@@ -1,7 +1,7 @@
 {# Segmented bar with legend as in the statistics overview (gender, urgency). Suppressed segments are not drawn; the legend shows "< 5". #}
 <div class="card" data-testid="{{ testid }}">
     <div class="card-body">
-        <p class="mb-2 d-flex align-items-center">{{ title }}{% if info is defined and info %}{{ include('@Encounter/overview/_info.html.twig', {text: info}) }}{% endif %}</p>
+        <p class="mb-2 d-flex align-items-center">{{ title }}{% if info is defined and info %}{{ include('@Statistics/encounter_analytics/_info.html.twig', {text: info}) }}{% endif %}</p>
         <div class="progress progress-separated mb-3">
             {% for seg in segments %}
                 {% if seg.share is not null %}

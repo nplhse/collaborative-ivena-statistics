@@ -33,7 +33,7 @@
         {% else %}
             <div class="list-group list-group-flush">
                 {% for id, name in overview_hospitals %}
-                    <a class="list-group-item list-group-item-action" href="{{ path('app_encounter_hospital_overview', {id: id}) }}" data-testid="encounter-overview-hospital" data-hospital="{{ id }}">{{ name }}</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path('app_stats_encounter_analytics', {scope: 'hospital', hospital: id}) }}" data-testid="encounter-overview-hospital" data-hospital="{{ id }}">{{ name }}</a>
                 {% endfor %}
             </div>
         {% endif %}

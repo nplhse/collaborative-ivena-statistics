@@ -407,26 +407,31 @@ care level. No cross-hospital aggregates.
 
 ### Hospital overview
 
-Implemented in #1055. Page `/encounter/hospital/{id}` ("Analysis" / "Auswertung"), linked from
-the pilot entry page `/encounter`, which lists every hospital the user may see aggregates of
-(administrators: every hospital with stored visits). It follows the layout of the statistics pages:
-hospital and period are context buttons in the page header that open a filter drawer (hospital choice
-among the same hospitals, submitted to `/encounter/hospital`, which redirects; period presets below);
-an active period shows as a filter badge; the content is split into tabs (`?tab=`): overview (KPI deck,
-segmented bars for arrival route and MTS categories, visits over time, distribution cards), process
-times (box plots and table), IVENA link (route × link), distributions (full tables) and data coverage.
-Definitions sit in info popovers on the card titles. Access: `EncounterAttribute::VIEW_AGGREGATES` on
-that hospital, i.e. beta role + any encounter grant + hospital permission `STATISTICS` (the owner holds
-it), or `ROLE_ADMIN`. Every figure belongs to exactly this hospital; the page never adds up hospitals and
-compares with none. Reads: `EncounterOverviewQuery` (`Infrastructure/Query/`, ADR 009) behind
-`EncounterOverviewReaderInterface`; suppression and ordering: `EncounterOverviewFactory`.
+Implemented in #1055. Statistics page `/statistics/encounter-analytics` ("Encounter data (beta)" in the
+statistics sub-navigation, title "Analysis" / "Auswertung"; `EncounterAnalyticsController` in `Statistics/UI`),
+also linked from the pilot entry page `/encounter` for every hospital the user may see aggregates of. It
+uses the statistics building blocks: the scope and period picker (`Statistics:AnalysisContext`) in
+`AnalysisContextScopeMode::AssignedHospital`, the statistics filter (`StatisticsFilterValueResolver`) and
+period window (`StatisticsPeriodResolver`), and the statistics page layout. The picker offers exactly the
+hospitals of `AggregateHospitalScope` (`EncounterAttribute::VIEW_AGGREGATES`: beta role + any encounter
+grant + hospital permission `STATISTICS`; administrators every hospital with stored visits) and no "my
+hospitals" aggregate; any other scope in the URL (public, state, cohort, another hospital) is redirected
+to `scope=hospital&hospital=<id>` of an allowed hospital. Users without such a hospital see a notice;
+without the beta role the page is forbidden. Content tabs (`?tab=`): overview (KPI deck, segmented bars
+for arrival route and MTS categories, visits over time, distribution cards), process times (box plots and
+table), IVENA link (route × link), distributions (full tables) and data coverage. Definitions sit in info
+popovers on the card titles. Every figure belongs to exactly one hospital; the page never adds up
+hospitals and compares with none. Reads: `EncounterOverviewQuery` (`Infrastructure/Query/`, ADR 009)
+behind `EncounterOverviewReaderInterface`; suppression and ordering: `EncounterOverviewFactory`.
+Statistics depends on these Encounter application contracts (documented partnership,
+[bounded-contexts.md](../../02-architecture/bounded-contexts.md)); Encounter does not depend on Statistics.
 
 **Common rules for every figure:**
 
 | Aspect | Rule |
 |---|---|
 | Population | All stored visits of the hospital (self-presenters, EMS arrivals with and without allocation, unknown route), all key generations, all imports. |
-| Period | Drawer presets (`EncounterPeriodPreset`, `?period=`): all data (default), last 12 months (from the first day of the month eleven months before today, open end, as in Statistics), a year (`year=YYYY`, 1 January – 31 December), a month (`month=YYYY-MM`) or an own period (`from`/`to` days, both inclusive); incomplete input means all data. A visit belongs to the period by its time anchor `anchor_at` (first assessment contact, else ED admission; local wall clock as exchanged), the same day the import coverage uses: `anchor_at >= from 00:00 AND anchor_at < to + 1 day 00:00`. Swapped bounds are put in order; invalid dates leave the bound open. |
+| Period | The statistics period of the picker (`period`, `year`, `quarter`, `month`): last 12 months (default, from the first day of the month eleven months before today, open end), all time, a calendar year, quarter or month ([statistics-filter-and-scope.md](../statistics/statistics-filter-and-scope.md#periods)). Its window `[from, toExclusive)` becomes whole days (`EncounterPeriod::fromBounds()`). A visit belongs to the period by its time anchor `anchor_at` (first assessment contact, else ED admission; local wall clock as exchanged), the same day the import coverage uses: `anchor_at >= from 00:00 AND anchor_at < toExclusive`. |
 | Filters | None besides hospital and period. |
 | Small cells | Counts from 1 to 4 are shown as `< 5` (ADR 012, `MtsCount`, `CatalogPrivacyPolicy::MIN_ALLOCATIONS`), without share, and left out of charts (`null`); 0 is shown as a dash. No complementary suppression: totals are shown when they reach 5, as in the MTS glossary. |
 | Comparison groups | None. |
