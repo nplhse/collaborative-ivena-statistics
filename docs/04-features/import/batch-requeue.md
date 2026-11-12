@@ -98,6 +98,7 @@ When an import is processed again (`runCount > 0`), or a run is redelivered afte
 - `import_reject` rows and the reject CSV file on disk
 - `allocation` and `mci_case` rows for that import
 - `assessment` records that were linked to those allocations (IDs collected before allocations are removed)
+- rows other contexts stored for the import (`ImportDataRemoverInterface`, for example the encounters it created)
 
 The `import` record and source CSV file are kept; only import-scoped result data is removed. Shared reference data (specialities, departments, indication catalog entries, etc.) is not deleted.
 

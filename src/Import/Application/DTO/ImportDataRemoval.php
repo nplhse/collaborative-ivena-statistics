@@ -11,10 +11,12 @@ final readonly class ImportDataRemoval
 {
     /**
      * @param array{projection: int, rejects: int, allocations: int, closure_intervals: int, assessments: int, mci_cases: int} $counts
+     * @param array<string, int>                                                                                               $contributedCounts rows removed by ImportDataRemoverInterface implementations, by key
      */
     public function __construct(
         public array $counts,
         public bool $needsMaterializedViewRefresh,
+        public array $contributedCounts = [],
     ) {
     }
 }
