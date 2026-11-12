@@ -10,6 +10,8 @@ Upload/dispatch is separated from processing in the worker.
 - Allocation records
 - MCI/MANV-related rows
 - Closure intervals, when the upload is a closure list and the user has `ROLE_CLOSURE_BETA` ([closure-import.md](closure-import.md))
+- Encounters (ED visits) from canonical `ed_visit` files, uploaded on the encounter pages with the encounter
+  grants (`ImportType::ENCOUNTER`, [encounter README](../encounter/README.md#import))
 - Rejected rows are recorded as rejects
 
 Source: CSV or plain-text files (`.csv`, `.txt`) uploaded through the import UI.
@@ -52,7 +54,7 @@ In the `dev` environment the upload form has an extra checkbox, **Override targe
 2. Store file under `var/imports/...`
 3. Register a new [import run](import-runs.md) (`ImportRun`, status `queued`) and point `Import::currentRunId` to it
 4. The UI, or `app:import:start <IMPORT_ID>` for the import's type, dispatches the matching message with the run id
-5. `ImportAllocationsMessageHandler` / `ImportClosuresMessageHandler` processes the file in the worker; every commit checks that the run is still current
+5. `ImportAllocationsMessageHandler` / `ImportClosuresMessageHandler` / `ImportEncountersMessageHandler` (Encounter context) processes the file in the worker; every commit checks that the run is still current
 6. The run ends exactly once; the winner emits `ImportCompleted` or `ImportFailed` (with `runId`)
 7. Trigger downstream statistics rebuild
 
@@ -62,6 +64,8 @@ In the `dev` environment the upload form has an extra checkbox, **Override targe
 - `ImportStartDispatcher`
 - `ImportAllocationsDispatcher`
 - `ImportClosuresDispatcher`
+- `ImportEncountersDispatcher` (Encounter context, registered through the `import.workflow_dispatcher`
+  [extension point](../../02-architecture/extension-points.md#import-workflow-dispatchers))
 - `ImportAllocationsMessageHandler`
 - `ImportClosuresMessageHandler`
 - `ImportRunLifecycle`, `ImportRunCommitGuard`, `ImportRunErrorClassifier` (see [import-runs.md](import-runs.md))
@@ -155,6 +159,18 @@ Reject persistence is configured via `app.import.reject_writer` in `config/packa
 | `csv` | Rejects written to `app.import.csv_reject_dir` (default `var/import_rejects`) |
 
 See [../../02-architecture/decisions/005-reject-writer-strategy.md](../../02-architecture/decisions/005-reject-writer-strategy.md).
+
+Encounter imports ignore this setting: they always store their row rejects in the database, with line
+number, field, error code and profile version only, never the row or a cell value (ADR 025).
+
+## Encounter imports
+
+`ImportType::ENCOUNTER` reuses the import runs (`ImportRunLifecycle`, `ImportRunCommitGuard`), the
+previous-run cleanup, deletion (`ImportDeletionService` with `EncounterImportDataRemover`) and the data coverage
+of the other types. Everything else belongs to the Encounter context: upload form, message
+(`ImportEncountersMessage`), handler, pages under `/encounter/imports` and the access checks of the encounter
+grants. The generic import pages neither list nor open encounter imports (`ListImportsQuery`,
+`ImportVoter`). Details: [encounter README](../encounter/README.md#import).
 
 ## Related documentation
 

@@ -82,7 +82,17 @@ Rules:
 - Glucose is exchanged in whole mg/dl. Sources with decimals (ORBIS writes for example `999.99 mg/dl`)
   are rounded half up by the tool (`99.5` → `100`, `99.49` → `99`) before the range check; the server
   rejects a glucose value with decimals.
-- Plausibility ranges and catalogs are finalised in #1048 and #1051 and documented here.
+- The server checks every field against this table (#1048): ranges are inclusive, temperature has at most
+  one decimal, integers have none, timestamps are exactly `YYYY-MM-DDTHH:MM`. A value outside its range
+  or code list rejects the row, never the file.
+- `mts_diagram`, `mts_indicator` and their retriage counterparts are codes of at most 64 characters
+  without control characters until the MTS catalog is fixed (#1056). Avoid commas between capitalised
+  words (`Surname, Given name`): the server's content check treats that as a name and rejects the file.
+- `admitting_department` is the name of a department of the reference catalog (case-insensitive); an
+  unknown or ambiguous name rejects the row.
+- Unknown manifest keys are ignored; required are the eight keys of the example line.
+- What the server rejects as a whole file and what it deletes at once:
+  [README, Import](README.md#import).
 
 ## Visit fingerprint `ed-visit:v1`
 

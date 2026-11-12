@@ -61,7 +61,7 @@ Implemented in #1047:
 - **Invariants** checked by the entity and, where cheap, by check constraints: age 1–99, key
   generation ≥ 1, a time anchor exists, care level only with `admitted` or `transferred_external`,
   vitals need a reference when any value is set, `vitals_measured_at` only with
-  `admission_measurement`. Plausibility ranges of the file are checked by the import (#1048).
+  `admission_measurement`. Plausibility ranges of the file are checked by the import ([Import](#import)).
 - **Flags** `work_accident` and `tetanus_protected` are nullable: `true` = documented yes, `null` = not
   documented (unknown). The export only marks "yes", so there is no `false`; a check constraint
   rejects it.
@@ -76,8 +76,8 @@ Implemented in #1047:
   exactly the visits the import created. Links and review decisions (#1053, #1054) must reference
   `encounter` with `ON DELETE CASCADE` so they go with their visit.
 - **Key state:** `encounter_key_state`, one row per hospital: `key_generation` (starts at 1),
-  `active_check_value`, `retired_check_values`, `key_change_in_progress`. Only the model exists; the
-  import (#1048) registers and checks check values, the key change (#1050) moves the generation.
+  `active_check_value`, `retired_check_values`, `key_change_in_progress`. The import registers and
+  checks check values ([Import](#import)); the key change (#1050) moves the generation.
 - **Schemas:** `EncounterDimensionInterface` (tag `encounter.dimension`) with `EdVisitDimension` as
   field contract of `ed_visit` v1
   ([extension point](../../02-architecture/extension-points.md#encounter-schemas)).
@@ -87,6 +87,84 @@ import B on 10, 12, 15, 20 and 31 October. B inserts the 20th and 31st and count
 Deleting B leaves A's five visits; deleting A instead leaves only B's two, and B must be reprocessed
 to restore the 10th, 12th and 15th. Reprocessing B removes its two visits and creates them anew
 (new `visit_uid`); A's visits keep theirs.
+
+## Import
+
+Implemented in #1048. `ImportType::ENCOUNTER` runs through the import runs of the other import types
+(queue, supersede, guarded commits, cleanup before a reprocess, deletion); the rest lives in the Encounter
+context.
+
+**Upload** (`/encounter/imports/new`, list at `/encounter/imports`): beta role and `UPLOAD` on the hospital
+(or `ROLE_ADMIN`). The form has hospital, name, schema (`ed_visit`), the CSV file and a required
+confirmation that the file was produced with the data preparation tool and contains no direct
+identifiers. The confirmation is stored on `encounter_import` (`confirmed_by`, `confirmed_at`) and
+audited (`encounter.import.created`), together with the hospital's key generation at upload. Uploads
+are refused while the hospital's key change is in progress. The page links to the `/encounter`
+overview for the tool (#1051). Encounter imports never appear on the generic import pages.
+
+**File checks** (`EncounterFileReader`, `EncounterFileValidator`), each rejecting the whole file; the run
+fails with `invalid_file` and the reason is stored as `encounter_import.file_rejection`:
+
+| Reason | Check | Source file |
+|---|---|---|
+| `raw_export` | first line is no `#encounter-exchange` manifest, or the header has a column that names identifying source data (name, birth, case number, patient, address, free-text columns …) | deleted at once |
+| `identifying_content` | any cell with a date in a non-timestamp field, a name-like value (`Surname, Given name`, a title before a name) or more than 64 characters (code sets: 128) | deleted at once |
+| `encoding_invalid` | not UTF-8 | kept |
+| `manifest_invalid` | a manifest key is missing, `schema_version`/`rows` are no integers, `key_check` is no 64-digit hex, `tool` is no `x.y.z` | kept |
+| `schema_unsupported` | schema differs from the one chosen at upload, or the version is not supported | kept |
+| `profile_unsupported` | profile not `[a-z0-9-]`, profile version no positive integer | kept |
+| `tool_version_too_old` | `tool` below `app.encounter.min_tool_version` (default `0.3.0`) | kept |
+| `fingerprint_rule_unsupported` | not a rule of the schema version (`ed-visit:v1`) | kept |
+| `header_mismatch` | header differs from the schema version in any way (order, missing or extra column) | kept |
+| `row_count_mismatch` | number of data rows differs from `rows` | kept |
+| `key_check_retired` | key check value belongs to an earlier key generation | kept |
+| `key_check_mismatch` | key check value differs from the active one | kept |
+
+The checks for identifying content run first and on every row, so such a file is deleted even when
+its manifest is also wrong. The first file of a key generation registers its key check value. A deleted
+file cannot be reprocessed.
+
+**Rows** (`EdVisitRowMapper`, field contract `EdVisitDimension`): a row is rejected with line number,
+field and error code (`required`, `invalid_format`, `invalid_code`, `out_of_range`, `inconsistent`,
+`column_count`) and the profile version, stored as `import_reject` (`messages` like
+`heart_rate: out_of_range`, `row` only holds profile and profile version). Rejects never contain the row
+or a cell value. Values outside the plausibility ranges reject the row: the tool empties them before
+upload. `admitting_department` must name a department of the reference catalog (case-insensitive, unique
+name). A row without ED admission and without first assessment contact is skipped and counted.
+
+**Write**: all valid rows are written in one guarded commit. It locks the hospital's key state, checks
+that the key generation stored at upload is still current and no key change is in progress (otherwise
+the run fails with `key_generation_changed` and nothing is written), checks or registers the key check
+value and inserts row by row with `insertIfNew()`: known visits count as duplicates, new ones belong to
+the import. The key generation is also checked before a reprocess removes the import's data, so a
+reprocess after a key change keeps the visits.
+
+**Suspected duplicates**: a new visit with the same `case_key` as another visit of the hospital and key
+generation (earlier, or earlier in the same file) and a time anchor at most 15 minutes away is inserted
+and recorded in `encounter_suspected_duplicate` (line, minutes, anchor sources, both visits). The report
+page lists them for users with `UPLOAD`, without case keys or timestamps. They are never merged.
+
+**Report** (`/encounter/imports/{id}`, `UPLOAD` on the hospital, otherwise not found): status, rows,
+new visits, known visits, skipped and rejected rows, suspected duplicates, profile, tool version, key
+generation, confirmation, file rejection, the reject list and the suspected-duplicate list. No file
+content.
+
+| Count | Meaning |
+|---|---|
+| `import.row_count` | data rows of the file |
+| `import.rows_rejected` | rejected rows; `rows_passed` = rows − rejected |
+| `import.rows_deduplicated` | known visits (duplicates) |
+| `encounter_import.inserted / duplicates / skipped / rejected / suspected_duplicates` | the report counts |
+
+The import status follows the rejection ratio as for other imports (`ImportEvaluation`). The data
+coverage counts the valid visits of the file (new and known) per day of their time anchor.
+
+**Reprocess** (`POST /encounter/imports/{id}/reprocess`, `UPLOAD`): the run removes the import's visits
+(their links and review decisions go with them) and imports the retained file again. The page warns
+before that links and review decisions of the import are lost.
+
+**Afterwards**: a successful run with new visits dispatches `EncountersImported` (hospital, import, anchor
+days of the inserted visits) for the matcher (#1053). Nothing consumes it yet.
 
 ## Population
 
