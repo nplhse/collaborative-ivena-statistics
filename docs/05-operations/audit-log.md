@@ -109,9 +109,32 @@ Consequences:
   set; this happens only outside HTTP and Messenger.
 - Older entries have no session reference; their sessions can only be estimated from actor and time.
 
+## Audit timeline
+
+**Admin → Audit timeline** (`/admin/audit`, not in the menu yet; #955 in progress) shows the audit log
+newest first, 100 entries per page.
+
+- **Request stacks:** entries with the same request id form one expandable stack. A request id with
+  `request_id_kind = legacy` is stacked only when all its entries share actor and origin; otherwise its
+  entries are shown one by one. Entries of background jobs the request started are listed apart.
+  Nothing is grouped by time.
+- **Order:** `occurred_at DESC, id DESC`; inside a stack oldest first. Entries written in the same
+  second keep the order in which they were written.
+- **Page boundaries:** pages continue with the entries before the last one shown (keyset), so new
+  entries never shift an open page. A stack whose request has more entries than the page shows
+  "n of m entries on this page" and links to the request view, which lists up to 500 entries of the
+  request and says so when there are more.
+- **Filters** (query parameters, kept in all links): `from`, `to` (`YYYY-MM-DDTHH:MM`, from inclusive,
+  to exclusive), `actor` (user id or `none`), `origin`, `action`, `intent`, `entity`, `entityId`,
+  `request`, `session`, `outcome`. With a filter a stack shows only matching entries and says how many
+  of the request's entries match.
+- The overview shows names of changed fields, never their values. The values are on the entry's
+  detail page.
+
 ## Access and sensitive data
 
-- Only `ROLE_ADMIN` can read the audit log (EasyAdmin **Audit log**, `AuditLogCrudController`).
+- Only `ROLE_ADMIN` can read the audit log: the audit timeline (`AuditTimelineController`) and the
+  EasyAdmin **Audit log** (`AuditLogCrudController`).
 - `clientIp`, `userAgent`, usernames and the export filters are personal data. Exception messages in
   `intent_metadata.reason` may contain technical details.
 - Session cookies, session ids and authentication tokens are not stored.

@@ -1,0 +1,39 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+{% import '@Admin/audit/_macros.html.twig' as audit %}
+
+{% block configured_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/admin-kpi.css') }}">
+{% endblock %}
+
+{% block content_title %}{{ 'audit.request.title'|trans({}, 'admin') }}{% endblock %}
+
+{% block main %}
+    <p><a href="{{ path('app_admin_dashboard_audit_timeline', filter.toQuery) }}">{{ 'audit.request.back'|trans({}, 'admin') }}</a></p>
+
+    <dl class="row mb-3">
+        <dt class="col-sm-3">{{ 'audit.filter.request'|trans({}, 'admin') }}</dt>
+        <dd class="col-sm-9 font-monospace text-break">{{ request_id }}</dd>
+        {% if stats is not null %}
+            <dt class="col-sm-3">{{ 'audit.request.entries'|trans({}, 'admin') }}</dt>
+            <dd class="col-sm-9">
+                {{ stats.total }}
+                {% if not filter.isEmpty %}<span class="text-secondary">· {{ 'audit.timeline.request_matching'|trans({matching: stats.matching, total: stats.total}, 'admin') }}</span>{% endif %}
+            </dd>
+        {% endif %}
+        {% if entries[0].legacyRequestId %}
+            <dt class="col-sm-3">{{ 'audit.timeline.legacy'|trans({}, 'admin') }}</dt>
+            <dd class="col-sm-9 text-secondary">{{ 'audit.timeline.legacy_help'|trans({}, 'admin') }}</dd>
+        {% endif %}
+    </dl>
+
+    {% if stats is not null and stats.total > entries|length %}
+        <p class="alert alert-warning" data-audit-limit>{{ 'audit.request.limit'|trans({limit: limit, total: stats.total}, 'admin') }}</p>
+    {% endif %}
+
+    <ol class="ea-audit-timeline list-unstyled">
+        {% for entry in entries %}
+            <li class="ea-audit-item">{{ audit.entry(entry) }}</li>
+        {% endfor %}
+    </ol>
+{% endblock %}

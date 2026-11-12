@@ -163,3 +163,24 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr);
 }
+
+/* Audit timeline (#955) */
+.ea-audit-timeline {
+    border-left: 2px solid var(--bs-border-color);
+    padding-left: 1rem;
+}
+
+.ea-audit-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+
+.ea-audit-stack > summary {
+    cursor: pointer;
+}
+
+.ea-audit-stack-body {
+    margin: 0.5rem 0 0.25rem 1.25rem;
+    padding-left: 0.75rem;
+    border-left: 2px dashed var(--bs-border-color);
+}
