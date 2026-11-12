@@ -1,0 +1,127 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ diagram.name }} - {{ 'encounter.mts.glossary.title'|trans({}, 'encounter') }} - {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    {{ include('@Encounter/glossary/_header.html.twig', {
+        breadcrumbs: [
+            {label: 'link.explore', path: path('app_explore_index')},
+            {label: 'title.glossary.index', label_domain: 'allocation', path: path('app_explore_glossary_index')},
+            {label: 'encounter.mts.glossary.title'|trans({}, 'encounter'), translatable: false, path: path('app_explore_glossary_mts')},
+            {label: diagram.name, translatable: false},
+        ],
+        title: diagram.name,
+        subtitle: 'encounter.mts.diagram.type'|trans({}, 'encounter'),
+        back_path: path('app_explore_glossary_mts'),
+    }) }}
+{% endblock %}
+
+{% block page_content %}
+    <div data-testid="mts-diagram-detail">
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="datagrid">
+                    <div class="datagrid-item">
+                        <div class="datagrid-title">{{ 'catalog.glossary.column.code'|trans({}, 'allocation') }}</div>
+                        <div class="datagrid-content"><code>{{ diagram.code }}</code></div>
+                    </div>
+                    <div class="datagrid-item">
+                        <div class="datagrid-title">{{ 'encounter.mts.german_name'|trans({}, 'encounter') }}</div>
+                        <div class="datagrid-content" lang="de">{{ diagram.germanName ?? diagram.name }}</div>
+                    </div>
+                    {% if has_counts %}
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'encounter.mts.diagram.encounters'|trans({}, 'encounter') }}</div>
+                            <div class="datagrid-content" data-testid="mts-diagram-total">{{ include('@Encounter/glossary/_count.html.twig', {count: diagram.count}) }}</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {{ include('@Encounter/glossary/_counts_note.html.twig') }}
+
+        <div class="card" data-testid="mts-diagram-indicators">
+            <div class="card-header">
+                <h3 class="card-title">{{ 'encounter.mts.diagram.indicators'|trans({}, 'encounter') }}</h3>
+            </div>
+            {% if not has_counts %}
+                <div class="card-body text-secondary" data-testid="mts-diagram-indicators-unavailable">
+                    {{ 'encounter.mts.diagram.indicators_need_access'|trans({}, 'encounter') }}
+                </div>
+            {% elseif seen_indicators == 0 and without_indicator is null %}
+                <div class="card-body text-secondary" data-testid="mts-diagram-indicators-empty">
+                    {{ 'encounter.mts.diagram.indicators_none'|trans({}, 'encounter') }}
+                </div>
+            {% else %}
+                <div class="card-body border-bottom">
+                    <form method="get" action="{{ path('app_explore_glossary_mts_diagram', {code: diagram.code}) }}" class="row g-2 align-items-center" role="search" data-testid="mts-indicator-filter">
+                        <div class="col">
+                            <label class="visually-hidden" for="mts-indicator-filter">{{ 'encounter.mts.diagram.filter_label'|trans({}, 'encounter') }}</label>
+                            <input type="search" id="mts-indicator-filter" name="q" value="{{ filter }}" class="form-control" placeholder="{{ 'encounter.mts.diagram.filter_placeholder'|trans({}, 'encounter') }}" maxlength="100">
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">
+                                <twig:ux:icon name="tabler:filter" class="me-1" width="1em" height="1em" />
+                                {{ 'encounter.mts.diagram.filter_submit'|trans({}, 'encounter') }}
+                            </button>
+                        </div>
+                        {% if filter %}
+                            <div class="col-auto">
+                                <a class="btn" href="{{ path('app_explore_glossary_mts_diagram', {code: diagram.code}) }}">
+                                    <twig:ux:icon name="tabler:filter-off" class="me-1" width="1em" height="1em" />
+                                    {{ 'encounter.mts.diagram.filter_reset'|trans({}, 'encounter') }}
+                                </a>
+                            </div>
+                        {% endif %}
+                    </form>
+                </div>
+                {% if indicators is empty and filter %}
+                    <div class="card-body text-secondary" data-testid="mts-diagram-indicators-no-match">
+                        {{ 'encounter.mts.diagram.filter_no_match'|trans({}, 'encounter') }}
+                    </div>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table table-vcenter card-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>{{ 'catalog.glossary.column.label'|trans({}, 'allocation') }}</th>
+                                    <th class="w-1">{{ 'catalog.glossary.column.code'|trans({}, 'allocation') }}</th>
+                                    <th class="w-1 text-end">{{ 'encounter.mts.column.encounters'|trans({}, 'encounter') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in indicators %}
+                                    <tr data-testid="mts-indicator" data-code="{{ row.code }}">
+                                        <td>
+                                            {{ row.name }}
+                                            {% if not row.inCatalog %}
+                                                <span class="badge bg-secondary-lt ms-1">{{ 'encounter.mts.not_in_catalog'|trans({}, 'encounter') }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td><code class="text-break">{{ row.code }}</code></td>
+                                        <td class="text-end" data-testid="mts-count">{{ include('@Encounter/glossary/_count.html.twig', {count: row.count}) }}</td>
+                                    </tr>
+                                {% endfor %}
+                                {% if without_indicator and not filter %}
+                                    <tr data-testid="mts-indicator" data-code="">
+                                        <td class="text-secondary" colspan="2">{{ 'encounter.mts.diagram.without_indicator'|trans({}, 'encounter') }}</td>
+                                        <td class="text-end" data-testid="mts-count">{{ include('@Encounter/glossary/_count.html.twig', {count: without_indicator}) }}</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

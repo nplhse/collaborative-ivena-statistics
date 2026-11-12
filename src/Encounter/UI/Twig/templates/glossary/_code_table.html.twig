@@ -1,0 +1,45 @@
+{# Table of MtsGlossaryRow. Expects `title`, `rows`, `testid`, `link_route` (nullable) and `has_counts`. #}
+<div class="card" data-testid="{{ testid }}s">
+    <div class="card-header">
+        <h3 class="card-title">{{ title }}</h3>
+        <div class="card-actions text-secondary">{{ rows|length }}</div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table mb-0">
+            <thead>
+                <tr>
+                    <th>{{ 'catalog.glossary.column.label'|trans({}, 'allocation') }}</th>
+                    <th class="w-1">{{ 'catalog.glossary.column.code'|trans({}, 'allocation') }}</th>
+                    {% if has_counts %}
+                        <th class="w-1 text-end">{{ 'encounter.mts.column.encounters'|trans({}, 'encounter') }}</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    <tr data-testid="{{ testid }}" data-code="{{ row.code }}">
+                        <td>
+                            {% if link_route %}
+                                <a href="{{ path(link_route, {code: row.code}) }}">{{ row.name }}</a>
+                            {% else %}
+                                {{ row.name }}
+                            {% endif %}
+                            {% if row.germanName %}
+                                <div class="text-secondary small" lang="de">{{ row.germanName }}</div>
+                            {% endif %}
+                            {% if not row.inCatalog %}
+                                <span class="badge bg-secondary-lt ms-1">{{ 'encounter.mts.not_in_catalog'|trans({}, 'encounter') }}</span>
+                            {% endif %}
+                        </td>
+                        <td><code class="text-break">{{ row.code }}</code></td>
+                        {% if has_counts %}
+                            <td class="text-end" data-testid="mts-count">
+                                {% if row.count %}{{ include('@Encounter/glossary/_count.html.twig', {count: row.count}) }}{% endif %}
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

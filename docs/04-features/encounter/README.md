@@ -58,7 +58,7 @@ Implemented in #1047:
   `InitialVitals` (`vitals_*`). The admitting department is a foreign key to the department catalog
   (`SET NULL` when the department is deleted). Code lists are backed enums in
   `src/Encounter/Domain/Enum/`; the isolation set is a sorted JSON list of codes. MTS diagram and
-  indicator are stored as codes until the MTS catalog is fixed (#1048, #1056). No dimension tables:
+  indicator are stored as codes of the MTS catalog ([MTS glossary](#mts-glossary)). No dimension tables:
   every field belongs to exactly one visit.
 - **Identity:** internal `visit_uid` (UUID v7), unique `(hospital_id, key_generation,
   visit_fingerprint)`. The row also stores the fingerprint anchor (`anchor_at`, `anchor_source`:
@@ -336,6 +336,45 @@ Descriptive only, for the own hospital: coverage, encounters by arrival route an
 categories and diagrams, process times recomputed from timestamps (median, IQR), disposition and
 care level. No cross-hospital aggregates. Each figure documents population, filters, numerator and
 denominator, missing values and period boundaries when it is implemented (#1055).
+
+## MTS glossary
+
+Implemented in #1056. Explore → Glossary → Manchester Triage System (`/explore/glossary/mts`, one page
+per diagram under `/explore/glossary/mts/diagram/{code}`), contributed through the Explore glossary
+extension point ([explore-glossary.md](../allocation/explore-glossary.md)); Allocation does not depend
+on Encounter.
+
+- **Single catalog.** `src/Encounter/Application/Catalog/mts-de.json` (40 diagrams, 70 indicators, both
+  open lists) is read by the data preparation tool (bundled as catalog `mts-de`) and by `MtsCatalog`.
+  `MtsCatalog::code()` derives the code exactly as the tool's `catalogCode()`; `MtsCatalogTest` checks
+  examples, the codes of the tool's canonical sample output and the English names. The JSON content
+  is unchanged by the move, so the tool version stays.
+- **Categories:** `MtsCategory` with the target time from the first assessment contact to the first
+  physician contact (`physicianContactTargetMinutes()`: red 0, orange 10, yellow 30, green 90, blue
+  120 minutes), colour and name in EN and DE.
+- **Names only.** No discriminator texts and no flowcharts (copyright). The German name is the source.
+  English: diagrams show their well-known English chart name (`encounter.mts.diagram_name.<code>`,
+  English translation file only, for 39 of 40 diagrams; `Generelle Indikatoren` keeps its German
+  name) with the German name below; indicators keep their German name in both languages, as there is
+  no generally known English name for most of them and a translation of our own would invent terms.
+  The German locale never reads these keys; German names come from the catalog, not from a translation
+  file.
+- **Visibility.** Definitions are shown to every participant (`^/explore` rule). Counts are shown only
+  to users with `VIEW_CASES` or `VIEW_AGGREGATES` on a hospital (`EncounterVoter`), summed over exactly
+  those hospitals (`EncounterCountScopeResolver`); administrators with the beta role count all
+  hospitals, as ADR 027 gives them every action. Other hospitals are never counted.
+- **What is counted.** Encounters by the initial triage (`mts_category`, `mts_diagram`,
+  `mts_indicator`), all key generations, no period filter; retriage values are not counted. Population:
+  every stored encounter of the hospitals in scope; encounters without a value are not counted for that
+  code. A diagram page counts all encounters with the diagram (total) and per indicator; encounters of
+  the diagram without an indicator are one extra row.
+- **Small cells.** Counts from 1 to 4 are shown as `< 5` (`MtsCount`, threshold
+  `CatalogPrivacyPolicy::MIN_ALLOCATIONS`, ADR 012); 0 is shown as a dash.
+- **Diagram page.** Lists the indicators seen with the diagram in the encounters the user may see, with
+  a filter on name and code (`?q=`). Indicators seen in data but not in the catalog are listed with
+  their code and marked "not in the catalog". Without encounter access the page shows the definition
+  and explains that the indicator list comes from encounter data: listing all catalog indicators would
+  suggest pairs that the MTS does not have, and pairs from other hospitals' data are not shared.
 
 ## Synthetic data
 
