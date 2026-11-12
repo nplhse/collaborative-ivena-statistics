@@ -99,16 +99,21 @@ hides the gap of a single hospital.
 
 `DataStatusFindingRules` produces hints, never errors. Thresholds are constants of that class.
 
-| Hint | Rule | Permission |
-|------|------|------------|
-| Import failed / cancelled | in the last 90 days and no relevant import uploaded later | `IMPORT` |
-| Rejected rows | partial import with rejected rows, last 90 days | `IMPORT` |
-| Days without records | relevant import whose `data_coverage` has gaps, last 90 days | `IMPORT` |
-| Not updated | latest allocation more than 90 days before today | `VIEW` |
-| Possible gap | consecutive `missing` months, whole history | `STATISTICS` |
-| Volume change | a fully covered month in the twelve-month view differs by more than 50 % from the median of up to 12 earlier fully covered months; needs at least 6 of them | `STATISTICS` |
+| Hint | Rule | Permission | Link |
+|------|------|------------|------|
+| Import failed / cancelled | in the last 90 days and no relevant import uploaded later | `IMPORT` | the import |
+| Rejected rows | partial import with rejected rows, last 90 days | `IMPORT` | the import |
+| Days without records | relevant import whose `data_coverage` has gaps, last 90 days | `IMPORT` | the import |
+| Not updated | latest allocation more than 90 days before today | `VIEW` | upload (with `IMPORT`), else none |
+| Possible gap | consecutive `missing` months, whole history | `STATISTICS` | the hospital's imports (with `IMPORT`), else none |
+| Volume change | a fully covered month in the twelve-month view differs by more than 50 % from the median of up to 12 earlier fully covered months; needs at least 6 of them | `STATISTICS` | the hospital's statistics |
 
 Partial, missing and current months are never compared, and a peak or a quiet month is not labelled an error.
+
+The hints appear only in the hospital's card (`_my_hospitals_finding.html.twig`): a field with their number ("3
+hints") that expands to the list. They are worded neutrally and are never called errors. A hint about one import
+starts with its number and links as a whole to that import ("#1039: The import of … has 2 days without records.");
+the other hints carry their link after the text.
 
 ### Page
 
@@ -159,6 +164,7 @@ across a month change and for every viewer. Clearing and warming the entries aft
 - `tests/Allocation/Integration/Application/Hospital/MyHospitalsScopeResolverTest.php` (owner, grants, grant
   without `VIEW`, administrator with and without own hospitals, no hospitals)
 - `tests/Allocation/Functional/Controller/Hospitals/ParticipantHospitalsControllerTest.php` (listing, actions, summary per permission)
-- `tests/Allocation/Functional/Controller/Hospitals/MyHospitalsOverviewTest.php` (cards and summary per permission tier, basis, empty states, German page, coverage heatmap rows and states, selection of one or all hospitals, foreign and malformed IDs)
+- `tests/Allocation/Functional/Controller/Hospitals/MyHospitalsOverviewTest.php` (cards and summary per permission tier, basis, empty states, German page, coverage heatmap rows and states, selection of one or all hospitals, foreign and malformed IDs, hints per permission, collapsed in their card)
 - `tests/Allocation/Unit/Application/Hospital/MyHospitals/` (month states, gaps, window, hints, cache, permissions and aggregates, selection)
+- `tests/Allocation/Integration/Translation/MyHospitalsFindingTranslationTest.php` (every hint type formats in English and German)
 - `tests/Statistics/Integration/Query/MyHospitals/HospitalDataSnapshotQueryTest.php` (import statuses, failed rows excluded, midnight rule, coverage fallback)

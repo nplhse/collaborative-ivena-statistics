@@ -322,6 +322,57 @@ final class MyHospitalsOverviewTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="my-hospitals-selection"]');
     }
 
+    public function testCardShowsItsHintsCollapsedBehindTheirCount(): void
+    {
+        $hospital = $this->hospitalWithData('Alpha Hospital');
+        $failed = $this->import($hospital, ImportStatus::FAILED, '2026-03-18 09:00:00');
+
+        $this->client->loginUser($this->owner);
+        $this->client->request(Request::METHOD_GET, '/hospitals');
+
+        self::assertResponseIsSuccessful();
+        $card = '[data-testid="my-hospitals-card-findings"]';
+        self::assertSelectorTextContains($card.' [data-testid="my-hospitals-card-findings-toggle"]', '2 hints');
+        self::assertSelectorCount(2, $card.' .collapse [data-testid="my-hospitals-finding"]');
+        $hint = $this->client->getCrawler()->filter($card.' [data-testid="my-hospitals-finding"]')->first();
+        self::assertSame('import_failed', $hint->attr('data-finding-type'));
+        // The whole text, led by the import number, links to the import.
+        $link = $hint->filter('[data-testid="my-hospitals-finding-link"]');
+        self::assertSame(\sprintf('#%d: The import of Mar 18, 2026 failed.', (int) $failed->getId()), $link->text());
+        self::assertSame(\sprintf('/import/%d', (int) $failed->getId()), $link->attr('href'));
+    }
+
+    public function testHintsStayInTheirCards(): void
+    {
+        $this->hospitalWithData('Alpha Hospital');
+        $this->hospitalWithData('Beta Hospital');
+
+        $this->client->loginUser($this->owner);
+        $this->client->request(Request::METHOD_GET, '/hospitals');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(2, '[data-testid="my-hospitals-card-findings"]');
+        self::assertSelectorCount(2, '[data-testid="my-hospitals-finding"]');
+    }
+
+    public function testHintsNeedThePermissionOfTheirType(): void
+    {
+        $shared = $this->hospitalWithData('Shared Hospital', UserFactory::createOne());
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $shared,
+            'user' => $this->owner,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::Statistics]),
+            'createdBy' => $this->owner,
+        ]);
+
+        $this->client->loginUser($this->owner);
+        $this->client->request(Request::METHOD_GET, '/hospitals');
+
+        self::assertResponseIsSuccessful();
+        // The failed import is an IMPORT hint; without IMPORT the card has none.
+        self::assertSelectorNotExists('[data-testid="my-hospitals-card-findings"]');
+    }
+
     public function testGermanPageHasNoMissingTranslations(): void
     {
         $german = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'], 'locale' => 'de']);

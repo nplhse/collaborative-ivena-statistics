@@ -1225,6 +1225,38 @@
         <source>my_hospitals.selection.all</source>
         <target>Alle Krankenhäuser</target>
       </trans-unit>
+      <trans-unit id="myHospFindCountDe" resname="my_hospitals.finding.count">
+        <source>my_hospitals.finding.count</source>
+        <target>{count, plural, one {# Hinweis} other {# Hinweise}}</target>
+      </trans-unit>
+      <trans-unit id="myHospFindImportFailedDe" resname="my_hospitals.finding.import_failed">
+        <source>my_hospitals.finding.import_failed</source>
+        <target>Der Import vom {date} ist fehlgeschlagen.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindImportCancelledDe" resname="my_hospitals.finding.import_cancelled">
+        <source>my_hospitals.finding.import_cancelled</source>
+        <target>Der Import vom {date} wurde abgebrochen.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindImportRejectsDe" resname="my_hospitals.finding.import_rejects">
+        <source>my_hospitals.finding.import_rejects</source>
+        <target>Aus dem Import vom {date} {amount, plural, one {konnte # Zeile} other {konnten # Zeilen}} nicht übernommen werden.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindImportDayGapsDe" resname="my_hospitals.finding.import_day_gaps">
+        <source>my_hospitals.finding.import_day_gaps</source>
+        <target>Der Import vom {date} enthält {amount, plural, one {# Tag} other {# Tage}} ohne Einträge.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindNotUpdatedDe" resname="my_hospitals.finding.not_updated">
+        <source>my_hospitals.finding.not_updated</source>
+        <target>Die neueste Zuweisung ist vom {date}, also {amount} Tage alt.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindPossibleGapDe" resname="my_hospitals.finding.possible_gap">
+        <source>my_hospitals.finding.possible_gap</source>
+        <target>{amount, plural, one {Für {month} liegen keine Daten vor} other {Von {month} bis {end} liegen keine Daten vor}}, obwohl Importe die Zeit davor und danach abdecken. Vielleicht fehlt ein Import.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindVolumeChangeDe" resname="my_hospitals.finding.volume_change">
+        <source>my_hospitals.finding.volume_change</source>
+        <target>{month}: {amount} % {direction, select, up {mehr} other {weniger}} Zuweisungen als in den Monaten davor.</target>
+      </trans-unit>
       <trans-unit id="myHospSumWithDataDe" resname="my_hospitals.summary.with_data">
         <source>my_hospitals.summary.with_data</source>
         <target>aus {count, plural, one {# Krankenhaus} other {# Krankenhäusern}} mit Daten</target>
