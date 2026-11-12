@@ -186,7 +186,10 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
 
         /** @var list<array{0: Hospital, ownerId: int|string|null, grantPermissions: int|string|null}> $rows */
         $rows = $this->createQueryBuilder('h')
-            ->addSelect('IDENTITY(h.owner) AS ownerId', 'g.permissions AS grantPermissions')
+            // State and dispatch area are shown on every card; fetch them here instead of one query per hospital.
+            ->addSelect('s', 'da', 'IDENTITY(h.owner) AS ownerId', 'g.permissions AS grantPermissions')
+            ->leftJoin('h.state', 's')
+            ->leftJoin('h.dispatchArea', 'da')
             ->leftJoin(HospitalAccessGrant::class, 'g', Join::WITH, 'g.hospital = h AND IDENTITY(g.user) = :userId')
             ->andWhere('IDENTITY(h.owner) = :userId OR g.id IS NOT NULL')
             ->setParameter('userId', $userId, Types::INTEGER)
