@@ -33,18 +33,48 @@ final class MonthlyCoverageClassifierTest extends TestCase
 
         self::assertSame([
             '2026-01 covered 100 31/31',
-            '2026-02 covered_zero 0 28/28', // covered by the first import, no allocations
+            '2026-02 no_allocations 0 28/28', // inside the first import's period, but no allocations
             '2026-03 covered 120 31/31',
             '2026-04 missing 0 0/30', // between covered months: possible gap
             '2026-05 partial 50 22/31', // 10 to 31 May
             '2026-06 covered 110 30/30',
             '2026-07 covered 105 31/31',
             '2026-08 covered 90 31/31',
-            '2026-09 outside 0 0/30', // after the last covered day: no gap
+            '2026-09 outside 0 0/30', // after the last import; allocations in October have no known period
             '2026-10 partial 5 0/31', // allocations without a known period
             '2026-11 in_progress 0 0/30',
         ], $this->describe($months));
         self::assertSame(['2026-04..2026-04 (1)'], $this->describeGaps($months));
+    }
+
+    public function testMonthsInsideAnImportWithoutAllocationsAreNoGaps(): void
+    {
+        // The import period runs until October, but the last allocations are from August.
+        $snapshot = SnapshotBuilder::snapshot(
+            volumes: ['2026-07' => 30, '2026-08' => 20],
+            periods: [['2026-07-01', '2026-10-31']],
+        );
+
+        $months = $this->classifier->classify($snapshot, new \DateTimeImmutable(self::NOW));
+
+        self::assertSame(
+            ['2026-07 covered 30 31/31', '2026-08 covered 20 31/31', '2026-09 no_allocations 0 30/30', '2026-10 no_allocations 0 31/31', '2026-11 in_progress 0 0/30'],
+            $this->describe($months),
+        );
+        self::assertSame([], $this->describeGaps($months));
+    }
+
+    public function testMonthsAfterTheLastImportHaveNoData(): void
+    {
+        $snapshot = SnapshotBuilder::snapshot(volumes: ['2026-07' => 30], periods: [['2026-07-01', '2026-07-31']]);
+
+        $months = $this->classifier->classify($snapshot, new \DateTimeImmutable(self::NOW));
+
+        self::assertSame(
+            ['2026-07 covered 30 31/31', '2026-08 outside 0 0/31', '2026-09 outside 0 0/30', '2026-10 outside 0 0/31', '2026-11 in_progress 0 0/30'],
+            $this->describe($months),
+        );
+        self::assertSame([], $this->describeGaps($months));
     }
 
     public function testOverlappingImportsCountEachDayOnce(): void

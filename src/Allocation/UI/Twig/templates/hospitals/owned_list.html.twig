@@ -27,12 +27,22 @@
     {% if overview %}
         {{ include('@Allocation/hospitals/_my_hospitals_summary.html.twig') }}
 
-        <div class="row row-cards" data-testid="my-hospitals-cards">
-            {% for status in overview.hospitals %}
-                <div class="col-12">
-                    {{ include('@Allocation/hospitals/_my_hospitals_card.html.twig') }}
+        {% set showCoverage = overview.hospitals|filter(status => status.history is not empty)|length > 0 %}
+        <div class="row row-cards">
+            <div class="{{ showCoverage ? 'col-lg-8' : 'col-12' }}">
+                <div class="row row-cards" data-testid="my-hospitals-cards">
+                    {% for status in overview.hospitals %}
+                        <div class="col-12">
+                            {{ include('@Allocation/hospitals/_my_hospitals_card.html.twig') }}
+                        </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
+            </div>
+            {% if showCoverage %}
+                <div class="col-lg-4">
+                    {{ include('@Allocation/hospitals/_my_hospitals_coverage.html.twig') }}
+                </div>
+            {% endif %}
         </div>
     {% else %}
         <div class="card">

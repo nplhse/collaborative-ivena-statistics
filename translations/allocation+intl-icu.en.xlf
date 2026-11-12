@@ -1325,6 +1325,66 @@
         <source>my_hospitals.card.menu</source>
         <target>More actions</target>
       </trans-unit>
+      <trans-unit id="myHospStCoveredEn" resname="my_hospitals.month.state.covered">
+        <source>my_hospitals.month.state.covered</source>
+        <target>{allocations, plural, one {# allocation} other {# allocations}}, fully covered</target>
+      </trans-unit>
+      <trans-unit id="myHospStPartialEn" resname="my_hospitals.month.state.partial">
+        <source>my_hospitals.month.state.partial</source>
+        <target>{allocations, plural, one {# allocation} other {# allocations}}, {covered} of {days} days covered</target>
+      </trans-unit>
+      <trans-unit id="myHospStMissingEn" resname="my_hospitals.month.state.missing">
+        <source>my_hospitals.month.state.missing</source>
+        <target>No import covers this month (possible gap)</target>
+      </trans-unit>
+      <trans-unit id="myHospStOutsideEn" resname="my_hospitals.month.state.outside">
+        <source>my_hospitals.month.state.outside</source>
+        <target>No data delivered yet</target>
+      </trans-unit>
+      <trans-unit id="myHospStInProgressEn" resname="my_hospitals.month.state.in_progress">
+        <source>my_hospitals.month.state.in_progress</source>
+        <target>{allocations, plural, one {# allocation} other {# allocations}} so far, month in progress</target>
+      </trans-unit>
+      <trans-unit id="myHospLegPartialEn" resname="my_hospitals.legend.partial">
+        <source>my_hospitals.legend.partial</source>
+        <target>Partly covered</target>
+      </trans-unit>
+      <trans-unit id="myHospLegMissingEn" resname="my_hospitals.legend.missing">
+        <source>my_hospitals.legend.missing</source>
+        <target>Gap between imports</target>
+      </trans-unit>
+      <trans-unit id="myHospLegOutsideEn" resname="my_hospitals.legend.outside">
+        <source>my_hospitals.legend.outside</source>
+        <target>No data</target>
+      </trans-unit>
+      <trans-unit id="myHospLegInProgEn" resname="my_hospitals.legend.in_progress">
+        <source>my_hospitals.legend.in_progress</source>
+        <target>Current month</target>
+      </trans-unit>
+      <trans-unit id="myHospCovTitleEn" resname="my_hospitals.coverage.title">
+        <source>my_hospitals.coverage.title</source>
+        <target>Data coverage</target>
+      </trans-unit>
+      <trans-unit id="myHospCovSubEn" resname="my_hospitals.coverage.subtitle">
+        <source>my_hospitals.coverage.subtitle</source>
+        <target>Every month since the first data, one row per year</target>
+      </trans-unit>
+      <trans-unit id="myHospLegLessEn" resname="my_hospitals.legend.less">
+        <source>my_hospitals.legend.less</source>
+        <target>Less</target>
+      </trans-unit>
+      <trans-unit id="myHospLegMoreEn" resname="my_hospitals.legend.more">
+        <source>my_hospitals.legend.more</source>
+        <target>More</target>
+      </trans-unit>
+      <trans-unit id="myHospLegVolumeEn" resname="my_hospitals.legend.volume">
+        <source>my_hospitals.legend.volume</source>
+        <target>Volume</target>
+      </trans-unit>
+      <trans-unit id="myHospStNoAllocEn" resname="my_hospitals.month.state.no_allocations">
+        <source>my_hospitals.month.state.no_allocations</source>
+        <target>Covered by an import, but no allocations</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

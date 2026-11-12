@@ -9,21 +9,21 @@ namespace App\Allocation\Application\DTO\MyHospitals;
  */
 enum MonthCoverageState: string
 {
-    /** Before the first or after the last covered day: the hospital did not deliver data for it, no gap. */
+    /** No allocations and no import covers it, after the last import: no data delivered yet, no gap. */
     case Outside = 'outside';
-    /** No import covers the month, but earlier and later months are covered: a possible gap. */
+    /** No allocations and no import covers it, between the periods of imports: a possible gap (missing import). */
     case Missing = 'missing';
-    /** Imports cover only some days of the month, or there are allocations without a known period. */
+    /** An import's period covers the month, but it has no allocations. Not judged as a confirmed zero. */
+    case NoAllocations = 'no_allocations';
+    /** Allocations, but imports cover only some days of the month (or no period is known). */
     case Partial = 'partial';
-    /** Imports cover every day of the month and it has allocations. */
+    /** Allocations, and imports cover every day of the month. */
     case Covered = 'covered';
-    /** Imports cover every day of the month, but it has no allocations. Not a confirmed zero: see the docs. */
-    case CoveredZero = 'covered_zero';
     /** The current calendar month; never complete, never compared. */
     case InProgress = 'in_progress';
 
     public function isFullyCovered(): bool
     {
-        return self::Covered === $this || self::CoveredZero === $this;
+        return self::Covered === $this;
     }
 }

@@ -134,6 +134,7 @@ final class MyHospitalsOverviewTest extends WebTestCase
         $this->assertPresence('[data-testid="my-hospitals-card-coverage"]', $statistics);
         $this->assertPresence('[data-testid="my-hospitals-card-statistics"]', $statistics);
         $this->assertPresence('[data-testid="my-hospitals-summary-coverage"]', $statistics);
+        $this->assertPresence('[data-testid="my-hospitals-coverage"]', $statistics);
 
         $this->assertPresence('[data-testid="my-hospitals-card-imports"]', $import);
         $this->assertPresence('[data-testid="my-hospitals-card-own-uploads"]', $import);
@@ -145,6 +146,66 @@ final class MyHospitalsOverviewTest extends WebTestCase
         self::assertSelectorNotExists('a[href="/hospitals/'.$hospital->getId().'/edit"]');
         self::assertSelectorNotExists('a[href="/hospitals/'.$hospital->getId().'/edit/access"]');
         $this->assertPresence('[data-testid="my-hospitals-card"] .card-footer', $statistics || $import);
+    }
+
+    public function testCoverageHeatmapShowsTheWholeHistoryByYear(): void
+    {
+        $hospital = $this->hospitalWithData('Data Hospital');
+
+        $this->client->loginUser($this->owner);
+        $crawler = $this->client->request(Request::METHOD_GET, '/hospitals');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="my-hospitals-coverage-legend"]');
+        self::assertSelectorNotExists('[data-controller="my-hospitals-months-chart"]');
+        self::assertSelectorNotExists('[data-testid="my-hospitals-card"] .import-coverage-cell');
+
+        // Data from January 2026; today is 20 March 2026: one row for 2026 with January to March.
+        $block = $crawler->filter('[data-testid="my-hospitals-coverage-hospital"][data-hospital-id="'.$hospital->getId().'"]');
+        self::assertSame(['2026'], $block->filter('[data-year]')->each(static fn ($row): string => (string) $row->attr('data-year')));
+        self::assertSame(
+            ['2026-01 covered', '2026-02 covered', '2026-03 in_progress'],
+            $block->filter('[data-month]')->each(static fn ($cell): string => $cell->attr('data-month').' '.$cell->attr('data-state')),
+        );
+        self::assertCount(9, $block->filter('.my-hospitals-coverage-empty'), 'April to December 2026 lie in the future.');
+        self::assertStringContainsString(
+            'February 2026: 2 allocations, fully covered',
+            (string) $block->filter('[data-month="2026-02"]')->attr('title'),
+        );
+    }
+
+    public function testHeatmapDistinguishesGapsZeroAndPartialMonthsAcrossYears(): void
+    {
+        $hospital = HospitalFactory::createOne(['name' => 'Mixed Hospital', 'owner' => $this->owner, 'createdBy' => $this->owner]);
+        // September 2025 with allocations, October not covered, November covered but without allocations,
+        // December covered until the 15th.
+        $this->coveredImport($hospital, '2025-09-01 00:00:00', '2025-09-30 23:59:00', ['2025-09-10 10:00:00']);
+        $this->coveredImport($hospital, '2025-11-01 00:00:00', '2025-12-15 23:59:00', ['2025-12-05 10:00:00']);
+
+        $this->client->loginUser($this->owner);
+        $crawler = $this->client->request(Request::METHOD_GET, '/hospitals');
+
+        self::assertResponseIsSuccessful();
+        $block = $crawler->filter('[data-testid="my-hospitals-coverage-hospital"][data-hospital-id="'.$hospital->getId().'"]');
+        self::assertSame(['2025', '2026'], $block->filter('[data-year]')->each(static fn ($row): string => (string) $row->attr('data-year')));
+        self::assertSame(
+            ['covered', 'missing', 'no_allocations', 'partial', 'outside', 'outside', 'in_progress'],
+            $block->filter('[data-month]')->each(static fn ($cell): string => (string) $cell->attr('data-state')),
+        );
+        self::assertStringContainsString('is-gap', (string) $block->filter('[data-month="2025-10"]')->attr('class'));
+        // Inside an import's period but without allocations, and after the last import: white "no data".
+        self::assertStringContainsString('is-no-data', (string) $block->filter('[data-month="2025-11"]')->attr('class'));
+        // The current month is white with a dashed frame.
+        self::assertSame('import-coverage-cell is-no-data is-in-progress', $block->filter('[data-month="2026-03"]')->attr('class'));
+        self::assertStringContainsString('is-no-data', (string) $block->filter('[data-month="2026-01"]')->attr('class'));
+        self::assertStringContainsString(
+            'No data delivered yet',
+            (string) $block->filter('[data-month="2026-01"]')->attr('title'),
+        );
+        self::assertStringContainsString(
+            '1 allocation, 15 of 31 days covered',
+            (string) $block->filter('[data-month="2025-12"]')->attr('title'),
+        );
     }
 
     public function testSummaryStatesItsBasisWhenOnlySomeHospitalsAllowImports(): void
@@ -236,6 +297,26 @@ final class MyHospitalsOverviewTest extends WebTestCase
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport((int) $import->getId());
 
         return $hospital;
+    }
+
+    /**
+     * @param list<string> $allocations
+     */
+    private function coveredImport(Hospital $hospital, string $startsAt, string $endsAt, array $allocations): void
+    {
+        $import = $this->import($hospital, ImportStatus::COMPLETED, '2026-01-05 10:00:00');
+        $import->setExportStartsAt(new \DateTimeImmutable($startsAt));
+        $import->setExportEndsAt(new \DateTimeImmutable($endsAt));
+        foreach ($allocations as $createdAt) {
+            AllocationFactory::createOne([
+                'hospital' => $hospital,
+                'import' => $import,
+                'createdAt' => new \DateTimeImmutable($createdAt),
+                'arrivalAt' => new \DateTimeImmutable($createdAt)->modify('+20 minutes'),
+            ]);
+        }
+        self::getContainer()->get('doctrine')->getManager()->flush();
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport((int) $import->getId());
     }
 
     private function import(Hospital $hospital, ImportStatus $status, string $createdAt, ?User $uploader = null): Import
