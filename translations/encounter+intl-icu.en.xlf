@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="Enc3A23D4AA" resname="encounter.nav">
+        <source>encounter.nav</source>
+        <target>Encounter data</target>
+      </trans-unit>
+      <trans-unit id="Enc0BF25EFC" resname="encounter.title">
+        <source>encounter.title</source>
+        <target>Encounter data pilot</target>
+      </trans-unit>
+      <trans-unit id="Enc6614071F" resname="encounter.overview.intro">
+        <source>encounter.overview.intro</source>
+        <target>Pilot for linking emergency department visits with IVENA allocations. Uploads, match review and case views follow in later steps of the pilot.</target>
+      </trans-unit>
+      <trans-unit id="Enc87A19749" resname="encounter.overview.my_grants">
+        <source>encounter.overview.my_grants</source>
+        <target>My encounter access</target>
+      </trans-unit>
+      <trans-unit id="Enc6D9D7FDA" resname="encounter.overview.no_grants">
+        <source>encounter.overview.no_grants</source>
+        <target>You have no encounter access for any hospital. The hospital owner or an administrator can grant it.</target>
+      </trans-unit>
+      <trans-unit id="Enc0EF249EE" resname="encounter.hospital_edit.title">
+        <source>encounter.hospital_edit.title</source>
+        <target>Encounter data</target>
+      </trans-unit>
+      <trans-unit id="Enc81B4B32C" resname="encounter.hospital_edit.grants">
+        <source>encounter.hospital_edit.grants</source>
+        <target>Encounter access</target>
+      </trans-unit>
+      <trans-unit id="Enc5C7B5045" resname="encounter.hospital_edit.grants_new">
+        <source>encounter.hospital_edit.grants_new</source>
+        <target>Grant encounter access</target>
+      </trans-unit>
+      <trans-unit id="Enc806B25EC" resname="encounter.grant.title">
+        <source>encounter.grant.title</source>
+        <target>Encounter access</target>
+      </trans-unit>
+      <trans-unit id="EncDD77428C" resname="encounter.grant.intro">
+        <source>encounter.grant.intro</source>
+        <target>Encounter access is granted explicitly per person. Hospital ownership and hospital access grants do not include it. Only people with access to this hospital can receive it. Administrators have encounter access to every hospital without a grant.</target>
+      </trans-unit>
+      <trans-unit id="EncA13402E6" resname="encounter.grant.empty">
+        <source>encounter.grant.empty</source>
+        <target>Nobody has encounter access for this hospital yet. Administrators have it without a grant.</target>
+      </trans-unit>
+      <trans-unit id="Enc5769743C" resname="encounter.grant.edit_title">
+        <source>encounter.grant.edit_title</source>
+        <target>Encounter access of {username}</target>
+      </trans-unit>
+      <trans-unit id="EncF7855259" resname="encounter.grant.column.user">
+        <source>encounter.grant.column.user</source>
+        <target>User</target>
+      </trans-unit>
+      <trans-unit id="EncEE0A89E1" resname="encounter.grant.column.hospital">
+        <source>encounter.grant.column.hospital</source>
+        <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="EncB497F2D1" resname="encounter.grant.column.actions">
+        <source>encounter.grant.column.actions</source>
+        <target>Access</target>
+      </trans-unit>
+      <trans-unit id="EncAB049FA1" resname="encounter.grant.column.created_at">
+        <source>encounter.grant.column.created_at</source>
+        <target>Granted</target>
+      </trans-unit>
+      <trans-unit id="Enc640A81DB" resname="encounter.grant.action_edit">
+        <source>encounter.grant.action_edit</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="Enc89CC36AE" resname="encounter.grant.action_delete">
+        <source>encounter.grant.action_delete</source>
+        <target>Remove</target>
+      </trans-unit>
+      <trans-unit id="Enc8A5511D8" resname="encounter.grant.action_save">
+        <source>encounter.grant.action_save</source>
+        <target>Save</target>
+      </trans-unit>
+      <trans-unit id="EncFD78E29F" resname="encounter.grant.confirm_delete">
+        <source>encounter.grant.confirm_delete</source>
+        <target>Remove this encounter access?</target>
+      </trans-unit>
+      <trans-unit id="EncCA963B15" resname="encounter.grant.key_change_hint">
+        <source>encounter.grant.key_change_hint</source>
+        <target>None of these actions allows changing the pseudonym key. Only the hospital owner or an administrator can change it.</target>
+      </trans-unit>
+      <trans-unit id="Enc31EF4F08" resname="encounter.grant.field.user">
+        <source>encounter.grant.field.user</source>
+        <target>User</target>
+      </trans-unit>
+      <trans-unit id="Enc8FDBC3AC" resname="encounter.grant.field.user_help">
+        <source>encounter.grant.field.user_help</source>
+        <target>Owner and users with access to this hospital who have no encounter access yet.</target>
+      </trans-unit>
+      <trans-unit id="EncB6E2A273" resname="encounter.grant.field.user_placeholder">
+        <source>encounter.grant.field.user_placeholder</source>
+        <target>Choose a user</target>
+      </trans-unit>
+      <trans-unit id="Enc4A2D8DAD" resname="encounter.grant.field.actions">
+        <source>encounter.grant.field.actions</source>
+        <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="Enc2134DBCF" resname="encounter.grant.field.actions_help">
+        <source>encounter.grant.field.actions_help</source>
+        <target>Review includes viewing cases.</target>
+      </trans-unit>
+      <trans-unit id="EncB57EB536" resname="encounter.grant.action.upload">
+        <source>encounter.grant.action.upload</source>
+        <target>Upload</target>
+      </trans-unit>
+      <trans-unit id="Enc553C37EB" resname="encounter.grant.action.upload_help">
+        <source>encounter.grant.action.upload_help</source>
+        <target>Encounter imports and the retained upload files of this hospital.</target>
+      </trans-unit>
+      <trans-unit id="Enc46231F3B" resname="encounter.grant.action.review">
+        <source>encounter.grant.action.review</source>
+        <target>Review matches</target>
+      </trans-unit>
+      <trans-unit id="Enc634B9400" resname="encounter.grant.action.review_help">
+        <source>encounter.grant.action.review_help</source>
+        <target>Decisions on proposed links; includes viewing cases.</target>
+      </trans-unit>
+      <trans-unit id="EncBC604A2D" resname="encounter.grant.action.view_cases">
+        <source>encounter.grant.action.view_cases</source>
+        <target>View cases</target>
+      </trans-unit>
+      <trans-unit id="EncBCF05A2E" resname="encounter.grant.action.view_cases_help">
+        <source>encounter.grant.action.view_cases_help</source>
+        <target>Visit lists, the case card on an allocation and direct links to cases.</target>
+      </trans-unit>
+      <trans-unit id="Enc4A1B1797" resname="encounter.grant.flash.created">
+        <source>encounter.grant.flash.created</source>
+        <target>Encounter access granted.</target>
+      </trans-unit>
+      <trans-unit id="Enc91987C9E" resname="encounter.grant.flash.updated">
+        <source>encounter.grant.flash.updated</source>
+        <target>Encounter access updated.</target>
+      </trans-unit>
+      <trans-unit id="Enc58438C4A" resname="encounter.grant.flash.deleted">
+        <source>encounter.grant.flash.deleted</source>
+        <target>Encounter access removed.</target>
+      </trans-unit>
+      <trans-unit id="EncC5A34E64" resname="encounter.grant.flash.not_a_member">
+        <source>encounter.grant.flash.not_a_member</source>
+        <target>Only users with access to this hospital can receive encounter access.</target>
+      </trans-unit>
+      <trans-unit id="EncBBECC456" resname="encounter.grant.flash.duplicate">
+        <source>encounter.grant.flash.duplicate</source>
+        <target>This user already has encounter access for this hospital.</target>
+      </trans-unit>
+      <trans-unit id="EncAdmAcc1" resname="encounter.overview.admin_access">
+        <source>encounter.overview.admin_access</source>
+        <target>As an administrator you have encounter access to every hospital without a grant.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

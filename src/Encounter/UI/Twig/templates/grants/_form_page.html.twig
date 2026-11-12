@@ -1,0 +1,35 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'encounter.grant.title'|trans({}, 'encounter') }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    {{ include('@Allocation/hospitals/_hospital_edit_page_header.html.twig') }}
+{% endblock %}
+
+{% block page_body %}
+    {% embed '@Allocation/hospitals/_edit_shell.html.twig' with {
+        hospital: hospital,
+        activeSection: activeSection,
+        form: form,
+        cardTitle: cardTitle,
+    } %}
+        {% block edit_main %}
+            {{ form_start(form) }}
+            <div class="card-header">
+                <h3 class="card-title">{{ cardTitle }}</h3>
+            </div>
+            <div class="card-body">
+                {% if form.user is defined %}
+                    {{ form_row(form.user) }}
+                {% endif %}
+                {{ form_row(form.actions) }}
+                <p class="form-hint">{{ 'encounter.grant.key_change_hint'|trans({}, 'encounter') }}</p>
+            </div>
+            <div class="card-footer d-flex justify-content-end gap-2">
+                <a class="btn btn-link" href="{{ path('app_encounter_grants', {id: hospital.id}) }}">{{ 'action.cancel'|trans({}, 'messages') }}</a>
+                <button class="btn btn-primary" type="submit">{{ 'encounter.grant.action_save'|trans({}, 'encounter') }}</button>
+            </div>
+            {{ form_end(form) }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

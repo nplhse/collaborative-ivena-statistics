@@ -40,13 +40,13 @@ Forces:
 
 ### Key change
 
-Only the **hospital owner** may change the key; administrators and users with the upload grant
+Only the **hospital owner** or an **administrator** may change the key; users with the upload grant
 (ADR 027) may not.
 
 1. The hospital enters the state "key change in progress": new encounter uploads are refused.
 2. The generation is incremented and the active check value retired. Queued and running imports of the
    old generation can no longer write (commit check above).
-3. The owner chooses what happens to the existing data:
+3. The person changing the key chooses what happens to the existing data:
    - **Delete:** all encounters of the hospital with their links and review decisions, their imports
      and source files are deleted asynchronously.
    - **Keep:** existing encounters stay, distinguishable by their generation; their links remain
@@ -81,7 +81,6 @@ chosen option) and administrators are notified.
 - **Passphrase with key derivation**: rejected; weaker, and users would type it on every run.
 - **Server-generated key embedded in the tool download**: rejected; the server would hold the key.
 - **Key change always deletes old data**: rejected; the owner may need the existing links.
-- **Administrators may change the key**: rejected; the key belongs to the hospital.
 
 ## References
 

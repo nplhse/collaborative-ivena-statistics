@@ -1,0 +1,57 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'encounter.grant.title'|trans({}, 'encounter') }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    {{ include('@Allocation/hospitals/_hospital_edit_page_header.html.twig') }}
+{% endblock %}
+
+{% block page_body %}
+    {% embed '@Allocation/hospitals/_edit_shell.html.twig' with {
+        hospital: hospital,
+        activeSection: 'encounter.grants',
+    } %}
+        {% block edit_card_title %}{{ 'encounter.grant.title'|trans({}, 'encounter') }}{% endblock %}
+        {% block edit_card_actions %}
+            <a class="btn btn-primary" href="{{ path('app_encounter_grants_new', {id: hospital.id}) }}">{{ 'encounter.hospital_edit.grants_new'|trans({}, 'encounter') }}</a>
+        {% endblock %}
+        {% block edit_content %}
+            <p class="text-secondary">{{ 'encounter.grant.intro'|trans({}, 'encounter') }}</p>
+            {% if grants is empty %}
+                <p class="text-secondary mb-0" data-test="encounter-grants-empty">{{ 'encounter.grant.empty'|trans({}, 'encounter') }}</p>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-vcenter" data-test="encounter-grants-table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'encounter.grant.column.user'|trans({}, 'encounter') }}</th>
+                                <th>{{ 'encounter.grant.column.actions'|trans({}, 'encounter') }}</th>
+                                <th>{{ 'encounter.grant.column.created_at'|trans({}, 'encounter') }}</th>
+                                <th class="w-1"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for grant in grants %}
+                                <tr>
+                                    <td>{{ grant.user.username }}</td>
+                                    <td>{{ include('@Encounter/grants/_actions.html.twig', {grant: grant}) }}</td>
+                                    <td>{{ grant.createdAt|date('d.m.Y H:i') }}</td>
+                                    <td class="text-nowrap">
+                                        <a class="btn btn-sm" href="{{ path('app_encounter_grants_edit', {id: hospital.id, grantId: grant.id}) }}">{{ 'encounter.grant.action_edit'|trans({}, 'encounter') }}</a>
+                                        <form class="d-inline" method="post" action="{{ path('app_encounter_grants_delete', {id: hospital.id, grantId: grant.id}) }}" onsubmit="return confirm({{ 'encounter.grant.confirm_delete'|trans({}, 'encounter')|json_encode }});">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_encounter_grant_' ~ grant.id) }}">
+                                            <button class="btn btn-sm btn-outline-danger" type="submit">{{ 'encounter.grant.action_delete'|trans({}, 'encounter') }}</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        {% endblock %}
+        {% block edit_footer %}
+            <a class="btn btn-link" href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}">{{ 'label.hospital.back_to_profile'|trans({}, 'messages') }}</a>
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

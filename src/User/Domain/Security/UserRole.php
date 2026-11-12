@@ -21,6 +21,12 @@ final class UserRole
      */
     public const string CLOSURE_BETA = 'ROLE_CLOSURE_BETA';
 
+    /**
+     * Participation in the encounter data pilot (ADR 027): pilot pages and navigation only, no case access.
+     * Inherited by ROLE_ADMIN.
+     */
+    public const string ENCOUNTER_BETA = 'ROLE_ENCOUNTER_BETA';
+
     public static function containsParticipant(mixed $roles): bool
     {
         if (!\is_array($roles)) {
