@@ -1,87 +1,83 @@
-# ADR 028: Encounter import lifecycle with versioned rows and stable visit identity
+# ADR 028: Encounter import lifecycle — one visit, one owning import
 
 **Status:** accepted
 
 ## Context
 
-Hospitals export encounter data by period. Exports overlap, later exports correct earlier ones,
-and imports can be deleted. Match decisions (ADR 029) are made by people and must survive these
-changes.
+Hospitals export encounter data by period. Exports overlap, and one file can mix visits that are
+already known with new ones. Imports can be deleted. Links and review decisions (ADR 029) must stay
+consistent with that.
 
 Forces:
 
-- The ORBIS MTS export has no per-visit identifier. Its second case id is 1:1 with the case number.
-  Whether a visit id can be exported is open (#1045).
-- One administrative case can contain several ED visits.
-- Arrival times can be missing, corrected or rounded, so they are a fragile visit identity.
-- Deleting a correcting import must bring back the previous state, not a gap.
+- The ORBIS MTS export has no per-visit identifier, and one administrative case number can cover
+  several ED visits (ADR 025).
+- Duplicates must be detected per row, not per file.
+- Deleting an import must have a simple, predictable result.
 
 ## Decision
 
-### Versioned rows
+### Visit identity
 
-Every encounter import stores its own rows; all rows carry `import_id`. Rows are never updated in
-place by another import.
+- Each encounter (= one ED visit) has an internal `visit_uid`.
+- Duplicate detection uses a **visit fingerprint** computed in the tool as a keyed HMAC (ADR 026)
+  with a versioned rule (`ed-visit:v1`). The rule is determined from the source fields in #1045;
+  the first candidate is the normalised administrative case number together with the ED admission time
+  in its original second resolution, with the time anchor used (and its fallback) part of the input.
+  Seconds may enter the fingerprint while the exchanged timestamps stay at minute precision. Triage,
+  vitals and disposition are not part of the fingerprint.
+- The server enforces uniqueness of `(hospital, key generation, fingerprint)` with a database
+  constraint, so parallel imports cannot create the same visit twice.
+- How rows without a reliable time anchor are handled (skipped, or imported with a visible notice and
+  without duplicate detection) is decided in #1045.
 
-### Administrative case as unit of replacement
+### Import
 
-For each `(hospital, case pseudonym)` the current state comes from the newest non-deleted import that
-contains this case (newest = upload order). A newer import replaces all visits of the cases it
-contains; cases it does not contain keep their state. After every import completion and deletion the
-current state is recomputed for the affected cases, then matching reruns for the affected days.
+- Duplicate detection runs row by row over the whole file.
+- A known visit is **skipped** and counted as duplicate in the import report; the existing record and
+  the import it belongs to are unchanged.
+- An unknown visit is inserted and **belongs to the import that created it**.
+- Overlapping exports therefore work, also when known and new visits are mixed in one file.
+- There are no historical row versions and no replacement of whole cases. Corrections of known visits
+  in later exports are not applied.
 
-### Stable visit identity
+### Deletion
 
-Each visit has a stable surrogate `visit_uid`. When a new version of a case arrives, its visits are
-mapped to existing `visit_uid`s within the same case:
+Deleting an import removes the visits it created, with their clinical data, IVENA links and review
+decisions. IVENA allocations and visits created by other imports stay.
 
-1. by visit pseudonym, if the source provides a visit id (#1045)
-2. otherwise by arrival time within a tolerance (default ±15 min) and order within the case
-
-Visits that cannot be mapped get a new `visit_uid`.
-
-### Decisions bound to the visit
-
-Allocation links and match decisions reference `visit_uid`, not a row:
-
-- Visit present in the current version → decision stays. If match features changed (sex, age, arrival
-  time beyond the tolerance), a confirmed decision stays but is flagged "source changed after
-  decision" for re-review.
-- Visit no longer present → decision becomes `orphaned` and is shown in the review. It is never moved
-  to another visit silently.
-
-### Required behaviour (test case)
-
-Import A contains visit V. Import B corrects V's triage. B is deleted. Then A is current again, V
-shows A's triage, keeps its `visit_uid` and keeps its match decision.
+Example: import A covers 1–15 October, import B covers 10–31 October. B's rows for 10–15 October are
+skipped as duplicates. When B is deleted, all visits created by A stay; the visits of 16–31 October
+created by B disappear.
 
 ## Consequences
 
 **Positive:**
 
-- Deleting or reprocessing an import has a defined result
-- Corrections arrive without manual merging
-- Human decisions survive re-imports and are never reassigned silently
+- Simple and predictable: each visit has one owner, deletion removes exactly what an import added
+- Overlapping exports and mixed files need no special handling
+- Parallel imports cannot create duplicates
 
 **Negative:**
 
-- Storage grows with every overlapping import (old versions stay until their import is deleted)
-- Current-state recomputation adds work after each import and deletion
-- Visit mapping by arrival time can split or merge visits when times are corrected heavily; such
-  cases surface as orphaned decisions
+- Corrections in later exports are ignored; adopting them requires deleting the owning import and
+  importing again (which removes its links and decisions)
+- Deleting an import can remove visits that a later overlapping export also contained; that export
+  must be reprocessed to restore them
+- A changed fingerprint input (for example an ED admission time entered later) makes the same visit
+  look new; #1045 measures how often this happens
 
 ## Alternatives
 
-- **Upsert by natural key (case pseudonym + arrival time)**: rejected; corrected or missing times
-  create duplicates, and deleting the correcting import cannot restore the previous state.
-- **Visit as unit of replacement**: rejected; without a visit id there is no reliable key across
-  imports.
-- **Newest import replaces everything of the hospital**: rejected; partial or period exports would
-  delete data of other periods.
+- **Versioned rows with the administrative case as unit of replacement**: rejected; complex, and the
+  case number does not identify visits.
+- **Upsert of known visits with the newest values**: rejected; deletion of the newer import could not
+  restore the previous values, and review decisions would rest on changing data.
+- **Natural key in clear (case number + time)**: rejected; the case number must not reach the server.
 
 ## References
 
 - [025-encounter-data-context-and-exchange-format.md](025-encounter-data-context-and-exchange-format.md)
+- [026-encounter-pseudonym-key.md](026-encounter-pseudonym-key.md)
 - [029-encounter-allocation-matching.md](029-encounter-allocation-matching.md)
-- [../../04-features/import/import-runs.md](../../04-features/import/import-runs.md)
-- Issues #1044, #1045, #1047
+- Issues #1044, #1045, #1047, #1048

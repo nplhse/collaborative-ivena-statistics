@@ -12,10 +12,10 @@ clarifies and documents it before the first real upload.
 | Purpose | Local care improvement: describe triage, process times and disposition of ED visits by arrival route, and link them with IVENA allocations. |
 | Population | All ED visits of the export, including self-presenters. Self-presenters are part of the real ED case mix; without them, arrival routes cannot be compared. |
 | Field set | `ed_visit` v1 ([exchange-format.md](exchange-format.md)). No names, dates of birth, staff names or free text; case number only as a pseudonym. |
-| Pseudonymisation | Keyed pseudonym of the case number with a key file held only by the hospital ([ADR 026](../../02-architecture/decisions/026-encounter-pseudonym-key.md)). The data is pseudonymised, not anonymised. |
+| Pseudonymisation | Keyed visit fingerprint (and optionally a keyed pseudonym of the case number) with a key file held only by the hospital; only the owner can change the key ([ADR 026](../../02-architecture/decisions/026-encounter-pseudonym-key.md)). The data is pseudonymised, not anonymised. Local preparation and the checks reduce the risk of uploading identifiers but cannot rule it out. |
 | Responsibilities | The hospital owns the data and the key file; the project operates the platform. To be confirmed by the hospital. |
 | Recipients | Only persons with an explicit encounter grant for the hospital see case-level data; grants are managed by the hospital owner and administrators and are audited ([ADR 027](../../02-architecture/decisions/027-encounter-access-grants.md)). No other hospital sees the data. |
-| Retention | Uploaded files: deleted after 30 days. Imported data: until the hospital deletes the import or resets the key. |
+| Retention | Uploaded files (accepted, or rejected for a possible processing error): kept 30 days for error analysis, then deleted. Files recognised as raw HIS exports or containing direct identifiers: deleted immediately, reason recorded. Imported encounters and links: until the owning import is deleted or the owner deletes them with a key change; a separate retention period is still to be decided. |
 
 ## Data flow
 
@@ -23,7 +23,7 @@ clarifies and documents it before the first real upload.
 2. Preparation in the browser tool on the same computer, offline except for one update check. The
    original export and the key file never leave the computer.
 3. Upload of the canonical file by a person with the upload grant, with confirmation.
-4. Storage of the file for at most 30 days; storage of the imported rows on the platform.
+4. Storage of the file for at most 30 days; storage of the imported encounters on the platform.
 5. Access in the application according to the encounter grants.
 
 ## Checklist before the first upload

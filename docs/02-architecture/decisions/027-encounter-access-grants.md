@@ -28,7 +28,7 @@ A separate grant in the `Encounter` context (user, hospital, actions), checked b
 
 | Action | Allows |
 |---|---|
-| `UPLOAD` | encounter imports and key reset (ADR 026) for the hospital |
+| `UPLOAD` | encounter imports for the hospital; does **not** include the key change |
 | `REVIEW` | match review decisions; implies `VIEW_CASES` |
 | `VIEW_CASES` | case-level views: visit lists, the case card on an allocation, direct URLs |
 
@@ -37,9 +37,11 @@ A separate grant in the `Encounter` context (user, hospital, actions), checked b
 - Only users with access to the hospital (owner or hospital grant) can receive an encounter grant.
   Removing that access removes the encounter grant.
 - Grants are managed by the hospital owner and by administrators, the same people who manage hospital
-  access grants. An owner can grant themselves explicitly. Every change is audited.
+  access grants. An owner can grant themselves case access explicitly. Every change is audited.
+- The key change (ADR 026) is reserved for the hospital owner; no grant and no administrator role
+  allows it.
 - Administrators without a grant see import status, counts and match diagnostics without case
-  details; they can reset a key. Case-level access needs a grant like for anyone else.
+  details. Case-level access needs a grant like for anyone else.
 - Descriptive aggregates of the own hospital need the beta role, any encounter grant on the hospital
   and the existing `STATISTICS` permission.
 
@@ -82,5 +84,6 @@ A separate grant in the `Encounter` context (user, hospital, actions), checked b
 - [002-hospital-permission-bitmask.md](002-hospital-permission-bitmask.md)
 - [011-collaborative-explore-allocation-visibility.md](011-collaborative-explore-allocation-visibility.md)
 - [025-encounter-data-context-and-exchange-format.md](025-encounter-data-context-and-exchange-format.md)
+- [026-encounter-pseudonym-key.md](026-encounter-pseudonym-key.md)
 - [../permission-model.md](../permission-model.md)
 - Issues #1044, #1046

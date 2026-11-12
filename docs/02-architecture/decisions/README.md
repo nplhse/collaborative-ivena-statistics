@@ -43,7 +43,7 @@ Each ADR includes:
 | [025](025-encounter-data-context-and-exchange-format.md) | Encounter data context, source profiles and canonical exchange format | accepted |
 | [026](026-encounter-pseudonym-key.md) | Hospital-held pseudonym key with key generations | accepted |
 | [027](027-encounter-access-grants.md) | Encounter access grants independent of hospital permissions | accepted |
-| [028](028-encounter-import-lifecycle.md) | Encounter import lifecycle with versioned rows and stable visit identity | accepted |
+| [028](028-encounter-import-lifecycle.md) | Encounter import lifecycle: one visit, one owning import | accepted |
 | [029](029-encounter-allocation-matching.md) | Matching ED visits with IVENA allocations | accepted |
 
 ## Template
