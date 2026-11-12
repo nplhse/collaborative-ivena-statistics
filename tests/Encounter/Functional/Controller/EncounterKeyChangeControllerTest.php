@@ -49,7 +49,6 @@ final class EncounterKeyChangeControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-test="encounter-key-change-when"]', 'lost');
         self::assertSelectorTextContains('[data-test="encounter-key-change-option-keep"]', 'counted twice');
         self::assertSelectorTextContains('[data-test="encounter-key-change-option-delete"]', 'There are no encounters yet.');
-        self::assertSelectorTextContains('[data-test="encounter-key-change-summary"]', 'Key generation 1');
         self::assertSelectorExists('a[href="'.$this->url().'"]');
 
         $form = $crawler->filter('form[name="encounter_key_change"]')->form();
@@ -59,8 +58,6 @@ final class EncounterKeyChangeControllerTest extends WebTestCase
 
         self::assertResponseRedirects($this->url());
         self::assertSame(['key_generation' => 2, 'key_change_in_progress' => false], $this->keyState());
-        $this->client->followRedirect();
-        self::assertSelectorTextContains('[data-test="encounter-key-change-summary"]', 'Key generation 2');
     }
 
     public function testWrongHospitalNameChangesNothing(): void

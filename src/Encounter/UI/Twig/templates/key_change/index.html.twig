@@ -33,7 +33,7 @@
 
                 {{ form_start(form, {attr: {'data-test': 'encounter-key-change-form'}}) }}
                     <div class="mb-3">
-                        <div class="form-label required">{{ 'encounter.key_change.field.option'|trans({}, 'encounter') }}</div>
+                        <h4>{{ 'encounter.key_change.field.option'|trans({}, 'encounter') }}</h4>
                         {{ form_errors(form.option) }}
                         {% for choice in form.option %}
                             <div class="form-check mb-2" data-test="encounter-key-change-option-{{ choice.vars.value }}">
@@ -52,10 +52,6 @@
                     <button class="btn btn-danger" type="submit">{{ 'encounter.key_change.action.submit'|trans({}, 'encounter') }}</button>
                 {{ form_end(form) }}
             {% endif %}
-
-            <p class="text-secondary small mt-4 mb-0" data-test="encounter-key-change-summary">
-                {{ 'encounter.key_change.summary'|trans({generation: summary.generation, encounters: summary.encounters, imports: summary.imports}, 'encounter') }}
-            </p>
         {% endblock %}
         {% block edit_footer %}
             <a class="btn btn-link" href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}">{{ 'label.hospital.back_to_profile'|trans({}, 'messages') }}</a>

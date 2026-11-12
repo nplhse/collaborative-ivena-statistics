@@ -839,7 +839,7 @@
       </trans-unit>
       <trans-unit id="EncK3BB98257" resname="encounter.key_change.field.option">
         <source>encounter.key_change.field.option</source>
-        <target>Existing encounters</target>
+        <target>What happens to existing encounters?</target>
       </trans-unit>
       <trans-unit id="EncK05558616" resname="encounter.key_change.option.delete">
         <source>encounter.key_change.option.delete</source>
@@ -860,10 +860,6 @@
       <trans-unit id="EncKDCB2AC3F" resname="encounter.key_change.irreversible">
         <source>encounter.key_change.irreversible</source>
         <target>This cannot be undone.</target>
-      </trans-unit>
-      <trans-unit id="EncKC2D24303" resname="encounter.key_change.summary">
-        <source>encounter.key_change.summary</source>
-        <target>Key generation {generation} · {encounters, plural, one {# encounter} other {# encounters}} · {imports, plural, one {# import} other {# imports}}</target>
       </trans-unit>
       <trans-unit id="EncKD9EC40CD" resname="encounter.key_change.in_progress">
         <source>encounter.key_change.in_progress</source>
