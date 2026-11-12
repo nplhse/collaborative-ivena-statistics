@@ -15,6 +15,7 @@ use Symfony\Component\Clock\Clock;
 #[ORM\Entity(repositoryClass: FeedbackRepository::class)]
 #[ORM\Table(name: 'feedback')]
 #[ORM\Index(name: 'idx_feedback_classification_created', columns: ['classification', 'created_at'])]
+#[ORM\Index(name: 'idx_feedback_message_fingerprint', columns: ['message_fingerprint'])]
 class Feedback implements \Stringable
 {
     #[ORM\Id]
@@ -84,6 +85,10 @@ class Feedback implements \Stringable
     /** When the quarantined entry was included in (or excluded from) the weekly quarantine summary. */
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $quarantineReportedAt = null;
+
+    /** SHA-256 of the normalised message, used to spot repeated messages; null when nothing is left. */
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $messageFingerprint = null;
 
     public function __construct()
     {
@@ -235,6 +240,18 @@ class Feedback implements \Stringable
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getMessageFingerprint(): ?string
+    {
+        return $this->messageFingerprint;
+    }
+
+    public function setMessageFingerprint(?string $messageFingerprint): static
+    {
+        $this->messageFingerprint = $messageFingerprint;
+
+        return $this;
     }
 
     public function getClassification(): FeedbackClassification

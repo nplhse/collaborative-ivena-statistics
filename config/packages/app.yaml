@@ -109,3 +109,8 @@ app:
                 - weight loss
                 - make money
                 - click here
+            blocked_link_domains:
+                - telegra.ph
+            patterns:
+                - '/\bearn\s+\$[\d,.]+\s+(?:per|a)\s+month\b/i'
+            history_days: 30
