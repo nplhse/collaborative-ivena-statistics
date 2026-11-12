@@ -99,7 +99,7 @@ The checks in the order of `make check`:
 |---|---|---|
 | 1 | Repository | `check-phpunit-suite-dirs`, `composer-validate`, `check-conflicts` |
 | 2 | Symfony config | `lint-yaml`, `lint-container` (deprecations + `lint:container`), `lint-xliff`, `lint-trans`, `lint-templates` (Twig syntax) |
-| 3 | Code style and refactoring | `swiss-knife-check` (`swiss-knife`), `rector-check` (`rector`), `lint-php` (`fix-php`), `lint-twig` (`fix-twig`, twig-cs-fixer), `lint-js` (`fix-js`) |
+| 3 | Code style and refactoring | `swiss-knife-check` (`swiss-knife`), `rector-check` (`rector`), `lint-php` (`fix-php`), `lint-twig` (`fix-twig`, twig-cs-fixer), `lint-js` (`fix-js`; also runs the Node tests of the data preparation tool, `npm run test:js`) |
 | 4 | Analysis | `phpstan`, `psalm` |
 | 5 | Architecture | `deptrac`: report only, never fails ([ADR 010](../02-architecture/decisions/010-architecture-guardrails-and-beta-scope.md)); `deptrac-strict` fails on violations outside the baseline |
 

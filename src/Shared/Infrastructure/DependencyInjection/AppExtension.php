@@ -39,8 +39,6 @@ final class AppExtension extends Extension
             $config['registration']['blocked_email_domains'],
         );
 
-        $container->setParameter('app.encounter.data_prep.min_version', $config['encounter']['data_prep']['min_version']);
-
         $container->setParameter('app.closure_volume.reference_weeks_before', $config['closure_volume']['reference_weeks_before']);
         $container->setParameter('app.closure_volume.reference_weeks_after', $config['closure_volume']['reference_weeks_after']);
         $container->setParameter('app.closure_volume.minimum_reference_slots', $config['closure_volume']['minimum_reference_slots']);
@@ -49,6 +47,12 @@ final class AppExtension extends Extension
         $container->setParameter('app.job_runs_retention', $config['job_runs_retention']);
         $container->setParameter('app.messenger_monitoring.retention', $config['messenger_monitoring']['retention']);
         $container->setParameter('app.messenger_monitoring.health', $config['messenger_monitoring']['health']);
+
+        // Encounter data preparation tool (ADR 025)
+        $dataPrepConfig = $config['encounter']['data_prep'];
+        $container->setParameter('app.encounter.data_prep.version', $dataPrepConfig['version']);
+        $container->setParameter('app.encounter.data_prep.min_version', $dataPrepConfig['min_version']);
+        $container->setParameter('app.encounter.data_prep.released_at', $dataPrepConfig['released_at']);
 
         // Storage monitoring (ADR 017)
         $storageConfig = $config['storage'];

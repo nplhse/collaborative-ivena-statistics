@@ -58,4 +58,19 @@
             </div>
         {% endif %}
     </div>
+
+    <div class="card mt-3" data-test="encounter-data-prep">
+        <div class="card-header">
+            <h3 class="card-title">{{ 'encounter.data_prep.overview.title'|trans({}, 'encounter') }}</h3>
+        </div>
+        <div class="card-body">
+            <p class="text-secondary">{{ 'encounter.data_prep.overview.intro'|trans({}, 'encounter') }}</p>
+            <p class="text-secondary">{{ 'encounter.data_prep.overview.profiles'|trans({}, 'encounter') }}</p>
+            <p class="text-secondary">{{ 'encounter.data_prep.overview.local_files'|trans({}, 'encounter') }}</p>
+            <a href="{{ path('app_encounter_data_prep_download') }}" class="btn btn-primary" download="{{ data_prep.fileName() }}">
+                {{ 'encounter.data_prep.overview.download'|trans({}, 'encounter') }}
+            </a>
+            <span class="text-secondary ms-2">{{ 'encounter.data_prep.overview.version'|trans({}, 'encounter') }} {{ data_prep.version }} · {{ data_prep.releasedAt }}</span>
+        </div>
+    </div>
 {% endblock %}

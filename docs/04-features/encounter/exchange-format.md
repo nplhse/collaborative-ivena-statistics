@@ -85,9 +85,12 @@ Rules:
 - The server checks every field against this table (#1048): ranges are inclusive, temperature has at most
   one decimal, integers have none, timestamps are exactly `YYYY-MM-DDTHH:MM`. A value outside its range
   or code list rejects the row, never the file.
-- `mts_diagram`, `mts_indicator` and their retriage counterparts are interim slugs of the German label
-  (`^[a-z0-9_]{1,64}$`: lowercase ASCII, ä→ae, ö→oe, ü→ue, ß→ss, other characters → `_`) until the MTS
-  catalog is fixed (#1056); any other value rejects the row.
+- MTS diagram and indicator codes (and their retriage counterparts): until the MTS catalog is fixed
+  (#1056), the tool derives the code from the German label (lowercase, umlauts transliterated, other
+  characters `_`, at most 64 characters), for example `Abdominelle Schmerzen bei Erwachsenen` →
+  `abdominelle_schmerzen_bei_erwachsenen`; the labels are listed in
+  `src/Encounter/UI/DataPrep/catalogs/mts-de.json`. The server accepts any value matching
+  `^[a-z0-9_]{1,64}$` and rejects the row otherwise.
 - `admitting_department` is the name of a department of the reference catalog (case-insensitive); an
   unknown or ambiguous name rejects the row.
 - Unknown manifest keys are ignored; required are the eight keys of the example line.
@@ -117,6 +120,8 @@ case_key          = hex(HMAC-SHA256(key, "case:v1|" + case_number))
   `Aufnahme ZNA`.
 
 ## ORBIS MTS profile (public part)
+
+Implemented by the [data preparation tool](data-preparation-tool.md#orbis-mts-value-mapping-profile-v1), which also lists the value mapping.
 
 Source: ORBIS MTS export, cp1252, `;`, quoted cells, timestamps `dd.mm.yyyy  HH:MM:SS` (two spaces),
 trailing empty column.
@@ -156,3 +161,5 @@ file for the tool:
 - disposition texts specific to the hospital, if any
 
 Unmapped values become `unknown` / empty and are listed in the tool's preview.
+
+File format: [data-preparation-tool.md](data-preparation-tool.md#local-map-private-per-hospital).
