@@ -8,6 +8,7 @@ use App\Allocation\Application\DTO\MyHospitals\DataStatusFindingType;
 use App\Allocation\Application\DTO\MyHospitals\HospitalDataStatus;
 use App\Allocation\Application\DTO\MyHospitals\ImportIssue;
 use App\Allocation\Application\DTO\MyHospitals\ImportIssueKind;
+use App\Allocation\Application\DTO\MyHospitals\MonthStatus;
 use App\Allocation\Application\DTO\MyHospitals\UploaderContribution;
 use App\Allocation\Application\Hospital\MyHospitals\CachedHospitalDataSnapshotReader;
 use App\Allocation\Application\Hospital\MyHospitals\DataStatusFindingRules;
@@ -47,7 +48,7 @@ final class MyHospitalsOverviewBuilderTest extends TestCase
         self::assertSame('2026-10-01', $full->imports->ownLastUploadAt?->format('Y-m-d'));
         self::assertCount(12, $full->months ?? []);
         // History runs from the first month with data (September 2026) to the current month.
-        self::assertSame(['2026-09', '2026-10', '2026-11'], array_map(static fn ($month): string => $month->month->format('Y-m'), $full->history ?? []));
+        self::assertSame(['2026-09', '2026-10', '2026-11'], array_map(static fn (MonthStatus $month): string => $month->month->format('Y-m'), $full->history ?? []));
         self::assertSame(2, $full->fullyCoveredMonths); // September and October 2026
         self::assertSame([DataStatusFindingType::ImportFailed], $this->findingTypes($full));
 
