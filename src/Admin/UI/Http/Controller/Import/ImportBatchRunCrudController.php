@@ -15,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @extends AbstractCrudController<ImportBatchRun>
@@ -32,8 +33,8 @@ final class ImportBatchRunCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Import batch run')
-            ->setEntityLabelInPlural('Import batch runs')
+            ->setEntityLabelInSingular(new TranslatableMessage('admin.import_batch_run.entity.singular', domain: 'admin'))
+            ->setEntityLabelInPlural(new TranslatableMessage('admin.import_batch_run.entity.plural', domain: 'admin'))
             ->setDefaultSort(['startedAt' => 'DESC']);
     }
 
@@ -50,15 +51,15 @@ final class ImportBatchRunCrudController extends AbstractCrudController
     {
         yield IdField::new('id')
             ->onlyOnDetail();
-        yield ChoiceField::new('status', 'Status')
+        yield ChoiceField::new('status', new TranslatableMessage('label.status', domain: 'messages'))
             ->renderAsBadges();
-        yield DateTimeField::new('startedAt', 'Started')
+        yield DateTimeField::new('startedAt', new TranslatableMessage('admin.job_run.field.started_at', domain: 'admin'))
             ->setFormat('dd.MM.yyyy HH:mm');
-        yield DateTimeField::new('finishedAt', 'Finished')
+        yield DateTimeField::new('finishedAt', new TranslatableMessage('admin.job_run.field.finished_at', domain: 'admin'))
             ->setFormat('dd.MM.yyyy HH:mm');
-        yield DateTimeField::new('createdAt', 'Created')
+        yield DateTimeField::new('createdAt', new TranslatableMessage('label.created', domain: 'messages'))
             ->onlyOnDetail();
-        yield TextField::new('optionsPreview', 'Options')
+        yield TextField::new('optionsPreview', new TranslatableMessage('admin.import_batch_run.field.options', domain: 'admin'))
             ->onlyOnDetail()
             ->setValue('')
             ->formatValue(static function (mixed $_, ImportBatchRun $run): string {
@@ -69,7 +70,7 @@ final class ImportBatchRunCrudController extends AbstractCrudController
 
                 return \is_string($encoded) ? $encoded : '';
             });
-        yield AssociationField::new('items', 'Items')
+        yield AssociationField::new('items', new TranslatableMessage('admin.import_batch_run.field.items', domain: 'admin'))
             ->onlyOnDetail();
     }
 }
