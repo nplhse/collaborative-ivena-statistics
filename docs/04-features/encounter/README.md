@@ -16,7 +16,9 @@ Decisions: [ADR 026](../../02-architecture/decisions/026-encounter-data-context-
 (context, exchange format, retention), [ADR 027](../../02-architecture/decisions/027-encounter-pseudonym-key.md)
 (pseudonym key), [ADR 028](../../02-architecture/decisions/028-encounter-access-grants.md) (access),
 [ADR 029](../../02-architecture/decisions/029-encounter-import-lifecycle.md) (import lifecycle),
-[ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md) (matching).
+[ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md) (matching),
+[ADR 031](../../02-architecture/decisions/031-mts-catalog-as-maintained-data.md) (MTS catalog),
+[ADR 032](../../02-architecture/decisions/032-learning-plausibility-table.md) (plausibility table).
 
 ## Flow
 
@@ -330,7 +332,9 @@ Summary of [ADR 030](../../02-architecture/decisions/030-encounter-allocation-ma
 
 - Same hospital; pass 1 EMS arrivals, −20 … +45 min, age ±2; pass 2 the rest, −30 … +90 min, age ±5.
 - Features: time difference, sex, age difference, arrival route, physician vehicle, work accident.
-  MTS category, MTS diagram and admitting department are not used.
+  MTS category, MTS diagram and admitting department are not used. From matcher `1.2.0` (planned, #1154)
+  pass 2 adds a bonus of 0 … +3 when PZC and MTS diagram are plausible together
+  ([plausibility table](#plausibility-table)).
 - Score 0.0–1.0 with competition between candidates, shown as agreement with feature contributions.
 - `auto_accepted` (≥ 0.90, no conflict: no other allocation reaches 0.90 for the same visit in the
   same pass) is an effective link with visible automatic origin;
@@ -363,6 +367,10 @@ set of points with a new version, which `MatchPlanner::VERSION` names and every 
 | arrival route | EMS: +1; unknown: 0; self-presenter (pass 2): −2 |
 | physician vehicle ↔ IVENA "with physician" | physician vehicle and physician: +2; one of them only (physician vehicle without, ambulance or patient transport with): −1; otherwise 0 |
 | work accident ↔ IVENA work accident | both: +2; one side only: −1; neither: 0 |
+
+**Planned for `1.2.0`** (ADR 030 amendment, #1154): an ambulance with IVENA "with physician" scores 0
+instead of −1 (rendezvous system); a patient transport with physician stays −1. Pass 2 adds the
+plausibility bonus (below). All other points as in `1.1.0`.
 
 Example: arrival 10:00, ED admission 10:07, same sex and age, ambulance: 4 + 2 + 2 + 1 = 9 points; alone
 it scores 512 / (16 + 512) = 0.9697 and becomes `auto_accepted`. A second visit at 10:06 with the same
@@ -418,6 +426,37 @@ prints counts only. Synthetic encounters loaded by the fixtures are not matched 
 **Read model**: `EncounterKeyChangeSummaryQuery` counts links and decisions per hospital;
 `EncounterOverviewQuery` and `HospitalCourseQuery` read them for the pages of #1055; `MatchReviewQuery` reads
 the review (below).
+
+## Plausibility table
+
+Decided in [ADR 032](../../02-architecture/decisions/032-learning-plausibility-table.md) and the
+[ADR 030 amendment](../../02-architecture/decisions/030-encounter-allocation-matching.md#amendment-matcher-120)
+(#1136); implementation in #1153 (table and seed), #1154 (matcher `1.2.0`), #1155 (learning job) and #1156
+(analyses). Nothing of it is implemented yet.
+
+- **Cells:** first two digits of the allocation's PZC × canonical MTS diagram of the visit's initial triage →
+  bonus 0 … +3. No negative points. No PZC, no diagram or no cell: 0.
+- **One global table** for all hospitals, read from the **active snapshot**; without one the bonus is 0.
+- **Seed:** domains (problem areas) with PZC ranges, MTS diagrams and points, reviewed in the app; a cell gets
+  the highest points of the domains it belongs to on both sides.
+- **Learning:** a job builds a draft snapshot from pairs confirmed or validated by people and automatic links
+  whose decision did not depend on the bonus; other candidates of the same allocations are the counter-cases.
+  Laplace smoothing, shrinkage towards the seed, minimum counts, cap +3; the report replays the draft
+  cross-fitted by period.
+- **Snapshots:** `draft` → `active` → `retired`; activated by an administrator or a holder of
+  `ROLE_ENCOUNTER_CATALOG_REVIEWER` ([permission model](../../02-architecture/permission-model.md#encounter-grants)),
+  audited. Active and retired snapshots are immutable.
+- **Matcher:** pass 2 only; the pair records the bonus (`plausibility` contribution), the snapshot id and
+  whether the bonus was decisive. A new active snapshot changes no link or manual decision; open proposals
+  are recomputed by the next run.
+- **Bias:** analyses comparing PZC with the MTS diagram exclude links decided by the bonus or report them
+  apart.
+- **Visibility:** the table and its reports are a cross-hospital aggregate (points, global counts with
+  `< 5` suppression) shown to reviewers and administrators only.
+
+Measured on the pilot hospital (October 2026, 496 allocations): automatic links 421 (84.9 %) with `1.1.0`,
+453 (91.3 %) with an a-priori bonus of +3 in pass 2, 443 (89.3 %) with a table learned from half a month;
+none linked to another visit than the reference.
 
 ## Match review
 
@@ -717,6 +756,10 @@ per diagram under `/explore/glossary/mts/diagram/{code}`), contributed through t
 extension point ([explore-glossary.md](../allocation/explore-glossary.md)); Allocation does not depend
 on Encounter.
 
+- **Catalog in the database (planned).** [ADR 031](../../02-architecture/decisions/031-mts-catalog-as-maintained-data.md):
+  the catalog moves into the database (#1082) with stable codes, aliases, diagram–indicator assignments and
+  provisional entries for codes seen for the first time (#1157); administrators curate it. Stored encounter
+  codes stay valid; merged codes resolve through aliases. Until then:
 - **Single catalog.** `src/Encounter/Application/Catalog/mts-de.json` (40 diagrams, 70 indicators, both
   open lists) is read by the data preparation tool (bundled as catalog `mts-de`) and by `MtsCatalog`.
   `MtsCatalog::code()` derives the code exactly as the tool's `catalogCode()`; `MtsCatalogTest` checks
@@ -790,3 +833,4 @@ Before the first real upload the pilot hospital documents the data flow:
 | #1057 | Match validation |
 | #1058 | IVENA case number in encounter sources (after the pilot) |
 | #1130 | Tool landing page and local map editor |
+| #1136 | MTS plausibility (umbrella): #1152 ADRs, #1082 catalog in the database, #1153 plausibility table, #1154 matcher `1.2.0`, #1155 learning job, #1156 analyses, #1157 catalog distribution |
