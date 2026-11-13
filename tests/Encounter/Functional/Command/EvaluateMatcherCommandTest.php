@@ -28,7 +28,7 @@ use Zenstruck\Foundry\Test\Factories;
  * compared with validation verdicts or a synthetic truth.
  *
  * 12 October 2026: 10:00 → visit 10:05 (9 points, 0.9697, automatic); 12:00 → visit 12:20 at age 71
- * (time +2, sex +2, age +1, route +1 = 6 points, 64 / 80 = 0.80, proposal).
+ * (production 1.1.0: time +3, sex +2, age +1, route +1 = 7 points, 128 / 144 = 0.8889, proposal).
  */
 #[ResetDatabase]
 final class EvaluateMatcherCommandTest extends KernelTestCase
@@ -63,11 +63,18 @@ final class EvaluateMatcherCommandTest extends KernelTestCase
         self::assertMatchesRegularExpression('/automatic\s+0\.90–0\.99\s+1\s+0\s+0\s+1\s+–/u', $display);
         self::assertMatchesRegularExpression('/proposal\s+0\.70–0\.90\s+1\s+0\s+0\s+1\s+–/u', $display);
         self::assertStringContainsString('validation verdicts', $display);
+        // 12:00 vs 12:20, one year older: production (1.1.0) 3 + 2 + 1 + 1 = 7 points, 128 / 144 = 0.8889.
+        self::assertStringContainsString('replay, based on 1.1.0 (no match 4)', $display);
 
-        // Age difference 1 worth 3: 8 points, 256 / 272 = 0.9412, both automatic.
+        // Starting from v1: time near +2, 6 points, 64 / 80 = 0.8, the same band.
+        self::assertSame(Command::SUCCESS, $tester->execute([...$this->period(), '--weights' => '1.0.0']));
+        self::assertMatchesRegularExpression('/proposal\s+0\.70–0\.90\s+1\s/u', $tester->getDisplay());
+        self::assertStringContainsString('replay, based on 1.0.0 (no match 4)', $tester->getDisplay());
+
+        // Age difference 1 worth 3: 9 points, 512 / 528 = 0.9697, both automatic.
         self::assertSame(Command::SUCCESS, $tester->execute([...$this->period(), '--points' => ['age.1=3'], '--label' => 'age-3']));
         self::assertMatchesRegularExpression('/automatic\s+0\.90–0\.99\s+2\s/u', $tester->getDisplay());
-        self::assertStringContainsString('age-3 (no match 4)', $tester->getDisplay());
+        self::assertStringContainsString('age-3, based on 1.1.0 (no match 4)', $tester->getDisplay());
 
         // A stricter auto-accept threshold turns the 0.9697 link into a proposal.
         self::assertSame(Command::SUCCESS, $tester->execute([...$this->period(), '--auto-accept' => '0.98']));
@@ -118,12 +125,13 @@ final class EvaluateMatcherCommandTest extends KernelTestCase
         self::assertMatchesRegularExpression('/\s2\s+1 \(0\.500\)\s+2 \(1\.000\)/', $display);
     }
 
-    public function testRefusesUnknownPoints(): void
+    public function testRefusesUnknownPointsAndVersions(): void
     {
         $tester = $this->tester();
 
         self::assertSame(Command::INVALID, $tester->execute([...$this->period(), '--points' => ['time.never=1']]));
         self::assertSame(Command::INVALID, $tester->execute([...$this->period(), '--points' => ['time.near']]));
+        self::assertSame(Command::INVALID, $tester->execute([...$this->period(), '--weights' => '0.9.0']));
         self::assertSame(Command::INVALID, $tester->execute(['--from' => '2026-10-12']));
     }
 

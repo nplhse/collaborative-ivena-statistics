@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Encounter\Functional\Controller;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Encounter\Application\Matching\MatchPlanner;
 use App\Encounter\Application\Review\ReviewPeriod;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\Domain\Entity\MatchValidationItem;
@@ -38,7 +39,7 @@ use Zenstruck\Foundry\Test\Factories;
  *
  * Data on 12 October 2026 (MatchingDataFixtures: allocations female, 70 years; visits by ambulance):
  * - 10:00 → visit 10:05: 9 points, 512 / 528 = 0.9697, automatic link, band 0.90–0.99
- * - 12:00 → visit 12:20 at age 71: 2 + 2 + 1 + 1 = 6 points, 64 / 80 = 0.80, proposal, band 0.70–0.90
+ * - 12:00 → visit 12:20 at age 71: 3 + 2 + 1 + 1 = 7 points, 128 / 144 = 0.89, proposal, band 0.70–0.90
  * - 14:00, 15:00: no visit, allocations without link
  * - visit 18:00 by ambulance: EMS visit without link; visit 19:00 self-presenter: not sampled
  */
@@ -97,7 +98,7 @@ final class MatchValidationControllerTest extends WebTestCase
         $this->client->submit($form);
         self::assertResponseRedirects();
         $crawler = $this->client->followRedirect();
-        self::assertSelectorTextContains('[data-test="encounter-validation-sample-meta"]', 'Matcher 1.0.0');
+        self::assertSelectorTextContains('[data-test="encounter-validation-sample-meta"]', 'Matcher '.MatchPlanner::VERSION);
 
         // Judged of sampled and the population when drawn, in the summary column.
         self::assertSame(['0 of 1 judged', '1 in period'], $this->reportCells($crawler, 'report-automatic-0.90–0.99', ['progress', 'population']));
@@ -112,7 +113,7 @@ final class MatchValidationControllerTest extends WebTestCase
         // visits (12:20, 18:00) lie outside the review window, so there is no alternative.
         $crawler = $this->client->click($crawler->filter('[data-test="encounter-validation-continue"]')->link());
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('[data-test="encounter-validation-origin"]', 'Sampled as Automatic link, agreement 0.97 (band 0.90–0.99), pass 1, matcher 1.0.0');
+        self::assertSelectorTextContains('[data-test="encounter-validation-origin"]', 'Sampled as Automatic link, agreement 0.97 (band 0.90–0.99), pass 1, matcher '.MatchPlanner::VERSION);
         self::assertSelectorTextContains('[data-test="encounter-validation-question"] .card-title', 'Do allocation and visit belong together?');
         self::assertCount(1, $crawler->filter('[data-test="encounter-validation-candidate"]'));
         self::assertSame((string) $linkedVisit, $crawler->filter('[data-test="encounter-validation-candidate"]')->attr('data-encounter'));
@@ -134,7 +135,7 @@ final class MatchValidationControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-test="encounter-validation-origin"]', 'band 0.70–0.90');
         $crawler = $this->verdict($crawler, 'wrong');
         self::assertSelectorTextContains('.alert-success', 'the pair was rejected');
-        self::assertContains(sprintf('%d-%d rejected 0.8000', $proposed->getId(), $proposedVisit), $this->matchRows($this->hospital));
+        self::assertContains(sprintf('%d-%d rejected 0.8889', $proposed->getId(), $proposedVisit), $this->matchRows($this->hospital));
         self::assertSame('wrong', $this->validationAudit()['verdict']);
         self::assertTrue($this->validationAudit()['pair_rejected']);
 
@@ -164,7 +165,7 @@ final class MatchValidationControllerTest extends WebTestCase
 
         // The overview adds up every sample per matcher version.
         $this->client->request(Request::METHOD_GET, $this->validationUrl());
-        self::assertSelectorExists('[data-test="encounter-validation-combined"][data-version="1.0.0"]');
+        self::assertSelectorExists('[data-test="encounter-validation-combined"][data-version="'.MatchPlanner::VERSION.'"]');
     }
 
     /**

@@ -31,13 +31,13 @@ final class FeatureScorerTest extends TestCase
     public static function timeDifferences(): iterable
     {
         yield '21 min before' => [-21, -2];
-        yield '20 min before' => [-20, 2];
-        yield '6 min before' => [-6, 2];
+        yield '20 min before' => [-20, 3];
+        yield '6 min before' => [-6, 3];
         yield '5 min before' => [-5, 4];
         yield 'at arrival' => [0, 4];
         yield '15 min after' => [15, 4];
-        yield '16 min after' => [16, 2];
-        yield '30 min after' => [30, 2];
+        yield '16 min after' => [16, 3];
+        yield '30 min after' => [30, 3];
         yield '31 min after' => [31, 0];
         yield '45 min after' => [45, 0];
         yield '46 min after' => [46, -2];
@@ -66,8 +66,8 @@ final class FeatureScorerTest extends TestCase
         yield 'female both' => ['F', Sex::Female, 2];
         yield 'male both' => ['M', Sex::Male, 2];
         yield 'diverse both' => ['X', Sex::Diverse, 2];
-        yield 'male vs female' => ['M', Sex::Female, -4];
-        yield 'female vs male' => ['F', Sex::Male, -4];
+        yield 'male vs female' => ['M', Sex::Female, -2];
+        yield 'female vs male' => ['F', Sex::Male, -2];
         yield 'IVENA diverse' => ['X', Sex::Male, 0];
         yield 'visit diverse' => ['F', Sex::Diverse, 0];
     }

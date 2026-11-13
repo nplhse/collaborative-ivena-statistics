@@ -90,6 +90,43 @@ results. Validation verdicts act on the links as review decisions do: "correct" 
 the pair, "wrong" rejects it, and a partner chosen instead is linked (a link elsewhere only through a swap
 the review proposes).
 
+### Matcher versions
+
+The points and the "no match" weight form a named matcher version (`MatchWeights`). Every pair stores
+the version that scored it; earlier versions stay defined so that stored pairs remain reproducible and
+replays (`app:encounter:evaluate-matcher --weights=<version>`) can start from them. Thresholds (0.90 /
+0.50), passes and windows are configuration, not part of the version.
+
+| Version | Change | Status |
+|---|---|---|
+| `1.0.0` | points set by judgement (feature table in the [encounter docs](../../04-features/encounter/README.md#matching)) | replaced by `1.1.0` |
+| `1.1.0` | `time.near` +2 → +3; `sex.different` −4 → −2; everything else as in `1.0.0` | production |
+
+**Why 1.1.0.** The match validation of one pilot hospital (October 2026) found:
+
+- 0 wrong among 69 decisive verdicts on pairs, across all score bands: the score of v1 is conservative.
+- 51 of 84 proposals of v1 were single-candidate pairs that failed only the time core (−5 … +15 min). With
+  `time.near` +3, such a pair with everything else matching scores 3 + 2 + 2 + 1 = 8 points,
+  2^8 / (2^8 + 2^4) = 0.941, and is linked automatically (v1: 7 points, 0.889, a proposal).
+- 14 of 15 partners the matcher missed differed only in sex (13 of them female in IVENA, male in the
+  source), all with exact age, a time difference of 0–11 min and EMS arrival. With `sex.different` −2 such
+  a pair scores 4 − 2 + 2 + 1 = 5 points, 2^5 / (2^5 + 2^4) = 0.667, and becomes a proposal (v1: 3 points,
+  0.333, not stored). A smaller penalty was not chosen: a sex mismatch stays a case for a person and should
+  not approach the auto-accept threshold.
+
+**Effect on stored pairs.** A new version follows the rules for runs above; nothing is rescored in bulk:
+
+- Automatic links and manual decisions of `1.0.0` stay as they are, with their score, contributions and
+  version. They are effective links and a rerun never changes them.
+- Open proposals are not kept: the next run over their allocations (after an import, or
+  `app:encounter:match` for a hospital and period) deletes them and plans them again with `1.1.0`. A former
+  v1 proposal may then become an automatic link.
+- Allocations and visits without a link are matched with `1.1.0` on that run, so pairs with different sex
+  can appear as new proposals.
+
+Analyses and validation results that compare link rates or shares correct keep the matcher version apart
+(the validation overview adds up verdicts per matcher version).
+
 ## Consequences
 
 **Positive:**

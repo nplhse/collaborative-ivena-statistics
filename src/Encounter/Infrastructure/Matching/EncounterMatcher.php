@@ -19,7 +19,7 @@ use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Runs matcher v1 for one hospital and the allocations of the given days (ADR 029, #1053).
+ * Runs the production matcher ({@see MatchPlanner::VERSION}) for one hospital and the allocations of the given days (ADR 029, #1053).
  *
  * One transaction under the hospital's matching lock: read the scope's allocations, their candidate
  * visits and the existing links and decisions; drop the scope's open proposals; plan; write the new

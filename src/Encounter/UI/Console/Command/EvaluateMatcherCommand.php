@@ -56,7 +56,9 @@ final readonly class EvaluateMatcherCommand
         ?float $autoAccept = null,
         #[Option(description: 'Proposal threshold instead of the configured one')]
         ?float $proposal = null,
-        #[Option(description: 'Points of the "no match" option instead of the current ones')]
+        #[Option(description: 'Matcher version whose points the replay starts from, e.g. 1.0.0; default: the production matcher')]
+        string $weights = MatchPlanner::VERSION,
+        #[Option(description: 'Points of the "no match" option instead of the ones of --weights')]
         ?int $noMatchPoints = null,
         #[Option(description: 'Changed point as key=value, e.g. time.near=1 (repeatable; keys as in MatchWeights)')]
         array $points = [],
@@ -74,7 +76,7 @@ final readonly class EvaluateMatcherCommand
         }
 
         try {
-            $weights = MatchWeights::v1()->with($label, $this->parsePoints($points), $noMatchPoints);
+            $replayed = MatchWeights::named($weights)->with($label, $this->parsePoints($points), $noMatchPoints);
             $settings = new MatchingSettings(
                 $autoAccept ?? $this->settings->autoAcceptThreshold,
                 $proposal ?? $this->settings->proposalThreshold,
@@ -95,7 +97,7 @@ final readonly class EvaluateMatcherCommand
             $last->modify('+1 day')->modify(sprintf('+%d minutes', $settings->widestMinutesAfter())),
             null,
         );
-        $plan = new MatchPlanner($settings, $weights)->plan($allocations, $encounters);
+        $plan = new MatchPlanner($settings, $replayed)->plan($allocations, $encounters);
 
         $reference = null === $truthMap ? $this->validation->pairVerdicts($hospital) : MatcherEvaluation::referenceFromTruth($plan, $truthMap);
         $evaluation = MatcherEvaluation::of(
@@ -107,7 +109,7 @@ final readonly class EvaluateMatcherCommand
         );
 
         $io->definitionList(
-            ['Weights' => $weights->version.' (no match '.$weights->noMatchPoints.')'],
+            ['Weights' => sprintf('%s, based on %s (no match %d)', $replayed->version, $weights, $replayed->noMatchPoints)],
             ['Thresholds' => sprintf('auto %.2f, proposal %.2f', $settings->autoAcceptThreshold, $settings->proposalThreshold)],
             ['Reference' => null === $truthMap ? 'validation verdicts' : 'synthetic truth'],
             ['Allocations / visits' => sprintf('%d / %d', \count($allocations), \count($encounters))],

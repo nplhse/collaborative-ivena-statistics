@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Enum\AllocationGender;
 use App\Encounter\Application\Contract\EncounterKeyChangeSummaryReaderInterface;
 use App\Encounter\Application\Event\EncountersImported;
+use App\Encounter\Application\Matching\MatchPlanner;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\Domain\Enum\AnchorSource;
@@ -64,7 +65,8 @@ final class EncounterMatcherTest extends KernelTestCase
         self::assertSame(9, $match->getPoints());
         self::assertSame(['time' => 4, 'sex' => 2, 'age' => 2, 'arrival_route' => 1, 'physician' => 0, 'work_accident' => 0], $match->getContributions());
         self::assertSame(1, $match->getPass());
-        self::assertSame('1.0.0', $match->getMatcherVersion());
+        self::assertSame(MatchPlanner::VERSION, $match->getMatcherVersion());
+        self::assertSame('1.1.0', $match->getMatcherVersion());
         self::assertSame(AnchorSource::Admission, $match->getTimeAnchor());
         self::assertSame(7, $match->getTimeDifferenceMinutes());
         self::assertNull($match->getDecidedAt());
@@ -90,16 +92,16 @@ final class EncounterMatcherTest extends KernelTestCase
         $ivena = $this->encounterImport($hospital, 'IVENA', ImportType::ALLOCATION);
         $ed = $this->encounterImport($hospital, 'ED');
         $allocation = $this->allocationAt($hospital, $ivena, '10:00');
-        // 10:20 at age 71: time +2, sex +2, age +1, route +1 = 6 points alone: 64 / 80 = 0.8, a proposal.
+        // 10:20 at age 71: time +3, sex +2, age +1, route +1 = 7 points alone: 128 / 144 = 0.8889, a proposal.
         $first = $this->visitAt($hospital, $ed, '10:20', age: 71);
         $this->matchDay($hospital);
-        self::assertSame([sprintf('%d-%d proposed 0.8000', $allocation->getId(), $first)], $this->matchRows($hospital));
+        self::assertSame([sprintf('%d-%d proposed 0.8889', $allocation->getId(), $first)], $this->matchRows($hospital));
 
         // Proposals are recomputed: with a better visit at 10:01 (9 points) the old proposal drops to
-        // 64 / (16 + 512 + 64) = 0.1081 and the new one gets 512 / 592 = 0.8649.
+        // 128 / (16 + 512 + 128) = 0.1951 and the new one gets 512 / 656 = 0.7805.
         $second = $this->visitAt($hospital, $ed, '10:01');
         $this->matchDay($hospital);
-        self::assertSame([sprintf('%d-%d proposed 0.8649', $allocation->getId(), $second)], $this->matchRows($hospital));
+        self::assertSame([sprintf('%d-%d proposed 0.7805', $allocation->getId(), $second)], $this->matchRows($hospital));
 
         // Once linked, a new visit that would fit better changes nothing.
         $this->matchRowsAfterConfirming($allocation, $second);
@@ -107,7 +109,7 @@ final class EncounterMatcherTest extends KernelTestCase
         $result = $this->matchDay($hospital);
 
         self::assertSame([0, 0], [$result->autoAccepted, $result->proposed]);
-        self::assertSame([sprintf('%d-%d confirmed 0.8649', $allocation->getId(), $second)], $this->matchRows($hospital));
+        self::assertSame([sprintf('%d-%d confirmed 0.7805', $allocation->getId(), $second)], $this->matchRows($hospital));
         self::assertNotSame($second, $third);
     }
 
@@ -208,8 +210,8 @@ final class EncounterMatcherTest extends KernelTestCase
         $ed = $this->encounterImport($hospital, 'ED');
         $removed = $this->encounterImport($hospital, 'IVENA removed', ImportType::ALLOCATION);
         $this->allocationAt($hospital, $removed, '10:00');
-        // 10:05 − 09:44 = 21 minutes: time +2, 7 points alone = 0.8889.
-        $remaining = $this->allocationAt($hospital, $this->encounterImport($hospital, 'IVENA kept', ImportType::ALLOCATION), '09:44');
+        // 10:05 − 09:44 = 21 minutes, one year apart: time +3, age +1, 7 points alone = 128 / 144 = 0.8889.
+        $remaining = $this->allocationAt($hospital, $this->encounterImport($hospital, 'IVENA kept', ImportType::ALLOCATION), '09:44', age: 71);
         $visit = $this->visitAt($hospital, $ed, '10:05');
         $this->matchDay($hospital);
         self::assertCount(1, $this->matchRows($hospital));

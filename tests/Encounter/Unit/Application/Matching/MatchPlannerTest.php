@@ -14,8 +14,8 @@ use App\Encounter\Domain\Enum\Sex;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Score, passes, conflict, reservation and gap filling of matcher v1 (ADR 029) on hand-checkable
- * inputs. Score = 2^points / (2^4 "no match" + sum of 2^points of the allocation's candidates).
+ * Score, passes, conflict, reservation and gap filling of the production matcher (v1.1, ADR 029) on
+ * hand-checkable inputs. Score = 2^points / (2^4 "no match" + sum of 2^points of the allocation's candidates).
  */
 final class MatchPlannerTest extends TestCase
 {
@@ -39,11 +39,11 @@ final class MatchPlannerTest extends TestCase
 
     public function testCompetingCandidatesShareTheScore(): void
     {
-        // Visit 10: 9 points; visit 11 at 10:20 (time +2) and one year older (age +1): 6 points.
-        // 512 / (16 + 512 + 64) = 0.8649 and 64 / 592 = 0.1081: a proposal, nothing automatic.
+        // Visit 10: 9 points; visit 11 at 10:20 (time +3) and one year older (age +1): 7 points.
+        // 512 / (16 + 512 + 128) = 0.7805 and 128 / 656 = 0.1951: a proposal, nothing automatic.
         $plan = $this->planner()->plan([self::allocation(1)], [self::visit(10), self::visit(11, '10:20', age: 71)]);
 
-        self::assertSame([[1, 10, 'proposed', 0.8649]], $this->rows($plan));
+        self::assertSame([[1, 10, 'proposed', 0.7805]], $this->rows($plan));
     }
 
     public function testTwoEqualCandidatesBothScoreLow(): void
@@ -54,17 +54,35 @@ final class MatchPlannerTest extends TestCase
 
     public function testAWeakSingleCandidateIsOnlyProposed(): void
     {
-        // Age 72 (0) at 10:20 (+2): 2 + 2 + 0 + 1 = 5 points, 32 / (16 + 32) = 0.6667.
+        // Age 72 (0) at 10:20 (+3): 3 + 2 + 0 + 1 = 6 points, 64 / (16 + 64) = 0.8.
         $plan = $this->planner()->plan([self::allocation(1)], [self::visit(10, '10:20', age: 72)]);
 
-        self::assertSame([[1, 10, 'proposed', 0.6667]], $this->rows($plan));
+        self::assertSame([[1, 10, 'proposed', 0.8]], $this->rows($plan));
         self::assertSame(1, $plan[0]->pass);
+    }
+
+    public function testANearPairWithEverythingElseMatchingIsLinkedAutomatically(): void
+    {
+        // 10:20 is "near" (+16 … +30): 3 + 2 + 2 + 1 = 8 points, 256 / (16 + 256) = 0.9412 (v1: 7 points, 0.8889).
+        $plan = $this->planner()->plan([self::allocation(1)], [self::visit(10, '10:20')]);
+
+        self::assertSame([[1, 10, 'auto_accepted', 0.9412]], $this->rows($plan));
+        self::assertSame(8, $plan[0]->points);
+    }
+
+    public function testADifferentSexIsOnlyProposed(): void
+    {
+        // Male vs female (−2): 4 − 2 + 2 + 1 = 5 points, 32 / (16 + 32) = 0.6667 (v1: −4, 3 points, 0.3333).
+        $plan = $this->planner()->plan([self::allocation(1)], [self::visit(10, sex: Sex::Male)]);
+
+        self::assertSame([[1, 10, 'proposed', 0.6667]], $this->rows($plan));
+        self::assertSame(-2, $plan[0]->contributions['sex']);
     }
 
     public function testBelowTheProposalThresholdNothingIsWritten(): void
     {
-        // Male vs female (−4): 4 − 4 + 2 + 1 = 3 points, 8 / 24 = 0.3333.
-        self::assertSame([], $this->planner()->plan([self::allocation(1)], [self::visit(10, sex: Sex::Male)]));
+        // Male vs female (−2) and age 72 (0): 4 − 2 + 0 + 1 = 3 points, 8 / 24 = 0.3333.
+        self::assertSame([], $this->planner()->plan([self::allocation(1)], [self::visit(10, sex: Sex::Male, age: 72)]));
     }
 
     public function testPassOneTakesOnlyEmsVisitsAndPassTwoTheRest(): void
