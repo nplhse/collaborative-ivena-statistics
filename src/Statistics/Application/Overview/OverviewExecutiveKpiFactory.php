@@ -26,14 +26,13 @@ final readonly class OverviewExecutiveKpiFactory
     public function __construct(
         private BenchmarkMetricBuilder $metricBuilder,
         private OverviewPeriodComparisonService $periodComparison,
-        private OverviewSelfBenchmarkFactory $selfBenchmarkFactory,
     ) {
     }
 
     /**
      * @return list<BenchmarkMetric>
      */
-    public function build(StatisticsContext $context, BenchmarkReport $report): array
+    public function build(StatisticsContext $context, BenchmarkReport $report, ?OverviewComparisonPeriod $comparison): array
     {
         $metricsByKey = [];
         foreach ($report->kpiMetrics as $metric) {
@@ -43,7 +42,7 @@ final readonly class OverviewExecutiveKpiFactory
         $metrics = [];
         foreach (self::ORDERED_KEYS as $key) {
             if (BenchmarkMetricKey::CasesPerDay === $key) {
-                $metrics[] = $this->buildCasesPerDayMetric($context, $report);
+                $metrics[] = $this->buildCasesPerDayMetric($context, $report, $comparison);
 
                 continue;
             }
@@ -56,16 +55,22 @@ final readonly class OverviewExecutiveKpiFactory
         return $metrics;
     }
 
-    private function buildCasesPerDayMetric(StatisticsContext $context, BenchmarkReport $report): BenchmarkMetric
-    {
+    private function buildCasesPerDayMetric(
+        StatisticsContext $context,
+        BenchmarkReport $report,
+        ?OverviewComparisonPeriod $comparison,
+    ): BenchmarkMetric {
         $totalMetric = $this->metricBuilder->metricByKey($report->kpiMetrics, BenchmarkMetricKey::Total);
         $primaryTotal = $totalMetric instanceof BenchmarkMetric ? $totalMetric->primaryValue : 0.0;
         $comparisonTotal = $totalMetric instanceof BenchmarkMetric ? $totalMetric->comparisonValue : 0.0;
 
-        $primaryDays = $this->periodComparison->periodDayCount($context->filter);
-        $baselineDays = $this->periodComparison->periodDayCount(
-            $this->selfBenchmarkFactory->baselineFilterFor($context->filter),
-        );
+        // A running period counts only the days so far, on both sides (#1071).
+        $primaryDays = $comparison instanceof OverviewComparisonPeriod
+            ? OverviewPeriodComparisonService::boundsDayCount($comparison->primary)
+            : $this->periodComparison->periodDayCount($context->filter);
+        $baselineDays = $comparison instanceof OverviewComparisonPeriod
+            ? OverviewPeriodComparisonService::boundsDayCount($comparison->comparison)
+            : $primaryDays;
 
         $primaryValue = null !== $primaryDays && $primaryDays > 0
             ? round($primaryTotal / (float) $primaryDays, 1)
