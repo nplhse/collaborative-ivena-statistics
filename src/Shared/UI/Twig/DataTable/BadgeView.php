@@ -18,4 +18,14 @@ final readonly class BadgeView
         public bool $animatedDot = false,
     ) {
     }
+
+    /**
+     * Palette labels are translation keys; raw fallback values are printed as they are.
+     *
+     * @psalm-suppress PossiblyUnusedMethod Consumed by the badge templates.
+     */
+    public function isTranslatable(): bool
+    {
+        return $this->label instanceof TranslatableInterface;
+    }
 }

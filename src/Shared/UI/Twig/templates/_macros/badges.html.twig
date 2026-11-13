@@ -7,9 +7,9 @@
             {% elseif badge.icon %}
                 {{ ux_icon(badge.icon, {width: 12, height: 12}) }}
             {% endif %}
-            {{ badge.label|trans }}{% if number is not null %} ({{ number }}){% endif %}
+            {{ badge.translatable ? badge.label|trans : badge.label }}{% if number is not null %} ({{ number }}){% endif %}
         </span>
     {% else %}
-        <span class="badge {{ badge.cssClass }}">{{ badge.label|trans }} {% if number is not null %}({{ number }}){% endif %}</span>
+        <span class="badge {{ badge.cssClass }}">{{ badge.translatable ? badge.label|trans : badge.label }} {% if number is not null %}({{ number }}){% endif %}</span>
     {% endif %}
 {% endmacro %}

@@ -18,6 +18,7 @@ final class BadgePaletteTest extends TestCase
         self::assertEquals(new TranslatableMessage('hospital.badge.location.Urban', domain: 'allocation'), $view->label);
         self::assertSame('bg-indigo text-indigo-fg', $view->cssClass);
         self::assertSame(BadgePresentation::Badge, $view->presentation);
+        self::assertTrue($view->isTranslatable());
     }
 
     public function testUnknownValueFallsBackToSecondaryBadge(): void
@@ -52,6 +53,7 @@ final class BadgePaletteTest extends TestCase
         $view = new BadgePalette()->resolve('allocation_urgency', 1);
 
         self::assertSame('Emergency Care', $view->label);
+        self::assertFalse($view->isTranslatable());
         self::assertSame('bg-red text-red-fg', $view->cssClass);
     }
 
