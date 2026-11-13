@@ -8,13 +8,13 @@ use App\Encounter\Domain\Enum\ArrivalRoute;
 use App\Encounter\Domain\Enum\MatchStatus;
 
 /**
- * Decides which pairs of allocations and ED visits become automatic links or proposals (matcher v1,
- * ADR 029). Pure: it reads nothing and writes nothing.
+ * Decides which pairs of allocations and ED visits become automatic links or proposals (ADR 029; by
+ * default with the production points, matcher v1.1). Pure: it reads nothing and writes nothing.
  *
  * Score: each candidate visit of an allocation weighs 2^points (sum of the feature points,
- * {@see FeatureScorer}); a "no match" option weighs 2^noMatchPoints ({@see MatchWeights}, v1: 4). The score of a candidate is its
- * share of the total weight, so two similar candidates both score low. Example: a single candidate with
- * 9 points scores 512 / (16 + 512) = 0.9697.
+ * {@see FeatureScorer}); a "no match" option weighs 2^noMatchPoints ({@see MatchWeights}, v1 and v1.1: 4).
+ * The score of a candidate is its share of the total weight, so two similar candidates both score low.
+ * Example: a single candidate with 9 points scores 512 / (16 + 512) = 0.9697.
  *
  * Passes: pass 1 compares EMS visits in the narrow window, pass 2 every unreserved visit in the wide
  * window, each for the allocations without an effective link. Within a pass every allocation's claims
@@ -30,10 +30,10 @@ use App\Encounter\Domain\Enum\MatchStatus;
 final readonly class MatchPlanner
 {
     /** Version of the production matcher, stored with every pair it writes. */
-    public const string VERSION = MatchWeights::VERSION_1;
+    public const string VERSION = MatchWeights::VERSION_1_1;
 
     /** Weight of the "no match" option of the production matcher, in points. */
-    public const int NO_MATCH_POINTS = MatchWeights::NO_MATCH_POINTS_1;
+    public const int NO_MATCH_POINTS = MatchWeights::NO_MATCH_POINTS_1_1;
 
     public const int SCORE_PRECISION = 4;
 
@@ -131,7 +131,7 @@ final readonly class MatchPlanner
      */
     public static function agreementAlone(int $points): float
     {
-        return MatchWeights::v1()->agreementAlone($points);
+        return MatchWeights::production()->agreementAlone($points);
     }
 
     /**

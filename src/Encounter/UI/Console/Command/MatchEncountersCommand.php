@@ -18,7 +18,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 #[AsCommand(
     name: 'app:encounter:match',
-    description: 'Link ED visits with the IVENA allocations of a hospital and period (matcher v1); existing links and decisions stay.',
+    description: 'Link ED visits with the IVENA allocations of a hospital and period (production matcher); existing links and decisions stay.',
 )]
 final readonly class MatchEncountersCommand
 {

@@ -331,7 +331,7 @@ Summary of [ADR 029](../../02-architecture/decisions/029-encounter-allocation-ma
 - Pass 1 reserves both sides; later runs only fill gaps and never reassign links. The review may
   propose a targeted swap.
 
-Implemented in #1053 (matcher version `1.0.0`). The review is #1054 ([Match review](#match-review)); the overview and the case card (#1055) show links as described in [Statistics in the pilot](#statistics-in-the-pilot).
+Implemented in #1053 (matcher version `1.0.0`); production matcher since #1043: `1.1.0` (see [ADR 029](../../02-architecture/decisions/029-encounter-allocation-matching.md#matcher-versions) and the matcher versions below). The review is #1054 ([Match review](#match-review)); the overview and the case card (#1055) show links as described in [Statistics in the pilot](#statistics-in-the-pilot).
 
 **Table `encounter_match`**, one row per pair of allocation and visit: `status` (`auto_accepted`,
 `proposed`, `confirmed`, `rejected`), `conflict`, `score`, `points`, `contributions` (points per feature),
@@ -343,15 +343,15 @@ its hospital (`ON DELETE CASCADE`); a deleted user leaves the decision with `dec
 
 **Score**: each candidate visit of an allocation weighs 2^points, the "no match" option 2^4; a
 candidate's score is its share of the total weight (`MatchPlanner`, points in `FeatureScorer`). The
-points and the "no match" weight are set by judgement, not estimated (ADR 029); the
+points and the "no match" weight were set by judgement for v1 (ADR 029); the
 [match validation](#match-validation) measures them. They live in `MatchWeights` with their version
-(`MatchWeights::v1()`, `1.0.0`); a new matcher version is a new set of points with a new version, which
-`MatchPlanner::VERSION` names and every written row stores.
+(`MatchWeights::production()`, currently `MatchWeights::v1_1()`, `1.1.0`); a new matcher version is a new
+set of points with a new version, which `MatchPlanner::VERSION` names and every written row stores.
 
-| Feature | Points |
+| Feature | Points (`1.1.0`; `1.0.0` where different) |
 |---|---|
-| time: matching anchor − IVENA arrival | −5 … +15 min: +4; −20 … −6 or +16 … +30: +2; +31 … +45: 0; otherwise (pass 2): −2 |
-| sex | equal: +2; male vs female: −4; one side diverse: 0 |
+| time: matching anchor − IVENA arrival | −5 … +15 min: +4; −20 … −6 or +16 … +30: +3 (v1: +2); +31 … +45: 0; otherwise (pass 2): −2 |
+| sex | equal: +2; male vs female: −2 (v1: −4); one side diverse: 0 |
 | age difference | 0: +2; 1: +1; 2: 0; 3–5 (pass 2): −2 |
 | arrival route | EMS: +1; unknown: 0; self-presenter (pass 2): −2 |
 | physician vehicle ↔ IVENA "with physician" | physician vehicle and physician: +2; one of them only (physician vehicle without, ambulance or patient transport with): −1; otherwise 0 |
@@ -359,8 +359,17 @@ points and the "no match" weight are set by judgement, not estimated (ADR 029); 
 
 Example: arrival 10:00, ED admission 10:07, same sex and age, ambulance: 4 + 2 + 2 + 1 = 9 points; alone
 it scores 512 / (16 + 512) = 0.9697 and becomes `auto_accepted`. A second visit at 10:06 with the same
-values gives both 512 / 1040 = 0.4923: nothing is proposed. Times are compared on the local wall clock
-at minute precision.
+values gives both 512 / 1040 = 0.4923: nothing is proposed. Admission at 10:20 instead ("near"):
+3 + 2 + 2 + 1 = 8 points, 256 / 272 = 0.9412, `auto_accepted` (v1: 7 points, 0.8889, a proposal). Admission
+at 10:07 but male vs female: 4 − 2 + 2 + 1 = 5 points, 32 / 48 = 0.6667, a proposal (v1: 3 points, 0.3333,
+nothing). Times are compared on the local wall clock at minute precision.
+
+**Matcher versions** (ADR 029): `1.0.0` (points by judgement) and `1.1.0`
+(`time.near` +3, `sex.different` −2, after the validation of one pilot hospital, October 2026) are both
+defined; `1.1.0` is the production matcher. Stored pairs keep the version that scored them. A new version
+rescores nothing in bulk: automatic links and manual decisions stay with their old version, open proposals
+are recomputed with the new version by the next run over their allocations (after an import, or
+`app:encounter:match`), and unlinked cases are matched with it on that run.
 
 **Runs** (`EncounterMatcher`, one transaction under a per-hospital advisory lock that the review takes too):
 
@@ -583,9 +592,10 @@ hospital's data, not from synthetic data.
 
 **Tuning** (`php bin/console app:encounter:evaluate-matcher --hospital=<id> --from=YYYY-MM-DD [--to=…]`):
 replays the planner on the stored allocations and visits of the period as a clean run (no existing links or
-decisions) and writes nothing. Options change the thresholds (`--auto-accept`, `--proposal`), the "no
-match" weight (`--no-match-points`) and single points (`--points=time.near=1`, repeatable; keys as in
-`MatchWeights`). It reports pairs, correct, wrong and unknown per status and band against the validation
+decisions) and writes nothing. `--weights=<version>` picks the matcher version the replay starts from
+(default: the production matcher; `1.0.0` reproduces v1). Options change the thresholds (`--auto-accept`,
+`--proposal`), the "no match" weight (`--no-match-points`) and single points (`--points=time.near=1`,
+repeatable; keys as in `MatchWeights`). It reports pairs, correct, wrong and unknown per status and band against the validation
 verdicts of the hospital, or with `--truth=<truth.json>` (from `app:generate:encounter-files`) against the
 synthetic truth, then also the recall: true pairs linked automatically, and linked or proposed. Introducing
 a new matcher version stays a code change: a new `MatchWeights` set, `MatchPlanner::VERSION` and the docs.

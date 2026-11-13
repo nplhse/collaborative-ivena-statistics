@@ -69,8 +69,8 @@ final class MatchReviewControllerTest extends WebTestCase
 
     public function testReviewerSeesTheCountsWithDenominatorsAndTheLists(): void
     {
-        // 10:00 → visit 10:05: automatic link. 12:00 → visit 12:20 at age 71: 2 + 2 + 1 + 1 = 6 points,
-        // 64 / 80 = 0.80, a proposal. 14:00: no visit. One self-presenter at 18:00 stays unlinked.
+        // 10:00 → visit 10:05: automatic link. 12:00 → visit 12:20 at age 71: 3 + 2 + 1 + 1 = 7 points,
+        // 128 / 144 = 0.89, a proposal. 14:00: no visit. One self-presenter at 18:00 stays unlinked.
         $linked = $this->allocationAt($this->hospital, $this->ivena, '10:00');
         $proposed = $this->allocationAt($this->hospital, $this->ivena, '12:00');
         $this->allocationAt($this->hospital, $this->ivena, '14:00');
@@ -125,11 +125,12 @@ final class MatchReviewControllerTest extends WebTestCase
 
     public function testAllocationPageExplainsEveryCandidate(): void
     {
-        // Visit A at 10:05 (9 points) and visit B with only a first assessment contact at 10:30, age 72
-        // (time +2, sex +2, age 0, route +1 = 5): 512 / (16 + 512 + 32) = 0.9143 and 32 / 560 = 0.0571.
+        // Visit A at 10:05 (9 points) and visit B with only a first assessment contact at 10:30, age 72, by
+        // physician vehicle without IVENA physician (time +3, sex +2, age 0, route +1, physician −1 = 5):
+        // 512 / (16 + 512 + 32) = 0.9143 and 32 / 560 = 0.0571.
         $allocation = $this->allocationAt($this->hospital, $this->ivena, '10:00');
         $best = $this->visitAt($this->hospital, $this->ed, '10:05');
-        $this->visitAt($this->hospital, $this->ed, null, '10:30', age: 72);
+        $this->visitAt($this->hospital, $this->ed, null, '10:30', age: 72, mode: ArrivalMode::PhysicianVehicle);
         $this->matchDay($this->hospital);
 
         $this->client->loginUser($this->reviewer);
@@ -179,7 +180,7 @@ final class MatchReviewControllerTest extends WebTestCase
         $allocation = $this->allocationAt($this->hospital, $this->ivena, '12:00');
         $visit = $this->visitAt($this->hospital, $this->ed, '12:20', age: 71);
         $this->matchDay($this->hospital);
-        self::assertSame([sprintf('%d-%d proposed 0.8000', $allocation->getId(), $visit)], $this->matchRows($this->hospital));
+        self::assertSame([sprintf('%d-%d proposed 0.8889', $allocation->getId(), $visit)], $this->matchRows($this->hospital));
 
         $this->client->loginUser($this->reviewer);
         $this->decide($allocation, $visit, 'confirm');
@@ -189,7 +190,7 @@ final class MatchReviewControllerTest extends WebTestCase
         $this->client->followRedirect();
         self::assertSelectorTextContains('body', 'The link has been confirmed.');
         self::assertSelectorTextContains('body', 'No further allocations in this list.');
-        self::assertSame([sprintf('%d-%d confirmed 0.8000', $allocation->getId(), $visit)], $this->matchRows($this->hospital));
+        self::assertSame([sprintf('%d-%d confirmed 0.8889', $allocation->getId(), $visit)], $this->matchRows($this->hospital));
         $match = $this->match($allocation, $visit);
         self::assertSame($this->reviewer->getId(), $match->getDecidedBy()?->getId());
         self::assertEquals(new \DateTimeImmutable('2026-11-12 09:00:00'), $match->getDecidedAt());
@@ -198,7 +199,7 @@ final class MatchReviewControllerTest extends WebTestCase
         // A better visit later on changes nothing: the decision is sticky.
         $this->visitAt($this->hospital, $this->ed, '12:02', '12:03');
         $this->matchDay($this->hospital);
-        self::assertSame([sprintf('%d-%d confirmed 0.8000', $allocation->getId(), $visit)], $this->matchRows($this->hospital));
+        self::assertSame([sprintf('%d-%d confirmed 0.8889', $allocation->getId(), $visit)], $this->matchRows($this->hospital));
     }
 
     public function testRejectingAnAutomaticLinkIsStickyAfterARerun(): void
@@ -220,12 +221,13 @@ final class MatchReviewControllerTest extends WebTestCase
 
     public function testChangingTheLinkRejectsThePreviousPair(): void
     {
-        // Linked visit at 10:05 (9 points; with the visit at 10:30 at age 72 as second candidate in pass 1:
-        // 512 / 560 = 0.9143). The person picks the 10:30 visit instead (5 points, not stored by the
-        // matcher); the new pair stores its review-window scoring: 32 / 560 = 0.0571.
+        // Linked visit at 10:05 (9 points; with the visit at 10:30 at age 72 by physician vehicle without
+        // IVENA physician as second candidate in pass 1: 3 + 2 + 0 + 1 − 1 = 5 points, 512 / 560 = 0.9143).
+        // The person picks the 10:30 visit instead (not stored by the matcher); the new pair stores its
+        // review-window scoring: 32 / 560 = 0.0571.
         $allocation = $this->allocationAt($this->hospital, $this->ivena, '10:00');
         $linked = $this->visitAt($this->hospital, $this->ed, '10:05');
-        $other = $this->visitAt($this->hospital, $this->ed, '10:30', age: 72);
+        $other = $this->visitAt($this->hospital, $this->ed, '10:30', age: 72, mode: ArrivalMode::PhysicianVehicle);
         $this->matchDay($this->hospital);
 
         $this->client->loginUser($this->reviewer);
@@ -237,7 +239,7 @@ final class MatchReviewControllerTest extends WebTestCase
             sprintf('%d-%d rejected 0.9143', $allocation->getId(), $linked),
             sprintf('%d-%d confirmed 0.0571', $allocation->getId(), $other),
         ], $this->matchRows($this->hospital));
-        self::assertSame(['time' => 2, 'sex' => 2, 'age' => 0, 'arrival_route' => 1, 'physician' => 0, 'work_accident' => 0], $this->match($allocation, $other)->getContributions());
+        self::assertSame(['time' => 3, 'sex' => 2, 'age' => 0, 'arrival_route' => 1, 'physician' => -1, 'work_accident' => 0], $this->match($allocation, $other)->getContributions());
         self::assertSame(['decision' => 'change', 'replaced_encounter_id' => $linked], array_intersect_key($this->auditMetadata(MatchDecider::INTENT_DECIDED), ['decision' => 1, 'replaced_encounter_id' => 1]));
 
         $this->matchDay($this->hospital);
@@ -274,10 +276,11 @@ final class MatchReviewControllerTest extends WebTestCase
 
     public function testAVisitLinkedElsewhereCannotBeTakenWithoutASwap(): void
     {
-        // The visit at 10:05 is linked to the allocation at 10:00 (0.9697); for the allocation at 10:20 it
-        // is a candidate (−15 minutes) but linked elsewhere.
+        // The visit at 10:05 is linked to the allocation at 10:00 (0.9697); for the allocation at 10:20, age
+        // 72, it is a candidate (−15 minutes: 3 + 2 + 0 + 1 = 6 points, 0.80, below auto-accept, so no
+        // conflict) but linked elsewhere.
         $first = $this->allocationAt($this->hospital, $this->ivena, '10:00');
-        $second = $this->allocationAt($this->hospital, $this->ivena, '10:20');
+        $second = $this->allocationAt($this->hospital, $this->ivena, '10:20', age: 72);
         $visit = $this->visitAt($this->hospital, $this->ed, '10:05');
         $this->matchDay($this->hospital);
         $before = $this->matchRows($this->hospital);
@@ -353,7 +356,7 @@ final class MatchReviewControllerTest extends WebTestCase
 
     public function testStartSkipAndDecisionsWalkThroughTheSegment(): void
     {
-        // Three proposals (visit 20 minutes later at age 71: 6 points, 0.80) at 12:00, 14:00 and 16:00.
+        // Three proposals (visit 20 minutes later at age 71: 7 points, 0.89) at 12:00, 14:00 and 16:00.
         $first = $this->allocationAt($this->hospital, $this->ivena, '12:00');
         $second = $this->allocationAt($this->hospital, $this->ivena, '14:00');
         $third = $this->allocationAt($this->hospital, $this->ivena, '16:00');

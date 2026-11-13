@@ -39,11 +39,11 @@ final class SwapPlannerTest extends TestCase
 
     public function testABetterFittingUnlinkedVisitGivesAReplacement(): void
     {
-        // Linked visit 10 at 10:25: time +2, so 2 + 2 + 2 + 1 = 7 points. Visit 11 at 10:03 with arrival
-        // mode "other" (route unknown): 4 + 2 + 2 + 0 = 8 points.
+        // Linked visit 10 at 10:25, one year older: time +3, age +1, so 3 + 2 + 1 + 1 = 7 points. Visit 11 at
+        // 10:03 with arrival mode "other" (route unknown): 4 + 2 + 2 + 0 = 8 points.
         $proposals = $this->plan(
             [self::allocation(1)],
-            [self::visit(10, '10:25'), self::visit(11, '10:03', mode: ArrivalMode::Other)],
+            [self::visit(10, '10:25', age: 71), self::visit(11, '10:03', mode: ArrivalMode::Other)],
         );
 
         self::assertCount(1, $proposals);
@@ -68,7 +68,7 @@ final class SwapPlannerTest extends TestCase
         self::assertSame([], $this->plan($allocations, $visits, rejected: ['1:11' => true]));
         self::assertSame([], $this->plan($allocations, $visits, rejected: ['2:10' => true]));
 
-        // A male self-presenter: 4 − 4 + 2 − 2 = 0 points, alone 1 / 17 = 0.06, below the proposal threshold.
+        // A male self-presenter: 4 − 2 + 2 − 2 = 2 points, alone 4 / 20 = 0.2, below the proposal threshold.
         self::assertSame([], $this->plan($allocations, [self::visit(10, '10:10'), self::visit(11, '10:05', Sex::Male, mode: ArrivalMode::Self)]));
     }
 
