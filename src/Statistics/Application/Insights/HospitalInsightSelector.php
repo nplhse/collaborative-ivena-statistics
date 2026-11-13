@@ -17,7 +17,7 @@ final readonly class HospitalInsightSelector
 
     private const float BASELINE_RATIO_LOW = 0.9;
 
-    private const float VOLUME_CHANGE_THRESHOLD = 5.0;
+    public const float VOLUME_CHANGE_THRESHOLD = 5.0;
 
     public function __construct(
         private TranslatorInterface $translator,

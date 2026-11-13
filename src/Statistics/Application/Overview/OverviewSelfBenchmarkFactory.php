@@ -5,50 +5,40 @@ declare(strict_types=1);
 namespace App\Statistics\Application\Overview;
 
 use App\Statistics\Application\DTO\StatisticsContext;
-use App\Statistics\Application\DTO\StatisticsFilter;
-use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Benchmarking\Application\BenchmarkCriteriaFactory;
 use App\Statistics\Benchmarking\Application\BenchmarkReportService;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkReport;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
+/**
+ * Benchmarks the scope against itself in the previous period of the same length (#1071).
+ *
+ * Without a comparison period (all time), both sides cover the same period; callers then show no comparison.
+ */
 final readonly class OverviewSelfBenchmarkFactory
 {
     public function __construct(
         private BenchmarkCriteriaFactory $benchmarkCriteriaFactory,
         private BenchmarkReportService $benchmarkReportService,
+        private TranslatorInterface $translator,
     ) {
     }
 
-    public function build(StatisticsContext $context): BenchmarkReport
+    public function build(StatisticsContext $context, ?OverviewComparisonPeriod $comparison): BenchmarkReport
     {
-        $baselineFilter = $this->baselineFilterFor($context->filter);
+        if (!$comparison instanceof OverviewComparisonPeriod) {
+            return $this->benchmarkReportService->buildForOverview(
+                $this->benchmarkCriteriaFactory->create($context, $context->filter),
+            );
+        }
 
         return $this->benchmarkReportService->buildForOverview(
-            $this->benchmarkCriteriaFactory->create($context, $baselineFilter),
+            $this->benchmarkCriteriaFactory->createForPeriods(
+                $context,
+                $comparison->primary,
+                $comparison->comparison,
+                $this->translator->trans($comparison->labelKey(), [], 'statistics'),
+            ),
         );
-    }
-
-    public function baselineFilterFor(StatisticsFilter $primary): StatisticsFilter
-    {
-        return new StatisticsFilter(
-            $primary->scope,
-            $primary->hospitalId,
-            $primary->cohortType,
-            self::baselinePeriodFor($primary->period),
-            $primary->referenceYear,
-            $primary->referenceMonth,
-            $primary->referenceQuarter,
-            null,
-            false,
-            $primary->stateId,
-            $primary->dispatchAreaId,
-        );
-    }
-
-    public static function baselinePeriodFor(StatisticsFilterPeriod $primaryPeriod): StatisticsFilterPeriod
-    {
-        return StatisticsFilterPeriod::Last12Months === $primaryPeriod
-            ? StatisticsFilterPeriod::AllTime
-            : StatisticsFilterPeriod::Last12Months;
     }
 }

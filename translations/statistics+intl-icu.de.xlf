@@ -4951,7 +4951,51 @@
       </trans-unit>
       <trans-unit id="De7f52ba1f" resname="stats.overview.kpi.base_short">
         <source>stats.overview.kpi.base_short</source>
-        <target>Basis</target>
+        <target>Vorperiode</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpKpiComparisonPeriodDe" resname="stats.overview.kpi.comparison_period">
+        <source>stats.overview.kpi.comparison_period</source>
+        <target>Vergleichszeitraum: {from} – {to}</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpKpiNoComparisonDe" resname="stats.overview.kpi.no_comparison">
+        <source>stats.overview.kpi.no_comparison</source>
+        <target>Für den gesamten Zeitraum gibt es keinen früheren Zeitraum zum Vergleich.</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonLast12MonthsDe" resname="stats.overview.comparison.last_12_months">
+        <source>stats.overview.comparison.last_12_months</source>
+        <target>die 12 Monate davor</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonYearDe" resname="stats.overview.comparison.year">
+        <source>stats.overview.comparison.year</source>
+        <target>das Vorjahr</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonQuarterDe" resname="stats.overview.comparison.quarter">
+        <source>stats.overview.comparison.quarter</source>
+        <target>das Vorquartal</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonMonthDe" resname="stats.overview.comparison.month">
+        <source>stats.overview.comparison.month</source>
+        <target>den Vormonat</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonYearToDateDe" resname="stats.overview.comparison.year_to_date">
+        <source>stats.overview.comparison.year_to_date</source>
+        <target>denselben Zeitraum im Vorjahr</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonQuarterToDateDe" resname="stats.overview.comparison.quarter_to_date">
+        <source>stats.overview.comparison.quarter_to_date</source>
+        <target>denselben Zeitraum im Vorquartal</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonMonthToDateDe" resname="stats.overview.comparison.month_to_date">
+        <source>stats.overview.comparison.month_to_date</source>
+        <target>dieselben Tage im Vormonat</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpInsightVolumeTitleDe" resname="stats.overview.insight.volume.title">
+        <source>stats.overview.insight.volume.title</source>
+        <target>Zuweisungsvolumen</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpInsightVolumeBodyDe" resname="stats.overview.insight.volume.body">
+        <source>stats.overview.insight.volume.body</source>
+        <target>{percent} Zuweisungen bezogen auf {comparison}.</target>
       </trans-unit>
       <trans-unit id="Defc86bd93" resname="stats.overview.kpi.cases_per_day">
         <source>stats.overview.kpi.cases_per_day</source>

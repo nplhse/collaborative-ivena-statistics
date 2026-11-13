@@ -8,6 +8,7 @@
             {% set ratioBadgeClass = ratioTone == 'danger' ? 'bg-red-lt' : (ratioTone == 'success' ? 'bg-green-lt' : 'bg-primary-lt') %}
             {% set labelKey = metricLabelKeys[metric.key.value]|default('stats.benchmark.metric.' ~ metric.key.value) %}
             {% set tileColumnClass = columnClass|default('col-12 col-md-6 col-lg-4') %}
+            {% set withComparison = showComparison ?? true %}
 
             {% if metric.format.value == 'percent' %}
                 {% set primaryLabel = metric.primaryValue|number_format(1, ',', '.') ~ '%' %}
@@ -38,7 +39,9 @@
                             {{ labelKey|trans({}, 'statistics') }}
                         </div>
 
-                        {% if not suppressRatios %}
+                        {% if not withComparison %}
+                            <div class="h2 mb-3">{{ primaryLabel }}</div>
+                        {% elseif not suppressRatios %}
                             <div class="d-flex align-items-baseline gap-2 mb-3">
                                 <div class="h2 mb-0 fw-bold {{ deltaTextClass }}">{{ deltaLabel }}</div>
                                 <span class="badge {{ ratioBadgeClass }}">{{ metric.ratio|number_format(1, ',', '.') }}×</span>
@@ -59,10 +62,12 @@
                                 <span class="badge bg-primary-lt me-1">{{ sideAShortKey|trans({}, 'statistics') }}</span>
                                 <span class="text-secondary">{{ primaryLabel }}</span>
                             </span>
-                            <span class="text-end">
-                                <span class="badge bg-secondary-lt me-1">{{ sideBShortKey|trans({}, 'statistics') }}</span>
-                                <span class="text-secondary">{{ comparisonLabel }}</span>
-                            </span>
+                            {% if withComparison %}
+                                <span class="text-end">
+                                    <span class="badge bg-secondary-lt me-1">{{ sideBShortKey|trans({}, 'statistics') }}</span>
+                                    <span class="text-secondary">{{ comparisonLabel }}</span>
+                                </span>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

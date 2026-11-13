@@ -1535,7 +1535,51 @@
       </trans-unit>
       <trans-unit id="statsOvKp05" resname="stats.overview.kpi.base_short">
         <source>stats.overview.kpi.base_short</source>
-        <target>Base</target>
+        <target>Previous</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpKpiComparisonPeriod" resname="stats.overview.kpi.comparison_period">
+        <source>stats.overview.kpi.comparison_period</source>
+        <target>Comparison period: {from} – {to}</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpKpiNoComparison" resname="stats.overview.kpi.no_comparison">
+        <source>stats.overview.kpi.no_comparison</source>
+        <target>There is no earlier period to compare the whole history with.</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonLast12Months" resname="stats.overview.comparison.last_12_months">
+        <source>stats.overview.comparison.last_12_months</source>
+        <target>the 12 months before</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonYear" resname="stats.overview.comparison.year">
+        <source>stats.overview.comparison.year</source>
+        <target>the previous year</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonQuarter" resname="stats.overview.comparison.quarter">
+        <source>stats.overview.comparison.quarter</source>
+        <target>the previous quarter</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonMonth" resname="stats.overview.comparison.month">
+        <source>stats.overview.comparison.month</source>
+        <target>the previous month</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonYearToDate" resname="stats.overview.comparison.year_to_date">
+        <source>stats.overview.comparison.year_to_date</source>
+        <target>the same part of the previous year</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonQuarterToDate" resname="stats.overview.comparison.quarter_to_date">
+        <source>stats.overview.comparison.quarter_to_date</source>
+        <target>the same part of the previous quarter</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonMonthToDate" resname="stats.overview.comparison.month_to_date">
+        <source>stats.overview.comparison.month_to_date</source>
+        <target>the same days of the previous month</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpInsightVolumeTitle" resname="stats.overview.insight.volume.title">
+        <source>stats.overview.insight.volume.title</source>
+        <target>Allocation volume</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpInsightVolumeBody" resname="stats.overview.insight.volume.body">
+        <source>stats.overview.insight.volume.body</source>
+        <target>{percent} allocations over {comparison}.</target>
       </trans-unit>
       <trans-unit id="statsNavHmHr" resname="stats.nav.overview_allocations_by_hour">
         <source>stats.nav.overview_allocations_by_hour</source>

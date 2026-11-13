@@ -5,49 +5,17 @@ declare(strict_types=1);
 namespace App\Statistics\Application\Overview;
 
 use App\Statistics\Application\Contract\ProjectionEarliestDateProviderInterface;
-use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
-use App\Statistics\Application\StatisticsPeriodNavigation;
 use App\Statistics\Application\StatisticsPeriodResolver;
-use App\Statistics\Application\StatisticsScopeResolver;
-use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
 use Symfony\Component\Clock\Clock;
 
 final readonly class OverviewPeriodComparisonService
 {
     public function __construct(
-        private StatisticsPeriodNavigation $periodNavigation,
-        private StatisticsScopeResolver $scopeResolver,
-        private ProjectionTimeSeriesQuery $timeSeriesQuery,
         private ProjectionEarliestDateProviderInterface $earliestDateProvider,
     ) {
-    }
-
-    public function supportsPop(StatisticsFilter $filter): bool
-    {
-        return $this->periodNavigation->previous($filter) instanceof StatisticsFilter;
-    }
-
-    public function fetchPreviousScopedTotal(StatisticsContext $context): ?int
-    {
-        $previousFilter = $this->periodNavigation->previous($context->filter);
-        if (!$previousFilter instanceof StatisticsFilter) {
-            return null;
-        }
-
-        $previousContext = new StatisticsContext($context->user, $previousFilter);
-        $bounds = StatisticsPeriodResolver::resolve($previousFilter);
-        $scopeCriteria = $this->scopeResolver->resolveCriteria($previousContext);
-
-        return $this->timeSeriesQuery->countCreatedInPeriod(
-            $bounds->from,
-            $bounds->toExclusive,
-            $scopeCriteria->hospitalIds,
-            null,
-            $scopeCriteria->dispatchAreaId,
-        );
     }
 
     public static function relativePercentChange(float|int|null $current, float|int|null $previous): ?float

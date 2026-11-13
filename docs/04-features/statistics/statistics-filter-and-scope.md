@@ -86,6 +86,24 @@ Insights Compare does **not** use that default cohort. Side A uses the header/pr
 
 Permission checks use `HospitalPermission::Statistics` or `HospitalPermission::Benchmarking` depending on the page.
 
+### Overview comparison period (#1071)
+
+The overview self-benchmark frame (`GET /statistics/overview/self-benchmark`: KPI tiles and the insights card)
+compares the scope with itself in the previous period of the same length.
+`OverviewComparisonPeriodResolver` sets both sides; scope and drawer filters are the same on both.
+
+| Period | Primary | Comparison |
+|---|---|---|
+| `last_12_months` | rolling window until now | the 12 months before, same span (start one year earlier) |
+| `year` / `quarter` / `month`, complete | the whole period | the whole previous year / quarter / month |
+| `year` / `quarter` / `month`, running | from the start until now | the same span from the start of the previous period, e.g. 1–13 November against 1–13 October; never past the start of the primary period |
+| `all_time` | the whole history | none: the tiles show only the value, the insights card stays hidden |
+
+Cases per day divide by the days of each side, so a running period is not diluted by the days still to come.
+The insights card needs at least 100 allocations in the period **and** in the comparison period; the general
+benchmark minimum of 500 comparison cases does not apply here. The tiles keep their own minimum of 20 cases for
+ratios. A caption under the tiles names the comparison period.
+
 ## Age group filter
 
 The filter drawer and the Analysis Explorer share one age-group filter: URL key `age_group`
