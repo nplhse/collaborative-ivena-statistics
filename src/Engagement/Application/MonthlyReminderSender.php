@@ -142,17 +142,18 @@ final readonly class MonthlyReminderSender
         // The notification carries this id, so failures of an earlier attempt never touch this one.
         $attemptId = Uuid::v4()->toRfc4122();
         $dispatch->startAttempt($attemptId);
-        $this->dispatchRepository->save($dispatch);
 
+        // Saving the audited dispatch inside the intent writes the audit entry; an intent alone writes
+        // nothing. The entry's entity id is the dispatch id.
         $this->auditContext->beginIntent(AuditEntry::INTENT_HOSPITAL_REMINDER_SENT, [
             'hospital_id' => $hospitalId,
             'owner_id' => $owner->getId(),
             'reporting_period' => sprintf('%04d-%02d', $period['reportingYear'], $period['reportingMonth']),
             'trigger' => $trigger->value,
             'owner_locale' => $this->localeResolver->resolveForUser($owner),
-            'dispatch_id' => $dispatch->getId(),
         ]);
         try {
+            $this->dispatchRepository->save($dispatch);
             $this->publisher->publish(new NotificationRequest(
                 type: MonthlyReminderNotificationType::TYPE,
                 recipientUserIds: [(int) $owner->getId()],
