@@ -1,0 +1,129 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set d = 'encounter' %}
+
+{% block title %}{{ 'encounter.plausibility.title'|trans({}, d) }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <twig:PageHeader :title="'encounter.plausibility.title'|trans({}, 'encounter')">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
+                { label: 'encounter.plausibility.title', label_domain: 'encounter', translatable: true }
+            ]" />
+        </twig:block>
+    </twig:PageHeader>
+{% endblock %}
+
+{% block page_content %}
+    <twig:Alert type="info" :message="'encounter.plausibility.intro'|trans({}, 'encounter')" data-test="encounter-plausibility-intro" />
+
+    <div class="card" data-test="encounter-plausibility-snapshots">
+        <div class="card-header">
+            <h3 class="card-title">{{ 'encounter.plausibility.snapshots_title'|trans({}, d) }}</h3>
+        </div>
+        <div class="card-body border-bottom small text-secondary">{{ 'encounter.plausibility.snapshots_note'|trans({}, d) }}</div>
+        {% if snapshots is empty %}
+            <div class="card-body">
+                <p class="text-secondary mb-0">{{ 'encounter.plausibility.no_snapshots'|trans({}, d) }}</p>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table card-table table-vcenter">
+                    <thead>
+                        <tr>
+                            <th>{{ 'encounter.plausibility.column.snapshot'|trans({}, d) }}</th>
+                            <th>{{ 'encounter.plausibility.column.origin'|trans({}, d) }}</th>
+                            <th>{{ 'encounter.plausibility.column.status'|trans({}, d) }}</th>
+                            <th>{{ 'encounter.plausibility.column.created'|trans({}, d) }}</th>
+                            <th>{{ 'encounter.plausibility.column.activated'|trans({}, d) }}</th>
+                            <th class="w-1"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for snapshot in snapshots %}
+                            <tr data-test="encounter-plausibility-snapshot" data-snapshot="{{ snapshot.id }}">
+                                <td>#{{ snapshot.id }}</td>
+                                <td>{{ snapshot.origin|trans }}</td>
+                                <td>{{ include('@Encounter/plausibility/_status.html.twig') }}</td>
+                                <td class="text-secondary">{{ snapshot.createdAt|date('d.m.Y H:i') }}</td>
+                                <td class="text-secondary">
+                                    {{ snapshot.activatedAt ? snapshot.activatedAt|date('d.m.Y H:i') : '–' }}
+                                    {% if snapshot.retiredAt %} – {{ snapshot.retiredAt|date('d.m.Y H:i') }}{% endif %}
+                                </td>
+                                <td><a class="btn btn-sm" href="{{ path('app_encounter_plausibility_snapshot', {id: snapshot.id}) }}">{{ 'encounter.plausibility.action.review'|trans({}, d) }}</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="card mt-3" data-test="encounter-plausibility-areas">
+        <div class="card-header">
+            <h3 class="card-title">{{ 'encounter.plausibility.areas_title'|trans({}, d) }}</h3>
+            <div class="card-actions">
+                <a class="btn btn-primary" href="{{ path('app_encounter_plausibility_area_new') }}" data-test="encounter-plausibility-area-new">{{ 'encounter.plausibility.action.new_area'|trans({}, d) }}</a>
+            </div>
+        </div>
+        <div class="card-body border-bottom small text-secondary">{{ 'encounter.plausibility.areas_note'|trans({}, d) }}</div>
+        {% if areas is empty %}
+            <div class="card-body">
+                <p class="text-secondary mb-0">{{ 'encounter.plausibility.no_areas'|trans({}, d) }}</p>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table card-table table-vcenter">
+                    <thead>
+                        <tr>
+                            <th>{{ 'encounter.plausibility.column.area'|trans({}, d) }}</th>
+                            <th>{{ 'encounter.plausibility.column.pzc_codes'|trans({}, d) }}</th>
+                            <th>{{ 'encounter.plausibility.column.diagrams'|trans({}, d) }}</th>
+                            <th class="w-1"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for area in areas %}
+                            <tr data-test="encounter-plausibility-area" data-area="{{ area.code }}">
+                                <td>
+                                    {{ area.germanName }}
+                                    {% if area.englishName %}<div class="small text-secondary">{{ area.englishName }}</div>{% endif %}
+                                </td>
+                                <td>
+                                    {% for pzc in area.pzcCodes %}
+                                        <span class="badge bg-secondary-lt mb-1" {% if pzc_names[pzc] is defined %}title="{{ pzc_names[pzc] }}"{% endif %}>{{ '%03d'|format(pzc) }}</span>
+                                    {% else %}
+                                        <span class="text-secondary">–</span>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for rule in area.diagrams %}
+                                        <span class="badge bg-blue-lt mb-1" data-test="encounter-plausibility-rule" data-diagram="{{ rule.diagram.code }}">+{{ rule.points }} {{ encounter_mts_diagram_name(rule.diagram.code) }}</span>
+                                    {% else %}
+                                        <span class="text-secondary">{{ 'encounter.plausibility.no_rules'|trans({}, d) }}</span>
+                                    {% endfor %}
+                                </td>
+                                <td><a class="btn btn-sm" href="{{ path('app_encounter_plausibility_area_edit', {code: area.code}) }}">{{ 'encounter.plausibility.action.edit'|trans({}, d) }}</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if codes_without_area is not empty %}
+        <div class="card mt-3" data-test="encounter-plausibility-unassigned">
+            <div class="card-header">
+                <h3 class="card-title">{{ 'encounter.plausibility.unassigned_title'|trans({}, d) }}</h3>
+            </div>
+            <div class="card-body">
+                <p class="small text-secondary">{{ 'encounter.plausibility.unassigned_note'|trans({}, d) }}</p>
+                {% for pzc, name in codes_without_area %}
+                    <span class="badge bg-secondary-lt mb-1" title="{{ name }}">{{ '%03d'|format(pzc) }} {{ name }}</span>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

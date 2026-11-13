@@ -2417,6 +2417,10 @@
         <source>menu.data.mts_catalog.assignments</source>
         <target>Zuordnungen</target>
       </trans-unit>
+      <trans-unit id="adm1517EB45De" resname="menu.data.mts_catalog.plausibility">
+        <source>menu.data.mts_catalog.plausibility</source>
+        <target>Plausibilitätstabelle</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

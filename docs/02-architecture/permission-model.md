@@ -16,9 +16,9 @@ Defined in `src/User/Domain/Security/UserRole.php`:
 | `ROLE_REVIEW_INDICATIONS` | Indication raw review worklist |
 | `ROLE_CLOSURE_BETA` | Opt-in beta switch for closure-list imports and Closure Analytics. Not part of the role hierarchy, so `ROLE_ADMIN` does not grant it. Assign it on the user in EasyAdmin. It is not a public role. |
 | `ROLE_ENCOUNTER_BETA` | Participation in the encounter data pilot: `/encounter`, the navigation entry and the encounter grant pages. Inherited by `ROLE_ADMIN`. The role itself grants no case access. Assign it on the user in EasyAdmin. |
-| `ROLE_ENCOUNTER_CATALOG_REVIEWER` | Planned (#1153, [ADR 033](decisions/033-learning-plausibility-table.md)): edit the curated problem areas of the matcher's plausibility table, run the learning job, read snapshot reports, activate and retire snapshots. Needs `ROLE_ENCOUNTER_BETA` as well; grants no case access. Inherited by `ROLE_ADMIN`. Maintenance of the MTS catalog itself stays with `ROLE_ADMIN` ([ADR 032](decisions/032-mts-catalog-as-maintained-data.md)). |
+| `ROLE_ENCOUNTER_CATALOG_REVIEWER` | Review of the matcher's plausibility table (#1153, [ADR 033](decisions/033-learning-plausibility-table.md)) on `/encounter/plausibility`: edit the curated problem areas, review snapshots, activate and retire them; later also run the learning job and read its reports (#1155). Needs `ROLE_ENCOUNTER_BETA` as well; grants no case access. Inherited by `ROLE_ADMIN`. Maintenance of the MTS catalog itself stays with `ROLE_ADMIN` ([ADR 032](decisions/032-mts-catalog-as-maintained-data.md)). |
 
-`ROLE_ADMIN` inherits `ROLE_PARTICIPANT`, `ROLE_REVIEW_INDICATIONS` and `ROLE_ENCOUNTER_BETA` only (and `ROLE_ENCOUNTER_CATALOG_REVIEWER` once #1153 adds it). `ROLE_CLOSURE_BETA` stays explicit so production users and the first testers stay separate.
+`ROLE_ADMIN` inherits `ROLE_PARTICIPANT`, `ROLE_REVIEW_INDICATIONS`, `ROLE_ENCOUNTER_BETA` and `ROLE_ENCOUNTER_CATALOG_REVIEWER` only. `ROLE_CLOSURE_BETA` stays explicit so production users and the first testers stay separate.
 
 ## Hospital permissions (bitmask)
 
@@ -88,7 +88,9 @@ by the hospital bitmask:
   all hospitals, but no cross-hospital case counts are shown. `ROLE_ENCOUNTER_CATALOG_REVIEWER` (with the
   beta role) sees per cell only points, source and the change against the active snapshot; replay counts and
   rates in a snapshot report cover only hospitals on which the viewer holds the grant action `REVIEW`
-  (`ROLE_ADMIN`: all). The reviewer role gives no encounter grant action.
+  (`ROLE_ADMIN`: all). The reviewer role gives no encounter grant action. Its pages
+  (`src/Encounter/UI/Http/Controller/Plausibility/`) require both roles; `^/encounter` already requires the beta
+  role in `access_control`.
 
 Implementation:
 

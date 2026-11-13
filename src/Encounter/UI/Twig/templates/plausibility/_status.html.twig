@@ -1,0 +1,2 @@
+{% set colors = {draft: 'bg-yellow-lt', active: 'bg-green-lt', retired: 'bg-secondary-lt'} %}
+<span class="badge {{ colors[snapshot.status.value] }}" data-test="encounter-plausibility-status" data-status="{{ snapshot.status.value }}">{{ snapshot.status|trans }}</span>

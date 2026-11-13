@@ -101,6 +101,11 @@ app:
         validation:
             score_bands: [0.50, 0.70, 0.90, 0.99]
             sample_size: 20
+        # Plausibility table of PZC and MTS diagram (ADR 033, docs/04-features/encounter/README.md#plausibility-table):
+        # observations an exact cell needs before its points replace those of the problem-area cell. Set with
+        # replays in #1155; nothing reads the table for matching before #1154.
+        plausibility:
+            min_observations: 10
         # Offline data preparation tool (ADR 026): raise version with every change to the tool or a
         # bundled profile; raise min_version to block older tools (docs/04-features/encounter/data-preparation-tool.md).
         data_prep:

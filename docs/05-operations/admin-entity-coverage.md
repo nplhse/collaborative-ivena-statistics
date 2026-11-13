@@ -37,6 +37,10 @@ admin menu by route name (Data → MTS catalog), because no context may depend o
 | MtsAlias | `MtsAliasCrudController` | Full | kind and label fixed after creation; aliases of a merge cannot be edited or deleted |
 | MtsDiagramIndicator | `MtsDiagramIndicatorCrudController` | Create/delete | no edit; active entries only |
 
+The plausibility table (problem areas, snapshots; ADR 033) has no EasyAdmin controller: catalog reviewers are not
+administrators, so it is maintained on the pilot pages under `/encounter/plausibility`, which the admin menu links
+(Data → MTS catalog → Plausibility table). A diagram named by a curated rule cannot be merged.
+
 ## Content
 
 | Entity | CRUD controller | Mode | Notes |

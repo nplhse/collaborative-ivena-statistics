@@ -24,7 +24,8 @@ use Doctrine\ORM\EntityManagerInterface;
  *   label is the same, as a collision when it is another label (the exchange format cannot tell them apart).
  * - Aliases point to an active entry of the same kind, so resolution takes one step.
  * - Merge: a provisional entry becomes `merged` and an alias from its code to the target is created, in one
- *   transaction. Refused while the entry is an alias target or has diagram–indicator assignments.
+ *   transaction. Refused while the entry is an alias target, has diagram–indicator assignments or is named by curated
+ *   rules of the plausibility table (ADR 033).
  * - Undo: the alias is removed and the entry is `provisional` again, in one transaction.
  *
  * Encounter rows are never touched: they keep the code as sent and readers resolve it.
@@ -155,7 +156,8 @@ final readonly class MtsCatalogCuration
     }
 
     /**
-     * Whether merge() would accept the entry (provisional, no aliases point to it, no assignments).
+     * Whether merge() would accept the entry (provisional, no aliases point to it, no assignments, no curated
+     * plausibility rules).
      */
     public function mergeBlocker(MtsCatalogItem $entry): ?MtsCatalogException
     {
@@ -171,6 +173,11 @@ final readonly class MtsCatalogCuration
         $assignments = $this->repository->countAssignments($entry);
         if ($assignments > 0) {
             return new MtsCatalogException(MtsCatalogException::MERGE_HAS_ASSIGNMENTS, ['code' => $entry->getCode(), 'count' => $assignments]);
+        }
+
+        $rules = $this->repository->countPlausibilityRules($entry);
+        if ($rules > 0) {
+            return new MtsCatalogException(MtsCatalogException::MERGE_HAS_PLAUSIBILITY_RULES, ['code' => $entry->getCode(), 'count' => $rules]);
         }
 
         return null;

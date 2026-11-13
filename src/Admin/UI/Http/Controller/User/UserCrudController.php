@@ -336,6 +336,7 @@ final class UserCrudController extends AbstractCrudController
                 'Reviews indications' => UserRole::REVIEW_INDICATIONS,
                 'Closure beta' => UserRole::CLOSURE_BETA,
                 'Encounter beta' => UserRole::ENCOUNTER_BETA,
+                'Encounter catalog reviewer' => UserRole::ENCOUNTER_CATALOG_REVIEWER,
             ])
             ->allowMultipleChoices()
             ->renderAsBadges([
@@ -346,6 +347,7 @@ final class UserCrudController extends AbstractCrudController
                 UserRole::REVIEW_INDICATIONS => 'secondary',
                 UserRole::CLOSURE_BETA => 'dark',
                 UserRole::ENCOUNTER_BETA => 'dark',
+                UserRole::ENCOUNTER_CATALOG_REVIEWER => 'dark',
             ]);
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.hospitals', domain: 'admin'));

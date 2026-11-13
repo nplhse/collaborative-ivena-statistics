@@ -10,6 +10,7 @@ use App\Encounter\Domain\Entity\MtsCatalogItem;
 use App\Encounter\Domain\Entity\MtsDiagram;
 use App\Encounter\Domain\Entity\MtsDiagramIndicator;
 use App\Encounter\Domain\Entity\MtsIndicator;
+use App\Encounter\Domain\Entity\PlausibilityAreaDiagram;
 use App\Encounter\Domain\Enum\MtsCatalogKind;
 use App\Encounter\Domain\Enum\MtsCatalogStatus;
 use Doctrine\ORM\EntityManagerInterface;
@@ -50,6 +51,16 @@ final readonly class MtsCatalogRepository implements MtsCatalogRepositoryInterfa
         $field = $entry instanceof MtsDiagram ? 'diagram' : 'indicator';
 
         return $this->entityManager->getRepository(MtsDiagramIndicator::class)->count([$field => $entry]);
+    }
+
+    #[\Override]
+    public function countPlausibilityRules(MtsCatalogItem $entry): int
+    {
+        if (!$entry instanceof MtsDiagram) {
+            return 0;
+        }
+
+        return $this->entityManager->getRepository(PlausibilityAreaDiagram::class)->count(['diagram' => $entry]);
     }
 
     #[\Override]
