@@ -64,6 +64,21 @@ final class ValidationReportTest extends TestCase
         );
     }
 
+    public function testWrongPairsAreSplitIntoAnotherVisitAndNoPartnerWithTheShareUnchanged(): void
+    {
+        $items = [
+            ...$this->items(ValidationStratum::Automatic, self::TOP, [ValidationVerdict::Correct, ValidationVerdict::Correct, ValidationVerdict::Wrong]),
+            ['stratum' => ValidationStratum::Automatic, 'band' => self::TOP, 'verdict' => ValidationVerdict::Wrong, 'replaced' => true],
+            // A replacement flag on a verdict other than "wrong" counts nowhere.
+            ['stratum' => ValidationStratum::Automatic, 'band' => self::TOP, 'verdict' => ValidationVerdict::Unclear, 'replaced' => true],
+        ];
+        $row = $this->row(ValidationReport::build(new ScoreBands(), $items, null), ValidationStratum::Automatic, self::TOP);
+
+        // 2 correct, 2 wrong (1 another visit, 1 no partner), 1 unclear: share correct 2 / 4 = 0.5.
+        self::assertSame([2, 2, 1, 1, 1], [$row->positive, $row->negative, $row->negativeOther, $row->negativeNoPartner(), $row->unclear]);
+        self::assertSame(0.5, $row->share?->share);
+    }
+
     public function testCombinedReportHasNoPopulationAndNoWeightedEstimate(): void
     {
         $report = ValidationReport::build(new ScoreBands(), $this->items(ValidationStratum::Automatic, self::TOP, [ValidationVerdict::Correct]), null);

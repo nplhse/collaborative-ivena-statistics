@@ -9,7 +9,7 @@
             {% else %}
                 <span class="h3 mb-0 text-secondary" data-test="report-share-value">–</span>
             {% endif %}
-            <div class="text-secondary small" data-test="report-counts">{{ ('encounter.validation.summary.counts_' ~ (row.stratum.isPair() ? 'pair' : 'unlinked'))|trans({positive: row.positive, negative: row.negative, unclear: row.unclear}, 'encounter') }}</div>
+            <div class="text-secondary small" data-test="report-counts">{{ ('encounter.validation.summary.counts_' ~ (row.stratum.isPair() ? 'pair' : 'unlinked'))|trans({positive: row.positive, negative: row.negative, other: row.negativeOther, none: row.negativeNoPartner(), unclear: row.unclear}, 'encounter') }}</div>
             <div class="text-secondary small" data-test="report-progress">{{ 'encounter.validation.summary.progress'|trans({judged: row.judged, sampled: row.sampled}, 'encounter') }}</div>
             <div class="text-secondary small" data-test="report-population">{{ 'encounter.validation.summary.population'|trans({population: row.population ?? 0}, 'encounter') }}</div>
         </div>

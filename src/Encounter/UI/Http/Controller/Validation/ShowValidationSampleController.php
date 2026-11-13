@@ -9,6 +9,7 @@ use App\Encounter\Application\Contract\MatchValidationReaderInterface;
 use App\Encounter\Application\Security\EncounterAttribute;
 use App\Encounter\Application\Validation\ScoreBands;
 use App\Encounter\Application\Validation\ValidationReport;
+use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\MatchValidationItem;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,7 +37,7 @@ final class ShowValidationSampleController extends AbstractController
         $items = $this->validation->items($sample);
         $report = ValidationReport::build(
             new ScoreBands($sample->getScoreBands()),
-            array_map(static fn (MatchValidationItem $item): array => ['stratum' => $item->getStratum(), 'band' => $item->getBand(), 'verdict' => $item->getVerdict()], $items),
+            array_map(static fn (MatchValidationItem $item): array => ['stratum' => $item->getStratum(), 'band' => $item->getBand(), 'verdict' => $item->getVerdict(), 'replaced' => $item->getReplacementEncounter() instanceof Encounter], $items),
             $sample->getPopulation(),
         );
         $next = array_find($items, static fn (MatchValidationItem $item): bool => !$item->getVerdict() instanceof \App\Encounter\Domain\Enum\ValidationVerdict);

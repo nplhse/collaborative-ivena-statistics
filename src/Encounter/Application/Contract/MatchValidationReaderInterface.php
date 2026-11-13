@@ -35,7 +35,7 @@ interface MatchValidationReaderInterface
     /**
      * Every item of the hospital's samples by the matcher version of its sample, for the combined report.
      *
-     * @return array<string, list<array{stratum: ValidationStratum, band: ?string, verdict: ?ValidationVerdict}>>
+     * @return array<string, list<array{stratum: ValidationStratum, band: ?string, verdict: ?ValidationVerdict, replaced: bool}>>
      */
     public function itemsByMatcherVersion(int $hospitalId): array;
 

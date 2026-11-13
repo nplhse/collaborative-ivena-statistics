@@ -20,7 +20,12 @@ use Doctrine\ORM\Mapping as ORM;
  * matcher version, and the score band it was drawn from. An unlinked allocation has only the allocation,
  * an unlinked visit only the visit. The verdict is recorded with `decided_by`/`decided_at` and audited.
  *
- * Deletion: goes with its sample, and with its allocation or visit (ON DELETE CASCADE), like the pair rows.
+ * A pair judged "wrong" because another visit is the allocation's partner keeps that visit as
+ * `replacement_encounter` (linked in the same step); "wrong" without it means the allocation has no
+ * partner among the candidates. The report tells the two apart.
+ *
+ * Deletion: goes with its sample, and with its allocation or visit (ON DELETE CASCADE), like the pair rows;
+ * a deleted replacement visit clears `replacement_encounter` (SET NULL).
  */
 #[ORM\Entity]
 #[Audit\Audited]
@@ -77,6 +82,11 @@ class MatchValidationItem
     #[ORM\Column(type: Types::STRING, length: 16, nullable: true, enumType: ValidationVerdict::class)]
     private ?ValidationVerdict $verdict = null;
 
+    /** Visit linked instead of the sampled one ("wrong, another visit fits"); pair items only. */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Encounter $replacementEncounter = null;
+
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?User $decidedBy = null;
@@ -120,15 +130,19 @@ class MatchValidationItem
     }
 
     /**
-     * Records or replaces the verdict.
+     * Records or replaces the verdict; a replacement visit only goes with "wrong" on a pair.
      */
-    public function record(ValidationVerdict $verdict, User $decidedBy, \DateTimeImmutable $decidedAt): void
+    public function record(ValidationVerdict $verdict, User $decidedBy, \DateTimeImmutable $decidedAt, ?Encounter $replacement = null): void
     {
         if (!\in_array($verdict, $this->stratum->verdicts(), true)) {
             throw new \InvalidArgumentException(sprintf('Verdict "%s" does not apply to stratum "%s".', $verdict->value, $this->stratum->value));
         }
+        if ($replacement instanceof Encounter && (ValidationVerdict::Wrong !== $verdict || $replacement === $this->encounter)) {
+            throw new \InvalidArgumentException('A replacement visit goes only with "wrong" on a pair and differs from the sampled visit.');
+        }
 
         $this->verdict = $verdict;
+        $this->replacementEncounter = $replacement;
         $this->decidedBy = $decidedBy;
         $this->decidedAt = $decidedAt;
     }
@@ -196,6 +210,11 @@ class MatchValidationItem
     public function getVerdict(): ?ValidationVerdict
     {
         return $this->verdict;
+    }
+
+    public function getReplacementEncounter(): ?Encounter
+    {
+        return $this->replacementEncounter;
     }
 
     public function getDecidedBy(): ?User

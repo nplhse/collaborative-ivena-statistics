@@ -536,23 +536,39 @@ Drawing changes no link: automatic links stay effective while they are validated
 visible on the item. Tables `encounter_validation_sample` and `encounter_validation_item`; samples go with
 their hospital, items with their sample, allocation or visit (`ON DELETE CASCADE`).
 
-**Verdicts** (item page: the review's comparison of the allocation with every candidate visit of the review
-window, the sampled visit first; for a visit without link the allocations whose review window contains it,
-each with its points as only candidate):
+**Verdicts** (item page: one item, one question, one decision; comparisons as in the review):
 
-| Stratum | Verdicts |
-|---|---|
-| Automatic link, proposal | correct, wrong, unclear |
-| Allocation or visit without link | partner missed, no partner, unclear |
+| Stratum | Page | Decisions |
+|---|---|---|
+| Automatic link, proposal | the allocation compared with the sampled visit; below, collapsed, "Alternatives (n)": the other candidate visits of the review window by points (time difference, sex/age/route marks, points and agreement, a link elsewhere), each expandable to the full comparison | correct · wrong, no matching visit · wrong, another visit fits ("link instead" on an alternative) · unclear |
+| Allocation without link | every candidate visit of the review window as an option | "link this visit" (partner missed) · no partner · unclear |
+| Visit without link | every allocation whose review window contains the visit as an option, compared as in that allocation's review | "link this allocation" (partner missed) · no partner · unclear |
 
-"Wrong" also rejects the pair through the review's decider (same lock, audit intent
-`encounter.match.decided`, sticky for later runs), unless it is already rejected or no longer stored; a
-rejected automatic link stops being effective. "Correct" changes nothing; a proposal stays open for the
-review. Every verdict sets `decided_by`/`decided_at` and is audited with intent
-`encounter.validation.verdict_recorded`; drawing with `encounter.validation.sample_drawn`.
+A verdict and its link decisions are written in one transaction under one audit intent
+(`encounter.validation.verdict_recorded`; the review decider joins it and lists its decisions as
+`decisions` in the intent metadata), through the review's decider (same lock, sticky for later runs):
+
+- "Correct" confirms an automatic link or open proposal (it becomes `confirmed`), unless a person decided
+  the pair already, a rerun dropped it, or a link elsewhere stands in the way; then the verdict alone.
+- "Wrong" rejects the pair unless it is already rejected or no longer stored; a rejected automatic link
+  stops being effective.
+- "Link instead" / "link this visit" / "link this allocation" (`ValidationLinkPlanner`) confirms the chosen
+  pair; for a pair the sampled pair is rejected first, so for an automatic link this acts like a review
+  "change". A link is never moved silently: if the chosen visit is linked to another allocation, or the
+  allocation is linked to another visit, only the review's swap proposal that makes the pair applies
+  ("link with swap"); otherwise the row points to that allocation's review and a request is refused with
+  nothing written.
+- A pair item judged "wrong, another visit fits" keeps that visit (`replacement_encounter_id`, set null if
+  the visit is deleted); the item's sampled state stays as drawn.
+- Changing a verdict later undoes no link (links are manual decisions now; change them in the review); the
+  replacement follows the latest verdict.
+
+Every verdict sets `decided_by`/`decided_at`; drawing is audited with `encounter.validation.sample_drawn`.
 
 **Report** (`ValidationReport`, pure): per stratum and band the population when drawn, sampled, open,
-correct or missed, wrong or no partner, unclear, and the observed share correct (pairs) or missed
+correct or missed, wrong or no partner (pairs: split into "another visit fits" and "no partner"; the
+split shows whether errors are mix-ups between candidates, a matter of the time and age weights, or false
+links, a matter of the thresholds), unclear, and the observed share correct (pairs) or missed
 (unlinked cases) among the decisive verdicts with its Wilson 95 % interval. Per pair stratum an estimate
 weighted by the band populations, Σ N_b × share_b / Σ N_b, given only when every band with cases has a
 decisive verdict. The overview adds up the verdicts of all samples per matcher version, without population

@@ -27,10 +27,10 @@ use Psr\Clock\ClockInterface;
  * on the hospital first.
  *
  * Every decision runs in one transaction under the hospital's matching lock (the matcher takes the same
- * lock) and under an audit intent; the changed rows record `decided_by` and `decided_at`. Manual decisions
- * are sticky: no matcher run changes a `confirmed` or `rejected` pair. After a link is made, open
- * proposals touching either side are removed, as the matcher does at the end of a run, which also
- * resolves a conflict.
+ * lock) and under an audit intent (or the caller's, see {@see self::audited()}); the changed rows record
+ * `decided_by` and `decided_at`. Manual decisions are sticky: no matcher run changes a `confirmed` or
+ * `rejected` pair. After a link is made, open proposals touching either side are removed, as the matcher
+ * does at the end of a run, which also resolves a conflict.
  *
  * @psalm-suppress UnusedClass Autowired as MatchDeciderInterface.
  */
@@ -287,10 +287,26 @@ final readonly class MatchDecider implements MatchDeciderInterface
     }
 
     /**
+     * Writes under the decision's audit intent. Inside another intent (a validation verdict, #1057) the
+     * decision joins that intent: its name stays, the decision is added as `decisions` to its metadata, so
+     * the verdict and its links are one audited step.
+     *
      * @param array<string, mixed> $metadata
      */
     private function audited(string $intent, array $metadata, callable $write): void
     {
+        $outer = $this->auditContext->getCurrentIntent();
+        if (null !== $outer) {
+            /** @var list<array<string, mixed>> $decisions */
+            $decisions = $outer['metadata']['decisions'] ?? [];
+            $decisions[] = ['intent' => $intent, ...$metadata];
+            $this->auditContext->endIntent();
+            $this->auditContext->beginIntent($outer['name'], [...$outer['metadata'], 'decisions' => $decisions]);
+            $write();
+
+            return;
+        }
+
         $this->auditContext->beginIntent($intent, $metadata);
         try {
             $write();

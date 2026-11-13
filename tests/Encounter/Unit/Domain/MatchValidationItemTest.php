@@ -30,6 +30,24 @@ final class MatchValidationItemTest extends TestCase
         $item->record(ValidationVerdict::Missed, $user, $at);
     }
 
+    public function testReplacementGoesWithWrongOnly(): void
+    {
+        $item = new MatchValidationItem($this->sample(), 1, ValidationStratum::Automatic, $this->createStub(Allocation::class), $this->createStub(Encounter::class), '0.90–0.99', MatchStatus::AutoAccepted, 0.9697, 9, 1, '1.0.0');
+        $user = $this->createStub(User::class);
+        $at = new \DateTimeImmutable('2026-11-12 10:00');
+        $other = $this->createStub(Encounter::class);
+
+        $item->record(ValidationVerdict::Wrong, $user, $at, $other);
+        self::assertSame($other, $item->getReplacementEncounter());
+
+        // A later verdict without replacement clears it.
+        $item->record(ValidationVerdict::Correct, $user, $at);
+        self::assertNull($item->getReplacementEncounter());
+
+        $this->expectException(\InvalidArgumentException::class);
+        $item->record(ValidationVerdict::Correct, $user, $at, $other);
+    }
+
     public function testUnlinkedVisitHasNoAllocation(): void
     {
         $this->expectException(\InvalidArgumentException::class);
