@@ -17,11 +17,16 @@
     const DB_NAME = 'encounter-data-prep';
     const DB_STORE = 'keys';
     const DB_ENTRY = 'current';
+    const DB_MAP_ENTRY = 'local-map';
 
     const state = {
         blocked: false,
         key: null,
         localMap: null,
+        // Plain map data (file format) behind state.localMap, changed by the editor (#1130).
+        localMapData: null,
+        localMapName: null,
+        mapDirty: false,
         profile: null,
         table: null,
         result: null,
@@ -259,27 +264,298 @@
 
     // ------------------------------------------------------------------ local map
 
+    function mapProfile() {
+        return state.profile ?? config.profiles[0];
+    }
+
+    /**
+     * Validates map data exactly like a loaded map file (prep.loadLocalMap) and makes it the current
+     * map. Returns false, with the invalid entries in `statusId`, when the data is not valid.
+     */
+    function useLocalMap(data, { name, statusId = 'map-status' } = {}) {
+        let loaded;
+        try {
+            loaded = prep.loadLocalMap(data, mapProfile());
+        } catch (error) {
+            const details = error.entries ? ` (${error.entries.join(', ')})` : '';
+            status(statusId, `${t('mapInvalid')}${details}`, 'error');
+            return false;
+        }
+        state.localMap = loaded;
+        state.localMapData = loaded.data;
+        state.localMapName = name ?? state.localMapName;
+        renderMapStatus();
+        return true;
+    }
+
+    function renderMapStatus() {
+        if (state.localMap === null) {
+            status('map-status', '', 'info');
+            show('map-forget', false);
+            refresh();
+            return;
+        }
+        const { counts, label } = state.localMap;
+        const text = `${t('mapLoaded')}: ${label || state.localMapName || '—'} — ${t('mapDepartments')} ${counts.departments}, ${t('mapStations')} ${counts.stations}, ${t('mapDispositions')} ${counts.dispositions}`;
+        status(
+            'map-status',
+            state.mapDirty ? `${text}. ${t('mapUnsaved')}` : text,
+            state.mapDirty ? 'warning' : 'success',
+        );
+        refresh();
+    }
+
     async function onLocalMap(event) {
         const file = await readFile(event.target);
         if (file === null) {
             return;
         }
+        let data;
         try {
-            const profile = state.profile ?? config.profiles[0];
-            state.localMap = prep.loadLocalMap(prep.decodeBytes(file.bytes).text, profile);
-            const { counts, label } = state.localMap;
-            status(
-                'map-status',
-                `${t('mapLoaded')}: ${label || file.name} — ${t('mapDepartments')} ${counts.departments}, ${t('mapStations')} ${counts.stations}, ${t('mapDispositions')} ${counts.dispositions}`,
-                'success',
-            );
-        } catch (error) {
+            data = JSON.parse(prep.decodeBytes(file.bytes).text);
+        } catch {
+            data = null;
+        }
+        state.mapDirty = false;
+        if (!useLocalMap(data, { name: file.name })) {
             state.localMap = null;
-            const details = error.entries ? ` (${error.entries.join(', ')})` : '';
-            status('map-status', `${t('mapInvalid')}${details}`, 'error');
+            state.localMapData = null;
+            refresh();
+        } else if ($('map-remember').checked) {
+            await rememberMap();
         }
         invalidateResult();
         refresh();
+    }
+
+    function onSaveMap() {
+        if (state.localMapData === null) {
+            return;
+        }
+        const label = state.localMapData.hospital || state.key?.label || '';
+        const slug = prep.catalogCode(label).replace(/_/g, '-') || 'hospital';
+        download(
+            prep.serializeLocalMap(state.localMapData),
+            `encounter-local-map-${slug}-${today()}.json`,
+            'application/json',
+        );
+        state.mapDirty = false;
+        renderMapStatus();
+        status('map-edit-status', t('mapSaved'), 'success');
+    }
+
+    async function rememberMap() {
+        try {
+            await withStore('readwrite', (store) => store.put(state.localMapData, DB_MAP_ENTRY));
+            show('map-forget', true);
+            return true;
+        } catch {
+            status('map-edit-status', t('mapRememberFailed'), 'warning');
+            return false;
+        }
+    }
+
+    async function forgetMap() {
+        try {
+            await withStore('readwrite', (store) => store.delete(DB_MAP_ENTRY));
+        } catch {
+            // nothing remembered
+        }
+        $('map-remember').checked = false;
+        show('map-forget', false);
+    }
+
+    async function restoreMap() {
+        try {
+            const data = await withStore('readonly', (store) => store.get(DB_MAP_ENTRY));
+            if (data && useLocalMap(data, { name: t('mapRememberedName') })) {
+                $('map-remember').checked = true;
+                show('map-forget', true);
+            }
+        } catch {
+            // browser storage unavailable: the map file is loaded per run
+        }
+    }
+
+    async function onMapRememberChange(event) {
+        if (!event.target.checked) {
+            await forgetMap();
+            return;
+        }
+        if (state.localMapData !== null) {
+            await rememberMap();
+        }
+    }
+
+    // ------------------------------------------------------------------ local map editor
+
+    /** Input controls for one unmapped value of a map section; values are read back by onApplyMap. */
+    function mapEditor(section, value) {
+        const attrs = { 'data-section': section, 'data-value': value };
+        const option = (code, label) => element('option', { text: label, attrs: { value: code } });
+        if (section === 'departments') {
+            const input = element('input', {
+                className: 'map-edit',
+                attrs: {
+                    ...attrs,
+                    type: 'text',
+                    maxlength: '64',
+                    autocomplete: 'off',
+                    'aria-label': `${t('mapEditDepartment')}: ${value}`,
+                    placeholder: t('mapEditDepartment'),
+                },
+            });
+            input.addEventListener('input', () => {
+                const name = input.value;
+                input.dataset.invalid = String(name !== '' && !prep.isDepartmentName(name));
+            });
+            return input;
+        }
+        if (section === 'stations') {
+            return element(
+                'select',
+                {
+                    className: 'map-edit',
+                    attrs: { ...attrs, 'aria-label': `${t('mapEditCareLevel')}: ${value}` },
+                },
+                [
+                    option('', '—'),
+                    ...prep.CARE_LEVELS.map((level) => option(level, t(`careLevel_${level}`))),
+                ],
+            );
+        }
+        const disposition = element(
+            'select',
+            {
+                className: 'map-edit',
+                attrs: { ...attrs, 'aria-label': `${t('mapEditDisposition')}: ${value}` },
+            },
+            [
+                option('', '—'),
+                ...prep.DISPOSITIONS.map((code) => option(code, t(`disposition_${code}`))),
+            ],
+        );
+        const careLevel = element(
+            'select',
+            {
+                className: 'map-edit-care-level',
+                attrs: { 'aria-label': `${t('mapEditCareLevel')}: ${value}`, disabled: '' },
+            },
+            [
+                option('', t('mapEditCareLevelNone')),
+                ...prep.CARE_LEVELS.map((level) => option(level, t(`careLevel_${level}`))),
+            ],
+        );
+        disposition.addEventListener('change', () => {
+            const allowed = prep.CARE_LEVEL_DISPOSITIONS.includes(disposition.value);
+            careLevel.disabled = !allowed;
+            if (!allowed) {
+                careLevel.value = '';
+            }
+        });
+        return element('span', { className: 'map-edit-pair' }, [disposition, careLevel]);
+    }
+
+    function unmappedTable(unmapped) {
+        const sections = prep.localMapSections(state.profile);
+        const rows = Object.entries(unmapped).flatMap(([field, values]) =>
+            Object.entries(values).map(([value, n]) => ({ field, value, n })),
+        );
+        const editable = rows.some(({ field }) => sections[field] !== undefined);
+        const headers = [t('reportField'), t('reportValue'), t('reportCount')];
+        if (editable) {
+            headers.push(t('mapEditColumn'));
+        }
+        const body = rows.map(({ field, value, n }) => {
+            const cells = [field, value, n].map((c) => element('td', { text: c }));
+            if (editable) {
+                const section = sections[field];
+                cells.push(
+                    element(
+                        'td',
+                        {},
+                        section === undefined
+                            ? [element('span', { className: 'muted', text: t('mapEditProfile') })]
+                            : [mapEditor(section, value)],
+                    ),
+                );
+            }
+            return element('tr', {}, cells);
+        });
+        const nodes = [
+            element('table', { className: 'grid', attrs: { id: 'unmapped-table' } }, [
+                element('thead', {}, [
+                    element(
+                        'tr',
+                        {},
+                        headers.map((h) => element('th', { text: h })),
+                    ),
+                ]),
+                element('tbody', {}, body),
+            ]),
+        ];
+        if (editable) {
+            const apply = element('button', {
+                text: t('mapApply'),
+                attrs: { type: 'button', id: 'map-apply' },
+            });
+            apply.addEventListener('click', onApplyMap);
+            nodes.push(
+                element('p', { className: 'hint', text: t('mapEditHint') }),
+                element('div', { className: 'row' }, [apply]),
+            );
+        }
+        return nodes;
+    }
+
+    /** Collects the filled-in assignments of the report as `[section, source, target]` entries. */
+    function collectMapEdits() {
+        const edits = [];
+        for (const control of doc.querySelectorAll('#unmapped-table .map-edit')) {
+            const { section, value } = control.dataset;
+            const chosen = control.value.trim() === '' ? '' : control.value;
+            if (chosen === '') {
+                continue;
+            }
+            if (section === 'dispositions') {
+                const careLevel = control.parentElement.querySelector('.map-edit-care-level').value;
+                edits.push([
+                    section,
+                    value,
+                    careLevel === '' ? { disposition: chosen } : { disposition: chosen, careLevel },
+                ]);
+            } else {
+                edits.push([section, value, chosen]);
+            }
+        }
+        return edits;
+    }
+
+    async function onApplyMap() {
+        const edits = collectMapEdits();
+        if (edits.length === 0) {
+            status('map-edit-status', t('mapEditNothing'), 'info');
+            return;
+        }
+        let data = state.localMapData ?? prep.newLocalMapData(mapProfile(), state.key?.label ?? '');
+        for (const [section, source, target] of edits) {
+            data = prep.setLocalMapEntry(data, section, source, target);
+        }
+        const previous = state.mapDirty;
+        state.mapDirty = true;
+        if (!useLocalMap(data, { statusId: 'map-edit-status' })) {
+            state.mapDirty = previous;
+            return;
+        }
+        if ($('map-remember').checked) {
+            await rememberMap();
+        }
+        await onRun();
+        status(
+            'map-edit-status',
+            `${t('mapApplied')} ${edits.length}. ${t('mapUnsaved')}`,
+            'warning',
+        );
     }
 
     // ------------------------------------------------------------------ source file
@@ -346,6 +622,7 @@
         replace('report');
         replace('content-check');
         replace('output-preview');
+        status('map-edit-status', '', 'info');
         show('result-section', false);
     }
 
@@ -400,7 +677,6 @@
             Object.entries(bucket).flatMap(([field, values]) =>
                 Object.entries(values).map(([value, n]) => [field, value, n]),
             );
-        const unmapped = listRows(report.unmapped);
         const unlisted = listRows(report.unlistedCatalogValues);
         replace(
             'report',
@@ -414,9 +690,9 @@
                 : element('p', { text: t('none') }),
             element('h3', { text: t('reportUnmappedTitle') }),
             element('p', { className: 'hint', text: t('reportUnmappedHint') }),
-            unmapped.length
-                ? table([t('reportField'), t('reportValue'), t('reportCount')], unmapped)
-                : element('p', { text: t('none') }),
+            ...(Object.keys(report.unmapped).length
+                ? unmappedTable(report.unmapped)
+                : [element('p', { text: t('none') })]),
             element('h3', { text: t('reportUnlistedTitle') }),
             element('p', { className: 'hint', text: t('reportUnlistedHint') }),
             unlisted.length
@@ -506,6 +782,7 @@
     function refresh() {
         $('run').disabled = !canRun();
         $('save').disabled = !canSave();
+        $('map-save').disabled = state.localMapData === null;
     }
 
     function init() {
@@ -514,12 +791,16 @@
         $('key-remember').addEventListener('change', onRememberChange);
         $('key-forget').addEventListener('click', forgetKey);
         $('map-file').addEventListener('change', onLocalMap);
+        $('map-save').addEventListener('click', onSaveMap);
+        $('map-remember').addEventListener('change', onMapRememberChange);
+        $('map-forget').addEventListener('click', forgetMap);
         $('source-file').addEventListener('change', onSourceFile);
         $('run').addEventListener('click', onRun);
         $('save').addEventListener('click', onSave);
         $('content-ack').addEventListener('change', refresh);
         refresh();
         restoreKey();
+        restoreMap();
         checkForUpdate();
     }
 

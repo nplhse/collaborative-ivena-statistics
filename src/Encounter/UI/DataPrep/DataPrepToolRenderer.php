@@ -52,6 +52,22 @@ final readonly class DataPrepToolRenderer
         ]);
     }
 
+    /**
+     * Label and required header columns of each bundled profile, for the export step of the tool's
+     * landing page (#1130).
+     *
+     * @return list<array{label: string, columns: list<string>}>
+     */
+    public function profileSummaries(): array
+    {
+        return array_map(function (string $path): array {
+            /** @var array{label: string, detect: array{requiredColumns: list<string>}} $profile */
+            $profile = $this->decode($path);
+
+            return ['label' => $profile['label'], 'columns' => $profile['detect']['requiredColumns']];
+        }, self::PROFILES);
+    }
+
     private function read(string $path): string
     {
         $content = file_get_contents($this->sourceDirectory.'/'.$path);

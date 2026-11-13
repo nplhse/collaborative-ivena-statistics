@@ -795,7 +795,7 @@
       </trans-unit>
       <trans-unit id="EncI45065675" resname="encounter.import.field.confirmation_help">
         <source>encounter.import.field.confirmation_help</source>
-        <target>Prepare the export with the data preparation tool from the &lt;a href="{url}"&gt;encounter page&lt;/a&gt; first; raw exports are rejected and deleted.</target>
+        <target>Prepare the export with the &lt;a href="{url}"&gt;data preparation tool&lt;/a&gt; first; raw exports are rejected and deleted.</target>
       </trans-unit>
       <trans-unit id="EncK8C1F12FD" resname="encounter.hospital_edit.key_change">
         <source>encounter.hospital_edit.key_change</source>
@@ -2540,6 +2540,378 @@
       <trans-unit id="EncD9B0B0A5" resname="encounter.validation.item.options_hint_visit">
         <source>encounter.validation.item.options_hint_visit</source>
         <target>If one of the allocations below belongs to this visit, choose “Link this allocation” there.</target>
+      </trans-unit>
+      <trans-unit id="EncE1E3DBED" resname="encounter.data_prep.overview.guide">
+        <source>encounter.data_prep.overview.guide</source>
+        <target>Guide and download</target>
+      </trans-unit>
+      <trans-unit id="Enc9DDB4F7A" resname="encounter.data_prep.guide.title">
+        <source>encounter.data_prep.guide.title</source>
+        <target>Data preparation tool</target>
+      </trans-unit>
+      <trans-unit id="EncFF795C42" resname="encounter.data_prep.guide.release.title">
+        <source>encounter.data_prep.guide.release.title</source>
+        <target>Current version</target>
+      </trans-unit>
+      <trans-unit id="EncD483D0F9" resname="encounter.data_prep.guide.release.version">
+        <source>encounter.data_prep.guide.release.version</source>
+        <target>Version</target>
+      </trans-unit>
+      <trans-unit id="EncA6988D6D" resname="encounter.data_prep.guide.release.released_at">
+        <source>encounter.data_prep.guide.release.released_at</source>
+        <target>Released</target>
+      </trans-unit>
+      <trans-unit id="EncE7AF5A7F" resname="encounter.data_prep.guide.release.min_version">
+        <source>encounter.data_prep.guide.release.min_version</source>
+        <target>Minimum version for the upload</target>
+      </trans-unit>
+      <trans-unit id="Enc02BDEC12" resname="encounter.data_prep.guide.release.min_version_help">
+        <source>encounter.data_prep.guide.release.min_version_help</source>
+        <target>Files made with an older tool are rejected on upload. The tool checks for updates when it starts and shows a notice when a new version is available.</target>
+      </trans-unit>
+      <trans-unit id="Enc939B976B" resname="encounter.data_prep.guide.changelog.title">
+        <source>encounter.data_prep.guide.changelog.title</source>
+        <target>What's new</target>
+      </trans-unit>
+      <trans-unit id="Enc69B7D3F1" resname="encounter.data_prep.guide.changelog.current">
+        <source>encounter.data_prep.guide.changelog.current</source>
+        <target>current</target>
+      </trans-unit>
+      <trans-unit id="EncF110A873" resname="encounter.data_prep.changelog.1_1_0.map_editor">
+        <source>encounter.data_prep.changelog.1_1_0.map_editor</source>
+        <target>Local map editor: after a run, unmapped departments, stations and discharge texts can be assigned in the report; "Add to map and run again" checks the assignments like a loaded map and runs again without reloading the export. "Save map" saves the map file.</target>
+      </trans-unit>
+      <trans-unit id="EncB1EEF418" resname="encounter.data_prep.changelog.1_1_0.map_remember">
+        <source>encounter.data_prep.changelog.1_1_0.map_remember</source>
+        <target>The local map can be remembered on this computer, like the key file. It never leaves the browser.</target>
+      </trans-unit>
+      <trans-unit id="EncC67F96FB" resname="encounter.data_prep.changelog.1_0_2.department_names_checked">
+        <source>encounter.data_prep.changelog.1_0_2.department_names_checked</source>
+        <target>The local map rejects department names that the import would take for personal data ("Word, Word", a title such as "Dr." before a name, dates).</target>
+      </trans-unit>
+      <trans-unit id="Enc56B59C0D" resname="encounter.data_prep.changelog.1_0_1.department_names">
+        <source>encounter.data_prep.changelog.1_0_1.department_names</source>
+        <target>Departments in the local map are assigned to names of the reference catalog instead of codes.</target>
+      </trans-unit>
+      <trans-unit id="EncFA85C911" resname="encounter.data_prep.changelog.1_0_1.mts_indicators">
+        <source>encounter.data_prep.changelog.1_0_1.mts_indicators</source>
+        <target>MTS indicators updated after the first test run with a real export.</target>
+      </trans-unit>
+      <trans-unit id="Enc85DA95D6" resname="encounter.data_prep.changelog.1_0_0.first_release">
+        <source>encounter.data_prep.changelog.1_0_0.first_release</source>
+        <target>First version with the ORBIS MTS profile: key file, optional local map, column preview, report, content check and the canonical file for the upload.</target>
+      </trans-unit>
+      <trans-unit id="Enc91ED4493" resname="encounter.data_prep.guide.steps.title">
+        <source>encounter.data_prep.guide.steps.title</source>
+        <target>Getting started</target>
+      </trans-unit>
+      <trans-unit id="EncADFB85D7" resname="encounter.data_prep.guide.steps.grants.title">
+        <source>encounter.data_prep.guide.steps.grants.title</source>
+        <target>Grants</target>
+      </trans-unit>
+      <trans-unit id="Enc4AE590B7" resname="encounter.data_prep.guide.steps.grants.text">
+        <source>encounter.data_prep.guide.steps.grants.text</source>
+        <target>Encounter data needs the pilot role and an encounter grant per hospital:</target>
+      </trans-unit>
+      <trans-unit id="Enc6415A874" resname="encounter.data_prep.guide.steps.grants.own">
+        <source>encounter.data_prep.guide.steps.grants.own</source>
+        <target>Your grants</target>
+      </trans-unit>
+      <trans-unit id="Enc3F95556E" resname="encounter.data_prep.guide.steps.grants.no_grant">
+        <source>encounter.data_prep.guide.steps.grants.no_grant</source>
+        <target>no encounter grant</target>
+      </trans-unit>
+      <trans-unit id="Enc8AEF466D" resname="encounter.data_prep.guide.steps.grants.manage">
+        <source>encounter.data_prep.guide.steps.grants.manage</source>
+        <target>Manage grants</target>
+      </trans-unit>
+      <trans-unit id="Enc5464EE0E" resname="encounter.data_prep.guide.steps.grants.none">
+        <source>encounter.data_prep.guide.steps.grants.none</source>
+        <target>You have no encounter grant for a hospital yet.</target>
+      </trans-unit>
+      <trans-unit id="Enc9141BE9C" resname="encounter.data_prep.guide.steps.grants.who_assigns">
+        <source>encounter.data_prep.guide.steps.grants.who_assigns</source>
+        <target>The owner of a hospital assigns these grants on the hospital's edit pages, also to themselves. Owning a hospital alone does not allow an upload.</target>
+      </trans-unit>
+      <trans-unit id="Enc2423D9DD" resname="encounter.data_prep.guide.steps.export.title">
+        <source>encounter.data_prep.guide.steps.export.title</source>
+        <target>Export from the hospital information system</target>
+      </trans-unit>
+      <trans-unit id="Enc0B527526" resname="encounter.data_prep.guide.steps.export.orbis">
+        <source>encounter.data_prep.guide.steps.export.orbis</source>
+        <target>ORBIS: export the ED list with the MTS triage (one row per ED visit) as a CSV file with semicolons and all columns, for a closed period, for example one month. The tool keeps only the fields it needs and drops names, dates of birth, staff and free text. It recognises the export by these columns:</target>
+      </trans-unit>
+      <trans-unit id="Enc22421F49" resname="encounter.data_prep.guide.steps.export.columns">
+        <source>encounter.data_prep.guide.steps.export.columns</source>
+        <target>columns</target>
+      </trans-unit>
+      <trans-unit id="Enc85985648" resname="encounter.data_prep.guide.steps.export.generic">
+        <source>encounter.data_prep.guide.steps.export.generic</source>
+        <target>Other systems need a profile of their own. If your system is not listed, contact the project team with the column names of your export (no data).</target>
+      </trans-unit>
+      <trans-unit id="EncBAE3294F" resname="encounter.data_prep.guide.steps.key.title">
+        <source>encounter.data_prep.guide.steps.key.title</source>
+        <target>Key file</target>
+      </trans-unit>
+      <trans-unit id="EncCDDA6B61" resname="encounter.data_prep.guide.steps.key.text">
+        <source>encounter.data_prep.guide.steps.key.text</source>
+        <target>Create the key file once per hospital in the tool ("No key file yet? Create one"), save it in a team folder that everyone who prepares data can reach, and use the same file for every run. Never send it to anyone and never upload it.</target>
+      </trans-unit>
+      <trans-unit id="Enc08A4DF15" resname="encounter.data_prep.guide.steps.map.title">
+        <source>encounter.data_prep.guide.steps.map.title</source>
+        <target>Local map (optional)</target>
+      </trans-unit>
+      <trans-unit id="EncAEC61262" resname="encounter.data_prep.guide.steps.map.text">
+        <source>encounter.data_prep.guide.steps.map.text</source>
+        <target>Assigns your hospital's department codes, stations and discharge texts. You need it when the tool's report lists "unmapped values" for the department, the care level or the disposition. Fill it in the tool; it stays on your computer.</target>
+      </trans-unit>
+      <trans-unit id="EncB0A704F3" resname="encounter.data_prep.guide.steps.run.title">
+        <source>encounter.data_prep.guide.steps.run.title</source>
+        <target>Run the tool</target>
+      </trans-unit>
+      <trans-unit id="EncF726E5CA" resname="encounter.data_prep.guide.steps.run.text">
+        <source>encounter.data_prep.guide.steps.run.text</source>
+        <target>Open the downloaded file in a current browser, load the key file, the local map if any and the export, and start the preparation. Check the report, the content check and the preview of the first rows, then save the file.</target>
+      </trans-unit>
+      <trans-unit id="Enc389E34CE" resname="encounter.data_prep.guide.steps.upload.title">
+        <source>encounter.data_prep.guide.steps.upload.title</source>
+        <target>Upload and review</target>
+      </trans-unit>
+      <trans-unit id="EncC5577290" resname="encounter.data_prep.guide.steps.upload.text">
+        <source>encounter.data_prep.guide.steps.upload.text</source>
+        <target>Upload the saved file as "Encounter data (beta)" for your hospital and confirm that it was made with the tool. After the import, the visits are matched with the IVENA allocations; proposed links are reviewed in the match review.</target>
+      </trans-unit>
+      <trans-unit id="Enc54A111BE" resname="encounter.data_prep.guide.key.title">
+        <source>encounter.data_prep.guide.key.title</source>
+        <target>Key file and key generations</target>
+      </trans-unit>
+      <trans-unit id="EncDA09A442" resname="encounter.data_prep.guide.key.purpose">
+        <source>encounter.data_prep.guide.key.purpose</source>
+        <target>The key file lets the tool turn the case number into a pseudonym. The same case gives the same pseudonym with the same key, so a visit uploaded twice is recognised, and the server never learns the case number.</target>
+      </trans-unit>
+      <trans-unit id="Enc8300A717" resname="encounter.data_prep.guide.key.keep">
+        <source>encounter.data_prep.guide.key.keep</source>
+        <target>The server only knows a check value of the key. The first upload registers it; files with another key are rejected.</target>
+      </trans-unit>
+      <trans-unit id="Enc9B3212D2" resname="encounter.data_prep.guide.key.generations">
+        <source>encounter.data_prep.guide.key.generations</source>
+        <target>Changing the key starts a new key generation: everyone needs the new key file, and visits of the old generation can no longer be recognised in new uploads. The person changing the key chooses whether the data uploaded so far is deleted (then every period can be uploaded again) or kept (then only upload new periods).</target>
+      </trans-unit>
+      <trans-unit id="EncFA1EAEE0" resname="encounter.data_prep.guide.key.lost">
+        <source>encounter.data_prep.guide.key.lost</source>
+        <target>Lost the key file, or someone unauthorised may have seen it? Then the key has to be changed. Nobody can restore a lost key, not even the project team.</target>
+      </trans-unit>
+      <trans-unit id="Enc4D155DAE" resname="encounter.data_prep.guide.key.change_allowed">
+        <source>encounter.data_prep.guide.key.change_allowed</source>
+        <target>You can change the key of:</target>
+      </trans-unit>
+      <trans-unit id="Enc17C8AB76" resname="encounter.data_prep.guide.key.change_link">
+        <source>encounter.data_prep.guide.key.change_link</source>
+        <target>Change pseudonym key of {hospital}</target>
+      </trans-unit>
+      <trans-unit id="EncEB6DFE02" resname="encounter.data_prep.guide.key.admin">
+        <source>encounter.data_prep.guide.key.admin</source>
+        <target>As an administrator you can change the key of every hospital from its edit pages.</target>
+      </trans-unit>
+      <trans-unit id="EncD2CDF89B" resname="encounter.data_prep.guide.key.who">
+        <source>encounter.data_prep.guide.key.who</source>
+        <target>Only the owner of the hospital or an administrator can change the key. Contact them if the key file is lost.</target>
+      </trans-unit>
+      <trans-unit id="Enc93E93C06" resname="encounter.data_prep.guide.map.title">
+        <source>encounter.data_prep.guide.map.title</source>
+        <target>Local map</target>
+      </trans-unit>
+      <trans-unit id="EncD3E7A49D" resname="encounter.data_prep.guide.map.purpose">
+        <source>encounter.data_prep.guide.map.purpose</source>
+        <target>The public profile only knows values that are the same in every hospital. Department codes, station names and some discharge texts are specific to your hospital; the local map assigns them.</target>
+      </trans-unit>
+      <trans-unit id="Enc98201A2E" resname="encounter.data_prep.guide.map.when">
+        <source>encounter.data_prep.guide.map.when</source>
+        <target>You need it when the tool's report lists unmapped values for admitting_department, care_level or disposition. Without it, the department stays empty and the care level comes from the discharge text only.</target>
+      </trans-unit>
+      <trans-unit id="Enc3D27244B" resname="encounter.data_prep.guide.map.in_tool">
+        <source>encounter.data_prep.guide.map.in_tool</source>
+        <target>Since version 1.1.0 you fill it in the tool: assign the unmapped values in the report, run again and save the map. Next time, load the saved map or let the tool remember it.</target>
+      </trans-unit>
+      <trans-unit id="Enc420A5D8B" resname="encounter.data_prep.guide.map.private">
+        <source>encounter.data_prep.guide.map.private</source>
+        <target>The map stays with your hospital: keep it next to the key file. It is never uploaded, and this page does not ask for your codes.</target>
+      </trans-unit>
+      <trans-unit id="Enc43BEE61A" resname="encounter.data_prep.guide.map.format_title">
+        <source>encounter.data_prep.guide.map.format_title</source>
+        <target>Format</target>
+      </trans-unit>
+      <trans-unit id="Enc7BDC2D52" resname="encounter.data_prep.guide.map.column.key">
+        <source>encounter.data_prep.guide.map.column.key</source>
+        <target>Key</target>
+      </trans-unit>
+      <trans-unit id="Enc3D86AFAA" resname="encounter.data_prep.guide.map.column.source">
+        <source>encounter.data_prep.guide.map.column.source</source>
+        <target>Your value (from the export)</target>
+      </trans-unit>
+      <trans-unit id="Enc1A3438E3" resname="encounter.data_prep.guide.map.column.target">
+        <source>encounter.data_prep.guide.map.column.target</source>
+        <target>Becomes</target>
+      </trans-unit>
+      <trans-unit id="Enc60C97ED4" resname="encounter.data_prep.guide.map.departments.source">
+        <source>encounter.data_prep.guide.map.departments.source</source>
+        <target>Department code (Stat_Fachrichtung, else Med. Fachabteilungskürzel)</target>
+      </trans-unit>
+      <trans-unit id="EncD1CDAAC8" resname="encounter.data_prep.guide.map.departments.target">
+        <source>encounter.data_prep.guide.map.departments.target</source>
+        <target>The name of a department of the reference catalog (list below), 1–64 characters, no semicolon or quotes, nothing that looks like a person's name ("Word, Word", "Dr." before a name) or a date.</target>
+      </trans-unit>
+      <trans-unit id="EncA85733E3" resname="encounter.data_prep.guide.map.stations.source">
+        <source>encounter.data_prep.guide.map.stations.source</source>
+        <target>Station (Stat_Station) for admitted patients</target>
+      </trans-unit>
+      <trans-unit id="Enc835A0193" resname="encounter.data_prep.guide.map.stations.target">
+        <source>encounter.data_prep.guide.map.stations.target</source>
+        <target>A care level:</target>
+      </trans-unit>
+      <trans-unit id="EncF8A9F11C" resname="encounter.data_prep.guide.map.dispositions.source">
+        <source>encounter.data_prep.guide.map.dispositions.source</source>
+        <target>Discharge text (Entlassung) the profile does not know, or one to override</target>
+      </trans-unit>
+      <trans-unit id="Enc22716346" resname="encounter.data_prep.guide.map.dispositions.target">
+        <source>encounter.data_prep.guide.map.dispositions.target</source>
+        <target>An object with "disposition" and an optional "careLevel" (only allowed with {codes}). Dispositions:</target>
+      </trans-unit>
+      <trans-unit id="EncC7DDCAA6" resname="encounter.data_prep.guide.map.matching">
+        <source>encounter.data_prep.guide.map.matching</source>
+        <target>Your values are compared ignoring upper and lower case and repeated spaces.</target>
+      </trans-unit>
+      <trans-unit id="Enc9908A491" resname="encounter.data_prep.guide.map.example_title">
+        <source>encounter.data_prep.guide.map.example_title</source>
+        <target>Example</target>
+      </trans-unit>
+      <trans-unit id="Enc3F5743AA" resname="encounter.data_prep.guide.map.download_template">
+        <source>encounter.data_prep.guide.map.download_template</source>
+        <target>Download empty template</target>
+      </trans-unit>
+      <trans-unit id="EncFE237233" resname="encounter.data_prep.guide.map.download_example">
+        <source>encounter.data_prep.guide.map.download_example</source>
+        <target>Download example</target>
+      </trans-unit>
+      <trans-unit id="Enc4222D057" resname="encounter.data_prep.guide.map.department_names_title">
+        <source>encounter.data_prep.guide.map.department_names_title</source>
+        <target>Valid department names</target>
+      </trans-unit>
+      <trans-unit id="Enc383451BD" resname="encounter.data_prep.guide.map.department_names_help">
+        <source>encounter.data_prep.guide.map.department_names_help</source>
+        <target>The import looks up the department by its name in the public reference catalog, ignoring upper and lower case. Rows with an unknown name are rejected. Names that two catalog entries share cannot be used and are not listed.</target>
+      </trans-unit>
+      <trans-unit id="Enc2A0B1D60" resname="encounter.data_prep.guide.map.department_names_none">
+        <source>encounter.data_prep.guide.map.department_names_none</source>
+        <target>The reference catalog has no departments yet.</target>
+      </trans-unit>
+      <trans-unit id="Enc919C280A" resname="encounter.data_prep.tool.map_remember">
+        <source>encounter.data_prep.tool.map_remember</source>
+        <target>Remember on this computer</target>
+      </trans-unit>
+      <trans-unit id="Enc23093A54" resname="encounter.data_prep.tool.map_forget">
+        <source>encounter.data_prep.tool.map_forget</source>
+        <target>Forget map</target>
+      </trans-unit>
+      <trans-unit id="EncF63695A7" resname="encounter.data_prep.tool.map_save">
+        <source>encounter.data_prep.tool.map_save</source>
+        <target>Save map</target>
+      </trans-unit>
+      <trans-unit id="EncDFA532F8" resname="encounter.data_prep.tool.map_editor_hint">
+        <source>encounter.data_prep.tool.map_editor_hint</source>
+        <target>No map yet? Run the preparation, assign the unmapped values in the report, then save the map here. The map never leaves this browser.</target>
+      </trans-unit>
+      <trans-unit id="Enc59222E41" resname="encounter.data_prep.js.map_unsaved">
+        <source>encounter.data_prep.js.map_unsaved</source>
+        <target>Not saved yet: use "Save map" to keep the assignments for the next run</target>
+      </trans-unit>
+      <trans-unit id="EncC69693D1" resname="encounter.data_prep.js.map_saved">
+        <source>encounter.data_prep.js.map_saved</source>
+        <target>Local map saved. Keep it next to the key file.</target>
+      </trans-unit>
+      <trans-unit id="Enc602B8548" resname="encounter.data_prep.js.map_remember_failed">
+        <source>encounter.data_prep.js.map_remember_failed</source>
+        <target>The browser could not remember the map; load the file per run.</target>
+      </trans-unit>
+      <trans-unit id="Enc2D8C27C7" resname="encounter.data_prep.js.map_remembered_name">
+        <source>encounter.data_prep.js.map_remembered_name</source>
+        <target>remembered map</target>
+      </trans-unit>
+      <trans-unit id="EncDDA28622" resname="encounter.data_prep.js.map_edit_column">
+        <source>encounter.data_prep.js.map_edit_column</source>
+        <target>Assign in the local map</target>
+      </trans-unit>
+      <trans-unit id="EncF6DDCC29" resname="encounter.data_prep.js.map_edit_department">
+        <source>encounter.data_prep.js.map_edit_department</source>
+        <target>Department name</target>
+      </trans-unit>
+      <trans-unit id="Enc4BD6F635" resname="encounter.data_prep.js.map_edit_care_level">
+        <source>encounter.data_prep.js.map_edit_care_level</source>
+        <target>Care level</target>
+      </trans-unit>
+      <trans-unit id="Enc8A2FDDE8" resname="encounter.data_prep.js.map_edit_care_level_none">
+        <source>encounter.data_prep.js.map_edit_care_level_none</source>
+        <target>Care level: from the text</target>
+      </trans-unit>
+      <trans-unit id="Enc75D08A45" resname="encounter.data_prep.js.map_edit_disposition">
+        <source>encounter.data_prep.js.map_edit_disposition</source>
+        <target>Disposition</target>
+      </trans-unit>
+      <trans-unit id="EncAEABA2EB" resname="encounter.data_prep.js.map_edit_profile">
+        <source>encounter.data_prep.js.map_edit_profile</source>
+        <target>needs a new profile version</target>
+      </trans-unit>
+      <trans-unit id="Enc677E8DBC" resname="encounter.data_prep.js.map_edit_hint">
+        <source>encounter.data_prep.js.map_edit_hint</source>
+        <target>Department: a name of the reference catalog (list on the tool's page on the server). Empty fields are left out.</target>
+      </trans-unit>
+      <trans-unit id="Enc57E088DF" resname="encounter.data_prep.js.map_edit_nothing">
+        <source>encounter.data_prep.js.map_edit_nothing</source>
+        <target>No assignment filled in.</target>
+      </trans-unit>
+      <trans-unit id="Enc76004608" resname="encounter.data_prep.js.map_apply">
+        <source>encounter.data_prep.js.map_apply</source>
+        <target>Add to map and run again</target>
+      </trans-unit>
+      <trans-unit id="Enc5536BD30" resname="encounter.data_prep.js.map_applied">
+        <source>encounter.data_prep.js.map_applied</source>
+        <target>Assignments added:</target>
+      </trans-unit>
+      <trans-unit id="EncA17BC8AD" resname="encounter.data_prep.guide.key.summary">
+        <source>encounter.data_prep.guide.key.summary</source>
+        <target>Turns the case number into a pseudonym, so the server never learns it. Create it once per hospital in the tool, keep it in a team folder and never send it.</target>
+      </trans-unit>
+      <trans-unit id="Enc6025934F" resname="encounter.data_prep.guide.key.more">
+        <source>encounter.data_prep.guide.key.more</source>
+        <target>Key file and key change</target>
+      </trans-unit>
+      <trans-unit id="EncF4431779" resname="encounter.data_prep.guide.key.purpose_title">
+        <source>encounter.data_prep.guide.key.purpose_title</source>
+        <target>What the key file is for</target>
+      </trans-unit>
+      <trans-unit id="Enc2865F44E" resname="encounter.data_prep.guide.key.handling_title">
+        <source>encounter.data_prep.guide.key.handling_title</source>
+        <target>Create and keep it</target>
+      </trans-unit>
+      <trans-unit id="Enc5AD63E5D" resname="encounter.data_prep.guide.key.generations_title">
+        <source>encounter.data_prep.guide.key.generations_title</source>
+        <target>Key generations and a lost key</target>
+      </trans-unit>
+      <trans-unit id="Enc1EA81230" resname="encounter.data_prep.guide.key.change_title">
+        <source>encounter.data_prep.guide.key.change_title</source>
+        <target>Change the key</target>
+      </trans-unit>
+      <trans-unit id="Enc083EDB21" resname="encounter.data_prep.guide.map.summary">
+        <source>encounter.data_prep.guide.map.summary</source>
+        <target>Optional: assigns your hospital's department codes, stations and discharge texts. You fill it in the tool when the report lists unmapped values; it stays on your computer.</target>
+      </trans-unit>
+      <trans-unit id="Enc796DE610" resname="encounter.data_prep.guide.map.more">
+        <source>encounter.data_prep.guide.map.more</source>
+        <target>Format, template and department names</target>
+      </trans-unit>
+      <trans-unit id="EncAE116859" resname="encounter.data_prep.guide.map.downloads_title">
+        <source>encounter.data_prep.guide.map.downloads_title</source>
+        <target>Template and example</target>
       </trans-unit>
     </body>
   </file>

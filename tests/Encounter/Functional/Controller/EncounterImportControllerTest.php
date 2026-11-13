@@ -105,7 +105,7 @@ final class EncounterImportControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('select[name="import_create[type]"]', 'Encounter data (beta)');
-        self::assertSelectorExists('[data-test="import-type-extension-fields"] a[href="/encounter"]');
+        self::assertSelectorExists('[data-test="import-type-extension-fields"] a[href="/encounter/data-prep"]');
         // The encounter fields are shown only while the encounter type is selected (import-type-fields controller).
         self::assertSelectorExists('[data-test="import-type-extension-fields"][data-import-type-fields-target="section"]');
         $encounterOption = $crawler->filter('select[name="import_create[type]"] option')

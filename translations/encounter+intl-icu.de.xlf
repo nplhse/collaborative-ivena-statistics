@@ -795,7 +795,7 @@
       </trans-unit>
       <trans-unit id="EncI45065675" resname="encounter.import.field.confirmation_help">
         <source>encounter.import.field.confirmation_help</source>
-        <target>Bereiten Sie den Export zuerst mit dem Datenaufbereitungs-Werkzeug von der &lt;a href="{url}"&gt;Behandlungsdaten-Seite&lt;/a&gt; auf; Rohexporte werden abgelehnt und gelöscht.</target>
+        <target>Bereiten Sie den Export zuerst mit dem &lt;a href="{url}"&gt;Datenaufbereitungs-Tool&lt;/a&gt; auf; Rohexporte werden abgelehnt und gelöscht.</target>
       </trans-unit>
       <trans-unit id="EncK8C1F12FD" resname="encounter.hospital_edit.key_change">
         <source>encounter.hospital_edit.key_change</source>
@@ -2384,6 +2384,378 @@
       <trans-unit id="EncD9B0B0A5" resname="encounter.validation.item.options_hint_visit">
         <source>encounter.validation.item.options_hint_visit</source>
         <target>Gehört eine der Zuweisungen unten zu diesem Besuch? Dann dort „Diese Zuweisung verknüpfen“ wählen.</target>
+      </trans-unit>
+      <trans-unit id="EncE1E3DBED" resname="encounter.data_prep.overview.guide">
+        <source>encounter.data_prep.overview.guide</source>
+        <target>Anleitung und Download</target>
+      </trans-unit>
+      <trans-unit id="Enc9DDB4F7A" resname="encounter.data_prep.guide.title">
+        <source>encounter.data_prep.guide.title</source>
+        <target>Datenaufbereitungs-Tool</target>
+      </trans-unit>
+      <trans-unit id="EncFF795C42" resname="encounter.data_prep.guide.release.title">
+        <source>encounter.data_prep.guide.release.title</source>
+        <target>Aktuelle Version</target>
+      </trans-unit>
+      <trans-unit id="EncD483D0F9" resname="encounter.data_prep.guide.release.version">
+        <source>encounter.data_prep.guide.release.version</source>
+        <target>Version</target>
+      </trans-unit>
+      <trans-unit id="EncA6988D6D" resname="encounter.data_prep.guide.release.released_at">
+        <source>encounter.data_prep.guide.release.released_at</source>
+        <target>Veröffentlicht</target>
+      </trans-unit>
+      <trans-unit id="EncE7AF5A7F" resname="encounter.data_prep.guide.release.min_version">
+        <source>encounter.data_prep.guide.release.min_version</source>
+        <target>Mindestversion für den Upload</target>
+      </trans-unit>
+      <trans-unit id="Enc02BDEC12" resname="encounter.data_prep.guide.release.min_version_help">
+        <source>encounter.data_prep.guide.release.min_version_help</source>
+        <target>Dateien aus einem älteren Tool werden beim Upload abgelehnt. Das Tool prüft beim Start, ob es eine neue Version gibt, und zeigt dann einen Hinweis.</target>
+      </trans-unit>
+      <trans-unit id="Enc939B976B" resname="encounter.data_prep.guide.changelog.title">
+        <source>encounter.data_prep.guide.changelog.title</source>
+        <target>Was ist neu</target>
+      </trans-unit>
+      <trans-unit id="Enc69B7D3F1" resname="encounter.data_prep.guide.changelog.current">
+        <source>encounter.data_prep.guide.changelog.current</source>
+        <target>aktuell</target>
+      </trans-unit>
+      <trans-unit id="EncF110A873" resname="encounter.data_prep.changelog.1_1_0.map_editor">
+        <source>encounter.data_prep.changelog.1_1_0.map_editor</source>
+        <target>Editor für die lokale Zuordnung: Nach einem Lauf lassen sich nicht zugeordnete Fachabteilungen, Stationen und Entlassungstexte im Bericht zuordnen; „Zur Zuordnung hinzufügen und neu aufbereiten“ prüft die Einträge wie eine geladene Datei und bereitet ohne erneutes Laden des Exports neu auf. „Zuordnung speichern“ speichert die Datei.</target>
+      </trans-unit>
+      <trans-unit id="EncB1EEF418" resname="encounter.data_prep.changelog.1_1_0.map_remember">
+        <source>encounter.data_prep.changelog.1_1_0.map_remember</source>
+        <target>Die lokale Zuordnung kann wie die Schlüsseldatei auf diesem Computer gemerkt werden. Sie verlässt den Browser nie.</target>
+      </trans-unit>
+      <trans-unit id="EncC67F96FB" resname="encounter.data_prep.changelog.1_0_2.department_names_checked">
+        <source>encounter.data_prep.changelog.1_0_2.department_names_checked</source>
+        <target>Die lokale Zuordnung lehnt Fachabteilungsnamen ab, die der Import für personenbezogene Daten halten würde („Wort, Wort“, ein Titel wie „Dr.“ vor einem Namen, Datumsangaben).</target>
+      </trans-unit>
+      <trans-unit id="Enc56B59C0D" resname="encounter.data_prep.changelog.1_0_1.department_names">
+        <source>encounter.data_prep.changelog.1_0_1.department_names</source>
+        <target>Fachabteilungen werden in der lokalen Zuordnung Namen aus dem Referenzkatalog zugeordnet statt Codes.</target>
+      </trans-unit>
+      <trans-unit id="EncFA85C911" resname="encounter.data_prep.changelog.1_0_1.mts_indicators">
+        <source>encounter.data_prep.changelog.1_0_1.mts_indicators</source>
+        <target>MTS-Indikatoren nach dem ersten Testlauf mit einem echten Export ergänzt.</target>
+      </trans-unit>
+      <trans-unit id="Enc85DA95D6" resname="encounter.data_prep.changelog.1_0_0.first_release">
+        <source>encounter.data_prep.changelog.1_0_0.first_release</source>
+        <target>Erste Version mit dem Profil ORBIS MTS: Schlüsseldatei, optionale lokale Zuordnung, Spaltenvorschau, Bericht, Inhaltsprüfung und die kanonische Datei für den Upload.</target>
+      </trans-unit>
+      <trans-unit id="Enc91ED4493" resname="encounter.data_prep.guide.steps.title">
+        <source>encounter.data_prep.guide.steps.title</source>
+        <target>Erste Schritte</target>
+      </trans-unit>
+      <trans-unit id="EncADFB85D7" resname="encounter.data_prep.guide.steps.grants.title">
+        <source>encounter.data_prep.guide.steps.grants.title</source>
+        <target>Berechtigungen</target>
+      </trans-unit>
+      <trans-unit id="Enc4AE590B7" resname="encounter.data_prep.guide.steps.grants.text">
+        <source>encounter.data_prep.guide.steps.grants.text</source>
+        <target>Behandlungsdaten brauchen die Pilotrolle und eine Behandlungsdaten-Berechtigung je Klinik:</target>
+      </trans-unit>
+      <trans-unit id="Enc6415A874" resname="encounter.data_prep.guide.steps.grants.own">
+        <source>encounter.data_prep.guide.steps.grants.own</source>
+        <target>Ihre Berechtigungen</target>
+      </trans-unit>
+      <trans-unit id="Enc3F95556E" resname="encounter.data_prep.guide.steps.grants.no_grant">
+        <source>encounter.data_prep.guide.steps.grants.no_grant</source>
+        <target>keine Behandlungsdaten-Berechtigung</target>
+      </trans-unit>
+      <trans-unit id="Enc8AEF466D" resname="encounter.data_prep.guide.steps.grants.manage">
+        <source>encounter.data_prep.guide.steps.grants.manage</source>
+        <target>Berechtigungen verwalten</target>
+      </trans-unit>
+      <trans-unit id="Enc5464EE0E" resname="encounter.data_prep.guide.steps.grants.none">
+        <source>encounter.data_prep.guide.steps.grants.none</source>
+        <target>Sie haben noch für keine Klinik eine Behandlungsdaten-Berechtigung.</target>
+      </trans-unit>
+      <trans-unit id="Enc9141BE9C" resname="encounter.data_prep.guide.steps.grants.who_assigns">
+        <source>encounter.data_prep.guide.steps.grants.who_assigns</source>
+        <target>Die Inhaberin oder der Inhaber einer Klinik vergibt diese Berechtigungen auf den Bearbeitungsseiten der Klinik, auch an sich selbst. Inhaberschaft allein erlaubt keinen Upload.</target>
+      </trans-unit>
+      <trans-unit id="Enc2423D9DD" resname="encounter.data_prep.guide.steps.export.title">
+        <source>encounter.data_prep.guide.steps.export.title</source>
+        <target>Export aus dem Krankenhausinformationssystem</target>
+      </trans-unit>
+      <trans-unit id="Enc0B527526" resname="encounter.data_prep.guide.steps.export.orbis">
+        <source>encounter.data_prep.guide.steps.export.orbis</source>
+        <target>ORBIS: Die ZNA-Liste mit der MTS-Ersteinschätzung (eine Zeile je ZNA-Besuch) als CSV-Datei mit Semikolon und allen Spalten exportieren, für einen abgeschlossenen Zeitraum, zum Beispiel einen Monat. Das Tool behält nur die benötigten Felder und verwirft Namen, Geburtsdaten, Personal und Freitext. Es erkennt den Export an diesen Spalten:</target>
+      </trans-unit>
+      <trans-unit id="Enc22421F49" resname="encounter.data_prep.guide.steps.export.columns">
+        <source>encounter.data_prep.guide.steps.export.columns</source>
+        <target>Spalten</target>
+      </trans-unit>
+      <trans-unit id="Enc85985648" resname="encounter.data_prep.guide.steps.export.generic">
+        <source>encounter.data_prep.guide.steps.export.generic</source>
+        <target>Andere Systeme brauchen ein eigenes Profil. Wenn Ihr System fehlt, schicken Sie dem Projektteam die Spaltennamen Ihres Exports (keine Daten).</target>
+      </trans-unit>
+      <trans-unit id="EncBAE3294F" resname="encounter.data_prep.guide.steps.key.title">
+        <source>encounter.data_prep.guide.steps.key.title</source>
+        <target>Schlüsseldatei</target>
+      </trans-unit>
+      <trans-unit id="EncCDDA6B61" resname="encounter.data_prep.guide.steps.key.text">
+        <source>encounter.data_prep.guide.steps.key.text</source>
+        <target>Die Schlüsseldatei einmal je Klinik im Tool erzeugen („Noch keine Schlüsseldatei? Neu erzeugen“), in einem Teamordner ablegen, auf den alle zugreifen, die Daten aufbereiten, und für jeden Lauf dieselbe Datei verwenden. Nie versenden und nie hochladen.</target>
+      </trans-unit>
+      <trans-unit id="Enc08A4DF15" resname="encounter.data_prep.guide.steps.map.title">
+        <source>encounter.data_prep.guide.steps.map.title</source>
+        <target>Lokale Zuordnung (optional)</target>
+      </trans-unit>
+      <trans-unit id="EncAEC61262" resname="encounter.data_prep.guide.steps.map.text">
+        <source>encounter.data_prep.guide.steps.map.text</source>
+        <target>Ordnet die Fachabteilungskürzel, Stationen und Entlassungstexte Ihrer Klinik zu. Sie wird gebraucht, wenn der Bericht des Tools „nicht zugeordnete Werte“ für Fachabteilung, Versorgungsstufe oder Verbleib zeigt. Sie wird im Tool ausgefüllt und bleibt auf Ihrem Computer.</target>
+      </trans-unit>
+      <trans-unit id="EncB0A704F3" resname="encounter.data_prep.guide.steps.run.title">
+        <source>encounter.data_prep.guide.steps.run.title</source>
+        <target>Tool ausführen</target>
+      </trans-unit>
+      <trans-unit id="EncF726E5CA" resname="encounter.data_prep.guide.steps.run.text">
+        <source>encounter.data_prep.guide.steps.run.text</source>
+        <target>Die heruntergeladene Datei in einem aktuellen Browser öffnen, Schlüsseldatei, gegebenenfalls die lokale Zuordnung und den Export laden und die Aufbereitung starten. Bericht, Inhaltsprüfung und die Vorschau der ersten Zeilen prüfen, dann die Datei speichern.</target>
+      </trans-unit>
+      <trans-unit id="Enc389E34CE" resname="encounter.data_prep.guide.steps.upload.title">
+        <source>encounter.data_prep.guide.steps.upload.title</source>
+        <target>Hochladen und prüfen</target>
+      </trans-unit>
+      <trans-unit id="EncC5577290" resname="encounter.data_prep.guide.steps.upload.text">
+        <source>encounter.data_prep.guide.steps.upload.text</source>
+        <target>Die gespeicherte Datei als „Behandlungsdaten (Beta)“ für Ihre Klinik hochladen und bestätigen, dass sie mit dem Tool erzeugt wurde. Nach dem Import werden die Besuche den IVENA-Zuweisungen zugeordnet; vorgeschlagene Verknüpfungen werden in der Prüfung der Zuordnungen bestätigt.</target>
+      </trans-unit>
+      <trans-unit id="Enc54A111BE" resname="encounter.data_prep.guide.key.title">
+        <source>encounter.data_prep.guide.key.title</source>
+        <target>Schlüsseldatei und Schlüsselgenerationen</target>
+      </trans-unit>
+      <trans-unit id="EncDA09A442" resname="encounter.data_prep.guide.key.purpose">
+        <source>encounter.data_prep.guide.key.purpose</source>
+        <target>Mit der Schlüsseldatei macht das Tool aus der Fallnummer ein Pseudonym. Derselbe Fall ergibt mit demselben Schlüssel dasselbe Pseudonym; so wird ein doppelt hochgeladener Besuch erkannt, und der Server erfährt die Fallnummer nie.</target>
+      </trans-unit>
+      <trans-unit id="Enc8300A717" resname="encounter.data_prep.guide.key.keep">
+        <source>encounter.data_prep.guide.key.keep</source>
+        <target>Der Server kennt nur einen Prüfwert des Schlüssels. Der erste Upload registriert ihn; Dateien mit einem anderen Schlüssel werden abgelehnt.</target>
+      </trans-unit>
+      <trans-unit id="Enc9B3212D2" resname="encounter.data_prep.guide.key.generations">
+        <source>encounter.data_prep.guide.key.generations</source>
+        <target>Ein Schlüsselwechsel beginnt eine neue Schlüsselgeneration: Alle brauchen die neue Schlüsseldatei, und Besuche der alten Generation werden in neuen Uploads nicht mehr wiedererkannt. Wer den Schlüssel wechselt, wählt, ob die bisher hochgeladenen Daten gelöscht (dann kann jeder Zeitraum neu hochgeladen werden) oder behalten werden (dann nur neue Zeiträume hochladen).</target>
+      </trans-unit>
+      <trans-unit id="EncFA1EAEE0" resname="encounter.data_prep.guide.key.lost">
+        <source>encounter.data_prep.guide.key.lost</source>
+        <target>Schlüsseldatei verloren, oder könnten Unbefugte sie gesehen haben? Dann muss der Schlüssel gewechselt werden. Einen verlorenen Schlüssel kann niemand wiederherstellen, auch das Projektteam nicht.</target>
+      </trans-unit>
+      <trans-unit id="Enc4D155DAE" resname="encounter.data_prep.guide.key.change_allowed">
+        <source>encounter.data_prep.guide.key.change_allowed</source>
+        <target>Sie können den Schlüssel wechseln für:</target>
+      </trans-unit>
+      <trans-unit id="Enc17C8AB76" resname="encounter.data_prep.guide.key.change_link">
+        <source>encounter.data_prep.guide.key.change_link</source>
+        <target>Pseudonym-Schlüssel von {hospital} wechseln</target>
+      </trans-unit>
+      <trans-unit id="EncEB6DFE02" resname="encounter.data_prep.guide.key.admin">
+        <source>encounter.data_prep.guide.key.admin</source>
+        <target>Als Administratorin oder Administrator können Sie den Schlüssel jeder Klinik über deren Bearbeitungsseiten wechseln.</target>
+      </trans-unit>
+      <trans-unit id="EncD2CDF89B" resname="encounter.data_prep.guide.key.who">
+        <source>encounter.data_prep.guide.key.who</source>
+        <target>Nur die Inhaberin oder der Inhaber der Klinik oder eine Administratorin oder ein Administrator kann den Schlüssel wechseln. Wenden Sie sich an sie, wenn die Schlüsseldatei verloren ist.</target>
+      </trans-unit>
+      <trans-unit id="Enc93E93C06" resname="encounter.data_prep.guide.map.title">
+        <source>encounter.data_prep.guide.map.title</source>
+        <target>Lokale Zuordnung</target>
+      </trans-unit>
+      <trans-unit id="EncD3E7A49D" resname="encounter.data_prep.guide.map.purpose">
+        <source>encounter.data_prep.guide.map.purpose</source>
+        <target>Das öffentliche Profil kennt nur Werte, die in allen Kliniken gleich sind. Fachabteilungskürzel, Stationsnamen und manche Entlassungstexte sind klinikspezifisch; die lokale Zuordnung ordnet sie zu.</target>
+      </trans-unit>
+      <trans-unit id="Enc98201A2E" resname="encounter.data_prep.guide.map.when">
+        <source>encounter.data_prep.guide.map.when</source>
+        <target>Sie wird gebraucht, wenn der Bericht des Tools nicht zugeordnete Werte für admitting_department, care_level oder disposition zeigt. Ohne sie bleibt die Fachabteilung leer und die Versorgungsstufe kommt nur aus dem Entlassungstext.</target>
+      </trans-unit>
+      <trans-unit id="Enc3D27244B" resname="encounter.data_prep.guide.map.in_tool">
+        <source>encounter.data_prep.guide.map.in_tool</source>
+        <target>Seit Version 1.1.0 wird sie im Tool ausgefüllt: die nicht zugeordneten Werte im Bericht zuordnen, neu aufbereiten und die Zuordnung speichern. Beim nächsten Mal die gespeicherte Datei laden oder vom Tool merken lassen.</target>
+      </trans-unit>
+      <trans-unit id="Enc420A5D8B" resname="encounter.data_prep.guide.map.private">
+        <source>encounter.data_prep.guide.map.private</source>
+        <target>Die Zuordnung bleibt in Ihrer Klinik: neben der Schlüsseldatei ablegen. Sie wird nie hochgeladen, und diese Seite fragt nicht nach Ihren Kürzeln.</target>
+      </trans-unit>
+      <trans-unit id="Enc43BEE61A" resname="encounter.data_prep.guide.map.format_title">
+        <source>encounter.data_prep.guide.map.format_title</source>
+        <target>Format</target>
+      </trans-unit>
+      <trans-unit id="Enc7BDC2D52" resname="encounter.data_prep.guide.map.column.key">
+        <source>encounter.data_prep.guide.map.column.key</source>
+        <target>Schlüssel</target>
+      </trans-unit>
+      <trans-unit id="Enc3D86AFAA" resname="encounter.data_prep.guide.map.column.source">
+        <source>encounter.data_prep.guide.map.column.source</source>
+        <target>Ihr Wert (aus dem Export)</target>
+      </trans-unit>
+      <trans-unit id="Enc1A3438E3" resname="encounter.data_prep.guide.map.column.target">
+        <source>encounter.data_prep.guide.map.column.target</source>
+        <target>Wird zu</target>
+      </trans-unit>
+      <trans-unit id="Enc60C97ED4" resname="encounter.data_prep.guide.map.departments.source">
+        <source>encounter.data_prep.guide.map.departments.source</source>
+        <target>Fachabteilungskürzel (Stat_Fachrichtung, sonst Med. Fachabteilungskürzel)</target>
+      </trans-unit>
+      <trans-unit id="EncD1CDAAC8" resname="encounter.data_prep.guide.map.departments.target">
+        <source>encounter.data_prep.guide.map.departments.target</source>
+        <target>Der Name einer Fachabteilung des Referenzkatalogs (Liste unten), 1–64 Zeichen, ohne Semikolon oder Anführungszeichen, nichts, was wie ein Personenname („Wort, Wort“, „Dr.“ vor einem Namen) oder ein Datum aussieht.</target>
+      </trans-unit>
+      <trans-unit id="EncA85733E3" resname="encounter.data_prep.guide.map.stations.source">
+        <source>encounter.data_prep.guide.map.stations.source</source>
+        <target>Station (Stat_Station) bei stationärer Aufnahme</target>
+      </trans-unit>
+      <trans-unit id="Enc835A0193" resname="encounter.data_prep.guide.map.stations.target">
+        <source>encounter.data_prep.guide.map.stations.target</source>
+        <target>Eine Versorgungsstufe:</target>
+      </trans-unit>
+      <trans-unit id="EncF8A9F11C" resname="encounter.data_prep.guide.map.dispositions.source">
+        <source>encounter.data_prep.guide.map.dispositions.source</source>
+        <target>Entlassungstext (Entlassung), den das Profil nicht kennt oder der überschrieben werden soll</target>
+      </trans-unit>
+      <trans-unit id="Enc22716346" resname="encounter.data_prep.guide.map.dispositions.target">
+        <source>encounter.data_prep.guide.map.dispositions.target</source>
+        <target>Ein Objekt mit „disposition“ und optional „careLevel“ (nur bei {codes} erlaubt). Verbleib:</target>
+      </trans-unit>
+      <trans-unit id="EncC7DDCAA6" resname="encounter.data_prep.guide.map.matching">
+        <source>encounter.data_prep.guide.map.matching</source>
+        <target>Ihre Werte werden ohne Unterscheidung von Groß- und Kleinschreibung und mehrfachen Leerzeichen verglichen.</target>
+      </trans-unit>
+      <trans-unit id="Enc9908A491" resname="encounter.data_prep.guide.map.example_title">
+        <source>encounter.data_prep.guide.map.example_title</source>
+        <target>Beispiel</target>
+      </trans-unit>
+      <trans-unit id="Enc3F5743AA" resname="encounter.data_prep.guide.map.download_template">
+        <source>encounter.data_prep.guide.map.download_template</source>
+        <target>Leere Vorlage herunterladen</target>
+      </trans-unit>
+      <trans-unit id="EncFE237233" resname="encounter.data_prep.guide.map.download_example">
+        <source>encounter.data_prep.guide.map.download_example</source>
+        <target>Beispiel herunterladen</target>
+      </trans-unit>
+      <trans-unit id="Enc4222D057" resname="encounter.data_prep.guide.map.department_names_title">
+        <source>encounter.data_prep.guide.map.department_names_title</source>
+        <target>Gültige Fachabteilungsnamen</target>
+      </trans-unit>
+      <trans-unit id="Enc383451BD" resname="encounter.data_prep.guide.map.department_names_help">
+        <source>encounter.data_prep.guide.map.department_names_help</source>
+        <target>Der Import sucht die Fachabteilung über ihren Namen im öffentlichen Referenzkatalog, ohne Groß- und Kleinschreibung zu unterscheiden. Zeilen mit einem unbekannten Namen werden abgelehnt. Namen, die zwei Katalogeinträge teilen, sind nicht verwendbar und fehlen in der Liste.</target>
+      </trans-unit>
+      <trans-unit id="Enc2A0B1D60" resname="encounter.data_prep.guide.map.department_names_none">
+        <source>encounter.data_prep.guide.map.department_names_none</source>
+        <target>Der Referenzkatalog enthält noch keine Fachabteilungen.</target>
+      </trans-unit>
+      <trans-unit id="Enc919C280A" resname="encounter.data_prep.tool.map_remember">
+        <source>encounter.data_prep.tool.map_remember</source>
+        <target>Auf diesem Computer merken</target>
+      </trans-unit>
+      <trans-unit id="Enc23093A54" resname="encounter.data_prep.tool.map_forget">
+        <source>encounter.data_prep.tool.map_forget</source>
+        <target>Zuordnung vergessen</target>
+      </trans-unit>
+      <trans-unit id="EncF63695A7" resname="encounter.data_prep.tool.map_save">
+        <source>encounter.data_prep.tool.map_save</source>
+        <target>Zuordnung speichern</target>
+      </trans-unit>
+      <trans-unit id="EncDFA532F8" resname="encounter.data_prep.tool.map_editor_hint">
+        <source>encounter.data_prep.tool.map_editor_hint</source>
+        <target>Noch keine Zuordnung? Aufbereitung starten, die nicht zugeordneten Werte im Bericht zuordnen und die Zuordnung hier speichern. Die Zuordnung verlässt diesen Browser nie.</target>
+      </trans-unit>
+      <trans-unit id="Enc59222E41" resname="encounter.data_prep.js.map_unsaved">
+        <source>encounter.data_prep.js.map_unsaved</source>
+        <target>Noch nicht gespeichert: mit „Zuordnung speichern“ für den nächsten Lauf sichern</target>
+      </trans-unit>
+      <trans-unit id="EncC69693D1" resname="encounter.data_prep.js.map_saved">
+        <source>encounter.data_prep.js.map_saved</source>
+        <target>Lokale Zuordnung gespeichert. Neben der Schlüsseldatei ablegen.</target>
+      </trans-unit>
+      <trans-unit id="Enc602B8548" resname="encounter.data_prep.js.map_remember_failed">
+        <source>encounter.data_prep.js.map_remember_failed</source>
+        <target>Der Browser konnte die Zuordnung nicht merken; die Datei bei jedem Lauf laden.</target>
+      </trans-unit>
+      <trans-unit id="Enc2D8C27C7" resname="encounter.data_prep.js.map_remembered_name">
+        <source>encounter.data_prep.js.map_remembered_name</source>
+        <target>gemerkte Zuordnung</target>
+      </trans-unit>
+      <trans-unit id="EncDDA28622" resname="encounter.data_prep.js.map_edit_column">
+        <source>encounter.data_prep.js.map_edit_column</source>
+        <target>In der lokalen Zuordnung zuordnen</target>
+      </trans-unit>
+      <trans-unit id="EncF6DDCC29" resname="encounter.data_prep.js.map_edit_department">
+        <source>encounter.data_prep.js.map_edit_department</source>
+        <target>Name der Fachabteilung</target>
+      </trans-unit>
+      <trans-unit id="Enc4BD6F635" resname="encounter.data_prep.js.map_edit_care_level">
+        <source>encounter.data_prep.js.map_edit_care_level</source>
+        <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="Enc8A2FDDE8" resname="encounter.data_prep.js.map_edit_care_level_none">
+        <source>encounter.data_prep.js.map_edit_care_level_none</source>
+        <target>Versorgungsstufe: aus dem Text</target>
+      </trans-unit>
+      <trans-unit id="Enc75D08A45" resname="encounter.data_prep.js.map_edit_disposition">
+        <source>encounter.data_prep.js.map_edit_disposition</source>
+        <target>Verbleib</target>
+      </trans-unit>
+      <trans-unit id="EncAEABA2EB" resname="encounter.data_prep.js.map_edit_profile">
+        <source>encounter.data_prep.js.map_edit_profile</source>
+        <target>braucht eine neue Profilversion</target>
+      </trans-unit>
+      <trans-unit id="Enc677E8DBC" resname="encounter.data_prep.js.map_edit_hint">
+        <source>encounter.data_prep.js.map_edit_hint</source>
+        <target>Fachabteilung: ein Name aus dem Referenzkatalog (Liste auf der Seite des Tools auf dem Server). Leere Felder werden übergangen.</target>
+      </trans-unit>
+      <trans-unit id="Enc57E088DF" resname="encounter.data_prep.js.map_edit_nothing">
+        <source>encounter.data_prep.js.map_edit_nothing</source>
+        <target>Keine Zuordnung ausgefüllt.</target>
+      </trans-unit>
+      <trans-unit id="Enc76004608" resname="encounter.data_prep.js.map_apply">
+        <source>encounter.data_prep.js.map_apply</source>
+        <target>Zur Zuordnung hinzufügen und neu aufbereiten</target>
+      </trans-unit>
+      <trans-unit id="Enc5536BD30" resname="encounter.data_prep.js.map_applied">
+        <source>encounter.data_prep.js.map_applied</source>
+        <target>Zuordnungen hinzugefügt:</target>
+      </trans-unit>
+      <trans-unit id="EncA17BC8AD" resname="encounter.data_prep.guide.key.summary">
+        <source>encounter.data_prep.guide.key.summary</source>
+        <target>Macht aus der Fallnummer ein Pseudonym, damit der Server sie nie erfährt. Einmal je Klinik im Tool erzeugen, im Teamordner ablegen und nie versenden.</target>
+      </trans-unit>
+      <trans-unit id="Enc6025934F" resname="encounter.data_prep.guide.key.more">
+        <source>encounter.data_prep.guide.key.more</source>
+        <target>Schlüsseldatei und Schlüsselwechsel</target>
+      </trans-unit>
+      <trans-unit id="EncF4431779" resname="encounter.data_prep.guide.key.purpose_title">
+        <source>encounter.data_prep.guide.key.purpose_title</source>
+        <target>Wofür die Schlüsseldatei da ist</target>
+      </trans-unit>
+      <trans-unit id="Enc2865F44E" resname="encounter.data_prep.guide.key.handling_title">
+        <source>encounter.data_prep.guide.key.handling_title</source>
+        <target>Erzeugen und aufbewahren</target>
+      </trans-unit>
+      <trans-unit id="Enc5AD63E5D" resname="encounter.data_prep.guide.key.generations_title">
+        <source>encounter.data_prep.guide.key.generations_title</source>
+        <target>Schlüsselgenerationen und verlorener Schlüssel</target>
+      </trans-unit>
+      <trans-unit id="Enc1EA81230" resname="encounter.data_prep.guide.key.change_title">
+        <source>encounter.data_prep.guide.key.change_title</source>
+        <target>Schlüssel wechseln</target>
+      </trans-unit>
+      <trans-unit id="Enc083EDB21" resname="encounter.data_prep.guide.map.summary">
+        <source>encounter.data_prep.guide.map.summary</source>
+        <target>Optional: ordnet die Fachabteilungskürzel, Stationen und Entlassungstexte Ihrer Klinik zu. Sie wird im Tool ausgefüllt, wenn der Bericht nicht zugeordnete Werte zeigt, und bleibt auf Ihrem Computer.</target>
+      </trans-unit>
+      <trans-unit id="Enc796DE610" resname="encounter.data_prep.guide.map.more">
+        <source>encounter.data_prep.guide.map.more</source>
+        <target>Format, Vorlage und Fachabteilungsnamen</target>
+      </trans-unit>
+      <trans-unit id="EncAE116859" resname="encounter.data_prep.guide.map.downloads_title">
+        <source>encounter.data_prep.guide.map.downloads_title</source>
+        <target>Vorlage und Beispiel</target>
       </trans-unit>
     </body>
   </file>

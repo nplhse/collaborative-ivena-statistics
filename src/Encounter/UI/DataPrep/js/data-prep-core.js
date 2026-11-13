@@ -440,6 +440,7 @@
         }
         return {
             label: normalizeText(data.hospital ?? ''),
+            data: localMapData(data, profile),
             departments: lookupTable(data.departments),
             stations: lookupTable(data.stations),
             dispositions: lookupTable(data.dispositions),
@@ -449,6 +450,73 @@
                 dispositions: Object.keys(data.dispositions ?? {}).length,
             },
         };
+    }
+
+    /** Plain copy of a map in the file format, as the editor changes and saves it (#1130). */
+    function localMapData(data, profile) {
+        const copy = (section) => ({ ...(data?.[section] ?? {}) });
+        return {
+            format: LOCAL_MAP_FORMAT,
+            version: 1,
+            profile: data?.profile ?? profile.id,
+            hospital: typeof data?.hospital === 'string' ? data.hospital : '',
+            departments: copy('departments'),
+            stations: copy('stations'),
+            dispositions: Object.fromEntries(
+                Object.entries(data?.dispositions ?? {}).map(([source, target]) => [
+                    source,
+                    { ...target },
+                ]),
+            ),
+        };
+    }
+
+    /** Empty map for the profile, the start of a map made in the editor. */
+    function newLocalMapData(profile, hospital = '') {
+        return localMapData({ hospital }, profile);
+    }
+
+    /**
+     * Report fields (`report.unmapped`) whose values the local map assigns, with the map section:
+     * the `department` rule, the `disposition` rule and the care level from its station column.
+     */
+    function localMapSections(profile) {
+        const sections = {};
+        for (const [name, rule] of Object.entries(profile.fields)) {
+            if (rule.type === 'department') {
+                sections[name] = 'departments';
+            } else if (rule.type === 'disposition') {
+                sections[name] = 'dispositions';
+                if (rule.stationColumn) {
+                    sections.care_level = 'stations';
+                }
+            }
+        }
+        return sections;
+    }
+
+    /**
+     * Copy of the map data with one entry set (or removed with `target === null`). The source value is
+     * stored as the report shows it; an existing entry with the same lookup key is replaced. The result
+     * is not validated here: load it with loadLocalMap, as a map file.
+     */
+    function setLocalMapEntry(data, section, source, target) {
+        if (!['departments', 'stations', 'dispositions'].includes(section)) {
+            throw new Error(`Unknown local map section "${section}".`);
+        }
+        const key = normalizeText(source);
+        const entries = Object.entries(data[section] ?? {}).filter(
+            ([existing]) => lookupKey(existing) !== lookupKey(key),
+        );
+        if (target !== null && target !== undefined) {
+            entries.push([key, typeof target === 'object' ? { ...target } : target]);
+        }
+        return { ...data, [section]: Object.fromEntries(entries) };
+    }
+
+    /** The map file as saved by the tool: JSON, four spaces, final newline. */
+    function serializeLocalMap(data) {
+        return `${JSON.stringify(data, null, 4)}\n`;
     }
 
     const DISPOSITIONS = [
@@ -1063,8 +1131,16 @@
         importHmacKey,
         generateKeyFile,
         loadKey,
+        CARE_LEVELS,
+        CARE_LEVEL_DISPOSITIONS,
+        DISPOSITIONS,
+        isDepartmentName,
         loadLocalMap,
         emptyLocalMap,
+        newLocalMapData,
+        localMapSections,
+        setLocalMapEntry,
+        serializeLocalMap,
         columnPlan,
         transform,
         buildExchangeFile,

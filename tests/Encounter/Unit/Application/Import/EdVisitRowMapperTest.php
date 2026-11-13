@@ -197,6 +197,12 @@ final class EdVisitRowMapperTest extends TestCase
             {
                 return 'innere medizin' === mb_strtolower($name) ? $this->department : null;
             }
+
+            #[\Override]
+            public function uniqueNames(): array
+            {
+                return ['Innere Medizin'];
+            }
         });
     }
 }

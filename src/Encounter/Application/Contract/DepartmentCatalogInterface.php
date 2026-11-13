@@ -16,4 +16,12 @@ interface DepartmentCatalogInterface
      * The department with this name (case-insensitive), or null when the catalog has none.
      */
     public function findByName(string $name): ?Department;
+
+    /**
+     * Names that findByName() resolves: each name of the catalog that no other entry shares
+     * (case-insensitive), ordered by name. Listed on the data preparation tool's page (#1130).
+     *
+     * @return list<string>
+     */
+    public function uniqueNames(): array;
 }

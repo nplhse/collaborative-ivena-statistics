@@ -37,4 +37,30 @@ final readonly class DepartmentCatalogQuery implements DepartmentCatalogInterfac
         // A name that two catalog entries share is not a unique reference.
         return 1 === \count($departments) ? $departments[0] : null;
     }
+
+    #[\Override]
+    public function uniqueNames(): array
+    {
+        /** @var list<string> $names */
+        $names = $this->entityManager->createQueryBuilder()
+            ->select('d.name')
+            ->from(Department::class, 'd')
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        $byKey = [];
+        foreach ($names as $name) {
+            $byKey[mb_strtolower($name)][] = $name;
+        }
+
+        $unique = [];
+        foreach ($byKey as $entries) {
+            if (1 === \count($entries)) {
+                $unique[] = $entries[0];
+            }
+        }
+        usort($unique, strcasecmp(...));
+
+        return $unique;
+    }
 }
