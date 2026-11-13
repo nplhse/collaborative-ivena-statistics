@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Functional\Controller;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Allocation\Domain\HospitalPermissionMask;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Encounter\Domain\Enum\EncounterGrantAction;
 use App\Tests\Support\Encounter\EncounterDataFixtures;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
@@ -178,6 +181,41 @@ final class EncounterAnalyticsControllerTest extends WebTestCase
 
         $crawler = $this->page($this->hospitalA);
         self::assertSame('/statistics/encounter-analytics', $crawler->filter('[data-testid="stats-subnav-encounter-analytics"]')->attr('href'));
+    }
+
+    public function testReviewersGetLinksToReviewAndValidationWithThePeriod(): void
+    {
+        $this->encounterGrant($this->hospitalA, $this->ownerA, [EncounterGrantAction::Upload]);
+        $this->client->loginUser($this->ownerA);
+
+        $this->page($this->hospitalA, self::OCTOBER);
+        self::assertSelectorExists('[data-kpi="visits"]');
+        self::assertSelectorNotExists('[data-testid="encounter-overview-review-links"]', 'Upload grant alone: no review.');
+
+        $reviewer = $this->user();
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $this->hospitalA,
+            'user' => $reviewer,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View, HospitalPermission::Statistics]),
+            'createdBy' => $this->ownerA,
+        ]);
+        $this->encounterGrant($this->hospitalA, $reviewer, [EncounterGrantAction::Review]);
+        $this->client->loginUser($reviewer);
+
+        $id = (string) $this->hospitalA->getId();
+        $crawler = $this->page($this->hospitalA, self::OCTOBER);
+        self::assertSame('/encounter/review/'.$id.'/overview?from=2026-10-01&to=2026-10-31', $crawler->filter('[data-testid="encounter-overview-review-link"]')->attr('href'));
+        self::assertSame('/encounter/review/'.$id.'/validation?from=2026-10-01&to=2026-10-31', $crawler->filter('[data-testid="encounter-overview-validation-link"]')->attr('href'));
+
+        $crawler = $this->page($this->hospitalA, ['period' => 'year', 'year' => '2026']);
+        self::assertSame('/encounter/review/'.$id.'/overview', $crawler->filter('[data-testid="encounter-overview-review-link"]')->attr('href'), 'A year does not fit into one review page (at most 92 days).');
+
+        $crawler = $this->page($this->hospitalA, ['period' => 'all_time']);
+        self::assertSame('/encounter/review/'.$id.'/validation', $crawler->filter('[data-testid="encounter-overview-validation-link"]')->attr('href'), 'An open-ended period has no end day to pass on.');
+
+        $this->client->loginUser($this->admin());
+        $this->page($this->hospitalB, self::OCTOBER);
+        self::assertSelectorExists('[data-testid="encounter-overview-validation-link"]', 'Administrators review every hospital.');
     }
 
     public function testGermanPageHasNoMissingTranslations(): void
