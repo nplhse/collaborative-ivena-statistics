@@ -1,4 +1,4 @@
-{# Combined validation report per stratum and score band, without population (#1057). Expects `report` (ValidationReport). #}
+{# Combined validation report per stratum and score band, without population (#1057); wrong pairs also counted by "another visit fits". Expects `report` (ValidationReport). #}
 <div class="table-responsive">
     <table class="table card-table table-vcenter" data-test="encounter-validation-report">
         <thead>
@@ -9,6 +9,7 @@
                 <th class="text-end">{{ 'encounter.validation.report.open'|trans({}, 'encounter') }}</th>
                 <th class="text-end">{{ 'encounter.validation.report.positive'|trans({}, 'encounter') }}</th>
                 <th class="text-end">{{ 'encounter.validation.report.negative'|trans({}, 'encounter') }}</th>
+                <th class="text-end">{{ 'encounter.validation.report.negative_other'|trans({}, 'encounter') }}</th>
                 <th class="text-end">{{ 'encounter.validation.report.unclear'|trans({}, 'encounter') }}</th>
                 <th class="text-end">{{ 'encounter.validation.report.share'|trans({}, 'encounter') }}</th>
             </tr>
@@ -22,6 +23,7 @@
                     <td class="text-end text-secondary">{{ row.open|format_number }}</td>
                     <td class="text-end">{{ row.positive|format_number }}</td>
                     <td class="text-end">{{ row.negative|format_number }}</td>
+                    <td class="text-end text-secondary" data-test="report-negative-other">{{ row.stratum.isPair() ? row.negativeOther|format_number : '–' }}</td>
                     <td class="text-end text-secondary">{{ row.unclear|format_number }}</td>
                     <td class="text-end text-nowrap" data-test="report-share">
                         {% if row.share %}

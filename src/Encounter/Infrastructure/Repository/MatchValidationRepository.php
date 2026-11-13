@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Infrastructure\Repository;
 
 use App\Encounter\Application\Contract\MatchValidationReaderInterface;
+use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\MatchValidationItem;
 use App\Encounter\Domain\Entity\MatchValidationSample;
 use App\Encounter\Domain\Enum\ValidationVerdict;
@@ -72,6 +73,7 @@ final readonly class MatchValidationRepository implements MatchValidationReaderI
                 'stratum' => $item->getStratum(),
                 'band' => $item->getBand(),
                 'verdict' => $item->getVerdict(),
+                'replaced' => $item->getReplacementEncounter() instanceof Encounter,
             ];
         }
 

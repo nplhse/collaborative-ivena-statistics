@@ -10,7 +10,12 @@ use App\Encounter\Application\Contract\MatchDeciderInterface;
 use App\Encounter\Application\Contract\MatchValidatorInterface;
 use App\Encounter\Application\Matching\MatchPlanner;
 use App\Encounter\Application\Review\ReviewPeriod;
+use App\Encounter\Application\Review\SwapProposal;
 use App\Encounter\Application\Validation\ScoreBands;
+use App\Encounter\Application\Validation\ValidationLinkPlan;
+use App\Encounter\Application\Validation\ValidationLinkPlanner;
+use App\Encounter\Application\Validation\ValidationLinkRefusedException;
+use App\Encounter\Application\Validation\ValidationRecordResult;
 use App\Encounter\Application\Validation\ValidationReport;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterMatch;
@@ -33,8 +38,10 @@ use Psr\Clock\ClockInterface;
  * {@see ValidationSampleQuery} and keeps the first `sampleSize` of each cell. It changes no link:
  * automatic links stay effective while they are validated.
  *
- * A verdict "wrong" on a pair rejects the pair through the review's decider (same lock, audit intent and
- * stickiness as a review decision), unless it is already rejected or no longer stored.
+ * Recording a verdict applies its link decisions through the review's decider (same lock and stickiness as
+ * a review decision), in one transaction with the verdict and under the verdict's audit intent: "correct"
+ * confirms an automatic link or proposal, "wrong" rejects the pair, a chosen partner is linked (for a pair
+ * "instead"). Changing a verdict later undoes no link: links are manual decisions now.
  *
  * @psalm-suppress UnusedClass Autowired as MatchValidatorInterface.
  */
@@ -49,6 +56,7 @@ final readonly class MatchValidator implements MatchValidatorInterface
         private EntityManagerInterface $entityManager,
         private ValidationSampleQuery $population,
         private MatchDeciderInterface $decider,
+        private ValidationLinkPlanner $planner,
         private EncounterMatchRepository $matches,
         private ScoreBands $bands,
         private AuditContext $auditContext,
@@ -138,39 +146,102 @@ final readonly class MatchValidator implements MatchValidatorInterface
     }
 
     #[\Override]
-    public function record(MatchValidationItem $item, ValidationVerdict $verdict, User $user): bool
+    public function record(MatchValidationItem $item, ValidationVerdict $verdict, User $user, ?int $partnerId = null): ValidationRecordResult
     {
-        $rejected = false;
+        $stratum = $item->getStratum();
         $allocationId = $item->getAllocation()?->getId();
         $encounterId = $item->getEncounter()?->getId();
         $hospitalId = (int) $item->getSample()->getHospital()->getId();
-        if (ValidationVerdict::Wrong === $verdict && $item->getStratum()->isPair() && null !== $allocationId && null !== $encounterId) {
-            // Only a stored pair that is not rejected yet can be rejected; a pair a rerun dropped, or one a
-            // person rejected already, keeps the verdict alone. Checked first: a refused decision would
-            // close the entity manager.
-            $pair = $this->matches->findOneBy(['allocation' => $allocationId, 'encounter' => $encounterId]);
-            if ($pair instanceof EncounterMatch && MatchStatus::Rejected !== $pair->getStatus()) {
-                $this->decider->reject($hospitalId, $allocationId, $encounterId, $user);
-                $rejected = true;
-            }
+
+        // Everything is checked before the first write: a refused decision inside the transaction would
+        // close the entity manager.
+        $link = null === $partnerId ? null : $this->linkTarget($item, $verdict, $partnerId);
+        $released = $stratum->isPair() && ValidationVerdict::Wrong === $verdict ? $encounterId : null;
+        $plan = null === $link ? null : $this->planner->plan($hospitalId, $link[0], $link[1], $released);
+        if ($plan instanceof ValidationLinkPlan && ValidationLinkPlan::REFUSED === $plan->action) {
+            throw new ValidationLinkRefusedException((int) $plan->allocationId);
         }
+
+        $pair = $stratum->isPair() && null !== $allocationId && null !== $encounterId
+            ? $this->matches->findOneBy(['allocation' => $allocationId, 'encounter' => $encounterId])
+            : null;
+        $pairStatus = $pair instanceof EncounterMatch ? $pair->getStatus() : null;
+        // "Wrong" rejects a stored pair that is not rejected yet; a pair a rerun dropped, or one a person
+        // rejected already, keeps the verdict alone.
+        $reject = null !== $released && $pairStatus instanceof MatchStatus && MatchStatus::Rejected !== $pairStatus;
+        // "Correct" confirms an automatic link or open proposal the review could confirm as it is; a pair a
+        // person decided already, or one a rerun dropped, keeps the verdict alone.
+        $confirm = ValidationVerdict::Correct === $verdict && \in_array($pairStatus, [MatchStatus::AutoAccepted, MatchStatus::Proposed], true)
+            && ValidationLinkPlan::CONFIRM === $this->planner->plan($hospitalId, (int) $allocationId, (int) $encounterId)->action;
+
+        $linkAction = $plan instanceof ValidationLinkPlan ? $plan->action : null;
+        $swap = $plan instanceof ValidationLinkPlan ? $plan->swap : null;
+        $outcome = match (true) {
+            ValidationLinkPlan::SWAP === $linkAction => ValidationRecordResult::SWAPPED,
+            ValidationLinkPlan::CONFIRM === $linkAction => ValidationRecordResult::LINKED,
+            $confirm => ValidationRecordResult::CONFIRMED,
+            $reject => ValidationRecordResult::REJECTED,
+            default => ValidationRecordResult::RECORDED,
+        };
+        $replacement = $stratum->isPair() && null !== $link ? $link[1] : null;
 
         $this->auditContext->beginIntent(self::INTENT_VERDICT, [
             'hospital_id' => $hospitalId,
             'sample_id' => $item->getSample()->getId(),
             'item_id' => $item->getId(),
-            'stratum' => $item->getStratum()->value,
+            'stratum' => $stratum->value,
             'verdict' => $verdict->value,
             'previous_verdict' => $item->getVerdict()?->value,
-            'pair_rejected' => $rejected,
+            'pair_rejected' => $reject,
+            'pair_confirmed' => $confirm,
+            'link' => null === $link ? null : [
+                'action' => $linkAction,
+                'allocation_id' => $link[0],
+                'encounter_id' => $link[1],
+                'swap' => $swap?->key(),
+            ],
+            'replacement_encounter_id' => $replacement,
         ]);
         try {
-            $item->record($verdict, $user, $this->clock->now());
-            $this->entityManager->flush();
+            $this->entityManager->wrapInTransaction(function () use ($item, $verdict, $user, $hospitalId, $allocationId, $encounterId, $reject, $confirm, $link, $linkAction, $swap, $replacement): void {
+                if ($reject) {
+                    $this->decider->reject($hospitalId, (int) $allocationId, (int) $encounterId, $user);
+                }
+                if ($confirm) {
+                    $this->decider->confirm($hospitalId, (int) $allocationId, (int) $encounterId, $user);
+                }
+                if (null !== $link && ValidationLinkPlan::CONFIRM === $linkAction) {
+                    $this->decider->confirm($hospitalId, $link[0], $link[1], $user);
+                }
+                if ($swap instanceof SwapProposal) {
+                    $this->decider->swap($hospitalId, $swap->allocationId, $swap->key(), $user);
+                }
+
+                $item->record($verdict, $user, $this->clock->now(), null === $replacement ? null : $this->entityManager->getReference(Encounter::class, $replacement));
+                $this->entityManager->flush();
+            });
         } finally {
             $this->auditContext->endIntent();
         }
 
-        return $rejected;
+        return new ValidationRecordResult($outcome);
+    }
+
+    /**
+     * The pair a partner makes with the item: [allocation id, visit id].
+     *
+     * @return array{0: int, 1: int}
+     */
+    private function linkTarget(MatchValidationItem $item, ValidationVerdict $verdict, int $partnerId): array
+    {
+        $allocationId = $item->getAllocation()?->getId();
+        $encounterId = $item->getEncounter()?->getId();
+
+        return match (true) {
+            $item->getStratum()->isPair() && ValidationVerdict::Wrong === $verdict && null !== $allocationId && $partnerId !== $encounterId => [$allocationId, $partnerId],
+            ValidationStratum::UnlinkedAllocation === $item->getStratum() && ValidationVerdict::Missed === $verdict && null !== $allocationId => [$allocationId, $partnerId],
+            ValidationStratum::UnlinkedVisit === $item->getStratum() && ValidationVerdict::Missed === $verdict && null !== $encounterId => [$partnerId, $encounterId],
+            default => throw new \InvalidArgumentException(sprintf('A partner does not go with verdict "%s" on stratum "%s".', $verdict->value, $item->getStratum()->value)),
+        };
     }
 }

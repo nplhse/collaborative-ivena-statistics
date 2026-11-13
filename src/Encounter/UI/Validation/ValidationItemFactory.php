@@ -7,19 +7,24 @@ namespace App\Encounter\UI\Validation;
 use App\Encounter\Application\Contract\MatchCandidateReaderInterface;
 use App\Encounter\Application\Matching\MatchingEncounter;
 use App\Encounter\Application\Matching\MatchingSettings;
-use App\Encounter\Application\Matching\MatchPlanner;
+use App\Encounter\Application\Validation\ValidationLinkPlanner;
 use App\Encounter\Domain\Entity\MatchValidationItem;
 use App\Encounter\Domain\Enum\AnchorSource;
 use App\Encounter\Domain\Enum\ValidationStratum;
 use App\Encounter\UI\Review\AllocationReviewFactory;
 
 /**
- * View data of one validation item (#1057).
+ * View data of one validation item (#1057): one question, one decision.
  *
- * Pairs and unlinked allocations reuse the review's comparison of the allocation with every candidate
- * visit of the review window ({@see AllocationReviewFactory}); for a pair the sampled visit comes first.
- * An unlinked visit lists the allocations whose review window contains it, each scored as if it were
- * the only candidate, so the reviewer can tell whether an allocation was missed.
+ * - `pair` (automatic link, proposal): the allocation compared with the sampled visit, and the other
+ *   candidate visits of the review window as alternatives (by points), each with how it would be linked
+ *   instead ({@see ValidationLinkPlanner}, the sampled pair released).
+ * - `allocation` (unlinked allocation): every candidate visit as an option to link.
+ * - `visit` (unlinked visit): every allocation whose review window contains the visit as an option, each
+ *   compared as in that allocation's review.
+ *
+ * Comparisons come from the review ({@see AllocationReviewFactory}); `partner_ids` are the ids a verdict
+ * may link (the controller accepts no other).
  */
 final readonly class ValidationItemFactory
 {
@@ -28,6 +33,7 @@ final readonly class ValidationItemFactory
         private AllocationReviewFactory $allocations,
         private MatchCandidateReaderInterface $input,
         private MatchingSettings $settings,
+        private ValidationLinkPlanner $planner,
     ) {
     }
 
@@ -41,25 +47,43 @@ final readonly class ValidationItemFactory
             return $this->visit($hospitalId, (int) $item->getEncounter()?->getId());
         }
 
-        $page = $this->allocations->create($hospitalId, (int) $item->getAllocation()?->getId());
+        $allocationId = (int) $item->getAllocation()?->getId();
+        $page = $this->allocations->create($hospitalId, $allocationId);
         if (null === $page) {
             return null;
         }
 
-        /** @var list<array{encounter_id: int}> $candidates */
+        /** @var list<array<string, mixed>&array{encounter_id: int}> $candidates */
         $candidates = $page['candidates'];
-        $encounterId = $item->getEncounter()?->getId();
-        if (null !== $encounterId) {
-            usort($candidates, static fn (array $a, array $b): int => ($b['encounter_id'] === $encounterId) <=> ($a['encounter_id'] === $encounterId));
+        $sampledId = $item->getEncounter()?->getId();
+        $sampled = null === $sampledId ? null : array_find($candidates, static fn (array $c): bool => $c['encounter_id'] === $sampledId);
+        if ($item->getStratum()->isPair() && null === $sampled) {
+            return null;
+        }
+
+        $options = [];
+        foreach ($candidates as $candidate) {
+            if ($candidate['encounter_id'] === $sampledId) {
+                continue;
+            }
+
+            $options[] = [
+                'id' => $candidate['encounter_id'],
+                'candidate' => $candidate,
+                'allocation' => $page['allocation'],
+                'allocation_extended' => $page['allocation_extended'],
+                'plan' => $this->planner->plan($hospitalId, $allocationId, $candidate['encounter_id'], $sampledId),
+            ];
         }
 
         return [
-            'kind' => 'allocation',
+            'kind' => $item->getStratum()->isPair() ? 'pair' : 'allocation',
             'allocation' => $page['allocation'],
             'allocation_extended' => $page['allocation_extended'],
             'link' => $page['link'],
-            'candidates' => $candidates,
-            'sampled_encounter_id' => $encounterId,
+            'sampled' => $sampled,
+            'options' => $options,
+            'partner_ids' => array_column($options, 'id'),
         ];
     }
 
@@ -83,24 +107,26 @@ final readonly class ValidationItemFactory
             null,
         );
 
-        $planner = new MatchPlanner($this->settings);
-        $rows = [];
+        $options = [];
         foreach ($allocations as $allocation) {
-            foreach ($planner->candidates($allocation, [$visit], $window, 2) as $candidate) {
-                $rows[] = [
-                    'allocation_id' => $allocation->id,
-                    'arrival_at' => $allocation->arrivalAt,
-                    'sex' => $allocation->sex,
-                    'age' => $allocation->age,
-                    'with_physician' => $allocation->withPhysician,
-                    'work_accident' => $allocation->workAccident,
-                    'time_difference_minutes' => $candidate->timeDifferenceMinutes,
-                    'points' => $candidate->points,
-                    'agreement_alone' => MatchPlanner::agreementAlone($candidate->points),
-                ];
+            $page = $this->allocations->create($hospitalId, $allocation->id);
+            /** @var list<array<string, mixed>&array{encounter_id: int, points: int}> $candidates */
+            $candidates = $page['candidates'] ?? [];
+            $candidate = array_find($candidates, static fn (array $c): bool => $c['encounter_id'] === $encounterId);
+            if (null === $page || null === $candidate) {
+                continue;
             }
+
+            $options[] = [
+                'id' => $allocation->id,
+                'candidate' => $candidate,
+                'allocation' => $page['allocation'],
+                'allocation_extended' => $page['allocation_extended'],
+                'link' => $page['link'],
+                'plan' => $this->planner->plan($hospitalId, $allocation->id, $encounterId),
+            ];
         }
-        usort($rows, static fn (array $a, array $b): int => [$b['points'], $a['allocation_id']] <=> [$a['points'], $b['allocation_id']]);
+        usort($options, static fn (array $a, array $b): int => [$b['candidate']['points'], $a['id']] <=> [$a['candidate']['points'], $b['id']]);
 
         return [
             'kind' => 'visit',
@@ -114,7 +140,8 @@ final readonly class ValidationItemFactory
                 'arrival_mode' => $visit->arrivalMode?->value,
                 'work_accident' => $visit->workAccident,
             ],
-            'nearby' => $rows,
+            'options' => $options,
+            'partner_ids' => array_column($options, 'id'),
         ];
     }
 }

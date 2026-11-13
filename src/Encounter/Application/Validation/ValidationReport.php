@@ -14,6 +14,9 @@ use App\Encounter\Domain\Enum\ValidationVerdict;
  * (pairs) or missed (unlinked cases) with its Wilson interval, and per pair stratum an estimate over all
  * bands weighted by their population. Pure.
  *
+ * "Wrong" pairs are split into "another visit fits" (a replacement was linked) and "no partner"; the share
+ * correct counts both as wrong.
+ *
  * The weighted estimate is Σ population_b × share_b / Σ population_b. It is only given when every band
  * with population has at least one decisive verdict; otherwise a band would silently drop out.
  *
@@ -33,16 +36,16 @@ final readonly class ValidationReport
     }
 
     /**
-     * @param list<array{stratum: ValidationStratum, band: ?string, verdict: ?ValidationVerdict}> $items
-     * @param array<string, int>|null                                                             $population per cell key ({@see self::cellKey()}); null for a combined report without population
+     * @param list<array{stratum: ValidationStratum, band: ?string, verdict: ?ValidationVerdict, replaced?: bool}> $items
+     * @param array<string, int>|null                                                                              $population per cell key ({@see self::cellKey()}); null for a combined report without population
      */
     public static function build(ScoreBands $bands, array $items, ?array $population): self
     {
-        /** @var array<string, array{sampled: int, judged: int, positive: int, negative: int, unclear: int}> $counts */
+        /** @var array<string, array{sampled: int, judged: int, positive: int, negative: int, negative_other: int, unclear: int}> $counts */
         $counts = [];
         foreach ($items as $item) {
             $key = self::cellKey($item['stratum'], $item['band']);
-            $counts[$key] ??= ['sampled' => 0, 'judged' => 0, 'positive' => 0, 'negative' => 0, 'unclear' => 0];
+            $counts[$key] ??= ['sampled' => 0, 'judged' => 0, 'positive' => 0, 'negative' => 0, 'negative_other' => 0, 'unclear' => 0];
             ++$counts[$key]['sampled'];
             $verdict = $item['verdict'];
             if (null === $verdict) {
@@ -55,6 +58,9 @@ final readonly class ValidationReport
                 ValidationVerdict::Wrong, ValidationVerdict::NoPartner => ++$counts[$key]['negative'],
                 ValidationVerdict::Unclear => ++$counts[$key]['unclear'],
             };
+            if (ValidationVerdict::Wrong === $verdict && ($item['replaced'] ?? false)) {
+                ++$counts[$key]['negative_other'];
+            }
         }
 
         $rows = [];
@@ -106,13 +112,13 @@ final readonly class ValidationReport
     }
 
     /**
-     * @param array<string, array{sampled: int, judged: int, positive: int, negative: int, unclear: int}> $counts
-     * @param array<string, int>|null                                                                     $population
+     * @param array<string, array{sampled: int, judged: int, positive: int, negative: int, negative_other: int, unclear: int}> $counts
+     * @param array<string, int>|null                                                                                          $population
      */
     private static function row(ValidationStratum $stratum, ?string $band, array $counts, ?array $population): ValidationReportRow
     {
         $key = self::cellKey($stratum, $band);
-        $count = $counts[$key] ?? ['sampled' => 0, 'judged' => 0, 'positive' => 0, 'negative' => 0, 'unclear' => 0];
+        $count = $counts[$key] ?? ['sampled' => 0, 'judged' => 0, 'positive' => 0, 'negative' => 0, 'negative_other' => 0, 'unclear' => 0];
 
         return new ValidationReportRow(
             stratum: $stratum,
@@ -124,6 +130,7 @@ final readonly class ValidationReport
             negative: $count['negative'],
             unclear: $count['unclear'],
             share: ShareEstimate::of($count['positive'], $count['positive'] + $count['negative']),
+            negativeOther: $count['negative_other'],
         );
     }
 }

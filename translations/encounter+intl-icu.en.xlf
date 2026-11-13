@@ -2325,29 +2325,9 @@
         <source>encounter.validation.item.gone</source>
         <target>The allocation or visit no longer exists</target>
       </trans-unit>
-      <trans-unit id="Enc6FB526C4" resname="encounter.validation.item.sampled_visit">
-        <source>encounter.validation.item.sampled_visit</source>
-        <target>Sampled pair</target>
-      </trans-unit>
-      <trans-unit id="Enc2A824B5B" resname="encounter.validation.item.nearby_title">
-        <source>encounter.validation.item.nearby_title</source>
-        <target>{count, plural, =0 {No allocation in reach} one {# allocation in reach} other {# allocations in reach}}</target>
-      </trans-unit>
-      <trans-unit id="Enc3C858E2C" resname="encounter.validation.item.nearby_none">
-        <source>encounter.validation.item.nearby_none</source>
-        <target>No allocation whose review window contains this visit</target>
-      </trans-unit>
       <trans-unit id="Enc18BBE95D" resname="encounter.validation.item.difference">
         <source>encounter.validation.item.difference</source>
         <target>Difference</target>
-      </trans-unit>
-      <trans-unit id="Enc4F0A6DD0" resname="encounter.validation.item.points">
-        <source>encounter.validation.item.points</source>
-        <target>Points (alone)</target>
-      </trans-unit>
-      <trans-unit id="EncF523307D" resname="encounter.validation.item.verdict_title">
-        <source>encounter.validation.item.verdict_title</source>
-        <target>Verdict</target>
       </trans-unit>
       <trans-unit id="Enc48903BA3" resname="encounter.validation.item.question_automatic">
         <source>encounter.validation.item.question_automatic</source>
@@ -2364,14 +2344,6 @@
       <trans-unit id="Enc0C109489" resname="encounter.validation.item.question_unlinked_visit">
         <source>encounter.validation.item.question_unlinked_visit</source>
         <target>Does one of the allocations belong to this visit?</target>
-      </trans-unit>
-      <trans-unit id="EncA2AAAEAE" resname="encounter.validation.item.wrong_note">
-        <source>encounter.validation.item.wrong_note</source>
-        <target>"Wrong" also rejects the pair, as in the review: an automatic link stops being effective and the pair is never proposed again.</target>
-      </trans-unit>
-      <trans-unit id="Enc65C7A572" resname="encounter.validation.item.record">
-        <source>encounter.validation.item.record</source>
-        <target>Save verdict</target>
       </trans-unit>
       <trans-unit id="Enc30770985" resname="encounter.validation.flash.drawn">
         <source>encounter.validation.flash.drawn</source>
@@ -2419,7 +2391,7 @@
       </trans-unit>
       <trans-unit id="Enc66A30216" resname="encounter.validation.summary.counts_pair">
         <source>encounter.validation.summary.counts_pair</source>
-        <target>{positive} correct · {negative} wrong{unclear, plural, =0 {} other { · # unclear}}</target>
+        <target>{positive} correct · {other} wrong, other visit · {none} wrong, no partner{unclear, plural, =0 {} other { · # unclear}}</target>
       </trans-unit>
       <trans-unit id="EncE5F618D6" resname="encounter.validation.summary.counts_unlinked">
         <source>encounter.validation.summary.counts_unlinked</source>
@@ -2432,6 +2404,122 @@
       <trans-unit id="EncEB46EFFF" resname="encounter.validation.summary.population">
         <source>encounter.validation.summary.population</source>
         <target>{population} in period</target>
+      </trans-unit>
+      <trans-unit id="Enc63155E6C" resname="encounter.validation.item.linked_to_visit">
+        <source>encounter.validation.item.linked_to_visit</source>
+        <target>Linked to visit #{visit}</target>
+      </trans-unit>
+      <trans-unit id="EncF08A828E" resname="encounter.validation.item.linked_to_allocation">
+        <source>encounter.validation.item.linked_to_allocation</source>
+        <target>Linked to allocation #{allocation}</target>
+      </trans-unit>
+      <trans-unit id="Enc4C32ED58" resname="encounter.validation.item.link_swap">
+        <source>encounter.validation.item.link_swap</source>
+        <target>Link with swap</target>
+      </trans-unit>
+      <trans-unit id="Enc682F82BD" resname="encounter.validation.item.already_linked">
+        <source>encounter.validation.item.already_linked</source>
+        <target>Linked</target>
+      </trans-unit>
+      <trans-unit id="Enc60B7B888" resname="encounter.validation.item.decide_in_review">
+        <source>encounter.validation.item.decide_in_review</source>
+        <target>Decide in review of allocation #{allocation}</target>
+      </trans-unit>
+      <trans-unit id="Enc19CB53EB" resname="encounter.validation.item.refused_note">
+        <source>encounter.validation.item.refused_note</source>
+        <target>Allocation #{allocation} is linked otherwise and the review offers no swap. A link is never moved silently: decide in that allocation's review, then come back.</target>
+      </trans-unit>
+      <trans-unit id="EncD8B34E6C" resname="encounter.validation.item.verdict_wrong_other">
+        <source>encounter.validation.item.verdict_wrong_other</source>
+        <target>Wrong – visit #{visit} fits</target>
+      </trans-unit>
+      <trans-unit id="Enc47C40ABC" resname="encounter.validation.item.options_allocation">
+        <source>encounter.validation.item.options_allocation</source>
+        <target>{count, plural, =0 {No candidate visit} one {# candidate visit} other {# candidate visits}}</target>
+      </trans-unit>
+      <trans-unit id="EncCAFCC018" resname="encounter.validation.item.options_visit">
+        <source>encounter.validation.item.options_visit</source>
+        <target>{count, plural, =0 {No allocation in reach} one {# allocation in reach} other {# allocations in reach}}</target>
+      </trans-unit>
+      <trans-unit id="Enc02662259" resname="encounter.validation.item.options_none_allocation">
+        <source>encounter.validation.item.options_none_allocation</source>
+        <target>No visit in the review window</target>
+      </trans-unit>
+      <trans-unit id="Enc91AD8140" resname="encounter.validation.item.options_none_visit">
+        <source>encounter.validation.item.options_none_visit</source>
+        <target>No allocation whose review window contains this visit</target>
+      </trans-unit>
+      <trans-unit id="Enc2887FCBE" resname="encounter.validation.item.link_allocation">
+        <source>encounter.validation.item.link_allocation</source>
+        <target>Link this visit</target>
+      </trans-unit>
+      <trans-unit id="EncC50FF5DD" resname="encounter.validation.item.link_visit">
+        <source>encounter.validation.item.link_visit</source>
+        <target>Link this allocation</target>
+      </trans-unit>
+      <trans-unit id="Enc95D0F339" resname="encounter.validation.item.link_pair">
+        <source>encounter.validation.item.link_pair</source>
+        <target>Link instead</target>
+      </trans-unit>
+      <trans-unit id="Enc4162F66F" resname="encounter.validation.item.decide.correct">
+        <source>encounter.validation.item.decide.correct</source>
+        <target>Correct</target>
+      </trans-unit>
+      <trans-unit id="EncB82642F6" resname="encounter.validation.item.decide.wrong_no_partner">
+        <source>encounter.validation.item.decide.wrong_no_partner</source>
+        <target>Wrong – no matching visit</target>
+      </trans-unit>
+      <trans-unit id="Enc76AEA171" resname="encounter.validation.item.decide.wrong_other">
+        <source>encounter.validation.item.decide.wrong_other</source>
+        <target>Wrong – another visit fits</target>
+      </trans-unit>
+      <trans-unit id="Enc2BF6ECDA" resname="encounter.validation.item.decide.unclear">
+        <source>encounter.validation.item.decide.unclear</source>
+        <target>Unclear</target>
+      </trans-unit>
+      <trans-unit id="Enc92A86140" resname="encounter.validation.item.decide.no_partner">
+        <source>encounter.validation.item.decide.no_partner</source>
+        <target>No partner</target>
+      </trans-unit>
+      <trans-unit id="EncB5A2B656" resname="encounter.validation.item.decision_note_pair">
+        <source>encounter.validation.item.decision_note_pair</source>
+        <target>“Correct” confirms the link: an automatic link or proposal becomes confirmed. “Wrong” rejects the pair; with another visit, that visit is linked instead. Changing the verdict later undoes no link; links are changed in the review.</target>
+      </trans-unit>
+      <trans-unit id="Enc6511D74A" resname="encounter.validation.item.decision_note_unlinked">
+        <source>encounter.validation.item.decision_note_unlinked</source>
+        <target>Linking records “partner missed” and confirms the link. Changing the verdict later undoes no link; links are changed in the review.</target>
+      </trans-unit>
+      <trans-unit id="Enc5C08555C" resname="encounter.validation.item.alternatives">
+        <source>encounter.validation.item.alternatives</source>
+        <target>Alternatives ({count})</target>
+      </trans-unit>
+      <trans-unit id="Enc8092B828" resname="encounter.validation.item.alternatives_none">
+        <source>encounter.validation.item.alternatives_none</source>
+        <target>No other candidates in the time window</target>
+      </trans-unit>
+      <trans-unit id="EncCCE458CF" resname="encounter.validation.item.alternatives_hint">
+        <source>encounter.validation.item.alternatives_hint</source>
+        <target>Other candidate visits of the review window, by points. Open a row for the full comparison.</target>
+      </trans-unit>
+      <trans-unit id="Enc878D7DAB" resname="encounter.validation.flash.recorded_confirmed">
+        <source>encounter.validation.flash.recorded_confirmed</source>
+        <target>Verdict saved; the link was confirmed.</target>
+      </trans-unit>
+      <trans-unit id="EncD9184F13" resname="encounter.validation.flash.recorded_linked">
+        <source>encounter.validation.flash.recorded_linked</source>
+        <target>Verdict saved; the chosen partner was linked.</target>
+      </trans-unit>
+      <trans-unit id="Enc014C5E4E" resname="encounter.validation.flash.recorded_swapped">
+        <source>encounter.validation.flash.recorded_swapped</source>
+        <target>Verdict saved; the chosen partner was linked with the review’s swap.</target>
+      </trans-unit>
+      <trans-unit id="EncBFDC8A49" resname="encounter.validation.flash.link_refused">
+        <source>encounter.validation.flash.link_refused</source>
+        <target>Nothing saved: allocation #{allocation} is linked otherwise and the review offers no swap. Decide in its review.</target>
+      </trans-unit>
+      <trans-unit id="Enc5BE51047" resname="encounter.validation.report.negative_other">
+        <source>encounter.validation.report.negative_other</source>
+        <target>Of which other visit</target>
       </trans-unit>
     </body>
   </file>

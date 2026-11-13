@@ -86,7 +86,9 @@ reject, change or leave open a link; decisions are audited.
 
 Samples from automatic, proposed and unlinked cases check the quality; synthetic data with known
 links tests the thresholds (#1057). Calibration of the score into a probability follows from these
-results.
+results. Validation verdicts act on the links as review decisions do: "correct" confirms
+the pair, "wrong" rejects it, and a partner chosen instead is linked (a link elsewhere only through a swap
+the review proposes).
 
 ## Consequences
 
