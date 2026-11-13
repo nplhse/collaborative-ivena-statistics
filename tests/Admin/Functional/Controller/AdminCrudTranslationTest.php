@@ -19,8 +19,12 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Import\Domain\Entity\ImportBatchRun;
+use App\Import\Domain\Entity\ImportBatchRunItem;
+use App\Import\Domain\Entity\ImportReject;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -48,6 +52,11 @@ final class AdminCrudTranslationTest extends WebTestCase
         'MANV-ID (Title)', 'Owner', 'Street', 'Postal code', 'City', 'Country', 'Location', 'Tier', 'Size', 'Beds',
         'Latitude', 'Longitude', 'Participating', 'Participating since', 'Access grants', 'User', 'Permissions',
         'Indication Raw', 'Indication Normalized',
+        'Type', 'Rows total', 'Rows passed', 'Rows rejected', 'Rows deduplicated',
+        'Rows deduplicated (Discarded)', 'Rows deduplicated (Replaced)', 'Run count', 'Runtime (ms)', 'Export starts at',
+        'Export ends at (exclusive)', 'Export period source', 'Source file', 'Reject file', 'File extension', 'MIME type',
+        'File size (bytes)', 'Checksum', 'Line', 'Messages', 'Row JSON', 'Started', 'Finished', 'Options', 'Items',
+        'Batch run', 'Import ID', 'Import name', 'Attempts', 'Error',
     ];
 
     /**
@@ -71,6 +80,10 @@ final class AdminCrudTranslationTest extends WebTestCase
         yield 'mci case' => ['mci-case', static fn (): object => self::withReferenceData(static fn (): object => MciCaseFactory::createOne()), 'MANV-Fälle', 'MANV-Fall'];
         yield 'hospital' => ['hospital', static fn (): object => HospitalFactory::createOne(), 'Kliniken', 'Klinik'];
         yield 'hospital access grant' => ['hospital-access-grant', static fn (): object => HospitalAccessGrantFactory::createOne(), 'Zugriffsberechtigungen', 'Zugriffsberechtigung'];
+        yield 'import' => ['import', static fn (): object => self::withReferenceData(static fn (): object => ImportFactory::createOne()), 'Importe', 'Import'];
+        yield 'import reject' => ['import-reject', self::importReject(...), 'Abgelehnte Importzeilen', 'Abgelehnte Importzeile'];
+        yield 'import batch run' => ['import-batch-run', static fn (): object => self::batchRunItem()->getRun() ?? throw new \LogicException('no run'), 'Stapelläufe', 'Stapellauf'];
+        yield 'import batch run item' => ['import-batch-run-item', self::batchRunItem(...), 'Stapelpositionen', 'Stapelposition'];
         yield 'indication normalized' => ['indication-normalized', static fn (): object => IndicationNormalizedFactory::createOne(), 'Indikationen (normalisiert)', 'Indikation (normalisiert)'];
     }
 
@@ -128,6 +141,43 @@ final class AdminCrudTranslationTest extends WebTestCase
         IndicationNormalizedFactory::createOne();
 
         return $create();
+    }
+
+    private static function importReject(): ImportReject
+    {
+        $reject = new ImportReject();
+        $reject->setImport(self::withReferenceData(static fn (): object => ImportFactory::createOne()));
+        $reject->setLineNumber(12);
+        $reject->setMessages(['createdAt: This value should not be blank.']);
+        $reject->setRow(['line' => 12]);
+
+        return self::persist($reject);
+    }
+
+    private static function batchRunItem(): ImportBatchRunItem
+    {
+        $run = new ImportBatchRun(['dry_run' => false]);
+        $item = new ImportBatchRunItem(1, 'Import 1');
+        $run->addItem($item);
+        self::persist($run);
+
+        return self::persist($item);
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param T $entity
+     *
+     * @return T
+     */
+    private static function persist(object $entity): object
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->persist($entity);
+        $entityManager->flush();
+
+        return $entity;
     }
 
     /**

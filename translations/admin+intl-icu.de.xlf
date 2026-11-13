@@ -2313,6 +2313,90 @@
         <source>admin.hospital_access_grant.entity.plural</source>
         <target>Zugriffsberechtigungen</target>
       </trans-unit>
+      <trans-unit id="admCrudImportFieldRuntimeMsDe" resname="admin.import.field.runtime_ms">
+        <source>admin.import.field.runtime_ms</source>
+        <target>Laufzeit (ms)</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportFieldExportStartsAtDe" resname="admin.import.field.export_starts_at">
+        <source>admin.import.field.export_starts_at</source>
+        <target>Export beginnt am</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportFieldExportEndsAtDe" resname="admin.import.field.export_ends_at">
+        <source>admin.import.field.export_ends_at</source>
+        <target>Export endet am (exklusiv)</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportFieldExportPeriodSourceDe" resname="admin.import.field.export_period_source">
+        <source>admin.import.field.export_period_source</source>
+        <target>Quelle des Exportzeitraums</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportFieldRejectFileDe" resname="admin.import.field.reject_file">
+        <source>admin.import.field.reject_file</source>
+        <target>Datei der abgelehnten Zeilen</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportFieldChecksumDe" resname="admin.import.field.checksum">
+        <source>admin.import.field.checksum</source>
+        <target>Prüfsumme</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportRejectFieldLineDe" resname="admin.import_reject.field.line">
+        <source>admin.import_reject.field.line</source>
+        <target>Zeile</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportRejectFieldMessagesDe" resname="admin.import_reject.field.messages">
+        <source>admin.import_reject.field.messages</source>
+        <target>Meldungen</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportRejectFieldRowJsonDe" resname="admin.import_reject.field.row_json">
+        <source>admin.import_reject.field.row_json</source>
+        <target>Zeile (JSON)</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportBatchRunFieldOptionsDe" resname="admin.import_batch_run.field.options">
+        <source>admin.import_batch_run.field.options</source>
+        <target>Optionen</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportBatchRunFieldItemsDe" resname="admin.import_batch_run.field.items">
+        <source>admin.import_batch_run.field.items</source>
+        <target>Positionen</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportBatchRunItemFieldImportNameDe" resname="admin.import_batch_run_item.field.import_name">
+        <source>admin.import_batch_run_item.field.import_name</source>
+        <target>Importname</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportBatchRunItemFieldErrorDe" resname="admin.import_batch_run_item.field.error">
+        <source>admin.import_batch_run_item.field.error</source>
+        <target>Fehler</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportEntitySingularDe" resname="admin.import.entity.singular">
+        <source>admin.import.entity.singular</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportEntityPluralDe" resname="admin.import.entity.plural">
+        <source>admin.import.entity.plural</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportRejectEntitySingularDe" resname="admin.import_reject.entity.singular">
+        <source>admin.import_reject.entity.singular</source>
+        <target>Abgelehnte Importzeile</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportRejectEntityPluralDe" resname="admin.import_reject.entity.plural">
+        <source>admin.import_reject.entity.plural</source>
+        <target>Abgelehnte Importzeilen</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportBatchRunEntitySingularDe" resname="admin.import_batch_run.entity.singular">
+        <source>admin.import_batch_run.entity.singular</source>
+        <target>Stapellauf</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportBatchRunEntityPluralDe" resname="admin.import_batch_run.entity.plural">
+        <source>admin.import_batch_run.entity.plural</source>
+        <target>Stapelläufe</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportBatchRunItemEntitySingularDe" resname="admin.import_batch_run_item.entity.singular">
+        <source>admin.import_batch_run_item.entity.singular</source>
+        <target>Stapelposition</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportBatchRunItemEntityPluralDe" resname="admin.import_batch_run_item.entity.plural">
+        <source>admin.import_batch_run_item.entity.plural</source>
+        <target>Stapelpositionen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

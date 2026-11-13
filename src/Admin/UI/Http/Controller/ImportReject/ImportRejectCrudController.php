@@ -25,6 +25,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @extends AbstractCrudController<ImportReject>
@@ -42,8 +43,8 @@ final class ImportRejectCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Import Reject')
-            ->setEntityLabelInPlural('Import Rejects')
+            ->setEntityLabelInSingular(new TranslatableMessage('admin.import_reject.entity.singular', domain: 'admin'))
+            ->setEntityLabelInPlural(new TranslatableMessage('admin.import_reject.entity.plural', domain: 'admin'))
             ->setSearchFields(['id', 'lineNumber', 'import.name', 'import.hospital.name'])
             ->setDefaultSort(['createdAt' => 'DESC']);
     }
@@ -60,9 +61,9 @@ final class ImportRejectCrudController extends AbstractCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(EntityFilter::new('import', 'Import'))
-            ->add(NumericFilter::new('lineNumber', 'Line'))
-            ->add(DateTimeFilter::new('createdAt', 'Created'));
+            ->add(EntityFilter::new('import', new TranslatableMessage('label.import', domain: 'admin')))
+            ->add(NumericFilter::new('lineNumber', new TranslatableMessage('admin.import_reject.field.line', domain: 'admin')))
+            ->add(DateTimeFilter::new('createdAt', new TranslatableMessage('label.created', domain: 'messages')));
     }
 
     #[\Override]
@@ -86,23 +87,23 @@ final class ImportRejectCrudController extends AbstractCrudController
         yield IdField::new('id')
             ->onlyOnDetail();
 
-        yield AssociationField::new('import', 'Import');
-        yield TextField::new('import', 'Hospital')
+        yield AssociationField::new('import', new TranslatableMessage('label.import', domain: 'admin'));
+        yield TextField::new('import', new TranslatableMessage('admin.hospital.entity.singular', domain: 'admin'))
             ->setSortable(false)
             ->formatValue(static fn (mixed $value, ImportReject $reject): string => $reject->getImport()?->getHospital()?->getName() ?? '—');
 
-        yield IntegerField::new('lineNumber', 'Line');
-        yield TextField::new('import', 'Messages')
+        yield IntegerField::new('lineNumber', new TranslatableMessage('admin.import_reject.field.line', domain: 'admin'));
+        yield TextField::new('import', new TranslatableMessage('admin.import_reject.field.messages', domain: 'admin'))
             ->onlyOnIndex()
             ->setSortable(false)
             ->formatValue(static fn (mixed $value, ImportReject $reject): string => self::buildMessageBadges($reject->getMessages()));
 
-        yield DateTimeField::new('createdAt', 'Created')
+        yield DateTimeField::new('createdAt', new TranslatableMessage('label.created', domain: 'messages'))
             ->setFormat('dd.MM.yy HH:mm');
 
-        yield ArrayField::new('messages', 'Messages')
+        yield ArrayField::new('messages', new TranslatableMessage('admin.import_reject.field.messages', domain: 'admin'))
             ->onlyOnDetail();
-        yield TextField::new('import', 'Row JSON')
+        yield TextField::new('import', new TranslatableMessage('admin.import_reject.field.row_json', domain: 'admin'))
             ->onlyOnDetail()
             ->setSortable(false)
             ->setTemplatePath('@Admin/crud/field/json_pre.html.twig')
