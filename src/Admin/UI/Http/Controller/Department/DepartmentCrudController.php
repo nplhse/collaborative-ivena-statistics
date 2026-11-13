@@ -15,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @extends AbstractCrudController<Department>
@@ -32,8 +33,8 @@ final class DepartmentCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Department')
-            ->setEntityLabelInPlural('Departments')
+            ->setEntityLabelInSingular(new TranslatableMessage('admin.department.entity.singular', domain: 'admin'))
+            ->setEntityLabelInPlural(new TranslatableMessage('admin.department.entity.plural', domain: 'admin'))
             ->setSearchFields(['id', 'name'])
             ->setDefaultSort(['id' => 'ASC']);
     }
@@ -51,18 +52,18 @@ final class DepartmentCrudController extends AbstractCrudController
     {
         yield IdField::new('id')
             ->onlyOnDetail();
-        yield TextField::new('name', 'Name');
-        yield TextareaField::new('aliasDetail', 'Aliases')
+        yield TextField::new('name', new TranslatableMessage('label.name', domain: 'messages'));
+        yield TextareaField::new('aliasDetail', new TranslatableMessage('admin.department.field.aliases', domain: 'admin'))
             ->onlyOnDetail();
-        yield DateTimeField::new('createdAt', 'Created')
+        yield DateTimeField::new('createdAt', new TranslatableMessage('label.created', domain: 'messages'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->hideOnForm();
-        yield DateTimeField::new('updatedAt', 'Updated')
+        yield DateTimeField::new('updatedAt', new TranslatableMessage('label.updated', domain: 'messages'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->hideOnForm();
-        yield AssociationField::new('createdBy', 'Created by')
+        yield AssociationField::new('createdBy', new TranslatableMessage('label.created_by', domain: 'messages'))
             ->onlyOnDetail();
-        yield AssociationField::new('updatedBy', 'Updated by')
+        yield AssociationField::new('updatedBy', new TranslatableMessage('label.updated_by', domain: 'messages'))
             ->onlyOnDetail();
     }
 }
