@@ -35,6 +35,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -188,26 +189,11 @@ final class HospitalCrudController extends AbstractCrudController
             ->hideOnIndex();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.classification', domain: 'admin'));
-        yield ChoiceField::new('location', new TranslatableMessage('label.location', domain: 'messages'))
-            ->setChoices([
-                'Urban' => HospitalLocation::URBAN,
-                'Mixed' => HospitalLocation::MIXED,
-                'Rural' => HospitalLocation::RURAL,
-            ])
+        yield $this->enumChoiceField('location', new TranslatableMessage('label.location', domain: 'messages'), HospitalLocation::class, 'hospital.badge.location.')
             ->hideOnIndex();
-        yield ChoiceField::new('tier', new TranslatableMessage('label.tier', domain: 'messages'))
-            ->setChoices([
-                'Basic' => HospitalTier::BASIC,
-                'Extended' => HospitalTier::EXTENDED,
-                'Full' => HospitalTier::FULL,
-            ])
+        yield $this->enumChoiceField('tier', new TranslatableMessage('label.tier', domain: 'messages'), HospitalTier::class, 'hospital.badge.tier.')
             ->hideOnIndex();
-        yield ChoiceField::new('size', new TranslatableMessage('label.hospital_size', domain: 'messages'))
-            ->setChoices([
-                'Small' => HospitalSize::SMALL,
-                'Medium' => HospitalSize::MEDIUM,
-                'Large' => HospitalSize::LARGE,
-            ])
+        yield $this->enumChoiceField('size', new TranslatableMessage('label.hospital_size', domain: 'messages'), HospitalSize::class, 'hospital.badge.size.')
             ->hideOnIndex();
         yield IntegerField::new('beds', new TranslatableMessage('label.hospital_beds', domain: 'messages'))
             ->hideOnIndex();
@@ -242,6 +228,29 @@ final class HospitalCrudController extends AbstractCrudController
             ->onlyOnDetail();
         yield AssociationField::new('updatedBy', new TranslatableMessage('label.updated_by', domain: 'messages'))
             ->onlyOnDetail();
+    }
+
+    /**
+     * Translated choice labels for detail and form, while the form keeps reading and writing enum cases.
+     *
+     * @param class-string<HospitalLocation|HospitalTier|HospitalSize> $enumClass
+     */
+    private function enumChoiceField(string $property, TranslatableMessage $label, string $enumClass, string $keyPrefix): ChoiceField
+    {
+        $cases = $enumClass::cases();
+        $choiceLabel = static fn (HospitalLocation|HospitalTier|HospitalSize $case): TranslatableMessage => new TranslatableMessage($keyPrefix.$case->value, domain: 'allocation');
+
+        return ChoiceField::new($property, $label)
+            ->setTranslatableChoices(array_combine(
+                array_map(static fn (HospitalLocation|HospitalTier|HospitalSize $case): string => $case->value, $cases),
+                array_map($choiceLabel, $cases),
+            ))
+            ->setFormType(EnumType::class)
+            ->setFormTypeOptions([
+                'class' => $enumClass,
+                'choices' => $cases,
+                'choice_label' => $choiceLabel,
+            ]);
     }
 
     private function formatAccessGrantsHtml(Hospital $hospital): string
