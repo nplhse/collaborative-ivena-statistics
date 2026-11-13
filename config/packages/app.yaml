@@ -76,6 +76,8 @@ app:
             overdue_after_minutes: 1500
         feedback_quarantine_summary:
             overdue_after_minutes: 10140
+        feedback_quarantine_purge:
+            overdue_after_minutes: 1500
         messenger_queue_sample:
             overdue_after_minutes: 120
         monitoring_retention:
@@ -116,3 +118,6 @@ app:
             patterns:
                 - '/\bearn\s+\$[\d,.]+\s+(?:per|a)\s+month\b/i'
             history_days: 30
+        quarantine:
+            # Days after going into quarantine until an entry is deleted.
+            retention_days: 30

@@ -13,7 +13,7 @@ The quarantine is built in steps on the integration branch `feature/feedback-qua
 | 2 | Classification of new submissions before notifications | done |
 | 3 | Quarantine view for reviewers (release, quarantine, delete) | done |
 | 4 | Weekly quarantine summary | done |
-| 5 | Retention of quarantined feedback | planned |
+| 5 | Retention of quarantined feedback | done |
 | 6 | Reclassification of existing entries (dry run first) | planned |
 
 ## Submission flow
@@ -159,3 +159,24 @@ Instead of one notification per suspected spam, administrators get a weekly coun
   marks nothing, so the next run reports the same entries; a finished run never reports them again.
   The deduplication key is built from the reported ids.
 - **Empty weeks:** no notification; the job run is recorded as skipped (`nothing_to_report`).
+
+## Retention and stored data
+
+Quarantined feedback is deleted `app.feedback.quarantine.retention_days` (default 30) days after it went
+into quarantine (`classified_at`). An entry quarantined exactly at the cutoff is kept until the next
+run. Normal feedback, including released entries, is not affected.
+
+- **Job:** daily 04:10 Europe/Berlin, scheduler job `feedback_quarantine_purge`, metric `deleted`.
+- **By hand:** `php bin/console app:feedback:purge-quarantine` counts the expired entries (dry run);
+  `--apply` deletes them.
+- Deleting is final; there is no archive. Entries are only counted in logs and job runs, never written
+  out.
+
+What the spam protection stores, and for how long:
+
+| Data | Purpose | Kept |
+|---|---|---|
+| `classification`, `classification_reasons`, `spam_score` | reviewer information; reasons and score only while quarantined | with the entry |
+| `classified_at`, `classified_by_id`, `quarantine_reported_at` | review trail, retention, weekly summary | with the entry |
+| `message_fingerprint` | repeated messages (SHA-256, no readable text) | with the entry |
+| rejected submissions | not stored; the reject log has reason codes and hashed IP and email | log retention |
