@@ -16,6 +16,7 @@ use App\Encounter\Domain\Enum\EncounterFileRejection;
 use App\Encounter\Infrastructure\Repository\EncounterImportRepository;
 use App\Encounter\Infrastructure\Repository\EncounterKeyStateRepository;
 use App\Encounter\Infrastructure\Security\EncounterUploadPermission;
+use App\Import\Application\Contracts\ImportRunTelemetryInterface;
 use App\Import\Application\DTO\ImportRunContext;
 use App\Import\Application\DTO\ImportRunOutcome;
 use App\Import\Application\DTO\ImportSummary;
@@ -29,6 +30,7 @@ use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportReject;
 use App\Import\Domain\Enum\ImportRunReasonCode;
+use App\Import\Domain\Enum\ImportRunStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Domain\Service\ImportEvaluation;
 use App\Shared\Infrastructure\Audit\AuditContext;
@@ -51,6 +53,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * - A rejected file fails the run with `invalid_file`; the reason is stored on the encounter import.
  *   A raw HIS export or a file with identifying content is deleted at once (ADR 026).
  * - After a successful run with new visits, EncountersImported names the affected hospital-days.
+ * - Every attempt is recorded as an `encounter_import` job run (ADR 018).
  *
  * @psalm-suppress UnusedClass Registered as a message handler.
  */
@@ -70,6 +73,7 @@ final readonly class ImportEncountersMessageHandler
         private AuditContext $auditContext,
         private EventDispatcherInterface $eventDispatcher,
         private ClockInterface $clock,
+        private ImportRunTelemetryInterface $telemetry,
         #[Target('import')]
         private LoggerInterface $importLogger,
     ) {
@@ -95,58 +99,77 @@ final readonly class ImportEncountersMessageHandler
             return;
         }
 
+        $this->telemetry->begin($context, $import);
         $encounterImport = ImportType::ENCOUNTER === $import->getType() ? $this->encounterImports->findForImport($import) : null;
         $source = $this->resolveSource($import, $encounterImport);
         if ($source instanceof ImportRunReasonCode) {
-            $this->runLifecycle->fail($context, $source);
+            $this->endTelemetry($this->runLifecycle->fail($context, $source));
 
             return;
         }
 
         \assert($encounterImport instanceof EncounterImport);
         if ($this->keyGenerationChanged($import, $encounterImport)) {
-            $this->failKeyGenerationChanged($context, 0);
+            $this->endTelemetry($this->failKeyGenerationChanged($context, 0));
 
             return;
         }
 
         $started = microtime(true);
+        $status = ImportRunStatus::Failed->value;
+        $error = null;
         $this->auditContext->pushSuppressedEntityAudit([ImportReject::class, EncounterSuspectedDuplicate::class]);
         $this->commitGuard->activate($context);
         try {
             if ($import->hasRunBefore() || $context->resumed) {
+                $this->telemetry->startSpan('import.cleanup');
                 $this->previousRunCleanup->cleanup($import);
+                $this->telemetry->finishSpan();
             }
 
             $import->markAsRunning();
             $encounterImport->resetForRun();
             $this->flushWithIntent('import.run.started', $import);
 
+            $this->telemetry->startSpan('import.rows');
             $result = $this->fileImporter->import($import, $encounterImport, $source);
+            $this->telemetry->finishSpan(['rows' => $result->total, 'ok' => $result->total - $result->rejected, 'rejected' => $result->rejected]);
             $runtimeMs = $this->runtimeSince($started);
 
+            $this->telemetry->startSpan('import.finish');
             $outcome = $this->runLifecycle->finish(
                 $context,
-                fn (Import $fresh): ImportRunOutcome => $this->applyResult($fresh, $result, $runtimeMs),
+                function (Import $fresh) use ($result, $runtimeMs): ImportRunOutcome {
+                    $outcome = $this->applyResult($fresh, $result, $runtimeMs);
+                    $this->telemetry->evaluated($fresh);
+
+                    return $outcome;
+                },
             );
+            $this->telemetry->finishSpan();
+            $status = $outcome instanceof ImportRunOutcome ? $outcome->status->value : ImportRunStatus::Superseded->value;
 
             if (true === $outcome?->status->isSuccessful() && [] !== $result->insertedDays) {
                 $this->eventDispatcher->dispatch(new EncountersImported((int) $import->getHospital()?->getId(), $context->importId, $result->insertedDays));
             }
         } catch (EncounterFileRejectedException $e) {
-            $this->rejectFile($context, $import, $e->reason, $this->runtimeSince($started));
+            $status = $this->statusOf($this->rejectFile($context, $import, $e->reason, $this->runtimeSince($started)));
         } catch (EncounterKeyGenerationChangedException $e) {
             $this->importLogger->warning('encounter.import.key_generation_changed', ['id' => $context->importId, 'msg' => $e->getMessage()]);
-            $this->failKeyGenerationChanged($context, $this->runtimeSince($started));
+            $status = $this->statusOf($this->failKeyGenerationChanged($context, $this->runtimeSince($started)));
         } catch (ImportRunSupersededException) {
+            $status = ImportRunStatus::Superseded->value;
             $this->importLogger->info('encounter.import.run.superseded_during_processing', [
                 'id' => $context->importId,
                 'run_id' => $context->runId->toRfc4122(),
             ]);
             $this->entityManager()->clear();
         } catch (\Throwable $e) {
+            $error = $e;
+            $status = ImportRunErrorClassifier::isRetryable($e) ? ImportRunTelemetryInterface::STATUS_RETRYING : ImportRunStatus::Failed->value;
             $this->handleRunError($context, $e, $this->runtimeSince($started));
         } finally {
+            $this->telemetry->end($status, $error);
             $this->commitGuard->deactivate();
             $this->auditContext->popSuppressedEntityAudit();
         }
@@ -166,7 +189,7 @@ final readonly class ImportEncountersMessageHandler
      * Ends the run as failed with `invalid_file` and stores the reason on the encounter import. A file
      * that may hold direct identifiers is deleted first (ADR 026).
      */
-    private function rejectFile(ImportRunContext $context, Import $import, EncounterFileRejection $reason, int $runtimeMs): void
+    private function rejectFile(ImportRunContext $context, Import $import, EncounterFileRejection $reason, int $runtimeMs): bool
     {
         $deleted = false;
         if ($reason->deletesSourceFile()) {
@@ -181,7 +204,8 @@ final readonly class ImportEncountersMessageHandler
         ]);
 
         $this->entityManager()->clear();
-        $this->runLifecycle->fail(
+
+        return $this->runLifecycle->fail(
             $context,
             ImportRunReasonCode::InvalidFile,
             function (Import $fresh) use ($reason, $deleted, $runtimeMs): void {
@@ -195,16 +219,28 @@ final readonly class ImportEncountersMessageHandler
         );
     }
 
-    private function failKeyGenerationChanged(ImportRunContext $context, int $runtimeMs): void
+    private function failKeyGenerationChanged(ImportRunContext $context, int $runtimeMs): bool
     {
         $this->entityManager()->clear();
-        $this->runLifecycle->fail(
+
+        return $this->runLifecycle->fail(
             $context,
             ImportRunReasonCode::KeyGenerationChanged,
             static function (Import $fresh) use ($runtimeMs): void {
                 $fresh->markAsFailed($runtimeMs);
             },
         );
+    }
+
+    /** Ends the telemetry of a run that failed before processing; a run that could not be failed was superseded. */
+    private function endTelemetry(bool $failed): void
+    {
+        $this->telemetry->end($this->statusOf($failed));
+    }
+
+    private function statusOf(bool $failed): string
+    {
+        return $failed ? ImportRunStatus::Failed->value : ImportRunStatus::Superseded->value;
     }
 
     private function handleRunError(ImportRunContext $context, \Throwable $e, int $runtimeMs): void

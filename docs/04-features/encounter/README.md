@@ -212,6 +212,10 @@ error analysis and reprocessing after a bug fix (ADR 026, #1049).
   with the date of that run.
 - Allocation and closure imports are not affected.
 
+**Monitoring**: every attempt is recorded in `job_run` as job `encounter_import` with the row counters,
+also when Messenger gives up after retries; there are no thresholds until runs have been measured
+([observability-sentry.md](../../05-operations/observability-sentry.md#imports), #1070).
+
 **Afterwards**: a successful run with new visits dispatches `EncountersImported` (hospital, import, anchor
 days of the inserted visits); the matcher reruns those days ([Matching](#matching)).
 

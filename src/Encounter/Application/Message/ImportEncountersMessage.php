@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Application\Message;
 
 use App\Import\Application\Message\ImportRunMessageInterface;
+use App\Import\Domain\Enum\ImportType;
 use Symfony\Component\Messenger\Attribute\AsMessage;
 
 /**
@@ -32,5 +33,11 @@ final readonly class ImportEncountersMessage implements ImportRunMessageInterfac
     public function getRunId(): string
     {
         return $this->runId;
+    }
+
+    #[\Override]
+    public function getImportType(): ImportType
+    {
+        return ImportType::ENCOUNTER;
     }
 }

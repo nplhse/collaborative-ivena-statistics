@@ -181,7 +181,8 @@ final class EncounterSourceFileRetentionTest extends KernelTestCase
         self::assertInstanceOf(MessageBusInterface::class, $bus);
         $bus->dispatch(new Envelope($message, [new ReceivedStamp('scheduler_default'), $scheduled]));
 
-        $runs = $this->connection()->fetchAllAssociative('SELECT job, triggered_by, status, metrics FROM job_run');
+        // The upload's own run is recorded as encounter_import.
+        $runs = $this->connection()->fetchAllAssociative("SELECT job, triggered_by, status, metrics FROM job_run WHERE job <> 'encounter_import'");
         self::assertCount(1, $runs);
         self::assertSame(['encounter_source_file_retention', 'scheduler', 'succeeded'], [$runs[0]['job'], $runs[0]['triggered_by'], $runs[0]['status']]);
         $metrics = json_decode((string) $runs[0]['metrics'], true);
