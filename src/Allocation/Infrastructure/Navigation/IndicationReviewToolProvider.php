@@ -38,7 +38,7 @@ final readonly class IndicationReviewToolProvider implements ToolProviderInterfa
                 titleKey: 'tools.indication_review.title',
                 descriptionKey: 'tools.indication_review.description',
                 translationDomain: 'allocation',
-                route: 'app_explore_indication_raw_review_worklist',
+                route: 'app_tools_indication_review',
                 icon: 'tabler:list-check',
                 category: ToolCategory::Matching,
                 position: 10,

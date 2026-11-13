@@ -35,7 +35,7 @@ final class ToolsIndexControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h2.page-title', 'Tools');
         self::assertSelectorExists('[data-testid="tools-group"][data-tools-category="matching"]');
-        self::assertSelectorExists('[data-testid="tools-card"][data-tool-key="indication_review"][href="/explore/indication/raw/review"]');
+        self::assertSelectorExists('[data-testid="tools-card"][data-tool-key="indication_review"][href="/tools/indication-review"]');
         self::assertSelectorTextContains('[data-tool-key="indication_review"]', 'Indication matching review');
         self::assertSelectorNotExists('[data-testid="tools-card-beta"]');
         self::assertSelectorExists('#navbar-menu li.nav-item.active[data-testid="nav-tools"] a[href="/tools"]');

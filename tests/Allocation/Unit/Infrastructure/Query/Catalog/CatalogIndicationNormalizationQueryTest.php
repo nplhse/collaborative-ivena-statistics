@@ -37,7 +37,7 @@ final class CatalogIndicationNormalizationQueryTest extends TestCase
         ]);
 
         $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
-        $urlGenerator->method('generate')->willReturn('/explore/indication/raw/review');
+        $urlGenerator->method('generate')->willReturn('/tools/indication-review');
 
         $summary = new CatalogIndicationNormalizationQuery(
             $connection,
