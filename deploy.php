@@ -17,6 +17,9 @@ set('messenger_restart_on_deploy', true);
 
 set('cachetool_args', '--web --web-path={{deploy_path}}/current/public --web-url={{web_url}}');
 
+// Releases kept on the server: the current one and one to roll back to (`dep rollback`). Deployer's default is 10.
+set('keep_releases', 2);
+
 desc('Point Uberspace u8 DocumentRoot symlinks at current/public');
 task('deploy:uberspace:webroot', function () {
     if (!test('command -v uberspace >/dev/null 2>&1')) {
