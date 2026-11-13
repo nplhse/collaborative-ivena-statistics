@@ -178,6 +178,9 @@ final class MtsCatalogCurationTest extends KernelTestCase
         self::assertSame(['code' => 'brustenge', 'count' => 1], $blocker->parameters());
         self::assertSame(MtsCatalogException::MERGE_HAS_PLAUSIBILITY_RULES, $this->refusal(fn () => $this->curation->merge($provisional, $thorax)));
         self::assertNull($this->curation->mergeBlocker($this->diagram('Brustdruck', MtsCatalogStatus::Provisional)), 'a diagram without rules');
+        $indicator = new MtsIndicator('', 'Brustenge', MtsCatalogSource::Manual, MtsCatalogStatus::Provisional);
+        $this->curation->createEntry($indicator);
+        self::assertNull($this->curation->mergeBlocker($indicator), 'rules name diagrams only, so an indicator with the same code is not blocked');
 
         $plausibility->updateArea($area, 'Brustenge', null, [729], []);
         $this->curation->merge($provisional, $thorax);

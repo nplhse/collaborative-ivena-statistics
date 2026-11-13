@@ -107,53 +107,8 @@ class PlausibilityCell
         }
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getSnapshot(): PlausibilitySnapshot
-    {
-        return $this->snapshot;
-    }
-
-    public function getPzc(): ?int
-    {
-        return $this->pzc;
-    }
-
-    public function getAreaCode(): ?string
-    {
-        return $this->areaCode;
-    }
-
-    public function getDiagramCode(): string
-    {
-        return $this->diagramCode;
-    }
-
-    public function getIndicatorCode(): ?string
-    {
-        return $this->indicatorCode;
-    }
-
     public function getPoints(): int
     {
         return $this->points;
-    }
-
-    public function getSource(): PlausibilityCellSource
-    {
-        return $this->source;
-    }
-
-    public function getPositives(): int
-    {
-        return $this->positives;
-    }
-
-    public function getNegatives(): int
-    {
-        return $this->negatives;
     }
 }

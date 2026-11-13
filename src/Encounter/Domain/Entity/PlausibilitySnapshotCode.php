@@ -12,8 +12,12 @@ use Doctrine\ORM\Mapping as ORM;
  * fallback lookup of an active snapshot never changes when the areas are edited. Not audited: written in bulk while
  * the snapshot is a draft.
  *
- * @psalm-suppress UnusedClass Mapped for the schema; written and read in bulk with SQL (PlausibilitySnapshotBuilder,
- *     PlausibilityTableQuery).
+ * Mapped for the schema only: PlausibilitySnapshotBuilder writes and PlausibilityTableQuery reads the rows with SQL,
+ * so the class has no constructor and no accessors.
+ *
+ * @psalm-suppress UnusedClass
+ * @psalm-suppress UnusedProperty
+ * @psalm-suppress MissingConstructor
  */
 #[ORM\Entity(readOnly: true)]
 #[ORM\Table(name: 'encounter_plausibility_snapshot_code')]
@@ -34,31 +38,4 @@ class PlausibilitySnapshotCode
 
     #[ORM\Column(length: 64)]
     private string $areaCode;
-
-    public function __construct(PlausibilitySnapshot $snapshot, int $pzc, string $areaCode)
-    {
-        $this->snapshot = $snapshot;
-        $this->pzc = $pzc;
-        $this->areaCode = $areaCode;
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getSnapshot(): PlausibilitySnapshot
-    {
-        return $this->snapshot;
-    }
-
-    public function getPzc(): int
-    {
-        return $this->pzc;
-    }
-
-    public function getAreaCode(): string
-    {
-        return $this->areaCode;
-    }
 }

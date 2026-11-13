@@ -17,7 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'encounter_plausibility_area_diagram')]
 #[ORM\UniqueConstraint(name: 'uniq_encounter_plausibility_area_diagram', fields: ['area', 'diagram'])]
 #[ORM\Index(name: 'idx_encounter_plausibility_area_diagram_diagram', fields: ['diagram'])]
-class PlausibilityAreaDiagram implements \Stringable
+class PlausibilityAreaDiagram
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -47,11 +47,6 @@ class PlausibilityAreaDiagram implements \Stringable
         return $this->id;
     }
 
-    public function getArea(): PlausibilityProblemArea
-    {
-        return $this->area;
-    }
-
     public function getDiagram(): MtsDiagram
     {
         return $this->diagram;
@@ -66,11 +61,5 @@ class PlausibilityAreaDiagram implements \Stringable
     {
         PlausibilityCell::assertPoints($points);
         $this->points = $points;
-    }
-
-    #[\Override]
-    public function __toString(): string
-    {
-        return \sprintf('%s – %s (+%d)', $this->area->getCode(), $this->diagram->getCode(), $this->points);
     }
 }

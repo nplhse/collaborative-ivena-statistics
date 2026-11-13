@@ -34,6 +34,7 @@ final class PlausibilityCellTest extends TestCase
         yield 'neither PZC nor area' => [null, null, 3, null];
         yield 'PZC and area' => [711, 'urologie', 3, null];
         yield 'indicator without PZC' => [null, 'urologie', 3, 'harnverhalt'];
+        yield 'negative count' => [711, null, 3, 'negative_count'];
     }
 
     #[DataProvider('invalidCells')]
@@ -41,6 +42,19 @@ final class PlausibilityCellTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->cell($pzc, $area, $points, $indicator);
+    }
+
+    public function testIndicatorCellNeedsAnExactPzc(): void
+    {
+        $snapshot = new PlausibilitySnapshot(PlausibilitySnapshotOrigin::Learned, new \DateTimeImmutable('2026-11-13'));
+
+        self::assertSame(2, new PlausibilityCell($snapshot, 711, null, 'urologisches_problem', 2, PlausibilityCellSource::Learned, 8, 4, 'harnverhalt')->getPoints());
+    }
+
+    public function testOnlyTheActiveSnapshotIsRetired(): void
+    {
+        $this->expectException(\LogicException::class);
+        new PlausibilitySnapshot(PlausibilitySnapshotOrigin::Seed, new \DateTimeImmutable('2026-11-13'))->retire(new \DateTimeImmutable('2026-11-14'));
     }
 
     public function testSnapshotLifeCycle(): void
@@ -62,6 +76,10 @@ final class PlausibilityCellTest extends TestCase
     private function cell(?int $pzc, ?string $area, int $points, ?string $indicator = null): PlausibilityCell
     {
         $snapshot = new PlausibilitySnapshot(PlausibilitySnapshotOrigin::Learned, new \DateTimeImmutable('2026-11-13'));
+
+        if ('negative_count' === $indicator) {
+            return new PlausibilityCell($snapshot, $pzc, $area, 'urologisches_problem', $points, PlausibilityCellSource::Learned, positives: 3, negatives: -1);
+        }
 
         return new PlausibilityCell($snapshot, $pzc, $area, 'urologisches_problem', $points, PlausibilityCellSource::Curated, indicatorCode: $indicator);
     }

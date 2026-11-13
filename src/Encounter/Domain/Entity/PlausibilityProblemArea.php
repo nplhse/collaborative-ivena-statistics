@@ -22,7 +22,7 @@ use Symfony\Component\Clock\Clock;
 #[ORM\Table(name: 'encounter_plausibility_area')]
 #[ORM\UniqueConstraint(name: 'uniq_encounter_plausibility_area_code', fields: ['code'])]
 #[ORM\HasLifecycleCallbacks]
-class PlausibilityProblemArea implements \Stringable
+class PlausibilityProblemArea
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -179,25 +179,9 @@ class PlausibilityProblemArea implements \Stringable
         }
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
     #[ORM\PreUpdate]
     public function touch(): void
     {
         $this->updatedAt = Clock::get()->now();
-    }
-
-    #[\Override]
-    public function __toString(): string
-    {
-        return \sprintf('%s (%s)', $this->germanName, $this->code);
     }
 }

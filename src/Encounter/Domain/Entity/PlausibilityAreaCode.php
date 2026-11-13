@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 #[ORM\Table(name: 'encounter_plausibility_area_code')]
 #[ORM\UniqueConstraint(name: 'uniq_encounter_plausibility_area_code_pzc', fields: ['pzc'])]
-class PlausibilityAreaCode implements \Stringable
+class PlausibilityAreaCode
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -39,11 +39,6 @@ class PlausibilityAreaCode implements \Stringable
         $this->pzc = $pzc;
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
     public function getArea(): PlausibilityProblemArea
     {
         return $this->area;
@@ -52,11 +47,5 @@ class PlausibilityAreaCode implements \Stringable
     public function getPzc(): int
     {
         return $this->pzc;
-    }
-
-    #[\Override]
-    public function __toString(): string
-    {
-        return \sprintf('%s – %03d', $this->area->getCode(), $this->pzc);
     }
 }

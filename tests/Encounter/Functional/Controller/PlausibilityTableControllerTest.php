@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Encounter\Functional\Controller;
 
+use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Encounter\Application\Contract\PlausibilityRepositoryInterface;
+use App\Encounter\Application\Plausibility\PlausibilitySnapshots;
+use App\Encounter\Domain\Entity\PlausibilityProblemArea;
 use App\Encounter\Domain\Entity\PlausibilitySnapshot;
 use App\Encounter\Domain\Enum\PlausibilitySnapshotStatus;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
@@ -66,6 +69,8 @@ final class PlausibilityTableControllerTest extends WebTestCase
 
     public function testOverviewListsTheSeedAndTheToolsPageLinksIt(): void
     {
+        IndicationNormalizedFactory::createOne(['code' => 711, 'name' => 'Nieren- Harnleiterkolik']);
+        IndicationNormalizedFactory::createOne(['code' => 779, 'name' => 'sonstige Notfallsituationen']);
         $this->client->loginUser($this->user(self::REVIEWER));
         $this->client->enableProfiler();
 
@@ -78,6 +83,8 @@ final class PlausibilityTableControllerTest extends WebTestCase
         $urology = $crawler->filter('[data-area="urologie"]');
         self::assertStringContainsString('711', $urology->text());
         self::assertSame(['abdominelle_schmerzen_bei_erwachsenen', 'hodenschmerz', 'rueckenschmerz', 'urologisches_problem'], $urology->filter('[data-test="encounter-plausibility-rule"]')->extract(['data-diagram']));
+        self::assertCount(1, $urology->filter('[title="Nieren- Harnleiterkolik"]'), 'PZC names from the stored indications');
+        self::assertSame('779 sonstige Notfallsituationen', trim($crawler->filter('[data-test="encounter-plausibility-unassigned"] .badge')->text()), 'stored codes without an area');
 
         $tools = $this->client->request(Request::METHOD_GET, '/tools');
         self::assertCount(1, $tools->filter('[data-tool-key="encounter_plausibility"][href="/tools/encounter-plausibility"]'));
@@ -141,6 +148,11 @@ final class PlausibilityTableControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(422);
         self::assertStringContainsString('PZC 711 already belongs to “Urologie”', html_entity_decode((string) $this->client->getResponse()->getContent()));
 
+        $form['plausibility_area[pzcCodes]'] = '721, Auge';
+        $this->client->submit($form);
+        self::assertResponseStatusCodeSame(422);
+        self::assertStringContainsString('“Auge” is not a PZC code or range.', html_entity_decode((string) $this->client->getResponse()->getContent()));
+
         $form['plausibility_area[pzcCodes]'] = '721-722';
         $this->client->submit($form);
         self::assertResponseRedirects('/tools/encounter-plausibility');
@@ -154,6 +166,72 @@ final class PlausibilityTableControllerTest extends WebTestCase
         self::assertSame(2, (int) self::getContainer()->get(Connection::class)->fetchOne("SELECT COUNT(*) FROM encounter_plausibility_cell WHERE snapshot_id = ? AND diagram_code = 'gesichtsprobleme' AND pzc IN (721, 722) AND points = 2", [$draftId]));
     }
 
+    public function testDeletingAnAreaRebuildsTheDraftAndKeepsTheActiveSnapshot(): void
+    {
+        $this->client->loginUser($this->user(self::REVIEWER));
+        $seed = $this->seedDraft();
+        $this->post('/tools/encounter-plausibility/snapshots/'.$seed->getId().'/activate', 'activate');
+        $this->editUrologyRules();
+        $draftId = (int) $this->seedDraft()->getId();
+        self::assertNotSame($seed->getId(), $draftId);
+
+        $this->client->request(Request::METHOD_POST, '/tools/encounter-plausibility/areas/urologie/delete', ['_token' => 'invalid']);
+        self::assertResponseRedirects('/tools/encounter-plausibility/areas/urologie/edit');
+        self::assertNotNull(self::getContainer()->get(PlausibilityRepositoryInterface::class)->findAreaByCode('urologie'), 'an invalid token deletes nothing');
+
+        $this->client->loginUser($this->user());
+        $this->client->request(Request::METHOD_POST, '/tools/encounter-plausibility/areas/urologie/delete', ['_token' => 'invalid']);
+        self::assertResponseStatusCodeSame(403, 'beta users without the reviewer role');
+
+        $this->client->loginUser($this->user(self::REVIEWER));
+        $this->post('/tools/encounter-plausibility/areas/urologie/delete', 'delete', '/tools/encounter-plausibility/areas/urologie/edit');
+        self::assertResponseRedirects('/tools/encounter-plausibility');
+        self::assertNull(self::getContainer()->get(PlausibilityRepositoryInterface::class)->findAreaByCode('urologie'));
+
+        $connection = self::getContainer()->get(Connection::class);
+        $cells = 'SELECT COUNT(*) FROM encounter_plausibility_cell WHERE snapshot_id = ? AND (area_code = \'urologie\' OR pzc = 711)';
+        self::assertSame(0, (int) $connection->fetchOne($cells, [$draftId]), 'the draft no longer has urology cells');
+        self::assertSame(8, (int) $connection->fetchOne($cells, [$seed->getId()]), 'the active snapshot keeps its 4 urology area cells and the 4 exact cells of 711');
+        self::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM audit_log WHERE intent = ? AND entity_class = ?', ['encounter.plausibility.area_deleted', PlausibilityProblemArea::class]));
+
+        $this->client->request(Request::METHOD_POST, '/tools/encounter-plausibility/areas/urologie/delete', ['_token' => 'any']);
+        self::assertResponseStatusCodeSame(404, 'an unknown area');
+
+        $this->post('/tools/encounter-plausibility/snapshots/'.$draftId.'/delete', 'delete draft');
+        self::assertResponseRedirects('/tools/encounter-plausibility');
+        self::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM encounter_plausibility_snapshot WHERE id = ?', [$draftId]), 'the draft is deleted');
+        self::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM encounter_plausibility_snapshot'), 'the active snapshot stays');
+    }
+
+    public function testSnapshotChangesAreRefusedWithAnInvalidTokenOrTheWrongStatus(): void
+    {
+        $this->client->loginUser($this->user(self::REVIEWER));
+        $seedId = (int) $this->seedDraft()->getId();
+        $page = '/tools/encounter-plausibility/snapshots/'.$seedId;
+
+        $this->client->request(Request::METHOD_POST, $page.'/activate', ['_token' => 'invalid']);
+        self::assertResponseRedirects($page);
+        self::assertSame(PlausibilitySnapshotStatus::Draft, $this->seedDraft()->getStatus(), 'an invalid token changes nothing');
+
+        $this->client->request(Request::METHOD_POST, $page.'/archive', ['_token' => 'invalid']);
+        self::assertResponseStatusCodeSame(405, 'an unknown action has no POST route (only the catch-all content page answers GET)');
+
+        // A stale page: someone else activates the draft between loading the page and submitting its form.
+        $crawler = $this->client->request(Request::METHOD_GET, $page);
+        $activate = $crawler->filter(\sprintf('form[action="%s/activate"]', $page))->form();
+        $this->activateElsewhere($seedId);
+        $this->client->submit($activate);
+        self::assertResponseRedirects($page);
+        self::assertStringContainsString('Snapshot #'.$seedId.' is not a draft.', $this->client->followRedirect()->filter('body')->text());
+
+        $crawler = $this->client->request(Request::METHOD_GET, $page);
+        $retire = $crawler->filter(\sprintf('form[action="%s/retire"]', $page))->form();
+        $this->client->submit($retire);
+        self::assertSame(PlausibilitySnapshotStatus::Retired, $this->seedDraft()->getStatus());
+        $this->client->submit($retire);
+        self::assertStringContainsString('Snapshot #'.$seedId.' is not active.', $this->client->followRedirect()->filter('body')->text(), 'retiring twice');
+    }
+
     private function seedDraft(): PlausibilitySnapshot
     {
         self::getContainer()->get(EntityManagerInterface::class)->clear();
@@ -163,12 +241,28 @@ final class PlausibilityTableControllerTest extends WebTestCase
         return $draft;
     }
 
-    private function post(string $path, string $tokenId): void
+    private function post(string $path, string $tokenId, ?string $page = null): void
     {
-        $crawler = $this->client->request(Request::METHOD_GET, substr($path, 0, (int) strrpos($path, '/')));
+        $crawler = $this->client->request(Request::METHOD_GET, $page ?? substr($path, 0, (int) strrpos($path, '/')));
         $token = $crawler->filter(\sprintf('form[action="%s"] input[name="_token"]', $path))->attr('value');
         self::assertNotNull($token, $tokenId);
         $this->client->request(Request::METHOD_POST, $path, ['_token' => $token]);
+    }
+
+    private function activateElsewhere(int $snapshotId): void
+    {
+        $snapshot = self::getContainer()->get(EntityManagerInterface::class)->find(PlausibilitySnapshot::class, $snapshotId);
+        self::assertInstanceOf(PlausibilitySnapshot::class, $snapshot);
+        self::getContainer()->get(PlausibilitySnapshots::class)->activate($snapshot);
+    }
+
+    private function editUrologyRules(): void
+    {
+        $crawler = $this->client->request(Request::METHOD_GET, '/tools/encounter-plausibility/areas/urologie/edit');
+        $form = $crawler->filter('form[name="plausibility_area"]')->form();
+        $form['plausibility_area[diagrams][hodenschmerz]'] = '';
+        $this->client->submit($form);
+        self::assertResponseRedirects('/tools/encounter-plausibility');
     }
 
     private function auditRows(string $intent): int

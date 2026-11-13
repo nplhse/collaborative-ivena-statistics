@@ -21,7 +21,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 #[ORM\Table(name: 'encounter_plausibility_snapshot')]
 #[ORM\UniqueConstraint(name: 'uniq_encounter_plausibility_snapshot_active', fields: ['status'], options: ['where' => "((status)::text = 'active'::text)"])]
-class PlausibilitySnapshot implements \Stringable
+class PlausibilitySnapshot
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -107,11 +107,5 @@ class PlausibilitySnapshot implements \Stringable
 
         $this->status = PlausibilitySnapshotStatus::Retired;
         $this->retiredAt = $now;
-    }
-
-    #[\Override]
-    public function __toString(): string
-    {
-        return \sprintf('#%s (%s, %s)', $this->id ?? '?', $this->origin->value, $this->status->value);
     }
 }

@@ -6,8 +6,10 @@ namespace App\Tests\Encounter\Integration\Application\Plausibility;
 
 use App\Encounter\Application\Catalog\MtsCatalogCuration;
 use App\Encounter\Application\Contract\PlausibilityRepositoryInterface;
+use App\Encounter\Application\Contract\PlausibilitySnapshotBuilderInterface;
 use App\Encounter\Application\Plausibility\PlausibilityCuration;
 use App\Encounter\Application\Plausibility\PlausibilityException;
+use App\Encounter\Application\Plausibility\PlausibilityHit;
 use App\Encounter\Application\Plausibility\PlausibilityLevel;
 use App\Encounter\Application\Plausibility\PlausibilityLookup;
 use App\Encounter\Application\Plausibility\PlausibilitySnapshots;
@@ -77,6 +79,37 @@ final class PlausibilityCurationTest extends KernelTestCase
         self::assertSame(PlausibilityException::POINTS, $this->refusal(fn (): PlausibilityProblemArea => $this->curation->createArea('Augen', null, [721], ['gesichtsprobleme' => 4]))->reason);
         self::assertSame(PlausibilityException::AREA_EXISTS, $this->refusal(fn (): PlausibilityProblemArea => $this->curation->createArea('Urologie', null, [], []))->reason);
         self::assertSame(PlausibilityException::EMPTY_NAME, $this->refusal(fn (): PlausibilityProblemArea => $this->curation->createArea(' – ', null, [], []))->reason);
+        self::assertSame(PlausibilityException::PZC_INVALID, $this->refusal(fn (): PlausibilityProblemArea => $this->curation->createArea('Augen', null, [721, 1000], []))->reason);
+
+        $urology = $this->repository->findAreaByCode('urologie');
+        self::assertInstanceOf(PlausibilityProblemArea::class, $urology);
+        self::assertSame(PlausibilityException::EMPTY_NAME, $this->refusal(function () use ($urology): void {
+            $this->curation->updateArea($urology, '?', null, [711], []);
+        })->reason);
+        self::assertNull($this->repository->findAreaByCode('augen'), 'nothing was created');
+    }
+
+    public function testRenamingKeepsTheCodeAndStampsTheArea(): void
+    {
+        $urology = $this->repository->findAreaByCode('urologie');
+        self::assertInstanceOf(PlausibilityProblemArea::class, $urology);
+
+        $this->curation->updateArea($urology, 'Urologie und Nephrologie', 'Urology and nephrology', $urology->pzcCodes(), $urology->diagramPoints());
+
+        $row = self::getContainer()->get(Connection::class)->fetchAssociative("SELECT code, german_name, english_name, updated_at FROM encounter_plausibility_area WHERE code = 'urologie'");
+        self::assertIsArray($row);
+        self::assertSame(['urologie', 'Urologie und Nephrologie', 'Urology and nephrology'], [$row['code'], $row['german_name'], $row['english_name']]);
+        self::assertNotNull($row['updated_at']);
+        self::assertSame(1, $this->auditEntries('encounter.plausibility.area_updated'));
+    }
+
+    public function testOnlyAStoredDraftIsRebuilt(): void
+    {
+        $seed = $this->seedDraft();
+        self::getContainer()->get(PlausibilitySnapshots::class)->activate($seed);
+
+        $this->expectException(\LogicException::class);
+        self::getContainer()->get(PlausibilitySnapshotBuilderInterface::class)->rebuildFromAreas($seed);
     }
 
     public function testEditingChangesTheDraftButNeverTheActiveSnapshot(): void
@@ -123,6 +156,7 @@ final class PlausibilityCurationTest extends KernelTestCase
         self::assertSame(3, $this->lookup->bonus(331, 'brustschmerz')->points, 'merged: read as thoraxschmerz');
         self::assertSame(3, $this->lookup->bonus(331, 'thoraxschmerz')->points);
         self::assertSame(0, $this->lookup->bonus(331, 'unbekannt')->points, 'an unknown code is used as it is');
+        self::assertEquals(PlausibilityHit::none($this->repository->activeSnapshot()?->getId()), $this->lookup->bonus(331, null), 'no diagram');
     }
 
     private function seedDraft(): PlausibilitySnapshot
