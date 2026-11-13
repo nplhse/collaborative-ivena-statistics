@@ -59,6 +59,11 @@ final readonly class AuditMessengerMiddleware implements MiddlewareInterface
             $envelope = $envelope->with(new RequestIdStamp($id));
         }
 
+        $sessionRef = $this->auditContext->getSessionRef();
+        if (null !== $sessionRef && !$envelope->last(SessionRefStamp::class) instanceof SessionRefStamp) {
+            $envelope = $envelope->with(new SessionRefStamp($sessionRef));
+        }
+
         $actorId = $this->auditContext->getActorUserId();
         if (null === $actorId) {
             $token = $this->tokenStorage->getToken();
@@ -86,6 +91,11 @@ final readonly class AuditMessengerMiddleware implements MiddlewareInterface
         $actor = $envelope->last(ActorStamp::class);
         if ($actor instanceof ActorStamp) {
             $this->auditContext->setActorUserId($actor->getUserId());
+        }
+
+        $sessionRef = $envelope->last(SessionRefStamp::class);
+        if ($sessionRef instanceof SessionRefStamp) {
+            $this->auditContext->setSessionRef($sessionRef->getSessionRef());
         }
     }
 

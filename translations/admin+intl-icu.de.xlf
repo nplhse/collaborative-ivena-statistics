@@ -933,18 +933,6 @@
         <source>admin.fieldset.relations</source>
         <target>Beziehungen</target>
       </trans-unit>
-      <trans-unit id="admFsEventDe" resname="admin.fieldset.event">
-        <source>admin.fieldset.event</source>
-        <target>Ereignis</target>
-      </trans-unit>
-      <trans-unit id="admFsRecordDe" resname="admin.fieldset.record">
-        <source>admin.fieldset.record</source>
-        <target>Datensatz</target>
-      </trans-unit>
-      <trans-unit id="admFsChangesDe" resname="admin.fieldset.changes">
-        <source>admin.fieldset.changes</source>
-        <target>Änderungen</target>
-      </trans-unit>
       <trans-unit id="admFsConsentDe" resname="admin.fieldset.consent">
         <source>admin.fieldset.consent</source>
         <target>Einwilligung</target>
@@ -1660,6 +1648,326 @@
       <trans-unit id="admFbFlDelDe" resname="flash.admin.feedback.deleted">
         <source>flash.admin.feedback.deleted</source>
         <target>{count, plural, =0 {Es wurde kein Feedback gelöscht.} one {# Feedback gelöscht.} other {# Feedbacks gelöscht.}}</target>
+      </trans-unit>
+      <trans-unit id="auditTl01de" resname="audit.timeline.title">
+        <source>audit.timeline.title</source>
+        <target>Audit-Timeline</target>
+      </trans-unit>
+      <trans-unit id="auditTl02de" resname="audit.timeline.help">
+        <source>audit.timeline.help</source>
+        <target>Neueste zuerst. Einträge einer Anfrage werden gestapelt; jeder Eintrag bleibt ein eigener Datensatz.</target>
+      </trans-unit>
+      <trans-unit id="auditTl03de" resname="audit.timeline.empty">
+        <source>audit.timeline.empty</source>
+        <target>Keine passenden Audit-Einträge.</target>
+      </trans-unit>
+      <trans-unit id="auditTl04de" resname="audit.timeline.active_filters">
+        <source>audit.timeline.active_filters</source>
+        <target>Gefiltert nach</target>
+      </trans-unit>
+      <trans-unit id="auditTl05de" resname="audit.timeline.reset_filters">
+        <source>audit.timeline.reset_filters</source>
+        <target>Filter zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="auditTl06de" resname="audit.timeline.pagination">
+        <source>audit.timeline.pagination</source>
+        <target>Seiten der Audit-Timeline</target>
+      </trans-unit>
+      <trans-unit id="auditTl07de" resname="audit.timeline.older">
+        <source>audit.timeline.older</source>
+        <target>Ältere Einträge</target>
+      </trans-unit>
+      <trans-unit id="auditTl08de" resname="audit.timeline.newest">
+        <source>audit.timeline.newest</source>
+        <target>Neueste Einträge</target>
+      </trans-unit>
+      <trans-unit id="auditTl09de" resname="audit.timeline.no_actor">
+        <source>audit.timeline.no_actor</source>
+        <target>System oder anonym</target>
+      </trans-unit>
+      <trans-unit id="auditTl10de" resname="audit.timeline.deleted_user">
+        <source>audit.timeline.deleted_user</source>
+        <target>Gelöschter Nutzer #{id}</target>
+      </trans-unit>
+      <trans-unit id="auditTl12de" resname="audit.timeline.fields_more">
+        <source>audit.timeline.fields_more</source>
+        <target>+{count} weitere</target>
+      </trans-unit>
+      <trans-unit id="auditTl13de" resname="audit.timeline.request">
+        <source>audit.timeline.request</source>
+        <target>Anfrage</target>
+      </trans-unit>
+      <trans-unit id="auditTl14de" resname="audit.timeline.request_entries">
+        <source>audit.timeline.request_entries</source>
+        <target>{count, plural, one {# Eintrag} other {# Einträge}}</target>
+      </trans-unit>
+      <trans-unit id="auditTl15de" resname="audit.timeline.request_partial">
+        <source>audit.timeline.request_partial</source>
+        <target>{shown} von {total} Einträgen auf dieser Seite</target>
+      </trans-unit>
+      <trans-unit id="auditTl16de" resname="audit.timeline.request_matching">
+        <source>audit.timeline.request_matching</source>
+        <target>{matching} von {total} Einträgen passen zum Filter</target>
+      </trans-unit>
+      <trans-unit id="auditTl17de" resname="audit.timeline.open_request">
+        <source>audit.timeline.open_request</source>
+        <target>Ganze Anfrage anzeigen</target>
+      </trans-unit>
+      <trans-unit id="auditTl18de" resname="audit.timeline.legacy">
+        <source>audit.timeline.legacy</source>
+        <target>Ältere Anfrage-ID</target>
+      </trans-unit>
+      <trans-unit id="auditTl19de" resname="audit.timeline.legacy_help">
+        <source>audit.timeline.legacy_help</source>
+        <target>Geschrieben, bevor die Anwendung Anfrage-IDs immer selbst erzeugt hat; die ID kann von einem Client stammen.</target>
+      </trans-unit>
+      <trans-unit id="auditTl20de" resname="audit.timeline.background">
+        <source>audit.timeline.background</source>
+        <target>Von dieser Anfrage gestartete Hintergrundjobs</target>
+      </trans-unit>
+      <trans-unit id="auditTl21de" resname="audit.request.title">
+        <source>audit.request.title</source>
+        <target>Audit-Einträge einer Anfrage</target>
+      </trans-unit>
+      <trans-unit id="auditTl22de" resname="audit.request.back">
+        <source>audit.request.back</source>
+        <target>Zurück zur Audit-Timeline</target>
+      </trans-unit>
+      <trans-unit id="auditTl23de" resname="audit.request.entries">
+        <source>audit.request.entries</source>
+        <target>Einträge</target>
+      </trans-unit>
+      <trans-unit id="auditTl24de" resname="audit.request.limit">
+        <source>audit.request.limit</source>
+        <target>Angezeigt werden die ersten {limit} von {total} Einträgen.</target>
+      </trans-unit>
+      <trans-unit id="auditTl25de" resname="audit.action.create">
+        <source>audit.action.create</source>
+        <target>Angelegt</target>
+      </trans-unit>
+      <trans-unit id="auditTl26de" resname="audit.action.update">
+        <source>audit.action.update</source>
+        <target>Geändert</target>
+      </trans-unit>
+      <trans-unit id="auditTl27de" resname="audit.action.delete">
+        <source>audit.action.delete</source>
+        <target>Gelöscht</target>
+      </trans-unit>
+      <trans-unit id="auditTl28de" resname="audit.action.export">
+        <source>audit.action.export</source>
+        <target>Exportiert</target>
+      </trans-unit>
+      <trans-unit id="auditTl29de" resname="audit.action.download">
+        <source>audit.action.download</source>
+        <target>Heruntergeladen</target>
+      </trans-unit>
+      <trans-unit id="auditTl30de" resname="audit.action.impersonate">
+        <source>audit.action.impersonate</source>
+        <target>Identitätswechsel begonnen zu</target>
+      </trans-unit>
+      <trans-unit id="auditTl31de" resname="audit.action.impersonate_exit">
+        <source>audit.action.impersonate_exit</source>
+        <target>Identitätswechsel beendet von</target>
+      </trans-unit>
+      <trans-unit id="auditTl32de" resname="audit.origin.http">
+        <source>audit.origin.http</source>
+        <target>Web</target>
+      </trans-unit>
+      <trans-unit id="auditTl33de" resname="audit.origin.cli">
+        <source>audit.origin.cli</source>
+        <target>Konsole</target>
+      </trans-unit>
+      <trans-unit id="auditTl34de" resname="audit.origin.messenger">
+        <source>audit.origin.messenger</source>
+        <target>Hintergrundjob</target>
+      </trans-unit>
+      <trans-unit id="auditTl35de" resname="audit.outcome.success">
+        <source>audit.outcome.success</source>
+        <target>Erfolgreich</target>
+      </trans-unit>
+      <trans-unit id="auditTl36de" resname="audit.outcome.blocked">
+        <source>audit.outcome.blocked</source>
+        <target>Blockiert</target>
+      </trans-unit>
+      <trans-unit id="auditTl37de" resname="audit.outcome.failed">
+        <source>audit.outcome.failed</source>
+        <target>Fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="auditTl38de" resname="audit.filter.from">
+        <source>audit.filter.from</source>
+        <target>Von</target>
+      </trans-unit>
+      <trans-unit id="auditTl39de" resname="audit.filter.to">
+        <source>audit.filter.to</source>
+        <target>Bis</target>
+      </trans-unit>
+      <trans-unit id="auditTl40de" resname="audit.filter.actor">
+        <source>audit.filter.actor</source>
+        <target>Akteur</target>
+      </trans-unit>
+      <trans-unit id="auditTl41de" resname="audit.filter.origin">
+        <source>audit.filter.origin</source>
+        <target>Herkunft</target>
+      </trans-unit>
+      <trans-unit id="auditTl42de" resname="audit.filter.action">
+        <source>audit.filter.action</source>
+        <target>Aktion</target>
+      </trans-unit>
+      <trans-unit id="auditTl43de" resname="audit.filter.intent">
+        <source>audit.filter.intent</source>
+        <target>Intent</target>
+      </trans-unit>
+      <trans-unit id="auditTl44de" resname="audit.filter.entity">
+        <source>audit.filter.entity</source>
+        <target>Objekttyp</target>
+      </trans-unit>
+      <trans-unit id="auditTl45de" resname="audit.filter.entityId">
+        <source>audit.filter.entityId</source>
+        <target>Objekt-ID</target>
+      </trans-unit>
+      <trans-unit id="auditTl46de" resname="audit.filter.request">
+        <source>audit.filter.request</source>
+        <target>Anfrage-ID</target>
+      </trans-unit>
+      <trans-unit id="auditTl47de" resname="audit.filter.session">
+        <source>audit.filter.session</source>
+        <target>Sitzung</target>
+      </trans-unit>
+      <trans-unit id="auditTl48de" resname="audit.filter.outcome">
+        <source>audit.filter.outcome</source>
+        <target>Ergebnis</target>
+      </trans-unit>
+      <trans-unit id="auditEn01de" resname="audit.entry.title">
+        <source>audit.entry.title</source>
+        <target>Audit-Eintrag #{id}</target>
+      </trans-unit>
+      <trans-unit id="auditEn02de" resname="audit.entry.show_details">
+        <source>audit.entry.show_details</source>
+        <target>Details anzeigen</target>
+      </trans-unit>
+      <trans-unit id="auditEn03de" resname="audit.entry.details_failed">
+        <source>audit.entry.details_failed</source>
+        <target>Die Details konnten nicht geladen werden.</target>
+      </trans-unit>
+      <trans-unit id="auditEn04de" resname="audit.entry.permalink">
+        <source>audit.entry.permalink</source>
+        <target>Link zu diesem Eintrag</target>
+      </trans-unit>
+      <trans-unit id="auditEn05de" resname="audit.entry.same_actor">
+        <source>audit.entry.same_actor</source>
+        <target>Alle Einträge dieses Akteurs</target>
+      </trans-unit>
+      <trans-unit id="auditEn06de" resname="audit.entry.object_history">
+        <source>audit.entry.object_history</source>
+        <target>Verlauf dieses Objekts</target>
+      </trans-unit>
+      <trans-unit id="auditEn07de" resname="audit.entry.same_intent">
+        <source>audit.entry.same_intent</source>
+        <target>Alle Einträge mit diesem Intent</target>
+      </trans-unit>
+      <trans-unit id="auditEn08de" resname="audit.entry.same_session">
+        <source>audit.entry.same_session</source>
+        <target>Alle Einträge dieser Sitzung</target>
+      </trans-unit>
+      <trans-unit id="auditEn09de" resname="audit.entry.id">
+        <source>audit.entry.id</source>
+        <target>Eintrag</target>
+      </trans-unit>
+      <trans-unit id="auditEn10de" resname="audit.entry.changes">
+        <source>audit.entry.changes</source>
+        <target>Erfasste Änderungen</target>
+      </trans-unit>
+      <trans-unit id="auditEn11de" resname="audit.entry.field">
+        <source>audit.entry.field</source>
+        <target>Feld</target>
+      </trans-unit>
+      <trans-unit id="auditEn12de" resname="audit.entry.previous">
+        <source>audit.entry.previous</source>
+        <target>Vorher</target>
+      </trans-unit>
+      <trans-unit id="auditEn13de" resname="audit.entry.new">
+        <source>audit.entry.new</source>
+        <target>Neu</target>
+      </trans-unit>
+      <trans-unit id="auditEn14de" resname="audit.entry.no_changes">
+        <source>audit.entry.no_changes</source>
+        <target>Keine Feldänderungen erfasst.</target>
+      </trans-unit>
+      <trans-unit id="auditEn15de" resname="audit.entry.metadata">
+        <source>audit.entry.metadata</source>
+        <target>Metadaten</target>
+      </trans-unit>
+      <trans-unit id="auditEn16de" resname="audit.entry.empty_string">
+        <source>audit.entry.empty_string</source>
+        <target>(leer)</target>
+      </trans-unit>
+      <trans-unit id="auditEn17de" resname="audit.entry.truncated">
+        <source>audit.entry.truncated</source>
+        <target>(gekürzt)</target>
+      </trans-unit>
+      <trans-unit id="auditFi01de" resname="audit.filter.title">
+        <source>audit.filter.title</source>
+        <target>Filter</target>
+      </trans-unit>
+      <trans-unit id="auditFi02de" resname="audit.filter.any">
+        <source>audit.filter.any</source>
+        <target>Alle</target>
+      </trans-unit>
+      <trans-unit id="auditFi03de" resname="audit.filter.apply">
+        <source>audit.filter.apply</source>
+        <target>Filter anwenden</target>
+      </trans-unit>
+      <trans-unit id="auditFi04de" resname="audit.filter.time_help">
+        <source>audit.filter.time_help</source>
+        <target>Ortszeit (Europe/Berlin). „Von“ zählt mit, „Bis“ nicht.</target>
+      </trans-unit>
+      <trans-unit id="auditFi05de" resname="audit.request.context">
+        <source>audit.request.context</source>
+        <target>Kontext</target>
+      </trans-unit>
+      <trans-unit id="auditFi06de" resname="audit.request.context_help">
+        <source>audit.request.context_help</source>
+        <target>Gehört zu dieser Anfrage, passt aber nicht zum aktuellen Filter.</target>
+      </trans-unit>
+      <trans-unit id="auditSe01de" resname="audit.band.session">
+        <source>audit.band.session</source>
+        <target>Sitzung</target>
+      </trans-unit>
+      <trans-unit id="auditSe02de" resname="audit.band.inferred">
+        <source>audit.band.inferred</source>
+        <target>Geschätzter Aktivitätszeitraum</target>
+      </trans-unit>
+      <trans-unit id="auditSe03de" resname="audit.band.inferred_badge">
+        <source>audit.band.inferred_badge</source>
+        <target>geschätzt</target>
+      </trans-unit>
+      <trans-unit id="auditSe04de" resname="audit.band.inferred_help">
+        <source>audit.band.inferred_help</source>
+        <target>Kein Sitzungsnachweis: Einträge dieses Akteurs mit höchstens {minutes} Minuten Abstand. Getrennte Sitzungen können zusammenfallen, eine Sitzung kann geteilt sein.</target>
+      </trans-unit>
+      <trans-unit id="auditSe05de" resname="audit.band.continues_newer">
+        <source>audit.band.continues_newer</source>
+        <target>kann bei neueren Einträgen weitergehen</target>
+      </trans-unit>
+      <trans-unit id="auditSe06de" resname="audit.band.continues_older">
+        <source>audit.band.continues_older</source>
+        <target>kann bei älteren Einträgen weitergehen</target>
+      </trans-unit>
+      <trans-unit id="auditSe07de" resname="audit.timeline.new_one">
+        <source>audit.timeline.new_one</source>
+        <target>1 neuer Eintrag – anzeigen</target>
+      </trans-unit>
+      <trans-unit id="auditSe08de" resname="audit.timeline.new_many">
+        <source>audit.timeline.new_many</source>
+        <target>%count% neue Einträge – anzeigen</target>
+      </trans-unit>
+      <trans-unit id="auditSe09de" resname="audit.timeline.new_more">
+        <source>audit.timeline.new_more</source>
+        <target>Mehr als %count% neue Einträge – anzeigen</target>
+      </trans-unit>
+      <trans-unit id="auditTile01de" resname="audit.timeline.tile">
+        <source>audit.timeline.tile</source>
+        <target>Aktivitäten in der Anwendung, gruppiert nach Anfrage und Sitzung</target>
       </trans-unit>
     </body>
   </file>

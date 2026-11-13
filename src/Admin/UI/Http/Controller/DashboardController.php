@@ -10,7 +10,6 @@ use App\Admin\Application\Service\OperationalDashboardService;
 use App\Admin\Infrastructure\Repository\MessengerStatsRepository;
 use App\Admin\UI\Http\Controller\Allocation\AllocationCrudController;
 use App\Admin\UI\Http\Controller\Assignment\AssignmentCrudController;
-use App\Admin\UI\Http\Controller\Audit\AuditLogCrudController;
 use App\Admin\UI\Http\Controller\Blog\PostCategoryCrudController;
 use App\Admin\UI\Http\Controller\Blog\PostCommentCrudController;
 use App\Admin\UI\Http\Controller\Blog\PostCrudController;
@@ -395,10 +394,10 @@ final class DashboardController extends AbstractDashboardController
                 'title' => 'System',
                 'tiles' => [
                     [
-                        'label' => 'Audit log',
-                        'description' => 'Browse system audit entries',
+                        'label' => new TranslatableMessage('audit.timeline.title', domain: 'admin'),
+                        'description' => new TranslatableMessage('audit.timeline.tile', domain: 'admin'),
                         'icon' => 'fas fa-clipboard-list',
-                        'controller' => AuditLogCrudController::class,
+                        'route' => 'app_admin_dashboard_audit_timeline',
                     ],
                     [
                         'label' => 'Cookie consents',
@@ -505,7 +504,7 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToRoute(new TranslatableMessage('usage_analytics.menu.performance', domain: 'admin'), 'fas fa-tachometer-alt', 'app_admin_dashboard_operations_usage_analytics_performance');
 
         yield MenuItem::section('System');
-        yield MenuItem::linkTo(AuditLogCrudController::class, 'Audit log', 'fas fa-clipboard-list');
+        yield MenuItem::linkToRoute(new TranslatableMessage('audit.timeline.title', domain: 'admin'), 'fas fa-clipboard-list', 'app_admin_dashboard_audit_timeline');
         yield MenuItem::linkTo(CookieConsentCrudController::class, 'Cookie consents', 'fas fa-cookie-bite');
         yield MenuItem::linkToRoute(new TranslatableMessage('storage.menu.disk_usage', domain: 'storage'), 'fas fa-hard-drive', 'app_admin_dashboard_operations_storage');
         yield MenuItem::linkToRoute(new TranslatableMessage('ops.messenger.menu', domain: 'admin'), 'fas fa-tower-broadcast', 'app_admin_dashboard_operations_messenger');

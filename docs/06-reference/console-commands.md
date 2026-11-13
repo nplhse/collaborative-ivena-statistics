@@ -23,7 +23,7 @@ Examples: `app:import:start`, `app:statistics:rebuild-projection`. Geographic en
 | `--<entity>-id` | Optional or filter scoping | `--hospital-id`, `--user-id`, `--only-id`, `--page-id` |
 | `--dry-run` | Preview destructive or write operations without persisting | Backfill, requeue, deduplicate, content migration |
 
-**Dry-run rule:** Analysis-only commands are read-only by default. Commands that write data apply changes when run without `--dry-run`. Use `--dry-run` to preview what would change. Exceptions that preview by default: `app:audit:purge-import-assessments` (`--execute` to delete), `app:user:backfill-created-at`, `app:user-activity:backfill`, `app:hospital:backfill-participating-since`, `app:import:derive-export-periods`, `app:import:derive-data-coverage`, `app:user:normalize-usernames`, `app:geo:geocode-hospitals`, `app:geo:fetch-isochrones`, `app:geo:prepare-location` and `app:geo:apply-prepared-location` (`--apply` to write).
+**Dry-run rule:** Analysis-only commands are read-only by default. Commands that write data apply changes when run without `--dry-run`. Use `--dry-run` to preview what would change. Exceptions that preview by default: `app:audit:purge-import-assessments` (`--execute` to delete), `app:user:backfill-created-at`, `app:user-activity:backfill`, `app:hospital:backfill-participating-since`, `app:audit:backfill-derived`, `app:import:derive-export-periods`, `app:import:derive-data-coverage`, `app:user:normalize-usernames`, `app:geo:geocode-hospitals`, `app:geo:fetch-isochrones`, `app:geo:prepare-location` and `app:geo:apply-prepared-location` (`--apply` to write).
 
 ### Output
 
@@ -142,6 +142,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 
 | Command | Purpose |
 |---|---|
+| `app:audit:backfill-derived` | One-time tool: copy `intent` and `outcome` of audit entries written before ADR 025 from their stored metadata. Only empty columns are filled; never sets `session_ref`. Default: preview. Writes only with `--apply`. See [../05-operations/audit-log.md](../05-operations/audit-log.md#backfill-of-older-entries). |
 | `app:audit:purge-import-assessments` | One-time cleanup of import-generated `Assessment` `create` entries in `audit_log`. Default: dry-run preview. See [../05-operations/audit-log-maintenance.md](../05-operations/audit-log-maintenance.md). |
 
 ### Doctrine / ad-hoc SQL
