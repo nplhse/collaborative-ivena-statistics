@@ -115,10 +115,12 @@
     </details>
 
     {% if candidate.rival_allocations is not empty %}
+        {# The review passes its context; other pages (the validation item) pass rival_query. #}
+        {% set rival_query = rival_query|default(context is defined ? context.query() : {}) %}
         <p class="text-secondary small mt-3 mb-0" data-test="encounter-review-rivals">
             {{ 'encounter.review.rivals'|trans({}, 'encounter') }}
             {% for rival in candidate.rival_allocations %}
-                <a href="{{ path('app_encounter_review_allocation', {id: hospital.id, allocationId: rival}|merge(context.query())) }}">{{ 'encounter.review.allocation'|trans({id: rival}, 'encounter') }}</a>{{ not loop.last ? ', ' }}
+                <a href="{{ path('app_encounter_review_allocation', {id: hospital.id, allocationId: rival}|merge(rival_query)) }}">{{ 'encounter.review.allocation'|trans({id: rival}, 'encounter') }}</a>{{ not loop.last ? ', ' }}
             {% endfor %}
         </p>
     {% endif %}
