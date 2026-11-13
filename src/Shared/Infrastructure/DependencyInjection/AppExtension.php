@@ -67,5 +67,6 @@ final class AppExtension extends Extension
         $container->setParameter('app.feedback.spam.blocked_link_domains', $spamConfig['blocked_link_domains']);
         $container->setParameter('app.feedback.spam.patterns', $spamConfig['patterns']);
         $container->setParameter('app.feedback.spam.history_days', $spamConfig['history_days']);
+        $container->setParameter('app.feedback.quarantine.retention_days', $config['feedback']['quarantine']['retention_days']);
     }
 }
