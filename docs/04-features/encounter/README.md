@@ -20,8 +20,9 @@ Decisions: [ADR 025](../../02-architecture/decisions/025-encounter-data-context-
 
 ## Flow
 
-1. The hospital downloads the data preparation tool (one HTML file) from the encounter page
-   ([data-preparation-tool.md](data-preparation-tool.md)).
+1. The hospital downloads the data preparation tool (one HTML file) from its landing page
+   `/encounter/data-prep`, which also walks through grants, export, key file and local map
+   ([data-preparation-tool.md](data-preparation-tool.md#landing-page)).
 2. In the browser, the tool reads the vendor export and the hospital's key file, drops identifying
    columns, computes the visit fingerprint and writes a canonical `ed_visit` file
    ([exchange-format.md](exchange-format.md)).
@@ -36,7 +37,9 @@ Decisions: [ADR 025](../../02-architecture/decisions/025-encounter-data-context-
 
 Implemented in #1051: the tool v1 with the ORBIS MTS profile, its download on `/encounter`, the
 public update check `/data-prep/latest.json` and the version options `app.encounter.data_prep`
-([data-preparation-tool.md](data-preparation-tool.md)).
+([data-preparation-tool.md](data-preparation-tool.md)). #1130 added the landing page
+`/encounter/data-prep` (versions, changelog, getting started, key, local map help) and the local map
+editor in the tool (1.1.0).
 
 ## Model
 
@@ -110,7 +113,7 @@ on it.
 `UPLOAD` on at least one hospital (or `ROLE_ADMIN`); the hospital list then also contains the hospitals
 with `UPLOAD`, even without the hospital permission `Import`. For this type the form has a schema
 (`ed_visit`) and a required confirmation that the file was produced with the data preparation tool and
-contains no direct identifiers; its help links to the `/encounter` page for the tool (#1051). The
+contains no direct identifiers; its help links to the tool's landing page `/encounter/data-prep` (#1051, #1130). The
 confirmation is stored on `encounter_import` (`confirmed_by`, `confirmed_at`, audited with the import
 creation), together with the hospital's key generation at upload. Uploads are refused while the
 hospital's key change is in progress.
@@ -777,3 +780,4 @@ Before the first real upload the pilot hospital documents the data flow:
 | #1056 | MTS glossary |
 | #1057 | Match validation |
 | #1058 | IVENA case number in encounter sources (after the pilot) |
+| #1130 | Tool landing page and local map editor |

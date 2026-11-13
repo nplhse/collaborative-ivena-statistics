@@ -21,6 +21,20 @@
     mapDepartments: (js ~ 'map_departments')|trans({}, 'encounter'),
     mapStations: (js ~ 'map_stations')|trans({}, 'encounter'),
     mapDispositions: (js ~ 'map_dispositions')|trans({}, 'encounter'),
+    mapUnsaved: (js ~ 'map_unsaved')|trans({}, 'encounter'),
+    mapSaved: (js ~ 'map_saved')|trans({}, 'encounter'),
+    mapRememberFailed: (js ~ 'map_remember_failed')|trans({}, 'encounter'),
+    mapRememberedName: (js ~ 'map_remembered_name')|trans({}, 'encounter'),
+    mapEditColumn: (js ~ 'map_edit_column')|trans({}, 'encounter'),
+    mapEditDepartment: (js ~ 'map_edit_department')|trans({}, 'encounter'),
+    mapEditCareLevel: (js ~ 'map_edit_care_level')|trans({}, 'encounter'),
+    mapEditCareLevelNone: (js ~ 'map_edit_care_level_none')|trans({}, 'encounter'),
+    mapEditDisposition: (js ~ 'map_edit_disposition')|trans({}, 'encounter'),
+    mapEditProfile: (js ~ 'map_edit_profile')|trans({}, 'encounter'),
+    mapEditHint: (js ~ 'map_edit_hint')|trans({}, 'encounter'),
+    mapEditNothing: (js ~ 'map_edit_nothing')|trans({}, 'encounter'),
+    mapApply: (js ~ 'map_apply')|trans({}, 'encounter'),
+    mapApplied: (js ~ 'map_applied')|trans({}, 'encounter'),
     profileUnknown: (js ~ 'profile_unknown')|trans({}, 'encounter'),
     profileDetected: (js ~ 'profile_detected')|trans({}, 'encounter'),
     rows: (js ~ 'rows')|trans({}, 'encounter'),
@@ -79,6 +93,12 @@
     previewOf: (js ~ 'preview_of')|trans({}, 'encounter'),
     saved: (js ~ 'saved')|trans({}, 'encounter'),
 } -%}
+{%- for level in ['ward', 'monitoring', 'icu', 'or', 'unknown'] -%}
+    {%- set messages = messages|merge({('careLevel_' ~ level): ('encounter.care_level.' ~ level)|trans({}, 'encounter')}) -%}
+{%- endfor -%}
+{%- for code in ['home', 'to_physician', 'kv_practice', 'against_advice', 'left_before_completion', 'admitted', 'transferred_external', 'died', 'other'] -%}
+    {%- set messages = messages|merge({('disposition_' ~ code): ('encounter.disposition.' ~ code)|trans({}, 'encounter')}) -%}
+{%- endfor -%}
 {%- set config = {
     version: release.version,
     latestUrl: latest_url,
@@ -112,6 +132,9 @@
         .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
         label { font-weight: 600; }
         input[type="text"] { padding: 6px 8px; border: 1px solid var(--line); border-radius: 4px; min-width: 240px; }
+        select { padding: 4px 6px; border: 1px solid var(--line); border-radius: 4px; font: inherit; background: #fff; }
+        .map-edit-pair { display: inline-flex; gap: 4px; }
+        input[data-invalid="true"] { border-color: var(--err); background: #fcebeb; }
         button { padding: 6px 14px; border: 1px solid var(--accent); border-radius: 4px; background: var(--accent); color: #fff; font: inherit; cursor: pointer; }
         button.secondary { background: #fff; color: var(--accent); }
         button:disabled { opacity: .45; cursor: not-allowed; }
@@ -168,6 +191,13 @@
             <label for="map-file">{{ (p ~ 'map_load')|trans({}, 'encounter') }}</label>
             <input type="file" id="map-file" accept=".json,application/json">
         </div>
+        <div class="row">
+            <input type="checkbox" id="map-remember">
+            <label for="map-remember">{{ (p ~ 'map_remember')|trans({}, 'encounter') }}</label>
+            <button type="button" id="map-forget" class="secondary" hidden>{{ (p ~ 'map_forget')|trans({}, 'encounter') }}</button>
+            <button type="button" id="map-save" class="secondary" disabled>{{ (p ~ 'map_save')|trans({}, 'encounter') }}</button>
+        </div>
+        <p class="hint">{{ (p ~ 'map_editor_hint')|trans({}, 'encounter') }}</p>
         <p id="map-status" class="status" hidden></p>
     </section>
 
@@ -194,6 +224,7 @@
             <div id="content-check"></div>
             <h3>{{ (p ~ 'report_title')|trans({}, 'encounter') }}</h3>
             <div id="report" class="scroll"></div>
+            <p id="map-edit-status" class="status" hidden></p>
             <h3>{{ (p ~ 'preview_title')|trans({}, 'encounter') }}</h3>
             <div id="output-preview"></div>
         </div>

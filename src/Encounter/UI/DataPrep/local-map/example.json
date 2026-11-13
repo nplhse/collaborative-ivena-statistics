@@ -1,0 +1,19 @@
+{
+    "format": "encounter-local-map",
+    "version": 1,
+    "profile": "orbis-mts",
+    "hospital": "ZNA Musterklinik",
+    "departments": {
+        "INN": "Innere Medizin",
+        "UCH": "Unfallchirurgie"
+    },
+    "stations": {
+        "ITS 1": "icu",
+        "IMC 2": "monitoring",
+        "S 3": "ward"
+    },
+    "dispositions": {
+        "Verlegung in Geriatrie": { "disposition": "admitted", "careLevel": "ward" },
+        "Entlassung in Pflegeheim": { "disposition": "home" }
+    }
+}

@@ -51,7 +51,7 @@
                                 </li>
                             {% endif %}
                             {% if is_granted('ROLE_ENCOUNTER_BETA') %}
-                                <li class="nav-item {{ route starts with 'app_encounter_index' ? 'active' : '' }}" data-test="nav-encounter">
+                                <li class="nav-item {{ route starts with 'app_encounter_index' or route starts with 'app_encounter_data_prep' ? 'active' : '' }}" data-test="nav-encounter">
                                     <a class="nav-link" href="{{ path('app_encounter_index') }}">
                                         <span class="nav-link-title">
                                             <twig:ux:icon name="tabler:stethoscope" style="height: 1.5em;" />

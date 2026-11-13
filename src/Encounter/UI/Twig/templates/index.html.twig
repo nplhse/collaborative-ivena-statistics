@@ -91,7 +91,10 @@
             <p class="text-secondary">{{ 'encounter.data_prep.overview.intro'|trans({}, 'encounter') }}</p>
             <p class="text-secondary">{{ 'encounter.data_prep.overview.profiles'|trans({}, 'encounter') }}</p>
             <p class="text-secondary">{{ 'encounter.data_prep.overview.local_files'|trans({}, 'encounter') }}</p>
-            <a href="{{ path('app_encounter_data_prep_download') }}" class="btn btn-primary" download="{{ data_prep.fileName() }}">
+            <a href="{{ path('app_encounter_data_prep') }}" class="btn btn-primary" data-test="encounter-data-prep-guide">
+                {{ 'encounter.data_prep.overview.guide'|trans({}, 'encounter') }}
+            </a>
+            <a href="{{ path('app_encounter_data_prep_download') }}" class="btn btn-outline-primary" download="{{ data_prep.fileName() }}">
                 {{ 'encounter.data_prep.overview.download'|trans({}, 'encounter') }}
             </a>
             <span class="text-secondary ms-2">{{ 'encounter.data_prep.overview.version'|trans({}, 'encounter') }} {{ data_prep.version }} · {{ data_prep.releasedAt }}</span>

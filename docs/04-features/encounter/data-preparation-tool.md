@@ -3,8 +3,9 @@
 **Audience:** Developers of the tool, its profiles and the encounter import; pilot coordinators who
 support hospitals.
 
-**Status:** v1 with the ORBIS MTS profile (#1051; 1.0.1: department names in the local map, MTS indicators from the first real test run; 1.0.2: the
-local map rejects department names the import would take for personal data), part of the encounter data pilot (#1043).
+**Status:** v1 with the ORBIS MTS profile (#1051), 1.1.0 with the local map editor and the landing
+page (#1130), part of the encounter data pilot (#1043). What changed per version: `DataPrepChangelog`,
+shown on the landing page.
 
 Decisions: [ADR 025](../../02-architecture/decisions/025-encounter-data-context-and-exchange-format.md)
 (tool, CSP, profiles), [ADR 026](../../02-architecture/decisions/026-encounter-pseudonym-key.md) (key
@@ -12,8 +13,9 @@ file, check value, prefixes). Output format: [exchange-format.md](exchange-forma
 
 ## What it is
 
-One self-contained HTML file. A hospital user downloads it from the encounter page (`/encounter`,
-beta role required) and opens it from disk in a current browser. It reads the export of the hospital
+One self-contained HTML file. A hospital user downloads it from its landing page
+(`/encounter/data-prep`, linked from the encounter page `/encounter`, beta role required) and opens it
+from disk in a current browser. It reads the export of the hospital
 information system (HIS) and the hospital's key file, keeps only the agreed fields and saves a
 canonical `ed_visit` file for the upload. Names, dates of birth, staff, free text and the case number
 never leave the computer.
@@ -26,9 +28,11 @@ never leave the computer.
 | MTS catalog (German labels of diagrams and indicators), shared with the MTS glossary (#1056) | `src/Encounter/Application/Catalog/mts-de.json`, read by `MtsCatalog` |
 | `ed_visit` v1 field contract for the tool | `src/Encounter/UI/DataPrep/schema/ed_visit.v1.json` (must equal `EdVisitDimension`, checked by `DataPrepContractTest`) |
 | Template | `src/Encounter/UI/Twig/templates/data_prep/tool.html.twig` |
-| Renderer, version | `DataPrepToolRenderer`, `DataPrepRelease` in `src/Encounter/UI/DataPrep/` |
-| Routes | `GET /encounter/data-prep/download` (`ROLE_ENCOUNTER_BETA`), `GET /data-prep/latest.json` (public) |
-| Tests | `tests/Encounter/DataPrep/*.test.js` (`npm run test:js`), `tests/Encounter/Unit/UI/DataPrep/`, `tests/Encounter/Functional/Controller/DataPrepToolControllerTest.php` |
+| Renderer, version, changelog | `DataPrepToolRenderer`, `DataPrepRelease`, `DataPrepChangelog` in `src/Encounter/UI/DataPrep/` |
+| Local map template and example | `src/Encounter/UI/DataPrep/local-map/{template,example}.json` (`LocalMapFiles`) |
+| Landing page | `ShowDataPrepGuideController`, `src/Encounter/UI/Twig/templates/data_prep/guide.html.twig` |
+| Routes | `GET /encounter/data-prep` (landing page), `GET /encounter/data-prep/download`, `GET /encounter/data-prep/local-map-{template,example}.json` (all `ROLE_ENCOUNTER_BETA`), `GET /data-prep/latest.json` (public) |
+| Tests | `tests/Encounter/DataPrep/*.test.js` (`npm run test:js`), `tests/Encounter/Unit/UI/DataPrep/`, `tests/Encounter/Functional/Controller/DataPrepToolControllerTest.php`, `DataPrepGuideControllerTest.php` |
 
 The two scripts are plain scripts without imports; the server inlines them into the file, and the
 Node tests load the core as a side-effect module (`globalThis.EncounterDataPrep`). Translations come
@@ -44,7 +48,9 @@ from the `encounter` domain (`encounter.data_prep.*`) in the locale of the user 
 | `min_version` | tools below it block processing; the import (#1048) rejects their files |
 | `released_at` | release date shown in the tool and in `latest.json` |
 
-Raise `version` with every change to the scripts, the template, a bundled profile, catalog or the schema copy.
+Raise `version` with every change to the scripts, the template, a bundled profile, catalog or the schema copy,
+and add its entry (version, date, notes as `encounter.data_prep.changelog.*` keys in EN and DE) at the top of
+`DataPrepChangelog`; `DataPrepChangelogTest` fails if the newest entry is not the configured version.
 Raise `min_version` when older tools write wrong data.
 
 `GET /data-prep/latest.json` returns `{version, minVersion, releasedAt, downloadUrl}` with
@@ -129,6 +135,41 @@ JSON file next to the key file and loads it per run (optional):
 
 Keys match case-insensitively, with whitespace collapsed. Values that no map knows are written empty
 and listed in the tool's report ("Unmapped values"); the report shows them only on screen.
+
+### Local map editor (1.1.0)
+
+The hospital fills the map in the tool, offline; the server never sees the codes (ADR 025/026):
+
+- After a run, the "Unmapped values" of `admitting_department` (map section `departments`), `care_level`
+  (`stations`) and `disposition` (`dispositions`) get an input: a department name (marked while it breaks
+  the name rules), a care level, or a disposition with an optional care level (only for `admitted` and
+  `transferred_external`). Which report fields are editable follows from the profile's `department` and
+  `disposition` rules (`localMapSections`). Other unmapped fields need a new profile version.
+- "Add to map and run again" adds the filled-in entries to the loaded map (or a new one for the
+  profile, named after the key file's label), replacing entries with the same lookup key
+  (`setLocalMapEntry`). The result goes through `loadLocalMap`, the same validation as a loaded file; if
+  it fails, the invalid entries are listed and nothing changes. Otherwise the tool runs again on the
+  export already loaded.
+- "Save map" downloads the map file (`encounter-local-map-<label>-<date>.json`, the format above, four
+  spaces). Until then the map status warns that the changes are not saved.
+- "Remember on this computer" stores the map in the same IndexedDB database as the key (entry
+  `local-map`); "Forget map" deletes it. Convenience only; the saved file is the source of truth.
+
+No new request: the Content Security Policy is unchanged, the only `connect-src` stays `latest.json`.
+
+## Landing page
+
+`/encounter/data-prep` (beta role, as `/encounter`), linked from the card on `/encounter`; the top
+navigation entry "Encounter data" stays active on it. It shows no case data and asks for no codes:
+
+| Section | Content |
+|---|---|
+| Current version | `version`, `released_at`, `min_version`, download |
+| What's new | `DataPrepChangelog`, newest first |
+| Getting started | 1. grants: what upload, review and view cases allow, the user's hospitals (encounter grants and owned hospitals) with the user's own grant actions and, for `MANAGE_GRANTS`, a link to the grants page; 2. export (the profile's required columns); 3. key file; 4. local map; 5. run; 6. upload and review |
+| Key | key generations, a lost key; links to the key change (`app_encounter_key_change`) only for hospitals with `CHANGE_KEY` (owner, administrator); others read who can change it |
+| Local map | format, sections, allowed care levels and dispositions (from `CareLevel`, `Disposition`), example, downloads of the empty template and the example, the department names the import resolves (`DepartmentCatalogInterface::uniqueNames()`: names of the reference catalog that no other entry shares, case-insensitive) |
+| Help | unmapped values, rejected upload, update notice, version below the minimum, failed content check; link to this document |
 
 ## Flow
 

@@ -426,6 +426,109 @@ describe('local map', () => {
     });
 });
 
+describe('local map editor', () => {
+    it('turns unmapped values into a saved map that validates on reload', async () => {
+        const before = await run({ localMap: prep.emptyLocalMap() });
+        const sections = prep.localMapSections(profile);
+        assert.deepEqual(sections, {
+            disposition: 'dispositions',
+            care_level: 'stations',
+            admitting_department: 'departments',
+        });
+        assert.equal(before.report.unmapped.admitting_department['INN TEST'], 1);
+        assert.equal(before.report.unmapped.care_level['ITS TEST'], 1);
+        assert.equal(before.report.unmapped.disposition['Unbekannter Entlassungstext'], 1);
+
+        // What the editor does with the filled-in report rows, in the tool's order.
+        let data = prep.newLocalMapData(profile, 'Synthetic test hospital');
+        data = prep.setLocalMapEntry(data, 'departments', 'INN TEST', 'Innere Medizin');
+        data = prep.setLocalMapEntry(data, 'stations', 'ITS TEST', 'icu');
+        data = prep.setLocalMapEntry(data, 'dispositions', 'Unbekannter Entlassungstext', {
+            disposition: 'transferred_external',
+            careLevel: 'icu',
+        });
+        const saved = prep.serializeLocalMap(data);
+        assert.ok(saved.endsWith('}\n'));
+        assert.deepEqual(JSON.parse(saved), {
+            format: 'encounter-local-map',
+            version: 1,
+            profile: 'orbis-mts',
+            hospital: 'Synthetic test hospital',
+            departments: { 'INN TEST': 'Innere Medizin' },
+            stations: { 'ITS TEST': 'icu' },
+            dispositions: {
+                'Unbekannter Entlassungstext': {
+                    disposition: 'transferred_external',
+                    careLevel: 'icu',
+                },
+            },
+        });
+
+        const reloaded = prep.loadLocalMap(saved, profile);
+        assert.deepEqual(reloaded.counts, { departments: 1, stations: 1, dispositions: 1 });
+        assert.deepEqual(reloaded.data, JSON.parse(saved));
+
+        const after = await run({ localMap: reloaded });
+        assert.equal(after.report.unmapped.admitting_department['INN TEST'], undefined);
+        assert.equal(after.report.unmapped.admitting_department['UCH TEST'], 1);
+        assert.equal(after.report.unmapped.care_level['ITS TEST'], undefined);
+        assert.equal(after.report.unmapped.disposition, undefined);
+        const first = byField(after, 0);
+        assert.equal(first.admitting_department, 'Innere Medizin');
+        assert.equal(first.care_level, 'icu', 'station map overrides the level of the text');
+        const fifth = byField(after, 4);
+        assert.equal(fifth.disposition, 'transferred_external');
+        assert.equal(fifth.care_level, 'icu');
+    });
+
+    it('adds to a loaded map, replacing entries with the same lookup key', () => {
+        const loaded = prep.loadLocalMap(localMapJson, profile);
+        let data = prep.setLocalMapEntry(loaded.data, 'departments', 'inn  test', 'Kardiologie');
+        data = prep.setLocalMapEntry(data, 'stations', 'S1 TEST', null);
+        assert.deepEqual(data.departments, {
+            'UCH TEST': 'Unfallchirurgie',
+            'inn test': 'Kardiologie',
+        });
+        assert.deepEqual(data.stations, { 'ITS TEST': 'icu' });
+        assert.equal(data.hospital, 'Synthetic test hospital');
+        assert.deepEqual(
+            loaded.data.departments,
+            { 'INN TEST': 'Innere Medizin', 'UCH TEST': 'Unfallchirurgie' },
+            'the loaded map is not changed',
+        );
+        assert.equal(prep.loadLocalMap(data, profile).departments.get('inn test'), 'Kardiologie');
+    });
+
+    it('validates edited entries like a loaded map', () => {
+        const base = prep.newLocalMapData(profile);
+        for (const [section, target, entry] of [
+            ['departments', 'Chirurgie, Allgemein', 'departments.X'],
+            ['departments', 'Station Dr. Muster', 'departments.X'],
+            ['stations', 'intensive', 'stations.X'],
+            ['dispositions', { disposition: 'home', careLevel: 'icu' }, 'dispositions.X'],
+            ['dispositions', { disposition: 'unknown' }, 'dispositions.X'],
+        ]) {
+            const data = prep.setLocalMapEntry(base, section, 'X', target);
+            assert.throws(
+                () => prep.loadLocalMap(data, profile),
+                (error) => error.message === 'invalid-local-map' && error.entries[0] === entry,
+                JSON.stringify(target),
+            );
+        }
+        assert.equal(prep.isDepartmentName('Innere Medizin'), true);
+        assert.equal(prep.isDepartmentName('Chirurgie, Allgemein'), false);
+        assert.throws(() => prep.setLocalMapEntry(base, 'other', 'X', 'Y'), /Unknown local map/);
+    });
+
+    it('loads the template and the example offered on the landing page', () => {
+        for (const variant of ['template', 'example']) {
+            const content = readFileSync(new URL(`local-map/${variant}.json`, base), 'utf8');
+            const loaded = prep.loadLocalMap(content, profile);
+            assert.equal(loaded.data.profile, profile.id, variant);
+        }
+    });
+});
+
 describe('content check', () => {
     it('fails for a name-like column feeding the output', async () => {
         const result = await run({

@@ -30,9 +30,9 @@ final class DataPrepToolControllerTest extends WebTestCase
         self::assertSame([], $response->headers->getCookies(), 'The update check must not set cookies.');
         self::assertFalse($response->headers->has('Set-Cookie'));
         self::assertSame([
-            'version' => '1.0.2',
+            'version' => '1.1.0',
             'minVersion' => '1.0.0',
-            'releasedAt' => '2026-11-12',
+            'releasedAt' => '2026-11-13',
             'downloadUrl' => 'http://localhost/encounter/data-prep/download',
         ], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
     }
@@ -56,7 +56,7 @@ final class DataPrepToolControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         $response = $client->getResponse();
-        self::assertSame('attachment; filename=encounter-data-prep-1.0.2.html', $response->headers->get('Content-Disposition'));
+        self::assertSame('attachment; filename=encounter-data-prep-1.1.0.html', $response->headers->get('Content-Disposition'));
         $html = (string) $response->getContent();
 
         self::assertStringContainsString(
@@ -67,6 +67,8 @@ final class DataPrepToolControllerTest extends WebTestCase
         self::assertStringContainsString('"id":"orbis-mts"', $html, 'public profile is bundled');
         self::assertStringContainsString('"name":"visit_fingerprint"', $html, 'field contract is bundled');
         self::assertStringContainsString('"mts-de":{"id":"mts-de"', $html, 'the shared MTS catalog (MtsCatalog, #1056) is bundled');
+        self::assertStringContainsString('id="map-save"', $html, 'the local map editor can save the map (#1130)');
+        self::assertStringContainsString('"careLevel_icu":', $html, 'the editor labels care levels');
         self::assertDoesNotMatchRegularExpression('/<(script|link|img|iframe)[^>]+(src|href)=/i', $html, 'no external resources');
         self::assertSame(1, preg_match_all('/https?:\/\//', strip_tags($html)), 'the update check is the only URL');
     }
@@ -80,6 +82,7 @@ final class DataPrepToolControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         $link = $crawler->filter('[data-test="encounter-data-prep"] a[href="/encounter/data-prep/download"]');
         self::assertCount(1, $link);
-        self::assertSame('encounter-data-prep-1.0.2.html', $link->attr('download'));
+        self::assertSame('encounter-data-prep-1.1.0.html', $link->attr('download'));
+        self::assertCount(1, $crawler->filter('[data-test="encounter-data-prep"] a[href="/encounter/data-prep"]'), 'the card links the landing page (#1130)');
     }
 }
