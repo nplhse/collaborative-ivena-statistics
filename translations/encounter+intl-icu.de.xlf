@@ -897,6 +897,602 @@
         <source>encounter.key_change.modal.keep</source>
         <target>Ihre bisherigen Behandlungsfälle bleiben erhalten. Laden Sie danach nur noch neue Zeiträume hoch. Das lässt sich nicht rückgängig machen.</target>
       </trans-unit>
+      <trans-unit id="Enc78837119" resname="encounter.review.title">
+        <source>encounter.review.title</source>
+        <target>Abgleichsprüfung</target>
+      </trans-unit>
+      <trans-unit id="Enc8BF4465E" resname="encounter.review.overview_intro">
+        <source>encounter.review.overview_intro</source>
+        <target>Verknüpfungen zwischen Notaufnahme-Besuchen und IVENA-Zuweisungen prüfen: Vorschläge bestätigen oder ablehnen, Konflikte auflösen und Tauschvorschläge übernehmen.</target>
+      </trans-unit>
+      <trans-unit id="Enc709F53B6" resname="encounter.review.intro">
+        <source>encounter.review.intro</source>
+        <target>Wählen Sie ein Krankenhaus, dessen Verknüpfungen Sie prüfen dürfen.</target>
+      </trans-unit>
+      <trans-unit id="Enc2E9A78BB" resname="encounter.review.no_hospitals">
+        <source>encounter.review.no_hospitals</source>
+        <target>Sie dürfen für kein Krankenhaus Verknüpfungen prüfen. Der Krankenhaus-Eigentümer kann den Behandlungsdaten-Zugriff „Verknüpfungen prüfen“ vergeben.</target>
+      </trans-unit>
+      <trans-unit id="Enc43624B40" resname="encounter.review.allocation_title">
+        <source>encounter.review.allocation_title</source>
+        <target>Zuweisung {arrival} prüfen</target>
+      </trans-unit>
+      <trans-unit id="Enc77699171" resname="encounter.review.agreement_note">
+        <source>encounter.review.agreement_note</source>
+        <target>„Übereinstimmung“ (0–1) vergleicht die Merkmale eines Paares mit den konkurrierenden Kandidaten und der Option „kein Treffer“. Sie ist eine nach Einschätzung gesetzte Rangfolge, keine Wahrscheinlichkeit, dass die Verknüpfung stimmt.</target>
+      </trans-unit>
+      <trans-unit id="EncBEE9DA35" resname="encounter.review.period.from">
+        <source>encounter.review.period.from</source>
+        <target>Von</target>
+      </trans-unit>
+      <trans-unit id="EncD62A9027" resname="encounter.review.period.to">
+        <source>encounter.review.period.to</source>
+        <target>Bis</target>
+      </trans-unit>
+      <trans-unit id="Enc7386F9C1" resname="encounter.review.period.help">
+        <source>encounter.review.period.help</source>
+        <target>Zuweisungen zählen nach erwarteter IVENA-Ankunft, Besuche nach Aufnahme in der Notaufnahme (oder Ersteinschätzung). Höchstens {days} Tage.</target>
+      </trans-unit>
+      <trans-unit id="Enc806CAA88" resname="encounter.review.summary.allocations">
+        <source>encounter.review.summary.allocations</source>
+        <target>Zuweisungen im Zeitraum: {count, number}</target>
+      </trans-unit>
+      <trans-unit id="Enc4EB5FDE2" resname="encounter.review.summary.automatic">
+        <source>encounter.review.summary.automatic</source>
+        <target>Automatisch verknüpft</target>
+      </trans-unit>
+      <trans-unit id="EncFE4BA6F6" resname="encounter.review.summary.confirmed">
+        <source>encounter.review.summary.confirmed</source>
+        <target>Durch Bestätigung verknüpft</target>
+      </trans-unit>
+      <trans-unit id="EncC746983F" resname="encounter.review.summary.proposed">
+        <source>encounter.review.summary.proposed</source>
+        <target>Offener Vorschlag, nicht verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc7FD2A2D0" resname="encounter.review.summary.conflicts">
+        <source>encounter.review.summary.conflicts</source>
+        <target>davon im Konflikt</target>
+      </trans-unit>
+      <trans-unit id="Enc7E45178F" resname="encounter.review.summary.no_proposal">
+        <source>encounter.review.summary.no_proposal</source>
+        <target>Nicht verknüpft, kein Vorschlag</target>
+      </trans-unit>
+      <trans-unit id="Enc4A58C74B" resname="encounter.review.summary.rejected">
+        <source>encounter.review.summary.rejected</source>
+        <target>Abgelehnte Paare</target>
+      </trans-unit>
+      <trans-unit id="Enc8B5DB765" resname="encounter.review.summary.swaps">
+        <source>encounter.review.summary.swaps</source>
+        <target>Tauschvorschläge</target>
+      </trans-unit>
+      <trans-unit id="Enc56C302B0" resname="encounter.review.summary.allocations_help">
+        <source>encounter.review.summary.allocations_help</source>
+        <target>Jede Zuweisung zählt einmal; Anteile beziehen sich auf alle Zuweisungen im Zeitraum. Abgelehnte Paare und Tauschvorschläge werden getrennt gezählt.</target>
+      </trans-unit>
+      <trans-unit id="EncD19F1002" resname="encounter.review.summary.visits">
+        <source>encounter.review.summary.visits</source>
+        <target>Notaufnahme-Besuche im Zeitraum: {count, number}</target>
+      </trans-unit>
+      <trans-unit id="Enc47071DEC" resname="encounter.review.summary.visits_help">
+        <source>encounter.review.summary.visits_help</source>
+        <target>Verknüpft = automatische oder bestätigte Verknüpfung. Selbstvorsteller haben meist keine Zuweisung; ein nicht verknüpfter Besuch ist kein Fehler.</target>
+      </trans-unit>
+      <trans-unit id="EncE98FD2A8" resname="encounter.review.summary.total">
+        <source>encounter.review.summary.total</source>
+        <target>Gesamt</target>
+      </trans-unit>
+      <trans-unit id="Enc8E4A8061" resname="encounter.review.summary.linked">
+        <source>encounter.review.summary.linked</source>
+        <target>Verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc20666109" resname="encounter.review.summary.unlinked">
+        <source>encounter.review.summary.unlinked</source>
+        <target>Nicht verknüpft</target>
+      </trans-unit>
+      <trans-unit id="EncCE3D6E5A" resname="encounter.review.filter.no_proposal">
+        <source>encounter.review.filter.no_proposal</source>
+        <target>Ohne Vorschlag</target>
+      </trans-unit>
+      <trans-unit id="EncA968E14E" resname="encounter.review.filter.open">
+        <source>encounter.review.filter.open</source>
+        <target>Zu prüfen</target>
+      </trans-unit>
+      <trans-unit id="EncCD0F4C82" resname="encounter.review.filter.done">
+        <source>encounter.review.filter.done</source>
+        <target>Erledigt</target>
+      </trans-unit>
+      <trans-unit id="EncBB192B41" resname="encounter.review.kind.label">
+        <source>encounter.review.kind.label</source>
+        <target>Art</target>
+      </trans-unit>
+      <trans-unit id="Enc21C33D18" resname="encounter.review.kind.all">
+        <source>encounter.review.kind.all</source>
+        <target>Alle</target>
+      </trans-unit>
+      <trans-unit id="EncC0D42596" resname="encounter.review.kind.conflicts">
+        <source>encounter.review.kind.conflicts</source>
+        <target>Nur Konflikte</target>
+      </trans-unit>
+      <trans-unit id="Enc0C143012" resname="encounter.review.kind.swaps">
+        <source>encounter.review.kind.swaps</source>
+        <target>Nur Tauschvorschläge</target>
+      </trans-unit>
+      <trans-unit id="Enc08805B89" resname="encounter.review.kind.swap_badge">
+        <source>encounter.review.kind.swap_badge</source>
+        <target>Tauschvorschlag</target>
+      </trans-unit>
+      <trans-unit id="Enc50D33C73" resname="encounter.review.proposal_count">
+        <source>encounter.review.proposal_count</source>
+        <target>{count, plural, one {# Vorschlag} other {# Vorschläge}}</target>
+      </trans-unit>
+      <trans-unit id="Enc9D42CD94" resname="encounter.review.visits.title">
+        <source>encounter.review.visits.title</source>
+        <target>Nicht verknüpfte Besuche</target>
+      </trans-unit>
+      <trans-unit id="EncDFCFB487" resname="encounter.review.visits.intro">
+        <source>encounter.review.visits.intro</source>
+        <target>Notaufnahme-Besuche des Zeitraums ohne automatische oder bestätigte Verknüpfung. Die meisten sind Selbstvorsteller, für die keine Zuweisung zu erwarten ist. Ein Besuch mit offenem Vorschlag führt zur Prüfung seiner Zuweisung.</target>
+      </trans-unit>
+      <trans-unit id="Enc95843750" resname="encounter.review.route_all">
+        <source>encounter.review.route_all</source>
+        <target>Alle Zugangswege</target>
+      </trans-unit>
+      <trans-unit id="EncACBC0971" resname="encounter.review.empty">
+        <source>encounter.review.empty</source>
+        <target>In dieser Liste und diesem Zeitraum gibt es nichts zu prüfen.</target>
+      </trans-unit>
+      <trans-unit id="EncDCBD6591" resname="encounter.review.column.arrival">
+        <source>encounter.review.column.arrival</source>
+        <target>Erwartete IVENA-Ankunft</target>
+      </trans-unit>
+      <trans-unit id="Enc0F50762F" resname="encounter.review.column.anchor">
+        <source>encounter.review.column.anchor</source>
+        <target>Aufnahme Notaufnahme</target>
+      </trans-unit>
+      <trans-unit id="Enc6347B06C" resname="encounter.review.column.difference">
+        <source>encounter.review.column.difference</source>
+        <target>Zeitdifferenz</target>
+      </trans-unit>
+      <trans-unit id="EncBA39CFA1" resname="encounter.review.column.agreement">
+        <source>encounter.review.column.agreement</source>
+        <target>Übereinstimmung</target>
+      </trans-unit>
+      <trans-unit id="EncF4255410" resname="encounter.review.column.patient">
+        <source>encounter.review.column.patient</source>
+        <target>Geschlecht, Alter (IVENA ↔ Notaufnahme)</target>
+      </trans-unit>
+      <trans-unit id="Enc8D7B5BF7" resname="encounter.review.column.status">
+        <source>encounter.review.column.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="Enc097CD051" resname="encounter.review.column.allocation">
+        <source>encounter.review.column.allocation</source>
+        <target>Zuweisung</target>
+      </trans-unit>
+      <trans-unit id="Enc0CA2AD2B" resname="encounter.review.column.visit">
+        <source>encounter.review.column.visit</source>
+        <target>Besuch</target>
+      </trans-unit>
+      <trans-unit id="Enc8F1AF180" resname="encounter.review.column.route">
+        <source>encounter.review.column.route</source>
+        <target>Zugangsweg</target>
+      </trans-unit>
+      <trans-unit id="Enc927CEBB9" resname="encounter.review.column.feature">
+        <source>encounter.review.column.feature</source>
+        <target>Merkmal</target>
+      </trans-unit>
+      <trans-unit id="Enc748CCD6A" resname="encounter.review.column.contribution">
+        <source>encounter.review.column.contribution</source>
+        <target>Punkte</target>
+      </trans-unit>
+      <trans-unit id="EncA578F22B" resname="encounter.review.column.ivena">
+        <source>encounter.review.column.ivena</source>
+        <target>IVENA</target>
+      </trans-unit>
+      <trans-unit id="Enc67B39D50" resname="encounter.review.column.ed">
+        <source>encounter.review.column.ed</source>
+        <target>ZNA</target>
+      </trans-unit>
+      <trans-unit id="EncEF35C526" resname="encounter.review.status.auto_accepted">
+        <source>encounter.review.status.auto_accepted</source>
+        <target>Automatische Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="Enc18CF11A3" resname="encounter.review.status.proposed">
+        <source>encounter.review.status.proposed</source>
+        <target>Vorschlag</target>
+      </trans-unit>
+      <trans-unit id="Enc0D0FF175" resname="encounter.review.status.confirmed">
+        <source>encounter.review.status.confirmed</source>
+        <target>Bestätigte Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="Enc10AFB676" resname="encounter.review.status.rejected">
+        <source>encounter.review.status.rejected</source>
+        <target>Abgelehnt</target>
+      </trans-unit>
+      <trans-unit id="EncF13BE0A8" resname="encounter.review.status.conflict">
+        <source>encounter.review.status.conflict</source>
+        <target>Konflikt</target>
+      </trans-unit>
+      <trans-unit id="Enc64825FB2" resname="encounter.review.decided_by">
+        <source>encounter.review.decided_by</source>
+        <target>von {user}, {at}</target>
+      </trans-unit>
+      <trans-unit id="Enc42F0F291" resname="encounter.review.substitute">
+        <source>encounter.review.substitute</source>
+        <target>Ersatz: Ersteinschätzung</target>
+      </trans-unit>
+      <trans-unit id="EncF6960618" resname="encounter.review.substitute_help">
+        <source>encounter.review.substitute_help</source>
+        <target>Keine Aufnahme in der Notaufnahme dokumentiert; ersatzweise wird der erste Kontakt der Ersteinschätzung verwendet.</target>
+      </trans-unit>
+      <trans-unit id="Enc6889E8C7" resname="encounter.review.minutes">
+        <source>encounter.review.minutes</source>
+        <target>{minutes} min</target>
+      </trans-unit>
+      <trans-unit id="EncBF4F42E8" resname="encounter.review.points_pass">
+        <source>encounter.review.points_pass</source>
+        <target>{points} Punkte · Durchlauf {pass}</target>
+      </trans-unit>
+      <trans-unit id="EncEF6328F1" resname="encounter.review.visit">
+        <source>encounter.review.visit</source>
+        <target>Besuch #{id}</target>
+      </trans-unit>
+      <trans-unit id="Enc8B18278A" resname="encounter.review.allocation">
+        <source>encounter.review.allocation</source>
+        <target>Zuweisung #{id}</target>
+      </trans-unit>
+      <trans-unit id="Enc3A9FDEC4" resname="encounter.review.open_proposal">
+        <source>encounter.review.open_proposal</source>
+        <target>Vorschlag prüfen</target>
+      </trans-unit>
+      <trans-unit id="Enc537E5182" resname="encounter.review.no_open_proposal">
+        <source>encounter.review.no_open_proposal</source>
+        <target>Kein Vorschlag</target>
+      </trans-unit>
+      <trans-unit id="EncEA360F85" resname="encounter.review.ivena">
+        <source>encounter.review.ivena</source>
+        <target>IVENA-Zuweisung</target>
+      </trans-unit>
+      <trans-unit id="Enc87D3CDD2" resname="encounter.review.expected_arrival">
+        <source>encounter.review.expected_arrival</source>
+        <target>Erwartete Ankunft</target>
+      </trans-unit>
+      <trans-unit id="Enc674CBF87" resname="encounter.review.linked_to">
+        <source>encounter.review.linked_to</source>
+        <target>Verknüpft mit Besuch #{visit}.</target>
+      </trans-unit>
+      <trans-unit id="Enc80A19C19" resname="encounter.review.not_linked">
+        <source>encounter.review.not_linked</source>
+        <target>Nicht verknüpft.</target>
+      </trans-unit>
+      <trans-unit id="EncB44683A0" resname="encounter.review.automatic_origin">
+        <source>encounter.review.automatic_origin</source>
+        <target>Automatisch vom Abgleich verknüpft (Übereinstimmung {score}, Durchlauf {pass}). Die Verknüpfung gilt auch ohne Bestätigung.</target>
+      </trans-unit>
+      <trans-unit id="Enc289245C5" resname="encounter.review.candidates_help">
+        <source>encounter.review.candidates_help</source>
+        <target>Alle Besuche des Krankenhauses von {before} Minuten vor bis {after} Minuten nach der erwarteten Ankunft mit höchstens {age} Jahren Altersunterschied. Die Übereinstimmung vergleicht sie miteinander; der gespeicherte Wert eines Paares stammt aus dem Abgleich-Durchlauf, der es gefunden hat.</target>
+      </trans-unit>
+      <trans-unit id="EncE970C855" resname="encounter.review.no_candidates">
+        <source>encounter.review.no_candidates</source>
+        <target>Im Zeitfenster dieser Zuweisung liegt kein Besuch.</target>
+      </trans-unit>
+      <trans-unit id="Enc75A82C67" resname="encounter.review.stored_score">
+        <source>encounter.review.stored_score</source>
+        <target>gespeichert {score}, Durchlauf {pass}</target>
+      </trans-unit>
+      <trans-unit id="Enc2AE04260" resname="encounter.review.rivals">
+        <source>encounter.review.rivals</source>
+        <target>Ebenfalls vorgeschlagen für:</target>
+      </trans-unit>
+      <trans-unit id="Enc7DCEA17F" resname="encounter.review.feature.time">
+        <source>encounter.review.feature.time</source>
+        <target>Zeit</target>
+      </trans-unit>
+      <trans-unit id="Enc503DF91D" resname="encounter.review.feature.sex">
+        <source>encounter.review.feature.sex</source>
+        <target>Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="Enc5DCFE557" resname="encounter.review.feature.age">
+        <source>encounter.review.feature.age</source>
+        <target>Alter</target>
+      </trans-unit>
+      <trans-unit id="EncC6C7ADF2" resname="encounter.review.feature.arrival_route">
+        <source>encounter.review.feature.arrival_route</source>
+        <target>Zugangsweg</target>
+      </trans-unit>
+      <trans-unit id="EncD5DC91EA" resname="encounter.review.feature.physician">
+        <source>encounter.review.feature.physician</source>
+        <target>Notarzt</target>
+      </trans-unit>
+      <trans-unit id="EncE7671D49" resname="encounter.review.feature.work_accident">
+        <source>encounter.review.feature.work_accident</source>
+        <target>Arbeitsunfall</target>
+      </trans-unit>
+      <trans-unit id="EncBF7557DD" resname="encounter.review.direction.for">
+        <source>encounter.review.direction.for</source>
+        <target>dafür</target>
+      </trans-unit>
+      <trans-unit id="Enc1DC5186A" resname="encounter.review.direction.against">
+        <source>encounter.review.direction.against</source>
+        <target>dagegen</target>
+      </trans-unit>
+      <trans-unit id="EncF7F8AC18" resname="encounter.review.direction.neutral">
+        <source>encounter.review.direction.neutral</source>
+        <target>neutral oder fehlend</target>
+      </trans-unit>
+      <trans-unit id="Enc0E10E8B9" resname="encounter.review.value.sex_M">
+        <source>encounter.review.value.sex_M</source>
+        <target>männlich</target>
+      </trans-unit>
+      <trans-unit id="EncC0F3F437" resname="encounter.review.value.sex_F">
+        <source>encounter.review.value.sex_F</source>
+        <target>weiblich</target>
+      </trans-unit>
+      <trans-unit id="Enc2A0AF057" resname="encounter.review.value.sex_X">
+        <source>encounter.review.value.sex_X</source>
+        <target>divers</target>
+      </trans-unit>
+      <trans-unit id="EncCEA14E68" resname="encounter.review.value.ems">
+        <source>encounter.review.value.ems</source>
+        <target>Rettungsdienst</target>
+      </trans-unit>
+      <trans-unit id="Enc88F278D7" resname="encounter.review.value.route_ems">
+        <source>encounter.review.value.route_ems</source>
+        <target>Rettungsdienst</target>
+      </trans-unit>
+      <trans-unit id="Enc6BF60A23" resname="encounter.review.value.route_self">
+        <source>encounter.review.value.route_self</source>
+        <target>Selbstvorsteller</target>
+      </trans-unit>
+      <trans-unit id="Enc91995188" resname="encounter.review.value.route_unknown">
+        <source>encounter.review.value.route_unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="Enc44F8E959" resname="encounter.review.value.with_physician">
+        <source>encounter.review.value.with_physician</source>
+        <target>mit Notarzt</target>
+      </trans-unit>
+      <trans-unit id="EncC9039299" resname="encounter.review.value.without_physician">
+        <source>encounter.review.value.without_physician</source>
+        <target>ohne Notarzt</target>
+      </trans-unit>
+      <trans-unit id="EncAAECDE78" resname="encounter.review.value.mode_self">
+        <source>encounter.review.value.mode_self</source>
+        <target>selbst</target>
+      </trans-unit>
+      <trans-unit id="EncAF81FF39" resname="encounter.review.value.mode_ambulance">
+        <source>encounter.review.value.mode_ambulance</source>
+        <target>Rettungswagen</target>
+      </trans-unit>
+      <trans-unit id="Enc043628C6" resname="encounter.review.value.mode_patient_transport">
+        <source>encounter.review.value.mode_patient_transport</source>
+        <target>Krankentransport</target>
+      </trans-unit>
+      <trans-unit id="Enc814A7D6F" resname="encounter.review.value.mode_physician_vehicle">
+        <source>encounter.review.value.mode_physician_vehicle</source>
+        <target>Notarztfahrzeug</target>
+      </trans-unit>
+      <trans-unit id="Enc178C4474" resname="encounter.review.value.mode_other">
+        <source>encounter.review.value.mode_other</source>
+        <target>sonstige</target>
+      </trans-unit>
+      <trans-unit id="EncD8548587" resname="encounter.review.value.mode_none">
+        <source>encounter.review.value.mode_none</source>
+        <target>nicht dokumentiert</target>
+      </trans-unit>
+      <trans-unit id="EncE771F462" resname="encounter.review.value.yes">
+        <source>encounter.review.value.yes</source>
+        <target>ja</target>
+      </trans-unit>
+      <trans-unit id="Enc76B1F8EB" resname="encounter.review.value.no">
+        <source>encounter.review.value.no</source>
+        <target>nein</target>
+      </trans-unit>
+      <trans-unit id="Enc07EF716C" resname="encounter.review.value.documented">
+        <source>encounter.review.value.documented</source>
+        <target>dokumentiert</target>
+      </trans-unit>
+      <trans-unit id="Enc8F22BC4C" resname="encounter.review.value.not_documented">
+        <source>encounter.review.value.not_documented</source>
+        <target>nicht dokumentiert</target>
+      </trans-unit>
+      <trans-unit id="EncB1BEC5E6" resname="encounter.review.action.confirm">
+        <source>encounter.review.action.confirm</source>
+        <target>Verknüpfung bestätigen</target>
+      </trans-unit>
+      <trans-unit id="Enc3B04D59B" resname="encounter.review.action.change">
+        <source>encounter.review.action.change</source>
+        <target>Stattdessen diesen Besuch verknüpfen</target>
+      </trans-unit>
+      <trans-unit id="EncF46985AC" resname="encounter.review.action.reject">
+        <source>encounter.review.action.reject</source>
+        <target>Ablehnen</target>
+      </trans-unit>
+      <trans-unit id="Enc1EAAE8C4" resname="encounter.review.action.leave_open">
+        <source>encounter.review.action.leave_open</source>
+        <target>Offen lassen</target>
+      </trans-unit>
+      <trans-unit id="EncF29BDFEC" resname="encounter.review.flash.confirmed">
+        <source>encounter.review.flash.confirmed</source>
+        <target>Die Verknüpfung wurde bestätigt.</target>
+      </trans-unit>
+      <trans-unit id="Enc73A7511B" resname="encounter.review.flash.changed">
+        <source>encounter.review.flash.changed</source>
+        <target>Die Verknüpfung wurde geändert; das bisherige Paar ist abgelehnt.</target>
+      </trans-unit>
+      <trans-unit id="EncE8D2A40A" resname="encounter.review.flash.rejected">
+        <source>encounter.review.flash.rejected</source>
+        <target>Das Paar wurde abgelehnt und wird nicht erneut vorgeschlagen.</target>
+      </trans-unit>
+      <trans-unit id="Enc9EFE6D5E" resname="encounter.review.flash.swapped">
+        <source>encounter.review.flash.swapped</source>
+        <target>Der Tausch wurde übernommen.</target>
+      </trans-unit>
+      <trans-unit id="EncD5115774" resname="encounter.review.error.visit_linked">
+        <source>encounter.review.error.visit_linked</source>
+        <target>Dieser Besuch ist mit einer anderen Zuweisung verknüpft. Lehnen Sie diese Verknüpfung zuerst ab oder übernehmen Sie einen Tauschvorschlag.</target>
+      </trans-unit>
+      <trans-unit id="Enc48A1E1FD" resname="encounter.review.error.not_a_candidate">
+        <source>encounter.review.error.not_a_candidate</source>
+        <target>Dieser Besuch ist kein Kandidat der Zuweisung.</target>
+      </trans-unit>
+      <trans-unit id="Enc1D92AB00" resname="encounter.review.error.unchanged">
+        <source>encounter.review.error.unchanged</source>
+        <target>Das Paar hat diese Entscheidung bereits.</target>
+      </trans-unit>
+      <trans-unit id="EncC84F1FD7" resname="encounter.review.error.swap_outdated">
+        <source>encounter.review.error.swap_outdated</source>
+        <target>Der Tausch wird nicht mehr vorgeschlagen; die Verknüpfungen haben sich inzwischen geändert.</target>
+      </trans-unit>
+      <trans-unit id="EncDD2C9C94" resname="encounter.review.error.not_found">
+        <source>encounter.review.error.not_found</source>
+        <target>Zuweisung oder Besuch nicht gefunden.</target>
+      </trans-unit>
+      <trans-unit id="EncE94F0307" resname="encounter.review.swap.title">
+        <source>encounter.review.swap.title</source>
+        <target>Tauschvorschlag</target>
+      </trans-unit>
+      <trans-unit id="Enc0E696BAB" resname="encounter.review.swap.intro">
+        <source>encounter.review.swap.intro</source>
+        <target>Ein nicht verknüpfter Besuch deutet auf eine bessere Gesamtzuordnung hin. Nichts ändert sich, bis Sie den Tausch übernehmen; die bisherige automatische Verknüpfung wird dann abgelehnt.</target>
+      </trans-unit>
+      <trans-unit id="EncD6E54C18" resname="encounter.review.swap.kind.chain">
+        <source>encounter.review.swap.kind.chain</source>
+        <target>Eine Verknüpfung mehr</target>
+      </trans-unit>
+      <trans-unit id="EncAE362951" resname="encounter.review.swap.kind.replacement">
+        <source>encounter.review.swap.kind.replacement</source>
+        <target>Besser passender Besuch</target>
+      </trans-unit>
+      <trans-unit id="EncC3420D10" resname="encounter.review.swap.move">
+        <source>encounter.review.swap.move</source>
+        <target>Besuch #{from} ({before} Punkte) → Besuch #{to} ({after} Punkte)</target>
+      </trans-unit>
+      <trans-unit id="EncA013C966" resname="encounter.review.swap.takes">
+        <source>encounter.review.swap.takes</source>
+        <target>übernimmt Besuch #{visit} ({points} Punkte)</target>
+      </trans-unit>
+      <trans-unit id="EncFC278652" resname="encounter.review.swap.gain">
+        <source>encounter.review.swap.gain</source>
+        <target>Änderung: {links} Verknüpfungen, {points} Punkte</target>
+      </trans-unit>
+      <trans-unit id="EncAF136C6F" resname="encounter.review.swap.apply">
+        <source>encounter.review.swap.apply</source>
+        <target>Tausch übernehmen</target>
+      </trans-unit>
+      <trans-unit id="Enc886ED411" resname="encounter.review.comparison_title">
+        <source>encounter.review.comparison_title</source>
+        <target>Gegenüberstellung</target>
+      </trans-unit>
+      <trans-unit id="EncFF96BE86" resname="encounter.review.candidate_choice">
+        <source>encounter.review.candidate_choice</source>
+        <target>Kandidaten-Besuche ({count, number})</target>
+      </trans-unit>
+      <trans-unit id="EncCE5AF804" resname="encounter.review.visit_heading">
+        <source>encounter.review.visit_heading</source>
+        <target>Notaufnahme-Besuch #{id}</target>
+      </trans-unit>
+      <trans-unit id="Enc96E86DCD" resname="encounter.review.points_total">
+        <source>encounter.review.points_total</source>
+        <target>Summe der Punkte</target>
+      </trans-unit>
+      <trans-unit id="EncA54BEF6D" resname="encounter.review.total_level.match">
+        <source>encounter.review.total_level.match</source>
+        <target>passt gut</target>
+      </trans-unit>
+      <trans-unit id="Enc5669AAAA" resname="encounter.review.total_level.proposal">
+        <source>encounter.review.total_level.proposal</source>
+        <target>passt teilweise</target>
+      </trans-unit>
+      <trans-unit id="EncD6E13B48" resname="encounter.review.total_level.weak">
+        <source>encounter.review.total_level.weak</source>
+        <target>passt kaum</target>
+      </trans-unit>
+      <trans-unit id="Enc9A2C1548" resname="encounter.review.extended.title">
+        <source>encounter.review.extended.title</source>
+        <target>Erweiterte Informationen (MTS, IVENA)</target>
+      </trans-unit>
+      <trans-unit id="EncC1BE31AD" resname="encounter.review.extended.hint">
+        <source>encounter.review.extended.hint</source>
+        <target>Optionaler Kontext für unklare Fälle. Diese Angaben sind keine Abgleichsmerkmale: Spätere Auswertungen vergleichen sie zwischen IVENA und Notaufnahme. Nutzen Sie sie daher nur, wenn die Merkmale oben die Entscheidung offen lassen.</target>
+      </trans-unit>
+      <trans-unit id="EncC4B213D6" resname="encounter.review.extended.urgency">
+        <source>encounter.review.extended.urgency</source>
+        <target>Dringlichkeit / Triage</target>
+      </trans-unit>
+      <trans-unit id="Enc48083ED7" resname="encounter.review.extended.indication">
+        <source>encounter.review.extended.indication</source>
+        <target>Indikation / MTS-Diagramm</target>
+      </trans-unit>
+      <trans-unit id="Enc64849B95" resname="encounter.review.extended.indicator">
+        <source>encounter.review.extended.indicator</source>
+        <target>MTS-Indikator</target>
+      </trans-unit>
+      <trans-unit id="Enc3DD215B3" resname="encounter.review.period.range">
+        <source>encounter.review.period.range</source>
+        <target>{from} – {to}</target>
+      </trans-unit>
+      <trans-unit id="Enc18EFA355" resname="encounter.review.overview.link">
+        <source>encounter.review.overview.link</source>
+        <target>Übersicht</target>
+      </trans-unit>
+      <trans-unit id="Enc9D443B1E" resname="encounter.review.overview.title">
+        <source>encounter.review.overview.title</source>
+        <target>Übersicht der Abgleichsprüfung</target>
+      </trans-unit>
+      <trans-unit id="Enc9A73872D" resname="encounter.review.overview.worklist">
+        <source>encounter.review.overview.worklist</source>
+        <target>Arbeitsliste</target>
+      </trans-unit>
+      <trans-unit id="EncA7BB1B50" resname="encounter.review.action.start">
+        <source>encounter.review.action.start</source>
+        <target>Prüfung starten</target>
+      </trans-unit>
+      <trans-unit id="EncA8A33928" resname="encounter.review.action.review">
+        <source>encounter.review.action.review</source>
+        <target>Prüfen</target>
+      </trans-unit>
+      <trans-unit id="EncE8157DE6" resname="encounter.review.flash.segment_empty">
+        <source>encounter.review.flash.segment_empty</source>
+        <target>In dieser Liste gibt es nichts zu prüfen.</target>
+      </trans-unit>
+      <trans-unit id="EncD3D94940" resname="encounter.review.flash.segment_done">
+        <source>encounter.review.flash.segment_done</source>
+        <target>Keine weiteren Zuweisungen in dieser Liste.</target>
+      </trans-unit>
+      <trans-unit id="Enc19637761" resname="encounter.review.header_status.auto_accepted">
+        <source>encounter.review.header_status.auto_accepted</source>
+        <target>Automatisch verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc673DC234" resname="encounter.review.header_status.confirmed">
+        <source>encounter.review.header_status.confirmed</source>
+        <target>Bestätigte Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="EncCDC6F1B7" resname="encounter.review.header_status.proposed">
+        <source>encounter.review.header_status.proposed</source>
+        <target>Offener Vorschlag</target>
+      </trans-unit>
+      <trans-unit id="Enc9F750DA8" resname="encounter.review.header_status.conflict">
+        <source>encounter.review.header_status.conflict</source>
+        <target>Konflikt</target>
+      </trans-unit>
+      <trans-unit id="Enc678C5DE4" resname="encounter.review.header_status.not_linked">
+        <source>encounter.review.header_status.not_linked</source>
+        <target>Nicht verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc7333A9BB" resname="encounter.review.linked_elsewhere_short">
+        <source>encounter.review.linked_elsewhere_short</source>
+        <target>Verknüpft mit Zuweisung #{id}</target>
+      </trans-unit>
+      <trans-unit id="EncA487748B" resname="encounter.review.agreement_short">
+        <source>encounter.review.agreement_short</source>
+        <target>Übereinstimmung {agreement} · {points} Punkte</target>
+      </trans-unit>
+      <trans-unit id="Enc389E5C89" resname="encounter.review.error.not_stored">
+        <source>encounter.review.error.not_stored</source>
+        <target>Nur ein vorgeschlagenes oder verknüpftes Paar kann abgelehnt werden.</target>
+      </trans-unit>
       <trans-unit id="EncBABE30DE" resname="encounter.mts.glossary.title">
         <source>encounter.mts.glossary.title</source>
         <target>Manchester-Triage-System (MTS)</target>

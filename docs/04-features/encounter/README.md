@@ -330,7 +330,7 @@ Summary of [ADR 029](../../02-architecture/decisions/029-encounter-allocation-ma
 - Pass 1 reserves both sides; later runs only fill gaps and never reassign links. The review may
   propose a targeted swap.
 
-Implemented in #1053 (matcher version `1.0.0`). The review is #1054; the overview and the case card (#1055) show links as described in [Statistics in the pilot](#statistics-in-the-pilot).
+Implemented in #1053 (matcher version `1.0.0`). The review is #1054 ([Match review](#match-review)); the overview and the case card (#1055) show links as described in [Statistics in the pilot](#statistics-in-the-pilot).
 
 **Table `encounter_match`**, one row per pair of allocation and visit: `status` (`auto_accepted`,
 `proposed`, `confirmed`, `rejected`), `conflict`, `score`, `points`, `contributions` (points per feature),
@@ -397,7 +397,115 @@ prints counts only. Synthetic encounters loaded by the fixtures are not matched 
 30/90/5). A change applies from the next run; existing links stay.
 
 **Read model**: `EncounterKeyChangeSummaryQuery` counts links and decisions per hospital;
-`EncounterOverviewQuery` and `HospitalCourseQuery` read them for the pages of #1055.
+`EncounterOverviewQuery` and `HospitalCourseQuery` read them for the pages of #1055; `MatchReviewQuery` reads
+the review (below).
+
+## Match review
+
+Implemented in #1054. Pages under `/encounter/review` (linked from `/encounter`): beta role + encounter
+grant `REVIEW` on the hospital, or `ROLE_ADMIN`. With one reviewable hospital the entry opens it directly;
+administrators see every hospital with encounter data. Another hospital's page answers 403, an allocation
+of another hospital under one's own hospital 404.
+
+**Period**: `from`/`to` (whole days, at most 92); by default the calendar month of the hospital's latest
+visit. Allocations count by expected IVENA arrival, visits by matching anchor (ED admission, else first
+assessment contact), both on the stored local wall clock.
+
+**Layout** follows the indication review ([indication-normalization.md](../allocation/indication-normalization.md#review-worklist)):
+
+- **Worklist** `/encounter/review/{hospital}`: one DataTable with three tabs and their counts (below), the
+  period and the tab's filter in a filter drawer, sortable by arrival, agreement and time difference
+  ("to review" and "done"), a "Review" action per row and mobile cards. "Start review" opens the first
+  allocation of the tab.
+- **Allocation page**: the comparison on the left, the candidate visits stacked in a narrower column on the
+  right, actions at the bottom (see below).
+  "Leave open" skips to the next allocation; confirm, change, reject and swaps continue with the next one
+  too (`MatchReviewNavigator`, same order as the list); at the end of the tab the list opens again.
+  Tab, filter, period and sort order travel in the query string (`ReviewContext`).
+- **Overview** `/encounter/review/{hospital}/overview`: the counts with denominators below, each linked to its
+  tab and filter.
+- **Unlinked visits** `/encounter/review/{hospital}/visits`: visits without link, optionally by arrival route
+  (`route=ems|self|unknown`), reached from the overview's counts. Nothing is decided there; a visit with an
+  open proposal links to the review of that allocation.
+
+| Tab (`segment`) | Rows | Filter |
+|---|---|---|
+| To review (`open`) | one per allocation that needs a person: no link and an open proposal (with the best one and the number of proposals), or a swap proposal (with its automatic link); conflict and swap shown as badges (`OpenReviewItems`) | `kind=conflicts` or `kind=swaps` |
+| Without proposal (`no_proposal`) | one per allocation without link and without proposal | – |
+| Done (`done`) | one per decided pair: automatic or confirmed link, rejected pair | `status=auto_accepted`, `confirmed` or `rejected` |
+
+**Overview with denominators** (`MatchReviewQuery::summary()`):
+
+| Count | Population and rule |
+|---|---|
+| Allocations in the period | denominator of the next four rows; each allocation counts once |
+| Linked automatically | has an `auto_accepted` row |
+| Linked by confirmation | has a `confirmed` row |
+| Open proposal, not linked | no effective link, at least one `proposed` row; *of which in conflict*: one of them is an open conflict |
+| Not linked, no proposal | neither |
+| Rejected pairs | `rejected` rows of the period's allocations (pairs, not allocations) |
+| Swap proposals | see below |
+| Visits by arrival route | per route: total, linked (effective link), unlinked; a self-presenter without link is not an error |
+
+A proposal is in **open conflict** while it carries `conflict` and another allocation's conflict proposal
+for the same visit is still open; once one side is decided, the rest counts as an ordinary proposal.
+
+**Allocation page** (`/encounter/review/{hospital}/allocations/{allocation}`). A swap proposal, if any, is
+shown above. The candidate column lists every candidate visit of the **review window**
+(`MatchingSettings::reviewWindow()`: widest bounds of all passes, every arrival route, −30 … +90 min, age
+±5 by default) as a choice, with the visit's anchor time, time difference, agreement among all candidates of
+that window, the stored score of the pass that found the pair, and its status or link to another allocation.
+The comparison column sets the chosen candidate against the allocation: expected IVENA arrival and ED admission (or the
+marked substitute, first assessment contact) side by side with the agreement between them, then per feature
+both compared values and the contribution (for, against, neutral or missing) and the total points, and other
+allocations proposed for the same visit. The total is coloured by what it would mean for a sole candidate
+(`MatchPlanner::agreementAlone()`): "fits well" (green) reaches the auto-accept threshold (8 points and more
+by default), "fits partly" (yellow) the proposal threshold (4–7), "hardly fits" (red) neither. It rates the
+features only; the agreement beside it also accounts for competing candidates. A section "Extended information (MTS, IVENA)" adds, for
+unclear cases, IVENA urgency and normalized indication beside MTS category, diagram and indicator of the visit
+(`MatchReviewQuery::extendedInfo()`). They are no matching features (ADR 029) and the page says so: later
+analyses compare exactly these between IVENA and the ED. It is collapsed for a clear candidate and opens by
+itself when the candidate's agreement among all candidates stays below the auto-accept threshold. Decisions
+made with this section open are deliberately not marked. The card header names the current link and its origin (automatic:
+score and pass). The linked visit is chosen first, else the open proposal with the highest stored score, else
+the candidate with the most points. The Stimulus controller `encounter-match-review` switches the comparison
+and enables only the decisions that apply to the chosen visit; the server checks again. The score is labelled
+"agreement" ("Übereinstimmung") and explained as a ranking, not a probability (ADR 029).
+
+**Decisions** (form `MatchReviewDecisionType` on the allocation page; `MatchDecider`, one transaction under
+the matcher's per-hospital lock):
+
+| Action | Effect |
+|---|---|
+| Confirm | the pair becomes `confirmed` (created from its review-window scoring if the matcher had not stored it; `pass` empty) |
+| Change | confirming another candidate while the allocation is linked: the old pair becomes `rejected`, the new one `confirmed` |
+| Reject | a stored pair (proposal, automatic or confirmed link) becomes `rejected`; it is never proposed again; a candidate without stored pair cannot be rejected |
+| Leave open | writes nothing; continues with the next allocation of the segment |
+
+A visit linked to another allocation cannot be confirmed (one-to-one); the page says so and points to
+swaps. After a link is made, open proposals touching either side are removed, as at the end of a run,
+which resolves a conflict. Every decision sets `decided_by`/`decided_at` and is audited with intent
+`encounter.match.decided` (`decision` confirm/change/reject, previous status, replaced visit); manual
+decisions are sticky for later runs. A rejected link frees both sides; the review does not start a run,
+the next triggered run fills the gap.
+
+**Swap proposals** (`SwapPlanner`, pure; `MatchSwapFinder` loads the period with a margin). Only
+automatic links are considered; confirmed links stay as a person decided them. For an automatic link A–W
+and an unlinked visit V in A's review window (A–V not rejected):
+
+1. *Chain*: an unlinked allocation B has W in its review window (B–W not rejected): link A–V and B–W, one
+   link more. Among several B the one with most points.
+2. *Replacement*: otherwise, if A–V has more points than A–W: link A–V, W becomes unlinked.
+
+Every new pair must reach the proposal threshold as the only candidate (2^points / (2^points + 2^4) ≥
+0.50, i.e. at least 4 points). Per allocation the best proposal is kept (chain first, then points gain);
+overlapping proposals are dropped. Applying a swap is a person's decision: A–W becomes `rejected`, the new
+pairs `confirmed`; audited with intent `encounter.match.swapped`. A swap that no longer matches the
+current links is refused.
+
+Example (tested in `MatchReviewControllerTest`): A at 10:00 is linked automatically to W at 10:10
+(9 points). B at 10:05, age 72, would score 7 with W; the self-presenter V at 10:05 scores 6 with A. The
+chain A–V + B–W gives one link more and 6 + 7 − 9 = 4 points more.
 
 ## Statistics in the pilot
 

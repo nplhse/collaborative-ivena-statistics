@@ -1,0 +1,51 @@
+{# Filter drawer of the review pages: the period, plus the segment's filter on the worklist (`context`) or the arrival route on the visits page (`routes`). Expects `hospital`, `period`, `route_name`, `keep`. #}
+<twig:FilterDrawer
+    id="encounter-review-filters"
+    formId="encounter-review-filter-form"
+    formAction="{{ path(route_name, {id: hospital.id}) }}"
+    resetUrl="{{ path(route_name, {id: hospital.id}|merge(reset|default({}))) }}"
+    testId="encounter-review-filters"
+    :keepQueryKeys="keep"
+>
+    <div class="mb-3">
+        <label class="form-label" for="review-from">{{ 'encounter.review.period.from'|trans({}, 'encounter') }}</label>
+        <input class="form-control" type="date" id="review-from" name="from" value="{{ period.from|date('Y-m-d') }}">
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="review-to">{{ 'encounter.review.period.to'|trans({}, 'encounter') }}</label>
+        <input class="form-control" type="date" id="review-to" name="to" value="{{ period.to|date('Y-m-d') }}">
+        <small class="form-hint">{{ 'encounter.review.period.help'|trans({days: constant('App\\Encounter\\Application\\Review\\ReviewPeriod::MAX_DAYS')}, 'encounter') }}</small>
+    </div>
+    {% set segment_context = context|default(null) %}
+    {% if segment_context and segment_context.filter.value == 'open' %}
+        <div class="mb-3">
+            <label class="form-label" for="review-kind">{{ 'encounter.review.kind.label'|trans({}, 'encounter') }}</label>
+            <select class="form-select" id="review-kind" name="kind">
+                <option value="">{{ 'encounter.review.kind.all'|trans({}, 'encounter') }}</option>
+                {% for kind in constant('App\\Encounter\\Application\\Review\\ReviewContext::KINDS') %}
+                    <option value="{{ kind }}" {{ segment_context.kind == kind ? 'selected' }}>{{ ('encounter.review.kind.' ~ kind)|trans({}, 'encounter') }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    {% elseif segment_context and segment_context.filter.value == 'done' %}
+        <div class="mb-3">
+            <label class="form-label" for="review-status">{{ 'encounter.review.column.status'|trans({}, 'encounter') }}</label>
+            <select class="form-select" id="review-status" name="status">
+                <option value="">{{ 'encounter.review.kind.all'|trans({}, 'encounter') }}</option>
+                {% for status in statuses %}
+                    <option value="{{ status.value }}" {{ segment_context.status == status ? 'selected' }}>{{ ('encounter.review.status.' ~ status.value)|trans({}, 'encounter') }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    {% elseif routes|default(null) %}
+        <div class="mb-3">
+            <label class="form-label" for="review-route">{{ 'encounter.review.column.route'|trans({}, 'encounter') }}</label>
+            <select class="form-select" id="review-route" name="route">
+                <option value="">{{ 'encounter.review.route_all'|trans({}, 'encounter') }}</option>
+                {% for option in routes %}
+                    <option value="{{ option.value }}" {{ route == option ? 'selected' }}>{{ ('encounter.review.value.route_' ~ option.value)|trans({}, 'encounter') }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    {% endif %}
+</twig:FilterDrawer>

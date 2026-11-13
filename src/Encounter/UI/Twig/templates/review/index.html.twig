@@ -1,0 +1,31 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'encounter.review.title'|trans({}, 'encounter') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <twig:PageHeader :title="'encounter.review.title'|trans({}, 'encounter')">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
+                { label: 'encounter.review.title', label_domain: 'encounter', translatable: true }
+            ]" />
+        </twig:block>
+    </twig:PageHeader>
+{% endblock %}
+
+{% block page_content %}
+    <div class="card">
+        <div class="card-body">
+            <p class="text-secondary">{{ 'encounter.review.intro'|trans({}, 'encounter') }}</p>
+            {% if hospitals is empty %}
+                <p class="text-secondary mb-0" data-test="encounter-review-no-hospitals">{{ 'encounter.review.no_hospitals'|trans({}, 'encounter') }}</p>
+            {% else %}
+                <div class="list-group" data-test="encounter-review-hospitals">
+                    {% for id, name in hospitals %}
+                        <a class="list-group-item list-group-item-action" href="{{ path('app_encounter_review_hospital', {id: id}) }}">{{ name }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

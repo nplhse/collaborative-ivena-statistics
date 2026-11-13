@@ -104,6 +104,34 @@ final readonly class MatchPlanner
     }
 
     /**
+     * Every candidate of one allocation in the given window, scored against each other and the "no match"
+     * option, without reservations or rejected pairs (match review, #1054). The review uses the widest
+     * window ({@see MatchingSettings::reviewWindow()}), so a candidate's agreement there can differ from the
+     * score stored by the pass that found the pair.
+     *
+     * @param list<MatchingEncounter> $encounters
+     *
+     * @return list<PlannedMatch> status `proposed`, ordered by points (highest first), then visit id
+     */
+    public function candidates(MatchingAllocation $allocation, array $encounters, PassWindow $window, int $pass): array
+    {
+        $candidates = $this->claims($allocation, $this->timeline($encounters), $window, $pass, [], []);
+        usort($candidates, static fn (PlannedMatch $a, PlannedMatch $b): int => [$b->points, $a->encounterId] <=> [$a->points, $b->encounterId]);
+
+        return $candidates;
+    }
+
+    /**
+     * Agreement of a pair that is the only candidate: 2^points / (2^points + 2^NO_MATCH_POINTS).
+     */
+    public static function agreementAlone(int $points): float
+    {
+        $weight = 2.0 ** (float) $points;
+
+        return round($weight / ($weight + 2.0 ** (float) self::NO_MATCH_POINTS), self::SCORE_PRECISION);
+    }
+
+    /**
      * Scored candidates of one allocation in one pass, with the "no match" option in the denominator.
      *
      * @param array{0: list<int>, 1: list<MatchingEncounter>} $timeline

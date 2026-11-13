@@ -194,14 +194,14 @@ final class EncounterOverviewQueryTest extends KernelTestCase
 
     public function testMedianIsSuppressedBelowFiveValidDurations(): void
     {
-        $overview = $this->overview(EncounterPeriod::fromQuery('2026-10-11', '2026-10-11'));
+        $overview = $this->overview(EncounterPeriod::fromBounds(new \DateTimeImmutable('2026-10-11'), new \DateTimeImmutable('2026-10-12')));
 
         self::assertSame(7, $overview->coverage->visits, 'Only V1–V7.');
         $physician = $overview->processTimes[1];
         self::assertSame(ProcessInterval::AdmissionToPhysician, $physician->interval);
         self::assertFalse($physician->suppressed);
 
-        $first = $this->overview(EncounterPeriod::fromQuery('2026-10-10', '2026-10-10'));
+        $first = $this->overview(EncounterPeriod::fromBounds(new \DateTimeImmutable('2026-10-10'), new \DateTimeImmutable('2026-10-11')));
         self::assertSame(1, $first->coverage->visits, 'Only B2 at 00:00.');
         self::assertTrue($first->processTimes[0]->suppressed);
         self::assertNull($first->processTimes[0]->median);
@@ -279,7 +279,7 @@ final class EncounterOverviewQueryTest extends KernelTestCase
 
     private function period(): EncounterPeriod
     {
-        return EncounterPeriod::fromQuery('2026-10-10', '2026-10-12');
+        return EncounterPeriod::fromBounds(new \DateTimeImmutable('2026-10-10'), new \DateTimeImmutable('2026-10-13'));
     }
 
     private function hospitalId(): int
