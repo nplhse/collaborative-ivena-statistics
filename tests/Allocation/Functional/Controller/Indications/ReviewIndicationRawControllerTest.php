@@ -60,6 +60,35 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         self::assertNotNull($reloaded->getFirstMatchedBy());
     }
 
+    public function testDecisionContinuesWithTheNextOpenItem(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::createOne([
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS, UserRole::ADMIN],
+        ]);
+        $current = IndicationRawFactory::createOne([
+            'code' => 551,
+            'name' => 'Current Raw',
+            'createdAt' => new \DateTimeImmutable('2026-01-01'),
+        ]);
+        $next = IndicationRawFactory::createOne([
+            'code' => 552,
+            'name' => 'Next Raw',
+            'createdAt' => new \DateTimeImmutable('2026-01-02'),
+        ]);
+        $client->loginUser($admin);
+
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $current->getPublicIdString()));
+        self::assertResponseIsSuccessful();
+        $client->submit($crawler->selectButton('Ignore')->form());
+
+        self::assertResponseStatusCodeSame(302);
+        self::assertStringStartsWith(
+            sprintf('/tools/indication-review/%s?', $next->getPublicIdString()),
+            (string) $client->getResponse()->headers->get('Location'),
+        );
+    }
+
     public function testApproveMatchByOtherReviewer(): void
     {
         $client = self::createClient();
