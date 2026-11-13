@@ -34,8 +34,10 @@ final class DataPrepGuideControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/encounter/data-prep');
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
 
-        $client->request(Request::METHOD_GET, '/encounter/data-prep/local-map-template.json');
-        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        foreach (['/encounter/data-prep/key', '/encounter/data-prep/local-map', '/encounter/data-prep/local-map-template.json'] as $url) {
+            $client->request(Request::METHOD_GET, $url);
+            self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN, $url);
+        }
     }
 
     public function testPageShowsTheVersionsTheDownloadAndTheChangelogNewestFirst(): void
@@ -58,6 +60,9 @@ final class DataPrepGuideControllerTest extends WebTestCase
         self::assertStringContainsString('Local map editor', $entries->first()->text());
         self::assertStringContainsString('ORBIS MTS export', $crawler->filter('[data-test="data-prep-profile"]')->text());
         self::assertSelectorExists('[data-test="data-prep-no-hospitals"]');
+        self::assertSame('/encounter/data-prep/key', $crawler->filter('[data-test="data-prep-key-link"]')->attr('href'));
+        self::assertSame('/encounter/data-prep/local-map', $crawler->filter('[data-test="data-prep-local-map-link"]')->attr('href'));
+        self::assertSelectorNotExists('[data-test="data-prep-key-change"]', 'the key change link is on the key page');
     }
 
     public function testOwnerGetsTheKeyChangeLinkAndUploaderSeesWhoCanChangeIt(): void
@@ -77,6 +82,10 @@ final class DataPrepGuideControllerTest extends WebTestCase
         self::assertCount(1, $row, 'an owner without a grant still sees the hospital');
         self::assertCount(0, $row->filter('[data-test="data-prep-grant-action"]'));
         self::assertCount(1, $row->filter('[data-test="data-prep-manage-grants"]'));
+
+        $crawler = $client->request(Request::METHOD_GET, '/encounter/data-prep/key');
+        self::assertResponseIsSuccessful();
+        self::assertSame('Key file and key generations', trim($crawler->filter('.breadcrumb-item.active')->text()));
         self::assertSame(
             sprintf('/hospitals/%d/edit/encounter-key', $hospitalId),
             $crawler->filter('[data-test="data-prep-key-change"]')->attr('href'),
@@ -89,6 +98,9 @@ final class DataPrepGuideControllerTest extends WebTestCase
         $row = $crawler->filter(sprintf('[data-test="data-prep-hospital"][data-hospital="%d"]', $hospitalId));
         self::assertSame(['Upload'], $row->filter('[data-test="data-prep-grant-action"]')->each(static fn ($badge): string => trim($badge->text())));
         self::assertCount(0, $row->filter('[data-test="data-prep-manage-grants"]'));
+
+        $client->request(Request::METHOD_GET, '/encounter/data-prep/key');
+        self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('[data-test="data-prep-key-change"]');
         self::assertSelectorExists('[data-test="data-prep-key-who"]');
     }
@@ -97,7 +109,7 @@ final class DataPrepGuideControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $client->loginUser($this->admin());
-        $client->request(Request::METHOD_GET, '/encounter/data-prep');
+        $client->request(Request::METHOD_GET, '/encounter/data-prep/key');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-test="data-prep-key-admin"]');
@@ -113,9 +125,11 @@ final class DataPrepGuideControllerTest extends WebTestCase
         }
 
         $client->loginUser($this->user());
-        $crawler = $client->request(Request::METHOD_GET, '/encounter/data-prep');
+        $crawler = $client->request(Request::METHOD_GET, '/encounter/data-prep/local-map');
 
         self::assertResponseIsSuccessful();
+        self::assertSame('Local map', trim($crawler->filter('.breadcrumb-item.active')->text()));
+        self::assertSame('/encounter/data-prep/local-map-template.json', $crawler->filter('[data-test="data-prep-local-map-template"]')->attr('href'));
         self::assertSame(
             ['Innere Medizin', 'Unfallchirurgie'],
             $crawler->filter('[data-test="data-prep-department-name"]')->each(static fn ($item): string => trim($item->text())),

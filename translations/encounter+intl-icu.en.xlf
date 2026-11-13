@@ -2597,10 +2597,6 @@
         <source>encounter.data_prep.guide.steps.title</source>
         <target>Getting started</target>
       </trans-unit>
-      <trans-unit id="Enc2F10E25F" resname="encounter.data_prep.guide.steps.more">
-        <source>encounter.data_prep.guide.steps.more</source>
-        <target>More below.</target>
-      </trans-unit>
       <trans-unit id="EncADFB85D7" resname="encounter.data_prep.guide.steps.grants.title">
         <source>encounter.data_prep.guide.steps.grants.title</source>
         <target>Grants</target>
@@ -2797,65 +2793,9 @@
         <source>encounter.data_prep.guide.map.department_names_help</source>
         <target>The import looks up the department by its name in the public reference catalog, ignoring upper and lower case. Rows with an unknown name are rejected. Names that two catalog entries share cannot be used and are not listed.</target>
       </trans-unit>
-      <trans-unit id="EncAAC329E3" resname="encounter.data_prep.guide.map.department_names_show">
-        <source>encounter.data_prep.guide.map.department_names_show</source>
-        <target>Show {count, plural, one {# name} other {# names}}</target>
-      </trans-unit>
       <trans-unit id="Enc2A0B1D60" resname="encounter.data_prep.guide.map.department_names_none">
         <source>encounter.data_prep.guide.map.department_names_none</source>
         <target>The reference catalog has no departments yet.</target>
-      </trans-unit>
-      <trans-unit id="Enc3B9FFD2D" resname="encounter.data_prep.guide.help.title">
-        <source>encounter.data_prep.guide.help.title</source>
-        <target>Help with common problems</target>
-      </trans-unit>
-      <trans-unit id="Enc1C0CED94" resname="encounter.data_prep.guide.help.unmapped.question">
-        <source>encounter.data_prep.guide.help.unmapped.question</source>
-        <target>The report lists unmapped values.</target>
-      </trans-unit>
-      <trans-unit id="Enc5ED44D60" resname="encounter.data_prep.guide.help.unmapped.answer">
-        <source>encounter.data_prep.guide.help.unmapped.answer</source>
-        <target>Values the profile and your local map do not know are written empty. For department, care level and disposition, assign them in the report and run again. Other fields (for example sex or arrival) need a new profile version: tell the project team the value, never a patient's data.</target>
-      </trans-unit>
-      <trans-unit id="Enc25A60043" resname="encounter.data_prep.guide.help.rejected.question">
-        <source>encounter.data_prep.guide.help.rejected.question</source>
-        <target>The upload was rejected.</target>
-      </trans-unit>
-      <trans-unit id="EncB05B8606" resname="encounter.data_prep.guide.help.rejected.answer">
-        <source>encounter.data_prep.guide.help.rejected.answer</source>
-        <target>The import page names the reason. Most common: the file is not the tool's output (the raw export is deleted at once), the key differs from the registered one, the tool is too old, or a department name is unknown in the reference catalog. Fix the cause, prepare the file again and upload it again.</target>
-      </trans-unit>
-      <trans-unit id="EncE64AECDC" resname="encounter.data_prep.guide.help.update.question">
-        <source>encounter.data_prep.guide.help.update.question</source>
-        <target>The tool shows "New version available".</target>
-      </trans-unit>
-      <trans-unit id="EncA94A9FF5" resname="encounter.data_prep.guide.help.update.answer">
-        <source>encounter.data_prep.guide.help.update.answer</source>
-        <target>Download the new version from this page and use it from now on. Key file and local map stay valid.</target>
-      </trans-unit>
-      <trans-unit id="Enc7740F901" resname="encounter.data_prep.guide.help.min_version.question">
-        <source>encounter.data_prep.guide.help.min_version.question</source>
-        <target>The tool blocks processing because its version is below the minimum.</target>
-      </trans-unit>
-      <trans-unit id="EncBF850BAB" resname="encounter.data_prep.guide.help.min_version.answer">
-        <source>encounter.data_prep.guide.help.min_version.answer</source>
-        <target>Older versions wrote data the import no longer accepts. Download the current version; files already saved with the old version have to be prepared again.</target>
-      </trans-unit>
-      <trans-unit id="EncAB1CA43E" resname="encounter.data_prep.guide.help.content_check.question">
-        <source>encounter.data_prep.guide.help.content_check.question</source>
-        <target>The content check fails.</target>
-      </trans-unit>
-      <trans-unit id="Enc179C9277" resname="encounter.data_prep.guide.help.content_check.answer">
-        <source>encounter.data_prep.guide.help.content_check.answer</source>
-        <target>The tool found values that look like dates, names or free text in fields that should not contain them. Check the listed column in the export. Save only if you are sure that the values are no personal data; the server checks the content again and rejects such files.</target>
-      </trans-unit>
-      <trans-unit id="Enc36AE1EDD" resname="encounter.data_prep.guide.help.more">
-        <source>encounter.data_prep.guide.help.more</source>
-        <target>Details for coordinators:</target>
-      </trans-unit>
-      <trans-unit id="Enc1C8D1372" resname="encounter.data_prep.guide.help.docs">
-        <source>encounter.data_prep.guide.help.docs</source>
-        <target>documentation of the data preparation tool</target>
       </trans-unit>
       <trans-unit id="Enc919C280A" resname="encounter.data_prep.tool.map_remember">
         <source>encounter.data_prep.tool.map_remember</source>
@@ -2928,6 +2868,42 @@
       <trans-unit id="Enc5536BD30" resname="encounter.data_prep.js.map_applied">
         <source>encounter.data_prep.js.map_applied</source>
         <target>Assignments added:</target>
+      </trans-unit>
+      <trans-unit id="EncA17BC8AD" resname="encounter.data_prep.guide.key.summary">
+        <source>encounter.data_prep.guide.key.summary</source>
+        <target>Turns the case number into a pseudonym, so the server never learns it. Create it once per hospital in the tool, keep it in a team folder and never send it.</target>
+      </trans-unit>
+      <trans-unit id="Enc6025934F" resname="encounter.data_prep.guide.key.more">
+        <source>encounter.data_prep.guide.key.more</source>
+        <target>Key file and key change</target>
+      </trans-unit>
+      <trans-unit id="EncF4431779" resname="encounter.data_prep.guide.key.purpose_title">
+        <source>encounter.data_prep.guide.key.purpose_title</source>
+        <target>What the key file is for</target>
+      </trans-unit>
+      <trans-unit id="Enc2865F44E" resname="encounter.data_prep.guide.key.handling_title">
+        <source>encounter.data_prep.guide.key.handling_title</source>
+        <target>Create and keep it</target>
+      </trans-unit>
+      <trans-unit id="Enc5AD63E5D" resname="encounter.data_prep.guide.key.generations_title">
+        <source>encounter.data_prep.guide.key.generations_title</source>
+        <target>Key generations and a lost key</target>
+      </trans-unit>
+      <trans-unit id="Enc1EA81230" resname="encounter.data_prep.guide.key.change_title">
+        <source>encounter.data_prep.guide.key.change_title</source>
+        <target>Change the key</target>
+      </trans-unit>
+      <trans-unit id="Enc083EDB21" resname="encounter.data_prep.guide.map.summary">
+        <source>encounter.data_prep.guide.map.summary</source>
+        <target>Optional: assigns your hospital's department codes, stations and discharge texts. You fill it in the tool when the report lists unmapped values; it stays on your computer.</target>
+      </trans-unit>
+      <trans-unit id="Enc796DE610" resname="encounter.data_prep.guide.map.more">
+        <source>encounter.data_prep.guide.map.more</source>
+        <target>Format, template and department names</target>
+      </trans-unit>
+      <trans-unit id="EncAE116859" resname="encounter.data_prep.guide.map.downloads_title">
+        <source>encounter.data_prep.guide.map.downloads_title</source>
+        <target>Template and example</target>
       </trans-unit>
     </body>
   </file>

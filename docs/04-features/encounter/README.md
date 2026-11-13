@@ -38,8 +38,8 @@ Decisions: [ADR 025](../../02-architecture/decisions/025-encounter-data-context-
 Implemented in #1051: the tool v1 with the ORBIS MTS profile, its download on `/encounter`, the
 public update check `/data-prep/latest.json` and the version options `app.encounter.data_prep`
 ([data-preparation-tool.md](data-preparation-tool.md)). #1130 added the landing page
-`/encounter/data-prep` (versions, changelog, getting started, key, local map help) and the local map
-editor in the tool (1.1.0).
+`/encounter/data-prep` (getting started, versions, changelog) with subpages for the key file and the
+local map, and the local map editor in the tool (1.1.0).
 
 ## Model
 

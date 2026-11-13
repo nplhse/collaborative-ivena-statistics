@@ -2441,10 +2441,6 @@
         <source>encounter.data_prep.guide.steps.title</source>
         <target>Erste Schritte</target>
       </trans-unit>
-      <trans-unit id="Enc2F10E25F" resname="encounter.data_prep.guide.steps.more">
-        <source>encounter.data_prep.guide.steps.more</source>
-        <target>Mehr dazu unten.</target>
-      </trans-unit>
       <trans-unit id="EncADFB85D7" resname="encounter.data_prep.guide.steps.grants.title">
         <source>encounter.data_prep.guide.steps.grants.title</source>
         <target>Berechtigungen</target>
@@ -2641,65 +2637,9 @@
         <source>encounter.data_prep.guide.map.department_names_help</source>
         <target>Der Import sucht die Fachabteilung über ihren Namen im öffentlichen Referenzkatalog, ohne Groß- und Kleinschreibung zu unterscheiden. Zeilen mit einem unbekannten Namen werden abgelehnt. Namen, die zwei Katalogeinträge teilen, sind nicht verwendbar und fehlen in der Liste.</target>
       </trans-unit>
-      <trans-unit id="EncAAC329E3" resname="encounter.data_prep.guide.map.department_names_show">
-        <source>encounter.data_prep.guide.map.department_names_show</source>
-        <target>{count, plural, one {# Namen} other {# Namen}} anzeigen</target>
-      </trans-unit>
       <trans-unit id="Enc2A0B1D60" resname="encounter.data_prep.guide.map.department_names_none">
         <source>encounter.data_prep.guide.map.department_names_none</source>
         <target>Der Referenzkatalog enthält noch keine Fachabteilungen.</target>
-      </trans-unit>
-      <trans-unit id="Enc3B9FFD2D" resname="encounter.data_prep.guide.help.title">
-        <source>encounter.data_prep.guide.help.title</source>
-        <target>Hilfe bei häufigen Problemen</target>
-      </trans-unit>
-      <trans-unit id="Enc1C0CED94" resname="encounter.data_prep.guide.help.unmapped.question">
-        <source>encounter.data_prep.guide.help.unmapped.question</source>
-        <target>Der Bericht zeigt nicht zugeordnete Werte.</target>
-      </trans-unit>
-      <trans-unit id="Enc5ED44D60" resname="encounter.data_prep.guide.help.unmapped.answer">
-        <source>encounter.data_prep.guide.help.unmapped.answer</source>
-        <target>Werte, die weder das Profil noch Ihre lokale Zuordnung kennen, bleiben leer. Für Fachabteilung, Versorgungsstufe und Verbleib im Bericht zuordnen und neu aufbereiten. Andere Felder (zum Beispiel Geschlecht oder Ankunft) brauchen eine neue Profilversion: dem Projektteam den Wert nennen, nie Daten einer Person.</target>
-      </trans-unit>
-      <trans-unit id="Enc25A60043" resname="encounter.data_prep.guide.help.rejected.question">
-        <source>encounter.data_prep.guide.help.rejected.question</source>
-        <target>Der Upload wurde abgelehnt.</target>
-      </trans-unit>
-      <trans-unit id="EncB05B8606" resname="encounter.data_prep.guide.help.rejected.answer">
-        <source>encounter.data_prep.guide.help.rejected.answer</source>
-        <target>Die Importseite nennt den Grund. Am häufigsten: Die Datei ist nicht die Ausgabe des Tools (ein Rohexport wird sofort gelöscht), der Schlüssel weicht vom registrierten ab, das Tool ist zu alt oder ein Fachabteilungsname fehlt im Referenzkatalog. Ursache beheben, Datei neu aufbereiten und erneut hochladen.</target>
-      </trans-unit>
-      <trans-unit id="EncE64AECDC" resname="encounter.data_prep.guide.help.update.question">
-        <source>encounter.data_prep.guide.help.update.question</source>
-        <target>Das Tool zeigt „Neue Version verfügbar“.</target>
-      </trans-unit>
-      <trans-unit id="EncA94A9FF5" resname="encounter.data_prep.guide.help.update.answer">
-        <source>encounter.data_prep.guide.help.update.answer</source>
-        <target>Die neue Version auf dieser Seite herunterladen und ab jetzt verwenden. Schlüsseldatei und lokale Zuordnung bleiben gültig.</target>
-      </trans-unit>
-      <trans-unit id="Enc7740F901" resname="encounter.data_prep.guide.help.min_version.question">
-        <source>encounter.data_prep.guide.help.min_version.question</source>
-        <target>Das Tool sperrt die Aufbereitung, weil seine Version unter der Mindestversion liegt.</target>
-      </trans-unit>
-      <trans-unit id="EncBF850BAB" resname="encounter.data_prep.guide.help.min_version.answer">
-        <source>encounter.data_prep.guide.help.min_version.answer</source>
-        <target>Ältere Versionen schrieben Daten, die der Import nicht mehr annimmt. Die aktuelle Version herunterladen; mit der alten Version gespeicherte Dateien müssen neu aufbereitet werden.</target>
-      </trans-unit>
-      <trans-unit id="EncAB1CA43E" resname="encounter.data_prep.guide.help.content_check.question">
-        <source>encounter.data_prep.guide.help.content_check.question</source>
-        <target>Die Inhaltsprüfung schlägt fehl.</target>
-      </trans-unit>
-      <trans-unit id="Enc179C9277" resname="encounter.data_prep.guide.help.content_check.answer">
-        <source>encounter.data_prep.guide.help.content_check.answer</source>
-        <target>Das Tool hat Werte gefunden, die wie Datum, Name oder Freitext aussehen, in Feldern, die so etwas nicht enthalten sollten. Die genannte Spalte im Export prüfen. Nur speichern, wenn sicher ist, dass es keine personenbezogenen Daten sind; der Server prüft den Inhalt erneut und lehnt solche Dateien ab.</target>
-      </trans-unit>
-      <trans-unit id="Enc36AE1EDD" resname="encounter.data_prep.guide.help.more">
-        <source>encounter.data_prep.guide.help.more</source>
-        <target>Details für Koordinierende:</target>
-      </trans-unit>
-      <trans-unit id="Enc1C8D1372" resname="encounter.data_prep.guide.help.docs">
-        <source>encounter.data_prep.guide.help.docs</source>
-        <target>Dokumentation des Datenaufbereitungs-Tools</target>
       </trans-unit>
       <trans-unit id="Enc919C280A" resname="encounter.data_prep.tool.map_remember">
         <source>encounter.data_prep.tool.map_remember</source>
@@ -2772,6 +2712,42 @@
       <trans-unit id="Enc5536BD30" resname="encounter.data_prep.js.map_applied">
         <source>encounter.data_prep.js.map_applied</source>
         <target>Zuordnungen hinzugefügt:</target>
+      </trans-unit>
+      <trans-unit id="EncA17BC8AD" resname="encounter.data_prep.guide.key.summary">
+        <source>encounter.data_prep.guide.key.summary</source>
+        <target>Macht aus der Fallnummer ein Pseudonym, damit der Server sie nie erfährt. Einmal je Klinik im Tool erzeugen, im Teamordner ablegen und nie versenden.</target>
+      </trans-unit>
+      <trans-unit id="Enc6025934F" resname="encounter.data_prep.guide.key.more">
+        <source>encounter.data_prep.guide.key.more</source>
+        <target>Schlüsseldatei und Schlüsselwechsel</target>
+      </trans-unit>
+      <trans-unit id="EncF4431779" resname="encounter.data_prep.guide.key.purpose_title">
+        <source>encounter.data_prep.guide.key.purpose_title</source>
+        <target>Wofür die Schlüsseldatei da ist</target>
+      </trans-unit>
+      <trans-unit id="Enc2865F44E" resname="encounter.data_prep.guide.key.handling_title">
+        <source>encounter.data_prep.guide.key.handling_title</source>
+        <target>Erzeugen und aufbewahren</target>
+      </trans-unit>
+      <trans-unit id="Enc5AD63E5D" resname="encounter.data_prep.guide.key.generations_title">
+        <source>encounter.data_prep.guide.key.generations_title</source>
+        <target>Schlüsselgenerationen und verlorener Schlüssel</target>
+      </trans-unit>
+      <trans-unit id="Enc1EA81230" resname="encounter.data_prep.guide.key.change_title">
+        <source>encounter.data_prep.guide.key.change_title</source>
+        <target>Schlüssel wechseln</target>
+      </trans-unit>
+      <trans-unit id="Enc083EDB21" resname="encounter.data_prep.guide.map.summary">
+        <source>encounter.data_prep.guide.map.summary</source>
+        <target>Optional: ordnet die Fachabteilungskürzel, Stationen und Entlassungstexte Ihrer Klinik zu. Sie wird im Tool ausgefüllt, wenn der Bericht nicht zugeordnete Werte zeigt, und bleibt auf Ihrem Computer.</target>
+      </trans-unit>
+      <trans-unit id="Enc796DE610" resname="encounter.data_prep.guide.map.more">
+        <source>encounter.data_prep.guide.map.more</source>
+        <target>Format, Vorlage und Fachabteilungsnamen</target>
+      </trans-unit>
+      <trans-unit id="EncAE116859" resname="encounter.data_prep.guide.map.downloads_title">
+        <source>encounter.data_prep.guide.map.downloads_title</source>
+        <target>Vorlage und Beispiel</target>
       </trans-unit>
     </body>
   </file>

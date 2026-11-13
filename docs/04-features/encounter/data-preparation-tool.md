@@ -30,8 +30,8 @@ never leave the computer.
 | Template | `src/Encounter/UI/Twig/templates/data_prep/tool.html.twig` |
 | Renderer, version, changelog | `DataPrepToolRenderer`, `DataPrepRelease`, `DataPrepChangelog` in `src/Encounter/UI/DataPrep/` |
 | Local map template and example | `src/Encounter/UI/DataPrep/local-map/{template,example}.json` (`LocalMapFiles`) |
-| Landing page | `ShowDataPrepGuideController`, `src/Encounter/UI/Twig/templates/data_prep/guide.html.twig` |
-| Routes | `GET /encounter/data-prep` (landing page), `GET /encounter/data-prep/download`, `GET /encounter/data-prep/local-map-{template,example}.json` (all `ROLE_ENCOUNTER_BETA`), `GET /data-prep/latest.json` (public) |
+| Landing page and subpages | `ShowDataPrepGuideController`, `ShowDataPrepKeyController`, `ShowDataPrepLocalMapController`, `DataPrepHospitals`; templates `guide`, `key`, `local_map` in `src/Encounter/UI/Twig/templates/data_prep/` |
+| Routes | `GET /encounter/data-prep` (landing page), `GET /encounter/data-prep/key`, `GET /encounter/data-prep/local-map`, `GET /encounter/data-prep/download`, `GET /encounter/data-prep/local-map-{template,example}.json` (all `ROLE_ENCOUNTER_BETA`), `GET /data-prep/latest.json` (public) |
 | Tests | `tests/Encounter/DataPrep/*.test.js` (`npm run test:js`), `tests/Encounter/Unit/UI/DataPrep/`, `tests/Encounter/Functional/Controller/DataPrepToolControllerTest.php`, `DataPrepGuideControllerTest.php` |
 
 The two scripts are plain scripts without imports; the server inlines them into the file, and the
@@ -160,16 +160,16 @@ No new request: the Content Security Policy is unchanged, the only `connect-src`
 ## Landing page
 
 `/encounter/data-prep` (beta role, as `/encounter`), linked from the card on `/encounter`; the top
-navigation entry "Encounter data" stays active on it. It shows no case data and asks for no codes:
+navigation entry "Encounter data" stays active on it and its subpages. The pages show no case data and
+ask for no codes. Layout: main column (2/3) and side column (1/3).
 
-| Section | Content |
-|---|---|
-| Current version | `version`, `released_at`, `min_version`, download |
-| What's new | `DataPrepChangelog`, newest first |
-| Getting started | 1. grants: what upload, review and view cases allow, the user's hospitals (encounter grants and owned hospitals) with the user's own grant actions and, for `MANAGE_GRANTS`, a link to the grants page; 2. export (the profile's required columns); 3. key file; 4. local map; 5. run; 6. upload and review |
-| Key | key generations, a lost key; links to the key change (`app_encounter_key_change`) only for hospitals with `CHANGE_KEY` (owner, administrator); others read who can change it |
-| Local map | format, sections, allowed care levels and dispositions (from `CareLevel`, `Disposition`), example, downloads of the empty template and the example, the department names the import resolves (`DepartmentCatalogInterface::uniqueNames()`: names of the reference catalog that no other entry shares, case-insensitive) |
-| Help | unmapped values, rejected upload, update notice, version below the minimum, failed content check; link to this document |
+| Page | Main column | Side column |
+|---|---|---|
+| `/encounter/data-prep` | Getting started: 1. grants (what upload, review and view cases allow, the user's hospitals from encounter grants and ownership with the user's own grant actions and, for `MANAGE_GRANTS`, a link to the grants page); 2. export (the profile's required columns); 3. key file; 4. local map; 5. run; 6. upload and review. Below, short summaries of the key file and the local map with links to their pages | current version (`version`, `released_at`, `min_version`, download), What's new (`DataPrepChangelog`, newest first) |
+| `/encounter/data-prep/key` | what the key is for, creating and keeping it, key generations, a lost key | key change: links to `app_encounter_key_change` only for hospitals with `CHANGE_KEY` (owner, administrator); others read who can change it |
+| `/encounter/data-prep/local-map` | purpose, format and sections, allowed care levels and dispositions (from `CareLevel`, `Disposition`), example | downloads of the empty template and the example; the department names the import resolves (`DepartmentCatalogInterface::uniqueNames()`: names of the reference catalog that no other entry shares, case-insensitive) |
+
+Help for common problems is left for the help area.
 
 ## Flow
 
