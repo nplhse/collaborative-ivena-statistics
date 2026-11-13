@@ -14,7 +14,7 @@ The quarantine is built in steps on the integration branch `feature/feedback-qua
 | 3 | Quarantine view for reviewers (release, quarantine, delete) | done |
 | 4 | Weekly quarantine summary | done |
 | 5 | Retention of quarantined feedback | done |
-| 6 | Reclassification of existing entries (dry run first) | planned |
+| 6 | Reclassification of existing entries (dry run first) | done |
 
 ## Submission flow
 
@@ -107,7 +107,7 @@ Stored with the classification (table `feedback`):
 | `spam_score` | score of an automatic quarantine; null otherwise |
 | `classified_at`, `classified_by_id` | last change of the classification and the reviewer; no reviewer means automatic |
 | `quarantine_reported_at` | when the entry was covered by the weekly summary; a reviewer's own quarantine counts as known and is set at once |
-| `message_fingerprint` | see [Score](#score); existing entries from before #964 have none |
+| `message_fingerprint` | see [Score](#score); entries from before #964 get it from `app:feedback:reclassify --apply` |
 
 Releasing an entry drops its reasons and score; only the time and the reviewer of the release stay.
 Releasing sends no notification.
@@ -180,3 +180,23 @@ What the spam protection stores, and for how long:
 | `classified_at`, `classified_by_id`, `quarantine_reported_at` | review trail, retention, weekly summary | with the entry |
 | `message_fingerprint` | repeated messages (SHA-256, no readable text) | with the entry |
 | rejected submissions | not stored; the reject log has reason codes and hashed IP and email | log retention |
+
+## Existing entries
+
+`php bin/console app:feedback:reclassify` checks the existing normal feedback against the current rules
+and lists the entries it would move into quarantine: id, date, score and reason codes, no message
+content. It changes nothing; `--apply` moves the listed entries and fills in missing message
+fingerprints. A second run finds nothing new.
+
+- Only stored signals count: page context (`route_name`), links, HTML, keywords, patterns, blocked
+  link domains, token-only messages, length, and earlier entries with the same guest email or message
+  within `history_days` before the entry. Submission time and honeypots were never stored and count as
+  unknown.
+- Moved entries get the reason `reclassified` in addition, `classified_at` is the time of the run (the
+  retention starts then), and they count as reported: whoever applied the run has seen the list.
+- Review the dry-run list in the admin area before applying; entries can be released afterwards.
+
+On the production mirror of 2026-11-12 (27 entries: 4 genuine, 23 spam) the dry run lists 17 spam
+entries and none of the genuine ones. The 6 spam entries it leaves are first messages from new
+addresses without a strong signal (e.g. a first "I wanted to know your price"), as intended by the
+rule that a missing page context alone does not quarantine.

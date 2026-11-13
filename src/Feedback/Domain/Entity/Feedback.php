@@ -312,6 +312,16 @@ class Feedback implements \Stringable
         return $this;
     }
 
+    /** Records that the quarantine is known and needs no weekly summary (e.g. a reviewed reclassification). */
+    public function markQuarantineReported(\DateTimeImmutable $at): static
+    {
+        if ($this->isQuarantined()) {
+            $this->quarantineReportedAt = $at;
+        }
+
+        return $this;
+    }
+
     /** Releases the entry from quarantine; reasons and score are dropped, the workflow status stays. */
     public function release(User $reviewer, \DateTimeImmutable $at): static
     {

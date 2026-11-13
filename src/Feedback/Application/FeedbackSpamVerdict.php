@@ -17,4 +17,9 @@ enum FeedbackSpamVerdict: string
 
     /** Clearly invalid (honeypot, hard length limit): not stored. */
     case REJECT = 'reject';
+
+    public function isAccept(): bool
+    {
+        return self::ACCEPT === $this;
+    }
 }
