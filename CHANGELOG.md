@@ -21,7 +21,7 @@ Existing installations: the first deploy deletes all but the two newest releases
 
 ### Build
 
-- **deploy:** Keep only the last two releases on the server ([#1112](https://github.com/nplhse/collaborative-ivena-statistics/pull/1112))
+- **deploy:** Keep only the last two releases on the server ([#1115](https://github.com/nplhse/collaborative-ivena-statistics/pull/1115))
 
 ## [0.2.2-beta] - 2026-11-04
 
