@@ -118,8 +118,11 @@ Both views require `ROLE_ADMIN`. Changes are POST actions with a CSRF token; non
 notification.
 
 In the admin menu both views sit in one **Feedback** group with the entries **Feedback Inbox** and
-**Quarantine**. The group carries the only badge: the open normal entries
-(`FeedbackRepository::countOpen()`), hidden when there are none. The submenu entries have no badge.
+**Quarantine**. While the group is collapsed, its badge shows the open normal entries
+(`FeedbackRepository::countOpen()`). Once it is open, that badge is hidden (CSS class
+`ea-sidebar-link-summary-badge` in `assets/styles/admin-kpi.css`) and each entry shows its own count:
+the inbox the open normal entries, the quarantine the number in quarantine
+(`FeedbackRepository::countQuarantined()`) in another colour (`warning`). Each badge is hidden at 0.
 
 - **Feedback** (`FeedbackCrudController`, `/admin/feedback`): normal entries only. The page title shows
   the open normal entries and the number in quarantine; the dashboard tile shows the open normal
@@ -129,7 +132,7 @@ In the admin menu both views sit in one **Feedback** group with the entries **Fe
     is `manual`, there is no score, the reviewer is stored, and the entry counts as reported for the
     weekly summary.
 - **Feedback quarantine** (`FeedbackQuarantineCrudController`, `/admin/feedback-quarantine`). Its page
-  title shows the count (`FeedbackRepository::countQuarantined()`); the menu shows no quarantine count.
+  title and its menu entry show the count (`FeedbackRepository::countQuarantined()`), never content.
   Nothing of the quarantine appears on the dashboard.
   - Index: created, category, guest email or user, reason codes, score and an 80-character preview
     without links.

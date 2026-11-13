@@ -454,14 +454,24 @@ final class DashboardController extends AbstractDashboardController
         ]);
 
         $openFeedbackCount = $this->feedbackRepository->countOpen();
-        // One badge on the group: open normal feedback only; quarantined entries never count here.
-        $feedbackMenu = MenuItem::subMenu(new TranslatableMessage('menu.feedback', domain: 'admin'), 'fas fa-comment-dots')->setSubItems([
-            MenuItem::linkTo(FeedbackCrudController::class, new TranslatableMessage('menu.feedback.inbox', domain: 'admin'), 'fas fa-inbox'),
-            MenuItem::linkTo(FeedbackQuarantineCrudController::class, new TranslatableMessage('menu.feedback.quarantine', domain: 'admin'), 'fas fa-shield-halved'),
-        ]);
+        $quarantinedFeedbackCount = $this->feedbackRepository->countQuarantined();
+        // Collapsed, the group badge shows the open normal feedback; expanded, it is hidden by CSS
+        // (ea-sidebar-link-summary-badge) and each entry shows its own count. The quarantine count
+        // has another colour; quarantined content is shown only after the reviewer opens it.
+        $inboxMenu = MenuItem::linkTo(FeedbackCrudController::class, new TranslatableMessage('menu.feedback.inbox', domain: 'admin'), 'fas fa-inbox');
+        $quarantineMenu = MenuItem::linkTo(FeedbackQuarantineCrudController::class, new TranslatableMessage('menu.feedback.quarantine', domain: 'admin'), 'fas fa-shield-halved');
+        $feedbackMenu = MenuItem::subMenu(new TranslatableMessage('menu.feedback', domain: 'admin'), 'fas fa-comment-dots')
+            ->setCssClass('ea-sidebar-link-summary-badge');
         if ($openFeedbackCount > 0) {
+            $inboxMenu->setBadge($openFeedbackCount, 'info');
             $feedbackMenu->setBadge($openFeedbackCount, 'info');
         }
+
+        if ($quarantinedFeedbackCount > 0) {
+            $quarantineMenu->setBadge($quarantinedFeedbackCount, 'warning');
+        }
+
+        $feedbackMenu->setSubItems([$inboxMenu, $quarantineMenu]);
 
         yield $feedbackMenu;
 

@@ -56,16 +56,25 @@ final class FeedbackCrudControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
 
         $group = $this->feedbackMenuGroup($crawler);
-        $groupBadge = $group->filter('.ea-sidebar-item-link > .ea-sidebar-badge');
-        self::assertCount(1, $groupBadge, 'the feedback group shows one badge');
+        $groupLink = $group->children('.ea-sidebar-item-link');
+        $groupBadge = $groupLink->filter('.ea-sidebar-badge');
+        self::assertCount(1, $groupBadge, 'the collapsed feedback group shows one badge');
         self::assertSame('1', trim($groupBadge->text()), 'one open normal entry; done and quarantined entries do not count');
+        self::assertStringContainsString('ea-sidebar-link-summary-badge', (string) $groupLink->attr('class'), 'the group badge is hidden by CSS once the group is open');
 
         $subItems = $group->filter('.ea-sidebar-submenu-items > li.ea-sidebar-item');
         self::assertSame(
             ['Feedback Inbox', 'Quarantine'],
             $subItems->each(static fn (Crawler $item): string => trim($item->filter('.ea-sidebar-item-label')->text())),
         );
-        self::assertCount(0, $subItems->filter('.ea-sidebar-badge'), 'submenu entries have no badge of their own');
+        $inboxBadge = $subItems->eq(0)->filter('.ea-sidebar-badge');
+        self::assertCount(1, $inboxBadge, 'the inbox entry shows its count');
+        self::assertSame('1', trim($inboxBadge->text()), 'same count as the group badge');
+        self::assertStringContainsString('badge-info', (string) $inboxBadge->attr('class'));
+        $quarantineBadge = $subItems->eq(1)->filter('.ea-sidebar-badge');
+        self::assertCount(1, $quarantineBadge, 'the quarantine entry shows its count');
+        self::assertSame('2', trim($quarantineBadge->text()), 'two quarantined entries, regardless of their status');
+        self::assertStringContainsString('badge-warning', (string) $quarantineBadge->attr('class'), 'the quarantine count differs in colour from the group badge');
         self::assertStringNotContainsString('quarantined spam', $crawler->filter('body')->text(), 'no content on the dashboard');
     }
 
@@ -78,7 +87,23 @@ final class FeedbackCrudControllerTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, '/admin');
         self::assertResponseIsSuccessful();
 
-        self::assertCount(0, $this->feedbackMenuGroup($crawler)->filter('.ea-sidebar-badge'));
+        $group = $this->feedbackMenuGroup($crawler);
+        self::assertCount(0, $group->children('.ea-sidebar-item-link')->filter('.ea-sidebar-badge'), 'no group badge without open normal feedback');
+        $subItems = $group->filter('.ea-sidebar-submenu-items > li.ea-sidebar-item');
+        self::assertCount(0, $subItems->eq(0)->filter('.ea-sidebar-badge'), 'no inbox badge without open normal feedback');
+        self::assertSame('1', trim($subItems->eq(1)->filter('.ea-sidebar-badge')->text()), 'the quarantine count stays visible');
+    }
+
+    public function testFeedbackMenuHasNoQuarantineBadgeWithoutQuarantinedFeedback(): void
+    {
+        $client = $this->loggedInAdmin();
+        $this->feedback('Open normal feedback', FeedbackStatus::NEW, false);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin');
+        self::assertResponseIsSuccessful();
+
+        $subItems = $this->feedbackMenuGroup($crawler)->filter('.ea-sidebar-submenu-items > li.ea-sidebar-item');
+        self::assertCount(0, $subItems->eq(1)->filter('.ea-sidebar-badge'), 'no quarantine badge without quarantined feedback');
     }
 
     #[DataProvider('feedbackSections')]
