@@ -11,6 +11,7 @@ use App\Admin\UI\Http\Controller\Hospital\HospitalCrudController;
 use App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository;
 use App\Shared\Application\Locale\SupportedLocales;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Shared\Infrastructure\Doctrine\SortDirections;
 use App\User\Application\Event\UserBecameParticipant;
 use App\User\Application\Event\UserRegistered;
 use App\User\Domain\Entity\User;
@@ -103,10 +104,11 @@ final class UserCrudController extends AbstractCrudController
         foreach ($orderByParts as $orderBy) {
             $parts = $orderBy->getParts();
             if (1 === \count($parts) && 1 === preg_match('/^(\w+)\.username (ASC|DESC)$/i', $parts[0], $match)) {
+                $direction = SortDirections::fromString($match[2]);
                 $queryBuilder
                     ->addSelect(\sprintf('LOWER(%s.username) AS HIDDEN usernameSort', $match[1]))
-                    ->addOrderBy('usernameSort', $match[2])
-                    ->addOrderBy($match[1].'.username', $match[2]);
+                    ->addOrderBy('usernameSort', $direction)
+                    ->addOrderBy($match[1].'.username', $direction);
 
                 continue;
             }

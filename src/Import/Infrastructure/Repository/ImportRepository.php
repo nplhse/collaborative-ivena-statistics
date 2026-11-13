@@ -79,7 +79,7 @@ SQL;
         $qb = $this->createQueryBuilder('i')
             ->where('i.createdAt >= :from')
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('i.createdAt', 'ASC');
+            ->orderBy('i.createdAt', \SortDirection::Ascending);
         if ($toExclusive instanceof \DateTimeInterface) {
             $qb->andWhere('i.createdAt < :toExclusive')
                 ->setParameter('toExclusive', $toExclusive, Types::DATETIME_IMMUTABLE);
@@ -120,7 +120,7 @@ SQL;
             ->select('i.createdAt AS createdAt')
             ->where('i.createdAt >= :from')
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('i.createdAt', 'ASC');
+            ->orderBy('i.createdAt', \SortDirection::Ascending);
 
         if ($toExclusive instanceof \DateTimeInterface) {
             $qb->andWhere('i.createdAt < :toExclusive')
@@ -156,7 +156,7 @@ SQL;
     {
         $qb = $this->createQueryBuilder('i')
             ->select('i.id AS id', 'i.name AS name', 'i.filePath AS filePath')
-            ->orderBy('i.id', 'ASC');
+            ->orderBy('i.id', \SortDirection::Ascending);
 
         if (null !== $onlyId) {
             $qb->andWhere('i.id = :onlyId')
@@ -191,7 +191,7 @@ SQL;
             ->andWhere('i.status IN (:statuses)')
             ->setParameter('hospitalId', $hospitalId)
             ->setParameter('statuses', [ImportStatus::COMPLETED, ImportStatus::PARTIAL])
-            ->orderBy('i.createdAt', 'DESC')
+            ->orderBy('i.createdAt', \SortDirection::Descending)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
@@ -211,7 +211,7 @@ SQL;
             ->setParameter('hospitalId', $hospitalId)
             ->setParameter('statuses', [ImportStatus::COMPLETED, ImportStatus::PARTIAL])
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('i.createdAt', 'ASC');
+            ->orderBy('i.createdAt', \SortDirection::Ascending);
 
         /** @var Import[] $rows */
         $rows = $qb->getQuery()->getResult();
@@ -231,7 +231,7 @@ SQL;
             ->andWhere('i.createdAt >= :from')
             ->setParameter('hospitalId', $hospitalId)
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('i.createdAt', 'ASC');
+            ->orderBy('i.createdAt', \SortDirection::Ascending);
 
         /** @var Import[] $rows */
         $rows = $qb->getQuery()->getResult();
@@ -301,7 +301,7 @@ SQL;
             ->join('i.hospital', 'h')
             ->where('i.status = :failed')
             ->setParameter('failed', ImportStatus::FAILED)
-            ->orderBy('i.createdAt', 'DESC')
+            ->orderBy('i.createdAt', \SortDirection::Descending)
             ->setMaxResults($limit);
 
         if ($since instanceof \DateTimeImmutable) {

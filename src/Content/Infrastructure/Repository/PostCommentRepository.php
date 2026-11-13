@@ -32,8 +32,8 @@ final class PostCommentRepository extends ServiceEntityRepository
             ->andWhere('IDENTITY(c.post) = :postId')
             ->andWhere('c.parent IS NULL')
             ->setParameter('postId', $post->getId(), Types::INTEGER)
-            ->orderBy('c.createdAt', 'ASC')
-            ->addOrderBy('children.createdAt', 'ASC')
+            ->orderBy('c.createdAt', \SortDirection::Ascending)
+            ->addOrderBy('children.createdAt', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 

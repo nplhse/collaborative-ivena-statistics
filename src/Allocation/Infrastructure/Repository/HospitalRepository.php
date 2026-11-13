@@ -15,6 +15,7 @@ use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\UI\Http\DTO\HospitalQueryParametersDTO;
+use App\Shared\Infrastructure\Doctrine\SortDirections;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
@@ -129,7 +130,7 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
     public function getQueryBuilderForHospitalsWithPermission(User $user, HospitalPermission $permission): QueryBuilder
     {
         $qb = $this->createQueryBuilder('h')
-            ->orderBy('h.name', 'ASC');
+            ->orderBy('h.name', \SortDirection::Ascending);
 
         if (\in_array(UserRole::ADMIN, $user->getRoles(), true)) {
             return $qb;
@@ -193,8 +194,8 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
             ->leftJoin(HospitalAccessGrant::class, 'g', Join::WITH, 'g.hospital = h AND IDENTITY(g.user) = :userId')
             ->andWhere('IDENTITY(h.owner) = :userId OR g.id IS NOT NULL')
             ->setParameter('userId', $userId, Types::INTEGER)
-            ->orderBy('h.name', 'ASC')
-            ->addOrderBy('h.id', 'ASC')
+            ->orderBy('h.name', \SortDirection::Ascending)
+            ->addOrderBy('h.id', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 
@@ -252,8 +253,8 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         }
 
         // The id tie-breaker keeps rows with equal sort values on a stable page.
-        $qb->orderBy($field, $queryParametersDTO->orderBy)
-            ->addOrderBy('h.id', $queryParametersDTO->orderBy);
+        $qb->orderBy($field, SortDirections::fromString($queryParametersDTO->orderBy))
+            ->addOrderBy('h.id', SortDirections::fromString($queryParametersDTO->orderBy));
 
         if (null !== $queryParametersDTO->search) {
             $qb->andWhere($qb->expr()->like('h.name', ':search'))
@@ -292,7 +293,7 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         /** @var list<array{id: int|string, name: string}> $rows */
         $rows = $this->createQueryBuilder('h')
             ->select('h.id AS id', 'h.name AS name')
-            ->orderBy('h.name', 'ASC')
+            ->orderBy('h.name', \SortDirection::Ascending)
             ->getQuery()
             ->getArrayResult();
 
@@ -357,7 +358,7 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
     {
         $rows = $this->getQueryBuilderForHospitalsWithPermission($user, HospitalPermission::Export)
             ->select('h.id AS id', 'h.name AS name')
-            ->orderBy('h.name', 'ASC')
+            ->orderBy('h.name', \SortDirection::Ascending)
             ->getQuery()
             ->getArrayResult();
 
@@ -389,8 +390,8 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
             ->innerJoin('h.state', 's')
             ->andWhere('h.state = :state')
             ->setParameter('state', $stateId, Types::INTEGER)
-            ->orderBy('h.name', 'ASC')
-            ->addOrderBy('h.id', 'ASC')
+            ->orderBy('h.name', \SortDirection::Ascending)
+            ->addOrderBy('h.id', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 
@@ -412,8 +413,8 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         $hospitals = $this->createQueryBuilder('h')
             ->andWhere('h.dispatchArea = :dispatchArea')
             ->setParameter('dispatchArea', $dispatchAreaId, Types::INTEGER)
-            ->orderBy('h.name', 'ASC')
-            ->addOrderBy('h.id', 'ASC')
+            ->orderBy('h.name', \SortDirection::Ascending)
+            ->addOrderBy('h.id', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 
@@ -430,7 +431,7 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
             ->addSelect('o')
             ->innerJoin('h.owner', 'o')
             ->andWhere('h.isParticipating = true')
-            ->orderBy('h.id', 'ASC')
+            ->orderBy('h.id', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 

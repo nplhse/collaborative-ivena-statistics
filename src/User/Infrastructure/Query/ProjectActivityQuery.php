@@ -64,8 +64,8 @@ final readonly class ProjectActivityQuery implements ProjectActivityQueryInterfa
             ->andWhere('u.isEnabled = true')
             ->andWhere('a.type IN (:types)')
             ->setParameter('types', $this->resolvedTypes($filters))
-            ->orderBy('a.occurredAt', 'DESC')
-            ->addOrderBy('a.id', 'DESC')
+            ->orderBy('a.occurredAt', \SortDirection::Descending)
+            ->addOrderBy('a.id', \SortDirection::Descending)
             ->setMaxResults($limit);
 
         $this->excludeUnpublishedPostActivities($qb);

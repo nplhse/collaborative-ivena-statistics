@@ -101,7 +101,7 @@ final class KpiDailyRepository extends ServiceEntityRepository
             ->where('k.hospital IS NULL')
             ->andWhere('k.date >= :from')
             ->setParameter('from', $from, Types::DATE_IMMUTABLE)
-            ->orderBy('k.date', 'ASC')
+            ->orderBy('k.date', \SortDirection::Ascending)
             ->getQuery()
             ->getArrayResult();
 

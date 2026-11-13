@@ -33,7 +33,7 @@ final class ImportRunRepository extends ServiceEntityRepository
         $runs = $this->createQueryBuilder('run')
             ->where('IDENTITY(run.import) = :importId')
             ->setParameter('importId', $importId)
-            ->orderBy('run.createdAt', 'DESC')
+            ->orderBy('run.createdAt', \SortDirection::Descending)
             ->getQuery()
             ->getResult();
 
@@ -54,7 +54,7 @@ final class ImportRunRepository extends ServiceEntityRepository
             ->setParameter('statuses', [ImportRunStatus::Completed, ImportRunStatus::Partial, ImportRunStatus::Failed])
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->setParameter('to', $to, Types::DATETIME_IMMUTABLE)
-            ->orderBy('run.finishedAt', 'ASC')
+            ->orderBy('run.finishedAt', \SortDirection::Ascending)
             ->getQuery()
             ->setHint(Query::HINT_REFRESH, true)
             ->getResult();

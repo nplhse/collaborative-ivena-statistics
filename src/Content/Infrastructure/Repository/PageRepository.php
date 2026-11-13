@@ -65,8 +65,8 @@ final class PageRepository extends ServiceEntityRepository
         $pages = $this->createQueryBuilder('p')
             ->andWhere('IDENTITY(p.parent) = :parentId')
             ->setParameter('parentId', $parent->getId(), Types::INTEGER)
-            ->orderBy('p.sortOrder', 'ASC')
-            ->addOrderBy('p.id', 'ASC')
+            ->orderBy('p.sortOrder', \SortDirection::Ascending)
+            ->addOrderBy('p.id', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 
@@ -149,7 +149,7 @@ final class PageRepository extends ServiceEntityRepository
         $pages = $this->createQueryBuilder('p')
             ->addSelect('t')
             ->leftJoin('p.translations', 't')
-            ->orderBy('p.id', 'ASC')
+            ->orderBy('p.id', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 

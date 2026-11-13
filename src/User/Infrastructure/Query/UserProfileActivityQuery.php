@@ -63,12 +63,12 @@ final readonly class UserProfileActivityQuery
             ->andWhere('IDENTITY(a.user) = :userId')
             ->setParameter('userId', $userId)
             ->setParameter('joinedType', UserActivityType::JOINED)
-            ->orderBy('joinedRank', 'ASC');
+            ->orderBy('joinedRank', \SortDirection::Ascending);
 
         $this->excludeUnpublishedPostActivities($qb);
 
-        $qb->addOrderBy('a.occurredAt', 'DESC')
-            ->addOrderBy('a.id', 'DESC')
+        $qb->addOrderBy('a.occurredAt', \SortDirection::Descending)
+            ->addOrderBy('a.id', \SortDirection::Descending)
             ->setMaxResults($limit);
 
         if ($cursor instanceof ProfileActivityCursor) {

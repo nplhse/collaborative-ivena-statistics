@@ -12,6 +12,7 @@ use App\Import\Domain\Entity\ImportBatchRunItem;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\UI\Http\DTO\ListImportQueryParametersDTO;
+use App\Shared\Infrastructure\Doctrine\SortDirections;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\DBAL\Types\Types;
@@ -126,8 +127,8 @@ final readonly class ListImportsQuery
         }
 
         // The id tie-breaker keeps rows with equal sort values on a stable page.
-        $qb->orderBy(self::sortField($query->sortBy), $query->orderBy)
-            ->addOrderBy('i.id', $query->orderBy);
+        $qb->orderBy(self::sortField($query->sortBy), SortDirections::fromString($query->orderBy))
+            ->addOrderBy('i.id', SortDirections::fromString($query->orderBy));
 
         return $qb;
     }

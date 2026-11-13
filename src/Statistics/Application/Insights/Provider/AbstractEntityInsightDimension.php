@@ -97,11 +97,11 @@ abstract readonly class AbstractEntityInsightDimension implements InsightDimensi
         $qb = $this->entityManager->createQueryBuilder()
             ->from($this->entityFqcn(), 'e')
             ->select('e.id AS id', 'e.name AS name', 'e.publicId AS publicId')
-            ->orderBy('e.name', 'ASC');
+            ->orderBy('e.name', \SortDirection::Ascending);
 
         if ($this->hasCode()) {
             $qb->addSelect('e.code AS code');
-            $qb->orderBy('e.code', 'ASC');
+            $qb->orderBy('e.code', \SortDirection::Ascending);
         }
 
         return $qb;

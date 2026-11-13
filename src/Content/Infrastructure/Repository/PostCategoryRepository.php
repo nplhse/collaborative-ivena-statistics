@@ -41,7 +41,7 @@ final class PostCategoryRepository extends ServiceEntityRepository
             ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
             ->groupBy('c.id')
             ->having('COUNT(p.id) > 0')
-            ->orderBy('c.name', 'ASC')
+            ->orderBy('c.name', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 

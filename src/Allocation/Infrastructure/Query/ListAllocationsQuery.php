@@ -261,7 +261,7 @@ final readonly class ListAllocationsQuery
                 ->setParameter('cursorId', $cursor['id'], ParameterType::INTEGER);
         }
 
-        $direction = $ascending ? 'ASC' : 'DESC';
+        $direction = $ascending ? \SortDirection::Ascending : \SortDirection::Descending;
         $qb
             ->orderBy($sortField, $direction)
             ->addOrderBy('a.id', $direction)

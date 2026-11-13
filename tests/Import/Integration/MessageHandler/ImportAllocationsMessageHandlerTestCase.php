@@ -441,7 +441,7 @@ abstract class ImportAllocationsMessageHandlerTestCase extends DatabaseKernelTes
             ->from(AuditEntry::class, 'a')
             ->andWhere('a.entityClass = :class')
             ->setParameter('class', Import::class)
-            ->orderBy('a.id', 'DESC')
+            ->orderBy('a.id', \SortDirection::Descending)
             ->setMaxResults(80)
             ->getQuery()
             ->getResult();

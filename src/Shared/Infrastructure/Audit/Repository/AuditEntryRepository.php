@@ -76,7 +76,7 @@ final class AuditEntryRepository extends ServiceEntityRepository
             ->andWhere('a.entityId = :entityId')
             ->setParameter('entityClass', $entityClass)
             ->setParameter('entityId', $entityId)
-            ->orderBy('a.occurredAt', 'DESC')
+            ->orderBy('a.occurredAt', \SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();

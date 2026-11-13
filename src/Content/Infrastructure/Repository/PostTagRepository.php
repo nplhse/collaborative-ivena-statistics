@@ -41,7 +41,7 @@ final class PostTagRepository extends ServiceEntityRepository
             ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
             ->groupBy('t.id')
             ->having('COUNT(p.id) > 0')
-            ->orderBy('t.name', 'ASC')
+            ->orderBy('t.name', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 

@@ -93,7 +93,7 @@ final readonly class DataQualityHospitalPopulationQuery implements DataQualityHo
             ->select('h.id', 'h.size', 'h.tier', 'h.location', 'da.name AS landkreis')
             ->leftJoin('h.dispatchArea', 'da')
             ->leftJoin('h.state', 's')
-            ->orderBy('h.id', 'ASC');
+            ->orderBy('h.id', \SortDirection::Ascending);
 
         if (null !== $hospitalIds) {
             $qb->andWhere('h.id IN (:hospitalIds)')

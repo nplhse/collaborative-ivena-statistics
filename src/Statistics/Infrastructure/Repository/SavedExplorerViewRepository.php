@@ -67,7 +67,7 @@ final class SavedExplorerViewRepository extends ServiceEntityRepository
             ->andWhere('IDENTITY(v.createdBy) = :userId')
             ->setParameter('isSystem', false)
             ->setParameter('userId', $user->getId(), Types::INTEGER)
-            ->orderBy('v.title', 'ASC')
+            ->orderBy('v.title', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 
@@ -83,7 +83,7 @@ final class SavedExplorerViewRepository extends ServiceEntityRepository
         $items = $this->createQueryBuilder('v')
             ->andWhere('v.isSystem = :isSystem')
             ->setParameter('isSystem', true)
-            ->orderBy('v.title', 'ASC')
+            ->orderBy('v.title', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 
@@ -104,7 +104,7 @@ final class SavedExplorerViewRepository extends ServiceEntityRepository
             ->setParameter('isSystem', false)
             ->setParameter('visibility', AnalysisViewVisibility::Public)
             ->setParameter('userId', $user->getId(), Types::INTEGER)
-            ->orderBy('v.title', 'ASC')
+            ->orderBy('v.title', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 

@@ -38,12 +38,12 @@ class Page implements \Stringable
 
     /** @var Collection<int, self> */
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parent')]
-    #[ORM\OrderBy(['sortOrder' => 'ASC', 'id' => 'ASC'])]
+    #[ORM\OrderBy(['sortOrder' => \SortDirection::Ascending, 'id' => \SortDirection::Ascending])]
     private Collection $children;
 
     /** @var Collection<int, PageTranslation> */
     #[ORM\OneToMany(targetEntity: PageTranslation::class, mappedBy: 'page', cascade: ['persist'], orphanRemoval: true)]
-    #[ORM\OrderBy(['locale' => 'ASC'])]
+    #[ORM\OrderBy(['locale' => \SortDirection::Ascending])]
     private Collection $translations;
 
     #[ORM\Column(nullable: true, enumType: PageKey::class)]

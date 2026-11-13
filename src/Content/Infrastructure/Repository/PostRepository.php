@@ -35,7 +35,7 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('status', PostStatus::PUBLISHED)
             ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
-            ->orderBy('p.publishedAt', 'DESC');
+            ->orderBy('p.publishedAt', \SortDirection::Descending);
 
         return $qb;
     }
@@ -52,7 +52,7 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->setParameter('slug', $categorySlug)
             ->setParameter('status', PostStatus::PUBLISHED)
             ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
-            ->orderBy('p.publishedAt', 'DESC');
+            ->orderBy('p.publishedAt', \SortDirection::Descending);
 
         return $qb;
     }
@@ -70,7 +70,7 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->setParameter('slug', $tagSlug)
             ->setParameter('status', PostStatus::PUBLISHED)
             ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
-            ->orderBy('p.publishedAt', 'DESC');
+            ->orderBy('p.publishedAt', \SortDirection::Descending);
 
         return $qb;
     }
@@ -87,7 +87,7 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('status', PostStatus::PUBLISHED)
             ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
-            ->orderBy('p.publishedAt', 'DESC');
+            ->orderBy('p.publishedAt', \SortDirection::Descending);
 
         if (null !== $limit) {
             $qb->setMaxResults($limit);
@@ -112,7 +112,7 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->setParameter('slug', $slug)
             ->setParameter('status', PostStatus::PUBLISHED)
             ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
-            ->addOrderBy('t.name', 'ASC')
+            ->addOrderBy('t.name', \SortDirection::Ascending)
             ->getQuery()
             ->getOneOrNullResult();
 
@@ -181,8 +181,8 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
             ->setParameter('publishedAt', $publishedAt, Types::DATETIME_IMMUTABLE)
             ->setParameter('id', $currentId)
-            ->orderBy('p.publishedAt', 'DESC')
-            ->addOrderBy('p.id', 'DESC')
+            ->orderBy('p.publishedAt', \SortDirection::Descending)
+            ->addOrderBy('p.id', \SortDirection::Descending)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
@@ -208,8 +208,8 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
             ->setParameter('publishedAt', $publishedAt, Types::DATETIME_IMMUTABLE)
             ->setParameter('id', $currentId)
-            ->orderBy('p.publishedAt', 'ASC')
-            ->addOrderBy('p.id', 'ASC')
+            ->orderBy('p.publishedAt', \SortDirection::Ascending)
+            ->addOrderBy('p.id', \SortDirection::Ascending)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();

@@ -111,7 +111,7 @@ final readonly class PageContentBlockDataFieldsConfigurator
                 'query_builder' => fn (): \Doctrine\ORM\QueryBuilder => $this->mediaRepository->createQueryBuilder('m')
                     ->andWhere('m.type = :type')
                     ->setParameter('type', MediaType::IMAGE)
-                    ->orderBy('m.createdAt', 'DESC'),
+                    ->orderBy('m.createdAt', \SortDirection::Descending),
                 'help' => $this->translator->trans('help.page.image_media', [], 'content')
                     .sprintf(
                         ' <a href="%s" target="_blank" rel="noopener">%s</a>.',
@@ -192,7 +192,7 @@ final readonly class PageContentBlockDataFieldsConfigurator
                 'query_builder' => fn (): \Doctrine\ORM\QueryBuilder => $this->mediaRepository->createQueryBuilder('m')
                     ->andWhere('m.type = :type')
                     ->setParameter('type', MediaType::PDF)
-                    ->orderBy('m.createdAt', 'DESC'),
+                    ->orderBy('m.createdAt', \SortDirection::Descending),
                 'help' => 'help.page.cta_media_pdf',
             ])
             ->add('openInNewTab', CheckboxType::class, [
