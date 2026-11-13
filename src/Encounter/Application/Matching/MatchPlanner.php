@@ -12,7 +12,7 @@ use App\Encounter\Domain\Enum\MatchStatus;
  * ADR 029). Pure: it reads nothing and writes nothing.
  *
  * Score: each candidate visit of an allocation weighs 2^points (sum of the feature points,
- * {@see FeatureScorer}); a "no match" option weighs 2^NO_MATCH_POINTS. The score of a candidate is its
+ * {@see FeatureScorer}); a "no match" option weighs 2^noMatchPoints ({@see MatchWeights}, v1: 4). The score of a candidate is its
  * share of the total weight, so two similar candidates both score low. Example: a single candidate with
  * 9 points scores 512 / (16 + 512) = 0.9697.
  *
@@ -29,17 +29,21 @@ use App\Encounter\Domain\Enum\MatchStatus;
  */
 final readonly class MatchPlanner
 {
-    public const string VERSION = '1.0.0';
+    /** Version of the production matcher, stored with every pair it writes. */
+    public const string VERSION = MatchWeights::VERSION_1;
 
-    /** Weight of the "no match" option in points. */
-    public const int NO_MATCH_POINTS = 4;
+    /** Weight of the "no match" option of the production matcher, in points. */
+    public const int NO_MATCH_POINTS = MatchWeights::NO_MATCH_POINTS_1;
 
-    private const int SCORE_PRECISION = 4;
+    public const int SCORE_PRECISION = 4;
+
+    private FeatureScorer $scorer;
 
     public function __construct(
         private MatchingSettings $settings,
-        private FeatureScorer $scorer = new FeatureScorer(),
+        private MatchWeights $weights = new MatchWeights(),
     ) {
+        $this->scorer = new FeatureScorer($weights);
     }
 
     /**
@@ -122,13 +126,12 @@ final readonly class MatchPlanner
     }
 
     /**
-     * Agreement of a pair that is the only candidate: 2^points / (2^points + 2^NO_MATCH_POINTS).
+     * Agreement of a pair that is the only candidate under the production points:
+     * 2^points / (2^points + 2^NO_MATCH_POINTS).
      */
     public static function agreementAlone(int $points): float
     {
-        $weight = 2.0 ** (float) $points;
-
-        return round($weight / ($weight + 2.0 ** (float) self::NO_MATCH_POINTS), self::SCORE_PRECISION);
+        return MatchWeights::v1()->agreementAlone($points);
     }
 
     /**
@@ -165,7 +168,7 @@ final readonly class MatchPlanner
             return [];
         }
 
-        $total = $this->weight(self::NO_MATCH_POINTS);
+        $total = $this->weight($this->weights->noMatchPoints);
         foreach ($candidates as [, , , $points]) {
             $total += $this->weight($points);
         }
