@@ -133,7 +133,7 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
                 'translation_domain' => 'encounter',
                 'help' => 'encounter.import.field.confirmation_help',
                 'help_html' => true,
-                'help_translation_parameters' => ['url' => $this->urlGenerator->generate('app_encounter_data_prep')],
+                'help_translation_parameters' => ['url' => $this->urlGenerator->generate('app_tools_data_prep')],
             ]);
     }
 

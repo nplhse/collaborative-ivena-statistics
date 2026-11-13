@@ -239,6 +239,7 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertNotNull($occasion);
         self::assertSelectorExists('a[href="/explore/occasion/'.$occasion->getPublicIdString().'"]');
         self::assertSelectorNotExists('a[href*="/explore/indication/raw/"]');
+        self::assertSelectorNotExists('a[href*="/tools/indication-review"]');
     }
 
     public function testShowLinksOptionalRelatedExplorerEntities(): void
@@ -286,6 +287,7 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertSelectorExists('a[href="/explore/secondary_transport/'.$secondaryTransport->getPublicIdString().'"]');
         self::assertSelectorExists('a[href="/explore/infection/'.$infection->getPublicIdString().'"]');
         self::assertSelectorNotExists('a[href*="/explore/indication/raw/"]');
+        self::assertSelectorNotExists('a[href*="/tools/indication-review"]');
     }
 
     public function testShowDisplaysDepartmentWasClosedIndicator(): void

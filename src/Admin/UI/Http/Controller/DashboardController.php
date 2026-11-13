@@ -85,7 +85,6 @@ final class DashboardController extends AbstractDashboardController
         return $this->render('@Admin/dashboard/index.html.twig', [
             'kpi_cards' => $this->kpiDashboardService->getCards(),
             'kpi_chart' => $this->kpiDashboardService->getChart(),
-            'failed_imports' => $this->kpiDashboardService->getFailedImportsDashboard(),
             'ops_cards' => $this->operationalDashboardService->getOpsCards(),
             'ops_storage' => $this->operationalDashboardService->getStorageSummary(),
             'ops_storage_url' => $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_storage')->generateUrl(),

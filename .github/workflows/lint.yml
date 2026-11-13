@@ -40,10 +40,10 @@ jobs:
         # even if an earlier one failed, so one run lists all problems; setup failures skip the checks.
         steps:
             - name: Checkout code
-              uses: actions/checkout@v7
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
             - name: Install PHP with extensions
-              uses: shivammathur/setup-php@v2
+              uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
               with:
                   coverage: none
                   extensions: intl, pdo_sqlite
@@ -54,12 +54,12 @@ jobs:
             # builds it when needed.
             - name: Install dependencies
               id: composer
-              uses: ramsey/composer-install@v4
+              uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
               with:
                   composer-options: --no-scripts
 
             - name: Set up Node.js
-              uses: actions/setup-node@v7
+              uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
               with:
                   node-version: '22.x'
                   cache: npm
@@ -71,7 +71,7 @@ jobs:
             # Tool caches: key changes with the lock file and the tool configs; restore takes the newest
             # cache with the same prefix. Measured in #830: Lint 235 s → 54 s with a warm cache.
             - name: Restore analysis caches
-              uses: actions/cache/restore@v6
+              uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
               with:
                   path: |
                       var/cache/rector
@@ -154,7 +154,7 @@ jobs:
 
             - name: Save analysis caches
               if: ${{ !cancelled() }}
-              uses: actions/cache/save@v6
+              uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
               with:
                   path: |
                       var/cache/rector

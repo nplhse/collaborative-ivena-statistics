@@ -361,6 +361,38 @@
         <source>sitemap.section.statistics</source>
         <target>Statistik &amp; Analyse</target>
       </trans-unit>
+      <trans-unit id="SitemapSecToolsDe" resname="sitemap.section.tools">
+        <source>sitemap.section.tools</source>
+        <target>Tools</target>
+      </trans-unit>
+      <trans-unit id="LnkToolsDe" resname="link.tools">
+        <source>link.tools</source>
+        <target>Tools</target>
+      </trans-unit>
+      <trans-unit id="ToolsTitleDe" resname="tools.title">
+        <source>tools.title</source>
+        <target>Tools</target>
+      </trans-unit>
+      <trans-unit id="ToolsIntroDe" resname="tools.intro">
+        <source>tools.intro</source>
+        <target>Interaktive Arbeitsabläufe: Zuordnungen prüfen und validieren, Daten aufbereiten.</target>
+      </trans-unit>
+      <trans-unit id="ToolsEmptyDe" resname="tools.empty">
+        <source>tools.empty</source>
+        <target>Für Ihr Konto sind keine Tools verfügbar.</target>
+      </trans-unit>
+      <trans-unit id="ToolsBetaDe" resname="tools.beta">
+        <source>tools.beta</source>
+        <target>Beta</target>
+      </trans-unit>
+      <trans-unit id="ToolsCatMatchDe" resname="tools.category.matching">
+        <source>tools.category.matching</source>
+        <target>Zuordnung und Review</target>
+      </trans-unit>
+      <trans-unit id="ToolsCatPrepDe" resname="tools.category.data_preparation">
+        <source>tools.category.data_preparation</source>
+        <target>Datenaufbereitung</target>
+      </trans-unit>
       <trans-unit id="SitemapSecExploreDe" resname="sitemap.section.explore">
         <source>sitemap.section.explore</source>
         <target>Daten erkunden</target>

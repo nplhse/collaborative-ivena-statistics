@@ -33,10 +33,10 @@ final class CookieConsentCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Cookie consent')
-            ->setEntityLabelInPlural('Cookie consents')
-            ->setPageTitle(Crud::PAGE_INDEX, 'Cookie consents')
-            ->setPageTitle(Crud::PAGE_DETAIL, 'Cookie consent detail')
+            ->setEntityLabelInSingular(new TranslatableMessage('admin.cookie_consent.entity.singular', domain: 'admin'))
+            ->setEntityLabelInPlural(new TranslatableMessage('admin.cookie_consent.entity.plural', domain: 'admin'))
+            ->setPageTitle(Crud::PAGE_INDEX, new TranslatableMessage('admin.cookie_consent.entity.plural', domain: 'admin'))
+            ->setPageTitle(Crud::PAGE_DETAIL, new TranslatableMessage('admin.cookie_consent.page_title.detail', domain: 'admin'))
             ->setSearchFields(['id', 'subjectId', 'consentVersion'])
             ->setDefaultSort(['updatedAt' => 'DESC']);
     }
@@ -53,14 +53,14 @@ final class CookieConsentCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.identity', domain: 'admin'));
-        yield TextField::new('subjectId', 'Subject ID');
-        yield AssociationField::new('user', 'User');
+        yield TextField::new('subjectId', new TranslatableMessage('admin.cookie_consent.field.subject_id', domain: 'admin'));
+        yield AssociationField::new('user', new TranslatableMessage('admin.field.user', domain: 'admin'));
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.consent', domain: 'admin'));
-        yield TextField::new('consentVersion', 'Version')
+        yield TextField::new('consentVersion', new TranslatableMessage('admin.cookie_consent.field.version', domain: 'admin'))
             ->hideOnIndex();
-        yield TextField::new('consentMode', 'Mode')
-            ->setHelp('Legend: shield = essential only, chart = analytics.')
+        yield TextField::new('consentMode', new TranslatableMessage('admin.cookie_consent.field.mode', domain: 'admin'))
+            ->setHelp(new TranslatableMessage('admin.cookie_consent.field.mode_help', domain: 'admin'))
             ->setTemplatePath('@Admin/crud/field/consent_mode_icon.html.twig')
             ->renderAsHtml()
             ->setValue('')
@@ -69,12 +69,12 @@ final class CookieConsentCrudController extends AbstractCrudController
 
                 return ($prefs['analytics'] ?? false) ? 'analytics_enabled' : 'essential_only';
             });
-        yield DateTimeField::new('decidedAt', 'Decided at')
+        yield DateTimeField::new('decidedAt', new TranslatableMessage('admin.cookie_consent.field.decided_at', domain: 'admin'))
             ->setFormat('yyyy-MM-dd HH:mm:ss');
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
         yield IdField::new('id')->onlyOnDetail();
-        yield DateTimeField::new('updatedAt', 'Updated at')
+        yield DateTimeField::new('updatedAt', new TranslatableMessage('label.updated_at', domain: 'messages'))
             ->setFormat('yyyy-MM-dd HH:mm:ss')
             ->onlyOnDetail();
     }

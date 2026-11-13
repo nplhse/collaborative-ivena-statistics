@@ -131,7 +131,10 @@ The page (`owned_list.html.twig` with `_my_hospitals_summary.html.twig` and `_my
   imports as "successful of finished" with the success rate, partial and pending ones apart, latest upload and own
   uploads (`IMPORT`).
 - **Quick actions** in the card footer: *View statistics* (`scope=hospital:ID`, `STATISTICS`, only with data),
-  *View imports* (the hospital's import list) and *Upload new import* (`IMPORT`). **Administrative actions** (edit,
+  then actions of other contexts (`MyHospitalActionProviderInterface`, see
+  [extension-points.md](../../02-architecture/extension-points.md#my-hospitals-actions); today *Encounter data* for
+  the hospitals whose encounter analysis the user may open, #1128), then *View imports* (the hospital's import
+  list) and *Upload new import* (`IMPORT`). The registry is asked once per page with all listed hospitals. **Administrative actions** (edit,
   manage access) sit in the card's menu and follow `HospitalVoter`. The hospital name opens its Explore page.
 - **Data coverage** (`_my_hospitals_coverage.html.twig`, `STATISTICS`): in the right third next to the cards (from
   `lg` up, below them on smaller screens), a heatmap in the style of the import coverage calendar, one block per

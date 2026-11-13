@@ -33,11 +33,11 @@ final readonly class ReviewNextUrl
 
     public function allocation(int $hospitalId, ReviewContext $context, int $allocationId): string
     {
-        return $this->urls->generate('app_encounter_review_allocation', ['id' => $hospitalId, 'allocationId' => $allocationId, ...$context->query()]);
+        return $this->urls->generate('app_tools_encounter_review_allocation', ['id' => $hospitalId, 'allocationId' => $allocationId, ...$context->query()]);
     }
 
     public function list(int $hospitalId, ReviewContext $context): string
     {
-        return $this->urls->generate('app_encounter_review_hospital', ['id' => $hospitalId, ...$context->query()]);
+        return $this->urls->generate('app_tools_encounter_review_hospital', ['id' => $hospitalId, ...$context->query()]);
     }
 }

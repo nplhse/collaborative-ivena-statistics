@@ -30,7 +30,7 @@ final readonly class LatestDataPrepVersionController
             'version' => $this->release->version,
             'minVersion' => $this->release->minVersion,
             'releasedAt' => $this->release->releasedAt,
-            'downloadUrl' => $this->urlGenerator->generate('app_encounter_data_prep_download', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'downloadUrl' => $this->urlGenerator->generate('app_tools_data_prep_download', [], UrlGeneratorInterface::ABSOLUTE_URL),
         ]);
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('X-Content-Type-Options', 'nosniff');

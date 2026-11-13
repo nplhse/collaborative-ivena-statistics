@@ -25,7 +25,7 @@
         </twig:block>
         <twig:block name="actions">
             {{ include('@Allocation/catalog/_list_top_list_action.html.twig', {dimension: 'indication'}) }}
-            <a href="{{ path('app_explore_indication_raw_review_worklist') }}" class="btn" target="_top">
+            <a href="{{ path('app_tools_indication_review') }}" class="btn" target="_top">
                 <twig:ux:icon name="tabler:clipboard-check" class="w-3 h-3 me-1" />
                 {{ 'btn.indication.review_worklist'|trans({}, 'allocation') }}
             </a>

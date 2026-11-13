@@ -349,61 +349,9 @@
         <source>kpi.chart.rejection_rate</source>
         <target>Zurückweisungsrate pro Tag</target>
       </trans-unit>
-      <trans-unit id="kpi009" resname="kpi.failed_imports.title">
-        <source>kpi.failed_imports.title</source>
-        <target>Kürzlich fehlgeschlagene Importe</target>
-      </trans-unit>
-      <trans-unit id="kpi010" resname="kpi.failed_imports.date">
-        <source>kpi.failed_imports.date</source>
-        <target>Datum</target>
-      </trans-unit>
-      <trans-unit id="kpi011" resname="kpi.failed_imports.hospital">
-        <source>kpi.failed_imports.hospital</source>
-        <target>Krankenhaus</target>
-      </trans-unit>
-      <trans-unit id="kpi012" resname="kpi.failed_imports.file">
-        <source>kpi.failed_imports.file</source>
-        <target>Dateiname</target>
-      </trans-unit>
-      <trans-unit id="kpi013" resname="kpi.failed_imports.status">
-        <source>kpi.failed_imports.status</source>
-        <target>Status</target>
-      </trans-unit>
       <trans-unit id="kpi014" resname="kpi.failed_imports.reason">
         <source>kpi.failed_imports.reason</source>
         <target>Fehlergrund</target>
-      </trans-unit>
-      <trans-unit id="kpi015" resname="kpi.failed_imports.records">
-        <source>kpi.failed_imports.records</source>
-        <target>Datensätze</target>
-      </trans-unit>
-      <trans-unit id="kpi016" resname="kpi.failed_imports.rejections">
-        <source>kpi.failed_imports.rejections</source>
-        <target>Zurückweisungen</target>
-      </trans-unit>
-      <trans-unit id="kpi017" resname="kpi.failed_imports.empty">
-        <source>kpi.failed_imports.empty</source>
-        <target>Keine fehlgeschlagenen Importe gefunden.</target>
-      </trans-unit>
-      <trans-unit id="kpi017a" resname="kpi.failed_imports.view_all">
-        <source>kpi.failed_imports.view_all</source>
-        <target>Alle fehlgeschlagenen Importe</target>
-      </trans-unit>
-      <trans-unit id="kpi017b" resname="kpi.failed_imports.subtitle_30d">
-        <source>kpi.failed_imports.subtitle_30d</source>
-        <target>Letzte 30 Tage</target>
-      </trans-unit>
-      <trans-unit id="kpi018" resname="kpi.failure_reason.no_rows">
-        <source>kpi.failure_reason.no_rows</source>
-        <target>Keine verarbeitbaren Zeilen</target>
-      </trans-unit>
-      <trans-unit id="kpi019" resname="kpi.failure_reason.high_rejection">
-        <source>kpi.failure_reason.high_rejection</source>
-        <target>Zurückweisungsrate von 35 % oder höher</target>
-      </trans-unit>
-      <trans-unit id="kpi020" resname="kpi.failure_reason.generic">
-        <source>kpi.failure_reason.generic</source>
-        <target>Importverarbeitung fehlgeschlagen</target>
       </trans-unit>
       <trans-unit id="admMr01" resname="admin.hospital.action.send_reminder">
         <source>admin.hospital.action.send_reminder</source>
@@ -605,25 +553,101 @@
         <source>ops.notifications.title</source>
         <target>Aktuelle Benachrichtigungen</target>
       </trans-unit>
-      <trans-unit id="opsNot02de" resname="ops.notifications.time">
-        <source>ops.notifications.time</source>
-        <target>Zeit</target>
-      </trans-unit>
-      <trans-unit id="opsNot03de" resname="ops.notifications.intent">
-        <source>ops.notifications.intent</source>
-        <target>Intent</target>
-      </trans-unit>
-      <trans-unit id="opsNot04de" resname="ops.notifications.action">
-        <source>ops.notifications.action</source>
-        <target>Aktion</target>
-      </trans-unit>
-      <trans-unit id="opsNot05de" resname="ops.notifications.origin">
-        <source>ops.notifications.origin</source>
-        <target>Herkunft</target>
-      </trans-unit>
       <trans-unit id="opsNot06de" resname="ops.notifications.empty">
         <source>ops.notifications.empty</source>
         <target>Keine aktuellen Benachrichtigungsereignisse.</target>
+      </trans-unit>
+      <trans-unit id="opsNotShowAllde" resname="ops.notifications.show_all">
+        <source>ops.notifications.show_all</source>
+        <target>Alle im Audit-Log anzeigen</target>
+      </trans-unit>
+      <trans-unit id="opsNotOpenInAuditde" resname="ops.notifications.open_in_audit">
+        <source>ops.notifications.open_in_audit</source>
+        <target>Audit-Log</target>
+      </trans-unit>
+      <trans-unit id="opsNotEventImportRunFailedde" resname="ops.notifications.event.import.run.failed">
+        <source>ops.notifications.event.import.run.failed</source>
+        <target>Import fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="opsNotEventUserRegisteredde" resname="ops.notifications.event.user.registered">
+        <source>ops.notifications.event.user.registered</source>
+        <target>Neue Registrierung</target>
+      </trans-unit>
+      <trans-unit id="opsNotEventHospitalReminderSentde" resname="ops.notifications.event.hospital.reminder_sent">
+        <source>ops.notifications.event.hospital.reminder_sent</source>
+        <target>Erinnerung versendet</target>
+      </trans-unit>
+      <trans-unit id="opsNotContextImportFailedde" resname="ops.notifications.context.import_failed">
+        <source>ops.notifications.context.import_failed</source>
+        <target>{import} · {hospital} · {reason}</target>
+      </trans-unit>
+      <trans-unit id="opsNotContextUserRegisteredde" resname="ops.notifications.context.user_registered">
+        <source>ops.notifications.context.user_registered</source>
+        <target>Nutzer {user}</target>
+      </trans-unit>
+      <trans-unit id="opsNotContextReminderSentde" resname="ops.notifications.context.reminder_sent">
+        <source>ops.notifications.context.reminder_sent</source>
+        <target>{hospital} · Berichtsmonat {period}</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonMissingCreatorde" resname="ops.notifications.reason.missing_creator">
+        <source>ops.notifications.reason.missing_creator</source>
+        <target>Der Import hat keinen Ersteller</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonMissingHospitalde" resname="ops.notifications.reason.missing_hospital">
+        <source>ops.notifications.reason.missing_hospital</source>
+        <target>Der Import ist keinem Krankenhaus zugeordnet</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonMissingImportPermissionde" resname="ops.notifications.reason.missing_import_permission">
+        <source>ops.notifications.reason.missing_import_permission</source>
+        <target>Der Ersteller darf nicht mehr importieren</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonMissingClosureRolede" resname="ops.notifications.reason.missing_closure_role">
+        <source>ops.notifications.reason.missing_closure_role</source>
+        <target>Der Ersteller darf keine Abmeldungen importieren</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonTypeMismatchde" resname="ops.notifications.reason.type_mismatch">
+        <source>ops.notifications.reason.type_mismatch</source>
+        <target>Der Dateityp passt nicht zum Importtyp</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonMissingFilePathde" resname="ops.notifications.reason.missing_file_path">
+        <source>ops.notifications.reason.missing_file_path</source>
+        <target>Die Importdatei fehlt</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonInvalidFilePathde" resname="ops.notifications.reason.invalid_file_path">
+        <source>ops.notifications.reason.invalid_file_path</source>
+        <target>Die Importdatei konnte nicht gelesen werden</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonFileNotFoundde" resname="ops.notifications.reason.file_not_found">
+        <source>ops.notifications.reason.file_not_found</source>
+        <target>Die Importdatei wurde nicht gefunden</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonInvalidFilede" resname="ops.notifications.reason.invalid_file">
+        <source>ops.notifications.reason.invalid_file</source>
+        <target>Die Datei hat die Prüfung nicht bestanden</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonNoRowsde" resname="ops.notifications.reason.no_rows">
+        <source>ops.notifications.reason.no_rows</source>
+        <target>Die Datei enthält keine Zeilen</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonRejectionRatioExceededde" resname="ops.notifications.reason.rejection_ratio_exceeded">
+        <source>ops.notifications.reason.rejection_ratio_exceeded</source>
+        <target>Zu viele Zeilen wurden zurückgewiesen</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonProcessingErrorde" resname="ops.notifications.reason.processing_error">
+        <source>ops.notifications.reason.processing_error</source>
+        <target>Fehler bei der Verarbeitung</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonRetriesExhaustedde" resname="ops.notifications.reason.retries_exhausted">
+        <source>ops.notifications.reason.retries_exhausted</source>
+        <target>Die Verarbeitung ist mehrfach fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonKeyGenerationChangedde" resname="ops.notifications.reason.key_generation_changed">
+        <source>ops.notifications.reason.key_generation_changed</source>
+        <target>Pseudonym-Schlüssel nach dem Upload geändert</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonUnknownde" resname="ops.notifications.reason.unknown">
+        <source>ops.notifications.reason.unknown</source>
+        <target>Grund im Audit-Log</target>
       </trans-unit>
       <trans-unit id="opsFm01de" resname="ops.failed_messages.title">
         <source>ops.failed_messages.title</source>
@@ -2416,6 +2440,134 @@
       <trans-unit id="adm6FB6BD90De" resname="menu.data.mts_catalog.assignments">
         <source>menu.data.mts_catalog.assignments</source>
         <target>Zuordnungen</target>
+      </trans-unit>
+      <trans-unit id="admCrudFieldUserDe" resname="admin.field.user">
+        <source>admin.field.user</source>
+        <target>Benutzer</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentFieldSubjectIdDe" resname="admin.cookie_consent.field.subject_id">
+        <source>admin.cookie_consent.field.subject_id</source>
+        <target>Subjekt-ID</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentFieldVersionDe" resname="admin.cookie_consent.field.version">
+        <source>admin.cookie_consent.field.version</source>
+        <target>Version</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentFieldModeDe" resname="admin.cookie_consent.field.mode">
+        <source>admin.cookie_consent.field.mode</source>
+        <target>Modus</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentFieldDecidedAtDe" resname="admin.cookie_consent.field.decided_at">
+        <source>admin.cookie_consent.field.decided_at</source>
+        <target>Entschieden am</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentFieldModeHelpDe" resname="admin.cookie_consent.field.mode_help">
+        <source>admin.cookie_consent.field.mode_help</source>
+        <target>Legende: Schild = nur notwendige, Diagramm = Analyse.</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentPageTitleDetailDe" resname="admin.cookie_consent.page_title.detail">
+        <source>admin.cookie_consent.page_title.detail</source>
+        <target>Cookie-Einwilligung</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchFieldReportingPeriodDe" resname="admin.monthly_reminder_dispatch.field.reporting_period">
+        <source>admin.monthly_reminder_dispatch.field.reporting_period</source>
+        <target>Berichtsmonat</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchFieldRecipientDe" resname="admin.monthly_reminder_dispatch.field.recipient">
+        <source>admin.monthly_reminder_dispatch.field.recipient</source>
+        <target>Empfänger</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchFieldQueuedAtDe" resname="admin.monthly_reminder_dispatch.field.queued_at">
+        <source>admin.monthly_reminder_dispatch.field.queued_at</source>
+        <target>Eingereiht am</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchFieldDeliveredAtDe" resname="admin.monthly_reminder_dispatch.field.delivered_at">
+        <source>admin.monthly_reminder_dispatch.field.delivered_at</source>
+        <target>Zugestellt am</target>
+      </trans-unit>
+      <trans-unit id="admCrudFieldLocaleDe" resname="admin.field.locale">
+        <source>admin.field.locale</source>
+        <target>Sprache</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserFieldOwnedHospitalsDe" resname="admin.user.field.owned_hospitals">
+        <source>admin.user.field.owned_hospitals</source>
+        <target>Eigene Kliniken</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserFieldPasswordHelpDe" resname="admin.user.field.password_help">
+        <source>admin.user.field.password_help</source>
+        <target>Beim Bearbeiten leer lassen, um das bisherige Passwort zu behalten.</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserOnboardingStepFieldStepDe" resname="admin.user_onboarding_step.field.step">
+        <source>admin.user_onboarding_step.field.step</source>
+        <target>Schritt</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserOnboardingStepFieldCompletedAtDe" resname="admin.user_onboarding_step.field.completed_at">
+        <source>admin.user_onboarding_step.field.completed_at</source>
+        <target>Abgeschlossen am</target>
+      </trans-unit>
+      <trans-unit id="admCrudSavedExplorerViewFieldConfigJsonDe" resname="admin.saved_explorer_view.field.config_json">
+        <source>admin.saved_explorer_view.field.config_json</source>
+        <target>Konfiguration (JSON)</target>
+      </trans-unit>
+      <trans-unit id="admCrudMediaFieldWidthDe" resname="admin.media.field.width">
+        <source>admin.media.field.width</source>
+        <target>Breite</target>
+      </trans-unit>
+      <trans-unit id="admCrudMediaFieldHeightDe" resname="admin.media.field.height">
+        <source>admin.media.field.height</source>
+        <target>Höhe</target>
+      </trans-unit>
+      <trans-unit id="admCrudFeedbackPageTitleIndexDe" resname="admin.feedback.page_title.index">
+        <source>admin.feedback.page_title.index</source>
+        <target>Feedback — {open} offen · {quarantined} in Quarantäne</target>
+      </trans-unit>
+      <trans-unit id="admCrudFeedbackEntitySingularDe" resname="admin.feedback.entity.singular">
+        <source>admin.feedback.entity.singular</source>
+        <target>Feedback</target>
+      </trans-unit>
+      <trans-unit id="admCrudFeedbackEntityPluralDe" resname="admin.feedback.entity.plural">
+        <source>admin.feedback.entity.plural</source>
+        <target>Feedback</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentEntitySingularDe" resname="admin.cookie_consent.entity.singular">
+        <source>admin.cookie_consent.entity.singular</source>
+        <target>Cookie-Einwilligung</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentEntityPluralDe" resname="admin.cookie_consent.entity.plural">
+        <source>admin.cookie_consent.entity.plural</source>
+        <target>Cookie-Einwilligungen</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchEntitySingularDe" resname="admin.monthly_reminder_dispatch.entity.singular">
+        <source>admin.monthly_reminder_dispatch.entity.singular</source>
+        <target>Monatliche Erinnerung</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchEntityPluralDe" resname="admin.monthly_reminder_dispatch.entity.plural">
+        <source>admin.monthly_reminder_dispatch.entity.plural</source>
+        <target>Monatliche Erinnerungen</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserEntitySingularDe" resname="admin.user.entity.singular">
+        <source>admin.user.entity.singular</source>
+        <target>Benutzer</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserEntityPluralDe" resname="admin.user.entity.plural">
+        <source>admin.user.entity.plural</source>
+        <target>Benutzer</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserOnboardingStepEntitySingularDe" resname="admin.user_onboarding_step.entity.singular">
+        <source>admin.user_onboarding_step.entity.singular</source>
+        <target>Onboarding-Schritt</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserOnboardingStepEntityPluralDe" resname="admin.user_onboarding_step.entity.plural">
+        <source>admin.user_onboarding_step.entity.plural</source>
+        <target>Onboarding-Schritte</target>
+      </trans-unit>
+      <trans-unit id="admCrudSavedExplorerViewEntitySingularDe" resname="admin.saved_explorer_view.entity.singular">
+        <source>admin.saved_explorer_view.entity.singular</source>
+        <target>Explorer-Ansicht</target>
+      </trans-unit>
+      <trans-unit id="admCrudSavedExplorerViewEntityPluralDe" resname="admin.saved_explorer_view.entity.plural">
+        <source>admin.saved_explorer_view.entity.plural</source>
+        <target>Explorer-Ansichten</target>
       </trans-unit>
     </body>
   </file>

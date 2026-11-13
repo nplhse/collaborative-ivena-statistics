@@ -81,7 +81,7 @@ final class MtsCatalogTest extends TestCase
 
     /**
      * Same examples as `catalogCode()` in tests/Encounter/DataPrep/data-prep-core.test.js and
-     * docs/04-features/encounter/data-preparation-tool.md.
+     * docs/04-features/tools/data-preparation-tool.md.
      */
     #[DataProvider('codes')]
     public function testCodeIsDerivedLikeTheTool(string $label, string $expected): void

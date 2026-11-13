@@ -27,7 +27,7 @@ final class ShowDataPrepLocalMapController extends AbstractController
     ) {
     }
 
-    #[Route('/encounter/data-prep/local-map', name: 'app_encounter_data_prep_local_map_help', methods: ['GET'])]
+    #[Route('/tools/data-prep/local-map', name: 'app_tools_data_prep_local_map_help', methods: ['GET'])]
     public function __invoke(): Response
     {
         return $this->render('@Encounter/data_prep/local_map.html.twig', [

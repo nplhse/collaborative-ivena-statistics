@@ -5,26 +5,6 @@
       <tool tool-id="symfony" tool-name="Symfony" />
     </header>
     <body>
-      <trans-unit id="Enc3A23D4AA" resname="encounter.nav">
-        <source>encounter.nav</source>
-        <target>Encounter data</target>
-      </trans-unit>
-      <trans-unit id="Enc0BF25EFC" resname="encounter.title">
-        <source>encounter.title</source>
-        <target>Encounter data pilot</target>
-      </trans-unit>
-      <trans-unit id="Enc6614071F" resname="encounter.overview.intro">
-        <source>encounter.overview.intro</source>
-        <target>Pilot for linking emergency department visits with IVENA allocations. Uploads, match review and case views follow in later steps of the pilot.</target>
-      </trans-unit>
-      <trans-unit id="Enc87A19749" resname="encounter.overview.my_grants">
-        <source>encounter.overview.my_grants</source>
-        <target>My encounter access</target>
-      </trans-unit>
-      <trans-unit id="Enc6D9D7FDA" resname="encounter.overview.no_grants">
-        <source>encounter.overview.no_grants</source>
-        <target>You have no encounter access for any hospital. The hospital owner or an administrator can grant it.</target>
-      </trans-unit>
       <trans-unit id="Enc0EF249EE" resname="encounter.hospital_edit.title">
         <source>encounter.hospital_edit.title</source>
         <target>Encounter data</target>
@@ -153,14 +133,6 @@
         <source>encounter.grant.flash.duplicate</source>
         <target>This user already has encounter access for this hospital.</target>
       </trans-unit>
-      <trans-unit id="EncAdmAcc1" resname="encounter.overview.admin_access">
-        <source>encounter.overview.admin_access</source>
-        <target>As an administrator you have encounter access to every hospital without a grant.</target>
-      </trans-unit>
-      <trans-unit id="Enc9B4AE2D8" resname="encounter.data_prep.overview.title">
-        <source>encounter.data_prep.overview.title</source>
-        <target>Data preparation tool</target>
-      </trans-unit>
       <trans-unit id="Enc25E79088" resname="encounter.data_prep.overview.intro">
         <source>encounter.data_prep.overview.intro</source>
         <target>The tool turns the ED export of your hospital information system into a pseudonymised file for the upload. It runs offline in the browser: names, dates of birth, staff and free text never leave your computer.</target>
@@ -168,18 +140,6 @@
       <trans-unit id="EncA4467F2E" resname="encounter.data_prep.overview.download">
         <source>encounter.data_prep.overview.download</source>
         <target>Download tool</target>
-      </trans-unit>
-      <trans-unit id="Enc61110276" resname="encounter.data_prep.overview.version">
-        <source>encounter.data_prep.overview.version</source>
-        <target>Version</target>
-      </trans-unit>
-      <trans-unit id="Enc504C7213" resname="encounter.data_prep.overview.profiles">
-        <source>encounter.data_prep.overview.profiles</source>
-        <target>Supported exports: ORBIS MTS export.</target>
-      </trans-unit>
-      <trans-unit id="EncE937AD5F" resname="encounter.data_prep.overview.local_files">
-        <source>encounter.data_prep.overview.local_files</source>
-        <target>Open the downloaded file in a current browser (double-click). Keep the key file and, if used, the local map file in your team folder.</target>
       </trans-unit>
       <trans-unit id="EncE697213F" resname="encounter.data_prep.tool.title">
         <source>encounter.data_prep.tool.title</source>
@@ -605,10 +565,6 @@
         <source>encounter.data_prep.js.report_unlisted_hint</source>
         <target>These MTS indicators are not in the bundled list yet. They are written as codes derived from the label; check that they are MTS indicators and not free text.</target>
       </trans-unit>
-      <trans-unit id="EncI683DD62D" resname="encounter.overview.imports_intro">
-        <source>encounter.overview.imports_intro</source>
-        <target>Files prepared with the data preparation tool are uploaded on the import page (type "Encounter data"); their reports are in the import list.</target>
-      </trans-unit>
       <trans-unit id="EncI4E173CBA" resname="encounter.import.action.new">
         <source>encounter.import.action.new</source>
         <target>Upload file</target>
@@ -900,10 +856,6 @@
       <trans-unit id="Enc78837119" resname="encounter.review.title">
         <source>encounter.review.title</source>
         <target>Match review</target>
-      </trans-unit>
-      <trans-unit id="Enc8BF4465E" resname="encounter.review.overview_intro">
-        <source>encounter.review.overview_intro</source>
-        <target>Check the links between ED visits and IVENA allocations: confirm or reject proposals, resolve conflicts and apply swaps.</target>
       </trans-unit>
       <trans-unit id="Enc709F53B6" resname="encounter.review.intro">
         <source>encounter.review.intro</source>
@@ -1941,14 +1893,6 @@
         <source>encounter.link.not_linked</source>
         <target>Not linked</target>
       </trans-unit>
-      <trans-unit id="Enc23316E5C" resname="encounter.overview_page.index_title">
-        <source>encounter.overview_page.index_title</source>
-        <target>Encounter data overview</target>
-      </trans-unit>
-      <trans-unit id="EncA92DB0C1" resname="encounter.overview_page.index_none">
-        <source>encounter.overview_page.index_none</source>
-        <target>You may not see aggregates of any hospital. This needs an encounter grant and the hospital permission "Statistics".</target>
-      </trans-unit>
       <trans-unit id="Enc1775A938" resname="encounter.validation.title">
         <source>encounter.validation.title</source>
         <target>Match validation</target>
@@ -2384,10 +2328,6 @@
       <trans-unit id="EncD9B0B0A5" resname="encounter.validation.item.options_hint_visit">
         <source>encounter.validation.item.options_hint_visit</source>
         <target>If one of the allocations below belongs to this visit, choose “Link this allocation” there.</target>
-      </trans-unit>
-      <trans-unit id="EncE1E3DBED" resname="encounter.data_prep.overview.guide">
-        <source>encounter.data_prep.overview.guide</source>
-        <target>Guide and download</target>
       </trans-unit>
       <trans-unit id="Enc9DDB4F7A" resname="encounter.data_prep.guide.title">
         <source>encounter.data_prep.guide.title</source>
@@ -2968,6 +2908,34 @@
       <trans-unit id="Enc72A2827F" resname="encounter.mts_catalog.error.assignment_not_active">
         <source>encounter.mts_catalog.error.assignment_not_active</source>
         <target>Choose an active diagram and an active indicator.</target>
+      </trans-unit>
+      <trans-unit id="ToolsEncRevTitle" resname="tools.encounter_review.title">
+        <source>tools.encounter_review.title</source>
+        <target>Encounter match review</target>
+      </trans-unit>
+      <trans-unit id="ToolsEncRevDesc" resname="tools.encounter_review.description">
+        <source>tools.encounter_review.description</source>
+        <target>Check automatic links between ED visits and IVENA allocations and decide open proposals.</target>
+      </trans-unit>
+      <trans-unit id="ToolsEncValTitle" resname="tools.encounter_validation.title">
+        <source>tools.encounter_validation.title</source>
+        <target>Encounter match validation</target>
+      </trans-unit>
+      <trans-unit id="ToolsEncValDesc" resname="tools.encounter_validation.description">
+        <source>tools.encounter_validation.description</source>
+        <target>Draw samples of links and judge them to measure how reliable the matching is.</target>
+      </trans-unit>
+      <trans-unit id="ToolsEncPrepTitle" resname="tools.encounter_data_prep.title">
+        <source>tools.encounter_data_prep.title</source>
+        <target>Data preparation tool</target>
+      </trans-unit>
+      <trans-unit id="ToolsEncPrepDesc" resname="tools.encounter_data_prep.description">
+        <source>tools.encounter_data_prep.description</source>
+        <target>Turn the ED export of your hospital information system into a pseudonymised file for the upload.</target>
+      </trans-unit>
+      <trans-unit id="MyHospActEncData" resname="my_hospitals.action.encounter_data">
+        <source>my_hospitals.action.encounter_data</source>
+        <target>Encounter data</target>
       </trans-unit>
     </body>
   </file>

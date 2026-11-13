@@ -29,7 +29,7 @@ final class ShowDataPrepGuideController extends AbstractController
     ) {
     }
 
-    #[Route('/encounter/data-prep', name: 'app_encounter_data_prep', methods: ['GET'])]
+    #[Route('/tools/data-prep', name: 'app_tools_data_prep', methods: ['GET'])]
     public function __invoke(): Response
     {
         return $this->render('@Encounter/data_prep/guide.html.twig', [

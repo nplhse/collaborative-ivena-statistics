@@ -144,18 +144,25 @@ final class SitemapProviderTest extends KernelTestCase
         $sectionKeys = $this->sectionKeys($this->provider->getSections());
 
         self::assertSame(
-            ['public', 'content', 'explore', 'statistics', 'data_exchange', 'account'],
+            ['public', 'content', 'explore', 'statistics', 'tools', 'data_exchange', 'account'],
             $sectionKeys,
         );
 
         $exploreSection = $this->findSection('explore');
-        self::assertCount(16, $exploreSection->links);
+        self::assertCount(15, $exploreSection->links);
         $exploreLabels = array_map(
             static fn (\App\Shared\Application\Navigation\DTO\SitemapLink $link): string => $link->label,
             $exploreSection->links,
         );
         self::assertContains('Users', $exploreLabels);
         $this->assertLabelsAreAlphabetical($exploreLabels);
+        self::assertNotContains('Indication review worklist', $exploreLabels);
+
+        $toolsLabels = array_map(
+            static fn (\App\Shared\Application\Navigation\DTO\SitemapLink $link): string => $link->label,
+            $this->findSection('tools')->links,
+        );
+        self::assertSame(['Tools', 'Indication matching review'], $toolsLabels);
 
         $dataExchangeSection = $this->findSection('data_exchange');
         self::assertCount(1, $dataExchangeSection->links);

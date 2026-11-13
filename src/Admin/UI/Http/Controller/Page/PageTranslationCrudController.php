@@ -172,7 +172,7 @@ final class PageTranslationCrudController extends AbstractCrudController
         yield AssociationField::new('page', new TranslatableMessage('label.page', domain: 'content'))
             ->setCrudController(PageCrudController::class)
             ->setRequired(true);
-        yield ChoiceField::new('locale', 'Locale')
+        yield ChoiceField::new('locale', new TranslatableMessage('admin.field.locale', domain: 'admin'))
             ->setChoices(array_combine(SupportedLocales::ALL, SupportedLocales::ALL))
             ->setRequired(true);
         yield TextField::new('title', 'label.title');

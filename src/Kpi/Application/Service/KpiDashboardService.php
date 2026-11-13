@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace App\Kpi\Application\Service;
 
-use App\Import\Domain\Entity\Import;
-use App\Import\Domain\Enum\ImportStatus;
-use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Kpi\Application\Contract\AdminLinkGeneratorInterface;
-use App\Kpi\Application\DTO\FailedImportRowDto;
-use App\Kpi\Application\DTO\FailedImportsDashboardDto;
 use App\Kpi\Application\DTO\KpiCardDto;
 use App\Kpi\Application\DTO\KpiCardsDto;
 use App\Kpi\Application\DTO\KpiChartSeriesDto;
@@ -23,8 +18,6 @@ final readonly class KpiDashboardService
 
     public function __construct(
         private KpiDailyRepository $kpiDailyRepository,
-        private ImportRepository $importRepository,
-        private ImportFailureReasonResolver $failureReasonResolver,
         private AdminLinkGeneratorInterface $adminLinkGenerator,
         private ClockInterface $clock,
     ) {
@@ -94,50 +87,5 @@ final readonly class KpiDashboardService
         }
 
         return new KpiChartSeriesDto($labels, $recordsPerDay, $rejectionRatePerDay);
-    }
-
-    public function getFailedImportsDashboard(int $limit = 10): FailedImportsDashboardDto
-    {
-        $since = $this->clock->now()->setTimezone(new \DateTimeZone(self::TIMEZONE))->modify('-30 days')
-            ->setTime(0, 0);
-
-        return new FailedImportsDashboardDto(
-            rows: $this->buildFailedImportRows(
-                $this->importRepository->findRecentFailedImports($limit, $since),
-            ),
-            totalFailedCount: $this->importRepository->countFailedImports(),
-            allFailedImportsUrl: $this->adminLinkGenerator->failedImportsCrudIndexUrl(),
-        );
-    }
-
-    /**
-     * @param list<Import> $imports
-     *
-     * @return list<FailedImportRowDto>
-     */
-    private function buildFailedImportRows(array $imports): array
-    {
-        $rows = [];
-
-        foreach ($imports as $import) {
-            if (!$import instanceof Import) {
-                continue;
-            }
-
-            $hospital = $import->getHospital();
-            $id = $import->getId();
-            $rows[] = new FailedImportRowDto(
-                createdAt: $import->getCreatedAt(),
-                hospitalName: $hospital?->getName() ?? '—',
-                fileName: $import->getName() ?? '—',
-                status: $import->getStatus() ?? ImportStatus::FAILED,
-                failureReasonKey: $this->failureReasonResolver->resolve($import),
-                recordCount: $import->getRowCount() ?? 0,
-                rejectionCount: $import->getRowsRejected() ?? 0,
-                detailUrl: null !== $id ? $this->adminLinkGenerator->importDetailUrl($id) : null,
-            );
-        }
-
-        return $rows;
     }
 }

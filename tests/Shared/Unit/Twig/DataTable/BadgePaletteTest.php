@@ -7,6 +7,7 @@ namespace App\Tests\Shared\Unit\Twig\DataTable;
 use App\Shared\UI\Twig\DataTable\BadgePalette;
 use App\Shared\UI\Twig\DataTable\BadgePresentation;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Translation\TranslatableMessage;
 
 final class BadgePaletteTest extends TestCase
 {
@@ -14,9 +15,10 @@ final class BadgePaletteTest extends TestCase
     {
         $view = new BadgePalette()->resolve('hospital_location', DataTableBadgePaletteTestEnum::Urban);
 
-        self::assertSame('Urban', $view->label);
+        self::assertEquals(new TranslatableMessage('hospital.badge.location.Urban', domain: 'allocation'), $view->label);
         self::assertSame('bg-indigo text-indigo-fg', $view->cssClass);
         self::assertSame(BadgePresentation::Badge, $view->presentation);
+        self::assertTrue($view->isTranslatable());
     }
 
     public function testUnknownValueFallsBackToSecondaryBadge(): void
@@ -35,6 +37,15 @@ final class BadgePaletteTest extends TestCase
         self::assertSame('status status-lime', $view->cssClass);
         self::assertTrue($view->animatedDot);
         self::assertSame('lime', $view->statusColor);
+        self::assertEquals(new TranslatableMessage('import.status.label.running', domain: 'import'), $view->label);
+    }
+
+    public function testImportTypeCoversEncounterImports(): void
+    {
+        $view = new BadgePalette()->resolve('import_type', 'Encounter');
+
+        self::assertEquals(new TranslatableMessage('import.type.label.encounter', domain: 'import'), $view->label);
+        self::assertSame('status status-teal', $view->cssClass);
     }
 
     public function testAllocationUrgencyAcceptsIntegerKeys(): void
@@ -42,6 +53,7 @@ final class BadgePaletteTest extends TestCase
         $view = new BadgePalette()->resolve('allocation_urgency', 1);
 
         self::assertSame('Emergency Care', $view->label);
+        self::assertFalse($view->isTranslatable());
         self::assertSame('bg-red text-red-fg', $view->cssClass);
     }
 
@@ -68,7 +80,7 @@ final class BadgePaletteTest extends TestCase
     public function testStringableAndUnknownValuesNormalizeToLabel(): void
     {
         $urban = new BadgePalette()->resolve('hospital_location', new DataTableBadgePaletteStringable('Urban'));
-        self::assertSame('Urban', $urban->label);
+        self::assertEquals(new TranslatableMessage('hospital.badge.location.Urban', domain: 'allocation'), $urban->label);
         self::assertSame('bg-indigo text-indigo-fg', $urban->cssClass);
 
         $empty = new BadgePalette()->resolve('hospital_location', false);

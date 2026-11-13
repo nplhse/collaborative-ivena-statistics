@@ -7,6 +7,7 @@ namespace App\Shared\Application\Navigation;
 use App\Shared\Application\Navigation\Contract\NavigationPageLinksProviderInterface;
 use App\Shared\Application\Navigation\DTO\SitemapLink;
 use App\Shared\Application\Navigation\DTO\SitemapSection;
+use App\Shared\Application\Navigation\Tool\ToolRegistry;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -56,7 +57,7 @@ final readonly class SitemapProvider
         'app_explore_occasion_list' => ['labelKey' => 'link.occasions', 'labelDomain' => 'shared'],
         'app_explore_secondary_transport_list' => ['labelKey' => 'link.secondary_transports', 'labelDomain' => 'shared'],
         'app_explore_speciality_list' => ['labelKey' => 'link.specialities', 'labelDomain' => 'shared'],
-        'app_explore_indication_raw_review_worklist' => ['labelKey' => 'title.indication.review_worklist', 'labelDomain' => 'allocation'],
+        'app_tools_index' => ['labelKey' => 'link.tools', 'labelDomain' => 'shared'],
         'app_settings_index' => ['labelKey' => 'title.settings', 'labelDomain' => 'user'],
         'app_settings_account' => ['labelKey' => 'label.settings.my_account', 'labelDomain' => 'user'],
         'app_settings_email' => ['labelKey' => 'label.settings.change_email', 'labelDomain' => 'user'],
@@ -114,7 +115,6 @@ final readonly class SitemapProvider
                 ['route' => 'app_explore_occasion_list', 'visibility' => self::VISIBILITY_PARTICIPANT],
                 ['route' => 'app_explore_secondary_transport_list', 'visibility' => self::VISIBILITY_PARTICIPANT],
                 ['route' => 'app_explore_speciality_list', 'visibility' => self::VISIBILITY_PARTICIPANT],
-                ['route' => 'app_explore_indication_raw_review_worklist', 'visibility' => self::VISIBILITY_PARTICIPANT],
             ],
         ],
         [
@@ -131,6 +131,12 @@ final readonly class SitemapProvider
                 ['route' => 'app_stats_case_flow', 'visibility' => self::VISIBILITY_AUTHENTICATED],
                 ['route' => 'app_stats_hospital_population', 'visibility' => self::VISIBILITY_AUTHENTICATED],
             ],
+        ],
+        [
+            // Filled from the ToolRegistry (ADR 031), see toolLinks().
+            'key' => 'tools',
+            'labelKey' => 'sitemap.section.tools',
+            'entries' => [],
         ],
         [
             'key' => 'data_exchange',
@@ -159,6 +165,7 @@ final readonly class SitemapProvider
         private UrlGeneratorInterface $urlGenerator,
         private TranslatorInterface $translator,
         private AuthorizationCheckerInterface $authorizationChecker,
+        private ToolRegistry $toolRegistry,
     ) {
     }
 
@@ -173,7 +180,7 @@ final readonly class SitemapProvider
             $pageTree = [];
             $links = $this->orderSectionLinks(
                 $sectionDefinition['key'],
-                $this->buildSectionLinks($sectionDefinition),
+                'tools' === $sectionDefinition['key'] ? $this->toolLinks() : $this->buildSectionLinks($sectionDefinition),
             );
 
             if ('content' === $sectionDefinition['key']) {
@@ -232,6 +239,7 @@ final readonly class SitemapProvider
         return match ($sectionKey) {
             'public', 'account' => $links,
             'statistics' => $this->pinFirstRouteLink('app_stats_dashboard', $links),
+            'tools' => $this->pinFirstRouteLink('app_tools_index', $links),
             default => $this->sortAlphabetically($links),
         };
     }
@@ -275,6 +283,27 @@ final readonly class SitemapProvider
         );
 
         return $links;
+    }
+
+    /**
+     * @return list<SitemapLink>
+     */
+    private function toolLinks(): array
+    {
+        $tools = $this->toolRegistry->availableTools();
+        if ([] === $tools || !$this->authorizationChecker->isGranted('ROLE_USER')) {
+            return [];
+        }
+
+        $links = [$this->buildRouteLink('app_tools_index')];
+        foreach ($tools as $tool) {
+            $links[] = new SitemapLink(
+                url: $this->urlGenerator->generate($tool->route, $tool->routeParameters),
+                label: $this->translator->trans($tool->titleKey, [], $tool->translationDomain),
+            );
+        }
+
+        return array_values(array_filter($links));
     }
 
     private function isVisible(string $visibility): bool

@@ -340,7 +340,7 @@ final class AllocationsExportControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
-    public function testNavExportAppearsBetweenImportAndBlog(): void
+    public function testNavExportAppearsBetweenImportAndTools(): void
     {
         [$client] = $this->createOwnerClient();
 
@@ -355,13 +355,16 @@ final class AllocationsExportControllerTest extends WebTestCase
 
         $importIndex = array_search('Import', $labels, true);
         $exportIndex = array_search('Export', $labels, true);
+        $toolsIndex = array_search('Tools', $labels, true);
         $blogIndex = array_search('Blog', $labels, true);
 
         self::assertNotFalse($importIndex);
         self::assertNotFalse($exportIndex);
+        self::assertNotFalse($toolsIndex);
         self::assertNotFalse($blogIndex);
         self::assertSame($importIndex + 1, $exportIndex);
-        self::assertSame($exportIndex + 1, $blogIndex);
+        self::assertSame($exportIndex + 1, $toolsIndex);
+        self::assertSame($toolsIndex + 1, $blogIndex);
     }
 
     /**

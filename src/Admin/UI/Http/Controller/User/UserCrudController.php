@@ -83,8 +83,8 @@ final class UserCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('User')
-            ->setEntityLabelInPlural('Users')
+            ->setEntityLabelInSingular(new TranslatableMessage('admin.user.entity.singular', domain: 'admin'))
+            ->setEntityLabelInPlural(new TranslatableMessage('admin.user.entity.plural', domain: 'admin'))
             ->setSearchFields(['id', 'username', 'email'])
             ->setDefaultSort(['username' => 'ASC']);
     }
@@ -300,7 +300,7 @@ final class UserCrudController extends AbstractCrudController
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.account', domain: 'admin'));
         yield TextField::new('username');
         yield TextField::new('email');
-        yield ChoiceField::new('locale', 'Locale')
+        yield ChoiceField::new('locale', new TranslatableMessage('admin.field.locale', domain: 'admin'))
             ->setChoices([
                 'English' => SupportedLocales::DEFAULT,
                 'German' => SupportedLocales::GERMAN,
@@ -310,7 +310,7 @@ final class UserCrudController extends AbstractCrudController
         yield TextField::new('password')
             ->setFormType(PasswordType::class)
             ->setRequired(Crud::PAGE_NEW === $pageName)
-            ->setHelp('On edit leave empty to keep the current password.')
+            ->setHelp(new TranslatableMessage('admin.user.field.password_help', domain: 'admin'))
             ->setFormTypeOption('empty_data', '')
             ->setFormTypeOption('mapped', Crud::PAGE_NEW === $pageName)
             ->setFormTypeOption('attr', ['autocomplete' => 'new-password'])
@@ -349,7 +349,7 @@ final class UserCrudController extends AbstractCrudController
             ]);
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.hospitals', domain: 'admin'));
-        yield AssociationField::new('hospitals', 'Owned hospitals')
+        yield AssociationField::new('hospitals', new TranslatableMessage('admin.user.field.owned_hospitals', domain: 'admin'))
             ->onlyOnDetail()
             ->setSortable(false)
             ->renderAsHtml()
@@ -368,7 +368,7 @@ final class UserCrudController extends AbstractCrudController
         yield DateTimeField::new('createdAt', new TranslatableMessage('admin.user.field.created_at', domain: 'admin'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->onlyOnDetail();
-        yield DateTimeField::new('updatedAt', 'Updated')
+        yield DateTimeField::new('updatedAt', new TranslatableMessage('label.updated', domain: 'messages'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->onlyOnDetail();
     }

@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Admin\UI\Http\Controller\IndicationRaw;
 
 use App\Allocation\Domain\Entity\IndicationRaw;
+use App\Allocation\Domain\Enum\IndicationRawReviewStatus;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -57,7 +59,18 @@ final class IndicationRawCrudController extends AbstractCrudController
         yield IntegerField::new('code', new TranslatableMessage('label.indication.code', domain: 'messages'));
         yield TextField::new('name', new TranslatableMessage('label.name', domain: 'messages'));
         yield AssociationField::new('normalized', new TranslatableMessage('admin.indication_raw.field.normalized', domain: 'admin'));
-        yield TextField::new('reviewStatus', new TranslatableMessage('label.indication.review_status', domain: 'messages'))
+        yield ChoiceField::new('reviewStatus', new TranslatableMessage('label.indication.review_status', domain: 'messages'))
+            ->setTranslatableChoices(array_combine(
+                array_map(static fn (IndicationRawReviewStatus $status): string => $status->value, IndicationRawReviewStatus::cases()),
+                array_map(static fn (IndicationRawReviewStatus $status): TranslatableMessage => new TranslatableMessage('indication.review.status.'.$status->value, domain: 'allocation'), IndicationRawReviewStatus::cases()),
+            ))
+            ->renderAsBadges([
+                IndicationRawReviewStatus::Matched->value => 'success',
+                IndicationRawReviewStatus::NeedsReview->value => 'warning',
+                IndicationRawReviewStatus::Unreviewed->value => 'secondary',
+                IndicationRawReviewStatus::NotMatchable->value => 'secondary',
+                IndicationRawReviewStatus::Ignored->value => 'secondary',
+            ])
             ->hideOnForm();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.review', domain: 'admin'));
