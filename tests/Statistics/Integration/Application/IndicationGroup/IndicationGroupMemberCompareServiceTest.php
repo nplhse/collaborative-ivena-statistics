@@ -43,14 +43,12 @@ final class IndicationGroupMemberCompareServiceTest extends KernelTestCase
     {
         self::bootKernel();
 
-        $members = $this->seedMembers(['Charlie' => 1, 'Bravo' => 1, 'Alpha' => 1, 'Delta' => 2]);
-        $service = self::getContainer()->get(IndicationGroupMemberCompareService::class);
-
-        $rows = $service->buildMemberRows(
-            new IndicationSubject(IndicationSubjectType::Group, 1, 'Order Group', array_values($members)),
-            StatisticsScopeCriteria::public(),
-            new StatisticsPeriodBounds(new \DateTimeImmutable('2026-05-01'), new \DateTimeImmutable('2026-06-01')),
-        );
+        $rows = $this->buildMemberRows($this->groupSubject($this->seedMembers([
+            ['Charlie', 101, 1],
+            ['Bravo', 102, 1],
+            ['Alpha', 103, 1],
+            ['Delta', 104, 2],
+        ])));
 
         self::assertSame(
             [['Delta (104)', 2], ['Alpha (103)', 1], ['Bravo (102)', 1], ['Charlie (101)', 1]],
@@ -60,11 +58,60 @@ final class IndicationGroupMemberCompareServiceTest extends KernelTestCase
     }
 
     /**
-     * @param array<string, int> $allocationsByName
+     * The catalog does not enforce unique names or codes. Two members named "Echo (105)" with one
+     * allocation each tie on total and label, so the indication id decides: the older Echo first.
+     * Alpha (also 1 allocation) sorts before both by label although it was created last.
      *
-     * @return array<string, int> indication id by name
+     * The compare picker takes its input order from the subject, so the ids are passed in the wrong
+     * order on purpose: a sort without the id tie-breaker would keep the second Echo first.
      */
-    private function seedMembers(array $allocationsByName): array
+    public function testComparePickerOrdersEqualLabelsById(): void
+    {
+        self::bootKernel();
+
+        [$firstEcho, $secondEcho, $alpha] = $this->seedMembers([
+            ['Echo', 105, 1],
+            ['Echo', 105, 1],
+            ['Alpha', 103, 1],
+        ]);
+        $subject = $this->groupSubject([$secondEcho, $alpha, $firstEcho]);
+        $service = self::getContainer()->get(IndicationGroupMemberCompareService::class);
+
+        $rows = $service->buildComparePickerRows($subject, $this->buildMemberRows($subject));
+
+        self::assertSame([$alpha, $firstEcho, $secondEcho], array_column($rows, 'indicationId'));
+        self::assertSame(['Alpha (103)', 'Echo (105)', 'Echo (105)'], array_column($rows, 'label'));
+        self::assertSame([1, 1, 1], array_column($rows, 'total'));
+    }
+
+    /**
+     * @param list<int> $indicationIds
+     */
+    private function groupSubject(array $indicationIds): IndicationSubject
+    {
+        return new IndicationSubject(IndicationSubjectType::Group, 1, 'Order Group', $indicationIds);
+    }
+
+    /**
+     * @return list<array{indicationId: int, label: string, total: int, withPhysicianShare: float, resusShare: float, urgencyEmergencyShare: float, shareWithinGroup: float}>
+     */
+    private function buildMemberRows(IndicationSubject $subject): array
+    {
+        return self::getContainer()->get(IndicationGroupMemberCompareService::class)->buildMemberRows(
+            $subject,
+            StatisticsScopeCriteria::public(),
+            new StatisticsPeriodBounds(new \DateTimeImmutable('2026-05-01'), new \DateTimeImmutable('2026-06-01')),
+        );
+    }
+
+    /**
+     * Creates the members in the given order, each with its number of allocations in May 2026.
+     *
+     * @param list<array{string, int, int}> $members name, code, allocations
+     *
+     * @return list<int> indication ids in the given order
+     */
+    private function seedMembers(array $members): array
     {
         $user = UserFactory::createOne(['username' => 'member-order-'.bin2hex(random_bytes(4))]);
         $state = StateFactory::createOne(['name' => 'MemberOrderState']);
@@ -84,11 +131,10 @@ final class IndicationGroupMemberCompareServiceTest extends KernelTestCase
         $import = ImportFactory::createOne(['name' => 'MemberOrderImport', 'hospital' => $hospital, 'createdBy' => $user]);
 
         $ids = [];
-        $code = 101;
         $day = 1;
-        foreach ($allocationsByName as $name => $count) {
-            $indication = IndicationNormalizedFactory::createOne(['name' => $name, 'code' => $code++]);
-            $ids[$name] = (int) $indication->getId();
+        foreach ($members as [$name, $code, $count]) {
+            $indication = IndicationNormalizedFactory::createOne(['name' => $name, 'code' => $code]);
+            $ids[] = (int) $indication->getId();
 
             for ($i = 0; $i < $count; ++$i) {
                 AllocationFactory::createOne([
