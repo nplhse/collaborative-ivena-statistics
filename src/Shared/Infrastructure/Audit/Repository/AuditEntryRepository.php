@@ -70,15 +70,13 @@ final class AuditEntryRepository extends ServiceEntityRepository
     }
 
     /**
+     * Rows with an intent always have metadata (the intent is derived from it); anything else yields no context.
+     *
      * @return array<string, mixed>
      */
     private static function intentMetadata(mixed $metadata): array
     {
-        if (!\is_string($metadata) || '' === $metadata) {
-            return [];
-        }
-
-        $decoded = json_decode($metadata, true);
+        $decoded = \is_string($metadata) ? json_decode($metadata, true) : null;
         $intentMetadata = \is_array($decoded) ? ($decoded['intent_metadata'] ?? null) : null;
 
         /* @var array<string, mixed> */
