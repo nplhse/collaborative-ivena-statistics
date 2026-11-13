@@ -47,12 +47,33 @@ final class StatisticsAgeGroupFilterTest extends TestCase
             StatisticsAgeGroupFilter::sqlCondition('p.age', '30_39'),
         );
         self::assertSame(
-            'p.age IS NOT NULL AND p.age <= 18',
-            StatisticsAgeGroupFilter::sqlCondition('p.age', '0_18'),
+            'p.age IS NOT NULL AND p.age <= 17',
+            StatisticsAgeGroupFilter::sqlCondition('p.age', '0_17'),
+        );
+        self::assertSame(
+            'p.age >= 18 AND p.age <= 29',
+            StatisticsAgeGroupFilter::sqlCondition('p.age', '18_29'),
         );
         self::assertSame(
             'p.age >= 90 AND p.age <= 99',
             StatisticsAgeGroupFilter::sqlCondition('p.age', '90_99'),
+        );
+    }
+
+    public function testLegacyKeysMapToTheCurrentBuckets(): void
+    {
+        self::assertSame('0_17', StatisticsAgeGroupFilter::normalizeKey('0_18'));
+        self::assertSame('18_29', StatisticsAgeGroupFilter::normalizeKey('19_29'));
+        self::assertSame('30_39', StatisticsAgeGroupFilter::normalizeKey('30_39'));
+        self::assertSame(StatisticsAgeGroupFilter::UNDER_18, StatisticsAgeGroupFilter::normalizeKey(StatisticsAgeGroupFilter::UNDER_18));
+
+        self::assertSame(
+            StatisticsAgeGroupFilter::sqlCondition('p.age', '0_17'),
+            StatisticsAgeGroupFilter::sqlCondition('p.age', '0_18'),
+        );
+        self::assertSame(
+            StatisticsAgeGroupFilter::sqlCondition('p.age', '18_29'),
+            StatisticsAgeGroupFilter::sqlCondition('p.age', '19_29'),
         );
     }
 

@@ -68,7 +68,7 @@ The picker splits options into **Dispatch area** and **Travel time** `<optgroup>
 - Population: `CaseFlowSqlFilter` (scope, period, drawer) plus `GeographicSegmentSql`
 - Dispatch-area origin clicks use **Catchment** (`hospital` in the Leitstelle **and** `dispatch_area_id` of the clicked origin), same as the choropleth, not Related
 - Privacy: `CaseFlowPrivacyPolicy::MIN_CASES_PER_CELL` (n < 10); destination pools also need at least 3 hospitals (`MIN_HOSPITALS_PER_DESTINATION_POOL`, from `ScopePrivacyPolicy::MIN_HOSPITALS`), smaller pools are merged into the suppressed pool. No second privacy engine
-- Age slices: `StatisticsAgeGroupBucketSql` (`0_17`, `18_29`, … — not Explorer `0_18`)
+- Age slices: `StatisticsAgeGroupBucketSql` (`0_17`, `18_29`, …), the same buckets as the Explorer
 - Travel bands: same exclusive 10-minute rings as the isochrone layer (`[0,10)`, `[10,20)`, … `[40,50)`, `≥50`). Allocations have no incident coordinates, so segments never intersect GeoJSON
 - UI: compact dimension tables like Top Lists (`table-sm` + share bar), tabs like Hospital Population, Turbo frame like Closed Department details
 - Reference population: the current Scope **AND** Period **AND** Drawer without the geographic segment. Dimension shares of a selected segment are compared with that parent population; Δ is the share difference, computed from unrounded shares and shown as a percent by [Directional indicators](directional-indicators.md)

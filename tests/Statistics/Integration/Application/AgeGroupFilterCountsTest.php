@@ -43,6 +43,8 @@ use Zenstruck\Foundry\Test\Factories;
  *
  * Expected by hand: all cases = 3, children & adolescents (< 18) = 1 (age 17),
  * adults (>= 18) = 1 (age 18). The case without age only counts without an age group.
+ * The age buckets put 18-year-olds with adults (#1040): 0–17 = 1 (age 17), 18–29 = 1 (age 18).
+ * The pre-#1040 keys 0_18 and 19_29 are read as 0_17 and 18_29, so they give the same counts.
  */
 #[ResetDatabase]
 final class AgeGroupFilterCountsTest extends KernelTestCase
@@ -57,6 +59,10 @@ final class AgeGroupFilterCountsTest extends KernelTestCase
         yield 'all cases' => [null, 3];
         yield 'children and adolescents' => [StatisticsAgeGroupFilter::UNDER_18, 1];
         yield 'adults' => [StatisticsAgeGroupFilter::ADULTS, 1];
+        yield '0-17' => ['0_17', 1];
+        yield '18-29' => ['18_29', 1];
+        yield 'legacy 0-18 read as 0-17' => ['0_18', 1];
+        yield 'legacy 19-29 read as 18-29' => ['19_29', 1];
     }
 
     #[DataProvider('ageGroupProvider')]
@@ -93,6 +99,26 @@ final class AgeGroupFilterCountsTest extends KernelTestCase
         ));
 
         self::assertSame($expectedCount, $result->grandTotal);
+    }
+
+    public function testExplorerAgeGroupBucketsCountEighteenYearOldsAsAdults(): void
+    {
+        [, $hospitalId] = $this->createFixture();
+
+        $result = self::getContainer()->get(GenericAllocationAnalysisQuery::class)->execute(new AnalysisQuery(
+            primaryDimensionKey: 'age_group',
+            scopeCriteria: new StatisticsScopeCriteria([$hospitalId]),
+            periodBounds: new StatisticsPeriodBounds(null),
+        ));
+
+        $counts = [];
+        foreach ($result->rows as $row) {
+            if ($row->countValue() > 0) {
+                $counts[(string) $row->bucket] = $row->countValue();
+            }
+        }
+
+        self::assertSame(['0_17' => 1, '18_29' => 1], $counts);
     }
 
     /**

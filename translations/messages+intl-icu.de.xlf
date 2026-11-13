@@ -249,13 +249,13 @@
         <source>label.age_group</source>
         <target>Altersgruppe</target>
       </trans-unit>
-      <trans-unit id="lblAgeGrp018De" resname="label.age_group.0_18">
-        <source>label.age_group.0_18</source>
-        <target>0–18</target>
+      <trans-unit id="lblAgeGrp017De" resname="label.age_group.0_17">
+        <source>label.age_group.0_17</source>
+        <target>0–17</target>
       </trans-unit>
-      <trans-unit id="lblAgeGrp1929De" resname="label.age_group.19_29">
-        <source>label.age_group.19_29</source>
-        <target>19–29</target>
+      <trans-unit id="lblAgeGrp1829De" resname="label.age_group.18_29">
+        <source>label.age_group.18_29</source>
+        <target>18–29</target>
       </trans-unit>
       <trans-unit id="lblAgeGrp3039De" resname="label.age_group.30_39">
         <source>label.age_group.30_39</source>

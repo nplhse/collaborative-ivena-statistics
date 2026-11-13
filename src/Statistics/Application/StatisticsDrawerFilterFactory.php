@@ -7,6 +7,7 @@ namespace App\Statistics\Application;
 use App\Allocation\Application\Filter\OptionalRelationFilter;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Statistics\Application\DTO\StatisticsDrawerFilter;
+use App\Statistics\Application\Mapping\StatisticsAgeGroupFilter;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +27,7 @@ final class StatisticsDrawerFilterFactory
         return new StatisticsDrawerFilter(
             gender: $this->parsePositiveInt($query->getString('gender')),
             urgency: $this->parseUrgency($query->getString('urgency')),
-            ageGroup: $this->parseNonEmptyString($query->getString('age_group')),
+            ageGroup: $this->parseAgeGroup($query->getString('age_group')),
             department: $this->parsePositiveInt($query->getString('department')),
             speciality: $this->parsePositiveInt($query->getString('speciality')),
             requiresResus: $this->parseOptionalBoolean($query, 'requiresResus'),
@@ -40,6 +41,13 @@ final class StatisticsDrawerFilterFactory
             infection: $this->parseInfectiousId($query),
             departmentWasClosed: $this->parseOptionalBoolean($query, 'departmentWasClosed'),
         );
+    }
+
+    private function parseAgeGroup(string $value): ?string
+    {
+        $ageGroup = $this->parseNonEmptyString($value);
+
+        return null === $ageGroup ? null : StatisticsAgeGroupFilter::normalizeKey($ageGroup);
     }
 
     private function parsePositiveInt(string $value): ?int
