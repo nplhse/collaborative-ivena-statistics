@@ -25,7 +25,7 @@ final class FeedbackQuarantineReviewTest extends TestCase
 
         self::assertSame(1, $released);
         self::assertFalse($quarantined->isQuarantined());
-        self::assertEquals(new \DateTimeImmutable(self::NOW), $quarantined->getClassifiedAt());
+        self::assertSame(self::NOW, $quarantined->getClassifiedAt()?->format('Y-m-d H:i:s'));
         self::assertNull($normal->getClassifiedAt(), 'a normal entry is left untouched');
     }
 
