@@ -40,7 +40,7 @@ final class ListValidationSamplesController extends AbstractController
     ) {
     }
 
-    #[Route('/encounter/review/{id}/validation', name: 'app_encounter_validation', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Route('/tools/encounter-review/{id}/validation', name: 'app_tools_encounter_validation', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function __invoke(Request $request, Hospital $hospital, #[CurrentUser] User $user): Response
     {
         $this->denyAccessUnlessGranted(EncounterAttribute::REVIEW, $hospital);
@@ -60,7 +60,7 @@ final class ListValidationSamplesController extends AbstractController
             $sample = $this->validator->draw($hospitalId, new ReviewPeriod($data['from'], $data['to']), $data['sample_size'], $user);
             $this->addFlash('success', new TranslatableMessage('encounter.validation.flash.drawn', domain: 'encounter'));
 
-            return $this->redirectToRoute('app_encounter_validation_sample', ['id' => $hospitalId, 'sampleId' => $sample->getId()]);
+            return $this->redirectToRoute('app_tools_encounter_validation_sample', ['id' => $hospitalId, 'sampleId' => $sample->getId()]);
         }
 
         $reports = [];

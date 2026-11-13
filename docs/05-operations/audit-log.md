@@ -41,7 +41,7 @@ the stored metadata with the same rules; see [Backfill of older entries](#backfi
 | Key | Written by | Content |
 |-----|------------|---------|
 | `intent` | Doctrine subscriber, download logger | name of the business action, for example `user.settings.password_changed`, `import.run.failed` |
-| `intent_metadata` | Doctrine subscriber | free-form context of the intent, for example `hospital_id`, `section`, or `reason` (exception message) for `import.run.failed` |
+| `intent_metadata` | Doctrine subscriber | free-form context of the intent, for example `hospital_id` or `section`; `import_id` and `reason` (an `ImportRunReasonCode`, in older runs an exception message) for `import.run.failed`; `hospital_id`, `owner_id`, `reporting_period`, `trigger`, `owner_locale` for `hospital.reminder_sent` |
 | `clientIp`, `userAgent` | all producers in HTTP requests except exports | personal data; client IP depends on `SYMFONY_TRUSTED_PROXIES` |
 | `upstreamRequestId` | all producers | well-formed `X-Request-Id` the client or a proxy sent; for tracing only |
 | `exporterKey`, `hospitalIds`, `filters`, `rowCount`, `blocked`, `success` | export logger | the only recorded outcome besides the `import.run.*` intents |
@@ -59,8 +59,9 @@ the stored metadata with the same rules; see [Backfill of older entries](#backfi
 
 Rules of the Doctrine subscriber:
 
-- Audited entities live in the Allocation, Content, Import, Shared and User contexts; search for
-  `#[Audited]` for the current list.
+- Audited entities live in the Allocation, Content, Encounter, Engagement, Import, Shared and User
+  contexts; search for `#[Audited]` for the current list. `MonthlyReminderDispatch` is audited so that
+  sending a monthly reminder writes an entry with the intent `hospital.reminder_sent` (#1137).
 - `createdAt`, `updatedAt`, `createdBy`, `updatedBy` and fields with `#[AuditIgnore]` are skipped.
   Fields with `#[AuditSensitive]` (the password hash) are stored as `********`.
 - `create` stores a snapshot of all fields and to-one associations, `update` only changed fields,
@@ -161,6 +162,27 @@ old links to that table and to its entries redirect to the timeline and to the e
 - Entries and stacks open with the keyboard (Enter or Space on the summary line). Each entry shows its
   action as text next to the icon; colour only repeats it. On narrow screens the change table turns into
   one block per field.
+
+### Dashboard card "Recent notifications"
+
+The admin dashboard shows the last 10 audit events that may require an admin to act, in the look of
+the timeline (#1137). `RecentNotificationEvents::INTENTS` is the one list of these intents.
+
+Rule for this list (#1165): an event belongs in the card only if an admin may have to *do* something
+because of it, for example check a failed import or give a new user access. Everything that is only
+worth reviewing stays in the audit timeline and out of the card, such as role changes or disabled
+users by an admin, exports, access grants given by hospital owners, password resets or encounter key
+changes. Notices that have their own place on the dashboard or in the menu (failed messages, storage,
+feedback in quarantine) are not repeated.
+
+| Intent | Label | Context |
+|---|---|---|
+| `import.run.failed` | Import failed | import name, hospital, translated reason code; free-text reasons of older runs only in the log |
+| `user.registered` | New registration | username |
+| `hospital.reminder_sent` | Reminder sent | hospital, reporting month; to be replaced by failed deliveries (#1173) |
+
+Each request and intent counts once. Every event links to its request (`/admin/audit/requests/{requestId}`);
+"Show all in the audit log" opens the unfiltered timeline. Records that no longer exist are shown by id.
 
 ## Access and sensitive data
 

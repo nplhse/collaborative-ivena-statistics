@@ -33,18 +33,18 @@ final class DataPrepToolControllerTest extends WebTestCase
             'version' => '1.1.0',
             'minVersion' => '1.0.0',
             'releasedAt' => '2026-11-13',
-            'downloadUrl' => 'http://localhost/encounter/data-prep/download',
+            'downloadUrl' => 'http://localhost/tools/data-prep/download',
         ], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function testDownloadNeedsTheBetaRole(): void
     {
         $client = self::createClient();
-        $client->request(Request::METHOD_GET, '/encounter/data-prep/download');
+        $client->request(Request::METHOD_GET, '/tools/data-prep/download');
         self::assertResponseRedirects();
 
         $client->loginUser($this->user(['ROLE_USER', 'ROLE_PARTICIPANT']));
-        $client->request(Request::METHOD_GET, '/encounter/data-prep/download');
+        $client->request(Request::METHOD_GET, '/tools/data-prep/download');
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
@@ -52,7 +52,7 @@ final class DataPrepToolControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $client->loginUser($this->user());
-        $client->request(Request::METHOD_GET, '/encounter/data-prep/download');
+        $client->request(Request::METHOD_GET, '/tools/data-prep/download');
 
         self::assertResponseIsSuccessful();
         $response = $client->getResponse();
@@ -73,16 +73,20 @@ final class DataPrepToolControllerTest extends WebTestCase
         self::assertSame(1, preg_match_all('/https?:\/\//', strip_tags($html)), 'the update check is the only URL');
     }
 
-    public function testOverviewOffersTheDownload(): void
+    public function testToolsLinkTheLandingPageWhichOffersTheDownload(): void
     {
         $client = self::createClient();
         $client->loginUser($this->user());
-        $crawler = $client->request(Request::METHOD_GET, '/encounter');
 
+        $crawler = $client->request(Request::METHOD_GET, '/tools');
         self::assertResponseIsSuccessful();
-        $link = $crawler->filter('[data-test="encounter-data-prep"] a[href="/encounter/data-prep/download"]');
+        self::assertCount(1, $crawler->filter('[data-tools-category="data_preparation"] [data-tool-key="encounter_data_prep"][href="/tools/data-prep"]'), 'the Tools card links the landing page (#1128)');
+
+        $crawler = $client->request(Request::METHOD_GET, '/tools/data-prep');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#navbar-menu li.nav-item.active[data-testid="nav-tools"]');
+        $link = $crawler->filter('[data-test="data-prep-download"][href="/tools/data-prep/download"]');
         self::assertCount(1, $link);
         self::assertSame('encounter-data-prep-1.1.0.html', $link->attr('download'));
-        self::assertCount(1, $crawler->filter('[data-test="encounter-data-prep"] a[href="/encounter/data-prep"]'), 'the card links the landing page (#1130)');
     }
 }

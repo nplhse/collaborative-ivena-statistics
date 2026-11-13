@@ -1,5 +1,5 @@
 {# Card menu item of the review lists on narrow screens; the table shows the action cell instead. #}
 {% set target = row.allocation_id ?? row.allocationId ?? row.proposal_allocation_id ?? null %}
 {% if target %}
-    <a class="dropdown-item" href="{{ path('app_encounter_review_allocation', {id: context.hospital_id, allocationId: target}|merge(context.query)) }}">{{ 'encounter.review.action.review'|trans({}, 'encounter') }}</a>
+    <a class="dropdown-item" href="{{ path('app_tools_encounter_review_allocation', {id: context.hospital_id, allocationId: target}|merge(context.query)) }}">{{ 'encounter.review.action.review'|trans({}, 'encounter') }}</a>
 {% endif %}

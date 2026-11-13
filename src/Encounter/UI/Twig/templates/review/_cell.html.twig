@@ -1,6 +1,6 @@
 {# Custom cells of the review lists; `context` carries hospital_id and the review query. #}
 {% set target = row.allocation_id ?? row.allocationId ?? row.proposal_allocation_id ?? null %}
-{% set review_link = target ? path('app_encounter_review_allocation', {id: context.hospital_id, allocationId: target}|merge(context.query)) : null %}
+{% set review_link = target ? path('app_tools_encounter_review_allocation', {id: context.hospital_id, allocationId: target}|merge(context.query)) : null %}
 {% if column.key in ['arrival', 'allocation'] %}
     <a href="{{ review_link }}" data-test="encounter-review-item">{{ row.arrival_at|date('d.m.Y H:i') }}</a>
 {% elseif column.key == 'anchor' %}

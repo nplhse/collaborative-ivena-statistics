@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\Controller\Hospitals;
 
+use App\Allocation\Application\Hospital\MyHospitals\Action\MyHospitalActionRegistry;
+use App\Allocation\Application\Hospital\MyHospitals\MyHospitalsEntry;
 use App\Allocation\Application\Hospital\MyHospitals\MyHospitalsOverviewBuilder;
 use App\Allocation\Application\Hospital\MyHospitals\MyHospitalsScopeResolver;
 use App\Allocation\Application\Hospital\MyHospitals\MyHospitalsSelection;
@@ -20,6 +22,7 @@ final class ListOwnedHospitalsController extends AbstractController
     public function __construct(
         private readonly MyHospitalsScopeResolver $myHospitalsScopeResolver,
         private readonly MyHospitalsOverviewBuilder $myHospitalsOverviewBuilder,
+        private readonly MyHospitalActionRegistry $actionRegistry,
     ) {
     }
 
@@ -34,11 +37,16 @@ final class ListOwnedHospitalsController extends AbstractController
         $scope = $this->myHospitalsScopeResolver->resolve($user);
         $hospital = $request->query->all()['hospital'] ?? null;
         $selection = MyHospitalsSelection::fromPublicId($scope, \is_string($hospital) ? $hospital : null);
+        $hospitalIds = array_values(array_filter(array_map(
+            static fn (MyHospitalsEntry $entry): ?int => $entry->hospital->getId(),
+            $selection->selected()->entries,
+        )));
 
         return $this->render('@Allocation/hospitals/owned_list.html.twig', [
             'scope' => $scope,
             'selection' => $selection,
             'overview' => $scope->isEmpty() ? null : $this->myHospitalsOverviewBuilder->build($selection->selected(), (int) $user->getId()),
+            'hospital_actions' => $this->actionRegistry->actionsFor($hospitalIds),
         ]);
     }
 }

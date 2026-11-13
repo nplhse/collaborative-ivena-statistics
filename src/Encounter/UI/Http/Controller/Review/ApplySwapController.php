@@ -35,7 +35,7 @@ final class ApplySwapController extends AbstractController
     ) {
     }
 
-    #[Route('/encounter/review/{id}/allocations/{allocationId}/swap', name: 'app_encounter_review_swap', requirements: ['id' => '\d+', 'allocationId' => '\d+'], methods: ['POST'])]
+    #[Route('/tools/encounter-review/{id}/allocations/{allocationId}/swap', name: 'app_tools_encounter_review_swap', requirements: ['id' => '\d+', 'allocationId' => '\d+'], methods: ['POST'])]
     public function __invoke(Request $request, Hospital $hospital, int $allocationId, #[CurrentUser] User $user): RedirectResponse
     {
         $this->denyAccessUnlessGranted(EncounterAttribute::REVIEW, $hospital);

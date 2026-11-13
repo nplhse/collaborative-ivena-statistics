@@ -25,9 +25,22 @@ final class IndicationRawReviewWorklistControllerTest extends WebTestCase
         $admin = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::ADMIN]]);
         $client->loginUser($admin);
 
-        $client->request(Request::METHOD_GET, '/explore/indication/raw/review');
+        $client->request(Request::METHOD_GET, '/tools/indication-review');
 
         self::assertResponseIsSuccessful();
+    }
+
+    public function testWorklistBelongsToTheToolsSection(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT]]));
+
+        $client->request(Request::METHOD_GET, '/tools/indication-review');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#navbar-menu li.nav-item.active[data-testid="nav-tools"]');
+        self::assertSelectorNotExists('#explore-subnav');
+        self::assertSelectorExists('.breadcrumb a[href="/tools"]');
     }
 
     public function testPlainUserIsForbidden(): void
@@ -36,7 +49,7 @@ final class IndicationRawReviewWorklistControllerTest extends WebTestCase
         $user = UserFactory::createOne(['roles' => [UserRole::USER]]);
         $client->loginUser($user);
 
-        $client->request(Request::METHOD_GET, '/explore/indication/raw/review');
+        $client->request(Request::METHOD_GET, '/tools/indication-review');
 
         self::assertResponseStatusCodeSame(403);
     }
@@ -47,7 +60,7 @@ final class IndicationRawReviewWorklistControllerTest extends WebTestCase
         $admin = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::ADMIN]]);
         $client->loginUser($admin);
 
-        $crawler = $client->request(Request::METHOD_GET, '/explore/indication/raw/review');
+        $crawler = $client->request(Request::METHOD_GET, '/tools/indication-review');
 
         self::assertResponseIsSuccessful();
         self::assertGreaterThan(0, $crawler->filter('ul.nav-tabs .nav-link')->count());
@@ -63,7 +76,7 @@ final class IndicationRawReviewWorklistControllerTest extends WebTestCase
         $admin = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::ADMIN]]);
         $client->loginUser($admin);
 
-        $crawler = $client->request(Request::METHOD_GET, '/explore/indication/raw/review');
+        $crawler = $client->request(Request::METHOD_GET, '/tools/indication-review');
 
         self::assertResponseIsSuccessful();
         $searchForm = $crawler->filter('[data-controller="autosubmit"]');
@@ -81,9 +94,9 @@ final class IndicationRawReviewWorklistControllerTest extends WebTestCase
         $raw = IndicationRawFactory::createOne(['code' => 501, 'name' => 'Match Me']);
         $client->loginUser($reviewer);
 
-        $client->request(Request::METHOD_GET, '/explore/indication/raw/review/start/matching');
+        $client->request(Request::METHOD_GET, '/tools/indication-review/start/matching');
 
-        self::assertResponseRedirects(sprintf('/explore/indication/raw/review/%s?segment=unreviewed', $raw->getPublicIdString()));
+        self::assertResponseRedirects(sprintf('/tools/indication-review/%s?segment=unreviewed', $raw->getPublicIdString()));
     }
 
     public function testStartReviewingRedirectsToFirstNeedsReviewItem(): void
@@ -106,9 +119,9 @@ final class IndicationRawReviewWorklistControllerTest extends WebTestCase
         ]);
         $client->loginUser($reviewer);
 
-        $client->request(Request::METHOD_GET, '/explore/indication/raw/review/start/reviewing');
+        $client->request(Request::METHOD_GET, '/tools/indication-review/start/reviewing');
 
-        self::assertResponseRedirects(sprintf('/explore/indication/raw/review/%s?segment=needs_review', $raw->getPublicIdString()));
+        self::assertResponseRedirects(sprintf('/tools/indication-review/%s?segment=needs_review', $raw->getPublicIdString()));
     }
 
     public function testWorklistCanSortByOccurrence(): void
@@ -119,7 +132,7 @@ final class IndicationRawReviewWorklistControllerTest extends WebTestCase
         IndicationRawFactory::createOne(['code' => 602, 'name' => 'High Occurrence']);
         $client->loginUser($admin);
 
-        $client->request(Request::METHOD_GET, '/explore/indication/raw/review', [
+        $client->request(Request::METHOD_GET, '/tools/indication-review', [
             'segment' => 'unreviewed',
             'sortBy' => 'occurrence',
             'orderBy' => 'desc',
@@ -135,7 +148,7 @@ final class IndicationRawReviewWorklistControllerTest extends WebTestCase
         $raw = IndicationRawFactory::createOne(['code' => 701, 'name' => 'Card Me']);
         $client->loginUser($admin);
 
-        $crawler = $client->request(Request::METHOD_GET, '/explore/indication/raw/review', ['segment' => 'unreviewed']);
+        $crawler = $client->request(Request::METHOD_GET, '/tools/indication-review', ['segment' => 'unreviewed']);
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="data-table-cards"].data-table-cards--md');
@@ -153,7 +166,7 @@ final class IndicationRawReviewWorklistControllerTest extends WebTestCase
         $admin = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::ADMIN]]);
         $client->loginUser($admin);
 
-        $crawler = $client->request(Request::METHOD_GET, '/explore/indication/raw/review', ['segment' => 'top_open']);
+        $crawler = $client->request(Request::METHOD_GET, '/tools/indication-review', ['segment' => 'top_open']);
 
         self::assertResponseIsSuccessful();
         self::assertGreaterThan(0, $crawler->filter('a.nav-link.active:contains("Open")')->count());
@@ -167,8 +180,8 @@ final class IndicationRawReviewWorklistControllerTest extends WebTestCase
         ]);
         $client->loginUser($reviewer);
 
-        $client->request(Request::METHOD_GET, '/explore/indication/raw/review/start/matching');
+        $client->request(Request::METHOD_GET, '/tools/indication-review/start/matching');
 
-        self::assertResponseRedirects('/explore/indication/raw/review?segment=unreviewed');
+        self::assertResponseRedirects('/tools/indication-review?segment=unreviewed');
     }
 }

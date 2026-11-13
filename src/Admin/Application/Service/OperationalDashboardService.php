@@ -8,12 +8,11 @@ use App\Admin\Application\DTO\HealthCheckItemDto;
 use App\Admin\Application\DTO\HealthStatusDto;
 use App\Admin\Application\DTO\MessengerStatsDto;
 use App\Admin\Application\DTO\OpsCardDto;
+use App\Admin\Application\DTO\RecentNotificationEventDto;
 use App\Admin\Infrastructure\Repository\MessengerStatsRepository;
 use App\Shared\Application\Health\HealthCheckReport;
 use App\Shared\Application\Health\HealthCheckService;
 use App\Shared\Application\Health\HealthCheckStatus;
-use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
-use App\Shared\Infrastructure\Audit\Repository\AuditEntryRepository;
 use App\Storage\Application\DTO\StorageSummary;
 use App\Storage\Application\View\StorageReportService;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
@@ -30,7 +29,7 @@ final readonly class OperationalDashboardService
         private MessengerStatsRepository $messengerStatsRepository,
         private StorageReportService $storageReportService,
         private HealthCheckService $healthCheckService,
-        private AuditEntryRepository $auditEntryRepository,
+        private RecentNotificationEvents $recentNotificationEvents,
         private AdminUrlGeneratorInterface $adminUrlGenerator,
         private StorageHealthItemFactory $storageHealthItemFactory,
     ) {
@@ -92,15 +91,11 @@ final readonly class OperationalDashboardService
     }
 
     /**
-     * @return list<array{occurredAt: \DateTimeImmutable, intent: string, action: string, origin: string}>
+     * @return list<RecentNotificationEventDto>
      */
     public function getRecentNotificationEvents(int $limit = 10): array
     {
-        return $this->auditEntryRepository->findRecentByIntents([
-            AuditEntry::INTENT_HOSPITAL_REMINDER_SENT,
-            AuditEntry::INTENT_USER_REGISTERED,
-            AuditEntry::INTENT_IMPORT_RUN_FAILED,
-        ], $limit);
+        return $this->recentNotificationEvents->latest($limit);
     }
 
     /**

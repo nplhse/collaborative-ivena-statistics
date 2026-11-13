@@ -5,26 +5,6 @@
       <tool tool-id="symfony" tool-name="Symfony" />
     </header>
     <body>
-      <trans-unit id="Enc3A23D4AA" resname="encounter.nav">
-        <source>encounter.nav</source>
-        <target>Behandlungsdaten</target>
-      </trans-unit>
-      <trans-unit id="Enc0BF25EFC" resname="encounter.title">
-        <source>encounter.title</source>
-        <target>Pilot Behandlungsdaten</target>
-      </trans-unit>
-      <trans-unit id="Enc6614071F" resname="encounter.overview.intro">
-        <source>encounter.overview.intro</source>
-        <target>Pilot zur Verknüpfung von Notaufnahmebesuchen mit IVENA-Zuweisungen. Upload, Prüfung der Verknüpfungen und Fallansichten folgen in späteren Schritten des Pilots.</target>
-      </trans-unit>
-      <trans-unit id="Enc87A19749" resname="encounter.overview.my_grants">
-        <source>encounter.overview.my_grants</source>
-        <target>Mein Zugriff auf Behandlungsdaten</target>
-      </trans-unit>
-      <trans-unit id="Enc6D9D7FDA" resname="encounter.overview.no_grants">
-        <source>encounter.overview.no_grants</source>
-        <target>Sie haben für kein Krankenhaus Zugriff auf Behandlungsdaten. Der Krankenhaus-Eigentümer oder eine Administratorin bzw. ein Administrator kann ihn erteilen.</target>
-      </trans-unit>
       <trans-unit id="Enc0EF249EE" resname="encounter.hospital_edit.title">
         <source>encounter.hospital_edit.title</source>
         <target>Behandlungsdaten</target>
@@ -153,14 +133,6 @@
         <source>encounter.grant.flash.duplicate</source>
         <target>Dieser Benutzer hat bereits Zugriff auf die Behandlungsdaten dieses Krankenhauses.</target>
       </trans-unit>
-      <trans-unit id="EncAdmAcc1" resname="encounter.overview.admin_access">
-        <source>encounter.overview.admin_access</source>
-        <target>Als Administratorin oder Administrator haben Sie ohne Berechtigung Zugriff auf die Behandlungsdaten aller Krankenhäuser.</target>
-      </trans-unit>
-      <trans-unit id="Enc9B4AE2D8" resname="encounter.data_prep.overview.title">
-        <source>encounter.data_prep.overview.title</source>
-        <target>Datenaufbereitungs-Tool</target>
-      </trans-unit>
       <trans-unit id="Enc25E79088" resname="encounter.data_prep.overview.intro">
         <source>encounter.data_prep.overview.intro</source>
         <target>Das Tool wandelt den Notaufnahme-Export Ihres Krankenhausinformationssystems in eine pseudonymisierte Datei für den Upload um. Es läuft offline im Browser: Namen, Geburtsdaten, Personal und Freitexte verlassen Ihren Rechner nicht.</target>
@@ -168,18 +140,6 @@
       <trans-unit id="EncA4467F2E" resname="encounter.data_prep.overview.download">
         <source>encounter.data_prep.overview.download</source>
         <target>Tool herunterladen</target>
-      </trans-unit>
-      <trans-unit id="Enc61110276" resname="encounter.data_prep.overview.version">
-        <source>encounter.data_prep.overview.version</source>
-        <target>Version</target>
-      </trans-unit>
-      <trans-unit id="Enc504C7213" resname="encounter.data_prep.overview.profiles">
-        <source>encounter.data_prep.overview.profiles</source>
-        <target>Unterstützte Exporte: ORBIS-MTS-Export.</target>
-      </trans-unit>
-      <trans-unit id="EncE937AD5F" resname="encounter.data_prep.overview.local_files">
-        <source>encounter.data_prep.overview.local_files</source>
-        <target>Öffnen Sie die heruntergeladene Datei in einem aktuellen Browser (Doppelklick). Bewahren Sie die Schlüsseldatei und gegebenenfalls die lokale Zuordnungsdatei im Teamordner auf.</target>
       </trans-unit>
       <trans-unit id="EncE697213F" resname="encounter.data_prep.tool.title">
         <source>encounter.data_prep.tool.title</source>
@@ -605,10 +565,6 @@
         <source>encounter.data_prep.js.report_unlisted_hint</source>
         <target>Diese MTS-Indikatoren stehen noch nicht in der mitgelieferten Liste. Sie werden als aus der Bezeichnung abgeleitete Codes geschrieben; prüfen Sie, dass es MTS-Indikatoren und kein Freitext sind.</target>
       </trans-unit>
-      <trans-unit id="EncI683DD62D" resname="encounter.overview.imports_intro">
-        <source>encounter.overview.imports_intro</source>
-        <target>Mit dem Datenaufbereitungs-Werkzeug erstellte Dateien werden auf der Import-Seite hochgeladen (Typ „Behandlungsdaten“); ihre Berichte stehen in der Import-Liste.</target>
-      </trans-unit>
       <trans-unit id="EncI4E173CBA" resname="encounter.import.action.new">
         <source>encounter.import.action.new</source>
         <target>Datei hochladen</target>
@@ -900,10 +856,6 @@
       <trans-unit id="Enc78837119" resname="encounter.review.title">
         <source>encounter.review.title</source>
         <target>Abgleichsprüfung</target>
-      </trans-unit>
-      <trans-unit id="Enc8BF4465E" resname="encounter.review.overview_intro">
-        <source>encounter.review.overview_intro</source>
-        <target>Verknüpfungen zwischen Notaufnahme-Besuchen und IVENA-Zuweisungen prüfen: Vorschläge bestätigen oder ablehnen, Konflikte auflösen und Tauschvorschläge übernehmen.</target>
       </trans-unit>
       <trans-unit id="Enc709F53B6" resname="encounter.review.intro">
         <source>encounter.review.intro</source>
@@ -1941,14 +1893,6 @@
         <source>encounter.link.not_linked</source>
         <target>Nicht verknüpft</target>
       </trans-unit>
-      <trans-unit id="Enc23316E5C" resname="encounter.overview_page.index_title">
-        <source>encounter.overview_page.index_title</source>
-        <target>Übersicht Behandlungsdaten</target>
-      </trans-unit>
-      <trans-unit id="EncA92DB0C1" resname="encounter.overview_page.index_none">
-        <source>encounter.overview_page.index_none</source>
-        <target>Sie dürfen für kein Krankenhaus Auswertungen sehen. Dafür sind eine Behandlungsdaten-Freigabe und die Krankenhausberechtigung „Statistik“ nötig.</target>
-      </trans-unit>
       <trans-unit id="Enc1775A938" resname="encounter.validation.title">
         <source>encounter.validation.title</source>
         <target>Validierung der Verknüpfung</target>
@@ -2384,10 +2328,6 @@
       <trans-unit id="EncD9B0B0A5" resname="encounter.validation.item.options_hint_visit">
         <source>encounter.validation.item.options_hint_visit</source>
         <target>Gehört eine der Zuweisungen unten zu diesem Besuch? Dann dort „Diese Zuweisung verknüpfen“ wählen.</target>
-      </trans-unit>
-      <trans-unit id="EncE1E3DBED" resname="encounter.data_prep.overview.guide">
-        <source>encounter.data_prep.overview.guide</source>
-        <target>Anleitung und Download</target>
       </trans-unit>
       <trans-unit id="Enc9DDB4F7A" resname="encounter.data_prep.guide.title">
         <source>encounter.data_prep.guide.title</source>
@@ -3276,6 +3216,33 @@
       <trans-unit id="Enc17FCF391" resname="encounter.plausibility.error.snapshot_not_active">
         <source>encounter.plausibility.error.snapshot_not_active</source>
         <target>Snapshot #{id} ist nicht aktiv.</target>
+      <trans-unit id="ToolsEncRevTitleDe" resname="tools.encounter_review.title">
+        <source>tools.encounter_review.title</source>
+        <target>Abgleichsprüfung Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="ToolsEncRevDescDe" resname="tools.encounter_review.description">
+        <source>tools.encounter_review.description</source>
+        <target>Automatische Verknüpfungen zwischen Notaufnahme-Fällen und IVENA-Zuweisungen prüfen und offene Vorschläge entscheiden.</target>
+      </trans-unit>
+      <trans-unit id="ToolsEncValTitleDe" resname="tools.encounter_validation.title">
+        <source>tools.encounter_validation.title</source>
+        <target>Validierung der Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="ToolsEncValDescDe" resname="tools.encounter_validation.description">
+        <source>tools.encounter_validation.description</source>
+        <target>Stichproben von Verknüpfungen ziehen und beurteilen, um die Zuverlässigkeit des Abgleichs zu messen.</target>
+      </trans-unit>
+      <trans-unit id="ToolsEncPrepTitleDe" resname="tools.encounter_data_prep.title">
+        <source>tools.encounter_data_prep.title</source>
+        <target>Datenaufbereitungs-Tool</target>
+      </trans-unit>
+      <trans-unit id="ToolsEncPrepDescDe" resname="tools.encounter_data_prep.description">
+        <source>tools.encounter_data_prep.description</source>
+        <target>Den Notaufnahme-Export Ihres Krankenhausinformationssystems in eine pseudonymisierte Datei für den Upload umwandeln.</target>
+      </trans-unit>
+      <trans-unit id="MyHospActEncDataDe" resname="my_hospitals.action.encounter_data">
+        <source>my_hospitals.action.encounter_data</source>
+        <target>Behandlungsdaten</target>
       </trans-unit>
     </body>
   </file>

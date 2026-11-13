@@ -23,7 +23,7 @@ Decisions: [ADR 026](../../02-architecture/decisions/026-encounter-data-context-
 ## Flow
 
 1. The hospital downloads the data preparation tool (one HTML file) from its landing page
-   `/encounter/data-prep`, which also walks through grants, export, key file and local map
+   `/tools/data-prep`, which also walks through grants, export, key file and local map
    ([data-preparation-tool.md](data-preparation-tool.md#landing-page)).
 2. In the browser, the tool reads the vendor export and the hospital's key file, drops identifying
    columns, computes the visit fingerprint and writes a canonical `ed_visit` file
@@ -37,10 +37,10 @@ Decisions: [ADR 026](../../02-architecture/decisions/026-encounter-data-context-
    files recognised as raw HIS exports are deleted immediately
    ([upload file retention](#upload-file-retention)).
 
-Implemented in #1051: the tool v1 with the ORBIS MTS profile, its download on `/encounter`, the
+Implemented in #1051: the tool v1 with the ORBIS MTS profile, its download (now on the landing page), the
 public update check `/data-prep/latest.json` and the version options `app.encounter.data_prep`
 ([data-preparation-tool.md](data-preparation-tool.md)). #1130 added the landing page
-`/encounter/data-prep` (getting started, versions, changelog) with subpages for the key file and the
+`/tools/data-prep` (getting started, versions, changelog) with subpages for the key file and the
 local map, and the local map editor in the tool (1.1.0).
 
 ## Model
@@ -115,7 +115,7 @@ on it.
 `UPLOAD` on at least one hospital (or `ROLE_ADMIN`); the hospital list then also contains the hospitals
 with `UPLOAD`, even without the hospital permission `Import`. For this type the form has a schema
 (`ed_visit`) and a required confirmation that the file was produced with the data preparation tool and
-contains no direct identifiers; its help links to the tool's landing page `/encounter/data-prep` (#1051, #1130). The
+contains no direct identifiers; its help links to the tool's landing page `/tools/data-prep` (#1051, #1130). The
 confirmation is stored on `encounter_import` (`confirmed_by`, `confirmed_at`, audited with the import
 creation), together with the hospital's key generation at upload. Uploads are refused while the
 hospital's key change is in progress.
@@ -315,8 +315,10 @@ needs the beta role to manage encounter grants.
 
 Implemented in #1046:
 
-- Pilot entry page `/encounter` with a navigation entry for the beta role; it lists the user's own
-  encounter grants until the later steps add their pages.
+- Pilot entry page `/encounter` with a navigation entry for the beta role. Removed in #1128: review,
+  validation and the data preparation tool are Tools ([below](#tools-section)), `/encounter` redirects to
+  `/tools`, and My Hospitals shows "Encounter data" on the cards of the hospitals whose encounter analysis
+  the user may open.
 - Grant management at `/hospitals/{id}/edit/encounter-access`, linked from the hospital edit pages.
   Candidates are the owner (who can grant themselves case access) and users with a hospital access
   grant. Removing someone's hospital access, or changing the owner, removes their encounter grant.
@@ -507,7 +509,7 @@ none linked to another visit than the reference.
 
 ## Match review
 
-Implemented in #1054. Pages under `/encounter/review` (linked from `/encounter`): beta role + encounter
+Implemented in #1054. Pages under `/tools/encounter-review` (Tools card "Encounter match review"): beta role + encounter
 grant `REVIEW` on the hospital, or `ROLE_ADMIN`. With one reviewable hospital the entry opens it directly;
 administrators see every hospital with encounter data. Another hospital's page answers 403, an allocation
 of another hospital under one's own hospital 404.
@@ -518,7 +520,7 @@ assessment contact), both on the stored local wall clock.
 
 **Layout** follows the indication review ([indication-normalization.md](../allocation/indication-normalization.md#review-worklist)):
 
-- **Worklist** `/encounter/review/{hospital}`: one DataTable with three tabs and their counts (below), the
+- **Worklist** `/tools/encounter-review/{hospital}`: one DataTable with three tabs and their counts (below), the
   period and the tab's filter in a filter drawer, sortable by arrival, agreement and time difference
   ("to review" and "done"), a "Review" action per row and mobile cards. "Start review" opens the first
   allocation of the tab.
@@ -527,9 +529,9 @@ assessment contact), both on the stored local wall clock.
   "Leave open" skips to the next allocation; confirm, change, reject and swaps continue with the next one
   too (`MatchReviewNavigator`, same order as the list); at the end of the tab the list opens again.
   Tab, filter, period and sort order travel in the query string (`ReviewContext`).
-- **Overview** `/encounter/review/{hospital}/overview`: the counts with denominators below, each linked to its
+- **Overview** `/tools/encounter-review/{hospital}/overview`: the counts with denominators below, each linked to its
   tab and filter.
-- **Unlinked visits** `/encounter/review/{hospital}/visits`: visits without link, optionally by arrival route
+- **Unlinked visits** `/tools/encounter-review/{hospital}/visits`: visits without link, optionally by arrival route
   (`route=ems|self|unknown`), reached from the overview's counts. Nothing is decided there; a visit with an
   open proposal links to the review of that allocation.
 
@@ -555,7 +557,7 @@ assessment contact), both on the stored local wall clock.
 A proposal is in **open conflict** while it carries `conflict` and another allocation's conflict proposal
 for the same visit is still open; once one side is decided, the rest counts as an ordinary proposal.
 
-**Allocation page** (`/encounter/review/{hospital}/allocations/{allocation}`). A swap proposal, if any, is
+**Allocation page** (`/tools/encounter-review/{hospital}/allocations/{allocation}`). A swap proposal, if any, is
 shown above. The candidate column lists every candidate visit of the **review window**
 (`MatchingSettings::reviewWindow()`: widest bounds of all passes, every arrival route, −30 … +90 min, age
 ±5 by default) as a choice, with the visit's anchor time, time difference, agreement among all candidates of
@@ -614,7 +616,7 @@ chain A–V + B–W gives one link more and 6 + 7 − 9 = 4 points more.
 
 ## Match validation
 
-Implemented in #1057 (ADR 030, "Quality check"). Pages under `/encounter/review/{hospital}/validation`,
+Implemented in #1057 (ADR 030, "Quality check"). Pages under `/tools/encounter-review/{hospital}/validation`,
 linked from the review overview; access as the review (beta role + encounter grant `REVIEW`, or
 `ROLE_ADMIN`).
 
@@ -708,7 +710,7 @@ care level. No cross-hospital aggregates.
 
 Implemented in #1055. Statistics page `/statistics/encounter-analytics` ("Encounter data (beta)" in the
 statistics sub-navigation, title "Analysis" / "Auswertung"; `EncounterAnalyticsController` in `Statistics/UI`),
-also linked from the pilot entry page `/encounter` for every hospital the user may see aggregates of. It
+also linked from My Hospitals ("Encounter data" on each card whose hospital is in `AggregateHospitalScope`). It
 uses the statistics building blocks: the scope and period picker (`Statistics:AnalysisContext`) in
 `AnalysisContextScopeMode::AssignedHospital`, the statistics filter (`StatisticsFilterValueResolver`) and
 period window (`StatisticsPeriodResolver`), and the statistics page layout. The picker offers exactly the
@@ -878,6 +880,29 @@ The contract between the tool and the import is tested end to end: `exchange-fix
 the tool core on the synthetic ORBIS-like sample and keeps its output in
 `tests/Encounter/DataPrep/fixtures/orbis-mts-sample.ed_visit.csv`; `DataPrepToolOutputImportTest`
 imports that file and expects no file or row rejects.
+
+## Tools section
+
+Since #1128 the interactive encounter workflows are tools ([ADR 031](../../02-architecture/decisions/031-tools-section-and-tool-registry.md)),
+listed by `EncounterToolProvider` for `ROLE_ENCOUNTER_BETA` with a beta badge:
+
+| Tool | Route | Path |
+|---|---|---|
+| Encounter match review | `app_tools_encounter_review` | `/tools/encounter-review` (hospital list), `/tools/encounter-review/{id}/…` |
+| Encounter match validation | `app_tools_encounter_review` with `mode=validation` | the same hospital list, linking to `/tools/encounter-review/{id}/validation` |
+| Data preparation tool | `app_tools_data_prep` | `/tools/data-prep`, `/tools/data-prep/key`, `/tools/data-prep/local-map`, `/tools/data-prep/download` |
+
+There is no encounter entry in the main navigation anymore: descriptive figures are in Statistics
+(`/statistics/encounter-analytics`), the MTS glossary and the case card in Explore, the upload in Import and
+grants in the hospital edit pages. `EncounterMyHospitalActionProvider` adds "Encounter data" (link to the
+analysis of that hospital) to the My Hospitals cards of the hospitals in `AggregateHospitalScope`; a
+hospital with an encounter grant but outside My Hospitals (no hospital permission) gets no button.
+
+Until v0.4-beta every old path under `/encounter…` and its route name (`app_encounter_index`,
+`app_encounter_review_*`, `app_encounter_validation*`, `app_encounter_data_prep*` except `_latest`)
+answers with a permanent redirect (308, query string kept) to its tool route
+(`LegacyEncounterRedirectController`, removal in #1160). `/data-prep/latest.json`
+(`app_encounter_data_prep_latest`) is called by the downloaded tool and stays where it is.
 
 ## Governance
 

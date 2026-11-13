@@ -637,6 +637,18 @@
         <source>label.import.encounter.fields</source>
         <target>Only for encounter data (beta)</target>
       </trans-unit>
+      <trans-unit id="impTypeBadgeAlloc" resname="import.type.label.allocation">
+        <source>import.type.label.allocation</source>
+        <target>Allocation</target>
+      </trans-unit>
+      <trans-unit id="impTypeBadgeClosure" resname="import.type.label.closure">
+        <source>import.type.label.closure</source>
+        <target>Closure</target>
+      </trans-unit>
+      <trans-unit id="impTypeBadgeEncounter" resname="import.type.label.encounter">
+        <source>import.type.label.encounter</source>
+        <target>Encounter</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

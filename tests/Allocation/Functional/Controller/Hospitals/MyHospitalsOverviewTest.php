@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Functional\Controller\Hospitals;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Allocation\Domain\Enum\HospitalSize;
+use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
@@ -60,6 +63,27 @@ final class MyHospitalsOverviewTest extends WebTestCase
         DepartmentFactory::createOne();
         AssignmentFactory::createOne();
         IndicationRawFactory::createOne();
+    }
+
+    public function testMasterDataBadgesAreGermanForAGermanUser(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'], 'locale' => 'de']);
+        HospitalFactory::createOne([
+            'owner' => $owner,
+            'createdBy' => $owner,
+            'location' => HospitalLocation::RURAL,
+            'tier' => HospitalTier::FULL,
+            'size' => HospitalSize::LARGE,
+        ]);
+
+        $this->client->loginUser($owner);
+        $crawler = $this->client->request(Request::METHOD_GET, '/hospitals');
+
+        self::assertResponseIsSuccessful();
+        $badges = $crawler->filter('[data-testid="my-hospitals-card-badges"] .badge')->each(static fn ($badge): string => trim($badge->text()));
+        self::assertSame('Ländlich', $badges[0]);
+        self::assertSame('Umfassend', $badges[1]);
+        self::assertStringStartsWith('Groß', $badges[2]);
     }
 
     public function testOwnerSeesEveryPartAndAction(): void

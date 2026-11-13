@@ -48,12 +48,28 @@ final class AuditEntryRepositoryTest extends DatabaseKernelTestCase
 
         self::assertCount(2, $results);
         self::assertSame(AuditEntry::INTENT_IMPORT_RUN_FAILED, $results[0]['intent']);
-        self::assertSame('update', $results[0]['action']);
-        self::assertSame('messenger', $results[0]['origin']);
         self::assertSame('2025-06-03 12:00:00', $results[0]['occurredAt']->format('Y-m-d H:i:s'));
+        self::assertStringStartsWith('audit-repo-test-', $results[0]['requestId']);
+        self::assertSame(State::class, $results[0]['entityClass']);
+        self::assertSame('1', $results[0]['entityId']);
+        self::assertSame([], $results[0]['intentMetadata']);
         self::assertSame(AuditEntry::INTENT_USER_REGISTERED, $results[1]['intent']);
-        self::assertSame('create', $results[1]['action']);
-        self::assertSame('http', $results[1]['origin']);
+    }
+
+    public function testFindRecentByIntentsReturnsTheIntentMetadata(): void
+    {
+        $this->persistAuditEntry(
+            new \DateTimeImmutable('2025-06-03 12:00:00'),
+            AuditEntry::INTENT_IMPORT_RUN_FAILED,
+            'update',
+            'messenger',
+            intentMetadata: ['import_id' => 7, 'reason' => 'no_rows'],
+        );
+
+        $results = $this->repository->findRecentByIntents(self::DASHBOARD_INTENTS);
+
+        self::assertCount(1, $results);
+        self::assertSame(['import_id' => 7, 'reason' => 'no_rows'], $results[0]['intentMetadata']);
     }
 
     public function testFindRecentByIntentsFindsEventsBehindMoreThan200NewerEntries(): void
@@ -85,6 +101,9 @@ final class AuditEntryRepositoryTest extends DatabaseKernelTestCase
         self::assertSame('2025-06-01 08:00:00', $results[1]['occurredAt']->format('Y-m-d H:i:s'));
     }
 
+    /**
+     * @param array<string, mixed>|null $intentMetadata
+     */
     private function persistAuditEntry(
         \DateTimeImmutable $occurredAt,
         ?string $intent,
@@ -92,10 +111,15 @@ final class AuditEntryRepositoryTest extends DatabaseKernelTestCase
         string $origin,
         ?string $requestId = null,
         bool $flush = true,
+        ?array $intentMetadata = null,
     ): void {
         $metadata = null;
         if (null !== $intent) {
             $metadata = ['intent' => $intent];
+        }
+
+        if (null !== $intentMetadata) {
+            $metadata['intent_metadata'] = $intentMetadata;
         }
 
         $entry = new AuditEntry(

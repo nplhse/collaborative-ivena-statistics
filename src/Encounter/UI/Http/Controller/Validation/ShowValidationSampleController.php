@@ -28,7 +28,7 @@ final class ShowValidationSampleController extends AbstractController
     ) {
     }
 
-    #[Route('/encounter/review/{id}/validation/{sampleId}', name: 'app_encounter_validation_sample', requirements: ['id' => '\d+', 'sampleId' => '\d+'], methods: ['GET'])]
+    #[Route('/tools/encounter-review/{id}/validation/{sampleId}', name: 'app_tools_encounter_validation_sample', requirements: ['id' => '\d+', 'sampleId' => '\d+'], methods: ['GET'])]
     public function __invoke(Hospital $hospital, int $sampleId): Response
     {
         $this->denyAccessUnlessGranted(EncounterAttribute::REVIEW, $hospital);

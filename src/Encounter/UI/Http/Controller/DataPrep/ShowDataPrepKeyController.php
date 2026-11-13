@@ -22,7 +22,7 @@ final class ShowDataPrepKeyController extends AbstractController
     ) {
     }
 
-    #[Route('/encounter/data-prep/key', name: 'app_encounter_data_prep_key', methods: ['GET'])]
+    #[Route('/tools/data-prep/key', name: 'app_tools_data_prep_key', methods: ['GET'])]
     public function __invoke(): Response
     {
         return $this->render('@Encounter/data_prep/key.html.twig', [

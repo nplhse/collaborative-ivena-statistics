@@ -46,7 +46,7 @@ final class ShowValidationItemController extends AbstractController
     ) {
     }
 
-    #[Route('/encounter/review/{id}/validation/{sampleId}/items/{itemId}', name: 'app_encounter_validation_item', requirements: ['id' => '\d+', 'sampleId' => '\d+', 'itemId' => '\d+'], methods: ['GET', 'POST'])]
+    #[Route('/tools/encounter-review/{id}/validation/{sampleId}/items/{itemId}', name: 'app_tools_encounter_validation_item', requirements: ['id' => '\d+', 'sampleId' => '\d+', 'itemId' => '\d+'], methods: ['GET', 'POST'])]
     public function __invoke(Request $request, Hospital $hospital, int $sampleId, int $itemId, #[CurrentUser] User $user): Response
     {
         $this->denyAccessUnlessGranted(EncounterAttribute::REVIEW, $hospital);
@@ -69,8 +69,8 @@ final class ShowValidationItemController extends AbstractController
             'page' => $page,
             'csrf_token_id' => self::CSRF_TOKEN_ID,
             'skip_url' => $next instanceof MatchValidationItem
-                ? $this->generateUrl('app_encounter_validation_item', ['id' => $hospitalId, 'sampleId' => $sample->getId(), 'itemId' => $next->getId()])
-                : $this->generateUrl('app_encounter_validation_sample', ['id' => $hospitalId, 'sampleId' => $sample->getId()]),
+                ? $this->generateUrl('app_tools_encounter_validation_item', ['id' => $hospitalId, 'sampleId' => $sample->getId(), 'itemId' => $next->getId()])
+                : $this->generateUrl('app_tools_encounter_validation_sample', ['id' => $hospitalId, 'sampleId' => $sample->getId()]),
         ]);
     }
 
@@ -100,7 +100,7 @@ final class ShowValidationItemController extends AbstractController
             throw new BadRequestHttpException('Not a verdict of this item.');
         }
 
-        $itemUrl = $this->generateUrl('app_encounter_validation_item', ['id' => $hospitalId, 'sampleId' => $sample->getId(), 'itemId' => $item->getId()]);
+        $itemUrl = $this->generateUrl('app_tools_encounter_validation_item', ['id' => $hospitalId, 'sampleId' => $sample->getId(), 'itemId' => $item->getId()]);
         try {
             $result = $this->validator->record($item, $verdict, $user, $partner);
         } catch (ValidationLinkRefusedException $exception) {
@@ -120,10 +120,10 @@ final class ShowValidationItemController extends AbstractController
         if (!$next instanceof MatchValidationItem) {
             $this->addFlash('info', new TranslatableMessage('encounter.validation.flash.sample_done', domain: 'encounter'));
 
-            return $this->redirectToRoute('app_encounter_validation_sample', ['id' => $hospitalId, 'sampleId' => $sample->getId()]);
+            return $this->redirectToRoute('app_tools_encounter_validation_sample', ['id' => $hospitalId, 'sampleId' => $sample->getId()]);
         }
 
-        return $this->redirectToRoute('app_encounter_validation_item', ['id' => $hospitalId, 'sampleId' => $sample->getId(), 'itemId' => $next->getId()]);
+        return $this->redirectToRoute('app_tools_encounter_validation_item', ['id' => $hospitalId, 'sampleId' => $sample->getId(), 'itemId' => $next->getId()]);
     }
 
     /**

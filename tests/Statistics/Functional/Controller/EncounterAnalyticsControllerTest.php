@@ -168,19 +168,37 @@ final class EncounterAnalyticsControllerTest extends WebTestCase
         self::assertSame('6', $this->text($crawler, '[data-testid="encounter-categories-bar-segment"][data-key="red"] [data-testid="encounter-count"]'));
     }
 
-    public function testEntryPageAndSubnavLinkThePage(): void
+    public function testMyHospitalsAndSubnavLinkThePage(): void
     {
         $this->encounterGrant($this->hospitalA, $this->ownerA, [EncounterGrantAction::Upload]);
         $this->client->loginUser($this->ownerA);
 
-        $crawler = $this->client->request(Request::METHOD_GET, '/encounter', server: ['HTTP_Accept-Language' => 'en']);
-        self::assertSame(
-            '/statistics/encounter-analytics?scope=hospital&hospital='.$this->hospitalA->getId(),
-            $crawler->filter('[data-testid="encounter-overview-hospital"]')->attr('href'),
-        );
+        $crawler = $this->client->request(Request::METHOD_GET, '/hospitals', server: ['HTTP_Accept-Language' => 'en']);
+        self::assertResponseIsSuccessful();
+        $action = $crawler->filter(\sprintf('[data-testid="my-hospitals-card"][data-hospital-id="%d"] [data-action-key="encounter_data"]', $this->hospitalA->getId()));
+        self::assertCount(1, $action, 'The card of the hospital with an encounter grant offers the analysis (#1128).');
+        self::assertSame('/statistics/encounter-analytics?scope=hospital&hospital='.$this->hospitalA->getId(), $action->attr('href'));
+        self::assertStringContainsString('Encounter data', $action->text());
 
         $crawler = $this->page($this->hospitalA);
         self::assertSame('/statistics/encounter-analytics', $crawler->filter('[data-testid="stats-subnav-encounter-analytics"]')->attr('href'));
+    }
+
+    public function testMyHospitalsOffersTheAnalysisOnlyOnListedHospitals(): void
+    {
+        // Administrators may open the analysis of every hospital with visits (A and B), but My Hospitals lists
+        // only the hospitals they hold a permission for (A): B gets no card, so no button.
+        $admin = $this->admin();
+        $this->hospitalGrant($this->hospitalA, $admin);
+        $this->client->loginUser($admin);
+
+        $crawler = $this->client->request(Request::METHOD_GET, '/hospitals', server: ['HTTP_Accept-Language' => 'en']);
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(
+            ['/statistics/encounter-analytics?scope=hospital&hospital='.$this->hospitalA->getId()],
+            $crawler->filter('[data-action-key="encounter_data"]')->each(static fn (Crawler $link): string => (string) $link->attr('href')),
+        );
     }
 
     public function testReviewersGetLinksToReviewAndValidationWithThePeriod(): void
@@ -204,14 +222,14 @@ final class EncounterAnalyticsControllerTest extends WebTestCase
 
         $id = (string) $this->hospitalA->getId();
         $crawler = $this->page($this->hospitalA, self::OCTOBER);
-        self::assertSame('/encounter/review/'.$id.'/overview?from=2026-10-01&to=2026-10-31', $crawler->filter('[data-testid="encounter-overview-review-link"]')->attr('href'));
-        self::assertSame('/encounter/review/'.$id.'/validation?from=2026-10-01&to=2026-10-31', $crawler->filter('[data-testid="encounter-overview-validation-link"]')->attr('href'));
+        self::assertSame('/tools/encounter-review/'.$id.'/overview?from=2026-10-01&to=2026-10-31', $crawler->filter('[data-testid="encounter-overview-review-link"]')->attr('href'));
+        self::assertSame('/tools/encounter-review/'.$id.'/validation?from=2026-10-01&to=2026-10-31', $crawler->filter('[data-testid="encounter-overview-validation-link"]')->attr('href'));
 
         $crawler = $this->page($this->hospitalA, ['period' => 'year', 'year' => '2026']);
-        self::assertSame('/encounter/review/'.$id.'/overview', $crawler->filter('[data-testid="encounter-overview-review-link"]')->attr('href'), 'A year does not fit into one review page (at most 92 days).');
+        self::assertSame('/tools/encounter-review/'.$id.'/overview', $crawler->filter('[data-testid="encounter-overview-review-link"]')->attr('href'), 'A year does not fit into one review page (at most 92 days).');
 
         $crawler = $this->page($this->hospitalA, ['period' => 'all_time']);
-        self::assertSame('/encounter/review/'.$id.'/validation', $crawler->filter('[data-testid="encounter-overview-validation-link"]')->attr('href'), 'An open-ended period has no end day to pass on.');
+        self::assertSame('/tools/encounter-review/'.$id.'/validation', $crawler->filter('[data-testid="encounter-overview-validation-link"]')->attr('href'), 'An open-ended period has no end day to pass on.');
 
         $this->client->loginUser($this->admin());
         $this->page($this->hospitalB, self::OCTOBER);

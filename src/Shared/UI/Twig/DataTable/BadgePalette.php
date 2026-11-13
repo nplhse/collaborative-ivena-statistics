@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Shared\UI\Twig\DataTable;
 
+use Symfony\Component\Translation\TranslatableMessage;
+
 final class BadgePalette
 {
     private const string FALLBACK_BADGE_CLASS = 'bg-secondary text-secondary-fg';
@@ -13,19 +15,19 @@ final class BadgePalette
      */
     private const array PALETTES = [
         'hospital_location' => [
-            'Urban' => ['class' => 'bg-indigo text-indigo-fg', 'label' => 'Urban'],
-            'Mixed' => ['class' => 'bg-azure text-azure-fg', 'label' => 'Mixed'],
-            'Rural' => ['class' => 'bg-blue text-blue-fg', 'label' => 'Rural'],
+            'Urban' => ['class' => 'bg-indigo text-indigo-fg', 'label' => 'hospital.badge.location.Urban', 'domain' => 'allocation'],
+            'Mixed' => ['class' => 'bg-azure text-azure-fg', 'label' => 'hospital.badge.location.Mixed', 'domain' => 'allocation'],
+            'Rural' => ['class' => 'bg-blue text-blue-fg', 'label' => 'hospital.badge.location.Rural', 'domain' => 'allocation'],
         ],
         'hospital_tier' => [
-            'Basic' => ['class' => 'bg-purple text-purple-fg', 'label' => 'Basic'],
-            'Extended' => ['class' => 'bg-pink text-pink-fg', 'label' => 'Extended'],
-            'Full' => ['class' => 'bg-red text-red-fg', 'label' => 'Full'],
+            'Basic' => ['class' => 'bg-purple text-purple-fg', 'label' => 'hospital.badge.tier.Basic', 'domain' => 'allocation'],
+            'Extended' => ['class' => 'bg-pink text-pink-fg', 'label' => 'hospital.badge.tier.Extended', 'domain' => 'allocation'],
+            'Full' => ['class' => 'bg-red text-red-fg', 'label' => 'hospital.badge.tier.Full', 'domain' => 'allocation'],
         ],
         'hospital_size' => [
-            'Small' => ['class' => 'bg-lime text-lime-fg', 'label' => 'Small'],
-            'Medium' => ['class' => 'bg-green text-green-fg', 'label' => 'Medium'],
-            'Large' => ['class' => 'bg-teal text-teal-fg', 'label' => 'Large'],
+            'Small' => ['class' => 'bg-lime text-lime-fg', 'label' => 'hospital.badge.size.Small', 'domain' => 'allocation'],
+            'Medium' => ['class' => 'bg-green text-green-fg', 'label' => 'hospital.badge.size.Medium', 'domain' => 'allocation'],
+            'Large' => ['class' => 'bg-teal text-teal-fg', 'label' => 'hospital.badge.size.Large', 'domain' => 'allocation'],
         ],
         'allocation_urgency' => [
             '1' => ['class' => 'bg-red text-red-fg', 'label' => 'Emergency Care'],
@@ -49,12 +51,20 @@ final class BadgePalette
             'Allocation' => [
                 'presentation' => 'status',
                 'statusColor' => 'blue',
-                'label' => 'Allocation',
+                'label' => 'import.type.label.allocation',
+                'domain' => 'import',
             ],
             'Closure' => [
                 'presentation' => 'status',
                 'statusColor' => 'purple',
-                'label' => 'Closure',
+                'label' => 'import.type.label.closure',
+                'domain' => 'import',
+            ],
+            'Encounter' => [
+                'presentation' => 'status',
+                'statusColor' => 'teal',
+                'label' => 'import.type.label.encounter',
+                'domain' => 'import',
             ],
         ],
         'import_status' => [
@@ -62,37 +72,43 @@ final class BadgePalette
                 'presentation' => 'status',
                 'statusColor' => 'dark',
                 'icon' => 'tabler:clock',
-                'label' => 'Pending',
+                'label' => 'import.status.label.pending',
+                'domain' => 'import',
             ],
             'Running' => [
                 'presentation' => 'status',
                 'statusColor' => 'lime',
                 'animatedDot' => true,
-                'label' => 'Running',
+                'label' => 'import.status.label.running',
+                'domain' => 'import',
             ],
             'Completed' => [
                 'presentation' => 'status',
                 'statusColor' => 'green',
                 'icon' => 'tabler:circle-check',
-                'label' => 'Completed',
+                'label' => 'import.status.label.completed',
+                'domain' => 'import',
             ],
             'Failed' => [
                 'presentation' => 'status',
                 'statusColor' => 'red',
                 'icon' => 'tabler:alert-triangle',
-                'label' => 'Failed',
+                'label' => 'import.status.label.failed',
+                'domain' => 'import',
             ],
             'Cancelled' => [
                 'presentation' => 'status',
                 'statusColor' => 'orange',
                 'icon' => 'tabler:circle-x',
-                'label' => 'Cancelled',
+                'label' => 'import.status.label.cancelled',
+                'domain' => 'import',
             ],
             'Partial' => [
                 'presentation' => 'status',
                 'statusColor' => 'yellow',
                 'icon' => 'tabler:circle-half',
-                'label' => 'Partial',
+                'label' => 'import.status.label.partial',
+                'domain' => 'import',
             ],
         ],
     ];
@@ -101,7 +117,7 @@ final class BadgePalette
     {
         $key = $this->normalizeValue($value);
         $entry = $this->entryFor($palette, $key);
-        $label = $this->stringFrom($entry, 'label') ?? $key;
+        $label = $this->labelFrom($entry, $key);
         $presentationRaw = $this->stringFrom($entry, 'presentation') ?? '';
         $presentation = BadgePresentation::tryFrom($presentationRaw) ?? BadgePresentation::Badge;
 
@@ -134,6 +150,17 @@ final class BadgePalette
         }
 
         return self::PALETTES[$palette][$key];
+    }
+
+    /**
+     * @param array<string, mixed> $entry
+     */
+    private function labelFrom(array $entry, string $key): string|TranslatableMessage
+    {
+        $label = $this->stringFrom($entry, 'label') ?? $key;
+        $domain = $this->stringFrom($entry, 'domain');
+
+        return null === $domain ? $label : new TranslatableMessage($label, domain: $domain);
     }
 
     /**
