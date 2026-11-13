@@ -2323,7 +2323,7 @@
       </trans-unit>
       <trans-unit id="Enc92A86140" resname="encounter.validation.item.decide.no_partner">
         <source>encounter.validation.item.decide.no_partner</source>
-        <target>Kein Partner</target>
+        <target>Bestätigen: kein Partner</target>
       </trans-unit>
       <trans-unit id="EncB5A2B656" resname="encounter.validation.item.decision_note_pair">
         <source>encounter.validation.item.decision_note_pair</source>
@@ -2331,7 +2331,15 @@
       </trans-unit>
       <trans-unit id="Enc6511D74A" resname="encounter.validation.item.decision_note_unlinked">
         <source>encounter.validation.item.decision_note_unlinked</source>
-        <target>Verknüpfen speichert „Gegenstück verpasst“ und bestätigt die Verknüpfung. Ein späterer Wechsel des Urteils macht keine Verknüpfung rückgängig; Verknüpfungen ändert das Review.</target>
+        <target>„Bestätigen: kein Partner“ hält fest, dass dieser Fall zu Recht keine Verknüpfung hat. Eine Option verknüpfen speichert „Gegenstück verpasst“ und bestätigt die Verknüpfung. Ein späterer Wechsel des Urteils macht keine Verknüpfung rückgängig; Verknüpfungen ändert das Review.</target>
+      </trans-unit>
+      <trans-unit id="Enc8AE327E2" resname="encounter.validation.item.decide.skip">
+        <source>encounter.validation.item.decide.skip</source>
+        <target>Überspringen</target>
+      </trans-unit>
+      <trans-unit id="EncBCD292F2" resname="encounter.validation.item.decision_note_skip">
+        <source>encounter.validation.item.decision_note_skip</source>
+        <target>„Unklar“: angesehen, aber nicht entscheidbar; zählt als beurteilt und geht nicht in den Anteil ein. „Überspringen“: später entscheiden; nichts wird gespeichert, der Fall bleibt offen und der nächste offene Fall folgt.</target>
       </trans-unit>
       <trans-unit id="Enc5C08555C" resname="encounter.validation.item.alternatives">
         <source>encounter.validation.item.alternatives</source>
@@ -2371,11 +2379,11 @@
       </trans-unit>
       <trans-unit id="Enc68435AF6" resname="encounter.validation.item.options_hint_allocation">
         <source>encounter.validation.item.options_hint_allocation</source>
-        <target>Gehört einer der Besuche unten zu dieser Zuweisung? Dann dort „Diesen Besuch verknüpfen“ wählen.</target>
+        <target>Gehört einer der Besuche unten zu dieser Zuweisung? Dann dort „Diesen Besuch verknüpfen“ wählen; sonst „kein Partner“ bestätigen.</target>
       </trans-unit>
       <trans-unit id="EncD9B0B0A5" resname="encounter.validation.item.options_hint_visit">
         <source>encounter.validation.item.options_hint_visit</source>
-        <target>Gehört eine der Zuweisungen unten zu diesem Besuch? Dann dort „Diese Zuweisung verknüpfen“ wählen.</target>
+        <target>Gehört eine der Zuweisungen unten zu diesem Besuch? Dann dort „Diese Zuweisung verknüpfen“ wählen; sonst „kein Partner“ bestätigen.</target>
       </trans-unit>
     </body>
   </file>

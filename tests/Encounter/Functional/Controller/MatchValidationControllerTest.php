@@ -121,7 +121,7 @@ final class MatchValidationControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-test="encounter-validation-decision-note"]', 'Changing the verdict later undoes no link');
         // The decisions sit in the narrow right column, from "correct" down to "wrong".
         self::assertSame(
-            ['encounter-validation-verdict-correct', 'encounter-validation-verdict-unclear', 'encounter-validation-wrong-other', 'encounter-validation-verdict-wrong'],
+            ['encounter-validation-verdict-correct', 'encounter-validation-verdict-unclear', 'encounter-validation-wrong-other', 'encounter-validation-verdict-wrong', 'encounter-validation-skip'],
             $crawler->filter('.col-lg-4 [data-test="encounter-validation-decision"] .btn')->each(static fn (Crawler $button): string => (string) $button->attr('data-test')),
         );
         // "Correct" confirms the automatic link.
@@ -385,6 +385,57 @@ final class MatchValidationControllerTest extends WebTestCase
         foreach ($rivalLinks as $href) {
             self::assertStringEndsWith('?from=2026-10-01&to=2026-10-31', $href);
         }
+    }
+
+    /**
+     * Allocations 14:00 and 15:00 without visit, visit 18:00 by ambulance without allocation: three items
+     * without link (positions 1–3). "Confirm: no partner" is the primary action; "skip" records nothing and
+     * opens the next open item after this one, wrapping around, or the sample when no other item is open.
+     */
+    public function testUnlinkedItemConfirmsNoPartnerAndSkipLeavesItemsOpen(): void
+    {
+        $this->allocationAt($this->hospital, $this->ivena, '14:00');
+        $this->allocationAt($this->hospital, $this->ivena, '15:00');
+        $this->visitAt($this->hospital, $this->ed, '18:00');
+        $sample = $this->drawEmpty($this->hospital);
+        [$first, $second, $third] = $this->encounterEntityManager()->getRepository(MatchValidationItem::class)->findBy(['sample' => $sample], ['position' => 'ASC']);
+        $sampleUrl = $this->validationUrl().'/'.$sample->getId();
+
+        $this->client->loginUser($this->reviewer);
+        $crawler = $this->client->request(Request::METHOD_GET, $this->itemUrl($sample, $first));
+        self::assertResponseIsSuccessful();
+        // Confirm first and green, then unclear, then skip; no red "no partner" any more.
+        self::assertSame(
+            ['encounter-validation-verdict-no_partner', 'encounter-validation-verdict-unclear', 'encounter-validation-skip'],
+            $crawler->filter('[data-test="encounter-validation-decision"] .btn')->each(static fn (Crawler $button): string => (string) $button->attr('data-test')),
+        );
+        $confirm = $crawler->filter('[data-test="encounter-validation-verdict-no_partner"]');
+        self::assertSame('Confirm: no partner', trim($confirm->text()));
+        self::assertStringContainsString('btn-outline-success', (string) $confirm->attr('class'));
+        self::assertSelectorTextContains('[data-test="encounter-validation-skip-note"]', 'nothing is recorded');
+
+        // Skip on item 1 opens item 2 and records nothing.
+        $crawler = $this->client->click($crawler->filter('[data-test="encounter-validation-skip"]')->link());
+        self::assertSame($this->itemUrl($sample, $second), parse_url($this->client->getRequest()->getUri(), \PHP_URL_PATH));
+        self::assertNull($this->reload($first)->getVerdict());
+
+        // Skip on item 3 wraps around to item 1, the first open item.
+        $crawler = $this->client->request(Request::METHOD_GET, $this->itemUrl($sample, $third));
+        $crawler = $this->client->click($crawler->filter('[data-test="encounter-validation-skip"]')->link());
+        self::assertSame($this->itemUrl($sample, $first), parse_url($this->client->getRequest()->getUri(), \PHP_URL_PATH));
+
+        // The green confirm records "no partner" and opens the next open item.
+        $crawler = $this->verdict($crawler, 'no_partner');
+        self::assertSame(ValidationVerdict::NoPartner, $this->reload($first)->getVerdict());
+        self::assertSame($this->itemUrl($sample, $second), parse_url($this->client->getRequest()->getUri(), \PHP_URL_PATH));
+        $this->verdict($crawler, 'unclear');
+        self::assertSame(ValidationVerdict::Unclear, $this->reload($second)->getVerdict());
+
+        // Item 3 is the last open item: skip returns to the sample and leaves it open.
+        $crawler = $this->client->request(Request::METHOD_GET, $this->itemUrl($sample, $third));
+        $this->client->click($crawler->filter('[data-test="encounter-validation-skip"]')->link());
+        self::assertSame($sampleUrl, parse_url($this->client->getRequest()->getUri(), \PHP_URL_PATH));
+        self::assertNull($this->reload($third)->getVerdict());
     }
 
     public function testSameSeedDrawsTheSameCases(): void

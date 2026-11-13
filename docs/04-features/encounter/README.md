@@ -541,8 +541,8 @@ their hospital, items with their sample, allocation or visit (`ON DELETE CASCADE
 | Stratum | Page | Decisions |
 |---|---|---|
 | Automatic link, proposal | the allocation compared with the sampled visit; below, collapsed, "Alternatives (n)": the other candidate visits of the review window by points (time difference, sex/age/route marks, points and agreement, a link elsewhere), each expandable to the full comparison | correct · wrong, no matching visit · wrong, another visit fits ("link instead" on an alternative) · unclear |
-| Allocation without link | every candidate visit of the review window as an option | "link this visit" (partner missed) · no partner · unclear |
-| Visit without link | every allocation whose review window contains the visit as an option, compared as in that allocation's review | "link this allocation" (partner missed) · no partner · unclear |
+| Allocation without link | every candidate visit of the review window as an option | "link this visit" (partner missed) · confirm: no partner (primary action) · unclear |
+| Visit without link | every allocation whose review window contains the visit as an option, compared as in that allocation's review | "link this allocation" (partner missed) · confirm: no partner (primary action) · unclear |
 
 A verdict and its link decisions are written in one transaction under one audit intent
 (`encounter.validation.verdict_recorded`; the review decider joins it and lists its decisions as
@@ -562,6 +562,11 @@ A verdict and its link decisions are written in one transaction under one audit 
   the visit is deleted); the item's sampled state stays as drawn.
 - Changing a verdict later undoes no link (links are manual decisions now; change them in the review); the
   replacement follows the latest verdict.
+
+Every item page also offers "skip": a link to the next item without verdict after this one (wrapping
+around; the sample page when no other item is open) that records nothing and leaves the item open.
+"Unclear" is a verdict (the reviewer looked and cannot decide; it counts as judged and is left out of the
+share); "skip" is not.
 
 Every verdict sets `decided_by`/`decided_at`; drawing is audited with `encounter.validation.sample_drawn`.
 

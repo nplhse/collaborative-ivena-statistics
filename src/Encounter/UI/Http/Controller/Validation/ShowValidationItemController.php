@@ -31,7 +31,8 @@ use Symfony\Component\Translation\TranslatableMessage;
  *
  * A verdict comes from the decision buttons (`verdict`) or from an option row (`partner`: link this visit
  * or allocation; on a pair "wrong, another visit fits", otherwise "missed"). Verdict and links are written
- * together; then the next item without verdict opens.
+ * together; then the next item without verdict opens. "Skip" is a plain link to that next open item: it
+ * records nothing and leaves this item open.
  */
 #[IsGranted('ROLE_ENCOUNTER_BETA')]
 final class ShowValidationItemController extends AbstractController
@@ -59,12 +60,17 @@ final class ShowValidationItemController extends AbstractController
             return $this->decide($request, $sample, $item, $page, $user);
         }
 
+        $next = $this->nextOpen($sample, $item);
+
         return $this->render('@Encounter/validation/item.html.twig', [
             'hospital' => $hospital,
             'sample' => $sample,
             'item' => $item,
             'page' => $page,
             'csrf_token_id' => self::CSRF_TOKEN_ID,
+            'skip_url' => $next instanceof MatchValidationItem
+                ? $this->generateUrl('app_encounter_validation_item', ['id' => $hospitalId, 'sampleId' => $sample->getId(), 'itemId' => $next->getId()])
+                : $this->generateUrl('app_encounter_validation_sample', ['id' => $hospitalId, 'sampleId' => $sample->getId()]),
         ]);
     }
 
@@ -110,15 +116,26 @@ final class ShowValidationItemController extends AbstractController
         $flash = ValidationRecordResult::RECORDED === $result->outcome ? 'recorded' : 'recorded_'.$result->outcome;
         $this->addFlash('success', new TranslatableMessage('encounter.validation.flash.'.$flash, domain: 'encounter'));
 
-        $items = $this->validation->items($sample);
-        $next = array_find($items, static fn (MatchValidationItem $other): bool => !$other->getVerdict() instanceof ValidationVerdict && $other->getPosition() > $item->getPosition())
-            ?? array_find($items, static fn (MatchValidationItem $other): bool => !$other->getVerdict() instanceof ValidationVerdict);
-        if (null === $next) {
+        $next = $this->nextOpen($sample, $item);
+        if (!$next instanceof MatchValidationItem) {
             $this->addFlash('info', new TranslatableMessage('encounter.validation.flash.sample_done', domain: 'encounter'));
 
             return $this->redirectToRoute('app_encounter_validation_sample', ['id' => $hospitalId, 'sampleId' => $sample->getId()]);
         }
 
         return $this->redirectToRoute('app_encounter_validation_item', ['id' => $hospitalId, 'sampleId' => $sample->getId(), 'itemId' => $next->getId()]);
+    }
+
+    /**
+     * The next item without verdict after this one, wrapping around to the start; never the item itself.
+     */
+    private function nextOpen(MatchValidationSample $sample, MatchValidationItem $item): ?MatchValidationItem
+    {
+        $open = array_filter(
+            $this->validation->items($sample),
+            static fn (MatchValidationItem $other): bool => !$other->getVerdict() instanceof ValidationVerdict && $other->getId() !== $item->getId(),
+        );
+
+        return array_find($open, static fn (MatchValidationItem $other): bool => $other->getPosition() > $item->getPosition()) ?? (array_values($open)[0] ?? null);
     }
 }
