@@ -38,20 +38,6 @@ final readonly class EncounterPeriod
         return new self($fromDay, $toDay);
     }
 
-    /**
-     * Reads `YYYY-MM-DD` values; anything else leaves that bound open. Swapped bounds are put in order.
-     */
-    public static function fromQuery(?string $from, ?string $to): self
-    {
-        $fromDay = self::parseDay($from);
-        $toDay = self::parseDay($to);
-        if ($fromDay instanceof \DateTimeImmutable && $toDay instanceof \DateTimeImmutable && $fromDay > $toDay) {
-            [$fromDay, $toDay] = [$toDay, $fromDay];
-        }
-
-        return new self($fromDay, $toDay);
-    }
-
     /** First instant after the period, or null when it has no upper bound. */
     public function endExclusive(): ?\DateTimeImmutable
     {
@@ -61,19 +47,5 @@ final readonly class EncounterPeriod
     public function isAllTime(): bool
     {
         return !$this->from instanceof \DateTimeImmutable && !$this->to instanceof \DateTimeImmutable;
-    }
-
-    private static function parseDay(?string $value): ?\DateTimeImmutable
-    {
-        if (null === $value || 1 !== preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
-            return null;
-        }
-
-        $day = \DateTimeImmutable::createFromFormat('!Y-m-d', $value);
-        if (!$day instanceof \DateTimeImmutable || $day->format('Y-m-d') !== $value) {
-            return null;
-        }
-
-        return $day;
     }
 }
