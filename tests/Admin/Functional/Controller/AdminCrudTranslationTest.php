@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Admin\Functional\Controller;
 
+use App\Allocation\Domain\Enum\IndicationRawReviewStatus;
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
@@ -72,9 +73,6 @@ final class AdminCrudTranslationTest extends WebTestCase
     ];
 
     /**
-     * The raw indication pages are left out: their list and detail fail with a 500 on develop already
-     * (review status enum rendered as text), independent of the translations.
-     *
      * @return iterable<string, array{string, \Closure(): object, string, string}>
      */
     public static function pageProvider(): iterable
@@ -104,6 +102,7 @@ final class AdminCrudTranslationTest extends WebTestCase
         yield 'saved explorer view' => ['saved-explorer-view', static fn (): object => self::persist(new SavedExplorerView('translation-view', 'Translation view', 'allocations', ['metric' => 'count'], 'Description', true)), 'Explorer-Ansichten', 'Explorer-Ansicht'];
         yield 'media' => ['media', static fn (): object => MediaFactory::createOne(), 'Medienbibliothek', 'Mediendatei'];
         yield 'indication normalized' => ['indication-normalized', static fn (): object => IndicationNormalizedFactory::createOne(), 'Indikationen (normalisiert)', 'Indikation (normalisiert)'];
+        yield 'indication raw' => ['indication-raw', static fn (): object => IndicationRawFactory::createOne(), 'Indikationen (Rohdaten)', 'Indikation (Rohdaten)'];
     }
 
     /**
@@ -137,6 +136,17 @@ final class AdminCrudTranslationTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertStringContainsString($singular, $crawler->filter('title')->text());
         $this->assertNoEnglishLabel($crawler->filter('.field-label')->each(static fn ($label): string => trim($label->text())), $slug.' detail');
+    }
+
+    public function testRawIndicationListShowsTheTranslatedReviewStatus(): void
+    {
+        $client = $this->germanAdmin();
+        IndicationRawFactory::createOne(['reviewStatus' => IndicationRawReviewStatus::NeedsReview]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/indication-raw');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame('Wartet auf Freigabe', trim($crawler->filter('td[data-column="reviewStatus"] .badge')->text()));
     }
 
     /**
