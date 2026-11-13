@@ -8,7 +8,7 @@ use Rector\Symfony\Set\SymfonySetList;
 
 $entityPath = __DIR__.'/src/**/Domain/Entity/*';
 
-return RectorConfig::configure()
+$config = RectorConfig::configure()
     ->withPaths([
         __DIR__.'/config',
         __DIR__.'/src',
@@ -40,3 +40,16 @@ return RectorConfig::configure()
     ])
     ->withCache(__DIR__.'/var/cache/rector')
     ->withParallel();
+
+return static function (RectorConfig $rectorConfig) use ($config): void {
+    $config($rectorConfig);
+
+    // Rector's internal PHPStan caches reflection data with absolute vendor paths. In the shared system temp folder
+    // a removed worktree leaves paths behind that break Rector in every other checkout (#1132), so keep it per checkout.
+    $phpstanCacheDirectory = __DIR__.'/var/cache/rector-phpstan';
+    if (!is_dir($phpstanCacheDirectory)) {
+        mkdir($phpstanCacheDirectory, 0o777, true);
+    }
+
+    $rectorConfig->containerCacheDirectory($phpstanCacheDirectory);
+};
