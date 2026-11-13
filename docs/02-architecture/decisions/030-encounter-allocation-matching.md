@@ -104,7 +104,7 @@ replays (`app:encounter:evaluate-matcher --weights=<version>`) can start from th
 |---|---|---|
 | `1.0.0` | points set by judgement (feature table in the [encounter docs](../../04-features/encounter/README.md#matching)) | replaced by `1.1.0` |
 | `1.1.0` | `time.near` +2 → +3; `sex.different` −4 → −2; everything else as in `1.0.0` | production until `1.2.0` |
-| `1.2.0` | plausibility bonus in pass 2 from the active snapshot (cap +3); ambulance (RTW) with IVENA "with physician" 0 instead of −1 ([amendment](#amendment-matcher-120)) | planned (#1154) |
+| `1.2.0` | plausibility bonus in pass 2 from the active snapshot (cap +3); ambulance (RTW) with IVENA "with physician" +1 instead of −1 ([amendment](#amendment-matcher-120)) | planned (#1154) |
 
 **Why 1.1.0.** The match validation of one pilot hospital (October 2026) found:
 
@@ -163,12 +163,14 @@ The bias is limited instead of avoided:
 - **Contributions** get the key `plausibility` (the bonus, 0 included in pass 2). The pair also stores the
   snapshot id (none in pass 1) and whether the bonus was **decisive**: the pair would not have reached its
   status with the bonus removed from every candidate of the allocation in that pass.
-- **Physician vehicle.** An ambulance (RTW) on the visit with IVENA "with physician" is no mismatch: 0
-  instead of −1. In the rendezvous system the physician comes in a separate vehicle; among the true pairs
-  with IVENA "with physician", the source shows an ambulance about as often as a physician vehicle (16 vs.
-  15). Equal frequency is no evidence either way, so the pair gets 0, not +1 (on the pilot data +1 changed
-  one link). A patient transport (KTW) with IVENA "with physician" stays a mismatch (−1); a physician vehicle
-  without IVENA "with physician" too.
+- **Physician vehicle.** An ambulance (RTW) on the visit with IVENA "with physician" is no mismatch: +1
+  instead of −1 (a new level, e.g. `physician.rendezvous`). In the rendezvous system the physician comes in a
+  separate vehicle and the patient arrives by ambulance; among the true pairs with IVENA "with physician",
+  the source shows an ambulance about as often as a physician vehicle (16 vs. 15). The combination is the
+  normal pattern of a physician-staffed mission, so it counts as weak agreement: +1, below the +2 of a
+  physician vehicle, which is the stronger signal. The user chose +1 over 0 (#1152); on the pilot data
+  either value changed about one automatic link. A patient transport (KTW) with IVENA "with physician" stays
+  a mismatch (−1); a physician vehicle without IVENA "with physician" too.
 - **Arrival route** unchanged: a patient transport (KTW) is an EMS arrival (+1).
 - All other points are those of `1.1.0`.
 

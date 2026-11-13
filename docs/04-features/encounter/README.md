@@ -368,7 +368,7 @@ set of points with a new version, which `MatchPlanner::VERSION` names and every 
 | physician vehicle ↔ IVENA "with physician" | physician vehicle and physician: +2; one of them only (physician vehicle without, ambulance or patient transport with): −1; otherwise 0 |
 | work accident ↔ IVENA work accident | both: +2; one side only: −1; neither: 0 |
 
-**Planned for `1.2.0`** (ADR 030 amendment, #1154): an ambulance with IVENA "with physician" scores 0
+**Planned for `1.2.0`** (ADR 030 amendment, #1154): an ambulance with IVENA "with physician" scores +1
 instead of −1 (rendezvous system); a patient transport with physician stays −1. Pass 2 adds the
 plausibility bonus (below). All other points as in `1.1.0`.
 
