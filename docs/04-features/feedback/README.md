@@ -12,7 +12,7 @@ The quarantine is built in steps on the integration branch `feature/feedback-qua
 | 1 | Classification in the data model; quarantined entries leave the default list and counts | done |
 | 2 | Classification of new submissions before notifications | done |
 | 3 | Quarantine view for reviewers (release, quarantine, delete) | done |
-| 4 | Weekly quarantine summary | planned |
+| 4 | Weekly quarantine summary | done |
 | 5 | Retention of quarantined feedback | planned |
 | 6 | Reclassification of existing entries (dry run first) | planned |
 
@@ -139,3 +139,23 @@ notification.
     if their id is sent; opening one here redirects to the normal view.
 
 The decisions go through `FeedbackQuarantineReview` (Feedback application layer).
+
+## Weekly summary
+
+Instead of one notification per suspected spam, administrators get a weekly count.
+
+- **Type** `admin.feedback_quarantine_summary` (Administration, `ROLE_ADMIN`): opt-in without default
+  channels, switched on per admin on the notification settings page (in-app, email). The migration
+  `Version20261113085424` switched it on for the administrators that existed at deploy time.
+- **Content:** the number of entries quarantined since the previous summary and the current number in
+  quarantine, with a link to the quarantine view. No message text, links, email addresses or reasons.
+- **Schedule:** Mondays 08:00 Europe/Berlin, scheduler job `feedback_quarantine_summary`
+  ([run log](../../05-operations/messenger-monitoring.md#scheduler-jobs-in-the-run-log)). By hand:
+  `php bin/console app:feedback:quarantine-summary` (`--dry-run` only shows the number waiting).
+- **What counts as new:** automatically quarantined entries with `quarantine_reported_at` null. A
+  reviewer's own quarantine counts as known and is never reported; a released entry is not counted.
+- **No duplicates, nothing lost:** `FeedbackQuarantineSummary` locks the pending entries, publishes and
+  sets `quarantine_reported_at` in one transaction (the publisher joins it as a savepoint). A failed run
+  marks nothing, so the next run reports the same entries; a finished run never reports them again.
+  The deduplication key is built from the reported ids.
+- **Empty weeks:** no notification; the job run is recorded as skipped (`nothing_to_report`).
