@@ -8,6 +8,8 @@ Route: `GET /explore/indication/raw/review` (`app_explore_indication_raw_review_
 
 Requires `IndicationRawReviewVoter::VIEW` (`ROLE_PARTICIPANT`).
 
+Listed in the Tools section (`/tools`, [ADR 031](../../02-architecture/decisions/031-tools-section-and-tool-registry.md)) by `IndicationReviewToolProvider`.
+
 ### Worklist segments
 
 | Segment | Description |

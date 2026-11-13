@@ -210,6 +210,25 @@ contract (`EncounterFileValidator`, `EdVisitRowMapper`). Vendor formats are not 
 are source profiles of the data preparation tool. See
 [ADR 026](decisions/026-encounter-data-context-and-exchange-format.md).
 
+## Tools
+
+**Tag:** `shared.tool`
+
+**Interface:** `ToolProviderInterface` (`src/Shared/Application/Navigation/Tool/`)
+
+**Registry:** `ToolRegistry`; consumers the Tools landing page `GET /tools` (`@Shared/tools/index.html.twig`),
+the main navigation entry (Twig function `has_tools()`) and the Tools section of the sitemap
+
+**Implementations:** `IndicationReviewToolProvider` (Allocation, indication matching review)
+
+Lets a context add an interactive workflow (review, validation, data preparation) to the Tools section
+without a dependency from `Shared` on it ([ADR 031](decisions/031-tools-section-and-tool-registry.md)).
+A `Tool` names its title and description keys with their translation domain, the route, a Tabler icon,
+a `ToolCategory`, a position inside the category and an optional beta flag. Tool keys are unique.
+Providers check access themselves and return no tool for users who may not open it; the registry runs
+on every page with the main navigation, so decide from roles and voters without database queries.
+Routes of a tool are named `app_tools_*` so the navigation marks Tools as active.
+
 ## Related documentation
 
 - [../04-features/import/import-pipeline.md](../04-features/import/import-pipeline.md)

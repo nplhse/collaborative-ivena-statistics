@@ -1,0 +1,57 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'tools.title'|trans({}, 'shared') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.tools', label_domain: 'shared' }
+        ]" />
+
+        <div class="page-header d-print-none">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'tools.title'|trans({}, 'shared') }}</h2>
+                    <div class="text-secondary mt-1">{{ 'tools.intro'|trans({}, 'shared') }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div data-testid="tools-index">
+        {% for group in groups %}
+            <section class="mb-4" data-testid="tools-group" data-tools-category="{{ group.category.value }}">
+                <h3 class="mb-3">{{ group.category.labelKey|trans({}, 'shared') }}</h3>
+                <div class="row row-cards">
+                    {% for tool in group.tools %}
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <a href="{{ path(tool.route, tool.routeParameters) }}" class="card card-link h-100" data-testid="tools-card" data-tool-key="{{ tool.key }}">
+                                <div class="card-body d-flex align-items-start gap-3">
+                                    <span class="avatar bg-primary-lt text-primary flex-shrink-0">
+                                        <twig:ux:icon name="{{ tool.icon }}" class="icon" />
+                                    </span>
+                                    <div class="min-w-0">
+                                        <div class="fw-bold">
+                                            {{ tool.titleKey|trans({}, tool.translationDomain) }}
+                                            {% if tool.beta %}
+                                                <span class="badge bg-azure-lt ms-1" data-testid="tools-card-beta">{{ 'tools.beta'|trans({}, 'shared') }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-secondary mt-1">{{ tool.descriptionKey|trans({}, tool.translationDomain) }}</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        {% else %}
+            <twig:EmptyState
+                title="{{ 'tools.empty'|trans({}, 'shared') }}"
+                icon="tabler:tool"
+            />
+        {% endfor %}
+    </div>
+{% endblock %}
