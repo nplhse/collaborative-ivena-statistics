@@ -239,7 +239,10 @@ final class FeedbackCrudController extends AbstractCrudController
                 return self::escape($value);
             });
 
-        yield TextField::new('context', 'Context')
+        // Virtual: TextConfigurator rejects the array value of "context" before formatValue() runs.
+        yield TextField::new('contextJson', 'Context')
+            ->setVirtual(true)
+            ->setValue('')
             ->onlyOnDetail()
             ->setSortable(false)
             ->setTemplatePath('@Admin/crud/field/json_pre.html.twig')

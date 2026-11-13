@@ -79,6 +79,48 @@ final class FeedbackCrudControllerTest extends WebTestCase
         self::assertCount(0, $crawler->filter('.content-body b, main b'), 'the path is escaped');
     }
 
+    public function testDetailShowsTheContextAsEscapedJson(): void
+    {
+        $client = $this->loggedInAdmin();
+        $feedback = new Feedback()
+            ->setCategory(FeedbackCategory::BUG)
+            ->setMessage('Chart is empty')
+            ->setPageUrl('https://example.test/statistics')
+            ->setContext([
+                'route_params' => ['id' => 7],
+                'extra' => ['note' => '<img src="https://tracker.example.test/c.gif">'],
+            ]);
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->persist($feedback);
+        $entityManager->flush();
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/feedback/'.$feedback->getId());
+        self::assertResponseIsSuccessful();
+
+        $pre = $crawler->filter('pre.ea-json-pre');
+        self::assertCount(1, $pre);
+        self::assertStringContainsString('"route_params"', $pre->text());
+        self::assertStringContainsString('"id": 7', $pre->text());
+        self::assertCount(0, $pre->filter('img'), 'the context is escaped');
+        self::assertStringContainsString('&lt;img src=\&quot;https://tracker.example.test/c.gif\&quot;&gt;', (string) $client->getResponse()->getContent());
+    }
+
+    public function testDetailShowsADashWithoutContext(): void
+    {
+        $client = $this->loggedInAdmin();
+        $feedback = new Feedback()
+            ->setCategory(FeedbackCategory::BUG)
+            ->setMessage('No context here')
+            ->setPageUrl('https://example.test/');
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->persist($feedback);
+        $entityManager->flush();
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/feedback/'.$feedback->getId());
+        self::assertResponseIsSuccessful();
+        self::assertCount(0, $crawler->filter('pre.ea-json-pre'));
+    }
+
     private function loggedInAdmin(): KernelBrowser
     {
         $client = self::createClient();
