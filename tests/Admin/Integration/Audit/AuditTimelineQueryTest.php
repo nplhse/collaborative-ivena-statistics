@@ -123,6 +123,22 @@ final class AuditTimelineQueryTest extends KernelTestCase
         self::assertSame([], $this->query->request('unknown', 10));
     }
 
+    public function testDetailsReadChangesAndMetadataOfOneEntry(): void
+    {
+        $this->connection->executeStatement(
+            "UPDATE audit_log SET metadata = '{\"intent\":\"user.admin.updated\",\"clientIp\":\"1.2.3.4\"}' WHERE id = :id",
+            ['id' => $this->ids[1]],
+        );
+
+        $details = $this->query->details($this->ids[1]);
+
+        self::assertNotNull($details);
+        self::assertSame($this->ids[1], $details->entry->id);
+        self::assertSame(['name', 'email'], array_column($details->changes, 'field'));
+        self::assertSame(['intent', 'clientIp'], array_column($details->metadata, 'key'));
+        self::assertNull($this->query->details(999_999_999));
+    }
+
     /**
      * @return list<int>
      */

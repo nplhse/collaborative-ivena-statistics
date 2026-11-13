@@ -26,6 +26,8 @@ final class AuditTimelineControllerTest extends WebTestCase
     {
         yield 'timeline' => ['/admin/audit'];
         yield 'request' => ['/admin/audit/requests/r1'];
+        yield 'entry' => ['/admin/audit/entries/1'];
+        yield 'entry details' => ['/admin/audit/entries/1/details'];
     }
 
     #[DataProvider('routes')]
@@ -126,6 +128,52 @@ final class AuditTimelineControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertCount(1, $crawler->filter('[data-audit-empty]'));
+    }
+
+    public function testEntryDetailsAreLoadedLazilyAndRenderStoredContentAsText(): void
+    {
+        $client = $this->adminClient();
+        $this->insert('2026-11-13 09:00:00', 'r1', 'http', 'user.admin.updated');
+        $id = (int) $this->connection()->fetchOne('SELECT MAX(id) FROM audit_log');
+        $this->connection()->executeStatement(
+            'UPDATE audit_log SET changes = :changes, metadata = :metadata WHERE id = :id',
+            [
+                'id' => $id,
+                'changes' => json_encode(['name' => ['old' => 'Kiel', 'new' => '<script>alert(1)</script>'], 'password' => ['old' => '********', 'new' => '********']], \JSON_THROW_ON_ERROR),
+                'metadata' => json_encode(['intent' => 'user.admin.updated', 'userAgent' => '<img src=x onerror=alert(2)>'], \JSON_THROW_ON_ERROR),
+            ],
+        );
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/audit');
+        $item = $crawler->filter(\sprintf('[data-audit-entry="%d"]', $id));
+        self::assertSame(\sprintf('/admin/audit/entries/%d/details', $id), $item->filter('details')->attr('data-timeline-details-url-value'));
+        self::assertStringNotContainsString('Kiel', $crawler->html(), 'values are not part of the overview');
+
+        $client->request(Request::METHOD_GET, \sprintf('/admin/audit/entries/%d/details', $id));
+        self::assertResponseIsSuccessful();
+        $html = (string) $client->getResponse()->getContent();
+        self::assertStringNotContainsString('<html', $html, 'a fragment, not a page');
+        self::assertStringNotContainsString('<script>alert(1)</script>', $html);
+        self::assertStringContainsString('&lt;script&gt;alert(1)&lt;/script&gt;', $html);
+        self::assertStringNotContainsString('<img src=x', $html);
+        self::assertStringContainsString('********', $html);
+        self::assertCount(1, $client->getCrawler()->filter('a[href="/admin/audit/requests/r1"]'));
+        self::assertCount(1, $client->getCrawler()->filter('a[href="/admin/audit?intent=user.admin.updated"]'));
+
+        $page = $client->request(Request::METHOD_GET, \sprintf('/admin/audit/entries/%d', $id));
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString(\sprintf('Audit entry #%d', $id), $page->filter('title')->text());
+        self::assertCount(1, $page->filter(\sprintf('[data-audit-details="%d"]', $id)));
+    }
+
+    public function testUnknownEntryIs404(): void
+    {
+        $client = $this->adminClient();
+
+        $client->request(Request::METHOD_GET, '/admin/audit/entries/999999999');
+        self::assertResponseStatusCodeSame(404);
+        $client->request(Request::METHOD_GET, '/admin/audit/entries/999999999/details');
+        self::assertResponseStatusCodeSame(404);
     }
 
     private function adminClient(): KernelBrowser

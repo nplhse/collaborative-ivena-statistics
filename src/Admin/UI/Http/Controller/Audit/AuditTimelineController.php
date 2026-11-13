@@ -56,4 +56,26 @@ final class AuditTimelineController extends AbstractController
             'limit' => AuditTimelineService::REQUEST_LIMIT,
         ]);
     }
+
+    /**
+     * Permalink of one entry with its changes and metadata.
+     */
+    #[AdminRoute(path: '/entries/{id}', name: 'entry', options: ['methods' => ['GET'], 'requirements' => ['id' => '\\d+']])]
+    public function entry(int $id): Response
+    {
+        $details = $this->timeline->details($id) ?? throw $this->createNotFoundException();
+
+        return $this->render('@Admin/audit/entry.html.twig', ['details' => $details]);
+    }
+
+    /**
+     * The same details as a fragment, loaded when an entry is expanded in the timeline.
+     */
+    #[AdminRoute(path: '/entries/{id}/details', name: 'entry_details', options: ['methods' => ['GET'], 'requirements' => ['id' => '\\d+']])]
+    public function entryDetails(int $id): Response
+    {
+        $details = $this->timeline->details($id) ?? throw $this->createNotFoundException();
+
+        return $this->render('@Admin/audit/_entry_details.html.twig', ['details' => $details]);
+    }
 }

@@ -29,4 +29,9 @@ interface AuditTimelineReader
      * @return list<AuditTimelineEntry>
      */
     public function request(string $requestId, int $limit): array;
+
+    /**
+     * One entry with its recorded changes and metadata, or null when it does not exist.
+     */
+    public function details(int $id): ?AuditEntryDetails;
 }

@@ -1597,10 +1597,6 @@
         <source>audit.timeline.deleted_user</source>
         <target>Gelöschter Nutzer #{id}</target>
       </trans-unit>
-      <trans-unit id="auditTl11de" resname="audit.timeline.details">
-        <source>audit.timeline.details</source>
-        <target>Details</target>
-      </trans-unit>
       <trans-unit id="auditTl12de" resname="audit.timeline.fields_more">
         <source>audit.timeline.fields_more</source>
         <target>+{count} weitere</target>
@@ -1748,6 +1744,74 @@
       <trans-unit id="auditTl48de" resname="audit.filter.outcome">
         <source>audit.filter.outcome</source>
         <target>Ergebnis</target>
+      </trans-unit>
+      <trans-unit id="auditEn01de" resname="audit.entry.title">
+        <source>audit.entry.title</source>
+        <target>Audit-Eintrag #{id}</target>
+      </trans-unit>
+      <trans-unit id="auditEn02de" resname="audit.entry.show_details">
+        <source>audit.entry.show_details</source>
+        <target>Details anzeigen</target>
+      </trans-unit>
+      <trans-unit id="auditEn03de" resname="audit.entry.details_failed">
+        <source>audit.entry.details_failed</source>
+        <target>Die Details konnten nicht geladen werden.</target>
+      </trans-unit>
+      <trans-unit id="auditEn04de" resname="audit.entry.permalink">
+        <source>audit.entry.permalink</source>
+        <target>Link zu diesem Eintrag</target>
+      </trans-unit>
+      <trans-unit id="auditEn05de" resname="audit.entry.same_actor">
+        <source>audit.entry.same_actor</source>
+        <target>Alle Einträge dieses Akteurs</target>
+      </trans-unit>
+      <trans-unit id="auditEn06de" resname="audit.entry.object_history">
+        <source>audit.entry.object_history</source>
+        <target>Verlauf dieses Objekts</target>
+      </trans-unit>
+      <trans-unit id="auditEn07de" resname="audit.entry.same_intent">
+        <source>audit.entry.same_intent</source>
+        <target>Alle Einträge mit diesem Intent</target>
+      </trans-unit>
+      <trans-unit id="auditEn08de" resname="audit.entry.same_session">
+        <source>audit.entry.same_session</source>
+        <target>Alle Einträge dieser Sitzung</target>
+      </trans-unit>
+      <trans-unit id="auditEn09de" resname="audit.entry.id">
+        <source>audit.entry.id</source>
+        <target>Eintrag</target>
+      </trans-unit>
+      <trans-unit id="auditEn10de" resname="audit.entry.changes">
+        <source>audit.entry.changes</source>
+        <target>Erfasste Änderungen</target>
+      </trans-unit>
+      <trans-unit id="auditEn11de" resname="audit.entry.field">
+        <source>audit.entry.field</source>
+        <target>Feld</target>
+      </trans-unit>
+      <trans-unit id="auditEn12de" resname="audit.entry.previous">
+        <source>audit.entry.previous</source>
+        <target>Vorher</target>
+      </trans-unit>
+      <trans-unit id="auditEn13de" resname="audit.entry.new">
+        <source>audit.entry.new</source>
+        <target>Neu</target>
+      </trans-unit>
+      <trans-unit id="auditEn14de" resname="audit.entry.no_changes">
+        <source>audit.entry.no_changes</source>
+        <target>Keine Feldänderungen erfasst.</target>
+      </trans-unit>
+      <trans-unit id="auditEn15de" resname="audit.entry.metadata">
+        <source>audit.entry.metadata</source>
+        <target>Metadaten</target>
+      </trans-unit>
+      <trans-unit id="auditEn16de" resname="audit.entry.empty_string">
+        <source>audit.entry.empty_string</source>
+        <target>(leer)</target>
+      </trans-unit>
+      <trans-unit id="auditEn17de" resname="audit.entry.truncated">
+        <source>audit.entry.truncated</source>
+        <target>(gekürzt)</target>
       </trans-unit>
     </body>
   </file>

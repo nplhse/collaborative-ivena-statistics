@@ -49,4 +49,9 @@ final readonly class AuditTimelineService
             'stats' => $this->reader->requestStats([$requestId], $filter)[$requestId] ?? null,
         ];
     }
+
+    public function details(int $id): ?AuditEntryDetails
+    {
+        return $this->reader->details($id);
+    }
 }
