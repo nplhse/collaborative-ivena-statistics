@@ -637,6 +637,18 @@
         <source>label.import.encounter.fields</source>
         <target>Nur für Behandlungsdaten (Beta)</target>
       </trans-unit>
+      <trans-unit id="impTypeBadgeDeAlloc" resname="import.type.label.allocation">
+        <source>import.type.label.allocation</source>
+        <target>Zuweisung</target>
+      </trans-unit>
+      <trans-unit id="impTypeBadgeDeClosure" resname="import.type.label.closure">
+        <source>import.type.label.closure</source>
+        <target>Schließung</target>
+      </trans-unit>
+      <trans-unit id="impTypeBadgeDeEncounter" resname="import.type.label.encounter">
+        <source>import.type.label.encounter</source>
+        <target>Behandlungsdaten</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
