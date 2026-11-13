@@ -40,6 +40,16 @@
                                     </a>
                                 </li>
                             {% endif %}
+                            {% if is_granted('ROLE_USER') and has_tools() %}
+                                <li class="nav-item {{ route starts with 'app_tools' ? 'active' : '' }}" data-testid="nav-tools">
+                                    <a class="nav-link" href="{{ path('app_tools_index') }}">
+                                        <span class="nav-link-title">
+                                            <twig:ux:icon name="tabler:tool" style="height: 1.5em;" />
+                                            {{ 'link.tools'|trans({}, 'shared') }}
+                                        </span>
+                                    </a>
+                                </li>
+                            {% endif %}
                             {% if is_granted('ROLE_PARTICIPANT') %}
                                 <li class="nav-item {{ route starts with 'app_import' ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ path('app_import_index') }}">

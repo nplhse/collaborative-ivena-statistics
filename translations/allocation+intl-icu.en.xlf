@@ -161,6 +161,14 @@
         <source>title.indication.review_worklist</source>
         <target>Indication review worklist</target>
       </trans-unit>
+      <trans-unit id="ToolsIndRevTitle" resname="tools.indication_review.title">
+        <source>tools.indication_review.title</source>
+        <target>Indication matching review</target>
+      </trans-unit>
+      <trans-unit id="ToolsIndRevDesc" resname="tools.indication_review.description">
+        <source>tools.indication_review.description</source>
+        <target>Check raw indications from the imports and assign them to the catalogue.</target>
+      </trans-unit>
       <trans-unit id="IndRevRw" resname="title.indication.review_raw">
         <source>title.indication.review_raw</source>
         <target>Review raw indication</target>

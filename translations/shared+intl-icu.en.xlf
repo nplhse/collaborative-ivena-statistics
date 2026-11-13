@@ -361,6 +361,38 @@
         <source>sitemap.section.statistics</source>
         <target>Statistics &amp; Analysis</target>
       </trans-unit>
+      <trans-unit id="SitemapSecToolsEn" resname="sitemap.section.tools">
+        <source>sitemap.section.tools</source>
+        <target>Tools</target>
+      </trans-unit>
+      <trans-unit id="LnkToolsEn" resname="link.tools">
+        <source>link.tools</source>
+        <target>Tools</target>
+      </trans-unit>
+      <trans-unit id="ToolsTitleEn" resname="tools.title">
+        <source>tools.title</source>
+        <target>Tools</target>
+      </trans-unit>
+      <trans-unit id="ToolsIntroEn" resname="tools.intro">
+        <source>tools.intro</source>
+        <target>Interactive workflows: review and validate matches and prepare data.</target>
+      </trans-unit>
+      <trans-unit id="ToolsEmptyEn" resname="tools.empty">
+        <source>tools.empty</source>
+        <target>No tools are available for your account.</target>
+      </trans-unit>
+      <trans-unit id="ToolsBetaEn" resname="tools.beta">
+        <source>tools.beta</source>
+        <target>Beta</target>
+      </trans-unit>
+      <trans-unit id="ToolsCatMatchEn" resname="tools.category.matching">
+        <source>tools.category.matching</source>
+        <target>Matching and review</target>
+      </trans-unit>
+      <trans-unit id="ToolsCatPrepEn" resname="tools.category.data_preparation">
+        <source>tools.category.data_preparation</source>
+        <target>Data preparation</target>
+      </trans-unit>
       <trans-unit id="SitemapSecExploreEn" resname="sitemap.section.explore">
         <source>sitemap.section.explore</source>
         <target>Explore Data</target>
