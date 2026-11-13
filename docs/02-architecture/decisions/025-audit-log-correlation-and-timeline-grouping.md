@@ -1,10 +1,10 @@
 # ADR 025: Audit log correlation and timeline grouping
 
-**Status:** proposed
+**Status:** accepted
 
 ## Context
 
-The audit log ([audit-log.md](../../05-operations/audit-log.md)) is browsed through an EasyAdmin table.
+The audit log ([audit-log.md](../../05-operations/audit-log.md)) was browsed through an EasyAdmin table.
 Issue #955 replaces it with a timeline that stacks entries of one request and shows related activity
 of a user. A review of the existing data showed:
 

@@ -147,12 +147,12 @@ Mitigations already in place for the known Failed Messages / dashboard KPI noise
 - Inline layout styles → CSS classes in `admin-kpi.css`
 - ApexCharts injected styles → `chart.nonce` from `<meta name="csp-nonce">` via `applyChartNonce()` in `assets/lib/load-apexcharts.js`
 
-Further admin surfaces (media, import reject, feedback context, audit log):
+Further admin surfaces (media, import reject, feedback context, audit timeline):
 
 - Media snippet copy → Stimulus (`copy-to-clipboard`)
 - Vich upload filename preview → Stimulus (`vich-file-preview`) instead of EasyAdmin `onchange`
 - Import Reject / Feedback JSON → `<pre class="ea-json-pre">` (no CodeMirror `CodeEditorField`)
-- Audit log letter-spacing / JSON max-height → CSS classes in `admin-kpi.css`
+- Audit timeline: details load through the Stimulus controller `timeline-details`, the new-entries notice through `audit-new-entries`; JSON max-height and layout are CSS classes in `admin-kpi.css` (`.timeline-*`, `.ea-audit-*`)
 
 Resolve matching Sentry CSP issues as `policy-gap` after deploy if they stop recurring.
 

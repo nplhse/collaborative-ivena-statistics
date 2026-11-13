@@ -933,18 +933,6 @@
         <source>admin.fieldset.relations</source>
         <target>Relations</target>
       </trans-unit>
-      <trans-unit id="admFsEvent" resname="admin.fieldset.event">
-        <source>admin.fieldset.event</source>
-        <target>Event</target>
-      </trans-unit>
-      <trans-unit id="admFsRecord" resname="admin.fieldset.record">
-        <source>admin.fieldset.record</source>
-        <target>Record</target>
-      </trans-unit>
-      <trans-unit id="admFsChanges" resname="admin.fieldset.changes">
-        <source>admin.fieldset.changes</source>
-        <target>Changes</target>
-      </trans-unit>
       <trans-unit id="admFsConsent" resname="admin.fieldset.consent">
         <source>admin.fieldset.consent</source>
         <target>Consent</target>
@@ -1872,6 +1860,10 @@
       <trans-unit id="auditSe09" resname="audit.timeline.new_more">
         <source>audit.timeline.new_more</source>
         <target>More than %count% new entries – show</target>
+      </trans-unit>
+      <trans-unit id="auditTile01" resname="audit.timeline.tile">
+        <source>audit.timeline.tile</source>
+        <target>Activity in the application, grouped by request and session</target>
       </trans-unit>
     </body>
   </file>

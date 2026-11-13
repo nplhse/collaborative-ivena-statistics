@@ -29,6 +29,8 @@ final class AuditTimelineControllerTest extends WebTestCase
         yield 'entry' => ['/admin/audit/entries/1'];
         yield 'entry details' => ['/admin/audit/entries/1/details'];
         yield 'new count' => ['/admin/audit/new-count?since=x'];
+        yield 'legacy table' => ['/admin/audit-log'];
+        yield 'legacy entry' => ['/admin/audit-log/1'];
     }
 
     #[DataProvider('routes')]
@@ -218,6 +220,35 @@ final class AuditTimelineControllerTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/admin/audit/requests/unknown');
         self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testOldAuditTableLinksRedirectToTheTimeline(): void
+    {
+        $client = $this->adminClient();
+
+        $client->request(Request::METHOD_GET, '/admin/audit-log?filters[metadata][comparison]=like&filters[metadata][value]=x');
+        self::assertResponseStatusCodeSame(301);
+        self::assertResponseRedirects('/admin/audit');
+
+        $client->request(Request::METHOD_GET, '/admin/audit-log/42');
+        self::assertResponseStatusCodeSame(301);
+        self::assertResponseRedirects('/admin/audit/entries/42');
+    }
+
+    public function testMenuAndDashboardLeadToTheTimeline(): void
+    {
+        $client = $this->adminClient();
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin');
+
+        self::assertResponseIsSuccessful();
+        $links = array_filter(
+            $crawler->filter('a[href]')->each(static fn ($a): array => [parse_url((string) $a->attr('href'), \PHP_URL_PATH), trim($a->text())]),
+            static fn (array $link): bool => \in_array($link[0], ['/admin/audit', '/admin/audit-log'], true),
+        );
+        self::assertSame(['/admin/audit'], array_values(array_unique(array_column($links, 0))), 'nothing links to the old table');
+        self::assertGreaterThanOrEqual(2, \count($links), 'menu entry and dashboard tile');
+        self::assertStringContainsString('Audit timeline', implode(' ', array_column($links, 1)));
     }
 
     public function testEmptyTimeline(): void
