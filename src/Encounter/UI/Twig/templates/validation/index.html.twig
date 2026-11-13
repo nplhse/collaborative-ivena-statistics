@@ -78,7 +78,7 @@
                 <h3 class="card-title">{{ 'encounter.validation.combined_title'|trans({version: version}, 'encounter') }}</h3>
             </div>
             <div class="card-body border-bottom small text-secondary">{{ 'encounter.validation.combined_note'|trans({}, 'encounter') }}</div>
-            {{ include('@Encounter/validation/_report.html.twig', {report: report, with_population: false}) }}
+            {{ include('@Encounter/validation/_report.html.twig', {report: report}) }}
         </div>
     {% endfor %}
 {% endblock %}

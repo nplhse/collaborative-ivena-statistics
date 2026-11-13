@@ -95,11 +95,11 @@ final class MatchValidationControllerTest extends WebTestCase
         $crawler = $this->client->followRedirect();
         self::assertSelectorTextContains('[data-test="encounter-validation-sample-meta"]', 'Matcher 1.0.0');
 
-        // Population when drawn, sampled, open.
-        self::assertSame(['1', '1', '1'], $this->reportCells($crawler, 'report-automatic-0.90–0.99', [2, 3, 4]));
-        self::assertSame(['1', '1', '1'], $this->reportCells($crawler, 'report-proposal-0.70–0.90', [2, 3, 4]));
-        self::assertSame(['2', '1', '1'], $this->reportCells($crawler, 'report-unlinked_allocation', [2, 3, 4]));
-        self::assertSame(['1', '1', '1'], $this->reportCells($crawler, 'report-unlinked_visit', [2, 3, 4]));
+        // Population when drawn and judged / sampled, in the summary column.
+        self::assertSame(['1', '0/1'], $this->reportCells($crawler, 'report-automatic-0.90–0.99', ['population', 'progress']));
+        self::assertSame(['1', '0/1'], $this->reportCells($crawler, 'report-proposal-0.70–0.90', ['population', 'progress']));
+        self::assertSame(['2', '0/1'], $this->reportCells($crawler, 'report-unlinked_allocation', ['population', 'progress']));
+        self::assertSame(['1', '0/1'], $this->reportCells($crawler, 'report-unlinked_visit', ['population', 'progress']));
         self::assertCount(4, $crawler->filter('[data-test="encounter-validation-item"]'));
         // Drawing changes no link.
         self::assertSame($before, $this->matchRows($this->hospital));
@@ -131,11 +131,14 @@ final class MatchValidationControllerTest extends WebTestCase
         self::assertStringEndsWith($this->validationUrl().'/'.$this->sample()->getId(), $this->client->getRequest()->getUri());
         self::assertSelectorTextContains('.alert-info', 'Every case of the sample has a verdict');
 
-        // Correct / missed, wrong / no partner, share.
-        self::assertSame(['0', '1', '0%'], $this->reportCells($crawler, 'report-automatic-0.90–0.99', [5, 6, 8], true));
-        self::assertSame(['1', '0', '100%'], $this->reportCells($crawler, 'report-proposal-0.70–0.90', [5, 6, 8], true));
-        self::assertSame(['0', '1', '0%'], $this->reportCells($crawler, 'report-unlinked_allocation', [5, 6, 8], true));
-        self::assertSame(['1', '0', '100%'], $this->reportCells($crawler, 'report-unlinked_visit', [5, 6, 8], true));
+        // Correct or missed / wrong or no partner, share.
+        self::assertSame(['0 / 1', '0%'], $this->reportCells($crawler, 'report-automatic-0.90–0.99', ['counts', 'share-value']));
+        self::assertSame(['1 / 0', '100%'], $this->reportCells($crawler, 'report-proposal-0.70–0.90', ['counts', 'share-value']));
+        self::assertSame(['0 / 1', '0%'], $this->reportCells($crawler, 'report-unlinked_allocation', ['counts', 'share-value']));
+        self::assertSame(['1 / 0', '100%'], $this->reportCells($crawler, 'report-unlinked_visit', ['counts', 'share-value']));
+        // Cases left, summary right.
+        self::assertCount(1, $crawler->filter('.col-lg-8 [data-test="encounter-validation-items"]'));
+        self::assertCount(1, $crawler->filter('.col-lg-4 [data-test="encounter-validation-sample-report"]'));
         self::assertSelectorTextContains('[data-test="weighted-automatic"]', '0%');
         self::assertSelectorTextContains('[data-test="encounter-validation-report-note"]', 'not a hit probability');
 
@@ -204,21 +207,18 @@ final class MatchValidationControllerTest extends WebTestCase
     }
 
     /**
-     * @param list<int> $columns
+     * Cells of one report row by their data-test suffix (`report-<name>`).
+     *
+     * @param list<string> $names
      *
      * @return list<string>
      */
-    private function reportCells(Crawler $crawler, string $row, array $columns, bool $shareOnly = false): array
+    private function reportCells(Crawler $crawler, string $row, array $names): array
     {
-        $cells = $crawler->filter('[data-test="encounter-validation-sample-report"] [data-test="'.$row.'"] td');
-        self::assertGreaterThan(0, $cells->count(), $row);
+        $line = $crawler->filter('[data-test="encounter-validation-sample-report"] [data-test="'.$row.'"]');
+        self::assertCount(1, $line, $row);
 
-        return array_map(static function (int $column) use ($cells, $shareOnly): string {
-            $cell = $cells->eq($column);
-            $text = $shareOnly && $cell->filter('.fw-medium')->count() > 0 ? $cell->filter('.fw-medium')->text() : $cell->text();
-
-            return str_replace("\u{a0}", '', trim($text));
-        }, $columns);
+        return array_map(static fn (string $name): string => str_replace("\u{a0}", '', trim($line->filter('[data-test="report-'.$name.'"]')->text())), $names);
     }
 
     /**

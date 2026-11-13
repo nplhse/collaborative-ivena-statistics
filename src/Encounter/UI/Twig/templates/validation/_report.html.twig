@@ -1,11 +1,10 @@
-{# Validation report per stratum and score band (#1057). Expects `report` (ValidationReport) and `with_population` (bool). #}
+{# Combined validation report per stratum and score band, without population (#1057). Expects `report` (ValidationReport). #}
 <div class="table-responsive">
     <table class="table card-table table-vcenter" data-test="encounter-validation-report">
         <thead>
             <tr>
                 <th>{{ 'encounter.validation.report.stratum'|trans({}, 'encounter') }}</th>
                 <th>{{ 'encounter.validation.report.band'|trans({}, 'encounter') }}</th>
-                {% if with_population %}<th class="text-end">{{ 'encounter.validation.report.population'|trans({}, 'encounter') }}</th>{% endif %}
                 <th class="text-end">{{ 'encounter.validation.report.sampled'|trans({}, 'encounter') }}</th>
                 <th class="text-end">{{ 'encounter.validation.report.open'|trans({}, 'encounter') }}</th>
                 <th class="text-end">{{ 'encounter.validation.report.positive'|trans({}, 'encounter') }}</th>
@@ -19,7 +18,6 @@
                 <tr data-test="report-{{ row.stratum.value }}{{ row.band ? '-' ~ row.band }}">
                     <td>{{ ('encounter.validation.stratum.' ~ row.stratum.value)|trans({}, 'encounter') }}</td>
                     <td class="text-nowrap">{{ row.band ?? '–' }}</td>
-                    {% if with_population %}<td class="text-end">{{ row.population|format_number }}</td>{% endif %}
                     <td class="text-end">{{ row.sampled|format_number }}</td>
                     <td class="text-end text-secondary">{{ row.open|format_number }}</td>
                     <td class="text-end">{{ row.positive|format_number }}</td>
@@ -38,17 +36,3 @@
         </tbody>
     </table>
 </div>
-{% if with_population %}
-    <div class="card-body border-top small text-secondary" data-test="encounter-validation-weighted">
-        {% for stratum in ['automatic', 'proposal'] %}
-            <div data-test="weighted-{{ stratum }}">
-                {{ ('encounter.validation.report.weighted_' ~ stratum)|trans({}, 'encounter') }}:
-                {% if report.weighted[stratum] is not null %}
-                    <span class="fw-medium text-body">{{ report.weighted[stratum]|format_percent_number({fraction_digit: 0}) }}</span>
-                {% else %}
-                    {{ 'encounter.validation.report.weighted_missing'|trans({}, 'encounter') }}
-                {% endif %}
-            </div>
-        {% endfor %}
-    </div>
-{% endif %}

@@ -2393,6 +2393,14 @@
         <source>encounter.validation.flash.sample_done</source>
         <target>Every case of the sample has a verdict.</target>
       </trans-unit>
+      <trans-unit id="EncF7A7CFDE" resname="encounter.validation.report.judged_short">
+        <source>encounter.validation.report.judged_short</source>
+        <target>Judged</target>
+      </trans-unit>
+      <trans-unit id="EncF2E5AD77" resname="encounter.validation.report.legend">
+        <source>encounter.validation.report.legend</source>
+        <target>N: cases in the period when drawn. Judged: verdicts of the cases drawn. + / −: correct or missed / wrong or no partner; (?n) unclear.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

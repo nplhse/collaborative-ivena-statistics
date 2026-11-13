@@ -2237,6 +2237,14 @@
         <source>encounter.validation.flash.sample_done</source>
         <target>Jeder Fall der Stichprobe hat ein Urteil.</target>
       </trans-unit>
+      <trans-unit id="EncF7A7CFDE" resname="encounter.validation.report.judged_short">
+        <source>encounter.validation.report.judged_short</source>
+        <target>Beurteilt</target>
+      </trans-unit>
+      <trans-unit id="EncF2E5AD77" resname="encounter.validation.report.legend">
+        <source>encounter.validation.report.legend</source>
+        <target>N: Fälle im Zeitraum beim Ziehen. Beurteilt: Urteile der gezogenen Fälle. + / −: richtig oder verpasst / falsch oder kein Gegenstück; (?n) unklar.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
