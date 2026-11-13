@@ -2917,10 +2917,6 @@
         <source>encounter.plausibility.title</source>
         <target>Plausibilitätstabelle</target>
       </trans-unit>
-      <trans-unit id="Enc26A83C27" resname="encounter.plausibility.overview_intro">
-        <source>encounter.plausibility.overview_intro</source>
-        <target>Kuratierte Problembereiche der Plausibilitätstabelle des Matchers prüfen und Snapshots aktivieren.</target>
-      </trans-unit>
       <trans-unit id="Enc9E0D70A0" resname="encounter.plausibility.intro">
         <source>encounter.plausibility.intro</source>
         <target>Ab Matcher 1.2.0 gibt Durchgang 2 bis zu +3 Punkte, wenn die Indikation (PZC) einer Zuweisung und das MTS-Diagramm eines Behandlungsfalls zusammenpassen. Der Matcher liest nur den aktiven Snapshot; Änderungen an einem Problembereich ändern den Entwurf aus den Problembereichen, nie den aktiven Snapshot. Diese Seite zeigt nur Punkte und Quellen, keine Fallzahlen. Vor Matcher 1.2.0 liest nichts die Tabelle.</target>
@@ -3216,6 +3212,7 @@
       <trans-unit id="Enc17FCF391" resname="encounter.plausibility.error.snapshot_not_active">
         <source>encounter.plausibility.error.snapshot_not_active</source>
         <target>Snapshot #{id} ist nicht aktiv.</target>
+      </trans-unit>
       <trans-unit id="ToolsEncRevTitleDe" resname="tools.encounter_review.title">
         <source>tools.encounter_review.title</source>
         <target>Abgleichsprüfung Behandlungsdaten</target>
@@ -3243,6 +3240,14 @@
       <trans-unit id="MyHospActEncDataDe" resname="my_hospitals.action.encounter_data">
         <source>my_hospitals.action.encounter_data</source>
         <target>Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="EncB426FDD6" resname="tools.encounter_plausibility.title">
+        <source>tools.encounter_plausibility.title</source>
+        <target>Plausibilitätstabelle</target>
+      </trans-unit>
+      <trans-unit id="Enc521607A3" resname="tools.encounter_plausibility.description">
+        <source>tools.encounter_plausibility.description</source>
+        <target>Kuratierte Problembereiche der Matcher-Tabelle PZC × MTS-Diagramm prüfen und Snapshots aktivieren.</target>
       </trans-unit>
     </body>
   </file>

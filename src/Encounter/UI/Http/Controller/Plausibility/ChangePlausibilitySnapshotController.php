@@ -26,14 +26,14 @@ final class ChangePlausibilitySnapshotController extends AbstractController
     ) {
     }
 
-    #[Route('/encounter/plausibility/snapshots/{id}/{action}', name: 'app_encounter_plausibility_snapshot_change', requirements: ['id' => '\d+', 'action' => 'activate|retire|delete'], methods: ['POST'])]
+    #[Route('/tools/encounter-plausibility/snapshots/{id}/{action}', name: 'app_tools_encounter_plausibility_snapshot_change', requirements: ['id' => '\d+', 'action' => 'activate|retire|delete'], methods: ['POST'])]
     public function __invoke(Request $request, PlausibilitySnapshot $snapshot, string $action): RedirectResponse
     {
         $id = (int) $snapshot->getId();
         if (!$this->isCsrfTokenValid(\sprintf('encounter_plausibility_snapshot_%s_%d', $action, $id), $request->request->getString('_token'))) {
             $this->addFlash('danger', new TranslatableMessage('encounter.plausibility.flash.invalid_token', domain: 'encounter'));
 
-            return $this->redirectToRoute('app_encounter_plausibility_snapshot', ['id' => $id]);
+            return $this->redirectToRoute('app_tools_encounter_plausibility_snapshot', ['id' => $id]);
         }
 
         try {
@@ -45,13 +45,13 @@ final class ChangePlausibilitySnapshotController extends AbstractController
         } catch (PlausibilityException $exception) {
             $this->addFlash('danger', new TranslatableMessage($exception->translationKey(), $exception->parameters(), 'encounter'));
 
-            return $this->redirectToRoute('app_encounter_plausibility_snapshot', ['id' => $id]);
+            return $this->redirectToRoute('app_tools_encounter_plausibility_snapshot', ['id' => $id]);
         }
 
         $this->addFlash('success', new TranslatableMessage('encounter.plausibility.flash.snapshot_'.$action, ['id' => $id], 'encounter'));
 
         return 'delete' === $action
-            ? $this->redirectToRoute('app_encounter_plausibility')
-            : $this->redirectToRoute('app_encounter_plausibility_snapshot', ['id' => $id]);
+            ? $this->redirectToRoute('app_tools_encounter_plausibility')
+            : $this->redirectToRoute('app_tools_encounter_plausibility_snapshot', ['id' => $id]);
     }
 }

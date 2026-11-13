@@ -2917,10 +2917,6 @@
         <source>encounter.plausibility.title</source>
         <target>Plausibility table</target>
       </trans-unit>
-      <trans-unit id="Enc26A83C27" resname="encounter.plausibility.overview_intro">
-        <source>encounter.plausibility.overview_intro</source>
-        <target>Review the curated problem areas of the matcher's plausibility table and activate snapshots.</target>
-      </trans-unit>
       <trans-unit id="Enc9E0D70A0" resname="encounter.plausibility.intro">
         <source>encounter.plausibility.intro</source>
         <target>From matcher 1.2.0 on, pass 2 adds up to +3 points when the indication (PZC) of an allocation and the MTS diagram of a visit are plausible together. The matcher reads only the active snapshot; editing a problem area changes the draft built from the problem areas, never the active snapshot. This page shows points and sources only, no case counts. Nothing reads the table before matcher 1.2.0.</target>
@@ -3216,6 +3212,7 @@
       <trans-unit id="Enc17FCF391" resname="encounter.plausibility.error.snapshot_not_active">
         <source>encounter.plausibility.error.snapshot_not_active</source>
         <target>Snapshot #{id} is not active.</target>
+      </trans-unit>
       <trans-unit id="ToolsEncRevTitle" resname="tools.encounter_review.title">
         <source>tools.encounter_review.title</source>
         <target>Encounter match review</target>
@@ -3243,6 +3240,14 @@
       <trans-unit id="MyHospActEncData" resname="my_hospitals.action.encounter_data">
         <source>my_hospitals.action.encounter_data</source>
         <target>Encounter data</target>
+      </trans-unit>
+      <trans-unit id="EncB426FDD6" resname="tools.encounter_plausibility.title">
+        <source>tools.encounter_plausibility.title</source>
+        <target>Plausibility table</target>
+      </trans-unit>
+      <trans-unit id="Enc521607A3" resname="tools.encounter_plausibility.description">
+        <source>tools.encounter_plausibility.description</source>
+        <target>Review the curated problem areas of the matcher's PZC × MTS diagram table and activate snapshots.</target>
       </trans-unit>
     </body>
   </file>

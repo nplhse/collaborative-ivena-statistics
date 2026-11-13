@@ -88,9 +88,9 @@ by the hospital bitmask:
   all hospitals, but no cross-hospital case counts are shown. `ROLE_ENCOUNTER_CATALOG_REVIEWER` (with the
   beta role) sees per cell only points, source and the change against the active snapshot; replay counts and
   rates in a snapshot report cover only hospitals on which the viewer holds the grant action `REVIEW`
-  (`ROLE_ADMIN`: all). The reviewer role gives no encounter grant action. Its pages
-  (`src/Encounter/UI/Http/Controller/Plausibility/`) require both roles; `^/encounter` already requires the beta
-  role in `access_control`.
+  (`ROLE_ADMIN`: all). The reviewer role gives no encounter grant action. Its tool pages under
+  `/tools/encounter-plausibility` (`src/Encounter/UI/Http/Controller/Plausibility/`) check both roles in the
+  controllers, since `^/tools` in `access_control` only requires `ROLE_USER`; the tool entry is listed only with both.
 
 Implementation:
 

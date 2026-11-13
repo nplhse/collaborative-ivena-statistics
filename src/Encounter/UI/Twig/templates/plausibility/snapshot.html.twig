@@ -10,8 +10,8 @@
     <twig:PageHeader :title="heading" :pretitle="'encounter.plausibility.title'|trans({}, 'encounter')">
         <twig:block name="breadcrumbs">
             <twig:Breadcrumbs :items="[
-                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
-                { label: 'encounter.plausibility.title', label_domain: 'encounter', translatable: true, path: path('app_encounter_plausibility') },
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
+                { label: 'encounter.plausibility.title', label_domain: 'encounter', translatable: true, path: path('app_tools_encounter_plausibility') },
                 { label: heading }
             ]" />
         </twig:block>
@@ -36,7 +36,7 @@
         <div class="card-footer d-flex flex-wrap gap-2">
             {% set actions = snapshot.draft ? ['activate', 'delete'] : (snapshot.active ? ['retire'] : []) %}
             {% for action in actions %}
-                <form method="post" action="{{ path('app_encounter_plausibility_snapshot_change', {id: snapshot.id, action: action}) }}" data-test="encounter-plausibility-{{ action }}">
+                <form method="post" action="{{ path('app_tools_encounter_plausibility_snapshot_change', {id: snapshot.id, action: action}) }}" data-test="encounter-plausibility-{{ action }}">
                     <input type="hidden" name="_token" value="{{ csrf_token('encounter_plausibility_snapshot_' ~ action ~ '_' ~ snapshot.id) }}">
                     <button class="btn {{ action == 'activate' ? 'btn-primary' : 'btn-outline-danger' }}" type="submit">{{ ('encounter.plausibility.action.' ~ action)|trans({}, d) }}</button>
                 </form>

@@ -8,7 +8,7 @@
     <twig:PageHeader :title="'encounter.plausibility.title'|trans({}, 'encounter')">
         <twig:block name="breadcrumbs">
             <twig:Breadcrumbs :items="[
-                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
                 { label: 'encounter.plausibility.title', label_domain: 'encounter', translatable: true }
             ]" />
         </twig:block>
@@ -51,7 +51,7 @@
                                     {{ snapshot.activatedAt ? snapshot.activatedAt|date('d.m.Y H:i') : '–' }}
                                     {% if snapshot.retiredAt %} – {{ snapshot.retiredAt|date('d.m.Y H:i') }}{% endif %}
                                 </td>
-                                <td><a class="btn btn-sm" href="{{ path('app_encounter_plausibility_snapshot', {id: snapshot.id}) }}">{{ 'encounter.plausibility.action.review'|trans({}, d) }}</a></td>
+                                <td><a class="btn btn-sm" href="{{ path('app_tools_encounter_plausibility_snapshot', {id: snapshot.id}) }}">{{ 'encounter.plausibility.action.review'|trans({}, d) }}</a></td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -64,7 +64,7 @@
         <div class="card-header">
             <h3 class="card-title">{{ 'encounter.plausibility.areas_title'|trans({}, d) }}</h3>
             <div class="card-actions">
-                <a class="btn btn-primary" href="{{ path('app_encounter_plausibility_area_new') }}" data-test="encounter-plausibility-area-new">{{ 'encounter.plausibility.action.new_area'|trans({}, d) }}</a>
+                <a class="btn btn-primary" href="{{ path('app_tools_encounter_plausibility_area_new') }}" data-test="encounter-plausibility-area-new">{{ 'encounter.plausibility.action.new_area'|trans({}, d) }}</a>
             </div>
         </div>
         <div class="card-body border-bottom small text-secondary">{{ 'encounter.plausibility.areas_note'|trans({}, d) }}</div>
@@ -104,7 +104,7 @@
                                         <span class="text-secondary">{{ 'encounter.plausibility.no_rules'|trans({}, d) }}</span>
                                     {% endfor %}
                                 </td>
-                                <td><a class="btn btn-sm" href="{{ path('app_encounter_plausibility_area_edit', {code: area.code}) }}">{{ 'encounter.plausibility.action.edit'|trans({}, d) }}</a></td>
+                                <td><a class="btn btn-sm" href="{{ path('app_tools_encounter_plausibility_area_edit', {code: area.code}) }}">{{ 'encounter.plausibility.action.edit'|trans({}, d) }}</a></td>
                             </tr>
                         {% endfor %}
                     </tbody>

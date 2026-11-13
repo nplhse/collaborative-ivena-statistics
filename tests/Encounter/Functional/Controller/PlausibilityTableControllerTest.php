@@ -18,9 +18,9 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Review pages of the plausibility table (ADR 033): only for ROLE_ENCOUNTER_CATALOG_REVIEWER together with
- * ROLE_ENCOUNTER_BETA (administrators inherit both); points, sources and changes, never counts; editing rebuilds the
- * draft; activation is audited.
+ * Review pages of the plausibility table (ADR 033), a tool under /tools (ADR 031): only for
+ * ROLE_ENCOUNTER_CATALOG_REVIEWER together with ROLE_ENCOUNTER_BETA (administrators inherit both); points, sources and
+ * changes, never counts; editing rebuilds the draft; activation is audited.
  */
 #[ResetDatabase]
 final class PlausibilityTableControllerTest extends WebTestCase
@@ -42,7 +42,7 @@ final class PlausibilityTableControllerTest extends WebTestCase
     public function testOnlyReviewersWithTheBetaRoleAndAdminsOpenThePages(): void
     {
         $draftId = $this->seedDraft()->getId();
-        $paths = ['/encounter/plausibility', '/encounter/plausibility/areas/urologie/edit', '/encounter/plausibility/areas/new', '/encounter/plausibility/snapshots/'.$draftId];
+        $paths = ['/tools/encounter-plausibility', '/tools/encounter-plausibility/areas/urologie/edit', '/tools/encounter-plausibility/areas/new', '/tools/encounter-plausibility/snapshots/'.$draftId];
 
         $cases = [
             'beta user without the reviewer role' => [$this->user(), 403],
@@ -59,17 +59,17 @@ final class PlausibilityTableControllerTest extends WebTestCase
         }
 
         $this->client->loginUser($this->user());
-        $this->client->request(Request::METHOD_POST, '/encounter/plausibility/snapshots/'.$draftId.'/activate');
+        $this->client->request(Request::METHOD_POST, '/tools/encounter-plausibility/snapshots/'.$draftId.'/activate');
         self::assertResponseStatusCodeSame(403);
         self::assertSame(PlausibilitySnapshotStatus::Draft, $this->seedDraft()->getStatus());
     }
 
-    public function testOverviewListsTheSeedAndTheEntryPageLinksIt(): void
+    public function testOverviewListsTheSeedAndTheToolsPageLinksIt(): void
     {
         $this->client->loginUser($this->user(self::REVIEWER));
         $this->client->enableProfiler();
 
-        $crawler = $this->client->request(Request::METHOD_GET, '/encounter/plausibility', server: ['HTTP_Accept-Language' => 'de-DE,de;q=0.9']);
+        $crawler = $this->client->request(Request::METHOD_GET, '/tools/encounter-plausibility', server: ['HTTP_Accept-Language' => 'de-DE,de;q=0.9']);
 
         self::assertResponseIsSuccessful();
         $this->assertNoMissingTranslations($this->client->getProfile());
@@ -79,20 +79,21 @@ final class PlausibilityTableControllerTest extends WebTestCase
         self::assertStringContainsString('711', $urology->text());
         self::assertSame(['abdominelle_schmerzen_bei_erwachsenen', 'hodenschmerz', 'rueckenschmerz', 'urologisches_problem'], $urology->filter('[data-test="encounter-plausibility-rule"]')->extract(['data-diagram']));
 
-        $index = $this->client->request(Request::METHOD_GET, '/encounter');
-        self::assertCount(1, $index->filter('[data-test="encounter-plausibility-link"] a[href="/encounter/plausibility"]'));
+        $tools = $this->client->request(Request::METHOD_GET, '/tools');
+        self::assertCount(1, $tools->filter('[data-tool-key="encounter_plausibility"][href="/tools/encounter-plausibility"]'));
 
         $this->client->loginUser($this->user());
-        $index = $this->client->request(Request::METHOD_GET, '/encounter');
-        self::assertCount(0, $index->filter('[data-test="encounter-plausibility-link"]'), 'not for beta users without the reviewer role');
+        $tools = $this->client->request(Request::METHOD_GET, '/tools');
+        self::assertCount(0, $tools->filter('[data-tool-key="encounter_plausibility"]'), 'not for beta users without the reviewer role');
+        self::assertCount(1, $tools->filter('[data-tool-key="encounter_review"]'));
     }
 
     public function testReviewShowsPointsAndChangesButNoCounts(): void
     {
         $this->client->loginUser($this->user(self::REVIEWER));
         $seed = $this->seedDraft();
-        $this->post('/encounter/plausibility/snapshots/'.$seed->getId().'/activate', 'encounter_plausibility_snapshot_activate_'.$seed->getId());
-        self::assertResponseRedirects('/encounter/plausibility/snapshots/'.$seed->getId());
+        $this->post('/tools/encounter-plausibility/snapshots/'.$seed->getId().'/activate', 'encounter_plausibility_snapshot_activate_'.$seed->getId());
+        self::assertResponseRedirects('/tools/encounter-plausibility/snapshots/'.$seed->getId());
         self::assertSame(1, $this->auditRows('encounter.plausibility.snapshot_activated'));
 
         // A learned draft with distinctive counts: they must not appear anywhere on the page.
@@ -106,7 +107,7 @@ final class PlausibilityTableControllerTest extends WebTestCase
         $connection->executeStatement("UPDATE encounter_plausibility_cell SET points = 1, source = 'learned', positives = 4, negatives = 3 WHERE snapshot_id = ? AND pzc = 712 AND diagram_code = 'hodenschmerz'", [$learnedId]);
         $connection->executeStatement("UPDATE encounter_plausibility_cell SET points = 2, source = 'learned', positives = 2222, negatives = 1111 WHERE snapshot_id = ? AND area_code = 'urologie' AND diagram_code = 'rueckenschmerz'", [$learnedId]);
 
-        $crawler = $this->client->request(Request::METHOD_GET, '/encounter/plausibility/snapshots/'.$learnedId);
+        $crawler = $this->client->request(Request::METHOD_GET, '/tools/encounter-plausibility/snapshots/'.$learnedId);
 
         self::assertResponseIsSuccessful();
         $content = (string) $this->client->getResponse()->getContent();
@@ -130,7 +131,7 @@ final class PlausibilityTableControllerTest extends WebTestCase
     public function testEditingAnAreaRebuildsTheDraftAndRefusesATakenCode(): void
     {
         $this->client->loginUser($this->user(self::REVIEWER));
-        $crawler = $this->client->request(Request::METHOD_GET, '/encounter/plausibility/areas/new');
+        $crawler = $this->client->request(Request::METHOD_GET, '/tools/encounter-plausibility/areas/new');
         $form = $crawler->filter('form[name="plausibility_area"]')->form();
         $form['plausibility_area[germanName]'] = 'Augen';
         $form['plausibility_area[pzcCodes]'] = '721, 711';
@@ -142,7 +143,7 @@ final class PlausibilityTableControllerTest extends WebTestCase
 
         $form['plausibility_area[pzcCodes]'] = '721-722';
         $this->client->submit($form);
-        self::assertResponseRedirects('/encounter/plausibility');
+        self::assertResponseRedirects('/tools/encounter-plausibility');
 
         $repository = self::getContainer()->get(PlausibilityRepositoryInterface::class);
         $area = $repository->findAreaByCode('augen');

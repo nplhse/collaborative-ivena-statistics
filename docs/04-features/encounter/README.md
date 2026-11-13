@@ -484,8 +484,11 @@ before #1154 (see [Implemented](#implemented-in-1153)).
   resuscitation, paediatrics, obstetrics and gynaecology and the other specialties belong to no area; unspecific
   diagrams (`unwohlsein_bei_erwachsenen`, `hautausschlaege` and others) have no rule. The seed needs the clinical
   review in the app before the first activation.
-- **Review pages** in the pilot area, `/encounter/plausibility` (linked from the encounter entry page and, for
-  administrators, Admin → Data → MTS catalog):
+- **Review pages** as the tool "Plausibility table" under `/tools/encounter-plausibility` (routes
+  `app_tools_encounter_plausibility*`, [ADR 031](../../02-architecture/decisions/031-tools-section-and-tool-registry.md)),
+  listed by `EncounterToolProvider` with the beta badge only for users with `ROLE_ENCOUNTER_CATALOG_REVIEWER` and
+  `ROLE_ENCOUNTER_BETA`; the controllers check both roles (`^/tools` itself only needs `ROLE_USER`). Administrators
+  also reach it from Admin → Data → MTS catalog:
   - Problem areas: list with PZC codes and plausible diagrams, create, edit (names, PZC codes and ranges such as
     `711-718`, points per active diagram), delete. A PZC of another area is refused. Every save rebuilds the newest
     `seed` draft from all areas (or creates one), in the same transaction (`PlausibilityCuration`,
@@ -891,6 +894,7 @@ listed by `EncounterToolProvider` for `ROLE_ENCOUNTER_BETA` with a beta badge:
 | Encounter match review | `app_tools_encounter_review` | `/tools/encounter-review` (hospital list), `/tools/encounter-review/{id}/…` |
 | Encounter match validation | `app_tools_encounter_review` with `mode=validation` | the same hospital list, linking to `/tools/encounter-review/{id}/validation` |
 | Data preparation tool | `app_tools_data_prep` | `/tools/data-prep`, `/tools/data-prep/key`, `/tools/data-prep/local-map`, `/tools/data-prep/download` |
+| Plausibility table (also needs `ROLE_ENCOUNTER_CATALOG_REVIEWER`, [above](#plausibility-table)) | `app_tools_encounter_plausibility*` | `/tools/encounter-plausibility`, `…/areas/new`, `…/areas/{code}/edit`, `…/areas/{code}/delete`, `…/snapshots/{id}`, `…/snapshots/{id}/{activate,retire,delete}` |
 
 There is no encounter entry in the main navigation anymore: descriptive figures are in Statistics
 (`/statistics/encounter-analytics`), the MTS glossary and the case card in Explore, the upload in Import and

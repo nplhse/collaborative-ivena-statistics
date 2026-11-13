@@ -14,7 +14,7 @@ final class EncounterToolProviderTest extends TestCase
 {
     public function testBetaUserGetsReviewValidationAndDataPreparation(): void
     {
-        $tools = new EncounterToolProvider($this->checker(true))->tools();
+        $tools = new EncounterToolProvider($this->checker(['ROLE_ENCOUNTER_BETA']))->tools();
 
         self::assertSame(
             [
@@ -32,13 +32,31 @@ final class EncounterToolProviderTest extends TestCase
 
     public function testUserWithoutBetaRoleGetsNoTool(): void
     {
-        self::assertSame([], new EncounterToolProvider($this->checker(false))->tools());
+        self::assertSame([], new EncounterToolProvider($this->checker([]))->tools());
     }
 
-    private function checker(bool $granted): AuthorizationCheckerInterface
+    public function testCatalogReviewerAlsoGetsThePlausibilityTable(): void
     {
-        $checker = $this->createMock(AuthorizationCheckerInterface::class);
-        $checker->expects(self::once())->method('isGranted')->with('ROLE_ENCOUNTER_BETA')->willReturn($granted);
+        $tools = new EncounterToolProvider($this->checker(['ROLE_ENCOUNTER_BETA', 'ROLE_ENCOUNTER_CATALOG_REVIEWER']))->tools();
+        $plausibility = array_values(array_filter($tools, static fn (Tool $tool): bool => EncounterToolProvider::PLAUSIBILITY === $tool->key));
+
+        self::assertCount(4, $tools);
+        self::assertCount(1, $plausibility);
+        self::assertSame(['app_tools_encounter_plausibility', ToolCategory::Matching, true], [$plausibility[0]->route, $plausibility[0]->category, $plausibility[0]->beta]);
+    }
+
+    public function testCatalogReviewerWithoutBetaRoleGetsNoTool(): void
+    {
+        self::assertSame([], new EncounterToolProvider($this->checker(['ROLE_ENCOUNTER_CATALOG_REVIEWER']))->tools());
+    }
+
+    /**
+     * @param list<string> $roles
+     */
+    private function checker(array $roles): AuthorizationCheckerInterface
+    {
+        $checker = $this->createStub(AuthorizationCheckerInterface::class);
+        $checker->method('isGranted')->willReturnCallback(static fn (mixed $attribute): bool => \in_array($attribute, $roles, true));
 
         return $checker;
     }

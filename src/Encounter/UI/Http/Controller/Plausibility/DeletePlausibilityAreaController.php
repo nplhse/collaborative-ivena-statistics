@@ -27,20 +27,20 @@ final class DeletePlausibilityAreaController extends AbstractController
     ) {
     }
 
-    #[Route('/encounter/plausibility/areas/{code}/delete', name: 'app_encounter_plausibility_area_delete', requirements: ['code' => '[a-z0-9_]+'], methods: ['POST'])]
+    #[Route('/tools/encounter-plausibility/areas/{code}/delete', name: 'app_tools_encounter_plausibility_area_delete', requirements: ['code' => '[a-z0-9_]+'], methods: ['POST'])]
     public function __invoke(Request $request, string $code): RedirectResponse
     {
         $area = $this->repository->findAreaByCode($code) ?? throw new NotFoundHttpException();
         if (!$this->isCsrfTokenValid('encounter_plausibility_area_delete_'.$code, $request->request->getString('_token'))) {
             $this->addFlash('danger', new TranslatableMessage('encounter.plausibility.flash.invalid_token', domain: 'encounter'));
 
-            return $this->redirectToRoute('app_encounter_plausibility_area_edit', ['code' => $code]);
+            return $this->redirectToRoute('app_tools_encounter_plausibility_area_edit', ['code' => $code]);
         }
 
         $name = $area->getGermanName();
         $this->curation->deleteArea($area);
         $this->addFlash('success', new TranslatableMessage('encounter.plausibility.flash.area_deleted', ['name' => $name], 'encounter'));
 
-        return $this->redirectToRoute('app_encounter_plausibility');
+        return $this->redirectToRoute('app_tools_encounter_plausibility');
     }
 }

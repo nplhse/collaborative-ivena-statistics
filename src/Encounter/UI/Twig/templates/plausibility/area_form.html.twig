@@ -9,8 +9,8 @@
     <twig:PageHeader :title="heading" :pretitle="'encounter.plausibility.area.pretitle'|trans({}, 'encounter')">
         <twig:block name="breadcrumbs">
             <twig:Breadcrumbs :items="[
-                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
-                { label: 'encounter.plausibility.title', label_domain: 'encounter', translatable: true, path: path('app_encounter_plausibility') },
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
+                { label: 'encounter.plausibility.title', label_domain: 'encounter', translatable: true, path: path('app_tools_encounter_plausibility') },
                 { label: heading }
             ]" />
         </twig:block>
@@ -40,7 +40,7 @@
             {% do form.diagrams.setRendered %}
 
             <button class="btn btn-primary" type="submit">{{ 'encounter.plausibility.action.save'|trans({}, d) }}</button>
-            <a class="btn btn-link" href="{{ path('app_encounter_plausibility') }}">{{ 'action.cancel'|trans({}, 'messages') }}</a>
+            <a class="btn btn-link" href="{{ path('app_tools_encounter_plausibility') }}">{{ 'action.cancel'|trans({}, 'messages') }}</a>
             {{ form_end(form) }}
         </div>
     </div>
@@ -49,7 +49,7 @@
         <div class="card mt-3 border-danger" data-test="encounter-plausibility-area-delete">
             <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-2">
                 <span class="text-secondary">{{ 'encounter.plausibility.area.delete_note'|trans({}, d) }}</span>
-                <form method="post" action="{{ path('app_encounter_plausibility_area_delete', {code: area.code}) }}">
+                <form method="post" action="{{ path('app_tools_encounter_plausibility_area_delete', {code: area.code}) }}">
                     <input type="hidden" name="_token" value="{{ csrf_token('encounter_plausibility_area_delete_' ~ area.code) }}">
                     <button class="btn btn-outline-danger" type="submit">{{ 'encounter.plausibility.action.delete_area'|trans({}, d) }}</button>
                 </form>

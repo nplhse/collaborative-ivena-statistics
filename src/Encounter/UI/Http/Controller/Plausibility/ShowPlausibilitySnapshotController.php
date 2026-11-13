@@ -30,7 +30,7 @@ final class ShowPlausibilitySnapshotController extends AbstractController
     ) {
     }
 
-    #[Route('/encounter/plausibility/snapshots/{id}', name: 'app_encounter_plausibility_snapshot', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[Route('/tools/encounter-plausibility/snapshots/{id}', name: 'app_tools_encounter_plausibility_snapshot', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function __invoke(PlausibilitySnapshot $snapshot): Response
     {
         /** @var array<string, PlausibilityProblemArea> $areaNames */

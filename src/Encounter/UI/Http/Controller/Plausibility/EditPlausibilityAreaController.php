@@ -37,8 +37,8 @@ final class EditPlausibilityAreaController extends AbstractController
     ) {
     }
 
-    #[Route('/encounter/plausibility/areas/new', name: 'app_encounter_plausibility_area_new', methods: ['GET', 'POST'])]
-    #[Route('/encounter/plausibility/areas/{code}/edit', name: 'app_encounter_plausibility_area_edit', requirements: ['code' => '[a-z0-9_]+'], methods: ['GET', 'POST'])]
+    #[Route('/tools/encounter-plausibility/areas/new', name: 'app_tools_encounter_plausibility_area_new', methods: ['GET', 'POST'])]
+    #[Route('/tools/encounter-plausibility/areas/{code}/edit', name: 'app_tools_encounter_plausibility_area_edit', requirements: ['code' => '[a-z0-9_]+'], methods: ['GET', 'POST'])]
     public function __invoke(Request $request, ?string $code = null): Response
     {
         $area = null;
@@ -68,7 +68,7 @@ final class EditPlausibilityAreaController extends AbstractController
 
                 $this->addFlash('success', new TranslatableMessage('encounter.plausibility.flash.area_saved', ['name' => $area->getGermanName()], 'encounter'));
 
-                return $this->redirectToRoute('app_encounter_plausibility');
+                return $this->redirectToRoute('app_tools_encounter_plausibility');
             } catch (PlausibilityException $exception) {
                 $form->addError(new FormError($this->translator->trans($exception->translationKey(), $exception->parameters(), 'encounter')));
             }

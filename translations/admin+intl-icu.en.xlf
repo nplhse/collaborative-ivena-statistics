@@ -2444,6 +2444,7 @@
       <trans-unit id="adm1517EB45" resname="menu.data.mts_catalog.plausibility">
         <source>menu.data.mts_catalog.plausibility</source>
         <target>Plausibility table</target>
+      </trans-unit>
       <trans-unit id="admCrudFieldUser" resname="admin.field.user">
         <source>admin.field.user</source>
         <target>User</target>

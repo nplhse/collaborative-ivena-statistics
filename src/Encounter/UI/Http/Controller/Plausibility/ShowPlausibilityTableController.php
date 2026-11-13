@@ -25,7 +25,7 @@ final class ShowPlausibilityTableController extends AbstractController
     ) {
     }
 
-    #[Route('/encounter/plausibility', name: 'app_encounter_plausibility', methods: ['GET'])]
+    #[Route('/tools/encounter-plausibility', name: 'app_tools_encounter_plausibility', methods: ['GET'])]
     public function __invoke(): Response
     {
         $areas = $this->repository->areas();
