@@ -2757,6 +2757,218 @@
         <source>encounter.data_prep.guide.map.downloads_title</source>
         <target>Vorlage und Beispiel</target>
       </trans-unit>
+      <trans-unit id="Enc9CCD8C71" resname="encounter.mts_catalog.kind.diagram">
+        <source>encounter.mts_catalog.kind.diagram</source>
+        <target>Diagramm</target>
+      </trans-unit>
+      <trans-unit id="EncAC8BED7C" resname="encounter.mts_catalog.kind.indicator">
+        <source>encounter.mts_catalog.kind.indicator</source>
+        <target>Indikator</target>
+      </trans-unit>
+      <trans-unit id="EncD02F0BF0" resname="encounter.mts_catalog.source.orbis_export">
+        <source>encounter.mts_catalog.source.orbis_export</source>
+        <target>ORBIS-Export</target>
+      </trans-unit>
+      <trans-unit id="Enc974D7B3C" resname="encounter.mts_catalog.source.mts_edition">
+        <source>encounter.mts_catalog.source.mts_edition</source>
+        <target>MTS-Ausgabe</target>
+      </trans-unit>
+      <trans-unit id="EncF5275409" resname="encounter.mts_catalog.source.manual">
+        <source>encounter.mts_catalog.source.manual</source>
+        <target>Manuell</target>
+      </trans-unit>
+      <trans-unit id="Enc6ECAC505" resname="encounter.mts_catalog.source.first_seen">
+        <source>encounter.mts_catalog.source.first_seen</source>
+        <target>Erstmals in Daten gesehen</target>
+      </trans-unit>
+      <trans-unit id="Enc72E8F192" resname="encounter.mts_catalog.status.curated">
+        <source>encounter.mts_catalog.status.curated</source>
+        <target>Kuratiert</target>
+      </trans-unit>
+      <trans-unit id="Enc52C24504" resname="encounter.mts_catalog.status.provisional">
+        <source>encounter.mts_catalog.status.provisional</source>
+        <target>Vorläufig</target>
+      </trans-unit>
+      <trans-unit id="Enc72A7EAF0" resname="encounter.mts_catalog.status.merged">
+        <source>encounter.mts_catalog.status.merged</source>
+        <target>Zusammengeführt</target>
+      </trans-unit>
+      <trans-unit id="EncE93ECE49" resname="encounter.mts_catalog.diagram.singular">
+        <source>encounter.mts_catalog.diagram.singular</source>
+        <target>MTS-Diagramm</target>
+      </trans-unit>
+      <trans-unit id="EncFA6F423A" resname="encounter.mts_catalog.diagram.plural">
+        <source>encounter.mts_catalog.diagram.plural</source>
+        <target>MTS-Diagramme</target>
+      </trans-unit>
+      <trans-unit id="Enc4B2E37B6" resname="encounter.mts_catalog.indicator.singular">
+        <source>encounter.mts_catalog.indicator.singular</source>
+        <target>MTS-Indikator</target>
+      </trans-unit>
+      <trans-unit id="Enc3062DAEC" resname="encounter.mts_catalog.indicator.plural">
+        <source>encounter.mts_catalog.indicator.plural</source>
+        <target>MTS-Indikatoren</target>
+      </trans-unit>
+      <trans-unit id="Enc18CE58EE" resname="encounter.mts_catalog.alias.singular">
+        <source>encounter.mts_catalog.alias.singular</source>
+        <target>MTS-Alias</target>
+      </trans-unit>
+      <trans-unit id="Enc06D0A793" resname="encounter.mts_catalog.alias.plural">
+        <source>encounter.mts_catalog.alias.plural</source>
+        <target>MTS-Aliasse</target>
+      </trans-unit>
+      <trans-unit id="EncC7ED6A92" resname="encounter.mts_catalog.assignment.singular">
+        <source>encounter.mts_catalog.assignment.singular</source>
+        <target>Zuordnung Diagramm–Indikator</target>
+      </trans-unit>
+      <trans-unit id="Enc2121B16A" resname="encounter.mts_catalog.assignment.plural">
+        <source>encounter.mts_catalog.assignment.plural</source>
+        <target>Zuordnungen Diagramm–Indikator</target>
+      </trans-unit>
+      <trans-unit id="EncCB3AA1AB" resname="encounter.mts_catalog.field.code">
+        <source>encounter.mts_catalog.field.code</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="Enc82A1E29D" resname="encounter.mts_catalog.field.german_name">
+        <source>encounter.mts_catalog.field.german_name</source>
+        <target>Deutscher Name</target>
+      </trans-unit>
+      <trans-unit id="Enc22CAFC7D" resname="encounter.mts_catalog.field.german_name.help_new">
+        <source>encounter.mts_catalog.field.german_name.help_new</source>
+        <target>Der Code wird einmalig aus diesem Namen abgeleitet und ändert sich danach nicht. Behandlungsfälle speichern den Code.</target>
+      </trans-unit>
+      <trans-unit id="Enc060EF105" resname="encounter.mts_catalog.field.german_name.help_edit">
+        <source>encounter.mts_catalog.field.german_name.help_edit</source>
+        <target>Eine Korrektur des Namens ändert den Code nicht.</target>
+      </trans-unit>
+      <trans-unit id="Enc072D914C" resname="encounter.mts_catalog.field.english_name">
+        <source>encounter.mts_catalog.field.english_name</source>
+        <target>Englischer Name</target>
+      </trans-unit>
+      <trans-unit id="EncD9FA821D" resname="encounter.mts_catalog.field.source">
+        <source>encounter.mts_catalog.field.source</source>
+        <target>Quelle</target>
+      </trans-unit>
+      <trans-unit id="EncD5508EB2" resname="encounter.mts_catalog.field.status">
+        <source>encounter.mts_catalog.field.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="Enc4D4D077B" resname="encounter.mts_catalog.field.first_seen_at">
+        <source>encounter.mts_catalog.field.first_seen_at</source>
+        <target>Erstmals gesehen</target>
+      </trans-unit>
+      <trans-unit id="Enc92187B65" resname="encounter.mts_catalog.field.kind">
+        <source>encounter.mts_catalog.field.kind</source>
+        <target>Art</target>
+      </trans-unit>
+      <trans-unit id="Enc3EADA46A" resname="encounter.mts_catalog.field.label">
+        <source>encounter.mts_catalog.field.label</source>
+        <target>Bezeichnung</target>
+      </trans-unit>
+      <trans-unit id="Enc1FF7BF4F" resname="encounter.mts_catalog.field.label.help">
+        <source>encounter.mts_catalog.field.label.help</source>
+        <target>Eine andere Schreibweise, zum Beispiel die Bezeichnung eines Herstellers. Der Alias-Code wird einmalig daraus abgeleitet.</target>
+      </trans-unit>
+      <trans-unit id="Enc27DC6473" resname="encounter.mts_catalog.field.target">
+        <source>encounter.mts_catalog.field.target</source>
+        <target>Verweist auf</target>
+      </trans-unit>
+      <trans-unit id="Enc37B83C19" resname="encounter.mts_catalog.field.target.help">
+        <source>encounter.mts_catalog.field.target.help</source>
+        <target>Ein aktiver Eintrag derselben Art.</target>
+      </trans-unit>
+      <trans-unit id="Enc730DBCD0" resname="encounter.mts_catalog.action.merge">
+        <source>encounter.mts_catalog.action.merge</source>
+        <target>Zusammenführen mit …</target>
+      </trans-unit>
+      <trans-unit id="Enc143D659B" resname="encounter.mts_catalog.action.undo_merge">
+        <source>encounter.mts_catalog.action.undo_merge</source>
+        <target>Zusammenführung rückgängig machen</target>
+      </trans-unit>
+      <trans-unit id="EncE5764BB0" resname="encounter.mts_catalog.action.undo_merge.confirm">
+        <source>encounter.mts_catalog.action.undo_merge.confirm</source>
+        <target>Zusammenführung rückgängig machen? Der Alias wird entfernt und der Eintrag ist wieder vorläufig.</target>
+      </trans-unit>
+      <trans-unit id="Enc4E62881B" resname="encounter.mts_catalog.merge.title">
+        <source>encounter.mts_catalog.merge.title</source>
+        <target>{code} zusammenführen</target>
+      </trans-unit>
+      <trans-unit id="Enc145C78EB" resname="encounter.mts_catalog.merge.back">
+        <source>encounter.mts_catalog.merge.back</source>
+        <target>Zurück</target>
+      </trans-unit>
+      <trans-unit id="Enc67145BD0" resname="encounter.mts_catalog.merge.intro">
+        <source>encounter.mts_catalog.merge.intro</source>
+        <target>Der vorläufige Eintrag {name} ({code}) wird zum Alias des gewählten Eintrags. Behandlungsfälle behalten den Code {code}; die Seiten zeigen den gewählten Eintrag. Die Zusammenführung kann rückgängig gemacht werden.</target>
+      </trans-unit>
+      <trans-unit id="Enc3EE320AD" resname="encounter.mts_catalog.merge.target">
+        <source>encounter.mts_catalog.merge.target</source>
+        <target>Zusammenführen mit</target>
+      </trans-unit>
+      <trans-unit id="EncA4140263" resname="encounter.mts_catalog.merge.submit">
+        <source>encounter.mts_catalog.merge.submit</source>
+        <target>Zusammenführen</target>
+      </trans-unit>
+      <trans-unit id="EncA7EBD841" resname="encounter.mts_catalog.flash.merged">
+        <source>encounter.mts_catalog.flash.merged</source>
+        <target>{code} wurde mit {target} zusammengeführt.</target>
+      </trans-unit>
+      <trans-unit id="EncB75F36FF" resname="encounter.mts_catalog.flash.merge_undone">
+        <source>encounter.mts_catalog.flash.merge_undone</source>
+        <target>Die Zusammenführung von {code} wurde rückgängig gemacht; der Eintrag ist wieder vorläufig.</target>
+      </trans-unit>
+      <trans-unit id="Enc2C31AB03" resname="encounter.mts_catalog.flash.invalid_token">
+        <source>encounter.mts_catalog.flash.invalid_token</source>
+        <target>Die Anfrage ist abgelaufen. Bitte erneut versuchen.</target>
+      </trans-unit>
+      <trans-unit id="Enc28D11A10" resname="encounter.mts_catalog.error.empty_code">
+        <source>encounter.mts_catalog.error.empty_code</source>
+        <target>„{label}“ ergibt keinen Code. Bitte Buchstaben oder Ziffern verwenden.</target>
+      </trans-unit>
+      <trans-unit id="Enc06E3F331" resname="encounter.mts_catalog.error.duplicate">
+        <source>encounter.mts_catalog.error.duplicate</source>
+        <target>„{label}“ existiert bereits mit dem Code {code}.</target>
+      </trans-unit>
+      <trans-unit id="Enc94F45A55" resname="encounter.mts_catalog.error.collision">
+        <source>encounter.mts_catalog.error.collision</source>
+        <target>Code-Kollision: „{label}“ ergibt den Code {code}, der bereits zu „{existing}“ gehört (verweist auf {target}). Der Server kann die beiden Bezeichnungen nicht unterscheiden; bitte zuerst die Namen klären.</target>
+      </trans-unit>
+      <trans-unit id="Enc1DBCED97" resname="encounter.mts_catalog.error.target_not_active">
+        <source>encounter.mts_catalog.error.target_not_active</source>
+        <target>{code} ist kein aktiver Eintrag dieser Art.</target>
+      </trans-unit>
+      <trans-unit id="Enc431F452F" resname="encounter.mts_catalog.error.merge_not_provisional">
+        <source>encounter.mts_catalog.error.merge_not_provisional</source>
+        <target>Nur vorläufige Einträge können zusammengeführt werden; {code} ist nicht vorläufig.</target>
+      </trans-unit>
+      <trans-unit id="Enc299BC838" resname="encounter.mts_catalog.error.merge_into_itself">
+        <source>encounter.mts_catalog.error.merge_into_itself</source>
+        <target>{code} kann nicht mit sich selbst zusammengeführt werden.</target>
+      </trans-unit>
+      <trans-unit id="Enc0752DBA4" resname="encounter.mts_catalog.error.merge_has_aliases">
+        <source>encounter.mts_catalog.error.merge_has_aliases</source>
+        <target>{code} kann nicht zusammengeführt werden, solange {count, plural, one {# Alias darauf verweist} other {# Aliasse darauf verweisen}}.</target>
+      </trans-unit>
+      <trans-unit id="Enc7649E914" resname="encounter.mts_catalog.error.merge_has_assignments">
+        <source>encounter.mts_catalog.error.merge_has_assignments</source>
+        <target>{code} kann nicht zusammengeführt werden, solange {count, plural, one {# Zuordnung Diagramm–Indikator besteht} other {# Zuordnungen Diagramm–Indikator bestehen}}.</target>
+      </trans-unit>
+      <trans-unit id="EncC675831E" resname="encounter.mts_catalog.error.not_merged">
+        <source>encounter.mts_catalog.error.not_merged</source>
+        <target>{code} ist nicht zusammengeführt.</target>
+      </trans-unit>
+      <trans-unit id="Enc34746D1E" resname="encounter.mts_catalog.error.merge_alias">
+        <source>encounter.mts_catalog.error.merge_alias</source>
+        <target>Der Alias {code} steht für eine Zusammenführung; bitte stattdessen die Zusammenführung am zusammengeführten Eintrag rückgängig machen.</target>
+      </trans-unit>
+      <trans-unit id="Enc1809AF5B" resname="encounter.mts_catalog.error.assignment_exists">
+        <source>encounter.mts_catalog.error.assignment_exists</source>
+        <target>{indicator} ist {diagram} bereits zugeordnet.</target>
+      </trans-unit>
+      <trans-unit id="Enc72A2827F" resname="encounter.mts_catalog.error.assignment_not_active">
+        <source>encounter.mts_catalog.error.assignment_not_active</source>
+        <target>Bitte ein aktives Diagramm und einen aktiven Indikator wählen.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

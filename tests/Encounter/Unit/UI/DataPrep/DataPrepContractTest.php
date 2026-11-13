@@ -69,7 +69,7 @@ final class DataPrepContractTest extends TestCase
             }
             if ('catalog' === $rule['type'] && isset($rule['catalog'])) {
                 self::assertSame(MtsCatalog::ID, $rule['catalog'], 'The tool bundles the shared MTS catalog only.');
-                $catalog = new MtsCatalog()->data();
+                $catalog = MtsCatalog::bundledData();
                 self::assertIsList($catalog[$rule['list']] ?? null, sprintf('Catalog list "%s/%s" is missing.', $rule['catalog'], $rule['list']));
                 self::assertContains($rule['unlisted'], ['empty', 'code']);
             }

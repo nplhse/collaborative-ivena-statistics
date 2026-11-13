@@ -10,12 +10,16 @@ use App\Encounter\Application\Contract\MtsTriageCountReaderInterface;
 use App\Encounter\Application\Glossary\EncounterCountScopeResolver;
 use App\Encounter\Application\Glossary\EncounterHospitalScope;
 use App\Encounter\Application\Glossary\MtsCount;
+use App\Encounter\Domain\Enum\MtsCatalogKind;
 use App\Encounter\Domain\Enum\MtsCategory;
 
 /**
  * View data of the MTS glossary pages (#1056). Definitions come from the MTS catalog and the
  * MtsCategory enum and are the same for every participant. Counts come from the initial triage of
  * the encounters the current user may see (EncounterCountScopeResolver) and are null for everyone else.
+ *
+ * Encounters keep the code as sent; counts are summed per entry over its code and every alias code that resolves
+ * to it (ADR 032). Codes that resolve to nothing are listed as they are.
  */
 final readonly class MtsGlossaryFactory
 {
@@ -55,12 +59,14 @@ final readonly class MtsGlossaryFactory
 
         $diagrams = [];
         foreach ($this->catalog->diagrams() as $code => $entry) {
-            $diagrams[] = $this->withCount($this->names->diagram($entry), $hasCounts ? ($diagramCounts[$code] ?? 0) : null);
+            $count = $hasCounts ? $this->sum($diagramCounts, $this->catalog->codesResolvingTo(MtsCatalogKind::Diagram, $code)) : null;
+            $diagrams[] = $this->withCount($this->names->diagram($entry), $count);
         }
 
         $indicators = [];
         foreach ($this->catalog->indicators() as $code => $entry) {
-            $indicators[] = $this->withCount($this->names->indicator($entry), $hasCounts ? ($indicatorCounts[$code] ?? 0) : null);
+            $count = $hasCounts ? $this->sum($indicatorCounts, $this->catalog->codesResolvingTo(MtsCatalogKind::Indicator, $code)) : null;
+            $indicators[] = $this->withCount($this->names->indicator($entry), $count);
         }
 
         return [
@@ -73,7 +79,8 @@ final readonly class MtsGlossaryFactory
     }
 
     /**
-     * Null when the diagram is not in the catalog.
+     * Null when the code resolves to no diagram. An alias code shows its target diagram; the page code is the
+     * target's code (MtsCatalogEntry::$code).
      *
      * @return array{
      *     scope: EncounterHospitalScope,
@@ -94,17 +101,24 @@ final readonly class MtsGlossaryFactory
 
         $scope = $this->scopeResolver->forCurrentUser();
         $hasCounts = !$scope->isEmpty();
-        $counts = $hasCounts ? $this->counts->countIndicatorsOfDiagram($scope, $code) : [];
+        $counts = $hasCounts ? $this->counts->countIndicatorsOfDiagram($scope, $this->catalog->codesResolvingTo(MtsCatalogKind::Diagram, $entry->code)) : [];
         $total = array_sum($counts);
         $withoutIndicator = $counts[''] ?? 0;
         unset($counts['']);
 
-        $indicators = [];
+        /** @var array<string, array{row: MtsGlossaryRow, count: int}> $resolved keyed by resolved code */
+        $resolved = [];
         foreach ($counts as $indicatorCode => $count) {
+            $indicatorCode = (string) $indicatorCode;
             $indicatorEntry = $this->catalog->indicator($indicatorCode);
             $row = $indicatorEntry instanceof MtsCatalogEntry
                 ? $this->names->indicator($indicatorEntry)
                 : new MtsGlossaryRow($indicatorCode, $indicatorCode, null, inCatalog: false);
+            $resolved[$row->code] = ['row' => $row, 'count' => ($resolved[$row->code]['count'] ?? 0) + $count];
+        }
+
+        $indicators = [];
+        foreach ($resolved as ['row' => $row, 'count' => $count]) {
             $indicators[] = $this->withCount($row, $count);
         }
 
@@ -130,6 +144,15 @@ final readonly class MtsGlossaryFactory
             'without_indicator' => $hasCounts && $withoutIndicator > 0 ? new MtsCount($withoutIndicator) : null,
             'filter' => $filter,
         ];
+    }
+
+    /**
+     * @param array<string, int> $counts
+     * @param list<string>       $codes
+     */
+    private function sum(array $counts, array $codes): int
+    {
+        return array_sum(array_map(static fn (string $code): int => $counts[$code] ?? 0, $codes));
     }
 
     private function withCount(MtsGlossaryRow $row, ?int $count): MtsGlossaryRow

@@ -28,9 +28,12 @@ interface MtsTriageCountReaderInterface
     public function countByIndicator(EncounterHospitalScope $scope): array;
 
     /**
-     * Indicators seen with the diagram; key `''` counts encounters of the diagram without an indicator.
+     * Indicators seen with any of the diagram codes (a diagram and its alias codes, ADR 032); key `''` counts
+     * encounters of these codes without an indicator.
+     *
+     * @param list<string> $diagrams
      *
      * @return array<string, int>
      */
-    public function countIndicatorsOfDiagram(EncounterHospitalScope $scope, string $diagram): array;
+    public function countIndicatorsOfDiagram(EncounterHospitalScope $scope, array $diagrams): array;
 }

@@ -89,9 +89,10 @@ Rules:
   the German label (lowercase, umlauts transliterated, other
   characters `_`; the slug is cut at 64 characters before leading and trailing `_` are trimmed, #1073),
   for example `Abdominelle Schmerzen bei Erwachsenen` → `abdominelle_schmerzen_bei_erwachsenen`; the
-  labels are listed in the MTS catalog `src/Encounter/Application/Catalog/mts-de.json`, which the MTS
-  glossary reads too (`MtsCatalog`, #1056). The server accepts any value
-  matching `^[a-z0-9_]{1,64}$` and rejects the row otherwise.
+  tool knows the labels of its bundled catalog `src/Encounter/Application/Catalog/mts-de.json`; the server
+  keeps the MTS catalog in the database (ADR 032, #1082), which the MTS glossary reads (`MtsCatalog`). The
+  server accepts any value matching `^[a-z0-9_]{1,64}$`, stores it unchanged (also when it is an alias code)
+  and rejects the row otherwise.
 - `admitting_department` is the name of a department of the reference catalog (case-insensitive); an
   unknown or ambiguous name rejects the row.
 - Unknown manifest keys are ignored; required are the eight keys of the example line.
