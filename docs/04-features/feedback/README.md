@@ -11,7 +11,7 @@ The quarantine is built in steps on the integration branch `feature/feedback-qua
 |---|---|---|
 | 1 | Classification in the data model; quarantined entries leave the default list and counts | done |
 | 2 | Classification of new submissions before notifications | done |
-| 3 | Quarantine view for reviewers (release, quarantine, delete) | planned |
+| 3 | Quarantine view for reviewers (release, quarantine, delete) | done |
 | 4 | Weekly quarantine summary | planned |
 | 5 | Retention of quarantined feedback | planned |
 | 6 | Reclassification of existing entries (dry run first) | planned |
@@ -114,6 +114,28 @@ Releasing sends no notification.
 
 ## Admin area
 
-- **Feedback** (`FeedbackCrudController`, `ROLE_ADMIN`): normal entries only. The page title and the
-  badges on the dashboard tile and the menu show the open normal entries (`FeedbackRepository::countOpen()`).
-- Quarantined entries are counted by `FeedbackRepository::countQuarantined()`.
+Both views require `ROLE_ADMIN`. Changes are POST actions with a CSRF token; none of them sends a
+notification.
+
+- **Feedback** (`FeedbackCrudController`, `/admin/feedback`): normal entries only. The page title shows
+  the open normal entries and the number in quarantine; the dashboard tile and the menu badge show the
+  open normal entries (`FeedbackRepository::countOpen()`). Opening a quarantined entry here redirects
+  to the quarantine view.
+  - **Move to quarantine** (index and detail, with confirmation): for spam that got through. The reason
+    is `manual`, there is no score, the reviewer is stored, and the entry counts as reported for the
+    weekly summary.
+- **Feedback quarantine** (`FeedbackQuarantineCrudController`, `/admin/feedback-quarantine`), its own
+  menu item with only the count as badge (`FeedbackRepository::countQuarantined()`). Nothing of the
+  quarantine appears on the dashboard.
+  - Index: created, category, guest email or user, reason codes, score and an 80-character preview
+    without links.
+  - Detail: the full message as escaped plain text in a `<pre>` block (`crud/field/plain_text_pre.html.twig`),
+    links are not clickable, HTML is shown as text, nothing remote is loaded; also page path, user
+    agent, quarantine time and reviewer.
+  - **Release** (index and detail, with confirmation) and **Release** as a batch action: the entry
+    returns to the normal list and open count with its status unchanged. No notification is sent, so
+    no duplicate is possible.
+  - **Delete** and batch delete: removes quarantined entries for good. Normal entries are skipped even
+    if their id is sent; opening one here redirects to the normal view.
+
+The decisions go through `FeedbackQuarantineReview` (Feedback application layer).

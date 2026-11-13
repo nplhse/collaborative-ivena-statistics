@@ -43,7 +43,8 @@ Allocation, Assignment, Department, DispatchArea, IndicationNormalized, Indicati
 | AuditEntry | `AuditLogCrudController` | Read | concise index (time, intent, action, entity, changed fields, actor); origin, request ID and diffs on detail; time-range and notification actions kept |
 | CookieConsent | `CookieConsentCrudController` | Read | version and `updatedAt` on detail; no `createdAt` getter |
 | JobRun | `JobRunCrudController` | Read | `job_run` (ADR 018), read-only entity over a DBAL-written table; filters for job, status, trigger, hospital, start and thresholds; shortcuts; metrics table and error on detail; linked from the import detail page |
-| Feedback | `FeedbackCrudController` | Limited | no manual create; normal entries only ([feedback](../04-features/feedback/README.md#classification)) |
+| Feedback | `FeedbackCrudController` | Limited | no manual create; normal entries only; move to quarantine ([feedback](../04-features/feedback/README.md#admin-area)) |
+| Feedback (quarantine) | `FeedbackQuarantineCrudController` | Limited | quarantined entries only: view, release, delete (also as batch); no create or edit |
 
 Failed messages stay a custom list/detail Twig view, not EasyAdmin CRUD.
 
