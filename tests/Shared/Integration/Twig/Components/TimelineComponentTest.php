@@ -60,11 +60,13 @@ final class TimelineComponentTest extends KernelTestCase
         self::assertStringContainsString('&lt;b&gt;x&lt;/b&gt;', $html);
     }
 
-    public function testUnknownTimezoneFallsBackToBerlin(): void
+    #[\PHPUnit\Framework\Attributes\TestWith(['Mars/Olympus'])]
+    #[\PHPUnit\Framework\Attributes\TestWith([''])]
+    public function testUnknownOrEmptyTimezoneFallsBackToBerlin(string $timezone): void
     {
         $html = (string) $this->renderTwigComponent('TimelineItem', [
             'time' => new \DateTimeImmutable('2026-07-01 10:00:00', new \DateTimeZone('UTC')),
-            'timezone' => 'Mars/Olympus',
+            'timezone' => $timezone,
         ]);
 
         self::assertStringContainsString('01.07.2026 12:00:00', $html);
