@@ -454,11 +454,16 @@ final class DashboardController extends AbstractDashboardController
         ]);
 
         $openFeedbackCount = $this->feedbackRepository->countOpen();
-        yield MenuItem::linkTo(FeedbackCrudController::class, new TranslatableMessage('menu.feedback', domain: 'admin'), 'fas fa-comment-dots')
-            ->setBadge($openFeedbackCount, $openFeedbackCount > 0 ? 'info' : 'primary');
-        // Count only: quarantined content is shown only after the reviewer opens the quarantine.
-        yield MenuItem::linkTo(FeedbackQuarantineCrudController::class, new TranslatableMessage('admin.feedback_quarantine.menu', domain: 'admin'), 'fas fa-shield-halved')
-            ->setBadge($this->feedbackRepository->countQuarantined(), 'secondary');
+        // One badge on the group: open normal feedback only; quarantined entries never count here.
+        $feedbackMenu = MenuItem::subMenu(new TranslatableMessage('menu.feedback', domain: 'admin'), 'fas fa-comment-dots')->setSubItems([
+            MenuItem::linkTo(FeedbackCrudController::class, new TranslatableMessage('menu.feedback.inbox', domain: 'admin'), 'fas fa-inbox'),
+            MenuItem::linkTo(FeedbackQuarantineCrudController::class, new TranslatableMessage('menu.feedback.quarantine', domain: 'admin'), 'fas fa-shield-halved'),
+        ]);
+        if ($openFeedbackCount > 0) {
+            $feedbackMenu->setBadge($openFeedbackCount, 'info');
+        }
+
+        yield $feedbackMenu;
 
         yield MenuItem::section(new TranslatableMessage('menu.section.data', domain: 'admin'));
         yield MenuItem::subMenu(new TranslatableMessage('menu.data', domain: 'admin'), 'fas fa-layer-group')->setSubItems([

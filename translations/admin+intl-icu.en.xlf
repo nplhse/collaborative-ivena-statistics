@@ -101,6 +101,14 @@
         <source>menu.feedback</source>
         <target>Feedback</target>
       </trans-unit>
+      <trans-unit id="menuFeedbackInbox" resname="menu.feedback.inbox">
+        <source>menu.feedback.inbox</source>
+        <target>Feedback Inbox</target>
+      </trans-unit>
+      <trans-unit id="menuFeedbackQuarantine" resname="menu.feedback.quarantine">
+        <source>menu.feedback.quarantine</source>
+        <target>Quarantine</target>
+      </trans-unit>
       <trans-unit id="menuSectionData" resname="menu.section.data">
         <source>menu.section.data</source>
         <target>Data</target>
@@ -1688,10 +1696,6 @@
       <trans-unit id="admFqEntity" resname="admin.feedback_quarantine.entity">
         <source>admin.feedback_quarantine.entity</source>
         <target>Quarantined feedback</target>
-      </trans-unit>
-      <trans-unit id="admFqMenu" resname="admin.feedback_quarantine.menu">
-        <source>admin.feedback_quarantine.menu</source>
-        <target>Feedback quarantine</target>
       </trans-unit>
       <trans-unit id="admFqTitle" resname="admin.feedback_quarantine.title">
         <source>admin.feedback_quarantine.title</source>

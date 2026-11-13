@@ -10,8 +10,10 @@ use App\Feedback\Domain\Enum\FeedbackStatus;
 use App\Feedback\Infrastructure\Repository\FeedbackRepository;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -42,20 +44,66 @@ final class FeedbackCrudControllerTest extends WebTestCase
         self::assertStringNotContainsString('quarantined spam', $text);
     }
 
-    public function testDashboardBadgesCountNormalOpenFeedbackOnly(): void
+    public function testFeedbackMenuGroupBadgeCountsNormalOpenFeedbackOnly(): void
     {
         $client = $this->loggedInAdmin();
         $this->feedback('Open normal feedback', FeedbackStatus::NEW, false);
+        $this->feedback('Done normal feedback', FeedbackStatus::DONE, false);
         $this->feedback('Open quarantined spam one', FeedbackStatus::NEW, true);
         $this->feedback('Open quarantined spam two', FeedbackStatus::NEW, true);
 
         $crawler = $client->request(Request::METHOD_GET, '/admin');
         self::assertResponseIsSuccessful();
 
-        $menuBadge = $crawler->filter('.main-sidebar a[href*="/admin/feedback"] .menu-item-badge, #main-menu a[href*="/admin/feedback"] .badge');
-        self::assertGreaterThan(0, $menuBadge->count(), 'the feedback menu item shows a badge');
-        self::assertSame('1', trim($menuBadge->first()->text()));
+        $group = $this->feedbackMenuGroup($crawler);
+        $groupBadge = $group->filter('.ea-sidebar-item-link > .ea-sidebar-badge');
+        self::assertCount(1, $groupBadge, 'the feedback group shows one badge');
+        self::assertSame('1', trim($groupBadge->text()), 'one open normal entry; done and quarantined entries do not count');
+
+        $subItems = $group->filter('.ea-sidebar-submenu-items > li.ea-sidebar-item');
+        self::assertSame(
+            ['Feedback Inbox', 'Quarantine'],
+            $subItems->each(static fn (Crawler $item): string => trim($item->filter('.ea-sidebar-item-label')->text())),
+        );
+        self::assertCount(0, $subItems->filter('.ea-sidebar-badge'), 'submenu entries have no badge of their own');
         self::assertStringNotContainsString('quarantined spam', $crawler->filter('body')->text(), 'no content on the dashboard');
+    }
+
+    public function testFeedbackMenuGroupHasNoBadgeWithoutOpenFeedback(): void
+    {
+        $client = $this->loggedInAdmin();
+        $this->feedback('Done normal feedback', FeedbackStatus::DONE, false);
+        $this->feedback('Open quarantined spam', FeedbackStatus::NEW, true);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin');
+        self::assertResponseIsSuccessful();
+
+        self::assertCount(0, $this->feedbackMenuGroup($crawler)->filter('.ea-sidebar-badge'));
+    }
+
+    #[DataProvider('feedbackSections')]
+    public function testFeedbackMenuHighlightsTheCurrentSection(string $path, string $activeLabel): void
+    {
+        $client = $this->loggedInAdmin();
+
+        $crawler = $client->request(Request::METHOD_GET, $path);
+        self::assertResponseIsSuccessful();
+
+        $group = $this->feedbackMenuGroup($crawler);
+        self::assertStringContainsString('is-expanded', (string) $group->attr('class'), 'the feedback group is expanded');
+
+        $active = $group->filter('.ea-sidebar-submenu-items > li.ea-sidebar-item.is-active');
+        self::assertCount(1, $active);
+        self::assertSame($activeLabel, trim($active->filter('.ea-sidebar-item-label')->text()));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function feedbackSections(): iterable
+    {
+        yield 'inbox' => ['/admin/feedback', 'Feedback Inbox'];
+        yield 'quarantine' => ['/admin/feedback-quarantine', 'Quarantine'];
     }
 
     public function testListAndDetailEscapeTheMessageAndPath(): void
@@ -129,6 +177,16 @@ final class FeedbackCrudControllerTest extends WebTestCase
         $client->loginUser(UserFactory::new()->asAdmin()->create());
 
         return $client;
+    }
+
+    private function feedbackMenuGroup(Crawler $crawler): Crawler
+    {
+        $group = $crawler->filter('li.ea-sidebar-item.has-submenu')->reduce(
+            static fn (Crawler $item): bool => 'Feedback' === trim($item->filter('.ea-sidebar-item-link > .ea-sidebar-item-label')->text('')),
+        );
+        self::assertCount(1, $group, 'the sidebar has one feedback group');
+
+        return $group;
     }
 
     private function feedback(string $message, FeedbackStatus $status, bool $quarantined): void
