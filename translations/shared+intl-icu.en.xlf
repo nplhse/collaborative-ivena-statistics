@@ -541,6 +541,10 @@
         <source>label.data_table.row_details_link</source>
         <target>View details</target>
       </trans-unit>
+      <trans-unit id="sharedEnc7e2c697c" resname="link.stats.encounter_analytics">
+        <source>link.stats.encounter_analytics</source>
+        <target>Encounter data (beta)</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

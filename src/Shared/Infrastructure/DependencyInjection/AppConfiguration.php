@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -165,6 +166,88 @@ final class AppConfiguration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('encounter')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->integerNode('source_file_retention_days')
+                            ->info('Days an encounter upload file is kept for error analysis and reprocessing before the daily job deletes it (ADR 026, #1049).')
+                            ->defaultValue(30)
+                            ->min(1)
+                        ->end()
+                        ->arrayNode('matching')
+                            ->info('Thresholds and candidate windows of the matcher that links ED visits with IVENA allocations (ADR 030, #1053).')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->floatNode('auto_accept_threshold')
+                                    ->info('Score from which a pair becomes an effective automatic link (no conflict).')
+                                    ->defaultValue(0.90)
+                                    ->min(0.01)->max(1.0)
+                                ->end()
+                                ->floatNode('proposal_threshold')
+                                    ->info('Score from which a pair is proposed for review.')
+                                    ->defaultValue(0.50)
+                                    ->min(0.01)->max(1.0)
+                                ->end()
+                                ->append($this->matchingPass('pass1', 'Pass 1: EMS arrivals only.', 20, 45, 2))
+                                ->append($this->matchingPass('pass2', 'Pass 2: remaining allocations, all arrival routes.', 30, 90, 5))
+                            ->end()
+                            ->validate()
+                                ->ifTrue(static fn (array $c): bool => $c['proposal_threshold'] > $c['auto_accept_threshold'])
+                                ->thenInvalid('proposal_threshold must not be higher than auto_accept_threshold. Got %s.')
+                            ->end()
+                        ->end()
+                        ->arrayNode('validation')
+                            ->info('Match validation (#1057): score bands of the report and the default sample size.')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->arrayNode('score_bands')
+                                    ->info('Lower bounds of the score bands, ascending; the last band reaches 1.0.')
+                                    ->floatPrototype()->min(0.0)->max(1.0)->end()
+                                    ->defaultValue([0.50, 0.70, 0.90, 0.99])
+                                    ->validate()
+                                        ->ifTrue(static function (array $bands): bool {
+                                            $sorted = $bands;
+                                            sort($sorted);
+
+                                            return [] === $bands || $sorted !== array_values($bands) || \count(array_unique($bands, \SORT_REGULAR)) !== \count($bands);
+                                        })
+                                        ->thenInvalid('Expected strictly ascending score bands, got %s.')
+                                    ->end()
+                                ->end()
+                                ->integerNode('sample_size')
+                                    ->info('Default number of items drawn per stratum and score band.')
+                                    ->defaultValue(20)
+                                    ->min(1)->max(200)
+                                ->end()
+                            ->end()
+                        ->end()
+                        ->arrayNode('data_prep')
+                            ->info('Version of the offline data preparation tool (ADR 026, #1051), published at /data-prep/latest.json.')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->scalarNode('version')
+                                    ->info('Version of the tool the server renders; raise it with every change to the tool or a bundled profile.')
+                                    ->defaultValue('1.0.0')
+                                    ->validate()->ifTrue(static fn (mixed $v): bool => !self::isVersion($v))->thenInvalid('Expected a version like 1.2.3, got %s.')->end()
+                                ->end()
+                                ->scalarNode('min_version')
+                                    ->info('Tools below this version block processing; the import rejects their files.')
+                                    ->defaultValue('1.0.0')
+                                    ->validate()->ifTrue(static fn (mixed $v): bool => !self::isVersion($v))->thenInvalid('Expected a version like 1.2.3, got %s.')->end()
+                                ->end()
+                                ->scalarNode('released_at')
+                                    ->info('Release date of the version (YYYY-MM-DD).')
+                                    ->defaultValue('2026-11-12')
+                                    ->validate()->ifTrue(static fn (mixed $v): bool => !is_string($v) || 1 !== preg_match('/^\d{4}-\d{2}-\d{2}$/', $v))->thenInvalid('Expected a date like 2026-11-12, got %s.')->end()
+                                ->end()
+                            ->end()
+                            ->validate()
+                                ->ifTrue(static fn (array $c): bool => version_compare($c['min_version'], $c['version'], '>'))
+                                ->thenInvalid('min_version must not be higher than version. Got %s.')
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
                 ->arrayNode('storage')
                     ->addDefaultsIfNotSet()
                     ->children()
@@ -275,5 +358,25 @@ final class AppConfiguration implements ConfigurationInterface
         ;
 
         return $treeBuilder;
+    }
+
+    private function matchingPass(string $name, string $info, int $minutesBefore, int $minutesAfter, int $maxAgeDifference): ArrayNodeDefinition
+    {
+        $node = new TreeBuilder($name)->getRootNode();
+        $node
+            ->info($info.' Candidate window around the IVENA arrival and largest age difference.')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->integerNode('minutes_before')->defaultValue($minutesBefore)->min(0)->end()
+                ->integerNode('minutes_after')->defaultValue($minutesAfter)->min(0)->end()
+                ->integerNode('max_age_difference')->defaultValue($maxAgeDifference)->min(0)->end()
+            ->end();
+
+        return $node;
+    }
+
+    private static function isVersion(mixed $value): bool
+    {
+        return is_string($value) && 1 === preg_match('/^\d+\.\d+\.\d+$/', $value);
     }
 }

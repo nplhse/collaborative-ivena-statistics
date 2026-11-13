@@ -549,6 +549,18 @@
         <source>storage.email.category_value</source>
         <target>{category, select, database {Database} imports {Imports} media {Media} application {Application} temporary {Temporary files} other {Other}}: {size}</target>
       </trans-unit>
+      <trans-unit id="Ntf90C992DA" resname="admin.encounter_key_changed.title">
+        <source>admin.encounter_key_changed.title</source>
+        <target>Pseudonym key changed: {hospitalName}</target>
+      </trans-unit>
+      <trans-unit id="NtfBE78881E" resname="admin.encounter_key_changed.message">
+        <source>admin.encounter_key_changed.message</source>
+        <target>{username} changed the encounter pseudonym key of {hospitalName} (key generation {generation}). {option, select, delete {The existing encounter data is deleted.} other {The existing encounter data was kept.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf56F80BDB" resname="admin.encounter_key_changed.label">
+        <source>admin.encounter_key_changed.label</source>
+        <target>Pseudonym key changes (encounter data)</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

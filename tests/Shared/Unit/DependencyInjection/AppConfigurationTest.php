@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Shared\Unit\DependencyInjection;
 
 use App\Shared\Infrastructure\DependencyInjection\AppConfiguration;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
@@ -156,5 +157,88 @@ final class AppConfigurationTest extends TestCase
             'short_title' => 'APP',
             'default_locale' => 'en',
         ];
+    }
+
+    public function testDataPrepToolVersionDefaults(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [[
+            'title' => 'App title',
+            'short_title' => 'APP',
+            'default_locale' => 'en',
+        ]]);
+
+        self::assertSame(['version' => '1.0.0', 'min_version' => '1.0.0', 'released_at' => '2026-11-12'], $processed['encounter']['data_prep']);
+    }
+
+    public function testEncounterSourceFileRetentionDefaultsToThirtyDays(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig()]);
+
+        self::assertSame(30, $processed['encounter']['source_file_retention_days']);
+    }
+
+    public function testEncounterValidationDefaults(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig()]);
+
+        self::assertSame(['score_bands' => [0.50, 0.70, 0.90, 0.99], 'sample_size' => 20], $processed['encounter']['validation']);
+    }
+
+    public function testEncounterValidationScoreBandsMustAscend(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        new Processor()->processConfiguration(new AppConfiguration(), [[
+            ...$this->minimalConfig(),
+            'encounter' => ['validation' => ['score_bands' => [0.90, 0.50]]],
+        ]]);
+    }
+
+    #[DataProvider('invalidEncounterSourceFileRetentionDays')]
+    public function testEncounterSourceFileRetentionMustBeAPositiveInteger(mixed $days): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        new Processor()->processConfiguration(new AppConfiguration(), [[
+            ...$this->minimalConfig(),
+            'encounter' => ['source_file_retention_days' => $days],
+        ]]);
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function invalidEncounterSourceFileRetentionDays(): iterable
+    {
+        yield 'zero' => [0];
+        yield 'negative' => [-1];
+        yield 'string' => ['30'];
+        yield 'float' => [30.5];
+    }
+
+    /**
+     * @param array<string, string> $dataPrep
+     */
+    #[DataProvider('invalidDataPrepVersions')]
+    public function testDataPrepToolVersionIsValidated(array $dataPrep): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        new Processor()->processConfiguration(new AppConfiguration(), [[
+            'title' => 'App title',
+            'short_title' => 'APP',
+            'default_locale' => 'en',
+            'encounter' => ['data_prep' => $dataPrep],
+        ]]);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string>}>
+     */
+    public static function invalidDataPrepVersions(): iterable
+    {
+        yield 'version without patch' => [['version' => '1.0']];
+        yield 'minimum above version' => [['version' => '1.0.0', 'min_version' => '1.1.0']];
+        yield 'release date format' => [['released_at' => '12.11.2026']];
     }
 }

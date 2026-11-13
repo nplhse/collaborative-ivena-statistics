@@ -1,0 +1,4 @@
+{% extends '@Encounter/grants/_form_page.html.twig' %}
+
+{% set activeSection = 'encounter.grants' %}
+{% set cardTitle = 'encounter.grant.edit_title'|trans({username: grant.user.username}, 'encounter') %}

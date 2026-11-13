@@ -1,0 +1,40 @@
+{# Combined validation report per stratum and score band, without population (#1057); wrong pairs also counted by "another visit fits". Expects `report` (ValidationReport). #}
+<div class="table-responsive">
+    <table class="table card-table table-vcenter" data-test="encounter-validation-report">
+        <thead>
+            <tr>
+                <th>{{ 'encounter.validation.report.stratum'|trans({}, 'encounter') }}</th>
+                <th>{{ 'encounter.validation.report.band'|trans({}, 'encounter') }}</th>
+                <th class="text-end">{{ 'encounter.validation.report.sampled'|trans({}, 'encounter') }}</th>
+                <th class="text-end">{{ 'encounter.validation.report.open'|trans({}, 'encounter') }}</th>
+                <th class="text-end">{{ 'encounter.validation.report.positive'|trans({}, 'encounter') }}</th>
+                <th class="text-end">{{ 'encounter.validation.report.negative'|trans({}, 'encounter') }}</th>
+                <th class="text-end">{{ 'encounter.validation.report.negative_other'|trans({}, 'encounter') }}</th>
+                <th class="text-end">{{ 'encounter.validation.report.unclear'|trans({}, 'encounter') }}</th>
+                <th class="text-end">{{ 'encounter.validation.report.share'|trans({}, 'encounter') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in report.rows %}
+                <tr data-test="report-{{ row.stratum.value }}{{ row.band ? '-' ~ row.band }}">
+                    <td>{{ ('encounter.validation.stratum.' ~ row.stratum.value)|trans({}, 'encounter') }}</td>
+                    <td class="text-nowrap">{{ row.band ?? '–' }}</td>
+                    <td class="text-end">{{ row.sampled|format_number }}</td>
+                    <td class="text-end text-secondary">{{ row.open|format_number }}</td>
+                    <td class="text-end">{{ row.positive|format_number }}</td>
+                    <td class="text-end">{{ row.negative|format_number }}</td>
+                    <td class="text-end text-secondary" data-test="report-negative-other">{{ row.stratum.isPair() ? row.negativeOther|format_number : '–' }}</td>
+                    <td class="text-end text-secondary">{{ row.unclear|format_number }}</td>
+                    <td class="text-end text-nowrap" data-test="report-share">
+                        {% if row.share %}
+                            <span class="fw-medium">{{ row.share.share|format_percent_number({fraction_digit: 0}) }}</span>
+                            <span class="text-secondary small">({{ row.share.lower|format_percent_number({fraction_digit: 0}) }}–{{ row.share.upper|format_percent_number({fraction_digit: 0}) }})</span>
+                        {% else %}
+                            <span class="text-secondary">–</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

@@ -352,6 +352,30 @@ deptrac:
                 -
                     type: directory
                     value: src/Install/UI/.*
+        -
+            name: Encounter_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/Encounter/Domain/.*
+        -
+            name: Encounter_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Encounter/Application/.*
+        -
+            name: Encounter_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Encounter/Infrastructure/.*
+        -
+            name: Encounter_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Encounter/UI/.*
     ruleset:
         Admin_Application:
             - Admin_Application
@@ -634,6 +658,56 @@ deptrac:
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+        # Encounter (ADR 025, 027) may use Allocation, Import, Shared and User, its infrastructure also Notification
+        # (admin notification of a key change, ADR 026); no context may use Encounter.
+        Encounter_Domain:
+            - Allocation_Domain
+            - Import_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Domain
+        Encounter_Application:
+            - Allocation_Application
+            - Allocation_Domain
+            - Encounter_Domain
+            - Import_Application
+            - Import_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+        Encounter_Infrastructure:
+            - Allocation_Application
+            - Allocation_Domain
+            - Encounter_Application
+            - Encounter_Domain
+            - Import_Application
+            - Import_Domain
+            - Notification_Application
+            - Notification_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+        Encounter_UI:
+            - Allocation_Application
+            - Allocation_Domain
+            - Encounter_Application
+            - Encounter_Domain
+            - Import_Application
+            - Import_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
         Engagement_Domain:
             - Allocation_Application
             - Allocation_Domain
@@ -1048,6 +1122,8 @@ deptrac:
             - Allocation_UI
             - Analytics_Application
             - Analytics_Domain
+            # Documented partnership (#1055): the encounter analytics page reads Encounter's overview contracts.
+            - Encounter_Application
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure

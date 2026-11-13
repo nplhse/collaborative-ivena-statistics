@@ -869,6 +869,22 @@
         <source>error.export.date_range_invalid</source>
         <target>The start date must not be after the end date.</target>
       </trans-unit>
+      <trans-unit id="EncValAC01F2BD" resname="validation.encounter.grant.user_required">
+        <source>validation.encounter.grant.user_required</source>
+        <target>Choose a user.</target>
+      </trans-unit>
+      <trans-unit id="EncValEE8E9EFC" resname="validation.encounter.grant.actions_required">
+        <source>validation.encounter.grant.actions_required</source>
+        <target>Choose at least one action.</target>
+      </trans-unit>
+      <trans-unit id="EncValD6EF1558" resname="validation.encounter.import.confirmation_required">
+        <source>validation.encounter.import.confirmation_required</source>
+        <target>Confirm that the file was produced with the data preparation tool and contains no direct identifiers.</target>
+      </trans-unit>
+      <trans-unit id="EncVal796CE2AF" resname="validation.encounter.import.schema_required">
+        <source>validation.encounter.import.schema_required</source>
+        <target>Choose the schema of the encounter file.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

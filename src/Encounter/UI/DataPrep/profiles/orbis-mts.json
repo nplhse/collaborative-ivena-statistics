@@ -1,0 +1,352 @@
+{
+    "id": "orbis-mts",
+    "version": 1,
+    "label": "ORBIS MTS export",
+    "schema": "ed_visit",
+    "schemaVersion": 1,
+    "source": {
+        "delimiter": ";",
+        "timestamp": "dd.mm.yyyy HH:MM:SS"
+    },
+    "detect": {
+        "requiredColumns": [
+            "Fallnummer",
+            "Aufnahme ZNA",
+            "Erstkontakt Ersteinschätzung",
+            "MTS Einstufung",
+            "Entlassung"
+        ]
+    },
+    "keys": {
+        "caseNumber": "Fallnummer",
+        "anchors": [
+            {
+                "source": "assessment",
+                "column": "Erstkontakt Ersteinschätzung"
+            },
+            {
+                "source": "admission",
+                "column": "Aufnahme ZNA"
+            }
+        ]
+    },
+    "age": {
+        "column": "Alter",
+        "birthDateColumn": "Geburtsdatum"
+    },
+    "vitalsReference": "documented_initial",
+    "fields": {
+        "sex": {
+            "type": "code",
+            "column": "Geschlecht",
+            "map": {
+                "M": "M",
+                "W": "F",
+                "D": "X"
+            }
+        },
+        "arrival_mode": {
+            "type": "code",
+            "column": "Transport",
+            "map": {
+                "Ohne": "self",
+                "RTW": "ambulance",
+                "KTW": "patient_transport",
+                "NAW/NEF/ITW": "physician_vehicle",
+                "Anderes": "other"
+            }
+        },
+        "referral_source": {
+            "type": "code",
+            "column": "Einweisung",
+            "map": {
+                "Ohne": "self",
+                "Rettungsdienst": "ems",
+                "Notarzt": "emergency_physician",
+                "Klinik/Verlegung": "hospital_transfer",
+                "Vertragsarzt/Praxis": "physician",
+                "KV-Notfallpraxis am Krankenhaus": "kv_practice",
+                "Andere": "other"
+            }
+        },
+        "admission_type": {
+            "type": "code",
+            "column": "Notfallpatient - Elektivpatient",
+            "map": {
+                "Notfallpatient": "emergency",
+                "Elektivpatient": "elective"
+            }
+        },
+        "case_status": {
+            "type": "code",
+            "column": "Fallstatus",
+            "map": {
+                "ambulant": "outpatient",
+                "stationär": "inpatient",
+                "vorstationär": "pre_inpatient",
+                "nachstationär": "post_inpatient"
+            }
+        },
+        "ed_admission_at": {
+            "type": "timestamp",
+            "column": "Aufnahme ZNA"
+        },
+        "first_assessment_contact_at": {
+            "type": "timestamp",
+            "column": "Erstkontakt Ersteinschätzung"
+        },
+        "assessment_start_at": {
+            "type": "timestamp",
+            "column": "Ersteinschätzung Beginn"
+        },
+        "assessment_end_at": {
+            "type": "timestamp",
+            "column": "Ersteinschätzung Ende"
+        },
+        "physician_target_at": {
+            "type": "timestamp",
+            "column": "spätester Arztkontakt"
+        },
+        "first_physician_at": {
+            "type": "timestamp",
+            "column": "Erstkontakt Arzt"
+        },
+        "treatment_end_at": {
+            "type": "timestamp",
+            "column": "Behandlungsende"
+        },
+        "ed_discharge_at": {
+            "type": "timestamp",
+            "column": "Entlassungszeit"
+        },
+        "admin_admission_at": {
+            "type": "timestamp",
+            "column": "admin. Fall-Aufnahmedatum"
+        },
+        "admin_discharge_at": {
+            "type": "timestamp",
+            "column": "admin. Fall-Entlassdatum"
+        },
+        "pre_inpatient_admission_at": {
+            "type": "timestamp",
+            "column": "vorstat. Aufnahmedatum"
+        },
+        "mts_category": {
+            "type": "code",
+            "column": "MTS Einstufung",
+            "map": {
+                "rot": "red",
+                "orange": "orange",
+                "gelb": "yellow",
+                "grün": "green",
+                "blau": "blue"
+            }
+        },
+        "mts_diagram": {
+            "type": "catalog",
+            "column": "MTS Diagramm",
+            "catalog": "mts-de",
+            "list": "diagrams",
+            "unlisted": "empty",
+            "empty": ["-- keine --"]
+        },
+        "mts_indicator": {
+            "type": "catalog",
+            "column": "Indikator",
+            "catalog": "mts-de",
+            "list": "indicators",
+            "unlisted": "code",
+            "empty": ["-- keine --"]
+        },
+        "pain_score": {
+            "type": "integer",
+            "column": "Schmerzskala-Einstufung"
+        },
+        "retriage_category": {
+            "type": "code",
+            "column": "MTS Einstufung Zweiteinschätzung",
+            "map": {
+                "rot": "red",
+                "orange": "orange",
+                "gelb": "yellow",
+                "grün": "green",
+                "blau": "blue"
+            }
+        },
+        "retriage_diagram": {
+            "type": "catalog",
+            "column": "ZweiteinschaetzungDiagramm",
+            "catalog": "mts-de",
+            "list": "diagrams",
+            "unlisted": "empty",
+            "empty": ["-- keine --"]
+        },
+        "retriage_indicator": {
+            "type": "catalog",
+            "column": "ZweiteinschaetzungIndikator",
+            "catalog": "mts-de",
+            "list": "indicators",
+            "unlisted": "code",
+            "empty": ["-- keine --"]
+        },
+        "disposition": {
+            "type": "disposition",
+            "column": "Entlassung",
+            "stationColumn": "Stat_Station",
+            "map": {
+                "Entlassung nach Hause": {
+                    "disposition": "home"
+                },
+                "Entlassung zu weiterbehandelnden Arzt": {
+                    "disposition": "to_physician"
+                },
+                "Weiterleitung an KV-Notdienstpraxis": {
+                    "disposition": "kv_practice"
+                },
+                "Entlassung gegen ärztlichen Rat": {
+                    "disposition": "against_advice"
+                },
+                "Behandlung durch Pat. abgebrochen": {
+                    "disposition": "left_before_completion"
+                },
+                "Verlegung intern: Normalstation": {
+                    "disposition": "admitted",
+                    "careLevel": "ward"
+                },
+                "Verlegung intern: Überwachung": {
+                    "disposition": "admitted",
+                    "careLevel": "monitoring"
+                },
+                "Verlegung intern: OP / Intervention": {
+                    "disposition": "admitted",
+                    "careLevel": "or"
+                },
+                "Verlegung extern: Normalstation": {
+                    "disposition": "transferred_external",
+                    "careLevel": "ward"
+                },
+                "Verlegung extern: Überwachung": {
+                    "disposition": "transferred_external",
+                    "careLevel": "monitoring"
+                },
+                "Verlegung extern: OP / Intervention": {
+                    "disposition": "transferred_external",
+                    "careLevel": "or"
+                },
+                "Verstorben": {
+                    "disposition": "died"
+                },
+                "Sonstiges": {
+                    "disposition": "other"
+                }
+            }
+        },
+        "admitting_department": {
+            "type": "department",
+            "columns": ["Stat_Fachrichtung", "Med. Fachabteilungskürzel"]
+        },
+        "blood_pressure": {
+            "type": "bloodPressure",
+            "column": "Blutdruck",
+            "unit": "mmHg",
+            "targets": ["bp_systolic", "bp_diastolic"]
+        },
+        "heart_rate": {
+            "type": "vital",
+            "column": "Puls",
+            "unit": "Schl/min"
+        },
+        "temperature": {
+            "type": "vital",
+            "column": "Temperatur",
+            "unit": "°C",
+            "decimals": 1
+        },
+        "respiratory_rate": {
+            "type": "vital",
+            "column": "Atemfrequenz",
+            "unit": "/min"
+        },
+        "glucose": {
+            "type": "vital",
+            "column": "Blutzucker",
+            "unit": "mg/dl",
+            "round": true
+        },
+        "spo2": {
+            "type": "vital",
+            "column": "Sauerstoffsaettigung",
+            "unit": "%"
+        },
+        "gcs": {
+            "type": "vital",
+            "column": "GCS"
+        },
+        "work_accident": {
+            "type": "flag",
+            "column": "BG",
+            "yes": ["ja"]
+        },
+        "tetanus_protected": {
+            "type": "flag",
+            "column": "Tetanusschutz",
+            "yes": ["ja"]
+        },
+        "isolation": {
+            "type": "codeSet",
+            "columns": ["Isolation", "Infektiös"],
+            "empty": ["-- keine --"],
+            "map": {
+                "Gastroenteritis": "gastroenteritis",
+                "Clostridien": "clostridioides",
+                "COVID-19": "covid19",
+                "COVID-19 Positiv": "covid19",
+                "Multiresistente Erreger": "mdro",
+                "MRSA": "mrsa",
+                "ESBL": "esbl",
+                "Pseudomonaden": "pseudomonas",
+                "TBC": "tb",
+                "Sonstiges / Kommentar": "other"
+            }
+        }
+    },
+    "dropped": {
+        "identifying": ["Patientenname", "Geburtsdatum", "Fall-ID"],
+        "staff": [
+            "Arzt des Erstkontakt",
+            "Ersteinschätzer",
+            "Zweiteinschätzer",
+            "VerantwortlicherArzt",
+            "VerantwortlichePflege"
+        ],
+        "freeText": [
+            "Grund des Kommens",
+            "Bemerkung",
+            "Allergien",
+            "GrundUeberschreitungAK",
+            "GrundManuelleAenderungAK",
+            "AnmerkungDauerAufenthalt",
+            "IsolationSonstiges",
+            "CEDIS Vorstellungsgrund",
+            "BegruendungHerabtriagierung"
+        ],
+        "derived": ["Wochentag", "Gesamtaufenthaltsdauer"],
+        "derivedPatterns": [" bis "],
+        "internal": [
+            "Entlassende Fachrichtung",
+            "PrimaereFachrichtungCode",
+            "Ambulanzkürzel Schein",
+            "Stat_Station"
+        ],
+        "notUsed": [
+            "GeriatrischesAssessment",
+            "weitere Stammdaten",
+            "Konsile",
+            "SchmerzBeiEntlassung",
+            "LeftWithoutBeingSeen",
+            "Schwanger",
+            "Zweiteinschätzung",
+            "spätester Arztkontakt Zweiteinschätzung"
+        ]
+    }
+}

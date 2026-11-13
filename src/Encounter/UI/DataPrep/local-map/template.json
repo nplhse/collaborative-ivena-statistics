@@ -1,0 +1,9 @@
+{
+    "format": "encounter-local-map",
+    "version": 1,
+    "profile": "orbis-mts",
+    "hospital": "",
+    "departments": {},
+    "stations": {},
+    "dispositions": {}
+}

@@ -1,0 +1,178 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{%- set g = 'encounter.data_prep.guide.' -%}
+
+{% block title %}{{ (g ~ 'title')|trans({}, 'encounter') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <twig:PageHeader :title="(g ~ 'title')|trans({}, 'encounter')">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
+                { label: g ~ 'title', label_domain: 'encounter', translatable: true }
+            ]" />
+        </twig:block>
+    </twig:PageHeader>
+{% endblock %}
+
+{% block page_content %}
+    <div class="row row-cards">
+        <div class="col-lg-8">
+            <div class="card" data-test="data-prep-steps">
+                <div class="card-header">
+                    <h3 class="card-title">{{ (g ~ 'steps.title')|trans({}, 'encounter') }}</h3>
+                </div>
+                <div class="card-body">
+                    <ol class="mb-0">
+                        <li class="mb-3" data-test="data-prep-step-grants">
+                            <strong>{{ (g ~ 'steps.grants.title')|trans({}, 'encounter') }}</strong>
+                            <p class="mb-2">{{ (g ~ 'steps.grants.text')|trans({}, 'encounter') }}</p>
+                            <ul class="mb-2">
+                                <li>{{ 'encounter.grant.action.upload'|trans({}, 'encounter') }}: {{ 'encounter.grant.action.upload_help'|trans({}, 'encounter') }}</li>
+                                <li>{{ 'encounter.grant.action.review'|trans({}, 'encounter') }}: {{ 'encounter.grant.action.review_help'|trans({}, 'encounter') }}</li>
+                                <li>{{ 'encounter.grant.action.view_cases'|trans({}, 'encounter') }}: {{ 'encounter.grant.action.view_cases_help'|trans({}, 'encounter') }}</li>
+                            </ul>
+                            {% if hospitals is empty %}
+                                <p class="text-secondary mb-0" data-test="data-prep-no-hospitals">{{ (g ~ 'steps.grants.none')|trans({}, 'encounter') }}</p>
+                            {% else %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-vcenter mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ 'encounter.grant.column.hospital'|trans({}, 'encounter') }}</th>
+                                                <th>{{ (g ~ 'steps.grants.own')|trans({}, 'encounter') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in hospitals %}
+                                                <tr data-test="data-prep-hospital" data-hospital="{{ row.hospital.id }}">
+                                                    <td>{{ row.hospital.name }}</td>
+                                                    <td>
+                                                        {% for action in row.actions %}
+                                                            <span class="badge bg-secondary-lt" data-test="data-prep-grant-action">{{ action.labelKey|trans({}, 'encounter') }}</span>
+                                                        {% else %}
+                                                            <span class="text-secondary">{{ (g ~ 'steps.grants.no_grant')|trans({}, 'encounter') }}</span>
+                                                        {% endfor %}
+                                                        {% if is_granted(constant('App\\Encounter\\Application\\Security\\EncounterAttribute::MANAGE_GRANTS'), row.hospital) %}
+                                                            <a class="ms-2" href="{{ path('app_encounter_grants', {id: row.hospital.id}) }}" data-test="data-prep-manage-grants">{{ (g ~ 'steps.grants.manage')|trans({}, 'encounter') }}</a>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endif %}
+                            <p class="text-secondary small mt-2 mb-0">{{ (g ~ 'steps.grants.who_assigns')|trans({}, 'encounter') }}</p>
+                        </li>
+                        <li class="mb-3">
+                            <strong>{{ (g ~ 'steps.export.title')|trans({}, 'encounter') }}</strong>
+                            <p class="mb-1">{{ (g ~ 'steps.export.orbis')|trans({}, 'encounter') }}</p>
+                            <ul class="mb-1">
+                                {% for profile in profiles %}
+                                    <li data-test="data-prep-profile">{{ profile.label }}: {{ (g ~ 'steps.export.columns')|trans({}, 'encounter') }} {% for column in profile.columns %}<code>{{ column }}</code>{{ not loop.last ? ', ' }}{% endfor %}</li>
+                                {% endfor %}
+                            </ul>
+                            <p class="text-secondary mb-0">{{ (g ~ 'steps.export.generic')|trans({}, 'encounter') }}</p>
+                        </li>
+                        <li class="mb-3">
+                            <strong>{{ (g ~ 'steps.key.title')|trans({}, 'encounter') }}</strong>
+                            <p class="mb-0">{{ (g ~ 'steps.key.text')|trans({}, 'encounter') }}</p>
+                        </li>
+                        <li class="mb-3">
+                            <strong>{{ (g ~ 'steps.map.title')|trans({}, 'encounter') }}</strong>
+                            <p class="mb-0">{{ (g ~ 'steps.map.text')|trans({}, 'encounter') }}</p>
+                        </li>
+                        <li class="mb-3">
+                            <strong>{{ (g ~ 'steps.run.title')|trans({}, 'encounter') }}</strong>
+                            <p class="mb-0">{{ (g ~ 'steps.run.text')|trans({}, 'encounter') }}</p>
+                        </li>
+                        <li>
+                            <strong>{{ (g ~ 'steps.upload.title')|trans({}, 'encounter') }}</strong>
+                            <p class="mb-2">{{ (g ~ 'steps.upload.text')|trans({}, 'encounter') }}</p>
+                            <a class="btn btn-outline-primary btn-sm" href="{{ path('app_import_new') }}">{{ 'encounter.import.action.new'|trans({}, 'encounter') }}</a>
+                            <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_encounter_review_index') }}">{{ 'encounter.review.title'|trans({}, 'encounter') }}</a>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="row row-cards mt-0">
+                <div class="col-md-6">
+                    <div class="card h-100" data-test="data-prep-key-summary">
+                        <div class="card-header">
+                            <h3 class="card-title">{{ (g ~ 'key.title')|trans({}, 'encounter') }}</h3>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <p>{{ (g ~ 'key.summary')|trans({}, 'encounter') }}</p>
+                            <div class="mt-auto">
+                                <a class="btn btn-outline-primary" href="{{ path('app_encounter_data_prep_key') }}" data-test="data-prep-key-link">{{ (g ~ 'key.more')|trans({}, 'encounter') }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100" data-test="data-prep-local-map-summary">
+                        <div class="card-header">
+                            <h3 class="card-title">{{ (g ~ 'map.title')|trans({}, 'encounter') }}</h3>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <p>{{ (g ~ 'map.summary')|trans({}, 'encounter') }}</p>
+                            <div class="mt-auto">
+                                <a class="btn btn-outline-primary" href="{{ path('app_encounter_data_prep_local_map_help') }}" data-test="data-prep-local-map-link">{{ (g ~ 'map.more')|trans({}, 'encounter') }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card" data-test="data-prep-release">
+                <div class="card-header">
+                    <h3 class="card-title">{{ (g ~ 'release.title')|trans({}, 'encounter') }}</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-secondary">{{ 'encounter.data_prep.overview.intro'|trans({}, 'encounter') }}</p>
+                    <dl class="row mb-3">
+                        <dt class="col-7">{{ (g ~ 'release.version')|trans({}, 'encounter') }}</dt>
+                        <dd class="col-5" data-test="data-prep-version">{{ release.version }}</dd>
+                        <dt class="col-7">{{ (g ~ 'release.released_at')|trans({}, 'encounter') }}</dt>
+                        <dd class="col-5" data-test="data-prep-released-at">{{ release.releasedAt }}</dd>
+                        <dt class="col-7">{{ (g ~ 'release.min_version')|trans({}, 'encounter') }}</dt>
+                        <dd class="col-5" data-test="data-prep-min-version">{{ release.minVersion }}</dd>
+                    </dl>
+                    <a href="{{ path('app_encounter_data_prep_download') }}" class="btn btn-primary w-100" download="{{ release.fileName() }}" data-test="data-prep-download">
+                        <twig:ux:icon name="tabler:download" class="icon" />
+                        {{ 'encounter.data_prep.overview.download'|trans({}, 'encounter') }}
+                    </a>
+                    <p class="text-secondary small mt-3 mb-0">{{ (g ~ 'release.min_version_help')|trans({}, 'encounter') }}</p>
+                </div>
+            </div>
+
+            <div class="card mt-3" data-test="data-prep-changelog">
+                <div class="card-header">
+                    <h3 class="card-title">{{ (g ~ 'changelog.title')|trans({}, 'encounter') }}</h3>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for entry in changelog %}
+                        <div class="list-group-item" data-test="data-prep-changelog-entry" data-version="{{ entry.version }}">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <strong>{{ entry.version }}</strong>
+                                <span class="text-secondary small">{{ entry.released_at }}</span>
+                                {% if entry.version == release.version %}
+                                    <span class="badge bg-green-lt">{{ (g ~ 'changelog.current')|trans({}, 'encounter') }}</span>
+                                {% endif %}
+                            </div>
+                            <ul class="mb-0 ps-3 small">
+                                {% for note in entry.notes %}
+                                    <li>{{ note|trans({}, 'encounter') }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -82,6 +82,31 @@ app:
             overdue_after_minutes: 120
         monitoring_retention:
             overdue_after_minutes: 1500
+        encounter_source_file_retention:
+            overdue_after_minutes: 1500
+
+    encounter:
+        # Days an upload file is kept for error analysis and reprocessing before the daily job deletes it
+        # (ADR 026, docs/04-features/encounter/README.md#upload-file-retention). Imported encounters stay.
+        source_file_retention_days: 30
+        # Matcher of ED visits and IVENA allocations (ADR 030, docs/04-features/encounter/README.md#matching).
+        # Changing a value changes which pairs are linked from the next run on; existing links stay.
+        matching:
+            auto_accept_threshold: 0.90
+            proposal_threshold: 0.50
+            pass1: { minutes_before: 20, minutes_after: 45, max_age_difference: 2 }
+            pass2: { minutes_before: 30, minutes_after: 90, max_age_difference: 5 }
+        # Match validation (#1057, docs/04-features/encounter/README.md#match-validation): lower bounds of the
+        # score bands in the report and the default sample size per stratum and band.
+        validation:
+            score_bands: [0.50, 0.70, 0.90, 0.99]
+            sample_size: 20
+        # Offline data preparation tool (ADR 026): raise version with every change to the tool or a
+        # bundled profile; raise min_version to block older tools (docs/04-features/encounter/data-preparation-tool.md).
+        data_prep:
+            version: '1.1.0'
+            min_version: '1.0.0'
+            released_at: '2026-11-13'
 
     storage:
         # Usage in percent of the capacity reference at which each level starts (ADR 017).

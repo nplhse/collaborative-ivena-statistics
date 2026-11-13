@@ -224,6 +224,12 @@ final readonly class AnalyticsRequestSubscriber
 
     private function shouldSkip(Request $request): bool
     {
+        // Stateless routes (for example the public update check of the data preparation tool) need no
+        // session or consent cookie, so they are not tracked.
+        if (true === $request->attributes->get('_stateless')) {
+            return true;
+        }
+
         $route = $request->attributes->get('_route');
         if (\is_string($route)) {
             if (str_starts_with($route, 'app_admin_')) {

@@ -1,0 +1,129 @@
+{# Encounter section of the import detail page (EncounterImportTypeExtension). No file content, no cell values. #}
+{% if encounter_import.fileRejection is not null %}
+    <div class="alert alert-danger" role="alert" data-test="encounter-file-rejection">
+        <h4 class="alert-title">{{ 'encounter.import.rejected.title'|trans({}, 'encounter') }}</h4>
+        <div>{{ ('encounter.import.rejection.' ~ encounter_import.fileRejection.value)|trans({}, 'encounter') }}</div>
+        {% if encounter_import.sourceFileDeleted and encounter_import.fileRejection.deletesSourceFile %}
+            <div class="mt-1" data-test="encounter-source-deleted">{{ 'encounter.import.rejected.source_deleted'|trans({}, 'encounter') }}</div>
+        {% endif %}
+    </div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{{ 'encounter.import.report.title'|trans({}, 'encounter') }}</h3>
+    </div>
+    <div class="card-body">
+        <div class="datagrid">
+            {% for key in ['inserted', 'duplicates', 'skipped', 'rejected', 'suspectedDuplicates'] %}
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ ('encounter.import.count.' ~ key)|trans({}, 'encounter') }}</div>
+                    <div class="datagrid-content" data-test="count-{{ key }}">{{ attribute(encounter_import, key)|format_number }}</div>
+                </div>
+            {% endfor %}
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'encounter.import.field.profile'|trans({}, 'encounter') }}</div>
+                <div class="datagrid-content">{{ encounter_import.profile ?? '–' }}{% if encounter_import.profileVersion %} v{{ encounter_import.profileVersion }}{% endif %}</div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'encounter.import.field.tool_version'|trans({}, 'encounter') }}</div>
+                <div class="datagrid-content">{{ encounter_import.toolVersion ?? '–' }}</div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'encounter.import.field.key_generation'|trans({}, 'encounter') }}</div>
+                <div class="datagrid-content">{{ encounter_import.keyGeneration }}</div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'encounter.import.field.source_file'|trans({}, 'encounter') }}</div>
+                <div class="datagrid-content" data-test="encounter-source-file">
+                    {% if encounter_import.sourceFileDeleted %}
+                        {% if encounter_import.sourceFileDeletedAt is not null %}
+                            {{ 'encounter.import.source_file.deleted_on'|trans({date: encounter_import.sourceFileDeletedAt|format_date('medium')}, 'encounter') }}
+                        {% else %}
+                            {{ 'encounter.import.source_file.deleted'|trans({}, 'encounter') }}
+                        {% endif %}
+                    {% else %}
+                        {{ 'encounter.import.source_file.kept_until'|trans({date: source_file_kept_until|format_date('medium'), days: source_file_retention_days}, 'encounter') }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'encounter.import.field.confirmation'|trans({}, 'encounter') }}</div>
+                <div class="datagrid-content" data-test="encounter-confirmation">
+                    {{ encounter_import.confirmedBy.username ?? '–' }}, {{ encounter_import.confirmedAt|format_datetime('short', 'short') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-3" data-test="encounter-suspected-duplicates">
+    <div class="card-header">
+        <h3 class="card-title">{{ 'encounter.import.suspected.title'|trans({}, 'encounter') }}</h3>
+    </div>
+    <div class="card-body">
+        <p class="text-secondary">{{ 'encounter.import.suspected.intro'|trans({}, 'encounter') }}</p>
+        {% if suspected_duplicates is empty %}
+            <p class="text-secondary mb-0">{{ 'encounter.import.suspected.empty'|trans({}, 'encounter') }}</p>
+        {% endif %}
+    </div>
+    {% if suspected_duplicates is not empty %}
+        <div class="table-responsive">
+            <table class="table card-table table-vcenter">
+                <thead>
+                    <tr>
+                        <th>{{ 'encounter.import.column.line'|trans({}, 'encounter') }}</th>
+                        <th>{{ 'encounter.import.column.difference_minutes'|trans({}, 'encounter') }}</th>
+                        <th>{{ 'encounter.import.column.anchor'|trans({}, 'encounter') }}</th>
+                        <th>{{ 'encounter.import.column.existing_import'|trans({}, 'encounter') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for duplicate in suspected_duplicates %}
+                        <tr data-test="suspected-duplicate-row">
+                            <td>{{ duplicate.line }}</td>
+                            <td>{{ duplicate.difference_minutes }}</td>
+                            <td>{{ ('encounter.import.anchor.' ~ duplicate.anchor_source)|trans({}, 'encounter') }} / {{ ('encounter.import.anchor.' ~ duplicate.existing_anchor_source)|trans({}, 'encounter') }}</td>
+                            <td>{{ duplicate.existing_import_name }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+
+<div class="card mt-3" data-test="encounter-rejects">
+    <div class="card-header">
+        <h3 class="card-title">{{ 'encounter.import.rejects.title'|trans({}, 'encounter') }}</h3>
+    </div>
+    {% if rejects is empty %}
+        <div class="card-body">
+            <p class="text-secondary mb-0">{{ 'encounter.import.rejects.empty'|trans({}, 'encounter') }}</p>
+        </div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table card-table table-vcenter">
+                <thead>
+                    <tr>
+                        <th>{{ 'encounter.import.column.line'|trans({}, 'encounter') }}</th>
+                        <th>{{ 'encounter.import.column.errors'|trans({}, 'encounter') }}</th>
+                        <th>{{ 'encounter.import.column.profile_version'|trans({}, 'encounter') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reject in rejects %}
+                        <tr data-test="reject-row">
+                            <td>{{ reject.line }}</td>
+                            <td><code>{{ reject.errors|join(', ') }}</code></td>
+                            <td>{{ reject.profile_version ?? '–' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if rejects|length >= list_limit %}
+            <div class="card-footer text-secondary">{{ 'encounter.import.list_limited'|trans({limit: list_limit}, 'encounter') }}</div>
+        {% endif %}
+    {% endif %}
+</div>

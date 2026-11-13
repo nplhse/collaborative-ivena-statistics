@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\Controller\Glossary;
 
+use App\Allocation\Application\Explore\Catalog\CatalogGlossaryEntryRegistry;
 use App\Allocation\Application\Explore\Catalog\CatalogGlossaryFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,6 +14,7 @@ final class ListCatalogGlossaryController extends AbstractController
 {
     public function __construct(
         private readonly CatalogGlossaryFactory $glossaryFactory,
+        private readonly CatalogGlossaryEntryRegistry $entryRegistry,
     ) {
     }
 
@@ -21,6 +23,7 @@ final class ListCatalogGlossaryController extends AbstractController
     {
         return $this->render('@Allocation/glossary/index.html.twig', [
             'entries' => $this->glossaryFactory->indexEntries(),
+            'contributed_entries' => $this->entryRegistry->entries(),
         ]);
     }
 }

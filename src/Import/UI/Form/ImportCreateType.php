@@ -7,6 +7,7 @@ namespace App\Import\UI\Form;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
+use App\Import\Application\Contracts\ImportTypeExtensionInterface;
 use App\Import\Application\Service\DevelopmentHospitalOverride;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
@@ -60,20 +61,28 @@ final class ImportCreateType extends AbstractType
                 'class' => Hospital::class,
                 'choice_label' => 'name',
                 'placeholder' => 'label.import.selectHospital',
-                'query_builder' => fn (): QueryBuilder => $this->hospitalRepository->getQueryBuilderForHospitalsWithPermission($user, HospitalPermission::Import),
+                'query_builder' => fn (): QueryBuilder => $this->hospitalQueryBuilder($user, $options['type_extensions']),
                 'constraints' => [new Assert\NotNull()],
             ]);
 
+        /** @var list<ImportTypeExtensionInterface> $extensions */
+        $extensions = $options['type_extensions'];
+        $choices = ['label.import.type.allocation' => ImportType::ALLOCATION];
         if (true === ($options['include_closure_type'] ?? false)) {
+            $choices['label.import.type.closure'] = ImportType::CLOSURE;
+        }
+
+        foreach ($extensions as $extension) {
+            $choices[$extension->label()] = $extension::importType();
+        }
+
+        if (\count($choices) > 1) {
             $builder->add('type', ChoiceType::class, [
                 'mapped' => false,
                 'required' => true,
                 'label' => 'label.import.type',
                 'data' => ImportType::ALLOCATION,
-                'choices' => [
-                    'label.import.type.allocation' => ImportType::ALLOCATION,
-                    'label.import.type.closure' => ImportType::CLOSURE,
-                ],
+                'choices' => $choices,
                 'help' => 'label.import.type.help',
                 'constraints' => [new Assert\NotNull()],
             ]);
@@ -87,6 +96,10 @@ final class ImportCreateType extends AbstractType
                 'label' => 'label.import.hospitalOverride',
                 'help' => 'label.import.hospitalOverride.help',
             ]);
+        }
+
+        foreach ($extensions as $extension) {
+            $extension->buildForm($builder);
         }
 
         $builder
@@ -118,7 +131,39 @@ final class ImportCreateType extends AbstractType
             'data_class' => Import::class,
             'translation_domain' => 'import',
             'include_closure_type' => false,
+            'type_extensions' => [],
         ]);
         $resolver->setAllowedTypes('include_closure_type', 'bool');
+        $resolver->setAllowedTypes('type_extensions', 'array');
+    }
+
+    /**
+     * Hospitals with the import permission, plus those where the user may upload a type of another
+     * context (for example the encounter grant UPLOAD, ADR 028).
+     *
+     * @param list<ImportTypeExtensionInterface> $extensions
+     */
+    private function hospitalQueryBuilder(User $user, array $extensions): QueryBuilder
+    {
+        $queryBuilder = $this->hospitalRepository->getQueryBuilderForHospitalsWithPermission($user, HospitalPermission::Import);
+        $extensionHospitalIds = [];
+        foreach ($extensions as $extension) {
+            $extensionHospitalIds = [...$extensionHospitalIds, ...$extension->uploadHospitalIds($user)];
+        }
+
+        if ([] === $extensionHospitalIds) {
+            return $queryBuilder;
+        }
+
+        /** @var list<int> $importHospitalIds */
+        $importHospitalIds = array_map(
+            static fn (Hospital $hospital): int => (int) $hospital->getId(),
+            $queryBuilder->getQuery()->getResult(),
+        );
+
+        return $this->hospitalRepository->createQueryBuilder('h')
+            ->where('h.id IN (:hospitalIds)')
+            ->setParameter('hospitalIds', array_values(array_unique([...$importHospitalIds, ...$extensionHospitalIds])))
+            ->orderBy('h.name', 'ASC');
     }
 }

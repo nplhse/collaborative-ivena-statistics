@@ -48,6 +48,20 @@ final class AppExtension extends Extension
         $container->setParameter('app.messenger_monitoring.retention', $config['messenger_monitoring']['retention']);
         $container->setParameter('app.messenger_monitoring.health', $config['messenger_monitoring']['health']);
 
+        // Encounter upload file retention and data preparation tool (ADR 026)
+        $container->setParameter('app.encounter.source_file_retention_days', $config['encounter']['source_file_retention_days']);
+        $matchingConfig = $config['encounter']['matching'];
+        $container->setParameter('app.encounter.matching.auto_accept_threshold', $matchingConfig['auto_accept_threshold']);
+        $container->setParameter('app.encounter.matching.proposal_threshold', $matchingConfig['proposal_threshold']);
+        $container->setParameter('app.encounter.matching.pass1', $matchingConfig['pass1']);
+        $container->setParameter('app.encounter.matching.pass2', $matchingConfig['pass2']);
+        $container->setParameter('app.encounter.validation.score_bands', $config['encounter']['validation']['score_bands']);
+        $container->setParameter('app.encounter.validation.sample_size', $config['encounter']['validation']['sample_size']);
+        $dataPrepConfig = $config['encounter']['data_prep'];
+        $container->setParameter('app.encounter.data_prep.version', $dataPrepConfig['version']);
+        $container->setParameter('app.encounter.data_prep.min_version', $dataPrepConfig['min_version']);
+        $container->setParameter('app.encounter.data_prep.released_at', $dataPrepConfig['released_at']);
+
         // Storage monitoring (ADR 017)
         $storageConfig = $config['storage'];
         $container->setParameter('app.storage.thresholds.notice_percent', $storageConfig['thresholds']['notice_percent']);

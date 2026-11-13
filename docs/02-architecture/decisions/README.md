@@ -41,6 +41,11 @@ Each ADR includes:
 | [023](023-demo-environment.md) | Separate demo environment with its own database, storage and synthetic data | accepted |
 | [024](024-gitflow-with-main-as-default-branch.md) | Gitflow with `main` as the default branch | accepted |
 | [025](025-audit-log-correlation-and-timeline-grouping.md) | Audit log correlation and timeline grouping | accepted |
+| [026](026-encounter-data-context-and-exchange-format.md) | Encounter data context, source profiles and canonical exchange format | accepted |
+| [027](027-encounter-pseudonym-key.md) | Hospital-held pseudonym key with key generations | accepted |
+| [028](028-encounter-access-grants.md) | Encounter access grants independent of hospital permissions | accepted |
+| [029](029-encounter-import-lifecycle.md) | Encounter import lifecycle: one visit, one owning import | accepted |
+| [030](030-encounter-allocation-matching.md) | Matching ED visits with IVENA allocations | accepted |
 
 ## Template
 

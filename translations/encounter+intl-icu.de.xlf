@@ -1,0 +1,2762 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="Enc3A23D4AA" resname="encounter.nav">
+        <source>encounter.nav</source>
+        <target>Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="Enc0BF25EFC" resname="encounter.title">
+        <source>encounter.title</source>
+        <target>Pilot Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="Enc6614071F" resname="encounter.overview.intro">
+        <source>encounter.overview.intro</source>
+        <target>Pilot zur Verknüpfung von Notaufnahmebesuchen mit IVENA-Zuweisungen. Upload, Prüfung der Verknüpfungen und Fallansichten folgen in späteren Schritten des Pilots.</target>
+      </trans-unit>
+      <trans-unit id="Enc87A19749" resname="encounter.overview.my_grants">
+        <source>encounter.overview.my_grants</source>
+        <target>Mein Zugriff auf Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="Enc6D9D7FDA" resname="encounter.overview.no_grants">
+        <source>encounter.overview.no_grants</source>
+        <target>Sie haben für kein Krankenhaus Zugriff auf Behandlungsdaten. Der Krankenhaus-Eigentümer oder eine Administratorin bzw. ein Administrator kann ihn erteilen.</target>
+      </trans-unit>
+      <trans-unit id="Enc0EF249EE" resname="encounter.hospital_edit.title">
+        <source>encounter.hospital_edit.title</source>
+        <target>Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="Enc81B4B32C" resname="encounter.hospital_edit.grants">
+        <source>encounter.hospital_edit.grants</source>
+        <target>Zugriff auf Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="Enc5C7B5045" resname="encounter.hospital_edit.grants_new">
+        <source>encounter.hospital_edit.grants_new</source>
+        <target>Zugriff auf Behandlungsdaten erteilen</target>
+      </trans-unit>
+      <trans-unit id="Enc806B25EC" resname="encounter.grant.title">
+        <source>encounter.grant.title</source>
+        <target>Zugriff auf Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="EncDD77428C" resname="encounter.grant.intro">
+        <source>encounter.grant.intro</source>
+        <target>Der Zugriff auf Behandlungsdaten wird ausdrücklich pro Person erteilt. Krankenhaus-Eigentum und Krankenhausberechtigungen schließen ihn nicht ein. Nur Personen mit Zugang zu diesem Krankenhaus können ihn erhalten. Administratorinnen und Administratoren haben ohne Berechtigung Zugriff auf die Behandlungsdaten aller Krankenhäuser.</target>
+      </trans-unit>
+      <trans-unit id="EncA13402E6" resname="encounter.grant.empty">
+        <source>encounter.grant.empty</source>
+        <target>Bisher hat niemand Zugriff auf die Behandlungsdaten dieses Krankenhauses. Administratorinnen und Administratoren haben ihn ohne Berechtigung.</target>
+      </trans-unit>
+      <trans-unit id="Enc5769743C" resname="encounter.grant.edit_title">
+        <source>encounter.grant.edit_title</source>
+        <target>Zugriff auf Behandlungsdaten von {username}</target>
+      </trans-unit>
+      <trans-unit id="EncF7855259" resname="encounter.grant.column.user">
+        <source>encounter.grant.column.user</source>
+        <target>Benutzer</target>
+      </trans-unit>
+      <trans-unit id="EncEE0A89E1" resname="encounter.grant.column.hospital">
+        <source>encounter.grant.column.hospital</source>
+        <target>Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="EncB497F2D1" resname="encounter.grant.column.actions">
+        <source>encounter.grant.column.actions</source>
+        <target>Zugriff</target>
+      </trans-unit>
+      <trans-unit id="EncAB049FA1" resname="encounter.grant.column.created_at">
+        <source>encounter.grant.column.created_at</source>
+        <target>Erteilt</target>
+      </trans-unit>
+      <trans-unit id="Enc640A81DB" resname="encounter.grant.action_edit">
+        <source>encounter.grant.action_edit</source>
+        <target>Bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="Enc89CC36AE" resname="encounter.grant.action_delete">
+        <source>encounter.grant.action_delete</source>
+        <target>Entfernen</target>
+      </trans-unit>
+      <trans-unit id="Enc8A5511D8" resname="encounter.grant.action_save">
+        <source>encounter.grant.action_save</source>
+        <target>Speichern</target>
+      </trans-unit>
+      <trans-unit id="EncFD78E29F" resname="encounter.grant.confirm_delete">
+        <source>encounter.grant.confirm_delete</source>
+        <target>Diesen Zugriff auf Behandlungsdaten entfernen?</target>
+      </trans-unit>
+      <trans-unit id="EncCA963B15" resname="encounter.grant.key_change_hint">
+        <source>encounter.grant.key_change_hint</source>
+        <target>Keine dieser Aktionen erlaubt den Wechsel des Pseudonymisierungsschlüssels. Nur der Krankenhaus-Eigentümer oder eine Administratorin bzw. ein Administrator kann ihn wechseln.</target>
+      </trans-unit>
+      <trans-unit id="Enc31EF4F08" resname="encounter.grant.field.user">
+        <source>encounter.grant.field.user</source>
+        <target>Benutzer</target>
+      </trans-unit>
+      <trans-unit id="Enc8FDBC3AC" resname="encounter.grant.field.user_help">
+        <source>encounter.grant.field.user_help</source>
+        <target>Eigentümer und Benutzer mit Zugang zu diesem Krankenhaus, die noch keinen Zugriff auf Behandlungsdaten haben.</target>
+      </trans-unit>
+      <trans-unit id="EncB6E2A273" resname="encounter.grant.field.user_placeholder">
+        <source>encounter.grant.field.user_placeholder</source>
+        <target>Benutzer auswählen</target>
+      </trans-unit>
+      <trans-unit id="Enc4A2D8DAD" resname="encounter.grant.field.actions">
+        <source>encounter.grant.field.actions</source>
+        <target>Aktionen</target>
+      </trans-unit>
+      <trans-unit id="Enc2134DBCF" resname="encounter.grant.field.actions_help">
+        <source>encounter.grant.field.actions_help</source>
+        <target>Prüfen schließt das Ansehen von Fällen ein.</target>
+      </trans-unit>
+      <trans-unit id="EncB57EB536" resname="encounter.grant.action.upload">
+        <source>encounter.grant.action.upload</source>
+        <target>Hochladen</target>
+      </trans-unit>
+      <trans-unit id="Enc553C37EB" resname="encounter.grant.action.upload_help">
+        <source>encounter.grant.action.upload_help</source>
+        <target>Importe von Behandlungsdaten und die aufbewahrten Upload-Dateien dieses Krankenhauses.</target>
+      </trans-unit>
+      <trans-unit id="Enc46231F3B" resname="encounter.grant.action.review">
+        <source>encounter.grant.action.review</source>
+        <target>Verknüpfungen prüfen</target>
+      </trans-unit>
+      <trans-unit id="Enc634B9400" resname="encounter.grant.action.review_help">
+        <source>encounter.grant.action.review_help</source>
+        <target>Entscheidungen über vorgeschlagene Verknüpfungen; schließt das Ansehen von Fällen ein.</target>
+      </trans-unit>
+      <trans-unit id="EncBC604A2D" resname="encounter.grant.action.view_cases">
+        <source>encounter.grant.action.view_cases</source>
+        <target>Fälle ansehen</target>
+      </trans-unit>
+      <trans-unit id="EncBCF05A2E" resname="encounter.grant.action.view_cases_help">
+        <source>encounter.grant.action.view_cases_help</source>
+        <target>Besuchslisten, die Fallkarte an einer Zuweisung und direkte Links auf Fälle.</target>
+      </trans-unit>
+      <trans-unit id="Enc4A1B1797" resname="encounter.grant.flash.created">
+        <source>encounter.grant.flash.created</source>
+        <target>Zugriff auf Behandlungsdaten erteilt.</target>
+      </trans-unit>
+      <trans-unit id="Enc91987C9E" resname="encounter.grant.flash.updated">
+        <source>encounter.grant.flash.updated</source>
+        <target>Zugriff auf Behandlungsdaten geändert.</target>
+      </trans-unit>
+      <trans-unit id="Enc58438C4A" resname="encounter.grant.flash.deleted">
+        <source>encounter.grant.flash.deleted</source>
+        <target>Zugriff auf Behandlungsdaten entfernt.</target>
+      </trans-unit>
+      <trans-unit id="EncC5A34E64" resname="encounter.grant.flash.not_a_member">
+        <source>encounter.grant.flash.not_a_member</source>
+        <target>Nur Benutzer mit Zugang zu diesem Krankenhaus können Zugriff auf Behandlungsdaten erhalten.</target>
+      </trans-unit>
+      <trans-unit id="EncBBECC456" resname="encounter.grant.flash.duplicate">
+        <source>encounter.grant.flash.duplicate</source>
+        <target>Dieser Benutzer hat bereits Zugriff auf die Behandlungsdaten dieses Krankenhauses.</target>
+      </trans-unit>
+      <trans-unit id="EncAdmAcc1" resname="encounter.overview.admin_access">
+        <source>encounter.overview.admin_access</source>
+        <target>Als Administratorin oder Administrator haben Sie ohne Berechtigung Zugriff auf die Behandlungsdaten aller Krankenhäuser.</target>
+      </trans-unit>
+      <trans-unit id="Enc9B4AE2D8" resname="encounter.data_prep.overview.title">
+        <source>encounter.data_prep.overview.title</source>
+        <target>Datenaufbereitungs-Tool</target>
+      </trans-unit>
+      <trans-unit id="Enc25E79088" resname="encounter.data_prep.overview.intro">
+        <source>encounter.data_prep.overview.intro</source>
+        <target>Das Tool wandelt den Notaufnahme-Export Ihres Krankenhausinformationssystems in eine pseudonymisierte Datei für den Upload um. Es läuft offline im Browser: Namen, Geburtsdaten, Personal und Freitexte verlassen Ihren Rechner nicht.</target>
+      </trans-unit>
+      <trans-unit id="EncA4467F2E" resname="encounter.data_prep.overview.download">
+        <source>encounter.data_prep.overview.download</source>
+        <target>Tool herunterladen</target>
+      </trans-unit>
+      <trans-unit id="Enc61110276" resname="encounter.data_prep.overview.version">
+        <source>encounter.data_prep.overview.version</source>
+        <target>Version</target>
+      </trans-unit>
+      <trans-unit id="Enc504C7213" resname="encounter.data_prep.overview.profiles">
+        <source>encounter.data_prep.overview.profiles</source>
+        <target>Unterstützte Exporte: ORBIS-MTS-Export.</target>
+      </trans-unit>
+      <trans-unit id="EncE937AD5F" resname="encounter.data_prep.overview.local_files">
+        <source>encounter.data_prep.overview.local_files</source>
+        <target>Öffnen Sie die heruntergeladene Datei in einem aktuellen Browser (Doppelklick). Bewahren Sie die Schlüsseldatei und gegebenenfalls die lokale Zuordnungsdatei im Teamordner auf.</target>
+      </trans-unit>
+      <trans-unit id="EncE697213F" resname="encounter.data_prep.tool.title">
+        <source>encounter.data_prep.tool.title</source>
+        <target>Aufbereitung der Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="EncD007BD03" resname="encounter.data_prep.tool.version">
+        <source>encounter.data_prep.tool.version</source>
+        <target>Version</target>
+      </trans-unit>
+      <trans-unit id="EncCC9624A9" resname="encounter.data_prep.tool.intro">
+        <source>encounter.data_prep.tool.intro</source>
+        <target>Diese Datei arbeitet offline. Sie liest den Export Ihres Krankenhausinformationssystems, übernimmt nur die vereinbarten Felder, pseudonymisiert die Fallnummer und speichert eine Datei für den Upload. Namen, Geburtsdaten, Personal und Freitexte werden nicht in diese Datei geschrieben. Die einzige Anfrage der Datei ist eine Versionsprüfung beim Start.</target>
+      </trans-unit>
+      <trans-unit id="Enc427DAA95" resname="encounter.data_prep.tool.update_link">
+        <source>encounter.data_prep.tool.update_link</source>
+        <target>Aktuelle Version herunterladen</target>
+      </trans-unit>
+      <trans-unit id="EncEDF782B1" resname="encounter.data_prep.tool.key_title">
+        <source>encounter.data_prep.tool.key_title</source>
+        <target>Schlüsseldatei</target>
+      </trans-unit>
+      <trans-unit id="Enc1AAA1FB7" resname="encounter.data_prep.tool.key_hint">
+        <source>encounter.data_prep.tool.key_hint</source>
+        <target>Alle Nutzenden Ihres Krankenhauses verwenden dieselbe Schlüsseldatei. Sie wird benötigt, um denselben Besuch in späteren Exporten wiederzuerkennen. Bewahren Sie sie im Teamordner auf; sie verlässt das Krankenhaus nie.</target>
+      </trans-unit>
+      <trans-unit id="EncC6F76D82" resname="encounter.data_prep.tool.key_load">
+        <source>encounter.data_prep.tool.key_load</source>
+        <target>Schlüsseldatei laden</target>
+      </trans-unit>
+      <trans-unit id="EncB57EBCA1" resname="encounter.data_prep.tool.key_remember">
+        <source>encounter.data_prep.tool.key_remember</source>
+        <target>Auf diesem Rechner merken</target>
+      </trans-unit>
+      <trans-unit id="Enc978EDFD4" resname="encounter.data_prep.tool.key_remember_hint">
+        <source>encounter.data_prep.tool.key_remember_hint</source>
+        <target>Nur zur Bequemlichkeit: Der Browser kann gespeicherte Daten löschen. Maßgeblich bleibt die Schlüsseldatei im Teamordner.</target>
+      </trans-unit>
+      <trans-unit id="EncA1E63D44" resname="encounter.data_prep.tool.key_forget">
+        <source>encounter.data_prep.tool.key_forget</source>
+        <target>Schlüssel vergessen</target>
+      </trans-unit>
+      <trans-unit id="Enc1FB372C9" resname="encounter.data_prep.tool.key_generate_title">
+        <source>encounter.data_prep.tool.key_generate_title</source>
+        <target>Noch keine Schlüsseldatei? Neu erstellen</target>
+      </trans-unit>
+      <trans-unit id="Enc76F07BB9" resname="encounter.data_prep.tool.key_generate_hint">
+        <source>encounter.data_prep.tool.key_generate_hint</source>
+        <target>Erstellen Sie die Schlüsseldatei nur einmal pro Krankenhaus. Ein neuer Schlüssel macht frühere Besuche unkenntlich und erfordert einen Schlüsselwechsel auf dem Server.</target>
+      </trans-unit>
+      <trans-unit id="Enc3BC7F5CE" resname="encounter.data_prep.tool.key_label">
+        <source>encounter.data_prep.tool.key_label</source>
+        <target>Bezeichnung</target>
+      </trans-unit>
+      <trans-unit id="EncD0FAC62E" resname="encounter.data_prep.tool.key_generate">
+        <source>encounter.data_prep.tool.key_generate</source>
+        <target>Schlüsseldatei erstellen und speichern</target>
+      </trans-unit>
+      <trans-unit id="Enc78CFAA47" resname="encounter.data_prep.tool.map_title">
+        <source>encounter.data_prep.tool.map_title</source>
+        <target>Lokale Zuordnung (optional)</target>
+      </trans-unit>
+      <trans-unit id="EncFC392063" resname="encounter.data_prep.tool.map_hint">
+        <source>encounter.data_prep.tool.map_hint</source>
+        <target>Krankenhausspezifische Zuordnungen von Fachabteilungen, Stationen und Entlassungstexten. Die Datei bleibt in Ihrem Krankenhaus. Ohne sie bleibt die aufnehmende Fachabteilung leer und die Versorgungsstufe ergibt sich nur aus dem Entlassungstext.</target>
+      </trans-unit>
+      <trans-unit id="EncAAD3F09D" resname="encounter.data_prep.tool.map_load">
+        <source>encounter.data_prep.tool.map_load</source>
+        <target>Lokale Zuordnung laden</target>
+      </trans-unit>
+      <trans-unit id="Enc5A8F287B" resname="encounter.data_prep.tool.source_title">
+        <source>encounter.data_prep.tool.source_title</source>
+        <target>Exportdatei</target>
+      </trans-unit>
+      <trans-unit id="EncAE53E045" resname="encounter.data_prep.tool.source_hint">
+        <source>encounter.data_prep.tool.source_hint</source>
+        <target>Wählen Sie den CSV-Export aus. Das Exportformat wird an der Kopfzeile erkannt.</target>
+      </trans-unit>
+      <trans-unit id="Enc7C99D876" resname="encounter.data_prep.tool.source_load">
+        <source>encounter.data_prep.tool.source_load</source>
+        <target>Export laden</target>
+      </trans-unit>
+      <trans-unit id="Enc71179F78" resname="encounter.data_prep.tool.run_title">
+        <source>encounter.data_prep.tool.run_title</source>
+        <target>Aufbereiten</target>
+      </trans-unit>
+      <trans-unit id="EncAE4C87F6" resname="encounter.data_prep.tool.run_hint">
+        <source>encounter.data_prep.tool.run_hint</source>
+        <target>Prüfen Sie vor dem Speichern den Bericht und die Inhaltsprüfung.</target>
+      </trans-unit>
+      <trans-unit id="EncD99B43A5" resname="encounter.data_prep.tool.run">
+        <source>encounter.data_prep.tool.run</source>
+        <target>Daten aufbereiten</target>
+      </trans-unit>
+      <trans-unit id="Enc852F18E4" resname="encounter.data_prep.tool.content_title">
+        <source>encounter.data_prep.tool.content_title</source>
+        <target>Inhaltsprüfung</target>
+      </trans-unit>
+      <trans-unit id="Enc7AEB9440" resname="encounter.data_prep.tool.report_title">
+        <source>encounter.data_prep.tool.report_title</source>
+        <target>Bericht</target>
+      </trans-unit>
+      <trans-unit id="EncD54BDCC8" resname="encounter.data_prep.tool.preview_title">
+        <source>encounter.data_prep.tool.preview_title</source>
+        <target>Vorschau der Ausgabe</target>
+      </trans-unit>
+      <trans-unit id="Enc59EDCE0A" resname="encounter.data_prep.tool.save_title">
+        <source>encounter.data_prep.tool.save_title</source>
+        <target>Speichern</target>
+      </trans-unit>
+      <trans-unit id="EncF1F88301" resname="encounter.data_prep.tool.save_hint">
+        <source>encounter.data_prep.tool.save_hint</source>
+        <target>Speichert die pseudonymisierte Datei (UTF-8-CSV) für den Upload auf der Seite Behandlungsdaten.</target>
+      </trans-unit>
+      <trans-unit id="Enc432BC8B7" resname="encounter.data_prep.tool.content_ack">
+        <source>encounter.data_prep.tool.content_ack</source>
+        <target>Ich habe die Hinweise der Inhaltsprüfung geprüft: Die Werte sind keine personenbezogenen Daten.</target>
+      </trans-unit>
+      <trans-unit id="EncF46283E9" resname="encounter.data_prep.tool.save">
+        <source>encounter.data_prep.tool.save</source>
+        <target>Datei speichern</target>
+      </trans-unit>
+      <trans-unit id="EncD46C92F3" resname="encounter.data_prep.tool.footer">
+        <source>encounter.data_prep.tool.footer</source>
+        <target>Collaborative IVENA Statistics · Pilot Behandlungsdaten · diese Datei arbeitet ohne Installation und versendet keine Daten.</target>
+      </trans-unit>
+      <trans-unit id="Enc37B7302D" resname="encounter.data_prep.js.update_current">
+        <source>encounter.data_prep.js.update_current</source>
+        <target>Dies ist die aktuelle Version.</target>
+      </trans-unit>
+      <trans-unit id="Enc7FDC47C0" resname="encounter.data_prep.js.update_available">
+        <source>encounter.data_prep.js.update_available</source>
+        <target>Eine neuere Version ist verfügbar:</target>
+      </trans-unit>
+      <trans-unit id="EncBD247984" resname="encounter.data_prep.js.update_blocked">
+        <source>encounter.data_prep.js.update_blocked</source>
+        <target>Diese Version wird nicht mehr unterstützt. Die Verarbeitung ist gesperrt. Neueste Version:</target>
+      </trans-unit>
+      <trans-unit id="Enc64FB63AA" resname="encounter.data_prep.js.update_unavailable">
+        <source>encounter.data_prep.js.update_unavailable</source>
+        <target>Die Versionsprüfung hat den Server nicht erreicht (offline oder durch einen Proxy blockiert). Das Tool funktioniert trotzdem; der Server prüft die Version beim Upload.</target>
+      </trans-unit>
+      <trans-unit id="EncBDEC9510" resname="encounter.data_prep.js.key_loaded">
+        <source>encounter.data_prep.js.key_loaded</source>
+        <target>Schlüssel geladen</target>
+      </trans-unit>
+      <trans-unit id="EncFE0457A7" resname="encounter.data_prep.js.key_remembered">
+        <source>encounter.data_prep.js.key_remembered</source>
+        <target>Gemerkter Schlüssel geladen</target>
+      </trans-unit>
+      <trans-unit id="Enc9FB6B555" resname="encounter.data_prep.js.key_generated">
+        <source>encounter.data_prep.js.key_generated</source>
+        <target>Schlüsseldatei erstellt und gespeichert. Legen Sie sie im Teamordner ab.</target>
+      </trans-unit>
+      <trans-unit id="Enc308E18ED" resname="encounter.data_prep.js.key_check">
+        <source>encounter.data_prep.js.key_check</source>
+        <target>Prüfwert</target>
+      </trans-unit>
+      <trans-unit id="EncECE6DDCB" resname="encounter.data_prep.js.key_label_required">
+        <source>encounter.data_prep.js.key_label_required</source>
+        <target>Geben Sie eine Bezeichnung für die Schlüsseldatei ein.</target>
+      </trans-unit>
+      <trans-unit id="EncFAEAF7A4" resname="encounter.data_prep.js.key_invalid">
+        <source>encounter.data_prep.js.key_invalid</source>
+        <target>Die Schlüsseldatei ist ungültig.</target>
+      </trans-unit>
+      <trans-unit id="EncE72359CC" resname="encounter.data_prep.js.key_error_not_a_key_file">
+        <source>encounter.data_prep.js.key_error_not_a_key_file</source>
+        <target>Dies ist keine Schlüsseldatei des Tools.</target>
+      </trans-unit>
+      <trans-unit id="EncB4789538" resname="encounter.data_prep.js.key_error_check_mismatch">
+        <source>encounter.data_prep.js.key_error_check_mismatch</source>
+        <target>Die Schlüsseldatei ist beschädigt: Der Prüfwert passt nicht zum Schlüssel.</target>
+      </trans-unit>
+      <trans-unit id="Enc97413ABB" resname="encounter.data_prep.js.key_remember_failed">
+        <source>encounter.data_prep.js.key_remember_failed</source>
+        <target>Der Browser konnte den Schlüssel nicht speichern. Laden Sie die Schlüsseldatei bei jedem Durchlauf.</target>
+      </trans-unit>
+      <trans-unit id="EncD49CDE3F" resname="encounter.data_prep.js.map_loaded">
+        <source>encounter.data_prep.js.map_loaded</source>
+        <target>Lokale Zuordnung geladen</target>
+      </trans-unit>
+      <trans-unit id="EncC6AF4606" resname="encounter.data_prep.js.map_invalid">
+        <source>encounter.data_prep.js.map_invalid</source>
+        <target>Die lokale Zuordnung ist ungültig</target>
+      </trans-unit>
+      <trans-unit id="Enc34B81E82" resname="encounter.data_prep.js.map_departments">
+        <source>encounter.data_prep.js.map_departments</source>
+        <target>Fachabteilungen</target>
+      </trans-unit>
+      <trans-unit id="Enc25538FC6" resname="encounter.data_prep.js.map_stations">
+        <source>encounter.data_prep.js.map_stations</source>
+        <target>Stationen</target>
+      </trans-unit>
+      <trans-unit id="EncACC7645F" resname="encounter.data_prep.js.map_dispositions">
+        <source>encounter.data_prep.js.map_dispositions</source>
+        <target>Entlassungstexte</target>
+      </trans-unit>
+      <trans-unit id="Enc13A96F03" resname="encounter.data_prep.js.profile_unknown">
+        <source>encounter.data_prep.js.profile_unknown</source>
+        <target>Das Exportformat wurde nicht erkannt. Bitte verwenden Sie einen unterstützten Export.</target>
+      </trans-unit>
+      <trans-unit id="Enc22F48A05" resname="encounter.data_prep.js.profile_detected">
+        <source>encounter.data_prep.js.profile_detected</source>
+        <target>Exportformat</target>
+      </trans-unit>
+      <trans-unit id="Enc2F97F4C3" resname="encounter.data_prep.js.rows">
+        <source>encounter.data_prep.js.rows</source>
+        <target>Zeilen</target>
+      </trans-unit>
+      <trans-unit id="Enc68815082" resname="encounter.data_prep.js.column_source">
+        <source>encounter.data_prep.js.column_source</source>
+        <target>Quellspalte</target>
+      </trans-unit>
+      <trans-unit id="Enc4996F8FD" resname="encounter.data_prep.js.column_status">
+        <source>encounter.data_prep.js.column_status</source>
+        <target>Behandlung</target>
+      </trans-unit>
+      <trans-unit id="EncDEBD8614" resname="encounter.data_prep.js.column_target">
+        <source>encounter.data_prep.js.column_target</source>
+        <target>Ausgabefeld / Grund</target>
+      </trans-unit>
+      <trans-unit id="EncAD0C57EC" resname="encounter.data_prep.js.status_kept">
+        <source>encounter.data_prep.js.status_kept</source>
+        <target>übernommen</target>
+      </trans-unit>
+      <trans-unit id="Enc3B1E7828" resname="encounter.data_prep.js.status_transformed">
+        <source>encounter.data_prep.js.status_transformed</source>
+        <target>umgewandelt</target>
+      </trans-unit>
+      <trans-unit id="Enc1E5BA35C" resname="encounter.data_prep.js.status_dropped">
+        <source>encounter.data_prep.js.status_dropped</source>
+        <target>verworfen</target>
+      </trans-unit>
+      <trans-unit id="Enc01904EC0" resname="encounter.data_prep.js.used_for">
+        <source>encounter.data_prep.js.used_for</source>
+        <target>nur im Tool verwendet für</target>
+      </trans-unit>
+      <trans-unit id="EncBCB59A6B" resname="encounter.data_prep.js.reason_identifying">
+        <source>encounter.data_prep.js.reason_identifying</source>
+        <target>identifizierend</target>
+      </trans-unit>
+      <trans-unit id="Enc4189AE87" resname="encounter.data_prep.js.reason_staff">
+        <source>encounter.data_prep.js.reason_staff</source>
+        <target>Personal</target>
+      </trans-unit>
+      <trans-unit id="EncBCBA2F97" resname="encounter.data_prep.js.reason_free_text">
+        <source>encounter.data_prep.js.reason_free_text</source>
+        <target>Freitext</target>
+      </trans-unit>
+      <trans-unit id="Enc260B7389" resname="encounter.data_prep.js.reason_derived">
+        <source>encounter.data_prep.js.reason_derived</source>
+        <target>abgeleitet</target>
+      </trans-unit>
+      <trans-unit id="Enc65B80B5B" resname="encounter.data_prep.js.reason_internal">
+        <source>encounter.data_prep.js.reason_internal</source>
+        <target>krankenhausinterne Einheit</target>
+      </trans-unit>
+      <trans-unit id="EncCE87FA08" resname="encounter.data_prep.js.reason_not_used">
+        <source>encounter.data_prep.js.reason_not_used</source>
+        <target>in dieser Version nicht verwendet</target>
+      </trans-unit>
+      <trans-unit id="EncC787BD10" resname="encounter.data_prep.js.reason_not_in_profile">
+        <source>encounter.data_prep.js.reason_not_in_profile</source>
+        <target>nicht im Profil</target>
+      </trans-unit>
+      <trans-unit id="Enc078E01BF" resname="encounter.data_prep.js.running">
+        <source>encounter.data_prep.js.running</source>
+        <target>Wird aufbereitet …</target>
+      </trans-unit>
+      <trans-unit id="EncF570E024" resname="encounter.data_prep.js.run_failed">
+        <source>encounter.data_prep.js.run_failed</source>
+        <target>Aufbereitung fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="Enc9E1F6186" resname="encounter.data_prep.js.report_item">
+        <source>encounter.data_prep.js.report_item</source>
+        <target>Angabe</target>
+      </trans-unit>
+      <trans-unit id="Enc268C8D05" resname="encounter.data_prep.js.report_count">
+        <source>encounter.data_prep.js.report_count</source>
+        <target>Anzahl</target>
+      </trans-unit>
+      <trans-unit id="EncF0FCF3CD" resname="encounter.data_prep.js.report_kind">
+        <source>encounter.data_prep.js.report_kind</source>
+        <target>Art</target>
+      </trans-unit>
+      <trans-unit id="EncD3F03EA8" resname="encounter.data_prep.js.report_field">
+        <source>encounter.data_prep.js.report_field</source>
+        <target>Feld</target>
+      </trans-unit>
+      <trans-unit id="Enc05AFA8DE" resname="encounter.data_prep.js.report_reason">
+        <source>encounter.data_prep.js.report_reason</source>
+        <target>Grund</target>
+      </trans-unit>
+      <trans-unit id="Enc972067A0" resname="encounter.data_prep.js.report_value">
+        <source>encounter.data_prep.js.report_value</source>
+        <target>Quellwert</target>
+      </trans-unit>
+      <trans-unit id="Enc778AE1A0" resname="encounter.data_prep.js.report_rows_read">
+        <source>encounter.data_prep.js.report_rows_read</source>
+        <target>Gelesene Zeilen</target>
+      </trans-unit>
+      <trans-unit id="EncFFA9136E" resname="encounter.data_prep.js.report_rows_written">
+        <source>encounter.data_prep.js.report_rows_written</source>
+        <target>Geschriebene Besuche</target>
+      </trans-unit>
+      <trans-unit id="Enc6BF2B7A1" resname="encounter.data_prep.js.skipped_no_case_number">
+        <source>encounter.data_prep.js.skipped_no_case_number</source>
+        <target>Übersprungen: keine Fallnummer</target>
+      </trans-unit>
+      <trans-unit id="Enc72E4FB8D" resname="encounter.data_prep.js.skipped_no_anchor">
+        <source>encounter.data_prep.js.skipped_no_anchor</source>
+        <target>Übersprungen: weder Erstkontakt Ersteinschätzung noch Aufnahme ZNA</target>
+      </trans-unit>
+      <trans-unit id="Enc0F0FAE52" resname="encounter.data_prep.js.skipped_no_age">
+        <source>encounter.data_prep.js.skipped_no_age</source>
+        <target>Übersprungen: kein Alter</target>
+      </trans-unit>
+      <trans-unit id="EncF9DD7F03" resname="encounter.data_prep.js.skipped_no_sex">
+        <source>encounter.data_prep.js.skipped_no_sex</source>
+        <target>Übersprungen: kein Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="EncFC628DFB" resname="encounter.data_prep.js.skipped_duplicate">
+        <source>encounter.data_prep.js.skipped_duplicate</source>
+        <target>Übersprungen: derselbe Besuch doppelt in der Datei</target>
+      </trans-unit>
+      <trans-unit id="EncEC65FE88" resname="encounter.data_prep.js.report_anchor_assessment">
+        <source>encounter.data_prep.js.report_anchor_assessment</source>
+        <target>Anker: Erstkontakt Ersteinschätzung</target>
+      </trans-unit>
+      <trans-unit id="Enc52B3953C" resname="encounter.data_prep.js.report_anchor_admission">
+        <source>encounter.data_prep.js.report_anchor_admission</source>
+        <target>Anker: Aufnahme ZNA (Ersatz)</target>
+      </trans-unit>
+      <trans-unit id="Enc14504944" resname="encounter.data_prep.js.report_age_from_birth_date">
+        <source>encounter.data_prep.js.report_age_from_birth_date</source>
+        <target>Alter aus dem Geburtsdatum</target>
+      </trans-unit>
+      <trans-unit id="EncA4C99111" resname="encounter.data_prep.js.report_age_clamped">
+        <source>encounter.data_prep.js.report_age_clamped</source>
+        <target>Alter auf 1–99 begrenzt</target>
+      </trans-unit>
+      <trans-unit id="EncC5359242" resname="encounter.data_prep.js.report_care_level_unknown">
+        <source>encounter.data_prep.js.report_care_level_unknown</source>
+        <target>Versorgungsstufe unbekannt</target>
+      </trans-unit>
+      <trans-unit id="Enc855BA64B" resname="encounter.data_prep.js.report_period">
+        <source>encounter.data_prep.js.report_period</source>
+        <target>Zeitraum (Anker)</target>
+      </trans-unit>
+      <trans-unit id="Enc022CB19B" resname="encounter.data_prep.js.report_emptied_title">
+        <source>encounter.data_prep.js.report_emptied_title</source>
+        <target>Geleerte Werte</target>
+      </trans-unit>
+      <trans-unit id="EncD6F026E3" resname="encounter.data_prep.js.report_vitals_emptied">
+        <source>encounter.data_prep.js.report_vitals_emptied</source>
+        <target>Vitalparameter</target>
+      </trans-unit>
+      <trans-unit id="EncECD90E6E" resname="encounter.data_prep.js.report_invalid_values">
+        <source>encounter.data_prep.js.report_invalid_values</source>
+        <target>Wert</target>
+      </trans-unit>
+      <trans-unit id="EncF2F9B1AF" resname="encounter.data_prep.js.invalid_out_of_range">
+        <source>encounter.data_prep.js.invalid_out_of_range</source>
+        <target>außerhalb des Bereichs</target>
+      </trans-unit>
+      <trans-unit id="Enc59B290C0" resname="encounter.data_prep.js.invalid_unparseable">
+        <source>encounter.data_prep.js.invalid_unparseable</source>
+        <target>nicht lesbar</target>
+      </trans-unit>
+      <trans-unit id="EncD57ED8DE" resname="encounter.data_prep.js.invalid_timestamp">
+        <source>encounter.data_prep.js.invalid_timestamp</source>
+        <target>kein Zeitstempel</target>
+      </trans-unit>
+      <trans-unit id="EncD9F57C63" resname="encounter.data_prep.js.report_unmapped_title">
+        <source>encounter.data_prep.js.report_unmapped_title</source>
+        <target>Nicht zugeordnete Werte</target>
+      </trans-unit>
+      <trans-unit id="EncC06EF95C" resname="encounter.data_prep.js.report_unmapped_hint">
+        <source>encounter.data_prep.js.report_unmapped_hint</source>
+        <target>Diese Werte haben keinen kanonischen Code und werden leer geschrieben (Versorgungsstufe: unbekannt). Sie werden nur hier angezeigt und sind nicht Teil der Ausgabe. Ergänzen Sie bei Bedarf die lokale Zuordnung.</target>
+      </trans-unit>
+      <trans-unit id="Enc23A704D9" resname="encounter.data_prep.js.none">
+        <source>encounter.data_prep.js.none</source>
+        <target>Keine.</target>
+      </trans-unit>
+      <trans-unit id="Enc7E817CF3" resname="encounter.data_prep.js.content_passed">
+        <source>encounter.data_prep.js.content_passed</source>
+        <target>Keine auffälligen Werte gefunden.</target>
+      </trans-unit>
+      <trans-unit id="EncF987C5CB" resname="encounter.data_prep.js.content_failed">
+        <source>encounter.data_prep.js.content_failed</source>
+        <target>Auffällige Werte gefunden. Prüfen Sie die Quellspalten vor dem Speichern; das Speichern erfordert Ihre Bestätigung.</target>
+      </trans-unit>
+      <trans-unit id="Enc34955A1F" resname="encounter.data_prep.js.content_date">
+        <source>encounter.data_prep.js.content_date</source>
+        <target>datumsähnlicher Wert</target>
+      </trans-unit>
+      <trans-unit id="Enc67AB3B08" resname="encounter.data_prep.js.content_name">
+        <source>encounter.data_prep.js.content_name</source>
+        <target>namensähnlicher Wert</target>
+      </trans-unit>
+      <trans-unit id="Enc3EC546F7" resname="encounter.data_prep.js.content_free_text">
+        <source>encounter.data_prep.js.content_free_text</source>
+        <target>langer Freitext</target>
+      </trans-unit>
+      <trans-unit id="Enc716A2465" resname="encounter.data_prep.js.first_line">
+        <source>encounter.data_prep.js.first_line</source>
+        <target>Erste Zeile</target>
+      </trans-unit>
+      <trans-unit id="Enc037CA23F" resname="encounter.data_prep.js.preview_of">
+        <source>encounter.data_prep.js.preview_of</source>
+        <target>Angezeigte Zeilen:</target>
+      </trans-unit>
+      <trans-unit id="Enc4509AC6F" resname="encounter.data_prep.js.saved">
+        <source>encounter.data_prep.js.saved</source>
+        <target>Datei gespeichert. Laden Sie sie auf der Seite Behandlungsdaten hoch.</target>
+      </trans-unit>
+      <trans-unit id="Enc5F6D3010" resname="encounter.data_prep.js.report_unlisted_title">
+        <source>encounter.data_prep.js.report_unlisted_title</source>
+        <target>Neue Katalogwerte</target>
+      </trans-unit>
+      <trans-unit id="EncEDDD5557" resname="encounter.data_prep.js.report_unlisted_hint">
+        <source>encounter.data_prep.js.report_unlisted_hint</source>
+        <target>Diese MTS-Indikatoren stehen noch nicht in der mitgelieferten Liste. Sie werden als aus der Bezeichnung abgeleitete Codes geschrieben; prüfen Sie, dass es MTS-Indikatoren und kein Freitext sind.</target>
+      </trans-unit>
+      <trans-unit id="EncI683DD62D" resname="encounter.overview.imports_intro">
+        <source>encounter.overview.imports_intro</source>
+        <target>Mit dem Datenaufbereitungs-Werkzeug erstellte Dateien werden auf der Import-Seite hochgeladen (Typ „Behandlungsdaten“); ihre Berichte stehen in der Import-Liste.</target>
+      </trans-unit>
+      <trans-unit id="EncI4E173CBA" resname="encounter.import.action.new">
+        <source>encounter.import.action.new</source>
+        <target>Datei hochladen</target>
+      </trans-unit>
+      <trans-unit id="EncI41D05A47" resname="encounter.import.field.schema">
+        <source>encounter.import.field.schema</source>
+        <target>Schema</target>
+      </trans-unit>
+      <trans-unit id="EncIB73A2A3D" resname="encounter.import.field.schema_help">
+        <source>encounter.import.field.schema_help</source>
+        <target>Art der Daten in der Datei. Sie muss zum Schema in der ersten Zeile der Datei passen.</target>
+      </trans-unit>
+      <trans-unit id="EncI5609204C" resname="encounter.import.field.confirmation">
+        <source>encounter.import.field.confirmation</source>
+        <target>Ich bestätige, dass diese Datei mit dem Datenaufbereitungs-Werkzeug erstellt wurde und keine direkten Identifikatoren enthält (Namen, Geburtsdaten, Fallnummern, Freitext).</target>
+      </trans-unit>
+      <trans-unit id="EncI0416FB7A" resname="encounter.import.field.profile">
+        <source>encounter.import.field.profile</source>
+        <target>Quellprofil</target>
+      </trans-unit>
+      <trans-unit id="EncIA7245510" resname="encounter.import.field.tool_version">
+        <source>encounter.import.field.tool_version</source>
+        <target>Werkzeugversion</target>
+      </trans-unit>
+      <trans-unit id="EncI63556295" resname="encounter.import.field.source_file">
+        <source>encounter.import.field.source_file</source>
+        <target>Hochgeladene Datei</target>
+      </trans-unit>
+      <trans-unit id="EncI74BB0378" resname="encounter.import.source_file.deleted_on">
+        <source>encounter.import.source_file.deleted_on</source>
+        <target>Datei gelöscht am {date}</target>
+      </trans-unit>
+      <trans-unit id="EncI724CD7F8" resname="encounter.import.source_file.deleted">
+        <source>encounter.import.source_file.deleted</source>
+        <target>Datei gelöscht</target>
+      </trans-unit>
+      <trans-unit id="EncI03C7CAE9" resname="encounter.import.source_file.kept_until">
+        <source>encounter.import.source_file.kept_until</source>
+        <target>Aufbewahrt bis {date} ({days, plural, one {# Tag} other {# Tage}} nach dem Hochladen), danach gelöscht</target>
+      </trans-unit>
+      <trans-unit id="EncIC392E5AE" resname="encounter.import.field.key_generation">
+        <source>encounter.import.field.key_generation</source>
+        <target>Schlüsselgeneration</target>
+      </trans-unit>
+      <trans-unit id="EncI6CF25B17" resname="encounter.import.key_change_in_progress">
+        <source>encounter.import.key_change_in_progress</source>
+        <target>Für dieses Krankenhaus läuft ein Schlüsselwechsel. Uploads sind wieder möglich, sobald er abgeschlossen ist.</target>
+      </trans-unit>
+      <trans-unit id="EncI937AD525" resname="encounter.import.report.title">
+        <source>encounter.import.report.title</source>
+        <target>Importbericht</target>
+      </trans-unit>
+      <trans-unit id="EncI58589B56" resname="encounter.import.count.inserted">
+        <source>encounter.import.count.inserted</source>
+        <target>Neue Besuche</target>
+      </trans-unit>
+      <trans-unit id="EncI84913CD1" resname="encounter.import.count.duplicates">
+        <source>encounter.import.count.duplicates</source>
+        <target>Bekannte Besuche (übersprungen)</target>
+      </trans-unit>
+      <trans-unit id="EncIA61CED99" resname="encounter.import.count.skipped">
+        <source>encounter.import.count.skipped</source>
+        <target>Zeilen ohne Zeitanker</target>
+      </trans-unit>
+      <trans-unit id="EncI30B16508" resname="encounter.import.count.rejected">
+        <source>encounter.import.count.rejected</source>
+        <target>Abgelehnte Zeilen</target>
+      </trans-unit>
+      <trans-unit id="EncI80DB5639" resname="encounter.import.count.suspectedDuplicates">
+        <source>encounter.import.count.suspectedDuplicates</source>
+        <target>Mögliche Duplikate</target>
+      </trans-unit>
+      <trans-unit id="EncI5408211E" resname="encounter.import.rejected.title">
+        <source>encounter.import.rejected.title</source>
+        <target>Die Datei wurde abgelehnt</target>
+      </trans-unit>
+      <trans-unit id="EncI65DD6B29" resname="encounter.import.rejected.source_deleted">
+        <source>encounter.import.rejected.source_deleted</source>
+        <target>Die Datei wurde sofort gelöscht, weil sie direkte Identifikatoren enthalten kann.</target>
+      </trans-unit>
+      <trans-unit id="EncI63C98054" resname="encounter.import.rejection.raw_export">
+        <source>encounter.import.rejection.raw_export</source>
+        <target>Dies ist keine Datei des Datenaufbereitungs-Werkzeugs: Das Manifest fehlt oder die Kopfzeile enthält Quellspalten wie Namen oder Fallnummern. Bereiten Sie den Export zuerst mit dem Werkzeug auf.</target>
+      </trans-unit>
+      <trans-unit id="EncIEB0B2CD1" resname="encounter.import.rejection.identifying_content">
+        <source>encounter.import.rejection.identifying_content</source>
+        <target>Die Datei enthält Werte, die wie direkte Identifikatoren aussehen (Datumsangaben in Nicht-Datumsfeldern, Namen oder langer Freitext).</target>
+      </trans-unit>
+      <trans-unit id="EncI7BAA317D" resname="encounter.import.rejection.encoding_invalid">
+        <source>encounter.import.rejection.encoding_invalid</source>
+        <target>Die Datei ist kein gültiges UTF-8.</target>
+      </trans-unit>
+      <trans-unit id="EncIF2E63DF8" resname="encounter.import.rejection.manifest_invalid">
+        <source>encounter.import.rejection.manifest_invalid</source>
+        <target>Die erste Zeile (Manifest) der Datei ist unvollständig oder fehlerhaft.</target>
+      </trans-unit>
+      <trans-unit id="EncIE0E3B87E" resname="encounter.import.rejection.schema_unsupported">
+        <source>encounter.import.rejection.schema_unsupported</source>
+        <target>Schema oder Schemaversion der Datei werden nicht unterstützt oder weichen vom gewählten Schema ab.</target>
+      </trans-unit>
+      <trans-unit id="EncIED5AEF06" resname="encounter.import.rejection.profile_unsupported">
+        <source>encounter.import.rejection.profile_unsupported</source>
+        <target>Das in der Datei genannte Quellprofil wird nicht akzeptiert.</target>
+      </trans-unit>
+      <trans-unit id="EncIEBBB1203" resname="encounter.import.rejection.tool_version_too_old">
+        <source>encounter.import.rejection.tool_version_too_old</source>
+        <target>Die Datei wurde mit einer veralteten Version des Datenaufbereitungs-Werkzeugs erstellt. Laden Sie das aktuelle Werkzeug herunter und bereiten Sie den Export erneut auf.</target>
+      </trans-unit>
+      <trans-unit id="EncI56182C46" resname="encounter.import.rejection.fingerprint_rule_unsupported">
+        <source>encounter.import.rejection.fingerprint_rule_unsupported</source>
+        <target>Die Fingerabdruck-Regel der Datei wird nicht unterstützt.</target>
+      </trans-unit>
+      <trans-unit id="EncI8F2F6F0B" resname="encounter.import.rejection.header_mismatch">
+        <source>encounter.import.rejection.header_mismatch</source>
+        <target>Die Kopfzeile entspricht nicht genau der Schemaversion.</target>
+      </trans-unit>
+      <trans-unit id="EncI36A2249F" resname="encounter.import.rejection.row_count_mismatch">
+        <source>encounter.import.rejection.row_count_mismatch</source>
+        <target>Die Zeilenzahl weicht von der Angabe im Manifest ab.</target>
+      </trans-unit>
+      <trans-unit id="EncI8849F355" resname="encounter.import.rejection.key_check_retired">
+        <source>encounter.import.rejection.key_check_retired</source>
+        <target>Die Datei wurde mit einer ersetzten Schlüsseldatei aufbereitet. Verwenden Sie die aktuelle Schlüsseldatei des Krankenhauses.</target>
+      </trans-unit>
+      <trans-unit id="EncICE41A0AE" resname="encounter.import.rejection.key_check_mismatch">
+        <source>encounter.import.rejection.key_check_mismatch</source>
+        <target>Die Datei wurde mit einer anderen Schlüsseldatei aufbereitet als die früheren Uploads des Krankenhauses.</target>
+      </trans-unit>
+      <trans-unit id="EncI23544636" resname="encounter.import.suspected.title">
+        <source>encounter.import.suspected.title</source>
+        <target>Mögliche Duplikate</target>
+      </trans-unit>
+      <trans-unit id="EncI0BD12C6A" resname="encounter.import.suspected.intro">
+        <source>encounter.import.suspected.intro</source>
+        <target>Neue Besuche mit demselben Fall-Pseudonym wie ein vorhandener Besuch und einem Zeitanker innerhalb von 15 Minuten. Sie wurden importiert, nicht zusammengeführt.</target>
+      </trans-unit>
+      <trans-unit id="EncIA5C8B36D" resname="encounter.import.suspected.empty">
+        <source>encounter.import.suspected.empty</source>
+        <target>Keine möglichen Duplikate.</target>
+      </trans-unit>
+      <trans-unit id="EncIF1D0CA39" resname="encounter.import.rejects.title">
+        <source>encounter.import.rejects.title</source>
+        <target>Abgelehnte Zeilen</target>
+      </trans-unit>
+      <trans-unit id="EncI50A086AA" resname="encounter.import.rejects.empty">
+        <source>encounter.import.rejects.empty</source>
+        <target>Keine abgelehnten Zeilen.</target>
+      </trans-unit>
+      <trans-unit id="EncI63666C2F" resname="encounter.import.column.line">
+        <source>encounter.import.column.line</source>
+        <target>Zeile</target>
+      </trans-unit>
+      <trans-unit id="EncI022908E5" resname="encounter.import.column.errors">
+        <source>encounter.import.column.errors</source>
+        <target>Feld und Fehler</target>
+      </trans-unit>
+      <trans-unit id="EncI9CEA6D84" resname="encounter.import.column.profile_version">
+        <source>encounter.import.column.profile_version</source>
+        <target>Profilversion</target>
+      </trans-unit>
+      <trans-unit id="EncIE06A1A64" resname="encounter.import.column.difference_minutes">
+        <source>encounter.import.column.difference_minutes</source>
+        <target>Abstand (Min.)</target>
+      </trans-unit>
+      <trans-unit id="EncI5D45C437" resname="encounter.import.column.anchor">
+        <source>encounter.import.column.anchor</source>
+        <target>Zeitanker (neu / vorhanden)</target>
+      </trans-unit>
+      <trans-unit id="EncI77DACD50" resname="encounter.import.column.existing_import">
+        <source>encounter.import.column.existing_import</source>
+        <target>Import des vorhandenen Besuchs</target>
+      </trans-unit>
+      <trans-unit id="EncI5DF27660" resname="encounter.import.anchor.assessment">
+        <source>encounter.import.anchor.assessment</source>
+        <target>Erstkontakt Ersteinschätzung</target>
+      </trans-unit>
+      <trans-unit id="EncI942247EC" resname="encounter.import.anchor.admission">
+        <source>encounter.import.anchor.admission</source>
+        <target>Aufnahme ZNA</target>
+      </trans-unit>
+      <trans-unit id="EncIA19F3E1E" resname="encounter.import.list_limited">
+        <source>encounter.import.list_limited</source>
+        <target>Es werden nur die ersten {limit} Einträge angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="EncI45065675" resname="encounter.import.field.confirmation_help">
+        <source>encounter.import.field.confirmation_help</source>
+        <target>Bereiten Sie den Export zuerst mit dem &lt;a href="{url}"&gt;Datenaufbereitungs-Tool&lt;/a&gt; auf; Rohexporte werden abgelehnt und gelöscht.</target>
+      </trans-unit>
+      <trans-unit id="EncK8C1F12FD" resname="encounter.hospital_edit.key_change">
+        <source>encounter.hospital_edit.key_change</source>
+        <target>Pseudonymschlüssel wechseln</target>
+      </trans-unit>
+      <trans-unit id="EncK98BAB407" resname="encounter.key_change.title">
+        <source>encounter.key_change.title</source>
+        <target>Pseudonymschlüssel wechseln</target>
+      </trans-unit>
+      <trans-unit id="EncK2E283C73" resname="encounter.key_change.field.confirm_name">
+        <source>encounter.key_change.field.confirm_name</source>
+        <target>Name des Krankenhauses</target>
+      </trans-unit>
+      <trans-unit id="EncK689CE650" resname="encounter.key_change.field.confirm_name_help">
+        <source>encounter.key_change.field.confirm_name_help</source>
+        <target>Geben Sie „{name}“ zur Bestätigung ein.</target>
+      </trans-unit>
+      <trans-unit id="EncK03E145A2" resname="encounter.key_change.field.confirm_name_mismatch">
+        <source>encounter.key_change.field.confirm_name_mismatch</source>
+        <target>Der Name stimmt nicht mit diesem Krankenhaus überein.</target>
+      </trans-unit>
+      <trans-unit id="EncKBE6D0024" resname="encounter.key_change.action.submit">
+        <source>encounter.key_change.action.submit</source>
+        <target>Schlüssel wechseln</target>
+      </trans-unit>
+      <trans-unit id="EncK6FCD734E" resname="encounter.key_change.flash.changed">
+        <source>encounter.key_change.flash.changed</source>
+        <target>Der Schlüssel wurde gewechselt. {option, select, delete {Ihre bisherigen Behandlungsfälle werden jetzt gelöscht. Sobald das erledigt ist, können Sie wieder Dateien hochladen.} other {Ihre bisherigen Behandlungsfälle bleiben erhalten. Laden Sie ab jetzt bitte nur noch Dateien hoch, die mit der neuen Schlüsseldatei erstellt wurden.}}</target>
+      </trans-unit>
+      <trans-unit id="EncK7C138908" resname="encounter.key_change.flash.in_progress">
+        <source>encounter.key_change.flash.in_progress</source>
+        <target>Für dieses Krankenhaus läuft bereits ein Schlüsselwechsel.</target>
+      </trans-unit>
+      <trans-unit id="EncK5EA27D78" resname="encounter.key_change.purpose">
+        <source>encounter.key_change.purpose</source>
+        <target>Mit der Schlüsseldatei Ihres Krankenhauses erkennt der Server einen Behandlungsfall in späteren Uploads wieder, etwa wenn ein Zeitraum doppelt exportiert wird, ohne zu erfahren, wer der Patient ist. Die Schlüsseldatei liegt nur bei Ihrem Krankenhaus; der Server bekommt sie nie zu sehen.</target>
+      </trans-unit>
+      <trans-unit id="EncK1B276828" resname="encounter.key_change.when.title">
+        <source>encounter.key_change.when.title</source>
+        <target>Wann sollten Sie den Schlüssel wechseln?</target>
+      </trans-unit>
+      <trans-unit id="EncKDB77CEBD" resname="encounter.key_change.when.text">
+        <source>encounter.key_change.when.text</source>
+        <target>Nur wenn die Schlüsseldatei verloren gegangen ist oder Unbefugte sie gesehen haben könnten.</target>
+      </trans-unit>
+      <trans-unit id="EncK6F19160A" resname="encounter.key_change.consequence.title">
+        <source>encounter.key_change.consequence.title</source>
+        <target>Was passiert dann?</target>
+      </trans-unit>
+      <trans-unit id="EncKF3A6D507" resname="encounter.key_change.consequence.key_file">
+        <source>encounter.key_change.consequence.key_file</source>
+        <target>Alle, die für dieses Krankenhaus hochladen, brauchen die neue Schlüsseldatei. Dateien mit der alten werden abgelehnt.</target>
+      </trans-unit>
+      <trans-unit id="EncKD715CC22" resname="encounter.key_change.consequence.no_matching">
+        <source>encounter.key_change.consequence.no_matching</source>
+        <target>Bisher hochgeladene Behandlungsfälle lassen sich nicht mehr mit neuen Uploads abgleichen. Sie entscheiden, was mit ihnen passiert.</target>
+      </trans-unit>
+      <trans-unit id="EncK3BB98257" resname="encounter.key_change.field.option">
+        <source>encounter.key_change.field.option</source>
+        <target>Was passiert mit vorhandenen Behandlungsfällen?</target>
+      </trans-unit>
+      <trans-unit id="EncK05558616" resname="encounter.key_change.option.delete">
+        <source>encounter.key_change.option.delete</source>
+        <target>Löschen</target>
+      </trans-unit>
+      <trans-unit id="EncK6CE50DCA" resname="encounter.key_change.option.delete_help">
+        <source>encounter.key_change.option.delete_help</source>
+        <target>{encounters, plural, =0 {Es gibt noch keine Behandlungsfälle.} one {# Behandlungsfall aus {imports, plural, one {# Import} other {# Importen}} wird gelöscht.} other {# Behandlungsfälle aus {imports, plural, one {# Import} other {# Importen}} werden gelöscht.}} {links, plural, =0 {} one {# IVENA-Verknüpfung wird mitgelöscht.} other {# IVENA-Verknüpfungen werden mitgelöscht.}} {decisions, plural, =0 {} one {# Prüfentscheidung wird mitgelöscht.} other {# Prüfentscheidungen werden mitgelöscht.}} Danach können Sie jeden Zeitraum neu hochladen.</target>
+      </trans-unit>
+      <trans-unit id="EncK30077A31" resname="encounter.key_change.option.keep">
+        <source>encounter.key_change.option.keep</source>
+        <target>Behalten</target>
+      </trans-unit>
+      <trans-unit id="EncKC8492A04" resname="encounter.key_change.option.keep_help">
+        <source>encounter.key_change.option.keep_help</source>
+        <target>Die Behandlungsfälle bleiben. Laden Sie danach nur neue Zeiträume hoch; bereits hochgeladene Zeiträume würden doppelt gezählt.</target>
+      </trans-unit>
+      <trans-unit id="EncKD9EC40CD" resname="encounter.key_change.in_progress">
+        <source>encounter.key_change.in_progress</source>
+        <target>Der Schlüssel wird gewechselt und die vorhandenen Behandlungsfälle werden gelöscht. Uploads sind wieder möglich, sobald das abgeschlossen ist.</target>
+      </trans-unit>
+      <trans-unit id="EncK3577E96B" resname="encounter.key_change.safety.title">
+        <source>encounter.key_change.safety.title</source>
+        <target>Bitte bestätigen</target>
+      </trans-unit>
+      <trans-unit id="EncK8B879043" resname="encounter.key_change.safety.text">
+        <source>encounter.key_change.safety.text</source>
+        <target>Der Schlüsselwechsel lässt sich nicht rückgängig machen. Geben Sie deshalb zur Sicherheit erst den Namen des Krankenhauses ein.</target>
+      </trans-unit>
+      <trans-unit id="EncK090962E7" resname="encounter.key_change.modal.title">
+        <source>encounter.key_change.modal.title</source>
+        <target>Schlüssel wirklich wechseln?</target>
+      </trans-unit>
+      <trans-unit id="EncK93915DFB" resname="encounter.key_change.modal.delete">
+        <source>encounter.key_change.modal.delete</source>
+        <target>{encounters, plural, =0 {Es gibt keine Behandlungsfälle, die gelöscht werden.} one {# Behandlungsfall aus {imports, plural, one {# Import} other {# Importen}} wird endgültig gelöscht.} other {# Behandlungsfälle aus {imports, plural, one {# Import} other {# Importen}} werden endgültig gelöscht.}} {links, plural, =0 {} one {# IVENA-Verknüpfung wird mitgelöscht.} other {# IVENA-Verknüpfungen werden mitgelöscht.}} {decisions, plural, =0 {} one {# Prüfentscheidung wird mitgelöscht.} other {# Prüfentscheidungen werden mitgelöscht.}} Das lässt sich nicht rückgängig machen.</target>
+      </trans-unit>
+      <trans-unit id="EncK28607B43" resname="encounter.key_change.modal.keep">
+        <source>encounter.key_change.modal.keep</source>
+        <target>Ihre bisherigen Behandlungsfälle bleiben erhalten. Laden Sie danach nur noch neue Zeiträume hoch. Das lässt sich nicht rückgängig machen.</target>
+      </trans-unit>
+      <trans-unit id="Enc78837119" resname="encounter.review.title">
+        <source>encounter.review.title</source>
+        <target>Abgleichsprüfung</target>
+      </trans-unit>
+      <trans-unit id="Enc8BF4465E" resname="encounter.review.overview_intro">
+        <source>encounter.review.overview_intro</source>
+        <target>Verknüpfungen zwischen Notaufnahme-Besuchen und IVENA-Zuweisungen prüfen: Vorschläge bestätigen oder ablehnen, Konflikte auflösen und Tauschvorschläge übernehmen.</target>
+      </trans-unit>
+      <trans-unit id="Enc709F53B6" resname="encounter.review.intro">
+        <source>encounter.review.intro</source>
+        <target>Wählen Sie ein Krankenhaus, dessen Verknüpfungen Sie prüfen dürfen.</target>
+      </trans-unit>
+      <trans-unit id="Enc2E9A78BB" resname="encounter.review.no_hospitals">
+        <source>encounter.review.no_hospitals</source>
+        <target>Sie dürfen für kein Krankenhaus Verknüpfungen prüfen. Der Krankenhaus-Eigentümer kann den Behandlungsdaten-Zugriff „Verknüpfungen prüfen“ vergeben.</target>
+      </trans-unit>
+      <trans-unit id="Enc43624B40" resname="encounter.review.allocation_title">
+        <source>encounter.review.allocation_title</source>
+        <target>Zuweisung {arrival} prüfen</target>
+      </trans-unit>
+      <trans-unit id="Enc77699171" resname="encounter.review.agreement_note">
+        <source>encounter.review.agreement_note</source>
+        <target>„Übereinstimmung“ (0–1) vergleicht die Merkmale eines Paares mit den konkurrierenden Kandidaten und der Option „kein Treffer“. Sie ist eine nach Einschätzung gesetzte Rangfolge, keine Wahrscheinlichkeit, dass die Verknüpfung stimmt.</target>
+      </trans-unit>
+      <trans-unit id="EncBEE9DA35" resname="encounter.review.period.from">
+        <source>encounter.review.period.from</source>
+        <target>Von</target>
+      </trans-unit>
+      <trans-unit id="EncD62A9027" resname="encounter.review.period.to">
+        <source>encounter.review.period.to</source>
+        <target>Bis</target>
+      </trans-unit>
+      <trans-unit id="Enc7386F9C1" resname="encounter.review.period.help">
+        <source>encounter.review.period.help</source>
+        <target>Zuweisungen zählen nach erwarteter IVENA-Ankunft, Besuche nach Aufnahme in der Notaufnahme (oder Ersteinschätzung). Höchstens {days} Tage.</target>
+      </trans-unit>
+      <trans-unit id="Enc806CAA88" resname="encounter.review.summary.allocations">
+        <source>encounter.review.summary.allocations</source>
+        <target>Zuweisungen im Zeitraum: {count, number}</target>
+      </trans-unit>
+      <trans-unit id="Enc4EB5FDE2" resname="encounter.review.summary.automatic">
+        <source>encounter.review.summary.automatic</source>
+        <target>Automatisch verknüpft</target>
+      </trans-unit>
+      <trans-unit id="EncFE4BA6F6" resname="encounter.review.summary.confirmed">
+        <source>encounter.review.summary.confirmed</source>
+        <target>Durch Bestätigung verknüpft</target>
+      </trans-unit>
+      <trans-unit id="EncC746983F" resname="encounter.review.summary.proposed">
+        <source>encounter.review.summary.proposed</source>
+        <target>Offener Vorschlag, nicht verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc7FD2A2D0" resname="encounter.review.summary.conflicts">
+        <source>encounter.review.summary.conflicts</source>
+        <target>davon im Konflikt</target>
+      </trans-unit>
+      <trans-unit id="Enc7E45178F" resname="encounter.review.summary.no_proposal">
+        <source>encounter.review.summary.no_proposal</source>
+        <target>Nicht verknüpft, kein Vorschlag</target>
+      </trans-unit>
+      <trans-unit id="Enc4A58C74B" resname="encounter.review.summary.rejected">
+        <source>encounter.review.summary.rejected</source>
+        <target>Abgelehnte Paare</target>
+      </trans-unit>
+      <trans-unit id="Enc8B5DB765" resname="encounter.review.summary.swaps">
+        <source>encounter.review.summary.swaps</source>
+        <target>Tauschvorschläge</target>
+      </trans-unit>
+      <trans-unit id="Enc56C302B0" resname="encounter.review.summary.allocations_help">
+        <source>encounter.review.summary.allocations_help</source>
+        <target>Jede Zuweisung zählt einmal; Anteile beziehen sich auf alle Zuweisungen im Zeitraum. Abgelehnte Paare und Tauschvorschläge werden getrennt gezählt.</target>
+      </trans-unit>
+      <trans-unit id="EncD19F1002" resname="encounter.review.summary.visits">
+        <source>encounter.review.summary.visits</source>
+        <target>Notaufnahme-Besuche im Zeitraum: {count, number}</target>
+      </trans-unit>
+      <trans-unit id="Enc47071DEC" resname="encounter.review.summary.visits_help">
+        <source>encounter.review.summary.visits_help</source>
+        <target>Verknüpft = automatische oder bestätigte Verknüpfung. Selbstvorsteller haben meist keine Zuweisung; ein nicht verknüpfter Besuch ist kein Fehler.</target>
+      </trans-unit>
+      <trans-unit id="EncE98FD2A8" resname="encounter.review.summary.total">
+        <source>encounter.review.summary.total</source>
+        <target>Gesamt</target>
+      </trans-unit>
+      <trans-unit id="Enc8E4A8061" resname="encounter.review.summary.linked">
+        <source>encounter.review.summary.linked</source>
+        <target>Verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc20666109" resname="encounter.review.summary.unlinked">
+        <source>encounter.review.summary.unlinked</source>
+        <target>Nicht verknüpft</target>
+      </trans-unit>
+      <trans-unit id="EncCE3D6E5A" resname="encounter.review.filter.no_proposal">
+        <source>encounter.review.filter.no_proposal</source>
+        <target>Ohne Vorschlag</target>
+      </trans-unit>
+      <trans-unit id="EncA968E14E" resname="encounter.review.filter.open">
+        <source>encounter.review.filter.open</source>
+        <target>Zu prüfen</target>
+      </trans-unit>
+      <trans-unit id="EncCD0F4C82" resname="encounter.review.filter.done">
+        <source>encounter.review.filter.done</source>
+        <target>Erledigt</target>
+      </trans-unit>
+      <trans-unit id="EncBB192B41" resname="encounter.review.kind.label">
+        <source>encounter.review.kind.label</source>
+        <target>Art</target>
+      </trans-unit>
+      <trans-unit id="Enc21C33D18" resname="encounter.review.kind.all">
+        <source>encounter.review.kind.all</source>
+        <target>Alle</target>
+      </trans-unit>
+      <trans-unit id="EncC0D42596" resname="encounter.review.kind.conflicts">
+        <source>encounter.review.kind.conflicts</source>
+        <target>Nur Konflikte</target>
+      </trans-unit>
+      <trans-unit id="Enc0C143012" resname="encounter.review.kind.swaps">
+        <source>encounter.review.kind.swaps</source>
+        <target>Nur Tauschvorschläge</target>
+      </trans-unit>
+      <trans-unit id="Enc08805B89" resname="encounter.review.kind.swap_badge">
+        <source>encounter.review.kind.swap_badge</source>
+        <target>Tauschvorschlag</target>
+      </trans-unit>
+      <trans-unit id="Enc50D33C73" resname="encounter.review.proposal_count">
+        <source>encounter.review.proposal_count</source>
+        <target>{count, plural, one {# Vorschlag} other {# Vorschläge}}</target>
+      </trans-unit>
+      <trans-unit id="Enc9D42CD94" resname="encounter.review.visits.title">
+        <source>encounter.review.visits.title</source>
+        <target>Nicht verknüpfte Besuche</target>
+      </trans-unit>
+      <trans-unit id="EncDFCFB487" resname="encounter.review.visits.intro">
+        <source>encounter.review.visits.intro</source>
+        <target>Notaufnahme-Besuche des Zeitraums ohne automatische oder bestätigte Verknüpfung. Die meisten sind Selbstvorsteller, für die keine Zuweisung zu erwarten ist. Ein Besuch mit offenem Vorschlag führt zur Prüfung seiner Zuweisung.</target>
+      </trans-unit>
+      <trans-unit id="Enc95843750" resname="encounter.review.route_all">
+        <source>encounter.review.route_all</source>
+        <target>Alle Zugangswege</target>
+      </trans-unit>
+      <trans-unit id="EncACBC0971" resname="encounter.review.empty">
+        <source>encounter.review.empty</source>
+        <target>In dieser Liste und diesem Zeitraum gibt es nichts zu prüfen.</target>
+      </trans-unit>
+      <trans-unit id="EncDCBD6591" resname="encounter.review.column.arrival">
+        <source>encounter.review.column.arrival</source>
+        <target>Erwartete IVENA-Ankunft</target>
+      </trans-unit>
+      <trans-unit id="Enc0F50762F" resname="encounter.review.column.anchor">
+        <source>encounter.review.column.anchor</source>
+        <target>Aufnahme Notaufnahme</target>
+      </trans-unit>
+      <trans-unit id="Enc6347B06C" resname="encounter.review.column.difference">
+        <source>encounter.review.column.difference</source>
+        <target>Zeitdifferenz</target>
+      </trans-unit>
+      <trans-unit id="EncBA39CFA1" resname="encounter.review.column.agreement">
+        <source>encounter.review.column.agreement</source>
+        <target>Übereinstimmung</target>
+      </trans-unit>
+      <trans-unit id="EncF4255410" resname="encounter.review.column.patient">
+        <source>encounter.review.column.patient</source>
+        <target>Geschlecht, Alter (IVENA ↔ Notaufnahme)</target>
+      </trans-unit>
+      <trans-unit id="Enc8D7B5BF7" resname="encounter.review.column.status">
+        <source>encounter.review.column.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="Enc097CD051" resname="encounter.review.column.allocation">
+        <source>encounter.review.column.allocation</source>
+        <target>Zuweisung</target>
+      </trans-unit>
+      <trans-unit id="Enc0CA2AD2B" resname="encounter.review.column.visit">
+        <source>encounter.review.column.visit</source>
+        <target>Besuch</target>
+      </trans-unit>
+      <trans-unit id="Enc8F1AF180" resname="encounter.review.column.route">
+        <source>encounter.review.column.route</source>
+        <target>Zugangsweg</target>
+      </trans-unit>
+      <trans-unit id="Enc927CEBB9" resname="encounter.review.column.feature">
+        <source>encounter.review.column.feature</source>
+        <target>Merkmal</target>
+      </trans-unit>
+      <trans-unit id="Enc748CCD6A" resname="encounter.review.column.contribution">
+        <source>encounter.review.column.contribution</source>
+        <target>Punkte</target>
+      </trans-unit>
+      <trans-unit id="EncA578F22B" resname="encounter.review.column.ivena">
+        <source>encounter.review.column.ivena</source>
+        <target>IVENA</target>
+      </trans-unit>
+      <trans-unit id="Enc67B39D50" resname="encounter.review.column.ed">
+        <source>encounter.review.column.ed</source>
+        <target>ZNA</target>
+      </trans-unit>
+      <trans-unit id="EncEF35C526" resname="encounter.review.status.auto_accepted">
+        <source>encounter.review.status.auto_accepted</source>
+        <target>Automatische Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="Enc18CF11A3" resname="encounter.review.status.proposed">
+        <source>encounter.review.status.proposed</source>
+        <target>Vorschlag</target>
+      </trans-unit>
+      <trans-unit id="Enc0D0FF175" resname="encounter.review.status.confirmed">
+        <source>encounter.review.status.confirmed</source>
+        <target>Bestätigte Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="Enc10AFB676" resname="encounter.review.status.rejected">
+        <source>encounter.review.status.rejected</source>
+        <target>Abgelehnt</target>
+      </trans-unit>
+      <trans-unit id="EncF13BE0A8" resname="encounter.review.status.conflict">
+        <source>encounter.review.status.conflict</source>
+        <target>Konflikt</target>
+      </trans-unit>
+      <trans-unit id="Enc64825FB2" resname="encounter.review.decided_by">
+        <source>encounter.review.decided_by</source>
+        <target>von {user}, {at}</target>
+      </trans-unit>
+      <trans-unit id="Enc42F0F291" resname="encounter.review.substitute">
+        <source>encounter.review.substitute</source>
+        <target>Ersatz: Ersteinschätzung</target>
+      </trans-unit>
+      <trans-unit id="EncF6960618" resname="encounter.review.substitute_help">
+        <source>encounter.review.substitute_help</source>
+        <target>Keine Aufnahme in der Notaufnahme dokumentiert; ersatzweise wird der erste Kontakt der Ersteinschätzung verwendet.</target>
+      </trans-unit>
+      <trans-unit id="Enc6889E8C7" resname="encounter.review.minutes">
+        <source>encounter.review.minutes</source>
+        <target>{minutes} min</target>
+      </trans-unit>
+      <trans-unit id="EncBF4F42E8" resname="encounter.review.points_pass">
+        <source>encounter.review.points_pass</source>
+        <target>{points} Punkte · Durchlauf {pass}</target>
+      </trans-unit>
+      <trans-unit id="EncEF6328F1" resname="encounter.review.visit">
+        <source>encounter.review.visit</source>
+        <target>Besuch #{id}</target>
+      </trans-unit>
+      <trans-unit id="Enc8B18278A" resname="encounter.review.allocation">
+        <source>encounter.review.allocation</source>
+        <target>Zuweisung #{id}</target>
+      </trans-unit>
+      <trans-unit id="Enc3A9FDEC4" resname="encounter.review.open_proposal">
+        <source>encounter.review.open_proposal</source>
+        <target>Vorschlag prüfen</target>
+      </trans-unit>
+      <trans-unit id="Enc537E5182" resname="encounter.review.no_open_proposal">
+        <source>encounter.review.no_open_proposal</source>
+        <target>Kein Vorschlag</target>
+      </trans-unit>
+      <trans-unit id="EncEA360F85" resname="encounter.review.ivena">
+        <source>encounter.review.ivena</source>
+        <target>IVENA-Zuweisung</target>
+      </trans-unit>
+      <trans-unit id="Enc87D3CDD2" resname="encounter.review.expected_arrival">
+        <source>encounter.review.expected_arrival</source>
+        <target>Erwartete Ankunft</target>
+      </trans-unit>
+      <trans-unit id="Enc674CBF87" resname="encounter.review.linked_to">
+        <source>encounter.review.linked_to</source>
+        <target>Verknüpft mit Besuch #{visit}.</target>
+      </trans-unit>
+      <trans-unit id="Enc80A19C19" resname="encounter.review.not_linked">
+        <source>encounter.review.not_linked</source>
+        <target>Nicht verknüpft.</target>
+      </trans-unit>
+      <trans-unit id="EncB44683A0" resname="encounter.review.automatic_origin">
+        <source>encounter.review.automatic_origin</source>
+        <target>Automatisch vom Abgleich verknüpft (Übereinstimmung {score}, Durchlauf {pass}). Die Verknüpfung gilt auch ohne Bestätigung.</target>
+      </trans-unit>
+      <trans-unit id="Enc289245C5" resname="encounter.review.candidates_help">
+        <source>encounter.review.candidates_help</source>
+        <target>Alle Besuche des Krankenhauses von {before} Minuten vor bis {after} Minuten nach der erwarteten Ankunft mit höchstens {age} Jahren Altersunterschied. Die Übereinstimmung vergleicht sie miteinander; der gespeicherte Wert eines Paares stammt aus dem Abgleich-Durchlauf, der es gefunden hat.</target>
+      </trans-unit>
+      <trans-unit id="EncE970C855" resname="encounter.review.no_candidates">
+        <source>encounter.review.no_candidates</source>
+        <target>Im Zeitfenster dieser Zuweisung liegt kein Besuch.</target>
+      </trans-unit>
+      <trans-unit id="Enc75A82C67" resname="encounter.review.stored_score">
+        <source>encounter.review.stored_score</source>
+        <target>gespeichert {score}, Durchlauf {pass}</target>
+      </trans-unit>
+      <trans-unit id="Enc2AE04260" resname="encounter.review.rivals">
+        <source>encounter.review.rivals</source>
+        <target>Ebenfalls vorgeschlagen für:</target>
+      </trans-unit>
+      <trans-unit id="Enc7DCEA17F" resname="encounter.review.feature.time">
+        <source>encounter.review.feature.time</source>
+        <target>Zeit</target>
+      </trans-unit>
+      <trans-unit id="Enc503DF91D" resname="encounter.review.feature.sex">
+        <source>encounter.review.feature.sex</source>
+        <target>Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="Enc5DCFE557" resname="encounter.review.feature.age">
+        <source>encounter.review.feature.age</source>
+        <target>Alter</target>
+      </trans-unit>
+      <trans-unit id="EncC6C7ADF2" resname="encounter.review.feature.arrival_route">
+        <source>encounter.review.feature.arrival_route</source>
+        <target>Zugangsweg</target>
+      </trans-unit>
+      <trans-unit id="EncD5DC91EA" resname="encounter.review.feature.physician">
+        <source>encounter.review.feature.physician</source>
+        <target>Notarzt</target>
+      </trans-unit>
+      <trans-unit id="EncE7671D49" resname="encounter.review.feature.work_accident">
+        <source>encounter.review.feature.work_accident</source>
+        <target>Arbeitsunfall</target>
+      </trans-unit>
+      <trans-unit id="EncBF7557DD" resname="encounter.review.direction.for">
+        <source>encounter.review.direction.for</source>
+        <target>dafür</target>
+      </trans-unit>
+      <trans-unit id="Enc1DC5186A" resname="encounter.review.direction.against">
+        <source>encounter.review.direction.against</source>
+        <target>dagegen</target>
+      </trans-unit>
+      <trans-unit id="EncF7F8AC18" resname="encounter.review.direction.neutral">
+        <source>encounter.review.direction.neutral</source>
+        <target>neutral oder fehlend</target>
+      </trans-unit>
+      <trans-unit id="Enc0E10E8B9" resname="encounter.review.value.sex_M">
+        <source>encounter.review.value.sex_M</source>
+        <target>männlich</target>
+      </trans-unit>
+      <trans-unit id="EncC0F3F437" resname="encounter.review.value.sex_F">
+        <source>encounter.review.value.sex_F</source>
+        <target>weiblich</target>
+      </trans-unit>
+      <trans-unit id="Enc2A0AF057" resname="encounter.review.value.sex_X">
+        <source>encounter.review.value.sex_X</source>
+        <target>divers</target>
+      </trans-unit>
+      <trans-unit id="EncCEA14E68" resname="encounter.review.value.ems">
+        <source>encounter.review.value.ems</source>
+        <target>Rettungsdienst</target>
+      </trans-unit>
+      <trans-unit id="Enc88F278D7" resname="encounter.review.value.route_ems">
+        <source>encounter.review.value.route_ems</source>
+        <target>Rettungsdienst</target>
+      </trans-unit>
+      <trans-unit id="Enc6BF60A23" resname="encounter.review.value.route_self">
+        <source>encounter.review.value.route_self</source>
+        <target>Selbstvorsteller</target>
+      </trans-unit>
+      <trans-unit id="Enc91995188" resname="encounter.review.value.route_unknown">
+        <source>encounter.review.value.route_unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="Enc44F8E959" resname="encounter.review.value.with_physician">
+        <source>encounter.review.value.with_physician</source>
+        <target>mit Notarzt</target>
+      </trans-unit>
+      <trans-unit id="EncC9039299" resname="encounter.review.value.without_physician">
+        <source>encounter.review.value.without_physician</source>
+        <target>ohne Notarzt</target>
+      </trans-unit>
+      <trans-unit id="EncAAECDE78" resname="encounter.review.value.mode_self">
+        <source>encounter.review.value.mode_self</source>
+        <target>selbst</target>
+      </trans-unit>
+      <trans-unit id="EncAF81FF39" resname="encounter.review.value.mode_ambulance">
+        <source>encounter.review.value.mode_ambulance</source>
+        <target>Rettungswagen</target>
+      </trans-unit>
+      <trans-unit id="Enc043628C6" resname="encounter.review.value.mode_patient_transport">
+        <source>encounter.review.value.mode_patient_transport</source>
+        <target>Krankentransport</target>
+      </trans-unit>
+      <trans-unit id="Enc814A7D6F" resname="encounter.review.value.mode_physician_vehicle">
+        <source>encounter.review.value.mode_physician_vehicle</source>
+        <target>Notarztfahrzeug</target>
+      </trans-unit>
+      <trans-unit id="Enc178C4474" resname="encounter.review.value.mode_other">
+        <source>encounter.review.value.mode_other</source>
+        <target>sonstige</target>
+      </trans-unit>
+      <trans-unit id="EncD8548587" resname="encounter.review.value.mode_none">
+        <source>encounter.review.value.mode_none</source>
+        <target>nicht dokumentiert</target>
+      </trans-unit>
+      <trans-unit id="EncE771F462" resname="encounter.review.value.yes">
+        <source>encounter.review.value.yes</source>
+        <target>ja</target>
+      </trans-unit>
+      <trans-unit id="Enc76B1F8EB" resname="encounter.review.value.no">
+        <source>encounter.review.value.no</source>
+        <target>nein</target>
+      </trans-unit>
+      <trans-unit id="Enc07EF716C" resname="encounter.review.value.documented">
+        <source>encounter.review.value.documented</source>
+        <target>dokumentiert</target>
+      </trans-unit>
+      <trans-unit id="Enc8F22BC4C" resname="encounter.review.value.not_documented">
+        <source>encounter.review.value.not_documented</source>
+        <target>nicht dokumentiert</target>
+      </trans-unit>
+      <trans-unit id="EncB1BEC5E6" resname="encounter.review.action.confirm">
+        <source>encounter.review.action.confirm</source>
+        <target>Verknüpfung bestätigen</target>
+      </trans-unit>
+      <trans-unit id="Enc3B04D59B" resname="encounter.review.action.change">
+        <source>encounter.review.action.change</source>
+        <target>Stattdessen diesen Besuch verknüpfen</target>
+      </trans-unit>
+      <trans-unit id="EncF46985AC" resname="encounter.review.action.reject">
+        <source>encounter.review.action.reject</source>
+        <target>Ablehnen</target>
+      </trans-unit>
+      <trans-unit id="Enc1EAAE8C4" resname="encounter.review.action.leave_open">
+        <source>encounter.review.action.leave_open</source>
+        <target>Offen lassen</target>
+      </trans-unit>
+      <trans-unit id="EncF29BDFEC" resname="encounter.review.flash.confirmed">
+        <source>encounter.review.flash.confirmed</source>
+        <target>Die Verknüpfung wurde bestätigt.</target>
+      </trans-unit>
+      <trans-unit id="Enc73A7511B" resname="encounter.review.flash.changed">
+        <source>encounter.review.flash.changed</source>
+        <target>Die Verknüpfung wurde geändert; das bisherige Paar ist abgelehnt.</target>
+      </trans-unit>
+      <trans-unit id="EncE8D2A40A" resname="encounter.review.flash.rejected">
+        <source>encounter.review.flash.rejected</source>
+        <target>Das Paar wurde abgelehnt und wird nicht erneut vorgeschlagen.</target>
+      </trans-unit>
+      <trans-unit id="Enc9EFE6D5E" resname="encounter.review.flash.swapped">
+        <source>encounter.review.flash.swapped</source>
+        <target>Der Tausch wurde übernommen.</target>
+      </trans-unit>
+      <trans-unit id="EncD5115774" resname="encounter.review.error.visit_linked">
+        <source>encounter.review.error.visit_linked</source>
+        <target>Dieser Besuch ist mit einer anderen Zuweisung verknüpft. Lehnen Sie diese Verknüpfung zuerst ab oder übernehmen Sie einen Tauschvorschlag.</target>
+      </trans-unit>
+      <trans-unit id="Enc48A1E1FD" resname="encounter.review.error.not_a_candidate">
+        <source>encounter.review.error.not_a_candidate</source>
+        <target>Dieser Besuch ist kein Kandidat der Zuweisung.</target>
+      </trans-unit>
+      <trans-unit id="Enc1D92AB00" resname="encounter.review.error.unchanged">
+        <source>encounter.review.error.unchanged</source>
+        <target>Das Paar hat diese Entscheidung bereits.</target>
+      </trans-unit>
+      <trans-unit id="EncC84F1FD7" resname="encounter.review.error.swap_outdated">
+        <source>encounter.review.error.swap_outdated</source>
+        <target>Der Tausch wird nicht mehr vorgeschlagen; die Verknüpfungen haben sich inzwischen geändert.</target>
+      </trans-unit>
+      <trans-unit id="EncDD2C9C94" resname="encounter.review.error.not_found">
+        <source>encounter.review.error.not_found</source>
+        <target>Zuweisung oder Besuch nicht gefunden.</target>
+      </trans-unit>
+      <trans-unit id="EncE94F0307" resname="encounter.review.swap.title">
+        <source>encounter.review.swap.title</source>
+        <target>Tauschvorschlag</target>
+      </trans-unit>
+      <trans-unit id="Enc0E696BAB" resname="encounter.review.swap.intro">
+        <source>encounter.review.swap.intro</source>
+        <target>Ein nicht verknüpfter Besuch deutet auf eine bessere Gesamtzuordnung hin. Nichts ändert sich, bis Sie den Tausch übernehmen; die bisherige automatische Verknüpfung wird dann abgelehnt.</target>
+      </trans-unit>
+      <trans-unit id="EncD6E54C18" resname="encounter.review.swap.kind.chain">
+        <source>encounter.review.swap.kind.chain</source>
+        <target>Eine Verknüpfung mehr</target>
+      </trans-unit>
+      <trans-unit id="EncAE362951" resname="encounter.review.swap.kind.replacement">
+        <source>encounter.review.swap.kind.replacement</source>
+        <target>Besser passender Besuch</target>
+      </trans-unit>
+      <trans-unit id="EncC3420D10" resname="encounter.review.swap.move">
+        <source>encounter.review.swap.move</source>
+        <target>Besuch #{from} ({before} Punkte) → Besuch #{to} ({after} Punkte)</target>
+      </trans-unit>
+      <trans-unit id="EncA013C966" resname="encounter.review.swap.takes">
+        <source>encounter.review.swap.takes</source>
+        <target>übernimmt Besuch #{visit} ({points} Punkte)</target>
+      </trans-unit>
+      <trans-unit id="EncFC278652" resname="encounter.review.swap.gain">
+        <source>encounter.review.swap.gain</source>
+        <target>Änderung: {links} Verknüpfungen, {points} Punkte</target>
+      </trans-unit>
+      <trans-unit id="EncAF136C6F" resname="encounter.review.swap.apply">
+        <source>encounter.review.swap.apply</source>
+        <target>Tausch übernehmen</target>
+      </trans-unit>
+      <trans-unit id="Enc886ED411" resname="encounter.review.comparison_title">
+        <source>encounter.review.comparison_title</source>
+        <target>Gegenüberstellung</target>
+      </trans-unit>
+      <trans-unit id="EncFF96BE86" resname="encounter.review.candidate_choice">
+        <source>encounter.review.candidate_choice</source>
+        <target>Kandidaten-Besuche ({count, number})</target>
+      </trans-unit>
+      <trans-unit id="EncCE5AF804" resname="encounter.review.visit_heading">
+        <source>encounter.review.visit_heading</source>
+        <target>Notaufnahme-Besuch #{id}</target>
+      </trans-unit>
+      <trans-unit id="Enc96E86DCD" resname="encounter.review.points_total">
+        <source>encounter.review.points_total</source>
+        <target>Summe der Punkte</target>
+      </trans-unit>
+      <trans-unit id="EncA54BEF6D" resname="encounter.review.total_level.match">
+        <source>encounter.review.total_level.match</source>
+        <target>passt gut</target>
+      </trans-unit>
+      <trans-unit id="Enc5669AAAA" resname="encounter.review.total_level.proposal">
+        <source>encounter.review.total_level.proposal</source>
+        <target>passt teilweise</target>
+      </trans-unit>
+      <trans-unit id="EncD6E13B48" resname="encounter.review.total_level.weak">
+        <source>encounter.review.total_level.weak</source>
+        <target>passt kaum</target>
+      </trans-unit>
+      <trans-unit id="Enc9A2C1548" resname="encounter.review.extended.title">
+        <source>encounter.review.extended.title</source>
+        <target>Erweiterte Informationen (MTS, IVENA)</target>
+      </trans-unit>
+      <trans-unit id="EncC1BE31AD" resname="encounter.review.extended.hint">
+        <source>encounter.review.extended.hint</source>
+        <target>Optionaler Kontext für unklare Fälle. Diese Angaben sind keine Abgleichsmerkmale: Spätere Auswertungen vergleichen sie zwischen IVENA und Notaufnahme. Nutzen Sie sie daher nur, wenn die Merkmale oben die Entscheidung offen lassen.</target>
+      </trans-unit>
+      <trans-unit id="EncC4B213D6" resname="encounter.review.extended.urgency">
+        <source>encounter.review.extended.urgency</source>
+        <target>Dringlichkeit / Triage</target>
+      </trans-unit>
+      <trans-unit id="Enc48083ED7" resname="encounter.review.extended.indication">
+        <source>encounter.review.extended.indication</source>
+        <target>Indikation / MTS-Diagramm</target>
+      </trans-unit>
+      <trans-unit id="Enc64849B95" resname="encounter.review.extended.indicator">
+        <source>encounter.review.extended.indicator</source>
+        <target>MTS-Indikator</target>
+      </trans-unit>
+      <trans-unit id="Enc3DD215B3" resname="encounter.review.period.range">
+        <source>encounter.review.period.range</source>
+        <target>{from} – {to}</target>
+      </trans-unit>
+      <trans-unit id="Enc18EFA355" resname="encounter.review.overview.link">
+        <source>encounter.review.overview.link</source>
+        <target>Übersicht</target>
+      </trans-unit>
+      <trans-unit id="Enc9D443B1E" resname="encounter.review.overview.title">
+        <source>encounter.review.overview.title</source>
+        <target>Übersicht der Abgleichsprüfung</target>
+      </trans-unit>
+      <trans-unit id="Enc9A73872D" resname="encounter.review.overview.worklist">
+        <source>encounter.review.overview.worklist</source>
+        <target>Arbeitsliste</target>
+      </trans-unit>
+      <trans-unit id="EncA7BB1B50" resname="encounter.review.action.start">
+        <source>encounter.review.action.start</source>
+        <target>Prüfung starten</target>
+      </trans-unit>
+      <trans-unit id="EncA8A33928" resname="encounter.review.action.review">
+        <source>encounter.review.action.review</source>
+        <target>Prüfen</target>
+      </trans-unit>
+      <trans-unit id="EncE8157DE6" resname="encounter.review.flash.segment_empty">
+        <source>encounter.review.flash.segment_empty</source>
+        <target>In dieser Liste gibt es nichts zu prüfen.</target>
+      </trans-unit>
+      <trans-unit id="EncD3D94940" resname="encounter.review.flash.segment_done">
+        <source>encounter.review.flash.segment_done</source>
+        <target>Keine weiteren Zuweisungen in dieser Liste.</target>
+      </trans-unit>
+      <trans-unit id="Enc19637761" resname="encounter.review.header_status.auto_accepted">
+        <source>encounter.review.header_status.auto_accepted</source>
+        <target>Automatisch verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc673DC234" resname="encounter.review.header_status.confirmed">
+        <source>encounter.review.header_status.confirmed</source>
+        <target>Bestätigte Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="EncCDC6F1B7" resname="encounter.review.header_status.proposed">
+        <source>encounter.review.header_status.proposed</source>
+        <target>Offener Vorschlag</target>
+      </trans-unit>
+      <trans-unit id="Enc9F750DA8" resname="encounter.review.header_status.conflict">
+        <source>encounter.review.header_status.conflict</source>
+        <target>Konflikt</target>
+      </trans-unit>
+      <trans-unit id="Enc678C5DE4" resname="encounter.review.header_status.not_linked">
+        <source>encounter.review.header_status.not_linked</source>
+        <target>Nicht verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc7333A9BB" resname="encounter.review.linked_elsewhere_short">
+        <source>encounter.review.linked_elsewhere_short</source>
+        <target>Verknüpft mit Zuweisung #{id}</target>
+      </trans-unit>
+      <trans-unit id="EncA487748B" resname="encounter.review.agreement_short">
+        <source>encounter.review.agreement_short</source>
+        <target>Übereinstimmung {agreement} · {points} Punkte</target>
+      </trans-unit>
+      <trans-unit id="Enc389E5C89" resname="encounter.review.error.not_stored">
+        <source>encounter.review.error.not_stored</source>
+        <target>Nur ein vorgeschlagenes oder verknüpftes Paar kann abgelehnt werden.</target>
+      </trans-unit>
+      <trans-unit id="EncBABE30DE" resname="encounter.mts.glossary.title">
+        <source>encounter.mts.glossary.title</source>
+        <target>Manchester-Triage-System (MTS)</target>
+      </trans-unit>
+      <trans-unit id="Enc9655D6B5" resname="encounter.mts.glossary.intro">
+        <source>encounter.mts.glossary.intro</source>
+        <target>Triagekategorien, Präsentationsdiagramme und Indikatoren des Pilots Behandlungsdaten.</target>
+      </trans-unit>
+      <trans-unit id="Enc379B2FEC" resname="encounter.mts.glossary.names_note">
+        <source>encounter.mts.glossary.names_note</source>
+        <target>Nur Namen, ohne Indikatorbeschreibungen und Flussdiagramme. Quelle sind die deutschen Namen. Beide Listen enthalten die in den teilnehmenden Kliniken gesehenen Einträge; das vollständige MTS umfasst mehr.</target>
+      </trans-unit>
+      <trans-unit id="EncE8A4B853" resname="encounter.mts.section.categories">
+        <source>encounter.mts.section.categories</source>
+        <target>Triagekategorien</target>
+      </trans-unit>
+      <trans-unit id="Enc45DD8851" resname="encounter.mts.section.diagrams">
+        <source>encounter.mts.section.diagrams</source>
+        <target>Präsentationsdiagramme</target>
+      </trans-unit>
+      <trans-unit id="EncF9FA181F" resname="encounter.mts.section.indicators">
+        <source>encounter.mts.section.indicators</source>
+        <target>Indikatoren</target>
+      </trans-unit>
+      <trans-unit id="Enc4406A237" resname="encounter.mts.column.colour">
+        <source>encounter.mts.column.colour</source>
+        <target>Farbe</target>
+      </trans-unit>
+      <trans-unit id="Enc85D7A287" resname="encounter.mts.column.target">
+        <source>encounter.mts.column.target</source>
+        <target>Zielzeit bis zum ersten Arztkontakt</target>
+      </trans-unit>
+      <trans-unit id="Enc55D14B58" resname="encounter.mts.column.encounters">
+        <source>encounter.mts.column.encounters</source>
+        <target>Behandlungsfälle</target>
+      </trans-unit>
+      <trans-unit id="Enc90B3ED1D" resname="encounter.mts.target_minutes">
+        <source>encounter.mts.target_minutes</source>
+        <target>{minutes, plural, =0 {sofort} one {# Minute} other {# Minuten}}</target>
+      </trans-unit>
+      <trans-unit id="Enc9ED060FA" resname="encounter.mts.target_note">
+        <source>encounter.mts.target_note</source>
+        <target>Die Zielzeiten zählen ab dem ersten Ersteinschätzungskontakt. Gezählt wird die Kategorie der Ersteinschätzung, nicht der Zweiteinschätzung.</target>
+      </trans-unit>
+      <trans-unit id="Enc731985BE" resname="encounter.mts.category.red.name">
+        <source>encounter.mts.category.red.name</source>
+        <target>Sofort</target>
+      </trans-unit>
+      <trans-unit id="Enc597A0F4F" resname="encounter.mts.category.orange.name">
+        <source>encounter.mts.category.orange.name</source>
+        <target>Sehr dringend</target>
+      </trans-unit>
+      <trans-unit id="Enc9F8C4B8C" resname="encounter.mts.category.yellow.name">
+        <source>encounter.mts.category.yellow.name</source>
+        <target>Dringend</target>
+      </trans-unit>
+      <trans-unit id="EncEB46CBEE" resname="encounter.mts.category.green.name">
+        <source>encounter.mts.category.green.name</source>
+        <target>Normal</target>
+      </trans-unit>
+      <trans-unit id="Enc06CE6178" resname="encounter.mts.category.blue.name">
+        <source>encounter.mts.category.blue.name</source>
+        <target>Nicht dringend</target>
+      </trans-unit>
+      <trans-unit id="EncE1C815FE" resname="encounter.mts.category.red.colour">
+        <source>encounter.mts.category.red.colour</source>
+        <target>Rot</target>
+      </trans-unit>
+      <trans-unit id="Enc69E696A4" resname="encounter.mts.category.orange.colour">
+        <source>encounter.mts.category.orange.colour</source>
+        <target>Orange</target>
+      </trans-unit>
+      <trans-unit id="EncF3D81E3A" resname="encounter.mts.category.yellow.colour">
+        <source>encounter.mts.category.yellow.colour</source>
+        <target>Gelb</target>
+      </trans-unit>
+      <trans-unit id="Enc24C1DB9F" resname="encounter.mts.category.green.colour">
+        <source>encounter.mts.category.green.colour</source>
+        <target>Grün</target>
+      </trans-unit>
+      <trans-unit id="Enc7382B829" resname="encounter.mts.category.blue.colour">
+        <source>encounter.mts.category.blue.colour</source>
+        <target>Blau</target>
+      </trans-unit>
+      <trans-unit id="EncDD87C41F" resname="encounter.mts.counts.scope">
+        <source>encounter.mts.counts.scope</source>
+        <target>Anzahlen: Behandlungsfälle {hospitals, plural, one {der Klinik} other {der # Kliniken}}, deren Behandlungsdaten Sie sehen dürfen (Ersteinschätzung). Werte unter {threshold} werden nicht angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="Enc629391ED" resname="encounter.mts.counts.scope_all">
+        <source>encounter.mts.counts.scope_all</source>
+        <target>Anzahlen: Behandlungsfälle aller Kliniken, da Administratoren alle Behandlungsdaten sehen dürfen (Ersteinschätzung). Werte unter {threshold} werden nicht angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="Enc26995604" resname="encounter.mts.counts.none">
+        <source>encounter.mts.counts.none</source>
+        <target>Anzahlen sehen nur Personen mit Zugriff auf die Behandlungsdaten einer Klinik, und nur für diese Kliniken.</target>
+      </trans-unit>
+      <trans-unit id="Enc53AE5781" resname="encounter.mts.counts.suppressed">
+        <source>encounter.mts.counts.suppressed</source>
+        <target>&lt; {threshold}</target>
+      </trans-unit>
+      <trans-unit id="Enc1C7F400E" resname="encounter.mts.counts.suppressed_hint">
+        <source>encounter.mts.counts.suppressed_hint</source>
+        <target>Weniger als {threshold} Behandlungsfälle; die genaue Zahl wird nicht angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="EncE7FBFA0C" resname="encounter.mts.not_in_catalog">
+        <source>encounter.mts.not_in_catalog</source>
+        <target>nicht im Katalog</target>
+      </trans-unit>
+      <trans-unit id="EncB8F1E8E5" resname="encounter.mts.german_name">
+        <source>encounter.mts.german_name</source>
+        <target>Deutscher Name</target>
+      </trans-unit>
+      <trans-unit id="Enc302761E5" resname="encounter.mts.diagram.type">
+        <source>encounter.mts.diagram.type</source>
+        <target>MTS-Präsentationsdiagramm</target>
+      </trans-unit>
+      <trans-unit id="Enc981B60F9" resname="encounter.mts.diagram.encounters">
+        <source>encounter.mts.diagram.encounters</source>
+        <target>Behandlungsfälle mit diesem Diagramm</target>
+      </trans-unit>
+      <trans-unit id="Enc8E6635B8" resname="encounter.mts.diagram.indicators">
+        <source>encounter.mts.diagram.indicators</source>
+        <target>Mit diesem Diagramm gesehene Indikatoren</target>
+      </trans-unit>
+      <trans-unit id="Enc38924CD0" resname="encounter.mts.diagram.indicators_need_access">
+        <source>encounter.mts.diagram.indicators_need_access</source>
+        <target>Welche Indikatoren mit diesem Diagramm vorkommen, stammt aus den Behandlungsdaten. Es wird nur Personen mit Zugriff auf die Behandlungsdaten einer Klinik angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="Enc40E2807E" resname="encounter.mts.diagram.indicators_none">
+        <source>encounter.mts.diagram.indicators_none</source>
+        <target>Keine Behandlungsfälle mit diesem Diagramm in den Kliniken, deren Behandlungsdaten Sie sehen dürfen.</target>
+      </trans-unit>
+      <trans-unit id="EncB5AEB9AB" resname="encounter.mts.diagram.filter_label">
+        <source>encounter.mts.diagram.filter_label</source>
+        <target>Indikatoren filtern</target>
+      </trans-unit>
+      <trans-unit id="Enc8BBFBBBD" resname="encounter.mts.diagram.filter_placeholder">
+        <source>encounter.mts.diagram.filter_placeholder</source>
+        <target>Name oder Code</target>
+      </trans-unit>
+      <trans-unit id="Enc058F2E6C" resname="encounter.mts.diagram.filter_submit">
+        <source>encounter.mts.diagram.filter_submit</source>
+        <target>Filtern</target>
+      </trans-unit>
+      <trans-unit id="Enc5B998206" resname="encounter.mts.diagram.filter_reset">
+        <source>encounter.mts.diagram.filter_reset</source>
+        <target>Zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="EncAF723129" resname="encounter.mts.diagram.filter_no_match">
+        <source>encounter.mts.diagram.filter_no_match</source>
+        <target>Kein Indikator passt zum Filter.</target>
+      </trans-unit>
+      <trans-unit id="Enc146FE9A6" resname="encounter.mts.diagram.without_indicator">
+        <source>encounter.mts.diagram.without_indicator</source>
+        <target>Kein Indikator dokumentiert</target>
+      </trans-unit>
+      <trans-unit id="Enc29E965B0" resname="encounter.course.title">
+        <source>encounter.course.title</source>
+        <target>Behandlungsverlauf</target>
+      </trans-unit>
+      <trans-unit id="Enc7107F208" resname="encounter.course.beta">
+        <source>encounter.course.beta</source>
+        <target>Behandlungsdaten (Beta)</target>
+      </trans-unit>
+      <trans-unit id="Enc1268E1C5" resname="encounter.course.no_link">
+        <source>encounter.course.no_link</source>
+        <target>Mit dieser Zuweisung ist kein Notaufnahmebesuch verknüpft. Vorschläge erscheinen in der Zuordnungsprüfung; diese Karte zeigt nur automatische und bestätigte Verknüpfungen.</target>
+      </trans-unit>
+      <trans-unit id="Enc93337359" resname="encounter.course.origin.automatic">
+        <source>encounter.course.origin.automatic</source>
+        <target>Automatisch verknüpft</target>
+      </trans-unit>
+      <trans-unit id="EncE22EABE6" resname="encounter.course.origin.confirmed">
+        <source>encounter.course.origin.confirmed</source>
+        <target>Nach Bestätigung verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc1B2AFB47" resname="encounter.course.origin.automatic_hint">
+        <source>encounter.course.origin.automatic_hint</source>
+        <target>Der Abgleich hat diesen Besuch selbstständig verknüpft, weil die Übereinstimmung hoch war und keine andere Zuweisung in Frage kam. Niemand hat ihn geprüft.</target>
+      </trans-unit>
+      <trans-unit id="EncDC0F1599" resname="encounter.course.origin.confirmed_hint">
+        <source>encounter.course.origin.confirmed_hint</source>
+        <target>Eine Person hat diese Verknüpfung in der Zuordnungsprüfung bestätigt.</target>
+      </trans-unit>
+      <trans-unit id="EncA6B06A5A" resname="encounter.course.agreement">
+        <source>encounter.course.agreement</source>
+        <target>Übereinstimmung {percent} %</target>
+      </trans-unit>
+      <trans-unit id="Enc48A5BE10" resname="encounter.course.anchor.admission">
+        <source>encounter.course.anchor.admission</source>
+        <target>Aufnahme ZNA {minutes} min zur IVENA-Ankunft</target>
+      </trans-unit>
+      <trans-unit id="EncE4D1D672" resname="encounter.course.anchor.assessment">
+        <source>encounter.course.anchor.assessment</source>
+        <target>Ersteinschätzung {minutes} min zur IVENA-Ankunft (keine Aufnahmezeit)</target>
+      </trans-unit>
+      <trans-unit id="Enc12B23EF8" resname="encounter.course.section.triage">
+        <source>encounter.course.section.triage</source>
+        <target>Ersteinschätzung (MTS)</target>
+      </trans-unit>
+      <trans-unit id="EncA1A8940C" resname="encounter.course.section.process_times">
+        <source>encounter.course.section.process_times</source>
+        <target>Prozesszeiten</target>
+      </trans-unit>
+      <trans-unit id="Enc065D9313" resname="encounter.course.section.disposition">
+        <source>encounter.course.section.disposition</source>
+        <target>Verbleib</target>
+      </trans-unit>
+      <trans-unit id="Enc1D6E2AAE" resname="encounter.course.section.timeline">
+        <source>encounter.course.section.timeline</source>
+        <target>Zeitverlauf</target>
+      </trans-unit>
+      <trans-unit id="Enc2D17BDE9" resname="encounter.course.section.vitals">
+        <source>encounter.course.section.vitals</source>
+        <target>Erste Vitalwerte</target>
+      </trans-unit>
+      <trans-unit id="Enc867E0627" resname="encounter.course.field.category">
+        <source>encounter.course.field.category</source>
+        <target>MTS-Kategorie</target>
+      </trans-unit>
+      <trans-unit id="Enc215F9C53" resname="encounter.course.field.diagram">
+        <source>encounter.course.field.diagram</source>
+        <target>Präsentation (Diagramm)</target>
+      </trans-unit>
+      <trans-unit id="EncED972332" resname="encounter.course.field.indicator">
+        <source>encounter.course.field.indicator</source>
+        <target>Indikator</target>
+      </trans-unit>
+      <trans-unit id="EncAC40A3E9" resname="encounter.course.field.pain_score">
+        <source>encounter.course.field.pain_score</source>
+        <target>Schmerzskala</target>
+      </trans-unit>
+      <trans-unit id="EncCDB6FD3B" resname="encounter.course.field.disposition">
+        <source>encounter.course.field.disposition</source>
+        <target>Verbleib</target>
+      </trans-unit>
+      <trans-unit id="EncA11F154B" resname="encounter.course.field.care_level">
+        <source>encounter.course.field.care_level</source>
+        <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="EncBC77FDBB" resname="encounter.course.field.department">
+        <source>encounter.course.field.department</source>
+        <target>Aufnehmende Fachabteilung</target>
+      </trans-unit>
+      <trans-unit id="Enc51E05251" resname="encounter.course.implausible">
+        <source>encounter.course.implausible</source>
+        <target>in Statistiken ausgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="Enc70A4DF63" resname="encounter.course.relative">
+        <source>encounter.course.relative</source>
+        <target>{minutes} min</target>
+      </trans-unit>
+      <trans-unit id="EncEF0EF7D1" resname="encounter.course.timeline_day">
+        <source>encounter.course.timeline_day</source>
+        <target>Zeiten ab {day}, Ortszeit. Minuten relativ zur Aufnahme ZNA.</target>
+      </trans-unit>
+      <trans-unit id="EncE4F7F725" resname="encounter.course.event.ivena_arrival">
+        <source>encounter.course.event.ivena_arrival</source>
+        <target>IVENA-Ankunft</target>
+      </trans-unit>
+      <trans-unit id="Enc762A4E2D" resname="encounter.course.event.ed_admission">
+        <source>encounter.course.event.ed_admission</source>
+        <target>Aufnahme ZNA</target>
+      </trans-unit>
+      <trans-unit id="EncF3715BDD" resname="encounter.course.event.first_assessment">
+        <source>encounter.course.event.first_assessment</source>
+        <target>Ersteinschätzung (MTS)</target>
+      </trans-unit>
+      <trans-unit id="EncC470806A" resname="encounter.course.event.first_physician">
+        <source>encounter.course.event.first_physician</source>
+        <target>Erster Arztkontakt</target>
+      </trans-unit>
+      <trans-unit id="EncD0A1FD86" resname="encounter.course.event.vitals_measured">
+        <source>encounter.course.event.vitals_measured</source>
+        <target>Vitalwerte gemessen</target>
+      </trans-unit>
+      <trans-unit id="Enc30B1BF9B" resname="encounter.course.event.treatment_end">
+        <source>encounter.course.event.treatment_end</source>
+        <target>Behandlungsende</target>
+      </trans-unit>
+      <trans-unit id="EncF784C7BE" resname="encounter.course.event.ed_discharge">
+        <source>encounter.course.event.ed_discharge</source>
+        <target>Entlassung ZNA</target>
+      </trans-unit>
+      <trans-unit id="Enc3463537D" resname="encounter.course.vitals.none">
+        <source>encounter.course.vitals.none</source>
+        <target>Keine Vitalwerte dokumentiert.</target>
+      </trans-unit>
+      <trans-unit id="Enc5F0B474B" resname="encounter.course.vitals.admission_measurement">
+        <source>encounter.course.vitals.admission_measurement</source>
+        <target>Bei Aufnahme um {time} gemessen (im Zeitverlauf).</target>
+      </trans-unit>
+      <trans-unit id="Enc9885D3E0" resname="encounter.course.vitals.admission_measurement_no_time">
+        <source>encounter.course.vitals.admission_measurement_no_time</source>
+        <target>Bei Aufnahme gemessen, Zeit nicht dokumentiert.</target>
+      </trans-unit>
+      <trans-unit id="Enc431A3149" resname="encounter.course.vitals.documented_initial">
+        <source>encounter.course.vitals.documented_initial</source>
+        <target>Dokumentierter Erstwert</target>
+      </trans-unit>
+      <trans-unit id="Enc26F62FCD" resname="encounter.course.vitals.documented_initial_hint">
+        <source>encounter.course.vitals.documented_initial_hint</source>
+        <target>Die ersten Werte der Dokumentation. Wann sie gemessen wurden, ist nicht gesichert; daher stehen sie nicht im Zeitverlauf.</target>
+      </trans-unit>
+      <trans-unit id="Enc06800918" resname="encounter.course.vitals.blood_pressure">
+        <source>encounter.course.vitals.blood_pressure</source>
+        <target>Blutdruck</target>
+      </trans-unit>
+      <trans-unit id="Enc6B914F8F" resname="encounter.course.vitals.heart_rate">
+        <source>encounter.course.vitals.heart_rate</source>
+        <target>Herzfrequenz</target>
+      </trans-unit>
+      <trans-unit id="Enc450E9EF2" resname="encounter.course.vitals.respiratory_rate">
+        <source>encounter.course.vitals.respiratory_rate</source>
+        <target>Atemfrequenz</target>
+      </trans-unit>
+      <trans-unit id="Enc7A638564" resname="encounter.course.vitals.spo2">
+        <source>encounter.course.vitals.spo2</source>
+        <target>SpO₂</target>
+      </trans-unit>
+      <trans-unit id="Enc6F381C39" resname="encounter.course.vitals.temperature">
+        <source>encounter.course.vitals.temperature</source>
+        <target>Temperatur</target>
+      </trans-unit>
+      <trans-unit id="Enc2A4893E9" resname="encounter.course.vitals.glucose">
+        <source>encounter.course.vitals.glucose</source>
+        <target>Blutzucker</target>
+      </trans-unit>
+      <trans-unit id="Enc742D5BE8" resname="encounter.course.vitals.gcs">
+        <source>encounter.course.vitals.gcs</source>
+        <target>GCS</target>
+      </trans-unit>
+      <trans-unit id="EncF7E28F8C" resname="encounter.process.admission_to_assessment.label">
+        <source>encounter.process.admission_to_assessment.label</source>
+        <target>Ankunft → Ersteinschätzung</target>
+      </trans-unit>
+      <trans-unit id="Enc06664B82" resname="encounter.process.admission_to_assessment.definition">
+        <source>encounter.process.admission_to_assessment.definition</source>
+        <target>Von der Aufnahme ZNA bis zum ersten Ersteinschätzungskontakt (MTS).</target>
+      </trans-unit>
+      <trans-unit id="Enc7E9E65BB" resname="encounter.process.admission_to_physician.label">
+        <source>encounter.process.admission_to_physician.label</source>
+        <target>Ankunft → erster Arztkontakt</target>
+      </trans-unit>
+      <trans-unit id="EncD943D6BD" resname="encounter.process.admission_to_physician.definition">
+        <source>encounter.process.admission_to_physician.definition</source>
+        <target>Von der Aufnahme ZNA bis zum ersten Arztkontakt.</target>
+      </trans-unit>
+      <trans-unit id="Enc1A70B6EE" resname="encounter.process.admission_to_discharge.label">
+        <source>encounter.process.admission_to_discharge.label</source>
+        <target>Ankunft → Entlassung ZNA</target>
+      </trans-unit>
+      <trans-unit id="EncCA7DD19C" resname="encounter.process.admission_to_discharge.definition">
+        <source>encounter.process.admission_to_discharge.definition</source>
+        <target>Von der Aufnahme ZNA bis zum Verlassen der Notaufnahme (Verweildauer in der ZNA).</target>
+      </trans-unit>
+      <trans-unit id="Enc253C18A2" resname="encounter.unit.minutes">
+        <source>encounter.unit.minutes</source>
+        <target>{minutes} min</target>
+      </trans-unit>
+      <trans-unit id="Enc41B5CA8E" resname="encounter.unit.minutes_decimal">
+        <source>encounter.unit.minutes_decimal</source>
+        <target>{minutes, number} min</target>
+      </trans-unit>
+      <trans-unit id="Enc87FB2B2A" resname="encounter.disposition.home">
+        <source>encounter.disposition.home</source>
+        <target>Nach Hause</target>
+      </trans-unit>
+      <trans-unit id="Enc9BB24800" resname="encounter.disposition.to_physician">
+        <source>encounter.disposition.to_physician</source>
+        <target>Zum niedergelassenen Arzt</target>
+      </trans-unit>
+      <trans-unit id="Enc7A4937A3" resname="encounter.disposition.kv_practice">
+        <source>encounter.disposition.kv_practice</source>
+        <target>In die KV-Bereitschaftspraxis</target>
+      </trans-unit>
+      <trans-unit id="Enc12E67D13" resname="encounter.disposition.against_advice">
+        <source>encounter.disposition.against_advice</source>
+        <target>Gegen ärztlichen Rat</target>
+      </trans-unit>
+      <trans-unit id="EncB49EC0DE" resname="encounter.disposition.left_before_completion">
+        <source>encounter.disposition.left_before_completion</source>
+        <target>Vor Behandlungsabschluss gegangen</target>
+      </trans-unit>
+      <trans-unit id="Enc92DB4D6F" resname="encounter.disposition.admitted">
+        <source>encounter.disposition.admitted</source>
+        <target>Stationäre Aufnahme im Haus</target>
+      </trans-unit>
+      <trans-unit id="EncFCF5D83A" resname="encounter.disposition.transferred_external">
+        <source>encounter.disposition.transferred_external</source>
+        <target>Verlegung in ein anderes Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="EncD2634BE4" resname="encounter.disposition.died">
+        <source>encounter.disposition.died</source>
+        <target>Verstorben</target>
+      </trans-unit>
+      <trans-unit id="Enc9520A832" resname="encounter.disposition.other">
+        <source>encounter.disposition.other</source>
+        <target>Sonstiges</target>
+      </trans-unit>
+      <trans-unit id="EncFB34B718" resname="encounter.care_level.ward">
+        <source>encounter.care_level.ward</source>
+        <target>Normalstation</target>
+      </trans-unit>
+      <trans-unit id="Enc9AC59C2C" resname="encounter.care_level.monitoring">
+        <source>encounter.care_level.monitoring</source>
+        <target>Überwachung / IMC</target>
+      </trans-unit>
+      <trans-unit id="EncA5B1B3CA" resname="encounter.care_level.icu">
+        <source>encounter.care_level.icu</source>
+        <target>Intensivstation</target>
+      </trans-unit>
+      <trans-unit id="Enc769BEDCE" resname="encounter.care_level.or">
+        <source>encounter.care_level.or</source>
+        <target>OP</target>
+      </trans-unit>
+      <trans-unit id="Enc066DED79" resname="encounter.care_level.unknown">
+        <source>encounter.care_level.unknown</source>
+        <target>Station unbekannt</target>
+      </trans-unit>
+      <trans-unit id="EncBAFA6A76" resname="encounter.arrival_route.ems">
+        <source>encounter.arrival_route.ems</source>
+        <target>Rettungsdienst</target>
+      </trans-unit>
+      <trans-unit id="Enc6183CEF7" resname="encounter.arrival_route.self">
+        <source>encounter.arrival_route.self</source>
+        <target>Selbstvorsteller</target>
+      </trans-unit>
+      <trans-unit id="EncC32149A8" resname="encounter.arrival_route.unknown">
+        <source>encounter.arrival_route.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="Enc1746C732" resname="encounter.link.automatic">
+        <source>encounter.link.automatic</source>
+        <target>Automatisch verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc6D60A546" resname="encounter.link.confirmed">
+        <source>encounter.link.confirmed</source>
+        <target>Bestätigt verknüpft</target>
+      </trans-unit>
+      <trans-unit id="EncBAC588C0" resname="encounter.link.linked">
+        <source>encounter.link.linked</source>
+        <target>Verknüpft gesamt</target>
+      </trans-unit>
+      <trans-unit id="EncB1EA3B71" resname="encounter.link.not_linked">
+        <source>encounter.link.not_linked</source>
+        <target>Nicht verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc23316E5C" resname="encounter.overview_page.index_title">
+        <source>encounter.overview_page.index_title</source>
+        <target>Übersicht Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="EncA92DB0C1" resname="encounter.overview_page.index_none">
+        <source>encounter.overview_page.index_none</source>
+        <target>Sie dürfen für kein Krankenhaus Auswertungen sehen. Dafür sind eine Behandlungsdaten-Freigabe und die Krankenhausberechtigung „Statistik“ nötig.</target>
+      </trans-unit>
+      <trans-unit id="Enc1775A938" resname="encounter.validation.title">
+        <source>encounter.validation.title</source>
+        <target>Validierung der Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="EncC6E0F574" resname="encounter.validation.intro">
+        <source>encounter.validation.intro</source>
+        <target>Ziehen Sie geschichtete Stichproben aus automatischen Verknüpfungen, Vorschlägen und Fällen ohne Verknüpfung, beurteilen Sie jeden Fall und lesen Sie den Anteil richtiger Verknüpfungen je Score-Band ab. Automatische Verknüpfungen bleiben während der Validierung wirksam; ein als falsch markiertes Paar wird abgelehnt.</target>
+      </trans-unit>
+      <trans-unit id="Enc04FCE38B" resname="encounter.validation.new_title">
+        <source>encounter.validation.new_title</source>
+        <target>Neue Stichprobe</target>
+      </trans-unit>
+      <trans-unit id="Enc0EB8F655" resname="encounter.validation.form.from">
+        <source>encounter.validation.form.from</source>
+        <target>Von</target>
+      </trans-unit>
+      <trans-unit id="EncDFBA809C" resname="encounter.validation.form.to">
+        <source>encounter.validation.form.to</source>
+        <target>Bis</target>
+      </trans-unit>
+      <trans-unit id="EncF1D52D93" resname="encounter.validation.form.to_help">
+        <source>encounter.validation.form.to_help</source>
+        <target>Höchstens {days} Tage; Zuweisungen nach IVENA-Ankunft, Besuche nach Abgleichzeitpunkt.</target>
+      </trans-unit>
+      <trans-unit id="Enc78822CC4" resname="encounter.validation.form.sample_size">
+        <source>encounter.validation.form.sample_size</source>
+        <target>Fälle je Schicht und Band</target>
+      </trans-unit>
+      <trans-unit id="EncBDBF72F8" resname="encounter.validation.form.sample_size_help">
+        <source>encounter.validation.form.sample_size_help</source>
+        <target>Zufällig gezogen aus automatischen Verknüpfungen und Vorschlägen (je Score-Band), Zuweisungen ohne Verknüpfung sowie Rettungsdienst- oder unbekannten Besuchen ohne Verknüpfung.</target>
+      </trans-unit>
+      <trans-unit id="EncCCB8523D" resname="encounter.validation.form.draw">
+        <source>encounter.validation.form.draw</source>
+        <target>Stichprobe ziehen</target>
+      </trans-unit>
+      <trans-unit id="Enc05D87F0B" resname="encounter.validation.samples_title">
+        <source>encounter.validation.samples_title</source>
+        <target>Stichproben</target>
+      </trans-unit>
+      <trans-unit id="EncE407B175" resname="encounter.validation.no_samples">
+        <source>encounter.validation.no_samples</source>
+        <target>Noch keine Stichprobe gezogen</target>
+      </trans-unit>
+      <trans-unit id="Enc0931BB21" resname="encounter.validation.column.period">
+        <source>encounter.validation.column.period</source>
+        <target>Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="EncC39A08DD" resname="encounter.validation.column.version">
+        <source>encounter.validation.column.version</source>
+        <target>Matcher-Version</target>
+      </trans-unit>
+      <trans-unit id="Enc88B6ADF0" resname="encounter.validation.column.drawn">
+        <source>encounter.validation.column.drawn</source>
+        <target>Gezogen</target>
+      </trans-unit>
+      <trans-unit id="Enc4B3F4405" resname="encounter.validation.column.case">
+        <source>encounter.validation.column.case</source>
+        <target>Fall</target>
+      </trans-unit>
+      <trans-unit id="Enc788829F9" resname="encounter.validation.column.verdict">
+        <source>encounter.validation.column.verdict</source>
+        <target>Urteil</target>
+      </trans-unit>
+      <trans-unit id="EncA881D831" resname="encounter.validation.open_sample">
+        <source>encounter.validation.open_sample</source>
+        <target>Öffnen</target>
+      </trans-unit>
+      <trans-unit id="EncE606C301" resname="encounter.validation.combined_title">
+        <source>encounter.validation.combined_title</source>
+        <target>Alle Stichproben, Matcher {version}</target>
+      </trans-unit>
+      <trans-unit id="Enc49B877F7" resname="encounter.validation.combined_note">
+        <source>encounter.validation.combined_note</source>
+        <target>Urteile aller Stichproben mit dieser Matcher-Version, aufsummiert. Stichproben können sich überschneiden, daher ohne Grundgesamtheit und ohne gewichtete Schätzung.</target>
+      </trans-unit>
+      <trans-unit id="Enc192EE431" resname="encounter.validation.sample_title">
+        <source>encounter.validation.sample_title</source>
+        <target>Stichprobe {period}</target>
+      </trans-unit>
+      <trans-unit id="Enc9669987A" resname="encounter.validation.sample_meta">
+        <source>encounter.validation.sample_meta</source>
+        <target>Matcher {version} · bis zu {size} Fälle je Schicht und Band · Startwert {seed}</target>
+      </trans-unit>
+      <trans-unit id="Enc773FB980" resname="encounter.validation.continue">
+        <source>encounter.validation.continue</source>
+        <target>Validierung fortsetzen</target>
+      </trans-unit>
+      <trans-unit id="EncDAA275BA" resname="encounter.validation.report_title">
+        <source>encounter.validation.report_title</source>
+        <target>Ergebnis je Schicht und Score-Band</target>
+      </trans-unit>
+      <trans-unit id="Enc1C36F473" resname="encounter.validation.report_note">
+        <source>encounter.validation.report_note</source>
+        <target>Die Anteile sind Beobachtungen in dieser Stichprobe mit 95-%-Intervall (Wilson). Sie dienen der Kalibrierung des Scores; bis dahin bleibt der Score eine Übereinstimmung, keine Trefferwahrscheinlichkeit.</target>
+      </trans-unit>
+      <trans-unit id="EncE86657BB" resname="encounter.validation.items_title">
+        <source>encounter.validation.items_title</source>
+        <target>{count, plural, one {# Fall} other {# Fälle}}</target>
+      </trans-unit>
+      <trans-unit id="EncEFCB09DD" resname="encounter.validation.no_items">
+        <source>encounter.validation.no_items</source>
+        <target>Der Zeitraum enthält keine Fälle für eine Stichprobe</target>
+      </trans-unit>
+      <trans-unit id="Enc3E428C48" resname="encounter.validation.allocation_ref">
+        <source>encounter.validation.allocation_ref</source>
+        <target>Zuweisung #{id}</target>
+      </trans-unit>
+      <trans-unit id="EncD81AC11E" resname="encounter.validation.verdict_open">
+        <source>encounter.validation.verdict_open</source>
+        <target>offen</target>
+      </trans-unit>
+      <trans-unit id="Enc6DC6B6E2" resname="encounter.validation.report.stratum">
+        <source>encounter.validation.report.stratum</source>
+        <target>Schicht</target>
+      </trans-unit>
+      <trans-unit id="EncAEC373E0" resname="encounter.validation.report.band">
+        <source>encounter.validation.report.band</source>
+        <target>Score-Band</target>
+      </trans-unit>
+      <trans-unit id="Enc5D514C8F" resname="encounter.validation.report.sampled">
+        <source>encounter.validation.report.sampled</source>
+        <target>Gezogen</target>
+      </trans-unit>
+      <trans-unit id="Enc27D80B70" resname="encounter.validation.report.open">
+        <source>encounter.validation.report.open</source>
+        <target>Offen</target>
+      </trans-unit>
+      <trans-unit id="EncFCE3E6EC" resname="encounter.validation.report.positive">
+        <source>encounter.validation.report.positive</source>
+        <target>Richtig / verpasst</target>
+      </trans-unit>
+      <trans-unit id="Enc32F9B7C0" resname="encounter.validation.report.negative">
+        <source>encounter.validation.report.negative</source>
+        <target>Falsch / kein Gegenstück</target>
+      </trans-unit>
+      <trans-unit id="Enc368E4044" resname="encounter.validation.report.unclear">
+        <source>encounter.validation.report.unclear</source>
+        <target>Unklar</target>
+      </trans-unit>
+      <trans-unit id="Enc12F08D1F" resname="encounter.validation.report.share">
+        <source>encounter.validation.report.share</source>
+        <target>Anteil (95 %)</target>
+      </trans-unit>
+      <trans-unit id="Enc609F2DD4" resname="encounter.validation.report.weighted_automatic">
+        <source>encounter.validation.report.weighted_automatic</source>
+        <target>Automatische Verknüpfungen richtig, nach Band gewichtet</target>
+      </trans-unit>
+      <trans-unit id="Enc2EE0FF9A" resname="encounter.validation.report.weighted_proposal">
+        <source>encounter.validation.report.weighted_proposal</source>
+        <target>Vorschläge richtig, nach Band gewichtet</target>
+      </trans-unit>
+      <trans-unit id="EncB2EA5F91" resname="encounter.validation.report.weighted_missing">
+        <source>encounter.validation.report.weighted_missing</source>
+        <target>noch nicht, jedes Band mit Fällen braucht ein Urteil</target>
+      </trans-unit>
+      <trans-unit id="Enc3A340053" resname="encounter.validation.stratum.automatic">
+        <source>encounter.validation.stratum.automatic</source>
+        <target>Automatische Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="EncD6C2B66B" resname="encounter.validation.stratum.proposal">
+        <source>encounter.validation.stratum.proposal</source>
+        <target>Vorschlag</target>
+      </trans-unit>
+      <trans-unit id="EncACD9FC7D" resname="encounter.validation.stratum.unlinked_allocation">
+        <source>encounter.validation.stratum.unlinked_allocation</source>
+        <target>Zuweisung ohne Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="EncDDDF845F" resname="encounter.validation.stratum.unlinked_visit">
+        <source>encounter.validation.stratum.unlinked_visit</source>
+        <target>Besuch ohne Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="EncB56578B8" resname="encounter.validation.verdict.correct">
+        <source>encounter.validation.verdict.correct</source>
+        <target>Richtig</target>
+      </trans-unit>
+      <trans-unit id="Enc6829744F" resname="encounter.validation.verdict.wrong">
+        <source>encounter.validation.verdict.wrong</source>
+        <target>Falsch</target>
+      </trans-unit>
+      <trans-unit id="Enc4CE5C339" resname="encounter.validation.verdict.unclear">
+        <source>encounter.validation.verdict.unclear</source>
+        <target>Unklar</target>
+      </trans-unit>
+      <trans-unit id="Enc5B9C1139" resname="encounter.validation.verdict.missed">
+        <source>encounter.validation.verdict.missed</source>
+        <target>Gegenstück verpasst</target>
+      </trans-unit>
+      <trans-unit id="Enc3B100F7A" resname="encounter.validation.verdict.no_partner">
+        <source>encounter.validation.verdict.no_partner</source>
+        <target>Kein Gegenstück</target>
+      </trans-unit>
+      <trans-unit id="Enc9D2A6CC1" resname="encounter.validation.item_title">
+        <source>encounter.validation.item_title</source>
+        <target>Fall {position}: {stratum}</target>
+      </trans-unit>
+      <trans-unit id="Enc921B2BF3" resname="encounter.validation.item.open_review">
+        <source>encounter.validation.item.open_review</source>
+        <target>In der Prüfung öffnen</target>
+      </trans-unit>
+      <trans-unit id="EncADE5A4FD" resname="encounter.validation.item.sampled_pair">
+        <source>encounter.validation.item.sampled_pair</source>
+        <target>Gezogen als {status}, Übereinstimmung {score} (Band {band}), Durchlauf {pass}, Matcher {version}.</target>
+      </trans-unit>
+      <trans-unit id="Enc42B97184" resname="encounter.validation.item.sampled_unlinked_allocation">
+        <source>encounter.validation.item.sampled_unlinked_allocation</source>
+        <target>Gezogen als Zuweisung ohne Verknüpfung und ohne Vorschlag.</target>
+      </trans-unit>
+      <trans-unit id="EncB028546F" resname="encounter.validation.item.sampled_unlinked_visit">
+        <source>encounter.validation.item.sampled_unlinked_visit</source>
+        <target>Gezogen als Rettungsdienst- oder unbekannter Besuch ohne Verknüpfung und ohne Vorschlag.</target>
+      </trans-unit>
+      <trans-unit id="Enc1CBC4C6A" resname="encounter.validation.item.current_verdict">
+        <source>encounter.validation.item.current_verdict</source>
+        <target>Urteil: {verdict} ({user}, {at})</target>
+      </trans-unit>
+      <trans-unit id="EncE485AE5D" resname="encounter.validation.item.gone">
+        <source>encounter.validation.item.gone</source>
+        <target>Die Zuweisung oder der Besuch existiert nicht mehr</target>
+      </trans-unit>
+      <trans-unit id="Enc18BBE95D" resname="encounter.validation.item.difference">
+        <source>encounter.validation.item.difference</source>
+        <target>Differenz</target>
+      </trans-unit>
+      <trans-unit id="Enc48903BA3" resname="encounter.validation.item.question_automatic">
+        <source>encounter.validation.item.question_automatic</source>
+        <target>Gehören Zuweisung und Besuch zusammen?</target>
+      </trans-unit>
+      <trans-unit id="EncC2A565CD" resname="encounter.validation.item.question_proposal">
+        <source>encounter.validation.item.question_proposal</source>
+        <target>Gehören Zuweisung und Besuch zusammen?</target>
+      </trans-unit>
+      <trans-unit id="Enc0DBCF299" resname="encounter.validation.item.question_unlinked_allocation">
+        <source>encounter.validation.item.question_unlinked_allocation</source>
+        <target>Ist einer der Besuche der Patient dieser Zuweisung?</target>
+      </trans-unit>
+      <trans-unit id="Enc0C109489" resname="encounter.validation.item.question_unlinked_visit">
+        <source>encounter.validation.item.question_unlinked_visit</source>
+        <target>Gehört eine der Zuweisungen zu diesem Besuch?</target>
+      </trans-unit>
+      <trans-unit id="Enc30770985" resname="encounter.validation.flash.drawn">
+        <source>encounter.validation.flash.drawn</source>
+        <target>Stichprobe gezogen.</target>
+      </trans-unit>
+      <trans-unit id="EncABF5D40F" resname="encounter.validation.flash.recorded">
+        <source>encounter.validation.flash.recorded</source>
+        <target>Urteil gespeichert.</target>
+      </trans-unit>
+      <trans-unit id="Enc98AD38EE" resname="encounter.validation.flash.recorded_rejected">
+        <source>encounter.validation.flash.recorded_rejected</source>
+        <target>Urteil gespeichert; das Paar wurde abgelehnt.</target>
+      </trans-unit>
+      <trans-unit id="EncD5165BD6" resname="encounter.validation.flash.sample_done">
+        <source>encounter.validation.flash.sample_done</source>
+        <target>Jeder Fall der Stichprobe hat ein Urteil.</target>
+      </trans-unit>
+      <trans-unit id="EncAF2E9C50" resname="encounter.validation.summary.share_correct">
+        <source>encounter.validation.summary.share_correct</source>
+        <target>Anteil richtig</target>
+      </trans-unit>
+      <trans-unit id="Enc1B67B40F" resname="encounter.validation.summary.share_missed">
+        <source>encounter.validation.summary.share_missed</source>
+        <target>Anteil verpasst</target>
+      </trans-unit>
+      <trans-unit id="Enc9F65F0DB" resname="encounter.validation.summary.unlinked">
+        <source>encounter.validation.summary.unlinked</source>
+        <target>Ohne Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="EncFC1DB77A" resname="encounter.validation.summary.title_unlinked_allocation">
+        <source>encounter.validation.summary.title_unlinked_allocation</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="Enc77C74993" resname="encounter.validation.summary.title_unlinked_visit">
+        <source>encounter.validation.summary.title_unlinked_visit</source>
+        <target>Besuche</target>
+      </trans-unit>
+      <trans-unit id="EncD6EC37C7" resname="encounter.validation.summary.band">
+        <source>encounter.validation.summary.band</source>
+        <target>Band {band}</target>
+      </trans-unit>
+      <trans-unit id="Enc1E737947" resname="encounter.validation.summary.weighted">
+        <source>encounter.validation.summary.weighted</source>
+        <target>Gewichtet über alle Bänder</target>
+      </trans-unit>
+      <trans-unit id="Enc66A30216" resname="encounter.validation.summary.counts_pair">
+        <source>encounter.validation.summary.counts_pair</source>
+        <target>{positive} richtig · {other} falsch, anderer Besuch · {none} falsch, kein Partner{unclear, plural, =0 {} other { · # unklar}}</target>
+      </trans-unit>
+      <trans-unit id="EncE5F618D6" resname="encounter.validation.summary.counts_unlinked">
+        <source>encounter.validation.summary.counts_unlinked</source>
+        <target>{positive} verpasst · {negative} ohne Gegenstück{unclear, plural, =0 {} other { · # unklar}}</target>
+      </trans-unit>
+      <trans-unit id="Enc23474CD3" resname="encounter.validation.summary.progress">
+        <source>encounter.validation.summary.progress</source>
+        <target>{judged} von {sampled} beurteilt</target>
+      </trans-unit>
+      <trans-unit id="EncEB46EFFF" resname="encounter.validation.summary.population">
+        <source>encounter.validation.summary.population</source>
+        <target>{population} im Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="Enc63155E6C" resname="encounter.validation.item.linked_to_visit">
+        <source>encounter.validation.item.linked_to_visit</source>
+        <target>Verknüpft mit Besuch #{visit}</target>
+      </trans-unit>
+      <trans-unit id="EncF08A828E" resname="encounter.validation.item.linked_to_allocation">
+        <source>encounter.validation.item.linked_to_allocation</source>
+        <target>Verknüpft mit Zuweisung #{allocation}</target>
+      </trans-unit>
+      <trans-unit id="Enc4C32ED58" resname="encounter.validation.item.link_swap">
+        <source>encounter.validation.item.link_swap</source>
+        <target>Mit Tausch verknüpfen</target>
+      </trans-unit>
+      <trans-unit id="Enc682F82BD" resname="encounter.validation.item.already_linked">
+        <source>encounter.validation.item.already_linked</source>
+        <target>Verknüpft</target>
+      </trans-unit>
+      <trans-unit id="Enc60B7B888" resname="encounter.validation.item.decide_in_review">
+        <source>encounter.validation.item.decide_in_review</source>
+        <target>Im Review von Zuweisung #{allocation} entscheiden</target>
+      </trans-unit>
+      <trans-unit id="Enc19CB53EB" resname="encounter.validation.item.refused_note">
+        <source>encounter.validation.item.refused_note</source>
+        <target>Zuweisung #{allocation} ist anders verknüpft und das Review bietet keinen Tausch an. Eine Verknüpfung wird nie stillschweigend verschoben: im Review dieser Zuweisung entscheiden, dann hierher zurückkehren.</target>
+      </trans-unit>
+      <trans-unit id="EncD8B34E6C" resname="encounter.validation.item.verdict_wrong_other">
+        <source>encounter.validation.item.verdict_wrong_other</source>
+        <target>Falsch – Besuch #{visit} passt</target>
+      </trans-unit>
+      <trans-unit id="Enc47C40ABC" resname="encounter.validation.item.options_allocation">
+        <source>encounter.validation.item.options_allocation</source>
+        <target>{count, plural, =0 {Kein Kandidat} one {# Kandidat} other {# Kandidaten}}</target>
+      </trans-unit>
+      <trans-unit id="EncCAFCC018" resname="encounter.validation.item.options_visit">
+        <source>encounter.validation.item.options_visit</source>
+        <target>{count, plural, =0 {Keine Zuweisung in Reichweite} one {# Zuweisung in Reichweite} other {# Zuweisungen in Reichweite}}</target>
+      </trans-unit>
+      <trans-unit id="Enc02662259" resname="encounter.validation.item.options_none_allocation">
+        <source>encounter.validation.item.options_none_allocation</source>
+        <target>Kein Besuch im Review-Zeitfenster</target>
+      </trans-unit>
+      <trans-unit id="Enc91AD8140" resname="encounter.validation.item.options_none_visit">
+        <source>encounter.validation.item.options_none_visit</source>
+        <target>Keine Zuweisung, deren Review-Zeitfenster diesen Besuch enthält</target>
+      </trans-unit>
+      <trans-unit id="Enc2887FCBE" resname="encounter.validation.item.link_allocation">
+        <source>encounter.validation.item.link_allocation</source>
+        <target>Diesen Besuch verknüpfen</target>
+      </trans-unit>
+      <trans-unit id="EncC50FF5DD" resname="encounter.validation.item.link_visit">
+        <source>encounter.validation.item.link_visit</source>
+        <target>Diese Zuweisung verknüpfen</target>
+      </trans-unit>
+      <trans-unit id="Enc95D0F339" resname="encounter.validation.item.link_pair">
+        <source>encounter.validation.item.link_pair</source>
+        <target>Stattdessen verknüpfen</target>
+      </trans-unit>
+      <trans-unit id="Enc4162F66F" resname="encounter.validation.item.decide.correct">
+        <source>encounter.validation.item.decide.correct</source>
+        <target>Richtig</target>
+      </trans-unit>
+      <trans-unit id="EncB82642F6" resname="encounter.validation.item.decide.wrong_no_partner">
+        <source>encounter.validation.item.decide.wrong_no_partner</source>
+        <target>Falsch – kein passender Besuch</target>
+      </trans-unit>
+      <trans-unit id="Enc76AEA171" resname="encounter.validation.item.decide.wrong_other">
+        <source>encounter.validation.item.decide.wrong_other</source>
+        <target>Falsch – anderer Besuch passt</target>
+      </trans-unit>
+      <trans-unit id="Enc2BF6ECDA" resname="encounter.validation.item.decide.unclear">
+        <source>encounter.validation.item.decide.unclear</source>
+        <target>Unklar</target>
+      </trans-unit>
+      <trans-unit id="Enc92A86140" resname="encounter.validation.item.decide.no_partner">
+        <source>encounter.validation.item.decide.no_partner</source>
+        <target>Kein Partner</target>
+      </trans-unit>
+      <trans-unit id="EncB5A2B656" resname="encounter.validation.item.decision_note_pair">
+        <source>encounter.validation.item.decision_note_pair</source>
+        <target>„Richtig“ bestätigt die Verknüpfung: eine automatische Verknüpfung oder ein Vorschlag wird bestätigt. „Falsch“ lehnt das Paar ab; mit einem anderen Besuch wird stattdessen dieser verknüpft. Ein späterer Wechsel des Urteils macht keine Verknüpfung rückgängig; Verknüpfungen ändert das Review.</target>
+      </trans-unit>
+      <trans-unit id="Enc6511D74A" resname="encounter.validation.item.decision_note_unlinked">
+        <source>encounter.validation.item.decision_note_unlinked</source>
+        <target>Verknüpfen speichert „Gegenstück verpasst“ und bestätigt die Verknüpfung. Ein späterer Wechsel des Urteils macht keine Verknüpfung rückgängig; Verknüpfungen ändert das Review.</target>
+      </trans-unit>
+      <trans-unit id="Enc8AE327E2" resname="encounter.validation.item.decide.skip">
+        <source>encounter.validation.item.decide.skip</source>
+        <target>Überspringen</target>
+      </trans-unit>
+      <trans-unit id="EncBCD292F2" resname="encounter.validation.item.decision_note_skip">
+        <source>encounter.validation.item.decision_note_skip</source>
+        <target>„Unklar“: angesehen, aber nicht entscheidbar; zählt als beurteilt und geht nicht in den Anteil ein. „Überspringen“: später entscheiden; nichts wird gespeichert, der Fall bleibt offen und der nächste offene Fall folgt.</target>
+      </trans-unit>
+      <trans-unit id="Enc5C08555C" resname="encounter.validation.item.alternatives">
+        <source>encounter.validation.item.alternatives</source>
+        <target>Alternativen ({count})</target>
+      </trans-unit>
+      <trans-unit id="Enc8092B828" resname="encounter.validation.item.alternatives_none">
+        <source>encounter.validation.item.alternatives_none</source>
+        <target>Keine weiteren Kandidaten im Zeitfenster</target>
+      </trans-unit>
+      <trans-unit id="EncCCE458CF" resname="encounter.validation.item.alternatives_hint">
+        <source>encounter.validation.item.alternatives_hint</source>
+        <target>Weitere Kandidaten-Besuche im Review-Zeitfenster, nach Punkten. Eine Zeile öffnet den vollständigen Vergleich.</target>
+      </trans-unit>
+      <trans-unit id="Enc878D7DAB" resname="encounter.validation.flash.recorded_confirmed">
+        <source>encounter.validation.flash.recorded_confirmed</source>
+        <target>Urteil gespeichert; die Verknüpfung wurde bestätigt.</target>
+      </trans-unit>
+      <trans-unit id="EncD9184F13" resname="encounter.validation.flash.recorded_linked">
+        <source>encounter.validation.flash.recorded_linked</source>
+        <target>Urteil gespeichert; das gewählte Gegenstück wurde verknüpft.</target>
+      </trans-unit>
+      <trans-unit id="Enc014C5E4E" resname="encounter.validation.flash.recorded_swapped">
+        <source>encounter.validation.flash.recorded_swapped</source>
+        <target>Urteil gespeichert; das gewählte Gegenstück wurde mit dem Tausch aus dem Review verknüpft.</target>
+      </trans-unit>
+      <trans-unit id="EncBFDC8A49" resname="encounter.validation.flash.link_refused">
+        <source>encounter.validation.flash.link_refused</source>
+        <target>Nichts gespeichert: Zuweisung #{allocation} ist anders verknüpft und das Review bietet keinen Tausch an. Bitte im Review dieser Zuweisung entscheiden.</target>
+      </trans-unit>
+      <trans-unit id="Enc5BE51047" resname="encounter.validation.report.negative_other">
+        <source>encounter.validation.report.negative_other</source>
+        <target>Davon anderer Besuch</target>
+      </trans-unit>
+      <trans-unit id="EncF523307D" resname="encounter.validation.item.verdict_title">
+        <source>encounter.validation.item.verdict_title</source>
+        <target>Urteil</target>
+      </trans-unit>
+      <trans-unit id="Enc68435AF6" resname="encounter.validation.item.options_hint_allocation">
+        <source>encounter.validation.item.options_hint_allocation</source>
+        <target>Gehört einer der Besuche unten zu dieser Zuweisung? Dann dort „Diesen Besuch verknüpfen“ wählen.</target>
+      </trans-unit>
+      <trans-unit id="EncD9B0B0A5" resname="encounter.validation.item.options_hint_visit">
+        <source>encounter.validation.item.options_hint_visit</source>
+        <target>Gehört eine der Zuweisungen unten zu diesem Besuch? Dann dort „Diese Zuweisung verknüpfen“ wählen.</target>
+      </trans-unit>
+      <trans-unit id="EncE1E3DBED" resname="encounter.data_prep.overview.guide">
+        <source>encounter.data_prep.overview.guide</source>
+        <target>Anleitung und Download</target>
+      </trans-unit>
+      <trans-unit id="Enc9DDB4F7A" resname="encounter.data_prep.guide.title">
+        <source>encounter.data_prep.guide.title</source>
+        <target>Datenaufbereitungs-Tool</target>
+      </trans-unit>
+      <trans-unit id="EncFF795C42" resname="encounter.data_prep.guide.release.title">
+        <source>encounter.data_prep.guide.release.title</source>
+        <target>Aktuelle Version</target>
+      </trans-unit>
+      <trans-unit id="EncD483D0F9" resname="encounter.data_prep.guide.release.version">
+        <source>encounter.data_prep.guide.release.version</source>
+        <target>Version</target>
+      </trans-unit>
+      <trans-unit id="EncA6988D6D" resname="encounter.data_prep.guide.release.released_at">
+        <source>encounter.data_prep.guide.release.released_at</source>
+        <target>Veröffentlicht</target>
+      </trans-unit>
+      <trans-unit id="EncE7AF5A7F" resname="encounter.data_prep.guide.release.min_version">
+        <source>encounter.data_prep.guide.release.min_version</source>
+        <target>Mindestversion für den Upload</target>
+      </trans-unit>
+      <trans-unit id="Enc02BDEC12" resname="encounter.data_prep.guide.release.min_version_help">
+        <source>encounter.data_prep.guide.release.min_version_help</source>
+        <target>Dateien aus einem älteren Tool werden beim Upload abgelehnt. Das Tool prüft beim Start, ob es eine neue Version gibt, und zeigt dann einen Hinweis.</target>
+      </trans-unit>
+      <trans-unit id="Enc939B976B" resname="encounter.data_prep.guide.changelog.title">
+        <source>encounter.data_prep.guide.changelog.title</source>
+        <target>Was ist neu</target>
+      </trans-unit>
+      <trans-unit id="Enc69B7D3F1" resname="encounter.data_prep.guide.changelog.current">
+        <source>encounter.data_prep.guide.changelog.current</source>
+        <target>aktuell</target>
+      </trans-unit>
+      <trans-unit id="EncF110A873" resname="encounter.data_prep.changelog.1_1_0.map_editor">
+        <source>encounter.data_prep.changelog.1_1_0.map_editor</source>
+        <target>Editor für die lokale Zuordnung: Nach einem Lauf lassen sich nicht zugeordnete Fachabteilungen, Stationen und Entlassungstexte im Bericht zuordnen; „Zur Zuordnung hinzufügen und neu aufbereiten“ prüft die Einträge wie eine geladene Datei und bereitet ohne erneutes Laden des Exports neu auf. „Zuordnung speichern“ speichert die Datei.</target>
+      </trans-unit>
+      <trans-unit id="EncB1EEF418" resname="encounter.data_prep.changelog.1_1_0.map_remember">
+        <source>encounter.data_prep.changelog.1_1_0.map_remember</source>
+        <target>Die lokale Zuordnung kann wie die Schlüsseldatei auf diesem Computer gemerkt werden. Sie verlässt den Browser nie.</target>
+      </trans-unit>
+      <trans-unit id="EncC67F96FB" resname="encounter.data_prep.changelog.1_0_2.department_names_checked">
+        <source>encounter.data_prep.changelog.1_0_2.department_names_checked</source>
+        <target>Die lokale Zuordnung lehnt Fachabteilungsnamen ab, die der Import für personenbezogene Daten halten würde („Wort, Wort“, ein Titel wie „Dr.“ vor einem Namen, Datumsangaben).</target>
+      </trans-unit>
+      <trans-unit id="Enc56B59C0D" resname="encounter.data_prep.changelog.1_0_1.department_names">
+        <source>encounter.data_prep.changelog.1_0_1.department_names</source>
+        <target>Fachabteilungen werden in der lokalen Zuordnung Namen aus dem Referenzkatalog zugeordnet statt Codes.</target>
+      </trans-unit>
+      <trans-unit id="EncFA85C911" resname="encounter.data_prep.changelog.1_0_1.mts_indicators">
+        <source>encounter.data_prep.changelog.1_0_1.mts_indicators</source>
+        <target>MTS-Indikatoren nach dem ersten Testlauf mit einem echten Export ergänzt.</target>
+      </trans-unit>
+      <trans-unit id="Enc85DA95D6" resname="encounter.data_prep.changelog.1_0_0.first_release">
+        <source>encounter.data_prep.changelog.1_0_0.first_release</source>
+        <target>Erste Version mit dem Profil ORBIS MTS: Schlüsseldatei, optionale lokale Zuordnung, Spaltenvorschau, Bericht, Inhaltsprüfung und die kanonische Datei für den Upload.</target>
+      </trans-unit>
+      <trans-unit id="Enc91ED4493" resname="encounter.data_prep.guide.steps.title">
+        <source>encounter.data_prep.guide.steps.title</source>
+        <target>Erste Schritte</target>
+      </trans-unit>
+      <trans-unit id="EncADFB85D7" resname="encounter.data_prep.guide.steps.grants.title">
+        <source>encounter.data_prep.guide.steps.grants.title</source>
+        <target>Berechtigungen</target>
+      </trans-unit>
+      <trans-unit id="Enc4AE590B7" resname="encounter.data_prep.guide.steps.grants.text">
+        <source>encounter.data_prep.guide.steps.grants.text</source>
+        <target>Behandlungsdaten brauchen die Pilotrolle und eine Behandlungsdaten-Berechtigung je Klinik:</target>
+      </trans-unit>
+      <trans-unit id="Enc6415A874" resname="encounter.data_prep.guide.steps.grants.own">
+        <source>encounter.data_prep.guide.steps.grants.own</source>
+        <target>Ihre Berechtigungen</target>
+      </trans-unit>
+      <trans-unit id="Enc3F95556E" resname="encounter.data_prep.guide.steps.grants.no_grant">
+        <source>encounter.data_prep.guide.steps.grants.no_grant</source>
+        <target>keine Behandlungsdaten-Berechtigung</target>
+      </trans-unit>
+      <trans-unit id="Enc8AEF466D" resname="encounter.data_prep.guide.steps.grants.manage">
+        <source>encounter.data_prep.guide.steps.grants.manage</source>
+        <target>Berechtigungen verwalten</target>
+      </trans-unit>
+      <trans-unit id="Enc5464EE0E" resname="encounter.data_prep.guide.steps.grants.none">
+        <source>encounter.data_prep.guide.steps.grants.none</source>
+        <target>Sie haben noch für keine Klinik eine Behandlungsdaten-Berechtigung.</target>
+      </trans-unit>
+      <trans-unit id="Enc9141BE9C" resname="encounter.data_prep.guide.steps.grants.who_assigns">
+        <source>encounter.data_prep.guide.steps.grants.who_assigns</source>
+        <target>Die Inhaberin oder der Inhaber einer Klinik vergibt diese Berechtigungen auf den Bearbeitungsseiten der Klinik, auch an sich selbst. Inhaberschaft allein erlaubt keinen Upload.</target>
+      </trans-unit>
+      <trans-unit id="Enc2423D9DD" resname="encounter.data_prep.guide.steps.export.title">
+        <source>encounter.data_prep.guide.steps.export.title</source>
+        <target>Export aus dem Krankenhausinformationssystem</target>
+      </trans-unit>
+      <trans-unit id="Enc0B527526" resname="encounter.data_prep.guide.steps.export.orbis">
+        <source>encounter.data_prep.guide.steps.export.orbis</source>
+        <target>ORBIS: Die ZNA-Liste mit der MTS-Ersteinschätzung (eine Zeile je ZNA-Besuch) als CSV-Datei mit Semikolon und allen Spalten exportieren, für einen abgeschlossenen Zeitraum, zum Beispiel einen Monat. Das Tool behält nur die benötigten Felder und verwirft Namen, Geburtsdaten, Personal und Freitext. Es erkennt den Export an diesen Spalten:</target>
+      </trans-unit>
+      <trans-unit id="Enc22421F49" resname="encounter.data_prep.guide.steps.export.columns">
+        <source>encounter.data_prep.guide.steps.export.columns</source>
+        <target>Spalten</target>
+      </trans-unit>
+      <trans-unit id="Enc85985648" resname="encounter.data_prep.guide.steps.export.generic">
+        <source>encounter.data_prep.guide.steps.export.generic</source>
+        <target>Andere Systeme brauchen ein eigenes Profil. Wenn Ihr System fehlt, schicken Sie dem Projektteam die Spaltennamen Ihres Exports (keine Daten).</target>
+      </trans-unit>
+      <trans-unit id="EncBAE3294F" resname="encounter.data_prep.guide.steps.key.title">
+        <source>encounter.data_prep.guide.steps.key.title</source>
+        <target>Schlüsseldatei</target>
+      </trans-unit>
+      <trans-unit id="EncCDDA6B61" resname="encounter.data_prep.guide.steps.key.text">
+        <source>encounter.data_prep.guide.steps.key.text</source>
+        <target>Die Schlüsseldatei einmal je Klinik im Tool erzeugen („Noch keine Schlüsseldatei? Neu erzeugen“), in einem Teamordner ablegen, auf den alle zugreifen, die Daten aufbereiten, und für jeden Lauf dieselbe Datei verwenden. Nie versenden und nie hochladen.</target>
+      </trans-unit>
+      <trans-unit id="Enc08A4DF15" resname="encounter.data_prep.guide.steps.map.title">
+        <source>encounter.data_prep.guide.steps.map.title</source>
+        <target>Lokale Zuordnung (optional)</target>
+      </trans-unit>
+      <trans-unit id="EncAEC61262" resname="encounter.data_prep.guide.steps.map.text">
+        <source>encounter.data_prep.guide.steps.map.text</source>
+        <target>Ordnet die Fachabteilungskürzel, Stationen und Entlassungstexte Ihrer Klinik zu. Sie wird gebraucht, wenn der Bericht des Tools „nicht zugeordnete Werte“ für Fachabteilung, Versorgungsstufe oder Verbleib zeigt. Sie wird im Tool ausgefüllt und bleibt auf Ihrem Computer.</target>
+      </trans-unit>
+      <trans-unit id="EncB0A704F3" resname="encounter.data_prep.guide.steps.run.title">
+        <source>encounter.data_prep.guide.steps.run.title</source>
+        <target>Tool ausführen</target>
+      </trans-unit>
+      <trans-unit id="EncF726E5CA" resname="encounter.data_prep.guide.steps.run.text">
+        <source>encounter.data_prep.guide.steps.run.text</source>
+        <target>Die heruntergeladene Datei in einem aktuellen Browser öffnen, Schlüsseldatei, gegebenenfalls die lokale Zuordnung und den Export laden und die Aufbereitung starten. Bericht, Inhaltsprüfung und die Vorschau der ersten Zeilen prüfen, dann die Datei speichern.</target>
+      </trans-unit>
+      <trans-unit id="Enc389E34CE" resname="encounter.data_prep.guide.steps.upload.title">
+        <source>encounter.data_prep.guide.steps.upload.title</source>
+        <target>Hochladen und prüfen</target>
+      </trans-unit>
+      <trans-unit id="EncC5577290" resname="encounter.data_prep.guide.steps.upload.text">
+        <source>encounter.data_prep.guide.steps.upload.text</source>
+        <target>Die gespeicherte Datei als „Behandlungsdaten (Beta)“ für Ihre Klinik hochladen und bestätigen, dass sie mit dem Tool erzeugt wurde. Nach dem Import werden die Besuche den IVENA-Zuweisungen zugeordnet; vorgeschlagene Verknüpfungen werden in der Prüfung der Zuordnungen bestätigt.</target>
+      </trans-unit>
+      <trans-unit id="Enc54A111BE" resname="encounter.data_prep.guide.key.title">
+        <source>encounter.data_prep.guide.key.title</source>
+        <target>Schlüsseldatei und Schlüsselgenerationen</target>
+      </trans-unit>
+      <trans-unit id="EncDA09A442" resname="encounter.data_prep.guide.key.purpose">
+        <source>encounter.data_prep.guide.key.purpose</source>
+        <target>Mit der Schlüsseldatei macht das Tool aus der Fallnummer ein Pseudonym. Derselbe Fall ergibt mit demselben Schlüssel dasselbe Pseudonym; so wird ein doppelt hochgeladener Besuch erkannt, und der Server erfährt die Fallnummer nie.</target>
+      </trans-unit>
+      <trans-unit id="Enc8300A717" resname="encounter.data_prep.guide.key.keep">
+        <source>encounter.data_prep.guide.key.keep</source>
+        <target>Der Server kennt nur einen Prüfwert des Schlüssels. Der erste Upload registriert ihn; Dateien mit einem anderen Schlüssel werden abgelehnt.</target>
+      </trans-unit>
+      <trans-unit id="Enc9B3212D2" resname="encounter.data_prep.guide.key.generations">
+        <source>encounter.data_prep.guide.key.generations</source>
+        <target>Ein Schlüsselwechsel beginnt eine neue Schlüsselgeneration: Alle brauchen die neue Schlüsseldatei, und Besuche der alten Generation werden in neuen Uploads nicht mehr wiedererkannt. Wer den Schlüssel wechselt, wählt, ob die bisher hochgeladenen Daten gelöscht (dann kann jeder Zeitraum neu hochgeladen werden) oder behalten werden (dann nur neue Zeiträume hochladen).</target>
+      </trans-unit>
+      <trans-unit id="EncFA1EAEE0" resname="encounter.data_prep.guide.key.lost">
+        <source>encounter.data_prep.guide.key.lost</source>
+        <target>Schlüsseldatei verloren, oder könnten Unbefugte sie gesehen haben? Dann muss der Schlüssel gewechselt werden. Einen verlorenen Schlüssel kann niemand wiederherstellen, auch das Projektteam nicht.</target>
+      </trans-unit>
+      <trans-unit id="Enc4D155DAE" resname="encounter.data_prep.guide.key.change_allowed">
+        <source>encounter.data_prep.guide.key.change_allowed</source>
+        <target>Sie können den Schlüssel wechseln für:</target>
+      </trans-unit>
+      <trans-unit id="Enc17C8AB76" resname="encounter.data_prep.guide.key.change_link">
+        <source>encounter.data_prep.guide.key.change_link</source>
+        <target>Pseudonym-Schlüssel von {hospital} wechseln</target>
+      </trans-unit>
+      <trans-unit id="EncEB6DFE02" resname="encounter.data_prep.guide.key.admin">
+        <source>encounter.data_prep.guide.key.admin</source>
+        <target>Als Administratorin oder Administrator können Sie den Schlüssel jeder Klinik über deren Bearbeitungsseiten wechseln.</target>
+      </trans-unit>
+      <trans-unit id="EncD2CDF89B" resname="encounter.data_prep.guide.key.who">
+        <source>encounter.data_prep.guide.key.who</source>
+        <target>Nur die Inhaberin oder der Inhaber der Klinik oder eine Administratorin oder ein Administrator kann den Schlüssel wechseln. Wenden Sie sich an sie, wenn die Schlüsseldatei verloren ist.</target>
+      </trans-unit>
+      <trans-unit id="Enc93E93C06" resname="encounter.data_prep.guide.map.title">
+        <source>encounter.data_prep.guide.map.title</source>
+        <target>Lokale Zuordnung</target>
+      </trans-unit>
+      <trans-unit id="EncD3E7A49D" resname="encounter.data_prep.guide.map.purpose">
+        <source>encounter.data_prep.guide.map.purpose</source>
+        <target>Das öffentliche Profil kennt nur Werte, die in allen Kliniken gleich sind. Fachabteilungskürzel, Stationsnamen und manche Entlassungstexte sind klinikspezifisch; die lokale Zuordnung ordnet sie zu.</target>
+      </trans-unit>
+      <trans-unit id="Enc98201A2E" resname="encounter.data_prep.guide.map.when">
+        <source>encounter.data_prep.guide.map.when</source>
+        <target>Sie wird gebraucht, wenn der Bericht des Tools nicht zugeordnete Werte für admitting_department, care_level oder disposition zeigt. Ohne sie bleibt die Fachabteilung leer und die Versorgungsstufe kommt nur aus dem Entlassungstext.</target>
+      </trans-unit>
+      <trans-unit id="Enc3D27244B" resname="encounter.data_prep.guide.map.in_tool">
+        <source>encounter.data_prep.guide.map.in_tool</source>
+        <target>Seit Version 1.1.0 wird sie im Tool ausgefüllt: die nicht zugeordneten Werte im Bericht zuordnen, neu aufbereiten und die Zuordnung speichern. Beim nächsten Mal die gespeicherte Datei laden oder vom Tool merken lassen.</target>
+      </trans-unit>
+      <trans-unit id="Enc420A5D8B" resname="encounter.data_prep.guide.map.private">
+        <source>encounter.data_prep.guide.map.private</source>
+        <target>Die Zuordnung bleibt in Ihrer Klinik: neben der Schlüsseldatei ablegen. Sie wird nie hochgeladen, und diese Seite fragt nicht nach Ihren Kürzeln.</target>
+      </trans-unit>
+      <trans-unit id="Enc43BEE61A" resname="encounter.data_prep.guide.map.format_title">
+        <source>encounter.data_prep.guide.map.format_title</source>
+        <target>Format</target>
+      </trans-unit>
+      <trans-unit id="Enc7BDC2D52" resname="encounter.data_prep.guide.map.column.key">
+        <source>encounter.data_prep.guide.map.column.key</source>
+        <target>Schlüssel</target>
+      </trans-unit>
+      <trans-unit id="Enc3D86AFAA" resname="encounter.data_prep.guide.map.column.source">
+        <source>encounter.data_prep.guide.map.column.source</source>
+        <target>Ihr Wert (aus dem Export)</target>
+      </trans-unit>
+      <trans-unit id="Enc1A3438E3" resname="encounter.data_prep.guide.map.column.target">
+        <source>encounter.data_prep.guide.map.column.target</source>
+        <target>Wird zu</target>
+      </trans-unit>
+      <trans-unit id="Enc60C97ED4" resname="encounter.data_prep.guide.map.departments.source">
+        <source>encounter.data_prep.guide.map.departments.source</source>
+        <target>Fachabteilungskürzel (Stat_Fachrichtung, sonst Med. Fachabteilungskürzel)</target>
+      </trans-unit>
+      <trans-unit id="EncD1CDAAC8" resname="encounter.data_prep.guide.map.departments.target">
+        <source>encounter.data_prep.guide.map.departments.target</source>
+        <target>Der Name einer Fachabteilung des Referenzkatalogs (Liste unten), 1–64 Zeichen, ohne Semikolon oder Anführungszeichen, nichts, was wie ein Personenname („Wort, Wort“, „Dr.“ vor einem Namen) oder ein Datum aussieht.</target>
+      </trans-unit>
+      <trans-unit id="EncA85733E3" resname="encounter.data_prep.guide.map.stations.source">
+        <source>encounter.data_prep.guide.map.stations.source</source>
+        <target>Station (Stat_Station) bei stationärer Aufnahme</target>
+      </trans-unit>
+      <trans-unit id="Enc835A0193" resname="encounter.data_prep.guide.map.stations.target">
+        <source>encounter.data_prep.guide.map.stations.target</source>
+        <target>Eine Versorgungsstufe:</target>
+      </trans-unit>
+      <trans-unit id="EncF8A9F11C" resname="encounter.data_prep.guide.map.dispositions.source">
+        <source>encounter.data_prep.guide.map.dispositions.source</source>
+        <target>Entlassungstext (Entlassung), den das Profil nicht kennt oder der überschrieben werden soll</target>
+      </trans-unit>
+      <trans-unit id="Enc22716346" resname="encounter.data_prep.guide.map.dispositions.target">
+        <source>encounter.data_prep.guide.map.dispositions.target</source>
+        <target>Ein Objekt mit „disposition“ und optional „careLevel“ (nur bei {codes} erlaubt). Verbleib:</target>
+      </trans-unit>
+      <trans-unit id="EncC7DDCAA6" resname="encounter.data_prep.guide.map.matching">
+        <source>encounter.data_prep.guide.map.matching</source>
+        <target>Ihre Werte werden ohne Unterscheidung von Groß- und Kleinschreibung und mehrfachen Leerzeichen verglichen.</target>
+      </trans-unit>
+      <trans-unit id="Enc9908A491" resname="encounter.data_prep.guide.map.example_title">
+        <source>encounter.data_prep.guide.map.example_title</source>
+        <target>Beispiel</target>
+      </trans-unit>
+      <trans-unit id="Enc3F5743AA" resname="encounter.data_prep.guide.map.download_template">
+        <source>encounter.data_prep.guide.map.download_template</source>
+        <target>Leere Vorlage herunterladen</target>
+      </trans-unit>
+      <trans-unit id="EncFE237233" resname="encounter.data_prep.guide.map.download_example">
+        <source>encounter.data_prep.guide.map.download_example</source>
+        <target>Beispiel herunterladen</target>
+      </trans-unit>
+      <trans-unit id="Enc4222D057" resname="encounter.data_prep.guide.map.department_names_title">
+        <source>encounter.data_prep.guide.map.department_names_title</source>
+        <target>Gültige Fachabteilungsnamen</target>
+      </trans-unit>
+      <trans-unit id="Enc383451BD" resname="encounter.data_prep.guide.map.department_names_help">
+        <source>encounter.data_prep.guide.map.department_names_help</source>
+        <target>Der Import sucht die Fachabteilung über ihren Namen im öffentlichen Referenzkatalog, ohne Groß- und Kleinschreibung zu unterscheiden. Zeilen mit einem unbekannten Namen werden abgelehnt. Namen, die zwei Katalogeinträge teilen, sind nicht verwendbar und fehlen in der Liste.</target>
+      </trans-unit>
+      <trans-unit id="Enc2A0B1D60" resname="encounter.data_prep.guide.map.department_names_none">
+        <source>encounter.data_prep.guide.map.department_names_none</source>
+        <target>Der Referenzkatalog enthält noch keine Fachabteilungen.</target>
+      </trans-unit>
+      <trans-unit id="Enc919C280A" resname="encounter.data_prep.tool.map_remember">
+        <source>encounter.data_prep.tool.map_remember</source>
+        <target>Auf diesem Computer merken</target>
+      </trans-unit>
+      <trans-unit id="Enc23093A54" resname="encounter.data_prep.tool.map_forget">
+        <source>encounter.data_prep.tool.map_forget</source>
+        <target>Zuordnung vergessen</target>
+      </trans-unit>
+      <trans-unit id="EncF63695A7" resname="encounter.data_prep.tool.map_save">
+        <source>encounter.data_prep.tool.map_save</source>
+        <target>Zuordnung speichern</target>
+      </trans-unit>
+      <trans-unit id="EncDFA532F8" resname="encounter.data_prep.tool.map_editor_hint">
+        <source>encounter.data_prep.tool.map_editor_hint</source>
+        <target>Noch keine Zuordnung? Aufbereitung starten, die nicht zugeordneten Werte im Bericht zuordnen und die Zuordnung hier speichern. Die Zuordnung verlässt diesen Browser nie.</target>
+      </trans-unit>
+      <trans-unit id="Enc59222E41" resname="encounter.data_prep.js.map_unsaved">
+        <source>encounter.data_prep.js.map_unsaved</source>
+        <target>Noch nicht gespeichert: mit „Zuordnung speichern“ für den nächsten Lauf sichern</target>
+      </trans-unit>
+      <trans-unit id="EncC69693D1" resname="encounter.data_prep.js.map_saved">
+        <source>encounter.data_prep.js.map_saved</source>
+        <target>Lokale Zuordnung gespeichert. Neben der Schlüsseldatei ablegen.</target>
+      </trans-unit>
+      <trans-unit id="Enc602B8548" resname="encounter.data_prep.js.map_remember_failed">
+        <source>encounter.data_prep.js.map_remember_failed</source>
+        <target>Der Browser konnte die Zuordnung nicht merken; die Datei bei jedem Lauf laden.</target>
+      </trans-unit>
+      <trans-unit id="Enc2D8C27C7" resname="encounter.data_prep.js.map_remembered_name">
+        <source>encounter.data_prep.js.map_remembered_name</source>
+        <target>gemerkte Zuordnung</target>
+      </trans-unit>
+      <trans-unit id="EncDDA28622" resname="encounter.data_prep.js.map_edit_column">
+        <source>encounter.data_prep.js.map_edit_column</source>
+        <target>In der lokalen Zuordnung zuordnen</target>
+      </trans-unit>
+      <trans-unit id="EncF6DDCC29" resname="encounter.data_prep.js.map_edit_department">
+        <source>encounter.data_prep.js.map_edit_department</source>
+        <target>Name der Fachabteilung</target>
+      </trans-unit>
+      <trans-unit id="Enc4BD6F635" resname="encounter.data_prep.js.map_edit_care_level">
+        <source>encounter.data_prep.js.map_edit_care_level</source>
+        <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="Enc8A2FDDE8" resname="encounter.data_prep.js.map_edit_care_level_none">
+        <source>encounter.data_prep.js.map_edit_care_level_none</source>
+        <target>Versorgungsstufe: aus dem Text</target>
+      </trans-unit>
+      <trans-unit id="Enc75D08A45" resname="encounter.data_prep.js.map_edit_disposition">
+        <source>encounter.data_prep.js.map_edit_disposition</source>
+        <target>Verbleib</target>
+      </trans-unit>
+      <trans-unit id="EncAEABA2EB" resname="encounter.data_prep.js.map_edit_profile">
+        <source>encounter.data_prep.js.map_edit_profile</source>
+        <target>braucht eine neue Profilversion</target>
+      </trans-unit>
+      <trans-unit id="Enc677E8DBC" resname="encounter.data_prep.js.map_edit_hint">
+        <source>encounter.data_prep.js.map_edit_hint</source>
+        <target>Fachabteilung: ein Name aus dem Referenzkatalog (Liste auf der Seite des Tools auf dem Server). Leere Felder werden übergangen.</target>
+      </trans-unit>
+      <trans-unit id="Enc57E088DF" resname="encounter.data_prep.js.map_edit_nothing">
+        <source>encounter.data_prep.js.map_edit_nothing</source>
+        <target>Keine Zuordnung ausgefüllt.</target>
+      </trans-unit>
+      <trans-unit id="Enc76004608" resname="encounter.data_prep.js.map_apply">
+        <source>encounter.data_prep.js.map_apply</source>
+        <target>Zur Zuordnung hinzufügen und neu aufbereiten</target>
+      </trans-unit>
+      <trans-unit id="Enc5536BD30" resname="encounter.data_prep.js.map_applied">
+        <source>encounter.data_prep.js.map_applied</source>
+        <target>Zuordnungen hinzugefügt:</target>
+      </trans-unit>
+      <trans-unit id="EncA17BC8AD" resname="encounter.data_prep.guide.key.summary">
+        <source>encounter.data_prep.guide.key.summary</source>
+        <target>Macht aus der Fallnummer ein Pseudonym, damit der Server sie nie erfährt. Einmal je Klinik im Tool erzeugen, im Teamordner ablegen und nie versenden.</target>
+      </trans-unit>
+      <trans-unit id="Enc6025934F" resname="encounter.data_prep.guide.key.more">
+        <source>encounter.data_prep.guide.key.more</source>
+        <target>Schlüsseldatei und Schlüsselwechsel</target>
+      </trans-unit>
+      <trans-unit id="EncF4431779" resname="encounter.data_prep.guide.key.purpose_title">
+        <source>encounter.data_prep.guide.key.purpose_title</source>
+        <target>Wofür die Schlüsseldatei da ist</target>
+      </trans-unit>
+      <trans-unit id="Enc2865F44E" resname="encounter.data_prep.guide.key.handling_title">
+        <source>encounter.data_prep.guide.key.handling_title</source>
+        <target>Erzeugen und aufbewahren</target>
+      </trans-unit>
+      <trans-unit id="Enc5AD63E5D" resname="encounter.data_prep.guide.key.generations_title">
+        <source>encounter.data_prep.guide.key.generations_title</source>
+        <target>Schlüsselgenerationen und verlorener Schlüssel</target>
+      </trans-unit>
+      <trans-unit id="Enc1EA81230" resname="encounter.data_prep.guide.key.change_title">
+        <source>encounter.data_prep.guide.key.change_title</source>
+        <target>Schlüssel wechseln</target>
+      </trans-unit>
+      <trans-unit id="Enc083EDB21" resname="encounter.data_prep.guide.map.summary">
+        <source>encounter.data_prep.guide.map.summary</source>
+        <target>Optional: ordnet die Fachabteilungskürzel, Stationen und Entlassungstexte Ihrer Klinik zu. Sie wird im Tool ausgefüllt, wenn der Bericht nicht zugeordnete Werte zeigt, und bleibt auf Ihrem Computer.</target>
+      </trans-unit>
+      <trans-unit id="Enc796DE610" resname="encounter.data_prep.guide.map.more">
+        <source>encounter.data_prep.guide.map.more</source>
+        <target>Format, Vorlage und Fachabteilungsnamen</target>
+      </trans-unit>
+      <trans-unit id="EncAE116859" resname="encounter.data_prep.guide.map.downloads_title">
+        <source>encounter.data_prep.guide.map.downloads_title</source>
+        <target>Vorlage und Beispiel</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

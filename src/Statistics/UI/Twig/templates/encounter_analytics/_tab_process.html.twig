@@ -1,0 +1,69 @@
+{# Process times tab: one box plot per interval (MTS categories, whiskers P10/P90), then the full table. #}
+<div class="row g-3 mb-3">
+    {% for row in overview.processTimes %}
+        {% set boxes = (overview.processBoxes[row.interval.value] ?? [])|filter(b => not b.suppressed) %}
+        <div class="col-12 col-xl-4">
+            <div class="card h-100" data-testid="encounter-process-box" data-interval="{{ row.interval.value }}">
+                {{ include('@Statistics/encounter_analytics/_card_header.html.twig', {
+                    title: ('encounter.process.' ~ row.interval.value ~ '.label')|trans({}, d),
+                }) }}
+                <div class="card-body">
+                    {% if boxes is empty %}
+                        <p class="text-secondary mb-0">{{ 'stats.encounter.process.suppressed'|trans({threshold: threshold}, 'statistics') }}</p>
+                    {% else %}
+                        <div data-controller="encounter-overview-chart" data-encounter-overview-chart-chart-value="{{ {
+                            type: 'boxPlot',
+                            horizontal: true,
+                            unit: 'min',
+                            series: [{
+                                name: ('encounter.process.' ~ row.interval.value ~ '.label')|trans({}, d),
+                                data: boxes|map(b => {x: category_labels[b.category], y: b.values}),
+                            }],
+                        }|json_encode|e('html_attr') }}"></div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="card">
+    {{ include('@Statistics/encounter_analytics/_card_header.html.twig', {
+        title: 'stats.encounter.process.title'|trans({}, 'statistics'),
+    }) }}
+    <div class="table-responsive">
+        <table class="table card-table table-vcenter" data-testid="encounter-process-times">
+            <thead>
+                <tr>
+                    <th>{{ 'stats.encounter.process.interval'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.encounter.process.median'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.encounter.process.iqr'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.encounter.process.valid'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.encounter.process.missing'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.encounter.process.negative'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.encounter.process.implausible'|trans({hours: max_hours}, 'statistics') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in overview.processTimes %}
+                    <tr data-testid="encounter-process-row" data-interval="{{ row.interval.value }}">
+                        <td>
+                            <div>{{ ('encounter.process.' ~ row.interval.value ~ '.label')|trans({}, d) }}</div>
+                            <div class="small text-secondary">{{ ('encounter.process.' ~ row.interval.value ~ '.definition')|trans({}, d) }}</div>
+                        </td>
+                        {% if row.suppressed %}
+                            <td class="text-end text-secondary" colspan="2" data-testid="encounter-process-suppressed">{{ 'stats.encounter.process.suppressed'|trans({threshold: threshold}, 'statistics') }}</td>
+                        {% else %}
+                            <td class="text-end text-nowrap" data-testid="encounter-process-median">{{ 'encounter.unit.minutes_decimal'|trans({minutes: row.median|round(1)}, d) }}</td>
+                            <td class="text-end text-nowrap" data-testid="encounter-process-iqr">{{ row.q1|round(1)|format_number({max_fraction_digit: 1}) }} – {{ 'encounter.unit.minutes_decimal'|trans({minutes: row.q3|round(1)}, d) }}</td>
+                        {% endif %}
+                        <td class="text-end" data-testid="encounter-process-valid">{{ include('@Encounter/glossary/_count.html.twig', {count: row.valid}) }}</td>
+                        <td class="text-end" data-testid="encounter-process-missing">{{ include('@Encounter/glossary/_count.html.twig', {count: row.missing}) }}</td>
+                        <td class="text-end" data-testid="encounter-process-negative">{{ include('@Encounter/glossary/_count.html.twig', {count: row.negative}) }}</td>
+                        <td class="text-end" data-testid="encounter-process-implausible">{{ include('@Encounter/glossary/_count.html.twig', {count: row.implausible}) }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

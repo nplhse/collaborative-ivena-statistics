@@ -42,7 +42,7 @@ The generator draws from `RandomStreams` (`src/DataFixtures/Generator/Infrastruc
 - the same seed and the same last day give the same data, compared by content (database ids change after every purge);
 - a hospital gets the same rows whether other hospitals take part or not, and a month gets the same rows alone or inside a longer period.
 
-MCI cases lie in the month of their hospital's import. `NoGlobalRandomnessTest` fails when code in `DataFixtures/Allocation`, `Generator` or `Pattern` calls a global random function.
+MCI cases lie in the month of their hospital's import. `NoGlobalRandomnessTest` fails when code in `DataFixtures/Allocation`, `Encounter`, `Generator` or `Pattern` calls a global random function.
 
 ## Pattern-based synthetic allocations
 
@@ -236,6 +236,38 @@ The same scenario, start day, seed and intensity give the same rows; applying a 
 
 **Scenarios in presets.** `scenarios` in `fixtures.profiles` lays scenarios over the base data of a preset: name → applications per year, scaled to the period and at least one. `PresetScenarioPlanner` places them with the seed: the period is split into one part per application, a flu wave or icy road starts on a winter day of its part (heat on a summer day) if the part has one. An MCI takes 2–4 hospitals, those of one dispatch area with at least two active hospitals first, then the nearest of other areas; a flu wave takes every active hospital; other scenarios the active hospitals of one dispatch area. Projections and KPIs follow with the rest of the load. To remove a preset scenario, look up its start day in the import list (`Scenario <name> <start day>`) and use `--remove`.
 
+## Encounter data
+
+Synthetic ED visits for the encounter pilot (#1052, [encounter README](../04-features/encounter/README.md)) are generated from the synthetic allocations of a hospital, so matcher tests (#1053, #1057) know the true links. `app:encounter:evaluate-matcher --truth=<truth.json>` compares a replay of the matcher with that truth ([match validation](../04-features/encounter/README.md#match-validation)). Code: `src/DataFixtures/Encounter/`.
+
+`SyntheticEncounterGenerator` takes the allocations of one hospital and month (`AllocationSnapshot`: id, arrival, age, sex, urgency, emergency physician, air transport, work accident, department) and returns the visits with their truth (`SyntheticVisit`: case number, group, `ed_visit` cells, true allocation id, noise flags). Every group size is an exact rounded share (`EncounterShares`), not a random draw:
+
+| Group or variation | Default share | 100 allocations give |
+|---|---|---|
+| Linked visits (true link to an allocation) | 85 % of the allocations; the rest have no visit | 85 linked, 15 allocations without visit |
+| EMS arrivals without allocation | 0.15 per linked visit | 13 |
+| Self-presenters | 1.5 per linked visit | 128 |
+| Unknown arrival route (`other` or empty) | 0.05 per linked visit | 4 |
+| Repeat visits under the case number of an earlier visit, 3–36 h later | 3 % of the visits above | 7 (237 visits) |
+| Time outliers: ED admission −60 … −21 or +46 … +120 min from the IVENA arrival | 5 % of the linked visits | 4 |
+| Age noise: 1–5 years off | 20 % of the linked visits | 17 |
+| No ED admission time (first assessment contact only) | 5 % of all visits | 12 |
+| Late assessment: first assessment contact documented only after the first export | 2 % of all visits | 5 |
+
+- **Linked visits:** ED admission −5 … +15 min after the IVENA arrival (mostly 0 … +5), first assessment contact 1–15 min later; sex as in IVENA; arrival mode `physician_vehicle` with an emergency physician or by air, otherwise `ambulance` (a fifth of urgency 3 `patient_transport`), mapped to the arrival route as documented in [the encounter README](../04-features/encounter/README.md#population); work accident `1` when IVENA has one; an admission goes to the allocation's department. MTS category follows the urgency.
+- **Other groups** lie on random days of the month with a daily rhythm. Triage, times, disposition, care level and vitals are plausible but coarse (general knowledge, not measured); vitals are `documented_initial` as with the ORBIS profile.
+- **Case numbers** are digits (`9` + `yymm` + counter) in order of admission; fingerprint and case key are computed with the hospital's synthetic key when a row is written.
+- **Reproducible:** one random stream per seed, hospital and month (`encounters`, ADR 022); the order of the given allocations does not matter. No clock access.
+
+Two output paths:
+
+- **Database** (`SyntheticEncounterLoader::load()`, `SyntheticEncounterWriter`): one completed import of type `ENCOUNTER` per month, path `synthetic/encounters/seed-<seed>/<hospital public id>/<month>.csv` (no file; the dataset engine sees neither real nor generated allocation data in it), profile `synthetic`. Rows go through the import's row mapper and `insertIfNew()`, so they are stored as an upload would store them. The hospital's key state gets the check value of the synthetic key (`SyntheticEncounterKey`, derived from seed and hospital); a hospital with encounter data under another key, or with a key change in progress, is refused. The writer returns the encounter id with the truth of each visit.
+- **Files** (`app:generate:encounter-files --hospital=<public id> --month=YYYY-MM [--seed=] [--dir=]`, default `var/encounter-synthetic/<hospital>/<month>/`): the key file `encounter-key.json` for the data preparation tool, two overlapping canonical `ed_visit` exports (`SyntheticEncounterExports`: part 1 days 1–20, part 2 from day 11) and `truth.json` (case key, fingerprints, group, true allocation id and noise flags per visit, allocations without visit). Uploaded in order as "Encounter data (beta)", part 2 counts the visits of days 11–20 as known, and a late assessment on those days gets a new fingerprint and is reported as a suspected duplicate.
+
+**Fixtures:** the `encounters` group (part of `dev`, so also of the demo install) loads the visits of the demo hospital of `foo` for the last three months of the period (`EncounterFixture`); other hospitals get none. `foo`, the owner of that hospital, gets `ROLE_ENCOUNTER_BETA` and an encounter grant with `UPLOAD`, `REVIEW` and `VIEW_CASES` for it, so the demo user sees the visits; administrators see them through their role.
+
+**Limits:** the truth of the database path lives only in the returned objects and in `truth.json`; nothing stores it in the database. The demo wizard and `app:generate:dataset` do not generate encounters, and replacing a hospital's months does not touch its encounter imports.
+
 ## Not built yet
 
 [ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md) also describes parts that follow when they are needed:
@@ -351,6 +383,10 @@ Generator coverage lives under `tests/DataFixtures/`:
 - `Generator/HospitalMonthGeneratorTest.php` also: the code defaults written as a package give the same rows, the markers record the checksum, an invalid package writes nothing
 - `Pattern/*Test.php` — default patterns, indication groups (urgency 2 as the common case, age bands, polytrauma apart from other multiple injuries), coherence rules, no impossible combinations in a sample of 1,500 cases, codes with the same wording stay apart, only offered departments
 - `Pattern/PatternCouplingsTest.php` — hand-checkable couplings: accident occasions only for injuries, influenza × 5 for respiratory codes, weekend nights × 1.3, rounding and urgency 3 transport times; `DefaultDistributionPatternsTest` checks them on sampled cases, with severe codes in basic care only where the capability allows them
+- `Encounter/SyntheticEncounterGeneratorTest.php` — group counts of 100 hand-made allocations by hand (85 linked, 13, 128, 4, 7 repeat visits; 4 time outliers, 17 age noise, 12 without admission, 5 late assessments), each allocation linked at most once, noise ranges, arrival modes, repeat visits, same visits per seed whatever the input order
+- `Encounter/SyntheticEncounterFilesTest.php` — key and fingerprints match the tool's reference vectors, overlapping exports and late assessments, manifest and header of the export file, truth with both fingerprints of a late assessment
+- `Encounter/SyntheticEncounterImportTest.php` — both exports through the encounter import without file or row rejects, known visits and suspected duplicates as expected from the visits; the writer stores every visit with its truth and arrival route and refuses a hospital with another key
+- `Encounter/EncounterFixtureTest.php` — the `encounters` group gives the demo hospital the visits the loader generates from its allocations, one import per month, and `app:generate:encounter-files` writes key, exports and truth
 
 Run:
 

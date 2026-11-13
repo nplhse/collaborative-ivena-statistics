@@ -1,0 +1,3 @@
+{% for action in grant.actions %}
+    <span class="badge bg-secondary-lt">{{ action.labelKey|trans({}, 'encounter') }}</span>
+{% endfor %}

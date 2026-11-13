@@ -869,6 +869,22 @@
         <source>error.export.date_range_invalid</source>
         <target>Das Start-Datum darf nicht nach dem End-Datum liegen.</target>
       </trans-unit>
+      <trans-unit id="EncValAC01F2BD" resname="validation.encounter.grant.user_required">
+        <source>validation.encounter.grant.user_required</source>
+        <target>Bitte einen Benutzer auswählen.</target>
+      </trans-unit>
+      <trans-unit id="EncValEE8E9EFC" resname="validation.encounter.grant.actions_required">
+        <source>validation.encounter.grant.actions_required</source>
+        <target>Bitte mindestens eine Aktion auswählen.</target>
+      </trans-unit>
+      <trans-unit id="EncValD6EF1558" resname="validation.encounter.import.confirmation_required">
+        <source>validation.encounter.import.confirmation_required</source>
+        <target>Bestätigen Sie, dass die Datei mit dem Datenaufbereitungs-Werkzeug erstellt wurde und keine direkten Identifikatoren enthält.</target>
+      </trans-unit>
+      <trans-unit id="EncVal796CE2AF" resname="validation.encounter.import.schema_required">
+        <source>validation.encounter.import.schema_required</source>
+        <target>Wählen Sie das Schema der Behandlungsdaten-Datei.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

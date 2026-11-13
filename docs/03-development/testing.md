@@ -6,6 +6,7 @@
 - **Fixture tests** under `tests/DataFixtures/` (reference YAML, pattern validation)
 - **Import integration tests** for CSV processing, reject behaviour, and upload validation (Excel / unsupported extensions)
 - **Command tests** for requeue and exit-code behavior
+- **JavaScript tests** of the encounter data preparation tool with Node's built-in runner: `npm run test:js` (`tests/Encounter/DataPrep/*.test.js`, also part of `make lint-js`); see [data-preparation-tool.md](../04-features/encounter/data-preparation-tool.md#tests)
 
 ## Run locally
 
@@ -74,6 +75,15 @@ Database tests make up most of the CI time. Keep them fast without weakening wha
 - **Property info is cached per process.** The debug test kernel has no property info cache, so Live Components would parse the same docblocks on every render. `config/packages/property_info.yaml` (`when@test`) adds an in-memory cache that lives as long as the PHP process ([`ProcessPropertyInfoCache`](../../tests/Support/PropertyInfo/ProcessPropertyInfoCache.php)); it never outlives a run, so changed docblocks are always read fresh.
 
 To find slow tests, run the suite and then `php bin/report-slowest-tests 25`, or read the JUnit file of a CI run. Profile a single test with `XDEBUG_MODE=profile` before changing it; the cause is not always the data setup.
+
+## Tests with two database sessions
+
+DAMA runs every test inside one uncommitted transaction, so a second connection sees none of its
+fixtures. A test that needs real concurrency (for example two imports inserting the same encounter)
+commits a minimal fixture through its own plain DBAL connection with raw SQL (no audit rows), removes
+it in `tearDown()`, and sends the competing statement asynchronously with the `pgsql` extension
+(`pg_send_query_params`), which CI installs. Example: `ConcurrentEncounterInsertTest`. Each ParaTest
+worker has its own database, so the committed rows never reach another worker.
 
 ## Time in code and tests
 

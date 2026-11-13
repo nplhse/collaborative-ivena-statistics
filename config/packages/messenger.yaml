@@ -64,6 +64,7 @@ framework:
             App\Feedback\Application\Message\PurgeQuarantinedFeedbackMessage: async_priority_low
             App\Shared\Application\Monitoring\Message\SampleMessengerQueuesMessage: async_priority_low
             App\Shared\Application\Monitoring\Message\CleanUpMonitoringMessage: async_priority_low
+            App\Encounter\Application\Message\DeleteExpiredEncounterSourceFilesMessage: async_priority_low
 
 when@dev:
     framework:
@@ -85,6 +86,9 @@ when@test:
             routing:
                 App\Import\Application\Message\ImportAllocationsMessage: sync
                 App\Import\Application\Message\ImportClosuresMessage: sync
+                App\Encounter\Application\Message\ImportEncountersMessage: sync
+                App\Encounter\Application\Message\DeleteEncounterDataAfterKeyChangeMessage: sync
+                App\Encounter\Application\Message\MatchEncountersMessage: sync
                 App\Import\Application\Message\DeleteImportsMessage: sync
                 App\Statistics\Application\Message\RebuildAllocationStatsProjection: sync
                 App\Statistics\Application\Message\RebuildClosureVolumeProjection: sync
@@ -101,4 +105,5 @@ when@test:
                 App\Feedback\Application\Message\PurgeQuarantinedFeedbackMessage: sync
                 App\Shared\Application\Monitoring\Message\SampleMessengerQueuesMessage: sync
                 App\Shared\Application\Monitoring\Message\CleanUpMonitoringMessage: sync
+                App\Encounter\Application\Message\DeleteExpiredEncounterSourceFilesMessage: sync
                 Symfony\Component\Mailer\Messenger\SendEmailMessage: sync

@@ -28,5 +28,26 @@ export default [
             'no-console': ['warn', { allow: ['error', 'warn'] }],
         },
     },
+    {
+        // Offline data preparation tool (#1051): plain scripts inlined into one HTML file.
+        files: ['src/Encounter/UI/DataPrep/js/**/*.js'],
+        languageOptions: {
+            ecmaVersion: 'latest',
+            sourceType: 'script',
+            globals: {
+                ...globals.browser,
+            },
+        },
+    },
+    {
+        files: ['tests/Encounter/DataPrep/**/*.js'],
+        languageOptions: {
+            ecmaVersion: 'latest',
+            sourceType: 'module',
+            globals: {
+                ...globals.node,
+            },
+        },
+    },
     eslintConfigPrettier,
 ];

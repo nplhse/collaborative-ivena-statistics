@@ -1,0 +1,244 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set item_title = 'encounter.validation.item_title'|trans({position: item.position, stratum: ('encounter.validation.stratum.' ~ item.stratum.value)|trans({}, 'encounter')}, 'encounter') %}
+{% set form_id = 'encounter-validation-form' %}
+{% set rival_query = {from: sample.periodFrom|date('Y-m-d'), to: sample.periodTo|date('Y-m-d')} %}
+
+{# Agreement of one feature as a small mark: for, against or neutral. #}
+{% macro mark(candidate, feature) %}
+    {% set entry = candidate.features|filter(f => f.feature == feature)|first %}
+    {% if entry %}
+        {% set label = ('encounter.review.feature.' ~ feature)|trans({}, 'encounter') ~ ': ' ~ ('encounter.review.direction.' ~ entry.direction)|trans({}, 'encounter') %}
+        <span class="{{ {for: 'text-green', against: 'text-red', neutral: 'text-secondary'}[entry.direction] }}" title="{{ label }}" data-test="mark-{{ feature }}" data-direction="{{ entry.direction }}">
+            {% if entry.direction == 'neutral' %}<span aria-hidden="true">–</span>{% else %}<twig:ux:icon :name="entry.direction == 'for' ? 'tabler:check' : 'tabler:x'" class="w-3 h-3" />{% endif %}<span class="visually-hidden">{{ label }}</span>
+        </span>
+    {% endif %}
+{% endmacro %}
+
+{# One option: a compact line that expands to the full comparison, with its link action. Expects `option` (id, candidate, allocation, allocation_extended, plan), `kind`, `action_label`. #}
+{% macro option(option, kind, action_label, hospital, form_id, rival_query) %}
+    {% set candidate = option.candidate %}
+    {% set plan = option.plan %}
+    <details class="border-top encounter-validation-expand" data-test="encounter-validation-option" data-partner="{{ option.id }}" data-plan="{{ plan.action }}">
+        <summary class="d-flex flex-wrap align-items-center gap-3 px-3 py-2">
+            <twig:ux:icon name="tabler:chevron-right" class="encounter-validation-expand__chevron text-secondary" width="1em" height="1em" aria-hidden="true" />
+            <span class="fw-medium" style="min-width: 9rem">
+                {% if kind == 'visit' %}
+                    {{ 'encounter.review.allocation'|trans({id: option.id}, 'encounter') }}
+                    <span class="text-secondary small d-block">{{ option.allocation.arrival_at|date('d.m.Y H:i') }}</span>
+                {% else %}
+                    {{ 'encounter.review.visit'|trans({id: option.id}, 'encounter') }}
+                    <span class="text-secondary small d-block">{{ candidate.anchor_at|date('d.m.Y H:i') }}</span>
+                {% endif %}
+            </span>
+            <span class="text-nowrap" title="{{ 'encounter.validation.item.difference'|trans({}, 'encounter') }}">{{ 'encounter.review.minutes'|trans({minutes: candidate.time_difference_minutes}, 'encounter') }}</span>
+            <span class="text-nowrap">{{ _self.mark(candidate, 'sex') }} {{ _self.mark(candidate, 'age') }} {{ _self.mark(candidate, 'arrival_route') }}</span>
+            <span class="text-nowrap" data-test="option-score">{{ '%+d'|format(candidate.points) }} <span class="text-secondary small">({{ candidate.agreement|format_number({fraction_digit: 2}) }})</span></span>
+            <span class="small text-secondary" data-test="option-linked">
+                {% if kind == 'visit' and option.link %}
+                    {{ 'encounter.validation.item.linked_to_visit'|trans({visit: option.link.encounter_id}, 'encounter') }}
+                {% elseif kind != 'visit' and candidate.linked_elsewhere %}
+                    {{ 'encounter.validation.item.linked_to_allocation'|trans({allocation: candidate.linked_elsewhere.allocation_id}, 'encounter') }}
+                {% endif %}
+            </span>
+            <span class="ms-auto">
+                {% if plan.canLink() %}
+                    <button type="submit" class="btn btn-sm btn-primary" form="{{ form_id }}" name="partner" value="{{ option.id }}" data-test="encounter-validation-link">
+                        <twig:ux:icon :name="plan.action == 'swap' ? 'tabler:arrows-exchange' : 'tabler:link'" class="w-3 h-3 me-1" />
+                        {{ plan.action == 'swap' ? ('encounter.validation.item.link_swap'|trans({}, 'encounter')) : action_label }}
+                    </button>
+                {% elseif plan.action == 'linked' %}
+                    <twig:Badge variant="green" data-test="encounter-validation-linked">{{ 'encounter.validation.item.already_linked'|trans({}, 'encounter') }}</twig:Badge>
+                {% else %}
+                    <a class="btn btn-sm" href="{{ path('app_encounter_review_allocation', {id: hospital.id, allocationId: plan.allocationId}|merge(rival_query)) }}" data-test="encounter-validation-refused">
+                        {{ 'encounter.validation.item.decide_in_review'|trans({allocation: plan.allocationId}, 'encounter') }}
+                    </a>
+                {% endif %}
+            </span>
+        </summary>
+        {% if plan.swap %}
+            <div class="px-3 pb-2 small" data-test="encounter-validation-swap">
+                {{ include('@Encounter/review/_swap.html.twig', {swap: plan.swap, hospital_id: hospital.id, query: rival_query, form: false}) }}
+            </div>
+        {% elseif plan.action == 'refused' %}
+            <p class="px-3 mb-2 small text-secondary">{{ 'encounter.validation.item.refused_note'|trans({allocation: plan.allocationId}, 'encounter') }}</p>
+        {% endif %}
+        {{ include('@Encounter/review/_comparison.html.twig', {allocation: option.allocation, allocation_extended: option.allocation_extended, candidate: candidate, rival_query: rival_query, hospital: hospital}) }}
+    </details>
+{% endmacro %}
+
+{% macro verdict_button(verdict, label, item, form_id, style) %}
+    {% set current = item.verdict and item.verdict.value == verdict %}
+    <button type="submit" class="btn w-100 {{ current ? 'btn-' ~ style : 'btn-outline-' ~ style }}" form="{{ form_id }}" name="verdict" value="{{ verdict }}" data-test="encounter-validation-verdict-{{ verdict }}"{% if current %} aria-pressed="true"{% endif %}>
+        {{ label }}
+    </button>
+{% endmacro %}
+
+{% block title %}{{ item_title }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <twig:PageHeader :title="item_title" :pretitle="hospital.name">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
+                { label: 'encounter.validation.title', label_domain: 'encounter', translatable: true, path: path('app_encounter_validation', {id: hospital.id}) },
+                { label: sample.periodFrom|date('d.m.Y') ~ ' – ' ~ sample.periodTo|date('d.m.Y'), translatable: false, path: path('app_encounter_validation_sample', {id: hospital.id, sampleId: sample.id}) },
+                { label: '#' ~ item.position, translatable: false }
+            ]" />
+        </twig:block>
+        <twig:block name="actions">
+            {% if item.allocation %}
+                <a class="btn" href="{{ path('app_encounter_review_allocation', {id: hospital.id, allocationId: item.allocation.id}|merge(rival_query)) }}" data-test="encounter-validation-open-review">
+                    {{ 'encounter.validation.item.open_review'|trans({}, 'encounter') }}
+                </a>
+            {% endif %}
+        </twig:block>
+    </twig:PageHeader>
+{% endblock %}
+
+{% block page_content %}
+    <form id="{{ form_id }}" method="post" class="d-none">
+        <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_id) }}">
+    </form>
+
+    <div class="card mb-3" data-test="encounter-validation-sampled">
+        <div class="card-body py-2 small">
+            {% if item.stratum.isPair() %}
+                <span data-test="encounter-validation-origin">{{ 'encounter.validation.item.sampled_pair'|trans({
+                    status: ('encounter.review.status.' ~ item.sampledStatus.value)|trans({}, 'encounter'),
+                    score: item.score|format_number({fraction_digit: 2}),
+                    band: item.band,
+                    pass: item.pass ?? '–',
+                    version: item.matcherVersion ?? '–',
+                }, 'encounter') }}</span>
+            {% else %}
+                {{ ('encounter.validation.item.sampled_' ~ item.stratum.value)|trans({}, 'encounter') }}
+            {% endif %}
+            {% if item.verdict %}
+                · <span data-test="encounter-validation-current-verdict">{{ 'encounter.validation.item.current_verdict'|trans({
+                    verdict: item.replacementEncounter
+                        ? 'encounter.validation.item.verdict_wrong_other'|trans({visit: item.replacementEncounter.id}, 'encounter')
+                        : ('encounter.validation.verdict.' ~ item.verdict.value)|trans({}, 'encounter'),
+                    user: item.decidedBy ? item.decidedBy.username : '–',
+                    at: item.decidedAt|date('d.m.Y H:i'),
+                }, 'encounter') }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if page is null %}
+        <div class="card"><div class="card-body">
+            <twig:EmptyState :title="'encounter.validation.item.gone'|trans({}, 'encounter')" icon="tabler:database-off" />
+        </div></div>
+    {% else %}
+        <div class="row row-cards">
+            <div class="col-lg-8">
+                <div class="card mb-3" data-test="encounter-validation-question">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ ('encounter.validation.item.question_' ~ item.stratum.value)|trans({}, 'encounter') }}</h3>
+                    </div>
+
+                    {% if page.kind == 'pair' %}
+                        <div class="card-body py-2 small text-secondary border-bottom" data-test="encounter-validation-current-link">
+                            {% if page.link %}
+                                {{ 'encounter.review.linked_to'|trans({visit: page.link.encounter_id}, 'encounter') }}
+                                {{ include('@Encounter/review/_status.html.twig', {pair: page.link}) }}
+                            {% else %}
+                                {{ 'encounter.review.not_linked'|trans({}, 'encounter') }}
+                            {% endif %}
+                        </div>
+                        <div data-test="encounter-validation-candidate" data-encounter="{{ page.sampled.encounter_id }}">
+                            {{ include('@Encounter/review/_comparison.html.twig', {allocation: page.allocation, allocation_extended: page.allocation_extended, candidate: page.sampled, rival_query: rival_query}) }}
+                        </div>
+                    {% elseif page.kind == 'allocation' %}
+                        <div class="card-body py-2" data-test="encounter-validation-allocation">
+                            <span class="fw-medium">{{ 'encounter.review.allocation'|trans({id: page.allocation.id}, 'encounter') }}</span>
+                            <span class="text-secondary">· {{ 'encounter.review.expected_arrival'|trans({}, 'encounter') }} {{ page.allocation.arrival_at|date('d.m.Y H:i') }}</span>
+                        </div>
+                    {% else %}
+                        {% set visit = page.visit %}
+                        <div class="card-body" data-test="encounter-validation-visit">
+                            <div class="fw-medium mb-2">{{ 'encounter.review.visit'|trans({id: visit.encounter_id}, 'encounter') }}</div>
+                            <dl class="row mb-0">
+                                <dt class="col-5 col-md-3">{{ 'encounter.review.column.anchor'|trans({}, 'encounter') }}</dt>
+                                <dd class="col-7 col-md-9">{{ visit.anchor_at|date('d.m.Y H:i') }}{% if visit.substitute %} <twig:Badge variant="purple">{{ 'encounter.review.substitute'|trans({}, 'encounter') }}</twig:Badge>{% endif %}</dd>
+                                <dt class="col-5 col-md-3">{{ 'encounter.review.feature.sex'|trans({}, 'encounter') }}</dt>
+                                <dd class="col-7 col-md-9">{{ ('encounter.review.value.sex_' ~ visit.sex)|trans({}, 'encounter') }}</dd>
+                                <dt class="col-5 col-md-3">{{ 'encounter.review.feature.age'|trans({}, 'encounter') }}</dt>
+                                <dd class="col-7 col-md-9">{{ visit.age }}</dd>
+                                <dt class="col-5 col-md-3">{{ 'encounter.review.feature.arrival_route'|trans({}, 'encounter') }}</dt>
+                                <dd class="col-7 col-md-9 mb-0">{{ ('encounter.review.value.mode_' ~ (visit.arrival_mode ?? 'none'))|trans({}, 'encounter') }}</dd>
+                            </dl>
+                        </div>
+                    {% endif %}
+
+                    {% if page.kind != 'pair' %}
+                        <div data-test="encounter-validation-options">
+                            <div class="px-3 py-2 border-top subheader">{{ ('encounter.validation.item.options_' ~ page.kind)|trans({count: page.options|length}, 'encounter') }}</div>
+                            {% if page.options is empty %}
+                                <div class="border-top card-body">
+                                    <twig:EmptyState :title="('encounter.validation.item.options_none_' ~ page.kind)|trans({}, 'encounter')" :icon="page.kind == 'visit' ? 'tabler:ambulance' : 'tabler:link-off'" />
+                                </div>
+                            {% endif %}
+                            {% for option in page.options %}
+                                {{ _self.option(option, page.kind, ('encounter.validation.item.link_' ~ page.kind)|trans({}, 'encounter'), hospital, form_id, rival_query) }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                {% if page.kind == 'pair' %}
+                    <details class="card encounter-validation-expand" id="encounter-validation-alternatives" data-test="encounter-validation-alternatives" {{ item.replacementEncounter ? 'open' }}>
+                        <summary class="card-header">
+                            <h3 class="card-title d-flex align-items-center gap-2">
+                                <twig:ux:icon name="tabler:chevron-right" class="encounter-validation-expand__chevron text-secondary" width="1em" height="1em" aria-hidden="true" />{{ 'encounter.validation.item.alternatives'|trans({count: page.options|length}, 'encounter') }}</h3>
+                        </summary>
+                        {% if page.options is empty %}
+                            <div class="card-body text-secondary">{{ 'encounter.validation.item.alternatives_none'|trans({}, 'encounter') }}</div>
+                        {% else %}
+                            <p class="px-3 pt-3 mb-2 small text-secondary">{{ 'encounter.validation.item.alternatives_hint'|trans({}, 'encounter') }}</p>
+                            {% for option in page.options %}
+                                {{ _self.option(option, 'pair', 'encounter.validation.item.link_pair'|trans({}, 'encounter'), hospital, form_id, rival_query) }}
+                            {% endfor %}
+                        {% endif %}
+                    </details>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-4 order-first order-lg-last">
+                <div class="card sticky-lg-top" style="top: 1rem" data-test="encounter-validation-decision">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ 'encounter.validation.item.verdict_title'|trans({}, 'encounter') }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if page.kind != 'pair' %}
+                            <p class="small text-secondary" data-test="encounter-validation-options-hint">{{ ('encounter.validation.item.options_hint_' ~ page.kind)|trans({}, 'encounter') }}</p>
+                        {% endif %}
+                        <div class="d-grid gap-2">
+                            {% if page.kind == 'pair' %}
+                                {{ _self.verdict_button('correct', 'encounter.validation.item.decide.correct'|trans({}, 'encounter'), item, form_id, 'success') }}
+                            {% endif %}
+                            {{ _self.verdict_button('unclear', 'encounter.validation.item.decide.unclear'|trans({}, 'encounter'), item, form_id, 'secondary') }}
+                            {% if page.kind == 'pair' %}
+                                {% if page.options is not empty %}
+                                    <a class="btn w-100 {{ item.replacementEncounter ? 'btn-danger' : 'btn-outline-danger' }}" href="#encounter-validation-alternatives" data-test="encounter-validation-wrong-other">{{ 'encounter.validation.item.decide.wrong_other'|trans({}, 'encounter') }}</a>
+                                {% else %}
+                                    <button type="button" class="btn w-100 btn-outline-danger" disabled title="{{ 'encounter.validation.item.alternatives_none'|trans({}, 'encounter') }}" data-test="encounter-validation-wrong-other">{{ 'encounter.validation.item.decide.wrong_other'|trans({}, 'encounter') }}</button>
+                                {% endif %}
+                                {{ _self.verdict_button('wrong', 'encounter.validation.item.decide.wrong_no_partner'|trans({}, 'encounter'), item, form_id, 'danger') }}
+                            {% else %}
+                                {{ _self.verdict_button('no_partner', 'encounter.validation.item.decide.no_partner'|trans({}, 'encounter'), item, form_id, 'danger') }}
+                            {% endif %}
+                            <a class="btn btn-ghost-secondary w-100 mt-2" href="{{ skip_url }}" data-test="encounter-validation-skip">
+                                <twig:ux:icon name="tabler:player-skip-forward" class="w-3 h-3 me-1" />{{ 'encounter.validation.item.decide.skip'|trans({}, 'encounter') }}
+                            </a>
+                        </div>
+                        <p class="text-secondary small mt-3 mb-2" data-test="encounter-validation-skip-note">{{ 'encounter.validation.item.decision_note_skip'|trans({}, 'encounter') }}</p>
+                        <p class="text-secondary small mb-0" data-test="encounter-validation-decision-note">{{ ('encounter.validation.item.decision_note_' ~ (page.kind == 'pair' ? 'pair' : 'unlinked'))|trans({}, 'encounter') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

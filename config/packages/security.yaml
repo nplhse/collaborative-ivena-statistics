@@ -14,6 +14,11 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/|^/_ux/inspector\.js$
             security: false
+        # Public update check of the offline data preparation tool (ADR 026): no session, no cookies.
+        data_prep:
+            pattern: ^/data-prep/
+            stateless: true
+            security: false
         main:
             lazy: true
             provider: app_user_provider
@@ -64,7 +69,9 @@ security:
         # Profiles: every user may open their own; UserProfileVoter decides per profile.
         - { path: '^/explore/user/[0-9a-f-]{36}(/activity)?$', roles: ROLE_USER }
         - { path: ^/explore, roles: ROLE_PARTICIPANT }
+        - { path: ^/encounter, roles: ROLE_ENCOUNTER_BETA }
         - { path: ^/statistics/closure-analytics, roles: ROLE_CLOSURE_BETA }
+        - { path: ^/statistics/encounter-analytics, roles: ROLE_ENCOUNTER_BETA }
         - { path: ^/statistics, roles: ROLE_USER }
         - { path: ^/activity, roles: ROLE_USER }
         - { path: ^/dashboard, roles: ROLE_USER }
@@ -73,7 +80,7 @@ security:
         # - { path: ^/profile, roles: ROLE_USER }
 
     role_hierarchy:
-        ROLE_ADMIN: [ROLE_PARTICIPANT, ROLE_REVIEW_INDICATIONS]
+        ROLE_ADMIN: [ROLE_PARTICIPANT, ROLE_REVIEW_INDICATIONS, ROLE_ENCOUNTER_BETA]
 
 when@test:
     security:

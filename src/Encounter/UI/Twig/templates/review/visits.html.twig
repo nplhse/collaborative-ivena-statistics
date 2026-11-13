@@ -1,0 +1,55 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'encounter.review.visits.title'|trans({}, 'encounter') }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
+
+{% block turbo_drive %}data-turbo=true{% endblock %}
+
+{% block page_header %}
+    <twig:PageHeader :title="'encounter.review.visits.title'|trans({}, 'encounter')" :pretitle="hospital.name">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
+                { label: 'encounter.review.title', label_domain: 'encounter', translatable: true, path: path('app_encounter_review_hospital', {id: hospital.id}|merge(period.query())) },
+                { label: 'encounter.review.overview.title', label_domain: 'encounter', translatable: true, path: path('app_encounter_review_overview', {id: hospital.id}|merge(period.query())) },
+                { label: 'encounter.review.visits.title', label_domain: 'encounter', translatable: true }
+            ]" />
+        </twig:block>
+        <twig:block name="context">
+            {{ include('@Encounter/review/_period_context.html.twig') }}
+            {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
+        </twig:block>
+        <twig:block name="actions">
+            <twig:FilterDrawerTrigger
+                drawerId="encounter-review-filters"
+                :activeCount="route ? 1 : 0"
+                resetUrl="{{ route ? path('app_encounter_review_visits', {id: hospital.id}|merge(period.query())) : null }}"
+            />
+        </twig:block>
+    </twig:PageHeader>
+{% endblock %}
+
+{% block page_content %}
+    <p class="text-secondary">{{ 'encounter.review.visits.intro'|trans({}, 'encounter') }}</p>
+
+    {% set cell = '@Encounter/review/_cell.html.twig' %}
+    <div data-test="encounter-review-visits">
+        <twig:DataTable
+            mobileLayout="cards"
+            mobilePrimaryColumn="anchor"
+            mobileBreakpoint="md"
+            :paginator="paginator"
+            paginationRoute="app_encounter_review_visits"
+            :cellContext="{hospital_id: hospital.id, query: period.query()}"
+            emptyTitle="{{ 'encounter.review.empty'|trans({}, 'encounter') }}"
+            emptyIcon="tabler:checks"
+            :columns="[
+                { key: 'anchor', type: 'custom', label: 'encounter.review.column.anchor', labelDomain: 'encounter', cellTemplate: cell },
+                { key: 'visit', type: 'custom', label: 'encounter.review.column.visit', labelDomain: 'encounter', cellTemplate: cell },
+                { key: 'route', type: 'custom', label: 'encounter.review.column.route', labelDomain: 'encounter', cellTemplate: cell },
+                { key: 'action', type: 'custom', label: '', align: 'end', cellTemplate: cell, mobileAction: true, mobileMenuTemplate: '@Encounter/review/_menu_action.html.twig' },
+            ]"
+        />
+    </div>
+
+    {{ include('@Encounter/review/_period_drawer.html.twig', {route_name: 'app_encounter_review_visits', keep: []}) }}
+{% endblock %}

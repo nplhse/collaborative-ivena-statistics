@@ -1,0 +1,89 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'encounter.mts.glossary.title'|trans({}, 'encounter') }} - {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    {{ include('@Encounter/glossary/_header.html.twig', {
+        breadcrumbs: [
+            {label: 'link.explore', path: path('app_explore_index')},
+            {label: 'title.glossary.index', label_domain: 'allocation', path: path('app_explore_glossary_index')},
+            {label: 'encounter.mts.glossary.title'|trans({}, 'encounter'), translatable: false},
+        ],
+        title: 'encounter.mts.glossary.title'|trans({}, 'encounter'),
+        subtitle: 'catalog.type.glossary'|trans({}, 'allocation'),
+        back_path: path('app_explore_glossary_index'),
+    }) }}
+{% endblock %}
+
+{% block page_content %}
+    <div data-testid="mts-glossary">
+        <p class="text-secondary">{{ 'encounter.mts.glossary.names_note'|trans({}, 'encounter') }}</p>
+
+        {{ include('@Encounter/glossary/_counts_note.html.twig') }}
+
+        <div class="card mb-3" data-testid="mts-categories">
+            <div class="card-header">
+                <h3 class="card-title">{{ 'encounter.mts.section.categories'|trans({}, 'encounter') }}</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table mb-0">
+                    <thead>
+                        <tr>
+                            <th class="w-1">{{ 'catalog.glossary.column.code'|trans({}, 'allocation') }}</th>
+                            <th>{{ 'encounter.mts.column.colour'|trans({}, 'encounter') }}</th>
+                            <th>{{ 'catalog.glossary.column.label'|trans({}, 'allocation') }}</th>
+                            <th>{{ 'encounter.mts.column.target'|trans({}, 'encounter') }}</th>
+                            {% if has_counts %}
+                                <th class="text-end">{{ 'encounter.mts.column.encounters'|trans({}, 'encounter') }}</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in categories %}
+                            <tr data-testid="mts-category" data-code="{{ row.category.value }}">
+                                <td><code>{{ row.category.value }}</code></td>
+                                <td>
+                                    <span class="badge bg-{{ row.category.value }} me-1"></span>
+                                    {{ ('encounter.mts.category.' ~ row.category.value ~ '.colour')|trans({}, 'encounter') }}
+                                </td>
+                                <td>{{ ('encounter.mts.category.' ~ row.category.value ~ '.name')|trans({}, 'encounter') }}</td>
+                                <td>{{ 'encounter.mts.target_minutes'|trans({minutes: row.category.physicianContactTargetMinutes}, 'encounter') }}</td>
+                                {% if has_counts %}
+                                    <td class="text-end" data-testid="mts-count">{{ include('@Encounter/glossary/_count.html.twig', {count: row.count}) }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer text-secondary">{{ 'encounter.mts.target_note'|trans({}, 'encounter') }}</div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-xl-6">
+                {{ include('@Encounter/glossary/_code_table.html.twig', {
+                    title: 'encounter.mts.section.diagrams'|trans({}, 'encounter'),
+                    rows: diagrams,
+                    testid: 'mts-diagram',
+                    link_route: 'app_explore_glossary_mts_diagram',
+                }) }}
+            </div>
+            <div class="col-12 col-xl-6">
+                {{ include('@Encounter/glossary/_code_table.html.twig', {
+                    title: 'encounter.mts.section.indicators'|trans({}, 'encounter'),
+                    rows: indicators,
+                    testid: 'mts-indicator',
+                    link_route: null,
+                }) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -42,7 +42,8 @@ php bin/console app:statistics:refresh-mviews
 | `allocations` | Participation plus pattern-based synthetic allocations and imports |
 | `content` | English demo CMS pages, including a nested user guide (`/guide`, three levels, some pages for signed-in users only) |
 | `minimal` | Small scenario for fast smoke tests |
-| `dev` | Reference + allocations + content (full local demo) |
+| `encounters` | Allocations plus synthetic encounter data of the demo hospital of `foo` for the last three months; `foo` gets `ROLE_ENCOUNTER_BETA` and an encounter grant (`UPLOAD`, `REVIEW`, `VIEW_CASES`) for that hospital ([synthetic-data-generator.md](synthetic-data-generator.md#encounter-data)) |
+| `dev` | Reference + allocations + encounters + content (full local demo) |
 | `statistics` | Reference data, participation and allocations used by statistics integration tests |
 
 Examples:

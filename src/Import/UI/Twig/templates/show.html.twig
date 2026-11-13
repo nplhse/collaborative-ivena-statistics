@@ -243,6 +243,12 @@
                     <div class="col-12">
                         {{ include('@Import/_data_coverage.html.twig', {coverage: detail.coverage}) }}
                     </div>
+
+                    {% if detail.typeSection is not null %}
+                        <div class="col-12" data-test="import-type-section">
+                            {{ include(detail.typeSection.template, detail.typeSection.context) }}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <div class="col-lg-4">

@@ -7568,6 +7568,190 @@
       <trans-unit id="statsClosureCoverage09" resname="stats.closure.coverage.no_gaps"><source>stats.closure.coverage.no_gaps</source><target>No gaps between imports.</target></trans-unit>
       <trans-unit id="statsClosureCoverage10" resname="stats.closure.coverage.gaps"><source>stats.closure.coverage.gaps</source><target>{count, plural, one {# gap} other {# gaps}}</target></trans-unit>
       <trans-unit id="statsClosureCoverage11" resname="stats.closure.coverage.gap_days"><source>stats.closure.coverage.gap_days</source><target>{count, plural, one {# day} other {# days}}</target></trans-unit>
+      <trans-unit id="statsEnce745af45" resname="stats.encounter.coverage.visits">
+        <source>stats.encounter.coverage.visits</source>
+        <target>Visits</target>
+      </trans-unit>
+      <trans-unit id="statsEncc1585a2c" resname="stats.encounter.coverage.days">
+        <source>stats.encounter.coverage.days</source>
+        <target>Days with visits</target>
+      </trans-unit>
+      <trans-unit id="statsEnc6da22cae" resname="stats.encounter.coverage.imports">
+        <source>stats.encounter.coverage.imports</source>
+        <target>Imports</target>
+      </trans-unit>
+      <trans-unit id="statsEnc746920d9" resname="stats.encounter.coverage.range">
+        <source>stats.encounter.coverage.range</source>
+        <target>First – last visit</target>
+      </trans-unit>
+      <trans-unit id="statsEnc84cd29d5" resname="stats.encounter.empty">
+        <source>stats.encounter.empty</source>
+        <target>No visits in this period.</target>
+      </trans-unit>
+      <trans-unit id="statsEnc94300e15" resname="stats.encounter.total">
+        <source>stats.encounter.total</source>
+        <target>Total</target>
+      </trans-unit>
+      <trans-unit id="statsEnc581d7b14" resname="stats.encounter.not_documented">
+        <source>stats.encounter.not_documented</source>
+        <target>Not documented</target>
+      </trans-unit>
+      <trans-unit id="statsEnc27bc9f25" resname="stats.encounter.route_link.title">
+        <source>stats.encounter.route_link.title</source>
+        <target>Arrival route and IVENA link</target>
+      </trans-unit>
+      <trans-unit id="statsEnc399b8a87" resname="stats.encounter.column.arrival_route">
+        <source>stats.encounter.column.arrival_route</source>
+        <target>Arrival route</target>
+      </trans-unit>
+      <trans-unit id="statsEnc1178e4d4" resname="stats.encounter.column.visits">
+        <source>stats.encounter.column.visits</source>
+        <target>Visits</target>
+      </trans-unit>
+      <trans-unit id="statsEnc0ccecc16" resname="stats.encounter.column.share">
+        <source>stats.encounter.column.share</source>
+        <target>Share</target>
+      </trans-unit>
+      <trans-unit id="statsEnce909d361" resname="stats.encounter.mts.categories">
+        <source>stats.encounter.mts.categories</source>
+        <target>MTS categories</target>
+      </trans-unit>
+      <trans-unit id="statsEnc220ce29f" resname="stats.encounter.mts.diagrams">
+        <source>stats.encounter.mts.diagrams</source>
+        <target>Top {top, number} presentations (MTS diagrams)</target>
+      </trans-unit>
+      <trans-unit id="statsEnc3e8e22da" resname="stats.encounter.mts.other_diagrams">
+        <source>stats.encounter.mts.other_diagrams</source>
+        <target>Other diagrams</target>
+      </trans-unit>
+      <trans-unit id="statsEncd06aff0c" resname="stats.encounter.process.title">
+        <source>stats.encounter.process.title</source>
+        <target>Process times</target>
+      </trans-unit>
+      <trans-unit id="statsEnc11d09eb6" resname="stats.encounter.process.interval">
+        <source>stats.encounter.process.interval</source>
+        <target>Interval</target>
+      </trans-unit>
+      <trans-unit id="statsEnc75a80866" resname="stats.encounter.process.median">
+        <source>stats.encounter.process.median</source>
+        <target>Median</target>
+      </trans-unit>
+      <trans-unit id="statsEnc7e24f58c" resname="stats.encounter.process.iqr">
+        <source>stats.encounter.process.iqr</source>
+        <target>IQR (Q1 – Q3)</target>
+      </trans-unit>
+      <trans-unit id="statsEnc91f2ea44" resname="stats.encounter.process.valid">
+        <source>stats.encounter.process.valid</source>
+        <target>Counted</target>
+      </trans-unit>
+      <trans-unit id="statsEnc94dcb238" resname="stats.encounter.process.missing">
+        <source>stats.encounter.process.missing</source>
+        <target>Time missing</target>
+      </trans-unit>
+      <trans-unit id="statsEncca3302f0" resname="stats.encounter.process.negative">
+        <source>stats.encounter.process.negative</source>
+        <target>Negative</target>
+      </trans-unit>
+      <trans-unit id="statsEnc7c03b00c" resname="stats.encounter.process.implausible">
+        <source>stats.encounter.process.implausible</source>
+        <target>Over {hours, number} h</target>
+      </trans-unit>
+      <trans-unit id="statsEnc47e96e8c" resname="stats.encounter.process.suppressed">
+        <source>stats.encounter.process.suppressed</source>
+        <target>fewer than {threshold, number} visits</target>
+      </trans-unit>
+      <trans-unit id="statsEncd48befc1" resname="stats.encounter.disposition.title">
+        <source>stats.encounter.disposition.title</source>
+        <target>Disposition</target>
+      </trans-unit>
+      <trans-unit id="statsEnc0c8c93a2" resname="stats.encounter.care_level.title">
+        <source>stats.encounter.care_level.title</source>
+        <target>Care level after admission or transfer</target>
+      </trans-unit>
+      <trans-unit id="statsEncdfc19f88" resname="stats.encounter.pretitle">
+        <source>stats.encounter.pretitle</source>
+        <target>Encounter data (beta)</target>
+      </trans-unit>
+      <trans-unit id="statsEnc0b5ad20b" resname="stats.encounter.tabs.label">
+        <source>stats.encounter.tabs.label</source>
+        <target>Encounter data sections</target>
+      </trans-unit>
+      <trans-unit id="statsEnc95f2e4f9" resname="stats.encounter.tabs.overview">
+        <source>stats.encounter.tabs.overview</source>
+        <target>Overview</target>
+      </trans-unit>
+      <trans-unit id="statsEnccce53098" resname="stats.encounter.tabs.process">
+        <source>stats.encounter.tabs.process</source>
+        <target>Process times</target>
+      </trans-unit>
+      <trans-unit id="statsEnca02d85d0" resname="stats.encounter.tabs.link">
+        <source>stats.encounter.tabs.link</source>
+        <target>IVENA link</target>
+      </trans-unit>
+      <trans-unit id="statsEnc83a8cdbe" resname="stats.encounter.tabs.distributions">
+        <source>stats.encounter.tabs.distributions</source>
+        <target>Distributions</target>
+      </trans-unit>
+      <trans-unit id="statsEncb4e4d393" resname="stats.encounter.kpi.visits">
+        <source>stats.encounter.kpi.visits</source>
+        <target>Visits</target>
+      </trans-unit>
+      <trans-unit id="statsEncfd22bfbd" resname="stats.encounter.kpi.physician">
+        <source>stats.encounter.kpi.physician</source>
+        <target>Median arrival → physician</target>
+      </trans-unit>
+      <trans-unit id="statsEnc05dc8c38" resname="stats.encounter.kpi.length_of_stay">
+        <source>stats.encounter.kpi.length_of_stay</source>
+        <target>Median length of stay in the ED</target>
+      </trans-unit>
+      <trans-unit id="statsEnc759cc0e1" resname="stats.encounter.kpi.admitted">
+        <source>stats.encounter.kpi.admitted</source>
+        <target>Admitted to this hospital</target>
+      </trans-unit>
+      <trans-unit id="statsEnccc6c49f0" resname="stats.encounter.kpi.iqr">
+        <source>stats.encounter.kpi.iqr</source>
+        <target>IQR {q1, number} – {q3, number} min</target>
+      </trans-unit>
+      <trans-unit id="statsEncc55f030b" resname="stats.encounter.show_all">
+        <source>stats.encounter.show_all</source>
+        <target>Show all</target>
+      </trans-unit>
+      <trans-unit id="statsEnc20967f62" resname="stats.encounter.coverage.title">
+        <source>stats.encounter.coverage.title</source>
+        <target>Data coverage</target>
+      </trans-unit>
+      <trans-unit id="statsEnce111bd86" resname="stats.encounter.coverage.in_period">
+        <source>stats.encounter.coverage.in_period</source>
+        <target>Selected period</target>
+      </trans-unit>
+      <trans-unit id="statsEnc5db449af" resname="stats.encounter.coverage.all_data">
+        <source>stats.encounter.coverage.all_data</source>
+        <target>All stored data</target>
+      </trans-unit>
+      <trans-unit id="statsEncf7545ea4" resname="stats.encounter.heading">
+        <source>stats.encounter.heading</source>
+        <target>Analysis</target>
+      </trans-unit>
+      <trans-unit id="statsEnc78bada98" resname="stats.encounter.no_access">
+        <source>stats.encounter.no_access</source>
+        <target>You may not see encounter data of any hospital. This needs an encounter grant and the hospital permission "Statistics".</target>
+      </trans-unit>
+      <trans-unit id="statsEncc5bacfe7" resname="stats.encounter.kpi.admitted_detail">
+        <source>stats.encounter.kpi.admitted_detail</source>
+        <target>{admitted, number} of {visits, number} visits</target>
+      </trans-unit>
+      <trans-unit id="statsEnc6e8c587b" resname="stats.encounter.time_series.title_day">
+        <source>stats.encounter.time_series.title_day</source>
+        <target>Visits per day</target>
+      </trans-unit>
+      <trans-unit id="statsEnc470299be" resname="stats.encounter.time_series.title_month">
+        <source>stats.encounter.time_series.title_month</source>
+        <target>Visits per month</target>
+      </trans-unit>
+      <trans-unit id="statsEnc07e64cb9" resname="stats.encounter.time_series.empty">
+        <source>stats.encounter.time_series.empty</source>
+        <target>No completed month in this period yet.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
