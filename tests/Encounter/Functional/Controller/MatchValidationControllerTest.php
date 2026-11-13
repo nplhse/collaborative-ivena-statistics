@@ -147,6 +147,36 @@ final class MatchValidationControllerTest extends WebTestCase
         self::assertSelectorExists('[data-test="encounter-validation-combined"][data-version="1.0.0"]');
     }
 
+    public function testItemWithACandidateClaimedByAnotherAllocationLinksTheRival(): void
+    {
+        $first = $this->allocationAt($this->hospital, $this->ivena, '12:00');
+        $second = $this->allocationAt($this->hospital, $this->ivena, '12:05');
+        $this->visitAt($this->hospital, $this->ed, '12:10');
+        $this->matchDay($this->hospital);
+
+        $validator = self::getContainer()->get(MatchValidator::class);
+        self::assertInstanceOf(MatchValidator::class, $validator);
+        $sample = $validator->draw((int) $this->hospital->getId(), new ReviewPeriod(new \DateTimeImmutable('2026-10-01'), new \DateTimeImmutable('2026-10-31')), 5, $this->reviewer, 1);
+        /** @var list<MatchValidationItem> $items */
+        $items = $this->encounterEntityManager()->getRepository(MatchValidationItem::class)->findBy(['sample' => $sample]);
+        $items = array_values(array_filter($items, static fn (MatchValidationItem $item): bool => \in_array($item->getAllocation()?->getId(), [$first->getId(), $second->getId()], true)));
+        self::assertNotEmpty($items);
+
+        $this->client->loginUser($this->reviewer);
+        $rivalLinks = [];
+        foreach ($items as $item) {
+            $crawler = $this->client->request(Request::METHOD_GET, $this->validationUrl().'/'.$sample->getId().'/items/'.$item->getId());
+            self::assertResponseIsSuccessful();
+            $rivalLinks = [...$rivalLinks, ...$crawler->filter('[data-test="encounter-review-rivals"] a')->each(static fn (Crawler $link): string => (string) $link->attr('href'))];
+        }
+
+        // The rival links to the review of the other allocation, in the period of the sample.
+        self::assertNotEmpty($rivalLinks, 'The visit is a candidate of both allocations.');
+        foreach ($rivalLinks as $href) {
+            self::assertStringEndsWith('?from=2026-10-01&to=2026-10-31', $href);
+        }
+    }
+
     public function testSameSeedDrawsTheSameCases(): void
     {
         foreach (['13:00', '14:00', '15:00', '16:00', '17:00'] as $arrival) {

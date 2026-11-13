@@ -76,7 +76,7 @@
                                 {% endif %}
                             </h3>
                         </div>
-                        {{ include('@Encounter/review/_comparison.html.twig', {allocation: page.allocation, allocation_extended: page.allocation_extended, candidate: candidate}) }}
+                        {{ include('@Encounter/review/_comparison.html.twig', {allocation: page.allocation, allocation_extended: page.allocation_extended, candidate: candidate, rival_query: {from: sample.periodFrom|date('Y-m-d'), to: sample.periodTo|date('Y-m-d')}}) }}
                     </div>
                 {% endfor %}
             {% else %}
