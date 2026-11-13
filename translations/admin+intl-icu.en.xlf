@@ -2117,6 +2117,126 @@
         <source>audit.timeline.tile</source>
         <target>Activity in the application, grouped by request and session</target>
       </trans-unit>
+      <trans-unit id="admCrudFieldDescription" resname="admin.field.description">
+        <source>admin.field.description</source>
+        <target>Description</target>
+      </trans-unit>
+      <trans-unit id="admCrudFieldNote" resname="admin.field.note">
+        <source>admin.field.note</source>
+        <target>Note</target>
+      </trans-unit>
+      <trans-unit id="admCrudFieldIndications" resname="admin.field.indications">
+        <source>admin.field.indications</source>
+        <target>Indications</target>
+      </trans-unit>
+      <trans-unit id="admCrudDepartmentFieldAliases" resname="admin.department.field.aliases">
+        <source>admin.department.field.aliases</source>
+        <target>Aliases</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationNormalizedFieldChildren" resname="admin.indication_normalized.field.children">
+        <source>admin.indication_normalized.field.children</source>
+        <target>Children</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationRawFieldNormalized" resname="admin.indication_raw.field.normalized">
+        <source>admin.indication_raw.field.normalized</source>
+        <target>Normalized</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationRawFieldTarget" resname="admin.indication_raw.field.target">
+        <source>admin.indication_raw.field.target</source>
+        <target>Target</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationRawFieldHash" resname="admin.indication_raw.field.hash">
+        <source>admin.indication_raw.field.hash</source>
+        <target>Hash</target>
+      </trans-unit>
+      <trans-unit id="admCrudAssignmentEntitySingular" resname="admin.assignment.entity.singular">
+        <source>admin.assignment.entity.singular</source>
+        <target>Assignment</target>
+      </trans-unit>
+      <trans-unit id="admCrudAssignmentEntityPlural" resname="admin.assignment.entity.plural">
+        <source>admin.assignment.entity.plural</source>
+        <target>Assignments</target>
+      </trans-unit>
+      <trans-unit id="admCrudDepartmentEntitySingular" resname="admin.department.entity.singular">
+        <source>admin.department.entity.singular</source>
+        <target>Department</target>
+      </trans-unit>
+      <trans-unit id="admCrudDepartmentEntityPlural" resname="admin.department.entity.plural">
+        <source>admin.department.entity.plural</source>
+        <target>Departments</target>
+      </trans-unit>
+      <trans-unit id="admCrudDispatchAreaEntitySingular" resname="admin.dispatch_area.entity.singular">
+        <source>admin.dispatch_area.entity.singular</source>
+        <target>Dispatch Area</target>
+      </trans-unit>
+      <trans-unit id="admCrudDispatchAreaEntityPlural" resname="admin.dispatch_area.entity.plural">
+        <source>admin.dispatch_area.entity.plural</source>
+        <target>Dispatch Areas</target>
+      </trans-unit>
+      <trans-unit id="admCrudInfectionEntitySingular" resname="admin.infection.entity.singular">
+        <source>admin.infection.entity.singular</source>
+        <target>Infection</target>
+      </trans-unit>
+      <trans-unit id="admCrudInfectionEntityPlural" resname="admin.infection.entity.plural">
+        <source>admin.infection.entity.plural</source>
+        <target>Infections</target>
+      </trans-unit>
+      <trans-unit id="admCrudOccasionEntitySingular" resname="admin.occasion.entity.singular">
+        <source>admin.occasion.entity.singular</source>
+        <target>Occasion</target>
+      </trans-unit>
+      <trans-unit id="admCrudOccasionEntityPlural" resname="admin.occasion.entity.plural">
+        <source>admin.occasion.entity.plural</source>
+        <target>Occasions</target>
+      </trans-unit>
+      <trans-unit id="admCrudSecondaryTransportEntitySingular" resname="admin.secondary_transport.entity.singular">
+        <source>admin.secondary_transport.entity.singular</source>
+        <target>Secondary Transport</target>
+      </trans-unit>
+      <trans-unit id="admCrudSecondaryTransportEntityPlural" resname="admin.secondary_transport.entity.plural">
+        <source>admin.secondary_transport.entity.plural</source>
+        <target>Secondary Transports</target>
+      </trans-unit>
+      <trans-unit id="admCrudSpecialityEntitySingular" resname="admin.speciality.entity.singular">
+        <source>admin.speciality.entity.singular</source>
+        <target>Speciality</target>
+      </trans-unit>
+      <trans-unit id="admCrudSpecialityEntityPlural" resname="admin.speciality.entity.plural">
+        <source>admin.speciality.entity.plural</source>
+        <target>Specialities</target>
+      </trans-unit>
+      <trans-unit id="admCrudStateEntitySingular" resname="admin.state.entity.singular">
+        <source>admin.state.entity.singular</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="admCrudStateEntityPlural" resname="admin.state.entity.plural">
+        <source>admin.state.entity.plural</source>
+        <target>States</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationGroupEntitySingular" resname="admin.indication_group.entity.singular">
+        <source>admin.indication_group.entity.singular</source>
+        <target>Indication Group</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationGroupEntityPlural" resname="admin.indication_group.entity.plural">
+        <source>admin.indication_group.entity.plural</source>
+        <target>Indication Groups</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationNormalizedEntitySingular" resname="admin.indication_normalized.entity.singular">
+        <source>admin.indication_normalized.entity.singular</source>
+        <target>Indication Normalized</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationNormalizedEntityPlural" resname="admin.indication_normalized.entity.plural">
+        <source>admin.indication_normalized.entity.plural</source>
+        <target>Indication Normalized</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationRawEntitySingular" resname="admin.indication_raw.entity.singular">
+        <source>admin.indication_raw.entity.singular</source>
+        <target>Indication Raw</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationRawEntityPlural" resname="admin.indication_raw.entity.plural">
+        <source>admin.indication_raw.entity.plural</source>
+        <target>Indication Raw</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

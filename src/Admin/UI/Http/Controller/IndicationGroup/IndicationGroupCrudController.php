@@ -16,6 +16,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @extends AbstractCrudController<IndicationGroup>
@@ -33,8 +34,8 @@ final class IndicationGroupCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Indication Group')
-            ->setEntityLabelInPlural('Indication Groups')
+            ->setEntityLabelInSingular(new TranslatableMessage('admin.indication_group.entity.singular', domain: 'admin'))
+            ->setEntityLabelInPlural(new TranslatableMessage('admin.indication_group.entity.plural', domain: 'admin'))
             ->setSearchFields(['id', 'name', 'category', 'description'])
             ->setDefaultSort(['sortOrder' => 'ASC', 'name' => 'ASC']);
     }
@@ -52,7 +53,7 @@ final class IndicationGroupCrudController extends AbstractCrudController
 
     private function createViewStatisticsAction(): Action
     {
-        return Action::new('viewStatistics', 'admin.indication_group.action.view_statistics', 'fas fa-chart-line')
+        return Action::new('viewStatistics', new TranslatableMessage('admin.indication_group.action.view_statistics', domain: 'admin'), 'fas fa-chart-line')
             ->linkToRoute(
                 'app_stats_insights_show',
                 static fn (IndicationGroup $group): array => [
@@ -68,18 +69,18 @@ final class IndicationGroupCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->onlyOnDetail();
-        yield TextField::new('name', 'Name');
-        yield TextareaField::new('description', 'Description')->hideOnIndex();
-        yield TextField::new('category', 'Category');
-        yield IntegerField::new('sortOrder', 'Sort order');
-        yield AssociationField::new('indications', 'Indications');
-        yield DateTimeField::new('createdAt', 'Created')
+        yield TextField::new('name', new TranslatableMessage('label.name', domain: 'messages'));
+        yield TextareaField::new('description', new TranslatableMessage('admin.field.description', domain: 'admin'))->hideOnIndex();
+        yield TextField::new('category', new TranslatableMessage('label.category', domain: 'messages'));
+        yield IntegerField::new('sortOrder', new TranslatableMessage('label.sort_order', domain: 'messages'));
+        yield AssociationField::new('indications', new TranslatableMessage('admin.field.indications', domain: 'admin'));
+        yield DateTimeField::new('createdAt', new TranslatableMessage('label.created', domain: 'messages'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->hideOnForm();
-        yield DateTimeField::new('updatedAt', 'Updated')
+        yield DateTimeField::new('updatedAt', new TranslatableMessage('label.updated', domain: 'messages'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->hideOnForm();
-        yield AssociationField::new('createdBy', 'Created by')->onlyOnDetail();
-        yield AssociationField::new('updatedBy', 'Updated by')->onlyOnDetail();
+        yield AssociationField::new('createdBy', new TranslatableMessage('label.created_by', domain: 'messages'))->onlyOnDetail();
+        yield AssociationField::new('updatedBy', new TranslatableMessage('label.updated_by', domain: 'messages'))->onlyOnDetail();
     }
 }
