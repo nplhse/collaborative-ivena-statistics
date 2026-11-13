@@ -69,7 +69,8 @@ This join targets assessments created as part of imported allocations. It does *
 
 Before and after `--execute`:
 
-1. EasyAdmin audit log — filter by entity class `Assessment`, action `create`
+1. Audit timeline — `/admin/audit?entity=App%5CAllocation%5CDomain%5CEntity%5CAssessment&action=create`
+   (Filter panel: object type `Assessment`, action "Created")
 2. SQL count:
 
 ```sql

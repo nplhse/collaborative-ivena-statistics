@@ -140,6 +140,7 @@ class AuditEntry
         return $this->occurredAt;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod Read by Doctrine and tests; the timeline reads through DBAL. */
     public function getRequestId(): string
     {
         return $this->requestId;
@@ -163,11 +164,13 @@ class AuditEntry
         return $this->action;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod Read by Doctrine and tests; the timeline reads through DBAL. */
     public function getEntityClass(): string
     {
         return $this->entityClass;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod Read by Doctrine and tests; the timeline reads through DBAL. */
     public function getEntityId(): ?string
     {
         return $this->entityId;

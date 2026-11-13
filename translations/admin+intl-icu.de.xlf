@@ -933,18 +933,6 @@
         <source>admin.fieldset.relations</source>
         <target>Beziehungen</target>
       </trans-unit>
-      <trans-unit id="admFsEventDe" resname="admin.fieldset.event">
-        <source>admin.fieldset.event</source>
-        <target>Ereignis</target>
-      </trans-unit>
-      <trans-unit id="admFsRecordDe" resname="admin.fieldset.record">
-        <source>admin.fieldset.record</source>
-        <target>Datensatz</target>
-      </trans-unit>
-      <trans-unit id="admFsChangesDe" resname="admin.fieldset.changes">
-        <source>admin.fieldset.changes</source>
-        <target>Änderungen</target>
-      </trans-unit>
       <trans-unit id="admFsConsentDe" resname="admin.fieldset.consent">
         <source>admin.fieldset.consent</source>
         <target>Einwilligung</target>
@@ -1872,6 +1860,10 @@
       <trans-unit id="auditSe09de" resname="audit.timeline.new_more">
         <source>audit.timeline.new_more</source>
         <target>Mehr als %count% neue Einträge – anzeigen</target>
+      </trans-unit>
+      <trans-unit id="auditTile01de" resname="audit.timeline.tile">
+        <source>audit.timeline.tile</source>
+        <target>Aktivitäten in der Anwendung, gruppiert nach Anfrage und Sitzung</target>
       </trans-unit>
     </body>
   </file>

@@ -6,7 +6,7 @@ or merged by the application. It is supplementary and not an operational source 
 
 Related: [audit-log-maintenance.md](audit-log-maintenance.md) (purge of historical import noise),
 [observability-sentry.md](observability-sentry.md), [ADR 025](../02-architecture/decisions/025-audit-log-correlation-and-timeline-grouping.md)
-(proposed: correlation and grouping for the audit timeline, issue #955).
+(correlation and grouping for the audit timeline, issue #955).
 
 ## Fields
 
@@ -113,8 +113,9 @@ Consequences:
 
 ## Audit timeline
 
-**Admin → Audit timeline** (`/admin/audit`, not in the menu yet; #955 in progress) shows the audit log
-newest first, 100 entries per page.
+**Admin → System → Audit timeline** (`/admin/audit`, also a tile on the admin dashboard) shows the
+audit log newest first, 100 entries per page. It replaced the EasyAdmin table at `/admin/audit-log`;
+old links to that table and to its entries redirect to the timeline and to the entry's permalink.
 
 - **Request stacks:** entries with the same request id form one expandable stack. A request id with
   `request_id_kind = legacy` is stacked only when all its entries share actor and origin; otherwise its
@@ -163,8 +164,8 @@ newest first, 100 entries per page.
 
 ## Access and sensitive data
 
-- Only `ROLE_ADMIN` can read the audit log: the audit timeline (`AuditTimelineController`) and the
-  EasyAdmin **Audit log** (`AuditLogCrudController`).
+- Only `ROLE_ADMIN` can read the audit log, through the audit timeline (`AuditTimelineController`) and
+  its endpoints: entry details, request view, new-entries count. There is no other read access.
 - `clientIp`, `userAgent`, usernames and the export filters are personal data. Exception messages in
   `intent_metadata.reason` may contain technical details.
 - Session cookies, session ids and authentication tokens are not stored.
