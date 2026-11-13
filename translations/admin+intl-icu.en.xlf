@@ -1837,6 +1837,42 @@
         <source>audit.request.context_help</source>
         <target>Belongs to this request but does not match the current filter.</target>
       </trans-unit>
+      <trans-unit id="auditSe01" resname="audit.band.session">
+        <source>audit.band.session</source>
+        <target>Session</target>
+      </trans-unit>
+      <trans-unit id="auditSe02" resname="audit.band.inferred">
+        <source>audit.band.inferred</source>
+        <target>Inferred activity period</target>
+      </trans-unit>
+      <trans-unit id="auditSe03" resname="audit.band.inferred_badge">
+        <source>audit.band.inferred_badge</source>
+        <target>estimated</target>
+      </trans-unit>
+      <trans-unit id="auditSe04" resname="audit.band.inferred_help">
+        <source>audit.band.inferred_help</source>
+        <target>No session evidence: entries of this actor at most {minutes} minutes apart. Separate sessions may be merged, one session may be split.</target>
+      </trans-unit>
+      <trans-unit id="auditSe05" resname="audit.band.continues_newer">
+        <source>audit.band.continues_newer</source>
+        <target>may continue on newer entries</target>
+      </trans-unit>
+      <trans-unit id="auditSe06" resname="audit.band.continues_older">
+        <source>audit.band.continues_older</source>
+        <target>may continue on older entries</target>
+      </trans-unit>
+      <trans-unit id="auditSe07" resname="audit.timeline.new_one">
+        <source>audit.timeline.new_one</source>
+        <target>1 new entry – show</target>
+      </trans-unit>
+      <trans-unit id="auditSe08" resname="audit.timeline.new_many">
+        <source>audit.timeline.new_many</source>
+        <target>%count% new entries – show</target>
+      </trans-unit>
+      <trans-unit id="auditSe09" resname="audit.timeline.new_more">
+        <source>audit.timeline.new_more</source>
+        <target>More than %count% new entries – show</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

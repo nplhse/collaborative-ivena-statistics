@@ -19,6 +19,7 @@ final class AuditTimelineFixture
         string $origin = 'http',
         bool $legacy = false,
         ?string $intent = null,
+        ?string $sessionRef = null,
     ): AuditTimelineEntry {
         return new AuditTimelineEntry(
             id: $id,
@@ -33,7 +34,7 @@ final class AuditTimelineFixture
             entityId: (string) $id,
             intent: $intent,
             outcome: null,
-            sessionRef: null,
+            sessionRef: $sessionRef,
             changedFields: [],
         );
     }

@@ -9,6 +9,7 @@ use App\Admin\Application\Audit\AuditTimelineFilter;
 use App\Admin\Application\Audit\AuditTimelineService;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -32,8 +33,11 @@ final class AuditTimelineController extends AbstractController
         $filter = AuditTimelineFilter::fromQuery($request->query->all());
         $cursor = AuditTimelineCursor::tryDecode($request->query->getString('after'));
 
+        $page = $this->timeline->page($filter, $cursor);
+
         return $this->render('@Admin/audit/timeline.html.twig', [
-            'page' => $this->timeline->page($filter, $cursor),
+            'page' => $page,
+            'newest' => $cursor instanceof AuditTimelineCursor ? null : $page->newest(),
             'filter' => $filter,
             'is_first_page' => !$cursor instanceof AuditTimelineCursor,
             'options' => $this->timeline->filterOptions(),
@@ -82,5 +86,29 @@ final class AuditTimelineController extends AbstractController
         $details = $this->timeline->details($id) ?? throw $this->createNotFoundException();
 
         return $this->render('@Admin/audit/_entry_details.html.twig', ['details' => $details]);
+    }
+
+    /**
+     * How many entries matching the filter were written after the newest one shown. The timeline asks this
+     * from time to time and offers a reload; it never inserts entries into an open page.
+     */
+    #[AdminRoute(path: '/new-count', name: 'new_count', options: ['methods' => ['GET']])]
+    public function newCount(Request $request): JsonResponse
+    {
+        $since = AuditTimelineCursor::tryDecode($request->query->getString('since'));
+        if (!$since instanceof AuditTimelineCursor) {
+            return new JsonResponse(['error' => 'invalid since'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $count = $this->timeline->countNewer(AuditTimelineFilter::fromQuery($request->query->all()), $since);
+
+        $response = new JsonResponse([
+            'count' => min($count, AuditTimelineService::NEW_ENTRIES_LIMIT),
+            'more' => $count > AuditTimelineService::NEW_ENTRIES_LIMIT,
+        ]);
+        $response->setPrivate();
+        $response->headers->addCacheControlDirective('no-store');
+
+        return $response;
     }
 }

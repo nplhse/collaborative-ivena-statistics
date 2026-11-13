@@ -39,4 +39,9 @@ interface AuditTimelineReader
      * Intents, object types and actors that occur in the audit log.
      */
     public function filterOptions(): AuditFilterOptions;
+
+    /**
+     * Number of entries matching the filter that are newer than the cursor, counted up to $limit.
+     */
+    public function countNewer(AuditTimelineFilter $filter, AuditTimelineCursor $since, int $limit): int;
 }
