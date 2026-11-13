@@ -92,6 +92,11 @@ app:
             proposal_threshold: 0.50
             pass1: { minutes_before: 20, minutes_after: 45, max_age_difference: 2 }
             pass2: { minutes_before: 30, minutes_after: 90, max_age_difference: 5 }
+        # Match validation (#1057, docs/04-features/encounter/README.md#match-validation): lower bounds of the
+        # score bands in the report and the default sample size per stratum and band.
+        validation:
+            score_bands: [0.50, 0.70, 0.90, 0.99]
+            sample_size: 20
         # Offline data preparation tool (ADR 025): raise version with every change to the tool or a
         # bundled profile; raise min_version to block older tools (docs/04-features/encounter/data-preparation-tool.md).
         data_prep:

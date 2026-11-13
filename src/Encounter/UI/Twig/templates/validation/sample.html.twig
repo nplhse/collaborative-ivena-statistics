@@ -1,0 +1,87 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set period_label = sample.periodFrom|date('d.m.Y') ~ ' – ' ~ sample.periodTo|date('d.m.Y') %}
+
+{% block title %}{{ 'encounter.validation.sample_title'|trans({period: period_label}, 'encounter') }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <twig:PageHeader :title="'encounter.validation.sample_title'|trans({period: period_label}, 'encounter')" :pretitle="hospital.name">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
+                { label: 'encounter.review.title', label_domain: 'encounter', translatable: true, path: path('app_encounter_review_hospital', {id: hospital.id}) },
+                { label: 'encounter.validation.title', label_domain: 'encounter', translatable: true, path: path('app_encounter_validation', {id: hospital.id}) },
+                { label: period_label, translatable: false }
+            ]" />
+        </twig:block>
+        <twig:block name="context">
+            <span class="text-secondary" data-test="encounter-validation-sample-meta">{{ 'encounter.validation.sample_meta'|trans({version: sample.matcherVersion, size: sample.sampleSize, seed: sample.seed}, 'encounter') }}</span>
+        </twig:block>
+        <twig:block name="actions">
+            {% if next %}
+                <a class="btn btn-primary" href="{{ path('app_encounter_validation_item', {id: hospital.id, sampleId: sample.id, itemId: next.id}) }}" data-test="encounter-validation-continue">
+                    {{ 'encounter.validation.continue'|trans({}, 'encounter') }}
+                </a>
+            {% endif %}
+        </twig:block>
+    </twig:PageHeader>
+{% endblock %}
+
+{% block page_content %}
+    <twig:Alert type="info" :message="'encounter.validation.report_note'|trans({}, 'encounter')" data-test="encounter-validation-report-note" />
+
+    <div class="card" data-test="encounter-validation-sample-report">
+        <div class="card-header">
+            <h3 class="card-title">{{ 'encounter.validation.report_title'|trans({}, 'encounter') }}</h3>
+        </div>
+        {{ include('@Encounter/validation/_report.html.twig', {report: report, with_population: true}) }}
+    </div>
+
+    <div class="card mt-3" data-test="encounter-validation-items">
+        <div class="card-header">
+            <h3 class="card-title">{{ 'encounter.validation.items_title'|trans({count: items|length}, 'encounter') }}</h3>
+        </div>
+        {% if items is empty %}
+            <div class="card-body">
+                <twig:EmptyState :title="'encounter.validation.no_items'|trans({}, 'encounter')" icon="tabler:inbox" />
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table card-table table-vcenter">
+                    <thead>
+                        <tr>
+                            <th class="w-1">#</th>
+                            <th>{{ 'encounter.validation.report.stratum'|trans({}, 'encounter') }}</th>
+                            <th>{{ 'encounter.validation.report.band'|trans({}, 'encounter') }}</th>
+                            <th>{{ 'encounter.validation.column.case'|trans({}, 'encounter') }}</th>
+                            <th>{{ 'encounter.validation.column.verdict'|trans({}, 'encounter') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                            <tr data-test="encounter-validation-item" data-stratum="{{ item.stratum.value }}">
+                                <td class="text-secondary">{{ item.position }}</td>
+                                <td>{{ ('encounter.validation.stratum.' ~ item.stratum.value)|trans({}, 'encounter') }}</td>
+                                <td class="text-nowrap">{{ item.band ?? '–' }}{% if item.score is not null %} <span class="text-secondary small">({{ item.score|format_number({fraction_digit: 2}) }})</span>{% endif %}</td>
+                                <td>
+                                    <a href="{{ path('app_encounter_validation_item', {id: hospital.id, sampleId: sample.id, itemId: item.id}) }}" data-test="encounter-validation-item-link">
+                                        {% if item.allocation %}{{ 'encounter.validation.allocation_ref'|trans({id: item.allocation.id}, 'encounter') }}{% endif %}
+                                        {% if item.allocation and item.encounter %} · {% endif %}
+                                        {% if item.encounter %}{{ 'encounter.review.visit'|trans({id: item.encounter.id}, 'encounter') }}{% endif %}
+                                    </a>
+                                </td>
+                                <td data-test="encounter-validation-item-verdict">
+                                    {% if item.verdict %}
+                                        <twig:Badge :variant="{correct: 'green', missed: 'orange', wrong: 'red', no_partner: 'green', unclear: 'secondary'}[item.verdict.value]">{{ ('encounter.validation.verdict.' ~ item.verdict.value)|trans({}, 'encounter') }}</twig:Badge>
+                                    {% else %}
+                                        <span class="text-secondary">{{ 'encounter.validation.verdict_open'|trans({}, 'encounter') }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

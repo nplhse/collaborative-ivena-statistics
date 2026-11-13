@@ -288,6 +288,7 @@ Overviews cross both attributes, for example "EMS arrival, not linked".
 | Upload | beta role + encounter grant `UPLOAD` on the hospital, or `ROLE_ADMIN` |
 | Key change | hospital owner or `ROLE_ADMIN` (no grant action allows it) |
 | Match review | beta role + encounter grant `REVIEW` (implies `VIEW_CASES`), or `ROLE_ADMIN` |
+| Match validation: draw samples, record verdicts, read the report | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
 | Case-level views, case card on an allocation | beta role + encounter grant `VIEW_CASES`, or `ROLE_ADMIN` |
 | Descriptive aggregates of the own hospital | beta role + any encounter grant + `STATISTICS`, or `ROLE_ADMIN` |
 | View or download a retained upload file | beta role + encounter grant `UPLOAD` on the hospital, or `ROLE_ADMIN` |
@@ -342,8 +343,10 @@ its hospital (`ON DELETE CASCADE`); a deleted user leaves the decision with `dec
 
 **Score**: each candidate visit of an allocation weighs 2^points, the "no match" option 2^4; a
 candidate's score is its share of the total weight (`MatchPlanner`, points in `FeatureScorer`). The
-points and the "no match" weight are set by judgement, not estimated (ADR 029); calibration follows
-#1057. Changing them changes the matcher version.
+points and the "no match" weight are set by judgement, not estimated (ADR 029); the
+[match validation](#match-validation) measures them. They live in `MatchWeights` with their version
+(`MatchWeights::v1()`, `1.0.0`); a new matcher version is a new set of points with a new version, which
+`MatchPlanner::VERSION` names and every written row stores.
 
 | Feature | Points |
 |---|---|
@@ -506,6 +509,70 @@ current links is refused.
 Example (tested in `MatchReviewControllerTest`): A at 10:00 is linked automatically to W at 10:10
 (9 points). B at 10:05, age 72, would score 7 with W; the self-presenter V at 10:05 scores 6 with A. The
 chain A–V + B–W gives one link more and 6 + 7 − 9 = 4 points more.
+
+## Match validation
+
+Implemented in #1057 (ADR 029, "Quality check"). Pages under `/encounter/review/{hospital}/validation`,
+linked from the review overview; access as the review (beta role + encounter grant `REVIEW`, or
+`ROLE_ADMIN`).
+
+**Sample** (`MatchValidator::draw()`, populations from `ValidationSampleQuery`): for a period (whole days,
+at most 92, period rules as in the review) up to *n* cases per cell (default 20,
+`app.encounter.validation.sample_size`):
+
+| Stratum | Population | Cells |
+|---|---|---|
+| Automatic link | `auto_accepted` pairs of the period's allocations | per score band |
+| Proposal | `proposed` pairs of the period's allocations | per score band |
+| Allocation without link | no effective link and no open proposal | one |
+| Visit without link | EMS or unknown arrival route, no effective link and no open proposal; self-presenters are left out, their missing link is expected | one |
+
+Score bands come from `app.encounter.validation.score_bands` (lower bounds, default 0.50, 0.70, 0.90,
+0.99; the last band includes 1.0, labels like `0.90–0.99`). Within a cell the cases are ordered by
+`md5(seed, stratum, id)` and the first *n* are drawn, so the same seed on the same data draws the same
+sample. The sample stores period, *n*, seed, score bands, the current matcher version and the population
+of every cell; each item keeps the pair as sampled (status, score, band, points, pass, matcher version).
+Drawing changes no link: automatic links stay effective while they are validated, and their origin stays
+visible on the item. Tables `encounter_validation_sample` and `encounter_validation_item`; samples go with
+their hospital, items with their sample, allocation or visit (`ON DELETE CASCADE`).
+
+**Verdicts** (item page: the review's comparison of the allocation with every candidate visit of the review
+window, the sampled visit first; for a visit without link the allocations whose review window contains it,
+each with its points as only candidate):
+
+| Stratum | Verdicts |
+|---|---|
+| Automatic link, proposal | correct, wrong, unclear |
+| Allocation or visit without link | partner missed, no partner, unclear |
+
+"Wrong" also rejects the pair through the review's decider (same lock, audit intent
+`encounter.match.decided`, sticky for later runs), unless it is already rejected or no longer stored; a
+rejected automatic link stops being effective. "Correct" changes nothing; a proposal stays open for the
+review. Every verdict sets `decided_by`/`decided_at` and is audited with intent
+`encounter.validation.verdict_recorded`; drawing with `encounter.validation.sample_drawn`.
+
+**Report** (`ValidationReport`, pure): per stratum and band the population when drawn, sampled, open,
+correct or missed, wrong or no partner, unclear, and the observed share correct (pairs) or missed
+(unlinked cases) among the decisive verdicts with its Wilson 95 % interval. Per pair stratum an estimate
+weighted by the band populations, Σ N_b × share_b / Σ N_b, given only when every band with cases has a
+decisive verdict. The overview adds up the verdicts of all samples per matcher version, without population
+and weighting, because samples can overlap.
+
+Example (tested in `ValidationReportTest`): automatic links with 100 cases in band 0.99–1.00 (3 correct,
+1 wrong: 0.75) and 20 in 0.90–0.99 (2 correct: 1.0) give (100 × 0.75 + 20 × 1.0) / 120 = 0.79.
+
+**Calibration**: the shares are observations that calibrate the score; no calibration is stored yet, so the
+score stays "agreement" and is never shown as a hit probability (ADR 029). Real numbers come from the pilot
+hospital's data, not from synthetic data.
+
+**Tuning** (`php bin/console app:encounter:evaluate-matcher --hospital=<id> --from=YYYY-MM-DD [--to=…]`):
+replays the planner on the stored allocations and visits of the period as a clean run (no existing links or
+decisions) and writes nothing. Options change the thresholds (`--auto-accept`, `--proposal`), the "no
+match" weight (`--no-match-points`) and single points (`--points=time.near=1`, repeatable; keys as in
+`MatchWeights`). It reports pairs, correct, wrong and unknown per status and band against the validation
+verdicts of the hospital, or with `--truth=<truth.json>` (from `app:generate:encounter-files`) against the
+synthetic truth, then also the recall: true pairs linked automatically, and linked or proposed. Introducing
+a new matcher version stays a code change: a new `MatchWeights` set, `MatchPlanner::VERSION` and the docs.
 
 ## Statistics in the pilot
 

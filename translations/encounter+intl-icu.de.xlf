@@ -1949,6 +1949,294 @@
         <source>encounter.overview_page.index_none</source>
         <target>Sie dürfen für kein Krankenhaus Auswertungen sehen. Dafür sind eine Behandlungsdaten-Freigabe und die Krankenhausberechtigung „Statistik“ nötig.</target>
       </trans-unit>
+      <trans-unit id="Enc1775A938" resname="encounter.validation.title">
+        <source>encounter.validation.title</source>
+        <target>Validierung der Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="EncC6E0F574" resname="encounter.validation.intro">
+        <source>encounter.validation.intro</source>
+        <target>Ziehen Sie geschichtete Stichproben aus automatischen Verknüpfungen, Vorschlägen und Fällen ohne Verknüpfung, beurteilen Sie jeden Fall und lesen Sie den Anteil richtiger Verknüpfungen je Score-Band ab. Automatische Verknüpfungen bleiben während der Validierung wirksam; ein als falsch markiertes Paar wird abgelehnt.</target>
+      </trans-unit>
+      <trans-unit id="Enc04FCE38B" resname="encounter.validation.new_title">
+        <source>encounter.validation.new_title</source>
+        <target>Neue Stichprobe</target>
+      </trans-unit>
+      <trans-unit id="Enc0EB8F655" resname="encounter.validation.form.from">
+        <source>encounter.validation.form.from</source>
+        <target>Von</target>
+      </trans-unit>
+      <trans-unit id="EncDFBA809C" resname="encounter.validation.form.to">
+        <source>encounter.validation.form.to</source>
+        <target>Bis</target>
+      </trans-unit>
+      <trans-unit id="EncF1D52D93" resname="encounter.validation.form.to_help">
+        <source>encounter.validation.form.to_help</source>
+        <target>Höchstens {days} Tage; Zuweisungen nach IVENA-Ankunft, Besuche nach Abgleichzeitpunkt.</target>
+      </trans-unit>
+      <trans-unit id="Enc78822CC4" resname="encounter.validation.form.sample_size">
+        <source>encounter.validation.form.sample_size</source>
+        <target>Fälle je Schicht und Band</target>
+      </trans-unit>
+      <trans-unit id="EncBDBF72F8" resname="encounter.validation.form.sample_size_help">
+        <source>encounter.validation.form.sample_size_help</source>
+        <target>Zufällig gezogen aus automatischen Verknüpfungen und Vorschlägen (je Score-Band), Zuweisungen ohne Verknüpfung sowie Rettungsdienst- oder unbekannten Besuchen ohne Verknüpfung.</target>
+      </trans-unit>
+      <trans-unit id="EncCCB8523D" resname="encounter.validation.form.draw">
+        <source>encounter.validation.form.draw</source>
+        <target>Stichprobe ziehen</target>
+      </trans-unit>
+      <trans-unit id="Enc05D87F0B" resname="encounter.validation.samples_title">
+        <source>encounter.validation.samples_title</source>
+        <target>Stichproben</target>
+      </trans-unit>
+      <trans-unit id="EncE407B175" resname="encounter.validation.no_samples">
+        <source>encounter.validation.no_samples</source>
+        <target>Noch keine Stichprobe gezogen</target>
+      </trans-unit>
+      <trans-unit id="Enc0931BB21" resname="encounter.validation.column.period">
+        <source>encounter.validation.column.period</source>
+        <target>Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="EncC39A08DD" resname="encounter.validation.column.version">
+        <source>encounter.validation.column.version</source>
+        <target>Matcher-Version</target>
+      </trans-unit>
+      <trans-unit id="Enc88B6ADF0" resname="encounter.validation.column.drawn">
+        <source>encounter.validation.column.drawn</source>
+        <target>Gezogen</target>
+      </trans-unit>
+      <trans-unit id="Enc4B3F4405" resname="encounter.validation.column.case">
+        <source>encounter.validation.column.case</source>
+        <target>Fall</target>
+      </trans-unit>
+      <trans-unit id="Enc788829F9" resname="encounter.validation.column.verdict">
+        <source>encounter.validation.column.verdict</source>
+        <target>Urteil</target>
+      </trans-unit>
+      <trans-unit id="EncA881D831" resname="encounter.validation.open_sample">
+        <source>encounter.validation.open_sample</source>
+        <target>Öffnen</target>
+      </trans-unit>
+      <trans-unit id="EncE606C301" resname="encounter.validation.combined_title">
+        <source>encounter.validation.combined_title</source>
+        <target>Alle Stichproben, Matcher {version}</target>
+      </trans-unit>
+      <trans-unit id="Enc49B877F7" resname="encounter.validation.combined_note">
+        <source>encounter.validation.combined_note</source>
+        <target>Urteile aller Stichproben mit dieser Matcher-Version, aufsummiert. Stichproben können sich überschneiden, daher ohne Grundgesamtheit und ohne gewichtete Schätzung.</target>
+      </trans-unit>
+      <trans-unit id="Enc192EE431" resname="encounter.validation.sample_title">
+        <source>encounter.validation.sample_title</source>
+        <target>Stichprobe {period}</target>
+      </trans-unit>
+      <trans-unit id="Enc9669987A" resname="encounter.validation.sample_meta">
+        <source>encounter.validation.sample_meta</source>
+        <target>Matcher {version} · bis zu {size} Fälle je Schicht und Band · Startwert {seed}</target>
+      </trans-unit>
+      <trans-unit id="Enc773FB980" resname="encounter.validation.continue">
+        <source>encounter.validation.continue</source>
+        <target>Validierung fortsetzen</target>
+      </trans-unit>
+      <trans-unit id="EncDAA275BA" resname="encounter.validation.report_title">
+        <source>encounter.validation.report_title</source>
+        <target>Ergebnis je Schicht und Score-Band</target>
+      </trans-unit>
+      <trans-unit id="Enc1C36F473" resname="encounter.validation.report_note">
+        <source>encounter.validation.report_note</source>
+        <target>Die Anteile sind Beobachtungen in dieser Stichprobe mit 95-%-Intervall (Wilson). Sie dienen der Kalibrierung des Scores; bis dahin bleibt der Score eine Übereinstimmung, keine Trefferwahrscheinlichkeit.</target>
+      </trans-unit>
+      <trans-unit id="EncE86657BB" resname="encounter.validation.items_title">
+        <source>encounter.validation.items_title</source>
+        <target>{count, plural, one {# Fall} other {# Fälle}}</target>
+      </trans-unit>
+      <trans-unit id="EncEFCB09DD" resname="encounter.validation.no_items">
+        <source>encounter.validation.no_items</source>
+        <target>Der Zeitraum enthält keine Fälle für eine Stichprobe</target>
+      </trans-unit>
+      <trans-unit id="Enc3E428C48" resname="encounter.validation.allocation_ref">
+        <source>encounter.validation.allocation_ref</source>
+        <target>Zuweisung #{id}</target>
+      </trans-unit>
+      <trans-unit id="EncD81AC11E" resname="encounter.validation.verdict_open">
+        <source>encounter.validation.verdict_open</source>
+        <target>offen</target>
+      </trans-unit>
+      <trans-unit id="Enc6DC6B6E2" resname="encounter.validation.report.stratum">
+        <source>encounter.validation.report.stratum</source>
+        <target>Schicht</target>
+      </trans-unit>
+      <trans-unit id="EncAEC373E0" resname="encounter.validation.report.band">
+        <source>encounter.validation.report.band</source>
+        <target>Score-Band</target>
+      </trans-unit>
+      <trans-unit id="EncF9E9A9A6" resname="encounter.validation.report.population">
+        <source>encounter.validation.report.population</source>
+        <target>Im Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="Enc5D514C8F" resname="encounter.validation.report.sampled">
+        <source>encounter.validation.report.sampled</source>
+        <target>Gezogen</target>
+      </trans-unit>
+      <trans-unit id="Enc27D80B70" resname="encounter.validation.report.open">
+        <source>encounter.validation.report.open</source>
+        <target>Offen</target>
+      </trans-unit>
+      <trans-unit id="EncFCE3E6EC" resname="encounter.validation.report.positive">
+        <source>encounter.validation.report.positive</source>
+        <target>Richtig / verpasst</target>
+      </trans-unit>
+      <trans-unit id="Enc32F9B7C0" resname="encounter.validation.report.negative">
+        <source>encounter.validation.report.negative</source>
+        <target>Falsch / kein Gegenstück</target>
+      </trans-unit>
+      <trans-unit id="Enc368E4044" resname="encounter.validation.report.unclear">
+        <source>encounter.validation.report.unclear</source>
+        <target>Unklar</target>
+      </trans-unit>
+      <trans-unit id="Enc12F08D1F" resname="encounter.validation.report.share">
+        <source>encounter.validation.report.share</source>
+        <target>Anteil (95 %)</target>
+      </trans-unit>
+      <trans-unit id="Enc609F2DD4" resname="encounter.validation.report.weighted_automatic">
+        <source>encounter.validation.report.weighted_automatic</source>
+        <target>Automatische Verknüpfungen richtig, nach Band gewichtet</target>
+      </trans-unit>
+      <trans-unit id="Enc2EE0FF9A" resname="encounter.validation.report.weighted_proposal">
+        <source>encounter.validation.report.weighted_proposal</source>
+        <target>Vorschläge richtig, nach Band gewichtet</target>
+      </trans-unit>
+      <trans-unit id="EncB2EA5F91" resname="encounter.validation.report.weighted_missing">
+        <source>encounter.validation.report.weighted_missing</source>
+        <target>noch nicht, jedes Band mit Fällen braucht ein Urteil</target>
+      </trans-unit>
+      <trans-unit id="Enc3A340053" resname="encounter.validation.stratum.automatic">
+        <source>encounter.validation.stratum.automatic</source>
+        <target>Automatische Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="EncD6C2B66B" resname="encounter.validation.stratum.proposal">
+        <source>encounter.validation.stratum.proposal</source>
+        <target>Vorschlag</target>
+      </trans-unit>
+      <trans-unit id="EncACD9FC7D" resname="encounter.validation.stratum.unlinked_allocation">
+        <source>encounter.validation.stratum.unlinked_allocation</source>
+        <target>Zuweisung ohne Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="EncDDDF845F" resname="encounter.validation.stratum.unlinked_visit">
+        <source>encounter.validation.stratum.unlinked_visit</source>
+        <target>Besuch ohne Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="EncB56578B8" resname="encounter.validation.verdict.correct">
+        <source>encounter.validation.verdict.correct</source>
+        <target>Richtig</target>
+      </trans-unit>
+      <trans-unit id="Enc6829744F" resname="encounter.validation.verdict.wrong">
+        <source>encounter.validation.verdict.wrong</source>
+        <target>Falsch</target>
+      </trans-unit>
+      <trans-unit id="Enc4CE5C339" resname="encounter.validation.verdict.unclear">
+        <source>encounter.validation.verdict.unclear</source>
+        <target>Unklar</target>
+      </trans-unit>
+      <trans-unit id="Enc5B9C1139" resname="encounter.validation.verdict.missed">
+        <source>encounter.validation.verdict.missed</source>
+        <target>Gegenstück verpasst</target>
+      </trans-unit>
+      <trans-unit id="Enc3B100F7A" resname="encounter.validation.verdict.no_partner">
+        <source>encounter.validation.verdict.no_partner</source>
+        <target>Kein Gegenstück</target>
+      </trans-unit>
+      <trans-unit id="Enc9D2A6CC1" resname="encounter.validation.item_title">
+        <source>encounter.validation.item_title</source>
+        <target>Fall {position}: {stratum}</target>
+      </trans-unit>
+      <trans-unit id="Enc921B2BF3" resname="encounter.validation.item.open_review">
+        <source>encounter.validation.item.open_review</source>
+        <target>In der Prüfung öffnen</target>
+      </trans-unit>
+      <trans-unit id="EncADE5A4FD" resname="encounter.validation.item.sampled_pair">
+        <source>encounter.validation.item.sampled_pair</source>
+        <target>Gezogen als {status}, Übereinstimmung {score} (Band {band}), Durchlauf {pass}, Matcher {version}.</target>
+      </trans-unit>
+      <trans-unit id="Enc42B97184" resname="encounter.validation.item.sampled_unlinked_allocation">
+        <source>encounter.validation.item.sampled_unlinked_allocation</source>
+        <target>Gezogen als Zuweisung ohne Verknüpfung und ohne Vorschlag.</target>
+      </trans-unit>
+      <trans-unit id="EncB028546F" resname="encounter.validation.item.sampled_unlinked_visit">
+        <source>encounter.validation.item.sampled_unlinked_visit</source>
+        <target>Gezogen als Rettungsdienst- oder unbekannter Besuch ohne Verknüpfung und ohne Vorschlag.</target>
+      </trans-unit>
+      <trans-unit id="Enc1CBC4C6A" resname="encounter.validation.item.current_verdict">
+        <source>encounter.validation.item.current_verdict</source>
+        <target>Urteil: {verdict} ({user}, {at})</target>
+      </trans-unit>
+      <trans-unit id="EncE485AE5D" resname="encounter.validation.item.gone">
+        <source>encounter.validation.item.gone</source>
+        <target>Die Zuweisung oder der Besuch existiert nicht mehr</target>
+      </trans-unit>
+      <trans-unit id="Enc6FB526C4" resname="encounter.validation.item.sampled_visit">
+        <source>encounter.validation.item.sampled_visit</source>
+        <target>Gezogenes Paar</target>
+      </trans-unit>
+      <trans-unit id="Enc2A824B5B" resname="encounter.validation.item.nearby_title">
+        <source>encounter.validation.item.nearby_title</source>
+        <target>{count, plural, =0 {Keine Zuweisung in Reichweite} one {# Zuweisung in Reichweite} other {# Zuweisungen in Reichweite}}</target>
+      </trans-unit>
+      <trans-unit id="Enc3C858E2C" resname="encounter.validation.item.nearby_none">
+        <source>encounter.validation.item.nearby_none</source>
+        <target>Keine Zuweisung, in deren Prüffenster dieser Besuch liegt</target>
+      </trans-unit>
+      <trans-unit id="Enc18BBE95D" resname="encounter.validation.item.difference">
+        <source>encounter.validation.item.difference</source>
+        <target>Differenz</target>
+      </trans-unit>
+      <trans-unit id="Enc4F0A6DD0" resname="encounter.validation.item.points">
+        <source>encounter.validation.item.points</source>
+        <target>Punkte (allein)</target>
+      </trans-unit>
+      <trans-unit id="EncF523307D" resname="encounter.validation.item.verdict_title">
+        <source>encounter.validation.item.verdict_title</source>
+        <target>Urteil</target>
+      </trans-unit>
+      <trans-unit id="Enc48903BA3" resname="encounter.validation.item.question_automatic">
+        <source>encounter.validation.item.question_automatic</source>
+        <target>Gehören Zuweisung und Besuch zusammen?</target>
+      </trans-unit>
+      <trans-unit id="EncC2A565CD" resname="encounter.validation.item.question_proposal">
+        <source>encounter.validation.item.question_proposal</source>
+        <target>Gehören Zuweisung und Besuch zusammen?</target>
+      </trans-unit>
+      <trans-unit id="Enc0DBCF299" resname="encounter.validation.item.question_unlinked_allocation">
+        <source>encounter.validation.item.question_unlinked_allocation</source>
+        <target>Ist einer der Besuche der Patient dieser Zuweisung?</target>
+      </trans-unit>
+      <trans-unit id="Enc0C109489" resname="encounter.validation.item.question_unlinked_visit">
+        <source>encounter.validation.item.question_unlinked_visit</source>
+        <target>Gehört eine der Zuweisungen zu diesem Besuch?</target>
+      </trans-unit>
+      <trans-unit id="EncA2AAAEAE" resname="encounter.validation.item.wrong_note">
+        <source>encounter.validation.item.wrong_note</source>
+        <target>„Falsch“ lehnt das Paar auch ab, wie in der Prüfung: eine automatische Verknüpfung ist dann nicht mehr wirksam und das Paar wird nie wieder vorgeschlagen.</target>
+      </trans-unit>
+      <trans-unit id="Enc65C7A572" resname="encounter.validation.item.record">
+        <source>encounter.validation.item.record</source>
+        <target>Urteil speichern</target>
+      </trans-unit>
+      <trans-unit id="Enc30770985" resname="encounter.validation.flash.drawn">
+        <source>encounter.validation.flash.drawn</source>
+        <target>Stichprobe gezogen.</target>
+      </trans-unit>
+      <trans-unit id="EncABF5D40F" resname="encounter.validation.flash.recorded">
+        <source>encounter.validation.flash.recorded</source>
+        <target>Urteil gespeichert.</target>
+      </trans-unit>
+      <trans-unit id="Enc98AD38EE" resname="encounter.validation.flash.recorded_rejected">
+        <source>encounter.validation.flash.recorded_rejected</source>
+        <target>Urteil gespeichert; das Paar wurde abgelehnt.</target>
+      </trans-unit>
+      <trans-unit id="EncD5165BD6" resname="encounter.validation.flash.sample_done">
+        <source>encounter.validation.flash.sample_done</source>
+        <target>Jeder Fall der Stichprobe hat ein Urteil.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

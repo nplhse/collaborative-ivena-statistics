@@ -238,7 +238,7 @@ The same scenario, start day, seed and intensity give the same rows; applying a 
 
 ## Encounter data
 
-Synthetic ED visits for the encounter pilot (#1052, [encounter README](../04-features/encounter/README.md)) are generated from the synthetic allocations of a hospital, so matcher tests (#1053, #1057) know the true links. Code: `src/DataFixtures/Encounter/`.
+Synthetic ED visits for the encounter pilot (#1052, [encounter README](../04-features/encounter/README.md)) are generated from the synthetic allocations of a hospital, so matcher tests (#1053, #1057) know the true links. `app:encounter:evaluate-matcher --truth=<truth.json>` compares a replay of the matcher with that truth ([match validation](../04-features/encounter/README.md#match-validation)). Code: `src/DataFixtures/Encounter/`.
 
 `SyntheticEncounterGenerator` takes the allocations of one hospital and month (`AllocationSnapshot`: id, arrival, age, sex, urgency, emergency physician, air transport, work accident, department) and returns the visits with their truth (`SyntheticVisit`: case number, group, `ed_visit` cells, true allocation id, noise flags). Every group size is an exact rounded share (`EncounterShares`), not a random draw:
 
