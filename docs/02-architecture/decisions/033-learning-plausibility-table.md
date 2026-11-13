@@ -70,7 +70,10 @@ persons with a separate reviewer right; the user reviews the curated seed in the
 ### Cells and points
 
 The table has three levels. The MTS side is always the canonical diagram code of the visit's initial triage
-([ADR 032](032-mts-catalog-as-maintained-data.md); aliases resolve to their canonical code).
+([ADR 032](032-mts-catalog-as-maintained-data.md); the stored source code resolves to its canonical code
+when the table is read or learned). After a merge or undo in the catalog, the learned values of the diagrams
+involved are recomputed by the next learning job into a new draft; a merge is refused while the merged
+diagram is referenced by curated rules (ADR 032).
 
 | Level | Key | Use |
 |---|---|---|

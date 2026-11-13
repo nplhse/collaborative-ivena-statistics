@@ -762,8 +762,10 @@ on Encounter.
 
 - **Catalog in the database (planned).** [ADR 032](../../02-architecture/decisions/032-mts-catalog-as-maintained-data.md):
   the catalog moves into the database (#1082) with stable codes, aliases, diagram–indicator assignments and
-  provisional entries for codes seen for the first time (#1157); administrators curate it. Stored encounter
-  codes stay valid; merged codes resolve through aliases. Until then:
+  provisional entries created by the import for codes seen for the first time (#1157, with a backfill);
+  administrators curate it. The tool and the import keep the source code derived from the ORBIS label, even
+  when an alias is known; display, grouping and the plausibility table resolve it to the canonical code, so a
+  merge can be undone for all encounters. Until then:
 - **Single catalog.** `src/Encounter/Application/Catalog/mts-de.json` (40 diagrams, 70 indicators, both
   open lists) is read by the data preparation tool (bundled as catalog `mts-de`) and by `MtsCatalog`.
   `MtsCatalog::code()` derives the code exactly as the tool's `catalogCode()`; `MtsCatalogTest` checks
