@@ -47,7 +47,8 @@ final class Breadcrumbs
      */
     private function normalizeItem(array $item): array
     {
-        if (!isset($item['translatable']) && !$this->looksLikeTranslationKey($item['label'])) {
+        // An explicit domain always means a translation key; only labels without one are guessed (#1086).
+        if (!isset($item['translatable']) && !isset($item['label_domain']) && !$this->looksLikeTranslationKey($item['label'])) {
             $item['translatable'] = false;
         }
 
