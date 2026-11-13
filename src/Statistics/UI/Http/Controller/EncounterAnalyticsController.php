@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
+use App\Allocation\Application\Contracts\HospitalLookupInterface;
+use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Application\Overview\AggregateHospitalScope;
 use App\Encounter\Application\Overview\EncounterOverviewFactory;
 use App\Encounter\Application\Overview\EncounterPeriod;
 use App\Encounter\Application\Overview\TimeGrain;
+use App\Encounter\Application\Review\ReviewPeriod;
+use App\Encounter\Application\Security\EncounterAttribute;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsPeriodResolver;
@@ -32,6 +36,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * visits). Any other scope in the URL is rewritten onto one of them, so hospitals are never added up.
  * The period is the statistics period (StatisticsPeriodResolver), applied to the visits' time anchor.
  * Figures come from the Encounter context (EncounterOverviewFactory, documented partnership).
+ * Persons who may review the hospital's links (EncounterAttribute::REVIEW) get links to the match review
+ * and the match validation, with the statistics period when it fits into one review page.
  */
 #[IsGranted('ROLE_ENCOUNTER_BETA')]
 final class EncounterAnalyticsController extends AbstractController
@@ -46,6 +52,7 @@ final class EncounterAnalyticsController extends AbstractController
         private readonly AnalysisContextViewModelFactory $analysisContextFactory,
         private readonly OverviewPeriodViewModelFactory $periodViewModelFactory,
         private readonly ClockInterface $clock,
+        private readonly HospitalLookupInterface $hospitalLookup,
     ) {
     }
 
@@ -82,8 +89,13 @@ final class EncounterAnalyticsController extends AbstractController
         $tabQuery = $request->query->all();
         unset($tabQuery['tab']);
 
+        $hospital = $this->hospitalLookup->findById($requested);
+        $canReview = $hospital instanceof Hospital && $this->isGranted(EncounterAttribute::REVIEW, $hospital);
+
         return $this->render('@Statistics/encounter_analytics/index.html.twig', [
             'hospitalId' => $requested,
+            'canReview' => $canReview,
+            'reviewQuery' => $canReview ? $this->reviewQuery($bounds->from, $bounds->toExclusive) : [],
             'hospitalName' => $hospitals[$requested],
             'overview' => $overview,
             'tab' => $tab,
@@ -100,6 +112,26 @@ final class EncounterAnalyticsController extends AbstractController
                 assignedHospitals: $hospitals,
             ),
         ]);
+    }
+
+    /**
+     * The review reads whole days and at most ReviewPeriod::MAX_DAYS; a longer statistics period is not cut
+     * down (nor is an open-ended one), the review then opens with its own default period.
+     *
+     * @return array<string, string>
+     */
+    private function reviewQuery(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive): array
+    {
+        if (!$from instanceof \DateTimeImmutable || !$toExclusive instanceof \DateTimeImmutable) {
+            return [];
+        }
+
+        $to = $toExclusive->modify('-1 day');
+        if ($from->diff($to)->days >= ReviewPeriod::MAX_DAYS) {
+            return [];
+        }
+
+        return ['from' => $from->format('Y-m-d'), 'to' => $to->format('Y-m-d')];
     }
 
     private function requestedHospitalId(Request $request): int
