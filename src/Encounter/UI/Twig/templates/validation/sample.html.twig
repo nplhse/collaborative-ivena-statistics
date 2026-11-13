@@ -28,10 +28,8 @@
 {% endblock %}
 
 {% block page_content %}
-    <twig:Alert type="info" :message="'encounter.validation.report_note'|trans({}, 'encounter')" data-test="encounter-validation-report-note" />
-
     <div class="row row-cards">
-        {# Cases on the left, the summary on the right; on small screens the summary comes first. #}
+        {# Cases on the left, the summary on the right; on small screens the summary follows the cases. #}
         <div class="col-lg-8">
             <div class="card" data-test="encounter-validation-items">
                 <div class="card-header">
@@ -81,12 +79,13 @@
                 {% endif %}
             </div>
         </div>
-        <div class="col-lg-4 order-first order-lg-last">
+        <div class="col-lg-4">
             <div class="card" data-test="encounter-validation-sample-report">
                 <div class="card-header">
                     <h3 class="card-title">{{ 'encounter.validation.report_title'|trans({}, 'encounter') }}</h3>
                 </div>
                 {{ include('@Encounter/validation/_report_compact.html.twig', {report: report}) }}
+                <div class="card-footer small text-secondary" data-test="encounter-validation-report-note">{{ 'encounter.validation.report_note'|trans({}, 'encounter') }}</div>
             </div>
         </div>
     </div>

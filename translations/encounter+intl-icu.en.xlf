@@ -2225,10 +2225,6 @@
         <source>encounter.validation.report.band</source>
         <target>Score band</target>
       </trans-unit>
-      <trans-unit id="EncF9E9A9A6" resname="encounter.validation.report.population">
-        <source>encounter.validation.report.population</source>
-        <target>In period</target>
-      </trans-unit>
       <trans-unit id="Enc5D514C8F" resname="encounter.validation.report.sampled">
         <source>encounter.validation.report.sampled</source>
         <target>Sampled</target>
@@ -2393,13 +2389,49 @@
         <source>encounter.validation.flash.sample_done</source>
         <target>Every case of the sample has a verdict.</target>
       </trans-unit>
-      <trans-unit id="EncF7A7CFDE" resname="encounter.validation.report.judged_short">
-        <source>encounter.validation.report.judged_short</source>
-        <target>Judged</target>
+      <trans-unit id="EncAF2E9C50" resname="encounter.validation.summary.share_correct">
+        <source>encounter.validation.summary.share_correct</source>
+        <target>share correct</target>
       </trans-unit>
-      <trans-unit id="EncF2E5AD77" resname="encounter.validation.report.legend">
-        <source>encounter.validation.report.legend</source>
-        <target>N: cases in the period when drawn. Judged: verdicts of the cases drawn. + / −: correct or missed / wrong or no partner; (?n) unclear.</target>
+      <trans-unit id="Enc1B67B40F" resname="encounter.validation.summary.share_missed">
+        <source>encounter.validation.summary.share_missed</source>
+        <target>share missed</target>
+      </trans-unit>
+      <trans-unit id="Enc9F65F0DB" resname="encounter.validation.summary.unlinked">
+        <source>encounter.validation.summary.unlinked</source>
+        <target>Without link</target>
+      </trans-unit>
+      <trans-unit id="EncFC1DB77A" resname="encounter.validation.summary.title_unlinked_allocation">
+        <source>encounter.validation.summary.title_unlinked_allocation</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="Enc77C74993" resname="encounter.validation.summary.title_unlinked_visit">
+        <source>encounter.validation.summary.title_unlinked_visit</source>
+        <target>Visits</target>
+      </trans-unit>
+      <trans-unit id="EncD6EC37C7" resname="encounter.validation.summary.band">
+        <source>encounter.validation.summary.band</source>
+        <target>Band {band}</target>
+      </trans-unit>
+      <trans-unit id="Enc1E737947" resname="encounter.validation.summary.weighted">
+        <source>encounter.validation.summary.weighted</source>
+        <target>Weighted over all bands</target>
+      </trans-unit>
+      <trans-unit id="Enc66A30216" resname="encounter.validation.summary.counts_pair">
+        <source>encounter.validation.summary.counts_pair</source>
+        <target>{positive} correct · {negative} wrong{unclear, plural, =0 {} other { · # unclear}}</target>
+      </trans-unit>
+      <trans-unit id="EncE5F618D6" resname="encounter.validation.summary.counts_unlinked">
+        <source>encounter.validation.summary.counts_unlinked</source>
+        <target>{positive} missed · {negative} no partner{unclear, plural, =0 {} other { · # unclear}}</target>
+      </trans-unit>
+      <trans-unit id="Enc23474CD3" resname="encounter.validation.summary.progress">
+        <source>encounter.validation.summary.progress</source>
+        <target>{judged} of {sampled} judged</target>
+      </trans-unit>
+      <trans-unit id="EncEB46EFFF" resname="encounter.validation.summary.population">
+        <source>encounter.validation.summary.population</source>
+        <target>{population} in period</target>
       </trans-unit>
     </body>
   </file>

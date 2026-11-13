@@ -1,48 +1,47 @@
-{# Validation report of one sample for a narrow column (#1057): per stratum and band the population, progress, verdict counts and share. Expects `report` (ValidationReport). #}
-<div class="table-responsive">
-    <table class="table card-table table-vcenter table-sm" data-test="encounter-validation-report">
-        <thead>
-            <tr>
-                <th>{{ 'encounter.validation.report.stratum'|trans({}, 'encounter') }}</th>
-                <th class="text-end" title="{{ 'encounter.validation.report.population'|trans({}, 'encounter') }}">N</th>
-                <th class="text-end">{{ 'encounter.validation.report.judged_short'|trans({}, 'encounter') }}</th>
-                <th class="text-end" title="{{ 'encounter.validation.report.positive'|trans({}, 'encounter') }} / {{ 'encounter.validation.report.negative'|trans({}, 'encounter') }}">+ / −</th>
-                <th class="text-end">{{ 'encounter.validation.report.share'|trans({}, 'encounter') }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in report.rows %}
-                <tr data-test="report-{{ row.stratum.value }}{{ row.band ? '-' ~ row.band }}">
-                    <td>
-                        <div>{{ ('encounter.validation.stratum.' ~ row.stratum.value)|trans({}, 'encounter') }}</div>
-                        {% if row.band %}<div class="text-secondary small text-nowrap">{{ row.band }}</div>{% endif %}
-                    </td>
-                    <td class="text-end" data-test="report-population">{{ row.population|format_number }}</td>
-                    <td class="text-end text-nowrap" data-test="report-progress" title="{{ 'encounter.validation.report.open'|trans({}, 'encounter') }}: {{ row.open }}">{{ row.judged }}/{{ row.sampled }}</td>
-                    <td class="text-end text-nowrap" data-test="report-counts">{{ row.positive }} / {{ row.negative }}{% if row.unclear > 0 %} <span class="text-secondary small" title="{{ 'encounter.validation.report.unclear'|trans({}, 'encounter') }}">(?{{ row.unclear }})</span>{% endif %}</td>
-                    <td class="text-end text-nowrap" data-test="report-share">
-                        {% if row.share %}
-                            <div class="fw-medium" data-test="report-share-value">{{ row.share.share|format_percent_number({fraction_digit: 0}) }}</div>
-                            <div class="text-secondary small">{{ row.share.lower|format_percent_number({fraction_digit: 0}) }}–{{ row.share.upper|format_percent_number({fraction_digit: 0}) }}</div>
-                        {% else %}
-                            <span class="text-secondary" data-test="report-share-value">–</span>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-<div class="card-body border-top small text-secondary" data-test="encounter-validation-weighted">
-    <div class="mb-2">{{ 'encounter.validation.report.legend'|trans({}, 'encounter') }}</div>
-    {% for stratum in ['automatic', 'proposal'] %}
-        <div data-test="weighted-{{ stratum }}">
-            {{ ('encounter.validation.report.weighted_' ~ stratum)|trans({}, 'encounter') }}:
-            {% if report.weighted[stratum] is not null %}
-                <span class="fw-medium text-body">{{ report.weighted[stratum]|format_percent_number({fraction_digit: 0}) }}</span>
+{# Summary of one validation sample for the narrow column (#1057): per stratum a data grid with one entry per score band. Expects `report` (ValidationReport). #}
+{% macro entry(row, title) %}
+    <div class="datagrid-item" data-test="report-{{ row.stratum.value }}{{ row.band ? '-' ~ row.band }}">
+        <div class="datagrid-title">{{ title }}</div>
+        <div class="datagrid-content">
+            {% if row.share %}
+                <span class="h3 mb-0" data-test="report-share-value">{{ row.share.share|format_percent_number({fraction_digit: 0}) }}</span>
+                <span class="text-secondary small">{{ row.share.lower|format_percent_number({fraction_digit: 0}) }}–{{ row.share.upper|format_percent_number({fraction_digit: 0}) }}</span>
             {% else %}
-                {{ 'encounter.validation.report.weighted_missing'|trans({}, 'encounter') }}
+                <span class="h3 mb-0 text-secondary" data-test="report-share-value">–</span>
             {% endif %}
+            <div class="text-secondary small" data-test="report-counts">{{ ('encounter.validation.summary.counts_' ~ (row.stratum.isPair() ? 'pair' : 'unlinked'))|trans({positive: row.positive, negative: row.negative, unclear: row.unclear}, 'encounter') }}</div>
+            <div class="text-secondary small" data-test="report-progress">{{ 'encounter.validation.summary.progress'|trans({judged: row.judged, sampled: row.sampled}, 'encounter') }}</div>
+            <div class="text-secondary small" data-test="report-population">{{ 'encounter.validation.summary.population'|trans({population: row.population ?? 0}, 'encounter') }}</div>
         </div>
-    {% endfor %}
+    </div>
+{% endmacro %}
+{% set grid_style = 'grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr))' %}
+{% for stratum in ['automatic', 'proposal'] %}
+    {% set rows = report.rows|filter(r => r.stratum.value == stratum) %}
+    {% if rows is not empty %}
+        <div class="card-body" data-test="report-block-{{ stratum }}">
+            <div class="subheader mb-2">{{ ('encounter.validation.stratum.' ~ stratum)|trans({}, 'encounter') }} · {{ 'encounter.validation.summary.share_correct'|trans({}, 'encounter') }}</div>
+            <div class="datagrid" style="{{ grid_style }}">
+                {% for row in rows %}
+                    {{ _self.entry(row, 'encounter.validation.summary.band'|trans({band: row.band}, 'encounter')) }}
+                {% endfor %}
+            </div>
+            <div class="small text-secondary mt-2" data-test="weighted-{{ stratum }}">
+                {{ 'encounter.validation.summary.weighted'|trans({}, 'encounter') }}:
+                {% if report.weighted[stratum] is not null %}
+                    <span class="fw-medium text-body">{{ report.weighted[stratum]|format_percent_number({fraction_digit: 0}) }}</span>
+                {% else %}
+                    {{ 'encounter.validation.report.weighted_missing'|trans({}, 'encounter') }}
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% endfor %}
+<div class="card-body" data-test="report-block-unlinked">
+    <div class="subheader mb-2">{{ 'encounter.validation.summary.unlinked'|trans({}, 'encounter') }} · {{ 'encounter.validation.summary.share_missed'|trans({}, 'encounter') }}</div>
+    <div class="datagrid" style="{{ grid_style }}">
+        {% for row in report.rows|filter(r => not r.stratum.isPair()) %}
+            {{ _self.entry(row, ('encounter.validation.summary.title_' ~ row.stratum.value)|trans({}, 'encounter')) }}
+        {% endfor %}
+    </div>
 </div>

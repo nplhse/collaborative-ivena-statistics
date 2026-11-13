@@ -95,11 +95,11 @@ final class MatchValidationControllerTest extends WebTestCase
         $crawler = $this->client->followRedirect();
         self::assertSelectorTextContains('[data-test="encounter-validation-sample-meta"]', 'Matcher 1.0.0');
 
-        // Population when drawn and judged / sampled, in the summary column.
-        self::assertSame(['1', '0/1'], $this->reportCells($crawler, 'report-automatic-0.90–0.99', ['population', 'progress']));
-        self::assertSame(['1', '0/1'], $this->reportCells($crawler, 'report-proposal-0.70–0.90', ['population', 'progress']));
-        self::assertSame(['2', '0/1'], $this->reportCells($crawler, 'report-unlinked_allocation', ['population', 'progress']));
-        self::assertSame(['1', '0/1'], $this->reportCells($crawler, 'report-unlinked_visit', ['population', 'progress']));
+        // Judged of sampled and the population when drawn, in the summary column.
+        self::assertSame(['0 of 1 judged', '1 in period'], $this->reportCells($crawler, 'report-automatic-0.90–0.99', ['progress', 'population']));
+        self::assertSame(['0 of 1 judged', '1 in period'], $this->reportCells($crawler, 'report-proposal-0.70–0.90', ['progress', 'population']));
+        self::assertSame(['0 of 1 judged', '2 in period'], $this->reportCells($crawler, 'report-unlinked_allocation', ['progress', 'population']));
+        self::assertSame(['0 of 1 judged', '1 in period'], $this->reportCells($crawler, 'report-unlinked_visit', ['progress', 'population']));
         self::assertCount(4, $crawler->filter('[data-test="encounter-validation-item"]'));
         // Drawing changes no link.
         self::assertSame($before, $this->matchRows($this->hospital));
@@ -131,14 +131,14 @@ final class MatchValidationControllerTest extends WebTestCase
         self::assertStringEndsWith($this->validationUrl().'/'.$this->sample()->getId(), $this->client->getRequest()->getUri());
         self::assertSelectorTextContains('.alert-info', 'Every case of the sample has a verdict');
 
-        // Correct or missed / wrong or no partner, share.
-        self::assertSame(['0 / 1', '0%'], $this->reportCells($crawler, 'report-automatic-0.90–0.99', ['counts', 'share-value']));
-        self::assertSame(['1 / 0', '100%'], $this->reportCells($crawler, 'report-proposal-0.70–0.90', ['counts', 'share-value']));
-        self::assertSame(['0 / 1', '0%'], $this->reportCells($crawler, 'report-unlinked_allocation', ['counts', 'share-value']));
-        self::assertSame(['1 / 0', '100%'], $this->reportCells($crawler, 'report-unlinked_visit', ['counts', 'share-value']));
+        // Verdicts and share per entry.
+        self::assertSame(['0 correct · 1 wrong', '0%'], $this->reportCells($crawler, 'report-automatic-0.90–0.99', ['counts', 'share-value']));
+        self::assertSame(['1 correct · 0 wrong', '100%'], $this->reportCells($crawler, 'report-proposal-0.70–0.90', ['counts', 'share-value']));
+        self::assertSame(['0 missed · 1 no partner', '0%'], $this->reportCells($crawler, 'report-unlinked_allocation', ['counts', 'share-value']));
+        self::assertSame(['1 missed · 0 no partner', '100%'], $this->reportCells($crawler, 'report-unlinked_visit', ['counts', 'share-value']));
         // Cases left, summary right.
         self::assertCount(1, $crawler->filter('.col-lg-8 [data-test="encounter-validation-items"]'));
-        self::assertCount(1, $crawler->filter('.col-lg-4 [data-test="encounter-validation-sample-report"]'));
+        self::assertCount(3, $crawler->filter('.col-lg-4 [data-test="encounter-validation-sample-report"] .datagrid'), 'automatic, proposals, without link');
         self::assertSelectorTextContains('[data-test="weighted-automatic"]', '0%');
         self::assertSelectorTextContains('[data-test="encounter-validation-report-note"]', 'not a hit probability');
 
