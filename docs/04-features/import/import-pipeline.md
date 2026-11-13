@@ -123,7 +123,7 @@ An existing import can be processed again from its stored source file with **Rep
 > **Hospitals with encounter data:** reprocessing or requeueing an allocation import removes the IVENA
 > links and the manual review decisions of its allocations. The matcher links the new allocations again
 > automatically; manual decisions have to be made again
-> ([ADR 029](../../02-architecture/decisions/029-encounter-allocation-matching.md#runs)). The pages and
+> ([ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md#runs)). The pages and
 > commands do not warn about this, because Import does not depend on Encounter.
 
 ## Data coverage
@@ -168,7 +168,7 @@ Reject persistence is configured via `app.import.reject_writer` in `config/packa
 See [../../02-architecture/decisions/005-reject-writer-strategy.md](../../02-architecture/decisions/005-reject-writer-strategy.md).
 
 Encounter imports ignore this setting: they always store their row rejects in the database, with line
-number, field, error code and profile version only, never the row or a cell value (ADR 025).
+number, field, error code and profile version only, never the row or a cell value (ADR 026).
 
 ## Encounter imports
 

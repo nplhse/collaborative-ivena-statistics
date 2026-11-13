@@ -28,7 +28,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Encounter imports on the generic import pages (#1048, ADR 027): upload form, list, detail page,
+ * Encounter imports on the generic import pages (#1048, ADR 028): upload form, list, detail page,
  * reprocess, download and delete, all with the encounter grant UPLOAD; reprocess and download only while
  * the upload file is kept (#1049).
  */
@@ -166,7 +166,7 @@ final class EncounterImportControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-test="reject-row"]', 'heart_rate: out_of_range');
         self::assertStringNotContainsString('98765', (string) $this->client->getResponse()->getContent());
 
-        // The hospital owner has hospital access but no encounter grant (ADR 027).
+        // The hospital owner has hospital access but no encounter grant (ADR 028).
         $this->client->loginUser($this->owner());
         $this->client->request(Request::METHOD_GET, '/import/'.$importId);
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);

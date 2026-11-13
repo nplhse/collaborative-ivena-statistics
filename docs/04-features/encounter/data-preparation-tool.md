@@ -7,8 +7,8 @@ support hospitals.
 page (#1130), part of the encounter data pilot (#1043). What changed per version: `DataPrepChangelog`,
 shown on the landing page.
 
-Decisions: [ADR 025](../../02-architecture/decisions/025-encounter-data-context-and-exchange-format.md)
-(tool, CSP, profiles), [ADR 026](../../02-architecture/decisions/026-encounter-pseudonym-key.md) (key
+Decisions: [ADR 026](../../02-architecture/decisions/026-encounter-data-context-and-exchange-format.md)
+(tool, CSP, profiles), [ADR 027](../../02-architecture/decisions/027-encounter-pseudonym-key.md) (key
 file, check value, prefixes). Output format: [exchange-format.md](exchange-format.md).
 
 ## What it is
@@ -138,7 +138,7 @@ and listed in the tool's report ("Unmapped values"); the report shows them only 
 
 ### Local map editor (1.1.0)
 
-The hospital fills the map in the tool, offline; the server never sees the codes (ADR 025/026):
+The hospital fills the map in the tool, offline; the server never sees the codes (ADR 026/027):
 
 - After a run, the "Unmapped values" of `admitting_department` (map section `departments`), `care_level`
   (`stations`) and `disposition` (`dispositions`) get an input: a department name (marked while it breaks
@@ -251,7 +251,7 @@ format).
 
 Findings list field, source column, kind, count and first line. With findings the check fails, and
 saving needs an explicit confirmation that the values are not personal data; the import checks the
-content again. The check reduces the risk, it does not find every identifier (ADR 025).
+content again. The check reduces the risk, it does not find every identifier (ADR 026).
 
 ## Adding a profile
 

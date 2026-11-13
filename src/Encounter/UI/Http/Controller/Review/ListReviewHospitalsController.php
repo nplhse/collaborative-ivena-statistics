@@ -17,7 +17,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 /**
  * Entry of the match review (#1054): the hospitals the user may review. With exactly one hospital the
  * review opens directly. Administrators see every hospital with encounter data (they hold REVIEW
- * implicitly, ADR 027).
+ * implicitly, ADR 028).
  */
 #[IsGranted('ROLE_ENCOUNTER_BETA')]
 final class ListReviewHospitalsController extends AbstractController

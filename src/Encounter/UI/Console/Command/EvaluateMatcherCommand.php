@@ -135,7 +135,7 @@ final readonly class EvaluateMatcherCommand
             ]]);
         }
 
-        $io->note('Nothing was written. The score stays an agreement until it is calibrated (ADR 029).');
+        $io->note('Nothing was written. The score stays an agreement until it is calibrated (ADR 030).');
 
         return Command::SUCCESS;
     }

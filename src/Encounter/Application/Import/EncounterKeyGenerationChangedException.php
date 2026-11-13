@@ -6,7 +6,7 @@ namespace App\Encounter\Application\Import;
 
 /**
  * The hospital's key generation is no longer the one stored on the import, or a key change is in
- * progress (ADR 026). The run fails without writing.
+ * progress (ADR 027). The run fails without writing.
  */
 final class EncounterKeyGenerationChangedException extends \RuntimeException
 {

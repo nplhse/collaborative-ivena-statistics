@@ -1,4 +1,4 @@
-# ADR 029: Matching ED visits with IVENA allocations
+# ADR 030: Matching ED visits with IVENA allocations
 
 **Status:** accepted
 
@@ -73,7 +73,7 @@ confirmation in the pilot.
   proposed in pass 1 keeps its pass-1 score when pass 2 sees it again; proposals touching a side that
   is linked at the end of the run are removed.
 - Deleting, reprocessing or requeueing an allocation import removes the links and manual decisions of
-  its allocations (as ADR 028 does for the visits of an encounter import). A reprocessed import gets new
+  its allocations (as ADR 029 does for the visits of an encounter import). A reprocessed import gets new
   allocations; the next run links them again automatically, manual decisions must be made again.
 
 ### Review
@@ -156,6 +156,6 @@ Analyses and validation results that compare link rates or shares correct keep t
 
 ## References
 
-- [025-encounter-data-context-and-exchange-format.md](025-encounter-data-context-and-exchange-format.md)
-- [028-encounter-import-lifecycle.md](028-encounter-import-lifecycle.md)
+- [026-encounter-data-context-and-exchange-format.md](026-encounter-data-context-and-exchange-format.md)
+- [029-encounter-import-lifecycle.md](029-encounter-import-lifecycle.md)
 - Issues #1053, #1054, #1057

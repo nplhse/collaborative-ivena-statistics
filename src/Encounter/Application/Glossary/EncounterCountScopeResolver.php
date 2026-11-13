@@ -11,7 +11,7 @@ use App\User\Domain\Security\UserRole;
 use Symfony\Bundle\SecurityBundle\Security;
 
 /**
- * Hospitals whose encounters the current user may see as counts (ADR 027, #1056): hospitals with
+ * Hospitals whose encounters the current user may see as counts (ADR 028, #1056): hospitals with
  * `VIEW_CASES` or `VIEW_AGGREGATES` according to EncounterVoter. Administrators with the beta role
  * see all hospitals, as the voter grants them every action. Everyone else gets an empty scope.
  */

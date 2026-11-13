@@ -7,7 +7,7 @@ namespace App\Encounter\Domain\Enum;
 /**
  * Documented arrival route of an ED visit, derived from the arrival mode (#1047).
  *
- * Separate from the IVENA link status: a missing link says nothing about the arrival route (ADR 025).
+ * Separate from the IVENA link status: a missing link says nothing about the arrival route (ADR 026).
  */
 enum ArrivalRoute: string
 {

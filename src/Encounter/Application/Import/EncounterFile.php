@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Application\Import;
 
 /**
- * A canonical exchange file split into manifest line, header and data rows (ADR 025). Only lives in
+ * A canonical exchange file split into manifest line, header and data rows (ADR 026). Only lives in
  * memory while a run processes the file.
  */
 final readonly class EncounterFile

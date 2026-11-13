@@ -21,7 +21,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Import lifecycle of encounters (ADR 028) with one visit per day:
+ * Import lifecycle of encounters (ADR 029) with one visit per day:
  *
  * - import A covers 1–15 October: visits on the 1st, 5th, 10th, 12th and 15th
  * - import B covers 10–31 October: visits on the 10th, 12th, 15th, 20th and 31st
@@ -134,7 +134,7 @@ final class EncounterImportLifecycleTest extends KernelTestCase
 
         $this->deletionService()->delete($importA);
 
-        // Documented consequence (ADR 028): B must be reprocessed to restore the 10th, 12th and 15th.
+        // Documented consequence (ADR 029): B must be reprocessed to restore the 10th, 12th and 15th.
         self::assertSame(['B' => ['2026-10-20', '2026-10-31']], $this->visitDaysByImport($hospital));
     }
 

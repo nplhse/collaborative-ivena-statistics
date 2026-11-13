@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * A visit that an import inserted although the hospital already had a visit with the same case key in
- * the same key generation and a time anchor within 15 minutes (ADR 028, #1045). Reported, never merged;
+ * the same key generation and a time anchor within 15 minutes (ADR 029, #1045). Reported, never merged;
  * it measures the stability of the fingerprint rule in operation.
  *
  * Both visits reference `encounter` with ON DELETE CASCADE, so the report goes with either of them

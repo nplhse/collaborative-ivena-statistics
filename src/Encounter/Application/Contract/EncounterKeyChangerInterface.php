@@ -10,7 +10,7 @@ use App\Encounter\Domain\Enum\EncounterKeyChangeOption;
 use App\User\Domain\Entity\User;
 
 /**
- * Changes the pseudonym key of a hospital (ADR 026). Callers check EncounterAttribute::CHANGE_KEY.
+ * Changes the pseudonym key of a hospital (ADR 027). Callers check EncounterAttribute::CHANGE_KEY.
  */
 interface EncounterKeyChangerInterface
 {

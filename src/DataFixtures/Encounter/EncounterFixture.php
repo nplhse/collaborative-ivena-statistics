@@ -26,7 +26,7 @@ use Psr\Clock\ClockInterface;
  * import per month. Other hospitals get no encounter data; the pilot runs with one hospital.
  *
  * `foo` owns that hospital and gets the pilot role `ROLE_ENCOUNTER_BETA` and an encounter grant with
- * upload, review and case access for it, so the demo user sees the visits (ADR 027). Fixtures only.
+ * upload, review and case access for it, so the demo user sees the visits (ADR 028). Fixtures only.
  */
 final class EncounterFixture extends Fixture implements DependentFixtureInterface, FixtureGroupInterface
 {
@@ -62,7 +62,7 @@ final class EncounterFixture extends Fixture implements DependentFixtureInterfac
     }
 
     /**
-     * The owner already has hospital access, which an encounter grant needs (ADR 027).
+     * The owner already has hospital access, which an encounter grant needs (ADR 028).
      */
     private function grantEncounterAccess(ObjectManager $manager, Hospital $hospital, User $owner): void
     {

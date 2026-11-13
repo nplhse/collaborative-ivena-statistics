@@ -13,7 +13,7 @@ use App\User\Domain\Security\UserRole;
 use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 
 /**
- * Whether a stored user may upload encounter files for a hospital, outside a request (ADR 027): the
+ * Whether a stored user may upload encounter files for a hospital, outside a request (ADR 028): the
  * same rule as EncounterVoter::UPLOAD (beta role, and the UPLOAD grant or ROLE_ADMIN). An import is
  * processed as its creator, so the worker checks the creator again before every run.
  */

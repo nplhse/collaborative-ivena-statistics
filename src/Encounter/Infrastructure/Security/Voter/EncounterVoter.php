@@ -19,7 +19,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * Access to encounter data of one hospital (ADR 027).
+ * Access to encounter data of one hospital (ADR 028).
  *
  * Every attribute needs ROLE_ENCOUNTER_BETA. ROLE_ADMIN counts as holding every grant action on
  * every hospital without a stored grant. Hospital ownership and hospital access grants never imply an
@@ -87,7 +87,7 @@ final class EncounterVoter extends Voter
     }
 
     /**
-     * Administrators hold every grant action implicitly (ADR 027).
+     * Administrators hold every grant action implicitly (ADR 028).
      */
     private function grantAllows(TokenInterface $token, User $user, Hospital $hospital, EncounterGrantAction $action): bool
     {

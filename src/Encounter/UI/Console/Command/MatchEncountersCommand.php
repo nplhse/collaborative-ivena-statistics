@@ -12,7 +12,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Runs the matcher for the allocations of one hospital in a period (ADR 029, #1053), for example after
+ * Runs the matcher for the allocations of one hospital in a period (ADR 030, #1053), for example after
  * changing the thresholds or for synthetic data loaded without import. Existing links and manual
  * decisions stay; only open proposals of the period are recomputed. Prints counts only.
  */

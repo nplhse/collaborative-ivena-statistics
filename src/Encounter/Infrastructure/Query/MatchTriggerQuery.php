@@ -9,7 +9,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
 
 /**
- * Which hospital-days a matcher rerun covers after an import or its deletion (ADR 029).
+ * Which hospital-days a matcher rerun covers after an import or its deletion (ADR 030).
  */
 final readonly class MatchTriggerQuery
 {

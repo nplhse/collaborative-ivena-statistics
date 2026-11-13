@@ -8,7 +8,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\User\Domain\Entity\User;
 
 /**
- * Who has access to a hospital in the sense of ADR 027: the owner or a user with a hospital access
+ * Who has access to a hospital in the sense of ADR 028: the owner or a user with a hospital access
  * grant. ROLE_ADMIN alone does not count.
  */
 interface HospitalMembershipReaderInterface

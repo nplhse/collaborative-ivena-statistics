@@ -9,7 +9,7 @@ use App\Encounter\Domain\Enum\ArrivalRoute;
 use App\Encounter\Domain\Enum\Sex;
 
 /**
- * Points per feature for one pair of allocation and visit (ADR 029).
+ * Points per feature for one pair of allocation and visit (ADR 030).
  *
  * Points are base-2 logarithms of how much more often a value occurs for a true pair than for an
  * unrelated visit: +1 doubles the weight of a candidate, −1 halves it. They come from {@see MatchWeights}

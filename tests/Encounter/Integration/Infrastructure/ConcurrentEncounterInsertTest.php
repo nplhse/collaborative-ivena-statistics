@@ -20,7 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 
 /**
- * Two database sessions insert the same visit at the same time (ADR 028).
+ * Two database sessions insert the same visit at the same time (ADR 029).
  *
  * Session 1 inserts inside an open transaction. Session 2 sends the same insert asynchronously, so it
  * really runs while session 1 holds the uncommitted row and has to wait for it. After session 1

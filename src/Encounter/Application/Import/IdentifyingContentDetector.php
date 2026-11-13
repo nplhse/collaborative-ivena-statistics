@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Application\Import;
 
 /**
- * Content checks for identifying data in a canonical exchange file (ADR 025). They reduce the risk
+ * Content checks for identifying data in a canonical exchange file (ADR 026). They reduce the risk
  * that direct identifiers reach the server; they cannot find every identifier.
  *
  * - header columns that name identifying source data (names, birth dates, case numbers, addresses,

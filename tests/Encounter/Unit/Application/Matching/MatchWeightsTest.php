@@ -18,7 +18,7 @@ use App\Encounter\Domain\Enum\Sex;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Versioned points of the matcher (#1057): v1 keeps the points of ADR 029, v1.1 changes `time.near` and
+ * Versioned points of the matcher (#1057): v1 keeps the points of ADR 030, v1.1 changes `time.near` and
  * `sex.different` and is the production matcher; a replay may change single points and the "no match"
  * weight under its own label.
  */

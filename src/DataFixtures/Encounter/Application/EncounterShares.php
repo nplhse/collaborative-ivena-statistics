@@ -20,7 +20,7 @@ final readonly class EncounterShares
      * @param float $selfPresenters       self-presenters, per linked visit
      * @param float $unknownRoute         visits with arrival mode `other` or empty, per linked visit
      * @param float $repeatVisits         further visits under the case number of an earlier visit, per visit of the other groups
-     * @param float $timeOutliers         linked visits whose ED admission lies outside the pass-1 window of ADR 029
+     * @param float $timeOutliers         linked visits whose ED admission lies outside the pass-1 window of ADR 030
      * @param float $ageNoise             linked visits whose age differs from IVENA by 1–5 years
      * @param float $missingAdmission     visits without ED admission time (first assessment contact only), of all visits
      * @param float $lateAssessment       visits whose first assessment contact is documented only after the first export, of all visits

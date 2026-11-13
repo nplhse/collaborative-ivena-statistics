@@ -13,7 +13,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * Key state of a hospital (ADR 026). A hospital without a row is at generation 1 with no registered
+ * Key state of a hospital (ADR 027). A hospital without a row is at generation 1 with no registered
  * check value.
  *
  * @extends ServiceEntityRepository<EncounterKeyState>
@@ -81,7 +81,7 @@ final class EncounterKeyStateRepository extends ServiceEntityRepository implemen
     }
 
     /**
-     * Registers the check value of the current generation (first upload of the generation, ADR 026).
+     * Registers the check value of the current generation (first upload of the generation, ADR 027).
      * Only call while holding the lock of lockForImport().
      */
     public function registerCheckValue(int $hospitalId, string $checkValue): void

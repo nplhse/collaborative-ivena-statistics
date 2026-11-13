@@ -16,7 +16,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Key change page (ADR 026, #1050): hospital owner or administrator only, confirmation by the hospital
+ * Key change page (ADR 027, #1050): hospital owner or administrator only, confirmation by the hospital
  * name. The flow itself is covered by EncounterKeyChangeTest.
  */
 #[ResetDatabase]

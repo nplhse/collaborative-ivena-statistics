@@ -15,10 +15,10 @@ use Doctrine\ORM\Mapping as ORM;
  * Encounter-specific state of one import of type ENCOUNTER (#1048), next to the generic `Import`.
  *
  * - The upload confirmation (file produced with the tool, no direct identifiers) with user and time.
- * - The key generation of the hospital at upload (ADR 026); every commit of a run checks it again.
+ * - The key generation of the hospital at upload (ADR 027); every commit of a run checks it again.
  * - What the last run read from the manifest, why it rejected the file, and its row counts.
  * - Whether and when the uploaded file was deleted: at once for a file that may hold direct
- *   identifiers, otherwise by the daily retention job (ADR 025, #1049). Imported encounters stay.
+ *   identifiers, otherwise by the daily retention job (ADR 026, #1049). Imported encounters stay.
  *
  * Never holds file content or cell values.
  */
@@ -80,7 +80,7 @@ class EncounterImport
     #[ORM\Column(options: ['default' => 0])]
     private int $duplicates = 0;
 
-    /** Rows without a time anchor; they get no encounter (ADR 028). */
+    /** Rows without a time anchor; they get no encounter (ADR 029). */
     #[ORM\Column(options: ['default' => 0])]
     private int $skipped = 0;
 

@@ -16,7 +16,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 /**
  * Local map page of the data preparation tool (#1130): format, allowed values, example, template
  * download and the department names the import resolves. The hospital's own codes are entered in the
- * tool, never here (ADR 025).
+ * tool, never here (ADR 026).
  */
 #[IsGranted('ROLE_ENCOUNTER_BETA')]
 final class ShowDataPrepLocalMapController extends AbstractController

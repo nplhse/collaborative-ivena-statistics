@@ -22,7 +22,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Encounter import runs with small synthetic files (#1048, ADR 025, ADR 026, ADR 028).
+ * Encounter import runs with small synthetic files (#1048, ADR 026, ADR 027, ADR 029).
  *
  * Visits are named by labels; the same label is the same visit (same fingerprint). Anchors are on
  * 1 October 2026 unless stated otherwise.

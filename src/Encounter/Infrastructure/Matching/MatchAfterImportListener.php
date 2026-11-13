@@ -13,7 +13,7 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * Queues a matcher run for the affected hospital-days after an import (ADR 029, #1053):
+ * Queues a matcher run for the affected hospital-days after an import (ADR 030, #1053):
  *
  * - `EncountersImported`: the days of the new visits, widened by one day on both sides.
  * - `ImportCompleted` of an allocation import: the arrival days of its allocations, only when the

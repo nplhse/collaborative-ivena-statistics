@@ -6,7 +6,7 @@ namespace App\Encounter\Application\Security;
 
 /**
  * Security attributes checked by EncounterVoter, always with the Hospital of the requested object as
- * subject (ADR 027). Routes for encounter objects resolve that hospital first.
+ * subject (ADR 028). Routes for encounter objects resolve that hospital first.
  *
  * ROLE_ADMIN holds every grant action implicitly and passes every attribute.
  */
@@ -36,7 +36,7 @@ final class EncounterAttribute
     /** Deleting an encounter import with its visits, links and review decisions. Grant action UPLOAD. */
     public const string DELETE_IMPORT = 'ENCOUNTER_DELETE_IMPORT';
 
-    /** Changing the pseudonym key (ADR 026). Hospital owner or ROLE_ADMIN; no grant action allows it. */
+    /** Changing the pseudonym key (ADR 027). Hospital owner or ROLE_ADMIN; no grant action allows it. */
     public const string CHANGE_KEY = 'ENCOUNTER_CHANGE_KEY';
 
     /** Managing the encounter grants of the hospital. Hospital owner or ROLE_ADMIN. */

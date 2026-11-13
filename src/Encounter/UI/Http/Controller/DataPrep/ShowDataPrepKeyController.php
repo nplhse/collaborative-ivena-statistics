@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * Key file page of the data preparation tool (#1130, ADR 026): what the key is for, key generations, a
+ * Key file page of the data preparation tool (#1130, ADR 027): what the key is for, key generations, a
  * lost key; the key change link only for hospitals with CHANGE_KEY (owner, administrator).
  */
 #[IsGranted('ROLE_ENCOUNTER_BETA')]

@@ -14,7 +14,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
 
 /**
- * Read model of the match review (ADR 029, #1054): counts with their denominators and the review lists
+ * Read model of the match review (ADR 030, #1054): counts with their denominators and the review lists
  * of one hospital and period.
  *
  * Population: allocations of the hospital with IVENA arrival in the period, visits of the hospital with
@@ -372,7 +372,7 @@ SQL,
 
     /**
      * Optional context for unclear cases (#1054): IVENA urgency and normalized indication of the allocation,
-     * MTS category, diagram and indicator of the visits. None of these is a matching feature (ADR 029).
+     * MTS category, diagram and indicator of the visits. None of these is a matching feature (ADR 030).
      *
      * @param list<int> $encounterIds
      *

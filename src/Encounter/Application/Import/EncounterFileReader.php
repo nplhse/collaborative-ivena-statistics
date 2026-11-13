@@ -11,7 +11,7 @@ use App\Encounter\Domain\Enum\EncounterFileRejection;
  * (docs/04-features/encounter/exchange-format.md).
  *
  * A file whose first line is not an encounter manifest was not written by the data preparation tool;
- * it is treated as a raw HIS export (ADR 025) and rejected before any cell is looked at.
+ * it is treated as a raw HIS export (ADR 026) and rejected before any cell is looked at.
  */
 final class EncounterFileReader
 {

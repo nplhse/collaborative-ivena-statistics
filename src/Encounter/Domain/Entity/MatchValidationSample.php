@@ -11,7 +11,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * A stratified review sample of one hospital and period for the match validation (#1057, ADR 029).
+ * A stratified review sample of one hospital and period for the match validation (#1057, ADR 030).
  *
  * Keeps how it was drawn (period, size per stratum and score band, seed, score bands, matcher version)
  * and the population of every stratum and band at that moment, so its report can weight the bands.

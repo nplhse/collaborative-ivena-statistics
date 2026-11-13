@@ -11,7 +11,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Points of each feature of matcher v1 (ADR 029), one row per rule of the table in FeatureScorer.
+ * Points of each feature of matcher v1 (ADR 030), one row per rule of the table in FeatureScorer.
  */
 final class FeatureScorerTest extends TestCase
 {

@@ -20,7 +20,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * Card "Hospital course" on the allocation case file (#1055), contributed through the Allocation
  * extension point so Allocation does not depend on Encounter. Only for users with VIEW_CASES on the
- * allocation's hospital (ADR 027; administrators hold it implicitly). Without an effective link the
+ * allocation's hospital (ADR 028; administrators hold it implicitly). Without an effective link the
  * card says so; proposals are not shown here (match review, #1054).
  *
  * @psalm-suppress UnusedClass Tagged via AllocationCaseSectionProviderInterface.

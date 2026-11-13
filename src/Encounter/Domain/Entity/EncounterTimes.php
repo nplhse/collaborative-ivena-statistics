@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  * precision as exchanged. Durations are not stored; they are computed from these timestamps.
  *
  * At least one of ED admission and first assessment contact is set; together they give the time
- * anchor of the visit fingerprint (ADR 028).
+ * anchor of the visit fingerprint (ADR 029).
  */
 #[ORM\Embeddable]
 class EncounterTimes

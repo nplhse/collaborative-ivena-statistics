@@ -28,7 +28,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Match review (ADR 029, #1054): access per hospital, each decision with its audit entry, stickiness
+ * Match review (ADR 030, #1054): access per hospital, each decision with its audit entry, stickiness
  * after a rerun, conflict resolution and swaps.
  *
  * All data on 12 October 2026 (MatchingDataFixtures): allocations female, 70 years, without physician

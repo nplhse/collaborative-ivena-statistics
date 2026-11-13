@@ -21,7 +21,7 @@ use Symfony\Component\Clock\Clock;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * Exactly one ED visit of a hospital (ADR 025, ADR 028).
+ * Exactly one ED visit of a hospital (ADR 026, ADR 029).
  *
  * Identity: the internal `visitUid`; duplicates are detected by the keyed visit fingerprint, unique per
  * hospital and key generation (database constraint). The case key (pseudonym of the administrative
@@ -64,7 +64,7 @@ class Encounter
     #[ORM\Column(type: Types::STRING, length: 64)]
     private string $caseKey;
 
-    /** The import that created this visit; a later import never takes it over (ADR 028). */
+    /** The import that created this visit; a later import never takes it over (ADR 029). */
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Import $import;

@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * The reference says whether the values were measured with a documented reference to the admission
  * (`admission_measurement`, then with `measuredAt`) or are documented first values without an assured
- * time reference (`documented_initial`). It is required as soon as any value is set (ADR 025).
+ * time reference (`documented_initial`). It is required as soon as any value is set (ADR 026).
  * Plausibility ranges are checked by the import (#1048), not here.
  */
 #[ORM\Embeddable]

@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;
 
 /**
- * Renders the offline data preparation tool as one self-contained HTML file (ADR 025, #1051):
+ * Renders the offline data preparation tool as one self-contained HTML file (ADR 026, #1051):
  * inlined scripts, the `ed_visit` field contract and the bundled public profiles. Hospital-specific
  * local maps are never bundled. The MTS catalog is shared with the MTS glossary (MtsCatalog, #1056).
  */

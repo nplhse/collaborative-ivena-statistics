@@ -21,7 +21,7 @@ use App\Encounter\Domain\Enum\MatchStatus;
  *   from X to V applies; otherwise refused, decide in A's review.
  * - Otherwise the pair is confirmed; a pair confirmed already needs nothing.
  *
- * Swaps are the review's (ADR 029, {@see SwapProposal}): automatic links only, a confirmed link stays.
+ * Swaps are the review's (ADR 030, {@see SwapProposal}): automatic links only, a confirmed link stays.
  */
 final readonly class ValidationLinkPlanner
 {

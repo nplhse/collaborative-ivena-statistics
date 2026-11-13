@@ -8,7 +8,7 @@ use App\Encounter\Application\Review\MatchDecisionException;
 use App\User\Domain\Entity\User;
 
 /**
- * Decisions of the match review (ADR 029, #1054): confirm, change, reject and swaps, each audited and
+ * Decisions of the match review (ADR 030, #1054): confirm, change, reject and swaps, each audited and
  * sticky for later matcher runs. Callers check EncounterAttribute::REVIEW on the hospital first.
  */
 interface MatchDeciderInterface

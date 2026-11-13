@@ -7,7 +7,7 @@ namespace App\Encounter\UI\DataPrep;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Version of the offline data preparation tool the server renders (ADR 025, #1051), configured under
+ * Version of the offline data preparation tool the server renders (ADR 026, #1051), configured under
  * `app.encounter.data_prep`.
  */
 final readonly class DataPrepRelease

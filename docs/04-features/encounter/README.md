@@ -12,11 +12,11 @@ allocations and use them for local care improvement. IVENA allocations remain th
 the project. The first source is the Manchester Triage System (MTS) export of ORBIS: triage, process
 times, disposition and initial vitals.
 
-Decisions: [ADR 025](../../02-architecture/decisions/025-encounter-data-context-and-exchange-format.md)
-(context, exchange format, retention), [ADR 026](../../02-architecture/decisions/026-encounter-pseudonym-key.md)
-(pseudonym key), [ADR 027](../../02-architecture/decisions/027-encounter-access-grants.md) (access),
-[ADR 028](../../02-architecture/decisions/028-encounter-import-lifecycle.md) (import lifecycle),
-[ADR 029](../../02-architecture/decisions/029-encounter-allocation-matching.md) (matching).
+Decisions: [ADR 026](../../02-architecture/decisions/026-encounter-data-context-and-exchange-format.md)
+(context, exchange format, retention), [ADR 027](../../02-architecture/decisions/027-encounter-pseudonym-key.md)
+(pseudonym key), [ADR 028](../../02-architecture/decisions/028-encounter-access-grants.md) (access),
+[ADR 029](../../02-architecture/decisions/029-encounter-import-lifecycle.md) (import lifecycle),
+[ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md) (matching).
 
 ## Flow
 
@@ -66,7 +66,7 @@ Implemented in #1047:
 - **Identity:** internal `visit_uid` (UUID v7), unique `(hospital_id, key_generation,
   visit_fingerprint)`. The row also stores the fingerprint anchor (`anchor_at`, `anchor_source`:
   first assessment contact, else ED admission, minute precision as exchanged); the matching anchor of
-  ADR 029 (ED admission first) is derived from the timestamps and stored with the link (#1053).
+  ADR 030 (ED admission first) is derived from the timestamps and stored with the link (#1053).
 - **Invariants** checked by the entity and, where cheap, by check constraints: age 1–99, key
   generation ≥ 1, a time anchor exists, care level only with `admitted` or `transferred_external`,
   vitals need a reference when any value is set, `vitals_measured_at` only with
@@ -162,7 +162,7 @@ page lists them for users with `UPLOAD`, without case keys or timestamps. They a
 
 **List and detail page** (`/import`, `/import/{id}`): encounter imports are listed and opened only with
 `UPLOAD` on their hospital (or `ROLE_ADMIN`); hospital ownership or hospital grants alone do not show them
-(ADR 027). The detail page adds an encounter section: new visits, known visits, skipped and rejected
+(ADR 028). The detail page adds an encounter section: new visits, known visits, skipped and rejected
 rows, suspected duplicates, profile, tool version, key generation, confirmation, file rejection, the
 reject list and the suspected-duplicate list, and until when the upload file is kept or when it was
 deleted. No file content. **Download** (`/import/{id}/source-file`) with `UPLOAD` on the hospital (or
@@ -185,14 +185,14 @@ before that links and review decisions of the import are lost.
 **Delete** (`/import/{id}/delete`, `UPLOAD` via `EncounterAttribute::DELETE_IMPORT`): goes through
 `ImportDeletionService` like every import deletion and removes the import's visits with their IVENA links
 and review decisions, its rejects, report, suspected-duplicate records and source file. Visits of other
-imports stay (ADR 028). The confirmation dialog says so; the deletion is audited like every import
+imports stay (ADR 029). The confirmation dialog says so; the deletion is audited like every import
 deletion.
 
 ### Upload file retention
 
 Accepted files and files rejected for a possible processing error are kept for
 `app.encounter.source_file_retention_days` days (default 30, positive integer, no env variable) for
-error analysis and reprocessing after a bug fix (ADR 025, #1049).
+error analysis and reprocessing after a bug fix (ADR 026, #1049).
 
 - The age counts from the upload (`import.created_at`); a reprocess does not extend it. A file is
   deleted once it is older than the retention: uploaded on 1 October 10:00, it is kept on 30 October
@@ -217,7 +217,7 @@ days of the inserted visits); the matcher reruns those days ([Matching](#matchin
 
 ## Key change
 
-Implemented in #1050 (ADR 026). Page `/hospitals/{id}/edit/encounter-key` ("Change pseudonym key"), linked
+Implemented in #1050 (ADR 027). Page `/hospitals/{id}/edit/encounter-key` ("Change pseudonym key"), linked
 from the encounter section of the hospital edit pages for the hospital owner and administrators
 (`EncounterAttribute::CHANGE_KEY`, beta role required). Users with an encounter grant, also `UPLOAD`, get
 403.
@@ -317,12 +317,12 @@ Implemented in #1046:
   of the requested object. Downloads of upload files are audited like every import source file download.
 
 Details:
-[ADR 027](../../02-architecture/decisions/027-encounter-access-grants.md),
+[ADR 028](../../02-architecture/decisions/028-encounter-access-grants.md),
 [permission-model.md](../../02-architecture/permission-model.md#encounter-grants).
 
 ## Matching
 
-Summary of [ADR 029](../../02-architecture/decisions/029-encounter-allocation-matching.md):
+Summary of [ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md):
 
 - Same hospital; pass 1 EMS arrivals, −20 … +45 min, age ±2; pass 2 the rest, −30 … +90 min, age ±5.
 - Features: time difference, sex, age difference, arrival route, physician vehicle, work accident.
@@ -334,7 +334,7 @@ Summary of [ADR 029](../../02-architecture/decisions/029-encounter-allocation-ma
 - Pass 1 reserves both sides; later runs only fill gaps and never reassign links. The review may
   propose a targeted swap.
 
-Implemented in #1053 (matcher version `1.0.0`); production matcher since #1043: `1.1.0` (see [ADR 029](../../02-architecture/decisions/029-encounter-allocation-matching.md#matcher-versions) and the matcher versions below). The review is #1054 ([Match review](#match-review)); the overview and the case card (#1055) show links as described in [Statistics in the pilot](#statistics-in-the-pilot).
+Implemented in #1053 (matcher version `1.0.0`); production matcher since #1043: `1.1.0` (see [ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md#matcher-versions) and the matcher versions below). The review is #1054 ([Match review](#match-review)); the overview and the case card (#1055) show links as described in [Statistics in the pilot](#statistics-in-the-pilot).
 
 **Table `encounter_match`**, one row per pair of allocation and visit: `status` (`auto_accepted`,
 `proposed`, `confirmed`, `rejected`), `conflict`, `score`, `points`, `contributions` (points per feature),
@@ -346,7 +346,7 @@ its hospital (`ON DELETE CASCADE`); a deleted user leaves the decision with `dec
 
 **Score**: each candidate visit of an allocation weighs 2^points, the "no match" option 2^4; a
 candidate's score is its share of the total weight (`MatchPlanner`, points in `FeatureScorer`). The
-points and the "no match" weight were set by judgement for v1 (ADR 029); the
+points and the "no match" weight were set by judgement for v1 (ADR 030); the
 [match validation](#match-validation) measures them. They live in `MatchWeights` with their version
 (`MatchWeights::production()`, currently `MatchWeights::v1_1()`, `1.1.0`); a new matcher version is a new
 set of points with a new version, which `MatchPlanner::VERSION` names and every written row stores.
@@ -367,7 +367,7 @@ values gives both 512 / 1040 = 0.4923: nothing is proposed. Admission at 10:20 i
 at 10:07 but male vs female: 4 − 2 + 2 + 1 = 5 points, 32 / 48 = 0.6667, a proposal (v1: 3 points, 0.3333,
 nothing). Times are compared on the local wall clock at minute precision.
 
-**Matcher versions** (ADR 029): `1.0.0` (points by judgement) and `1.1.0`
+**Matcher versions** (ADR 030): `1.0.0` (points by judgement) and `1.1.0`
 (`time.near` +3, `sex.different` −2, after the validation of one pilot hospital, October 2026) are both
 defined; `1.1.0` is the production matcher. Stored pairs keep the version that scored them. A new version
 rescores nothing in bulk: automatic links and manual decisions stay with their old version, open proposals
@@ -395,7 +395,7 @@ are recomputed with the new version by the next run over their allocations (afte
 | Deletion or reprocess of an allocation or encounter import (`EncounterMatchDataRemover`) | the arrival days of its allocations and the days around its visits; the import's rows are left out and the run waits 30 s for the deletion to commit |
 
 Deleting, reprocessing or requeueing an allocation import removes the links and manual decisions of
-its allocations (ADR 029, as ADR 028 does for encounter imports). The reprocessed import gets new
+its allocations (ADR 030, as ADR 029 does for encounter imports). The reprocessed import gets new
 allocation ids; the next run links them again automatically, manual decisions have to be made again.
 The allocation import pages do not warn about it (Import does not depend on Encounter); the import docs
 do ([import pipeline](../import/import-pipeline.md#reprocessing), [batch requeue](../import/batch-requeue.md#reimport-cleanup)).
@@ -478,14 +478,14 @@ allocations proposed for the same visit. The total is coloured by what it would 
 by default), "fits partly" (yellow) the proposal threshold (4–7), "hardly fits" (red) neither. It rates the
 features only; the agreement beside it also accounts for competing candidates. A section "Extended information (MTS, IVENA)" adds, for
 unclear cases, IVENA urgency and normalized indication beside MTS category, diagram and indicator of the visit
-(`MatchReviewQuery::extendedInfo()`). They are no matching features (ADR 029) and the page says so: later
+(`MatchReviewQuery::extendedInfo()`). They are no matching features (ADR 030) and the page says so: later
 analyses compare exactly these between IVENA and the ED. It is collapsed for a clear candidate and opens by
 itself when the candidate's agreement among all candidates stays below the auto-accept threshold. Decisions
 made with this section open are deliberately not marked. The card header names the current link and its origin (automatic:
 score and pass). The linked visit is chosen first, else the open proposal with the highest stored score, else
 the candidate with the most points. The Stimulus controller `encounter-match-review` switches the comparison
 and enables only the decisions that apply to the chosen visit; the server checks again. The score is labelled
-"agreement" ("Übereinstimmung") and explained as a ranking, not a probability (ADR 029).
+"agreement" ("Übereinstimmung") and explained as a ranking, not a probability (ADR 030).
 
 **Decisions** (form `MatchReviewDecisionType` on the allocation page; `MatchDecider`, one transaction under
 the matcher's per-hospital lock):
@@ -524,7 +524,7 @@ chain A–V + B–W gives one link more and 6 + 7 − 9 = 4 points more.
 
 ## Match validation
 
-Implemented in #1057 (ADR 029, "Quality check"). Pages under `/encounter/review/{hospital}/validation`,
+Implemented in #1057 (ADR 030, "Quality check"). Pages under `/encounter/review/{hospital}/validation`,
 linked from the review overview; access as the review (beta role + encounter grant `REVIEW`, or
 `ROLE_ADMIN`).
 
@@ -595,7 +595,7 @@ Example (tested in `ValidationReportTest`): automatic links with 100 cases in ba
 1 wrong: 0.75) and 20 in 0.90–0.99 (2 correct: 1.0) give (100 × 0.75 + 20 × 1.0) / 120 = 0.79.
 
 **Calibration**: the shares are observations that calibrate the score; no calibration is stored yet, so the
-score stays "agreement" and is never shown as a hit probability (ADR 029). Real numbers come from the pilot
+score stays "agreement" and is never shown as a hit probability (ADR 030). Real numbers come from the pilot
 hospital's data, not from synthetic data.
 
 **Tuning** (`php bin/console app:encounter:evaluate-matcher --hospital=<id> --from=YYYY-MM-DD [--to=…]`):
@@ -731,7 +731,7 @@ on Encounter.
 - **Visibility.** Definitions are shown to every participant (`^/explore` rule). Counts are shown only
   to users with `VIEW_CASES` or `VIEW_AGGREGATES` on a hospital (`EncounterVoter`), summed over exactly
   those hospitals (`EncounterCountScopeResolver`); administrators with the beta role count all
-  hospitals, as ADR 027 gives them every action. Other hospitals are never counted.
+  hospitals, as ADR 028 gives them every action. Other hospitals are never counted.
 - **What is counted.** Encounters by the initial triage (`mts_category`, `mts_diagram`,
   `mts_indicator`), all key generations, no period filter; retriage values are not counted. Population:
   every stored encounter of the hospitals in scope; encounters without a value are not counted for that

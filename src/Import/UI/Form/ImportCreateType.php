@@ -139,7 +139,7 @@ final class ImportCreateType extends AbstractType
 
     /**
      * Hospitals with the import permission, plus those where the user may upload a type of another
-     * context (for example the encounter grant UPLOAD, ADR 027).
+     * context (for example the encounter grant UPLOAD, ADR 028).
      *
      * @param list<ImportTypeExtensionInterface> $extensions
      */

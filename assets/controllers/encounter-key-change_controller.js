@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 
 /*
- * Key change form (encounter data, ADR 026): the button stays disabled until the hospital name is typed
+ * Key change form (encounter data, ADR 027): the button stays disabled until the hospital name is typed
  * exactly. It opens a confirmation modal whose text names the consequence of the chosen option; the
  * modal's button submits the form. The server checks the name and the option again.
  */

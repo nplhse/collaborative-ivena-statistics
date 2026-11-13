@@ -7,7 +7,7 @@ namespace App\Encounter\Application\Message;
 use Symfony\Component\Messenger\Attribute\AsMessage;
 
 /**
- * Runs the matcher for the allocations of one hospital on the given days (ADR 029, #1053): after an
+ * Runs the matcher for the allocations of one hospital on the given days (ADR 030, #1053): after an
  * encounter import, an allocation import, or the deletion or reprocess of either.
  */
 #[AsMessage('async_priority_low')]

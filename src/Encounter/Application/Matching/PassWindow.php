@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Application\Matching;
 
 /**
- * Candidate window of one matcher pass (ADR 029): matching anchor from `minutesBefore` before to
+ * Candidate window of one matcher pass (ADR 030): matching anchor from `minutesBefore` before to
  * `minutesAfter` after the IVENA arrival (both inclusive) and at most `maxAgeDifference` years apart.
  */
 final readonly class PassWindow

@@ -12,7 +12,7 @@ use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Hospitals a user may upload encounter files for (ADR 027), see EncounterUploadHospitalsInterface.
+ * Hospitals a user may upload encounter files for (ADR 028), see EncounterUploadHospitalsInterface.
  *
  * @psalm-suppress UnusedClass Wired as the only implementation of EncounterUploadHospitalsInterface.
  */

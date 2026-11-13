@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Application\Dimension;
 
 /**
- * Value type of a field of the canonical exchange format (ADR 025).
+ * Value type of a field of the canonical exchange format (ADR 026).
  */
 enum EncounterFieldType: string
 {

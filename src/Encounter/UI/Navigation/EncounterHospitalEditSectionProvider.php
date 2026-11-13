@@ -12,7 +12,7 @@ use App\Encounter\Application\Security\EncounterAttribute;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
- * Links the encounter grant management (ADR 027) and the key change (ADR 026) from the hospital edit
+ * Links the encounter grant management (ADR 028) and the key change (ADR 027) from the hospital edit
  * pages through the Allocation extension point, so Allocation does not depend on Encounter.
  *
  * @psalm-suppress UnusedClass Tagged via HospitalEditSectionProviderInterface.

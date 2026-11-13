@@ -21,7 +21,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Exception\RecoverableMessageHandlingException;
 
 /**
- * Second half of a key change with the option "delete" (ADR 026, #1050): deletes every encounter import
+ * Second half of a key change with the option "delete" (ADR 027, #1050): deletes every encounter import
  * of the hospital uploaded with an earlier key generation through ImportDeletionService (visits with
  * their links and review decisions, rejects, report, source file), then ends the key change.
  *

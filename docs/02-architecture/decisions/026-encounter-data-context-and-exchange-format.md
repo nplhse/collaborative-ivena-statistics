@@ -1,4 +1,4 @@
-# ADR 025: Encounter data context, source profiles and canonical exchange format
+# ADR 026: Encounter data context, source profiles and canonical exchange format
 
 **Status:** accepted
 
@@ -44,7 +44,7 @@ from existing pages are contributed by `Encounter`.
 
 - **One `Encounter` is exactly one ED visit** of a hospital, with triage, process times, disposition,
   initial vitals, flags and at most one link to an IVENA allocation.
-- Its identity is a visit fingerprint computed in the tool (ADR 026, ADR 028). The administrative case
+- Its identity is a visit fingerprint computed in the tool (ADR 027, ADR 029). The administrative case
   number is carried as a pseudonym for the suspected-duplicate check only; it neither groups visits
   nor serves as a key.
 - There is no patient-level key.
@@ -108,7 +108,7 @@ downloaded from the encounter import page. It runs in the browser without instal
 - Allow-list transformation: every column not mapped by the profile is dropped. Names, dates of
   birth, staff columns and free text are not written to the output. Date of birth is only used inside
   the tool to derive age when no age column exists.
-- Case number and visit fingerprint are keyed HMAC values (ADR 026).
+- Case number and visit fingerprint are keyed HMAC values (ADR 027).
 - Profiles are declarative and cannot run code or make requests.
 
 ### Protection against identifying content
@@ -133,7 +133,7 @@ checks look for date-like values in non-date fields, name-like values and long f
   rejection reason is recorded on the import.
 - The rule for rejected files after the beta is open.
 - The file retention applies to uploads only. Imported encounters and links serve local care
-  improvement; they follow the deletion rule of ADR 028 and a retention decision of their own.
+  improvement; they follow the deletion rule of ADR 029 and a retention decision of their own.
 
 ### IVENA case number
 
@@ -159,7 +159,7 @@ upload, processing, rejects, downloads and backups (#1058).
 - Mapping errors in a hospital-specific profile are only visible through the tool's preview and the
   import report
 - Content checks can miss identifiers; pseudonymised data is still personal data, so access control
-  (ADR 027) and governance remain necessary
+  (ADR 028) and governance remain necessary
 - Uploaded files stay on the server for up to 30 days
 
 ## Alternatives
@@ -181,8 +181,8 @@ upload, processing, rejects, downloads and backups (#1058).
 
 - [007-bounded-contexts-and-dependency-directions.md](007-bounded-contexts-and-dependency-directions.md)
 - [020-portable-reference-catalog.md](020-portable-reference-catalog.md)
-- [026-encounter-pseudonym-key.md](026-encounter-pseudonym-key.md)
-- [027-encounter-access-grants.md](027-encounter-access-grants.md)
-- [028-encounter-import-lifecycle.md](028-encounter-import-lifecycle.md)
-- [029-encounter-allocation-matching.md](029-encounter-allocation-matching.md)
+- [027-encounter-pseudonym-key.md](027-encounter-pseudonym-key.md)
+- [028-encounter-access-grants.md](028-encounter-access-grants.md)
+- [029-encounter-import-lifecycle.md](029-encounter-import-lifecycle.md)
+- [030-encounter-allocation-matching.md](030-encounter-allocation-matching.md)
 - Issues #1043, #1044, #1045, #1058

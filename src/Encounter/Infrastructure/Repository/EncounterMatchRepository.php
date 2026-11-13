@@ -13,7 +13,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * Writes the matcher's rows (ADR 029). Automatic rows go straight to the connection inside the caller's
+ * Writes the matcher's rows (ADR 030). Automatic rows go straight to the connection inside the caller's
  * transaction; manual decisions go through the entity (#1054).
  *
  * @extends ServiceEntityRepository<EncounterMatch>

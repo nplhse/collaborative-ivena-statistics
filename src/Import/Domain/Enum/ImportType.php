@@ -10,7 +10,7 @@ enum ImportType: string
 
     case CLOSURE = 'Closure';
 
-    /** Canonical encounter exchange files (ADR 025); processed by the Encounter context. */
+    /** Canonical encounter exchange files (ADR 026); processed by the Encounter context. */
     case ENCOUNTER = 'Encounter';
 
     public function getType(): string

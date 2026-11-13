@@ -29,7 +29,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Matcher v1 against the database (ADR 029, #1053): stored explanation, reruns, manual decisions,
+ * Matcher v1 against the database (ADR 030, #1053): stored explanation, reruns, manual decisions,
  * conflicts, deletion and the triggers. Every visit scores 9 points against an allocation at its
  * arrival time unless stated otherwise (score 512 / 528 = 0.9697).
  */

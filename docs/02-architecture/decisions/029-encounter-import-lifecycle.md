@@ -1,17 +1,17 @@
-# ADR 028: Encounter import lifecycle — one visit, one owning import
+# ADR 029: Encounter import lifecycle — one visit, one owning import
 
 **Status:** accepted
 
 ## Context
 
 Hospitals export encounter data by period. Exports overlap, and one file can mix visits that are
-already known with new ones. Imports can be deleted. Links and review decisions (ADR 029) must stay
+already known with new ones. Imports can be deleted. Links and review decisions (ADR 030) must stay
 consistent with that.
 
 Forces:
 
 - The ORBIS MTS export has no per-visit identifier, and one administrative case number can cover
-  several ED visits (ADR 025).
+  several ED visits (ADR 026).
 - Duplicates must be detected per row, not per file.
 - Deleting an import must have a simple, predictable result.
 
@@ -20,7 +20,7 @@ Forces:
 ### Visit identity
 
 - Each encounter (= one ED visit) has an internal `visit_uid`.
-- Duplicate detection uses a **visit fingerprint** computed in the tool as a keyed HMAC (ADR 026)
+- Duplicate detection uses a **visit fingerprint** computed in the tool as a keyed HMAC (ADR 027)
   with a versioned rule. Rule `ed-visit:v1` (#1045): normalised administrative case number, the time
   anchor in its original second resolution and the anchor used. The anchor is the first contact of
   the initial assessment, or the ED admission time when that is missing. The initial assessment comes
@@ -53,7 +53,7 @@ Reprocessing an import (after a bug fix or for any other reason) works as for al
 imports: the run first removes all data the import created — its visits with their clinical data,
 IVENA links and review decisions — and then processes the retained file completely again with the
 same duplicate check. Rows that belong to other imports are skipped again; the import's own rows are
-created anew. Reprocessing is only possible while the file is retained (ADR 025).
+created anew. Reprocessing is only possible while the file is retained (ADR 026).
 
 ### Deletion
 
@@ -93,7 +93,7 @@ created by B disappear.
 
 ## References
 
-- [025-encounter-data-context-and-exchange-format.md](025-encounter-data-context-and-exchange-format.md)
-- [026-encounter-pseudonym-key.md](026-encounter-pseudonym-key.md)
-- [029-encounter-allocation-matching.md](029-encounter-allocation-matching.md)
+- [026-encounter-data-context-and-exchange-format.md](026-encounter-data-context-and-exchange-format.md)
+- [027-encounter-pseudonym-key.md](027-encounter-pseudonym-key.md)
+- [030-encounter-allocation-matching.md](030-encounter-allocation-matching.md)
 - Issues #1044, #1045, #1047, #1048

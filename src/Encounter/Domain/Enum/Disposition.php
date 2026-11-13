@@ -7,7 +7,7 @@ namespace App\Encounter\Domain\Enum;
 /**
  * How the ED visit ended, `disposition` of the `ed_visit` exchange format (#1047).
  *
- * Admission within the own hospital and external transfer are separate dispositions (ADR 025); only
+ * Admission within the own hospital and external transfer are separate dispositions (ADR 026); only
  * these two carry a care level.
  */
 enum Disposition: string

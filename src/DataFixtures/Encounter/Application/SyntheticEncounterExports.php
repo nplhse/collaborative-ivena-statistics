@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\DataFixtures\Encounter\Application;
 
 /**
- * Splits generated visits into exports as a hospital would upload them (#1052, ADR 028).
+ * Splits generated visits into exports as a hospital would upload them (#1052, ADR 029).
  *
  * The default is two overlapping exports of a month: the first covers days 1–20, the second day 11
  * up to the last visit. Visits of days 11–20 are in both, so the second upload counts them as known

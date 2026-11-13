@@ -11,7 +11,7 @@ use App\Notification\Domain\Enum\NotificationCategory;
 use App\Notification\Domain\Enum\NotificationChannel;
 
 /**
- * The pseudonym key of a hospital's encounter data was changed (ADR 026, ADR 016 "Admin notifications").
+ * The pseudonym key of a hospital's encounter data was changed (ADR 027, ADR 016 "Admin notifications").
  * Goes to the administrators who receive it, once per key generation; it stores the hospital name, the
  * username of the person who changed it, the new generation and the chosen option.
  *

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Application\Contract;
 
 /**
- * Reads the pseudonym key state of a hospital (ADR 026) without locking.
+ * Reads the pseudonym key state of a hospital (ADR 027) without locking.
  */
 interface EncounterKeyStateReaderInterface
 {

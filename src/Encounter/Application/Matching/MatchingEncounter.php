@@ -10,7 +10,7 @@ use App\Encounter\Domain\Enum\ArrivalRoute;
 use App\Encounter\Domain\Enum\Sex;
 
 /**
- * The fields of an ED visit the matcher compares (ADR 029). MTS category and diagram and the admitting
+ * The fields of an ED visit the matcher compares (ADR 030). MTS category and diagram and the admitting
  * department are deliberately absent: later analyses compare them with IVENA.
  */
 final readonly class MatchingEncounter
@@ -30,8 +30,8 @@ final readonly class MatchingEncounter
     }
 
     /**
-     * Matching anchor of ADR 029: the documented ED admission first, the first assessment contact as
-     * marked substitute. (The fingerprint anchor of ADR 028 uses the opposite order.).
+     * Matching anchor of ADR 030: the documented ED admission first, the first assessment contact as
+     * marked substitute. (The fingerprint anchor of ADR 029 uses the opposite order.).
      *
      * @return array{0: \DateTimeImmutable, 1: AnchorSource}|null
      */

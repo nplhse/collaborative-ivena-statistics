@@ -22,7 +22,7 @@ enum ImportRunReasonCode: string
     case RejectionRatioExceeded = 'rejection_ratio_exceeded';
     case ProcessingError = 'processing_error';
     case RetriesExhausted = 'retries_exhausted';
-    /** Encounter import: the hospital's pseudonym key generation changed after the upload (ADR 026). */
+    /** Encounter import: the hospital's pseudonym key generation changed after the upload (ADR 027). */
     case KeyGenerationChanged = 'key_generation_changed';
 
     public function describe(): string

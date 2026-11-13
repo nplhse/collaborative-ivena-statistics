@@ -8,7 +8,7 @@ use App\Encounter\Application\Matching\MatchRunResult;
 use App\Encounter\Application\Matching\MatchScope;
 
 /**
- * Runs the matcher of ED visits and IVENA allocations for a scope (ADR 029).
+ * Runs the matcher of ED visits and IVENA allocations for a scope (ADR 030).
  */
 interface EncounterMatcherInterface
 {

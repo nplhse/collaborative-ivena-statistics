@@ -21,7 +21,7 @@ use App\Encounter\Domain\Enum\ValidationVerdict;
  * with population has at least one decisive verdict; otherwise a band would silently drop out.
  *
  * The shares are observations on the sample. They calibrate the score; until then the score stays
- * "agreement" (ADR 029).
+ * "agreement" (ADR 030).
  */
 final readonly class ValidationReport
 {

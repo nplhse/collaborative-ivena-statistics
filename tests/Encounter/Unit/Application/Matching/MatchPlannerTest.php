@@ -14,7 +14,7 @@ use App\Encounter\Domain\Enum\Sex;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Score, passes, conflict, reservation and gap filling of the production matcher (v1.1, ADR 029) on
+ * Score, passes, conflict, reservation and gap filling of the production matcher (v1.1, ADR 030) on
  * hand-checkable inputs. Score = 2^points / (2^4 "no match" + sum of 2^points of the allocation's candidates).
  */
 final class MatchPlannerTest extends TestCase

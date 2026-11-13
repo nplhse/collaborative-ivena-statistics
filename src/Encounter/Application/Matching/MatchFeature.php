@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Application\Matching;
 
 /**
- * Features of matcher v1 (ADR 029). Keys of the stored contributions.
+ * Features of matcher v1 (ADR 030). Keys of the stored contributions.
  */
 enum MatchFeature: string
 {

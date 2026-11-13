@@ -22,7 +22,7 @@ use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * Danger action: change the pseudonym key of a hospital (ADR 026, #1050). Hospital owner or
+ * Danger action: change the pseudonym key of a hospital (ADR 027, #1050). Hospital owner or
  * administrator (EncounterAttribute::CHANGE_KEY); users with the upload grant cannot.
  */
 #[IsGranted('ROLE_ENCOUNTER_BETA')]

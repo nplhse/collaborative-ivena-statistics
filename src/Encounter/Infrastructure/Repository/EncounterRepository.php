@@ -23,7 +23,7 @@ final class EncounterRepository extends ServiceEntityRepository
 
     /**
      * Inserts a new visit, or skips it when the hospital already has a visit with the same fingerprint
-     * in the same key generation (ADR 028). A known visit is never changed.
+     * in the same key generation (ADR 029). A known visit is never changed.
      *
      * The insert runs directly on the connection (inside the caller's transaction, if any); the
      * given object is not managed by the EntityManager afterwards.
@@ -49,7 +49,7 @@ final class EncounterRepository extends ServiceEntityRepository
 
     /**
      * Earlier visits of the hospital and key generation with the same case key and a time anchor
-     * within $windowMinutes of the given visit's anchor (suspected duplicates, ADR 028).
+     * within $windowMinutes of the given visit's anchor (suspected duplicates, ADR 029).
      *
      * @return list<array{id: int, anchor_source: string, difference_minutes: int}>
      */
@@ -82,7 +82,7 @@ SQL,
 
     /**
      * Removes the visits created by one import. Links and review decisions of these visits reference
-     * the encounter with ON DELETE CASCADE and go with them (ADR 028, ADR 029).
+     * the encounter with ON DELETE CASCADE and go with them (ADR 029, ADR 030).
      */
     public function deleteByImportId(int $importId): int
     {

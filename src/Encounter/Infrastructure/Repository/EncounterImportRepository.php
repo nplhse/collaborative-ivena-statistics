@@ -69,7 +69,7 @@ final class EncounterImportRepository extends ServiceEntityRepository implements
 
     /**
      * Ids of the hospital's encounter imports uploaded with a key generation before the given one,
-     * ascending (key change with the option "delete", ADR 026).
+     * ascending (key change with the option "delete", ADR 027).
      *
      * @return list<int>
      */

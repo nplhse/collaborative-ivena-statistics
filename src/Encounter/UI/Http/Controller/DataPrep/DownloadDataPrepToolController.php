@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * Download of the offline data preparation tool (ADR 025, #1051) for the pilot hospitals.
+ * Download of the offline data preparation tool (ADR 026, #1051) for the pilot hospitals.
  */
 #[IsGranted('ROLE_ENCOUNTER_BETA')]
 final readonly class DownloadDataPrepToolController

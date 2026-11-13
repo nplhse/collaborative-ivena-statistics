@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Domain\Enum;
 
 /**
- * Why an encounter import rejected its file as a whole (ADR 025, #1048). Stored on the import; never
+ * Why an encounter import rejected its file as a whole (ADR 026, #1048). Stored on the import; never
  * the file content.
  */
 enum EncounterFileRejection: string
@@ -22,9 +22,9 @@ enum EncounterFileRejection: string
     case FingerprintRuleUnsupported = 'fingerprint_rule_unsupported';
     case HeaderMismatch = 'header_mismatch';
     case RowCountMismatch = 'row_count_mismatch';
-    /** The key check value belongs to an earlier key generation of the hospital (ADR 026). */
+    /** The key check value belongs to an earlier key generation of the hospital (ADR 027). */
     case KeyCheckRetired = 'key_check_retired';
-    /** The key check value differs from the active one of the hospital (ADR 026). */
+    /** The key check value differs from the active one of the hospital (ADR 027). */
     case KeyCheckMismatch = 'key_check_mismatch';
 
     /**

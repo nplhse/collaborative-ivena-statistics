@@ -14,7 +14,7 @@ use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Creates, changes and removes encounter access grants (ADR 027). Callers check
+ * Creates, changes and removes encounter access grants (ADR 028). Callers check
  * EncounterAttribute::MANAGE_GRANTS first; every change runs under an audit intent.
  */
 final readonly class EncounterGrantManager

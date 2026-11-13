@@ -14,7 +14,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * One pair of ED visit and IVENA allocation with its matching result or manual decision (ADR 029, #1053).
+ * One pair of ED visit and IVENA allocation with its matching result or manual decision (ADR 030, #1053).
  *
  * The row keeps how the pair was scored: score (agreement 0.0–1.0, not a probability), points per
  * feature, the pass, the matcher version, the time anchor used (ED admission, or the first assessment

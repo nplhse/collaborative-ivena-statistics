@@ -8,7 +8,7 @@ use App\Encounter\Domain\Enum\ArrivalRoute;
 use App\Encounter\Domain\Enum\MatchStatus;
 
 /**
- * Decides which pairs of allocations and ED visits become automatic links or proposals (ADR 029; by
+ * Decides which pairs of allocations and ED visits become automatic links or proposals (ADR 030; by
  * default with the production points, matcher v1.1). Pure: it reads nothing and writes nothing.
  *
  * Score: each candidate visit of an allocation weighs 2^points (sum of the feature points,

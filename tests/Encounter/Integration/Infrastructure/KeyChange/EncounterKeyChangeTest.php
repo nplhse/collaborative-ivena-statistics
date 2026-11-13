@@ -33,7 +33,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Key change of a hospital (ADR 026, #1050) with small synthetic files. Files carry the key check value
+ * Key change of a hospital (ADR 027, #1050) with small synthetic files. Files carry the key check value
  * EdVisitFileBuilder::KEY_CHECK ("old key") unless stated otherwise; the same visit label is the same
  * visit, but its fingerprint only matches within one key generation.
  *

@@ -6,7 +6,7 @@ namespace App\Encounter\Application\Import;
 
 /**
  * Outcome of mapping one data row: a valid visit, a rejected row with its findings, or a row without
- * any time anchor, which is skipped and counted (ADR 028).
+ * any time anchor, which is skipped and counted (ADR 029).
  */
 final readonly class RowMappingResult
 {

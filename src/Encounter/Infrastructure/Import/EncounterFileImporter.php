@@ -27,7 +27,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 
 /**
- * Processes one canonical exchange file of an encounter import (#1048, ADR 025, ADR 026, ADR 028).
+ * Processes one canonical exchange file of an encounter import (#1048, ADR 026, ADR 027, ADR 029).
  *
  * 1. Read and validate the whole file; a file-level finding throws EncounterFileRejectedException and
  *    nothing is written.
@@ -41,7 +41,7 @@ use Psr\Clock\ClockInterface;
  */
 final readonly class EncounterFileImporter
 {
-    /** Time anchors closer than this make a new visit with the same case key a suspected duplicate (ADR 028). */
+    /** Time anchors closer than this make a new visit with the same case key a suspected duplicate (ADR 029). */
     public const int SUSPECTED_DUPLICATE_WINDOW_MINUTES = 15;
 
     /** @psalm-suppress PossiblyUnusedMethod Autowired. */
@@ -163,7 +163,7 @@ final readonly class EncounterFileImporter
             $reject->setImport($importReference);
             $reject->setLineNumber($line);
             $reject->setMessages(array_map(static fn (RowError $error): string => $error->describe(), $errors));
-            // Never the row or a cell value (ADR 025): only what identifies the producing profile.
+            // Never the row or a cell value (ADR 026): only what identifies the producing profile.
             $reject->setRow(['profile' => $manifest->profile, 'profile_version' => $manifest->profileVersion]);
             $this->entityManager->persist($reject);
         }

@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 
 /**
- * Deletes encounter upload files after the retention period (ADR 025, #1049).
+ * Deletes encounter upload files after the retention period (ADR 026, #1049).
  *
  * - Applies to every encounter import whose file is still kept: accepted files and files rejected for a
  *   possible processing error. Files that may hold direct identifiers were already deleted by the import.

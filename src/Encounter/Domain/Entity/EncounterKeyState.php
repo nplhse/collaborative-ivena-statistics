@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Clock\Clock;
 
 /**
- * Pseudonym key state of one hospital (ADR 026): the current key generation, the check value
+ * Pseudonym key state of one hospital (ADR 027): the current key generation, the check value
  * registered for it and the retired check values of earlier generations.
  *
  * Every encounter stores the generation it was imported with; duplicate detection works within one
@@ -49,7 +49,7 @@ class EncounterKeyState
     #[ORM\Column(type: Types::JSON, options: ['jsonb' => true, 'default' => '[]'])]
     private array $retiredCheckValues = [];
 
-    /** While true, new encounter uploads are refused (key change, ADR 026). */
+    /** While true, new encounter uploads are refused (key change, ADR 027). */
     #[ORM\Column(options: ['default' => false])]
     private bool $keyChangeInProgress = false;
 
@@ -101,7 +101,7 @@ class EncounterKeyState
     }
 
     /**
-     * Starts a key change (ADR 026): new uploads are refused, the generation moves on and the active
+     * Starts a key change (ADR 027): new uploads are refused, the generation moves on and the active
      * check value is retired, so imports of the old generation can no longer write or register it.
      */
     public function beginKeyChange(): void

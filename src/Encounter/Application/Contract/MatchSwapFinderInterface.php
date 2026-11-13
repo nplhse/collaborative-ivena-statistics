@@ -8,7 +8,7 @@ use App\Encounter\Application\Matching\MatchingAllocation;
 use App\Encounter\Application\Review\SwapProposal;
 
 /**
- * Targeted swap proposals of the match review (ADR 029, #1054).
+ * Targeted swap proposals of the match review (ADR 030, #1054).
  */
 interface MatchSwapFinderInterface
 {

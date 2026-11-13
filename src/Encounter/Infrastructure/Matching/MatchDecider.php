@@ -23,7 +23,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 
 /**
- * Applies the decisions of the match review (ADR 029, #1054). Callers check EncounterAttribute::REVIEW
+ * Applies the decisions of the match review (ADR 030, #1054). Callers check EncounterAttribute::REVIEW
  * on the hospital first.
  *
  * Every decision runs in one transaction under the hospital's matching lock (the matcher takes the same

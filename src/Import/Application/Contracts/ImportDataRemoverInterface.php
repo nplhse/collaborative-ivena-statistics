@@ -7,7 +7,7 @@ namespace App\Import\Application\Contracts;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /**
- * Removes data that another context stored for an import (for example encounters, ADR 028).
+ * Removes data that another context stored for an import (for example encounters, ADR 029).
  *
  * Called by ImportRelatedDataCleanupService inside the transaction that removes the import's own rows,
  * both when an import is deleted and before an import is reprocessed. The context that owns the data

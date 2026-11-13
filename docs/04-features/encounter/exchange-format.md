@@ -4,7 +4,7 @@
 
 **Status:** agreed design for the pilot (#1043); implemented in #1048 (import) and #1051 (tool).
 
-Context: [ADR 025](../../02-architecture/decisions/025-encounter-data-context-and-exchange-format.md).
+Context: [ADR 026](../../02-architecture/decisions/026-encounter-data-context-and-exchange-format.md).
 
 ## File
 
@@ -20,7 +20,7 @@ Context: [ADR 025](../../02-architecture/decisions/025-encounter-data-context-an
 | `schema`, `schema_version` | contract of the file; unknown values reject the file |
 | `profile`, `profile_version` | source profile that produced the file |
 | `tool` | tool version; below the server's minimum version rejects the file |
-| `key_check` | check value of the key file ([ADR 026](../../02-architecture/decisions/026-encounter-pseudonym-key.md)) |
+| `key_check` | check value of the key file ([ADR 027](../../02-architecture/decisions/027-encounter-pseudonym-key.md)) |
 | `fingerprint` | rule used for `visit_fingerprint`; unknown rules reject the file |
 | `rows` | number of data rows; a mismatch rejects the file |
 
@@ -32,7 +32,7 @@ Timestamps: `YYYY-MM-DDTHH:MM`, Europe/Berlin local time, minute precision.
 
 | Group | Field | Type / values | Required |
 |---|---|---|---|
-| keys | `visit_fingerprint` | hex HMAC of the fingerprint rule input, prefix `ed-visit:v1` ([ADR 028](../../02-architecture/decisions/028-encounter-import-lifecycle.md), rule [below](#visit-fingerprint-ed-visitv1)) | yes |
+| keys | `visit_fingerprint` | hex HMAC of the fingerprint rule input, prefix `ed-visit:v1` ([ADR 029](../../02-architecture/decisions/029-encounter-import-lifecycle.md), rule [below](#visit-fingerprint-ed-visitv1)) | yes |
 | | `case_key` | hex HMAC pseudonym of the administrative case number, prefix `case:v1`; used only for the suspected-duplicate check, not for grouping or as a key | yes |
 | demographics | `age` | integer 1–99 (< 1 → 1, ≥ 100 → 99) | yes |
 | | `sex` | `M`, `F`, `X` | yes |
@@ -100,7 +100,7 @@ Rules:
 
 ## Visit fingerprint `ed-visit:v1`
 
-Decided in #1045, see [ADR 028](../../02-architecture/decisions/028-encounter-import-lifecycle.md).
+Decided in #1045, see [ADR 029](../../02-architecture/decisions/029-encounter-import-lifecycle.md).
 
 ```
 anchor_source = "assessment" if first assessment contact is set, else "admission"

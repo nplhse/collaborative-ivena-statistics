@@ -104,7 +104,7 @@ When an import is processed again (`runCount > 0`), or a run is redelivered afte
 > **Hospitals with encounter data:** reprocessing or requeueing an allocation import removes the IVENA
 > links and the manual review decisions of its allocations. The matcher links the new allocations again
 > automatically; manual decisions have to be made again
-> ([ADR 029](../../02-architecture/decisions/029-encounter-allocation-matching.md#runs)). The pages and
+> ([ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md#runs)). The pages and
 > commands do not warn about this, because Import does not depend on Encounter.
 
 The `import` record and source CSV file are kept; only import-scoped result data is removed. Shared reference data (specialities, departments, indication catalog entries, etc.) is not deleted.

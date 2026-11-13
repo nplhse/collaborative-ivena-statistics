@@ -39,9 +39,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *   grant UPLOAD (or all for ROLE_ADMIN); schema and the required confirmation that the file was
  *   produced with the data preparation tool and holds no direct identifiers, stored with user and
  *   time on `encounter_import` (audited) together with the key generation at upload. Refused while
- *   the hospital's key change is in progress (ADR 026).
- * - List and detail: only for UPLOAD on the hospital (ADR 027); reprocess, download and delete as well.
- *   Reprocess and download only while the upload file is kept (ADR 025, #1049).
+ *   the hospital's key change is in progress (ADR 027).
+ * - List and detail: only for UPLOAD on the hospital (ADR 028); reprocess, download and delete as well.
+ *   Reprocess and download only while the upload file is kept (ADR 026, #1049).
  * - Detail page section: counts, file rejection, until when the file is kept or when it was deleted,
  *   row rejects and suspected duplicates, never file content or cell values.
  *

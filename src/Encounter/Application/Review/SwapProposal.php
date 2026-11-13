@@ -7,7 +7,7 @@ namespace App\Encounter\Application\Review;
 use App\Encounter\Application\Matching\PlannedMatch;
 
 /**
- * A targeted swap the match review proposes (ADR 029, #1054); only a person applies it.
+ * A targeted swap the match review proposes (ADR 030, #1054); only a person applies it.
  *
  * Allocation A is automatically linked to visit W, but the unlinked visit V fits A:
  * - `chain`: W also fits the unlinked allocation B. Applying links A–V and B–W: one link more.

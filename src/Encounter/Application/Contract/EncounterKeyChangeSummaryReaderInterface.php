@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Application\Contract;
 
 /**
- * Counts for the key change page (ADR 026).
+ * Counts for the key change page (ADR 027).
  */
 interface EncounterKeyChangeSummaryReaderInterface
 {

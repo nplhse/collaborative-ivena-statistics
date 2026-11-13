@@ -19,7 +19,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Access matrix of ADR 027. Each case names the user's relation to the hospital explicitly.
+ * Access matrix of ADR 028. Each case names the user's relation to the hospital explicitly.
  * Administrators hold every grant action implicitly and may change the key.
  */
 #[ResetDatabase]

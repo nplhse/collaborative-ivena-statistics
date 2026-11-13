@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Domain\Enum;
 
 /**
- * Actions of an encounter access grant (ADR 027). REVIEW implies VIEW_CASES.
+ * Actions of an encounter access grant (ADR 028). REVIEW implies VIEW_CASES.
  * None of them allows the key change, which is reserved for the hospital owner and administrators.
  */
 enum EncounterGrantAction: string

@@ -13,7 +13,7 @@ use App\Tests\Encounter\Unit\Application\Matching\MatchingTestData;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Targeted swap proposals (ADR 029, #1054). Allocation 1 arrives at 10:00 and is linked automatically to
+ * Targeted swap proposals (ADR 030, #1054). Allocation 1 arrives at 10:00 and is linked automatically to
  * visit 10 at 10:10 (time +4, sex +2, age +2, route +1 = 9 points) unless stated otherwise.
  */
 final class SwapPlannerTest extends TestCase

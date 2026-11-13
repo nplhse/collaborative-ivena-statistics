@@ -208,7 +208,7 @@ name, type (`EncounterFieldType`), required flag, code list and range, plus the 
 rules per version (`fingerprintRules()`). The encounter import (#1048) validates files against the
 contract (`EncounterFileValidator`, `EdVisitRowMapper`). Vendor formats are not server extensions; they
 are source profiles of the data preparation tool. See
-[ADR 025](decisions/025-encounter-data-context-and-exchange-format.md).
+[ADR 026](decisions/026-encounter-data-context-and-exchange-format.md).
 
 ## Related documentation
 

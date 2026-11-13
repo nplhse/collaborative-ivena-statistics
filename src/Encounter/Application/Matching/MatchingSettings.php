@@ -7,7 +7,7 @@ namespace App\Encounter\Application\Matching;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Thresholds and windows of the matcher (`app.encounter.matching`, ADR 029).
+ * Thresholds and windows of the matcher (`app.encounter.matching`, ADR 030).
  */
 final readonly class MatchingSettings
 {

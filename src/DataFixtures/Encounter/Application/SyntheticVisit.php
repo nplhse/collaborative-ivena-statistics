@@ -79,7 +79,7 @@ final readonly class SyntheticVisit
     }
 
     /**
-     * The arrival anchor of matching (ADR 029): ED admission, otherwise first assessment contact.
+     * The arrival anchor of matching (ADR 030): ED admission, otherwise first assessment contact.
      */
     public function matchingAnchor(): \DateTimeImmutable
     {

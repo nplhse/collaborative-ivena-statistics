@@ -13,7 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * that columns and conversions always follow the entity (no second column list to keep in sync).
  *
  * The conflict target is the visit identity `(hospital_id, key_generation, visit_fingerprint)`
- * (ADR 028). Under READ COMMITTED a second inserter of the same visit waits for the first
+ * (ADR 029). Under READ COMMITTED a second inserter of the same visit waits for the first
  * transaction and then inserts nothing, so parallel imports cannot create a visit twice.
  */
 final readonly class EncounterInsertStatement

@@ -1,5 +1,5 @@
 /*
- * Core of the encounter data preparation tool (ADR 025, ADR 026, #1051).
+ * Core of the encounter data preparation tool (ADR 026, ADR 027, #1051).
  *
  * Plain script without imports or exports: the server inlines it into the offline HTML file, and
  * the Node tests load it as a side-effect module. Everything is published as
@@ -348,7 +348,7 @@
         return toHex(signature);
     }
 
-    /** New key file content: random 256-bit key, label, creation date and check value (ADR 026). */
+    /** New key file content: random 256-bit key, label, creation date and check value (ADR 027). */
     async function generateKeyFile(label, createdDate) {
         const raw = cryptoApi().getRandomValues(new Uint8Array(32));
         const check = await hmacHex(await importHmacKey(raw), KEY_CHECK_INPUT);

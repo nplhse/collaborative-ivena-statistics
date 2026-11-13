@@ -19,7 +19,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 /**
  * Downloads the stored source file of an import. ImportVoter::DOWNLOAD_SOURCE decides: administrators for
  * allocation and closure imports; encounter imports with the encounter grant UPLOAD while the file is kept
- * (ADR 027, #1049).
+ * (ADR 028, #1049).
  */
 final class DownloadImportSourceFileController extends AbstractController
 {

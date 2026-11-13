@@ -1,10 +1,10 @@
-# ADR 027: Encounter access grants independent of hospital permissions
+# ADR 028: Encounter access grants independent of hospital permissions
 
 **Status:** accepted
 
 ## Context
 
-Encounter data (ADR 025) is pseudonymised, but still personal health data. The existing access model
+Encounter data (ADR 026) is pseudonymised, but still personal health data. The existing access model
 does not fit it:
 
 - Explore shows allocations of all hospitals to every participant (ADR 011).
@@ -44,7 +44,7 @@ A separate grant in the `Encounter` context (user, hospital, actions), checked b
   Removing that access removes the encounter grant.
 - Grants are managed by the hospital owner and by administrators, the same people who manage hospital
   access grants. An owner can grant themselves case access explicitly. Every change is audited.
-- The key change (ADR 026) is reserved for the hospital owner and administrators; no grant action
+- The key change (ADR 027) is reserved for the hospital owner and administrators; no grant action
   allows it.
 - Import diagnostics (status, counts, reject codes, match diagnostics) never open file content.
   Reprocessing a retained file shows no content either.
@@ -94,7 +94,7 @@ A separate grant in the `Encounter` context (user, hospital, actions), checked b
 
 - [002-hospital-permission-bitmask.md](002-hospital-permission-bitmask.md)
 - [011-collaborative-explore-allocation-visibility.md](011-collaborative-explore-allocation-visibility.md)
-- [025-encounter-data-context-and-exchange-format.md](025-encounter-data-context-and-exchange-format.md)
-- [026-encounter-pseudonym-key.md](026-encounter-pseudonym-key.md)
+- [026-encounter-data-context-and-exchange-format.md](026-encounter-data-context-and-exchange-format.md)
+- [027-encounter-pseudonym-key.md](027-encounter-pseudonym-key.md)
 - [../permission-model.md](../permission-model.md)
 - Issues #1044, #1046

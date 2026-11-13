@@ -48,7 +48,7 @@ final class AppExtension extends Extension
         $container->setParameter('app.messenger_monitoring.retention', $config['messenger_monitoring']['retention']);
         $container->setParameter('app.messenger_monitoring.health', $config['messenger_monitoring']['health']);
 
-        // Encounter upload file retention and data preparation tool (ADR 025)
+        // Encounter upload file retention and data preparation tool (ADR 026)
         $container->setParameter('app.encounter.source_file_retention_days', $config['encounter']['source_file_retention_days']);
         $matchingConfig = $config['encounter']['matching'];
         $container->setParameter('app.encounter.matching.auto_accept_threshold', $matchingConfig['auto_accept_threshold']);

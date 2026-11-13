@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * MTS glossary in Explore (#1056): categories, presentation diagrams and indicators. Definitions for
  * every participant (`^/explore` access rule); counts only for users with encounter access, for their
- * hospitals (ADR 027).
+ * hospitals (ADR 028).
  */
 final class ShowMtsGlossaryController extends AbstractController
 {

@@ -47,9 +47,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * - The creator must still hold the beta role and the UPLOAD grant (or ROLE_ADMIN) on the hospital.
  * - The key generation stored at upload is checked before anything is removed and again in the commit
- *   that writes the visits (ADR 026); a mismatch fails the run without writing.
+ *   that writes the visits (ADR 027); a mismatch fails the run without writing.
  * - A rejected file fails the run with `invalid_file`; the reason is stored on the encounter import.
- *   A raw HIS export or a file with identifying content is deleted at once (ADR 025).
+ *   A raw HIS export or a file with identifying content is deleted at once (ADR 026).
  * - After a successful run with new visits, EncountersImported names the affected hospital-days.
  *
  * @psalm-suppress UnusedClass Registered as a message handler.
@@ -164,7 +164,7 @@ final readonly class ImportEncountersMessageHandler
 
     /**
      * Ends the run as failed with `invalid_file` and stores the reason on the encounter import. A file
-     * that may hold direct identifiers is deleted first (ADR 025).
+     * that may hold direct identifiers is deleted first (ADR 026).
      */
     private function rejectFile(ImportRunContext $context, Import $import, EncounterFileRejection $reason, int $runtimeMs): void
     {

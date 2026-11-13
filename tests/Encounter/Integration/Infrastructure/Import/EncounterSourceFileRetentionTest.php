@@ -30,7 +30,7 @@ use Zenstruck\Foundry\Test\Factories;
 
 /**
  * Encounter upload files are deleted after `app.encounter.source_file_retention_days` (30 in the test
- * environment) counted from the upload (ADR 025, #1049). Every file here is uploaded on
+ * environment) counted from the upload (ADR 026, #1049). Every file here is uploaded on
  * 1 October 2026 at 10:00.
  */
 #[ResetDatabase]

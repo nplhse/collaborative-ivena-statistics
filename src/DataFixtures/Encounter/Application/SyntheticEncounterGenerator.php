@@ -9,7 +9,7 @@ use Random\Randomizer;
 
 /**
  * Generates the ED visits of one hospital and month for its synthetic allocations, with known truth
- * (#1052, ADR 022, ADR 029).
+ * (#1052, ADR 022, ADR 030).
  *
  * Groups (exact counts from EncounterShares): linked visits of allocations, EMS arrivals without
  * allocation, self-presenters, visits with unknown arrival route and repeat visits under the case

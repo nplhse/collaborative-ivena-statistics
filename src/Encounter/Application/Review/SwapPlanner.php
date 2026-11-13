@@ -11,7 +11,7 @@ use App\Encounter\Application\Matching\MatchPlanner;
 use App\Encounter\Application\Matching\PlannedMatch;
 
 /**
- * Finds targeted swaps where an unlinked visit suggests a better overall assignment (ADR 029, #1054).
+ * Finds targeted swaps where an unlinked visit suggests a better overall assignment (ADR 030, #1054).
  * Pure: it reads nothing and writes nothing; a person applies a swap in the review.
  *
  * Only automatic links (`auto_accepted`) are considered: a confirmed link was decided by a person and

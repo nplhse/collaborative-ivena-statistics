@@ -11,7 +11,7 @@ use App\Encounter\Domain\Enum\EncounterFileRejection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * File-level checks of a canonical exchange file; any finding rejects the whole file (ADR 025, #1048).
+ * File-level checks of a canonical exchange file; any finding rejects the whole file (ADR 026, #1048).
  *
  * Order matters: the checks for identifying content run first and on every row, so a file with direct
  * identifiers is recognised (and deleted by the caller) even when its manifest or header is also wrong.
@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * 3. manifest format, schema and version, profile, minimum tool version, fingerprint rule
  * 4. exact header of the schema version, row count of the manifest
  *
- * The key check value is checked against the hospital's key state when the run writes (ADR 026).
+ * The key check value is checked against the hospital's key state when the run writes (ADR 027).
  */
 final readonly class EncounterFileValidator
 {

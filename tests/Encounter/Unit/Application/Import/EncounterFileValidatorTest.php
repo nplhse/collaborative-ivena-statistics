@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * File-level checks: every finding rejects the whole file (ADR 025, #1048).
+ * File-level checks: every finding rejects the whole file (ADR 026, #1048).
  */
 final class EncounterFileValidatorTest extends TestCase
 {

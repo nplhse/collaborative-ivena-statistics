@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Application\Matching;
 
 /**
- * The fields of an IVENA allocation the matcher compares (ADR 029). Urgency, department and indication
+ * The fields of an IVENA allocation the matcher compares (ADR 030). Urgency, department and indication
  * are deliberately absent.
  */
 final readonly class MatchingAllocation

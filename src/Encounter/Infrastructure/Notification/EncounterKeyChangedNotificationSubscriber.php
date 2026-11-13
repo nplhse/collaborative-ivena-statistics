@@ -12,7 +12,7 @@ use App\User\Application\Contract\AdminNotificationRecipientResolverInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 /**
- * Tells the administrators about a key change (`admin.encounter_key_changed`, ADR 026). One entry per
+ * Tells the administrators about a key change (`admin.encounter_key_changed`, ADR 027). One entry per
  * hospital and key generation.
  *
  * @psalm-suppress UnusedClass Registered as an event listener.

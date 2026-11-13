@@ -1,11 +1,11 @@
-# ADR 026: Hospital-held pseudonym key with key generations
+# ADR 027: Hospital-held pseudonym key with key generations
 
 **Status:** accepted
 
 ## Context
 
-Encounter data (ADR 025) needs identifiers computed from data that must not reach the server: the
-visit fingerprint (ADR 028) and, optionally, a pseudonym of the administrative case number. Both are
+Encounter data (ADR 026) needs identifiers computed from data that must not reach the server: the
+visit fingerprint (ADR 029) and, optionally, a pseudonym of the administrative case number. Both are
 computed in the browser tool.
 
 Forces:
@@ -41,7 +41,7 @@ Forces:
 ### Key change
 
 Only the **hospital owner** or an **administrator** may change the key; users with the upload grant
-(ADR 027) may not.
+(ADR 028) may not.
 
 1. The hospital enters the state "key change in progress": new encounter uploads are refused.
 2. The generation is incremented and the active check value retired. Queued and running imports of the
@@ -84,8 +84,8 @@ chosen option) and administrators are notified.
 
 ## References
 
-- [025-encounter-data-context-and-exchange-format.md](025-encounter-data-context-and-exchange-format.md)
-- [027-encounter-access-grants.md](027-encounter-access-grants.md)
-- [028-encounter-import-lifecycle.md](028-encounter-import-lifecycle.md)
+- [026-encounter-data-context-and-exchange-format.md](026-encounter-data-context-and-exchange-format.md)
+- [028-encounter-access-grants.md](028-encounter-access-grants.md)
+- [029-encounter-import-lifecycle.md](029-encounter-import-lifecycle.md)
 - [../../04-features/import/import-runs.md](../../04-features/import/import-runs.md)
 - Issues #1044, #1050

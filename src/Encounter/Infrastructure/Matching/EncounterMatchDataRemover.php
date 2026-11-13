@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
 
 /**
- * Deletion or reprocess of an allocation or encounter import (ADR 028, ADR 029): removes the links,
+ * Deletion or reprocess of an allocation or encounter import (ADR 029, ADR 030): removes the links,
  * proposals and decisions of its allocations and visits, and queues a matcher rerun for the hospital-days
  * this frees, so the remaining allocations and visits can be linked anew.
  *

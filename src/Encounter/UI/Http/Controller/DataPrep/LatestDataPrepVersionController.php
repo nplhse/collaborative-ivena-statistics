@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
- * Public version information for the update check of the offline tool (ADR 025, #1051).
+ * Public version information for the update check of the offline tool (ADR 026, #1051).
  *
  * The tool runs from a local file, so the response allows every origin. It carries no user data,
  * needs no session and sets no cookie (stateless route).

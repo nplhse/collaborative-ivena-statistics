@@ -10,7 +10,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
 /**
- * Counts shown on the key change page (ADR 026): whether a key change is in progress and what a key
+ * Counts shown on the key change page (ADR 027): whether a key change is in progress and what a key
  * change with "delete" would remove: visits, imports, effective IVENA links (automatic or confirmed) and
  * manual decisions (confirmed or rejected) of the hospital's visits (#1053).
  *

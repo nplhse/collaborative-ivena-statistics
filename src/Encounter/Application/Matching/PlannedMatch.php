@@ -8,7 +8,7 @@ use App\Encounter\Domain\Enum\AnchorSource;
 use App\Encounter\Domain\Enum\MatchStatus;
 
 /**
- * A row the matcher writes: an automatic link or a proposal (ADR 029).
+ * A row the matcher writes: an automatic link or a proposal (ADR 030).
  */
 final readonly class PlannedMatch
 {

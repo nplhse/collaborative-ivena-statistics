@@ -9,7 +9,7 @@ use App\Encounter\Application\Dimension\EdVisitDimension;
 /**
  * A pseudonym key for synthetic encounter data and the keyed values of `ed-visit:v1` (#1052).
  *
- * Same rules as the data preparation tool (exchange-format.md, ADR 026): the check value is
+ * Same rules as the data preparation tool (exchange-format.md, ADR 027): the check value is
  * HMAC-SHA256(key, "encounter-key-check"), the visit fingerprint HMAC-SHA256(key,
  * "ed-visit:v1|" + case number + "|" + anchor source + "|" + anchor with seconds) and the case key
  * HMAC-SHA256(key, "case:v1|" + case number). Synthetic sources have minute precision, so the

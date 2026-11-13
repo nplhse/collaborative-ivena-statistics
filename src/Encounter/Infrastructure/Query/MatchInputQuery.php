@@ -16,7 +16,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
 
 /**
- * Reads what the matcher compares (ADR 029): allocations and visits of one hospital and the existing
+ * Reads what the matcher compares (ADR 030): allocations and visits of one hospital and the existing
  * links and decisions that touch them.
  */
 final readonly class MatchInputQuery implements MatchCandidateReaderInterface

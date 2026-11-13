@@ -16,7 +16,7 @@ use Doctrine\ORM\Events;
 use Doctrine\ORM\UnitOfWork;
 
 /**
- * Removes the encounter grant of a user who loses access to a hospital (ADR 027).
+ * Removes the encounter grant of a user who loses access to a hospital (ADR 028).
  *
  * Access to a hospital means ownership or a hospital access grant. It is lost when a hospital
  * access grant is deleted or moved to another user or hospital, or when the hospital gets another

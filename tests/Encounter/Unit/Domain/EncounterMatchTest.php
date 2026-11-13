@@ -17,7 +17,7 @@ use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Invariants of a matched pair (ADR 029, #1053): same hospital, score 0–1, decisions only through decide().
+ * Invariants of a matched pair (ADR 030, #1053): same hospital, score 0–1, decisions only through decide().
  */
 final class EncounterMatchTest extends TestCase
 {

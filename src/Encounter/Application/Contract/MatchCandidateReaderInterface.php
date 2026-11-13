@@ -8,7 +8,7 @@ use App\Encounter\Application\Matching\MatchingAllocation;
 use App\Encounter\Application\Matching\MatchingEncounter;
 
 /**
- * Reads what the matcher compares, for the review's candidate lists (ADR 029, #1054).
+ * Reads what the matcher compares, for the review's candidate lists (ADR 030, #1054).
  */
 interface MatchCandidateReaderInterface
 {

@@ -65,7 +65,7 @@ final class ImportVoter extends Voter
         }
 
         // Types owned by another context decide access themselves (`import.type_extension`), for example
-        // encounter imports with the encounter grants (ADR 027).
+        // encounter imports with the encounter grants (ADR 028).
         $extension = $this->typeExtensions->for($subject->getType());
         if ($extension instanceof \App\Import\Application\Contracts\ImportTypeExtensionInterface) {
             return $extension->vote($attribute, $subject, $token);

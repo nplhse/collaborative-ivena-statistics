@@ -24,7 +24,7 @@ use Zenstruck\Foundry\Test\Factories;
 
 /**
  * MTS glossary in Explore (#1056): definitions for every participant, counts of the initial triage
- * only for users with encounter access (VIEW_CASES or VIEW_AGGREGATES, ADR 027) and only for their
+ * only for users with encounter access (VIEW_CASES or VIEW_AGGREGATES, ADR 028) and only for their
  * hospitals, with small-cell suppression below 5 (ADR 012).
  *
  * Hospital A: 5 × orange/thoraxschmerz/heiss, 2 × yellow/thoraxschmerz/erbrechen,

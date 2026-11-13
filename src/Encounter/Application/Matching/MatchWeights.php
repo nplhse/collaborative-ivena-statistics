@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Application\Matching;
 
 /**
- * Points of one matcher version (ADR 029): the points per feature level and the weight of the "no match"
+ * Points of one matcher version (ADR 030): the points per feature level and the weight of the "no match"
  * option. Each point is a base-2 logarithm: +1 doubles the weight of a candidate, −1 halves it.
  *
  * The production matcher uses {@see self::production()} (v1.1, {@see self::VERSION_1_1}); a new matcher
@@ -65,7 +65,7 @@ final readonly class MatchWeights
     public const int NO_MATCH_POINTS_1_1 = 4;
 
     /**
-     * v1 with `time.near` 2 → 3 and `sex.different` −4 → −2 (ADR 029, validation of October 2026).
+     * v1 with `time.near` 2 → 3 and `sex.different` −4 → −2 (ADR 030, validation of October 2026).
      *
      * @var array<string, int>
      */
@@ -114,7 +114,7 @@ final readonly class MatchWeights
     }
 
     /**
-     * Points of matcher v1, set by judgement (ADR 029); kept for replays and stored pairs of `1.0.0`.
+     * Points of matcher v1, set by judgement (ADR 030); kept for replays and stored pairs of `1.0.0`.
      */
     public static function v1(): self
     {
@@ -122,7 +122,7 @@ final readonly class MatchWeights
     }
 
     /**
-     * Points of matcher v1.1: v1 adjusted after the match validation of one pilot hospital (ADR 029).
+     * Points of matcher v1.1: v1 adjusted after the match validation of one pilot hospital (ADR 030).
      */
     public static function v1_1(): self
     {

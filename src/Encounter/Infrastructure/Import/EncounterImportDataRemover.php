@@ -8,7 +8,7 @@ use App\Encounter\Infrastructure\Repository\EncounterRepository;
 use App\Import\Application\Contracts\ImportDataRemoverInterface;
 
 /**
- * Removes the visits an import created when the import is deleted or reprocessed (ADR 028).
+ * Removes the visits an import created when the import is deleted or reprocessed (ADR 029).
  *
  * Visits created by other imports stay, also when the deleted import contained them as duplicates.
  * Links and review decisions (#1053, #1054) reference encounters with ON DELETE CASCADE and are

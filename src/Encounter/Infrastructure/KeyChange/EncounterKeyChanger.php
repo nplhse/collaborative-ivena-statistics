@@ -20,7 +20,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Changes the pseudonym key of a hospital (ADR 026, #1050). Callers check EncounterAttribute::CHANGE_KEY.
+ * Changes the pseudonym key of a hospital (ADR 027, #1050). Callers check EncounterAttribute::CHANGE_KEY.
  *
  * In one transaction holding the key state lock of the import commit (so a running import either
  * commits before or fails afterwards): the hospital enters "key change in progress", the generation is

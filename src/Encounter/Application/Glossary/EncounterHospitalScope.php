@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Application\Glossary;
 
 /**
- * Hospitals whose encounters a user may see as counts (ADR 027): either all hospitals
+ * Hospitals whose encounters a user may see as counts (ADR 028): either all hospitals
  * (administrators) or an explicit list of hospital ids, possibly empty.
  */
 final readonly class EncounterHospitalScope

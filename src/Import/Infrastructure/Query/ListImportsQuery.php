@@ -41,7 +41,7 @@ final readonly class ListImportsQuery
             ->leftJoin('i.updatedBy', 'updatedBy');
 
         // Types of other contexts (`import.type_extension`) are visible on the hospitals the extension
-        // names, for example encounter imports with the encounter grants (ADR 027); all other types on
+        // names, for example encounter imports with the encounter grants (ADR 028); all other types on
         // the hospitals the user can access.
         $extensions = $this->typeExtensions->all();
         $visibility = $qb->expr()->orX();

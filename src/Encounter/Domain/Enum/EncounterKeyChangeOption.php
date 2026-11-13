@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Domain\Enum;
 
 /**
- * What happens to the hospital's existing encounter data when the pseudonym key changes (ADR 026).
+ * What happens to the hospital's existing encounter data when the pseudonym key changes (ADR 027).
  */
 enum EncounterKeyChangeOption: string
 {

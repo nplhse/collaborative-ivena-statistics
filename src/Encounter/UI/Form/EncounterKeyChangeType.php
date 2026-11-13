@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 
 /**
- * Confirmation of a key change (ADR 026): what happens to the existing data and the hospital name typed
+ * Confirmation of a key change (ADR 027): what happens to the existing data and the hospital name typed
  * by hand. The controller compares the name.
  *
  * @extends AbstractType<array{option: EncounterKeyChangeOption|null, confirmName: string|null}>

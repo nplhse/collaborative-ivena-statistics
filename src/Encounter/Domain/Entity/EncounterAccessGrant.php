@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Clock\Clock;
 
 /**
- * Explicit case-level access of one user to the encounter data of one hospital (ADR 027).
+ * Explicit case-level access of one user to the encounter data of one hospital (ADR 028).
  *
  * Independent of hospital ownership and hospital access grants. Administrators need no stored grant;
  * EncounterVoter treats them as holding every action. A grant always holds at least one action; REVIEW
@@ -166,7 +166,7 @@ class EncounterAccessGrant
 
         $this->upload = $upload;
         $this->review = $review;
-        // REVIEW implies VIEW_CASES (ADR 027).
+        // REVIEW implies VIEW_CASES (ADR 028).
         $this->viewCases = $viewCases || $review;
     }
 }

@@ -7,7 +7,7 @@ namespace App\Encounter\Application\Dimension;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /**
- * A schema of the canonical encounter exchange format (ADR 025): a kind of record with fixed meaning,
+ * A schema of the canonical encounter exchange format (ADR 026): a kind of record with fixed meaning,
  * independent of vendor formats. `ed_visit` is the first; `inpatient_stay`, `diagnosis` or `procedure`
  * would be further implementations.
  *
@@ -42,7 +42,7 @@ interface EncounterDimensionInterface
 
     /**
      * Fingerprint rules (`fingerprint=…` in the manifest) the server accepts for one version. A rule
-     * change gets a new rule name (ADR 028).
+     * change gets a new rule name (ADR 029).
      *
      * @return list<string>
      *
