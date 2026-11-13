@@ -58,6 +58,27 @@ final class FeedbackCrudControllerTest extends WebTestCase
         self::assertStringNotContainsString('quarantined spam', $crawler->filter('body')->text(), 'no content on the dashboard');
     }
 
+    public function testListAndDetailEscapeTheMessageAndPath(): void
+    {
+        $client = $this->loggedInAdmin();
+        $feedback = new Feedback()
+            ->setCategory(FeedbackCategory::BUG)
+            ->setMessage('<img src="https://tracker.example.test/p.gif"> broken chart')
+            ->setPageUrl('https://example.test/<b>bold</b>');
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->persist($feedback);
+        $entityManager->flush();
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/feedback');
+        self::assertResponseIsSuccessful();
+        self::assertCount(0, $crawler->filter('table img'));
+        self::assertStringContainsString('&lt;img src=&quot;https://tracker.example.test/p.gif&quot;&gt; broken chart', (string) $client->getResponse()->getContent());
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/feedback/'.$feedback->getId());
+        self::assertResponseIsSuccessful();
+        self::assertCount(0, $crawler->filter('.content-body b, main b'), 'the path is escaped');
+    }
+
     private function loggedInAdmin(): KernelBrowser
     {
         $client = self::createClient();
