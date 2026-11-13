@@ -205,13 +205,13 @@
         <source>label.age_group</source>
         <target>Age group</target>
       </trans-unit>
-      <trans-unit id="labelAgeGrp018" resname="label.age_group.0_18">
-        <source>label.age_group.0_18</source>
-        <target>0–18</target>
+      <trans-unit id="labelAgeGrp017" resname="label.age_group.0_17">
+        <source>label.age_group.0_17</source>
+        <target>0–17</target>
       </trans-unit>
-      <trans-unit id="labelAgeGrp1929" resname="label.age_group.19_29">
-        <source>label.age_group.19_29</source>
-        <target>19–29</target>
+      <trans-unit id="labelAgeGrp1829" resname="label.age_group.18_29">
+        <source>label.age_group.18_29</source>
+        <target>18–29</target>
       </trans-unit>
       <trans-unit id="labelAgeGrp3039" resname="label.age_group.30_39">
         <source>label.age_group.30_39</source>

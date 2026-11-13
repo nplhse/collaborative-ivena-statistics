@@ -7,6 +7,7 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\Statistics\AnalysisExplorer\Domain\ExplorerAnalysisFilterCatalog;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
+use App\Statistics\Application\Mapping\StatisticsAgeGroupFilter;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisFilterOperator;
 
@@ -158,10 +159,15 @@ final readonly class ExplorerAnalysisFilterMapper
                 throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.invalid', ['operator' => $operatorValue]);
             }
 
+            $value = $row['value'] ?? '';
+            if ('age_group' === $dimensionKey && \is_string($value)) {
+                $value = StatisticsAgeGroupFilter::normalizeKey($value);
+            }
+
             $filters[] = new AnalysisFilter(
                 dimensionKey: $dimensionKey,
                 operator: $operator,
-                value: $row['value'] ?? '',
+                value: $value,
             );
         }
 
