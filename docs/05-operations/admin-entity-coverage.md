@@ -24,6 +24,19 @@ Legend: **Full** = create/edit/delete; **Read** = index/detail only; **—** = n
 
 Allocation, Assignment, Department, DispatchArea, IndicationNormalized, IndicationGroup, IndicationRaw (read-only forms), Infection, MciCase, Occasion, SecondaryTransport, Speciality, State.
 
+## Encounter (MTS catalog)
+
+Controllers live in the Encounter context (`src/Encounter/UI/Http/Controller/Admin/`) and are linked from the
+admin menu by route name (Data → MTS catalog), because no context may depend on Encounter. All changes go through
+`MtsCatalogCuration` and are audited ([encounter README](../04-features/encounter/README.md#mts-glossary), ADR 032).
+
+| Entity | CRUD controller | Mode | Notes |
+|--------|-----------------|------|-------|
+| MtsDiagram | `MtsDiagramCrudController` | Create/edit | code derived on creation and read-only; no delete; merge and undo on detail; collision report on the form |
+| MtsIndicator | `MtsIndicatorCrudController` | Create/edit | as diagrams |
+| MtsAlias | `MtsAliasCrudController` | Full | kind and label fixed after creation; aliases of a merge cannot be edited or deleted |
+| MtsDiagramIndicator | `MtsDiagramIndicatorCrudController` | Create/delete | no edit; active entries only |
+
 ## Content
 
 | Entity | CRUD controller | Mode | Notes |

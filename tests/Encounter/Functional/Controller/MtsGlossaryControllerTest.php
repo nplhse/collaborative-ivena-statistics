@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Tests\Encounter\Functional\Controller;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Encounter\Application\Catalog\MtsCatalogCuration;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterTimes;
+use App\Encounter\Domain\Entity\MtsAlias;
 use App\Encounter\Domain\Entity\Triage;
 use App\Encounter\Domain\Enum\EncounterGrantAction;
+use App\Encounter\Domain\Enum\MtsCatalogKind;
 use App\Encounter\Domain\Enum\MtsCategory;
 use App\Encounter\Domain\Enum\Sex;
 use App\Tests\Support\Encounter\EncounterDataFixtures;
@@ -170,6 +173,34 @@ final class MtsGlossaryControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="mts-counts-scope"]');
         self::assertSame('7', $this->shownCount($crawler, 'mts-category', 'red'));
         self::assertSame('15', $this->shownCount($crawler, 'mts-diagram', 'thoraxschmerz'));
+    }
+
+    /**
+     * Encounters keep the code as sent; the glossary counts alias codes with their target (ADR 032).
+     * Hospital A adds 2 × brustschmerz/heiss_alt: thoraxschmerz 8 + 2 = 10 and heiss 5 + 2 = 7.
+     */
+    public function testAliasCodesAreCountedWithTheirTarget(): void
+    {
+        $curation = self::getContainer()->get(MtsCatalogCuration::class);
+        $curation->createAlias(new MtsAlias(MtsCatalogKind::Diagram, '', 'Brustschmerz', 'thoraxschmerz'));
+        $curation->createAlias(new MtsAlias(MtsCatalogKind::Indicator, '', 'Heiss alt', 'heiss'));
+        $this->visits($this->hospitalA, 2, MtsCategory::Orange, 'brustschmerz', 'heiss_alt');
+        $viewer = $this->user();
+        $this->encounterGrant($this->hospitalA, $viewer, [EncounterGrantAction::ViewCases]);
+        $this->client->loginUser($viewer);
+
+        $crawler = $this->overview();
+        self::assertSame('10', $this->shownCount($crawler, 'mts-diagram', 'thoraxschmerz'));
+        self::assertSame('7', $this->shownCount($crawler, 'mts-indicator', 'heiss'));
+        self::assertCount(0, $crawler->filter('[data-testid="mts-diagram"][data-code="brustschmerz"]'), 'an alias is no row of its own');
+
+        $diagram = $this->diagram('thoraxschmerz');
+        self::assertSame('10', trim($diagram->filter('[data-testid="mts-diagram-total"]')->text()));
+        self::assertSame(['erbrechen', 'heiss', ''], $this->indicatorCodes($diagram));
+        self::assertSame('7', $this->shownCount($diagram, 'mts-indicator', 'heiss'));
+
+        $alias = $this->diagram('brustschmerz');
+        self::assertSame('10', trim($alias->filter('[data-testid="mts-diagram-total"]')->text()), 'the alias code shows its target');
     }
 
     public function testEnglishShowsWellKnownDiagramNamesAndGermanIndicatorNames(): void

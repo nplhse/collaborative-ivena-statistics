@@ -4,79 +4,131 @@ declare(strict_types=1);
 
 namespace App\Encounter\Application\Catalog;
 
+use App\Encounter\Application\Contract\MtsCatalogReaderInterface;
+use App\Encounter\Domain\Enum\MtsCatalogKind;
+use Symfony\Contracts\Service\ResetInterface;
+
 /**
- * The Manchester Triage System catalog (#1056): German names of the presentation diagrams and
- * indicators in `mts-de.json`, the single source for the data preparation tool (bundled as catalog
- * `mts-de`) and the MTS glossary in Explore.
+ * The Manchester Triage System catalog (ADR 032, #1082): diagrams and indicators maintained in the database, read
+ * by the MTS glossary in Explore and the encounter pages.
+ *
+ * Resolution: an active entry (curated or provisional) resolves to itself; a merged entry and any other alias code
+ * resolve through their alias to the active target, in one step. A code that resolves to nothing has no entry and
+ * is shown as a code by the callers. Encounters keep the code as sent; only reading resolves it.
+ *
+ * The data preparation tool still bundles `mts-de.json` (data()) until #1157 gives it a catalog endpoint.
  *
  * Codes are derived from the German name exactly as the tool's `catalogCode()` does: lowercase,
  * ä/ö/ü/ß → ae/oe/ue/ss, other diacritics removed, runs of other characters → `_`, cut at 64
  * characters, no leading or trailing `_`. Both lists are open: the full MTS has more entries.
  */
-final class MtsCatalog
+final class MtsCatalog implements ResetInterface
 {
     public const string ID = 'mts-de';
 
+    /** The tool's bundled copy of the catalog. */
     public const string FILE = __DIR__.'/mts-de.json';
 
     /** @var array<string, mixed>|null */
     private ?array $data = null;
 
-    /** @var array<string, MtsCatalogEntry>|null */
-    private ?array $diagrams = null;
+    /** @var array<string, array{entries: array<string, MtsCatalogEntry>, aliases: array<string, string>}> keyed by kind */
+    private array $lists = [];
 
-    /** @var array<string, MtsCatalogEntry>|null */
-    private ?array $indicators = null;
+    /** @psalm-suppress PossiblyUnusedMethod Wired by the container. */
+    public function __construct(
+        private readonly MtsCatalogReaderInterface $reader,
+    ) {
+    }
 
     /**
-     * The catalog file as the tool reads it (`id`, `label`, `note`, `diagrams`, `indicators`).
+     * The catalog file the data preparation tool bundles (`id`, `label`, `note`, `diagrams`, `indicators`).
      *
      * @return array<string, mixed>
      */
     public function data(): array
     {
-        if (null === $this->data) {
-            $content = file_get_contents(self::FILE);
-            if (false === $content) {
-                throw new \RuntimeException(sprintf('Cannot read the MTS catalog "%s".', self::FILE));
-            }
-
-            /** @var array<string, mixed> $data */
-            $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-            $this->data = $data;
-        }
-
-        return $this->data;
+        return $this->data ??= self::bundledData();
     }
 
     /**
-     * Diagrams ordered by code (that is, alphabetically by German name).
+     * @return array<string, mixed>
+     */
+    public static function bundledData(): array
+    {
+        $content = file_get_contents(self::FILE);
+        if (false === $content) {
+            throw new \RuntimeException(\sprintf('Cannot read the MTS catalog "%s".', self::FILE));
+        }
+
+        /** @var array<string, mixed> $data */
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        return $data;
+    }
+
+    /**
+     * Active diagrams ordered by code (for seeded entries: alphabetically by German name).
      *
      * @return array<string, MtsCatalogEntry> keyed by code
      */
     public function diagrams(): array
     {
-        return $this->diagrams ??= $this->entries('diagrams');
+        return $this->list(MtsCatalogKind::Diagram)['entries'];
     }
 
     /**
-     * Indicators ordered by code (that is, alphabetically by German name).
+     * Active indicators ordered by code (for seeded entries: alphabetically by German name).
      *
      * @return array<string, MtsCatalogEntry> keyed by code
      */
     public function indicators(): array
     {
-        return $this->indicators ??= $this->entries('indicators');
+        return $this->list(MtsCatalogKind::Indicator)['entries'];
     }
 
+    /**
+     * The active diagram a code resolves to, or null; for an alias code this is the target entry with its own code.
+     */
     public function diagram(string $code): ?MtsCatalogEntry
     {
-        return $this->diagrams()[$code] ?? null;
+        return $this->resolve(MtsCatalogKind::Diagram, $code);
     }
 
+    /**
+     * The active indicator a code resolves to, or null; for an alias code this is the target entry with its own code.
+     */
     public function indicator(string $code): ?MtsCatalogEntry
     {
-        return $this->indicators()[$code] ?? null;
+        return $this->resolve(MtsCatalogKind::Indicator, $code);
+    }
+
+    public function resolve(MtsCatalogKind $kind, string $code): ?MtsCatalogEntry
+    {
+        $list = $this->list($kind);
+        if (isset($list['entries'][$code])) {
+            return $list['entries'][$code];
+        }
+
+        $target = $list['aliases'][$code] ?? null;
+
+        return null === $target ? null : $list['entries'][$target] ?? null;
+    }
+
+    /**
+     * The code of an active entry and every alias code that resolves to it, entry code first, aliases by code.
+     *
+     * @return list<string>
+     */
+    public function codesResolvingTo(MtsCatalogKind $kind, string $code): array
+    {
+        $aliases = array_keys(array_filter(
+            $this->list($kind)['aliases'],
+            static fn (string $target): bool => $target === $code,
+        ));
+        sort($aliases, \SORT_STRING);
+
+        return [$code, ...$aliases];
     }
 
     /**
@@ -93,32 +145,37 @@ final class MtsCatalog
         return trim(substr($value, 0, 64), '_');
     }
 
-    /**
-     * @return array<string, MtsCatalogEntry>
-     */
-    private function entries(string $list): array
+    #[\Override]
+    public function reset(): void
     {
-        $labels = $this->data()[$list] ?? null;
-        if (!\is_array($labels)) {
-            throw new \RuntimeException(sprintf('The MTS catalog has no list "%s".', $list));
+        $this->lists = [];
+    }
+
+    /**
+     * @return array{entries: array<string, MtsCatalogEntry>, aliases: array<string, string>}
+     */
+    private function list(MtsCatalogKind $kind): array
+    {
+        if (isset($this->lists[$kind->value])) {
+            return $this->lists[$kind->value];
         }
 
         $entries = [];
-        foreach ($labels as $label) {
-            if (!\is_string($label)) {
-                throw new \RuntimeException(sprintf('The MTS catalog list "%s" contains a non-string entry.', $list));
+        foreach ($this->reader->entries($kind) as $row) {
+            if ($row['status']->isActive()) {
+                $entries[$row['code']] = new MtsCatalogEntry($row['code'], $row['german_name'], $row['english_name']);
             }
-
-            $code = self::code($label);
-            if (isset($entries[$code])) {
-                throw new \RuntimeException(sprintf('The MTS catalog list "%s" contains the code "%s" twice.', $list, $code));
-            }
-
-            $entries[$code] = new MtsCatalogEntry($code, $label);
         }
 
         ksort($entries, \SORT_STRING);
 
-        return $entries;
+        // An alias resolves only to an active entry; one that does not (maintenance prevents it) resolves to nothing.
+        $aliases = array_filter(
+            $this->reader->aliases($kind),
+            static fn (string $target, string $code): bool => isset($entries[$target]) && !isset($entries[$code]),
+            \ARRAY_FILTER_USE_BOTH,
+        );
+
+        return $this->lists[$kind->value] = ['entries' => $entries, 'aliases' => $aliases];
     }
 }

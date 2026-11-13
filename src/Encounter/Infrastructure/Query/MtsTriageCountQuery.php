@@ -40,19 +40,19 @@ final readonly class MtsTriageCountQuery implements MtsTriageCountReaderInterfac
     }
 
     #[\Override]
-    public function countIndicatorsOfDiagram(EncounterHospitalScope $scope, string $diagram): array
+    public function countIndicatorsOfDiagram(EncounterHospitalScope $scope, array $diagrams): array
     {
-        if ($scope->isEmpty()) {
+        if ($scope->isEmpty() || [] === $diagrams) {
             return [];
         }
 
         [$hospitalCondition, $parameters, $types] = $this->hospitalCondition($scope);
         $rows = $this->connection->fetchAllKeyValue(
             'SELECT COALESCE(mts_indicator, \'\') AS code, COUNT(*) AS encounters FROM encounter'
-            .' WHERE mts_diagram = :diagram'.$hospitalCondition
+            .' WHERE mts_diagram IN (:diagrams)'.$hospitalCondition
             .' GROUP BY code ORDER BY code',
-            ['diagram' => $diagram] + $parameters,
-            $types,
+            ['diagrams' => $diagrams] + $parameters,
+            ['diagrams' => ArrayParameterType::STRING] + $types,
         );
 
         return $this->toCounts($rows);

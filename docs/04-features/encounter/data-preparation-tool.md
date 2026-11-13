@@ -25,7 +25,7 @@ never leave the computer.
 | Core (parse, transform, HMAC, content check; no DOM, no network) | `src/Encounter/UI/DataPrep/js/data-prep-core.js` |
 | Page logic | `src/Encounter/UI/DataPrep/js/data-prep-app.js` |
 | Public profiles (declarative JSON) | `src/Encounter/UI/DataPrep/profiles/` |
-| MTS catalog (German labels of diagrams and indicators), shared with the MTS glossary (#1056) | `src/Encounter/Application/Catalog/mts-de.json`, read by `MtsCatalog` |
+| MTS catalog (German labels of diagrams and indicators), bundled copy; the server's catalog is in the database (ADR 032, #1082) | `src/Encounter/Application/Catalog/mts-de.json`, read by `MtsCatalog::data()` |
 | `ed_visit` v1 field contract for the tool | `src/Encounter/UI/DataPrep/schema/ed_visit.v1.json` (must equal `EdVisitDimension`, checked by `DataPrepContractTest`) |
 | Template | `src/Encounter/UI/Twig/templates/data_prep/tool.html.twig` |
 | Renderer, version, changelog | `DataPrepToolRenderer`, `DataPrepRelease`, `DataPrepChangelog` in `src/Encounter/UI/DataPrep/` |
@@ -258,8 +258,9 @@ content again. The check reduces the risk, it does not find every identifier (AD
 1. Add `profiles/<id>.json` with `detect.requiredColumns`, `keys`, `age`, `fields` (rule types `code`,
    `timestamp`, `catalog`, `integer`, `vital`, `bloodPressure`, `flag`, `codeSet`, `disposition`,
    `department`) and `dropped`.
-2. Register it in `DataPrepToolRenderer::PROFILES`. The renderer bundles the MTS catalog from `MtsCatalog`; a
-   change to `src/Encounter/Application/Catalog/mts-de.json` changes the tool and the MTS glossary.
+2. Register it in `DataPrepToolRenderer::PROFILES`. The renderer bundles the MTS catalog file from
+   `MtsCatalog::data()`; a change to `src/Encounter/Application/Catalog/mts-de.json` changes the tool only. The
+   MTS glossary reads the catalog in the database, maintained in the back office (ADR 032).
 3. Add a synthetic sample and tests; `DataPrepContractTest` checks the codes against the schema.
 4. Raise `app.encounter.data_prep.version`.
 

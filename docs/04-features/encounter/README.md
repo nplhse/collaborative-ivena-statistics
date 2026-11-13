@@ -760,27 +760,49 @@ per diagram under `/explore/glossary/mts/diagram/{code}`), contributed through t
 extension point ([explore-glossary.md](../allocation/explore-glossary.md)); Allocation does not depend
 on Encounter.
 
-- **Catalog in the database (planned).** [ADR 032](../../02-architecture/decisions/032-mts-catalog-as-maintained-data.md):
-  the catalog moves into the database (#1082) with stable codes, aliases, diagram–indicator assignments and
-  provisional entries created by the import for codes seen for the first time (#1157, with a backfill);
-  administrators curate it. The tool and the import keep the source code derived from the ORBIS label, even
-  when an alias is known; display, grouping and the plausibility table resolve it to the canonical code, so a
-  merge can be undone for all encounters. Until then:
-- **Single catalog.** `src/Encounter/Application/Catalog/mts-de.json` (40 diagrams, 70 indicators, both
-  open lists) is read by the data preparation tool (bundled as catalog `mts-de`) and by `MtsCatalog`.
-  `MtsCatalog::code()` derives the code exactly as the tool's `catalogCode()`; `MtsCatalogTest` checks
-  examples, the codes of the tool's canonical sample output and the English names. The JSON content
-  is unchanged by the move, so the tool version stays.
+- **Catalog in the database.** Implemented in #1082 as decided in
+  [ADR 032](../../02-architecture/decisions/032-mts-catalog-as-maintained-data.md). Tables of the Encounter
+  context: `encounter_mts_diagram` and `encounter_mts_indicator` (stable code, German name, optional English
+  name, source `orbis_export` / `mts_edition` / `manual` / `first_seen`, status `curated` / `provisional` /
+  `merged`, first seen), `encounter_mts_alias` (kind, alias code, label, target code) and
+  `encounter_mts_diagram_indicator` (assignments as definitions). The migration seeds the content of
+  `mts-de.json` (40 diagrams, 70 indicators, `curated`, `orbis_export`) and the English diagram names that were
+  translations before; the values are carried in the migration. `encounter` keeps storing plain codes without
+  a foreign key, and the import keeps storing the source code unchanged, so every stored code stays valid.
+  Development fixtures do not purge these tables.
+- **Resolution.** `MtsCatalog` reads the tables (`MtsCatalogQuery`) and resolves a code in one step: an active
+  entry (`curated` or `provisional`) to itself, a merged entry or other alias code to its active target; a code
+  that resolves to nothing is shown as a code. `diagrams()` and `indicators()` list active entries only. The
+  glossary sums the counts of a code and its aliases (`codesResolvingTo()`), and a diagram page called with an
+  alias code shows its target. `MtsCatalog::code()` derives codes exactly as the tool's `catalogCode()`.
+- **Maintenance.** Administrators (`ROLE_ADMIN`) curate the catalog in the back office, Admin → Data → MTS
+  catalog (EasyAdmin pages of the Encounter context under `/admin/encounter/mts-*`), through
+  `MtsCatalogCuration`; every change is audited (`encounter.mts_catalog.*` intents):
+  - Diagrams and indicators: German and English name, source, status `curated` / `provisional`. The code is
+    derived from the German name on creation and never changes; entries are not deleted.
+  - Creating an entry or alias whose code already exists is refused on the form: as a duplicate when the
+    label is the same (ignoring case), as a **code collision** naming the existing label when it differs.
+    Codes are unique per kind across entries and aliases.
+  - Aliases: kind and label are set on creation (the alias code is derived from the label), the target is an
+    active entry of the same kind and can be changed. The alias of a merge cannot be edited or deleted.
+  - Merge (detail page of a provisional entry): it becomes `merged` and an alias from its code to the chosen
+    active entry is created, in one transaction. Refused while aliases point to the entry or it has
+    assignments. Undo removes the alias and makes the entry `provisional` again. Encounter rows are never
+    touched.
+  - Diagram–indicator assignments between active entries, created and removed.
+- **Not yet (#1157).** Provisional entries created by the import with a backfill, the public catalog endpoint
+  for the tool and alias handling in the tool, indicator lists from assignments on the glossary pages. The
+  data preparation tool still bundles `src/Encounter/Application/Catalog/mts-de.json` (`MtsCatalog::data()`);
+  the file is unchanged, so the tool version stays. Export and import of the curated catalog to production is a
+  later follow-up.
 - **Categories:** `MtsCategory` with the target time from the first assessment contact to the first
   physician contact (`physicianContactTargetMinutes()`: red 0, orange 10, yellow 30, green 90, blue
   120 minutes), colour and name in EN and DE.
 - **Names only.** No discriminator texts and no flowcharts (copyright). The German name is the source.
-  English: diagrams show their well-known English chart name (`encounter.mts.diagram_name.<code>`,
-  English translation file only, for 39 of 40 diagrams; `Generelle Indikatoren` keeps its German
-  name) with the German name below; indicators keep their German name in both languages, as there is
-  no generally known English name for most of them and a translation of our own would invent terms.
-  The German locale never reads these keys; German names come from the catalog, not from a translation
-  file.
+  English: an entry shows its English name from the catalog when one is set, with the German name below.
+  The seed has the well-known English chart names of 39 of 40 diagrams (`Generelle Indikatoren` keeps its
+  German name) and no English indicator names, as there is no generally known English name for most of them
+  and a translation of our own would invent terms. Administrators can add English names in the back office.
 - **Visibility.** Definitions are shown to every participant (`^/explore` rule). Counts are shown only
   to users with `VIEW_CASES` or `VIEW_AGGREGATES` on a hospital (`EncounterVoter`), summed over exactly
   those hospitals (`EncounterCountScopeResolver`); administrators with the beta role count all

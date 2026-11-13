@@ -1649,162 +1649,6 @@
         <source>encounter.mts.diagram.without_indicator</source>
         <target>No indicator documented</target>
       </trans-unit>
-      <trans-unit id="Enc56BD41F4" resname="encounter.mts.diagram_name.abdominelle_schmerzen_bei_erwachsenen">
-        <source>encounter.mts.diagram_name.abdominelle_schmerzen_bei_erwachsenen</source>
-        <target>Abdominal pain in adults</target>
-      </trans-unit>
-      <trans-unit id="Enc1CA7C7B1" resname="encounter.mts.diagram_name.abdominelle_schmerzen_bei_kindern">
-        <source>encounter.mts.diagram_name.abdominelle_schmerzen_bei_kindern</source>
-        <target>Abdominal pain in children</target>
-      </trans-unit>
-      <trans-unit id="Enc45801289" resname="encounter.mts.diagram_name.abszesse_und_lokale_infektionen">
-        <source>encounter.mts.diagram_name.abszesse_und_lokale_infektionen</source>
-        <target>Abscesses and local infections</target>
-      </trans-unit>
-      <trans-unit id="Enc2B1E8B75" resname="encounter.mts.diagram_name.allergie">
-        <source>encounter.mts.diagram_name.allergie</source>
-        <target>Allergy</target>
-      </trans-unit>
-      <trans-unit id="Enc54D9028E" resname="encounter.mts.diagram_name.angriff_zustand_nach">
-        <source>encounter.mts.diagram_name.angriff_zustand_nach</source>
-        <target>Assault</target>
-      </trans-unit>
-      <trans-unit id="EncEFD903E1" resname="encounter.mts.diagram_name.atemproblem_bei_erwachsenen">
-        <source>encounter.mts.diagram_name.atemproblem_bei_erwachsenen</source>
-        <target>Shortness of breath in adults</target>
-      </trans-unit>
-      <trans-unit id="EncB19B17D3" resname="encounter.mts.diagram_name.auffaelliges_verhalten">
-        <source>encounter.mts.diagram_name.auffaelliges_verhalten</source>
-        <target>Behaving strangely</target>
-      </trans-unit>
-      <trans-unit id="EncF57B6A3D" resname="encounter.mts.diagram_name.betrunkener_eindruck">
-        <source>encounter.mts.diagram_name.betrunkener_eindruck</source>
-        <target>Apparently drunk</target>
-      </trans-unit>
-      <trans-unit id="Enc24937E42" resname="encounter.mts.diagram_name.bisse_und_stiche">
-        <source>encounter.mts.diagram_name.bisse_und_stiche</source>
-        <target>Bites and stings</target>
-      </trans-unit>
-      <trans-unit id="EncD6B61E2C" resname="encounter.mts.diagram_name.chemikalienkontakt">
-        <source>encounter.mts.diagram_name.chemikalienkontakt</source>
-        <target>Exposure to chemicals</target>
-      </trans-unit>
-      <trans-unit id="Enc901A0B44" resname="encounter.mts.diagram_name.diabetes">
-        <source>encounter.mts.diagram_name.diabetes</source>
-        <target>Diabetes</target>
-      </trans-unit>
-      <trans-unit id="EncE10B795B" resname="encounter.mts.diagram_name.durchfaelle_und_erbrechen">
-        <source>encounter.mts.diagram_name.durchfaelle_und_erbrechen</source>
-        <target>Diarrhoea and vomiting</target>
-      </trans-unit>
-      <trans-unit id="Enc23A4A35C" resname="encounter.mts.diagram_name.extremitaetenprobleme">
-        <source>encounter.mts.diagram_name.extremitaetenprobleme</source>
-        <target>Limb problems</target>
-      </trans-unit>
-      <trans-unit id="EncAF123911" resname="encounter.mts.diagram_name.fremdkoerper">
-        <source>encounter.mts.diagram_name.fremdkoerper</source>
-        <target>Foreign body</target>
-      </trans-unit>
-      <trans-unit id="Enc6BDCF601" resname="encounter.mts.diagram_name.gastrointestinale_blutung">
-        <source>encounter.mts.diagram_name.gastrointestinale_blutung</source>
-        <target>GI bleeding</target>
-      </trans-unit>
-      <trans-unit id="Enc2F5609DB" resname="encounter.mts.diagram_name.gesichtsprobleme">
-        <source>encounter.mts.diagram_name.gesichtsprobleme</source>
-        <target>Facial problems</target>
-      </trans-unit>
-      <trans-unit id="Enc7791069C" resname="encounter.mts.diagram_name.halsschmerz">
-        <source>encounter.mts.diagram_name.halsschmerz</source>
-        <target>Sore throat</target>
-      </trans-unit>
-      <trans-unit id="Enc161EDFFA" resname="encounter.mts.diagram_name.hautausschlaege">
-        <source>encounter.mts.diagram_name.hautausschlaege</source>
-        <target>Rashes</target>
-      </trans-unit>
-      <trans-unit id="Enc936BDB44" resname="encounter.mts.diagram_name.herzklopfen">
-        <source>encounter.mts.diagram_name.herzklopfen</source>
-        <target>Palpitations</target>
-      </trans-unit>
-      <trans-unit id="Enc29010D2D" resname="encounter.mts.diagram_name.hodenschmerz">
-        <source>encounter.mts.diagram_name.hodenschmerz</source>
-        <target>Testicular pain</target>
-      </trans-unit>
-      <trans-unit id="Enc436854A7" resname="encounter.mts.diagram_name.kollaps">
-        <source>encounter.mts.diagram_name.kollaps</source>
-        <target>Collapsed adult</target>
-      </trans-unit>
-      <trans-unit id="EncCA8794D0" resname="encounter.mts.diagram_name.kopfschmerz">
-        <source>encounter.mts.diagram_name.kopfschmerz</source>
-        <target>Headache</target>
-      </trans-unit>
-      <trans-unit id="Enc70BC28C5" resname="encounter.mts.diagram_name.kopfverletzung">
-        <source>encounter.mts.diagram_name.kopfverletzung</source>
-        <target>Head injury</target>
-      </trans-unit>
-      <trans-unit id="Enc93D5744B" resname="encounter.mts.diagram_name.krampfanfall">
-        <source>encounter.mts.diagram_name.krampfanfall</source>
-        <target>Fits</target>
-      </trans-unit>
-      <trans-unit id="EncCDB06BB4" resname="encounter.mts.diagram_name.nackenschmerz">
-        <source>encounter.mts.diagram_name.nackenschmerz</source>
-        <target>Neck pain</target>
-      </trans-unit>
-      <trans-unit id="EncD1DC54F2" resname="encounter.mts.diagram_name.ohrenprobleme">
-        <source>encounter.mts.diagram_name.ohrenprobleme</source>
-        <target>Ear problems</target>
-      </trans-unit>
-      <trans-unit id="EncD0C1429C" resname="encounter.mts.diagram_name.psychische_erkrankung">
-        <source>encounter.mts.diagram_name.psychische_erkrankung</source>
-        <target>Mental illness</target>
-      </trans-unit>
-      <trans-unit id="Enc6BAD43AA" resname="encounter.mts.diagram_name.rueckenschmerz">
-        <source>encounter.mts.diagram_name.rueckenschmerz</source>
-        <target>Back pain</target>
-      </trans-unit>
-      <trans-unit id="EncDF504075" resname="encounter.mts.diagram_name.schweres_trauma">
-        <source>encounter.mts.diagram_name.schweres_trauma</source>
-        <target>Major trauma</target>
-      </trans-unit>
-      <trans-unit id="Enc3464EC60" resname="encounter.mts.diagram_name.selbstverletzung">
-        <source>encounter.mts.diagram_name.selbstverletzung</source>
-        <target>Self-harm</target>
-      </trans-unit>
-      <trans-unit id="EncD75EA83B" resname="encounter.mts.diagram_name.sexualinfektion">
-        <source>encounter.mts.diagram_name.sexualinfektion</source>
-        <target>Sexually acquired infection</target>
-      </trans-unit>
-      <trans-unit id="EncADFF6B7E" resname="encounter.mts.diagram_name.stuerze">
-        <source>encounter.mts.diagram_name.stuerze</source>
-        <target>Falls</target>
-      </trans-unit>
-      <trans-unit id="Enc42BF4F65" resname="encounter.mts.diagram_name.thoraxschmerz">
-        <source>encounter.mts.diagram_name.thoraxschmerz</source>
-        <target>Chest pain</target>
-      </trans-unit>
-      <trans-unit id="Enc82A97DF9" resname="encounter.mts.diagram_name.ueberdosierung_und_vergiftung">
-        <source>encounter.mts.diagram_name.ueberdosierung_und_vergiftung</source>
-        <target>Overdose and poisoning</target>
-      </trans-unit>
-      <trans-unit id="Enc0181539D" resname="encounter.mts.diagram_name.unwohlsein_bei_erwachsenen">
-        <source>encounter.mts.diagram_name.unwohlsein_bei_erwachsenen</source>
-        <target>Unwell adult</target>
-      </trans-unit>
-      <trans-unit id="Enc359D6444" resname="encounter.mts.diagram_name.unwohlsein_bei_kindern">
-        <source>encounter.mts.diagram_name.unwohlsein_bei_kindern</source>
-        <target>Unwell child</target>
-      </trans-unit>
-      <trans-unit id="Enc60B0EB2B" resname="encounter.mts.diagram_name.urologisches_problem">
-        <source>encounter.mts.diagram_name.urologisches_problem</source>
-        <target>Urinary problems</target>
-      </trans-unit>
-      <trans-unit id="Enc3C6800FB" resname="encounter.mts.diagram_name.verbrennungen_und_verbruehungen">
-        <source>encounter.mts.diagram_name.verbrennungen_und_verbruehungen</source>
-        <target>Burns and scalds</target>
-      </trans-unit>
-      <trans-unit id="EncEF530A30" resname="encounter.mts.diagram_name.wunden">
-        <source>encounter.mts.diagram_name.wunden</source>
-        <target>Wounds</target>
-      </trans-unit>
       <trans-unit id="Enc29E965B0" resname="encounter.course.title">
         <source>encounter.course.title</source>
         <target>Hospital course</target>
@@ -2912,6 +2756,218 @@
       <trans-unit id="EncAE116859" resname="encounter.data_prep.guide.map.downloads_title">
         <source>encounter.data_prep.guide.map.downloads_title</source>
         <target>Template and example</target>
+      </trans-unit>
+      <trans-unit id="Enc9CCD8C71" resname="encounter.mts_catalog.kind.diagram">
+        <source>encounter.mts_catalog.kind.diagram</source>
+        <target>Diagram</target>
+      </trans-unit>
+      <trans-unit id="EncAC8BED7C" resname="encounter.mts_catalog.kind.indicator">
+        <source>encounter.mts_catalog.kind.indicator</source>
+        <target>Indicator</target>
+      </trans-unit>
+      <trans-unit id="EncD02F0BF0" resname="encounter.mts_catalog.source.orbis_export">
+        <source>encounter.mts_catalog.source.orbis_export</source>
+        <target>ORBIS export</target>
+      </trans-unit>
+      <trans-unit id="Enc974D7B3C" resname="encounter.mts_catalog.source.mts_edition">
+        <source>encounter.mts_catalog.source.mts_edition</source>
+        <target>MTS edition</target>
+      </trans-unit>
+      <trans-unit id="EncF5275409" resname="encounter.mts_catalog.source.manual">
+        <source>encounter.mts_catalog.source.manual</source>
+        <target>Manual</target>
+      </trans-unit>
+      <trans-unit id="Enc6ECAC505" resname="encounter.mts_catalog.source.first_seen">
+        <source>encounter.mts_catalog.source.first_seen</source>
+        <target>First seen in data</target>
+      </trans-unit>
+      <trans-unit id="Enc72E8F192" resname="encounter.mts_catalog.status.curated">
+        <source>encounter.mts_catalog.status.curated</source>
+        <target>Curated</target>
+      </trans-unit>
+      <trans-unit id="Enc52C24504" resname="encounter.mts_catalog.status.provisional">
+        <source>encounter.mts_catalog.status.provisional</source>
+        <target>Provisional</target>
+      </trans-unit>
+      <trans-unit id="Enc72A7EAF0" resname="encounter.mts_catalog.status.merged">
+        <source>encounter.mts_catalog.status.merged</source>
+        <target>Merged</target>
+      </trans-unit>
+      <trans-unit id="EncE93ECE49" resname="encounter.mts_catalog.diagram.singular">
+        <source>encounter.mts_catalog.diagram.singular</source>
+        <target>MTS diagram</target>
+      </trans-unit>
+      <trans-unit id="EncFA6F423A" resname="encounter.mts_catalog.diagram.plural">
+        <source>encounter.mts_catalog.diagram.plural</source>
+        <target>MTS diagrams</target>
+      </trans-unit>
+      <trans-unit id="Enc4B2E37B6" resname="encounter.mts_catalog.indicator.singular">
+        <source>encounter.mts_catalog.indicator.singular</source>
+        <target>MTS indicator</target>
+      </trans-unit>
+      <trans-unit id="Enc3062DAEC" resname="encounter.mts_catalog.indicator.plural">
+        <source>encounter.mts_catalog.indicator.plural</source>
+        <target>MTS indicators</target>
+      </trans-unit>
+      <trans-unit id="Enc18CE58EE" resname="encounter.mts_catalog.alias.singular">
+        <source>encounter.mts_catalog.alias.singular</source>
+        <target>MTS alias</target>
+      </trans-unit>
+      <trans-unit id="Enc06D0A793" resname="encounter.mts_catalog.alias.plural">
+        <source>encounter.mts_catalog.alias.plural</source>
+        <target>MTS aliases</target>
+      </trans-unit>
+      <trans-unit id="EncC7ED6A92" resname="encounter.mts_catalog.assignment.singular">
+        <source>encounter.mts_catalog.assignment.singular</source>
+        <target>Diagram–indicator assignment</target>
+      </trans-unit>
+      <trans-unit id="Enc2121B16A" resname="encounter.mts_catalog.assignment.plural">
+        <source>encounter.mts_catalog.assignment.plural</source>
+        <target>Diagram–indicator assignments</target>
+      </trans-unit>
+      <trans-unit id="EncCB3AA1AB" resname="encounter.mts_catalog.field.code">
+        <source>encounter.mts_catalog.field.code</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="Enc82A1E29D" resname="encounter.mts_catalog.field.german_name">
+        <source>encounter.mts_catalog.field.german_name</source>
+        <target>German name</target>
+      </trans-unit>
+      <trans-unit id="Enc22CAFC7D" resname="encounter.mts_catalog.field.german_name.help_new">
+        <source>encounter.mts_catalog.field.german_name.help_new</source>
+        <target>The code is derived from this name once and never changes. Encounters store the code.</target>
+      </trans-unit>
+      <trans-unit id="Enc060EF105" resname="encounter.mts_catalog.field.german_name.help_edit">
+        <source>encounter.mts_catalog.field.german_name.help_edit</source>
+        <target>Correcting the name does not change the code.</target>
+      </trans-unit>
+      <trans-unit id="Enc072D914C" resname="encounter.mts_catalog.field.english_name">
+        <source>encounter.mts_catalog.field.english_name</source>
+        <target>English name</target>
+      </trans-unit>
+      <trans-unit id="EncD9FA821D" resname="encounter.mts_catalog.field.source">
+        <source>encounter.mts_catalog.field.source</source>
+        <target>Source</target>
+      </trans-unit>
+      <trans-unit id="EncD5508EB2" resname="encounter.mts_catalog.field.status">
+        <source>encounter.mts_catalog.field.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="Enc4D4D077B" resname="encounter.mts_catalog.field.first_seen_at">
+        <source>encounter.mts_catalog.field.first_seen_at</source>
+        <target>First seen</target>
+      </trans-unit>
+      <trans-unit id="Enc92187B65" resname="encounter.mts_catalog.field.kind">
+        <source>encounter.mts_catalog.field.kind</source>
+        <target>Kind</target>
+      </trans-unit>
+      <trans-unit id="Enc3EADA46A" resname="encounter.mts_catalog.field.label">
+        <source>encounter.mts_catalog.field.label</source>
+        <target>Label</target>
+      </trans-unit>
+      <trans-unit id="Enc1FF7BF4F" resname="encounter.mts_catalog.field.label.help">
+        <source>encounter.mts_catalog.field.label.help</source>
+        <target>Another spelling, for example a vendor wording. The alias code is derived from it once.</target>
+      </trans-unit>
+      <trans-unit id="Enc27DC6473" resname="encounter.mts_catalog.field.target">
+        <source>encounter.mts_catalog.field.target</source>
+        <target>Resolves to</target>
+      </trans-unit>
+      <trans-unit id="Enc37B83C19" resname="encounter.mts_catalog.field.target.help">
+        <source>encounter.mts_catalog.field.target.help</source>
+        <target>An active entry of the same kind.</target>
+      </trans-unit>
+      <trans-unit id="Enc730DBCD0" resname="encounter.mts_catalog.action.merge">
+        <source>encounter.mts_catalog.action.merge</source>
+        <target>Merge into …</target>
+      </trans-unit>
+      <trans-unit id="Enc143D659B" resname="encounter.mts_catalog.action.undo_merge">
+        <source>encounter.mts_catalog.action.undo_merge</source>
+        <target>Undo merge</target>
+      </trans-unit>
+      <trans-unit id="EncE5764BB0" resname="encounter.mts_catalog.action.undo_merge.confirm">
+        <source>encounter.mts_catalog.action.undo_merge.confirm</source>
+        <target>Undo the merge? The alias is removed and the entry becomes provisional again.</target>
+      </trans-unit>
+      <trans-unit id="Enc4E62881B" resname="encounter.mts_catalog.merge.title">
+        <source>encounter.mts_catalog.merge.title</source>
+        <target>Merge {code}</target>
+      </trans-unit>
+      <trans-unit id="Enc145C78EB" resname="encounter.mts_catalog.merge.back">
+        <source>encounter.mts_catalog.merge.back</source>
+        <target>Back</target>
+      </trans-unit>
+      <trans-unit id="Enc67145BD0" resname="encounter.mts_catalog.merge.intro">
+        <source>encounter.mts_catalog.merge.intro</source>
+        <target>The provisional entry {name} ({code}) becomes an alias of the chosen entry. Encounters keep the code {code}; pages show the chosen entry. The merge can be undone.</target>
+      </trans-unit>
+      <trans-unit id="Enc3EE320AD" resname="encounter.mts_catalog.merge.target">
+        <source>encounter.mts_catalog.merge.target</source>
+        <target>Merge into</target>
+      </trans-unit>
+      <trans-unit id="EncA4140263" resname="encounter.mts_catalog.merge.submit">
+        <source>encounter.mts_catalog.merge.submit</source>
+        <target>Merge</target>
+      </trans-unit>
+      <trans-unit id="EncA7EBD841" resname="encounter.mts_catalog.flash.merged">
+        <source>encounter.mts_catalog.flash.merged</source>
+        <target>{code} was merged into {target}.</target>
+      </trans-unit>
+      <trans-unit id="EncB75F36FF" resname="encounter.mts_catalog.flash.merge_undone">
+        <source>encounter.mts_catalog.flash.merge_undone</source>
+        <target>The merge of {code} was undone; the entry is provisional again.</target>
+      </trans-unit>
+      <trans-unit id="Enc2C31AB03" resname="encounter.mts_catalog.flash.invalid_token">
+        <source>encounter.mts_catalog.flash.invalid_token</source>
+        <target>The request has expired. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="Enc28D11A10" resname="encounter.mts_catalog.error.empty_code">
+        <source>encounter.mts_catalog.error.empty_code</source>
+        <target>“{label}” gives no code. Use letters or digits.</target>
+      </trans-unit>
+      <trans-unit id="Enc06E3F331" resname="encounter.mts_catalog.error.duplicate">
+        <source>encounter.mts_catalog.error.duplicate</source>
+        <target>“{label}” already exists with the code {code}.</target>
+      </trans-unit>
+      <trans-unit id="Enc94F45A55" resname="encounter.mts_catalog.error.collision">
+        <source>encounter.mts_catalog.error.collision</source>
+        <target>Code collision: “{label}” gives the code {code}, which already belongs to “{existing}” (resolves to {target}). The server cannot tell the two labels apart; clear up the names first.</target>
+      </trans-unit>
+      <trans-unit id="Enc1DBCED97" resname="encounter.mts_catalog.error.target_not_active">
+        <source>encounter.mts_catalog.error.target_not_active</source>
+        <target>{code} is not an active entry of this kind.</target>
+      </trans-unit>
+      <trans-unit id="Enc431F452F" resname="encounter.mts_catalog.error.merge_not_provisional">
+        <source>encounter.mts_catalog.error.merge_not_provisional</source>
+        <target>Only provisional entries can be merged; {code} is not provisional.</target>
+      </trans-unit>
+      <trans-unit id="Enc299BC838" resname="encounter.mts_catalog.error.merge_into_itself">
+        <source>encounter.mts_catalog.error.merge_into_itself</source>
+        <target>{code} cannot be merged into itself.</target>
+      </trans-unit>
+      <trans-unit id="Enc0752DBA4" resname="encounter.mts_catalog.error.merge_has_aliases">
+        <source>encounter.mts_catalog.error.merge_has_aliases</source>
+        <target>{code} cannot be merged while {count, plural, one {# alias points} other {# aliases point}} to it.</target>
+      </trans-unit>
+      <trans-unit id="Enc7649E914" resname="encounter.mts_catalog.error.merge_has_assignments">
+        <source>encounter.mts_catalog.error.merge_has_assignments</source>
+        <target>{code} cannot be merged while it has {count, plural, one {# diagram–indicator assignment} other {# diagram–indicator assignments}}.</target>
+      </trans-unit>
+      <trans-unit id="EncC675831E" resname="encounter.mts_catalog.error.not_merged">
+        <source>encounter.mts_catalog.error.not_merged</source>
+        <target>{code} is not merged.</target>
+      </trans-unit>
+      <trans-unit id="Enc34746D1E" resname="encounter.mts_catalog.error.merge_alias">
+        <source>encounter.mts_catalog.error.merge_alias</source>
+        <target>The alias {code} stands for a merge; undo the merge on the merged entry instead.</target>
+      </trans-unit>
+      <trans-unit id="Enc1809AF5B" resname="encounter.mts_catalog.error.assignment_exists">
+        <source>encounter.mts_catalog.error.assignment_exists</source>
+        <target>{indicator} is already assigned to {diagram}.</target>
+      </trans-unit>
+      <trans-unit id="Enc72A2827F" resname="encounter.mts_catalog.error.assignment_not_active">
+        <source>encounter.mts_catalog.error.assignment_not_active</source>
+        <target>Choose an active diagram and an active indicator.</target>
       </trans-unit>
     </body>
   </file>
