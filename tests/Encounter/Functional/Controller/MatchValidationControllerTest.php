@@ -389,10 +389,10 @@ final class MatchValidationControllerTest extends WebTestCase
 
     /**
      * Allocations 14:00 and 15:00 without visit, visit 18:00 by ambulance without allocation: three items
-     * without link (positions 1–3). "Confirm: no partner" is the primary action; "skip" records nothing and
-     * opens the next open item after this one, wrapping around, or the sample when no other item is open.
+     * without link (positions 1–3). "No partner" records its verdict; "skip" records nothing and opens
+     * the next open item after this one, wrapping around, or the sample when no other item is open.
      */
-    public function testUnlinkedItemConfirmsNoPartnerAndSkipLeavesItemsOpen(): void
+    public function testSkipLeavesItemsOpenAndOpensTheNextOpenItem(): void
     {
         $this->allocationAt($this->hospital, $this->ivena, '14:00');
         $this->allocationAt($this->hospital, $this->ivena, '15:00');
@@ -404,14 +404,11 @@ final class MatchValidationControllerTest extends WebTestCase
         $this->client->loginUser($this->reviewer);
         $crawler = $this->client->request(Request::METHOD_GET, $this->itemUrl($sample, $first));
         self::assertResponseIsSuccessful();
-        // Confirm first and green, then unclear, then skip; no red "no partner" any more.
+        // Unclear, no partner, then skip.
         self::assertSame(
-            ['encounter-validation-verdict-no_partner', 'encounter-validation-verdict-unclear', 'encounter-validation-skip'],
+            ['encounter-validation-verdict-unclear', 'encounter-validation-verdict-no_partner', 'encounter-validation-skip'],
             $crawler->filter('[data-test="encounter-validation-decision"] .btn')->each(static fn (Crawler $button): string => (string) $button->attr('data-test')),
         );
-        $confirm = $crawler->filter('[data-test="encounter-validation-verdict-no_partner"]');
-        self::assertSame('Confirm: no partner', trim($confirm->text()));
-        self::assertStringContainsString('btn-outline-success', (string) $confirm->attr('class'));
         self::assertSelectorTextContains('[data-test="encounter-validation-skip-note"]', 'nothing is recorded');
 
         // Skip on item 1 opens item 2 and records nothing.
@@ -424,7 +421,7 @@ final class MatchValidationControllerTest extends WebTestCase
         $crawler = $this->client->click($crawler->filter('[data-test="encounter-validation-skip"]')->link());
         self::assertSame($this->itemUrl($sample, $first), parse_url($this->client->getRequest()->getUri(), \PHP_URL_PATH));
 
-        // The green confirm records "no partner" and opens the next open item.
+        // "No partner" records its verdict and opens the next open item.
         $crawler = $this->verdict($crawler, 'no_partner');
         self::assertSame(ValidationVerdict::NoPartner, $this->reload($first)->getVerdict());
         self::assertSame($this->itemUrl($sample, $second), parse_url($this->client->getRequest()->getUri(), \PHP_URL_PATH));

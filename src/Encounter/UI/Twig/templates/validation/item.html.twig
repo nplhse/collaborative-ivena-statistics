@@ -218,8 +218,6 @@
                         <div class="d-grid gap-2">
                             {% if page.kind == 'pair' %}
                                 {{ _self.verdict_button('correct', 'encounter.validation.item.decide.correct'|trans({}, 'encounter'), item, form_id, 'success') }}
-                            {% else %}
-                                {{ _self.verdict_button('no_partner', 'encounter.validation.item.decide.no_partner'|trans({}, 'encounter'), item, form_id, 'success') }}
                             {% endif %}
                             {{ _self.verdict_button('unclear', 'encounter.validation.item.decide.unclear'|trans({}, 'encounter'), item, form_id, 'secondary') }}
                             {% if page.kind == 'pair' %}
@@ -229,6 +227,8 @@
                                     <button type="button" class="btn w-100 btn-outline-danger" disabled title="{{ 'encounter.validation.item.alternatives_none'|trans({}, 'encounter') }}" data-test="encounter-validation-wrong-other">{{ 'encounter.validation.item.decide.wrong_other'|trans({}, 'encounter') }}</button>
                                 {% endif %}
                                 {{ _self.verdict_button('wrong', 'encounter.validation.item.decide.wrong_no_partner'|trans({}, 'encounter'), item, form_id, 'danger') }}
+                            {% else %}
+                                {{ _self.verdict_button('no_partner', 'encounter.validation.item.decide.no_partner'|trans({}, 'encounter'), item, form_id, 'danger') }}
                             {% endif %}
                             <a class="btn btn-ghost-secondary w-100 mt-2" href="{{ skip_url }}" data-test="encounter-validation-skip">
                                 <twig:ux:icon name="tabler:player-skip-forward" class="w-3 h-3 me-1" />{{ 'encounter.validation.item.decide.skip'|trans({}, 'encounter') }}

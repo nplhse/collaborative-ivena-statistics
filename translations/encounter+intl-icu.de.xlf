@@ -2323,7 +2323,7 @@
       </trans-unit>
       <trans-unit id="Enc92A86140" resname="encounter.validation.item.decide.no_partner">
         <source>encounter.validation.item.decide.no_partner</source>
-        <target>Bestätigen: kein Partner</target>
+        <target>Kein Partner</target>
       </trans-unit>
       <trans-unit id="EncB5A2B656" resname="encounter.validation.item.decision_note_pair">
         <source>encounter.validation.item.decision_note_pair</source>
@@ -2331,7 +2331,7 @@
       </trans-unit>
       <trans-unit id="Enc6511D74A" resname="encounter.validation.item.decision_note_unlinked">
         <source>encounter.validation.item.decision_note_unlinked</source>
-        <target>„Bestätigen: kein Partner“ hält fest, dass dieser Fall zu Recht keine Verknüpfung hat. Eine Option verknüpfen speichert „Gegenstück verpasst“ und bestätigt die Verknüpfung. Ein späterer Wechsel des Urteils macht keine Verknüpfung rückgängig; Verknüpfungen ändert das Review.</target>
+        <target>Verknüpfen speichert „Gegenstück verpasst“ und bestätigt die Verknüpfung. Ein späterer Wechsel des Urteils macht keine Verknüpfung rückgängig; Verknüpfungen ändert das Review.</target>
       </trans-unit>
       <trans-unit id="Enc8AE327E2" resname="encounter.validation.item.decide.skip">
         <source>encounter.validation.item.decide.skip</source>
@@ -2379,11 +2379,11 @@
       </trans-unit>
       <trans-unit id="Enc68435AF6" resname="encounter.validation.item.options_hint_allocation">
         <source>encounter.validation.item.options_hint_allocation</source>
-        <target>Gehört einer der Besuche unten zu dieser Zuweisung? Dann dort „Diesen Besuch verknüpfen“ wählen; sonst „kein Partner“ bestätigen.</target>
+        <target>Gehört einer der Besuche unten zu dieser Zuweisung? Dann dort „Diesen Besuch verknüpfen“ wählen.</target>
       </trans-unit>
       <trans-unit id="EncD9B0B0A5" resname="encounter.validation.item.options_hint_visit">
         <source>encounter.validation.item.options_hint_visit</source>
-        <target>Gehört eine der Zuweisungen unten zu diesem Besuch? Dann dort „Diese Zuweisung verknüpfen“ wählen; sonst „kein Partner“ bestätigen.</target>
+        <target>Gehört eine der Zuweisungen unten zu diesem Besuch? Dann dort „Diese Zuweisung verknüpfen“ wählen.</target>
       </trans-unit>
     </body>
   </file>
