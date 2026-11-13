@@ -605,25 +605,101 @@
         <source>ops.notifications.title</source>
         <target>Aktuelle Benachrichtigungen</target>
       </trans-unit>
-      <trans-unit id="opsNot02de" resname="ops.notifications.time">
-        <source>ops.notifications.time</source>
-        <target>Zeit</target>
-      </trans-unit>
-      <trans-unit id="opsNot03de" resname="ops.notifications.intent">
-        <source>ops.notifications.intent</source>
-        <target>Intent</target>
-      </trans-unit>
-      <trans-unit id="opsNot04de" resname="ops.notifications.action">
-        <source>ops.notifications.action</source>
-        <target>Aktion</target>
-      </trans-unit>
-      <trans-unit id="opsNot05de" resname="ops.notifications.origin">
-        <source>ops.notifications.origin</source>
-        <target>Herkunft</target>
-      </trans-unit>
       <trans-unit id="opsNot06de" resname="ops.notifications.empty">
         <source>ops.notifications.empty</source>
         <target>Keine aktuellen Benachrichtigungsereignisse.</target>
+      </trans-unit>
+      <trans-unit id="opsNotShowAllde" resname="ops.notifications.show_all">
+        <source>ops.notifications.show_all</source>
+        <target>Alle im Audit-Log anzeigen</target>
+      </trans-unit>
+      <trans-unit id="opsNotOpenInAuditde" resname="ops.notifications.open_in_audit">
+        <source>ops.notifications.open_in_audit</source>
+        <target>Audit-Log</target>
+      </trans-unit>
+      <trans-unit id="opsNotEventImportRunFailedde" resname="ops.notifications.event.import.run.failed">
+        <source>ops.notifications.event.import.run.failed</source>
+        <target>Import fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="opsNotEventUserRegisteredde" resname="ops.notifications.event.user.registered">
+        <source>ops.notifications.event.user.registered</source>
+        <target>Neue Registrierung</target>
+      </trans-unit>
+      <trans-unit id="opsNotEventHospitalReminderSentde" resname="ops.notifications.event.hospital.reminder_sent">
+        <source>ops.notifications.event.hospital.reminder_sent</source>
+        <target>Erinnerung versendet</target>
+      </trans-unit>
+      <trans-unit id="opsNotContextImportFailedde" resname="ops.notifications.context.import_failed">
+        <source>ops.notifications.context.import_failed</source>
+        <target>{import} · {hospital} · {reason}</target>
+      </trans-unit>
+      <trans-unit id="opsNotContextUserRegisteredde" resname="ops.notifications.context.user_registered">
+        <source>ops.notifications.context.user_registered</source>
+        <target>Nutzer {user}</target>
+      </trans-unit>
+      <trans-unit id="opsNotContextReminderSentde" resname="ops.notifications.context.reminder_sent">
+        <source>ops.notifications.context.reminder_sent</source>
+        <target>{hospital} · Berichtsmonat {period}</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonMissingCreatorde" resname="ops.notifications.reason.missing_creator">
+        <source>ops.notifications.reason.missing_creator</source>
+        <target>Der Import hat keinen Ersteller</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonMissingHospitalde" resname="ops.notifications.reason.missing_hospital">
+        <source>ops.notifications.reason.missing_hospital</source>
+        <target>Der Import ist keinem Krankenhaus zugeordnet</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonMissingImportPermissionde" resname="ops.notifications.reason.missing_import_permission">
+        <source>ops.notifications.reason.missing_import_permission</source>
+        <target>Der Ersteller darf nicht mehr importieren</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonMissingClosureRolede" resname="ops.notifications.reason.missing_closure_role">
+        <source>ops.notifications.reason.missing_closure_role</source>
+        <target>Der Ersteller darf keine Abmeldungen importieren</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonTypeMismatchde" resname="ops.notifications.reason.type_mismatch">
+        <source>ops.notifications.reason.type_mismatch</source>
+        <target>Der Dateityp passt nicht zum Importtyp</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonMissingFilePathde" resname="ops.notifications.reason.missing_file_path">
+        <source>ops.notifications.reason.missing_file_path</source>
+        <target>Die Importdatei fehlt</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonInvalidFilePathde" resname="ops.notifications.reason.invalid_file_path">
+        <source>ops.notifications.reason.invalid_file_path</source>
+        <target>Die Importdatei konnte nicht gelesen werden</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonFileNotFoundde" resname="ops.notifications.reason.file_not_found">
+        <source>ops.notifications.reason.file_not_found</source>
+        <target>Die Importdatei wurde nicht gefunden</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonInvalidFilede" resname="ops.notifications.reason.invalid_file">
+        <source>ops.notifications.reason.invalid_file</source>
+        <target>Die Datei hat die Prüfung nicht bestanden</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonNoRowsde" resname="ops.notifications.reason.no_rows">
+        <source>ops.notifications.reason.no_rows</source>
+        <target>Die Datei enthält keine Zeilen</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonRejectionRatioExceededde" resname="ops.notifications.reason.rejection_ratio_exceeded">
+        <source>ops.notifications.reason.rejection_ratio_exceeded</source>
+        <target>Zu viele Zeilen wurden zurückgewiesen</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonProcessingErrorde" resname="ops.notifications.reason.processing_error">
+        <source>ops.notifications.reason.processing_error</source>
+        <target>Fehler bei der Verarbeitung</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonRetriesExhaustedde" resname="ops.notifications.reason.retries_exhausted">
+        <source>ops.notifications.reason.retries_exhausted</source>
+        <target>Die Verarbeitung ist mehrfach fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonKeyGenerationChangedde" resname="ops.notifications.reason.key_generation_changed">
+        <source>ops.notifications.reason.key_generation_changed</source>
+        <target>Pseudonym-Schlüssel nach dem Upload geändert</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonUnknownde" resname="ops.notifications.reason.unknown">
+        <source>ops.notifications.reason.unknown</source>
+        <target>Grund im Audit-Log</target>
       </trans-unit>
       <trans-unit id="opsFm01de" resname="ops.failed_messages.title">
         <source>ops.failed_messages.title</source>
