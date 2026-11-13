@@ -177,10 +177,6 @@
         <source>menu.imports.rejects</source>
         <target>Import Rejects</target>
       </trans-unit>
-      <trans-unit id="menuImportsBatch" resname="menu.imports.batch">
-        <source>menu.imports.batch</source>
-        <target>Batch Activities</target>
-      </trans-unit>
       <trans-unit id="menuImportsBatchRuns" resname="menu.imports.batch_runs">
         <source>menu.imports.batch_runs</source>
         <target>Import batch runs</target>
