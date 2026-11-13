@@ -177,6 +177,7 @@ Do not use demo-fixture accounts in production. After setup, existing users can 
 |--------|---------|---------|
 | `messenger_systemd_service` | `messenger.service` | systemd unit name under `~/.config/systemd/user/` |
 | `messenger_restart_on_deploy` | `true` | Run stop/restart hooks; set `false` until the worker is configured |
+| `keep_releases` | `2` | Releases kept under `<deploy_path>/releases`: the current one and one for `vendor/bin/dep rollback` |
 
 ## What happens on deploy
 
@@ -188,6 +189,7 @@ Typical order (Symfony recipe plus project tasks):
 4. Database migrations
 5. Symlink switch to the new release (`current`)
 6. **`messenger:restart`** — `systemctl --user restart messenger.service`
+7. Cleanup: releases beyond `keep_releases` (2) are deleted. Files that must survive a release change belong in `shared/`.
 
 **First deploy:** If the systemd unit does not exist yet, `messenger:restart` fails. Either create the unit first (see [messenger-workers.md](messenger-workers.md)) or set `messenger_restart_on_deploy: false` in `hosts.yaml` until the worker is ready.
 
