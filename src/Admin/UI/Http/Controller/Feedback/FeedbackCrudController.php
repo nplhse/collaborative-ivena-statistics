@@ -123,7 +123,7 @@ final class FeedbackCrudController extends AbstractCrudController
                         return '—';
                     }
 
-                    return \strlen($value) > 80 ? mb_substr($value, 0, 80).'…' : $value;
+                    return self::escape(mb_strlen($value) > 80 ? mb_substr($value, 0, 80).'…' : $value);
                 });
         } elseif (Crud::PAGE_EDIT === $pageName) {
             yield TextareaField::new('message', 'Message')
@@ -144,7 +144,7 @@ final class FeedbackCrudController extends AbstractCrudController
             yield TextField::new('pagePathDisplay', 'Path')
                 ->setVirtual(true)
                 ->setValue('')
-                ->formatValue(static fn (mixed $_, Feedback $f): string => $f->getPagePath());
+                ->formatValue(static fn (mixed $_, Feedback $f): string => self::escape($f->getPagePath()));
         }
 
         yield TextField::new('routeName', 'Route')
@@ -154,7 +154,7 @@ final class FeedbackCrudController extends AbstractCrudController
                     return '—';
                 }
 
-                return $value;
+                return self::escape($value);
             });
 
         yield TextField::new('context', 'Context')
@@ -167,7 +167,7 @@ final class FeedbackCrudController extends AbstractCrudController
                     return '—';
                 }
                 try {
-                    return json_encode($ctx, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+                    return self::escape(json_encode($ctx, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
                 } catch (\JsonException) {
                     return '// invalid JSON';
                 }
@@ -175,5 +175,14 @@ final class FeedbackCrudController extends AbstractCrudController
 
         yield TextField::new('userAgent', 'User agent')->hideOnIndex()->hideOnForm();
         yield TextField::new('appVersion', 'App version')->hideOnForm();
+    }
+
+    /**
+     * EasyAdmin wraps strings returned by formatValue() in Twig Markup, so they are printed unescaped;
+     * feedback text comes from anonymous visitors and must be escaped here.
+     */
+    private static function escape(string $value): string
+    {
+        return htmlspecialchars($value, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
     }
 }
