@@ -136,6 +136,16 @@ final class AuditTimelineQueryTest extends KernelTestCase
         );
     }
 
+    public function testCountNewerCountsMatchingEntriesAfterTheCursorUpToTheLimit(): void
+    {
+        $since = new AuditTimelineCursor(new \DateTimeImmutable('2026-11-13 09:00:00'), $this->ids[2]);
+
+        self::assertSame(3, $this->query->countNewer(new AuditTimelineFilter(), $since, 10), 'entries 3 (same second, higher id), 4 and 5');
+        self::assertSame(2, $this->query->countNewer(new AuditTimelineFilter(), $since, 2), 'bounded');
+        self::assertSame(1, $this->query->countNewer(new AuditTimelineFilter(origin: 'messenger'), $since, 10));
+        self::assertSame(0, $this->query->countNewer(new AuditTimelineFilter(), AuditTimelineCursor::after($this->query->page(new AuditTimelineFilter(), null, 1)['entries'][0]), 10));
+    }
+
     public function testDetailsReadChangesAndMetadataOfOneEntry(): void
     {
         $this->connection->executeStatement(

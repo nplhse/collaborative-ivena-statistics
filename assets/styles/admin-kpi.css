@@ -315,3 +315,13 @@ summary.timeline-summary:focus-visible {
         color: var(--bs-secondary-color);
     }
 }
+
+/* Session or inferred activity period of one actor in the audit timeline */
+.ea-audit-band {
+    padding: 0.5rem 0 0.5rem 1rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.ea-audit-band[data-audit-band='inferred'] > .timeline-list {
+    border-left-style: dotted;
+}

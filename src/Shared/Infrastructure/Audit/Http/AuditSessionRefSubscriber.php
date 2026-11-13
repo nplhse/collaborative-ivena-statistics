@@ -9,9 +9,11 @@ use App\User\Domain\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Http\Event\AuthenticationTokenCreatedEvent;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -31,21 +33,29 @@ final readonly class AuditSessionRefSubscriber
     public function __construct(
         private AuditContext $auditContext,
         private Security $security,
+        private RequestStack $requestStack,
+        private TokenStorageInterface $tokenStorage,
     ) {
     }
 
+    /**
+     * Runs when an authentication token is created, before the authenticator's onAuthenticationSuccess() and
+     * before LoginSuccessEvent. Entries written while handling the login (for example linking the cookie
+     * consent) then already carry the new reference.
+     */
     #[AsEventListener]
-    public function onLoginSuccess(LoginSuccessEvent $event): void
+    public function onTokenCreated(AuthenticationTokenCreatedEvent $event): void
     {
-        $request = $event->getRequest();
-        if (!$request->hasSession()) {
+        $request = $this->requestStack->getMainRequest();
+        if (!$request instanceof Request || !$request->hasSession()) {
             return;
         }
 
         $session = $request->getSession();
         $current = $session->get(self::SESSION_ATTRIBUTE);
-        $previousUser = $event->getPreviousToken()?->getUserIdentifier();
-        $sameUser = null !== $previousUser && $previousUser === $event->getUser()->getUserIdentifier();
+        // The token storage still holds the previous token here; the new one is set right after this event.
+        $previousUser = $this->tokenStorage->getToken()?->getUserIdentifier();
+        $sameUser = null !== $previousUser && $previousUser === $event->getAuthenticatedToken()->getUserIdentifier();
 
         $ref = $sameUser && $this->isValidRef($current) ? $current : Uuid::v4()->toRfc4122();
         $session->set(self::SESSION_ATTRIBUTE, $ref);

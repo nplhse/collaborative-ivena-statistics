@@ -10,15 +10,16 @@ use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
-use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
+use Symfony\Component\Security\Http\Event\AuthenticationTokenCreatedEvent;
 use Symfony\Component\Uid\Uuid;
 
 final class AuditSessionRefSubscriberTest extends TestCase
@@ -30,7 +31,7 @@ final class AuditSessionRefSubscriberTest extends TestCase
         $context = new AuditContext();
         $request = $this->requestWithSession(self::EXISTING_REF);
 
-        $this->subscriber($context)->onLoginSuccess($this->loginEvent($request, 'alice', null));
+        $this->subscriber($context, $request)->onTokenCreated($this->tokenCreated('alice'));
 
         $ref = $request->getSession()->get(AuditSessionRefSubscriber::SESSION_ATTRIBUTE);
         self::assertIsString($ref);
@@ -44,7 +45,7 @@ final class AuditSessionRefSubscriberTest extends TestCase
         $context = new AuditContext();
         $request = $this->requestWithSession(self::EXISTING_REF);
 
-        $this->subscriber($context)->onLoginSuccess($this->loginEvent($request, 'bob', 'alice'));
+        $this->subscriber($context, $request, previousUser: 'alice')->onTokenCreated($this->tokenCreated('bob'));
 
         self::assertNotSame(self::EXISTING_REF, $context->getSessionRef());
     }
@@ -54,17 +55,26 @@ final class AuditSessionRefSubscriberTest extends TestCase
         $context = new AuditContext();
         $request = $this->requestWithSession(self::EXISTING_REF);
 
-        $this->subscriber($context)->onLoginSuccess($this->loginEvent($request, 'alice', 'alice'));
+        $this->subscriber($context, $request, previousUser: 'alice')->onTokenCreated($this->tokenCreated('alice'));
 
         self::assertSame(self::EXISTING_REF, $context->getSessionRef());
         self::assertSame(self::EXISTING_REF, $request->getSession()->get(AuditSessionRefSubscriber::SESSION_ATTRIBUTE));
     }
 
-    public function testLoginWithoutSessionSetsNoReference(): void
+    public function testTokenWithoutSessionSetsNoReference(): void
     {
         $context = new AuditContext();
 
-        $this->subscriber($context)->onLoginSuccess($this->loginEvent(Request::create('/'), 'alice', null));
+        $this->subscriber($context, Request::create('/'))->onTokenCreated($this->tokenCreated('alice'));
+
+        self::assertNull($context->getSessionRef());
+    }
+
+    public function testTokenOutsideARequestSetsNoReference(): void
+    {
+        $context = new AuditContext();
+
+        $this->subscriber($context, null)->onTokenCreated($this->tokenCreated('alice'));
 
         self::assertNull($context->getSessionRef());
     }
@@ -74,7 +84,7 @@ final class AuditSessionRefSubscriberTest extends TestCase
         $context = new AuditContext();
         $request = $this->requestWithSession(self::EXISTING_REF, previous: true);
 
-        $this->subscriber($context, new User())->onKernelRequest(
+        $this->subscriber($context, $request, new User())->onKernelRequest(
             new RequestEvent($this->createStub(HttpKernelInterface::class), $request, HttpKernelInterface::SUB_REQUEST),
         );
 
@@ -87,7 +97,8 @@ final class AuditSessionRefSubscriberTest extends TestCase
         $security = $this->createMock(Security::class);
         $security->expects(self::never())->method('getUser');
 
-        new AuditSessionRefSubscriber($context, $security)->onKernelRequest($this->requestEvent(Request::create('/')));
+        new AuditSessionRefSubscriber($context, $security, new RequestStack(), new TokenStorage())
+            ->onKernelRequest($this->requestEvent(Request::create('/')));
 
         self::assertNull($context->getSessionRef());
     }
@@ -97,7 +108,7 @@ final class AuditSessionRefSubscriberTest extends TestCase
         $context = new AuditContext();
         $request = $this->requestWithSession(null, previous: true);
 
-        $this->subscriber($context, null)->onKernelRequest($this->requestEvent($request));
+        $this->subscriber($context, $request)->onKernelRequest($this->requestEvent($request));
 
         self::assertNull($context->getSessionRef());
         self::assertFalse($request->getSession()->has(AuditSessionRefSubscriber::SESSION_ATTRIBUTE));
@@ -108,7 +119,7 @@ final class AuditSessionRefSubscriberTest extends TestCase
         $context = new AuditContext();
         $request = $this->requestWithSession(self::EXISTING_REF, previous: true);
 
-        $this->subscriber($context, new User())->onKernelRequest($this->requestEvent($request));
+        $this->subscriber($context, $request, new User())->onKernelRequest($this->requestEvent($request));
 
         self::assertSame(self::EXISTING_REF, $context->getSessionRef());
     }
@@ -118,7 +129,7 @@ final class AuditSessionRefSubscriberTest extends TestCase
         $context = new AuditContext();
         $request = $this->requestWithSession(null, previous: true);
 
-        $this->subscriber($context, new User())->onKernelRequest($this->requestEvent($request));
+        $this->subscriber($context, $request, new User())->onKernelRequest($this->requestEvent($request));
 
         $ref = $request->getSession()->get(AuditSessionRefSubscriber::SESSION_ATTRIBUTE);
         self::assertIsString($ref);
@@ -126,12 +137,32 @@ final class AuditSessionRefSubscriberTest extends TestCase
         self::assertSame($ref, $context->getSessionRef());
     }
 
-    private function subscriber(AuditContext $context, ?User $user = null): AuditSessionRefSubscriber
+    private function subscriber(AuditContext $context, ?Request $request, ?User $user = null, ?string $previousUser = null): AuditSessionRefSubscriber
     {
         $security = $this->createStub(Security::class);
         $security->method('getUser')->willReturn($user);
 
-        return new AuditSessionRefSubscriber($context, $security);
+        $requestStack = new RequestStack();
+        if ($request instanceof Request) {
+            $requestStack->push($request);
+        }
+
+        $tokenStorage = new TokenStorage();
+        if (null !== $previousUser) {
+            $tokenStorage->setToken(new UsernamePasswordToken(new User()->setUsername($previousUser), 'main', []));
+        }
+
+        return new AuditSessionRefSubscriber($context, $security, $requestStack, $tokenStorage);
+    }
+
+    private function tokenCreated(string $username): AuthenticationTokenCreatedEvent
+    {
+        $user = new User()->setUsername($username);
+
+        return new AuthenticationTokenCreatedEvent(
+            new UsernamePasswordToken($user, 'main', []),
+            new SelfValidatingPassport(new UserBadge($username, static fn (): User => $user)),
+        );
     }
 
     private function requestWithSession(?string $ref, bool $previous = false): Request
@@ -148,25 +179,6 @@ final class AuditSessionRefSubscriberTest extends TestCase
         }
 
         return $request;
-    }
-
-    private function loginEvent(Request $request, string $username, ?string $previousUsername): LoginSuccessEvent
-    {
-        $user = new User()->setUsername($username);
-        $passport = new SelfValidatingPassport(new UserBadge($username, static fn (): User => $user));
-        $previousToken = null === $previousUsername
-            ? null
-            : new UsernamePasswordToken(new User()->setUsername($previousUsername), 'main', []);
-
-        return new LoginSuccessEvent(
-            $this->createStub(AuthenticatorInterface::class),
-            $passport,
-            new UsernamePasswordToken($user, 'main', []),
-            $request,
-            null,
-            'main',
-            $previousToken,
-        );
     }
 
     private function requestEvent(Request $request): RequestEvent

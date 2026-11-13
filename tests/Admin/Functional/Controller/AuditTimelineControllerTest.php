@@ -28,6 +28,7 @@ final class AuditTimelineControllerTest extends WebTestCase
         yield 'request' => ['/admin/audit/requests/r1'];
         yield 'entry' => ['/admin/audit/entries/1'];
         yield 'entry details' => ['/admin/audit/entries/1/details'];
+        yield 'new count' => ['/admin/audit/new-count?since=x'];
     }
 
     #[DataProvider('routes')]
@@ -153,6 +154,57 @@ final class AuditTimelineControllerTest extends WebTestCase
         self::assertCount(0, $unfiltered->filter('[data-audit-context="true"]'));
     }
 
+    public function testActorViewGroupsBySessionAndMarksInferredPeriods(): void
+    {
+        $client = $this->adminClient();
+        $actor = (int) $this->connection()->fetchOne('SELECT MAX(id) FROM "user"');
+        // newest first: session S (2 entries), then two entries without session 10 min apart, then one 2 h earlier
+        $this->insert('2026-11-13 12:00:00', 'r4', 'http', null, $actor, '0193a4b2-6f1e-4c55-9d3e-00000000000a');
+        $this->insert('2026-11-13 11:55:00', 'r3', 'http', null, $actor, '0193a4b2-6f1e-4c55-9d3e-00000000000a');
+        $this->insert('2026-11-13 10:10:00', 'r2', 'http', null, $actor);
+        $this->insert('2026-11-13 10:00:00', 'r1', 'http', null, $actor);
+        $this->insert('2026-11-13 08:00:00', 'r0', 'http', null, $actor);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/audit?actor='.$actor);
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(['session', 'inferred', 'inferred'], $crawler->filter('[data-audit-band]')->each(static fn ($b): string => (string) $b->attr('data-audit-band')));
+        self::assertSame([2, 2, 1], $crawler->filter('[data-audit-band]')->each(static fn ($b): int => $b->filter('[data-audit-entry]')->count()));
+        self::assertStringContainsString('Inferred activity period', $crawler->filter('[data-audit-band="inferred"]')->first()->text());
+        self::assertStringContainsString('estimated', $crawler->filter('[data-audit-band="inferred"]')->first()->text());
+        self::assertSame('/admin/audit?session=0193a4b2-6f1e-4c55-9d3e-00000000000a', $crawler->filter('[data-audit-band="session"] .ea-audit-band-header a')->attr('href'));
+
+        $all = $client->request(Request::METHOD_GET, '/admin/audit');
+        self::assertCount(0, $all->filter('[data-audit-band]'), 'no bands across actors');
+    }
+
+    public function testNewCountReportsEntriesWrittenAfterThePageWasLoaded(): void
+    {
+        $client = $this->adminClient();
+        $this->insert('2026-11-13 09:00:00', 'r1', 'http');
+        $this->insert('2026-11-13 09:00:01', 'r2', 'cli');
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/audit?origin=http');
+        $url = (string) $crawler->filter('[data-controller="audit-new-entries"]')->attr('data-audit-new-entries-url-value');
+        self::assertStringContainsString('origin=http', $url);
+
+        $client->request(Request::METHOD_GET, $url);
+        self::assertResponseIsSuccessful();
+        self::assertSame(['count' => 0, 'more' => false], json_decode((string) $client->getResponse()->getContent(), true));
+        self::assertStringContainsString('no-store', (string) $client->getResponse()->headers->get('Cache-Control'));
+
+        $this->insert('2026-11-13 09:05:00', 'r3', 'http');
+        $this->insert('2026-11-13 09:05:00', 'r4', 'cli');
+        $client->request(Request::METHOD_GET, $url);
+        self::assertSame(['count' => 1, 'more' => false], json_decode((string) $client->getResponse()->getContent(), true));
+
+        $client->request(Request::METHOD_GET, '/admin/audit/new-count?since=garbage');
+        self::assertResponseStatusCodeSame(400);
+
+        $older = $client->request(Request::METHOD_GET, '/admin/audit?after='.new \App\Admin\Application\Audit\AuditTimelineCursor(new \DateTimeImmutable('2026-11-13 09:00:01'), 999999999)->encode());
+        self::assertCount(0, $older->filter('[data-controller="audit-new-entries"]'), 'only the first page watches for new entries');
+    }
+
     public function testRequestViewListsAllEntriesAndUnknownRequestIs404(): void
     {
         $client = $this->adminClient();
@@ -234,12 +286,12 @@ final class AuditTimelineControllerTest extends WebTestCase
         return $client;
     }
 
-    private function insert(string $at, string $requestId, string $origin, ?string $intent = null): void
+    private function insert(string $at, string $requestId, string $origin, ?string $intent = null, ?int $actorId = null, ?string $sessionRef = null): void
     {
         $this->connection()->executeStatement(
-            "INSERT INTO audit_log (occurred_at, request_id, actor_id, origin, action, entity_class, entity_id, changes, metadata, intent, request_id_kind)
-             VALUES (:at, :rid, NULL, :origin, 'update', 'App\\Example\\Thing', '1', '{}', NULL, :intent, 'generated')",
-            ['at' => $at, 'rid' => $requestId, 'origin' => $origin, 'intent' => $intent],
+            "INSERT INTO audit_log (occurred_at, request_id, actor_id, origin, action, entity_class, entity_id, changes, metadata, intent, request_id_kind, session_ref)
+             VALUES (:at, :rid, :actor, :origin, 'update', 'App\\Example\\Thing', '1', '{}', NULL, :intent, 'generated', :session)",
+            ['at' => $at, 'rid' => $requestId, 'actor' => $actorId, 'origin' => $origin, 'intent' => $intent, 'session' => $sessionRef],
         );
     }
 

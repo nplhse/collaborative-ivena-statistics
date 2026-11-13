@@ -14,10 +14,14 @@ final readonly class AuditTimelineService
     /** A request view shows at most this many entries; larger requests say so. */
     public const int REQUEST_LIMIT = 500;
 
+    /** The "new entries" notice counts up to this many and then says "more than". */
+    public const int NEW_ENTRIES_LIMIT = 100;
+
     /** @psalm-suppress PossiblyUnusedMethod Symfony autowires this service */
     public function __construct(
         private AuditTimelineReader $reader,
         private AuditTimelineAssembler $assembler,
+        private AuditActivityGrouper $grouper,
     ) {
     }
 
@@ -31,9 +35,13 @@ final readonly class AuditTimelineService
         $requestIds = array_values(array_unique(array_map(static fn (AuditTimelineEntry $e): string => $e->requestId, $entries)));
         $stats = $this->reader->requestStats($requestIds, $filter);
 
+        $items = $this->assembler->assemble($entries, $stats);
+
         return new AuditTimelinePage(
-            $this->assembler->assemble($entries, $stats),
+            $items,
             $hasMore ? AuditTimelineCursor::after($entries[\count($entries) - 1]) : null,
+            // Sessions and activity periods only make sense for one person; across actors they would interleave.
+            null !== $filter->actorId ? $this->grouper->group($items, $after instanceof AuditTimelineCursor, $hasMore) : null,
         );
     }
 
@@ -68,5 +76,10 @@ final readonly class AuditTimelineService
     public function filterOptions(): AuditFilterOptions
     {
         return $this->reader->filterOptions();
+    }
+
+    public function countNewer(AuditTimelineFilter $filter, AuditTimelineCursor $since): int
+    {
+        return $this->reader->countNewer($filter, $since, self::NEW_ENTRIES_LIMIT + 1);
     }
 }

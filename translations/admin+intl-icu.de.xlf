@@ -1837,6 +1837,42 @@
         <source>audit.request.context_help</source>
         <target>Gehört zu dieser Anfrage, passt aber nicht zum aktuellen Filter.</target>
       </trans-unit>
+      <trans-unit id="auditSe01de" resname="audit.band.session">
+        <source>audit.band.session</source>
+        <target>Sitzung</target>
+      </trans-unit>
+      <trans-unit id="auditSe02de" resname="audit.band.inferred">
+        <source>audit.band.inferred</source>
+        <target>Geschätzter Aktivitätszeitraum</target>
+      </trans-unit>
+      <trans-unit id="auditSe03de" resname="audit.band.inferred_badge">
+        <source>audit.band.inferred_badge</source>
+        <target>geschätzt</target>
+      </trans-unit>
+      <trans-unit id="auditSe04de" resname="audit.band.inferred_help">
+        <source>audit.band.inferred_help</source>
+        <target>Kein Sitzungsnachweis: Einträge dieses Akteurs mit höchstens {minutes} Minuten Abstand. Getrennte Sitzungen können zusammenfallen, eine Sitzung kann geteilt sein.</target>
+      </trans-unit>
+      <trans-unit id="auditSe05de" resname="audit.band.continues_newer">
+        <source>audit.band.continues_newer</source>
+        <target>kann bei neueren Einträgen weitergehen</target>
+      </trans-unit>
+      <trans-unit id="auditSe06de" resname="audit.band.continues_older">
+        <source>audit.band.continues_older</source>
+        <target>kann bei älteren Einträgen weitergehen</target>
+      </trans-unit>
+      <trans-unit id="auditSe07de" resname="audit.timeline.new_one">
+        <source>audit.timeline.new_one</source>
+        <target>1 neuer Eintrag – anzeigen</target>
+      </trans-unit>
+      <trans-unit id="auditSe08de" resname="audit.timeline.new_many">
+        <source>audit.timeline.new_many</source>
+        <target>%count% neue Einträge – anzeigen</target>
+      </trans-unit>
+      <trans-unit id="auditSe09de" resname="audit.timeline.new_more">
+        <source>audit.timeline.new_more</source>
+        <target>Mehr als %count% neue Einträge – anzeigen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

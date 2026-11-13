@@ -92,7 +92,9 @@ keeps a random UUIDv4 in the attribute `_audit_session_ref` of the server-side s
 session id, it is never sent to the browser, and knowing it gives no access.
 
 - A login starts a new reference, unless the same user authenticates again in the same session
-  (password confirmation).
+  (password confirmation). The reference is set when the authentication token is created
+  (`AuthenticationTokenCreatedEvent`), so entries written while the login is handled, such as linking
+  the cookie consent, already carry it.
 - Logout ends the session and with it the reference. Impersonation keeps the admin's reference.
 - A session that was logged in before the reference existed gets one on its next request.
 - Anonymous visitors get none; the subscriber never starts a session.
@@ -134,6 +136,22 @@ newest first, 100 entries per page.
 - **Matching and context:** with a filter, a stack shows only the matching entries and says how many of
   the request's entries match. The request view shows all entries of the request and marks those that
   do not match as **Context**.
+- **Sessions and activity periods:** filtered to one actor (`actor=<id>`), the timeline groups the
+  entries into bands ([ADR 025](../02-architecture/decisions/025-audit-log-correlation-and-timeline-grouping.md)):
+  - **Session:** entries with the same `session_ref`, whatever the time between them. The band links to
+    all entries of that session.
+  - **Inferred activity period:** entries without `session_ref` that follow each other with at most
+    30 minutes in between. It is labelled *estimated* and says that it is no session evidence: separate
+    sessions may fall into one period, one session may be split. It is computed for display and never
+    stored.
+  - Request stacks stay intact inside a band; a stack counts with its first entry's session reference.
+  - A band at the top or bottom of a page says that it may continue on newer or older entries.
+  - Without an actor filter, or with `actor=none`, there are no bands: entries of different actors would
+    interleave, and entries without actor belong to nobody's session.
+- **New entries:** on the first page, the timeline asks every 60 seconds (while the tab is visible)
+  how many entries matching the filter were written after the newest one shown
+  (`/admin/audit/new-count`). When there are some it shows "n new entries – show", a link that reloads
+  the page; it never inserts entries into the open page. It counts up to 100 and then says "more than".
 - The overview shows names of changed fields, never their values. Expanding an entry loads its
   details: links to the entry's permalink (`/admin/audit/entries/{id}`), its request, the same actor,
   the object's history, the same intent and the same session; the recorded changes (previous and new

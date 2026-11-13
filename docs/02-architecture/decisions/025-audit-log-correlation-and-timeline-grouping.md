@@ -34,8 +34,10 @@ of a user. A review of the existing data showed:
 
 ### Session reference
 
-- On every successful authentication (`LoginSuccessEvent`, including remember-me) the application
-  creates a random UUIDv4 and stores it as an attribute of the server-side session. It is never the
+- On every successful authentication, including remember-me, the application creates a random
+  UUIDv4 when the authentication token is created (`AuthenticationTokenCreatedEvent`, before the
+  authenticator's success handler and `LoginSuccessEvent`), and stores it as an attribute of the
+  server-side session. It is never the
   session id, never a cookie and never sent to the client.
 - Every audit entry written in that session stores it in a new nullable, indexed column
   `session_ref`. Messenger messages carry it in a stamp next to `RequestIdStamp`.

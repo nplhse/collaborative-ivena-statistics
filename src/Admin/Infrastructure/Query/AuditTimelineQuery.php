@@ -139,6 +139,22 @@ final readonly class AuditTimelineQuery implements AuditTimelineReader
     }
 
     #[\Override]
+    public function countNewer(AuditTimelineFilter $filter, AuditTimelineCursor $since, int $limit): int
+    {
+        [$where, $params, $types] = $this->filterCondition($filter);
+        $where[] = '(a.occurred_at, a.id) > (:sinceAt, :sinceId)';
+        $params['sinceAt'] = $since->occurredAt->format('Y-m-d H:i:s');
+        $params['sinceId'] = $since->id;
+
+        // Bounded: the page only needs to know "some" or "more than $limit".
+        return (int) $this->connection->fetchOne(
+            \sprintf('SELECT COUNT(*) FROM (SELECT 1 FROM audit_log a%s LIMIT %d) n', self::where($where), $limit),
+            $params,
+            $types,
+        );
+    }
+
+    #[\Override]
     public function filterOptions(): AuditFilterOptions
     {
         $actorIds = array_map(intval(...), $this->distinct('actor_id'));
