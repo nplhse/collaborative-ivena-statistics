@@ -184,6 +184,23 @@ final class EncounterAnalyticsControllerTest extends WebTestCase
         self::assertSame('/statistics/encounter-analytics', $crawler->filter('[data-testid="stats-subnav-encounter-analytics"]')->attr('href'));
     }
 
+    public function testMyHospitalsOffersTheAnalysisOnlyOnListedHospitals(): void
+    {
+        // Administrators may open the analysis of every hospital with visits (A and B), but My Hospitals lists
+        // only the hospitals they hold a permission for (A): B gets no card, so no button.
+        $admin = $this->admin();
+        $this->hospitalGrant($this->hospitalA, $admin);
+        $this->client->loginUser($admin);
+
+        $crawler = $this->client->request(Request::METHOD_GET, '/hospitals', server: ['HTTP_Accept-Language' => 'en']);
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(
+            ['/statistics/encounter-analytics?scope=hospital&hospital='.$this->hospitalA->getId()],
+            $crawler->filter('[data-action-key="encounter_data"]')->each(static fn (Crawler $link): string => (string) $link->attr('href')),
+        );
+    }
+
     public function testReviewersGetLinksToReviewAndValidationWithThePeriod(): void
     {
         $this->encounterGrant($this->hospitalA, $this->ownerA, [EncounterGrantAction::Upload]);
