@@ -196,6 +196,31 @@ final class AppConfiguration implements ConfigurationInterface
                                 ->thenInvalid('proposal_threshold must not be higher than auto_accept_threshold. Got %s.')
                             ->end()
                         ->end()
+                        ->arrayNode('validation')
+                            ->info('Match validation (#1057): score bands of the report and the default sample size.')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->arrayNode('score_bands')
+                                    ->info('Lower bounds of the score bands, ascending; the last band reaches 1.0.')
+                                    ->floatPrototype()->min(0.0)->max(1.0)->end()
+                                    ->defaultValue([0.50, 0.70, 0.90, 0.99])
+                                    ->validate()
+                                        ->ifTrue(static function (array $bands): bool {
+                                            $sorted = $bands;
+                                            sort($sorted);
+
+                                            return [] === $bands || $sorted !== array_values($bands) || \count(array_unique($bands, \SORT_REGULAR)) !== \count($bands);
+                                        })
+                                        ->thenInvalid('Expected strictly ascending score bands, got %s.')
+                                    ->end()
+                                ->end()
+                                ->integerNode('sample_size')
+                                    ->info('Default number of items drawn per stratum and score band.')
+                                    ->defaultValue(20)
+                                    ->min(1)->max(200)
+                                ->end()
+                            ->end()
+                        ->end()
                         ->arrayNode('data_prep')
                             ->info('Version of the offline data preparation tool (ADR 025, #1051), published at /data-prep/latest.json.')
                             ->addDefaultsIfNotSet()

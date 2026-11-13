@@ -31,6 +31,7 @@ final readonly class MatchInputQuery implements MatchCandidateReaderInterface
      *
      * @return list<MatchingAllocation>
      */
+    #[\Override]
     public function allocations(int $hospitalId, \DateTimeImmutable $from, \DateTimeImmutable $to, ?int $ignoreImportId): array
     {
         /** @var list<array{id: int|string, arrival_at: string, gender: string, age: int|string, is_with_physician: bool, is_work_accident: bool}> $rows */
@@ -76,6 +77,31 @@ SQL,
         foreach ($this->allocations($hospitalId, $from, $from->modify('+1 second'), null) as $allocation) {
             if ($allocation->id === $allocationId) {
                 return $allocation;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * One visit of the hospital, or null (match validation, #1057).
+     */
+    #[\Override]
+    public function encounter(int $hospitalId, int $encounterId): ?MatchingEncounter
+    {
+        $anchorAt = $this->connection->fetchOne(
+            'SELECT COALESCE(ed_admission_at, first_assessment_contact_at) FROM encounter WHERE id = :id AND hospital_id = :hospital',
+            ['id' => $encounterId, 'hospital' => $hospitalId],
+            ['id' => Types::INTEGER, 'hospital' => Types::INTEGER],
+        );
+        if (!\is_string($anchorAt)) {
+            return null;
+        }
+
+        $at = new \DateTimeImmutable($anchorAt);
+        foreach ($this->encounters($hospitalId, $at, $at, null) as $encounter) {
+            if ($encounter->id === $encounterId) {
+                return $encounter;
             }
         }
 

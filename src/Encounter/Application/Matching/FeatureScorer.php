@@ -12,10 +12,11 @@ use App\Encounter\Domain\Enum\Sex;
  * Points per feature for one pair of allocation and visit (matcher v1, ADR 029).
  *
  * Points are base-2 logarithms of how much more often a value occurs for a true pair than for an
- * unrelated visit: +1 doubles the weight of a candidate, −1 halves it. They are set by judgement, not
- * estimated; calibration follows the match validation (#1057). Changing them changes the matcher version.
+ * unrelated visit: +1 doubles the weight of a candidate, −1 halves it. They come from {@see MatchWeights}
+ * (default: matcher v1, set by judgement, not estimated); the match validation (#1057) replays other
+ * points. Changing the production points changes the matcher version.
  *
- * | Feature | Points |
+ * | Feature | Points (v1) |
  * |---|---|
  * | time (matching anchor − IVENA arrival) | −5 … +15 min: +4; −20 … −6 or +16 … +30: +2; +31 … +45: 0; otherwise −2 |
  * | sex | equal: +2; male vs female: −4; one side diverse: 0 |
@@ -26,6 +27,11 @@ use App\Encounter\Domain\Enum\Sex;
  */
 final readonly class FeatureScorer
 {
+    public function __construct(
+        private MatchWeights $weights = new MatchWeights(),
+    ) {
+    }
+
     /**
      * @return array<string, int> points per {@see MatchFeature} value, in the order of the enum
      */
@@ -62,59 +68,57 @@ final readonly class FeatureScorer
 
     private function time(int $minutes): int
     {
-        return match (true) {
-            $minutes >= -5 && $minutes <= 15 => 4,
-            $minutes >= -20 && $minutes <= 30 => 2,
-            $minutes > 30 && $minutes <= 45 => 0,
-            default => -2,
-        };
+        return $this->weights->point(match (true) {
+            $minutes >= -5 && $minutes <= 15 => 'time.core',
+            $minutes >= -20 && $minutes <= 30 => 'time.near',
+            $minutes > 30 && $minutes <= 45 => 'time.late',
+            default => 'time.outside',
+        });
     }
 
     private function sex(string $allocationSex, Sex $encounterSex): int
     {
         $allocation = Sex::tryFrom($allocationSex);
 
-        return match (true) {
-            $allocation === $encounterSex => 2,
-            null === $allocation, Sex::Diverse === $allocation, Sex::Diverse === $encounterSex => 0,
-            default => -4,
-        };
+        return $this->weights->point(match (true) {
+            $allocation === $encounterSex => 'sex.equal',
+            null === $allocation, Sex::Diverse === $allocation, Sex::Diverse === $encounterSex => 'sex.unknown',
+            default => 'sex.different',
+        });
     }
 
     private function age(int $difference): int
     {
-        return match ($difference) {
-            0 => 2,
-            1 => 1,
-            2 => 0,
-            default => -2,
-        };
+        return $this->weights->point(match ($difference) {
+            0, 1, 2 => 'age.'.$difference,
+            default => 'age.more',
+        });
     }
 
     private function arrivalRoute(ArrivalRoute $route): int
     {
-        return match ($route) {
-            ArrivalRoute::Ems => 1,
-            ArrivalRoute::Unknown => 0,
-            ArrivalRoute::Self => -2,
-        };
+        return $this->weights->point(match ($route) {
+            ArrivalRoute::Ems => 'arrival_route.ems',
+            ArrivalRoute::Unknown => 'arrival_route.unknown',
+            ArrivalRoute::Self => 'arrival_route.self',
+        });
     }
 
     private function physician(bool $withPhysician, ?ArrivalMode $mode): int
     {
-        return match ($mode) {
-            ArrivalMode::PhysicianVehicle => $withPhysician ? 2 : -1,
-            ArrivalMode::Ambulance, ArrivalMode::PatientTransport => $withPhysician ? -1 : 0,
-            ArrivalMode::Self, ArrivalMode::Other, null => 0,
-        };
+        return $this->weights->point(match ($mode) {
+            ArrivalMode::PhysicianVehicle => $withPhysician ? 'physician.both' : 'physician.mismatch',
+            ArrivalMode::Ambulance, ArrivalMode::PatientTransport => $withPhysician ? 'physician.mismatch' : 'physician.none',
+            ArrivalMode::Self, ArrivalMode::Other, null => 'physician.none',
+        });
     }
 
     private function workAccident(bool $allocation, bool $encounter): int
     {
-        return match (true) {
-            $allocation && $encounter => 2,
-            $allocation || $encounter => -1,
-            default => 0,
-        };
+        return $this->weights->point(match (true) {
+            $allocation && $encounter => 'work_accident.both',
+            $allocation || $encounter => 'work_accident.one',
+            default => 'work_accident.neither',
+        });
     }
 }

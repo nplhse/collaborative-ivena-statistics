@@ -1,0 +1,84 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'encounter.validation.title'|trans({}, 'encounter') }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <twig:PageHeader :title="'encounter.validation.title'|trans({}, 'encounter')" :pretitle="hospital.name">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
+                { label: 'encounter.review.title', label_domain: 'encounter', translatable: true, path: path('app_encounter_review_hospital', {id: hospital.id}) },
+                { label: 'encounter.validation.title', label_domain: 'encounter', translatable: true }
+            ]" />
+        </twig:block>
+    </twig:PageHeader>
+{% endblock %}
+
+{% block page_content %}
+    <twig:Alert type="info" :message="'encounter.validation.intro'|trans({}, 'encounter')" data-test="encounter-validation-intro" />
+
+    <div class="row row-cards">
+        <div class="col-lg-4">
+            <div class="card" data-test="encounter-validation-new">
+                <div class="card-header">
+                    <h3 class="card-title">{{ 'encounter.validation.new_title'|trans({}, 'encounter') }}</h3>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form) }}
+                    {{ form_errors(form) }}
+                    {{ form_row(form.from) }}
+                    {{ form_row(form.to, {help: 'encounter.validation.form.to_help'|trans({days: max_days}, 'encounter')}) }}
+                    {{ form_row(form.sample_size) }}
+                    {{ form_row(form.draw, {attr: {class: 'btn btn-primary'}}) }}
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card" data-test="encounter-validation-samples">
+                <div class="card-header">
+                    <h3 class="card-title">{{ 'encounter.validation.samples_title'|trans({}, 'encounter') }}</h3>
+                </div>
+                {% if samples is empty %}
+                    <div class="card-body">
+                        <twig:EmptyState :title="'encounter.validation.no_samples'|trans({}, 'encounter')" icon="tabler:clipboard-check" />
+                    </div>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table card-table table-vcenter">
+                            <thead>
+                                <tr>
+                                    <th>{{ 'encounter.validation.column.period'|trans({}, 'encounter') }}</th>
+                                    <th>{{ 'encounter.validation.column.version'|trans({}, 'encounter') }}</th>
+                                    <th>{{ 'encounter.validation.column.drawn'|trans({}, 'encounter') }}</th>
+                                    <th class="w-1"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sample in samples %}
+                                    <tr data-test="encounter-validation-sample">
+                                        <td>{{ sample.periodFrom|date('d.m.Y') }} – {{ sample.periodTo|date('d.m.Y') }}</td>
+                                        <td>{{ sample.matcherVersion }}</td>
+                                        <td class="text-secondary">{{ sample.createdAt|date('d.m.Y H:i') }}{% if sample.createdBy %} · {{ sample.createdBy.username }}{% endif %}</td>
+                                        <td><a class="btn btn-sm" href="{{ path('app_encounter_validation_sample', {id: hospital.id, sampleId: sample.id}) }}">{{ 'encounter.validation.open_sample'|trans({}, 'encounter') }}</a></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% for version, report in reports %}
+        <div class="card mt-3" data-test="encounter-validation-combined" data-version="{{ version }}">
+            <div class="card-header">
+                <h3 class="card-title">{{ 'encounter.validation.combined_title'|trans({version: version}, 'encounter') }}</h3>
+            </div>
+            <div class="card-body border-bottom small text-secondary">{{ 'encounter.validation.combined_note'|trans({}, 'encounter') }}</div>
+            {{ include('@Encounter/validation/_report.html.twig', {report: report}) }}
+        </div>
+    {% endfor %}
+{% endblock %}

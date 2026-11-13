@@ -2105,6 +2105,334 @@
         <source>encounter.overview_page.index_none</source>
         <target>You may not see aggregates of any hospital. This needs an encounter grant and the hospital permission "Statistics".</target>
       </trans-unit>
+      <trans-unit id="Enc1775A938" resname="encounter.validation.title">
+        <source>encounter.validation.title</source>
+        <target>Match validation</target>
+      </trans-unit>
+      <trans-unit id="EncC6E0F574" resname="encounter.validation.intro">
+        <source>encounter.validation.intro</source>
+        <target>Draw stratified samples of automatic links, proposals and cases without link, judge each case and read the share of correct links per score band. Automatic links stay effective while they are validated; a pair you mark as wrong is rejected.</target>
+      </trans-unit>
+      <trans-unit id="Enc04FCE38B" resname="encounter.validation.new_title">
+        <source>encounter.validation.new_title</source>
+        <target>New sample</target>
+      </trans-unit>
+      <trans-unit id="Enc0EB8F655" resname="encounter.validation.form.from">
+        <source>encounter.validation.form.from</source>
+        <target>From</target>
+      </trans-unit>
+      <trans-unit id="EncDFBA809C" resname="encounter.validation.form.to">
+        <source>encounter.validation.form.to</source>
+        <target>To</target>
+      </trans-unit>
+      <trans-unit id="EncF1D52D93" resname="encounter.validation.form.to_help">
+        <source>encounter.validation.form.to_help</source>
+        <target>At most {days} days; allocations by IVENA arrival, visits by matching anchor.</target>
+      </trans-unit>
+      <trans-unit id="Enc78822CC4" resname="encounter.validation.form.sample_size">
+        <source>encounter.validation.form.sample_size</source>
+        <target>Cases per stratum and band</target>
+      </trans-unit>
+      <trans-unit id="EncBDBF72F8" resname="encounter.validation.form.sample_size_help">
+        <source>encounter.validation.form.sample_size_help</source>
+        <target>Drawn at random from automatic links and proposals (per score band), allocations without link and EMS or unknown visits without link.</target>
+      </trans-unit>
+      <trans-unit id="EncCCB8523D" resname="encounter.validation.form.draw">
+        <source>encounter.validation.form.draw</source>
+        <target>Draw sample</target>
+      </trans-unit>
+      <trans-unit id="Enc05D87F0B" resname="encounter.validation.samples_title">
+        <source>encounter.validation.samples_title</source>
+        <target>Samples</target>
+      </trans-unit>
+      <trans-unit id="EncE407B175" resname="encounter.validation.no_samples">
+        <source>encounter.validation.no_samples</source>
+        <target>No sample drawn yet</target>
+      </trans-unit>
+      <trans-unit id="Enc0931BB21" resname="encounter.validation.column.period">
+        <source>encounter.validation.column.period</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="EncC39A08DD" resname="encounter.validation.column.version">
+        <source>encounter.validation.column.version</source>
+        <target>Matcher version</target>
+      </trans-unit>
+      <trans-unit id="Enc88B6ADF0" resname="encounter.validation.column.drawn">
+        <source>encounter.validation.column.drawn</source>
+        <target>Drawn</target>
+      </trans-unit>
+      <trans-unit id="Enc4B3F4405" resname="encounter.validation.column.case">
+        <source>encounter.validation.column.case</source>
+        <target>Case</target>
+      </trans-unit>
+      <trans-unit id="Enc788829F9" resname="encounter.validation.column.verdict">
+        <source>encounter.validation.column.verdict</source>
+        <target>Verdict</target>
+      </trans-unit>
+      <trans-unit id="EncA881D831" resname="encounter.validation.open_sample">
+        <source>encounter.validation.open_sample</source>
+        <target>Open</target>
+      </trans-unit>
+      <trans-unit id="EncE606C301" resname="encounter.validation.combined_title">
+        <source>encounter.validation.combined_title</source>
+        <target>All samples, matcher {version}</target>
+      </trans-unit>
+      <trans-unit id="Enc49B877F7" resname="encounter.validation.combined_note">
+        <source>encounter.validation.combined_note</source>
+        <target>Verdicts of every sample drawn with this matcher version, added up. Samples can overlap, so no population and no weighted estimate.</target>
+      </trans-unit>
+      <trans-unit id="Enc192EE431" resname="encounter.validation.sample_title">
+        <source>encounter.validation.sample_title</source>
+        <target>Sample {period}</target>
+      </trans-unit>
+      <trans-unit id="Enc9669987A" resname="encounter.validation.sample_meta">
+        <source>encounter.validation.sample_meta</source>
+        <target>Matcher {version} · up to {size} cases per stratum and band · seed {seed}</target>
+      </trans-unit>
+      <trans-unit id="Enc773FB980" resname="encounter.validation.continue">
+        <source>encounter.validation.continue</source>
+        <target>Continue validation</target>
+      </trans-unit>
+      <trans-unit id="EncDAA275BA" resname="encounter.validation.report_title">
+        <source>encounter.validation.report_title</source>
+        <target>Result per stratum and score band</target>
+      </trans-unit>
+      <trans-unit id="Enc1C36F473" resname="encounter.validation.report_note">
+        <source>encounter.validation.report_note</source>
+        <target>Shares are observations on this sample with a 95 % interval (Wilson). They calibrate the score; until then the score stays an agreement, not a hit probability.</target>
+      </trans-unit>
+      <trans-unit id="EncE86657BB" resname="encounter.validation.items_title">
+        <source>encounter.validation.items_title</source>
+        <target>{count, plural, one {# case} other {# cases}}</target>
+      </trans-unit>
+      <trans-unit id="EncEFCB09DD" resname="encounter.validation.no_items">
+        <source>encounter.validation.no_items</source>
+        <target>The period has no cases to sample</target>
+      </trans-unit>
+      <trans-unit id="Enc3E428C48" resname="encounter.validation.allocation_ref">
+        <source>encounter.validation.allocation_ref</source>
+        <target>Allocation #{id}</target>
+      </trans-unit>
+      <trans-unit id="EncD81AC11E" resname="encounter.validation.verdict_open">
+        <source>encounter.validation.verdict_open</source>
+        <target>open</target>
+      </trans-unit>
+      <trans-unit id="Enc6DC6B6E2" resname="encounter.validation.report.stratum">
+        <source>encounter.validation.report.stratum</source>
+        <target>Stratum</target>
+      </trans-unit>
+      <trans-unit id="EncAEC373E0" resname="encounter.validation.report.band">
+        <source>encounter.validation.report.band</source>
+        <target>Score band</target>
+      </trans-unit>
+      <trans-unit id="Enc5D514C8F" resname="encounter.validation.report.sampled">
+        <source>encounter.validation.report.sampled</source>
+        <target>Sampled</target>
+      </trans-unit>
+      <trans-unit id="Enc27D80B70" resname="encounter.validation.report.open">
+        <source>encounter.validation.report.open</source>
+        <target>Open</target>
+      </trans-unit>
+      <trans-unit id="EncFCE3E6EC" resname="encounter.validation.report.positive">
+        <source>encounter.validation.report.positive</source>
+        <target>Correct / missed</target>
+      </trans-unit>
+      <trans-unit id="Enc32F9B7C0" resname="encounter.validation.report.negative">
+        <source>encounter.validation.report.negative</source>
+        <target>Wrong / no partner</target>
+      </trans-unit>
+      <trans-unit id="Enc368E4044" resname="encounter.validation.report.unclear">
+        <source>encounter.validation.report.unclear</source>
+        <target>Unclear</target>
+      </trans-unit>
+      <trans-unit id="Enc12F08D1F" resname="encounter.validation.report.share">
+        <source>encounter.validation.report.share</source>
+        <target>Share (95 %)</target>
+      </trans-unit>
+      <trans-unit id="Enc609F2DD4" resname="encounter.validation.report.weighted_automatic">
+        <source>encounter.validation.report.weighted_automatic</source>
+        <target>Automatic links correct, weighted by band</target>
+      </trans-unit>
+      <trans-unit id="Enc2EE0FF9A" resname="encounter.validation.report.weighted_proposal">
+        <source>encounter.validation.report.weighted_proposal</source>
+        <target>Proposals correct, weighted by band</target>
+      </trans-unit>
+      <trans-unit id="EncB2EA5F91" resname="encounter.validation.report.weighted_missing">
+        <source>encounter.validation.report.weighted_missing</source>
+        <target>not yet, every band with cases needs a verdict</target>
+      </trans-unit>
+      <trans-unit id="Enc3A340053" resname="encounter.validation.stratum.automatic">
+        <source>encounter.validation.stratum.automatic</source>
+        <target>Automatic link</target>
+      </trans-unit>
+      <trans-unit id="EncD6C2B66B" resname="encounter.validation.stratum.proposal">
+        <source>encounter.validation.stratum.proposal</source>
+        <target>Proposal</target>
+      </trans-unit>
+      <trans-unit id="EncACD9FC7D" resname="encounter.validation.stratum.unlinked_allocation">
+        <source>encounter.validation.stratum.unlinked_allocation</source>
+        <target>Allocation without link</target>
+      </trans-unit>
+      <trans-unit id="EncDDDF845F" resname="encounter.validation.stratum.unlinked_visit">
+        <source>encounter.validation.stratum.unlinked_visit</source>
+        <target>Visit without link</target>
+      </trans-unit>
+      <trans-unit id="EncB56578B8" resname="encounter.validation.verdict.correct">
+        <source>encounter.validation.verdict.correct</source>
+        <target>Correct</target>
+      </trans-unit>
+      <trans-unit id="Enc6829744F" resname="encounter.validation.verdict.wrong">
+        <source>encounter.validation.verdict.wrong</source>
+        <target>Wrong</target>
+      </trans-unit>
+      <trans-unit id="Enc4CE5C339" resname="encounter.validation.verdict.unclear">
+        <source>encounter.validation.verdict.unclear</source>
+        <target>Unclear</target>
+      </trans-unit>
+      <trans-unit id="Enc5B9C1139" resname="encounter.validation.verdict.missed">
+        <source>encounter.validation.verdict.missed</source>
+        <target>Partner missed</target>
+      </trans-unit>
+      <trans-unit id="Enc3B100F7A" resname="encounter.validation.verdict.no_partner">
+        <source>encounter.validation.verdict.no_partner</source>
+        <target>No partner</target>
+      </trans-unit>
+      <trans-unit id="Enc9D2A6CC1" resname="encounter.validation.item_title">
+        <source>encounter.validation.item_title</source>
+        <target>Case {position}: {stratum}</target>
+      </trans-unit>
+      <trans-unit id="Enc921B2BF3" resname="encounter.validation.item.open_review">
+        <source>encounter.validation.item.open_review</source>
+        <target>Open in review</target>
+      </trans-unit>
+      <trans-unit id="EncADE5A4FD" resname="encounter.validation.item.sampled_pair">
+        <source>encounter.validation.item.sampled_pair</source>
+        <target>Sampled as {status}, agreement {score} (band {band}), pass {pass}, matcher {version}.</target>
+      </trans-unit>
+      <trans-unit id="Enc42B97184" resname="encounter.validation.item.sampled_unlinked_allocation">
+        <source>encounter.validation.item.sampled_unlinked_allocation</source>
+        <target>Sampled as allocation without link and without proposal.</target>
+      </trans-unit>
+      <trans-unit id="EncB028546F" resname="encounter.validation.item.sampled_unlinked_visit">
+        <source>encounter.validation.item.sampled_unlinked_visit</source>
+        <target>Sampled as EMS or unknown visit without link and without proposal.</target>
+      </trans-unit>
+      <trans-unit id="Enc1CBC4C6A" resname="encounter.validation.item.current_verdict">
+        <source>encounter.validation.item.current_verdict</source>
+        <target>Verdict: {verdict} ({user}, {at})</target>
+      </trans-unit>
+      <trans-unit id="EncE485AE5D" resname="encounter.validation.item.gone">
+        <source>encounter.validation.item.gone</source>
+        <target>The allocation or visit no longer exists</target>
+      </trans-unit>
+      <trans-unit id="Enc6FB526C4" resname="encounter.validation.item.sampled_visit">
+        <source>encounter.validation.item.sampled_visit</source>
+        <target>Sampled pair</target>
+      </trans-unit>
+      <trans-unit id="Enc2A824B5B" resname="encounter.validation.item.nearby_title">
+        <source>encounter.validation.item.nearby_title</source>
+        <target>{count, plural, =0 {No allocation in reach} one {# allocation in reach} other {# allocations in reach}}</target>
+      </trans-unit>
+      <trans-unit id="Enc3C858E2C" resname="encounter.validation.item.nearby_none">
+        <source>encounter.validation.item.nearby_none</source>
+        <target>No allocation whose review window contains this visit</target>
+      </trans-unit>
+      <trans-unit id="Enc18BBE95D" resname="encounter.validation.item.difference">
+        <source>encounter.validation.item.difference</source>
+        <target>Difference</target>
+      </trans-unit>
+      <trans-unit id="Enc4F0A6DD0" resname="encounter.validation.item.points">
+        <source>encounter.validation.item.points</source>
+        <target>Points (alone)</target>
+      </trans-unit>
+      <trans-unit id="EncF523307D" resname="encounter.validation.item.verdict_title">
+        <source>encounter.validation.item.verdict_title</source>
+        <target>Verdict</target>
+      </trans-unit>
+      <trans-unit id="Enc48903BA3" resname="encounter.validation.item.question_automatic">
+        <source>encounter.validation.item.question_automatic</source>
+        <target>Do allocation and visit belong together?</target>
+      </trans-unit>
+      <trans-unit id="EncC2A565CD" resname="encounter.validation.item.question_proposal">
+        <source>encounter.validation.item.question_proposal</source>
+        <target>Do allocation and visit belong together?</target>
+      </trans-unit>
+      <trans-unit id="Enc0DBCF299" resname="encounter.validation.item.question_unlinked_allocation">
+        <source>encounter.validation.item.question_unlinked_allocation</source>
+        <target>Is one of the visits the patient of this allocation?</target>
+      </trans-unit>
+      <trans-unit id="Enc0C109489" resname="encounter.validation.item.question_unlinked_visit">
+        <source>encounter.validation.item.question_unlinked_visit</source>
+        <target>Does one of the allocations belong to this visit?</target>
+      </trans-unit>
+      <trans-unit id="EncA2AAAEAE" resname="encounter.validation.item.wrong_note">
+        <source>encounter.validation.item.wrong_note</source>
+        <target>"Wrong" also rejects the pair, as in the review: an automatic link stops being effective and the pair is never proposed again.</target>
+      </trans-unit>
+      <trans-unit id="Enc65C7A572" resname="encounter.validation.item.record">
+        <source>encounter.validation.item.record</source>
+        <target>Save verdict</target>
+      </trans-unit>
+      <trans-unit id="Enc30770985" resname="encounter.validation.flash.drawn">
+        <source>encounter.validation.flash.drawn</source>
+        <target>Sample drawn.</target>
+      </trans-unit>
+      <trans-unit id="EncABF5D40F" resname="encounter.validation.flash.recorded">
+        <source>encounter.validation.flash.recorded</source>
+        <target>Verdict saved.</target>
+      </trans-unit>
+      <trans-unit id="Enc98AD38EE" resname="encounter.validation.flash.recorded_rejected">
+        <source>encounter.validation.flash.recorded_rejected</source>
+        <target>Verdict saved; the pair was rejected.</target>
+      </trans-unit>
+      <trans-unit id="EncD5165BD6" resname="encounter.validation.flash.sample_done">
+        <source>encounter.validation.flash.sample_done</source>
+        <target>Every case of the sample has a verdict.</target>
+      </trans-unit>
+      <trans-unit id="EncAF2E9C50" resname="encounter.validation.summary.share_correct">
+        <source>encounter.validation.summary.share_correct</source>
+        <target>share correct</target>
+      </trans-unit>
+      <trans-unit id="Enc1B67B40F" resname="encounter.validation.summary.share_missed">
+        <source>encounter.validation.summary.share_missed</source>
+        <target>share missed</target>
+      </trans-unit>
+      <trans-unit id="Enc9F65F0DB" resname="encounter.validation.summary.unlinked">
+        <source>encounter.validation.summary.unlinked</source>
+        <target>Without link</target>
+      </trans-unit>
+      <trans-unit id="EncFC1DB77A" resname="encounter.validation.summary.title_unlinked_allocation">
+        <source>encounter.validation.summary.title_unlinked_allocation</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="Enc77C74993" resname="encounter.validation.summary.title_unlinked_visit">
+        <source>encounter.validation.summary.title_unlinked_visit</source>
+        <target>Visits</target>
+      </trans-unit>
+      <trans-unit id="EncD6EC37C7" resname="encounter.validation.summary.band">
+        <source>encounter.validation.summary.band</source>
+        <target>Band {band}</target>
+      </trans-unit>
+      <trans-unit id="Enc1E737947" resname="encounter.validation.summary.weighted">
+        <source>encounter.validation.summary.weighted</source>
+        <target>Weighted over all bands</target>
+      </trans-unit>
+      <trans-unit id="Enc66A30216" resname="encounter.validation.summary.counts_pair">
+        <source>encounter.validation.summary.counts_pair</source>
+        <target>{positive} correct · {negative} wrong{unclear, plural, =0 {} other { · # unclear}}</target>
+      </trans-unit>
+      <trans-unit id="EncE5F618D6" resname="encounter.validation.summary.counts_unlinked">
+        <source>encounter.validation.summary.counts_unlinked</source>
+        <target>{positive} missed · {negative} no partner{unclear, plural, =0 {} other { · # unclear}}</target>
+      </trans-unit>
+      <trans-unit id="Enc23474CD3" resname="encounter.validation.summary.progress">
+        <source>encounter.validation.summary.progress</source>
+        <target>{judged} of {sampled} judged</target>
+      </trans-unit>
+      <trans-unit id="EncEB46EFFF" resname="encounter.validation.summary.population">
+        <source>encounter.validation.summary.population</source>
+        <target>{population} in period</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

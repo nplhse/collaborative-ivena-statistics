@@ -177,6 +177,23 @@ final class AppConfigurationTest extends TestCase
         self::assertSame(30, $processed['encounter']['source_file_retention_days']);
     }
 
+    public function testEncounterValidationDefaults(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig()]);
+
+        self::assertSame(['score_bands' => [0.50, 0.70, 0.90, 0.99], 'sample_size' => 20], $processed['encounter']['validation']);
+    }
+
+    public function testEncounterValidationScoreBandsMustAscend(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        new Processor()->processConfiguration(new AppConfiguration(), [[
+            ...$this->minimalConfig(),
+            'encounter' => ['validation' => ['score_bands' => [0.90, 0.50]]],
+        ]]);
+    }
+
     #[DataProvider('invalidEncounterSourceFileRetentionDays')]
     public function testEncounterSourceFileRetentionMustBeAPositiveInteger(mixed $days): void
     {

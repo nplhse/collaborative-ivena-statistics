@@ -55,6 +55,8 @@ final class AppExtension extends Extension
         $container->setParameter('app.encounter.matching.proposal_threshold', $matchingConfig['proposal_threshold']);
         $container->setParameter('app.encounter.matching.pass1', $matchingConfig['pass1']);
         $container->setParameter('app.encounter.matching.pass2', $matchingConfig['pass2']);
+        $container->setParameter('app.encounter.validation.score_bands', $config['encounter']['validation']['score_bands']);
+        $container->setParameter('app.encounter.validation.sample_size', $config['encounter']['validation']['sample_size']);
         $dataPrepConfig = $config['encounter']['data_prep'];
         $container->setParameter('app.encounter.data_prep.version', $dataPrepConfig['version']);
         $container->setParameter('app.encounter.data_prep.min_version', $dataPrepConfig['min_version']);

@@ -18,6 +18,9 @@
             <a class="btn" href="{{ path('app_encounter_review_hospital', {id: hospital.id}|merge(context.period.query())) }}">
                 <twig:ux:icon name="tabler:list-check" class="w-3 h-3 me-1" /> {{ 'encounter.review.overview.worklist'|trans({}, 'encounter') }}
             </a>
+            <a class="btn" href="{{ path('app_encounter_validation', {id: hospital.id}|merge(context.period.query())) }}" data-test="encounter-review-validation-link">
+                <twig:ux:icon name="tabler:clipboard-check" class="w-3 h-3 me-1" /> {{ 'encounter.validation.title'|trans({}, 'encounter') }}
+            </a>
             <twig:FilterDrawerTrigger drawerId="encounter-review-filters" />
         </twig:block>
     </twig:PageHeader>
