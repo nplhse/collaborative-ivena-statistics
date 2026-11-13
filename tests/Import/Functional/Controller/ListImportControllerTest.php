@@ -74,6 +74,19 @@ final class ListImportControllerTest extends WebTestCase
         self::assertCount(0, $crawler->filter('.empty-action a[href="/import/new"]'));
     }
 
+    public function testTypeAndStatusBadgesAreGermanForAGermanUser(): void
+    {
+        $client = self::createClient();
+        [$owner, $hospital, $createdBy] = $this->seedBaseActors();
+        $owner->setLocale('de');
+        $this->createImportForList('Failed import', $hospital, $createdBy, ['status' => ImportStatus::FAILED]);
+
+        $crawler = $this->requestAsUser($client, $owner, '/import');
+
+        $badges = $crawler->filter('table tbody tr')->first()->filter('.status')->each(static fn ($badge): string => trim($badge->text()));
+        self::assertSame(['Zuweisung', 'Fehlgeschlagen'], $badges);
+    }
+
     public function testTableWithResultsIsShown(): void
     {
         $client = self::createClient();

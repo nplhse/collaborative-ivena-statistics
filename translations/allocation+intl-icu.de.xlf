@@ -1425,6 +1425,42 @@
         <source>my_hospitals.month.state.no_allocations</source>
         <target>Von einem Import abgedeckt, aber ohne Zuweisungen</target>
       </trans-unit>
+      <trans-unit id="hospBadgeDeLocUrban" resname="hospital.badge.location.Urban">
+        <source>hospital.badge.location.Urban</source>
+        <target>Städtisch</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeLocMixed" resname="hospital.badge.location.Mixed">
+        <source>hospital.badge.location.Mixed</source>
+        <target>Gemischt</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeLocRural" resname="hospital.badge.location.Rural">
+        <source>hospital.badge.location.Rural</source>
+        <target>Ländlich</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeTierBasic" resname="hospital.badge.tier.Basic">
+        <source>hospital.badge.tier.Basic</source>
+        <target>Basis</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeTierExt" resname="hospital.badge.tier.Extended">
+        <source>hospital.badge.tier.Extended</source>
+        <target>Erweitert</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeTierFull" resname="hospital.badge.tier.Full">
+        <source>hospital.badge.tier.Full</source>
+        <target>Umfassend</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeSizeSmall" resname="hospital.badge.size.Small">
+        <source>hospital.badge.size.Small</source>
+        <target>Klein</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeSizeMedium" resname="hospital.badge.size.Medium">
+        <source>hospital.badge.size.Medium</source>
+        <target>Mittel</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeSizeLarge" resname="hospital.badge.size.Large">
+        <source>hospital.badge.size.Large</source>
+        <target>Groß</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

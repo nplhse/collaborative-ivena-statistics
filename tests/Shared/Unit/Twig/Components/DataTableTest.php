@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\UX\Pagination\Test\PaginatorFactory;
 
 final class DataTableTest extends TestCase
@@ -345,7 +346,7 @@ final class DataTableTest extends TestCase
         ])));
         self::assertSame(12, $table->badgeNumber(['beds' => 12], $beds));
         self::assertNull($table->badgeNumber(['beds' => 12], DataTableColumn::fromArray(['key' => 'size'])));
-        self::assertSame('Urban', $table->badgeView(['location' => 'Urban'], DataTableColumn::fromArray([
+        self::assertEquals(new TranslatableMessage('hospital.badge.location.Urban', domain: 'allocation'), $table->badgeView(['location' => 'Urban'], DataTableColumn::fromArray([
             'key' => 'location',
             'badgePalette' => 'hospital_location',
         ]))->label);

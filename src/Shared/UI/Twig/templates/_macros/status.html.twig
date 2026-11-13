@@ -7,7 +7,7 @@
         {% else %}
             {{ ux_icon(view.icon ?? 'tabler:circle', {width: 12, height: 12}) }}
         {% endif %}
-        {{ view.label }}
+        {{ view.label|trans }}
     </span>
 {% endmacro %}
 
