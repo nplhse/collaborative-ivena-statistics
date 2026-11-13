@@ -2397,6 +2397,134 @@
         <source>admin.import_batch_run_item.entity.plural</source>
         <target>Import batch run items</target>
       </trans-unit>
+      <trans-unit id="admCrudFieldUser" resname="admin.field.user">
+        <source>admin.field.user</source>
+        <target>User</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentFieldSubjectId" resname="admin.cookie_consent.field.subject_id">
+        <source>admin.cookie_consent.field.subject_id</source>
+        <target>Subject ID</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentFieldVersion" resname="admin.cookie_consent.field.version">
+        <source>admin.cookie_consent.field.version</source>
+        <target>Version</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentFieldMode" resname="admin.cookie_consent.field.mode">
+        <source>admin.cookie_consent.field.mode</source>
+        <target>Mode</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentFieldDecidedAt" resname="admin.cookie_consent.field.decided_at">
+        <source>admin.cookie_consent.field.decided_at</source>
+        <target>Decided at</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentFieldModeHelp" resname="admin.cookie_consent.field.mode_help">
+        <source>admin.cookie_consent.field.mode_help</source>
+        <target>Legend: shield = essential only, chart = analytics.</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentPageTitleDetail" resname="admin.cookie_consent.page_title.detail">
+        <source>admin.cookie_consent.page_title.detail</source>
+        <target>Cookie consent detail</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchFieldReportingPeriod" resname="admin.monthly_reminder_dispatch.field.reporting_period">
+        <source>admin.monthly_reminder_dispatch.field.reporting_period</source>
+        <target>Reporting period</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchFieldRecipient" resname="admin.monthly_reminder_dispatch.field.recipient">
+        <source>admin.monthly_reminder_dispatch.field.recipient</source>
+        <target>Recipient</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchFieldQueuedAt" resname="admin.monthly_reminder_dispatch.field.queued_at">
+        <source>admin.monthly_reminder_dispatch.field.queued_at</source>
+        <target>Queued at</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchFieldDeliveredAt" resname="admin.monthly_reminder_dispatch.field.delivered_at">
+        <source>admin.monthly_reminder_dispatch.field.delivered_at</source>
+        <target>Delivered at</target>
+      </trans-unit>
+      <trans-unit id="admCrudFieldLocale" resname="admin.field.locale">
+        <source>admin.field.locale</source>
+        <target>Locale</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserFieldOwnedHospitals" resname="admin.user.field.owned_hospitals">
+        <source>admin.user.field.owned_hospitals</source>
+        <target>Owned hospitals</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserFieldPasswordHelp" resname="admin.user.field.password_help">
+        <source>admin.user.field.password_help</source>
+        <target>On edit leave empty to keep the current password.</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserOnboardingStepFieldStep" resname="admin.user_onboarding_step.field.step">
+        <source>admin.user_onboarding_step.field.step</source>
+        <target>Step</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserOnboardingStepFieldCompletedAt" resname="admin.user_onboarding_step.field.completed_at">
+        <source>admin.user_onboarding_step.field.completed_at</source>
+        <target>Completed at</target>
+      </trans-unit>
+      <trans-unit id="admCrudSavedExplorerViewFieldConfigJson" resname="admin.saved_explorer_view.field.config_json">
+        <source>admin.saved_explorer_view.field.config_json</source>
+        <target>Config JSON</target>
+      </trans-unit>
+      <trans-unit id="admCrudMediaFieldWidth" resname="admin.media.field.width">
+        <source>admin.media.field.width</source>
+        <target>Width</target>
+      </trans-unit>
+      <trans-unit id="admCrudMediaFieldHeight" resname="admin.media.field.height">
+        <source>admin.media.field.height</source>
+        <target>Height</target>
+      </trans-unit>
+      <trans-unit id="admCrudFeedbackPageTitleIndex" resname="admin.feedback.page_title.index">
+        <source>admin.feedback.page_title.index</source>
+        <target>Feedback — {open} open · {quarantined} in quarantine</target>
+      </trans-unit>
+      <trans-unit id="admCrudFeedbackEntitySingular" resname="admin.feedback.entity.singular">
+        <source>admin.feedback.entity.singular</source>
+        <target>Feedback</target>
+      </trans-unit>
+      <trans-unit id="admCrudFeedbackEntityPlural" resname="admin.feedback.entity.plural">
+        <source>admin.feedback.entity.plural</source>
+        <target>Feedback</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentEntitySingular" resname="admin.cookie_consent.entity.singular">
+        <source>admin.cookie_consent.entity.singular</source>
+        <target>Cookie consent</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentEntityPlural" resname="admin.cookie_consent.entity.plural">
+        <source>admin.cookie_consent.entity.plural</source>
+        <target>Cookie consents</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchEntitySingular" resname="admin.monthly_reminder_dispatch.entity.singular">
+        <source>admin.monthly_reminder_dispatch.entity.singular</source>
+        <target>Monthly reminder dispatch</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchEntityPlural" resname="admin.monthly_reminder_dispatch.entity.plural">
+        <source>admin.monthly_reminder_dispatch.entity.plural</source>
+        <target>Monthly reminder dispatches</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserEntitySingular" resname="admin.user.entity.singular">
+        <source>admin.user.entity.singular</source>
+        <target>User</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserEntityPlural" resname="admin.user.entity.plural">
+        <source>admin.user.entity.plural</source>
+        <target>Users</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserOnboardingStepEntitySingular" resname="admin.user_onboarding_step.entity.singular">
+        <source>admin.user_onboarding_step.entity.singular</source>
+        <target>User onboarding step</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserOnboardingStepEntityPlural" resname="admin.user_onboarding_step.entity.plural">
+        <source>admin.user_onboarding_step.entity.plural</source>
+        <target>User onboarding steps</target>
+      </trans-unit>
+      <trans-unit id="admCrudSavedExplorerViewEntitySingular" resname="admin.saved_explorer_view.entity.singular">
+        <source>admin.saved_explorer_view.entity.singular</source>
+        <target>Saved explorer view</target>
+      </trans-unit>
+      <trans-unit id="admCrudSavedExplorerViewEntityPlural" resname="admin.saved_explorer_view.entity.plural">
+        <source>admin.saved_explorer_view.entity.plural</source>
+        <target>Saved explorer views</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

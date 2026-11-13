@@ -88,8 +88,8 @@ final class MediaCrudController extends AbstractCrudController
         yield TextField::new('filename', 'label.filename')->onlyOnDetail();
         yield TextField::new('mimeType', 'label.mime_type')->onlyOnDetail();
         yield IntegerField::new('size', 'label.file_size')->onlyOnDetail();
-        yield IntegerField::new('width', 'label.width')->onlyOnDetail();
-        yield IntegerField::new('height', 'label.height')->onlyOnDetail();
+        yield IntegerField::new('width', new TranslatableMessage('admin.media.field.width', domain: 'admin'))->onlyOnDetail();
+        yield IntegerField::new('height', new TranslatableMessage('admin.media.field.height', domain: 'admin'))->onlyOnDetail();
         yield ChoiceField::new('type', new TranslatableMessage('label.media_type', domain: 'content'))
             ->setChoices($this->mediaTypeChoices())
             ->renderAsBadges()

@@ -16,6 +16,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @extends AbstractCrudController<UserOnboardingStep>
@@ -33,8 +34,8 @@ final class UserOnboardingStepCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('User onboarding step')
-            ->setEntityLabelInPlural('User onboarding steps')
+            ->setEntityLabelInSingular(new TranslatableMessage('admin.user_onboarding_step.entity.singular', domain: 'admin'))
+            ->setEntityLabelInPlural(new TranslatableMessage('admin.user_onboarding_step.entity.plural', domain: 'admin'))
             ->setSearchFields(['user.username', 'user.email'])
             ->setDefaultSort(['completedAt' => 'DESC']);
     }
@@ -51,7 +52,7 @@ final class UserOnboardingStepCrudController extends AbstractCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(EntityFilter::new('user', 'User'));
+            ->add(EntityFilter::new('user', new TranslatableMessage('admin.field.user', domain: 'admin')));
     }
 
     #[\Override]
@@ -59,10 +60,10 @@ final class UserOnboardingStepCrudController extends AbstractCrudController
     {
         yield IdField::new('id')
             ->onlyOnDetail();
-        yield AssociationField::new('user', 'User');
-        yield ChoiceField::new('stepKey', 'Step')
+        yield AssociationField::new('user', new TranslatableMessage('admin.field.user', domain: 'admin'));
+        yield ChoiceField::new('stepKey', new TranslatableMessage('admin.user_onboarding_step.field.step', domain: 'admin'))
             ->renderAsBadges();
-        yield DateTimeField::new('completedAt', 'Completed at')
+        yield DateTimeField::new('completedAt', new TranslatableMessage('admin.user_onboarding_step.field.completed_at', domain: 'admin'))
             ->setFormat('dd.MM.yyyy HH:mm');
     }
 }
