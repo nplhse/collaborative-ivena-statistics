@@ -95,7 +95,7 @@ change each other.
 
 | Classification | Meaning |
 |---|---|
-| `normal` | Regular feedback: default admin list, open count, dashboard and menu badge, notifications |
+| `normal` | Regular feedback: default admin list, open count, dashboard tile and menu group badge, notifications |
 | `quarantined` | Suspected spam: left out of the default list and every count except the quarantine count |
 
 Stored with the classification (table `feedback`):
@@ -117,16 +117,23 @@ Releasing sends no notification.
 Both views require `ROLE_ADMIN`. Changes are POST actions with a CSRF token; none of them sends a
 notification.
 
+In the admin menu both views sit in one **Feedback** group with the entries **Feedback Inbox** and
+**Quarantine**. While the group is collapsed, its badge shows the open normal entries
+(`FeedbackRepository::countOpen()`). Once it is open, that badge is hidden (CSS class
+`ea-sidebar-link-summary-badge` in `assets/styles/admin-kpi.css`) and each entry shows its own count:
+the inbox the open normal entries, the quarantine the number in quarantine
+(`FeedbackRepository::countQuarantined()`) in another colour (`warning`). Each badge is hidden at 0.
+
 - **Feedback** (`FeedbackCrudController`, `/admin/feedback`): normal entries only. The page title shows
-  the open normal entries and the number in quarantine; the dashboard tile and the menu badge show the
-  open normal entries (`FeedbackRepository::countOpen()`). Opening a quarantined entry here redirects
+  the open normal entries and the number in quarantine; the dashboard tile shows the open normal
+  entries (`FeedbackRepository::countOpen()`). Opening a quarantined entry here redirects
   to the quarantine view.
   - **Move to quarantine** (index and detail, with confirmation): for spam that got through. The reason
     is `manual`, there is no score, the reviewer is stored, and the entry counts as reported for the
     weekly summary.
-- **Feedback quarantine** (`FeedbackQuarantineCrudController`, `/admin/feedback-quarantine`), its own
-  menu item with only the count as badge (`FeedbackRepository::countQuarantined()`). Nothing of the
-  quarantine appears on the dashboard.
+- **Feedback quarantine** (`FeedbackQuarantineCrudController`, `/admin/feedback-quarantine`). Its page
+  title and its menu entry show the count (`FeedbackRepository::countQuarantined()`), never content.
+  Nothing of the quarantine appears on the dashboard.
   - Index: created, category, guest email or user, reason codes, score and an 80-character preview
     without links.
   - Detail: the full message as escaped plain text in a `<pre>` block (`crud/field/plain_text_pre.html.twig`),

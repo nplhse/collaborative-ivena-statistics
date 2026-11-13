@@ -454,11 +454,26 @@ final class DashboardController extends AbstractDashboardController
         ]);
 
         $openFeedbackCount = $this->feedbackRepository->countOpen();
-        yield MenuItem::linkTo(FeedbackCrudController::class, new TranslatableMessage('menu.feedback', domain: 'admin'), 'fas fa-comment-dots')
-            ->setBadge($openFeedbackCount, $openFeedbackCount > 0 ? 'info' : 'primary');
-        // Count only: quarantined content is shown only after the reviewer opens the quarantine.
-        yield MenuItem::linkTo(FeedbackQuarantineCrudController::class, new TranslatableMessage('admin.feedback_quarantine.menu', domain: 'admin'), 'fas fa-shield-halved')
-            ->setBadge($this->feedbackRepository->countQuarantined(), 'secondary');
+        $quarantinedFeedbackCount = $this->feedbackRepository->countQuarantined();
+        // Collapsed, the group badge shows the open normal feedback; expanded, it is hidden by CSS
+        // (ea-sidebar-link-summary-badge) and each entry shows its own count. The quarantine count
+        // has another colour; quarantined content is shown only after the reviewer opens it.
+        $inboxMenu = MenuItem::linkTo(FeedbackCrudController::class, new TranslatableMessage('menu.feedback.inbox', domain: 'admin'), 'fas fa-inbox');
+        $quarantineMenu = MenuItem::linkTo(FeedbackQuarantineCrudController::class, new TranslatableMessage('menu.feedback.quarantine', domain: 'admin'), 'fas fa-shield-halved');
+        $feedbackMenu = MenuItem::subMenu(new TranslatableMessage('menu.feedback', domain: 'admin'), 'fas fa-comment-dots')
+            ->setCssClass('ea-sidebar-link-summary-badge');
+        if ($openFeedbackCount > 0) {
+            $inboxMenu->setBadge($openFeedbackCount, 'info');
+            $feedbackMenu->setBadge($openFeedbackCount, 'info');
+        }
+
+        if ($quarantinedFeedbackCount > 0) {
+            $quarantineMenu->setBadge($quarantinedFeedbackCount, 'warning');
+        }
+
+        $feedbackMenu->setSubItems([$inboxMenu, $quarantineMenu]);
+
+        yield $feedbackMenu;
 
         yield MenuItem::section(new TranslatableMessage('menu.section.data', domain: 'admin'));
         yield MenuItem::subMenu(new TranslatableMessage('menu.data', domain: 'admin'), 'fas fa-layer-group')->setSubItems([

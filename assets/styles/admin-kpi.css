@@ -318,3 +318,16 @@ summary.timeline-summary:focus-visible {
 .ea-audit-band[data-audit-band='inferred'] > .timeline-list {
     border-left-style: dotted;
 }
+
+/* EasyAdmin sizes sidebar badges at min-width 24px and height 20px, so a single digit becomes a
+   wide pill. A 20px minimum keeps single digits round; longer counts still grow into a pill. */
+.ea-sidebar-badge {
+    min-width: 20px;
+    justify-content: center;
+}
+
+/* A submenu whose badge sums up its entries (set via setCssClass on the submenu): the entries show
+   their own counts once the submenu is open, so the summary badge is hidden then. */
+.ea-sidebar-item.is-expanded > .ea-sidebar-link-summary-badge > .ea-sidebar-badge {
+    display: none;
+}
