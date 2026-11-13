@@ -26,11 +26,12 @@ final class AuditEntryRepository extends ServiceEntityRepository
 
     /**
      * Newest audit events with one of the given intents, one row per event: entries of the same request and intent
-     * (one flush can write several) are reduced to the first one (#1089).
+     * (one flush can write several) are reduced to the first one (#1089). Each row carries what the admin dashboard
+     * needs to describe the event and link to its request in the audit timeline (#1137).
      *
      * @param list<string> $intents
      *
-     * @return list<array{occurredAt: \DateTimeImmutable, intent: string, action: string, origin: string}>
+     * @return list<array{id: int, occurredAt: \DateTimeImmutable, requestId: string, intent: string, entityClass: string, entityId: ?string, intentMetadata: array<string, mixed>}>
      */
     public function findRecentByIntents(array $intents, int $limit = 10): array
     {
@@ -40,9 +41,9 @@ final class AuditEntryRepository extends ServiceEntityRepository
 
         $rows = $this->getEntityManager()->getConnection()->fetchAllAssociative(
             <<<'SQL'
-                SELECT occurred_at, intent, action, origin
+                SELECT id, occurred_at, request_id, intent, entity_class, entity_id, metadata
                 FROM (
-                    SELECT DISTINCT ON (request_id, intent) id, occurred_at, intent, action, origin
+                    SELECT DISTINCT ON (request_id, intent) id, occurred_at, request_id, intent, entity_class, entity_id, metadata
                     FROM audit_log
                     WHERE intent IN (:intents)
                     ORDER BY request_id, intent, occurred_at ASC, id ASC
@@ -56,13 +57,32 @@ final class AuditEntryRepository extends ServiceEntityRepository
 
         return array_map(
             static fn (array $row): array => [
+                'id' => (int) $row['id'],
                 'occurredAt' => new \DateTimeImmutable((string) $row['occurred_at']),
+                'requestId' => (string) $row['request_id'],
                 'intent' => (string) $row['intent'],
-                'action' => (string) $row['action'],
-                'origin' => (string) $row['origin'],
+                'entityClass' => (string) $row['entity_class'],
+                'entityId' => null === $row['entity_id'] ? null : (string) $row['entity_id'],
+                'intentMetadata' => self::intentMetadata($row['metadata']),
             ],
             $rows,
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function intentMetadata(mixed $metadata): array
+    {
+        if (!\is_string($metadata) || '' === $metadata) {
+            return [];
+        }
+
+        $decoded = json_decode($metadata, true);
+        $intentMetadata = \is_array($decoded) ? ($decoded['intent_metadata'] ?? null) : null;
+
+        /* @var array<string, mixed> */
+        return \is_array($intentMetadata) ? $intentMetadata : [];
     }
 
     /**
