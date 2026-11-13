@@ -109,6 +109,12 @@ The Linting workflow (`.github/workflows/lint.yml`) calls these targets one step
 
 The `Makefile` defines the commands: which tool runs with which options, which test suites belong together, where reports go. The workflows call those targets and provide everything around them: PHP, Node and extensions, the locked dependencies, Composer and tool caches, the PostgreSQL service and job environment (`APP_SECRET`, `DATABASE_URL`, `CONSOLE: php bin/console`, as CI has no Symfony CLI), compiled assets before the database tests, and the coverage, JUnit and SARIF uploads. The prod kernel smoke job keeps its own steps: it replaces `vendor/` with a `--no-dev` install, which should not happen in a development checkout.
 
+Workflows pin every action to a full commit SHA with its release as a comment, for example
+`uses: actions/checkout@<40-character sha> # v7.0.1`, so a moved or compromised tag cannot change what CI runs. Add new
+actions the same way: resolve the release tag to its commit, and use the exact tag name in the comment, because
+Dependabot reads it to find updates. Dependabot updates SHA and comment together and groups all action updates into
+one weekly pull request against `develop` (`.github/dependabot.yml`).
+
 Tool caches live in `var/cache/` (`rector`, `phpstan`, `psalm`) and in `.php-cs-fixer.cache` / `.twig-cs-fixer.cache`;
 CI caches the same paths. `make clear` removes the ones in `var/cache/`.
 
