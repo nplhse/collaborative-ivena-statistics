@@ -33,7 +33,11 @@ Effect on automatic links (496 allocations; matcher 1.1.0 re-implemented as a sc
 | a-priori match +3, both passes | 455 (91.7 %) | 27 | 0 |
 | a-priori match +4, pass 2 only | 459 (92.5 %) | 23 | 0 |
 | plus a penalty for contradiction | 84–88 % | more | 0 |
-| learned table (PZC 2 digits × diagram, cross-fitted by day, bonus only, cap 3) | 443 (89.3 %) | 39 | 0 |
+| learned table, first PZC digit × diagram (cross-fitted by day, bonus only, cap 3) | 436 (87.9 %) | 46 | 0 |
+| learned table, first two PZC digits × diagram | 443 (89.3 %) | 39 | 0 |
+| learned table, exact PZC × diagram, no fallback | 436 (87.9 %) | 46 | 0 |
+| learned table, exact PZC × diagram with fallback for sparse cells | 89.5 % | – | 0 |
+| plus PZC × MTS indicator (exact or two digits; minimum 5, 10 or 20 observations; replacing or max) | 89.5 % in every variant | – | 0 |
 | all feature weights learned from the matcher's own links | 382 (77.0 %) | – | 0 |
 
 - **The gain comes from compensation.** A plausible diagram lets an otherwise strong pair outweigh one
@@ -44,41 +48,66 @@ Effect on automatic links (496 allocations; matcher 1.1.0 re-implemented as a sc
 - **Learn only this table.** Learning all weights from the matcher's own links reinforces its blind spots:
   1.1.0 never links a sex mismatch, so a learner punishes it harder. The core feature points stay fixed and
   versioned (ADR 030); only the plausibility table learns.
-- **Granularity.** Learned cells by the first two PZC digits beat the first digit and the full code (89.3 %
-  vs. 87.9 % each): fine enough to separate problem areas, coarse enough to collect counts.
+- **Granularity.** The exact PZC alone has too few observations per cell (87.9 %); with a fallback for sparse
+  cells it is as good as the best coarse variant (89.5 % vs. 89.3 % for the first two digits). The two-digit
+  prefix is not a good fallback, because several prefixes mix unrelated problems: 32 (anaphylaxis, syncope,
+  hypotension, thrombosis, fever, dehydration), 34 (arrhythmia, hypertensive crisis, cardiogenic shock,
+  pulmonary embolism, electrical injury), 37 (CO poisoning, meningitis, sepsis, infections), 26 and 28. A
+  curated problem area groups the codes that belong together clinically.
+- **MTS indicator.** Adding cells by indicator changed nothing in any variant (89.5 %, no link against a
+  known pair): it only raised the bonus of pairs that were linked anyway. 31 of the 33 true pairs still not
+  linked automatically sit in indicator cells with fewer than 5 observations in the whole month.
 - Half a month of one hospital already gave most of the a-priori effect; a curated seed as starting point
   should close the gap.
 
 The user decided (2026-11-13): the table learns from the start and is a tool of its own; one global table so
-new hospitals profit right away; cells PZC (2 digits) × MTS diagram; cap +3; activation by administrators or
+new hospitals profit right away; cells by exact PZC × MTS diagram with a curated problem area as fallback
+(replacing the first decision for the first two PZC digits), the indicator as a reserved finer level; cap +3; activation by administrators or
 persons with a separate reviewer right; the user reviews the curated seed in the app.
 
 ## Decision
 
 ### Cells and points
 
-- A cell is *PZC prefix × MTS diagram*: the first two digits of the allocation's three-digit PZC (`71` for
-  711–719) and the canonical diagram code of the visit's initial triage ([ADR 031](031-mts-catalog-as-maintained-data.md);
-  aliases resolve to their canonical code).
-- A cell holds a bonus of 0 … +3 points. There are no negative points. A pair without PZC, without diagram,
-  or in a cell without a row gets 0.
-- Only the diagram is compared. MTS category, indicator and admitting department stay out of the score, and
-  IVENA urgency is never compared with the MTS category.
+The table has three levels. The MTS side is always the canonical diagram code of the visit's initial triage
+([ADR 031](031-mts-catalog-as-maintained-data.md); aliases resolve to their canonical code).
+
+| Level | Key | Use |
+|---|---|---|
+| exact cell | exact PZC of the allocation × diagram | the bonus, when the cell has enough observations |
+| fallback cell | problem area of the PZC × diagram | the bonus, when the exact cell has too few observations |
+| indicator cell | exact PZC × diagram × MTS indicator | reserved; not used for the bonus in matcher `1.2.0` |
+
+- **Problem areas** are curated groups of PZC codes that belong together clinically (for example urology,
+  chest and heart, syncope and circulation). Each PZC belongs to at most one problem area; "other" codes
+  belong to none. Problem areas are not the PZC prefix: they come from the clinical review in the app.
+- **Lookup:** the exact cell if it has at least the minimum number of observations; otherwise the fallback
+  cell of the PZC's problem area; otherwise 0. A pair without PZC or without diagram gets 0.
+- **Observations** of a cell are its eligible pairs and other candidates (see Learning). The minimum
+  (10 as starting value) is configuration, set in #1155 with replays.
+- A cell holds a bonus of 0 … +3 points. There are no negative points.
+- **Indicator level:** the key has an optional, nullable indicator column. The learning job may fill
+  indicator cells and its report shows their effect in the replay; the matcher does not read them. Using
+  them later goes through a snapshot activated by a person like every other change to the table, with this
+  ADR amended for the lookup rule.
+- Only the diagram (and later possibly the indicator) is compared. MTS category and admitting department stay
+  out of the score, and IVENA urgency is never compared with the MTS category.
 
 ### One global table
 
 - One table for all hospitals; no per-hospital tables. A new hospital gets the bonus from its first import.
-- The table holds points and aggregate counts only, no allocation, visit or hospital reference.
+- The table holds points and aggregate counts per cell only, no allocation, visit or hospital reference.
 
 ### Curated seed
 
-- The seed is a set of domains (problem areas). Each domain lists PZC ranges and MTS diagrams and has points
-  (+3 in the draft). A cell gets the highest points of the domains it belongs to on both sides. "Other" codes
-  and unspecific diagrams (for example "Unwohlsein bei Erwachsenen") belong to no domain and stay at 0.
+- The seed is the set of problem areas: each lists its PZC codes and the MTS diagrams plausible with them,
+  with points (+3 in the draft). It gives the seed points of the fallback cells (problem area × diagram) and,
+  through each code's problem area, of the exact cells. "Other" codes and unspecific diagrams (for example
+  "Unwohlsein bei Erwachsenen") belong to no problem area and stay at 0.
 - The draft mapping of the measurement is the starting point; the user reviews and corrects it in the app
   (development environment) before the first snapshot is activated. Carrying the reviewed seed to production
   is the export/import follow-up of ADR 031.
-- Domains are edited by administrators and reviewers; changes are audited. Editing creates or changes a
+- Problem areas are edited by administrators and reviewers; changes are audited. Editing creates or changes a
   draft snapshot, never the active one.
 
 ### Snapshots
@@ -104,10 +133,11 @@ A learning job (#1155) builds a draft snapshot from all hospitals' data:
   the table never learns from its own output (no feedback loop).
 - **Other candidates** (negatives): the candidate visits of the same allocations in the pass-2 window that
   are not the partner.
-- **Estimate per cell:** log2 of the likelihood ratio (share of positives in the cell / share of negatives in
-  the cell), with Laplace smoothing, shrunk towards the seed points of the cell in proportion to the cell's
-  counts; rounded, clipped to 0 … +3.
-- **Minimum counts:** a cell below the minimum number of positives keeps its seed points.
+- **Estimate per cell** (exact and fallback cells, indicator cells for the report): log2 of the likelihood
+  ratio (share of positives in the cell / share of negatives in the cell), with Laplace smoothing, shrunk
+  towards the seed points of the cell in proportion to the cell's counts; rounded, clipped to 0 … +3.
+- **Minimum counts:** an exact cell below the minimum falls back to its problem area (lookup above); a
+  fallback cell below the minimum keeps its seed points.
 - **Cross-fitting by period:** the report splits the eligible data into periods (alternating days in the
   first version), learns on one part and replays on the other, and adds up the result. The snapshot itself is
   learned on all eligible data. The cross-fitted replay is the honest estimate of its effect.
@@ -121,7 +151,7 @@ person made the decision. The report shows how many eligible pairs came from suc
 
 ### Reviewer right
 
-- New role **`ROLE_ENCOUNTER_CATALOG_REVIEWER`**: edit the curated domains, run the learning job, read draft
+- New role **`ROLE_ENCOUNTER_CATALOG_REVIEWER`**: edit the curated problem areas, run the learning job, read draft
   reports, activate and retire snapshots.
 - It works only together with `ROLE_ENCOUNTER_BETA` (the pilot pages). It grants no case access: no encounter
   grant action, no visit lists, no case card; the pages show cells, counts and reports only.
@@ -180,7 +210,11 @@ them apart, and state the share. Pass-1 links and manual decisions are unaffecte
   diagram so its links remain unbiased training data and analysis basis.
 - **Cap +4**: not chosen; +1.2 percentage points more, but more links that override a contradicting feature
   (14 sex mismatches instead of 10) before a second hospital confirms the size.
-- **Full PZC code or first digit as cell**: rejected; both performed worse in the measurement.
+- **First one or two PZC digits as cell or fallback**: rejected; the first digit performed worse, and the
+  two-digit prefixes mix unrelated problems, so a learned bonus would carry over between them.
+- **Exact PZC without fallback**: rejected; too few observations per cell (87.9 %).
+- **Indicator in the bonus now**: postponed; no effect in the measurement, and indicator cells are mostly too
+  small. The level is reserved so that it can be enabled later without a new table.
 
 ## References
 

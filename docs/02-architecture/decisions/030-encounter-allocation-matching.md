@@ -30,8 +30,8 @@ no ground truth.
 - **Not features:** MTS category, MTS diagram and admitting department. They will be compared with the
   IVENA attributes later; using them for linkage would bias those comparisons.
   *Amended for matcher 1.2.0:* the MTS diagram enters pass 2 as a bonus only, with the bias recorded and
-  handled ([matcher 1.2.0](#amendment-matcher-120)). MTS category, indicator and admitting department stay
-  out.
+  handled ([matcher 1.2.0](#amendment-matcher-120)). MTS category and admitting department stay out; the
+  MTS indicator is a reserved level of the plausibility table that `1.2.0` does not read.
 
 ### Score
 
@@ -146,8 +146,9 @@ reference). Measurements and alternatives: ADR 032.
 
 The bias is limited instead of avoided:
 
-- **Diagram only.** Only the MTS diagram is compared, with the first two PZC digits. MTS category,
-  indicator and admitting department stay out; IVENA urgency is never compared with the MTS category.
+- **Diagram only.** Only the MTS diagram is compared, with the exact PZC (a curated problem area of PZC
+  codes as fallback for sparse cells). The MTS indicator is a reserved level of the table, not read by
+  `1.2.0`; MTS category and admitting department stay out; IVENA urgency is never compared with the MTS category.
 - **Pass 2 only.** Pass 1 stays as it is, so its links carry no linkage bias from the diagram.
 - **Bonus only.** A plausible cell adds 0 … +3 points; an implausible one subtracts nothing. A penalty hit
   true pairs in gaps of the mapping and lowered the rate.
@@ -156,7 +157,8 @@ The bias is limited instead of avoided:
 
 ### Rules
 
-- Pass 2 adds the plausibility bonus of the pair's cell (PZC prefix × MTS diagram) from the **active
+- Pass 2 adds the plausibility bonus of the pair's cell (exact PZC × MTS diagram, or the
+  PZC's problem area × diagram when the exact cell has too few observations) from the **active
   snapshot** (ADR 032) to the points, capped at +3. Without PZC, diagram, cell or active snapshot the bonus
   is 0. The bonus enters the competition like any other point; candidates, windows, thresholds and the
   conflict rule are unchanged.

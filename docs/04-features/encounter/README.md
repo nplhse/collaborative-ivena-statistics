@@ -434,11 +434,13 @@ Decided in [ADR 032](../../02-architecture/decisions/032-learning-plausibility-t
 (#1136); implementation in #1153 (table and seed), #1154 (matcher `1.2.0`), #1155 (learning job) and #1156
 (analyses). Nothing of it is implemented yet.
 
-- **Cells:** first two digits of the allocation's PZC × canonical MTS diagram of the visit's initial triage →
-  bonus 0 … +3. No negative points. No PZC, no diagram or no cell: 0.
+- **Cells:** exact PZC of the allocation × canonical MTS diagram of the visit's initial triage → bonus 0 … +3.
+  When the exact cell has too few observations (minimum, 10 as starting value), the cell of the PZC's curated
+  problem area × diagram applies. No negative points. No PZC, no diagram or no cell: 0. A finer level by MTS
+  indicator is reserved; the learning report shows it, the matcher does not read it.
 - **One global table** for all hospitals, read from the **active snapshot**; without one the bonus is 0.
-- **Seed:** domains (problem areas) with PZC ranges, MTS diagrams and points, reviewed in the app; a cell gets
-  the highest points of the domains it belongs to on both sides.
+- **Seed:** problem areas (curated groups of PZC codes, not the PZC prefix) with the MTS diagrams plausible
+  with them and points, reviewed in the app.
 - **Learning:** a job builds a draft snapshot from pairs confirmed or validated by people and automatic links
   whose decision did not depend on the bonus; other candidates of the same allocations are the counter-cases.
   Laplace smoothing, shrinkage towards the seed, minimum counts, cap +3; the report replays the draft
@@ -455,7 +457,8 @@ Decided in [ADR 032](../../02-architecture/decisions/032-learning-plausibility-t
   `< 5` suppression) shown to reviewers and administrators only.
 
 Measured on the pilot hospital (October 2026, 496 allocations): automatic links 421 (84.9 %) with `1.1.0`,
-453 (91.3 %) with an a-priori bonus of +3 in pass 2, 443 (89.3 %) with a table learned from half a month;
+453 (91.3 %) with an a-priori bonus of +3 in pass 2, 89.5 % with a table by exact PZC with fallback learned
+from half a month (cross-fitted by day);
 none linked to another visit than the reference.
 
 ## Match review
