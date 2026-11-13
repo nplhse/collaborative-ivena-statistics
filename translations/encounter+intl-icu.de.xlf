@@ -2365,6 +2365,18 @@
         <source>encounter.validation.report.negative_other</source>
         <target>Davon anderer Besuch</target>
       </trans-unit>
+      <trans-unit id="EncF523307D" resname="encounter.validation.item.verdict_title">
+        <source>encounter.validation.item.verdict_title</source>
+        <target>Urteil</target>
+      </trans-unit>
+      <trans-unit id="Enc68435AF6" resname="encounter.validation.item.options_hint_allocation">
+        <source>encounter.validation.item.options_hint_allocation</source>
+        <target>Gehört einer der Besuche unten zu dieser Zuweisung? Dann dort „Diesen Besuch verknüpfen“ wählen.</target>
+      </trans-unit>
+      <trans-unit id="EncD9B0B0A5" resname="encounter.validation.item.options_hint_visit">
+        <source>encounter.validation.item.options_hint_visit</source>
+        <target>Gehört eine der Zuweisungen unten zu diesem Besuch? Dann dort „Diese Zuweisung verknüpfen“ wählen.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

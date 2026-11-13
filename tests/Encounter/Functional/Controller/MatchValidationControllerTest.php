@@ -119,6 +119,11 @@ final class MatchValidationControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-test="encounter-validation-alternatives"]', 'Alternatives (0)');
         self::assertSelectorTextContains('[data-test="encounter-validation-alternatives"]', 'No other candidates in the time window');
         self::assertSelectorTextContains('[data-test="encounter-validation-decision-note"]', 'Changing the verdict later undoes no link');
+        // The decisions sit in the narrow right column, from "correct" down to "wrong".
+        self::assertSame(
+            ['encounter-validation-verdict-correct', 'encounter-validation-verdict-unclear', 'encounter-validation-wrong-other', 'encounter-validation-verdict-wrong'],
+            $crawler->filter('.col-lg-4 [data-test="encounter-validation-decision"] .btn')->each(static fn (Crawler $button): string => (string) $button->attr('data-test')),
+        );
         // "Correct" confirms the automatic link.
         $crawler = $this->verdict($crawler, 'correct');
         self::assertSelectorTextContains('.alert-success', 'the link was confirmed');

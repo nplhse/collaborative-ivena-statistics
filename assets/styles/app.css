@@ -2982,3 +2982,22 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
     outline: 2px solid var(--tblr-primary);
     outline-offset: 2px;
 }
+
+/* Match validation item (#1057): expandable alternatives with a chevron that turns when open. */
+.encounter-validation-expand > summary {
+    cursor: pointer;
+    list-style: none;
+}
+
+.encounter-validation-expand > summary::-webkit-details-marker {
+    display: none;
+}
+
+.encounter-validation-expand__chevron {
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+}
+
+.encounter-validation-expand[open] > summary .encounter-validation-expand__chevron {
+    transform: rotate(90deg);
+}

@@ -2521,6 +2521,18 @@
         <source>encounter.validation.report.negative_other</source>
         <target>Of which other visit</target>
       </trans-unit>
+      <trans-unit id="EncF523307D" resname="encounter.validation.item.verdict_title">
+        <source>encounter.validation.item.verdict_title</source>
+        <target>Verdict</target>
+      </trans-unit>
+      <trans-unit id="Enc68435AF6" resname="encounter.validation.item.options_hint_allocation">
+        <source>encounter.validation.item.options_hint_allocation</source>
+        <target>If one of the visits below is this allocation’s patient, choose “Link this visit” there.</target>
+      </trans-unit>
+      <trans-unit id="EncD9B0B0A5" resname="encounter.validation.item.options_hint_visit">
+        <source>encounter.validation.item.options_hint_visit</source>
+        <target>If one of the allocations below belongs to this visit, choose “Link this allocation” there.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
