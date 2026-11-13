@@ -480,10 +480,9 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::subMenu(new TranslatableMessage('menu.imports', domain: 'admin'), 'fa fa-database')->setSubItems([
             MenuItem::linkTo(ImportCrudController::class, new TranslatableMessage('menu.imports.imports', domain: 'admin'), 'fa fa-database'),
             MenuItem::linkTo(ImportRejectCrudController::class, new TranslatableMessage('menu.imports.rejects', domain: 'admin'), 'fas fa-triangle-exclamation'),
-            MenuItem::subMenu(new TranslatableMessage('menu.imports.batch', domain: 'admin'), 'fas fa-layer-group')->setSubItems([
-                MenuItem::linkTo(ImportBatchRunCrudController::class, new TranslatableMessage('menu.imports.batch_runs', domain: 'admin'), 'fas fa-layer-group'),
-                MenuItem::linkTo(ImportBatchRunItemCrudController::class, new TranslatableMessage('menu.imports.batch_items', domain: 'admin'), 'fas fa-list-check'),
-            ]),
+            // EasyAdmin renders two menu levels only, so the batch pages sit directly in this submenu.
+            MenuItem::linkTo(ImportBatchRunCrudController::class, new TranslatableMessage('menu.imports.batch_runs', domain: 'admin'), 'fas fa-layer-group'),
+            MenuItem::linkTo(ImportBatchRunItemCrudController::class, new TranslatableMessage('menu.imports.batch_items', domain: 'admin'), 'fas fa-list-check'),
         ]);
         yield MenuItem::linkTo(SavedExplorerViewCrudController::class, new TranslatableMessage('menu.explorer_views', domain: 'admin'), 'fas fa-chart-bar');
 

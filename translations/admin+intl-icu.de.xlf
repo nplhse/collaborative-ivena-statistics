@@ -177,10 +177,6 @@
         <source>menu.imports.rejects</source>
         <target>Abgelehnte Importzeilen</target>
       </trans-unit>
-      <trans-unit id="menuImportsBatchDe" resname="menu.imports.batch">
-        <source>menu.imports.batch</source>
-        <target>Stapelverarbeitung</target>
-      </trans-unit>
       <trans-unit id="menuImportsBatchRunsDe" resname="menu.imports.batch_runs">
         <source>menu.imports.batch_runs</source>
         <target>Stapelläufe</target>
