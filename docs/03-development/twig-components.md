@@ -16,6 +16,7 @@ Use these instead of copying Tabler page-header, card, modal, badge, alert, filt
 | A short status | `Badge` |
 | Currently applied filters | `ActiveFilters` |
 | A dialog or a destructive confirmation | `Modal` or `ConfirmModal` |
+| Events in time order with optional expandable details | `Timeline` and `TimelineItem` |
 
 ## Alert
 
@@ -74,6 +75,44 @@ Do **not** put reset-filter calls to action here — those belong on `EmptyState
 ```
 
 Empty `badges` renders nothing.
+
+## Timeline and TimelineItem
+
+A vertical list of events, newest or oldest first as the caller orders them. Presentation only: the
+caller decides order and grouping, the components know nothing about the data. First used by the audit
+timeline (#955).
+
+`Timeline` renders an `<ol>`; `label` sets its `aria-label`, `nested` draws a dashed line for a timeline
+inside an expanded item.
+
+`TimelineItem` renders one `<li>`:
+
+| Property | Default | Notes |
+|----------|---------|-------|
+| `icon` | `tabler:circle` | UX icon of the marker; decorative (`aria-hidden`) |
+| `category` | `null` | Visible label next to the time. Always set it: categories must not rely on colour alone |
+| `time` | `null` | Shown in `timezone` with `timeFormat`; the `datetime` attribute is UTC |
+| `timezone` / `timeFormat` | `Europe/Berlin` / `d.m.Y H:i:s` | |
+| `tone` | `default` | `default`, `primary`, `success`, `warning`, `danger`, `muted`; colours the marker only |
+| `detailsUrl` | `null` | Details loaded on first expansion by the Stimulus controller `timeline-details`. Without JavaScript, or when loading fails, a link to the URL stays |
+| `detailsLabel` / `detailsErrorLabel` | English texts | Pass translated texts |
+| `open` | `false` | Start expanded |
+
+Slots: `content` is the summary line, `body` holds details rendered with the page. An item with `body` or
+`detailsUrl` becomes a `<details>` element whose `<summary>` is the summary line, so it opens with Enter or
+Space and announces its state. Keep links out of `content` in that case; put them in the details.
+
+```twig
+<twig:Timeline label="Changes">
+    <twig:TimelineItem icon="tabler:pencil" category="Changed" :time="entry.occurredAt"
+        :detailsUrl="path('app_admin_dashboard_audit_entry_details', {id: entry.id})">
+        Hospital #12
+    </twig:TimelineItem>
+</twig:Timeline>
+```
+
+The styles (`.timeline-*`) live in `assets/styles/admin-kpi.css`, because only admin pages use the
+component so far. A frontend page that uses it needs them in its own stylesheet.
 
 ## FilterDrawer and FilterDrawerTrigger
 

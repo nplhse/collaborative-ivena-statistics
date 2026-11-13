@@ -1,0 +1,76 @@
+{% import '@Admin/audit/_macros.html.twig' as audit %}
+{% set entry = details.entry %}
+<div class="ea-audit-details" data-audit-details="{{ entry.id }}">
+    <ul class="ea-audit-links list-inline small mb-2">
+        <li class="list-inline-item"><a href="{{ path('app_admin_dashboard_audit_entry', {id: entry.id}) }}">{{ 'audit.entry.permalink'|trans({}, 'admin') }}</a></li>
+        <li class="list-inline-item"><a href="{{ path('app_admin_dashboard_audit_request', {requestId: entry.requestId}) }}">{{ 'audit.timeline.open_request'|trans({}, 'admin') }}</a></li>
+        {% if entry.actorId is not null %}
+            <li class="list-inline-item"><a href="{{ path('app_admin_dashboard_audit_timeline', {actor: entry.actorId}) }}">{{ 'audit.entry.same_actor'|trans({}, 'admin') }}</a></li>
+        {% endif %}
+        {% if entry.entityId is not null %}
+            <li class="list-inline-item"><a href="{{ path('app_admin_dashboard_audit_timeline', {entity: entry.entityClass, entityId: entry.entityId}) }}">{{ 'audit.entry.object_history'|trans({}, 'admin') }}</a></li>
+        {% endif %}
+        {% if entry.intent is not null %}
+            <li class="list-inline-item"><a href="{{ path('app_admin_dashboard_audit_timeline', {intent: entry.intent}) }}">{{ 'audit.entry.same_intent'|trans({}, 'admin') }}</a></li>
+        {% endif %}
+        {% if entry.sessionRef is not null %}
+            <li class="list-inline-item"><a href="{{ path('app_admin_dashboard_audit_timeline', {session: entry.sessionRef}) }}">{{ 'audit.entry.same_session'|trans({}, 'admin') }}</a></li>
+        {% endif %}
+    </ul>
+
+    <dl class="ea-audit-facts row small mb-2">
+        <dt class="col-sm-3">{{ 'audit.entry.id'|trans({}, 'admin') }}</dt>
+        <dd class="col-sm-9 font-monospace">{{ entry.id }}</dd>
+        <dt class="col-sm-3">{{ 'audit.filter.actor'|trans({}, 'admin') }}</dt>
+        <dd class="col-sm-9">{{ audit.actor_name(entry) }}</dd>
+        <dt class="col-sm-3">{{ 'audit.filter.entity'|trans({}, 'admin') }}</dt>
+        <dd class="col-sm-9 font-monospace text-break">{{ entry.entityClass }}{% if entry.entityId is not null %} #{{ entry.entityId }}{% endif %}</dd>
+        <dt class="col-sm-3">{{ 'audit.filter.request'|trans({}, 'admin') }}</dt>
+        <dd class="col-sm-9 font-monospace text-break">
+            {{ entry.requestId }}
+            {% if entry.legacyRequestId %}<span class="badge text-bg-light border font-sans-serif" title="{{ 'audit.timeline.legacy_help'|trans({}, 'admin') }}">{{ 'audit.timeline.legacy'|trans({}, 'admin') }}</span>{% endif %}
+        </dd>
+        <dt class="col-sm-3">{{ 'audit.filter.session'|trans({}, 'admin') }}</dt>
+        <dd class="col-sm-9 font-monospace text-break">{{ entry.sessionRef ?? '–' }}</dd>
+    </dl>
+
+    <h3 class="h6 mt-3">{{ 'audit.entry.changes'|trans({}, 'admin') }}</h3>
+    {% if details.changes is not empty %}
+        <div class="table-responsive">
+            <table class="table table-sm ea-audit-changes mb-2">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'audit.entry.field'|trans({}, 'admin') }}</th>
+                        <th scope="col">{{ 'audit.entry.previous'|trans({}, 'admin') }}</th>
+                        <th scope="col">{{ 'audit.entry.new'|trans({}, 'admin') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for change in details.changes %}
+                        <tr>
+                            <th scope="row" class="font-monospace fw-normal">{{ change.field }}</th>
+                            <td data-label="{{ 'audit.entry.previous'|trans({}, 'admin') }}">{{ audit.value(change.old) }}</td>
+                            <td data-label="{{ 'audit.entry.new'|trans({}, 'admin') }}">{{ audit.value(change.new) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% elseif details.rawChanges is not null %}
+        {{ audit.value(details.rawChanges) }}
+    {% else %}
+        <p class="text-secondary small">{{ 'audit.entry.no_changes'|trans({}, 'admin') }}</p>
+    {% endif %}
+
+    <h3 class="h6 mt-3">{{ 'audit.entry.metadata'|trans({}, 'admin') }}</h3>
+    {% if details.metadata is not empty %}
+        <dl class="row small mb-0">
+            {% for item in details.metadata %}
+                <dt class="col-sm-3 font-monospace fw-normal text-break">{{ item.key }}</dt>
+                <dd class="col-sm-9">{{ audit.value(item.value) }}</dd>
+            {% endfor %}
+        </dl>
+    {% else %}
+        <p class="text-secondary small mb-0">–</p>
+    {% endif %}
+</div>

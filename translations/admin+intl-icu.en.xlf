@@ -1597,10 +1597,6 @@
         <source>audit.timeline.deleted_user</source>
         <target>Deleted user #{id}</target>
       </trans-unit>
-      <trans-unit id="auditTl11" resname="audit.timeline.details">
-        <source>audit.timeline.details</source>
-        <target>Details</target>
-      </trans-unit>
       <trans-unit id="auditTl12" resname="audit.timeline.fields_more">
         <source>audit.timeline.fields_more</source>
         <target>+{count} more</target>
@@ -1748,6 +1744,74 @@
       <trans-unit id="auditTl48" resname="audit.filter.outcome">
         <source>audit.filter.outcome</source>
         <target>Outcome</target>
+      </trans-unit>
+      <trans-unit id="auditEn01" resname="audit.entry.title">
+        <source>audit.entry.title</source>
+        <target>Audit entry #{id}</target>
+      </trans-unit>
+      <trans-unit id="auditEn02" resname="audit.entry.show_details">
+        <source>audit.entry.show_details</source>
+        <target>Show details</target>
+      </trans-unit>
+      <trans-unit id="auditEn03" resname="audit.entry.details_failed">
+        <source>audit.entry.details_failed</source>
+        <target>The details could not be loaded.</target>
+      </trans-unit>
+      <trans-unit id="auditEn04" resname="audit.entry.permalink">
+        <source>audit.entry.permalink</source>
+        <target>Link to this entry</target>
+      </trans-unit>
+      <trans-unit id="auditEn05" resname="audit.entry.same_actor">
+        <source>audit.entry.same_actor</source>
+        <target>All entries of this actor</target>
+      </trans-unit>
+      <trans-unit id="auditEn06" resname="audit.entry.object_history">
+        <source>audit.entry.object_history</source>
+        <target>History of this object</target>
+      </trans-unit>
+      <trans-unit id="auditEn07" resname="audit.entry.same_intent">
+        <source>audit.entry.same_intent</source>
+        <target>All entries with this intent</target>
+      </trans-unit>
+      <trans-unit id="auditEn08" resname="audit.entry.same_session">
+        <source>audit.entry.same_session</source>
+        <target>All entries of this session</target>
+      </trans-unit>
+      <trans-unit id="auditEn09" resname="audit.entry.id">
+        <source>audit.entry.id</source>
+        <target>Entry</target>
+      </trans-unit>
+      <trans-unit id="auditEn10" resname="audit.entry.changes">
+        <source>audit.entry.changes</source>
+        <target>Recorded changes</target>
+      </trans-unit>
+      <trans-unit id="auditEn11" resname="audit.entry.field">
+        <source>audit.entry.field</source>
+        <target>Field</target>
+      </trans-unit>
+      <trans-unit id="auditEn12" resname="audit.entry.previous">
+        <source>audit.entry.previous</source>
+        <target>Previous</target>
+      </trans-unit>
+      <trans-unit id="auditEn13" resname="audit.entry.new">
+        <source>audit.entry.new</source>
+        <target>New</target>
+      </trans-unit>
+      <trans-unit id="auditEn14" resname="audit.entry.no_changes">
+        <source>audit.entry.no_changes</source>
+        <target>No field changes recorded.</target>
+      </trans-unit>
+      <trans-unit id="auditEn15" resname="audit.entry.metadata">
+        <source>audit.entry.metadata</source>
+        <target>Metadata</target>
+      </trans-unit>
+      <trans-unit id="auditEn16" resname="audit.entry.empty_string">
+        <source>audit.entry.empty_string</source>
+        <target>(empty)</target>
+      </trans-unit>
+      <trans-unit id="auditEn17" resname="audit.entry.truncated">
+        <source>audit.entry.truncated</source>
+        <target>(shortened)</target>
       </trans-unit>
     </body>
   </file>

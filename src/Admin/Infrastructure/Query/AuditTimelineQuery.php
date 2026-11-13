@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\Infrastructure\Query;
 
+use App\Admin\Application\Audit\AuditEntryDetails;
 use App\Admin\Application\Audit\AuditRequestStats;
 use App\Admin\Application\Audit\AuditTimelineCursor;
 use App\Admin\Application\Audit\AuditTimelineEntry;
@@ -134,6 +135,39 @@ final readonly class AuditTimelineQuery implements AuditTimelineReader
         );
 
         return array_map($this->mapRow(...), $rows);
+    }
+
+    #[\Override]
+    public function details(int $id): ?AuditEntryDetails
+    {
+        $row = $this->connection->fetchAssociative(
+            \sprintf('SELECT %s, a.changes AS changes_json, a.metadata AS metadata_json FROM %s WHERE a.id = :id', self::COLUMNS, self::FROM),
+            ['id' => $id],
+        );
+
+        if (false === $row) {
+            return null;
+        }
+
+        return AuditEntryDetails::from($this->mapRow($row), $this->decode($row['changes_json']), $this->decode($row['metadata_json']));
+    }
+
+    /**
+     * @return array<array-key, mixed>|null
+     */
+    private function decode(mixed $json): ?array
+    {
+        if (!\is_string($json)) {
+            return null;
+        }
+
+        try {
+            $decoded = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return null;
+        }
+
+        return \is_array($decoded) ? $decoded : null;
     }
 
     /**

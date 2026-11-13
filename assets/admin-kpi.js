@@ -6,6 +6,7 @@ import ConfirmSubmitController from './controllers/confirm-submit_controller.js'
 import CopyToClipboardController from './controllers/copy-to-clipboard_controller.js';
 import MessengerHistoryChartController from './controllers/messenger-history-chart_controller.js';
 import StorageHistoryChartController from './controllers/storage-history-chart_controller.js';
+import TimelineDetailsController from './controllers/timeline-details_controller.js';
 import VichFilePreviewController from './controllers/vich-file-preview_controller.js';
 import './styles/admin-kpi.css';
 
@@ -17,6 +18,7 @@ application.register('confirm-submit', ConfirmSubmitController);
 application.register('copy-to-clipboard', CopyToClipboardController);
 application.register('messenger-history-chart', MessengerHistoryChartController);
 application.register('storage-history-chart', StorageHistoryChartController);
+application.register('timeline-details', TimelineDetailsController);
 application.register('vich-file-preview', VichFilePreviewController);
 
 // Lets the Symfony UX Inspector read controller details in the admin area. The

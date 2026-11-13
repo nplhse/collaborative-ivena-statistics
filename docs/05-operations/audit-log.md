@@ -128,8 +128,14 @@ newest first, 100 entries per page.
   to exclusive), `actor` (user id or `none`), `origin`, `action`, `intent`, `entity`, `entityId`,
   `request`, `session`, `outcome`. With a filter a stack shows only matching entries and says how many
   of the request's entries match.
-- The overview shows names of changed fields, never their values. The values are on the entry's
-  detail page.
+- The overview shows names of changed fields, never their values. Expanding an entry loads its
+  details: links to the entry's permalink (`/admin/audit/entries/{id}`), its request, the same actor,
+  the object's history, the same intent and the same session; the recorded changes (previous and new
+  value per field); and the metadata. Stored values are always shown as text. JSON longer than 20,000
+  characters is shortened and marked as such.
+- Entries and stacks open with the keyboard (Enter or Space on the summary line). Each entry shows its
+  action as text next to the icon; colour only repeats it. On narrow screens the change table turns into
+  one block per field.
 
 ## Access and sensitive data
 

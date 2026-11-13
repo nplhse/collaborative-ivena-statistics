@@ -31,9 +31,10 @@
         <p class="alert alert-warning" data-audit-limit>{{ 'audit.request.limit'|trans({limit: limit, total: stats.total}, 'admin') }}</p>
     {% endif %}
 
-    <ol class="ea-audit-timeline list-unstyled">
+    <twig:Timeline :label="'audit.request.title'|trans({}, 'admin')">
+        {% import '@Admin/audit/_macros.html.twig' as audit %}
         {% for entry in entries %}
-            <li class="ea-audit-item">{{ audit.entry(entry) }}</li>
+            {{ audit.item(entry) }}
         {% endfor %}
-    </ol>
+    </twig:Timeline>
 {% endblock %}
