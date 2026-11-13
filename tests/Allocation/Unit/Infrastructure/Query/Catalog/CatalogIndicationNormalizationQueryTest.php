@@ -37,7 +37,7 @@ final class CatalogIndicationNormalizationQueryTest extends TestCase
         ]);
 
         $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
-        $urlGenerator->method('generate')->willReturn('/explore/indication/raw/review');
+        $urlGenerator->method('generate')->willReturn('/tools/indication-review');
 
         $summary = new CatalogIndicationNormalizationQuery(
             $connection,
@@ -50,5 +50,37 @@ final class CatalogIndicationNormalizationQueryTest extends TestCase
         self::assertCount(1, $summary->warnings);
         self::assertSame('needs_review_for_target', $summary->warnings[0]->id);
         self::assertSame(5, $summary->raws[0]->occurrenceCount);
+    }
+
+    public function testUnreviewedSynonymsLinkToTheUnreviewedSegmentOfTheTool(): void
+    {
+        $connection = $this->createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            [
+                'id' => 13,
+                'public_id' => '33333333-3333-4333-8333-333333333333',
+                'code' => 103,
+                'name' => 'STEMI new',
+                'review_status' => IndicationRawReviewStatus::Unreviewed->value,
+                'reviewed_at' => null,
+                'occurrence_count' => 2,
+            ],
+        ]);
+
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->expects(self::once())
+            ->method('generate')
+            ->with('app_tools_indication_review', ['segment' => 'unreviewed'])
+            ->willReturn('/tools/indication-review?segment=unreviewed');
+
+        $summary = new CatalogIndicationNormalizationQuery(
+            $connection,
+            $urlGenerator,
+        )->forTarget(7);
+
+        self::assertCount(1, $summary->warnings);
+        self::assertSame('unreviewed_for_target', $summary->warnings[0]->id);
+        self::assertSame(1, $summary->warnings[0]->count);
+        self::assertSame('/tools/indication-review?segment=unreviewed', $summary->warnings[0]->actionUrl);
     }
 }

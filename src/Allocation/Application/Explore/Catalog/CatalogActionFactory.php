@@ -62,7 +62,7 @@ final readonly class CatalogActionFactory
         if ($includeReviewWorklist) {
             $actions[] = new CatalogAction(
                 label: $this->translator->trans('catalog.action.review_raw_indications', [], 'allocation'),
-                url: $this->urlGenerator->generate('app_explore_indication_raw_review_worklist'),
+                url: $this->urlGenerator->generate('app_tools_indication_review'),
                 icon: 'tabler:checklist',
             );
         }

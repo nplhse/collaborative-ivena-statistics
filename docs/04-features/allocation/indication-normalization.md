@@ -4,11 +4,19 @@ Raw indications from import (`IndicationRaw`) are matched to normalized indicati
 
 ## Review worklist
 
-Route: `GET /explore/indication/raw/review` (`app_explore_indication_raw_review_worklist`)
+Route: `GET /tools/indication-review` (`app_tools_indication_review`)
 
-Requires `IndicationRawReviewVoter::VIEW` (`ROLE_PARTICIPANT`).
+Requires `IndicationRawReviewVoter::VIEW` (`ROLE_PARTICIPANT`) on every review route. Path `access_control`
+on `/tools` only requires `ROLE_USER`, so the voter is the participant check (before #1128 the
+`/explore` rule also required `ROLE_PARTICIPANT`).
 
-Listed in the Tools section (`/tools`, [ADR 031](../../02-architecture/decisions/031-tools-section-and-tool-registry.md)) by `IndicationReviewToolProvider`.
+Part of the Tools section (`/tools`, [ADR 031](../../02-architecture/decisions/031-tools-section-and-tool-registry.md)), listed by
+`IndicationReviewToolProvider`. Breadcrumbs start at Tools; the Explore indication list, the catalogue
+normalization card and the mapping-quality warnings link to the worklist.
+
+Until v0.4-beta the pre-#1128 URLs under `/explore/indication/raw/review…` and their route names
+(`app_explore_indication_raw_review*`) answer with a permanent redirect (308, query string kept) to the
+matching tool route (`LegacyIndicationReviewRedirectController`, removal in #1160).
 
 ### Worklist segments
 
@@ -25,11 +33,15 @@ Listed in the Tools section (`/tools`, [ADR 031](../../02-architecture/decisions
 
 ### Review actions
 
-Routes under `/explore/indication/raw/review/{id}`:
+| Action | Route | Path |
+|---|---|---|
+| Review and match | `app_tools_indication_review_item` | `GET\|POST /tools/indication-review/{publicId}` |
+| Skip | `app_tools_indication_review_skip` | `GET /tools/indication-review/{publicId}/skip` |
+| Start matching | `app_tools_indication_review_start_matching` | `GET /tools/indication-review/start/matching` |
+| Start reviewing | `app_tools_indication_review_start_reviewing` | `GET /tools/indication-review/start/reviewing` |
 
-- Review and match
-- Skip
-- Start matching / start reviewing
+`GET|POST /explore/indication/raw/assign/{publicId}` (`app_explore_indication_raw_assign`) is an older
+entry that redirects to the review page.
 
 Business logic: `IndicationRawReviewService`
 

@@ -10,21 +10,13 @@
 
 {% block title %}{{ 'title.indication.review_raw'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
 
-{% block header %}
-    {% embed '@Shared/_embeds/header.html.twig' %}
-        {% block header_after %}
-            {{ include(('@Shared/_includes/subnav_explore.html.twig')) }}
-        {% endblock %}
-    {% endembed %}
-{% endblock %}
-
 {% block page_header %}
     {% import _self as review %}
     <div class="container-xl">
         <twig:Breadcrumbs
             :items="[
-                { label: 'link.explore', path: path('app_explore_index') },
-                { label: 'title.indication.review_worklist', path: path('app_explore_indication_raw_review_worklist') },
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
+                { label: 'title.indication.review_worklist', path: path('app_tools_indication_review') },
                 { label: 'title.indication.review_raw' }
             ]"
         />
@@ -45,7 +37,7 @@
                             attr: {class: 'btn', form: 'indication-raw-review-form'},
                         }) }}
                     {% endif %}
-                    <a href="{{ path('app_explore_indication_raw_review_skip', {publicId: raw.publicId, segment: context.segment.value, search: context.search}) }}" class="btn">
+                    <a href="{{ path('app_tools_indication_review_skip', {publicId: raw.publicId, segment: context.segment.value, search: context.search}) }}" class="btn">
                         {{ 'btn.indication.skip'|trans({}, 'allocation') }}
                         <twig:ux:icon name="tabler:player-skip-forward" class="w-3 h-3 ms-1" />
                     </a>
@@ -186,7 +178,7 @@
     <div class="card mt-3" id="indication-review-actions">
         <div class="card-body">
             <div class="d-flex flex-wrap align-items-center w-100">
-                <a href="{{ path('app_explore_indication_raw_review_worklist', {segment: context.segment.value}) }}" class="btn btn-link px-0">
+                <a href="{{ path('app_tools_indication_review', {segment: context.segment.value}) }}" class="btn btn-link px-0">
                     {{ 'action.cancel'|trans({}, 'messages') }}
                 </a>
 

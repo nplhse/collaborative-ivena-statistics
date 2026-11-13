@@ -227,7 +227,9 @@ A `Tool` names its title and description keys with their translation domain, the
 a `ToolCategory`, a position inside the category and an optional beta flag. Tool keys are unique.
 Providers check access themselves and return no tool for users who may not open it; the registry runs
 on every page with the main navigation, so decide from roles and voters without database queries.
-Routes of a tool are named `app_tools_*` so the navigation marks Tools as active.
+Routes of a tool are named `app_tools_*` and live under `/tools/…`, so the navigation marks Tools as active.
+Path `access_control` on `/tools` only requires `ROLE_USER`; every tool route needs its own guard
+(`#[IsGranted]` or a voter) for anything stricter.
 
 ## Related documentation
 

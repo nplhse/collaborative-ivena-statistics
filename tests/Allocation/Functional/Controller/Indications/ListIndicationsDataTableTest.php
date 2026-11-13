@@ -178,7 +178,7 @@ final class ListIndicationsDataTableTest extends WebTestCase
         IndicationRawFactory::createOne(['code' => 1, 'name' => 'Alpha']);
         IndicationRawFactory::createOne(['code' => 2, 'name' => 'Zulu']);
 
-        $crawler = $client->request(Request::METHOD_GET, '/explore/indication/raw/review?sortBy=name&orderBy=desc');
+        $crawler = $client->request(Request::METHOD_GET, '/tools/indication-review?sortBy=name&orderBy=desc');
 
         self::assertResponseIsSuccessful();
         self::assertSame(['Zulu', 'Alpha'], $crawler->filter('table.table tbody tr')->each(
