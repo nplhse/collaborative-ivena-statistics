@@ -7,6 +7,7 @@ namespace App\User\UI\Http\Controller;
 use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Application\RateLimit\ClientRateLimit;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\User\Application\Event\UserRegistered;
 use App\User\Application\Registration\RegistrationEmailSuppressionLogger;
 use App\User\Application\Registration\RegistrationEmailSuppressionPolicy;
@@ -94,7 +95,7 @@ final class RegistrationController extends AbstractController
             $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
 
             $this->entityManager->persist($user);
-            $this->auditContext->beginIntent('user.registered', []);
+            $this->auditContext->beginIntent(AuditEntry::INTENT_USER_REGISTERED, []);
             try {
                 $this->entityManager->flush();
             } catch (UniqueConstraintViolationException) {

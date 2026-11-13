@@ -16,6 +16,7 @@ use App\Notification\Application\Publishing\NotificationRequest;
 use App\Notification\Domain\Enum\NotificationChannel;
 use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\User\Domain\Entity\User;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Lock\LockFactory;
@@ -143,7 +144,7 @@ final readonly class MonthlyReminderSender
         $dispatch->startAttempt($attemptId);
         $this->dispatchRepository->save($dispatch);
 
-        $this->auditContext->beginIntent('hospital.reminder_sent', [
+        $this->auditContext->beginIntent(AuditEntry::INTENT_HOSPITAL_REMINDER_SENT, [
             'hospital_id' => $hospitalId,
             'owner_id' => $owner->getId(),
             'reporting_period' => sprintf('%04d-%02d', $period['reportingYear'], $period['reportingMonth']),
