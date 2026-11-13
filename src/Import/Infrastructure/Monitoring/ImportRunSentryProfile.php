@@ -23,7 +23,7 @@ final readonly class ImportRunSentryProfile implements JobRunSentryProfile
     #[\Override]
     public function sampledOps(): array
     {
-        return [ImportRunTelemetry::OP_ALLOCATIONS, ImportRunTelemetry::OP_CLOSURES];
+        return [ImportRunTelemetry::OP_ALLOCATIONS, ImportRunTelemetry::OP_CLOSURES, ImportRunTelemetry::OP_ENCOUNTERS];
     }
 
     #[\Override]

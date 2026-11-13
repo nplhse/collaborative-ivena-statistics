@@ -21,9 +21,12 @@ use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * Records one attempt of an allocation or closure import run: a job_run row, a Sentry transaction `import_run`
- * with spans for cleanup, hospital profile, rows (read, map and persist as summed phase spans), deduplication
- * and finish, one `import.run.summary` log and threshold warnings.
+ * Records one attempt of an allocation, closure or encounter import run: a job_run row, a Sentry transaction
+ * `import_run` with spans for cleanup, hospital profile, rows (read, map and persist as summed phase spans),
+ * deduplication and finish, one `import.run.summary` log and threshold warnings.
+ *
+ * Encounter imports (Encounter context) have no row loop of the import pipeline, so their runs carry the row
+ * counters but no phase metrics.
  *
  * Only ids, counts and durations leave the system; no file names, hospital names or row content.
  */
@@ -32,8 +35,10 @@ final class ImportRunTelemetry implements ImportRunTelemetryInterface
     public const string TRANSACTION = 'import_run';
     public const string OP_ALLOCATIONS = 'import.allocations';
     public const string OP_CLOSURES = 'import.closures';
+    public const string OP_ENCOUNTERS = 'import.encounters';
     public const string JOB_ALLOCATIONS = 'allocation_import';
     public const string JOB_CLOSURES = 'closure_import';
+    public const string JOB_ENCOUNTERS = 'encounter_import';
 
     private ?JobRunTrace $trace = null;
     private string $runId = '';
@@ -68,8 +73,9 @@ final class ImportRunTelemetry implements ImportRunTelemetryInterface
     public function begin(ImportRunContext $context, Import $import): void
     {
         $this->reset();
-        $closures = ImportType::CLOSURE === $import->getType();
-        $this->job = $closures ? self::JOB_CLOSURES : self::JOB_ALLOCATIONS;
+        // Imports without a type predate closure and encounter imports; they ran as allocation imports.
+        $type = $import->getType() ?? ImportType::ALLOCATION;
+        $this->job = self::jobFor($type);
         $this->runId = Uuid::v7()->toRfc4122();
         $this->importRunId = $context->runId->toRfc4122();
         $this->importId = $context->importId;
@@ -91,7 +97,7 @@ final class ImportRunTelemetry implements ImportRunTelemetryInterface
         $this->trace = JobRunTrace::start(
             $this->hub,
             self::TRANSACTION,
-            $closures ? self::OP_CLOSURES : self::OP_ALLOCATIONS,
+            $this->opFor($type),
             ['job' => $this->job, 'trigger' => $this->trigger, 'attempt' => (string) $this->attempt],
             array_filter(['run_id' => $this->runId, 'import_id' => $this->importId, 'hospital_id' => $this->hospitalId], static fn (int|string|null $value): bool => null !== $value),
         );
@@ -160,7 +166,7 @@ final class ImportRunTelemetry implements ImportRunTelemetryInterface
             'rows_total' => $import->getRowCount(),
             'rows_ok' => $import->getRowsPassed(),
             'rows_rejected' => $import->getRowsRejected(),
-            'rows_deduplicated' => self::JOB_ALLOCATIONS === $this->job ? $import->getRowsDeduplicated() : null,
+            'rows_deduplicated' => self::JOB_CLOSURES !== $this->job ? $import->getRowsDeduplicated() : null,
         ], static fn (?int $value): bool => null !== $value);
     }
 
@@ -183,7 +189,7 @@ final class ImportRunTelemetry implements ImportRunTelemetryInterface
             $exceeded[] = 'attempts';
         }
 
-        $metrics = [
+        $metrics = self::JOB_ENCOUNTERS === $this->job ? $this->counters : [
             ...$this->counters,
             'chunks' => $this->chunks,
             'read_ms' => $this->ms($this->readNs),
@@ -239,7 +245,7 @@ final class ImportRunTelemetry implements ImportRunTelemetryInterface
      */
     public function retriesExhausted(int $importId, string $importRunId, ImportType $type): void
     {
-        $job = ImportType::CLOSURE === $type ? self::JOB_CLOSURES : self::JOB_ALLOCATIONS;
+        $job = self::jobFor($type);
         $attempt = $this->recorder->changeLastAttemptStatus($job, $importRunId, self::STATUS_RETRYING, 'failed');
         if (null === $attempt) {
             return;
@@ -252,6 +258,25 @@ final class ImportRunTelemetry implements ImportRunTelemetryInterface
             'job' => $job,
             'attempt' => $attempt['attempt'],
         ]);
+    }
+
+    /** job_run job of an import type; each import type is its own job with its own thresholds. */
+    public static function jobFor(ImportType $type): string
+    {
+        return match ($type) {
+            ImportType::ALLOCATION => self::JOB_ALLOCATIONS,
+            ImportType::CLOSURE => self::JOB_CLOSURES,
+            ImportType::ENCOUNTER => self::JOB_ENCOUNTERS,
+        };
+    }
+
+    private function opFor(ImportType $type): string
+    {
+        return match ($type) {
+            ImportType::ALLOCATION => self::OP_ALLOCATIONS,
+            ImportType::CLOSURE => self::OP_CLOSURES,
+            ImportType::ENCOUNTER => self::OP_ENCOUNTERS,
+        };
     }
 
     /**

@@ -33,6 +33,7 @@ final class JobRunCatalog
     public const array JOBS = [
         ImportRunTelemetry::JOB_ALLOCATIONS,
         ImportRunTelemetry::JOB_CLOSURES,
+        ImportRunTelemetry::JOB_ENCOUNTERS,
         AllocationProjectionRunTelemetry::JOB,
         AllocationProjectionRunTelemetry::JOB_FULL,
         ClosureRebuildTelemetry::JOB,
@@ -97,6 +98,12 @@ final class JobRunCatalog
             'read_ms' => self::FORMAT_MS,
             'map_ms' => self::FORMAT_MS,
             'persist_ms' => self::FORMAT_MS,
+        ],
+        ImportRunTelemetry::JOB_ENCOUNTERS => [
+            'rows_total' => self::FORMAT_COUNT,
+            'rows_ok' => self::FORMAT_COUNT,
+            'rows_rejected' => self::FORMAT_COUNT,
+            'rows_deduplicated' => self::FORMAT_COUNT,
         ],
         AllocationProjectionRunTelemetry::JOB => [
             'imports' => self::FORMAT_COUNT,

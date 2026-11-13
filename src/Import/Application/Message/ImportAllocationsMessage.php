@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Import\Application\Message;
 
+use App\Import\Domain\Enum\ImportType;
 use Symfony\Component\Messenger\Attribute\AsMessage;
 
 /** @psalm-suppress PossiblyUnusedProperty initiatedByUserId and batchRunId are read by notification and batch handling (ADR 016) */
@@ -31,5 +32,11 @@ final readonly class ImportAllocationsMessage implements ImportRunMessageInterfa
     public function getRunId(): ?string
     {
         return $this->runId;
+    }
+
+    #[\Override]
+    public function getImportType(): ImportType
+    {
+        return ImportType::ALLOCATION;
     }
 }

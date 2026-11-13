@@ -1241,6 +1241,10 @@
         <source>admin.job_run.job.closure_import</source>
         <target>Schließungsimport</target>
       </trans-unit>
+      <trans-unit id="admJobRunJobEncounterImportDe" resname="admin.job_run.job.encounter_import">
+        <source>admin.job_run.job.encounter_import</source>
+        <target>Behandlungsdatenimport</target>
+      </trans-unit>
       <trans-unit id="admJobRunJobAllocationProjectionRebuildDe" resname="admin.job_run.job.allocation_projection_rebuild">
         <source>admin.job_run.job.allocation_projection_rebuild</source>
         <target>Neuaufbau Zuweisungsstatistik (Import)</target>

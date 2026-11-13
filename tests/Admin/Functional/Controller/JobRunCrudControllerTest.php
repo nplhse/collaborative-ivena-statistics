@@ -165,6 +165,21 @@ final class JobRunCrudControllerTest extends WebTestCase
         self::assertCount(0, $crawler->filter('tr[data-id="run-a"] a[href*="/admin/import/7"]'));
     }
 
+    public function testEncounterImportRunsAreListedAndFilteredAsTheirOwnJob(): void
+    {
+        $client = $this->adminClient();
+        $this->record('run-encounter', 'encounter_import', 'failed', trigger: 'upload', importId: 9);
+        $this->record('run-allocation', 'allocation_import', 'succeeded', trigger: 'upload', importId: 7);
+
+        $crawler = $client->request(Request::METHOD_GET, self::INDEX.'?'.http_build_query(['filters' => ['job' => ['comparison' => '=', 'value' => ['encounter_import']]]]));
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(['run-encounter'], $this->rowIds($crawler));
+        $label = $crawler->filter('tr[data-id="run-encounter"] td[data-column="job"]')->text();
+        self::assertMatchesRegularExpression('/Encounter data import|Behandlungsdatenimport/', $label);
+        self::assertStringNotContainsString('admin.job_run.job', $crawler->text());
+    }
+
     public function testShortcutsLinkToFilteredLists(): void
     {
         $client = $this->adminClient();
@@ -223,6 +238,7 @@ final class JobRunCrudControllerTest extends WebTestCase
     {
         yield 'allocation import' => ['allocation_import', ['rows_total' => 12_345, 'rows_ok' => 12_000, 'rows_rejected' => 345, 'rows_deduplicated' => 3, 'chunks' => 50, 'read_ms' => 1_500, 'map_ms' => 800, 'persist_ms' => 65_000], ['12 345', '1.5 s', '800 ms', '1 min 05 s']];
         yield 'closure import' => ['closure_import', ['rows_total' => 15, 'rows_ok' => 15, 'rows_rejected' => 0, 'chunks' => 1, 'read_ms' => 10, 'map_ms' => 20, 'persist_ms' => 30], ['15', '30 ms']];
+        yield 'encounter import' => ['encounter_import', ['rows_total' => 2_500, 'rows_ok' => 2_490, 'rows_rejected' => 10, 'rows_deduplicated' => 400], ['2 500', '2 490', '400']];
         yield 'projection rebuild' => ['allocation_projection_rebuild', ['imports' => 1, 'rows_deleted' => 10, 'rows_written' => 20, 'mv_refreshed' => true, 'change_detection_ms' => 5, 'delete_ms' => 6, 'insert_ms' => 7, 'closure_request_ms' => 8, 'mv_refresh_ms' => 2_000], ['✓', '2.0 s']];
         yield 'full projection rebuild' => ['allocation_projection_full_rebuild', ['imports' => 1_120, 'rows_deleted' => 0, 'rows_written' => 900_000, 'mv_refreshed' => false, 'truncate_ms' => 50, 'rebuild_imports_ms' => 600_000, 'closure_request_ms' => 3, 'mv_refresh_ms' => 4], ['900 000', '✗', '10 min 00 s']];
         yield 'closure rebuild' => ['closure_rebuild', ['full' => false, 'hospital_ids' => '@hospital', 'passes' => 1, 'events' => 300, 'partitions' => 4, 'hours_written' => 7_000, 'publish_ms' => 120, 'requests' => 2, 'queries' => 90, 'reference_window' => 'P12M', 'extra_key' => 'x'], ['Klinikum Kennzahlen', 'P12M', '7 000']];
