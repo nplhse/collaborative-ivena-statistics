@@ -62,6 +62,14 @@ final class ToolsIndexControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('#navbar-menu [data-testid="nav-tools"]');
         self::assertSelectorNotExists('#navbar-menu li.nav-item.active[data-testid="nav-tools"]');
+
+        $hrefs = $client->getCrawler()->filter('#navbar-menu li.nav-item > a.nav-link')->each(
+            static fn ($link): string => (string) $link->attr('href'),
+        );
+        $toolsIndex = array_search('/tools', $hrefs, true);
+        self::assertIsInt($toolsIndex);
+        self::assertGreaterThan(array_search('/import', $hrefs, true), $toolsIndex, 'Tools follows Import and Export.');
+        self::assertLessThan(array_search('/blog', $hrefs, true), $toolsIndex, 'Tools precedes Blog and the content pages.');
     }
 
     public function testGermanPageHasNoMissingTranslations(): void
