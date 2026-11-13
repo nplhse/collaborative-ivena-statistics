@@ -17,7 +17,7 @@ Existing installations: no extra steps, see the [upgrade guide](docs/05-operatio
 
 ### Bug fixes
 
-- **admin:** Escape feedback text in the admin feedback views ([#1111](https://github.com/nplhse/collaborative-ivena-statistics/pull/1111))
+- **admin:** Escape feedback text in the admin feedback views ([#1112](https://github.com/nplhse/collaborative-ivena-statistics/pull/1112))
 
 ## [0.2.2-beta] - 2026-11-04
 
