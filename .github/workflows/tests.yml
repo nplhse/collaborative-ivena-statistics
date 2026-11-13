@@ -30,10 +30,10 @@ jobs:
             APP_SECRET: ci-test-placeholder-not-for-production
         steps:
             - name: Checkout code
-              uses: actions/checkout@v7
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
             - name: Install PHP with extensions
-              uses: shivammathur/setup-php@v2
+              uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
               with:
                   extensions: "intl, mbstring, zip"
                   php-version: '8.4'
@@ -41,7 +41,7 @@ jobs:
 
             # Keeps the Composer scripts: cache:clear boots the prod kernel, importmap:install fetches the JS vendors.
             - name: Install production dependencies
-              uses: ramsey/composer-install@v4
+              uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
               with:
                   composer-options: --no-dev
 
@@ -66,10 +66,10 @@ jobs:
             APP_SECRET: ci-test-placeholder-not-for-production
         steps:
             - name: Checkout code
-              uses: actions/checkout@v7
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
             - name: Install PHP with extensions
-              uses: shivammathur/setup-php@v2
+              uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
               with:
                   coverage: pcov
                   extensions: "intl, mbstring, zip"
@@ -78,7 +78,7 @@ jobs:
 
             # No Composer scripts: cache:clear would build a dev container the tests never use (~16 s).
             - name: Install dependencies
-              uses: ramsey/composer-install@v4
+              uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
               with:
                   composer-options: --no-scripts
 
@@ -88,7 +88,7 @@ jobs:
 
             - name: Upload unit coverage artifact
               if: success()
-              uses: actions/upload-artifact@v7
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
               with:
                   name: coverage-unit
                   path: var/coverage/logs/clover-unit.xml
@@ -96,7 +96,7 @@ jobs:
 
             - name: Upload unit test results to Codecov
               if: ${{ !cancelled() }}
-              uses: codecov/codecov-action@v7
+              uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
                   report_type: test_results
@@ -127,10 +127,10 @@ jobs:
                     --health-retries 5
         steps:
             - name: Checkout code
-              uses: actions/checkout@v7
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
             - name: Install PHP with extensions
-              uses: shivammathur/setup-php@v2
+              uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
               with:
                   coverage: pcov
                   extensions: "intl, mbstring, pdo_pgsql, pgsql, zip"
@@ -139,7 +139,7 @@ jobs:
 
             # No Composer scripts: cache:clear would build a dev container the tests never use (~16 s).
             - name: Install dependencies
-              uses: ramsey/composer-install@v4
+              uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
               with:
                   composer-options: --no-scripts
 
@@ -162,7 +162,7 @@ jobs:
 
             - name: Upload integration coverage artifact
               if: success()
-              uses: actions/upload-artifact@v7
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
               with:
                   name: coverage-integration
                   path: var/coverage/logs/clover-integration.xml
@@ -170,7 +170,7 @@ jobs:
 
             - name: Upload integration test results to Codecov
               if: ${{ !cancelled() }}
-              uses: codecov/codecov-action@v7
+              uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
                   report_type: test_results
@@ -188,22 +188,22 @@ jobs:
         if: success()
         steps:
             - name: Checkout code
-              uses: actions/checkout@v7
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
             - name: Download unit coverage
-              uses: actions/download-artifact@v8
+              uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
               with:
                   name: coverage-unit
                   path: var/coverage/logs
 
             - name: Download integration coverage
-              uses: actions/download-artifact@v8
+              uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
               with:
                   name: coverage-integration
                   path: var/coverage/logs
 
             - name: Upload combined coverage to Codecov
-              uses: codecov/codecov-action@v7
+              uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
                   files: var/coverage/logs/clover-unit.xml,var/coverage/logs/clover-integration.xml
