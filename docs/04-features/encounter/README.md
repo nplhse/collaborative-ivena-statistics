@@ -572,6 +572,11 @@ A verdict and its link decisions are written in one transaction under one audit 
 - Changing a verdict later undoes no link (links are manual decisions now; change them in the review); the
   replacement follows the latest verdict.
 
+Every item page also offers "skip": a link to the next item without verdict after this one (wrapping
+around; the sample page when no other item is open) that records nothing and leaves the item open.
+"Unclear" is a verdict (the reviewer looked and cannot decide; it counts as judged and is left out of the
+share); "skip" is not.
+
 Every verdict sets `decided_by`/`decided_at`; drawing is audited with `encounter.validation.sample_drawn`.
 
 **Report** (`ValidationReport`, pure): per stratum and band the population when drawn, sampled, open,

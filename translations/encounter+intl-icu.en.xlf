@@ -2489,6 +2489,14 @@
         <source>encounter.validation.item.decision_note_unlinked</source>
         <target>Linking records “partner missed” and confirms the link. Changing the verdict later undoes no link; links are changed in the review.</target>
       </trans-unit>
+      <trans-unit id="Enc8AE327E2" resname="encounter.validation.item.decide.skip">
+        <source>encounter.validation.item.decide.skip</source>
+        <target>Skip</target>
+      </trans-unit>
+      <trans-unit id="EncBCD292F2" resname="encounter.validation.item.decision_note_skip">
+        <source>encounter.validation.item.decision_note_skip</source>
+        <target>“Unclear”: you looked and cannot decide; it counts as judged and is left out of the share. “Skip”: decide later; nothing is recorded, the case stays open and the next open case follows.</target>
+      </trans-unit>
       <trans-unit id="Enc5C08555C" resname="encounter.validation.item.alternatives">
         <source>encounter.validation.item.alternatives</source>
         <target>Alternatives ({count})</target>

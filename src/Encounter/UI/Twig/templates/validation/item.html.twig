@@ -230,8 +230,12 @@
                             {% else %}
                                 {{ _self.verdict_button('no_partner', 'encounter.validation.item.decide.no_partner'|trans({}, 'encounter'), item, form_id, 'danger') }}
                             {% endif %}
+                            <a class="btn btn-ghost-secondary w-100 mt-2" href="{{ skip_url }}" data-test="encounter-validation-skip">
+                                <twig:ux:icon name="tabler:player-skip-forward" class="w-3 h-3 me-1" />{{ 'encounter.validation.item.decide.skip'|trans({}, 'encounter') }}
+                            </a>
                         </div>
-                        <p class="text-secondary small mt-3 mb-0" data-test="encounter-validation-decision-note">{{ ('encounter.validation.item.decision_note_' ~ (page.kind == 'pair' ? 'pair' : 'unlinked'))|trans({}, 'encounter') }}</p>
+                        <p class="text-secondary small mt-3 mb-2" data-test="encounter-validation-skip-note">{{ 'encounter.validation.item.decision_note_skip'|trans({}, 'encounter') }}</p>
+                        <p class="text-secondary small mb-0" data-test="encounter-validation-decision-note">{{ ('encounter.validation.item.decision_note_' ~ (page.kind == 'pair' ? 'pair' : 'unlinked'))|trans({}, 'encounter') }}</p>
                     </div>
                 </div>
             </div>
