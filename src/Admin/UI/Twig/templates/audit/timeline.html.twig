@@ -11,11 +11,24 @@
 {% block main %}
     <p class="text-secondary">{{ 'audit.timeline.help'|trans({}, 'admin') }}</p>
 
+    {{ include('@Admin/audit/_filter_form.html.twig') }}
+
     {% if not filter.isEmpty %}
         <div class="d-flex flex-wrap align-items-center gap-2 mb-3" data-audit-active-filters>
             <span class="fw-semibold">{{ 'audit.timeline.active_filters'|trans({}, 'admin') }}</span>
+            {% set actor_names = {} %}
+            {% for actor in options.actors %}{% set actor_names = actor_names|merge({('a' ~ actor.id): actor.name}) %}{% endfor %}
             {% for key, value in filter.toQuery %}
-                <span class="badge text-bg-light border text-wrap text-break">{{ ('audit.filter.' ~ key)|trans({}, 'admin') }}: <span class="font-monospace">{{ value }}</span></span>
+                {% if key in ['origin', 'action', 'outcome'] %}
+                    {% set shown = ('audit.' ~ key ~ '.' ~ value)|trans({}, 'admin') %}
+                {% elseif key == 'actor' %}
+                    {% set shown = value == 'none' ? 'audit.timeline.no_actor'|trans({}, 'admin') : actor_names['a' ~ value] ?? '#' ~ value %}
+                {% elseif key == 'entity' %}
+                    {% set shown = value|split('\\')|last %}
+                {% else %}
+                    {% set shown = value %}
+                {% endif %}
+                <span class="badge text-bg-light border text-wrap text-break" data-audit-filter-chip="{{ key }}">{{ ('audit.filter.' ~ key)|trans({}, 'admin') }}: <span class="font-monospace">{{ shown }}</span></span>
             {% endfor %}
             <a href="{{ path('app_admin_dashboard_audit_timeline') }}">{{ 'audit.timeline.reset_filters'|trans({}, 'admin') }}</a>
         </div>

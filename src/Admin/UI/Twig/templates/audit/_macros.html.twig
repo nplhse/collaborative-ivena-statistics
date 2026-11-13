@@ -41,18 +41,21 @@
 {% endmacro %}
 
 {# One entry as a TimelineItem whose details load on expansion. #}
-{% macro item(entry, show_actor = true) %}
+{# context: the entry belongs to the request but does not match the current filter. #}
+{% macro item(entry, show_actor = true, context = false) %}
     {% import _self as audit %}
     <twig:TimelineItem
         :icon="audit.icon(entry.action)|trim"
         :category="('audit.action.' ~ entry.action)|trans({}, 'admin')"
         :time="entry.occurredAt"
-        :tone="audit.tone(entry)|trim"
+        :tone="context ? 'muted' : audit.tone(entry)|trim"
         :detailsUrl="path('app_admin_dashboard_audit_entry_details', {id: entry.id})"
         :detailsLabel="'audit.entry.show_details'|trans({}, 'admin')"
         :detailsErrorLabel="'audit.entry.details_failed'|trans({}, 'admin')"
         data-audit-entry="{{ entry.id }}"
-    >{% import '@Admin/audit/_macros.html.twig' as audit %}{{ audit.summary(entry, show_actor) }}</twig:TimelineItem>
+        data-audit-context="{{ context ? 'true' : 'false' }}"
+        class="{{ context ? 'ea-audit-context' : '' }}"
+    >{% import '@Admin/audit/_macros.html.twig' as audit %}{% if context %}<span class="badge text-bg-light border" title="{{ 'audit.request.context_help'|trans({}, 'admin') }}">{{ 'audit.request.context'|trans({}, 'admin') }}</span>{% endif %}{{ audit.summary(entry, show_actor) }}</twig:TimelineItem>
 {% endmacro %}
 
 {% macro value(value) %}

@@ -99,10 +99,58 @@ final class AuditTimelineControllerTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, '/admin/audit?origin=http&bogus=1');
 
         self::assertResponseIsSuccessful();
-        self::assertStringContainsString('Origin: http', $crawler->filter('[data-audit-active-filters]')->text());
+        self::assertStringContainsString('Origin: Web', $crawler->filter('[data-audit-active-filters]')->text());
         self::assertStringContainsString('1 of 2 entries on this page', $crawler->filter('[data-audit-stack="r1"]')->text());
         self::assertStringContainsString('1 of 2 entries match the filter', $crawler->filter('[data-audit-stack="r1"]')->text());
         self::assertStringContainsString('origin=http', (string) $crawler->filter('[data-audit-stack="r1"] a')->last()->attr('href'));
+    }
+
+    public function testFilterFormOffersValuesFromTheLogAndKeepsTheCurrentFilter(): void
+    {
+        $client = $this->adminClient();
+        $this->insert('2026-11-13 09:00:00', 'r1', 'http', 'user.admin.updated');
+        $this->insert('2026-11-13 09:00:01', 'r2', 'cli', 'import.run.failed');
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/audit?intent=import.run.failed&from=2026-11-13T08:00');
+
+        self::assertResponseIsSuccessful();
+        $form = $crawler->filter('[data-audit-filter]');
+        self::assertNotNull($form->attr('open'), 'open while a filter is active');
+        self::assertSame(['', 'import.run.failed', 'user.admin.updated'], $form->filter('select[name="intent"] option')->each(static fn ($o): string => (string) $o->attr('value')));
+        self::assertSame('import.run.failed', $form->filter('select[name="intent"] option[selected]')->attr('value'));
+        self::assertSame('2026-11-13T08:00', $form->filter('input[name="from"]')->attr('value'));
+        self::assertSame(
+            ['' => 'Any', 'App\\Example\\Thing' => 'Thing'],
+            array_combine(
+                $form->filter('select[name="entity"] option')->each(static fn ($o): string => (string) $o->attr('value')),
+                $form->filter('select[name="entity"] option')->each(static fn ($o): string => $o->text()),
+            ),
+            'class names are offered by their short name',
+        );
+        self::assertCount(1, $form->filter('select[name="actor"] option[value="none"]'));
+
+        $client->submit($form->filter('form')->form(['origin' => 'cli']));
+        self::assertResponseIsSuccessful();
+        self::assertSame('Origin: Console', $client->getCrawler()->filter('[data-audit-filter-chip="origin"]')->text());
+        self::assertSame('Intent: import.run.failed', $client->getCrawler()->filter('[data-audit-filter-chip="intent"]')->text());
+        self::assertStringContainsString('origin=cli', (string) $client->getRequest()->getUri());
+        self::assertCount(1, $client->getCrawler()->filter('[data-audit-entry]'));
+    }
+
+    public function testFilteredRequestViewMarksEntriesThatOnlyGiveContext(): void
+    {
+        $client = $this->adminClient();
+        $this->insert('2026-11-13 09:00:00', 'r1', 'http', 'user.admin.updated');
+        $this->insert('2026-11-13 09:00:01', 'r1', 'messenger');
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/audit/requests/r1?origin=http');
+        self::assertResponseIsSuccessful();
+        self::assertSame(['false', 'true'], $crawler->filter('[data-audit-entry]')->each(static fn ($e): string => (string) $e->attr('data-audit-context')));
+        self::assertStringContainsString('Context', $crawler->filter('[data-audit-context="true"]')->text());
+        self::assertStringContainsString('ea-audit-context', (string) $crawler->filter('[data-audit-context="true"]')->attr('class'));
+
+        $unfiltered = $client->request(Request::METHOD_GET, '/admin/audit/requests/r1');
+        self::assertCount(0, $unfiltered->filter('[data-audit-context="true"]'));
     }
 
     public function testRequestViewListsAllEntriesAndUnknownRequestIs404(): void

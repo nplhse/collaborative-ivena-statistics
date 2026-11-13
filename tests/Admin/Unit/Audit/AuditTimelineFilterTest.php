@@ -52,10 +52,17 @@ final class AuditTimelineFilterTest extends TestCase
             'outcome' => 'maybe',
             'intent' => 'has space',
             'request' => str_repeat('a', 129),
-            'action' => ['array'],
+            'action' => 'rename',
             'unknown' => 'x',
         ]);
 
         self::assertTrue($filter->isEmpty());
+    }
+
+    public function testWithRequestIdKeepsTheOtherCriteria(): void
+    {
+        $filter = AuditTimelineFilter::fromQuery(['origin' => 'http', 'request' => 'old'])->withRequestId('r1');
+
+        self::assertSame(['origin' => 'http', 'request' => 'r1'], $filter->toQuery());
     }
 }

@@ -34,7 +34,7 @@
     <twig:Timeline :label="'audit.request.title'|trans({}, 'admin')">
         {% import '@Admin/audit/_macros.html.twig' as audit %}
         {% for entry in entries %}
-            {{ audit.item(entry) }}
+            {{ audit.item(entry, true, matching_ids is not null and matching_ids[entry.id] is not defined) }}
         {% endfor %}
     </twig:Timeline>
 {% endblock %}

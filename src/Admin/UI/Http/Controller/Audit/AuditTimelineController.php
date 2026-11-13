@@ -36,6 +36,10 @@ final class AuditTimelineController extends AbstractController
             'page' => $this->timeline->page($filter, $cursor),
             'filter' => $filter,
             'is_first_page' => !$cursor instanceof AuditTimelineCursor,
+            'options' => $this->timeline->filterOptions(),
+            'actions' => AuditTimelineFilter::ACTIONS,
+            'origins' => AuditTimelineFilter::ORIGINS,
+            'outcomes' => AuditTimelineFilter::OUTCOMES,
         ]);
     }
 
@@ -52,6 +56,7 @@ final class AuditTimelineController extends AbstractController
             'request_id' => $requestId,
             'entries' => $result['entries'],
             'stats' => $result['stats'],
+            'matching_ids' => $result['matchingIds'],
             'filter' => $filter,
             'limit' => AuditTimelineService::REQUEST_LIMIT,
         ]);

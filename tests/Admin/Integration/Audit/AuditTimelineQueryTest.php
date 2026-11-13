@@ -123,6 +123,19 @@ final class AuditTimelineQueryTest extends KernelTestCase
         self::assertSame([], $this->query->request('unknown', 10));
     }
 
+    public function testFilterOptionsListDistinctValuesAndActorsByName(): void
+    {
+        $options = $this->query->filterOptions();
+
+        self::assertSame(['import.run.failed', 'user.admin.updated'], $options->intents);
+        self::assertSame(['App\\Example\\Thing', 'data_export'], $options->entityClasses);
+        self::assertSame(
+            [['id' => $this->alice, 'name' => 'alice'], ['id' => $this->bob, 'name' => 'bob']],
+            $options->actors,
+            'entries without actor are offered separately as "none"',
+        );
+    }
+
     public function testDetailsReadChangesAndMetadataOfOneEntry(): void
     {
         $this->connection->executeStatement(

@@ -124,10 +124,16 @@ newest first, 100 entries per page.
   entries never shift an open page. A stack whose request has more entries than the page shows
   "n of m entries on this page" and links to the request view, which lists up to 500 entries of the
   request and says so when there are more.
-- **Filters** (query parameters, kept in all links): `from`, `to` (`YYYY-MM-DDTHH:MM`, from inclusive,
-  to exclusive), `actor` (user id or `none`), `origin`, `action`, `intent`, `entity`, `entityId`,
-  `request`, `session`, `outcome`. With a filter a stack shows only matching entries and says how many
-  of the request's entries match.
+- **Filters:** the **Filter** panel above the timeline is a GET form; it opens by itself while a filter
+  is active. Every filter is a query parameter, so a filtered view can be linked and paging keeps it:
+  `from`, `to` (`YYYY-MM-DDTHH:MM` in Europe/Berlin, the zone `occurred_at` is stored in; from
+  inclusive, to exclusive), `actor` (user id, or `none` for entries without actor), `origin`, `action`,
+  `intent`, `entity` (class name), `entityId`, `request`, `session`, `outcome`. Invalid values are
+  ignored. The choices for actor, intent and object type are read from the audit log itself. Active
+  filters are listed above the timeline with a reset link.
+- **Matching and context:** with a filter, a stack shows only the matching entries and says how many of
+  the request's entries match. The request view shows all entries of the request and marks those that
+  do not match as **Context**.
 - The overview shows names of changed fields, never their values. Expanding an entry loads its
   details: links to the entry's permalink (`/admin/audit/entries/{id}`), its request, the same actor,
   the object's history, the same intent and the same session; the recorded changes (previous and new

@@ -13,6 +13,9 @@ final readonly class AuditTimelineFilter
 
     public const array OUTCOMES = ['success', 'blocked', 'failed'];
 
+    /** Actions the audit log writes (see docs/05-operations/audit-log.md). */
+    public const array ACTIONS = ['create', 'update', 'delete', 'export', 'download', 'impersonate', 'impersonate_exit'];
+
     public function __construct(
         public ?\DateTimeImmutable $from = null,
         public ?\DateTimeImmutable $to = null,
@@ -47,13 +50,34 @@ final readonly class AuditTimelineFilter
             actorId: null !== $actor && ctype_digit($actor) ? (int) $actor : null,
             withoutActor: 'none' === $actor,
             origin: \in_array($origin, self::ORIGINS, true) ? $origin : null,
-            action: self::token($query, 'action', 16),
+            action: \in_array($action = self::string($query, 'action'), self::ACTIONS, true) ? $action : null,
             intent: self::token($query, 'intent', 128),
             entityClass: self::token($query, 'entity', 255),
             entityId: self::token($query, 'entityId', 64),
             requestId: self::token($query, 'request', 128),
             sessionRef: self::token($query, 'session', 36),
             outcome: \in_array($outcome, self::OUTCOMES, true) ? $outcome : null,
+        );
+    }
+
+    /**
+     * The same filter, narrowed to one request.
+     */
+    public function withRequestId(string $requestId): self
+    {
+        return new self(
+            $this->from,
+            $this->to,
+            $this->actorId,
+            $this->withoutActor,
+            $this->origin,
+            $this->action,
+            $this->intent,
+            $this->entityClass,
+            $this->entityId,
+            $requestId,
+            $this->sessionRef,
+            $this->outcome,
         );
     }
 
