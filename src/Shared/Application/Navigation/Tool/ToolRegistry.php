@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Shared\Application\Navigation\Tool;
 
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * Collects the tools the current user may use, ordered by category, position and key.
+ * Collects the tools the current user may use, ordered by category and then alphabetically by their
+ * translated title in the current locale (Collator, so umlauts sort as in a dictionary).
  */
 final readonly class ToolRegistry
 {
@@ -17,6 +19,7 @@ final readonly class ToolRegistry
     public function __construct(
         #[AutowireIterator(ToolProviderInterface::TAG)]
         private iterable $providers,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -36,16 +39,35 @@ final readonly class ToolRegistry
             }
         }
 
+        $collator = new \Collator($this->translator->getLocale());
+        $titles = [];
+        foreach ($tools as $key => $tool) {
+            $titles[$key] = $this->translator->trans($tool->titleKey, [], $tool->translationDomain);
+        }
+
         $tools = array_values($tools);
-        usort($tools, static fn (Tool $a, Tool $b): int => [$a->category->position(), $a->position, $a->key]
-            <=> [$b->category->position(), $b->position, $b->key]);
+        usort(
+            $tools,
+            static fn (Tool $a, Tool $b): int => ($a->category->position() <=> $b->category->position())
+                ?: (int) $collator->compare($titles[$a->key], $titles[$b->key])
+                ?: $a->key <=> $b->key,
+        );
 
         return $tools;
     }
 
+    /**
+     * Asked by the main navigation on every page, so it neither translates nor sorts.
+     */
     public function hasTools(): bool
     {
-        return [] !== $this->availableTools();
+        foreach ($this->providers as $provider) {
+            if ([] !== $provider->tools()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

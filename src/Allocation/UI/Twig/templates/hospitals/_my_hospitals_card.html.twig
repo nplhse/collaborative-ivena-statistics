@@ -1,12 +1,14 @@
 {#
     One hospital on My Hospitals (#971), spanning the full width. Parts follow the permissions: imports need IMPORT,
-    coverage and statistics need STATISTICS. Administrative actions sit in the menu, quick actions in the footer.
+    coverage and statistics need STATISTICS. Administrative actions sit in the menu, quick actions in the footer;
+    other contexts add footer actions through MyHospitalActionProviderInterface (#1128).
 #}
 {% import '@Shared/_macros/badges.html.twig' as badges %}
 {% set hospital = status.entry.hospital %}
 {% set canEdit = is_granted(constant('App\\Allocation\\Infrastructure\\Security\\Voter\\HospitalVoter::EDIT'), hospital) %}
 {% set canManageAccess = is_granted(constant('App\\Allocation\\Infrastructure\\Security\\Voter\\HospitalVoter::MANAGE_ACCESS_GRANTS'), hospital) %}
 {% set showStatistics = status.months is not null and status.hasData %}
+{% set extraActions = hospital_actions[hospital.id] ?? [] %}
 <div class="card" data-testid="my-hospitals-card" data-hospital-id="{{ hospital.id }}">
     <div class="card-header">
         <div>
@@ -161,7 +163,7 @@
             </div>
         </div>
     {% endif %}
-    {% if showStatistics or status.imports %}
+    {% if showStatistics or extraActions is not empty or status.imports %}
         <div class="card-footer py-2">
             <div class="btn-list">
                 {% if showStatistics %}
@@ -170,6 +172,12 @@
                         {{ 'my_hospitals.action.statistics'|trans({}, 'allocation') }}
                     </a>
                 {% endif %}
+                {% for action in extraActions %}
+                    <a class="btn btn-sm" href="{{ path(action.route, action.routeParameters) }}" data-testid="my-hospitals-card-action" data-action-key="{{ action.key }}">
+                        <twig:ux:icon name="{{ action.icon }}" class="icon" />
+                        {{ action.labelKey|trans({}, action.translationDomain) }}
+                    </a>
+                {% endfor %}
                 {% if status.imports %}
                     <a class="btn btn-sm" href="{{ path('app_import_index', {hospitalId: hospital.id}) }}" data-testid="my-hospitals-card-imports-link">
                         <twig:ux:icon name="tabler:list-details" class="icon" />

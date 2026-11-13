@@ -22,7 +22,6 @@ final readonly class Tool
         public string $route,
         public string $icon,
         public ToolCategory $category,
-        public int $position = 0,
         public bool $beta = false,
         public array $routeParameters = [],
     ) {

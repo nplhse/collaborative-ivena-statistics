@@ -30,7 +30,7 @@ final class NavigateMatchReviewController extends AbstractController
     ) {
     }
 
-    #[Route('/encounter/review/{id}/start', name: 'app_encounter_review_start', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[Route('/tools/encounter-review/{id}/start', name: 'app_tools_encounter_review_start', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function start(Request $request, Hospital $hospital): RedirectResponse
     {
         $this->denyAccessUnlessGranted(EncounterAttribute::REVIEW, $hospital);
@@ -47,7 +47,7 @@ final class NavigateMatchReviewController extends AbstractController
         return $this->redirect($this->nextUrl->allocation($hospitalId, $context, $first));
     }
 
-    #[Route('/encounter/review/{id}/allocations/{allocationId}/skip', name: 'app_encounter_review_skip', requirements: ['id' => '\d+', 'allocationId' => '\d+'], methods: ['GET'])]
+    #[Route('/tools/encounter-review/{id}/allocations/{allocationId}/skip', name: 'app_tools_encounter_review_skip', requirements: ['id' => '\d+', 'allocationId' => '\d+'], methods: ['GET'])]
     public function skip(Request $request, Hospital $hospital, int $allocationId): RedirectResponse
     {
         $this->denyAccessUnlessGranted(EncounterAttribute::REVIEW, $hospital);

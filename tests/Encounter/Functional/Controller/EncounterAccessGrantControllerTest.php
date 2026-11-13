@@ -201,28 +201,44 @@ final class EncounterAccessGrantControllerTest extends WebTestCase
         self::assertNull($this->findEncounterGrant($hospital, $member));
     }
 
-    public function testNavigationAndOverviewNeedTheBetaRole(): void
+    public function testEncounterToolsNeedTheBetaRole(): void
     {
         $client = self::createClient();
         $participant = $this->user(['ROLE_USER', 'ROLE_PARTICIPANT']);
 
         $client->loginUser($participant);
-        $client->request(Request::METHOD_GET, '/explore');
-        self::assertSelectorNotExists('[data-test="nav-encounter"]');
+        $client->request(Request::METHOD_GET, '/tools');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-tool-key="indication_review"]');
+        self::assertSelectorNotExists('[data-tool-key^="encounter_"]');
+        $client->request(Request::METHOD_GET, '/tools/data-prep');
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        $client->request(Request::METHOD_GET, '/tools/encounter-review');
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
         $client->request(Request::METHOD_GET, '/encounter');
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
 
         $client->loginUser($this->user());
-        $client->request(Request::METHOD_GET, '/encounter');
+        $crawler = $client->request(Request::METHOD_GET, '/tools');
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('[data-test="nav-encounter"]');
-        self::assertSelectorExists('[data-test="encounter-no-grants"]');
-        self::assertSelectorNotExists('[data-test="encounter-admin-access"]');
+        self::assertSame(
+            ['encounter_review', 'encounter_validation'],
+            $crawler->filter('[data-tools-category="matching"] [data-tool-key^="encounter_"]')->each(static fn ($card): string => (string) $card->attr('data-tool-key')),
+        );
+        self::assertCount(3, $crawler->filter('[data-tool-key^="encounter_"] [data-testid="tools-card-beta"]'));
+        self::assertSelectorExists('[data-tool-key="encounter_validation"][href="/tools/encounter-review?mode=validation"]');
+        self::assertSelectorNotExists('[data-test="nav-encounter"]');
+    }
 
-        $client->loginUser($this->admin());
+    public function testOldEncounterPageLeadsToTools(): void
+    {
+        $client = self::createClient();
+        $client->loginUser($this->user());
+
         $client->request(Request::METHOD_GET, '/encounter');
-        self::assertResponseIsSuccessful();
-        self::assertSelectorExists('[data-test="encounter-admin-access"]');
+
+        self::assertResponseStatusCodeSame(Response::HTTP_PERMANENTLY_REDIRECT);
+        self::assertResponseRedirects('/tools');
     }
 
     /**

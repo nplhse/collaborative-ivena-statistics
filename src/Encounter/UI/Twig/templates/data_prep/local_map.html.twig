@@ -85,8 +85,8 @@
                     <h3 class="card-title">{{ (g ~ 'map.downloads_title')|trans({}, 'encounter') }}</h3>
                 </div>
                 <div class="card-body d-grid gap-2">
-                    <a class="btn btn-primary" href="{{ path('app_encounter_data_prep_local_map', {variant: 'template'}) }}" download data-test="data-prep-local-map-template">{{ (g ~ 'map.download_template')|trans({}, 'encounter') }}</a>
-                    <a class="btn btn-outline-secondary" href="{{ path('app_encounter_data_prep_local_map', {variant: 'example'}) }}" download>{{ (g ~ 'map.download_example')|trans({}, 'encounter') }}</a>
+                    <a class="btn btn-primary" href="{{ path('app_tools_data_prep_local_map', {variant: 'template'}) }}" download data-test="data-prep-local-map-template">{{ (g ~ 'map.download_template')|trans({}, 'encounter') }}</a>
+                    <a class="btn btn-outline-secondary" href="{{ path('app_tools_data_prep_local_map', {variant: 'example'}) }}" download>{{ (g ~ 'map.download_example')|trans({}, 'encounter') }}</a>
                 </div>
             </div>
 

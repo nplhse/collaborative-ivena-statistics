@@ -6,8 +6,8 @@
     <twig:PageHeader :title="'encounter.validation.title'|trans({}, 'encounter')" :pretitle="hospital.name">
         <twig:block name="breadcrumbs">
             <twig:Breadcrumbs :items="[
-                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
-                { label: 'encounter.review.title', label_domain: 'encounter', translatable: true, path: path('app_encounter_review_hospital', {id: hospital.id}) },
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
+                { label: 'encounter.review.title', label_domain: 'encounter', translatable: true, path: path('app_tools_encounter_review_hospital', {id: hospital.id}) },
                 { label: 'encounter.validation.title', label_domain: 'encounter', translatable: true }
             ]" />
         </twig:block>
@@ -61,7 +61,7 @@
                                         <td>{{ sample.periodFrom|date('d.m.Y') }} – {{ sample.periodTo|date('d.m.Y') }}</td>
                                         <td>{{ sample.matcherVersion }}</td>
                                         <td class="text-secondary">{{ sample.createdAt|date('d.m.Y H:i') }}{% if sample.createdBy %} · {{ sample.createdBy.username }}{% endif %}</td>
-                                        <td><a class="btn btn-sm" href="{{ path('app_encounter_validation_sample', {id: hospital.id, sampleId: sample.id}) }}">{{ 'encounter.validation.open_sample'|trans({}, 'encounter') }}</a></td>
+                                        <td><a class="btn btn-sm" href="{{ path('app_tools_encounter_validation_sample', {id: hospital.id, sampleId: sample.id}) }}">{{ 'encounter.validation.open_sample'|trans({}, 'encounter') }}</a></td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
