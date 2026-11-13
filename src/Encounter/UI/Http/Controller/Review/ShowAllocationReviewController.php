@@ -43,7 +43,7 @@ final class ShowAllocationReviewController extends AbstractController
     ) {
     }
 
-    #[Route('/encounter/review/{id}/allocations/{allocationId}', name: 'app_encounter_review_allocation', requirements: ['id' => '\d+', 'allocationId' => '\d+'], methods: ['GET', 'POST'])]
+    #[Route('/tools/encounter-review/{id}/allocations/{allocationId}', name: 'app_tools_encounter_review_allocation', requirements: ['id' => '\d+', 'allocationId' => '\d+'], methods: ['GET', 'POST'])]
     public function __invoke(Request $request, Hospital $hospital, int $allocationId, #[CurrentUser] User $user): Response
     {
         $this->denyAccessUnlessGranted(EncounterAttribute::REVIEW, $hospital);

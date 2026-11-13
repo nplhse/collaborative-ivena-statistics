@@ -1,13 +1,15 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'encounter.review.title'|trans({}, 'encounter') }} - {{ parent() }}{% endblock %}
+{% set page_title_key = validation ? 'encounter.validation.title' : 'encounter.review.title' %}
+
+{% block title %}{{ page_title_key|trans({}, 'encounter') }} - {{ parent() }}{% endblock %}
 
 {% block page_header %}
-    <twig:PageHeader :title="'encounter.review.title'|trans({}, 'encounter')">
+    <twig:PageHeader :title="page_title_key|trans({}, 'encounter')">
         <twig:block name="breadcrumbs">
             <twig:Breadcrumbs :items="[
-                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
-                { label: 'encounter.review.title', label_domain: 'encounter', translatable: true }
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
+                { label: page_title_key, label_domain: 'encounter', translatable: true }
             ]" />
         </twig:block>
     </twig:PageHeader>
@@ -22,7 +24,7 @@
             {% else %}
                 <div class="list-group" data-test="encounter-review-hospitals">
                     {% for id, name in hospitals %}
-                        <a class="list-group-item list-group-item-action" href="{{ path('app_encounter_review_hospital', {id: id}) }}">{{ name }}</a>
+                        <a class="list-group-item list-group-item-action" href="{{ path(target_route, {id: id}) }}">{{ name }}</a>
                     {% endfor %}
                 </div>
             {% endif %}

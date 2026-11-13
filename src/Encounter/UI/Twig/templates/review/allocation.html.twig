@@ -1,7 +1,7 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% set list_url = path('app_encounter_review_hospital', {id: hospital.id}|merge(context.query())) %}
-{% set skip_url = path('app_encounter_review_skip', {id: hospital.id, allocationId: allocation.id}|merge(context.query())|merge(position is not null ? {pos: position} : {})) %}
+{% set list_url = path('app_tools_encounter_review_hospital', {id: hospital.id}|merge(context.query())) %}
+{% set skip_url = path('app_tools_encounter_review_skip', {id: hospital.id, allocationId: allocation.id}|merge(context.query())|merge(position is not null ? {pos: position} : {})) %}
 {% set header_variants = {auto_accepted: 'azure', confirmed: 'green', proposed: 'yellow', conflict: 'orange', not_linked: 'secondary'} %}
 
 {% block title %}{{ 'encounter.review.allocation_title'|trans({arrival: allocation.arrival_at|date('d.m.Y H:i')}, 'encounter') }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
@@ -10,7 +10,7 @@
     <twig:PageHeader :title="'encounter.review.allocation_title'|trans({arrival: allocation.arrival_at|date('d.m.Y H:i')}, 'encounter')" :pretitle="hospital.name">
         <twig:block name="breadcrumbs">
             <twig:Breadcrumbs :items="[
-                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
                 { label: 'encounter.review.title', label_domain: 'encounter', translatable: true, path: list_url },
                 { label: allocation.arrival_at|date('d.m.Y H:i'), translatable: false }
             ]" />
@@ -155,6 +155,6 @@
     {{ form_end(form) }}
 
     {% for swap in swaps %}
-        <form id="encounter-review-swap-form-{{ loop.index }}" method="post" action="{{ path('app_encounter_review_swap', {id: hospital.id, allocationId: swap.allocationId}|merge(context.query())) }}"></form>
+        <form id="encounter-review-swap-form-{{ loop.index }}" method="post" action="{{ path('app_tools_encounter_review_swap', {id: hospital.id, allocationId: swap.allocationId}|merge(context.query())) }}"></form>
     {% endfor %}
 {% endblock %}

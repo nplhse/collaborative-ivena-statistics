@@ -23,6 +23,6 @@ final class AssignIndicationRawController extends AbstractController
     public function edit(
         #[MapEntity(expr: 'repository.findOneByPublicId(publicId)')] IndicationRaw $raw,
     ): \Symfony\Component\HttpFoundation\RedirectResponse {
-        return $this->redirectToRoute('app_explore_indication_raw_review', ['publicId' => $raw->getPublicIdString()]);
+        return $this->redirectToRoute('app_tools_indication_review_item', ['publicId' => $raw->getPublicIdString()]);
     }
 }

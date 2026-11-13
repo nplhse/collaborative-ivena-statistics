@@ -1,5 +1,5 @@
 {% if row.publicId %}
-    <a href="{{ path('app_explore_indication_raw_review', {publicId: row.publicId}) }}" target="_top">
+    <a href="{{ path('app_tools_indication_review_item', {publicId: row.publicId}) }}" target="_top">
         {{ row.name }}
     </a>
 {% else %}

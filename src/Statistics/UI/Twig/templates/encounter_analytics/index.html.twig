@@ -28,11 +28,11 @@
                 {% if canReview %}
                     <div class="col-auto d-print-none">
                         <div class="btn-list" data-testid="encounter-overview-review-links">
-                            <a class="btn" href="{{ path('app_encounter_review_overview', {id: hospitalId}|merge(reviewQuery)) }}" data-testid="encounter-overview-review-link">
+                            <a class="btn" href="{{ path('app_tools_encounter_review_overview', {id: hospitalId}|merge(reviewQuery)) }}" data-testid="encounter-overview-review-link">
                                 <twig:ux:icon name="tabler:list-check" class="icon icon-sm" />
                                 {{ 'encounter.review.title'|trans({}, 'encounter') }}
                             </a>
-                            <a class="btn" href="{{ path('app_encounter_validation', {id: hospitalId}|merge(reviewQuery)) }}" data-testid="encounter-overview-validation-link">
+                            <a class="btn" href="{{ path('app_tools_encounter_validation', {id: hospitalId}|merge(reviewQuery)) }}" data-testid="encounter-overview-validation-link">
                                 <twig:ux:icon name="tabler:clipboard-check" class="icon icon-sm" />
                                 {{ 'encounter.validation.title'|trans({}, 'encounter') }}
                             </a>

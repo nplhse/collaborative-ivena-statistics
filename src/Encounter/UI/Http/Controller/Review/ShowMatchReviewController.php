@@ -42,7 +42,7 @@ final class ShowMatchReviewController extends AbstractController
     ) {
     }
 
-    #[Route('/encounter/review/{id}', name: 'app_encounter_review_hospital', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[Route('/tools/encounter-review/{id}', name: 'app_tools_encounter_review_hospital', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function __invoke(Request $request, Hospital $hospital): Response
     {
         $this->denyAccessUnlessGranted(EncounterAttribute::REVIEW, $hospital);

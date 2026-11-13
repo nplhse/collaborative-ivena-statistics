@@ -14,7 +14,7 @@ file, check value, prefixes). Output format: [exchange-format.md](exchange-forma
 ## What it is
 
 One self-contained HTML file. A hospital user downloads it from its landing page
-(`/encounter/data-prep`, linked from the encounter page `/encounter`, beta role required) and opens it
+(`/tools/data-prep`, the Tools card "Data preparation tool", beta role required) and opens it
 from disk in a current browser. It reads the export of the hospital
 information system (HIS) and the hospital's key file, keeps only the agreed fields and saves a
 canonical `ed_visit` file for the upload. Names, dates of birth, staff, free text and the case number
@@ -31,7 +31,7 @@ never leave the computer.
 | Renderer, version, changelog | `DataPrepToolRenderer`, `DataPrepRelease`, `DataPrepChangelog` in `src/Encounter/UI/DataPrep/` |
 | Local map template and example | `src/Encounter/UI/DataPrep/local-map/{template,example}.json` (`LocalMapFiles`) |
 | Landing page and subpages | `ShowDataPrepGuideController`, `ShowDataPrepKeyController`, `ShowDataPrepLocalMapController`, `DataPrepHospitals`; templates `guide`, `key`, `local_map` in `src/Encounter/UI/Twig/templates/data_prep/` |
-| Routes | `GET /encounter/data-prep` (landing page), `GET /encounter/data-prep/key`, `GET /encounter/data-prep/local-map`, `GET /encounter/data-prep/download`, `GET /encounter/data-prep/local-map-{template,example}.json` (all `ROLE_ENCOUNTER_BETA`), `GET /data-prep/latest.json` (public) |
+| Routes | `GET /tools/data-prep` (landing page), `GET /tools/data-prep/key`, `GET /tools/data-prep/local-map`, `GET /tools/data-prep/download`, `GET /tools/data-prep/local-map-{template,example}.json` (all `ROLE_ENCOUNTER_BETA`), `GET /data-prep/latest.json` (public) |
 | Tests | `tests/Encounter/DataPrep/*.test.js` (`npm run test:js`), `tests/Encounter/Unit/UI/DataPrep/`, `tests/Encounter/Functional/Controller/DataPrepToolControllerTest.php`, `DataPrepGuideControllerTest.php` |
 
 The two scripts are plain scripts without imports; the server inlines them into the file, and the
@@ -159,15 +159,16 @@ No new request: the Content Security Policy is unchanged, the only `connect-src`
 
 ## Landing page
 
-`/encounter/data-prep` (beta role, as `/encounter`), linked from the card on `/encounter`; the top
-navigation entry "Encounter data" stays active on it and its subpages. The pages show no case data and
+`/tools/data-prep` (beta role), linked from the Tools landing page; the main navigation entry
+"Tools" stays active on it and its subpages. Until v0.4-beta the old paths under `/encounter/data-prep`
+redirect here (#1160). The pages show no case data and
 ask for no codes. Layout: main column (2/3) and side column (1/3).
 
 | Page | Main column | Side column |
 |---|---|---|
-| `/encounter/data-prep` | Getting started: 1. grants (what upload, review and view cases allow, the user's hospitals from encounter grants and ownership with the user's own grant actions and, for `MANAGE_GRANTS`, a link to the grants page); 2. export (the profile's required columns); 3. key file; 4. local map; 5. run; 6. upload and review. Below, short summaries of the key file and the local map with links to their pages | current version (`version`, `released_at`, `min_version`, download), What's new (`DataPrepChangelog`, newest first) |
-| `/encounter/data-prep/key` | what the key is for, creating and keeping it, key generations, a lost key | key change: links to `app_encounter_key_change` only for hospitals with `CHANGE_KEY` (owner, administrator); others read who can change it |
-| `/encounter/data-prep/local-map` | purpose, format and sections, allowed care levels and dispositions (from `CareLevel`, `Disposition`), example | downloads of the empty template and the example; the department names the import resolves (`DepartmentCatalogInterface::uniqueNames()`: names of the reference catalog that no other entry shares, case-insensitive) |
+| `/tools/data-prep` | Getting started: 1. grants (what upload, review and view cases allow, the user's hospitals from encounter grants and ownership with the user's own grant actions and, for `MANAGE_GRANTS`, a link to the grants page); 2. export (the profile's required columns); 3. key file; 4. local map; 5. run; 6. upload and review. Below, short summaries of the key file and the local map with links to their pages | current version (`version`, `released_at`, `min_version`, download), What's new (`DataPrepChangelog`, newest first) |
+| `/tools/data-prep/key` | what the key is for, creating and keeping it, key generations, a lost key | key change: links to `app_encounter_key_change` only for hospitals with `CHANGE_KEY` (owner, administrator); others read who can change it |
+| `/tools/data-prep/local-map` | purpose, format and sections, allowed care levels and dispositions (from `CareLevel`, `Disposition`), example | downloads of the empty template and the example; the department names the import resolves (`DepartmentCatalogInterface::uniqueNames()`: names of the reference catalog that no other entry shares, case-insensitive) |
 
 Help for common problems is left for the help area.
 

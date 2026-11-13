@@ -23,7 +23,7 @@ final readonly class DownloadDataPrepToolController
     ) {
     }
 
-    #[Route('/encounter/data-prep/download', name: 'app_encounter_data_prep_download', methods: ['GET'])]
+    #[Route('/tools/data-prep/download', name: 'app_tools_data_prep_download', methods: ['GET'])]
     public function __invoke(): Response
     {
         return new Response($this->renderer->render(), Response::HTTP_OK, [

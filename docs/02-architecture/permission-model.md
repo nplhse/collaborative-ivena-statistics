@@ -15,7 +15,7 @@ Defined in `src/User/Domain/Security/UserRole.php`:
 | `ROLE_ADMIN` | EasyAdmin back office, impersonation; receives the admin notifications (`admin.*`), each admin chooses them on the notification settings page |
 | `ROLE_REVIEW_INDICATIONS` | Indication raw review worklist |
 | `ROLE_CLOSURE_BETA` | Opt-in beta switch for closure-list imports and Closure Analytics. Not part of the role hierarchy, so `ROLE_ADMIN` does not grant it. Assign it on the user in EasyAdmin. It is not a public role. |
-| `ROLE_ENCOUNTER_BETA` | Participation in the encounter data pilot: `/encounter`, the navigation entry and the encounter grant pages. Inherited by `ROLE_ADMIN`. The role itself grants no case access. Assign it on the user in EasyAdmin. |
+| `ROLE_ENCOUNTER_BETA` | Participation in the encounter data pilot: the encounter tools under `/tools` (review, validation, data preparation), the encounter analysis and the encounter grant pages. Inherited by `ROLE_ADMIN`. The role itself grants no case access. Assign it on the user in EasyAdmin. |
 
 `ROLE_ADMIN` inherits `ROLE_PARTICIPANT`, `ROLE_REVIEW_INDICATIONS` and `ROLE_ENCOUNTER_BETA` only. `ROLE_CLOSURE_BETA` stays explicit so production users and the first testers stay separate.
 

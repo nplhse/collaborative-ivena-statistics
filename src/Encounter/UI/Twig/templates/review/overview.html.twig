@@ -6,8 +6,8 @@
     <twig:PageHeader :title="'encounter.review.overview.title'|trans({}, 'encounter')" :pretitle="hospital.name">
         <twig:block name="breadcrumbs">
             <twig:Breadcrumbs :items="[
-                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
-                { label: 'encounter.review.title', label_domain: 'encounter', translatable: true, path: path('app_encounter_review_hospital', {id: hospital.id}|merge(context.period.query())) },
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
+                { label: 'encounter.review.title', label_domain: 'encounter', translatable: true, path: path('app_tools_encounter_review_hospital', {id: hospital.id}|merge(context.period.query())) },
                 { label: 'encounter.review.overview.title', label_domain: 'encounter', translatable: true }
             ]" />
         </twig:block>
@@ -15,10 +15,10 @@
             {{ include('@Encounter/review/_period_context.html.twig', {period: context.period}) }}
         </twig:block>
         <twig:block name="actions">
-            <a class="btn" href="{{ path('app_encounter_review_hospital', {id: hospital.id}|merge(context.period.query())) }}">
+            <a class="btn" href="{{ path('app_tools_encounter_review_hospital', {id: hospital.id}|merge(context.period.query())) }}">
                 <twig:ux:icon name="tabler:list-check" class="w-3 h-3 me-1" /> {{ 'encounter.review.overview.worklist'|trans({}, 'encounter') }}
             </a>
-            <a class="btn" href="{{ path('app_encounter_validation', {id: hospital.id}|merge(context.period.query())) }}" data-test="encounter-review-validation-link">
+            <a class="btn" href="{{ path('app_tools_encounter_validation', {id: hospital.id}|merge(context.period.query())) }}" data-test="encounter-review-validation-link">
                 <twig:ux:icon name="tabler:clipboard-check" class="w-3 h-3 me-1" /> {{ 'encounter.validation.title'|trans({}, 'encounter') }}
             </a>
             <twig:FilterDrawerTrigger drawerId="encounter-review-filters" />
@@ -50,19 +50,19 @@
                         {% for key, target in targets %}
                             <tr data-test="summary-{{ key }}">
                                 <td{% if key == 'conflicts' %} class="ps-4 text-secondary"{% endif %}>
-                                    <a class="text-reset" href="{{ path('app_encounter_review_hospital', base|merge(target)) }}">{{ ('encounter.review.summary.' ~ key)|trans({}, 'encounter') }}</a>
+                                    <a class="text-reset" href="{{ path('app_tools_encounter_review_hospital', base|merge(target)) }}">{{ ('encounter.review.summary.' ~ key)|trans({}, 'encounter') }}</a>
                                 </td>
                                 <td class="text-end">{{ summary[key]|format_number }}</td>
                                 <td class="text-end text-secondary w-1">{{ review.percent(summary[key], summary.allocations) }}</td>
                             </tr>
                         {% endfor %}
                         <tr data-test="summary-rejected">
-                            <td class="text-secondary"><a class="text-reset" href="{{ path('app_encounter_review_hospital', base|merge({segment: 'done', status: 'rejected'})) }}">{{ 'encounter.review.summary.rejected'|trans({}, 'encounter') }}</a></td>
+                            <td class="text-secondary"><a class="text-reset" href="{{ path('app_tools_encounter_review_hospital', base|merge({segment: 'done', status: 'rejected'})) }}">{{ 'encounter.review.summary.rejected'|trans({}, 'encounter') }}</a></td>
                             <td class="text-end">{{ summary.rejected|format_number }}</td>
                             <td></td>
                         </tr>
                         <tr data-test="summary-swaps">
-                            <td class="text-secondary"><a class="text-reset" href="{{ path('app_encounter_review_hospital', base|merge({segment: 'open', kind: 'swaps'})) }}">{{ 'encounter.review.summary.swaps'|trans({}, 'encounter') }}</a></td>
+                            <td class="text-secondary"><a class="text-reset" href="{{ path('app_tools_encounter_review_hospital', base|merge({segment: 'open', kind: 'swaps'})) }}">{{ 'encounter.review.summary.swaps'|trans({}, 'encounter') }}</a></td>
                             <td class="text-end">{{ swap_count|format_number }}</td>
                             <td></td>
                         </tr>
@@ -92,7 +92,7 @@
                                 <td class="text-end">{{ counts.total|format_number }}</td>
                                 <td class="text-end">{{ counts.linked|format_number }} <span class="text-secondary">{{ review.percent(counts.linked, counts.total) }}</span></td>
                                 <td class="text-end">
-                                    <a href="{{ path('app_encounter_review_visits', base|merge({route: route_value})) }}" data-test="summary-unlinked-link">{{ counts.unlinked|format_number }}</a>
+                                    <a href="{{ path('app_tools_encounter_review_visits', base|merge({route: route_value})) }}" data-test="summary-unlinked-link">{{ counts.unlinked|format_number }}</a>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -103,5 +103,5 @@
         </div>
     </div>
 
-    {{ include('@Encounter/review/_period_drawer.html.twig', {route_name: 'app_encounter_review_overview', period: context.period, keep: [], context: null}) }}
+    {{ include('@Encounter/review/_period_drawer.html.twig', {route_name: 'app_tools_encounter_review_overview', period: context.period, keep: [], context: null}) }}
 {% endblock %}

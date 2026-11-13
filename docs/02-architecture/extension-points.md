@@ -210,6 +210,46 @@ contract (`EncounterFileValidator`, `EdVisitRowMapper`). Vendor formats are not 
 are source profiles of the data preparation tool. See
 [ADR 026](decisions/026-encounter-data-context-and-exchange-format.md).
 
+## Tools
+
+**Tag:** `shared.tool`
+
+**Interface:** `ToolProviderInterface` (`src/Shared/Application/Navigation/Tool/`)
+
+**Registry:** `ToolRegistry`; consumers the Tools landing page `GET /tools` (`@Shared/tools/index.html.twig`),
+the main navigation entry (Twig function `has_tools()`) and the Tools section of the sitemap
+
+**Implementations:** `IndicationReviewToolProvider` (Allocation, indication matching review),
+`EncounterToolProvider` (Encounter: match review, match validation, data preparation tool; beta)
+
+Lets a context add an interactive workflow (review, validation, data preparation) to the Tools section
+without a dependency from `Shared` on it ([ADR 031](decisions/031-tools-section-and-tool-registry.md)).
+A `Tool` names its title and description keys with their translation domain, the route, a Tabler icon,
+a `ToolCategory` and an optional beta flag. Tool keys are unique. The landing page lists the categories
+in the order of `ToolCategory` and the tools inside a category alphabetically by their translated title in
+the current locale (`\Collator`). Providers check access themselves and return no tool for users who may
+not open it; `has_tools()` asks the providers on every page with the main navigation, so decide from roles
+and voters without database queries.
+Routes of a tool are named `app_tools_*` and live under `/tools/…`, so the navigation marks Tools as active.
+Path `access_control` on `/tools` only requires `ROLE_USER`; every tool route needs its own guard
+(`#[IsGranted]` or a voter) for anything stricter.
+
+## My Hospitals actions
+
+**Tag:** `allocation.my_hospital_action`
+
+**Interface:** `MyHospitalActionProviderInterface` (`src/Allocation/Application/Hospital/MyHospitals/Action/`)
+
+**Registry:** `MyHospitalActionRegistry`, called once by `ListOwnedHospitalsController` with the ids of all listed
+hospitals; `_my_hospitals_card.html.twig` renders the actions between *View statistics* and *View imports*
+
+**Implementations:** `EncounterMyHospitalActionProvider` ("Encounter data", link to the encounter analysis, #1128)
+
+Lets other contexts add a quick action per hospital to the My Hospitals cards without a dependency from
+`Allocation` on them. Providers receive all hospital ids of the page at once, check access themselves and
+return actions only where the user may open the target, with a constant number of queries per page.
+Details: [my-hospitals.md](../04-features/allocation/my-hospitals.md#page).
+
 ## Related documentation
 
 - [../04-features/import/import-pipeline.md](../04-features/import/import-pipeline.md)

@@ -27,8 +27,12 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         $raw = IndicationRawFactory::createOne();
         $client->loginUser($user);
 
-        $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%s', $raw->getPublicIdString()));
+        $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $raw->getPublicIdString()));
         self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#navbar-menu li.nav-item.active[data-testid="nav-tools"]');
+        self::assertSelectorNotExists('#explore-subnav');
+        self::assertSelectorExists('.breadcrumb a[href="/tools"]');
+        self::assertSelectorExists('.breadcrumb a[href="/tools/indication-review"]');
     }
 
     public function testProposeMatchSetsNeedsReview(): void
@@ -41,7 +45,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         $raw = IndicationRawFactory::createOne(['code' => 111, 'name' => 'Test Raw']);
         $client->loginUser($user);
 
-        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%s', $raw->getPublicIdString()));
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $raw->getPublicIdString()));
         self::assertResponseIsSuccessful();
         $form = $crawler->selectButton('Propose match')->form();
         $form['indication_raw_review[target_label]'] = 'Test Norm (111)';
@@ -54,6 +58,35 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         self::assertNotNull($reloaded);
         self::assertSame(IndicationRawReviewStatus::NeedsReview, $reloaded->getReviewStatus());
         self::assertNotNull($reloaded->getFirstMatchedBy());
+    }
+
+    public function testDecisionContinuesWithTheNextOpenItem(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::createOne([
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS, UserRole::ADMIN],
+        ]);
+        $current = IndicationRawFactory::createOne([
+            'code' => 551,
+            'name' => 'Current Raw',
+            'createdAt' => new \DateTimeImmutable('2026-01-01'),
+        ]);
+        $next = IndicationRawFactory::createOne([
+            'code' => 552,
+            'name' => 'Next Raw',
+            'createdAt' => new \DateTimeImmutable('2026-01-02'),
+        ]);
+        $client->loginUser($admin);
+
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $current->getPublicIdString()));
+        self::assertResponseIsSuccessful();
+        $client->submit($crawler->selectButton('Ignore')->form());
+
+        self::assertResponseStatusCodeSame(302);
+        self::assertStringStartsWith(
+            sprintf('/tools/indication-review/%s?', $next->getPublicIdString()),
+            (string) $client->getResponse()->headers->get('Location'),
+        );
     }
 
     public function testApproveMatchByOtherReviewer(): void
@@ -76,7 +109,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         ]);
 
         $client->loginUser($reviewer);
-        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%s', $raw->getPublicIdString()));
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $raw->getPublicIdString()));
         self::assertResponseIsSuccessful();
         $form = $crawler->selectButton('Accept')->form();
         $client->submit($form);
@@ -98,7 +131,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         $raw = IndicationRawFactory::createOne(['code' => 333, 'name' => 'Fast Raw']);
         $client->loginUser($admin);
 
-        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%s', $raw->getPublicIdString()));
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $raw->getPublicIdString()));
         self::assertResponseIsSuccessful();
         $form = $crawler->selectButton('Match and approve')->form();
         $form['indication_raw_review[target_label]'] = 'Fast Norm (333)';
@@ -134,7 +167,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         ]);
 
         $client->loginUser($reviewer);
-        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%s', $raw->getPublicIdString()));
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $raw->getPublicIdString()));
         self::assertResponseIsSuccessful();
         self::assertStringContainsString('Indication: Review Raw (444)', $crawler->filter('h2.page-title')->text());
         self::assertStringContainsString($proposer->getUserIdentifier(), $crawler->filter('.card-body dl')->text());
@@ -167,7 +200,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         ]);
 
         $client->loginUser($admin);
-        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%s', $raw->getPublicIdString()));
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $raw->getPublicIdString()));
         self::assertResponseIsSuccessful();
 
         $actions = $crawler->filter('#indication-review-actions');
@@ -196,7 +229,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         ]);
 
         $client->loginUser($admin);
-        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%s', $raw->getPublicIdString()));
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $raw->getPublicIdString()));
         $form = $crawler->selectButton('Approve match')->form();
         $client->submit($form);
 
@@ -220,7 +253,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         $client->loginUser($admin);
 
         $client->request(Request::METHOD_GET, sprintf(
-            '/explore/indication/raw/review/%s?segment=not_matchable',
+            '/tools/indication-review/%s?segment=not_matchable',
             $raw->getPublicIdString(),
         ));
 
@@ -247,7 +280,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         ]);
 
         $client->loginUser($reviewer);
-        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%s', $raw->getPublicIdString()));
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $raw->getPublicIdString()));
         $client->submit($crawler->selectButton('Reject match')->form());
 
         /** @var IndicationRawRepository $repo */
@@ -268,10 +301,10 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         $notMatchableRaw = IndicationRawFactory::createOne(['code' => 558, 'name' => 'NM Raw']);
         $client->loginUser($reviewer);
 
-        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%s', $ignoreRaw->getPublicIdString()));
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $ignoreRaw->getPublicIdString()));
         $client->submit($crawler->selectButton('Ignore')->form());
 
-        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%s', $notMatchableRaw->getPublicIdString()));
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $notMatchableRaw->getPublicIdString()));
         $client->submit($crawler->selectButton('Not matchable')->form());
 
         /** @var IndicationRawRepository $repo */
@@ -297,7 +330,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         ]);
         $client->loginUser($reviewer);
 
-        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%s', $raw->getPublicIdString()));
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $raw->getPublicIdString()));
         $client->submit($crawler->selectButton('Reopen for review')->form());
 
         /** @var IndicationRawRepository $repo */
@@ -316,7 +349,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         $raw = IndicationRawFactory::createOne(['code' => 560, 'name' => 'Comment Raw']);
         $client->loginUser($reviewer);
 
-        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%s', $raw->getPublicIdString()));
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $raw->getPublicIdString()));
         $form = $crawler->selectButton('Save comment')->form();
         $form['indication_raw_review[reviewComment]'] = 'Needs second opinion';
         $client->submit($form);
@@ -346,11 +379,11 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         ]);
         $client->loginUser($reviewer);
 
-        $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%s/skip', $first->getPublicIdString()));
+        $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s/skip', $first->getPublicIdString()));
 
         self::assertResponseStatusCodeSame(302);
         self::assertStringContainsString(
-            sprintf('/explore/indication/raw/review/%s', $second->getPublicIdString()),
+            sprintf('/tools/indication-review/%s', $second->getPublicIdString()),
             (string) $client->getResponse()->headers->get('Location'),
         );
     }
@@ -364,11 +397,11 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         $raw = IndicationRawFactory::createOne(['code' => 563, 'name' => 'Only Raw']);
         $client->loginUser($reviewer);
 
-        $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%s/skip', $raw->getPublicIdString()));
+        $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s/skip', $raw->getPublicIdString()));
 
         self::assertResponseStatusCodeSame(302);
         self::assertStringContainsString(
-            '/explore/indication/raw/review?segment=open',
+            '/tools/indication-review?segment=open',
             (string) $client->getResponse()->headers->get('Location'),
         );
     }
@@ -382,7 +415,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         $raw = IndicationRawFactory::createOne(['code' => 564, 'name' => 'No Target Raw']);
         $client->loginUser($reviewer);
 
-        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%s', $raw->getPublicIdString()));
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $raw->getPublicIdString()));
         $client->submit($crawler->selectButton('Propose match')->form());
 
         self::assertResponseStatusCodeSame(302);
@@ -410,7 +443,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         ]);
         $client->loginUser($viewer);
 
-        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%s', $raw->getPublicIdString()));
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $raw->getPublicIdString()));
 
         self::assertResponseIsSuccessful();
         self::assertStringContainsString($reviewer->getUserIdentifier(), $crawler->filter('.card-body dl')->text());

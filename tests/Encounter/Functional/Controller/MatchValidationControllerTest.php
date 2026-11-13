@@ -474,7 +474,7 @@ final class MatchValidationControllerTest extends WebTestCase
         $this->hospitalGrant($other, $otherReviewer);
         $this->encounterGrant($other, $otherReviewer, [EncounterGrantAction::Review]);
         $this->client->loginUser($otherReviewer);
-        $this->client->request(Request::METHOD_GET, sprintf('/encounter/review/%d/validation/%d', (int) $other->getId(), (int) $sample->getId()));
+        $this->client->request(Request::METHOD_GET, sprintf('/tools/encounter-review/%d/validation/%d', (int) $other->getId(), (int) $sample->getId()));
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         // Administrators see every hospital without a grant.
@@ -574,6 +574,6 @@ final class MatchValidationControllerTest extends WebTestCase
 
     private function validationUrl(): string
     {
-        return '/encounter/review/'.$this->hospital->getId().'/validation';
+        return '/tools/encounter-review/'.$this->hospital->getId().'/validation';
     }
 }

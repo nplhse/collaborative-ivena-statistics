@@ -31,7 +31,7 @@ final class CatalogMappingQualityWarningFactoryTest extends TestCase
 
         $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
         $urlGenerator->method('generate')
-            ->willReturn('/explore/indication/raw/review');
+            ->willReturn('/tools/indication-review');
 
         $warnings = new CatalogMappingQualityWarningFactory(
             new IndicationRawReviewHealthCheckQuery($connection),

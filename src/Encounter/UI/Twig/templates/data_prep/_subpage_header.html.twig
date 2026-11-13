@@ -2,8 +2,8 @@
 <twig:PageHeader :title="subpage_title|trans({}, 'encounter')">
     <twig:block name="breadcrumbs">
         <twig:Breadcrumbs :items="[
-            { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
-            { label: 'encounter.data_prep.guide.title', label_domain: 'encounter', translatable: true, path: path('app_encounter_data_prep') },
+            { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
+            { label: 'encounter.data_prep.guide.title', label_domain: 'encounter', translatable: true, path: path('app_tools_data_prep') },
             { label: subpage_title, label_domain: 'encounter', translatable: true }
         ]" />
     </twig:block>

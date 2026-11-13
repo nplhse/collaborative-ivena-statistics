@@ -4,20 +4,11 @@
 
 {% block turbo_drive %}data-turbo=true{% endblock %}
 
-{% block header %}
-    {% embed '@Shared/_embeds/header.html.twig' %}
-        {% block header_after %}
-            {{ include(('@Shared/_includes/subnav_explore.html.twig')) }}
-        {% endblock %}
-    {% endembed %}
-{% endblock %}
-
 {% block page_header %}
     <twig:PageHeader :title="'title.indication.review_worklist'|trans({}, 'allocation')">
         <twig:block name="breadcrumbs">
             <twig:Breadcrumbs :items="[
-                { label: 'link.explore', path: path('app_explore_index') },
-                { label: 'title.indication.list', path: path('app_explore_indication_list') },
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
                 { label: 'title.indication.review_worklist' }
             ]" />
         </twig:block>
@@ -26,18 +17,18 @@
         </twig:block>
         <twig:block name="actions">
             {% if can_edit_match %}
-                <a href="{{ path('app_explore_indication_raw_review_start_matching') }}" class="btn" target="_top">
+                <a href="{{ path('app_tools_indication_review_start_matching') }}" class="btn" target="_top">
                     {{ 'btn.indication.start_matching'|trans({}, 'allocation') }}
                 </a>
             {% endif %}
             {% if can_review %}
-                <a href="{{ path('app_explore_indication_raw_review_start_reviewing') }}" class="btn" target="_top">
+                <a href="{{ path('app_tools_indication_review_start_reviewing') }}" class="btn" target="_top">
                     {{ 'btn.indication.start_reviewing'|trans({}, 'allocation') }}
                 </a>
             {% endif %}
             <form
                 method="GET"
-                action="{{ path('app_explore_indication_raw_review_worklist') }}"
+                action="{{ path('app_tools_indication_review') }}"
                 data-controller="autosubmit"
                 data-turbo-frame="indication-review-list"
             >
@@ -93,7 +84,7 @@
             mobilePrimaryColumn="name"
             :paginator="paginator"
             :rows="results"
-            paginationRoute="app_explore_indication_raw_review_worklist"
+            paginationRoute="app_tools_indication_review"
             :sortBy="query.sortBy"
             :orderBy="query.orderBy"
             :tabs="segment_tabs"
@@ -112,7 +103,7 @@
         >
             <twig:block name="empty_actions">
                 {% if query.search is not empty %}
-                    <a class="btn btn-primary" href="{{ path('app_explore_indication_raw_review_worklist', {segment: query.segment.value, sortBy: query.sortBy, orderBy: query.orderBy}) }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                    <a class="btn btn-primary" href="{{ path('app_tools_indication_review', {segment: query.segment.value, sortBy: query.sortBy, orderBy: query.orderBy}) }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
                 {% endif %}
             </twig:block>
         </twig:DataTable>
