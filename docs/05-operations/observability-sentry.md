@@ -1,6 +1,6 @@
 # Sentry (beta monitoring)
 
-This application uses `sentry/sentry-symfony` for error monitoring, structured logs, and automatic performance tracing of HTTP requests, console commands, and Doctrine queries. Messenger jobs have no transaction of their own: a worker runs inside the `messenger:consume` console transaction. Closure rebuilds record their own transaction (see below).
+This application uses `sentry/sentry-symfony` for error monitoring, structured logs, and automatic performance tracing of HTTP requests, console commands, Doctrine queries and cache calls. Messenger messages are not traced: the bundle creates no transaction per message, and `messenger:consume` is excluded from console tracing by default, so a worker has no transaction at all. Failed messages still create error events. Long background jobs (closure rebuild, imports, projection rebuild) record their own transaction (see [Background job runs](#background-job-runs)).
 
 ## Environment variables
 
@@ -17,11 +17,12 @@ For beta deployments, set a DSN, `SENTRY_ENVIRONMENT=beta`, and `SENTRY_TRACES_S
 
 ## Integration
 
-- **Bundle:** [`config/packages/sentry.yaml`](../../config/packages/sentry.yaml) — errors, HTTP/Messenger/Doctrine tracing, and structured logs.
+- **Bundle:** [`config/packages/sentry.yaml`](../../config/packages/sentry.yaml) — errors, HTTP/console/Doctrine/cache tracing, and structured logs. Automatic Twig tracing is off: it added one span per template and block (150–200 per page) and made up most of the span volume; time spent rendering shows as the gap between the remaining spans. Cache calls are traced but not sent one by one: [`SentryCacheSpanSummary`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryCacheSpanSummary.php) replaces the cache spans (200–430 per request, mostly PropertyInfo lookups) by `cache.calls`, `cache.hits`, `cache.misses`, `cache.writes` and `cache.duration_ms` in the transaction's trace data. The duration adds up outermost cache calls only and includes computing missed values; spans created inside a cache call move up to the nearest remaining parent. Job runs keep their own span rules. The cache spans still count towards the SDK limit of 1,000 spans per transaction.
 - **Monolog:** [`config/packages/monolog.yaml`](../../config/packages/monolog.yaml) — `sentry_logs_import` (`import` channel, info and above), `sentry_logs_closure_rebuild` (`closure_rebuild` channel, info and above) and `sentry_logs_main` (other channels, warning and above).
-- **Sampling:** [`SentryTracesSampler`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryTracesSampler.php) — once a `traces_sampler` is set, Sentry ignores `traces_sample_rate`, so the sampler applies the global rate itself and returns `1.0` for the ops in `FULLY_SAMPLED_OPS` (`closure.rebuild`).
+- **Sampling:** [`SentryTracesSampler`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryTracesSampler.php) — once a `traces_sampler` is set, Sentry ignores `traces_sample_rate`, so the sampler applies the global rate itself, returns `1.0` for the ops of every job-run profile (for example `closure.rebuild`) and `0.0` for `GET app_health` (uptime checks) and `GET app_notification_poll` (notification polling), even when an incoming trace header says the parent was sampled.
 - **Scrubbing:** [`SentryEventScrubber`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryEventScrubber.php) and [`SentryLogScrubber`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryLogScrubber.php) filter events, breadcrumbs, and log attributes before send.
 - **Request context:** [`SentryRequestContextSubscriber`](../../src/Shared/Infrastructure/Monitoring/Http/SentryRequestContextSubscriber.php) sets user (ID/username), `route`, `bounded_context`, `origin`, `request_id` (the audit log request id, also in the `X-Request-Id` response header) and, when a client or proxy sent a well-formed `X-Request-Id`, `upstream_request_id`.
+- **Live Components:** all of them share the route `ux_live_component`. [`SentryLiveComponentSubscriber`](../../src/Shared/Infrastructure/Monitoring/Http/SentryLiveComponentSubscriber.php) names the transaction `<METHOD> ux_live_component <Component>::<action>` (for example `POST ux_live_component AnalysisExplorerShell::render`) and sets the tags `live_component` and `live_action`; the default action, a plain re-render, is called `render`. Only components and actions that the Live Component bundle has accepted get a name, so the number of transaction names stays bounded.
 
 ## CSP violation reports
 
@@ -222,6 +223,10 @@ Unhandled exceptions of a failed run still create a regular issue. "No completed
 
 Request bodies and email addresses are not sent to Sentry. Log attributes that contain paths, raw data, or reject payloads are filtered or truncated before send.
 
+- **URLs without query string:** query string and fragment are cut from `request.url`, from the `referer` header, from span and trace data (`http.url`, `url.full`) and from the description of `http.*` spans. Statistics filters, tokens or email addresses in a URL never leave the system. The path stays, so ids in the path (for example `/hospitals/7`) are still visible.
+- **Trace and span data allowlist:** on request and console transactions and on error events, `contexts.trace.data` and span data keep only `http.request.method`, `http.response.status_code`, `http.flavor`, `http.url`, `url.full`, `route`, `net.host.name`, `net.host.port`, `db.system`, the cache summary keys and keys starting with `sentry.` or `thread.`; other span keys are replaced by `[Filtered]`. Job runs use the allowlist of their profile instead (see [Background job runs](#background-job-runs)).
+- **Database values:** SQL is sent with placeholders; bound parameters are not collected (`send_default_pii: false`, no `data_collection` option). Cache keys are not sent, because single cache spans are replaced by the summary.
+
 ## Local smoke test
 
 In `dev` or `staging`, with a DSN configured, `GET /_debug/sentry/test` triggers a controlled exception.
@@ -230,7 +235,7 @@ In `dev` or `staging`, with a DSN configured, `GET /_debug/sentry/test` triggers
 
 1. **Errors:** after the smoke test, expect a new issue with environment, release, and tags `route` / `bounded_context`.
 2. **Logs:** Explore -> Logs with filters such as `message:import.summary` or `level:error`.
-3. **Performance:** HTTP requests, Messenger jobs, and Doctrine queries appear as automatic transactions and spans.
+3. **Performance:** HTTP requests and console commands appear as transactions with Doctrine and cache spans; job runs as their own transactions. Messenger messages and `messenger:consume` have none.
 4. **Privacy:** event and log details should not include request bodies or unnecessary personal data.
 
 ## Uptime monitoring

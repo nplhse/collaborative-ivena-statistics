@@ -11,19 +11,11 @@ use Sentry\Event;
  */
 final readonly class SentryBeforeSendCallback
 {
-    /**
-     * Frequent background requests that would only add noise and cost (ADR 016, notification polling).
-     *
-     * @var list<string>
-     */
-    private const array UNTRACED_TRANSACTIONS = [
-        'GET app_notification_poll',
-    ];
-
     public function __construct(
         private SentryEventScrubber $scrubber,
         private SentryLogScrubber $logScrubber,
         private SentryJobRunFilter $jobRunFilter,
+        private SentryCacheSpanSummary $cacheSpanSummary = new SentryCacheSpanSummary(),
     ) {
     }
 
@@ -44,13 +36,12 @@ final readonly class SentryBeforeSendCallback
             if (!$event instanceof Event) {
                 return $event;
             }
-            $event = $this->jobRunFilter->filterTransaction($event);
+            $isJobRun = $this->jobRunFilter->isJobRunTransaction($event);
+            $event = $isJobRun
+                ? $this->jobRunFilter->filterTransaction($event)
+                : $this->cacheSpanSummary->summarize($event);
 
-            if (\in_array($event->getTransaction(), self::UNTRACED_TRANSACTIONS, true)) {
-                return null;
-            }
-
-            return $this->scrubber->scrubEvent($event);
+            return $this->scrubber->scrubEvent($event, traceDataAllowlisted: $isJobRun);
         };
     }
 

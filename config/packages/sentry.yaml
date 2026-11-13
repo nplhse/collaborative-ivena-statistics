@@ -2,6 +2,15 @@ sentry:
     dsn: '%env(default::SENTRY_DSN)%'
     register_error_listener: true
     register_error_handler: true
+    tracing:
+        # One view.render span per template and block (150–200 per page) outweighs everything else in a
+        # transaction and says little; time spent in Twig shows as the gap between the other spans.
+        twig:
+            enabled: false
+        # Cache tracing stays on, but SentryCacheSpanSummary replaces the cache spans (200–430 per request) by
+        # counts and the total cache time in the transaction's trace data before it is sent.
+        cache:
+            enabled: true
     options:
         environment: '%env(default:kernel.environment:SENTRY_ENVIRONMENT)%'
         release: '%env(default:app.version:SENTRY_RELEASE)%'
