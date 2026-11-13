@@ -19,10 +19,18 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Content\Infrastructure\Factory\MediaFactory;
+use App\Engagement\Application\Dto\MonthlyReminderTrigger;
+use App\Engagement\Domain\Entity\MonthlyReminderDispatch;
+use App\Feedback\Domain\Entity\Feedback;
+use App\Feedback\Domain\Enum\FeedbackCategory;
 use App\Import\Domain\Entity\ImportBatchRun;
 use App\Import\Domain\Entity\ImportBatchRunItem;
 use App\Import\Domain\Entity\ImportReject;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Onboarding\Infrastructure\Factory\UserOnboardingStepFactory;
+use App\Shared\Domain\Entity\CookieConsent;
+use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -57,6 +65,10 @@ final class AdminCrudTranslationTest extends WebTestCase
         'Export ends at (exclusive)', 'Export period source', 'Source file', 'Reject file', 'File extension', 'MIME type',
         'File size (bytes)', 'Checksum', 'Line', 'Messages', 'Row JSON', 'Started', 'Finished', 'Options', 'Items',
         'Batch run', 'Import ID', 'Import name', 'Attempts', 'Error',
+        'Guest email', 'Title', 'Message', 'Page URL', 'Path', 'Context', 'User agent', 'App version', 'Subject ID',
+        'Mode', 'Decided at', 'Updated at', 'Reporting period', 'Trigger', 'Recipient', 'Queued at', 'Delivered at',
+        'Failure reason', 'Locale', 'Owned hospitals', 'Step', 'Completed at', 'System view', 'Config JSON',
+        'label.width', 'label.height',
     ];
 
     /**
@@ -84,6 +96,13 @@ final class AdminCrudTranslationTest extends WebTestCase
         yield 'import reject' => ['import-reject', self::importReject(...), 'Abgelehnte Importzeilen', 'Abgelehnte Importzeile'];
         yield 'import batch run' => ['import-batch-run', static fn (): object => self::batchRunItem()->getRun() ?? throw new \LogicException('no run'), 'Stapelläufe', 'Stapellauf'];
         yield 'import batch run item' => ['import-batch-run-item', self::batchRunItem(...), 'Stapelpositionen', 'Stapelposition'];
+        yield 'feedback' => ['feedback', self::feedback(...), 'Feedback', 'Feedback'];
+        yield 'cookie consent' => ['cookie-consent', static fn (): object => self::persist(new CookieConsent('subject-1')), 'Cookie-Einwilligungen', 'Cookie-Einwilligung'];
+        yield 'monthly reminder dispatch' => ['monthly-reminder-dispatch', self::reminderDispatch(...), 'Monatliche Erinnerungsversände', 'Monatliche Erinnerung'];
+        yield 'user' => ['user', static fn (): object => UserFactory::createOne(), 'Benutzer', 'Benutzer'];
+        yield 'user onboarding step' => ['user-onboarding-step', static fn (): object => UserOnboardingStepFactory::createOne(), 'Onboarding-Schritte', 'Onboarding-Schritt'];
+        yield 'saved explorer view' => ['saved-explorer-view', static fn (): object => self::persist(new SavedExplorerView('translation-view', 'Translation view', 'allocations', ['metric' => 'count'], 'Description', true)), 'Explorer-Ansichten', 'Explorer-Ansicht'];
+        yield 'media' => ['media', static fn (): object => MediaFactory::createOne(), 'Medienbibliothek', 'Mediendatei'];
         yield 'indication normalized' => ['indication-normalized', static fn (): object => IndicationNormalizedFactory::createOne(), 'Indikationen (normalisiert)', 'Indikation (normalisiert)'];
     }
 
@@ -141,6 +160,30 @@ final class AdminCrudTranslationTest extends WebTestCase
         IndicationNormalizedFactory::createOne();
 
         return $create();
+    }
+
+    private static function feedback(): Feedback
+    {
+        return self::persist(new Feedback()
+            ->setCategory(FeedbackCategory::BUG)
+            ->setMessage('Chart is empty')
+            ->setPageUrl('https://example.test/statistics'));
+    }
+
+    private static function reminderDispatch(): MonthlyReminderDispatch
+    {
+        $hospital = HospitalFactory::createOne([
+            'state' => StateFactory::createOne(),
+            'dispatchArea' => DispatchAreaFactory::createOne(),
+        ]);
+
+        return self::persist(new MonthlyReminderDispatch(
+            $hospital,
+            '2026-10',
+            MonthlyReminderTrigger::Admin->value,
+            new \DateTimeImmutable('2026-11-01 08:00:00'),
+            recipientEmail: 'owner@example.test',
+        ));
     }
 
     private static function importReject(): ImportReject

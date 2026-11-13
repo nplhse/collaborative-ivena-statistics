@@ -35,8 +35,8 @@ final class SavedExplorerViewCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Saved explorer view')
-            ->setEntityLabelInPlural('Saved explorer views')
+            ->setEntityLabelInSingular(new TranslatableMessage('admin.saved_explorer_view.entity.singular', domain: 'admin'))
+            ->setEntityLabelInPlural(new TranslatableMessage('admin.saved_explorer_view.entity.plural', domain: 'admin'))
             ->setSearchFields(['slug', 'title', 'category'])
             ->setDefaultSort(['updatedAt' => 'DESC']);
     }
@@ -53,15 +53,15 @@ final class SavedExplorerViewCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.identity', domain: 'admin'));
-        yield TextField::new('slug', 'Slug');
-        yield TextField::new('title', 'Title');
-        yield TextField::new('category', 'Category');
-        yield BooleanField::new('isSystem', 'System view');
+        yield TextField::new('slug', new TranslatableMessage('label.slug', domain: 'messages'));
+        yield TextField::new('title', new TranslatableMessage('label.title', domain: 'messages'));
+        yield TextField::new('category', new TranslatableMessage('label.category', domain: 'messages'));
+        yield BooleanField::new('isSystem', new TranslatableMessage('stats.analysis_explorer.view_type.system', domain: 'statistics'));
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.config', domain: 'admin'));
-        yield TextareaField::new('description', 'Description')
+        yield TextareaField::new('description', new TranslatableMessage('admin.field.description', domain: 'admin'))
             ->onlyOnDetail();
-        yield TextField::new('configJsonPreview', 'Config JSON')
+        yield TextField::new('configJsonPreview', new TranslatableMessage('admin.saved_explorer_view.field.config_json', domain: 'admin'))
             ->onlyOnDetail()
             ->setValue('')
             ->formatValue(static function (mixed $_, SavedExplorerView $view): string {
@@ -76,13 +76,13 @@ final class SavedExplorerViewCrudController extends AbstractCrudController
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
         yield IdField::new('id')
             ->onlyOnDetail();
-        yield DateTimeField::new('createdAt', 'Created')
+        yield DateTimeField::new('createdAt', new TranslatableMessage('label.created', domain: 'messages'))
             ->onlyOnDetail();
-        yield DateTimeField::new('updatedAt', 'Updated')
+        yield DateTimeField::new('updatedAt', new TranslatableMessage('label.updated', domain: 'messages'))
             ->onlyOnDetail();
-        yield AssociationField::new('createdBy', 'Created by')
+        yield AssociationField::new('createdBy', new TranslatableMessage('label.created_by', domain: 'messages'))
             ->onlyOnDetail();
-        yield AssociationField::new('updatedBy', 'Updated by')
+        yield AssociationField::new('updatedBy', new TranslatableMessage('label.updated_by', domain: 'messages'))
             ->onlyOnDetail();
     }
 }

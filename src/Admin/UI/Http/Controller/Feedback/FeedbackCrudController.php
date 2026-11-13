@@ -61,15 +61,14 @@ final class FeedbackCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Feedback')
-            ->setEntityLabelInPlural('Feedback')
+            ->setEntityLabelInSingular(new TranslatableMessage('admin.feedback.entity.singular', domain: 'admin'))
+            ->setEntityLabelInPlural(new TranslatableMessage('admin.feedback.entity.plural', domain: 'admin'))
             ->setPageTitle(
                 Crud::PAGE_INDEX,
-                fn (): string => \sprintf(
-                    'Feedback — %d open · %d in quarantine',
-                    $this->feedbackRepository->countOpen(),
-                    $this->feedbackRepository->countQuarantined(),
-                ),
+                fn (): TranslatableMessage => new TranslatableMessage('admin.feedback.page_title.index', [
+                    'open' => $this->feedbackRepository->countOpen(),
+                    'quarantined' => $this->feedbackRepository->countQuarantined(),
+                ], 'admin'),
             )
             ->setPageTitle(Crud::PAGE_DETAIL, static fn (Feedback $f): string => 'Feedback #'.($f->getId() ?? '?'))
             ->setSearchFields(['message', 'guestEmail', 'routeName', 'appVersion'])
@@ -169,7 +168,7 @@ final class FeedbackCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.status', domain: 'admin'));
-        yield ChoiceField::new('status', 'Status')
+        yield ChoiceField::new('status', new TranslatableMessage('label.status', domain: 'messages'))
             ->setChoices([
                 'Open' => FeedbackStatus::NEW,
                 'Done' => FeedbackStatus::DONE,
@@ -182,7 +181,7 @@ final class FeedbackCrudController extends AbstractCrudController
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.submission', domain: 'admin'));
         yield IdField::new('id')->onlyOnDetail();
 
-        yield ChoiceField::new('category', 'Category')
+        yield ChoiceField::new('category', new TranslatableMessage('label.category', domain: 'messages'))
             ->setChoices([
                 'Bug' => FeedbackCategory::BUG,
                 'Improvement' => FeedbackCategory::IMPROVEMENT,
@@ -192,14 +191,14 @@ final class FeedbackCrudController extends AbstractCrudController
             ->renderAsBadges()
             ->hideOnForm();
 
-        yield TextField::new('guestEmail', 'Guest email')
+        yield TextField::new('guestEmail', new TranslatableMessage('admin.feedback.field.guest_email', domain: 'admin'))
             ->hideOnForm();
 
-        yield AssociationField::new('submittedBy', 'User')
+        yield AssociationField::new('submittedBy', new TranslatableMessage('admin.field.user', domain: 'admin'))
             ->hideOnForm();
 
         if (Crud::PAGE_INDEX === $pageName) {
-            yield TextField::new('message', 'Title')
+            yield TextField::new('message', new TranslatableMessage('label.title', domain: 'messages'))
                 ->formatValue(static function (?string $value): string {
                     if (!\is_string($value) || '' === $value) {
                         return '—';
@@ -208,28 +207,28 @@ final class FeedbackCrudController extends AbstractCrudController
                     return self::escape(mb_strlen($value) > 80 ? mb_substr($value, 0, 80).'…' : $value);
                 });
         } elseif (Crud::PAGE_EDIT === $pageName) {
-            yield TextareaField::new('message', 'Message')
+            yield TextareaField::new('message', new TranslatableMessage('admin.feedback.field.message', domain: 'admin'))
                 ->setDisabled()
                 ->setNumOfRows(8);
         } else {
-            yield TextareaField::new('message', 'Message')->setNumOfRows(12);
+            yield TextareaField::new('message', new TranslatableMessage('admin.feedback.field.message', domain: 'admin'))->setNumOfRows(12);
         }
 
-        yield DateTimeField::new('createdAt', 'Created')
+        yield DateTimeField::new('createdAt', new TranslatableMessage('label.created', domain: 'messages'))
             ->setFormat('yyyy-MM-dd HH:mm:ss')
             ->hideOnForm();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.context', domain: 'admin'));
         if (Crud::PAGE_DETAIL === $pageName) {
-            yield TextField::new('pageUrl', 'Page URL')
+            yield TextField::new('pageUrl', new TranslatableMessage('feedback.email.label.url', domain: 'feedback'))
                 ->hideOnForm();
-            yield TextField::new('pagePathDisplay', 'Path')
+            yield TextField::new('pagePathDisplay', new TranslatableMessage('label.path', domain: 'messages'))
                 ->setVirtual(true)
                 ->setValue('')
                 ->formatValue(static fn (mixed $_, Feedback $f): string => self::escape($f->getPagePath()));
         }
 
-        yield TextField::new('routeName', 'Route')
+        yield TextField::new('routeName', new TranslatableMessage('feedback.email.label.route', domain: 'feedback'))
             ->hideOnForm()
             ->formatValue(static function (?string $value): string {
                 if (!\is_string($value) || '' === trim($value)) {
@@ -240,7 +239,7 @@ final class FeedbackCrudController extends AbstractCrudController
             });
 
         // Virtual: TextConfigurator rejects the array value of "context" before formatValue() runs.
-        yield TextField::new('contextJson', 'Context')
+        yield TextField::new('contextJson', new TranslatableMessage('admin.fieldset.context', domain: 'admin'))
             ->setVirtual(true)
             ->setValue('')
             ->onlyOnDetail()
@@ -258,7 +257,7 @@ final class FeedbackCrudController extends AbstractCrudController
                 }
             });
 
-        yield TextField::new('userAgent', 'User agent')->hideOnIndex()->hideOnForm();
-        yield TextField::new('appVersion', 'App version')->hideOnForm();
+        yield TextField::new('userAgent', new TranslatableMessage('admin.feedback.field.user_agent', domain: 'admin'))->hideOnIndex()->hideOnForm();
+        yield TextField::new('appVersion', new TranslatableMessage('feedback.email.label.app_version', domain: 'feedback'))->hideOnForm();
     }
 }

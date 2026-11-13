@@ -56,8 +56,8 @@ final class MonthlyReminderDispatchCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Monthly reminder dispatch')
-            ->setEntityLabelInPlural('Monthly reminder dispatches')
+            ->setEntityLabelInSingular(new TranslatableMessage('admin.monthly_reminder_dispatch.entity.singular', domain: 'admin'))
+            ->setEntityLabelInPlural(new TranslatableMessage('admin.monthly_reminder_dispatch.entity.plural', domain: 'admin'))
             ->setPageTitle(Crud::PAGE_INDEX, new TranslatableMessage('ops.reminder_dispatch.title', domain: 'admin'))
             ->setHelp(Crud::PAGE_INDEX, new TranslatableMessage('ops.reminder_dispatch.help', domain: 'admin'))
             ->setSearchFields(['reportingPeriod', 'trigger', 'hospital.name'])
@@ -122,27 +122,27 @@ final class MonthlyReminderDispatchCrudController extends AbstractCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(EntityFilter::new('hospital', 'Hospital'))
-            ->add(ChoiceFilter::new('trigger', 'Trigger')->setChoices([
+            ->add(EntityFilter::new('hospital', new TranslatableMessage('admin.hospital.entity.singular', domain: 'admin')))
+            ->add(ChoiceFilter::new('trigger', new TranslatableMessage('admin.job_run.field.trigger', domain: 'admin'))->setChoices([
                 'Scheduler' => MonthlyReminderTrigger::Scheduler->value,
                 'Admin' => MonthlyReminderTrigger::Admin->value,
                 'CLI' => MonthlyReminderTrigger::Cli->value,
             ]))
-            ->add(ChoiceFilter::new('status', 'Status')->setChoices([
+            ->add(ChoiceFilter::new('status', new TranslatableMessage('label.status', domain: 'messages'))->setChoices([
                 'Queued' => MonthlyReminderDispatchStatus::Queued->value,
                 'Sent' => MonthlyReminderDispatchStatus::Sent->value,
                 'Failed' => MonthlyReminderDispatchStatus::Failed->value,
             ]))
-            ->add(DateTimeFilter::new('sentAt', 'Queued at'));
+            ->add(DateTimeFilter::new('sentAt', new TranslatableMessage('admin.monthly_reminder_dispatch.field.queued_at', domain: 'admin')));
     }
 
     #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.dispatch', domain: 'admin'));
-        yield AssociationField::new('hospital', 'Hospital');
-        yield TextField::new('reportingPeriod', 'Reporting period');
-        yield ChoiceField::new('trigger', 'Trigger')
+        yield AssociationField::new('hospital', new TranslatableMessage('admin.hospital.entity.singular', domain: 'admin'));
+        yield TextField::new('reportingPeriod', new TranslatableMessage('admin.monthly_reminder_dispatch.field.reporting_period', domain: 'admin'));
+        yield ChoiceField::new('trigger', new TranslatableMessage('admin.job_run.field.trigger', domain: 'admin'))
             ->setChoices([
                 'Scheduler' => MonthlyReminderTrigger::Scheduler->value,
                 'Admin' => MonthlyReminderTrigger::Admin->value,
@@ -153,7 +153,7 @@ final class MonthlyReminderDispatchCrudController extends AbstractCrudController
                 MonthlyReminderTrigger::Admin->value => 'warning',
                 MonthlyReminderTrigger::Cli->value => 'secondary',
             ]);
-        yield ChoiceField::new('status', 'Status')
+        yield ChoiceField::new('status', new TranslatableMessage('label.status', domain: 'messages'))
             ->setChoices([
                 'Queued' => MonthlyReminderDispatchStatus::Queued->value,
                 'Sent' => MonthlyReminderDispatchStatus::Sent->value,
@@ -164,18 +164,18 @@ final class MonthlyReminderDispatchCrudController extends AbstractCrudController
                 MonthlyReminderDispatchStatus::Sent->value => 'success',
                 MonthlyReminderDispatchStatus::Failed->value => 'danger',
             ]);
-        yield TextField::new('recipientEmail', 'Recipient')
+        yield TextField::new('recipientEmail', new TranslatableMessage('admin.monthly_reminder_dispatch.field.recipient', domain: 'admin'))
             ->hideOnIndex();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
         yield IdField::new('id')
             ->onlyOnDetail();
-        yield DateTimeField::new('sentAt', 'Queued at')
+        yield DateTimeField::new('sentAt', new TranslatableMessage('admin.monthly_reminder_dispatch.field.queued_at', domain: 'admin'))
             ->setFormat('dd.MM.yyyy HH:mm');
-        yield DateTimeField::new('deliveredAt', 'Delivered at')
+        yield DateTimeField::new('deliveredAt', new TranslatableMessage('admin.monthly_reminder_dispatch.field.delivered_at', domain: 'admin'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->onlyOnDetail();
-        yield TextareaField::new('failureReason', 'Failure reason')
+        yield TextareaField::new('failureReason', new TranslatableMessage('kpi.failed_imports.reason', domain: 'admin'))
             ->onlyOnDetail()
             ->renderAsHtml(false);
     }
