@@ -8,9 +8,9 @@
     <twig:PageHeader :title="'encounter.review.visits.title'|trans({}, 'encounter')" :pretitle="hospital.name">
         <twig:block name="breadcrumbs">
             <twig:Breadcrumbs :items="[
-                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
-                { label: 'encounter.review.title', label_domain: 'encounter', translatable: true, path: path('app_encounter_review_hospital', {id: hospital.id}|merge(period.query())) },
-                { label: 'encounter.review.overview.title', label_domain: 'encounter', translatable: true, path: path('app_encounter_review_overview', {id: hospital.id}|merge(period.query())) },
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
+                { label: 'encounter.review.title', label_domain: 'encounter', translatable: true, path: path('app_tools_encounter_review_hospital', {id: hospital.id}|merge(period.query())) },
+                { label: 'encounter.review.overview.title', label_domain: 'encounter', translatable: true, path: path('app_tools_encounter_review_overview', {id: hospital.id}|merge(period.query())) },
                 { label: 'encounter.review.visits.title', label_domain: 'encounter', translatable: true }
             ]" />
         </twig:block>
@@ -22,7 +22,7 @@
             <twig:FilterDrawerTrigger
                 drawerId="encounter-review-filters"
                 :activeCount="route ? 1 : 0"
-                resetUrl="{{ route ? path('app_encounter_review_visits', {id: hospital.id}|merge(period.query())) : null }}"
+                resetUrl="{{ route ? path('app_tools_encounter_review_visits', {id: hospital.id}|merge(period.query())) : null }}"
             />
         </twig:block>
     </twig:PageHeader>
@@ -38,7 +38,7 @@
             mobilePrimaryColumn="anchor"
             mobileBreakpoint="md"
             :paginator="paginator"
-            paginationRoute="app_encounter_review_visits"
+            paginationRoute="app_tools_encounter_review_visits"
             :cellContext="{hospital_id: hospital.id, query: period.query()}"
             emptyTitle="{{ 'encounter.review.empty'|trans({}, 'encounter') }}"
             emptyIcon="tabler:checks"
@@ -51,5 +51,5 @@
         />
     </div>
 
-    {{ include('@Encounter/review/_period_drawer.html.twig', {route_name: 'app_encounter_review_visits', keep: []}) }}
+    {{ include('@Encounter/review/_period_drawer.html.twig', {route_name: 'app_tools_encounter_review_visits', keep: []}) }}
 {% endblock %}

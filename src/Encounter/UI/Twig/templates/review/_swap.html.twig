@@ -3,12 +3,12 @@
     <div class="fw-medium">{{ ('encounter.review.swap.kind.' ~ swap.kind)|trans({}, 'encounter') }}</div>
     <ul class="list-unstyled mb-2 small">
         <li>
-            <a href="{{ path('app_encounter_review_allocation', {id: hospital_id, allocationId: swap.allocationId}|merge(query)) }}">{{ 'encounter.review.allocation'|trans({id: swap.allocationId}, 'encounter') }}</a>:
+            <a href="{{ path('app_tools_encounter_review_allocation', {id: hospital_id, allocationId: swap.allocationId}|merge(query)) }}">{{ 'encounter.review.allocation'|trans({id: swap.allocationId}, 'encounter') }}</a>:
             {{ 'encounter.review.swap.move'|trans({from: swap.currentEncounterId, to: swap.newEncounterId(), before: swap.currentPoints, after: swap.newLink.points}, 'encounter') }}
         </li>
         {% if swap.otherLink %}
             <li>
-                <a href="{{ path('app_encounter_review_allocation', {id: hospital_id, allocationId: swap.otherAllocationId()}|merge(query)) }}">{{ 'encounter.review.allocation'|trans({id: swap.otherAllocationId()}, 'encounter') }}</a>:
+                <a href="{{ path('app_tools_encounter_review_allocation', {id: hospital_id, allocationId: swap.otherAllocationId()}|merge(query)) }}">{{ 'encounter.review.allocation'|trans({id: swap.otherAllocationId()}, 'encounter') }}</a>:
                 {{ 'encounter.review.swap.takes'|trans({visit: swap.currentEncounterId, points: swap.otherLink.points}, 'encounter') }}
             </li>
         {% endif %}

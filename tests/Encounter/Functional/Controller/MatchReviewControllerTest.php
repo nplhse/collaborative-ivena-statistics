@@ -67,6 +67,32 @@ final class MatchReviewControllerTest extends WebTestCase
         $this->ed = $this->encounterImport($this->hospital, 'ED');
     }
 
+    public function testHospitalListOpensTheValidationInValidationMode(): void
+    {
+        $this->client->loginUser($this->reviewer);
+        $this->client->request(Request::METHOD_GET, '/tools/encounter-review', ['mode' => 'validation']);
+        self::assertResponseRedirects($this->hospitalUrl().'/validation', message: 'One reviewable hospital: the validation opens directly (#1128).');
+
+        $second = $this->hospital($this->user());
+        $this->hospitalGrant($second, $this->reviewer);
+        $this->encounterGrant($second, $this->reviewer, [EncounterGrantAction::Review]);
+
+        $crawler = $this->client->request(Request::METHOD_GET, '/tools/encounter-review', ['mode' => 'validation']);
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#navbar-menu li.nav-item.active[data-testid="nav-tools"]');
+        self::assertSelectorExists('.breadcrumb a[href="/tools"]');
+        self::assertEqualsCanonicalizing(
+            [$this->hospitalUrl().'/validation', '/tools/encounter-review/'.$second->getId().'/validation'],
+            $crawler->filter('[data-test="encounter-review-hospitals"] a')->each(static fn (Crawler $link): string => (string) $link->attr('href')),
+        );
+
+        $crawler = $this->client->request(Request::METHOD_GET, '/tools/encounter-review');
+        self::assertEqualsCanonicalizing(
+            [$this->hospitalUrl(), '/tools/encounter-review/'.$second->getId()],
+            $crawler->filter('[data-test="encounter-review-hospitals"] a')->each(static fn (Crawler $link): string => (string) $link->attr('href')),
+        );
+    }
+
     public function testReviewerSeesTheCountsWithDenominatorsAndTheLists(): void
     {
         // 10:00 → visit 10:05: automatic link. 12:00 → visit 12:20 at age 71: 3 + 2 + 1 + 1 = 7 points,
@@ -80,7 +106,7 @@ final class MatchReviewControllerTest extends WebTestCase
         $this->matchDay($this->hospital);
 
         $this->client->loginUser($this->reviewer);
-        $crawler = $this->client->request(Request::METHOD_GET, '/encounter/review');
+        $crawler = $this->client->request(Request::METHOD_GET, '/tools/encounter-review');
         self::assertResponseRedirects($this->hospitalUrl());
 
         $crawler = $this->client->request(Request::METHOD_GET, $this->hospitalUrl().'/overview?from=2026-10-01&to=2026-10-31');
@@ -443,16 +469,16 @@ final class MatchReviewControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
         $this->client->request(Request::METHOD_POST, $this->allocationUrl($allocation), ['match_review' => ['encounter' => $visit, 'reject' => '']]);
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
-        $this->client->request(Request::METHOD_GET, '/encounter/review');
+        $this->client->request(Request::METHOD_GET, '/tools/encounter-review');
         self::assertSelectorExists('[data-test="encounter-review-no-hospitals"]');
 
         // A reviewer of another hospital: 403 there; this hospital's allocation under their own hospital: 404.
         $this->client->loginUser($this->reviewer);
-        $this->client->request(Request::METHOD_GET, '/encounter/review/'.$other->getId());
+        $this->client->request(Request::METHOD_GET, '/tools/encounter-review/'.$other->getId());
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
-        $this->client->request(Request::METHOD_GET, '/encounter/review/'.$this->hospital->getId().'/allocations/'.$otherAllocation->getId());
+        $this->client->request(Request::METHOD_GET, '/tools/encounter-review/'.$this->hospital->getId().'/allocations/'.$otherAllocation->getId());
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
-        $this->client->request(Request::METHOD_POST, '/encounter/review/'.$this->hospital->getId().'/allocations/'.$otherAllocation->getId(), ['match_review' => ['encounter' => $visit, 'confirm' => '']]);
+        $this->client->request(Request::METHOD_POST, '/tools/encounter-review/'.$this->hospital->getId().'/allocations/'.$otherAllocation->getId(), ['match_review' => ['encounter' => $visit, 'confirm' => '']]);
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         // Without the beta role a grant does not help.
@@ -506,12 +532,12 @@ final class MatchReviewControllerTest extends WebTestCase
 
     private function hospitalUrl(): string
     {
-        return '/encounter/review/'.$this->hospital->getId();
+        return '/tools/encounter-review/'.$this->hospital->getId();
     }
 
     private function allocationUrl(Allocation $allocation): string
     {
-        return sprintf('/encounter/review/%d/allocations/%d', (int) $allocation->getHospital()?->getId(), (int) $allocation->getId());
+        return sprintf('/tools/encounter-review/%d/allocations/%d', (int) $allocation->getHospital()?->getId(), (int) $allocation->getId());
     }
 
     private function match(Allocation $allocation, int $visit): EncounterMatch

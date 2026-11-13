@@ -54,7 +54,7 @@ final class BreadcrumbsTest extends TestCase
         // #1086: "encounter." is not a known prefix, so the label used to be printed raw despite its domain.
         $component = new Breadcrumbs($this->urlGenerator());
         $component->items = [
-            ['label' => 'encounter.nav', 'label_domain' => 'encounter'],
+            ['label' => 'encounter.review.title', 'label_domain' => 'encounter'],
         ];
 
         $items = $component->getFullItems();
@@ -68,7 +68,7 @@ final class BreadcrumbsTest extends TestCase
         $component = new Breadcrumbs($this->urlGenerator());
         $component->items = [
             ['label' => 'Kiel Klinikum'],
-            ['label' => 'encounter.nav'],
+            ['label' => 'encounter.review.title'],
         ];
 
         $items = $component->getFullItems();

@@ -27,9 +27,11 @@ several contexts (Allocation, Encounter, later MTS management), and `Shared` mus
   category, with icon, title, description and a beta badge.
 - Contexts contribute tools through a tagged service registry in `Shared`:
   `ToolProviderInterface` (tag `shared.tool`) returns `Tool` definitions (key, translation keys and
-  domain, route and parameters, Tabler icon, `ToolCategory`, position, beta flag). `ToolRegistry`
-  collects, sorts and checks for duplicate keys. The landing page, the navigation entry and the
-  Tools section of the sitemap read the same registry, so there is no second list to keep in sync.
+  domain, route and parameters, Tabler icon, `ToolCategory`, beta flag). `ToolRegistry` collects,
+  checks for duplicate keys and sorts by category, then alphabetically by the translated title in the
+  current locale, so the order follows the reader's language and needs no maintained positions. The
+  landing page, the navigation entry and the Tools section of the sitemap read the same registry, so
+  there is no second list to keep in sync.
 - Providers check access themselves and return no tool for users who may not open it, as the hospital
   edit sections do. The registry runs on every page that shows the navigation, so providers decide from
   roles and voters without database queries.

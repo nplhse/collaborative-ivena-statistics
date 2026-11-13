@@ -50,7 +50,7 @@
                 {% elseif plan.action == 'linked' %}
                     <twig:Badge variant="green" data-test="encounter-validation-linked">{{ 'encounter.validation.item.already_linked'|trans({}, 'encounter') }}</twig:Badge>
                 {% else %}
-                    <a class="btn btn-sm" href="{{ path('app_encounter_review_allocation', {id: hospital.id, allocationId: plan.allocationId}|merge(rival_query)) }}" data-test="encounter-validation-refused">
+                    <a class="btn btn-sm" href="{{ path('app_tools_encounter_review_allocation', {id: hospital.id, allocationId: plan.allocationId}|merge(rival_query)) }}" data-test="encounter-validation-refused">
                         {{ 'encounter.validation.item.decide_in_review'|trans({allocation: plan.allocationId}, 'encounter') }}
                     </a>
                 {% endif %}
@@ -80,15 +80,15 @@
     <twig:PageHeader :title="item_title" :pretitle="hospital.name">
         <twig:block name="breadcrumbs">
             <twig:Breadcrumbs :items="[
-                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
-                { label: 'encounter.validation.title', label_domain: 'encounter', translatable: true, path: path('app_encounter_validation', {id: hospital.id}) },
-                { label: sample.periodFrom|date('d.m.Y') ~ ' – ' ~ sample.periodTo|date('d.m.Y'), translatable: false, path: path('app_encounter_validation_sample', {id: hospital.id, sampleId: sample.id}) },
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
+                { label: 'encounter.validation.title', label_domain: 'encounter', translatable: true, path: path('app_tools_encounter_validation', {id: hospital.id}) },
+                { label: sample.periodFrom|date('d.m.Y') ~ ' – ' ~ sample.periodTo|date('d.m.Y'), translatable: false, path: path('app_tools_encounter_validation_sample', {id: hospital.id, sampleId: sample.id}) },
                 { label: '#' ~ item.position, translatable: false }
             ]" />
         </twig:block>
         <twig:block name="actions">
             {% if item.allocation %}
-                <a class="btn" href="{{ path('app_encounter_review_allocation', {id: hospital.id, allocationId: item.allocation.id}|merge(rival_query)) }}" data-test="encounter-validation-open-review">
+                <a class="btn" href="{{ path('app_tools_encounter_review_allocation', {id: hospital.id, allocationId: item.allocation.id}|merge(rival_query)) }}" data-test="encounter-validation-open-review">
                     {{ 'encounter.validation.item.open_review'|trans({}, 'encounter') }}
                 </a>
             {% endif %}

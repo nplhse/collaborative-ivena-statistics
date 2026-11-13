@@ -41,7 +41,6 @@ final readonly class IndicationReviewToolProvider implements ToolProviderInterfa
                 route: 'app_tools_indication_review',
                 icon: 'tabler:list-check',
                 category: ToolCategory::Matching,
-                position: 10,
             ),
         ];
     }

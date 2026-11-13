@@ -8,9 +8,9 @@
     <twig:PageHeader :title="'encounter.validation.sample_title'|trans({period: period_label}, 'encounter')" :pretitle="hospital.name">
         <twig:block name="breadcrumbs">
             <twig:Breadcrumbs :items="[
-                { label: 'encounter.nav', label_domain: 'encounter', translatable: true, path: path('app_encounter_index') },
-                { label: 'encounter.review.title', label_domain: 'encounter', translatable: true, path: path('app_encounter_review_hospital', {id: hospital.id}) },
-                { label: 'encounter.validation.title', label_domain: 'encounter', translatable: true, path: path('app_encounter_validation', {id: hospital.id}) },
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
+                { label: 'encounter.review.title', label_domain: 'encounter', translatable: true, path: path('app_tools_encounter_review_hospital', {id: hospital.id}) },
+                { label: 'encounter.validation.title', label_domain: 'encounter', translatable: true, path: path('app_tools_encounter_validation', {id: hospital.id}) },
                 { label: period_label, translatable: false }
             ]" />
         </twig:block>
@@ -19,7 +19,7 @@
         </twig:block>
         <twig:block name="actions">
             {% if next %}
-                <a class="btn btn-primary" href="{{ path('app_encounter_validation_item', {id: hospital.id, sampleId: sample.id, itemId: next.id}) }}" data-test="encounter-validation-continue">
+                <a class="btn btn-primary" href="{{ path('app_tools_encounter_validation_item', {id: hospital.id, sampleId: sample.id, itemId: next.id}) }}" data-test="encounter-validation-continue">
                     {{ 'encounter.validation.continue'|trans({}, 'encounter') }}
                 </a>
             {% endif %}
@@ -58,7 +58,7 @@
                                         <td>{{ ('encounter.validation.stratum.' ~ item.stratum.value)|trans({}, 'encounter') }}</td>
                                         <td class="text-nowrap">{{ item.band ?? '–' }}{% if item.score is not null %} <span class="text-secondary small">({{ item.score|format_number({fraction_digit: 2}) }})</span>{% endif %}</td>
                                         <td>
-                                            <a href="{{ path('app_encounter_validation_item', {id: hospital.id, sampleId: sample.id, itemId: item.id}) }}" data-test="encounter-validation-item-link">
+                                            <a href="{{ path('app_tools_encounter_validation_item', {id: hospital.id, sampleId: sample.id, itemId: item.id}) }}" data-test="encounter-validation-item-link">
                                                 {% if item.allocation %}{{ 'encounter.validation.allocation_ref'|trans({id: item.allocation.id}, 'encounter') }}{% endif %}
                                                 {% if item.allocation and item.encounter %} · {% endif %}
                                                 {% if item.encounter %}{{ 'encounter.review.visit'|trans({id: item.encounter.id}, 'encounter') }}{% endif %}

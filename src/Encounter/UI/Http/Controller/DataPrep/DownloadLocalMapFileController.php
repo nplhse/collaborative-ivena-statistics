@@ -22,7 +22,7 @@ final readonly class DownloadLocalMapFileController
     ) {
     }
 
-    #[Route('/encounter/data-prep/local-map-{variant}.json', name: 'app_encounter_data_prep_local_map', requirements: ['variant' => 'template|example'], methods: ['GET'])]
+    #[Route('/tools/data-prep/local-map-{variant}.json', name: 'app_tools_data_prep_local_map', requirements: ['variant' => 'template|example'], methods: ['GET'])]
     public function __invoke(string $variant): Response
     {
         return new Response($this->files->content($variant), Response::HTTP_OK, [

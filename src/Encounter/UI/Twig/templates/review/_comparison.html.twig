@@ -120,7 +120,7 @@
         <p class="text-secondary small mt-3 mb-0" data-test="encounter-review-rivals">
             {{ 'encounter.review.rivals'|trans({}, 'encounter') }}
             {% for rival in candidate.rival_allocations %}
-                <a href="{{ path('app_encounter_review_allocation', {id: hospital.id, allocationId: rival}|merge(rival_query)) }}">{{ 'encounter.review.allocation'|trans({id: rival}, 'encounter') }}</a>{{ not loop.last ? ', ' }}
+                <a href="{{ path('app_tools_encounter_review_allocation', {id: hospital.id, allocationId: rival}|merge(rival_query)) }}">{{ 'encounter.review.allocation'|trans({id: rival}, 'encounter') }}</a>{{ not loop.last ? ', ' }}
             {% endfor %}
         </p>
     {% endif %}
