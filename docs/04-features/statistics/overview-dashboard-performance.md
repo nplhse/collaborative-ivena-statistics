@@ -39,6 +39,7 @@ Dominant:
 | ~127 ms | `OverviewSliceQuery` |
 
 Self-benchmark compares `period=last_12_months` (primary) to `all_time` (comparison). Public + `all_time` → comparison predicate `1 = 1`.
+Since #1071 the comparison is the previous period of the same length (for `last_12_months` the 12 months before), so the comparison side is bounded; `all_time` compares the period with itself and shows no comparison.
 
 ## Mitigation (Aug 2026)
 

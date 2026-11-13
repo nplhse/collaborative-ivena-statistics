@@ -86,6 +86,24 @@ Insights Compare does **not** use that default cohort. Side A uses the header/pr
 
 Permission checks use `HospitalPermission::Statistics` or `HospitalPermission::Benchmarking` depending on the page.
 
+### Overview comparison period (#1071)
+
+The overview self-benchmark frame (`GET /statistics/overview/self-benchmark`: KPI tiles and the insights card)
+compares the scope with itself in the previous period of the same length.
+`OverviewComparisonPeriodResolver` sets both sides; scope and drawer filters are the same on both.
+
+| Period | Primary | Comparison |
+|---|---|---|
+| `last_12_months` | rolling window until now | the 12 months before, same span (start one year earlier) |
+| `year` / `quarter` / `month`, complete | the whole period | the whole previous year / quarter / month |
+| `year` / `quarter` / `month`, running | from the start until now | the same span from the start of the previous period, e.g. 1–13 November against 1–13 October; never past the start of the primary period |
+| `all_time` | the whole history | none: the tiles show only the value, the insights card stays hidden |
+
+Cases per day divide by the days of each side, so a running period is not diluted by the days still to come.
+The insights card needs at least 100 allocations in the period **and** in the comparison period; the general
+benchmark minimum of 500 comparison cases does not apply here. The tiles keep their own minimum of 20 cases for
+ratios. A caption under the tiles names the comparison period.
+
 ## Age group filter
 
 The filter drawer and the Analysis Explorer share one age-group filter: URL key `age_group`
@@ -99,9 +117,16 @@ The filter drawer and the Analysis Explorer share one age-group filter: URL key 
 | `under_18` | Children & adolescents (under 18) / Kinder & Jugendliche (unter 18) | `age IS NOT NULL AND age < 18` |
 | `adults` | Adults (18 and over) / Erwachsene (ab 18) | `age IS NOT NULL AND age >= 18` |
 | `over_80` | 80 and older / 80 und älter | `age >= 80` |
-| `0_18` … `90_99` | Decade buckets from `DimensionRegistry` | `age` between the bounds |
+| `0_17`, `18_29` … `90_99` | Age buckets of `StatisticsAgeGroupBucketSql` | `age` between the bounds |
 
-The adult threshold is 18 (#181): a patient aged 18 counts as an adult.
+The adult threshold is 18 (#181): a patient aged 18 counts as an adult. The age buckets follow it: the
+Explorer `age_group` dimension, the filter and Benchmarking, Insights, Overview and Case Flow all use
+`StatisticsAgeGroupBucketSql` (`0_17`, `18_29`, `30_39`, …), so 18-year-olds are in `18_29` everywhere (#1040).
+
+**Pre-#1040 keys (deprecated).** Until #1040 the Explorer used `0_18` and `19_29`. Links that still
+carry them are read as `0_17` and `18_29` (`StatisticsAgeGroupFilter::normalizeKey()`, applied to the
+URL, the Explorer assistant and stored Explorer filters); migration `Version20261113144614` rewrote
+saved views. The mapping is removed in v0.4-beta.
 
 **Missing age.** Cases without a recorded age cannot be assigned to an age group, so every
 age-group value excludes them, from numerator and denominator alike. They only count when no age

@@ -73,6 +73,146 @@
         <source>menu.users.accounts</source>
         <target>Benutzerkonten</target>
       </trans-unit>
+      <trans-unit id="menuDashboardDe" resname="menu.dashboard">
+        <source>menu.dashboard</source>
+        <target>Dashboard</target>
+      </trans-unit>
+      <trans-unit id="menuBackToFrontendDe" resname="menu.back_to_frontend">
+        <source>menu.back_to_frontend</source>
+        <target>Zurück zur Anwendung</target>
+      </trans-unit>
+      <trans-unit id="menuSectionManagementDe" resname="menu.section.management">
+        <source>menu.section.management</source>
+        <target>Verwaltung</target>
+      </trans-unit>
+      <trans-unit id="menuUsersDe" resname="menu.users">
+        <source>menu.users</source>
+        <target>Benutzer</target>
+      </trans-unit>
+      <trans-unit id="menuUsersHospitalAccessDe" resname="menu.users.hospital_access">
+        <source>menu.users.hospital_access</source>
+        <target>Zugriffsberechtigungen</target>
+      </trans-unit>
+      <trans-unit id="menuUsersOnboardingStepsDe" resname="menu.users.onboarding_steps">
+        <source>menu.users.onboarding_steps</source>
+        <target>Onboarding-Schritte</target>
+      </trans-unit>
+      <trans-unit id="menuFeedbackDe" resname="menu.feedback">
+        <source>menu.feedback</source>
+        <target>Feedback</target>
+      </trans-unit>
+      <trans-unit id="menuSectionDataDe" resname="menu.section.data">
+        <source>menu.section.data</source>
+        <target>Daten</target>
+      </trans-unit>
+      <trans-unit id="menuDataDe" resname="menu.data">
+        <source>menu.data</source>
+        <target>Daten</target>
+      </trans-unit>
+      <trans-unit id="menuDataAllocationsDe" resname="menu.data.allocations">
+        <source>menu.data.allocations</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="menuDataAssignmentsDe" resname="menu.data.assignments">
+        <source>menu.data.assignments</source>
+        <target>Zuweisungstypen</target>
+      </trans-unit>
+      <trans-unit id="menuDataDepartmentsDe" resname="menu.data.departments">
+        <source>menu.data.departments</source>
+        <target>Abteilungen</target>
+      </trans-unit>
+      <trans-unit id="menuDataDispatchAreasDe" resname="menu.data.dispatch_areas">
+        <source>menu.data.dispatch_areas</source>
+        <target>Leitstellenbereiche</target>
+      </trans-unit>
+      <trans-unit id="menuDataHospitalsDe" resname="menu.data.hospitals">
+        <source>menu.data.hospitals</source>
+        <target>Kliniken</target>
+      </trans-unit>
+      <trans-unit id="menuDataIndicationsNormalizedDe" resname="menu.data.indications_normalized">
+        <source>menu.data.indications_normalized</source>
+        <target>Indikationen (normalisiert)</target>
+      </trans-unit>
+      <trans-unit id="menuDataIndicationGroupsDe" resname="menu.data.indication_groups">
+        <source>menu.data.indication_groups</source>
+        <target>Indikationsgruppen</target>
+      </trans-unit>
+      <trans-unit id="menuDataIndicationsRawDe" resname="menu.data.indications_raw">
+        <source>menu.data.indications_raw</source>
+        <target>Indikationen (Rohdaten)</target>
+      </trans-unit>
+      <trans-unit id="menuDataInfectionsDe" resname="menu.data.infections">
+        <source>menu.data.infections</source>
+        <target>Infektionen</target>
+      </trans-unit>
+      <trans-unit id="menuDataMciCasesDe" resname="menu.data.mci_cases">
+        <source>menu.data.mci_cases</source>
+        <target>MANV-Fälle</target>
+      </trans-unit>
+      <trans-unit id="menuDataOccasionsDe" resname="menu.data.occasions">
+        <source>menu.data.occasions</source>
+        <target>Anlässe</target>
+      </trans-unit>
+      <trans-unit id="menuDataSecondaryTransportsDe" resname="menu.data.secondary_transports">
+        <source>menu.data.secondary_transports</source>
+        <target>Sekundärtransporte</target>
+      </trans-unit>
+      <trans-unit id="menuDataSpecialitiesDe" resname="menu.data.specialities">
+        <source>menu.data.specialities</source>
+        <target>Fachrichtungen</target>
+      </trans-unit>
+      <trans-unit id="menuDataStatesDe" resname="menu.data.states">
+        <source>menu.data.states</source>
+        <target>Bundesländer</target>
+      </trans-unit>
+      <trans-unit id="menuImportsDe" resname="menu.imports">
+        <source>menu.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="menuImportsImportsDe" resname="menu.imports.imports">
+        <source>menu.imports.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="menuImportsRejectsDe" resname="menu.imports.rejects">
+        <source>menu.imports.rejects</source>
+        <target>Abgelehnte Importzeilen</target>
+      </trans-unit>
+      <trans-unit id="menuImportsBatchRunsDe" resname="menu.imports.batch_runs">
+        <source>menu.imports.batch_runs</source>
+        <target>Stapelläufe</target>
+      </trans-unit>
+      <trans-unit id="menuImportsBatchItemsDe" resname="menu.imports.batch_items">
+        <source>menu.imports.batch_items</source>
+        <target>Stapelpositionen</target>
+      </trans-unit>
+      <trans-unit id="menuExplorerViewsDe" resname="menu.explorer_views">
+        <source>menu.explorer_views</source>
+        <target>Explorer-Ansichten</target>
+      </trans-unit>
+      <trans-unit id="menuSectionContentDe" resname="menu.section.content">
+        <source>menu.section.content</source>
+        <target>Inhalte</target>
+      </trans-unit>
+      <trans-unit id="menuBlogDe" resname="menu.blog">
+        <source>menu.blog</source>
+        <target>Blog</target>
+      </trans-unit>
+      <trans-unit id="menuSectionSystemDe" resname="menu.section.system">
+        <source>menu.section.system</source>
+        <target>System</target>
+      </trans-unit>
+      <trans-unit id="menuSystemCookieConsentsDe" resname="menu.system.cookie_consents">
+        <source>menu.system.cookie_consents</source>
+        <target>Cookie-Einwilligungen</target>
+      </trans-unit>
+      <trans-unit id="menuSystemFailedMessagesDe" resname="menu.system.failed_messages">
+        <source>menu.system.failed_messages</source>
+        <target>Fehlgeschlagene Nachrichten</target>
+      </trans-unit>
+      <trans-unit id="menuSystemMonthlyRemindersDe" resname="menu.system.monthly_reminders">
+        <source>menu.system.monthly_reminders</source>
+        <target>Monatliche Erinnerungen</target>
+      </trans-unit>
       <trans-unit id="bloga001" resname="label.blog.post">
         <source>label.blog.post</source>
         <target>Blogbeitrag</target>
@@ -933,18 +1073,6 @@
         <source>admin.fieldset.relations</source>
         <target>Beziehungen</target>
       </trans-unit>
-      <trans-unit id="admFsEventDe" resname="admin.fieldset.event">
-        <source>admin.fieldset.event</source>
-        <target>Ereignis</target>
-      </trans-unit>
-      <trans-unit id="admFsRecordDe" resname="admin.fieldset.record">
-        <source>admin.fieldset.record</source>
-        <target>Datensatz</target>
-      </trans-unit>
-      <trans-unit id="admFsChangesDe" resname="admin.fieldset.changes">
-        <source>admin.fieldset.changes</source>
-        <target>Änderungen</target>
-      </trans-unit>
       <trans-unit id="admFsConsentDe" resname="admin.fieldset.consent">
         <source>admin.fieldset.consent</source>
         <target>Einwilligung</target>
@@ -1556,6 +1684,430 @@
       <trans-unit id="uaNav12de" resname="usage_analytics.tile.performance">
         <source>usage_analytics.tile.performance</source>
         <target>Antwortzeiten und Datenbanklast nach Bereich</target>
+      </trans-unit>
+      <trans-unit id="admFqEntityDe" resname="admin.feedback_quarantine.entity">
+        <source>admin.feedback_quarantine.entity</source>
+        <target>Feedback in Quarantäne</target>
+      </trans-unit>
+      <trans-unit id="admFqMenuDe" resname="admin.feedback_quarantine.menu">
+        <source>admin.feedback_quarantine.menu</source>
+        <target>Feedback-Quarantäne</target>
+      </trans-unit>
+      <trans-unit id="admFqTitleDe" resname="admin.feedback_quarantine.title">
+        <source>admin.feedback_quarantine.title</source>
+        <target>Feedback-Quarantäne — {count, plural, one {# Eintrag} other {# Einträge}}</target>
+      </trans-unit>
+      <trans-unit id="admFqDetailDe" resname="admin.feedback_quarantine.detail_title">
+        <source>admin.feedback_quarantine.detail_title</source>
+        <target>Feedback #{id} in Quarantäne</target>
+      </trans-unit>
+      <trans-unit id="admFqHelpDe" resname="admin.feedback_quarantine.help">
+        <source>admin.feedback_quarantine.help</source>
+        <target>Spamverdacht, zur Prüfung aufbewahrt. Nachrichten erscheinen als reiner Text: Links sind nicht klickbar, und es wird nichts von anderen Seiten geladen. Freigegebene Einträge wandern ohne Benachrichtigung in die normale Feedback-Liste.</target>
+      </trans-unit>
+      <trans-unit id="admFbReleaseDe" resname="admin.feedback.action.release">
+        <source>admin.feedback.action.release</source>
+        <target>Freigeben</target>
+      </trans-unit>
+      <trans-unit id="admFbReleaseCDe" resname="admin.feedback.action.release.confirm">
+        <source>admin.feedback.action.release.confirm</source>
+        <target>Dieses Feedback freigeben? Es wandert in die normale Feedback-Liste; es wird keine Benachrichtigung verschickt.</target>
+      </trans-unit>
+      <trans-unit id="admFbBatchRelDe" resname="admin.feedback.action.batch_release">
+        <source>admin.feedback.action.batch_release</source>
+        <target>Freigeben</target>
+      </trans-unit>
+      <trans-unit id="admFbQuarDe" resname="admin.feedback.action.quarantine">
+        <source>admin.feedback.action.quarantine</source>
+        <target>In Quarantäne verschieben</target>
+      </trans-unit>
+      <trans-unit id="admFbQuarCDe" resname="admin.feedback.action.quarantine.confirm">
+        <source>admin.feedback.action.quarantine.confirm</source>
+        <target>Dieses Feedback in die Quarantäne verschieben? Es verschwindet aus der Feedback-Liste und der Zahl offener Einträge.</target>
+      </trans-unit>
+      <trans-unit id="admFbFCreatedDe" resname="admin.feedback.field.created">
+        <source>admin.feedback.field.created</source>
+        <target>Erstellt</target>
+      </trans-unit>
+      <trans-unit id="admFbFCatDe" resname="admin.feedback.field.category">
+        <source>admin.feedback.field.category</source>
+        <target>Kategorie</target>
+      </trans-unit>
+      <trans-unit id="admFbFGuestDe" resname="admin.feedback.field.guest_email">
+        <source>admin.feedback.field.guest_email</source>
+        <target>Gast-E-Mail</target>
+      </trans-unit>
+      <trans-unit id="admFbFUserDe" resname="admin.feedback.field.user">
+        <source>admin.feedback.field.user</source>
+        <target>Nutzer</target>
+      </trans-unit>
+      <trans-unit id="admFbFReasonsDe" resname="admin.feedback.field.reasons">
+        <source>admin.feedback.field.reasons</source>
+        <target>Gründe</target>
+      </trans-unit>
+      <trans-unit id="admFbFScoreDe" resname="admin.feedback.field.score">
+        <source>admin.feedback.field.score</source>
+        <target>Punkte</target>
+      </trans-unit>
+      <trans-unit id="admFbFPreviewDe" resname="admin.feedback.field.preview">
+        <source>admin.feedback.field.preview</source>
+        <target>Vorschau</target>
+      </trans-unit>
+      <trans-unit id="admFbFQAtDe" resname="admin.feedback.field.quarantined_at">
+        <source>admin.feedback.field.quarantined_at</source>
+        <target>In Quarantäne seit</target>
+      </trans-unit>
+      <trans-unit id="admFbFReviewerDe" resname="admin.feedback.field.reviewer">
+        <source>admin.feedback.field.reviewer</source>
+        <target>Geprüft von</target>
+      </trans-unit>
+      <trans-unit id="admFbFMessageDe" resname="admin.feedback.field.message">
+        <source>admin.feedback.field.message</source>
+        <target>Nachricht</target>
+      </trans-unit>
+      <trans-unit id="admFbFPageDe" resname="admin.feedback.field.page">
+        <source>admin.feedback.field.page</source>
+        <target>Seite</target>
+      </trans-unit>
+      <trans-unit id="admFbFUaDe" resname="admin.feedback.field.user_agent">
+        <source>admin.feedback.field.user_agent</source>
+        <target>User-Agent</target>
+      </trans-unit>
+      <trans-unit id="admFbFlRelDe" resname="flash.admin.feedback.released">
+        <source>flash.admin.feedback.released</source>
+        <target>{count, plural, =0 {Es wurde kein Feedback freigegeben.} one {# Feedback freigegeben.} other {# Feedbacks freigegeben.}}</target>
+      </trans-unit>
+      <trans-unit id="admFbFlQuarDe" resname="flash.admin.feedback.quarantined">
+        <source>flash.admin.feedback.quarantined</source>
+        <target>Feedback in die Quarantäne verschoben.</target>
+      </trans-unit>
+      <trans-unit id="admFbFlTokDe" resname="flash.admin.feedback.invalid_token">
+        <source>flash.admin.feedback.invalid_token</source>
+        <target>Die Aktion ist abgelaufen. Bitte erneut versuchen.</target>
+      </trans-unit>
+      <trans-unit id="admFbFlDelDe" resname="flash.admin.feedback.deleted">
+        <source>flash.admin.feedback.deleted</source>
+        <target>{count, plural, =0 {Es wurde kein Feedback gelöscht.} one {# Feedback gelöscht.} other {# Feedbacks gelöscht.}}</target>
+      </trans-unit>
+      <trans-unit id="auditTl01de" resname="audit.timeline.title">
+        <source>audit.timeline.title</source>
+        <target>Audit-Timeline</target>
+      </trans-unit>
+      <trans-unit id="auditTl02de" resname="audit.timeline.help">
+        <source>audit.timeline.help</source>
+        <target>Neueste zuerst. Einträge einer Anfrage werden gestapelt; jeder Eintrag bleibt ein eigener Datensatz.</target>
+      </trans-unit>
+      <trans-unit id="auditTl03de" resname="audit.timeline.empty">
+        <source>audit.timeline.empty</source>
+        <target>Keine passenden Audit-Einträge.</target>
+      </trans-unit>
+      <trans-unit id="auditTl04de" resname="audit.timeline.active_filters">
+        <source>audit.timeline.active_filters</source>
+        <target>Gefiltert nach</target>
+      </trans-unit>
+      <trans-unit id="auditTl05de" resname="audit.timeline.reset_filters">
+        <source>audit.timeline.reset_filters</source>
+        <target>Filter zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="auditTl06de" resname="audit.timeline.pagination">
+        <source>audit.timeline.pagination</source>
+        <target>Seiten der Audit-Timeline</target>
+      </trans-unit>
+      <trans-unit id="auditTl07de" resname="audit.timeline.older">
+        <source>audit.timeline.older</source>
+        <target>Ältere Einträge</target>
+      </trans-unit>
+      <trans-unit id="auditTl08de" resname="audit.timeline.newest">
+        <source>audit.timeline.newest</source>
+        <target>Neueste Einträge</target>
+      </trans-unit>
+      <trans-unit id="auditTl09de" resname="audit.timeline.no_actor">
+        <source>audit.timeline.no_actor</source>
+        <target>System oder anonym</target>
+      </trans-unit>
+      <trans-unit id="auditTl10de" resname="audit.timeline.deleted_user">
+        <source>audit.timeline.deleted_user</source>
+        <target>Gelöschter Nutzer #{id}</target>
+      </trans-unit>
+      <trans-unit id="auditTl12de" resname="audit.timeline.fields_more">
+        <source>audit.timeline.fields_more</source>
+        <target>+{count} weitere</target>
+      </trans-unit>
+      <trans-unit id="auditTl13de" resname="audit.timeline.request">
+        <source>audit.timeline.request</source>
+        <target>Anfrage</target>
+      </trans-unit>
+      <trans-unit id="auditTl14de" resname="audit.timeline.request_entries">
+        <source>audit.timeline.request_entries</source>
+        <target>{count, plural, one {# Eintrag} other {# Einträge}}</target>
+      </trans-unit>
+      <trans-unit id="auditTl15de" resname="audit.timeline.request_partial">
+        <source>audit.timeline.request_partial</source>
+        <target>{shown} von {total} Einträgen auf dieser Seite</target>
+      </trans-unit>
+      <trans-unit id="auditTl16de" resname="audit.timeline.request_matching">
+        <source>audit.timeline.request_matching</source>
+        <target>{matching} von {total} Einträgen passen zum Filter</target>
+      </trans-unit>
+      <trans-unit id="auditTl17de" resname="audit.timeline.open_request">
+        <source>audit.timeline.open_request</source>
+        <target>Ganze Anfrage anzeigen</target>
+      </trans-unit>
+      <trans-unit id="auditTl18de" resname="audit.timeline.legacy">
+        <source>audit.timeline.legacy</source>
+        <target>Ältere Anfrage-ID</target>
+      </trans-unit>
+      <trans-unit id="auditTl19de" resname="audit.timeline.legacy_help">
+        <source>audit.timeline.legacy_help</source>
+        <target>Geschrieben, bevor die Anwendung Anfrage-IDs immer selbst erzeugt hat; die ID kann von einem Client stammen.</target>
+      </trans-unit>
+      <trans-unit id="auditTl20de" resname="audit.timeline.background">
+        <source>audit.timeline.background</source>
+        <target>Von dieser Anfrage gestartete Hintergrundjobs</target>
+      </trans-unit>
+      <trans-unit id="auditTl21de" resname="audit.request.title">
+        <source>audit.request.title</source>
+        <target>Audit-Einträge einer Anfrage</target>
+      </trans-unit>
+      <trans-unit id="auditTl22de" resname="audit.request.back">
+        <source>audit.request.back</source>
+        <target>Zurück zur Audit-Timeline</target>
+      </trans-unit>
+      <trans-unit id="auditTl23de" resname="audit.request.entries">
+        <source>audit.request.entries</source>
+        <target>Einträge</target>
+      </trans-unit>
+      <trans-unit id="auditTl24de" resname="audit.request.limit">
+        <source>audit.request.limit</source>
+        <target>Angezeigt werden die ersten {limit} von {total} Einträgen.</target>
+      </trans-unit>
+      <trans-unit id="auditTl25de" resname="audit.action.create">
+        <source>audit.action.create</source>
+        <target>Angelegt</target>
+      </trans-unit>
+      <trans-unit id="auditTl26de" resname="audit.action.update">
+        <source>audit.action.update</source>
+        <target>Geändert</target>
+      </trans-unit>
+      <trans-unit id="auditTl27de" resname="audit.action.delete">
+        <source>audit.action.delete</source>
+        <target>Gelöscht</target>
+      </trans-unit>
+      <trans-unit id="auditTl28de" resname="audit.action.export">
+        <source>audit.action.export</source>
+        <target>Exportiert</target>
+      </trans-unit>
+      <trans-unit id="auditTl29de" resname="audit.action.download">
+        <source>audit.action.download</source>
+        <target>Heruntergeladen</target>
+      </trans-unit>
+      <trans-unit id="auditTl30de" resname="audit.action.impersonate">
+        <source>audit.action.impersonate</source>
+        <target>Identitätswechsel begonnen zu</target>
+      </trans-unit>
+      <trans-unit id="auditTl31de" resname="audit.action.impersonate_exit">
+        <source>audit.action.impersonate_exit</source>
+        <target>Identitätswechsel beendet von</target>
+      </trans-unit>
+      <trans-unit id="auditTl32de" resname="audit.origin.http">
+        <source>audit.origin.http</source>
+        <target>Web</target>
+      </trans-unit>
+      <trans-unit id="auditTl33de" resname="audit.origin.cli">
+        <source>audit.origin.cli</source>
+        <target>Konsole</target>
+      </trans-unit>
+      <trans-unit id="auditTl34de" resname="audit.origin.messenger">
+        <source>audit.origin.messenger</source>
+        <target>Hintergrundjob</target>
+      </trans-unit>
+      <trans-unit id="auditTl35de" resname="audit.outcome.success">
+        <source>audit.outcome.success</source>
+        <target>Erfolgreich</target>
+      </trans-unit>
+      <trans-unit id="auditTl36de" resname="audit.outcome.blocked">
+        <source>audit.outcome.blocked</source>
+        <target>Blockiert</target>
+      </trans-unit>
+      <trans-unit id="auditTl37de" resname="audit.outcome.failed">
+        <source>audit.outcome.failed</source>
+        <target>Fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="auditTl38de" resname="audit.filter.from">
+        <source>audit.filter.from</source>
+        <target>Von</target>
+      </trans-unit>
+      <trans-unit id="auditTl39de" resname="audit.filter.to">
+        <source>audit.filter.to</source>
+        <target>Bis</target>
+      </trans-unit>
+      <trans-unit id="auditTl40de" resname="audit.filter.actor">
+        <source>audit.filter.actor</source>
+        <target>Akteur</target>
+      </trans-unit>
+      <trans-unit id="auditTl41de" resname="audit.filter.origin">
+        <source>audit.filter.origin</source>
+        <target>Herkunft</target>
+      </trans-unit>
+      <trans-unit id="auditTl42de" resname="audit.filter.action">
+        <source>audit.filter.action</source>
+        <target>Aktion</target>
+      </trans-unit>
+      <trans-unit id="auditTl43de" resname="audit.filter.intent">
+        <source>audit.filter.intent</source>
+        <target>Intent</target>
+      </trans-unit>
+      <trans-unit id="auditTl44de" resname="audit.filter.entity">
+        <source>audit.filter.entity</source>
+        <target>Objekttyp</target>
+      </trans-unit>
+      <trans-unit id="auditTl45de" resname="audit.filter.entityId">
+        <source>audit.filter.entityId</source>
+        <target>Objekt-ID</target>
+      </trans-unit>
+      <trans-unit id="auditTl46de" resname="audit.filter.request">
+        <source>audit.filter.request</source>
+        <target>Anfrage-ID</target>
+      </trans-unit>
+      <trans-unit id="auditTl47de" resname="audit.filter.session">
+        <source>audit.filter.session</source>
+        <target>Sitzung</target>
+      </trans-unit>
+      <trans-unit id="auditTl48de" resname="audit.filter.outcome">
+        <source>audit.filter.outcome</source>
+        <target>Ergebnis</target>
+      </trans-unit>
+      <trans-unit id="auditEn01de" resname="audit.entry.title">
+        <source>audit.entry.title</source>
+        <target>Audit-Eintrag #{id}</target>
+      </trans-unit>
+      <trans-unit id="auditEn02de" resname="audit.entry.show_details">
+        <source>audit.entry.show_details</source>
+        <target>Details anzeigen</target>
+      </trans-unit>
+      <trans-unit id="auditEn03de" resname="audit.entry.details_failed">
+        <source>audit.entry.details_failed</source>
+        <target>Die Details konnten nicht geladen werden.</target>
+      </trans-unit>
+      <trans-unit id="auditEn04de" resname="audit.entry.permalink">
+        <source>audit.entry.permalink</source>
+        <target>Link zu diesem Eintrag</target>
+      </trans-unit>
+      <trans-unit id="auditEn05de" resname="audit.entry.same_actor">
+        <source>audit.entry.same_actor</source>
+        <target>Alle Einträge dieses Akteurs</target>
+      </trans-unit>
+      <trans-unit id="auditEn06de" resname="audit.entry.object_history">
+        <source>audit.entry.object_history</source>
+        <target>Verlauf dieses Objekts</target>
+      </trans-unit>
+      <trans-unit id="auditEn07de" resname="audit.entry.same_intent">
+        <source>audit.entry.same_intent</source>
+        <target>Alle Einträge mit diesem Intent</target>
+      </trans-unit>
+      <trans-unit id="auditEn08de" resname="audit.entry.same_session">
+        <source>audit.entry.same_session</source>
+        <target>Alle Einträge dieser Sitzung</target>
+      </trans-unit>
+      <trans-unit id="auditEn09de" resname="audit.entry.id">
+        <source>audit.entry.id</source>
+        <target>Eintrag</target>
+      </trans-unit>
+      <trans-unit id="auditEn10de" resname="audit.entry.changes">
+        <source>audit.entry.changes</source>
+        <target>Erfasste Änderungen</target>
+      </trans-unit>
+      <trans-unit id="auditEn11de" resname="audit.entry.field">
+        <source>audit.entry.field</source>
+        <target>Feld</target>
+      </trans-unit>
+      <trans-unit id="auditEn12de" resname="audit.entry.previous">
+        <source>audit.entry.previous</source>
+        <target>Vorher</target>
+      </trans-unit>
+      <trans-unit id="auditEn13de" resname="audit.entry.new">
+        <source>audit.entry.new</source>
+        <target>Neu</target>
+      </trans-unit>
+      <trans-unit id="auditEn14de" resname="audit.entry.no_changes">
+        <source>audit.entry.no_changes</source>
+        <target>Keine Feldänderungen erfasst.</target>
+      </trans-unit>
+      <trans-unit id="auditEn15de" resname="audit.entry.metadata">
+        <source>audit.entry.metadata</source>
+        <target>Metadaten</target>
+      </trans-unit>
+      <trans-unit id="auditEn16de" resname="audit.entry.empty_string">
+        <source>audit.entry.empty_string</source>
+        <target>(leer)</target>
+      </trans-unit>
+      <trans-unit id="auditEn17de" resname="audit.entry.truncated">
+        <source>audit.entry.truncated</source>
+        <target>(gekürzt)</target>
+      </trans-unit>
+      <trans-unit id="auditFi01de" resname="audit.filter.title">
+        <source>audit.filter.title</source>
+        <target>Filter</target>
+      </trans-unit>
+      <trans-unit id="auditFi02de" resname="audit.filter.any">
+        <source>audit.filter.any</source>
+        <target>Alle</target>
+      </trans-unit>
+      <trans-unit id="auditFi03de" resname="audit.filter.apply">
+        <source>audit.filter.apply</source>
+        <target>Filter anwenden</target>
+      </trans-unit>
+      <trans-unit id="auditFi04de" resname="audit.filter.time_help">
+        <source>audit.filter.time_help</source>
+        <target>Ortszeit (Europe/Berlin). „Von“ zählt mit, „Bis“ nicht.</target>
+      </trans-unit>
+      <trans-unit id="auditFi05de" resname="audit.request.context">
+        <source>audit.request.context</source>
+        <target>Kontext</target>
+      </trans-unit>
+      <trans-unit id="auditFi06de" resname="audit.request.context_help">
+        <source>audit.request.context_help</source>
+        <target>Gehört zu dieser Anfrage, passt aber nicht zum aktuellen Filter.</target>
+      </trans-unit>
+      <trans-unit id="auditSe01de" resname="audit.band.session">
+        <source>audit.band.session</source>
+        <target>Sitzung</target>
+      </trans-unit>
+      <trans-unit id="auditSe02de" resname="audit.band.inferred">
+        <source>audit.band.inferred</source>
+        <target>Geschätzter Aktivitätszeitraum</target>
+      </trans-unit>
+      <trans-unit id="auditSe03de" resname="audit.band.inferred_badge">
+        <source>audit.band.inferred_badge</source>
+        <target>geschätzt</target>
+      </trans-unit>
+      <trans-unit id="auditSe04de" resname="audit.band.inferred_help">
+        <source>audit.band.inferred_help</source>
+        <target>Kein Sitzungsnachweis: Einträge dieses Akteurs mit höchstens {minutes} Minuten Abstand. Getrennte Sitzungen können zusammenfallen, eine Sitzung kann geteilt sein.</target>
+      </trans-unit>
+      <trans-unit id="auditSe05de" resname="audit.band.continues_newer">
+        <source>audit.band.continues_newer</source>
+        <target>kann bei neueren Einträgen weitergehen</target>
+      </trans-unit>
+      <trans-unit id="auditSe06de" resname="audit.band.continues_older">
+        <source>audit.band.continues_older</source>
+        <target>kann bei älteren Einträgen weitergehen</target>
+      </trans-unit>
+      <trans-unit id="auditSe07de" resname="audit.timeline.new_one">
+        <source>audit.timeline.new_one</source>
+        <target>1 neuer Eintrag – anzeigen</target>
+      </trans-unit>
+      <trans-unit id="auditSe08de" resname="audit.timeline.new_many">
+        <source>audit.timeline.new_many</source>
+        <target>%count% neue Einträge – anzeigen</target>
+      </trans-unit>
+      <trans-unit id="auditSe09de" resname="audit.timeline.new_more">
+        <source>audit.timeline.new_more</source>
+        <target>Mehr als %count% neue Einträge – anzeigen</target>
+      </trans-unit>
+      <trans-unit id="auditTile01de" resname="audit.timeline.tile">
+        <source>audit.timeline.tile</source>
+        <target>Aktivitäten in der Anwendung, gruppiert nach Anfrage und Sitzung</target>
       </trans-unit>
     </body>
   </file>

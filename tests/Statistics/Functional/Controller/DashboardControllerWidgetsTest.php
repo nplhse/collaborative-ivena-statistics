@@ -79,8 +79,8 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
 
     public function testOverviewRendersHospitalInsightsWhenBenchmarkDataIsSufficient(): void
     {
-        // The month baseline is the rolling 12-month window, so the fixed 2026
-        // data needs a fixed "now" to stay inside it.
+        // June (130 cases) is compared with May (100 cases, #1071): both reach the minimum of 100,
+        // and the volume change of +30% is an insight. A fixed "now" keeps June a complete month.
         self::mockTime(new \DateTimeImmutable('2026-07-15 12:00:00'));
         $client = $this->createClientAsRoleUser();
         $this->seedOverviewHospitalInsightsScenario();
@@ -96,6 +96,8 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
             1,
             $client->getCrawler()->filter('[data-testid^="stats-overview-hospital-insight-"]')->count(),
         );
+        $this->assertSelectorTextContains('[data-testid="stats-overview-hospital-insight-1"]', '+30.0% allocations over the previous month.');
+        $this->assertSelectorTextContains('[data-testid="stats-executive-kpi-comparison-period"]', 'Comparison period:');
     }
 
     public function testOverviewDataQualityIndicatorUsesProgressivePrefetch(): void
@@ -291,11 +293,11 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
             'createdAt' => new \DateTimeImmutable('2026-02-15 09:00:00'),
             'arrivalAt' => new \DateTimeImmutable('2026-02-15 09:20:00'),
         ]);
-        AllocationFactory::createMany(50, $allocationDefaults + [
+        AllocationFactory::createMany(100, $allocationDefaults + [
             'createdAt' => new \DateTimeImmutable('2026-05-10 10:00:00'),
             'arrivalAt' => new \DateTimeImmutable('2026-05-10 10:20:00'),
         ]);
-        AllocationFactory::createMany(110, $allocationDefaults + [
+        AllocationFactory::createMany(130, $allocationDefaults + [
             'createdAt' => new \DateTimeImmutable('2026-06-10 11:00:00'),
             'arrivalAt' => new \DateTimeImmutable('2026-06-10 11:20:00'),
         ]);

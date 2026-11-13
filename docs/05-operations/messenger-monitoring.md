@@ -53,6 +53,8 @@ Every scheduler job writes a `job_run` row, with the trigger `scheduler`. Jobs w
 | `notification_cleanup` | `CleanUpNotificationsMessage` | daily 02:45 | 1500 | `deleted_notifications`, `deleted_deduplication_keys`, `corrected_recipients` |
 | `notification_reconcile` | `ReconcileNotificationsMessage` | hourly :17 | 120 | `published`, `deliveries_resumed` |
 | `storage_measurement` | `MeasureStorageMessage` | daily 03:30 | 1500 | `level`, `failures` |
+| `feedback_quarantine_summary` | `SendFeedbackQuarantineSummaryMessage` | Mondays 08:00 | 10140 | `reported`; `skip_reason: nothing_to_report` without new quarantined feedback |
+| `feedback_quarantine_purge` | `PurgeQuarantinedFeedbackMessage` | daily 04:10 | 1500 | `deleted` |
 | `messenger_queue_sample` | `SampleMessengerQueuesMessage` | hourly :05 | 120 | `pending`, `waiting`, `failed`, `oldest_pending_age_seconds` |
 | `monitoring_retention` | `CleanUpMonitoringMessage` | daily 03:50 | 1500 | `folded_daily_rows`, `deleted_hourly_rows`, `deleted_failures`, `deleted_queue_samples`, `deleted_job_runs` |
 | `encounter_source_file_retention` | `DeleteExpiredEncounterSourceFilesMessage` | daily 03:10 | 1500 | `deleted_files`, `missing_files`, `failed_deletions`, `retention_days` ([encounter README](../04-features/encounter/README.md#upload-file-retention)) |

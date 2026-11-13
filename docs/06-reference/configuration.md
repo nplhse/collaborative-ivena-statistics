@@ -63,7 +63,11 @@ Custom app settings in `config/packages/app.yaml` (via `AppExtension`):
 | `app.import.csv_reject_dir` | `var/import_rejects` | CSV reject output directory |
 | `app.encounter.data_prep.min_version` | `1.0.0` | Lowest data preparation tool version whose encounter files are accepted; older files are rejected as a whole ([encounter import](../04-features/encounter/README.md#import)) |
 | `app.registration.blocked_email_domains` | `.ru` | Domain suffixes that silently suppress registration (exact domain or TLD; case-insensitive, label-based; UI matches a successful registration) |
-| `app.feedback.spam.*` | — | Feedback spam detection thresholds |
+| `app.feedback.spam.*` | — | Feedback spam check: thresholds, limits, keywords ([feedback](../04-features/feedback/README.md#score)) |
+| `app.feedback.spam.blocked_link_domains` | `telegra.ph` | Link hosts (and subdomains) that send a guest submission into quarantine on their own |
+| `app.feedback.spam.patterns` | one pattern for "earn $… per month" | PCRE patterns with delimiters for clear spam; a match sends a guest submission into quarantine on its own (checked at container build) |
+| `app.feedback.spam.history_days` | `30` | Window for repeated guest emails and repeated messages |
+| `app.feedback.quarantine.retention_days` | `30` | Days after going into quarantine until quarantined feedback is deleted ([feedback](../04-features/feedback/README.md#retention-and-stored-data)) |
 | `app.meta.copyright_start_year` | `2025` | Start year for footer copyright range (`© 2025–{current year}`) |
 | `app.meta.hoster.name` / `app.meta.hoster.url` | `Uberspace` / `https://uberspace.de` | Optional hosting provider shown in the footer meta line |
 | `app.storage.thresholds.notice_percent` / `warning_percent` / `critical_percent` | `80` / `90` / `99` | Storage levels in percent of the capacity reference; must increase strictly and stay below 100 (checked at container build) |

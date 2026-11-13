@@ -69,6 +69,13 @@ final readonly class SentryRequestContextSubscriber
             });
         }
 
+        $upstreamRequestId = $this->auditContext->getUpstreamRequestId();
+        if (\is_string($upstreamRequestId) && '' !== $upstreamRequestId) {
+            $this->hub->configureScope(static function (Scope $scope) use ($upstreamRequestId): void {
+                $scope->setTag('upstream_request_id', $upstreamRequestId);
+            });
+        }
+
         $user = $this->security->getUser();
         if ($user instanceof User) {
             $this->hub->configureScope(static function (Scope $scope) use ($user): void {

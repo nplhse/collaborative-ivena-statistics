@@ -12,6 +12,31 @@ cd <deploy_path>/current
 
 Commands that write data preview by default. Run them without `--apply` first, read the output, then apply. A command that finds nothing to do can be skipped.
 
+## v0.2.2-beta → v0.2.3-beta
+
+Security hotfix for the admin feedback views. Deployer now keeps two releases instead of ten ([deployment.md](deployment.md#host-options)). No configuration changes, no migrations and no one-time commands.
+
+### Before the deploy
+
+**Back up** the database and files ([backup-restore.md](backup-restore.md)).
+
+The deploy deletes all releases except the new one and the current one. Make sure nothing on the server still depends on an older release:
+
+- Media uploads are in `<deploy_path>/shared/public/uploads/media`. If that directory is missing or empty, run the one-time `media:migrate-to-shared` first ([deployment.md](deployment.md#media-uploads-shared-across-releases)).
+- No backup, export or worker unit points at a fixed `<deploy_path>/releases/N` path.
+
+To keep more releases on a host, set `keep_releases` in its `hosts.yaml` entry.
+
+### Deploy
+
+Deploy as usual.
+
+### Check
+
+- `GET /health` reports `ok` and the footer shows `v0.2.3-beta`.
+- `/admin/feedback` opens for an administrator.
+- `ls <deploy_path>/releases` lists two releases.
+
 ## v0.2.1-beta → v0.2.2-beta
 
 Hotfix for the closure analytics overview, which ran out of PHP memory ([#1011](https://github.com/nplhse/collaborative-ivena-statistics/issues/1011)), and Symfony 8.1.11 for the security advisories of 2026-11-04. No configuration changes, no migrations and no one-time commands.

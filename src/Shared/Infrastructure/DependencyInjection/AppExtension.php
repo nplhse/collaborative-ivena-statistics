@@ -78,5 +78,9 @@ final class AppExtension extends Extension
         $container->setParameter('app.feedback.spam.authenticated_threshold', $spamConfig['authenticated_threshold']);
         $container->setParameter('app.feedback.spam.authenticated_score_bonus', $spamConfig['authenticated_score_bonus']);
         $container->setParameter('app.feedback.spam.keywords', $spamConfig['keywords']);
+        $container->setParameter('app.feedback.spam.blocked_link_domains', $spamConfig['blocked_link_domains']);
+        $container->setParameter('app.feedback.spam.patterns', $spamConfig['patterns']);
+        $container->setParameter('app.feedback.spam.history_days', $spamConfig['history_days']);
+        $container->setParameter('app.feedback.quarantine.retention_days', $config['feedback']['quarantine']['retention_days']);
     }
 }

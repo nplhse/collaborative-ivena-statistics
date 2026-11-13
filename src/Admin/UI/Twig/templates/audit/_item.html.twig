@@ -1,0 +1,49 @@
+{# One timeline item: a single entry or a request stack. Needs `item` and `filter`. #}
+{% import '@Admin/audit/_macros.html.twig' as audit %}
+{% if item.entries is defined %}
+    {% set stack = item %}
+    {% set first = stack.first %}
+    <twig:TimelineItem
+        icon="tabler:stack-2"
+        :category="'audit.timeline.request'|trans({}, 'admin')"
+        :time="first.occurredAt"
+        data-audit-stack="{{ stack.requestId }}"
+    >
+        <twig:block name="content">
+            {% import '@Admin/audit/_macros.html.twig' as audit %}
+            <span class="ea-audit-actor">{{ audit.actor_name(first) }}</span>
+            {% if stack.intent is not null %}<code class="ea-audit-intent">{{ stack.intent }}</code>{% endif %}
+            <span class="ea-audit-object">{{ stack.entityNames|join(', ') }}</span>
+            <span class="badge text-bg-light border">{{ ('audit.origin.' ~ first.origin)|trans({}, 'admin') }}</span>
+            {% if stack.complete %}
+                <span class="badge text-bg-light border">{{ 'audit.timeline.request_entries'|trans({count: stack.entries|length}, 'admin') }}</span>
+            {% else %}
+                <span class="badge text-bg-warning" data-audit-partial>{{ 'audit.timeline.request_partial'|trans({shown: stack.entries|length, total: stack.stats.total}, 'admin') }}</span>
+            {% endif %}
+            {% if not filter.isEmpty and stack.stats.matching < stack.stats.total %}
+                <span class="small">{{ 'audit.timeline.request_matching'|trans({matching: stack.stats.matching, total: stack.stats.total}, 'admin') }}</span>
+            {% endif %}
+            {% if stack.legacy %}<span class="badge text-bg-light border">{{ 'audit.timeline.legacy'|trans({}, 'admin') }}</span>{% endif %}
+        </twig:block>
+        <twig:block name="body">
+            <twig:Timeline nested>
+                {% import '@Admin/audit/_macros.html.twig' as audit %}
+                {% for entry in stack.ownEntries %}
+                    {{ audit.item(entry, entry.actorId != first.actorId) }}
+                {% endfor %}
+            </twig:Timeline>
+            {% if stack.backgroundEntries is not empty %}
+                <p class="fw-semibold small mt-2 mb-1">{{ 'audit.timeline.background'|trans({}, 'admin') }}</p>
+                <twig:Timeline nested>
+                    {% import '@Admin/audit/_macros.html.twig' as audit %}
+                    {% for entry in stack.backgroundEntries %}
+                        {{ audit.item(entry, entry.actorId != first.actorId) }}
+                    {% endfor %}
+                </twig:Timeline>
+            {% endif %}
+            <p class="small mt-2 mb-0"><a href="{{ path('app_admin_dashboard_audit_request', {requestId: stack.requestId}|merge(filter.toQuery)) }}">{{ 'audit.timeline.open_request'|trans({}, 'admin') }}</a></p>
+        </twig:block>
+    </twig:TimelineItem>
+{% else %}
+    {{ audit.item(item) }}
+{% endif %}

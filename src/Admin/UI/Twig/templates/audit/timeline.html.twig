@@ -1,0 +1,75 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+{% import '@Admin/audit/_macros.html.twig' as audit %}
+
+{% block configured_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/admin-kpi.css') }}">
+{% endblock %}
+
+{% block content_title %}{{ 'audit.timeline.title'|trans({}, 'admin') }}{% endblock %}
+
+{% block main %}
+    <p class="text-secondary">{{ 'audit.timeline.help'|trans({}, 'admin') }}</p>
+
+    {{ include('@Admin/audit/_filter_form.html.twig') }}
+
+    {% if not filter.isEmpty %}
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3" data-audit-active-filters>
+            <span class="fw-semibold">{{ 'audit.timeline.active_filters'|trans({}, 'admin') }}</span>
+            {% set actor_names = {} %}
+            {% for actor in options.actors %}{% set actor_names = actor_names|merge({('a' ~ actor.id): actor.name}) %}{% endfor %}
+            {% for key, value in filter.toQuery %}
+                {% if key in ['origin', 'action', 'outcome'] %}
+                    {% set shown = ('audit.' ~ key ~ '.' ~ value)|trans({}, 'admin') %}
+                {% elseif key == 'actor' %}
+                    {% set shown = value == 'none' ? 'audit.timeline.no_actor'|trans({}, 'admin') : actor_names['a' ~ value] ?? ('#' ~ value) %}
+                {% elseif key == 'entity' %}
+                    {% set shown = value|split('\\')|last %}
+                {% else %}
+                    {% set shown = value %}
+                {% endif %}
+                <span class="badge text-bg-light border text-wrap text-break" data-audit-filter-chip="{{ key }}">{{ ('audit.filter.' ~ key)|trans({}, 'admin') }}: <span class="font-monospace">{{ shown }}</span></span>
+            {% endfor %}
+            <a href="{{ path('app_admin_dashboard_audit_timeline') }}">{{ 'audit.timeline.reset_filters'|trans({}, 'admin') }}</a>
+        </div>
+    {% endif %}
+
+    {% if newest is not null %}
+        <div class="mb-2" aria-live="polite"
+             data-controller="audit-new-entries"
+             data-audit-new-entries-url-value="{{ path('app_admin_dashboard_audit_new_count', filter.toQuery|merge({since: newest.encode})) }}"
+             data-audit-new-entries-one-value="{{ 'audit.timeline.new_one'|trans({}, 'admin') }}"
+             data-audit-new-entries-many-value="{{ 'audit.timeline.new_many'|trans({}, 'admin') }}"
+             data-audit-new-entries-more-value="{{ 'audit.timeline.new_more'|trans({}, 'admin') }}">
+            <a class="btn btn-sm btn-outline-primary" href="{{ path('app_admin_dashboard_audit_timeline', filter.toQuery) }}" data-audit-new-entries-target="notice" hidden></a>
+        </div>
+    {% endif %}
+
+    {% if page.items is empty %}
+        <p class="text-secondary" data-audit-empty>{{ 'audit.timeline.empty'|trans({}, 'admin') }}</p>
+    {% else %}
+        <twig:Timeline :label="'audit.timeline.title'|trans({}, 'admin')" class="mb-3">
+            {% import '@Admin/audit/_macros.html.twig' as audit %}
+            {% if page.groups is not null %}
+                {% for group in page.groups %}
+                    <li class="ea-audit-band" data-audit-band="{{ group.kind }}">
+                        {{ include('@Admin/audit/_band.html.twig') }}
+                    </li>
+                {% endfor %}
+            {% else %}
+                {% for item in page.items %}
+                    {{ include('@Admin/audit/_item.html.twig') }}
+                {% endfor %}
+            {% endif %}
+        </twig:Timeline>
+    {% endif %}
+
+    <nav class="d-flex gap-3" aria-label="{{ 'audit.timeline.pagination'|trans({}, 'admin') }}">
+        {% if not is_first_page %}
+            <a href="{{ path('app_admin_dashboard_audit_timeline', filter.toQuery) }}">{{ 'audit.timeline.newest'|trans({}, 'admin') }}</a>
+        {% endif %}
+        {% if page.next is not null %}
+            <a href="{{ path('app_admin_dashboard_audit_timeline', filter.toQuery|merge({after: page.next.encode})) }}" rel="next" data-audit-older>{{ 'audit.timeline.older'|trans({}, 'admin') }}</a>
+        {% endif %}
+    </nav>
+{% endblock %}

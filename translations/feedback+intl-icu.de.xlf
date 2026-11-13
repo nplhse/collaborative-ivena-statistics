@@ -89,6 +89,10 @@
         <source>feedback.form.category</source>
         <target>Kategorie</target>
       </trans-unit>
+      <trans-unit id="FbkFrmHoneypotDe" resname="feedback.form.honeypot">
+        <source>feedback.form.honeypot</source>
+        <target>Dieses Feld leer lassen</target>
+      </trans-unit>
       <trans-unit id="FbkFrmEmlDe" resname="feedback.form.guest_email">
         <source>feedback.form.guest_email</source>
         <target>Ihre E-Mail-Adresse</target>

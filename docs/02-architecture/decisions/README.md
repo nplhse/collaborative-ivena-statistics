@@ -40,6 +40,7 @@ Each ADR includes:
 | [022](022-synthetic-data-generation.md) | Synthetic data generation with hospital profiles, pattern packages and scenario overlays | accepted |
 | [023](023-demo-environment.md) | Separate demo environment with its own database, storage and synthetic data | accepted |
 | [024](024-gitflow-with-main-as-default-branch.md) | Gitflow with `main` as the default branch | accepted |
+| [025](025-audit-log-correlation-and-timeline-grouping.md) | Audit log correlation and timeline grouping | accepted |
 | [025](025-encounter-data-context-and-exchange-format.md) | Encounter data context, source profiles and canonical exchange format | accepted |
 | [026](026-encounter-pseudonym-key.md) | Hospital-held pseudonym key with key generations | accepted |
 | [027](027-encounter-access-grants.md) | Encounter access grants independent of hospital permissions | accepted |

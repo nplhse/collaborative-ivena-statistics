@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}Meine Kliniken - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.hospitals.my'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
 
 {% block page_header %}
     <div class="container-xl">
@@ -14,72 +14,58 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">{{ 'title.hospitals.my'|trans({}, 'allocation') }}</h2>
-                    <div class="text-body-secondary mt-1">
-                        {{ hospitals|length }} {{ 'label.hospital'|trans({}, 'messages') }}
+                    <div class="text-body-secondary mt-1" data-testid="my-hospitals-header-count">
+                        {% if selection.isAll %}
+                            {{ 'my_hospitals.header.count'|trans({count: scope.count}, 'allocation') }}
+                        {% else %}
+                            {{ 'my_hospitals.header.selected'|trans({total: scope.count}, 'allocation') }}
+                        {% endif %}
                     </div>
                 </div>
+                {% if selection.canChoose %}
+                    <div class="col-auto ms-auto d-print-none">
+                        {{ include('@Allocation/hospitals/_my_hospitals_selection.html.twig') }}
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
 {% endblock %}
 
 {% block page_content %}
-        <div class="card">
-            <div class="table-responsive">
-                <table class="table table-vcenter card-table">
-                    <thead>
-                    <tr>
-                        <th>{{ 'label.name'|trans({}, 'messages') }}</th>
-                        <th>{{ 'label.dispatch_area'|trans({}, 'messages') }}</th>
-                        <th>{{ 'label.state'|trans({}, 'messages') }}</th>
-                        <th>{{ 'label.location'|trans({}, 'messages') }}</th>
-                        <th>{{ 'label.tier'|trans({}, 'messages') }}</th>
-                        <th>{{ 'label.size'|trans({}, 'messages') }}</th>
-                        <th class="w-1"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% import '@Shared/_macros/badges.html.twig' as badges %}
-                    {% for hospital in hospitals %}
-                        <tr>
-                            <td>
-                                <a href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}">
-                                    {{ hospital.name }}
-                                </a>
-                            </td>
-                            <td>{{ hospital.dispatchArea }}</td>
-                            <td>{{ hospital.state }}</td>
-                            <td>{{ badges.render('hospital_location', hospital.location.value) }}</td>
-                            <td>{% if hospital.tier %}{{ badges.render('hospital_tier', hospital.tier.value) }}{% endif %}</td>
-                            <td>{{ badges.render('hospital_size', hospital.size.value, hospital.beds) }}</td>
-                            <td class="text-nowrap">
-                                {% if is_granted(constant('App\\Allocation\\Infrastructure\\Security\\Voter\\HospitalVoter::MANAGE_ACCESS_GRANTS'), hospital) %}
-                                    <a class="btn btn-sm btn-outline-secondary me-1" href="{{ path('app_hospitals_edit_access', {id: hospital.id}) }}">
-                                        {{ 'label.hospital_access_grants.manage'|trans({}, 'messages') }}
-                                    </a>
-                                {% endif %}
-                                <a class="btn btn-sm btn-outline-primary" href="{{ path('app_hospitals_edit', {id: hospital.id}) }}">
-                                    {{ 'label.edit'|trans({}, 'messages') }}
-                                </a>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="7">
-                                <twig:EmptyState
-                                    title="{{ 'empty.owned.title'|trans({}, 'allocation') }}"
-                                    description="{{ 'empty.owned.description'|trans({}, 'allocation') }}"
-                                    icon="tabler:building-hospital"
-                                >
-                                    <twig:block name="actions">
-                                        <a class="btn btn-primary" href="{{ path('app_default') }}" target="_top">{{ 'empty.owned.cta'|trans({}, 'allocation') }}</a>
-                                    </twig:block>
-                                </twig:EmptyState>
-                            </td>
-                        </tr>
+    {% if overview %}
+        {{ include('@Allocation/hospitals/_my_hospitals_summary.html.twig') }}
+
+        {% set showCoverage = overview.hospitals|filter(status => status.history is not empty)|length > 0 %}
+        <div class="row row-cards">
+            <div class="{{ showCoverage ? 'col-lg-8' : 'col-12' }}">
+                <div class="row row-cards" data-testid="my-hospitals-cards">
+                    {% for status in overview.hospitals %}
+                        <div class="col-12">
+                            {{ include('@Allocation/hospitals/_my_hospitals_card.html.twig') }}
+                        </div>
                     {% endfor %}
-                    </tbody>
-                </table>
+                </div>
+            </div>
+            {% if showCoverage %}
+                <div class="col-lg-4">
+                    {{ include('@Allocation/hospitals/_my_hospitals_coverage.html.twig') }}
+                </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card-body">
+                <twig:EmptyState
+                    title="{{ 'empty.owned.title'|trans({}, 'allocation') }}"
+                    description="{{ 'empty.owned.description'|trans({}, 'allocation') }}"
+                    icon="tabler:building-hospital"
+                >
+                    <twig:block name="actions">
+                        <a class="btn btn-primary" href="{{ path('app_default') }}" target="_top">{{ 'empty.owned.cta'|trans({}, 'allocation') }}</a>
+                    </twig:block>
+                </twig:EmptyState>
             </div>
         </div>
+    {% endif %}
 {% endblock %}

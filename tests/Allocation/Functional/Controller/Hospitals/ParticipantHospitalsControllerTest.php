@@ -5,9 +5,21 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Functional\Controller\Hospitals;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Allocation\Domain\HospitalPermissionMask;
+use App\Allocation\Infrastructure\Factory\AllocationFactory;
+use App\Allocation\Infrastructure\Factory\AssignmentFactory;
+use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
+use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Import\Domain\Enum\ImportStatus;
+use App\Import\Domain\Enum\ImportType;
+use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\Tests\Support\Translation\AssertsNoMissingTranslations;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -76,8 +88,136 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h2.page-title', 'My Hospitals');
-        self::assertSelectorTextContains('table', 'Owned Hospital');
-        self::assertSelectorTextNotContains('table', 'Foreign Hospital');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-cards"]', 'Owned Hospital');
+        self::assertSelectorTextNotContains('[data-testid="my-hospitals-cards"]', 'Foreign Hospital');
+    }
+
+    public function testHospitalsIndexShowsGrantedHospitalsWithoutEditActions(): void
+    {
+        $client = self::createClient();
+
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $grantee = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+
+        $granted = HospitalFactory::createOne([
+            'name' => 'Granted Hospital',
+            'owner' => $owner,
+            'createdBy' => $owner,
+        ]);
+        $withoutView = HospitalFactory::createOne([
+            'name' => 'Grant Without View',
+            'owner' => $owner,
+            'createdBy' => $owner,
+        ]);
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $granted,
+            'user' => $grantee,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View]),
+            'createdBy' => $owner,
+        ]);
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $withoutView,
+            'user' => $grantee,
+            'permissions' => 0,
+            'createdBy' => $owner,
+        ]);
+
+        $client->loginUser($grantee);
+        $client->request(Request::METHOD_GET, '/hospitals');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="my-hospitals-cards"]', 'Granted Hospital');
+        self::assertSelectorTextNotContains('[data-testid="my-hospitals-cards"]', 'Grant Without View');
+        self::assertSelectorNotExists('a[href="/hospitals/'.$granted->getId().'/edit"]');
+        self::assertSelectorNotExists('a[href="/hospitals/'.$granted->getId().'/edit/access"]');
+    }
+
+    public function testHospitalsIndexDoesNotListForeignHospitalsForAdmin(): void
+    {
+        $client = self::createClient();
+
+        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+
+        HospitalFactory::createOne(['name' => 'Admin Hospital', 'owner' => $admin, 'createdBy' => $admin]);
+        HospitalFactory::createOne(['name' => 'Foreign Hospital', 'owner' => $owner, 'createdBy' => $owner]);
+
+        $client->loginUser($admin);
+        $client->request(Request::METHOD_GET, '/hospitals');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="my-hospitals-cards"]', 'Admin Hospital');
+        self::assertSelectorTextNotContains('[data-testid="my-hospitals-cards"]', 'Foreign Hospital');
+    }
+
+    public function testHospitalsIndexShowsDataSummaryPerPermission(): void
+    {
+        $client = self::createClient();
+
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $viewer = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        SpecialityFactory::createOne();
+        DepartmentFactory::createOne();
+        AssignmentFactory::createOne();
+        IndicationRawFactory::createOne();
+
+        $hospital = HospitalFactory::createOne(['name' => 'Data Hospital', 'owner' => $owner, 'createdBy' => $owner]);
+        $import = ImportFactory::createOne([
+            'hospital' => $hospital,
+            'createdBy' => $owner,
+            'status' => ImportStatus::COMPLETED,
+            'type' => ImportType::ALLOCATION,
+            'createdAt' => new \DateTimeImmutable('2026-03-10 10:00:00'),
+        ]);
+        foreach (['2026-02-01 08:00:00', '2026-02-14 12:00:00', '2026-02-28 20:00:00'] as $createdAt) {
+            AllocationFactory::createOne([
+                'hospital' => $hospital,
+                'import' => $import,
+                'createdAt' => new \DateTimeImmutable($createdAt),
+                'arrivalAt' => new \DateTimeImmutable($createdAt)->modify('+20 minutes'),
+            ]);
+        }
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $hospital,
+            'user' => $viewer,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View]),
+            'createdBy' => $owner,
+        ]);
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport((int) $import->getId());
+
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, '/hospitals');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="my-hospitals-summary-allocations"]', '3');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-summary-period"]', 'Feb 1, 2026');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-summary-period"]', 'Feb 28, 2026');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-card-last-upload"]', 'Mar 10, 2026');
+        self::assertSelectorTextContains('[data-testid="my-hospitals-summary-success-rate"]', '100 % successful');
+
+        $client->loginUser($viewer);
+        $client->request(Request::METHOD_GET, '/hospitals');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="my-hospitals-summary-allocations"]', '3');
+        self::assertSelectorNotExists('[data-testid="my-hospitals-summary-imports"]', 'Imports need the IMPORT permission.');
+        self::assertSelectorNotExists('[data-testid="my-hospitals-card-last-upload"]');
+    }
+
+    public function testHospitalsIndexShowsNoSummaryWithoutHospitals(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]));
+        $client->request(Request::METHOD_GET, '/hospitals');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="my-hospitals-summary"]');
     }
 
     public function testEditGeneralPageRendersGermanChoiceLabels(): void

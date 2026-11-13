@@ -1,0 +1,27 @@
+{% set bodyHtml %}{% block body %}{% endblock %}{% endset %}
+{% set expandable = bodyHtml|trim is not empty or detailsUrl %}
+{% set summaryHtml %}
+    {% if this.localTime %}<time class="timeline-time" datetime="{{ this.utcTime }}">{{ this.localTime }}</time>{% endif %}
+    {% if category %}<span class="timeline-category">{{ category }}</span>{% endif %}
+    <span class="timeline-text">{% block content %}{% endblock %}</span>
+{% endset %}
+<li{{ attributes.defaults({class: 'timeline-item ' ~ this.toneClass}) }}>
+    <span class="timeline-marker" aria-hidden="true">{{ ux_icon(icon) }}</span>
+    <div class="timeline-content">
+        {% if expandable %}
+            <details class="timeline-details"{% if open %} open{% endif %}{% if detailsUrl %} data-controller="timeline-details" data-timeline-details-url-value="{{ detailsUrl }}" data-timeline-details-error-text-value="{{ detailsErrorLabel }}" data-action="toggle->timeline-details#load"{% endif %}>
+                <summary class="timeline-summary">{{ summaryHtml }}</summary>
+                <div class="timeline-body">
+                    {{ bodyHtml }}
+                    {% if detailsUrl %}
+                        <div class="timeline-lazy" data-timeline-details-target="region" aria-live="polite">
+                            <a href="{{ detailsUrl }}">{{ detailsLabel }}</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </details>
+        {% else %}
+            <div class="timeline-summary">{{ summaryHtml }}</div>
+        {% endif %}
+    </div>
+</li>
