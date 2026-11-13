@@ -4,11 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Admin\Functional\Controller;
 
-use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
-use App\Allocation\Infrastructure\Factory\HospitalFactory;
-use App\Allocation\Infrastructure\Factory\StateFactory;
-use App\Import\Domain\Enum\ImportStatus;
-use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Storage\Application\Contract\StorageMeasurementRepositoryInterface;
 use App\Storage\Domain\Entity\StorageMeasurement;
 use App\Storage\Domain\Enum\CapacityLevel;
@@ -222,73 +217,10 @@ final class DashboardOperationsTest extends WebTestCase
         self::assertStringContainsString('No storage measurement yet', $crawler->filter('.ea-storage-card')->text());
     }
 
-    public function testFailedImportsDashboardShows30DayFilterAndViewAllLink(): void
-    {
-        $client = self::createClient();
-
-        $admin = UserFactory::new()->asAdmin()->create();
-        $owner = UserFactory::createOne();
-        $hospital = HospitalFactory::createOne([
-            'owner' => $owner,
-            'state' => StateFactory::createOne(),
-            'dispatchArea' => DispatchAreaFactory::createOne(),
-        ]);
-
-        ImportFactory::createOne([
-            'hospital' => $hospital,
-            'status' => ImportStatus::FAILED,
-            'name' => 'Recent failed import',
-            'createdAt' => new \DateTimeImmutable('-5 days'),
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospital,
-            'status' => ImportStatus::FAILED,
-            'name' => 'Old failed import',
-            'createdAt' => new \DateTimeImmutable('-40 days'),
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospital,
-            'status' => ImportStatus::COMPLETED,
-            'name' => 'Successful import',
-            'createdAt' => new \DateTimeImmutable('-2 days'),
-        ]);
-
-        $client->loginUser($admin);
-        $crawler = $client->request(Request::METHOD_GET, '/admin');
-
-        self::assertResponseIsSuccessful();
-        self::assertStringContainsString('Last 30 days', $crawler->text());
-        self::assertStringContainsString('All failed imports', $crawler->text());
-        self::assertStringContainsString('Recent failed import', $crawler->text());
-        self::assertStringNotContainsString('Old failed import', $crawler->text());
-
-        $badge = $this->findFailedImportsBadge($crawler);
-        self::assertNotNull($badge);
-        self::assertSame('2', trim($badge->text()));
-    }
-
     private function store(StorageMeasurement $measurement): void
     {
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($measurement);
         $entityManager->flush();
-    }
-
-    private function findFailedImportsBadge(Crawler $crawler): ?Crawler
-    {
-        $link = $crawler->filter('a')->reduce(
-            static fn (Crawler $node): bool => str_contains($node->text(), 'All failed imports'),
-        );
-
-        if (0 === $link->count()) {
-            return null;
-        }
-
-        $badge = $link->filter('.ea-admin-primary-badge-btn__badge');
-        if (0 === $badge->count()) {
-            return null;
-        }
-
-        return $badge;
     }
 }

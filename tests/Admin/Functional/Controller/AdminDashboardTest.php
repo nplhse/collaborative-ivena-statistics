@@ -44,7 +44,7 @@ final class AdminDashboardTest extends WebTestCase
         self::assertStringContainsString('Feedback', $text);
         self::assertStringContainsString('Reference data and allocations', $text);
         self::assertStringContainsString('Key metrics (last 30 days)', $text);
-        self::assertStringContainsString('Recent failed imports', $text);
+        self::assertStringNotContainsString('Recent failed imports', $text, 'failed imports are covered by the notifications card');
         self::assertStringContainsString('Daily trend (last 30 days)', $text);
 
         $path = $client->getRequest()->getPathInfo();

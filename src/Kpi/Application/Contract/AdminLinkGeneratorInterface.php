@@ -13,8 +13,4 @@ interface AdminLinkGeneratorInterface
     public function allocationCrudIndexUrl(): string;
 
     public function importRejectCrudIndexUrl(): string;
-
-    public function failedImportsCrudIndexUrl(): string;
-
-    public function importDetailUrl(int $importId): string;
 }
