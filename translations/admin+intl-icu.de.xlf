@@ -73,6 +73,150 @@
         <source>menu.users.accounts</source>
         <target>Benutzerkonten</target>
       </trans-unit>
+      <trans-unit id="menuDashboardDe" resname="menu.dashboard">
+        <source>menu.dashboard</source>
+        <target>Dashboard</target>
+      </trans-unit>
+      <trans-unit id="menuBackToFrontendDe" resname="menu.back_to_frontend">
+        <source>menu.back_to_frontend</source>
+        <target>Zurück zur Anwendung</target>
+      </trans-unit>
+      <trans-unit id="menuSectionManagementDe" resname="menu.section.management">
+        <source>menu.section.management</source>
+        <target>Verwaltung</target>
+      </trans-unit>
+      <trans-unit id="menuUsersDe" resname="menu.users">
+        <source>menu.users</source>
+        <target>Benutzer</target>
+      </trans-unit>
+      <trans-unit id="menuUsersHospitalAccessDe" resname="menu.users.hospital_access">
+        <source>menu.users.hospital_access</source>
+        <target>Zugriffsberechtigungen</target>
+      </trans-unit>
+      <trans-unit id="menuUsersOnboardingStepsDe" resname="menu.users.onboarding_steps">
+        <source>menu.users.onboarding_steps</source>
+        <target>Onboarding-Schritte</target>
+      </trans-unit>
+      <trans-unit id="menuFeedbackDe" resname="menu.feedback">
+        <source>menu.feedback</source>
+        <target>Feedback</target>
+      </trans-unit>
+      <trans-unit id="menuSectionDataDe" resname="menu.section.data">
+        <source>menu.section.data</source>
+        <target>Daten</target>
+      </trans-unit>
+      <trans-unit id="menuDataDe" resname="menu.data">
+        <source>menu.data</source>
+        <target>Daten</target>
+      </trans-unit>
+      <trans-unit id="menuDataAllocationsDe" resname="menu.data.allocations">
+        <source>menu.data.allocations</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="menuDataAssignmentsDe" resname="menu.data.assignments">
+        <source>menu.data.assignments</source>
+        <target>Zuweisungstypen</target>
+      </trans-unit>
+      <trans-unit id="menuDataDepartmentsDe" resname="menu.data.departments">
+        <source>menu.data.departments</source>
+        <target>Abteilungen</target>
+      </trans-unit>
+      <trans-unit id="menuDataDispatchAreasDe" resname="menu.data.dispatch_areas">
+        <source>menu.data.dispatch_areas</source>
+        <target>Leitstellenbereiche</target>
+      </trans-unit>
+      <trans-unit id="menuDataHospitalsDe" resname="menu.data.hospitals">
+        <source>menu.data.hospitals</source>
+        <target>Kliniken</target>
+      </trans-unit>
+      <trans-unit id="menuDataIndicationsNormalizedDe" resname="menu.data.indications_normalized">
+        <source>menu.data.indications_normalized</source>
+        <target>Indikationen (normalisiert)</target>
+      </trans-unit>
+      <trans-unit id="menuDataIndicationGroupsDe" resname="menu.data.indication_groups">
+        <source>menu.data.indication_groups</source>
+        <target>Indikationsgruppen</target>
+      </trans-unit>
+      <trans-unit id="menuDataIndicationsRawDe" resname="menu.data.indications_raw">
+        <source>menu.data.indications_raw</source>
+        <target>Indikationen (Rohdaten)</target>
+      </trans-unit>
+      <trans-unit id="menuDataInfectionsDe" resname="menu.data.infections">
+        <source>menu.data.infections</source>
+        <target>Infektionen</target>
+      </trans-unit>
+      <trans-unit id="menuDataMciCasesDe" resname="menu.data.mci_cases">
+        <source>menu.data.mci_cases</source>
+        <target>MANV-Fälle</target>
+      </trans-unit>
+      <trans-unit id="menuDataOccasionsDe" resname="menu.data.occasions">
+        <source>menu.data.occasions</source>
+        <target>Anlässe</target>
+      </trans-unit>
+      <trans-unit id="menuDataSecondaryTransportsDe" resname="menu.data.secondary_transports">
+        <source>menu.data.secondary_transports</source>
+        <target>Sekundärtransporte</target>
+      </trans-unit>
+      <trans-unit id="menuDataSpecialitiesDe" resname="menu.data.specialities">
+        <source>menu.data.specialities</source>
+        <target>Fachrichtungen</target>
+      </trans-unit>
+      <trans-unit id="menuDataStatesDe" resname="menu.data.states">
+        <source>menu.data.states</source>
+        <target>Bundesländer</target>
+      </trans-unit>
+      <trans-unit id="menuImportsDe" resname="menu.imports">
+        <source>menu.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="menuImportsImportsDe" resname="menu.imports.imports">
+        <source>menu.imports.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="menuImportsRejectsDe" resname="menu.imports.rejects">
+        <source>menu.imports.rejects</source>
+        <target>Abgelehnte Importzeilen</target>
+      </trans-unit>
+      <trans-unit id="menuImportsBatchDe" resname="menu.imports.batch">
+        <source>menu.imports.batch</source>
+        <target>Stapelverarbeitung</target>
+      </trans-unit>
+      <trans-unit id="menuImportsBatchRunsDe" resname="menu.imports.batch_runs">
+        <source>menu.imports.batch_runs</source>
+        <target>Stapelläufe</target>
+      </trans-unit>
+      <trans-unit id="menuImportsBatchItemsDe" resname="menu.imports.batch_items">
+        <source>menu.imports.batch_items</source>
+        <target>Stapelpositionen</target>
+      </trans-unit>
+      <trans-unit id="menuExplorerViewsDe" resname="menu.explorer_views">
+        <source>menu.explorer_views</source>
+        <target>Explorer-Ansichten</target>
+      </trans-unit>
+      <trans-unit id="menuSectionContentDe" resname="menu.section.content">
+        <source>menu.section.content</source>
+        <target>Inhalte</target>
+      </trans-unit>
+      <trans-unit id="menuBlogDe" resname="menu.blog">
+        <source>menu.blog</source>
+        <target>Blog</target>
+      </trans-unit>
+      <trans-unit id="menuSectionSystemDe" resname="menu.section.system">
+        <source>menu.section.system</source>
+        <target>System</target>
+      </trans-unit>
+      <trans-unit id="menuSystemCookieConsentsDe" resname="menu.system.cookie_consents">
+        <source>menu.system.cookie_consents</source>
+        <target>Cookie-Einwilligungen</target>
+      </trans-unit>
+      <trans-unit id="menuSystemFailedMessagesDe" resname="menu.system.failed_messages">
+        <source>menu.system.failed_messages</source>
+        <target>Fehlgeschlagene Nachrichten</target>
+      </trans-unit>
+      <trans-unit id="menuSystemMonthlyRemindersDe" resname="menu.system.monthly_reminders">
+        <source>menu.system.monthly_reminders</source>
+        <target>Monatliche Erinnerungen</target>
+      </trans-unit>
       <trans-unit id="bloga001" resname="label.blog.post">
         <source>label.blog.post</source>
         <target>Blogbeitrag</target>
