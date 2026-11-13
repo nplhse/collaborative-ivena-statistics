@@ -1,0 +1,8 @@
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{# Untrusted text as plain, escaped text: no |raw, no autolinking, nothing remote is loaded. #}
+{% set text = field.value %}
+{% if text is empty %}
+    <span class="text-body-secondary">—</span>
+{% else %}
+    <pre class="ea-plain-text-pre mb-0">{{ text }}</pre>
+{% endif %}

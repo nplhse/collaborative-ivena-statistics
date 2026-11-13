@@ -377,6 +377,18 @@
         <source>admin.import_failed.label</source>
         <target>Failed imports</target>
       </trans-unit>
+      <trans-unit id="NtfFbQsTitleEn" resname="admin.feedback_quarantine_summary.title">
+        <source>admin.feedback_quarantine_summary.title</source>
+        <target>{count, plural, one {# feedback entry} other {# feedback entries}} moved to quarantine</target>
+      </trans-unit>
+      <trans-unit id="NtfFbQsMsgEn" resname="admin.feedback_quarantine_summary.message">
+        <source>admin.feedback_quarantine_summary.message</source>
+        <target>Suspected spam since the last summary. {total, plural, one {# entry is} other {# entries are}} in the quarantine now; open it to review them.</target>
+      </trans-unit>
+      <trans-unit id="NtfFbQsLabelEn" resname="admin.feedback_quarantine_summary.label">
+        <source>admin.feedback_quarantine_summary.label</source>
+        <target>Weekly feedback quarantine summary</target>
+      </trans-unit>
       <trans-unit id="NtfF91586F0" resname="admin.feedback_received.title">
         <source>admin.feedback_received.title</source>
         <target>New feedback: {category, select, bug {bug report} improvement {suggestion} question {question} other {other}}</target>

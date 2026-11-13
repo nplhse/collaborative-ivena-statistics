@@ -1545,6 +1545,110 @@
         <source>usage_analytics.tile.performance</source>
         <target>Latency and DB load by feature area</target>
       </trans-unit>
+      <trans-unit id="admFqEntity" resname="admin.feedback_quarantine.entity">
+        <source>admin.feedback_quarantine.entity</source>
+        <target>Quarantined feedback</target>
+      </trans-unit>
+      <trans-unit id="admFqMenu" resname="admin.feedback_quarantine.menu">
+        <source>admin.feedback_quarantine.menu</source>
+        <target>Feedback quarantine</target>
+      </trans-unit>
+      <trans-unit id="admFqTitle" resname="admin.feedback_quarantine.title">
+        <source>admin.feedback_quarantine.title</source>
+        <target>Feedback quarantine — {count, plural, one {# entry} other {# entries}}</target>
+      </trans-unit>
+      <trans-unit id="admFqDetail" resname="admin.feedback_quarantine.detail_title">
+        <source>admin.feedback_quarantine.detail_title</source>
+        <target>Quarantined feedback #{id}</target>
+      </trans-unit>
+      <trans-unit id="admFqHelp" resname="admin.feedback_quarantine.help">
+        <source>admin.feedback_quarantine.help</source>
+        <target>Suspected spam, kept for review. Messages are shown as plain text: links are not clickable and nothing is loaded from other sites. Releasing moves an entry to the normal feedback list without a notification.</target>
+      </trans-unit>
+      <trans-unit id="admFbRelease" resname="admin.feedback.action.release">
+        <source>admin.feedback.action.release</source>
+        <target>Release</target>
+      </trans-unit>
+      <trans-unit id="admFbReleaseC" resname="admin.feedback.action.release.confirm">
+        <source>admin.feedback.action.release.confirm</source>
+        <target>Release this feedback? It moves to the normal feedback list; no notification is sent.</target>
+      </trans-unit>
+      <trans-unit id="admFbBatchRel" resname="admin.feedback.action.batch_release">
+        <source>admin.feedback.action.batch_release</source>
+        <target>Release</target>
+      </trans-unit>
+      <trans-unit id="admFbQuar" resname="admin.feedback.action.quarantine">
+        <source>admin.feedback.action.quarantine</source>
+        <target>Move to quarantine</target>
+      </trans-unit>
+      <trans-unit id="admFbQuarC" resname="admin.feedback.action.quarantine.confirm">
+        <source>admin.feedback.action.quarantine.confirm</source>
+        <target>Move this feedback to the quarantine? It leaves the feedback list and the open count.</target>
+      </trans-unit>
+      <trans-unit id="admFbFCreated" resname="admin.feedback.field.created">
+        <source>admin.feedback.field.created</source>
+        <target>Created</target>
+      </trans-unit>
+      <trans-unit id="admFbFCat" resname="admin.feedback.field.category">
+        <source>admin.feedback.field.category</source>
+        <target>Category</target>
+      </trans-unit>
+      <trans-unit id="admFbFGuest" resname="admin.feedback.field.guest_email">
+        <source>admin.feedback.field.guest_email</source>
+        <target>Guest email</target>
+      </trans-unit>
+      <trans-unit id="admFbFUser" resname="admin.feedback.field.user">
+        <source>admin.feedback.field.user</source>
+        <target>User</target>
+      </trans-unit>
+      <trans-unit id="admFbFReasons" resname="admin.feedback.field.reasons">
+        <source>admin.feedback.field.reasons</source>
+        <target>Reasons</target>
+      </trans-unit>
+      <trans-unit id="admFbFScore" resname="admin.feedback.field.score">
+        <source>admin.feedback.field.score</source>
+        <target>Score</target>
+      </trans-unit>
+      <trans-unit id="admFbFPreview" resname="admin.feedback.field.preview">
+        <source>admin.feedback.field.preview</source>
+        <target>Preview</target>
+      </trans-unit>
+      <trans-unit id="admFbFQAt" resname="admin.feedback.field.quarantined_at">
+        <source>admin.feedback.field.quarantined_at</source>
+        <target>Quarantined</target>
+      </trans-unit>
+      <trans-unit id="admFbFReviewer" resname="admin.feedback.field.reviewer">
+        <source>admin.feedback.field.reviewer</source>
+        <target>Reviewer</target>
+      </trans-unit>
+      <trans-unit id="admFbFMessage" resname="admin.feedback.field.message">
+        <source>admin.feedback.field.message</source>
+        <target>Message</target>
+      </trans-unit>
+      <trans-unit id="admFbFPage" resname="admin.feedback.field.page">
+        <source>admin.feedback.field.page</source>
+        <target>Page</target>
+      </trans-unit>
+      <trans-unit id="admFbFUa" resname="admin.feedback.field.user_agent">
+        <source>admin.feedback.field.user_agent</source>
+        <target>User agent</target>
+      </trans-unit>
+      <trans-unit id="admFbFlRel" resname="flash.admin.feedback.released">
+        <source>flash.admin.feedback.released</source>
+        <target>{count, plural, =0 {No feedback was released.} one {# feedback entry released.} other {# feedback entries released.}}</target>
+      </trans-unit>
+      <trans-unit id="admFbFlQuar" resname="flash.admin.feedback.quarantined">
+        <source>flash.admin.feedback.quarantined</source>
+        <target>Feedback moved to the quarantine.</target>
+      </trans-unit>
+      <trans-unit id="admFbFlTok" resname="flash.admin.feedback.invalid_token">
+        <source>flash.admin.feedback.invalid_token</source>
+        <target>The action has expired. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="admFbFlDel" resname="flash.admin.feedback.deleted">
+        <source>flash.admin.feedback.deleted</source>
+        <target>{count, plural, =0 {No feedback was deleted.} one {# feedback entry deleted.} other {# feedback entries deleted.}}</target>
+      </trans-unit>
       <trans-unit id="auditTl01" resname="audit.timeline.title">
         <source>audit.timeline.title</source>
         <target>Audit timeline</target>

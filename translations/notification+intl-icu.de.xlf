@@ -377,6 +377,18 @@
         <source>admin.import_failed.label</source>
         <target>Fehlgeschlagene Importe</target>
       </trans-unit>
+      <trans-unit id="NtfFbQsTitleDe" resname="admin.feedback_quarantine_summary.title">
+        <source>admin.feedback_quarantine_summary.title</source>
+        <target>{count, plural, one {# Feedback} other {# Feedbacks}} in Quarantäne verschoben</target>
+      </trans-unit>
+      <trans-unit id="NtfFbQsMsgDe" resname="admin.feedback_quarantine_summary.message">
+        <source>admin.feedback_quarantine_summary.message</source>
+        <target>Spamverdacht seit der letzten Zusammenfassung. In der Quarantäne {total, plural, one {liegt jetzt # Eintrag} other {liegen jetzt # Einträge}}; dort können Sie sie prüfen.</target>
+      </trans-unit>
+      <trans-unit id="NtfFbQsLabelDe" resname="admin.feedback_quarantine_summary.label">
+        <source>admin.feedback_quarantine_summary.label</source>
+        <target>Wöchentliche Zusammenfassung der Feedback-Quarantäne</target>
+      </trans-unit>
       <trans-unit id="NtfF91586F0" resname="admin.feedback_received.title">
         <source>admin.feedback_received.title</source>
         <target>Neues Feedback: {category, select, bug {Fehlermeldung} improvement {Verbesserungsvorschlag} question {Frage} other {Sonstiges}}</target>

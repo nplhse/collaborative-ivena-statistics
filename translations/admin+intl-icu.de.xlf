@@ -1545,6 +1545,110 @@
         <source>usage_analytics.tile.performance</source>
         <target>Antwortzeiten und Datenbanklast nach Bereich</target>
       </trans-unit>
+      <trans-unit id="admFqEntityDe" resname="admin.feedback_quarantine.entity">
+        <source>admin.feedback_quarantine.entity</source>
+        <target>Feedback in Quarantäne</target>
+      </trans-unit>
+      <trans-unit id="admFqMenuDe" resname="admin.feedback_quarantine.menu">
+        <source>admin.feedback_quarantine.menu</source>
+        <target>Feedback-Quarantäne</target>
+      </trans-unit>
+      <trans-unit id="admFqTitleDe" resname="admin.feedback_quarantine.title">
+        <source>admin.feedback_quarantine.title</source>
+        <target>Feedback-Quarantäne — {count, plural, one {# Eintrag} other {# Einträge}}</target>
+      </trans-unit>
+      <trans-unit id="admFqDetailDe" resname="admin.feedback_quarantine.detail_title">
+        <source>admin.feedback_quarantine.detail_title</source>
+        <target>Feedback #{id} in Quarantäne</target>
+      </trans-unit>
+      <trans-unit id="admFqHelpDe" resname="admin.feedback_quarantine.help">
+        <source>admin.feedback_quarantine.help</source>
+        <target>Spamverdacht, zur Prüfung aufbewahrt. Nachrichten erscheinen als reiner Text: Links sind nicht klickbar, und es wird nichts von anderen Seiten geladen. Freigegebene Einträge wandern ohne Benachrichtigung in die normale Feedback-Liste.</target>
+      </trans-unit>
+      <trans-unit id="admFbReleaseDe" resname="admin.feedback.action.release">
+        <source>admin.feedback.action.release</source>
+        <target>Freigeben</target>
+      </trans-unit>
+      <trans-unit id="admFbReleaseCDe" resname="admin.feedback.action.release.confirm">
+        <source>admin.feedback.action.release.confirm</source>
+        <target>Dieses Feedback freigeben? Es wandert in die normale Feedback-Liste; es wird keine Benachrichtigung verschickt.</target>
+      </trans-unit>
+      <trans-unit id="admFbBatchRelDe" resname="admin.feedback.action.batch_release">
+        <source>admin.feedback.action.batch_release</source>
+        <target>Freigeben</target>
+      </trans-unit>
+      <trans-unit id="admFbQuarDe" resname="admin.feedback.action.quarantine">
+        <source>admin.feedback.action.quarantine</source>
+        <target>In Quarantäne verschieben</target>
+      </trans-unit>
+      <trans-unit id="admFbQuarCDe" resname="admin.feedback.action.quarantine.confirm">
+        <source>admin.feedback.action.quarantine.confirm</source>
+        <target>Dieses Feedback in die Quarantäne verschieben? Es verschwindet aus der Feedback-Liste und der Zahl offener Einträge.</target>
+      </trans-unit>
+      <trans-unit id="admFbFCreatedDe" resname="admin.feedback.field.created">
+        <source>admin.feedback.field.created</source>
+        <target>Erstellt</target>
+      </trans-unit>
+      <trans-unit id="admFbFCatDe" resname="admin.feedback.field.category">
+        <source>admin.feedback.field.category</source>
+        <target>Kategorie</target>
+      </trans-unit>
+      <trans-unit id="admFbFGuestDe" resname="admin.feedback.field.guest_email">
+        <source>admin.feedback.field.guest_email</source>
+        <target>Gast-E-Mail</target>
+      </trans-unit>
+      <trans-unit id="admFbFUserDe" resname="admin.feedback.field.user">
+        <source>admin.feedback.field.user</source>
+        <target>Nutzer</target>
+      </trans-unit>
+      <trans-unit id="admFbFReasonsDe" resname="admin.feedback.field.reasons">
+        <source>admin.feedback.field.reasons</source>
+        <target>Gründe</target>
+      </trans-unit>
+      <trans-unit id="admFbFScoreDe" resname="admin.feedback.field.score">
+        <source>admin.feedback.field.score</source>
+        <target>Punkte</target>
+      </trans-unit>
+      <trans-unit id="admFbFPreviewDe" resname="admin.feedback.field.preview">
+        <source>admin.feedback.field.preview</source>
+        <target>Vorschau</target>
+      </trans-unit>
+      <trans-unit id="admFbFQAtDe" resname="admin.feedback.field.quarantined_at">
+        <source>admin.feedback.field.quarantined_at</source>
+        <target>In Quarantäne seit</target>
+      </trans-unit>
+      <trans-unit id="admFbFReviewerDe" resname="admin.feedback.field.reviewer">
+        <source>admin.feedback.field.reviewer</source>
+        <target>Geprüft von</target>
+      </trans-unit>
+      <trans-unit id="admFbFMessageDe" resname="admin.feedback.field.message">
+        <source>admin.feedback.field.message</source>
+        <target>Nachricht</target>
+      </trans-unit>
+      <trans-unit id="admFbFPageDe" resname="admin.feedback.field.page">
+        <source>admin.feedback.field.page</source>
+        <target>Seite</target>
+      </trans-unit>
+      <trans-unit id="admFbFUaDe" resname="admin.feedback.field.user_agent">
+        <source>admin.feedback.field.user_agent</source>
+        <target>User-Agent</target>
+      </trans-unit>
+      <trans-unit id="admFbFlRelDe" resname="flash.admin.feedback.released">
+        <source>flash.admin.feedback.released</source>
+        <target>{count, plural, =0 {Es wurde kein Feedback freigegeben.} one {# Feedback freigegeben.} other {# Feedbacks freigegeben.}}</target>
+      </trans-unit>
+      <trans-unit id="admFbFlQuarDe" resname="flash.admin.feedback.quarantined">
+        <source>flash.admin.feedback.quarantined</source>
+        <target>Feedback in die Quarantäne verschoben.</target>
+      </trans-unit>
+      <trans-unit id="admFbFlTokDe" resname="flash.admin.feedback.invalid_token">
+        <source>flash.admin.feedback.invalid_token</source>
+        <target>Die Aktion ist abgelaufen. Bitte erneut versuchen.</target>
+      </trans-unit>
+      <trans-unit id="admFbFlDelDe" resname="flash.admin.feedback.deleted">
+        <source>flash.admin.feedback.deleted</source>
+        <target>{count, plural, =0 {Es wurde kein Feedback gelöscht.} one {# Feedback gelöscht.} other {# Feedbacks gelöscht.}}</target>
+      </trans-unit>
       <trans-unit id="auditTl01de" resname="audit.timeline.title">
         <source>audit.timeline.title</source>
         <target>Audit-Timeline</target>

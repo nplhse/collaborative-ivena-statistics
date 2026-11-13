@@ -13,6 +13,7 @@
 | [allocation/](allocation/) | Allocation exploration, indication normalization |
 | [onboarding/](onboarding/) | Participant onboarding checklist |
 | [content/](content/) | Pages, translations, home dashboard overview |
+| [feedback/](feedback/) | Feedback widget, spam protection, quarantine |
 | [kpi/](kpi/) | Daily KPI aggregation |
 | [analytics/](analytics/) | Server-side usage analytics |
 | [notification/](notification/) | Personal notifications: inbox, toasts, email |

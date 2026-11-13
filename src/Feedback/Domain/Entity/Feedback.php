@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Feedback\Domain\Entity;
 
 use App\Feedback\Domain\Enum\FeedbackCategory;
+use App\Feedback\Domain\Enum\FeedbackClassification;
 use App\Feedback\Domain\Enum\FeedbackStatus;
 use App\Feedback\Infrastructure\Repository\FeedbackRepository;
 use App\User\Domain\Entity\User;
@@ -13,6 +14,8 @@ use Symfony\Component\Clock\Clock;
 
 #[ORM\Entity(repositoryClass: FeedbackRepository::class)]
 #[ORM\Table(name: 'feedback')]
+#[ORM\Index(name: 'idx_feedback_classification_created', columns: ['classification', 'created_at'])]
+#[ORM\Index(name: 'idx_feedback_message_fingerprint', columns: ['message_fingerprint'])]
 class Feedback implements \Stringable
 {
     #[ORM\Id]
@@ -54,6 +57,38 @@ class Feedback implements \Stringable
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
+
+    #[ORM\Column(enumType: FeedbackClassification::class, options: ['default' => 'normal'])]
+    private FeedbackClassification $classification = FeedbackClassification::NORMAL;
+
+    /**
+     * Reason codes of the current quarantine (e.g. `contains_url`, `manual`); null while the entry is normal.
+     *
+     * @var list<string>|null
+     */
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::JSON, nullable: true)]
+    private ?array $classificationReasons = null;
+
+    /** Spam score of an automatic quarantine; null for normal entries and manual quarantines. */
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT, nullable: true)]
+    private ?int $spamScore = null;
+
+    /** When the classification last changed (quarantined or released); null if it never changed. */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $classifiedAt = null;
+
+    /** Reviewer who last changed the classification; null for the automatic classification. */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?User $classifiedBy = null;
+
+    /** When the quarantined entry was included in (or excluded from) the weekly quarantine summary. */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $quarantineReportedAt = null;
+
+    /** SHA-256 of the normalised message, used to spot repeated messages; null when nothing is left. */
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $messageFingerprint = null;
 
     public function __construct()
     {
@@ -205,6 +240,102 @@ class Feedback implements \Stringable
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getMessageFingerprint(): ?string
+    {
+        return $this->messageFingerprint;
+    }
+
+    public function setMessageFingerprint(?string $messageFingerprint): static
+    {
+        $this->messageFingerprint = $messageFingerprint;
+
+        return $this;
+    }
+
+    public function getClassification(): FeedbackClassification
+    {
+        return $this->classification;
+    }
+
+    public function isQuarantined(): bool
+    {
+        return FeedbackClassification::QUARANTINED === $this->classification;
+    }
+
+    /** @return list<string> */
+    public function getClassificationReasons(): array
+    {
+        return $this->classificationReasons ?? [];
+    }
+
+    public function getSpamScore(): ?int
+    {
+        return $this->spamScore;
+    }
+
+    public function getClassifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->classifiedAt;
+    }
+
+    public function getClassifiedBy(): ?User
+    {
+        return $this->classifiedBy;
+    }
+
+    public function getQuarantineReportedAt(): ?\DateTimeImmutable
+    {
+        return $this->quarantineReportedAt;
+    }
+
+    /**
+     * Moves the entry into quarantine. Without a reviewer the quarantine is automatic and waits for the
+     * weekly summary; a reviewer's quarantine is known already and is not reported again.
+     *
+     * @param non-empty-list<string> $reasons
+     */
+    public function quarantine(array $reasons, ?int $spamScore, ?User $reviewer, \DateTimeImmutable $at): static
+    {
+        if ($this->isQuarantined()) {
+            throw new \LogicException(\sprintf('Feedback %s is already quarantined.', $this));
+        }
+
+        $this->classification = FeedbackClassification::QUARANTINED;
+        $this->classificationReasons = array_values(array_unique($reasons));
+        $this->spamScore = $spamScore;
+        $this->classifiedAt = $at;
+        $this->classifiedBy = $reviewer;
+        $this->quarantineReportedAt = $reviewer instanceof User ? $at : null;
+
+        return $this;
+    }
+
+    /** Records that the quarantine is known and needs no weekly summary (e.g. a reviewed reclassification). */
+    public function markQuarantineReported(\DateTimeImmutable $at): static
+    {
+        if ($this->isQuarantined()) {
+            $this->quarantineReportedAt = $at;
+        }
+
+        return $this;
+    }
+
+    /** Releases the entry from quarantine; reasons and score are dropped, the workflow status stays. */
+    public function release(User $reviewer, \DateTimeImmutable $at): static
+    {
+        if (!$this->isQuarantined()) {
+            throw new \LogicException(\sprintf('Feedback %s is not quarantined.', $this));
+        }
+
+        $this->classification = FeedbackClassification::NORMAL;
+        $this->classificationReasons = null;
+        $this->spamScore = null;
+        $this->classifiedAt = $at;
+        $this->classifiedBy = $reviewer;
+
+        return $this;
     }
 
     #[\Override]

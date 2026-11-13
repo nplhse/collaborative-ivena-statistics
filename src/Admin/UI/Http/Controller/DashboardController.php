@@ -19,6 +19,7 @@ use App\Admin\UI\Http\Controller\Department\DepartmentCrudController;
 use App\Admin\UI\Http\Controller\DispatchArea\DispatchAreaCrudController;
 use App\Admin\UI\Http\Controller\Engagement\MonthlyReminderDispatchCrudController;
 use App\Admin\UI\Http\Controller\Feedback\FeedbackCrudController;
+use App\Admin\UI\Http\Controller\Feedback\FeedbackQuarantineCrudController;
 use App\Admin\UI\Http\Controller\Hospital\HospitalAccessGrantCrudController;
 use App\Admin\UI\Http\Controller\Hospital\HospitalCrudController;
 use App\Admin\UI\Http\Controller\Import\ImportBatchRunCrudController;
@@ -455,6 +456,9 @@ final class DashboardController extends AbstractDashboardController
         $openFeedbackCount = $this->feedbackRepository->countOpen();
         yield MenuItem::linkTo(FeedbackCrudController::class, 'Feedback', 'fas fa-comment-dots')
             ->setBadge($openFeedbackCount, $openFeedbackCount > 0 ? 'info' : 'primary');
+        // Count only: quarantined content is shown only after the reviewer opens the quarantine.
+        yield MenuItem::linkTo(FeedbackQuarantineCrudController::class, new TranslatableMessage('admin.feedback_quarantine.menu', domain: 'admin'), 'fas fa-shield-halved')
+            ->setBadge($this->feedbackRepository->countQuarantined(), 'secondary');
 
         yield MenuItem::section('Data');
         yield MenuItem::subMenu('Data', 'fas fa-layer-group')->setSubItems([

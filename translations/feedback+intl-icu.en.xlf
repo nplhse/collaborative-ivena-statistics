@@ -25,6 +25,10 @@
         <source>feedback.form.message</source>
         <target>Message</target>
       </trans-unit>
+      <trans-unit id="fbHoneypot" resname="feedback.form.honeypot">
+        <source>feedback.form.honeypot</source>
+        <target>Leave this field empty</target>
+      </trans-unit>
       <trans-unit id="fb006" resname="feedback.form.guest_email">
         <source>feedback.form.guest_email</source>
         <target>Your email address</target>
