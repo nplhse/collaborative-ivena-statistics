@@ -2237,6 +2237,82 @@
         <source>admin.indication_raw.entity.plural</source>
         <target>Indication Raw</target>
       </trans-unit>
+      <trans-unit id="admCrudAllocationFieldWithPhysician" resname="admin.allocation.field.with_physician">
+        <source>admin.allocation.field.with_physician</source>
+        <target>With physician</target>
+      </trans-unit>
+      <trans-unit id="admCrudAllocationFieldSecondaryIndicationRaw" resname="admin.allocation.field.secondary_indication_raw">
+        <source>admin.allocation.field.secondary_indication_raw</source>
+        <target>Secondary indication raw</target>
+      </trans-unit>
+      <trans-unit id="admCrudAllocationFieldSecondaryIndicationNormalized" resname="admin.allocation.field.secondary_indication_normalized">
+        <source>admin.allocation.field.secondary_indication_normalized</source>
+        <target>Secondary indication normalized</target>
+      </trans-unit>
+      <trans-unit id="admCrudAllocationFieldCaseIdHash" resname="admin.allocation.field.case_id_hash">
+        <source>admin.allocation.field.case_id_hash</source>
+        <target>Case ID hash</target>
+      </trans-unit>
+      <trans-unit id="admCrudAllocationFieldNotes" resname="admin.allocation.field.notes">
+        <source>admin.allocation.field.notes</source>
+        <target>Notes</target>
+      </trans-unit>
+      <trans-unit id="admCrudMciCaseFieldMciId" resname="admin.mci_case.field.mci_id">
+        <source>admin.mci_case.field.mci_id</source>
+        <target>MANV (Hash)</target>
+      </trans-unit>
+      <trans-unit id="admCrudMciCaseFieldMciTitle" resname="admin.mci_case.field.mci_title">
+        <source>admin.mci_case.field.mci_title</source>
+        <target>MANV-ID (Title)</target>
+      </trans-unit>
+      <trans-unit id="admCrudHospitalFieldOwner" resname="admin.hospital.field.owner">
+        <source>admin.hospital.field.owner</source>
+        <target>Owner</target>
+      </trans-unit>
+      <trans-unit id="admCrudHospitalFieldLatitude" resname="admin.hospital.field.latitude">
+        <source>admin.hospital.field.latitude</source>
+        <target>Latitude</target>
+      </trans-unit>
+      <trans-unit id="admCrudHospitalFieldLongitude" resname="admin.hospital.field.longitude">
+        <source>admin.hospital.field.longitude</source>
+        <target>Longitude</target>
+      </trans-unit>
+      <trans-unit id="admCrudHospitalAccessGrantFieldUser" resname="admin.hospital_access_grant.field.user">
+        <source>admin.hospital_access_grant.field.user</source>
+        <target>User</target>
+      </trans-unit>
+      <trans-unit id="admCrudAllocationEntitySingular" resname="admin.allocation.entity.singular">
+        <source>admin.allocation.entity.singular</source>
+        <target>Allocation</target>
+      </trans-unit>
+      <trans-unit id="admCrudAllocationEntityPlural" resname="admin.allocation.entity.plural">
+        <source>admin.allocation.entity.plural</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="admCrudMciCaseEntitySingular" resname="admin.mci_case.entity.singular">
+        <source>admin.mci_case.entity.singular</source>
+        <target>MCI Case</target>
+      </trans-unit>
+      <trans-unit id="admCrudMciCaseEntityPlural" resname="admin.mci_case.entity.plural">
+        <source>admin.mci_case.entity.plural</source>
+        <target>MCI Cases</target>
+      </trans-unit>
+      <trans-unit id="admCrudHospitalEntitySingular" resname="admin.hospital.entity.singular">
+        <source>admin.hospital.entity.singular</source>
+        <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="admCrudHospitalEntityPlural" resname="admin.hospital.entity.plural">
+        <source>admin.hospital.entity.plural</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="admCrudHospitalAccessGrantEntitySingular" resname="admin.hospital_access_grant.entity.singular">
+        <source>admin.hospital_access_grant.entity.singular</source>
+        <target>Hospital access grant</target>
+      </trans-unit>
+      <trans-unit id="admCrudHospitalAccessGrantEntityPlural" resname="admin.hospital_access_grant.entity.plural">
+        <source>admin.hospital_access_grant.entity.plural</source>
+        <target>Hospital access grants</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
