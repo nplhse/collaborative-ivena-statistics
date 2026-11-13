@@ -23,7 +23,8 @@ use App\User\Infrastructure\Repository\UserRepository;
 final readonly class RecentNotificationEvents
 {
     /**
-     * Events an admin may need to act on; the one place that decides what the card shows (#1165 evaluates more).
+     * Events that may require an admin to act; the one place that decides what the card shows. Only add an intent
+     * if an admin may have to do something because of it (rule in docs/05-operations/audit-log.md, #1165).
      * Each intent needs a label and context in the card template and translations.
      */
     public const array INTENTS = [

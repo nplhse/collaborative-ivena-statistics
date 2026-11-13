@@ -165,15 +165,21 @@ old links to that table and to its entries redirect to the timeline and to the e
 
 ### Dashboard card "Recent notifications"
 
-The admin dashboard shows the latest audit events an admin may need to act on, in the look of the
-timeline (#1137). `RecentNotificationEvents::INTENTS` is the one list of these intents; #1165 decides
-which further events belong there.
+The admin dashboard shows the last 10 audit events that may require an admin to act, in the look of
+the timeline (#1137). `RecentNotificationEvents::INTENTS` is the one list of these intents.
+
+Rule for this list (#1165): an event belongs in the card only if an admin may have to *do* something
+because of it, for example check a failed import or give a new user access. Everything that is only
+worth reviewing stays in the audit timeline and out of the card, such as role changes or disabled
+users by an admin, exports, access grants given by hospital owners, password resets or encounter key
+changes. Notices that have their own place on the dashboard or in the menu (failed messages, storage,
+feedback in quarantine) are not repeated.
 
 | Intent | Label | Context |
 |---|---|---|
 | `import.run.failed` | Import failed | import name, hospital, translated reason code; free-text reasons of older runs only in the log |
 | `user.registered` | New registration | username |
-| `hospital.reminder_sent` | Reminder sent | hospital, reporting month |
+| `hospital.reminder_sent` | Reminder sent | hospital, reporting month; to be replaced by failed deliveries (#1173) |
 
 Each request and intent counts once. Every event links to its request (`/admin/audit/requests/{requestId}`);
 "Show all in the audit log" opens the unfiltered timeline. Records that no longer exist are shown by id.
