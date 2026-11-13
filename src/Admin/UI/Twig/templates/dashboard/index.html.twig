@@ -16,7 +16,6 @@
     <h3 class="h5 text-secondary text-uppercase mb-3">{{ 'kpi.section.title'|trans({}, 'admin') }}</h3>
     {{ include('@Admin/dashboard/_kpi_cards.html.twig') }}
     {{ include('@Admin/dashboard/_kpi_chart.html.twig') }}
-    {{ include('@Admin/dashboard/_failed_imports_table.html.twig') }}
 
     {% for section in dashboard_sections %}
         <h3 class="h5 text-secondary text-uppercase mb-3">{{ section.title|trans }}</h3>

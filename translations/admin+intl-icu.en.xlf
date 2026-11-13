@@ -349,61 +349,9 @@
         <source>kpi.chart.rejection_rate</source>
         <target>Rejection rate per day</target>
       </trans-unit>
-      <trans-unit id="kpi009" resname="kpi.failed_imports.title">
-        <source>kpi.failed_imports.title</source>
-        <target>Recent failed imports</target>
-      </trans-unit>
-      <trans-unit id="kpi010" resname="kpi.failed_imports.date">
-        <source>kpi.failed_imports.date</source>
-        <target>Date</target>
-      </trans-unit>
-      <trans-unit id="kpi011" resname="kpi.failed_imports.hospital">
-        <source>kpi.failed_imports.hospital</source>
-        <target>Hospital</target>
-      </trans-unit>
-      <trans-unit id="kpi012" resname="kpi.failed_imports.file">
-        <source>kpi.failed_imports.file</source>
-        <target>File name</target>
-      </trans-unit>
-      <trans-unit id="kpi013" resname="kpi.failed_imports.status">
-        <source>kpi.failed_imports.status</source>
-        <target>Status</target>
-      </trans-unit>
       <trans-unit id="kpi014" resname="kpi.failed_imports.reason">
         <source>kpi.failed_imports.reason</source>
         <target>Failure reason</target>
-      </trans-unit>
-      <trans-unit id="kpi015" resname="kpi.failed_imports.records">
-        <source>kpi.failed_imports.records</source>
-        <target>Records</target>
-      </trans-unit>
-      <trans-unit id="kpi016" resname="kpi.failed_imports.rejections">
-        <source>kpi.failed_imports.rejections</source>
-        <target>Rejections</target>
-      </trans-unit>
-      <trans-unit id="kpi017" resname="kpi.failed_imports.empty">
-        <source>kpi.failed_imports.empty</source>
-        <target>No failed imports found.</target>
-      </trans-unit>
-      <trans-unit id="kpi017a" resname="kpi.failed_imports.view_all">
-        <source>kpi.failed_imports.view_all</source>
-        <target>All failed imports</target>
-      </trans-unit>
-      <trans-unit id="kpi017b" resname="kpi.failed_imports.subtitle_30d">
-        <source>kpi.failed_imports.subtitle_30d</source>
-        <target>Last 30 days</target>
-      </trans-unit>
-      <trans-unit id="kpi018" resname="kpi.failure_reason.no_rows">
-        <source>kpi.failure_reason.no_rows</source>
-        <target>No processable rows</target>
-      </trans-unit>
-      <trans-unit id="kpi019" resname="kpi.failure_reason.high_rejection">
-        <source>kpi.failure_reason.high_rejection</source>
-        <target>Rejection rate at or above 35%</target>
-      </trans-unit>
-      <trans-unit id="kpi020" resname="kpi.failure_reason.generic">
-        <source>kpi.failure_reason.generic</source>
-        <target>Import processing failed</target>
       </trans-unit>
       <trans-unit id="admMr01" resname="admin.hospital.action.send_reminder">
         <source>admin.hospital.action.send_reminder</source>
