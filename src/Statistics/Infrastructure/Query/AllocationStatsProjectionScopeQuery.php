@@ -67,7 +67,7 @@ final readonly class AllocationStatsProjectionScopeQuery
             ->andWhere('p.hospitalLocationCode IS NOT NULL')
             ->andWhere('p.hospitalTierCode IS NOT NULL')
             ->groupBy('location', 'tier')
-            ->orderBy('hit_count', 'DESC')
+            ->orderBy('hit_count', \SortDirection::Descending)
             ->setMaxResults(1)
             ->setParameter('hospitalIds', $hospitalIds)
             ->getQuery()
@@ -150,7 +150,7 @@ final readonly class AllocationStatsProjectionScopeQuery
             ->select('p.stateId')
             ->groupBy('p.stateId')
             ->having('COUNT(DISTINCT p.hospitalId) >= :min')
-            ->orderBy('p.stateId', 'ASC')
+            ->orderBy('p.stateId', \SortDirection::Ascending)
             ->setParameter('min', $minimumParticipants)
             ->getQuery()
             ->getSingleColumnResult();
@@ -169,7 +169,7 @@ final readonly class AllocationStatsProjectionScopeQuery
             ->select('p.dispatchAreaId')
             ->groupBy('p.dispatchAreaId')
             ->having('COUNT(DISTINCT p.hospitalId) >= :min')
-            ->orderBy('p.dispatchAreaId', 'ASC')
+            ->orderBy('p.dispatchAreaId', \SortDirection::Ascending)
             ->setParameter('min', $minimumParticipants)
             ->getQuery()
             ->getSingleColumnResult();

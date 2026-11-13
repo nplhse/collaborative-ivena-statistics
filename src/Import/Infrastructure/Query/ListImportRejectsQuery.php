@@ -6,6 +6,7 @@ namespace App\Import\Infrastructure\Query;
 
 use App\Import\Domain\Entity\ImportReject;
 use App\Import\UI\Http\DTO\ImportRejectQueryParametersDTO;
+use App\Shared\Infrastructure\Doctrine\SortDirections;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 
@@ -52,7 +53,7 @@ final readonly class ListImportRejectsQuery
             default => 'r.createdAt',
         };
 
-        $qb->orderBy($field, $query->orderBy);
+        $qb->orderBy($field, SortDirections::fromString($query->orderBy));
 
         if (null !== $query->search && '' !== trim($query->search)) {
             $qb->andWhere('LOWER(CAST_TEXT(r.messages)) LIKE :search')

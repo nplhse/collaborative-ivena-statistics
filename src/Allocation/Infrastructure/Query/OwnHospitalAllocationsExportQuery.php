@@ -64,8 +64,8 @@ final readonly class OwnHospitalAllocationsExportQuery
         $qb = $this->createBaseQueryBuilder($exportHospitalIds);
         $this->applyFilter($qb, $filter);
         $qb->select($this->exportSelectFields())
-            ->orderBy('a.arrivalAt', 'ASC')
-            ->addOrderBy('a.id', 'ASC');
+            ->orderBy('a.arrivalAt', \SortDirection::Ascending)
+            ->addOrderBy('a.id', \SortDirection::Ascending);
 
         /** @var iterable<array<string, mixed>> $rows */
         $rows = $qb->getQuery()->toIterable();

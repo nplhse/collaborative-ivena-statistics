@@ -69,7 +69,7 @@ final class AnalyticsRequestRepository extends ServiceEntityRepository
             ->andWhere('r.routeName IS NOT NULL')
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->groupBy('r.routeName')
-            ->orderBy('requestCount', 'DESC')
+            ->orderBy('requestCount', \SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery()
             ->getArrayResult();
@@ -96,7 +96,7 @@ final class AnalyticsRequestRepository extends ServiceEntityRepository
             ->where('r.occurredAt >= :from')
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->groupBy('r.featureArea')
-            ->orderBy('requestCount', 'DESC')
+            ->orderBy('requestCount', \SortDirection::Descending)
             ->getQuery()
             ->getArrayResult();
 

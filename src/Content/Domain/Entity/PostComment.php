@@ -38,7 +38,7 @@ class PostComment
 
     /** @var Collection<int, self> */
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parent', orphanRemoval: true)]
-    #[ORM\OrderBy(['createdAt' => 'ASC'])]
+    #[ORM\OrderBy(['createdAt' => \SortDirection::Ascending])]
     private Collection $children;
 
     #[ORM\ManyToOne(targetEntity: User::class)]

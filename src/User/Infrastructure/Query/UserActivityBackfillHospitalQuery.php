@@ -47,8 +47,8 @@ final readonly class UserActivityBackfillHospitalQuery
             )
             ->from(HospitalAccessGrant::class, 'g')
             ->innerJoin('g.hospital', 'h')
-            ->orderBy('g.createdAt', 'ASC')
-            ->addOrderBy('g.id', 'ASC')
+            ->orderBy('g.createdAt', \SortDirection::Ascending)
+            ->addOrderBy('g.id', \SortDirection::Ascending)
             ->getQuery()
             ->getArrayResult();
 

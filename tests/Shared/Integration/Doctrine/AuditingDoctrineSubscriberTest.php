@@ -259,7 +259,7 @@ final class AuditingDoctrineSubscriberTest extends KernelTestCase
             ->andWhere('a.action = :action')
             ->setParameter('class', $entityClass)
             ->setParameter('action', $action)
-            ->orderBy('a.id', 'DESC')
+            ->orderBy('a.id', \SortDirection::Descending)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();

@@ -68,7 +68,7 @@ final readonly class ImportListAccess
         $qb = $this->hospitalRepository->createQueryBuilder('h')
             ->innerJoin('h.owner', 'ownerUser')
             ->select('DISTINCT ownerUser.id AS id', 'ownerUser.username AS username')
-            ->orderBy('ownerUser.username', 'ASC');
+            ->orderBy('ownerUser.username', \SortDirection::Ascending);
 
         if (!\in_array('ROLE_ADMIN', $user->getRoles(), true)) {
             $qb->andWhere('ownerUser = :user')

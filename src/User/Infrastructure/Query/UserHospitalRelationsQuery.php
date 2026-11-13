@@ -39,7 +39,7 @@ final readonly class UserHospitalRelationsQuery
                 ->from(Hospital::class, 'h')
                 ->andWhere('IDENTITY(h.owner) IN (:userIds)')
                 ->setParameter('userIds', $userIds)
-                ->orderBy('h.name', 'ASC')
+                ->orderBy('h.name', \SortDirection::Ascending)
         )
             ->getQuery()
             ->getArrayResult();
@@ -61,7 +61,7 @@ final readonly class UserHospitalRelationsQuery
                 ->innerJoin('g.hospital', 'h')
                 ->andWhere('IDENTITY(g.user) IN (:userIds)')
                 ->setParameter('userIds', $userIds)
-                ->orderBy('h.name', 'ASC')
+                ->orderBy('h.name', \SortDirection::Ascending)
         )
             ->getQuery()
             ->getArrayResult();
@@ -94,7 +94,7 @@ final readonly class UserHospitalRelationsQuery
         $rows = $this->entityManager->createQueryBuilder()
             ->select('h.id AS id', 'h.name AS name')
             ->from(Hospital::class, 'h')
-            ->orderBy('h.name', 'ASC')
+            ->orderBy('h.name', \SortDirection::Ascending)
             ->getQuery()
             ->getArrayResult();
 

@@ -10,6 +10,7 @@ use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\UI\Http\DTO\MciCaseQueryParametersDTO;
 use App\Import\Domain\Entity\Import;
+use App\Shared\Infrastructure\Doctrine\SortDirections;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
@@ -88,7 +89,7 @@ final class MciCaseRepository extends ServiceEntityRepository
             default => 'm.createdAt',
         };
 
-        $qb->orderBy($field, $queryParametersDTO->orderBy);
+        $qb->orderBy($field, SortDirections::fromString($queryParametersDTO->orderBy));
 
         return $qb;
     }

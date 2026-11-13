@@ -47,7 +47,7 @@ final readonly class ProjectionTopEntityQuery
         $qb->select('ent.id AS entityId', 'ent.publicId AS publicId', 'COALESCE(ent.name, :unknown) AS label', 'COUNT(p.id) AS cnt')
             ->setParameter('unknown', 'Unknown')
             ->groupBy('entityId', 'publicId', 'label')
-            ->orderBy('cnt', 'DESC')
+            ->orderBy('cnt', \SortDirection::Descending)
             ->setMaxResults($limit);
 
         /** @var list<array{entityId:int|string|null,publicId:Uuid|string|null,label:string,cnt:numeric-string|int}> $rows */

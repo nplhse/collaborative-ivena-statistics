@@ -103,6 +103,6 @@ final readonly class IndicationGroupInsightDimension extends AbstractEntityInsig
         return $this->entityManager->createQueryBuilder()
             ->from($this->entityFqcn(), 'e')
             ->select('e.id AS id', 'e.name AS name', 'e.publicId AS publicId', 'e.category AS contextLabel')
-            ->orderBy('e.name', 'ASC');
+            ->orderBy('e.name', \SortDirection::Ascending);
     }
 }

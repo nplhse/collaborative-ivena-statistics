@@ -51,8 +51,8 @@ final readonly class DoctrineUserActivityBackfillContentSource implements UserAc
             ->andWhere('IDENTITY(p.createdBy) IS NOT NULL')
             ->setParameter('status', PostStatus::PUBLISHED)
             ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
-            ->orderBy('p.publishedAt', 'ASC')
-            ->addOrderBy('p.id', 'ASC')
+            ->orderBy('p.publishedAt', \SortDirection::Ascending)
+            ->addOrderBy('p.id', \SortDirection::Ascending)
             ->getQuery()
             ->getArrayResult();
 
@@ -104,8 +104,8 @@ final readonly class DoctrineUserActivityBackfillContentSource implements UserAc
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('status', PostStatus::PUBLISHED)
             ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
-            ->orderBy('c.createdAt', 'ASC')
-            ->addOrderBy('c.id', 'ASC')
+            ->orderBy('c.createdAt', \SortDirection::Ascending)
+            ->addOrderBy('c.id', \SortDirection::Ascending)
             ->getQuery()
             ->getArrayResult();
 

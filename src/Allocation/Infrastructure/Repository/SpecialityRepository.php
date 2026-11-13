@@ -6,6 +6,7 @@ namespace App\Allocation\Infrastructure\Repository;
 
 use App\Allocation\Domain\Entity\Speciality;
 use App\Allocation\UI\Http\DTO\SpecialityQueryParametersDTO;
+use App\Shared\Infrastructure\Doctrine\SortDirections;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -30,14 +31,14 @@ final class SpecialityRepository extends ServiceEntityRepository
         ;
 
         if ('lastChange' === $queryParametersDTO->sortBy) {
-            $qb->orderBy('sortDate', $queryParametersDTO->orderBy);
+            $qb->orderBy('sortDate', SortDirections::fromString($queryParametersDTO->orderBy));
         } else {
             $sortField = match ($queryParametersDTO->sortBy) {
                 'id' => 's.id',
                 'name' => 's.name',
                 default => 's.name',
             };
-            $qb->orderBy($sortField, $queryParametersDTO->orderBy);
+            $qb->orderBy($sortField, SortDirections::fromString($queryParametersDTO->orderBy));
         }
 
         if (null !== $queryParametersDTO->search) {

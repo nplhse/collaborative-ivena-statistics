@@ -60,12 +60,12 @@ class Post implements \Stringable
     /** @var Collection<int, PostTag> */
     #[ORM\ManyToMany(targetEntity: PostTag::class, inversedBy: 'posts')]
     #[ORM\JoinTable(name: 'post_post_tag')]
-    #[ORM\OrderBy(['name' => 'ASC'])]
+    #[ORM\OrderBy(['name' => \SortDirection::Ascending])]
     private Collection $tags;
 
     /** @var Collection<int, PostComment> */
     #[ORM\OneToMany(targetEntity: PostComment::class, mappedBy: 'post', orphanRemoval: true)]
-    #[ORM\OrderBy(['createdAt' => 'ASC'])]
+    #[ORM\OrderBy(['createdAt' => \SortDirection::Ascending])]
     private Collection $comments;
 
     #[ORM\Column]

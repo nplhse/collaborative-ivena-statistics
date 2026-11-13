@@ -71,17 +71,17 @@ final readonly class ListExploreUsersQuery
             $this->restrictToUserIds($qb, $boardMemberIds, 'boardMemberFilteredUserIds');
         }
 
-        $direction = 'desc' === mb_strtolower($query->orderBy) ? 'DESC' : 'ASC';
+        $direction = 'desc' === mb_strtolower($query->orderBy) ? \SortDirection::Descending : \SortDirection::Ascending;
 
         if ('createdAt' === $query->sortBy) {
             $qb->orderBy('u.createdAt', $direction)
-                ->addOrderBy('u.id', 'ASC');
+                ->addOrderBy('u.id', \SortDirection::Ascending);
         } else {
             // Case-insensitive alphabetical default (username ASC), stable by id.
             $qb->addSelect('LOWER(u.username) AS HIDDEN usernameSort')
                 ->orderBy('usernameSort', $direction)
                 ->addOrderBy('u.username', $direction)
-                ->addOrderBy('u.id', 'ASC');
+                ->addOrderBy('u.id', \SortDirection::Ascending);
         }
 
         return $qb;

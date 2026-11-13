@@ -6,6 +6,7 @@ namespace App\Allocation\Infrastructure\Repository;
 
 use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\UI\Http\DTO\InfectionQueryParametersDTO;
+use App\Shared\Infrastructure\Doctrine\SortDirections;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -30,14 +31,14 @@ final class InfectionRepository extends ServiceEntityRepository
         ;
 
         if ('lastChange' === $queryParametersDTO->sortBy) {
-            $qb->orderBy('sortDate', $queryParametersDTO->orderBy);
+            $qb->orderBy('sortDate', SortDirections::fromString($queryParametersDTO->orderBy));
         } else {
             $sortField = match ($queryParametersDTO->sortBy) {
                 'id' => 'i.id',
                 'name' => 'i.name',
                 default => 'i.name',
             };
-            $qb->orderBy($sortField, $queryParametersDTO->orderBy);
+            $qb->orderBy($sortField, SortDirections::fromString($queryParametersDTO->orderBy));
         }
 
         if (null !== $queryParametersDTO->search) {
