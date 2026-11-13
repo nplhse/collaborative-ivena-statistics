@@ -22,8 +22,8 @@ For EN↔DE UI translation terms, open decisions, and MT rules see **[glossary-i
 | Hospital profile | How one synthetic hospital behaves: segment, cath lab yes/no, resuscitation room share (ADR 022) |
 | Synthetic import | Import written by the generator; its `filePath` holds a marker such as `synthetic/allocations/seed-740/defaults/<hospital public id>/2026-09.csv`, no file exists |
 | Scenario overlay | Event laid over existing synthetic data (`app:generate:scenario`: `mci`, `icy-road`, `flu-wave`, `heat`); only adds imports, removed by deleting them |
-| MTS catalog | Diagrams and indicators of the Manchester Triage System with stable codes, aliases and provisional entries for codes seen for the first time (ADR 031) |
-| Plausibility table | Matcher bonus 0 … +3 per cell *exact PZC × MTS diagram* (fallback: curated problem area of the PZC × diagram), one global table, used in pass 2 from the active snapshot (ADR 032) |
+| MTS catalog | Diagrams and indicators of the Manchester Triage System with stable codes, aliases and provisional entries for codes seen for the first time (ADR 032) |
+| Plausibility table | Matcher bonus 0 … +3 per cell *exact PZC × MTS diagram* (fallback: curated problem area of the PZC × diagram), one global table, used in pass 2 from the active snapshot (ADR 033) |
 | Plausibility snapshot | Immutable version of the plausibility table (`draft`, `active`, `retired`); every matched pair records the snapshot that scored it |
 | Messenger worker | Process that consumes asynchronous messages |
 | Bounded context | A domain module boundary (`Import`, `Statistics`, …) |

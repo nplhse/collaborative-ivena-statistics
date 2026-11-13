@@ -46,8 +46,8 @@ Each ADR includes:
 | [028](028-encounter-access-grants.md) | Encounter access grants independent of hospital permissions | accepted |
 | [029](029-encounter-import-lifecycle.md) | Encounter import lifecycle: one visit, one owning import | accepted |
 | [030](030-encounter-allocation-matching.md) | Matching ED visits with IVENA allocations (amended: matcher 1.2.0) | accepted |
-| [031](031-mts-catalog-as-maintained-data.md) | MTS catalog as maintained data | accepted |
-| [032](032-learning-plausibility-table.md) | Learning plausibility table for PZC and MTS diagram | accepted |
+| [032](032-mts-catalog-as-maintained-data.md) | MTS catalog as maintained data | accepted |
+| [033](033-learning-plausibility-table.md) | Learning plausibility table for PZC and MTS diagram | accepted |
 
 ## Template
 

@@ -1,4 +1,4 @@
-# ADR 032: Learning plausibility table for PZC and MTS diagram
+# ADR 033: Learning plausibility table for PZC and MTS diagram
 
 **Status:** accepted
 
@@ -70,7 +70,7 @@ persons with a separate reviewer right; the user reviews the curated seed in the
 ### Cells and points
 
 The table has three levels. The MTS side is always the canonical diagram code of the visit's initial triage
-([ADR 031](031-mts-catalog-as-maintained-data.md); aliases resolve to their canonical code).
+([ADR 032](032-mts-catalog-as-maintained-data.md); aliases resolve to their canonical code).
 
 | Level | Key | Use |
 |---|---|---|
@@ -97,6 +97,8 @@ The table has three levels. The MTS side is always the canonical diagram code of
 
 - One table for all hospitals; no per-hospital tables. A new hospital gets the bonus from its first import.
 - The table holds points and aggregate counts per cell only, no allocation, visit or hospital reference.
+  The counts are inputs of the learning job and the replay; who may see what is set under
+  [Privacy](#privacy).
 
 ### Curated seed
 
@@ -106,7 +108,7 @@ The table has three levels. The MTS side is always the canonical diagram code of
   "Unwohlsein bei Erwachsenen") belong to no problem area and stay at 0.
 - The draft mapping of the measurement is the starting point; the user reviews and corrects it in the app
   (development environment) before the first snapshot is activated. Carrying the reviewed seed to production
-  is the export/import follow-up of ADR 031.
+  is the export/import follow-up of ADR 032.
 - Problem areas are edited by administrators and reviewers; changes are audited. Editing creates or changes a
   draft snapshot, never the active one.
 
@@ -141,9 +143,10 @@ A learning job (#1155) builds a draft snapshot from all hospitals' data:
 - **Cross-fitting by period:** the report splits the eligible data into periods (alternating days in the
   first version), learns on one part and replays on the other, and adds up the result. The snapshot itself is
   learned on all eligible data. The cross-fitted replay is the honest estimate of its effect.
-- **Report** (aggregate only): replay of the draft against the active snapshot and against no bonus:
-  automatic links, proposals, agreement with validation verdicts and confirmed pairs, and the cells that
-  changed with their counts. Small counts (1–4) are shown as `< 5`.
+- **Report**: the cells that changed against the active snapshot (points before and after, source), and a
+  replay of the draft against the active snapshot and against no bonus: automatic links, proposals, agreement
+  with validation verdicts and confirmed pairs. Replay figures are kept per hospital and shown only for the
+  hospitals the viewer may see ([Privacy](#privacy)).
 - Smoothing strength, minimum counts and fold rule are configuration, set in #1155 with replays.
 
 Human-confirmed pairs may themselves have been proposed because of the bonus. They are still eligible: a
@@ -154,17 +157,27 @@ person made the decision. The report shows how many eligible pairs came from suc
 - New role **`ROLE_ENCOUNTER_CATALOG_REVIEWER`**: edit the curated problem areas, run the learning job, read draft
   reports, activate and retire snapshots.
 - It works only together with `ROLE_ENCOUNTER_BETA` (the pilot pages). It grants no case access: no encounter
-  grant action, no visit lists, no case card; the pages show cells, counts and reports only.
+  grant action, no visit lists, no case card; the pages show points and reports as set under
+  [Privacy](#privacy).
 - `ROLE_ADMIN` inherits it (administrators may activate, as decided). Like the beta role, it is assigned on
   the user in the back office.
-- Maintenance of the MTS catalog itself stays with administrators (ADR 031); the role may cover it later.
+- Maintenance of the MTS catalog itself stays with administrators (ADR 032); the role may cover it later.
 
-### Cross-hospital aggregate
+### Privacy
 
-The table and its report are aggregates over the data of all hospitals. ADR 028 shows no cross-hospital
-aggregates in the pilot. This table is a deliberate, narrow exception: it is a parameter of the matcher, not
-a statistic; it shows points and global counts per cell with small-cell suppression, never counts per
-hospital, and only to reviewers and administrators. No encounter page or analysis shows it to participants.
+The table is learned from the data of all hospitals, but reviewers never see case counts across hospitals
+(user decision, #1152). ADR 028 shows no cross-hospital aggregates in the pilot, and this stays true:
+
+- **Review and activation pages** show per cell only the points, their source (curated, learned) and the
+  change against the active snapshot. No counts per cell, no totals, no rates computed over all hospitals.
+- **Replay figures** in a report (links, proposals, agreement with verdicts, and any other count or rate)
+  use only the data of hospitals on which the viewer holds the encounter grant action `REVIEW`.
+  Administrators see all hospitals, as ADR 028 gives them every grant action. A reviewer without a review
+  grant sees the points and changes, but no replay figures.
+- **Points are model parameters, not case counts.** A learned value appears only for cells that reach the
+  minimum number of observations; below it, a cell shows the seed or the problem-area value.
+- The stored counts per cell are inputs of the learning job; no participant, reviewer or encounter page
+  shows them. No encounter page or analysis shows the table to participants.
 
 ### Bias in PZC ↔ MTS analyses
 
@@ -190,7 +203,8 @@ them apart, and state the share. Pass-1 links and manual decisions are unaffecte
   learn slowly
 - Analyses of PZC against the MTS diagram must handle the linkage bias; links decided by the bonus are lost
   or reported apart there
-- A cross-hospital aggregate exists for reviewers, as a documented exception to ADR 028
+- Reviewers decide on activation without seeing global counts; their replay figures cover only the
+  hospitals they review, which may be few or none
 - The measured gain comes from one hospital and one month; the bonus size must be checked on a second month
   or hospital (report of the learning job)
 - A second role to assign and explain
@@ -220,7 +234,7 @@ them apart, and state the share. Pass-1 links and manual decisions are unaffecte
 
 - [028-encounter-access-grants.md](028-encounter-access-grants.md)
 - [030-encounter-allocation-matching.md](030-encounter-allocation-matching.md)
-- [031-mts-catalog-as-maintained-data.md](031-mts-catalog-as-maintained-data.md)
+- [032-mts-catalog-as-maintained-data.md](032-mts-catalog-as-maintained-data.md)
 - [../permission-model.md](../permission-model.md)
 - [../../04-features/encounter/README.md](../../04-features/encounter/README.md#plausibility-table)
 - Issues #1136, #1152, #1153, #1154, #1155, #1156

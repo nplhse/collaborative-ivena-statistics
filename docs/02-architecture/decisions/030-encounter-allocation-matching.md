@@ -133,7 +133,7 @@ Analyses and validation results that compare link rates or shares correct keep t
 
 ## Amendment: matcher 1.2.0
 
-Accepted with [ADR 032](032-learning-plausibility-table.md) (#1136, #1152); implemented in #1154.
+Accepted with [ADR 033](033-learning-plausibility-table.md) (#1136, #1152); implemented in #1154.
 
 ### Why the diagram enters after all
 
@@ -142,7 +142,7 @@ pairs, which biases any comparison of that variable. It was weighed against the 
 the pilot hospital (October 2026) the IVENA indication (PZC) and the MTS diagram are plausible together in
 72 % of the true pairs but in 21 % of the other candidates; a bonus for that lets otherwise strong pairs with
 one contradicting feature become automatic links (85 % → about 91 %, no link to another visit than the
-reference). Measurements and alternatives: ADR 032.
+reference). Measurements and alternatives: ADR 033.
 
 The bias is limited instead of avoided:
 
@@ -153,13 +153,13 @@ The bias is limited instead of avoided:
 - **Bonus only.** A plausible cell adds 0 … +3 points; an implausible one subtracts nothing. A penalty hit
   true pairs in gaps of the mapping and lowered the rate.
 - **Recorded.** Every pair scored by 1.2.0 records the bonus and the snapshot; analyses comparing PZC with
-  the MTS diagram exclude or separate links the bonus decided (ADR 032).
+  the MTS diagram exclude or separate links the bonus decided (ADR 033).
 
 ### Rules
 
 - Pass 2 adds the plausibility bonus of the pair's cell (exact PZC × MTS diagram, or the
   PZC's problem area × diagram when the exact cell has too few observations) from the **active
-  snapshot** (ADR 032) to the points, capped at +3. Without PZC, diagram, cell or active snapshot the bonus
+  snapshot** (ADR 033) to the points, capped at +3. Without PZC, diagram, cell or active snapshot the bonus
   is 0. The bonus enters the competition like any other point; candidates, windows, thresholds and the
   conflict rule are unchanged.
 - **Contributions** get the key `plausibility` (the bonus, 0 included in pass 2). The pair also stores the
@@ -191,7 +191,7 @@ manual decisions stay, open proposals are recomputed by the next run over their 
 - Automatic links are recognisable, so analyses can show their share
 - Existing links are stable across reruns
 - Linkage does not use the variables that later analyses compare (since `1.2.0`: except the MTS diagram in
-  pass 2, recorded per pair, ADR 032)
+  pass 2, recorded per pair, ADR 033)
 
 **Negative:**
 
@@ -216,5 +216,5 @@ manual decisions stay, open proposals are recomputed by the next run over their 
 
 - [026-encounter-data-context-and-exchange-format.md](026-encounter-data-context-and-exchange-format.md)
 - [029-encounter-import-lifecycle.md](029-encounter-import-lifecycle.md)
-- [032-learning-plausibility-table.md](032-learning-plausibility-table.md)
+- [033-learning-plausibility-table.md](033-learning-plausibility-table.md)
 - Issues #1053, #1054, #1057, #1136, #1152, #1154

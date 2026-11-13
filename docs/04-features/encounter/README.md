@@ -17,8 +17,8 @@ Decisions: [ADR 026](../../02-architecture/decisions/026-encounter-data-context-
 (pseudonym key), [ADR 028](../../02-architecture/decisions/028-encounter-access-grants.md) (access),
 [ADR 029](../../02-architecture/decisions/029-encounter-import-lifecycle.md) (import lifecycle),
 [ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md) (matching),
-[ADR 031](../../02-architecture/decisions/031-mts-catalog-as-maintained-data.md) (MTS catalog),
-[ADR 032](../../02-architecture/decisions/032-learning-plausibility-table.md) (plausibility table).
+[ADR 032](../../02-architecture/decisions/032-mts-catalog-as-maintained-data.md) (MTS catalog),
+[ADR 033](../../02-architecture/decisions/033-learning-plausibility-table.md) (plausibility table).
 
 ## Flow
 
@@ -429,7 +429,7 @@ the review (below).
 
 ## Plausibility table
 
-Decided in [ADR 032](../../02-architecture/decisions/032-learning-plausibility-table.md) and the
+Decided in [ADR 033](../../02-architecture/decisions/033-learning-plausibility-table.md) and the
 [ADR 030 amendment](../../02-architecture/decisions/030-encounter-allocation-matching.md#amendment-matcher-120)
 (#1136); implementation in #1153 (table and seed), #1154 (matcher `1.2.0`), #1155 (learning job) and #1156
 (analyses). Nothing of it is implemented yet.
@@ -453,8 +453,9 @@ Decided in [ADR 032](../../02-architecture/decisions/032-learning-plausibility-t
   are recomputed by the next run.
 - **Bias:** analyses comparing PZC with the MTS diagram exclude links decided by the bonus or report them
   apart.
-- **Visibility:** the table and its reports are a cross-hospital aggregate (points, global counts with
-  `< 5` suppression) shown to reviewers and administrators only.
+- **Privacy:** reviewers never see case counts across hospitals. The review and activation pages show points,
+  source (curated, learned) and the change against the active snapshot; replay counts and rates cover only
+  the hospitals on which the viewer holds the encounter grant `REVIEW` (administrators: all).
 
 Measured on the pilot hospital (October 2026, 496 allocations): automatic links 421 (84.9 %) with `1.1.0`,
 453 (91.3 %) with an a-priori bonus of +3 in pass 2, 89.5 % with a table by exact PZC with fallback learned
@@ -759,7 +760,7 @@ per diagram under `/explore/glossary/mts/diagram/{code}`), contributed through t
 extension point ([explore-glossary.md](../allocation/explore-glossary.md)); Allocation does not depend
 on Encounter.
 
-- **Catalog in the database (planned).** [ADR 031](../../02-architecture/decisions/031-mts-catalog-as-maintained-data.md):
+- **Catalog in the database (planned).** [ADR 032](../../02-architecture/decisions/032-mts-catalog-as-maintained-data.md):
   the catalog moves into the database (#1082) with stable codes, aliases, diagram–indicator assignments and
   provisional entries for codes seen for the first time (#1157); administrators curate it. Stored encounter
   codes stay valid; merged codes resolve through aliases. Until then:
