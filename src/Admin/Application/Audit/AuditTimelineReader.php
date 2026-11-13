@@ -34,4 +34,9 @@ interface AuditTimelineReader
      * One entry with its recorded changes and metadata, or null when it does not exist.
      */
     public function details(int $id): ?AuditEntryDetails;
+
+    /**
+     * Intents, object types and actors that occur in the audit log.
+     */
+    public function filterOptions(): AuditFilterOptions;
 }

@@ -40,18 +40,33 @@ final readonly class AuditTimelineService
     /**
      * All entries of one request (up to REQUEST_LIMIT), with the facts about the whole request.
      *
-     * @return array{entries: list<AuditTimelineEntry>, stats: AuditRequestStats|null}
+     * With a filter, `matchingIds` holds the ids of the entries that match it; every other entry is context.
+     * Without a filter it is null: every entry matches.
+     *
+     * @return array{entries: list<AuditTimelineEntry>, stats: AuditRequestStats|null, matchingIds: array<int, true>|null}
      */
     public function request(string $requestId, AuditTimelineFilter $filter): array
     {
+        $matchingIds = null;
+        if (!$filter->isEmpty()) {
+            $matching = $this->reader->page($filter->withRequestId($requestId), null, self::REQUEST_LIMIT)['entries'];
+            $matchingIds = array_fill_keys(array_map(static fn (AuditTimelineEntry $e): int => $e->id, $matching), true);
+        }
+
         return [
             'entries' => $this->reader->request($requestId, self::REQUEST_LIMIT),
             'stats' => $this->reader->requestStats([$requestId], $filter)[$requestId] ?? null,
+            'matchingIds' => $matchingIds,
         ];
     }
 
     public function details(int $id): ?AuditEntryDetails
     {
         return $this->reader->details($id);
+    }
+
+    public function filterOptions(): AuditFilterOptions
+    {
+        return $this->reader->filterOptions();
     }
 }

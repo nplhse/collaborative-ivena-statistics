@@ -210,6 +210,16 @@
 .timeline-tone-warning .timeline-marker { border-color: var(--bs-warning); color: var(--bs-warning-text-emphasis); }
 .timeline-tone-success .timeline-marker { border-color: var(--bs-success); color: var(--bs-success); }
 .timeline-tone-primary .timeline-marker { border-color: var(--bs-primary); color: var(--bs-primary); }
+.timeline-tone-muted .timeline-marker { border-style: dashed; }
+
+/* Entries shown as context of a filtered request: still readable, visibly secondary. */
+.ea-audit-context > .timeline-content {
+    opacity: 0.7;
+}
+
+.ea-audit-filter > summary {
+    cursor: pointer;
+}
 
 .timeline-summary {
     display: flex;

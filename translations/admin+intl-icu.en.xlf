@@ -1813,6 +1813,30 @@
         <source>audit.entry.truncated</source>
         <target>(shortened)</target>
       </trans-unit>
+      <trans-unit id="auditFi01" resname="audit.filter.title">
+        <source>audit.filter.title</source>
+        <target>Filter</target>
+      </trans-unit>
+      <trans-unit id="auditFi02" resname="audit.filter.any">
+        <source>audit.filter.any</source>
+        <target>Any</target>
+      </trans-unit>
+      <trans-unit id="auditFi03" resname="audit.filter.apply">
+        <source>audit.filter.apply</source>
+        <target>Apply filters</target>
+      </trans-unit>
+      <trans-unit id="auditFi04" resname="audit.filter.time_help">
+        <source>audit.filter.time_help</source>
+        <target>Local time (Europe/Berlin). From is inclusive, until exclusive.</target>
+      </trans-unit>
+      <trans-unit id="auditFi05" resname="audit.request.context">
+        <source>audit.request.context</source>
+        <target>Context</target>
+      </trans-unit>
+      <trans-unit id="auditFi06" resname="audit.request.context_help">
+        <source>audit.request.context_help</source>
+        <target>Belongs to this request but does not match the current filter.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

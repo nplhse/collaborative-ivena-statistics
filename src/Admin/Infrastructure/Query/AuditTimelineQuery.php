@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\Infrastructure\Query;
 
 use App\Admin\Application\Audit\AuditEntryDetails;
+use App\Admin\Application\Audit\AuditFilterOptions;
 use App\Admin\Application\Audit\AuditRequestStats;
 use App\Admin\Application\Audit\AuditTimelineCursor;
 use App\Admin\Application\Audit\AuditTimelineEntry;
@@ -135,6 +136,47 @@ final readonly class AuditTimelineQuery implements AuditTimelineReader
         );
 
         return array_map($this->mapRow(...), $rows);
+    }
+
+    #[\Override]
+    public function filterOptions(): AuditFilterOptions
+    {
+        $actorIds = array_map(intval(...), $this->distinct('actor_id'));
+        $names = [] === $actorIds ? [] : $this->connection->fetchAllKeyValue(
+            'SELECT id, username FROM "user" WHERE id IN (:ids)',
+            ['ids' => $actorIds],
+            ['ids' => ArrayParameterType::INTEGER],
+        );
+
+        $actors = array_map(
+            static fn (int $id): array => ['id' => $id, 'name' => isset($names[$id]) ? (string) $names[$id] : null],
+            $actorIds,
+        );
+        usort($actors, static fn (array $a, array $b): int => [null === $a['name'], strtolower((string) $a['name']), $a['id']] <=> [null === $b['name'], strtolower((string) $b['name']), $b['id']]);
+
+        return new AuditFilterOptions($this->distinct('intent'), $this->distinct('entity_class'), $actors);
+    }
+
+    /**
+     * Distinct non-null values of an indexed column, read as a loose index scan: one index lookup per value
+     * instead of a scan over all entries.
+     *
+     * @param 'intent'|'entity_class'|'actor_id' $column
+     *
+     * @return list<string>
+     */
+    private function distinct(string $column): array
+    {
+        /* @var list<string> */
+        return array_map(strval(...), $this->connection->fetchFirstColumn(\sprintf(
+            'WITH RECURSIVE v AS (
+                (SELECT %1$s AS value FROM audit_log WHERE %1$s IS NOT NULL ORDER BY %1$s LIMIT 1)
+                UNION ALL
+                SELECT (SELECT %1$s FROM audit_log WHERE %1$s > v.value ORDER BY %1$s LIMIT 1) FROM v WHERE v.value IS NOT NULL
+            )
+            SELECT value FROM v WHERE value IS NOT NULL',
+            $column,
+        )));
     }
 
     #[\Override]

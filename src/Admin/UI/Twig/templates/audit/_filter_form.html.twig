@@ -1,0 +1,62 @@
+{# GET form: the filter lives in the URL, so every view can be linked and paging keeps it. #}
+{% macro select(name, label, choices, current, any_label) %}
+    <div class="col-12 col-sm-6 col-lg-3">
+        <label class="form-label small mb-1" for="audit-filter-{{ name }}">{{ label }}</label>
+        <select class="form-select form-select-sm" id="audit-filter-{{ name }}" name="{{ name }}">
+            <option value="">{{ any_label }}</option>
+            {% for choice in choices %}
+                <option value="{{ choice.value }}"{% if choice.value == current %} selected{% endif %}>{{ choice.label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+{% endmacro %}
+
+{% macro text(name, label, current, type = 'text', help = null) %}
+    <div class="col-12 col-sm-6 col-lg-3">
+        <label class="form-label small mb-1" for="audit-filter-{{ name }}">{{ label }}</label>
+        <input class="form-control form-control-sm" type="{{ type }}" id="audit-filter-{{ name }}" name="{{ name }}" value="{{ current }}"{% if help %} aria-describedby="audit-filter-{{ name }}-help"{% endif %}>
+        {% if help %}<div class="form-text" id="audit-filter-{{ name }}-help">{{ help }}</div>{% endif %}
+    </div>
+{% endmacro %}
+
+{% import _self as f %}
+{% set any = 'audit.filter.any'|trans({}, 'admin') %}
+{% set query = filter.toQuery %}
+
+{% set actor_choices = [{value: 'none', label: 'audit.timeline.no_actor'|trans({}, 'admin')}] %}
+{% for actor in options.actors %}
+    {% set actor_choices = actor_choices|merge([{value: '' ~ actor.id, label: actor.name ?? 'audit.timeline.deleted_user'|trans({id: actor.id}, 'admin')}]) %}
+{% endfor %}
+{% set action_choices = [] %}
+{% for action in actions %}{% set action_choices = action_choices|merge([{value: action, label: ('audit.action.' ~ action)|trans({}, 'admin')}]) %}{% endfor %}
+{% set origin_choices = [] %}
+{% for origin in origins %}{% set origin_choices = origin_choices|merge([{value: origin, label: ('audit.origin.' ~ origin)|trans({}, 'admin')}]) %}{% endfor %}
+{% set outcome_choices = [] %}
+{% for outcome in outcomes %}{% set outcome_choices = outcome_choices|merge([{value: outcome, label: ('audit.outcome.' ~ outcome)|trans({}, 'admin')}]) %}{% endfor %}
+{% set intent_choices = [] %}
+{% for intent in options.intents %}{% set intent_choices = intent_choices|merge([{value: intent, label: intent}]) %}{% endfor %}
+{% set entity_choices = [] %}
+{% for class in options.entityClasses %}{% set entity_choices = entity_choices|merge([{value: class, label: class|split('\\')|last}]) %}{% endfor %}
+
+<details class="ea-audit-filter card mb-3"{% if not filter.isEmpty %} open{% endif %} data-audit-filter>
+    <summary class="card-header fw-semibold">{{ 'audit.filter.title'|trans({}, 'admin') }}</summary>
+    <form class="card-body" method="get" action="{{ path('app_admin_dashboard_audit_timeline') }}">
+        <div class="row g-2">
+            {{ f.text('from', 'audit.filter.from'|trans({}, 'admin'), query.from ?? '', 'datetime-local', 'audit.filter.time_help'|trans({}, 'admin')) }}
+            {{ f.text('to', 'audit.filter.to'|trans({}, 'admin'), query.to ?? '', 'datetime-local') }}
+            {{ f.select('actor', 'audit.filter.actor'|trans({}, 'admin'), actor_choices, query.actor ?? '', any) }}
+            {{ f.select('origin', 'audit.filter.origin'|trans({}, 'admin'), origin_choices, query.origin ?? '', any) }}
+            {{ f.select('action', 'audit.filter.action'|trans({}, 'admin'), action_choices, query.action ?? '', any) }}
+            {{ f.select('intent', 'audit.filter.intent'|trans({}, 'admin'), intent_choices, query.intent ?? '', any) }}
+            {{ f.select('entity', 'audit.filter.entity'|trans({}, 'admin'), entity_choices, query.entity ?? '', any) }}
+            {{ f.text('entityId', 'audit.filter.entityId'|trans({}, 'admin'), query.entityId ?? '') }}
+            {{ f.select('outcome', 'audit.filter.outcome'|trans({}, 'admin'), outcome_choices, query.outcome ?? '', any) }}
+            {{ f.text('request', 'audit.filter.request'|trans({}, 'admin'), query.request ?? '') }}
+            {{ f.text('session', 'audit.filter.session'|trans({}, 'admin'), query.session ?? '') }}
+        </div>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <button type="submit" class="btn btn-primary btn-sm">{{ 'audit.filter.apply'|trans({}, 'admin') }}</button>
+            <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_admin_dashboard_audit_timeline') }}">{{ 'audit.timeline.reset_filters'|trans({}, 'admin') }}</a>
+        </div>
+    </form>
+</details>
