@@ -39,7 +39,7 @@ final class HospitalCrudControllerTest extends WebTestCase
 
         self::assertStringContainsString('Name', $headerText);
         self::assertStringContainsString('Owner', $headerText);
-        self::assertStringContainsString('Participating', $headerText);
+        self::assertStringContainsString('Participation', $headerText);
         self::assertStringNotContainsString('Created', $headerText);
         self::assertStringNotContainsString('Updated', $headerText);
     }

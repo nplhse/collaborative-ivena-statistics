@@ -94,8 +94,8 @@ final class HospitalCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Hospital')
-            ->setEntityLabelInPlural('Hospitals')
+            ->setEntityLabelInSingular(new TranslatableMessage('admin.hospital.entity.singular', domain: 'admin'))
+            ->setEntityLabelInPlural(new TranslatableMessage('admin.hospital.entity.plural', domain: 'admin'))
             ->setSearchFields(['id', 'name'])
             ->setDefaultSort(['id' => 'ASC']);
     }
@@ -170,60 +170,60 @@ final class HospitalCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.identity', domain: 'admin'));
-        yield TextField::new('name', 'Name');
-        yield AssociationField::new('owner', 'Owner');
-        yield AssociationField::new('dispatchArea', 'Dispatch Area');
-        yield AssociationField::new('state', 'State');
+        yield TextField::new('name', new TranslatableMessage('label.name', domain: 'messages'));
+        yield AssociationField::new('owner', new TranslatableMessage('admin.hospital.field.owner', domain: 'admin'));
+        yield AssociationField::new('dispatchArea', new TranslatableMessage('admin.dispatch_area.entity.singular', domain: 'admin'));
+        yield AssociationField::new('state', new TranslatableMessage('label.state', domain: 'messages'));
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.address', domain: 'admin'));
-        yield TextField::new('address.street', 'Street')
+        yield TextField::new('address.street', new TranslatableMessage('label.address.street', domain: 'messages'))
             ->hideOnIndex();
-        yield TextField::new('address.postalCode', 'Postal code')
+        yield TextField::new('address.postalCode', new TranslatableMessage('label.address.postal_code', domain: 'messages'))
             ->hideOnIndex();
-        yield TextField::new('address.city', 'City')
+        yield TextField::new('address.city', new TranslatableMessage('label.address.city', domain: 'messages'))
             ->hideOnIndex();
-        yield TextField::new('address.state', 'State')
+        yield TextField::new('address.state', new TranslatableMessage('label.state', domain: 'messages'))
             ->hideOnIndex();
-        yield TextField::new('address.country', 'Country')
+        yield TextField::new('address.country', new TranslatableMessage('label.address.country', domain: 'messages'))
             ->hideOnIndex();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.classification', domain: 'admin'));
-        yield ChoiceField::new('location', 'Location')
+        yield ChoiceField::new('location', new TranslatableMessage('label.location', domain: 'messages'))
             ->setChoices([
                 'Urban' => HospitalLocation::URBAN,
                 'Mixed' => HospitalLocation::MIXED,
                 'Rural' => HospitalLocation::RURAL,
             ])
             ->hideOnIndex();
-        yield ChoiceField::new('tier', 'Tier')
+        yield ChoiceField::new('tier', new TranslatableMessage('label.tier', domain: 'messages'))
             ->setChoices([
                 'Basic' => HospitalTier::BASIC,
                 'Extended' => HospitalTier::EXTENDED,
                 'Full' => HospitalTier::FULL,
             ])
             ->hideOnIndex();
-        yield ChoiceField::new('size', 'Size')
+        yield ChoiceField::new('size', new TranslatableMessage('label.hospital_size', domain: 'messages'))
             ->setChoices([
                 'Small' => HospitalSize::SMALL,
                 'Medium' => HospitalSize::MEDIUM,
                 'Large' => HospitalSize::LARGE,
             ])
             ->hideOnIndex();
-        yield IntegerField::new('beds', 'Beds')
+        yield IntegerField::new('beds', new TranslatableMessage('label.hospital_beds', domain: 'messages'))
             ->hideOnIndex();
-        yield NumberField::new('latitude', 'Latitude')
+        yield NumberField::new('latitude', new TranslatableMessage('admin.hospital.field.latitude', domain: 'admin'))
             ->hideOnIndex();
-        yield NumberField::new('longitude', 'Longitude')
+        yield NumberField::new('longitude', new TranslatableMessage('admin.hospital.field.longitude', domain: 'admin'))
             ->hideOnIndex();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.participation', domain: 'admin'));
-        yield BooleanField::new('isParticipating', 'Participating');
-        yield DateTimeField::new('participatingSince', 'Participating since')
+        yield BooleanField::new('isParticipating', new TranslatableMessage('label.is_participating', domain: 'messages'));
+        yield DateTimeField::new('participatingSince', new TranslatableMessage('label.participating_since', domain: 'messages'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->hideOnIndex();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.access', domain: 'admin'));
-        yield AssociationField::new('accessGrants', 'Access grants')
+        yield AssociationField::new('accessGrants', new TranslatableMessage('admin.user.field.access_grants', domain: 'admin'))
             ->onlyOnDetail()
             ->setSortable(false)
             ->renderAsHtml()
@@ -232,15 +232,15 @@ final class HospitalCrudController extends AbstractCrudController
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
         yield IdField::new('id')
             ->onlyOnDetail();
-        yield DateTimeField::new('createdAt', 'Created')
+        yield DateTimeField::new('createdAt', new TranslatableMessage('label.created', domain: 'messages'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->onlyOnDetail();
-        yield DateTimeField::new('updatedAt', 'Updated')
+        yield DateTimeField::new('updatedAt', new TranslatableMessage('label.updated', domain: 'messages'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->onlyOnDetail();
-        yield AssociationField::new('createdBy', 'Created by')
+        yield AssociationField::new('createdBy', new TranslatableMessage('label.created_by', domain: 'messages'))
             ->onlyOnDetail();
-        yield AssociationField::new('updatedBy', 'Updated by')
+        yield AssociationField::new('updatedBy', new TranslatableMessage('label.updated_by', domain: 'messages'))
             ->onlyOnDetail();
     }
 
