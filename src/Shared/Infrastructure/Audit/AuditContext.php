@@ -24,6 +24,10 @@ final class AuditContext
 
     private ?string $userAgent = null;
 
+    private ?string $upstreamRequestId = null;
+
+    private ?string $sessionRef = null;
+
     /** @var list<array<class-string, true>> */
     private array $suppressedEntityAuditScopes = [];
 
@@ -90,24 +94,64 @@ final class AuditContext
         }
     }
 
-    public function getClientIp(): ?string
-    {
-        return $this->clientIp;
-    }
-
     public function setClientIp(?string $clientIp): void
     {
         $this->clientIp = $clientIp;
     }
 
-    public function getUserAgent(): ?string
-    {
-        return $this->userAgent;
-    }
-
     public function setUserAgent(?string $userAgent): void
     {
         $this->userAgent = $userAgent;
+    }
+
+    /**
+     * Well-formed X-Request-Id sent by the client or a proxy. Kept for tracing only; it never becomes the request id.
+     */
+    public function getUpstreamRequestId(): ?string
+    {
+        return $this->upstreamRequestId;
+    }
+
+    public function setUpstreamRequestId(?string $upstreamRequestId): void
+    {
+        $this->upstreamRequestId = $upstreamRequestId;
+    }
+
+    /**
+     * Random reference of the authenticated session (ADR 025). Never the session id.
+     */
+    public function getSessionRef(): ?string
+    {
+        return $this->sessionRef;
+    }
+
+    public function setSessionRef(?string $sessionRef): void
+    {
+        $this->sessionRef = $sessionRef;
+    }
+
+    /**
+     * Request context shared by all audit producers: client IP, user agent and upstream request id, where known.
+     *
+     * @return array<string, string>
+     */
+    public function requestMetadata(): array
+    {
+        $metadata = [];
+
+        if (null !== $this->clientIp && '' !== $this->clientIp) {
+            $metadata['clientIp'] = $this->clientIp;
+        }
+
+        if (null !== $this->userAgent && '' !== $this->userAgent) {
+            $metadata['userAgent'] = $this->userAgent;
+        }
+
+        if (null !== $this->upstreamRequestId && '' !== $this->upstreamRequestId) {
+            $metadata['upstreamRequestId'] = $this->upstreamRequestId;
+        }
+
+        return $metadata;
     }
 
     /** @param list<class-string> $entityClasses */
@@ -159,6 +203,8 @@ final class AuditContext
         $this->intentStack = [];
         $this->clientIp = null;
         $this->userAgent = null;
+        $this->upstreamRequestId = null;
+        $this->sessionRef = null;
         $this->suppressedEntityAuditScopes = [];
     }
 

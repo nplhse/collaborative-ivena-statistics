@@ -162,6 +162,72 @@ final class AuditingDoctrineSubscriberTest extends KernelTestCase
         self::assertSame([], $entry->getChanges());
     }
 
+    public function testEntryCarriesCorrelationAndDerivedColumns(): void
+    {
+        $user = UserFactory::createOne(['username' => 'audit-corr-'.bin2hex(random_bytes(6))]);
+        $this->loginAs($user);
+
+        $sessionRef = '0193a4b2-6f1e-4c55-9d3e-2a1b0c9d8e7f';
+        $this->auditContext->setSessionRef($sessionRef);
+        $this->auditContext->setUpstreamRequestId('proxy-7');
+        $this->auditContext->setClientIp('1.2.3.4');
+        $this->auditContext->beginIntent('import.run.failed', ['reason' => 'test']);
+        try {
+            $state = new State();
+            $state->setName('CorrelatedState');
+            $this->em->persist($state);
+            $this->em->flush();
+        } finally {
+            $this->auditContext->endIntent();
+            $this->auditContext->reset();
+        }
+
+        $entry = $this->findLatestAudit(State::class, 'create');
+        self::assertNotNull($entry);
+        self::assertSame([
+            'intent' => 'import.run.failed',
+            'outcome' => AuditEntry::OUTCOME_FAILED,
+            'request_id_kind' => AuditEntry::REQUEST_ID_GENERATED,
+            'session_ref' => $sessionRef,
+        ], $this->derivedColumns($entry));
+        self::assertSame('proxy-7', $entry->getMetadata()['upstreamRequestId'] ?? null);
+        self::assertSame('1.2.3.4', $entry->getMetadata()['clientIp'] ?? null);
+    }
+
+    public function testEntryWithoutSessionHasNoSessionRef(): void
+    {
+        $user = UserFactory::createOne(['username' => 'audit-nosession-'.bin2hex(random_bytes(6))]);
+        $this->loginAs($user);
+
+        $state = new State();
+        $state->setName('NoSessionState');
+        $this->em->persist($state);
+        $this->em->flush();
+
+        $entry = $this->findLatestAudit(State::class, 'create');
+        self::assertNotNull($entry);
+        self::assertSame([
+            'intent' => null,
+            'outcome' => null,
+            'request_id_kind' => AuditEntry::REQUEST_ID_GENERATED,
+            'session_ref' => null,
+        ], $this->derivedColumns($entry));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function derivedColumns(AuditEntry $entry): array
+    {
+        $row = $this->em->getConnection()->fetchAssociative(
+            'SELECT intent, outcome, request_id_kind, session_ref FROM audit_log WHERE id = :id',
+            ['id' => $entry->getId()],
+        );
+        self::assertIsArray($row);
+
+        return $row;
+    }
+
     private function loginAs(object $user): void
     {
         $id = $user->getId();

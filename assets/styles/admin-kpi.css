@@ -82,23 +82,6 @@
     word-break: break-word;
 }
 
-.ea-audit-diff-label {
-    letter-spacing: 0.03em;
-}
-
-.ea-audit-json-panel {
-    white-space: pre-wrap;
-    word-break: break-word;
-}
-
-.ea-audit-json-panel--12rem {
-    max-height: 12rem;
-}
-
-.ea-audit-json-panel--28rem {
-    max-height: 28rem;
-}
-
 .ea-vich-image-static {
     cursor: initial;
 }
@@ -162,4 +145,166 @@
 .ea-messenger-page {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
+}
+
+/* Timeline component (Shared TimelineItem) and audit timeline (#955) */
+.timeline-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 0.25rem;
+    border-left: 2px solid var(--bs-border-color);
+}
+
+.timeline-list-nested {
+    border-left-style: dashed;
+}
+
+.timeline-item {
+    position: relative;
+    padding: 0.4rem 0 0.4rem 1.6rem;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+
+.timeline-item:last-child {
+    border-bottom: 0;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -0.85rem;
+    top: 0.45rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2px solid var(--bs-border-color);
+    border-radius: 50%;
+    background: var(--bs-body-bg);
+    color: var(--bs-secondary-color);
+}
+
+.timeline-marker svg {
+    width: 0.9rem;
+    height: 0.9rem;
+}
+
+.timeline-tone-danger .timeline-marker { border-color: var(--bs-danger); color: var(--bs-danger); }
+.timeline-tone-warning .timeline-marker { border-color: var(--bs-warning); color: var(--bs-warning-text-emphasis); }
+.timeline-tone-success .timeline-marker { border-color: var(--bs-success); color: var(--bs-success); }
+.timeline-tone-primary .timeline-marker { border-color: var(--bs-primary); color: var(--bs-primary); }
+.timeline-tone-muted .timeline-marker { border-style: dashed; }
+
+/* Entries shown as context of a filtered request: still readable, visibly secondary. */
+.ea-audit-context > .timeline-content {
+    opacity: 0.7;
+}
+
+.ea-audit-filter > summary {
+    cursor: pointer;
+}
+
+.timeline-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.5rem;
+}
+
+summary.timeline-summary {
+    cursor: pointer;
+    list-style: none;
+}
+
+summary.timeline-summary::-webkit-details-marker {
+    display: none;
+}
+
+summary.timeline-summary::before {
+    content: '▸';
+    color: var(--bs-secondary-color);
+}
+
+.timeline-details[open] > summary.timeline-summary::before {
+    content: '▾';
+}
+
+summary.timeline-summary:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+}
+
+.timeline-time {
+    font-family: var(--bs-font-monospace);
+    font-size: 0.875em;
+    white-space: nowrap;
+}
+
+.timeline-category {
+    font-weight: 600;
+}
+
+.timeline-text {
+    display: contents;
+}
+
+.timeline-body {
+    margin: 0.5rem 0 0.25rem;
+}
+
+.timeline-lazy[aria-busy='true'] {
+    opacity: 0.6;
+}
+
+.ea-audit-fields {
+    color: var(--bs-secondary-color);
+    font-size: 0.875em;
+}
+
+.ea-audit-intent {
+    font-size: 0.85em;
+    overflow-wrap: anywhere;
+}
+
+.ea-audit-json {
+    max-height: 18rem;
+    overflow: auto;
+    padding: 0.5rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.25rem;
+    background: var(--bs-tertiary-bg);
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 575.98px) {
+    .ea-audit-changes thead {
+        display: none;
+    }
+
+    .ea-audit-changes tr,
+    .ea-audit-changes th,
+    .ea-audit-changes td {
+        display: block;
+        width: 100%;
+    }
+
+    .ea-audit-changes td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 0.75rem;
+        color: var(--bs-secondary-color);
+    }
+}
+
+/* Session or inferred activity period of one actor in the audit timeline */
+.ea-audit-band {
+    padding: 0.5rem 0 0.5rem 1rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.ea-audit-band[data-audit-band='inferred'] > .timeline-list {
+    border-left-style: dotted;
 }

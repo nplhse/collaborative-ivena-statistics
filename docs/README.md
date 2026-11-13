@@ -31,6 +31,7 @@ Entry point for project documentation.
 | Upgrading an installation | [05-operations/upgrading.md](05-operations/upgrading.md) |
 | Backups | [05-operations/backup-restore.md](05-operations/backup-restore.md) |
 | Troubleshooting | [05-operations/troubleshooting.md](05-operations/troubleshooting.md) |
+| Audit log | [05-operations/audit-log.md](05-operations/audit-log.md) |
 | Audit log maintenance | [05-operations/audit-log-maintenance.md](05-operations/audit-log-maintenance.md) |
 | Hospital geodata (geocode + isochrones) | [05-operations/hospital-geodata.md](05-operations/hospital-geodata.md) |
 | Glossary | [06-reference/glossary.md](06-reference/glossary.md) |

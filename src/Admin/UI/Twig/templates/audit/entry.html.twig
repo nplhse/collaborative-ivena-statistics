@@ -1,0 +1,19 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+{% import '@Admin/audit/_macros.html.twig' as audit %}
+
+{% block configured_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/admin-kpi.css') }}">
+{% endblock %}
+
+{% block content_title %}{{ 'audit.entry.title'|trans({id: details.entry.id}, 'admin') }}{% endblock %}
+
+{% block main %}
+    <p><a href="{{ path('app_admin_dashboard_audit_timeline') }}">{{ 'audit.request.back'|trans({}, 'admin') }}</a></p>
+    <p class="d-flex flex-wrap align-items-baseline gap-2">
+        <time class="font-monospace" datetime="{{ details.entry.occurredAt|date('c', 'UTC') }}">{{ details.entry.occurredAt|date('d.m.Y H:i:s', 'Europe/Berlin') }}</time>
+        <span class="fw-semibold">{{ ('audit.action.' ~ details.entry.action)|trans({}, 'admin') }}</span>
+        {{ audit.summary(details.entry) }}
+    </p>
+    {{ include('@Admin/audit/_entry_details.html.twig') }}
+{% endblock %}

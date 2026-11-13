@@ -1,0 +1,26 @@
+{# A session or an inferred activity period of one actor, with its items. Needs `group` and `filter`. #}
+<div class="ea-audit-band-header d-flex flex-wrap align-items-baseline gap-2">
+    {% if group.inferred %}
+        <span class="fw-semibold">{{ 'audit.band.inferred'|trans({}, 'admin') }}</span>
+        <span class="badge text-bg-light border" title="{{ 'audit.band.inferred_help'|trans({minutes: 30}, 'admin') }}">{{ 'audit.band.inferred_badge'|trans({}, 'admin') }}</span>
+    {% else %}
+        <span class="fw-semibold">{{ 'audit.band.session'|trans({}, 'admin') }}</span>
+        <a class="font-monospace small" href="{{ path('app_admin_dashboard_audit_timeline', {session: group.sessionRef}) }}" title="{{ 'audit.entry.same_session'|trans({}, 'admin') }}">{{ group.sessionRef|slice(0, 8) }}</a>
+    {% endif %}
+    <span class="small">
+        <time datetime="{{ group.start|date('c', 'UTC') }}">{{ group.start|date('d.m.Y H:i', 'Europe/Berlin') }}</time>
+        –
+        <time datetime="{{ group.end|date('c', 'UTC') }}">{{ group.end|date(group.start|date('Ymd', 'Europe/Berlin') == group.end|date('Ymd', 'Europe/Berlin') ? 'H:i' : 'd.m.Y H:i', 'Europe/Berlin') }}</time>
+    </span>
+    <span class="badge text-bg-light border">{{ 'audit.timeline.request_entries'|trans({count: group.entryCount}, 'admin') }}</span>
+    {% if group.continuesNewer %}<span class="small text-secondary" data-audit-band-continues="newer">{{ 'audit.band.continues_newer'|trans({}, 'admin') }}</span>{% endif %}
+    {% if group.continuesOlder %}<span class="small text-secondary" data-audit-band-continues="older">{{ 'audit.band.continues_older'|trans({}, 'admin') }}</span>{% endif %}
+</div>
+{% if group.inferred %}
+    <p class="small text-secondary mb-1">{{ 'audit.band.inferred_help'|trans({minutes: 30}, 'admin') }}</p>
+{% endif %}
+<twig:Timeline nested>
+    {% for item in group.items %}
+        {{ include('@Admin/audit/_item.html.twig') }}
+    {% endfor %}
+</twig:Timeline>
