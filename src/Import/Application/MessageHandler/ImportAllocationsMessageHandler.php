@@ -35,6 +35,7 @@ use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Service\ImportEvaluation;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
@@ -125,7 +126,7 @@ final readonly class ImportAllocationsMessageHandler
                 $summary->ok,
                 $summary->rejected,
             );
-            $this->flushWithImportIntent('import.run.failed', $import, ['reason' => $e->getMessage()]);
+            $this->flushWithImportIntent(AuditEntry::INTENT_IMPORT_RUN_FAILED, $import, ['reason' => $e->getMessage()]);
 
             $this->importLogger->error('import.failed.precondition', [
                 'id' => $import->getId(),
@@ -352,7 +353,7 @@ final readonly class ImportAllocationsMessageHandler
     private function markFailed(Import $import, string $reason): void
     {
         $import->setStatus(ImportStatus::FAILED);
-        $this->flushWithImportIntent('import.run.failed', $import, ['reason' => $reason]);
+        $this->flushWithImportIntent(AuditEntry::INTENT_IMPORT_RUN_FAILED, $import, ['reason' => $reason]);
 
         $this->importLogger->error('import.failed.precondition', [
             'id' => $import->getId(),

@@ -39,6 +39,7 @@ use App\Import\Domain\Enum\ImportType;
 use App\Import\Domain\Service\ImportEvaluation;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\Statistics\Application\Contract\ClosureRebuildRequestInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -130,7 +131,7 @@ final readonly class ImportClosuresMessageHandler
                 $summary->ok,
                 $summary->rejected,
             );
-            $this->flushWithImportIntent('import.run.failed', $import, ['reason' => $e->getMessage()]);
+            $this->flushWithImportIntent(AuditEntry::INTENT_IMPORT_RUN_FAILED, $import, ['reason' => $e->getMessage()]);
 
             $this->importLogger->error('closure.import.failed.precondition', [
                 'id' => $import->getId(),
@@ -374,7 +375,7 @@ final readonly class ImportClosuresMessageHandler
     private function markFailed(Import $import, string $reason): void
     {
         $import->setStatus(ImportStatus::FAILED);
-        $this->flushWithImportIntent('import.run.failed', $import, ['reason' => $reason]);
+        $this->flushWithImportIntent(AuditEntry::INTENT_IMPORT_RUN_FAILED, $import, ['reason' => $reason]);
 
         $this->importLogger->error('closure.import.failed.precondition', [
             'id' => $import->getId(),

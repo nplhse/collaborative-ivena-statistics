@@ -12,6 +12,7 @@ use App\Admin\Infrastructure\Repository\MessengerStatsRepository;
 use App\Shared\Application\Health\HealthCheckReport;
 use App\Shared\Application\Health\HealthCheckService;
 use App\Shared\Application\Health\HealthCheckStatus;
+use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\Shared\Infrastructure\Audit\Repository\AuditEntryRepository;
 use App\Storage\Application\DTO\StorageSummary;
 use App\Storage\Application\View\StorageReportService;
@@ -96,9 +97,9 @@ final readonly class OperationalDashboardService
     public function getRecentNotificationEvents(int $limit = 10): array
     {
         return $this->auditEntryRepository->findRecentByIntents([
-            'hospital.reminder_sent',
-            'user.registration',
-            'import.failed',
+            AuditEntry::INTENT_HOSPITAL_REMINDER_SENT,
+            AuditEntry::INTENT_USER_REGISTERED,
+            AuditEntry::INTENT_IMPORT_RUN_FAILED,
         ], $limit);
     }
 

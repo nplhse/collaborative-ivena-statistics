@@ -6,6 +6,8 @@ namespace App\Shared\Infrastructure\Audit\Repository;
 
 use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -23,47 +25,44 @@ final class AuditEntryRepository extends ServiceEntityRepository
     }
 
     /**
+     * Newest audit events with one of the given intents, one row per event: entries of the same request and intent
+     * (one flush can write several) are reduced to the first one (#1089).
+     *
      * @param list<string> $intents
      *
      * @return list<array{occurredAt: \DateTimeImmutable, intent: string, action: string, origin: string}>
      */
     public function findRecentByIntents(array $intents, int $limit = 10): array
     {
-        if ([] === $intents) {
+        if ([] === $intents || $limit < 1) {
             return [];
         }
 
-        /** @var list<AuditEntry> $entries */
-        $entries = $this->createQueryBuilder('a')
-            ->orderBy('a.occurredAt', 'DESC')
-            ->setMaxResults(200)
-            ->getQuery()
-            ->getResult();
+        $rows = $this->getEntityManager()->getConnection()->fetchAllAssociative(
+            <<<'SQL'
+                SELECT occurred_at, intent, action, origin
+                FROM (
+                    SELECT DISTINCT ON (request_id, intent) id, occurred_at, intent, action, origin
+                    FROM audit_log
+                    WHERE intent IN (:intents)
+                    ORDER BY request_id, intent, occurred_at ASC, id ASC
+                ) AS events
+                ORDER BY occurred_at DESC, id DESC
+                LIMIT :limit
+                SQL,
+            ['intents' => $intents, 'limit' => $limit],
+            ['intents' => ArrayParameterType::STRING, 'limit' => ParameterType::INTEGER],
+        );
 
-        $results = [];
-        foreach ($entries as $entry) {
-            $metadata = $entry->getMetadata();
-            if (!\is_array($metadata) || !isset($metadata['intent']) || !\is_string($metadata['intent'])) {
-                continue;
-            }
-
-            if (!\in_array($metadata['intent'], $intents, true)) {
-                continue;
-            }
-
-            $results[] = [
-                'occurredAt' => $entry->getOccurredAt(),
-                'intent' => $metadata['intent'],
-                'action' => $entry->getAction(),
-                'origin' => $entry->getOrigin(),
-            ];
-
-            if (\count($results) >= $limit) {
-                break;
-            }
-        }
-
-        return $results;
+        return array_map(
+            static fn (array $row): array => [
+                'occurredAt' => new \DateTimeImmutable((string) $row['occurred_at']),
+                'intent' => (string) $row['intent'],
+                'action' => (string) $row['action'],
+                'origin' => (string) $row['origin'],
+            ],
+            $rows,
+        );
     }
 
     /**

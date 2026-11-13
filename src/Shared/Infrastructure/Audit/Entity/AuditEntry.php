@@ -37,7 +37,15 @@ class AuditEntry
 
     public const string OUTCOME_FAILED = 'failed';
 
+    /*
+     * Intents that other code reads back (admin dashboard, outcome column); writers use these constants so the
+     * names cannot drift apart (#1089).
+     */
     public const string INTENT_IMPORT_RUN_FAILED = 'import.run.failed';
+
+    public const string INTENT_USER_REGISTERED = 'user.registered';
+
+    public const string INTENT_HOSPITAL_REMINDER_SENT = 'hospital.reminder_sent';
 
     public const string ACTION_EXPORT = 'export';
 
@@ -186,6 +194,8 @@ class AuditEntry
 
     /**
      * @return array<string, mixed>|null
+     *
+     * @psalm-suppress PossiblyUnusedMethod Read by tests; queries read the intent column or DBAL rows (#1089).
      */
     public function getMetadata(): ?array
     {

@@ -18,6 +18,7 @@ use App\Import\Domain\Enum\ImportRunStatus;
 use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\User\Domain\Entity\User;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Types\Types;
@@ -216,7 +217,7 @@ final readonly class ImportRunLifecycle
 
                 return ImportRunOutcome::failed($reasonCode);
             },
-            'import.run.failed',
+            AuditEntry::INTENT_IMPORT_RUN_FAILED,
             ['reason' => $reasonCode->value],
         );
 
