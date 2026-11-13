@@ -11,7 +11,7 @@ released as patch versions of that beta (for example `v0.2.1-beta`).
 
 | Version        | Supported                                                         |
 | -------------- | ----------------------------------------------------------------- |
-| v0.2.2-beta    | :white_check_mark: security and critical bug fixes                |
+| v0.2.3-beta    | :white_check_mark: security and critical bug fixes                |
 | v0.1-beta      | :warning: security fixes until v0.3-beta (planned for 2026-12-31) |
 | alpha (v0.0.x) | :x:                                                               |
 
