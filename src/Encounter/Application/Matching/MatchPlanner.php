@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\Encounter\Application\Matching;
 
+use App\Encounter\Application\Plausibility\PlausibilityBonus;
+use App\Encounter\Application\Plausibility\PlausibilityHit;
 use App\Encounter\Domain\Enum\ArrivalRoute;
 use App\Encounter\Domain\Enum\MatchStatus;
 
 /**
  * Decides which pairs of allocations and ED visits become automatic links or proposals (ADR 030; by
- * default with the production points, matcher v1.1). Pure: it reads nothing and writes nothing.
+ * default with the production points, matcher v1.2). Pure: it reads nothing and writes nothing.
  *
  * Score: each candidate visit of an allocation weighs 2^points (sum of the feature points,
- * {@see FeatureScorer}); a "no match" option weighs 2^noMatchPoints ({@see MatchWeights}, v1 and v1.1: 4).
+ * {@see FeatureScorer}); a "no match" option weighs 2^noMatchPoints ({@see MatchWeights}, every version: 4).
  * The score of a candidate is its share of the total weight, so two similar candidates both score low.
  * Example: a single candidate with 9 points scores 512 / (16 + 512) = 0.9697.
  *
@@ -23,6 +25,14 @@ use App\Encounter\Domain\Enum\MatchStatus;
  * visit in that pass: then every such claim becomes a proposal marked as conflict and nothing is
  * reserved. Claims at or above the proposal threshold become proposals.
  *
+ * Plausibility bonus (since v1.2, ADR 030 amendment, ADR 033): in pass 2 only, every candidate gets the bonus of its
+ * PZC × MTS diagram cell from the given snapshot ({@see PlausibilityBonus}), at most {@see MatchWeights::$plausibilityCap},
+ * as contribution `plausibility` (0 included). It competes like any other point. A pair is marked decisive when its
+ * score with the bonus removed from every candidate of the allocation stays below the threshold of its status
+ * (auto-accept for an automatic link, proposal for a proposal). Example: a sex mismatch with everything else matching
+ * scores 4 − 2 + 2 + 1 = 5 points (0.6667, a proposal); +3 gives 8 points, 256 / 272 = 0.9412, an automatic link
+ * decided by the bonus.
+ *
  * Existing effective links and manual decisions come in as reserved sides and rejected pairs: a run only
  * fills gaps and never proposes a rejected pair again. Proposals touching a side that is linked at the end
  * are dropped; a pair proposed in an earlier pass keeps that pass's result.
@@ -30,20 +40,30 @@ use App\Encounter\Domain\Enum\MatchStatus;
 final readonly class MatchPlanner
 {
     /** Version of the production matcher, stored with every pair it writes. */
-    public const string VERSION = MatchWeights::VERSION_1_1;
+    public const string VERSION = MatchWeights::VERSION_1_2;
 
     /** Weight of the "no match" option of the production matcher, in points. */
-    public const int NO_MATCH_POINTS = MatchWeights::NO_MATCH_POINTS_1_1;
+    public const int NO_MATCH_POINTS = MatchWeights::NO_MATCH_POINTS_1_2;
+
+    /** The only pass that adds the plausibility bonus. */
+    public const int PLAUSIBILITY_PASS = 2;
 
     public const int SCORE_PRECISION = 4;
 
     private FeatureScorer $scorer;
 
+    private PlausibilityBonus $plausibility;
+
+    /**
+     * @param PlausibilityBonus|null $plausibility snapshot for the bonus of pass 2; null: no bonus
+     */
     public function __construct(
         private MatchingSettings $settings,
         private MatchWeights $weights = new MatchWeights(),
+        ?PlausibilityBonus $plausibility = null,
     ) {
         $this->scorer = new FeatureScorer($weights);
+        $this->plausibility = $plausibility ?? PlausibilityBonus::none();
     }
 
     /**
@@ -77,7 +97,7 @@ final readonly class MatchPlanner
                     if ($claim->score >= $this->settings->autoAcceptThreshold) {
                         $autoClaims[$claim->encounterId][] = $claim;
                     } elseif ($claim->score >= $this->settings->proposalThreshold) {
-                        $proposals[$this->key($claim)] ??= $claim;
+                        $proposals[$this->key($claim)] ??= $this->withStatus($claim, MatchStatus::Proposed, false);
                     }
                 }
             }
@@ -145,6 +165,7 @@ final readonly class MatchPlanner
      */
     private function claims(MatchingAllocation $allocation, array $timeline, PassWindow $window, int $pass, array $reservedEncounters, array $rejectedPairs): array
     {
+        $withBonus = self::PLAUSIBILITY_PASS === $pass && $this->weights->plausibilityCap > 0;
         $candidates = [];
         foreach ($this->around($timeline, FeatureScorer::wallClockMinute($allocation->arrivalAt), $window) as $encounter) {
             if (isset($reservedEncounters[$encounter->id]) || isset($rejectedPairs[$allocation->id.':'.$encounter->id])) {
@@ -161,7 +182,14 @@ final readonly class MatchPlanner
             }
 
             $contributions = $this->scorer->score($allocation, $encounter, $minutes);
-            $candidates[] = [$encounter, $minutes, $contributions, (int) array_sum($contributions)];
+            $basePoints = (int) array_sum($contributions);
+            $hit = null;
+            if ($withBonus) {
+                $hit = $this->plausibility->lookup($allocation->pzc, $encounter->mtsDiagram);
+                $contributions[MatchFeature::Plausibility->value] = min($this->weights->plausibilityCap, $hit->points);
+            }
+
+            $candidates[] = [$encounter, $minutes, $contributions, (int) array_sum($contributions), $basePoints, $hit];
         }
 
         if ([] === $candidates) {
@@ -169,12 +197,14 @@ final readonly class MatchPlanner
         }
 
         $total = $this->weight($this->weights->noMatchPoints);
-        foreach ($candidates as [, , , $points]) {
+        $totalWithoutBonus = $total;
+        foreach ($candidates as [, , , $points, $basePoints]) {
             $total += $this->weight($points);
+            $totalWithoutBonus += $this->weight($basePoints);
         }
 
         $claims = [];
-        foreach ($candidates as [$encounter, $minutes, $contributions, $points]) {
+        foreach ($candidates as [$encounter, $minutes, $contributions, $points, $basePoints, $hit]) {
             $claims[] = new PlannedMatch(
                 allocationId: $allocation->id,
                 encounterId: $encounter->id,
@@ -186,6 +216,9 @@ final readonly class MatchPlanner
                 timeAnchor: $encounter->anchorSource,
                 timeDifferenceMinutes: $minutes,
                 conflict: false,
+                plausibilitySnapshotId: $hit?->snapshotId,
+                plausibilityLevel: $hit?->level,
+                scoreWithoutBonus: $hit instanceof PlausibilityHit ? round($this->weight($basePoints) / $totalWithoutBonus, self::SCORE_PRECISION) : null,
             );
         }
 
@@ -243,8 +276,14 @@ final readonly class MatchPlanner
         return 2.0 ** (float) $points;
     }
 
+    /**
+     * The claim with its final status; the bonus is decisive when the score without it stays below the threshold of
+     * that status.
+     */
     private function withStatus(PlannedMatch $claim, MatchStatus $status, bool $conflict): PlannedMatch
     {
+        $threshold = MatchStatus::AutoAccepted === $status ? $this->settings->autoAcceptThreshold : $this->settings->proposalThreshold;
+
         return new PlannedMatch(
             $claim->allocationId,
             $claim->encounterId,
@@ -256,6 +295,10 @@ final readonly class MatchPlanner
             $claim->timeAnchor,
             $claim->timeDifferenceMinutes,
             $conflict,
+            $claim->plausibilitySnapshotId,
+            $claim->plausibilityLevel,
+            $claim->scoreWithoutBonus,
+            null !== $claim->scoreWithoutBonus && $claim->scoreWithoutBonus < $threshold,
         );
     }
 

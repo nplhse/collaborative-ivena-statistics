@@ -15,7 +15,8 @@ use Symfony\Contracts\Service\ResetInterface;
  * an active snapshot the bonus is 0. The diagram code as stored in the encounter is resolved to its canonical code
  * first (ADR 032); a code the catalog does not know is used as it is.
  *
- * Nothing calls this for matching before matcher 1.2.0 (#1154).
+ * Matcher 1.2.0 reads the active snapshot through {@see self::active()} in pass 2 (#1154); replays may read any
+ * snapshot through {@see self::ofSnapshot()}.
  */
 final class PlausibilityLookup implements ResetInterface
 {
@@ -32,15 +33,26 @@ final class PlausibilityLookup implements ResetInterface
     ) {
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod Called by matcher 1.2.0 (#1154); covered by the plausibility tests. */
+    /** @psalm-suppress PossiblyUnusedMethod Covered by the plausibility tests; the matcher reads the table through active(). */
     public function bonus(?int $pzc, ?string $diagramCode): PlausibilityHit
     {
-        $table = $this->activeTable();
-        if (!$table instanceof PlausibilityTable) {
-            return PlausibilityHit::none(null);
-        }
+        return $this->active()->lookup($pzc, $diagramCode);
+    }
 
-        return $table->lookup($pzc, $this->canonicalDiagram($diagramCode));
+    /**
+     * The active snapshot for the matcher, or no bonus without one.
+     */
+    public function active(): PlausibilityBonus
+    {
+        return new PlausibilityBonus($this->activeTable(), $this->canonicalResolver());
+    }
+
+    /**
+     * Any snapshot (also a draft or a retired one) for a replay; an unknown id gives an empty table.
+     */
+    public function ofSnapshot(int $snapshotId): PlausibilityBonus
+    {
+        return new PlausibilityBonus($this->table($snapshotId), $this->canonicalResolver());
     }
 
     public function activeTable(): ?PlausibilityTable
@@ -66,6 +78,14 @@ final class PlausibilityLookup implements ResetInterface
         }
 
         return $this->catalog->resolve(MtsCatalogKind::Diagram, $diagramCode)->code ?? $diagramCode;
+    }
+
+    /**
+     * @return \Closure(string): string
+     */
+    private function canonicalResolver(): \Closure
+    {
+        return fn (string $code): string => $this->canonicalDiagram($code) ?? $code;
     }
 
     #[\Override]

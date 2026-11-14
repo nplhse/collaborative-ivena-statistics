@@ -18,9 +18,9 @@ use App\Encounter\Domain\Enum\Sex;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Versioned points of the matcher (#1057): v1 keeps the points of ADR 030, v1.1 changes `time.near` and
- * `sex.different` and is the production matcher; a replay may change single points and the "no match"
- * weight under its own label.
+ * Versioned points of the matcher (#1057, #1154): v1 keeps the points of ADR 030, v1.1 changes `time.near` and
+ * `sex.different`, v1.2 adds the rendezvous rule and the plausibility bonus and is the production matcher; a replay
+ * may change single points and the "no match" weight under its own label.
  */
 final class MatchWeightsTest extends TestCase
 {
@@ -45,11 +45,32 @@ final class MatchWeightsTest extends TestCase
         self::assertSame(4, $weights->noMatchPoints);
         self::assertSame(['time.near' => 3, 'sex.different' => -2], array_diff_assoc($weights->points, MatchWeights::v1()->points));
         self::assertSame(array_keys(MatchWeights::POINTS_1), array_keys($weights->points));
+        self::assertSame(0, $weights->plausibilityCap, 'no plausibility bonus before 1.2.0');
+        self::assertSame(0, MatchWeights::v1()->plausibilityCap);
     }
 
-    public function testTheProductionMatcherIsVersionOnePointOne(): void
+    public function testVersionOnePointTwoAddsTheRendezvousRuleAndTheBonusCap(): void
     {
-        self::assertSame('1.1.0', MatchWeights::production()->version);
+        $weights = MatchWeights::v1_2();
+
+        self::assertSame('1.2.0', $weights->version);
+        self::assertSame(4, $weights->noMatchPoints);
+        self::assertSame(['physician.rendezvous' => 1], array_diff_assoc($weights->points, MatchWeights::v1_1()->points));
+        self::assertSame(array_keys(MatchWeights::POINTS_1), array_keys($weights->points));
+        self::assertSame(3, $weights->plausibilityCap);
+        self::assertSame(3, $weights->with('try-cap', ['time.near' => 2])->plausibilityCap, 'a replay keeps the cap');
+    }
+
+    public function testRefusesACapAboveThree(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new MatchWeights('cap-4', 4, MatchWeights::POINTS_1_2, 4);
+    }
+
+    public function testTheProductionMatcherIsVersionOnePointTwo(): void
+    {
+        self::assertSame('1.2.0', MatchWeights::production()->version);
         self::assertSame(MatchPlanner::VERSION, MatchWeights::production()->version);
         self::assertEquals(MatchWeights::production(), new MatchWeights());
         self::assertSame(MatchPlanner::NO_MATCH_POINTS, MatchWeights::production()->noMatchPoints);
@@ -65,6 +86,7 @@ final class MatchWeightsTest extends TestCase
     {
         self::assertEquals(MatchWeights::v1(), MatchWeights::named('1.0.0'));
         self::assertEquals(MatchWeights::v1_1(), MatchWeights::named('1.1.0'));
+        self::assertEquals(MatchWeights::v1_2(), MatchWeights::named('1.2.0'));
 
         $this->expectException(\InvalidArgumentException::class);
 
@@ -99,7 +121,7 @@ final class MatchWeightsTest extends TestCase
         self::assertSame(2, new FeatureScorer(MatchWeights::v1())->score($allocation, $visit, 20)['time']);
         self::assertSame(3, new FeatureScorer()->score($allocation, $visit, 20)['time']);
 
-        // v1: 128 / (128 + 16) = 0.8889, a proposal; v1.1 (default): 256 / 272 = 0.9412, an automatic link.
+        // v1: 128 / (128 + 16) = 0.8889, a proposal; v1.1 and v1.2 (default): 256 / 272 = 0.9412, an automatic link.
         $v1 = new MatchPlanner(new MatchingSettings(), MatchWeights::v1())->plan([$allocation], [$visit]);
         $production = new MatchPlanner(new MatchingSettings())->plan([$allocation], [$visit]);
 
@@ -110,7 +132,7 @@ final class MatchWeightsTest extends TestCase
     public function testVersionOneStillDropsADifferentSexThatVersionOnePointOneProposes(): void
     {
         // Same time (+4), age (+2), EMS (+1), male vs female: v1 −4 → 3 points, 0.3333, nothing;
-        // v1.1 −2 → 5 points, 0.6667, a proposal.
+        // v1.1 and v1.2 (no snapshot) −2 → 5 points, 0.6667, a proposal.
         $allocation = new MatchingAllocation(1, new \DateTimeImmutable('2026-10-12 10:00'), 'F', 70, false, false);
         $visit = new MatchingEncounter(10, new \DateTimeImmutable('2026-10-12 10:05'), AnchorSource::Admission, Sex::Male, 70, ArrivalMode::Ambulance, ArrivalRoute::Ems, null);
 

@@ -1161,6 +1161,10 @@
         <source>encounter.review.feature.work_accident</source>
         <target>Work accident</target>
       </trans-unit>
+      <trans-unit id="Enc027C7194" resname="encounter.review.feature.plausibility">
+        <source>encounter.review.feature.plausibility</source>
+        <target>PZC × MTS diagram</target>
+      </trans-unit>
       <trans-unit id="EncBF7557DD" resname="encounter.review.direction.for">
         <source>encounter.review.direction.for</source>
         <target>for</target>
@@ -1367,7 +1371,7 @@
       </trans-unit>
       <trans-unit id="EncC1BE31AD" resname="encounter.review.extended.hint">
         <source>encounter.review.extended.hint</source>
-        <target>Optional context for unclear cases. These details are no matching features: later analyses compare them between IVENA and the emergency department, so use them only when the features above leave the decision open.</target>
+        <target>Optional context for unclear cases. These details are no matching features (the MTS diagram only adds the plausibility bonus above, in pass 2): later analyses compare them between IVENA and the emergency department, so use them only when the features above leave the decision open.</target>
       </trans-unit>
       <trans-unit id="EncC4B213D6" resname="encounter.review.extended.urgency">
         <source>encounter.review.extended.urgency</source>

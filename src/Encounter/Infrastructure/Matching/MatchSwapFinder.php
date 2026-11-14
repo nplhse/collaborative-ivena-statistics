@@ -7,6 +7,7 @@ namespace App\Encounter\Infrastructure\Matching;
 use App\Encounter\Application\Contract\MatchSwapFinderInterface;
 use App\Encounter\Application\Matching\MatchingAllocation;
 use App\Encounter\Application\Matching\MatchingSettings;
+use App\Encounter\Application\Plausibility\PlausibilityLookup;
 use App\Encounter\Application\Review\SwapPlanner;
 use App\Encounter\Application\Review\SwapProposal;
 use App\Encounter\Infrastructure\Query\MatchInputQuery;
@@ -26,6 +27,7 @@ final readonly class MatchSwapFinder implements MatchSwapFinderInterface
         private MatchInputQuery $input,
         private MatchReviewQuery $review,
         private MatchingSettings $settings,
+        private PlausibilityLookup $plausibility,
     ) {
     }
 
@@ -51,7 +53,7 @@ final readonly class MatchSwapFinder implements MatchSwapFinderInterface
             }
         }
 
-        $proposals = new SwapPlanner($this->settings)->plan(
+        $proposals = new SwapPlanner($this->settings, $this->plausibility->active())->plan(
             $allocations,
             $encounters,
             $state['automaticLinks'],

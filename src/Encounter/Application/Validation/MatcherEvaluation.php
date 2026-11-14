@@ -91,6 +91,42 @@ final readonly class MatcherEvaluation
     }
 
     /**
+     * Outcome per replayed allocation: an automatic link, else at least one proposal, else none; and how many of the
+     * automatic links and proposals the plausibility bonus decided (matcher 1.2.0). Counts only, no pairs.
+     *
+     * @param list<PlannedMatch> $plan
+     * @param list<int>          $allocationIds replayed allocations
+     *
+     * @return array{allocations: int, automatic: int, proposal: int, none: int, decisive_automatic: int, decisive_proposal: int}
+     */
+    public static function outcomes(array $plan, array $allocationIds): array
+    {
+        $outcome = array_fill_keys($allocationIds, 'none');
+        $decisive = ['automatic' => 0, 'proposal' => 0];
+        foreach ($plan as $match) {
+            $automatic = MatchStatus::AutoAccepted === $match->status;
+            if (isset($outcome[$match->allocationId]) && ($automatic || 'none' === $outcome[$match->allocationId])) {
+                $outcome[$match->allocationId] = $automatic ? 'automatic' : 'proposal';
+            }
+
+            if ($match->plausibilityDecisive) {
+                ++$decisive[$automatic ? 'automatic' : 'proposal'];
+            }
+        }
+
+        $counts = array_count_values($outcome);
+
+        return [
+            'allocations' => \count($outcome),
+            'automatic' => $counts['automatic'] ?? 0,
+            'proposal' => $counts['proposal'] ?? 0,
+            'none' => $counts['none'] ?? 0,
+            'decisive_automatic' => $decisive['automatic'],
+            'decisive_proposal' => $decisive['proposal'],
+        ];
+    }
+
+    /**
      * Reference from a synthetic truth: a pair belongs together exactly when the visit's true allocation
      * is the pair's allocation.
      *
