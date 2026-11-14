@@ -126,10 +126,12 @@ end, set off by a divider. Case flow is expected to become a child of a later gr
 analyses; moving it changes only the tree, not its route.
 
 Beta entries carry a badge and are only returned for users with the beta role, as today. Badges are shown
-in the expanded sidebar and in the hover preview, not in the rail. A badge is a fixed type (`NavBadge`
-enum, for now only `Beta`): the provider names the type, the sidebar component chooses label and colour,
-so providers cannot introduce their own colours. `Beta` uses `badge bg-azure-lt`, the class of the beta
-badge on the Tools landing page. Labels no longer carry "(Beta)" in their text; the badge replaces it. Empty groups are
+in the expanded sidebar and in the hover preview, not in the rail. A badge (`NavBadge`) has a label as
+`TranslatableMessage` and a colour that the provider chooses freely from Tabler's colour names (`blue`,
+`azure`, `indigo`, `purple`, `pink`, `red`, `orange`, `yellow`, `lime`, `green`, `teal`, `cyan`,
+`secondary`; `NavBadgeColor` enum). The component renders it as `badge bg-{colour}-lt`, so every colour
+works in light and dark mode without own CSS. The default colour is `azure`, which is also what the beta
+badge on the Tools landing page uses. Labels no longer carry "(Beta)" in their text; the badge replaces it. Empty groups are
 dropped. Upcoming views (geographic analyses, further encounter analyses) go into an existing group; a new
 group needs a new kind of question, not a new context.
 
@@ -142,7 +144,7 @@ catalog ([ADR 012](012-explore-data-catalog.md)) fills these groups and needs no
 One tree that the contexts contribute to, following the `shared.tool` pattern:
 
 - **`NavItem`** (value object in `Shared`): id, label as `TranslatableMessage` with explicit domain, route
-  and route parameters, optional Tabler icon, optional badge (`NavBadge`), optional `is_granted` attribute,
+  and route parameters, optional Tabler icon, optional badge (`NavBadge`: label and colour), optional `is_granted` attribute,
   optional detail routes that also mark it active, `weight` (integer, default 0), `parentId` (the group or
   item it belongs to), children.
 - **Groups are nodes of the tree.** A group (`NavGroup`: id, optional label, `weight`, optional icon) is defined by
