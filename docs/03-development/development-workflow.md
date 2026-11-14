@@ -27,6 +27,7 @@ What it does, from the main checkout (or the checkout given as second argument):
 | What | How |
 |---|---|
 | `.env.local`, `.env.*.local` | copied |
+| Own test databases | `TEST_DATABASE_SUFFIX=_<worktree directory name>` set in the worktree's `.env.test.local` |
 | `vendor/`, `node_modules/` | cloned (APFS clone on macOS, so no extra disk space), then synced with the worktree's lock files via `composer install` and, if `package-lock.json` differs, `npm ci` |
 | Rector, PHP-CS-Fixer, twig-cs-fixer caches | copied; each tool re-checks only files that differ |
 | PHPStan cache | copied once it lives in `var/cache/phpstan` |
@@ -36,11 +37,19 @@ Existing files in the worktree are kept; `--force` replaces them. The script is 
 
 The same steps apply to people and to coding agents that work in parallel worktrees.
 
-A worktree uses the same databases as its source checkout: the development database from the copied `.env.local`, and the test databases from `DATABASE_URL` in `.env` (or a copied `.env.test.local`; the test environment does not read `.env.local`) with the suffix `_test`, plus one per ParaTest worker via `TEST_TOKEN`. In practice:
+A worktree shares the development database of its source checkout (from the copied `.env.local`), but has its own test databases. Test database names are `DATABASE_URL` from `.env` (or `.env.test.local`; the test environment does not read `.env.local`) plus `_test`, `TEST_DATABASE_SUFFIX` and, per ParaTest worker, `TEST_TOKEN`: in the worktree `../my-topic` that gives `app_test_my_topic`, and `app_test_my_topic1` … `4` for `make test-database`. In practice:
 
-- Do not run database tests in two checkouts at the same time. `make ci`, `make test` and `make test-database` reset the test databases and get in each other's way.
-- Migrations from a branch change the shared development database; other checkouts then run against that schema.
-- For an isolated worktree, set another database name in its `.env.local` (development) and `.env.test.local` (tests), then run `make install-dev` there.
+- Database tests in different worktrees run at the same time without resetting each other's databases. Foundry creates a missing test database and runs the migrations on the first run, so there is no setup step.
+- Without `TEST_DATABASE_SUFFIX` (main checkout, a worktree not set up with `bin/worktree-init`, or a branch from before #1168) the test databases are the shared `app_test*`: do not run database tests in two such checkouts at the same time. Re-run `bin/worktree-init` on an older worktree to give it its own.
+- Migrations from a branch change the shared development database; other checkouts then run against that schema. For an isolated development database, set another database name in the worktree's `.env.local`, then run `make install-dev` there.
+
+When the work is merged, remove the worktree together with its test databases:
+
+```bash
+bin/worktree-cleanup ../my-topic
+```
+
+It drops `app_test_my_topic` and the worker databases (`TEST_TOKEN` 1 to `PROCESSES`, default 4), then runs `git worktree remove`; the branch is kept. It refuses the main checkout, a worktree without its own suffix, a branch whose `doctrine.yaml` ignores the suffix, and a worktree with uncommitted changes. A worktree removed with plain `git worktree remove` leaves its test databases behind; drop them by hand.
 
 ### Reset local runtime data
 
