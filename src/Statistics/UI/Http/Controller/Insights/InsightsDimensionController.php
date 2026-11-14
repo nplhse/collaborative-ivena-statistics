@@ -27,7 +27,6 @@ final class InsightsDimensionController extends AbstractController
         private readonly StatisticsContextFactory $statisticsContextFactory,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly InsightsPageChromeFactory $chromeFactory,
-        private readonly InsightsSubnavViewModelFactory $subnavFactory,
         private readonly InsightDimensionRegistry $registry,
         private readonly InsightValueDirectoryService $directoryService,
         private readonly StatisticsNavigationUrlBuilder $navigationUrlBuilder,
@@ -95,12 +94,10 @@ final class InsightsDimensionController extends AbstractController
         $topListUrl = null !== $topListKey
             ? $this->navigationUrlBuilder->build($request, 'app_stats_top_lists_show', ['report' => $topListKey])
             : null;
-        $navDimension = $groupsView ? InsightDimensionKey::Indications : $dimensionKey;
 
         return $this->render('@Statistics/insights/dimension.html.twig', array_merge(
             $this->chromeFactory->templateVars($request, 'app_stats_insights_dimension', $user, $filter),
             [
-                'insightsSubnav' => $this->subnavFactory->create($request, $navDimension),
                 'provider' => $provider,
                 'dimensionKey' => $provider->key(),
                 'directory' => $directory,

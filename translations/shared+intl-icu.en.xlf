@@ -597,6 +597,22 @@
         <source>cookie.monitoring.location</source>
         <target>{location, select, eu {servers in the EU} us {servers in the USA} other {servers run by the operator}}</target>
       </trans-unit>
+      <trans-unit id="SharedNavSidebar01En" resname="nav.sidebar.label">
+        <source>nav.sidebar.label</source>
+        <target>Views</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar02En" resname="nav.sidebar.collapse">
+        <source>nav.sidebar.collapse</source>
+        <target>Collapse sidebar</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar03En" resname="nav.sidebar.keep_open">
+        <source>nav.sidebar.keep_open</source>
+        <target>Keep sidebar open</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar04En" resname="nav.sidebar.toggle_views">
+        <source>nav.sidebar.toggle_views</source>
+        <target>Show or hide views</target>
+      </trans-unit>
       <trans-unit id="KpiValUnavEn" resname="kpi.value.unavailable">
         <source>kpi.value.unavailable</source>
         <target>not available</target>

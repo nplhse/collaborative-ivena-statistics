@@ -76,7 +76,7 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="data-table-cards"].data-table-cards--md');
         $row = $crawler->filter('table.table tbody tr')->first();
-        self::assertCount(1, $row->filter('td.data-table-cell--primary a'), 'The username links to the profile.');
+        self::assertCount(1, $row->filter('td.data-table-cell--primary a:not([aria-hidden])'), 'The username links to the profile.');
         self::assertCount(0, $row->filter('td.data-table-cell--primary .data-table-cell__label'));
     }
 
@@ -126,7 +126,7 @@ final class ExploreUsersControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
 
-        $usernames = $crawler->filter('[data-testid="user-directory-row"] a')->each(
+        $usernames = $crawler->filter('[data-testid="user-directory-row"] a:not([aria-hidden])')->each(
             static fn ($node): string => trim($node->text()),
         );
         $relevant = array_values(array_filter(
@@ -165,7 +165,7 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-testid="user-directory-list"]', '05.01.2024');
 
-        $usernames = $crawler->filter('[data-testid="user-directory-row"] a[href^="/explore/user/"]')->each(
+        $usernames = $crawler->filter('[data-testid="user-directory-row"] a[href^="/explore/user/"]:not([aria-hidden])')->each(
             static fn ($node): string => trim($node->text()),
         );
         $relevant = array_values(array_filter(
@@ -197,6 +197,27 @@ final class ExploreUsersControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-testid="user-directory-list"]', 'searchable-user');
+        self::assertSelectorTextNotContains('[data-testid="user-directory-list"]', 'other-user');
+    }
+
+    public function testListSearchByDisplayName(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        UserFactory::createOne([
+            'username' => 'mmueller',
+            'displayName' => 'Michael Müller',
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT],
+        ]);
+        UserFactory::createOne([
+            'username' => 'other-user',
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT],
+        ]);
+
+        $client->request(Request::METHOD_GET, '/explore/user', ['search' => 'MÜLLER']);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="user-directory-list"]', 'Michael Müller');
         self::assertSelectorTextNotContains('[data-testid="user-directory-list"]', 'other-user');
     }
 
@@ -626,5 +647,49 @@ final class ExploreUsersControllerTest extends WebTestCase
     private function backfillActivity(): void
     {
         self::getContainer()->get(UserActivityBackfill::class)->run(true);
+    }
+
+    public function testProfileAndDirectoryShowDisplayNameAvatarAndUsername(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $named = UserFactory::createOne([
+            'username' => 'mmueller',
+            'displayName' => 'Michael Müller',
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT],
+        ]);
+        UserFactory::createOne([
+            'username' => 'nameless-user',
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT],
+        ]);
+
+        $client->request(Request::METHOD_GET, '/explore/user/'.$named->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextSame('#user-username', 'Michael Müller');
+        self::assertSelectorTextSame('[data-testid="user-profile-username"]', '@mmueller');
+        self::assertSelectorTextSame('[data-testid="user-profile-avatar"]', 'MM');
+        self::assertSelectorExists('[data-testid="user-profile-avatar"].avatar-xl[data-avatar="initials"]');
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/user');
+
+        self::assertResponseIsSuccessful();
+        $namedRow = $crawler->filter('[data-testid="user-directory-row"]')->reduce(
+            static fn ($row): bool => str_contains($row->text(), 'mmueller'),
+        );
+        self::assertCount(1, $namedRow);
+        $profileLinks = $namedRow->filter('a[href^="/explore/user/"]');
+        self::assertStringContainsString('Michael Müller', $profileLinks->last()->text());
+        self::assertSame(
+            ['_top', '_top'],
+            $profileLinks->each(static fn ($link): ?string => $link->attr('target')),
+            'avatar and name leave the user-list turbo frame',
+        );
+        self::assertSame('MM', trim($namedRow->filter('.avatar')->text()));
+
+        $namelessRow = $crawler->filter('[data-testid="user-directory-row"]')->reduce(
+            static fn ($row): bool => str_contains($row->text(), 'nameless-user'),
+        );
+        self::assertSame('fallback', $namelessRow->filter('.avatar')->attr('data-avatar'));
+        self::assertSame('nameless-user', trim($namelessRow->filter('a[href^="/explore/user/"]')->last()->text()));
     }
 }

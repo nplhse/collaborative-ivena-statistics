@@ -14,6 +14,7 @@ use App\User\UI\Form\ForceChangePasswordType;
 use App\User\UI\Form\SettingsEmailType;
 use App\User\UI\Form\SettingsLocaleType;
 use App\User\UI\Form\SettingsPasswordType;
+use App\User\UI\Form\SettingsProfileType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -58,6 +59,26 @@ final class SettingsController extends AbstractController
             $currentLocale = SupportedLocales::DEFAULT;
         }
 
+        $profileForm = $this->createForm(SettingsProfileType::class, ['displayName' => $user->getDisplayName()]);
+        $profileForm->handleRequest($request);
+
+        if ($profileForm->isSubmitted() && $profileForm->isValid()) {
+            /** @var array{displayName: ?string} $data */
+            $data = $profileForm->getData();
+            $user->setDisplayName($data['displayName']);
+
+            $this->auditContext->beginIntent('user.settings.profile_updated', []);
+            try {
+                $this->entityManager->flush();
+            } finally {
+                $this->auditContext->endIntent();
+            }
+
+            $this->addFlash('success', new TranslatableMessage('flash.settings.profile.updated', domain: 'user'));
+
+            return $this->redirectToRoute('app_settings_account');
+        }
+
         $localeForm = $this->createForm(SettingsLocaleType::class, ['locale' => $currentLocale], [
             'automatic_default_locale' => $automaticDefaultLocale,
         ]);
@@ -83,6 +104,7 @@ final class SettingsController extends AbstractController
         }
 
         return $this->render('@User/settings/account.html.twig', [
+            'profileForm' => $profileForm,
             'localeForm' => $localeForm,
         ]);
     }

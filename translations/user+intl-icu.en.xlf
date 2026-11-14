@@ -69,9 +69,21 @@
         <source>flash.settings.locale.updated</source>
         <target>Language preference saved.</target>
       </trans-unit>
-      <trans-unit id="9xtc9Dc" resname="help.settings.username_fixed">
-        <source>help.settings.username_fixed</source>
-        <target>Username is fixed and cannot be changed.</target>
+      <trans-unit id="UsrDispName" resname="label.display_name">
+        <source>label.display_name</source>
+        <target>Display name</target>
+      </trans-unit>
+      <trans-unit id="UsrDispNameHelp" resname="help.settings.display_name">
+        <source>help.settings.display_name</source>
+        <target>Optional, for example your first and last name. Other signed-in users see it next to your avatar, visitors who are not signed in only see your username.</target>
+      </trans-unit>
+      <trans-unit id="UsrSaveProfile" resname="label.settings.save_profile">
+        <source>label.settings.save_profile</source>
+        <target>Update name</target>
+      </trans-unit>
+      <trans-unit id="UsrProfileSaved" resname="flash.settings.profile.updated">
+        <source>flash.settings.profile.updated</source>
+        <target>Display name saved.</target>
       </trans-unit>
       <trans-unit id="notif02" resname="help.settings.notifications.monthly_reminder">
         <source>help.settings.notifications.monthly_reminder</source>
@@ -175,7 +187,7 @@
       </trans-unit>
       <trans-unit id="setOv05" resname="text.settings.section.account">
         <source>text.settings.section.account</source>
-        <target>Username, email verification status and language.</target>
+        <target>Display name, email verification status and language.</target>
       </trans-unit>
       <trans-unit id="setOv06" resname="text.settings.section.email">
         <source>text.settings.section.email</source>

@@ -12,6 +12,10 @@ final class DeltaIndicator
 {
     public int|float|null $value = null;
 
+    /**
+     * `percent` for a relative change, `pp` for the difference between two shares
+     * (percentage points), `count`, `decimal` or `minutes`.
+     */
     public string $unit = 'percent';
 
     public string $display = 'badge';
@@ -40,15 +44,21 @@ final class DeltaIndicator
 
     public function getLabel(): string
     {
-        $value = (float) ($this->value ?? 0);
-        $magnitude = match ($this->unit) {
-            'count' => number_format($value, 0, ',', '.'),
-            'decimal' => number_format($value, 1, ',', '.'),
-            'minutes' => number_format($value, 1, ',', '.').' '.$this->translator->trans('stats.reports.monthly.kpi.minutes', [], 'statistics'),
-            default => number_format($value, 1, ',', '.').'%',
-        };
+        return $this->format(
+            'pp' === $this->unit ? $this->translator->trans('stats.unit.percentage_points.short', [], 'statistics') : null,
+        );
+    }
 
-        return $value > 0 ? '+'.$magnitude : $magnitude;
+    /**
+     * Explicit title wins; percentage-point deltas fall back to the spelled-out unit.
+     */
+    public function getTitleText(): string
+    {
+        if ('' !== $this->title || 'pp' !== $this->unit) {
+            return $this->title;
+        }
+
+        return $this->translator->trans('stats.unit.percentage_points.long', [], 'statistics');
     }
 
     public function getCssClass(): string
@@ -70,7 +80,26 @@ final class DeltaIndicator
 
     public function getAriaLabel(): string
     {
-        return $this->translator->trans($this->ariaKey, ['delta' => $this->getLabel()], 'statistics');
+        // Screen readers get the spelled-out unit; "pp" would be read letter by letter.
+        $delta = 'pp' === $this->unit
+            ? $this->format($this->translator->trans('stats.unit.percentage_points.long', [], 'statistics'))
+            : $this->getLabel();
+
+        return $this->translator->trans($this->ariaKey, ['delta' => $delta], 'statistics');
+    }
+
+    private function format(?string $percentagePointUnit): string
+    {
+        $value = (float) ($this->value ?? 0);
+        $magnitude = match ($this->unit) {
+            'count' => number_format($value, 0, ',', '.'),
+            'decimal' => number_format($value, 1, ',', '.'),
+            'minutes' => number_format($value, 1, ',', '.').' '.$this->translator->trans('stats.reports.monthly.kpi.minutes', [], 'statistics'),
+            'pp' => number_format($value, 1, ',', '.').' '.$percentagePointUnit,
+            default => number_format($value, 1, ',', '.').'%',
+        };
+
+        return $value > 0 ? '+'.$magnitude : $magnitude;
     }
 
     private function isZero(): bool

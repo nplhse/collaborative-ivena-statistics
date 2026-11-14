@@ -19,7 +19,7 @@
             <div style="font-size:24px;font-weight:600;color:#232b42;">{{ content.withPhysicianPercent }}%</div>
             {% if content.withPhysicianBaselineDeltaPp is not null and content.baselinePeriodLabel %}
                 <div style="font-size:12px;color:#667382;">{{ 'monthly_reminder.kpi.physician_baseline_delta'|trans(({
-                    delta: (content.withPhysicianBaselineDeltaPp >= 0 ? '+' : '') ~ content.withPhysicianBaselineDeltaPp|number_format(1) ~ '%',
+                    delta: (content.withPhysicianBaselineDeltaPp >= 0 ? '+' : '') ~ content.withPhysicianBaselineDeltaPp|number_format(1) ~ ' ' ~ 'monthly_reminder.unit.percentage_points'|trans({}, 'engagement'),
                     baseline: content.baselinePeriodLabel,
                 }), 'engagement') }}</div>
             {% endif %}

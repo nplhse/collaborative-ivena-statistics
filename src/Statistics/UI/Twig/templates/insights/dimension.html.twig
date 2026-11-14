@@ -5,7 +5,7 @@
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
         {% block header_after %}
-            {{ include('@Shared/_includes/subnav_stats.html.twig') }}
+            <twig:Navigation:Sidebar menu="statistics" />
         {% endblock %}
     {% endembed %}
 {% endblock %}
@@ -40,7 +40,6 @@
 
 {% block page_content %}
     {{ include('@Statistics/_data_quality_drawer.html.twig') }}
-    {{ include('@Statistics/insights/_subnav.html.twig') }}
 
     <div class="card insights-directory-card" data-testid="stats-insights-directory">
         {% if showGroupsToggle %}

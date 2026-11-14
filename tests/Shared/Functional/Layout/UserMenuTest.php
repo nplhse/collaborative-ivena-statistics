@@ -115,4 +115,24 @@ final class UserMenuTest extends DatabaseWebTestCase
             ),
         ));
     }
+
+    public function testNavbarShowsTheOwnAvatar(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::createOne(['displayName' => 'Michael Müller']));
+
+        $client->request(Request::METHOD_GET, '/settings');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextSame('[data-testid="user-menu-avatar"][data-avatar="initials"]', 'MM');
+        self::assertSelectorNotExists('.navbar-username', 'the avatar replaces the visible username');
+        self::assertSelectorExists('.visually-hidden #user_name');
+        self::assertSelectorNotExists('[data-testid="user-menu-avatar"].avatar-impersonating');
+        self::assertSelectorExists('a[aria-label="Open user menu"][title="Michael Müller"]');
+
+        $client->loginUser(UserFactory::createOne());
+        $client->request(Request::METHOD_GET, '/settings');
+
+        self::assertSelectorExists('[data-testid="user-menu-avatar"][data-avatar="fallback"]');
+    }
 }

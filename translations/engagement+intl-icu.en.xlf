@@ -101,6 +101,10 @@
         <source>monthly_reminder.kpi.physician_baseline_delta</source>
         <target>{delta} vs. {baseline}</target>
       </trans-unit>
+      <trans-unit id="mrUnitPp" resname="monthly_reminder.unit.percentage_points">
+        <source>monthly_reminder.unit.percentage_points</source>
+        <target>pp</target>
+      </trans-unit>
       <trans-unit id="mr064" resname="monthly_reminder.kpi.transport_baseline_delta">
         <source>monthly_reminder.kpi.transport_baseline_delta</source>
         <target>{delta} min vs. {baseline}</target>

@@ -15,6 +15,7 @@ Use these instead of copying Tabler page-header, card, modal, badge, alert, filt
 | An empty result set | `EmptyState` |
 | A notice, flash, or validation message | `Alert` |
 | A short status | `Badge` |
+| A user's generated avatar (initials or neutral icon) | [`UserAvatar`](#useravatar) (User context) |
 | Currently applied filters | `ActiveFilters` |
 | A dialog or a destructive confirmation | `Modal` or `ConfirmModal` |
 | Events in time order with optional expandable details | `Timeline` and `TimelineItem` |
@@ -427,6 +428,32 @@ Do **not** restyle Explore DataTable cells with this component. Hospital, urgenc
 </twig:Badge>
 ```
 
+## UserAvatar
+
+Generated avatar of a user (#462), defined in the User context: `src/User/UI/Twig/Components/UserAvatar.php`, template `@User/components/UserAvatar.html.twig`. Tabler `avatar` markup, round by default.
+
+- **Initials** come from the optional `User::$displayName`: first letter of the first and of the last whitespace-separated word, uppercased ("Michael Müller" → `MM`, "Ada" → `A`). Words that do not start with a letter are skipped.
+- **Colour** is `PALETTE[userId % 8]` with `blue, azure, indigo, purple, pink, red, green, teal` as `bg-{colour}-lt`. The class `.user-avatar` in `assets/styles/app.css` mixes the initials towards black (light mode) or white (dark mode); measured on a card, every palette colour reaches at least 5:1 in both modes. Changing the palette order changes every user's colour.
+- **Fallback:** without a display name, or for anonymous visitors, the avatar shows the `tabler:user` icon on Tabler's neutral avatar background.
+- **Visibility:** `can_see_display_names()` and `user_display_name(displayName, username)` (`App\User\UI\Twig\UserDisplayNameExtension`) hold the one rule: signed-in viewers see display names and initials, anonymous visitors see the username and the icon. Use `user_display_name()` for the text next to the avatar.
+- Nothing is stored and nothing is queried while rendering: pass a `User` or the scalar fields a DTO already carries.
+
+| Property | Default | Notes |
+|----------|---------|-------|
+| `user` | `null` | `User` entity; wins over the scalar fields |
+| `userId`, `displayName`, `username` | `null` | Scalars from a DTO (activity rows, directory, profile) |
+| `size` | `sm` | `xs`, `sm`, `md`, `lg`, `xl`; unknown values fall back to `sm` |
+| `decorative` | `true` | `aria-hidden` next to a visible name; `false` adds `role="img"`, `aria-label` and `title` |
+
+Extra attributes (`class`, `data-testid`) merge onto the `span`.
+
+```twig
+<twig:UserAvatar :user="comment.author" />
+<strong>{{ user_display_name(comment.author.displayName, comment.author.username) }}</strong>
+
+<twig:UserAvatar :userId="activity.actorId" :displayName="activity.actorDisplayName" :username="activity.actorUsername" size="sm" />
+```
+
 ## DataTable
 
 Declarative table card for entity and catalog lists (Explore, Import, Users). It renders Tabler `.card` chrome itself and does **not** wrap `<twig:Card>`. Pass `columns` plus `rows` (or a `paginator`) and the component draws headers, cells, empty state, and the footer.
@@ -682,6 +709,21 @@ Distinguish three reasons when a list or report has no rows:
 ```
 
 Statistics reports and the Analysis Explorer split "no source data" from "this scope or period is empty" and from extra filters. An import button appears only for the first of those, and only with import permission.
+
+## Navigation:Primary, Navigation:Sidebar and Navigation:Footer
+
+Render the top navbar entries, the contextual sidebar and the footer link columns from the navigation tree
+([ADR 035](../02-architecture/decisions/035-navigation-tree-and-contextual-sidebar.md)). Both are plain
+server-rendered components without props of their own; entries, order, permissions and the active area
+come from `NavigationBuilder` and the providers tagged `shared.navigation`
+([extension points](../02-architecture/extension-points.md#navigation-tree)). To add or move an entry,
+change a provider, not the templates.
+
+| Component | Used in | Output |
+|---|---|---|
+| `<twig:Navigation:Primary />` | `@Shared/_embeds/header.html.twig` | `<li class="nav-item">` per entry of the primary menu, `data-testid="nav-{id}"`, `active` and `aria-current="page"` on the current area; optional prop `area` (`statistics`, `explore`) for pages whose route has no entry |
+| `<twig:Navigation:Sidebar menu="statistics" />`, `menu="explore"` | `header_after` block of every statistics and explore page | Tabler vertical navbar with groups, nested groups (Bootstrap `collapse`), fold toggle (Stimulus `site-sidebar`) and the mobile bar; test ids `sidebar-{menu}`, `sidebar-group-{id}`, `sidebar-entry-{id}`, `sidebar-fold-toggle`; CSS in `assets/styles/navigation.css` |
+| `<twig:Navigation:Footer />` | `@Shared/_includes/footer.html.twig` | one column per footer group with links (`data-testid="footer-nav-column-{group}"`, links `footer-nav-{id}`); empty columns are omitted |
 
 ## Related
 

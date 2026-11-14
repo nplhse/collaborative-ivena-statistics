@@ -29,9 +29,9 @@ final class MonthlyReportKpiTilesTemplateTest extends KernelTestCase
     {
         $crawler = $this->render(physicianDelta: 2.5, transportDelta: 3.0, resusDelta: 0.5, closedDelta: 50.0, locale: 'en');
 
-        $this->assertTile($crawler, 'stats-monthly-report-with-physician', '25 %', 'up', '+2.5 %', 'text-green');
+        $this->assertTile($crawler, 'stats-monthly-report-with-physician', '25 %', 'up', '+2.5 pp', 'text-green');
         $this->assertTile($crawler, 'stats-monthly-report-mean-transport', '18.4 min', 'up', '+3 min', 'text-red');
-        $this->assertTile($crawler, 'stats-monthly-report-resus', '4 %', 'up', '+0.5 %', 'text-green');
+        $this->assertTile($crawler, 'stats-monthly-report-resus', '4 %', 'up', '+0.5 pp', 'text-green');
         $this->assertTile($crawler, 'stats-monthly-report-closed-department-count', '1,234', 'up', '+50 %', 'text-red');
     }
 
@@ -39,9 +39,9 @@ final class MonthlyReportKpiTilesTemplateTest extends KernelTestCase
     {
         $crawler = $this->render(physicianDelta: -2.5, transportDelta: -3.0, resusDelta: -0.5, closedDelta: -50.0, locale: 'en');
 
-        $this->assertTile($crawler, 'stats-monthly-report-with-physician', '25 %', 'down', '-2.5 %', 'text-red');
+        $this->assertTile($crawler, 'stats-monthly-report-with-physician', '25 %', 'down', '-2.5 pp', 'text-red');
         $this->assertTile($crawler, 'stats-monthly-report-mean-transport', '18.4 min', 'down', '-3 min', 'text-green');
-        $this->assertTile($crawler, 'stats-monthly-report-resus', '4 %', 'down', '-0.5 %', 'text-red');
+        $this->assertTile($crawler, 'stats-monthly-report-resus', '4 %', 'down', '-0.5 pp', 'text-red');
         $this->assertTile($crawler, 'stats-monthly-report-closed-department-count', '1,234', 'down', '-50 %', 'text-green');
     }
 
@@ -74,7 +74,7 @@ final class MonthlyReportKpiTilesTemplateTest extends KernelTestCase
     {
         $crawler = $this->render(physicianDelta: 2.5, transportDelta: -3.0, resusDelta: 0.5, closedDelta: 12.5, locale: 'de');
 
-        $this->assertTile($crawler, 'stats-monthly-report-with-physician', '25 %', 'up', '+2,5 %', 'text-green');
+        $this->assertTile($crawler, 'stats-monthly-report-with-physician', '25 %', 'up', '+2,5 %-Punkte', 'text-green');
         $this->assertTile($crawler, 'stats-monthly-report-mean-transport', '18,4 Min.', 'down', '-3 Min.', 'text-green');
         $this->assertTile($crawler, 'stats-monthly-report-closed-department-count', '1.234', 'up', '+12,5 %', 'text-red');
         self::assertSame(

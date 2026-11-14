@@ -18,20 +18,20 @@
     >
         <div class="row align-items-start">
             <div class="col-auto">
-                <span class="avatar avatar-sm rounded">
-                    <twig:ux:icon name="{{ activityIcons[activity.type.value] }}" width="1.25em" height="1.25em" />
-                </span>
+                <twig:UserAvatar :userId="activity.actorId" :displayName="activity.actorDisplayName" :username="activity.actorUsername" size="sm" />
             </div>
             <div class="col min-w-0">
                 <twig:RelativeTimestamp :datetime="activity.occurredAt" />
-                <div class="fw-medium">
+                {% set actorName = user_display_name(activity.actorDisplayName, activity.actorUsername) %}
+                <div class="fw-medium" title="{{ activity.actorUsername }}" data-testid="activity-actor">
                     {% if is_granted('ROLE_PARTICIPANT') and activity.actorPublicId %}
-                        <a href="{{ path('app_explore_user_show', {publicId: activity.actorPublicId}) }}" target="_top">{{ activity.actorUsername }}</a>
+                        <a href="{{ path('app_explore_user_show', {publicId: activity.actorPublicId}) }}" target="_top">{{ actorName }}</a>
                     {% else %}
-                        {{ activity.actorUsername }}
+                        {{ actorName }}
                     {% endif %}
                 </div>
                 <div>
+                    <twig:ux:icon name="{{ activityIcons[activity.type.value] }}" class="icon text-secondary me-1" aria-hidden="true" />
                     {% if activity.type.value == 'joined' %}
                         {{ 'label.user.activity.joined'|trans({}, 'user') }}
                     {% elseif activity.type.value == 'first_import' %}
