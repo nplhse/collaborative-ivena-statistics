@@ -38,10 +38,20 @@ final class StatisticsSidebarTest extends WebTestCase
 
     public function testBetaEntriesCarryTheirBadge(): void
     {
-        $this->get($this->client(['ROLE_USER', 'ROLE_CLOSURE_BETA', 'ROLE_ENCOUNTER_BETA']), '/statistics/top-lists');
+        $this->get($this->client(['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA', 'ROLE_ENCOUNTER_BETA']), '/statistics/top-lists');
 
         self::assertSelectorTextContains('[data-testid="sidebar-group-closures"] .site-sidebar__badge.bg-azure-lt', 'Beta');
         self::assertSelectorTextContains('[data-testid="sidebar-entry-encounter-analytics"] .site-sidebar__badge.bg-azure-lt', 'Beta');
+    }
+
+    public function testClosuresAreShownOnlyWithBothRolesThePagesRequire(): void
+    {
+        $this->get($this->client(['ROLE_USER', 'ROLE_CLOSURE_BETA']), '/statistics/top-lists');
+
+        self::assertSelectorNotExists(
+            '[data-testid="sidebar-group-closures"]',
+            'Closure Analytics also needs ROLE_PARTICIPANT; without it the pages answer 403, so the entry stays hidden.',
+        );
     }
 
     public function testADetailPageOpensTheGroupsOnItsPath(): void
