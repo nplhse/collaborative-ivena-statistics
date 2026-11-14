@@ -17,13 +17,13 @@ use App\Encounter\Domain\Enum\Sex;
  */
 trait MatchingTestData
 {
-    private static function allocation(int $id, string $arrival = '10:00', string $sex = 'F', int $age = 70, bool $withPhysician = false, bool $workAccident = false): MatchingAllocation
+    private static function allocation(int $id, string $arrival = '10:00', string $sex = 'F', int $age = 70, bool $withPhysician = false, bool $workAccident = false, ?int $pzc = null): MatchingAllocation
     {
-        return new MatchingAllocation($id, new \DateTimeImmutable('2026-10-12 '.$arrival), $sex, $age, $withPhysician, $workAccident);
+        return new MatchingAllocation($id, new \DateTimeImmutable('2026-10-12 '.$arrival), $sex, $age, $withPhysician, $workAccident, $pzc);
     }
 
-    private static function visit(int $id, string $anchor = '10:05', Sex $sex = Sex::Female, int $age = 70, ?ArrivalMode $mode = ArrivalMode::Ambulance, ?bool $workAccident = null, AnchorSource $anchorSource = AnchorSource::Admission): MatchingEncounter
+    private static function visit(int $id, string $anchor = '10:05', Sex $sex = Sex::Female, int $age = 70, ?ArrivalMode $mode = ArrivalMode::Ambulance, ?bool $workAccident = null, AnchorSource $anchorSource = AnchorSource::Admission, ?string $diagram = null): MatchingEncounter
     {
-        return new MatchingEncounter($id, new \DateTimeImmutable('2026-10-12 '.$anchor), $anchorSource, $sex, $age, $mode, ArrivalRoute::fromArrivalMode($mode), $workAccident);
+        return new MatchingEncounter($id, new \DateTimeImmutable('2026-10-12 '.$anchor), $anchorSource, $sex, $age, $mode, ArrivalRoute::fromArrivalMode($mode), $workAccident, $diagram);
     }
 }

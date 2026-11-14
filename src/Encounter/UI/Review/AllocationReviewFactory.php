@@ -15,6 +15,8 @@ use App\Encounter\Application\Matching\MatchingAllocation;
 use App\Encounter\Application\Matching\MatchingEncounter;
 use App\Encounter\Application\Matching\MatchingSettings;
 use App\Encounter\Application\Matching\MatchPlanner;
+use App\Encounter\Application\Matching\MatchWeights;
+use App\Encounter\Application\Plausibility\PlausibilityLookup;
 use App\Encounter\Domain\Enum\AnchorSource;
 use App\Encounter\Domain\Enum\ArrivalMode;
 use App\Encounter\Domain\Enum\MatchStatus;
@@ -27,7 +29,8 @@ use App\Encounter\UI\Glossary\MtsNames;
  *
  * Candidates come from the review window, the widest bounds of all passes ({@see MatchingSettings::reviewWindow()}),
  * so every pair the matcher can store is among them. Their agreement is computed among all candidates of
- * that window; the stored score is the one of the pass that found the pair.
+ * that window, scored as in pass 2 (with the plausibility bonus of the active snapshot, matcher 1.2.0); the stored
+ * score is the one of the pass that found the pair.
  */
 final readonly class AllocationReviewFactory
 {
@@ -39,6 +42,7 @@ final readonly class AllocationReviewFactory
         private MatchingSettings $settings,
         private MtsCatalog $mtsCatalog,
         private MtsNames $mtsNames,
+        private PlausibilityLookup $plausibility,
     ) {
     }
 
@@ -65,7 +69,7 @@ final readonly class AllocationReviewFactory
             $byId[$encounter->id] = $encounter;
         }
 
-        $scored = new MatchPlanner($this->settings)->candidates($matching, $encounters, $window, 2);
+        $scored = new MatchPlanner($this->settings, MatchWeights::production(), $this->plausibility->active())->candidates($matching, $encounters, $window, MatchPlanner::PLAUSIBILITY_PASS);
         $rows = $this->review->rowsTouching($allocationId, array_map(static fn (\App\Encounter\Application\Matching\PlannedMatch $c): int => $c->encounterId, $scored));
 
         $own = [];
@@ -172,16 +176,24 @@ final readonly class AllocationReviewFactory
      */
     private function mts(?array $triage): array
     {
-        $diagramCode = $triage['diagram'] ?? null;
         $indicatorCode = $triage['indicator'] ?? null;
-        $diagram = null === $diagramCode ? null : $this->mtsCatalog->diagram($diagramCode);
         $indicator = null === $indicatorCode ? null : $this->mtsCatalog->indicator($indicatorCode);
 
         return [
             'category' => $triage['category'] ?? null,
-            'diagram' => $diagram instanceof MtsCatalogEntry ? $this->mtsNames->diagram($diagram)->name : $diagramCode,
+            'diagram' => $this->diagramName($triage['diagram'] ?? null),
             'indicator' => $indicator instanceof MtsCatalogEntry ? $this->mtsNames->indicator($indicator)->name : $indicatorCode,
         ];
+    }
+
+    /**
+     * Display name of a stored MTS diagram code; codes not in the catalog are shown as stored.
+     */
+    private function diagramName(?string $code): ?string
+    {
+        $diagram = null === $code ? null : $this->mtsCatalog->diagram($code);
+
+        return $diagram instanceof MtsCatalogEntry ? $this->mtsNames->diagram($diagram)->name : $code;
     }
 
     /**
@@ -201,6 +213,7 @@ final readonly class AllocationReviewFactory
             MatchFeature::ArrivalRoute->value => ['key:ems', 'key:route_'.$encounter->arrivalRoute->value],
             MatchFeature::Physician->value => [$allocation->withPhysician ? 'key:with_physician' : 'key:without_physician', 'key:mode_'.($encounter->arrivalMode instanceof ArrivalMode ? $encounter->arrivalMode->value : 'none')],
             MatchFeature::WorkAccident->value => [$allocation->workAccident ? 'key:yes' : 'key:no', true === $encounter->workAccident ? 'key:documented' : 'key:not_documented'],
+            MatchFeature::Plausibility->value => [null === $allocation->pzc ? 'key:not_documented' : (string) $allocation->pzc, $this->diagramName($encounter->mtsDiagram) ?? 'key:not_documented'],
         ];
 
         $features = [];

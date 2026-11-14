@@ -335,9 +335,9 @@ Summary of [ADR 030](../../02-architecture/decisions/030-encounter-allocation-ma
 
 - Same hospital; pass 1 EMS arrivals, −20 … +45 min, age ±2; pass 2 the rest, −30 … +90 min, age ±5.
 - Features: time difference, sex, age difference, arrival route, physician vehicle, work accident.
-  MTS category, MTS diagram and admitting department are not used. From matcher `1.2.0` (planned, #1154)
-  pass 2 adds a bonus of 0 … +3 when PZC and MTS diagram are plausible together
-  ([plausibility table](#plausibility-table)).
+  MTS category, MTS indicator and admitting department are not used. Since matcher `1.2.0` (#1154) pass 2 adds
+  a bonus of 0 … +3 when PZC and MTS diagram are plausible together in the active snapshot
+  ([plausibility table](#plausibility-table)); pass 1 never uses the diagram.
 - Score 0.0–1.0 with competition between candidates, shown as agreement with feature contributions.
 - `auto_accepted` (≥ 0.90, no conflict: no other allocation reaches 0.90 for the same visit in the
   same pass) is an effective link with visible automatic origin;
@@ -345,12 +345,13 @@ Summary of [ADR 030](../../02-architecture/decisions/030-encounter-allocation-ma
 - Pass 1 reserves both sides; later runs only fill gaps and never reassign links. The review may
   propose a targeted swap.
 
-Implemented in #1053 (matcher version `1.0.0`); production matcher since #1043: `1.1.0` (see [ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md#matcher-versions) and the matcher versions below). The review is #1054 ([Match review](#match-review)); the overview and the case card (#1055) show links as described in [Statistics in the pilot](#statistics-in-the-pilot).
+Implemented in #1053 (matcher version `1.0.0`); production matcher since #1154: `1.2.0` (`1.1.0` before; see [ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md#matcher-versions) and the matcher versions below). The review is #1054 ([Match review](#match-review)); the overview and the case card (#1055) show links as described in [Statistics in the pilot](#statistics-in-the-pilot).
 
 **Table `encounter_match`**, one row per pair of allocation and visit: `status` (`auto_accepted`,
 `proposed`, `confirmed`, `rejected`), `conflict`, `score`, `points`, `contributions` (points per feature),
 `pass`, `matcher_version`, `time_anchor` (`admission`, or `assessment` as marked substitute),
-`time_difference_minutes` (anchor − IVENA arrival), `decided_by`/`decided_at` (manual decisions only;
+`time_difference_minutes` (anchor − IVENA arrival), `plausibility_snapshot_id`, `plausibility_level` and
+`plausibility_decisive` (since `1.2.0`, see below), `decided_by`/`decided_at` (manual decisions only;
 a check constraint enforces it) and `created_at`. Partial unique indexes make effective links
 (`auto_accepted`, `confirmed`) one-to-one on both sides. The row goes with its visit, its allocation and
 its hospital (`ON DELETE CASCADE`); a deleted user leaves the decision with `decided_by` empty.
@@ -359,21 +360,39 @@ its hospital (`ON DELETE CASCADE`); a deleted user leaves the decision with `dec
 candidate's score is its share of the total weight (`MatchPlanner`, points in `FeatureScorer`). The
 points and the "no match" weight were set by judgement for v1 (ADR 030); the
 [match validation](#match-validation) measures them. They live in `MatchWeights` with their version
-(`MatchWeights::production()`, currently `MatchWeights::v1_1()`, `1.1.0`); a new matcher version is a new
+(`MatchWeights::production()`, currently `MatchWeights::v1_2()`, `1.2.0`); a new matcher version is a new
 set of points with a new version, which `MatchPlanner::VERSION` names and every written row stores.
 
-| Feature | Points (`1.1.0`; `1.0.0` where different) |
+| Feature | Points (`1.2.0`; earlier versions where different) |
 |---|---|
 | time: matching anchor − IVENA arrival | −5 … +15 min: +4; −20 … −6 or +16 … +30: +3 (v1: +2); +31 … +45: 0; otherwise (pass 2): −2 |
 | sex | equal: +2; male vs female: −2 (v1: −4); one side diverse: 0 |
 | age difference | 0: +2; 1: +1; 2: 0; 3–5 (pass 2): −2 |
 | arrival route | EMS: +1; unknown: 0; self-presenter (pass 2): −2 |
-| physician vehicle ↔ IVENA "with physician" | physician vehicle and physician: +2; one of them only (physician vehicle without, ambulance or patient transport with): −1; otherwise 0 |
+| physician vehicle ↔ IVENA "with physician" | physician vehicle and physician: +2; ambulance with physician (rendezvous system, `physician.rendezvous`): +1 (`1.0.0`, `1.1.0`: −1); physician vehicle without, or patient transport with physician: −1; otherwise 0 |
 | work accident ↔ IVENA work accident | both: +2; one side only: −1; neither: 0 |
+| plausibility (pass 2 only, since `1.2.0`) | bonus of the allocation's PZC × the visit's canonical MTS diagram in the active snapshot, 0 … +3 ([plausibility table](#plausibility-table)); never negative |
 
-**Planned for `1.2.0`** (ADR 030 amendment, #1154): an ambulance with IVENA "with physician" scores +1
-instead of −1 (rendezvous system); a patient transport with physician stays −1. Pass 2 adds the
-plausibility bonus (below). All other points as in `1.1.0`.
+**Plausibility bonus** (`1.2.0`, ADR 030 amendment, ADR 033): pass 2 reads the snapshot active when the run
+starts (`PlausibilityLookup::active()`) and adds, for every candidate, the bonus of its cell (exact PZC × diagram,
+or the PZC's problem area × diagram when the exact cell has too few observations; stored alias codes resolve to the
+canonical diagram), at most `MatchWeights::$plausibilityCap` (+3), as contribution `plausibility` (0 included). It
+competes like any other point; candidates, windows, thresholds and the conflict rule are unchanged. No PZC (no
+normalized indication), no diagram, no cell or no active snapshot: 0. Pass 1 adds nothing and records nothing. Each
+pass-2 pair stores `plausibility_snapshot_id` (null without active snapshot; the reference keeps active and retired
+snapshots from being deleted), `plausibility_level` (`exact`, `area` or `none`) and `plausibility_decisive`: its
+score with the bonus removed from every candidate of the allocation in that pass stays below the threshold of its
+status (0.90 for an automatic link, 0.50 for a proposal), so the bonus decided it. Pairs of pass 1, of earlier
+versions and manual pairs are never decisive. The bonus can also lower a pair: a competitor's bonus takes share of
+the score, so an automatic link becomes a proposal or a proposal is not stored. Nothing marks such a pair (it is
+not decisive, or there is no row); `app:encounter:evaluate-matcher` counts these allocations ("worse with the bonus"). The match review and the validation score candidates as in pass 2, with the bonus of
+the active snapshot, and a pair confirmed there without a stored row records snapshot and level, never decisive.
+
+Example (as in the unit tests): arrival 10:00, admission 10:07, male vs female, same age, ambulance:
+4 − 2 + 2 + 1 = 5 points, 32 / 48 = 0.6667, a proposal of pass 1. With PZC 711 and the diagram "Urologisches
+Problem" (seed area "Urologie", +3) pass 2 gives 8 points, 256 / 272 = 0.9412: an automatic link, decisive
+(0.6667 < 0.90). An ambulance with IVENA "with physician" and everything else matching scores
+4 + 2 + 2 + 1 + 1 = 10 points, 1024 / 1040 = 0.9846 (`1.1.0`: 8 points, 0.9412).
 
 Example: arrival 10:00, ED admission 10:07, same sex and age, ambulance: 4 + 2 + 2 + 1 = 9 points; alone
 it scores 512 / (16 + 512) = 0.9697 and becomes `auto_accepted`. A second visit at 10:06 with the same
@@ -382,12 +401,21 @@ values gives both 512 / 1040 = 0.4923: nothing is proposed. Admission at 10:20 i
 at 10:07 but male vs female: 4 − 2 + 2 + 1 = 5 points, 32 / 48 = 0.6667, a proposal (v1: 3 points, 0.3333,
 nothing). Times are compared on the local wall clock at minute precision.
 
-**Matcher versions** (ADR 030): `1.0.0` (points by judgement) and `1.1.0`
-(`time.near` +3, `sex.different` −2, after the validation of one pilot hospital, October 2026) are both
-defined; `1.1.0` is the production matcher. Stored pairs keep the version that scored them. A new version
+**Matcher versions** (ADR 030): `1.0.0` (points by judgement), `1.1.0`
+(`time.near` +3, `sex.different` −2, after the validation of one pilot hospital, October 2026) and `1.2.0`
+(`physician.rendezvous` +1, plausibility bonus in pass 2, cap +3) are all defined; `1.2.0` is the production
+matcher. Stored pairs keep the version that scored them. A new version
 rescores nothing in bulk: automatic links and manual decisions stay with their old version, open proposals
 are recomputed with the new version by the next run over their allocations (after an import, or
-`app:encounter:match`), and unlinked cases are matched with it on that run.
+`app:encounter:match`), and unlinked cases are matched with it on that run. Activating or retiring a
+plausibility snapshot follows the same rule (ADR 033): links and decisions stay, open proposals change on the next
+run over their allocations.
+
+**Rollout of `1.2.0`**: the migration adds the three plausibility columns; existing pairs get no snapshot, no level
+and `plausibility_decisive` false. Nothing is rescored on deploy. Until an administrator or reviewer activates a
+snapshot, `1.2.0` differs from `1.1.0` only by the rendezvous rule. To apply `1.2.0` and a newly activated snapshot to
+open proposals and unlinked cases of past months, run `app:encounter:match --hospital=<id> --from=… --to=…` per
+hospital; check the effect first with `app:encounter:evaluate-matcher --snapshot=<id>`.
 
 **Runs** (`EncounterMatcher`, one transaction under a per-hospital advisory lock that the review takes too):
 
@@ -420,7 +448,8 @@ pair proposed in pass 1 keeps its pass-1 score when pass 2 sees it again, and pr
 that is linked at the end of the run are removed.
 
 **Manual run**: `php bin/console app:encounter:match --hospital=<id> --from=YYYY-MM-DD [--to=YYYY-MM-DD]`
-prints counts only. Synthetic encounters loaded by the fixtures are not matched until it runs.
+prints counts only (including the new links and proposals the plausibility bonus decided). Synthetic encounters
+loaded by the fixtures are not matched until it runs.
 
 **Configuration** (`app.encounter.matching`): `auto_accept_threshold` (0.90), `proposal_threshold`
 (0.50), `pass1` and `pass2` with `minutes_before`, `minutes_after`, `max_age_difference` (20/45/2 and
@@ -435,8 +464,8 @@ the review (below).
 Decided in [ADR 033](../../02-architecture/decisions/033-learning-plausibility-table.md) and the
 [ADR 030 amendment](../../02-architecture/decisions/030-encounter-allocation-matching.md#amendment-matcher-120)
 (#1136); implementation in #1153 (table and seed), #1154 (matcher `1.2.0`), #1155 (learning job) and #1156
-(analyses). The table, the seed and the review pages exist since #1153; nothing reads the table for matching
-before #1154 (see [Implemented](#implemented-in-1153)).
+(analyses). The table, the seed and the review pages exist since #1153 (see [Implemented](#implemented-in-1153));
+matcher `1.2.0` reads the active snapshot in pass 2 since #1154 ([matching](#matching)).
 
 - **Cells:** exact PZC of the allocation × canonical MTS diagram of the visit's initial triage → bonus 0 … +3.
   When the exact cell has too few observations (minimum, 10 as starting value), the cell of the PZC's curated
@@ -502,8 +531,10 @@ before #1154 (see [Implemented](#implemented-in-1153)).
   - No page shows counts, totals or rates of the table. The learning report with replay figures per hospital follows in #1155.
 - **Catalog merge.** A provisional diagram named by a curated rule cannot be merged
   (`MtsCatalogException::MERGE_HAS_PLAUSIBILITY_RULES`, [MTS glossary](#mts-glossary)).
-- **Not yet:** the matcher bonus and the recorded snapshot per pair (#1154), the learning job and its report
-  (#1155), analyses (#1156), export and import of the reviewed table to production (follow-up of ADR 032).
+- **Matcher** (#1154): `1.2.0` reads the active snapshot in pass 2 and stores the bonus, snapshot, level and
+  decisive flag per pair ([matching](#matching)).
+- **Not yet:** the learning job and its report (#1155), analyses (#1156), export and import of the reviewed table to
+  production (follow-up of ADR 032).
 
 Measured on the pilot hospital (October 2026, 496 allocations): automatic links 421 (84.9 %) with `1.1.0`,
 453 (91.3 %) with an a-priori bonus of +3 in pass 2, 89.5 % with a table by exact PZC with fallback learned
@@ -574,7 +605,9 @@ by default), "fits partly" (yellow) the proposal threshold (4–7), "hardly fits
 features only; the agreement beside it also accounts for competing candidates. A section "Extended information (MTS, IVENA)" adds, for
 unclear cases, IVENA urgency and normalized indication beside MTS category, diagram and indicator of the visit
 (`MatchReviewQuery::extendedInfo()`). They are no matching features (ADR 030) and the page says so: later
-analyses compare exactly these between IVENA and the ED. It is collapsed for a clear candidate and opens by
+analyses compare exactly these between IVENA and the ED. The only exception is the plausibility row of the
+comparison (since `1.2.0`, "PZC × MTS diagram"): the PZC and the visit's diagram with the bonus of the active
+snapshot, the way pass 2 scores the pair. It is collapsed for a clear candidate and opens by
 itself when the candidate's agreement among all candidates stays below the auto-accept threshold. Decisions
 made with this section open are deliberately not marked. The card header names the current link and its origin (automatic:
 score and pass). The linked visit is chosen first, else the open proposal with the highest stored score, else
@@ -698,7 +731,12 @@ replays the planner on the stored allocations and visits of the period as a clea
 decisions) and writes nothing. `--weights=<version>` picks the matcher version the replay starts from
 (default: the production matcher; `1.0.0` reproduces v1). Options change the thresholds (`--auto-accept`,
 `--proposal`), the "no match" weight (`--no-match-points`) and single points (`--points=time.near=1`,
-repeatable; keys as in `MatchWeights`). It reports pairs, correct, wrong and unknown per status and band against the validation
+repeatable; keys as in `MatchWeights`). `--snapshot=<id>` replays the plausibility bonus of pass 2 with any snapshot,
+also a draft or a retired one; `--snapshot=none` without bonus; the default is the active snapshot (matchers before
+`1.2.0` have no bonus whatever the snapshot). A table compares the allocations linked automatically, with a proposal
+and with neither, with and without the bonus, counts the automatic links and proposals the bonus decided, and counts
+the allocations whose outcome is worse with the bonus (automatic → proposal, automatic → none, proposal → none). The
+command prints counts only, never a pair. It reports pairs, correct, wrong and unknown per status and band against the validation
 verdicts of the hospital, or with `--truth=<truth.json>` (from `app:generate:encounter-files`) against the
 synthetic truth, then also the recall: true pairs linked automatically, and linked or proposed. Introducing
 a new matcher version stays a code change: a new `MatchWeights` set, `MatchPlanner::VERSION` and the docs.

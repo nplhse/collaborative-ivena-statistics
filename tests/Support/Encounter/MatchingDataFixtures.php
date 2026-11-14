@@ -10,12 +10,14 @@ use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
+use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Encounter\Application\Matching\MatchRunResult;
 use App\Encounter\Application\Matching\MatchScope;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterTimes;
+use App\Encounter\Domain\Entity\Triage;
 use App\Encounter\Domain\Enum\ArrivalMode;
 use App\Encounter\Domain\Enum\Sex;
 use App\Encounter\Infrastructure\Matching\EncounterMatcher;
@@ -28,7 +30,10 @@ use App\Import\Domain\Entity\Import;
  */
 trait MatchingDataFixtures
 {
-    private function allocationAt(Hospital $hospital, Import $import, string $arrival, AllocationGender $gender = AllocationGender::FEMALE, int $age = 70): Allocation
+    /**
+     * @param int|null $pzc normalized indication code (for the plausibility bonus of matcher 1.2.0)
+     */
+    private function allocationAt(Hospital $hospital, Import $import, string $arrival, AllocationGender $gender = AllocationGender::FEMALE, int $age = 70, ?int $pzc = null): Allocation
     {
         $arrivalAt = new \DateTimeImmutable('2026-10-12 '.$arrival);
 
@@ -47,7 +52,7 @@ trait MatchingDataFixtures
             'department' => DepartmentFactory::createOne(),
             'assignment' => AssignmentFactory::createOne(),
             'indicationRaw' => IndicationRawFactory::createOne(),
-            'indicationNormalized' => null,
+            'indicationNormalized' => null === $pzc ? null : IndicationNormalizedFactory::createOne(['code' => $pzc]),
             'infection' => null,
             'occasion' => null,
             'secondaryTransport' => null,
@@ -58,7 +63,7 @@ trait MatchingDataFixtures
     /**
      * Visit with ED admission at $admission (or only a first assessment contact at $assessment).
      */
-    private function visitAt(Hospital $hospital, Import $import, ?string $admission, ?string $assessment = null, Sex $sex = Sex::Female, int $age = 70, ArrivalMode $mode = ArrivalMode::Ambulance): int
+    private function visitAt(Hospital $hospital, Import $import, ?string $admission, ?string $assessment = null, Sex $sex = Sex::Female, int $age = 70, ArrivalMode $mode = ArrivalMode::Ambulance, ?string $diagram = null): int
     {
         $at = static fn (?string $time): ?\DateTimeImmutable => null === $time ? null : new \DateTimeImmutable('2026-10-12 '.$time);
         $id = $this->encounterRepository()->insertIfNewReturningId(new Encounter(
@@ -71,6 +76,7 @@ trait MatchingDataFixtures
             sex: $sex,
             times: new EncounterTimes(edAdmissionAt: $at($admission), firstAssessmentContactAt: $at($assessment)),
             arrivalMode: $mode,
+            triage: new Triage(diagram: $diagram),
         ));
         self::assertNotNull($id);
 

@@ -103,8 +103,8 @@ replays (`app:encounter:evaluate-matcher --weights=<version>`) can start from th
 | Version | Change | Status |
 |---|---|---|
 | `1.0.0` | points set by judgement (feature table in the [encounter docs](../../04-features/encounter/README.md#matching)) | replaced by `1.1.0` |
-| `1.1.0` | `time.near` +2 → +3; `sex.different` −4 → −2; everything else as in `1.0.0` | production until `1.2.0` |
-| `1.2.0` | plausibility bonus in pass 2 from the active snapshot (cap +3); ambulance (RTW) with IVENA "with physician" +1 instead of −1 ([amendment](#amendment-matcher-120)) | planned (#1154) |
+| `1.1.0` | `time.near` +2 → +3; `sex.different` −4 → −2; everything else as in `1.0.0` | replaced by `1.2.0` |
+| `1.2.0` | plausibility bonus in pass 2 from the active snapshot (cap +3); ambulance (RTW) with IVENA "with physician" +1 instead of −1 ([amendment](#amendment-matcher-120)) | production (#1154) |
 
 **Why 1.1.0.** The match validation of one pilot hospital (October 2026) found:
 

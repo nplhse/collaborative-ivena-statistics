@@ -9,11 +9,14 @@ use App\Encounter\Application\Contract\MatchDeciderInterface;
 use App\Encounter\Application\Matching\MatchingAllocation;
 use App\Encounter\Application\Matching\MatchingSettings;
 use App\Encounter\Application\Matching\MatchPlanner;
+use App\Encounter\Application\Matching\MatchWeights;
 use App\Encounter\Application\Matching\PlannedMatch;
+use App\Encounter\Application\Plausibility\PlausibilityLookup;
 use App\Encounter\Application\Review\MatchDecisionException;
 use App\Encounter\Application\Review\SwapProposal;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterMatch;
+use App\Encounter\Domain\Entity\PlausibilitySnapshot;
 use App\Encounter\Domain\Enum\MatchStatus;
 use App\Encounter\Infrastructure\Query\MatchInputQuery;
 use App\Encounter\Infrastructure\Repository\EncounterMatchRepository;
@@ -47,6 +50,7 @@ final readonly class MatchDecider implements MatchDeciderInterface
         private MatchInputQuery $input,
         private MatchSwapFinder $swaps,
         private MatchingSettings $settings,
+        private PlausibilityLookup $plausibility,
         private AuditContext $auditContext,
         private ClockInterface $clock,
     ) {
@@ -223,6 +227,8 @@ final readonly class MatchDecider implements MatchDeciderInterface
                 contributions: $candidate->contributions,
                 pass: null,
                 matcherVersion: MatchPlanner::VERSION,
+                plausibilitySnapshot: null === $candidate->plausibilitySnapshotId ? null : $this->entityManager->getReference(PlausibilitySnapshot::class, $candidate->plausibilitySnapshotId),
+                plausibilityLevel: $candidate->plausibilityLevel?->value,
             );
             $this->entityManager->persist($pair);
         }
@@ -242,7 +248,7 @@ final readonly class MatchDecider implements MatchDeciderInterface
             $allocation->arrivalAt->modify(sprintf('+%d minutes', $window->minutesAfter)),
             null,
         );
-        foreach (new MatchPlanner($this->settings)->candidates($allocation, $encounters, $window, 2) as $candidate) {
+        foreach (new MatchPlanner($this->settings, MatchWeights::production(), $this->plausibility->active())->candidates($allocation, $encounters, $window, MatchPlanner::PLAUSIBILITY_PASS) as $candidate) {
             if ($candidate->encounterId === $encounterId) {
                 return $candidate;
             }

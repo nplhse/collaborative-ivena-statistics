@@ -1161,6 +1161,10 @@
         <source>encounter.review.feature.work_accident</source>
         <target>Arbeitsunfall</target>
       </trans-unit>
+      <trans-unit id="Enc027C7194" resname="encounter.review.feature.plausibility">
+        <source>encounter.review.feature.plausibility</source>
+        <target>PZC × MTS-Diagramm</target>
+      </trans-unit>
       <trans-unit id="EncBF7557DD" resname="encounter.review.direction.for">
         <source>encounter.review.direction.for</source>
         <target>dafür</target>
@@ -1367,7 +1371,7 @@
       </trans-unit>
       <trans-unit id="EncC1BE31AD" resname="encounter.review.extended.hint">
         <source>encounter.review.extended.hint</source>
-        <target>Optionaler Kontext für unklare Fälle. Diese Angaben sind keine Abgleichsmerkmale: Spätere Auswertungen vergleichen sie zwischen IVENA und Notaufnahme. Nutzen Sie sie daher nur, wenn die Merkmale oben die Entscheidung offen lassen.</target>
+        <target>Optionaler Kontext für unklare Fälle. Diese Angaben sind keine Abgleichsmerkmale (das MTS-Diagramm gibt nur im zweiten Durchgang den Plausibilitätsbonus oben): Spätere Auswertungen vergleichen sie zwischen IVENA und Notaufnahme. Nutzen Sie sie daher nur, wenn die Merkmale oben die Entscheidung offen lassen.</target>
       </trans-unit>
       <trans-unit id="EncC4B213D6" resname="encounter.review.extended.urgency">
         <source>encounter.review.extended.urgency</source>

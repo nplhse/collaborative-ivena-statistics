@@ -29,7 +29,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Matcher v1 against the database (ADR 030, #1053): stored explanation, reruns, manual decisions,
+ * The production matcher (1.2.0, without plausibility snapshot) against the database (ADR 030, #1053): stored explanation, reruns, manual decisions,
  * conflicts, deletion and the triggers. Every visit scores 9 points against an allocation at its
  * arrival time unless stated otherwise (score 512 / 528 = 0.9697).
  */
@@ -66,7 +66,7 @@ final class EncounterMatcherTest extends KernelTestCase
         self::assertSame(['time' => 4, 'sex' => 2, 'age' => 2, 'arrival_route' => 1, 'physician' => 0, 'work_accident' => 0], $match->getContributions());
         self::assertSame(1, $match->getPass());
         self::assertSame(MatchPlanner::VERSION, $match->getMatcherVersion());
-        self::assertSame('1.1.0', $match->getMatcherVersion());
+        self::assertSame('1.2.0', $match->getMatcherVersion());
         self::assertSame(AnchorSource::Admission, $match->getTimeAnchor());
         self::assertSame(7, $match->getTimeDifferenceMinutes());
         self::assertNull($match->getDecidedAt());

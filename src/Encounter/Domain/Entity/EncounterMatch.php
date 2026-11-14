@@ -18,7 +18,9 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * The row keeps how the pair was scored: score (agreement 0.0–1.0, not a probability), points per
  * feature, the pass, the matcher version, the time anchor used (ED admission, or the first assessment
- * contact as marked substitute) and the time difference. Automatic rows are written by the matcher
+ * contact as marked substitute) and the time difference. Since matcher 1.2.0 a pair of pass 2 also keeps the
+ * plausibility snapshot and cell level of its bonus and whether the bonus was decisive (ADR 030 amendment, ADR 033);
+ * analyses comparing PZC with the MTS diagram leave out or separate decisive pairs. Automatic rows are written by the matcher
  * (`EncounterMatchRepository`), manual decisions by the review (#1054).
  *
  * Deletion: the row goes with its visit (ON DELETE CASCADE from `encounter`: import deletion, reprocess,
@@ -39,8 +41,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(name: 'idx_encounter_match_hospital_status', fields: ['hospital', 'status'])]
 class EncounterMatch
 {
-    /** Keys of the features of matcher v1, see MatchFeature. */
-    private const array FEATURE_ORDER = ['time', 'sex', 'age', 'arrival_route', 'physician', 'work_accident'];
+    /** Keys of the matcher features, see MatchFeature. */
+    private const array FEATURE_ORDER = ['time', 'sex', 'age', 'arrival_route', 'physician', 'work_accident', 'plausibility'];
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -92,6 +94,22 @@ class EncounterMatch
     #[ORM\Column(type: Types::INTEGER)]
     private int $timeDifferenceMinutes;
 
+    /**
+     * Snapshot of the plausibility table the bonus was read from (matcher 1.2.0, pass 2); null otherwise. Active and
+     * retired snapshots are never deleted (ADR 033), so the reference restricts deletion.
+     */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?PlausibilitySnapshot $plausibilitySnapshot;
+
+    /** Cell level of the bonus (`exact`, `area`, `none`); null when no bonus was looked up. */
+    #[ORM\Column(type: Types::STRING, length: 8, nullable: true)]
+    private ?string $plausibilityLevel;
+
+    /** The pair would not have reached its automatic status without the bonus (ADR 030 amendment). */
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $plausibilityDecisive;
+
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?User $decidedBy = null;
@@ -118,6 +136,9 @@ class EncounterMatch
         ?int $pass = null,
         ?string $matcherVersion = null,
         bool $conflict = false,
+        ?PlausibilitySnapshot $plausibilitySnapshot = null,
+        ?string $plausibilityLevel = null,
+        bool $plausibilityDecisive = false,
     ) {
         $allocationHospital = $allocation->getHospital();
         $allocationHospitalId = $allocationHospital?->getId();
@@ -148,6 +169,9 @@ class EncounterMatch
         $this->pass = $pass;
         $this->matcherVersion = $matcherVersion;
         $this->conflict = $conflict;
+        $this->plausibilitySnapshot = $plausibilitySnapshot;
+        $this->plausibilityLevel = $plausibilityLevel;
+        $this->plausibilityDecisive = $plausibilityDecisive;
     }
 
     /**
@@ -231,6 +255,21 @@ class EncounterMatch
     public function getMatcherVersion(): ?string
     {
         return $this->matcherVersion;
+    }
+
+    public function getPlausibilitySnapshot(): ?PlausibilitySnapshot
+    {
+        return $this->plausibilitySnapshot;
+    }
+
+    public function getPlausibilityLevel(): ?string
+    {
+        return $this->plausibilityLevel;
+    }
+
+    public function isPlausibilityDecisive(): bool
+    {
+        return $this->plausibilityDecisive;
     }
 
     public function getTimeAnchor(): AnchorSource

@@ -177,7 +177,9 @@ final class MatchReviewControllerTest extends WebTestCase
 
         // The linked visit is chosen; its comparison is shown, the other one's is hidden until chosen.
         self::assertSame((string) $best, $crawler->filter('input[name="match_review[encounter]"][checked]')->attr('value'));
-        self::assertSame(['for', 'for', 'for', 'for', 'neutral', 'neutral'], $this->comparison($crawler, $best)->filter('tbody tr')->each(static fn (Crawler $row): string => (string) $row->attr('data-direction')));
+        // Candidates are scored as in pass 2 (matcher 1.2.0): the plausibility row comes last, +0 without snapshot.
+        self::assertSame(['for', 'for', 'for', 'for', 'neutral', 'neutral', 'neutral'], $this->comparison($crawler, $best)->filter('tbody tr')->each(static fn (Crawler $row): string => (string) $row->attr('data-direction')));
+        self::assertSelectorExists('[data-test="feature-plausibility"]');
         $other = (int) $candidates->eq(1)->attr('data-encounter');
         self::assertSame('neutral', $this->comparison($crawler, $other)->filter('[data-test="feature-age"]')->attr('data-direction'));
         self::assertStringContainsString('d-none', (string) $crawler->filter('[data-test="encounter-review-comparison"][data-encounter="'.$other.'"]')->attr('class'));
@@ -265,7 +267,8 @@ final class MatchReviewControllerTest extends WebTestCase
             sprintf('%d-%d rejected 0.9143', $allocation->getId(), $linked),
             sprintf('%d-%d confirmed 0.0571', $allocation->getId(), $other),
         ], $this->matchRows($this->hospital));
-        self::assertSame(['time' => 3, 'sex' => 2, 'age' => 0, 'arrival_route' => 1, 'physician' => -1, 'work_accident' => 0], $this->match($allocation, $other)->getContributions());
+        // Created from its review-window scoring as in pass 2: the plausibility bonus is recorded, 0 without snapshot.
+        self::assertSame(['time' => 3, 'sex' => 2, 'age' => 0, 'arrival_route' => 1, 'physician' => -1, 'work_accident' => 0, 'plausibility' => 0], $this->match($allocation, $other)->getContributions());
         self::assertSame(['decision' => 'change', 'replaced_encounter_id' => $linked], array_intersect_key($this->auditMetadata(MatchDecider::INTENT_DECIDED), ['decision' => 1, 'replaced_encounter_id' => 1]));
 
         $this->matchDay($this->hospital);
