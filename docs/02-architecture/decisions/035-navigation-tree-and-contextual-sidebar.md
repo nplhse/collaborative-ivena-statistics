@@ -108,10 +108,27 @@ One tree that the contexts contribute to, following the `shared.tool` pattern:
 
 - **`NavItem`** (value object in `Shared`): id, label as `TranslatableMessage` with explicit domain, route
   and route parameters, optional Tabler icon, optional badge (beta), optional `is_granted` attribute,
-  the routes or route prefixes that mark it active, children (at most one nested level for sidebars).
-- **`NavigationProviderInterface`** (tag `shared.navigation`): each context returns its items for named
-  menus (`primary`, `footer`, `statistics`, `explore`) and a position inside a group. Providers decide
-  from roles and voters without database queries, as tool providers do.
+  the routes or route prefixes that mark it active, `weight` (integer, default 0), the id of its parent
+  group or item, children (at most one nested level for sidebars).
+- **Groups are nodes of the tree.** A group (`NavGroup`: id, label, `weight`, optional icon) is defined by
+  the context that owns the menu: the Statistics context for `statistics`, Allocation for `explore`,
+  `Shared` for `primary` and `footer`. Other contexts attach items to a group by its id, so a new analysis
+  from another context needs no change in the owning context. An item that names an unknown group makes the
+  builder throw, so tests catch it instead of the entry silently disappearing. A group without visible items after the permission
+  filter is not rendered.
+- **`NavigationProviderInterface`** (tag `shared.navigation`): each context returns its groups and items
+  for named menus (`primary`, `footer`, `statistics`, `explore`). Providers decide from roles and voters
+  without database queries, as tool providers do.
+- **Order.** On every level (groups in a menu, items in a group, children of an item) entries are sorted
+  by `weight` ascending, then by the translated label in the current locale (`\Collator`, as in the tool
+  registry), then by id. Negative weights move an entry up, positive weights move it down; favorites, for
+  example, get `-100`. Weights are set in steps of ten, so an entry can be placed between two others
+  without renumbering. Through the weights of its children a parent decides the order: all children at
+  `0` give an alphabetical list (Insights dimensions, Explore features), distinct weights a fixed order
+  (the parts of Closures), a single weight such as `-100` on "Overview" pins one entry above an
+  alphabetical rest. The id only breaks ties between equal weight and equal label and carries no meaning
+  of its own. The name is `weight`, not `priority`, because Symfony's `priority` sorts the other way round
+  (higher first). A sort mode per parent (for example by usage) is not introduced until a case needs it.
 - **`NavigationBuilder`**: merges providers, filters by permission, drops empty groups, marks the
   **active path** from the current route. The active path is the single answer for "where am I": it marks
   the top navbar entry, the sidebar entry and its open parent, and later yields the breadcrumbs.
