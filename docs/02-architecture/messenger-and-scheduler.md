@@ -54,10 +54,13 @@ In `dev`, mail is synchronous. In `test`, most messages use `sync`.
 | `5 * * * *` (hourly) | `SampleMessengerQueuesMessage` (queue backlog sample, ADR 019) |
 | `50 3 * * *` (daily 03:50 Europe/Berlin) | `CleanUpMonitoringMessage` (monitoring retention, ADR 019) |
 | `10 3 * * *` (daily 03:10 Europe/Berlin) | `DeleteExpiredEncounterSourceFilesMessage` (encounter upload file retention, ADR 026) |
+| `0 8 * * 1` (Mondays 08:00 Europe/Berlin) | `SendFeedbackQuarantineSummaryMessage` (weekly feedback quarantine summary) |
+| `10 4 * * *` (daily 04:10 Europe/Berlin) | `PurgeQuarantinedFeedbackMessage` (feedback quarantine retention) |
+| `40 * * * *` (hourly, Europe/Berlin) | `RebuildClosureVolumeProjection` with `waitForLock: false` (closure volume rebuild, skipped while another rebuild holds the lock) |
 
 The scheduler requires a running worker consuming `scheduler_default`. Locally: `make consume`.
 
-Details: [../04-features/kpi/kpi-aggregation.md](../04-features/kpi/kpi-aggregation.md), [../04-features/analytics/aggregation-and-retention.md](../04-features/analytics/aggregation-and-retention.md)
+Details: [../04-features/kpi/kpi-aggregation.md](../04-features/kpi/kpi-aggregation.md), [../04-features/analytics/aggregation-and-retention.md](../04-features/analytics/aggregation-and-retention.md), [../04-features/feedback/README.md](../04-features/feedback/README.md), [../04-features/statistics/closure-architecture.md](../04-features/statistics/closure-architecture.md)
 
 ## Local development
 
@@ -69,6 +72,6 @@ This runs `messenger:consume async_priority_high async_priority_low async_mail s
 
 ## Production
 
-A systemd user service must consume all three transports. See [../05-operations/messenger-workers.md](../05-operations/messenger-workers.md).
+A systemd user service must consume all four transports (`async_priority_high`, `async_priority_low`, `async_mail`, `scheduler_default`). See [../05-operations/messenger-workers.md](../05-operations/messenger-workers.md).
 
 Deployer restarts the worker after each deploy via `messenger:restart`.

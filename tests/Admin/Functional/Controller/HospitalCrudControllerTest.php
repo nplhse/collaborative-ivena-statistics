@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\Admin\Functional\Controller;
 
+use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Enum\HospitalLocation;
+use App\Allocation\Domain\Enum\HospitalSize;
+use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -85,5 +90,69 @@ final class HospitalCrudControllerTest extends WebTestCase
         self::assertSame(1, (int) self::getContainer()->get(\Doctrine\DBAL\Connection::class)->fetchOne(
             "SELECT COUNT(*) FROM notification_deduplication WHERE deduplication_key LIKE 'engagement.monthly_reminder:%:manual:%'",
         ));
+    }
+
+    public function testDetailShowsTheClassificationInGermanForAGermanAdmin(): void
+    {
+        $client = self::createClient();
+        $hospital = HospitalFactory::createOne([
+            'location' => HospitalLocation::RURAL,
+            'tier' => HospitalTier::FULL,
+            'size' => HospitalSize::LARGE,
+        ]);
+        $client->loginUser(UserFactory::new()->asAdmin()->create(['locale' => 'de']));
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/hospital/'.$hospital->getId());
+
+        self::assertResponseIsSuccessful();
+        $values = $crawler->filter('.field-value')->each(static fn ($node): string => trim($node->text()));
+        self::assertContains('Ländlich', $values);
+        self::assertContains('Umfassend', $values);
+        self::assertContains('Groß', $values);
+        self::assertNotContains('Rural', $values);
+    }
+
+    public function testEditFormOffersGermanChoicesForAGermanAdmin(): void
+    {
+        $client = self::createClient();
+        $hospital = HospitalFactory::createOne();
+        $client->loginUser(UserFactory::new()->asAdmin()->create(['locale' => 'de']));
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/hospital/'.$hospital->getId().'/edit');
+
+        self::assertResponseIsSuccessful();
+        $options = static fn (string $field): array => $crawler
+            ->filter('select[name="Hospital['.$field.']"] option')
+            ->each(static fn ($node): string => trim($node->text()));
+        self::assertSame(['Städtisch', 'Gemischt', 'Ländlich'], array_values(array_filter($options('location'))));
+        self::assertSame(['Basis', 'Erweitert', 'Umfassend'], array_values(array_filter($options('tier'))));
+        self::assertSame(['Klein', 'Mittel', 'Groß'], array_values(array_filter($options('size'))));
+    }
+
+    public function testEditFormStoresTheSelectedEnumCases(): void
+    {
+        $client = self::createClient();
+        $hospital = HospitalFactory::createOne([
+            'location' => HospitalLocation::URBAN,
+            'tier' => HospitalTier::BASIC,
+            'size' => HospitalSize::SMALL,
+        ]);
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/hospital/'.$hospital->getId().'/edit');
+        $form = $crawler->selectButton('Save changes')->form();
+        $form['Hospital[location]'] = 'Mixed';
+        $form['Hospital[tier]'] = 'Extended';
+        $form['Hospital[size]'] = 'Large';
+        $client->submit($form);
+
+        self::assertResponseRedirects();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        $stored = $entityManager->find(Hospital::class, $hospital->getId());
+        self::assertInstanceOf(Hospital::class, $stored);
+        self::assertSame(HospitalLocation::MIXED, $stored->getLocation());
+        self::assertSame(HospitalTier::EXTENDED, $stored->getTier());
+        self::assertSame(HospitalSize::LARGE, $stored->getSize());
     }
 }
