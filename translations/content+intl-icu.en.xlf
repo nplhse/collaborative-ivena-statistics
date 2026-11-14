@@ -1177,6 +1177,18 @@
         <source>label.quote_text</source>
         <target>Quote text</target>
       </trans-unit>
+      <trans-unit id="pgType01En" resname="page.editor.type_change_refused">
+        <source>page.editor.type_change_refused</source>
+        <target>The block type was not changed because content would be lost ({fields}). Change the type in the editor and confirm the loss.</target>
+      </trans-unit>
+      <trans-unit id="pgType02En" resname="page.editor.type_change_confirm">
+        <source>page.editor.type_change_confirm</source>
+        <target>Changing to “{type}” discards content of this block: {fields}. Change anyway?</target>
+      </trans-unit>
+      <trans-unit id="pgType03En" resname="page.editor.accordion_item_fallback">
+        <source>page.editor.accordion_item_fallback</source>
+        <target>Item {number}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -20,6 +20,46 @@ enum PageContentBlockType: string
     }
 
     /**
+     * Data fields that hold content the editor would lose on a type change. Presentation settings
+     * (level, alignment, spacing, size, variant, …) fall back to defaults and are not listed.
+     *
+     * @return list<string>
+     */
+    public function contentFields(): array
+    {
+        return match ($this) {
+            self::Richtext => ['html'],
+            self::Image => ['mediaId', 'src', 'alt', 'caption'],
+            self::Cta => ['headline', 'buttonLabel', 'buttonUrl', 'mediaId'],
+            self::Quote => ['text'],
+            self::Headline => ['text'],
+            self::Highlight => ['title', 'html', 'icon'],
+            self::Accordion => ['items'],
+        };
+    }
+
+    /**
+     * Content fields that keep their meaning when a block changes from this type to $target and are
+     * carried over unchanged. Only rich-text bodies qualify; fields that merely share a name (e.g. the
+     * `text` of a quote and of a headline, or `mediaId` for an image and for a PDF) do not.
+     *
+     * @return list<string>
+     */
+    public function transferableFieldsTo(self $target): array
+    {
+        if ($this === $target) {
+            return $this->contentFields();
+        }
+
+        $richTextBodies = [self::Richtext, self::Highlight];
+        if (in_array($this, $richTextBodies, true) && in_array($target, $richTextBodies, true)) {
+            return ['html'];
+        }
+
+        return [];
+    }
+
+    /**
      * @return list<string>
      */
     public static function values(): array

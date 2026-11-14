@@ -24,6 +24,21 @@ Independent of Symfony UI `default_locale`.
 3. Edit content in **Page translation** CRUD (reuses the existing block editor)
 4. On translation **detail**, use the relations panel for links to the parent page and sibling locales (edit / create missing)
 
+## Block editor
+
+Content blocks are edited in the translation form (`PageContentBlockType`, Stimulus controller
+`page-block-editor`).
+
+- Changing a block's type swaps its fields at once. Fields that keep their meaning are carried over: only the
+  rich-text body (`html`) between rich text and highlight. Fields that merely share a name, such as the `text`
+  of a quote and of a headline, are not.
+- If the change would discard content (`PageContentBlockType::contentFields()`), the editor asks first;
+  cancelling keeps the old type. Presentation settings (level, alignment, size, …) fall back to defaults.
+- The server applies the same rules (`PageContentBlockTypeChange`): when fields of the old type with content
+  arrive together with a new type (for example without JavaScript), the type change is refused and reported at
+  the block, and the content stays.
+- Invalid blocks are reported at the block; the input is kept.
+
 ## Frontend language switch
 
 The existing navbar locale switcher uses page sibling targets when present: switching locale goes through `app_locale_switch` and redirects to the published sibling translation’s path (paths stay globally unique, no `/{locale}` prefix). If no sibling exists for the target locale, the switcher keeps the current URL.
