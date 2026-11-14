@@ -1,6 +1,6 @@
 # ADR 035: One navigation tree and a contextual sidebar for Statistics and Explore
 
-**Status:** proposed
+**Status:** accepted
 
 ## Context
 
