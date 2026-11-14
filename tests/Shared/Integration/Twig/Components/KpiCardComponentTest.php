@@ -122,14 +122,26 @@ final class KpiCardComponentTest extends KernelTestCase
         self::assertSame('+0.5', $this->text($en, '[data-kpi-trend] .lh-1'));
     }
 
+    public function testTrailingZeroFractionDigitsAreDropped(): void
+    {
+        $de = $this->render(['label' => 'Rate', 'value' => 10.0, 'unit' => '%', 'delta' => 2.0, 'fractionDigits' => 1], 'de');
+        self::assertSame('10 %', $this->text($de, '.h1'));
+        self::assertSame('+2 %', $this->text($de, '[data-kpi-trend] .lh-1'));
+
+        // 10.04 rounds to 10.0 and is shown as 10; 10.05 rounds to 10.1 (half up for the delta, ICU for the value).
+        $en = $this->render(['label' => 'Rate', 'value' => 10.04, 'delta' => 1.25, 'fractionDigits' => 1], 'en');
+        self::assertSame('10', $this->text($en, '.h1'));
+        self::assertSame('+1.3', $this->text($en, '[data-kpi-trend] .lh-1'));
+    }
+
     public function testDeltaThatRoundsToZeroIsShownAsUnchanged(): void
     {
         $positive = $this->render(['label' => 'Rate', 'value' => 1, 'delta' => 0.04, 'fractionDigits' => 1], 'de');
-        self::assertSame('0,0', $this->text($positive, '[data-kpi-trend="flat"] .lh-1'));
+        self::assertSame('0', $this->text($positive, '[data-kpi-trend="flat"] .lh-1'));
         self::assertSame('Keine Veränderung', $this->text($positive, '[data-kpi-trend] .visually-hidden'));
 
         $negative = $this->render(['label' => 'Rate', 'value' => 1, 'delta' => -0.04, 'fractionDigits' => 1], 'de');
-        self::assertSame('0,0', $this->text($negative, '[data-kpi-trend="flat"] .lh-1'));
+        self::assertSame('0', $this->text($negative, '[data-kpi-trend="flat"] .lh-1'));
     }
 
     public function testUnitFollowsValueAndDeltaAndDescriptionRenders(): void
@@ -144,7 +156,38 @@ final class KpiCardComponentTest extends KernelTestCase
 
         self::assertSame('12 min', $this->text($crawler, '.h1'));
         self::assertSame('+3 min', $this->text($crawler, '[data-kpi-trend] .lh-1'));
-        self::assertSame('Median 10 min', $this->text($crawler, '.small.mt-1:last-child'));
+        self::assertSame('Median 10 min', $this->text($crawler, '.h1 + .small'));
+        // The description sits between the value and the trend line.
+        self::assertCount(1, $crawler->filter('.h1 + .small + [data-kpi-trend]'));
+    }
+
+    public function testDeltaUnitReplacesTheValueUnitOnTheTrendLineOnly(): void
+    {
+        $crawler = $this->render([
+            'label' => 'Physician share',
+            'value' => 25.5,
+            'unit' => '%',
+            'delta' => 5.5,
+            'deltaUnit' => 'pp',
+            'fractionDigits' => 1,
+        ], 'en');
+
+        self::assertSame('25.5 %', $this->text($crawler, '.h1'));
+        self::assertSame('+5.5 pp', $this->text($crawler, '[data-kpi-trend] .lh-1'));
+    }
+
+    public function testDeltaUnitWorksWithoutAValueUnit(): void
+    {
+        $crawler = $this->render([
+            'label' => 'Closed department',
+            'value' => '12',
+            'delta' => -12.5,
+            'deltaUnit' => '%',
+            'fractionDigits' => 1,
+        ], 'de');
+
+        self::assertSame('12', $this->text($crawler, '.h1'));
+        self::assertSame('-12,5 %', $this->text($crawler, '[data-kpi-trend="down"] .lh-1'));
     }
 
     public function testIconRendersInAvatar(): void

@@ -77,6 +77,19 @@ final class KpiCardTest extends TestCase
         self::assertSame('', $card->getDeltaSign());
     }
 
+    public function testDeltaUnitFallsBackToTheValueUnit(): void
+    {
+        $card = new KpiCard();
+        self::assertNull($card->getDeltaUnitLabel());
+
+        $card->unit = 'min';
+        self::assertSame('min', $card->getDeltaUnitLabel());
+
+        $card->unit = '%';
+        $card->deltaUnit = 'pp';
+        self::assertSame('pp', $card->getDeltaUnitLabel());
+    }
+
     public function testOnlyNumbersCountAsNumericValues(): void
     {
         $card = new KpiCard();
