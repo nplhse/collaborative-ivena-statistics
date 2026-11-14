@@ -28,8 +28,15 @@ class CookieConsent
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?User $user = null;
 
+    /**
+     * Version of the consent text a decision was made under. v1: analytics only inside the application.
+     * v2: with analytics consent, error and performance reports to the operator's monitoring service may also carry
+     * the internal user id. A decision is always recorded under the current version.
+     */
+    public const string CURRENT_VERSION = 'v2';
+
     #[ORM\Column(length: 16)]
-    private string $consentVersion = 'v1';
+    private string $consentVersion = self::CURRENT_VERSION;
 
     /** @var array{essential: bool, analytics: bool} */
     #[ORM\Column]
@@ -100,6 +107,7 @@ class CookieConsent
             'essential' => true,
             'analytics' => $analytics,
         ];
+        $this->consentVersion = self::CURRENT_VERSION;
         $this->decidedAt = Clock::get()->now();
         $this->updatedAt = Clock::get()->now();
 

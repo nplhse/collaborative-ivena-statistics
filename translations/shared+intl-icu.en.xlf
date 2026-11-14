@@ -47,7 +47,7 @@
       </trans-unit>
       <trans-unit id="CkyPrefAnaTxEn" resname="cookie.preferences.analytics.text">
         <source>cookie.preferences.analytics.text</source>
-        <target>Helps us understand which parts of the application are used. Measurement runs only on our servers in this application, without external analytics providers. No IP addresses or raw user agents are stored.</target>
+        <target>Helps us understand which parts of the application are used. This measurement runs on our servers in this application, without external analytics providers; no IP addresses or raw user agents are stored. For operating the application we also use Sentry (servers in the EU), in particular to monitor errors and performance. With this consent, these reports contain your internal user id, so we can help you with problems.</target>
       </trans-unit>
       <trans-unit id="CkyPrefAnaTiEn" resname="cookie.preferences.analytics.title">
         <source>cookie.preferences.analytics.title</source>

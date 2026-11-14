@@ -20,7 +20,7 @@ final class CookieConsentTest extends TestCase
             ['essential' => true, 'analytics' => false],
             $consent->getPreferences(),
         );
-        self::assertSame('v1', $consent->getConsentVersion());
+        self::assertSame(CookieConsent::CURRENT_VERSION, $consent->getConsentVersion());
     }
 
     public function testSetConsentsRecordsDecisionAndPreferences(): void

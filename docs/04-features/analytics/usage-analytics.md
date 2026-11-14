@@ -29,6 +29,22 @@ Preferences live in `cookie_consent.preferences` JSON: `{ essential, analytics }
 
 Banner is shown when `decidedAt` is null (`cookie_consent.decided` in Twig). Login also requires a decided consent.
 
+### Consent version
+
+`cookie_consent.consent_version` records the consent text a decision was made under; every decision is stored with
+`CookieConsent::CURRENT_VERSION`.
+
+| Version | Analytics consent covers |
+|---------|--------------------------|
+| `v1` | Usage analytics inside the application only |
+| `v2` | Also the internal user id in Sentry's error and performance reports ([observability-sentry.md](../../05-operations/observability-sentry.md#privacy)); the text names Sentry with servers in the EU |
+
+The `v2` text names Sentry and the EU region as fixed wording. Operators without Sentry, or with another region, cannot
+adapt it yet; making both a setting (and dropping the sentence without Sentry) is #1200.
+
+A `v1` decision keeps its analytics consent but does not allow the user id in Sentry; the banner is not shown again, so
+the id is sent only after the user decides again (for example on the preferences page).
+
 ### Backward compatibility
 
 Older rows may lack the `analytics` key. Missing values are treated as **`false`**. Users who already decided (including former “accept all” when only monitoring existed) therefore keep the banner hidden while **analytics stays off** until they decide again.
