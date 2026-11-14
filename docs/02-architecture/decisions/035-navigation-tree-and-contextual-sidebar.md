@@ -84,7 +84,7 @@ the mobile collapse come with Tabler:
 | Groups | `li.nav-section-title` before the first item of a titled group; a group without label gets an empty title as divider, except as the first group of the menu, which gets nothing |
 | Nesting | a group toggle (`nav-link` with `data-bs-toggle="collapse"`, `aria-expanded`, `aria-controls`) and a nested `navbar-nav` in a Bootstrap `collapse`, repeatable on every level; not Tabler's `dropdown`, whose rail flyouts are not used |
 | Fold toggle and click on a group icon in the rail | the only own JavaScript: one small Stimulus controller. It sets the same `data-bs-sidebar` attribute and `localStorage` key (`tabler-sidebar`) as Tabler's pin button, so Tabler's CSS works unchanged, fires `site-sidebar:folded` on `document`, and dispatches a window `resize` after the width transition, because charts and maps only redraw on window resize (checked: without it ApexCharts kept the old width). It also suspends the hover preview after a collapse until the pointer leaves the rail. Tabler's own pin button is not used: it is only visible while the pointer is over the sidebar, and folding to `folded-hover` under the pointer leaves the sidebar open, which reads as if nothing happened |
-| Trailing entries | `.navbar-side` (for example Classifications in Explore), pinned to the bottom of the sidebar |
+| Trailing entries | an untitled last group (Classifications in Explore) with a divider; Tabler's `.navbar-side` is not used, so the entry stays in the scrolling list and in the rail |
 | Fold state | `data-bs-sidebar="folded-hover"` on `<html>`; Tabler's CSS turns the sidebar into the rail, shifts the content and handles the hover preview |
 | Fold toggle placement | `.navbar-footer` with a `nav-link`, pinned to the bottom of the sidebar; in the rail only its icon shows |
 | Mobile | below `lg` the vertical navbar becomes a bar with its own `navbar-toggler` and collapse; the toggler holds the area label and a chevron instead of `navbar-toggler-icon` |
@@ -152,7 +152,11 @@ group needs a new kind of question, not a new context.
 
 Explore takes over its current dropdown groups as sidebar groups (Cases, Organisation, Hospital
 structure, Features) with Overview first and Classifications (glossary) as a trailing entry. The data
-catalog ([ADR 012](012-explore-data-catalog.md)) fills these groups and needs no new pattern.
+catalog ([ADR 012](012-explore-data-catalog.md)) fills these groups and needs no new pattern. Allocation
+owns the explore menu; the User context adds Users to Organisation. Every explore entry needs
+`ROLE_PARTICIPANT` like the pages; on a user's own profile without that role no entry is visible and no
+sidebar is rendered. Glossary pages of other contexts mark Classifications through the routes their
+glossary entry declares (`CatalogGlossaryEntry::$detailRoutes`). Explore links carry no query parameters.
 
 ### Navigation model
 

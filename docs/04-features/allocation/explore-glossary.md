@@ -20,9 +20,13 @@ Other contexts add an entry to the glossary hub through `CatalogGlossaryEntryPro
 ([extension points](../../02-architecture/extension-points.md#explore-glossary-entries)) and serve the
 page on their own routes and templates, so Allocation does not depend on them. Rules for such pages:
 
-- Route names start with `app_explore_glossary_` and paths with `/explore/glossary/`, so the Explore
-  subnav marks the glossary as active and the `^/explore` access rule applies.
-- The page extends `@Shared/_layout_vertical.html.twig` with the Explore subnav and the breadcrumb
-  Explore → Glossary → page.
+- Route names start with `app_explore_glossary_` and paths with `/explore/glossary/`, so the top navbar
+  marks Explore as active and the `^/explore` access rule applies.
+- The entry names its route, and in `detailRoutes` the routes of further pages (for example a diagram);
+  the explore sidebar marks Classifications on all of them
+  ([ADR 035](../../02-architecture/decisions/035-navigation-tree-and-contextual-sidebar.md): exact route
+  names, no prefix matching in the sidebar).
+- The page extends `@Shared/_layout_vertical.html.twig` with `<twig:Navigation:Sidebar menu="explore" />`
+  in the `header_after` block and the breadcrumb Explore → Glossary → page.
 - Definitions are for every participant. Counts from data are optional, follow the access rules of the
   owning context and use small-cell suppression with `CatalogPrivacyPolicy::MIN_ALLOCATIONS`.

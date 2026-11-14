@@ -29,7 +29,7 @@ We needed a shared product and technical model for a scientific **data catalog**
 
 6. **Descriptions stay optional and light.** Catalog detail pages do **not** render a dedicated description card or auto-generated fallback text. Prefer entity fields (`note`, `description`) in basic info when editorial content exists, and i18n for glossary term definitions. Introduce a shared `catalog_entry` store only if several types prove the same editorial workflow.
 
-7. **Information architecture.** Explore subnav and hub use the same domain groups and order: Overview → Cases → Organisation → Klinikstruktur (structure) → Merkmale (features) → Glossary (classifications). Reference lists such as infections and secondary transports live under Merkmale, not under the glossary.
+7. **Information architecture.** Explore navigation (since [ADR 035](035-navigation-tree-and-contextual-sidebar.md) the explore sidebar) and hub use the same domain groups and order: Overview → Cases → Organisation → Klinikstruktur (structure) → Merkmale (features) → Glossary (classifications). Reference lists such as infections and secondary transports live under Merkmale, not under the glossary.
 
 ## Consequences
 
@@ -64,4 +64,4 @@ We needed a shared product and technical model for a scientific **data catalog**
 - `src/Allocation/Application/Explore/Catalog/`
 - `src/Allocation/Infrastructure/Query/Catalog/`
 - `src/Allocation/UI/Twig/templates/catalog/`
-- `src/Shared/UI/Twig/templates/_includes/subnav_explore.html.twig`
+- `src/Allocation/Infrastructure/Navigation/AllocationNavigationProvider.php` (explore sidebar, ADR 035)

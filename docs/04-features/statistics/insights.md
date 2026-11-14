@@ -47,7 +47,7 @@ Out of wave 1: Zuweiser (not in the model), assignment mode, secondary indicatio
 
 ## Architecture
 
-Tagged providers implement `InsightDimensionProviderInterface` (`#[AutoconfigureTag('app.statistics.insight_dimension')]`). `InsightDimensionRegistry` feeds overview, subnav, directory, search, and subject resolution.
+Tagged providers implement `InsightDimensionProviderInterface` (`#[AutoconfigureTag('app.statistics.insight_dimension')]`). `InsightDimensionRegistry` feeds overview, the statistics sidebar (`StatisticsNavigationProvider`), directory, search, and subject resolution.
 
 `InsightSubject` carries dimension, id, label, optional code/publicId, and an `InsightPopulationFilter` (`column` + id list, whitelist in `ALLOWED_COLUMNS`). Metrics and slice queries accept `array|InsightPopulationFilter` and emit `column IN (:ids)` plus baseline `(column IS NULL OR column NOT IN (:ids))`.
 
