@@ -82,6 +82,8 @@ final class PageContentBlockType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => null,
+            // Keep block errors at the block instead of moving them to the top of the form.
+            'error_bubbling' => false,
             'empty_data' => self::newBlockData(...),
         ]);
     }

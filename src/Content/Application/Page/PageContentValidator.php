@@ -56,34 +56,45 @@ final readonly class PageContentValidator
             return [$this->translator->trans('page.validation.content_must_be_array', [], 'validators')];
         }
 
-        foreach ($content as $index => $block) {
-            $prefix = sprintf('Block %d', (int) $index + 1);
-
-            if (!is_array($block)) {
-                $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.block_must_be_object', [], 'validators'));
-                continue;
-            }
-
-            $type = $block['type'] ?? null;
-            if (!is_string($type) || '' === trim($type)) {
-                $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.block_type_required', [], 'validators'));
-                continue;
-            }
-
-            $data = $block['data'] ?? null;
-            if (!is_array($data)) {
-                $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.block_data_must_be_object', [], 'validators'));
-                continue;
-            }
-
-            if (array_key_exists('enabled', $block) && !is_bool($block['enabled'])) {
-                $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.block_enabled_must_be_bool', [], 'validators'));
-            }
-
-            $errors = array_merge($errors, $this->validateBlock($prefix, $type, $data));
+        $position = 1;
+        foreach ($content as $block) {
+            $errors = array_merge($errors, $this->validateBlockAt($position, $block));
+            ++$position;
         }
 
         return $errors;
+    }
+
+    /**
+     * Validates one block; $position is its 1-based place in the editor and appears in the messages.
+     *
+     * @return list<string>
+     */
+    public function validateBlockAt(int $position, mixed $block): array
+    {
+        $prefix = sprintf('Block %d', $position);
+
+        if (!is_array($block)) {
+            return [sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.block_must_be_object', [], 'validators'))];
+        }
+
+        $type = $block['type'] ?? null;
+        if (!is_string($type) || '' === trim($type)) {
+            return [sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.block_type_required', [], 'validators'))];
+        }
+
+        $data = $block['data'] ?? null;
+        if (!is_array($data)) {
+            return [sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.block_data_must_be_object', [], 'validators'))];
+        }
+
+        $errors = [];
+        if (array_key_exists('enabled', $block) && !is_bool($block['enabled'])) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.block_enabled_must_be_bool', [], 'validators'));
+        }
+
+        /* @var array<string, mixed> $data */
+        return array_merge($errors, $this->validateBlock($prefix, $type, $data));
     }
 
     /**

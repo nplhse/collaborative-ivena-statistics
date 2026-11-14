@@ -1,0 +1,7 @@
+{# Page content blocks: EasyAdmin's collection entry does not render errors of the entry itself. #}
+{% block page_content_block_widget %}
+    {% if errors|length > 0 %}
+        <div class="col-12">{{ form_errors(form) }}</div>
+    {% endif %}
+    {{ block('form_widget_compound') }}
+{% endblock page_content_block_widget %}

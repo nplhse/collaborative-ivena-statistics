@@ -8,6 +8,7 @@ use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -22,6 +23,48 @@ use Zenstruck\Foundry\Test\Factories;
 final class PageTranslationEditorControllerTest extends WebTestCase
 {
     use Factories;
+
+    public function testInvalidBlockIsReportedAtTheBlockAndKeepsInput(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createTranslation([
+            ['type' => 'headline', 'enabled' => true, 'data' => ['text' => 'Intro', 'level' => 'h2']],
+            ['type' => 'image', 'enabled' => true, 'data' => ['src' => 'https://example.org/a.png', 'alt' => 'Old alt']],
+        ]);
+
+        $crawler = $this->openEditor($client, $translation);
+        $form = $crawler->selectButton('Save changes')->form();
+        $form['PageTranslation[content][1][data][src]'] = '';
+        $form['PageTranslation[content][1][data][alt]'] = 'New alt';
+        $crawler = $client->submit($form);
+
+        self::assertResponseIsUnprocessable();
+
+        $invalidBlocks = $crawler->filter('[data-ea-collection-field] .field-collection-item.is-invalid');
+        self::assertCount(1, $invalidBlocks);
+        self::assertStringContainsString('Block 2:', $invalidBlocks->text());
+        self::assertSame('New alt', $crawler->filter('[name="PageTranslation[content][1][data][alt]"]')->attr('value'));
+
+        $stored = $this->reloadTranslation($translation);
+        self::assertSame('https://example.org/a.png', $stored->getContent()[1]['data']['src'] ?? null);
+        self::assertSame('Old alt', $stored->getContent()[1]['data']['alt'] ?? null);
+    }
+
+    public function testValidBlocksAreSaved(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createTranslation([
+            ['type' => 'headline', 'enabled' => true, 'data' => ['text' => 'Intro', 'level' => 'h2']],
+        ]);
+
+        $crawler = $this->openEditor($client, $translation);
+        $form = $crawler->selectButton('Save changes')->form();
+        $form['PageTranslation[content][0][data][text]'] = 'Renamed intro';
+        $client->submit($form);
+
+        self::assertResponseRedirects();
+        self::assertSame('Renamed intro', $this->reloadTranslation($translation)->getContent()[0]['data']['text'] ?? null);
+    }
 
     public function testNewBlockPrototypeIsEnabledRichText(): void
     {
@@ -118,6 +161,18 @@ final class PageTranslationEditorControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
 
         return $crawler;
+    }
+
+    private function reloadTranslation(PageTranslation $translation): PageTranslation
+    {
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+
+        $reloaded = $entityManager->find(PageTranslation::class, $translation->getId());
+        self::assertInstanceOf(PageTranslation::class, $reloaded);
+
+        return $reloaded;
     }
 
     private function createAdminClient(): KernelBrowser
