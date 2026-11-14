@@ -94,7 +94,9 @@ The `Encounter` context owns the catalog tables:
 
 - **Created by the successful import only.** New entries come from the codes of encounter rows the import
   actually stores (initial triage and retriage, diagram and indicator); a rejected file or row creates
-  nothing. The public catalog endpoint of #1157 only reads the catalog and never creates entries.
+  nothing. The public catalog endpoint of #1157 only reads the catalog and never creates entries. It serves
+  curated entries and aliases to them only (user decision, #1157): provisional entries come from hospital
+  exports nobody has reviewed yet, and the endpoint needs no login.
 - A code that resolves (active entry or alias) creates nothing. Otherwise an entry with status
   `provisional` and source `first_seen` is created. A unique constraint on kind and code makes parallel
   imports of the same code create exactly one entry (insert that ignores a conflict).

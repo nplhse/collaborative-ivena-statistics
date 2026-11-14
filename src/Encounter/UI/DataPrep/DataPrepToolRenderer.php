@@ -12,7 +12,8 @@ use Twig\Environment;
 /**
  * Renders the offline data preparation tool as one self-contained HTML file (ADR 026, #1051):
  * inlined scripts, the `ed_visit` field contract and the bundled public profiles. Hospital-specific
- * local maps are never bundled. The MTS catalog is shared with the MTS glossary (MtsCatalog, #1056).
+ * local maps are never bundled. The MTS catalog is bundled from `mts-de.json` as offline fallback; at start the tool
+ * fetches the maintained catalog from the public endpoint (MtsCatalog, ADR 032, #1157).
  */
 final readonly class DataPrepToolRenderer
 {
@@ -48,7 +49,8 @@ final readonly class DataPrepToolRenderer
             'scripts' => $scripts,
             'schema' => $this->decode(self::SCHEMA),
             'profiles' => array_map($this->decode(...), self::PROFILES),
-            'catalogs' => [MtsCatalog::ID => $this->mtsCatalog->data()],
+            'catalog_url' => $this->urlGenerator->generate('app_encounter_data_prep_mts_catalog', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'catalogs' => [MtsCatalog::ID => $this->mtsCatalog->bundledToolCatalog()],
         ]);
     }
 

@@ -82,12 +82,17 @@ final readonly class MtsGlossaryFactory
      * Null when the code resolves to no diagram. An alias code shows its target diagram; the page code is the
      * target's code (MtsCatalogEntry::$code).
      *
+     * Indicators: the indicators assigned to the diagram in the catalog (definitions, ADR 032, #1157) for everyone;
+     * with encounter access also the indicators seen with the diagram in the encounters in scope, with counts.
+     * Indicators seen but not assigned are marked when the diagram has assignments.
+     *
      * @return array{
      *     scope: EncounterHospitalScope,
      *     has_counts: bool,
      *     diagram: MtsGlossaryRow,
      *     indicators: list<MtsGlossaryRow>,
      *     seen_indicators: int,
+     *     assigned_indicators: int,
      *     without_indicator: ?MtsCount,
      *     filter: string,
      * }|null
@@ -106,20 +111,32 @@ final readonly class MtsGlossaryFactory
         $withoutIndicator = $counts[''] ?? 0;
         unset($counts['']);
 
-        /** @var array<string, array{row: MtsGlossaryRow, count: int}> $resolved keyed by resolved code */
+        /** @var array<string, array{row: MtsGlossaryRow, count: int, assigned: bool}> $resolved keyed by resolved code */
         $resolved = [];
+        foreach ($this->catalog->indicatorCodesOf($entry->code) as $indicatorCode) {
+            $indicatorEntry = $this->catalog->indicator($indicatorCode);
+            if ($indicatorEntry instanceof MtsCatalogEntry) {
+                $resolved[$indicatorEntry->code] = ['row' => $this->names->indicator($indicatorEntry), 'count' => 0, 'assigned' => true];
+            }
+        }
+
+        $assigned = \count($resolved);
         foreach ($counts as $indicatorCode => $count) {
             $indicatorCode = (string) $indicatorCode;
             $indicatorEntry = $this->catalog->indicator($indicatorCode);
             $row = $indicatorEntry instanceof MtsCatalogEntry
                 ? $this->names->indicator($indicatorEntry)
                 : new MtsGlossaryRow($indicatorCode, $indicatorCode, null, inCatalog: false);
-            $resolved[$row->code] = ['row' => $row, 'count' => ($resolved[$row->code]['count'] ?? 0) + $count];
+            $resolved[$row->code] = [
+                'row' => $row,
+                'count' => ($resolved[$row->code]['count'] ?? 0) + $count,
+                'assigned' => $resolved[$row->code]['assigned'] ?? false,
+            ];
         }
 
         $indicators = [];
-        foreach ($resolved as ['row' => $row, 'count' => $count]) {
-            $indicators[] = $this->withCount($row, $count);
+        foreach ($resolved as ['row' => $row, 'count' => $count, 'assigned' => $isAssigned]) {
+            $indicators[] = new MtsGlossaryRow($row->code, $row->name, $row->germanName, $hasCounts ? new MtsCount($count) : null, $row->inCatalog, $isAssigned);
         }
 
         $filter = trim($filter);
@@ -141,6 +158,7 @@ final readonly class MtsGlossaryFactory
             'diagram' => $this->withCount($this->names->diagram($entry), $hasCounts ? $total : null),
             'indicators' => $indicators,
             'seen_indicators' => $seen,
+            'assigned_indicators' => $assigned,
             'without_indicator' => $hasCounts && $withoutIndicator > 0 ? new MtsCount($withoutIndicator) : null,
             'filter' => $filter,
         ];
@@ -157,6 +175,6 @@ final readonly class MtsGlossaryFactory
 
     private function withCount(MtsGlossaryRow $row, ?int $count): MtsGlossaryRow
     {
-        return new MtsGlossaryRow($row->code, $row->name, $row->germanName, null === $count ? null : new MtsCount($count), $row->inCatalog);
+        return new MtsGlossaryRow($row->code, $row->name, $row->germanName, null === $count ? null : new MtsCount($count), $row->inCatalog, $row->assigned);
     }
 }

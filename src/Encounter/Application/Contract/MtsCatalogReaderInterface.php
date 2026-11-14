@@ -23,4 +23,11 @@ interface MtsCatalogReaderInterface
      * @return array<string, string> alias code => target code
      */
     public function aliases(MtsCatalogKind $kind): array;
+
+    /**
+     * Diagram–indicator assignments (definitions, ADR 032), ordered by diagram code and indicator code.
+     *
+     * @return list<array{diagram: string, indicator: string}>
+     */
+    public function assignments(): array;
 }

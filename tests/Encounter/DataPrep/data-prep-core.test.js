@@ -13,11 +13,23 @@ const json = (url) => JSON.parse(readFileSync(url, 'utf8'));
 
 const profile = json(new URL('profiles/orbis-mts.json', base));
 const schema = json(new URL('schema/ed_visit.v1.json', base));
-const catalogs = {
-    'mts-de': json(
-        new URL('../../../src/Encounter/Application/Catalog/mts-de.json', import.meta.url),
-    ),
-};
+const bundledCatalog = json(
+    new URL('../../../src/Encounter/Application/Catalog/mts-de.json', import.meta.url),
+);
+// The bundled copy in the tool's catalog format, as DataPrepToolRenderer passes it (MtsCatalog::bundledToolCatalog()).
+const toolCatalog = (data, aliases = { diagrams: {}, indicators: {} }) =>
+    prep.parseCatalog({
+        format: 'encounter-mts-catalog',
+        version: 1,
+        id: data.id,
+        diagrams: data.diagrams.map((label) => ({ code: prep.catalogCode(label), name: label })),
+        indicators: data.indicators.map((label) => ({
+            code: prep.catalogCode(label),
+            name: label,
+        })),
+        aliases,
+    });
+const catalogs = { 'mts-de': toolCatalog(bundledCatalog) };
 const vectors = json(new URL('fingerprint-vectors.json', fixtures));
 const sampleBytes = readFileSync(new URL('orbis-mts-sample.csv', fixtures));
 const localMapJson = readFileSync(new URL('local-map.sample.json', fixtures), 'utf8');
@@ -36,6 +48,7 @@ async function run({
     key,
     localMap = prep.loadLocalMap(localMapJson, profile),
     edit,
+    catalogs: runCatalogs = catalogs,
 } = {}) {
     const { text } = prep.decodeBytes(bytes);
     const table = prep.readTable(text, profile.source.delimiter);
@@ -45,7 +58,7 @@ async function run({
         schema,
         key: key ?? (await prep.loadKey(keyFile())),
         localMap,
-        catalogs,
+        catalogs: runCatalogs,
     });
 }
 
@@ -258,7 +271,11 @@ describe('transformation of the synthetic sample', () => {
         );
         assert.equal(operation.admitting_department, 'Unfallchirurgie');
         assert.equal(operation.pain_score, '');
-        assert.equal(operation.mts_diagram, '', 'unknown diagrams stay empty');
+        assert.equal(
+            operation.mts_diagram,
+            'erfundenes_diagramm',
+            'unknown diagrams keep a code, the server creates a provisional entry (#1157)',
+        );
     });
 
     it('reports skipped rows, emptied vitals and unmapped values', async () => {
@@ -284,11 +301,12 @@ describe('transformation of the synthetic sample', () => {
             disposition: { 'Unbekannter Entlassungstext': 1 },
             admitting_department: { 'KAR TEST': 1 },
             care_level: { 'S9 TEST': 1 },
-            mts_diagram: { 'Erfundenes Diagramm': 1 },
         });
         assert.deepEqual(report.unlistedCatalogValues, {
+            mts_diagram: { 'Erfundenes Diagramm': 1 },
             mts_indicator: { 'Kürzlich aufgetretenes Problem': 1 },
         });
+        assert.deepEqual(report.catalogAliases, {});
         assert.equal(report.firstAnchor, '2026-10-05T08:17');
         assert.equal(report.lastAnchor, '2026-10-20T10:04');
         assert.equal(content.passed, true);
@@ -300,6 +318,103 @@ describe('transformation of the synthetic sample', () => {
         assert.equal(first.care_level, 'ward', 'level of the disposition text without station map');
         assert.equal(first.admitting_department, '');
         assert.equal(result.report.unmapped.admitting_department['INN TEST'], 1);
+    });
+});
+
+describe('MTS catalog (#1157)', () => {
+    // Row 6 of the sample (index 5) has the diagram `Erfundenes Diagramm`, row 3 (index 2) the indicator
+    // `Kürzlich aufgetretenes Problem`; neither is in the bundled copy.
+    const serverCatalog = (aliases) =>
+        prep.parseCatalog({
+            format: 'encounter-mts-catalog',
+            version: 1,
+            id: 'mts-de',
+            diagrams: [
+                {
+                    code: 'abdominelle_schmerzen_bei_erwachsenen',
+                    name: 'Abdominelle Schmerzen bei Erwachsenen',
+                    englishName: 'Abdominal pain in adults',
+                },
+            ],
+            indicators: [],
+            aliases,
+        });
+
+    it('keeps the source code of an alias and lists it as another spelling', async () => {
+        const result = await run({
+            catalogs: {
+                'mts-de': serverCatalog({
+                    diagrams: { erfundenes_diagramm: 'abdominelle_schmerzen_bei_erwachsenen' },
+                    indicators: {},
+                }),
+            },
+        });
+        assert.equal(
+            byField(result, 5).mts_diagram,
+            'erfundenes_diagramm',
+            'the code as sent, not the target',
+        );
+        assert.deepEqual(result.report.catalogAliases, {
+            mts_diagram: { 'Erfundenes Diagramm → abdominelle_schmerzen_bei_erwachsenen': 1 },
+        });
+        assert.equal(
+            result.report.unlistedCatalogValues.mts_diagram['Erfundenes Diagramm'],
+            undefined,
+        );
+    });
+
+    it('knows entries by code, also for a provisional entry whose name is its code', async () => {
+        const catalog = serverCatalog({ diagrams: {}, indicators: {} });
+        catalog.indicators.push({
+            code: 'kuerzlich_aufgetretenes_problem',
+            name: 'kuerzlich_aufgetretenes_problem',
+            englishName: null,
+        });
+        const result = await run({ catalogs: { 'mts-de': catalog } });
+        assert.equal(byField(result, 2).mts_indicator, 'kuerzlich_aufgetretenes_problem');
+        assert.equal(
+            result.report.unlistedCatalogValues.mts_indicator['Kürzlich aufgetretenes Problem'],
+            undefined,
+        );
+    });
+
+    it('accepts the catalog format and rejects anything else', () => {
+        const catalog = serverCatalog([]);
+        assert.deepEqual(
+            catalog.aliases,
+            { diagrams: {}, indicators: {} },
+            'empty PHP arrays arrive as []',
+        );
+        assert.equal(catalog.diagrams[0].englishName, 'Abdominal pain in adults');
+        for (const payload of [
+            null,
+            { format: 'other', version: 1, id: 'mts-de', diagrams: [], indicators: [] },
+            {
+                format: 'encounter-mts-catalog',
+                version: 2,
+                id: 'mts-de',
+                diagrams: [],
+                indicators: [],
+            },
+            { format: 'encounter-mts-catalog', version: 1, id: 'mts-de', diagrams: [] },
+            {
+                format: 'encounter-mts-catalog',
+                version: 1,
+                id: 'mts-de',
+                diagrams: [{ code: 'Not A Code', name: 'x' }],
+                indicators: [],
+            },
+            {
+                format: 'encounter-mts-catalog',
+                version: 1,
+                id: 'mts-de',
+                diagrams: [],
+                indicators: [],
+                aliases: { diagrams: { a: 'B!' } },
+            },
+        ]) {
+            assert.throws(() => prep.parseCatalog(payload), Error, JSON.stringify(payload));
+        }
     });
 });
 
@@ -558,7 +673,7 @@ describe('content check', () => {
     });
 
     it('does not flag the labels of the MTS catalog', () => {
-        for (const label of [...catalogs['mts-de'].diagrams, ...catalogs['mts-de'].indicators]) {
+        for (const label of [...bundledCatalog.diagrams, ...bundledCatalog.indicators]) {
             assert.deepEqual(prep.contentFindings(label), [], label);
         }
     });

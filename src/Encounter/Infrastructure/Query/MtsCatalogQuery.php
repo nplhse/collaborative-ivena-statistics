@@ -49,4 +49,15 @@ final readonly class MtsCatalogQuery implements MtsCatalogReaderInterface
 
         return $aliases;
     }
+
+    #[\Override]
+    public function assignments(): array
+    {
+        /** @var list<array{diagram: string, indicator: string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT d.code AS diagram, i.code AS indicator FROM encounter_mts_diagram_indicator a JOIN encounter_mts_diagram d ON d.id = a.diagram_id JOIN encounter_mts_indicator i ON i.id = a.indicator_id ORDER BY d.code, i.code',
+        );
+
+        return $rows;
+    }
 }
