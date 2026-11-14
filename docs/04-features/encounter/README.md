@@ -489,7 +489,8 @@ matcher `1.2.0` reads the active snapshot in pass 2 since #1154 ([matching](#mat
   whether the bonus was decisive. A new active snapshot changes no link or manual decision; open proposals
   are recomputed by the next run.
 - **Bias:** analyses comparing PZC with the MTS diagram exclude links decided by the bonus or report them
-  apart.
+  apart ([PZC ↔ MTS comparisons](#pzc--mts-comparisons-linkage-bias)); the match validation reports these
+  links as a group of their own ([match validation](#match-validation)).
 - **Privacy:** reviewers never see case counts across hospitals. The review and activation pages show points,
   source (curated, learned) and the change against the active snapshot; replay counts and rates cover only
   the hospitals on which the viewer holds the encounter grant `REVIEW` (administrators: all).
@@ -764,6 +765,44 @@ a new matcher version stays a code change: a new `MatchWeights` set, `MatchPlann
 Descriptive only, for the own hospital: coverage, encounters by arrival route and link status, MTS
 categories and diagrams, process times recomputed from timestamps (median, IQR), disposition and
 care level. No cross-hospital aggregates.
+
+### PZC ↔ MTS comparisons (linkage bias)
+
+Decided in [ADR 033](../../02-architecture/decisions/033-learning-plausibility-table.md#bias-in-pzc--mts-analyses)
+and the [ADR 030 amendment](../../02-architecture/decisions/030-encounter-allocation-matching.md#amendment-matcher-120)
+(#1156). Since matcher `1.2.0`, pass 2 adds a bonus when the allocation's PZC and the visit's MTS diagram are
+plausible together. A link the bonus made agrees in PZC and diagram because it was chosen for that agreement, so
+linked data shows more agreement between IVENA and the ED triage than the true pairs have. Pass-1 links (EMS
+arrivals) never use the diagram.
+
+**Where the flag comes from:** `encounter_match.plausibility_decisive`, written by the matcher in pass 2: the pair
+would not have reached its status (automatic link ≥ 0.90, proposal ≥ 0.50) with the bonus removed from every
+candidate of the allocation in that pass ([matching](#matching)). Pass-1 pairs, pairs of matcher versions before
+`1.2.0`, runs without an active snapshot and pairs created in the review are never decisive. A decision keeps the
+flag: an automatic link confirmed later still carries it. `plausibility_snapshot_id` names the snapshot that scored
+the pair.
+
+**Today:** no figure compares an IVENA attribute (PZC, indication, urgency) with the visit's MTS triage. The
+[hospital overview](#hospital-overview) counts MTS categories and diagrams over all visits, linked or not; the
+[case card](#case-card-hospital-course) and the [match review](#match-review) show single pairs. Nothing is excluded
+from them, and their numbers do not change with #1156.
+
+**Rule for any analysis that compares PZC, indication or urgency with the MTS diagram, indicator or category on
+linked data** (the indicator and category follow from the diagram, so the selection reaches them too):
+
+| Aspect | Rule |
+|---|---|
+| Population | Effective links (`auto_accepted`, `confirmed`) of the hospital and period. **Default:** automatic links with `plausibility_decisive` are excluded. Confirmed links stay in, whatever their flag: a person decided them (ADR 033, "manual decisions are unaffected"). |
+| Separate view | Instead of leaving them out, the excluded links may be shown as a group of their own beside the rest, never added to it. |
+| Count | The figure states how many links it excluded (or shows in the separate group) and their share of the effective links, with the small-count rule of the page (1–4 shown as `< 5`). |
+| Numerator and denominator | Both come from the remaining links; agreement shares never use the excluded links as denominator. |
+| Missing or unknown values | Pairs without PZC or without diagram get bonus 0 and are never decisive, so they are not excluded; they count as "not documented" on their side as usual. |
+| Period | Unchanged: the analysis' own period rule; the flag belongs to the pair, not to a period. |
+| Comparison groups | Only within one hospital, as every encounter figure in the pilot; the bonus-decided group is a comparison group only in the separate view. |
+
+The learning job (#1155) leaves the same links out of its training data, so the table does not learn from links it
+decided (ADR 033). Whether the bonus causes wrong links is judged in the
+[match validation](#match-validation) ("by plausibility snapshot").
 
 ### Hospital overview
 
