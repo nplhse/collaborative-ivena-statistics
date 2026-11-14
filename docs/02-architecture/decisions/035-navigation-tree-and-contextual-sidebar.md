@@ -60,8 +60,9 @@ content pages should not look like an admin tool.
   marked as active. Activating a group icon in the rail (click, tap or Enter) expands the sidebar itself,
   pinned open, and shows the active path with its groups open. There are no flyouts. The folded rail
   reserves only its own width and the content moves over accordingly.
-- **Fold toggle.** One labelled entry in the sidebar footer, visible in every state, whose icon and label
-  say what a click does: "Collapse sidebar" (sidebar-collapse icon) while pinned open, "Keep sidebar open"
+- **Fold toggle.** One labelled entry in the sidebar footer, visible in every state. It has the sidebar's
+  background and sits above the menu, so rail entries that run under it (the rail does not scroll) are
+  covered instead of showing through. Its icon and label say what a click does: "Collapse sidebar" (sidebar-collapse icon) while pinned open, "Keep sidebar open"
   (sidebar-expand icon) while folded. A click on "Collapse sidebar" folds to the rail **at once**, even
   though the pointer is still on the sidebar; the preview on hover only starts again after the pointer
   has left the rail. A click on "Keep sidebar open" pins it open again.
@@ -124,7 +125,11 @@ Case flow and Hospitals do not fit any group yet and stay standalone entries in 
 end, set off by a divider. Case flow is expected to become a child of a later group for geographic
 analyses; moving it changes only the tree, not its route.
 
-Beta entries carry a badge and are only returned for users with the beta role, as today. Empty groups are
+Beta entries carry a badge and are only returned for users with the beta role, as today. Badges are shown
+in the expanded sidebar and in the hover preview, not in the rail. A badge is a fixed type (`NavBadge`
+enum, for now only `Beta`): the provider names the type, the sidebar component chooses label and colour,
+so providers cannot introduce their own colours. `Beta` uses `badge bg-azure-lt`, the class of the beta
+badge on the Tools landing page. Labels no longer carry "(Beta)" in their text; the badge replaces it. Empty groups are
 dropped. Upcoming views (geographic analyses, further encounter analyses) go into an existing group; a new
 group needs a new kind of question, not a new context.
 
@@ -137,7 +142,7 @@ catalog ([ADR 012](012-explore-data-catalog.md)) fills these groups and needs no
 One tree that the contexts contribute to, following the `shared.tool` pattern:
 
 - **`NavItem`** (value object in `Shared`): id, label as `TranslatableMessage` with explicit domain, route
-  and route parameters, optional Tabler icon, optional badge (beta), optional `is_granted` attribute,
+  and route parameters, optional Tabler icon, optional badge (`NavBadge`), optional `is_granted` attribute,
   optional detail routes that also mark it active, `weight` (integer, default 0), `parentId` (the group or
   item it belongs to), children.
 - **Groups are nodes of the tree.** A group (`NavGroup`: id, optional label, `weight`, optional icon) is defined by
