@@ -47,8 +47,8 @@ final class HeaderNavigationTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertCount(1, $client->getCrawler()->filter('#navbar-menu'));
-        self::assertSelectorExists('#stats-subnav');
-        self::assertSelectorNotExists('#explore-subnav');
+        self::assertSelectorExists('[data-testid="sidebar-statistics"]');
+        self::assertSelectorNotExists('[data-testid="sidebar-explore"]');
         self::assertSelectorNotExists('#navbar-menu a[href="/nav-about"]');
         self::assertSelectorNotExists('#navbar-menu a[href="/nav-features"]');
         self::assertSelectorExists('#navbar-menu a[href="/nav-faq"]');
@@ -57,7 +57,7 @@ final class HeaderNavigationTest extends WebTestCase
         $this->assertLocaleSwitcherPlacement();
     }
 
-    public function testParticipantSeesUniqueNavbarAndExploreSubnav(): void
+    public function testParticipantSeesUniqueNavbarAndExploreSidebar(): void
     {
         $client = self::createClient();
 
@@ -70,9 +70,8 @@ final class HeaderNavigationTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertCount(1, $client->getCrawler()->filter('#navbar-menu'));
-        self::assertSelectorExists('#explore-subnav');
-        self::assertSelectorExists('[data-testid="explore-subnav"]');
-        self::assertSelectorNotExists('#stats-subnav');
+        self::assertSelectorExists('[data-testid="sidebar-explore"]');
+        self::assertSelectorNotExists('[data-testid="sidebar-statistics"]');
         self::assertSelectorNotExists('#navbar-menu a[href="/login"]');
         self::assertSelectorNotExists('#navbar-menu a[href="/register"]');
         self::assertSelectorExists('[aria-label="Open user menu"][data-bs-display="static"]');

@@ -77,7 +77,7 @@ final class IndicationDashboardControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('[data-testid="stats-indication-picker"]');
-        self::assertSelectorNotExists('[data-testid="stats-insights-subnav"]');
+        self::assertSelectorExists('[data-testid="sidebar-entry-insights-dimension-indications"].active');
         self::assertSelectorTextSame('[data-testid="stats-indication-heading-title"]', 'Dashboard Test Indication (1001)');
         self::assertSelectorExists('[data-testid="stats-indication-kpi"]');
         self::assertSelectorExists('[data-testid="stats-indication-gender"]');
@@ -183,7 +183,7 @@ final class IndicationDashboardControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-testid="stats-indication-heading-title"]', 'Dashboard Test Assignment');
         self::assertSelectorExists('[data-testid="stats-indication-kpi"]');
-        self::assertSelectorNotExists('[data-testid="stats-insights-subnav"]');
+        self::assertSelectorExists('[data-testid="sidebar-entry-insights-dimension-assignments"].active');
         self::assertSelectorNotExists('[data-testid="stats-indication-picker"]');
     }
 

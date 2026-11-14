@@ -12,7 +12,7 @@ Routes (`app_stats_hospital_population`):
 
 `GET /statistics/hospital-population/characteristics` redirects to `/beds`.
 
-Secondary navigation uses in-page tabs. The Statistics subnav entry **Hospitals** stays a single top-level item.
+Secondary navigation uses in-page tabs. The statistics sidebar entry **Hospitals** stays a single entry without children.
 
 ## Sections
 

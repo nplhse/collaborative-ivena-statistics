@@ -9,7 +9,7 @@
         {% block header_after %}
             {# Users without ROLE_PARTICIPANT may only open their own profile, not the rest of Explore. #}
             {% if is_granted('ROLE_PARTICIPANT') %}
-                {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+                <twig:Navigation:Sidebar menu="explore" />
             {% endif %}
         {% endblock %}
     {% endembed %}

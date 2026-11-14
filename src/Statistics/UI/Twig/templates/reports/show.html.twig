@@ -5,7 +5,7 @@
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
         {% block header_after %}
-            {{ include(('@Shared/_includes/subnav_stats.html.twig')) }}
+            <twig:Navigation:Sidebar menu="statistics" />
         {% endblock %}
     {% endembed %}
 {% endblock %}
