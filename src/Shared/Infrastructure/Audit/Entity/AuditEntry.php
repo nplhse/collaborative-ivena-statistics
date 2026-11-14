@@ -47,6 +47,8 @@ class AuditEntry
 
     public const string INTENT_HOSPITAL_REMINDER_SENT = 'hospital.reminder_sent';
 
+    public const string INTENT_HOSPITAL_REMINDER_FAILED = 'hospital.reminder_failed';
+
     public const string ACTION_EXPORT = 'export';
 
     #[ORM\Id]
@@ -128,7 +130,9 @@ class AuditEntry
             };
         }
 
-        return self::INTENT_IMPORT_RUN_FAILED === self::intentFrom($metadata) ? self::OUTCOME_FAILED : null;
+        return \in_array(self::intentFrom($metadata), [self::INTENT_IMPORT_RUN_FAILED, self::INTENT_HOSPITAL_REMINDER_FAILED], true)
+            ? self::OUTCOME_FAILED
+            : null;
     }
 
     /** @psalm-suppress PossiblyUnusedMethod */
