@@ -1,10 +1,20 @@
 import { Controller } from '@hotwired/stimulus';
+import { orderByPositions } from '../page-editor/block-order.js';
 
+/*
+ * Up/down reordering for the page content blocks (#967).
+ *
+ * Moving a block only moves its DOM node and updates the hidden position fields; field names and ids never change.
+ * That keeps nested prototypes (accordion items) and Trix editors bound to their block. The server stores the
+ * blocks in position order. After a failed save the form comes back in key order, so the order is restored from
+ * the submitted positions on connect.
+ */
 /* stimulusFetch: 'lazy' */
 export default class extends Controller {
     static values = {
         moveUpLabel: { type: String, default: 'Move block up' },
         moveDownLabel: { type: String, default: 'Move block down' },
+        movedLabel: { type: String, default: 'Moved to position {position} of {count}.' },
     };
 
     connect() {
@@ -20,18 +30,20 @@ export default class extends Controller {
         document.addEventListener('ea.collection.item-added', this.onCollectionChange);
         document.addEventListener('ea.collection.item-removed', this.onCollectionChange);
 
-        this.observer = new MutationObserver(() => {
-            this.decorateItems();
-        });
-        this.observer.observe(this.collection, { childList: true, subtree: true });
+        this.liveRegion = document.createElement('div');
+        this.liveRegion.className = 'visually-hidden';
+        this.liveRegion.setAttribute('role', 'status');
+        this.liveRegion.setAttribute('aria-live', 'polite');
+        this.collection.append(this.liveRegion);
 
+        this.restoreSubmittedOrder();
         this.decorateItems();
     }
 
     disconnect() {
         document.removeEventListener('ea.collection.item-added', this.onCollectionChange);
         document.removeEventListener('ea.collection.item-removed', this.onCollectionChange);
-        this.observer?.disconnect();
+        this.liveRegion?.remove();
     }
 
     onCollectionChange(event) {
@@ -50,7 +62,7 @@ export default class extends Controller {
             return null;
         }
 
-        // EasyAdmin/Symfony wrap entries in the collection root widget (e.g. #Page_content).
+        // EasyAdmin/Symfony wrap entries in the collection root widget (e.g. #PageTranslation_content).
         return compound.querySelector(':scope > [data-empty-collection]') ?? compound;
     }
 
@@ -63,6 +75,29 @@ export default class extends Controller {
         return Array.from(container.children).filter((element) =>
             element.classList.contains('field-collection-item'),
         );
+    }
+
+    /** The hidden position field of a block itself, not of a nested collection inside it. */
+    getPositionField(item) {
+        return (
+            Array.from(item.querySelectorAll('input[data-page-block-position]')).find(
+                (input) => input.closest('.field-collection-item') === item,
+            ) ?? null
+        );
+    }
+
+    restoreSubmittedOrder() {
+        const container = this.getItemsContainer();
+        const items = this.getItems();
+        const ordered = orderByPositions(
+            items,
+            items.map((item) => this.getPositionField(item)?.value ?? ''),
+        );
+        if (!container || ordered.every((item, index) => item === items[index])) {
+            return;
+        }
+
+        ordered.forEach((item) => container.append(item));
     }
 
     decorateItems() {
@@ -91,7 +126,7 @@ export default class extends Controller {
             }
         });
 
-        this.updateButtonStates();
+        this.updatePositions();
     }
 
     createButton(direction, label, handler) {
@@ -111,19 +146,18 @@ export default class extends Controller {
         event.preventDefault();
         event.stopPropagation();
 
-        const item = event.currentTarget.closest('.field-collection-item');
-        this.moveItem(item, 'up');
+        this.moveItem(event.currentTarget, 'up');
     }
 
     moveDown(event) {
         event.preventDefault();
         event.stopPropagation();
 
-        const item = event.currentTarget.closest('.field-collection-item');
-        this.moveItem(item, 'down');
+        this.moveItem(event.currentTarget, 'down');
     }
 
-    moveItem(item, direction) {
+    moveItem(button, direction) {
+        const item = button.closest('.field-collection-item');
         const container = this.getItemsContainer();
         const items = this.getItems();
         const currentIndex = items.indexOf(item);
@@ -138,131 +172,51 @@ export default class extends Controller {
         }
 
         const targetItem = items[targetIndex];
-
-        this.observer.disconnect();
-        try {
-            if (direction === 'up') {
-                container.insertBefore(item, targetItem);
-            } else {
-                container.insertBefore(item, targetItem.nextElementSibling);
-            }
-
-            this.reindex();
-        } finally {
-            this.observer.observe(this.collection, { childList: true, subtree: true });
+        if (direction === 'up') {
+            container.insertBefore(item, targetItem);
+        } else {
+            container.insertBefore(item, targetItem.nextElementSibling);
         }
+
+        this.updatePositions();
+        this.dispatch('moved', { detail: { item } });
+        this.keepFocus(item, button, direction);
+        this.announce(targetIndex + 1, items.length);
     }
 
-    reindex() {
-        const items = this.getItems();
-
-        items.forEach((item, index) => {
-            this.reindexItem(item, index);
-        });
-
-        this.collection.dataset.numItems = String(items.length);
-        this.refreshCollectionItemClasses();
-        this.updateButtonStates();
-    }
-
-    reindexItem(item, newIndex) {
-        const firstNamedField = item.querySelector('[name*="[content]["]');
-        if (!firstNamedField?.name) {
-            return;
-        }
-
-        const match = firstNamedField.name.match(/\[content\]\[(\d+)\]/);
-        if (!match) {
-            return;
-        }
-
-        const oldIndex = match[1];
-        if (oldIndex === String(newIndex)) {
-            return;
-        }
-
-        const oldNameToken = `[content][${oldIndex}]`;
-        const newNameToken = `[content][${newIndex}]`;
-        const idPattern = new RegExp(`_content_${oldIndex}(?=_|-|$)`);
-        const newIdToken = `_content_${newIndex}`;
-
-        item.querySelectorAll('[name]').forEach((element) => {
-            if (element.name.includes(oldNameToken)) {
-                element.name = element.name.split(oldNameToken).join(newNameToken);
-            }
-        });
-
-        item.querySelectorAll('[id]').forEach((element) => {
-            const oldId = element.id;
-            const newId = oldId.replace(idPattern, newIdToken);
-            if (oldId === newId) {
-                return;
-            }
-
-            const styleElement = document.getElementById(`ea-trix-editor-size-${oldId}`);
-            if (styleElement) {
-                styleElement.id = `ea-trix-editor-size-${newId}`;
-                styleElement.textContent = styleElement.textContent.replaceAll(oldId, newId);
-            }
-
-            element.id = newId;
-        });
-
-        item.querySelectorAll('trix-editor[input]').forEach((element) => {
-            const inputId = element.getAttribute('input');
-            if (!inputId) {
-                return;
-            }
-
-            element.setAttribute('input', inputId.replace(idPattern, newIdToken));
-        });
-
-        item.querySelectorAll('[for]').forEach((element) => {
-            const labelFor = element.getAttribute('for');
-            if (labelFor) {
-                element.setAttribute('for', labelFor.replace(idPattern, newIdToken));
-            }
-        });
-
-        item.querySelectorAll('[data-bs-target]').forEach((element) => {
-            const target = element.getAttribute('data-bs-target');
-            if (target) {
-                element.setAttribute('data-bs-target', target.replace(idPattern, newIdToken));
-            }
-        });
-
-        item.querySelectorAll('[aria-controls]').forEach((element) => {
-            const controls = element.getAttribute('aria-controls');
-            if (controls) {
-                element.setAttribute('aria-controls', controls.replace(idPattern, newIdToken));
-            }
-        });
-    }
-
-    refreshCollectionItemClasses() {
-        const items = this.getItems();
-        items.forEach((item) =>
-            item.classList.remove('field-collection-item-first', 'field-collection-item-last'),
+    /** Keeps keyboard focus on the moved block; at the first or last place the other button takes it. */
+    keepFocus(item, button, direction) {
+        const other = item.querySelector(
+            `[data-collection-reorder-control] [data-direction="${direction === 'up' ? 'down' : 'up'}"]`,
         );
+        (button.disabled ? other : button)?.focus();
+    }
 
-        if (items.length === 0) {
+    announce(position, count) {
+        if (!this.liveRegion) {
             return;
         }
 
-        items[0].classList.add('field-collection-item-first');
-        items[items.length - 1].classList.add('field-collection-item-last');
-
-        if (typeof globalThis.EaCollectionProperty !== 'undefined') {
-            globalThis.EaCollectionProperty.updateCollectionItemCssClasses(this.collection);
-        }
+        this.liveRegion.textContent = this.movedLabelValue
+            .replace('{position}', String(position))
+            .replace('{count}', String(count));
     }
 
-    updateButtonStates() {
+    updatePositions() {
         const items = this.getItems();
 
         items.forEach((item, index) => {
-            const upButton = item.querySelector('[data-direction="up"]');
-            const downButton = item.querySelector('[data-direction="down"]');
+            const position = this.getPositionField(item);
+            if (position) {
+                position.value = String(index);
+            }
+
+            const upButton = item.querySelector(
+                '[data-collection-reorder-control] [data-direction="up"]',
+            );
+            const downButton = item.querySelector(
+                '[data-collection-reorder-control] [data-direction="down"]',
+            );
 
             if (upButton) {
                 upButton.disabled = index === 0;
@@ -272,5 +226,9 @@ export default class extends Controller {
                 downButton.disabled = index === items.length - 1;
             }
         });
+
+        if (typeof globalThis.EaCollectionProperty !== 'undefined') {
+            globalThis.EaCollectionProperty.updateCollectionItemCssClasses(this.collection);
+        }
     }
 }

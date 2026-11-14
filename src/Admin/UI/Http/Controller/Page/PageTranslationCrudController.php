@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Page;
 
+use App\Admin\UI\Form\PageContentBlockOrder;
 use App\Admin\UI\Form\PageContentBlockType;
 use App\Content\Application\Contract\MediaLibraryAdminUrlProviderInterface;
 use App\Content\Application\Page\PageContentBlockDataNormalizer;
@@ -35,9 +36,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -48,6 +52,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[IsGranted('ROLE_ADMIN')]
 final class PageTranslationCrudController extends AbstractCrudController
 {
+    /** Request field (outside the form) with the draft revision an explicit save is based on. */
+    private const string DRAFT_REVISION_FIELD = 'pageDraftRevision';
+
+    /** Links that leave the editor: the page-draft controller saves pending changes before following them. */
+    private const array SAVE_DRAFT_BEFORE_LEAVING = ['data-page-draft-save-before-leaving' => ''];
+
     public function __construct(
         private readonly PageContentBlockDataNormalizer $pageContentBlockDataNormalizer,
         private readonly PageContentValidator $pageContentValidator,
@@ -58,6 +68,7 @@ final class PageTranslationCrudController extends AbstractCrudController
         private readonly TranslatorInterface $translator,
         private readonly PageRepository $pageRepository,
         private readonly AdminUrlGenerator $adminUrlGenerator,
+        private readonly CsrfTokenManagerInterface $csrfTokenManager,
     ) {
     }
 
@@ -74,20 +85,58 @@ final class PageTranslationCrudController extends AbstractCrudController
             ->setEntityLabelInSingular(new TranslatableMessage('label.page_translation', domain: 'content'))
             ->setEntityLabelInPlural(new TranslatableMessage('label.page_translations', domain: 'content'))
             ->setSearchFields(['id', 'title', 'slug', 'path', 'locale'])
+            ->addFormTheme('@Admin/page_translation/form_theme.html.twig')
             ->setDefaultSort(['path' => 'ASC']);
     }
 
     #[\Override]
     public function configureActions(Actions $actions): Actions
     {
-        return $actions
+        $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $this->createViewPublicAction())
             ->add(Crud::PAGE_DETAIL, $this->createViewPublicAction())
             ->add(Crud::PAGE_EDIT, $this->createViewPublicAction())
             ->add(Crud::PAGE_INDEX, $this->createBackToPageAction())
             ->add(Crud::PAGE_DETAIL, $this->createBackToPageAction())
-            ->add(Crud::PAGE_EDIT, $this->createBackToPageAction());
+            ->add(Crud::PAGE_EDIT, $this->createBackToPageAction()->setHtmlAttributes(self::SAVE_DRAFT_BEFORE_LEAVING));
+
+        foreach (SupportedLocales::ALL as $locale) {
+            $actions->add(Crud::PAGE_EDIT, $this->createSwitchLocaleAction($locale));
+        }
+
+        return $actions;
+    }
+
+    /**
+     * Opens the translation of the same page in another locale: its edit form (with its own draft) or, when it is
+     * missing, the form to create it. The editor saves its draft before it follows the link.
+     */
+    private function createSwitchLocaleAction(string $locale): Action
+    {
+        return Action::new('switchLocale_'.$locale, new TranslatableMessage('admin.page_translation.action.switch_locale', ['locale' => strtoupper($locale)], 'admin'), 'fas fa-language')
+            ->linkToUrl(function (PageTranslation $translation) use ($locale): string {
+                $sibling = $translation->getPage()?->translation($locale);
+                if ($sibling instanceof PageTranslation && null !== $sibling->getId()) {
+                    return $this->adminUrlGenerator
+                        ->setController(self::class)
+                        ->setAction(Action::EDIT)
+                        ->setEntityId($sibling->getId())
+                        ->unset('pageId')
+                        ->unset('locale')
+                        ->generateUrl();
+                }
+
+                return $this->adminUrlGenerator
+                    ->setController(self::class)
+                    ->setAction(Action::NEW)
+                    ->unset('entityId')
+                    ->set('pageId', (string) $translation->getPage()?->getId())
+                    ->set('locale', $locale)
+                    ->generateUrl();
+            })
+            ->setHtmlAttributes(self::SAVE_DRAFT_BEFORE_LEAVING)
+            ->displayIf(static fn (PageTranslation $translation): bool => $translation->getLocale() !== $locale && $translation->getPage() instanceof Page);
     }
 
     private function createViewPublicAction(): Action
@@ -198,10 +247,20 @@ final class PageTranslationCrudController extends AbstractCrudController
             ->setFormTypeOption('help_html', true)
             ->setEntryType(PageContentBlockType::class)
             ->setEntryIsComplex()
+            ->setFormTypeOption('prototype_data', PageContentBlockType::newBlockData())
+            // The editor works on the draft when there is one (ADR 036); an explicit save writes the content.
+            ->setFormTypeOption('property_path', 'editorContent')
             ->setFormTypeOption('row_attr', [
-                'data-controller' => 'collection-reorder',
+                'data-controller' => 'collection-reorder page-block-editor page-draft',
+                ...$this->buildDraftAttributes(),
                 'data-collection-reorder-move-up-label-value' => $this->translator->trans('label.move_block_up', [], 'messages'),
                 'data-collection-reorder-move-down-label-value' => $this->translator->trans('label.move_block_down', [], 'messages'),
+                'data-collection-reorder-moved-label-value' => $this->translator->trans('page.editor.block_moved', ['position' => '{position}', 'count' => '{count}'], 'content'),
+                'data-page-block-editor-rules-value' => json_encode($this->buildBlockTypeRules(), \JSON_THROW_ON_ERROR),
+                'data-page-block-editor-enabled-label-value' => $this->translator->trans('label.enabled', [], 'messages'),
+                'data-page-block-editor-disabled-label-value' => $this->translator->trans('label.disabled', [], 'messages'),
+                'data-page-block-editor-confirm-message-value' => $this->translator->trans('page.editor.type_change_confirm', ['type' => '{type}', 'fields' => '{fields}'], 'content'),
+                'data-page-block-editor-item-fallback-value' => $this->translator->trans('page.editor.accordion_item_fallback', ['number' => '{number}'], 'content'),
             ])
             ->setEntryToStringMethod(function (mixed $value): string {
                 if (!is_array($value)) {
@@ -244,6 +303,8 @@ final class PageTranslationCrudController extends AbstractCrudController
         /** @psalm-suppress ArgumentTypeCoercion */
         $builder = parent::createNewFormBuilder($entityDto, $formOptions, $context);
         $this->addPathSynchronizationListener($builder);
+        $this->addBlockOrderListener($builder);
+        $this->addContentValidationListener($builder);
 
         return $builder;
     }
@@ -257,6 +318,9 @@ final class PageTranslationCrudController extends AbstractCrudController
         /** @psalm-suppress ArgumentTypeCoercion */
         $builder = parent::createEditFormBuilder($entityDto, $formOptions, $context);
         $this->addPathSynchronizationListener($builder);
+        $this->addBlockOrderListener($builder);
+        $this->addContentValidationListener($builder);
+        $this->addDraftRevisionListener($builder);
 
         return $builder;
     }
@@ -280,6 +344,7 @@ final class PageTranslationCrudController extends AbstractCrudController
         }
 
         $this->prepareContent($entityInstance);
+        $entityInstance->markSaved();
         parent::updateEntity($entityManager, $entityInstance);
     }
 
@@ -318,9 +383,167 @@ final class PageTranslationCrudController extends AbstractCrudController
         }, 512);
     }
 
+    /**
+     * An explicit save must be based on the latest draft revision: the editor sends the revision it knows, and a
+     * newer one (autosave or save from another tab, discarded draft) means this form shows outdated content.
+     *
+     * @param FormBuilderInterface<PageTranslation> $builder
+     */
+    private function addDraftRevisionListener(FormBuilderInterface $builder): void
+    {
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
+            $translation = $event->getData();
+            $submitted = $this->getContext()?->getRequest()->request->get(self::DRAFT_REVISION_FIELD);
+            if (!$translation instanceof PageTranslation || !is_string($submitted) || !ctype_digit($submitted)) {
+                return;
+            }
+
+            if ((int) $submitted !== $translation->getDraftRevision()) {
+                $event->getForm()->addError(new FormError($this->translator->trans('page.editor.draft.conflict', [], 'content')));
+            }
+        });
+    }
+
+    /**
+     * Values for the page-draft controller; autosave needs a saved translation, so the new form gets none.
+     *
+     * @return array<string, string>
+     */
+    private function buildDraftAttributes(): array
+    {
+        $translation = $this->getContext()?->getEntity()->getInstance();
+        $id = $translation instanceof PageTranslation ? $translation->getId() : null;
+        if (!$translation instanceof PageTranslation || null === $id) {
+            return [];
+        }
+
+        $labels = [];
+        foreach (['unsaved', 'saving', 'saved', 'failed', 'retry', 'conflict', 'restored', 'discard', 'discard_confirm', 'leave_warning'] as $key) {
+            $labels[$key] = $this->translator->trans('page.editor.draft.'.$key, ['time' => '{time}'], 'content');
+        }
+
+        return [
+            'data-page-draft-url-value' => $this->generateUrl('app_admin_page_translation_draft_save', ['id' => $id]),
+            'data-page-draft-discard-url-value' => $this->generateUrl('app_admin_page_translation_draft_discard', ['id' => $id]),
+            'data-page-draft-token-value' => $this->csrfTokenManager->getToken(PageTranslationDraftController::CSRF_TOKEN_PREFIX.$id)->getValue(),
+            'data-page-draft-revision-value' => (string) $translation->getDraftRevision(),
+            'data-page-draft-revision-field-value' => self::DRAFT_REVISION_FIELD,
+            'data-page-draft-has-draft-value' => $translation->hasDraft() ? 'true' : 'false',
+            'data-page-draft-saved-at-value' => $translation->getDraftUpdatedAt()?->format(\DateTimeInterface::ATOM) ?? '',
+            'data-page-draft-labels-value' => json_encode($labels, \JSON_THROW_ON_ERROR),
+        ];
+    }
+
+    /**
+     * Stores the blocks in the order the editor shows (the `position` of each block), not in the order of their keys.
+     *
+     * @param FormBuilderInterface<PageTranslation> $builder
+     */
+    private function addBlockOrderListener(FormBuilderInterface $builder): void
+    {
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
+            $translation = $event->getData();
+            $form = $event->getForm();
+            if (!$translation instanceof PageTranslation || !$form->has('content')) {
+                return;
+            }
+
+            $translation->setContent(PageContentBlockOrder::sortBlocks(
+                $translation->getContent(),
+                $this->submittedBlockPositions($form->get('content')),
+            ));
+        });
+    }
+
+    /**
+     * @param FormInterface<mixed> $contentForm
+     *
+     * @return array<array-key, mixed>
+     */
+    private function submittedBlockPositions(FormInterface $contentForm): array
+    {
+        $positions = [];
+        foreach ($contentForm as $key => $blockForm) {
+            $positions[$key] = $blockForm->has(PageContentBlockOrder::POSITION_FIELD)
+                ? $blockForm->get(PageContentBlockOrder::POSITION_FIELD)->getData()
+                : null;
+        }
+
+        return $positions;
+    }
+
+    /**
+     * Validates every block inside the form, so errors show at the affected block and the editor keeps the input.
+     *
+     * @param FormBuilderInterface<PageTranslation> $builder
+     */
+    private function addContentValidationListener(FormBuilderInterface $builder): void
+    {
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
+            $form = $event->getForm();
+            if (!$form->has('content')) {
+                return;
+            }
+
+            $contentForm = $form->get('content');
+            $position = 1;
+            foreach (PageContentBlockOrder::sortKeys($this->submittedBlockPositions($contentForm)) as $key) {
+                $blockForm = $contentForm->get((string) $key);
+                foreach ($this->validateBlock($position, $blockForm->getData()) as $message) {
+                    $blockForm->addError(new FormError($message));
+                }
+
+                ++$position;
+            }
+        });
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function validateBlock(int $position, mixed $block): array
+    {
+        if (!is_array($block)) {
+            return $this->pageContentValidator->validateBlockAt($position, $block);
+        }
+
+        try {
+            $prepared = $this->pageContentMediaResolver->resolve(
+                $this->pageContentBlockDataNormalizer->normalize([$block]),
+            );
+        } catch (\InvalidArgumentException $exception) {
+            return [sprintf('Block %d: %s', $position, $exception->getMessage())];
+        }
+
+        return $this->pageContentValidator->validateBlockAt($position, $prepared[0] ?? $block);
+    }
+
     private function shouldSynchronizePath(PageTranslation $translation): bool
     {
         return '' !== trim((string) $translation->getTitle());
+    }
+
+    /**
+     * Type change rules for the block editor: content fields per type and the fields carried over to each other type.
+     *
+     * @return array<string, array{content: list<string>, transferTo: array<string, list<string>>}>
+     */
+    private function buildBlockTypeRules(): array
+    {
+        $rules = [];
+        foreach (\App\Content\Domain\Enum\PageContentBlockType::cases() as $type) {
+            $transferTo = [];
+            foreach (\App\Content\Domain\Enum\PageContentBlockType::cases() as $target) {
+                $fields = $target === $type ? [] : $type->transferableFieldsTo($target);
+                if ([] !== $fields) {
+                    $transferTo[$target->value] = $fields;
+                }
+            }
+
+            $rules[$type->value] = ['content' => $type->contentFields(), 'transferTo' => $transferTo];
+        }
+
+        return $rules;
     }
 
     private function formatBlockTypeLabel(string $type): string
@@ -368,6 +591,11 @@ final class PageTranslationCrudController extends AbstractCrudController
     #[\Override]
     protected function getRedirectResponseAfterSave(AdminContext $context, string $action): RedirectResponse
     {
+        $submitButtonName = $context->getRequest()->request->all()['ea']['newForm']['btn'] ?? null;
+        if (Action::SAVE_AND_CONTINUE === $submitButtonName) {
+            return parent::getRedirectResponseAfterSave($context, $action);
+        }
+
         $entity = $context->getEntity()->getInstance();
         if ($entity instanceof PageTranslation) {
             $page = $entity->getPage();

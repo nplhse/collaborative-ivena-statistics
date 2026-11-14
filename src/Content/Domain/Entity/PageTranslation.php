@@ -77,6 +77,25 @@ class PageTranslation implements \Stringable
     #[ORM\Column(type: \Doctrine\DBAL\Types\Types::JSON)]
     private array $content = [];
 
+    /**
+     * Work in progress of the block editor (ADR 036): saved automatically, never shown publicly, may be incomplete.
+     * Null when the editor holds no unsaved changes.
+     *
+     * @var list<array{type: string, data: array<string, mixed>, enabled?: bool}>|null
+     */
+    #[Audit\AuditIgnore]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::JSON, nullable: true)]
+    private ?array $draftContent = null;
+
+    /** Increases with every autosave, explicit save and discarded draft; requests based on an older one are refused. */
+    #[Audit\AuditIgnore]
+    #[ORM\Column(options: ['default' => 0])]
+    private int $draftRevision = 0;
+
+    #[Audit\AuditIgnore]
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $draftUpdatedAt = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -193,6 +212,74 @@ class PageTranslation implements \Stringable
         $this->content = $content;
 
         return $this;
+    }
+
+    /**
+     * Content the editor works on: the draft when there is one, otherwise the saved content.
+     *
+     * @return list<array{type: string, data: array<string, mixed>, enabled?: bool}>
+     */
+    public function getEditorContent(): array
+    {
+        return $this->draftContent ?? $this->content;
+    }
+
+    /**
+     * Explicit save from the editor. The draft is cleared by markSaved() once the content has been validated.
+     *
+     * @param list<array{type: string, data: array<string, mixed>, enabled?: bool}> $content
+     */
+    public function setEditorContent(array $content): self
+    {
+        $this->content = $content;
+
+        return $this;
+    }
+
+    /**
+     * @return list<array{type: string, data: array<string, mixed>, enabled?: bool}>|null
+     */
+    public function getDraftContent(): ?array
+    {
+        return $this->draftContent;
+    }
+
+    public function hasDraft(): bool
+    {
+        return null !== $this->draftContent;
+    }
+
+    public function getDraftRevision(): int
+    {
+        return $this->draftRevision;
+    }
+
+    public function getDraftUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->draftUpdatedAt;
+    }
+
+    /**
+     * @param list<array{type: string, data: array<string, mixed>, enabled?: bool}> $content
+     */
+    public function saveDraft(array $content): void
+    {
+        $this->draftContent = $content;
+        $this->draftUpdatedAt = Clock::get()->now();
+        ++$this->draftRevision;
+    }
+
+    public function discardDraft(): void
+    {
+        $this->draftContent = null;
+        $this->draftUpdatedAt = null;
+        ++$this->draftRevision;
+    }
+
+    /** The editor content was saved explicitly into the regular version: the draft is done. */
+    public function markSaved(): void
+    {
+        $this->discardDraft();
     }
 
     public function getCreatedAt(): \DateTimeImmutable

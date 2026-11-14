@@ -42,4 +42,20 @@ final class PageContentBlockTypeTest extends TestCase
     {
         self::assertSame(PageContentBlockType::Highlight, PageContentBlockType::tryFromString('highlight'));
     }
+
+    public function testOnlyRichTextBodiesAreTransferableBetweenTypes(): void
+    {
+        self::assertSame(['html'], PageContentBlockType::Richtext->transferableFieldsTo(PageContentBlockType::Highlight));
+        self::assertSame(['html'], PageContentBlockType::Highlight->transferableFieldsTo(PageContentBlockType::Richtext));
+        self::assertSame([], PageContentBlockType::Quote->transferableFieldsTo(PageContentBlockType::Headline));
+        self::assertSame([], PageContentBlockType::Image->transferableFieldsTo(PageContentBlockType::Cta));
+    }
+
+    public function testEveryTypeDeclaresContentFields(): void
+    {
+        foreach (PageContentBlockType::cases() as $type) {
+            self::assertNotSame([], $type->contentFields(), $type->value);
+            self::assertSame($type->contentFields(), $type->transferableFieldsTo($type));
+        }
+    }
 }

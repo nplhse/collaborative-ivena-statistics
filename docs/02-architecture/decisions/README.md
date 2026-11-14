@@ -51,6 +51,7 @@ Each ADR includes:
 | [033](033-learning-plausibility-table.md) | Learning plausibility table for PZC and MTS diagram | accepted |
 | [034](034-performance-monitoring-in-sentry.md) | Performance monitoring in Sentry, usage analytics without APM | accepted |
 | [035](035-navigation-tree-and-contextual-sidebar.md) | One navigation tree and a contextual sidebar for Statistics and Explore | accepted |
+| [036](036-page-editor-draft-copy.md) | Draft copy for autosave in the page block editor | accepted |
 
 ## Template
 

@@ -40,7 +40,7 @@ export default [
         },
     },
     {
-        files: ['tests/Encounter/DataPrep/**/*.js'],
+        files: ['tests/Encounter/DataPrep/**/*.js', 'tests/Admin/JS/**/*.js'],
         languageOptions: {
             ecmaVersion: 'latest',
             sourceType: 'module',

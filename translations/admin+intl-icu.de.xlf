@@ -2585,6 +2585,10 @@
         <source>admin.saved_explorer_view.entity.plural</source>
         <target>Explorer-Ansichten</target>
       </trans-unit>
+      <trans-unit id="pgLocaleSwitchDe" resname="admin.page_translation.action.switch_locale">
+        <source>admin.page_translation.action.switch_locale</source>
+        <target>Sprache {locale}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

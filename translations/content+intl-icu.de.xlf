@@ -1145,6 +1145,98 @@
         <source>activity.timeline.loading</source>
         <target>Aktivitäten werden geladen …</target>
       </trans-unit>
+      <trans-unit id="pgEdit01De" resname="label.accordion_item_title">
+        <source>label.accordion_item_title</source>
+        <target>Titel</target>
+      </trans-unit>
+      <trans-unit id="pgEdit02De" resname="label.accordion_items">
+        <source>label.accordion_items</source>
+        <target>Accordion-Einträge</target>
+      </trans-unit>
+      <trans-unit id="pgEdit03De" resname="label.accordion_open_by_default">
+        <source>label.accordion_open_by_default</source>
+        <target>Standardmäßig geöffnet</target>
+      </trans-unit>
+      <trans-unit id="pgEdit04De" resname="label.button_label">
+        <source>label.button_label</source>
+        <target>Button-Beschriftung</target>
+      </trans-unit>
+      <trans-unit id="pgEdit05De" resname="label.button_url">
+        <source>label.button_url</source>
+        <target>Button-URL</target>
+      </trans-unit>
+      <trans-unit id="pgEdit06De" resname="label.html">
+        <source>label.html</source>
+        <target>HTML</target>
+      </trans-unit>
+      <trans-unit id="pgEdit07De" resname="label.open_in_new_tab">
+        <source>label.open_in_new_tab</source>
+        <target>In neuem Tab öffnen</target>
+      </trans-unit>
+      <trans-unit id="pgEdit08De" resname="label.quote_text">
+        <source>label.quote_text</source>
+        <target>Zitat</target>
+      </trans-unit>
+      <trans-unit id="pgType01De" resname="page.editor.type_change_refused">
+        <source>page.editor.type_change_refused</source>
+        <target>Der Blocktyp wurde nicht geändert, weil dabei Inhalte verloren gingen ({fields}). Wechseln Sie den Typ im Editor und bestätigen Sie den Verlust.</target>
+      </trans-unit>
+      <trans-unit id="pgType02De" resname="page.editor.type_change_confirm">
+        <source>page.editor.type_change_confirm</source>
+        <target>Beim Wechsel zu „{type}“ gehen Inhalte dieses Blocks verloren: {fields}. Trotzdem wechseln?</target>
+      </trans-unit>
+      <trans-unit id="pgType03De" resname="page.editor.accordion_item_fallback">
+        <source>page.editor.accordion_item_fallback</source>
+        <target>Eintrag {number}</target>
+      </trans-unit>
+      <trans-unit id="pgOrder01De" resname="page.editor.block_moved">
+        <source>page.editor.block_moved</source>
+        <target>Block an Position {position} von {count} verschoben.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft01De" resname="page.editor.draft.unsaved">
+        <source>page.editor.draft.unsaved</source>
+        <target>Ungespeicherte Änderungen</target>
+      </trans-unit>
+      <trans-unit id="pgDraft02De" resname="page.editor.draft.saving">
+        <source>page.editor.draft.saving</source>
+        <target>Entwurf wird gespeichert …</target>
+      </trans-unit>
+      <trans-unit id="pgDraft03De" resname="page.editor.draft.saved">
+        <source>page.editor.draft.saved</source>
+        <target>Entwurf gespeichert um {time}. Öffentlich gilt weiter die gespeicherte Fassung bis „Änderungen speichern“.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft04De" resname="page.editor.draft.failed">
+        <source>page.editor.draft.failed</source>
+        <target>Der Entwurf konnte nicht gespeichert werden. Ihre Eingaben bleiben im Editor erhalten.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft05De" resname="page.editor.draft.retry">
+        <source>page.editor.draft.retry</source>
+        <target>Erneut versuchen</target>
+      </trans-unit>
+      <trans-unit id="pgDraft06De" resname="page.editor.draft.conflict">
+        <source>page.editor.draft.conflict</source>
+        <target>Der Entwurf wurde inzwischen an anderer Stelle geändert, gespeichert oder verworfen. Laden Sie die Seite neu, um den aktuellen Stand zu sehen.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft07De" resname="page.editor.draft.restored">
+        <source>page.editor.draft.restored</source>
+        <target>Ungespeicherter Entwurf vom {time} wiederhergestellt. Öffentlich gilt weiter die gespeicherte Fassung bis „Änderungen speichern“.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft08De" resname="page.editor.draft.discard">
+        <source>page.editor.draft.discard</source>
+        <target>Entwurf verwerfen</target>
+      </trans-unit>
+      <trans-unit id="pgDraft09De" resname="page.editor.draft.discard_confirm">
+        <source>page.editor.draft.discard_confirm</source>
+        <target>Entwurf verwerfen und zur gespeicherten Fassung zurückkehren?</target>
+      </trans-unit>
+      <trans-unit id="pgDraft10De" resname="page.editor.draft.leave_warning">
+        <source>page.editor.draft.leave_warning</source>
+        <target>Es gibt Änderungen, die noch nicht gespeichert sind.</target>
+      </trans-unit>
+      <trans-unit id="pgDraftBadgeDe" resname="page.editor.draft.badge">
+        <source>page.editor.draft.badge</source>
+        <target>Ungespeicherter Entwurf</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

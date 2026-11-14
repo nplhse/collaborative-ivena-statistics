@@ -1145,6 +1145,98 @@
         <source>activity.timeline.loading</source>
         <target>Loading activity…</target>
       </trans-unit>
+      <trans-unit id="pgEdit01En" resname="label.accordion_item_title">
+        <source>label.accordion_item_title</source>
+        <target>Item title</target>
+      </trans-unit>
+      <trans-unit id="pgEdit02En" resname="label.accordion_items">
+        <source>label.accordion_items</source>
+        <target>Accordion items</target>
+      </trans-unit>
+      <trans-unit id="pgEdit03En" resname="label.accordion_open_by_default">
+        <source>label.accordion_open_by_default</source>
+        <target>Open by default</target>
+      </trans-unit>
+      <trans-unit id="pgEdit04En" resname="label.button_label">
+        <source>label.button_label</source>
+        <target>Button label</target>
+      </trans-unit>
+      <trans-unit id="pgEdit05En" resname="label.button_url">
+        <source>label.button_url</source>
+        <target>Button URL</target>
+      </trans-unit>
+      <trans-unit id="pgEdit06En" resname="label.html">
+        <source>label.html</source>
+        <target>HTML</target>
+      </trans-unit>
+      <trans-unit id="pgEdit07En" resname="label.open_in_new_tab">
+        <source>label.open_in_new_tab</source>
+        <target>Open in new tab</target>
+      </trans-unit>
+      <trans-unit id="pgEdit08En" resname="label.quote_text">
+        <source>label.quote_text</source>
+        <target>Quote text</target>
+      </trans-unit>
+      <trans-unit id="pgType01En" resname="page.editor.type_change_refused">
+        <source>page.editor.type_change_refused</source>
+        <target>The block type was not changed because content would be lost ({fields}). Change the type in the editor and confirm the loss.</target>
+      </trans-unit>
+      <trans-unit id="pgType02En" resname="page.editor.type_change_confirm">
+        <source>page.editor.type_change_confirm</source>
+        <target>Changing to “{type}” discards content of this block: {fields}. Change anyway?</target>
+      </trans-unit>
+      <trans-unit id="pgType03En" resname="page.editor.accordion_item_fallback">
+        <source>page.editor.accordion_item_fallback</source>
+        <target>Item {number}</target>
+      </trans-unit>
+      <trans-unit id="pgOrder01En" resname="page.editor.block_moved">
+        <source>page.editor.block_moved</source>
+        <target>Block moved to position {position} of {count}.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft01En" resname="page.editor.draft.unsaved">
+        <source>page.editor.draft.unsaved</source>
+        <target>Unsaved changes</target>
+      </trans-unit>
+      <trans-unit id="pgDraft02En" resname="page.editor.draft.saving">
+        <source>page.editor.draft.saving</source>
+        <target>Saving draft …</target>
+      </trans-unit>
+      <trans-unit id="pgDraft03En" resname="page.editor.draft.saved">
+        <source>page.editor.draft.saved</source>
+        <target>Draft saved at {time}. The saved version stays public until “Save changes”.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft04En" resname="page.editor.draft.failed">
+        <source>page.editor.draft.failed</source>
+        <target>The draft could not be saved. Your input stays in the editor.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft05En" resname="page.editor.draft.retry">
+        <source>page.editor.draft.retry</source>
+        <target>Retry</target>
+      </trans-unit>
+      <trans-unit id="pgDraft06En" resname="page.editor.draft.conflict">
+        <source>page.editor.draft.conflict</source>
+        <target>The draft was changed, saved or discarded elsewhere in the meantime. Reload the page to see the current state.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft07En" resname="page.editor.draft.restored">
+        <source>page.editor.draft.restored</source>
+        <target>Unsaved draft from {time} restored. The saved version stays public until “Save changes”.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft08En" resname="page.editor.draft.discard">
+        <source>page.editor.draft.discard</source>
+        <target>Discard draft</target>
+      </trans-unit>
+      <trans-unit id="pgDraft09En" resname="page.editor.draft.discard_confirm">
+        <source>page.editor.draft.discard_confirm</source>
+        <target>Discard the draft and return to the saved version?</target>
+      </trans-unit>
+      <trans-unit id="pgDraft10En" resname="page.editor.draft.leave_warning">
+        <source>page.editor.draft.leave_warning</source>
+        <target>There are changes that have not been saved yet.</target>
+      </trans-unit>
+      <trans-unit id="pgDraftBadgeEn" resname="page.editor.draft.badge">
+        <source>page.editor.draft.badge</source>
+        <target>Unsaved draft</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

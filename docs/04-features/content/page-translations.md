@@ -24,6 +24,46 @@ Independent of Symfony UI `default_locale`.
 3. Edit content in **Page translation** CRUD (reuses the existing block editor)
 4. On translation **detail**, use the relations panel for links to the parent page and sibling locales (edit / create missing)
 
+## Block editor
+
+Content blocks are edited in the translation form (`PageContentBlockType`, Stimulus controller
+`page-block-editor`).
+
+- Changing a block's type swaps its fields at once. Fields that keep their meaning are carried over: only the
+  rich-text body (`html`) between rich text and highlight. Fields that merely share a name, such as the `text`
+  of a quote and of a headline, are not.
+- If the change would discard content (`PageContentBlockType::contentFields()`), the editor asks first;
+  cancelling keeps the old type. Presentation settings (level, alignment, size, …) fall back to defaults.
+- The server applies the same rules (`PageContentBlockTypeChange`): when fields of the old type with content
+  arrive together with a new type (for example without JavaScript), the type change is refused and reported at
+  the block, and the content stays.
+- Invalid blocks are reported at the block; the input is kept.
+- Moving a block (arrow buttons, `collection-reorder` controller) only moves it on the page and updates its hidden
+  `position` field. Field names keep the key the block had when the page was loaded, so nested accordion items and
+  rich-text editors stay with their block. The server stores the blocks in position order
+  (`PageContentBlockOrder`), numbers validation messages by that order, and after a failed save the editor
+  restores the order from the submitted positions. Keyboard focus stays on the moved block and a screen reader
+  announcement reports the new position.
+
+### Drafts and autosave
+
+Decision: [ADR 036](../../02-architecture/decisions/036-page-editor-draft-copy.md).
+
+- On a saved translation the editor saves the content blocks as a draft (`draft_content`) about two seconds
+  after the last change. A status line under the page header shows "unsaved", "saving", "saved" or "failed"
+  (with retry). Leaving the page with unsaved changes asks for confirmation.
+- The draft may be incomplete and is never shown publicly. "Save changes" validates it and writes it into
+  `content`; for a published translation that is the moment the change goes live.
+- When a draft exists, the editor opens it and offers "discard draft", which returns to the saved version.
+- Autosave, explicit save and discard carry the draft revision they are based on; the server refuses older ones,
+  so a late autosave or a second tab cannot overwrite newer input or bring back a discarded draft. On a
+  conflict the editor asks to reload.
+- Title, slug, status and the table-of-contents switch are not part of the draft.
+- The editor has one "Language XX" action per other locale: it opens that translation's editor (with its own
+  draft) or, when the translation is missing, the form to create it. This action and "Back to page" save
+  pending changes as a draft before they leave; if that fails, the editor stays open and shows the error.
+- The page detail marks translations that have a draft ("Unsaved draft").
+
 ## Frontend language switch
 
 The existing navbar locale switcher uses page sibling targets when present: switching locale goes through `app_locale_switch` and redirects to the published sibling translation’s path (paths stay globally unique, no `/{locale}` prefix). If no sibling exists for the target locale, the switcher keeps the current URL.
