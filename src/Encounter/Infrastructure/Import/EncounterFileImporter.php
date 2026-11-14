@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Infrastructure\Import;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Encounter\Application\Catalog\MtsCatalogFirstSeenWriter;
 use App\Encounter\Application\Import\EdVisitRow;
 use App\Encounter\Application\Import\EdVisitRowMapper;
 use App\Encounter\Application\Import\EncounterFileReader;
@@ -16,6 +17,7 @@ use App\Encounter\Application\Import\EncounterManifest;
 use App\Encounter\Application\Import\RowError;
 use App\Encounter\Domain\Entity\EncounterImport;
 use App\Encounter\Domain\Enum\EncounterFileRejection;
+use App\Encounter\Domain\Enum\MtsCatalogKind;
 use App\Encounter\Infrastructure\Repository\EncounterKeyStateRepository;
 use App\Encounter\Infrastructure\Repository\EncounterRepository;
 use App\Import\Application\Service\ImportRunCommitGuard;
@@ -35,7 +37,9 @@ use Psr\Clock\ClockInterface;
  * 3. Write everything in one guarded commit: lock the hospital's key state, check the key generation
  *    stored on the import (mismatch throws EncounterKeyGenerationChangedException), check or register
  *    the key check value, insert new visits row by row (known visits count as duplicates), record
- *    suspected duplicates and row rejects. A failure rolls the whole commit back.
+ *    suspected duplicates and row rejects. MTS diagram and indicator codes of the new visits that resolve to
+ *    nothing become provisional catalog entries (ADR 032, #1157); the visits keep the codes as sent. A failure
+ *    rolls the whole commit back.
  *
  * Row rejects record line number, field, error code and profile version only.
  */
@@ -53,6 +57,7 @@ final readonly class EncounterFileImporter
         private EncounterRepository $encounters,
         private EncounterKeyStateRepository $keyStates,
         private ImportRunCommitGuard $commitGuard,
+        private MtsCatalogFirstSeenWriter $firstSeen,
         private ClockInterface $clock,
     ) {
     }
@@ -144,6 +149,8 @@ final readonly class EncounterFileImporter
         $inserted = 0;
         $suspected = 0;
         $days = [];
+        $diagrams = [];
+        $indicators = [];
         foreach ($valid as $row) {
             $encounter = $row->toEncounter($hospitalReference, $importReference, $generation);
             $encounterId = $this->encounters->insertIfNewReturningId($encounter);
@@ -152,6 +159,16 @@ final readonly class EncounterFileImporter
             }
 
             ++$inserted;
+            foreach ([$row->triage->getDiagram(), $row->retriage->getDiagram()] as $code) {
+                if (null !== $code) {
+                    $diagrams[$code] = true;
+                }
+            }
+            foreach ([$row->triage->getIndicator(), $row->retriage->getIndicator()] as $code) {
+                if (null !== $code) {
+                    $indicators[$code] = true;
+                }
+            }
             $days[$encounter->getAnchorAt()->format('Y-m-d')] = true;
             if ($this->recordSuspectedDuplicates($importId, $encounterId, $row->line, $encounter->getAnchorSource()->value)) {
                 ++$suspected;
@@ -169,6 +186,10 @@ final readonly class EncounterFileImporter
         }
 
         $this->entityManager->flush();
+
+        $seenAt = $this->clock->now();
+        $this->firstSeen->record(MtsCatalogKind::Diagram, array_fill_keys(array_map(strval(...), array_keys($diagrams)), $seenAt), ['import_id' => $importId]);
+        $this->firstSeen->record(MtsCatalogKind::Indicator, array_fill_keys(array_map(strval(...), array_keys($indicators)), $seenAt), ['import_id' => $importId]);
 
         $days = array_keys($days);
         sort($days);
