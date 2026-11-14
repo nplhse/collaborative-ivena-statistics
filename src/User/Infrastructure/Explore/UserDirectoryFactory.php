@@ -75,6 +75,8 @@ final readonly class UserDirectoryFactory
                 isUserOnly: UserPublicRoleResolver::isUserOnly($user),
                 hospitals: $hospitalsByUser[$id] ?? [],
                 createdAt: $user->getCreatedAt(),
+                userId: $id,
+                displayName: $user->getDisplayName(),
             );
         }
 

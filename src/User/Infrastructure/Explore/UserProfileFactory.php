@@ -56,6 +56,8 @@ final readonly class UserProfileFactory
             commentCount: $this->publishedCommentsProvider->countOnPublishedPostsByUserId($id),
             activities: $activityPage->items,
             activityNextCursor: $activityPage->nextCursor,
+            userId: $id,
+            displayName: $user->getDisplayName(),
         );
     }
 }

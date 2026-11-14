@@ -639,4 +639,32 @@ final class BlogControllerTest extends WebTestCase
         self::assertSame($names, $badges->each(static fn (Crawler $node): string => trim($node->text())));
         self::assertSame($hrefs, $badges->each(static fn (Crawler $node): string => (string) $node->attr('href')));
     }
+
+    public function testCommentShowsDisplayNameOnlyToSignedInViewers(): void
+    {
+        $client = self::createClient();
+        $author = UserFactory::createOne(['username' => 'comment-author', 'displayName' => 'Michael Müller']);
+        $post = PostFactory::createOne([
+            'title' => 'Named comments',
+            'slug' => 'named-comments',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+        ]);
+        PostCommentFactory::createOne(['post' => $post, 'author' => $author, 'content' => 'Hallo']);
+
+        $client->request(Request::METHOD_GET, '/blog/named-comments');
+
+        self::assertResponseIsSuccessful();
+        $html = (string) $client->getResponse()->getContent();
+        self::assertStringContainsString('comment-author', $html);
+        self::assertStringNotContainsString('Michael Müller', $html, 'anonymous visitors only see the username');
+        self::assertSelectorExists('.avatar[data-avatar="fallback"]');
+
+        $client->loginUser(UserFactory::createOne(['username' => 'comment-reader']));
+        $client->request(Request::METHOD_GET, '/blog/named-comments');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Michael Müller');
+        self::assertSelectorTextSame('.avatar[data-avatar="initials"]', 'MM');
+    }
 }

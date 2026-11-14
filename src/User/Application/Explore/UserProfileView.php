@@ -26,6 +26,8 @@ final readonly class UserProfileView
         public int $commentCount,
         public array $activities,
         public ?string $activityNextCursor,
+        public ?int $userId = null,
+        public ?string $displayName = null,
     ) {
     }
 

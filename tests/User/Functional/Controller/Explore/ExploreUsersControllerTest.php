@@ -627,4 +627,42 @@ final class ExploreUsersControllerTest extends WebTestCase
     {
         self::getContainer()->get(UserActivityBackfill::class)->run(true);
     }
+
+    public function testProfileAndDirectoryShowDisplayNameAvatarAndUsername(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $named = UserFactory::createOne([
+            'username' => 'mmueller',
+            'displayName' => 'Michael Müller',
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT],
+        ]);
+        UserFactory::createOne([
+            'username' => 'nameless-user',
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT],
+        ]);
+
+        $client->request(Request::METHOD_GET, '/explore/user/'.$named->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextSame('#user-username', 'Michael Müller');
+        self::assertSelectorTextSame('[data-testid="user-profile-username"]', '@mmueller');
+        self::assertSelectorTextSame('[data-testid="user-profile-avatar"]', 'MM');
+        self::assertSelectorExists('[data-testid="user-profile-avatar"].avatar-xl[data-avatar="initials"]');
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/user');
+
+        self::assertResponseIsSuccessful();
+        $namedRow = $crawler->filter('[data-testid="user-directory-row"]')->reduce(
+            static fn ($row): bool => str_contains($row->text(), 'mmueller'),
+        );
+        self::assertCount(1, $namedRow);
+        self::assertStringContainsString('Michael Müller', $namedRow->filter('a[href^="/explore/user/"]')->text());
+        self::assertSame('MM', trim($namedRow->filter('.avatar')->text()));
+
+        $namelessRow = $crawler->filter('[data-testid="user-directory-row"]')->reduce(
+            static fn ($row): bool => str_contains($row->text(), 'nameless-user'),
+        );
+        self::assertSame('fallback', $namelessRow->filter('.avatar')->attr('data-avatar'));
+        self::assertSame('nameless-user', trim($namelessRow->filter('a[href^="/explore/user/"]')->text()));
+    }
 }
