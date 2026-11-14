@@ -91,6 +91,22 @@ final readonly class PlausibilityCuration
     }
 
     /**
+     * Rebuilds the seed draft snapshot from the stored areas, creating it when there is none. The caller owns the
+     * transaction and the audit intent; the active snapshot never changes.
+     */
+    public function rebuildSeedDraft(): void
+    {
+        $draft = $this->repository->seedDraft();
+        if (!$draft instanceof PlausibilitySnapshot) {
+            $draft = new PlausibilitySnapshot(PlausibilitySnapshotOrigin::Seed, $this->clock->now());
+            $this->entityManager->persist($draft);
+            $this->entityManager->flush();
+        }
+
+        $this->builder->rebuildFromAreas($draft);
+    }
+
+    /**
      * @param list<int>          $pzcCodes
      * @param array<string, int> $diagramPoints
      *
@@ -134,14 +150,7 @@ final readonly class PlausibilityCuration
         try {
             $this->entityManager->wrapInTransaction(function (): void {
                 $this->entityManager->flush();
-                $draft = $this->repository->seedDraft();
-                if (!$draft instanceof PlausibilitySnapshot) {
-                    $draft = new PlausibilitySnapshot(PlausibilitySnapshotOrigin::Seed, $this->clock->now());
-                    $this->entityManager->persist($draft);
-                    $this->entityManager->flush();
-                }
-
-                $this->builder->rebuildFromAreas($draft);
+                $this->rebuildSeedDraft();
             });
         } finally {
             $this->auditContext->endIntent();

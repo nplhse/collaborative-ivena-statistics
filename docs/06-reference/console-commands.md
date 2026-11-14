@@ -67,6 +67,13 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | `app:reference:validate` | Check a JSON reference catalog package (`--source=`, default `var/reference/catalog.json`) without importing it: format and version, types, field rules, ids, references, counts and checksum. Lists every problem with its path in the file. See [ADR 020](../02-architecture/decisions/020-portable-reference-catalog.md). |
 | `app:reference:propose-from-rejects` | Read-only on rejects: write a report directory (`report.md`, requeue ID list) with catalog values that rejects miss. Add them through the admin pages, then requeue. |
 
+### Encounter curation
+
+| Command | Purpose |
+|---|---|
+| `app:encounter:curation:export` | Write the curated MTS catalog (curated entries, aliases to them, assignments) and the plausibility problem areas (PZC codes, rules) into one JSON package (`--output=`, default `var/encounter/curation-<Ymd-His>.json`; `--notes=`). No provisional entries, snapshots, counts or hospital data. Validated before it is written. See [../04-features/encounter/curation-package.md](../04-features/encounter/curation-package.md). |
+| `app:encounter:curation:import` | Add a curation package to this instance (`--source=`, required): adds missing rows, skips identical ones, reports every difference as a conflict; one conflict stops it before any write. Never changes, moves or deletes. Rebuilds the seed draft when areas changed; activation stays manual. `--dry-run` prints the plan; `--user=` (default `admin`) is the audit actor. |
+
 ### Allocation
 
 | Command | Purpose |
