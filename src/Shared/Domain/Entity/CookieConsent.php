@@ -29,20 +29,25 @@ class CookieConsent
     private ?User $user = null;
 
     /**
-     * Version of the consent text a decision was made under. v1: analytics only inside the application.
-     * v2: with analytics consent, error and performance reports to the operator's monitoring service may also carry
-     * the internal user id. A decision is always recorded under the current version.
+     * Version of the consent texts a decision was made under; a decision is always recorded under the current version.
+     * v1: usage analytics inside the application. v2: adds the performance option (traces to Sentry with the internal
+     * user id, only offered when Sentry is used) and the notice that error reports always carry the user id.
      */
     public const string CURRENT_VERSION = 'v2';
 
     #[ORM\Column(length: 16)]
     private string $consentVersion = self::CURRENT_VERSION;
 
-    /** @var array{essential: bool, analytics: bool} */
+    /**
+     * `performance` is a sub-option of `analytics`: it is only ever stored together with it.
+     *
+     * @var array{essential: bool, analytics: bool, performance?: bool}
+     */
     #[ORM\Column]
     private array $preferences = [
         'essential' => true,
         'analytics' => false,
+        'performance' => false,
     ];
 
     #[ORM\Column(nullable: true)]
@@ -91,21 +96,27 @@ class CookieConsent
     }
 
     /**
-     * @return array{essential: bool, analytics: bool}
+     * Missing keys of older rows count as not given.
+     *
+     * @return array{essential: bool, analytics: bool, performance: bool}
      */
     public function getPreferences(): array
     {
+        $analytics = $this->preferences['analytics'] ?? false;
+
         return [
             'essential' => true,
-            'analytics' => $this->preferences['analytics'] ?? false,
+            'analytics' => $analytics,
+            'performance' => $analytics && ($this->preferences['performance'] ?? false),
         ];
     }
 
-    public function setConsents(bool $analytics): self
+    public function setConsents(bool $analytics, bool $performance = false): self
     {
         $this->preferences = [
             'essential' => true,
             'analytics' => $analytics,
+            'performance' => $analytics && $performance,
         ];
         $this->consentVersion = self::CURRENT_VERSION;
         $this->decidedAt = Clock::get()->now();
