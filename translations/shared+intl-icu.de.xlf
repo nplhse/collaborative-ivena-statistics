@@ -597,6 +597,22 @@
         <source>cookie.monitoring.location</source>
         <target>{location, select, eu {Server in der EU} us {Server in den USA} other {vom Betreiber selbst betriebene Server}}</target>
       </trans-unit>
+      <trans-unit id="KpiValUnavDe" resname="kpi.value.unavailable">
+        <source>kpi.value.unavailable</source>
+        <target>nicht verfügbar</target>
+      </trans-unit>
+      <trans-unit id="KpiTrendUpDe" resname="kpi.trend.up">
+        <source>kpi.trend.up</source>
+        <target>Anstieg</target>
+      </trans-unit>
+      <trans-unit id="KpiTrendDnDe" resname="kpi.trend.down">
+        <source>kpi.trend.down</source>
+        <target>Rückgang</target>
+      </trans-unit>
+      <trans-unit id="KpiTrendFlDe" resname="kpi.trend.flat">
+        <source>kpi.trend.flat</source>
+        <target>Keine Veränderung</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
