@@ -509,6 +509,9 @@ report since #1155 ([learning job](#learning-job-1155)).
   fallback cell: area code × diagram; reserved nullable indicator code on exact cells; points 0 … +3; source
   `curated` / `learned`; positives and negatives as counts for the learning job). Check constraints and a partial
   unique index keep points in range, each cell keyed by PZC or area, and at most one snapshot active.
+  Development fixtures keep the three area tables but purge all snapshots and rebuild the seed draft from the
+  kept areas (#1219); no snapshot is active afterwards
+  ([Purging in development](../../03-development/fixtures.md#purging-in-development)).
 - **Lookup** (`PlausibilityLookup`, `PlausibilityTable`): the stored diagram code resolves to its canonical code
   ([MTS glossary](#mts-glossary)); then the exact cell if it has at least `app.encounter.plausibility.min_observations`
   observations (positives + negatives, default 10), otherwise the fallback cell of the PZC's area, otherwise 0. No
