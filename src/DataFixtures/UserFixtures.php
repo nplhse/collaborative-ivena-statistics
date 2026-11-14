@@ -21,9 +21,10 @@ final class UserFixtures extends Fixture
     #[DataProvider('getUserData')]
     public function load(ObjectManager $manager): void
     {
-        foreach (UserFixtures::getUserData() as [$username, $password, $roles, $email, $isVerified]) {
+        foreach (UserFixtures::getUserData() as [$username, $password, $roles, $email, $isVerified, $displayName]) {
             $user = new User();
             $user->setUsername($username);
+            $user->setDisplayName($displayName);
             $user->setPassword($this->passwordHasher->hashPassword($user, $password));
             $user->setRoles($roles);
             $user->setEmail($email);
@@ -40,13 +41,13 @@ final class UserFixtures extends Fixture
     }
 
     /**
-     * @return array<array{string, string, list<string>, string, bool}>
+     * @return array<array{string, string, list<string>, string, bool, ?string}>
      */
     public static function getUserData(): array
     {
         return [
-            ['admin', 'password', ['ROLE_ADMIN', 'ROLE_USER'], 'admin@test.local', true],
-            ['foo', 'bar', ['ROLE_USER', 'ROLE_PARTICIPANT'], 'foo@bar.local', true],
+            ['admin', 'password', ['ROLE_ADMIN', 'ROLE_USER'], 'admin@test.local', true, 'Ada Admin'],
+            ['foo', 'bar', ['ROLE_USER', 'ROLE_PARTICIPANT'], 'foo@bar.local', true, null],
         ];
     }
 }

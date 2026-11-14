@@ -195,7 +195,9 @@ Each request and intent counts once. Every event links to its request (`/admin/a
 
 - Only `ROLE_ADMIN` can read the audit log, through the audit timeline (`AuditTimelineController`) and
   its endpoints: entry details, request view, new-entries count. There is no other read access.
-- `clientIp`, `userAgent`, usernames and the export filters are personal data. Exception messages in
+- `clientIp`, `userAgent`, usernames, display names and the export filters are personal data. A change of
+  the optional `User::$displayName` is recorded as an `update` of the user (intent
+  `user.settings.profile_updated` when the user saves it in the account settings). Exception messages in
   `intent_metadata.reason` may contain technical details.
 - Session cookies, session ids and authentication tokens are not stored.
 - Entries are not deleted automatically; the only deletion is the one-time purge in
