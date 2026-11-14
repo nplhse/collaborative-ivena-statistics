@@ -305,6 +305,7 @@ Overviews cross both attributes, for example "EMS arrival, not linked".
 | Delete an encounter import | beta role + `UPLOAD`, or `ROLE_ADMIN` |
 | Manage encounter grants of a hospital | hospital owner or `ROLE_ADMIN` |
 | Import status, counts, reject codes, match diagnostics without case details or file content | `ROLE_ADMIN` |
+| Plausibility table: edit problem areas, review, activate, retire and delete snapshots (points only, no case access) | beta role + `ROLE_ENCOUNTER_CATALOG_REVIEWER` (inherited by `ROLE_ADMIN`) |
 
 Hospital ownership and hospital grants do not imply an encounter grant. `ROLE_ADMIN` holds every
 grant action on every hospital without a stored grant; an administrator impersonating a user has that
@@ -434,7 +435,8 @@ the review (below).
 Decided in [ADR 033](../../02-architecture/decisions/033-learning-plausibility-table.md) and the
 [ADR 030 amendment](../../02-architecture/decisions/030-encounter-allocation-matching.md#amendment-matcher-120)
 (#1136); implementation in #1153 (table and seed), #1154 (matcher `1.2.0`), #1155 (learning job) and #1156
-(analyses). Nothing of it is implemented yet.
+(analyses). The table, the seed and the review pages exist since #1153; nothing reads the table for matching
+before #1154 (see [Implemented](#implemented-in-1153)).
 
 - **Cells:** exact PZC of the allocation × canonical MTS diagram of the visit's initial triage → bonus 0 … +3.
   When the exact cell has too few observations (minimum, 10 as starting value), the cell of the PZC's curated
@@ -458,6 +460,50 @@ Decided in [ADR 033](../../02-architecture/decisions/033-learning-plausibility-t
 - **Privacy:** reviewers never see case counts across hospitals. The review and activation pages show points,
   source (curated, learned) and the change against the active snapshot; replay counts and rates cover only
   the hospitals on which the viewer holds the encounter grant `REVIEW` (administrators: all).
+
+### Implemented in #1153
+
+- **Tables** of the Encounter context: `encounter_plausibility_area` (code derived once from the German name,
+  German and English name), `encounter_plausibility_area_code` (PZC → area, unique per PZC, so each PZC belongs to
+  at most one area) and `encounter_plausibility_area_diagram` (curated rule: area × MTS diagram with points 0 … +3)
+  hold the editable seed. `encounter_plausibility_snapshot` (status `draft` / `active` / `retired`, origin `seed` /
+  `learned`, activation and retirement time; the learning job adds period, eligible pairs and report in #1155),
+  `encounter_plausibility_snapshot_code` (the PZC → area membership copied into the snapshot, so editing an
+  area never changes an active snapshot) and `encounter_plausibility_cell` (exact cell: PZC × canonical diagram code;
+  fallback cell: area code × diagram; reserved nullable indicator code on exact cells; points 0 … +3; source
+  `curated` / `learned`; positives and negatives as counts for the learning job). Check constraints and a partial
+  unique index keep points in range, each cell keyed by PZC or area, and at most one snapshot active.
+- **Lookup** (`PlausibilityLookup`, `PlausibilityTable`): the stored diagram code resolves to its canonical code
+  ([MTS glossary](#mts-glossary)); then the exact cell if it has at least `app.encounter.plausibility.min_observations`
+  observations (positives + negatives, default 10), otherwise the fallback cell of the PZC's area, otherwise 0. No
+  PZC, no diagram or no active snapshot: 0. Indicator cells are not read. Points are capped at +3.
+- **Seed.** The migration `Version20261113235145` carries the a-priori draft of #1136 (no real data, no counts) and
+  builds one snapshot with status `draft` and origin `seed` from it: 24 problem areas with 114 PZC codes (list
+  1.3.11) and 61 rules at +3, giving 61 fallback cells and 373 exact cells with counts 0. No snapshot is active, so
+  the bonus is 0 until a person activates one. Codes named "sonstige" as a catch-all, transfers (KST),
+  resuscitation, paediatrics, obstetrics and gynaecology and the other specialties belong to no area; unspecific
+  diagrams (`unwohlsein_bei_erwachsenen`, `hautausschlaege` and others) have no rule. The seed needs the clinical
+  review in the app before the first activation.
+- **Review pages** as the tool "Plausibility table" under `/tools/encounter-plausibility` (routes
+  `app_tools_encounter_plausibility*`, [ADR 031](../../02-architecture/decisions/031-tools-section-and-tool-registry.md)),
+  listed by `EncounterToolProvider` with the beta badge only for users with `ROLE_ENCOUNTER_CATALOG_REVIEWER` and
+  `ROLE_ENCOUNTER_BETA`; the controllers check both roles (`^/tools` itself only needs `ROLE_USER`). Administrators
+  also reach it from Admin → Data → MTS catalog:
+  - Problem areas: list with PZC codes and plausible diagrams, create, edit (names, PZC codes and ranges such as
+    `711-718`, points per active diagram), delete. A PZC of another area is refused. Every save rebuilds the newest
+    `seed` draft from all areas (or creates one), in the same transaction (`PlausibilityCuration`,
+    `PlausibilitySnapshotBuilder`, same rule as the migration); audit intents `encounter.plausibility.area_*`.
+  - Snapshots: list and review page per snapshot with, per problem area, its PZC codes and the points and source of
+    its fallback cells, and, when another snapshot is active, the points before and the changed bonus per PZC ×
+    diagram (lookup rule, so a learned exact value shows only once a cell has the minimum observations). Activate a
+    draft (retires the active one), retire the active one (bonus 0 everywhere), delete a draft
+    (`PlausibilitySnapshots`; audit intents `encounter.plausibility.snapshot_*`). Active and retired snapshots are
+    never changed or deleted.
+  - No page shows counts, totals or rates of the table. The learning report with replay figures per hospital follows in #1155.
+- **Catalog merge.** A provisional diagram named by a curated rule cannot be merged
+  (`MtsCatalogException::MERGE_HAS_PLAUSIBILITY_RULES`, [MTS glossary](#mts-glossary)).
+- **Not yet:** the matcher bonus and the recorded snapshot per pair (#1154), the learning job and its report
+  (#1155), analyses (#1156), export and import of the reviewed table to production (follow-up of ADR 032).
 
 Measured on the pilot hospital (October 2026, 496 allocations): automatic links 421 (84.9 %) with `1.1.0`,
 453 (91.3 %) with an a-priori bonus of +3 in pass 2, 89.5 % with a table by exact PZC with fallback learned
@@ -788,8 +834,8 @@ on Encounter.
   - Aliases: kind and label are set on creation (the alias code is derived from the label), the target is an
     active entry of the same kind and can be changed. The alias of a merge cannot be edited or deleted.
   - Merge (detail page of a provisional entry): it becomes `merged` and an alias from its code to the chosen
-    active entry is created, in one transaction. Refused while aliases point to the entry or it has
-    assignments. Undo removes the alias and makes the entry `provisional` again. Encounter rows are never
+    active entry is created, in one transaction. Refused while aliases point to the entry, it has
+    assignments or curated rules of the [plausibility table](#plausibility-table) name it. Undo removes the alias and makes the entry `provisional` again. Encounter rows are never
     touched.
   - Diagram–indicator assignments between active entries, created and removed.
 - **Not yet (#1157).** Provisional entries created by the import with a backfill, the public catalog endpoint
@@ -848,6 +894,7 @@ listed by `EncounterToolProvider` for `ROLE_ENCOUNTER_BETA` with a beta badge:
 | Encounter match review | `app_tools_encounter_review` | `/tools/encounter-review` (hospital list), `/tools/encounter-review/{id}/…` |
 | Encounter match validation | `app_tools_encounter_review` with `mode=validation` | the same hospital list, linking to `/tools/encounter-review/{id}/validation` |
 | Data preparation tool | `app_tools_data_prep` | `/tools/data-prep`, `/tools/data-prep/key`, `/tools/data-prep/local-map`, `/tools/data-prep/download` |
+| Plausibility table (also needs `ROLE_ENCOUNTER_CATALOG_REVIEWER`, [above](#plausibility-table)) | `app_tools_encounter_plausibility*` | `/tools/encounter-plausibility`, `…/areas/new`, `…/areas/{code}/edit`, `…/areas/{code}/delete`, `…/snapshots/{id}`, `…/snapshots/{id}/{activate,retire,delete}` |
 
 There is no encounter entry in the main navigation anymore: descriptive figures are in Statistics
 (`/statistics/encounter-analytics`), the MTS glossary and the case card in Explore, the upload in Import and

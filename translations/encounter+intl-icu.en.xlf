@@ -2909,6 +2909,310 @@
         <source>encounter.mts_catalog.error.assignment_not_active</source>
         <target>Choose an active diagram and an active indicator.</target>
       </trans-unit>
+      <trans-unit id="Enc6B38698E" resname="encounter.mts_catalog.error.merge_has_plausibility_rules">
+        <source>encounter.mts_catalog.error.merge_has_plausibility_rules</source>
+        <target>{code} cannot be merged while {count, plural, one {# rule of the plausibility table names it} other {# rules of the plausibility table name it}}.</target>
+      </trans-unit>
+      <trans-unit id="EncC82A4C1F" resname="encounter.plausibility.title">
+        <source>encounter.plausibility.title</source>
+        <target>Plausibility table</target>
+      </trans-unit>
+      <trans-unit id="Enc9E0D70A0" resname="encounter.plausibility.intro">
+        <source>encounter.plausibility.intro</source>
+        <target>From matcher 1.2.0 on, pass 2 adds up to +3 points when the indication (PZC) of an allocation and the MTS diagram of a visit are plausible together. The matcher reads only the active snapshot; editing a problem area changes the draft built from the problem areas, never the active snapshot. This page shows points and sources only, no case counts. Nothing reads the table before matcher 1.2.0.</target>
+      </trans-unit>
+      <trans-unit id="Enc6C9B27E9" resname="encounter.plausibility.snapshots_title">
+        <source>encounter.plausibility.snapshots_title</source>
+        <target>Snapshots</target>
+      </trans-unit>
+      <trans-unit id="Enc92E8E638" resname="encounter.plausibility.snapshots_note">
+        <source>encounter.plausibility.snapshots_note</source>
+        <target>One snapshot is active, or none (then the bonus is 0 everywhere). Activating a draft retires the active snapshot. Active and retired snapshots never change.</target>
+      </trans-unit>
+      <trans-unit id="Enc631CAC2C" resname="encounter.plausibility.no_snapshots">
+        <source>encounter.plausibility.no_snapshots</source>
+        <target>No snapshot yet. Saving a problem area creates the draft.</target>
+      </trans-unit>
+      <trans-unit id="Enc28544B0B" resname="encounter.plausibility.column.snapshot">
+        <source>encounter.plausibility.column.snapshot</source>
+        <target>Snapshot</target>
+      </trans-unit>
+      <trans-unit id="Enc9558EAE4" resname="encounter.plausibility.column.origin">
+        <source>encounter.plausibility.column.origin</source>
+        <target>Origin</target>
+      </trans-unit>
+      <trans-unit id="Enc56F616BF" resname="encounter.plausibility.column.status">
+        <source>encounter.plausibility.column.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="EncB0B1C506" resname="encounter.plausibility.column.created">
+        <source>encounter.plausibility.column.created</source>
+        <target>Created</target>
+      </trans-unit>
+      <trans-unit id="Enc57320441" resname="encounter.plausibility.column.activated">
+        <source>encounter.plausibility.column.activated</source>
+        <target>Activated</target>
+      </trans-unit>
+      <trans-unit id="Enc1AD134AD" resname="encounter.plausibility.column.retired">
+        <source>encounter.plausibility.column.retired</source>
+        <target>Retired</target>
+      </trans-unit>
+      <trans-unit id="Enc2EB607CE" resname="encounter.plausibility.column.area">
+        <source>encounter.plausibility.column.area</source>
+        <target>Problem area</target>
+      </trans-unit>
+      <trans-unit id="Enc1D57A320" resname="encounter.plausibility.column.pzc_codes">
+        <source>encounter.plausibility.column.pzc_codes</source>
+        <target>PZC codes</target>
+      </trans-unit>
+      <trans-unit id="Enc96F22635" resname="encounter.plausibility.column.diagrams">
+        <source>encounter.plausibility.column.diagrams</source>
+        <target>Plausible MTS diagrams</target>
+      </trans-unit>
+      <trans-unit id="Enc1214DF71" resname="encounter.plausibility.column.diagram">
+        <source>encounter.plausibility.column.diagram</source>
+        <target>MTS diagram</target>
+      </trans-unit>
+      <trans-unit id="Enc29A3D2AC" resname="encounter.plausibility.column.points">
+        <source>encounter.plausibility.column.points</source>
+        <target>Points</target>
+      </trans-unit>
+      <trans-unit id="Enc037E354D" resname="encounter.plausibility.column.before">
+        <source>encounter.plausibility.column.before</source>
+        <target>Active snapshot</target>
+      </trans-unit>
+      <trans-unit id="EncCC4D62D7" resname="encounter.plausibility.column.source">
+        <source>encounter.plausibility.column.source</source>
+        <target>Source</target>
+      </trans-unit>
+      <trans-unit id="Enc76A68192" resname="encounter.plausibility.column.pzc">
+        <source>encounter.plausibility.column.pzc</source>
+        <target>PZC</target>
+      </trans-unit>
+      <trans-unit id="Enc6093E68E" resname="encounter.plausibility.action.review">
+        <source>encounter.plausibility.action.review</source>
+        <target>Review</target>
+      </trans-unit>
+      <trans-unit id="EncA74DC73F" resname="encounter.plausibility.action.new_area">
+        <source>encounter.plausibility.action.new_area</source>
+        <target>New problem area</target>
+      </trans-unit>
+      <trans-unit id="EncA78F0985" resname="encounter.plausibility.action.edit">
+        <source>encounter.plausibility.action.edit</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="EncDBE5B273" resname="encounter.plausibility.action.save">
+        <source>encounter.plausibility.action.save</source>
+        <target>Save</target>
+      </trans-unit>
+      <trans-unit id="EncF640E54C" resname="encounter.plausibility.action.delete_area">
+        <source>encounter.plausibility.action.delete_area</source>
+        <target>Delete problem area</target>
+      </trans-unit>
+      <trans-unit id="Enc36FEC1D3" resname="encounter.plausibility.action.activate">
+        <source>encounter.plausibility.action.activate</source>
+        <target>Activate</target>
+      </trans-unit>
+      <trans-unit id="EncF7072096" resname="encounter.plausibility.action.retire">
+        <source>encounter.plausibility.action.retire</source>
+        <target>Retire</target>
+      </trans-unit>
+      <trans-unit id="Enc17D844E0" resname="encounter.plausibility.action.delete">
+        <source>encounter.plausibility.action.delete</source>
+        <target>Delete draft</target>
+      </trans-unit>
+      <trans-unit id="EncBB691602" resname="encounter.plausibility.areas_title">
+        <source>encounter.plausibility.areas_title</source>
+        <target>Problem areas</target>
+      </trans-unit>
+      <trans-unit id="Enc95DF86C2" resname="encounter.plausibility.areas_note">
+        <source>encounter.plausibility.areas_note</source>
+        <target>Curated groups of PZC codes that belong together clinically, with the MTS diagrams plausible with them. Each PZC belongs to at most one area; catch-all codes (“sonstige”) belong to none. The seed is an a-priori draft that needs clinical review.</target>
+      </trans-unit>
+      <trans-unit id="EncE74D4D6C" resname="encounter.plausibility.no_areas">
+        <source>encounter.plausibility.no_areas</source>
+        <target>No problem areas.</target>
+      </trans-unit>
+      <trans-unit id="EncC4F6DB28" resname="encounter.plausibility.no_rules">
+        <source>encounter.plausibility.no_rules</source>
+        <target>No plausible diagram</target>
+      </trans-unit>
+      <trans-unit id="Enc7826527E" resname="encounter.plausibility.unassigned_title">
+        <source>encounter.plausibility.unassigned_title</source>
+        <target>PZC codes without problem area</target>
+      </trans-unit>
+      <trans-unit id="EncB679129A" resname="encounter.plausibility.unassigned_note">
+        <source>encounter.plausibility.unassigned_note</source>
+        <target>Codes of the stored indications that belong to no problem area. A pair with such a code gets no bonus.</target>
+      </trans-unit>
+      <trans-unit id="EncF4F230F3" resname="encounter.plausibility.area.new_title">
+        <source>encounter.plausibility.area.new_title</source>
+        <target>New problem area</target>
+      </trans-unit>
+      <trans-unit id="EncAD2CE971" resname="encounter.plausibility.area.pretitle">
+        <source>encounter.plausibility.area.pretitle</source>
+        <target>Problem area</target>
+      </trans-unit>
+      <trans-unit id="Enc182C649B" resname="encounter.plausibility.area.intro">
+        <source>encounter.plausibility.area.intro</source>
+        <target>Saving rebuilds the draft snapshot from all problem areas. The active snapshot stays until someone activates the draft.</target>
+      </trans-unit>
+      <trans-unit id="Enc100BF294" resname="encounter.plausibility.area.field.german_name">
+        <source>encounter.plausibility.area.field.german_name</source>
+        <target>German name</target>
+      </trans-unit>
+      <trans-unit id="EncA8624A12" resname="encounter.plausibility.area.field.german_name_help">
+        <source>encounter.plausibility.area.field.german_name_help</source>
+        <target>The code of the area is derived from the German name once and never changes.</target>
+      </trans-unit>
+      <trans-unit id="Enc361C3E09" resname="encounter.plausibility.area.field.english_name">
+        <source>encounter.plausibility.area.field.english_name</source>
+        <target>English name</target>
+      </trans-unit>
+      <trans-unit id="Enc547E01B5" resname="encounter.plausibility.area.field.pzc_codes">
+        <source>encounter.plausibility.area.field.pzc_codes</source>
+        <target>PZC codes</target>
+      </trans-unit>
+      <trans-unit id="Enc75C9AA12" resname="encounter.plausibility.area.field.pzc_codes_help">
+        <source>encounter.plausibility.area.field.pzc_codes_help</source>
+        <target>Three-digit codes and ranges, separated by commas, for example 711-718, 263. A code of another area has to be removed there first.</target>
+      </trans-unit>
+      <trans-unit id="Enc50CAB550" resname="encounter.plausibility.area.field.diagrams">
+        <source>encounter.plausibility.area.field.diagrams</source>
+        <target>Plausible MTS diagrams</target>
+      </trans-unit>
+      <trans-unit id="Enc4E74848E" resname="encounter.plausibility.area.field.diagrams_help">
+        <source>encounter.plausibility.area.field.diagrams_help</source>
+        <target>Points for a pair of a code of this area and the diagram, +1 to +3. Leave unspecific diagrams empty.</target>
+      </trans-unit>
+      <trans-unit id="Enc3CFCD439" resname="encounter.plausibility.area.delete_note">
+        <source>encounter.plausibility.area.delete_note</source>
+        <target>After deleting the area its codes belong to no area; the draft is rebuilt.</target>
+      </trans-unit>
+      <trans-unit id="EncC513F8D6" resname="encounter.plausibility.snapshot.title">
+        <source>encounter.plausibility.snapshot.title</source>
+        <target>Snapshot #{id}</target>
+      </trans-unit>
+      <trans-unit id="EncFA1069C9" resname="encounter.plausibility.snapshot.privacy">
+        <source>encounter.plausibility.snapshot.privacy</source>
+        <target>Shown are points, their source and the change against the active snapshot. Case counts are never shown: the table is learned from the data of all hospitals.</target>
+      </trans-unit>
+      <trans-unit id="Enc7C58DC0F" resname="encounter.plausibility.snapshot.activate_note">
+        <source>encounter.plausibility.snapshot.activate_note</source>
+        <target>Activating retires the active snapshot. Links and manual decisions stay; open proposals are recomputed by the next matcher run.</target>
+      </trans-unit>
+      <trans-unit id="Enc1798046B" resname="encounter.plausibility.snapshot.retire_note">
+        <source>encounter.plausibility.snapshot.retire_note</source>
+        <target>After retiring, no snapshot is active: the bonus is 0 everywhere.</target>
+      </trans-unit>
+      <trans-unit id="EncFCDFDAC3" resname="encounter.plausibility.snapshot.compared">
+        <source>encounter.plausibility.snapshot.compared</source>
+        <target>Compared with the active snapshot #{id}: {changed, plural, =0 {no area cell changed} one {# area cell changed} other {# area cells changed}}, {pairs, plural, =0 {no PZC × diagram pair changed} one {# PZC × diagram pair changed} other {# PZC × diagram pairs changed}}.</target>
+      </trans-unit>
+      <trans-unit id="Enc7C3E8AFE" resname="encounter.plausibility.snapshot.no_active">
+        <source>encounter.plausibility.snapshot.no_active</source>
+        <target>No snapshot is active, so the bonus is 0 everywhere today. With this snapshot the points below apply.</target>
+      </trans-unit>
+      <trans-unit id="Enc5AFEF566" resname="encounter.plausibility.snapshot.areas_title">
+        <source>encounter.plausibility.snapshot.areas_title</source>
+        <target>Problem areas and their cells</target>
+      </trans-unit>
+      <trans-unit id="Enc7D2CDE0B" resname="encounter.plausibility.snapshot.pairs_title">
+        <source>encounter.plausibility.snapshot.pairs_title</source>
+        <target>Changed bonus per PZC and diagram</target>
+      </trans-unit>
+      <trans-unit id="Enc64D11561" resname="encounter.plausibility.snapshot.pairs_note">
+        <source>encounter.plausibility.snapshot.pairs_note</source>
+        <target>The bonus the matcher would give with this snapshot instead of the active one: the exact cell where it has enough observations, otherwise the problem area.</target>
+      </trans-unit>
+      <trans-unit id="Enc17A008C5" resname="encounter.plausibility.snapshot.no_pair_changes">
+        <source>encounter.plausibility.snapshot.no_pair_changes</source>
+        <target>No pair changes its bonus.</target>
+      </trans-unit>
+      <trans-unit id="EncB5820B33" resname="encounter.plausibility.snapshot.status.draft">
+        <source>encounter.plausibility.snapshot.status.draft</source>
+        <target>Draft</target>
+      </trans-unit>
+      <trans-unit id="Enc88B16865" resname="encounter.plausibility.snapshot.status.active">
+        <source>encounter.plausibility.snapshot.status.active</source>
+        <target>Active</target>
+      </trans-unit>
+      <trans-unit id="Enc0E6923D6" resname="encounter.plausibility.snapshot.status.retired">
+        <source>encounter.plausibility.snapshot.status.retired</source>
+        <target>Retired</target>
+      </trans-unit>
+      <trans-unit id="Enc96D23902" resname="encounter.plausibility.snapshot.origin.seed">
+        <source>encounter.plausibility.snapshot.origin.seed</source>
+        <target>Curated seed</target>
+      </trans-unit>
+      <trans-unit id="EncED1132FA" resname="encounter.plausibility.snapshot.origin.learned">
+        <source>encounter.plausibility.snapshot.origin.learned</source>
+        <target>Learned</target>
+      </trans-unit>
+      <trans-unit id="Enc6605618A" resname="encounter.plausibility.source.curated">
+        <source>encounter.plausibility.source.curated</source>
+        <target>Curated</target>
+      </trans-unit>
+      <trans-unit id="Enc88F70671" resname="encounter.plausibility.source.learned">
+        <source>encounter.plausibility.source.learned</source>
+        <target>Learned</target>
+      </trans-unit>
+      <trans-unit id="EncA647EBB4" resname="encounter.plausibility.flash.area_saved">
+        <source>encounter.plausibility.flash.area_saved</source>
+        <target>Problem area “{name}” saved; the draft was rebuilt.</target>
+      </trans-unit>
+      <trans-unit id="EncA9F16E0F" resname="encounter.plausibility.flash.area_deleted">
+        <source>encounter.plausibility.flash.area_deleted</source>
+        <target>Problem area “{name}” deleted; the draft was rebuilt.</target>
+      </trans-unit>
+      <trans-unit id="Enc7E022024" resname="encounter.plausibility.flash.invalid_token">
+        <source>encounter.plausibility.flash.invalid_token</source>
+        <target>The form expired. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="Enc81549C0B" resname="encounter.plausibility.flash.snapshot_activate">
+        <source>encounter.plausibility.flash.snapshot_activate</source>
+        <target>Snapshot #{id} is active.</target>
+      </trans-unit>
+      <trans-unit id="EncAEEDDE22" resname="encounter.plausibility.flash.snapshot_retire">
+        <source>encounter.plausibility.flash.snapshot_retire</source>
+        <target>Snapshot #{id} is retired; no snapshot is active.</target>
+      </trans-unit>
+      <trans-unit id="Enc4F570325" resname="encounter.plausibility.flash.snapshot_delete">
+        <source>encounter.plausibility.flash.snapshot_delete</source>
+        <target>Draft #{id} deleted.</target>
+      </trans-unit>
+      <trans-unit id="Enc370369E8" resname="encounter.plausibility.error.empty_name">
+        <source>encounter.plausibility.error.empty_name</source>
+        <target>“{name}” gives no code. Use letters or digits.</target>
+      </trans-unit>
+      <trans-unit id="EncDDEB25DB" resname="encounter.plausibility.error.area_exists">
+        <source>encounter.plausibility.error.area_exists</source>
+        <target>A problem area with the code {code} exists already (“{name}”).</target>
+      </trans-unit>
+      <trans-unit id="Enc29CD5DEA" resname="encounter.plausibility.error.pzc_invalid">
+        <source>encounter.plausibility.error.pzc_invalid</source>
+        <target>“{pzc}” is not a PZC code or range.</target>
+      </trans-unit>
+      <trans-unit id="EncBD2F0F81" resname="encounter.plausibility.error.pzc_taken">
+        <source>encounter.plausibility.error.pzc_taken</source>
+        <target>PZC {pzc} already belongs to “{area}”. Remove it there first.</target>
+      </trans-unit>
+      <trans-unit id="Enc9A478C42" resname="encounter.plausibility.error.diagram_not_active">
+        <source>encounter.plausibility.error.diagram_not_active</source>
+        <target>{code} is not an active MTS diagram.</target>
+      </trans-unit>
+      <trans-unit id="EncD71DCC86" resname="encounter.plausibility.error.points">
+        <source>encounter.plausibility.error.points</source>
+        <target>Points are 0 to +{max}, got {points}.</target>
+      </trans-unit>
+      <trans-unit id="Enc8E439D7B" resname="encounter.plausibility.error.snapshot_not_draft">
+        <source>encounter.plausibility.error.snapshot_not_draft</source>
+        <target>Snapshot #{id} is not a draft.</target>
+      </trans-unit>
+      <trans-unit id="Enc17FCF391" resname="encounter.plausibility.error.snapshot_not_active">
+        <source>encounter.plausibility.error.snapshot_not_active</source>
+        <target>Snapshot #{id} is not active.</target>
+      </trans-unit>
       <trans-unit id="ToolsEncRevTitle" resname="tools.encounter_review.title">
         <source>tools.encounter_review.title</source>
         <target>Encounter match review</target>
@@ -2936,6 +3240,14 @@
       <trans-unit id="MyHospActEncData" resname="my_hospitals.action.encounter_data">
         <source>my_hospitals.action.encounter_data</source>
         <target>Encounter data</target>
+      </trans-unit>
+      <trans-unit id="EncB426FDD6" resname="tools.encounter_plausibility.title">
+        <source>tools.encounter_plausibility.title</source>
+        <target>Plausibility table</target>
+      </trans-unit>
+      <trans-unit id="Enc521607A3" resname="tools.encounter_plausibility.description">
+        <source>tools.encounter_plausibility.description</source>
+        <target>Review the curated problem areas of the matcher's PZC × MTS diagram table and activate snapshots.</target>
       </trans-unit>
     </body>
   </file>

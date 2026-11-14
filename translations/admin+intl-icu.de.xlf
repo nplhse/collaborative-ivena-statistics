@@ -2441,6 +2441,10 @@
         <source>menu.data.mts_catalog.assignments</source>
         <target>Zuordnungen</target>
       </trans-unit>
+      <trans-unit id="adm1517EB45De" resname="menu.data.mts_catalog.plausibility">
+        <source>menu.data.mts_catalog.plausibility</source>
+        <target>Plausibilitätstabelle</target>
+      </trans-unit>
       <trans-unit id="admCrudFieldUserDe" resname="admin.field.user">
         <source>admin.field.user</source>
         <target>Benutzer</target>

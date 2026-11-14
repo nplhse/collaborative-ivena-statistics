@@ -497,6 +497,8 @@ final class DashboardController extends AbstractDashboardController
             MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.indicators', domain: 'admin'), 'fas fa-list', 'app_admin_dashboard_encounter_mts_indicator_index'),
             MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.aliases', domain: 'admin'), 'fas fa-right-left', 'app_admin_dashboard_encounter_mts_alias_index'),
             MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.assignments', domain: 'admin'), 'fas fa-link', 'app_admin_dashboard_encounter_mts_assignment_index'),
+            // Pilot page for administrators and catalog reviewers (ADR 033), outside the back office.
+            MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.plausibility', domain: 'admin'), 'fas fa-table-cells', 'app_tools_encounter_plausibility'),
         ]);
         yield MenuItem::subMenu(new TranslatableMessage('menu.imports', domain: 'admin'), 'fa fa-database')->setSubItems([
             MenuItem::linkTo(ImportCrudController::class, new TranslatableMessage('menu.imports.imports', domain: 'admin'), 'fa fa-database'),

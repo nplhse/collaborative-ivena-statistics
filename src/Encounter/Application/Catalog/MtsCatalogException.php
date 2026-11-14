@@ -30,6 +30,9 @@ final class MtsCatalogException extends \DomainException
 
     public const string MERGE_HAS_ASSIGNMENTS = 'merge_has_assignments';
 
+    /** Curated rules of the plausibility table name the diagram (ADR 032, ADR 033). */
+    public const string MERGE_HAS_PLAUSIBILITY_RULES = 'merge_has_plausibility_rules';
+
     public const string NOT_MERGED = 'not_merged';
 
     /** The alias of a merge is changed or removed only by undoing the merge. */

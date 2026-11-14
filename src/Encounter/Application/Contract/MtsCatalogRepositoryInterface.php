@@ -24,6 +24,11 @@ interface MtsCatalogRepositoryInterface
 
     public function countAssignments(MtsCatalogItem $entry): int;
 
+    /**
+     * Curated rules of the plausibility table (problem area × diagram) that name the entry; 0 for an indicator.
+     */
+    public function countPlausibilityRules(MtsCatalogItem $entry): int;
+
     public function findAssignment(MtsDiagram $diagram, MtsIndicator $indicator): ?MtsDiagramIndicator;
 
     /**

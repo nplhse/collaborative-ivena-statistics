@@ -1,0 +1,135 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set d = 'encounter' %}
+{% set snapshot = review.snapshot %}
+{% set heading = 'encounter.plausibility.snapshot.title'|trans({id: snapshot.id}, d) %}
+
+{% block title %}{{ heading }} - {{ 'encounter.plausibility.title'|trans({}, d) }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <twig:PageHeader :title="heading" :pretitle="'encounter.plausibility.title'|trans({}, 'encounter')">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
+                { label: 'encounter.plausibility.title', label_domain: 'encounter', translatable: true, path: path('app_tools_encounter_plausibility') },
+                { label: heading }
+            ]" />
+        </twig:block>
+    </twig:PageHeader>
+{% endblock %}
+
+{% macro points(value) %}{{ value is null ? '–' : '+' ~ value }}{% endmacro %}
+
+{% block page_content %}
+    {% import _self as m %}
+    <div class="card" data-test="encounter-plausibility-snapshot-summary">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                {{ include('@Encounter/plausibility/_status.html.twig') }}
+                <span>{{ 'encounter.plausibility.column.origin'|trans({}, d) }}: {{ snapshot.origin|trans }}</span>
+                <span class="text-secondary">{{ 'encounter.plausibility.column.created'|trans({}, d) }}: {{ snapshot.createdAt|date('d.m.Y H:i') }}</span>
+                {% if snapshot.activatedAt %}<span class="text-secondary">{{ 'encounter.plausibility.column.activated'|trans({}, d) }}: {{ snapshot.activatedAt|date('d.m.Y H:i') }}</span>{% endif %}
+                {% if snapshot.retiredAt %}<span class="text-secondary">{{ 'encounter.plausibility.column.retired'|trans({}, d) }}: {{ snapshot.retiredAt|date('d.m.Y H:i') }}</span>{% endif %}
+            </div>
+            <p class="small text-secondary mt-3 mb-0">{{ 'encounter.plausibility.snapshot.privacy'|trans({}, d) }}</p>
+        </div>
+        <div class="card-footer d-flex flex-wrap gap-2">
+            {% set actions = snapshot.draft ? ['activate', 'delete'] : (snapshot.active ? ['retire'] : []) %}
+            {% for action in actions %}
+                <form method="post" action="{{ path('app_tools_encounter_plausibility_snapshot_change', {id: snapshot.id, action: action}) }}" data-test="encounter-plausibility-{{ action }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('encounter_plausibility_snapshot_' ~ action ~ '_' ~ snapshot.id) }}">
+                    <button class="btn {{ action == 'activate' ? 'btn-primary' : 'btn-outline-danger' }}" type="submit">{{ ('encounter.plausibility.action.' ~ action)|trans({}, d) }}</button>
+                </form>
+            {% endfor %}
+            {% if snapshot.draft %}<span class="small text-secondary align-self-center">{{ 'encounter.plausibility.snapshot.activate_note'|trans({}, d) }}</span>{% endif %}
+            {% if snapshot.active %}<span class="small text-secondary align-self-center">{{ 'encounter.plausibility.snapshot.retire_note'|trans({}, d) }}</span>{% endif %}
+        </div>
+    </div>
+
+    {% if review.comparedWithActive %}
+        <twig:Alert type="info" :message="'encounter.plausibility.snapshot.compared'|trans({id: review.activeSnapshotId, changed: review.changedAreaCells, pairs: review.pairChanges|length}, 'encounter')" data-test="encounter-plausibility-compared" />
+    {% elseif review.activeSnapshotId is null %}
+        <twig:Alert type="info" :message="'encounter.plausibility.snapshot.no_active'|trans({}, 'encounter')" data-test="encounter-plausibility-no-active" />
+    {% endif %}
+
+    <div class="card mt-3" data-test="encounter-plausibility-snapshot-areas">
+        <div class="card-header">
+            <h3 class="card-title">{{ 'encounter.plausibility.snapshot.areas_title'|trans({}, d) }}</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table card-table table-vcenter">
+                <thead>
+                    <tr>
+                        <th>{{ 'encounter.plausibility.column.area'|trans({}, d) }}</th>
+                        <th>{{ 'encounter.plausibility.column.diagram'|trans({}, d) }}</th>
+                        <th>{{ 'encounter.plausibility.column.points'|trans({}, d) }}</th>
+                        {% if review.comparedWithActive %}<th>{{ 'encounter.plausibility.column.before'|trans({}, d) }}</th>{% endif %}
+                        <th>{{ 'encounter.plausibility.column.source'|trans({}, d) }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for area in review.areas %}
+                        {% set rows = max(area.cells|length, 1) %}
+                        {% for cell in area.cells|default([null]) %}
+                            <tr data-test="encounter-plausibility-cell" data-area="{{ area.code }}"{% if cell %} data-diagram="{{ cell.diagramCode }}"{% if review.comparedWithActive and cell.changed %} data-changed="1" class="table-warning"{% endif %}{% endif %}>
+                                {% if loop.first %}
+                                    <td rowspan="{{ rows }}">
+                                        {{ areas[area.code].germanName ?? area.code }}
+                                        <div class="small text-secondary">
+                                            {% for pzc in area.pzcCodes %}<span {% if pzc_names[pzc] is defined %}title="{{ pzc_names[pzc] }}"{% endif %}>{{ '%03d'|format(pzc) }}</span>{{ not loop.last ? ', ' }}{% endfor %}
+                                        </div>
+                                    </td>
+                                {% endif %}
+                                {% if cell %}
+                                    <td>{{ encounter_mts_diagram_name(cell.diagramCode) }}</td>
+                                    <td>{{ m.points(cell.points) }}</td>
+                                    {% if review.comparedWithActive %}<td class="text-secondary">{{ m.points(cell.before) }}</td>{% endif %}
+                                    <td>{{ cell.source ? cell.source|trans : '–' }}</td>
+                                {% else %}
+                                    <td colspan="{{ review.comparedWithActive ? 4 : 3 }}" class="text-secondary">{{ 'encounter.plausibility.no_rules'|trans({}, d) }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if review.comparedWithActive %}
+        <div class="card mt-3" data-test="encounter-plausibility-pair-changes">
+            <div class="card-header">
+                <h3 class="card-title">{{ 'encounter.plausibility.snapshot.pairs_title'|trans({}, d) }}</h3>
+            </div>
+            <div class="card-body border-bottom small text-secondary">{{ 'encounter.plausibility.snapshot.pairs_note'|trans({}, d) }}</div>
+            {% if review.pairChanges is empty %}
+                <div class="card-body"><p class="text-secondary mb-0">{{ 'encounter.plausibility.snapshot.no_pair_changes'|trans({}, d) }}</p></div>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table card-table table-vcenter">
+                        <thead>
+                            <tr>
+                                <th>{{ 'encounter.plausibility.column.pzc'|trans({}, d) }}</th>
+                                <th>{{ 'encounter.plausibility.column.diagram'|trans({}, d) }}</th>
+                                <th>{{ 'encounter.plausibility.column.before'|trans({}, d) }}</th>
+                                <th>{{ 'encounter.plausibility.column.points'|trans({}, d) }}</th>
+                                <th>{{ 'encounter.plausibility.column.source'|trans({}, d) }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for change in review.pairChanges %}
+                                <tr data-test="encounter-plausibility-pair-change" data-pzc="{{ change.pzc }}" data-diagram="{{ change.diagramCode }}">
+                                    <td>{{ '%03d'|format(change.pzc) }}{% if pzc_names[change.pzc] is defined %} <span class="text-secondary">{{ pzc_names[change.pzc] }}</span>{% endif %}</td>
+                                    <td>{{ encounter_mts_diagram_name(change.diagramCode) }}</td>
+                                    <td class="text-secondary">{{ m.points(change.before) }}</td>
+                                    <td>{{ m.points(change.points) }}</td>
+                                    <td>{{ change.source ? change.source|trans : '–' }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

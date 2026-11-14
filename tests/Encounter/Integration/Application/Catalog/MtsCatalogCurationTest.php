@@ -7,6 +7,7 @@ namespace App\Tests\Encounter\Integration\Application\Catalog;
 use App\Encounter\Application\Catalog\MtsCatalog;
 use App\Encounter\Application\Catalog\MtsCatalogCuration;
 use App\Encounter\Application\Catalog\MtsCatalogException;
+use App\Encounter\Application\Plausibility\PlausibilityCuration;
 use App\Encounter\Domain\Entity\MtsAlias;
 use App\Encounter\Domain\Entity\MtsCatalogItem;
 use App\Encounter\Domain\Entity\MtsDiagram;
@@ -163,6 +164,27 @@ final class MtsCatalogCurationTest extends KernelTestCase
 
         $this->curation->merge($provisional, $thorax);
         self::assertSame(MtsCatalogStatus::Merged, $provisional->getStatus());
+    }
+
+    public function testMergeIsRefusedWhileCuratedPlausibilityRulesNameTheDiagram(): void
+    {
+        $thorax = $this->find(MtsDiagram::class, 'thoraxschmerz');
+        $provisional = $this->diagram('Brustenge', MtsCatalogStatus::Provisional);
+        $plausibility = self::getContainer()->get(PlausibilityCuration::class);
+        $area = $plausibility->createArea('Brustenge', null, [729], ['brustenge' => 2]);
+
+        $blocker = $this->curation->mergeBlocker($provisional);
+        self::assertSame(MtsCatalogException::MERGE_HAS_PLAUSIBILITY_RULES, $blocker?->reason);
+        self::assertSame(['code' => 'brustenge', 'count' => 1], $blocker->parameters());
+        self::assertSame(MtsCatalogException::MERGE_HAS_PLAUSIBILITY_RULES, $this->refusal(fn () => $this->curation->merge($provisional, $thorax)));
+        self::assertNull($this->curation->mergeBlocker($this->diagram('Brustdruck', MtsCatalogStatus::Provisional)), 'a diagram without rules');
+        $indicator = new MtsIndicator('', 'Brustenge', MtsCatalogSource::Manual, MtsCatalogStatus::Provisional);
+        $this->curation->createEntry($indicator);
+        self::assertNull($this->curation->mergeBlocker($indicator), 'rules name diagrams only, so an indicator with the same code is not blocked');
+
+        $plausibility->updateArea($area, 'Brustenge', null, [729], []);
+        $this->curation->merge($provisional, $thorax);
+        self::assertSame(MtsCatalogStatus::Merged, $provisional->getStatus(), 'mergeable once the rule is gone');
     }
 
     public function testAssignmentsAreUniqueAndNeedActiveEntries(): void
