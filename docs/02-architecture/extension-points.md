@@ -242,13 +242,15 @@ Path `access_control` on `/tools` only requires `ROLE_USER`; every tool route ne
 **Interface:** `NavigationProviderInterface` (`src/Shared/Application/Navigation/Menu/`)
 
 **Builder:** `NavigationBuilder`; consumers: the top navbar (`<twig:Navigation:Primary />` in
-`@Shared/_embeds/header.html.twig`) and the footer (`<twig:Navigation:Footer />` in
-`@Shared/_includes/footer.html.twig`); the Statistics and Explore sidebars follow with the next steps of
+`@Shared/_embeds/header.html.twig`), the footer (`<twig:Navigation:Footer />` in
+`@Shared/_includes/footer.html.twig`) and the statistics sidebar (`<twig:Navigation:Sidebar menu="statistics" />`
+in the `header_after` block of every statistics page); the Explore sidebar follows with the next step of
 [ADR 035](decisions/035-navigation-tree-and-contextual-sidebar.md)
 
 **Implementations:** `SharedNavigationProvider` (Shared: primary group, Tools; footer columns `project`,
 `help`, `legal`, `more` with sitemap and cookie settings), `AllocationNavigationProvider` (Explore, Export),
-`StatisticsNavigationProvider` (Statistics), `ImportNavigationProvider` (Import), `ContentNavigationProvider`
+`StatisticsNavigationProvider` (Statistics entry and the statistics sidebar with its groups; Insights
+dimensions from `InsightDimensionRegistry`), `ImportNavigationProvider` (Import), `ContentNavigationProvider`
 (Blog and CMS header pages; footer: CMS pages, blog, activity)
 
 Lets a context add groups and entries to the named menus of `Menu` (`primary`, `footer`, `statistics`,
@@ -263,8 +265,9 @@ Lets a context add groups and entries to the named menus of `Menu` (`primary`, `
   its children. Providers run on every page with a navigation, so they must not query the database.
 - Order on every level: `weight` ascending (default 0, negative moves up, steps of ten), then the
   translated label in the current locale (`\Collator`), then the id.
-- Active entry: the current route name equals the item's `route` or one of its `detailRoutes`; there is no
-  prefix matching. The builder marks the path from the group down to that entry. In the primary menu,
+- Active entry: the current route name equals the item's `route` or one of its `detailRoutes`, and every
+  parameter of the item's `routeParameters` that the current route also has carries the same value (the
+  Insights dimensions share one route); there is no prefix matching. The builder marks the path from the group down to that entry. In the primary menu,
   when no own entry matches: a route of a sidebar menu, then the sidebar menu of the page (`$area`), marks
   that menu's primary entry (`Menu::primaryEntryId()`); then the entry with the longest `areaRoutePrefix`
   the route starts with. Primary entries attach to `Menu::PRIMARY_GROUP` and use weights in steps of ten
@@ -272,6 +275,9 @@ Lets a context add groups and entries to the named menus of `Menu` (`primary`, `
 - A route name may mark at most one entry per menu, and area prefixes must not overlap:
   `AssertsUniqueNavigationRoutes` (`tests/Shared/Support/`) checks both; `PrimaryNavigationTest` runs it
   with all real providers.
+- Sidebar links carry the query parameters of `Menu::carriedQueryKeys()` (statistics: scope and period
+  with their dependent parameters); links between the children of an item with `sharedFilterState` (the
+  parts of one analysis, for example Closures) keep the whole query except `comparison_*` and `page`.
 - Badges (`NavBadge`) take a translatable label and a `NavBadgeColor` (Tabler colour names, rendered as
   `badge bg-{colour}-lt`; default `azure`).
 
