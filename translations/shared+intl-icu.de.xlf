@@ -613,6 +613,30 @@
         <source>nav.sidebar.toggle_views</source>
         <target>Ansichten ein- oder ausblenden</target>
       </trans-unit>
+      <trans-unit id="SharedNavSidebar05De" resname="nav.sidebar.search.placeholder">
+        <source>nav.sidebar.search.placeholder</source>
+        <target>Menü durchsuchen …</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar06De" resname="nav.sidebar.search.label">
+        <source>nav.sidebar.search.label</source>
+        <target>Menü durchsuchen</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar07De" resname="nav.sidebar.search.empty">
+        <source>nav.sidebar.search.empty</source>
+        <target>Keine passenden Einträge.</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar08De" resname="nav.sidebar.search.clear">
+        <source>nav.sidebar.search.clear</source>
+        <target>Suche zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar09De" resname="nav.sidebar.search.result_one">
+        <source>nav.sidebar.search.result_one</source>
+        <target>1 passender Eintrag</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar10De" resname="nav.sidebar.search.result_other">
+        <source>nav.sidebar.search.result_other</source>
+        <target>{count} passende Einträge</target>
+      </trans-unit>
       <trans-unit id="KpiValUnavDe" resname="kpi.value.unavailable">
         <source>kpi.value.unavailable</source>
         <target>nicht verfügbar</target>

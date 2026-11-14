@@ -722,7 +722,7 @@ change a provider, not the templates.
 | Component | Used in | Output |
 |---|---|---|
 | `<twig:Navigation:Primary />` | `@Shared/_embeds/header.html.twig` | `<li class="nav-item">` per entry of the primary menu, `data-testid="nav-{id}"`, `active` and `aria-current="page"` on the current area; optional prop `area` (`statistics`, `explore`) for pages whose route has no entry |
-| `<twig:Navigation:Sidebar menu="statistics" />`, `menu="explore"` | `header_after` block of every statistics and explore page | Tabler vertical navbar with groups, nested groups (Bootstrap `collapse`), fold toggle (Stimulus `site-sidebar`) and the mobile bar; test ids `sidebar-{menu}`, `sidebar-group-{id}`, `sidebar-entry-{id}`, `sidebar-fold-toggle`; CSS in `assets/styles/navigation.css` |
+| `<twig:Navigation:Sidebar menu="statistics" />`, `menu="explore"` | `header_after` block of every statistics and explore page | Tabler vertical navbar with groups, nested groups (Bootstrap `collapse`), fold toggle (Stimulus `site-sidebar`), the search field that filters the tree (`/` focuses it; rules in ADR 035, filter in `assets/lib/navigation-filter.js`) and the mobile bar; test ids `sidebar-{menu}`, `sidebar-group-{id}`, `sidebar-entry-{id}`, `sidebar-fold-toggle`, `sidebar-search`, `sidebar-search-empty`; CSS in `assets/styles/navigation.css` |
 | `<twig:Navigation:Footer />` | `@Shared/_includes/footer.html.twig` | one column per footer group with links (`data-testid="footer-nav-column-{group}"`, links `footer-nav-{id}`); empty columns are omitted |
 
 ## Related

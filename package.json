@@ -6,11 +6,11 @@
         "node": ">=22.13.0"
     },
     "scripts": {
-        "lint": "eslint assets/ src/Encounter/UI/DataPrep/js/ tests/Encounter/DataPrep/ tests/Admin/JS/",
-        "lint:fix": "eslint assets/ src/Encounter/UI/DataPrep/js/ tests/Encounter/DataPrep/ tests/Admin/JS/ --fix",
-        "format": "prettier --write \"assets/**/*.js\" \"src/Encounter/UI/DataPrep/**/*.{js,json}\" \"src/Encounter/Application/Catalog/*.json\" \"tests/Encounter/DataPrep/**/*.{js,json}\" \"tests/Admin/JS/**/*.js\"",
-        "format:check": "prettier --check \"assets/**/*.js\" \"src/Encounter/UI/DataPrep/**/*.{js,json}\" \"src/Encounter/Application/Catalog/*.json\" \"tests/Encounter/DataPrep/**/*.{js,json}\" \"tests/Admin/JS/**/*.js\"",
-        "test:js": "node --test \"tests/Encounter/DataPrep/*.test.js\" \"tests/Admin/JS/*.test.js\"",
+        "lint": "eslint assets/ src/Encounter/UI/DataPrep/js/ tests/Encounter/DataPrep/ tests/Admin/JS/ tests/Shared/JavaScript/",
+        "lint:fix": "eslint assets/ src/Encounter/UI/DataPrep/js/ tests/Encounter/DataPrep/ tests/Admin/JS/ tests/Shared/JavaScript/ --fix",
+        "format": "prettier --write \"assets/**/*.js\" \"src/Encounter/UI/DataPrep/**/*.{js,json}\" \"src/Encounter/Application/Catalog/*.json\" \"tests/Encounter/DataPrep/**/*.{js,json}\" \"tests/Admin/JS/**/*.js\" \"tests/Shared/JavaScript/**/*.js\"",
+        "format:check": "prettier --check \"assets/**/*.js\" \"src/Encounter/UI/DataPrep/**/*.{js,json}\" \"src/Encounter/Application/Catalog/*.json\" \"tests/Encounter/DataPrep/**/*.{js,json}\" \"tests/Admin/JS/**/*.js\" \"tests/Shared/JavaScript/**/*.js\"",
+        "test:js": "node --test \"tests/Encounter/DataPrep/*.test.js\" \"tests/Admin/JS/*.test.js\" \"tests/Shared/JavaScript/*.test.js\"",
         "check:js": "npm run format:check && npm run lint && npm run test:js"
     },
     "devDependencies": {

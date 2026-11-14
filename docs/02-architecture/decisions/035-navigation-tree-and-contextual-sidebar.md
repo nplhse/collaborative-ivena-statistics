@@ -228,6 +228,36 @@ One tree that the contexts contribute to, following the `shared.tool` pattern:
   active entry has `aria-current="page"`, and both navigation regions are `nav` elements with their own
   `aria-label`.
 
+### Search in the sidebar
+
+Added with #1248. A search field at the top of the sidebar filters the tree of the current menu in the
+browser; it searches only that menu, not other areas, pages or data.
+
+- **What matches.** Matching ignores case and accents ("anlasse" finds "Anlässe", "ss" finds "ß") and
+  uses the translated labels the page renders. A single word only has to occur in the entry's own label,
+  however deep the entry is: "Fachbereich" finds Insights › Dimensions › Specialities. With several words,
+  every word has to occur somewhere on the path (section title, groups, the entry) and at least one in the
+  entry itself, so "insights übersicht" finds only the Insights overview. Badges ("Beta", counts) are not
+  part of the label and are never searched.
+- **What stays visible.** A match keeps its ancestors, and the groups on its path open. A matching group
+  keeps all its entries; a matching section title keeps the whole section. Section titles and dividers
+  without a visible entry are hidden. Matches are marked in the labels, a screen reader hears the number
+  of matching entries, and an empty result says so with a button to clear the search.
+- **What it does not change.** The fold state stays as the user set it. In the rail only the magnifier is
+  shown; focusing it opens Tabler's temporary preview, which follows focus, and leaving the field folds
+  the rail back. Groups opened by the search close again when it is cleared, and groups the user had
+  open stay open.
+- **Keyboard.** `/` focuses the field anywhere on the page except while typing in a form field (below `lg`
+  it opens the views first). Escape clears the term, a second Escape leaves the field. Arrow down moves to
+  the first result and the arrow keys move between results; arrow up from the first result returns to the
+  field. Enter opens the first result.
+- **After a click** the target page renders its sidebar unfiltered; Turbo's page cache is cleared of the
+  term too, so the back button shows the menu as before.
+
+The filter is a pure module (`assets/lib/navigation-filter.js`, tested with `node --test`); the
+`site-sidebar` controller reads the tree from the rendered markup (`data-nav-id`, `data-nav-label`,
+`data-nav-section`, `data-nav-section-title`) and applies the result. The server does not take part.
+
 ### Analytical context when switching views
 
 - **Between analyses** a sidebar link carries only `scope` and `period` of the current request, each with
@@ -304,7 +334,8 @@ Integration branch from `develop`, one PR per step ([ADR 010](010-architecture-g
 6. Sidebar for Explore; `subnav_explore` goes away.
 
 Follow-ups, optional for v0.3-beta: breadcrumbs from the active path (#1141), sitemap from the tree,
-mobile header actions (#954), favorites section, quick search.
+mobile header actions (#954), favorites section, quick search. The search inside the sidebar
+followed in #1248 ([Search in the sidebar](#search-in-the-sidebar)); a command palette across areas is still open.
 
 ## Prototype
 

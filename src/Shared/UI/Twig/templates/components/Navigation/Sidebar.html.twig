@@ -18,18 +18,39 @@
             <span class="site-sidebar__view-chevron"><twig:ux:icon name="tabler:chevron-down" /></span>
         </button>
         <nav class="collapse navbar-collapse" id="{{ menu_id }}" aria-label="{{ 'nav.sidebar.label'|trans({}, 'shared') }}">
-            <ul class="navbar-nav pt-lg-2">
+            <div class="site-sidebar__search" role="search">
+                <div class="input-icon">
+                    <span class="input-icon-addon"><twig:ux:icon name="tabler:search" class="icon" /></span>
+                    <input type="search" class="form-control site-sidebar__search-input"
+                           placeholder="{{ 'nav.sidebar.search.placeholder'|trans({}, 'shared') }}"
+                           aria-label="{{ 'nav.sidebar.search.label'|trans({}, 'shared') }}"
+                           title="{{ 'nav.sidebar.search.label'|trans({}, 'shared') }} (/)"
+                           aria-keyshortcuts="/" autocomplete="off" spellcheck="false"
+                           data-site-sidebar-target="search"
+                           data-action="input->site-sidebar#filter keydown->site-sidebar#searchKeydown"
+                           data-testid="sidebar-search">
+                </div>
+                <span class="visually-hidden" role="status" data-site-sidebar-target="status"
+                      data-label-none="{{ 'nav.sidebar.search.empty'|trans({}, 'shared') }}"
+                      data-label-one="{{ 'nav.sidebar.search.result_one'|trans({}, 'shared') }}"
+                      data-label-other="{{ 'nav.sidebar.search.result_other'|trans({count: '__COUNT__'}, 'shared') }}"></span>
+            </div>
+            <ul class="navbar-nav pt-lg-2" data-site-sidebar-target="tree" data-action="keydown->site-sidebar#treeKeydown">
                 {% for section in navigation.sections %}
                     {% if section.group.label %}
-                        <li class="nav-section-title">{{ section.group.label|trans }}</li>
+                        <li class="nav-section-title" data-nav-section-title="{{ section.group.id }}" data-nav-label="{{ section.group.label|trans }}">{{ section.group.label|trans }}</li>
                     {% elseif not loop.first %}
-                        <li class="nav-section-title site-sidebar__divider" aria-hidden="true"></li>
+                        <li class="nav-section-title site-sidebar__divider" data-nav-section-title="{{ section.group.id }}" data-nav-label="" aria-hidden="true"></li>
                     {% endif %}
                     {% for node in section.nodes %}
-                        {{ include('@Shared/components/Navigation/_sidebar_node.html.twig', {node: node, depth: 0, sidebar: this}) }}
+                        {{ include('@Shared/components/Navigation/_sidebar_node.html.twig', {node: node, depth: 0, sidebar: this, section: section.group.id}) }}
                     {% endfor %}
                 {% endfor %}
             </ul>
+            <div class="site-sidebar__empty text-secondary" hidden data-site-sidebar-target="empty" data-testid="sidebar-search-empty">
+                <p class="mb-1">{{ 'nav.sidebar.search.empty'|trans({}, 'shared') }}</p>
+                <button type="button" class="btn btn-link btn-sm p-0" data-action="site-sidebar#clearSearch">{{ 'nav.sidebar.search.clear'|trans({}, 'shared') }}</button>
+            </div>
         </nav>
         <div class="navbar-footer site-sidebar__footer">
             <ul class="navbar-nav">
