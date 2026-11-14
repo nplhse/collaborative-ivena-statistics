@@ -250,6 +250,40 @@ final class NavigationBuilderTest extends TestCase
         self::assertSame('Häufige Fragen', $menu->sections[0]->nodes[0]->item->label->trans($this->createStub(TranslatorInterface::class)));
     }
 
+    public function testEntriesOnOneRouteAreToldApartByTheirRouteParameters(): void
+    {
+        $builder = $this->builder([
+            Menu::Statistics->value => [
+                'groups' => [$this->group('allocations')],
+                'items' => [
+                    new NavItem('dim-indications', 'allocations', new TranslatableMessage('Indikationen'), 'app_stats_insights_dimension', ['dimension' => 'indications'], detailRoutes: ['app_stats_insights_show', 'app_stats_indication_dashboard']),
+                    new NavItem('dim-occasions', 'allocations', new TranslatableMessage('Anlässe'), 'app_stats_insights_dimension', ['dimension' => 'occasions'], detailRoutes: ['app_stats_insights_show']),
+                ],
+            ],
+        ]);
+
+        self::assertSame('dim-occasions', $builder->build(Menu::Statistics, 'app_stats_insights_dimension', null, ['dimension' => 'occasions'])->activeId());
+        self::assertSame('dim-occasions', $builder->build(Menu::Statistics, 'app_stats_insights_show', null, ['dimension' => 'occasions', 'id' => 7])->activeId());
+        self::assertSame('dim-indications', $builder->build(Menu::Statistics, 'app_stats_indication_dashboard', null, ['indicationId' => 7])->activeId(), 'A route without the parameter matches the entry that claims it.');
+        self::assertNull($builder->build(Menu::Statistics, 'app_stats_insights_dimension', null, ['dimension' => 'unknown'])->activeId());
+        self::assertSame([], $builder->duplicateRouteClaims(Menu::Statistics), 'Different parameters on the same route are no duplicate claim.');
+    }
+
+    public function testTheSameRouteWithTheSameParametersIsADuplicateClaim(): void
+    {
+        $builder = $this->builder([
+            Menu::Statistics->value => [
+                'groups' => [$this->group('allocations')],
+                'items' => [
+                    new NavItem('a', 'allocations', new TranslatableMessage('A'), 'app_stats_insights_dimension', ['dimension' => 'occasions']),
+                    new NavItem('b', 'allocations', new TranslatableMessage('B'), 'app_stats_insights_dimension', ['dimension' => 'occasions']),
+                ],
+            ],
+        ]);
+
+        self::assertSame(['app_stats_insights_dimension {"dimension":"occasions"}' => ['a', 'b']], $builder->duplicateRouteClaims(Menu::Statistics));
+    }
+
     public function testDuplicateIdsAreRejected(): void
     {
         $builder = $this->builder([
