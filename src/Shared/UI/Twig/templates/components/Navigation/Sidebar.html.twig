@@ -1,4 +1,5 @@
 {% set navigation = this.navigation %}
+{% if navigation.sections is not empty %}
 {% set area_label = this.areaLabel %}
 {% set active_label = this.activeLabel %}
 {% set menu_id = 'site-sidebar-' ~ this.menu %}
@@ -52,3 +53,4 @@
         </div>
     </div>
 </aside>
+{% endif %}

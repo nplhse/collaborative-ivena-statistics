@@ -32,6 +32,12 @@ enum Menu: string
     public const string FOOTER_GROUP_MORE = 'more';
 
     /**
+     * Group of the explore sidebar that other contexts attach to (users from the User context); the explore
+     * menu itself is defined by Allocation.
+     */
+    public const string EXPLORE_GROUP_ORGANISATION = 'organisation';
+
+    /**
      * Query parameters a sidebar link carries over from the current page (ADR 035): the statistics scope and
      * period with the parameters they depend on. Comparison parameters and all other filters are never
      * carried; the target view validates the values and falls back to its own defaults.

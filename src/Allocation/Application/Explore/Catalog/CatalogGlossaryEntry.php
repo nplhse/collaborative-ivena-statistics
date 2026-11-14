@@ -13,6 +13,8 @@ final readonly class CatalogGlossaryEntry
 {
     /**
      * @param array<string, int|string> $routeParameters
+     * @param list<string>              $detailRoutes    routes of further pages of this glossary (for example a diagram);
+     *                                                   the explore sidebar marks Classifications on them (ADR 035)
      */
     public function __construct(
         public string $key,
@@ -22,6 +24,7 @@ final readonly class CatalogGlossaryEntry
         public string $icon,
         public string $route,
         public array $routeParameters = [],
+        public array $detailRoutes = [],
     ) {
     }
 }
