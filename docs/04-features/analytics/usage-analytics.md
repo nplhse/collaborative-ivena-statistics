@@ -38,7 +38,10 @@ Banner is shown when `decidedAt` is null (`cookie_consent.decided` in Twig). Log
 | Version | Analytics consent covers |
 |---------|--------------------------|
 | `v1` | Usage analytics inside the application only |
-| `v2` | Also the internal user id in error and performance reports of the operator's monitoring service (Sentry, [observability-sentry.md](../../05-operations/observability-sentry.md#privacy)) |
+| `v2` | Also the internal user id in Sentry's error and performance reports ([observability-sentry.md](../../05-operations/observability-sentry.md#privacy)); the text names Sentry with servers in the EU |
+
+The `v2` text names Sentry and the EU region as fixed wording. Operators without Sentry, or with another region, cannot
+adapt it yet; making both a setting (and dropping the sentence without Sentry) is #1200.
 
 A `v1` decision keeps its analytics consent but does not allow the user id in Sentry; the banner is not shown again, so
 the id is sent only after the user decides again (for example on the preferences page).
