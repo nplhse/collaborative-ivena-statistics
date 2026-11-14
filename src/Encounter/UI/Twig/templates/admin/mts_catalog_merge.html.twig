@@ -1,0 +1,20 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}{{ 'encounter.mts_catalog.merge.title'|trans({code: entry.code}, 'encounter') }}{% endblock %}
+
+{% block main %}
+    <div class="mb-3">
+        <a href="{{ back_url }}" class="btn btn-outline-secondary">&larr; {{ 'encounter.mts_catalog.merge.back'|trans({}, 'encounter') }}</a>
+    </div>
+
+    <p>{{ 'encounter.mts_catalog.merge.intro'|trans({code: entry.code, name: entry.germanName}, 'encounter') }}</p>
+
+    {% if blocker %}
+        <div class="alert alert-warning" role="alert">{{ blocker }}</div>
+    {% else %}
+        {{ form_start(form) }}
+            {{ form_row(form.target) }}
+            <button type="submit" class="btn btn-primary">{{ 'encounter.mts_catalog.merge.submit'|trans({}, 'encounter') }}</button>
+        {{ form_end(form) }}
+    {% endif %}
+{% endblock %}

@@ -40,6 +40,15 @@ interface MatchValidationReaderInterface
     public function itemsByMatcherVersion(int $hospitalId): array;
 
     /**
+     * Every pair item of the hospital's samples with the matcher version of the pair as sampled (else of its sample),
+     * its plausibility snapshot and whether the bonus was decisive (null: not recorded, drawn before #1156), for the
+     * report by snapshot.
+     *
+     * @return list<array{stratum: ValidationStratum, matcher_version: string, snapshot_id: ?int, decisive: ?bool, verdict: ?ValidationVerdict, replaced: bool}>
+     */
+    public function pairItemsByPlausibility(int $hospitalId): array;
+
+    /**
      * Verdicts on pairs of the hospital's samples as "allocationId:encounterId" => belongs together
      * (correct: true, wrong: false); unclear and open items are left out, the latest verdict wins.
      *

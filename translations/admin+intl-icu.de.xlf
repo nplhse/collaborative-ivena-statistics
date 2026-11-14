@@ -2421,6 +2421,30 @@
         <source>admin.import_batch_run_item.entity.plural</source>
         <target>Stapelpositionen</target>
       </trans-unit>
+      <trans-unit id="adm74D5BCFEDe" resname="menu.data.mts_catalog">
+        <source>menu.data.mts_catalog</source>
+        <target>MTS-Katalog</target>
+      </trans-unit>
+      <trans-unit id="adm129C8908De" resname="menu.data.mts_catalog.diagrams">
+        <source>menu.data.mts_catalog.diagrams</source>
+        <target>Diagramme</target>
+      </trans-unit>
+      <trans-unit id="adm45229836De" resname="menu.data.mts_catalog.indicators">
+        <source>menu.data.mts_catalog.indicators</source>
+        <target>Indikatoren</target>
+      </trans-unit>
+      <trans-unit id="admAAA647DEDe" resname="menu.data.mts_catalog.aliases">
+        <source>menu.data.mts_catalog.aliases</source>
+        <target>Aliasse</target>
+      </trans-unit>
+      <trans-unit id="adm6FB6BD90De" resname="menu.data.mts_catalog.assignments">
+        <source>menu.data.mts_catalog.assignments</source>
+        <target>Zuordnungen</target>
+      </trans-unit>
+      <trans-unit id="adm1517EB45De" resname="menu.data.mts_catalog.plausibility">
+        <source>menu.data.mts_catalog.plausibility</source>
+        <target>Plausibilitätstabelle</target>
+      </trans-unit>
       <trans-unit id="admCrudFieldUserDe" resname="admin.field.user">
         <source>admin.field.user</source>
         <target>Benutzer</target>

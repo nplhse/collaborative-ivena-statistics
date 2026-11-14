@@ -2421,6 +2421,30 @@
         <source>admin.import_batch_run_item.entity.plural</source>
         <target>Import batch run items</target>
       </trans-unit>
+      <trans-unit id="adm74D5BCFE" resname="menu.data.mts_catalog">
+        <source>menu.data.mts_catalog</source>
+        <target>MTS catalog</target>
+      </trans-unit>
+      <trans-unit id="adm129C8908" resname="menu.data.mts_catalog.diagrams">
+        <source>menu.data.mts_catalog.diagrams</source>
+        <target>Diagrams</target>
+      </trans-unit>
+      <trans-unit id="adm45229836" resname="menu.data.mts_catalog.indicators">
+        <source>menu.data.mts_catalog.indicators</source>
+        <target>Indicators</target>
+      </trans-unit>
+      <trans-unit id="admAAA647DE" resname="menu.data.mts_catalog.aliases">
+        <source>menu.data.mts_catalog.aliases</source>
+        <target>Aliases</target>
+      </trans-unit>
+      <trans-unit id="adm6FB6BD90" resname="menu.data.mts_catalog.assignments">
+        <source>menu.data.mts_catalog.assignments</source>
+        <target>Assignments</target>
+      </trans-unit>
+      <trans-unit id="adm1517EB45" resname="menu.data.mts_catalog.plausibility">
+        <source>menu.data.mts_catalog.plausibility</source>
+        <target>Plausibility table</target>
+      </trans-unit>
       <trans-unit id="admCrudFieldUser" resname="admin.field.user">
         <source>admin.field.user</source>
         <target>User</target>

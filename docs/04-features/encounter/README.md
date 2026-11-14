@@ -16,7 +16,9 @@ Decisions: [ADR 026](../../02-architecture/decisions/026-encounter-data-context-
 (context, exchange format, retention), [ADR 027](../../02-architecture/decisions/027-encounter-pseudonym-key.md)
 (pseudonym key), [ADR 028](../../02-architecture/decisions/028-encounter-access-grants.md) (access),
 [ADR 029](../../02-architecture/decisions/029-encounter-import-lifecycle.md) (import lifecycle),
-[ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md) (matching).
+[ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md) (matching),
+[ADR 032](../../02-architecture/decisions/032-mts-catalog-as-maintained-data.md) (MTS catalog),
+[ADR 033](../../02-architecture/decisions/033-learning-plausibility-table.md) (plausibility table).
 
 ## Flow
 
@@ -39,7 +41,9 @@ Implemented in #1051: the tool v1 with the ORBIS MTS profile, its download (now 
 public update check `/data-prep/latest.json` and the version options `app.encounter.data_prep`
 ([data-preparation-tool.md](data-preparation-tool.md)). #1130 added the landing page
 `/tools/data-prep` (getting started, versions, changelog) with subpages for the key file and the
-local map, and the local map editor in the tool (1.1.0).
+local map, and the local map editor in the tool (1.1.0). #1157 added the public MTS catalog
+`/data-prep/mts-catalog.json` for the tool (1.2.0) and provisional catalog entries created by the import
+([MTS glossary](#mts-glossary)).
 
 ## Model
 
@@ -153,7 +157,9 @@ that the key generation stored at upload is still current and no key change is i
 the run fails with `key_generation_changed` and nothing is written), checks or registers the key check
 value and inserts row by row with `insertIfNew()`: known visits count as duplicates, new ones belong to
 the import. The key generation is also checked before a reprocess removes the import's data, so a
-reprocess after a key change keeps the visits.
+reprocess after a key change keeps the visits. In the same commit, MTS diagram and indicator codes (initial
+triage and retriage) of the new visits that resolve to nothing become provisional catalog entries
+([MTS glossary](#mts-glossary), #1157); the visits keep the codes as sent.
 
 **Suspected duplicates**: a new visit with the same `case_key` as another visit of the hospital and key
 generation (earlier, or earlier in the same file) and a time anchor at most 15 minutes away is inserted
@@ -303,6 +309,7 @@ Overviews cross both attributes, for example "EMS arrival, not linked".
 | Delete an encounter import | beta role + `UPLOAD`, or `ROLE_ADMIN` |
 | Manage encounter grants of a hospital | hospital owner or `ROLE_ADMIN` |
 | Import status, counts, reject codes, match diagnostics without case details or file content | `ROLE_ADMIN` |
+| Plausibility table: edit problem areas, review, activate, retire and delete snapshots (points only, no case access) | beta role + `ROLE_ENCOUNTER_CATALOG_REVIEWER` (inherited by `ROLE_ADMIN`) |
 
 Hospital ownership and hospital grants do not imply an encounter grant. `ROLE_ADMIN` holds every
 grant action on every hospital without a stored grant; an administrator impersonating a user has that
@@ -332,7 +339,9 @@ Summary of [ADR 030](../../02-architecture/decisions/030-encounter-allocation-ma
 
 - Same hospital; pass 1 EMS arrivals, −20 … +45 min, age ±2; pass 2 the rest, −30 … +90 min, age ±5.
 - Features: time difference, sex, age difference, arrival route, physician vehicle, work accident.
-  MTS category, MTS diagram and admitting department are not used.
+  MTS category, MTS indicator and admitting department are not used. Since matcher `1.2.0` (#1154) pass 2 adds
+  a bonus of 0 … +3 when PZC and MTS diagram are plausible together in the active snapshot
+  ([plausibility table](#plausibility-table)); pass 1 never uses the diagram.
 - Score 0.0–1.0 with competition between candidates, shown as agreement with feature contributions.
 - `auto_accepted` (≥ 0.90, no conflict: no other allocation reaches 0.90 for the same visit in the
   same pass) is an effective link with visible automatic origin;
@@ -340,12 +349,13 @@ Summary of [ADR 030](../../02-architecture/decisions/030-encounter-allocation-ma
 - Pass 1 reserves both sides; later runs only fill gaps and never reassign links. The review may
   propose a targeted swap.
 
-Implemented in #1053 (matcher version `1.0.0`); production matcher since #1043: `1.1.0` (see [ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md#matcher-versions) and the matcher versions below). The review is #1054 ([Match review](#match-review)); the overview and the case card (#1055) show links as described in [Statistics in the pilot](#statistics-in-the-pilot).
+Implemented in #1053 (matcher version `1.0.0`); production matcher since #1154: `1.2.0` (`1.1.0` before; see [ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md#matcher-versions) and the matcher versions below). The review is #1054 ([Match review](#match-review)); the overview and the case card (#1055) show links as described in [Statistics in the pilot](#statistics-in-the-pilot).
 
 **Table `encounter_match`**, one row per pair of allocation and visit: `status` (`auto_accepted`,
 `proposed`, `confirmed`, `rejected`), `conflict`, `score`, `points`, `contributions` (points per feature),
 `pass`, `matcher_version`, `time_anchor` (`admission`, or `assessment` as marked substitute),
-`time_difference_minutes` (anchor − IVENA arrival), `decided_by`/`decided_at` (manual decisions only;
+`time_difference_minutes` (anchor − IVENA arrival), `plausibility_snapshot_id`, `plausibility_level` and
+`plausibility_decisive` (since `1.2.0`, see below), `decided_by`/`decided_at` (manual decisions only;
 a check constraint enforces it) and `created_at`. Partial unique indexes make effective links
 (`auto_accepted`, `confirmed`) one-to-one on both sides. The row goes with its visit, its allocation and
 its hospital (`ON DELETE CASCADE`); a deleted user leaves the decision with `decided_by` empty.
@@ -354,17 +364,39 @@ its hospital (`ON DELETE CASCADE`); a deleted user leaves the decision with `dec
 candidate's score is its share of the total weight (`MatchPlanner`, points in `FeatureScorer`). The
 points and the "no match" weight were set by judgement for v1 (ADR 030); the
 [match validation](#match-validation) measures them. They live in `MatchWeights` with their version
-(`MatchWeights::production()`, currently `MatchWeights::v1_1()`, `1.1.0`); a new matcher version is a new
+(`MatchWeights::production()`, currently `MatchWeights::v1_2()`, `1.2.0`); a new matcher version is a new
 set of points with a new version, which `MatchPlanner::VERSION` names and every written row stores.
 
-| Feature | Points (`1.1.0`; `1.0.0` where different) |
+| Feature | Points (`1.2.0`; earlier versions where different) |
 |---|---|
 | time: matching anchor − IVENA arrival | −5 … +15 min: +4; −20 … −6 or +16 … +30: +3 (v1: +2); +31 … +45: 0; otherwise (pass 2): −2 |
 | sex | equal: +2; male vs female: −2 (v1: −4); one side diverse: 0 |
 | age difference | 0: +2; 1: +1; 2: 0; 3–5 (pass 2): −2 |
 | arrival route | EMS: +1; unknown: 0; self-presenter (pass 2): −2 |
-| physician vehicle ↔ IVENA "with physician" | physician vehicle and physician: +2; one of them only (physician vehicle without, ambulance or patient transport with): −1; otherwise 0 |
+| physician vehicle ↔ IVENA "with physician" | physician vehicle and physician: +2; ambulance with physician (rendezvous system, `physician.rendezvous`): +1 (`1.0.0`, `1.1.0`: −1); physician vehicle without, or patient transport with physician: −1; otherwise 0 |
 | work accident ↔ IVENA work accident | both: +2; one side only: −1; neither: 0 |
+| plausibility (pass 2 only, since `1.2.0`) | bonus of the allocation's PZC × the visit's canonical MTS diagram in the active snapshot, 0 … +3 ([plausibility table](#plausibility-table)); never negative |
+
+**Plausibility bonus** (`1.2.0`, ADR 030 amendment, ADR 033): pass 2 reads the snapshot active when the run
+starts (`PlausibilityLookup::active()`) and adds, for every candidate, the bonus of its cell (exact PZC × diagram,
+or the PZC's problem area × diagram when the exact cell has too few observations; stored alias codes resolve to the
+canonical diagram), at most `MatchWeights::$plausibilityCap` (+3), as contribution `plausibility` (0 included). It
+competes like any other point; candidates, windows, thresholds and the conflict rule are unchanged. No PZC (no
+normalized indication), no diagram, no cell or no active snapshot: 0. Pass 1 adds nothing and records nothing. Each
+pass-2 pair stores `plausibility_snapshot_id` (null without active snapshot; the reference keeps active and retired
+snapshots from being deleted), `plausibility_level` (`exact`, `area` or `none`) and `plausibility_decisive`: its
+score with the bonus removed from every candidate of the allocation in that pass stays below the threshold of its
+status (0.90 for an automatic link, 0.50 for a proposal), so the bonus decided it. Pairs of pass 1, of earlier
+versions and manual pairs are never decisive. The bonus can also lower a pair: a competitor's bonus takes share of
+the score, so an automatic link becomes a proposal or a proposal is not stored. Nothing marks such a pair (it is
+not decisive, or there is no row); `app:encounter:evaluate-matcher` counts these allocations ("worse with the bonus"). The match review and the validation score candidates as in pass 2, with the bonus of
+the active snapshot, and a pair confirmed there without a stored row records snapshot and level, never decisive.
+
+Example (as in the unit tests): arrival 10:00, admission 10:07, male vs female, same age, ambulance:
+4 − 2 + 2 + 1 = 5 points, 32 / 48 = 0.6667, a proposal of pass 1. With PZC 711 and the diagram "Urologisches
+Problem" (seed area "Urologie", +3) pass 2 gives 8 points, 256 / 272 = 0.9412: an automatic link, decisive
+(0.6667 < 0.90). An ambulance with IVENA "with physician" and everything else matching scores
+4 + 2 + 2 + 1 + 1 = 10 points, 1024 / 1040 = 0.9846 (`1.1.0`: 8 points, 0.9412).
 
 Example: arrival 10:00, ED admission 10:07, same sex and age, ambulance: 4 + 2 + 2 + 1 = 9 points; alone
 it scores 512 / (16 + 512) = 0.9697 and becomes `auto_accepted`. A second visit at 10:06 with the same
@@ -373,12 +405,21 @@ values gives both 512 / 1040 = 0.4923: nothing is proposed. Admission at 10:20 i
 at 10:07 but male vs female: 4 − 2 + 2 + 1 = 5 points, 32 / 48 = 0.6667, a proposal (v1: 3 points, 0.3333,
 nothing). Times are compared on the local wall clock at minute precision.
 
-**Matcher versions** (ADR 030): `1.0.0` (points by judgement) and `1.1.0`
-(`time.near` +3, `sex.different` −2, after the validation of one pilot hospital, October 2026) are both
-defined; `1.1.0` is the production matcher. Stored pairs keep the version that scored them. A new version
+**Matcher versions** (ADR 030): `1.0.0` (points by judgement), `1.1.0`
+(`time.near` +3, `sex.different` −2, after the validation of one pilot hospital, October 2026) and `1.2.0`
+(`physician.rendezvous` +1, plausibility bonus in pass 2, cap +3) are all defined; `1.2.0` is the production
+matcher. Stored pairs keep the version that scored them. A new version
 rescores nothing in bulk: automatic links and manual decisions stay with their old version, open proposals
 are recomputed with the new version by the next run over their allocations (after an import, or
-`app:encounter:match`), and unlinked cases are matched with it on that run.
+`app:encounter:match`), and unlinked cases are matched with it on that run. Activating or retiring a
+plausibility snapshot follows the same rule (ADR 033): links and decisions stay, open proposals change on the next
+run over their allocations.
+
+**Rollout of `1.2.0`**: the migration adds the three plausibility columns; existing pairs get no snapshot, no level
+and `plausibility_decisive` false. Nothing is rescored on deploy. Until an administrator or reviewer activates a
+snapshot, `1.2.0` differs from `1.1.0` only by the rendezvous rule. To apply `1.2.0` and a newly activated snapshot to
+open proposals and unlinked cases of past months, run `app:encounter:match --hospital=<id> --from=… --to=…` per
+hospital; check the effect first with `app:encounter:evaluate-matcher --snapshot=<id>`.
 
 **Runs** (`EncounterMatcher`, one transaction under a per-hospital advisory lock that the review takes too):
 
@@ -411,7 +452,8 @@ pair proposed in pass 1 keeps its pass-1 score when pass 2 sees it again, and pr
 that is linked at the end of the run are removed.
 
 **Manual run**: `php bin/console app:encounter:match --hospital=<id> --from=YYYY-MM-DD [--to=YYYY-MM-DD]`
-prints counts only. Synthetic encounters loaded by the fixtures are not matched until it runs.
+prints counts only (including the new links and proposals the plausibility bonus decided). Synthetic encounters
+loaded by the fixtures are not matched until it runs.
 
 **Configuration** (`app.encounter.matching`): `auto_accept_threshold` (0.90), `proposal_threshold`
 (0.50), `pass1` and `pass2` with `minutes_before`, `minutes_after`, `max_age_difference` (20/45/2 and
@@ -420,6 +462,145 @@ prints counts only. Synthetic encounters loaded by the fixtures are not matched 
 **Read model**: `EncounterKeyChangeSummaryQuery` counts links and decisions per hospital;
 `EncounterOverviewQuery` and `HospitalCourseQuery` read them for the pages of #1055; `MatchReviewQuery` reads
 the review (below).
+
+## Plausibility table
+
+Decided in [ADR 033](../../02-architecture/decisions/033-learning-plausibility-table.md) and the
+[ADR 030 amendment](../../02-architecture/decisions/030-encounter-allocation-matching.md#amendment-matcher-120)
+(#1136); implementation in #1153 (table and seed), #1154 (matcher `1.2.0`), #1155 (learning job) and #1156
+(analyses). The table, the seed and the review pages exist since #1153 (see [Implemented](#implemented-in-1153));
+matcher `1.2.0` reads the active snapshot in pass 2 since #1154 ([matching](#matching)); the learning job and its
+report since #1155 ([learning job](#learning-job-1155)).
+
+- **Cells:** exact PZC of the allocation × canonical MTS diagram of the visit's initial triage → bonus 0 … +3.
+  When the exact cell has too few observations (minimum, 10 as starting value), the cell of the PZC's curated
+  problem area × diagram applies. No negative points. No PZC, no diagram or no cell: 0. A finer level by MTS
+  indicator is reserved; the learning report shows it, the matcher does not read it.
+- **One global table** for all hospitals, read from the **active snapshot**; without one the bonus is 0.
+- **Seed:** problem areas (curated groups of PZC codes, not the PZC prefix) with the MTS diagrams plausible
+  with them and points, reviewed in the app.
+- **Learning:** a job builds a draft snapshot from pairs confirmed or validated by people and automatic links
+  whose decision did not depend on the bonus; other candidates of the same allocations are the counter-cases.
+  Laplace smoothing, shrinkage towards the seed, minimum counts, cap +3; the report replays the draft
+  cross-fitted by period.
+- **Snapshots:** `draft` → `active` → `retired`; activated by an administrator or a holder of
+  `ROLE_ENCOUNTER_CATALOG_REVIEWER` ([permission model](../../02-architecture/permission-model.md#encounter-grants)),
+  audited. Active and retired snapshots are immutable.
+- **Matcher:** pass 2 only; the pair records the bonus (`plausibility` contribution), the snapshot id and
+  whether the bonus was decisive. A new active snapshot changes no link or manual decision; open proposals
+  are recomputed by the next run.
+- **Bias:** analyses comparing PZC with the MTS diagram exclude links decided by the bonus or report them
+  apart ([PZC ↔ MTS comparisons](#pzc--mts-comparisons-linkage-bias)); the match validation reports these
+  links as a group of their own ([match validation](#match-validation)).
+- **Privacy:** reviewers never see case counts across hospitals. The review and activation pages show points,
+  source (curated, learned) and the change against the active snapshot; replay counts and rates cover only
+  the hospitals on which the viewer holds the encounter grant `REVIEW` (administrators: all).
+
+### Implemented in #1153
+
+- **Tables** of the Encounter context: `encounter_plausibility_area` (code derived once from the German name,
+  German and English name), `encounter_plausibility_area_code` (PZC → area, unique per PZC, so each PZC belongs to
+  at most one area) and `encounter_plausibility_area_diagram` (curated rule: area × MTS diagram with points 0 … +3)
+  hold the editable seed. `encounter_plausibility_snapshot` (status `draft` / `active` / `retired`, origin `seed` /
+  `learned`, activation and retirement time; since #1155 also period, eligible pairs, parameters and report of a
+  learned snapshot),
+  `encounter_plausibility_snapshot_code` (the PZC → area membership copied into the snapshot, so editing an
+  area never changes an active snapshot) and `encounter_plausibility_cell` (exact cell: PZC × canonical diagram code;
+  fallback cell: area code × diagram; reserved nullable indicator code on exact cells; points 0 … +3; source
+  `curated` / `learned`; positives and negatives as counts for the learning job). Check constraints and a partial
+  unique index keep points in range, each cell keyed by PZC or area, and at most one snapshot active.
+- **Lookup** (`PlausibilityLookup`, `PlausibilityTable`): the stored diagram code resolves to its canonical code
+  ([MTS glossary](#mts-glossary)); then the exact cell if it has at least `app.encounter.plausibility.min_observations`
+  observations (positives + negatives, default 10), otherwise the fallback cell of the PZC's area, otherwise 0. No
+  PZC, no diagram or no active snapshot: 0. Indicator cells are not read. Points are capped at +3.
+- **Seed.** The migration `Version20261113235145` carries the a-priori draft of #1136 (no real data, no counts) and
+  builds one snapshot with status `draft` and origin `seed` from it: 24 problem areas with 114 PZC codes (list
+  1.3.11) and 61 rules at +3, giving 61 fallback cells and 373 exact cells with counts 0. No snapshot is active, so
+  the bonus is 0 until a person activates one. Codes named "sonstige" as a catch-all, transfers (KST),
+  resuscitation, paediatrics, obstetrics and gynaecology and the other specialties belong to no area; unspecific
+  diagrams (`unwohlsein_bei_erwachsenen`, `hautausschlaege` and others) have no rule. The seed needs the clinical
+  review in the app before the first activation.
+- **Review pages** as the tool "Plausibility table" under `/tools/encounter-plausibility` (routes
+  `app_tools_encounter_plausibility*`, [ADR 031](../../02-architecture/decisions/031-tools-section-and-tool-registry.md)),
+  listed by `EncounterToolProvider` with the beta badge only for users with `ROLE_ENCOUNTER_CATALOG_REVIEWER` and
+  `ROLE_ENCOUNTER_BETA`; the controllers check both roles (`^/tools` itself only needs `ROLE_USER`). Administrators
+  also reach it from Admin → Data → MTS catalog:
+  - Problem areas: list with PZC codes and plausible diagrams, create, edit (names, PZC codes and ranges such as
+    `711-718`, points per active diagram), delete. A PZC of another area is refused. Every save rebuilds the newest
+    `seed` draft from all areas (or creates one), in the same transaction (`PlausibilityCuration`,
+    `PlausibilitySnapshotBuilder`, same rule as the migration); audit intents `encounter.plausibility.area_*`.
+  - Snapshots: list and review page per snapshot with, per problem area, its PZC codes and the points and source of
+    its fallback cells, and, when another snapshot is active, the points before and the changed bonus per PZC ×
+    diagram (lookup rule, so a learned exact value shows only once a cell has the minimum observations). Activate a
+    draft (retires the active one), retire the active one (bonus 0 everywhere), delete a draft
+    (`PlausibilitySnapshots`; audit intents `encounter.plausibility.snapshot_*`). Active and retired snapshots are
+    never changed or deleted.
+  - No page shows counts, totals or rates of the table. The learning report with replay figures per hospital is
+    described under [learning job](#learning-job-1155).
+- **Catalog merge.** A provisional diagram named by a curated rule cannot be merged
+  (`MtsCatalogException::MERGE_HAS_PLAUSIBILITY_RULES`, [MTS glossary](#mts-glossary)).
+- **Matcher** (#1154): `1.2.0` reads the active snapshot in pass 2 and stores the bonus, snapshot, level and
+  decisive flag per pair ([matching](#matching)).
+- **Not yet:** analyses (#1156), export and import of the reviewed table to production (follow-up of ADR 032).
+
+### Learning job (#1155)
+
+`PlausibilityLearner` builds a **draft** snapshot with origin `learned` from the data of all hospitals; it never
+changes the active snapshot. Run it with the button "Learn draft" on `/tools/encounter-plausibility` (administrators and
+`ROLE_ENCOUNTER_CATALOG_REVIEWER` with the beta role; all data) or on the console:
+
+```bash
+php bin/console app:encounter:learn-plausibility [--from=YYYY-MM-DD] [--to=YYYY-MM-DD]
+```
+
+The console prints the period, the eligible pairs, the parameters and the replay over all hospitals and per hospital
+id (aggregates for operators). Everything runs in one transaction under the audit intent
+`encounter.plausibility.snapshot_learned` (the report itself is not audited). Without eligible pairs nothing is
+created. A large period runs inside the web request; for many hospitals or months use the console.
+
+- **Eligible pairs** (positives, `PlausibilityLearningQuery`): pairs with status `confirmed` (confirmed in the review,
+  or judged correct / chosen instead in the validation, which confirms the pair) and `auto_accepted` links with
+  `plausibility_decisive = false` (pass 1, pass 2 without a decisive bonus, matcher versions before `1.2.0`). Automatic
+  links the bonus decided are never learned from. A confirmed pair whose stored score the bonus had decided is
+  eligible (a person decided) and counted apart in the report.
+- **Negatives:** the other candidate visits of the same allocation in the pass-2 window (all arrival routes, as
+  `MatchPlanner::candidates()` lists them, without reservations). Visits without diagram count for neither side; a pair
+  whose allocation has no PZC adds nothing. Diagram codes are resolved to their canonical code (ADR 032).
+- **Estimate per cell** (`PlausibilityEstimator`), separately for exact rows (one PZC) and fallback rows (one problem
+  area of the seed); shares are taken within the row, because the candidates of an allocation share its PZC. For a
+  cell with `p` positives and `n` negatives in a row with `P` positives, `N` negatives and `K` distinct diagrams:
+  `raw = log2(((p + α) / (P + α·K)) / ((n + α) / (N + α·K)))` (Laplace smoothing α),
+  `value = ((p + n) · raw + k · seed) / (p + n + k)` (shrinkage towards the seed points with `k` pseudo
+  observations), points = `round(value)` clipped to 0 … +3. The seed points of a fallback cell are those of its
+  curated rule, of an exact cell those of its PZC's area rule (0 without rule).
+- **Minimum** (`min_observations`, the same value as for the lookup): a cell below it gets no learned points; it keeps
+  its seed points (source `curated`, counts stored) or is not written. So an exact cell falls back to its area and a
+  fallback cell keeps its seed, as ADR 033 states. Indicator cells are not filled yet (reserved).
+- **The draft** starts as the seed of the curated problem areas (same rule as the seed draft), then the estimated
+  cells are written on top with source `learned` and their counts. Counts stay internal (Privacy).
+- **Report** (`PlausibilityLearningReport`, stored per hospital in the snapshot): eligible pairs, of which confirmed
+  after a bonus decision, and a clean replay of the production matcher over the learning period (first to last arrival
+  day of the eligible pairs) without bonus, with the snapshot active at learning time, with the draft (learned on all
+  data, in-sample) and **cross-fitted**: the days are split into two folds (`alternating_days`: even and odd days since
+  1970-01-01), each fold is replayed with a table learned on the other fold only, and the results are added up — the
+  honest estimate of the draft's effect. Per variant: allocations with an automatic link, a proposal only or neither;
+  automatic links the bonus decided; automatic links that agree with the reference (a confirmed pair or a "correct"
+  verdict) or contradict it (a rejected pair, a "wrong" verdict, or another visit or allocation than a known partner).
+- **Privacy:** the snapshot page shows period and parameters to every reviewer, the replay only for hospitals on which
+  the viewer holds the encounter grant `REVIEW` (`EncounterVoter`); administrators see every hospital and the sum over
+  all of them, including the eligible pairs over all hospitals. A reviewer without a review grant sees no replay
+  figures. Counts per cell are never shown.
+- **Configuration** (`app.encounter.plausibility`): `min_observations` (10), `learning.smoothing` (α, 1.0),
+  `learning.shrinkage` (k, 10.0), `learning.fold` (`alternating_days`). The starting values are set by judgement;
+  they are checked with the report on the trial copy of the pilot data before the first activation.
+- **Effect:** none until a person activates a learned draft. Then, as for any new active snapshot, links and manual
+  decisions stay; open proposals and unlinked cases are matched with it on the next run over their allocations
+  (`app:encounter:match`, ADR 030).
+
+Measured on the pilot hospital (October 2026, 496 allocations): automatic links 421 (84.9 %) with `1.1.0`,
+453 (91.3 %) with an a-priori bonus of +3 in pass 2, 89.5 % with a table by exact PZC with fallback learned
+from half a month (cross-fitted by day);
+none linked to another visit than the reference.
 
 ## Match review
 
@@ -485,7 +666,9 @@ by default), "fits partly" (yellow) the proposal threshold (4–7), "hardly fits
 features only; the agreement beside it also accounts for competing candidates. A section "Extended information (MTS, IVENA)" adds, for
 unclear cases, IVENA urgency and normalized indication beside MTS category, diagram and indicator of the visit
 (`MatchReviewQuery::extendedInfo()`). They are no matching features (ADR 030) and the page says so: later
-analyses compare exactly these between IVENA and the ED. It is collapsed for a clear candidate and opens by
+analyses compare exactly these between IVENA and the ED. The only exception is the plausibility row of the
+comparison (since `1.2.0`, "PZC × MTS diagram"): the PZC and the visit's diagram with the bonus of the active
+snapshot, the way pass 2 scores the pair. It is collapsed for a clear candidate and opens by
 itself when the candidate's agreement among all candidates stays below the auto-accept threshold. Decisions
 made with this section open are deliberately not marked. The card header names the current link and its origin (automatic:
 score and pass). The linked visit is chosen first, else the open proposal with the highest stored score, else
@@ -549,7 +732,9 @@ Score bands come from `app.encounter.validation.score_bands` (lower bounds, defa
 0.99; the last band includes 1.0, labels like `0.90–0.99`). Within a cell the cases are ordered by
 `md5(seed, stratum, id)` and the first *n* are drawn, so the same seed on the same data draws the same
 sample. The sample stores period, *n*, seed, score bands, the current matcher version and the population
-of every cell; each item keeps the pair as sampled (status, score, band, points, pass, matcher version).
+of every cell; each item keeps the pair as sampled (status, score, band, points, pass, matcher version, and since
+#1156 the plausibility snapshot of its pass-2 bonus and whether the bonus was decisive; for items drawn before, the
+flag is empty: "not recorded").
 Drawing changes no link: automatic links stay effective while they are validated, and their origin stays
 visible on the item. Tables `encounter_validation_sample` and `encounter_validation_item`; samples go with
 their hospital, items with their sample, allocation or visit (`ON DELETE CASCADE`).
@@ -597,6 +782,19 @@ weighted by the band populations, Σ N_b × share_b / Σ N_b, given only when ev
 decisive verdict. The overview adds up the verdicts of all samples per matcher version, without population
 and weighting, because samples can overlap.
 
+**By plausibility snapshot** (#1156, `PlausibilityValidationReport`, pure; ADR 033): the overview also groups the
+verdicts on sampled pairs (automatic links, proposals) by the matcher version of the pair as sampled, its plausibility
+snapshot and whether the bonus was decisive. Groups: "not recorded" (drawn before #1156; nothing is guessed), "no
+snapshot" (pass 1, versions before `1.2.0`, runs without an active snapshot), a snapshot whose bonus did not decide
+the pair, and a snapshot whose bonus decided it (highlighted).
+Each group shows sampled, open, correct, wrong (of which another visit fits), unclear and the share correct with its
+Wilson interval, without score bands, population or weighting (samples can overlap). A share correct of the
+bonus-decided pairs clearly below that of the other pairs of the same snapshot means the bonus causes wrong links;
+the drawn sample is stratified by score band, not by bonus, so with few decisive pairs the interval stays wide. The
+item page does not show the flag, so the verdict is not influenced by it. Example (tested in
+`PlausibilityValidationReportTest`): decisive automatic links with 1 correct, 1 wrong (another visit fits), 1 unclear
+and 1 open give 1 / 2 = 50 %; non-decisive ones of the same snapshot with 3 correct and 1 wrong 3 / 4 = 75 %.
+
 Example (tested in `ValidationReportTest`): automatic links with 100 cases in band 0.99–1.00 (3 correct,
 1 wrong: 0.75) and 20 in 0.90–0.99 (2 correct: 1.0) give (100 × 0.75 + 20 × 1.0) / 120 = 0.79.
 
@@ -609,7 +807,12 @@ replays the planner on the stored allocations and visits of the period as a clea
 decisions) and writes nothing. `--weights=<version>` picks the matcher version the replay starts from
 (default: the production matcher; `1.0.0` reproduces v1). Options change the thresholds (`--auto-accept`,
 `--proposal`), the "no match" weight (`--no-match-points`) and single points (`--points=time.near=1`,
-repeatable; keys as in `MatchWeights`). It reports pairs, correct, wrong and unknown per status and band against the validation
+repeatable; keys as in `MatchWeights`). `--snapshot=<id>` replays the plausibility bonus of pass 2 with any snapshot,
+also a draft or a retired one; `--snapshot=none` without bonus; the default is the active snapshot (matchers before
+`1.2.0` have no bonus whatever the snapshot). A table compares the allocations linked automatically, with a proposal
+and with neither, with and without the bonus, counts the automatic links and proposals the bonus decided, and counts
+the allocations whose outcome is worse with the bonus (automatic → proposal, automatic → none, proposal → none). The
+command prints counts only, never a pair. It reports pairs, correct, wrong and unknown per status and band against the validation
 verdicts of the hospital, or with `--truth=<truth.json>` (from `app:generate:encounter-files`) against the
 synthetic truth, then also the recall: true pairs linked automatically, and linked or proposed. Introducing
 a new matcher version stays a code change: a new `MatchWeights` set, `MatchPlanner::VERSION` and the docs.
@@ -619,6 +822,46 @@ a new matcher version stays a code change: a new `MatchWeights` set, `MatchPlann
 Descriptive only, for the own hospital: coverage, encounters by arrival route and link status, MTS
 categories and diagrams, process times recomputed from timestamps (median, IQR), disposition and
 care level. No cross-hospital aggregates.
+
+### PZC ↔ MTS comparisons (linkage bias)
+
+Decided in [ADR 033](../../02-architecture/decisions/033-learning-plausibility-table.md#bias-in-pzc--mts-analyses)
+and the [ADR 030 amendment](../../02-architecture/decisions/030-encounter-allocation-matching.md#amendment-matcher-120)
+(#1156). Since matcher `1.2.0`, pass 2 adds a bonus when the allocation's PZC and the visit's MTS diagram are
+plausible together. A link the bonus made agrees in PZC and diagram because it was chosen for that agreement, so
+linked data shows more agreement between IVENA and the ED triage than the true pairs have. Pass-1 links (EMS
+arrivals) never use the diagram.
+
+**Where the flag comes from:** `encounter_match.plausibility_decisive`, written by the matcher in pass 2: the pair
+would not have reached its status (automatic link ≥ 0.90, proposal ≥ 0.50) with the bonus removed from every
+candidate of the allocation in that pass ([matching](#matching)). Pass-1 pairs, pairs of matcher versions before
+`1.2.0`, runs without an active snapshot and pairs created in the review are never decisive. A decision keeps the
+flag: an automatic link confirmed later still carries it. `plausibility_snapshot_id` names the snapshot that scored
+the pair.
+
+**Today:** no figure compares an IVENA attribute (PZC, indication, urgency) with the visit's MTS triage. The
+[hospital overview](#hospital-overview) counts MTS categories and diagrams over all visits, linked or not; the
+[case card](#case-card-hospital-course) and the [match review](#match-review) show single pairs. Nothing is excluded
+from them, and their numbers do not change with #1156. The overview's IVENA link tab shows how many automatic links
+the bonus decided ("of which decided by the plausibility bonus"), so the size of the affected group is visible.
+
+**Rule for any analysis that compares PZC, indication or urgency with the MTS diagram, indicator or category on
+linked data** (the indicator and category follow from the diagram, so the selection reaches them too; decided in
+the review of #1156, 2026-11-14):
+
+| Aspect | Rule |
+|---|---|
+| Population | Effective links (`auto_accepted`, `confirmed`) of the hospital and period. Automatic links with `plausibility_decisive` are excluded. Confirmed links stay in, whatever their flag: a person decided them (ADR 033, "manual decisions are unaffected"). |
+| Separate view | Instead of leaving them out, the excluded links may be shown as a group of their own beside the rest, never added to it. |
+| Count | The figure states how many links it excluded (or shows in the separate group) and their share of the effective links, with the small-count rule of the page (1–4 shown as `< 5`). |
+| Numerator and denominator | Both come from the remaining links; agreement shares never use the excluded links as denominator. |
+| Missing or unknown values | Pairs without PZC or without diagram get bonus 0 and are never decisive, so they are not excluded; they count as "not documented" on their side as usual. |
+| Period | Unchanged: the analysis' own period rule; the flag belongs to the pair, not to a period. |
+| Comparison groups | Only within one hospital, as every encounter figure in the pilot; the bonus-decided group is a comparison group only in the separate view. |
+
+The learning job (#1155) leaves the same links out of its training data, so the table does not learn from links it
+decided (ADR 033). Whether the bonus causes wrong links is judged in the
+[match validation](#match-validation) ("by plausibility snapshot").
 
 ### Hospital overview
 
@@ -655,7 +898,7 @@ Statistics depends on these Encounter application contracts (documented partners
 | Figure | Numerator | Denominator (shares) | Missing or unknown values |
 |---|---|---|---|
 | Coverage | Visits, distinct owning imports, distinct anchor days, first and last anchor in the period; below, the same for all data | – (not suppressed: they describe the uploaded data, not patients) | – |
-| Arrival route × IVENA link | Visits per route (`ems`, `self`, `unknown` from `arrival_route`) and link: linked automatically (`auto_accepted`), linked after confirmation (`confirmed`), linked in total (both), not linked | Visits of the row (route), last row all visits | Route `unknown` = `arrival_mode` `other` or empty. Not linked = no effective link: no pair, only an open proposal, or a rejected pair. Automatic links count as linked; their origin is a column of its own. |
+| Arrival route × IVENA link | Visits per route (`ems`, `self`, `unknown` from `arrival_route`) and link: linked automatically (`auto_accepted`), linked after confirmation (`confirmed`), linked in total (both), not linked | Visits of the row (route), last row all visits | Route `unknown` = `arrival_mode` `other` or empty. Not linked = no effective link: no pair, only an open proposal, or a rejected pair. Automatic links count as linked; their origin is a column of its own. Column "of which decided by the plausibility bonus" (#1156): visits whose automatic link has `plausibility_decisive`, as a share of the row's automatic links (confirmed links never count); small counts as everywhere. It only shows the share; the other columns are unchanged. |
 | MTS categories | Visits per initial `mts_category`, in MTS order red … blue | All visits of the period | "Not documented" row for visits without category. Retriage not counted. |
 | Top presentations (MTS diagrams) | The 10 most frequent initial `mts_diagram` codes (ties by code), then "other diagrams" (sum of the rest) | All visits of the period | "Not documented" row. Names from the MTS catalog (`MtsNames`); unknown codes shown as code. |
 | Process times | Median, Q1 and Q3 of the valid durations (PostgreSQL `percentile_cont`, linear interpolation), counted visits | – | Per interval: "time missing" (one of the two timestamps empty), "negative" (end before start), "over 24 h" (more than `ProcessInterval::MAX_PLAUSIBLE_MINUTES` = 1440). They are excluded from median and IQR and shown as counts. Median and IQR need at least 5 valid durations. |
@@ -719,21 +962,62 @@ per diagram under `/explore/glossary/mts/diagram/{code}`), contributed through t
 extension point ([explore-glossary.md](../allocation/explore-glossary.md)); Allocation does not depend
 on Encounter.
 
-- **Single catalog.** `src/Encounter/Application/Catalog/mts-de.json` (40 diagrams, 70 indicators, both
-  open lists) is read by the data preparation tool (bundled as catalog `mts-de`) and by `MtsCatalog`.
-  `MtsCatalog::code()` derives the code exactly as the tool's `catalogCode()`; `MtsCatalogTest` checks
-  examples, the codes of the tool's canonical sample output and the English names. The JSON content
-  is unchanged by the move, so the tool version stays.
+- **Catalog in the database.** Implemented in #1082 as decided in
+  [ADR 032](../../02-architecture/decisions/032-mts-catalog-as-maintained-data.md). Tables of the Encounter
+  context: `encounter_mts_diagram` and `encounter_mts_indicator` (stable code, German name, optional English
+  name, source `orbis_export` / `mts_edition` / `manual` / `first_seen`, status `curated` / `provisional` /
+  `merged`, first seen), `encounter_mts_alias` (kind, alias code, label, target code) and
+  `encounter_mts_diagram_indicator` (assignments as definitions). The migration seeds the content of
+  `mts-de.json` (40 diagrams, 70 indicators, `curated`, `orbis_export`) and the English diagram names that were
+  translations before; the values are carried in the migration. `encounter` keeps storing plain codes without
+  a foreign key, and the import keeps storing the source code unchanged, so every stored code stays valid.
+  Development fixtures do not purge these tables.
+- **Resolution.** `MtsCatalog` reads the tables (`MtsCatalogQuery`) and resolves a code in one step: an active
+  entry (`curated` or `provisional`) to itself, a merged entry or other alias code to its active target; a code
+  that resolves to nothing is shown as a code. `diagrams()` and `indicators()` list active entries only. The
+  glossary sums the counts of a code and its aliases (`codesResolvingTo()`), and a diagram page called with an
+  alias code shows its target. `MtsCatalog::code()` derives codes exactly as the tool's `catalogCode()`.
+- **Maintenance.** Administrators (`ROLE_ADMIN`) curate the catalog in the back office, Admin → Data → MTS
+  catalog (EasyAdmin pages of the Encounter context under `/admin/encounter/mts-*`), through
+  `MtsCatalogCuration`; every change is audited (`encounter.mts_catalog.*` intents):
+  - Diagrams and indicators: German and English name, source, status `curated` / `provisional`. The code is
+    derived from the German name on creation and never changes; entries are not deleted.
+  - Creating an entry or alias whose code already exists is refused on the form: as a duplicate when the
+    label is the same (ignoring case), as a **code collision** naming the existing label when it differs.
+    Codes are unique per kind across entries and aliases.
+  - Aliases: kind and label are set on creation (the alias code is derived from the label), the target is an
+    active entry of the same kind and can be changed. The alias of a merge cannot be edited or deleted.
+  - Merge (detail page of a provisional entry): it becomes `merged` and an alias from its code to the chosen
+    active entry is created, in one transaction. Refused while aliases point to the entry, it has
+    assignments or curated rules of the [plausibility table](#plausibility-table) name it. Undo removes the alias and makes the entry `provisional` again. Encounter rows are never
+    touched.
+  - Diagram–indicator assignments between active entries, created and removed.
+- **Provisional entries (#1157).** The import creates an entry for every MTS code of a stored visit (initial
+  triage and retriage, diagram and indicator) that resolves to nothing: no entry of the kind with that code, in
+  any status, and no alias code. Status `provisional`, source `first_seen`, the code as German name (the
+  exchange file carries codes, not labels), `first_seen_at` the time of the import; which hospital sent it is
+  not stored. Known visits, rejected rows and rejected files create nothing; a failed import rolls the entries
+  back with its commit. `MtsCatalogFirstSeenWriter` inserts with `ON CONFLICT (code) DO NOTHING` in code order,
+  so parallel imports of the same code create one entry and never fail, and writes one audit entry per created
+  row (`create`, intent `encounter.mts_catalog.first_seen_created` with kind, code and import id). They appear in the
+  back office lists (Admin → Data → MTS catalog) with status `provisional` and their first-seen time, to name,
+  merge or curate.
+- **Backfill.** `php bin/console app:encounter:mts-catalog:backfill-first-seen` creates the same entries for
+  codes already stored in `encounter` (first seen = creation time of the oldest encounter with the code);
+  safe to run again. Run it once when releasing #1157.
+- **Catalog for the tool (#1157).** `GET /data-prep/mts-catalog.json` (public, read only) serves the curated
+  entries and the aliases to them (provisional entries stay off the public endpoint until a person curates them); the tool keeps `src/Encounter/Application/Catalog/mts-de.json` as offline
+  fallback and writes the code of the source label, also for an alias
+  ([data-preparation-tool.md](data-preparation-tool.md#mts-catalog)). Export and import of the curated catalog
+  to production is a later follow-up.
 - **Categories:** `MtsCategory` with the target time from the first assessment contact to the first
   physician contact (`physicianContactTargetMinutes()`: red 0, orange 10, yellow 30, green 90, blue
   120 minutes), colour and name in EN and DE.
 - **Names only.** No discriminator texts and no flowcharts (copyright). The German name is the source.
-  English: diagrams show their well-known English chart name (`encounter.mts.diagram_name.<code>`,
-  English translation file only, for 39 of 40 diagrams; `Generelle Indikatoren` keeps its German
-  name) with the German name below; indicators keep their German name in both languages, as there is
-  no generally known English name for most of them and a translation of our own would invent terms.
-  The German locale never reads these keys; German names come from the catalog, not from a translation
-  file.
+  English: an entry shows its English name from the catalog when one is set, with the German name below.
+  The seed has the well-known English chart names of 39 of 40 diagrams (`Generelle Indikatoren` keeps its
+  German name) and no English indicator names, as there is no generally known English name for most of them
+  and a translation of our own would invent terms. Administrators can add English names in the back office.
 - **Visibility.** Definitions are shown to every participant (`^/explore` rule). Counts are shown only
   to users with `VIEW_CASES` or `VIEW_AGGREGATES` on a hospital (`EncounterVoter`), summed over exactly
   those hospitals (`EncounterCountScopeResolver`); administrators with the beta role count all
@@ -745,11 +1029,14 @@ on Encounter.
   the diagram without an indicator are one extra row.
 - **Small cells.** Counts from 1 to 4 are shown as `< 5` (`MtsCount`, threshold
   `CatalogPrivacyPolicy::MIN_ALLOCATIONS`, ADR 012); 0 is shown as a dash.
-- **Diagram page.** Lists the indicators seen with the diagram in the encounters the user may see, with
-  a filter on name and code (`?q=`). Indicators seen in data but not in the catalog are listed with
-  their code and marked "not in the catalog". Without encounter access the page shows the definition
-  and explains that the indicator list comes from encounter data: listing all catalog indicators would
-  suggest pairs that the MTS does not have, and pairs from other hospitals' data are not shared.
+- **Diagram page.** Lists the indicators assigned to the diagram in the catalog (diagram–indicator
+  assignments between active entries, definitions, #1157) to every participant, without counts. Users with
+  encounter access also see the indicators seen with the diagram in the encounters they may see, all rows
+  with counts; seen indicators that are not assigned are marked "not assigned in the catalog" when the diagram
+  has assignments, and seen codes that resolve to nothing are marked "not in the catalog". Filter on name and
+  code (`?q=`). Without assignments and without encounter access the page explains that the observed list
+  needs encounter access: listing all catalog indicators would suggest pairs that the MTS does not have, and
+  pairs from other hospitals' data are not shared. Counts and small-cell suppression are unchanged.
 
 ## Synthetic data
 
@@ -777,6 +1064,7 @@ listed by `EncounterToolProvider` for `ROLE_ENCOUNTER_BETA` with a beta badge:
 | Encounter match review | `app_tools_encounter_review` | `/tools/encounter-review` (hospital list), `/tools/encounter-review/{id}/…` |
 | Encounter match validation | `app_tools_encounter_review` with `mode=validation` | the same hospital list, linking to `/tools/encounter-review/{id}/validation` |
 | Data preparation tool | `app_tools_data_prep` | `/tools/data-prep`, `/tools/data-prep/key`, `/tools/data-prep/local-map`, `/tools/data-prep/download` |
+| Plausibility table (also needs `ROLE_ENCOUNTER_CATALOG_REVIEWER`, [above](#plausibility-table)) | `app_tools_encounter_plausibility*` | `/tools/encounter-plausibility`, `…/areas/new`, `…/areas/{code}/edit`, `…/areas/{code}/delete`, `…/snapshots/{id}`, `…/snapshots/{id}/{activate,retire,delete}` |
 
 There is no encounter entry in the main navigation anymore: descriptive figures are in Statistics
 (`/statistics/encounter-analytics`), the MTS glossary and the case card in Explore, the upload in Import and
@@ -815,3 +1103,4 @@ Before the first real upload the pilot hospital documents the data flow:
 | #1057 | Match validation |
 | #1058 | IVENA case number in encounter sources (after the pilot) |
 | #1130 | Tool landing page and local map editor |
+| #1136 | MTS plausibility (umbrella): #1152 ADRs, #1082 catalog in the database, #1153 plausibility table, #1154 matcher `1.2.0`, #1155 learning job, #1156 analyses, #1157 catalog distribution |

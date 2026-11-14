@@ -13,17 +13,18 @@ use App\Encounter\Domain\Enum\Sex;
  *
  * Points are base-2 logarithms of how much more often a value occurs for a true pair than for an
  * unrelated visit: +1 doubles the weight of a candidate, −1 halves it. They come from {@see MatchWeights}
- * (default: the production points, matcher v1.1; v1 was set by judgement, v1.1 adjusts two points after the
- * match validation); the match validation (#1057) replays other points. Changing the production points
- * changes the matcher version.
+ * (default: the production points, matcher v1.2; v1 was set by judgement, v1.1 adjusts two points after the
+ * match validation, v1.2 adds the rendezvous rule); the match validation (#1057) replays other points. Changing
+ * the production points changes the matcher version. The plausibility bonus of v1.2 depends on the pass and is
+ * added by {@see MatchPlanner}, not here.
  *
- * | Feature | Points (v1.1; v1 where different) |
+ * | Feature | Points (v1.2; earlier versions where different) |
  * |---|---|
  * | time (matching anchor − IVENA arrival) | −5 … +15 min: +4; −20 … −6 or +16 … +30: +3 (v1: +2); +31 … +45: 0; otherwise −2 |
  * | sex | equal: +2; male vs female: −2 (v1: −4); one side diverse: 0 |
  * | age difference | 0: +2; 1: +1; 2: 0; more: −2 |
  * | arrival route | EMS: +1; unknown: 0; self-presenter: −2 |
- * | physician vehicle ↔ IVENA "with physician" | physician vehicle with physician: +2; physician vehicle without, or ambulance/patient transport with physician: −1; otherwise 0 |
+ * | physician vehicle ↔ IVENA "with physician" | physician vehicle with physician: +2; ambulance with physician (rendezvous): +1 (v1, v1.1: −1); physician vehicle without, or patient transport with physician: −1; otherwise 0 |
  * | work accident ↔ IVENA work accident | both: +2; only one side: −1; neither: 0 |
  */
 final readonly class FeatureScorer
@@ -109,7 +110,8 @@ final readonly class FeatureScorer
     {
         return $this->weights->point(match ($mode) {
             ArrivalMode::PhysicianVehicle => $withPhysician ? 'physician.both' : 'physician.mismatch',
-            ArrivalMode::Ambulance, ArrivalMode::PatientTransport => $withPhysician ? 'physician.mismatch' : 'physician.none',
+            ArrivalMode::Ambulance => $withPhysician ? 'physician.rendezvous' : 'physician.none',
+            ArrivalMode::PatientTransport => $withPhysician ? 'physician.mismatch' : 'physician.none',
             ArrivalMode::Self, ArrivalMode::Other, null => 'physician.none',
         });
     }

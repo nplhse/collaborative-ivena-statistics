@@ -1,0 +1,39 @@
+{# Learning period, parameters and replay figures of a learned snapshot (ADR 033, #1155). The replay covers only the
+   hospitals the viewer may review; administrators also see the sum over all hospitals. No counts per cell. #}
+{% set d = 'encounter' %}
+{% set parameters = snapshot.learningParameters ?? {} %}
+<div class="card mt-3" data-test="encounter-plausibility-learning">
+    <div class="card-header">
+        <h3 class="card-title">{{ 'encounter.plausibility.learning.title'|trans({}, d) }}</h3>
+    </div>
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-4">{{ 'encounter.plausibility.learning.period'|trans({}, d) }}</dt>
+            <dd class="col-sm-8">{{ snapshot.learnedFrom ? snapshot.learnedFrom|date('d.m.Y') : '–' }} – {{ snapshot.learnedTo ? snapshot.learnedTo|date('d.m.Y') : '–' }}</dd>
+            <dt class="col-sm-4">{{ 'encounter.plausibility.learning.parameters'|trans({}, d) }}</dt>
+            <dd class="col-sm-8" data-test="encounter-plausibility-learning-parameters">{{ 'encounter.plausibility.learning.parameter_values'|trans({
+                smoothing: parameters.smoothing ?? '–',
+                shrinkage: parameters.shrinkage ?? '–',
+                minimum: parameters.min_observations ?? '–',
+                fold: parameters.fold ?? '–',
+            }, d) }}</dd>
+            {% if learning and learning.total %}
+                <dt class="col-sm-4">{{ 'encounter.plausibility.learning.eligible_all'|trans({}, d) }}</dt>
+                <dd class="col-sm-8" data-test="encounter-plausibility-learning-total-eligible">{{ 'encounter.plausibility.learning.eligible_value'|trans({pairs: learning.total.eligible_pairs, bonus: learning.total.eligible_from_bonus}, d) }}</dd>
+            {% endif %}
+        </dl>
+        <p class="small text-secondary mt-3 mb-0">{{ 'encounter.plausibility.learning.note'|trans({}, d) }}</p>
+    </div>
+    {% if learning is null or learning.hospitals is empty %}
+        <div class="card-body border-top" data-test="encounter-plausibility-learning-no-replay">
+            <p class="text-secondary mb-0">{{ 'encounter.plausibility.learning.no_replay'|trans({}, d) }}</p>
+        </div>
+    {% else %}
+        {% if learning.total %}
+            {{ include('@Encounter/plausibility/_learning_replay.html.twig', {title: 'encounter.plausibility.learning.all_hospitals'|trans({}, d), figures: learning.total, test_id: 'all'}) }}
+        {% endif %}
+        {% for hospital_id, name in learning.hospitals %}
+            {{ include('@Encounter/plausibility/_learning_replay.html.twig', {title: name, figures: learning.report.hospitals[hospital_id], test_id: hospital_id}) }}
+        {% endfor %}
+    {% endif %}
+</div>

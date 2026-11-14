@@ -147,7 +147,7 @@
             "column": "MTS Diagramm",
             "catalog": "mts-de",
             "list": "diagrams",
-            "unlisted": "empty",
+            "unlisted": "code",
             "empty": ["-- keine --"]
         },
         "mts_indicator": {
@@ -178,7 +178,7 @@
             "column": "ZweiteinschaetzungDiagramm",
             "catalog": "mts-de",
             "list": "diagrams",
-            "unlisted": "empty",
+            "unlisted": "code",
             "empty": ["-- keine --"]
         },
         "retriage_indicator": {

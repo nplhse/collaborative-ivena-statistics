@@ -5,10 +5,17 @@ declare(strict_types=1);
 namespace App\Tests\Encounter\Functional\Controller;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Encounter\Application\Catalog\MtsCatalogCuration;
+use App\Encounter\Application\Catalog\MtsCatalogFirstSeenWriter;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterTimes;
+use App\Encounter\Domain\Entity\MtsAlias;
+use App\Encounter\Domain\Entity\MtsDiagram;
+use App\Encounter\Domain\Entity\MtsDiagramIndicator;
+use App\Encounter\Domain\Entity\MtsIndicator;
 use App\Encounter\Domain\Entity\Triage;
 use App\Encounter\Domain\Enum\EncounterGrantAction;
+use App\Encounter\Domain\Enum\MtsCatalogKind;
 use App\Encounter\Domain\Enum\MtsCategory;
 use App\Encounter\Domain\Enum\Sex;
 use App\Tests\Support\Encounter\EncounterDataFixtures;
@@ -172,6 +179,83 @@ final class MtsGlossaryControllerTest extends WebTestCase
         self::assertSame('15', $this->shownCount($crawler, 'mts-diagram', 'thoraxschmerz'));
     }
 
+    /**
+     * Encounters keep the code as sent; the glossary counts alias codes with their target (ADR 032).
+     * Hospital A adds 2 × brustschmerz/heiss_alt: thoraxschmerz 8 + 2 = 10 and heiss 5 + 2 = 7.
+     */
+    public function testAliasCodesAreCountedWithTheirTarget(): void
+    {
+        $curation = self::getContainer()->get(MtsCatalogCuration::class);
+        $curation->createAlias(new MtsAlias(MtsCatalogKind::Diagram, '', 'Brustschmerz', 'thoraxschmerz'));
+        $curation->createAlias(new MtsAlias(MtsCatalogKind::Indicator, '', 'Heiss alt', 'heiss'));
+        $this->visits($this->hospitalA, 2, MtsCategory::Orange, 'brustschmerz', 'heiss_alt');
+        $viewer = $this->user();
+        $this->encounterGrant($this->hospitalA, $viewer, [EncounterGrantAction::ViewCases]);
+        $this->client->loginUser($viewer);
+
+        $crawler = $this->overview();
+        self::assertSame('10', $this->shownCount($crawler, 'mts-diagram', 'thoraxschmerz'));
+        self::assertSame('7', $this->shownCount($crawler, 'mts-indicator', 'heiss'));
+        self::assertCount(0, $crawler->filter('[data-testid="mts-diagram"][data-code="brustschmerz"]'), 'an alias is no row of its own');
+
+        $diagram = $this->diagram('thoraxschmerz');
+        self::assertSame('10', trim($diagram->filter('[data-testid="mts-diagram-total"]')->text()));
+        self::assertSame(['erbrechen', 'heiss', ''], $this->indicatorCodes($diagram));
+        self::assertSame('7', $this->shownCount($diagram, 'mts-indicator', 'heiss'));
+
+        $alias = $this->diagram('brustschmerz');
+        self::assertSame('10', trim($alias->filter('[data-testid="mts-diagram-total"]')->text()), 'the alias code shows its target');
+    }
+
+    /**
+     * Diagram pages list the indicators assigned in the catalog (definitions, #1157) for every participant; users with
+     * encounter access also see the indicators seen with the diagram, with counts. Assigned to thoraxschmerz:
+     * grobe_fehlstellung (seen only in hospital B) and heiss (5 × in hospital A).
+     */
+    public function testDiagramPageListsTheAssignedIndicators(): void
+    {
+        $this->assign('thoraxschmerz', 'heiss');
+        $this->assign('thoraxschmerz', 'grobe_fehlstellung');
+
+        $this->client->loginUser($this->user(['ROLE_USER', 'ROLE_PARTICIPANT']));
+        $definition = $this->diagram('thoraxschmerz');
+        self::assertSame(['grobe_fehlstellung', 'heiss'], $this->indicatorCodes($definition));
+        self::assertSelectorTextContains('[data-testid="mts-diagram-indicators-source"]', 'Indicators assigned to this diagram in the catalog.');
+        self::assertSelectorNotExists('[data-testid="mts-count"]');
+        self::assertSelectorNotExists('[data-testid="mts-indicator-not-assigned"]');
+        self::assertSelectorTextContains('[data-testid="mts-indicator"][data-code="heiss"]', 'Heiß');
+
+        $viewer = $this->user();
+        $this->encounterGrant($this->hospitalA, $viewer, [EncounterGrantAction::ViewCases]);
+        $this->client->loginUser($viewer);
+        $counted = $this->diagram('thoraxschmerz');
+        self::assertSame(['erbrechen', 'grobe_fehlstellung', 'heiss', ''], $this->indicatorCodes($counted));
+        self::assertSame('5', $this->shownCount($counted, 'mts-indicator', 'heiss'));
+        self::assertSame('–', $this->shownCount($counted, 'mts-indicator', 'grobe_fehlstellung'), 'the 7 visits of hospital B are not counted');
+        self::assertSame('< 5', $this->shownCount($counted, 'mts-indicator', 'erbrechen'));
+        self::assertCount(1, $counted->filter('[data-testid="mts-indicator-not-assigned"]'));
+        self::assertSelectorExists('[data-testid="mts-indicator"][data-code="erbrechen"] [data-testid="mts-indicator-not-assigned"]');
+
+        // Without assignments, seen indicators carry no mark.
+        self::assertCount(0, $this->diagram('wunden')->filter('[data-testid="mts-indicator-not-assigned"]'));
+    }
+
+    /**
+     * A provisional entry created by an import (#1157) is a normal catalog entry: listed with its code as name.
+     */
+    public function testProvisionalEntriesAppearWithTheirCodeAsName(): void
+    {
+        $this->visits($this->hospitalA, 1, MtsCategory::Green, 'neues_diagramm', null);
+        self::getContainer()->get(MtsCatalogFirstSeenWriter::class)
+            ->record(MtsCatalogKind::Diagram, ['neues_diagramm' => new \DateTimeImmutable('2026-11-14 09:00')]);
+
+        $this->client->loginUser($this->user(['ROLE_USER', 'ROLE_PARTICIPANT']));
+        $crawler = $this->overview();
+        self::assertCount(41, $crawler->filter('[data-testid="mts-diagram"]'));
+        self::assertSelectorTextContains('[data-testid="mts-diagram"][data-code="neues_diagramm"]', 'neues_diagramm');
+        $this->diagram('neues_diagramm');
+    }
+
     public function testEnglishShowsWellKnownDiagramNamesAndGermanIndicatorNames(): void
     {
         $this->client->loginUser($this->user(['ROLE_USER', 'ROLE_PARTICIPANT']));
@@ -248,6 +332,16 @@ final class MtsGlossaryControllerTest extends WebTestCase
         return $crawler->filter('[data-testid="mts-diagram-indicators"] [data-testid="mts-indicator"]')->each(
             static fn (Crawler $row): string => (string) $row->attr('data-code'),
         );
+    }
+
+    private function assign(string $diagram, string $indicator): void
+    {
+        $em = $this->entityManager();
+        $assignment = new MtsDiagramIndicator(
+            $em->getRepository(MtsDiagram::class)->findOneBy(['code' => $diagram]),
+            $em->getRepository(MtsIndicator::class)->findOneBy(['code' => $indicator]),
+        );
+        self::getContainer()->get(MtsCatalogCuration::class)->assign($assignment);
     }
 
     private function visits(Hospital $hospital, int $count, MtsCategory $category, string $diagram, ?string $indicator): void

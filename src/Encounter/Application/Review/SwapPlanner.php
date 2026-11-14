@@ -8,7 +8,9 @@ use App\Encounter\Application\Matching\MatchingAllocation;
 use App\Encounter\Application\Matching\MatchingEncounter;
 use App\Encounter\Application\Matching\MatchingSettings;
 use App\Encounter\Application\Matching\MatchPlanner;
+use App\Encounter\Application\Matching\MatchWeights;
 use App\Encounter\Application\Matching\PlannedMatch;
+use App\Encounter\Application\Plausibility\PlausibilityBonus;
 
 /**
  * Finds targeted swaps where an unlinked visit suggests a better overall assignment (ADR 030, #1054).
@@ -25,11 +27,17 @@ use App\Encounter\Application\Matching\PlannedMatch;
  * {@see MatchPlanner::agreementAlone()}), so a swap never proposes a pair the matcher would not propose
  * on its own. Per allocation the best proposal is kept (chain before replacement, then points gain, then
  * the lowest visit id); proposals that share a visit or an allocation with a better one are dropped.
+ *
+ * Pairs are scored as in pass 2, with the plausibility bonus of the given snapshot (matcher 1.2.0).
  */
 final readonly class SwapPlanner
 {
+    /**
+     * @param PlausibilityBonus|null $plausibility snapshot for the bonus; null: no bonus
+     */
     public function __construct(
         private MatchingSettings $settings,
+        private ?PlausibilityBonus $plausibility = null,
     ) {
     }
 
@@ -45,13 +53,13 @@ final readonly class SwapPlanner
      */
     public function plan(array $allocations, array $encounters, array $automaticLinks, array $linkedAllocations, array $linkedEncounters, array $rejectedPairs): array
     {
-        $planner = new MatchPlanner($this->settings);
+        $planner = new MatchPlanner($this->settings, MatchWeights::production(), $this->plausibility);
         $window = $this->settings->reviewWindow();
 
         /** @var array<int, array<int, PlannedMatch>> $candidates allocation id => visit id => scored pair */
         $candidates = [];
         foreach ($allocations as $allocation) {
-            foreach ($planner->candidates($allocation, $encounters, $window, 2) as $candidate) {
+            foreach ($planner->candidates($allocation, $encounters, $window, MatchPlanner::PLAUSIBILITY_PASS) as $candidate) {
                 $candidates[$allocation->id][$candidate->encounterId] = $candidate;
             }
         }

@@ -17,11 +17,23 @@ const json = (url) => JSON.parse(readFileSync(url, 'utf8'));
 
 const profile = json(new URL('profiles/orbis-mts.json', base));
 const schema = json(new URL('schema/ed_visit.v1.json', base));
-const catalogs = {
-    'mts-de': json(
-        new URL('../../../src/Encounter/Application/Catalog/mts-de.json', import.meta.url),
-    ),
-};
+const bundledCatalog = json(
+    new URL('../../../src/Encounter/Application/Catalog/mts-de.json', import.meta.url),
+);
+// The bundled copy in the tool's catalog format, as DataPrepToolRenderer passes it (MtsCatalog::bundledToolCatalog()).
+const toolCatalog = (data, aliases = { diagrams: {}, indicators: {} }) =>
+    prep.parseCatalog({
+        format: 'encounter-mts-catalog',
+        version: 1,
+        id: data.id,
+        diagrams: data.diagrams.map((label) => ({ code: prep.catalogCode(label), name: label })),
+        indicators: data.indicators.map((label) => ({
+            code: prep.catalogCode(label),
+            name: label,
+        })),
+        aliases,
+    });
+const catalogs = { 'mts-de': toolCatalog(bundledCatalog) };
 const vectors = json(new URL('fingerprint-vectors.json', fixtures));
 const output = new URL('orbis-mts-sample.ed_visit.csv', fixtures);
 

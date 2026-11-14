@@ -6,10 +6,13 @@ namespace App\Encounter\UI\Console\Command;
 
 use App\Encounter\Application\Contract\MatchCandidateReaderInterface;
 use App\Encounter\Application\Contract\MatchValidationReaderInterface;
+use App\Encounter\Application\Contract\PlausibilityRepositoryInterface;
 use App\Encounter\Application\Matching\MatchingAllocation;
 use App\Encounter\Application\Matching\MatchingSettings;
 use App\Encounter\Application\Matching\MatchPlanner;
 use App\Encounter\Application\Matching\MatchWeights;
+use App\Encounter\Application\Plausibility\PlausibilityBonus;
+use App\Encounter\Application\Plausibility\PlausibilityLookup;
 use App\Encounter\Application\Validation\MatcherEvaluation;
 use App\Encounter\Application\Validation\ScoreBands;
 use App\Encounter\Domain\Enum\MatchStatus;
@@ -26,6 +29,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * The replay is a clean run: no existing links, no manual decisions, all allocations of the period.
  * Without --truth, a pair counts as correct or wrong only when a validation verdict exists for it.
+ *
+ * Plausibility bonus (matcher 1.2.0): pass 2 reads the active snapshot, or the one given with --snapshot=<id> (also a
+ * draft or retired one), or none with --snapshot=none. The output compares the allocations linked automatically, with
+ * a proposal and without either, with and without the bonus, and counts the allocations whose outcome is worse with the
+ * bonus (a competitor's bonus took share of the score). It prints counts only, never a pair or a case.
  */
 #[AsCommand(
     name: 'app:encounter:evaluate-matcher',
@@ -38,6 +46,8 @@ final readonly class EvaluateMatcherCommand
         private MatchValidationReaderInterface $validation,
         private MatchingSettings $settings,
         private ScoreBands $bands,
+        private PlausibilityLookup $plausibility,
+        private PlausibilityRepositoryInterface $plausibilityRepository,
     ) {
     }
 
@@ -66,6 +76,8 @@ final readonly class EvaluateMatcherCommand
         string $label = 'replay',
         #[Option(description: 'Synthetic truth file (truth.json of app:generate:encounter-files) instead of the verdicts')]
         string $truth = '',
+        #[Option(description: 'Plausibility snapshot id for the pass-2 bonus (also a draft), or "none"; default: the active snapshot')]
+        string $snapshot = '',
     ): int {
         $first = \DateTimeImmutable::createFromFormat('!Y-m-d', $from);
         $last = '' === $to ? $first : \DateTimeImmutable::createFromFormat('!Y-m-d', $to);
@@ -84,6 +96,7 @@ final readonly class EvaluateMatcherCommand
                 ['minutes_before' => $this->settings->pass2->minutesBefore, 'minutes_after' => $this->settings->pass2->minutesAfter, 'max_age_difference' => $this->settings->pass2->maxAgeDifference],
             );
             $truthMap = '' === $truth ? null : $this->readTruth($hospital, $truth);
+            [$bonus, $bonusLabel] = $this->bonus($snapshot);
         } catch (\InvalidArgumentException $exception) {
             $io->error($exception->getMessage());
 
@@ -97,7 +110,12 @@ final readonly class EvaluateMatcherCommand
             $last->modify('+1 day')->modify(sprintf('+%d minutes', $settings->widestMinutesAfter())),
             null,
         );
-        $plan = new MatchPlanner($settings, $replayed)->plan($allocations, $encounters);
+        $plan = new MatchPlanner($settings, $replayed, $bonus)->plan($allocations, $encounters);
+        $allocationIds = array_map(static fn (MatchingAllocation $allocation): int => $allocation->id, $allocations);
+        $planWithoutBonus = new MatchPlanner($settings, $replayed)->plan($allocations, $encounters);
+        $withBonus = MatcherEvaluation::outcomes($plan, $allocationIds);
+        $withoutBonus = MatcherEvaluation::outcomes($planWithoutBonus, $allocationIds);
+        $worse = MatcherEvaluation::worseWithBonus($plan, $planWithoutBonus, $allocationIds);
 
         $reference = null === $truthMap ? $this->validation->pairVerdicts($hospital) : MatcherEvaluation::referenceFromTruth($plan, $truthMap);
         $evaluation = MatcherEvaluation::of(
@@ -105,12 +123,13 @@ final readonly class EvaluateMatcherCommand
             $plan,
             $reference,
             $truthMap,
-            array_map(static fn (MatchingAllocation $allocation): int => $allocation->id, $allocations),
+            $allocationIds,
         );
 
         $io->definitionList(
             ['Weights' => sprintf('%s, based on %s (no match %d)', $replayed->version, $weights, $replayed->noMatchPoints)],
             ['Thresholds' => sprintf('auto %.2f, proposal %.2f', $settings->autoAcceptThreshold, $settings->proposalThreshold)],
+            ['Plausibility bonus' => 0 === $replayed->plausibilityCap ? sprintf('none (matcher %s has no bonus)', $weights) : sprintf('%s, pass 2, cap +%d', $bonusLabel, $replayed->plausibilityCap)],
             ['Reference' => null === $truthMap ? 'validation verdicts' : 'synthetic truth'],
             ['Allocations / visits' => sprintf('%d / %d', \count($allocations), \count($encounters))],
         );
@@ -127,6 +146,18 @@ final readonly class EvaluateMatcherCommand
             ], $evaluation->rows),
         );
 
+        $io->table(
+            ['Plausibility bonus', 'Allocations', 'Automatic', 'Proposal', 'None', 'Decided by the bonus (automatic / proposal)'],
+            [
+                ['with', $withBonus['allocations'], $this->ratio($withBonus['automatic'], $withBonus['allocations']), $this->ratio($withBonus['proposal'], $withBonus['allocations']), $this->ratio($withBonus['none'], $withBonus['allocations']), sprintf('%d / %d', $withBonus['decisive_automatic'], $withBonus['decisive_proposal'])],
+                ['without', $withoutBonus['allocations'], $this->ratio($withoutBonus['automatic'], $withoutBonus['allocations']), $this->ratio($withoutBonus['proposal'], $withoutBonus['allocations']), $this->ratio($withoutBonus['none'], $withoutBonus['allocations']), '–'],
+            ],
+        );
+        $io->table(
+            ['Worse with the bonus', 'Automatic → proposal', 'Automatic → none', 'Proposal → none'],
+            [[$worse['total'], $worse['automatic_to_proposal'], $worse['automatic_to_none'], $worse['proposal_to_none']]],
+        );
+
         if (null !== $evaluation->truePairs) {
             $io->table(['True pairs', 'Automatic', 'Automatic or proposal'], [[
                 $evaluation->truePairs,
@@ -138,6 +169,38 @@ final readonly class EvaluateMatcherCommand
         $io->note('Nothing was written. The score stays an agreement until it is calibrated (ADR 030).');
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * The snapshot for the pass-2 bonus and its label: '' the active one, 'none' no bonus, otherwise a snapshot id.
+     *
+     * @return array{0: PlausibilityBonus, 1: string}
+     */
+    private function bonus(string $snapshot): array
+    {
+        if ('none' === $snapshot) {
+            return [PlausibilityBonus::none(), 'no snapshot'];
+        }
+
+        if ('' === $snapshot) {
+            $active = $this->plausibility->active();
+            $id = $active->snapshotId();
+
+            return [$active, null === $id ? 'no active snapshot' : sprintf('active snapshot %d', $id)];
+        }
+
+        if (1 !== preg_match('/^[1-9]\d*$/', $snapshot)) {
+            throw new \InvalidArgumentException(sprintf('Expected --snapshot=<id> or --snapshot=none, got "%s".', $snapshot));
+        }
+
+        $id = (int) $snapshot;
+        foreach ($this->plausibilityRepository->snapshots() as $candidate) {
+            if ($candidate->getId() === $id) {
+                return [$this->plausibility->ofSnapshot($id), sprintf('snapshot %d (%s)', $id, $candidate->getStatus()->value)];
+            }
+        }
+
+        throw new \InvalidArgumentException(sprintf('Plausibility snapshot %d does not exist.', $id));
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Encounter\Unit\Application\Matching;
 
 use App\Encounter\Application\Matching\FeatureScorer;
+use App\Encounter\Application\Matching\MatchWeights;
 use App\Encounter\Domain\Enum\ArrivalMode;
 use App\Encounter\Domain\Enum\Sex;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -104,8 +105,9 @@ final class FeatureScorerTest extends TestCase
     {
         // mode, IVENA with physician, route points, physician points
         yield 'ambulance' => [ArrivalMode::Ambulance, false, 1, 0];
-        yield 'ambulance, IVENA with physician' => [ArrivalMode::Ambulance, true, 1, -1];
+        yield 'ambulance, IVENA with physician (rendezvous, 1.2.0)' => [ArrivalMode::Ambulance, true, 1, 1];
         yield 'patient transport' => [ArrivalMode::PatientTransport, false, 1, 0];
+        yield 'patient transport, IVENA with physician' => [ArrivalMode::PatientTransport, true, 1, -1];
         yield 'physician vehicle with physician' => [ArrivalMode::PhysicianVehicle, true, 1, 2];
         yield 'physician vehicle without physician' => [ArrivalMode::PhysicianVehicle, false, 1, -1];
         yield 'self-presenter' => [ArrivalMode::Self, false, -2, 0];
@@ -121,6 +123,15 @@ final class FeatureScorerTest extends TestCase
 
         self::assertSame($route, $points['arrival_route']);
         self::assertSame($physician, $points['physician']);
+    }
+
+    public function testEarlierVersionsCountAnAmbulanceWithPhysicianAsMismatch(): void
+    {
+        $allocation = self::allocation(1, withPhysician: true);
+        $visit = self::visit(1, mode: ArrivalMode::Ambulance);
+
+        self::assertSame(-1, new FeatureScorer(MatchWeights::v1_1())->score($allocation, $visit, 0)['physician']);
+        self::assertSame(-1, new FeatureScorer(MatchWeights::v1())->score($allocation, $visit, 0)['physician']);
     }
 
     /**

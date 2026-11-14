@@ -84,6 +84,26 @@ final readonly class EncounterOverviewQuery implements EncounterOverviewReaderIn
     }
 
     #[\Override]
+    public function bonusDecidedLinksByRoute(int $hospitalId, EncounterPeriod $period): array
+    {
+        [$where, $parameters, $types] = $this->where($hospitalId, $period);
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT e.arrival_route AS route, COUNT(*) AS visits FROM encounter e'
+            .' JOIN encounter_match m ON m.encounter_id = e.id AND m.status = :automatic AND m.plausibility_decisive'
+            .' WHERE '.$where.' GROUP BY 1 ORDER BY 1',
+            $parameters + ['automatic' => MatchStatus::AutoAccepted->value],
+            $types,
+        );
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[(string) $row['route']] = (int) $row['visits'];
+        }
+
+        return $counts;
+    }
+
+    #[\Override]
     public function visitsByCategory(int $hospitalId, EncounterPeriod $period): array
     {
         return $this->countBy('e.mts_category', $hospitalId, $period);

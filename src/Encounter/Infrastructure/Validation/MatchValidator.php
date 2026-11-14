@@ -21,6 +21,7 @@ use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\Domain\Entity\MatchValidationItem;
 use App\Encounter\Domain\Entity\MatchValidationSample;
+use App\Encounter\Domain\Entity\PlausibilitySnapshot;
 use App\Encounter\Domain\Enum\MatchStatus;
 use App\Encounter\Domain\Enum\ValidationStratum;
 use App\Encounter\Domain\Enum\ValidationVerdict;
@@ -72,7 +73,7 @@ final readonly class MatchValidator implements MatchValidatorInterface
 
         /** @var array<string, int> $population */
         $population = [];
-        /** @var list<array{stratum: ValidationStratum, band: ?string, allocation_id: ?int, encounter_id: ?int, pair: ?array{status: MatchStatus, score: float, points: ?int, pass: ?int, matcher_version: ?string}}> $drawn */
+        /** @var list<array{stratum: ValidationStratum, band: ?string, allocation_id: ?int, encounter_id: ?int, pair: ?array{status: MatchStatus, score: float, points: ?int, pass: ?int, matcher_version: ?string, plausibility_snapshot_id: ?int, plausibility_decisive: bool}}> $drawn */
         $drawn = [];
         foreach ([ValidationStratum::Automatic, ValidationStratum::Proposal] as $stratum) {
             foreach ($this->population->pairs($hospitalId, $period, $stratum, $seed) as $pair) {
@@ -122,6 +123,7 @@ final readonly class MatchValidator implements MatchValidatorInterface
             $this->entityManager->wrapInTransaction(function () use ($sample, $drawn): void {
                 $this->entityManager->persist($sample);
                 foreach ($drawn as $index => $row) {
+                    $snapshotId = $row['pair']['plausibility_snapshot_id'] ?? null;
                     $this->entityManager->persist(new MatchValidationItem(
                         sample: $sample,
                         position: $index + 1,
@@ -134,6 +136,8 @@ final readonly class MatchValidator implements MatchValidatorInterface
                         points: $row['pair']['points'] ?? null,
                         pass: $row['pair']['pass'] ?? null,
                         matcherVersion: $row['pair']['matcher_version'] ?? null,
+                        plausibilitySnapshot: null === $snapshotId ? null : $this->entityManager->getReference(PlausibilitySnapshot::class, $snapshotId),
+                        plausibilityDecisive: $row['pair']['plausibility_decisive'] ?? false,
                     ));
                 }
                 $this->entityManager->flush();

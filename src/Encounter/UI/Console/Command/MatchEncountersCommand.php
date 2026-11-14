@@ -46,12 +46,13 @@ final readonly class MatchEncountersCommand
 
         $result = $this->matcher->run(MatchScope::forPeriod($hospital, $first, $last));
 
-        $io->table(['Allocations', 'Candidate visits', 'New automatic links', 'Open proposals', 'Of these in conflict'], [[
+        $io->table(['Allocations', 'Candidate visits', 'New automatic links', 'Open proposals', 'Of these in conflict', 'Decided by the plausibility bonus'], [[
             $result->allocations,
             $result->encounters,
             $result->autoAccepted,
             $result->proposed,
             $result->conflicts,
+            $result->plausibilityDecisive,
         ]]);
         $io->success(sprintf('Matched hospital %d from %s to %s.', $hospital, $first->format('Y-m-d'), $last->format('Y-m-d')));
 

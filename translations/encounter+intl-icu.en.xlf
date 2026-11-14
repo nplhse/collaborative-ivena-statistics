@@ -151,7 +151,7 @@
       </trans-unit>
       <trans-unit id="EncCC9624A9" resname="encounter.data_prep.tool.intro">
         <source>encounter.data_prep.tool.intro</source>
-        <target>This file works offline. It reads the export of your hospital information system, keeps only the agreed fields, pseudonymises the case number and saves a file for the upload. Names, dates of birth, staff and free text are not written to that file. The only request the file makes is a version check at start.</target>
+        <target>This file works offline. It reads the export of your hospital information system, keeps only the agreed fields, pseudonymises the case number and saves a file for the upload. Names, dates of birth, staff and free text are not written to that file. At start the file makes two requests only: the version check and loading the MTS catalog; neither sends data of your hospital.</target>
       </trans-unit>
       <trans-unit id="Enc427DAA95" resname="encounter.data_prep.tool.update_link">
         <source>encounter.data_prep.tool.update_link</source>
@@ -563,7 +563,7 @@
       </trans-unit>
       <trans-unit id="EncEDDD5557" resname="encounter.data_prep.js.report_unlisted_hint">
         <source>encounter.data_prep.js.report_unlisted_hint</source>
-        <target>These MTS indicators are not in the bundled list yet. They are written as codes derived from the label; check that they are MTS indicators and not free text.</target>
+        <target>These MTS diagrams and indicators are not in the catalog yet. They are written as codes derived from the label, and the server adds them to the catalog as provisional entries; check that they are MTS values and not free text.</target>
       </trans-unit>
       <trans-unit id="EncI4E173CBA" resname="encounter.import.action.new">
         <source>encounter.import.action.new</source>
@@ -1161,6 +1161,10 @@
         <source>encounter.review.feature.work_accident</source>
         <target>Work accident</target>
       </trans-unit>
+      <trans-unit id="Enc027C7194" resname="encounter.review.feature.plausibility">
+        <source>encounter.review.feature.plausibility</source>
+        <target>PZC × MTS diagram</target>
+      </trans-unit>
       <trans-unit id="EncBF7557DD" resname="encounter.review.direction.for">
         <source>encounter.review.direction.for</source>
         <target>for</target>
@@ -1367,7 +1371,7 @@
       </trans-unit>
       <trans-unit id="EncC1BE31AD" resname="encounter.review.extended.hint">
         <source>encounter.review.extended.hint</source>
-        <target>Optional context for unclear cases. These details are no matching features: later analyses compare them between IVENA and the emergency department, so use them only when the features above leave the decision open.</target>
+        <target>Optional context for unclear cases. These details are no matching features (the MTS diagram only adds the plausibility bonus above, in pass 2): later analyses compare them between IVENA and the emergency department, so use them only when the features above leave the decision open.</target>
       </trans-unit>
       <trans-unit id="EncC4B213D6" resname="encounter.review.extended.urgency">
         <source>encounter.review.extended.urgency</source>
@@ -1571,7 +1575,7 @@
       </trans-unit>
       <trans-unit id="Enc38924CD0" resname="encounter.mts.diagram.indicators_need_access">
         <source>encounter.mts.diagram.indicators_need_access</source>
-        <target>Which indicators occur with this diagram is taken from encounter data. It is shown only to users with access to the encounter data of a hospital.</target>
+        <target>No indicators are assigned to this diagram in the catalog yet. Which indicators occur with it in encounter data is shown only to users with access to the encounter data of a hospital.</target>
       </trans-unit>
       <trans-unit id="Enc40E2807E" resname="encounter.mts.diagram.indicators_none">
         <source>encounter.mts.diagram.indicators_none</source>
@@ -1600,162 +1604,6 @@
       <trans-unit id="Enc146FE9A6" resname="encounter.mts.diagram.without_indicator">
         <source>encounter.mts.diagram.without_indicator</source>
         <target>No indicator documented</target>
-      </trans-unit>
-      <trans-unit id="Enc56BD41F4" resname="encounter.mts.diagram_name.abdominelle_schmerzen_bei_erwachsenen">
-        <source>encounter.mts.diagram_name.abdominelle_schmerzen_bei_erwachsenen</source>
-        <target>Abdominal pain in adults</target>
-      </trans-unit>
-      <trans-unit id="Enc1CA7C7B1" resname="encounter.mts.diagram_name.abdominelle_schmerzen_bei_kindern">
-        <source>encounter.mts.diagram_name.abdominelle_schmerzen_bei_kindern</source>
-        <target>Abdominal pain in children</target>
-      </trans-unit>
-      <trans-unit id="Enc45801289" resname="encounter.mts.diagram_name.abszesse_und_lokale_infektionen">
-        <source>encounter.mts.diagram_name.abszesse_und_lokale_infektionen</source>
-        <target>Abscesses and local infections</target>
-      </trans-unit>
-      <trans-unit id="Enc2B1E8B75" resname="encounter.mts.diagram_name.allergie">
-        <source>encounter.mts.diagram_name.allergie</source>
-        <target>Allergy</target>
-      </trans-unit>
-      <trans-unit id="Enc54D9028E" resname="encounter.mts.diagram_name.angriff_zustand_nach">
-        <source>encounter.mts.diagram_name.angriff_zustand_nach</source>
-        <target>Assault</target>
-      </trans-unit>
-      <trans-unit id="EncEFD903E1" resname="encounter.mts.diagram_name.atemproblem_bei_erwachsenen">
-        <source>encounter.mts.diagram_name.atemproblem_bei_erwachsenen</source>
-        <target>Shortness of breath in adults</target>
-      </trans-unit>
-      <trans-unit id="EncB19B17D3" resname="encounter.mts.diagram_name.auffaelliges_verhalten">
-        <source>encounter.mts.diagram_name.auffaelliges_verhalten</source>
-        <target>Behaving strangely</target>
-      </trans-unit>
-      <trans-unit id="EncF57B6A3D" resname="encounter.mts.diagram_name.betrunkener_eindruck">
-        <source>encounter.mts.diagram_name.betrunkener_eindruck</source>
-        <target>Apparently drunk</target>
-      </trans-unit>
-      <trans-unit id="Enc24937E42" resname="encounter.mts.diagram_name.bisse_und_stiche">
-        <source>encounter.mts.diagram_name.bisse_und_stiche</source>
-        <target>Bites and stings</target>
-      </trans-unit>
-      <trans-unit id="EncD6B61E2C" resname="encounter.mts.diagram_name.chemikalienkontakt">
-        <source>encounter.mts.diagram_name.chemikalienkontakt</source>
-        <target>Exposure to chemicals</target>
-      </trans-unit>
-      <trans-unit id="Enc901A0B44" resname="encounter.mts.diagram_name.diabetes">
-        <source>encounter.mts.diagram_name.diabetes</source>
-        <target>Diabetes</target>
-      </trans-unit>
-      <trans-unit id="EncE10B795B" resname="encounter.mts.diagram_name.durchfaelle_und_erbrechen">
-        <source>encounter.mts.diagram_name.durchfaelle_und_erbrechen</source>
-        <target>Diarrhoea and vomiting</target>
-      </trans-unit>
-      <trans-unit id="Enc23A4A35C" resname="encounter.mts.diagram_name.extremitaetenprobleme">
-        <source>encounter.mts.diagram_name.extremitaetenprobleme</source>
-        <target>Limb problems</target>
-      </trans-unit>
-      <trans-unit id="EncAF123911" resname="encounter.mts.diagram_name.fremdkoerper">
-        <source>encounter.mts.diagram_name.fremdkoerper</source>
-        <target>Foreign body</target>
-      </trans-unit>
-      <trans-unit id="Enc6BDCF601" resname="encounter.mts.diagram_name.gastrointestinale_blutung">
-        <source>encounter.mts.diagram_name.gastrointestinale_blutung</source>
-        <target>GI bleeding</target>
-      </trans-unit>
-      <trans-unit id="Enc2F5609DB" resname="encounter.mts.diagram_name.gesichtsprobleme">
-        <source>encounter.mts.diagram_name.gesichtsprobleme</source>
-        <target>Facial problems</target>
-      </trans-unit>
-      <trans-unit id="Enc7791069C" resname="encounter.mts.diagram_name.halsschmerz">
-        <source>encounter.mts.diagram_name.halsschmerz</source>
-        <target>Sore throat</target>
-      </trans-unit>
-      <trans-unit id="Enc161EDFFA" resname="encounter.mts.diagram_name.hautausschlaege">
-        <source>encounter.mts.diagram_name.hautausschlaege</source>
-        <target>Rashes</target>
-      </trans-unit>
-      <trans-unit id="Enc936BDB44" resname="encounter.mts.diagram_name.herzklopfen">
-        <source>encounter.mts.diagram_name.herzklopfen</source>
-        <target>Palpitations</target>
-      </trans-unit>
-      <trans-unit id="Enc29010D2D" resname="encounter.mts.diagram_name.hodenschmerz">
-        <source>encounter.mts.diagram_name.hodenschmerz</source>
-        <target>Testicular pain</target>
-      </trans-unit>
-      <trans-unit id="Enc436854A7" resname="encounter.mts.diagram_name.kollaps">
-        <source>encounter.mts.diagram_name.kollaps</source>
-        <target>Collapsed adult</target>
-      </trans-unit>
-      <trans-unit id="EncCA8794D0" resname="encounter.mts.diagram_name.kopfschmerz">
-        <source>encounter.mts.diagram_name.kopfschmerz</source>
-        <target>Headache</target>
-      </trans-unit>
-      <trans-unit id="Enc70BC28C5" resname="encounter.mts.diagram_name.kopfverletzung">
-        <source>encounter.mts.diagram_name.kopfverletzung</source>
-        <target>Head injury</target>
-      </trans-unit>
-      <trans-unit id="Enc93D5744B" resname="encounter.mts.diagram_name.krampfanfall">
-        <source>encounter.mts.diagram_name.krampfanfall</source>
-        <target>Fits</target>
-      </trans-unit>
-      <trans-unit id="EncCDB06BB4" resname="encounter.mts.diagram_name.nackenschmerz">
-        <source>encounter.mts.diagram_name.nackenschmerz</source>
-        <target>Neck pain</target>
-      </trans-unit>
-      <trans-unit id="EncD1DC54F2" resname="encounter.mts.diagram_name.ohrenprobleme">
-        <source>encounter.mts.diagram_name.ohrenprobleme</source>
-        <target>Ear problems</target>
-      </trans-unit>
-      <trans-unit id="EncD0C1429C" resname="encounter.mts.diagram_name.psychische_erkrankung">
-        <source>encounter.mts.diagram_name.psychische_erkrankung</source>
-        <target>Mental illness</target>
-      </trans-unit>
-      <trans-unit id="Enc6BAD43AA" resname="encounter.mts.diagram_name.rueckenschmerz">
-        <source>encounter.mts.diagram_name.rueckenschmerz</source>
-        <target>Back pain</target>
-      </trans-unit>
-      <trans-unit id="EncDF504075" resname="encounter.mts.diagram_name.schweres_trauma">
-        <source>encounter.mts.diagram_name.schweres_trauma</source>
-        <target>Major trauma</target>
-      </trans-unit>
-      <trans-unit id="Enc3464EC60" resname="encounter.mts.diagram_name.selbstverletzung">
-        <source>encounter.mts.diagram_name.selbstverletzung</source>
-        <target>Self-harm</target>
-      </trans-unit>
-      <trans-unit id="EncD75EA83B" resname="encounter.mts.diagram_name.sexualinfektion">
-        <source>encounter.mts.diagram_name.sexualinfektion</source>
-        <target>Sexually acquired infection</target>
-      </trans-unit>
-      <trans-unit id="EncADFF6B7E" resname="encounter.mts.diagram_name.stuerze">
-        <source>encounter.mts.diagram_name.stuerze</source>
-        <target>Falls</target>
-      </trans-unit>
-      <trans-unit id="Enc42BF4F65" resname="encounter.mts.diagram_name.thoraxschmerz">
-        <source>encounter.mts.diagram_name.thoraxschmerz</source>
-        <target>Chest pain</target>
-      </trans-unit>
-      <trans-unit id="Enc82A97DF9" resname="encounter.mts.diagram_name.ueberdosierung_und_vergiftung">
-        <source>encounter.mts.diagram_name.ueberdosierung_und_vergiftung</source>
-        <target>Overdose and poisoning</target>
-      </trans-unit>
-      <trans-unit id="Enc0181539D" resname="encounter.mts.diagram_name.unwohlsein_bei_erwachsenen">
-        <source>encounter.mts.diagram_name.unwohlsein_bei_erwachsenen</source>
-        <target>Unwell adult</target>
-      </trans-unit>
-      <trans-unit id="Enc359D6444" resname="encounter.mts.diagram_name.unwohlsein_bei_kindern">
-        <source>encounter.mts.diagram_name.unwohlsein_bei_kindern</source>
-        <target>Unwell child</target>
-      </trans-unit>
-      <trans-unit id="Enc60B0EB2B" resname="encounter.mts.diagram_name.urologisches_problem">
-        <source>encounter.mts.diagram_name.urologisches_problem</source>
-        <target>Urinary problems</target>
-      </trans-unit>
-      <trans-unit id="Enc3C6800FB" resname="encounter.mts.diagram_name.verbrennungen_und_verbruehungen">
-        <source>encounter.mts.diagram_name.verbrennungen_und_verbruehungen</source>
-        <target>Burns and scalds</target>
-      </trans-unit>
-      <trans-unit id="EncEF530A30" resname="encounter.mts.diagram_name.wunden">
-        <source>encounter.mts.diagram_name.wunden</source>
-        <target>Wounds</target>
       </trans-unit>
       <trans-unit id="Enc29E965B0" resname="encounter.course.title">
         <source>encounter.course.title</source>
@@ -2124,6 +1972,46 @@
       <trans-unit id="Enc49B877F7" resname="encounter.validation.combined_note">
         <source>encounter.validation.combined_note</source>
         <target>Verdicts of every sample drawn with this matcher version, added up. Samples can overlap, so no population and no weighted estimate.</target>
+      </trans-unit>
+      <trans-unit id="EncA176BDD2" resname="encounter.validation.plausibility.title">
+        <source>encounter.validation.plausibility.title</source>
+        <target>Pair verdicts by plausibility snapshot</target>
+      </trans-unit>
+      <trans-unit id="Enc8D817CE6" resname="encounter.validation.plausibility.note">
+        <source>encounter.validation.plausibility.note</source>
+        <target>Verdicts on automatic links and proposals of all samples, by the matcher version of the pair and the plausibility snapshot that scored it when it was sampled. Pairs the plausibility bonus decided are a group of their own: if their share correct is clearly below that of the other pairs of the same snapshot, the bonus causes wrong links. Pass-1 pairs, versions before 1.2.0 and runs without an active snapshot have no snapshot. Samples can overlap, so no population and no weighted estimate.</target>
+      </trans-unit>
+      <trans-unit id="EncDBD8FF05" resname="encounter.validation.plausibility.version">
+        <source>encounter.validation.plausibility.version</source>
+        <target>Matcher</target>
+      </trans-unit>
+      <trans-unit id="Enc38A9ECC9" resname="encounter.validation.plausibility.snapshot">
+        <source>encounter.validation.plausibility.snapshot</source>
+        <target>Snapshot</target>
+      </trans-unit>
+      <trans-unit id="EncEFF9A1FF" resname="encounter.validation.plausibility.snapshot_id">
+        <source>encounter.validation.plausibility.snapshot_id</source>
+        <target>#{id}</target>
+      </trans-unit>
+      <trans-unit id="Enc5753563F" resname="encounter.validation.plausibility.group">
+        <source>encounter.validation.plausibility.group</source>
+        <target>Bonus</target>
+      </trans-unit>
+      <trans-unit id="EncC0601AD1" resname="encounter.validation.plausibility.group_none">
+        <source>encounter.validation.plausibility.group_none</source>
+        <target>no snapshot</target>
+      </trans-unit>
+      <trans-unit id="Enc41D2190E" resname="encounter.validation.plausibility.group_bonus">
+        <source>encounter.validation.plausibility.group_bonus</source>
+        <target>not decisive</target>
+      </trans-unit>
+      <trans-unit id="Enc848D82DD" resname="encounter.validation.plausibility.group_decisive">
+        <source>encounter.validation.plausibility.group_decisive</source>
+        <target>decided by the bonus</target>
+      </trans-unit>
+      <trans-unit id="EncB0F6AB37" resname="encounter.validation.plausibility.group_unrecorded">
+        <source>encounter.validation.plausibility.group_unrecorded</source>
+        <target>not recorded (drawn before #1156)</target>
       </trans-unit>
       <trans-unit id="Enc192EE431" resname="encounter.validation.sample_title">
         <source>encounter.validation.sample_title</source>
@@ -2853,6 +2741,522 @@
         <source>encounter.data_prep.guide.map.downloads_title</source>
         <target>Template and example</target>
       </trans-unit>
+      <trans-unit id="Enc9CCD8C71" resname="encounter.mts_catalog.kind.diagram">
+        <source>encounter.mts_catalog.kind.diagram</source>
+        <target>Diagram</target>
+      </trans-unit>
+      <trans-unit id="EncAC8BED7C" resname="encounter.mts_catalog.kind.indicator">
+        <source>encounter.mts_catalog.kind.indicator</source>
+        <target>Indicator</target>
+      </trans-unit>
+      <trans-unit id="EncD02F0BF0" resname="encounter.mts_catalog.source.orbis_export">
+        <source>encounter.mts_catalog.source.orbis_export</source>
+        <target>ORBIS export</target>
+      </trans-unit>
+      <trans-unit id="Enc974D7B3C" resname="encounter.mts_catalog.source.mts_edition">
+        <source>encounter.mts_catalog.source.mts_edition</source>
+        <target>MTS edition</target>
+      </trans-unit>
+      <trans-unit id="EncF5275409" resname="encounter.mts_catalog.source.manual">
+        <source>encounter.mts_catalog.source.manual</source>
+        <target>Manual</target>
+      </trans-unit>
+      <trans-unit id="Enc6ECAC505" resname="encounter.mts_catalog.source.first_seen">
+        <source>encounter.mts_catalog.source.first_seen</source>
+        <target>First seen in data</target>
+      </trans-unit>
+      <trans-unit id="Enc72E8F192" resname="encounter.mts_catalog.status.curated">
+        <source>encounter.mts_catalog.status.curated</source>
+        <target>Curated</target>
+      </trans-unit>
+      <trans-unit id="Enc52C24504" resname="encounter.mts_catalog.status.provisional">
+        <source>encounter.mts_catalog.status.provisional</source>
+        <target>Provisional</target>
+      </trans-unit>
+      <trans-unit id="Enc72A7EAF0" resname="encounter.mts_catalog.status.merged">
+        <source>encounter.mts_catalog.status.merged</source>
+        <target>Merged</target>
+      </trans-unit>
+      <trans-unit id="EncE93ECE49" resname="encounter.mts_catalog.diagram.singular">
+        <source>encounter.mts_catalog.diagram.singular</source>
+        <target>MTS diagram</target>
+      </trans-unit>
+      <trans-unit id="EncFA6F423A" resname="encounter.mts_catalog.diagram.plural">
+        <source>encounter.mts_catalog.diagram.plural</source>
+        <target>MTS diagrams</target>
+      </trans-unit>
+      <trans-unit id="Enc4B2E37B6" resname="encounter.mts_catalog.indicator.singular">
+        <source>encounter.mts_catalog.indicator.singular</source>
+        <target>MTS indicator</target>
+      </trans-unit>
+      <trans-unit id="Enc3062DAEC" resname="encounter.mts_catalog.indicator.plural">
+        <source>encounter.mts_catalog.indicator.plural</source>
+        <target>MTS indicators</target>
+      </trans-unit>
+      <trans-unit id="Enc18CE58EE" resname="encounter.mts_catalog.alias.singular">
+        <source>encounter.mts_catalog.alias.singular</source>
+        <target>MTS alias</target>
+      </trans-unit>
+      <trans-unit id="Enc06D0A793" resname="encounter.mts_catalog.alias.plural">
+        <source>encounter.mts_catalog.alias.plural</source>
+        <target>MTS aliases</target>
+      </trans-unit>
+      <trans-unit id="EncC7ED6A92" resname="encounter.mts_catalog.assignment.singular">
+        <source>encounter.mts_catalog.assignment.singular</source>
+        <target>Diagram–indicator assignment</target>
+      </trans-unit>
+      <trans-unit id="Enc2121B16A" resname="encounter.mts_catalog.assignment.plural">
+        <source>encounter.mts_catalog.assignment.plural</source>
+        <target>Diagram–indicator assignments</target>
+      </trans-unit>
+      <trans-unit id="EncCB3AA1AB" resname="encounter.mts_catalog.field.code">
+        <source>encounter.mts_catalog.field.code</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="Enc82A1E29D" resname="encounter.mts_catalog.field.german_name">
+        <source>encounter.mts_catalog.field.german_name</source>
+        <target>German name</target>
+      </trans-unit>
+      <trans-unit id="Enc22CAFC7D" resname="encounter.mts_catalog.field.german_name.help_new">
+        <source>encounter.mts_catalog.field.german_name.help_new</source>
+        <target>The code is derived from this name once and never changes. Encounters store the code.</target>
+      </trans-unit>
+      <trans-unit id="Enc060EF105" resname="encounter.mts_catalog.field.german_name.help_edit">
+        <source>encounter.mts_catalog.field.german_name.help_edit</source>
+        <target>Correcting the name does not change the code.</target>
+      </trans-unit>
+      <trans-unit id="Enc072D914C" resname="encounter.mts_catalog.field.english_name">
+        <source>encounter.mts_catalog.field.english_name</source>
+        <target>English name</target>
+      </trans-unit>
+      <trans-unit id="EncD9FA821D" resname="encounter.mts_catalog.field.source">
+        <source>encounter.mts_catalog.field.source</source>
+        <target>Source</target>
+      </trans-unit>
+      <trans-unit id="EncD5508EB2" resname="encounter.mts_catalog.field.status">
+        <source>encounter.mts_catalog.field.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="Enc4D4D077B" resname="encounter.mts_catalog.field.first_seen_at">
+        <source>encounter.mts_catalog.field.first_seen_at</source>
+        <target>First seen</target>
+      </trans-unit>
+      <trans-unit id="Enc92187B65" resname="encounter.mts_catalog.field.kind">
+        <source>encounter.mts_catalog.field.kind</source>
+        <target>Kind</target>
+      </trans-unit>
+      <trans-unit id="Enc3EADA46A" resname="encounter.mts_catalog.field.label">
+        <source>encounter.mts_catalog.field.label</source>
+        <target>Label</target>
+      </trans-unit>
+      <trans-unit id="Enc1FF7BF4F" resname="encounter.mts_catalog.field.label.help">
+        <source>encounter.mts_catalog.field.label.help</source>
+        <target>Another spelling, for example a vendor wording. The alias code is derived from it once.</target>
+      </trans-unit>
+      <trans-unit id="Enc27DC6473" resname="encounter.mts_catalog.field.target">
+        <source>encounter.mts_catalog.field.target</source>
+        <target>Resolves to</target>
+      </trans-unit>
+      <trans-unit id="Enc37B83C19" resname="encounter.mts_catalog.field.target.help">
+        <source>encounter.mts_catalog.field.target.help</source>
+        <target>An active entry of the same kind.</target>
+      </trans-unit>
+      <trans-unit id="Enc730DBCD0" resname="encounter.mts_catalog.action.merge">
+        <source>encounter.mts_catalog.action.merge</source>
+        <target>Merge into …</target>
+      </trans-unit>
+      <trans-unit id="Enc143D659B" resname="encounter.mts_catalog.action.undo_merge">
+        <source>encounter.mts_catalog.action.undo_merge</source>
+        <target>Undo merge</target>
+      </trans-unit>
+      <trans-unit id="EncE5764BB0" resname="encounter.mts_catalog.action.undo_merge.confirm">
+        <source>encounter.mts_catalog.action.undo_merge.confirm</source>
+        <target>Undo the merge? The alias is removed and the entry becomes provisional again.</target>
+      </trans-unit>
+      <trans-unit id="Enc4E62881B" resname="encounter.mts_catalog.merge.title">
+        <source>encounter.mts_catalog.merge.title</source>
+        <target>Merge {code}</target>
+      </trans-unit>
+      <trans-unit id="Enc145C78EB" resname="encounter.mts_catalog.merge.back">
+        <source>encounter.mts_catalog.merge.back</source>
+        <target>Back</target>
+      </trans-unit>
+      <trans-unit id="Enc67145BD0" resname="encounter.mts_catalog.merge.intro">
+        <source>encounter.mts_catalog.merge.intro</source>
+        <target>The provisional entry {name} ({code}) becomes an alias of the chosen entry. Encounters keep the code {code}; pages show the chosen entry. The merge can be undone.</target>
+      </trans-unit>
+      <trans-unit id="Enc3EE320AD" resname="encounter.mts_catalog.merge.target">
+        <source>encounter.mts_catalog.merge.target</source>
+        <target>Merge into</target>
+      </trans-unit>
+      <trans-unit id="EncA4140263" resname="encounter.mts_catalog.merge.submit">
+        <source>encounter.mts_catalog.merge.submit</source>
+        <target>Merge</target>
+      </trans-unit>
+      <trans-unit id="EncA7EBD841" resname="encounter.mts_catalog.flash.merged">
+        <source>encounter.mts_catalog.flash.merged</source>
+        <target>{code} was merged into {target}.</target>
+      </trans-unit>
+      <trans-unit id="EncB75F36FF" resname="encounter.mts_catalog.flash.merge_undone">
+        <source>encounter.mts_catalog.flash.merge_undone</source>
+        <target>The merge of {code} was undone; the entry is provisional again.</target>
+      </trans-unit>
+      <trans-unit id="Enc2C31AB03" resname="encounter.mts_catalog.flash.invalid_token">
+        <source>encounter.mts_catalog.flash.invalid_token</source>
+        <target>The request has expired. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="Enc28D11A10" resname="encounter.mts_catalog.error.empty_code">
+        <source>encounter.mts_catalog.error.empty_code</source>
+        <target>“{label}” gives no code. Use letters or digits.</target>
+      </trans-unit>
+      <trans-unit id="Enc06E3F331" resname="encounter.mts_catalog.error.duplicate">
+        <source>encounter.mts_catalog.error.duplicate</source>
+        <target>“{label}” already exists with the code {code}.</target>
+      </trans-unit>
+      <trans-unit id="Enc94F45A55" resname="encounter.mts_catalog.error.collision">
+        <source>encounter.mts_catalog.error.collision</source>
+        <target>Code collision: “{label}” gives the code {code}, which already belongs to “{existing}” (resolves to {target}). The server cannot tell the two labels apart; clear up the names first.</target>
+      </trans-unit>
+      <trans-unit id="Enc1DBCED97" resname="encounter.mts_catalog.error.target_not_active">
+        <source>encounter.mts_catalog.error.target_not_active</source>
+        <target>{code} is not an active entry of this kind.</target>
+      </trans-unit>
+      <trans-unit id="Enc431F452F" resname="encounter.mts_catalog.error.merge_not_provisional">
+        <source>encounter.mts_catalog.error.merge_not_provisional</source>
+        <target>Only provisional entries can be merged; {code} is not provisional.</target>
+      </trans-unit>
+      <trans-unit id="Enc299BC838" resname="encounter.mts_catalog.error.merge_into_itself">
+        <source>encounter.mts_catalog.error.merge_into_itself</source>
+        <target>{code} cannot be merged into itself.</target>
+      </trans-unit>
+      <trans-unit id="Enc0752DBA4" resname="encounter.mts_catalog.error.merge_has_aliases">
+        <source>encounter.mts_catalog.error.merge_has_aliases</source>
+        <target>{code} cannot be merged while {count, plural, one {# alias points} other {# aliases point}} to it.</target>
+      </trans-unit>
+      <trans-unit id="Enc7649E914" resname="encounter.mts_catalog.error.merge_has_assignments">
+        <source>encounter.mts_catalog.error.merge_has_assignments</source>
+        <target>{code} cannot be merged while it has {count, plural, one {# diagram–indicator assignment} other {# diagram–indicator assignments}}.</target>
+      </trans-unit>
+      <trans-unit id="EncC675831E" resname="encounter.mts_catalog.error.not_merged">
+        <source>encounter.mts_catalog.error.not_merged</source>
+        <target>{code} is not merged.</target>
+      </trans-unit>
+      <trans-unit id="Enc34746D1E" resname="encounter.mts_catalog.error.merge_alias">
+        <source>encounter.mts_catalog.error.merge_alias</source>
+        <target>The alias {code} stands for a merge; undo the merge on the merged entry instead.</target>
+      </trans-unit>
+      <trans-unit id="Enc1809AF5B" resname="encounter.mts_catalog.error.assignment_exists">
+        <source>encounter.mts_catalog.error.assignment_exists</source>
+        <target>{indicator} is already assigned to {diagram}.</target>
+      </trans-unit>
+      <trans-unit id="Enc72A2827F" resname="encounter.mts_catalog.error.assignment_not_active">
+        <source>encounter.mts_catalog.error.assignment_not_active</source>
+        <target>Choose an active diagram and an active indicator.</target>
+      </trans-unit>
+      <trans-unit id="Enc6B38698E" resname="encounter.mts_catalog.error.merge_has_plausibility_rules">
+        <source>encounter.mts_catalog.error.merge_has_plausibility_rules</source>
+        <target>{code} cannot be merged while {count, plural, one {# rule of the plausibility table names it} other {# rules of the plausibility table name it}}.</target>
+      </trans-unit>
+      <trans-unit id="EncC82A4C1F" resname="encounter.plausibility.title">
+        <source>encounter.plausibility.title</source>
+        <target>Plausibility table</target>
+      </trans-unit>
+      <trans-unit id="Enc9E0D70A0" resname="encounter.plausibility.intro">
+        <source>encounter.plausibility.intro</source>
+        <target>From matcher 1.2.0 on, pass 2 adds up to +3 points when the indication (PZC) of an allocation and the MTS diagram of a visit are plausible together. The matcher reads only the active snapshot; editing a problem area changes the draft built from the problem areas, never the active snapshot. This page shows points and sources only, no case counts. Nothing reads the table before matcher 1.2.0.</target>
+      </trans-unit>
+      <trans-unit id="Enc6C9B27E9" resname="encounter.plausibility.snapshots_title">
+        <source>encounter.plausibility.snapshots_title</source>
+        <target>Snapshots</target>
+      </trans-unit>
+      <trans-unit id="Enc92E8E638" resname="encounter.plausibility.snapshots_note">
+        <source>encounter.plausibility.snapshots_note</source>
+        <target>One snapshot is active, or none (then the bonus is 0 everywhere). Activating a draft retires the active snapshot. Active and retired snapshots never change.</target>
+      </trans-unit>
+      <trans-unit id="Enc631CAC2C" resname="encounter.plausibility.no_snapshots">
+        <source>encounter.plausibility.no_snapshots</source>
+        <target>No snapshot yet. Saving a problem area creates the draft.</target>
+      </trans-unit>
+      <trans-unit id="Enc28544B0B" resname="encounter.plausibility.column.snapshot">
+        <source>encounter.plausibility.column.snapshot</source>
+        <target>Snapshot</target>
+      </trans-unit>
+      <trans-unit id="Enc9558EAE4" resname="encounter.plausibility.column.origin">
+        <source>encounter.plausibility.column.origin</source>
+        <target>Origin</target>
+      </trans-unit>
+      <trans-unit id="Enc56F616BF" resname="encounter.plausibility.column.status">
+        <source>encounter.plausibility.column.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="EncB0B1C506" resname="encounter.plausibility.column.created">
+        <source>encounter.plausibility.column.created</source>
+        <target>Created</target>
+      </trans-unit>
+      <trans-unit id="Enc57320441" resname="encounter.plausibility.column.activated">
+        <source>encounter.plausibility.column.activated</source>
+        <target>Activated</target>
+      </trans-unit>
+      <trans-unit id="Enc1AD134AD" resname="encounter.plausibility.column.retired">
+        <source>encounter.plausibility.column.retired</source>
+        <target>Retired</target>
+      </trans-unit>
+      <trans-unit id="Enc2EB607CE" resname="encounter.plausibility.column.area">
+        <source>encounter.plausibility.column.area</source>
+        <target>Problem area</target>
+      </trans-unit>
+      <trans-unit id="Enc1D57A320" resname="encounter.plausibility.column.pzc_codes">
+        <source>encounter.plausibility.column.pzc_codes</source>
+        <target>PZC codes</target>
+      </trans-unit>
+      <trans-unit id="Enc96F22635" resname="encounter.plausibility.column.diagrams">
+        <source>encounter.plausibility.column.diagrams</source>
+        <target>Plausible MTS diagrams</target>
+      </trans-unit>
+      <trans-unit id="Enc1214DF71" resname="encounter.plausibility.column.diagram">
+        <source>encounter.plausibility.column.diagram</source>
+        <target>MTS diagram</target>
+      </trans-unit>
+      <trans-unit id="Enc29A3D2AC" resname="encounter.plausibility.column.points">
+        <source>encounter.plausibility.column.points</source>
+        <target>Points</target>
+      </trans-unit>
+      <trans-unit id="Enc037E354D" resname="encounter.plausibility.column.before">
+        <source>encounter.plausibility.column.before</source>
+        <target>Active snapshot</target>
+      </trans-unit>
+      <trans-unit id="EncCC4D62D7" resname="encounter.plausibility.column.source">
+        <source>encounter.plausibility.column.source</source>
+        <target>Source</target>
+      </trans-unit>
+      <trans-unit id="Enc76A68192" resname="encounter.plausibility.column.pzc">
+        <source>encounter.plausibility.column.pzc</source>
+        <target>PZC</target>
+      </trans-unit>
+      <trans-unit id="Enc6093E68E" resname="encounter.plausibility.action.review">
+        <source>encounter.plausibility.action.review</source>
+        <target>Review</target>
+      </trans-unit>
+      <trans-unit id="EncA74DC73F" resname="encounter.plausibility.action.new_area">
+        <source>encounter.plausibility.action.new_area</source>
+        <target>New problem area</target>
+      </trans-unit>
+      <trans-unit id="EncA78F0985" resname="encounter.plausibility.action.edit">
+        <source>encounter.plausibility.action.edit</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="EncDBE5B273" resname="encounter.plausibility.action.save">
+        <source>encounter.plausibility.action.save</source>
+        <target>Save</target>
+      </trans-unit>
+      <trans-unit id="EncF640E54C" resname="encounter.plausibility.action.delete_area">
+        <source>encounter.plausibility.action.delete_area</source>
+        <target>Delete problem area</target>
+      </trans-unit>
+      <trans-unit id="Enc36FEC1D3" resname="encounter.plausibility.action.activate">
+        <source>encounter.plausibility.action.activate</source>
+        <target>Activate</target>
+      </trans-unit>
+      <trans-unit id="EncF7072096" resname="encounter.plausibility.action.retire">
+        <source>encounter.plausibility.action.retire</source>
+        <target>Retire</target>
+      </trans-unit>
+      <trans-unit id="Enc17D844E0" resname="encounter.plausibility.action.delete">
+        <source>encounter.plausibility.action.delete</source>
+        <target>Delete draft</target>
+      </trans-unit>
+      <trans-unit id="EncBB691602" resname="encounter.plausibility.areas_title">
+        <source>encounter.plausibility.areas_title</source>
+        <target>Problem areas</target>
+      </trans-unit>
+      <trans-unit id="Enc95DF86C2" resname="encounter.plausibility.areas_note">
+        <source>encounter.plausibility.areas_note</source>
+        <target>Curated groups of PZC codes that belong together clinically, with the MTS diagrams plausible with them. Each PZC belongs to at most one area; catch-all codes (“sonstige”) belong to none. The seed is an a-priori draft that needs clinical review.</target>
+      </trans-unit>
+      <trans-unit id="EncE74D4D6C" resname="encounter.plausibility.no_areas">
+        <source>encounter.plausibility.no_areas</source>
+        <target>No problem areas.</target>
+      </trans-unit>
+      <trans-unit id="EncC4F6DB28" resname="encounter.plausibility.no_rules">
+        <source>encounter.plausibility.no_rules</source>
+        <target>No plausible diagram</target>
+      </trans-unit>
+      <trans-unit id="Enc7826527E" resname="encounter.plausibility.unassigned_title">
+        <source>encounter.plausibility.unassigned_title</source>
+        <target>PZC codes without problem area</target>
+      </trans-unit>
+      <trans-unit id="EncB679129A" resname="encounter.plausibility.unassigned_note">
+        <source>encounter.plausibility.unassigned_note</source>
+        <target>Codes of the stored indications that belong to no problem area. A pair with such a code gets no bonus.</target>
+      </trans-unit>
+      <trans-unit id="EncF4F230F3" resname="encounter.plausibility.area.new_title">
+        <source>encounter.plausibility.area.new_title</source>
+        <target>New problem area</target>
+      </trans-unit>
+      <trans-unit id="EncAD2CE971" resname="encounter.plausibility.area.pretitle">
+        <source>encounter.plausibility.area.pretitle</source>
+        <target>Problem area</target>
+      </trans-unit>
+      <trans-unit id="Enc182C649B" resname="encounter.plausibility.area.intro">
+        <source>encounter.plausibility.area.intro</source>
+        <target>Saving rebuilds the draft snapshot from all problem areas. The active snapshot stays until someone activates the draft.</target>
+      </trans-unit>
+      <trans-unit id="Enc100BF294" resname="encounter.plausibility.area.field.german_name">
+        <source>encounter.plausibility.area.field.german_name</source>
+        <target>German name</target>
+      </trans-unit>
+      <trans-unit id="EncA8624A12" resname="encounter.plausibility.area.field.german_name_help">
+        <source>encounter.plausibility.area.field.german_name_help</source>
+        <target>The code of the area is derived from the German name once and never changes.</target>
+      </trans-unit>
+      <trans-unit id="Enc361C3E09" resname="encounter.plausibility.area.field.english_name">
+        <source>encounter.plausibility.area.field.english_name</source>
+        <target>English name</target>
+      </trans-unit>
+      <trans-unit id="Enc547E01B5" resname="encounter.plausibility.area.field.pzc_codes">
+        <source>encounter.plausibility.area.field.pzc_codes</source>
+        <target>PZC codes</target>
+      </trans-unit>
+      <trans-unit id="Enc75C9AA12" resname="encounter.plausibility.area.field.pzc_codes_help">
+        <source>encounter.plausibility.area.field.pzc_codes_help</source>
+        <target>Three-digit codes and ranges, separated by commas, for example 711-718, 263. A code of another area has to be removed there first.</target>
+      </trans-unit>
+      <trans-unit id="Enc50CAB550" resname="encounter.plausibility.area.field.diagrams">
+        <source>encounter.plausibility.area.field.diagrams</source>
+        <target>Plausible MTS diagrams</target>
+      </trans-unit>
+      <trans-unit id="Enc4E74848E" resname="encounter.plausibility.area.field.diagrams_help">
+        <source>encounter.plausibility.area.field.diagrams_help</source>
+        <target>Points for a pair of a code of this area and the diagram, +1 to +3. Leave unspecific diagrams empty.</target>
+      </trans-unit>
+      <trans-unit id="Enc3CFCD439" resname="encounter.plausibility.area.delete_note">
+        <source>encounter.plausibility.area.delete_note</source>
+        <target>After deleting the area its codes belong to no area; the draft is rebuilt.</target>
+      </trans-unit>
+      <trans-unit id="EncC513F8D6" resname="encounter.plausibility.snapshot.title">
+        <source>encounter.plausibility.snapshot.title</source>
+        <target>Snapshot #{id}</target>
+      </trans-unit>
+      <trans-unit id="EncFA1069C9" resname="encounter.plausibility.snapshot.privacy">
+        <source>encounter.plausibility.snapshot.privacy</source>
+        <target>Shown are points, their source and the change against the active snapshot. Case counts are never shown: the table is learned from the data of all hospitals.</target>
+      </trans-unit>
+      <trans-unit id="Enc7C58DC0F" resname="encounter.plausibility.snapshot.activate_note">
+        <source>encounter.plausibility.snapshot.activate_note</source>
+        <target>Activating retires the active snapshot. Links and manual decisions stay; open proposals are recomputed by the next matcher run.</target>
+      </trans-unit>
+      <trans-unit id="Enc1798046B" resname="encounter.plausibility.snapshot.retire_note">
+        <source>encounter.plausibility.snapshot.retire_note</source>
+        <target>After retiring, no snapshot is active: the bonus is 0 everywhere.</target>
+      </trans-unit>
+      <trans-unit id="EncFCDFDAC3" resname="encounter.plausibility.snapshot.compared">
+        <source>encounter.plausibility.snapshot.compared</source>
+        <target>Compared with the active snapshot #{id}: {changed, plural, =0 {no area cell changed} one {# area cell changed} other {# area cells changed}}, {pairs, plural, =0 {no PZC × diagram pair changed} one {# PZC × diagram pair changed} other {# PZC × diagram pairs changed}}.</target>
+      </trans-unit>
+      <trans-unit id="Enc7C3E8AFE" resname="encounter.plausibility.snapshot.no_active">
+        <source>encounter.plausibility.snapshot.no_active</source>
+        <target>No snapshot is active, so the bonus is 0 everywhere today. With this snapshot the points below apply.</target>
+      </trans-unit>
+      <trans-unit id="Enc5AFEF566" resname="encounter.plausibility.snapshot.areas_title">
+        <source>encounter.plausibility.snapshot.areas_title</source>
+        <target>Problem areas and their cells</target>
+      </trans-unit>
+      <trans-unit id="Enc7D2CDE0B" resname="encounter.plausibility.snapshot.pairs_title">
+        <source>encounter.plausibility.snapshot.pairs_title</source>
+        <target>Changed bonus per PZC and diagram</target>
+      </trans-unit>
+      <trans-unit id="Enc64D11561" resname="encounter.plausibility.snapshot.pairs_note">
+        <source>encounter.plausibility.snapshot.pairs_note</source>
+        <target>The bonus the matcher would give with this snapshot instead of the active one: the exact cell where it has enough observations, otherwise the problem area.</target>
+      </trans-unit>
+      <trans-unit id="Enc17A008C5" resname="encounter.plausibility.snapshot.no_pair_changes">
+        <source>encounter.plausibility.snapshot.no_pair_changes</source>
+        <target>No pair changes its bonus.</target>
+      </trans-unit>
+      <trans-unit id="EncB5820B33" resname="encounter.plausibility.snapshot.status.draft">
+        <source>encounter.plausibility.snapshot.status.draft</source>
+        <target>Draft</target>
+      </trans-unit>
+      <trans-unit id="Enc88B16865" resname="encounter.plausibility.snapshot.status.active">
+        <source>encounter.plausibility.snapshot.status.active</source>
+        <target>Active</target>
+      </trans-unit>
+      <trans-unit id="Enc0E6923D6" resname="encounter.plausibility.snapshot.status.retired">
+        <source>encounter.plausibility.snapshot.status.retired</source>
+        <target>Retired</target>
+      </trans-unit>
+      <trans-unit id="Enc96D23902" resname="encounter.plausibility.snapshot.origin.seed">
+        <source>encounter.plausibility.snapshot.origin.seed</source>
+        <target>Curated seed</target>
+      </trans-unit>
+      <trans-unit id="EncED1132FA" resname="encounter.plausibility.snapshot.origin.learned">
+        <source>encounter.plausibility.snapshot.origin.learned</source>
+        <target>Learned</target>
+      </trans-unit>
+      <trans-unit id="Enc6605618A" resname="encounter.plausibility.source.curated">
+        <source>encounter.plausibility.source.curated</source>
+        <target>Curated</target>
+      </trans-unit>
+      <trans-unit id="Enc88F70671" resname="encounter.plausibility.source.learned">
+        <source>encounter.plausibility.source.learned</source>
+        <target>Learned</target>
+      </trans-unit>
+      <trans-unit id="EncA647EBB4" resname="encounter.plausibility.flash.area_saved">
+        <source>encounter.plausibility.flash.area_saved</source>
+        <target>Problem area “{name}” saved; the draft was rebuilt.</target>
+      </trans-unit>
+      <trans-unit id="EncA9F16E0F" resname="encounter.plausibility.flash.area_deleted">
+        <source>encounter.plausibility.flash.area_deleted</source>
+        <target>Problem area “{name}” deleted; the draft was rebuilt.</target>
+      </trans-unit>
+      <trans-unit id="Enc7E022024" resname="encounter.plausibility.flash.invalid_token">
+        <source>encounter.plausibility.flash.invalid_token</source>
+        <target>The form expired. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="Enc81549C0B" resname="encounter.plausibility.flash.snapshot_activate">
+        <source>encounter.plausibility.flash.snapshot_activate</source>
+        <target>Snapshot #{id} is active.</target>
+      </trans-unit>
+      <trans-unit id="EncAEEDDE22" resname="encounter.plausibility.flash.snapshot_retire">
+        <source>encounter.plausibility.flash.snapshot_retire</source>
+        <target>Snapshot #{id} is retired; no snapshot is active.</target>
+      </trans-unit>
+      <trans-unit id="Enc4F570325" resname="encounter.plausibility.flash.snapshot_delete">
+        <source>encounter.plausibility.flash.snapshot_delete</source>
+        <target>Draft #{id} deleted.</target>
+      </trans-unit>
+      <trans-unit id="Enc370369E8" resname="encounter.plausibility.error.empty_name">
+        <source>encounter.plausibility.error.empty_name</source>
+        <target>“{name}” gives no code. Use letters or digits.</target>
+      </trans-unit>
+      <trans-unit id="EncDDEB25DB" resname="encounter.plausibility.error.area_exists">
+        <source>encounter.plausibility.error.area_exists</source>
+        <target>A problem area with the code {code} exists already (“{name}”).</target>
+      </trans-unit>
+      <trans-unit id="Enc29CD5DEA" resname="encounter.plausibility.error.pzc_invalid">
+        <source>encounter.plausibility.error.pzc_invalid</source>
+        <target>“{pzc}” is not a PZC code or range.</target>
+      </trans-unit>
+      <trans-unit id="EncBD2F0F81" resname="encounter.plausibility.error.pzc_taken">
+        <source>encounter.plausibility.error.pzc_taken</source>
+        <target>PZC {pzc} already belongs to “{area}”. Remove it there first.</target>
+      </trans-unit>
+      <trans-unit id="Enc9A478C42" resname="encounter.plausibility.error.diagram_not_active">
+        <source>encounter.plausibility.error.diagram_not_active</source>
+        <target>{code} is not an active MTS diagram.</target>
+      </trans-unit>
+      <trans-unit id="EncD71DCC86" resname="encounter.plausibility.error.points">
+        <source>encounter.plausibility.error.points</source>
+        <target>Points are 0 to +{max}, got {points}.</target>
+      </trans-unit>
+      <trans-unit id="Enc8E439D7B" resname="encounter.plausibility.error.snapshot_not_draft">
+        <source>encounter.plausibility.error.snapshot_not_draft</source>
+        <target>Snapshot #{id} is not a draft.</target>
+      </trans-unit>
+      <trans-unit id="Enc17FCF391" resname="encounter.plausibility.error.snapshot_not_active">
+        <source>encounter.plausibility.error.snapshot_not_active</source>
+        <target>Snapshot #{id} is not active.</target>
+      </trans-unit>
       <trans-unit id="ToolsEncRevTitle" resname="tools.encounter_review.title">
         <source>tools.encounter_review.title</source>
         <target>Encounter match review</target>
@@ -2880,6 +3284,158 @@
       <trans-unit id="MyHospActEncData" resname="my_hospitals.action.encounter_data">
         <source>my_hospitals.action.encounter_data</source>
         <target>Encounter data</target>
+      </trans-unit>
+      <trans-unit id="EncB426FDD6" resname="tools.encounter_plausibility.title">
+        <source>tools.encounter_plausibility.title</source>
+        <target>Plausibility table</target>
+      </trans-unit>
+      <trans-unit id="Enc521607A3" resname="tools.encounter_plausibility.description">
+        <source>tools.encounter_plausibility.description</source>
+        <target>Review the curated problem areas of the matcher's PZC × MTS diagram table and activate snapshots.</target>
+      </trans-unit>
+      <trans-unit id="Enc0D9168CB" resname="encounter.data_prep.changelog.1_2_0.catalog_from_server">
+        <source>encounter.data_prep.changelog.1_2_0.catalog_from_server</source>
+        <target>At start, the tool loads the maintained MTS catalog from the server; offline it uses its bundled copy.</target>
+      </trans-unit>
+      <trans-unit id="EncBE890AC9" resname="encounter.data_prep.changelog.1_2_0.aliases">
+        <source>encounter.data_prep.changelog.1_2_0.aliases</source>
+        <target>Other spellings of MTS diagrams and indicators that the catalog knows as aliases are recognised and listed in the report; the file keeps the spelling of the export.</target>
+      </trans-unit>
+      <trans-unit id="Enc45D5713F" resname="encounter.data_prep.changelog.1_2_0.new_diagrams">
+        <source>encounter.data_prep.changelog.1_2_0.new_diagrams</source>
+        <target>MTS diagrams not yet in the catalog are no longer emptied: like new indicators they are written as codes and listed as new catalog values; the server adds them to the catalog as provisional entries.</target>
+      </trans-unit>
+      <trans-unit id="Enc1412F26F" resname="encounter.data_prep.js.catalog_server">
+        <source>encounter.data_prep.js.catalog_server</source>
+        <target>MTS catalog loaded from the server:</target>
+      </trans-unit>
+      <trans-unit id="EncF7AE4431" resname="encounter.data_prep.js.catalog_bundled">
+        <source>encounter.data_prep.js.catalog_bundled</source>
+        <target>The MTS catalog could not be loaded from the server (offline or blocked by a proxy); the tool uses its bundled copy:</target>
+      </trans-unit>
+      <trans-unit id="EncB65C30FC" resname="encounter.data_prep.js.catalog_counts">
+        <source>encounter.data_prep.js.catalog_counts</source>
+        <target>diagrams: {diagrams}, indicators: {indicators}, aliases: {aliases}.</target>
+      </trans-unit>
+      <trans-unit id="Enc38A681FD" resname="encounter.data_prep.js.report_aliases_title">
+        <source>encounter.data_prep.js.report_aliases_title</source>
+        <target>Other spellings recognised</target>
+      </trans-unit>
+      <trans-unit id="Enc97DD7EEB" resname="encounter.data_prep.js.report_aliases_hint">
+        <source>encounter.data_prep.js.report_aliases_hint</source>
+        <target>These MTS values are spelled differently than in the catalog, which knows them as aliases (value → catalog code). The file keeps the code of the spelling in the export; the server resolves it.</target>
+      </trans-unit>
+      <trans-unit id="Enc0D074C33" resname="encounter.mts.diagram.indicators_source_with_counts">
+        <source>encounter.mts.diagram.indicators_source_with_counts</source>
+        <target>Indicators assigned to this diagram in the catalog and indicators seen with it in the encounter data you may see, with counts.</target>
+      </trans-unit>
+      <trans-unit id="Enc7319BC9F" resname="encounter.mts.diagram.indicators_source_definition">
+        <source>encounter.mts.diagram.indicators_source_definition</source>
+        <target>Indicators assigned to this diagram in the catalog. Which indicators occur with it in encounter data, and how often, is shown only to users with access to the encounter data of a hospital.</target>
+      </trans-unit>
+      <trans-unit id="Enc75FF351F" resname="encounter.mts.diagram.not_assigned">
+        <source>encounter.mts.diagram.not_assigned</source>
+        <target>not assigned in the catalog</target>
+      </trans-unit>
+      <trans-unit id="EncDAD55FF5" resname="encounter.plausibility.action.learn">
+        <source>encounter.plausibility.action.learn</source>
+        <target>Learn draft</target>
+      </trans-unit>
+      <trans-unit id="EncD03B5DB2" resname="encounter.plausibility.learn_note">
+        <source>encounter.plausibility.learn_note</source>
+        <target>"Learn draft" builds a new draft from the pairs people confirmed and the automatic links the bonus did not decide, over all hospitals; the active snapshot stays until a draft is activated.</target>
+      </trans-unit>
+      <trans-unit id="Enc1CB43C63" resname="encounter.plausibility.flash.snapshot_learned">
+        <source>encounter.plausibility.flash.snapshot_learned</source>
+        <target>Draft #{id} was learned. Read its report before activating it.</target>
+      </trans-unit>
+      <trans-unit id="EncCD868815" resname="encounter.plausibility.error.no_eligible_pairs">
+        <source>encounter.plausibility.error.no_eligible_pairs</source>
+        <target>There are no confirmed pairs or automatic links to learn from yet.</target>
+      </trans-unit>
+      <trans-unit id="EncE17EFDB1" resname="encounter.plausibility.learning.title">
+        <source>encounter.plausibility.learning.title</source>
+        <target>Learning report</target>
+      </trans-unit>
+      <trans-unit id="EncD29B69D7" resname="encounter.plausibility.learning.period">
+        <source>encounter.plausibility.learning.period</source>
+        <target>Learned from (IVENA arrival)</target>
+      </trans-unit>
+      <trans-unit id="EncF1BE6890" resname="encounter.plausibility.learning.parameters">
+        <source>encounter.plausibility.learning.parameters</source>
+        <target>Parameters</target>
+      </trans-unit>
+      <trans-unit id="Enc9AD37CF7" resname="encounter.plausibility.learning.parameter_values">
+        <source>encounter.plausibility.learning.parameter_values</source>
+        <target>smoothing {smoothing}, shrinkage towards the seed {shrinkage}, minimum observations {minimum}, folds {fold}</target>
+      </trans-unit>
+      <trans-unit id="Enc5175DFEB" resname="encounter.plausibility.learning.eligible_all">
+        <source>encounter.plausibility.learning.eligible_all</source>
+        <target>Eligible pairs (all hospitals)</target>
+      </trans-unit>
+      <trans-unit id="EncA34B4304" resname="encounter.plausibility.learning.eligible_value">
+        <source>encounter.plausibility.learning.eligible_value</source>
+        <target>{pairs, plural, one {# eligible pair} other {# eligible pairs}}, of which {bonus} confirmed after a bonus decision</target>
+      </trans-unit>
+      <trans-unit id="Enc64D3077C" resname="encounter.plausibility.learning.note">
+        <source>encounter.plausibility.learning.note</source>
+        <target>Replay of the matcher over the learning period without bonus, with the snapshot active at learning time, with this draft, and cross-fitted (each half of the days replayed with a table learned on the other half: the honest estimate). Agreement compares automatic links with confirmed or rejected pairs and validation verdicts. Figures cover only the hospitals you review.</target>
+      </trans-unit>
+      <trans-unit id="Enc0180A6CA" resname="encounter.plausibility.learning.no_replay">
+        <source>encounter.plausibility.learning.no_replay</source>
+        <target>No replay figures: you hold no review grant on a hospital the draft was learned from.</target>
+      </trans-unit>
+      <trans-unit id="Enc19C3E46F" resname="encounter.plausibility.learning.all_hospitals">
+        <source>encounter.plausibility.learning.all_hospitals</source>
+        <target>All hospitals</target>
+      </trans-unit>
+      <trans-unit id="Enc6E5FE510" resname="encounter.plausibility.learning.column.variant">
+        <source>encounter.plausibility.learning.column.variant</source>
+        <target>Bonus</target>
+      </trans-unit>
+      <trans-unit id="Enc3B980B78" resname="encounter.plausibility.learning.column.allocations">
+        <source>encounter.plausibility.learning.column.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="Enc45A850F5" resname="encounter.plausibility.learning.column.automatic">
+        <source>encounter.plausibility.learning.column.automatic</source>
+        <target>Automatic</target>
+      </trans-unit>
+      <trans-unit id="Enc4EDA7FC4" resname="encounter.plausibility.learning.column.proposal">
+        <source>encounter.plausibility.learning.column.proposal</source>
+        <target>Proposal</target>
+      </trans-unit>
+      <trans-unit id="Enc4D58E513" resname="encounter.plausibility.learning.column.none">
+        <source>encounter.plausibility.learning.column.none</source>
+        <target>None</target>
+      </trans-unit>
+      <trans-unit id="Enc40EE11FA" resname="encounter.plausibility.learning.column.decisive">
+        <source>encounter.plausibility.learning.column.decisive</source>
+        <target>Decided by the bonus</target>
+      </trans-unit>
+      <trans-unit id="EncFDC5EA46" resname="encounter.plausibility.learning.column.agree">
+        <source>encounter.plausibility.learning.column.agree</source>
+        <target>Agree</target>
+      </trans-unit>
+      <trans-unit id="EncEE657E7A" resname="encounter.plausibility.learning.column.disagree">
+        <source>encounter.plausibility.learning.column.disagree</source>
+        <target>Contradict</target>
+      </trans-unit>
+      <trans-unit id="EncDE6A12D4" resname="encounter.plausibility.learning.variant.none">
+        <source>encounter.plausibility.learning.variant.none</source>
+        <target>No bonus</target>
+      </trans-unit>
+      <trans-unit id="Enc4D0802F7" resname="encounter.plausibility.learning.variant.active">
+        <source>encounter.plausibility.learning.variant.active</source>
+        <target>Active snapshot</target>
+      </trans-unit>
+      <trans-unit id="Enc3E5FAE4E" resname="encounter.plausibility.learning.variant.draft">
+        <source>encounter.plausibility.learning.variant.draft</source>
+        <target>This draft</target>
+      </trans-unit>
+      <trans-unit id="Enc5846CE72" resname="encounter.plausibility.learning.variant.cross_fitted">
+        <source>encounter.plausibility.learning.variant.cross_fitted</source>
+        <target>This draft, cross-fitted</target>
       </trans-unit>
     </body>
   </file>

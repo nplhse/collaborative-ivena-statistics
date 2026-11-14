@@ -22,6 +22,7 @@
                 <tr>
                     <th>{{ 'stats.encounter.column.arrival_route'|trans({}, 'statistics') }}</th>
                     <th class="text-end" colspan="2">{{ link_labels.automatic }}</th>
+                    <th class="text-end" colspan="2">{{ 'stats.encounter.route_link.bonus_decided'|trans({}, 'statistics') }}</th>
                     <th class="text-end" colspan="2">{{ link_labels.confirmed }}</th>
                     <th class="text-end" colspan="2">{{ 'encounter.link.linked'|trans({}, d) }}</th>
                     <th class="text-end" colspan="2">{{ link_labels.not_linked }}</th>
@@ -33,6 +34,7 @@
                     <tr data-testid="encounter-route-link-row" data-route="{{ row.route }}" class="{{ row.route == 'total' ? 'fw-semibold' }}">
                         <td>{{ route_labels[row.route] }}</td>
                         {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.automatic}) }}
+                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.bonusDecided}) }}
                         {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.confirmed}) }}
                         {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.linked}) }}
                         {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.notLinked}) }}

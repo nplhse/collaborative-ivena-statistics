@@ -14,7 +14,7 @@ use App\Encounter\Domain\Enum\Sex;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Score, passes, conflict, reservation and gap filling of the production matcher (v1.1, ADR 030) on
+ * Score, passes, conflict, reservation and gap filling of the production matcher (v1.2 without plausibility snapshot, ADR 030) on
  * hand-checkable inputs. Score = 2^points / (2^4 "no match" + sum of 2^points of the allocation's candidates).
  */
 final class MatchPlannerTest extends TestCase
@@ -118,7 +118,8 @@ final class MatchPlannerTest extends TestCase
 
         self::assertSame([[1, 10, 'auto_accepted', 0.9697]], $this->rows($plan));
         self::assertSame(2, $plan[0]->pass);
-        self::assertSame(['time' => 4, 'sex' => 2, 'age' => -2, 'arrival_route' => 1, 'physician' => 2, 'work_accident' => 2], $plan[0]->contributions);
+        // Pass 2 of 1.2.0 records the plausibility bonus, 0 without snapshot.
+        self::assertSame(['time' => 4, 'sex' => 2, 'age' => -2, 'arrival_route' => 1, 'physician' => 2, 'work_accident' => 2, 'plausibility' => 0], $plan[0]->contributions);
     }
 
     public function testTheSubstituteAnchorIsMarked(): void

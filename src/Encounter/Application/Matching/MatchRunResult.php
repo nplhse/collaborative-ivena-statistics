@@ -15,6 +15,8 @@ final readonly class MatchRunResult
         public int $autoAccepted,
         public int $proposed,
         public int $conflicts,
+        /** New links and proposals the plausibility bonus decided (matcher 1.2.0). */
+        public int $plausibilityDecisive = 0,
     ) {
     }
 }

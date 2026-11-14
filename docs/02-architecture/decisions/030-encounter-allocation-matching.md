@@ -29,6 +29,9 @@ no ground truth.
   `isWithPhysician`, work accident ↔ `isWorkAccident`.
 - **Not features:** MTS category, MTS diagram and admitting department. They will be compared with the
   IVENA attributes later; using them for linkage would bias those comparisons.
+  *Amended for matcher 1.2.0:* the MTS diagram enters pass 2 as a bonus only, with the bias recorded and
+  handled ([matcher 1.2.0](#amendment-matcher-120)). MTS category and admitting department stay out; the
+  MTS indicator is a reserved level of the plausibility table that `1.2.0` does not read.
 
 ### Score
 
@@ -100,7 +103,8 @@ replays (`app:encounter:evaluate-matcher --weights=<version>`) can start from th
 | Version | Change | Status |
 |---|---|---|
 | `1.0.0` | points set by judgement (feature table in the [encounter docs](../../04-features/encounter/README.md#matching)) | replaced by `1.1.0` |
-| `1.1.0` | `time.near` +2 → +3; `sex.different` −4 → −2; everything else as in `1.0.0` | production |
+| `1.1.0` | `time.near` +2 → +3; `sex.different` −4 → −2; everything else as in `1.0.0` | replaced by `1.2.0` |
+| `1.2.0` | plausibility bonus in pass 2 from the active snapshot (cap +3); ambulance (RTW) with IVENA "with physician" +1 instead of −1 ([amendment](#amendment-matcher-120)) | production (#1154) |
 
 **Why 1.1.0.** The match validation of one pilot hospital (October 2026) found:
 
@@ -127,6 +131,58 @@ replays (`app:encounter:evaluate-matcher --weights=<version>`) can start from th
 Analyses and validation results that compare link rates or shares correct keep the matcher version apart
 (the validation overview adds up verdicts per matcher version).
 
+## Amendment: matcher 1.2.0
+
+Accepted with [ADR 033](033-learning-plausibility-table.md) (#1136, #1152); implemented in #1154.
+
+### Why the diagram enters after all
+
+The original reason stands: a variable used for linkage agrees more often in linked pairs than in true
+pairs, which biases any comparison of that variable. It was weighed against the link rate on real data. On
+the pilot hospital (October 2026) the IVENA indication (PZC) and the MTS diagram are plausible together in
+72 % of the true pairs but in 21 % of the other candidates; a bonus for that lets otherwise strong pairs with
+one contradicting feature become automatic links (85 % → about 91 %, no link to another visit than the
+reference). Measurements and alternatives: ADR 033.
+
+The bias is limited instead of avoided:
+
+- **Diagram only.** Only the MTS diagram is compared, with the exact PZC (a curated problem area of PZC
+  codes as fallback for sparse cells). The MTS indicator is a reserved level of the table, not read by
+  `1.2.0`; MTS category and admitting department stay out; IVENA urgency is never compared with the MTS category.
+- **Pass 2 only.** Pass 1 stays as it is, so its links carry no linkage bias from the diagram.
+- **Bonus only.** A plausible cell adds 0 … +3 points; an implausible one subtracts nothing. A penalty hit
+  true pairs in gaps of the mapping and lowered the rate.
+- **Recorded.** Every pair scored by 1.2.0 records the bonus and the snapshot; analyses comparing PZC with
+  the MTS diagram exclude or separate links the bonus decided (ADR 033).
+
+### Rules
+
+- Pass 2 adds the plausibility bonus of the pair's cell (exact PZC × MTS diagram, or the
+  PZC's problem area × diagram when the exact cell has too few observations) from the **active
+  snapshot** (ADR 033) to the points, capped at +3. Without PZC, diagram, cell or active snapshot the bonus
+  is 0. The bonus enters the competition like any other point; candidates, windows, thresholds and the
+  conflict rule are unchanged.
+- **Contributions** get the key `plausibility` (the bonus, 0 included in pass 2). The pair also stores the
+  snapshot id (none in pass 1) and whether the bonus was **decisive**: the pair would not have reached its
+  status with the bonus removed from every candidate of the allocation in that pass.
+- **Physician vehicle.** An ambulance (RTW) on the visit with IVENA "with physician" is no mismatch: +1
+  instead of −1 (a new level, e.g. `physician.rendezvous`). In the rendezvous system the physician comes in a
+  separate vehicle and the patient arrives by ambulance; among the true pairs with IVENA "with physician",
+  the source shows an ambulance about as often as a physician vehicle (16 vs. 15). The combination is the
+  normal pattern of a physician-staffed mission, so it counts as weak agreement: +1, below the +2 of a
+  physician vehicle, which is the stronger signal. The user chose +1 over 0 (#1152); on the pilot data
+  either value changed about one automatic link. A patient transport (KTW) with IVENA "with physician" stays
+  a mismatch (−1); a physician vehicle without IVENA "with physician" too.
+- **Arrival route** unchanged: a patient transport (KTW) is an EMS arrival (+1).
+- All other points are those of `1.1.0`.
+
+### Matcher version and snapshot
+
+`1.2.0` names the fixed points and the bonus rule; the snapshot is data and is recorded separately. Changing
+the active snapshot is not a new matcher version, but follows the same rules for stored pairs: links and
+manual decisions stay, open proposals are recomputed by the next run over their allocations.
+`app:encounter:evaluate-matcher` replays with a chosen snapshot (or none) as well as a chosen version.
+
 ## Consequences
 
 **Positive:**
@@ -134,7 +190,8 @@ Analyses and validation results that compare link rates or shares correct keep t
 - Most links work without manual work; every link is explainable and correctable
 - Automatic links are recognisable, so analyses can show their share
 - Existing links are stable across reruns
-- Linkage does not use the variables that later analyses compare
+- Linkage does not use the variables that later analyses compare (since `1.2.0`: except the MTS diagram in
+  pass 2, recorded per pair, ADR 033)
 
 **Negative:**
 
@@ -151,11 +208,13 @@ Analyses and validation results that compare link rates or shares correct keep t
 - **Automatic links only as proposals**: rejected; the pilot would show almost no linked data.
 - **Global reassignment on every run**: rejected; links would change under people's decisions.
 - **Include MTS category and department in the score**: rejected; it biases the comparison of IVENA
-  urgency and department with clinical triage and admission.
+  urgency and department with clinical triage and admission. The MTS diagram was rejected for the same
+  reason in `1.0.0` and admitted as a pass-2 bonus in `1.2.0` (amendment above).
 - **Deterministic matching only (IVENA case number)**: not possible for the first source (#1058).
 
 ## References
 
 - [026-encounter-data-context-and-exchange-format.md](026-encounter-data-context-and-exchange-format.md)
 - [029-encounter-import-lifecycle.md](029-encounter-import-lifecycle.md)
-- Issues #1053, #1054, #1057
+- [033-learning-plausibility-table.md](033-learning-plausibility-table.md)
+- Issues #1053, #1054, #1057, #1136, #1152, #1154
