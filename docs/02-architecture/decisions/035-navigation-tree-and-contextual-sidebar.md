@@ -85,7 +85,7 @@ the mobile collapse come with Tabler:
 | Trailing entries | `.navbar-side` (for example Classifications in Explore), pinned to the bottom of the sidebar |
 | Fold state | `data-bs-sidebar="folded-hover"` on `<html>`; Tabler's CSS turns the sidebar into the rail, shifts the content and handles the hover preview |
 | Fold toggle placement | `.navbar-footer` with a `nav-link`, pinned to the bottom of the sidebar; in the rail only its icon shows |
-| Mobile | below `lg` the vertical navbar becomes a bar with its own toggler and collapse |
+| Mobile | below `lg` the vertical navbar becomes a bar with its own `navbar-toggler` and collapse; the toggler holds the area label and a chevron instead of `navbar-toggler-icon` |
 
 **Hierarchy: the top navbar stays on top.** In Tabler's combined layout the sidebar runs from the top of
 the viewport and the top navbar starts to its right, so the sidebar would sit beside the site brand
@@ -176,9 +176,11 @@ One tree that the contexts contribute to, following the `shared.tool` pattern:
 ### Mobile and small screens
 
 - The hamburger in the top navbar stays responsible for **areas** only.
-- Below `lg` the vertical navbar becomes a second bar directly below the top navbar. Its brand area shows
-  the area and the current view ("Statistics · Indications"), its own toggler opens the views as a
-  collapsing list. Tabler renders the `aside` first; a few lines of CSS order it after the top navbar on
+- Below `lg` the vertical navbar becomes a second bar directly below the top navbar. The whole bar is one
+  toggle button: the area and the current view ("Statistics · Indications") on the left and, on the same
+  line, a chevron that points down while the views are closed and up while they are open. It opens the
+  views as a collapsing list below the bar. There is no second hamburger: the hamburger stays the symbol
+  for the areas in the top navbar. Tabler renders the `aside` first; a few lines of CSS order it after the top navbar on
   small screens, so the bars read "area, then view".
 - The existing filter drawer stays on the right (`offcanvas-end`): the bars say "where to go", the drawer
   says "what to filter".
