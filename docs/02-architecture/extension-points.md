@@ -234,6 +234,38 @@ Routes of a tool are named `app_tools_*` and live under `/tools/…`, so the nav
 Path `access_control` on `/tools` only requires `ROLE_USER`; every tool route needs its own guard
 (`#[IsGranted]` or a voter) for anything stricter.
 
+## Navigation tree
+
+**Tag:** `shared.navigation`
+
+**Interface:** `NavigationProviderInterface` (`src/Shared/Application/Navigation/Menu/`)
+
+**Builder:** `NavigationBuilder`; consumers follow with the next steps of
+[ADR 035](decisions/035-navigation-tree-and-contextual-sidebar.md) (top navbar, footer, Statistics and
+Explore sidebars)
+
+**Implementations:** none yet
+
+Lets a context add groups and entries to the named menus of `Menu` (`primary`, `footer`, `statistics`,
+`explore`) without a dependency from `Shared` on it. A provider returns `NavGroup`s and `NavItem`s per menu:
+
+- The context that owns a menu defines its groups (`NavGroup`: id, optional label, weight, optional icon);
+  other contexts attach items to a group by its id. Top-level items name a group as `parentId`, nested
+  items name another item; an unknown parent, a parent cycle or a duplicate id makes the builder throw.
+- A `NavItem` with a route is a link; one without route groups its children and is shown only while one of
+  them is visible. Access is the item's `grantedAttribute` (checked with `is_granted`); a hidden item hides
+  its children. Providers run on every page with a navigation, so they must not query the database.
+- Order on every level: `weight` ascending (default 0, negative moves up, steps of ten), then the
+  translated label in the current locale (`\Collator`), then the id.
+- Active entry: the current route name equals the item's `route` or one of its `detailRoutes`; there is no
+  prefix matching. The builder marks the path from the group down to that entry; in the primary menu, a
+  route of a sidebar menu, or the sidebar menu of the page (`$area`), marks that menu's primary entry
+  (`Menu::primaryEntryId()`).
+- A route name may mark at most one entry per menu: tests that build the real menus use
+  `AssertsUniqueNavigationRoutes` (`tests/Shared/Support/`), which fails on a route claimed twice.
+- Badges (`NavBadge`) take a translatable label and a `NavBadgeColor` (Tabler colour names, rendered as
+  `badge bg-{colour}-lt`; default `azure`).
+
 ## My Hospitals actions
 
 **Tag:** `allocation.my_hospital_action`
