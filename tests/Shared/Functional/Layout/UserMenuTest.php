@@ -115,4 +115,20 @@ final class UserMenuTest extends DatabaseWebTestCase
             ),
         ));
     }
+
+    public function testNavbarShowsTheOwnAvatar(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::createOne(['displayName' => 'Michael Müller']));
+
+        $client->request(Request::METHOD_GET, '/settings');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextSame('[data-testid="user-menu-avatar"][data-avatar="initials"]', 'MM');
+
+        $client->loginUser(UserFactory::createOne());
+        $client->request(Request::METHOD_GET, '/settings');
+
+        self::assertSelectorExists('[data-testid="user-menu-avatar"][data-avatar="fallback"]');
+    }
 }
