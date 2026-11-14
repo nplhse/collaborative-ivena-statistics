@@ -21,15 +21,16 @@ manage their own plan and quota. Telemetry still has to stay proportionate.
 ## Decision
 
 - **Request performance lives in Sentry.** Request transactions are named by route, Live Component
-  requests by component and action; tags `request_id`, `route`, `bounded_context` and, with consent,
-  the numeric user id ([observability-sentry.md](../../05-operations/observability-sentry.md)).
+  requests by component and action; tags `request_id`, `route`, `bounded_context` and the numeric
+  user id (error reports always, performance traces only with the performance consent) ([observability-sentry.md](../../05-operations/observability-sentry.md)).
 - **Few, meaningful spans.** Automatic Doctrine spans (execute only, no prepare spans), one
   `view.render` span per top-level render instead of one per template and block, cache calls as a
   summary in the trace data instead of single spans, and manual spans (`SentrySpanTracer`) only for
   logical blocks where a trace leaves a question open (`analysis.explorer.run`). Health checks and
   notification polling are never sampled.
 - **Privacy by default.** No query strings, no request bodies, no SQL parameters, span and trace data
-  through an allowlist, the user id only with analytics consent under a consent text that mentions it.
+  through an allowlist, the user id on performance traces only with a separate consent option that is
+  offered only while Sentry is used (#1200).
 - **Usage analytics keeps counting, but no longer measures.** Request counts, counted accesses,
   sessions, areas and routes stay; duration, query count and time, the daily sums, the error count per
   area, the query counter and the admin Performance page are removed. The migration drops the columns
