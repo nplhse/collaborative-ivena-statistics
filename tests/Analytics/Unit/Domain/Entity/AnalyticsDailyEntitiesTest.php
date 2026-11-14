@@ -23,10 +23,6 @@ final class AnalyticsDailyEntitiesTest extends TestCase
             isAuthenticated: true,
             userRole: 'ROLE_PARTICIPANT',
             requestCount: 4,
-            errorCount: 1,
-            sumDurationMs: 400,
-            sumDbQueryCount: 12,
-            sumDbTimeMs: 80,
         );
 
         self::assertNull($entity->getId());
@@ -36,10 +32,6 @@ final class AnalyticsDailyEntitiesTest extends TestCase
         self::assertTrue($entity->isAuthenticated());
         self::assertSame('ROLE_PARTICIPANT', $entity->getUserRole());
         self::assertSame(4, $entity->getRequestCount());
-        self::assertSame(1, $entity->getErrorCount());
-        self::assertSame(400, $entity->getSumDurationMs());
-        self::assertSame(12, $entity->getSumDbQueryCount());
-        self::assertSame(80, $entity->getSumDbTimeMs());
     }
 
     public function testAggregationRunAndDailyRowsExposeConstructorValues(): void

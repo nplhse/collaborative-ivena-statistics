@@ -151,14 +151,6 @@ final class DashboardController extends AbstractDashboardController
         ]);
     }
 
-    #[AdminRoute(path: '/operations/usage-analytics/performance', name: 'operations_usage_analytics_performance')]
-    public function usageAnalyticsPerformance(): Response
-    {
-        return $this->render('@Admin/operations/usage_analytics/performance.html.twig', [
-            'performance' => $this->analyticsDashboardService->getPerformance(),
-        ]);
-    }
-
     #[AdminRoute(path: '/operations/failed-messages/delete-selected', name: 'operations_failed_messages_delete_selected', options: ['methods' => ['POST']])]
     public function deleteSelectedFailedMessages(Request $request): RedirectResponse
     {
@@ -381,12 +373,6 @@ final class DashboardController extends AbstractDashboardController
                         'icon' => 'fas fa-chart-column',
                         'route' => 'app_admin_dashboard_operations_usage_analytics_accesses',
                     ],
-                    [
-                        'label' => new TranslatableMessage('usage_analytics.menu.performance', domain: 'admin'),
-                        'description' => new TranslatableMessage('usage_analytics.tile.performance', domain: 'admin'),
-                        'icon' => 'fas fa-tachometer-alt',
-                        'route' => 'app_admin_dashboard_operations_usage_analytics_performance',
-                    ],
                 ],
             ],
             [
@@ -514,7 +500,6 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::section(new TranslatableMessage('usage_analytics.menu.section', domain: 'admin'));
         yield MenuItem::linkToRoute(new TranslatableMessage('usage_analytics.menu.overview', domain: 'admin'), 'fas fa-gauge-high', 'app_admin_dashboard_operations_usage_analytics_overview');
         yield MenuItem::linkToRoute(new TranslatableMessage('usage_analytics.menu.accesses', domain: 'admin'), 'fas fa-chart-column', 'app_admin_dashboard_operations_usage_analytics_accesses');
-        yield MenuItem::linkToRoute(new TranslatableMessage('usage_analytics.menu.performance', domain: 'admin'), 'fas fa-tachometer-alt', 'app_admin_dashboard_operations_usage_analytics_performance');
 
         yield MenuItem::section(new TranslatableMessage('menu.section.system', domain: 'admin'));
         yield MenuItem::linkToRoute(new TranslatableMessage('audit.timeline.title', domain: 'admin'), 'fas fa-clipboard-list', 'app_admin_dashboard_audit_timeline');

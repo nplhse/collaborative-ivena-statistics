@@ -106,10 +106,6 @@ final readonly class AnalyticsDailyAggregationService
                 isAuthenticated: $row['isAuthenticated'],
                 userRole: $row['userRole'],
                 requestCount: $row['requestCount'],
-                errorCount: $row['errorCount'],
-                sumDurationMs: $row['sumDurationMs'],
-                sumDbQueryCount: $row['sumDbQueryCount'],
-                sumDbTimeMs: $row['sumDbTimeMs'],
             ));
             ++$count;
         }
