@@ -71,13 +71,17 @@ final readonly class PageContentBlockDataFieldsConfigurator
      */
     public function hydrateMediaReference(array $data): array
     {
-        $mediaId = $data['mediaId'] ?? null;
-        if (is_int($mediaId) || (is_string($mediaId) && ctype_digit($mediaId))) {
-            $media = $this->mediaRepository->find((int) $mediaId);
-            if ($media instanceof Media) {
-                $data['mediaId'] = $media;
-            }
+        if (!array_key_exists('mediaId', $data) || $data['mediaId'] instanceof Media) {
+            return $data;
         }
+
+        // The media fields are entity choices: anything but a Media entity (an empty selection kept in a draft, an id
+        // of a deleted file) has to become "no selection", otherwise the form cannot be rendered.
+        $mediaId = $data['mediaId'];
+        $media = is_int($mediaId) || (is_string($mediaId) && ctype_digit($mediaId))
+            ? $this->mediaRepository->find((int) $mediaId)
+            : null;
+        $data['mediaId'] = $media instanceof Media ? $media : null;
 
         return $data;
     }

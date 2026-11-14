@@ -47,6 +47,45 @@ final class PageTranslationDraftControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'Saved quote');
     }
 
+    public function testPageDetailMarksTranslationsWithADraft(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createPublishedTranslation('draft-badge');
+        $page = $translation->getPage();
+        self::assertInstanceOf(Page::class, $page);
+
+        $client->request(Request::METHOD_GET, sprintf('/admin/page/%d', $page->getId()));
+        self::assertSelectorTextNotContains('body', 'Unsaved draft');
+
+        $token = $this->openEditorToken($client, $translation);
+        $client->request(Request::METHOD_POST, $this->draftUrl($translation), $this->draftPayload($token, 0, 'Typing'));
+        $client->request(Request::METHOD_GET, sprintf('/admin/page/%d', $page->getId()));
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Unsaved draft');
+    }
+
+    public function testEditorOpensADraftWithAnEmptyMediaSelection(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createPublishedTranslation('draft-media');
+        $token = $this->openEditorToken($client, $translation);
+
+        $client->request(Request::METHOD_POST, $this->draftUrl($translation), [
+            '_token' => $token,
+            'revision' => '0',
+            'PageTranslation' => ['content' => [
+                '0' => ['type' => 'image', 'enabled' => '1', 'position' => '0', 'data' => ['mediaId' => '', 'src' => '/a.png', 'alt' => 'A']],
+                '1' => ['type' => 'cta', 'enabled' => '1', 'position' => '1', 'data' => ['mediaId' => '', 'headline' => 'Join', 'buttonLabel' => 'Go', 'buttonUrl' => '/go']],
+            ]],
+        ]);
+        self::assertResponseIsSuccessful();
+
+        $crawler = $this->openEditor($client, $translation);
+        self::assertSame('/a.png', $crawler->filter('[name="PageTranslation[content][0][data][src]"]')->attr('value'));
+        self::assertSame('Join', $crawler->filter('[name="PageTranslation[content][1][data][headline]"]')->attr('value'));
+    }
+
     public function testAutosaveDoesNotWriteAuditEntries(): void
     {
         $client = $this->createAdminClient();

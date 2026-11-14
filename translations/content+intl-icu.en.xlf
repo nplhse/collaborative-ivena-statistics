@@ -1233,6 +1233,10 @@
         <source>page.editor.draft.leave_warning</source>
         <target>There are changes that have not been saved yet.</target>
       </trans-unit>
+      <trans-unit id="pgDraftBadgeEn" resname="page.editor.draft.badge">
+        <source>page.editor.draft.badge</source>
+        <target>Unsaved draft</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

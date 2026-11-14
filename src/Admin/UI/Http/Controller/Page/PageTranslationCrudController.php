@@ -55,6 +55,9 @@ final class PageTranslationCrudController extends AbstractCrudController
     /** Request field (outside the form) with the draft revision an explicit save is based on. */
     private const string DRAFT_REVISION_FIELD = 'pageDraftRevision';
 
+    /** Links that leave the editor: the page-draft controller saves pending changes before following them. */
+    private const array SAVE_DRAFT_BEFORE_LEAVING = ['data-page-draft-save-before-leaving' => ''];
+
     public function __construct(
         private readonly PageContentBlockDataNormalizer $pageContentBlockDataNormalizer,
         private readonly PageContentValidator $pageContentValidator,
@@ -89,14 +92,51 @@ final class PageTranslationCrudController extends AbstractCrudController
     #[\Override]
     public function configureActions(Actions $actions): Actions
     {
-        return $actions
+        $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $this->createViewPublicAction())
             ->add(Crud::PAGE_DETAIL, $this->createViewPublicAction())
             ->add(Crud::PAGE_EDIT, $this->createViewPublicAction())
             ->add(Crud::PAGE_INDEX, $this->createBackToPageAction())
             ->add(Crud::PAGE_DETAIL, $this->createBackToPageAction())
-            ->add(Crud::PAGE_EDIT, $this->createBackToPageAction());
+            ->add(Crud::PAGE_EDIT, $this->createBackToPageAction()->setHtmlAttributes(self::SAVE_DRAFT_BEFORE_LEAVING));
+
+        foreach (SupportedLocales::ALL as $locale) {
+            $actions->add(Crud::PAGE_EDIT, $this->createSwitchLocaleAction($locale));
+        }
+
+        return $actions;
+    }
+
+    /**
+     * Opens the translation of the same page in another locale: its edit form (with its own draft) or, when it is
+     * missing, the form to create it. The editor saves its draft before it follows the link.
+     */
+    private function createSwitchLocaleAction(string $locale): Action
+    {
+        return Action::new('switchLocale_'.$locale, new TranslatableMessage('admin.page_translation.action.switch_locale', ['locale' => strtoupper($locale)], 'admin'), 'fas fa-language')
+            ->linkToUrl(function (PageTranslation $translation) use ($locale): string {
+                $sibling = $translation->getPage()?->translation($locale);
+                if ($sibling instanceof PageTranslation && null !== $sibling->getId()) {
+                    return $this->adminUrlGenerator
+                        ->setController(self::class)
+                        ->setAction(Action::EDIT)
+                        ->setEntityId($sibling->getId())
+                        ->unset('pageId')
+                        ->unset('locale')
+                        ->generateUrl();
+                }
+
+                return $this->adminUrlGenerator
+                    ->setController(self::class)
+                    ->setAction(Action::NEW)
+                    ->unset('entityId')
+                    ->set('pageId', (string) $translation->getPage()?->getId())
+                    ->set('locale', $locale)
+                    ->generateUrl();
+            })
+            ->setHtmlAttributes(self::SAVE_DRAFT_BEFORE_LEAVING)
+            ->displayIf(static fn (PageTranslation $translation): bool => $translation->getLocale() !== $locale && $translation->getPage() instanceof Page);
     }
 
     private function createViewPublicAction(): Action

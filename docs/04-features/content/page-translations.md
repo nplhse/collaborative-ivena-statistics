@@ -59,6 +59,10 @@ Decision: [ADR 036](../../02-architecture/decisions/036-page-editor-draft-copy.m
   so a late autosave or a second tab cannot overwrite newer input or bring back a discarded draft. On a
   conflict the editor asks to reload.
 - Title, slug, status and the table-of-contents switch are not part of the draft.
+- The editor has one "Language XX" action per other locale: it opens that translation's editor (with its own
+  draft) or, when the translation is missing, the form to create it. This action and "Back to page" save
+  pending changes as a draft before they leave; if that fails, the editor stays open and shows the error.
+- The page detail marks translations that have a draft ("Unsaved draft").
 
 ## Frontend language switch
 
