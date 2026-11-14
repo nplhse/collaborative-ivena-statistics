@@ -107,7 +107,7 @@ downloaded from the encounter import page. It runs in the browser without instal
   upload.
   *Amended for #1157 ([ADR 032](032-mts-catalog-as-maintained-data.md)):* a second fixed URL,
   `/data-prep/mts-catalog.json` (same rules: public, CORS `*`, no credentials, no query), serves the
-  maintained MTS catalog at start; without an answer the tool uses its bundled copy.
+  curated entries of the maintained MTS catalog at start; without an answer the tool uses its bundled copy.
 - Allow-list transformation: every column not mapped by the profile is dropped. Names, dates of
   birth, staff columns and free text are not written to the output. Date of birth is only used inside
   the tool to derive age when no age column exists.
