@@ -179,6 +179,7 @@ export default class extends Controller {
         }
 
         this.updatePositions();
+        this.dispatch('moved', { detail: { item } });
         this.keepFocus(item, button, direction);
         this.announce(targetIndex + 1, items.length);
     }

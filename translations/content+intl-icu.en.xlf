@@ -1193,6 +1193,46 @@
         <source>page.editor.block_moved</source>
         <target>Block moved to position {position} of {count}.</target>
       </trans-unit>
+      <trans-unit id="pgDraft01En" resname="page.editor.draft.unsaved">
+        <source>page.editor.draft.unsaved</source>
+        <target>Unsaved changes</target>
+      </trans-unit>
+      <trans-unit id="pgDraft02En" resname="page.editor.draft.saving">
+        <source>page.editor.draft.saving</source>
+        <target>Saving draft …</target>
+      </trans-unit>
+      <trans-unit id="pgDraft03En" resname="page.editor.draft.saved">
+        <source>page.editor.draft.saved</source>
+        <target>Draft saved at {time}. The saved version stays public until “Save changes”.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft04En" resname="page.editor.draft.failed">
+        <source>page.editor.draft.failed</source>
+        <target>The draft could not be saved. Your input stays in the editor.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft05En" resname="page.editor.draft.retry">
+        <source>page.editor.draft.retry</source>
+        <target>Retry</target>
+      </trans-unit>
+      <trans-unit id="pgDraft06En" resname="page.editor.draft.conflict">
+        <source>page.editor.draft.conflict</source>
+        <target>The draft was changed, saved or discarded elsewhere in the meantime. Reload the page to see the current state.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft07En" resname="page.editor.draft.restored">
+        <source>page.editor.draft.restored</source>
+        <target>Unsaved draft from {time} restored. The saved version stays public until “Save changes”.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft08En" resname="page.editor.draft.discard">
+        <source>page.editor.draft.discard</source>
+        <target>Discard draft</target>
+      </trans-unit>
+      <trans-unit id="pgDraft09En" resname="page.editor.draft.discard_confirm">
+        <source>page.editor.draft.discard_confirm</source>
+        <target>Discard the draft and return to the saved version?</target>
+      </trans-unit>
+      <trans-unit id="pgDraft10En" resname="page.editor.draft.leave_warning">
+        <source>page.editor.draft.leave_warning</source>
+        <target>There are changes that have not been saved yet.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
