@@ -47,7 +47,7 @@
       </trans-unit>
       <trans-unit id="CkyPrefAnaTxDe" resname="cookie.preferences.analytics.text">
         <source>cookie.preferences.analytics.text</source>
-        <target>Hilft uns zu verstehen, welche Bereiche der Anwendung genutzt werden. Die Auswertung erfolgt ausschließlich serverseitig in dieser Anwendung, ohne externe Analytics-Anbieter. Es werden keine IP-Adressen und keine Original-User-Agents gespeichert. Nutzt der Betreiber einen Dienst zur Fehlerüberwachung, enthalten Fehler- und Performance-Berichte zusätzlich Ihre interne Benutzer-ID, damit wir Ihnen bei Problemen gezielt helfen können.</target>
+        <target>Hilft uns zu verstehen, welche Bereiche der Anwendung genutzt werden. Diese Auswertung erfolgt serverseitig in dieser Anwendung, ohne externe Analytics-Anbieter; es werden keine IP-Adressen und keine Original-User-Agents gespeichert. Für den technischen Betrieb nutzen wir zusätzlich Sentry (Server in der EU), insbesondere zur Überwachung von Fehlern und Performance. Mit dieser Einwilligung enthalten diese Berichte Ihre interne Benutzer-ID, damit wir Ihnen bei Problemen gezielt helfen können.</target>
       </trans-unit>
       <trans-unit id="CkyPrefAnaTiDe" resname="cookie.preferences.analytics.title">
         <source>cookie.preferences.analytics.title</source>
