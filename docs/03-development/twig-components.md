@@ -298,7 +298,7 @@ delta and whether a change is good or bad.
 | `icon` | `null` | UX icon name in an `avatar`, decorative |
 | `delta` | `null` | Absolute change in the unit of the value. `null` renders no trend line. |
 | `comparisonLabel` | `null` | Already translated, for example "last 30 days" |
-| `colorizeTrend` | `false` | Off: the trend is grey. On: up is green, down is red, unchanged stays grey. |
+| `colorizeTrend` | `false` | Colours the trend icon only; the delta and comparison label stay grey. Off: the icon is grey. On: up is green, down is red, unchanged stays grey. |
 | `invertTrend` | `false` | With `colorizeTrend`, swaps green and red for figures where more is worse |
 | `href` | `null` | Linked card, as in `Card` |
 | `fractionDigits` | `0` | Used for both `value` and `delta` |
@@ -321,7 +321,7 @@ A plain count:
 <twig:KpiCard :label="'stats.case_flow.kpi.total_cases'|trans({}, 'statistics')" :value="1240" />
 ```
 
-A neutral increase, as on the dashboard:
+An increase with a coloured icon, as on the dashboard:
 
 ```twig
 <twig:KpiCard
@@ -330,6 +330,7 @@ A neutral increase, as on the dashboard:
     icon="tabler:users"
     :delta="metric.deltaLast30Days > 0 ? metric.deltaLast30Days : null"
     :comparisonLabel="'dashboard.metrics.last_30_days'|trans({}, 'content')"
+    :colorizeTrend="true"
     data-testid="dashboard-metric-users"
 />
 ```

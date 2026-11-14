@@ -74,6 +74,7 @@ final class KpiCardComponentTest extends KernelTestCase
         self::assertCount(1, $trend);
         self::assertSame('+12', $this->text($trend, '.lh-1'));
         self::assertStringContainsString('text-secondary', (string) $trend->filter('.lh-1')->attr('class'));
+        self::assertStringContainsString('text-secondary', (string) $trend->filter('svg')->attr('class'));
         self::assertStringContainsString('last 30 days', $trend->text());
         self::assertSame('Increase', $this->text($trend, '.visually-hidden'));
         self::assertCount(1, $trend->filter('svg'));
@@ -93,7 +94,10 @@ final class KpiCardComponentTest extends KernelTestCase
     public function testColouredAndInvertedTrend(): void
     {
         $favourable = $this->render(['label' => 'Imports', 'value' => 5, 'delta' => 2, 'colorizeTrend' => true], 'en');
-        self::assertStringContainsString('text-green', (string) $favourable->filter('[data-kpi-trend] .lh-1')->attr('class'));
+        // Only the icon carries the assessment colour; the delta text stays grey.
+        self::assertStringContainsString('text-green', (string) $favourable->filter('[data-kpi-trend] svg')->attr('class'));
+        self::assertStringContainsString('text-secondary', (string) $favourable->filter('[data-kpi-trend] .lh-1')->attr('class'));
+        self::assertStringNotContainsString('text-green', (string) $favourable->filter('[data-kpi-trend] .lh-1')->attr('class'));
 
         $unfavourable = $this->render([
             'label' => 'Closures',
@@ -102,7 +106,8 @@ final class KpiCardComponentTest extends KernelTestCase
             'colorizeTrend' => true,
             'invertTrend' => true,
         ], 'en');
-        self::assertStringContainsString('text-red', (string) $unfavourable->filter('[data-kpi-trend="up"] .lh-1')->attr('class'));
+        self::assertStringContainsString('text-red', (string) $unfavourable->filter('[data-kpi-trend="up"] svg')->attr('class'));
+        self::assertStringNotContainsString('text-red', (string) $unfavourable->filter('[data-kpi-trend="up"] .lh-1')->attr('class'));
         self::assertSame('Increase', $this->text($unfavourable, '[data-kpi-trend] .visually-hidden'));
     }
 

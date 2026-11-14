@@ -21,8 +21,8 @@
             </div>
             {% if kpi.trendDirection %}
                 <div class="d-flex flex-wrap align-items-center gap-1 small mt-1" data-kpi-trend="{{ kpi.trendDirection }}">
-                    <span class="d-inline-flex align-items-center gap-1 lh-1 {{ kpi.trendClass }}">
-                        {{ ux_icon(kpi.trendIcon, {class: 'flex-shrink-0', style: 'height: 1em;', 'aria-hidden': 'true'}) }}
+                    <span class="d-inline-flex align-items-center gap-1 lh-1 text-secondary">
+                        {{ ux_icon(kpi.trendIcon, {class: 'flex-shrink-0 ' ~ kpi.trendClass, style: 'height: 1em;', 'aria-hidden': 'true'}) }}
                         <span>{{ kpi.deltaSign }}{{ kpi.roundedDelta|format_number({fraction_digit: fractionDigits}) }}{% if unit %} {{ unit }}{% endif %}</span>
                     </span>
                     {% if comparisonLabel %}
