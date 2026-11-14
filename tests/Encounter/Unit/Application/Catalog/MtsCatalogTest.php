@@ -51,7 +51,7 @@ final class MtsCatalogTest extends TestCase
         $catalog = $this->catalog();
 
         self::assertSame(['thoraxschmerz', 'brustschmerzen', 'thorax_schmerz_alt'], $catalog->codesResolvingTo(MtsCatalogKind::Diagram, 'thoraxschmerz'));
-        self::assertSame(['zz_neu'], $catalog->codesResolvingTo(MtsCatalogKind::Diagram, 'zz_neu'));
+        self::assertSame(['zz_neu', 'zz_alt'], $catalog->codesResolvingTo(MtsCatalogKind::Diagram, 'zz_neu'));
     }
 
     public function testResetReadsTheCatalogAgain(): void
@@ -104,9 +104,10 @@ final class MtsCatalogTest extends TestCase
     }
 
     /**
-     * The catalog the public endpoint serves to the tool (#1157): active entries with names, aliases that resolve.
+     * The catalog the public endpoint serves to the tool (#1157): curated entries with names and the aliases that
+     * resolve to them; provisional entries and their aliases are left out.
      */
-    public function testToolCatalogListsActiveEntriesAndResolvableAliases(): void
+    public function testToolCatalogListsCuratedEntriesAndTheirAliases(): void
     {
         $catalog = $this->catalog()->toolCatalog();
 
@@ -116,13 +117,12 @@ final class MtsCatalogTest extends TestCase
         self::assertSame([
             ['code' => 'brustschmerz', 'name' => 'Brustschmerz', 'englishName' => null],
             ['code' => 'thoraxschmerz', 'name' => 'Thoraxschmerz', 'englishName' => 'Chest pain'],
-            ['code' => 'zz_neu', 'name' => 'zz_neu', 'englishName' => null],
-        ], $catalog['diagrams'], 'merged entries are not listed, provisional ones are');
+        ], $catalog['diagrams'], 'neither merged nor provisional entries are listed');
         self::assertSame([['code' => 'heiss', 'name' => 'Heiß', 'englishName' => null]], $catalog['indicators']);
         self::assertSame(
             ['brustschmerzen' => 'thoraxschmerz', 'thorax_schmerz_alt' => 'thoraxschmerz'],
             $catalog['aliases']['diagrams'],
-            'no alias that shadows an entry, points to an alias or to nothing',
+            'no alias that shadows an entry, points to an alias, to nothing or to a provisional entry',
         );
         self::assertSame(['heiss_alt' => 'heiss'], $catalog['aliases']['indicators']);
     }
@@ -241,6 +241,7 @@ final class MtsCatalogTest extends TestCase
                         'ins_leere' => 'gibt_es_nicht',
                         'kette' => 'brustschmerzen',
                         'thorax_schmerz_alt' => 'thoraxschmerz',
+                        'zz_alt' => 'zz_neu',
                     ]
                     : ['heiss_alt' => 'heiss'];
             }

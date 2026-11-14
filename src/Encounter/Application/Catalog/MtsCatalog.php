@@ -6,6 +6,7 @@ namespace App\Encounter\Application\Catalog;
 
 use App\Encounter\Application\Contract\MtsCatalogReaderInterface;
 use App\Encounter\Domain\Enum\MtsCatalogKind;
+use App\Encounter\Domain\Enum\MtsCatalogStatus;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -38,7 +39,7 @@ final class MtsCatalog implements ResetInterface
     /** @var array<string, mixed>|null */
     private ?array $data = null;
 
-    /** @var array<string, array{entries: array<string, MtsCatalogEntry>, aliases: array<string, string>}> keyed by kind */
+    /** @var array<string, array{entries: array<string, MtsCatalogEntry>, aliases: array<string, string>, curated: array<string, true>}> keyed by kind */
     private array $lists = [];
 
     /** @var array<string, list<string>>|null diagram code => indicator codes */
@@ -77,28 +78,41 @@ final class MtsCatalog implements ResetInterface
     }
 
     /**
-     * The catalog in the tool's format (#1157), from the database: active entries with code, German and English name,
-     * and the aliases that resolve to an active entry (alias code => target code). Served by the public catalog
+     * The catalog in the tool's format (#1157), from the database: curated entries with code, German and English name,
+     * and the aliases that resolve to a curated entry (alias code => target code). Served by the public catalog
      * endpoint; the tool recognises a source label when its code is an entry or alias code of the list.
+     *
+     * Provisional entries are left out (user decision, #1157): their codes come from hospital exports and nobody has
+     * reviewed them, while the endpoint needs no login. The tool lists such codes as new values and writes them as
+     * usual; nothing else changes.
      *
      * @return array{format: string, version: int, id: string, diagrams: list<array{code: string, name: string, englishName: ?string}>, indicators: list<array{code: string, name: string, englishName: ?string}>, aliases: array{diagrams: array<string, string>, indicators: array<string, string>}}
      */
     public function toolCatalog(): array
     {
-        $entries = static fn (array $list): array => array_values(array_map(
-            static fn (MtsCatalogEntry $entry): array => ['code' => $entry->code, 'name' => $entry->germanName, 'englishName' => $entry->englishName],
-            $list,
-        ));
+        $entries = function (MtsCatalogKind $kind): array {
+            $list = $this->list($kind);
+
+            return array_values(array_map(
+                static fn (MtsCatalogEntry $entry): array => ['code' => $entry->code, 'name' => $entry->germanName, 'englishName' => $entry->englishName],
+                array_intersect_key($list['entries'], $list['curated']),
+            ));
+        };
+        $aliases = function (MtsCatalogKind $kind): array {
+            $list = $this->list($kind);
+
+            return array_filter($list['aliases'], static fn (string $target): bool => isset($list['curated'][$target]));
+        };
 
         return [
             'format' => self::TOOL_CATALOG_FORMAT,
             'version' => self::TOOL_CATALOG_VERSION,
             'id' => self::ID,
-            'diagrams' => $entries($this->diagrams()),
-            'indicators' => $entries($this->indicators()),
+            'diagrams' => $entries(MtsCatalogKind::Diagram),
+            'indicators' => $entries(MtsCatalogKind::Indicator),
             'aliases' => [
-                'diagrams' => $this->list(MtsCatalogKind::Diagram)['aliases'],
-                'indicators' => $this->list(MtsCatalogKind::Indicator)['aliases'],
+                'diagrams' => $aliases(MtsCatalogKind::Diagram),
+                'indicators' => $aliases(MtsCatalogKind::Indicator),
             ],
         ];
     }
@@ -244,7 +258,7 @@ final class MtsCatalog implements ResetInterface
     }
 
     /**
-     * @return array{entries: array<string, MtsCatalogEntry>, aliases: array<string, string>}
+     * @return array{entries: array<string, MtsCatalogEntry>, aliases: array<string, string>, curated: array<string, true>}
      */
     private function list(MtsCatalogKind $kind): array
     {
@@ -253,9 +267,13 @@ final class MtsCatalog implements ResetInterface
         }
 
         $entries = [];
+        $curated = [];
         foreach ($this->reader->entries($kind) as $row) {
             if ($row['status']->isActive()) {
                 $entries[$row['code']] = new MtsCatalogEntry($row['code'], $row['german_name'], $row['english_name']);
+            }
+            if (MtsCatalogStatus::Curated === $row['status']) {
+                $curated[$row['code']] = true;
             }
         }
 
@@ -268,6 +286,6 @@ final class MtsCatalog implements ResetInterface
             \ARRAY_FILTER_USE_BOTH,
         );
 
-        return $this->lists[$kind->value] = ['entries' => $entries, 'aliases' => $aliases];
+        return $this->lists[$kind->value] = ['entries' => $entries, 'aliases' => $aliases, 'curated' => $curated];
     }
 }

@@ -855,8 +855,8 @@ on Encounter.
 - **Backfill.** `php bin/console app:encounter:mts-catalog:backfill-first-seen` creates the same entries for
   codes already stored in `encounter` (first seen = creation time of the oldest encounter with the code);
   safe to run again. Run it once when releasing #1157.
-- **Catalog for the tool (#1157).** `GET /data-prep/mts-catalog.json` (public, read only) serves the active
-  entries and resolvable aliases; the tool keeps `src/Encounter/Application/Catalog/mts-de.json` as offline
+- **Catalog for the tool (#1157).** `GET /data-prep/mts-catalog.json` (public, read only) serves the curated
+  entries and the aliases to them (provisional entries stay off the public endpoint until a person curates them); the tool keeps `src/Encounter/Application/Catalog/mts-de.json` as offline
   fallback and writes the code of the source label, also for an alias
   ([data-preparation-tool.md](data-preparation-tool.md#mts-catalog)). Export and import of the curated catalog
   to production is a later follow-up.

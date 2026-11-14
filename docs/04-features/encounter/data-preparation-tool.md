@@ -85,9 +85,11 @@ endpoint.
 }
 ```
 
-- `diagrams`, `indicators`: the active entries (`curated` and `provisional`) ordered by code; `name` is the
-  German name (for a provisional entry its code). Merged entries are not listed; their codes are aliases.
-- `aliases`: alias code → code of the active target, only aliases that resolve (ADR 032).
+- `diagrams`, `indicators`: the `curated` entries ordered by code; `name` is the German name. Provisional
+  entries are left out: their codes come from hospital exports, nobody has reviewed them yet and the endpoint
+  needs no login. The tool lists such codes as new catalog values and writes them as usual. Merged entries are
+  not listed; their codes are aliases.
+- `aliases`: alias code → code of a curated target, only aliases that resolve (ADR 032).
 
 At start the tool fetches it once (`credentials: 'omit'`, `cache: 'no-store'`, no query) and validates it
 (`parseCatalog()`: format, version, codes `^[a-z0-9_]{1,64}$`). Without a valid answer it uses the bundled

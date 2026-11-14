@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Public MTS catalog for the offline data preparation tool (ADR 032, #1157): active diagrams and indicators with
+ * Public MTS catalog for the offline data preparation tool (ADR 032, #1157): curated diagrams and indicators with
  * their aliases, in the tool's catalog format (MtsCatalog::toolCatalog()). The tool keeps its bundled copy as offline
  * fallback.
  *
