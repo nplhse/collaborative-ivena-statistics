@@ -33,6 +33,18 @@
     line-height: 1.3;
 }
 
+/*
+ * Generated user avatars (#462, UserAvatar component): Tabler's -lt tint as background, the initials
+ * mixed towards black (light) or white (dark mode) so every palette colour reaches at least 4.5:1.
+ */
+.avatar.user-avatar {
+    color: color-mix(in oklab, var(--user-avatar-color) 75%, black) !important;
+}
+
+[data-bs-theme='dark'] .avatar.user-avatar {
+    color: color-mix(in oklab, var(--user-avatar-color) 65%, white) !important;
+}
+
 .import-processing-hero {
     --tblr-avatar-size: 3.5rem;
 }
