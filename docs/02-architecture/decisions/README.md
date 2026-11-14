@@ -50,6 +50,7 @@ Each ADR includes:
 | [032](032-mts-catalog-as-maintained-data.md) | MTS catalog as maintained data | accepted |
 | [033](033-learning-plausibility-table.md) | Learning plausibility table for PZC and MTS diagram | accepted |
 | [034](034-performance-monitoring-in-sentry.md) | Performance monitoring in Sentry, usage analytics without APM | accepted |
+| [036](036-page-editor-draft-copy.md) | Draft copy for autosave in the page block editor | accepted |
 
 ## Template
 

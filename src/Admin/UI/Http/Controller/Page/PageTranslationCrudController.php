@@ -41,6 +41,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -51,6 +52,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[IsGranted('ROLE_ADMIN')]
 final class PageTranslationCrudController extends AbstractCrudController
 {
+    /** Request field (outside the form) with the draft revision an explicit save is based on. */
+    private const string DRAFT_REVISION_FIELD = 'pageDraftRevision';
+
     public function __construct(
         private readonly PageContentBlockDataNormalizer $pageContentBlockDataNormalizer,
         private readonly PageContentValidator $pageContentValidator,
@@ -61,6 +65,7 @@ final class PageTranslationCrudController extends AbstractCrudController
         private readonly TranslatorInterface $translator,
         private readonly PageRepository $pageRepository,
         private readonly AdminUrlGenerator $adminUrlGenerator,
+        private readonly CsrfTokenManagerInterface $csrfTokenManager,
     ) {
     }
 
@@ -203,8 +208,11 @@ final class PageTranslationCrudController extends AbstractCrudController
             ->setEntryType(PageContentBlockType::class)
             ->setEntryIsComplex()
             ->setFormTypeOption('prototype_data', PageContentBlockType::newBlockData())
+            // The editor works on the draft when there is one (ADR 036); an explicit save writes the content.
+            ->setFormTypeOption('property_path', 'editorContent')
             ->setFormTypeOption('row_attr', [
-                'data-controller' => 'collection-reorder page-block-editor',
+                'data-controller' => 'collection-reorder page-block-editor page-draft',
+                ...$this->buildDraftAttributes(),
                 'data-collection-reorder-move-up-label-value' => $this->translator->trans('label.move_block_up', [], 'messages'),
                 'data-collection-reorder-move-down-label-value' => $this->translator->trans('label.move_block_down', [], 'messages'),
                 'data-collection-reorder-moved-label-value' => $this->translator->trans('page.editor.block_moved', ['position' => '{position}', 'count' => '{count}'], 'content'),
@@ -272,6 +280,7 @@ final class PageTranslationCrudController extends AbstractCrudController
         $this->addPathSynchronizationListener($builder);
         $this->addBlockOrderListener($builder);
         $this->addContentValidationListener($builder);
+        $this->addDraftRevisionListener($builder);
 
         return $builder;
     }
@@ -295,6 +304,7 @@ final class PageTranslationCrudController extends AbstractCrudController
         }
 
         $this->prepareContent($entityInstance);
+        $entityInstance->markSaved();
         parent::updateEntity($entityManager, $entityInstance);
     }
 
@@ -331,6 +341,57 @@ final class PageTranslationCrudController extends AbstractCrudController
                 // Parent translation missing: validation will reject publish.
             }
         }, 512);
+    }
+
+    /**
+     * An explicit save must be based on the latest draft revision: the editor sends the revision it knows, and a
+     * newer one (autosave or save from another tab, discarded draft) means this form shows outdated content.
+     *
+     * @param FormBuilderInterface<PageTranslation> $builder
+     */
+    private function addDraftRevisionListener(FormBuilderInterface $builder): void
+    {
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
+            $translation = $event->getData();
+            $submitted = $this->getContext()?->getRequest()->request->get(self::DRAFT_REVISION_FIELD);
+            if (!$translation instanceof PageTranslation || !is_string($submitted) || !ctype_digit($submitted)) {
+                return;
+            }
+
+            if ((int) $submitted !== $translation->getDraftRevision()) {
+                $event->getForm()->addError(new FormError($this->translator->trans('page.editor.draft.conflict', [], 'content')));
+            }
+        });
+    }
+
+    /**
+     * Values for the page-draft controller; autosave needs a saved translation, so the new form gets none.
+     *
+     * @return array<string, string>
+     */
+    private function buildDraftAttributes(): array
+    {
+        $translation = $this->getContext()?->getEntity()->getInstance();
+        $id = $translation instanceof PageTranslation ? $translation->getId() : null;
+        if (!$translation instanceof PageTranslation || null === $id) {
+            return [];
+        }
+
+        $labels = [];
+        foreach (['unsaved', 'saving', 'saved', 'failed', 'retry', 'conflict', 'restored', 'discard', 'discard_confirm', 'leave_warning'] as $key) {
+            $labels[$key] = $this->translator->trans('page.editor.draft.'.$key, ['time' => '{time}'], 'content');
+        }
+
+        return [
+            'data-page-draft-url-value' => $this->generateUrl('app_admin_page_translation_draft_save', ['id' => $id]),
+            'data-page-draft-discard-url-value' => $this->generateUrl('app_admin_page_translation_draft_discard', ['id' => $id]),
+            'data-page-draft-token-value' => $this->csrfTokenManager->getToken(PageTranslationDraftController::CSRF_TOKEN_PREFIX.$id)->getValue(),
+            'data-page-draft-revision-value' => (string) $translation->getDraftRevision(),
+            'data-page-draft-revision-field-value' => self::DRAFT_REVISION_FIELD,
+            'data-page-draft-has-draft-value' => $translation->hasDraft() ? 'true' : 'false',
+            'data-page-draft-saved-at-value' => $translation->getDraftUpdatedAt()?->format(\DateTimeInterface::ATOM) ?? '',
+            'data-page-draft-labels-value' => json_encode($labels, \JSON_THROW_ON_ERROR),
+        ];
     }
 
     /**

@@ -45,6 +45,21 @@ Content blocks are edited in the translation form (`PageContentBlockType`, Stimu
   restores the order from the submitted positions. Keyboard focus stays on the moved block and a screen reader
   announcement reports the new position.
 
+### Drafts and autosave
+
+Decision: [ADR 036](../../02-architecture/decisions/036-page-editor-draft-copy.md).
+
+- On a saved translation the editor saves the content blocks as a draft (`draft_content`) about two seconds
+  after the last change. A status line under the page header shows "unsaved", "saving", "saved" or "failed"
+  (with retry). Leaving the page with unsaved changes asks for confirmation.
+- The draft may be incomplete and is never shown publicly. "Save changes" validates it and writes it into
+  `content`; for a published translation that is the moment the change goes live.
+- When a draft exists, the editor opens it and offers "discard draft", which returns to the saved version.
+- Autosave, explicit save and discard carry the draft revision they are based on; the server refuses older ones,
+  so a late autosave or a second tab cannot overwrite newer input or bring back a discarded draft. On a
+  conflict the editor asks to reload.
+- Title, slug, status and the table-of-contents switch are not part of the draft.
+
 ## Frontend language switch
 
 The existing navbar locale switcher uses page sibling targets when present: switching locale goes through `app_locale_switch` and redirects to the published sibling translation’s path (paths stay globally unique, no `/{locale}` prefix). If no sibling exists for the target locale, the switcher keeps the current URL.
