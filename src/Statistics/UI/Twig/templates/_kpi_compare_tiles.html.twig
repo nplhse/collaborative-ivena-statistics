@@ -13,7 +13,8 @@
             {% if metric.format.value == 'percent' %}
                 {% set primaryLabel = metric.primaryValue|number_format(1, ',', '.') ~ '%' %}
                 {% set comparisonLabel = metric.comparisonValue|number_format(1, ',', '.') ~ '%' %}
-                {% set deltaLabel = (metric.absoluteDelta >= 0 ? '+' : '') ~ metric.absoluteDelta|number_format(1, ',', '.') ~ '%' %}
+                {# absoluteDelta of two shares is a difference in percentage points, not a relative change. #}
+                {% set deltaLabel = (metric.absoluteDelta >= 0 ? '+' : '') ~ metric.absoluteDelta|number_format(1, ',', '.') %}
             {% elseif metric.format.value == 'count' %}
                 {% set primaryLabel = metric.primaryValue|number_format(0, ',', '.') %}
                 {% set comparisonLabel = metric.comparisonValue|number_format(0, ',', '.') %}
@@ -43,7 +44,7 @@
                             <div class="h2 mb-3">{{ primaryLabel }}</div>
                         {% elseif not suppressRatios %}
                             <div class="d-flex align-items-baseline gap-2 mb-3">
-                                <div class="h2 mb-0 fw-bold {{ deltaTextClass }}">{{ deltaLabel }}</div>
+                                <div class="h2 mb-0 fw-bold {{ deltaTextClass }}">{{ deltaLabel }}{% if metric.format.value == 'percent' %} {{ include('@Statistics/_percentage_points_unit.html.twig') }}{% endif %}</div>
                                 <span class="badge {{ ratioBadgeClass }}">{{ metric.ratio|number_format(1, ',', '.') }}×</span>
                             </div>
                         {% else %}

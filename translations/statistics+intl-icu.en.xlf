@@ -1205,6 +1205,14 @@
         <source>stats.reports.monthly.kpi.mom</source>
         <target>vs previous month</target>
       </trans-unit>
+      <trans-unit id="statsUnitPp1" resname="stats.unit.percentage_points.short">
+        <source>stats.unit.percentage_points.short</source>
+        <target>pp</target>
+      </trans-unit>
+      <trans-unit id="statsUnitPp2" resname="stats.unit.percentage_points.long">
+        <source>stats.unit.percentage_points.long</source>
+        <target>percentage points (difference between two shares)</target>
+      </trans-unit>
       <trans-unit id="Abc326ef6f" resname="stats.reports.monthly.kpi.yoy">
         <source>stats.reports.monthly.kpi.yoy</source>
         <target>vs same month last year</target>

@@ -197,6 +197,10 @@
         <source>monthly_reminder.kpi.physician_baseline_delta</source>
         <target>{delta} vs. {baseline}</target>
       </trans-unit>
+      <trans-unit id="DeMrUnitPp" resname="monthly_reminder.unit.percentage_points">
+        <source>monthly_reminder.unit.percentage_points</source>
+        <target>%-Punkte</target>
+      </trans-unit>
       <trans-unit id="Dee3a25a40" resname="monthly_reminder.kpi.transport">
         <source>monthly_reminder.kpi.transport</source>
         <target>Mittlere Transportzeit</target>
