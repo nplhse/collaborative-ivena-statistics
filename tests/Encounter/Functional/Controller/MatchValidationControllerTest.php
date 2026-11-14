@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace App\Tests\Encounter\Functional\Controller;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Encounter\Application\Contract\PlausibilityRepositoryInterface;
 use App\Encounter\Application\Matching\MatchPlanner;
+use App\Encounter\Application\Plausibility\PlausibilitySnapshots;
 use App\Encounter\Application\Review\ReviewPeriod;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\Domain\Entity\MatchValidationItem;
 use App\Encounter\Domain\Entity\MatchValidationSample;
+use App\Encounter\Domain\Entity\PlausibilitySnapshot;
 use App\Encounter\Domain\Enum\ArrivalMode;
 use App\Encounter\Domain\Enum\EncounterGrantAction;
+use App\Encounter\Domain\Enum\Sex;
 use App\Encounter\Domain\Enum\ValidationStratum;
 use App\Encounter\Domain\Enum\ValidationVerdict;
 use App\Encounter\Infrastructure\Matching\MatchDecider;
@@ -166,6 +170,58 @@ final class MatchValidationControllerTest extends WebTestCase
         // The overview adds up every sample per matcher version.
         $this->client->request(Request::METHOD_GET, $this->validationUrl());
         self::assertSelectorExists('[data-test="encounter-validation-combined"][data-version="'.MatchPlanner::VERSION.'"]');
+    }
+
+    /**
+     * Report by plausibility snapshot (#1156), with the seed snapshot of the migration active (PZC 711 × diagram
+     * `urologisches_problem` +3, see EncounterMatcherPlausibilityTest):
+     * - 10:00 → visit 10:05: 9 points in pass 1, automatic link without snapshot; judged correct
+     * - 14:00 (PZC 711) → visit 14:07, male, `urologisches_problem`: 5 points (0.6667) without, 8 points (0.9412) with
+     *   the bonus in pass 2, an automatic link decided by the bonus; judged wrong
+     * Both lie in band 0.90–0.99 and are drawn; the overview shows them as two groups: no snapshot 1 / 1 correct,
+     * decided by the bonus 0 / 1.
+     */
+    public function testTheOverviewSeparatesPairsDecidedByThePlausibilityBonus(): void
+    {
+        $repository = self::getContainer()->get(PlausibilityRepositoryInterface::class);
+        self::assertInstanceOf(PlausibilityRepositoryInterface::class, $repository);
+        $seed = $repository->seedDraft();
+        self::assertInstanceOf(PlausibilitySnapshot::class, $seed);
+        self::getContainer()->get(PlausibilitySnapshots::class)->activate($seed);
+
+        $this->allocationAt($this->hospital, $this->ivena, '10:00');
+        $this->allocationAt($this->hospital, $this->ivena, '14:00', pzc: 711);
+        $this->visitAt($this->hospital, $this->ed, '10:05');
+        $this->visitAt($this->hospital, $this->ed, '14:07', sex: Sex::Male, diagram: 'urologisches_problem');
+        $this->matchDay($this->hospital);
+
+        $sample = $this->drawEmpty($this->hospital);
+        $validator = self::getContainer()->get(MatchValidator::class);
+        self::assertInstanceOf(MatchValidator::class, $validator);
+        /** @var list<MatchValidationItem> $pairs */
+        $pairs = $this->encounterEntityManager()->getRepository(MatchValidationItem::class)->findBy(['sample' => $sample, 'stratum' => ValidationStratum::Automatic]);
+        self::assertCount(2, $pairs);
+        foreach ($pairs as $item) {
+            $decisive = $item->isPlausibilityDecisive();
+            self::assertSame($decisive ? $seed->getId() : null, $item->getPlausibilitySnapshot()?->getId());
+            self::assertSame($decisive ? 2 : 1, $item->getPass());
+            $validator->record($item, $decisive ? ValidationVerdict::Wrong : ValidationVerdict::Correct, $this->reviewer);
+        }
+
+        $this->client->loginUser($this->reviewer);
+        $crawler = $this->client->request(Request::METHOD_GET, $this->validationUrl());
+        self::assertResponseIsSuccessful();
+        $version = MatchPlanner::VERSION;
+        $rows = $crawler->filter('[data-test="encounter-validation-plausibility-report"] tbody tr');
+        self::assertSame(
+            ['plausibility-'.$version.'-none-none-automatic', 'plausibility-'.$version.'-'.$seed->getId().'-decisive-automatic'],
+            $rows->each(static fn (Crawler $row): string => (string) $row->attr('data-test')),
+        );
+        self::assertStringContainsString('no snapshot', $rows->eq(0)->text());
+        self::assertStringContainsString('100%', $rows->eq(0)->filter('[data-test="report-share"]')->text());
+        self::assertStringContainsString('#'.$seed->getId(), $rows->eq(1)->text());
+        self::assertStringContainsString('decided by the bonus', $rows->eq(1)->text());
+        self::assertStringContainsString('0%', $rows->eq(1)->filter('[data-test="report-share"]')->text());
     }
 
     /**

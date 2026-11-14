@@ -8,6 +8,7 @@ use App\Encounter\Application\Contract\MatchValidationReaderInterface;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\MatchValidationItem;
 use App\Encounter\Domain\Entity\MatchValidationSample;
+use App\Encounter\Domain\Enum\ValidationStratum;
 use App\Encounter\Domain\Enum\ValidationVerdict;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Types\Types;
@@ -78,6 +79,33 @@ final readonly class MatchValidationRepository implements MatchValidationReaderI
         }
 
         return $byVersion;
+    }
+
+    #[\Override]
+    public function pairItemsByPlausibility(int $hospitalId): array
+    {
+        /** @var list<MatchValidationItem> $items */
+        $items = $this->entityManager->createQueryBuilder()
+            ->select('i', 's')
+            ->from(MatchValidationItem::class, 'i')
+            ->join('i.sample', 's')
+            ->where('IDENTITY(s.hospital) = :hospital')
+            ->andWhere('i.stratum IN (:pairs)')
+            ->setParameter('hospital', $hospitalId)
+            ->setParameter('pairs', [ValidationStratum::Automatic->value, ValidationStratum::Proposal->value])
+            ->orderBy('s.id')
+            ->addOrderBy('i.position')
+            ->getQuery()
+            ->getResult();
+
+        return array_map(static fn (MatchValidationItem $item): array => [
+            'stratum' => $item->getStratum(),
+            'matcher_version' => $item->getMatcherVersion() ?? $item->getSample()->getMatcherVersion(),
+            'snapshot_id' => $item->getPlausibilitySnapshot()?->getId(),
+            'decisive' => $item->isPlausibilityDecisive(),
+            'verdict' => $item->getVerdict(),
+            'replaced' => $item->getReplacementEncounter() instanceof Encounter,
+        ], $items);
     }
 
     #[\Override]

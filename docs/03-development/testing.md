@@ -139,7 +139,7 @@ make lint-trans-de  # lint DE catalogue only
 - The test jobs install Composer dependencies with `--no-scripts` (the `cache:clear` auto-script would build an unused dev container)
 - Either test job failing fails the workflow; the coverage job does not run unless both succeed
 - **Coverage runs on every PR**, including step PRs into integration branches, so coverage stays high at every step and is not only checked on `main`. PCOV makes the tests about 2.4× slower; this cost is accepted, and speed-ups come from the tests and workflows instead (decided in #833)
-- A new push to a PR cancels the previous run; changes only to `docs/**` or Markdown files start no workflow
+- A new push to a PR cancels the previous run. A pull request that only changes `docs/**` or Markdown files still starts the workflows, but the changes job (`.github/workflows/changes.yml`) skips the code jobs; skipped jobs count as passed for the checks the rulesets require (#1183). Pushes to `main` and `develop` with only such changes start no workflow
 - Workflows: `.github/workflows/tests.yml`
 - Codecov: [`codecov.yml`](../../codecov.yml)
 - Linting: `.github/workflows/lint.yml`

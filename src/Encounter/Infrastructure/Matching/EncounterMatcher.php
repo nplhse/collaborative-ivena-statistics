@@ -11,6 +11,8 @@ use App\Encounter\Application\Matching\MatchingSettings;
 use App\Encounter\Application\Matching\MatchPlanner;
 use App\Encounter\Application\Matching\MatchRunResult;
 use App\Encounter\Application\Matching\MatchScope;
+use App\Encounter\Application\Matching\MatchWeights;
+use App\Encounter\Application\Plausibility\PlausibilityLookup;
 use App\Encounter\Domain\Enum\MatchStatus;
 use App\Encounter\Infrastructure\Query\MatchInputQuery;
 use App\Encounter\Infrastructure\Repository\EncounterMatchRepository;
@@ -24,7 +26,8 @@ use Psr\Log\LoggerInterface;
  * One transaction under the hospital's matching lock: read the scope's allocations, their candidate
  * visits and the existing links and decisions; drop the scope's open proposals; plan; write the new
  * automatic links and proposals; drop proposals that now touch a linked side. Existing links and manual
- * decisions are never changed, so a rerun only fills gaps.
+ * decisions are never changed, so a rerun only fills gaps. Pass 2 reads the plausibility bonus from the snapshot
+ * active when the run starts (ADR 033); without one the bonus is 0.
  */
 final readonly class EncounterMatcher implements EncounterMatcherInterface
 {
@@ -34,6 +37,7 @@ final readonly class EncounterMatcher implements EncounterMatcherInterface
         private MatchInputQuery $input,
         private EncounterMatchRepository $matches,
         private MatchingSettings $settings,
+        private PlausibilityLookup $plausibility,
         private ClockInterface $clock,
         private LoggerInterface $logger,
     ) {
@@ -51,7 +55,7 @@ final readonly class EncounterMatcher implements EncounterMatcherInterface
             $state = $this->input->existingDecisions($allocationIds, array_map(static fn (MatchingEncounter $e): int => $e->id, $encounters));
 
             $this->matches->deleteProposalsOfAllocations($allocationIds);
-            $planned = new MatchPlanner($this->settings)->plan(
+            $planned = new MatchPlanner($this->settings, MatchWeights::production(), $this->plausibility->active())->plan(
                 $allocations,
                 $encounters,
                 $state['reservedAllocations'],
@@ -64,12 +68,14 @@ final readonly class EncounterMatcher implements EncounterMatcherInterface
             $autoAccepted = 0;
             $proposed = 0;
             $conflicts = 0;
+            $decisive = 0;
             foreach ($planned as $match) {
                 MatchStatus::AutoAccepted === $match->status ? ++$autoAccepted : ++$proposed;
                 $conflicts += $match->conflict ? 1 : 0;
+                $decisive += $match->plausibilityDecisive ? 1 : 0;
             }
 
-            return new MatchRunResult(\count($allocations), \count($encounters), $autoAccepted, $proposed, $conflicts);
+            return new MatchRunResult(\count($allocations), \count($encounters), $autoAccepted, $proposed, $conflicts, $decisive);
         });
 
         $this->logger->info('encounter.matching.completed', [
@@ -80,6 +86,7 @@ final readonly class EncounterMatcher implements EncounterMatcherInterface
             'auto_accepted' => $result->autoAccepted,
             'proposed' => $result->proposed,
             'conflicts' => $result->conflicts,
+            'plausibility_decisive' => $result->plausibilityDecisive,
         ]);
 
         return $result;

@@ -101,12 +101,22 @@ app:
         validation:
             score_bands: [0.50, 0.70, 0.90, 0.99]
             sample_size: 20
+        # Plausibility table of PZC and MTS diagram (ADR 033, docs/04-features/encounter/README.md#plausibility-table):
+        # observations a cell needs before it gets learned points, and an exact cell before its points replace those
+        # of the problem-area cell. Learning job (#1155): Laplace smoothing, shrinkage towards the seed (pseudo
+        # observations) and the fold rule of the cross-fitted replay.
+        plausibility:
+            min_observations: 10
+            learning:
+                smoothing: 1.0
+                shrinkage: 10.0
+                fold: alternating_days
         # Offline data preparation tool (ADR 026): raise version with every change to the tool or a
         # bundled profile; raise min_version to block older tools (docs/04-features/encounter/data-preparation-tool.md).
         data_prep:
-            version: '1.1.0'
+            version: '1.2.0'
             min_version: '1.0.0'
-            released_at: '2026-11-13'
+            released_at: '2026-11-14'
 
     storage:
         # Usage in percent of the capacity reference at which each level starts (ADR 017).

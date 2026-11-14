@@ -15,6 +15,9 @@
     const KEY_CHECK_INPUT = 'encounter-key-check';
     const KEY_FILE_FORMAT = 'encounter-key';
     const LOCAL_MAP_FORMAT = 'encounter-local-map';
+    const CATALOG_FORMAT = 'encounter-mts-catalog';
+    const CATALOG_LISTS = ['diagrams', 'indicators'];
+    const CATALOG_CODE = /^[a-z0-9_]{1,64}$/;
     const CARE_LEVELS = ['ward', 'monitoring', 'icu', 'or', 'unknown'];
     const CARE_LEVEL_DISPOSITIONS = ['admitted', 'transferred_external'];
     const VITAL_FIELDS = [
@@ -674,6 +677,7 @@
             invalidValues: {},
             unmapped: {},
             unlistedCatalogValues: {},
+            catalogAliases: {},
             careLevelUnknown: 0,
             firstAnchor: null,
             lastAnchor: null,
@@ -864,15 +868,20 @@
                     return;
                 }
                 check(name, rule.column, raw);
+                // The code derived from the source label is written as it is, also for an alias (ADR 032): the
+                // server resolves aliases when it reads, so the spelling the hospital sent stays visible.
+                const code = catalogCode(raw);
                 const listed = catalogTables.get(`${rule.catalog}/${rule.list}`);
-                if (listed !== undefined && !listed.has(lookupKey(raw))) {
+                if (listed !== undefined && listed.aliases.has(code)) {
+                    count(report.catalogAliases, name, `${raw} → ${listed.aliases.get(code)}`);
+                } else if (listed !== undefined && !listed.codes.has(code)) {
                     if (rule.unlisted === 'empty') {
                         count(report.unmapped, name, raw);
                         return;
                     }
                     count(report.unlistedCatalogValues, name, raw);
                 }
-                out[name] = catalogCode(raw);
+                out[name] = code;
                 return;
             }
             case 'integer': {
@@ -987,17 +996,73 @@
         }
     }
 
-    /** `catalogId/list` → set of lookup keys of the listed labels. */
+    /**
+     * `catalogId/list` → codes of the entries and aliases of the list (aliases: alias code → target code). A source
+     * label is known when its code is one of them, the same rule as on the server (ADR 032).
+     */
     function catalogLookups(catalogs) {
         const tables = new Map();
         for (const [id, catalog] of Object.entries(catalogs)) {
-            for (const [list, labels] of Object.entries(catalog)) {
-                if (Array.isArray(labels)) {
-                    tables.set(`${id}/${list}`, new Set(labels.map(lookupKey)));
-                }
+            for (const list of CATALOG_LISTS) {
+                const aliases = new Map(Object.entries(catalog.aliases?.[list] ?? {}));
+                const codes = new Set([
+                    ...(catalog[list] ?? []).map((entry) => entry.code),
+                    ...aliases.keys(),
+                ]);
+                tables.set(`${id}/${list}`, { codes, aliases });
             }
         }
         return tables;
+    }
+
+    /**
+     * Validate an MTS catalog in the tool's format (`encounter-mts-catalog` version 1, #1157), as served by the
+     * public catalog endpoint and bundled as offline fallback. Returns a normalised copy; throws on anything else.
+     */
+    function parseCatalog(payload) {
+        if (
+            payload === null ||
+            typeof payload !== 'object' ||
+            payload.format !== CATALOG_FORMAT ||
+            payload.version !== 1 ||
+            typeof payload.id !== 'string'
+        ) {
+            throw new Error('Not an MTS catalog of a supported version.');
+        }
+        const catalog = { format: CATALOG_FORMAT, version: 1, id: payload.id, aliases: {} };
+        for (const list of CATALOG_LISTS) {
+            const entries = payload[list];
+            if (!Array.isArray(entries)) {
+                throw new Error(`The MTS catalog has no list "${list}".`);
+            }
+            catalog[list] = entries.map((entry) => {
+                if (
+                    entry === null ||
+                    typeof entry !== 'object' ||
+                    !CATALOG_CODE.test(entry.code) ||
+                    typeof entry.name !== 'string'
+                ) {
+                    throw new Error(`Invalid entry in the MTS catalog list "${list}".`);
+                }
+                return {
+                    code: entry.code,
+                    name: entry.name,
+                    englishName: typeof entry.englishName === 'string' ? entry.englishName : null,
+                };
+            });
+            const aliases = payload.aliases?.[list] ?? {};
+            if (aliases === null || typeof aliases !== 'object') {
+                throw new Error(`Invalid aliases in the MTS catalog list "${list}".`);
+            }
+            catalog.aliases[list] = {};
+            for (const [code, target] of Object.entries(aliases)) {
+                if (!CATALOG_CODE.test(code) || !CATALOG_CODE.test(target)) {
+                    throw new Error(`Invalid alias in the MTS catalog list "${list}".`);
+                }
+                catalog.aliases[list][code] = target;
+            }
+        }
+        return catalog;
     }
 
     function vitalValue(raw, rule, field) {
@@ -1124,6 +1189,7 @@
         formatSecond,
         roundHalfUp,
         catalogCode,
+        parseCatalog,
         contentFindings,
         caseNumberOf,
         fingerprintInput,

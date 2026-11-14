@@ -184,6 +184,18 @@ final class AppConfigurationTest extends TestCase
         self::assertSame(['score_bands' => [0.50, 0.70, 0.90, 0.99], 'sample_size' => 20], $processed['encounter']['validation']);
     }
 
+    public function testEncounterPlausibilityMinimumObservationsDefaultsToTenAndIsPositive(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig()]);
+        self::assertSame(['min_observations' => 10, 'learning' => ['smoothing' => 1.0, 'shrinkage' => 10.0, 'fold' => 'alternating_days']], $processed['encounter']['plausibility']);
+
+        $this->expectException(InvalidConfigurationException::class);
+        new Processor()->processConfiguration(new AppConfiguration(), [[
+            ...$this->minimalConfig(),
+            'encounter' => ['plausibility' => ['min_observations' => 0]],
+        ]]);
+    }
+
     public function testEncounterValidationScoreBandsMustAscend(): void
     {
         $this->expectException(InvalidConfigurationException::class);

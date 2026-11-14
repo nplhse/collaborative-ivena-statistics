@@ -68,7 +68,7 @@ final readonly class EncounterOverviewFactory
             period: $period,
             coverage: $coverage,
             allTimeCoverage: $allTime,
-            routeLink: $this->routeLink($routeLinkCounts),
+            routeLink: $this->routeLink($routeLinkCounts, $this->reader->bonusDecidedLinksByRoute($hospitalId, $period)),
             categories: $this->ordered($this->reader->visitsByCategory($hospitalId, $period), array_map(static fn (MtsCategory $category): string => $category->value, MtsCategory::cases()), $visits),
             diagrams: $diagrams,
             diagramsShown: $diagramsShown,
@@ -168,23 +168,25 @@ final readonly class EncounterOverviewFactory
 
     /**
      * @param array<string, array<string, int>> $counts
+     * @param array<string, int>                $bonusDecided route => automatic links decided by the plausibility bonus
      *
      * @return list<RouteLinkRow>
      */
-    private function routeLink(array $counts): array
+    private function routeLink(array $counts, array $bonusDecided): array
     {
         $rows = [];
-        $sum = [0, 0, 0];
+        $sum = [0, 0, 0, 0];
         foreach (ArrivalRoute::cases() as $route) {
             $byLink = $counts[$route->value] ?? [];
             $automatic = $byLink[MatchStatus::AutoAccepted->value] ?? 0;
             $confirmed = $byLink[MatchStatus::Confirmed->value] ?? 0;
             $notLinked = $byLink[EncounterOverviewReaderInterface::NOT_LINKED] ?? 0;
-            $rows[] = new RouteLinkRow($route->value, $automatic, $confirmed, $notLinked);
-            $sum = [$sum[0] + $automatic, $sum[1] + $confirmed, $sum[2] + $notLinked];
+            $decided = $bonusDecided[$route->value] ?? 0;
+            $rows[] = new RouteLinkRow($route->value, $automatic, $confirmed, $notLinked, $decided);
+            $sum = [$sum[0] + $automatic, $sum[1] + $confirmed, $sum[2] + $notLinked, $sum[3] + $decided];
         }
 
-        $rows[] = new RouteLinkRow('total', $sum[0], $sum[1], $sum[2]);
+        $rows[] = new RouteLinkRow('total', $sum[0], $sum[1], $sum[2], $sum[3]);
 
         return $rows;
     }

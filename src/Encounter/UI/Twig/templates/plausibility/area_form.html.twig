@@ -1,0 +1,59 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set d = 'encounter' %}
+{% set heading = area ? area.germanName : 'encounter.plausibility.area.new_title'|trans({}, d) %}
+
+{% block title %}{{ heading }} - {{ 'encounter.plausibility.title'|trans({}, d) }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <twig:PageHeader :title="heading" :pretitle="'encounter.plausibility.area.pretitle'|trans({}, 'encounter')">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
+                { label: 'encounter.plausibility.title', label_domain: 'encounter', translatable: true, path: path('app_tools_encounter_plausibility') },
+                { label: heading }
+            ]" />
+        </twig:block>
+    </twig:PageHeader>
+{% endblock %}
+
+{% block page_content %}
+    <twig:Alert type="info" :message="'encounter.plausibility.area.intro'|trans({}, 'encounter')" />
+
+    <div class="card" data-test="encounter-plausibility-area-form">
+        <div class="card-body">
+            {{ form_start(form) }}
+            {{ form_errors(form) }}
+            <div class="row">
+                <div class="col-md-6">{{ form_row(form.germanName) }}</div>
+                <div class="col-md-6">{{ form_row(form.englishName) }}</div>
+            </div>
+            {{ form_row(form.pzcCodes) }}
+
+            <h4 class="mt-3">{{ 'encounter.plausibility.area.field.diagrams'|trans({}, d) }}</h4>
+            <p class="small text-secondary">{{ 'encounter.plausibility.area.field.diagrams_help'|trans({}, d) }}</p>
+            <div class="row">
+                {% for field in form.diagrams %}
+                    <div class="col-sm-6 col-lg-4">{{ form_row(field) }}</div>
+                {% endfor %}
+            </div>
+            {% do form.diagrams.setRendered %}
+
+            <button class="btn btn-primary" type="submit">{{ 'encounter.plausibility.action.save'|trans({}, d) }}</button>
+            <a class="btn btn-link" href="{{ path('app_tools_encounter_plausibility') }}">{{ 'action.cancel'|trans({}, 'messages') }}</a>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    {% if area %}
+        <div class="card mt-3 border-danger" data-test="encounter-plausibility-area-delete">
+            <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <span class="text-secondary">{{ 'encounter.plausibility.area.delete_note'|trans({}, d) }}</span>
+                <form method="post" action="{{ path('app_tools_encounter_plausibility_area_delete', {code: area.code}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('encounter_plausibility_area_delete_' ~ area.code) }}">
+                    <button class="btn btn-outline-danger" type="submit">{{ 'encounter.plausibility.action.delete_area'|trans({}, d) }}</button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

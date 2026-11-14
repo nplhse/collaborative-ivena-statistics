@@ -16,8 +16,9 @@ Defined in `src/User/Domain/Security/UserRole.php`:
 | `ROLE_REVIEW_INDICATIONS` | Indication raw review worklist |
 | `ROLE_CLOSURE_BETA` | Opt-in beta switch for closure-list imports and Closure Analytics. Not part of the role hierarchy, so `ROLE_ADMIN` does not grant it. Assign it on the user in EasyAdmin. It is not a public role. |
 | `ROLE_ENCOUNTER_BETA` | Participation in the encounter data pilot: the encounter tools under `/tools` (review, validation, data preparation), the encounter analysis and the encounter grant pages. Inherited by `ROLE_ADMIN`. The role itself grants no case access. Assign it on the user in EasyAdmin. |
+| `ROLE_ENCOUNTER_CATALOG_REVIEWER` | Review of the matcher's plausibility table (#1153, [ADR 033](decisions/033-learning-plausibility-table.md)) as the tool `/tools/encounter-plausibility` ([ADR 031](decisions/031-tools-section-and-tool-registry.md)): edit the curated problem areas, review snapshots, activate and retire them, run the learning job and read its reports (#1155). Needs `ROLE_ENCOUNTER_BETA` as well; grants no case access. Inherited by `ROLE_ADMIN`. Maintenance of the MTS catalog itself stays with `ROLE_ADMIN` ([ADR 032](decisions/032-mts-catalog-as-maintained-data.md)). |
 
-`ROLE_ADMIN` inherits `ROLE_PARTICIPANT`, `ROLE_REVIEW_INDICATIONS` and `ROLE_ENCOUNTER_BETA` only. `ROLE_CLOSURE_BETA` stays explicit so production users and the first testers stay separate.
+`ROLE_ADMIN` inherits `ROLE_PARTICIPANT`, `ROLE_REVIEW_INDICATIONS`, `ROLE_ENCOUNTER_BETA` and `ROLE_ENCOUNTER_CATALOG_REVIEWER` only. `ROLE_CLOSURE_BETA` stays explicit so production users and the first testers stay separate.
 
 ## Hospital permissions (bitmask)
 
@@ -83,6 +84,14 @@ by the hospital bitmask:
 - Owners and administrators manage encounter grants; only users with access to the hospital can
   receive one. Changes are audited.
 - Case-level requests check the grant on the hospital of the requested visit or allocation.
+- The matcher's plausibility table ([ADR 033](decisions/033-learning-plausibility-table.md)) is learned from
+  all hospitals, but no cross-hospital case counts are shown. `ROLE_ENCOUNTER_CATALOG_REVIEWER` (with the
+  beta role) sees per cell only points, source and the change against the active snapshot; replay counts and
+  rates in a snapshot report cover only hospitals on which the viewer holds the grant action `REVIEW`
+  (`ROLE_ADMIN`: all, plus the sum over all hospitals); the number of eligible pairs over all hospitals is never
+  shown to a reviewer. The reviewer role gives no encounter grant action. Its tool pages under
+  `/tools/encounter-plausibility` (`src/Encounter/UI/Http/Controller/Plausibility/`) check both roles in the
+  controllers, since `^/tools` in `access_control` only requires `ROLE_USER`; the tool entry is listed only with both.
 
 Implementation:
 

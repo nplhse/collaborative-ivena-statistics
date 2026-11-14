@@ -17,7 +17,8 @@ use Doctrine\DBAL\Types\Types;
 
 /**
  * Reads what the matcher compares (ADR 030): allocations and visits of one hospital and the existing
- * links and decisions that touch them.
+ * links and decisions that touch them. The normalized indication (PZC) and the MTS diagram are read for the
+ * plausibility bonus of pass 2 only (matcher 1.2.0, ADR 033).
  */
 final readonly class MatchInputQuery implements MatchCandidateReaderInterface
 {
@@ -34,15 +35,16 @@ final readonly class MatchInputQuery implements MatchCandidateReaderInterface
     #[\Override]
     public function allocations(int $hospitalId, \DateTimeImmutable $from, \DateTimeImmutable $to, ?int $ignoreImportId): array
     {
-        /** @var list<array{id: int|string, arrival_at: string, gender: string, age: int|string, is_with_physician: bool, is_work_accident: bool}> $rows */
+        /** @var list<array{id: int|string, arrival_at: string, gender: string, age: int|string, is_with_physician: bool, is_work_accident: bool, pzc: int|string|null}> $rows */
         $rows = $this->connection->fetchAllAssociative(
             <<<'SQL'
-SELECT id, arrival_at, gender, age, is_with_physician, is_work_accident
-FROM allocation
-WHERE hospital_id = :hospital
-  AND arrival_at >= :from AND arrival_at < :to
-  AND import_id <> :ignore
-ORDER BY id
+SELECT a.id, a.arrival_at, a.gender, a.age, a.is_with_physician, a.is_work_accident, n.code AS pzc
+FROM allocation a
+LEFT JOIN indication_normalized n ON n.id = a.indication_normalized_id
+WHERE a.hospital_id = :hospital
+  AND a.arrival_at >= :from AND a.arrival_at < :to
+  AND a.import_id <> :ignore
+ORDER BY a.id
 SQL,
             ['hospital' => $hospitalId, 'from' => $from, 'to' => $to, 'ignore' => $ignoreImportId ?? 0],
             ['hospital' => Types::INTEGER, 'from' => Types::DATETIME_IMMUTABLE, 'to' => Types::DATETIME_IMMUTABLE, 'ignore' => Types::INTEGER],
@@ -55,6 +57,7 @@ SQL,
             age: (int) $row['age'],
             withPhysician: (bool) $row['is_with_physician'],
             workAccident: (bool) $row['is_work_accident'],
+            pzc: null === $row['pzc'] ? null : (int) $row['pzc'],
         ), $rows);
     }
 
@@ -118,10 +121,10 @@ SQL,
     {
         // The fingerprint anchor (anchor_at, indexed) is the first assessment contact when there is one;
         // the ED admission lies before it, so a margin of one day keeps the index useful.
-        /** @var list<array{id: int|string, ed_admission_at: ?string, first_assessment_contact_at: ?string, sex: string, age: int|string, arrival_mode: ?string, arrival_route: string, work_accident: ?bool}> $rows */
+        /** @var list<array{id: int|string, ed_admission_at: ?string, first_assessment_contact_at: ?string, sex: string, age: int|string, arrival_mode: ?string, arrival_route: string, work_accident: ?bool, mts_diagram: ?string}> $rows */
         $rows = $this->connection->fetchAllAssociative(
             <<<'SQL'
-SELECT id, ed_admission_at, first_assessment_contact_at, sex, age, arrival_mode, arrival_route, work_accident
+SELECT id, ed_admission_at, first_assessment_contact_at, sex, age, arrival_mode, arrival_route, work_accident, mts_diagram
 FROM encounter
 WHERE hospital_id = :hospital
   AND anchor_at BETWEEN CAST(:from AS TIMESTAMP) - INTERVAL '1 day' AND CAST(:to AS TIMESTAMP) + INTERVAL '1 day'
@@ -152,6 +155,7 @@ SQL,
                 arrivalMode: null === $row['arrival_mode'] ? null : ArrivalMode::from($row['arrival_mode']),
                 arrivalRoute: ArrivalRoute::from($row['arrival_route']),
                 workAccident: $row['work_accident'],
+                mtsDiagram: $row['mts_diagram'],
             );
         }
 

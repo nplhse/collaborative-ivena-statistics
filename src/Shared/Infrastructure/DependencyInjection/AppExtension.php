@@ -57,6 +57,10 @@ final class AppExtension extends Extension
         $container->setParameter('app.encounter.matching.pass2', $matchingConfig['pass2']);
         $container->setParameter('app.encounter.validation.score_bands', $config['encounter']['validation']['score_bands']);
         $container->setParameter('app.encounter.validation.sample_size', $config['encounter']['validation']['sample_size']);
+        $container->setParameter('app.encounter.plausibility.min_observations', $config['encounter']['plausibility']['min_observations']);
+        $container->setParameter('app.encounter.plausibility.learning.smoothing', $config['encounter']['plausibility']['learning']['smoothing']);
+        $container->setParameter('app.encounter.plausibility.learning.shrinkage', $config['encounter']['plausibility']['learning']['shrinkage']);
+        $container->setParameter('app.encounter.plausibility.learning.fold', $config['encounter']['plausibility']['learning']['fold']);
         $dataPrepConfig = $config['encounter']['data_prep'];
         $container->setParameter('app.encounter.data_prep.version', $dataPrepConfig['version']);
         $container->setParameter('app.encounter.data_prep.min_version', $dataPrepConfig['min_version']);

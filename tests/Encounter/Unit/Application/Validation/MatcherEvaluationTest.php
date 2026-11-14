@@ -51,6 +51,29 @@ final class MatcherEvaluationTest extends TestCase
         self::assertSame([3, 1, 2], [$evaluation->truePairs, $evaluation->truePairsAutomatic, $evaluation->truePairsFound]);
     }
 
+    public function testCountsAllocationsWorseWithTheBonus(): void
+    {
+        // Without → with the bonus: 1 automatic → proposal, 2 automatic → none, 3 proposal → none,
+        // 4 proposal → automatic (better), 5 automatic → automatic with another visit (not worse), 6 none → none.
+        $without = [
+            $this->match(1, 10, MatchStatus::AutoAccepted, 0.95),
+            $this->match(2, 20, MatchStatus::AutoAccepted, 0.95),
+            $this->match(3, 30, MatchStatus::Proposed, 0.6),
+            $this->match(4, 40, MatchStatus::Proposed, 0.6),
+            $this->match(5, 50, MatchStatus::AutoAccepted, 0.95),
+        ];
+        $with = [
+            $this->match(1, 10, MatchStatus::Proposed, 0.8),
+            $this->match(4, 40, MatchStatus::AutoAccepted, 0.94),
+            $this->match(5, 51, MatchStatus::AutoAccepted, 0.94),
+        ];
+
+        self::assertSame(
+            ['total' => 3, 'automatic_to_proposal' => 1, 'automatic_to_none' => 1, 'proposal_to_none' => 1],
+            MatcherEvaluation::worseWithBonus($with, $without, [1, 2, 3, 4, 5, 6]),
+        );
+    }
+
     private function match(int $allocation, int $encounter, MatchStatus $status, float $score): PlannedMatch
     {
         return new PlannedMatch($allocation, $encounter, $status, $score, 9, [], 1, AnchorSource::Admission, 5, false);

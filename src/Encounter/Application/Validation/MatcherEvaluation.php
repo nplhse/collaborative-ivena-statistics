@@ -91,6 +91,94 @@ final readonly class MatcherEvaluation
     }
 
     /**
+     * Outcome per replayed allocation: an automatic link, else at least one proposal, else none; and how many of the
+     * automatic links and proposals the plausibility bonus decided (matcher 1.2.0). Counts only, no pairs.
+     *
+     * @param list<PlannedMatch> $plan
+     * @param list<int>          $allocationIds replayed allocations
+     *
+     * @return array{allocations: int, automatic: int, proposal: int, none: int, decisive_automatic: int, decisive_proposal: int}
+     */
+    public static function outcomes(array $plan, array $allocationIds): array
+    {
+        $outcome = self::outcomeByAllocation($plan, $allocationIds);
+        $decisive = ['automatic' => 0, 'proposal' => 0];
+        foreach ($plan as $match) {
+            if ($match->plausibilityDecisive) {
+                ++$decisive[MatchStatus::AutoAccepted === $match->status ? 'automatic' : 'proposal'];
+            }
+        }
+
+        $counts = array_count_values($outcome);
+
+        return [
+            'allocations' => \count($outcome),
+            'automatic' => $counts['automatic'] ?? 0,
+            'proposal' => $counts['proposal'] ?? 0,
+            'none' => $counts['none'] ?? 0,
+            'decisive_automatic' => $decisive['automatic'],
+            'decisive_proposal' => $decisive['proposal'],
+        ];
+    }
+
+    /**
+     * Allocations whose outcome is worse with the plausibility bonus than without it: an automatic link becomes a
+     * proposal or nothing, a proposal becomes nothing. This happens when a competing candidate's bonus takes share of
+     * the score; the decisive flag cannot mark it, because the pair is either stored with a lower status or not at all
+     * (ADR 030 amendment). Counts only.
+     *
+     * @param list<PlannedMatch> $withBonus
+     * @param list<PlannedMatch> $withoutBonus
+     * @param list<int>          $allocationIds replayed allocations
+     *
+     * @return array{total: int, automatic_to_proposal: int, automatic_to_none: int, proposal_to_none: int}
+     */
+    public static function worseWithBonus(array $withBonus, array $withoutBonus, array $allocationIds): array
+    {
+        $with = self::outcomeByAllocation($withBonus, $allocationIds);
+        $automaticToProposal = 0;
+        $automaticToNone = 0;
+        $proposalToNone = 0;
+        foreach (self::outcomeByAllocation($withoutBonus, $allocationIds) as $allocationId => $without) {
+            $after = $with[$allocationId] ?? 'none';
+            if ('automatic' === $without && 'proposal' === $after) {
+                ++$automaticToProposal;
+            } elseif ('automatic' === $without && 'none' === $after) {
+                ++$automaticToNone;
+            } elseif ('proposal' === $without && 'none' === $after) {
+                ++$proposalToNone;
+            }
+        }
+
+        return [
+            'total' => $automaticToProposal + $automaticToNone + $proposalToNone,
+            'automatic_to_proposal' => $automaticToProposal,
+            'automatic_to_none' => $automaticToNone,
+            'proposal_to_none' => $proposalToNone,
+        ];
+    }
+
+    /**
+     * @param list<PlannedMatch> $plan
+     * @param list<int>          $allocationIds
+     *
+     * @return array<int, 'automatic'|'proposal'|'none'>
+     */
+    private static function outcomeByAllocation(array $plan, array $allocationIds): array
+    {
+        /** @var array<int, 'automatic'|'proposal'|'none'> $outcome */
+        $outcome = array_fill_keys($allocationIds, 'none');
+        foreach ($plan as $match) {
+            $automatic = MatchStatus::AutoAccepted === $match->status;
+            if (isset($outcome[$match->allocationId]) && ($automatic || 'none' === $outcome[$match->allocationId])) {
+                $outcome[$match->allocationId] = $automatic ? 'automatic' : 'proposal';
+            }
+        }
+
+        return $outcome;
+    }
+
+    /**
      * Reference from a synthetic truth: a pair belongs together exactly when the visit's true allocation
      * is the pair's allocation.
      *

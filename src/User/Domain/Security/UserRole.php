@@ -27,6 +27,13 @@ final class UserRole
      */
     public const string ENCOUNTER_BETA = 'ROLE_ENCOUNTER_BETA';
 
+    /**
+     * Review of the matcher's plausibility table (ADR 033): edit the curated problem areas, read snapshot reviews,
+     * activate and retire snapshots. Works only together with ROLE_ENCOUNTER_BETA; grants no case access. Inherited by
+     * ROLE_ADMIN.
+     */
+    public const string ENCOUNTER_CATALOG_REVIEWER = 'ROLE_ENCOUNTER_CATALOG_REVIEWER';
+
     public static function containsParticipant(mixed $roles): bool
     {
         if (!\is_array($roles)) {

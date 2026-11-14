@@ -6,51 +6,77 @@ namespace App\Tests\Encounter\Unit\Application\Catalog;
 
 use App\Encounter\Application\Catalog\MtsCatalog;
 use App\Encounter\Application\Catalog\MtsCatalogEntry;
+use App\Encounter\Application\Contract\MtsCatalogReaderInterface;
+use App\Encounter\Domain\Enum\MtsCatalogKind;
+use App\Encounter\Domain\Enum\MtsCatalogStatus;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The MTS catalog is one file for the data preparation tool and the MTS glossary (#1056). Codes must
- * be the ones the tool writes, so the glossary finds the codes stored by the import.
+ * The MTS catalog (ADR 032): codes are the ones the tool writes, and readers resolve a code in one step (active
+ * entry → itself, alias → its active target, anything else → nothing). The database content is covered by
+ * MtsCatalogSeedTest.
  */
 final class MtsCatalogTest extends TestCase
 {
     private const string FIXTURES = __DIR__.'/../../../DataPrep/fixtures';
     private const string TRANSLATIONS = __DIR__.'/../../../../../translations';
 
-    public function testCatalogListsTheDiagramsAndIndicatorsOfTheToolCatalog(): void
+    public function testActiveEntriesResolveToThemselvesAndMergedOnesAreNotListed(): void
     {
-        $catalog = new MtsCatalog();
-        $data = $catalog->data();
+        $catalog = $this->catalog();
+
+        self::assertSame(['brustschmerz', 'thoraxschmerz', 'zz_neu'], array_keys($catalog->diagrams()));
+        self::assertEquals(new MtsCatalogEntry('thoraxschmerz', 'Thoraxschmerz', 'Chest pain'), $catalog->diagram('thoraxschmerz'));
+        self::assertEquals(new MtsCatalogEntry('zz_neu', 'zz_neu'), $catalog->diagram('zz_neu'), 'a provisional entry is active');
+        self::assertSame(['heiss'], array_keys($catalog->indicators()));
+    }
+
+    public function testAliasesResolveInOneStepToTheirActiveTarget(): void
+    {
+        $catalog = $this->catalog();
+
+        self::assertSame('thoraxschmerz', $catalog->diagram('thorax_schmerz_alt')?->code, 'merged entry → its alias target');
+        self::assertSame('thoraxschmerz', $catalog->diagram('brustschmerzen')?->code, 'other alias → its target');
+        self::assertSame('brustschmerz', $catalog->diagram('brustschmerz')?->code, 'an active entry wins over an alias with the same code');
+        self::assertNull($catalog->diagram('kette'), 'an alias pointing to an alias resolves to nothing');
+        self::assertNull($catalog->diagram('ins_leere'), 'an alias pointing to nothing resolves to nothing');
+        self::assertNull($catalog->diagram('unbekannt'));
+        self::assertNull($catalog->indicator('thoraxschmerz'), 'kinds are separate');
+        self::assertSame('heiss', $catalog->indicator('heiss_alt')?->code);
+    }
+
+    public function testCodesResolvingToAnEntryListTheEntryAndItsAliases(): void
+    {
+        $catalog = $this->catalog();
+
+        self::assertSame(['thoraxschmerz', 'brustschmerzen', 'thorax_schmerz_alt'], $catalog->codesResolvingTo(MtsCatalogKind::Diagram, 'thoraxschmerz'));
+        self::assertSame(['zz_neu', 'zz_alt'], $catalog->codesResolvingTo(MtsCatalogKind::Diagram, 'zz_neu'));
+    }
+
+    public function testResetReadsTheCatalogAgain(): void
+    {
+        /** @var \ArrayObject<int, array{code: string, german_name: string, english_name: ?string, status: MtsCatalogStatus}> $added */
+        $added = new \ArrayObject();
+        $catalog = new MtsCatalog($this->reader($added));
+        self::assertNull($catalog->diagram('spaeter'));
+
+        $added->append(['code' => 'spaeter', 'german_name' => 'Später', 'english_name' => null, 'status' => MtsCatalogStatus::Curated]);
+        self::assertNull($catalog->diagram('spaeter'), 'read once per request');
+        $catalog->reset();
+        self::assertSame('Später', $catalog->diagram('spaeter')?->germanName);
+    }
+
+    public function testBundledCopyOfTheToolStaysTheSeedFile(): void
+    {
+        $data = MtsCatalog::bundledData();
 
         self::assertSame(MtsCatalog::ID, $data['id']);
         self::assertIsArray($data['diagrams']);
         self::assertIsArray($data['indicators']);
-        self::assertCount(\count($data['diagrams']), $catalog->diagrams());
-        self::assertCount(\count($data['indicators']), $catalog->indicators());
-        self::assertCount(40, $catalog->diagrams());
-        self::assertCount(70, $catalog->indicators());
-
-        $thorax = $catalog->diagram('thoraxschmerz');
-        self::assertInstanceOf(MtsCatalogEntry::class, $thorax);
-        self::assertSame('Thoraxschmerz', $thorax->germanName);
-        self::assertNull($catalog->diagram('unknown'));
-    }
-
-    public function testCodesAreSortedValidCodes(): void
-    {
-        $catalog = new MtsCatalog();
-        foreach ([$catalog->diagrams(), $catalog->indicators()] as $entries) {
-            $codes = array_keys($entries);
-            $sorted = $codes;
-            sort($sorted, \SORT_STRING);
-            self::assertSame($sorted, $codes);
-            foreach ($entries as $code => $entry) {
-                self::assertMatchesRegularExpression('/^[a-z0-9](?:[a-z0-9_]{0,62}[a-z0-9])?$/', $code);
-                self::assertSame($code, $entry->code);
-                self::assertSame($code, MtsCatalog::code($entry->germanName));
-            }
-        }
+        self::assertCount(40, $data['diagrams']);
+        self::assertCount(70, $data['indicators']);
+        self::assertSame($data, $this->catalog()->data());
     }
 
     /**
@@ -78,11 +104,61 @@ final class MtsCatalogTest extends TestCase
     }
 
     /**
-     * The canonical output of the tool for the synthetic sample uses catalog codes only.
+     * The catalog the public endpoint serves to the tool (#1157): curated entries with names and the aliases that
+     * resolve to them; provisional entries and their aliases are left out.
+     */
+    public function testToolCatalogListsCuratedEntriesAndTheirAliases(): void
+    {
+        $catalog = $this->catalog()->toolCatalog();
+
+        self::assertSame('encounter-mts-catalog', $catalog['format']);
+        self::assertSame(1, $catalog['version']);
+        self::assertSame('mts-de', $catalog['id']);
+        self::assertSame([
+            ['code' => 'brustschmerz', 'name' => 'Brustschmerz', 'englishName' => null],
+            ['code' => 'thoraxschmerz', 'name' => 'Thoraxschmerz', 'englishName' => 'Chest pain'],
+        ], $catalog['diagrams'], 'neither merged nor provisional entries are listed');
+        self::assertSame([['code' => 'heiss', 'name' => 'Heiß', 'englishName' => null]], $catalog['indicators']);
+        self::assertSame(
+            ['brustschmerzen' => 'thoraxschmerz', 'thorax_schmerz_alt' => 'thoraxschmerz'],
+            $catalog['aliases']['diagrams'],
+            'no alias that shadows an entry, points to an alias, to nothing or to a provisional entry',
+        );
+        self::assertSame(['heiss_alt' => 'heiss'], $catalog['aliases']['indicators']);
+    }
+
+    public function testBundledToolCatalogDerivesCodesFromTheLabels(): void
+    {
+        $catalog = $this->catalog()->bundledToolCatalog();
+
+        self::assertSame('encounter-mts-catalog', $catalog['format']);
+        self::assertCount(40, $catalog['diagrams']);
+        self::assertCount(70, $catalog['indicators']);
+        self::assertContains(
+            ['code' => 'abdominelle_schmerzen_bei_erwachsenen', 'name' => 'Abdominelle Schmerzen bei Erwachsenen', 'englishName' => null],
+            $catalog['diagrams'],
+        );
+        self::assertSame(['diagrams' => [], 'indicators' => []], $catalog['aliases']);
+    }
+
+    public function testIndicatorsOfADiagramAreItsActiveAssignments(): void
+    {
+        $catalog = $this->catalog();
+
+        self::assertSame(['heiss'], $catalog->indicatorCodesOf('thoraxschmerz'), 'an assignment to a code that is not active is left out');
+        self::assertSame([], $catalog->indicatorCodesOf('brustschmerz'));
+    }
+
+    /**
+     * The canonical output of the tool for the synthetic sample uses codes of the bundled catalog, except the
+     * invented diagram of row 6, which the tool passes through for the server to add as a provisional entry (#1157).
      */
     public function testToolOutputForTheSampleUsesCatalogCodes(): void
     {
-        $catalog = new MtsCatalog();
+        $data = MtsCatalog::bundledData();
+        self::assertIsArray($data['diagrams']);
+        $codes = array_map(static fn (mixed $label): string => MtsCatalog::code((string) $label), $data['diagrams']);
+
         $lines = file(self::FIXTURES.'/orbis-mts-sample.ed_visit.csv', \FILE_IGNORE_NEW_LINES);
         self::assertIsArray($lines);
         $header = str_getcsv($lines[1], ';', '"', '');
@@ -97,46 +173,78 @@ final class MtsCatalogTest extends TestCase
         }
 
         self::assertNotSame([], $diagrams);
-        foreach ($diagrams as $code) {
-            self::assertInstanceOf(MtsCatalogEntry::class, $catalog->diagram($code), $code);
-        }
+        self::assertSame(['erfundenes_diagramm'], array_values(array_diff($diagrams, $codes)));
     }
 
     /**
-     * English diagram names are English-only translations of catalog diagrams; German comes from the catalog.
+     * English names are catalog data since ADR 032, not translations.
      */
-    public function testEnglishDiagramNamesBelongToCatalogDiagramsOnly(): void
+    public function testEnglishNamesAreNoLongerTranslations(): void
     {
-        $catalog = new MtsCatalog();
-        $prefix = 'encounter.mts.diagram_name.';
-
-        $english = $this->keysWithPrefix('en', $prefix);
-        self::assertNotSame([], $english);
-        foreach ($english as $code) {
-            self::assertNotNull($catalog->diagram($code), $code);
+        foreach (['en', 'de'] as $locale) {
+            $content = file_get_contents(self::TRANSLATIONS.'/encounter+intl-icu.'.$locale.'.xlf');
+            self::assertIsString($content);
+            self::assertStringNotContainsString('encounter.mts.diagram_name.', $content);
+            self::assertStringNotContainsString('encounter.mts.indicator_name.', $content);
         }
+    }
 
-        self::assertSame([], $this->keysWithPrefix('de', $prefix));
-        self::assertSame([], $this->keysWithPrefix('en', 'encounter.mts.indicator_name.'));
+    private function catalog(): MtsCatalog
+    {
+        return new MtsCatalog($this->reader());
     }
 
     /**
-     * @return list<string>
+     * @param \ArrayObject<int, array{code: string, german_name: string, english_name: ?string, status: MtsCatalogStatus}>|null $added diagrams added later
      */
-    private function keysWithPrefix(string $locale, string $prefix): array
+    private function reader(?\ArrayObject $added = null): MtsCatalogReaderInterface
     {
-        $xml = simplexml_load_file(self::TRANSLATIONS.'/encounter+intl-icu.'.$locale.'.xlf');
-        self::assertNotFalse($xml);
-        $xml->registerXPathNamespace('x', 'urn:oasis:names:tc:xliff:document:1.2');
+        return new readonly class($added ?? new \ArrayObject()) implements MtsCatalogReaderInterface {
+            private const array DIAGRAMS = [
+                ['code' => 'brustschmerz', 'german_name' => 'Brustschmerz', 'english_name' => null, 'status' => MtsCatalogStatus::Curated],
+                ['code' => 'thorax_schmerz_alt', 'german_name' => 'Thorax-Schmerz alt', 'english_name' => null, 'status' => MtsCatalogStatus::Merged],
+                ['code' => 'thoraxschmerz', 'german_name' => 'Thoraxschmerz', 'english_name' => 'Chest pain', 'status' => MtsCatalogStatus::Curated],
+                ['code' => 'zz_neu', 'german_name' => 'zz_neu', 'english_name' => null, 'status' => MtsCatalogStatus::Provisional],
+            ];
 
-        $codes = [];
-        foreach ($xml->xpath('//x:trans-unit/@resname') ?: [] as $resname) {
-            $key = (string) $resname;
-            if (str_starts_with($key, $prefix)) {
-                $codes[] = substr($key, \strlen($prefix));
+            /**
+             * @param \ArrayObject<int, array{code: string, german_name: string, english_name: ?string, status: MtsCatalogStatus}> $added
+             */
+            public function __construct(private \ArrayObject $added)
+            {
             }
-        }
 
-        return $codes;
+            #[\Override]
+            public function entries(MtsCatalogKind $kind): array
+            {
+                return MtsCatalogKind::Diagram === $kind
+                    ? [...self::DIAGRAMS, ...$this->added->getArrayCopy()]
+                    : [['code' => 'heiss', 'german_name' => 'Heiß', 'english_name' => null, 'status' => MtsCatalogStatus::Curated]];
+            }
+
+            #[\Override]
+            public function assignments(): array
+            {
+                return [
+                    ['diagram' => 'thoraxschmerz', 'indicator' => 'heiss'],
+                    ['diagram' => 'thoraxschmerz', 'indicator' => 'nicht_aktiv'],
+                ];
+            }
+
+            #[\Override]
+            public function aliases(MtsCatalogKind $kind): array
+            {
+                return MtsCatalogKind::Diagram === $kind
+                    ? [
+                        'brustschmerz' => 'thoraxschmerz',
+                        'brustschmerzen' => 'thoraxschmerz',
+                        'ins_leere' => 'gibt_es_nicht',
+                        'kette' => 'brustschmerzen',
+                        'thorax_schmerz_alt' => 'thoraxschmerz',
+                        'zz_alt' => 'zz_neu',
+                    ]
+                    : ['heiss_alt' => 'heiss'];
+            }
+        };
     }
 }
