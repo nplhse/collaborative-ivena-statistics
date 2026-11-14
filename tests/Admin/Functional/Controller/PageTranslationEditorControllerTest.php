@@ -133,6 +133,71 @@ final class PageTranslationEditorControllerTest extends WebTestCase
         self::assertSame('Quote text', trim($crawler->filter('label[for="PageTranslation_content_1_data_text"]')->text()));
     }
 
+    public function testEditorRendersDataFieldTemplatesForEveryBlockType(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createTranslation([]);
+
+        $crawler = $this->openEditor($client, $translation);
+        $templates = $crawler->filter('[data-page-block-type-templates] template');
+
+        self::assertSame(
+            ['richtext', 'image', 'cta', 'quote', 'headline', 'highlight', 'accordion'],
+            $templates->each(static fn (Crawler $template): string => (string) $template->attr('data-block-type')),
+        );
+        self::assertStringContainsString(
+            'name="PageTranslation[content][__contentname__][data][text]"',
+            $templates->filter('[data-block-type="quote"]')->html(),
+        );
+
+        $rules = json_decode((string) $crawler->filter('[data-page-block-editor-rules-value]')->attr('data-page-block-editor-rules-value'), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertSame(['html'], $rules['richtext']['transferTo']['highlight'] ?? null);
+        self::assertSame(['text'], $rules['quote']['content'] ?? null);
+    }
+
+    public function testTypeChangeKeepsTheRichTextBodyInOneSave(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createTranslation([
+            ['type' => 'richtext', 'enabled' => true, 'data' => ['html' => '<p>Body</p>']],
+        ]);
+
+        $crawler = $this->openEditor($client, $translation);
+        $form = $crawler->selectButton('Save changes')->form();
+        $form['PageTranslation[content][0][type]'] = 'highlight';
+        $client->submit($form);
+
+        self::assertResponseRedirects();
+        $block = $this->reloadTranslation($translation)->getContent()[0];
+        self::assertSame('highlight', $block['type']);
+        self::assertSame('<p>Body</p>', $block['data']['html'] ?? null);
+    }
+
+    public function testTypeChangeThatWouldDiscardContentIsRefusedAtTheBlock(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createTranslation([
+            ['type' => 'headline', 'enabled' => true, 'data' => ['text' => 'Intro', 'level' => 'h2']],
+            ['type' => 'richtext', 'enabled' => true, 'data' => ['html' => '<p>Body</p>']],
+        ]);
+
+        // Without the editor script the old fields are submitted together with the new type.
+        $crawler = $this->openEditor($client, $translation);
+        $form = $crawler->selectButton('Save changes')->form();
+        $form['PageTranslation[content][1][type]'] = 'quote';
+        $form['PageTranslation[content][1][data][html]'] = '<p>Changed body</p>';
+        $crawler = $client->submit($form);
+
+        self::assertResponseIsUnprocessable();
+        self::assertSame('richtext', $crawler->filter('[name="PageTranslation[content][1][type]"] option[selected]')->attr('value'));
+        self::assertSame('<p>Changed body</p>', $crawler->filter('[name="PageTranslation[content][1][data][html]"]')->text());
+
+        $invalidBlocks = $crawler->filter('[data-ea-collection-field] .field-collection-item.is-invalid');
+        self::assertCount(1, $invalidBlocks);
+        self::assertStringContainsString('The block type was not changed', $invalidBlocks->text());
+        self::assertSame('richtext', $this->reloadTranslation($translation)->getContent()[1]['type']);
+    }
+
     /**
      * @param list<array<string, mixed>> $content
      */

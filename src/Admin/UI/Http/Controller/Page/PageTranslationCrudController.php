@@ -202,9 +202,14 @@ final class PageTranslationCrudController extends AbstractCrudController
             ->setEntryIsComplex()
             ->setFormTypeOption('prototype_data', PageContentBlockType::newBlockData())
             ->setFormTypeOption('row_attr', [
-                'data-controller' => 'collection-reorder',
+                'data-controller' => 'collection-reorder page-block-editor',
                 'data-collection-reorder-move-up-label-value' => $this->translator->trans('label.move_block_up', [], 'messages'),
                 'data-collection-reorder-move-down-label-value' => $this->translator->trans('label.move_block_down', [], 'messages'),
+                'data-page-block-editor-rules-value' => json_encode($this->buildBlockTypeRules(), \JSON_THROW_ON_ERROR),
+                'data-page-block-editor-enabled-label-value' => $this->translator->trans('label.enabled', [], 'messages'),
+                'data-page-block-editor-disabled-label-value' => $this->translator->trans('label.disabled', [], 'messages'),
+                'data-page-block-editor-confirm-message-value' => $this->translator->trans('page.editor.type_change_confirm', ['type' => '{type}', 'fields' => '{fields}'], 'content'),
+                'data-page-block-editor-item-fallback-value' => $this->translator->trans('page.editor.accordion_item_fallback', ['number' => '{number}'], 'content'),
             ])
             ->setEntryToStringMethod(function (mixed $value): string {
                 if (!is_array($value)) {
@@ -370,6 +375,29 @@ final class PageTranslationCrudController extends AbstractCrudController
     private function shouldSynchronizePath(PageTranslation $translation): bool
     {
         return '' !== trim((string) $translation->getTitle());
+    }
+
+    /**
+     * Type change rules for the block editor: content fields per type and the fields carried over to each other type.
+     *
+     * @return array<string, array{content: list<string>, transferTo: array<string, list<string>>}>
+     */
+    private function buildBlockTypeRules(): array
+    {
+        $rules = [];
+        foreach (\App\Content\Domain\Enum\PageContentBlockType::cases() as $type) {
+            $transferTo = [];
+            foreach (\App\Content\Domain\Enum\PageContentBlockType::cases() as $target) {
+                $fields = $target === $type ? [] : $type->transferableFieldsTo($target);
+                if ([] !== $fields) {
+                    $transferTo[$target->value] = $fields;
+                }
+            }
+
+            $rules[$type->value] = ['content' => $type->contentFields(), 'transferTo' => $transferTo];
+        }
+
+        return $rules;
     }
 
     private function formatBlockTypeLabel(string $type): string
