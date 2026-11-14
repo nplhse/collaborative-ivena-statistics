@@ -56,7 +56,8 @@ content pages should not look like an admin tool.
   In the rail, labels and badges are hidden and section titles become separator lines; every entry keeps
   its icon and its title as a tooltip, and nested groups open as flyouts. The default fold mode is
   "unfold on hover" (`folded-hover`): the rail expands over the content while the pointer or keyboard
-  focus is in it, and the pin button brings the expanded sidebar back.
+  focus is in it, and the pin button keeps it open. The folded rail reserves only its own width, the content
+  moves over accordingly; the temporary expansion on hover overlays the content and does not move it.
 
 ### Tabler components
 
@@ -83,7 +84,9 @@ looks the same on pages with and without sidebar.
 
 The project does not load `tabler-theme.js`. The stored fold state is applied by a few lines in the
 existing colour-scheme include in `<head>`, before the page renders, so the layout does not jump on
-reload. The only other own CSS orders the bars on small screens (see below) and hides the area label in the rail.
+reload. The only other own CSS orders the bars on small screens (see below), hides the area label in the rail
+and keeps the pin button visible while the sidebar is expanded (Tabler shows it only while the pointer is
+over the sidebar, which makes the fold control hard to find).
 
 ### Information architecture for Statistics
 
