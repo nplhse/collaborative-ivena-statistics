@@ -675,7 +675,9 @@ Score bands come from `app.encounter.validation.score_bands` (lower bounds, defa
 0.99; the last band includes 1.0, labels like `0.90–0.99`). Within a cell the cases are ordered by
 `md5(seed, stratum, id)` and the first *n* are drawn, so the same seed on the same data draws the same
 sample. The sample stores period, *n*, seed, score bands, the current matcher version and the population
-of every cell; each item keeps the pair as sampled (status, score, band, points, pass, matcher version).
+of every cell; each item keeps the pair as sampled (status, score, band, points, pass, matcher version, and since
+#1156 the plausibility snapshot of its pass-2 bonus and whether the bonus was decisive; items drawn before have
+neither).
 Drawing changes no link: automatic links stay effective while they are validated, and their origin stays
 visible on the item. Tables `encounter_validation_sample` and `encounter_validation_item`; samples go with
 their hospital, items with their sample, allocation or visit (`ON DELETE CASCADE`).
@@ -722,6 +724,18 @@ links, a matter of the thresholds), unclear, and the observed share correct (pai
 weighted by the band populations, Σ N_b × share_b / Σ N_b, given only when every band with cases has a
 decisive verdict. The overview adds up the verdicts of all samples per matcher version, without population
 and weighting, because samples can overlap.
+
+**By plausibility snapshot** (#1156, `PlausibilityValidationReport`, pure; ADR 033): the overview also groups the
+verdicts on sampled pairs (automatic links, proposals) by the matcher version of the pair as sampled, its plausibility
+snapshot and whether the bonus was decisive. Groups: "no snapshot" (pass 1, versions before `1.2.0`, runs without an
+active snapshot), a snapshot whose bonus did not decide the pair, and a snapshot whose bonus decided it (highlighted).
+Each group shows sampled, open, correct, wrong (of which another visit fits), unclear and the share correct with its
+Wilson interval, without score bands, population or weighting (samples can overlap). A share correct of the
+bonus-decided pairs clearly below that of the other pairs of the same snapshot means the bonus causes wrong links;
+the drawn sample is stratified by score band, not by bonus, so with few decisive pairs the interval stays wide. The
+item page does not show the flag, so the verdict is not influenced by it. Example (tested in
+`PlausibilityValidationReportTest`): decisive automatic links with 1 correct, 1 wrong (another visit fits), 1 unclear
+and 1 open give 1 / 2 = 50 %; non-decisive ones of the same snapshot with 3 correct and 1 wrong 3 / 4 = 75 %.
 
 Example (tested in `ValidationReportTest`): automatic links with 100 cases in band 0.99–1.00 (3 correct,
 1 wrong: 0.75) and 20 in 0.90–0.99 (2 correct: 1.0) give (100 × 0.75 + 20 × 1.0) / 120 = 0.79.

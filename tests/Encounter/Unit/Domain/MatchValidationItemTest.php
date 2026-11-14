@@ -9,6 +9,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\MatchValidationItem;
 use App\Encounter\Domain\Entity\MatchValidationSample;
+use App\Encounter\Domain\Entity\PlausibilitySnapshot;
 use App\Encounter\Domain\Enum\MatchStatus;
 use App\Encounter\Domain\Enum\ValidationStratum;
 use App\Encounter\Domain\Enum\ValidationVerdict;
@@ -53,6 +54,15 @@ final class MatchValidationItemTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         new MatchValidationItem($this->sample(), 1, ValidationStratum::UnlinkedVisit, $this->createStub(Allocation::class), $this->createStub(Encounter::class));
+    }
+
+    public function testOnlyPairItemsRecordAPlausibilityBonus(): void
+    {
+        $pair = new MatchValidationItem($this->sample(), 1, ValidationStratum::Automatic, $this->createStub(Allocation::class), $this->createStub(Encounter::class), '0.90–0.99', MatchStatus::AutoAccepted, 0.9412, 8, 2, '1.2.0', $this->createStub(PlausibilitySnapshot::class), true);
+        self::assertTrue($pair->isPlausibilityDecisive());
+
+        $this->expectException(\InvalidArgumentException::class);
+        new MatchValidationItem($this->sample(), 1, ValidationStratum::UnlinkedAllocation, $this->createStub(Allocation::class), null, plausibilityDecisive: true);
     }
 
     private function sample(): MatchValidationSample

@@ -1973,6 +1973,42 @@
         <source>encounter.validation.combined_note</source>
         <target>Verdicts of every sample drawn with this matcher version, added up. Samples can overlap, so no population and no weighted estimate.</target>
       </trans-unit>
+      <trans-unit id="EncA176BDD2" resname="encounter.validation.plausibility.title">
+        <source>encounter.validation.plausibility.title</source>
+        <target>Pair verdicts by plausibility snapshot</target>
+      </trans-unit>
+      <trans-unit id="Enc8D817CE6" resname="encounter.validation.plausibility.note">
+        <source>encounter.validation.plausibility.note</source>
+        <target>Verdicts on automatic links and proposals of all samples, by the matcher version of the pair and the plausibility snapshot that scored it when it was sampled. Pairs the plausibility bonus decided are a group of their own: if their share correct is clearly below that of the other pairs of the same snapshot, the bonus causes wrong links. Pass-1 pairs, versions before 1.2.0 and runs without an active snapshot have no snapshot. Samples can overlap, so no population and no weighted estimate.</target>
+      </trans-unit>
+      <trans-unit id="EncDBD8FF05" resname="encounter.validation.plausibility.version">
+        <source>encounter.validation.plausibility.version</source>
+        <target>Matcher</target>
+      </trans-unit>
+      <trans-unit id="Enc38A9ECC9" resname="encounter.validation.plausibility.snapshot">
+        <source>encounter.validation.plausibility.snapshot</source>
+        <target>Snapshot</target>
+      </trans-unit>
+      <trans-unit id="EncEFF9A1FF" resname="encounter.validation.plausibility.snapshot_id">
+        <source>encounter.validation.plausibility.snapshot_id</source>
+        <target>#{id}</target>
+      </trans-unit>
+      <trans-unit id="Enc5753563F" resname="encounter.validation.plausibility.group">
+        <source>encounter.validation.plausibility.group</source>
+        <target>Bonus</target>
+      </trans-unit>
+      <trans-unit id="EncC0601AD1" resname="encounter.validation.plausibility.group_none">
+        <source>encounter.validation.plausibility.group_none</source>
+        <target>no snapshot</target>
+      </trans-unit>
+      <trans-unit id="Enc41D2190E" resname="encounter.validation.plausibility.group_bonus">
+        <source>encounter.validation.plausibility.group_bonus</source>
+        <target>not decisive</target>
+      </trans-unit>
+      <trans-unit id="Enc848D82DD" resname="encounter.validation.plausibility.group_decisive">
+        <source>encounter.validation.plausibility.group_decisive</source>
+        <target>decided by the bonus</target>
+      </trans-unit>
       <trans-unit id="Enc192EE431" resname="encounter.validation.sample_title">
         <source>encounter.validation.sample_title</source>
         <target>Sample {period}</target>

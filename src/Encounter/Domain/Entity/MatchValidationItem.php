@@ -17,7 +17,8 @@ use Doctrine\ORM\Mapping as ORM;
  * One drawn case of a match validation sample (#1057) and the reviewer's verdict.
  *
  * A pair item (automatic link, proposal) keeps the pair as sampled: status, score, points, pass and
- * matcher version, and the score band it was drawn from. An unlinked allocation has only the allocation,
+ * matcher version, the plausibility snapshot that scored it and whether the bonus was decisive (matcher 1.2.0,
+ * #1156), and the score band it was drawn from. An unlinked allocation has only the allocation,
  * an unlinked visit only the visit. The verdict is recorded with `decided_by`/`decided_at` and audited.
  *
  * A pair judged "wrong" because another visit is the allocation's partner keeps that visit as
@@ -79,6 +80,18 @@ class MatchValidationItem
     #[ORM\Column(type: Types::STRING, length: 16, nullable: true)]
     private ?string $matcherVersion;
 
+    /**
+     * Plausibility snapshot of the pair's pass-2 bonus when sampled (matcher 1.2.0); null otherwise. Like the pair
+     * rows, the reference keeps the snapshot from being deleted (ADR 033).
+     */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?PlausibilitySnapshot $plausibilitySnapshot;
+
+    /** The plausibility bonus decided the pair's status when sampled (ADR 030 amendment, #1156). */
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $plausibilityDecisive;
+
     #[ORM\Column(type: Types::STRING, length: 16, nullable: true, enumType: ValidationVerdict::class)]
     private ?ValidationVerdict $verdict = null;
 
@@ -106,6 +119,8 @@ class MatchValidationItem
         ?int $points = null,
         ?int $pass = null,
         ?string $matcherVersion = null,
+        ?PlausibilitySnapshot $plausibilitySnapshot = null,
+        bool $plausibilityDecisive = false,
     ) {
         $expected = match ($stratum) {
             ValidationStratum::Automatic, ValidationStratum::Proposal => !in_array(null, [$allocation, $encounter, $sampledStatus, $band], true),
@@ -114,6 +129,9 @@ class MatchValidationItem
         };
         if (!$expected) {
             throw new \InvalidArgumentException(sprintf('Item of stratum "%s" has the wrong sides.', $stratum->value));
+        }
+        if (!$stratum->isPair() && ($plausibilitySnapshot instanceof PlausibilitySnapshot || $plausibilityDecisive)) {
+            throw new \InvalidArgumentException('Only pair items record a plausibility bonus.');
         }
 
         $this->sample = $sample;
@@ -127,6 +145,8 @@ class MatchValidationItem
         $this->points = $points;
         $this->pass = $pass;
         $this->matcherVersion = $matcherVersion;
+        $this->plausibilitySnapshot = $plausibilitySnapshot;
+        $this->plausibilityDecisive = $plausibilityDecisive;
     }
 
     /**
@@ -205,6 +225,16 @@ class MatchValidationItem
     public function getMatcherVersion(): ?string
     {
         return $this->matcherVersion;
+    }
+
+    public function getPlausibilitySnapshot(): ?PlausibilitySnapshot
+    {
+        return $this->plausibilitySnapshot;
+    }
+
+    public function isPlausibilityDecisive(): bool
+    {
+        return $this->plausibilityDecisive;
     }
 
     public function getVerdict(): ?ValidationVerdict

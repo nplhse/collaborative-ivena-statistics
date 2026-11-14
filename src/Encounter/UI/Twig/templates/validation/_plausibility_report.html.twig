@@ -1,0 +1,47 @@
+{# Pair verdicts by matcher version, plausibility snapshot and decisive bonus (#1156). Expects `report` (PlausibilityValidationReport). #}
+<div class="table-responsive">
+    <table class="table card-table table-vcenter" data-test="encounter-validation-plausibility-report">
+        <thead>
+            <tr>
+                <th>{{ 'encounter.validation.plausibility.version'|trans({}, 'encounter') }}</th>
+                <th>{{ 'encounter.validation.plausibility.snapshot'|trans({}, 'encounter') }}</th>
+                <th>{{ 'encounter.validation.plausibility.group'|trans({}, 'encounter') }}</th>
+                <th>{{ 'encounter.validation.report.stratum'|trans({}, 'encounter') }}</th>
+                <th class="text-end">{{ 'encounter.validation.report.sampled'|trans({}, 'encounter') }}</th>
+                <th class="text-end">{{ 'encounter.validation.report.open'|trans({}, 'encounter') }}</th>
+                <th class="text-end">{{ 'encounter.validation.report.positive'|trans({}, 'encounter') }}</th>
+                <th class="text-end">{{ 'encounter.validation.report.negative'|trans({}, 'encounter') }}</th>
+                <th class="text-end">{{ 'encounter.validation.report.negative_other'|trans({}, 'encounter') }}</th>
+                <th class="text-end">{{ 'encounter.validation.report.unclear'|trans({}, 'encounter') }}</th>
+                <th class="text-end">{{ 'encounter.validation.report.share'|trans({}, 'encounter') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for group in report.groups %}
+                {% set group_key = group.snapshotId is null ? 'none' : (group.decisive ? 'decisive' : 'bonus') %}
+                {% for row in group.rows %}
+                    <tr data-test="plausibility-{{ group.matcherVersion }}-{{ group.snapshotId ?? 'none' }}-{{ group_key }}-{{ row.stratum.value }}"{% if group.decisive %} class="table-warning"{% endif %}>
+                        <td class="text-nowrap">{{ group.matcherVersion }}</td>
+                        <td class="text-nowrap">{{ group.snapshotId is null ? '–' : 'encounter.validation.plausibility.snapshot_id'|trans({id: group.snapshotId}, 'encounter') }}</td>
+                        <td class="text-nowrap">{{ ('encounter.validation.plausibility.group_' ~ group_key)|trans({}, 'encounter') }}</td>
+                        <td>{{ ('encounter.validation.stratum.' ~ row.stratum.value)|trans({}, 'encounter') }}</td>
+                        <td class="text-end">{{ row.sampled|format_number }}</td>
+                        <td class="text-end text-secondary">{{ row.open|format_number }}</td>
+                        <td class="text-end">{{ row.positive|format_number }}</td>
+                        <td class="text-end">{{ row.negative|format_number }}</td>
+                        <td class="text-end text-secondary">{{ row.negativeOther|format_number }}</td>
+                        <td class="text-end text-secondary">{{ row.unclear|format_number }}</td>
+                        <td class="text-end text-nowrap" data-test="report-share">
+                            {% if row.share %}
+                                <span class="fw-medium">{{ row.share.share|format_percent_number({fraction_digit: 0}) }}</span>
+                                <span class="text-secondary small">({{ row.share.lower|format_percent_number({fraction_digit: 0}) }}–{{ row.share.upper|format_percent_number({fraction_digit: 0}) }})</span>
+                            {% else %}
+                                <span class="text-secondary">–</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
