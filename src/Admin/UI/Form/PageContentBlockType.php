@@ -58,6 +58,12 @@ final class PageContentBlockType extends AbstractType
                 'mapped' => false,
                 'required' => false,
             ])
+            // Visible order of the block; set by the editor, read by PageContentBlockOrder before mapping.
+            ->add(PageContentBlockOrder::POSITION_FIELD, HiddenType::class, [
+                'mapped' => false,
+                'required' => false,
+                'attr' => ['data-page-block-position' => ''],
+            ])
         ;
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {

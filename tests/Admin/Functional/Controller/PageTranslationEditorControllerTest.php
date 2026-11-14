@@ -198,6 +198,86 @@ final class PageTranslationEditorControllerTest extends WebTestCase
         self::assertSame('richtext', $this->reloadTranslation($translation)->getContent()[1]['type']);
     }
 
+    public function testBlocksAreStoredInTheOrderOfTheirPositions(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createTranslation([
+            ['type' => 'headline', 'enabled' => true, 'data' => ['text' => 'First', 'level' => 'h2']],
+            ['type' => 'quote', 'enabled' => true, 'data' => ['text' => 'Second']],
+            ['type' => 'quote', 'enabled' => true, 'data' => ['text' => 'Third']],
+        ]);
+
+        $crawler = $this->openEditor($client, $translation);
+        $form = $crawler->selectButton('Save changes')->form();
+        $form['PageTranslation[content][0][position]'] = '2';
+        $form['PageTranslation[content][1][position]'] = '0';
+        $form['PageTranslation[content][2][position]'] = '1';
+        $client->submit($form);
+
+        self::assertResponseRedirects();
+        self::assertSame(
+            ['Second', 'Third', 'First'],
+            array_map(static fn (array $block): mixed => $block['data']['text'] ?? null, $this->reloadTranslation($translation)->getContent()),
+        );
+    }
+
+    /**
+     * Reproduced failure (#967, H5): an accordion moved to the top got new items under the index of another block.
+     * With stable keys the editor keeps the accordion's key and sends the order as positions.
+     */
+    public function testMovedAccordionKeepsItemsAddedAfterTheMove(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createTranslation([
+            ['type' => 'headline', 'enabled' => true, 'data' => ['text' => 'Intro', 'level' => 'h2']],
+            ['type' => 'richtext', 'enabled' => true, 'data' => ['html' => '<p>Body</p>']],
+            ['type' => 'accordion', 'enabled' => true, 'data' => ['items' => [
+                ['title' => 'Question A', 'html' => '<p>Answer A</p>', 'openByDefault' => false],
+            ]]],
+        ]);
+
+        $crawler = $this->openEditor($client, $translation);
+        $form = $crawler->selectButton('Save changes')->form();
+        $values = $form->getPhpValues();
+        $values['PageTranslation']['content'][2]['position'] = '0';
+        $values['PageTranslation']['content'][0]['position'] = '1';
+        $values['PageTranslation']['content'][1]['position'] = '2';
+        $values['PageTranslation']['content'][2]['data']['items'][1] = ['title' => 'Question B', 'html' => '<p>Answer B</p>'];
+        $client->request($form->getMethod(), $form->getUri(), $values);
+
+        self::assertResponseRedirects();
+        $content = $this->reloadTranslation($translation)->getContent();
+        self::assertSame(['accordion', 'headline', 'richtext'], array_column($content, 'type'));
+        self::assertSame(
+            ['Question A', 'Question B'],
+            array_column($content[0]['data']['items'] ?? [], 'title'),
+        );
+        self::assertSame('Intro', $content[1]['data']['text'] ?? null);
+        self::assertSame('<p>Body</p>', $content[2]['data']['html'] ?? null);
+    }
+
+    public function testValidationMessagesFollowTheVisibleOrder(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createTranslation([
+            ['type' => 'quote', 'enabled' => true, 'data' => ['text' => 'Valid']],
+            ['type' => 'quote', 'enabled' => true, 'data' => ['text' => 'Will be emptied']],
+        ]);
+
+        $crawler = $this->openEditor($client, $translation);
+        $form = $crawler->selectButton('Save changes')->form();
+        $form['PageTranslation[content][0][position]'] = '1';
+        $form['PageTranslation[content][1][position]'] = '0';
+        $form['PageTranslation[content][1][data][text]'] = '';
+        $crawler = $client->submit($form);
+
+        self::assertResponseIsUnprocessable();
+        $invalidBlocks = $crawler->filter('[data-ea-collection-field] .field-collection-item.is-invalid');
+        self::assertCount(1, $invalidBlocks);
+        self::assertStringContainsString('Block 1:', $invalidBlocks->text());
+        self::assertSame('0', $crawler->filter('[name="PageTranslation[content][1][position]"]')->attr('value'));
+    }
+
     /**
      * @param list<array<string, mixed>> $content
      */

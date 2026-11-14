@@ -1189,6 +1189,10 @@
         <source>page.editor.accordion_item_fallback</source>
         <target>Eintrag {number}</target>
       </trans-unit>
+      <trans-unit id="pgOrder01De" resname="page.editor.block_moved">
+        <source>page.editor.block_moved</source>
+        <target>Block an Position {position} von {count} verschoben.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

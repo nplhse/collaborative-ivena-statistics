@@ -38,6 +38,12 @@ Content blocks are edited in the translation form (`PageContentBlockType`, Stimu
   arrive together with a new type (for example without JavaScript), the type change is refused and reported at
   the block, and the content stays.
 - Invalid blocks are reported at the block; the input is kept.
+- Moving a block (arrow buttons, `collection-reorder` controller) only moves it on the page and updates its hidden
+  `position` field. Field names keep the key the block had when the page was loaded, so nested accordion items and
+  rich-text editors stay with their block. The server stores the blocks in position order
+  (`PageContentBlockOrder`), numbers validation messages by that order, and after a failed save the editor
+  restores the order from the submitted positions. Keyboard focus stays on the moved block and a screen reader
+  announcement reports the new position.
 
 ## Frontend language switch
 

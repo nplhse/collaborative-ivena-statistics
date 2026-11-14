@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Page;
 
+use App\Admin\UI\Form\PageContentBlockOrder;
 use App\Admin\UI\Form\PageContentBlockType;
 use App\Content\Application\Contract\MediaLibraryAdminUrlProviderInterface;
 use App\Content\Application\Page\PageContentBlockDataNormalizer;
@@ -38,6 +39,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
@@ -205,6 +207,7 @@ final class PageTranslationCrudController extends AbstractCrudController
                 'data-controller' => 'collection-reorder page-block-editor',
                 'data-collection-reorder-move-up-label-value' => $this->translator->trans('label.move_block_up', [], 'messages'),
                 'data-collection-reorder-move-down-label-value' => $this->translator->trans('label.move_block_down', [], 'messages'),
+                'data-collection-reorder-moved-label-value' => $this->translator->trans('page.editor.block_moved', ['position' => '{position}', 'count' => '{count}'], 'content'),
                 'data-page-block-editor-rules-value' => json_encode($this->buildBlockTypeRules(), \JSON_THROW_ON_ERROR),
                 'data-page-block-editor-enabled-label-value' => $this->translator->trans('label.enabled', [], 'messages'),
                 'data-page-block-editor-disabled-label-value' => $this->translator->trans('label.disabled', [], 'messages'),
@@ -252,6 +255,7 @@ final class PageTranslationCrudController extends AbstractCrudController
         /** @psalm-suppress ArgumentTypeCoercion */
         $builder = parent::createNewFormBuilder($entityDto, $formOptions, $context);
         $this->addPathSynchronizationListener($builder);
+        $this->addBlockOrderListener($builder);
         $this->addContentValidationListener($builder);
 
         return $builder;
@@ -266,6 +270,7 @@ final class PageTranslationCrudController extends AbstractCrudController
         /** @psalm-suppress ArgumentTypeCoercion */
         $builder = parent::createEditFormBuilder($entityDto, $formOptions, $context);
         $this->addPathSynchronizationListener($builder);
+        $this->addBlockOrderListener($builder);
         $this->addContentValidationListener($builder);
 
         return $builder;
@@ -329,6 +334,44 @@ final class PageTranslationCrudController extends AbstractCrudController
     }
 
     /**
+     * Stores the blocks in the order the editor shows (the `position` of each block), not in the order of their keys.
+     *
+     * @param FormBuilderInterface<PageTranslation> $builder
+     */
+    private function addBlockOrderListener(FormBuilderInterface $builder): void
+    {
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
+            $translation = $event->getData();
+            $form = $event->getForm();
+            if (!$translation instanceof PageTranslation || !$form->has('content')) {
+                return;
+            }
+
+            $translation->setContent(PageContentBlockOrder::sortBlocks(
+                $translation->getContent(),
+                $this->submittedBlockPositions($form->get('content')),
+            ));
+        });
+    }
+
+    /**
+     * @param FormInterface<mixed> $contentForm
+     *
+     * @return array<array-key, mixed>
+     */
+    private function submittedBlockPositions(FormInterface $contentForm): array
+    {
+        $positions = [];
+        foreach ($contentForm as $key => $blockForm) {
+            $positions[$key] = $blockForm->has(PageContentBlockOrder::POSITION_FIELD)
+                ? $blockForm->get(PageContentBlockOrder::POSITION_FIELD)->getData()
+                : null;
+        }
+
+        return $positions;
+    }
+
+    /**
      * Validates every block inside the form, so errors show at the affected block and the editor keeps the input.
      *
      * @param FormBuilderInterface<PageTranslation> $builder
@@ -341,8 +384,10 @@ final class PageTranslationCrudController extends AbstractCrudController
                 return;
             }
 
+            $contentForm = $form->get('content');
             $position = 1;
-            foreach ($form->get('content') as $blockForm) {
+            foreach (PageContentBlockOrder::sortKeys($this->submittedBlockPositions($contentForm)) as $key) {
+                $blockForm = $contentForm->get((string) $key);
                 foreach ($this->validateBlock($position, $blockForm->getData()) as $message) {
                     $blockForm->addError(new FormError($message));
                 }
