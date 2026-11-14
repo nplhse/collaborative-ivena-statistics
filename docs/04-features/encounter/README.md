@@ -790,11 +790,12 @@ from them, and their numbers do not change with #1156. The overview's IVENA link
 the bonus decided ("of which decided by the plausibility bonus"), so the size of the affected group is visible.
 
 **Rule for any analysis that compares PZC, indication or urgency with the MTS diagram, indicator or category on
-linked data** (the indicator and category follow from the diagram, so the selection reaches them too):
+linked data** (the indicator and category follow from the diagram, so the selection reaches them too; decided in
+the review of #1156, 2026-11-14):
 
 | Aspect | Rule |
 |---|---|
-| Population | Effective links (`auto_accepted`, `confirmed`) of the hospital and period. **Default:** automatic links with `plausibility_decisive` are excluded. Confirmed links stay in, whatever their flag: a person decided them (ADR 033, "manual decisions are unaffected"). |
+| Population | Effective links (`auto_accepted`, `confirmed`) of the hospital and period. Automatic links with `plausibility_decisive` are excluded. Confirmed links stay in, whatever their flag: a person decided them (ADR 033, "manual decisions are unaffected"). |
 | Separate view | Instead of leaving them out, the excluded links may be shown as a group of their own beside the rest, never added to it. |
 | Count | The figure states how many links it excluded (or shows in the separate group) and their share of the effective links, with the small-count rule of the page (1–4 shown as `< 5`). |
 | Numerator and denominator | Both come from the remaining links; agreement shares never use the excluded links as denominator. |
