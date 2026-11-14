@@ -34,6 +34,8 @@ final class AuditEntryTest extends TestCase
         yield 'empty intent is no intent' => ['update', ['intent' => ''], null, null];
         yield 'non-string intent is ignored' => ['update', ['intent' => ['x']], null, null];
         yield 'failed import run' => ['update', ['intent' => 'import.run.failed', 'intent_metadata' => ['reason' => 'x']], 'import.run.failed', 'failed'];
+        yield 'failed reminder delivery' => ['update', ['intent' => 'hospital.reminder_failed', 'intent_metadata' => ['reason' => 'transport_failed']], 'hospital.reminder_failed', 'failed'];
+        yield 'sent reminder states no outcome' => ['update', ['intent' => 'hospital.reminder_sent'], 'hospital.reminder_sent', null];
         yield 'finished import run states no outcome' => ['update', ['intent' => 'import.run.finished'], 'import.run.finished', null];
         yield 'successful export' => ['export', ['blocked' => false, 'success' => true], null, 'success'];
         yield 'failed export' => ['export', ['blocked' => false, 'success' => false], null, 'failed'];

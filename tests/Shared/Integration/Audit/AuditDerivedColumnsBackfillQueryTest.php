@@ -42,6 +42,7 @@ final class AuditDerivedColumnsBackfillQueryTest extends KernelTestCase
             'array intent' => ['update', ['intent' => ['x']]],
             'failed import run' => ['update', ['intent' => 'import.run.failed', 'intent_metadata' => ['reason' => 'boom']]],
             'finished import run' => ['update', ['intent' => 'import.run.finished']],
+            'failed reminder delivery' => ['update', ['intent' => 'hospital.reminder_failed', 'intent_metadata' => ['reason' => 'transport_failed']]],
             'export ok' => ['export', ['blocked' => false, 'success' => true]],
             'export failed' => ['export', ['blocked' => false, 'success' => false]],
             'export blocked' => ['export', ['blocked' => true, 'success' => false]],
@@ -57,13 +58,14 @@ final class AuditDerivedColumnsBackfillQueryTest extends KernelTestCase
             $this->insertLegacyRow($label, $action, $metadata);
         }
 
-        // intent: user.admin.updated, import.run.failed, import.run.finished, import.source_file.downloaded
-        self::assertSame(4, $this->query->countMissingIntent());
-        // outcome: failed import run, export ok, export failed, export blocked
-        self::assertSame(4, $this->query->countMissingOutcome());
+        // intent: user.admin.updated, import.run.failed, import.run.finished, hospital.reminder_failed,
+        // import.source_file.downloaded
+        self::assertSame(5, $this->query->countMissingIntent());
+        // outcome: failed import run, failed reminder delivery, export ok, export failed, export blocked
+        self::assertSame(5, $this->query->countMissingOutcome());
 
-        self::assertSame(4, $this->query->fillIntent());
-        self::assertSame(4, $this->query->fillOutcome());
+        self::assertSame(5, $this->query->fillIntent());
+        self::assertSame(5, $this->query->fillOutcome());
 
         foreach ($this->legacyRows() as $label => [$action, $metadata]) {
             $row = $this->connection->fetchAssociative(

@@ -15,6 +15,7 @@ use App\Notification\Infrastructure\Delivery\DeliveryOutcomeReconciler;
 use App\Notification\Infrastructure\Delivery\NotificationDeliveryStatusSubscriber;
 use App\Notification\Infrastructure\Delivery\NotificationEmailFactory;
 use App\Notification\Infrastructure\Factory\NotificationFactory;
+use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
@@ -132,6 +133,42 @@ final class MonthlyReminderDeliveryStatusSubscriberTest extends DatabaseKernelTe
         self::assertSame([MonthlyReminderDispatchStatus::Failed, 'notification_delivery:recipient_unavailable'], $this->dispatchState($dispatch));
     }
 
+    /**
+     * The failure is recorded in the audit log (#1173) with the dispatch, its hospital, the reporting month (the
+     * month before the dispatch's upload month 2026-09) and the reason code; the hourly reconciliation announces
+     * the same failure again and writes nothing more.
+     */
+    public function testAFailedDeliveryIsRecordedOnceInTheAuditLog(): void
+    {
+        [$owner, $hospital] = $this->ownerWithHospital();
+        $dispatch = $this->dispatch($hospital);
+        $deliveryId = $this->reminderDelivery($owner, $hospital, $dispatch);
+        $owner->setIsEnabled(false);
+        $this->entityManager()->flush();
+
+        self::getContainer()->get(MessageBusInterface::class)->dispatch(new DeliverNotificationMessage($deliveryId));
+
+        $entries = $this->failureEntries($dispatch);
+        self::assertCount(1, $entries);
+        self::assertSame([
+            'action' => 'update',
+            'entity_class' => MonthlyReminderDispatch::class,
+            'outcome' => 'failed',
+            'changes' => [
+                'status' => ['old' => 'queued', 'new' => 'failed'],
+                'failureReason' => ['old' => null, 'new' => 'notification_delivery:recipient_unavailable'],
+            ],
+            'intent_metadata' => [
+                'hospital_id' => $hospital->getId(),
+                'reporting_period' => '2026-08',
+                'reason' => 'recipient_unavailable',
+            ],
+        ], $entries[0]);
+
+        self::assertSame(1, $this->reconciler()->reconcile(new \DateTimeImmutable('-1 hour'), new \DateTimeImmutable('+1 hour')));
+        self::assertCount(1, $this->failureEntries($dispatch), 'a repeated announcement changes nothing and writes nothing');
+    }
+
     public function testDeliveryJobOutOfRetriesFailsTheDispatchButARetryDoesNot(): void
     {
         [$owner, $hospital] = $this->ownerWithHospital();
@@ -144,9 +181,11 @@ final class MonthlyReminderDeliveryStatusSubscriberTest extends DatabaseKernelTe
         $subscriber->onMessageFailed($retry);
         self::assertSame([MonthlyReminderDispatchStatus::Queued, null], $this->dispatchState($dispatch), 'a retry follows: not failed yet');
         self::assertSame('pending', $this->deliveryStatus($deliveryId));
+        self::assertSame([], $this->failureEntries($dispatch), 'a retry follows: nothing to record yet');
 
         $subscriber->onMessageFailed(new WorkerMessageFailedEvent(new Envelope(new DeliverNotificationMessage($deliveryId)), 'async_priority_low', new \RuntimeException('still broken')));
         self::assertSame([MonthlyReminderDispatchStatus::Failed, 'notification_delivery:delivery_job_failed'], $this->dispatchState($dispatch));
+        self::assertSame(['delivery_job_failed'], array_map(static fn (array $entry): mixed => $entry['intent_metadata']['reason'] ?? null, $this->failureEntries($dispatch)));
     }
 
     public function testOnlyTheMatchingQueuedDispatchIsTouched(): void
@@ -165,6 +204,8 @@ final class MonthlyReminderDeliveryStatusSubscriberTest extends DatabaseKernelTe
 
         self::assertSame([MonthlyReminderDispatchStatus::Queued, null], $this->dispatchState($dispatch), 'another hospital in the notification: not this dispatch');
         self::assertSame(MonthlyReminderDispatchStatus::Sent, $this->dispatchState($sentDispatch)[0], 'a completed dispatch stays as it is');
+        self::assertSame([], $this->failureEntries($dispatch), 'no dispatch changed: no audit entry');
+        self::assertSame([], $this->failureEntries($sentDispatch));
     }
 
     /**
@@ -188,12 +229,14 @@ final class MonthlyReminderDeliveryStatusSubscriberTest extends DatabaseKernelTe
 
         self::assertSame('pending', $this->deliveryStatus($deliveryId), 'rolled back: the job can run again');
         self::assertSame([MonthlyReminderDispatchStatus::Queued, null], $this->dispatchState($dispatch));
+        self::assertSame([], $this->failureEntries($dispatch), 'the audit entry rolls back with the failure');
 
         self::getContainer()->get(MessageBusInterface::class)->dispatch(new DeliverNotificationMessage($deliveryId));
 
         self::assertEmailCount(0);
         self::assertSame('failed', $this->deliveryStatus($deliveryId));
         self::assertSame([MonthlyReminderDispatchStatus::Failed, 'notification_delivery:recipient_unavailable'], $this->dispatchState($dispatch));
+        self::assertCount(1, $this->failureEntries($dispatch));
     }
 
     /**
@@ -219,6 +262,7 @@ final class MonthlyReminderDeliveryStatusSubscriberTest extends DatabaseKernelTe
         self::assertSame(1, $reconciler->reconcile(new \DateTimeImmutable('-1 hour'), new \DateTimeImmutable('+1 hour')));
 
         self::assertSame([MonthlyReminderDispatchStatus::Failed, 'notification_delivery:delivery_job_failed'], $this->dispatchState($dispatch));
+        self::assertCount(1, $this->failureEntries($dispatch), 'recorded when the reconciliation records the failure');
         self::assertEmailCount(0);
         self::assertSame('failed', $this->deliveryStatus($deliveryId), 'nothing is sent again');
     }
@@ -237,6 +281,7 @@ final class MonthlyReminderDeliveryStatusSubscriberTest extends DatabaseKernelTe
         );
 
         self::assertSame([MonthlyReminderDispatchStatus::Queued, null], $this->dispatchState($dispatch), 'attempt B is still running');
+        self::assertSame([], $this->failureEntries($dispatch));
     }
 
     /**
@@ -259,6 +304,7 @@ final class MonthlyReminderDeliveryStatusSubscriberTest extends DatabaseKernelTe
 
         self::assertSame('failed', $this->deliveryStatus($deliveryOfA), 'attempt A failed for good');
         self::assertSame([MonthlyReminderDispatchStatus::Queued, null], $this->dispatchState($dispatch), 'attempt B is still running');
+        self::assertSame([], $this->failureEntries($dispatch), 'attempt B did not fail');
     }
 
     /**
@@ -349,6 +395,34 @@ final class MonthlyReminderDeliveryStatusSubscriberTest extends DatabaseKernelTe
         $this->entityManager()->refresh($dispatch);
 
         return [$dispatch->getStatus(), $dispatch->getFailureReason()];
+    }
+
+    /**
+     * Audit entries of failed deliveries of the dispatch, oldest first.
+     *
+     * @return list<array{action: string, entity_class: string, outcome: string|null, changes: array<string, mixed>, intent_metadata: array<string, mixed>}>
+     */
+    private function failureEntries(MonthlyReminderDispatch $dispatch): array
+    {
+        $rows = $this->connection()->fetchAllAssociative(
+            'SELECT action, entity_class, outcome, changes, metadata FROM audit_log WHERE intent = ? AND entity_id = ? ORDER BY id',
+            [AuditEntry::INTENT_HOSPITAL_REMINDER_FAILED, (string) $dispatch->getId()],
+        );
+
+        return array_map(static function (array $row): array {
+            /** @var array<string, mixed> $changes */
+            $changes = json_decode((string) $row['changes'], true, flags: \JSON_THROW_ON_ERROR);
+            /** @var array{intent_metadata?: array<string, mixed>} $metadata */
+            $metadata = json_decode((string) $row['metadata'], true, flags: \JSON_THROW_ON_ERROR);
+
+            return [
+                'action' => (string) $row['action'],
+                'entity_class' => (string) $row['entity_class'],
+                'outcome' => null === $row['outcome'] ? null : (string) $row['outcome'],
+                'changes' => $changes,
+                'intent_metadata' => $metadata['intent_metadata'] ?? [],
+            ];
+        }, $rows);
     }
 
     private function entityManager(): EntityManagerInterface
