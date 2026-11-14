@@ -18,6 +18,12 @@ enum Menu: string
     case Explore = 'explore';
 
     /**
+     * Id of the one untitled group of the primary menu, defined by Shared; contexts attach their area
+     * entries to it.
+     */
+    public const string PRIMARY_GROUP = 'primary';
+
+    /**
      * Id of the primary entry this menu belongs to, or null for the primary and footer menus.
      */
     public function primaryEntryId(): ?string

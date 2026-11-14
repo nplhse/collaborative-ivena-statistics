@@ -9,12 +9,14 @@ use Symfony\Contracts\Translation\TranslatableInterface;
 /**
  * One entry of a menu (ADR 035).
  *
- * An item with a route is a link. An item without route groups the items whose `parentId` names it and is
- * shown only while one of them is visible. `parentId` names a {@see NavGroup} for a top-level entry or
- * another item for a nested one.
+ * An item with a route (or a ready `url`, for example a CMS page) is a link. An item without both groups
+ * the items whose `parentId` names it and is shown only while one of them is visible. `parentId` names a
+ * {@see NavGroup} for a top-level entry or another item for a nested one.
  *
- * The item is active when the current route name equals `route` or one of `detailRoutes`; there is no
- * matching by route prefix. Lower `weight` comes first; equal weights sort by the translated label.
+ * The item is active when the current route name equals `route` or one of `detailRoutes`; an item with only
+ * a `url` never becomes active. There is no matching by route prefix, with one exception for the areas of
+ * the top navbar: a primary entry may name an `areaRoutePrefix` that marks it while no entry matches
+ * exactly. Lower `weight` comes first; equal weights sort by the translated label.
  *
  * @psalm-suppress PossiblyUnusedProperty Read by the navigation components.
  */
@@ -35,7 +37,14 @@ final readonly class NavItem
         public ?string $grantedAttribute = null,
         public array $detailRoutes = [],
         public int $weight = 0,
+        public ?string $url = null,
+        public ?string $areaRoutePrefix = null,
     ) {
+    }
+
+    public function isLink(): bool
+    {
+        return null !== $this->route || null !== $this->url;
     }
 
     /**

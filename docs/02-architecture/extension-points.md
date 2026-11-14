@@ -217,7 +217,7 @@ are source profiles of the data preparation tool. See
 **Interface:** `ToolProviderInterface` (`src/Shared/Application/Navigation/Tool/`)
 
 **Registry:** `ToolRegistry`; consumers the Tools landing page `GET /tools` (`@Shared/tools/index.html.twig`),
-the main navigation entry (Twig function `has_tools()`) and the Tools section of the sitemap
+the main navigation entry (`SharedNavigationProvider`) and the Tools section of the sitemap
 
 **Implementations:** `IndicationReviewToolProvider` (Allocation, indication matching review),
 `EncounterToolProvider` (Encounter: match review, match validation, data preparation tool; beta)
@@ -228,9 +228,10 @@ A `Tool` names its title and description keys with their translation domain, the
 a `ToolCategory` and an optional beta flag. Tool keys are unique. The landing page lists the categories
 in the order of `ToolCategory` and the tools inside a category alphabetically by their translated title in
 the current locale (`\Collator`). Providers check access themselves and return no tool for users who may
-not open it; `has_tools()` asks the providers on every page with the main navigation, so decide from roles
-and voters without database queries.
-Routes of a tool are named `app_tools_*` and live under `/tools/…`, so the navigation marks Tools as active.
+not open it; the main navigation asks the providers (`ToolRegistry::hasTools()`) on every page, so decide
+from roles and voters without database queries.
+Routes of a tool are named `app_tools_*` and live under `/tools/…`, so the area prefix `app_tools` of the
+Tools entry marks it as active.
 Path `access_control` on `/tools` only requires `ROLE_USER`; every tool route needs its own guard
 (`#[IsGranted]` or a voter) for anything stricter.
 
@@ -240,11 +241,13 @@ Path `access_control` on `/tools` only requires `ROLE_USER`; every tool route ne
 
 **Interface:** `NavigationProviderInterface` (`src/Shared/Application/Navigation/Menu/`)
 
-**Builder:** `NavigationBuilder`; consumers follow with the next steps of
-[ADR 035](decisions/035-navigation-tree-and-contextual-sidebar.md) (top navbar, footer, Statistics and
-Explore sidebars)
+**Builder:** `NavigationBuilder`; consumers: the top navbar (`<twig:Navigation:Primary />` in
+`@Shared/_embeds/header.html.twig`); footer and the Statistics and Explore sidebars follow with the next
+steps of [ADR 035](decisions/035-navigation-tree-and-contextual-sidebar.md)
 
-**Implementations:** none yet
+**Implementations:** `SharedNavigationProvider` (Shared: primary group, Tools), `AllocationNavigationProvider`
+(Explore, Export), `StatisticsNavigationProvider` (Statistics), `ImportNavigationProvider` (Import),
+`ContentNavigationProvider` (Blog, CMS header pages)
 
 Lets a context add groups and entries to the named menus of `Menu` (`primary`, `footer`, `statistics`,
 `explore`) without a dependency from `Shared` on it. A provider returns `NavGroup`s and `NavItem`s per menu:
@@ -252,17 +255,21 @@ Lets a context add groups and entries to the named menus of `Menu` (`primary`, `
 - The context that owns a menu defines its groups (`NavGroup`: id, optional label, weight, optional icon);
   other contexts attach items to a group by its id. Top-level items name a group as `parentId`, nested
   items name another item; an unknown parent, a parent cycle or a duplicate id makes the builder throw.
-- A `NavItem` with a route is a link; one without route groups its children and is shown only while one of
-  them is visible. Access is the item's `grantedAttribute` (checked with `is_granted`); a hidden item hides
+- A `NavItem` with a route, or with a ready `url` (CMS pages; label as `LiteralLabel`), is a link; one
+  without both groups its children and is shown only while one of them is visible. URL entries never
+  become active. Access is the item's `grantedAttribute` (checked with `is_granted`); a hidden item hides
   its children. Providers run on every page with a navigation, so they must not query the database.
 - Order on every level: `weight` ascending (default 0, negative moves up, steps of ten), then the
   translated label in the current locale (`\Collator`), then the id.
 - Active entry: the current route name equals the item's `route` or one of its `detailRoutes`; there is no
-  prefix matching. The builder marks the path from the group down to that entry; in the primary menu, a
-  route of a sidebar menu, or the sidebar menu of the page (`$area`), marks that menu's primary entry
-  (`Menu::primaryEntryId()`).
-- A route name may mark at most one entry per menu: tests that build the real menus use
-  `AssertsUniqueNavigationRoutes` (`tests/Shared/Support/`), which fails on a route claimed twice.
+  prefix matching. The builder marks the path from the group down to that entry. In the primary menu,
+  when no own entry matches: a route of a sidebar menu, then the sidebar menu of the page (`$area`), marks
+  that menu's primary entry (`Menu::primaryEntryId()`); then the entry with the longest `areaRoutePrefix`
+  the route starts with. Primary entries attach to `Menu::PRIMARY_GROUP` and use weights in steps of ten
+  (Explore 10, Statistics 20, Import 30, Export 40, Tools 50, Blog 60, CMS pages from 70).
+- A route name may mark at most one entry per menu, and area prefixes must not overlap:
+  `AssertsUniqueNavigationRoutes` (`tests/Shared/Support/`) checks both; `PrimaryNavigationTest` runs it
+  with all real providers.
 - Badges (`NavBadge`) take a translatable label and a `NavBadgeColor` (Tabler colour names, rendered as
   `badge bg-{colour}-lt`; default `azure`).
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Unit\Application\Navigation\Menu;
 
+use App\Shared\Application\Navigation\Menu\LiteralLabel;
 use App\Shared\Application\Navigation\Menu\Menu;
 use App\Shared\Application\Navigation\Menu\NavBadge;
 use App\Shared\Application\Navigation\Menu\NavBadgeColor;
@@ -181,8 +182,8 @@ final class NavigationBuilderTest extends TestCase
             Menu::Statistics->value => $this->statisticsTree(),
         ]);
 
-        self::assertSame(['main', 'statistics'], $builder->build(Menu::Primary, 'app_stats_unlisted', Menu::Statistics)->activePath);
-        self::assertSame([], $builder->build(Menu::Primary, 'app_stats_unlisted')->activePath, 'Without area and without entry nothing is active.');
+        self::assertSame(['main', 'statistics'], $builder->build(Menu::Primary, 'app_other_page', Menu::Statistics)->activePath);
+        self::assertSame([], $builder->build(Menu::Primary, 'app_other_page')->activePath, 'Without area, entry or area prefix nothing is active.');
     }
 
     public function testAnOwnRouteOfThePrimaryMenuWins(): void
@@ -193,6 +194,60 @@ final class NavigationBuilderTest extends TestCase
         ]);
 
         self::assertSame(['main', 'blog'], $builder->build(Menu::Primary, 'app_blog_index', Menu::Statistics)->activePath);
+    }
+
+    public function testAnAreaRoutePrefixMarksItsPrimaryEntryWhenNothingMatchesExactly(): void
+    {
+        $builder = $this->builder([Menu::Primary->value => $this->primaryTree()]);
+
+        self::assertSame(['main', 'statistics'], $builder->build(Menu::Primary, 'app_stats_top_lists_show')->activePath);
+        self::assertSame(['main', 'blog'], $builder->build(Menu::Primary, 'app_blog_show')->activePath);
+        self::assertSame([], $builder->build(Menu::Primary, 'app_import_index')->activePath, 'No entry claims app_import.');
+    }
+
+    public function testTheLongestAreaRoutePrefixWins(): void
+    {
+        $builder = $this->builder([
+            Menu::Primary->value => [
+                'groups' => [$this->group('main')],
+                'items' => [
+                    $this->item('hospitals', 'main', 'Kliniken', route: 'app_hospitals_index', areaRoutePrefix: 'app_hospitals'),
+                    $this->item('export', 'main', 'Export', route: 'app_hospitals_export_allocations', areaRoutePrefix: 'app_hospitals_export'),
+                ],
+            ],
+        ]);
+
+        self::assertSame(['main', 'export'], $builder->build(Menu::Primary, 'app_hospitals_export_download')->activePath);
+        self::assertSame(['main', 'hospitals'], $builder->build(Menu::Primary, 'app_hospitals_edit')->activePath);
+        self::assertSame(['"app_hospitals" (hospitals) contains "app_hospitals_export" (export)'], $builder->overlappingAreaRoutePrefixes(Menu::Primary));
+    }
+
+    public function testAreaRoutePrefixesOfHiddenEntriesAreIgnored(): void
+    {
+        $builder = $this->builder([
+            Menu::Primary->value => [
+                'groups' => [$this->group('main')],
+                'items' => [$this->item('import', 'main', 'Import', route: 'app_import_index', granted: 'ROLE_PARTICIPANT', areaRoutePrefix: 'app_import')],
+            ],
+        ], granted: []);
+
+        self::assertSame([], $builder->build(Menu::Primary, 'app_import_show')->activePath);
+    }
+
+    public function testAnEntryWithAUrlIsALinkButNeverActive(): void
+    {
+        $builder = $this->builder([
+            Menu::Primary->value => [
+                'groups' => [$this->group('main')],
+                'items' => [new NavItem('page-faq', 'main', new LiteralLabel('Häufige Fragen'), url: '/faq')],
+            ],
+        ]);
+
+        $menu = $builder->build(Menu::Primary, 'app_page_show');
+
+        self::assertSame(['page-faq'], $this->nodeIds($menu->sections[0]->nodes));
+        self::assertNull($menu->activeId());
+        self::assertSame('Häufige Fragen', $menu->sections[0]->nodes[0]->item->label->trans($this->createStub(TranslatorInterface::class)));
     }
 
     public function testDuplicateIdsAreRejected(): void
@@ -295,8 +350,8 @@ final class NavigationBuilderTest extends TestCase
         return [
             'groups' => [$this->group('main')],
             'items' => [
-                $this->item('statistics', 'main', 'Statistiken', route: 'app_stats_dashboard', weight: 10),
-                $this->item('blog', 'main', 'Blog', route: 'app_blog_index', weight: 20),
+                $this->item('statistics', 'main', 'Statistiken', route: 'app_stats_dashboard', weight: 10, areaRoutePrefix: 'app_stats'),
+                $this->item('blog', 'main', 'Blog', route: 'app_blog_index', weight: 20, areaRoutePrefix: 'app_blog'),
             ],
         ];
     }
@@ -318,8 +373,9 @@ final class NavigationBuilderTest extends TestCase
         ?string $granted = null,
         array $detailRoutes = [],
         ?NavBadge $badge = null,
+        ?string $areaRoutePrefix = null,
     ): NavItem {
-        return new NavItem($id, $parentId, new TranslatableMessage($label), $route, [], null, $badge, $granted, $detailRoutes, $weight);
+        return new NavItem($id, $parentId, new TranslatableMessage($label), $route, [], null, $badge, $granted, $detailRoutes, $weight, areaRoutePrefix: $areaRoutePrefix);
     }
 
     /**
