@@ -9,6 +9,7 @@ use App\Encounter\Application\Contract\MatchValidationReaderInterface;
 use App\Encounter\Application\Contract\MatchValidatorInterface;
 use App\Encounter\Application\Review\ReviewPeriod;
 use App\Encounter\Application\Security\EncounterAttribute;
+use App\Encounter\Application\Validation\PlausibilityValidationReport;
 use App\Encounter\Application\Validation\ScoreBands;
 use App\Encounter\Application\Validation\ValidationReport;
 use App\Encounter\UI\Form\ValidationSampleType;
@@ -25,7 +26,7 @@ use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * Match validation of one hospital (#1057): its samples, a form to draw a new one, and the verdicts of all
- * samples per score band, separated by matcher version.
+ * samples per score band, separated by matcher version, and the pair verdicts by plausibility snapshot (#1156).
  */
 #[IsGranted('ROLE_ENCOUNTER_BETA')]
 final class ListValidationSamplesController extends AbstractController
@@ -72,6 +73,7 @@ final class ListValidationSamplesController extends AbstractController
             'hospital' => $hospital,
             'samples' => $this->validation->samples($hospitalId),
             'reports' => $reports,
+            'plausibility_report' => PlausibilityValidationReport::build($this->validation->pairItemsByPlausibility($hospitalId)),
             'form' => $form,
             'max_days' => ReviewPeriod::MAX_DAYS,
         ], new Response(null, $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));

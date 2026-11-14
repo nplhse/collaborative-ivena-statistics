@@ -35,7 +35,7 @@ final readonly class ValidationSampleQuery
     /**
      * Automatic links or proposals of the period's allocations in sample order.
      *
-     * @return list<array{allocation_id: int, encounter_id: int, status: MatchStatus, score: float, points: ?int, pass: ?int, matcher_version: ?string}>
+     * @return list<array{allocation_id: int, encounter_id: int, status: MatchStatus, score: float, points: ?int, pass: ?int, matcher_version: ?string, plausibility_snapshot_id: ?int, plausibility_decisive: bool}>
      */
     public function pairs(int $hospitalId, ReviewPeriod $period, ValidationStratum $stratum, int $seed): array
     {
@@ -45,10 +45,11 @@ final readonly class ValidationSampleQuery
             default => throw new \InvalidArgumentException('Only pair strata have pairs.'),
         };
 
-        /** @var list<array{allocation_id: int|string, encounter_id: int|string, status: string, score: float|string|null, points: int|string|null, pass: int|string|null, matcher_version: ?string}> $rows */
+        /** @var list<array{allocation_id: int|string, encounter_id: int|string, status: string, score: float|string|null, points: int|string|null, pass: int|string|null, matcher_version: ?string, plausibility_snapshot_id: int|string|null, plausibility_decisive: bool|int|string}> $rows */
         $rows = $this->connection->fetchAllAssociative(
             <<<'SQL'
-SELECT m.allocation_id, m.encounter_id, m.status, m.score, m.points, m.pass, m.matcher_version
+SELECT m.allocation_id, m.encounter_id, m.status, m.score, m.points, m.pass, m.matcher_version,
+       m.plausibility_snapshot_id, m.plausibility_decisive
 FROM encounter_match m
 JOIN allocation a ON a.id = m.allocation_id
 WHERE m.hospital_id = :hospital AND a.arrival_at >= :from AND a.arrival_at < :to AND m.status = :status
@@ -66,6 +67,8 @@ SQL,
             'points' => null === $row['points'] ? null : (int) $row['points'],
             'pass' => null === $row['pass'] ? null : (int) $row['pass'],
             'matcher_version' => $row['matcher_version'],
+            'plausibility_snapshot_id' => null === $row['plausibility_snapshot_id'] ? null : (int) $row['plausibility_snapshot_id'],
+            'plausibility_decisive' => true === $row['plausibility_decisive'] || 1 === $row['plausibility_decisive'] || \in_array($row['plausibility_decisive'], ['1', 't', 'true'], true),
         ], $rows);
     }
 

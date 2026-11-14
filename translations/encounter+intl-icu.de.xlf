@@ -1973,6 +1973,46 @@
         <source>encounter.validation.combined_note</source>
         <target>Urteile aller Stichproben mit dieser Matcher-Version, aufsummiert. Stichproben können sich überschneiden, daher ohne Grundgesamtheit und ohne gewichtete Schätzung.</target>
       </trans-unit>
+      <trans-unit id="EncA176BDD2" resname="encounter.validation.plausibility.title">
+        <source>encounter.validation.plausibility.title</source>
+        <target>Paar-Urteile nach Plausibilitäts-Snapshot</target>
+      </trans-unit>
+      <trans-unit id="Enc8D817CE6" resname="encounter.validation.plausibility.note">
+        <source>encounter.validation.plausibility.note</source>
+        <target>Urteile über automatische Verknüpfungen und Vorschläge aller Stichproben, nach der Matcher-Version des Paars und dem Plausibilitäts-Snapshot, der es beim Ziehen bewertet hatte. Paare, die der Plausibilitätsbonus entschieden hat, bilden eine eigene Gruppe: Liegt ihr Anteil korrekt deutlich unter dem der übrigen Paare desselben Snapshots, verursacht der Bonus falsche Verknüpfungen. Paare aus Durchgang 1, Versionen vor 1.2.0 und Läufe ohne aktiven Snapshot haben keinen Snapshot. Stichproben können sich überschneiden, daher ohne Grundgesamtheit und ohne gewichtete Schätzung.</target>
+      </trans-unit>
+      <trans-unit id="EncDBD8FF05" resname="encounter.validation.plausibility.version">
+        <source>encounter.validation.plausibility.version</source>
+        <target>Matcher</target>
+      </trans-unit>
+      <trans-unit id="Enc38A9ECC9" resname="encounter.validation.plausibility.snapshot">
+        <source>encounter.validation.plausibility.snapshot</source>
+        <target>Snapshot</target>
+      </trans-unit>
+      <trans-unit id="EncEFF9A1FF" resname="encounter.validation.plausibility.snapshot_id">
+        <source>encounter.validation.plausibility.snapshot_id</source>
+        <target>#{id}</target>
+      </trans-unit>
+      <trans-unit id="Enc5753563F" resname="encounter.validation.plausibility.group">
+        <source>encounter.validation.plausibility.group</source>
+        <target>Bonus</target>
+      </trans-unit>
+      <trans-unit id="EncC0601AD1" resname="encounter.validation.plausibility.group_none">
+        <source>encounter.validation.plausibility.group_none</source>
+        <target>kein Snapshot</target>
+      </trans-unit>
+      <trans-unit id="Enc41D2190E" resname="encounter.validation.plausibility.group_bonus">
+        <source>encounter.validation.plausibility.group_bonus</source>
+        <target>nicht entscheidend</target>
+      </trans-unit>
+      <trans-unit id="Enc848D82DD" resname="encounter.validation.plausibility.group_decisive">
+        <source>encounter.validation.plausibility.group_decisive</source>
+        <target>vom Bonus entschieden</target>
+      </trans-unit>
+      <trans-unit id="EncB0F6AB37" resname="encounter.validation.plausibility.group_unrecorded">
+        <source>encounter.validation.plausibility.group_unrecorded</source>
+        <target>nicht erfasst (vor #1156 gezogen)</target>
+      </trans-unit>
       <trans-unit id="Enc192EE431" resname="encounter.validation.sample_title">
         <source>encounter.validation.sample_title</source>
         <target>Stichprobe {period}</target>

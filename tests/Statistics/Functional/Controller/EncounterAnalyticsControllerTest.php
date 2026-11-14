@@ -83,6 +83,8 @@ final class EncounterAnalyticsControllerTest extends WebTestCase
         $total = '[data-testid="encounter-route-link-row"][data-route="total"]';
         self::assertSame('< 5', $this->text($crawler, $total.' [data-testid="encounter-count"][data-key="automatic"]'));
         self::assertSame('7', $this->text($crawler, $total.' [data-testid="encounter-count"][data-key="not_linked"]'));
+        // No automatic link was decided by the plausibility bonus (#1156): the column shows 0 as a dash.
+        self::assertCount(1, $crawler->filter($total.' [data-testid="encounter-count"][data-key="bonus_decided"]'));
         self::assertSame('11', $this->text($crawler, $total.' [data-testid="encounter-count"][data-key="total"]'));
 
         $crawler = $this->page($this->hospitalA, self::OCTOBER + ['tab' => 'process']);

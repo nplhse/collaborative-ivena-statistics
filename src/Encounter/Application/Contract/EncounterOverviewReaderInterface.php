@@ -32,6 +32,14 @@ interface EncounterOverviewReaderInterface
     public function visitsByRouteAndLink(int $hospitalId, EncounterPeriod $period): array;
 
     /**
+     * Visits per arrival route whose automatic link (`auto_accepted`) the plausibility bonus decided
+     * (`plausibility_decisive`, matcher 1.2.0, ADR 033, #1156). Confirmed links are not counted.
+     *
+     * @return array<string, int> route => visits
+     */
+    public function bonusDecidedLinksByRoute(int $hospitalId, EncounterPeriod $period): array;
+
+    /**
      * Visits per initial MTS category; '' = no category documented.
      *
      * @return array<string, int>
