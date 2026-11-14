@@ -60,7 +60,8 @@ final readonly class AuditDerivedColumnsBackfillQuery
     }
 
     /**
-     * Exports: blocked = true → blocked, else success true/false → success/failed. import.run.failed → failed.
+     * Exports: blocked = true → blocked, else success true/false → success/failed. import.run.failed and
+     * hospital.reminder_failed → failed.
      */
     private function outcomeSql(): string
     {
@@ -69,7 +70,7 @@ final readonly class AuditDerivedColumnsBackfillQuery
                 WHEN action = :export AND json_typeof(metadata->'blocked') = 'boolean' AND (metadata->>'blocked')::boolean THEN :blocked
                 WHEN action = :export AND json_typeof(metadata->'success') = 'boolean' AND (metadata->>'success')::boolean THEN :success
                 WHEN action = :export AND json_typeof(metadata->'success') = 'boolean' THEN :failed
-                WHEN action <> :export AND json_typeof(metadata->'intent') = 'string' AND metadata->>'intent' = :importRunFailed THEN :failed
+                WHEN action <> :export AND json_typeof(metadata->'intent') = 'string' AND metadata->>'intent' IN (:importRunFailed, :reminderFailed) THEN :failed
             END)
             SQL;
     }
@@ -85,6 +86,7 @@ final readonly class AuditDerivedColumnsBackfillQuery
             'success' => AuditEntry::OUTCOME_SUCCESS,
             'failed' => AuditEntry::OUTCOME_FAILED,
             'importRunFailed' => AuditEntry::INTENT_IMPORT_RUN_FAILED,
+            'reminderFailed' => AuditEntry::INTENT_HOSPITAL_REMINDER_FAILED,
         ];
     }
 }

@@ -33,14 +33,17 @@ final readonly class NavigationBuilder
     ) {
     }
 
-    public function build(Menu $menu, ?string $currentRoute = null, ?Menu $area = null): NavigationMenu
+    /**
+     * @param array<string, mixed> $currentRouteParameters
+     */
+    public function build(Menu $menu, ?string $currentRoute = null, ?Menu $area = null, array $currentRouteParameters = []): NavigationMenu
     {
         [$groups, $items] = $this->collect($menu);
         $visibleChildren = $this->visibleChildren($groups, $items);
 
-        $activeId = null === $currentRoute ? null : $this->matchRoute($visibleChildren, $currentRoute);
+        $activeId = null === $currentRoute ? null : $this->matchRoute($visibleChildren, $currentRoute, $currentRouteParameters);
         if (null === $activeId && Menu::Primary === $menu) {
-            $activeId = $this->primaryEntryFor($currentRoute, $area, $visibleChildren);
+            $activeId = $this->primaryEntryFor($currentRoute, $currentRouteParameters, $area, $visibleChildren);
         }
 
         $activePath = null === $activeId ? [] : $this->pathTo($activeId, $visibleChildren);
@@ -61,9 +64,10 @@ final readonly class NavigationBuilder
     }
 
     /**
-     * Route names that more than one entry of the menu claims, regardless of permissions.
+     * Route names that more than one entry of the menu claims with the same route parameters, regardless of
+     * permissions.
      *
-     * @return array<string, list<string>> route name => ids of the entries that claim it
+     * @return array<string, list<string>> route name, with the parameters if any => ids of the entries that claim it
      */
     public function duplicateRouteClaims(Menu $menu): array
     {
@@ -71,8 +75,11 @@ final readonly class NavigationBuilder
 
         $claims = [];
         foreach ($items as $item) {
+            $parameters = $item->routeParameters;
+            ksort($parameters);
+            $suffix = [] === $parameters ? '' : ' '.json_encode($parameters, \JSON_THROW_ON_ERROR);
             foreach (array_unique($item->claimedRoutes()) as $route) {
-                $claims[$route][] = $item->id;
+                $claims[$route.$suffix][] = $item->id;
             }
         }
 
@@ -212,12 +219,13 @@ final readonly class NavigationBuilder
 
     /**
      * @param array<string, list<NavItem>> $visibleChildren
+     * @param array<string, mixed>         $routeParameters
      */
-    private function matchRoute(array $visibleChildren, string $route): ?string
+    private function matchRoute(array $visibleChildren, string $route, array $routeParameters): ?string
     {
         foreach ($visibleChildren as $children) {
             foreach ($children as $item) {
-                if (\in_array($route, $item->claimedRoutes(), true)) {
+                if ($item->matches($route, $routeParameters)) {
                     return $item->id;
                 }
             }
@@ -227,9 +235,10 @@ final readonly class NavigationBuilder
     }
 
     /**
+     * @param array<string, mixed>         $routeParameters
      * @param array<string, list<NavItem>> $visibleChildren of the primary menu
      */
-    private function primaryEntryFor(?string $route, ?Menu $area, array $visibleChildren): ?string
+    private function primaryEntryFor(?string $route, array $routeParameters, ?Menu $area, array $visibleChildren): ?string
     {
         $candidates = [];
         if (null !== $route) {
@@ -240,7 +249,7 @@ final readonly class NavigationBuilder
                 }
 
                 [$groups, $items] = $this->collect($sidebar);
-                if (null !== $this->matchRoute($this->visibleChildren($groups, $items), $route)) {
+                if (null !== $this->matchRoute($this->visibleChildren($groups, $items), $route, $routeParameters)) {
                     $candidates[] = $entryId;
                 }
             }

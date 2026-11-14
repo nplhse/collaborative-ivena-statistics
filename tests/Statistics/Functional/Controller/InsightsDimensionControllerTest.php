@@ -89,10 +89,8 @@ final class InsightsDimensionControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="stats-indication-header-actions"] [data-testid="stats-indication-top-list-link"]');
         self::assertCount(0, $client->getCrawler()->filter('[data-testid="stats-insights-directory-search"] input[autofocus]'));
         self::assertSelectorExists('[data-testid="stats-insights-directory-sort"]');
-        self::assertSelectorExists('[data-testid="stats-insights-subnav"]');
-        self::assertSelectorExists('[data-testid="stats-insights-tab-indications"].active');
-        self::assertSelectorExists('[data-testid="stats-insights-tab-departments"]');
-        self::assertSelectorNotExists('[data-testid="stats-insights-tab-more"]');
+        self::assertSelectorExists('[data-testid="sidebar-entry-insights-dimension-indications"].active');
+        self::assertSelectorExists('[data-testid="sidebar-group-insights-dimensions"] [data-testid="sidebar-entry-insights-dimension-departments"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-picker"]');
         self::assertSelectorTextContains('[data-testid="stats-insights-directory"]', 'Directory Indication');
         self::assertSelectorExists(sprintf('a[href*="/statistics/insights/indications/%d"]', $indication->getId()));
@@ -174,9 +172,7 @@ final class InsightsDimensionControllerTest extends WebTestCase
             '/explore/assignment/'.$assignment->getPublicIdString(),
             $client->getCrawler()->filter('[data-testid="stats-insights-row-explore"]')->attr('href'),
         );
-        self::assertSelectorExists('[data-testid="stats-insights-subnav"]');
-        self::assertSelectorExists('[data-testid="stats-insights-tab-assignments"].active');
-        self::assertSelectorNotExists('[data-testid="stats-insights-tab-more"]');
+        self::assertSelectorExists('[data-testid="sidebar-entry-insights-dimension-assignments"].active');
         self::assertSelectorNotExists('[data-testid="stats-indication-picker"]');
     }
 

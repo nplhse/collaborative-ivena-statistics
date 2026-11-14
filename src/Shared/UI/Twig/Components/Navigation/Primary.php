@@ -30,12 +30,15 @@ final class Primary
 
     public function getMenu(): NavigationMenu
     {
-        $route = $this->requestStack->getMainRequest()?->attributes->get('_route');
+        $request = $this->requestStack->getMainRequest();
+        $route = $request?->attributes->get('_route');
+        $routeParameters = $request?->attributes->get('_route_params');
 
         return $this->navigationBuilder->build(
             Menu::Primary,
             \is_string($route) ? $route : null,
             null === $this->area ? null : Menu::from($this->area),
+            \is_array($routeParameters) ? $routeParameters : [],
         );
     }
 }

@@ -69,7 +69,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="closure-filter-reasons"]');
         $this->assertSelectorExists('[data-testid="closure-filter-event-types"]');
         $this->assertSelectorNotExists('[data-testid="closure-filter-hospitals"]');
-        $this->assertSelectorExists('a[href="/statistics/closure-analytics"]');
+        $this->assertSelectorExists('[data-testid="sidebar-entry-closures-overview"].active');
     }
 
     public function testClosureAnalyticsRequiresClosureBetaRoleAndIsHiddenFromNavigation(): void
@@ -82,7 +82,8 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorNotExists('a[href="/statistics/closure-analytics"]');
+        $this->assertSelectorExists('[data-testid="sidebar-statistics"]');
+        $this->assertSelectorNotExists('[data-testid="sidebar-group-closures"]');
     }
 
     public function testDispatchAreaScopeIsNotSilentlyApplied(): void

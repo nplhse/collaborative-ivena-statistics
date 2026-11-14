@@ -82,7 +82,8 @@ Details and the single check targets: [development-workflow.md](docs/03-developm
   (`make test PATH_ARG=tests/<Context>`), not only the directory you edited. Do not run `make ci` or
   the complete suite by default; GitHub Actions runs it. Run it locally only for changes to central
   infrastructure or to reproduce a CI failure.
-- Do not run database tests in two checkouts at the same time; they share the test database.
+- Worktrees set up with `bin/worktree-init` have their own test databases; without it, do not run
+  database tests in two checkouts at the same time, they share the test database.
 - Run `make fix` only on purpose and review its diff; it can touch files outside your change.
 - A green local run does not replace the GitHub workflow results.
 - When a check fails, fix the cause. Do not raise ignore lists, add `@phpstan-ignore` or
@@ -140,7 +141,8 @@ what you observed, where (file and line), and how to reproduce it if known.
   decision with alternatives (see the [ADR index](docs/02-architecture/decisions/README.md)).
 - Parallel work: use git worktrees with `bin/worktree-init`
   ([development-workflow.md](docs/03-development/development-workflow.md#work-in-a-git-worktree)).
-  Worktrees share the databases of the source checkout.
+  Worktrees share the development database of the source checkout; remove them with
+  `bin/worktree-cleanup`, which also drops their test databases.
 - These commands drop data or remove installed files and are never routine setup for an existing
   environment:
   `make install`, `make install-dev`, `make purge`, `make reset`, `make fixtures`, `make clear`,

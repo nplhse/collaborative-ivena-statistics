@@ -32,6 +32,21 @@ enum Menu: string
     public const string FOOTER_GROUP_MORE = 'more';
 
     /**
+     * Query parameters a sidebar link carries over from the current page (ADR 035): the statistics scope and
+     * period with the parameters they depend on. Comparison parameters and all other filters are never
+     * carried; the target view validates the values and falls back to its own defaults.
+     *
+     * @return list<string>
+     */
+    public function carriedQueryKeys(): array
+    {
+        return match ($this) {
+            self::Statistics => ['scope', 'hospital', 'cohort', 'state', 'dispatch_area', 'period', 'year', 'quarter', 'month'],
+            self::Primary, self::Footer, self::Explore => [],
+        };
+    }
+
+    /**
      * Id of the primary entry this menu belongs to, or null for the primary and footer menus.
      */
     public function primaryEntryId(): ?string

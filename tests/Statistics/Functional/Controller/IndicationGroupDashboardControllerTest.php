@@ -48,7 +48,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="stats-indication-group-members"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-group-picker-input"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-picker"]');
-        self::assertSelectorNotExists('[data-testid="stats-insights-subnav"]');
+        self::assertSelectorExists('[data-testid="sidebar-entry-insights-dimension-indication-groups"].active');
         self::assertSelectorExists('[data-testid="stats-insights-compare-launch-button"]');
         self::assertSelectorExists('[data-testid="stats-indication-group-compare-launch-modal"]');
         self::assertSelectorExists('[data-testid="stats-indication-group-compare-launch-presets"]');

@@ -45,4 +45,14 @@ final class MonthlyReminderPeriodResolverTest extends TestCase
         self::assertSame(5, $result['reportingMonth']);
         self::assertSame(6, $result['uploadMonth']);
     }
+
+    public function testTheReportingMonthOfADispatchIsTheMonthBeforeItsUploadMonth(): void
+    {
+        $resolver = new MonthlyReminderPeriodResolver(new MockClock());
+
+        self::assertSame('2026-08', $resolver->reportingPeriodOfUploadPeriod('2026-09'));
+        self::assertSame('2025-12', $resolver->reportingPeriodOfUploadPeriod('2026-01'), 'across the turn of the year');
+        self::assertNull($resolver->reportingPeriodOfUploadPeriod('2026-13'));
+        self::assertNull($resolver->reportingPeriodOfUploadPeriod('September'));
+    }
 }

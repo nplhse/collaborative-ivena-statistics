@@ -407,11 +407,55 @@ final class MatchValidationControllerTest extends WebTestCase
         });
         self::assertSame([(int) $a->getId() => 'refused', (int) $c->getId() => 'confirm'], $plans);
         self::assertStringContainsString('Linked to visit #'.$w, $crawler->filter(sprintf('[data-test="encounter-validation-option"][data-partner="%d"]', (int) $a->getId()))->text());
+        // Each offered allocation links to its own case file (#1177).
+        foreach ([$a, $c] as $allocation) {
+            self::assertSame('/explore/allocation/'.$allocation->getPublicIdString(), $crawler->filter(sprintf('[data-test="encounter-validation-option"][data-partner="%d"] [data-test="encounter-review-case-file"]', (int) $allocation->getId()))->attr('href'));
+        }
 
         $this->client->submit($crawler->filter(sprintf('[data-test="encounter-validation-option"][data-partner="%d"]', (int) $c->getId()))->selectButton('Link this allocation')->form());
         self::assertResponseRedirects();
         self::assertContains(sprintf('%d-%d confirmed', $c->getId(), $v), array_map(static fn (string $row): string => substr($row, 0, strrpos($row, ' ') ?: null), $this->matchRows($this->hospital)));
         self::assertSame(ValidationVerdict::Missed, $this->reload($item)->getVerdict());
+    }
+
+    /**
+     * #1177: the page header of a validation item links its allocation to the case file in Explore ("View
+     * allocation", before "Open in review"), for the sampled pair and for an allocation without link (the
+     * options of an unlinked visit link each allocation in its comparison: see
+     * testUnlinkedVisitLinksAnAllocationWithoutLinkAndRefusesAConfirmedOne). Without ROLE_PARTICIPANT (needed
+     * by the case file) no link.
+     *
+     * Allocation A 10:00 → visit 10:05: automatic link. Allocation B 15:00 without visit in its window.
+     */
+    public function testItemsLinkToTheCaseFileOfTheirAllocation(): void
+    {
+        $a = $this->allocationAt($this->hospital, $this->ivena, '10:00');
+        $this->visitAt($this->hospital, $this->ed, '10:05');
+        $b = $this->allocationAt($this->hospital, $this->ivena, '15:00');
+        $this->matchDay($this->hospital);
+        $sample = $this->drawEmpty($this->hospital);
+
+        $this->client->loginUser($this->reviewer);
+        $crawler = $this->client->request(Request::METHOD_GET, $this->itemUrl($sample, $this->itemOf($sample, ValidationStratum::Automatic)));
+        self::assertResponseIsSuccessful();
+        $link = $crawler->filter('[data-test="encounter-review-case-file"]');
+        self::assertCount(1, $link, 'once in the header, not in the comparison');
+        self::assertSame('/explore/allocation/'.$a->getPublicIdString(), $link->attr('href'));
+        self::assertSame('_blank', $link->attr('target'));
+        self::assertSame('encounter-validation-open-review', $link->nextAll()->attr('data-test'), 'left of "Open in review"');
+
+        $unlinked = $this->itemOf($sample, ValidationStratum::UnlinkedAllocation);
+        $crawler = $this->client->request(Request::METHOD_GET, $this->itemUrl($sample, $unlinked));
+        self::assertResponseIsSuccessful();
+        self::assertSame('/explore/allocation/'.$b->getPublicIdString(), $crawler->filter('[data-test="encounter-review-case-file"]')->attr('href'));
+
+        $notParticipant = $this->user(['ROLE_USER', 'ROLE_ENCOUNTER_BETA']);
+        $this->hospitalGrant($this->hospital, $notParticipant);
+        $this->encounterGrant($this->hospital, $notParticipant, [EncounterGrantAction::Review]);
+        $this->client->loginUser($notParticipant);
+        $this->client->request(Request::METHOD_GET, $this->itemUrl($sample, $unlinked));
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-test="encounter-review-case-file"]');
     }
 
     public function testItemWithACandidateClaimedByAnotherAllocationLinksTheRival(): void

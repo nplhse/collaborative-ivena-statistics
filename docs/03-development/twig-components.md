@@ -598,9 +598,9 @@ Distinguish three reasons when a list or report has no rows:
 
 Statistics reports and the Analysis Explorer split "no source data" from "this scope or period is empty" and from extra filters. An import button appears only for the first of those, and only with import permission.
 
-## Navigation:Primary and Navigation:Footer
+## Navigation:Primary, Navigation:Sidebar and Navigation:Footer
 
-Render the top navbar entries and the footer link columns from the navigation tree
+Render the top navbar entries, the contextual sidebar and the footer link columns from the navigation tree
 ([ADR 035](../02-architecture/decisions/035-navigation-tree-and-contextual-sidebar.md)). Both are plain
 server-rendered components without props of their own; entries, order, permissions and the active area
 come from `NavigationBuilder` and the providers tagged `shared.navigation`
@@ -610,6 +610,7 @@ change a provider, not the templates.
 | Component | Used in | Output |
 |---|---|---|
 | `<twig:Navigation:Primary />` | `@Shared/_embeds/header.html.twig` | `<li class="nav-item">` per entry of the primary menu, `data-testid="nav-{id}"`, `active` and `aria-current="page"` on the current area; optional prop `area` (`statistics`, `explore`) for pages whose route has no entry |
+| `<twig:Navigation:Sidebar menu="statistics" />` | `header_after` block of every statistics page | Tabler vertical navbar with groups, nested groups (Bootstrap `collapse`), fold toggle (Stimulus `site-sidebar`) and the mobile bar; test ids `sidebar-{menu}`, `sidebar-group-{id}`, `sidebar-entry-{id}`, `sidebar-fold-toggle`; CSS in `assets/styles/navigation.css` |
 | `<twig:Navigation:Footer />` | `@Shared/_includes/footer.html.twig` | one column per footer group with links (`data-testid="footer-nav-column-{group}"`, links `footer-nav-{id}`); empty columns are omitted |
 
 ## Related

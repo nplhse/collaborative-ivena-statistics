@@ -183,7 +183,11 @@ final class EncounterAnalyticsControllerTest extends WebTestCase
         self::assertStringContainsString('Encounter data', $action->text());
 
         $crawler = $this->page($this->hospitalA);
-        self::assertSame('/statistics/encounter-analytics', $crawler->filter('[data-testid="stats-subnav-encounter-analytics"]')->attr('href'));
+        self::assertSame(
+            '/statistics/encounter-analytics?scope=hospital&hospital='.$this->hospitalA->getId(),
+            $crawler->filter('[data-testid="sidebar-entry-encounter-analytics"] a')->attr('href'),
+            'Sidebar links keep the scope with its hospital (ADR 035).',
+        );
     }
 
     public function testMyHospitalsOffersTheAnalysisOnlyOnListedHospitals(): void

@@ -1,0 +1,54 @@
+{% set navigation = this.navigation %}
+{% set area_label = this.areaLabel %}
+{% set active_label = this.activeLabel %}
+{% set menu_id = 'site-sidebar-' ~ this.menu %}
+<aside class="navbar navbar-vertical navbar-expand-lg site-sidebar d-print-none"
+       data-controller="site-sidebar"
+       data-testid="sidebar-{{ this.menu }}"
+       aria-label="{{ 'nav.sidebar.label'|trans({}, 'shared') }}">
+    <div class="container-fluid">
+        <button class="navbar-toggler site-sidebar__view-toggler collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#{{ menu_id }}" aria-controls="{{ menu_id }}" aria-expanded="false"
+                aria-label="{{ area_label ? area_label|trans ~ ', ' }}{{ active_label ? active_label|trans ~ ': ' }}{{ 'nav.sidebar.toggle_views'|trans({}, 'shared') }}">
+            <span class="site-sidebar__where">
+                {% if area_label %}<strong>{{ area_label|trans }}</strong>{% endif %}
+                {% if active_label %}<span class="text-secondary"> · {{ active_label|trans }}</span>{% endif %}
+            </span>
+            <span class="site-sidebar__view-chevron"><twig:ux:icon name="tabler:chevron-down" /></span>
+        </button>
+        <nav class="collapse navbar-collapse" id="{{ menu_id }}" aria-label="{{ 'nav.sidebar.label'|trans({}, 'shared') }}">
+            <ul class="navbar-nav pt-lg-2">
+                {% for section in navigation.sections %}
+                    {% if section.group.label %}
+                        <li class="nav-section-title">{{ section.group.label|trans }}</li>
+                    {% elseif not loop.first %}
+                        <li class="nav-section-title site-sidebar__divider" aria-hidden="true"></li>
+                    {% endif %}
+                    {% for node in section.nodes %}
+                        {{ include('@Shared/components/Navigation/_sidebar_node.html.twig', {node: node, depth: 0, sidebar: this}) }}
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </nav>
+        <div class="navbar-footer site-sidebar__footer">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <button type="button" class="nav-link site-sidebar__fold" data-action="site-sidebar#toggleFold" data-site-sidebar-target="foldToggle"
+                            aria-pressed="false" data-testid="sidebar-fold-toggle"
+                            data-label-collapse="{{ 'nav.sidebar.collapse'|trans({}, 'shared') }}"
+                            data-label-keep-open="{{ 'nav.sidebar.keep_open'|trans({}, 'shared') }}"
+                            title="{{ 'nav.sidebar.collapse'|trans({}, 'shared') }}">
+                        <span class="nav-link-icon">
+                            <span class="site-sidebar__when-open"><twig:ux:icon name="tabler:layout-sidebar-left-collapse" /></span>
+                            <span class="site-sidebar__when-folded"><twig:ux:icon name="tabler:layout-sidebar-left-expand" /></span>
+                        </span>
+                        <span class="nav-link-title">
+                            <span class="site-sidebar__when-open">{{ 'nav.sidebar.collapse'|trans({}, 'shared') }}</span>
+                            <span class="site-sidebar__when-folded">{{ 'nav.sidebar.keep_open'|trans({}, 'shared') }}</span>
+                        </span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</aside>

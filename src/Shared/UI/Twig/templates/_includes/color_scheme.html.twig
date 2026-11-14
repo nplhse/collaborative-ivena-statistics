@@ -12,5 +12,16 @@
 
         apply();
         media.addEventListener('change', apply);
+
+        // Fold state of the contextual sidebar (ADR 035), applied before the page renders so the layout
+        // does not jump. Same key and attribute as Tabler's tabler-theme.js, which the app does not load.
+        try {
+            var sidebar = window.localStorage.getItem('tabler-sidebar');
+            if ('folded-hover' === sidebar || 'folded' === sidebar) {
+                document.documentElement.setAttribute('data-bs-sidebar', sidebar);
+            }
+        } catch (e) {
+            // Storage unavailable: the sidebar stays expanded.
+        }
     })();
 </script>

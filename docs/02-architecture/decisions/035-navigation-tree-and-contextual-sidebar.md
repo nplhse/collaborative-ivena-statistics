@@ -57,8 +57,9 @@ content pages should not look like an admin tool.
   sidebar to an icon rail (about 4rem instead of 15rem), so charts, maps and wide tables get the width.
   In the rail, labels and badges are hidden and section titles become separator lines; every entry keeps
   its icon and its title as a tooltip. The icon of the top-level entry that contains the active view stays
-  marked as active. Activating a group icon in the rail (click, tap or Enter) expands the sidebar itself,
-  pinned open, and shows the active path with its groups open. There are no flyouts. The folded rail
+  marked as active. Activating a group while the sidebar is folded (click, tap or Enter, in the rail or in
+  the hover preview) pins the sidebar open and opens that group, in addition to the groups of the active
+  path; it does not toggle the group. There are no flyouts. The folded rail
   reserves only its own width and the content moves over accordingly.
 - **Fold toggle.** One labelled entry in the sidebar footer, visible in every state. It has the sidebar's
   background and sits above the menu, so rail entries that run under it (the rail does not scroll) are
@@ -82,7 +83,7 @@ the mobile collapse come with Tabler:
 | Sidebar and top navbar together | `aside.navbar.navbar-vertical.navbar-expand-lg` and `header.navbar` as direct children of `.page`, the `aside` first; `data-bs-navbar-position="combined"` on `<html>`, set server-side only on pages that render the sidebar |
 | Groups | `li.nav-section-title` before the first item of a titled group; a group without label gets an empty title as divider, except as the first group of the menu, which gets nothing |
 | Nesting | a group toggle (`nav-link` with `data-bs-toggle="collapse"`, `aria-expanded`, `aria-controls`) and a nested `navbar-nav` in a Bootstrap `collapse`, repeatable on every level; not Tabler's `dropdown`, whose rail flyouts are not used |
-| Fold toggle and click on a group icon in the rail | the only own JavaScript: one small Stimulus controller. It sets the same `data-bs-sidebar` attribute and `localStorage` key (`tabler-sidebar`) as Tabler's pin button and fires the same `tabler:sidebar-folded` event, so Tabler's CSS and chart resizing work unchanged. It also suspends the hover preview after a collapse until the pointer leaves the rail. Tabler's own pin button is not used: it is only visible while the pointer is over the sidebar, and folding to `folded-hover` under the pointer leaves the sidebar open, which reads as if nothing happened |
+| Fold toggle and click on a group icon in the rail | the only own JavaScript: one small Stimulus controller. It sets the same `data-bs-sidebar` attribute and `localStorage` key (`tabler-sidebar`) as Tabler's pin button, so Tabler's CSS works unchanged, fires `site-sidebar:folded` on `document`, and dispatches a window `resize` after the width transition, because charts and maps only redraw on window resize (checked: without it ApexCharts kept the old width). It also suspends the hover preview after a collapse until the pointer leaves the rail. Tabler's own pin button is not used: it is only visible while the pointer is over the sidebar, and folding to `folded-hover` under the pointer leaves the sidebar open, which reads as if nothing happened |
 | Trailing entries | `.navbar-side` (for example Classifications in Explore), pinned to the bottom of the sidebar |
 | Fold state | `data-bs-sidebar="folded-hover"` on `<html>`; Tabler's CSS turns the sidebar into the rail, shifts the content and handles the hover preview |
 | Fold toggle placement | `.navbar-footer` with a `nav-link`, pinned to the bottom of the sidebar; in the rail only its icon shows |
@@ -99,9 +100,22 @@ looks the same on pages with and without sidebar.
 
 The project does not load `tabler-theme.js`. The stored fold state is applied by a few lines in the
 existing colour-scheme include in `<head>`, before the page renders, so the layout does not jump on
-reload. The only other own CSS orders the bars on small screens (see below), hides the brand area of the
-sidebar from `lg` up and the fold toggle below `lg`, and suspends pointer events on the rail right after
-a collapse.
+reload. `data-bs-navbar-position="combined"` is set on every page: pages without sidebar are not
+affected, because Tabler's rules only apply when both navbars are present. The sidebar is rendered as
+`<twig:Navigation:Sidebar menu="statistics" />` in the `header_after` block of a page, so in the DOM it
+follows the top navbar; Tabler's content offset only needs it before `.page-wrapper`. All own CSS is in
+`assets/styles/navigation.css` (sticky top navbar and sidebar offset, nesting, rail, fold toggle, mobile
+bar).
+
+**Implementation notes (step 5).**
+
+- The Insights dimensions share one route; an entry with `routeParameters` matches only when the current
+  route has the same values for the parameters it has (`dimension`), and duplicate claims are counted per
+  route and parameters.
+- Treatment data and the Analysis Explorer are single entries for now: their parts are tabs selected by a
+  query parameter, not separate routes, so the exact route mapping cannot tell them apart.
+- The in-page tabs of Closures stay for now, next to the Closures entries in the sidebar; removing them is
+  a later step.
 
 ### Information architecture for Statistics
 
@@ -113,8 +127,8 @@ Grouped by the analytical question, not by bounded context or build order:
 | Allocations | Insights (▸ 8 dimensions, compare) |
 | Comparisons | Benchmarking |
 | Capacity and closures | Emergency allocations (closed departments) · Closures, beta (▸ 5 parts) |
-| Clinical data | Treatment data, beta (▸ 4 parts) |
-| Own analyses | Analysis Explorer (▸ library, favorites, my views) |
+| Clinical data | Treatment data, beta |
+| Own analyses | Analysis Explorer |
 | (no group) | Case flow · Hospitals (population) |
 
 The first group has no heading, so the sidebar and the icon rail start directly with Dashboard instead of
@@ -202,8 +216,8 @@ One tree that the contexts contribute to, following the `shared.tool` pattern:
   toggle button: the area and the current view ("Statistics · Indications") on the left and, on the same
   line, a chevron that points down while the views are closed and up while they are open. It opens the
   views as a collapsing list below the bar. There is no second hamburger: the hamburger stays the symbol
-  for the areas in the top navbar. Tabler renders the `aside` first; a few lines of CSS order it after the top navbar on
-  small screens, so the bars read "area, then view".
+  for the areas in the top navbar. The sidebar follows the top navbar in the DOM, so the bars read "area,
+  then view" without reordering.
 - The existing filter drawer stays on the right (`offcanvas-end`): the bars say "where to go", the drawer
   says "what to filter".
 - Keyboard: every view is a real link, groups are buttons with `aria-expanded` and `aria-controls`, the
@@ -212,9 +226,10 @@ One tree that the contexts contribute to, following the `shared.tool` pattern:
 
 ### Analytical context when switching views
 
-- **Between analyses** a sidebar link carries only `scope` and `period` of the current request. All other
-  filters (age group, clinical filters, dimension selections) are dropped, because they do not mean the
-  same in every view.
+- **Between analyses** a sidebar link carries only `scope` and `period` of the current request, each with
+  the parameters it depends on (`hospital`, `cohort`, `state`, `dispatch_area`; `year`, `quarter`, `month`;
+  `Menu::carriedQueryKeys()`), so "my hospital X, year 2025" stays. All other filters (age group, clinical
+  filters, dimension selections) are dropped, because they do not mean the same in every view.
 - **The target view decides.** It runs the carried values through its existing validation and falls back
   to its own defaults where a value is missing or not allowed there
   ([statistics-filter-and-scope.md](../../04-features/statistics/statistics-filter-and-scope.md)). The
