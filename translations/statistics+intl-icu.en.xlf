@@ -7600,6 +7600,10 @@
         <source>stats.encounter.route_link.title</source>
         <target>Arrival route and IVENA link</target>
       </trans-unit>
+      <trans-unit id="statsEnc9955c799" resname="stats.encounter.route_link.bonus_decided">
+        <source>stats.encounter.route_link.bonus_decided</source>
+        <target>of which decided by the plausibility bonus</target>
+      </trans-unit>
       <trans-unit id="statsEnc399b8a87" resname="stats.encounter.column.arrival_route">
         <source>stats.encounter.column.arrival_route</source>
         <target>Arrival route</target>

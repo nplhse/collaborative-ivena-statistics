@@ -677,8 +677,8 @@ Score bands come from `app.encounter.validation.score_bands` (lower bounds, defa
 `md5(seed, stratum, id)` and the first *n* are drawn, so the same seed on the same data draws the same
 sample. The sample stores period, *n*, seed, score bands, the current matcher version and the population
 of every cell; each item keeps the pair as sampled (status, score, band, points, pass, matcher version, and since
-#1156 the plausibility snapshot of its pass-2 bonus and whether the bonus was decisive; items drawn before have
-neither).
+#1156 the plausibility snapshot of its pass-2 bonus and whether the bonus was decisive; for items drawn before, the
+flag is empty: "not recorded").
 Drawing changes no link: automatic links stay effective while they are validated, and their origin stays
 visible on the item. Tables `encounter_validation_sample` and `encounter_validation_item`; samples go with
 their hospital, items with their sample, allocation or visit (`ON DELETE CASCADE`).
@@ -728,8 +728,9 @@ and weighting, because samples can overlap.
 
 **By plausibility snapshot** (#1156, `PlausibilityValidationReport`, pure; ADR 033): the overview also groups the
 verdicts on sampled pairs (automatic links, proposals) by the matcher version of the pair as sampled, its plausibility
-snapshot and whether the bonus was decisive. Groups: "no snapshot" (pass 1, versions before `1.2.0`, runs without an
-active snapshot), a snapshot whose bonus did not decide the pair, and a snapshot whose bonus decided it (highlighted).
+snapshot and whether the bonus was decisive. Groups: "not recorded" (drawn before #1156; nothing is guessed), "no
+snapshot" (pass 1, versions before `1.2.0`, runs without an active snapshot), a snapshot whose bonus did not decide
+the pair, and a snapshot whose bonus decided it (highlighted).
 Each group shows sampled, open, correct, wrong (of which another visit fits), unclear and the share correct with its
 Wilson interval, without score bands, population or weighting (samples can overlap). A share correct of the
 bonus-decided pairs clearly below that of the other pairs of the same snapshot means the bonus causes wrong links;
@@ -785,7 +786,8 @@ the pair.
 **Today:** no figure compares an IVENA attribute (PZC, indication, urgency) with the visit's MTS triage. The
 [hospital overview](#hospital-overview) counts MTS categories and diagrams over all visits, linked or not; the
 [case card](#case-card-hospital-course) and the [match review](#match-review) show single pairs. Nothing is excluded
-from them, and their numbers do not change with #1156.
+from them, and their numbers do not change with #1156. The overview's IVENA link tab shows how many automatic links
+the bonus decided ("of which decided by the plausibility bonus"), so the size of the affected group is visible.
 
 **Rule for any analysis that compares PZC, indication or urgency with the MTS diagram, indicator or category on
 linked data** (the indicator and category follow from the diagram, so the selection reaches them too):
@@ -839,7 +841,7 @@ Statistics depends on these Encounter application contracts (documented partners
 | Figure | Numerator | Denominator (shares) | Missing or unknown values |
 |---|---|---|---|
 | Coverage | Visits, distinct owning imports, distinct anchor days, first and last anchor in the period; below, the same for all data | – (not suppressed: they describe the uploaded data, not patients) | – |
-| Arrival route × IVENA link | Visits per route (`ems`, `self`, `unknown` from `arrival_route`) and link: linked automatically (`auto_accepted`), linked after confirmation (`confirmed`), linked in total (both), not linked | Visits of the row (route), last row all visits | Route `unknown` = `arrival_mode` `other` or empty. Not linked = no effective link: no pair, only an open proposal, or a rejected pair. Automatic links count as linked; their origin is a column of its own. |
+| Arrival route × IVENA link | Visits per route (`ems`, `self`, `unknown` from `arrival_route`) and link: linked automatically (`auto_accepted`), linked after confirmation (`confirmed`), linked in total (both), not linked | Visits of the row (route), last row all visits | Route `unknown` = `arrival_mode` `other` or empty. Not linked = no effective link: no pair, only an open proposal, or a rejected pair. Automatic links count as linked; their origin is a column of its own. Column "of which decided by the plausibility bonus" (#1156): visits whose automatic link has `plausibility_decisive`, as a share of the row's automatic links (confirmed links never count); small counts as everywhere. It only shows the share; the other columns are unchanged. |
 | MTS categories | Visits per initial `mts_category`, in MTS order red … blue | All visits of the period | "Not documented" row for visits without category. Retriage not counted. |
 | Top presentations (MTS diagrams) | The 10 most frequent initial `mts_diagram` codes (ties by code), then "other diagrams" (sum of the rest) | All visits of the period | "Not documented" row. Names from the MTS catalog (`MtsNames`); unknown codes shown as code. |
 | Process times | Median, Q1 and Q3 of the valid durations (PostgreSQL `percentile_cont`, linear interpolation), counted visits | – | Per interval: "time missing" (one of the two timestamps empty), "negative" (end before start), "over 24 h" (more than `ProcessInterval::MAX_PLAUSIBLE_MINUTES` = 1440). They are excluded from median and IQR and shown as counts. Median and IQR need at least 5 valid durations. |

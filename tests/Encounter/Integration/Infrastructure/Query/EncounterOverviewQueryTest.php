@@ -73,6 +73,34 @@ final class EncounterOverviewQueryTest extends KernelTestCase
         ], $this->query()->visitsByRouteAndLink($this->hospitalId(), $this->period()), 'EMS: V1, V4, B3 automatic, V2 confirmed, V3 only proposed; self: V5, V6 rejected; unknown: V7 other, B2 empty.');
     }
 
+    /**
+     * Automatic links the plausibility bonus decided (#1156): V1 and B3 (EMS, automatic) and V2 (EMS, confirmed) carry
+     * the flag; only V1 and B3 count, confirmed links never. 2 of 3 automatic EMS links, shown as `< 5` without share.
+     * All 6 automatic links of the other hospital carry it too: 6 of 6, 100 %, counted only there.
+     */
+    public function testAutomaticLinksDecidedByThePlausibilityBonusPerRoute(): void
+    {
+        $connection = $this->encounterEntityManager()->getConnection();
+        $ids = $connection->fetchFirstColumn('SELECT id FROM encounter WHERE hospital_id = ? ORDER BY id', [$this->hospitalId()]);
+        // Visits in insertion order: V1, V2, V3, V4, V5, V6, V7, B2, B3, B1, B4.
+        $connection->executeStatement(
+            'UPDATE encounter_match SET plausibility_decisive = true WHERE encounter_id IN (?, ?, ?) OR hospital_id <> ?',
+            [$ids[0], $ids[1], $ids[8], $this->hospitalId()],
+        );
+
+        self::assertSame(['ems' => 2], $this->query()->bonusDecidedLinksByRoute($this->hospitalId(), $this->period()));
+
+        $total = $this->overview($this->period())->routeLink[3];
+        self::assertSame(['total', true, null, null], [$total->route, $total->bonusDecided->count->suppressed, $total->bonusDecided->shownValue(), $total->bonusDecided->share]);
+
+        $other = array_values(array_filter(array_keys($this->query()->hospitalsWithVisits()), fn (int $id): bool => $id !== $this->hospitalId()))[0];
+        self::assertSame(['ems' => 6], $this->query()->bonusDecidedLinksByRoute($other, $this->period()));
+        $factory = self::getContainer()->get(EncounterOverviewFactory::class);
+        self::assertInstanceOf(EncounterOverviewFactory::class, $factory);
+        $otherTotal = $factory->create($other, $this->period())->routeLink[3];
+        self::assertSame([6, 100.0], [$otherTotal->bonusDecided->shownValue(), $otherTotal->bonusDecided->share]);
+    }
+
     public function testCountsOfTriageDispositionAndCareLevel(): void
     {
         $query = $this->query();
