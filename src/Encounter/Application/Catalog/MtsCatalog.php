@@ -16,7 +16,8 @@ use Symfony\Contracts\Service\ResetInterface;
  * resolve through their alias to the active target, in one step. A code that resolves to nothing has no entry and
  * is shown as a code by the callers. Encounters keep the code as sent; only reading resolves it.
  *
- * The data preparation tool still bundles `mts-de.json` (data()) until #1157 gives it a catalog endpoint.
+ * The data preparation tool fetches the catalog from the public endpoint (toolCatalog(), #1157) and keeps the bundled
+ * `mts-de.json` (bundledToolCatalog()) as offline fallback.
  *
  * Codes are derived from the German name exactly as the tool's `catalogCode()` does: lowercase,
  * ä/ö/ü/ß → ae/oe/ue/ss, other diacritics removed, runs of other characters → `_`, cut at 64
@@ -26,6 +27,11 @@ final class MtsCatalog implements ResetInterface
 {
     public const string ID = 'mts-de';
 
+    /** Format name and version of the catalog the data preparation tool reads (#1157). */
+    public const string TOOL_CATALOG_FORMAT = 'encounter-mts-catalog';
+
+    public const int TOOL_CATALOG_VERSION = 1;
+
     /** The tool's bundled copy of the catalog. */
     public const string FILE = __DIR__.'/mts-de.json';
 
@@ -34,6 +40,9 @@ final class MtsCatalog implements ResetInterface
 
     /** @var array<string, array{entries: array<string, MtsCatalogEntry>, aliases: array<string, string>}> keyed by kind */
     private array $lists = [];
+
+    /** @var array<string, list<string>>|null diagram code => indicator codes */
+    private ?array $assignments = null;
 
     /** @psalm-suppress PossiblyUnusedMethod Wired by the container. */
     public function __construct(
@@ -65,6 +74,88 @@ final class MtsCatalog implements ResetInterface
         $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         return $data;
+    }
+
+    /**
+     * The catalog in the tool's format (#1157), from the database: active entries with code, German and English name,
+     * and the aliases that resolve to an active entry (alias code => target code). Served by the public catalog
+     * endpoint; the tool recognises a source label when its code is an entry or alias code of the list.
+     *
+     * @return array{format: string, version: int, id: string, diagrams: list<array{code: string, name: string, englishName: ?string}>, indicators: list<array{code: string, name: string, englishName: ?string}>, aliases: array{diagrams: array<string, string>, indicators: array<string, string>}}
+     */
+    public function toolCatalog(): array
+    {
+        $entries = static fn (array $list): array => array_values(array_map(
+            static fn (MtsCatalogEntry $entry): array => ['code' => $entry->code, 'name' => $entry->germanName, 'englishName' => $entry->englishName],
+            $list,
+        ));
+
+        return [
+            'format' => self::TOOL_CATALOG_FORMAT,
+            'version' => self::TOOL_CATALOG_VERSION,
+            'id' => self::ID,
+            'diagrams' => $entries($this->diagrams()),
+            'indicators' => $entries($this->indicators()),
+            'aliases' => [
+                'diagrams' => $this->list(MtsCatalogKind::Diagram)['aliases'],
+                'indicators' => $this->list(MtsCatalogKind::Indicator)['aliases'],
+            ],
+        ];
+    }
+
+    /**
+     * The bundled copy (`mts-de.json`, German labels) in the tool's format, the tool's offline fallback (#1157). Codes
+     * are derived from the labels; the bundled copy has no English names and no aliases.
+     *
+     * @return array{format: string, version: int, id: string, diagrams: list<array{code: string, name: string, englishName: ?string}>, indicators: list<array{code: string, name: string, englishName: ?string}>, aliases: array{diagrams: array<string, string>, indicators: array<string, string>}}
+     */
+    public function bundledToolCatalog(): array
+    {
+        $data = $this->data();
+        $entries = static function (mixed $labels): array {
+            $list = [];
+            foreach (\is_array($labels) ? $labels : [] as $label) {
+                $label = (string) $label;
+                $code = self::code($label);
+                if ('' !== $code) {
+                    $list[$code] ??= ['code' => $code, 'name' => $label, 'englishName' => null];
+                }
+            }
+            ksort($list, \SORT_STRING);
+
+            return array_values($list);
+        };
+
+        return [
+            'format' => self::TOOL_CATALOG_FORMAT,
+            'version' => self::TOOL_CATALOG_VERSION,
+            'id' => self::ID,
+            'diagrams' => $entries($data['diagrams'] ?? []),
+            'indicators' => $entries($data['indicators'] ?? []),
+            'aliases' => ['diagrams' => [], 'indicators' => []],
+        ];
+    }
+
+    /**
+     * Codes of the active indicators assigned to an active diagram (definitions, ADR 032), ordered by code.
+     *
+     * @return list<string>
+     */
+    public function indicatorCodesOf(string $diagramCode): array
+    {
+        if (null === $this->assignments) {
+            $this->assignments = [];
+            foreach ($this->reader->assignments() as $row) {
+                $this->assignments[$row['diagram']][] = $row['indicator'];
+            }
+        }
+
+        $indicators = $this->indicators();
+
+        return array_values(array_filter(
+            $this->assignments[$diagramCode] ?? [],
+            static fn (string $code): bool => isset($indicators[$code]),
+        ));
     }
 
     /**
@@ -149,6 +240,7 @@ final class MtsCatalog implements ResetInterface
     public function reset(): void
     {
         $this->lists = [];
+        $this->assignments = null;
     }
 
     /**

@@ -151,7 +151,7 @@
       </trans-unit>
       <trans-unit id="EncCC9624A9" resname="encounter.data_prep.tool.intro">
         <source>encounter.data_prep.tool.intro</source>
-        <target>Diese Datei arbeitet offline. Sie liest den Export Ihres Krankenhausinformationssystems, übernimmt nur die vereinbarten Felder, pseudonymisiert die Fallnummer und speichert eine Datei für den Upload. Namen, Geburtsdaten, Personal und Freitexte werden nicht in diese Datei geschrieben. Die einzige Anfrage der Datei ist eine Versionsprüfung beim Start.</target>
+        <target>Diese Datei arbeitet offline. Sie liest den Export Ihres Krankenhausinformationssystems, übernimmt nur die vereinbarten Felder, pseudonymisiert die Fallnummer und speichert eine Datei für den Upload. Namen, Geburtsdaten, Personal und Freitexte werden nicht in diese Datei geschrieben. Beim Start stellt die Datei nur zwei Anfragen: die Versionsprüfung und das Laden des MTS-Katalogs; keine davon sendet Daten Ihrer Klinik.</target>
       </trans-unit>
       <trans-unit id="Enc427DAA95" resname="encounter.data_prep.tool.update_link">
         <source>encounter.data_prep.tool.update_link</source>
@@ -563,7 +563,7 @@
       </trans-unit>
       <trans-unit id="EncEDDD5557" resname="encounter.data_prep.js.report_unlisted_hint">
         <source>encounter.data_prep.js.report_unlisted_hint</source>
-        <target>Diese MTS-Indikatoren stehen noch nicht in der mitgelieferten Liste. Sie werden als aus der Bezeichnung abgeleitete Codes geschrieben; prüfen Sie, dass es MTS-Indikatoren und kein Freitext sind.</target>
+        <target>Diese MTS-Diagramme und -Indikatoren stehen noch nicht im Katalog. Sie werden als aus der Bezeichnung abgeleitete Codes geschrieben, und der Server nimmt sie als vorläufige Einträge in den Katalog auf; prüfen Sie, dass es MTS-Werte und kein Freitext sind.</target>
       </trans-unit>
       <trans-unit id="EncI4E173CBA" resname="encounter.import.action.new">
         <source>encounter.import.action.new</source>
@@ -1571,7 +1571,7 @@
       </trans-unit>
       <trans-unit id="Enc38924CD0" resname="encounter.mts.diagram.indicators_need_access">
         <source>encounter.mts.diagram.indicators_need_access</source>
-        <target>Welche Indikatoren mit diesem Diagramm vorkommen, stammt aus den Behandlungsdaten. Es wird nur Personen mit Zugriff auf die Behandlungsdaten einer Klinik angezeigt.</target>
+        <target>Diesem Diagramm sind im Katalog noch keine Indikatoren zugeordnet. Welche Indikatoren in Behandlungsdaten mit ihm vorkommen, wird nur Personen mit Zugriff auf die Behandlungsdaten einer Klinik angezeigt.</target>
       </trans-unit>
       <trans-unit id="Enc40E2807E" resname="encounter.mts.diagram.indicators_none">
         <source>encounter.mts.diagram.indicators_none</source>
@@ -3248,6 +3248,50 @@
       <trans-unit id="Enc521607A3" resname="tools.encounter_plausibility.description">
         <source>tools.encounter_plausibility.description</source>
         <target>Kuratierte Problembereiche der Matcher-Tabelle PZC × MTS-Diagramm prüfen und Snapshots aktivieren.</target>
+      </trans-unit>
+      <trans-unit id="Enc0D9168CB" resname="encounter.data_prep.changelog.1_2_0.catalog_from_server">
+        <source>encounter.data_prep.changelog.1_2_0.catalog_from_server</source>
+        <target>Beim Start lädt das Tool den gepflegten MTS-Katalog vom Server; offline nutzt es die mitgelieferte Kopie.</target>
+      </trans-unit>
+      <trans-unit id="EncBE890AC9" resname="encounter.data_prep.changelog.1_2_0.aliases">
+        <source>encounter.data_prep.changelog.1_2_0.aliases</source>
+        <target>Andere Schreibweisen von MTS-Diagrammen und -Indikatoren, die der Katalog als Alias kennt, werden erkannt und im Bericht aufgeführt; die Datei behält die Schreibweise des Exports.</target>
+      </trans-unit>
+      <trans-unit id="Enc45D5713F" resname="encounter.data_prep.changelog.1_2_0.new_diagrams">
+        <source>encounter.data_prep.changelog.1_2_0.new_diagrams</source>
+        <target>MTS-Diagramme, die noch nicht im Katalog stehen, werden nicht mehr geleert: Wie neue Indikatoren werden sie als Code geschrieben und als neue Katalogwerte aufgeführt; der Server nimmt sie als vorläufige Einträge in den Katalog auf.</target>
+      </trans-unit>
+      <trans-unit id="Enc1412F26F" resname="encounter.data_prep.js.catalog_server">
+        <source>encounter.data_prep.js.catalog_server</source>
+        <target>MTS-Katalog vom Server geladen:</target>
+      </trans-unit>
+      <trans-unit id="EncF7AE4431" resname="encounter.data_prep.js.catalog_bundled">
+        <source>encounter.data_prep.js.catalog_bundled</source>
+        <target>Der MTS-Katalog konnte nicht vom Server geladen werden (offline oder durch einen Proxy blockiert); das Tool nutzt die mitgelieferte Kopie:</target>
+      </trans-unit>
+      <trans-unit id="EncB65C30FC" resname="encounter.data_prep.js.catalog_counts">
+        <source>encounter.data_prep.js.catalog_counts</source>
+        <target>Diagramme: {diagrams}, Indikatoren: {indicators}, Aliasse: {aliases}.</target>
+      </trans-unit>
+      <trans-unit id="Enc38A681FD" resname="encounter.data_prep.js.report_aliases_title">
+        <source>encounter.data_prep.js.report_aliases_title</source>
+        <target>Erkannte andere Schreibweisen</target>
+      </trans-unit>
+      <trans-unit id="Enc97DD7EEB" resname="encounter.data_prep.js.report_aliases_hint">
+        <source>encounter.data_prep.js.report_aliases_hint</source>
+        <target>Diese MTS-Werte sind anders geschrieben als im Katalog, der sie als Alias kennt (Wert → Katalog-Code). Die Datei behält den Code der Schreibweise im Export; der Server löst ihn auf.</target>
+      </trans-unit>
+      <trans-unit id="Enc0D074C33" resname="encounter.mts.diagram.indicators_source_with_counts">
+        <source>encounter.mts.diagram.indicators_source_with_counts</source>
+        <target>Indikatoren, die diesem Diagramm im Katalog zugeordnet sind, und Indikatoren, die in den für Sie sichtbaren Behandlungsdaten mit ihm vorkommen, mit Anzahlen.</target>
+      </trans-unit>
+      <trans-unit id="Enc7319BC9F" resname="encounter.mts.diagram.indicators_source_definition">
+        <source>encounter.mts.diagram.indicators_source_definition</source>
+        <target>Indikatoren, die diesem Diagramm im Katalog zugeordnet sind. Welche Indikatoren in Behandlungsdaten mit ihm vorkommen und wie oft, wird nur Personen mit Zugriff auf die Behandlungsdaten einer Klinik angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="Enc75FF351F" resname="encounter.mts.diagram.not_assigned">
+        <source>encounter.mts.diagram.not_assigned</source>
+        <target>im Katalog nicht zugeordnet</target>
       </trans-unit>
     </body>
   </file>

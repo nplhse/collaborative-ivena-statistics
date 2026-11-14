@@ -2,8 +2,9 @@
  * Page logic of the offline data preparation tool (#1051). Inlined by the server after
  * data-prep-core.js; reads its configuration from the JSON block `#data-prep-config`.
  *
- * The only network request is the update check against `config.latestUrl` (also the only URL the
- * Content Security Policy allows). Values from the source file are only ever set as text content.
+ * The only network requests are the update check against `config.latestUrl` and the MTS catalog from
+ * `config.catalogUrl` (#1157), the only URLs the Content Security Policy allows. Without an answer the
+ * bundled catalog (`config.catalogs`) is used. Values from the source file are only ever set as text content.
  */
 (function (root) {
     'use strict';
@@ -30,6 +31,13 @@
         profile: null,
         table: null,
         result: null,
+        // MTS catalogs used for runs: the bundled copy until the server's catalog arrives (#1157).
+        catalogs: Object.fromEntries(
+            Object.entries(config.catalogs).map(([id, catalog]) => [
+                id,
+                prep.parseCatalog(catalog),
+            ]),
+        ),
     };
 
     // ------------------------------------------------------------------ DOM helpers
@@ -143,6 +151,42 @@
             status('update-status', t('updateUnavailable'), 'info');
         }
         refresh();
+    }
+
+    // ------------------------------------------------------------------ MTS catalog
+
+    function catalogSummary(catalog) {
+        const aliases =
+            Object.keys(catalog.aliases.diagrams).length +
+            Object.keys(catalog.aliases.indicators).length;
+        return t('catalogCounts')
+            .replace('{diagrams}', String(catalog.diagrams.length))
+            .replace('{indicators}', String(catalog.indicators.length))
+            .replace('{aliases}', String(aliases));
+    }
+
+    async function loadCatalog() {
+        const bundled = Object.values(state.catalogs)[0];
+        try {
+            const response = await fetch(config.catalogUrl, {
+                method: 'GET',
+                mode: 'cors',
+                credentials: 'omit',
+                cache: 'no-store',
+                referrerPolicy: 'no-referrer',
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const catalog = prep.parseCatalog(await response.json());
+            if (!(catalog.id in state.catalogs)) {
+                throw new Error(`Unknown catalog "${catalog.id}".`);
+            }
+            state.catalogs = { ...state.catalogs, [catalog.id]: catalog };
+            status('catalog-status', `${t('catalogServer')} ${catalogSummary(catalog)}`, 'success');
+        } catch {
+            status('catalog-status', `${t('catalogBundled')} ${catalogSummary(bundled)}`, 'info');
+        }
     }
 
     // ------------------------------------------------------------------ key file
@@ -638,7 +682,7 @@
                 schema: config.schema,
                 key: state.key,
                 localMap: state.localMap ?? prep.emptyLocalMap(),
-                catalogs: config.catalogs,
+                catalogs: state.catalogs,
             });
             status('run-status', '', 'info');
             renderResult(state.result);
@@ -678,6 +722,7 @@
                 Object.entries(values).map(([value, n]) => [field, value, n]),
             );
         const unlisted = listRows(report.unlistedCatalogValues);
+        const aliases = listRows(report.catalogAliases);
         replace(
             'report',
             table([t('reportItem'), t('reportCount')], summary),
@@ -697,6 +742,11 @@
             element('p', { className: 'hint', text: t('reportUnlistedHint') }),
             unlisted.length
                 ? table([t('reportField'), t('reportValue'), t('reportCount')], unlisted)
+                : element('p', { text: t('none') }),
+            element('h3', { text: t('reportAliasesTitle') }),
+            element('p', { className: 'hint', text: t('reportAliasesHint') }),
+            aliases.length
+                ? table([t('reportField'), t('reportValue'), t('reportCount')], aliases)
                 : element('p', { text: t('none') }),
         );
 
@@ -802,6 +852,7 @@
         restoreKey();
         restoreMap();
         checkForUpdate();
+        loadCatalog();
     }
 
     init();

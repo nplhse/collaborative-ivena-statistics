@@ -104,7 +104,54 @@ final class MtsCatalogTest extends TestCase
     }
 
     /**
-     * The canonical output of the tool for the synthetic sample uses codes of the bundled catalog only.
+     * The catalog the public endpoint serves to the tool (#1157): active entries with names, aliases that resolve.
+     */
+    public function testToolCatalogListsActiveEntriesAndResolvableAliases(): void
+    {
+        $catalog = $this->catalog()->toolCatalog();
+
+        self::assertSame('encounter-mts-catalog', $catalog['format']);
+        self::assertSame(1, $catalog['version']);
+        self::assertSame('mts-de', $catalog['id']);
+        self::assertSame([
+            ['code' => 'brustschmerz', 'name' => 'Brustschmerz', 'englishName' => null],
+            ['code' => 'thoraxschmerz', 'name' => 'Thoraxschmerz', 'englishName' => 'Chest pain'],
+            ['code' => 'zz_neu', 'name' => 'zz_neu', 'englishName' => null],
+        ], $catalog['diagrams'], 'merged entries are not listed, provisional ones are');
+        self::assertSame([['code' => 'heiss', 'name' => 'Heiß', 'englishName' => null]], $catalog['indicators']);
+        self::assertSame(
+            ['brustschmerzen' => 'thoraxschmerz', 'thorax_schmerz_alt' => 'thoraxschmerz'],
+            $catalog['aliases']['diagrams'],
+            'no alias that shadows an entry, points to an alias or to nothing',
+        );
+        self::assertSame(['heiss_alt' => 'heiss'], $catalog['aliases']['indicators']);
+    }
+
+    public function testBundledToolCatalogDerivesCodesFromTheLabels(): void
+    {
+        $catalog = $this->catalog()->bundledToolCatalog();
+
+        self::assertSame('encounter-mts-catalog', $catalog['format']);
+        self::assertCount(40, $catalog['diagrams']);
+        self::assertCount(70, $catalog['indicators']);
+        self::assertContains(
+            ['code' => 'abdominelle_schmerzen_bei_erwachsenen', 'name' => 'Abdominelle Schmerzen bei Erwachsenen', 'englishName' => null],
+            $catalog['diagrams'],
+        );
+        self::assertSame(['diagrams' => [], 'indicators' => []], $catalog['aliases']);
+    }
+
+    public function testIndicatorsOfADiagramAreItsActiveAssignments(): void
+    {
+        $catalog = $this->catalog();
+
+        self::assertSame(['heiss'], $catalog->indicatorCodesOf('thoraxschmerz'), 'an assignment to a code that is not active is left out');
+        self::assertSame([], $catalog->indicatorCodesOf('brustschmerz'));
+    }
+
+    /**
+     * The canonical output of the tool for the synthetic sample uses codes of the bundled catalog, except the
+     * invented diagram of row 6, which the tool passes through for the server to add as a provisional entry (#1157).
      */
     public function testToolOutputForTheSampleUsesCatalogCodes(): void
     {
@@ -126,9 +173,7 @@ final class MtsCatalogTest extends TestCase
         }
 
         self::assertNotSame([], $diagrams);
-        foreach ($diagrams as $code) {
-            self::assertContains($code, $codes);
-        }
+        self::assertSame(['erfundenes_diagramm'], array_values(array_diff($diagrams, $codes)));
     }
 
     /**
@@ -175,6 +220,15 @@ final class MtsCatalogTest extends TestCase
                 return MtsCatalogKind::Diagram === $kind
                     ? [...self::DIAGRAMS, ...$this->added->getArrayCopy()]
                     : [['code' => 'heiss', 'german_name' => 'Heiß', 'english_name' => null, 'status' => MtsCatalogStatus::Curated]];
+            }
+
+            #[\Override]
+            public function assignments(): array
+            {
+                return [
+                    ['diagram' => 'thoraxschmerz', 'indicator' => 'heiss'],
+                    ['diagram' => 'thoraxschmerz', 'indicator' => 'nicht_aktiv'],
+                ];
             }
 
             #[\Override]

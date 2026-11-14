@@ -151,7 +151,7 @@
       </trans-unit>
       <trans-unit id="EncCC9624A9" resname="encounter.data_prep.tool.intro">
         <source>encounter.data_prep.tool.intro</source>
-        <target>This file works offline. It reads the export of your hospital information system, keeps only the agreed fields, pseudonymises the case number and saves a file for the upload. Names, dates of birth, staff and free text are not written to that file. The only request the file makes is a version check at start.</target>
+        <target>This file works offline. It reads the export of your hospital information system, keeps only the agreed fields, pseudonymises the case number and saves a file for the upload. Names, dates of birth, staff and free text are not written to that file. At start the file makes two requests only: the version check and loading the MTS catalog; neither sends data of your hospital.</target>
       </trans-unit>
       <trans-unit id="Enc427DAA95" resname="encounter.data_prep.tool.update_link">
         <source>encounter.data_prep.tool.update_link</source>
@@ -563,7 +563,7 @@
       </trans-unit>
       <trans-unit id="EncEDDD5557" resname="encounter.data_prep.js.report_unlisted_hint">
         <source>encounter.data_prep.js.report_unlisted_hint</source>
-        <target>These MTS indicators are not in the bundled list yet. They are written as codes derived from the label; check that they are MTS indicators and not free text.</target>
+        <target>These MTS diagrams and indicators are not in the catalog yet. They are written as codes derived from the label, and the server adds them to the catalog as provisional entries; check that they are MTS values and not free text.</target>
       </trans-unit>
       <trans-unit id="EncI4E173CBA" resname="encounter.import.action.new">
         <source>encounter.import.action.new</source>
@@ -1571,7 +1571,7 @@
       </trans-unit>
       <trans-unit id="Enc38924CD0" resname="encounter.mts.diagram.indicators_need_access">
         <source>encounter.mts.diagram.indicators_need_access</source>
-        <target>Which indicators occur with this diagram is taken from encounter data. It is shown only to users with access to the encounter data of a hospital.</target>
+        <target>No indicators are assigned to this diagram in the catalog yet. Which indicators occur with it in encounter data is shown only to users with access to the encounter data of a hospital.</target>
       </trans-unit>
       <trans-unit id="Enc40E2807E" resname="encounter.mts.diagram.indicators_none">
         <source>encounter.mts.diagram.indicators_none</source>
@@ -3248,6 +3248,50 @@
       <trans-unit id="Enc521607A3" resname="tools.encounter_plausibility.description">
         <source>tools.encounter_plausibility.description</source>
         <target>Review the curated problem areas of the matcher's PZC × MTS diagram table and activate snapshots.</target>
+      </trans-unit>
+      <trans-unit id="Enc0D9168CB" resname="encounter.data_prep.changelog.1_2_0.catalog_from_server">
+        <source>encounter.data_prep.changelog.1_2_0.catalog_from_server</source>
+        <target>At start, the tool loads the maintained MTS catalog from the server; offline it uses its bundled copy.</target>
+      </trans-unit>
+      <trans-unit id="EncBE890AC9" resname="encounter.data_prep.changelog.1_2_0.aliases">
+        <source>encounter.data_prep.changelog.1_2_0.aliases</source>
+        <target>Other spellings of MTS diagrams and indicators that the catalog knows as aliases are recognised and listed in the report; the file keeps the spelling of the export.</target>
+      </trans-unit>
+      <trans-unit id="Enc45D5713F" resname="encounter.data_prep.changelog.1_2_0.new_diagrams">
+        <source>encounter.data_prep.changelog.1_2_0.new_diagrams</source>
+        <target>MTS diagrams not yet in the catalog are no longer emptied: like new indicators they are written as codes and listed as new catalog values; the server adds them to the catalog as provisional entries.</target>
+      </trans-unit>
+      <trans-unit id="Enc1412F26F" resname="encounter.data_prep.js.catalog_server">
+        <source>encounter.data_prep.js.catalog_server</source>
+        <target>MTS catalog loaded from the server:</target>
+      </trans-unit>
+      <trans-unit id="EncF7AE4431" resname="encounter.data_prep.js.catalog_bundled">
+        <source>encounter.data_prep.js.catalog_bundled</source>
+        <target>The MTS catalog could not be loaded from the server (offline or blocked by a proxy); the tool uses its bundled copy:</target>
+      </trans-unit>
+      <trans-unit id="EncB65C30FC" resname="encounter.data_prep.js.catalog_counts">
+        <source>encounter.data_prep.js.catalog_counts</source>
+        <target>diagrams: {diagrams}, indicators: {indicators}, aliases: {aliases}.</target>
+      </trans-unit>
+      <trans-unit id="Enc38A681FD" resname="encounter.data_prep.js.report_aliases_title">
+        <source>encounter.data_prep.js.report_aliases_title</source>
+        <target>Other spellings recognised</target>
+      </trans-unit>
+      <trans-unit id="Enc97DD7EEB" resname="encounter.data_prep.js.report_aliases_hint">
+        <source>encounter.data_prep.js.report_aliases_hint</source>
+        <target>These MTS values are spelled differently than in the catalog, which knows them as aliases (value → catalog code). The file keeps the code of the spelling in the export; the server resolves it.</target>
+      </trans-unit>
+      <trans-unit id="Enc0D074C33" resname="encounter.mts.diagram.indicators_source_with_counts">
+        <source>encounter.mts.diagram.indicators_source_with_counts</source>
+        <target>Indicators assigned to this diagram in the catalog and indicators seen with it in the encounter data you may see, with counts.</target>
+      </trans-unit>
+      <trans-unit id="Enc7319BC9F" resname="encounter.mts.diagram.indicators_source_definition">
+        <source>encounter.mts.diagram.indicators_source_definition</source>
+        <target>Indicators assigned to this diagram in the catalog. Which indicators occur with it in encounter data, and how often, is shown only to users with access to the encounter data of a hospital.</target>
+      </trans-unit>
+      <trans-unit id="Enc75FF351F" resname="encounter.mts.diagram.not_assigned">
+        <source>encounter.mts.diagram.not_assigned</source>
+        <target>not assigned in the catalog</target>
       </trans-unit>
     </body>
   </file>

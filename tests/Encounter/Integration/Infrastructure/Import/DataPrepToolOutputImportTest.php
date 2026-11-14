@@ -86,6 +86,10 @@ final class DataPrepToolOutputImportTest extends KernelTestCase
             $this->connection()->fetchFirstColumn('SELECT d.name FROM encounter e JOIN department d ON d.id = e.admitting_department_id WHERE e.import_id = ? ORDER BY d.name', [$importId]),
         );
 
+        // The invented diagram and the indicator the bundled catalog lacks become provisional entries (#1157).
+        self::assertSame(['erfundenes_diagramm'], $this->connection()->fetchFirstColumn("SELECT code FROM encounter_mts_diagram WHERE status = 'provisional' ORDER BY code"));
+        self::assertSame(['kuerzlich_aufgetretenes_problem'], $this->connection()->fetchFirstColumn("SELECT code FROM encounter_mts_indicator WHERE status = 'provisional' ORDER BY code"));
+
         // Uploading the same output again only finds known visits.
         $again = $this->uploadEncounterFile($this->hospital, $this->uploader, $content, 'tool output again');
         self::assertSame(6, $this->encounterImportOf($again)->getDuplicates());

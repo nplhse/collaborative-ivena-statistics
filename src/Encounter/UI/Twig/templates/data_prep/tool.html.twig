@@ -6,6 +6,9 @@
     updateAvailable: (js ~ 'update_available')|trans({}, 'encounter'),
     updateBlocked: (js ~ 'update_blocked')|trans({}, 'encounter'),
     updateUnavailable: (js ~ 'update_unavailable')|trans({}, 'encounter'),
+    catalogServer: (js ~ 'catalog_server')|trans({}, 'encounter'),
+    catalogBundled: (js ~ 'catalog_bundled')|trans({}, 'encounter'),
+    catalogCounts: (js ~ 'catalog_counts')|trans({}, 'encounter'),
     keyLoaded: (js ~ 'key_loaded')|trans({}, 'encounter'),
     keyRemembered: (js ~ 'key_remembered')|trans({}, 'encounter'),
     keyGenerated: (js ~ 'key_generated')|trans({}, 'encounter'),
@@ -83,6 +86,8 @@
     reportUnmappedHint: (js ~ 'report_unmapped_hint')|trans({}, 'encounter'),
     reportUnlistedTitle: (js ~ 'report_unlisted_title')|trans({}, 'encounter'),
     reportUnlistedHint: (js ~ 'report_unlisted_hint')|trans({}, 'encounter'),
+    reportAliasesTitle: (js ~ 'report_aliases_title')|trans({}, 'encounter'),
+    reportAliasesHint: (js ~ 'report_aliases_hint')|trans({}, 'encounter'),
     none: (js ~ 'none')|trans({}, 'encounter'),
     contentPassed: (js ~ 'content_passed')|trans({}, 'encounter'),
     contentFailed: (js ~ 'content_failed')|trans({}, 'encounter'),
@@ -102,6 +107,7 @@
 {%- set config = {
     version: release.version,
     latestUrl: latest_url,
+    catalogUrl: catalog_url,
     schema: schema,
     profiles: profiles,
     catalogs: catalogs,
@@ -111,7 +117,7 @@
 <html lang="{{ app.request.locale|default('de') }}">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src {{ latest_url }}; base-uri 'none'; form-action 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src {{ latest_url }} {{ catalog_url }}; base-uri 'none'; form-action 'none'">
     <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="encounter-data-prep {{ release.version }}">
@@ -156,6 +162,7 @@
     <p class="muted">{{ (p ~ 'version')|trans({}, 'encounter') }} {{ release.version }} · {{ release.releasedAt }}</p>
     <p>{{ (p ~ 'intro')|trans({}, 'encounter') }}</p>
     <p id="update-status" class="status" hidden></p>
+    <p id="catalog-status" class="status" hidden></p>
     <p><a id="update-link" href="#" hidden rel="noreferrer">{{ (p ~ 'update_link')|trans({}, 'encounter') }}</a></p>
 </header>
 <main>
