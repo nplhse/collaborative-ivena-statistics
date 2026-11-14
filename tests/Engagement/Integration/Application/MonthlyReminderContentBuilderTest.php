@@ -122,6 +122,7 @@ final class MonthlyReminderContentBuilderTest extends DatabaseKernelTestCase
         self::assertNotNull($content->urgencyBenchmarkNote);
         self::assertStringNotContainsString('label.urgency.', $content->urgencyBenchmarkNote);
         self::assertStringContainsString('Emergency Care', $content->urgencyBenchmarkNote);
+        self::assertMatchesRegularExpression('/\([+-]\d+\.\d pp vs\. /', $content->urgencyBenchmarkNote);
     }
 
     public function testBuildIncludesClosedDepartmentMetricsForReportingMonth(): void

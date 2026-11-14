@@ -5145,6 +5145,14 @@
         <source>stats.reports.monthly.kpi.mom</source>
         <target>ggü. Vormonat</target>
       </trans-unit>
+      <trans-unit id="StatsUnitPpDe1" resname="stats.unit.percentage_points.short">
+        <source>stats.unit.percentage_points.short</source>
+        <target>%-Punkte</target>
+      </trans-unit>
+      <trans-unit id="StatsUnitPpDe2" resname="stats.unit.percentage_points.long">
+        <source>stats.unit.percentage_points.long</source>
+        <target>Prozentpunkte (Differenz zweier Anteile)</target>
+      </trans-unit>
       <trans-unit id="Ae98dca1ef" resname="stats.reports.monthly.kpi.yoy">
         <source>stats.reports.monthly.kpi.yoy</source>
         <target>ggü. Vorjahresmonat</target>

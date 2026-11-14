@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Integration\Twig;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 
 final class DeltaBadgeTest extends KernelTestCase
@@ -137,6 +138,41 @@ final class DeltaBadgeTest extends KernelTestCase
         ]);
 
         self::assertSame('', trim($html));
+    }
+
+    public function testPercentagePointsUseSpelledOutUnitForTitleAndAccessibleName(): void
+    {
+        // Share 25,0 % vs. 20,0 %: +5,0 percentage points.
+        $html = $this->render([
+            'value' => 5.0,
+            'unit' => 'pp',
+            'ariaKey' => 'stats.top_lists.comparison.delta.aria',
+        ]);
+
+        self::assertMatchesRegularExpression('/>\+5,0 pp\s*</', $html);
+        self::assertStringContainsString('title="percentage points (difference between two shares)"', $html);
+        self::assertStringContainsString('aria-label="+5,0 percentage points (difference between two shares) versus comparison A"', $html);
+        self::assertStringNotContainsString('%', $html);
+    }
+
+    public function testPercentagePointsKeepExplicitTitleAndUseGermanUnit(): void
+    {
+        self::bootKernel();
+        $translator = self::getContainer()->get('translator');
+        self::assertInstanceOf(LocaleAwareInterface::class, $translator);
+        $translator->setLocale('de');
+
+        $html = (string) $this->renderTwigComponent('Statistics:DeltaIndicator', [
+            'value' => -2.5,
+            'unit' => 'pp',
+            'display' => 'text',
+            'ariaKey' => 'stats.case_flow.segment.delta.aria',
+            'title' => 'Regulär: 8,0 %',
+        ]);
+
+        self::assertMatchesRegularExpression('/>-2,5 %-Punkte\s*</', $html);
+        self::assertStringContainsString('title="Regulär: 8,0 %"', $html);
+        self::assertStringContainsString('aria-label="-2,5 Prozentpunkte (Differenz zweier Anteile) gegenüber der Grundgesamtheit"', $html);
     }
 
     /**

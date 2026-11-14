@@ -101,11 +101,12 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'Emergency Care');
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'Inpatient Care');
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'Outpatient Care');
-        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', '+29,4%');
-        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', '-29,4%');
+        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', '+29,4 pp');
+        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', '-29,4 pp');
         $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-urgency"] .text-green');
         $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-urgency"] .text-red');
-        $this->assertSelectorTextNotContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'pp');
+        // 100,0 % segment share vs. 70,6 % population share: a difference in percentage points, not a relative change.
+        $this->assertSelectorTextNotContains('[data-testid="stats-case-flow-segment-group-urgency"]', '+29,4%');
         $this->assertSelectorTextNotContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'U1');
         $this->assertSelectorNotExists('[data-testid="stats-case-flow-kpis"]');
         $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-median"]');
