@@ -48,15 +48,33 @@ content pages should not look like an admin tool.
   away; their entries move into the sidebar. In-page tabs stay where they switch between parts of one
   analysis that share a filter state.
 - **Nested level.** A sidebar entry may have one level of children (Insights dimensions, Closures parts,
-  Treatment data parts, Explorer library). It opens by click (Bootstrap `collapse`), shows a chevron and
-  `aria-expanded`, and is open by default when it contains the active view. The parent stays a link to
-  its overview page, so overview pages remain entry points but are no longer a mandatory step.
+  Treatment data parts, Explorer library). The parent is a toggle, not a link; its overview page is the
+  first child ("Overview"), so overview pages remain entry points but are no longer a mandatory step. The
+  group is open on page load when it contains the active view.
 - **Folded sidebar.** Part of the first sidebar step. On `lg` screens and wider the user can fold the
-  sidebar to an icon rail (about 4.5rem instead of 15rem, Tabler `navbar-folded`), so charts, maps and
-  wide tables get the width. The toggle sits at the top of the sidebar. In the rail, group titles, labels
-  and badges are hidden; every entry keeps its icon and shows its label as a tooltip. Entries with
-  children open their children as a flyout on hover or keyboard focus (Escape closes it), so nested views
-  stay one click away. The choice is stored per browser (`localStorage`), not on the server.
+  sidebar to an icon rail (about 4rem instead of 15rem), so charts, maps and wide tables get the width.
+  In the rail, labels and badges are hidden and section titles become separator lines; every entry keeps
+  its icon and its title as a tooltip, and nested groups open as flyouts. The default fold mode is
+  "unfold on hover" (`folded-hover`): the rail expands over the content while the pointer or keyboard
+  focus is in it, and the pin button brings the expanded sidebar back.
+
+### Tabler components
+
+The sidebar uses Tabler's own vertical navbar instead of custom markup, so folding, flyouts, section
+titles and the mobile collapse come with Tabler and need no own JavaScript:
+
+| Need | Tabler 1.7 |
+|---|---|
+| Sidebar and top navbar together | `aside.navbar.navbar-vertical.navbar-expand-lg` and `header.navbar` as direct children of `.page`, the `aside` first; `data-bs-navbar-position="combined"` on `<html>`, set server-side only on pages that render the sidebar |
+| Groups | `li.nav-section-title` before the first item of a group; an empty title is the divider before the standalone entries |
+| Nested level | `nav-item dropdown` with `dropdown-menu`: inline in the expanded sidebar (`data-bs-auto-close="false"`), flyout in the rail |
+| Trailing entries | `.navbar-side` (for example Classifications in Explore), pinned to the bottom of the sidebar |
+| Fold and pin | `data-bs-toggle="sidebar-folded"` on a button in the brand area; Tabler sets `data-bs-sidebar="folded-hover"` on `<html>`, stores it in `localStorage` (`tabler-sidebar`) and fires `tabler:sidebar-folded`, which charts and maps use to resize |
+| Mobile | below `lg` the vertical navbar becomes a bar with its own toggler and collapse |
+
+The project does not load `tabler-theme.js`. The stored fold state is applied by a few lines in the
+existing colour-scheme include in `<head>`, before the page renders, so the layout does not jump on
+reload. The only own CSS orders the bars on small screens (see below) and hides the area label in the rail.
 
 ### Information architecture for Statistics
 
@@ -99,21 +117,23 @@ One tree that the contexts contribute to, following the `shared.tool` pattern:
   the top navbar entry, the sidebar entry and its open parent, and later yields the breadcrumbs.
 - **Rendering by Twig components** next to `Breadcrumbs` and `PageHeader`:
   `<twig:Navigation:Primary />`, `<twig:Navigation:Footer />`, `<twig:Navigation:Sidebar menu="statistics" />`.
-  Plain server-rendered components, no Live Components; collapse and fold use Bootstrap and one small
-  Stimulus controller.
+  Plain server-rendered components, no Live Components, no Stimulus controller; folding, flyouts and the
+  mobile collapse are Tabler's own behaviour.
 - `ToolRegistry` stays and becomes the source of the Tools entry in the `primary` menu. Content becomes
   a provider for header pages and footer page links.
 
 ### Mobile and small screens
 
-- The left hamburger in the top navbar stays responsible for **areas** only.
-- Below `lg` the sidebar is not shown. The page header gets a labelled button with the current location
-  ("Statistics · Insights ▾"). It opens the same tree as an `offcanvas-start`.
-- Left means "where to go", the existing filter drawer on the right (`offcanvas-end`) means "what to
-  filter". The two never open at the same time.
-- Keyboard: every entry is a real link, nested groups are buttons with `aria-expanded` and
-  `aria-controls`, the active entry has `aria-current="page"`, the offcanvas traps focus and closes on
-  Escape (Bootstrap).
+- The hamburger in the top navbar stays responsible for **areas** only.
+- Below `lg` the vertical navbar becomes a second bar directly below the top navbar. Its brand area shows
+  the area and the current view ("Statistics · Indications"), its own toggler opens the views as a
+  collapsing list. Tabler renders the `aside` first; a few lines of CSS order it after the top navbar on
+  small screens, so the bars read "area, then view".
+- The existing filter drawer stays on the right (`offcanvas-end`): the bars say "where to go", the drawer
+  says "what to filter".
+- Keyboard: every view is a real link, nested groups are dropdown toggles with `aria-expanded`, the
+  active entry has `aria-current="page"`, both navigation regions are `nav` elements with their own
+  `aria-label`, and Escape closes an open flyout (Bootstrap dropdown).
 
 ### Analytical context when switching views
 
@@ -164,9 +184,9 @@ and scope and the period boundaries are those the user had already selected inst
 - Active state is decided once, by the builder, instead of per template.
 - Statistics and Explore pages change their layout; Functional tests that select subnav entries by
   `data-testid` need new selectors. Routes and URLs do not change, bookmarks keep working.
-- Statistics and Explore pages lose about 15rem of width on desktop for the sidebar (about 4.5rem when
+- Statistics and Explore pages lose about 15rem of width on desktop for the sidebar (about 4rem when
   folded) and gain the height of the removed subnav row.
-- Tabler 1.7.4 is a prerequisite (combined vertical and horizontal navbar, folded sidebar refinements);
+- Tabler 1.7 is a prerequisite (combined layout, `navbar-folded-hover`, pin button, section titles);
   it is upgraded first in its own PR with a visual check.
 - The tree must stay cheap: providers run on every page and must not query the database.
 
@@ -174,12 +194,12 @@ and scope and the period boundaries are those the user had already selected inst
 
 Integration branch from `develop`, one PR per step ([ADR 010](010-architecture-guardrails-and-beta-scope.md)):
 
-1. Tabler 1.7.4 (own PR into `develop`, visual check only).
+1. Tabler 1.7 (latest patch release; own PR into `develop`, visual check only).
 2. This ADR accepted, `NavItem`, provider interface and tag, `NavigationBuilder`, unit tests, docs in
    `extension-points.md`.
 3. Primary navigation on `<twig:Navigation:Primary />`, output unchanged.
 4. Footer on `<twig:Navigation:Footer />`; constants in `FooterNavigationProvider` go away.
-5. Sidebar layout for Statistics with offcanvas on mobile; `subnav_stats` and the Insights subnav go away.
+5. Sidebar layout for Statistics on the Tabler vertical navbar, including fold state and mobile bar; `subnav_stats` and the Insights subnav go away.
 6. Sidebar for Explore; `subnav_explore` goes away.
 
 Follow-ups, optional for v0.3-beta: breadcrumbs from the active path (#1141), sitemap from the tree,
@@ -187,5 +207,7 @@ mobile header actions (#954), favorites section, quick search.
 
 ## Prototype
 
-A static design prototype for layout, groups and mobile behaviour accompanies this proposal; it is not
-part of the repository.
+A static design prototype accompanies this proposal; it is not part of the repository. It is built on the
+Tabler 1.7 CSS and JavaScript with the markup described above and shows the groups, the fold modes, the
+permission filtering by role and the mobile bar. Its only own CSS is the one listed under Tabler
+components.
