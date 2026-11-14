@@ -35,6 +35,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -74,6 +75,7 @@ final class PageTranslationCrudController extends AbstractCrudController
             ->setEntityLabelInSingular(new TranslatableMessage('label.page_translation', domain: 'content'))
             ->setEntityLabelInPlural(new TranslatableMessage('label.page_translations', domain: 'content'))
             ->setSearchFields(['id', 'title', 'slug', 'path', 'locale'])
+            ->addFormTheme('@Admin/page_translation/form_theme.html.twig')
             ->setDefaultSort(['path' => 'ASC']);
     }
 
@@ -198,6 +200,7 @@ final class PageTranslationCrudController extends AbstractCrudController
             ->setFormTypeOption('help_html', true)
             ->setEntryType(PageContentBlockType::class)
             ->setEntryIsComplex()
+            ->setFormTypeOption('prototype_data', PageContentBlockType::newBlockData())
             ->setFormTypeOption('row_attr', [
                 'data-controller' => 'collection-reorder',
                 'data-collection-reorder-move-up-label-value' => $this->translator->trans('label.move_block_up', [], 'messages'),
@@ -244,6 +247,7 @@ final class PageTranslationCrudController extends AbstractCrudController
         /** @psalm-suppress ArgumentTypeCoercion */
         $builder = parent::createNewFormBuilder($entityDto, $formOptions, $context);
         $this->addPathSynchronizationListener($builder);
+        $this->addContentValidationListener($builder);
 
         return $builder;
     }
@@ -257,6 +261,7 @@ final class PageTranslationCrudController extends AbstractCrudController
         /** @psalm-suppress ArgumentTypeCoercion */
         $builder = parent::createEditFormBuilder($entityDto, $formOptions, $context);
         $this->addPathSynchronizationListener($builder);
+        $this->addContentValidationListener($builder);
 
         return $builder;
     }
@@ -318,6 +323,50 @@ final class PageTranslationCrudController extends AbstractCrudController
         }, 512);
     }
 
+    /**
+     * Validates every block inside the form, so errors show at the affected block and the editor keeps the input.
+     *
+     * @param FormBuilderInterface<PageTranslation> $builder
+     */
+    private function addContentValidationListener(FormBuilderInterface $builder): void
+    {
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
+            $form = $event->getForm();
+            if (!$form->has('content')) {
+                return;
+            }
+
+            $position = 1;
+            foreach ($form->get('content') as $blockForm) {
+                foreach ($this->validateBlock($position, $blockForm->getData()) as $message) {
+                    $blockForm->addError(new FormError($message));
+                }
+
+                ++$position;
+            }
+        });
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function validateBlock(int $position, mixed $block): array
+    {
+        if (!is_array($block)) {
+            return $this->pageContentValidator->validateBlockAt($position, $block);
+        }
+
+        try {
+            $prepared = $this->pageContentMediaResolver->resolve(
+                $this->pageContentBlockDataNormalizer->normalize([$block]),
+            );
+        } catch (\InvalidArgumentException $exception) {
+            return [sprintf('Block %d: %s', $position, $exception->getMessage())];
+        }
+
+        return $this->pageContentValidator->validateBlockAt($position, $prepared[0] ?? $block);
+    }
+
     private function shouldSynchronizePath(PageTranslation $translation): bool
     {
         return '' !== trim((string) $translation->getTitle());
@@ -368,6 +417,11 @@ final class PageTranslationCrudController extends AbstractCrudController
     #[\Override]
     protected function getRedirectResponseAfterSave(AdminContext $context, string $action): RedirectResponse
     {
+        $submitButtonName = $context->getRequest()->request->all()['ea']['newForm']['btn'] ?? null;
+        if (Action::SAVE_AND_CONTINUE === $submitButtonName) {
+            return parent::getRedirectResponseAfterSave($context, $action);
+        }
+
         $entity = $context->getEntity()->getInstance();
         if ($entity instanceof PageTranslation) {
             $page = $entity->getPage();

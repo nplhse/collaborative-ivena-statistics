@@ -63,16 +63,28 @@ final class PageContentBlockType extends AbstractType
         });
     }
 
+    /**
+     * Data of a block the editor adds: rich text, enabled.
+     *
+     * @return array{type: string, enabled: bool, data: array<string, mixed>}
+     */
+    public static function newBlockData(): array
+    {
+        return [
+            'type' => ContentBlockTypeEnum::Richtext->value,
+            'enabled' => true,
+            'data' => [],
+        ];
+    }
+
     #[\Override]
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => null,
-            'empty_data' => static fn (): array => [
-                'type' => ContentBlockTypeEnum::Richtext->value,
-                'enabled' => true,
-                'data' => [],
-            ],
+            // Keep block errors at the block instead of moving them to the top of the form.
+            'error_bubbling' => false,
+            'empty_data' => self::newBlockData(...),
         ]);
     }
 }

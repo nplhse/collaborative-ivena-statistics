@@ -1145,6 +1145,38 @@
         <source>activity.timeline.loading</source>
         <target>Loading activity…</target>
       </trans-unit>
+      <trans-unit id="pgEdit01En" resname="label.accordion_item_title">
+        <source>label.accordion_item_title</source>
+        <target>Item title</target>
+      </trans-unit>
+      <trans-unit id="pgEdit02En" resname="label.accordion_items">
+        <source>label.accordion_items</source>
+        <target>Accordion items</target>
+      </trans-unit>
+      <trans-unit id="pgEdit03En" resname="label.accordion_open_by_default">
+        <source>label.accordion_open_by_default</source>
+        <target>Open by default</target>
+      </trans-unit>
+      <trans-unit id="pgEdit04En" resname="label.button_label">
+        <source>label.button_label</source>
+        <target>Button label</target>
+      </trans-unit>
+      <trans-unit id="pgEdit05En" resname="label.button_url">
+        <source>label.button_url</source>
+        <target>Button URL</target>
+      </trans-unit>
+      <trans-unit id="pgEdit06En" resname="label.html">
+        <source>label.html</source>
+        <target>HTML</target>
+      </trans-unit>
+      <trans-unit id="pgEdit07En" resname="label.open_in_new_tab">
+        <source>label.open_in_new_tab</source>
+        <target>Open in new tab</target>
+      </trans-unit>
+      <trans-unit id="pgEdit08En" resname="label.quote_text">
+        <source>label.quote_text</source>
+        <target>Quote text</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
