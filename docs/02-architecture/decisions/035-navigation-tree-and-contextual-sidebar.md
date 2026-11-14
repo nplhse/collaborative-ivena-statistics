@@ -58,11 +58,18 @@ content pages should not look like an admin tool.
   In the rail, labels and badges are hidden and section titles become separator lines; every entry keeps
   its icon and its title as a tooltip. The icon of the top-level entry that contains the active view stays
   marked as active. Activating a group icon in the rail (click, tap or Enter) expands the sidebar itself,
-  in the same state as the pin button, and shows the active path with its groups open. There are no
-  flyouts. The default fold mode is
-  "unfold on hover" (`folded-hover`): the rail expands over the content while the pointer or keyboard
-  focus is in it, and the pin button keeps it open. The folded rail reserves only its own width, the content
-  moves over accordingly; the temporary expansion on hover overlays the content and does not move it.
+  pinned open, and shows the active path with its groups open. There are no flyouts. The folded rail
+  reserves only its own width and the content moves over accordingly.
+- **Fold toggle.** One labelled entry in the sidebar footer, visible in every state, whose icon and label
+  say what a click does: "Collapse sidebar" (sidebar-collapse icon) while pinned open, "Keep sidebar open"
+  (sidebar-expand icon) while folded. A click on "Collapse sidebar" folds to the rail **at once**, even
+  though the pointer is still on the sidebar; the preview on hover only starts again after the pointer
+  has left the rail. A click on "Keep sidebar open" pins it open again.
+- **Preview on hover.** In the rail, the sidebar expands over the content while the pointer or keyboard
+  focus is in it (Tabler's `folded-hover`); this preview overlays the content and does not move it.
+- **No area heading in the sidebar.** The top navbar already shows the active area, so the sidebar does
+  not repeat it; it starts with its first section. Only the mobile bar names the area and the current view
+  (see below).
 
 ### Tabler components
 
@@ -74,14 +81,15 @@ the mobile collapse come with Tabler:
 | Sidebar and top navbar together | `aside.navbar.navbar-vertical.navbar-expand-lg` and `header.navbar` as direct children of `.page`, the `aside` first; `data-bs-navbar-position="combined"` on `<html>`, set server-side only on pages that render the sidebar |
 | Groups | `li.nav-section-title` before the first item of a group; an empty title is the divider before the standalone entries |
 | Nesting | a group toggle (`nav-link` with `data-bs-toggle="collapse"`, `aria-expanded`, `aria-controls`) and a nested `navbar-nav` in a Bootstrap `collapse`, repeatable on every level; not Tabler's `dropdown`, whose rail flyouts are not used |
-| Click on a group icon in the rail | the only own JavaScript: one small Stimulus controller that removes the fold state (as the pin button does) and lets the server-rendered open groups of the active path show |
+| Fold toggle and click on a group icon in the rail | the only own JavaScript: one small Stimulus controller. It sets the same `data-bs-sidebar` attribute and `localStorage` key (`tabler-sidebar`) as Tabler's pin button and fires the same `tabler:sidebar-folded` event, so Tabler's CSS and chart resizing work unchanged. It also suspends the hover preview after a collapse until the pointer leaves the rail. Tabler's own pin button is not used: it is only visible while the pointer is over the sidebar, and folding to `folded-hover` under the pointer leaves the sidebar open, which reads as if nothing happened |
 | Trailing entries | `.navbar-side` (for example Classifications in Explore), pinned to the bottom of the sidebar |
-| Fold and pin | `data-bs-toggle="sidebar-folded"` on a button in the brand area; Tabler sets `data-bs-sidebar="folded-hover"` on `<html>`, stores it in `localStorage` (`tabler-sidebar`) and fires `tabler:sidebar-folded`, which charts and maps use to resize |
+| Fold state | `data-bs-sidebar="folded-hover"` on `<html>`; Tabler's CSS turns the sidebar into the rail, shifts the content and handles the hover preview |
+| Fold toggle placement | `.navbar-footer` with a `nav-link`, pinned to the bottom of the sidebar; in the rail only its icon shows |
 | Mobile | below `lg` the vertical navbar becomes a bar with its own toggler and collapse |
 
 **Hierarchy: the top navbar stays on top.** In Tabler's combined layout the sidebar runs from the top of
-the viewport and the top navbar starts to its right, so the area name in the sidebar would sit above the
-site brand. We keep the brand as the top of the hierarchy instead: from `lg` up the top navbar keeps the
+the viewport and the top navbar starts to its right, so the sidebar would sit beside the site brand
+instead of below it. We keep the brand as the top of the hierarchy instead: from `lg` up the top navbar keeps the
 full width and is sticky (`data-bs-navbar="sticky"`, a Tabler option), and the sidebar starts below it.
 This takes two CSS rules on top of Tabler: `top` of the sidebar set to the height of the top navbar, and
 the left margin Tabler gives the top navbar removed. Folding and the content offset keep working
@@ -90,9 +98,9 @@ looks the same on pages with and without sidebar.
 
 The project does not load `tabler-theme.js`. The stored fold state is applied by a few lines in the
 existing colour-scheme include in `<head>`, before the page renders, so the layout does not jump on
-reload. The only other own CSS orders the bars on small screens (see below), hides the area label in the rail
-and keeps the pin button visible while the sidebar is expanded (Tabler shows it only while the pointer is
-over the sidebar, which makes the fold control hard to find).
+reload. The only other own CSS orders the bars on small screens (see below), hides the brand area of the
+sidebar from `lg` up and the fold toggle below `lg`, and suspends pointer events on the rail right after
+a collapse.
 
 ### Information architecture for Statistics
 
@@ -160,8 +168,8 @@ One tree that the contexts contribute to, following the `shared.tool` pattern:
 - **Rendering by Twig components** next to `Breadcrumbs` and `PageHeader`:
   `<twig:Navigation:Primary />`, `<twig:Navigation:Footer />`, `<twig:Navigation:Sidebar menu="statistics" />`.
   Plain server-rendered components, no Live Components. Folding and the mobile collapse are Tabler's own
-  behaviour, nesting is Bootstrap `collapse`; the only own JavaScript is the Stimulus controller for a
-  click on a group icon in the rail.
+  behaviour, nesting is Bootstrap `collapse`; the only own JavaScript is the Stimulus controller for the
+  fold toggle and the click on a group icon in the rail.
 - `ToolRegistry` stays and becomes the source of the Tools entry in the `primary` menu. Content becomes
   a provider for header pages and footer page links.
 
@@ -236,7 +244,7 @@ the defaults; comparison groups and the comparison period start at the target vi
   `data-testid` need new selectors. Routes and URLs do not change, bookmarks keep working.
 - Statistics and Explore pages lose about 15rem of width on desktop for the sidebar (about 4rem when
   folded) and gain the height of the removed subnav row.
-- Tabler 1.7 is a prerequisite (combined layout, `navbar-folded-hover`, pin button, section titles);
+- Tabler 1.7 is a prerequisite (combined layout, `folded-hover` rail, sidebar footer, section titles);
   it is upgraded first in its own PR with a visual check.
 - The tree must stay cheap: providers run on every page and must not query the database.
 
