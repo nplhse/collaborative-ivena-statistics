@@ -577,6 +577,26 @@
         <source>link.stats.encounter_analytics</source>
         <target>Encounter data (beta)</target>
       </trans-unit>
+      <trans-unit id="CkyPrefPerfTiEn" resname="cookie.preferences.performance.title">
+        <source>cookie.preferences.performance.title</source>
+        <target>Performance analysis</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefPerfTxEn" resname="cookie.preferences.performance.text">
+        <source>cookie.preferences.performance.text</source>
+        <target>Lets us send to Sentry ({location}) how you used the application and how fast it was, together with your internal user id, to analyse and improve the performance of the platform. No other personal data such as your name or email address is sent. Only together with analytics cookies.</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefErrNoteEn" resname="cookie.preferences.errors_notice">
+        <source>cookie.preferences.errors_notice</source>
+        <target>Regardless of this choice, we report technical errors to Sentry ({location}) to operate the platform. Error reports contain your internal user id, but no other personal data.</target>
+      </trans-unit>
+      <trans-unit id="CkyBanPerfTxEn" resname="cookie.banner.performance_text">
+        <source>cookie.banner.performance_text</source>
+        <target>With “Allow all cookies” you also agree to performance analysis with Sentry ({location}).</target>
+      </trans-unit>
+      <trans-unit id="CkyMonLocEn" resname="cookie.monitoring.location">
+        <source>cookie.monitoring.location</source>
+        <target>{location, select, eu {servers in the EU} us {servers in the USA} other {servers run by the operator}}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

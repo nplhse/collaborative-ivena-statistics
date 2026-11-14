@@ -49,6 +49,7 @@ Each ADR includes:
 | [031](031-tools-section-and-tool-registry.md) | Tools section and tool registry | accepted |
 | [032](032-mts-catalog-as-maintained-data.md) | MTS catalog as maintained data | accepted |
 | [033](033-learning-plausibility-table.md) | Learning plausibility table for PZC and MTS diagram | accepted |
+| [034](034-performance-monitoring-in-sentry.md) | Performance monitoring in Sentry, usage analytics without APM | accepted |
 
 ## Template
 

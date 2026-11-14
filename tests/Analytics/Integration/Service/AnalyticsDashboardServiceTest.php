@@ -31,9 +31,6 @@ final class AnalyticsDashboardServiceTest extends DatabaseKernelTestCase
             routeName: 'app_stats_dashboard',
             featureArea: FeatureArea::Dashboard,
             httpStatus: 200,
-            durationMs: 120,
-            dbQueryCount: 3,
-            dbTimeMs: 40,
             isAuthenticated: true,
             userRole: 'ROLE_PARTICIPANT',
             analyticsUserKey: $userKey,
@@ -47,9 +44,6 @@ final class AnalyticsDashboardServiceTest extends DatabaseKernelTestCase
             routeName: 'app_stats_analysis_explorer',
             featureArea: FeatureArea::Analysis,
             httpStatus: 200,
-            durationMs: 500,
-            dbQueryCount: 15,
-            dbTimeMs: 200,
             isAuthenticated: true,
             userRole: 'ROLE_PARTICIPANT',
             analyticsUserKey: $userKey,
@@ -65,9 +59,5 @@ final class AnalyticsDashboardServiceTest extends DatabaseKernelTestCase
         self::assertNotEmpty($overview->topRoutes);
         self::assertGreaterThanOrEqual(1, $overview->authenticationSplit['authenticated']);
         self::assertGreaterThanOrEqual(1, $overview->retention['dau']);
-
-        $performance = $service->getPerformance();
-        self::assertNotEmpty($performance->performanceByArea);
-        self::assertIsArray($performance->performanceInsights);
     }
 }

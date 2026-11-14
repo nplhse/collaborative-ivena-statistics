@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Tests\Shared\Integration\Consent;
 
 use App\Shared\Infrastructure\Consent\CookieConsentService;
+use App\Shared\Infrastructure\Monitoring\Sentry\SentryMonitoringSettings;
 use App\Shared\Infrastructure\Repository\CookieConsentRepository;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -112,6 +114,26 @@ final class CookieConsentServiceTest extends KernelTestCase
         self::assertNotNull($reloaded);
         self::assertFalse($reloaded->getPreferences()['analytics']);
         self::assertFalse($service->hasAnalyticsConsent($reloaded));
+    }
+
+    public function testPerformanceIsOnlyStoredWhileSentryIsUsed(): void
+    {
+        self::bootKernel();
+        $repository = self::getContainer()->get(CookieConsentRepository::class);
+        $clock = self::getContainer()->get(ClockInterface::class);
+
+        $withoutSentry = new CookieConsentService($repository, $clock, '', new SentryMonitoringSettings());
+        $without = $withoutSentry->resolveForRequest(Request::create('/'), null);
+        $withoutSentry->applyPreference($without, true, null, performance: true);
+
+        $withSentry = new CookieConsentService($repository, $clock, '', new SentryMonitoringSettings('https://key@o1.ingest.de.sentry.io/2'));
+        $with = $withSentry->resolveForRequest(Request::create('/'), null);
+        $withSentry->applyPreference($with, true, null, performance: true);
+
+        self::assertFalse($withoutSentry->hasPerformanceConsent($without), 'The option was never shown.');
+        self::assertTrue($withSentry->hasPerformanceConsent($with));
+        self::assertSame(['enabled' => false, 'location' => null], $withoutSentry->describe($without)['monitoring']);
+        self::assertSame(['enabled' => true, 'location' => 'eu'], $withSentry->describe($with)['monitoring']);
     }
 
     public function testAttachUserLinksExistingDecidedConsentWithoutChangingPreferences(): void

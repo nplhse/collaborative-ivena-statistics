@@ -67,7 +67,11 @@ final class CookieConsentCrudController extends AbstractCrudController
             ->formatValue(static function (mixed $_, CookieConsent $consent): string {
                 $prefs = $consent->getPreferences();
 
-                return ($prefs['analytics'] ?? false) ? 'analytics_enabled' : 'essential_only';
+                if ($prefs['performance']) {
+                    return 'analytics_performance';
+                }
+
+                return $prefs['analytics'] ? 'analytics_enabled' : 'essential_only';
             });
         yield DateTimeField::new('decidedAt', new TranslatableMessage('admin.cookie_consent.field.decided_at', domain: 'admin'))
             ->setFormat('yyyy-MM-dd HH:mm:ss');

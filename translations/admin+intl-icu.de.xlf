@@ -1705,10 +1705,6 @@
         <source>usage_analytics.menu.accesses</source>
         <target>Zugriffe</target>
       </trans-unit>
-      <trans-unit id="uaNav07de" resname="usage_analytics.menu.performance">
-        <source>usage_analytics.menu.performance</source>
-        <target>Performance</target>
-      </trans-unit>
       <trans-unit id="uaNav08de" resname="usage_analytics.tile.overview">
         <source>usage_analytics.tile.overview</source>
         <target>Anfragen, Wiederkehr, Bereiche</target>
@@ -1716,10 +1712,6 @@
       <trans-unit id="uaNav09de" resname="usage_analytics.tile.accesses">
         <source>usage_analytics.tile.accesses</source>
         <target>Seitenaufrufe pro Monat und Jahr seit Zählbeginn</target>
-      </trans-unit>
-      <trans-unit id="uaNav12de" resname="usage_analytics.tile.performance">
-        <source>usage_analytics.tile.performance</source>
-        <target>Antwortzeiten und Datenbanklast nach Bereich</target>
       </trans-unit>
       <trans-unit id="admFqEntityDe" resname="admin.feedback_quarantine.entity">
         <source>admin.feedback_quarantine.entity</source>

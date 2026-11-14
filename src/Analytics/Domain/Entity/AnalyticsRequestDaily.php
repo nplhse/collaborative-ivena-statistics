@@ -41,18 +41,6 @@ class AnalyticsRequestDaily
     #[ORM\Column]
     private int $requestCount;
 
-    #[ORM\Column]
-    private int $errorCount;
-
-    #[ORM\Column]
-    private int $sumDurationMs;
-
-    #[ORM\Column]
-    private int $sumDbQueryCount;
-
-    #[ORM\Column]
-    private int $sumDbTimeMs;
-
     public function __construct(
         \DateTimeImmutable $date,
         FeatureArea $featureArea,
@@ -60,10 +48,6 @@ class AnalyticsRequestDaily
         bool $isAuthenticated,
         ?string $userRole,
         int $requestCount,
-        int $errorCount,
-        int $sumDurationMs,
-        int $sumDbQueryCount,
-        int $sumDbTimeMs,
     ) {
         $this->date = $date;
         $this->featureArea = $featureArea;
@@ -71,10 +55,6 @@ class AnalyticsRequestDaily
         $this->isAuthenticated = $isAuthenticated;
         $this->userRole = $userRole;
         $this->requestCount = $requestCount;
-        $this->errorCount = $errorCount;
-        $this->sumDurationMs = $sumDurationMs;
-        $this->sumDbQueryCount = $sumDbQueryCount;
-        $this->sumDbTimeMs = $sumDbTimeMs;
     }
 
     public function getId(): ?int
@@ -110,25 +90,5 @@ class AnalyticsRequestDaily
     public function getRequestCount(): int
     {
         return $this->requestCount;
-    }
-
-    public function getErrorCount(): int
-    {
-        return $this->errorCount;
-    }
-
-    public function getSumDurationMs(): int
-    {
-        return $this->sumDurationMs;
-    }
-
-    public function getSumDbQueryCount(): int
-    {
-        return $this->sumDbQueryCount;
-    }
-
-    public function getSumDbTimeMs(): int
-    {
-        return $this->sumDbTimeMs;
     }
 }

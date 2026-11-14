@@ -82,11 +82,7 @@ final readonly class AnalyticsDayAggregationQuery
      *     routeName: string|null,
      *     isAuthenticated: bool,
      *     userRole: string|null,
-     *     requestCount: int,
-     *     errorCount: int,
-     *     sumDurationMs: int,
-     *     sumDbQueryCount: int,
-     *     sumDbTimeMs: int
+     *     requestCount: int
      * }>
      */
     public function fetchRequestDaily(\DateTimeImmutable $day): array
@@ -99,11 +95,7 @@ final readonly class AnalyticsDayAggregationQuery
                        route_name,
                        is_authenticated,
                        user_role,
-                       COUNT(*)::int AS request_count,
-                       SUM(CASE WHEN http_status >= 400 THEN 1 ELSE 0 END)::int AS error_count,
-                       COALESCE(SUM(duration_ms), 0)::int AS sum_duration_ms,
-                       COALESCE(SUM(db_query_count), 0)::int AS sum_db_query_count,
-                       COALESCE(SUM(db_time_ms), 0)::int AS sum_db_time_ms
+                       COUNT(*)::int AS request_count
                 FROM analytics_request
                 WHERE occurred_at >= :from
                   AND occurred_at < :to
@@ -121,10 +113,6 @@ final readonly class AnalyticsDayAggregationQuery
                 'isAuthenticated' => (bool) $row['is_authenticated'],
                 'userRole' => null !== $row['user_role'] ? (string) $row['user_role'] : null,
                 'requestCount' => $this->toInt($row['request_count'] ?? 0),
-                'errorCount' => $this->toInt($row['error_count'] ?? 0),
-                'sumDurationMs' => $this->toInt($row['sum_duration_ms'] ?? 0),
-                'sumDbQueryCount' => $this->toInt($row['sum_db_query_count'] ?? 0),
-                'sumDbTimeMs' => $this->toInt($row['sum_db_time_ms'] ?? 0),
             ];
         }
 

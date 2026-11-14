@@ -37,8 +37,6 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
             userRole: 'ROLE_PARTICIPANT',
             analyticsUserKey: $userKey,
             sessionKey: $session,
-            durationMs: 100,
-            dbQueryCount: 2,
         );
         $this->saveRequest(
             occurredAt: $today->modify('-8 minutes'),
@@ -48,8 +46,6 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
             userRole: 'ROLE_PARTICIPANT',
             analyticsUserKey: $userKey,
             sessionKey: $session,
-            durationMs: 400,
-            dbQueryCount: 12,
         );
         $this->saveRequest(
             occurredAt: $today->modify('-5 minutes'),
@@ -59,8 +55,6 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
             userRole: null,
             analyticsUserKey: null,
             sessionKey: $session,
-            durationMs: 150,
-            dbQueryCount: 3,
         );
 
         for ($i = 0; $i < 5; ++$i) {
@@ -72,8 +66,6 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
                 userRole: 'ROLE_ADMIN',
                 analyticsUserKey: 'user-key-agg-2',
                 sessionKey: 'session-agg-2',
-                durationMs: 800 + ($i * 10),
-                dbQueryCount: 20,
             );
         }
 
@@ -103,58 +95,6 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
         self::assertGreaterThanOrEqual(2, $retention['wau']);
         self::assertGreaterThanOrEqual(2, $retention['mau']);
         self::assertGreaterThanOrEqual(2, $retention['sessionsLast7Days']);
-
-        $perf = $this->repository->performanceByAreaSince($from);
-        self::assertNotEmpty($perf);
-        self::assertArrayHasKey('avgDurationMs', $perf[0]);
-        self::assertArrayHasKey('p95DurationMs', $perf[0]);
-
-        $slowest = $this->repository->slowestRoutesSince($from, minCount: 5);
-        self::assertNotEmpty($slowest);
-        self::assertSame('app_stats_analysis_explorer', $slowest[0]['routeName']);
-    }
-
-    public function testBuildPerformanceInsights(): void
-    {
-        self::assertSame([], $this->repository->buildPerformanceInsights([
-            [
-                'featureArea' => 'analysis',
-                'requestCount' => 10,
-                'avgDurationMs' => 100.0,
-                'avgQueries' => 5.0,
-            ],
-        ]));
-
-        $insights = $this->repository->buildPerformanceInsights([
-            [
-                'featureArea' => 'analysis',
-                'requestCount' => 100,
-                'avgDurationMs' => 900.0,
-                'avgQueries' => 5.0,
-            ],
-            [
-                'featureArea' => 'dashboard',
-                'requestCount' => 80,
-                'avgDurationMs' => 50.0,
-                'avgQueries' => 2.0,
-            ],
-            [
-                'featureArea' => 'admin',
-                'requestCount' => 2,
-                'avgDurationMs' => 40.0,
-                'avgQueries' => 40.0,
-            ],
-        ]);
-
-        self::assertNotEmpty($insights);
-        self::assertTrue(array_any(
-            $insights,
-            static fn (string $line): bool => str_contains($line, 'High use + slow') && str_contains($line, 'analysis'),
-        ));
-        self::assertTrue(array_any(
-            $insights,
-            static fn (string $line): bool => str_contains($line, 'Low use + heavy DB') && str_contains($line, 'admin'),
-        ));
     }
 
     private function saveRequest(
@@ -165,17 +105,12 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
         ?string $userRole,
         ?string $analyticsUserKey,
         ?string $sessionKey,
-        int $durationMs = 100,
-        int $dbQueryCount = 1,
     ): void {
         $this->repository->save(new AnalyticsRequest(
             occurredAt: $occurredAt,
             routeName: $routeName,
             featureArea: $featureArea,
             httpStatus: 200,
-            durationMs: $durationMs,
-            dbQueryCount: $dbQueryCount,
-            dbTimeMs: max(1, (int) ($durationMs / 2)),
             isAuthenticated: $isAuthenticated,
             userRole: $userRole,
             analyticsUserKey: $analyticsUserKey,
