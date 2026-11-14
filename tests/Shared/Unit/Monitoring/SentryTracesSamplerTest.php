@@ -33,8 +33,22 @@ final class SentryTracesSamplerTest extends TestCase
         self::assertSame(0.0, new SentryTracesSampler(1.0)($context));
     }
 
-    private function context(string $op): SamplingContext
+    public function testHealthChecksAndNotificationPollingAreNeverSampled(): void
     {
-        return SamplingContext::getDefault(TransactionContext::make()->setOp($op));
+        $sampler = new SentryTracesSampler(1.0);
+
+        foreach (['GET app_health', 'GET app_notification_poll'] as $name) {
+            $context = $this->context('http.server', $name);
+            self::assertSame(0.0, $sampler($context), $name);
+            $context->setParentSampled(true);
+            self::assertSame(0.0, $sampler($context), $name.' with a sampled parent');
+        }
+
+        self::assertSame(1.0, $sampler($this->context('http.server', 'GET app_notification_index')));
+    }
+
+    private function context(string $op, string $name = '<unlabeled transaction>'): SamplingContext
+    {
+        return SamplingContext::getDefault(TransactionContext::make()->setOp($op)->setName($name));
     }
 }
