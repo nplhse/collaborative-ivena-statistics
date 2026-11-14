@@ -1269,6 +1269,10 @@
         <source>encounter.review.action.leave_open</source>
         <target>Leave open</target>
       </trans-unit>
+      <trans-unit id="Enc4A5D5BE9" resname="encounter.review.action.view_allocation">
+        <source>encounter.review.action.view_allocation</source>
+        <target>View allocation</target>
+      </trans-unit>
       <trans-unit id="EncF29BDFEC" resname="encounter.review.flash.confirmed">
         <source>encounter.review.flash.confirmed</source>
         <target>The link has been confirmed.</target>
