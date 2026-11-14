@@ -45,6 +45,32 @@
     color: color-mix(in oklab, var(--user-avatar-color) 65%, white) !important;
 }
 
+/*
+ * User cell in lists (#462): the avatar keeps the same distance to the name as to the card edge,
+ * 1.25rem in the table and the 1rem inline padding of a DataTable card on small screens.
+ */
+.user-cell {
+    gap: var(--tblr-card-spacer-x, 1.25rem);
+}
+
+@container data-table-cards (max-width: 575.98px) {
+    .data-table-cards--sm .user-cell {
+        gap: 1rem;
+    }
+}
+
+@container data-table-cards (max-width: 767.98px) {
+    .data-table-cards--md .user-cell {
+        gap: 1rem;
+    }
+}
+
+@container data-table-cards (max-width: 991.98px) {
+    .data-table-cards--lg .user-cell {
+        gap: 1rem;
+    }
+}
+
 /* The navbar avatar of an admin who impersonates another user (#462). */
 .avatar.avatar-impersonating {
     outline: 2px solid var(--tblr-warning);

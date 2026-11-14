@@ -1,5 +1,5 @@
 {% set name = user_display_name(row.displayName, row.username) %}
-<div class="d-flex align-items-center gap-2 min-w-0">
+<div class="user-cell d-flex align-items-center min-w-0">
     <twig:UserAvatar :userId="row.userId" :displayName="row.displayName" :username="row.username" size="sm" />
     <div class="min-w-0">
         <a href="{{ path('app_explore_user_show', {publicId: row.publicId}) }}" class="text-truncate d-block">{{ name }}</a>
