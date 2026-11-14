@@ -1213,10 +1213,6 @@
         <source>stats.unit.percentage_points.long</source>
         <target>percentage points (difference between two shares)</target>
       </trans-unit>
-      <trans-unit id="Abc326ef6f" resname="stats.reports.monthly.kpi.yoy">
-        <source>stats.reports.monthly.kpi.yoy</source>
-        <target>vs same month last year</target>
-      </trans-unit>
       <trans-unit id="Ad4dbc1db3" resname="stats.reports.monthly.kpi.with_physician">
         <source>stats.reports.monthly.kpi.with_physician</source>
         <target>With physician</target>

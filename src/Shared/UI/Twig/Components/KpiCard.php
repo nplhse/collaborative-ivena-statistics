@@ -32,6 +32,9 @@ final class KpiCard
 
     public int|float|null $delta = null;
 
+    /** Unit of the delta when it differs from the value, for example percentage points next to a percentage. */
+    public ?string $deltaUnit = null;
+
     public ?string $comparisonLabel = null;
 
     public bool $colorizeTrend = false;
@@ -50,7 +53,7 @@ final class KpiCard
 
     /**
      * The delta rounded to the displayed precision, so sign, icon and colour match what the reader sees
-     * (0.04 with one fraction digit is shown as 0.0 and counts as unchanged).
+     * (0.04 with one fraction digit rounds to 0 and counts as unchanged).
      */
     public function getRoundedDelta(): ?float
     {
@@ -97,6 +100,11 @@ final class KpiCard
             self::TREND_FLAT => 'tabler:minus',
             default => null,
         };
+    }
+
+    public function getDeltaUnitLabel(): ?string
+    {
+        return $this->deltaUnit ?? $this->unit;
     }
 
     public function getDeltaSign(): string

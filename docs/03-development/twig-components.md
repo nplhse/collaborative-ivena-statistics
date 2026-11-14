@@ -282,10 +282,12 @@ One key figure with an optional absolute change (#976). The markup follows Table
 - an optional avatar icon
 - the label as `.subheader`
 - the value as `.h1`
+- the description, a supporting line such as a share
 - a trend line: an icon and the signed delta, then the comparison label
 
 It composes `Card`, so `href`, `class`, `data-testid` and other attributes behave as they do there. First used by
-the dashboard metric cards (`@Content/dashboard/_metric_cards.html.twig`). The other KPI decks have not moved yet.
+the dashboard metric cards (`@Content/dashboard/_metric_cards.html.twig`) and the monthly report
+(`@Statistics/reports/types/monthly.html.twig`). The other KPI decks have not moved yet.
 
 The component formats and presents; it never calculates or interprets. The caller supplies the prepared value, the
 delta and whether a change is good or bad.
@@ -294,27 +296,29 @@ delta and whether a change is good or bad.
 |----------|---------|--------|
 | `label` | required | Already translated |
 | `value` | `null` | Numbers use `format_number` with `fractionDigits`, so separators follow the locale. Strings are printed as given (pre-formatted durations, dates). `null` shows `—` and a hidden "not available"; `0` shows `0`. |
-| `unit` | `null` | Suffix after the value **and** after the delta |
-| `description` | `null` | Supporting line below the value |
+| `unit` | `null` | Suffix after the value, and after the delta unless `deltaUnit` is set |
+| `description` | `null` | Supporting line between the value and the trend line |
 | `icon` | `null` | UX icon name in an `avatar`, decorative |
-| `delta` | `null` | Absolute change in the unit of the value. `null` renders no trend line. |
+| `delta` | `null` | Absolute change, in `deltaUnit` or the unit of the value. `null` renders no trend line. |
+| `deltaUnit` | `null` | Suffix after the delta when it differs from `unit`, for example percentage points next to a `%` value or a relative `%` change next to a count. Falls back to `unit`. |
 | `comparisonLabel` | `null` | Already translated, for example "last 30 days" |
 | `colorizeTrend` | `false` | Colours the trend icon only; the delta and comparison label stay grey. Off: the icon is grey. On: up is green, down is red, unchanged stays grey. |
 | `invertTrend` | `false` | With `colorizeTrend`, swaps green and red for figures where more is worse |
 | `href` | `null` | Linked card, as in `Card` |
-| `fractionDigits` | `0` | Used for both `value` and `delta` |
+| `fractionDigits` | `0` | Maximum fraction digits for both `value` and `delta`. Trailing zeros are dropped: with `1`, `10.0` shows as `10` and `12.5` as `12.5`. |
 
 How the trend is shown:
 - The direction comes from the sign of the delta after rounding to `fractionDigits`. With one fraction digit, `0.04`
-  shows as an unchanged `0.0`, not as `+0.0` with an up arrow.
+  shows as an unchanged `0`, not as `+0.0` with an up arrow.
 - Up shows `tabler:trending-up` and a `+`. Down shows `tabler:trending-down`. Unchanged shows `tabler:minus`.
 - A visually hidden "Increase", "Decrease" or "No change" accompanies the icon, so the meaning never depends on colour.
 
 Limitations:
 - There is one delta per card.
-- The delta is absolute and shares `unit` and `fractionDigits` with the value.
-- Relative changes, percentage points next to a percentage value, several comparison periods, status stripes and
-  sparklines are not supported yet. Extend the component when a page needs them.
+- The delta shares `fractionDigits` with the value. A count with a relative change in one fraction digit passes the
+  count as a pre-formatted string (see the monthly report, `@Statistics/reports/types/monthly.html.twig`).
+- Several comparison periods, status stripes and sparklines are not supported yet. Extend the component when a page
+  needs them.
 
 A plain count:
 
@@ -346,6 +350,21 @@ A coloured change where more is worse (translation keys and variables are illust
     :comparisonLabel="'stats.reports.monthly.vs_previous_month'|trans({}, 'statistics')"
     :colorizeTrend="true"
     :invertTrend="true"
+/>
+```
+
+A share with a change in percentage points, where the delta needs its own unit:
+
+```twig
+<twig:KpiCard
+    :label="'stats.reports.monthly.kpi.with_physician'|trans({}, 'statistics')"
+    :value="report.withPhysicianPercent"
+    unit="%"
+    :delta="report.withPhysicianMomPercent"
+    :deltaUnit="'stats.unit.percentage_points.short'|trans({}, 'statistics')"
+    :comparisonLabel="'stats.reports.monthly.kpi.mom'|trans({}, 'statistics')"
+    :colorizeTrend="true"
+    :fractionDigits="1"
 />
 ```
 

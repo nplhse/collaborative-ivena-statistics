@@ -5153,10 +5153,6 @@
         <source>stats.unit.percentage_points.long</source>
         <target>Prozentpunkte (Differenz zweier Anteile)</target>
       </trans-unit>
-      <trans-unit id="Ae98dca1ef" resname="stats.reports.monthly.kpi.yoy">
-        <source>stats.reports.monthly.kpi.yoy</source>
-        <target>ggü. Vorjahresmonat</target>
-      </trans-unit>
       <trans-unit id="Ad20358b7a" resname="stats.reports.monthly.kpi.with_physician">
         <source>stats.reports.monthly.kpi.with_physician</source>
         <target>Mit Arzt</target>
