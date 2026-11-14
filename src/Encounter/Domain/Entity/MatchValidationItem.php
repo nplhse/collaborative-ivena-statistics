@@ -88,9 +88,12 @@ class MatchValidationItem
     #[ORM\JoinColumn(nullable: true)]
     private ?PlausibilitySnapshot $plausibilitySnapshot;
 
-    /** The plausibility bonus decided the pair's status when sampled (ADR 030 amendment, #1156). */
-    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
-    private bool $plausibilityDecisive;
+    /**
+     * The plausibility bonus decided the pair's status when sampled (ADR 030 amendment, #1156); null for unlinked
+     * cases and for pairs drawn before it was recorded.
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
+    private ?bool $plausibilityDecisive;
 
     #[ORM\Column(type: Types::STRING, length: 16, nullable: true, enumType: ValidationVerdict::class)]
     private ?ValidationVerdict $verdict = null;
@@ -146,7 +149,7 @@ class MatchValidationItem
         $this->pass = $pass;
         $this->matcherVersion = $matcherVersion;
         $this->plausibilitySnapshot = $plausibilitySnapshot;
-        $this->plausibilityDecisive = $plausibilityDecisive;
+        $this->plausibilityDecisive = $stratum->isPair() ? $plausibilityDecisive : null;
     }
 
     /**
@@ -232,7 +235,8 @@ class MatchValidationItem
         return $this->plausibilitySnapshot;
     }
 
-    public function isPlausibilityDecisive(): bool
+    /** Null: an unlinked case, or a pair drawn before the flag was recorded (#1156). */
+    public function isPlausibilityDecisive(): ?bool
     {
         return $this->plausibilityDecisive;
     }

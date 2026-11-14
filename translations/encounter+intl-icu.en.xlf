@@ -2009,6 +2009,10 @@
         <source>encounter.validation.plausibility.group_decisive</source>
         <target>decided by the bonus</target>
       </trans-unit>
+      <trans-unit id="EncB0F6AB37" resname="encounter.validation.plausibility.group_unrecorded">
+        <source>encounter.validation.plausibility.group_unrecorded</source>
+        <target>not recorded (drawn before #1156)</target>
+      </trans-unit>
       <trans-unit id="Enc192EE431" resname="encounter.validation.sample_title">
         <source>encounter.validation.sample_title</source>
         <target>Sample {period}</target>

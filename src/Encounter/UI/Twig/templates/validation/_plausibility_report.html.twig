@@ -18,9 +18,9 @@
         </thead>
         <tbody>
             {% for group in report.groups %}
-                {% set group_key = group.snapshotId is null ? 'none' : (group.decisive ? 'decisive' : 'bonus') %}
+                {% set group_key = group.kind %}
                 {% for row in group.rows %}
-                    <tr data-test="plausibility-{{ group.matcherVersion }}-{{ group.snapshotId ?? 'none' }}-{{ group_key }}-{{ row.stratum.value }}"{% if group.decisive %} class="table-warning"{% endif %}>
+                    <tr data-test="plausibility-{{ group.matcherVersion }}-{{ group.snapshotId ?? 'none' }}-{{ group_key }}-{{ row.stratum.value }}"{% if group.kind == 'decisive' %} class="table-warning"{% endif %}>
                         <td class="text-nowrap">{{ group.matcherVersion }}</td>
                         <td class="text-nowrap">{{ group.snapshotId is null ? '–' : 'encounter.validation.plausibility.snapshot_id'|trans({id: group.snapshotId}, 'encounter') }}</td>
                         <td class="text-nowrap">{{ ('encounter.validation.plausibility.group_' ~ group_key)|trans({}, 'encounter') }}</td>
