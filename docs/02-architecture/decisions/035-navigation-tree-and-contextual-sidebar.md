@@ -258,7 +258,8 @@ mobile header actions (#954), favorites section, quick search.
 ## Prototype
 
 A static design prototype accompanies this proposal; it is not part of the repository. It is built on the
-Tabler 1.7 CSS and JavaScript with the markup described above and shows the groups, the fold modes, the
-permission filtering by role and the mobile bar. Its only own CSS is the one listed under Tabler
-components. It still shows nested groups as Tabler dropdowns with flyouts in the rail; the nesting without
-flyouts described above is not in the prototype yet.
+Tabler 1.7 CSS and JavaScript with the markup described above and shows the groups, nesting over two
+levels (Insights › Dimensions), the fold modes with the marked group icon and the click that expands the
+rail, the filter context between and within analyses, the active path with route names, the permission
+filtering by role and the mobile bar. Tabler 1.7 no longer exposes a global `bootstrap` object; scripts
+use `window.tabler` (for example `tabler.Collapse`) or import the components.
