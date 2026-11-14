@@ -1,0 +1,39 @@
+{# Inside the Card content, `this` is the Card; keep a handle on the KpiCard. #}
+{% set kpi = this %}
+<twig:Card :href="href" {{ ...attributes }}>
+    <div class="d-flex align-items-start gap-3">
+        {% if icon %}
+            <span class="avatar avatar-sm bg-primary-lt text-primary flex-shrink-0" aria-hidden="true">
+                {{ ux_icon(icon, {style: 'height: 1.25em;'}) }}
+            </span>
+        {% endif %}
+        <div class="min-w-0 flex-fill">
+            <div class="subheader text-wrap">{{ label }}</div>
+            <div class="h1 mb-0">
+                {%- if value is null -%}
+                    <span aria-hidden="true">—</span><span class="visually-hidden">{{ 'kpi.value.unavailable'|trans({}, 'shared') }}</span>
+                {%- elseif kpi.numericValue -%}
+                    {{ value|format_number({fraction_digit: fractionDigits}) }}
+                {%- else -%}
+                    {{ value }}
+                {%- endif -%}
+                {%- if unit and value is not null %} <span class="fs-3 text-secondary">{{ unit }}</span>{% endif -%}
+            </div>
+            {% if kpi.trendDirection %}
+                <div class="d-flex flex-wrap align-items-center gap-1 small mt-1" data-kpi-trend="{{ kpi.trendDirection }}">
+                    <span class="d-inline-flex align-items-center gap-1 lh-1 text-secondary">
+                        {{ ux_icon(kpi.trendIcon, {class: 'flex-shrink-0 ' ~ kpi.trendClass, style: 'height: 1em;', 'aria-hidden': 'true'}) }}
+                        <span>{{ kpi.deltaSign }}{{ kpi.roundedDelta|format_number({fraction_digit: fractionDigits}) }}{% if unit %} {{ unit }}{% endif %}</span>
+                    </span>
+                    {% if comparisonLabel %}
+                        <span class="text-secondary">{{ comparisonLabel }}</span>
+                    {% endif %}
+                    <span class="visually-hidden">{{ ('kpi.trend.' ~ kpi.trendDirection)|trans({}, 'shared') }}</span>
+                </div>
+            {% endif %}
+            {% if description %}
+                <div class="text-secondary small mt-1">{{ description }}</div>
+            {% endif %}
+        </div>
+    </div>
+</twig:Card>

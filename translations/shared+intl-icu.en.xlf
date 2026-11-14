@@ -613,6 +613,22 @@
         <source>nav.sidebar.toggle_views</source>
         <target>Show or hide views</target>
       </trans-unit>
+      <trans-unit id="KpiValUnavEn" resname="kpi.value.unavailable">
+        <source>kpi.value.unavailable</source>
+        <target>not available</target>
+      </trans-unit>
+      <trans-unit id="KpiTrendUpEn" resname="kpi.trend.up">
+        <source>kpi.trend.up</source>
+        <target>Increase</target>
+      </trans-unit>
+      <trans-unit id="KpiTrendDnEn" resname="kpi.trend.down">
+        <source>kpi.trend.down</source>
+        <target>Decrease</target>
+      </trans-unit>
+      <trans-unit id="KpiTrendFlEn" resname="kpi.trend.flat">
+        <source>kpi.trend.flat</source>
+        <target>No change</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

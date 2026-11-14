@@ -129,7 +129,8 @@ bundled copy as offline fallback.
 - **Export and import to production.** The catalog and the plausibility table are reviewed in the
   development environment first (ADR 033); carrying them to production needs an export/import like the
   reference catalog package of [ADR 020](020-portable-reference-catalog.md). Follow-up issue at the end of
-  #1136.
+  #1136. Implemented in #1198 as an add-only
+  [curation package](../../04-features/encounter/curation-package.md).
 
 ## Consequences
 
