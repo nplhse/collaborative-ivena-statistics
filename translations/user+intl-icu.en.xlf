@@ -75,7 +75,7 @@
       </trans-unit>
       <trans-unit id="UsrDispNameHelp" resname="help.settings.display_name">
         <source>help.settings.display_name</source>
-        <target>Optional, for example your first and last name. Shown with your avatar to all signed-in users; visitors who are not signed in only see your username.</target>
+        <target>Optional, for example your first and last name. Other signed-in users see it next to your avatar, visitors who are not signed in only see your username.</target>
       </trans-unit>
       <trans-unit id="UsrSaveProfile" resname="label.settings.save_profile">
         <source>label.settings.save_profile</source>

@@ -235,7 +235,7 @@
       </trans-unit>
       <trans-unit id="UsrDispNameHelpDe" resname="help.settings.display_name">
         <source>help.settings.display_name</source>
-        <target>Optional, zum Beispiel Vor- und Nachname. Wird mit Ihrem Avatar allen angemeldeten Nutzern angezeigt; nicht angemeldete Besucher sehen nur Ihren Benutzernamen.</target>
+        <target>Optional, zum Beispiel Ihr Vor- und Nachname. Andere angemeldete Nutzer sehen ihn neben Ihrem Avatar, Besucher ohne Anmeldung nur Ihren Benutzernamen.</target>
       </trans-unit>
       <trans-unit id="UsrSaveProfileDe" resname="label.settings.save_profile">
         <source>label.settings.save_profile</source>
