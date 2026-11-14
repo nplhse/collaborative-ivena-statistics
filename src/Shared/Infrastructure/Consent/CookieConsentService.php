@@ -78,6 +78,16 @@ final readonly class CookieConsentService
             && ($consent->getPreferences()['analytics'] ?? false);
     }
 
+    /**
+     * Analytics consent given under a text that mentions the user id in monitoring reports (v2 or later).
+     * A v1 decision still allows the in-app analytics, but not the user id in external reports.
+     */
+    public function allowsUserIdInMonitoring(CookieConsent $consent): bool
+    {
+        return $this->hasAnalyticsConsent($consent)
+            && version_compare(ltrim($consent->getConsentVersion(), 'v'), ltrim(CookieConsent::CURRENT_VERSION, 'v'), '>=');
+    }
+
     /** @psalm-suppress PossiblyUnusedMethod */
     public function buildSubjectCookie(Request $request, CookieConsent $consent): Cookie
     {
