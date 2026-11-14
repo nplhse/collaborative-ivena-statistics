@@ -69,6 +69,8 @@ final class Sidebar
 
     /**
      * Label of the area in the top navbar, for the mobile bar.
+     *
+     * @psalm-suppress PossiblyUnusedMethod Read by the Sidebar template as `this.areaLabel`.
      */
     public function getAreaLabel(): ?TranslatableInterface
     {
@@ -84,6 +86,11 @@ final class Sidebar
         return null;
     }
 
+    /**
+     * Label of the active entry, for the mobile bar.
+     *
+     * @psalm-suppress PossiblyUnusedMethod Read by the Sidebar template as `this.activeLabel`.
+     */
     public function getActiveLabel(): ?TranslatableInterface
     {
         $activeId = $this->getNavigation()->activeId();
