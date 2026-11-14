@@ -200,6 +200,27 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertSelectorTextNotContains('[data-testid="user-directory-list"]', 'other-user');
     }
 
+    public function testListSearchByDisplayName(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        UserFactory::createOne([
+            'username' => 'mmueller',
+            'displayName' => 'Michael Müller',
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT],
+        ]);
+        UserFactory::createOne([
+            'username' => 'other-user',
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT],
+        ]);
+
+        $client->request(Request::METHOD_GET, '/explore/user', ['search' => 'MÜLLER']);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="user-directory-list"]', 'Michael Müller');
+        self::assertSelectorTextNotContains('[data-testid="user-directory-list"]', 'other-user');
+    }
+
     public function testListFiltersByParticipantAndBoardMember(): void
     {
         $client = $this->createClientAsParticipant();
