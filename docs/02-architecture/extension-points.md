@@ -242,12 +242,14 @@ Path `access_control` on `/tools` only requires `ROLE_USER`; every tool route ne
 **Interface:** `NavigationProviderInterface` (`src/Shared/Application/Navigation/Menu/`)
 
 **Builder:** `NavigationBuilder`; consumers: the top navbar (`<twig:Navigation:Primary />` in
-`@Shared/_embeds/header.html.twig`); footer and the Statistics and Explore sidebars follow with the next
-steps of [ADR 035](decisions/035-navigation-tree-and-contextual-sidebar.md)
+`@Shared/_embeds/header.html.twig`) and the footer (`<twig:Navigation:Footer />` in
+`@Shared/_includes/footer.html.twig`); the Statistics and Explore sidebars follow with the next steps of
+[ADR 035](decisions/035-navigation-tree-and-contextual-sidebar.md)
 
-**Implementations:** `SharedNavigationProvider` (Shared: primary group, Tools), `AllocationNavigationProvider`
-(Explore, Export), `StatisticsNavigationProvider` (Statistics), `ImportNavigationProvider` (Import),
-`ContentNavigationProvider` (Blog, CMS header pages)
+**Implementations:** `SharedNavigationProvider` (Shared: primary group, Tools; footer columns `project`,
+`help`, `legal`, `more` with sitemap and cookie settings), `AllocationNavigationProvider` (Explore, Export),
+`StatisticsNavigationProvider` (Statistics), `ImportNavigationProvider` (Import), `ContentNavigationProvider`
+(Blog and CMS header pages; footer: CMS pages, blog, activity)
 
 Lets a context add groups and entries to the named menus of `Menu` (`primary`, `footer`, `statistics`,
 `explore`) without a dependency from `Shared` on it. A provider returns `NavGroup`s and `NavItem`s per menu:
