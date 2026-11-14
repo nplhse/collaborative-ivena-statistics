@@ -7,7 +7,7 @@
 - Automatic request tracking into `analytics_request`
 - Consent preference `analytics` (optional; essential cookies remain required)
 - Admin insights under `/admin/operations/usage-analytics/*` (menu section above System)
-- **Local only:** measurement runs on this application’s servers — no external analytics providers (no Google Analytics, Matomo cloud, etc.). Server-side error monitoring (e.g. Sentry) is separate and not controlled by this cookie preference.
+- **Local only:** measurement runs on this application’s servers — no external analytics providers (no Google Analytics, Matomo cloud, etc.). Sentry (optional, for errors and performance) is separate: only its performance traces depend on the consent, through the performance sub-option ([below](#consent-version-and-the-performance-option)).
 - **No request performance:** usage analytics records no durations or database queries. Request performance is monitored with the optional Sentry integration ([observability-sentry.md](../../05-operations/observability-sentry.md)).
 
 Tables are created by migration `Version20260804151958` (run with normal deploy migrations). Completed days are rolled up into daily aggregate tables; raw rows older than 30 days are deleted only after a successful rollup. See [aggregation-and-retention.md](aggregation-and-retention.md).
@@ -30,21 +30,29 @@ Preferences live in `cookie_consent.preferences` JSON: `{ essential, analytics }
 
 Banner is shown when `decidedAt` is null (`cookie_consent.decided` in Twig). Login also requires a decided consent.
 
-### Consent version
+### Consent version and the performance option
 
-`cookie_consent.consent_version` records the consent text a decision was made under; every decision is stored with
+`cookie_consent.consent_version` records the consent texts a decision was made under; every decision is stored with
 `CookieConsent::CURRENT_VERSION`.
 
-| Version | Analytics consent covers |
-|---------|--------------------------|
-| `v1` | Usage analytics inside the application only |
-| `v2` | Also the internal user id in Sentry's error and performance reports ([observability-sentry.md](../../05-operations/observability-sentry.md#privacy)); the text names Sentry with servers in the EU |
+| Version | Texts |
+|---------|-------|
+| `v1` | Usage analytics inside the application |
+| `v2` | Adds the performance option and the notice about error reports (only shown while Sentry is used) |
 
-The `v2` text names Sentry and the EU region as fixed wording. Operators without Sentry, or with another region, cannot
-adapt it yet; making both a setting (and dropping the sentence without Sentry) is #1200.
+**Performance option** (`preferences.performance`, sub-option of `analytics`): allows Sentry performance traces to carry
+the internal user id, together with how the application was used and how it performed. It is offered only while Sentry
+is used (`SENTRY_DSN` set), names the data location (`SENTRY_DATA_LOCATION` or derived from the DSN host, see
+[observability-sentry.md](../../05-operations/observability-sentry.md#environment-variables)) and is only stored together
+with `analytics`. "Accept all" includes it while Sentry is used; "Essential only" does not. Without Sentry the option,
+the banner sentence and the error notice are not shown, and the analytics consent only covers the local usage
+analytics.
 
-A `v1` decision keeps its analytics consent but does not allow the user id in Sentry; the banner is not shown again, so
-the id is sent only after the user decides again (for example on the preferences page).
+**Error reports** always carry the internal user id when a user is logged in (operator's interest in running the
+platform); the preferences page says so while Sentry is used. No name, username or email address is sent.
+
+Rows decided before the option existed have no `performance` key; it counts as not given, and the banner is not shown
+again, so those users send traces without user id until they change their preferences.
 
 ### Backward compatibility
 

@@ -17,7 +17,7 @@ final class CookieConsentTest extends TestCase
         self::assertSame('abc123', $consent->getSubjectId());
         self::assertNull($consent->getDecidedAt());
         self::assertSame(
-            ['essential' => true, 'analytics' => false],
+            ['essential' => true, 'analytics' => false, 'performance' => false],
             $consent->getPreferences(),
         );
         self::assertSame(CookieConsent::CURRENT_VERSION, $consent->getConsentVersion());
@@ -31,16 +31,39 @@ final class CookieConsentTest extends TestCase
 
         self::assertInstanceOf(\DateTimeImmutable::class, $consent->getDecidedAt());
         self::assertSame(
-            ['essential' => true, 'analytics' => true],
+            ['essential' => true, 'analytics' => true, 'performance' => false],
+            $consent->getPreferences(),
+        );
+
+        $consent->setConsents(true, true);
+        self::assertSame(
+            ['essential' => true, 'analytics' => true, 'performance' => true],
             $consent->getPreferences(),
         );
 
         $consent->setConsents(false);
 
         self::assertSame(
-            ['essential' => true, 'analytics' => false],
+            ['essential' => true, 'analytics' => false, 'performance' => false],
             $consent->getPreferences(),
         );
+    }
+
+    public function testPerformanceNeedsAnalytics(): void
+    {
+        $consent = new CookieConsent('subj');
+
+        $consent->setConsents(false, true);
+
+        self::assertFalse($consent->getPreferences()['performance']);
+    }
+
+    public function testOlderRowsWithoutPerformanceKeyCountAsNotGiven(): void
+    {
+        $consent = new CookieConsent('subj');
+        new \ReflectionProperty(CookieConsent::class, 'preferences')->setValue($consent, ['essential' => true, 'analytics' => true]);
+
+        self::assertFalse($consent->getPreferences()['performance']);
     }
 
     public function testGetPreferencesDefaultsMissingAnalyticsKey(): void
@@ -55,7 +78,7 @@ final class CookieConsentTest extends TestCase
         ]);
 
         self::assertSame(
-            ['essential' => true, 'analytics' => false],
+            ['essential' => true, 'analytics' => false, 'performance' => false],
             $consent->getPreferences(),
         );
     }

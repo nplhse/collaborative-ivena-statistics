@@ -6,6 +6,7 @@ namespace App\Shared\Infrastructure\Monitoring\Http;
 
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\Shared\Infrastructure\Consent\CookieConsentService;
+use App\Shared\Infrastructure\Monitoring\Sentry\SentryTraceUserPolicy;
 use App\User\Domain\Entity\User;
 use Sentry\State\HubInterface;
 use Sentry\State\Scope;
@@ -20,9 +21,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * Request ids go onto the Sentry scope as early as possible, so even errors in the firewall carry them.
  * Route, bounded context and user are only known after routing and authentication, so they are set when the
- * controller is resolved. Only the numeric user id is attached, and only with analytics consent under the current
- * consent text (CookieConsentService::allowsUserIdInMonitoring()): without it, an event can still be matched to the
- * audit log through `request_id`, but not to a person in Sentry.
+ * controller is resolved. Only the numeric user id is attached, never a name or email address. Error reports always
+ * carry it; the performance transaction only with the performance consent (SentryTraceUserPolicy, applied in
+ * SentryBeforeSendCallback).
  *
  * @psalm-suppress UnusedClass
  */
@@ -34,6 +35,7 @@ final readonly class SentryRequestContextSubscriber
         private AuditContext $auditContext,
         private BoundedContextResolver $boundedContextResolver,
         private CookieConsentService $cookieConsentService,
+        private SentryTraceUserPolicy $traceUserPolicy,
     ) {
     }
 
@@ -109,9 +111,7 @@ final readonly class SentryRequestContextSubscriber
         }
 
         $consent = $this->cookieConsentService->resolveForRequest($request, $user instanceof User ? $user : null);
-        if (!$this->cookieConsentService->allowsUserIdInMonitoring($consent)) {
-            return null;
-        }
+        $this->traceUserPolicy->allowUser($this->cookieConsentService->hasPerformanceConsent($consent));
 
         $id = $user instanceof User ? $user->getId() : $actorUserId;
 

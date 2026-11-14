@@ -47,7 +47,7 @@
       </trans-unit>
       <trans-unit id="CkyPrefAnaTxDe" resname="cookie.preferences.analytics.text">
         <source>cookie.preferences.analytics.text</source>
-        <target>Hilft uns zu verstehen, welche Bereiche der Anwendung genutzt werden. Diese Auswertung erfolgt serverseitig in dieser Anwendung, ohne externe Analytics-Anbieter; es werden keine IP-Adressen und keine Original-User-Agents gespeichert. Für den technischen Betrieb nutzen wir zusätzlich Sentry (Server in der EU), insbesondere zur Überwachung von Fehlern und Performance. Mit dieser Einwilligung enthalten diese Berichte Ihre interne Benutzer-ID, damit wir Ihnen bei Problemen gezielt helfen können.</target>
+        <target>Hilft uns zu verstehen, welche Bereiche der Anwendung genutzt werden. Die Auswertung erfolgt ausschließlich serverseitig in dieser Anwendung, ohne externe Analytics-Anbieter. Es werden keine IP-Adressen und keine Original-User-Agents gespeichert.</target>
       </trans-unit>
       <trans-unit id="CkyPrefAnaTiDe" resname="cookie.preferences.analytics.title">
         <source>cookie.preferences.analytics.title</source>
@@ -576,6 +576,26 @@
       <trans-unit id="sharedEnc7e2c697c" resname="link.stats.encounter_analytics">
         <source>link.stats.encounter_analytics</source>
         <target>Behandlungsdaten (Beta)</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefPerfTiDe" resname="cookie.preferences.performance.title">
+        <source>cookie.preferences.performance.title</source>
+        <target>Performance-Analysen</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefPerfTxDe" resname="cookie.preferences.performance.text">
+        <source>cookie.preferences.performance.text</source>
+        <target>Erlaubt uns, für Performance-Analysen und die Verbesserung der Plattform an Sentry ({location}) zu übermitteln, wie Sie die Anwendung genutzt haben und wie schnell sie dabei war, zusammen mit Ihrer internen Benutzer-ID. Weitere persönliche Daten wie Name oder E-Mail-Adresse werden nicht übertragen. Nur zusammen mit Analytics-Cookies möglich.</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefErrNoteDe" resname="cookie.preferences.errors_notice">
+        <source>cookie.preferences.errors_notice</source>
+        <target>Unabhängig von dieser Auswahl melden wir technische Fehler zum Betrieb der Plattform an Sentry ({location}). Fehlerberichte enthalten Ihre interne Benutzer-ID, aber keine weiteren persönlichen Daten.</target>
+      </trans-unit>
+      <trans-unit id="CkyBanPerfTxDe" resname="cookie.banner.performance_text">
+        <source>cookie.banner.performance_text</source>
+        <target>Mit „Alle Cookies erlauben“ stimmen Sie außerdem Performance-Analysen über Sentry ({location}) zu.</target>
+      </trans-unit>
+      <trans-unit id="CkyMonLocDe" resname="cookie.monitoring.location">
+        <source>cookie.monitoring.location</source>
+        <target>{location, select, eu {Server in der EU} us {Server in den USA} other {vom Betreiber selbst betriebene Server}}</target>
       </trans-unit>
     </body>
   </file>

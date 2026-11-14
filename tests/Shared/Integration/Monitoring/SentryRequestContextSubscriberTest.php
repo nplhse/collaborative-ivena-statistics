@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Integration\Monitoring;
 
-use App\Shared\Domain\Entity\CookieConsent;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\Shared\Infrastructure\Consent\CookieConsentService;
 use App\Shared\Infrastructure\Monitoring\Http\BoundedContextResolver;
 use App\Shared\Infrastructure\Monitoring\Http\SentryRequestContextSubscriber;
+use App\Shared\Infrastructure\Monitoring\Sentry\SentryMonitoringSettings;
+use App\Shared\Infrastructure\Monitoring\Sentry\SentryTraceUserPolicy;
 use App\Shared\Infrastructure\Repository\CookieConsentRepository;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 use Sentry\ClientBuilder;
 use Sentry\Event;
 use Sentry\State\Hub;
@@ -29,7 +31,9 @@ final class SentryRequestContextSubscriberTest extends KernelTestCase
 {
     use Factories;
 
-    private const string SUBJECT = 'sentry-context-subject-0123456789ab';
+    private string $subject = '';
+
+    private SentryTraceUserPolicy $policy;
 
     public function testTagsTheGeneratedAndTheUpstreamRequestId(): void
     {
@@ -60,49 +64,29 @@ final class SentryRequestContextSubscriberTest extends KernelTestCase
         self::assertNull($event->getUser());
     }
 
-    public function testAttachesTheUserWithAnalyticsConsent(): void
+    public function testErrorsAlwaysCarryTheUserIdButTracesNeedThePerformanceConsent(): void
     {
-        $user = $this->userWithConsent(analytics: true);
+        foreach ([
+            'no decision' => [null, false],
+            'necessary only' => [[false, false], false],
+            'analytics without performance' => [[true, false], false],
+            'analytics with performance' => [[true, true], true],
+        ] as $case => [$choice, $tracesMayCarryUser]) {
+            $user = null === $choice ? $this->user() : $this->userWithConsent(...$choice);
 
-        $sentryUser = $this->eventAfter(new AuditContext(), $user, $this->statisticsRequest())->getUser();
+            $sentryUser = $this->eventAfter(new AuditContext(), $user, $this->statisticsRequest())->getUser();
 
-        self::assertNotNull($sentryUser);
-        self::assertSame((string) $user->getId(), $sentryUser->getId());
-        self::assertNull($sentryUser->getUsername(), 'Only the numeric id.');
-    }
-
-    public function testNoUserForAnAnalyticsConsentUnderTheOldText(): void
-    {
-        $user = $this->userWithConsent(analytics: true);
-        $consent = self::getContainer()->get(CookieConsentRepository::class)->findOneBySubjectId(self::SUBJECT);
-        self::assertInstanceOf(CookieConsent::class, $consent);
-        // v1 consents were given under a text without external reports.
-        new \ReflectionProperty(CookieConsent::class, 'consentVersion')->setValue($consent, 'v1');
-
-        self::assertNull($this->eventAfter(new AuditContext(), $user, $this->statisticsRequest())->getUser());
-    }
-
-    public function testNoUserWhenAnalyticsWasDeclined(): void
-    {
-        $user = $this->userWithConsent(analytics: false);
-
-        $event = $this->eventAfter(new AuditContext(), $user, $this->statisticsRequest());
-
-        self::assertNull($event->getUser());
-        self::assertSame('Statistics', $event->getTags()['bounded_context'] ?? null, 'Non-personal context stays.');
-    }
-
-    public function testNoUserWithoutAConsentDecision(): void
-    {
-        $user = $this->user();
-
-        self::assertNull($this->eventAfter(new AuditContext(), $user, $this->statisticsRequest())->getUser());
+            self::assertNotNull($sentryUser, $case);
+            self::assertSame((string) $user->getId(), $sentryUser->getId(), $case);
+            self::assertNull($sentryUser->getUsername(), $case.': only the numeric id');
+            self::assertSame($tracesMayCarryUser, $this->policy->isUserAllowed(), $case);
+        }
     }
 
     private function statisticsRequest(): Request
     {
         $request = Request::create('/statistics/');
-        $request->cookies->set(CookieConsentService::SUBJECT_COOKIE_NAME, self::SUBJECT);
+        $request->cookies->set(CookieConsentService::SUBJECT_COOKIE_NAME, $this->subject);
         $request->attributes->set('_route', 'app_stats_dashboard');
         $request->attributes->set('_controller', 'App\Statistics\UI\Http\Controller\DashboardController::__invoke');
 
@@ -111,6 +95,9 @@ final class SentryRequestContextSubscriberTest extends KernelTestCase
 
     private function user(): User
     {
+        // A fresh browser per user, so the cases of one test do not share a consent.
+        $this->subject = 'sentry-context-'.bin2hex(random_bytes(8));
+
         $proxy = UserFactory::createOne(['username' => 'sentry-context-'.bin2hex(random_bytes(4))]);
         $user = self::getContainer()->get(EntityManagerInterface::class)->find(User::class, $proxy->getId());
         self::assertInstanceOf(User::class, $user);
@@ -118,13 +105,19 @@ final class SentryRequestContextSubscriberTest extends KernelTestCase
         return $user;
     }
 
-    private function userWithConsent(bool $analytics): User
+    private function userWithConsent(bool $analytics, bool $performance = false): User
     {
         $user = $this->user();
-        $service = self::getContainer()->get(CookieConsentService::class);
+        // Sentry is not configured in tests; this service offers the performance option.
+        $service = new CookieConsentService(
+            self::getContainer()->get(CookieConsentRepository::class),
+            self::getContainer()->get(ClockInterface::class),
+            '',
+            new SentryMonitoringSettings('https://key@o1.ingest.de.sentry.io/2'),
+        );
         $request = Request::create('/');
-        $request->cookies->set(CookieConsentService::SUBJECT_COOKIE_NAME, self::SUBJECT);
-        $service->applyPreference($service->resolveForRequest($request, $user), $analytics, $user);
+        $request->cookies->set(CookieConsentService::SUBJECT_COOKIE_NAME, $this->subject);
+        $service->applyPreference($service->resolveForRequest($request, $user), $analytics, $user, $performance);
 
         return $user;
     }
@@ -132,6 +125,7 @@ final class SentryRequestContextSubscriberTest extends KernelTestCase
     private function eventAfter(AuditContext $context, ?User $user, Request $request): Event
     {
         $hub = new Hub(ClientBuilder::create()->getClient());
+        $this->policy = new SentryTraceUserPolicy();
         $security = $this->createStub(Security::class);
         $security->method('getUser')->willReturn($user);
 
@@ -141,6 +135,7 @@ final class SentryRequestContextSubscriberTest extends KernelTestCase
             $context,
             new BoundedContextResolver(),
             self::getContainer()->get(CookieConsentService::class),
+            $this->policy,
         );
 
         $kernel = $this->createStub(HttpKernelInterface::class);

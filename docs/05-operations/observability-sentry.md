@@ -11,6 +11,7 @@ This application uses `sentry/sentry-symfony` for error monitoring, structured l
 | `SENTRY_RELEASE` | Optional; falls back to `App\Kernel::APP_VERSION` (`app.version`) |
 | `SENTRY_TRACES_SAMPLE_RATE` | Share of transactions to trace (`0.0`–`1.0`); applied by `SentryTracesSampler`, closure rebuilds are always sampled |
 | `SENTRY_ENABLE_LOGS` | Enable structured logs (`true` / `false`) |
+| `SENTRY_DATA_LOCATION` | Optional: where Sentry stores the data, named in the cookie consent (`eu`, `us`, `self_hosted`); empty derives it from the DSN host (`*.de.sentry.io` = EU, other `sentry.io` hosts = US, anything else = self-hosted) |
 | `SENTRY_CSP_REPORT_URI` | Optional Sentry CSP report endpoint; prod only — see [content-security-policy.md](content-security-policy.md) |
 
 For beta deployments, set a DSN, `SENTRY_ENVIRONMENT=beta`, and `SENTRY_TRACES_SAMPLE_RATE` between `0.2` and `1.0`. Keep the DSN empty locally and in CI; structured logs are disabled in the `test` environment.
@@ -21,7 +22,7 @@ For beta deployments, set a DSN, `SENTRY_ENVIRONMENT=beta`, and `SENTRY_TRACES_S
 - **Monolog:** [`config/packages/monolog.yaml`](../../config/packages/monolog.yaml) — `sentry_logs_import` (`import` channel, info and above), `sentry_logs_closure_rebuild` (`closure_rebuild` channel, info and above) and `sentry_logs_main` (other channels, warning and above).
 - **Sampling:** [`SentryTracesSampler`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryTracesSampler.php) — once a `traces_sampler` is set, Sentry ignores `traces_sample_rate`, so the sampler applies the global rate itself, returns `1.0` for the ops of every job-run profile (for example `closure.rebuild`) and `0.0` for `GET app_health` (uptime checks) and `GET app_notification_poll` (notification polling), even when an incoming trace header says the parent was sampled.
 - **Scrubbing:** [`SentryEventScrubber`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryEventScrubber.php) and [`SentryLogScrubber`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryLogScrubber.php) filter events, breadcrumbs, and log attributes before send.
-- **Request context:** [`SentryRequestContextSubscriber`](../../src/Shared/Infrastructure/Monitoring/Http/SentryRequestContextSubscriber.php) sets `origin`, `request_id` (the audit log request id, also in the `X-Request-Id` response header) and, when a client or proxy sent a well-formed `X-Request-Id`, `upstream_request_id` early in the request, so even errors in the firewall carry them. Once the controller is resolved (after routing and authentication) it adds `route`, `bounded_context` and the numeric user id. The id is attached only when the browser's cookie consent allows analytics under consent text `v2` or later, which mentions it; after "necessary cookies only", without a decision or with an older `v1` consent, events carry no user and can be matched to a person only through `request_id` and the audit log.
+- **Request context:** [`SentryRequestContextSubscriber`](../../src/Shared/Infrastructure/Monitoring/Http/SentryRequestContextSubscriber.php) sets `origin`, `request_id` (the audit log request id, also in the `X-Request-Id` response header) and, when a client or proxy sent a well-formed `X-Request-Id`, `upstream_request_id` early in the request, so even errors in the firewall carry them. Once the controller is resolved (after routing and authentication) it adds `route`, `bounded_context` and the numeric user id. Error reports always carry the id. Performance transactions carry it only with the performance consent (`SentryTraceUserPolicy`, applied in `SentryBeforeSendCallback`); otherwise the user is removed from the transaction and it can be matched to a person only through `request_id` and the audit log ([usage-analytics.md](../04-features/analytics/usage-analytics.md#consent-version-and-the-performance-option)).
 - **Live Components:** all of them share the route `ux_live_component`. [`SentryLiveComponentSubscriber`](../../src/Shared/Infrastructure/Monitoring/Http/SentryLiveComponentSubscriber.php) names the transaction `<METHOD> ux_live_component <Component>::<action>` (for example `POST ux_live_component AnalysisExplorerShell::render`) and sets the tags `live_component` and `live_action`; the default action, a plain re-render, is called `render`. Only components and actions that the Live Component bundle has accepted get a name, so the number of transaction names stays bounded.
 
 ## Request spans
@@ -44,8 +45,8 @@ New spans use [`SentrySpanTracer::trace()`](../../src/Shared/Infrastructure/Moni
    `analysis.explorer.run` and the database spans with the gaps between them.
 3. Check `cache.calls` and `cache.duration_ms` in the transaction data; a high value usually means cache misses
    that computed their value.
-4. Use `request_id` to find the matching audit log entries and logs. With analytics consent the event also carries
-   the user id.
+4. Use `request_id` to find the matching audit log entries and logs. Error reports carry the user id; a transaction
+   only with the user's performance consent.
 5. Record a confirmed slow path as an issue with the query or span and its share of the request
    (examples: #1193–#1197).
 
@@ -276,7 +277,7 @@ Request bodies and email addresses are not sent to Sentry. Log attributes that c
 - **URLs without query string:** query string and fragment are cut from `request.url`, from the `referer` header, from span and trace data (`http.url`, `url.full`) and from the description of `http.*` spans. Statistics filters, tokens or email addresses in a URL never leave the system. The path stays, so ids in the path (for example `/hospitals/7`) are still visible.
 - **Trace and span data allowlist:** on request and console transactions and on error events, `contexts.trace.data` and span data keep only `http.request.method`, `http.response.status_code`, `http.flavor`, `http.url`, `url.full`, `route`, `net.host.name`, `net.host.port`, `db.system`, the cache summary keys, the data keys of the [request spans](#request-spans) and keys starting with `sentry.` or `thread.`; other span keys are replaced by `[Filtered]`. Job runs use the allowlist of their profile instead (see [Background job runs](#background-job-runs)).
 - **Database values:** SQL is sent with placeholders; bound parameters are not collected (`send_default_pii: false`, no `data_collection` option). Prepare spans are not recorded (`ignore_prepare_spans`), only the execution of each statement.
-- **Users:** the numeric user id only, and only with analytics consent under consent text `v2` (see *Request context*); no username, no email address, no IP address. Operators who use Sentry should name it as a processor in their privacy policy. Cache keys are not sent, because single cache spans are replaced by the summary.
+- **Users:** the numeric user id only, never a username, name, email address or IP address. Error reports always carry it; performance transactions only with the performance consent of the cookie preferences, which is only offered while Sentry is used. Operators who use Sentry should name it as a processor in their privacy policy.
 
 ## Local smoke test
 
