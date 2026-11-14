@@ -79,7 +79,7 @@ the mobile collapse come with Tabler:
 | Need | Tabler 1.7 |
 |---|---|
 | Sidebar and top navbar together | `aside.navbar.navbar-vertical.navbar-expand-lg` and `header.navbar` as direct children of `.page`, the `aside` first; `data-bs-navbar-position="combined"` on `<html>`, set server-side only on pages that render the sidebar |
-| Groups | `li.nav-section-title` before the first item of a group; an empty title is the divider before the standalone entries |
+| Groups | `li.nav-section-title` before the first item of a titled group; a group without label gets an empty title as divider, except as the first group of the menu, which gets nothing |
 | Nesting | a group toggle (`nav-link` with `data-bs-toggle="collapse"`, `aria-expanded`, `aria-controls`) and a nested `navbar-nav` in a Bootstrap `collapse`, repeatable on every level; not Tabler's `dropdown`, whose rail flyouts are not used |
 | Fold toggle and click on a group icon in the rail | the only own JavaScript: one small Stimulus controller. It sets the same `data-bs-sidebar` attribute and `localStorage` key (`tabler-sidebar`) as Tabler's pin button and fires the same `tabler:sidebar-folded` event, so Tabler's CSS and chart resizing work unchanged. It also suspends the hover preview after a collapse until the pointer leaves the rail. Tabler's own pin button is not used: it is only visible while the pointer is over the sidebar, and folding to `folded-hover` under the pointer leaves the sidebar open, which reads as if nothing happened |
 | Trailing entries | `.navbar-side` (for example Classifications in Explore), pinned to the bottom of the sidebar |
@@ -108,13 +108,17 @@ Grouped by the analytical question, not by bounded context or build order:
 
 | Group | Views |
 |---|---|
-| Overview | Dashboard · Reports · Top lists |
+| (no heading, first) | Dashboard · Reports · Top lists |
 | Allocations | Insights (▸ 8 dimensions, compare) |
 | Comparisons | Benchmarking |
 | Capacity and closures | Emergency allocations (closed departments) · Closures, beta (▸ 5 parts) |
 | Clinical data | Treatment data, beta (▸ 4 parts) |
 | Own analyses | Analysis Explorer (▸ library, favorites, my views) |
 | (no group) | Case flow · Hospitals (population) |
+
+The first group has no heading, so the sidebar and the icon rail start directly with Dashboard instead of
+a label and the space it keeps in the rail. A group label is optional in general: an untitled group
+further down is set off by a divider only.
 
 Case flow and Hospitals do not fit any group yet and stay standalone entries in an untitled section at the
 end, set off by a divider. Case flow is expected to become a child of a later group for geographic
@@ -136,7 +140,7 @@ One tree that the contexts contribute to, following the `shared.tool` pattern:
   and route parameters, optional Tabler icon, optional badge (beta), optional `is_granted` attribute,
   optional detail routes that also mark it active, `weight` (integer, default 0), `parentId` (the group or
   item it belongs to), children.
-- **Groups are nodes of the tree.** A group (`NavGroup`: id, label, `weight`, optional icon) is defined by
+- **Groups are nodes of the tree.** A group (`NavGroup`: id, optional label, `weight`, optional icon) is defined by
   the context that owns the menu: the Statistics context for `statistics`, Allocation for `explore`,
   `Shared` for `primary` and `footer`. Other contexts attach items to a group by its id, so a new analysis
   from another context needs no change in the owning context. An item that names an unknown group makes the
