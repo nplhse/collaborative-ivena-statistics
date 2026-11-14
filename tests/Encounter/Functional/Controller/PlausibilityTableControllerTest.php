@@ -119,7 +119,8 @@ final class PlausibilityTableControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         $content = (string) $this->client->getResponse()->getContent();
         foreach (['4711', '3141', '7852', '2222', '1111', '3333'] as $count) {
-            self::assertStringNotContainsString($count, $content, 'no count on the review page');
+            // Only a standalone number counts: random tokens (CSRF) may contain the digits by chance.
+            self::assertDoesNotMatchRegularExpression('/(?<![A-Za-z0-9_.~+\/=-])'.$count.'(?![A-Za-z0-9_.~+\/=-])/', $content, 'no count on the review page');
         }
 
         $changed = $crawler->filter('[data-test="encounter-plausibility-cell"][data-changed="1"]');

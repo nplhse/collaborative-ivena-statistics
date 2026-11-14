@@ -82,15 +82,19 @@ final class MonthlyReminderDispatchRepository extends ServiceEntityRepository
     /**
      * Marks the dispatch as failed when it is still queued for exactly this attempt of this hospital. One
      * statement on the default connection, so it joins an open transaction of the caller.
+     *
+     * @return string|null the dispatch's period (upload month, `Y-m`) when this call marked it as failed; null when
+     *                     nothing changed (another attempt, another hospital, already completed or failed before)
      */
-    public function markAttemptFailed(int $dispatchId, int $hospitalId, ?string $attemptId, string $failureReason): void
+    public function markAttemptFailed(int $dispatchId, int $hospitalId, ?string $attemptId, string $failureReason): ?string
     {
-        $updated = $this->getEntityManager()->getConnection()->executeStatement(
+        $period = $this->getEntityManager()->getConnection()->executeQuery(
             <<<'SQL'
                 UPDATE monthly_reminder_dispatch
                 SET status = :failed, failure_reason = :reason
                 WHERE id = :id AND hospital_id = :hospital AND status = :queued
                   AND attempt_id IS NOT DISTINCT FROM CAST(:attempt AS VARCHAR)
+                RETURNING reporting_period
                 SQL,
             [
                 'failed' => MonthlyReminderDispatchStatus::Failed->value,
@@ -100,9 +104,15 @@ final class MonthlyReminderDispatchRepository extends ServiceEntityRepository
                 'hospital' => $hospitalId,
                 'attempt' => $attemptId,
             ],
-        );
+        )->fetchOne();
 
-        $this->refreshIfLoaded($dispatchId, $updated);
+        if (false === $period) {
+            return null;
+        }
+
+        $this->refreshIfLoaded($dispatchId, 1);
+
+        return (string) $period;
     }
 
     /**

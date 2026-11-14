@@ -30,7 +30,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $raw->getPublicIdString()));
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('#navbar-menu li.nav-item.active[data-testid="nav-tools"]');
-        self::assertSelectorNotExists('#explore-subnav');
+        self::assertSelectorNotExists('[data-testid="sidebar-explore"]');
         self::assertSelectorExists('.breadcrumb a[href="/tools"]');
         self::assertSelectorExists('.breadcrumb a[href="/tools/indication-review"]');
     }

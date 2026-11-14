@@ -141,6 +141,15 @@ Explorer (including export; dropped when `age_group` is a row or column axis). T
 shows the drawer but applies the filter only to part of its numbers. Overview, Benchmarking and
 Insights (including Compare) do not read `age_group`.
 
+## Sidebar links
+
+Links in the statistics sidebar carry the scope and the period of the current page with their dependent
+parameters (`scope`, `hospital`, `cohort`, `state`, `dispatch_area`, `period`, `year`, `quarter`, `month`).
+Comparison parameters and all other filters are not carried; the target view validates the values and
+falls back to its defaults (see above). Between the parts of Closures, which share one filter drawer, the
+whole filter state except comparison parameters and the page number stays
+([ADR 035](../../02-architecture/decisions/035-navigation-tree-and-contextual-sidebar.md)).
+
 ## Entry points
 
 - `StatisticsFilterValueResolver` — controller argument resolver

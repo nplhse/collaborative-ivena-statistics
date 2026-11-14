@@ -2,7 +2,7 @@
 {% set event_styles = {
     'import.run.failed': {icon: 'tabler:alert-triangle', tone: 'danger'},
     'user.registered': {icon: 'tabler:user-plus', tone: 'success'},
-    'hospital.reminder_sent': {icon: 'tabler:mail', tone: 'default'},
+    'hospital.reminder_failed': {icon: 'tabler:mail', tone: 'danger'},
 } %}
 
 <div class="ea-dashboard-ops-notifications mb-4">
@@ -40,10 +40,13 @@
                                     }, 'admin') }}
                                 {%- elseif event.intent == 'user.registered' -%}
                                     {{ 'ops.notifications.context.user_registered'|trans({user: subject}, 'admin') }}
-                                {%- elseif event.intent == 'hospital.reminder_sent' -%}
-                                    {{ 'ops.notifications.context.reminder_sent'|trans({
+                                {%- elseif event.intent == 'hospital.reminder_failed' -%}
+                                    {{ 'ops.notifications.context.reminder_failed'|trans({
                                         hospital: subject,
                                         period: event.reportingPeriod ? event.reportingPeriod|format_date(pattern: 'MMMM yyyy') : '–',
+                                        reason: event.reasonCode
+                                            ? ('ops.notifications.delivery_reason.' ~ event.reasonCode)|trans({}, 'admin')
+                                            : 'ops.notifications.reason.unknown'|trans({}, 'admin'),
                                     }, 'admin') }}
                                 {%- endif -%}
                             </span>

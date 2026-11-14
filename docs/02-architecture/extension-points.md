@@ -122,7 +122,8 @@ edit shell.
 
 Lets other contexts add a card to the Explore glossary hub that links to a glossary page on their own
 route, without a dependency from `Allocation` on them. Route names start with `app_explore_glossary_`
-so the Explore subnav marks the glossary as active. Rules for such pages:
+so the top navbar marks Explore as active; the entry's `route` and `detailRoutes` mark Classifications in
+the explore sidebar. Rules for such pages:
 [explore-glossary.md](../04-features/allocation/explore-glossary.md).
 
 ## Allocation case file sections
@@ -217,7 +218,7 @@ are source profiles of the data preparation tool. See
 **Interface:** `ToolProviderInterface` (`src/Shared/Application/Navigation/Tool/`)
 
 **Registry:** `ToolRegistry`; consumers the Tools landing page `GET /tools` (`@Shared/tools/index.html.twig`),
-the main navigation entry (Twig function `has_tools()`) and the Tools section of the sitemap
+the main navigation entry (`SharedNavigationProvider`) and the Tools section of the sitemap
 
 **Implementations:** `IndicationReviewToolProvider` (Allocation, indication matching review),
 `EncounterToolProvider` (Encounter: match review, match validation, data preparation tool; beta)
@@ -228,11 +229,60 @@ A `Tool` names its title and description keys with their translation domain, the
 a `ToolCategory` and an optional beta flag. Tool keys are unique. The landing page lists the categories
 in the order of `ToolCategory` and the tools inside a category alphabetically by their translated title in
 the current locale (`\Collator`). Providers check access themselves and return no tool for users who may
-not open it; `has_tools()` asks the providers on every page with the main navigation, so decide from roles
-and voters without database queries.
-Routes of a tool are named `app_tools_*` and live under `/tools/…`, so the navigation marks Tools as active.
+not open it; the main navigation asks the providers (`ToolRegistry::hasTools()`) on every page, so decide
+from roles and voters without database queries.
+Routes of a tool are named `app_tools_*` and live under `/tools/…`, so the area prefix `app_tools` of the
+Tools entry marks it as active.
 Path `access_control` on `/tools` only requires `ROLE_USER`; every tool route needs its own guard
 (`#[IsGranted]` or a voter) for anything stricter.
+
+## Navigation tree
+
+**Tag:** `shared.navigation`
+
+**Interface:** `NavigationProviderInterface` (`src/Shared/Application/Navigation/Menu/`)
+
+**Builder:** `NavigationBuilder`; consumers: the top navbar (`<twig:Navigation:Primary />` in
+`@Shared/_embeds/header.html.twig`), the footer (`<twig:Navigation:Footer />` in
+`@Shared/_includes/footer.html.twig`) and the sidebars of Statistics and Explore
+(`<twig:Navigation:Sidebar menu="statistics|explore" />` in the `header_after` block of every page of the
+area; [ADR 035](decisions/035-navigation-tree-and-contextual-sidebar.md))
+
+**Implementations:** `SharedNavigationProvider` (Shared: primary group, Tools; footer columns `project`,
+`help`, `legal`, `more` with sitemap and cookie settings), `AllocationNavigationProvider` (Explore, Export;
+the explore sidebar with its groups, glossary routes from `CatalogGlossaryEntryRegistry`),
+`UserNavigationProvider` (Users in the explore group `Menu::EXPLORE_GROUP_ORGANISATION`),
+`StatisticsNavigationProvider` (Statistics entry and the statistics sidebar with its groups; Insights
+dimensions from `InsightDimensionRegistry`), `ImportNavigationProvider` (Import), `ContentNavigationProvider`
+(Blog and CMS header pages; footer: CMS pages, blog, activity)
+
+Lets a context add groups and entries to the named menus of `Menu` (`primary`, `footer`, `statistics`,
+`explore`) without a dependency from `Shared` on it. A provider returns `NavGroup`s and `NavItem`s per menu:
+
+- The context that owns a menu defines its groups (`NavGroup`: id, optional label, weight, optional icon);
+  other contexts attach items to a group by its id. Top-level items name a group as `parentId`, nested
+  items name another item; an unknown parent, a parent cycle or a duplicate id makes the builder throw.
+- A `NavItem` with a route, or with a ready `url` (CMS pages; label as `LiteralLabel`), is a link; one
+  without both groups its children and is shown only while one of them is visible. URL entries never
+  become active. Access is the item's `grantedAttribute` (checked with `is_granted`); a hidden item hides
+  its children. Providers run on every page with a navigation, so they must not query the database.
+- Order on every level: `weight` ascending (default 0, negative moves up, steps of ten), then the
+  translated label in the current locale (`\Collator`), then the id.
+- Active entry: the current route name equals the item's `route` or one of its `detailRoutes`, and every
+  parameter of the item's `routeParameters` that the current route also has carries the same value (the
+  Insights dimensions share one route); there is no prefix matching. The builder marks the path from the group down to that entry. In the primary menu,
+  when no own entry matches: a route of a sidebar menu, then the sidebar menu of the page (`$area`), marks
+  that menu's primary entry (`Menu::primaryEntryId()`); then the entry with the longest `areaRoutePrefix`
+  the route starts with. Primary entries attach to `Menu::PRIMARY_GROUP` and use weights in steps of ten
+  (Explore 10, Statistics 20, Import 30, Export 40, Tools 50, Blog 60, CMS pages from 70).
+- A route name may mark at most one entry per menu, and area prefixes must not overlap:
+  `AssertsUniqueNavigationRoutes` (`tests/Shared/Support/`) checks both; `PrimaryNavigationTest` runs it
+  with all real providers.
+- Sidebar links carry the query parameters of `Menu::carriedQueryKeys()` (statistics: scope and period
+  with their dependent parameters); links between the children of an item with `sharedFilterState` (the
+  parts of one analysis, for example Closures) keep the whole query except `comparison_*` and `page`.
+- Badges (`NavBadge`) take a translatable label and a `NavBadgeColor` (Tabler colour names, rendered as
+  `badge bg-{colour}-lt`; default `azure`).
 
 ## My Hospitals actions
 

@@ -541,7 +541,9 @@ report since #1155 ([learning job](#learning-job-1155)).
   (`MtsCatalogException::MERGE_HAS_PLAUSIBILITY_RULES`, [MTS glossary](#mts-glossary)).
 - **Matcher** (#1154): `1.2.0` reads the active snapshot in pass 2 and stores the bonus, snapshot, level and
   decisive flag per pair ([matching](#matching)).
-- **Not yet:** analyses (#1156), export and import of the reviewed table to production (follow-up of ADR 032).
+- **Transfer to another instance** (#1198): the problem areas travel with the curated catalog in a
+  [curation package](curation-package.md); the import only adds and rebuilds the seed draft, activation stays manual.
+- **Not yet:** analyses (#1156).
 
 ### Learning job (#1155)
 
@@ -675,6 +677,14 @@ score and pass). The linked visit is chosen first, else the open proposal with t
 the candidate with the most points. The Stimulus controller `encounter-match-review` switches the comparison
 and enables only the decisions that apply to the chosen visit; the server checks again. The score is labelled
 "agreement" ("Übereinstimmung") and explained as a ranking, not a probability (ADR 030).
+
+**Case file link** (#1177): the page header has a button "View allocation" ("Zuweisung ansehen") before
+"Leave open"; it opens the allocation case file in Explore (`app_explore_allocation_show`), with the
+[hospital course card](#case-card-hospital-course) and the full IVENA data, in a new tab, so the review
+keeps its choice and position. It is shown only with `ROLE_PARTICIPANT`, which the case file requires
+(`AllocationVoter`, ADR 011) and the review does not; the case file applies its own rules to the card. The
+validation item page has the same button before "Open in review"; for a visit without link each offered
+allocation links to its case file in its comparison instead.
 
 **Decisions** (form `MatchReviewDecisionType` on the allocation page; `MatchDecider`, one transaction under
 the matcher's per-hospital lock):
@@ -1008,8 +1018,11 @@ on Encounter.
 - **Catalog for the tool (#1157).** `GET /data-prep/mts-catalog.json` (public, read only) serves the curated
   entries and the aliases to them (provisional entries stay off the public endpoint until a person curates them); the tool keeps `src/Encounter/Application/Catalog/mts-de.json` as offline
   fallback and writes the code of the source label, also for an alias
-  ([data-preparation-tool.md](data-preparation-tool.md#mts-catalog)). Export and import of the curated catalog
-  to production is a later follow-up.
+  ([data-preparation-tool.md](data-preparation-tool.md#mts-catalog)).
+- **Transfer to another instance (#1198).** `app:encounter:curation:export` / `app:encounter:curation:import`
+  carry the curated entries, aliases (a former merge as its alias) and assignments, together with the problem
+  areas, in one [curation package](curation-package.md). The import only adds; differences such as another name
+  under the same code or a provisional entry on the target are conflicts, resolved here in the back office.
 - **Categories:** `MtsCategory` with the target time from the first assessment contact to the first
   physician contact (`physicianContactTargetMinutes()`: red 0, orange 10, yellow 30, green 90, blue
   120 minutes), colour and name in EN and DE.

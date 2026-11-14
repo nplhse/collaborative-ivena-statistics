@@ -607,4 +607,32 @@ final class UserCrudControllerTest extends WebTestCase
 
         return (string) $token->getValue();
     }
+
+    public function testAdminCanSetAndClearDisplayName(): void
+    {
+        $client = self::createClient();
+
+        $suffix = bin2hex(random_bytes(4));
+        $target = UserFactory::createOne(['username' => 'display-target-'.$suffix]);
+        $admin = UserFactory::new()->asAdmin()->create(['username' => 'display-admin-'.$suffix]);
+        $targetId = $target->getId();
+        self::assertNotNull($targetId);
+
+        $client->loginUser($admin);
+
+        foreach (['  Ada   Admin ' => 'Ada Admin', '' => null] as $input => $expected) {
+            $crawler = $client->request(Request::METHOD_GET, '/admin/user/'.$targetId.'/edit');
+            self::assertResponseIsSuccessful();
+
+            $client->submit($crawler->selectButton('Save changes')->form([
+                'User[displayName]' => (string) $input,
+            ]));
+            self::assertTrue($client->getResponse()->isRedirect());
+
+            self::getContainer()->get(EntityManagerInterface::class)->clear();
+            $reloaded = self::getContainer()->get(UserRepository::class)->find($targetId);
+            self::assertInstanceOf(User::class, $reloaded);
+            self::assertSame($expected, $reloaded->getDisplayName());
+        }
+    }
 }

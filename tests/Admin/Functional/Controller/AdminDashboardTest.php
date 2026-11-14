@@ -66,28 +66,30 @@ final class AdminDashboardTest extends WebTestCase
             'reason' => 'file_not_found',
         ]);
         $this->persistEntry('2026-11-13 08:00:00', 'req-user', User::class, (string) $newUser->getId(), AuditEntry::INTENT_USER_REGISTERED);
-        $this->persistEntry('2026-11-13 07:00:00', 'req-reminder', MonthlyReminderDispatch::class, '5', AuditEntry::INTENT_HOSPITAL_REMINDER_SENT, [
+        $this->persistEntry('2026-11-13 07:00:00', 'req-reminder', MonthlyReminderDispatch::class, '5', AuditEntry::INTENT_HOSPITAL_REMINDER_FAILED, [
             'hospital_id' => $hospital->getId(),
             'reporting_period' => '2026-10',
+            'reason' => 'recipient_unavailable',
         ]);
 
         $crawler = $client->request(Request::METHOD_GET, '/admin');
         self::assertResponseIsSuccessful();
 
         $items = $crawler->filter('.ea-dashboard-ops-notifications li.timeline-item');
-        self::assertSame(['Import failed', 'New registration', 'Reminder sent'], $items->each(
+        self::assertSame(['Import failed', 'New registration', 'Reminder not delivered'], $items->each(
             static fn (Crawler $item): string => trim($item->filter('.timeline-category')->text()),
         ));
         self::assertSame([
             'October upload · Klinikum Nord · Import file was not found',
             'User new-user',
-            'Klinikum Nord · reporting month October 2026',
+            'Klinikum Nord · reporting month October 2026 · Recipient disabled or without email address',
         ], $items->each(static fn (Crawler $item): string => trim($item->filter('.ea-notification-context')->text())));
         self::assertSame(
             ['/admin/audit/requests/req-import', '/admin/audit/requests/req-user', '/admin/audit/requests/req-reminder'],
             $items->each(static fn (Crawler $item): string => (string) $item->filter('[data-testid="ops-notification-audit-link"]')->attr('href')),
         );
         self::assertStringContainsString('timeline-tone-danger', (string) $items->eq(0)->attr('class'), 'a failed import stands out');
+        self::assertStringContainsString('timeline-tone-danger', (string) $items->eq(2)->attr('class'), 'so does a reminder that was not delivered');
 
         $showAll = $crawler->filter('[data-testid="ops-notifications-show-all"]');
         self::assertSame(
@@ -103,6 +105,11 @@ final class AdminDashboardTest extends WebTestCase
         $client->loginUser(UserFactory::new()->asAdmin()->create());
 
         $this->persistEntry('2026-11-13 10:00:00', 'req-other', User::class, '1', 'user.admin.updated');
+        // A sent reminder needs no action: it stays in the audit timeline only (#1173).
+        $this->persistEntry('2026-11-13 09:30:00', 'req-sent', MonthlyReminderDispatch::class, '6', AuditEntry::INTENT_HOSPITAL_REMINDER_SENT, [
+            'hospital_id' => 1,
+            'reporting_period' => '2026-10',
+        ]);
         // An older run: free-text reason, and the import has been deleted since.
         $this->persistEntry('2026-11-13 09:00:00', 'req-legacy', Import::class, '999', AuditEntry::INTENT_IMPORT_RUN_FAILED, [
             'import_id' => 999,

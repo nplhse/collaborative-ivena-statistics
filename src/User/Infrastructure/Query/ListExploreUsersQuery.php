@@ -32,6 +32,7 @@ final readonly class ListExploreUsersQuery
             $qb->andWhere(
                 $qb->expr()->orX(
                     $qb->expr()->like('LOWER(u.username)', ':search'),
+                    $qb->expr()->like("LOWER(COALESCE(u.displayName, ''))", ':search'),
                     'EXISTS (
                         SELECT 1 FROM '.Hospital::class.' hSearch
                         WHERE hSearch.owner = u AND LOWER(hSearch.name) LIKE :search

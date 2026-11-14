@@ -35,14 +35,19 @@
                                 </div>
                                 <div class="card-body flex-grow-1">
                                     <h4 class="subheader mb-3">{{ 'label.settings.profile_details'|trans({}, 'user') }}</h4>
-                                    <div class="row g-3 mb-4">
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="settings-username">{{ 'label.username'|trans({}, 'messages') }}</label>
-                                            {# Read-only fields use Tabler's disabled look but stay focusable and copyable. #}
-                                            <input id="settings-username" class="form-control bg-surface-secondary text-secondary" value="{{ app.user.userIdentifier }}" readonly />
-                                            <small class="form-text">{{ 'help.settings.username_fixed'|trans({}, 'user') }}</small>
+                                    {{ form_start(profileForm, {attr: {id: 'settings-profile-form', 'data-testid': 'settings-profile-form'}}) }}
+                                        <div class="row g-3 align-items-start mb-4">
+                                            <div class="col-auto pt-4">
+                                                <twig:UserAvatar :user="app.user" size="md" data-testid="settings-profile-avatar" />
+                                            </div>
+                                            <div class="col">
+                                                {{ form_row(profileForm.displayName) }}
+                                            </div>
+                                            <div class="col-12 col-md-auto pt-md-4">
+                                                <button class="btn" type="submit">{{ 'label.settings.save_profile'|trans({}, 'user') }}</button>
+                                            </div>
                                         </div>
-                                    </div>
+                                    {{ form_end(profileForm) }}
 
                                     <h4 class="subheader mb-3">{{ 'label.email'|trans({}, 'user') }}</h4>
                                     <div class="row g-3 align-items-end mb-2">

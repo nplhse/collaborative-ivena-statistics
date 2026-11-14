@@ -8,12 +8,14 @@ Use these instead of copying Tabler page-header, card, modal, badge, alert, filt
 |------|-----|
 | Page title, scope or period context, and primary actions | `PageHeader` |
 | A content section | `Card` |
+| A single key figure, optionally with a change | `KpiCard` |
 | An entity or catalog list (Explore, Import, Users) | `DataTable` |
 | A statistics ranking (Top Lists, Insights directories) | [`Statistics:RankingTable`](../04-features/statistics/ranking-table.md) |
 | Navigation through editorial pages (full tree or a section) | [`Content:PageNavigation`](../04-features/content/page-navigation.md) |
 | An empty result set | `EmptyState` |
 | A notice, flash, or validation message | `Alert` |
 | A short status | `Badge` |
+| A user's generated avatar (initials or neutral icon) | [`UserAvatar`](#useravatar) (User context) |
 | Currently applied filters | `ActiveFilters` |
 | A dialog or a destructive confirmation | `Modal` or `ConfirmModal` |
 | Events in time order with optional expandable details | `Timeline` and `TimelineItem` |
@@ -234,19 +236,11 @@ Login and other auth forms keep their heading inside the body. A card header wou
 
 Nested cards need no extra API: put an inner `Card` in the body. Use `padding="none"` when the inner content should sit flush.
 
-### KPI composition
+### Key figures
 
-There is no separate KPI component. A status stripe plus the body slot is enough:
-
-```twig
-<twig:Card status="primary">
-    <div class="subheader">{{ 'stats.case_flow.kpi.total_cases'|trans({}, 'statistics') }}</div>
-    <div class="h1 mb-0">1.240</div>
-    <div class="text-secondary">in the selected period</div>
-</twig:Card>
-```
-
-Build new analysis KPI and status tiles this way instead of copying `.card` / `.subheader` markup.
+A single key figure goes into [`KpiCard`](#kpicard), which composes `Card`. Tiles that `KpiCard` cannot show yet,
+such as two comparisons, a ratio badge or a progress bar, stay on `Card` with the body slot. Do not copy `.card` or
+`.subheader` markup for them.
 
 ```twig
 <twig:Card title="Imports" status="warning" data-testid="import-run">
@@ -280,6 +274,79 @@ A statistics header that is only a title uses `headerClass`. A title that is its
     </twig:block>
     <div class="list-group list-group-flush">…</div>
 </twig:Card>
+```
+
+## KpiCard
+
+One key figure with an optional absolute change (#976). The markup follows Tabler's stat card:
+- an optional avatar icon
+- the label as `.subheader`
+- the value as `.h1`
+- a trend line: an icon and the signed delta, then the comparison label
+
+It composes `Card`, so `href`, `class`, `data-testid` and other attributes behave as they do there. First used by
+the dashboard metric cards (`@Content/dashboard/_metric_cards.html.twig`). The other KPI decks have not moved yet.
+
+The component formats and presents; it never calculates or interprets. The caller supplies the prepared value, the
+delta and whether a change is good or bad.
+
+| Property | Default | Notes |
+|----------|---------|--------|
+| `label` | required | Already translated |
+| `value` | `null` | Numbers use `format_number` with `fractionDigits`, so separators follow the locale. Strings are printed as given (pre-formatted durations, dates). `null` shows `—` and a hidden "not available"; `0` shows `0`. |
+| `unit` | `null` | Suffix after the value **and** after the delta |
+| `description` | `null` | Supporting line below the value |
+| `icon` | `null` | UX icon name in an `avatar`, decorative |
+| `delta` | `null` | Absolute change in the unit of the value. `null` renders no trend line. |
+| `comparisonLabel` | `null` | Already translated, for example "last 30 days" |
+| `colorizeTrend` | `false` | Colours the trend icon only; the delta and comparison label stay grey. Off: the icon is grey. On: up is green, down is red, unchanged stays grey. |
+| `invertTrend` | `false` | With `colorizeTrend`, swaps green and red for figures where more is worse |
+| `href` | `null` | Linked card, as in `Card` |
+| `fractionDigits` | `0` | Used for both `value` and `delta` |
+
+How the trend is shown:
+- The direction comes from the sign of the delta after rounding to `fractionDigits`. With one fraction digit, `0.04`
+  shows as an unchanged `0.0`, not as `+0.0` with an up arrow.
+- Up shows `tabler:trending-up` and a `+`. Down shows `tabler:trending-down`. Unchanged shows `tabler:minus`.
+- A visually hidden "Increase", "Decrease" or "No change" accompanies the icon, so the meaning never depends on colour.
+
+Limitations:
+- There is one delta per card.
+- The delta is absolute and shares `unit` and `fractionDigits` with the value.
+- Relative changes, percentage points next to a percentage value, several comparison periods, status stripes and
+  sparklines are not supported yet. Extend the component when a page needs them.
+
+A plain count:
+
+```twig
+<twig:KpiCard :label="'stats.case_flow.kpi.total_cases'|trans({}, 'statistics')" :value="1240" />
+```
+
+An increase with a coloured icon, as on the dashboard:
+
+```twig
+<twig:KpiCard
+    :label="'dashboard.metric.users'|trans({}, 'content')"
+    :value="metric.value"
+    icon="tabler:users"
+    :delta="metric.deltaLast30Days > 0 ? metric.deltaLast30Days : null"
+    :comparisonLabel="'dashboard.metrics.last_30_days'|trans({}, 'content')"
+    :colorizeTrend="true"
+    data-testid="dashboard-metric-users"
+/>
+```
+
+A coloured change where more is worse (translation keys and variables are illustrative):
+
+```twig
+<twig:KpiCard
+    :label="'stats.reports.monthly.closed_departments'|trans({}, 'statistics')"
+    :value="report.closedDepartments.count"
+    :delta="report.closedDepartments.changeFromPreviousMonth"
+    :comparisonLabel="'stats.reports.monthly.vs_previous_month'|trans({}, 'statistics')"
+    :colorizeTrend="true"
+    :invertTrend="true"
+/>
 ```
 
 ## Modal and ConfirmModal
@@ -340,6 +407,32 @@ Do **not** restyle Explore DataTable cells with this component. Hospital, urgenc
 <twig:Badge variant="green" data-testid="user-badge-self">
     {{ 'label.user.self_profile'|trans({}, 'user') }}
 </twig:Badge>
+```
+
+## UserAvatar
+
+Generated avatar of a user (#462), defined in the User context: `src/User/UI/Twig/Components/UserAvatar.php`, template `@User/components/UserAvatar.html.twig`. Tabler `avatar` markup, round by default.
+
+- **Initials** come from the optional `User::$displayName`: first letter of the first and of the last whitespace-separated word, uppercased ("Michael Müller" → `MM`, "Ada" → `A`). Words that do not start with a letter are skipped.
+- **Colour** is `PALETTE[userId % 8]` with `blue, azure, indigo, purple, pink, red, green, teal` as `bg-{colour}-lt`. The class `.user-avatar` in `assets/styles/app.css` mixes the initials towards black (light mode) or white (dark mode); measured on a card, every palette colour reaches at least 5:1 in both modes. Changing the palette order changes every user's colour.
+- **Fallback:** without a display name, or for anonymous visitors, the avatar shows the `tabler:user` icon on Tabler's neutral avatar background.
+- **Visibility:** `can_see_display_names()` and `user_display_name(displayName, username)` (`App\User\UI\Twig\UserDisplayNameExtension`) hold the one rule: signed-in viewers see display names and initials, anonymous visitors see the username and the icon. Use `user_display_name()` for the text next to the avatar.
+- Nothing is stored and nothing is queried while rendering: pass a `User` or the scalar fields a DTO already carries.
+
+| Property | Default | Notes |
+|----------|---------|-------|
+| `user` | `null` | `User` entity; wins over the scalar fields |
+| `userId`, `displayName`, `username` | `null` | Scalars from a DTO (activity rows, directory, profile) |
+| `size` | `sm` | `xs`, `sm`, `md`, `lg`, `xl`; unknown values fall back to `sm` |
+| `decorative` | `true` | `aria-hidden` next to a visible name; `false` adds `role="img"`, `aria-label` and `title` |
+
+Extra attributes (`class`, `data-testid`) merge onto the `span`.
+
+```twig
+<twig:UserAvatar :user="comment.author" />
+<strong>{{ user_display_name(comment.author.displayName, comment.author.username) }}</strong>
+
+<twig:UserAvatar :userId="activity.actorId" :displayName="activity.actorDisplayName" :username="activity.actorUsername" size="sm" />
 ```
 
 ## DataTable
@@ -597,6 +690,21 @@ Distinguish three reasons when a list or report has no rows:
 ```
 
 Statistics reports and the Analysis Explorer split "no source data" from "this scope or period is empty" and from extra filters. An import button appears only for the first of those, and only with import permission.
+
+## Navigation:Primary, Navigation:Sidebar and Navigation:Footer
+
+Render the top navbar entries, the contextual sidebar and the footer link columns from the navigation tree
+([ADR 035](../02-architecture/decisions/035-navigation-tree-and-contextual-sidebar.md)). Both are plain
+server-rendered components without props of their own; entries, order, permissions and the active area
+come from `NavigationBuilder` and the providers tagged `shared.navigation`
+([extension points](../02-architecture/extension-points.md#navigation-tree)). To add or move an entry,
+change a provider, not the templates.
+
+| Component | Used in | Output |
+|---|---|---|
+| `<twig:Navigation:Primary />` | `@Shared/_embeds/header.html.twig` | `<li class="nav-item">` per entry of the primary menu, `data-testid="nav-{id}"`, `active` and `aria-current="page"` on the current area; optional prop `area` (`statistics`, `explore`) for pages whose route has no entry |
+| `<twig:Navigation:Sidebar menu="statistics" />`, `menu="explore"` | `header_after` block of every statistics and explore page | Tabler vertical navbar with groups, nested groups (Bootstrap `collapse`), fold toggle (Stimulus `site-sidebar`) and the mobile bar; test ids `sidebar-{menu}`, `sidebar-group-{id}`, `sidebar-entry-{id}`, `sidebar-fold-toggle`; CSS in `assets/styles/navigation.css` |
+| `<twig:Navigation:Footer />` | `@Shared/_includes/footer.html.twig` | one column per footer group with links (`data-testid="footer-nav-column-{group}"`, links `footer-nav-{id}`); empty columns are omitted |
 
 ## Related
 

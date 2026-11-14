@@ -5145,6 +5145,14 @@
         <source>stats.reports.monthly.kpi.mom</source>
         <target>ggü. Vormonat</target>
       </trans-unit>
+      <trans-unit id="StatsUnitPpDe1" resname="stats.unit.percentage_points.short">
+        <source>stats.unit.percentage_points.short</source>
+        <target>%-Punkte</target>
+      </trans-unit>
+      <trans-unit id="StatsUnitPpDe2" resname="stats.unit.percentage_points.long">
+        <source>stats.unit.percentage_points.long</source>
+        <target>Prozentpunkte (Differenz zweier Anteile)</target>
+      </trans-unit>
       <trans-unit id="Ae98dca1ef" resname="stats.reports.monthly.kpi.yoy">
         <source>stats.reports.monthly.kpi.yoy</source>
         <target>ggü. Vorjahresmonat</target>
@@ -7755,6 +7763,42 @@
       <trans-unit id="statsEnc07e64cb9" resname="stats.encounter.time_series.empty">
         <source>stats.encounter.time_series.empty</source>
         <target>In diesem Zeitraum gibt es noch keinen abgeschlossenen Monat.</target>
+      </trans-unit>
+      <trans-unit id="StatsNav01De" resname="stats.nav.group.allocations">
+        <source>stats.nav.group.allocations</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="StatsNav02De" resname="stats.nav.group.comparisons">
+        <source>stats.nav.group.comparisons</source>
+        <target>Vergleiche</target>
+      </trans-unit>
+      <trans-unit id="StatsNav03De" resname="stats.nav.group.capacity">
+        <source>stats.nav.group.capacity</source>
+        <target>Kapazität &amp; Schließungen</target>
+      </trans-unit>
+      <trans-unit id="StatsNav04De" resname="stats.nav.group.clinical">
+        <source>stats.nav.group.clinical</source>
+        <target>Klinische Daten</target>
+      </trans-unit>
+      <trans-unit id="StatsNav05De" resname="stats.nav.group.own">
+        <source>stats.nav.group.own</source>
+        <target>Eigene Analysen</target>
+      </trans-unit>
+      <trans-unit id="StatsNav06De" resname="stats.nav.insights_dimensions">
+        <source>stats.nav.insights_dimensions</source>
+        <target>Dimensionen</target>
+      </trans-unit>
+      <trans-unit id="StatsNav07De" resname="stats.nav.insights_compare">
+        <source>stats.nav.insights_compare</source>
+        <target>Vergleich</target>
+      </trans-unit>
+      <trans-unit id="StatsNav08De" resname="stats.nav.encounter">
+        <source>stats.nav.encounter</source>
+        <target>Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="StatsNav09De" resname="stats.nav.badge.beta">
+        <source>stats.nav.badge.beta</source>
+        <target>Beta</target>
       </trans-unit>
     </body>
   </file>

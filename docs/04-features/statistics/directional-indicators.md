@@ -11,7 +11,7 @@ Colour shows direction and magnitude. A higher share is not automatically better
 | Prop | Values |
 |------|--------|
 | `value` | Number or `null`. `null` renders nothing; the caller shows an em dash when the column must stay filled. |
-| `unit` | `count` (`+12`), `percent` (`+1,2%`), `minutes` (`+1,2 min`). There is no percentage-point suffix. |
+| `unit` | `count` (`+12`), `decimal` (`+1,2`), `percent` for a relative change (`+1,2%`), `pp` for the difference between two shares (`+1,2 pp` / `+1,2 %-Punkte`), `minutes` (`+1,2 min`). See [Percentage points](#percentage-points). |
 | `display` | `badge` (default) or `text`. |
 | `whenZero` | `hide` (default) or `neutral`. Neutral is grey, without a leading `+`. |
 | `ariaKey` | Statistics translation. The `{delta}` placeholder is the formatted value. |
@@ -27,6 +27,21 @@ Do not use this component for:
 - Monthly-report KPI tiles, including the inverted Notzuweisungen colour
 - Benchmark KPI tiles and the indication-mix ratio column
 - DataTable badges
+
+## Percentage points
+
+The difference between two shares (20,0 % → 25,0 %) is a change in percentage points (+5,0), not a relative
+change (+25 %). Never label it with `%`.
+
+| Where | How |
+|------|-----|
+| `Statistics:DeltaIndicator` | `unit="pp"`. The title defaults to the spelled-out unit unless `title` is set; the accessible name always uses it. |
+| Other statistics markup | `{{ include('@Statistics/_percentage_points_unit.html.twig') }}` after the number: short unit visible, spelled-out unit as `title` and visually hidden text. |
+| Engagement texts and e-mails | `'monthly_reminder.unit.percentage_points'\|trans({}, 'engagement')`, appended after a space. |
+
+Translation keys: `stats.unit.percentage_points.short` (`pp` / `%-Punkte`) and `stats.unit.percentage_points.long`
+(`statistics`), `monthly_reminder.unit.percentage_points` (`engagement`). Relative changes such as month-over-month
+allocation counts or closure volume deviations stay `percent`.
 
 ## Rank shift
 

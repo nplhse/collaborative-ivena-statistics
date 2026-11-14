@@ -22,10 +22,10 @@ Entity: [`AuditEntry`](../../src/Shared/Infrastructure/Audit/Entity/AuditEntry.p
 | `action` | `create`, `update`, `delete`, `export`, `download`, `impersonate`, `impersonate_exit` | |
 | `entity_class` | FQCN of the affected entity, or the pseudo class `data_export` | |
 | `entity_id` | id of the affected entity, or the exporter key for exports | `NULL` when the entity has no id |
-| `changes` | JSON `{field: {old, new}}` | empty for `delete` and for the explicit loggers |
+| `changes` | JSON `{field: {old, new}}` | empty for `delete` and for the explicit loggers, except the failed reminder delivery, which records the change of its guarded update |
 | `metadata` | JSON, see below | `NULL` when nothing applies |
 | `intent` | copy of `metadata.intent` | for filtering; `NULL` without intent |
-| `outcome` | `success`, `blocked` or `failed` | only where the entry states it: exports (`blocked`, `success`) and the `import.run.failed` intent; otherwise `NULL` |
+| `outcome` | `success`, `blocked` or `failed` | only where the entry states it: exports (`blocked`, `success`) and the intents `import.run.failed` and `hospital.reminder_failed`; otherwise `NULL` |
 | `request_id_kind` | `generated` or `legacy` | `legacy` for all entries written before ADR 025, whose HTTP request id may have come from a client |
 | `session_ref` | random reference of the authenticated session | `NULL` without a logged-in session and for all entries written before ADR 025 |
 
@@ -41,7 +41,7 @@ the stored metadata with the same rules; see [Backfill of older entries](#backfi
 | Key | Written by | Content |
 |-----|------------|---------|
 | `intent` | Doctrine subscriber, download logger | name of the business action, for example `user.settings.password_changed`, `import.run.failed` |
-| `intent_metadata` | Doctrine subscriber | free-form context of the intent, for example `hospital_id` or `section`; `import_id` and `reason` (an `ImportRunReasonCode`, in older runs an exception message) for `import.run.failed`; `hospital_id`, `owner_id`, `reporting_period`, `trigger`, `owner_locale` for `hospital.reminder_sent` |
+| `intent_metadata` | Doctrine subscriber | free-form context of the intent, for example `hospital_id` or `section`; `import_id` and `reason` (an `ImportRunReasonCode`, in older runs an exception message) for `import.run.failed`; `hospital_id`, `owner_id`, `reporting_period`, `trigger`, `owner_locale` for `hospital.reminder_sent`; `hospital_id`, `reporting_period` (the reporting month, as for `hospital.reminder_sent`) and `reason` (a `NotificationDeliveryFailureReason`) for `hospital.reminder_failed` |
 | `clientIp`, `userAgent` | all producers in HTTP requests except exports | personal data; client IP depends on `SYMFONY_TRUSTED_PROXIES` |
 | `upstreamRequestId` | all producers | well-formed `X-Request-Id` the client or a proxy sent; for tracing only |
 | `exporterKey`, `hospitalIds`, `filters`, `rowCount`, `blocked`, `success` | export logger | the only recorded outcome besides the `import.run.*` intents |
@@ -56,12 +56,17 @@ the stored metadata with the same rules; see [Backfill of older entries](#backfi
 | [`ExportAuditLogger`](../../src/Shared/Application/Export/ExportAuditLogger.php) | `export` | each data export, also blocked ones |
 | [`ImportSourceDownloadAuditLogger`](../../src/Import/Application/Service/ImportSourceDownloadAuditLogger.php) | `download` | successful download of an import source file |
 | [`SwitchUserSubscriber`](../../src/User/Infrastructure/Security/SwitchUserSubscriber.php) | `impersonate`, `impersonate_exit` | an admin starts or ends impersonation |
+| [`MonthlyReminderFailureAuditLogger`](../../src/Engagement/Infrastructure/Audit/MonthlyReminderFailureAuditLogger.php) | `update` of the `MonthlyReminderDispatch`, intent `hospital.reminder_failed` | a monthly reminder delivery failed for good and failed its dispatch (#1173); no actor, the failure is system activity |
 
 Rules of the Doctrine subscriber:
 
 - Audited entities live in the Allocation, Content, Encounter, Engagement, Import, Shared and User
   contexts; search for `#[Audited]` for the current list. `MonthlyReminderDispatch` is audited so that
-  sending a monthly reminder writes an entry with the intent `hospital.reminder_sent` (#1137).
+  sending a monthly reminder writes an entry with the intent `hospital.reminder_sent` (#1137). A failed
+  delivery fails the dispatch with a guarded SQL update (only the current attempt of a queued dispatch),
+  which this subscriber does not see; `MonthlyReminderFailureAuditLogger` writes its entry explicitly, and
+  only when the update changed the dispatch, so a failure announced again by the reconciliation is
+  recorded once (#1173).
 - `createdAt`, `updatedAt`, `createdBy`, `updatedBy` and fields with `#[AuditIgnore]` are skipped.
   Fields with `#[AuditSensitive]` (the password hash) are stored as `********`.
 - `create` stores a snapshot of all fields and to-one associations, `update` only changed fields,
@@ -179,7 +184,9 @@ feedback in quarantine) are not repeated.
 |---|---|---|
 | `import.run.failed` | Import failed | import name, hospital, translated reason code; free-text reasons of older runs only in the log |
 | `user.registered` | New registration | username |
-| `hospital.reminder_sent` | Reminder sent | hospital, reporting month; to be replaced by failed deliveries (#1173) |
+| `hospital.reminder_failed` | Reminder not delivered | hospital, reporting month, translated delivery failure reason |
+
+Sent reminders (`hospital.reminder_sent`) need no action and stay in the audit timeline only (#1173).
 
 Each request and intent counts once. Every event links to its request (`/admin/audit/requests/{requestId}`);
 "Show all in the audit log" opens the unfiltered timeline. Records that no longer exist are shown by id.
@@ -188,7 +195,9 @@ Each request and intent counts once. Every event links to its request (`/admin/a
 
 - Only `ROLE_ADMIN` can read the audit log, through the audit timeline (`AuditTimelineController`) and
   its endpoints: entry details, request view, new-entries count. There is no other read access.
-- `clientIp`, `userAgent`, usernames and the export filters are personal data. Exception messages in
+- `clientIp`, `userAgent`, usernames, display names and the export filters are personal data. A change of
+  the optional `User::$displayName` is recorded as an `update` of the user (intent
+  `user.settings.profile_updated` when the user saves it in the account settings). Exception messages in
   `intent_metadata.reason` may contain technical details.
 - Session cookies, session ids and authentication tokens are not stored.
 - Entries are not deleted automatically; the only deletion is the one-time purge in
@@ -212,4 +221,4 @@ php bin/console app:audit:backfill-derived --apply
 1. Request groups can contain asynchronous jobs far away in time.
 2. `occurred_at` has second precision; the order inside a second is given only by `id`.
 3. Entries written before ADR 025 have no session reference and may have a client-sent request id.
-4. An outcome is recorded only for exports and failed import runs.
+4. An outcome is recorded only for exports, failed import runs and failed reminder deliveries.

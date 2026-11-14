@@ -49,7 +49,7 @@ return [
     'bignumber.js' => ['version' => '9.1.2'],
     'splaytree-ts' => ['version' => '1.0.2'],
     'es-module-shims' => ['version' => '2.8.4'],
-    '@tabler/core' => ['version' => '1.6.1'],
-    '@tabler/core/dist/css/tabler.min.css' => ['version' => '1.6.1', 'type' => 'css'],
+    '@tabler/core' => ['version' => '1.7.5'],
+    '@tabler/core/dist/css/tabler.min.css' => ['version' => '1.7.5', 'type' => 'css'],
     'apexcharts/core' => ['version' => '7.6.1'],
 ];

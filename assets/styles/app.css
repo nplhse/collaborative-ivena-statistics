@@ -33,6 +33,50 @@
     line-height: 1.3;
 }
 
+/*
+ * Generated user avatars (#462, UserAvatar component): Tabler's -lt tint as background, the initials
+ * mixed towards black (light) or white (dark mode) so every palette colour reaches at least 4.5:1.
+ */
+.avatar.user-avatar {
+    color: color-mix(in oklab, var(--user-avatar-color) 75%, black) !important;
+}
+
+[data-bs-theme='dark'] .avatar.user-avatar {
+    color: color-mix(in oklab, var(--user-avatar-color) 65%, white) !important;
+}
+
+/*
+ * User cell in lists (#462): the avatar keeps the same distance to the name as to the card edge,
+ * 1.25rem in the table and the 1rem inline padding of a DataTable card on small screens.
+ */
+.user-cell {
+    gap: var(--tblr-card-spacer-x, 1.25rem);
+}
+
+@container data-table-cards (max-width: 575.98px) {
+    .data-table-cards--sm .user-cell {
+        gap: 1rem;
+    }
+}
+
+@container data-table-cards (max-width: 767.98px) {
+    .data-table-cards--md .user-cell {
+        gap: 1rem;
+    }
+}
+
+@container data-table-cards (max-width: 991.98px) {
+    .data-table-cards--lg .user-cell {
+        gap: 1rem;
+    }
+}
+
+/* The navbar avatar of an admin who impersonates another user (#462). */
+.avatar.avatar-impersonating {
+    outline: 2px solid var(--tblr-warning);
+    outline-offset: 2px;
+}
+
 .import-processing-hero {
     --tblr-avatar-size: 3.5rem;
 }
@@ -2893,10 +2937,6 @@ body.geo-map-expand-open {
 
 .activity-post-preview p {
     margin-bottom: 0;
-}
-
-.navbar-username {
-    max-width: 12rem;
 }
 
 header.navbar {

@@ -1,10 +1,8 @@
-{% if is_granted('IS_IMPERSONATOR') %}
-    <div class="navbar-username d-none d-xl-block ps-2 min-w-0">
-        <div class="text-warning small text-truncate">{{ 'label.impersonation_active'|trans({}, 'messages') }}</div>
-        <div id="user_name" class="fw-bold text-warning text-truncate">{{ app.user.userIdentifier }}</div>
-    </div>
-{% else %}
-    <div class="navbar-username d-none d-xl-block ps-2 min-w-0">
-        <div id="user_name" class="text-truncate">{{ app.user.userIdentifier }}</div>
-    </div>
-{% endif %}
+{#
+  The avatar identifies the signed-in user (#462); while impersonating it gets a warning ring
+  (.avatar-impersonating). The name stays available to assistive technology.
+#}
+<span class="visually-hidden">
+    {%- if is_granted('IS_IMPERSONATOR') %}{{ 'label.impersonation_active'|trans({}, 'messages') }} {% endif -%}
+    <span id="user_name">{{ app.user.userIdentifier }}</span>
+</span>

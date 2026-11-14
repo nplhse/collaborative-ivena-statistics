@@ -120,7 +120,7 @@
                     {% if report.withPhysicianMomPercent is not null %}
                         <div class="mt-1">
                             <span class="{% if report.withPhysicianMomPercent > 0 %}text-success{% elseif report.withPhysicianMomPercent < 0 %}text-danger{% else %}text-secondary{% endif %}">
-                                {{ report.withPhysicianMomPercent >= 0 ? '+' : '' }}{{ report.withPhysicianMomPercent|number_format(1, ',', '.') }}%
+                                {{ report.withPhysicianMomPercent >= 0 ? '+' : '' }}{{ report.withPhysicianMomPercent|number_format(1, ',', '.') }} {{ include('@Statistics/_percentage_points_unit.html.twig') }}
                             </span>
                             <span class="text-secondary">{{ 'stats.reports.monthly.kpi.mom'|trans({}, 'statistics') }}</span>
                         </div>
@@ -160,7 +160,7 @@
                     {% if report.resusMomPercent is not null %}
                         <div class="mt-1">
                             <span class="{% if report.resusMomPercent > 0 %}text-success{% elseif report.resusMomPercent < 0 %}text-danger{% else %}text-secondary{% endif %}">
-                                {{ report.resusMomPercent >= 0 ? '+' : '' }}{{ report.resusMomPercent|number_format(1, ',', '.') }}%
+                                {{ report.resusMomPercent >= 0 ? '+' : '' }}{{ report.resusMomPercent|number_format(1, ',', '.') }} {{ include('@Statistics/_percentage_points_unit.html.twig') }}
                             </span>
                             <span class="text-secondary">{{ 'stats.reports.monthly.kpi.mom'|trans({}, 'statistics') }}</span>
                         </div>

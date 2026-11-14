@@ -54,15 +54,6 @@ final readonly class PageExtension
     /**
      * @return list<PageNavigationLink>
      */
-    #[\Twig\Attribute\AsTwigFunction(name: 'page_nav_header_items')]
-    public function pageNavHeaderItems(): array
-    {
-        return $this->pageNavigationProvider->getHeaderPages();
-    }
-
-    /**
-     * @return list<PageNavigationLink>
-     */
     #[\Twig\Attribute\AsTwigFunction(name: 'page_nav_footer_items')]
     public function pageNavFooterItems(): array
     {

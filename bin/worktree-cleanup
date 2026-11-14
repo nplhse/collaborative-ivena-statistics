@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# Drop the test databases of a git worktree, then remove the worktree (the branch is kept).
+#
+# Usage: bin/worktree-cleanup <worktree-path>
+#
+# Counterpart of bin/worktree-init. Drops the databases of TEST_DATABASE_SUFFIX from the worktree's
+# .env.test.local: the serial one and one per ParaTest worker (TEST_TOKEN 1..PROCESSES, default 4).
+# Refuses the main checkout, a worktree without its own suffix, a branch whose config ignores the
+# suffix and a worktree with uncommitted changes.
+# See docs/03-development/development-workflow.md.
+set -euo pipefail
+
+usage() {
+    sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'
+}
+
+case "${1:-}" in
+    -h|--help) usage; exit 0 ;;
+esac
+if [ "$#" -ne 1 ]; then
+    usage >&2
+    exit 2
+fi
+
+target=$(cd "$1" 2>/dev/null && pwd -P) || { echo "Worktree not found: $1" >&2; exit 1; }
+git -C "$target" rev-parse --is-inside-work-tree >/dev/null 2>&1 || { echo "Not a git worktree: $target" >&2; exit 1; }
+target=$(git -C "$target" rev-parse --show-toplevel)
+main=$(git -C "$target" worktree list --porcelain | sed -n '1s/^worktree //p')
+main=$(cd "$main" && pwd -P)
+
+if [ "$target" = "$main" ]; then
+    echo "Refusing the main checkout: $target" >&2
+    exit 1
+fi
+
+suffix=$(sed -n 's/^TEST_DATABASE_SUFFIX=//p' "$target/.env.test.local" 2>/dev/null | tail -n 1)
+if [ -z "$suffix" ]; then
+    echo "No TEST_DATABASE_SUFFIX in $target/.env.test.local: this worktree uses the shared test databases." >&2
+    echo "Nothing dropped. Remove it with: git worktree remove $target" >&2
+    exit 1
+fi
+
+# A branch from before the suffix existed ignores it and would drop the shared test databases.
+if ! grep -q 'TEST_DATABASE_SUFFIX' "$target/config/packages/doctrine.yaml" 2>/dev/null; then
+    echo "The branch in $target does not use TEST_DATABASE_SUFFIX yet (config/packages/doctrine.yaml)." >&2
+    echo "Nothing dropped: its tests ran on the shared test databases. Remove it with: git worktree remove $target" >&2
+    exit 1
+fi
+
+if [ -n "$(git -C "$target" status --porcelain)" ]; then
+    echo "Uncommitted changes in $target; commit or discard them first:" >&2
+    git -C "$target" status --short >&2
+    exit 1
+fi
+
+if [ ! -x "$target/bin/console" ] || [ ! -d "$target/vendor" ]; then
+    echo "No bin/console or vendor/ in $target; cannot drop its test databases." >&2
+    exit 1
+fi
+
+echo "Worktree: $target"
+echo "Suffix:   $suffix"
+echo
+
+echo "Test databases"
+# Plain php, not the Symfony CLI: the CLI may export another DATABASE_URL.
+for token in "" $(seq 1 "${PROCESSES:-4}"); do
+    (cd "$target" && TEST_DATABASE_SUFFIX="$suffix" TEST_TOKEN="$token" \
+        php bin/console doctrine:database:drop --env=test --if-exists --force --no-interaction) | sed 's/^/  /'
+done
+
+echo
+echo "Worktree"
+git -C "$main" worktree remove "$target"
+echo "  removed  $target (branch kept)"
+
+echo
+echo "Done."

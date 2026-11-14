@@ -241,7 +241,7 @@ final class ClosedDepartmentAssignmentsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-closed-department-clinical"] .progress-bar.bg-secondary');
         $this->assertSelectorNotExists('[data-testid="stats-closed-department-dispatch-areas"]');
         $this->assertSelectorExists('[data-testid="stats-closed-department-inline-compare-hint"]');
-        $this->assertSelectorTextContains('[data-testid="stats-closed-department-urgency"]', '+100,0%');
+        $this->assertSelectorTextContains('[data-testid="stats-closed-department-urgency"]', '+100,0 pp');
         $this->assertSelectorExists('[data-testid="stats-closed-department-urgency"] .text-green');
         $this->assertSelectorExists('[data-testid="stats-closed-department-urgency"] .text-red');
 

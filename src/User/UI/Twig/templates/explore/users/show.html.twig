@@ -9,7 +9,7 @@
         {% block header_after %}
             {# Users without ROLE_PARTICIPANT may only open their own profile, not the rest of Explore. #}
             {% if is_granted('ROLE_PARTICIPANT') %}
-                {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+                <twig:Navigation:Sidebar menu="explore" />
             {% endif %}
         {% endblock %}
     {% endembed %}
@@ -32,12 +32,14 @@
 
         <div class="row align-items-center" data-testid="user-profile-header">
             <div class="col-auto">
-                <span class="avatar avatar-lg rounded">
-                    <twig:ux:icon name="tabler:user" width="36px" height="36px" />
-                </span>
+                <twig:UserAvatar :userId="profile.userId" :displayName="profile.displayName" :username="profile.username" size="xl" data-testid="user-profile-avatar" />
             </div>
             <div class="col">
-                <h1 id="user-username" class="fw-bold mb-1">{{ profile.username }}</h1>
+                {% set profileName = user_display_name(profile.displayName, profile.username) %}
+                <h1 id="user-username" class="fw-bold mb-1">{{ profileName }}</h1>
+                {% if profileName != profile.username %}
+                    <div class="text-secondary mb-1" data-testid="user-profile-username">@{{ profile.username }}</div>
+                {% endif %}
                 <div class="list-inline list-inline-dots text-secondary">
                     {% if profile.isSelf %}
                         <div class="list-inline-item">

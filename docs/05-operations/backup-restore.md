@@ -10,6 +10,7 @@ Operational guide for PostgreSQL, import files, and media uploads.
 | Import uploads | `var/imports/` | `<deploy_path>/shared/var/imports/` ([paths on the server](deployment.md#paths-on-the-server)) |
 | Media uploads | `public/uploads/media/` | `<deploy_path>/shared/public/uploads/media/` |
 | Reference catalog packages | `var/reference/` | `<deploy_path>/shared/var/reference/` — private; keep copies in the private data repository, not in these backups only ([ADR 020](../02-architecture/decisions/020-portable-reference-catalog.md)) |
+| Encounter curation packages | `var/encounter/` | copied in by hand for an import; not a backup of the catalog or the plausibility table, which are in the database dump ([curation package](../04-features/encounter/curation-package.md)) |
 | Secrets | `.env.local` | `<deploy_path>/shared/.env.local` — **back up separately**, never inside DB dumps |
 
 Backups are written to `var/backups/` locally (override with `BACKUP_DIR`).

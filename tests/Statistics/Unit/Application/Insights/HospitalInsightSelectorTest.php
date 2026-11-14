@@ -43,7 +43,8 @@ final class HospitalInsightSelectorTest extends TestCase
         self::assertSame('monthly_reminder.insight.physician.title', $insights[0]->title);
         self::assertStringContainsString('15.9', $insights[0]->body);
         self::assertStringContainsString('13.4', $insights[0]->body);
-        self::assertStringContainsString('+2.5%', $insights[0]->body);
+        self::assertStringContainsString('delta_pp=+2.5 monthly_reminder.unit.percentage_points', $insights[0]->body);
+        self::assertStringNotContainsString('+2.5%', $insights[0]->body);
         self::assertSame('https://example.test/stats', $insights[0]->linkUrl);
     }
 

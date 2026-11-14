@@ -85,7 +85,7 @@ final class UserCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular(new TranslatableMessage('admin.user.entity.singular', domain: 'admin'))
             ->setEntityLabelInPlural(new TranslatableMessage('admin.user.entity.plural', domain: 'admin'))
-            ->setSearchFields(['id', 'username', 'email'])
+            ->setSearchFields(['id', 'username', 'displayName', 'email'])
             ->setDefaultSort(['username' => 'ASC']);
     }
 
@@ -299,6 +299,9 @@ final class UserCrudController extends AbstractCrudController
     {
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.account', domain: 'admin'));
         yield TextField::new('username');
+        yield TextField::new('displayName', new TranslatableMessage('admin.user.field.display_name', domain: 'admin'))
+            ->setHelp(new TranslatableMessage('admin.user.field.display_name_help', domain: 'admin'))
+            ->setFormTypeOption('empty_data', '');
         yield TextField::new('email');
         yield ChoiceField::new('locale', new TranslatableMessage('admin.field.locale', domain: 'admin'))
             ->setChoices([

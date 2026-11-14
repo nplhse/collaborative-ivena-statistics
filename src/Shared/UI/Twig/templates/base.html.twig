@@ -1,7 +1,7 @@
 {% set cookie_consent = app.request.attributes.get('cookie_consent') %}
 
 <!DOCTYPE html>
-<html lang="{{ app.request.locale }}">
+<html lang="{{ app.request.locale }}" data-bs-navbar-position="combined">
 <head>
     {{ include('@Shared/_includes/color_scheme.html.twig') }}
     <meta charset="utf-8"/>
