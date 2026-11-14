@@ -17,6 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\UniqueConstraint(name: 'uniq_encounter_plausibility_area_code_pzc', fields: ['pzc'])]
 class PlausibilityAreaCode
 {
+    /** @psalm-suppress UnusedProperty Identifier set by Doctrine; codes are found by PZC, never by id. */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
