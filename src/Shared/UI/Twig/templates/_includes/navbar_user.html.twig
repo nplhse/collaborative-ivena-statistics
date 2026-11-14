@@ -3,7 +3,7 @@
         <twig:LocaleSwitcher class="d-none d-md-flex" />
         <twig:NotificationBell />
         <div class="nav-item dropdown">
-            <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Open user menu">
+            <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Open user menu" title="{{ user_display_name(app.user.displayName, app.user.userIdentifier) }}">
                 <twig:UserAvatar :user="app.user" size="sm" data-testid="user-menu-avatar" />
                 {{ include('@Shared/_includes/navbar_impersonation_username.html.twig') }}
             </a>

@@ -4,7 +4,6 @@
         <div id="user_name" class="fw-bold text-warning text-truncate">{{ app.user.userIdentifier }}</div>
     </div>
 {% else %}
-    <div class="navbar-username d-none d-xl-block ps-2 min-w-0">
-        <div id="user_name" class="text-truncate">{{ app.user.userIdentifier }}</div>
-    </div>
+    {# The avatar identifies the signed-in user (#462); the name stays available to assistive technology. #}
+    <span id="user_name" class="visually-hidden">{{ app.user.userIdentifier }}</span>
 {% endif %}
