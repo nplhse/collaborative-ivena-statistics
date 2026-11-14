@@ -37,15 +37,6 @@ class AnalyticsRequest
     private int $httpStatus;
 
     #[ORM\Column]
-    private int $durationMs;
-
-    #[ORM\Column]
-    private int $dbQueryCount;
-
-    #[ORM\Column]
-    private int $dbTimeMs;
-
-    #[ORM\Column]
     private bool $isAuthenticated;
 
     #[ORM\Column(length: 64, nullable: true)]
@@ -78,9 +69,6 @@ class AnalyticsRequest
         ?string $routeName,
         FeatureArea $featureArea,
         int $httpStatus,
-        int $durationMs,
-        int $dbQueryCount,
-        int $dbTimeMs,
         bool $isAuthenticated,
         ?string $userRole,
         ?string $analyticsUserKey,
@@ -94,9 +82,6 @@ class AnalyticsRequest
         $this->routeName = $routeName;
         $this->featureArea = $featureArea;
         $this->httpStatus = $httpStatus;
-        $this->durationMs = $durationMs;
-        $this->dbQueryCount = $dbQueryCount;
-        $this->dbTimeMs = $dbTimeMs;
         $this->isAuthenticated = $isAuthenticated;
         $this->userRole = $userRole;
         $this->analyticsUserKey = $analyticsUserKey;
@@ -130,21 +115,6 @@ class AnalyticsRequest
     public function getHttpStatus(): int
     {
         return $this->httpStatus;
-    }
-
-    public function getDurationMs(): int
-    {
-        return $this->durationMs;
-    }
-
-    public function getDbQueryCount(): int
-    {
-        return $this->dbQueryCount;
-    }
-
-    public function getDbTimeMs(): int
-    {
-        return $this->dbTimeMs;
     }
 
     public function isAuthenticated(): bool

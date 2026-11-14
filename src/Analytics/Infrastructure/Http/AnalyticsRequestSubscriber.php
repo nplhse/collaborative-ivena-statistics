@@ -9,7 +9,6 @@ use App\Analytics\Application\RequestTracking\CountedAccessClassifier;
 use App\Analytics\Application\RequestTracking\FeatureAreaResolver;
 use App\Analytics\Application\RequestTracking\RequestAnalyticsRecorder;
 use App\Analytics\Application\RequestTracking\UserAgentNormalizer;
-use App\Analytics\Infrastructure\Doctrine\AnalyticsQueryCounter;
 use App\Shared\Infrastructure\Consent\CookieConsentService;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
@@ -30,8 +29,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 final readonly class AnalyticsRequestSubscriber
 {
-    private const string ATTR_STARTED_AT = '_analytics_started_at';
-
     private const string ATTR_TRACK = '_analytics_track';
 
     /** Analytics consent resolved on kernel.response, reused on kernel.terminate after the EntityManager clear. */
@@ -49,7 +46,6 @@ final readonly class AnalyticsRequestSubscriber
 
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        private AnalyticsQueryCounter $queryCounter,
         private AnalyticsCookieManager $cookieManager,
         private CookieConsentService $cookieConsentService,
         private FeatureAreaResolver $featureAreaResolver,
@@ -79,8 +75,6 @@ final readonly class AnalyticsRequestSubscriber
         }
 
         $request->attributes->set(self::ATTR_TRACK, true);
-        $request->attributes->set(self::ATTR_STARTED_AT, hrtime(true));
-        $this->queryCounter->reset();
     }
 
     #[AsEventListener(event: KernelEvents::RESPONSE, priority: -64)]
@@ -127,17 +121,6 @@ final readonly class AnalyticsRequestSubscriber
 
     private function recordRequest(Request $request, int $statusCode): void
     {
-        $startedAt = $request->attributes->get(self::ATTR_STARTED_AT);
-        $durationMs = 0;
-        if (\is_int($startedAt) || \is_float($startedAt)) {
-            $elapsedNs = (float) hrtime(true) - (float) $startedAt;
-            $durationMs = (int) round($elapsedNs / 1_000_000.0);
-        }
-
-        $dbQueryCount = $this->queryCounter->getCount();
-        $dbTimeMs = $this->queryCounter->getTimeMs();
-        $this->queryCounter->disable();
-
         $analyticsConsent = $request->attributes->get(self::ATTR_ANALYTICS_CONSENT);
         if (!\is_bool($analyticsConsent)) {
             $analyticsConsent = $this->resolveAnalyticsConsent($request);
@@ -166,9 +149,6 @@ final readonly class AnalyticsRequestSubscriber
             routeName: $routeName,
             featureArea: $this->featureAreaResolver->resolve($routeName),
             httpStatus: $statusCode,
-            durationMs: max(0, $durationMs),
-            dbQueryCount: $dbQueryCount,
-            dbTimeMs: $dbTimeMs,
             isAuthenticated: $isAuthenticated,
             userRole: $userRole,
             analyticsUserKey: $analyticsUserKey,

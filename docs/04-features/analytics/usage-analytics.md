@@ -8,12 +8,13 @@
 - Consent preference `analytics` (optional; essential cookies remain required)
 - Admin insights under `/admin/operations/usage-analytics/*` (menu section above System)
 - **Local only:** measurement runs on this application’s servers — no external analytics providers (no Google Analytics, Matomo cloud, etc.). Server-side error monitoring (e.g. Sentry) is separate and not controlled by this cookie preference.
+- **No request performance:** usage analytics records no durations or database queries. Request performance is monitored with the optional Sentry integration ([observability-sentry.md](../../05-operations/observability-sentry.md)).
 
 Tables are created by migration `Version20260804151958` (run with normal deploy migrations). Completed days are rolled up into daily aggregate tables; raw rows older than 30 days are deleted only after a successful rollup. See [aggregation-and-retention.md](aggregation-and-retention.md).
 
 ## Privacy
 
-Stored: route name, feature area, status, duration, DB query count/time, authenticated flag, primary role, normalized browser/device, whether the request counts as an access, optional pseudonymous keys.
+Stored: route name, feature area, HTTP status, authenticated flag, primary role, normalized browser/device, whether the request counts as an access, optional pseudonymous keys.
 
 Not stored: IP, full URLs, query parameters (names or values), SQL, raw user agent, referrer, POST/form bodies, Symfony session id, user id.
 
@@ -103,7 +104,7 @@ Resolved from Symfony route names: `home`, `dashboard`, `statistics`, `analysis`
 
 Requests under the Admin UI (`app_admin_*` routes / path `/admin`) are **not** written to `analytics_request`. Normal app usage (including by users with `ROLE_ADMIN`) remains tracked.
 
-After deploying this exclusion, remove historical admin request rows once (optional but recommended so Overview/Performance are not skewed):
+After deploying this exclusion, remove historical admin request rows once (optional but recommended so the Overview is not skewed):
 
 ```bash
 # Preview
@@ -185,7 +186,6 @@ Menu section **Usage analytics** (above System), one page per topic:
 |------|-------|----------|
 | Overview | `/admin/operations/usage-analytics/overview` | Requests, DAU/WAU/MAU, feature areas, auth split, top routes |
 | Accesses | `…/accesses` | Counted accesses (page views) in total, per year and per month since the counting started, monthly chart |
-| Performance | `…/performance` | Latency/queries/errors by area, slowest routes, prioritization hints |
 
 `/admin/operations/usage-analytics` redirects to Overview. No per-user search or raw identifiers.
 
@@ -203,4 +203,4 @@ Long-term view of [counted accesses](#counted-accesses), built by `AccessTrendSe
   which the counting started ("Counted from …"). The chart draws them lighter.
 - **Time zone:** days, months and years are Europe/Berlin calendar periods.
 
-Count-based widgets (requests, feature areas, routes) combine daily aggregates with raw rows for today and any unaggregated gaps. Distinct-user metrics (DAU/WAU/MAU, sessions) and p95 stay on the raw 30-day window. Details: [aggregation-and-retention.md](aggregation-and-retention.md).
+Count-based widgets (requests, feature areas, routes) combine daily aggregates with raw rows for today and any unaggregated gaps. Distinct-user metrics (DAU/WAU/MAU, sessions) stay on the raw 30-day window. Details: [aggregation-and-retention.md](aggregation-and-retention.md).

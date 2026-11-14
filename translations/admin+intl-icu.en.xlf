@@ -1705,10 +1705,6 @@
         <source>usage_analytics.menu.accesses</source>
         <target>Accesses</target>
       </trans-unit>
-      <trans-unit id="uaNav07" resname="usage_analytics.menu.performance">
-        <source>usage_analytics.menu.performance</source>
-        <target>Performance</target>
-      </trans-unit>
       <trans-unit id="uaNav08" resname="usage_analytics.tile.overview">
         <source>usage_analytics.tile.overview</source>
         <target>Requests, retention, feature areas</target>
@@ -1716,10 +1712,6 @@
       <trans-unit id="uaNav09" resname="usage_analytics.tile.accesses">
         <source>usage_analytics.tile.accesses</source>
         <target>Page views per month and year since counting started</target>
-      </trans-unit>
-      <trans-unit id="uaNav12" resname="usage_analytics.tile.performance">
-        <source>usage_analytics.tile.performance</source>
-        <target>Latency and DB load by feature area</target>
       </trans-unit>
       <trans-unit id="admFqEntity" resname="admin.feedback_quarantine.entity">
         <source>admin.feedback_quarantine.entity</source>

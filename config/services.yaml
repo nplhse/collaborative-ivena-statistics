@@ -64,10 +64,6 @@ services:
             - '../src/**/Infrastructure/Faker/'
             - '../src/User/Domain/Factory/'
 
-    App\Analytics\Infrastructure\Doctrine\AnalyticsQueryCounterMiddleware:
-        tags:
-            - { name: doctrine.middleware }
-
     App\Allocation\Application\Contracts\HospitalIsochroneProviderInterface: '@App\Allocation\Infrastructure\Geo\HospitalIsochroneFileStore'
     App\Allocation\Application\Contracts\HospitalIsochroneStoreInterface: '@App\Allocation\Infrastructure\Geo\HospitalIsochroneFileStore'
     App\Allocation\Application\Contracts\HospitalIsochroneClientInterface: '@App\Allocation\Infrastructure\Http\OpenRouteServiceIsochroneClient'
