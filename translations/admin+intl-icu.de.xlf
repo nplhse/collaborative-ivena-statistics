@@ -573,9 +573,9 @@
         <source>ops.notifications.event.user.registered</source>
         <target>Neue Registrierung</target>
       </trans-unit>
-      <trans-unit id="opsNotEventHospitalReminderSentde" resname="ops.notifications.event.hospital.reminder_sent">
-        <source>ops.notifications.event.hospital.reminder_sent</source>
-        <target>Erinnerung versendet</target>
+      <trans-unit id="opsNotEventHospitalReminderFailedde" resname="ops.notifications.event.hospital.reminder_failed">
+        <source>ops.notifications.event.hospital.reminder_failed</source>
+        <target>Erinnerung nicht zugestellt</target>
       </trans-unit>
       <trans-unit id="opsNotContextImportFailedde" resname="ops.notifications.context.import_failed">
         <source>ops.notifications.context.import_failed</source>
@@ -585,9 +585,9 @@
         <source>ops.notifications.context.user_registered</source>
         <target>Nutzer {user}</target>
       </trans-unit>
-      <trans-unit id="opsNotContextReminderSentde" resname="ops.notifications.context.reminder_sent">
-        <source>ops.notifications.context.reminder_sent</source>
-        <target>{hospital} · Berichtsmonat {period}</target>
+      <trans-unit id="opsNotContextReminderFailedde" resname="ops.notifications.context.reminder_failed">
+        <source>ops.notifications.context.reminder_failed</source>
+        <target>{hospital} · Berichtsmonat {period} · {reason}</target>
       </trans-unit>
       <trans-unit id="opsNotReasonMissingCreatorde" resname="ops.notifications.reason.missing_creator">
         <source>ops.notifications.reason.missing_creator</source>
@@ -648,6 +648,18 @@
       <trans-unit id="opsNotReasonUnknownde" resname="ops.notifications.reason.unknown">
         <source>ops.notifications.reason.unknown</source>
         <target>Grund im Audit-Log</target>
+      </trans-unit>
+      <trans-unit id="opsNotDeliveryReasonRecipientUnavailablede" resname="ops.notifications.delivery_reason.recipient_unavailable">
+        <source>ops.notifications.delivery_reason.recipient_unavailable</source>
+        <target>Empfänger deaktiviert oder ohne E-Mail-Adresse</target>
+      </trans-unit>
+      <trans-unit id="opsNotDeliveryReasonTransportFailedde" resname="ops.notifications.delivery_reason.transport_failed">
+        <source>ops.notifications.delivery_reason.transport_failed</source>
+        <target>E-Mail konnte nicht versendet werden</target>
+      </trans-unit>
+      <trans-unit id="opsNotDeliveryReasonDeliveryJobFailedde" resname="ops.notifications.delivery_reason.delivery_job_failed">
+        <source>ops.notifications.delivery_reason.delivery_job_failed</source>
+        <target>Zustellung fehlgeschlagen</target>
       </trans-unit>
       <trans-unit id="opsFm01de" resname="ops.failed_messages.title">
         <source>ops.failed_messages.title</source>

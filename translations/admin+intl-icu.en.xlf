@@ -573,9 +573,9 @@
         <source>ops.notifications.event.user.registered</source>
         <target>New registration</target>
       </trans-unit>
-      <trans-unit id="opsNotEventHospitalReminderSent" resname="ops.notifications.event.hospital.reminder_sent">
-        <source>ops.notifications.event.hospital.reminder_sent</source>
-        <target>Reminder sent</target>
+      <trans-unit id="opsNotEventHospitalReminderFailed" resname="ops.notifications.event.hospital.reminder_failed">
+        <source>ops.notifications.event.hospital.reminder_failed</source>
+        <target>Reminder not delivered</target>
       </trans-unit>
       <trans-unit id="opsNotContextImportFailed" resname="ops.notifications.context.import_failed">
         <source>ops.notifications.context.import_failed</source>
@@ -585,9 +585,9 @@
         <source>ops.notifications.context.user_registered</source>
         <target>User {user}</target>
       </trans-unit>
-      <trans-unit id="opsNotContextReminderSent" resname="ops.notifications.context.reminder_sent">
-        <source>ops.notifications.context.reminder_sent</source>
-        <target>{hospital} · reporting month {period}</target>
+      <trans-unit id="opsNotContextReminderFailed" resname="ops.notifications.context.reminder_failed">
+        <source>ops.notifications.context.reminder_failed</source>
+        <target>{hospital} · reporting month {period} · {reason}</target>
       </trans-unit>
       <trans-unit id="opsNotReasonMissingCreator" resname="ops.notifications.reason.missing_creator">
         <source>ops.notifications.reason.missing_creator</source>
@@ -648,6 +648,18 @@
       <trans-unit id="opsNotReasonUnknown" resname="ops.notifications.reason.unknown">
         <source>ops.notifications.reason.unknown</source>
         <target>Reason in the audit log</target>
+      </trans-unit>
+      <trans-unit id="opsNotDeliveryReasonRecipientUnavailable" resname="ops.notifications.delivery_reason.recipient_unavailable">
+        <source>ops.notifications.delivery_reason.recipient_unavailable</source>
+        <target>Recipient disabled or without email address</target>
+      </trans-unit>
+      <trans-unit id="opsNotDeliveryReasonTransportFailed" resname="ops.notifications.delivery_reason.transport_failed">
+        <source>ops.notifications.delivery_reason.transport_failed</source>
+        <target>Email could not be sent</target>
+      </trans-unit>
+      <trans-unit id="opsNotDeliveryReasonDeliveryJobFailed" resname="ops.notifications.delivery_reason.delivery_job_failed">
+        <source>ops.notifications.delivery_reason.delivery_job_failed</source>
+        <target>Delivery job failed</target>
       </trans-unit>
       <trans-unit id="opsFm01" resname="ops.failed_messages.title">
         <source>ops.failed_messages.title</source>

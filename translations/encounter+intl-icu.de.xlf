@@ -1269,6 +1269,10 @@
         <source>encounter.review.action.leave_open</source>
         <target>Offen lassen</target>
       </trans-unit>
+      <trans-unit id="Enc4A5D5BE9" resname="encounter.review.action.view_allocation">
+        <source>encounter.review.action.view_allocation</source>
+        <target>Zuweisung ansehen</target>
+      </trans-unit>
       <trans-unit id="EncF29BDFEC" resname="encounter.review.flash.confirmed">
         <source>encounter.review.flash.confirmed</source>
         <target>Die Verknüpfung wurde bestätigt.</target>

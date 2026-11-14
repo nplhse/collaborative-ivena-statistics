@@ -6,6 +6,7 @@ namespace App\Admin\Application\Service;
 
 use App\Admin\Application\DTO\RecentNotificationEventDto;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
+use App\Engagement\Infrastructure\Audit\MonthlyReminderFailureAuditLogger;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportRunReasonCode;
 use App\Import\Infrastructure\Repository\ImportRepository;
@@ -30,7 +31,7 @@ final readonly class RecentNotificationEvents
     public const array INTENTS = [
         AuditEntry::INTENT_IMPORT_RUN_FAILED,
         AuditEntry::INTENT_USER_REGISTERED,
-        AuditEntry::INTENT_HOSPITAL_REMINDER_SENT,
+        AuditEntry::INTENT_HOSPITAL_REMINDER_FAILED,
     ];
 
     public function __construct(
@@ -59,7 +60,7 @@ final readonly class RecentNotificationEvents
                 case AuditEntry::INTENT_USER_REGISTERED:
                     $userIds[] = $this->userId($row);
                     break;
-                case AuditEntry::INTENT_HOSPITAL_REMINDER_SENT:
+                case AuditEntry::INTENT_HOSPITAL_REMINDER_FAILED:
                     $hospitalIds[] = $this->intOrNull($row['intentMetadata']['hospital_id'] ?? null);
                     break;
             }
@@ -74,7 +75,7 @@ final readonly class RecentNotificationEvents
             $events[] = match ($row['intent']) {
                 AuditEntry::INTENT_IMPORT_RUN_FAILED => $this->failedImport($row, $imports),
                 AuditEntry::INTENT_USER_REGISTERED => $this->registration($row, $usernames),
-                default => $this->reminder($row, $hospitalNames),
+                default => $this->failedReminder($row, $hospitalNames),
             };
         }
 
@@ -123,7 +124,7 @@ final readonly class RecentNotificationEvents
      * @param AuditEventRow      $row
      * @param array<int, string> $hospitalNames
      */
-    private function reminder(array $row, array $hospitalNames): RecentNotificationEventDto
+    private function failedReminder(array $row, array $hospitalNames): RecentNotificationEventDto
     {
         $hospitalId = $this->intOrNull($row['intentMetadata']['hospital_id'] ?? null);
         $period = $row['intentMetadata']['reporting_period'] ?? null;
@@ -135,6 +136,7 @@ final readonly class RecentNotificationEvents
             requestId: $row['requestId'],
             subject: null === $hospitalId ? null : ($hospitalNames[$hospitalId] ?? null),
             subjectId: null === $hospitalId ? null : (string) $hospitalId,
+            reasonCode: MonthlyReminderFailureAuditLogger::reasonCode($row['intentMetadata']['reason'] ?? null),
             reportingPeriod: false === $reportingPeriod ? null : $reportingPeriod,
         );
     }

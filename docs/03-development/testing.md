@@ -23,7 +23,7 @@ make test-unit                         # unit suite via ParaTest, as the CI unit
 make test-database                     # all other suites via ParaTest, as the CI database job
 ```
 
-`make test` runs PHPUnit serially and stops at the first failure. `make test-unit` and `make test-database` run the same groups as the two CI jobs in parallel (`PROCESSES=4` by default) and do not stop early. `COVERAGE=1` writes the clover report to `var/coverage/logs/clover-unit.xml` / `clover-integration.xml` (needs PCOV or Xdebug), `JUNIT=1` writes `junit-unit.xml` / `junit-integration.xml`. Each ParaTest worker uses its own test database (`dbname_suffix` with `TEST_TOKEN`).
+`make test` runs PHPUnit serially and stops at the first failure. `make test-unit` and `make test-database` run the same groups as the two CI jobs in parallel (`PROCESSES=4` by default) and do not stop early. `COVERAGE=1` writes the clover report to `var/coverage/logs/clover-unit.xml` / `clover-integration.xml` (needs PCOV or Xdebug), `JUNIT=1` writes `junit-unit.xml` / `junit-integration.xml`. Each ParaTest worker uses its own test database (`dbname_suffix` with `TEST_TOKEN`), and each git worktree its own set of them (`TEST_DATABASE_SUFFIX`, see [Work in a git worktree](development-workflow.md#work-in-a-git-worktree)).
 
 After a test run, slowest tests from the PHPUnit duration cache:
 

@@ -67,4 +67,18 @@ final readonly class MonthlyReminderPeriodResolver
             'chartLabels' => $chartLabels,
         ];
     }
+
+    /**
+     * Reporting month (`Y-m`) of a dispatch, whose period is the upload month (`Y-m`) it asked for; null for a
+     * malformed period.
+     */
+    public function reportingPeriodOfUploadPeriod(string $uploadPeriod): ?string
+    {
+        $uploadMonthStart = \DateTimeImmutable::createFromFormat('!Y-m', $uploadPeriod, new \DateTimeZone(self::TIMEZONE));
+        if (false === $uploadMonthStart || $uploadMonthStart->format('Y-m') !== $uploadPeriod) {
+            return null;
+        }
+
+        return $uploadMonthStart->modify('-1 month')->format('Y-m');
+    }
 }
