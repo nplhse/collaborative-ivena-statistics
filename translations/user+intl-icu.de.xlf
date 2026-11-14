@@ -233,6 +233,22 @@
         <source>help.settings.username_fixed</source>
         <target>Der Benutzername ist festgelegt und kann nicht geändert werden.</target>
       </trans-unit>
+      <trans-unit id="UsrDispNameDe" resname="label.display_name">
+        <source>label.display_name</source>
+        <target>Anzeigename</target>
+      </trans-unit>
+      <trans-unit id="UsrDispNameHelpDe" resname="help.settings.display_name">
+        <source>help.settings.display_name</source>
+        <target>Optional, zum Beispiel Vor- und Nachname. Wird mit Ihrem Avatar allen angemeldeten Nutzern angezeigt; nicht angemeldete Besucher sehen nur Ihren Benutzernamen.</target>
+      </trans-unit>
+      <trans-unit id="UsrSaveProfileDe" resname="label.settings.save_profile">
+        <source>label.settings.save_profile</source>
+        <target>Namen übernehmen</target>
+      </trans-unit>
+      <trans-unit id="UsrProfileSavedDe" resname="flash.settings.profile.updated">
+        <source>flash.settings.profile.updated</source>
+        <target>Anzeigename gespeichert.</target>
+      </trans-unit>
       <trans-unit id="lblAuthenticatedDe" resname="label.authenticated">
         <source>label.authenticated</source>
         <target>Authentifiziert</target>

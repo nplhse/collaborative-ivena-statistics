@@ -43,6 +43,19 @@
                                             <small class="form-text">{{ 'help.settings.username_fixed'|trans({}, 'user') }}</small>
                                         </div>
                                     </div>
+                                    {{ form_start(profileForm, {attr: {id: 'settings-profile-form', 'data-testid': 'settings-profile-form'}}) }}
+                                        <div class="row g-3 align-items-start mb-4">
+                                            <div class="col-auto pt-4">
+                                                <twig:UserAvatar :user="app.user" size="md" data-testid="settings-profile-avatar" />
+                                            </div>
+                                            <div class="col">
+                                                {{ form_row(profileForm.displayName) }}
+                                            </div>
+                                            <div class="col-12 col-md-auto pt-md-4">
+                                                <button class="btn" type="submit">{{ 'label.settings.save_profile'|trans({}, 'user') }}</button>
+                                            </div>
+                                        </div>
+                                    {{ form_end(profileForm) }}
 
                                     <h4 class="subheader mb-3">{{ 'label.email'|trans({}, 'user') }}</h4>
                                     <div class="row g-3 align-items-end mb-2">

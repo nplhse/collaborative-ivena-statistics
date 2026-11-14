@@ -387,4 +387,62 @@ final class SettingsControllerTest extends WebTestCase
             ->assertSee('English (automatic default)')
         ;
     }
+
+    public function testUserCanSetAndClearTheDisplayName(): void
+    {
+        $user = UserFactory::new([
+            'email' => 'display-name@example.test',
+            'isVerified' => true,
+            'username' => 'display-name-user',
+        ])->create();
+
+        $browser = $this->loginWithConsent($this->browser(), 'display-name-user');
+        $browser
+            ->visit('/settings/account')
+            ->assertSuccessful()
+            ->assertSeeElement('[data-testid="settings-profile-avatar"][data-avatar="fallback"]')
+            ->fillField('settings_profile[displayName]', '  Michael   Müller ')
+            ->click('Update name')
+            ->assertSuccessful()
+            ->assertOn('/settings/account')
+            ->assertSee('Display name saved.')
+            ->assertSeeIn('[data-testid="settings-profile-avatar"]', 'MM')
+        ;
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        self::assertSame('Michael Müller', $user->getDisplayName());
+        self::assertNull($user->getLocale(), 'saving the name leaves the language untouched');
+
+        $browser
+            ->fillField('settings_profile[displayName]', '   ')
+            ->click('Update name')
+            ->assertSuccessful()
+            ->assertSee('Display name saved.')
+        ;
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        self::assertNull($user->getDisplayName());
+    }
+
+    public function testDisplayNameLongerThanTheLimitIsRejected(): void
+    {
+        $user = UserFactory::new([
+            'email' => 'display-name-long@example.test',
+            'isVerified' => true,
+            'username' => 'display-name-long',
+            'displayName' => 'Ada Admin',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'display-name-long')
+            ->visit('/settings/account')
+            ->fillField('settings_profile[displayName]', str_repeat('a', 101))
+            ->click('Update name')
+            ->assertOn('/settings/account')
+            ->assertNotSee('Display name saved.')
+            ->assertSeeElement('#settings_profile_displayName.is-invalid')
+        ;
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        self::assertSame('Ada Admin', $user->getDisplayName());
+    }
 }

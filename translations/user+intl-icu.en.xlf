@@ -73,6 +73,22 @@
         <source>help.settings.username_fixed</source>
         <target>Username is fixed and cannot be changed.</target>
       </trans-unit>
+      <trans-unit id="UsrDispName" resname="label.display_name">
+        <source>label.display_name</source>
+        <target>Display name</target>
+      </trans-unit>
+      <trans-unit id="UsrDispNameHelp" resname="help.settings.display_name">
+        <source>help.settings.display_name</source>
+        <target>Optional, for example your first and last name. Shown with your avatar to all signed-in users; visitors who are not signed in only see your username.</target>
+      </trans-unit>
+      <trans-unit id="UsrSaveProfile" resname="label.settings.save_profile">
+        <source>label.settings.save_profile</source>
+        <target>Update name</target>
+      </trans-unit>
+      <trans-unit id="UsrProfileSaved" resname="flash.settings.profile.updated">
+        <source>flash.settings.profile.updated</source>
+        <target>Display name saved.</target>
+      </trans-unit>
       <trans-unit id="notif02" resname="help.settings.notifications.monthly_reminder">
         <source>help.settings.notifications.monthly_reminder</source>
         <target>Receive a monthly email with hospital insights and a reminder to upload your latest data.</target>
