@@ -62,9 +62,4 @@ class PlausibilityAreaDiagram
         PlausibilityCell::assertPoints($points);
         $this->points = $points;
     }
-
-    public function getArea(): PlausibilityProblemArea
-    {
-        return $this->area;
-    }
 }

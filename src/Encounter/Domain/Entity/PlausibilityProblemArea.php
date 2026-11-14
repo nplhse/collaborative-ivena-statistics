@@ -184,14 +184,4 @@ class PlausibilityProblemArea
     {
         $this->updatedAt = Clock::get()->now();
     }
-
-    public function getCreatedAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
 }

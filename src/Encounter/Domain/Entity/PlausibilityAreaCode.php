@@ -48,9 +48,4 @@ class PlausibilityAreaCode
     {
         return $this->pzc;
     }
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 }
