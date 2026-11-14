@@ -19,8 +19,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *   the primary menu, when no own entry matches: a route of a sidebar menu marks the primary entry of that
  *   menu; then `$area` (the sidebar menu of the page); then the primary entry with the longest
  *   `areaRoutePrefix` the route starts with.
- *
- * @psalm-suppress UnusedClass First consumers (navigation Twig components) follow in step 3 of the ADR 035 migration.
  */
 final readonly class NavigationBuilder
 {
