@@ -45,6 +45,12 @@
     color: color-mix(in oklab, var(--user-avatar-color) 65%, white) !important;
 }
 
+/* The navbar avatar of an admin who impersonates another user (#462). */
+.avatar.avatar-impersonating {
+    outline: 2px solid var(--tblr-warning);
+    outline-offset: 2px;
+}
+
 .import-processing-hero {
     --tblr-avatar-size: 3.5rem;
 }
@@ -2905,10 +2911,6 @@ body.geo-map-expand-open {
 
 .activity-post-preview p {
     margin-bottom: 0;
-}
-
-.navbar-username {
-    max-width: 12rem;
 }
 
 header.navbar {

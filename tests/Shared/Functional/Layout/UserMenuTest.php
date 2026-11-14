@@ -126,7 +126,8 @@ final class UserMenuTest extends DatabaseWebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextSame('[data-testid="user-menu-avatar"][data-avatar="initials"]', 'MM');
         self::assertSelectorNotExists('.navbar-username', 'the avatar replaces the visible username');
-        self::assertSelectorExists('#user_name.visually-hidden');
+        self::assertSelectorExists('.visually-hidden #user_name');
+        self::assertSelectorNotExists('[data-testid="user-menu-avatar"].avatar-impersonating');
         self::assertSelectorExists('a[aria-label="Open user menu"][title="Michael Müller"]');
 
         $client->loginUser(UserFactory::createOne());

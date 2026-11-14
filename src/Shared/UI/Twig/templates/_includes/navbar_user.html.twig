@@ -3,8 +3,10 @@
         <twig:LocaleSwitcher class="d-none d-md-flex" />
         <twig:NotificationBell />
         <div class="nav-item dropdown">
-            <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Open user menu" title="{{ user_display_name(app.user.displayName, app.user.userIdentifier) }}">
-                <twig:UserAvatar :user="app.user" size="sm" data-testid="user-menu-avatar" />
+            {% set impersonating = is_granted('IS_IMPERSONATOR') %}
+            {% set userMenuName = user_display_name(app.user.displayName, app.user.userIdentifier) %}
+            <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Open user menu" data-controller="tooltip" title="{{ impersonating ? 'label.impersonation_active'|trans({}, 'messages') ~ ' ' ~ userMenuName : userMenuName }}">
+                <twig:UserAvatar :user="app.user" size="sm" data-testid="user-menu-avatar" class="{{ impersonating ? 'avatar-impersonating' : '' }}" />
                 {{ include('@Shared/_includes/navbar_impersonation_username.html.twig') }}
             </a>
             <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow" data-testid="user-menu">
