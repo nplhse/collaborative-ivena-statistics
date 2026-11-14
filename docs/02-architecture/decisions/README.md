@@ -47,6 +47,7 @@ Each ADR includes:
 | [029](029-encounter-import-lifecycle.md) | Encounter import lifecycle: one visit, one owning import | accepted |
 | [030](030-encounter-allocation-matching.md) | Matching ED visits with IVENA allocations | accepted |
 | [031](031-tools-section-and-tool-registry.md) | Tools section and tool registry | accepted |
+| [034](034-performance-monitoring-in-sentry.md) | Performance monitoring in Sentry, usage analytics without APM | accepted |
 
 ## Template
 
