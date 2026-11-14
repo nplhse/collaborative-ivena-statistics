@@ -10,7 +10,7 @@ use Doctrine\DBAL\Connection;
 
 /**
  * Rebuilds a draft snapshot from the curated problem areas in bulk (ADR 033), with the rule of the seed migration
- * Version20261113235145. Run inside the caller's transaction.
+ * Version20261113235145, and writes the cells the learning job estimated (#1155). Run inside the caller's transaction.
  *
  * @psalm-suppress UnusedClass Wired as the only implementation of PlausibilitySnapshotBuilderInterface.
  */
@@ -53,5 +53,39 @@ final readonly class PlausibilitySnapshotBuilder implements PlausibilitySnapshot
              JOIN encounter_mts_diagram d ON d.id = r.diagram_id",
             $parameters,
         );
+    }
+
+    #[\Override]
+    public function writeLearnedCells(PlausibilitySnapshot $draft, array $cells): void
+    {
+        if (!$draft->isDraft() || null === $draft->getId()) {
+            throw new \LogicException('Only a stored draft snapshot gets learned cells.');
+        }
+
+        foreach ($cells as $cell) {
+            $values = [
+                'id' => $draft->getId(),
+                'pzc' => $cell->pzc,
+                'area' => $cell->areaCode,
+                'diagram' => $cell->diagramCode,
+                'points' => $cell->points,
+                'source' => $cell->source->value,
+                'positives' => $cell->positives,
+                'negatives' => $cell->negatives,
+            ];
+            $updated = $this->connection->executeStatement(
+                'UPDATE encounter_plausibility_cell SET points = :points, source = :source, positives = :positives, negatives = :negatives
+                 WHERE snapshot_id = :id AND diagram_code = :diagram AND indicator_code IS NULL
+                   AND pzc IS NOT DISTINCT FROM CAST(:pzc AS SMALLINT) AND area_code IS NOT DISTINCT FROM CAST(:area AS VARCHAR)',
+                $values,
+            );
+            if (0 === $updated) {
+                $this->connection->executeStatement(
+                    'INSERT INTO encounter_plausibility_cell (snapshot_id, pzc, area_code, diagram_code, indicator_code, points, source, positives, negatives)
+                     VALUES (:id, CAST(:pzc AS SMALLINT), CAST(:area AS VARCHAR), :diagram, NULL, :points, :source, :positives, :negatives)',
+                    $values,
+                );
+            }
+        }
     }
 }

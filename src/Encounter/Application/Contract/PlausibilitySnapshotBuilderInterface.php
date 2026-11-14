@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Encounter\Application\Contract;
 
+use App\Encounter\Application\Plausibility\PlausibilityLearnedCell;
 use App\Encounter\Domain\Entity\PlausibilitySnapshot;
 
 /**
@@ -14,4 +15,12 @@ use App\Encounter\Domain\Entity\PlausibilitySnapshot;
 interface PlausibilitySnapshotBuilderInterface
 {
     public function rebuildFromAreas(PlausibilitySnapshot $draft): void;
+
+    /**
+     * Writes estimated cells into a draft built from the areas (#1155): a cell the draft holds already (same PZC or
+     * area and diagram, no indicator) gets the cell's points, source and counts; any other cell is added.
+     *
+     * @param list<PlausibilityLearnedCell> $cells
+     */
+    public function writeLearnedCells(PlausibilitySnapshot $draft, array $cells): void;
 }

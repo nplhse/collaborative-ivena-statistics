@@ -7,6 +7,7 @@ namespace App\Encounter\Domain\Entity;
 use App\Encounter\Domain\Enum\PlausibilitySnapshotOrigin;
 use App\Encounter\Domain\Enum\PlausibilitySnapshotStatus;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -14,8 +15,13 @@ use Doctrine\ORM\Mapping as ORM;
  * active snapshot only; without one the bonus is 0 everywhere.
  *
  * Status goes `draft` → `active` → `retired`; a partial unique index allows one active snapshot. Cells and memberships
- * change only while the snapshot is a draft. The learning job (#1155) adds what a learned snapshot was learned from
- * and its report.
+ * change only while the snapshot is a draft.
+ *
+ * A learned snapshot (#1155) records what it was learned from: the period of the eligible pairs (IVENA arrival days),
+ * their number over all hospitals, the learning parameters and the report with replay figures per hospital
+ * (PlausibilityLearningReport). The count and the report are internal: pages show replay figures only for the
+ * hospitals the viewer may review (ADR 033, Privacy). The report is not audited (bulk figures); the learning itself is
+ * audited as `encounter.plausibility.snapshot_learned`.
  */
 #[Audit\Audited]
 #[ORM\Entity]
@@ -42,6 +48,27 @@ class PlausibilitySnapshot
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $retiredAt = null;
+
+    /** First IVENA arrival day of the eligible pairs of a learned snapshot. */
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $learnedFrom = null;
+
+    /** Last IVENA arrival day of the eligible pairs of a learned snapshot. */
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $learnedTo = null;
+
+    /** Eligible pairs over all hospitals; never shown to reviewers (ADR 033, Privacy). */
+    #[ORM\Column(nullable: true)]
+    private ?int $eligiblePairs = null;
+
+    /** @var array<string, mixed>|null */
+    #[ORM\Column(type: Types::JSON, nullable: true, options: ['jsonb' => true])]
+    private ?array $learningParameters = null;
+
+    /** @var array<array-key, mixed>|null */
+    #[Audit\AuditIgnore]
+    #[ORM\Column(type: Types::JSON, nullable: true, options: ['jsonb' => true])]
+    private ?array $report = null;
 
     public function __construct(PlausibilitySnapshotOrigin $origin, \DateTimeImmutable $createdAt)
     {
@@ -87,6 +114,60 @@ class PlausibilitySnapshot
     public function getRetiredAt(): ?\DateTimeImmutable
     {
         return $this->retiredAt;
+    }
+
+    public function getLearnedFrom(): ?\DateTimeImmutable
+    {
+        return $this->learnedFrom;
+    }
+
+    public function getLearnedTo(): ?\DateTimeImmutable
+    {
+        return $this->learnedTo;
+    }
+
+    public function getEligiblePairs(): ?int
+    {
+        return $this->eligiblePairs;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getLearningParameters(): ?array
+    {
+        return $this->learningParameters;
+    }
+
+    /**
+     * @return array<array-key, mixed>|null
+     */
+    public function getReport(): ?array
+    {
+        return $this->report;
+    }
+
+    /**
+     * Records what a learned draft was learned from and its report (#1155).
+     *
+     * @param array<string, mixed>    $parameters
+     * @param array<array-key, mixed> $report
+     */
+    public function recordLearning(\DateTimeImmutable $from, \DateTimeImmutable $to, int $eligiblePairs, array $parameters, array $report): void
+    {
+        if (!$this->isDraft() || PlausibilitySnapshotOrigin::Learned !== $this->origin) {
+            throw new \LogicException('Only a learned draft records what it was learned from.');
+        }
+
+        if ($to < $from || $eligiblePairs < 0) {
+            throw new \InvalidArgumentException('Expected a period in order and a non-negative number of eligible pairs.');
+        }
+
+        $this->learnedFrom = $from;
+        $this->learnedTo = $to;
+        $this->eligiblePairs = $eligiblePairs;
+        $this->learningParameters = $parameters;
+        $this->report = $report;
     }
 
     public function activate(\DateTimeImmutable $now): void

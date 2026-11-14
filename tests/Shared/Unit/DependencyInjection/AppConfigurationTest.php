@@ -187,7 +187,7 @@ final class AppConfigurationTest extends TestCase
     public function testEncounterPlausibilityMinimumObservationsDefaultsToTenAndIsPositive(): void
     {
         $processed = new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig()]);
-        self::assertSame(['min_observations' => 10], $processed['encounter']['plausibility']);
+        self::assertSame(['min_observations' => 10, 'learning' => ['smoothing' => 1.0, 'shrinkage' => 10.0, 'fold' => 'alternating_days']], $processed['encounter']['plausibility']);
 
         $this->expectException(InvalidConfigurationException::class);
         new Processor()->processConfiguration(new AppConfiguration(), [[

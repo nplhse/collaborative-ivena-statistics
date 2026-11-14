@@ -21,8 +21,17 @@
     <div class="card" data-test="encounter-plausibility-snapshots">
         <div class="card-header">
             <h3 class="card-title">{{ 'encounter.plausibility.snapshots_title'|trans({}, d) }}</h3>
+            <div class="card-actions">
+                <form method="post" action="{{ path('app_tools_encounter_plausibility_learn') }}" data-test="encounter-plausibility-learn">
+                    <input type="hidden" name="_token" value="{{ csrf_token('encounter_plausibility_learn') }}">
+                    <button class="btn btn-primary btn-sm" type="submit">{{ 'encounter.plausibility.action.learn'|trans({}, d) }}</button>
+                </form>
+            </div>
         </div>
-        <div class="card-body border-bottom small text-secondary">{{ 'encounter.plausibility.snapshots_note'|trans({}, d) }}</div>
+        <div class="card-body border-bottom small text-secondary">
+            {{ 'encounter.plausibility.snapshots_note'|trans({}, d) }}
+            {{ 'encounter.plausibility.learn_note'|trans({}, d) }}
+        </div>
         {% if snapshots is empty %}
             <div class="card-body">
                 <p class="text-secondary mb-0">{{ 'encounter.plausibility.no_snapshots'|trans({}, d) }}</p>
