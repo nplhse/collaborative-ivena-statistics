@@ -229,9 +229,21 @@
         <source>help.settings.notifications.monthly_reminder</source>
         <target>Erhalten Sie monatlich eine E-Mail mit Krankenhaus-Einblicken und einer Erinnerung, Ihre neuesten Daten hochzuladen.</target>
       </trans-unit>
-      <trans-unit id="HlpSetUnDe" resname="help.settings.username_fixed">
-        <source>help.settings.username_fixed</source>
-        <target>Der Benutzername ist festgelegt und kann nicht geändert werden.</target>
+      <trans-unit id="UsrDispNameDe" resname="label.display_name">
+        <source>label.display_name</source>
+        <target>Anzeigename</target>
+      </trans-unit>
+      <trans-unit id="UsrDispNameHelpDe" resname="help.settings.display_name">
+        <source>help.settings.display_name</source>
+        <target>Optional, zum Beispiel Ihr Vor- und Nachname. Andere angemeldete Nutzer sehen ihn neben Ihrem Avatar, Besucher ohne Anmeldung nur Ihren Benutzernamen.</target>
+      </trans-unit>
+      <trans-unit id="UsrSaveProfileDe" resname="label.settings.save_profile">
+        <source>label.settings.save_profile</source>
+        <target>Namen übernehmen</target>
+      </trans-unit>
+      <trans-unit id="UsrProfileSavedDe" resname="flash.settings.profile.updated">
+        <source>flash.settings.profile.updated</source>
+        <target>Anzeigename gespeichert.</target>
       </trans-unit>
       <trans-unit id="lblAuthenticatedDe" resname="label.authenticated">
         <source>label.authenticated</source>
@@ -347,7 +359,7 @@
       </trans-unit>
       <trans-unit id="setOv05" resname="text.settings.section.account">
         <source>text.settings.section.account</source>
-        <target>Benutzername, Status der E-Mail-Bestätigung und Sprache.</target>
+        <target>Anzeigename, Status der E-Mail-Bestätigung und Sprache.</target>
       </trans-unit>
       <trans-unit id="setOv06" resname="text.settings.section.email">
         <source>text.settings.section.email</source>

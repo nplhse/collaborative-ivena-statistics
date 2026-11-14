@@ -19,6 +19,8 @@ final readonly class ProjectActivity
         public ?string $postTitle = null,
         public ?string $postSlug = null,
         public ?string $excerpt = null,
+        public ?int $actorId = null,
+        public ?string $actorDisplayName = null,
     ) {
     }
 }

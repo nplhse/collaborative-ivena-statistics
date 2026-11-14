@@ -15,6 +15,7 @@ Use these instead of copying Tabler page-header, card, modal, badge, alert, filt
 | An empty result set | `EmptyState` |
 | A notice, flash, or validation message | `Alert` |
 | A short status | `Badge` |
+| A user's generated avatar (initials or neutral icon) | [`UserAvatar`](#useravatar) (User context) |
 | Currently applied filters | `ActiveFilters` |
 | A dialog or a destructive confirmation | `Modal` or `ConfirmModal` |
 | Events in time order with optional expandable details | `Timeline` and `TimelineItem` |
@@ -406,6 +407,32 @@ Do **not** restyle Explore DataTable cells with this component. Hospital, urgenc
 <twig:Badge variant="green" data-testid="user-badge-self">
     {{ 'label.user.self_profile'|trans({}, 'user') }}
 </twig:Badge>
+```
+
+## UserAvatar
+
+Generated avatar of a user (#462), defined in the User context: `src/User/UI/Twig/Components/UserAvatar.php`, template `@User/components/UserAvatar.html.twig`. Tabler `avatar` markup, round by default.
+
+- **Initials** come from the optional `User::$displayName`: first letter of the first and of the last whitespace-separated word, uppercased ("Michael Müller" → `MM`, "Ada" → `A`). Words that do not start with a letter are skipped.
+- **Colour** is `PALETTE[userId % 8]` with `blue, azure, indigo, purple, pink, red, green, teal` as `bg-{colour}-lt`. The class `.user-avatar` in `assets/styles/app.css` mixes the initials towards black (light mode) or white (dark mode); measured on a card, every palette colour reaches at least 5:1 in both modes. Changing the palette order changes every user's colour.
+- **Fallback:** without a display name, or for anonymous visitors, the avatar shows the `tabler:user` icon on Tabler's neutral avatar background.
+- **Visibility:** `can_see_display_names()` and `user_display_name(displayName, username)` (`App\User\UI\Twig\UserDisplayNameExtension`) hold the one rule: signed-in viewers see display names and initials, anonymous visitors see the username and the icon. Use `user_display_name()` for the text next to the avatar.
+- Nothing is stored and nothing is queried while rendering: pass a `User` or the scalar fields a DTO already carries.
+
+| Property | Default | Notes |
+|----------|---------|-------|
+| `user` | `null` | `User` entity; wins over the scalar fields |
+| `userId`, `displayName`, `username` | `null` | Scalars from a DTO (activity rows, directory, profile) |
+| `size` | `sm` | `xs`, `sm`, `md`, `lg`, `xl`; unknown values fall back to `sm` |
+| `decorative` | `true` | `aria-hidden` next to a visible name; `false` adds `role="img"`, `aria-label` and `title` |
+
+Extra attributes (`class`, `data-testid`) merge onto the `span`.
+
+```twig
+<twig:UserAvatar :user="comment.author" />
+<strong>{{ user_display_name(comment.author.displayName, comment.author.username) }}</strong>
+
+<twig:UserAvatar :userId="activity.actorId" :displayName="activity.actorDisplayName" :username="activity.actorUsername" size="sm" />
 ```
 
 ## DataTable

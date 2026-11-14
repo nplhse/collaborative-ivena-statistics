@@ -1077,6 +1077,14 @@
         <source>admin.user.field.created_at</source>
         <target>Created at</target>
       </trans-unit>
+      <trans-unit id="admUserDisplayName" resname="admin.user.field.display_name">
+        <source>admin.user.field.display_name</source>
+        <target>Display name</target>
+      </trans-unit>
+      <trans-unit id="admUserDisplayNameHelp" resname="admin.user.field.display_name_help">
+        <source>admin.user.field.display_name_help</source>
+        <target>Optional. Shown to signed-in users instead of the username.</target>
+      </trans-unit>
       <trans-unit id="admUserFilterParticipant" resname="admin.user.filter.participant_permissions">
         <source>admin.user.filter.participant_permissions</source>
         <target>Has participant permissions</target>

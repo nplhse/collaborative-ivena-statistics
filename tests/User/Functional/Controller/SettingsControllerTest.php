@@ -41,7 +41,7 @@ final class SettingsControllerTest extends WebTestCase
             ->assertElementAttributeContains('[data-testid="settings-tile-password"]', 'href', '/settings/password')
             ->assertElementAttributeContains('[data-testid="settings-tile-notifications"]', 'href', '/settings/notifications')
             ->assertSeeIn('[data-testid="settings-tile-account"]', 'My Account')
-            ->assertSeeIn('[data-testid="settings-tile-account"]', 'Username, email verification status and language.')
+            ->assertSeeIn('[data-testid="settings-tile-account"]', 'Display name, email verification status and language.')
             ->assertSeeIn('[data-testid="settings-tile-notifications"]', 'Notifications')
         ;
     }
@@ -129,7 +129,8 @@ final class SettingsControllerTest extends WebTestCase
             ->assertSuccessful()
             ->assertSeeIn('h2', 'Account Settings')
             ->assertSee('Profile Details')
-            ->assertSeeElement('input[value="settings-account-user"][readonly]')
+            ->assertNotSeeElement('input[value="settings-account-user"]')
+            ->assertSeeElement('input[name="settings_profile[displayName]"]')
             ->assertSeeElement('input[value="settings-account@example.test"][readonly]')
             ->assertSeeElement('select[name="settings_locale[locale]"]')
             ->assertNotSeeElement('.card-body a[href="/settings/password"].btn')
@@ -386,5 +387,63 @@ final class SettingsControllerTest extends WebTestCase
             ->assertSuccessful()
             ->assertSee('English (automatic default)')
         ;
+    }
+
+    public function testUserCanSetAndClearTheDisplayName(): void
+    {
+        $user = UserFactory::new([
+            'email' => 'display-name@example.test',
+            'isVerified' => true,
+            'username' => 'display-name-user',
+        ])->create();
+
+        $browser = $this->loginWithConsent($this->browser(), 'display-name-user');
+        $browser
+            ->visit('/settings/account')
+            ->assertSuccessful()
+            ->assertSeeElement('[data-testid="settings-profile-avatar"][data-avatar="fallback"]')
+            ->fillField('settings_profile[displayName]', '  Michael   Müller ')
+            ->click('Update name')
+            ->assertSuccessful()
+            ->assertOn('/settings/account')
+            ->assertSee('Display name saved.')
+            ->assertSeeIn('[data-testid="settings-profile-avatar"]', 'MM')
+        ;
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        self::assertSame('Michael Müller', $user->getDisplayName());
+        self::assertNull($user->getLocale(), 'saving the name leaves the language untouched');
+
+        $browser
+            ->fillField('settings_profile[displayName]', '   ')
+            ->click('Update name')
+            ->assertSuccessful()
+            ->assertSee('Display name saved.')
+        ;
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        self::assertNull($user->getDisplayName());
+    }
+
+    public function testDisplayNameLongerThanTheLimitIsRejected(): void
+    {
+        $user = UserFactory::new([
+            'email' => 'display-name-long@example.test',
+            'isVerified' => true,
+            'username' => 'display-name-long',
+            'displayName' => 'Ada Admin',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'display-name-long')
+            ->visit('/settings/account')
+            ->fillField('settings_profile[displayName]', str_repeat('a', 101))
+            ->click('Update name')
+            ->assertOn('/settings/account')
+            ->assertNotSee('Display name saved.')
+            ->assertSeeElement('#settings_profile_displayName.is-invalid')
+        ;
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        self::assertSame('Ada Admin', $user->getDisplayName());
     }
 }

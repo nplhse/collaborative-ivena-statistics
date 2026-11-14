@@ -29,6 +29,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
 {
     use HasPublicId;
 
+    public const int DISPLAY_NAME_MAX_LENGTH = 100;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -47,6 +49,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     #[Assert\NotBlank]
     #[Assert\Email]
     private ?string $email = null;
+
+    /** Optional name shown to signed-in users instead of the username (#462). */
+    #[ORM\Column(length: self::DISPLAY_NAME_MAX_LENGTH, nullable: true)]
+    #[Assert\Length(max: self::DISPLAY_NAME_MAX_LENGTH)]
+    private ?string $displayName = null;
 
     /**
      * @var list<string> The user roles
@@ -126,6 +133,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     public function setEmail(string $email): static
     {
         $this->email = mb_strtolower(trim($email));
+
+        return $this;
+    }
+
+    public function getDisplayName(): ?string
+    {
+        return $this->displayName;
+    }
+
+    /**
+     * Trims the name and collapses inner whitespace; an empty name is stored as null.
+     */
+    public function setDisplayName(?string $displayName): static
+    {
+        $normalized = trim((string) preg_replace('/\s+/u', ' ', $displayName ?? ''));
+        $this->displayName = '' === $normalized ? null : $normalized;
 
         return $this;
     }

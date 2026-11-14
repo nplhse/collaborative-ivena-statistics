@@ -1,0 +1,14 @@
+{% set name = user_display_name(row.displayName, row.username) %}
+{% set profileUrl = path('app_explore_user_show', {publicId: row.publicId}) %}
+{# target="_top": the list renders in the user-list Turbo frame, the profile is a full page. #}
+<div class="user-cell d-flex align-items-center min-w-0">
+    <a href="{{ profileUrl }}" target="_top" tabindex="-1" aria-hidden="true" class="flex-shrink-0">
+        <twig:UserAvatar :userId="row.userId" :displayName="row.displayName" :username="row.username" size="sm" />
+    </a>
+    <div class="min-w-0">
+        <a href="{{ profileUrl }}" target="_top" class="text-truncate d-block">{{ name }}</a>
+        {% if name != row.username %}
+            <div class="text-secondary small text-truncate">@{{ row.username }}</div>
+        {% endif %}
+    </div>
+</div>
