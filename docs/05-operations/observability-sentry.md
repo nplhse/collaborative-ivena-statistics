@@ -238,7 +238,7 @@ Request bodies and email addresses are not sent to Sentry. Log attributes that c
 
 - **URLs without query string:** query string and fragment are cut from `request.url`, from the `referer` header, from span and trace data (`http.url`, `url.full`) and from the description of `http.*` spans. Statistics filters, tokens or email addresses in a URL never leave the system. The path stays, so ids in the path (for example `/hospitals/7`) are still visible.
 - **Trace and span data allowlist:** on request and console transactions and on error events, `contexts.trace.data` and span data keep only `http.request.method`, `http.response.status_code`, `http.flavor`, `http.url`, `url.full`, `route`, `net.host.name`, `net.host.port`, `db.system`, the cache summary keys, the data keys of the [request spans](#request-spans) and keys starting with `sentry.` or `thread.`; other span keys are replaced by `[Filtered]`. Job runs use the allowlist of their profile instead (see [Background job runs](#background-job-runs)).
-- **Database values:** SQL is sent with placeholders; bound parameters are not collected (`send_default_pii: false`, no `data_collection` option).
+- **Database values:** SQL is sent with placeholders; bound parameters are not collected (`send_default_pii: false`, no `data_collection` option). Prepare spans are not recorded (`ignore_prepare_spans`), only the execution of each statement.
 - **Users:** the numeric user id only, and only with analytics consent under consent text `v2` (see *Request context*); no username, no email address, no IP address. Operators who use Sentry should name it as a processor in their privacy policy. Cache keys are not sent, because single cache spans are replaced by the summary.
 
 ## Local smoke test

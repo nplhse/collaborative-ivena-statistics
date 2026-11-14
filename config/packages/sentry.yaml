@@ -3,8 +3,12 @@ sentry:
     register_error_listener: true
     register_error_handler: true
     tracing:
+        # A prepared statement shows up as a prepare and an execute span; the prepare span is near 0 ms and adds
+        # nothing, so only the execute span is kept (halves the database spans).
+        dbal:
+            ignore_prepare_spans: true
         # One view.render span per template and block (150–200 per page) outweighs everything else in a
-        # transaction and says little; time spent in Twig shows as the gap between the other spans.
+        # transaction; SentryRenderSpanExtension adds one view.render span per top-level render instead.
         twig:
             enabled: false
         # Cache tracing stays on, but SentryCacheSpanSummary replaces the cache spans (200–430 per request) by
