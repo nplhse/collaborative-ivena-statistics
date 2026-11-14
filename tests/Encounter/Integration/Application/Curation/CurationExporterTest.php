@@ -7,10 +7,16 @@ namespace App\Tests\Encounter\Integration\Application\Curation;
 use App\Encounter\Application\Catalog\MtsCatalogCuration;
 use App\Encounter\Application\Curation\CurationExporter;
 use App\Encounter\Application\Curation\Package\AliasData;
+use App\Encounter\Application\Curation\Package\AreaRuleData;
 use App\Encounter\Application\Curation\Package\CatalogEntryData;
 use App\Encounter\Application\Curation\Package\CurationPackageWriter;
+use App\Encounter\Application\Curation\Package\ProblemAreaData;
 use App\Encounter\Domain\Entity\MtsAlias;
 use App\Encounter\Domain\Entity\MtsDiagram;
+use App\Encounter\Domain\Entity\MtsDiagramIndicator;
+use App\Encounter\Domain\Entity\MtsIndicator;
+use App\Encounter\Domain\Entity\PlausibilityAreaDiagram;
+use App\Encounter\Domain\Entity\PlausibilityProblemArea;
 use App\Encounter\Domain\Enum\MtsCatalogKind;
 use App\Encounter\Domain\Enum\MtsCatalogSource;
 use App\Encounter\Domain\Enum\MtsCatalogStatus;
@@ -67,6 +73,14 @@ final class CurationExporterTest extends KernelTestCase
         $allergy = $entityManager->getRepository(MtsDiagram::class)->findOneBy(['code' => 'allergie']);
         self::assertInstanceOf(MtsDiagram::class, $allergy);
         $curation->merge($merged, $allergy);
+        // An assignment and a rule that name the provisional entry stay behind as well.
+        $indicator = $entityManager->getRepository(MtsIndicator::class)->findOneBy([]);
+        $area = $entityManager->getRepository(PlausibilityProblemArea::class)->findOneBy(['code' => 'anaphylaxie']);
+        self::assertInstanceOf(MtsIndicator::class, $indicator);
+        self::assertInstanceOf(PlausibilityProblemArea::class, $area);
+        $entityManager->persist(new MtsDiagramIndicator($provisional, $indicator));
+        $entityManager->persist(new PlausibilityAreaDiagram($area, $provisional, 1));
+        $entityManager->flush();
 
         $export = $this->exporter->export();
         $codes = array_map(static fn (CatalogEntryData $entry): string => $entry->code, $export->package->diagrams);
@@ -75,6 +89,8 @@ final class CurationExporterTest extends KernelTestCase
         self::assertNotContains('unbekannt', $codes);
         self::assertNotContains('allergische_reaktion', $codes);
         self::assertEquals([new AliasData('diagram', 'allergische_reaktion', 'Allergische Reaktion', 'allergie')], $export->package->aliases);
-        self::assertSame(['entries' => 1, 'aliases' => 1, 'assignments' => 0, 'rules' => 0], $export->omitted);
+        self::assertSame(['entries' => 1, 'aliases' => 1, 'assignments' => 1, 'rules' => 1], $export->omitted);
+        $anaphylaxis = array_values(array_filter($export->package->problemAreas, static fn (ProblemAreaData $data): bool => 'anaphylaxie' === $data->code))[0];
+        self::assertEquals([new AreaRuleData('allergie', 3)], $anaphylaxis->diagrams);
     }
 }

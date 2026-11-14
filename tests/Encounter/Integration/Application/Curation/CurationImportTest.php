@@ -224,6 +224,26 @@ final class CurationImportTest extends KernelTestCase
         ], $this->conflicts($plan));
     }
 
+    public function testRoleMismatchesAndOtherAreaNamesAreConflicts(): void
+    {
+        self::getContainer()->get(MtsCatalogCuration::class)->createAlias(new MtsAlias(MtsCatalogKind::Diagram, '', 'Allergien', 'allergie'));
+
+        $plan = $this->planner->plan($this->package(CurationPackageData::package(
+            diagrams: [CurationPackageData::seededAllergy(), CurationPackageData::entry('allergien', 'Allergien'), ...CurationPackageData::seededTraumaDiagrams()],
+            aliases: [['kind' => 'diagram', 'code' => 'stuerze', 'label' => 'Stürze', 'target_code' => 'allergie']],
+            areas: [CurationPackageData::area('abdominaltrauma', 'Abdominaltrauma', 'Abdominal injury', [241, 242], [
+                ['code' => 'abdominelle_schmerzen_bei_erwachsenen', 'points' => 3],
+                ['code' => 'schweres_trauma', 'points' => 3],
+            ])],
+        )));
+
+        self::assertSame([
+            ['diagrams[1]', 'The code is an alias of a diagram on the target.', '"Allergien" / – / manual', 'alias "Allergien" → allergie'],
+            ['aliases[0]', 'The code is a curated diagram on the target.', '"Stürze" → allergie', 'curated: "Stürze" / "Falls" / orbis_export'],
+            ['problem_areas[0]', 'Another problem area has this code on the target.', '"Abdominaltrauma" / "Abdominal injury"', '"Abdominaltrauma" / "Abdominal trauma"'],
+        ], $this->conflicts($plan));
+    }
+
     public function testProvisionalEntriesAreConflictsUntilTheyAreCuratedOrMergedTheSameWay(): void
     {
         // The target saw both codes in encounter imports before the package arrives.

@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Encounter\Functional\Command;
 
+use App\Encounter\Domain\Entity\MtsDiagram;
+use App\Encounter\Domain\Enum\MtsCatalogSource;
+use App\Encounter\Domain\Enum\MtsCatalogStatus;
 use App\Tests\Support\Encounter\CurationPackageData;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
@@ -99,6 +103,39 @@ final class CurationPackageCommandTest extends KernelTestCase
         self::assertStringContainsString('Another curated diagram has this code on the target.', $display);
         self::assertStringContainsString('1 conflict(s). Nothing was imported.', $display);
         self::assertSame(0, (int) $this->connection()->fetchOne("SELECT COUNT(*) FROM encounter_mts_diagram WHERE code = 'kieferprobleme'"));
+    }
+
+    public function testExportNamesWhatItLeftOutAndImportNeedsASource(): void
+    {
+        self::bootKernel();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->persist(new MtsDiagram('unbekannt', 'unbekannt', MtsCatalogSource::FirstSeen, MtsCatalogStatus::Provisional));
+        $entityManager->flush();
+
+        $export = $this->command('app:encounter:curation:export');
+        self::assertSame(Command::SUCCESS, $export->execute(['--output' => $this->file]));
+        self::assertStringContainsString('Not curated, so not exported: 1 entries.', $this->flat($export->getDisplay()));
+
+        $import = $this->command('app:encounter:curation:import');
+        self::assertSame(Command::INVALID, $import->execute([]));
+        self::assertStringContainsString('Pass the package file with --source=.', $this->flat($import->getDisplay()));
+    }
+
+    public function testDryRunListsRulesAddedToAnExistingArea(): void
+    {
+        UserFactory::createOne(['username' => 'admin']);
+        file_put_contents($this->file, CurationPackageData::json(CurationPackageData::package(
+            diagrams: [CurationPackageData::seededAllergy(), ...CurationPackageData::seededTraumaDiagrams()],
+            areas: [CurationPackageData::seededAbdominalTrauma(rules: [
+                ['code' => 'abdominelle_schmerzen_bei_erwachsenen', 'points' => 3],
+                ['code' => 'allergie', 'points' => 1],
+                ['code' => 'schweres_trauma', 'points' => 3],
+            ])],
+        )));
+        $tester = $this->command('app:encounter:curation:import');
+
+        self::assertSame(Command::SUCCESS, $tester->execute(['--source' => $this->file, '--dry-run' => true]));
+        self::assertStringContainsString('problem area abdominaltrauma: add PZC –; add rules allergie +1', $this->flat($tester->getDisplay()));
     }
 
     public function testUnknownUserAndInvalidFileFail(): void

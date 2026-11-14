@@ -94,6 +94,52 @@ final class CurationPackageReaderTest extends KernelTestCase
         ], $this->problems(CurationPackageData::seal($data)));
     }
 
+    public function testMoreDuplicatesAndAnotherChecksumAlgorithm(): void
+    {
+        $data = CurationPackageData::newInstance();
+        $data['diagrams'][] = $data['diagrams'][1];
+        $data['aliases'][] = $data['aliases'][0];
+        $data['assignments'][] = ['diagram' => 'sehstoerung', 'indicator' => 'juckreiz'];
+        $data['assignments'][] = $data['assignments'][0];
+        $data['problem_areas'][] = array_merge($data['problem_areas'][0], ['pzc' => []]);
+        $data['problem_areas'][0]['diagrams'][] = ['code' => 'hautprobleme', 'points' => 1];
+        $data = CurationPackageData::seal($data);
+        $data['meta']['counts']['hospitals'] = 0;
+
+        self::assertSame([
+            'meta.counts: Unknown section "hospitals" in meta.counts.',
+            'diagrams[3].code: Code "augenprobleme_bei_kindern" is already used by diagrams[1].',
+            'aliases[2].code: Alias code "augenprobleme_kinder" is already used by aliases[0].',
+            'assignments[1].diagram: The diagram "sehstoerung" is not in this package.',
+            'assignments[2]: Same assignment as assignments[0].',
+            'problem_areas[0].diagrams[1].code: The diagram "hautprobleme" already has a rule in this area.',
+            'problem_areas[1].code: Area code "haut_und_augen" is already used by problem_areas[0].',
+        ], $this->problems($data));
+
+        $data = CurationPackageData::newInstance();
+        $data['meta']['checksum']['algorithm'] = 'md5';
+        self::assertSame(['meta.checksum.algorithm: Expected the checksum algorithm "sha256".'], $this->problems($data));
+    }
+
+    public function testFileAndStructureProblems(): void
+    {
+        self::assertStringStartsWith('File not found or not readable:', $this->reader->read('/nonexistent/curation.json')->violations[0]->message);
+        self::assertStringStartsWith('Invalid JSON:', $this->reader->readJson('{"meta":')->violations[0]->message);
+        self::assertSame('A package must be a JSON object.', $this->reader->readJson('42')->violations[0]->message);
+
+        $data = CurationPackageData::newInstance();
+        $data['problem_areas'][0]['diagrams'][0]['points'] = 'three';
+        $data['diagrams'][0]['english_name'] = 42;
+        self::assertSame([
+            'diagrams[0].english_name: Expected null or string, found int.',
+            'problem_areas[0].diagrams[0].points: Expected int, found string.',
+        ], $this->problems(CurationPackageData::seal($data)));
+
+        $data = CurationPackageData::newInstance();
+        $data['extra'] = true;
+        self::assertSame([': Unknown field(s): extra'], $this->problems(CurationPackageData::seal($data)));
+    }
+
     public function testCountsMustMatchTheSections(): void
     {
         $data = CurationPackageData::newInstance();
