@@ -4,7 +4,7 @@
 support hospitals.
 
 **Status:** v1 with the ORBIS MTS profile (#1051), 1.1.0 with the local map editor and the landing
-page (#1130), part of the encounter data pilot (#1043). What changed per version: `DataPrepChangelog`,
+page (#1130), 1.2.0 with the MTS catalog from the server (#1157), part of the encounter data pilot (#1043). What changed per version: `DataPrepChangelog`,
 shown on the landing page.
 
 Decisions: [ADR 026](../../02-architecture/decisions/026-encounter-data-context-and-exchange-format.md)
@@ -25,13 +25,13 @@ never leave the computer.
 | Core (parse, transform, HMAC, content check; no DOM, no network) | `src/Encounter/UI/DataPrep/js/data-prep-core.js` |
 | Page logic | `src/Encounter/UI/DataPrep/js/data-prep-app.js` |
 | Public profiles (declarative JSON) | `src/Encounter/UI/DataPrep/profiles/` |
-| MTS catalog (German labels of diagrams and indicators), bundled copy; the server's catalog is in the database (ADR 032, #1082) | `src/Encounter/Application/Catalog/mts-de.json`, read by `MtsCatalog::data()` |
+| MTS catalog: loaded at start from `GET /data-prep/mts-catalog.json` (the database catalog, ADR 032); bundled copy as offline fallback | endpoint `MtsCatalogForDataPrepController` (`MtsCatalog::toolCatalog()`); bundled `src/Encounter/Application/Catalog/mts-de.json` (`MtsCatalog::bundledToolCatalog()`) |
 | `ed_visit` v1 field contract for the tool | `src/Encounter/UI/DataPrep/schema/ed_visit.v1.json` (must equal `EdVisitDimension`, checked by `DataPrepContractTest`) |
 | Template | `src/Encounter/UI/Twig/templates/data_prep/tool.html.twig` |
 | Renderer, version, changelog | `DataPrepToolRenderer`, `DataPrepRelease`, `DataPrepChangelog` in `src/Encounter/UI/DataPrep/` |
 | Local map template and example | `src/Encounter/UI/DataPrep/local-map/{template,example}.json` (`LocalMapFiles`) |
 | Landing page and subpages | `ShowDataPrepGuideController`, `ShowDataPrepKeyController`, `ShowDataPrepLocalMapController`, `DataPrepHospitals`; templates `guide`, `key`, `local_map` in `src/Encounter/UI/Twig/templates/data_prep/` |
-| Routes | `GET /tools/data-prep` (landing page), `GET /tools/data-prep/key`, `GET /tools/data-prep/local-map`, `GET /tools/data-prep/download`, `GET /tools/data-prep/local-map-{template,example}.json` (all `ROLE_ENCOUNTER_BETA`), `GET /data-prep/latest.json` (public) |
+| Routes | `GET /tools/data-prep` (landing page), `GET /tools/data-prep/key`, `GET /tools/data-prep/local-map`, `GET /tools/data-prep/download`, `GET /tools/data-prep/local-map-{template,example}.json` (all `ROLE_ENCOUNTER_BETA`), `GET /data-prep/latest.json` and `GET /data-prep/mts-catalog.json` (public) |
 | Tests | `tests/Encounter/DataPrep/*.test.js` (`npm run test:js`), `tests/Encounter/Unit/UI/DataPrep/`, `tests/Encounter/Functional/Controller/DataPrepToolControllerTest.php`, `DataPrepGuideControllerTest.php` |
 
 The two scripts are plain scripts without imports; the server inlines them into the file, and the
@@ -66,18 +66,47 @@ query):
 | own version below `minVersion` | processing blocked |
 | no answer (offline, proxy) | notice; the tool keeps working, the server checks the version on upload |
 
+### MTS catalog
+
+`GET /data-prep/mts-catalog.json` (#1157, [ADR 032](../../02-architecture/decisions/032-mts-catalog-as-maintained-data.md))
+serves the maintained catalog in the tool's catalog format, with the same rules as `latest.json`: public,
+stateless, `Access-Control-Allow-Origin: *`, `X-Content-Type-Options: nosniff`, `Cache-Control: public,
+max-age=300` and an `ETag`. It only reads the catalog; entries are created by the import, never by this
+endpoint.
+
+```json
+{
+    "format": "encounter-mts-catalog",
+    "version": 1,
+    "id": "mts-de",
+    "diagrams": [{ "code": "thoraxschmerz", "name": "Thoraxschmerz", "englishName": "Chest pain" }],
+    "indicators": [{ "code": "heiss", "name": "Heiß", "englishName": null }],
+    "aliases": { "diagrams": { "brust_schmerzen": "thoraxschmerz" }, "indicators": {} }
+}
+```
+
+- `diagrams`, `indicators`: the active entries (`curated` and `provisional`) ordered by code; `name` is the
+  German name (for a provisional entry its code). Merged entries are not listed; their codes are aliases.
+- `aliases`: alias code → code of the active target, only aliases that resolve (ADR 032).
+
+At start the tool fetches it once (`credentials: 'omit'`, `cache: 'no-store'`, no query) and validates it
+(`parseCatalog()`: format, version, codes `^[a-z0-9_]{1,64}$`). Without a valid answer it uses the bundled
+copy, `mts-de.json` turned into the same format by the renderer (codes derived from the labels, no English
+names, no aliases). A status line under the version says which catalog is in use and how many diagrams,
+indicators and aliases it has. The catalog is the one in use when the user presses "Prepare".
+
 ### Content Security Policy
 
 The file sets, as a `<meta>` tag:
 
 ```
 default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:;
-connect-src <absolute URL of /data-prep/latest.json>; base-uri 'none'; form-action 'none'
+connect-src <absolute URL of /data-prep/latest.json> <absolute URL of /data-prep/mts-catalog.json>; base-uri 'none'; form-action 'none'
 ```
 
-So no request other than the update check is possible, and no external script, style, font or image
-is loaded. Checked in the browser for v1: the page made exactly one request (`latest.json`); fetches
-to other URLs fail. CSP source matching ignores query strings; the tool sends none.
+So no request other than the update check and the MTS catalog (1.2.0) is possible, and no external script,
+style, font or image is loaded. Checked in the browser for v1: the page made exactly one request
+(`latest.json`); fetches to other URLs fail. CSP source matching ignores query strings; the tool sends none.
 
 ## Key file
 
@@ -155,7 +184,7 @@ The hospital fills the map in the tool, offline; the server never sees the codes
 - "Remember on this computer" stores the map in the same IndexedDB database as the key (entry
   `local-map`); "Forget map" deletes it. Convenience only; the saved file is the source of truth.
 
-No new request: the Content Security Policy is unchanged, the only `connect-src` stays `latest.json`.
+No new request: the editor added nothing to the Content Security Policy.
 
 ## Landing page
 
@@ -195,7 +224,7 @@ The allow-list is the profile: a column the profile does not map is dropped. Rul
 | Age | leading number of `Alter`; without it, age at the anchor date from `Geburtsdatum`; then clamped to 1–99 |
 | Timestamps | `dd.mm.yyyy HH:MM[:SS]` with any whitespace between date and time; output `YYYY-MM-DDTHH:MM`, seconds cut; invalid values are emptied and counted |
 | Codes | profile map, case-insensitive; optional `prefixes`; empty markers (`-- keine --`) give empty; other values give empty and are listed as unmapped |
-| MTS diagram, indicator | catalog code derived from the label: lowercase, umlauts transliterated, other characters `_`, cut at 64 characters, no leading or trailing `_` (`Abdominelle Schmerzen bei Erwachsenen` → `abdominelle_schmerzen_bei_erwachsenen`); the same rule as `MtsCatalog::code()` on the server (#1056). Diagrams must be in the MTS catalog `mts-de.json`, otherwise empty and listed as unmapped; indicators not in the (open) list keep their code and are listed as "new catalog values" |
+| MTS diagram, indicator | catalog code derived from the label: lowercase, umlauts transliterated, other characters `_`, cut at 64 characters, no leading or trailing `_` (`Abdominelle Schmerzen bei Erwachsenen` → `abdominelle_schmerzen_bei_erwachsenen`); the same rule as `MtsCatalog::code()` on the server (#1056). A label is known when its code is an entry or alias code of the catalog in use. The code of the label is written as it is, also for an alias (ADR 032: the source code is kept, the server resolves aliases when it reads); aliases are listed in the report as "Other spellings recognised" (value → catalog code). Unknown diagrams and indicators (1.2.0: diagrams too, before they were emptied) keep their code and are listed as "new catalog values"; the import adds them to the catalog as provisional entries (#1157) |
 | Disposition | local map first, then the profile; `care_level` only for `admitted` (station map, else the level of the disposition text, else `unknown`) and `transferred_external` (level of the text, else `unknown`); an unmapped station is listed |
 | Vitals | unit stripped, decimal comma accepted; integers except temperature (one decimal, half up) and glucose (rounded half up to whole mg/dl); out of range or unreadable → empty and counted per field; `vitals_reference = documented_initial` if any vital is set |
 | Flags | `ja` → `1`; empty → empty; other values → empty and listed |
@@ -259,9 +288,10 @@ content again. The check reduces the risk, it does not find every identifier (AD
 1. Add `profiles/<id>.json` with `detect.requiredColumns`, `keys`, `age`, `fields` (rule types `code`,
    `timestamp`, `catalog`, `integer`, `vital`, `bloodPressure`, `flag`, `codeSet`, `disposition`,
    `department`) and `dropped`.
-2. Register it in `DataPrepToolRenderer::PROFILES`. The renderer bundles the MTS catalog file from
-   `MtsCatalog::data()`; a change to `src/Encounter/Application/Catalog/mts-de.json` changes the tool only. The
-   MTS glossary reads the catalog in the database, maintained in the back office (ADR 032).
+2. Register it in `DataPrepToolRenderer::PROFILES`. The renderer bundles the MTS catalog file
+   (`MtsCatalog::bundledToolCatalog()`) as offline fallback; a change to `src/Encounter/Application/Catalog/mts-de.json`
+   changes the tool only. The tool, the MTS glossary and the import read the catalog in the database, maintained
+   in the back office (ADR 032).
 3. Add a synthetic sample and tests; `DataPrepContractTest` checks the codes against the schema.
 4. Raise `app.encounter.data_prep.version`.
 

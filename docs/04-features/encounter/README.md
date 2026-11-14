@@ -41,7 +41,9 @@ Implemented in #1051: the tool v1 with the ORBIS MTS profile, its download (now 
 public update check `/data-prep/latest.json` and the version options `app.encounter.data_prep`
 ([data-preparation-tool.md](data-preparation-tool.md)). #1130 added the landing page
 `/tools/data-prep` (getting started, versions, changelog) with subpages for the key file and the
-local map, and the local map editor in the tool (1.1.0).
+local map, and the local map editor in the tool (1.1.0). #1157 added the public MTS catalog
+`/data-prep/mts-catalog.json` for the tool (1.2.0) and provisional catalog entries created by the import
+([MTS glossary](#mts-glossary)).
 
 ## Model
 
@@ -155,7 +157,9 @@ that the key generation stored at upload is still current and no key change is i
 the run fails with `key_generation_changed` and nothing is written), checks or registers the key check
 value and inserts row by row with `insertIfNew()`: known visits count as duplicates, new ones belong to
 the import. The key generation is also checked before a reprocess removes the import's data, so a
-reprocess after a key change keeps the visits.
+reprocess after a key change keeps the visits. In the same commit, MTS diagram and indicator codes (initial
+triage and retriage) of the new visits that resolve to nothing become provisional catalog entries
+([MTS glossary](#mts-glossary), #1157); the visits keep the codes as sent.
 
 **Suspected duplicates**: a new visit with the same `case_key` as another visit of the hospital and key
 generation (earlier, or earlier in the same file) and a time anchor at most 15 minutes away is inserted
@@ -838,11 +842,24 @@ on Encounter.
     assignments or curated rules of the [plausibility table](#plausibility-table) name it. Undo removes the alias and makes the entry `provisional` again. Encounter rows are never
     touched.
   - Diagram–indicator assignments between active entries, created and removed.
-- **Not yet (#1157).** Provisional entries created by the import with a backfill, the public catalog endpoint
-  for the tool and alias handling in the tool, indicator lists from assignments on the glossary pages. The
-  data preparation tool still bundles `src/Encounter/Application/Catalog/mts-de.json` (`MtsCatalog::data()`);
-  the file is unchanged, so the tool version stays. Export and import of the curated catalog to production is a
-  later follow-up.
+- **Provisional entries (#1157).** The import creates an entry for every MTS code of a stored visit (initial
+  triage and retriage, diagram and indicator) that resolves to nothing: no entry of the kind with that code, in
+  any status, and no alias code. Status `provisional`, source `first_seen`, the code as German name (the
+  exchange file carries codes, not labels), `first_seen_at` the time of the import; which hospital sent it is
+  not stored. Known visits, rejected rows and rejected files create nothing; a failed import rolls the entries
+  back with its commit. `MtsCatalogFirstSeenWriter` inserts with `ON CONFLICT (code) DO NOTHING` in code order,
+  so parallel imports of the same code create one entry and never fail, and writes one audit entry per created
+  row (`create`, intent `encounter.mts_catalog.first_seen_created` with kind, code and import id). They appear in the
+  back office lists (Admin → Data → MTS catalog) with status `provisional` and their first-seen time, to name,
+  merge or curate.
+- **Backfill.** `php bin/console app:encounter:mts-catalog:backfill-first-seen` creates the same entries for
+  codes already stored in `encounter` (first seen = creation time of the oldest encounter with the code);
+  safe to run again. Run it once when releasing #1157.
+- **Catalog for the tool (#1157).** `GET /data-prep/mts-catalog.json` (public, read only) serves the active
+  entries and resolvable aliases; the tool keeps `src/Encounter/Application/Catalog/mts-de.json` as offline
+  fallback and writes the code of the source label, also for an alias
+  ([data-preparation-tool.md](data-preparation-tool.md#mts-catalog)). Export and import of the curated catalog
+  to production is a later follow-up.
 - **Categories:** `MtsCategory` with the target time from the first assessment contact to the first
   physician contact (`physicianContactTargetMinutes()`: red 0, orange 10, yellow 30, green 90, blue
   120 minutes), colour and name in EN and DE.
@@ -862,11 +879,14 @@ on Encounter.
   the diagram without an indicator are one extra row.
 - **Small cells.** Counts from 1 to 4 are shown as `< 5` (`MtsCount`, threshold
   `CatalogPrivacyPolicy::MIN_ALLOCATIONS`, ADR 012); 0 is shown as a dash.
-- **Diagram page.** Lists the indicators seen with the diagram in the encounters the user may see, with
-  a filter on name and code (`?q=`). Indicators seen in data but not in the catalog are listed with
-  their code and marked "not in the catalog". Without encounter access the page shows the definition
-  and explains that the indicator list comes from encounter data: listing all catalog indicators would
-  suggest pairs that the MTS does not have, and pairs from other hospitals' data are not shared.
+- **Diagram page.** Lists the indicators assigned to the diagram in the catalog (diagram–indicator
+  assignments between active entries, definitions, #1157) to every participant, without counts. Users with
+  encounter access also see the indicators seen with the diagram in the encounters they may see, all rows
+  with counts; seen indicators that are not assigned are marked "not assigned in the catalog" when the diagram
+  has assignments, and seen codes that resolve to nothing are marked "not in the catalog". Filter on name and
+  code (`?q=`). Without assignments and without encounter access the page explains that the observed list
+  needs encounter access: listing all catalog indicators would suggest pairs that the MTS does not have, and
+  pairs from other hospitals' data are not shared. Counts and small-cell suppression are unchanged.
 
 ## Synthetic data
 
