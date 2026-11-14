@@ -229,10 +229,6 @@
         <source>help.settings.notifications.monthly_reminder</source>
         <target>Erhalten Sie monatlich eine E-Mail mit Krankenhaus-Einblicken und einer Erinnerung, Ihre neuesten Daten hochzuladen.</target>
       </trans-unit>
-      <trans-unit id="HlpSetUnDe" resname="help.settings.username_fixed">
-        <source>help.settings.username_fixed</source>
-        <target>Der Benutzername ist festgelegt und kann nicht geändert werden.</target>
-      </trans-unit>
       <trans-unit id="UsrDispNameDe" resname="label.display_name">
         <source>label.display_name</source>
         <target>Anzeigename</target>
@@ -363,7 +359,7 @@
       </trans-unit>
       <trans-unit id="setOv05" resname="text.settings.section.account">
         <source>text.settings.section.account</source>
-        <target>Benutzername, Status der E-Mail-Bestätigung und Sprache.</target>
+        <target>Anzeigename, Status der E-Mail-Bestätigung und Sprache.</target>
       </trans-unit>
       <trans-unit id="setOv06" resname="text.settings.section.email">
         <source>text.settings.section.email</source>

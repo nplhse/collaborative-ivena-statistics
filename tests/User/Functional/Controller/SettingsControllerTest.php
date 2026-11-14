@@ -41,7 +41,7 @@ final class SettingsControllerTest extends WebTestCase
             ->assertElementAttributeContains('[data-testid="settings-tile-password"]', 'href', '/settings/password')
             ->assertElementAttributeContains('[data-testid="settings-tile-notifications"]', 'href', '/settings/notifications')
             ->assertSeeIn('[data-testid="settings-tile-account"]', 'My Account')
-            ->assertSeeIn('[data-testid="settings-tile-account"]', 'Username, email verification status and language.')
+            ->assertSeeIn('[data-testid="settings-tile-account"]', 'Display name, email verification status and language.')
             ->assertSeeIn('[data-testid="settings-tile-notifications"]', 'Notifications')
         ;
     }
@@ -129,7 +129,8 @@ final class SettingsControllerTest extends WebTestCase
             ->assertSuccessful()
             ->assertSeeIn('h2', 'Account Settings')
             ->assertSee('Profile Details')
-            ->assertSeeElement('input[value="settings-account-user"][readonly]')
+            ->assertNotSeeElement('input[value="settings-account-user"]')
+            ->assertSeeElement('input[name="settings_profile[displayName]"]')
             ->assertSeeElement('input[value="settings-account@example.test"][readonly]')
             ->assertSeeElement('select[name="settings_locale[locale]"]')
             ->assertNotSeeElement('.card-body a[href="/settings/password"].btn')
