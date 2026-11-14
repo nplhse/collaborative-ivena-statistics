@@ -23,6 +23,22 @@ final class PageTranslationEditorControllerTest extends WebTestCase
 {
     use Factories;
 
+    public function testNewBlockPrototypeIsEnabledRichText(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createTranslation([]);
+
+        $crawler = $this->openEditor($client, $translation);
+        $prototype = new Crawler((string) $crawler
+            ->filter('[data-ea-collection-field][data-form-type-name-placeholder="__contentname__"]')
+            ->attr('data-prototype'));
+
+        $enabled = $prototype->filter('input[type="checkbox"][name$="[enabled]"]');
+        self::assertCount(1, $enabled);
+        self::assertSame('checked', $enabled->attr('checked'));
+        self::assertSame('richtext', $prototype->filter('select[name$="[type]"] option[selected]')->attr('value'));
+    }
+
     public function testBlockFieldLabelsAreTranslated(): void
     {
         $client = $this->createAdminClient();

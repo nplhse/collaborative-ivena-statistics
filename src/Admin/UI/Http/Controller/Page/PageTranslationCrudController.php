@@ -198,6 +198,7 @@ final class PageTranslationCrudController extends AbstractCrudController
             ->setFormTypeOption('help_html', true)
             ->setEntryType(PageContentBlockType::class)
             ->setEntryIsComplex()
+            ->setFormTypeOption('prototype_data', PageContentBlockType::newBlockData())
             ->setFormTypeOption('row_attr', [
                 'data-controller' => 'collection-reorder',
                 'data-collection-reorder-move-up-label-value' => $this->translator->trans('label.move_block_up', [], 'messages'),
