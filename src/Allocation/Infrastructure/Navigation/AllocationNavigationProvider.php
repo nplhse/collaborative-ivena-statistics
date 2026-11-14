@@ -4,47 +4,80 @@ declare(strict_types=1);
 
 namespace App\Allocation\Infrastructure\Navigation;
 
+use App\Allocation\Application\Explore\Catalog\CatalogGlossaryEntryRegistry;
 use App\Allocation\Infrastructure\Security\Voter\ExportVoter;
 use App\Shared\Application\Navigation\Menu\Menu;
+use App\Shared\Application\Navigation\Menu\NavGroup;
 use App\Shared\Application\Navigation\Menu\NavigationProviderInterface;
 use App\Shared\Application\Navigation\Menu\NavItem;
 use Symfony\Component\Translation\TranslatableMessage;
 
 /**
- * Explore and Export in the primary menu (ADR 035).
+ * Explore and Export in the primary menu, and the explore sidebar (ADR 035).
+ *
+ * Allocation owns the explore menu: its groups follow the former Explore dropdowns (cases, organisation,
+ * hospital structure, features) with the overview first and the classifications last. Every entry needs
+ * ROLE_PARTICIPANT like the Explore pages; a user who only opens their own profile under /explore/user sees
+ * no sidebar. Users are added by the User context to {@see Menu::EXPLORE_GROUP_ORGANISATION}.
  *
  * @psalm-suppress UnusedClass Tagged via NavigationProviderInterface.
  */
 final readonly class AllocationNavigationProvider implements NavigationProviderInterface
 {
+    private const string PARTICIPANT = 'ROLE_PARTICIPANT';
+
+    public function __construct(
+        private CatalogGlossaryEntryRegistry $glossaryEntries,
+    ) {
+    }
+
     #[\Override]
     public function groups(Menu $menu): array
     {
-        return [];
+        if (Menu::Explore !== $menu) {
+            return [];
+        }
+
+        return [
+            new NavGroup('explore-start', null, 10),
+            new NavGroup('cases', $this->label('link.explore.group.cases'), 20),
+            new NavGroup(Menu::EXPLORE_GROUP_ORGANISATION, $this->label('link.explore.group.organisation'), 30),
+            new NavGroup('structure', $this->label('link.explore.group.structure'), 40),
+            new NavGroup('features', $this->label('link.explore.group.features'), 50),
+            new NavGroup('reference', null, 60),
+        ];
     }
 
     #[\Override]
     public function items(Menu $menu): array
     {
-        if (Menu::Primary !== $menu) {
-            return [];
-        }
+        return match ($menu) {
+            Menu::Primary => $this->primaryItems(),
+            Menu::Explore => $this->sidebarItems(),
+            default => [],
+        };
+    }
 
+    /**
+     * @return list<NavItem>
+     */
+    private function primaryItems(): array
+    {
         return [
             new NavItem(
                 id: 'explore',
                 parentId: Menu::PRIMARY_GROUP,
-                label: new TranslatableMessage('link.explore', [], 'shared'),
+                label: $this->label('link.explore'),
                 route: 'app_explore_index',
                 icon: 'tabler:compass',
-                grantedAttribute: 'ROLE_PARTICIPANT',
+                grantedAttribute: self::PARTICIPANT,
                 weight: 10,
                 areaRoutePrefix: 'app_explore',
             ),
             new NavItem(
                 id: 'export',
                 parentId: Menu::PRIMARY_GROUP,
-                label: new TranslatableMessage('link.export', [], 'shared'),
+                label: $this->label('link.export'),
                 route: 'app_hospitals_export_allocations',
                 icon: 'tabler:database-export',
                 grantedAttribute: ExportVoter::EXPORT,
@@ -52,5 +85,82 @@ final readonly class AllocationNavigationProvider implements NavigationProviderI
                 areaRoutePrefix: 'app_hospitals_export',
             ),
         ];
+    }
+
+    /**
+     * Entries keep the order of the former Explore dropdowns.
+     *
+     * @return list<NavItem>
+     */
+    private function sidebarItems(): array
+    {
+        return [
+            $this->entry('explore-index', 'explore-start', 'link.explore.overview', 'app_explore_index', 'tabler:compass', 10),
+
+            $this->catalog('allocations', 'cases', 'link.allocations', 'app_explore_allocation', 'tabler:ambulance', 10),
+            $this->catalog('mci-cases', 'cases', 'link.mci_cases', 'app_explore_mci_case', 'tabler:alert-triangle', 20),
+
+            $this->catalog('hospitals', Menu::EXPLORE_GROUP_ORGANISATION, 'link.hospitals', 'app_explore_hospital', 'tabler:building-hospital', 10),
+            $this->catalog('states', Menu::EXPLORE_GROUP_ORGANISATION, 'link.states', 'app_explore_state', 'tabler:map', 20),
+            $this->catalog('dispatch-areas', Menu::EXPLORE_GROUP_ORGANISATION, 'link.dispatch_areas', 'app_explore_dispatch_area', 'tabler:map-pin', 30),
+
+            $this->catalog('specialities', 'structure', 'link.specialities', 'app_explore_speciality', 'tabler:hierarchy-2', 10),
+            $this->catalog('departments', 'structure', 'link.departments', 'app_explore_department', 'tabler:bed', 20),
+
+            $this->catalog('indications', 'features', 'link.indications', 'app_explore_indication', 'tabler:heartbeat', 10),
+            $this->catalog('indication-groups', 'features', 'link.indication_groups', 'app_explore_indication_group', 'tabler:stack-2', 20),
+            $this->catalog('assignments', 'features', 'link.assignments', 'app_explore_assignment', 'tabler:transfer', 30),
+            $this->catalog('infections', 'features', 'link.infections', 'app_explore_infection', 'tabler:virus', 40),
+            $this->catalog('occasions', 'features', 'link.occasions', 'app_explore_occasion', 'tabler:flag', 50),
+            $this->catalog('secondary-transports', 'features', 'link.secondary_transports', 'app_explore_secondary_transport', 'tabler:helicopter', 60),
+
+            $this->entry('glossary', 'reference', 'link.glossary', 'app_explore_glossary_index', 'tabler:book', 10, $this->glossaryRoutes()),
+        ];
+    }
+
+    /**
+     * The catalog glossary pages and the glossary pages other contexts add through the glossary registry
+     * (for example the MTS glossary of the Encounter context), with their further pages.
+     *
+     * @return list<string>
+     */
+    private function glossaryRoutes(): array
+    {
+        $routes = ['app_explore_glossary_show'];
+        foreach ($this->glossaryEntries->entries() as $entry) {
+            $routes = [...$routes, $entry->route, ...$entry->detailRoutes];
+        }
+
+        return array_values(array_unique($routes));
+    }
+
+    /**
+     * A catalog list with its detail page: routes `{prefix}_list` and `{prefix}_show`.
+     */
+    private function catalog(string $id, string $groupId, string $labelKey, string $routePrefix, string $icon, int $weight): NavItem
+    {
+        return $this->entry($id, $groupId, $labelKey, $routePrefix.'_list', $icon, $weight, [$routePrefix.'_show']);
+    }
+
+    /**
+     * @param list<string> $detailRoutes
+     */
+    private function entry(string $id, string $groupId, string $labelKey, string $route, string $icon, int $weight, array $detailRoutes = []): NavItem
+    {
+        return new NavItem(
+            id: $id,
+            parentId: $groupId,
+            label: $this->label($labelKey),
+            route: $route,
+            icon: $icon,
+            grantedAttribute: self::PARTICIPANT,
+            detailRoutes: $detailRoutes,
+            weight: $weight,
+        );
+    }
+
+    private function label(string $key): TranslatableMessage
+    {
+        return new TranslatableMessage($key, [], 'shared');
     }
 }

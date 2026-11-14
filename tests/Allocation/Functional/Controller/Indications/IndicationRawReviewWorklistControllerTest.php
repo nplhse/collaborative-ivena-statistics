@@ -39,7 +39,7 @@ final class IndicationRawReviewWorklistControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('#navbar-menu li.nav-item.active[data-testid="nav-tools"]');
-        self::assertSelectorNotExists('#explore-subnav');
+        self::assertSelectorNotExists('[data-testid="sidebar-explore"]');
         self::assertSelectorExists('.breadcrumb a[href="/tools"]');
     }
 

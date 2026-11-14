@@ -27,6 +27,7 @@ final readonly class EncounterGlossaryEntryProvider implements CatalogGlossaryEn
                 translationDomain: 'encounter',
                 icon: 'tabler:stethoscope',
                 route: 'app_explore_glossary_mts',
+                detailRoutes: ['app_explore_glossary_mts_diagram'],
             ),
         ];
     }

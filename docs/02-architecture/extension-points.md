@@ -122,7 +122,8 @@ edit shell.
 
 Lets other contexts add a card to the Explore glossary hub that links to a glossary page on their own
 route, without a dependency from `Allocation` on them. Route names start with `app_explore_glossary_`
-so the Explore subnav marks the glossary as active. Rules for such pages:
+so the top navbar marks Explore as active; the entry's `route` and `detailRoutes` mark Classifications in
+the explore sidebar. Rules for such pages:
 [explore-glossary.md](../04-features/allocation/explore-glossary.md).
 
 ## Allocation case file sections
@@ -243,12 +244,14 @@ Path `access_control` on `/tools` only requires `ROLE_USER`; every tool route ne
 
 **Builder:** `NavigationBuilder`; consumers: the top navbar (`<twig:Navigation:Primary />` in
 `@Shared/_embeds/header.html.twig`), the footer (`<twig:Navigation:Footer />` in
-`@Shared/_includes/footer.html.twig`) and the statistics sidebar (`<twig:Navigation:Sidebar menu="statistics" />`
-in the `header_after` block of every statistics page); the Explore sidebar follows with the next step of
-[ADR 035](decisions/035-navigation-tree-and-contextual-sidebar.md)
+`@Shared/_includes/footer.html.twig`) and the sidebars of Statistics and Explore
+(`<twig:Navigation:Sidebar menu="statistics|explore" />` in the `header_after` block of every page of the
+area; [ADR 035](decisions/035-navigation-tree-and-contextual-sidebar.md))
 
 **Implementations:** `SharedNavigationProvider` (Shared: primary group, Tools; footer columns `project`,
-`help`, `legal`, `more` with sitemap and cookie settings), `AllocationNavigationProvider` (Explore, Export),
+`help`, `legal`, `more` with sitemap and cookie settings), `AllocationNavigationProvider` (Explore, Export;
+the explore sidebar with its groups, glossary routes from `CatalogGlossaryEntryRegistry`),
+`UserNavigationProvider` (Users in the explore group `Menu::EXPLORE_GROUP_ORGANISATION`),
 `StatisticsNavigationProvider` (Statistics entry and the statistics sidebar with its groups; Insights
 dimensions from `InsightDimensionRegistry`), `ImportNavigationProvider` (Import), `ContentNavigationProvider`
 (Blog and CMS header pages; footer: CMS pages, blog, activity)

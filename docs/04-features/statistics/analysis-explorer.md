@@ -6,7 +6,7 @@ Interactive statistics explorer for ad-hoc allocation analyses. It replaces the 
 
 | Page | Route |
 |---|---|
-| Analysis library (subnav entry) | `/statistics/analysis/library` |
+| Analysis library (sidebar entry) | `/statistics/analysis/library` |
 | Analysis assistant | `/statistics/analysis/assistant` |
 | Analysis Explorer (default) | `/statistics/analysis/explorer` |
 | Analysis Explorer (saved view) | `/statistics/analysis/explorer/{view}` |
