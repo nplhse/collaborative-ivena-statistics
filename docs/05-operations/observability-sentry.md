@@ -38,6 +38,43 @@ Both become the current span while they run, so the queries and nested work insi
 
 New spans use [`SentrySpanTracer::trace()`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentrySpanTracer.php) (a no-op without an active transaction). Use stable op names, and put only counts, fixed labels and numeric ids into the data. Each new data key must be added to the allowlist in `SentryEventScrubber`, otherwise it is dropped. Add a span only when a trace leaves a concrete question open; the Overview lazy frames, for example, are separate transactions already (`GET app_stats_overview_top_reports`, `GET app_stats_overview_self_benchmark`).
 
+### Investigating a slow request
+
+1. In Sentry, filter transactions by `route`, `bounded_context` or `live_component` and sort by p95.
+2. Open a slow trace. The parent's duration already includes its children: compare `view.render`,
+   `analysis.explorer.run` and the database spans with the gaps between them.
+3. Check `cache.calls` and `cache.duration_ms` in the transaction data; a high value usually means cache misses
+   that computed their value.
+4. Use `request_id` to find the matching audit log entries and logs. With analytics consent the event also carries
+   the user id.
+5. Record a confirmed slow path as an issue with the query or span and its share of the request
+   (examples: #1193–#1197).
+
+## Volume
+
+Sentry plans limit transactions and spans per month; plan and quota are the operator's choice. With the
+configuration above, the acceptance on 2026-11-14 (#951) measured, per request and without the transaction span itself:
+
+| Request type | Spans per request |
+|---|---|
+| Public pages (start page, content pages, blog, login) | 0–20 |
+| Logged-in statistics pages and lazy frames (Overview, Insights, Closure Analytics) | 10–90 |
+| Analysis Explorer page and Live Component actions | 80–100 |
+| Job runs (closure rebuild, import, projection rebuild) | a few dozen per run, always sampled |
+
+Estimate for **1,000 requests per day**, most of them anonymous visits to public pages (assumed 90 % public with about
+13 spans, 10 % logged-in with about 60 spans, so about 18 spans per request):
+
+| `SENTRY_TRACES_SAMPLE_RATE` | Transactions per month | Spans per month |
+|---|---|---|
+| `1.0` | ≈ 30,000 | ≈ 550,000 |
+| `0.5` | ≈ 15,000 | ≈ 275,000 |
+| `0.2` | ≈ 6,000 | ≈ 110,000 |
+
+Scale linearly with your own request count and share of logged-in use. Health checks and notification polling are
+never sampled; errors and logs count against separate quotas. Knobs, from coarse to fine: the sample rate, the
+`UNSAMPLED_TRANSACTIONS` list in `SentryTracesSampler`, and the tracing switches in `config/packages/sentry.yaml`.
+
 ## CSP violation reports
 
 CSP is configured separately via Nelmio (report-only in prod). Violations appear in Sentry under **Issues**, not Logs. Setup, policy, verification, and triage: [content-security-policy.md](content-security-policy.md).

@@ -113,7 +113,6 @@ final class AnalyticsRequestTrackingTest extends WebTestCase
 
         $pages = [
             '/admin/operations/usage-analytics/overview' => ['Usage analytics — Overview', 'Requests today', 'Feature areas'],
-            '/admin/operations/usage-analytics/performance' => ['Usage analytics — Performance', 'By feature area', 'Slowest routes'],
         ];
 
         foreach ($pages as $path => $needles) {
@@ -128,6 +127,7 @@ final class AnalyticsRequestTrackingTest extends WebTestCase
             self::assertStringNotContainsString('usage-analytics/filters', $html);
             self::assertStringNotContainsString('usage-analytics/adoption', $html);
             self::assertStringNotContainsString('usage-analytics/journeys', $html);
+            self::assertStringNotContainsString('usage-analytics/performance', $html);
         }
 
         // The filter usage page was removed (#988).
@@ -139,6 +139,10 @@ final class AnalyticsRequestTrackingTest extends WebTestCase
             $client->request(Request::METHOD_GET, '/admin/operations/usage-analytics/'.$removedPage);
             self::assertResponseStatusCodeSame(404);
         }
+
+        // The performance page was removed; request performance is monitored with Sentry (#951).
+        $client->request(Request::METHOD_GET, '/admin/operations/usage-analytics/performance');
+        self::assertResponseStatusCodeSame(404);
     }
 
     public function testAdminAreaRequestsAreNotTracked(): void
