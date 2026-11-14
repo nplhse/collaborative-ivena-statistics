@@ -31,7 +31,6 @@ final class InsightsOverviewController extends AbstractController
         private readonly StatisticsContextFactory $statisticsContextFactory,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly InsightsPageChromeFactory $chromeFactory,
-        private readonly InsightsSubnavViewModelFactory $subnavFactory,
         private readonly InsightDimensionRegistry $registry,
         private readonly InsightValueDirectoryService $directoryService,
         private readonly StatisticsNavigationUrlBuilder $navigationUrlBuilder,
@@ -80,7 +79,6 @@ final class InsightsOverviewController extends AbstractController
         return $this->render('@Statistics/insights/overview.html.twig', array_merge(
             $this->chromeFactory->templateVars($request, 'app_stats_insights', $user, $filter),
             [
-                'insightsSubnav' => $this->subnavFactory->create($request, null),
                 'featured' => [
                     'key' => $featured->key()->value,
                     'labelKey' => $featured->labelTranslationKey(),

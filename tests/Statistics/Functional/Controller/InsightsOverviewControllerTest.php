@@ -78,32 +78,28 @@ final class InsightsOverviewControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="stats-insights-overview-title"]');
         self::assertSelectorExists('[data-testid="stats-insights-search"]');
         self::assertSame('5', $client->getCrawler()->filter('[data-testid="stats-insights-search"]')->attr('data-insights-search-max-results-value'));
-        self::assertSelectorExists('[data-testid="stats-insights-subnav"]');
-        self::assertSelectorExists('[data-testid="stats-insights-tab-overview"].active');
-        self::assertSame('page', $client->getCrawler()->filter('[data-testid="stats-insights-tab-overview"]')->attr('aria-current'));
+        // ADR 035: the Insights views live in the statistics sidebar, not in a page subnav.
+        self::assertSelectorNotExists('[data-testid="stats-insights-subnav"]');
+        self::assertSelectorExists('[data-testid="sidebar-entry-insights-overview"].active');
+        self::assertSame('page', $client->getCrawler()->filter('[data-testid="sidebar-entry-insights-overview"] a')->attr('aria-current'));
+        $dimensionEntries = $client->getCrawler()->filter('[data-testid="sidebar-group-insights-dimensions"] [data-testid^="sidebar-entry-insights-dimension-"]')->each(
+            static fn ($node): string => (string) $node->attr('data-testid'),
+        );
+        sort($dimensionEntries);
         self::assertSame(
             [
-                'stats-insights-tab-overview',
-                'stats-insights-tab-indications',
-                'stats-insights-tab-specialities',
-                'stats-insights-tab-departments',
-                'stats-insights-tab-assignments',
-                'stats-insights-tab-occasions',
-                'stats-insights-tab-infections',
-                'stats-insights-tab-secondary-transports',
+                'sidebar-entry-insights-dimension-assignments',
+                'sidebar-entry-insights-dimension-departments',
+                'sidebar-entry-insights-dimension-indication-groups',
+                'sidebar-entry-insights-dimension-indications',
+                'sidebar-entry-insights-dimension-infections',
+                'sidebar-entry-insights-dimension-occasions',
+                'sidebar-entry-insights-dimension-secondary-transports',
+                'sidebar-entry-insights-dimension-specialities',
             ],
-            $client->getCrawler()->filter('[data-testid="stats-insights-subnav"] [data-testid^="stats-insights-tab-"]')->each(
-                static fn ($node): string => (string) $node->attr('data-testid'),
-            ),
+            $dimensionEntries,
+            'Every Insights dimension has one sidebar entry; the order follows the translated labels.',
         );
-        self::assertSelectorExists('[data-testid="stats-insights-tab-indications"]');
-        self::assertSelectorExists('[data-testid="stats-insights-tab-specialities"]');
-        self::assertSelectorExists('[data-testid="stats-insights-tab-assignments"]');
-        self::assertSelectorExists('[data-testid="stats-insights-tab-departments"]');
-        self::assertSelectorExists('[data-testid="stats-insights-tab-occasions"]');
-        self::assertSelectorExists('[data-testid="stats-insights-tab-infections"]');
-        self::assertSelectorExists('[data-testid="stats-insights-tab-secondary-transports"]');
-        self::assertSelectorNotExists('[data-testid="stats-insights-tab-more"]');
         self::assertSelectorExists('[data-testid="stats-insights-featured"]');
         self::assertSelectorExists('[data-testid="stats-insights-teasers"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-heading-title"]');

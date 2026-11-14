@@ -94,7 +94,7 @@ final class InsightsCompareControllerTest extends WebTestCase
         ]);
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorNotExists('[data-testid="stats-insights-subnav"]');
+        self::assertSelectorExists('[data-testid="sidebar-entry-insights-compare"].active');
         self::assertSelectorExists('[data-testid="stats-insights-compare-kpi-tiles"]');
         self::assertSelectorExists('[data-testid="stats-insights-compare-edit-button"]');
         self::assertSelectorExists('[data-testid="stats-insights-compare-edit-modal"][data-controller="insight-compare-picker"].modal.modal-blur .modal-dialog.modal-lg.modal-dialog-centered.modal-dialog-scrollable');

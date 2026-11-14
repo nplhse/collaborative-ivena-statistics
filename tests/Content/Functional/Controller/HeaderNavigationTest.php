@@ -47,7 +47,7 @@ final class HeaderNavigationTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertCount(1, $client->getCrawler()->filter('#navbar-menu'));
-        self::assertSelectorExists('#stats-subnav');
+        self::assertSelectorExists('[data-testid="sidebar-statistics"]');
         self::assertSelectorNotExists('#explore-subnav');
         self::assertSelectorNotExists('#navbar-menu a[href="/nav-about"]');
         self::assertSelectorNotExists('#navbar-menu a[href="/nav-features"]');
@@ -72,7 +72,7 @@ final class HeaderNavigationTest extends WebTestCase
         self::assertCount(1, $client->getCrawler()->filter('#navbar-menu'));
         self::assertSelectorExists('#explore-subnav');
         self::assertSelectorExists('[data-testid="explore-subnav"]');
-        self::assertSelectorNotExists('#stats-subnav');
+        self::assertSelectorNotExists('[data-testid="sidebar-statistics"]');
         self::assertSelectorNotExists('#navbar-menu a[href="/login"]');
         self::assertSelectorNotExists('#navbar-menu a[href="/register"]');
         self::assertSelectorExists('[aria-label="Open user menu"][data-bs-display="static"]');

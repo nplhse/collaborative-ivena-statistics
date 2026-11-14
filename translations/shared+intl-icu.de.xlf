@@ -597,6 +597,22 @@
         <source>cookie.monitoring.location</source>
         <target>{location, select, eu {Server in der EU} us {Server in den USA} other {vom Betreiber selbst betriebene Server}}</target>
       </trans-unit>
+      <trans-unit id="SharedNavSidebar01De" resname="nav.sidebar.label">
+        <source>nav.sidebar.label</source>
+        <target>Ansichten</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar02De" resname="nav.sidebar.collapse">
+        <source>nav.sidebar.collapse</source>
+        <target>Seitenleiste einklappen</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar03De" resname="nav.sidebar.keep_open">
+        <source>nav.sidebar.keep_open</source>
+        <target>Seitenleiste fest öffnen</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar04De" resname="nav.sidebar.toggle_views">
+        <source>nav.sidebar.toggle_views</source>
+        <target>Ansichten ein- oder ausblenden</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
