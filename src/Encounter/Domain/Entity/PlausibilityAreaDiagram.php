@@ -24,6 +24,7 @@ class PlausibilityAreaDiagram
     #[ORM\Column]
     private ?int $id = null;
 
+    /** @psalm-suppress UnusedProperty Owning side of PlausibilityProblemArea::$diagrams; Doctrine reads it. */
     #[ORM\ManyToOne(inversedBy: 'diagrams')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private PlausibilityProblemArea $area;

@@ -47,9 +47,11 @@ class PlausibilityProblemArea
     #[ORM\OneToMany(targetEntity: PlausibilityAreaDiagram::class, mappedBy: 'area', cascade: ['persist'], orphanRemoval: true)]
     private Collection $diagrams;
 
+    /** @psalm-suppress UnusedProperty Stored for the record (with the audit log); no page shows it. */
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    /** @psalm-suppress UnusedProperty Set by touch() on every change of the row; no page shows it. */
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 

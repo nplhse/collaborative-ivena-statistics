@@ -9,7 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * A cell of a plausibility snapshot (ADR 033), keyed by the canonical MTS diagram code and either.
+ * A cell of a plausibility snapshot (ADR 033), keyed by the canonical MTS diagram code and a PZC or a problem area.
  *
  * - an exact PZC (exact cell; with an MTS indicator: indicator cell, reserved and not read for the bonus), or
  * - the code of a problem area (fallback cell).
@@ -17,6 +17,12 @@ use Doctrine\ORM\Mapping as ORM;
  * Points are 0 … +3, never negative. Positives and negatives are the learning job's counts over all hospitals; they
  * decide whether an exact cell has enough observations and are never shown on a page (ADR 033, Privacy). Not audited:
  * written in bulk while the snapshot is a draft.
+ *
+ * The constructor states the invariants of a cell (the check constraints of the table say the same). The rows are
+ * written by PlausibilitySnapshotBuilder and read by PlausibilityTableQuery with SQL, so no PHP code reads the mapped
+ * properties; like PlausibilitySnapshotCode, they exist for the schema only.
+ *
+ * @psalm-suppress UnusedProperty
  */
 #[ORM\Entity(readOnly: true)]
 #[ORM\Table(name: 'encounter_plausibility_cell')]
