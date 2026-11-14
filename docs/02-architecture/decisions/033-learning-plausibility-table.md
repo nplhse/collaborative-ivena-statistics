@@ -111,7 +111,8 @@ diagram is referenced by curated rules (ADR 032).
   "Unwohlsein bei Erwachsenen") belong to no problem area and stay at 0.
 - The draft mapping of the measurement is the starting point; the user reviews and corrects it in the app
   (development environment) before the first snapshot is activated. Carrying the reviewed seed to production
-  is the export/import follow-up of ADR 032.
+  is the export/import follow-up of ADR 032 (#1198, [curation package](../../04-features/encounter/curation-package.md):
+  the areas travel, the target rebuilds its seed draft from them).
 - Problem areas are edited by administrators and reviewers; changes are audited. Editing creates or changes a
   draft snapshot, never the active one.
 
