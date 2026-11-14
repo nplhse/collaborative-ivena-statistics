@@ -63,7 +63,7 @@
         {% elseif plan.action == 'refused' %}
             <p class="px-3 mb-2 small text-secondary">{{ 'encounter.validation.item.refused_note'|trans({allocation: plan.allocationId}, 'encounter') }}</p>
         {% endif %}
-        {{ include('@Encounter/review/_comparison.html.twig', {allocation: option.allocation, allocation_extended: option.allocation_extended, candidate: candidate, rival_query: rival_query, hospital: hospital}) }}
+        {{ include('@Encounter/review/_comparison.html.twig', {allocation: option.allocation, allocation_extended: option.allocation_extended, candidate: candidate, rival_query: rival_query, hospital: hospital, case_file_link: kind == 'visit'}) }}
     </details>
 {% endmacro %}
 
@@ -88,6 +88,7 @@
         </twig:block>
         <twig:block name="actions">
             {% if item.allocation %}
+                {{ include('@Encounter/review/_case_file_link.html.twig', {allocation: {public_id: item.allocation.publicIdString}, compact: true}) }}
                 <a class="btn" href="{{ path('app_tools_encounter_review_allocation', {id: hospital.id, allocationId: item.allocation.id}|merge(rival_query)) }}" data-test="encounter-validation-open-review">
                     {{ 'encounter.validation.item.open_review'|trans({}, 'encounter') }}
                 </a>

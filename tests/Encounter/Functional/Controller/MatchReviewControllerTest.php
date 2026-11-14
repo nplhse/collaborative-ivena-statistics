@@ -203,6 +203,48 @@ final class MatchReviewControllerTest extends WebTestCase
         self::assertSelectorExists('[data-test="encounter-review-actions"] [data-test="encounter-review-reject"]');
     }
 
+    /**
+     * #1177: the page header links the allocation to its case file in Explore ("View allocation", before
+     * "Leave open"), with and without candidates. The case file needs ROLE_PARTICIPANT, the review does not:
+     * without it no link.
+     */
+    public function testAllocationPageLinksToTheCaseFileForParticipants(): void
+    {
+        $allocation = $this->allocationAt($this->hospital, $this->ivena, '10:00');
+        $this->visitAt($this->hospital, $this->ed, '10:05');
+        $this->visitAt($this->hospital, $this->ed, '10:20');
+        $lonely = $this->allocationAt($this->hospital, $this->ivena, '15:00');
+        $this->matchDay($this->hospital);
+        $caseFile = '/explore/allocation/'.$allocation->getPublicIdString();
+
+        $this->client->loginUser($this->reviewer);
+        $crawler = $this->client->request(Request::METHOD_GET, $this->allocationUrl($allocation));
+        self::assertResponseIsSuccessful();
+        $link = $crawler->filter('[data-test="encounter-review-case-file"]');
+        self::assertCount(1, $link, 'once in the header, not per comparison');
+        self::assertSame($caseFile, $link->attr('href'));
+        self::assertSame('_blank', $link->attr('target'));
+        self::assertStringContainsString('View allocation', $link->text());
+        self::assertSame('encounter-review-leave-open', $link->nextAll()->attr('data-test'), 'left of "Leave open"');
+
+        $crawler = $this->client->request(Request::METHOD_GET, $this->allocationUrl($lonely));
+        self::assertResponseIsSuccessful();
+        self::assertCount(0, $crawler->filter('[data-test="encounter-review-comparison"]'));
+        self::assertSame('/explore/allocation/'.$lonely->getPublicIdString(), $crawler->filter('[data-test="encounter-review-case-file"]')->attr('href'));
+
+        // The link leads to the case file the reviewer may open.
+        $this->client->request(Request::METHOD_GET, $caseFile);
+        self::assertResponseIsSuccessful();
+
+        $notParticipant = $this->user(['ROLE_USER', 'ROLE_ENCOUNTER_BETA']);
+        $this->hospitalGrant($this->hospital, $notParticipant);
+        $this->encounterGrant($this->hospital, $notParticipant, [EncounterGrantAction::Review]);
+        $this->client->loginUser($notParticipant);
+        $this->client->request(Request::METHOD_GET, $this->allocationUrl($allocation));
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-test="encounter-review-case-file"]');
+    }
+
     public function testConfirmingAProposalIsAuditedAndStaysAfterARerun(): void
     {
         $allocation = $this->allocationAt($this->hospital, $this->ivena, '12:00');

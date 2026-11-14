@@ -20,6 +20,7 @@
             <span class="text-secondary ms-2">{{ context.filter.labelKey()|trans({}, 'encounter') }}</span>
         </twig:block>
         <twig:block name="actions">
+            {{ include('@Encounter/review/_case_file_link.html.twig', {allocation: allocation, compact: true}) }}
             <a class="btn" href="{{ skip_url }}" data-test="encounter-review-leave-open">
                 {{ 'encounter.review.action.leave_open'|trans({}, 'encounter') }}
                 <twig:ux:icon name="tabler:player-skip-forward" class="w-3 h-3 ms-1" />
