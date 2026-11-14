@@ -115,8 +115,10 @@ doctrine:
 when@test:
     doctrine:
         dbal:
-            # "TEST_TOKEN" is typically set by ParaTest
-            dbname_suffix: '_test%env(default::TEST_TOKEN)%'
+            # "TEST_DATABASE_SUFFIX" names the checkout: bin/worktree-init sets it per worktree in
+            # .env.test.local, so parallel worktrees do not reset each other's test databases.
+            # "TEST_TOKEN" is typically set by ParaTest and names the worker.
+            dbname_suffix: '_test%env(default::TEST_DATABASE_SUFFIX)%%env(default::TEST_TOKEN)%'
 
 when@prod:
     doctrine:
