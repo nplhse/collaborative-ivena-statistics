@@ -175,6 +175,16 @@ One tree that the contexts contribute to, following the `shared.tool` pattern:
   the single answer for "where am I": it marks the top navbar entry, the open groups and the active entry
   in the sidebar, and later yields the breadcrumbs. A route that belongs to no entry marks only the area in
   the top navbar.
+- **Area of the top navbar.** When no entry of the primary menu matches the route exactly, the builder
+  marks, in this order: the primary entry of a sidebar menu that has an entry for the route; the primary
+  entry of the sidebar menu the page names (`area`); the primary entry with the longest
+  `areaRoutePrefix` the route name starts with (for example `app_stats` for Statistics). The prefix is the
+  only matching by prefix and exists only for the areas of the top navbar: about 150 routes belong to
+  six areas, and listing them all, or marking every route with an area default, was rejected as too much
+  upkeep. Sidebar entries always match exactly. The unique-mapping test also fails when two area
+  prefixes overlap.
+- **Links by URL.** An entry may carry a ready URL instead of a route, for CMS pages whose path is managed
+  in the CMS. Such an entry is a link but never becomes active.
 - **Unique mapping is tested.** A test builds every menu with all providers and fails when a route name is
   claimed by more than one entry (own route or detail route), so two entries can never be active at once.
 - **Rendering by Twig components** next to `Breadcrumbs` and `PageHeader`:
