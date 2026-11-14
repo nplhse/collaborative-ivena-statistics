@@ -218,11 +218,6 @@ final readonly class AllocationReviewFactory
 
         $features = [];
         foreach (MatchFeature::cases() as $feature) {
-            // The bonus exists only where the matcher looked it up (matcher 1.2.0, pass 2).
-            if (!\array_key_exists($feature->value, $contributions) && MatchFeature::Plausibility === $feature) {
-                continue;
-            }
-
             $points = $contributions[$feature->value] ?? 0;
             $features[] = [
                 'feature' => $feature->value,
