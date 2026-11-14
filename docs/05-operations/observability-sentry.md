@@ -45,8 +45,8 @@ New spans use [`SentrySpanTracer::trace()`](../../src/Shared/Infrastructure/Moni
    `analysis.explorer.run` and the database spans with the gaps between them.
 3. Check `cache.calls` and `cache.duration_ms` in the transaction data; a high value usually means cache misses
    that computed their value.
-4. Use `request_id` to find the matching audit log entries and logs. With analytics consent the event also carries
-   the user id.
+4. Use `request_id` to find the matching audit log entries and logs. Error reports carry the user id; a transaction
+   only with the user's performance consent.
 5. Record a confirmed slow path as an issue with the query or span and its share of the request
    (examples: #1193–#1197).
 

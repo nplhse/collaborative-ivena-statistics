@@ -7,7 +7,7 @@
 - Automatic request tracking into `analytics_request`
 - Consent preference `analytics` (optional; essential cookies remain required)
 - Admin insights under `/admin/operations/usage-analytics/*` (menu section above System)
-- **Local only:** measurement runs on this application’s servers — no external analytics providers (no Google Analytics, Matomo cloud, etc.). Server-side error monitoring (e.g. Sentry) is separate and not controlled by this cookie preference.
+- **Local only:** measurement runs on this application’s servers — no external analytics providers (no Google Analytics, Matomo cloud, etc.). Sentry (optional, for errors and performance) is separate: only its performance traces depend on the consent, through the performance sub-option ([below](#consent-version-and-the-performance-option)).
 - **No request performance:** usage analytics records no durations or database queries. Request performance is monitored with the optional Sentry integration ([observability-sentry.md](../../05-operations/observability-sentry.md)).
 
 Tables are created by migration `Version20260804151958` (run with normal deploy migrations). Completed days are rolled up into daily aggregate tables; raw rows older than 30 days are deleted only after a successful rollup. See [aggregation-and-retention.md](aggregation-and-retention.md).
