@@ -369,6 +369,11 @@ final class PageTranslationCrudController extends AbstractCrudController
     #[\Override]
     protected function getRedirectResponseAfterSave(AdminContext $context, string $action): RedirectResponse
     {
+        $submitButtonName = $context->getRequest()->request->all()['ea']['newForm']['btn'] ?? null;
+        if (Action::SAVE_AND_CONTINUE === $submitButtonName) {
+            return parent::getRedirectResponseAfterSave($context, $action);
+        }
+
         $entity = $context->getEntity()->getInstance();
         if ($entity instanceof PageTranslation) {
             $page = $entity->getPage();

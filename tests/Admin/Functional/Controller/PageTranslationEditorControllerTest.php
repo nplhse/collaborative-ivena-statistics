@@ -39,6 +39,43 @@ final class PageTranslationEditorControllerTest extends WebTestCase
         self::assertSame('richtext', $prototype->filter('select[name$="[type]"] option[selected]')->attr('value'));
     }
 
+    public function testSaveAndContinueStaysInTheEditor(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createTranslation([
+            ['type' => 'headline', 'enabled' => true, 'data' => ['text' => 'Intro', 'level' => 'h2']],
+        ]);
+
+        $crawler = $this->openEditor($client, $translation);
+        $form = $crawler->filter('button[name="ea[newForm][btn]"][value="saveAndContinue"]')->form();
+        $client->submit($form);
+
+        self::assertResponseRedirects();
+        self::assertStringContainsString(
+            sprintf('/admin/page-translation/%d/edit', $translation->getId()),
+            (string) $client->getResponse()->headers->get('Location'),
+        );
+    }
+
+    public function testSaveReturnsToThePageDetail(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createTranslation([
+            ['type' => 'headline', 'enabled' => true, 'data' => ['text' => 'Intro', 'level' => 'h2']],
+        ]);
+
+        $crawler = $this->openEditor($client, $translation);
+        $client->submit($crawler->selectButton('Save changes')->form());
+
+        self::assertResponseRedirects();
+        $page = $translation->getPage();
+        self::assertInstanceOf(Page::class, $page);
+        self::assertStringContainsString(
+            sprintf('/admin/page/%d', $page->getId()),
+            (string) $client->getResponse()->headers->get('Location'),
+        );
+    }
+
     public function testBlockFieldLabelsAreTranslated(): void
     {
         $client = $this->createAdminClient();
