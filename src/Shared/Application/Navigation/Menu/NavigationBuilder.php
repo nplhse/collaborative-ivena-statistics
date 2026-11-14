@@ -16,8 +16,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *   route that have no visible child, and groups without visible items.
  * - Sorts every level by weight, then by the translated label in the current locale, then by id.
  * - Maps the current route name exactly to one entry and marks the path from its group down to it. In
- *   the primary menu, a route of a sidebar menu marks the primary entry of that menu; `$area` names the
- *   sidebar menu of the page for routes that belong to no entry.
+ *   the primary menu, when no own entry matches: a route of a sidebar menu marks the primary entry of that
+ *   menu; then `$area` (the sidebar menu of the page); then the primary entry with the longest
+ *   `areaRoutePrefix` the route starts with.
  *
  * @psalm-suppress UnusedClass First consumers (navigation Twig components) follow in step 3 of the ADR 035 migration.
  */
@@ -78,6 +79,35 @@ final readonly class NavigationBuilder
         }
 
         return array_filter($claims, static fn (array $ids): bool => \count($ids) > 1);
+    }
+
+    /**
+     * Pairs of area route prefixes in the menu where one starts with the other, so a route could fall into
+     * two areas, regardless of permissions.
+     *
+     * @return list<string> human-readable descriptions of the overlaps
+     */
+    public function overlappingAreaRoutePrefixes(Menu $menu): array
+    {
+        [, $items] = $this->collect($menu);
+
+        $prefixes = [];
+        foreach ($items as $item) {
+            if (null !== $item->areaRoutePrefix) {
+                $prefixes[$item->id] = $item->areaRoutePrefix;
+            }
+        }
+
+        $overlaps = [];
+        foreach ($prefixes as $id => $prefix) {
+            foreach ($prefixes as $otherId => $other) {
+                if ($id !== $otherId && str_starts_with($other, $prefix)) {
+                    $overlaps[] = \sprintf('"%s" (%s) contains "%s" (%s)', $prefix, $id, $other, $otherId);
+                }
+            }
+        }
+
+        return $overlaps;
     }
 
     /**
@@ -164,7 +194,7 @@ final readonly class NavigationBuilder
 
                 /** @var bool $hasVisibleChildren */
                 $hasVisibleChildren = $walk($item->id);
-                if (null === $item->route && !$hasVisibleChildren) {
+                if (!$item->isLink() && !$hasVisibleChildren) {
                     continue;
                 }
 
@@ -223,17 +253,30 @@ final readonly class NavigationBuilder
             $candidates[] = $areaEntryId;
         }
 
-        foreach ($candidates as $entryId) {
-            foreach ($visibleChildren as $children) {
-                foreach ($children as $item) {
-                    if ($item->id === $entryId) {
-                        return $entryId;
-                    }
+        $visibleIds = [];
+        $byPrefix = [];
+        foreach ($visibleChildren as $children) {
+            foreach ($children as $item) {
+                $visibleIds[$item->id] = true;
+                if (null !== $item->areaRoutePrefix && null !== $route && str_starts_with($route, $item->areaRoutePrefix)) {
+                    $byPrefix[$item->areaRoutePrefix] = $item->id;
                 }
             }
         }
 
-        return null;
+        foreach ($candidates as $entryId) {
+            if (isset($visibleIds[$entryId])) {
+                return $entryId;
+            }
+        }
+
+        if ([] === $byPrefix) {
+            return null;
+        }
+
+        uksort($byPrefix, static fn (string $a, string $b): int => \strlen($b) <=> \strlen($a));
+
+        return reset($byPrefix);
     }
 
     /**

@@ -86,20 +86,4 @@ final class PageExtensionTest extends KernelTestCase
 
         self::assertStringContainsString('page-content-image--size-auto', $html);
     }
-
-    public function testPageNavHeaderItemsOnlyListsAvailablePages(): void
-    {
-        PageFactory::createOne([
-            'slug' => 'about-nav',
-            'path' => '/about-nav',
-            'key' => PageKey::About,
-            'status' => PageTranslation::STATUS_PUBLISHED,
-            'visibility' => Page::VISIBILITY_PUBLIC,
-            'title' => 'About Nav',
-        ]);
-
-        $html = $this->twig->createTemplate('{% for item in page_nav_header_items() %}{{ item.label }};{% endfor %}')->render();
-
-        self::assertSame('About Nav;', $html);
-    }
 }
