@@ -32,6 +32,16 @@ final class SentryEventScrubber
         'cache.misses',
         'cache.writes',
         'cache.duration_ms',
+        // Request spans of SentrySpanTracer: fixed labels, counts and the numeric hospital id.
+        'analysis.data_source',
+        'analysis.row_dimension',
+        'analysis.column_dimension',
+        'analysis.metric',
+        'analysis.rows',
+        'analysis.outcome',
+        'scope.type',
+        'period.type',
+        'hospital_id',
     ];
 
     /** @var list<string> */
