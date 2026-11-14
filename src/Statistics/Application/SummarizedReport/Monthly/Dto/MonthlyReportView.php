@@ -30,8 +30,6 @@ final readonly class MonthlyReportView
         public int $month,
         public bool $hasData,
         public int $allocationCount,
-        public ?float $allocationMomPercent,
-        public ?float $allocationYoyPercent,
         public float $withPhysicianPercent,
         public ?float $withPhysicianMomPercent,
         public ?float $meanTransportMinutes,

@@ -252,8 +252,6 @@ final readonly class MonthlyReportBuilder
             month: $period['month'],
             hasData: $hasData,
             allocationCount: $allocationCount,
-            allocationMomPercent: $mom,
-            allocationYoyPercent: $yoy,
             withPhysicianPercent: $withPhysicianPercent,
             withPhysicianMomPercent: $withPhysicianMomPercent,
             meanTransportMinutes: $hasData ? $overviewMetrics->meanTransportMinutes : null,

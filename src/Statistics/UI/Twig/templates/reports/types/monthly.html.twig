@@ -14,32 +14,11 @@
 {% else %}
     <div class="row row-deck row-cards mb-3" data-testid="stats-monthly-report-summary">
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="card" data-testid="stats-monthly-report-kpis">
-                <div class="card-body">
-                    <div class="subheader">{{ 'stats.reports.monthly.kpi.allocations'|trans({}, 'statistics') }}</div>
-                    <div class="h1 mt-2 mb-0" data-testid="stats-monthly-report-allocation-count">
-                        {{ report.allocationCount|number_format(0, ',', '.') }}
-                    </div>
-                    <div class="d-flex flex-column gap-1 mt-1">
-                        {% if report.allocationMomPercent is not null %}
-                            <div>
-                                <span class="{% if report.allocationMomPercent > 0 %}text-success{% elseif report.allocationMomPercent < 0 %}text-danger{% else %}text-secondary{% endif %}">
-                                    {{ report.allocationMomPercent >= 0 ? '+' : '' }}{{ report.allocationMomPercent|number_format(1, ',', '.') }}%
-                                </span>
-                                <span class="text-secondary">{{ 'stats.reports.monthly.kpi.mom'|trans({}, 'statistics') }}</span>
-                            </div>
-                        {% endif %}
-                        {% if report.allocationYoyPercent is not null %}
-                            <div>
-                                <span class="{% if report.allocationYoyPercent > 0 %}text-success{% elseif report.allocationYoyPercent < 0 %}text-danger{% else %}text-secondary{% endif %}">
-                                    {{ report.allocationYoyPercent >= 0 ? '+' : '' }}{{ report.allocationYoyPercent|number_format(1, ',', '.') }}%
-                                </span>
-                                <span class="text-secondary">{{ 'stats.reports.monthly.kpi.yoy'|trans({}, 'statistics') }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+            <twig:KpiCard
+                :label="'stats.reports.monthly.kpi.allocations'|trans({}, 'statistics')"
+                :value="report.allocationCount"
+                data-testid="stats-monthly-report-kpis"
+            />
         </div>
         <div class="col-12 col-md-6 col-lg-4">
             <div class="card" data-testid="stats-monthly-report-gender">
@@ -113,60 +92,43 @@
 
     <div class="row row-deck row-cards mb-3" data-testid="stats-monthly-report-side-kpis">
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="subheader">{{ 'stats.reports.monthly.kpi.with_physician'|trans({}, 'statistics') }}</div>
-                    <div class="h1 mt-2 mb-0">{{ report.withPhysicianPercent|number_format(1, ',', '.') }}%</div>
-                    {% if report.withPhysicianMomPercent is not null %}
-                        <div class="mt-1">
-                            <span class="{% if report.withPhysicianMomPercent > 0 %}text-success{% elseif report.withPhysicianMomPercent < 0 %}text-danger{% else %}text-secondary{% endif %}">
-                                {{ report.withPhysicianMomPercent >= 0 ? '+' : '' }}{{ report.withPhysicianMomPercent|number_format(1, ',', '.') }}%
-                            </span>
-                            <span class="text-secondary">{{ 'stats.reports.monthly.kpi.mom'|trans({}, 'statistics') }}</span>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
+            <twig:KpiCard
+                :label="'stats.reports.monthly.kpi.with_physician'|trans({}, 'statistics')"
+                :value="report.withPhysicianPercent"
+                unit="%"
+                :delta="report.withPhysicianMomPercent"
+                deltaUnit="%"
+                :comparisonLabel="'stats.reports.monthly.kpi.mom'|trans({}, 'statistics')"
+                :colorizeTrend="true"
+                :fractionDigits="1"
+                data-testid="stats-monthly-report-with-physician"
+            />
         </div>
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="subheader">{{ 'stats.reports.monthly.kpi.mean_transport'|trans({}, 'statistics') }}</div>
-                    <div class="h1 mt-2 mb-0">
-                        {% if report.meanTransportMinutes is not null %}
-                            {{ report.meanTransportMinutes|number_format(1, ',', '.') }}
-                            <span class="fs-4 text-secondary">{{ 'stats.reports.monthly.kpi.minutes'|trans({}, 'statistics') }}</span>
-                        {% else %}
-                            —
-                        {% endif %}
-                    </div>
-                    {% if report.meanTransportMomMinutes is not null %}
-                        <div class="mt-1">
-                            <span class="{% if report.meanTransportMomMinutes > 0 %}text-success{% elseif report.meanTransportMomMinutes < 0 %}text-danger{% else %}text-secondary{% endif %}">
-                                {{ report.meanTransportMomMinutes >= 0 ? '+' : '' }}{{ report.meanTransportMomMinutes|number_format(1, ',', '.') }}
-                                {{ 'stats.reports.monthly.kpi.minutes'|trans({}, 'statistics') }}
-                            </span>
-                            <span class="text-secondary">{{ 'stats.reports.monthly.kpi.mom'|trans({}, 'statistics') }}</span>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
+            <twig:KpiCard
+                :label="'stats.reports.monthly.kpi.mean_transport'|trans({}, 'statistics')"
+                :value="report.meanTransportMinutes"
+                :unit="'stats.reports.monthly.kpi.minutes'|trans({}, 'statistics')"
+                :delta="report.meanTransportMomMinutes"
+                :comparisonLabel="'stats.reports.monthly.kpi.mom'|trans({}, 'statistics')"
+                :colorizeTrend="true"
+                :invertTrend="true"
+                :fractionDigits="1"
+                data-testid="stats-monthly-report-mean-transport"
+            />
         </div>
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="subheader">{{ 'stats.reports.monthly.kpi.resus'|trans({}, 'statistics') }}</div>
-                    <div class="h1 mt-2 mb-0">{{ report.resusPercent|number_format(1, ',', '.') }}%</div>
-                    {% if report.resusMomPercent is not null %}
-                        <div class="mt-1">
-                            <span class="{% if report.resusMomPercent > 0 %}text-success{% elseif report.resusMomPercent < 0 %}text-danger{% else %}text-secondary{% endif %}">
-                                {{ report.resusMomPercent >= 0 ? '+' : '' }}{{ report.resusMomPercent|number_format(1, ',', '.') }}%
-                            </span>
-                            <span class="text-secondary">{{ 'stats.reports.monthly.kpi.mom'|trans({}, 'statistics') }}</span>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
+            <twig:KpiCard
+                :label="'stats.reports.monthly.kpi.resus'|trans({}, 'statistics')"
+                :value="report.resusPercent"
+                unit="%"
+                :delta="report.resusMomPercent"
+                deltaUnit="%"
+                :comparisonLabel="'stats.reports.monthly.kpi.mom'|trans({}, 'statistics')"
+                :colorizeTrend="true"
+                :fractionDigits="1"
+                data-testid="stats-monthly-report-resus"
+            />
         </div>
     </div>
 
@@ -180,37 +142,34 @@
         <div class="card-body">
             <div class="row g-2">
                 <div class="col-12 col-md-6 col-lg-4">
-                    <div class="border rounded p-3 h-100">
-                        <div class="subheader">{{ 'stats.reports.monthly.closed_department.count'|trans({}, 'statistics') }}</div>
-                        <div class="h1 mt-2 mb-0" data-testid="stats-monthly-report-closed-department-count">
-                            {{ report.closedDepartment.closedCount|number_format(0, ',', '.') }}
-                        </div>
-                        {% if report.closedDepartment.sharePercent is not null %}
-                            <div class="text-secondary mt-1" data-testid="stats-monthly-report-closed-department-share">
-                                {{ report.closedDepartment.sharePercent|number_format(1, ',', '.') }}%
-                                {{ 'stats.reports.monthly.closed_department.share_hint'|trans({}, 'statistics') }}
-                            </div>
-                        {% endif %}
-                        {% if report.closedDepartment.closedMomPercent is not null %}
-                            <div class="mt-1">
-                                <span class="{% if report.closedDepartment.closedMomPercent > 0 %}text-danger{% elseif report.closedDepartment.closedMomPercent < 0 %}text-success{% else %}text-secondary{% endif %}">
-                                    {{ report.closedDepartment.closedMomPercent >= 0 ? '+' : '' }}{{ report.closedDepartment.closedMomPercent|number_format(1, ',', '.') }}%
-                                </span>
-                                <span class="text-secondary">{{ 'stats.reports.monthly.kpi.mom'|trans({}, 'statistics') }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
+                    {# The count is passed pre-formatted: it has no fraction digits, its relative change has one. #}
+                    <twig:KpiCard
+                        :label="'stats.reports.monthly.closed_department.count'|trans({}, 'statistics')"
+                        :value="report.closedDepartment.closedCount|format_number({fraction_digit: 0})"
+                        :description="report.closedDepartment.sharePercent is not null
+                            ? report.closedDepartment.sharePercent|format_number({max_fraction_digit: 1}) ~ '% ' ~ 'stats.reports.monthly.closed_department.share_hint'|trans({}, 'statistics')
+                            : null"
+                        :delta="report.closedDepartment.closedMomPercent"
+                        deltaUnit="%"
+                        :comparisonLabel="'stats.reports.monthly.kpi.mom'|trans({}, 'statistics')"
+                        :colorizeTrend="true"
+                        :invertTrend="true"
+                        :fractionDigits="1"
+                        class="h-100"
+                        data-testid="stats-monthly-report-closed-department-count"
+                    />
                 </div>
                 <div class="col-12 col-md-6 col-lg-4">
-                    <div class="border rounded p-3 h-100">
-                        <div class="subheader">{{ 'stats.reports.monthly.closed_department.departments'|trans({}, 'statistics') }}</div>
-                        <div class="h1 mt-2 mb-0" data-testid="stats-monthly-report-closed-department-departments">
-                            {{ report.closedDepartment.departmentCount|number_format(0, ',', '.') }}
-                        </div>
-                        <div class="text-secondary mt-1">
-                            {{ 'stats.reports.monthly.closed_department.departments_hint'|trans({total: report.closedDepartment.totalDepartmentCount|number_format(0, ',', '.')}, 'statistics') }}
-                        </div>
-                    </div>
+                    {# No change is computed for this figure; the flags state that more departments is worse. #}
+                    <twig:KpiCard
+                        :label="'stats.reports.monthly.closed_department.departments'|trans({}, 'statistics')"
+                        :value="report.closedDepartment.departmentCount"
+                        :description="'stats.reports.monthly.closed_department.departments_hint'|trans({total: report.closedDepartment.totalDepartmentCount|format_number}, 'statistics')"
+                        :colorizeTrend="true"
+                        :invertTrend="true"
+                        class="h-100"
+                        data-testid="stats-monthly-report-closed-department-departments"
+                    />
                 </div>
                 <div class="col-sm-12 col-lg-4">
                     <div class="border rounded p-3 h-100">

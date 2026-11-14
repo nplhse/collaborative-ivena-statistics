@@ -344,8 +344,8 @@ final class ReportsControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department"]');
         $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department-count"]');
-        $this->assertSelectorTextContains('[data-testid="stats-monthly-report-closed-department-count"]', '3');
-        $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department-share"]');
+        $this->assertSelectorTextSame('[data-testid="stats-monthly-report-closed-department-count"] .h1', '3');
+        $this->assertSelectorTextContains('[data-testid="stats-monthly-report-closed-department-count"] .h1 + .small', '30');
         $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department-link"]');
         $link = $crawler->filter('[data-testid="stats-monthly-report-closed-department-link"]')->attr('href');
         $this->assertNotNull($link);
@@ -398,7 +398,7 @@ final class ReportsControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department"]');
-        $this->assertSelectorTextContains('[data-testid="stats-monthly-report-closed-department-count"]', '0');
+        $this->assertSelectorTextSame('[data-testid="stats-monthly-report-closed-department-count"] .h1', '0');
         $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department-empty"]');
         $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department-link"]');
     }

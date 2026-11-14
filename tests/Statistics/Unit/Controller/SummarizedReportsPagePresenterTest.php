@@ -116,8 +116,6 @@ final class SummarizedReportsPagePresenterTest extends TestCase
             month: $month,
             hasData: true,
             allocationCount: 10,
-            allocationMomPercent: 5.0,
-            allocationYoyPercent: null,
             withPhysicianPercent: 12.0,
             withPhysicianMomPercent: 1.0,
             meanTransportMinutes: 20.0,
