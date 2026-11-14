@@ -24,6 +24,14 @@ enum Menu: string
     public const string PRIMARY_GROUP = 'primary';
 
     /**
+     * Ids of the footer columns, defined by Shared; contexts attach their links to them.
+     */
+    public const string FOOTER_GROUP_PROJECT = 'project';
+    public const string FOOTER_GROUP_HELP = 'help';
+    public const string FOOTER_GROUP_LEGAL = 'legal';
+    public const string FOOTER_GROUP_MORE = 'more';
+
+    /**
      * Id of the primary entry this menu belongs to, or null for the primary and footer menus.
      */
     public function primaryEntryId(): ?string

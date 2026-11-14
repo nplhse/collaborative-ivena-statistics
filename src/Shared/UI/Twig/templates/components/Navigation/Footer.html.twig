@@ -1,0 +1,24 @@
+{% set footer_menu = this.menu %}
+{% if footer_menu.sections is not empty %}
+    <div class="row py-4">
+        {% for section in footer_menu.sections %}
+            <div class="col-6 col-md-3 mb-3 mb-md-0" data-testid="footer-nav-column-{{ section.group.id }}">
+                {% if section.group.label %}
+                    <div class="subheader fw-semibold text-body mb-2">{{ section.group.label|trans }}</div>
+                {% endif %}
+                <ul class="list-unstyled mb-0 lh-lg">
+                    {% for node in section.nodes %}
+                        {% set item = node.item %}
+                        <li>
+                            <a
+                                href="{{ item.url ?? path(item.route, item.routeParameters) }}"
+                                class="link-secondary site-footer__link"
+                                data-testid="footer-nav-{{ item.id }}"
+                            >{{ item.label|trans }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
