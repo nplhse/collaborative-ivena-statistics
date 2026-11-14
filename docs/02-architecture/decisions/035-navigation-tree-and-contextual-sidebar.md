@@ -72,9 +72,18 @@ titles and the mobile collapse come with Tabler and need no own JavaScript:
 | Fold and pin | `data-bs-toggle="sidebar-folded"` on a button in the brand area; Tabler sets `data-bs-sidebar="folded-hover"` on `<html>`, stores it in `localStorage` (`tabler-sidebar`) and fires `tabler:sidebar-folded`, which charts and maps use to resize |
 | Mobile | below `lg` the vertical navbar becomes a bar with its own toggler and collapse |
 
+**Hierarchy: the top navbar stays on top.** In Tabler's combined layout the sidebar runs from the top of
+the viewport and the top navbar starts to its right, so the area name in the sidebar would sit above the
+site brand. We keep the brand as the top of the hierarchy instead: from `lg` up the top navbar keeps the
+full width and is sticky (`data-bs-navbar="sticky"`, a Tabler option), and the sidebar starts below it.
+This takes two CSS rules on top of Tabler: `top` of the sidebar set to the height of the top navbar, and
+the left margin Tabler gives the top navbar removed. Folding, flyouts and the content offset keep working
+unchanged, because they only depend on the sidebar width. The top navbar keeps its `container-xl`, so it
+looks the same on pages with and without sidebar.
+
 The project does not load `tabler-theme.js`. The stored fold state is applied by a few lines in the
 existing colour-scheme include in `<head>`, before the page renders, so the layout does not jump on
-reload. The only own CSS orders the bars on small screens (see below) and hides the area label in the rail.
+reload. The only other own CSS orders the bars on small screens (see below) and hides the area label in the rail.
 
 ### Information architecture for Statistics
 
