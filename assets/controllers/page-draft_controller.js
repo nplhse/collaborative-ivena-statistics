@@ -45,11 +45,13 @@ export default class extends Controller {
         this.onStructureChange = this.onStructureChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.onBeforeUnload = this.onBeforeUnload.bind(this);
+        this.onLeaveClick = this.onLeaveClick.bind(this);
 
         CHANGE_EVENTS.forEach((type) => this.element.addEventListener(type, this.onContentChange));
         STRUCTURE_EVENTS.forEach((type) => document.addEventListener(type, this.onStructureChange));
         this.form.addEventListener('submit', this.onSubmit);
         window.addEventListener('beforeunload', this.onBeforeUnload);
+        document.addEventListener('click', this.onLeaveClick);
 
         this.buildStatus();
         this.renderInitial();
@@ -64,6 +66,7 @@ export default class extends Controller {
         );
         this.form?.removeEventListener('submit', this.onSubmit);
         window.removeEventListener('beforeunload', this.onBeforeUnload);
+        document.removeEventListener('click', this.onLeaveClick);
         this.queue?.cancelTimer();
         this.status?.remove();
     }
@@ -115,6 +118,39 @@ export default class extends Controller {
                 .forEach((button) => button.removeAttribute('disabled'));
             this.form.requestSubmit(submitter ?? undefined);
         }
+    }
+
+    /**
+     * Links that leave the editor (other locale, back to the page) save pending changes first, so switching the
+     * language keeps the input as this translation's draft. If saving fails, the editor stays and shows why.
+     */
+    async onLeaveClick(event) {
+        const link =
+            event.target instanceof Element
+                ? event.target.closest('a[data-page-draft-save-before-leaving]')
+                : null;
+        if (!link || !this.queue.pending || event.defaultPrevented || event.button !== 0) {
+            return;
+        }
+
+        if (
+            event.metaKey ||
+            event.ctrlKey ||
+            event.shiftKey ||
+            event.altKey ||
+            '_blank' === link.target
+        ) {
+            return;
+        }
+
+        event.preventDefault();
+        await this.queue.retry();
+        if (this.queue.pending) {
+            return;
+        }
+
+        this.submitting = true;
+        window.location.assign(link.href);
     }
 
     onBeforeUnload(event) {

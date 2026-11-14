@@ -47,6 +47,24 @@ final class PageTranslationDraftControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'Saved quote');
     }
 
+    public function testPageDetailMarksTranslationsWithADraft(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createPublishedTranslation('draft-badge');
+        $page = $translation->getPage();
+        self::assertInstanceOf(Page::class, $page);
+
+        $client->request(Request::METHOD_GET, sprintf('/admin/page/%d', $page->getId()));
+        self::assertSelectorTextNotContains('body', 'Unsaved draft');
+
+        $token = $this->openEditorToken($client, $translation);
+        $client->request(Request::METHOD_POST, $this->draftUrl($translation), $this->draftPayload($token, 0, 'Typing'));
+        $client->request(Request::METHOD_GET, sprintf('/admin/page/%d', $page->getId()));
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Unsaved draft');
+    }
+
     public function testEditorOpensADraftWithAnEmptyMediaSelection(): void
     {
         $client = $this->createAdminClient();

@@ -1233,6 +1233,10 @@
         <source>page.editor.draft.leave_warning</source>
         <target>Es gibt Änderungen, die noch nicht gespeichert sind.</target>
       </trans-unit>
+      <trans-unit id="pgDraftBadgeDe" resname="page.editor.draft.badge">
+        <source>page.editor.draft.badge</source>
+        <target>Ungespeicherter Entwurf</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

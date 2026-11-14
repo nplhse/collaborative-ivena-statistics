@@ -28,6 +28,9 @@
                         {% else %}
                             <span class="badge badge-secondary">Draft</span>
                         {% endif %}
+                        {% if translation.hasDraft %}
+                            <span class="badge badge-warning">{{ 'page.editor.draft.badge'|trans({}, 'content') }}</span>
+                        {% endif %}
                     </td>
                     <td>{{ translation.title }}</td>
                     <td>

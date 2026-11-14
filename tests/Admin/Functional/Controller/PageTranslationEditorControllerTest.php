@@ -7,6 +7,7 @@ namespace App\Tests\Admin\Functional\Controller;
 use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Infrastructure\Factory\PageFactory;
+use App\Content\Infrastructure\Factory\PageTranslationFactory;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -276,6 +277,38 @@ final class PageTranslationEditorControllerTest extends WebTestCase
         self::assertCount(1, $invalidBlocks);
         self::assertStringContainsString('Block 1:', $invalidBlocks->text());
         self::assertSame('0', $crawler->filter('[name="PageTranslation[content][1][position]"]')->attr('value'));
+    }
+
+    public function testEditorLinksToTheOtherLocaleAndSavesTheDraftBeforeLeaving(): void
+    {
+        $client = $this->createAdminClient();
+        $english = $this->createTranslation([
+            ['type' => 'quote', 'enabled' => true, 'data' => ['text' => 'English']],
+        ]);
+        $page = $english->getPage();
+        self::assertInstanceOf(Page::class, $page);
+
+        $crawler = $this->openEditor($client, $english);
+        $switch = $crawler->filter('a[data-page-draft-save-before-leaving][href*="locale=de"]');
+        self::assertCount(1, $switch, 'missing German translation: link to the new form');
+        self::assertStringContainsString(sprintf('pageId=%d', $page->getId()), (string) $switch->attr('href'));
+        self::assertStringContainsString('/admin/page-translation/new', (string) $switch->attr('href'));
+        self::assertCount(0, $crawler->filter('a[href*="locale=en"]'), 'no link to the current locale');
+
+        $german = PageTranslationFactory::createOne([
+            'page' => $page,
+            'locale' => 'de',
+            'title' => 'Deutsch',
+            'slug' => 'editor-de-'.bin2hex(random_bytes(3)),
+        ]);
+
+        $crawler = $this->openEditor($client, $english);
+        self::assertCount(
+            1,
+            $crawler->filter(sprintf('a[data-page-draft-save-before-leaving][href*="/admin/page-translation/%d/edit"]', $german->getId())),
+            'existing German translation: link to its editor',
+        );
+        self::assertGreaterThan(0, $crawler->filter('a[data-page-draft-save-before-leaving][href*="/admin/page/"]')->count(), 'back to page');
     }
 
     /**
