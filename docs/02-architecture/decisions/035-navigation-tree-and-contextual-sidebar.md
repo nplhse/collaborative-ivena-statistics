@@ -126,7 +126,8 @@ end, set off by a divider. Case flow is expected to become a child of a later gr
 analyses; moving it changes only the tree, not its route.
 
 Beta entries carry a badge and are only returned for users with the beta role, as today. Badges are shown
-in the expanded sidebar and in the hover preview, not in the rail. A badge (`NavBadge`) has a label as
+in the expanded sidebar and in the hover preview, not in the rail. A badge always sits at the right edge
+of its entry; on a group it sits directly before the chevron that opens or closes the group. A badge (`NavBadge`) has a label as
 `TranslatableMessage` and a colour that the provider chooses freely from Tabler's colour names (`blue`,
 `azure`, `indigo`, `purple`, `pink`, `red`, `orange`, `yellow`, `lime`, `green`, `teal`, `cyan`,
 `secondary`; `NavBadgeColor` enum). The component renders it as `badge bg-{colour}-lt`, so every colour
