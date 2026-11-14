@@ -383,8 +383,9 @@ pass-2 pair stores `plausibility_snapshot_id` (null without active snapshot; the
 snapshots from being deleted), `plausibility_level` (`exact`, `area` or `none`) and `plausibility_decisive`: its
 score with the bonus removed from every candidate of the allocation in that pass stays below the threshold of its
 status (0.90 for an automatic link, 0.50 for a proposal), so the bonus decided it. Pairs of pass 1, of earlier
-versions and manual pairs are never decisive. A pair the bonus of a competitor pushed below a threshold is not
-stored, so nothing marks it. The match review and the validation score candidates as in pass 2, with the bonus of
+versions and manual pairs are never decisive. The bonus can also lower a pair: a competitor's bonus takes share of
+the score, so an automatic link becomes a proposal or a proposal is not stored. Nothing marks such a pair (it is
+not decisive, or there is no row); `app:encounter:evaluate-matcher` counts these allocations ("worse with the bonus"). The match review and the validation score candidates as in pass 2, with the bonus of
 the active snapshot, and a pair confirmed there without a stored row records snapshot and level, never decisive.
 
 Example (as in the unit tests): arrival 10:00, admission 10:07, male vs female, same age, ambulance:
@@ -733,7 +734,8 @@ decisions) and writes nothing. `--weights=<version>` picks the matcher version t
 repeatable; keys as in `MatchWeights`). `--snapshot=<id>` replays the plausibility bonus of pass 2 with any snapshot,
 also a draft or a retired one; `--snapshot=none` without bonus; the default is the active snapshot (matchers before
 `1.2.0` have no bonus whatever the snapshot). A table compares the allocations linked automatically, with a proposal
-and with neither, with and without the bonus, and counts the automatic links and proposals the bonus decided. The
+and with neither, with and without the bonus, counts the automatic links and proposals the bonus decided, and counts
+the allocations whose outcome is worse with the bonus (automatic → proposal, automatic → none, proposal → none). The
 command prints counts only, never a pair. It reports pairs, correct, wrong and unknown per status and band against the validation
 verdicts of the hospital, or with `--truth=<truth.json>` (from `app:generate:encounter-files`) against the
 synthetic truth, then also the recall: true pairs linked automatically, and linked or proposed. Introducing

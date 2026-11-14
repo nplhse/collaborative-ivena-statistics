@@ -109,6 +109,8 @@ final class EvaluateMatcherCommandTest extends KernelTestCase
         // without it 1 automatic and 2 proposals.
         self::assertMatchesRegularExpression('/with\s+3\s+2 \(0\.667\)\s+1 \(0\.333\)\s+0 \(0\.000\)\s+1 \/ 0/u', $display);
         self::assertMatchesRegularExpression('/without\s+3\s+1 \(0\.333\)\s+2 \(0\.667\)\s+0 \(0\.000\)\s+–/u', $display);
+        // No allocation loses its outcome through a competitor's bonus here.
+        self::assertMatchesRegularExpression('/Worse with the bonus.*\n.*\n\s*0\s+0\s+0\s+0\s/u', $display);
 
         // No snapshot: both rows alike.
         self::assertSame(Command::SUCCESS, $tester->execute([...$this->period(), '--snapshot' => 'none']));

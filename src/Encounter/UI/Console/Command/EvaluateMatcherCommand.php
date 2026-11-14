@@ -32,7 +32,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * Plausibility bonus (matcher 1.2.0): pass 2 reads the active snapshot, or the one given with --snapshot=<id> (also a
  * draft or retired one), or none with --snapshot=none. The output compares the allocations linked automatically, with
- * a proposal and without either, with and without the bonus. It prints counts only, never a pair or a case.
+ * a proposal and without either, with and without the bonus, and counts the allocations whose outcome is worse with the
+ * bonus (a competitor's bonus took share of the score). It prints counts only, never a pair or a case.
  */
 #[AsCommand(
     name: 'app:encounter:evaluate-matcher',
@@ -111,8 +112,10 @@ final readonly class EvaluateMatcherCommand
         );
         $plan = new MatchPlanner($settings, $replayed, $bonus)->plan($allocations, $encounters);
         $allocationIds = array_map(static fn (MatchingAllocation $allocation): int => $allocation->id, $allocations);
+        $planWithoutBonus = new MatchPlanner($settings, $replayed)->plan($allocations, $encounters);
         $withBonus = MatcherEvaluation::outcomes($plan, $allocationIds);
-        $withoutBonus = MatcherEvaluation::outcomes(new MatchPlanner($settings, $replayed)->plan($allocations, $encounters), $allocationIds);
+        $withoutBonus = MatcherEvaluation::outcomes($planWithoutBonus, $allocationIds);
+        $worse = MatcherEvaluation::worseWithBonus($plan, $planWithoutBonus, $allocationIds);
 
         $reference = null === $truthMap ? $this->validation->pairVerdicts($hospital) : MatcherEvaluation::referenceFromTruth($plan, $truthMap);
         $evaluation = MatcherEvaluation::of(
@@ -149,6 +152,10 @@ final readonly class EvaluateMatcherCommand
                 ['with', $withBonus['allocations'], $this->ratio($withBonus['automatic'], $withBonus['allocations']), $this->ratio($withBonus['proposal'], $withBonus['allocations']), $this->ratio($withBonus['none'], $withBonus['allocations']), sprintf('%d / %d', $withBonus['decisive_automatic'], $withBonus['decisive_proposal'])],
                 ['without', $withoutBonus['allocations'], $this->ratio($withoutBonus['automatic'], $withoutBonus['allocations']), $this->ratio($withoutBonus['proposal'], $withoutBonus['allocations']), $this->ratio($withoutBonus['none'], $withoutBonus['allocations']), '–'],
             ],
+        );
+        $io->table(
+            ['Worse with the bonus', 'Automatic → proposal', 'Automatic → none', 'Proposal → none'],
+            [[$worse['total'], $worse['automatic_to_proposal'], $worse['automatic_to_none'], $worse['proposal_to_none']]],
         );
 
         if (null !== $evaluation->truePairs) {

@@ -11,6 +11,7 @@ use App\Encounter\Application\Matching\PlannedMatch;
 use App\Encounter\Application\Plausibility\PlausibilityBonus;
 use App\Encounter\Application\Plausibility\PlausibilityLevel;
 use App\Encounter\Application\Plausibility\PlausibilityTable;
+use App\Encounter\Application\Validation\MatcherEvaluation;
 use App\Encounter\Domain\Enum\ArrivalMode;
 use App\Encounter\Domain\Enum\MatchStatus;
 use App\Encounter\Domain\Enum\PlausibilityCellSource;
@@ -156,6 +157,25 @@ final class MatchPlannerPlausibilityTest extends TestCase
             static fn (PlannedMatch $m): array => [$m->allocationId, $m->encounterId, $m->status->value, $m->score, $m->scoreWithoutBonus, $m->plausibilityDecisive],
             $plan,
         ));
+    }
+
+    public function testACompetitorsBonusCanDowngradeAPairWithoutMarkingIt(): void
+    {
+        // Visit 10 (mode "other", work accident on both sides) has 10 points, visit 11 (self-presenter) 5 points plus a
+        // bonus of 3. Without the bonus visit 10 scores 1024 of 1072 (0.9552, automatic), with it 1024 of 1296 (0.7901,
+        // a proposal), and visit 11 stays at 0.1975. Neither pair is decisive although the bonus lowered visit 10.
+        $allocations = [self::allocation(1, workAccident: true, pzc: 321)];
+        $visits = [
+            self::visit(10, mode: ArrivalMode::Other, workAccident: true, diagram: 'kopfverletzung'),
+            self::visit(11, '10:06', mode: ArrivalMode::Self, diagram: 'allergie'),
+        ];
+
+        $with = $this->planner()->plan($allocations, $visits);
+        $without = new MatchPlanner(new MatchingSettings(), MatchWeights::production(), PlausibilityBonus::none())->plan($allocations, $visits);
+
+        self::assertSame([[10, 'proposed', 0.7901, false]], array_map(static fn (PlannedMatch $m): array => [$m->encounterId, $m->status->value, $m->score, $m->plausibilityDecisive], $with));
+        self::assertSame([[10, 'auto_accepted', 0.9552]], array_map(static fn (PlannedMatch $m): array => [$m->encounterId, $m->status->value, $m->score], $without));
+        self::assertSame(['total' => 1, 'automatic_to_proposal' => 1, 'automatic_to_none' => 0, 'proposal_to_none' => 0], MatcherEvaluation::worseWithBonus($with, $without, [1]));
     }
 
     public function testAliasDiagramCodesResolveToTheCanonicalCell(): void
