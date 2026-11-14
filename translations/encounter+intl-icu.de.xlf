@@ -3297,6 +3297,106 @@
         <source>encounter.mts.diagram.not_assigned</source>
         <target>im Katalog nicht zugeordnet</target>
       </trans-unit>
+      <trans-unit id="EncDAD55FF5" resname="encounter.plausibility.action.learn">
+        <source>encounter.plausibility.action.learn</source>
+        <target>Entwurf lernen</target>
+      </trans-unit>
+      <trans-unit id="EncD03B5DB2" resname="encounter.plausibility.learn_note">
+        <source>encounter.plausibility.learn_note</source>
+        <target>„Entwurf lernen“ baut einen neuen Entwurf aus den Paaren, die Personen bestätigt haben, und den automatischen Verknüpfungen, die der Bonus nicht entschieden hat, über alle Kliniken; der aktive Snapshot bleibt, bis ein Entwurf aktiviert wird.</target>
+      </trans-unit>
+      <trans-unit id="Enc1CB43C63" resname="encounter.plausibility.flash.snapshot_learned">
+        <source>encounter.plausibility.flash.snapshot_learned</source>
+        <target>Entwurf #{id} wurde gelernt. Lesen Sie den Bericht, bevor Sie ihn aktivieren.</target>
+      </trans-unit>
+      <trans-unit id="EncCD868815" resname="encounter.plausibility.error.no_eligible_pairs">
+        <source>encounter.plausibility.error.no_eligible_pairs</source>
+        <target>Es gibt noch keine bestätigten Paare oder automatischen Verknüpfungen, aus denen gelernt werden kann.</target>
+      </trans-unit>
+      <trans-unit id="EncE17EFDB1" resname="encounter.plausibility.learning.title">
+        <source>encounter.plausibility.learning.title</source>
+        <target>Lernbericht</target>
+      </trans-unit>
+      <trans-unit id="EncD29B69D7" resname="encounter.plausibility.learning.period">
+        <source>encounter.plausibility.learning.period</source>
+        <target>Gelernt aus (IVENA-Ankunft)</target>
+      </trans-unit>
+      <trans-unit id="EncF1BE6890" resname="encounter.plausibility.learning.parameters">
+        <source>encounter.plausibility.learning.parameters</source>
+        <target>Parameter</target>
+      </trans-unit>
+      <trans-unit id="Enc9AD37CF7" resname="encounter.plausibility.learning.parameter_values">
+        <source>encounter.plausibility.learning.parameter_values</source>
+        <target>Glättung {smoothing}, Schrumpfung zum Seed {shrinkage}, Mindestbeobachtungen {minimum}, Teilung {fold}</target>
+      </trans-unit>
+      <trans-unit id="Enc5175DFEB" resname="encounter.plausibility.learning.eligible_all">
+        <source>encounter.plausibility.learning.eligible_all</source>
+        <target>Lernbare Paare (alle Kliniken)</target>
+      </trans-unit>
+      <trans-unit id="EncA34B4304" resname="encounter.plausibility.learning.eligible_value">
+        <source>encounter.plausibility.learning.eligible_value</source>
+        <target>{pairs, plural, one {# lernbares Paar} other {# lernbare Paare}}, davon {bonus} nach einer Bonus-Entscheidung bestätigt</target>
+      </trans-unit>
+      <trans-unit id="Enc64D3077C" resname="encounter.plausibility.learning.note">
+        <source>encounter.plausibility.learning.note</source>
+        <target>Nachberechnung des Matchers über den Lernzeitraum ohne Bonus, mit dem beim Lernen aktiven Snapshot, mit diesem Entwurf und kreuzvalidiert (jede Hälfte der Tage mit einer Tabelle aus der anderen Hälfte: die ehrliche Schätzung). Die Übereinstimmung vergleicht automatische Verknüpfungen mit bestätigten oder abgelehnten Paaren und Validierungsurteilen. Die Zahlen umfassen nur die Kliniken, die Sie prüfen.</target>
+      </trans-unit>
+      <trans-unit id="Enc0180A6CA" resname="encounter.plausibility.learning.no_replay">
+        <source>encounter.plausibility.learning.no_replay</source>
+        <target>Keine Nachberechnung: Sie haben für keine Klinik, aus der der Entwurf gelernt wurde, eine Prüfberechtigung.</target>
+      </trans-unit>
+      <trans-unit id="Enc19C3E46F" resname="encounter.plausibility.learning.all_hospitals">
+        <source>encounter.plausibility.learning.all_hospitals</source>
+        <target>Alle Kliniken</target>
+      </trans-unit>
+      <trans-unit id="Enc6E5FE510" resname="encounter.plausibility.learning.column.variant">
+        <source>encounter.plausibility.learning.column.variant</source>
+        <target>Bonus</target>
+      </trans-unit>
+      <trans-unit id="Enc3B980B78" resname="encounter.plausibility.learning.column.allocations">
+        <source>encounter.plausibility.learning.column.allocations</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="Enc45A850F5" resname="encounter.plausibility.learning.column.automatic">
+        <source>encounter.plausibility.learning.column.automatic</source>
+        <target>Automatisch</target>
+      </trans-unit>
+      <trans-unit id="Enc4EDA7FC4" resname="encounter.plausibility.learning.column.proposal">
+        <source>encounter.plausibility.learning.column.proposal</source>
+        <target>Vorschlag</target>
+      </trans-unit>
+      <trans-unit id="Enc4D58E513" resname="encounter.plausibility.learning.column.none">
+        <source>encounter.plausibility.learning.column.none</source>
+        <target>Keine</target>
+      </trans-unit>
+      <trans-unit id="Enc40EE11FA" resname="encounter.plausibility.learning.column.decisive">
+        <source>encounter.plausibility.learning.column.decisive</source>
+        <target>Vom Bonus entschieden</target>
+      </trans-unit>
+      <trans-unit id="EncFDC5EA46" resname="encounter.plausibility.learning.column.agree">
+        <source>encounter.plausibility.learning.column.agree</source>
+        <target>Übereinstimmend</target>
+      </trans-unit>
+      <trans-unit id="EncEE657E7A" resname="encounter.plausibility.learning.column.disagree">
+        <source>encounter.plausibility.learning.column.disagree</source>
+        <target>Widersprechend</target>
+      </trans-unit>
+      <trans-unit id="EncDE6A12D4" resname="encounter.plausibility.learning.variant.none">
+        <source>encounter.plausibility.learning.variant.none</source>
+        <target>Ohne Bonus</target>
+      </trans-unit>
+      <trans-unit id="Enc4D0802F7" resname="encounter.plausibility.learning.variant.active">
+        <source>encounter.plausibility.learning.variant.active</source>
+        <target>Aktiver Snapshot</target>
+      </trans-unit>
+      <trans-unit id="Enc3E5FAE4E" resname="encounter.plausibility.learning.variant.draft">
+        <source>encounter.plausibility.learning.variant.draft</source>
+        <target>Dieser Entwurf</target>
+      </trans-unit>
+      <trans-unit id="Enc5846CE72" resname="encounter.plausibility.learning.variant.cross_fitted">
+        <source>encounter.plausibility.learning.variant.cross_fitted</source>
+        <target>Dieser Entwurf, kreuzvalidiert</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

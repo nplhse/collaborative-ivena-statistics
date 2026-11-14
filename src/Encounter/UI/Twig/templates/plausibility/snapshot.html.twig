@@ -46,6 +46,10 @@
         </div>
     </div>
 
+    {% if learning is not null or snapshot.learnedFrom %}
+        {{ include('@Encounter/plausibility/_learning.html.twig') }}
+    {% endif %}
+
     {% if review.comparedWithActive %}
         <twig:Alert type="info" :message="'encounter.plausibility.snapshot.compared'|trans({id: review.activeSnapshotId, changed: review.changedAreaCells, pairs: review.pairChanges|length}, 'encounter')" data-test="encounter-plausibility-compared" />
     {% elseif review.activeSnapshotId is null %}

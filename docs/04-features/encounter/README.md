@@ -469,7 +469,8 @@ Decided in [ADR 033](../../02-architecture/decisions/033-learning-plausibility-t
 [ADR 030 amendment](../../02-architecture/decisions/030-encounter-allocation-matching.md#amendment-matcher-120)
 (#1136); implementation in #1153 (table and seed), #1154 (matcher `1.2.0`), #1155 (learning job) and #1156
 (analyses). The table, the seed and the review pages exist since #1153 (see [Implemented](#implemented-in-1153));
-matcher `1.2.0` reads the active snapshot in pass 2 since #1154 ([matching](#matching)).
+matcher `1.2.0` reads the active snapshot in pass 2 since #1154 ([matching](#matching)); the learning job and its
+report since #1155 ([learning job](#learning-job-1155)).
 
 - **Cells:** exact PZC of the allocation × canonical MTS diagram of the visit's initial triage → bonus 0 … +3.
   When the exact cell has too few observations (minimum, 10 as starting value), the cell of the PZC's curated
@@ -500,7 +501,8 @@ matcher `1.2.0` reads the active snapshot in pass 2 since #1154 ([matching](#mat
   German and English name), `encounter_plausibility_area_code` (PZC → area, unique per PZC, so each PZC belongs to
   at most one area) and `encounter_plausibility_area_diagram` (curated rule: area × MTS diagram with points 0 … +3)
   hold the editable seed. `encounter_plausibility_snapshot` (status `draft` / `active` / `retired`, origin `seed` /
-  `learned`, activation and retirement time; the learning job adds period, eligible pairs and report in #1155),
+  `learned`, activation and retirement time; since #1155 also period, eligible pairs, parameters and report of a
+  learned snapshot),
   `encounter_plausibility_snapshot_code` (the PZC → area membership copied into the snapshot, so editing an
   area never changes an active snapshot) and `encounter_plausibility_cell` (exact cell: PZC × canonical diagram code;
   fallback cell: area code × diagram; reserved nullable indicator code on exact cells; points 0 … +3; source
@@ -532,13 +534,67 @@ matcher `1.2.0` reads the active snapshot in pass 2 since #1154 ([matching](#mat
     draft (retires the active one), retire the active one (bonus 0 everywhere), delete a draft
     (`PlausibilitySnapshots`; audit intents `encounter.plausibility.snapshot_*`). Active and retired snapshots are
     never changed or deleted.
-  - No page shows counts, totals or rates of the table. The learning report with replay figures per hospital follows in #1155.
+  - No page shows counts, totals or rates of the table. The learning report with replay figures per hospital is
+    described under [learning job](#learning-job-1155).
 - **Catalog merge.** A provisional diagram named by a curated rule cannot be merged
   (`MtsCatalogException::MERGE_HAS_PLAUSIBILITY_RULES`, [MTS glossary](#mts-glossary)).
 - **Matcher** (#1154): `1.2.0` reads the active snapshot in pass 2 and stores the bonus, snapshot, level and
   decisive flag per pair ([matching](#matching)).
-- **Not yet:** the learning job and its report (#1155), analyses (#1156), export and import of the reviewed table to
-  production (follow-up of ADR 032).
+- **Not yet:** analyses (#1156), export and import of the reviewed table to production (follow-up of ADR 032).
+
+### Learning job (#1155)
+
+`PlausibilityLearner` builds a **draft** snapshot with origin `learned` from the data of all hospitals; it never
+changes the active snapshot. Run it with the button "Learn draft" on `/tools/encounter-plausibility` (administrators and
+`ROLE_ENCOUNTER_CATALOG_REVIEWER` with the beta role; all data) or on the console:
+
+```bash
+php bin/console app:encounter:learn-plausibility [--from=YYYY-MM-DD] [--to=YYYY-MM-DD]
+```
+
+The console prints the period, the eligible pairs, the parameters and the replay over all hospitals and per hospital
+id (aggregates for operators). Everything runs in one transaction under the audit intent
+`encounter.plausibility.snapshot_learned` (the report itself is not audited). Without eligible pairs nothing is
+created. A large period runs inside the web request; for many hospitals or months use the console.
+
+- **Eligible pairs** (positives, `PlausibilityLearningQuery`): pairs with status `confirmed` (confirmed in the review,
+  or judged correct / chosen instead in the validation, which confirms the pair) and `auto_accepted` links with
+  `plausibility_decisive = false` (pass 1, pass 2 without a decisive bonus, matcher versions before `1.2.0`). Automatic
+  links the bonus decided are never learned from. A confirmed pair whose stored score the bonus had decided is
+  eligible (a person decided) and counted apart in the report.
+- **Negatives:** the other candidate visits of the same allocation in the pass-2 window (all arrival routes, as
+  `MatchPlanner::candidates()` lists them, without reservations). Visits without diagram count for neither side; a pair
+  whose allocation has no PZC adds nothing. Diagram codes are resolved to their canonical code (ADR 032).
+- **Estimate per cell** (`PlausibilityEstimator`), separately for exact rows (one PZC) and fallback rows (one problem
+  area of the seed); shares are taken within the row, because the candidates of an allocation share its PZC. For a
+  cell with `p` positives and `n` negatives in a row with `P` positives, `N` negatives and `K` distinct diagrams:
+  `raw = log2(((p + α) / (P + α·K)) / ((n + α) / (N + α·K)))` (Laplace smoothing α),
+  `value = ((p + n) · raw + k · seed) / (p + n + k)` (shrinkage towards the seed points with `k` pseudo
+  observations), points = `round(value)` clipped to 0 … +3. The seed points of a fallback cell are those of its
+  curated rule, of an exact cell those of its PZC's area rule (0 without rule).
+- **Minimum** (`min_observations`, the same value as for the lookup): a cell below it gets no learned points; it keeps
+  its seed points (source `curated`, counts stored) or is not written. So an exact cell falls back to its area and a
+  fallback cell keeps its seed, as ADR 033 states. Indicator cells are not filled yet (reserved).
+- **The draft** starts as the seed of the curated problem areas (same rule as the seed draft), then the estimated
+  cells are written on top with source `learned` and their counts. Counts stay internal (Privacy).
+- **Report** (`PlausibilityLearningReport`, stored per hospital in the snapshot): eligible pairs, of which confirmed
+  after a bonus decision, and a clean replay of the production matcher over the learning period (first to last arrival
+  day of the eligible pairs) without bonus, with the snapshot active at learning time, with the draft (learned on all
+  data, in-sample) and **cross-fitted**: the days are split into two folds (`alternating_days`: even and odd days since
+  1970-01-01), each fold is replayed with a table learned on the other fold only, and the results are added up — the
+  honest estimate of the draft's effect. Per variant: allocations with an automatic link, a proposal only or neither;
+  automatic links the bonus decided; automatic links that agree with the reference (a confirmed pair or a "correct"
+  verdict) or contradict it (a rejected pair, a "wrong" verdict, or another visit or allocation than a known partner).
+- **Privacy:** the snapshot page shows period and parameters to every reviewer, the replay only for hospitals on which
+  the viewer holds the encounter grant `REVIEW` (`EncounterVoter`); administrators see every hospital and the sum over
+  all of them, including the eligible pairs over all hospitals. A reviewer without a review grant sees no replay
+  figures. Counts per cell are never shown.
+- **Configuration** (`app.encounter.plausibility`): `min_observations` (10), `learning.smoothing` (α, 1.0),
+  `learning.shrinkage` (k, 10.0), `learning.fold` (`alternating_days`). The starting values are set by judgement;
+  they are checked with the report on the trial copy of the pilot data before the first activation.
+- **Effect:** none until a person activates a learned draft. Then, as for any new active snapshot, links and manual
+  decisions stay; open proposals and unlinked cases are matched with it on the next run over their allocations
+  (`app:encounter:match`, ADR 030).
 
 Measured on the pilot hospital (October 2026, 496 allocations): automatic links 421 (84.9 %) with `1.1.0`,
 453 (91.3 %) with an a-priori bonus of +3 in pass 2, 89.5 % with a table by exact PZC with fallback learned
