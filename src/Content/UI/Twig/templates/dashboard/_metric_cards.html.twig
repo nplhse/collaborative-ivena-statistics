@@ -8,6 +8,7 @@
                 :icon="metric.icon"
                 :delta="metric.deltaLast30Days > 0 ? metric.deltaLast30Days : null"
                 :comparisonLabel="'dashboard.metrics.last_30_days'|trans({}, 'content')"
+                :colorizeTrend="true"
                 :href="canLink ? path(metric.routeName, metric.routeParams) : null"
                 :class="canLink ? 'h-100 text-reset text-decoration-none' : null"
                 data-testid="dashboard-metric-{{ metric.key }}"
