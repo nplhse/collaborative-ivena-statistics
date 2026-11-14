@@ -679,9 +679,11 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertCount(1, $namedRow);
         $profileLinks = $namedRow->filter('a[href^="/explore/user/"]');
         self::assertStringContainsString('Michael Müller', $profileLinks->last()->text());
-        foreach ($profileLinks as $link) {
-            self::assertSame('_top', $link->getAttribute('target'), 'avatar and name leave the user-list turbo frame');
-        }
+        self::assertSame(
+            ['_top', '_top'],
+            $profileLinks->each(static fn ($link): ?string => $link->attr('target')),
+            'avatar and name leave the user-list turbo frame',
+        );
         self::assertSame('MM', trim($namedRow->filter('.avatar')->text()));
 
         $namelessRow = $crawler->filter('[data-testid="user-directory-row"]')->reduce(
