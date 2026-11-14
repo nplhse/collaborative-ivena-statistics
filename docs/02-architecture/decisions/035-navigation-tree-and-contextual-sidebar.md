@@ -43,32 +43,38 @@ content pages should not look like an admin tool.
 - **Contextual sidebar = views of the area.** Statistics and Explore get a left sidebar with grouped
   sections. All other pages (content, blog, import, settings, admin) keep the current single-navbar
   layout; guests see no change.
-- **At most three levels on a page:** area (top) → view (sidebar, with one optional nested level) → tab
+- **At most three kinds of navigation on a page:** area (top) → view (sidebar, groups may nest) → tab
   inside the page. The section subnavigations (`subnav_stats`, `subnav_explore`, the Insights subnav) go
   away; their entries move into the sidebar. In-page tabs stay where they switch between parts of one
   analysis that share a filter state.
-- **Nested level.** A sidebar entry may have one level of children (Insights dimensions, Closures parts,
-  Treatment data parts, Explorer library). The parent is a toggle, not a link; its overview page is the
-  first child ("Overview"), so overview pages remain entry points but are no longer a mandatory step. The
-  group is open on page load when it contains the active view.
+- **Nesting directly in the sidebar.** Groups can be several levels deep (Insights dimensions, Closures
+  parts, Treatment data parts, Explorer library, later for example Geographic analyses with Case flow).
+  A group expands its children inside the sidebar, below itself; nothing opens next to the sidebar. The
+  group entry is a toggle, not a link; its overview page is the first child ("Overview"), so overview pages
+  remain entry points but are no longer a mandatory step. All groups on the active path are open on page
+  load, the others are closed.
 - **Folded sidebar.** Part of the first sidebar step. On `lg` screens and wider the user can fold the
   sidebar to an icon rail (about 4rem instead of 15rem), so charts, maps and wide tables get the width.
   In the rail, labels and badges are hidden and section titles become separator lines; every entry keeps
-  its icon and its title as a tooltip, and nested groups open as flyouts. The default fold mode is
+  its icon and its title as a tooltip. The icon of the top-level entry that contains the active view stays
+  marked as active. Activating a group icon in the rail (click, tap or Enter) expands the sidebar itself,
+  in the same state as the pin button, and shows the active path with its groups open. There are no
+  flyouts. The default fold mode is
   "unfold on hover" (`folded-hover`): the rail expands over the content while the pointer or keyboard
   focus is in it, and the pin button keeps it open. The folded rail reserves only its own width, the content
   moves over accordingly; the temporary expansion on hover overlays the content and does not move it.
 
 ### Tabler components
 
-The sidebar uses Tabler's own vertical navbar instead of custom markup, so folding, flyouts, section
-titles and the mobile collapse come with Tabler and need no own JavaScript:
+The sidebar uses Tabler's own vertical navbar instead of custom markup, so folding, section titles and
+the mobile collapse come with Tabler:
 
 | Need | Tabler 1.7 |
 |---|---|
 | Sidebar and top navbar together | `aside.navbar.navbar-vertical.navbar-expand-lg` and `header.navbar` as direct children of `.page`, the `aside` first; `data-bs-navbar-position="combined"` on `<html>`, set server-side only on pages that render the sidebar |
 | Groups | `li.nav-section-title` before the first item of a group; an empty title is the divider before the standalone entries |
-| Nested level | `nav-item dropdown` with `dropdown-menu`: inline in the expanded sidebar (`data-bs-auto-close="false"`), flyout in the rail |
+| Nesting | a group toggle (`nav-link` with `data-bs-toggle="collapse"`, `aria-expanded`, `aria-controls`) and a nested `navbar-nav` in a Bootstrap `collapse`, repeatable on every level; not Tabler's `dropdown`, whose rail flyouts are not used |
+| Click on a group icon in the rail | the only own JavaScript: one small Stimulus controller that removes the fold state (as the pin button does) and lets the server-rendered open groups of the active path show |
 | Trailing entries | `.navbar-side` (for example Classifications in Explore), pinned to the bottom of the sidebar |
 | Fold and pin | `data-bs-toggle="sidebar-folded"` on a button in the brand area; Tabler sets `data-bs-sidebar="folded-hover"` on `<html>`, stores it in `localStorage` (`tabler-sidebar`) and fires `tabler:sidebar-folded`, which charts and maps use to resize |
 | Mobile | below `lg` the vertical navbar becomes a bar with its own toggler and collapse |
@@ -78,7 +84,7 @@ the viewport and the top navbar starts to its right, so the area name in the sid
 site brand. We keep the brand as the top of the hierarchy instead: from `lg` up the top navbar keeps the
 full width and is sticky (`data-bs-navbar="sticky"`, a Tabler option), and the sidebar starts below it.
 This takes two CSS rules on top of Tabler: `top` of the sidebar set to the height of the top navbar, and
-the left margin Tabler gives the top navbar removed. Folding, flyouts and the content offset keep working
+the left margin Tabler gives the top navbar removed. Folding and the content offset keep working
 unchanged, because they only depend on the sidebar width. The top navbar keeps its `container-xl`, so it
 looks the same on pages with and without sidebar.
 
@@ -120,8 +126,8 @@ One tree that the contexts contribute to, following the `shared.tool` pattern:
 
 - **`NavItem`** (value object in `Shared`): id, label as `TranslatableMessage` with explicit domain, route
   and route parameters, optional Tabler icon, optional badge (beta), optional `is_granted` attribute,
-  the routes or route prefixes that mark it active, `weight` (integer, default 0), the id of its parent
-  group or item, children (at most one nested level for sidebars).
+  optional detail routes that also mark it active, `weight` (integer, default 0), `parentId` (the group or
+  item it belongs to), children.
 - **Groups are nodes of the tree.** A group (`NavGroup`: id, label, `weight`, optional icon) is defined by
   the context that owns the menu: the Statistics context for `statistics`, Allocation for `explore`,
   `Shared` for `primary` and `footer`. Other contexts attach items to a group by its id, so a new analysis
@@ -141,13 +147,21 @@ One tree that the contexts contribute to, following the `shared.tool` pattern:
   alphabetical rest. The id only breaks ties between equal weight and equal label and carries no meaning
   of its own. The name is `weight`, not `priority`, because Symfony's `priority` sorts the other way round
   (higher first). A sort mode per parent (for example by usage) is not introduced until a case needs it.
-- **`NavigationBuilder`**: merges providers, filters by permission, drops empty groups, marks the
-  **active path** from the current route. The active path is the single answer for "where am I": it marks
-  the top navbar entry, the sidebar entry and its open parent, and later yields the breadcrumbs.
+- **`NavigationBuilder`**: merges providers, filters by permission, drops empty groups and determines the
+  **active path**. It maps the name of the current Symfony route **exactly** to one menu entry: the entry's
+  own route or one of its detail routes (for example `app_stats_top_lists_show` on the Top lists entry).
+  There is no matching by route prefix. From that entry the builder follows `parentId` up to the root of
+  the menu and on to the entry of the top navigation, and marks every node on the way. The active path is
+  the single answer for "where am I": it marks the top navbar entry, the open groups and the active entry
+  in the sidebar, and later yields the breadcrumbs. A route that belongs to no entry marks only the area in
+  the top navbar.
+- **Unique mapping is tested.** A test builds every menu with all providers and fails when a route name is
+  claimed by more than one entry (own route or detail route), so two entries can never be active at once.
 - **Rendering by Twig components** next to `Breadcrumbs` and `PageHeader`:
   `<twig:Navigation:Primary />`, `<twig:Navigation:Footer />`, `<twig:Navigation:Sidebar menu="statistics" />`.
-  Plain server-rendered components, no Live Components, no Stimulus controller; folding, flyouts and the
-  mobile collapse are Tabler's own behaviour.
+  Plain server-rendered components, no Live Components. Folding and the mobile collapse are Tabler's own
+  behaviour, nesting is Bootstrap `collapse`; the only own JavaScript is the Stimulus controller for a
+  click on a group icon in the rail.
 - `ToolRegistry` stays and becomes the source of the Tools entry in the `primary` menu. Content becomes
   a provider for header pages and footer page links.
 
@@ -160,25 +174,30 @@ One tree that the contexts contribute to, following the `shared.tool` pattern:
   small screens, so the bars read "area, then view".
 - The existing filter drawer stays on the right (`offcanvas-end`): the bars say "where to go", the drawer
   says "what to filter".
-- Keyboard: every view is a real link, nested groups are dropdown toggles with `aria-expanded`, the
-  active entry has `aria-current="page"`, both navigation regions are `nav` elements with their own
-  `aria-label`, and Escape closes an open flyout (Bootstrap dropdown).
+- Keyboard: every view is a real link, groups are buttons with `aria-expanded` and `aria-controls`, the
+  active entry has `aria-current="page"`, and both navigation regions are `nav` elements with their own
+  `aria-label`.
 
 ### Analytical context when switching views
 
-Sidebar links inside Statistics keep the shared context parameters `scope`
-and `period` of the current request (and `comparison_period` where the target supports it). All other
-filters (age group, clinical filters, dimension selections) are dropped, because they do not mean the same
-in every view. Links between the parts of one analysis (the children of one sidebar entry, for example the
-five parts of Closures that are tabs today) keep the complete query string, as the tabs do now, because
-the parts share one filter drawer. Without the parameters the defaults of
-[statistics-filter-and-scope.md](../../04-features/statistics/statistics-filter-and-scope.md) apply, as
-today.
+- **Between analyses** a sidebar link carries only `scope` and `period` of the current request. All other
+  filters (age group, clinical filters, dimension selections) are dropped, because they do not mean the
+  same in every view.
+- **The target view decides.** It runs the carried values through its existing validation and falls back
+  to its own defaults where a value is missing or not allowed there
+  ([statistics-filter-and-scope.md](../../04-features/statistics/statistics-filter-and-scope.md)). The
+  sidebar does not check or translate filter values.
+- **Within one analysis** (the parts of one sidebar entry that share a filter drawer, for example the five
+  parts of Closures that are tabs today) the shared filter state of that analysis stays, as the tabs keep
+  it now.
+- **`comparison_period` is never passed on by a sidebar link**, also not between parts of one analysis.
+  Every view starts with its own default comparison period.
 
 This changes no calculation. It changes which population a user sees after a click: today every subnav
-link resets to the default scope and period, afterwards the selected scope and period stay. For each
-analysis population, numerator, denominator, missing values and comparison groups are unchanged; filters
-and scope and the period boundaries are those the user had already selected instead of the defaults.
+link resets to the default scope and period, afterwards the selected scope and period stay as far as the
+target view accepts them. For each analysis population, numerator, denominator and missing values are
+unchanged; filters and scope and the period boundaries are those the user had already selected instead of
+the defaults; comparison groups and the comparison period start at the target view's defaults, as today.
 
 ### Favorites
 
@@ -210,7 +229,9 @@ and scope and the period boundaries are those the user had already selected inst
 ## Consequences
 
 - A new analysis is one `NavItem` in a provider; top navbar, sidebar, sitemap and later breadcrumbs follow.
-- Active state is decided once, by the builder, instead of per template.
+- Active state is decided once, by the builder, instead of per template. Because the mapping uses exact
+  route names, every detail route of a view has to be listed on its entry; a new detail route that is not
+  listed marks only the area, and the unique-mapping test catches routes claimed twice.
 - Statistics and Explore pages change their layout; Functional tests that select subnav entries by
   `data-testid` need new selectors. Routes and URLs do not change, bookmarks keep working.
 - Statistics and Explore pages lose about 15rem of width on desktop for the sidebar (about 4rem when
@@ -224,8 +245,8 @@ and scope and the period boundaries are those the user had already selected inst
 Integration branch from `develop`, one PR per step ([ADR 010](010-architecture-guardrails-and-beta-scope.md)):
 
 1. Tabler 1.7 (latest patch release; own PR into `develop`, visual check only).
-2. This ADR accepted, `NavItem`, provider interface and tag, `NavigationBuilder`, unit tests, docs in
-   `extension-points.md`.
+2. This ADR accepted, `NavItem`, provider interface and tag, `NavigationBuilder`, unit tests including the
+   unique route mapping, docs in `extension-points.md`.
 3. Primary navigation on `<twig:Navigation:Primary />`, output unchanged.
 4. Footer on `<twig:Navigation:Footer />`; constants in `FooterNavigationProvider` go away.
 5. Sidebar layout for Statistics on the Tabler vertical navbar, including fold state and mobile bar; `subnav_stats` and the Insights subnav go away.
@@ -239,4 +260,5 @@ mobile header actions (#954), favorites section, quick search.
 A static design prototype accompanies this proposal; it is not part of the repository. It is built on the
 Tabler 1.7 CSS and JavaScript with the markup described above and shows the groups, the fold modes, the
 permission filtering by role and the mobile bar. Its only own CSS is the one listed under Tabler
-components.
+components. It still shows nested groups as Tabler dropdowns with flyouts in the rail; the nesting without
+flyouts described above is not in the prototype yet.
