@@ -384,8 +384,6 @@ deptrac:
       - App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder
     App\Statistics\Application\Overview\OverviewIndicationSectionFactory:
       - App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder
-    App\Statistics\Application\Overview\OverviewPeriodComparisonService:
-      - App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery
     App\Statistics\Application\Overview\OverviewPopulationProfileFactory:
       - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
     App\Statistics\Application\Overview\OverviewTopReportsFactory:
