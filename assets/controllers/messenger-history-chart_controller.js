@@ -1,5 +1,4 @@
 import { Controller } from '@hotwired/stimulus';
-import { isDarkTheme } from '../lib/chart-theme.js';
 import { applyChartNonce, loadApexCharts } from '../lib/load-apexcharts.js';
 
 const COLORS = {
@@ -131,8 +130,6 @@ export default class extends Controller {
     }
 
     baseOptions(granularity) {
-        const isDark = isDarkTheme(this.element);
-
         return {
             chart: {
                 height: 260,
@@ -140,10 +137,8 @@ export default class extends Controller {
                 zoom: { enabled: false },
                 fontFamily: 'inherit',
                 background: 'transparent',
-                foreColor: isDark ? '#adb5bd' : '#495057',
                 animations: { enabled: false },
             },
-            theme: { mode: isDark ? 'dark' : 'light' },
             dataLabels: { enabled: false },
             xaxis: {
                 type: 'datetime',
@@ -160,12 +155,10 @@ export default class extends Controller {
             legend: { show: true, position: 'top', horizontalAlign: 'left', fontSize: '12px' },
             grid: {
                 strokeDashArray: 4,
-                borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
             },
             tooltip: {
                 shared: true,
                 intersect: false,
-                theme: isDark ? 'dark' : 'light',
                 x: { format: granularity === 'day' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm' },
             },
         };

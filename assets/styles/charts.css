@@ -1,0 +1,56 @@
+/*
+ * Global chart theming (#1278), loaded on app pages (app.js) and admin pages (admin-kpi.js).
+ *
+ * ApexCharts writes its chrome colours (axis text, grid, ticks, cell borders) as SVG attributes with
+ * light defaults. These rules override them for every chart, so controllers do not set foreColor,
+ * grid.borderColor, theme.mode or tooltip.theme. App pages use Tabler variables, EasyAdmin pages only
+ * define Bootstrap ones, hence the fallbacks. Tabler colours are light-dark() values, so the charts
+ * follow the colour scheme of the page and a theme change without re-rendering. ApexCharts' own
+ * --apx-fore/--apx-grid tokens are not used: ApexCharts copies them into SVG attributes, where
+ * light-dark() does not work.
+ */
+.apexcharts-canvas {
+    --app-chart-text: light-dark(#373d3f, var(--tblr-secondary, var(--bs-secondary-color)));
+    --app-chart-line: var(--tblr-border-color, var(--bs-border-color));
+    --app-chart-surface: var(--tblr-bg-surface, var(--bs-body-bg));
+}
+
+.apexcharts-canvas .apexcharts-xaxis-label,
+.apexcharts-canvas .apexcharts-yaxis-label,
+.apexcharts-canvas .apexcharts-xaxis-title-text,
+.apexcharts-canvas .apexcharts-yaxis-title-text {
+    fill: var(--app-chart-text);
+}
+
+/* Legend text gets an inline colour from ApexCharts. */
+.apexcharts-canvas .apexcharts-legend-text {
+    color: var(--app-chart-text) !important;
+}
+
+.apexcharts-canvas .apexcharts-gridline,
+.apexcharts-canvas .apexcharts-grid-borders line,
+.apexcharts-canvas .apexcharts-xaxis-tick,
+.apexcharts-canvas .apexcharts-yaxis line {
+    stroke: var(--app-chart-line);
+}
+
+/* Gaps between heatmap cells and the ring around line markers take the card colour. */
+.apexcharts-canvas .apexcharts-heatmap-rect,
+.apexcharts-canvas .apexcharts-marker {
+    stroke: var(--app-chart-surface);
+}
+
+/* Two classes, so these win over the tooltip defaults ApexCharts injects at runtime. */
+.apexcharts-canvas .apexcharts-tooltip {
+    --apx-tt-bg: var(--tblr-bg-surface, var(--bs-body-bg));
+    --apx-tt-border: var(--tblr-border-color, var(--bs-border-color));
+    --apx-tt-color: var(--tblr-body-color, var(--bs-body-color));
+    --apx-tt-color-muted: var(--tblr-secondary, var(--bs-secondary-color));
+}
+
+.apexcharts-canvas .apexcharts-xaxistooltip,
+.apexcharts-canvas .apexcharts-yaxistooltip {
+    --apx-axt-bg: var(--tblr-bg-surface, var(--bs-body-bg));
+    --apx-axt-border: var(--tblr-border-color, var(--bs-border-color));
+    --apx-axt-color: var(--tblr-body-color, var(--bs-body-color));
+}

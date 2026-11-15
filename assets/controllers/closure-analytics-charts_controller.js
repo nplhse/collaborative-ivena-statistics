@@ -1,5 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { buildHeatmapColorScale } from '../lib/build-analysis-heatmap-options.js';
+import { chartColors } from '../lib/chart-colors.js';
 import {
     buildHeatmapSeries,
     heatmapColumnIndexFromSeriesIndex,
@@ -135,7 +136,7 @@ export default class extends Controller {
     async renderHeatmap(ApexCharts, payload) {
         const labels = payload.columnLabels ?? [];
         const matrix = payload.matrix ?? [];
-        const colorScale = buildHeatmapColorScale(matrix);
+        const colorScale = buildHeatmapColorScale(matrix, chartColors(this.element).emptyCell);
         const chart = new ApexCharts(this.heatmapChartTarget, {
             chart: {
                 type: 'heatmap',

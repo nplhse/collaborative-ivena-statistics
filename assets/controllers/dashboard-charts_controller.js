@@ -95,7 +95,7 @@ export default class extends Controller {
                 },
             },
             dataLabels: { enabled: false },
-            grid: { strokeDashArray: 4, borderColor: 'rgba(0,0,0,0.04)' },
+            grid: { strokeDashArray: 4 },
             tooltip: { shared: true, intersect: false },
             legend: { show: false },
         };
@@ -154,7 +154,7 @@ export default class extends Controller {
                 show: false,
             },
             dataLabels: { enabled: false },
-            grid: { strokeDashArray: 4, borderColor: 'rgba(0,0,0,0.04)' },
+            grid: { strokeDashArray: 4 },
             legend: { show: false },
             tooltip: { shared: true, intersect: false },
         };
