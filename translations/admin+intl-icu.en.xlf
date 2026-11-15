@@ -1749,6 +1749,54 @@
         <source>usage_analytics.overview.sessions_7_days</source>
         <target>Sessions (7 days)</target>
       </trans-unit>
+      <trans-unit id="uaOv05" resname="usage_analytics.overview.title">
+        <source>usage_analytics.overview.title</source>
+        <target>Usage analytics — Overview</target>
+      </trans-unit>
+      <trans-unit id="uaOv06" resname="usage_analytics.overview.feature_areas.title">
+        <source>usage_analytics.overview.feature_areas.title</source>
+        <target>Feature areas (7 days)</target>
+      </trans-unit>
+      <trans-unit id="uaOv07" resname="usage_analytics.overview.authentication.title">
+        <source>usage_analytics.overview.authentication.title</source>
+        <target>Authentication (7 days)</target>
+      </trans-unit>
+      <trans-unit id="uaOv08" resname="usage_analytics.overview.authentication.authenticated">
+        <source>usage_analytics.overview.authentication.authenticated</source>
+        <target>Authenticated</target>
+      </trans-unit>
+      <trans-unit id="uaOv09" resname="usage_analytics.overview.authentication.anonymous">
+        <source>usage_analytics.overview.authentication.anonymous</source>
+        <target>Anonymous</target>
+      </trans-unit>
+      <trans-unit id="uaOv10" resname="usage_analytics.overview.requests_30_days">
+        <source>usage_analytics.overview.requests_30_days</source>
+        <target>Requests (30 days)</target>
+      </trans-unit>
+      <trans-unit id="uaOv11" resname="usage_analytics.overview.top_routes.title">
+        <source>usage_analytics.overview.top_routes.title</source>
+        <target>Top routes (7 days)</target>
+      </trans-unit>
+      <trans-unit id="uaOv12" resname="usage_analytics.overview.column.area">
+        <source>usage_analytics.overview.column.area</source>
+        <target>Area</target>
+      </trans-unit>
+      <trans-unit id="uaOv13" resname="usage_analytics.overview.column.requests">
+        <source>usage_analytics.overview.column.requests</source>
+        <target>Requests</target>
+      </trans-unit>
+      <trans-unit id="uaOv14" resname="usage_analytics.overview.column.share">
+        <source>usage_analytics.overview.column.share</source>
+        <target>Share</target>
+      </trans-unit>
+      <trans-unit id="uaOv15" resname="usage_analytics.overview.column.route">
+        <source>usage_analytics.overview.column.route</source>
+        <target>Route</target>
+      </trans-unit>
+      <trans-unit id="uaOv16" resname="usage_analytics.overview.empty">
+        <source>usage_analytics.overview.empty</source>
+        <target>No data yet.</target>
+      </trans-unit>
       <trans-unit id="admFqEntity" resname="admin.feedback_quarantine.entity">
         <source>admin.feedback_quarantine.entity</source>
         <target>Quarantined feedback</target>

@@ -1,6 +1,6 @@
 {% extends '@EasyAdmin/page/content.html.twig' %}
 
-{% block content_title %}Usage analytics — Overview{% endblock %}
+{% block content_title %}{{ 'usage_analytics.overview.title'|trans({}, 'admin') }}{% endblock %}
 
 {% block main %}
     {{ include('@Admin/operations/usage_analytics/_privacy_note.html.twig') }}
@@ -35,10 +35,10 @@
     <div class="row g-3 mb-4">
         <div class="col-lg-6">
             <div class="card h-100">
-                <div class="card-header">Feature areas (7 days)</div>
+                <div class="card-header">{{ 'usage_analytics.overview.feature_areas.title'|trans({}, 'admin') }}</div>
                 <div class="table-responsive">
                     <table class="table table-striped mb-0">
-                        <thead><tr><th>Area</th><th class="text-end">Requests</th><th class="text-end">Share</th></tr></thead>
+                        <thead><tr><th>{{ 'usage_analytics.overview.column.area'|trans({}, 'admin') }}</th><th class="text-end">{{ 'usage_analytics.overview.column.requests'|trans({}, 'admin') }}</th><th class="text-end">{{ 'usage_analytics.overview.column.share'|trans({}, 'admin') }}</th></tr></thead>
                         <tbody>
                             {% for row in overview.featureAreas %}
                                 <tr>
@@ -47,7 +47,7 @@
                                     <td class="text-end">{{ row.sharePercent }}%</td>
                                 </tr>
                             {% else %}
-                                <tr><td colspan="3" class="text-secondary">No data yet.</td></tr>
+                                <tr><td colspan="3" class="text-secondary">{{ 'usage_analytics.overview.empty'|trans({}, 'admin') }}</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -56,14 +56,14 @@
         </div>
         <div class="col-lg-6">
             <div class="card h-100">
-                <div class="card-header">Authentication (7 days)</div>
+                <div class="card-header">{{ 'usage_analytics.overview.authentication.title'|trans({}, 'admin') }}</div>
                 <div class="card-body">
                     <dl class="row mb-0">
-                        <dt class="col-6">Authenticated</dt>
+                        <dt class="col-6">{{ 'usage_analytics.overview.authentication.authenticated'|trans({}, 'admin') }}</dt>
                         <dd class="col-6">{{ overview.authenticationSplit.authenticated }}</dd>
-                        <dt class="col-6">Anonymous</dt>
+                        <dt class="col-6">{{ 'usage_analytics.overview.authentication.anonymous'|trans({}, 'admin') }}</dt>
                         <dd class="col-6">{{ overview.authenticationSplit.anonymous }}</dd>
-                        <dt class="col-6">Requests (30 days)</dt>
+                        <dt class="col-6">{{ 'usage_analytics.overview.requests_30_days'|trans({}, 'admin') }}</dt>
                         <dd class="col-6">{{ overview.requestsLast30Days }}</dd>
                     </dl>
                 </div>
@@ -72,15 +72,15 @@
     </div>
 
     <div class="card mb-2">
-        <div class="card-header">Top routes (7 days)</div>
+        <div class="card-header">{{ 'usage_analytics.overview.top_routes.title'|trans({}, 'admin') }}</div>
         <div class="table-responsive">
             <table class="table table-striped mb-0">
-                <thead><tr><th>Route</th><th class="text-end">Requests</th></tr></thead>
+                <thead><tr><th>{{ 'usage_analytics.overview.column.route'|trans({}, 'admin') }}</th><th class="text-end">{{ 'usage_analytics.overview.column.requests'|trans({}, 'admin') }}</th></tr></thead>
                 <tbody>
                     {% for row in overview.topRoutes %}
                         <tr><td><code>{{ row.routeName }}</code></td><td class="text-end">{{ row.requestCount }}</td></tr>
                     {% else %}
-                        <tr><td colspan="2" class="text-secondary">No data yet.</td></tr>
+                        <tr><td colspan="2" class="text-secondary">{{ 'usage_analytics.overview.empty'|trans({}, 'admin') }}</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
