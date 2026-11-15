@@ -42,4 +42,23 @@ final class UsageAnalyticsOverviewPageTest extends WebTestCase
         self::assertContains('Sitzungen (7 Tage) 0', $tiles);
         self::assertStringNotContainsString('Requests today', $crawler->text());
     }
+
+    public function testShowsGermanHeadingsAndEmptyStatesForAGermanAdmin(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::new()->asAdmin()->create(['locale' => 'de']));
+
+        $crawler = $client->request(Request::METHOD_GET, self::PATH);
+
+        self::assertResponseIsSuccessful();
+        $text = static fn (string $selector): array => $crawler->filter($selector)->each(static fn ($node): string => trim($node->text()));
+        self::assertContains('Nutzungsanalyse — Übersicht', $text('h1'));
+        self::assertSame(['Funktionsbereiche (7 Tage)', 'Anmeldung (7 Tage)', 'Häufigste Routen (7 Tage)'], $text('.card-header'));
+        self::assertSame(['Bereich', 'Anfragen', 'Anteil', 'Route', 'Anfragen'], $text('thead th'));
+        self::assertSame(['Angemeldet', 'Anonym', 'Anfragen (30 Tage)'], $text('dt'));
+        self::assertSame(['Noch keine Daten.', 'Noch keine Daten.'], $text('tbody td.text-secondary'));
+        foreach (['Feature areas', 'Authentication', 'Top routes', 'No data yet.', 'Usage analytics'] as $english) {
+            self::assertStringNotContainsString($english, $crawler->filter('main, #main, body')->first()->text());
+        }
+    }
 }
