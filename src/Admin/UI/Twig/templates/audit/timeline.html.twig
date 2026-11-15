@@ -23,7 +23,7 @@
                 {% else %}
                     {% set shown = value %}
                 {% endif %}
-                <span class="badge text-bg-light border text-wrap text-break" data-audit-filter-chip="{{ key }}">{{ ('audit.filter.' ~ key)|trans({}, 'admin') }}: <span class="font-monospace">{{ shown }}</span></span>
+                <twig:ea:Badge class="text-wrap text-break" data-audit-filter-chip="{{ key }}">{{ ('audit.filter.' ~ key)|trans({}, 'admin') }}: <span class="font-monospace">{{ shown }}</span></twig:ea:Badge>
             {% endfor %}
             <a href="{{ path('app_admin_dashboard_audit_timeline') }}">{{ 'audit.timeline.reset_filters'|trans({}, 'admin') }}</a>
         </div>
@@ -36,7 +36,7 @@
              data-audit-new-entries-one-value="{{ 'audit.timeline.new_one'|trans({}, 'admin') }}"
              data-audit-new-entries-many-value="{{ 'audit.timeline.new_many'|trans({}, 'admin') }}"
              data-audit-new-entries-more-value="{{ 'audit.timeline.new_more'|trans({}, 'admin') }}">
-            <a class="btn btn-sm btn-outline-primary" href="{{ path('app_admin_dashboard_audit_timeline', filter.toQuery) }}" data-audit-new-entries-target="notice" hidden></a>
+            <twig:ea:Button htmlElement="a" href="{{ path('app_admin_dashboard_audit_timeline', filter.toQuery) }}" color="primary" variant="outline" size="sm" data-audit-new-entries-target="notice" hidden />
         </div>
     {% endif %}
 

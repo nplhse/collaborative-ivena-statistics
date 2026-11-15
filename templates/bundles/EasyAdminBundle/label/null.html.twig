@@ -1,0 +1,8 @@
+{# Empty values show a muted dash like the rest of the app instead of EasyAdmin's "Null" badge (#1315). #}
+{% types {
+    field: '\\EasyCorp\\Bundle\\EasyAdminBundle\\Dto\\FieldDto',
+    entity: '\\EasyCorp\\Bundle\\EasyAdminBundle\\Dto\\EntityDto',
+} %}
+{% if not (ea().crud.areNullValuesHidden ?? false) %}
+    <span class="text-secondary">—</span>
+{% endif %}

@@ -51,8 +51,8 @@
             {%- if entry.changedFields|length > 4 %} {{ 'audit.timeline.fields_more'|trans({count: entry.changedFields|length - 4}, 'admin') }}{% endif -%}
         </span>
     {% endif %}
-    {% if entry.outcome is not null %}<span class="badge text-bg-light border">{{ ('audit.outcome.' ~ entry.outcome)|trans({}, 'admin') }}</span>{% endif %}
-    <span class="badge text-bg-light border">{{ ('audit.origin.' ~ entry.origin)|trans({}, 'admin') }}</span>
+    {% if entry.outcome is not null %}<twig:ea:Badge>{{ ('audit.outcome.' ~ entry.outcome)|trans({}, 'admin') }}</twig:ea:Badge>{% endif %}
+    <twig:ea:Badge>{{ ('audit.origin.' ~ entry.origin)|trans({}, 'admin') }}</twig:ea:Badge>
 {% endmacro %}
 
 {# One entry as a TimelineItem whose details load on expansion. #}
@@ -70,7 +70,7 @@
         data-audit-entry="{{ entry.id }}"
         data-audit-context="{{ context ? 'true' : 'false' }}"
         class="{{ context ? 'ea-audit-context' : '' }}"
-    >{% import '@Admin/audit/_macros.html.twig' as audit %}{% if context %}<span class="badge text-bg-light border" title="{{ 'audit.request.context_help'|trans({}, 'admin') }}">{{ 'audit.request.context'|trans({}, 'admin') }}</span>{% endif %}{{ audit.summary(entry, show_actor) }}</twig:TimelineItem>
+    >{% import '@Admin/audit/_macros.html.twig' as audit %}{% if context %}<twig:ea:Badge title="{{ 'audit.request.context_help'|trans({}, 'admin') }}">{{ 'audit.request.context'|trans({}, 'admin') }}</twig:ea:Badge>{% endif %}{{ audit.summary(entry, show_actor) }}</twig:TimelineItem>
 {% endmacro %}
 
 {% macro value(value) %}

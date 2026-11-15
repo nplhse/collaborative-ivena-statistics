@@ -56,8 +56,8 @@
             {{ f.text('session', 'audit.filter.session'|trans({}, 'admin'), query.session ?? '') }}
         </div>
         <div class="d-flex flex-wrap gap-2 mt-3">
-            <button type="submit" class="btn btn-primary btn-sm">{{ 'audit.filter.apply'|trans({}, 'admin') }}</button>
-            <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_admin_dashboard_audit_timeline') }}">{{ 'audit.timeline.reset_filters'|trans({}, 'admin') }}</a>
+            <twig:ea:Button color="primary" size="sm">{{ 'audit.filter.apply'|trans({}, 'admin') }}</twig:ea:Button>
+            <twig:ea:Button htmlElement="a" href="{{ path('app_admin_dashboard_audit_timeline') }}" size="sm">{{ 'audit.timeline.reset_filters'|trans({}, 'admin') }}</twig:ea:Button>
         </div>
     </form>
 </details>
