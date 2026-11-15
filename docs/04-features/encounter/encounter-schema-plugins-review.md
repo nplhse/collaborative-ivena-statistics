@@ -335,7 +335,7 @@ each, so all four results have a test at service level.
 **How #1274 proves conflicts, and where resolution follows.** #1274 proves that all four assignment
 results are detected, that unassigned records and conflicts are kept with their candidates, counted and
 shown only to users with the review grant (steps 2, 4, 5, 7, 8 and the assignment service test). The two
-manual decisions and the retry of records without candidate are a follow-up issue of #1274. Its actions
+manual decisions and the retry of records without candidate are #1307, a follow-up of #1274. Its actions
 are added to the conflict page of step 4, and it extends this test with:
 
 - "assign row 3 to B" → the case file of Y shows the stay;
@@ -386,7 +386,7 @@ Part 1, proving the mechanism (MTS stays where it is):
    schema bundles.
 6. Test bundle with migration and the integration test above.
 
-Follow-up of #1274 (own issue): the two manual decisions on the conflict page (assign to a candidate,
+Follow-up of #1274 (#1307): the two manual decisions on the conflict page (assign to a candidate,
 leave unassigned for now) and the retry of records without candidate after encounter imports.
 
 Part 2, moving MTS (#1300, one pull request per step):

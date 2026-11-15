@@ -171,7 +171,7 @@ The decision is implemented in steps:
    with their counts and candidates,
    the visibility of conflicts for `REVIEW`, case file sections and Explore entries. The existing
    `encounter` row of an ED visit serves as the encounter; MTS stays in the core.
-2. **Follow-up of #1274** (own issue): the two manual decisions on conflicts and retrying records
+2. **#1307** (follow-up of #1274): the two manual decisions on conflicts and retrying records
    without candidate after later imports.
 3. **#1300** splits the hub out of the `encounter` table, migrates the existing data, adds the hub
    cleanup and ships MTS as a bundle.
@@ -216,7 +216,7 @@ records all stay. Only the test bundle can produce this case before step 3, and 
 - Encounters without records exist until the hub cleanup runs
 - Until the split, deleting an `ed_visit` import fails completely while records of another schema are
   attached
-- Until the follow-up of #1274, conflicts are visible but cannot be resolved, and records without
+- Until #1307, conflicts are visible but cannot be resolved, and records without
   candidate are not retried
 - A contract layer to maintain, and a second layout (bundles) next to the contexts
 - Until merging is decided, only one schema may create encounters
@@ -255,4 +255,4 @@ records all stay. Only the test bundle can produce this case before step 3, and 
 - [027-encounter-pseudonym-key.md](027-encounter-pseudonym-key.md),
   [028-encounter-access-grants.md](028-encounter-access-grants.md)
 - [../extension-points.md](../extension-points.md)
-- Issues #1273, #1274, #1300, #1301
+- Issues #1273, #1274, #1300, #1301, #1307
