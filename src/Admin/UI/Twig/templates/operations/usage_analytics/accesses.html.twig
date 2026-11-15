@@ -5,10 +5,10 @@
 {% macro period_note(period, trend) %}
     {% if not period.isComplete %}<div class="d-flex flex-column align-items-start gap-1 mt-1">{% endif %}
     {% if period.isCurrent %}
-        <span class="badge text-bg-warning ms-0">{{ 'usage_analytics.accesses.note.current'|trans }}</span>
+        <twig:ea:Badge color="warning">{{ 'usage_analytics.accesses.note.current'|trans({}, 'admin') }}</twig:ea:Badge>
     {% endif %}
     {% if period.startsBeforeCounting %}
-        <span class="badge text-bg-secondary ms-0">{{ 'usage_analytics.accesses.note.partial'|trans({date: trend.countingSince|format_date('medium', timezone: 'Europe/Berlin')}) }}</span>
+        <twig:ea:Badge>{{ 'usage_analytics.accesses.note.partial'|trans({date: trend.countingSince|format_date('medium', timezone: 'Europe/Berlin')}, 'admin') }}</twig:ea:Badge>
     {% endif %}
     {% if not period.isComplete %}</div>{% endif %}
 {% endmacro %}
@@ -22,7 +22,7 @@
     <p class="text-secondary mb-4">{{ 'usage_analytics.accesses.definition'|trans }}</p>
 
     {% if not trend.hasData %}
-        <div class="alert alert-secondary" data-testid="accesses-empty">{{ 'usage_analytics.accesses.empty'|trans }}</div>
+        <twig:ea:Alert variant="secondary" data-testid="accesses-empty">{{ 'usage_analytics.accesses.empty'|trans({}, 'admin') }}</twig:ea:Alert>
     {% else %}
         <div class="row g-3 mb-4">
             <div class="col-sm-6 col-xl-4">

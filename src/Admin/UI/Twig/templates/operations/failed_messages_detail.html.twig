@@ -4,7 +4,7 @@
 
 {% block main %}
     <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-        <a href="{{ back_url }}" class="btn btn-outline-secondary ea-admin-action-btn">&larr; {{ 'ops.failed_messages.back'|trans({}, 'admin') }}</a>
+        <twig:ea:Button htmlElement="a" href="{{ back_url }}">&larr; {{ 'ops.failed_messages.back'|trans({}, 'admin') }}</twig:ea:Button>
         <form method="post"
               action="{{ delete_url }}"
               class="m-0"
@@ -12,9 +12,9 @@
               data-action="submit->confirm-submit#confirm"
               data-confirm-submit-message-value="{{ 'ops.failed_messages.confirm_delete_one'|trans({}, 'admin') }}">
             <input type="hidden" name="_token" value="{{ csrf_token('failed_message_delete_' ~ message.id) }}">
-            <button type="submit" class="btn btn-outline-secondary ea-admin-action-btn">
+            <twig:ea:Button>
                 {{ 'ops.failed_messages.delete'|trans({}, 'admin') }}
-            </button>
+            </twig:ea:Button>
         </form>
     </div>
 
