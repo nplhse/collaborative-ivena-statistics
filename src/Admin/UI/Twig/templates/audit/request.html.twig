@@ -23,7 +23,7 @@
     </dl>
 
     {% if stats is not null and stats.total > entries|length %}
-        <p class="alert alert-warning" data-audit-limit>{{ 'audit.request.limit'|trans({limit: limit, total: stats.total}, 'admin') }}</p>
+        <twig:ea:Alert variant="warning" data-audit-limit>{{ 'audit.request.limit'|trans({limit: limit, total: stats.total}, 'admin') }}</twig:ea:Alert>
     {% endif %}
 
     <twig:Timeline :label="'audit.request.title'|trans({}, 'admin')">

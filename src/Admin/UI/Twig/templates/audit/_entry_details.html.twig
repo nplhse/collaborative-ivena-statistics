@@ -28,7 +28,7 @@
         <dt class="col-sm-3">{{ 'audit.filter.request'|trans({}, 'admin') }}</dt>
         <dd class="col-sm-9 font-monospace text-break">
             {{ entry.requestId }}
-            {% if entry.legacyRequestId %}<span class="badge text-bg-light border font-sans-serif" title="{{ 'audit.timeline.legacy_help'|trans({}, 'admin') }}">{{ 'audit.timeline.legacy'|trans({}, 'admin') }}</span>{% endif %}
+            {% if entry.legacyRequestId %}<twig:ea:Badge class="font-sans-serif" title="{{ 'audit.timeline.legacy_help'|trans({}, 'admin') }}">{{ 'audit.timeline.legacy'|trans({}, 'admin') }}</twig:ea:Badge>{% endif %}
         </dd>
         <dt class="col-sm-3">{{ 'audit.filter.session'|trans({}, 'admin') }}</dt>
         <dd class="col-sm-9 font-monospace text-break">{{ entry.sessionRef ?? '–' }}</dd>
