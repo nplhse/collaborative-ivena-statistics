@@ -24,10 +24,10 @@ final class ImportStatusPresenterTest extends TestCase
         $importReflection = new \ReflectionProperty(Import::class, 'id');
         $importReflection->setValue($import, 42);
 
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(static fn (string $id): string => $id);
 
-        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
         $urlGenerator->method('generate')->willReturn('/import/42');
 
         $presenter = new ImportStatusPresenter($translator, $urlGenerator);

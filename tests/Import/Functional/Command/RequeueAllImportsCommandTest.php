@@ -288,7 +288,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
         $container = self::getContainer();
         $failImportId = $first->getId();
 
-        $bus = $this->createMock(MessageBusInterface::class);
+        $bus = $this->createStub(MessageBusInterface::class);
         $bus->method('dispatch')->willReturnCallback(function (object $message) use ($failImportId): Envelope {
             if ($message instanceof ImportAllocationsMessage && $message->importId === $failImportId) {
                 throw new \RuntimeException('Simulated dispatch failure');
@@ -382,7 +382,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
         $container = self::getContainer();
         $runControl = new \App\Import\Application\Service\ImportRequeueRunControl();
 
-        $bus = $this->createMock(MessageBusInterface::class);
+        $bus = $this->createStub(MessageBusInterface::class);
         $bus->method('dispatch')->willReturnCallback(function (object $message) use ($runControl): Envelope {
             $runControl->requestStop(15);
 

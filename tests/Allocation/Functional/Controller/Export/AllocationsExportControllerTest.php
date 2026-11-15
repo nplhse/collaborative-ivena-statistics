@@ -327,7 +327,7 @@ final class AllocationsExportControllerTest extends WebTestCase
         $client = self::createClient();
         $client->disableReboot();
 
-        $mock = $this->createMock(ExportOrchestrator::class);
+        $mock = $this->createStub(ExportOrchestrator::class);
         $mock->method('estimate')->willReturn(new ExportEstimate(100, false, false, OwnHospitalAllocationsExporter::KEY));
         $mock->method('download')->willThrowException(new ExportBlockedException(ExportLimits::MAX_EXPORT_ROWS + 1, OwnHospitalAllocationsExporter::KEY));
         self::getContainer()->set(ExportOrchestrator::class, $mock);
@@ -451,7 +451,7 @@ final class AllocationsExportControllerTest extends WebTestCase
 
     private function mockOrchestratorEstimate(ExportEstimate $estimate): void
     {
-        $mock = $this->createMock(ExportOrchestrator::class);
+        $mock = $this->createStub(ExportOrchestrator::class);
         $mock->method('estimate')->willReturn($estimate);
         self::getContainer()->set(ExportOrchestrator::class, $mock);
     }

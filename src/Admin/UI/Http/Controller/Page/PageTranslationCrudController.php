@@ -35,6 +35,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Option\BadgeVariant;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
@@ -234,7 +235,11 @@ final class PageTranslationCrudController extends AbstractCrudController
                 'Draft' => PageTranslation::STATUS_DRAFT,
                 'Published' => PageTranslation::STATUS_PUBLISHED,
             ])
-            ->renderAsBadges();
+            ->renderAsBadges([
+                PageTranslation::STATUS_DRAFT => 'secondary',
+                PageTranslation::STATUS_PUBLISHED => 'success',
+            ])
+            ->setBadgeVariant(BadgeVariant::Dot);
         yield BooleanField::new('showToc', new TranslatableMessage('label.show_toc', domain: 'content'))
             ->setHelp(new TranslatableMessage('help.page.show_toc', domain: 'content'))
             ->hideOnIndex();
