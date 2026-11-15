@@ -9,31 +9,20 @@ use App\Encounter\Application\Dimension\EncounterField;
 
 /**
  * Builds small synthetic `ed_visit` v1 files (exchange-format.md) for tests: manifest, exact header and
- * one row per visit. Visits are named by a short label; fingerprint and case key are SHA-256 hex values
- * of the label, so the same label gives the same visit. Never real data.
+ * one row per visit, on top of the schema-independent EncounterFileBuilder. Visits are named by a short
+ * label; fingerprint and case key are SHA-256 hex values of the label, so the same label gives the same
+ * visit. Never real data.
  */
-final class EdVisitFileBuilder
+final readonly class EdVisitFileBuilder
 {
-    public const string KEY_CHECK = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+    public const string KEY_CHECK = EncounterFileBuilder::KEY_CHECK;
 
-    /** @var array<string, string> */
-    private array $manifest = [
-        'schema' => 'ed_visit',
-        'schema_version' => '1',
-        'profile' => 'orbis-mts',
-        'profile_version' => '1',
-        'tool' => '1.0.0',
-        'key_check' => self::KEY_CHECK,
-        'fingerprint' => 'ed-visit:v1',
-    ];
+    private EncounterFileBuilder $file;
 
-    /** @var list<array<string, string>> */
-    private array $rows = [];
-
-    private ?int $declaredRows = null;
-
-    /** @var list<string>|null */
-    private ?array $header = null;
+    private function __construct()
+    {
+        $this->file = EncounterFileBuilder::for(EdVisitDimension::SCHEMA, self::headerV1(), 'ed-visit:v1', 1, 'orbis-mts');
+    }
 
     public static function create(): self
     {
@@ -55,7 +44,7 @@ final class EdVisitFileBuilder
 
     public static function caseKey(string $case): string
     {
-        return hash('sha256', 'case|'.$case);
+        return EncounterFileBuilder::caseKey($case);
     }
 
     /**
@@ -65,7 +54,7 @@ final class EdVisitFileBuilder
      */
     public function visit(string $visit, string $anchor, ?string $case = null, array $overrides = []): self
     {
-        $this->rows[] = array_merge([
+        $this->file->row(array_merge([
             'visit_fingerprint' => self::fingerprint($visit),
             'case_key' => self::caseKey($case ?? $visit),
             'age' => '54',
@@ -77,25 +66,21 @@ final class EdVisitFileBuilder
             'care_level' => 'ward',
             'vitals_reference' => 'documented_initial',
             'heart_rate' => '88',
-        ], $overrides);
+        ], $overrides));
 
         return $this;
     }
 
     public function manifest(string $key, ?string $value): self
     {
-        if (null === $value) {
-            unset($this->manifest[$key]);
-        } else {
-            $this->manifest[$key] = $value;
-        }
+        $this->file->manifest($key, $value);
 
         return $this;
     }
 
     public function declaredRows(int $rows): self
     {
-        $this->declaredRows = $rows;
+        $this->file->declaredRows($rows);
 
         return $this;
     }
@@ -105,23 +90,14 @@ final class EdVisitFileBuilder
      */
     public function header(array $header): self
     {
-        $this->header = $header;
+        $this->file->header($header);
 
         return $this;
     }
 
     public function build(): string
     {
-        $header = $this->header ?? self::headerV1();
-        $manifest = $this->manifest + ['rows' => (string) ($this->declaredRows ?? \count($this->rows))];
-        $pairs = array_map(static fn (string $key, string $value): string => $key.'='.$value, array_keys($manifest), $manifest);
-
-        $lines = ['#encounter-exchange;'.implode(';', $pairs), implode(';', $header)];
-        foreach ($this->rows as $row) {
-            $lines[] = implode(';', array_map(static fn (string $name): string => $row[$name] ?? '', $header));
-        }
-
-        return implode("\n", $lines)."\n";
+        return $this->file->build();
     }
 
     /**
