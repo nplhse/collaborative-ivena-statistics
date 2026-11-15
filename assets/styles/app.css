@@ -442,6 +442,11 @@
     display: none;
 }
 
+/* Part of a cell value that only the card layout shows, for example the name next to an avatar-only cell (#1240). */
+.data-table-cards .data-table-cell__card-only {
+    display: none;
+}
+
 .data-table-cards > .table > thead > tr {
     flex-wrap: wrap;
     align-items: center;
@@ -585,6 +590,10 @@
         display: block;
         overflow-wrap: break-word;
         hyphens: auto;
+    }
+
+    .data-table-cards--sm .data-table-cell__card-only {
+        display: inline;
     }
 
     .data-table-cards--sm .data-table-cell__value {
@@ -767,6 +776,10 @@
         hyphens: auto;
     }
 
+    .data-table-cards--md .data-table-cell__card-only {
+        display: inline;
+    }
+
     .data-table-cards--md .data-table-cell__value {
         min-width: 0;
         overflow-wrap: anywhere;
@@ -945,6 +958,10 @@
         display: block;
         overflow-wrap: break-word;
         hyphens: auto;
+    }
+
+    .data-table-cards--lg .data-table-cell__card-only {
+        display: inline;
     }
 
     .data-table-cards--lg .data-table-cell__value {

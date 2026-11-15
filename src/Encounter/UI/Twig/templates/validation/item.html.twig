@@ -120,7 +120,7 @@
                     verdict: item.replacementEncounter
                         ? 'encounter.validation.item.verdict_wrong_other'|trans({visit: item.replacementEncounter.id}, 'encounter')
                         : ('encounter.validation.verdict.' ~ item.verdict.value)|trans({}, 'encounter'),
-                    user: item.decidedBy ? item.decidedBy.username : '–',
+                    user: item.decidedBy ? user_display_name(item.decidedBy.displayName, item.decidedBy.username) : '–',
                     at: item.decidedAt|date('d.m.Y H:i'),
                 }, 'encounter') }}</span>
             {% endif %}

@@ -1,3 +1,13 @@
-{% import '@Shared/_macros/users.html.twig' as users %}
+{% set changedBy = row.updatedBy ?? row.createdBy %}
 {{ row.updatedAt ? row.updatedAt|date('d.m.Y H:i') : row.createdAt|date('d.m.Y H:i') }}<br/>
-{{ users.link(row.updatedBy ?? row.createdBy) }}
+{% if changedBy %}
+    {# Table: avatar only, name in the tooltip and as accessible name; cards: avatar and name (#1240). #}
+    {% set changedByName = user_display_name(changedBy.displayName, changedBy.username) %}
+    {% set changedByLabel = changedByName != changedBy.username ? changedByName ~ ' · @' ~ changedBy.username : changedByName %}
+    <span class="d-inline-flex align-items-center gap-1" data-testid="hospital-last-change-user">
+        <twig:UserAvatar :user="changedBy" size="xs" :decorative="false" aria-label="{{ changedByLabel }}" title="{{ changedByLabel }}" data-controller="tooltip" />
+        <span class="data-table-cell__card-only" aria-hidden="true">{{ changedByName }}</span>
+    </span>
+{% else %}
+    —
+{% endif %}

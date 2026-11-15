@@ -1469,6 +1469,10 @@
         <source>hospital.badge.size.Large</source>
         <target>Large</target>
       </trans-unit>
+      <trans-unit id="hagMatrixUserEn" resname="label.hospital_access_grants.matrix.user">
+        <source>label.hospital_access_grants.matrix.user</source>
+        <target>User</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -16,6 +16,7 @@
             <a class="btn btn-primary" href="{{ path('app_encounter_grants_new', {id: hospital.id}) }}">{{ 'encounter.hospital_edit.grants_new'|trans({}, 'encounter') }}</a>
         {% endblock %}
         {% block edit_content %}
+            {% import '@Shared/_macros/users.html.twig' as users %}
             <p class="text-secondary">{{ 'encounter.grant.intro'|trans({}, 'encounter') }}</p>
             {% if grants is empty %}
                 <p class="text-secondary mb-0" data-test="encounter-grants-empty">{{ 'encounter.grant.empty'|trans({}, 'encounter') }}</p>
@@ -33,7 +34,7 @@
                         <tbody>
                             {% for grant in grants %}
                                 <tr>
-                                    <td>{{ grant.user.username }}</td>
+                                    <td>{{ users.link(grant.user, {avatar: 'xs'}) }}</td>
                                     <td>{{ include('@Encounter/grants/_actions.html.twig', {grant: grant}) }}</td>
                                     <td>{{ grant.createdAt|date('d.m.Y H:i') }}</td>
                                     <td class="text-nowrap">
