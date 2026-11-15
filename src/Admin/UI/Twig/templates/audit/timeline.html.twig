@@ -1,11 +1,6 @@
 {% extends '@EasyAdmin/page/content.html.twig' %}
 {% import '@Admin/audit/_macros.html.twig' as audit %}
 
-{% block configured_stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('styles/admin-kpi.css') }}">
-{% endblock %}
-
 {% block content_title %}{{ 'audit.timeline.title'|trans({}, 'admin') }}{% endblock %}
 
 {% block main %}

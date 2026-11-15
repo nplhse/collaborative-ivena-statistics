@@ -1,5 +1,9 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/pages/sitemap.css') }}">
+{% endblock %}
+
 {% block title %}{{ 'sitemap.title'|trans({}, 'shared') }} - {{ parent() }}{% endblock %}
 
 {% block page_header %}
@@ -20,6 +24,23 @@
 {% endblock %}
 
 {% block page_body %}
+    {#
+        Two fixed columns instead of an implicit grid (#1247):
+        - main (2/3): the areas with their own sidebar (Explore, Statistics), then two half columns: areas with
+          sub-pages but no sidebar (Tools) and the remaining footer columns stacked (legal, more);
+        - aside (1/3): the project and help columns of the footer, the remaining content pages, then compact
+          links for the areas without sub-pages (Import, Export, Blog, header pages).
+        Usually the main column is the longer one, so the compact links fill the space below the pages.
+    #}
+    {% set colors = {explore: 'purple', statistics: 'green', tools: 'pink', 'footer-project': 'blue', 'footer-help': 'cyan', 'footer-legal': 'orange', 'footer-more': 'teal', pages: 'azure'} %}
+    {% set link_colors = ['blue', 'teal', 'indigo', 'orange', 'yellow', 'cyan'] %}
+    {% set aside_keys = ['footer-project', 'footer-help', 'pages'] %}
+    {% set link_sections = sections|filter(section => section.groups is empty and section.url) %}
+    {% set main_sections = sections|filter(section => section.groups is not empty and section.url and section.key != 'tools') %}
+    {% set aside_sections = sections|filter(section => section.key in aside_keys) %}
+    {% set placed_keys = (link_sections|merge(main_sections)|merge(aside_sections))|map(section => section.key) %}
+    {% set more_sections = sections|filter(section => section.key not in placed_keys and section.url) %}
+    {% set stacked_sections = sections|filter(section => section.key not in placed_keys and not section.url) %}
     <div class="page-body">
         <div class="container-xl">
             {% if sections is empty %}
@@ -27,27 +48,53 @@
                     <div class="card-body text-secondary">{{ 'sitemap.empty'|trans({}, 'shared') }}</div>
                 </div>
             {% else %}
-                <div class="row row-cards">
-                    {% for section in sections %}
-                        <div class="col-12 col-md-6 col-lg-4" data-testid="sitemap-section-{{ section.key }}">
-                            <div class="card h-100">
-                                <div class="card-header">
-                                    <h3 class="card-title">{{ section.labelKey|trans({}, 'shared') }}</h3>
-                                </div>
-                                <ul class="list-group list-group-flush">
-                                    {% for link in section.links %}
-                                        <li class="list-group-item">
-                                            <a href="{{ link.url }}" class="link-secondary">{{ link.label }}</a>
-                                        </li>
-                                    {% endfor %}
-                                    {% if section.pageTree is not empty %}
-                                        {{ include('@Shared/sitemap/_page_tree_nodes.html.twig', {nodes: section.pageTree}) }}
+                {% set has_main = main_sections is not empty or more_sections is not empty or stacked_sections is not empty %}
+                {% set has_aside = aside_sections is not empty or link_sections is not empty %}
+                <nav class="sitemap{{ has_main and has_aside ? ' sitemap--split' }}" aria-label="{{ 'sitemap.title'|trans({}, 'shared') }}">
+                    {% if has_main %}
+                        <div class="sitemap__main">
+                            {% for section in main_sections %}
+                                {{ include('@Shared/sitemap/_tile.html.twig', {section: section, color: colors[section.key] ?? 'blue'}) }}
+                            {% endfor %}
+                            {% if more_sections is not empty or stacked_sections is not empty %}
+                                <div class="sitemap__more">
+                                    {% if more_sections is not empty %}
+                                        <div class="sitemap__column">
+                                            {% for section in more_sections %}
+                                                {{ include('@Shared/sitemap/_tile.html.twig', {section: section, color: colors[section.key] ?? 'indigo'}) }}
+                                            {% endfor %}
+                                        </div>
                                     {% endif %}
-                                </ul>
-                            </div>
+                                    {% if stacked_sections is not empty %}
+                                        <div class="sitemap__column">
+                                            {% for section in stacked_sections %}
+                                                {{ include('@Shared/sitemap/_tile.html.twig', {section: section, color: colors[section.key] ?? 'indigo'}) }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
                         </div>
-                    {% endfor %}
-                </div>
+                    {% endif %}
+                    {% if has_aside %}
+                        <div class="sitemap__aside">
+                            {% for section in aside_sections %}
+                                {{ include('@Shared/sitemap/_tile.html.twig', {section: section, color: colors[section.key] ?? 'azure'}) }}
+                            {% endfor %}
+                            {% if link_sections is not empty %}
+                                <div class="sitemap__links">
+                                    {% for section in link_sections %}
+                                        <a href="{{ section.url }}" class="card sitemap-tile sitemap-tile--link" data-testid="sitemap-section-{{ section.key }}">
+                                            <span class="avatar avatar-sm bg-{{ link_colors[loop.index0 % link_colors|length] }}-lt sitemap-tile__icon"><twig:ux:icon name="{{ section.icon ?? 'tabler:link' }}" /></span>
+                                            <span class="sitemap-tile__title">{{ section.label }}</span>
+                                            <span class="sitemap-tile__arrow text-secondary"><twig:ux:icon name="tabler:arrow-right" /></span>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </nav>
             {% endif %}
         </div>
     </div>

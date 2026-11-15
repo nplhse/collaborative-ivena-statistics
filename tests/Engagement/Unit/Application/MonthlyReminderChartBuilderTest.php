@@ -38,6 +38,23 @@ final class MonthlyReminderChartBuilderTest extends TestCase
         self::assertNull($builder->percentChange(0, 0));
     }
 
+    public function testPercentChangeFromZeroIsUndefined(): void
+    {
+        $builder = new MonthlyReminderChartBuilder(new ChartBucketMapper());
+
+        // 5 allocations after a month with none: there is no percentage, not +100 %.
+        self::assertNull($builder->percentChange(5, 0));
+    }
+
+    public function testPercentChangeAgainstAPositivePreviousMonth(): void
+    {
+        $builder = new MonthlyReminderChartBuilder(new ChartBucketMapper());
+
+        self::assertSame(10.0, $builder->percentChange(110, 100));
+        self::assertSame(-10.0, $builder->percentChange(90, 100));
+        self::assertSame(0.0, $builder->percentChange(100, 100));
+    }
+
     public function testSummarizeTrendDetectsGrowingSeries(): void
     {
         $builder = new MonthlyReminderChartBuilder(new ChartBucketMapper());

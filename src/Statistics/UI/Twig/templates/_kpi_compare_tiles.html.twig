@@ -1,11 +1,21 @@
+{#
+    Colour shows how a difference is read, not its sign (#1230, product decision): a higher share with
+    physician, resuscitation bay or cath lab is favourable, a longer mean transport time is unfavourable.
+    All other metrics (volume, age, night, weekend) describe the case mix and stay neutral grey.
+#}
+{% set favourableWhenHigher = {with_physician: true, resus: true, cathlab: true, mean_transport: false} %}
 <div data-testid="{{ testIdPrefix }}-tiles">
     <div class="row row-deck row-cards g-3">
         {% for metric in metrics %}
-            {% set deltaTone = metric.absoluteDelta > 0 ? 'success' : (metric.absoluteDelta < 0 ? 'danger' : 'primary') %}
-            {% set deltaTextClass = deltaTone == 'danger' ? 'text-danger' : (deltaTone == 'success' ? 'text-success' : 'text-primary') %}
-            {% set deltaBadgeClass = deltaTone == 'danger' ? 'bg-red-lt' : (deltaTone == 'success' ? 'bg-green-lt' : 'bg-primary-lt') %}
-            {% set ratioTone = metric.ratio > 1 ? 'success' : (metric.ratio < 1 ? 'danger' : 'primary') %}
-            {% set ratioBadgeClass = ratioTone == 'danger' ? 'bg-red-lt' : (ratioTone == 'success' ? 'bg-green-lt' : 'bg-primary-lt') %}
+            {% set higherIsFavourable = favourableWhenHigher[metric.key.value] ?? null %}
+            {# Tone follows the delta as shown: +0,04 pp is displayed as +0,0 and is no change. #}
+            {% set shownDelta = metric.absoluteDelta|round(metric.format.value == 'count' ? 0 : 1) %}
+            {% set deltaTone = higherIsFavourable is null or shownDelta == 0
+                ? 'secondary'
+                : ((shownDelta > 0) == higherIsFavourable ? 'success' : 'danger') %}
+            {% set deltaTextClass = deltaTone == 'danger' ? 'text-danger' : (deltaTone == 'success' ? 'text-success' : 'text-secondary') %}
+            {# The ratio is above 1 exactly when the difference is positive, so it shares the tone. #}
+            {% set ratioBadgeClass = deltaTone == 'danger' ? 'bg-red-lt' : (deltaTone == 'success' ? 'bg-green-lt' : 'bg-secondary-lt') %}
             {% set labelKey = metricLabelKeys[metric.key.value]|default('stats.benchmark.metric.' ~ metric.key.value) %}
             {% set tileColumnClass = columnClass|default('col-12 col-md-6 col-lg-4') %}
             {% set withComparison = showComparison ?? true %}
@@ -45,7 +55,13 @@
                         {% elseif not suppressRatios %}
                             <div class="d-flex align-items-baseline gap-2 mb-3">
                                 <div class="h2 mb-0 fw-bold {{ deltaTextClass }}">{{ deltaLabel }}{% if metric.format.value == 'percent' %} {{ include('@Statistics/_percentage_points_unit.html.twig') }}{% endif %}</div>
-                                <span class="badge {{ ratioBadgeClass }}">{{ metric.ratio|number_format(1, ',', '.') }}×</span>
+                                {% if metric.hasRatio %}
+                                    <span class="badge {{ ratioBadgeClass }}">{{ metric.ratio|number_format(1, ',', '.') }}×</span>
+                                {% else %}
+                                    {# Comparison value 0: the ratio is undefined, not 0,0× (#1231). #}
+                                    {% set ratioUnavailableLabel = 'stats.benchmark.kpi.ratio_unavailable'|trans({}, 'statistics') %}
+                                    <span class="badge bg-secondary-lt" title="{{ ratioUnavailableLabel }}" data-testid="{{ testIdPrefix }}-{{ metric.key.value }}-ratio-unavailable"><span aria-hidden="true">—</span><span class="visually-hidden">{{ ratioUnavailableLabel }}</span></span>
+                                {% endif %}
                             </div>
                         {% else %}
                             <div class="row g-2 mb-3">

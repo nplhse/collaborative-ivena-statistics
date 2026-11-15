@@ -2845,6 +2845,10 @@
         <source>stats.benchmark.kpi.ratio</source>
         <target>Ratio</target>
       </trans-unit>
+      <trans-unit id="statsBm23r" resname="stats.benchmark.kpi.ratio_unavailable">
+        <source>stats.benchmark.kpi.ratio_unavailable</source>
+        <target>Ratio not computable: the comparison value is 0</target>
+      </trans-unit>
       <trans-unit id="statsBm24" resname="stats.benchmark.metric.total">
         <source>stats.benchmark.metric.total</source>
         <target>Case count</target>

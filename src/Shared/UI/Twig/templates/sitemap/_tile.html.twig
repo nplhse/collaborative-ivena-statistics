@@ -1,0 +1,24 @@
+{# One sitemap section as a card: icon, title (linked to the area when it has a landing page), link count, groups. #}
+<section class="card sitemap-tile" data-testid="sitemap-section-{{ section.key }}" aria-labelledby="sitemap-title-{{ section.key }}">
+    <header class="sitemap-tile__header">
+        <span class="avatar avatar-sm bg-{{ color }}-lt sitemap-tile__icon"><twig:ux:icon name="{{ section.icon ?? 'tabler:link' }}" /></span>
+        <h3 class="sitemap-tile__title" id="sitemap-title-{{ section.key }}">
+            {% if section.url %}
+                <a href="{{ section.url }}" class="link-reset">{{ section.label }}</a>
+            {% else %}
+                {{ section.label }}
+            {% endif %}
+        </h3>
+        <span class="badge bg-{{ color }}-lt ms-auto">{{ 'sitemap.link_count'|trans({count: section.linkCount}, 'shared') }}</span>
+    </header>
+    <div class="sitemap-tile__body">
+        {% for group in section.groups %}
+            <div class="sitemap-tile__group{{ group.label is null and not loop.first ? ' sitemap-tile__group--divided' }}">
+                {% if group.label %}
+                    <div class="subheader sitemap-tile__group-label">{{ group.label }}</div>
+                {% endif %}
+                {{ include('@Shared/sitemap/_entries.html.twig', {entries: group.entries}) }}
+            </div>
+        {% endfor %}
+    </div>
+</section>
