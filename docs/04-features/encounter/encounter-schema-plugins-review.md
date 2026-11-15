@@ -25,7 +25,7 @@ Agreed in the discussion of #1273 and recorded in ADR 037:
   encounters with different anchors.
 - Records are assigned through a core service: assigned, no candidate, ambiguous or contradictory.
   Unassigned records are kept; users with the `REVIEW` grant resolve conflicts by assigning a candidate
-  or by leaving the record unassigned, which automatic retries respect.
+  or by leaving the record unassigned for now, in which case later retries may still assign it.
 - Records belong to their import (ADR 029 per record). Deleting an import removes only its records.
   An encounter has no owning import; a separate hub cleanup removes encounters without records.
 - Matching (ADR 030) belongs to `ed_visit`.
@@ -339,8 +339,9 @@ manual decisions and the retry of records without candidate are a follow-up issu
 are added to the conflict page of step 4, and it extends this test with:
 
 - "assign row 3 to B" → the case file of Y shows the stay;
-- "leave row 3 unassigned", then import a visit that would decide it → the stay stays unassigned
-  (automatic retries skip a deliberate decision);
+- "leave row 3 unassigned for now", then a retry with the same candidates B and C → no new conflict;
+  then a later `ed_visit` import adds visit F with the same case → a new conflict with B, C and F; at
+  service level, a retry whose candidates shrink to B alone assigns the stay to B;
 - "import visit D with the case of row 4" → the stay is assigned to D.
 
 **Implementation note for step 9.** Import deletion removes the rows of all removers in one
@@ -386,7 +387,7 @@ Part 1, proving the mechanism (MTS stays where it is):
 6. Test bundle with migration and the integration test above.
 
 Follow-up of #1274 (own issue): the two manual decisions on the conflict page (assign to a candidate,
-leave unassigned) and the retry of records without candidate after encounter imports.
+leave unassigned for now) and the retry of records without candidate after encounter imports.
 
 Part 2, moving MTS (#1300, one pull request per step):
 

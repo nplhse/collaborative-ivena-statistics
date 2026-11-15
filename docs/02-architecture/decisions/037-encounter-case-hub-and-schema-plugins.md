@@ -86,10 +86,13 @@ time, or by creating a new encounter. The core answers with one of four results 
   hand with one of two decisions:
   - **Assign to a candidate:** the record is attached to the chosen encounter and from then on
     processed like an automatically assigned one.
-  - **Leave unassigned:** the record stays unassigned, and the decision is kept. Automatic retries skip
-    it; only a reviewer can reopen it. Reprocessing the import removes the decision together with the
-    record, like other review decisions (ADR 029).
-- Automatic retries apply only to records without candidate. Open conflicts wait for review.
+  - **Leave unassigned for now:** the conflict is closed without an assignment. The record stays
+    eligible for automatic assignment: a later retry that finds exactly one candidate attaches it. A
+    new conflict is raised only when a retry finds candidates other than those the reviewer saw.
+    Reprocessing the import removes the decision together with the record, like other review decisions
+    (ADR 029).
+- Automatic retries apply to records without candidate and to records left unassigned. Open conflicts
+  wait for review.
 - In the first version only `ed_visit` creates encounters; other schemas attach to existing ones.
 
 ### Records and ownership
