@@ -336,6 +336,9 @@ Integration branch from `develop`, one PR per step ([ADR 010](010-architecture-g
 Follow-ups, optional for v0.3-beta: breadcrumbs from the active path (#1141), sitemap from the tree,
 mobile header actions (#954), favorites section, quick search. The search inside the sidebar
 followed in #1248 ([Search in the sidebar](#search-in-the-sidebar)); a command palette across areas is still open.
+The sitemap from the tree followed in #1247: `SitemapProvider` arranges the primary, sidebar and footer
+menus and lists no routes of its own; pages outside the menus (account, settings, login) are no longer
+listed ([extension-points.md](../extension-points.md#navigation-tree)).
 
 ## Prototype
 

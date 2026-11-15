@@ -345,25 +345,13 @@
         <source>sitemap.empty</source>
         <target>No pages are available for your current account.</target>
       </trans-unit>
-      <trans-unit id="SitemapSecPublicEn" resname="sitemap.section.public">
-        <source>sitemap.section.public</source>
-        <target>Public</target>
+      <trans-unit id="SitemapSecPagesEn" resname="sitemap.section.pages">
+        <source>sitemap.section.pages</source>
+        <target>Pages</target>
       </trans-unit>
-      <trans-unit id="SitemapSecDocEn" resname="sitemap.section.content">
-        <source>sitemap.section.content</source>
-        <target>Content</target>
-      </trans-unit>
-      <trans-unit id="SitemapSecAppEn" resname="sitemap.section.data_exchange">
-        <source>sitemap.section.data_exchange</source>
-        <target>Import &amp; Export</target>
-      </trans-unit>
-      <trans-unit id="SitemapSecStatsEn" resname="sitemap.section.statistics">
-        <source>sitemap.section.statistics</source>
-        <target>Statistics &amp; Analysis</target>
-      </trans-unit>
-      <trans-unit id="SitemapSecToolsEn" resname="sitemap.section.tools">
-        <source>sitemap.section.tools</source>
-        <target>Tools</target>
+      <trans-unit id="SitemapLinkCountEn" resname="sitemap.link_count">
+        <source>sitemap.link_count</source>
+        <target>{count, plural, one {# link} other {# links}}</target>
       </trans-unit>
       <trans-unit id="LnkToolsEn" resname="link.tools">
         <source>link.tools</source>
@@ -392,18 +380,6 @@
       <trans-unit id="ToolsCatPrepEn" resname="tools.category.data_preparation">
         <source>tools.category.data_preparation</source>
         <target>Data preparation</target>
-      </trans-unit>
-      <trans-unit id="SitemapSecExploreEn" resname="sitemap.section.explore">
-        <source>sitemap.section.explore</source>
-        <target>Explore Data</target>
-      </trans-unit>
-      <trans-unit id="SitemapSecAccountEn" resname="sitemap.section.account">
-        <source>sitemap.section.account</source>
-        <target>User Account</target>
-      </trans-unit>
-      <trans-unit id="SitemapSecClinicEn" resname="sitemap.section.clinic">
-        <source>sitemap.section.clinic</source>
-        <target>Clinic</target>
       </trans-unit>
       <trans-unit id="lnkActivityEn" resname="link.activity">
         <source>link.activity</source>
