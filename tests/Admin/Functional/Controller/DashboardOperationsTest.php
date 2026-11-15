@@ -122,7 +122,7 @@ final class DashboardOperationsTest extends WebTestCase
         $item = $crawler->filter('[data-health-check="storage"]');
         self::assertCount(1, $item);
         self::assertStringEndsWith('/admin/operations/storage', (string) $item->attr('href'));
-        self::assertStringContainsString('bg-warning', (string) $item->attr('class'));
+        self::assertStringContainsString('badge-warning', $this->badgeClass($item));
 
         self::assertSame('Storage: warning', $item->text());
     }
@@ -148,11 +148,11 @@ final class DashboardOperationsTest extends WebTestCase
 
         $backlog = $crawler->filter('[data-health-check="messenger_backlog"]');
         self::assertSame('Messenger backlog: oldest message waits 50 min (low)', $backlog->text());
-        self::assertStringContainsString('bg-warning', (string) $backlog->attr('class'));
+        self::assertStringContainsString('badge-warning', $this->badgeClass($backlog));
         self::assertStringContainsString('/admin/operations/messenger', (string) $backlog->attr('href'));
 
         $stalled = $crawler->filter('[data-health-check="messenger_stalled"]');
-        self::assertStringContainsString('bg-danger', (string) $stalled->attr('class'));
+        self::assertStringContainsString('badge-danger', $this->badgeClass($stalled));
         self::assertSame('Messenger processing: 1 message(s) waiting, no handling recorded', $stalled->text());
 
         self::assertCount(0, $crawler->filter('[data-health-check="messenger_retries"]'), 'checks that are ok are left out while another Messenger check is not');
@@ -175,7 +175,7 @@ final class DashboardOperationsTest extends WebTestCase
         $messenger = $crawler->filter('[data-health-check="messenger"]');
         self::assertCount(1, $messenger);
         self::assertSame('Messenger: ok', $messenger->text());
-        self::assertStringContainsString('bg-success', (string) $messenger->attr('class'));
+        self::assertStringContainsString('badge-success', $this->badgeClass($messenger));
         self::assertStringEndsWith('/admin/operations/messenger', (string) $messenger->attr('href'));
         foreach (['messenger_failed', 'messenger_backlog', 'messenger_stalled', 'messenger_retries'] as $key) {
             self::assertCount(0, $crawler->filter(\sprintf('[data-health-check="%s"]', $key)), $key);
@@ -199,7 +199,7 @@ final class DashboardOperationsTest extends WebTestCase
 
         $failed = $crawler->filter('[data-health-check="messenger_failed"]');
         self::assertSame('Messenger failed: 1 failed message(s)', $failed->text());
-        self::assertStringContainsString('bg-warning', (string) $failed->attr('class'));
+        self::assertStringContainsString('badge-warning', $this->badgeClass($failed));
         self::assertStringContainsString('/admin/operations/failed-messages', (string) $failed->attr('href'));
         self::assertCount(0, $crawler->filter('[data-health-check="messenger"]'));
         self::assertCount(0, $crawler->filter('[data-health-check="messenger_backlog"]'), 'the failure queue is not a backlog');
@@ -222,5 +222,13 @@ final class DashboardOperationsTest extends WebTestCase
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($measurement);
         $entityManager->flush();
+    }
+
+    /** The health item is either the badge itself or a link around it. */
+    private function badgeClass(Crawler $item): string
+    {
+        $badge = str_contains((string) $item->attr('class'), 'badge') ? $item : $item->filter('.badge');
+
+        return (string) $badge->attr('class');
     }
 }

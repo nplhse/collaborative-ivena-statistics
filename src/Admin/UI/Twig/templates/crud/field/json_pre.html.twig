@@ -3,15 +3,12 @@
 {% if json is empty or json == '—' %}
     <span class="text-body-secondary">{{ json|default('—') }}</span>
 {% else %}
-    <div class="ea-json-pre-wrap" data-controller="copy-to-clipboard">
+    {# idle/success classes: the colour classes of the EasyAdmin button (default and success) #}
+    <div class="ea-json-pre-wrap" data-controller="copy-to-clipboard" data-copy-to-clipboard-idle-class-value="btn-secondary" data-copy-to-clipboard-success-class-value="btn-success">
         <div class="d-flex justify-content-end mb-2">
-            <button type="button"
-                    class="btn btn-sm btn-outline-secondary"
-                    data-copy-to-clipboard-target="button"
-                    data-action="copy-to-clipboard#copy">
-                <twig:ux:icon name="tabler:copy" class="w-3 h-3" />
-                <span class="ms-1">{{ 'label.copy'|trans({}, 'admin') }}</span>
-            </button>
+            <twig:ea:Button type="button" size="sm" icon="far fa-copy" data-copy-to-clipboard-target="button" data-action="copy-to-clipboard#copy">
+                {{ 'label.copy'|trans({}, 'admin') }}
+            </twig:ea:Button>
         </div>
         <pre class="ea-json-pre mb-0" data-copy-to-clipboard-target="source">{{ json }}</pre>
     </div>
