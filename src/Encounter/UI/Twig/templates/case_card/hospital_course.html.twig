@@ -52,5 +52,11 @@
                 </div>
             </div>
         </div>
+        {# Records of other encounter schemas attached to the linked encounter (ADR 037). #}
+        {% for section in record_sections %}
+            <div class="card-body border-top" data-record-section="{{ section.key }}">
+                {{ include(section.template, section.context) }}
+            </div>
+        {% endfor %}
     {% endif %}
 </div>

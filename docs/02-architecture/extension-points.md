@@ -126,6 +126,26 @@ so the top navbar marks Explore as active; the entry's `route` and `detailRoutes
 the explore sidebar. Rules for such pages:
 [explore-glossary.md](../04-features/allocation/explore-glossary.md).
 
+## Explore overview tiles
+
+**Tag:** `allocation.explore_entry`
+
+**Interface:** `ExploreEntryProviderInterface` (`src/Allocation/Application/Explore/Overview/`)
+
+**Registry:** `ExploreEntryRegistry` (by `ExploreGroup`), passed by `ExploreController` to
+`@Allocation/explore.html.twig`, which renders the tiles of a group after its fixed ones
+(`_explore_contributed_tiles.html.twig`)
+
+**Implementations:** `EncounterExploreEntryProvider` (ED visit list, #1178, and the tiles of encounter schemas,
+ADR 037, #1274)
+
+Lets other contexts add a tile (title, description, Tabler icon, route, beta badge) to the groups `cases`,
+`organisation`, `structure` or `features` of the Explore overview without a dependency from `Allocation` on them.
+Explore decides the visibility: a tile is shown when `is_granted($grantedAttribute)` holds, checked without a
+subject; the target page checks its access itself. Tiles of a group are ordered by weight, then key; a key may be
+contributed once. Providers run on every request of the overview and must not query the database. Name target
+routes `app_explore_…`, so that the Explore entry of the navigation is active.
+
 ## Allocation case file sections
 
 **Tag:** `allocation.case_section`
@@ -245,6 +265,34 @@ transaction; manual decisions and retries follow in #1307. Handlers count their 
 `AssignmentCounts` and return them in `SchemaWriteResult::$assignments`: the import report shows assigned,
 unassigned (no candidate) and conflicts (ambiguous or contradictory). Record tables reference `encounter`
 with ON DELETE RESTRICT; `EncounterAttachedRecordsGuard` (above) finds them in the database catalog.
+
+## Encounter record sections
+
+**Tag:** `encounter.record_section`
+
+**Interface:** `RecordSectionProviderInterface` (`src/Encounter/Contract/Display/`)
+
+**Registry:** `RecordSectionRegistry`, used by `HospitalCourseCaseSectionProvider`
+
+**Implementations:** in the `test` environment the probe schema (`tests/Support/Encounter/Probe/`)
+
+Lets an encounter schema show its records of an encounter in the hospital course card of the allocation case
+file (ADR 037). The card asks only after it checked `VIEW_CASES` and found the effective link; a provider returns
+`RecordSection`s (key, Twig template of the schema, variables) or none, with one query at most (query budget of the
+case file).
+
+## Encounter Explore tiles
+
+**Tag:** `encounter.explore_entry`
+
+**Interface:** `ExploreEntryProviderInterface` (`src/Encounter/Contract/Display/`)
+
+**Consumer:** `EncounterExploreEntryProvider`, which forwards the tiles to the
+[Explore overview](#explore-overview-tiles) in the group `cases`, after the ED visit list
+
+Lets an encounter schema add a tile to the Explore overview. Explore shows it to users who may view cases of at least
+one hospital (`EncounterAttribute::VIEW_CASES_IN_ANY_HOSPITAL`, `EncounterCasesAnywhereVoter`: beta role and grant
+action `VIEW_CASES` or `REVIEW` somewhere, or `ROLE_ADMIN`); the target page checks `VIEW_CASES` per hospital.
 
 ## Encounter schema handlers
 

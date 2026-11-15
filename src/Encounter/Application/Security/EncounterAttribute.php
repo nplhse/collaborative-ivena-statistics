@@ -42,6 +42,13 @@ final class EncounterAttribute
     /** Managing the encounter grants of the hospital. Hospital owner or ROLE_ADMIN. */
     public const string MANAGE_GRANTS = 'ENCOUNTER_MANAGE_GRANTS';
 
+    /**
+     * Without subject: the user may view cases of at least one hospital (VIEW_CASES or REVIEW somewhere;
+     * ROLE_ADMIN). Decides whether contributed Explore tiles are shown (ADR 037); pages still check
+     * VIEW_CASES per hospital. Checked by EncounterCasesAnywhereVoter, not part of ALL.
+     */
+    public const string VIEW_CASES_IN_ANY_HOSPITAL = 'ENCOUNTER_VIEW_CASES_IN_ANY_HOSPITAL';
+
     public const array ALL = [
         self::UPLOAD,
         self::REVIEW,

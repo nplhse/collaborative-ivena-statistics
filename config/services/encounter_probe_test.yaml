@@ -1,9 +1,15 @@
 # Test-only encounter schema `probe` (ADR 037, #1274): a contribution registered through the container like
-# a bundle's, to prove that the shared encounter import selects the handler of the uploaded schema.
+# a bundle's, to prove that the shared encounter import selects the handler of the uploaded schema and that
+# the case file and the Explore overview show what a schema contributes.
 when@test:
     services:
         App\Tests\Support\Encounter\Probe\ProbeDimension:
             autoconfigure: true
         App\Tests\Support\Encounter\Probe\ProbeSchemaHandler:
             autowire: true
+            autoconfigure: true
+        App\Tests\Support\Encounter\Probe\ProbeRecordSectionProvider:
+            autowire: true
+            autoconfigure: true
+        App\Tests\Support\Encounter\Probe\ProbeExploreEntryProvider:
             autoconfigure: true

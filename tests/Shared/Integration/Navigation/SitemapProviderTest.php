@@ -138,7 +138,7 @@ final class SitemapProviderTest extends KernelTestCase
         self::assertSame(['Treatment data'], $this->labels($statistics->groups[4]->entries));
 
         self::assertSame(
-            [['Encounter match review', 'Encounter match validation', 'Indication matching review'], ['Data preparation tool']],
+            [['Encounter assignment conflicts', 'Encounter match review', 'Encounter match validation', 'Indication matching review'], ['Data preparation tool']],
             array_map(fn (SitemapGroup $group): array => $this->labels($group->entries), $this->findSection('tools')->groups),
         );
     }

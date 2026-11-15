@@ -322,6 +322,8 @@ Overviews cross both attributes, for example "EMS arrival, not linked".
 | Match validation: draw samples, record verdicts, read the report | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
 | Case-level views, case card on an allocation, visit list and visit detail page | beta role + encounter grant `VIEW_CASES`, or `ROLE_ADMIN` |
 | Open proposals (state "proposal pending") and links into the match review on the visit list and detail page | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
+| Assignment conflicts of attaching schemas (read only, #1274) | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
+| Explore tiles of further encounter schemas | beta role + encounter grant `VIEW_CASES` (or `REVIEW`) for at least one hospital, or `ROLE_ADMIN`; the target page checks the hospital |
 | Descriptive aggregates of the own hospital | beta role + any encounter grant + `STATISTICS`, or `ROLE_ADMIN` |
 | View or download a retained upload file | beta role + encounter grant `UPLOAD` on the hospital, or `ROLE_ADMIN` |
 | Reprocess a retained upload file | beta role + `UPLOAD`, or `ROLE_ADMIN` (shows no file content) |
@@ -988,6 +990,10 @@ beta role, or `ROLE_ADMIN`); everyone else sees the case file without it.
 - **Vitals:** with `documented_initial` labelled "documented first value" with the note that the time
   of measurement is not assured, and never placed on the timeline.
 - **Open visit** links to the [visit detail page](#visit-detail-page) (#1178).
+- **Records of other schemas** (ADR 037, #1274): below the blocks, the sections that encounter schemas
+  contribute for the linked encounter (`RecordSectionProviderInterface`, tag `encounter.record_section`,
+  [extension point](../../02-architecture/extension-points.md#encounter-record-sections)). The card has
+  checked `VIEW_CASES` before; each schema adds one query at most.
 
 The clinical blocks (triage, process times, timeline, vitals, disposition) are Twig macros in
 `@Encounter/visit/_course_macros.html.twig`, shared with the visit detail page.
@@ -1021,8 +1027,9 @@ list of unlinked visits; the breadcrumb and "Back to list" open the visit list o
 
 Implemented in #1178. All ED visits of one hospital in a period, with or without IVENA allocation, in Explore
 under "Cases" ("ED visits", beta badge; `EncounterNavigationProvider` shows it to the beta role, the pages check
-the grants). The Explore start page shows a tile in its "Cases" group for the beta role as well, written into
-`explore.html.twig` like the Users tile of the User context (the start page has no extension point).
+the grants). The Explore start page shows a tile in its "Cases" group for the beta role as well, contributed through
+the [Explore overview extension point](../../02-architecture/extension-points.md#explore-overview-tiles)
+(`EncounterExploreEntryProvider`, #1274); the tiles of further encounter schemas follow it.
 
 - `/explore/ed-visits` (`ListVisitHospitalsController`) lists the hospitals whose visits the user may see
   (`VisitListHospitals`: grant action `VIEW_CASES`, also set by `REVIEW`; every hospital with visits for
@@ -1156,6 +1163,7 @@ listed by `EncounterToolProvider` for `ROLE_ENCOUNTER_BETA` with a beta badge:
 | Encounter match review | `app_tools_encounter_review` | `/tools/encounter-review` (hospital list), `/tools/encounter-review/{id}/…` |
 | Encounter match validation | `app_tools_encounter_review` with `mode=validation` | the same hospital list, linking to `/tools/encounter-review/{id}/validation` |
 | Data preparation tool | `app_tools_data_prep` | `/tools/data-prep`, `/tools/data-prep/key`, `/tools/data-prep/local-map`, `/tools/data-prep/download` |
+| Assignment conflicts (#1274, read only; decisions in #1307) | `app_tools_encounter_assignments` | `/tools/encounter-assignments` (hospitals with grant `REVIEW`; administrators: every hospital with conflicts), `/tools/encounter-assignments/{id}` (open ambiguous and contradictory records of attaching schemas with their candidates, newest 200) |
 | Plausibility table (also needs `ROLE_ENCOUNTER_CATALOG_REVIEWER`, [above](#plausibility-table)) | `app_tools_encounter_plausibility*` | `/tools/encounter-plausibility`, `…/areas/new`, `…/areas/{code}/edit`, `…/areas/{code}/delete`, `…/snapshots/{id}`, `…/snapshots/{id}/{activate,retire,delete}` |
 
 There is no encounter entry in the main navigation anymore: descriptive figures are in Statistics
