@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
+    <body>
+      <trans-unit id="Ist9553BDE76" resname="inpatient_stay_test.schema">
+        <source>inpatient_stay_test.schema</source>
+        <target>Stationäre Aufenthalte (Test)</target>
+      </trans-unit>
+      <trans-unit id="IstB7C44A2D2" resname="inpatient_stay_test.explore.title">
+        <source>inpatient_stay_test.explore.title</source>
+        <target>Stationäre Aufenthalte (Test)</target>
+      </trans-unit>
+      <trans-unit id="Ist0583AA780" resname="inpatient_stay_test.explore.description">
+        <source>inpatient_stay_test.explore.description</source>
+        <target>Synthetische stationäre Aufenthalte des Test-Plugins.</target>
+      </trans-unit>
+      <trans-unit id="Ist73B50AB53" resname="inpatient_stay_test.section.title">
+        <source>inpatient_stay_test.section.title</source>
+        <target>Stationärer Aufenthalt</target>
+      </trans-unit>
+      <trans-unit id="Ist416D0B346" resname="inpatient_stay_test.field.admitted_at">
+        <source>inpatient_stay_test.field.admitted_at</source>
+        <target>Aufnahme</target>
+      </trans-unit>
+      <trans-unit id="IstDEC963ACC" resname="inpatient_stay_test.field.discharge_diagnosis">
+        <source>inpatient_stay_test.field.discharge_diagnosis</source>
+        <target>Entlassdiagnose</target>
+      </trans-unit>
+      <trans-unit id="Ist0530B7CCF" resname="inpatient_stay_test.field.discharged_at">
+        <source>inpatient_stay_test.field.discharged_at</source>
+        <target>Entlassung</target>
+      </trans-unit>
+      <trans-unit id="IstDDAA34C91" resname="inpatient_stay_test.field.assigned">
+        <source>inpatient_stay_test.field.assigned</source>
+        <target>Zugeordnet</target>
+      </trans-unit>
+      <trans-unit id="Ist9457CFA93" resname="inpatient_stay_test.no_hospitals">
+        <source>inpatient_stay_test.no_hospitals</source>
+        <target>Sie dürfen die Fälle keiner Klinik sehen.</target>
+      </trans-unit>
+      <trans-unit id="Ist1E46AC8B2" resname="inpatient_stay_test.yes">
+        <source>inpatient_stay_test.yes</source>
+        <target>ja</target>
+      </trans-unit>
+      <trans-unit id="IstC357DB0FD" resname="inpatient_stay_test.no">
+        <source>inpatient_stay_test.no</source>
+        <target>nein</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

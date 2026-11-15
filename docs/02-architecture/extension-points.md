@@ -274,7 +274,8 @@ with ON DELETE RESTRICT; `EncounterAttachedRecordsGuard` (above) finds them in t
 
 **Registry:** `RecordSectionRegistry`, used by `HospitalCourseCaseSectionProvider`
 
-**Implementations:** in the `test` environment the probe schema (`tests/Support/Encounter/Probe/`)
+**Implementations:** in the `test` environment `InpatientStayRecordSections` of the test bundle
+(`tests/Fixtures/Plugin/InpatientStay/`)
 
 Lets an encounter schema show its records of an encounter in the hospital course card of the allocation case
 file (ADR 037). The card asks only after it checked `VIEW_CASES` and found the effective link; a provider returns
@@ -290,9 +291,42 @@ case file).
 **Consumer:** `EncounterExploreEntryProvider`, which forwards the tiles to the
 [Explore overview](#explore-overview-tiles) in the group `cases`, after the ED visit list
 
+**Implementations:** in the `test` environment `InpatientStayExploreEntries` of the test bundle
+
 Lets an encounter schema add a tile to the Explore overview. Explore shows it to users who may view cases of at least
 one hospital (`EncounterAttribute::VIEW_CASES_IN_ANY_HOSPITAL`, `EncounterCasesAnywhereVoter`: beta role and grant
 action `VIEW_CASES` or `REVIEW` somewhere, or `ROLE_ADMIN`); the target page checks `VIEW_CASES` per hospital.
+
+## Encounter schema bundles
+
+**Marker:** `EncounterPluginBundleInterface` (`src/Encounter/Contract/Plugin/`) on a Symfony bundle
+
+**Consumers:** `EncounterPluginRouteLoader` (route type `encounter_plugins`, `config/routes/encounter_plugins.php`),
+`TimestampMigrationComparator` (`src/Shared/Infrastructure/Doctrine/`, registered in `doctrine_migrations.yaml`)
+
+**Implementations:** in the `test` environment `InpatientStayTestBundle` (`tests/Fixtures/Plugin/InpatientStay/`,
+schema `inpatient_stay`, #1274)
+
+How a Composer-installed bundle contributes an encounter schema without changes to the application
+([ADR 037](decisions/037-encounter-case-hub-and-schema-plugins.md)); enabling it in `config/bundles.php` and running
+the migrations is all a deployment needs:
+
+- An `AbstractBundle` that implements `EncounterPluginBundleInterface`. `prependExtension()` adds its Doctrine
+  mapping and its migrations path; `loadExtension()` loads its services (autowired and autoconfigured, so the tags of
+  the contract interfaces apply).
+- `config/routes.php` of the bundle, imported by `EncounterPluginRouteLoader` for every enabled marked bundle.
+  Name pages under Explore `app_explore_…`.
+- Templates in `templates/` (namespace `@<Bundle>` without the `Bundle` suffix) and translations in
+  `translations/` (own domain, EN and DE), registered by Symfony.
+- Migrations named `Version<YYYYMMDDHHMMSS>`, ordered by timestamp with the core ones; record tables reference
+  `encounter` with ON DELETE RESTRICT and their import with ON DELETE CASCADE.
+- From the application only `App\Encounter\Contract\…`: schema (`EncounterDimensionInterface`), handler
+  (`EncounterSchemaHandlerInterface`), assignment (`EncounterAssignmentsInterface`), access for its pages
+  (`EncounterAccessInterface`: `canViewCases()`, `hospitalsWithViewCases()`), record sections and Explore tiles
+  (`Display`). Deptrac layer `Encounter_Plugin` (paths `tests/Fixtures/Plugin`; later `plugins/`) may only use
+  `Encounter_Contract`; `PluginBoundaryTest` enforces it in CI and checks that `src/` names no plugin.
+
+How to try the test bundle in a browser: [review](../04-features/encounter/encounter-schema-plugins-review.md#try-it-in-the-browser).
 
 ## Encounter schema handlers
 
@@ -304,8 +338,8 @@ action `VIEW_CASES` or `REVIEW` somewhere, or `ROLE_ADMIN`); the target page che
 `EncounterImportDataRemover` and the upload form (`EncounterImportTypeExtension`)
 
 **Implementations:** `EdVisitSchemaHandler` (`ed_visit`, part of the core until MTS moves into its bundle,
-#1300); in the `test` environment the probe schema `probe` (`tests/Support/Encounter/Probe/`,
-`config/services/encounter_probe_test.yaml`)
+#1300); in the `test` environment the test bundle's `InpatientStayHandler` and the probe schema `probe`
+(`tests/Support/Encounter/Probe/`, `config/services/encounter_probe_test.yaml`, only the import seam)
 
 Processes the rows of one schema inside the shared encounter import workflow
 ([ADR 037](decisions/037-encounter-case-hub-and-schema-plugins.md)). The core reads the file, validates

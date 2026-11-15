@@ -29,4 +29,6 @@ return [
     Nelmio\SecurityBundle\NelmioSecurityBundle::class => ['all' => true],
     Symfony\UX\Pagination\UXPaginationBundle::class => ['all' => true],
     Symfony\UX\Inspector\UXInspectorBundle::class => ['dev' => true],
+    // Test-only encounter schema plugin `inpatient_stay` (ADR 037, #1274).
+    App\Tests\Fixtures\Plugin\InpatientStay\InpatientStayTestBundle::class => ['test' => true],
 ];

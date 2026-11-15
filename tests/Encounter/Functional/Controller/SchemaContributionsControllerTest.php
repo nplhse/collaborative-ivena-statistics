@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Domain\Enum\EncounterGrantAction;
 use App\Import\Domain\Enum\ImportType;
+use App\Tests\Fixtures\Plugin\InpatientStay\InpatientStayDimension;
 use App\Tests\Support\Encounter\AttachedRecordFixtures;
 use App\Tests\Support\Encounter\EdVisitFileBuilder;
 use App\Tests\Support\Encounter\EncounterDataFixtures;
@@ -16,7 +17,6 @@ use App\Tests\Support\Encounter\EncounterImportRunner;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
 use App\Tests\Support\Encounter\MatchingDataFixtures;
 use App\Tests\Support\Encounter\Probe\ProbeDimension;
-use App\Tests\Support\Encounter\Probe\ProbeRecordSectionProvider;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -26,12 +26,12 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Where a schema appears (ADR 037), with the test-only schema `probe`: its tile on the Explore overview, its
- * record section in the hospital course card of the case file, and its assignment conflicts on the
- * read-only conflict page.
+ * Where a schema appears (ADR 037): the tile of the test bundle `inpatient_stay` on the Explore overview, its
+ * record section in the hospital course card of the case file, and assignment conflicts (of the probe
+ * schema) on the read-only conflict page.
  *
- * Hospital H: allocation X linked to visit a (case `probe-section`), allocation Y linked to visit b; visits y
- * and z share case 5, so a probe row of case 5 is an ambiguous conflict. Reviewer R (review grant), case
+ * Hospital H: allocation X linked to visit a (case `A`), allocation Y linked to visit b; visits y and z share
+ * case 5, so a probe row of case 5 is an ambiguous conflict. Reviewer R (review grant), case
  * viewer V (view-cases grant), beta user N without grant.
  */
 #[ResetDatabase]
@@ -76,7 +76,7 @@ final class SchemaContributionsControllerTest extends WebTestCase
         $this->allocationY = $this->allocationAt($this->hospital, $allocations, '09:30');
 
         $edImportId = $this->uploadEncounterFile($this->hospital, $this->reviewer, EdVisitFileBuilder::create()
-            ->visit('a', '2026-10-12T08:15', ProbeRecordSectionProvider::CASE)
+            ->visit('a', '2026-10-12T08:15', 'A')
             ->visit('b', '2026-10-12T09:15')
             ->visit('y', '2026-10-12T10:15', '5')
             ->visit('z', '2026-10-12T11:15', '5')
@@ -97,17 +97,17 @@ final class SchemaContributionsControllerTest extends WebTestCase
     {
         foreach ([$this->viewer, $this->reviewer, $this->admin()] as $user) {
             $crawler = $this->explore($user);
-            self::assertCount(1, $crawler->filter('[data-testid="explore-group-cases"] [data-testid="explore-tile-probe-records"]'));
-            // The ED visit list comes first, then the schema tiles.
+            self::assertCount(1, $crawler->filter('[data-testid="explore-group-cases"] [data-testid="explore-tile-inpatient-stays"]'));
+            // The ED visit list comes first, then the tiles of schema bundles.
             self::assertSame(
-                ['explore-tile-ed-visits', 'explore-tile-probe-records'],
+                ['explore-tile-ed-visits', 'explore-tile-inpatient-stays'],
                 $crawler->filter('[data-testid="explore-group-cases"] [data-testid^="explore-tile-"]')->each(static fn ($tile): string => (string) $tile->attr('data-testid')),
             );
         }
 
         $crawler = $this->explore($this->withoutGrant);
         self::assertCount(1, $crawler->filter('[data-testid="explore-tile-ed-visits"]'), 'The ED visit list keeps its rule: the beta role.');
-        self::assertCount(0, $crawler->filter('[data-testid="explore-tile-probe-records"]'));
+        self::assertCount(0, $crawler->filter('[data-testid="explore-tile-inpatient-stays"]'));
 
         $crawler = $this->explore($this->user(['ROLE_USER', 'ROLE_PARTICIPANT']));
         self::assertCount(0, $crawler->filter('[data-testid^="explore-tile-"]'));
@@ -115,13 +115,17 @@ final class SchemaContributionsControllerTest extends WebTestCase
 
     public function testCaseFileShowsTheRecordSectionOfTheLinkedEncounter(): void
     {
+        // A stay of the test bundle with the case of visit a, which is linked to allocation X.
+        $this->uploadEncounterFile($this->hospital, $this->reviewer, EncounterFileBuilder::for(InpatientStayDimension::SCHEMA, InpatientStayDimension::header(), InpatientStayDimension::FINGERPRINT_RULE)
+            ->row(['stay_fingerprint' => hash('sha256', 'stay|a'), 'case_key' => EncounterFileBuilder::caseKey('A'), 'admitted_at' => '2026-10-12T10:05', 'discharge_diagnosis' => 'I21.4', 'discharged_at' => ''])
+            ->build(), 'stays', schema: InpatientStayDimension::SCHEMA);
         $this->client->loginUser($this->viewer);
 
         $crawler = $this->client->request(Request::METHOD_GET, '/explore/allocation/'.$this->allocationX->getPublicId());
         self::assertResponseIsSuccessful();
         self::assertSame(
-            'Probe record of encounter '.$this->visits['a'],
-            trim($crawler->filter('[data-testid="encounter-hospital-course"] [data-record-section="probe"] [data-testid="probe-record-section"]')->text()),
+            '2026-10-12 10:05',
+            trim($crawler->filter('[data-testid="encounter-hospital-course"] [data-record-section="inpatient_stay"] [data-testid="inpatient-stay-admitted"]')->text()),
         );
 
         $this->client->request(Request::METHOD_GET, '/explore/allocation/'.$this->allocationY->getPublicId());

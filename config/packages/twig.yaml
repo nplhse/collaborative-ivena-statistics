@@ -43,6 +43,3 @@ twig:
 when@test:
     twig:
         strict_variables: true
-        paths:
-            # Templates of the test-only encounter schema `probe` (config/services/encounter_probe_test.yaml).
-            '%kernel.project_dir%/tests/Support/Encounter/Probe/templates': EncounterProbe
