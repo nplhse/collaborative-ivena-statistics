@@ -347,7 +347,7 @@
       </trans-unit>
       <trans-unit id="impTypeHelpDe" resname="label.import.type.help">
         <source>label.import.type.help</source>
-        <target>Schließungslisten sind eine Beta und nur mit der Rolle Closure beta sichtbar.</target>
+        <target>Schließungslisten sind eine Beta und nur mit der Rolle „Schließungen (Beta)“ sichtbar.</target>
       </trans-unit>
       <trans-unit id="impSumAllocDe" resname="import.summary.allocations_imported">
         <source>import.summary.allocations_imported</source>
