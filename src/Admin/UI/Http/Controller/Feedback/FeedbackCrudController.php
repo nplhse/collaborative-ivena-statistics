@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Feedback;
 
+use App\Admin\UI\Http\Controller\TranslatedEnumChoices;
 use App\Feedback\Application\FeedbackQuarantineReview;
 use App\Feedback\Domain\Entity\Feedback;
 use App\Feedback\Domain\Enum\FeedbackCategory;
@@ -24,7 +25,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -173,11 +173,7 @@ final class FeedbackCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.status', domain: 'admin'));
-        yield ChoiceField::new('status', new TranslatableMessage('label.status', domain: 'messages'))
-            ->setChoices([
-                'Open' => FeedbackStatus::NEW,
-                'Done' => FeedbackStatus::DONE,
-            ])
+        yield TranslatedEnumChoices::field('status', new TranslatableMessage('label.status', domain: 'messages'), FeedbackStatus::class, static fn (FeedbackStatus $status): string => 'feedback.status.'.$status->value, 'feedback')
             ->renderAsBadges([
                 FeedbackStatus::NEW->value => 'warning',
                 FeedbackStatus::DONE->value => 'success',
@@ -187,13 +183,7 @@ final class FeedbackCrudController extends AbstractCrudController
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.submission', domain: 'admin'));
         yield IdField::new('id')->onlyOnDetail();
 
-        yield ChoiceField::new('category', new TranslatableMessage('label.category', domain: 'messages'))
-            ->setChoices([
-                'Bug' => FeedbackCategory::BUG,
-                'Improvement' => FeedbackCategory::IMPROVEMENT,
-                'Question' => FeedbackCategory::QUESTION,
-                'Other' => FeedbackCategory::OTHER,
-            ])
+        yield TranslatedEnumChoices::field('category', new TranslatableMessage('label.category', domain: 'messages'), FeedbackCategory::class, static fn (FeedbackCategory $category): string => 'feedback.category.'.$category->value, 'feedback')
             ->renderAsBadges()
             ->hideOnForm();
 

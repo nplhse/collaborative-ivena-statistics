@@ -121,6 +121,14 @@
         <source>feedback.email.actor.guest</source>
         <target>Gast</target>
       </trans-unit>
+      <trans-unit id="c1304f03e449c" resname="feedback.status.new">
+        <source>feedback.status.new</source>
+        <target>Offen</target>
+      </trans-unit>
+      <trans-unit id="c1304fc96ee2a" resname="feedback.status.done">
+        <source>feedback.status.done</source>
+        <target>Erledigt</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

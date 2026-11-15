@@ -2913,6 +2913,62 @@
         <source>navigation.inspector.unclaimed.count</source>
         <target>{count, plural, one {# Route} other {# Routen}}</target>
       </trans-unit>
+      <trans-unit id="c130404b00fdb" resname="admin.user.role.admin">
+        <source>admin.user.role.admin</source>
+        <target>Administrator</target>
+      </trans-unit>
+      <trans-unit id="c1304db8881aa" resname="admin.user.role.participant">
+        <source>admin.user.role.participant</source>
+        <target>Teilnehmer</target>
+      </trans-unit>
+      <trans-unit id="c130451937949" resname="admin.user.role.board_member">
+        <source>admin.user.role.board_member</source>
+        <target>Board Member</target>
+      </trans-unit>
+      <trans-unit id="c130490b7f6b2" resname="admin.user.role.user">
+        <source>admin.user.role.user</source>
+        <target>Benutzer</target>
+      </trans-unit>
+      <trans-unit id="c1304849a930d" resname="admin.user.role.review_indications">
+        <source>admin.user.role.review_indications</source>
+        <target>Prüft Indikationen</target>
+      </trans-unit>
+      <trans-unit id="c1304851849a1" resname="admin.user.role.closure_beta">
+        <source>admin.user.role.closure_beta</source>
+        <target>Schließungen (Beta)</target>
+      </trans-unit>
+      <trans-unit id="c13042f22e961" resname="admin.user.role.encounter_beta">
+        <source>admin.user.role.encounter_beta</source>
+        <target>Behandlungsdaten (Beta)</target>
+      </trans-unit>
+      <trans-unit id="c13049575fe5a" resname="admin.user.role.encounter_catalog_reviewer">
+        <source>admin.user.role.encounter_catalog_reviewer</source>
+        <target>Prüft MTS-Katalog</target>
+      </trans-unit>
+      <trans-unit id="c130480e8bfe3" resname="admin.monthly_reminder_dispatch.trigger.scheduler">
+        <source>admin.monthly_reminder_dispatch.trigger.scheduler</source>
+        <target>Scheduler</target>
+      </trans-unit>
+      <trans-unit id="c13042e3ca5b3" resname="admin.monthly_reminder_dispatch.trigger.admin">
+        <source>admin.monthly_reminder_dispatch.trigger.admin</source>
+        <target>Administrator</target>
+      </trans-unit>
+      <trans-unit id="c130464e9c4f3" resname="admin.monthly_reminder_dispatch.trigger.cli">
+        <source>admin.monthly_reminder_dispatch.trigger.cli</source>
+        <target>Konsole</target>
+      </trans-unit>
+      <trans-unit id="c1304523c5884" resname="admin.monthly_reminder_dispatch.status.queued">
+        <source>admin.monthly_reminder_dispatch.status.queued</source>
+        <target>In Warteschlange</target>
+      </trans-unit>
+      <trans-unit id="c130416610a66" resname="admin.monthly_reminder_dispatch.status.sent">
+        <source>admin.monthly_reminder_dispatch.status.sent</source>
+        <target>Versendet</target>
+      </trans-unit>
+      <trans-unit id="c1304e1a73fc6" resname="admin.monthly_reminder_dispatch.status.failed">
+        <source>admin.monthly_reminder_dispatch.status.failed</source>
+        <target>Fehlgeschlagen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

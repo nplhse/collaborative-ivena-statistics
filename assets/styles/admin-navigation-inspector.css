@@ -52,12 +52,6 @@
     max-width: 100%;
 }
 
-.nav-inspector-filters .btn[aria-pressed='true'] {
-    color: var(--bs-btn-active-color);
-    background: var(--bs-btn-active-bg);
-    border-color: var(--bs-btn-active-border-color);
-}
-
 .nav-inspector-count {
     margin-inline-start: auto;
     font-size: 0.875rem;
@@ -185,13 +179,6 @@
     font-family: var(--bs-font-monospace);
     font-size: 0.8125rem;
     color: var(--bs-warning-text-emphasis);
-}
-
-.nav-inspector-badge {
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: var(--bs-primary-text-emphasis);
-    background: var(--bs-primary-bg-subtle);
 }
 
 .nav-inspector-status {

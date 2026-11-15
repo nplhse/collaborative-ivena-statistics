@@ -14,10 +14,10 @@
                   data-action="submit->confirm-submit#confirm"
                   data-confirm-submit-message-value="{{ 'ops.failed_messages.confirm_delete_all'|trans({}, 'admin') }}">
                 <input type="hidden" name="_token" value="{{ csrf_token('failed_messages_delete_all') }}">
-                <button type="submit" class="btn btn-primary ea-admin-primary-badge-btn d-inline-flex align-items-center">
+                <twig:ea:Button color="primary">
                     {{ 'ops.failed_messages.delete_all'|trans({}, 'admin') }}
-                    <span class="badge ea-admin-primary-badge-btn__badge">{{ total_count }}</span>
-                </button>
+                    <twig:ea:Badge class="ms-1 ea-btn-count">{{ total_count }}</twig:ea:Badge>
+                </twig:ea:Button>
             </form>
 
             <form method="post"
@@ -28,9 +28,9 @@
                   data-action="submit->confirm-submit#confirm"
                   data-confirm-submit-message-value="{{ 'ops.failed_messages.confirm_delete_selected'|trans({}, 'admin') }}">
                 <input type="hidden" name="_token" value="{{ csrf_token('failed_messages_delete_batch') }}">
-                <button type="submit" class="btn btn-outline-primary ea-admin-action-btn">
+                <twig:ea:Button color="primary" variant="outline">
                     {{ 'ops.failed_messages.delete_selected'|trans({}, 'admin') }}
-                </button>
+                </twig:ea:Button>
             </form>
         </div>
 
@@ -72,9 +72,9 @@
                                 <td class="small text-secondary">{{ message.error_preview }}</td>
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center ea-failed-messages-row-actions">
-                                        <a href="{{ ea_url().setRoute('app_admin_dashboard_operations_failed_messages_detail', {id: message.id}) }}" class="btn btn-sm btn-outline-primary">
+                                        <twig:ea:Button htmlElement="a" href="{{ ea_url().setRoute('app_admin_dashboard_operations_failed_messages_detail', {id: message.id}) }}" color="primary" variant="outline" size="sm">
                                             {{ 'ops.failed_messages.view'|trans({}, 'admin') }}
-                                        </a>
+                                        </twig:ea:Button>
                                         <form method="post"
                                               action="{{ ea_url().setRoute('app_admin_dashboard_operations_failed_messages_delete', {id: message.id}) }}"
                                               class="m-0"
@@ -82,9 +82,9 @@
                                               data-action="submit->confirm-submit#confirm"
                                               data-confirm-submit-message-value="{{ 'ops.failed_messages.confirm_delete_one'|trans({}, 'admin') }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token('failed_message_delete_' ~ message.id) }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                            <twig:ea:Button size="sm">
                                                 {{ 'ops.failed_messages.delete'|trans({}, 'admin') }}
-                                            </button>
+                                            </twig:ea:Button>
                                         </form>
                                     </div>
                                 </td>

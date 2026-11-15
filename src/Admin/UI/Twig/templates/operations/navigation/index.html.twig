@@ -72,7 +72,7 @@
         <dd>
             {{ 'navigation.inspector.weight'|trans }} {{ item.weight }}
             {% if item.icon %} · <span class="nav-inspector-mono">{{ item.icon }}</span>{% endif %}
-            {% if item.badge %} · <span class="badge nav-inspector-badge">{{ item.badge.label|trans }}</span> <span class="text-body-secondary">{{ item.badge.color.value }}</span>{% endif %}
+            {% if item.badge %} · <twig:ea:Badge color="primary">{{ item.badge.label|trans }}</twig:ea:Badge> <span class="text-body-secondary">{{ item.badge.color.value }}</span>{% endif %}
             {% if item.sharedFilterState %} · <span class="nav-inspector-mono">sharedFilterState</span>{% endif %}
         </dd>
         <dt>{{ 'navigation.inspector.detail.provider'|trans }}</dt>
@@ -98,7 +98,7 @@
                     {% endif %}
                     <div class="nav-inspector-text">
                         <span class="nav-inspector-label">{{ node.label ? node.label.text : item.id }}</span>
-                        {% if item.badge %}<span class="badge nav-inspector-badge">{{ item.badge.label|trans }}</span>{% endif %}
+                        {% if item.badge %}<twig:ea:Badge color="primary">{{ item.badge.label|trans }}</twig:ea:Badge>{% endif %}
                         {% if node.provider != groupProvider %}<span class="nav-inspector-provider-diff">{{ 'navigation.inspector.provider_diff'|trans({provider: node.provider|split('\\')|last}) }}</span>{% endif %}
                         {% if item.route %}<div class="nav-inspector-route">{{ item.route }}{% if item.routeParameters is not empty %} {{ item.routeParameters|map((value, key) => key ~ '=' ~ value)|join('&') }}{% endif %}</div>{% endif %}
                     </div>
@@ -122,7 +122,7 @@
                 <label class="form-label" for="nav-inspector-user">{{ 'navigation.inspector.form.user'|trans }}</label>
                 <input type="text" class="form-control" id="nav-inspector-user" name="user" value="{{ username }}" placeholder="{{ 'navigation.inspector.form.user_placeholder'|trans }}" autocomplete="off">
             </div>
-            <div class="col-md-4">
+            <div class="col-md">
                 <label class="form-label" for="nav-inspector-route">{{ 'navigation.inspector.form.route'|trans }}</label>
                 <input type="text" class="form-control" id="nav-inspector-route" name="route" value="{{ route }}" placeholder="app_stats_insights_dimension" autocomplete="off" spellcheck="false">
             </div>
@@ -130,9 +130,10 @@
                 <label class="form-label" for="nav-inspector-parameters">{{ 'navigation.inspector.form.parameters'|trans }}</label>
                 <input type="text" class="form-control" id="nav-inspector-parameters" name="parameters" value="{{ parameter_query }}" placeholder="dimension=occasions" autocomplete="off" spellcheck="false">
             </div>
-            <div class="col-md-2 d-flex gap-2">
-                <button type="submit" class="btn btn-primary">{{ 'navigation.inspector.form.submit'|trans }}</button>
-                <a class="btn btn-secondary" href="?">{{ 'navigation.inspector.form.reset'|trans }}</a>
+            {# auto width: the buttons of the EasyAdmin 5.9 design no longer fit into a fixed col-md-2 #}
+            <div class="col-md-auto d-flex gap-2">
+                <twig:ea:Button color="primary">{{ 'navigation.inspector.form.submit'|trans({}, 'admin') }}</twig:ea:Button>
+                <twig:ea:Button htmlElement="a" href="?">{{ 'navigation.inspector.form.reset'|trans({}, 'admin') }}</twig:ea:Button>
             </div>
         </div>
         <div class="card-footer small text-body-secondary">
@@ -151,20 +152,19 @@
         {% if inspection.warningCount == 0 %}
             <p class="nav-inspector-summary mb-0">{{ 'navigation.inspector.warnings.none'|trans }}</p>
         {% else %}
-            <div class="alert alert-danger mb-0">
-                <h2 class="h6">{{ 'navigation.inspector.warnings.title'|trans }}</h2>
+            <twig:ea:Alert variant="danger" title="{{ 'navigation.inspector.warnings.title'|trans({}, 'admin') }}" class="mb-0">
                 {% for menu in inspection.menus|filter(menu => menu.warningCount > 0) %}
                     <div class="mb-2" data-nav-inspector-warnings="{{ menu.menu.value }}">
-                        <strong>{{ ('navigation.inspector.menu.' ~ menu.menu.value)|trans }}</strong>
+                        <strong>{{ ('navigation.inspector.menu.' ~ menu.menu.value)|trans({}, 'admin') }}</strong>
                         <ul class="mb-0">
                             {% for problem in menu.problems %}<li>{{ problem }}</li>{% endfor %}
-                            {% for claimedRoute, ids in menu.duplicateRouteClaims %}<li>{{ 'navigation.inspector.warnings.duplicate_claim'|trans({route: claimedRoute, ids: ids|join(', ')}) }}</li>{% endfor %}
-                            {% for overlap in menu.overlappingAreaRoutePrefixes %}<li>{{ 'navigation.inspector.warnings.overlapping_prefix'|trans({overlap: overlap}) }}</li>{% endfor %}
-                            {% for unknown in menu.unknownRoutes %}<li>{{ 'navigation.inspector.warnings.unknown_route'|trans({route: unknown}) }}</li>{% endfor %}
+                            {% for claimedRoute, ids in menu.duplicateRouteClaims %}<li>{{ 'navigation.inspector.warnings.duplicate_claim'|trans({route: claimedRoute, ids: ids|join(', ')}, 'admin') }}</li>{% endfor %}
+                            {% for overlap in menu.overlappingAreaRoutePrefixes %}<li>{{ 'navigation.inspector.warnings.overlapping_prefix'|trans({overlap: overlap}, 'admin') }}</li>{% endfor %}
+                            {% for unknown in menu.unknownRoutes %}<li>{{ 'navigation.inspector.warnings.unknown_route'|trans({route: unknown}, 'admin') }}</li>{% endfor %}
                         </ul>
                     </div>
                 {% endfor %}
-            </div>
+            </twig:ea:Alert>
         {% endif %}
     </section>
 
@@ -207,7 +207,7 @@
                 <button class="nav-link{{ loop.first ? ' active' }}" id="nav-inspector-tab-{{ menu.menu.value }}" data-bs-toggle="tab" data-bs-target="#nav-inspector-menu-{{ menu.menu.value }}"
                         type="button" role="tab" aria-controls="nav-inspector-menu-{{ menu.menu.value }}" aria-selected="{{ loop.first ? 'true' : 'false' }}">
                     {{ ('navigation.inspector.menu.' ~ menu.menu.value)|trans }}
-                    {% if menu.warningCount > 0 %}<span class="badge bg-danger ms-1">{{ menu.warningCount }}</span>{% endif %}
+                    {% if menu.warningCount > 0 %}<twig:ea:Badge color="danger" class="ms-1">{{ menu.warningCount }}</twig:ea:Badge>{% endif %}
                 </button>
             </li>
         {% endfor %}
@@ -222,8 +222,8 @@
                             <input type="search" class="form-control form-control-sm nav-inspector-search" placeholder="{{ 'navigation.inspector.filter.search'|trans }}" aria-label="{{ 'navigation.inspector.filter.search'|trans }}"
                                    data-navigation-inspector-target="search" data-action="input->navigation-inspector#filter">
                             <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'navigation.inspector.filter.scope'|trans }}">
-                                <button type="button" class="btn btn-outline-secondary" aria-pressed="true" data-scope="all" data-navigation-inspector-target="scope" data-action="navigation-inspector#showScope">{{ 'navigation.inspector.filter.all'|trans }}</button>
-                                <button type="button" class="btn btn-outline-secondary" aria-pressed="false" data-scope="issues" data-navigation-inspector-target="scope" data-action="navigation-inspector#showScope">{{ 'navigation.inspector.filter.issues'|trans }}</button>
+                                <twig:ea:Button type="button" size="sm" aria-pressed="true" data-scope="all" data-navigation-inspector-target="scope" data-action="navigation-inspector#showScope">{{ 'navigation.inspector.filter.all'|trans({}, 'admin') }}</twig:ea:Button>
+                                <twig:ea:Button type="button" size="sm" aria-pressed="false" data-scope="issues" data-navigation-inspector-target="scope" data-action="navigation-inspector#showScope">{{ 'navigation.inspector.filter.issues'|trans({}, 'admin') }}</twig:ea:Button>
                             </div>
                             <div class="form-check form-switch mb-0">
                                 <input class="form-check-input" type="checkbox" id="nav-inspector-hidden-{{ menu.menu.value }}" checked data-navigation-inspector-target="showHidden" data-action="navigation-inspector#filter">
@@ -267,7 +267,7 @@
                         <p class="nav-inspector-note" hidden data-navigation-inspector-target="none">{{ 'navigation.inspector.filter.none'|trans }}</p>
                         {% if menu.activePath is not empty %}
                             <p class="nav-inspector-note nav-inspector-folded" hidden data-navigation-inspector-target="folded" data-template="{{ 'navigation.inspector.filter.folded'|trans({count: '__COUNT__'}) }}">
-                                <span data-count></span> · <button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-action="navigation-inspector#showAll">{{ 'navigation.inspector.filter.show_all'|trans }}</button>
+                                <span data-count></span> · <twig:ea:Button type="button" variant="link" size="sm" class="p-0 align-baseline" data-action="navigation-inspector#showAll">{{ 'navigation.inspector.filter.show_all'|trans({}, 'admin') }}</twig:ea:Button>
                             </p>
                         {% endif %}
                     </div>

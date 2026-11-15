@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Feedback;
 
+use App\Admin\UI\Http\Controller\TranslatedEnumChoices;
 use App\Feedback\Application\FeedbackMailPreview;
 use App\Feedback\Application\FeedbackQuarantineReview;
 use App\Feedback\Domain\Entity\Feedback;
@@ -26,7 +27,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -133,13 +133,7 @@ final class FeedbackQuarantineCrudController extends AbstractCrudController
         yield IdField::new('id')->onlyOnDetail();
         yield DateTimeField::new('createdAt', new TranslatableMessage('admin.feedback.field.created', domain: 'admin'))
             ->setFormat('yyyy-MM-dd HH:mm');
-        yield ChoiceField::new('category', new TranslatableMessage('admin.feedback.field.category', domain: 'admin'))
-            ->setChoices([
-                'Bug' => FeedbackCategory::BUG,
-                'Improvement' => FeedbackCategory::IMPROVEMENT,
-                'Question' => FeedbackCategory::QUESTION,
-                'Other' => FeedbackCategory::OTHER,
-            ])
+        yield TranslatedEnumChoices::field('category', new TranslatableMessage('admin.feedback.field.category', domain: 'admin'), FeedbackCategory::class, static fn (FeedbackCategory $category): string => 'feedback.category.'.$category->value, 'feedback')
             ->renderAsBadges();
         yield TextField::new('guestEmail', new TranslatableMessage('admin.feedback.field.guest_email', domain: 'admin'));
         yield AssociationField::new('submittedBy', new TranslatableMessage('admin.feedback.field.user', domain: 'admin'));
