@@ -118,7 +118,7 @@ The core has no branch for a specific schema.
 
 The tool becomes a generic shell (key file, fingerprinting, manifest, removal of identifying columns,
 local map). Schemas contribute their schema file, source profiles, scripts and catalogs through a tagged
-contribution instead of the fixed lists in `DataPrepToolRenderer`. Separate issue.
+contribution instead of the fixed lists in `DataPrepToolRenderer` (#1301).
 
 ### Transition
 

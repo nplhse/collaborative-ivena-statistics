@@ -277,7 +277,7 @@ Part 1, proving the mechanism (MTS stays where it is):
 4. Record sections in the hospital course card.
 5. Test bundle with migration and the integration test above.
 
-Part 2, moving MTS (own issues, one pull request per step):
+Part 2, moving MTS (#1300, one pull request per step):
 
 6. Hub split with data migration (ADR 037, transition ends).
 7. Bundle skeleton `plugins/encounter-ed-mts` as Composer path repository: prepended mapping, migrations
@@ -287,7 +287,7 @@ Part 2, moving MTS (own issues, one pull request per step):
 9. Installation without the bundle: a test environment or kernel variant without the MTS bundle that
    boots, hides the encounter import type and runs allocation and closure imports.
 
-Separate issue: generic data preparation tool with schema contributions.
+Separate issue: generic data preparation tool with schema contributions (#1301).
 
 ## Open points
 
