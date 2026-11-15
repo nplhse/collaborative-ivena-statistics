@@ -987,7 +987,7 @@
       </trans-unit>
       <trans-unit id="admImportExportPeriodHelp" resname="admin.import.export_period.help">
         <source>admin.import.export_period.help</source>
-        <target>Derived from imported rows. Editing the period marks it as manual; set the source back to "derived" to let the next derivation overwrite it.</target>
+        <target>Derived from imported rows. Editing the period marks it as manual; set the source back to "Derived" to let the next derivation overwrite it.</target>
       </trans-unit>
       <trans-unit id="admFsMetadata" resname="admin.fieldset.metadata">
         <source>admin.fieldset.metadata</source>
@@ -1733,6 +1733,22 @@
         <source>usage_analytics.tile.accesses</source>
         <target>Page views per month and year since counting started</target>
       </trans-unit>
+      <trans-unit id="uaOv01" resname="usage_analytics.overview.requests_today">
+        <source>usage_analytics.overview.requests_today</source>
+        <target>Requests today</target>
+      </trans-unit>
+      <trans-unit id="uaOv02" resname="usage_analytics.overview.requests_7_days">
+        <source>usage_analytics.overview.requests_7_days</source>
+        <target>Requests (7 days)</target>
+      </trans-unit>
+      <trans-unit id="uaOv03" resname="usage_analytics.overview.active_users">
+        <source>usage_analytics.overview.active_users</source>
+        <target>DAU / WAU / MAU</target>
+      </trans-unit>
+      <trans-unit id="uaOv04" resname="usage_analytics.overview.sessions_7_days">
+        <source>usage_analytics.overview.sessions_7_days</source>
+        <target>Sessions (7 days)</target>
+      </trans-unit>
       <trans-unit id="admFqEntity" resname="admin.feedback_quarantine.entity">
         <source>admin.feedback_quarantine.entity</source>
         <target>Quarantined feedback</target>
@@ -2364,6 +2380,14 @@
       <trans-unit id="admCrudImportFieldExportPeriodSource" resname="admin.import.field.export_period_source">
         <source>admin.import.field.export_period_source</source>
         <target>Export period source</target>
+      </trans-unit>
+      <trans-unit id="admImportExportPeriodSourceDerived" resname="admin.import.export_period_source.derived">
+        <source>admin.import.export_period_source.derived</source>
+        <target>Derived</target>
+      </trans-unit>
+      <trans-unit id="admImportExportPeriodSourceManual" resname="admin.import.export_period_source.manual">
+        <source>admin.import.export_period_source.manual</source>
+        <target>Manual</target>
       </trans-unit>
       <trans-unit id="admCrudImportFieldRejectFile" resname="admin.import.field.reject_file">
         <source>admin.import.field.reject_file</source>

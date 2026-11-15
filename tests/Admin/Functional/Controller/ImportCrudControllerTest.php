@@ -9,6 +9,7 @@ use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportExportPeriodSource;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
@@ -117,5 +118,61 @@ final class ImportCrudControllerTest extends WebTestCase
         $href = urldecode((string) $jobRuns->attr('href'));
         self::assertStringContainsString('/admin/job-run', $href);
         self::assertStringContainsString('filters[importId][value]='.$import->getId(), $href);
+    }
+
+    public function testDetailShowsTheTranslatedExportPeriodSource(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::new()->asAdmin()->create(['locale' => 'de']);
+        $import = ImportFactory::createOne([
+            'hospital' => HospitalFactory::createOne(),
+            'exportPeriodSource' => ImportExportPeriodSource::MANUAL,
+        ]);
+        $client->loginUser($admin);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/import/'.$import->getId());
+
+        self::assertResponseIsSuccessful();
+        $values = $crawler->filter('.field-value')->each(static fn ($node): string => trim($node->text()));
+        self::assertContains('Manuell', $values);
+        self::assertNotContains('MANUAL', $values);
+    }
+
+    public function testEditFormOffersTranslatedExportPeriodSources(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::new()->asAdmin()->create(['locale' => 'de']);
+        $import = ImportFactory::createOne(['hospital' => HospitalFactory::createOne()]);
+        $client->loginUser($admin);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/import/'.$import->getId().'/edit');
+
+        self::assertResponseIsSuccessful();
+        $options = $crawler->filter('select[name="Import[exportPeriodSource]"] option')
+            ->each(static fn ($node): string => trim($node->text()));
+        self::assertSame(['Abgeleitet', 'Manuell'], array_values(array_filter($options)));
+    }
+
+    public function testEditFormStoresTheSelectedExportPeriodSource(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::new()->asAdmin()->create();
+        $import = ImportFactory::createOne([
+            'hospital' => HospitalFactory::createOne(),
+            'exportPeriodSource' => ImportExportPeriodSource::MANUAL,
+        ]);
+        $client->loginUser($admin);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/import/'.$import->getId().'/edit');
+        $form = $crawler->selectButton('Save changes')->form();
+        $form['Import[exportPeriodSource]'] = 'derived';
+        $client->submit($form);
+
+        self::assertResponseRedirects();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        $stored = $entityManager->find(Import::class, $import->getId());
+        self::assertInstanceOf(Import::class, $stored);
+        self::assertSame(ImportExportPeriodSource::DERIVED, $stored->getExportPeriodSource());
     }
 }

@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { lineMarkers } from '../lib/chart-markers.js';
 import { applyChartNonce, loadApexCharts } from '../lib/load-apexcharts.js';
 
 const COLORS = {
@@ -91,7 +92,7 @@ export default class extends Controller {
             ],
             colors: [COLORS.duration, COLORS.backlog],
             stroke: { width: 2, curve: 'straight' },
-            markers: { size: data.buckets.length === 1 ? 4 : 0 },
+            markers: lineMarkers(data.buckets.length),
             yaxis: [
                 {
                     min: 0,

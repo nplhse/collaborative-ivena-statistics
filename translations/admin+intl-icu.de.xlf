@@ -987,7 +987,7 @@
       </trans-unit>
       <trans-unit id="admImportExportPeriodHelpDe" resname="admin.import.export_period.help">
         <source>admin.import.export_period.help</source>
-        <target>Aus den importierten Zeilen abgeleitet. Eine Änderung des Zeitraums markiert ihn als manuell; Quelle auf „derived“ zurücksetzen, damit die nächste Ableitung ihn überschreibt.</target>
+        <target>Aus den importierten Zeilen abgeleitet. Eine Änderung des Zeitraums markiert ihn als manuell; Quelle auf „Abgeleitet“ zurücksetzen, damit die nächste Ableitung ihn überschreibt.</target>
       </trans-unit>
       <trans-unit id="admFsMetadataDe" resname="admin.fieldset.metadata">
         <source>admin.fieldset.metadata</source>
@@ -1733,6 +1733,22 @@
         <source>usage_analytics.tile.accesses</source>
         <target>Seitenaufrufe pro Monat und Jahr seit Zählbeginn</target>
       </trans-unit>
+      <trans-unit id="uaOv01de" resname="usage_analytics.overview.requests_today">
+        <source>usage_analytics.overview.requests_today</source>
+        <target>Anfragen heute</target>
+      </trans-unit>
+      <trans-unit id="uaOv02de" resname="usage_analytics.overview.requests_7_days">
+        <source>usage_analytics.overview.requests_7_days</source>
+        <target>Anfragen (7 Tage)</target>
+      </trans-unit>
+      <trans-unit id="uaOv03de" resname="usage_analytics.overview.active_users">
+        <source>usage_analytics.overview.active_users</source>
+        <target>DAU / WAU / MAU</target>
+      </trans-unit>
+      <trans-unit id="uaOv04de" resname="usage_analytics.overview.sessions_7_days">
+        <source>usage_analytics.overview.sessions_7_days</source>
+        <target>Sitzungen (7 Tage)</target>
+      </trans-unit>
       <trans-unit id="admFqEntityDe" resname="admin.feedback_quarantine.entity">
         <source>admin.feedback_quarantine.entity</source>
         <target>Feedback in Quarantäne</target>
@@ -2364,6 +2380,14 @@
       <trans-unit id="admCrudImportFieldExportPeriodSourceDe" resname="admin.import.field.export_period_source">
         <source>admin.import.field.export_period_source</source>
         <target>Quelle des Exportzeitraums</target>
+      </trans-unit>
+      <trans-unit id="admImportExportPeriodSourceDerivedDe" resname="admin.import.export_period_source.derived">
+        <source>admin.import.export_period_source.derived</source>
+        <target>Abgeleitet</target>
+      </trans-unit>
+      <trans-unit id="admImportExportPeriodSourceManualDe" resname="admin.import.export_period_source.manual">
+        <source>admin.import.export_period_source.manual</source>
+        <target>Manuell</target>
       </trans-unit>
       <trans-unit id="admCrudImportFieldRejectFileDe" resname="admin.import.field.reject_file">
         <source>admin.import.field.reject_file</source>
