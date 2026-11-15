@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Import;
 
+use App\Admin\UI\Http\Controller\TranslatedEnumChoices;
 use App\Import\Domain\Entity\ImportBatchRunItem;
 use App\Import\Domain\Enum\ImportBatchRunItemStatus;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -69,6 +70,7 @@ final class ImportBatchRunItemCrudController extends AbstractCrudController
         yield IntegerField::new('importId', new TranslatableMessage('label.import_id', domain: 'admin'));
         yield TextField::new('importName', new TranslatableMessage('admin.import_batch_run_item.field.import_name', domain: 'admin'));
         yield ChoiceField::new('status', new TranslatableMessage('label.status', domain: 'messages'))
+            ->setTranslatableChoices(TranslatedEnumChoices::choices(ImportBatchRunItemStatus::cases(), static fn (ImportBatchRunItemStatus $status): string => 'import.batch_run_item.status.'.$status->value, 'import'))
             ->renderAsBadges([
                 ImportBatchRunItemStatus::Pending->value => 'secondary',
                 ImportBatchRunItemStatus::Queued->value => 'info',
