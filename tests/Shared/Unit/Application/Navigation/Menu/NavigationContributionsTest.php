@@ -31,6 +31,18 @@ final class NavigationContributionsTest extends TestCase
         self::assertSame([], $contributions->orphans);
     }
 
+    public function testADuplicateGroupIdKeepsTheFirstGroupAndIsReported(): void
+    {
+        $first = $this->provider([new NavGroup('capacity', null, 10)], [$this->item('closures', 'capacity', 'r_closures')]);
+        $second = $this->provider([new NavGroup('capacity', null, 99)], []);
+
+        $contributions = NavigationContributions::collect([$first, $second], Menu::Statistics);
+
+        self::assertSame(10, $contributions->groups['capacity']->weight);
+        self::assertSame($first::class, $contributions->providers['capacity']);
+        self::assertSame(['Navigation id "capacity" is registered more than once in menu "statistics".'], $contributions->problems);
+    }
+
     public function testItemsWithAnUnknownParentOrInACycleAreOrphans(): void
     {
         $contributions = NavigationContributions::collect([$this->provider([new NavGroup('capacity')], [

@@ -107,10 +107,6 @@ final readonly class NavigationContributions
         $walk = function (string $parentId) use (&$walk, &$visibility, $byParent, $hide, $isGranted): bool {
             $any = false;
             foreach ($byParent[$parentId] ?? [] as $item) {
-                if (isset($visibility[$item->id])) {
-                    continue;
-                }
-
                 if (null !== $item->grantedAttribute && !$isGranted($item->grantedAttribute)) {
                     $visibility[$item->id] = NavigationVisibility::Denied;
                     $hide($item->id);
