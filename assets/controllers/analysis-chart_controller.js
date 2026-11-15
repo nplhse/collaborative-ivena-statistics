@@ -1,5 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { chartColors } from '../lib/chart-colors.js';
+import { onThemeChange } from '../lib/chart-theme.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 import { buildAnalysisChartOptions } from '../lib/build-analysis-chart-options.js';
 
@@ -12,12 +13,19 @@ export default class extends Controller {
     static targets = ['chart'];
 
     connect() {
+        // Rebuild the chart with the data colours of the new colour scheme (#1320).
+        this.stopThemeWatch = onThemeChange(this.element, () => {
+            this._renderGeneration = (this._renderGeneration ?? 0) + 1;
+            void this.render(this._renderGeneration);
+        });
         this.instance = null;
         this._renderGeneration = (this._renderGeneration ?? 0) + 1;
         void this.render(this._renderGeneration);
     }
 
     disconnect() {
+        this.stopThemeWatch?.();
+        this.stopThemeWatch = null;
         this._renderGeneration = (this._renderGeneration ?? 0) + 1;
         if (this.instance) {
             this.instance.destroy();

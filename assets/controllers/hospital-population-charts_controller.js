@@ -1,5 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { chartColors } from '../lib/chart-colors.js';
+import { onThemeChange } from '../lib/chart-theme.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 
 const POPULATION_BOX_PLOT_COLOR = '#868e96';
@@ -22,12 +23,21 @@ export default class extends Controller {
     ];
 
     connect() {
+        this.stopThemeWatch = onThemeChange(this.element, () => this.redrawForTheme());
         this.instances = [];
         this._renderGeneration = (this._renderGeneration ?? 0) + 1;
         void this.renderAll(this._renderGeneration);
     }
 
+    /** Redraws the charts with the data colours of the new colour scheme (#1320). */
+    redrawForTheme() {
+        this.disconnect();
+        this.connect();
+    }
+
     disconnect() {
+        this.stopThemeWatch?.();
+        this.stopThemeWatch = null;
         this._renderGeneration = (this._renderGeneration ?? 0) + 1;
         this.instances.forEach((chart) => chart.destroy());
         this.instances = [];

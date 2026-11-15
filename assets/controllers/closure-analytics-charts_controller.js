@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import { buildHeatmapColorScale } from '../lib/build-analysis-heatmap-options.js';
 import { chartColors } from '../lib/chart-colors.js';
+import { onThemeChange } from '../lib/chart-theme.js';
 import {
     buildHeatmapSeries,
     heatmapColumnIndexFromSeriesIndex,
@@ -49,6 +50,7 @@ export default class extends Controller {
     volumeChart = null;
 
     async connect() {
+        this.stopThemeWatch = onThemeChange(this.element, () => this.redrawForTheme());
         this.charts = [];
         this.generation = (this.generation ?? 0) + 1;
         const generation = this.generation;
@@ -501,7 +503,15 @@ export default class extends Controller {
         });
     }
 
+    /** Redraws the charts with the data colours of the new colour scheme (#1320). */
+    redrawForTheme() {
+        this.disconnect();
+        void this.connect();
+    }
+
     disconnect() {
+        this.stopThemeWatch?.();
+        this.stopThemeWatch = null;
         this.generation = (this.generation ?? 0) + 1;
         (this.charts ?? []).forEach((chart) => chart.destroy());
         this.charts = [];
