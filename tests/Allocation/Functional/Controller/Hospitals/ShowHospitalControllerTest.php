@@ -100,6 +100,23 @@ final class ShowHospitalControllerTest extends WebTestCase
         self::assertNotContains('/import?hospitalId='.$hospital->getId(), $actionHrefs);
     }
 
+    public function testShowDisplaysOwnerAndAuthorByDisplayNameWithAvatar(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $owner = UserFactory::createOne(['username' => 'owner-user', 'displayName' => 'Olga Owner']);
+        $createdBy = UserFactory::createOne(['username' => 'area-user', 'displayName' => 'Anton Area']);
+        $hospital = HospitalFactory::createOne(['owner' => $owner, 'createdBy' => $createdBy]);
+
+        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('#hospital-owned-by a[title="@owner-user"]', 'Olga Owner');
+        self::assertSelectorTextSame('#hospital-owned-by .avatar.avatar-inline', 'OO');
+        self::assertSelectorTextContains('#hospital-created-by a[title="@area-user"]', 'Anton Area');
+        self::assertSelectorTextSame('#hospital-created-by .avatar.avatar-inline', 'AA');
+    }
+
     public function testOwnerSeesEditButtonOnOwnHospitalShowPage(): void
     {
         $client = self::createClient();

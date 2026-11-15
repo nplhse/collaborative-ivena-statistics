@@ -640,6 +640,39 @@ final class BlogControllerTest extends WebTestCase
         self::assertSame($hrefs, $badges->each(static fn (Crawler $node): string => (string) $node->attr('href')));
     }
 
+    public function testPostAuthorShowsDisplayNameAndAvatarOnlyToSignedInViewers(): void
+    {
+        $client = self::createClient();
+        $author = UserFactory::createOne(['username' => 'post-author', 'displayName' => 'Paula Post']);
+        PostFactory::createOne([
+            'title' => 'Named author',
+            'slug' => 'named-author',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+            'createdBy' => $author,
+        ]);
+
+        foreach (['/blog', '/blog/named-author'] as $url) {
+            $client->request(Request::METHOD_GET, $url);
+
+            self::assertResponseIsSuccessful();
+            $html = (string) $client->getResponse()->getContent();
+            self::assertStringContainsString('post-author', $html);
+            self::assertStringNotContainsString('Paula Post', $html, 'anonymous visitors only see the username on '.$url);
+            self::assertSelectorExists('.user-link .avatar-inline[data-avatar="fallback"]');
+        }
+
+        $client->loginUser(UserFactory::createOne(['username' => 'post-reader']));
+
+        foreach (['/blog', '/blog/named-author'] as $url) {
+            $client->request(Request::METHOD_GET, $url);
+
+            self::assertResponseIsSuccessful();
+            self::assertSelectorTextContains('.user-link', 'Paula Post');
+            self::assertSelectorTextSame('.user-link .avatar-inline[data-avatar="initials"]', 'PP');
+        }
+    }
+
     public function testCommentShowsDisplayNameOnlyToSignedInViewers(): void
     {
         $client = self::createClient();

@@ -43,15 +43,16 @@
                                                 <a href="{{ path('app_blog_show', {slug: post.slug}) }}">{{ post.title }}</a>
                                             </h2>
                                         </div>
-                                        <div class="text-secondary small mb-2 d-flex flex-wrap gap-2">
+                                        <div class="text-secondary small mb-2 d-flex flex-wrap align-items-center gap-2">
                                             <twig:ux:icon name="tabler:clock" class="w-3 h-3" />
                                             {{ post.publishedAt|date('d.m.Y H:i') }} |
                                             <twig:ux:icon name="tabler:folder" class="w-3 h-3" />
                                             <a class="badge bg-blue-lt text-blue-emphasis" href="{{ path('app_blog_category', {slug: post.category.slug}) }}">{{ post.category.name }}</a>
-                                            <span>| <twig:ux:icon name="tabler:user" class="w-3 h-3" />
+                                            <span>|
                                                 {{ users.link(post.createdBy, {
                                                     requireParticipant: true,
                                                     empty: 'blog.meta.unknown_author'|trans({}, 'content'),
+                                                    avatar: 'inline',
                                                 }) }}
                                             </span>
                                             <span>| {{ 'blog.comments.count'|trans(({count: post.comments|length}), 'content') }}</span>
