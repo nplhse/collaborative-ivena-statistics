@@ -4,17 +4,17 @@
 
 {% macro status_badge(failed, complete) %}
     {% if failed %}
-        <span class="badge bg-danger">{{ 'storage.status.failed'|trans({}, 'storage') }}</span>
+        <twig:ea:Badge color="danger">{{ 'storage.status.failed'|trans({}, 'storage') }}</twig:ea:Badge>
     {% elseif not complete %}
-        <span class="badge bg-warning text-dark">{{ 'storage.status.incomplete'|trans({}, 'storage') }}</span>
+        <twig:ea:Badge color="warning">{{ 'storage.status.incomplete'|trans({}, 'storage') }}</twig:ea:Badge>
     {% else %}
-        <span class="badge bg-success-subtle text-success-emphasis">{{ 'storage.status.measured'|trans({}, 'storage') }}</span>
+        <twig:ea:Badge color="success">{{ 'storage.status.measured'|trans({}, 'storage') }}</twig:ea:Badge>
     {% endif %}
 {% endmacro %}
 
 {% macro flags(flags) %}
     {% for flag in flags %}
-        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle" title="{{ ('storage.flag.' ~ flag.value ~ '.hint')|trans({}, 'storage') }}">{{ ('storage.flag.' ~ flag.value)|trans({}, 'storage') }}</span>
+        <twig:ea:Badge color="warning" variant="outline" title="{{ ('storage.flag.' ~ flag.value ~ '.hint')|trans({}, 'storage') }}">{{ ('storage.flag.' ~ flag.value)|trans({}, 'storage') }}</twig:ea:Badge>
     {% endfor %}
 {% endmacro %}
 
@@ -45,7 +45,7 @@
                 <div class="card h-100"><div class="card-body">
                     <div class="text-secondary small">{{ 'storage.kpi.capacity'|trans({}, 'storage') }}</div>
                     <div class="fs-3 fw-bold">{{ summary.hasCapacity ? summary.capacityBytes|format_bytes : '–' }}</div>
-                    <span class="badge bg-secondary-subtle text-secondary-emphasis border">{{ summary.capacitySource.labelKey|trans({}, 'storage') }}</span>
+                    <twig:ea:Badge>{{ summary.capacitySource.labelKey|trans({}, 'storage') }}</twig:ea:Badge>
                 </div></div>
             </div>
             <div class="col-sm-6 col-xl-2">
@@ -76,7 +76,7 @@
                     <div class="text-secondary small">{{ 'storage.kpi.last_measurement'|trans({}, 'storage') }}</div>
                     <div class="fs-5 fw-bold">{{ summary.measuredAt|date('d.m.Y H:i', 'Europe/Berlin') }}</div>
                     {% if summary.stale %}
-                        <span class="badge bg-warning text-dark" title="{{ 'storage.stale.hint'|trans({hours: summary.maxAgeHours}, 'storage') }}">{{ 'storage.stale.badge'|trans({}, 'storage') }}</span>
+                        <twig:ea:Badge color="warning" title="{{ 'storage.stale.hint'|trans({hours: summary.maxAgeHours}, 'storage') }}">{{ 'storage.stale.badge'|trans({}, 'storage') }}</twig:ea:Badge>
                     {% else %}
                         <div class="text-secondary small">{{ 'storage.kpi.duration'|trans({seconds: (summary.durationMs / 1000)|round(1)}, 'storage') }}</div>
                     {% endif %}
@@ -92,10 +92,9 @@
         </div>
 
         {% if summary.stale %}
-            <div class="alert alert-warning d-flex align-items-center gap-2" role="status">
-                <i class="fas fa-clock-rotate-left" aria-hidden="true"></i>
-                <span>{{ 'storage.stale.hint'|trans({hours: summary.maxAgeHours}, 'storage') }}</span>
-            </div>
+            <twig:ea:Alert variant="warning" icon="fas fa-clock-rotate-left" role="status">
+                {{ 'storage.stale.hint'|trans({hours: summary.maxAgeHours}, 'storage') }}
+            </twig:ea:Alert>
         {% endif %}
 
         <div class="card mb-4">
@@ -221,7 +220,7 @@
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <h3 class="h6 mb-0">{{ 'storage.capacity_source.budget'|trans({}, 'storage') }}</h3>
                                 {% if capacity.activeSource.value == 'budget' %}
-                                    <span class="badge bg-primary">{{ 'storage.capacity.reference'|trans({}, 'storage') }}</span>
+                                    <twig:ea:Badge color="primary">{{ 'storage.capacity.reference'|trans({}, 'storage') }}</twig:ea:Badge>
                                 {% endif %}
                             </div>
                             {% if capacity.hasBudget %}
@@ -242,7 +241,7 @@
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <h3 class="h6 mb-0">{{ 'storage.capacity_source.filesystem'|trans({}, 'storage') }}</h3>
                                 {% if capacity.activeSource.value == 'filesystem' %}
-                                    <span class="badge bg-primary">{{ 'storage.capacity.reference'|trans({}, 'storage') }}</span>
+                                    <twig:ea:Badge color="primary">{{ 'storage.capacity.reference'|trans({}, 'storage') }}</twig:ea:Badge>
                                 {% endif %}
                             </div>
                             {% if capacity.hasFilesystem %}
@@ -287,14 +286,15 @@
                 <span>{{ 'storage.section.history'|trans({}, 'storage') }}</span>
                 <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'storage.history.range'|trans({}, 'storage') }}">
                     {% for days in [7, 30, 90, 365] %}
-                        <button type="button"
-                                class="btn btn-outline-secondary{{ days == 30 ? ' active' : '' }}"
+                        <twig:ea:Button type="button"
+                                size="sm"
+                                class="{{ days == 30 ? 'active' : '' }}"
                                 aria-pressed="{{ days == 30 ? 'true' : 'false' }}"
                                 data-storage-history-chart-target="rangeButton"
                                 data-action="storage-history-chart#selectRange"
                                 data-storage-history-chart-days-param="{{ days }}">
                             {{ 'storage.history.days'|trans({count: days}, 'storage') }}
-                        </button>
+                        </twig:ea:Button>
                     {% endfor %}
                 </div>
             </div>

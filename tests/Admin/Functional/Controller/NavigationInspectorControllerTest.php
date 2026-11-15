@@ -33,6 +33,10 @@ final class NavigationInspectorControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="nav-inspector-menu-statistics"] [data-nav-inspector-item="insights-dimension-occasions"]');
         self::assertSelectorExists('[data-nav-inspector-unclaimed="statistics"]');
         self::assertGreaterThan(0, $crawler->filter('#main-menu a[href*="/admin/operations/navigation"]')->count(), 'The System menu links to the page.');
+
+        // Labels inside EasyAdmin components do not inherit trans_default_domain; they must still be translated.
+        self::assertSame(['Check', 'Reset'], $crawler->filter('[data-testid="nav-inspector-form"] .btn')->each(static fn ($button): string => trim($button->text())));
+        self::assertSame(['All', 'Only deviations'], $crawler->filter('[data-testid="nav-inspector-menu-primary"] [data-navigation-inspector-target="scope"]')->each(static fn ($button): string => trim($button->text())));
     }
 
     public function testHiddenEntriesAreShownWithTheirReason(): void

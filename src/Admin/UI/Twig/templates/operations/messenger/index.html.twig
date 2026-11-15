@@ -28,9 +28,11 @@
         <p class="text-secondary mb-0">{{ 'ops.messenger.help'|trans({}, 'admin') }}</p>
         <div class="btn-group" role="group" aria-label="{{ 'ops.messenger.period.label'|trans({}, 'admin') }}">
             {% for period in periods %}
-                <a href="{{ ea_url().setRoute('app_admin_dashboard_operations_messenger', {period: period.value}) }}"
-                   class="btn btn-sm {{ period == report.period ? 'btn-primary' : 'btn-outline-secondary' }}"
-                   {% if period == report.period %}aria-current="true"{% endif %}>{{ period.labelKey|trans({}, 'admin') }}</a>
+                <twig:ea:Button htmlElement="a"
+                                href="{{ ea_url().setRoute('app_admin_dashboard_operations_messenger', {period: period.value}) }}"
+                                color="{{ period == report.period ? 'primary' : 'default' }}"
+                                size="sm"
+                                aria-current="{{ period == report.period ? 'true' : 'false' }}">{{ period.labelKey|trans({}, 'admin') }}</twig:ea:Button>
             {% endfor %}
         </div>
     </div>
@@ -80,7 +82,7 @@
                     <div class="fs-5 fw-bold" data-messenger-kpi="last-activity">{{ report.lastActivityAt|date('d.m.Y', 'Europe/Berlin') }}<br>{{ report.lastActivityAt|date('H:i', 'Europe/Berlin') }}</div>
                 {% endif %}
                 {% if report.failedQueue > 0 %}
-                    <a class="badge bg-danger text-decoration-none" href="{{ ea_url().setRoute('app_admin_dashboard_operations_failed_messages') }}">{{ 'ops.messenger.kpi.failed_queue'|trans({count: report.failedQueue}, 'admin') }}</a>
+                    <a class="text-decoration-none" href="{{ ea_url().setRoute('app_admin_dashboard_operations_failed_messages') }}"><twig:ea:Badge color="danger">{{ 'ops.messenger.kpi.failed_queue'|trans({count: report.failedQueue}, 'admin') }}</twig:ea:Badge></a>
                 {% else %}
                     <div class="text-secondary small">{{ 'ops.messenger.kpi.failed_queue'|trans({count: 0}, 'admin') }}</div>
                 {% endif %}
