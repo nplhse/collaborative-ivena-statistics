@@ -40,7 +40,7 @@ final readonly class AllocationNavigationProvider implements NavigationProviderI
 
         return [
             new NavGroup('explore-start', null, 10),
-            new NavGroup('cases', $this->label('link.explore.group.cases'), 20),
+            new NavGroup(Menu::EXPLORE_GROUP_CASES, $this->label('link.explore.group.cases'), 20),
             new NavGroup(Menu::EXPLORE_GROUP_ORGANISATION, $this->label('link.explore.group.organisation'), 30),
             new NavGroup('structure', $this->label('link.explore.group.structure'), 40),
             new NavGroup('features', $this->label('link.explore.group.features'), 50),
@@ -97,8 +97,8 @@ final readonly class AllocationNavigationProvider implements NavigationProviderI
         return [
             $this->entry('explore-index', 'explore-start', 'link.explore.overview', 'app_explore_index', 'tabler:compass', 10),
 
-            $this->catalog('allocations', 'cases', 'link.allocations', 'app_explore_allocation', 'tabler:ambulance', 10),
-            $this->catalog('mci-cases', 'cases', 'link.mci_cases', 'app_explore_mci_case', 'tabler:alert-triangle', 20),
+            $this->catalog('allocations', Menu::EXPLORE_GROUP_CASES, 'link.allocations', 'app_explore_allocation', 'tabler:ambulance', 10),
+            $this->catalog('mci-cases', Menu::EXPLORE_GROUP_CASES, 'link.mci_cases', 'app_explore_mci_case', 'tabler:alert-triangle', 20),
 
             $this->catalog('hospitals', Menu::EXPLORE_GROUP_ORGANISATION, 'link.hospitals', 'app_explore_hospital', 'tabler:building-hospital', 10),
             $this->catalog('states', Menu::EXPLORE_GROUP_ORGANISATION, 'link.states', 'app_explore_state', 'tabler:map', 20),
