@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { buildHeatmapColorScale } from '../lib/build-analysis-heatmap-options.js';
 import { buildHeatmapSeries } from '../lib/build-heatmap-series.js';
 import { formatChartMonthLabel } from '../lib/format-chart-month-label.js';
 import { chartColors } from '../lib/chart-colors.js';
@@ -259,64 +260,6 @@ export default class extends Controller {
         this.instances.push(chart);
     }
 
-    buildHeatmapColorScale(matrix) {
-        const EMPTY = chartColors(this.element).emptyCell;
-        const COLORS = ['#2fb344', '#74b816', '#f59f00', '#f76707', '#d63939'];
-
-        const values = matrix
-            .flat()
-            .filter((value) => value > 0)
-            .sort((a, b) => a - b);
-        const ranges = [{ from: 0, to: 0, color: EMPTY }];
-
-        if (!values.length) {
-            return { min: 0, max: 1, ranges };
-        }
-
-        const min = values[0];
-        const max = values[values.length - 1];
-
-        if (min === max) {
-            ranges.push({ from: min, to: max, color: COLORS[2] });
-            return { min: 0, max, ranges };
-        }
-
-        const valueAtPercentile = (percentile) => {
-            const index = Math.min(
-                values.length - 1,
-                Math.max(0, Math.round(percentile * (values.length - 1))),
-            );
-
-            return values[index];
-        };
-
-        const breaks = [min];
-        [0.2, 0.4, 0.6, 0.8].forEach((percentile) => {
-            const value = valueAtPercentile(percentile);
-            if (value > breaks[breaks.length - 1]) {
-                breaks.push(value);
-            }
-        });
-        if (max > breaks[breaks.length - 1]) {
-            breaks.push(max);
-        }
-
-        const intervalCount = breaks.length - 1;
-        for (let i = 0; i < intervalCount; i += 1) {
-            const colorIndex = Math.min(
-                COLORS.length - 1,
-                Math.floor((i / intervalCount) * COLORS.length),
-            );
-            ranges.push({
-                from: breaks[i],
-                to: breaks[i + 1],
-                color: COLORS[colorIndex],
-            });
-        }
-
-        return { min: 0, max, ranges };
-    }
-
     renderHeatmap(ApexCharts, heatmap, generation) {
         if (generation !== this._renderGeneration || !this.hasHeatmapChartTarget) {
             return;
@@ -330,7 +273,7 @@ export default class extends Controller {
         const rowLabels = heatmap.rowLabels ?? [];
         const columnLabels = heatmap.columnLabels ?? [];
         const matrix = heatmap.matrix ?? [];
-        const colorScale = this.buildHeatmapColorScale(matrix);
+        const colorScale = buildHeatmapColorScale(matrix, chartColors(this.element).emptyCell);
 
         const series = buildHeatmapSeries(columnLabels, rowLabels, matrix);
 
