@@ -44,6 +44,39 @@ final class KpiCompareTilesTest extends KernelTestCase
         self::assertStringNotContainsString('percentage points', $html);
     }
 
+    public function testUndefinedRatioIsShownAsNotAvailable(): void
+    {
+        // 5 vs. 0 cases: the ratio 5 / 0 is undefined; the builder stores 0.0.
+        $html = $this->render('en', [
+            new BenchmarkMetric(BenchmarkMetricKey::Total, 5.0, 0.0, 5.0, 0.0, 0.0, BenchmarkMetricFormat::Count),
+        ]);
+
+        self::assertStringContainsString('data-testid="test-total-ratio-unavailable"', $html);
+        self::assertStringContainsString('<span class="visually-hidden">Ratio not computable: the comparison value is 0</span>', $html);
+        self::assertStringNotContainsString('0,0×', $html);
+        self::assertStringContainsString('+5', $html);
+    }
+
+    public function testUndefinedRatioUsesGermanText(): void
+    {
+        $html = $this->render('de', [
+            new BenchmarkMetric(BenchmarkMetricKey::Total, 5.0, 0.0, 5.0, 0.0, 0.0, BenchmarkMetricFormat::Count),
+        ]);
+
+        self::assertStringContainsString('title="Verhältnis nicht berechenbar: Vergleichswert ist 0"', $html);
+    }
+
+    public function testDefinedRatioIsShown(): void
+    {
+        // 120 vs. 100 cases: ratio 1,2.
+        $html = $this->render('en', [
+            new BenchmarkMetric(BenchmarkMetricKey::Total, 120.0, 100.0, 20.0, 20.0, 1.2, BenchmarkMetricFormat::Count),
+        ]);
+
+        self::assertStringContainsString('1,2×', $html);
+        self::assertStringNotContainsString('ratio-unavailable', $html);
+    }
+
     private function physicianShare(): BenchmarkMetric
     {
         return new BenchmarkMetric(BenchmarkMetricKey::WithPhysician, 25.0, 20.0, 5.0, 25.0, 1.25, BenchmarkMetricFormat::Percent);

@@ -20,4 +20,13 @@ final readonly class BenchmarkMetric
         public int $comparisonDenominator = 0,
     ) {
     }
+
+    /**
+     * The builders store ratio and relativeDelta as 0.0 when the comparison value is 0; that ratio is
+     * undefined, not 0 (#1231). The comparison values are never negative.
+     */
+    public function hasRatio(): bool
+    {
+        return $this->comparisonValue > 0.0;
+    }
 }
