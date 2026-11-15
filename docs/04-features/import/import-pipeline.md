@@ -112,6 +112,12 @@ When an import is deleted (UI, admin or a [bulk deletion](bulk-actions.md#delete
 - The uploaded source file under `var/imports/...`
 - The reject CSV file, if one was written during processing
 
+A data remover can refuse the deletion (`ImportDeletionRefusedException`), today when records of other
+imports are attached to the encounters the import created
+([encounter README](../encounter/README.md#import)). Nothing is removed then: the import, its data and its
+files stay, and the reason is shown (import page and administration) or the import is skipped (bulk
+deletion).
+
 Reimports intentionally keep the source file; only result data from the previous run is cleared. See [batch-requeue.md](batch-requeue.md).
 
 File paths are resolved and removed through `ImportFileStorage` (Symfony `Filesystem::remove()`). Failed deletions are logged as `import.file.delete_failed`.

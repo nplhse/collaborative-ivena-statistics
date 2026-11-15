@@ -23,6 +23,6 @@ final class EdVisitSchemaHandlerTest extends KernelTestCase
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('The ed_visit handler got a row of '.ProbeRow::class.'.');
 
-        $handler->write(new SchemaWriteContext(1, 1, 1), [new ProbeRow(3, 'a', null)]);
+        $handler->write(new SchemaWriteContext(1, 1, 1), [new ProbeRow(3, 'a', 'b', null)]);
     }
 }

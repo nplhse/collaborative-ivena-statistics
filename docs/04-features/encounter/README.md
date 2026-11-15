@@ -198,6 +198,17 @@ and review decisions, its rejects, report, suspected-duplicate records and sourc
 imports stay (ADR 029). The confirmation dialog says so; the deletion is audited like every import
 deletion.
 
+**Attached records** (ADR 037, #1274): records of attaching schemas reference visits with ON DELETE
+RESTRICT. While such records of other imports hang on an import's visits, deleting or reprocessing that
+import is refused before anything is removed (`EncounterAttachedRecordsGuard`); should the database still
+block it (a record attached meanwhile), the removal rolls back and the same refusal is shown: "This import
+cannot be deleted or reprocessed while records of other imports are attached to its visits." Delete the
+attaching imports first. Until the encounter hub is split out of `encounter` (#1300) this concerns only
+`ed_visit` imports. Attaching schemas count their records as assigned, unassigned (no candidate) and
+conflicts in the report (`encounter_import.assigned / unassigned / conflicts`, null for `ed_visit`), and
+keep unassigned records in `encounter_pending_assignment`
+([extension point](../../02-architecture/extension-points.md#encounter-assignments)).
+
 ### Upload file retention
 
 Accepted files and files rejected for a possible processing error are kept for
@@ -264,7 +275,10 @@ Flow (`EncounterKeyChanger`, one transaction holding the key state lock that the
    **delete**: `DeleteEncounterDataAfterKeyChangeMessage` is queued in the same transaction (worker,
    queue `low`). The worker deletes every encounter import of the hospital with an earlier generation
    through `ImportDeletionService`: visits with links and review decisions, rejects, report, suspected
-   duplicates, source and reject files. An import that is still running is retried after a minute
+   duplicates, source and reject files. Imports of attaching schemas go first, `ed_visit` imports last
+   (ADR 037), so attached records do not block them; an import that is still refused stays complete with
+   its old generation, as with "keep", and is logged (`encounter.key_change.import_refused`). An import
+   that is still running is retried after a minute
    (Messenger retry strategy of the transport, at most three times; then the message is in the failed
    transport and the change stays in progress until it is retried). Afterwards it ends the change under
    the audit intent `encounter.key.change_completed`. Uploads stay refused until then.

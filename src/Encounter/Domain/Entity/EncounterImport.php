@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Encounter\Domain\Entity;
 
+use App\Encounter\Contract\Assignment\AssignmentCounts;
 use App\Encounter\Domain\Enum\EncounterFileRejection;
 use App\Import\Domain\Entity\Import;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
@@ -90,6 +91,18 @@ class EncounterImport
     #[ORM\Column(options: ['default' => 0])]
     private int $suspectedDuplicates = 0;
 
+    /** Inserted records attached to an encounter; null for schemas that do not assign (ed_visit, ADR 037). */
+    #[ORM\Column(nullable: true)]
+    private ?int $assigned = null;
+
+    /** Inserted records kept unassigned without candidate (ADR 037). */
+    #[ORM\Column(nullable: true)]
+    private ?int $unassigned = null;
+
+    /** Inserted records kept unassigned with an ambiguous or contradictory assignment conflict (ADR 037). */
+    #[ORM\Column(nullable: true)]
+    private ?int $conflicts = null;
+
     public function __construct(Import $import, string $schema, int $keyGeneration, ?User $confirmedBy, \DateTimeImmutable $confirmedAt)
     {
         if ($keyGeneration < 1) {
@@ -118,6 +131,9 @@ class EncounterImport
         $this->skipped = 0;
         $this->rejected = 0;
         $this->suspectedDuplicates = 0;
+        $this->assigned = null;
+        $this->unassigned = null;
+        $this->conflicts = null;
     }
 
     public function recordManifest(?int $schemaVersion, ?string $profile, ?string $profileVersion, ?string $toolVersion): void
@@ -146,7 +162,7 @@ class EncounterImport
         $this->sourceFileDeletedAt = $deletedAt;
     }
 
-    public function recordCounts(int $inserted, int $duplicates, int $skipped, int $rejected, int $suspectedDuplicates): void
+    public function recordCounts(int $inserted, int $duplicates, int $skipped, int $rejected, int $suspectedDuplicates, ?AssignmentCounts $assignments = null): void
     {
         $this->fileRejection = null;
         $this->inserted = $inserted;
@@ -154,6 +170,24 @@ class EncounterImport
         $this->skipped = $skipped;
         $this->rejected = $rejected;
         $this->suspectedDuplicates = $suspectedDuplicates;
+        $this->assigned = $assignments?->assigned;
+        $this->unassigned = $assignments?->unassigned;
+        $this->conflicts = $assignments?->conflicts;
+    }
+
+    public function getAssigned(): ?int
+    {
+        return $this->assigned;
+    }
+
+    public function getUnassigned(): ?int
+    {
+        return $this->unassigned;
+    }
+
+    public function getConflicts(): ?int
+    {
+        return $this->conflicts;
     }
 
     public function getId(): ?int
