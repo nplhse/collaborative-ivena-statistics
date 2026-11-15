@@ -2969,6 +2969,18 @@
         <source>admin.monthly_reminder_dispatch.status.failed</source>
         <target>Failed</target>
       </trans-unit>
+      <trans-unit id="c1314d0cdb7da" resname="admin.user.field.roles">
+        <source>admin.user.field.roles</source>
+        <target>Roles</target>
+      </trans-unit>
+      <trans-unit id="c1314485e82fc" resname="admin.user.field.is_verified">
+        <source>admin.user.field.is_verified</source>
+        <target>Email verified</target>
+      </trans-unit>
+      <trans-unit id="c13140e4d0f09" resname="admin.user.field.credentials_expired">
+        <source>admin.user.field.credentials_expired</source>
+        <target>Credentials expired</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

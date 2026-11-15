@@ -2969,6 +2969,18 @@
         <source>admin.monthly_reminder_dispatch.status.failed</source>
         <target>Fehlgeschlagen</target>
       </trans-unit>
+      <trans-unit id="c1314bc3f038a" resname="admin.user.field.roles">
+        <source>admin.user.field.roles</source>
+        <target>Rollen</target>
+      </trans-unit>
+      <trans-unit id="c131474467659" resname="admin.user.field.is_verified">
+        <source>admin.user.field.is_verified</source>
+        <target>E-Mail bestätigt</target>
+      </trans-unit>
+      <trans-unit id="c1314f241712f" resname="admin.user.field.credentials_expired">
+        <source>admin.user.field.credentials_expired</source>
+        <target>Zugangsdaten abgelaufen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
