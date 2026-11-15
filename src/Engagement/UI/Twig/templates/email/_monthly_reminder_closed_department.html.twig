@@ -1,5 +1,6 @@
 {%- set sharePercent = content.closedDepartmentSharePercent -%}
-{%- set shareDisplay = sharePercent is not null ? sharePercent|number_format(1, ',', '.') ~ '%' : '—' -%}
+{%- set shareDisplay = sharePercent is not null ? sharePercent|format_number({fraction_digit: 1, rounding_mode: 'halfup'}) ~ '%' : '—' -%}
+{%- set closedMom = content.closedDepartmentMomPercent is not null ? content.closedDepartmentMomPercent|round(1) : null -%}
 {%- set barShare = sharePercent is not null and sharePercent > 0 ? max(sharePercent, 2) : 0 -%}
 {%- if barShare > 100 -%}
     {%- set barShare = 100 -%}
@@ -28,10 +29,10 @@
             {% if content.closedDepartmentCount > 0 %}
                 <p style="color:{{ muted }};margin:8px 0 0;font-size:13px;">
                     {{ 'monthly_reminder.closed_department.body'|trans(({
-                        count: content.closedDepartmentCount|number_format(0, ',', '.'),
+                        count: content.closedDepartmentCount|format_number,
                     }), 'engagement') }}
-                    {% if content.closedDepartmentMomPercent is not null %}
-                        &nbsp;<span style="color:{{ content.closedDepartmentMomPercent > 0 ? '#d63939' : (content.closedDepartmentMomPercent < 0 ? '#2fb344' : muted) }};">{{ content.closedDepartmentMomPercent >= 0 ? '+' : '' }}{{ content.closedDepartmentMomPercent|number_format(1, ',', '.') }}%</span>
+                    {% if closedMom is not null %}
+                        &nbsp;<span style="color:{{ closedMom > 0 ? '#d63939' : (closedMom < 0 ? '#2fb344' : muted) }};">{{ closedMom > 0 ? '+' : '' }}{{ (closedMom == 0 ? 0 : closedMom)|format_number({fraction_digit: 1, rounding_mode: 'halfup'}) }}%</span>
                         {{ 'monthly_reminder.closed_department.mom'|trans({}, 'engagement') }}
                     {% endif %}
                 </p>
