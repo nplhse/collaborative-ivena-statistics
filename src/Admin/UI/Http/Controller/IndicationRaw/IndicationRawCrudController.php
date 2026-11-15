@@ -18,6 +18,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Option\BadgeVariant;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 
@@ -71,6 +72,7 @@ final class IndicationRawCrudController extends AbstractCrudController
                 IndicationRawReviewStatus::NotMatchable->value => 'secondary',
                 IndicationRawReviewStatus::Ignored->value => 'secondary',
             ])
+            ->setBadgeVariant(BadgeVariant::Dot)
             ->hideOnForm();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.review', domain: 'admin'));

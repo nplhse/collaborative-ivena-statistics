@@ -31,6 +31,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Option\BadgeVariant;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -180,7 +181,8 @@ final class FeedbackCrudController extends AbstractCrudController
             ->renderAsBadges([
                 FeedbackStatus::NEW->value => 'warning',
                 FeedbackStatus::DONE->value => 'success',
-            ]);
+            ])
+            ->setBadgeVariant(BadgeVariant::Dot);
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.submission', domain: 'admin'));
         yield IdField::new('id')->onlyOnDetail();

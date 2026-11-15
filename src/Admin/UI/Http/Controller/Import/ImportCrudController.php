@@ -32,6 +32,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Option\BadgeVariant;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
@@ -152,7 +153,15 @@ final class ImportCrudController extends AbstractCrudController
 
         yield ChoiceField::new('status', new TranslatableMessage('label.status', domain: 'messages'))
             ->setDisabled()
-            ->renderAsBadges();
+            ->renderAsBadges([
+                ImportStatus::PENDING->value => 'secondary',
+                ImportStatus::RUNNING->value => 'info',
+                ImportStatus::COMPLETED->value => 'success',
+                ImportStatus::PARTIAL->value => 'warning',
+                ImportStatus::FAILED->value => 'danger',
+                ImportStatus::CANCELLED->value => 'secondary',
+            ])
+            ->setBadgeVariant(BadgeVariant::Dot);
         yield ChoiceField::new('type', new TranslatableMessage('import.field.type', domain: 'import'))
             ->setDisabled()
             ->renderAsBadges();

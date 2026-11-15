@@ -27,6 +27,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Option\BadgeVariant;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -181,7 +182,8 @@ final class MonthlyReminderDispatchCrudController extends AbstractCrudController
                 MonthlyReminderDispatchStatus::Queued->value => 'info',
                 MonthlyReminderDispatchStatus::Sent->value => 'success',
                 MonthlyReminderDispatchStatus::Failed->value => 'danger',
-            ]);
+            ])
+            ->setBadgeVariant(BadgeVariant::Dot);
         yield TextField::new('recipientEmail', new TranslatableMessage('admin.monthly_reminder_dispatch.field.recipient', domain: 'admin'))
             ->hideOnIndex();
 
