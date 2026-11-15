@@ -24,6 +24,7 @@
             {% if window.absoluteDeviation is not null %}
                 <twig:Statistics:DeltaIndicator
                     :value="window.absoluteDeviation"
+                    :colorizeTrend="false"
                     unit="decimal"
                     display="text"
                     whenZero="neutral"
@@ -33,6 +34,7 @@
             {% if window.relativeDeviation is not null %}
                 <twig:Statistics:DeltaIndicator
                     :value="window.relativeDeviation * 100"
+                    :colorizeTrend="false"
                     unit="percent"
                     whenZero="neutral"
                     ariaKey="stats.closure.volume.deviation.relative.aria"

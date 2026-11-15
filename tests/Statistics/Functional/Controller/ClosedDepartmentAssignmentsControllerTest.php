@@ -242,8 +242,10 @@ final class ClosedDepartmentAssignmentsControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-closed-department-dispatch-areas"]');
         $this->assertSelectorExists('[data-testid="stats-closed-department-inline-compare-hint"]');
         $this->assertSelectorTextContains('[data-testid="stats-closed-department-urgency"]', '+100,0 pp');
-        $this->assertSelectorExists('[data-testid="stats-closed-department-urgency"] .text-green');
-        $this->assertSelectorExists('[data-testid="stats-closed-department-urgency"] .text-red');
+        // Share differences are descriptive, so they carry no assessment colour (#1230).
+        $this->assertSelectorExists('[data-testid="stats-closed-department-urgency"] span.text-secondary[aria-label]');
+        $this->assertSelectorNotExists('[data-testid="stats-closed-department-urgency"] .text-green');
+        $this->assertSelectorNotExists('[data-testid="stats-closed-department-urgency"] .text-red');
 
         $payloadJson = (string) $crawler->filter('[data-controller="closed-department-assignments-charts"]')
             ->attr('data-closed-department-assignments-charts-payload-value');

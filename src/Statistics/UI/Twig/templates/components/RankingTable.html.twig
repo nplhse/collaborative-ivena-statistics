@@ -59,6 +59,7 @@
                                     {% if row.countDelta is not null %}
                                         <twig:Statistics:DeltaIndicator
                                             :value="row.countDelta"
+                                            :colorizeTrend="false"
                                             unit="count"
                                             :ariaKey="countDeltaAriaKey"
                                             data-testid="{{ countDeltaTestId }}"
@@ -76,6 +77,7 @@
                                     {% if row.shareDelta is not null %}
                                         <twig:Statistics:DeltaIndicator
                                             :value="row.shareDelta"
+                                            :colorizeTrend="false"
                                             unit="pp"
                                             :ariaKey="shareDeltaAriaKey"
                                             data-testid="{{ shareDeltaTestId }}"

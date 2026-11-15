@@ -28,6 +28,15 @@ final class DeltaIndicator
 
     public string $extraClass = '';
 
+    /**
+     * Same meaning as on KpiCard: without it every change is grey. With it an increase is green and a
+     * decrease red; set it only where the direction can be read as good or bad.
+     */
+    public bool $colorizeTrend = false;
+
+    /** Swaps green and red for figures where more is worse. Has no effect without colorizeTrend. */
+    public bool $invertTrend = false;
+
     public function __construct(
         private readonly TranslatorInterface $translator,
     ) {
@@ -65,12 +74,12 @@ final class DeltaIndicator
     {
         $value = (float) ($this->value ?? 0);
         $text = 'text' === $this->display;
-        if ($value > 0) {
-            $tone = $text ? 'text-green' : 'badge bg-green-lt stats-rank-shift-badge';
-        } elseif ($value < 0) {
-            $tone = $text ? 'text-red' : 'badge bg-red-lt stats-rank-shift-badge';
-        } else {
+        if (!$this->colorizeTrend || 0.0 === $value) {
             $tone = $text ? 'text-secondary' : 'badge bg-secondary-lt stats-rank-shift-badge';
+        } elseif (($value > 0) !== $this->invertTrend) {
+            $tone = $text ? 'text-green' : 'badge bg-green-lt stats-rank-shift-badge';
+        } else {
+            $tone = $text ? 'text-red' : 'badge bg-red-lt stats-rank-shift-badge';
         }
 
         $extra = trim($this->extraClass);
