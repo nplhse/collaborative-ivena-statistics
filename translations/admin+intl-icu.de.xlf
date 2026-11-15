@@ -1749,6 +1749,54 @@
         <source>usage_analytics.overview.sessions_7_days</source>
         <target>Sitzungen (7 Tage)</target>
       </trans-unit>
+      <trans-unit id="uaOv05de" resname="usage_analytics.overview.title">
+        <source>usage_analytics.overview.title</source>
+        <target>Nutzungsanalyse — Übersicht</target>
+      </trans-unit>
+      <trans-unit id="uaOv06de" resname="usage_analytics.overview.feature_areas.title">
+        <source>usage_analytics.overview.feature_areas.title</source>
+        <target>Funktionsbereiche (7 Tage)</target>
+      </trans-unit>
+      <trans-unit id="uaOv07de" resname="usage_analytics.overview.authentication.title">
+        <source>usage_analytics.overview.authentication.title</source>
+        <target>Anmeldung (7 Tage)</target>
+      </trans-unit>
+      <trans-unit id="uaOv08de" resname="usage_analytics.overview.authentication.authenticated">
+        <source>usage_analytics.overview.authentication.authenticated</source>
+        <target>Angemeldet</target>
+      </trans-unit>
+      <trans-unit id="uaOv09de" resname="usage_analytics.overview.authentication.anonymous">
+        <source>usage_analytics.overview.authentication.anonymous</source>
+        <target>Anonym</target>
+      </trans-unit>
+      <trans-unit id="uaOv10de" resname="usage_analytics.overview.requests_30_days">
+        <source>usage_analytics.overview.requests_30_days</source>
+        <target>Anfragen (30 Tage)</target>
+      </trans-unit>
+      <trans-unit id="uaOv11de" resname="usage_analytics.overview.top_routes.title">
+        <source>usage_analytics.overview.top_routes.title</source>
+        <target>Häufigste Routen (7 Tage)</target>
+      </trans-unit>
+      <trans-unit id="uaOv12de" resname="usage_analytics.overview.column.area">
+        <source>usage_analytics.overview.column.area</source>
+        <target>Bereich</target>
+      </trans-unit>
+      <trans-unit id="uaOv13de" resname="usage_analytics.overview.column.requests">
+        <source>usage_analytics.overview.column.requests</source>
+        <target>Anfragen</target>
+      </trans-unit>
+      <trans-unit id="uaOv14de" resname="usage_analytics.overview.column.share">
+        <source>usage_analytics.overview.column.share</source>
+        <target>Anteil</target>
+      </trans-unit>
+      <trans-unit id="uaOv15de" resname="usage_analytics.overview.column.route">
+        <source>usage_analytics.overview.column.route</source>
+        <target>Route</target>
+      </trans-unit>
+      <trans-unit id="uaOv16de" resname="usage_analytics.overview.empty">
+        <source>usage_analytics.overview.empty</source>
+        <target>Noch keine Daten.</target>
+      </trans-unit>
       <trans-unit id="admFqEntityDe" resname="admin.feedback_quarantine.entity">
         <source>admin.feedback_quarantine.entity</source>
         <target>Feedback in Quarantäne</target>
