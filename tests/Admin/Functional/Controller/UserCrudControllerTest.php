@@ -463,6 +463,25 @@ final class UserCrudControllerTest extends WebTestCase
         self::assertTrue($hasher->isPasswordValid($target, $newPassword));
     }
 
+    public function testEmptyValuesShowAMutedDashInsteadOfANullBadge(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::new()->asAdmin()->create(['displayName' => 'Index Admin']);
+        UserFactory::createOne(['username' => 'no-display-name', 'displayName' => null]);
+        $client->loginUser($admin);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user');
+
+        self::assertResponseIsSuccessful();
+        $cell = $crawler->filter('tbody tr')
+            ->reduce(static fn ($row): bool => str_contains($row->text(), 'no-display-name'))
+            ->filter('td[data-column="displayName"]');
+        self::assertCount(1, $cell);
+        self::assertSame('—', trim($cell->text()));
+        self::assertCount(1, $cell->filter('span.text-secondary'));
+        self::assertCount(0, $cell->filter('.badge'));
+    }
+
     public function testUserIndexOmitsSecondaryColumns(): void
     {
         $client = self::createClient();
