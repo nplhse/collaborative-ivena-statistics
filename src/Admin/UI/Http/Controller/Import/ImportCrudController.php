@@ -32,6 +32,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 
@@ -185,8 +186,18 @@ final class ImportCrudController extends AbstractCrudController
         yield DateTimeField::new('exportEndsAt', new TranslatableMessage('admin.import.field.export_ends_at', domain: 'admin'))
             ->setFormat('dd.MM.yy HH:mm')
             ->hideOnIndex();
+        $periodSourceLabel = static fn (ImportExportPeriodSource $source): TranslatableMessage => new TranslatableMessage('admin.import.export_period_source.'.$source->value, domain: 'admin');
         yield ChoiceField::new('exportPeriodSource', new TranslatableMessage('admin.import.field.export_period_source', domain: 'admin'))
-            ->setChoices(ImportExportPeriodSource::cases())
+            ->setTranslatableChoices(array_combine(
+                array_map(static fn (ImportExportPeriodSource $source): string => $source->value, ImportExportPeriodSource::cases()),
+                array_map($periodSourceLabel, ImportExportPeriodSource::cases()),
+            ))
+            ->setFormType(EnumType::class)
+            ->setFormTypeOptions([
+                'class' => ImportExportPeriodSource::class,
+                'choices' => ImportExportPeriodSource::cases(),
+                'choice_label' => $periodSourceLabel,
+            ])
             ->hideOnIndex();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.file', domain: 'admin'));
