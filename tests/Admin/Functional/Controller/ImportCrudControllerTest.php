@@ -17,6 +17,7 @@ use App\Import\Infrastructure\Repository\ImportRepository;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -77,6 +78,37 @@ final class ImportCrudControllerTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/admin/import/new');
         self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testImportIndexShowsTheStatusAsColouredDotAndTheTypeAsPlainBadge(): void
+    {
+        $client = self::createClient();
+        $hospital = HospitalFactory::createOne();
+        ImportFactory::createOne(['hospital' => $hospital, 'name' => 'Failed run', 'type' => ImportType::ALLOCATION, 'status' => ImportStatus::FAILED]);
+        ImportFactory::createOne(['hospital' => $hospital, 'name' => 'Partial run', 'type' => ImportType::ALLOCATION, 'status' => ImportStatus::PARTIAL]);
+        ImportFactory::createOne(['hospital' => $hospital, 'name' => 'Completed run', 'type' => ImportType::ALLOCATION, 'status' => ImportStatus::COMPLETED]);
+
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+        $crawler = $client->request(Request::METHOD_GET, '/admin/import');
+        self::assertResponseIsSuccessful();
+
+        $badges = [];
+        foreach ($crawler->filter('tbody tr') as $row) {
+            $row = new Crawler($row);
+            $badges[trim($row->filter('td.field-text')->first()->text())] = [
+                (string) $row->filter('.badge')->eq(0)->attr('class'),
+                (string) $row->filter('.badge')->eq(1)->attr('class'),
+            ];
+        }
+
+        ksort($badges);
+
+        // Status: coloured dot per outcome; type: the default light badge without a variant class.
+        self::assertSame([
+            'Completed run' => ['badge badge-success badge-variant-dot', 'badge badge-secondary'],
+            'Failed run' => ['badge badge-danger badge-variant-dot', 'badge badge-secondary'],
+            'Partial run' => ['badge badge-warning badge-variant-dot', 'badge badge-secondary'],
+        ], $badges);
     }
 
     public function testImportDetailShowsCreatedBy(): void

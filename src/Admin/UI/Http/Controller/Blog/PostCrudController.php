@@ -27,6 +27,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Option\BadgeVariant;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -99,7 +100,11 @@ final class PostCrudController extends AbstractCrudController
                 'label.draft' => PostStatus::DRAFT,
                 'label.published' => PostStatus::PUBLISHED,
             ])
-            ->renderAsBadges();
+            ->renderAsBadges([
+                PostStatus::DRAFT->value => 'secondary',
+                PostStatus::PUBLISHED->value => 'success',
+            ])
+            ->setBadgeVariant(BadgeVariant::Dot);
         yield DateTimeField::new('publishedAt', 'label.published_at')
             ->setHelp(new TranslatableMessage('help.blog.published_at', domain: 'content'));
 

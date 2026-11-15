@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\UI\Http\Controller\Import;
 
 use App\Import\Domain\Entity\ImportBatchRunItem;
+use App\Import\Domain\Enum\ImportBatchRunItemStatus;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -18,6 +19,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Option\BadgeVariant;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 
@@ -67,7 +69,19 @@ final class ImportBatchRunItemCrudController extends AbstractCrudController
         yield IntegerField::new('importId', new TranslatableMessage('label.import_id', domain: 'admin'));
         yield TextField::new('importName', new TranslatableMessage('admin.import_batch_run_item.field.import_name', domain: 'admin'));
         yield ChoiceField::new('status', new TranslatableMessage('label.status', domain: 'messages'))
-            ->renderAsBadges();
+            ->renderAsBadges([
+                ImportBatchRunItemStatus::Pending->value => 'secondary',
+                ImportBatchRunItemStatus::Queued->value => 'info',
+                ImportBatchRunItemStatus::Running->value => 'info',
+                ImportBatchRunItemStatus::Completed->value => 'success',
+                ImportBatchRunItemStatus::Partial->value => 'warning',
+                ImportBatchRunItemStatus::Interrupted->value => 'warning',
+                ImportBatchRunItemStatus::Skipped->value => 'light',
+                ImportBatchRunItemStatus::DispatchFailed->value => 'danger',
+                ImportBatchRunItemStatus::Failed->value => 'danger',
+                ImportBatchRunItemStatus::Superseded->value => 'secondary',
+            ])
+            ->setBadgeVariant(BadgeVariant::Dot);
         yield IntegerField::new('attemptCount', new TranslatableMessage('ops.messenger.table.attempts', domain: 'admin'))
             ->onlyOnDetail();
         yield DateTimeField::new('startedAt', new TranslatableMessage('admin.job_run.field.started_at', domain: 'admin'))

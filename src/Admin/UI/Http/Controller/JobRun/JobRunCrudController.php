@@ -30,6 +30,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Option\BadgeVariant;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
@@ -150,7 +151,8 @@ final class JobRunCrudController extends AbstractCrudController
             ->renderAsBadges(JobRunCatalog::TRIGGER_BADGES);
         yield ChoiceField::new('status', $this->t('field.status'))
             ->setTranslatableChoices(static fn (?JobRun $run): array => JobRunCatalog::statusChoices($run?->getStatus()))
-            ->renderAsBadges(JobRunCatalog::STATUSES);
+            ->renderAsBadges(JobRunCatalog::STATUSES)
+            ->setBadgeVariant(BadgeVariant::Dot);
         yield IntegerField::new('attempt', $this->t('field.attempt'))
             ->onlyOnDetail();
         yield TextField::new('id', $this->t('field.id'))
