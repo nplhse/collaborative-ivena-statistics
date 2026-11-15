@@ -104,6 +104,7 @@ final class HospitalCourseCardTest extends WebTestCase
         self::assertSelectorExists(self::CARD);
         self::assertSame('automatic', $crawler->filter('[data-testid="encounter-course-origin"]')->attr('data-origin'));
         self::assertSelectorTextContains('[data-testid="encounter-course-agreement"]', 'Agreement 96 %');
+        self::assertSelectorTextContains('[data-testid="encounter-course-link"]', 'min from expected IVENA arrival');
         self::assertSelectorTextContains('[data-testid="encounter-course-category"]', 'Very urgent');
         self::assertSelectorTextContains('[data-testid="encounter-course-triage"]', 'Chest pain');
         self::assertSame(
@@ -111,6 +112,9 @@ final class HospitalCourseCardTest extends WebTestCase
             $crawler->filter('[data-testid="encounter-course-event"]')->each(static fn (Crawler $event): string => (string) $event->attr('data-event')),
             'Documented first vitals are not placed on the timeline.',
         );
+        $arrival = $crawler->filter('[data-event="ivena_arrival"]');
+        self::assertStringContainsString('Expected IVENA arrival', $arrival->text());
+        self::assertSame('from IVENA', trim($arrival->filter('[data-testid="encounter-course-event-source"]')->text()));
         self::assertSame(
             ['5 min', '33 min', '180 min'],
             $crawler->filter('[data-testid="encounter-course-interval"]')->each(static fn (Crawler $value): string => trim($value->text())),

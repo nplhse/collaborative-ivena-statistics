@@ -1643,11 +1643,11 @@
       </trans-unit>
       <trans-unit id="Enc48A5BE10" resname="encounter.course.anchor.admission">
         <source>encounter.course.anchor.admission</source>
-        <target>ED admission {minutes} min from IVENA arrival</target>
+        <target>ED admission {minutes} min from expected IVENA arrival</target>
       </trans-unit>
       <trans-unit id="EncE4D1D672" resname="encounter.course.anchor.assessment">
         <source>encounter.course.anchor.assessment</source>
-        <target>first assessment {minutes} min from IVENA arrival (no ED admission time)</target>
+        <target>first assessment {minutes} min from expected IVENA arrival (no ED admission time)</target>
       </trans-unit>
       <trans-unit id="Enc12B23EF8" resname="encounter.course.section.triage">
         <source>encounter.course.section.triage</source>
@@ -1711,7 +1711,7 @@
       </trans-unit>
       <trans-unit id="EncE4F7F725" resname="encounter.course.event.ivena_arrival">
         <source>encounter.course.event.ivena_arrival</source>
-        <target>IVENA arrival</target>
+        <target>Expected IVENA arrival</target>
       </trans-unit>
       <trans-unit id="Enc762A4E2D" resname="encounter.course.event.ed_admission">
         <source>encounter.course.event.ed_admission</source>
