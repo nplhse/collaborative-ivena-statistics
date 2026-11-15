@@ -403,6 +403,12 @@ final class DashboardController extends AbstractDashboardController
                         'route' => 'app_admin_dashboard_operations_messenger',
                     ],
                     [
+                        'label' => new TranslatableMessage('navigation.inspector.menu_label', domain: 'admin'),
+                        'description' => new TranslatableMessage('navigation.inspector.tile', domain: 'admin'),
+                        'icon' => 'fas fa-sitemap',
+                        'route' => 'app_admin_dashboard_operations_navigation_index',
+                    ],
+                    [
                         'label' => 'Failed messages',
                         'description' => 'Inspect messenger failed queue',
                         'icon' => 'fas fa-triangle-exclamation',
@@ -516,6 +522,7 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToRoute(new TranslatableMessage('storage.menu.disk_usage', domain: 'storage'), 'fas fa-hard-drive', 'app_admin_dashboard_operations_storage');
         yield MenuItem::linkToRoute(new TranslatableMessage('ops.messenger.menu', domain: 'admin'), 'fas fa-tower-broadcast', 'app_admin_dashboard_operations_messenger');
         yield MenuItem::linkToRoute(new TranslatableMessage('menu.system.failed_messages', domain: 'admin'), 'fas fa-triangle-exclamation', 'app_admin_dashboard_operations_failed_messages');
+        yield MenuItem::linkToRoute(new TranslatableMessage('navigation.inspector.menu_label', domain: 'admin'), 'fas fa-sitemap', 'app_admin_dashboard_operations_navigation_index');
         yield MenuItem::linkTo(JobRunCrudController::class, new TranslatableMessage('admin.job_run.menu', domain: 'admin'), 'fas fa-stopwatch');
         yield MenuItem::linkTo(MonthlyReminderDispatchCrudController::class, new TranslatableMessage('menu.system.monthly_reminders', domain: 'admin'), 'fas fa-envelope');
     }

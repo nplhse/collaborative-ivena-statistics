@@ -333,6 +333,9 @@ Integration branch from `develop`, one PR per step ([ADR 010](010-architecture-g
 5. Sidebar layout for Statistics on the Tabler vertical navbar, including fold state and mobile bar; `subnav_stats` and the Insights subnav go away.
 6. Sidebar for Explore; `subnav_explore` goes away.
 
+For debugging, the whole tree with all properties and warnings is shown in the admin backend
+(**System → Navigation tree**, #1237; [extension-points.md](../extension-points.md#navigation-tree)).
+
 Follow-ups, optional for v0.3-beta: breadcrumbs from the active path (#1141), sitemap from the tree,
 mobile header actions (#954), favorites section, quick search. The search inside the sidebar
 followed in #1248 ([Search in the sidebar](#search-in-the-sidebar)); a command palette across areas is still open.
