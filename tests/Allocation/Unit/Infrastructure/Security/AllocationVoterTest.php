@@ -8,7 +8,6 @@ use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Infrastructure\Security\Voter\AllocationVoter;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -29,7 +28,7 @@ final class AllocationVoterTest extends TestCase
     public function testViewGrantedForParticipant(): void
     {
         $user = $this->createUser([UserRole::USER, UserRole::PARTICIPANT]);
-        $allocation = $this->createMock(Allocation::class);
+        $allocation = $this->createStub(Allocation::class);
         $token = $this->createToken($user, [UserRole::USER, UserRole::PARTICIPANT]);
 
         self::assertSame(
@@ -41,7 +40,7 @@ final class AllocationVoterTest extends TestCase
     public function testViewGrantedForAdminViaRoleHierarchy(): void
     {
         $user = $this->createUser([UserRole::USER, UserRole::ADMIN]);
-        $allocation = $this->createMock(Allocation::class);
+        $allocation = $this->createStub(Allocation::class);
         $token = $this->createToken($user, [UserRole::USER, UserRole::ADMIN]);
 
         self::assertSame(
@@ -53,7 +52,7 @@ final class AllocationVoterTest extends TestCase
     public function testViewDeniedForUserWithoutParticipantRole(): void
     {
         $user = $this->createUser([UserRole::USER]);
-        $allocation = $this->createMock(Allocation::class);
+        $allocation = $this->createStub(Allocation::class);
         $token = $this->createToken($user, [UserRole::USER]);
 
         self::assertSame(
@@ -64,8 +63,8 @@ final class AllocationVoterTest extends TestCase
 
     public function testViewDeniedForAnonymousUser(): void
     {
-        $allocation = $this->createMock(Allocation::class);
-        $token = $this->createMock(TokenInterface::class);
+        $allocation = $this->createStub(Allocation::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
         $token->method('getRoleNames')->willReturn([]);
 
@@ -78,9 +77,9 @@ final class AllocationVoterTest extends TestCase
     /**
      * @param list<string> $roles
      */
-    private function createUser(array $roles): User&MockObject
+    private function createUser(array $roles): User
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $user->method('getRoles')->willReturn($roles);
 
         return $user;
@@ -89,9 +88,9 @@ final class AllocationVoterTest extends TestCase
     /**
      * @param list<string> $roleNames
      */
-    private function createToken(User $user, array $roleNames): TokenInterface&MockObject
+    private function createToken(User $user, array $roleNames): TokenInterface
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
         $token->method('getRoleNames')->willReturn($roleNames);
 

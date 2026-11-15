@@ -18,8 +18,6 @@ final class ImportFileStorageTest extends TestCase
     private string $projectDir;
     private string $importsBaseDir;
     private Filesystem $filesystem;
-    /** @var MockObject&LoggerInterface */
-    private MockObject $logger;
     private ImportFileStorage $storage;
 
     protected function setUp(): void
@@ -28,12 +26,11 @@ final class ImportFileStorageTest extends TestCase
         $this->importsBaseDir = Path::join($this->projectDir, 'var', 'imports');
         $this->filesystem = new Filesystem();
         $this->filesystem->mkdir($this->importsBaseDir, 0775);
-        $this->logger = $this->createMock(LoggerInterface::class);
         $this->storage = new ImportFileStorage(
             $this->projectDir,
             $this->importsBaseDir,
             $this->filesystem,
-            $this->logger,
+            $this->createStub(LoggerInterface::class),
         );
     }
 
@@ -118,7 +115,7 @@ final class ImportFileStorageTest extends TestCase
         $resolved = realpath($abs);
         self::assertNotFalse($resolved);
 
-        $this->logger
+        $this->expectLogger()
             ->expects($this->once())
             ->method('info')
             ->with('import.source_file.deleted', $this->callback(static fn (array $context): bool => 42 === $context['import_id'] && $resolved === $context['path']));
@@ -130,16 +127,18 @@ final class ImportFileStorageTest extends TestCase
 
     public function testDeleteIgnoresMissingFile(): void
     {
-        $this->logger->expects($this->never())->method('info');
-        $this->logger->expects($this->never())->method('warning');
+        $logger = $this->expectLogger();
+        $logger->expects($this->never())->method('info');
+        $logger->expects($this->never())->method('warning');
 
         $this->storage->delete('var/imports/missing.csv', 'import.source_file.deleted', 1);
     }
 
     public function testDeleteIgnoresEmptyPath(): void
     {
-        $this->logger->expects($this->never())->method('info');
-        $this->logger->expects($this->never())->method('warning');
+        $logger = $this->expectLogger();
+        $logger->expects($this->never())->method('info');
+        $logger->expects($this->never())->method('warning');
 
         $this->storage->delete(null, 'import.source_file.deleted', 1);
         $this->storage->delete('', 'import.source_file.deleted', 1);
@@ -150,8 +149,9 @@ final class ImportFileStorageTest extends TestCase
         $outside = Path::join($this->projectDir, 'outside.csv');
         file_put_contents($outside, 'secret');
 
-        $this->logger->expects($this->never())->method('info');
-        $this->logger->expects($this->never())->method('warning');
+        $logger = $this->expectLogger();
+        $logger->expects($this->never())->method('info');
+        $logger->expects($this->never())->method('warning');
 
         $this->storage->delete($outside, 'import.source_file.deleted', 1);
 
@@ -160,7 +160,7 @@ final class ImportFileStorageTest extends TestCase
 
     public function testDeleteLogsWarningWhenRemovalFails(): void
     {
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = $this->createStub(Filesystem::class);
         $filesystem->method('exists')->willReturn(true);
         $filesystem
             ->method('remove')
@@ -176,5 +176,16 @@ final class ImportFileStorageTest extends TestCase
 
         $storage = new ImportFileStorage($this->projectDir, $this->importsBaseDir, $filesystem, $logger);
         $storage->delete('var/imports/locked.csv', 'import.reject_file.deleted', 7);
+    }
+
+    /**
+     * Rebuilds the storage with a logger mock for tests that set expectations on the log.
+     */
+    private function expectLogger(): MockObject&LoggerInterface
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $this->storage = new ImportFileStorage($this->projectDir, $this->importsBaseDir, $this->filesystem, $logger);
+
+        return $logger;
     }
 }
