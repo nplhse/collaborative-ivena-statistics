@@ -28,7 +28,7 @@
                                         <h4 class="card-title h5 mb-0">{{ tile.label|trans }}</h4>
                                     </div>
                                     {% if tile.badge %}
-                                        <span class="badge rounded-pill bg-{{ tile.badge.style }}">{{ tile.badge.value }}</span>
+                                        <twig:ea:Badge color="{{ tile.badge.style }}" variant="solid" radius="full">{{ tile.badge.value }}</twig:ea:Badge>
                                     {% endif %}
                                 </div>
                                 {% if tile.description %}

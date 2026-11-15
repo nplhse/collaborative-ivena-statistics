@@ -2,8 +2,8 @@
 
 {% if mode in ['analytics_enabled', 'analytics_performance'] %}
     {% set label = mode == 'analytics_performance' ? 'Analytics + Performance' : 'Analytics' %}
-    <span
-        class="badge bg-green-lt text-green-fg"
+    <twig:ea:Badge
+        color="success"
         title="{{ label }}"
         data-bs-toggle="tooltip"
         data-bs-placement="top"
@@ -15,10 +15,9 @@
             <path d="M4 15l4 -6l4 2l4 -5l4 4" />
         </svg>
         {{ label }}
-    </span>
+    </twig:ea:Badge>
 {% else %}
-    <span
-        class="badge bg-secondary-lt text-secondary-fg"
+    <twig:ea:Badge
         title="{{ 'label.admin.cookies.essential_only'|trans({}, 'messages') }}"
         data-bs-toggle="tooltip"
         data-bs-placement="top"
@@ -31,5 +30,5 @@
             <path d="M12 14l0 2" />
         </svg>
         {{ 'label.admin.cookies.essential_only'|trans({}, 'messages') }}
-    </span>
+    </twig:ea:Badge>
 {% endif %}
