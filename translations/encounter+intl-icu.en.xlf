@@ -585,6 +585,22 @@
         <source>encounter.import.schema.unknown</source>
         <target>{schema} (not installed)</target>
       </trans-unit>
+      <trans-unit id="EncB0ECE8E85" resname="encounter.import.delete_refused.attached_records">
+        <source>encounter.import.delete_refused.attached_records</source>
+        <target>This import cannot be deleted or reprocessed while records of other imports are attached to its visits. Delete those imports first.</target>
+      </trans-unit>
+      <trans-unit id="Enc16758DEBB" resname="encounter.import.count.assigned">
+        <source>encounter.import.count.assigned</source>
+        <target>Assigned</target>
+      </trans-unit>
+      <trans-unit id="Enc3562A2AD5" resname="encounter.import.count.unassigned">
+        <source>encounter.import.count.unassigned</source>
+        <target>Unassigned</target>
+      </trans-unit>
+      <trans-unit id="Enc5318EF3DB" resname="encounter.import.count.conflicts">
+        <source>encounter.import.count.conflicts</source>
+        <target>Assignment conflicts</target>
+      </trans-unit>
       <trans-unit id="EncI5609204C" resname="encounter.import.field.confirmation">
         <source>encounter.import.field.confirmation</source>
         <target>I confirm that this file was produced with the data preparation tool and contains no direct identifiers (names, dates of birth, case numbers, free text).</target>

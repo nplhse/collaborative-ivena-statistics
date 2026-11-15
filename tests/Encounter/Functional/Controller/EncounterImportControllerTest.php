@@ -12,8 +12,10 @@ use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Tests\Support\Encounter\EdVisitFileBuilder;
+use App\Tests\Support\Encounter\EncounterFileBuilder;
 use App\Tests\Support\Encounter\EncounterImportRunner;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
+use App\Tests\Support\Encounter\Probe\ProbeDimension;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -170,12 +172,33 @@ final class EncounterImportControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-test="reject-row"]', 'heart_rate: out_of_range');
         self::assertSelectorTextSame('[data-test="encounter-schema"]', 'ED visits (MTS)');
+        // ed_visit does not assign records to encounters, so the report has no assignment counts (ADR 037).
+        self::assertSelectorNotExists('[data-test="count-assigned"]');
         self::assertStringNotContainsString('98765', (string) $this->client->getResponse()->getContent());
 
         // The hospital owner has hospital access but no encounter grant (ADR 028).
         $this->client->loginUser($this->owner());
         $this->client->request(Request::METHOD_GET, '/import/'.$importId);
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
+
+    public function testDetailPageOfAnAttachingSchemaShowsItsAssignmentCounts(): void
+    {
+        // Visit a has case 1; the probe rows of cases 1 and 2 are assigned and kept without encounter.
+        $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15', '1')->build(), 'ed visits');
+        $importId = $this->uploadEncounterFile($this->hospital, $this->uploader, EncounterFileBuilder::for(ProbeDimension::SCHEMA, ProbeDimension::header(), ProbeDimension::FINGERPRINT_RULE)
+            ->row(['record_fingerprint' => hash('sha256', 'probe|1'), 'case_key' => EncounterFileBuilder::caseKey('1'), 'recorded_at' => '2026-10-01T12:00'])
+            ->row(['record_fingerprint' => hash('sha256', 'probe|2'), 'case_key' => EncounterFileBuilder::caseKey('2'), 'recorded_at' => '2026-10-01T12:00'])
+            ->build(), 'probe records', schema: ProbeDimension::SCHEMA);
+
+        $this->client->loginUser($this->uploader);
+        $this->client->request(Request::METHOD_GET, '/import/'.$importId);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextSame('[data-test="encounter-schema"]', 'Probe records (test)');
+        self::assertSelectorTextSame('[data-test="count-assigned"]', '1');
+        self::assertSelectorTextSame('[data-test="count-unassigned"]', '1');
+        self::assertSelectorTextSame('[data-test="count-conflicts"]', '0');
     }
 
     public function testRejectedRawExportShowsTheReasonAndCannotBeReprocessed(): void

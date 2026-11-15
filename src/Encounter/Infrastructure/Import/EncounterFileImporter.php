@@ -107,6 +107,7 @@ final readonly class EncounterFileImporter
             suspectedDuplicates: $written instanceof EdVisitWriteResult ? $written->suspectedDuplicates : 0,
             coverage: $this->coverage($valid),
             insertedDays: $written->insertedDays,
+            assignments: $written->assignments,
         );
     }
 

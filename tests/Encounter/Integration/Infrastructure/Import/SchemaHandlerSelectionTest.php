@@ -99,6 +99,35 @@ final class SchemaHandlerSelectionTest extends KernelTestCase
         self::assertCount(0, $events);
     }
 
+    public function testAttachingSchemaCountsAssignmentsAndKeepsUnassignedRecords(): void
+    {
+        // Visit x has case 4 and visits y and z share case 5; probe rows of cases 4, 5 and 1.
+        $edImportId = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()
+            ->visit('x', '2026-10-01T08:15', '4')
+            ->visit('y', '2026-10-01T09:15', '5')
+            ->visit('z', '2026-10-01T10:15', '5')
+            ->build(), 'ed visits');
+        $importId = $this->uploadProbe($this->probeFile()
+            ->row(['record_fingerprint' => $this->fingerprint('c'), 'case_key' => EncounterFileBuilder::caseKey('4'), 'recorded_at' => '2026-10-01T12:00'])
+            ->row(['record_fingerprint' => $this->fingerprint('d'), 'case_key' => EncounterFileBuilder::caseKey('5'), 'recorded_at' => '2026-10-01T12:00'])
+            ->row(['record_fingerprint' => $this->fingerprint('a'), 'case_key' => EncounterFileBuilder::caseKey('1'), 'recorded_at' => '2026-10-01T12:00']));
+
+        $counts = $this->encounterImportOf($importId);
+        self::assertSame(['assigned' => 1, 'unassigned' => 1, 'conflicts' => 1], ['assigned' => $counts->getAssigned(), 'unassigned' => $counts->getUnassigned(), 'conflicts' => $counts->getConflicts()]);
+        self::assertSame(
+            [['record_id' => $this->fingerprint('d'), 'kind' => 'ambiguous'], ['record_id' => $this->fingerprint('a'), 'kind' => 'no_candidate']],
+            $this->connection()->fetchAllAssociative('SELECT record_id, kind FROM encounter_pending_assignment WHERE import_id = ? ORDER BY kind', [$importId]),
+        );
+
+        // ed_visit does not assign: its counts stay empty.
+        $edCounts = $this->encounterImportOf($edImportId);
+        self::assertSame([null, null, null], [$edCounts->getAssigned(), $edCounts->getUnassigned(), $edCounts->getConflicts()]);
+
+        // Reprocessing removes the pending records with the import's other records and keeps them again.
+        $this->runEncounterImport($importId, ImportRunTrigger::Reprocess, (int) $this->uploader->getId());
+        self::assertSame(2, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter_pending_assignment WHERE import_id = ?', [$importId]));
+    }
+
     public function testEdVisitFilesKeepTheirHandler(): void
     {
         $importId = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()

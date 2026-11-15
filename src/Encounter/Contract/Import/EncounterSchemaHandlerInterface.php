@@ -25,6 +25,12 @@ interface EncounterSchemaHandlerInterface
     public function schema(): string;
 
     /**
+     * Whether the schema creates encounters (`ed_visit`) instead of attaching its records to existing
+     * ones. Imports of attaching schemas are deleted first when all imports of a hospital are deleted.
+     */
+    public function createsEncounters(): bool;
+
+    /**
      * Maps one data row. The cells are in header order of $fields; the core has already checked the
      * header. Never keep or return cell values in errors.
      *

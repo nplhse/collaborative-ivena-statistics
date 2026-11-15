@@ -5,4 +5,5 @@ when@test:
         App\Tests\Support\Encounter\Probe\ProbeDimension:
             autoconfigure: true
         App\Tests\Support\Encounter\Probe\ProbeSchemaHandler:
+            autowire: true
             autoconfigure: true

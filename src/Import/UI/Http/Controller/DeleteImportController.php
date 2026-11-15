@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Import\UI\Http\Controller;
 
+use App\Import\Application\Contracts\ImportDeletionRefusedException;
 use App\Import\Application\Service\ImportDeletionService;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Infrastructure\Security\Voter\ImportVoter;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -19,6 +21,7 @@ final class DeleteImportController extends AbstractController
 {
     public function __construct(
         private readonly ImportDeletionService $importDeletionService,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
@@ -39,7 +42,15 @@ final class DeleteImportController extends AbstractController
             return $this->redirectToRoute('app_import_show', ['id' => $importId]);
         }
 
-        $this->importDeletionService->delete($import);
+        try {
+            $this->importDeletionService->delete($import);
+        } catch (ImportDeletionRefusedException $refusal) {
+            // The removal rolled back; a failed transaction closes the entity manager.
+            $this->managerRegistry->resetManager();
+            $this->addFlash('error', $refusal->reason);
+
+            return $this->redirectToRoute('app_import_show', ['id' => $importId]);
+        }
 
         $this->addFlash('success', new TranslatableMessage('flash.import.deleted', domain: 'import'));
 

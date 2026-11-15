@@ -11,6 +11,7 @@ final readonly class ProbeRow implements EncounterRecordRow
     public function __construct(
         private int $line,
         public string $fingerprint,
+        public string $caseKey,
         private ?\DateTimeImmutable $recordedAt,
     ) {
     }

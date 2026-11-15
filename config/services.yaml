@@ -71,6 +71,11 @@ services:
     App\Allocation\Application\Contracts\PreparedLocationStoreInterface: '@App\Allocation\Infrastructure\Geo\PreparedLocationFileStore'
     App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolverInterface: '@App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolver'
     App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryFilterLabelsInterface: '@App\Statistics\AnalysisExplorer\Application\ExplorerFilterBadgePresenter'
+    # Part of the contract for encounter schema plugins (ADR 037), which inject it. Public so that it is
+    # kept while no service of the application injects it yet (retries, #1307) and tests can resolve it.
+    App\Encounter\Contract\Assignment\EncounterAssignmentsInterface:
+        alias: App\Encounter\Infrastructure\Assignment\EncounterAssignments
+        public: true
 
     app.lock.pdo:
         class: PDO

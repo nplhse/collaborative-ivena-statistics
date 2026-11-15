@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Encounter\Infrastructure\Import;
 
 use App\Encounter\Application\Import\EncounterSchemaHandlerRegistry;
+use App\Encounter\Infrastructure\Persistence\EncounterReferenceCatalog;
 use App\Import\Application\Contracts\ImportDataRemoverInterface;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * Removes the records an import created when the import is deleted or reprocessed (ADR 029, ADR 037),
@@ -13,7 +16,12 @@ use App\Import\Application\Contracts\ImportDataRemoverInterface;
  *
  * Records created by other imports stay, also when the deleted import contained them as duplicates.
  * For `ed_visit`, links and review decisions (#1053, #1054) reference encounters with ON DELETE CASCADE
- * and are removed with them.
+ * and are removed with them. Pending assignments of the import's records go as well.
+ *
+ * EncounterAttachedRecordsGuard refuses beforehand when records of other imports are attached to the
+ * import's encounters. Should the database still block the removal through such a reference (a record
+ * attached meanwhile), the violation becomes the same refusal; the caller's transaction rolls back
+ * completely. Every other database error is passed on unchanged.
  *
  * @psalm-suppress UnusedClass Tagged via ImportDataRemoverInterface.
  */
@@ -21,6 +29,8 @@ final readonly class EncounterImportDataRemover implements ImportDataRemoverInte
 {
     public function __construct(
         private EncounterSchemaHandlerRegistry $handlers,
+        private EncounterReferenceCatalog $references,
+        private EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -33,9 +43,22 @@ final readonly class EncounterImportDataRemover implements ImportDataRemoverInte
     #[\Override]
     public function removeForImport(int $importId): int
     {
+        // Read before deleting: after a violation the transaction accepts no further statement.
+        $restricting = $this->references->restrictingReferences();
+
+        $this->entityManager->getConnection()->executeStatement('DELETE FROM encounter_pending_assignment WHERE import_id = ?', [$importId]);
+
         $removed = 0;
-        foreach ($this->handlers->all() as $handler) {
-            $removed += $handler->removeForImport($importId);
+        try {
+            foreach ($this->handlers->all() as $handler) {
+                $removed += $handler->removeForImport($importId);
+            }
+        } catch (ForeignKeyConstraintViolationException $violation) {
+            if (!EncounterReferenceCatalog::names($violation, $restricting)) {
+                throw $violation;
+            }
+
+            throw EncounterAttachedRecordsGuard::refusal($importId, null, $violation);
         }
 
         return $removed;

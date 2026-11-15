@@ -21,6 +21,15 @@
                     <div class="datagrid-content" data-test="count-{{ key }}">{{ attribute(encounter_import, key)|format_number }}</div>
                 </div>
             {% endfor %}
+            {# Only schemas that attach records to encounters count assignments (ADR 037). #}
+            {% for key in ['assigned', 'unassigned', 'conflicts'] %}
+                {% if attribute(encounter_import, key) is not null %}
+                    <div class="datagrid-item">
+                        <div class="datagrid-title">{{ ('encounter.import.count.' ~ key)|trans({}, 'encounter') }}</div>
+                        <div class="datagrid-content" data-test="count-{{ key }}">{{ attribute(encounter_import, key)|format_number }}</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
             <div class="datagrid-item">
                 <div class="datagrid-title">{{ 'encounter.import.field.schema'|trans({}, 'encounter') }}</div>
                 <div class="datagrid-content" data-test="encounter-schema">{{ schema_label|trans }}</div>

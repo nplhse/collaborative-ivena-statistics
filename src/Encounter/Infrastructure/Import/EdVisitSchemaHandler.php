@@ -53,6 +53,12 @@ final readonly class EdVisitSchemaHandler implements EncounterSchemaHandlerInter
     }
 
     #[\Override]
+    public function createsEncounters(): bool
+    {
+        return true;
+    }
+
+    #[\Override]
     public function mapRow(int $line, array $fields, array $cells): RowMappingResult
     {
         return $this->rowMapper->map($line, $fields, $cells);
