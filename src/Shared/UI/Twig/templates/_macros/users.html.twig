@@ -9,26 +9,27 @@
     - target: link target (default: _top, so DataTable/Turbo-Frames navigate the full page)
     - avatar: false | 'inline' | 'xs' | 'sm' renders a decorative UserAvatar before the name; 'inline' scales with the text (default: false)
 #}
-{% macro link(user, options = {}) %}
-    {% set empty = options.empty|default('—') %}
-    {% set requireParticipant = options.requireParticipant|default(false) %}
-    {% set target = options.target|default('_top') %}
-    {% set avatar = options.avatar|default(false) %}
+{# Whitespace control keeps the output on one line, so text right after the call (", date") does not get a space. #}
+{% macro link(user, options = {}) -%}
+    {%- set empty = options.empty|default('—') -%}
+    {%- set requireParticipant = options.requireParticipant|default(false) -%}
+    {%- set target = options.target|default('_top') -%}
+    {%- set avatar = options.avatar|default(false) -%}
 
-    {% if user is null %}
-        {{ empty }}
-    {% else %}
-        {% set username = user.username %}
-        {% set name = user_display_name(user.displayName, username) %}
-        {% set showTitle = name != username %}
-        {% if avatar %}<span class="user-link"><twig:UserAvatar :user="user" :size="avatar" />{% endif %}
-        {% if (not requireParticipant or is_granted('ROLE_PARTICIPANT')) and user.publicId %}
+    {%- if user is null -%}
+        {{- empty -}}
+    {%- else -%}
+        {%- set username = user.username -%}
+        {%- set name = user_display_name(user.displayName, username) -%}
+        {%- set showTitle = name != username -%}
+        {%- if avatar -%}<span class="user-link"><twig:UserAvatar :user="user" :size="avatar" /> {% endif -%}
+        {%- if (not requireParticipant or is_granted('ROLE_PARTICIPANT')) and user.publicId -%}
             <a href="{{ path('app_explore_user_show', {publicId: user.publicId}) }}"{% if target %} target="{{ target }}"{% endif %}{% if showTitle %} title="@{{ username }}"{% endif %}>{{ name }}</a>
-        {% elseif showTitle %}
+        {%- elseif showTitle -%}
             <span title="@{{ username }}">{{ name }}</span>
-        {% else %}
-            {{ name }}
-        {% endif %}
-        {% if avatar %}</span>{% endif %}
-    {% endif %}
-{% endmacro %}
+        {%- else -%}
+            {{- name -}}
+        {%- endif -%}
+        {%- if avatar %}</span>{% endif -%}
+    {%- endif -%}
+{%- endmacro %}

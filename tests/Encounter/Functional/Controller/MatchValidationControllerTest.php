@@ -27,6 +27,7 @@ use App\Tests\Support\Encounter\EncounterDataFixtures;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
 use App\Tests\Support\Encounter\MatchingDataFixtures;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
@@ -72,7 +73,7 @@ final class MatchValidationControllerTest extends WebTestCase
         $this->client = self::createClient();
         self::mockTime('2026-11-12 09:00:00');
         $this->hospital = $this->hospital($this->user());
-        $this->reviewer = $this->user();
+        $this->reviewer = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_ENCOUNTER_BETA'], 'displayName' => 'Rita Review']);
         $this->hospitalGrant($this->hospital, $this->reviewer);
         $this->encounterGrant($this->hospital, $this->reviewer, [EncounterGrantAction::ViewCases, EncounterGrantAction::Review]);
         $this->ivena = $this->encounterImport($this->hospital, 'IVENA', ImportType::ALLOCATION);
@@ -103,6 +104,9 @@ final class MatchValidationControllerTest extends WebTestCase
         self::assertResponseRedirects();
         $crawler = $this->client->followRedirect();
         self::assertSelectorTextContains('[data-test="encounter-validation-sample-meta"]', 'Matcher '.MatchPlanner::VERSION);
+        // The sample list names the reviewer who drew it by display name (#1240).
+        $this->client->request(Request::METHOD_GET, $this->validationUrl());
+        self::assertSelectorTextContains('[data-test="encounter-validation-sample"]', 'Rita Review');
 
         // Judged of sampled and the population when drawn, in the summary column.
         self::assertSame(['0 of 1 judged', '1 in period'], $this->reportCells($crawler, 'report-automatic-0.90–0.99', ['progress', 'population']));
@@ -286,6 +290,7 @@ final class MatchValidationControllerTest extends WebTestCase
         // Changing the verdict to "correct" keeps the links as they are (A–W stays rejected) and drops the replacement.
         $crawler = $this->client->request(Request::METHOD_GET, $this->itemUrl($sample, $item));
         self::assertSelectorTextContains('[data-test="encounter-validation-current-verdict"]', 'Wrong – visit #'.$other.' fits');
+        self::assertSelectorTextContains('[data-test="encounter-validation-current-verdict"]', 'Rita Review');
         self::assertSame('linked', $crawler->filter('[data-test="encounter-validation-option"]')->attr('data-plan'));
         $this->verdict($crawler, 'correct');
         self::assertSame([

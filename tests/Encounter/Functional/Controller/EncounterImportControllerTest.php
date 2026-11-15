@@ -15,6 +15,7 @@ use App\Tests\Support\Encounter\EdVisitFileBuilder;
 use App\Tests\Support\Encounter\EncounterImportRunner;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
@@ -54,7 +55,7 @@ final class EncounterImportControllerTest extends WebTestCase
     {
         $this->client = self::createClient();
         $this->hospital = $this->hospital($this->user());
-        $this->uploader = $this->user();
+        $this->uploader = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_ENCOUNTER_BETA'], 'displayName' => 'Uwe Upload']);
         $this->encounterGrant($this->hospital, $this->uploader, [EncounterGrantAction::Upload]);
     }
 
@@ -96,6 +97,8 @@ final class EncounterImportControllerTest extends WebTestCase
         $this->client->request(Request::METHOD_GET, '/import/'.$import->getId());
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-test="count-inserted"]', '2');
+        // The confirmation names the uploader by display name (#1240).
+        self::assertSelectorTextContains('[data-test="encounter-confirmation"]', 'Uwe Upload');
     }
 
     public function testFormOffersTheToolLinkAndEncounterFields(): void

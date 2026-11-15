@@ -1,7 +1,8 @@
-{% set initials = this.initials %}
-{% set a11y = decorative ? {'aria-hidden': 'true'} : {role: 'img', 'aria-label': this.label, title: this.label} %}
-{% if initials is not null %}
+{#- Whitespace control: the avatar sits inline in text (users.link), so it renders without surrounding whitespace. -#}
+{%- set initials = this.initials -%}
+{%- set a11y = decorative ? {'aria-hidden': 'true'} : {role: 'img', 'aria-label': this.label, title: this.label} -%}
+{%- if initials is not null -%}
     <span{{ attributes.defaults({class: 'avatar ' ~ this.sizeClass ~ ' bg-' ~ this.colour ~ '-lt user-avatar', style: '--user-avatar-color: var(--tblr-' ~ this.colour ~ ')', 'data-avatar': 'initials'}|merge(a11y)) }}>{{ initials }}</span>
-{% else %}
+{%- else -%}
     <span{{ attributes.defaults({class: 'avatar ' ~ this.sizeClass, 'data-avatar': 'fallback'}|merge(a11y)) }}><twig:ux:icon name="tabler:user" class="icon" /></span>
-{% endif %}
+{%- endif -%}

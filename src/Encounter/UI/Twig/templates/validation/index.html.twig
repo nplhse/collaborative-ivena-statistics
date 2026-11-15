@@ -56,11 +56,12 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                {% import '@Shared/_macros/users.html.twig' as users %}
                                 {% for sample in samples %}
                                     <tr data-test="encounter-validation-sample">
                                         <td>{{ sample.periodFrom|date('d.m.Y') }} – {{ sample.periodTo|date('d.m.Y') }}</td>
                                         <td>{{ sample.matcherVersion }}</td>
-                                        <td class="text-secondary">{{ sample.createdAt|date('d.m.Y H:i') }}{% if sample.createdBy %} · {{ sample.createdBy.username }}{% endif %}</td>
+                                        <td class="text-secondary">{{ sample.createdAt|date('d.m.Y H:i') }}{% if sample.createdBy %} · {{ users.link(sample.createdBy, {avatar: 'inline'}) }}{% endif %}</td>
                                         <td><a class="btn btn-sm" href="{{ path('app_tools_encounter_validation_sample', {id: hospital.id, sampleId: sample.id}) }}">{{ 'encounter.validation.open_sample'|trans({}, 'encounter') }}</a></td>
                                     </tr>
                                 {% endfor %}

@@ -1,4 +1,5 @@
 {# Encounter section of the import detail page (EncounterImportTypeExtension). No file content, no cell values. #}
+{% import '@Shared/_macros/users.html.twig' as users %}
 {% if encounter_import.fileRejection is not null %}
     <div class="alert alert-danger" role="alert" data-test="encounter-file-rejection">
         <h4 class="alert-title">{{ 'encounter.import.rejected.title'|trans({}, 'encounter') }}</h4>
@@ -50,7 +51,7 @@
             <div class="datagrid-item">
                 <div class="datagrid-title">{{ 'encounter.import.field.confirmation'|trans({}, 'encounter') }}</div>
                 <div class="datagrid-content" data-test="encounter-confirmation">
-                    {{ encounter_import.confirmedBy.username ?? '–' }}, {{ encounter_import.confirmedAt|format_datetime('short', 'short') }}
+                    {{ users.link(encounter_import.confirmedBy, {avatar: 'inline', empty: '–'}) }}, {{ encounter_import.confirmedAt|format_datetime('short', 'short') }}
                 </div>
             </div>
         </div>

@@ -81,6 +81,17 @@ final class UserLinkMacroTest extends KernelTestCase
         self::assertSame('Michael Müller', trim($crawler->filter('span[title]')->text()));
     }
 
+    public function testOutputHasNoSurroundingWhitespace(): void
+    {
+        $this->signIn();
+
+        // Text right after the call, as in "name, date", must not get a space before the comma.
+        $text = $this->render($this->user('mmueller', 'Michael Müller'), "{avatar: 'inline'}")->text(normalizeWhitespace: false);
+
+        self::assertSame('MM Michael Müller', preg_replace('/\s+/', ' ', trim($text)));
+        self::assertSame($text, trim($text));
+    }
+
     public function testNullUserRendersTheFallback(): void
     {
         $this->signIn();

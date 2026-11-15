@@ -7,6 +7,7 @@ namespace App\Tests\Encounter\Functional\Controller;
 use App\Encounter\Domain\Enum\EncounterGrantAction;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
+use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Field\ChoiceFormField;
 use Symfony\Component\DomCrawler\Form;
@@ -51,6 +52,28 @@ final class EncounterAccessGrantControllerTest extends WebTestCase
         $grant = $this->findEncounterGrant($hospital, $member);
         self::assertNotNull($grant);
         self::assertSame([EncounterGrantAction::Review, EncounterGrantAction::ViewCases], $grant->getActions());
+    }
+
+    public function testGrantListAndEditTitleShowTheDisplayName(): void
+    {
+        $client = self::createClient();
+        $owner = $this->user();
+        $hospital = $this->hospital($owner);
+        $member = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'], 'username' => 'case-member', 'displayName' => 'Carla Case']);
+        $this->hospitalGrant($hospital, $member);
+        $grant = $this->encounterGrant($hospital, $member, [EncounterGrantAction::ViewCases]);
+
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit/encounter-access');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('table a[title="@case-member"]', 'Carla Case');
+        self::assertSelectorTextSame('table .avatar.avatar-xs', 'CC');
+
+        $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit/encounter-access/'.$grant->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('.card-title', 'Carla Case');
     }
 
     public function testUserWithoutHospitalAccessCannotReceiveAGrant(): void

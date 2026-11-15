@@ -50,6 +50,33 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
         self::assertStringNotContainsString('<datalist', $content);
     }
 
+    public function testMatrixShowsGranteesByDisplayNameWithAvatar(): void
+    {
+        $client = self::createClient();
+
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $grantee = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'], 'username' => 'matrix-user', 'displayName' => 'Mara Matrix']);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => $owner]);
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $hospital,
+            'user' => $grantee,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View]),
+            'createdBy' => $owner,
+        ]);
+
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit/access');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextSame('.access-grants-matrix__user-th', 'User');
+        self::assertSelectorExists('.access-grants-matrix__user-td[title="Mara Matrix · @matrix-user"]');
+        self::assertSelectorTextContains('.access-grants-matrix__user-td a', 'Mara Matrix');
+        self::assertSelectorTextSame('.access-grants-matrix__user-td .avatar.avatar-xs', 'MM');
+        self::assertStringContainsString('aria-label="Mara Matrix has', (string) $client->getResponse()->getContent());
+    }
+
     public function testOwnerCanCreateAccessGrantViaHiddenUserId(): void
     {
         $client = self::createClient();
