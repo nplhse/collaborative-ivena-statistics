@@ -6,7 +6,6 @@ namespace App\Statistics\Application\Overview;
 
 use App\Statistics\Application\Overview\Dto\OverviewBenchmarkDeviation;
 use App\Statistics\Application\Overview\Dto\OverviewBenchmarkScorecardItem;
-use App\Statistics\Application\Overview\Dto\OverviewKpiCard;
 use App\Statistics\Benchmarking\Application\BenchmarkMetricBuilder;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetric;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetricFormat;
@@ -61,26 +60,6 @@ final readonly class OverviewBenchmarkSummaryFactory
         }
 
         return $items;
-    }
-
-    /**
-     * @return list<OverviewKpiCard>
-     */
-    public function buildScorecardKpiCards(BenchmarkReport $report): array
-    {
-        $cards = [];
-        foreach ($this->buildScorecard($report) as $item) {
-            $cards[] = new OverviewKpiCard(
-                'benchmark_'.$item->key,
-                $item->labelTranslationKey,
-                $item->displayValue,
-                null,
-                null,
-                $item->statusLabelTranslationKey,
-            );
-        }
-
-        return $cards;
     }
 
     /**
