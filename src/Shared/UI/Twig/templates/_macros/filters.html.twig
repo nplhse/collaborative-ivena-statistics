@@ -74,7 +74,7 @@
     {% endif %}
 
     {% if filters.importId is not null %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.importId', value: filters.importId}]) %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.import_id', domain: 'allocation', value: filters.importId}]) %}
     {% endif %}
 
     {# --- Boolean-like filters --- #}
@@ -265,7 +265,7 @@
             {% endif %}
         {% endfor %}
         {% if transportTypeLabel is not null %}
-            {% set rawFilters = rawFilters|merge([{key: 'stats.analysis_explorer.dimension.transport_type', value: transportTypeLabel}]) %}
+            {% set rawFilters = rawFilters|merge([{key: 'stats.analysis_explorer.dimension.transport_type', domain: 'statistics', value: transportTypeLabel}]) %}
         {% endif %}
     {% endif %}
 
@@ -592,7 +592,7 @@
             {% endif %}
         {% endfor %}
         {% if transportTypeLabel is not null %}
-            {% set rawFilters = rawFilters|merge([{key: 'stats.analysis_explorer.dimension.transport_type', value: transportTypeLabel}]) %}
+            {% set rawFilters = rawFilters|merge([{key: 'stats.analysis_explorer.dimension.transport_type', domain: 'statistics', value: transportTypeLabel}]) %}
         {% endif %}
     {% endif %}
 

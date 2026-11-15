@@ -11,6 +11,7 @@ use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\InfectionFactory;
 use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
+use App\Import\Infrastructure\Factory\ImportFactory;
 use Symfony\Component\HttpFoundation\Request;
 
 final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
@@ -259,5 +260,25 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
             $crawler->filter('[data-testid="department-was-closed-indicator"] .w-3.h-3 + *'),
             'Properties indicator should render icon only without trailing text.',
         );
+    }
+
+    public function testTransportTypeAndImportBadgesShowTranslatedLabels(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedDependencies();
+        $import = ImportFactory::createOne(['name' => 'Badge import']);
+        AllocationFactory::createOne(['import' => $import, 'transportType' => AllocationTransportType::GROUND]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            sprintf('/explore/allocation?transportType=G&importId=%d&limit=50', $import->getId()),
+        );
+
+        self::assertResponseIsSuccessful();
+        $badges = $crawler->filter('.badge.bg-blue-lt')->each(static fn ($badge): string => trim((string) preg_replace('/\s+/', ' ', $badge->text())));
+        self::assertContains('Transport type: Ground', $badges);
+        self::assertContains(sprintf('Import: %d', $import->getId()), $badges);
+        self::assertStringNotContainsString('stats.analysis_explorer', $crawler->text());
+        self::assertStringNotContainsString('label.importId', $crawler->text());
     }
 }
