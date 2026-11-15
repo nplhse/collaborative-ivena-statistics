@@ -231,9 +231,9 @@ final class PageTranslationCrudController extends AbstractCrudController
             ->setHelp(new TranslatableMessage('help.page.slug', domain: 'content'))
             ->hideOnIndex();
         yield ChoiceField::new('status', 'label.status')
-            ->setChoices([
-                'Draft' => PageTranslation::STATUS_DRAFT,
-                'Published' => PageTranslation::STATUS_PUBLISHED,
+            ->setTranslatableChoices([
+                PageTranslation::STATUS_DRAFT => new TranslatableMessage('label.draft', domain: 'admin'),
+                PageTranslation::STATUS_PUBLISHED => new TranslatableMessage('label.published', domain: 'admin'),
             ])
             ->renderAsBadges([
                 PageTranslation::STATUS_DRAFT => 'secondary',

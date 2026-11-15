@@ -196,6 +196,30 @@ final class FeedbackCrudControllerTest extends WebTestCase
         self::assertCount(0, $crawler->filter('pre.ea-json-pre'));
     }
 
+    public function testEditFormOffersTheTranslatedStatusAndStoresTheSelection(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::new()->asAdmin()->create(['locale' => 'de']));
+        $this->feedback('Status form feedback', FeedbackStatus::NEW, false);
+        $feedback = self::getContainer()->get(FeedbackRepository::class)->findOneBy(['message' => 'Status form feedback']);
+        self::assertInstanceOf(Feedback::class, $feedback);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/feedback/'.$feedback->getId().'/edit');
+
+        self::assertResponseIsSuccessful();
+        $options = $crawler->filter('select[name="Feedback[status]"] option')->each(static fn (Crawler $node): string => trim($node->text()));
+        self::assertSame(['Offen', 'Erledigt'], array_values(array_filter($options)));
+
+        $form = $crawler->filter('form[name="Feedback"]')->form();
+        $form['Feedback[status]'] = FeedbackStatus::DONE->value;
+        $client->submit($form);
+
+        self::assertResponseRedirects();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        self::assertSame(FeedbackStatus::DONE, $entityManager->find(Feedback::class, $feedback->getId())?->getStatus());
+    }
+
     private function loggedInAdmin(): KernelBrowser
     {
         $client = self::createClient();

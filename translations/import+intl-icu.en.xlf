@@ -649,6 +649,62 @@
         <source>import.type.label.encounter</source>
         <target>Encounter</target>
       </trans-unit>
+      <trans-unit id="impBrStRunningEn" resname="import.batch_run.status.running">
+        <source>import.batch_run.status.running</source>
+        <target>Running</target>
+      </trans-unit>
+      <trans-unit id="impBrStFinishedEn" resname="import.batch_run.status.finished">
+        <source>import.batch_run.status.finished</source>
+        <target>Finished</target>
+      </trans-unit>
+      <trans-unit id="impBrStInterruptedEn" resname="import.batch_run.status.interrupted">
+        <source>import.batch_run.status.interrupted</source>
+        <target>Interrupted</target>
+      </trans-unit>
+      <trans-unit id="impBrStFailedEn" resname="import.batch_run.status.failed">
+        <source>import.batch_run.status.failed</source>
+        <target>Failed</target>
+      </trans-unit>
+      <trans-unit id="impBriStPendingEn" resname="import.batch_run_item.status.pending">
+        <source>import.batch_run_item.status.pending</source>
+        <target>Pending</target>
+      </trans-unit>
+      <trans-unit id="impBriStQueuedEn" resname="import.batch_run_item.status.queued">
+        <source>import.batch_run_item.status.queued</source>
+        <target>Queued</target>
+      </trans-unit>
+      <trans-unit id="impBriStRunningEn" resname="import.batch_run_item.status.running">
+        <source>import.batch_run_item.status.running</source>
+        <target>Running</target>
+      </trans-unit>
+      <trans-unit id="impBriStCompletedEn" resname="import.batch_run_item.status.completed">
+        <source>import.batch_run_item.status.completed</source>
+        <target>Completed</target>
+      </trans-unit>
+      <trans-unit id="impBriStPartialEn" resname="import.batch_run_item.status.partial">
+        <source>import.batch_run_item.status.partial</source>
+        <target>Partial</target>
+      </trans-unit>
+      <trans-unit id="impBriStInterruptedEn" resname="import.batch_run_item.status.interrupted">
+        <source>import.batch_run_item.status.interrupted</source>
+        <target>Interrupted</target>
+      </trans-unit>
+      <trans-unit id="impBriStSkippedEn" resname="import.batch_run_item.status.skipped">
+        <source>import.batch_run_item.status.skipped</source>
+        <target>Skipped</target>
+      </trans-unit>
+      <trans-unit id="impBriStDispatchFailedEn" resname="import.batch_run_item.status.dispatch_failed">
+        <source>import.batch_run_item.status.dispatch_failed</source>
+        <target>Dispatch failed</target>
+      </trans-unit>
+      <trans-unit id="impBriStFailedEn" resname="import.batch_run_item.status.failed">
+        <source>import.batch_run_item.status.failed</source>
+        <target>Failed</target>
+      </trans-unit>
+      <trans-unit id="impBriStSupersededEn" resname="import.batch_run_item.status.superseded">
+        <source>import.batch_run_item.status.superseded</source>
+        <target>Superseded</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

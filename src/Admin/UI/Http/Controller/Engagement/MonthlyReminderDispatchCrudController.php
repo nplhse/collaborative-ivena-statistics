@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Engagement;
 
+use App\Admin\UI\Http\Controller\TranslatedEnumChoices;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Application\MonthlyReminderSender;
@@ -142,16 +143,8 @@ final class MonthlyReminderDispatchCrudController extends AbstractCrudController
     {
         return $filters
             ->add(EntityFilter::new('hospital', new TranslatableMessage('admin.hospital.entity.singular', domain: 'admin')))
-            ->add(ChoiceFilter::new('trigger', new TranslatableMessage('admin.job_run.field.trigger', domain: 'admin'))->setChoices([
-                'Scheduler' => MonthlyReminderTrigger::Scheduler->value,
-                'Admin' => MonthlyReminderTrigger::Admin->value,
-                'CLI' => MonthlyReminderTrigger::Cli->value,
-            ]))
-            ->add(ChoiceFilter::new('status', new TranslatableMessage('label.status', domain: 'messages'))->setChoices([
-                'Queued' => MonthlyReminderDispatchStatus::Queued->value,
-                'Sent' => MonthlyReminderDispatchStatus::Sent->value,
-                'Failed' => MonthlyReminderDispatchStatus::Failed->value,
-            ]))
+            ->add(ChoiceFilter::new('trigger', new TranslatableMessage('admin.job_run.field.trigger', domain: 'admin'))->setTranslatableChoices($this->triggerChoices()))
+            ->add(ChoiceFilter::new('status', new TranslatableMessage('label.status', domain: 'messages'))->setTranslatableChoices($this->statusChoices()))
             ->add(DateTimeFilter::new('sentAt', new TranslatableMessage('admin.monthly_reminder_dispatch.field.queued_at', domain: 'admin')));
     }
 
@@ -162,22 +155,14 @@ final class MonthlyReminderDispatchCrudController extends AbstractCrudController
         yield AssociationField::new('hospital', new TranslatableMessage('admin.hospital.entity.singular', domain: 'admin'));
         yield TextField::new('reportingPeriod', new TranslatableMessage('admin.monthly_reminder_dispatch.field.reporting_period', domain: 'admin'));
         yield ChoiceField::new('trigger', new TranslatableMessage('admin.job_run.field.trigger', domain: 'admin'))
-            ->setChoices([
-                'Scheduler' => MonthlyReminderTrigger::Scheduler->value,
-                'Admin' => MonthlyReminderTrigger::Admin->value,
-                'CLI' => MonthlyReminderTrigger::Cli->value,
-            ])
+            ->setTranslatableChoices($this->triggerChoices())
             ->renderAsBadges([
                 MonthlyReminderTrigger::Scheduler->value => 'primary',
                 MonthlyReminderTrigger::Admin->value => 'warning',
                 MonthlyReminderTrigger::Cli->value => 'secondary',
             ]);
         yield ChoiceField::new('status', new TranslatableMessage('label.status', domain: 'messages'))
-            ->setChoices([
-                'Queued' => MonthlyReminderDispatchStatus::Queued->value,
-                'Sent' => MonthlyReminderDispatchStatus::Sent->value,
-                'Failed' => MonthlyReminderDispatchStatus::Failed->value,
-            ])
+            ->setTranslatableChoices($this->statusChoices())
             ->renderAsBadges([
                 MonthlyReminderDispatchStatus::Queued->value => 'info',
                 MonthlyReminderDispatchStatus::Sent->value => 'success',
@@ -198,5 +183,21 @@ final class MonthlyReminderDispatchCrudController extends AbstractCrudController
         yield TextareaField::new('failureReason', new TranslatableMessage('kpi.failed_imports.reason', domain: 'admin'))
             ->onlyOnDetail()
             ->renderAsHtml(false);
+    }
+
+    /**
+     * @return array<string, TranslatableMessage>
+     */
+    private function triggerChoices(): array
+    {
+        return TranslatedEnumChoices::choices(MonthlyReminderTrigger::cases(), static fn (MonthlyReminderTrigger $trigger): string => 'admin.monthly_reminder_dispatch.trigger.'.$trigger->value, 'admin');
+    }
+
+    /**
+     * @return array<string, TranslatableMessage>
+     */
+    private function statusChoices(): array
+    {
+        return TranslatedEnumChoices::choices(MonthlyReminderDispatchStatus::cases(), static fn (MonthlyReminderDispatchStatus $status): string => 'admin.monthly_reminder_dispatch.status.'.$status->value, 'admin');
     }
 }

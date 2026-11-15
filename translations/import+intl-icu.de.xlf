@@ -649,6 +649,62 @@
         <source>import.type.label.encounter</source>
         <target>Behandlungsdaten</target>
       </trans-unit>
+      <trans-unit id="impBrStRunningDe" resname="import.batch_run.status.running">
+        <source>import.batch_run.status.running</source>
+        <target>Läuft</target>
+      </trans-unit>
+      <trans-unit id="impBrStFinishedDe" resname="import.batch_run.status.finished">
+        <source>import.batch_run.status.finished</source>
+        <target>Beendet</target>
+      </trans-unit>
+      <trans-unit id="impBrStInterruptedDe" resname="import.batch_run.status.interrupted">
+        <source>import.batch_run.status.interrupted</source>
+        <target>Unterbrochen</target>
+      </trans-unit>
+      <trans-unit id="impBrStFailedDe" resname="import.batch_run.status.failed">
+        <source>import.batch_run.status.failed</source>
+        <target>Fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="impBriStPendingDe" resname="import.batch_run_item.status.pending">
+        <source>import.batch_run_item.status.pending</source>
+        <target>Ausstehend</target>
+      </trans-unit>
+      <trans-unit id="impBriStQueuedDe" resname="import.batch_run_item.status.queued">
+        <source>import.batch_run_item.status.queued</source>
+        <target>In Warteschlange</target>
+      </trans-unit>
+      <trans-unit id="impBriStRunningDe" resname="import.batch_run_item.status.running">
+        <source>import.batch_run_item.status.running</source>
+        <target>Läuft</target>
+      </trans-unit>
+      <trans-unit id="impBriStCompletedDe" resname="import.batch_run_item.status.completed">
+        <source>import.batch_run_item.status.completed</source>
+        <target>Abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="impBriStPartialDe" resname="import.batch_run_item.status.partial">
+        <source>import.batch_run_item.status.partial</source>
+        <target>Teilweise</target>
+      </trans-unit>
+      <trans-unit id="impBriStInterruptedDe" resname="import.batch_run_item.status.interrupted">
+        <source>import.batch_run_item.status.interrupted</source>
+        <target>Unterbrochen</target>
+      </trans-unit>
+      <trans-unit id="impBriStSkippedDe" resname="import.batch_run_item.status.skipped">
+        <source>import.batch_run_item.status.skipped</source>
+        <target>Übersprungen</target>
+      </trans-unit>
+      <trans-unit id="impBriStDispatchFailedDe" resname="import.batch_run_item.status.dispatch_failed">
+        <source>import.batch_run_item.status.dispatch_failed</source>
+        <target>Übergabe fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="impBriStFailedDe" resname="import.batch_run_item.status.failed">
+        <source>import.batch_run_item.status.failed</source>
+        <target>Fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="impBriStSupersededDe" resname="import.batch_run_item.status.superseded">
+        <source>import.batch_run_item.status.superseded</source>
+        <target>Ersetzt</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
