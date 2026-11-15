@@ -206,9 +206,10 @@
     background: var(--bs-danger-bg-subtle);
 }
 
+/* EasyAdmin's primary pair: in dark mode --bs-primary is almost white, so white text was unreadable. */
 .nav-inspector-pill.is-active {
-    color: var(--bs-white);
-    background: var(--bs-primary);
+    color: var(--ea-primary-foreground);
+    background: var(--ea-primary);
 }
 
 .nav-inspector-pill.is-path {
