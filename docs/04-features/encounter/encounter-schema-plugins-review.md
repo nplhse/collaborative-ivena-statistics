@@ -24,7 +24,8 @@ Agreed in the discussion of #1273 and recorded in ADR 037:
   reference; clinical admission times stay in the records. A case pseudonym can belong to several
   encounters with different anchors.
 - Records are assigned through a core service: assigned, no candidate, ambiguous or contradictory.
-  Unassigned records are kept; conflicts are resolved by hand by users with the `REVIEW` grant.
+  Unassigned records are kept; users with the `REVIEW` grant resolve conflicts by assigning a candidate
+  or by leaving the record unassigned, which automatic retries respect.
 - Records belong to their import (ADR 029 per record). Deleting an import removes only its records.
   An encounter has no owning import; a separate hub cleanup removes encounters without records.
 - Matching (ADR 030) belongs to `ed_visit`.
@@ -316,21 +317,41 @@ Report: total 4, assigned 1, duplicates 1, conflicts 1, unassigned without candi
 7. **Reprocessing** gives the same counts, one stored stay per row and one conflict.
 8. **Deletion:** deleting the `inpatient_stay` import through the normal workflow removes its three
    stays and the conflict. Visits A, B and C, their links and the `ed_visit` import stay.
-9. **Registration:** the test bundle is registered only through `config/bundles.php`; no class under
-   `src/` names `inpatient_stay` or the test bundle; Deptrac allows the test bundle only the contract
-   layer.
+9. **Deletion while attached:** deleting the `ed_visit` import while the stay of row 1 is attached to
+   visit A fails completely: the `ed_visit` import, visits A, B and C, their links, the source file and
+   all stays and the conflict stay; the user gets an error message. Run before step 8.
+10. **Registration:** the test bundle is registered only through `config/bundles.php`; no class under
+    `src/` names `inpatient_stay` or the test bundle; Deptrac allows the test bundle only the contract
+    layer.
 
-**How #1274 proves conflicts, and where resolution follows.** #1274 proves that conflicts and missing
-candidates are detected, kept with their candidates, counted and shown only to users with the review
-grant (steps 2, 4, 5, 7, 8). Resolving a conflict by hand (choosing B or C, then processing the stay
-further) and retrying stays without candidate after a later `ed_visit` import are a follow-up issue of
-#1274. The resolution actions are added to the conflict page of step 4; that issue extends this test
-with "resolve row 3 to B → the case file of Y shows the stay" and "import visit D with the case of row 4
-→ the stay is assigned to D".
+**Assignment service test** (integration, without upload). The synthetic schema carries no allocation
+link, so `contradictory` is tested at the level of the assignment service. Arrange: visit A linked to
+allocation X, visit E with another case pseudonym and no link. Ask for a record that names allocation X
+and the case pseudonym of E. Expected: result `contradictory`; the record is stored unassigned with one
+conflict whose candidates are A (by allocation) and E (by pseudonym), each with its reason; the conflict
+is listed for R like the one of row 3. The same test class covers the other three results with one case
+each, so all four results have a test at service level.
 
-**Not part of this test:** hub cleanup and deleting an `ed_visit` import that still carries stays.
-Both depend on the hub split (#1300); until then the `RESTRICT` reference makes such a deletion fail
-instead of removing stays.
+**How #1274 proves conflicts, and where resolution follows.** #1274 proves that all four assignment
+results are detected, that unassigned records and conflicts are kept with their candidates, counted and
+shown only to users with the review grant (steps 2, 4, 5, 7, 8 and the assignment service test). The two
+manual decisions and the retry of records without candidate are a follow-up issue of #1274. Its actions
+are added to the conflict page of step 4, and it extends this test with:
+
+- "assign row 3 to B" → the case file of Y shows the stay;
+- "leave row 3 unassigned", then import a visit that would decide it → the stay stays unassigned
+  (automatic retries skip a deliberate decision);
+- "import visit D with the case of row 4" → the stay is assigned to D.
+
+**Implementation note for step 9.** Import deletion removes the rows of all removers in one
+transaction (`ImportRelatedDataCleanupService::removeRows()`) and deletes files only afterwards
+(`ImportDeletionService::delete()`), so a failing `RESTRICT` reference rolls the rows back before any
+file is touched. The Encounter remover should still check for attached records of other schemas before
+it deletes anything and raise a clear error, instead of relying on the database exception and on the
+other removers (for example the matcher rerun of `EncounterMatchDataRemover`) having no effect outside
+the transaction.
+
+**Not part of this test:** hub cleanup (#1300).
 
 ### Acceptance criteria of #1274, part 1
 
@@ -340,10 +361,10 @@ instead of removing stays.
 | Shared workflow dispatches to the bundle's handler, outcome in the existing import report | 2, 7 |
 | Imported fields visible in the selected view, reached through the existing allocation-to-encounter link | 3 |
 | Deleting the import through the normal workflow removes its bundle-owned records | 8 |
-| Registration mechanism of installed bundles, no import-type-specific branch | 9 |
+| Registration mechanism of installed bundles, no import-type-specific branch | 10 |
 
-Steps 4–6 go beyond the wording of #1274; they prove the assignment results and the Explore extension
-point of ADR 037.
+Steps 4–6, step 9 and the assignment service test go beyond the wording of #1274; they prove the four
+assignment results, the Explore extension point and the `RESTRICT` rule of the transition in ADR 037.
 
 ## Implementation plan for #1274
 
@@ -357,14 +378,15 @@ Part 1, proving the mechanism (MTS stays where it is):
    a schema without handler rejects the file (finding 1); `EncounterImportDataRemover` delegates the
    removal of an import's records; the report shows the schema and the assignment counts; schema labels
    in the upload form; the import type is hidden without schemas. Existing tests stay green.
-4. Unassigned records and conflicts: storage in the core, counts, read-only conflict page for the
-   `REVIEW` grant.
+4. Unassigned records and conflicts: storage in the core with all candidates and their reasons,
+   counts, read-only conflict page for the `REVIEW` grant; the Encounter remover refuses to delete
+   visits that carry records of another schema.
 5. Record sections in the hospital course card; Explore overview extension point; route loader for
    schema bundles.
 6. Test bundle with migration and the integration test above.
 
-Follow-up of #1274 (own issue): manual conflict resolution on the conflict page and retry of records
-without candidate after encounter imports.
+Follow-up of #1274 (own issue): the two manual decisions on the conflict page (assign to a candidate,
+leave unassigned) and the retry of records without candidate after encounter imports.
 
 Part 2, moving MTS (#1300, one pull request per step):
 

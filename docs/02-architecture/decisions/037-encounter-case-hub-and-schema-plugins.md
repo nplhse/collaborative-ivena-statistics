@@ -83,8 +83,13 @@ time, or by creating a new encounter. The core answers with one of four results 
 
 - Unassigned records and conflicts are counted in the import report.
 - Conflicts are visible to users with the `REVIEW` grant of the hospital (ADR 028) and are resolved by
-  hand: a candidate is chosen, or the record stays unassigned. After the decision the record is processed
-  further like an assigned one.
+  hand with one of two decisions:
+  - **Assign to a candidate:** the record is attached to the chosen encounter and from then on
+    processed like an automatically assigned one.
+  - **Leave unassigned:** the record stays unassigned, and the decision is kept. Automatic retries skip
+    it; only a reviewer can reopen it. Reprocessing the import removes the decision together with the
+    record, like other review decisions (ADR 029).
+- Automatic retries apply only to records without candidate. Open conflicts wait for review.
 - In the first version only `ed_visit` creates encounters; other schemas attach to existing ones.
 
 ### Records and ownership
@@ -158,19 +163,21 @@ local map); schemas contribute their schema file, profiles, scripts and catalogs
 The decision is implemented in steps:
 
 1. **#1274** proves the mechanism with a synthetic test bundle (`inpatient_stay`): contract layer,
-   schema handler, the four assignment results, unassigned records and conflicts with their counts,
+   schema handler, all four assignment results (`contradictory` at the level of the assignment
+   service, because the synthetic schema carries no allocation link), unassigned records and conflicts
+   with their counts and candidates,
    the visibility of conflicts for `REVIEW`, case file sections and Explore entries. The existing
    `encounter` row of an ED visit serves as the encounter; MTS stays in the core.
-2. **Follow-up of #1274** (own issue): resolving conflicts by hand and retrying records without
-   candidate after later imports.
+2. **Follow-up of #1274** (own issue): the two manual decisions on conflicts and retrying records
+   without candidate after later imports.
 3. **#1300** splits the hub out of the `encounter` table, migrates the existing data, adds the hub
    cleanup and ships MTS as a bundle.
 
 Until step 3, `ed_visit` is the only schema in production, and its records are the encounters. The
 rules on finding the encounter and on records and ownership apply in this phase as decided; resolution
 and retry arrive with step 2. One consequence follows from `RESTRICT`: deleting an `ed_visit` import whose
-visits still carry records of another schema fails on the `RESTRICT` reference instead of removing
-those records. Only the test bundle can produce this case before step 3.
+visits still carry records of another schema fails completely; the import, its visits and the attached
+records all stay. Only the test bundle can produce this case before step 3, and #1274 tests it.
 
 ## Open questions
 
@@ -204,7 +211,8 @@ those records. Only the test bundle can produce this case before step 3.
 - Splitting the hub out of the `encounter` table needs a data migration on pilot data
 - Unassigned records and conflicts need a review page and people with the `REVIEW` grant
 - Encounters without records exist until the hub cleanup runs
-- Until the split, deleting an `ed_visit` import fails while records of another schema are attached
+- Until the split, deleting an `ed_visit` import fails completely while records of another schema are
+  attached
 - Until the follow-up of #1274, conflicts are visible but cannot be resolved, and records without
   candidate are not retried
 - A contract layer to maintain, and a second layout (bundles) next to the contexts
