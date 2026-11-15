@@ -274,7 +274,8 @@ with ON DELETE RESTRICT; `EncounterAttachedRecordsGuard` (above) finds them in t
 
 **Registry:** `RecordSectionRegistry`, used by `HospitalCourseCaseSectionProvider`
 
-**Implementations:** in the `test` environment the probe schema (`tests/Support/Encounter/Probe/`)
+**Implementations:** in the `test` environment `InpatientStayRecordSections` of the test bundle
+(`tests/Fixtures/Plugin/InpatientStay/`)
 
 Lets an encounter schema show its records of an encounter in the hospital course card of the allocation case
 file (ADR 037). The card asks only after it checked `VIEW_CASES` and found the effective link; a provider returns
@@ -289,6 +290,8 @@ case file).
 
 **Consumer:** `EncounterExploreEntryProvider`, which forwards the tiles to the
 [Explore overview](#explore-overview-tiles) in the group `cases`, after the ED visit list
+
+**Implementations:** in the `test` environment `InpatientStayExploreEntries` of the test bundle
 
 Lets an encounter schema add a tile to the Explore overview. Explore shows it to users who may view cases of at least
 one hospital (`EncounterAttribute::VIEW_CASES_IN_ANY_HOSPITAL`, `EncounterCasesAnywhereVoter`: beta role and grant
@@ -335,8 +338,8 @@ How to try the test bundle in a browser: [review](../04-features/encounter/encou
 `EncounterImportDataRemover` and the upload form (`EncounterImportTypeExtension`)
 
 **Implementations:** `EdVisitSchemaHandler` (`ed_visit`, part of the core until MTS moves into its bundle,
-#1300); in the `test` environment the probe schema `probe` (`tests/Support/Encounter/Probe/`,
-`config/services/encounter_probe_test.yaml`)
+#1300); in the `test` environment the test bundle's `InpatientStayHandler` and the probe schema `probe`
+(`tests/Support/Encounter/Probe/`, `config/services/encounter_probe_test.yaml`, only the import seam)
 
 Processes the rows of one schema inside the shared encounter import workflow
 ([ADR 037](decisions/037-encounter-case-hub-and-schema-plugins.md)). The core reads the file, validates

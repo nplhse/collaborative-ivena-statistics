@@ -456,8 +456,8 @@ notice before logging in.
    duplicates 1, assigned 1, conflicts 1, unassigned 1, rejected 0, skipped 0.
 2. **Case file:** the URL of allocation X (from the seed output) shows the stay (admission 2026-10-12 10:05,
    I21.4, discharge 2026-10-19 11:00) in the hospital course card; the URL of allocation Y shows none.
-3. **Explore:** `/explore` shows the tile "Inpatient stays (test)" after "ED visits" (in `test` also the probe
-   tile of `tests/Support/Encounter/Probe/`); its page lists the three stays of the hospital. The assignment
+3. **Explore:** `/explore` shows the tile "Inpatient stays (test)" after "ED visits"; its page lists the three
+   stays of the hospital. The assignment
    conflicts are at `/tools/encounter-assignments/<hospital id>`. As `poc-nogrant` the tile is missing and
    `/explore/inpatient-stays/<hospital id>` answers 403.
 4. **Delete:** as `poc-reviewer`, delete the ED import (URL from the seed output): the page refuses with "This
