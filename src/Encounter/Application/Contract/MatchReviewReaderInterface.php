@@ -74,7 +74,7 @@ interface MatchReviewReaderInterface
     /**
      * Visits without effective link, by matching anchor; with the allocation of their best open proposal.
      *
-     * @return list<array{encounter_id: int, anchor_at: \DateTimeImmutable, substitute: bool, sex: string, age: int, arrival_route: string, arrival_mode: ?string, proposal_allocation_id: ?int}>
+     * @return list<array{encounter_id: int, visit_uid: string, anchor_at: \DateTimeImmutable, substitute: bool, sex: string, age: int, arrival_route: string, arrival_mode: ?string, proposal_allocation_id: ?int}>
      */
     public function unlinkedVisits(int $hospitalId, ReviewPeriod $period, ?ArrivalRoute $route, int $offset, int $limit): array;
 

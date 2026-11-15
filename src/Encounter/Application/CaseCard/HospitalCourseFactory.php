@@ -5,18 +5,33 @@ declare(strict_types=1);
 namespace App\Encounter\Application\CaseCard;
 
 use App\Encounter\Application\Overview\ProcessInterval;
+use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\Domain\Enum\VitalsReference;
 
 /**
- * Builds the case card of one effective link (#1055). Pure: durations are recomputed from the visit's
+ * Builds the hospital course of one ED visit: for the case card of an effective link (#1055) and for the
+ * visit detail page (#1178), which needs no link. Pure: durations are recomputed from the visit's
  * timestamps exactly as in the overview (ProcessInterval), in whole minutes of the local wall clock.
+ * Clinical times and durations come only from the visit; the allocation's arrival time is added to the
+ * timeline as `ivena_arrival` when there is an effective link, and never enters a duration.
  */
 final class HospitalCourseFactory
 {
     public function create(EncounterMatch $link): HospitalCourse
     {
-        $encounter = $link->getEncounter();
+        return $this->forEncounter($link->getEncounter(), $link);
+    }
+
+    /**
+     * @param EncounterMatch|null $effectiveLink an automatic or confirmed link of this visit, or null
+     */
+    public function forEncounter(Encounter $encounter, ?EncounterMatch $effectiveLink): HospitalCourse
+    {
+        if ($effectiveLink instanceof EncounterMatch && $effectiveLink->getEncounter() !== $encounter) {
+            throw new \InvalidArgumentException('The link belongs to another visit.');
+        }
+
         $times = $encounter->getTimes();
         $admission = $times->getEdAdmissionAt();
         $vitals = $encounter->getVitals();
@@ -25,7 +40,7 @@ final class HospitalCourseFactory
             && $vitals->getMeasuredAt() instanceof \DateTimeImmutable;
 
         $points = [
-            'ivena_arrival' => $link->getAllocation()->getArrivalAt(),
+            'ivena_arrival' => $effectiveLink?->getAllocation()->getArrivalAt(),
             'ed_admission' => $admission,
             'first_assessment' => $times->getFirstAssessmentContactAt(),
             'first_physician' => $times->getFirstPhysicianAt(),
@@ -45,7 +60,7 @@ final class HospitalCourseFactory
         usort($timeline, static fn (TimelineEvent $a, TimelineEvent $b): int => self::wallClock($a->at) <=> self::wallClock($b->at));
 
         return new HospitalCourse(
-            link: $link,
+            link: $effectiveLink,
             encounter: $encounter,
             timeline: $timeline,
             intervals: [

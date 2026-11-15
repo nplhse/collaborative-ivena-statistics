@@ -302,7 +302,8 @@ Overviews cross both attributes, for example "EMS arrival, not linked".
 | Key change | hospital owner or `ROLE_ADMIN` (no grant action allows it) |
 | Match review | beta role + encounter grant `REVIEW` (implies `VIEW_CASES`), or `ROLE_ADMIN` |
 | Match validation: draw samples, record verdicts, read the report | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
-| Case-level views, case card on an allocation | beta role + encounter grant `VIEW_CASES`, or `ROLE_ADMIN` |
+| Case-level views, case card on an allocation, visit detail page | beta role + encounter grant `VIEW_CASES`, or `ROLE_ADMIN` |
+| Open proposals and links into the match review on the visit detail page | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
 | Descriptive aggregates of the own hospital | beta role + any encounter grant + `STATISTICS`, or `ROLE_ADMIN` |
 | View or download a retained upload file | beta role + encounter grant `UPLOAD` on the hospital, or `ROLE_ADMIN` |
 | Reprocess a retained upload file | beta role + `UPLOAD`, or `ROLE_ADMIN` (shows no file content) |
@@ -967,6 +968,35 @@ beta role, or `ROLE_ADMIN`); everyone else sees the case file without it.
 - **Disposition:** disposition, care level, admitting department.
 - **Vitals:** with `documented_initial` labelled "documented first value" with the note that the time
   of measurement is not assured, and never placed on the timeline.
+- **Open visit** links to the [visit detail page](#visit-detail-page) (#1178).
+
+The clinical blocks (triage, process times, timeline, vitals, disposition) are Twig macros in
+`@Encounter/visit/_course_macros.html.twig`, shared with the visit detail page.
+
+### Visit detail page
+
+Implemented in #1178. `/explore/ed-visits/visit/{visitUid}` (`ShowVisitController`) shows one ED visit
+whether or not it is linked with an allocation, so visits without IVENA allocation (self-referrals,
+transfers) can be opened too. Access: `VIEW_CASES` on the visit's hospital (403 otherwise; unknown visit 404).
+Reached from the case card ("Open visit") and from the visit column of the review list of unlinked visits;
+the visit list per hospital follows in the second step of #1178.
+
+- Built from the visit alone (`HospitalCourseFactory::forEncounter()`); the case card uses the same
+  factory with its link. All clinical times and process times come from the visit; process times start at
+  the ED admission and stay empty without it. The page title uses the ED admission, else the first
+  assessment, and says so.
+- With an effective link, the allocation's arrival time appears only as the **expected IVENA arrival**:
+  set apart in the timeline (never part of a process time) and in the card "IVENA allocation" with the
+  link origin, agreement, allocation and a link to its case file (only for users who may open it,
+  `AllocationVoter::VIEW`).
+- Link state of the visit: **linked** (effective link), **proposal pending** (no effective link, at least
+  one `proposed` pair; only with `REVIEW`, listing each proposal with a link to its review page) or
+  **not linked** (everything else, including visits with only rejected pairs and, without `REVIEW`, visits
+  with open proposals). Nothing is decided on this page.
+- Missing values render as a dash or a short sentence (no times, no process times without ED admission,
+  no vitals); the cards stay in place.
+- Also shown: basic data (ED admission, age, sex, arrival route and mode, referral, case status),
+  disposition, work accident and isolation.
 
 ## MTS glossary
 
@@ -1120,3 +1150,4 @@ Before the first real upload the pilot hospital documents the data flow:
 | #1058 | IVENA case number in encounter sources (after the pilot) |
 | #1130 | Tool landing page and local map editor |
 | #1136 | MTS plausibility (umbrella): #1152 ADRs, #1082 catalog in the database, #1153 plausibility table, #1154 matcher `1.2.0`, #1155 learning job, #1156 analyses, #1157 catalog distribution |
+| #1178 | Visit detail page and visit list per hospital |
