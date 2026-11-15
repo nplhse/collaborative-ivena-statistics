@@ -23,7 +23,7 @@
         <div class="d-flex justify-content-between align-items-baseline gap-2">
             <span class="text-truncate">
                 {% if kind == 'event_type' %}
-                    <span class="badge {{ row.key == 'group' ? 'bg-blue-lt text-blue' : (row.key == 'cluster' ? 'bg-azure-lt text-azure' : 'bg-purple-lt text-purple-lt-fg') }}">
+                    <span class="badge {{ row.key == 'group' ? 'bg-blue-lt text-blue' : (row.key == 'cluster' ? 'bg-azure-lt text-azure' : 'bg-purple-lt') }}">
                         {{ labelKey|trans({}, 'statistics') }}
                     </span>
                 {% elseif profileUrl %}
