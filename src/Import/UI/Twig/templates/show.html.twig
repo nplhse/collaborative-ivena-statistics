@@ -273,7 +273,7 @@
                                     <twig:ux:icon name="tabler:user-plus" class="w-3 h-3" />
                                     {{ 'label.created_by'|trans({}, 'messages') }}
                                     <strong>
-                                        {{ users.link(import.createdBy) }}
+                                        {{ users.link(import.createdBy, {avatar: 'inline'}) }}
                                     </strong>
                                 </div>
                                 {% if import.updatedAt is not null %}
@@ -281,7 +281,7 @@
                                         <twig:ux:icon name="tabler:user-edit" class="w-3 h-3" />
                                         {{ 'label.updated_by'|trans({}, 'messages') }}
                                         <strong>
-                                            {{ users.link(import.updatedBy) }}
+                                            {{ users.link(import.updatedBy, {avatar: 'inline'}) }}
                                         </strong>
                                     </div>
                                 {% endif %}

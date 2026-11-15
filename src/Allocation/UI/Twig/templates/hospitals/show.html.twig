@@ -33,14 +33,14 @@
                 <h1 id="hospital-name" class="fw-bold">{{ hospital.name }}</h1>
                 <div class="list-inline list-inline-dots text-secondary">
                     <div class="list-inline-item">
-                        <twig:ux:icon name="tabler:map" width="1em" height="1em" />
+                        <twig:ux:icon name="tabler:map" width="1em" height="1em" class="icon-text" />
                         {{ explore_entity_link(hospital.dispatchArea, {class: 'link-secondary'}) }}, {{ explore_entity_link(hospital.state, {class: 'link-secondary'}) }}
                     </div>
                     <div id="hospital-owned-by" class="list-inline-item">
-                        <twig:ux:icon name="tabler:user-square" width="1em" height="1em" />
                         {% if hospital.owner %}
-                            {{ users.link(hospital.owner) }}
+                            {{ users.link(hospital.owner, {avatar: 'inline'}) }}
                         {% else %}
+                            <twig:ux:icon name="tabler:user-square" width="1em" height="1em" class="icon-text" />
                             {{ 'label.without_owner'|trans({}, 'messages') }}
                         {% endif %}
                     </div>
@@ -112,7 +112,7 @@
                             </div>
                             <div id="hospital-created-by" class="mb-2">
                                 <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
-                                {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ users.link(hospital.createdBy) }}</strong>
+                                {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ users.link(hospital.createdBy, {avatar: 'inline'}) }}</strong>
                             </div>
                             {% if hospital.updatedBy and hospital.updatedAt %}
                                 <div class="mt-1 mb-2">
@@ -121,7 +121,7 @@
                                 </div>
                                 <div class="mb-2">
                                     <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em"  />
-                                    {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ users.link(hospital.updatedBy) }}</strong>
+                                    {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ users.link(hospital.updatedBy, {avatar: 'inline'}) }}</strong>
                                 </div>
                             {% endif %}
                             {% if hospital.isParticipating %}

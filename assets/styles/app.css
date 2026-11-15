@@ -46,6 +46,29 @@
 }
 
 /*
+ * Inline avatar (#1240) for running text such as bylines and "Created by": sized from the surrounding
+ * font, so it never grows the line. The avatar's own font is 0.65 of the text, so its em values are
+ * relative to that: 2.05em ≈ 1.33× the text size, the negative margins keep it inside the line box.
+ */
+.avatar.avatar-inline {
+    --tblr-avatar-font-size: 0.65em;
+    --tblr-avatar-size: 2.05em;
+    /* percent of the avatar: an em value would resolve against the font size Tabler sets on .icon */
+    --tblr-avatar-icon-size: 60%;
+    margin-block: -0.3em;
+    margin-inline-end: 0;
+    /* middle centres on the x-height; the shift moves it to the centre of the text line, where flex-centred icons sit */
+    position: relative;
+    top: -0.14em;
+    vertical-align: middle;
+}
+
+/* Icon in running text next to an inline avatar (#1240): centres a 1em–1rem icon on the text line. */
+.icon-text {
+    vertical-align: -0.15em;
+}
+
+/*
  * Light badges (#1287): Tabler's bg-{colour}-lt writes the full colour as text on a 10 % tint, which
  * reaches only about 2:1 to 4.3:1. The text is mixed towards black (light) or white (dark mode), the
  * same way as the avatars above. Measured on a card, every colour reaches at least 5.6:1 (light) and
