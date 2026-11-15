@@ -19,8 +19,8 @@ Decisions: [ADR 026](../../02-architecture/decisions/026-encounter-data-context-
 [ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md) (matching),
 [ADR 032](../../02-architecture/decisions/032-mts-catalog-as-maintained-data.md) (MTS catalog),
 [ADR 033](../../02-architecture/decisions/033-learning-plausibility-table.md) (plausibility table),
-[ADR 037](../../02-architecture/decisions/037-encounter-case-hub-and-schema-plugins.md) (proposed: case hub
-and schema plugins; review in [encounter-schema-plugins-review.md](encounter-schema-plugins-review.md)).
+[ADR 037](../../02-architecture/decisions/037-encounter-case-hub-and-schema-plugins.md) (case hub and schema
+plugins; review in [encounter-schema-plugins-review.md](encounter-schema-plugins-review.md)).
 
 ## Flow
 

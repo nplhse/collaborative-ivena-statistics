@@ -1,6 +1,6 @@
 # ADR 037: Encounter as case hub, schemas as Symfony bundles
 
-**Status:** proposed
+**Status:** accepted (#1274 part 1: contract, assignment, deletion rules and display proven with a test-only schema bundle; hub split and MTS bundle follow in #1300)
 
 ## Context
 

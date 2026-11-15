@@ -2,6 +2,8 @@
 
 **Status:** accepted
 
+Amended by [ADR 037](037-encounter-case-hub-and-schema-plugins.md): matching belongs to the `ed_visit` schema.
+
 ## Context
 
 Without a shared identifier (the ORBIS MTS export has no IVENA case number), an ED visit can only be

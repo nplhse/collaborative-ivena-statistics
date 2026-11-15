@@ -2,6 +2,8 @@
 
 **Status:** accepted
 
+Amended by [ADR 037](037-encounter-case-hub-and-schema-plugins.md): an encounter is the hub of one case, not one ED visit; further schemas come from Symfony bundles.
+
 ## Context
 
 Participating hospitals hold routine emergency department (ED) data next to the IVENA allocations:
