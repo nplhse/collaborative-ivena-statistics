@@ -1473,6 +1473,26 @@
         <source>label.hospital_access_grants.matrix.user</source>
         <target>User</target>
       </trans-unit>
+      <trans-unit id="hagSummary0En" resname="hospital.access_summary.title">
+        <source>hospital.access_summary.title</source>
+        <target>Access</target>
+      </trans-unit>
+      <trans-unit id="hagSummary1En" resname="hospital.access_summary.empty">
+        <source>hospital.access_summary.empty</source>
+        <target>Nobody has a permission for this hospital yet.</target>
+      </trans-unit>
+      <trans-unit id="hagSummary2En" resname="hospital.access_summary.count">
+        <source>hospital.access_summary.count</source>
+        <target>{count, plural, one {# person with permissions} other {# people with permissions}}</target>
+      </trans-unit>
+      <trans-unit id="hagSummary3En" resname="hospital.access_summary.more">
+        <source>hospital.access_summary.more</source>
+        <target>{count, plural, one {# more person} other {# more people}}</target>
+      </trans-unit>
+      <trans-unit id="hagSummary4En" resname="hospital.access_summary.manage">
+        <source>hospital.access_summary.manage</source>
+        <target>Manage access</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

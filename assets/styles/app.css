@@ -63,6 +63,24 @@
     vertical-align: middle;
 }
 
+/*
+ * Stacked avatars (#1240, access card on the hospital page): Tabler overlaps them by half and the -lt tint
+ * is 90 % transparent, so initials collide and show through. Opaque tint on the card surface and a quarter
+ * overlap keep every pair of initials readable.
+ */
+.avatar-list-stacked > .avatar {
+    background-color: color-mix(in oklab, var(--tblr-secondary) 12%, var(--tblr-bg-surface)) !important;
+}
+
+/* Tabler sets the overlap with !important; the extra .avatar-list raises the specificity above it. */
+.avatar-list.avatar-list-stacked > .avatar:not(:first-child) {
+    margin-inline-start: -0.5rem !important;
+}
+
+.avatar-list-stacked > .avatar.user-avatar {
+    background-color: color-mix(in oklab, var(--user-avatar-color) 10%, var(--tblr-bg-surface)) !important;
+}
+
 /* Icon in running text next to an inline avatar (#1240): centres a 1em–1rem icon on the text line. */
 .icon-text {
     vertical-align: -0.15em;

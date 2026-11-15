@@ -11,6 +11,8 @@ use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
+use App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository;
+use App\Allocation\Infrastructure\Security\Voter\HospitalVoter;
 use App\User\Domain\Entity\User;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,6 +28,7 @@ final class ShowHospitalController extends AbstractController
         private readonly CatalogActionFactory $actionFactory,
         private readonly CatalogAllocationYearUrlFactory $yearUrlFactory,
         private readonly HospitalPermissionAccess $hospitalPermissionAccess,
+        private readonly HospitalAccessGrantRepository $hospitalAccessGrantRepository,
     ) {
     }
 
@@ -53,6 +56,10 @@ final class ShowHospitalController extends AbstractController
             && $this->hospitalPermissionAccess->hasPermission($user, $id, HospitalPermission::Benchmarking);
 
         $coverage = $this->coverageQuery->forHospital($id, $revealSensitiveMetrics);
+        // Who has access (#1240): only for viewers who may manage the grants, as on the access matrix.
+        $accessGrants = $this->isGranted(HospitalVoter::MANAGE_ACCESS_GRANTS, $hospital)
+            ? $this->hospitalAccessGrantRepository->findForHospital($hospital)
+            : null;
 
         return $this->render('@Allocation/hospitals/show.html.twig', [
             'hospital' => $hospital,
@@ -65,6 +72,7 @@ final class ShowHospitalController extends AbstractController
                 $canViewBenchmarking,
             ),
             'canImport' => $canViewImports,
+            'accessGrants' => $accessGrants,
             'yearExploreUrls' => $revealSensitiveMetrics
                 ? $this->yearUrlFactory->forYears(['hospitalFilter' => (string) $id], $coverage->years)
                 : [],

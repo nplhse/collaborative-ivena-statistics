@@ -447,6 +447,8 @@ Generated avatar of a user (#462), defined in the User context: `src/User/UI/Twi
 
 Extra attributes (`class`, `data-testid`) merge onto the `span`.
 
+Stacked lists (Tabler `avatar-list avatar-list-stacked`, for example the access card on the hospital page, `@Allocation/hospitals/_access_summary.html.twig`) get an opaque tint and a quarter overlap from `assets/styles/app.css`, so overlapping initials stay readable. Avatars without a visible name next to them use `decorative: false` with `aria-label` and `title` ("Name · @username") and the `tooltip` Stimulus controller.
+
 ```twig
 <twig:UserAvatar :user="comment.author" />
 <strong>{{ user_display_name(comment.author.displayName, comment.author.username) }}</strong>
