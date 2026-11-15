@@ -957,11 +957,12 @@ beta role, or `ROLE_ADMIN`); everyone else sees the case file without it.
 - Reads the effective link of the allocation (`auto_accepted` or `confirmed`, `HospitalCourseQuery`).
   Without one the card says that no visit is linked; proposals belong to the match review (#1054).
 - **Link:** origin "linked automatically" (nobody checked it) or "linked after confirmation", the
-  agreement score in percent (rounded down) and the time difference between matching anchor and IVENA
-  arrival.
+  agreement score in percent (rounded down) and the time difference between matching anchor and expected
+  IVENA arrival.
 - **Triage:** initial MTS category, diagram (catalog name), indicator, pain score.
-- **Timeline:** IVENA arrival, ED admission, first assessment, first physician, treatment end, ED
-  discharge, in time order, each with minutes relative to the ED admission. Vitals appear on it only
+- **Timeline:** expected IVENA arrival, ED admission, first assessment, first physician, treatment end,
+  ED discharge, in time order, each with minutes relative to the ED admission. The expected IVENA
+  arrival comes from the allocation, not from the ED, and is set apart as "from IVENA" (#1277). Vitals appear on it only
   with `vitals_reference = admission_measurement` and a measurement time.
 - **Process times:** the three intervals of the overview for this visit; a value outside 0–1440 minutes
   is marked as excluded from the statistics.
