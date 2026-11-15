@@ -20,8 +20,13 @@ Agreed in the discussion of #1273 and recorded in ADR 037:
 - An `Encounter` becomes the **hub of one case** with base data only (hospital, key generation, case
   pseudonym, anchor, age, sex, at most one allocation link). Schemas store **records** in their own
   tables and attach them to the encounter.
-- Records belong to their import (ADR 029 per record). An encounter has no owning import and is removed
-  with its last record.
+- The **IVENA allocation is the primary anchor**, with its expected arrival (`arrivalAt`) as time
+  reference; clinical admission times stay in the records. A case pseudonym can belong to several
+  encounters with different anchors.
+- Records are assigned through a core service: assigned, no candidate, ambiguous or contradictory.
+  Unassigned records are kept; conflicts are resolved by hand by users with the `REVIEW` grant.
+- Records belong to their import (ADR 029 per record). Deleting an import removes only its records.
+  An encounter has no owning import; a separate hub cleanup removes encounters without records.
 - Matching (ADR 030) belongs to `ed_visit`.
 - No installation at runtime. Plugins are written by the maintainer for now; the contract has to work
   until 1.0.
@@ -177,28 +182,29 @@ Findings 2–5 are side findings for separate issues; finding 1 is solved by the
 |---|---|---|---|---|
 | 1 | Schema choice and validation | Generic through `EncounterDimensionRegistry` | `EncounterDimensionInterface` service | `isAvailableTo()` returns false without any schema |
 | 2 | Processing | `EncounterFileImporter` fixed to `EdVisitRowMapper`, `Encounter`, MTS first-seen | Schema handler: map rows, write records in the core's transaction, return counts and coverage | Handler interface in the contract, registry by schema; importer delegates; no handler = file rejected; `ed_visit` becomes the first handler (still in core) |
-| 3 | Finding the encounter | Only ED visits exist | Uses the lookup service | `EncounterLookup` in the contract: by allocation link, by case pseudonym (exactly one, else ambiguous), create |
+| 3 | Assigning records to encounters | Only ED visits exist; the case pseudonym serves only the suspected-duplicate check | Asks the assignment service | Service in the contract: by allocation link, by case pseudonym and time, create; results assigned, no candidate, ambiguous, contradictory; storage of unassigned records and conflicts, retry after encounter imports, resolution with the `REVIEW` grant |
 | 4 | Import report | Counts on `EncounterImport`, ED duplicate list, no schema shown | Counts through the handler result; optional report section | Show schema; optional section from the handler |
-| 5 | Deletion, reprocessing, key change | `EncounterImportDataRemover` deletes `encounter` rows | `removeByImport()` on the handler | Encounter remover delegates to the handlers, then removes encounters without records (after the hub split) |
+| 5 | Deletion, reprocessing, key change | `EncounterImportDataRemover` deletes `encounter` rows | Removal of the import's records through the handler | Encounter remover delegates to the handlers and removes only the import's records; encounters are removed by the separate hub cleanup (#1300) |
 | 6 | Persistence | Static mapping in `doctrine.yaml`, one migrations path | Entities, mapping and migrations path prepended by the bundle | None in the application |
 | 7 | Display in the case file | `HospitalCourseCaseSectionProvider` renders ED data | Record section (template and variables) per encounter | New Encounter extension point for record sections, rendered in the hospital course card (and later on the encounter detail page); access check stays in the core (`VIEW_CASES`) |
 | 8 | Routes | Attribute scan of `src/` | Own controllers | Not needed for the proof of concept. For MTS: one route loader in Encounter that imports the routes of all schema bundles, so enabling a bundle needs no route file |
 | 9 | Twig, translations | Namespace `@Encounter` | Bundle templates (`@<Bundle>`) and `translations/` | None (bundle conventions) |
-| 10 | Navigation, tools, glossary, My Hospitals | Encounter providers | Own providers on the `Shared` and `Allocation` tags | None |
-| 11 | Messenger | Routing of Encounter messages in `messenger.yaml` | Prepended routing for its messages | None |
-| 12 | Data preparation tool | Fixed lists and ED logic in the core script | Schema file, profiles, scripts, catalogs | Tagged contribution; generic core script (separate issue) |
-| 13 | Static analysis | Deptrac layers per context; PHPStan, Psalm on `src/` | – | Contract layer; `plugins/` and test bundles in the analysed paths |
+| 10 | Explore overview | Fixed template `@Allocation/explore.html.twig` with static cards; ED visits only in the explore sidebar | Entry (title, description, icon) and its target page | New extension point: Explore decides visibility in the current hospital and permission context, the target page checks its access; Encounter forwards to its plugins |
+| 11 | Navigation, tools, glossary, My Hospitals | Encounter providers | Own providers on the `shared.navigation` and `shared.tool` tags; glossary and My Hospitals through Encounter | None |
+| 12 | Messenger | Routing of Encounter messages in `messenger.yaml` | Prepended routing for its messages | None |
+| 13 | Data preparation tool | Fixed lists and ED logic in the core script | Schema file, profiles, scripts, catalogs | Tagged contribution; generic core script (separate issue) |
+| 14 | Static analysis | Deptrac layers per context; PHPStan, Psalm on `src/` | – | Contract layer; `plugins/` and test bundles in the analysed paths |
 
 Plugins depend on the Encounter contract and on `Shared`. Where another context offers the extension
-point (case file, import data removers, import detail page), Encounter forwards to its plugins, so a
+point (case file, Explore overview, My Hospitals, glossary, import data removers, import detail page), Encounter forwards to its plugins, so a
 plugin needs no dependency on `Allocation` or `Import`.
 
 ## Boundary between the core and MTS
 
 **Encounter core** (`src/Encounter`): import type extension, dispatcher, message and handler, file
 reader, validator, manifest and identifying-content detection, key state and key change, grants and
-voter, retention, cleanup, dimension and handler registries, the hub entity, the lookup and link
-service, the contract layer, the generic import report.
+voter, retention, import cleanup and hub cleanup, dimension and handler registries, the hub entity, the
+assignment service with unassigned records and conflicts, the contract layer, the generic import report.
 
 **MTS bundle** (`plugins/encounter-ed-mts`, schema `ed_visit`): `EdVisitDimension`, row and mapper, the
 `ed_visit` record table with all ED fields, MTS catalog with curation and glossary, plausibility table,
@@ -209,7 +215,7 @@ synthetic data, the ORBIS profile and `ed_visit` schema of the tool.
 Implications:
 
 - **Existing records.** The hub split keeps `encounter.id` and moves the ED columns into a record table
-  keyed by `encounter_id`, so `encounter_match`, suspected duplicates and review decisions keep their
+  keyed by `encounter_id` (`ON DELETE RESTRICT`), so `encounter_match`, suspected duplicates and review decisions keep their
   references. The visit fingerprint and its unique constraint move to the record table.
 - **Import identifiers.** `import.type = 'Encounter'` and `exchange_schema = 'ed_visit'` stay as they
   are.
@@ -227,41 +233,62 @@ for `test` only. It uses only the contract layer and contributes:
 
 - schema `inpatient_stay` v1 with the fields `stay_fingerprint`, `case_key`, `admitted_at`,
   `discharge_diagnosis`, `discharged_at` and the fingerprint rule `inpatient-stay:v1`;
-- a handler that attaches each stay by case pseudonym and writes it to its own table
-  (`test_inpatient_stay`, foreign key to `encounter` with `ON DELETE CASCADE`, owning import, unique
-  fingerprint per hospital and key generation), with its migration in its own path;
+- a handler that asks the assignment service by case pseudonym and admission time and writes each stay
+  to its own table (`test_inpatient_stay`: nullable foreign key to `encounter` with `ON DELETE
+  RESTRICT`, owning import, unique fingerprint per hospital and key generation), with its migration in
+  its own path;
 - a record section with admission, discharge diagnosis and discharge.
+
+**Arrange:** hospital, user with the beta role and the upload, review and view-cases grants,
+allocations X and Y, one `ed_visit` import with visits A, B and C. B and C share one case pseudonym
+(one administrative case, two ED visits). A is linked to X, B to Y, C has no link.
 
 **Fixture** (`inpatient_stay`, four rows, explicit values):
 
 | Row | Case pseudonym | Expected |
 |---|---|---|
-| 1 | case of visit A (linked to allocation X) | inserted, attached to A |
+| 1 | case of visit A | assigned to A |
 | 2 | same fingerprint as row 1 | duplicate |
-| 3 | case of visits B and C (same case) | rejected: ambiguous |
-| 4 | unknown case | rejected: no encounter |
+| 3 | case of visits B and C, admission time does not decide | unassigned, conflict "ambiguous" with candidates B and C |
+| 4 | case of no visit yet | unassigned, no candidate |
 
-Report: total 4, inserted 1, duplicates 1, rejected 2.
-
-**Arrange:** hospital, user with the beta role and the upload and view-cases grants, allocation X,
-one `ed_visit` import with visits A, B and C (B and C share the case pseudonym), A linked to X.
+Report: total 4, assigned 1, duplicates 1, conflicts 1, unassigned without candidate 1, rejected 0.
 
 **Verify through the normal entry points:**
 
-1. The upload form offers `inpatient_stay` to the authorized user; a user without the upload grant
-   cannot upload.
-2. Uploading the fixture creates an encounter import with schema `inpatient_stay`; running the queued
-   import shows the counts above and the two reject reasons on the import detail page.
-3. The case file of allocation X shows admission, discharge diagnosis and discharge of row 1 in the
-   hospital course card.
-4. Reprocessing gives the same counts and still one stay.
-5. Deleting the import through the normal workflow removes the stay; visits A, B, C, the link to X and
-   the `ed_visit` import stay.
-6. Static: no class under `src/` names `inpatient_stay` or the test bundle; Deptrac allows the test
-   bundle only the contract layer.
+1. **Selection:** the upload form offers `inpatient_stay` to the authorized user; a user without the
+   upload grant cannot upload.
+2. **Processing and report:** uploading the fixture creates an encounter import with schema
+   `inpatient_stay`; running the queued import through the shared workflow calls the bundle's handler,
+   and the import detail page shows the schema and the counts above.
+3. **Display:** the case file of allocation X shows admission, discharge diagnosis and discharge of row
+   1 in the hospital course card. The case file of Y shows no stay yet.
+4. **Conflict:** the conflict of row 3 is visible to the user with the review grant and not to a user
+   with view-cases only. Resolving it to B attaches the stay; the case file of Y then shows it.
+5. **Late candidate:** a later `ed_visit` import with visit D carrying the case of row 4 assigns the
+   stay of row 4 to D without a new upload.
+6. **Reprocessing** gives the same counts and still one stay per row.
+7. **Deletion:** deleting the `inpatient_stay` import through the normal workflow removes all its stays
+   and their conflicts. Visits A–D, their links, the encounters and the `ed_visit` imports stay.
+8. **Registration:** the test bundle is registered only through `config/bundles.php`; no class under
+   `src/` names `inpatient_stay` or the test bundle; Deptrac allows the test bundle only the contract
+   layer.
 
-Transition, documented in ADR 037: until the hub split, deleting the `ed_visit` import also removes the
-attached stay (cascade).
+Not part of this test: removing encounters without records (hub cleanup) and deleting an `ed_visit`
+import that still carries stays. Both depend on the hub split (#1300); until then the `RESTRICT`
+constraint makes such a deletion fail instead of removing stays.
+
+### Acceptance criteria of #1274, part 1
+
+| Criterion | Verified by |
+|---|---|
+| Import type appears in the selection for an authorized user, who can upload the fixture for their hospital | 1, 2 |
+| Shared workflow dispatches to the bundle's handler, outcome in the existing import report | 2, 6 |
+| Imported fields visible in the selected view, reached through the existing allocation-to-encounter link | 3, 4 |
+| Deleting the import through the normal workflow removes its bundle-owned records | 7 |
+| Registration mechanism of installed bundles, no import-type-specific branch | 8 |
+
+Steps 4 and 5 go beyond the wording of #1274; they prove the assignment results of ADR 037.
 
 ## Implementation plan for #1274
 
@@ -270,29 +297,38 @@ Part 1, proving the mechanism (MTS stays where it is):
 1. Test support: generic `EncounterFileBuilder` from `EdVisitFileBuilder`, schema parameter in
    `EncounterImportRunner`. No behaviour change.
 2. Contract layer `App\Encounter\Contract\` with Deptrac layer: schema handler interface, handler
-   registry, `EncounterLookup`, record section interface.
+   registry, assignment service with its four results, record section interface, Explore entry
+   interface.
 3. `EncounterFileImporter` delegates to the handler; `ed_visit` becomes the first handler in the core;
-   no handler rejects the file (finding 1); `EncounterImportDataRemover` delegates `removeByImport()`;
-   the report shows the schema; the import type is hidden without schemas. Existing tests stay green.
-4. Record sections in the hospital course card.
-5. Test bundle with migration and the integration test above.
+   no handler rejects the file (finding 1); `EncounterImportDataRemover` delegates the removal of an
+   import's records; the report shows the schema and the assignment counts; the import type is hidden
+   without schemas. Existing tests stay green.
+4. Unassigned records and assignment conflicts: storage in the core, retry after encounter imports,
+   resolution for users with the `REVIEW` grant (page decided in the implementation).
+5. Record sections in the hospital course card; Explore overview entries.
+6. Test bundle with migration and the integration test above.
 
 Part 2, moving MTS (#1300, one pull request per step):
 
-6. Hub split with data migration (ADR 037, transition ends).
-7. Bundle skeleton `plugins/encounter-ed-mts` as Composer path repository: prepended mapping, migrations
+7. Hub split with data migration; `ed_visit` records keyed by `encounter_id` with `RESTRICT`.
+8. Central hub cleanup (command, schedule, request by a bundle), checking all foreign keys to
+   `encounter` from the database catalog.
+9. Bundle skeleton `plugins/encounter-ed-mts` as Composer path repository: prepended mapping, migrations
    path, messenger routing, route loader in the core.
-8. Move MTS in slices: catalog and glossary, plausibility, matching and review tools, visit pages and
-   case file content, encounter analytics out of Statistics, synthetic data, tool contribution.
-9. Installation without the bundle: a test environment or kernel variant without the MTS bundle that
-   boots, hides the encounter import type and runs allocation and closure imports.
+10. Move MTS in slices: catalog and glossary, plausibility, matching and review tools, visit pages and
+    case file content, encounter analytics out of Statistics, synthetic data, tool contribution.
+11. Installation without the bundle: a test environment or kernel variant without the MTS bundle that
+    boots, hides the encounter import type and runs allocation and closure imports.
 
 Separate issue: generic data preparation tool with schema contributions (#1301).
 
 ## Open points
 
+- Time anchor of an encounter without an allocation: fingerprint anchor (ADR 029) or matching anchor
+  (ADR 030) (ADR 037, open decision).
+- When the admission time decides between several encounters of one case pseudonym (for example the last
+  visit before admission), and within which window.
 - How the test for an installation without the MTS bundle runs (second test environment or kernel
-  variant), decided in step 9.
-- Whether a case pseudonym that matches several encounters can later be resolved by time (last visit
-  before admission).
+  variant), decided in step 11.
+- Criteria for the scheduled hub cleanup (age of an empty encounter, kept allocation links).
 - Merging and splitting encounters when a second schema creates encounters (ADR 037).
