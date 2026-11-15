@@ -7,10 +7,13 @@ namespace App\Tests\Support\Encounter\Poc;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\AllocationGender;
+use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
@@ -84,6 +87,15 @@ final readonly class SeedInpatientStayPocCommand
             'state' => $state,
             'dispatchArea' => DispatchAreaFactory::createOne(['state' => $state]),
         ]);
+        // Encounter grants are given only to people with access to the hospital (ADR 028).
+        foreach ([$reviewer, $viewer] as $member) {
+            HospitalAccessGrantFactory::createOne([
+                'hospital' => $hospital,
+                'user' => $member,
+                'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View]),
+                'createdBy' => $hospital->getOwner(),
+            ]);
+        }
         $this->grant($hospital, $reviewer, [EncounterGrantAction::Upload, EncounterGrantAction::Review]);
         $this->grant($hospital, $viewer, [EncounterGrantAction::ViewCases]);
 
@@ -101,7 +113,7 @@ final readonly class SeedInpatientStayPocCommand
 
         $io->success('Seeded the browser check of the inpatient_stay plugin.');
         $io->definitionList(
-            ['Logins (password '.self::PASSWORD.')' => 'poc-reviewer (upload, review), poc-viewer (view cases), poc-nogrant (beta role, no grant)'],
+            ['Logins (password '.self::PASSWORD.')' => 'poc-reviewer (hospital access, encounter upload and review), poc-viewer (hospital access, view cases), poc-nogrant (beta role, no access)'],
             ['CSV to upload' => InpatientStayPoc::CSV],
             ['Upload' => '/import/new'],
             ['ED import (try deleting it)' => '/import/'.$edImportId],
