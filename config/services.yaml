@@ -6,6 +6,7 @@ imports:
     - { resource: services/foundry.yaml }
     - { resource: services/foundry_test.yaml }
     - { resource: services/encounter_probe_test.yaml }
+    - { resource: services/encounter_poc_test.yaml }
     - { resource: services/dev/doctrine_fixtures.yaml }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
@@ -71,8 +72,11 @@ services:
     App\Allocation\Application\Contracts\PreparedLocationStoreInterface: '@App\Allocation\Infrastructure\Geo\PreparedLocationFileStore'
     App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolverInterface: '@App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolver'
     App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryFilterLabelsInterface: '@App\Statistics\AnalysisExplorer\Application\ExplorerFilterBadgePresenter'
-    # Part of the contract for encounter schema plugins (ADR 037), which inject it. Public so that it is
-    # kept while no service of the application injects it yet (retries, #1307) and tests can resolve it.
+    # Part of the contract for encounter schema plugins (ADR 037), which inject them. Public so that they are
+    # kept while no service of the application injects them (retries, #1307) and tests can resolve them.
+    App\Encounter\Contract\Access\EncounterAccessInterface:
+        alias: App\Encounter\UI\Access\EncounterAccess
+        public: true
     App\Encounter\Contract\Assignment\EncounterAssignmentsInterface:
         alias: App\Encounter\Infrastructure\Assignment\EncounterAssignments
         public: true

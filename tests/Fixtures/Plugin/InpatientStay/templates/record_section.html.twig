@@ -1,0 +1,12 @@
+{% set d = 'inpatient_stay_test' %}
+<h4 class="subheader">{{ 'inpatient_stay_test.section.title'|trans({}, d) }}</h4>
+{% for stay in stays %}
+    <dl class="row mb-0" data-testid="inpatient-stay">
+        <dt class="col-5">{{ 'inpatient_stay_test.field.admitted_at'|trans({}, d) }}</dt>
+        <dd class="col-7" data-testid="inpatient-stay-admitted">{{ stay.admittedAt|date('Y-m-d H:i') }}</dd>
+        <dt class="col-5">{{ 'inpatient_stay_test.field.discharge_diagnosis'|trans({}, d) }}</dt>
+        <dd class="col-7" data-testid="inpatient-stay-diagnosis">{{ stay.dischargeDiagnosis ?? '–' }}</dd>
+        <dt class="col-5">{{ 'inpatient_stay_test.field.discharged_at'|trans({}, d) }}</dt>
+        <dd class="col-7" data-testid="inpatient-stay-discharged">{{ stay.dischargedAt ? stay.dischargedAt|date('Y-m-d H:i') : '–' }}</dd>
+    </dl>
+{% endfor %}

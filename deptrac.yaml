@@ -4,6 +4,8 @@ imports:
 deptrac:
     paths:
         - ./src
+        # Encounter schema plugins shipped for tests (ADR 037); they may only use Encounter_Contract.
+        - ./tests/Fixtures/Plugin
     exclude_files:
         - '#src/DataFixtures/.*#'
         - '#.*/Infrastructure/Factory/.*#'
@@ -383,6 +385,12 @@ deptrac:
                 -
                     type: directory
                     value: src/Encounter/Contract/.*
+        -
+            name: Encounter_Plugin
+            collectors:
+                -
+                    type: directory
+                    value: tests/Fixtures/Plugin/.*
     ruleset:
         Admin_Application:
             - Admin_Application
@@ -669,6 +677,8 @@ deptrac:
         # (admin notification of a key change, ADR 026); no context may use Encounter. Every Encounter layer may use
         # Encounter_Contract, which itself depends on nothing of the application (ADR 037).
         Encounter_Contract: []
+        Encounter_Plugin:
+            - Encounter_Contract
         Encounter_Domain:
             - Encounter_Contract
             - Allocation_Domain

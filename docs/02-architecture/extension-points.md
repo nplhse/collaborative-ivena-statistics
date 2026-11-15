@@ -294,6 +294,37 @@ Lets an encounter schema add a tile to the Explore overview. Explore shows it to
 one hospital (`EncounterAttribute::VIEW_CASES_IN_ANY_HOSPITAL`, `EncounterCasesAnywhereVoter`: beta role and grant
 action `VIEW_CASES` or `REVIEW` somewhere, or `ROLE_ADMIN`); the target page checks `VIEW_CASES` per hospital.
 
+## Encounter schema bundles
+
+**Marker:** `EncounterPluginBundleInterface` (`src/Encounter/Contract/Plugin/`) on a Symfony bundle
+
+**Consumers:** `EncounterPluginRouteLoader` (route type `encounter_plugins`, `config/routes/encounter_plugins.php`),
+`TimestampMigrationComparator` (`src/Shared/Infrastructure/Doctrine/`, registered in `doctrine_migrations.yaml`)
+
+**Implementations:** in the `test` environment `InpatientStayTestBundle` (`tests/Fixtures/Plugin/InpatientStay/`,
+schema `inpatient_stay`, #1274)
+
+How a Composer-installed bundle contributes an encounter schema without changes to the application
+([ADR 037](decisions/037-encounter-case-hub-and-schema-plugins.md)); enabling it in `config/bundles.php` and running
+the migrations is all a deployment needs:
+
+- An `AbstractBundle` that implements `EncounterPluginBundleInterface`. `prependExtension()` adds its Doctrine
+  mapping and its migrations path; `loadExtension()` loads its services (autowired and autoconfigured, so the tags of
+  the contract interfaces apply).
+- `config/routes.php` of the bundle, imported by `EncounterPluginRouteLoader` for every enabled marked bundle.
+  Name pages under Explore `app_explore_…`.
+- Templates in `templates/` (namespace `@<Bundle>` without the `Bundle` suffix) and translations in
+  `translations/` (own domain, EN and DE), registered by Symfony.
+- Migrations named `Version<YYYYMMDDHHMMSS>`, ordered by timestamp with the core ones; record tables reference
+  `encounter` with ON DELETE RESTRICT and their import with ON DELETE CASCADE.
+- From the application only `App\Encounter\Contract\…`: schema (`EncounterDimensionInterface`), handler
+  (`EncounterSchemaHandlerInterface`), assignment (`EncounterAssignmentsInterface`), access for its pages
+  (`EncounterAccessInterface`: `canViewCases()`, `hospitalsWithViewCases()`), record sections and Explore tiles
+  (`Display`). Deptrac layer `Encounter_Plugin` (paths `tests/Fixtures/Plugin`; later `plugins/`) may only use
+  `Encounter_Contract`; `PluginBoundaryTest` enforces it in CI and checks that `src/` names no plugin.
+
+How to try the test bundle in a browser: [review](../04-features/encounter/encounter-schema-plugins-review.md#try-it-in-the-browser).
+
 ## Encounter schema handlers
 
 **Tag:** `encounter.schema_handler`

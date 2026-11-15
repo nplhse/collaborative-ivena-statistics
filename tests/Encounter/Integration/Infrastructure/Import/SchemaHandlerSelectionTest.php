@@ -152,9 +152,9 @@ final class SchemaHandlerSelectionTest extends KernelTestCase
     public function testSchemaWithoutHandlerIsRejectedAsUnsupported(): void
     {
         $importId = $this->storeEncounterFile($this->hospital, $this->uploader, $this->probeFile()
-            ->manifest('schema', 'inpatient_stay')
+            ->manifest('schema', 'diagnosis')
             ->row(['record_fingerprint' => $this->fingerprint('a'), 'case_key' => EncounterFileBuilder::caseKey('1'), 'recorded_at' => '2026-10-01T08:15'])
-            ->build(), 'no handler', schema: 'inpatient_stay');
+            ->build(), 'no handler', schema: 'diagnosis');
         $this->runEncounterImport($importId, ImportRunTrigger::Upload, (int) $this->uploader->getId());
 
         self::assertSame(EncounterFileRejection::SchemaUnsupported, $this->encounterImportOf($importId)->getFileRejection());

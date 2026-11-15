@@ -94,6 +94,9 @@ Implemented in #1047:
   `active_check_value`, `retired_check_values`, `key_change_in_progress`. The import registers and
   checks check values ([Import](#import)); the [key change](#key-change) moves the generation. Changes
   through the ORM (the key change) are audited; the import's registration of a check value is not.
+- **Schema bundles** (ADR 037, #1274): further schemas come from Symfony bundles
+  ([extension point](../../02-architecture/extension-points.md#encounter-schema-bundles)); the test-only bundle
+  `inpatient_stay` proves the mechanism end to end (`tests/Encounter/Functional/Plugin/InpatientStayImportTest.php`).
 - **Schemas:** `EncounterDimensionInterface` (tag `encounter.dimension`) with `EdVisitDimension` as
   field contract of `ed_visit` v1
   ([extension point](../../02-architecture/extension-points.md#encounter-schemas)); rows are processed

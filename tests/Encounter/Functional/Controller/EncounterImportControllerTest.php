@@ -116,10 +116,10 @@ final class EncounterImportControllerTest extends WebTestCase
         self::assertSame(json_encode([$encounterOption]), $crawler->filter('form[name="import_create"]')->attr('data-import-type-fields-types-value'));
         self::assertCount(1, $crawler->filter('select[name="import_create[hospital]"] option[value="'.$this->hospital->getId().'"]'));
         // Every schema with a field contract and a handler, labelled by its schema (ADR 037); the test
-        // environment registers the schema `probe` next to `ed_visit`.
+        // environment registers the schemas `inpatient_stay` (test bundle) and `probe` next to `ed_visit`.
         $schemas = $crawler->filter('select[name="import_create[encounterSchema]"] option');
-        self::assertSame(['ed_visit', 'probe'], $schemas->each(static fn ($option): string => (string) $option->attr('value')));
-        self::assertSame(['ED visits (MTS)', 'Probe records (test)'], $schemas->each(static fn ($option): string => trim($option->text())));
+        self::assertSame(['ed_visit', 'inpatient_stay', 'probe'], $schemas->each(static fn ($option): string => (string) $option->attr('value')));
+        self::assertSame(['ED visits (MTS)', 'Inpatient stays (test)', 'Probe records (test)'], $schemas->each(static fn ($option): string => trim($option->text())));
     }
 
     public function testUploadWithoutConfirmationIsRefused(): void

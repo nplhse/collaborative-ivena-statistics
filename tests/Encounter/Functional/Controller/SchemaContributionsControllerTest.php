@@ -98,9 +98,9 @@ final class SchemaContributionsControllerTest extends WebTestCase
         foreach ([$this->viewer, $this->reviewer, $this->admin()] as $user) {
             $crawler = $this->explore($user);
             self::assertCount(1, $crawler->filter('[data-testid="explore-group-cases"] [data-testid="explore-tile-probe-records"]'));
-            // The ED visit list comes first, then the schema tiles.
+            // The ED visit list comes first, then the schema tiles (the test bundle's and the probe's) by key.
             self::assertSame(
-                ['explore-tile-ed-visits', 'explore-tile-probe-records'],
+                ['explore-tile-ed-visits', 'explore-tile-inpatient-stays', 'explore-tile-probe-records'],
                 $crawler->filter('[data-testid="explore-group-cases"] [data-testid^="explore-tile-"]')->each(static fn ($tile): string => (string) $tile->attr('data-testid')),
             );
         }

@@ -403,6 +403,74 @@ Part 2, moving MTS (#1300, one pull request per step):
 
 Separate issue: generic data preparation tool with schema contributions (#1301).
 
+## Try it in the browser
+
+The test-only bundle `inpatient_stay` (`tests/Fixtures/Plugin/InpatientStay/`) is enabled only in the `test`
+environment. This run uses its own database `app_test_manual`, so the PHPUnit databases and the development
+database stay untouched, and it works without a previous PHPUnit run.
+
+**1. Prepare an empty database** (in a new shell, from the project root):
+
+```bash
+export APP_ENV=test TEST_DATABASE_SUFFIX=_manual
+bin/console doctrine:database:create          # prints the name: it must be "app_test_manual"; fails if it exists
+bin/console doctrine:migrations:migrate -n    # core migrations, then the bundle's (TimestampMigrationComparator)
+bin/console app:poc:seed-inpatient-stay       # prints the database, the logins and the URLs with their ids
+```
+
+The suffix only protects other databases because `when@test` in `config/packages/doctrine.yaml` appends it
+(`dbname_suffix`); an exported `TEST_DATABASE_SUFFIX` overrides one in `.env.test.local`. The seed refuses a
+database that already holds users, hospitals or imports. `--with-stays` also imports the CSV through the
+importer, for checking only the views.
+
+**Optional reset** to run it again: first make sure which database you are connected to, then drop only that
+one.
+
+```bash
+bin/console dbal:run-sql "SELECT current_database()"   # must print app_test_manual
+bin/console doctrine:database:drop --force
+```
+
+Then continue with `doctrine:database:create`.
+
+**2. Start the server** in the same shell:
+
+```bash
+php -d variables_order=EGPCS -S localhost:8010 -t public
+```
+
+`variables_order=EGPCS` passes `APP_ENV=test` to the application; without it the built-in server falls back to
+`APP_ENV` of `.env.local`. Open **`http://localhost:8010`**, not `127.0.0.1`: cookies are kept per host, not per
+port, so a login here would otherwise replace the session of a development server on `127.0.0.1`. The
+Symfony CLI server is not used here because it allows one server per project directory.
+
+**3. Logins** (test values of the seed command, password `poc-password`): `poc-reviewer` (upload, review),
+`poc-viewer` (view cases), `poc-nogrant` (beta role, no grant). Choose "Only necessary cookies" on the cookie
+notice before logging in.
+
+**4. Check:**
+
+1. **Import:** as `poc-reviewer`, open `/import/new`, choose "Encounter data" and the schema "Inpatient stays
+   (test)", the hospital "PoC Hospital", tick the confirmation and upload
+   `tests/Fixtures/Plugin/InpatientStay/fixtures/inpatient_stay_poc.csv`. The import report shows inserted 3,
+   duplicates 1, assigned 1, conflicts 1, unassigned 1, rejected 0, skipped 0.
+2. **Case file:** the URL of allocation X (from the seed output) shows the stay (admission 2026-10-12 10:05,
+   I21.4, discharge 2026-10-19 11:00) in the hospital course card; the URL of allocation Y shows none.
+3. **Explore:** `/explore` shows the tile "Inpatient stays (test)" after "ED visits" (in `test` also the probe
+   tile of `tests/Support/Encounter/Probe/`); its page lists the three stays of the hospital. The assignment
+   conflicts are at `/tools/encounter-assignments/<hospital id>`. As `poc-nogrant` the tile is missing and
+   `/explore/inpatient-stays/<hospital id>` answers 403.
+4. **Delete:** as `poc-reviewer`, delete the ED import (URL from the seed output): the page refuses with "This
+   import cannot be deleted or reprocessed while records of other imports are attached to its visits." Then
+   delete the inpatient_stay import: its stays are gone, and the case file of allocation X still shows visit A
+   with its link.
+
+**Counter-check in `dev`:** in a new shell (or after `unset APP_ENV TEST_DATABASE_SUFFIX`), run the development
+server as usual (`symfony server:start`, `APP_ENV=dev` from `.env.local`) and log in as `foo` (encounter grant
+of the development fixtures). `/import/new` offers only "ED visits (MTS)", `/explore` shows the ED visits tile
+without plugin tile, `/explore/inpatient-stays` answers 404, and an existing ED import report and a linked case
+file look as before.
+
 ## Open points
 
 The open questions of the decision are listed in
