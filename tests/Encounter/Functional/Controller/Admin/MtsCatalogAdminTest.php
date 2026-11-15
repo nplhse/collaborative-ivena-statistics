@@ -115,6 +115,23 @@ final class MtsCatalogAdminTest extends WebTestCase
         self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter_mts_alias'));
     }
 
+    public function testUndoOfAMergedEntryWithoutAliasKeepsTheGenericConfirmation(): void
+    {
+        $this->client->loginUser($this->admin());
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $merged = new MtsDiagram('brustenge', 'Brustenge', MtsCatalogSource::FirstSeen, MtsCatalogStatus::Provisional);
+        $merged->markMerged();
+        $entityManager->persist($merged);
+        $entityManager->flush();
+
+        $detail = $this->client->request(Request::METHOD_GET, \sprintf('/admin/encounter/mts-diagrams/%d', $merged->getId()));
+        $undo = $detail->filter(\sprintf('form[action*="/admin/encounter/mts-diagrams/%d/undo-merge"]', $merged->getId()));
+        self::assertSame(
+            'Undo the merge? The alias is removed and the entry becomes provisional again.',
+            $undo->filter('[data-action-confirmation-message]')->attr('data-action-confirmation-message'),
+        );
+    }
+
     public function testMergeOfACuratedEntryIsRefused(): void
     {
         $this->client->loginUser($this->admin());
