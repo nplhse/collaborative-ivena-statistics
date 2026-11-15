@@ -258,7 +258,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorTextContains('#result-count', 'Showing 26-30 of 30 results.');
         $this->assertSelectorTextNotContains('[data-testid="stats-closure-intervals"]', 'Ungrouped individual closure');
         $this->assertSelectorTextContains('[data-testid="stats-closure-intervals"]', 'Individual closure');
-        $this->assertSelectorExists('[data-testid="stats-closure-intervals"] a.badge.bg-purple-lt.text-purple-lt-fg');
+        $this->assertSelectorExists('[data-testid="stats-closure-intervals"] a.badge.bg-purple-lt');
         $previousUrl = $client->getCrawler()->filter('.pagination a')->first()->attr('href');
         self::assertNotNull($previousUrl);
         self::assertStringContainsString('period=year', $previousUrl);

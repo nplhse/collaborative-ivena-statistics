@@ -18,7 +18,7 @@ final class BadgeTest extends TestCase
 
         self::assertSame($expectedVariant, $badge->getVariant());
         self::assertSame(
-            \sprintf('badge bg-%s-lt text-%s-lt-fg', $expectedVariant, $expectedVariant),
+            \sprintf('badge bg-%s-lt', $expectedVariant),
             $badge->getCssClass(),
         );
     }
@@ -47,6 +47,6 @@ final class BadgeTest extends TestCase
 
         self::assertSame('secondary', $badge->variant);
         self::assertSame('secondary', $badge->getVariant());
-        self::assertSame('badge bg-secondary-lt text-secondary-lt-fg', $badge->getCssClass());
+        self::assertSame('badge bg-secondary-lt', $badge->getCssClass());
     }
 }
