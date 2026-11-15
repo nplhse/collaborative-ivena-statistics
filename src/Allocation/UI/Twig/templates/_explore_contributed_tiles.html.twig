@@ -1,0 +1,24 @@
+{# Tiles other contexts add to a group of the Explore overview (ExploreEntryProviderInterface). Explore shows a
+   tile only when its granted attribute holds; the target page checks its access itself. #}
+{% for entry in entries %}
+    {% if entry.grantedAttribute is null or is_granted(entry.grantedAttribute) %}
+        <div class="col-12 col-sm-6 col-md-4" data-testid="explore-tile-{{ entry.key }}">
+            <a href="{{ path(entry.route, entry.routeParameters) }}">
+                <div class="card p-3 d-flex flex-row align-items-center">
+                    <div class="me-3 text-primary">
+                        <twig:ux:icon name="{{ entry.icon }}" width="4em" height="4em" />
+                    </div>
+                    <div>
+                        <div class="h3 mb-0">
+                            {{ entry.title|trans }}
+                            {% if entry.beta %}
+                                <span class="badge bg-azure-lt align-middle ms-1">{{ 'tools.beta'|trans({}, 'shared') }}</span>
+                            {% endif %}
+                        </div>
+                        <small class="text-secondary">{{ entry.description|trans }}</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+    {% endif %}
+{% endfor %}

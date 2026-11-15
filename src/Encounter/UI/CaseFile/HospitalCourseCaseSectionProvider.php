@@ -12,6 +12,7 @@ use App\Encounter\Application\CaseCard\HospitalCourseFactory;
 use App\Encounter\Application\Catalog\MtsCatalog;
 use App\Encounter\Application\Catalog\MtsCatalogEntry;
 use App\Encounter\Application\Contract\HospitalCourseReaderInterface;
+use App\Encounter\Application\Display\RecordSectionRegistry;
 use App\Encounter\Application\Security\EncounterAttribute;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\UI\Glossary\MtsNames;
@@ -21,7 +22,8 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  * Card "Hospital course" on the allocation case file (#1055), contributed through the Allocation
  * extension point so Allocation does not depend on Encounter. Only for users with VIEW_CASES on the
  * allocation's hospital (ADR 028; administrators hold it implicitly). Without an effective link the
- * card says so; proposals are not shown here (match review, #1054).
+ * card says so; proposals are not shown here (match review, #1054). With a link, the card also shows the
+ * record sections of other encounter schemas for the linked encounter (ADR 037).
  *
  * @psalm-suppress UnusedClass Tagged via AllocationCaseSectionProviderInterface.
  */
@@ -35,6 +37,7 @@ final readonly class HospitalCourseCaseSectionProvider implements AllocationCase
         private HospitalCourseFactory $factory,
         private MtsCatalog $mtsCatalog,
         private MtsNames $mtsNames,
+        private RecordSectionRegistry $recordSections,
     ) {
     }
 
@@ -59,6 +62,7 @@ final readonly class HospitalCourseCaseSectionProvider implements AllocationCase
             'course' => $this->factory->create($link),
             'diagram_name' => $this->diagramName($triage->getDiagram()),
             'indicator_name' => $this->indicatorName($triage->getIndicator()),
+            'record_sections' => $this->recordSections->forEncounter((int) $link->getEncounter()->getId()),
         ])];
     }
 

@@ -601,6 +601,74 @@
         <source>encounter.import.count.conflicts</source>
         <target>Assignment conflicts</target>
       </trans-unit>
+      <trans-unit id="EncB8EEA354F" resname="tools.encounter_assignments.title">
+        <source>tools.encounter_assignments.title</source>
+        <target>Encounter assignment conflicts</target>
+      </trans-unit>
+      <trans-unit id="EncCE0CA2520" resname="tools.encounter_assignments.description">
+        <source>tools.encounter_assignments.description</source>
+        <target>Records of further encounter data whose case matches several encounters or contradicts an IVENA link.</target>
+      </trans-unit>
+      <trans-unit id="EncCF5F7E43D" resname="encounter.assignment.title">
+        <source>encounter.assignment.title</source>
+        <target>Assignment conflicts</target>
+      </trans-unit>
+      <trans-unit id="Enc686D44562" resname="encounter.assignment.intro">
+        <source>encounter.assignment.intro</source>
+        <target>Records of further encounter data (for example inpatient stays) that could not be assigned to one encounter. Choose a hospital you may review.</target>
+      </trans-unit>
+      <trans-unit id="EncAF2B492E1" resname="encounter.assignment.no_hospitals">
+        <source>encounter.assignment.no_hospitals</source>
+        <target>You may not review the encounter data of any hospital.</target>
+      </trans-unit>
+      <trans-unit id="EncF3CAEC278" resname="encounter.assignment.conflicts_intro">
+        <source>encounter.assignment.conflicts_intro</source>
+        <target>These records are kept without encounter until their assignment is decided. Deciding follows in a later version; for now the list shows the candidates.</target>
+      </trans-unit>
+      <trans-unit id="Enc9DDAC20A4" resname="encounter.assignment.no_conflicts">
+        <source>encounter.assignment.no_conflicts</source>
+        <target>There are no open assignment conflicts.</target>
+      </trans-unit>
+      <trans-unit id="Enc64E72C625" resname="encounter.assignment.limited">
+        <source>encounter.assignment.limited</source>
+        <target>Showing the newest {shown} of {total} conflicts.</target>
+      </trans-unit>
+      <trans-unit id="EncDA22EF705" resname="encounter.assignment.column.schema">
+        <source>encounter.assignment.column.schema</source>
+        <target>Kind of data</target>
+      </trans-unit>
+      <trans-unit id="Enc6A2FC137D" resname="encounter.assignment.column.kind">
+        <source>encounter.assignment.column.kind</source>
+        <target>Conflict</target>
+      </trans-unit>
+      <trans-unit id="Enc95587BBE6" resname="encounter.assignment.column.import">
+        <source>encounter.assignment.column.import</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="Enc08A09C83A" resname="encounter.assignment.column.candidates">
+        <source>encounter.assignment.column.candidates</source>
+        <target>Candidates</target>
+      </trans-unit>
+      <trans-unit id="Enc46B52E0AD" resname="encounter.assignment.kind.ambiguous">
+        <source>encounter.assignment.kind.ambiguous</source>
+        <target>Several encounters with the same case number</target>
+      </trans-unit>
+      <trans-unit id="Enc09AC21EEB" resname="encounter.assignment.kind.contradictory">
+        <source>encounter.assignment.kind.contradictory</source>
+        <target>Link and case disagree</target>
+      </trans-unit>
+      <trans-unit id="EncF3EDA9DEE" resname="encounter.assignment.reason.allocation">
+        <source>encounter.assignment.reason.allocation</source>
+        <target>linked to the allocation</target>
+      </trans-unit>
+      <trans-unit id="EncDC103E5BD" resname="encounter.assignment.reason.case_key">
+        <source>encounter.assignment.reason.case_key</source>
+        <target>same case</target>
+      </trans-unit>
+      <trans-unit id="EncEABEC91E1" resname="encounter.assignment.candidate_gone">
+        <source>encounter.assignment.candidate_gone</source>
+        <target>Encounter no longer exists</target>
+      </trans-unit>
       <trans-unit id="EncI5609204C" resname="encounter.import.field.confirmation">
         <source>encounter.import.field.confirmation</source>
         <target>I confirm that this file was produced with the data preparation tool and contains no direct identifiers (names, dates of birth, case numbers, free text).</target>
