@@ -967,7 +967,7 @@
       </trans-unit>
       <trans-unit id="opsRd02" resname="ops.reminder_dispatch.help">
         <source>ops.reminder_dispatch.help</source>
-        <target>Only scheduler-triggered sends are recorded here. Admin and CLI sends appear in the audit log.</target>
+        <target>Every monthly reminder send, by scheduler, admin or CLI, with its delivery status. There is one entry per hospital, upload month and trigger; sending again updates it.</target>
       </trans-unit>
       <trans-unit id="admFsAccount" resname="admin.fieldset.account">
         <source>admin.fieldset.account</source>

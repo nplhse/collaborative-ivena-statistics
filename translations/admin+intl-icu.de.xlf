@@ -967,7 +967,7 @@
       </trans-unit>
       <trans-unit id="opsRd02de" resname="ops.reminder_dispatch.help">
         <source>ops.reminder_dispatch.help</source>
-        <target>Nur Scheduler-Versände werden hier erfasst. Admin- und CLI-Versände stehen im Audit-Log.</target>
+        <target>Alle Versände der monatlichen Erinnerung, ob per Scheduler, Administrator oder Konsole, mit ihrem Zustellstatus. Je Klinik, Upload-Monat und Auslöser gibt es einen Eintrag; ein erneuter Versand aktualisiert ihn.</target>
       </trans-unit>
       <trans-unit id="admFsAccountDe" resname="admin.fieldset.account">
         <source>admin.fieldset.account</source>
