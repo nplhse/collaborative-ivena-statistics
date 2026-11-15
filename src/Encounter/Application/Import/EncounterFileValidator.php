@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Encounter\Application\Import;
 
 use App\Encounter\Application\Dimension\EncounterDimensionRegistry;
-use App\Encounter\Application\Dimension\EncounterField;
-use App\Encounter\Application\Dimension\EncounterFieldType;
+use App\Encounter\Contract\Schema\EncounterField;
+use App\Encounter\Contract\Schema\EncounterFieldType;
 use App\Encounter\Domain\Enum\EncounterFileRejection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 

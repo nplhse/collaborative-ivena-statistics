@@ -22,6 +22,10 @@
                 </div>
             {% endfor %}
             <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'encounter.import.field.schema'|trans({}, 'encounter') }}</div>
+                <div class="datagrid-content" data-test="encounter-schema">{{ schema_label|trans }}</div>
+            </div>
+            <div class="datagrid-item">
                 <div class="datagrid-title">{{ 'encounter.import.field.profile'|trans({}, 'encounter') }}</div>
                 <div class="datagrid-content">{{ encounter_import.profile ?? '–' }}{% if encounter_import.profileVersion %} v{{ encounter_import.profileVersion }}{% endif %}</div>
             </div>

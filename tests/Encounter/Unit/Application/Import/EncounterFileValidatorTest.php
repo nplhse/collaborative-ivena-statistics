@@ -126,7 +126,7 @@ final class EncounterFileValidatorTest extends TestCase
     }
 
     /**
-     * @return array{0: \App\Encounter\Application\Import\EncounterManifest, 1: list<\App\Encounter\Application\Dimension\EncounterField>}
+     * @return array{0: \App\Encounter\Application\Import\EncounterManifest, 1: list<\App\Encounter\Contract\Schema\EncounterField>}
      */
     private function validate(string $content, string $schema = 'ed_visit'): array
     {

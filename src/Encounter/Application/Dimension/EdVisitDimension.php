@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Encounter\Application\Dimension;
 
+use App\Encounter\Contract\Schema\EncounterDimensionInterface;
+use App\Encounter\Contract\Schema\EncounterField;
+use App\Encounter\Contract\Schema\EncounterFieldType;
 use App\Encounter\Domain\Enum\AdmissionType;
 use App\Encounter\Domain\Enum\ArrivalMode;
 use App\Encounter\Domain\Enum\CareLevel;
@@ -14,6 +17,8 @@ use App\Encounter\Domain\Enum\MtsCategory;
 use App\Encounter\Domain\Enum\ReferralSource;
 use App\Encounter\Domain\Enum\Sex;
 use App\Encounter\Domain\Enum\VitalsReference;
+use Symfony\Component\Translation\TranslatableMessage;
+use Symfony\Contracts\Translation\TranslatableInterface;
 
 /**
  * Schema `ed_visit`: one row = one ED visit (docs/04-features/encounter/exchange-format.md).
@@ -33,6 +38,12 @@ final readonly class EdVisitDimension implements EncounterDimensionInterface
     public function schema(): string
     {
         return self::SCHEMA;
+    }
+
+    #[\Override]
+    public function label(): TranslatableInterface
+    {
+        return new TranslatableMessage('encounter.import.schema.ed_visit', domain: 'encounter');
     }
 
     #[\Override]

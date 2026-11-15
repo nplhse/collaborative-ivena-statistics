@@ -577,6 +577,14 @@
         <source>encounter.import.field.schema_help</source>
         <target>Art der Daten in der Datei. Sie muss zum Schema in der ersten Zeile der Datei passen.</target>
       </trans-unit>
+      <trans-unit id="EncE42F25F61" resname="encounter.import.schema.ed_visit">
+        <source>encounter.import.schema.ed_visit</source>
+        <target>Notaufnahmebesuche (MTS)</target>
+      </trans-unit>
+      <trans-unit id="EncA94053061" resname="encounter.import.schema.unknown">
+        <source>encounter.import.schema.unknown</source>
+        <target>{schema} (nicht installiert)</target>
+      </trans-unit>
       <trans-unit id="EncI5609204C" resname="encounter.import.field.confirmation">
         <source>encounter.import.field.confirmation</source>
         <target>Ich bestätige, dass diese Datei mit dem Datenaufbereitungs-Werkzeug erstellt wurde und keine direkten Identifikatoren enthält (Namen, Geburtsdaten, Fallnummern, Freitext).</target>

@@ -12,7 +12,7 @@ use App\DataFixtures\Encounter\Application\SyntheticEncounterTruth;
 use App\DataFixtures\Encounter\Application\SyntheticVisit;
 use App\DataFixtures\Encounter\Application\SyntheticVisitKind;
 use App\Encounter\Application\Dimension\EdVisitDimension;
-use App\Encounter\Application\Dimension\EncounterField;
+use App\Encounter\Contract\Schema\EncounterField;
 use PHPUnit\Framework\TestCase;
 
 /**

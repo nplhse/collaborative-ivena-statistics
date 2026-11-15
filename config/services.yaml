@@ -5,6 +5,7 @@
 imports:
     - { resource: services/foundry.yaml }
     - { resource: services/foundry_test.yaml }
+    - { resource: services/encounter_probe_test.yaml }
     - { resource: services/dev/doctrine_fixtures.yaml }
 
 # Put parameters here that don't need to change on each machine where the app is deployed

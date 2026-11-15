@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Encounter\Application\Dimension;
+namespace App\Encounter\Contract\Schema;
 
 /**
  * Value type of a field of the canonical exchange format (ADR 026).

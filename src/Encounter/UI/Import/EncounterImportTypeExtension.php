@@ -10,6 +10,7 @@ use App\Encounter\Application\Contract\EncounterImportReportInterface;
 use App\Encounter\Application\Contract\EncounterKeyStateReaderInterface;
 use App\Encounter\Application\Contract\EncounterUploadHospitalsInterface;
 use App\Encounter\Application\Dimension\EncounterDimensionRegistry;
+use App\Encounter\Application\Import\EncounterSchemaHandlerRegistry;
 use App\Encounter\Application\Security\EncounterAttribute;
 use App\Encounter\Domain\Entity\EncounterImport;
 use App\Import\Application\Contracts\ImportTypeExtensionInterface;
@@ -30,6 +31,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
+use Symfony\Component\Translation\TranslatableMessage;
+use Symfony\Contracts\Translation\TranslatableInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -60,6 +63,7 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
         private AccessDecisionManagerInterface $accessDecisionManager,
         private EncounterUploadHospitalsInterface $uploadHospitals,
         private EncounterDimensionRegistry $dimensions,
+        private EncounterSchemaHandlerRegistry $handlers,
         private EncounterKeyStateReaderInterface $keyStates,
         private EncounterImportReaderInterface $encounterImports,
         private EncounterImportReportInterface $report,
@@ -88,7 +92,9 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
     #[\Override]
     public function isAvailableTo(User $user): bool
     {
-        return $this->hasRole($user, UserRole::ENCOUNTER_BETA) && [] !== $this->uploadHospitalIds($user);
+        return [] !== $this->uploadableSchemas()
+            && $this->hasRole($user, UserRole::ENCOUNTER_BETA)
+            && [] !== $this->uploadHospitalIds($user);
     }
 
     #[\Override]
@@ -113,7 +119,7 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
     #[\Override]
     public function buildForm(FormBuilderInterface $builder): void
     {
-        $schemas = $this->dimensions->schemas();
+        $schemas = $this->uploadableSchemas();
         $builder
             ->add(self::FIELD_SCHEMA, ChoiceType::class, [
                 'mapped' => false,
@@ -122,7 +128,7 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
                 'help' => 'encounter.import.field.schema_help',
                 'translation_domain' => 'encounter',
                 'choices' => array_combine($schemas, $schemas),
-                'choice_translation_domain' => false,
+                'choice_label' => fn (string $schema): TranslatableInterface => $this->dimensions->get($schema)->label(),
                 'data' => $schemas[0] ?? null,
                 'placeholder' => false,
             ])
@@ -152,7 +158,7 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
         }
 
         $schema = $form->get(self::FIELD_SCHEMA)->getData();
-        if (!\is_string($schema) || !$this->dimensions->has($schema)) {
+        if (!\is_string($schema) || !\in_array($schema, $this->uploadableSchemas(), true)) {
             $errors[self::FIELD_SCHEMA] = $this->translator->trans('validation.encounter.import.schema_required', [], 'validators');
         }
 
@@ -207,8 +213,14 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
             return null;
         }
 
+        $schema = $encounterImport->getSchema();
+
         return new ImportTypeDetailSection('@Encounter/imports/_import_section.html.twig', [
             'encounter_import' => $encounterImport,
+            // A schema whose bundle is no longer installed is shown by its name.
+            'schema_label' => $this->dimensions->has($schema)
+                ? $this->dimensions->get($schema)->label()
+                : new TranslatableMessage('encounter.import.schema.unknown', ['schema' => $schema], 'encounter'),
             'source_file_retention_days' => $this->sourceFileRetentionDays,
             'source_file_kept_until' => $encounterImport->isSourceFileDeleted()
                 ? null
@@ -236,5 +248,15 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
     private function hasRole(User $user, string $role): bool
     {
         return \in_array($role, $this->roleHierarchy->getReachableRoleNames($user->getRoles()), true);
+    }
+
+    /**
+     * Schemas with a field contract and a handler (ADR 037); only these can be uploaded.
+     *
+     * @return list<string>
+     */
+    private function uploadableSchemas(): array
+    {
+        return array_values(array_filter($this->dimensions->schemas(), $this->handlers->has(...)));
     }
 }

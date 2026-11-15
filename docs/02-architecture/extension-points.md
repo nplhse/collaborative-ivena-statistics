@@ -197,19 +197,51 @@ detail page. The type also needs a workflow dispatcher (above) for its runs.
 
 **Tag:** `encounter.dimension`
 
-**Interface:** `EncounterDimensionInterface` (`src/Encounter/Application/Dimension/`)
+**Interface:** `EncounterDimensionInterface` (`src/Encounter/Contract/Schema/`)
 
 **Registry:** `EncounterDimensionRegistry` (by schema name)
 
 **Implementations:** `EdVisitDimension` (`ed_visit` v1, #1047)
 
 Each schema of the canonical exchange format (`ed_visit`; later `inpatient_stay`, `diagnosis`,
-`procedure`) provides its supported versions and, per version, the field contract in header order:
-name, type (`EncounterFieldType`), required flag, code list and range, plus the accepted fingerprint
-rules per version (`fingerprintRules()`). The encounter import (#1048) validates files against the
-contract (`EncounterFileValidator`, `EdVisitRowMapper`). Vendor formats are not server extensions; they
-are source profiles of the data preparation tool. See
+`procedure`) provides its label (`label()`, shown in the upload form and the import report), its
+supported versions and, per version, the field contract in header order: name, type
+(`EncounterFieldType`), required flag, code list and range, plus the accepted fingerprint rules per
+version (`fingerprintRules()`). The encounter import (#1048) validates files against the contract
+(`EncounterFileValidator`); the schema's handler maps and writes the rows (below). Vendor formats are not
+server extensions; they are source profiles of the data preparation tool. See
 [ADR 026](decisions/026-encounter-data-context-and-exchange-format.md).
+
+## Encounter schema handlers
+
+**Tag:** `encounter.schema_handler`
+
+**Interface:** `EncounterSchemaHandlerInterface` (`src/Encounter/Contract/Import/`)
+
+**Registry:** `EncounterSchemaHandlerRegistry` (by schema name); consumers `EncounterFileImporter`,
+`EncounterImportDataRemover` and the upload form (`EncounterImportTypeExtension`)
+
+**Implementations:** `EdVisitSchemaHandler` (`ed_visit`, part of the core until MTS moves into its bundle,
+#1300); in the `test` environment the probe schema `probe` (`tests/Support/Encounter/Probe/`,
+`config/services/encounter_probe_test.yaml`)
+
+Processes the rows of one schema inside the shared encounter import workflow
+([ADR 037](decisions/037-encounter-case-hub-and-schema-plugins.md)). The core reads the file, validates
+manifest and header against the schema's field contract, checks key generation and key check value,
+records rejects, counts, coverage and file rejections, and owns the transaction. The handler:
+
+- `mapRow()` maps one row to an `EncounterRecordRow` (`coverageAt()` for the data coverage), a
+  rejected row (`RowError` with an `EncounterRowError` code, never the cell value) or a skipped row
+  (`RowMappingResult`);
+- `write()` writes the valid rows of the file inside the core's commit and returns a `SchemaWriteResult`
+  (inserted records; valid rows not inserted count as duplicates; `insertedDays` for matching after the
+  commit);
+- `removeForImport()` removes the records an import created (deletion, cleanup before a reprocess).
+
+A schema can be uploaded only when it has a field contract and a handler; without any such schema the
+encounter import type is not offered. A file whose schema has no handler (for example after its bundle
+was removed) is rejected as `schema_unsupported`. Plugins only use the types under
+`src/Encounter/Contract/` (Deptrac layer `Encounter_Contract`).
 
 ## Tools
 
