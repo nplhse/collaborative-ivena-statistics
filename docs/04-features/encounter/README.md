@@ -1002,7 +1002,8 @@ list of unlinked visits; the breadcrumb and "Back to list" open the visit list o
 
 Implemented in #1178. All ED visits of one hospital in a period, with or without IVENA allocation, in Explore
 under "Cases" ("ED visits", beta badge; `EncounterNavigationProvider` shows it to the beta role, the pages check
-the grants).
+the grants). The Explore start page shows a tile in its "Cases" group for the beta role as well, written into
+`explore.html.twig` like the Users tile of the User context (the start page has no extension point).
 
 - `/explore/ed-visits` (`ListVisitHospitalsController`) lists the hospitals whose visits the user may see
   (`VisitListHospitals`: grant action `VIEW_CASES`, also set by `REVIEW`; every hospital with visits for

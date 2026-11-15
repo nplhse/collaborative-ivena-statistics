@@ -3749,6 +3749,10 @@
         <source>encounter.visit_list.period_help</source>
         <target>Besuche nach Aufnahme ZNA (sonst Ersteinschätzung). Höchstens {days} Tage.</target>
       </trans-unit>
+      <trans-unit id="Enc0C5120B9" resname="encounter.explore.tile.ed_visits">
+        <source>encounter.explore.tile.ed_visits</source>
+        <target>Notaufnahme-Besuche je Krankenhaus</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
