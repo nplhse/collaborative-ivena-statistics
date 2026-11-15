@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { lineMarkers } from '../lib/chart-markers.js';
 import { applyChartNonce, loadApexCharts } from '../lib/load-apexcharts.js';
 
 /* stimulusFetch: 'lazy' */
@@ -65,6 +66,7 @@ export default class extends Controller {
                 width: [0, 3],
                 curve: 'smooth',
             },
+            markers: lineMarkers(labels.length),
             plotOptions: {
                 bar: {
                     columnWidth: '55%',

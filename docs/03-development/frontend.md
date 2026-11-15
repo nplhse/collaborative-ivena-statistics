@@ -30,6 +30,10 @@ Chart colours for the two colour schemes are set globally, not per chart (#1278)
 - The PNG export of analysis charts always uses the light colours.
 - ApexCharts' own `--apx-fore` and `--apx-grid` tokens are not used: ApexCharts copies them into SVG attributes, where `light-dark()` does not work.
 
+#### Single points in line charts
+
+Line and area charts draw no markers, only the line. With a single point (for example one month in the selected period) there is no line, so every line and area chart takes `markers` from [`assets/lib/chart-markers.js`](../../assets/lib/chart-markers.js): `lineMarkers(pointCount, markers)` returns a visible marker for exactly one point and the chart's own options otherwise (#1284). `seriesPointCount(series)` counts the points of charts without a shared category list.
+
 Not part of this upgrade. Add them only when a chart needs them:
 
 - Box plot jitter via `plotOptions.boxPlot.points`, once hospital or explorer distributions supply the raw observations.

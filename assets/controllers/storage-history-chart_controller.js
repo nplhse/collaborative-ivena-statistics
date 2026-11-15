@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { lineMarkers } from '../lib/chart-markers.js';
 import { applyChartNonce, loadApexCharts } from '../lib/load-apexcharts.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -150,7 +151,7 @@ export default class extends Controller {
             colors: data.series.map((serie) => serie.color),
             stroke: { width: 1, curve: 'straight' },
             fill: { type: 'solid', opacity: 0.75 },
-            markers: { size: data.days.length === 1 ? 4 : 0 },
+            markers: lineMarkers(data.days.length),
             dataLabels: { enabled: false },
             xaxis: {
                 type: 'datetime',

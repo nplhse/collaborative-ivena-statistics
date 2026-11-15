@@ -1,4 +1,5 @@
 import { LIGHT_CHART_COLORS } from './chart-colors.js';
+import { lineMarkers } from './chart-markers.js';
 import { buildAnalysisHeatmapOptions } from './build-analysis-heatmap-options.js';
 import { ANALYSIS_CHART_HEIGHT_PROFILE_EXPLORER } from './analysis-chart-height-profile.js';
 
@@ -418,6 +419,7 @@ export function buildAnalysisChartOptions(data, buildOptions = {}) {
             axisTicks: { show: true },
         },
         plotOptions: barPlotOptions,
+        ...(isLine ? { markers: lineMarkers(labels.length) } : {}),
         stroke: isLine
             ? {
                   curve: 'smooth',
