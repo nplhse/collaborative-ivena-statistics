@@ -281,7 +281,9 @@ final class ReportsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-ttp-matrix-legend"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-ranked-legend"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-delta-badge"]');
-        $this->assertSelectorExists('[data-testid="stats-ttp-delta-badge"].bg-green-lt, [data-testid="stats-ttp-delta-badge"].bg-red-lt');
+        // The heat cell carries the colour; the delta badge is neutral (#1230).
+        $this->assertSelectorExists('[data-testid="stats-ttp-delta-badge"].bg-secondary-lt');
+        $this->assertSelectorNotExists('[data-testid="stats-ttp-delta-badge"].bg-green-lt, [data-testid="stats-ttp-delta-badge"].bg-red-lt');
         $this->assertSelectorExists('[data-testid="stats-ttp-rank-badge"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-explorer-link"]');
         $this->assertStringContainsString(

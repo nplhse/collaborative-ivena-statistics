@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Integration\Twig;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
@@ -17,6 +18,7 @@ final class DeltaBadgeTest extends KernelTestCase
         $html = $this->render([
             'value' => 1.2,
             'unit' => 'percent',
+            'colorizeTrend' => true,
             'ariaKey' => 'stats.top_lists.comparison.delta.aria',
             'data-testid' => 'delta',
         ]);
@@ -34,6 +36,7 @@ final class DeltaBadgeTest extends KernelTestCase
             'value' => -3,
             'unit' => 'count',
             'display' => 'text',
+            'colorizeTrend' => true,
             'ariaKey' => 'stats.top_lists.comparison.delta.aria',
         ]);
 
@@ -47,6 +50,7 @@ final class DeltaBadgeTest extends KernelTestCase
         $html = $this->render([
             'value' => -4.5,
             'unit' => 'percent',
+            'colorizeTrend' => true,
             'ariaKey' => 'stats.reports.transport_time_profile.delta.aria',
             'extraClass' => 'stats-ttp-marker',
             'title' => 'Regular: 8,0 %',
@@ -65,6 +69,7 @@ final class DeltaBadgeTest extends KernelTestCase
             'unit' => 'percent',
             'display' => 'text',
             'whenZero' => 'neutral',
+            'colorizeTrend' => true,
             'ariaKey' => 'stats.case_flow.segment.delta.aria',
         ]);
 
@@ -73,6 +78,38 @@ final class DeltaBadgeTest extends KernelTestCase
         self::assertStringNotContainsString('text-green', $html);
         self::assertStringNotContainsString('text-red', $html);
         self::assertStringNotContainsString('badge', $html);
+    }
+
+    /**
+     * @return iterable<string, array{float, bool, bool, string}>
+     */
+    public static function trendColours(): iterable
+    {
+        yield 'increase, not coloured (default)' => [2.0, false, false, 'badge bg-secondary-lt'];
+        yield 'decrease, not coloured (default)' => [-2.0, false, false, 'badge bg-secondary-lt'];
+        yield 'increase, coloured' => [2.0, true, false, 'badge bg-green-lt'];
+        yield 'decrease, coloured' => [-2.0, true, false, 'badge bg-red-lt'];
+        yield 'increase, coloured and inverted' => [2.0, true, true, 'badge bg-red-lt'];
+        yield 'decrease, coloured and inverted' => [-2.0, true, true, 'badge bg-green-lt'];
+        // invertTrend alone has no effect: without colorizeTrend the change stays neutral.
+        yield 'increase, inverted only' => [2.0, false, true, 'badge bg-secondary-lt'];
+        yield 'decrease, inverted only' => [-2.0, false, true, 'badge bg-secondary-lt'];
+    }
+
+    #[DataProvider('trendColours')]
+    public function testColourFollowsColorizeAndInvertTrend(float $value, bool $colorize, bool $invert, string $expectedClass): void
+    {
+        $html = $this->render([
+            'value' => $value,
+            'unit' => 'count',
+            'colorizeTrend' => $colorize,
+            'invertTrend' => $invert,
+            'ariaKey' => 'stats.top_lists.comparison.delta.aria',
+        ]);
+
+        self::assertStringContainsString($expectedClass.' stats-rank-shift-badge', $html);
+        // The sign carries the direction without colour.
+        self::assertMatchesRegularExpression($value > 0 ? '/>\+2\s*</' : '/>-2\s*</', $html);
     }
 
     public function testMinutesUseMinuteSuffix(): void
@@ -118,6 +155,8 @@ final class DeltaBadgeTest extends KernelTestCase
             'value' => 0.0,
             'unit' => 'percent',
             'whenZero' => 'neutral',
+            'colorizeTrend' => true,
+            'invertTrend' => true,
             'ariaKey' => 'stats.case_flow.segment.delta.aria',
         ]);
 

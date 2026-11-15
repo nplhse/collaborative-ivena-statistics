@@ -37,7 +37,7 @@
 | [closure-analytics.md](closure-analytics.md) | Interval-based closure analytics |
 | [closure-architecture.md](closure-architecture.md) | Source rows, analysis intervals, events, and the volume projection |
 | [hospital-population.md](hospital-population.md) | Hospital population dashboard (Participation / Coverage / Beds / Allocations) |
-| [directional-indicators.md](directional-indicators.md) | Shared delta colour, sign, and unit |
+| [directional-indicators.md](directional-indicators.md) | Shared delta colour (assessment), sign, and unit; compare tiles |
 | [ranking-table.md](ranking-table.md) | Ranking table separate from DataTable |
 | [isochrone-origin-heatmap.md](isochrone-origin-heatmap.md) | Hospital-scope travel-time isochrone heatmap |
 

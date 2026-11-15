@@ -103,8 +103,10 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'Outpatient Care');
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', '+29,4 pp');
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', '-29,4 pp');
-        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-urgency"] .text-green');
-        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-urgency"] .text-red');
+        // Share differences are descriptive, so they carry no assessment colour (#1230).
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-urgency"] span.text-secondary[aria-label]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-group-urgency"] .text-green');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-group-urgency"] .text-red');
         // 100,0 % segment share vs. 70,6 % population share: a difference in percentage points, not a relative change.
         $this->assertSelectorTextNotContains('[data-testid="stats-case-flow-segment-group-urgency"]', '+29,4%');
         $this->assertSelectorTextNotContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'U1');
