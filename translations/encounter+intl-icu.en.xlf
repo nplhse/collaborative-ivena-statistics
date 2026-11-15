@@ -2877,6 +2877,10 @@
         <source>encounter.mts_catalog.action.undo_merge.confirm</source>
         <target>Undo the merge? The alias is removed and the entry becomes provisional again.</target>
       </trans-unit>
+      <trans-unit id="Enc78B2E943" resname="encounter.mts_catalog.action.undo_merge.confirm_target">
+        <source>encounter.mts_catalog.action.undo_merge.confirm_target</source>
+        <target>Undo the merge of {code} into {target}? The alias {code} → {target} is removed and {code} becomes provisional again.</target>
+      </trans-unit>
       <trans-unit id="Enc4E62881B" resname="encounter.mts_catalog.merge.title">
         <source>encounter.mts_catalog.merge.title</source>
         <target>Merge {code}</target>

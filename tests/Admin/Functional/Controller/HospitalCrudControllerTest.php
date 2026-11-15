@@ -52,9 +52,14 @@ final class HospitalCrudControllerTest extends WebTestCase
     public function testHospitalDetailShowsAccessGrants(): void
     {
         $client = self::createClient();
+        $owner = UserFactory::createOne([
+            'username' => 'detail-owner-'.bin2hex(random_bytes(4)),
+            'displayName' => null,
+        ]);
         $hospital = HospitalFactory::createOne([
             'name' => 'Detail Hospital '.bin2hex(random_bytes(4)),
             'isParticipating' => true,
+            'owner' => $owner,
         ]);
         $grantee = UserFactory::createOne([
             'username' => 'grant-member-'.bin2hex(random_bytes(4)),
@@ -80,6 +85,12 @@ final class HospitalCrudControllerTest extends WebTestCase
         self::assertStringContainsString($hospital->getCreatedAt()->format('d.m.Y H:i'), $body);
         self::assertSelectorExists('a.action-sendMonthlyReminder');
         self::assertSelectorExists('a.action-reminderHistory');
+
+        // The confirmation names the hospital and, without a display name, the owner's username.
+        self::assertSame(
+            \sprintf('Send the monthly data submission reminder for %s to %s now?', $hospital->getName(), $owner->getUsername()),
+            $crawler->filter('a.action-sendMonthlyReminder')->first()->attr('data-action-confirmation-message'),
+        );
 
         // Every rendered action carries its own request id; sending it is one admin action.
         $link = (string) $crawler->filter('a.action-sendMonthlyReminder')->first()->attr('href');

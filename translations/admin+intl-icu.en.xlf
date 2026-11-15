@@ -359,7 +359,7 @@
       </trans-unit>
       <trans-unit id="admMr02" resname="admin.hospital.action.send_reminder.confirm">
         <source>admin.hospital.action.send_reminder.confirm</source>
-        <target>Send the monthly data submission reminder to the hospital owner now?</target>
+        <target>Send the monthly data submission reminder for {hospital} to {owner} now?</target>
       </trans-unit>
       <trans-unit id="admMr03" resname="flash.admin.hospital.reminder.sent">
         <source>flash.admin.hospital.reminder.sent</source>
@@ -1755,7 +1755,7 @@
       </trans-unit>
       <trans-unit id="admFbReleaseC" resname="admin.feedback.action.release.confirm">
         <source>admin.feedback.action.release.confirm</source>
-        <target>Release this feedback? It moves to the normal feedback list; no notification is sent.</target>
+        <target>Release feedback #{id} from {createdAt, date,dd.MM.yyyy HH:mm}? It moves to the normal feedback list; no notification is sent.</target>
       </trans-unit>
       <trans-unit id="admFbBatchRel" resname="admin.feedback.action.batch_release">
         <source>admin.feedback.action.batch_release</source>
@@ -1767,7 +1767,7 @@
       </trans-unit>
       <trans-unit id="admFbQuarC" resname="admin.feedback.action.quarantine.confirm">
         <source>admin.feedback.action.quarantine.confirm</source>
-        <target>Move this feedback to the quarantine? It leaves the feedback list and the open count.</target>
+        <target>Move feedback #{id} from {createdAt, date,dd.MM.yyyy HH:mm} to the quarantine? It leaves the feedback list and the open count.</target>
       </trans-unit>
       <trans-unit id="admFbFCreated" resname="admin.feedback.field.created">
         <source>admin.feedback.field.created</source>

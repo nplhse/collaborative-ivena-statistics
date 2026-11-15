@@ -103,6 +103,10 @@ final class MtsCatalogAdminTest extends WebTestCase
         $detail = $this->client->request(Request::METHOD_GET, \sprintf('/admin/encounter/mts-diagrams/%d', $id));
         $undo = $detail->filter(\sprintf('form[action*="/admin/encounter/mts-diagrams/%d/undo-merge"]', $id));
         self::assertCount(1, $undo, 'undo is a POST form');
+        self::assertSame(
+            'Undo the merge of brustenge into thoraxschmerz? The alias brustenge → thoraxschmerz is removed and brustenge becomes provisional again.',
+            $undo->filter('[data-action-confirmation-message]')->attr('data-action-confirmation-message'),
+        );
         self::assertCount(0, $detail->filter(\sprintf('a[href$="/admin/encounter/mts-diagrams/%d/merge"]', $id)), 'a merged entry cannot be merged again');
         $this->client->request(Request::METHOD_POST, (string) $undo->attr('action'));
 

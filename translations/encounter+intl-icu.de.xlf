@@ -2877,6 +2877,10 @@
         <source>encounter.mts_catalog.action.undo_merge.confirm</source>
         <target>Zusammenführung rückgängig machen? Der Alias wird entfernt und der Eintrag ist wieder vorläufig.</target>
       </trans-unit>
+      <trans-unit id="Enc78B2E943" resname="encounter.mts_catalog.action.undo_merge.confirm_target">
+        <source>encounter.mts_catalog.action.undo_merge.confirm_target</source>
+        <target>Zusammenführung von {code} in {target} rückgängig machen? Der Alias {code} → {target} wird entfernt und {code} ist wieder vorläufig.</target>
+      </trans-unit>
       <trans-unit id="Enc4E62881B" resname="encounter.mts_catalog.merge.title">
         <source>encounter.mts_catalog.merge.title</source>
         <target>{code} zusammenführen</target>

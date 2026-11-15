@@ -14,6 +14,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -21,6 +22,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class FeedbackQuarantineCrudControllerTest extends WebTestCase
 {
+    use ClockSensitiveTrait;
     use Factories;
 
     public function testOnlyAdminsCanOpenTheQuarantine(): void
@@ -73,11 +75,17 @@ final class FeedbackQuarantineCrudControllerTest extends WebTestCase
     public function testReleaseMovesTheEntryBackWithoutNotification(): void
     {
         [$client, $admin] = $this->loggedInAdmin();
+        self::mockTime('2026-11-10 07:30:00');
         $id = $this->feedback('Legit question flagged by mistake', quarantined: true);
 
         $crawler = $client->request(Request::METHOD_GET, '/admin/feedback-quarantine/'.$id);
         $form = $crawler->filter(\sprintf('form[action*="/admin/feedback-quarantine/%d/release"]', $id));
         self::assertCount(1, $form, 'release is a POST form');
+        self::assertSame(
+            \sprintf('Release feedback #%d from 10.11.2026 07:30? It moves to the normal feedback list; no notification is sent.', $id),
+            $form->filter('[data-action-confirmation-message]')->attr('data-action-confirmation-message'),
+            'the confirmation names the entry, not its (possibly spam) text',
+        );
         $client->request(Request::METHOD_POST, (string) $form->attr('action'));
 
         self::assertResponseRedirects();
@@ -161,11 +169,16 @@ final class FeedbackQuarantineCrudControllerTest extends WebTestCase
     public function testMissedSpamCanBeMovedIntoQuarantine(): void
     {
         [$client, $admin] = $this->loggedInAdmin();
+        self::mockTime('2026-11-10 07:30:00');
         $id = $this->feedback('Spam that slipped through', quarantined: false);
 
         $crawler = $client->request(Request::METHOD_GET, '/admin/feedback/'.$id);
         $form = $crawler->filter(\sprintf('form[action*="/admin/feedback/%d/move-to-quarantine"]', $id));
         self::assertCount(1, $form);
+        self::assertSame(
+            \sprintf('Move feedback #%d from 10.11.2026 07:30 to the quarantine? It leaves the feedback list and the open count.', $id),
+            $form->filter('[data-action-confirmation-message]')->attr('data-action-confirmation-message'),
+        );
         $client->request(Request::METHOD_POST, (string) $form->attr('action'));
 
         self::assertResponseRedirects();
