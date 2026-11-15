@@ -75,6 +75,52 @@ final class HospitalCourseFactoryTest extends TestCase
         self::assertTrue($course->intervals[0]->plausible);
     }
 
+    public function testVisitWithoutLinkHasNoIvenaTimeAndTheSameDurations(): void
+    {
+        $encounter = $this->link(new InitialVitals(VitalsReference::AdmissionMeasurement, new \DateTimeImmutable('2026-10-12 10:09'), heartRate: 88))->getEncounter();
+
+        $course = new HospitalCourseFactory()->forEncounter($encounter, null);
+
+        self::assertSame(
+            ['ed_admission 10:07 0', 'vitals_measured 10:09 2', 'first_assessment 10:12 5', 'first_physician 10:40 33', 'ed_discharge 13:07 180'],
+            array_map(static fn (TimelineEvent $event): string => sprintf('%s %s %s', $event->key, $event->at->format('H:i'), $event->minutesFromAdmission), $course->timeline),
+        );
+        self::assertSame([5, 33, 180], array_map(static fn (IntervalValue $value): ?int => $value->minutes, $course->intervals));
+        self::assertNull($course->link);
+        self::assertFalse($course->isAutomatic());
+        self::assertNull($course->agreementPercent());
+    }
+
+    public function testVisitWithOnlyAFirstAssessmentHasOneEventAndNoDurations(): void
+    {
+        $encounter = new Encounter(
+            hospital: $this->hospital,
+            import: new Import(),
+            keyGeneration: 1,
+            visitFingerprint: hash('sha256', 'minimal'),
+            caseKey: hash('sha256', 'minimal-case'),
+            age: 47,
+            sex: Sex::Male,
+            times: new EncounterTimes(firstAssessmentContactAt: new \DateTimeImmutable('2026-10-12 13:31')),
+        );
+
+        $course = new HospitalCourseFactory()->forEncounter($encounter, null);
+
+        self::assertSame(['first_assessment'], array_map(static fn (TimelineEvent $event): string => $event->key, $course->timeline));
+        self::assertNull($course->timeline[0]->minutesFromAdmission);
+        self::assertSame([null, null, null], array_map(static fn (IntervalValue $value): ?int => $value->minutes, $course->intervals));
+        self::assertFalse($course->vitalsOnTimeline);
+    }
+
+    public function testLinkOfAnotherVisitIsRejected(): void
+    {
+        $link = $this->link(new InitialVitals());
+        $other = $this->link(new InitialVitals())->getEncounter();
+
+        $this->expectException(\InvalidArgumentException::class);
+        new HospitalCourseFactory()->forEncounter($other, $link);
+    }
+
     private function link(InitialVitals $vitals, ?string $admission = '2026-10-12 10:07', string $discharge = '2026-10-12 13:07', MatchStatus $status = MatchStatus::AutoAccepted): EncounterMatch
     {
         $encounter = new Encounter(

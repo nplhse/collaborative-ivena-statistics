@@ -1,0 +1,276 @@
+{#
+    Detail page of one ED visit (#1178). Built from the visit alone; an allocation link is optional.
+    Clinical times come from the visit; the allocation's time is shown only as the expected IVENA arrival.
+#}
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set d = 'encounter' %}
+
+{% set times = encounter.times %}
+{% set anchor_is_admission = times.edAdmissionAt is not null %}
+{% set anchor_at = times.edAdmissionAt ?? times.firstAssessmentContactAt ?? encounter.anchorAt %}
+{% set link = course.link %}
+
+{% block title %}{{ 'encounter.visit.title'|trans({date: anchor_at|date('d.m.Y H:i')}, d) }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            <twig:Navigation:Sidebar menu="explore" />
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'link.explore', path: path('app_explore_index') },
+                { label: hospital.name, translatable: false, path: path('app_explore_hospital_show', {publicId: hospital.publicIdString}) },
+                { label: 'encounter.visit.breadcrumb', label_domain: 'encounter', translatable: true },
+            ]"
+        />
+
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="avatar avatar-lg rounded">
+                    <twig:ux:icon name="tabler:stethoscope" class="w-5 h-5" />
+                </span>
+            </div>
+            <div class="col">
+                <h1 class="fw-bold" data-testid="encounter-visit-title">{{ 'encounter.visit.title'|trans({date: anchor_at|date('d.m.Y, H:i')}, d) }}</h1>
+                <div class="list-inline list-inline-dots text-secondary">
+                    <div class="list-inline-item">
+                        <twig:ux:icon name="tabler:building-hospital" class="w-3 h-3" />
+                        {{ hospital.name }}
+                    </div>
+                    {% if not anchor_is_admission %}
+                        <div class="list-inline-item" data-testid="encounter-visit-anchor-assessment">{{ 'encounter.visit.anchor_assessment_hint'|trans({}, d) }}</div>
+                    {% endif %}
+                    <div class="list-inline-item"><span class="badge bg-azure-lt">{{ 'encounter.course.beta'|trans({}, d) }}</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {% set interval_icons = {
+        admission_to_assessment: 'tabler:clock-play',
+        admission_to_physician: 'tabler:stethoscope',
+        admission_to_discharge: 'tabler:clock-check',
+    } %}
+    <div class="row g-3" data-testid="encounter-visit">
+        <div class="col">
+            <div class="mb-3">
+                <twig:Card title="{{ 'encounter.course.section.triage'|trans({}, d) }}">
+                    {% import '@Encounter/visit/_course_macros.html.twig' as course_blocks %}
+                    {{ course_blocks.triage(
+                        encounter,
+                        encounter.triage.diagram ? encounter_mts_diagram_name(encounter.triage.diagram) : null,
+                        encounter.triage.indicator ? encounter_mts_indicator_name(encounter.triage.indicator) : null,
+                    ) }}
+                </twig:Card>
+            </div>
+
+            <div class="row row-cards mb-3" data-testid="encounter-visit-process-times">
+                {% for value in course.intervals %}
+                    <div class="col-sm-4">
+                        <twig:KpiCard
+                            class="h-100"
+                            :label="('encounter.process.' ~ value.interval.value ~ '.label')|trans({}, d)"
+                            :value="value.minutes"
+                            :unit="value.minutes is not null ? 'encounter.visit.unit.minutes'|trans({}, d) : null"
+                            :icon="interval_icons[value.interval.value] ?? null"
+                            :description="value.minutes is not null and not value.plausible ? 'encounter.course.implausible'|trans({}, d) : null"
+                            data-testid="encounter-course-interval"
+                            data-interval="{{ value.interval.value }}"
+                            data-minutes="{{ value.minutes ?? '' }}"
+                        />
+                    </div>
+                {% endfor %}
+                {% if not anchor_is_admission %}
+                    <div class="col-12">
+                        <p class="small text-secondary mb-0" data-testid="encounter-visit-no-process-times">{{ 'encounter.visit.process_times_none'|trans({}, d) }}</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <twig:Card title="{{ 'encounter.course.section.timeline'|trans({}, d) }}" padding="none">
+                    {% if course.timeline is empty %}
+                        <div class="card-body">
+                            <p class="text-secondary mb-0">{{ 'encounter.visit.timeline_none'|trans({}, d) }}</p>
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-vcenter card-table" data-testid="encounter-course-timeline">
+                                <thead>
+                                    <tr>
+                                        <th class="w-1">{{ 'encounter.visit.timeline.time'|trans({}, d) }}</th>
+                                        <th>{{ 'encounter.visit.timeline.event'|trans({}, d) }}</th>
+                                        <th class="w-1 text-end text-nowrap">{{ 'encounter.visit.timeline.relative'|trans({}, d) }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for event in course.timeline %}
+                                        {% set expected = event.key == 'ivena_arrival' %}
+                                        <tr class="{{ expected ? 'text-secondary' : '' }}" data-testid="encounter-course-event" data-event="{{ event.key }}">
+                                            <td class="font-monospace text-nowrap{{ expected ? '' : ' fw-semibold' }}">{{ event.at|date('H:i') }}</td>
+                                            <td>
+                                                {% if expected %}
+                                                    <span class="fst-italic">{{ 'encounter.visit.expected_ivena_arrival'|trans({}, d) }}</span>
+                                                    <span class="badge bg-secondary-lt ms-1">{{ 'encounter.visit.timeline.from_ivena'|trans({}, d) }}</span>
+                                                {% else %}
+                                                    {{ ('encounter.course.event.' ~ event.key)|trans({}, d) }}
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end text-nowrap text-secondary">
+                                                {% if event.key == 'ed_admission' %}
+                                                    {{ 'encounter.course.relative'|trans({minutes: 0}, d) }}
+                                                {% elseif event.minutesFromAdmission is not null %}
+                                                    {{ 'encounter.course.relative'|trans({minutes: (event.minutesFromAdmission > 0 ? '+' : '') ~ event.minutesFromAdmission}, d) }}
+                                                {% else %}
+                                                    –
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </twig:Card>
+            </div>
+
+            <div class="mb-3">
+                <twig:Card title="{{ 'encounter.course.section.vitals'|trans({}, d) }}">
+                    {% import '@Encounter/visit/_course_macros.html.twig' as course_blocks %}
+                    {{ course_blocks.vitals(course, false) }}
+                </twig:Card>
+            </div>
+
+            <div class="mb-3">
+                <twig:Card title="{{ 'encounter.course.section.disposition'|trans({}, d) }}">
+                    {% import '@Encounter/visit/_course_macros.html.twig' as course_blocks %}
+                    {{ course_blocks.disposition(encounter) }}
+                </twig:Card>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="row row-cards">
+                <div class="col-12">
+                    <twig:Card title="{{ 'encounter.visit.section.basic'|trans({}, d) }}">
+                        <div class="datagrid" data-testid="encounter-visit-basic">
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'encounter.course.event.ed_admission'|trans({}, d) }}</div>
+                                <div class="datagrid-content">{{ times.edAdmissionAt ? times.edAdmissionAt|date('d.m.Y H:i') : '–' }}</div>
+                            </div>
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'encounter.visit.field.age'|trans({}, d) }}</div>
+                                <div class="datagrid-content">{{ encounter.age }}</div>
+                            </div>
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'encounter.visit.field.sex'|trans({}, d) }}</div>
+                                <div class="datagrid-content">{{ ('encounter.review.value.sex_' ~ encounter.sex.value)|trans({}, d) }}</div>
+                            </div>
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'encounter.review.column.route'|trans({}, d) }}</div>
+                                <div class="datagrid-content">
+                                    {{ ('encounter.arrival_route.' ~ encounter.arrivalRoute.value)|trans({}, d) }}{% if encounter.arrivalMode is not null %} ({{ ('encounter.review.value.mode_' ~ encounter.arrivalMode.value)|trans({}, d) }}){% endif %}
+                                </div>
+                            </div>
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'encounter.visit.field.referral'|trans({}, d) }}</div>
+                                <div class="datagrid-content">{{ encounter.referralSource ? ('encounter.visit.referral.' ~ encounter.referralSource.value)|trans({}, d) : '–' }}</div>
+                            </div>
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'encounter.visit.field.case_status'|trans({}, d) }}</div>
+                                <div class="datagrid-content">{{ encounter.caseStatus ? ('encounter.visit.case_status.' ~ encounter.caseStatus.value)|trans({}, d) : '–' }}</div>
+                            </div>
+                        </div>
+                    </twig:Card>
+                </div>
+                <div class="col-12">
+                    <twig:Card title="{{ 'encounter.visit.section.allocation'|trans({}, d) }}">
+                        {% import '@Shared/_macros/badges.html.twig' as badges %}
+                        <div data-testid="encounter-visit-link">
+                            {% if link is not null %}
+                                {% set allocation = link.allocation %}
+                                <div class="d-flex flex-wrap gap-1 mb-3">
+                                    <span class="badge bg-green-lt" data-testid="encounter-visit-link-state" data-state="linked">{{ 'encounter.visit.link.linked'|trans({}, d) }}</span>
+                                    <span class="badge bg-blue-lt" data-testid="encounter-visit-link-origin" data-origin="{{ course.automatic ? 'automatic' : 'confirmed' }}">{{ (course.automatic ? 'encounter.visit.link.automatic' : 'encounter.visit.link.confirmed')|trans({}, d) }}</span>
+                                    {% if course.agreementPercent is not null %}
+                                        <span class="badge bg-secondary-lt" data-testid="encounter-visit-link-agreement">{{ 'encounter.course.agreement'|trans({percent: course.agreementPercent|round(0, 'floor')}, d) }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="datagrid mb-3" data-testid="encounter-visit-allocation">
+                                    <div class="datagrid-item">
+                                        <div class="datagrid-title">{{ 'encounter.visit.field.indication'|trans({}, d) }}</div>
+                                        <div class="datagrid-content">
+                                            {% if allocation.indicationRaw is not null %}
+                                                {{ allocation.indicationRaw.name }} <span class="badge">{{ allocation.indicationRaw.code }}</span>
+                                            {% else %}–{% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="datagrid-item">
+                                        <div class="datagrid-title">{{ 'encounter.visit.field.urgency'|trans({}, d) }}</div>
+                                        <div class="datagrid-content">
+                                            {% if allocation.urgency is not null %}{{ badges.render('allocation_urgency', allocation.urgency.value) }}{% else %}–{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if is_granted('VIEW', allocation) %}
+                                    <a class="btn btn-primary w-100" href="{{ path('app_explore_allocation_show', {publicId: allocation.publicIdString}) }}" data-testid="encounter-visit-case-file">
+                                        <twig:ux:icon name="tabler:ambulance" class="w-3 h-3 me-1" />
+                                        {{ 'encounter.visit.link.open_case_file'|trans({}, d) }}
+                                    </a>
+                                {% endif %}
+                            {% elseif proposals is not empty %}
+                                <span class="badge bg-yellow-lt mb-2" data-testid="encounter-visit-link-state" data-state="pending">{{ 'encounter.visit.link.pending'|trans({}, d) }}</span>
+                                <p class="small mb-2">{{ 'encounter.visit.link.pending_hint'|trans({count: proposals|length}, d) }}</p>
+                                <ul class="list-unstyled mb-0">
+                                    {% for proposal in proposals %}
+                                        <li class="d-flex flex-wrap align-items-center gap-2 mb-2" data-testid="encounter-visit-proposal">
+                                            <span class="fw-semibold">{{ 'encounter.visit.link.allocation'|trans({id: proposal.allocation.id}, d) }}</span>
+                                            {% if proposal.score is not null %}
+                                                <span class="badge bg-secondary-lt">{{ 'encounter.course.agreement'|trans({percent: (proposal.score * 100)|round(0, 'floor')}, d) }}</span>
+                                            {% endif %}
+                                            <a class="btn btn-sm ms-auto" href="{{ path('app_tools_encounter_review_allocation', {id: hospital.id, allocationId: proposal.allocation.id}) }}" data-testid="encounter-visit-review-link">
+                                                {{ 'encounter.visit.link.open_review'|trans({}, d) }}
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="badge bg-secondary-lt mb-2" data-testid="encounter-visit-link-state" data-state="unlinked">{{ 'encounter.visit.link.unlinked'|trans({}, d) }}</span>
+                                <p class="small text-secondary mb-0">{{ 'encounter.visit.link.unlinked_hint'|trans({}, d) }}</p>
+                            {% endif %}
+                        </div>
+                    </twig:Card>
+                </div>
+                <div class="col-12">
+                    <twig:Card title="{{ 'encounter.visit.section.flags'|trans({}, d) }}">
+                        <div class="datagrid" data-testid="encounter-visit-flags">
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'encounter.review.feature.work_accident'|trans({}, d) }}</div>
+                                <div class="datagrid-content">{{ (encounter.workAccident ? 'encounter.review.value.documented' : 'encounter.review.value.not_documented')|trans({}, d) }}</div>
+                            </div>
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'encounter.visit.field.isolation'|trans({}, d) }}</div>
+                                <div class="datagrid-content">
+                                    {% for code in encounter.isolation %}
+                                        <span class="badge bg-orange-lt">{{ ('encounter.visit.isolation.' ~ code.value)|trans({}, d) }}</span>
+                                    {% else %}
+                                        –
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </twig:Card>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

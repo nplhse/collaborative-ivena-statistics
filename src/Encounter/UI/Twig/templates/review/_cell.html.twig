@@ -37,7 +37,11 @@
     · {{ (row.with_physician ? 'encounter.review.value.with_physician' : 'encounter.review.value.without_physician')|trans({}, 'encounter') }}
     {% if row.work_accident %}· {{ 'encounter.review.feature.work_accident'|trans({}, 'encounter') }}{% endif %}
 {% elseif column.key == 'visit' %}
-    <span data-test="encounter-review-item">{{ 'encounter.review.visit'|trans({id: row.encounter_id}, 'encounter') }}</span>
+    {% if row.visit_uid is defined %}
+        <a href="{{ path('app_explore_ed_visit_show', {visitUid: row.visit_uid}) }}" data-test="encounter-review-item">{{ 'encounter.review.visit'|trans({id: row.encounter_id}, 'encounter') }}</a>
+    {% else %}
+        <span data-test="encounter-review-item">{{ 'encounter.review.visit'|trans({id: row.encounter_id}, 'encounter') }}</span>
+    {% endif %}
     <small class="text-secondary d-block">
         {{ ('encounter.review.value.sex_' ~ row.sex)|trans({}, 'encounter') }}, {{ row.age }}
         · {{ ('encounter.review.value.mode_' ~ (row.arrival_mode ?? 'none'))|trans({}, 'encounter') }}

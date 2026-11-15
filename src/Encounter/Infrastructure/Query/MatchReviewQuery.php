@@ -298,15 +298,15 @@ SQL,
     /**
      * Visits without effective link, by matching anchor; with the allocation of their best open proposal.
      *
-     * @return list<array{encounter_id: int, anchor_at: \DateTimeImmutable, substitute: bool, sex: string, age: int, arrival_route: string, arrival_mode: ?string, proposal_allocation_id: ?int}>
+     * @return list<array{encounter_id: int, visit_uid: string, anchor_at: \DateTimeImmutable, substitute: bool, sex: string, age: int, arrival_route: string, arrival_mode: ?string, proposal_allocation_id: ?int}>
      */
     #[\Override]
     public function unlinkedVisits(int $hospitalId, ReviewPeriod $period, ?ArrivalRoute $route, int $offset, int $limit): array
     {
-        /** @var list<array{id: int|string, anchor_at: string, substitute: bool, sex: string, age: int|string, arrival_route: string, arrival_mode: ?string, proposal_allocation_id: int|string|null}> $rows */
+        /** @var list<array{id: int|string, visit_uid: string, anchor_at: string, substitute: bool, sex: string, age: int|string, arrival_route: string, arrival_mode: ?string, proposal_allocation_id: int|string|null}> $rows */
         $rows = $this->connection->fetchAllAssociative(
             <<<SQL
-SELECT e.id, {$this->anchor()} AS anchor_at, e.ed_admission_at IS NULL AS substitute, e.sex, e.age, e.arrival_route, e.arrival_mode,
+SELECT e.id, e.visit_uid, {$this->anchor()} AS anchor_at, e.ed_admission_at IS NULL AS substitute, e.sex, e.age, e.arrival_route, e.arrival_mode,
        (SELECT m.allocation_id FROM encounter_match m WHERE m.encounter_id = e.id AND m.status = 'proposed'
         ORDER BY m.score DESC, m.allocation_id LIMIT 1) AS proposal_allocation_id
 FROM encounter e
@@ -320,6 +320,7 @@ SQL,
 
         return array_map(static fn (array $row): array => [
             'encounter_id' => (int) $row['id'],
+            'visit_uid' => $row['visit_uid'],
             'anchor_at' => new \DateTimeImmutable($row['anchor_at']),
             'substitute' => (bool) $row['substitute'],
             'sex' => $row['sex'],
