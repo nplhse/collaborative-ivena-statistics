@@ -59,6 +59,10 @@ Custom controllers live in `assets/controllers/*_controller.js`. Examples:
 | `geo-map`, `isochrone-origin-map` | Statistics hospital-scope travel-time isochrone heatmap (Leaflet, Turf); widgets use `geo-map` |
 
 `assets/controllers.json` enables `@symfony/ux-live-component` and `@symfony/ux-turbo`.
+The `turbo-core` entry keeps the autoimport of `mercure_stream_source_element.js` that Symfony Flex adds from the
+`@symfony/ux-turbo` package config (#1305). It only registers the `<turbo-mercure-stream-source>` custom element and
+opens no connection while no page uses that element; `mercure-turbo-stream` stays disabled. Keeping it stops
+`composer update` from re-adding it as an unrelated diff.
 
 ## Live Components
 
