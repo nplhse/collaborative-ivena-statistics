@@ -181,7 +181,8 @@ final class FeedbackQuarantineCrudController extends AbstractCrudController
     #[\Override]
     public function delete(AdminContext $context): RedirectResponse
     {
-        if (!$this->isCsrfTokenValid('ea-delete', (string) $context->getRequest()->request->get('token'))) {
+        // EasyAdmin 5.10.1 binds the delete token to the CRUD controller (see AbstractCrudController::delete()).
+        if (!$this->isCsrfTokenValid('ea-delete-'.self::class, (string) $context->getRequest()->request->get('token'))) {
             $this->addFlash('danger', new TranslatableMessage('flash.admin.feedback.invalid_token', domain: 'admin'));
 
             return $this->redirectToIndex();
