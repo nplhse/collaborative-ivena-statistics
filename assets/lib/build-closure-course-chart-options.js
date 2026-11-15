@@ -1,3 +1,5 @@
+import { lineMarkers, seriesPointCount } from './chart-markers.js';
+
 export function formatClosureChartCount(value) {
     const number = Number(value);
     if (!Number.isFinite(number)) {
@@ -596,7 +598,7 @@ export function buildAssignmentMixedChartOptions({
                 curve: 'smooth',
                 dashArray: series.map((_entry, index) => assignmentStrokeDash(lineCount, index)),
             },
-            markers: { size: 0, hover: { size: 4 } },
+            markers: lineMarkers(seriesPointCount(series), { hover: { size: 4 } }),
             plotOptions: { bar: { columnWidth: '55%', borderRadius: 2 } },
             grid: { padding: { top: 12, right: 8, left: 4, bottom: 0 } },
             xaxis: slotXAxis(chartData, chartData.offsetAxisLabel ?? null, chartRoot),
@@ -708,6 +710,7 @@ export function buildVolumeRatioChartOptions(volume, otherClosures, chartRoot, t
                 data: slotData(entry.data),
             })),
             colors: volumeRatioColors(volume),
+            markers: lineMarkers(seriesPointCount(volumeRatioSeries(volume))),
             stroke: {
                 width: volumeRatioStrokeWidths(volume),
                 curve: 'smooth',

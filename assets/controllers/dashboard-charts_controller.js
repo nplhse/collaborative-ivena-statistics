@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { lineMarkers } from '../lib/chart-markers.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 
 /* stimulusFetch: 'lazy' */
@@ -85,6 +86,7 @@ export default class extends Controller {
             },
             yaxis: { min: yMin, max: yMax, show: false },
             stroke: { curve: 'smooth', width: 3 },
+            markers: lineMarkers(labels.length),
             fill: {
                 type: 'gradient',
                 gradient: {

@@ -2,6 +2,7 @@ import { Controller } from '@hotwired/stimulus';
 import { buildHeatmapSeries } from '../lib/build-heatmap-series.js';
 import { formatChartMonthLabel } from '../lib/format-chart-month-label.js';
 import { chartColors } from '../lib/chart-colors.js';
+import { lineMarkers } from '../lib/chart-markers.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 
 /* stimulusFetch: 'lazy' */
@@ -186,7 +187,7 @@ export default class extends Controller {
             stroke: showMovingAverage
                 ? { curve: 'smooth', width: [3, 2], dashArray: [0, 6] }
                 : { curve: 'smooth', width: 3 },
-            markers: { size: 0 },
+            markers: lineMarkers(labels.length),
             dataLabels: { enabled: false },
             yaxis: {
                 min: 0,
