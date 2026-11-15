@@ -133,7 +133,8 @@ The page (`owned_list.html.twig` with `_my_hospitals_summary.html.twig` and `_my
 - **Quick actions** in the card footer: *View statistics* (`scope=hospital:ID`, `STATISTICS`, only with data),
   then actions of other contexts (`MyHospitalActionProviderInterface`, see
   [extension-points.md](../../02-architecture/extension-points.md#my-hospitals-actions); today *Encounter data* for
-  the hospitals whose encounter analysis the user may open, #1128), then *View imports* (the hospital's import
+  the hospitals whose encounter analysis the user may open, #1128, and *ED visits* for the hospitals whose visits
+  the user may view, #1178), then *View imports* (the hospital's import
   list) and *Upload new import* (`IMPORT`). The registry is asked once per page with all listed hospitals. **Administrative actions** (edit,
   manage access) sit in the card's menu and follow `HospitalVoter`. The hospital name opens its Explore page.
 - **Data coverage** (`_my_hospitals_coverage.html.twig`, `STATISTICS`): in the right third next to the cards (from

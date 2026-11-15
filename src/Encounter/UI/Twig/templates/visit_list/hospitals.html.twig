@@ -1,0 +1,40 @@
+{# Hospital choice of the visit list (#1178): only hospitals whose visits the user may see. #}
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'encounter.visit_list.title'|trans({}, 'encounter') }} - {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            <twig:Navigation:Sidebar menu="explore" />
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <twig:PageHeader :title="'encounter.visit_list.title'|trans({}, 'encounter')">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.explore', path: path('app_explore_index') },
+                { label: 'encounter.visit_list.title', label_domain: 'encounter', translatable: true }
+            ]" />
+        </twig:block>
+    </twig:PageHeader>
+{% endblock %}
+
+{% block page_content %}
+    <div class="card">
+        <div class="card-body">
+            <p class="text-secondary">{{ 'encounter.visit_list.choose_hospital'|trans({}, 'encounter') }}</p>
+            {% if hospitals is empty %}
+                <p class="text-secondary mb-0" data-testid="encounter-visit-list-no-hospitals">{{ 'encounter.visit_list.no_hospitals'|trans({}, 'encounter') }}</p>
+            {% else %}
+                <div class="list-group" data-testid="encounter-visit-list-hospitals">
+                    {% for choice in hospitals %}
+                        <a class="list-group-item list-group-item-action" href="{{ path('app_explore_ed_visit_list', {publicId: choice.public_id}) }}">{{ choice.name }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

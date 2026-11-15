@@ -3649,6 +3649,102 @@
         <source>encounter.visit.field.urgency</source>
         <target>Urgency</target>
       </trans-unit>
+      <trans-unit id="EncD95607A6" resname="encounter.visit_list.title">
+        <source>encounter.visit_list.title</source>
+        <target>ED visits</target>
+      </trans-unit>
+      <trans-unit id="Enc33D207AC" resname="encounter.visit_list.choose_hospital">
+        <source>encounter.visit_list.choose_hospital</source>
+        <target>Choose the hospital whose ED visits you want to see. Only hospitals for which you may view cases are listed.</target>
+      </trans-unit>
+      <trans-unit id="Enc64F27A7F" resname="encounter.visit_list.no_hospitals">
+        <source>encounter.visit_list.no_hospitals</source>
+        <target>You cannot view the ED visits of any hospital. Case access is granted per hospital by its owner.</target>
+      </trans-unit>
+      <trans-unit id="EncC3A2EBE2" resname="encounter.visit_list.switch_hospital">
+        <source>encounter.visit_list.switch_hospital</source>
+        <target>Switch hospital</target>
+      </trans-unit>
+      <trans-unit id="Enc1CD6BB39" resname="encounter.visit_list.anchor_assessment">
+        <source>encounter.visit_list.anchor_assessment</source>
+        <target>First assessment</target>
+      </trans-unit>
+      <trans-unit id="EncD5221C2E" resname="encounter.visit_list.column.anchor">
+        <source>encounter.visit_list.column.anchor</source>
+        <target>ED admission</target>
+      </trans-unit>
+      <trans-unit id="Enc5217FCD6" resname="encounter.visit_list.column.age">
+        <source>encounter.visit_list.column.age</source>
+        <target>Age</target>
+      </trans-unit>
+      <trans-unit id="EncC901520B" resname="encounter.visit_list.column.route">
+        <source>encounter.visit_list.column.route</source>
+        <target>Arrival route</target>
+      </trans-unit>
+      <trans-unit id="Enc2D07E9CB" resname="encounter.visit_list.column.triage">
+        <source>encounter.visit_list.column.triage</source>
+        <target>Triage (MTS)</target>
+      </trans-unit>
+      <trans-unit id="Enc96AA062F" resname="encounter.visit_list.column.disposition">
+        <source>encounter.visit_list.column.disposition</source>
+        <target>Disposition</target>
+      </trans-unit>
+      <trans-unit id="Enc03449250" resname="encounter.visit_list.column.link">
+        <source>encounter.visit_list.column.link</source>
+        <target>IVENA link</target>
+      </trans-unit>
+      <trans-unit id="Enc0B062260" resname="encounter.visit_list.column.referral">
+        <source>encounter.visit_list.column.referral</source>
+        <target>Referral</target>
+      </trans-unit>
+      <trans-unit id="Enc43DA9D99" resname="encounter.visit_list.column.case_status">
+        <source>encounter.visit_list.column.case_status</source>
+        <target>Case status</target>
+      </trans-unit>
+      <trans-unit id="Enc11008456" resname="encounter.visit_list.column.department">
+        <source>encounter.visit_list.column.department</source>
+        <target>Admitting department</target>
+      </trans-unit>
+      <trans-unit id="Enc71C8D575" resname="encounter.visit_list.filter.all">
+        <source>encounter.visit_list.filter.all</source>
+        <target>All</target>
+      </trans-unit>
+      <trans-unit id="Enc1C4B0894" resname="encounter.visit_list.filter.route">
+        <source>encounter.visit_list.filter.route</source>
+        <target>Arrival route</target>
+      </trans-unit>
+      <trans-unit id="Enc57DBCFA3" resname="encounter.visit_list.filter.link">
+        <source>encounter.visit_list.filter.link</source>
+        <target>IVENA link</target>
+      </trans-unit>
+      <trans-unit id="Enc2739719C" resname="encounter.visit_list.filter.category">
+        <source>encounter.visit_list.filter.category</source>
+        <target>MTS category</target>
+      </trans-unit>
+      <trans-unit id="Enc0A219B29" resname="encounter.visit_list.filter.diagram">
+        <source>encounter.visit_list.filter.diagram</source>
+        <target>Presentation (MTS diagram)</target>
+      </trans-unit>
+      <trans-unit id="Enc664A007F" resname="encounter.visit_list.filter.disposition">
+        <source>encounter.visit_list.filter.disposition</source>
+        <target>Disposition</target>
+      </trans-unit>
+      <trans-unit id="EncA07B8993" resname="encounter.visit_list.empty.title">
+        <source>encounter.visit_list.empty.title</source>
+        <target>No ED visits in this period</target>
+      </trans-unit>
+      <trans-unit id="Enc8F21CF1B" resname="encounter.visit_list.empty.description">
+        <source>encounter.visit_list.empty.description</source>
+        <target>Choose another period or upload encounter data for this hospital.</target>
+      </trans-unit>
+      <trans-unit id="EncF4A2EF58" resname="my_hospitals.action.ed_visits">
+        <source>my_hospitals.action.ed_visits</source>
+        <target>ED visits</target>
+      </trans-unit>
+      <trans-unit id="Enc5DF732BE" resname="encounter.visit_list.period_help">
+        <source>encounter.visit_list.period_help</source>
+        <target>Visits by ED admission (else first assessment). At most {days} days.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

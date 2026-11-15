@@ -3649,6 +3649,102 @@
         <source>encounter.visit.field.urgency</source>
         <target>Dringlichkeit</target>
       </trans-unit>
+      <trans-unit id="EncD95607A6" resname="encounter.visit_list.title">
+        <source>encounter.visit_list.title</source>
+        <target>Notaufnahme-Besuche</target>
+      </trans-unit>
+      <trans-unit id="Enc33D207AC" resname="encounter.visit_list.choose_hospital">
+        <source>encounter.visit_list.choose_hospital</source>
+        <target>Wählen Sie das Krankenhaus, dessen Notaufnahme-Besuche Sie sehen möchten. Aufgeführt sind nur Krankenhäuser, deren Fälle Sie einsehen dürfen.</target>
+      </trans-unit>
+      <trans-unit id="Enc64F27A7F" resname="encounter.visit_list.no_hospitals">
+        <source>encounter.visit_list.no_hospitals</source>
+        <target>Sie dürfen die Notaufnahme-Besuche keines Krankenhauses einsehen. Den Zugriff auf Fälle erteilt die Eigentümerin oder der Eigentümer des Krankenhauses.</target>
+      </trans-unit>
+      <trans-unit id="EncC3A2EBE2" resname="encounter.visit_list.switch_hospital">
+        <source>encounter.visit_list.switch_hospital</source>
+        <target>Krankenhaus wechseln</target>
+      </trans-unit>
+      <trans-unit id="Enc1CD6BB39" resname="encounter.visit_list.anchor_assessment">
+        <source>encounter.visit_list.anchor_assessment</source>
+        <target>Ersteinschätzung</target>
+      </trans-unit>
+      <trans-unit id="EncD5221C2E" resname="encounter.visit_list.column.anchor">
+        <source>encounter.visit_list.column.anchor</source>
+        <target>Aufnahme ZNA</target>
+      </trans-unit>
+      <trans-unit id="Enc5217FCD6" resname="encounter.visit_list.column.age">
+        <source>encounter.visit_list.column.age</source>
+        <target>Alter</target>
+      </trans-unit>
+      <trans-unit id="EncC901520B" resname="encounter.visit_list.column.route">
+        <source>encounter.visit_list.column.route</source>
+        <target>Zugangsweg</target>
+      </trans-unit>
+      <trans-unit id="Enc2D07E9CB" resname="encounter.visit_list.column.triage">
+        <source>encounter.visit_list.column.triage</source>
+        <target>Ersteinschätzung (MTS)</target>
+      </trans-unit>
+      <trans-unit id="Enc96AA062F" resname="encounter.visit_list.column.disposition">
+        <source>encounter.visit_list.column.disposition</source>
+        <target>Verbleib</target>
+      </trans-unit>
+      <trans-unit id="Enc03449250" resname="encounter.visit_list.column.link">
+        <source>encounter.visit_list.column.link</source>
+        <target>IVENA-Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="Enc0B062260" resname="encounter.visit_list.column.referral">
+        <source>encounter.visit_list.column.referral</source>
+        <target>Einweisung</target>
+      </trans-unit>
+      <trans-unit id="Enc43DA9D99" resname="encounter.visit_list.column.case_status">
+        <source>encounter.visit_list.column.case_status</source>
+        <target>Fallstatus</target>
+      </trans-unit>
+      <trans-unit id="Enc11008456" resname="encounter.visit_list.column.department">
+        <source>encounter.visit_list.column.department</source>
+        <target>Aufnehmende Fachabteilung</target>
+      </trans-unit>
+      <trans-unit id="Enc71C8D575" resname="encounter.visit_list.filter.all">
+        <source>encounter.visit_list.filter.all</source>
+        <target>Alle</target>
+      </trans-unit>
+      <trans-unit id="Enc1C4B0894" resname="encounter.visit_list.filter.route">
+        <source>encounter.visit_list.filter.route</source>
+        <target>Zugangsweg</target>
+      </trans-unit>
+      <trans-unit id="Enc57DBCFA3" resname="encounter.visit_list.filter.link">
+        <source>encounter.visit_list.filter.link</source>
+        <target>IVENA-Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="Enc2739719C" resname="encounter.visit_list.filter.category">
+        <source>encounter.visit_list.filter.category</source>
+        <target>MTS-Kategorie</target>
+      </trans-unit>
+      <trans-unit id="Enc0A219B29" resname="encounter.visit_list.filter.diagram">
+        <source>encounter.visit_list.filter.diagram</source>
+        <target>Präsentation (MTS-Diagramm)</target>
+      </trans-unit>
+      <trans-unit id="Enc664A007F" resname="encounter.visit_list.filter.disposition">
+        <source>encounter.visit_list.filter.disposition</source>
+        <target>Verbleib</target>
+      </trans-unit>
+      <trans-unit id="EncA07B8993" resname="encounter.visit_list.empty.title">
+        <source>encounter.visit_list.empty.title</source>
+        <target>Keine Notaufnahme-Besuche in diesem Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="Enc8F21CF1B" resname="encounter.visit_list.empty.description">
+        <source>encounter.visit_list.empty.description</source>
+        <target>Wählen Sie einen anderen Zeitraum oder laden Sie Behandlungsdaten für dieses Krankenhaus hoch.</target>
+      </trans-unit>
+      <trans-unit id="EncF4A2EF58" resname="my_hospitals.action.ed_visits">
+        <source>my_hospitals.action.ed_visits</source>
+        <target>Notaufnahme-Besuche</target>
+      </trans-unit>
+      <trans-unit id="Enc5DF732BE" resname="encounter.visit_list.period_help">
+        <source>encounter.visit_list.period_help</source>
+        <target>Besuche nach Aufnahme ZNA (sonst Ersteinschätzung). Höchstens {days} Tage.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

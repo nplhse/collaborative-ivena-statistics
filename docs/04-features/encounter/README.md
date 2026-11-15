@@ -302,8 +302,8 @@ Overviews cross both attributes, for example "EMS arrival, not linked".
 | Key change | hospital owner or `ROLE_ADMIN` (no grant action allows it) |
 | Match review | beta role + encounter grant `REVIEW` (implies `VIEW_CASES`), or `ROLE_ADMIN` |
 | Match validation: draw samples, record verdicts, read the report | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
-| Case-level views, case card on an allocation, visit detail page | beta role + encounter grant `VIEW_CASES`, or `ROLE_ADMIN` |
-| Open proposals and links into the match review on the visit detail page | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
+| Case-level views, case card on an allocation, visit list and visit detail page | beta role + encounter grant `VIEW_CASES`, or `ROLE_ADMIN` |
+| Open proposals (state "proposal pending") and links into the match review on the visit list and detail page | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
 | Descriptive aggregates of the own hospital | beta role + any encounter grant + `STATISTICS`, or `ROLE_ADMIN` |
 | View or download a retained upload file | beta role + encounter grant `UPLOAD` on the hospital, or `ROLE_ADMIN` |
 | Reprocess a retained upload file | beta role + `UPLOAD`, or `ROLE_ADMIN` (shows no file content) |
@@ -978,8 +978,8 @@ The clinical blocks (triage, process times, timeline, vitals, disposition) are T
 Implemented in #1178. `/explore/ed-visits/visit/{visitUid}` (`ShowVisitController`) shows one ED visit
 whether or not it is linked with an allocation, so visits without IVENA allocation (self-referrals,
 transfers) can be opened too. Access: `VIEW_CASES` on the visit's hospital (403 otherwise; unknown visit 404).
-Reached from the case card ("Open visit") and from the visit column of the review list of unlinked visits;
-the visit list per hospital follows in the second step of #1178.
+Reached from the [visit list](#visit-list), the case card ("Open visit") and the visit column of the review
+list of unlinked visits; the breadcrumb and "Back to list" open the visit list of the visit's month.
 
 - Built from the visit alone (`HospitalCourseFactory::forEncounter()`); the case card uses the same
   factory with its link. All clinical times and process times come from the visit; process times start at
@@ -997,6 +997,32 @@ the visit list per hospital follows in the second step of #1178.
   no vitals); the cards stay in place.
 - Also shown: basic data (ED admission, age, sex, arrival route and mode, referral, case status),
   disposition, work accident and isolation.
+
+### Visit list
+
+Implemented in #1178. All ED visits of one hospital in a period, with or without IVENA allocation, in Explore
+under "Cases" ("ED visits", beta badge; `EncounterNavigationProvider` shows it to the beta role, the pages check
+the grants).
+
+- `/explore/ed-visits` (`ListVisitHospitalsController`) lists the hospitals whose visits the user may see
+  (`VisitListHospitals`: grant action `VIEW_CASES`, also set by `REVIEW`; every hospital with visits for
+  `ROLE_ADMIN`); with exactly one it redirects to its list. There is no list across hospitals (ADR 028).
+- `/explore/ed-visits/{publicId}` (`ListVisitsController`) needs `VIEW_CASES` on the hospital (403 otherwise).
+  The header switches between the user's hospitals.
+- **Period:** like the match review (`from`/`to`, default the month of the latest visit), by the matching
+  anchor (ED admission, else first assessment).
+- **Rows:** exactly one per visit (`VisitListQuery`): the effective link is joined (at most one per visit), open
+  proposals are only tested with `EXISTS`. The hospital is part of the query.
+- **Columns** (DataTable with column choice, order and page size stored per user under `explore.ed_visits`):
+  ED admission (the link to the detail page; marked when the first assessment stands in), age and sex, arrival
+  route with mode, MTS category and diagram, disposition, IVENA link; optional referral, case status and
+  admitting department. No action column. Sorting by time or age, newest first.
+- **IVENA link** (`VisitLinkState`): *linked* (with a link to the allocation's case file), *proposal pending*
+  (only with `REVIEW`) or *not linked*, as on the [visit detail page](#visit-detail-page).
+- **Filters:** arrival route, IVENA link (*proposal pending* only with `REVIEW`; otherwise ignored), MTS
+  category, MTS diagram (codes occurring in the hospital's visits) and disposition.
+- Also reached from My Hospitals ("ED visits" on the cards of the hospitals with `VIEW_CASES`).
+- No export, no editing, no decisions.
 
 ## MTS glossary
 

@@ -253,6 +253,7 @@ area; [ADR 035](decisions/035-navigation-tree-and-contextual-sidebar.md)) and th
 `help`, `legal`, `more` with sitemap and cookie settings), `AllocationNavigationProvider` (Explore, Export;
 the explore sidebar with its groups, glossary routes from `CatalogGlossaryEntryRegistry`),
 `UserNavigationProvider` (Users in the explore group `Menu::EXPLORE_GROUP_ORGANISATION`),
+`EncounterNavigationProvider` (ED visits in the explore group `Menu::EXPLORE_GROUP_CASES`, beta role, #1178),
 `StatisticsNavigationProvider` (Statistics entry and the statistics sidebar with its groups; Insights
 dimensions from `InsightDimensionRegistry`), `ImportNavigationProvider` (Import), `ContentNavigationProvider`
 (Blog and CMS header pages; footer: CMS pages, blog, activity)
@@ -314,7 +315,7 @@ be evaluated for another user. The page reads through `NavigationInspector`
 **Registry:** `MyHospitalActionRegistry`, called once by `ListOwnedHospitalsController` with the ids of all listed
 hospitals; `_my_hospitals_card.html.twig` renders the actions between *View statistics* and *View imports*
 
-**Implementations:** `EncounterMyHospitalActionProvider` ("Encounter data", link to the encounter analysis, #1128)
+**Implementations:** `EncounterMyHospitalActionProvider` ("Encounter data", link to the encounter analysis, #1128; "ED visits", link to the visit list, #1178)
 
 Lets other contexts add a quick action per hospital to the My Hospitals cards without a dependency from
 `Allocation` on them. Providers receive all hospital ids of the page at once, check access themselves and
