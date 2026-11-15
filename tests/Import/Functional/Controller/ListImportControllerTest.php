@@ -87,6 +87,25 @@ final class ListImportControllerTest extends WebTestCase
         self::assertSame(['Zuweisung', 'Fehlgeschlagen'], $badges);
     }
 
+    public function testOwnerAndDateFilterBadgesShowTranslatedLabels(): void
+    {
+        $client = self::createClient();
+        [$owner] = $this->seedBaseActors();
+        $owner->setLocale('de');
+
+        $crawler = $this->requestAsUser(
+            $client,
+            $owner,
+            \sprintf('/import?ownerId=%d&createdFrom=2025-01-01&createdUntil=2025-12-31', $owner->getId()),
+        );
+
+        $badges = $crawler->filter('.badge.bg-blue-lt')->each(static fn ($badge): string => trim((string) preg_replace('/\s+/', ' ', $badge->text())));
+        self::assertContains('Krankenhaus-Eigentümer: '.$owner->getUsername(), $badges);
+        self::assertContains('Erstellt ab: 01.01.2025', $badges);
+        self::assertContains('Erstellt bis: 31.12.2025', $badges);
+        self::assertStringNotContainsString('label.import.filter', $crawler->text());
+    }
+
     public function testTableWithResultsIsShown(): void
     {
         $client = self::createClient();

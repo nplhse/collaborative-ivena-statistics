@@ -74,7 +74,7 @@
     {% endif %}
 
     {% if filters.importId is not null %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.importId', value: filters.importId}]) %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.import_id', domain: 'allocation', value: filters.importId}]) %}
     {% endif %}
 
     {# --- Boolean-like filters --- #}
@@ -265,7 +265,7 @@
             {% endif %}
         {% endfor %}
         {% if transportTypeLabel is not null %}
-            {% set rawFilters = rawFilters|merge([{key: 'stats.analysis_explorer.dimension.transport_type', value: transportTypeLabel}]) %}
+            {% set rawFilters = rawFilters|merge([{key: 'stats.analysis_explorer.dimension.transport_type', domain: 'statistics', value: transportTypeLabel}]) %}
         {% endif %}
     {% endif %}
 
@@ -357,6 +357,7 @@
         {% if ownerName is not null %}
             {% set rawFilters = rawFilters|merge([{
                 key: 'label.import.filter.owner',
+                domain: 'import',
                 value: ownerName,
             }]) %}
         {% endif %}
@@ -372,6 +373,7 @@
     {% if filters.createdFrom is not empty and not filters.isDefaultCreatedFrom %}
         {% set rawFilters = rawFilters|merge([{
             key: 'label.import.filter.created_from',
+            domain: 'import',
             value: filters.createdFrom|date('d.m.Y'),
         }]) %}
     {% endif %}
@@ -379,6 +381,7 @@
     {% if filters.createdUntil is not empty and not filters.isDefaultCreatedUntil %}
         {% set rawFilters = rawFilters|merge([{
             key: 'label.import.filter.created_until',
+            domain: 'import',
             value: filters.createdUntil|date('d.m.Y'),
         }]) %}
     {% endif %}
@@ -589,7 +592,7 @@
             {% endif %}
         {% endfor %}
         {% if transportTypeLabel is not null %}
-            {% set rawFilters = rawFilters|merge([{key: 'stats.analysis_explorer.dimension.transport_type', value: transportTypeLabel}]) %}
+            {% set rawFilters = rawFilters|merge([{key: 'stats.analysis_explorer.dimension.transport_type', domain: 'statistics', value: transportTypeLabel}]) %}
         {% endif %}
     {% endif %}
 

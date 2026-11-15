@@ -133,6 +133,18 @@ final class ListMciCasesControllerTest extends WebTestCase
         self::assertSelectorExists('#mci-case-filters input[type="hidden"][name="importId"][value="'.$import->getId().'"]');
     }
 
+    public function testTransportTypeBadgeShowsTheTranslatedLabel(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->createMciCase(self::SHARED_MCI_ID, 'Bridge collapse west', 'Hospital Alpha', 'Night import');
+
+        $client->request(Request::METHOD_GET, '/explore/mci_case?transportType=G');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="mci-case-filters-active"]', 'Transport type: Ground');
+        self::assertSelectorTextNotContains('[data-testid="mci-case-filters-active"]', 'stats.analysis_explorer');
+    }
+
     public function testArrivalDateFilterLimitsTheList(): void
     {
         $client = $this->createClientAsParticipant();
