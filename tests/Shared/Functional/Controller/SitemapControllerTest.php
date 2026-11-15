@@ -25,9 +25,11 @@ final class SitemapControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h2.page-title', 'Sitemap');
-        self::assertSelectorExists('[data-testid="sitemap-section-public"]');
-        self::assertSelectorExists('[data-testid="sitemap-section-content"]');
+        self::assertSelectorExists('nav.sitemap .sitemap__more');
+        self::assertSelectorExists('.sitemap__links a.sitemap-tile--link[data-testid="sitemap-section-blog"][href="/blog"]');
+        self::assertSelectorTextContains('[data-testid="sitemap-section-footer-more"]', 'Cookie settings');
         self::assertSelectorNotExists('[data-testid="sitemap-section-explore"]');
+        self::assertSelectorNotExists('[data-testid="sitemap-section-statistics"]');
         self::assertStringNotContainsString('sitemap.title', (string) $client->getResponse()->getContent());
         self::assertStringContainsString('Overview of available pages', (string) $client->getResponse()->getContent());
     }
@@ -39,10 +41,9 @@ final class SitemapControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/sitemap');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('[data-testid="sitemap-section-content"]', 'Blog');
-        self::assertSelectorTextContains('[data-testid="sitemap-section-content"]', 'Guides');
-        self::assertSelectorTextContains('[data-testid="sitemap-section-content"]', 'Child page');
-        self::assertSelectorTextNotContains('[data-testid="sitemap-section-content"]', 'Members only');
+        self::assertSelectorTextContains('[data-testid="sitemap-section-pages"]', 'Guides');
+        self::assertSelectorTextContains('[data-testid="sitemap-section-pages"] .sitemap-tile__list--nested', 'Child page');
+        self::assertSelectorTextNotContains('[data-testid="sitemap-section-pages"]', 'Members only');
     }
 
     public function testParticipantSeesExploreSectionOnSitemap(): void
@@ -52,7 +53,12 @@ final class SitemapControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/sitemap');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('[data-testid="sitemap-section-explore"]');
+        self::assertSelectorExists('.sitemap__main [data-testid="sitemap-section-explore"] + [data-testid="sitemap-section-statistics"]');
+        self::assertSelectorTextContains('[data-testid="sitemap-section-statistics"]', 'Benchmarking');
+        self::assertSelectorExists('.sitemap__aside [data-testid="sitemap-section-footer-project"]');
+        self::assertSelectorExists('.sitemap__main .sitemap__more [data-testid="sitemap-section-tools"]');
+        self::assertSelectorExists('.sitemap__aside .sitemap__links [data-testid="sitemap-section-import"]');
+        self::assertSelectorNotExists('[data-testid="sitemap-section-account"]');
     }
 
     public function testFooterContainsSitemapLink(): void

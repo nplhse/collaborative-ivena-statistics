@@ -1,0 +1,235 @@
+/*
+ * HTML sitemap (#1247) in two fixed columns, so the layout follows the weight of the content:
+ * - main (2/3): the areas with a sidebar, then Tools next to the stacked remaining footer columns;
+ * - aside (1/3): project, help and the remaining pages, then compact links to areas without sub-pages.
+ * Colours come from Tabler variables only, so light and dark mode need no own rules. Selectors start with
+ * `.sitemap` because this file loads before Tabler, whose `.card` rules would win otherwise.
+ */
+
+.sitemap {
+    --sitemap-gap: var(--tblr-page-padding, 1rem);
+    display: grid;
+    gap: var(--sitemap-gap);
+    align-items: start;
+}
+
+.sitemap__main,
+.sitemap__aside,
+.sitemap__column,
+.sitemap__links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sitemap-gap);
+    min-width: 0;
+}
+
+.sitemap__more {
+    display: grid;
+    gap: var(--sitemap-gap);
+    align-items: start;
+}
+
+@media (min-width: 768px) {
+    /* As many equal columns as there are filled ones (one for guests, who see no Tools). */
+    .sitemap__more {
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+    }
+}
+
+/*
+ * Below lg the two columns stack. Their wrappers step aside (`display: contents`) so the tiles can be ordered
+ * by weight across both: areas with a sidebar, project and pages, then Tools with legal and more, then the
+ * compact links. The DOM order (and so the reading order for screen readers) follows the desktop columns.
+ */
+@media (max-width: 991.98px) {
+    .sitemap__main,
+    .sitemap__aside {
+        display: contents;
+    }
+
+    .sitemap__main > .sitemap-tile {
+        order: 1;
+    }
+
+    .sitemap__aside > .sitemap-tile {
+        order: 2;
+    }
+
+    .sitemap__more {
+        order: 3;
+    }
+
+    .sitemap__links {
+        order: 4;
+    }
+}
+
+@media (min-width: 992px) {
+    .sitemap--split {
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    }
+}
+
+.sitemap .sitemap-tile {
+    margin: 0;
+    container-type: inline-size;
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.sitemap .sitemap-tile:hover,
+.sitemap .sitemap-tile:focus-within {
+    border-color: color-mix(in srgb, var(--tblr-primary) 35%, var(--tblr-border-color));
+    box-shadow: var(--tblr-shadow-card-hover, var(--tblr-box-shadow-sm));
+}
+
+.sitemap .sitemap-tile__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem 0.5rem;
+}
+
+/* The icons come without size attributes; without an explicit size some browsers render them at 0 or full size. */
+.sitemap .sitemap-tile__icon {
+    flex-shrink: 0;
+}
+
+.sitemap .sitemap-tile__icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.sitemap .sitemap-tile__title {
+    margin: 0;
+    font-size: var(--tblr-font-size-h3);
+    font-weight: var(--tblr-font-weight-bold);
+    line-height: 1.3;
+}
+
+.sitemap .sitemap-tile__body {
+    padding: 0.25rem 1.25rem 1.25rem;
+    column-gap: 2rem;
+}
+
+/* Wide tiles flow their groups into columns. */
+@container (min-width: 34rem) {
+    .sitemap .sitemap-tile__body {
+        columns: 2;
+    }
+}
+
+@container (min-width: 46rem) {
+    .sitemap .sitemap-tile__body {
+        columns: 3;
+    }
+}
+
+.sitemap .sitemap-tile__group {
+    break-inside: avoid;
+    padding-top: 0.5rem;
+}
+
+.sitemap .sitemap-tile__group + .sitemap-tile__group {
+    margin-top: 0.25rem;
+}
+
+/* An untitled group after others (Case flow and Hospitals in Statistics) is set off by a line, as in the sidebar. */
+.sitemap .sitemap-tile__group--divided {
+    border-top: 1px solid var(--tblr-border-color);
+    margin-top: 0.5rem;
+}
+
+.sitemap .sitemap-tile__group-label {
+    margin-bottom: 0.25rem;
+}
+
+.sitemap .sitemap-tile__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.sitemap .sitemap-tile__list--nested {
+    margin: 0.125rem 0 0.25rem 0.375rem;
+    padding-left: 0.75rem;
+    border-left: 1px solid var(--tblr-border-color);
+}
+
+.sitemap .sitemap-tile__link,
+.sitemap .sitemap-tile__heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    margin: 0 -0.5rem;
+    border-radius: var(--tblr-border-radius);
+}
+
+.sitemap .sitemap-tile__link {
+    color: var(--tblr-body-color);
+    text-decoration: none;
+}
+
+.sitemap .sitemap-tile__link:hover,
+.sitemap .sitemap-tile__link:focus-visible {
+    color: var(--tblr-primary);
+    background-color: var(--tblr-bg-surface-secondary);
+    text-decoration: none;
+}
+
+.sitemap .sitemap-tile__heading {
+    color: var(--tblr-secondary);
+    font-weight: var(--tblr-font-weight-medium);
+}
+
+.sitemap .sitemap-tile__link-label {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+/* An area without sub-pages: the whole tile is the link. */
+.sitemap .sitemap-tile--link {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: var(--tblr-body-color);
+    text-decoration: none;
+}
+
+.sitemap .sitemap-tile--link .sitemap-tile__title {
+    font-size: var(--tblr-font-size-h4);
+}
+
+.sitemap .sitemap-tile--link:hover,
+.sitemap .sitemap-tile--link:focus-visible {
+    color: var(--tblr-body-color);
+    text-decoration: none;
+}
+
+.sitemap .sitemap-tile__arrow {
+    display: inline-flex;
+    margin-left: auto;
+    transition: transform 0.15s ease;
+}
+
+.sitemap .sitemap-tile__arrow svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.sitemap .sitemap-tile--link:hover .sitemap-tile__arrow,
+.sitemap .sitemap-tile--link:focus-visible .sitemap-tile__arrow {
+    color: var(--tblr-primary);
+    transform: translateX(0.25rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sitemap .sitemap-tile,
+    .sitemap .sitemap-tile__arrow {
+        transition: none;
+    }
+}

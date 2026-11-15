@@ -246,7 +246,8 @@ Path `access_control` on `/tools` only requires `ROLE_USER`; every tool route ne
 `@Shared/_embeds/header.html.twig`), the footer (`<twig:Navigation:Footer />` in
 `@Shared/_includes/footer.html.twig`) and the sidebars of Statistics and Explore
 (`<twig:Navigation:Sidebar menu="statistics|explore" />` in the `header_after` block of every page of the
-area; [ADR 035](decisions/035-navigation-tree-and-contextual-sidebar.md))
+area; [ADR 035](decisions/035-navigation-tree-and-contextual-sidebar.md)) and the HTML sitemap
+(`SitemapProvider`, `/sitemap`, see below)
 
 **Implementations:** `SharedNavigationProvider` (Shared: primary group, Tools; footer columns `project`,
 `help`, `legal`, `more` with sitemap and cookie settings), `AllocationNavigationProvider` (Explore, Export;
@@ -283,6 +284,15 @@ Lets a context add groups and entries to the named menus of `Menu` (`primary`, `
   parts of one analysis, for example Closures) keep the whole query except `comparison_*` and `page`.
 - Badges (`NavBadge`) take a translatable label and a `NavBadgeColor` (Tabler colour names, rendered as
   `badge bg-{colour}-lt`; default `azure`).
+- The HTML sitemap (`SitemapProvider`, #1247) has no route list of its own. It builds the menus for the
+  current user without a current route and arranges them as tiles: one per primary entry in its order
+  (Statistics and Explore with their sidebar groups and nested entries, Tools with the tools of
+  `ToolRegistry` by category, the other areas as plain links), one per footer column, and the published CMS
+  pages that no menu links to (`NavigationPageLinksProviderInterface::visiblePublishedPageTree()`). Links
+  carry no query parameters. Every URL is listed once, in that order; a later entry with a listed URL keeps
+  only its children. A new entry in a provider therefore appears in the sitemap without further changes.
+  Pages outside the menus (account and settings, My hospitals, login, registration, password reset, the
+  administration) are deliberately not listed: the header and the user menu reach them.
 
 ## My Hospitals actions
 
