@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\IndicationRaw;
 
+use App\Admin\UI\Http\Controller\TranslatedEnumChoices;
 use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Domain\Enum\IndicationRawReviewStatus;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -61,9 +62,10 @@ final class IndicationRawCrudController extends AbstractCrudController
         yield TextField::new('name', new TranslatableMessage('label.name', domain: 'messages'));
         yield AssociationField::new('normalized', new TranslatableMessage('admin.indication_raw.field.normalized', domain: 'admin'));
         yield ChoiceField::new('reviewStatus', new TranslatableMessage('label.indication.review_status', domain: 'messages'))
-            ->setTranslatableChoices(array_combine(
-                array_map(static fn (IndicationRawReviewStatus $status): string => $status->value, IndicationRawReviewStatus::cases()),
-                array_map(static fn (IndicationRawReviewStatus $status): TranslatableMessage => new TranslatableMessage('indication.review.status.'.$status->value, domain: 'allocation'), IndicationRawReviewStatus::cases()),
+            ->setTranslatableChoices(TranslatedEnumChoices::choices(
+                IndicationRawReviewStatus::cases(),
+                static fn (IndicationRawReviewStatus $status): string => 'indication.review.status.'.$status->value,
+                'allocation',
             ))
             ->renderAsBadges([
                 IndicationRawReviewStatus::Matched->value => 'success',
