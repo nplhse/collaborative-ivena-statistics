@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { chartColors } from '../lib/chart-colors.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 
 const POPULATION_BOX_PLOT_COLOR = '#868e96';
@@ -75,7 +76,7 @@ export default class extends Controller {
             ApexCharts,
             payload.allocationBySize,
             this.hasAllocationBySizeChartTarget ? this.allocationBySizeChartTarget : null,
-            '#495057',
+            chartColors(this.element).neutralSeries,
             generation,
         );
         this.renderCategoryBarChart(

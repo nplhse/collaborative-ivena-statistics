@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { chartColors, LIGHT_CHART_COLORS } from '../lib/chart-colors.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 import {
     buildAnalysisChartExportOptions,
@@ -74,11 +75,11 @@ export default class extends Controller {
 
         const spec = this.currentSpec();
         const exportTitle = (this.exportFilenameValue || '').trim();
-        const exportOptions = buildAnalysisChartExportOptions(
-            spec ?? {},
-            exportTitle,
-            this.chartBuildOptions(),
-        );
+        // The PNG export is always light: it is shared outside the app, on white backgrounds.
+        const exportOptions = buildAnalysisChartExportOptions(spec ?? {}, exportTitle, {
+            ...this.chartBuildOptions(),
+            colors: LIGHT_CHART_COLORS,
+        });
         if (!exportOptions) {
             return;
         }
@@ -164,12 +165,13 @@ export default class extends Controller {
     }
 
     chartBuildOptions() {
+        const colors = chartColors(this.element);
         const profile = (this.chartHeightProfileValue || '').trim();
         if (profile === '') {
-            return {};
+            return { colors };
         }
 
-        return { chartHeightProfile: profile };
+        return { chartHeightProfile: profile, colors };
     }
 
     currentSpec() {

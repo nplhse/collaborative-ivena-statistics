@@ -20,10 +20,19 @@ These version-specific details stay in place because 7.6.1 still depends on them
 - Axis title config always includes a `text` key. ApexCharts reads `axis.title.text` without checking that `title` exists.
 - PNG export sets an explicit font stack. Off-screen export cannot resolve `fontFamily: 'inherit'`.
 
+#### Light and dark mode
+
+Chart colours for the two colour schemes are set globally, not per chart (#1278):
+
+- [`assets/styles/charts.css`](../../assets/styles/charts.css), loaded by the `app` and `admin-kpi` entrypoints, styles axis and legend text, grid lines, axis lines and ticks, heatmap cell gaps, marker rings and tooltips for every ApexCharts chart. It uses Tabler variables, with Bootstrap fallbacks for EasyAdmin pages. Tabler's colours are `light-dark()` values, so charts follow the colour scheme and a theme change without re-rendering.
+- Controllers and option builders do not set `chart.foreColor`, `grid.borderColor`, `theme.mode`, `tooltip.theme` or colours for axis titles. An explicit value would override the global rules in one chart.
+- Data colours that must be plain colour values in the options (empty heatmap cells, neutral series, bar separators) come from [`assets/lib/chart-colors.js`](../../assets/lib/chart-colors.js): `chartColors(element)` returns the light or dark set, based on `isDarkTheme()` in [`chart-theme.js`](../../assets/lib/chart-theme.js). These values are read when the chart renders; after a theme change they apply on the next render.
+- The PNG export of analysis charts always uses the light colours.
+- ApexCharts' own `--apx-fore` and `--apx-grid` tokens are not used: ApexCharts copies them into SVG attributes, where `light-dark()` does not work.
+
 Not part of this upgrade. Add them only when a chart needs them:
 
 - Box plot jitter via `plotOptions.boxPlot.points`, once hospital or explorer distributions supply the raw observations.
-- Facet tokens (`--apx-*`) if charts should follow Tabler theme tokens more closely.
 - Violin, sunburst, icicle, trellis, the canvas renderer, storyboard, and ink. They need extra entry points and are unused by the current line, area, bar, heatmap, and box plot charts.
 
 ## Stimulus

@@ -110,7 +110,6 @@ export default class extends Controller {
             },
             grid: {
                 strokeDashArray: 4,
-                borderColor: 'rgba(0,0,0,0.06)',
             },
             tooltip: {
                 shared: true,

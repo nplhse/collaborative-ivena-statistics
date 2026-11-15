@@ -3,6 +3,7 @@ import {
     buildHeatmapSeries,
     heatmapColumnIndexFromSeriesIndex,
 } from '../lib/build-heatmap-series.js';
+import { chartColors } from '../lib/chart-colors.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 
 /* stimulusFetch: 'lazy' */
@@ -103,7 +104,7 @@ export default class extends Controller {
     }
 
     buildDeltaHeatmapColorScale(maxAbsDelta) {
-        const neutral = '#f1f5f9';
+        const neutral = chartColors(this.element).emptyCell;
         const max = Math.max(maxAbsDelta, 0.1);
         const neutralBand = 0.05;
 

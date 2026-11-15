@@ -1,5 +1,4 @@
 import { Controller } from '@hotwired/stimulus';
-import { isDarkTheme } from '../lib/chart-theme.js';
 import { applyChartNonce, loadApexCharts } from '../lib/load-apexcharts.js';
 
 /**
@@ -9,9 +8,9 @@ import { applyChartNonce, loadApexCharts } from '../lib/load-apexcharts.js';
  * @param {{categories: string[], series: {name: string, data: (number|null)[], color?: string}[], stacked?: boolean, horizontal?: boolean, colors?: string[]}} chart
  * @returns {Record<string, unknown>}
  */
-export function buildEncounterChartOptions(chart, isDark = false) {
+export function buildEncounterChartOptions(chart) {
     if (chart.type === 'boxPlot') {
-        return buildBoxPlotOptions(chart, isDark);
+        return buildBoxPlotOptions(chart);
     }
 
     const series = chart.series ?? [];
@@ -30,10 +29,8 @@ export function buildEncounterChartOptions(chart, isDark = false) {
             zoom: { enabled: false },
             fontFamily: 'inherit',
             background: 'transparent',
-            foreColor: isDark ? '#adb5bd' : '#495057',
             animations: { enabled: false },
         },
-        theme: { mode: isDark ? 'dark' : 'light' },
         plotOptions: {
             bar: {
                 horizontal: Boolean(chart.horizontal),
@@ -61,7 +58,6 @@ export function buildEncounterChartOptions(chart, isDark = false) {
         },
         grid: {
             strokeDashArray: 4,
-            borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
         },
         tooltip: { shared: true, intersect: false },
     };
@@ -74,7 +70,7 @@ export function buildEncounterChartOptions(chart, isDark = false) {
  * @param {{series: {name: string, data: {x: string, y: number[]}[]}[], unit?: string}} chart
  * @returns {Record<string, unknown>}
  */
-export function buildBoxPlotOptions(chart, isDark = false) {
+export function buildBoxPlotOptions(chart) {
     const series = chart.series ?? [];
     const rows = series[0]?.data?.length ?? 0;
     const unit = chart.unit ? ` ${chart.unit}` : '';
@@ -89,10 +85,8 @@ export function buildBoxPlotOptions(chart, isDark = false) {
             zoom: { enabled: false },
             fontFamily: 'inherit',
             background: 'transparent',
-            foreColor: isDark ? '#adb5bd' : '#495057',
             animations: { enabled: false },
         },
-        theme: { mode: isDark ? 'dark' : 'light' },
         plotOptions: {
             bar: { horizontal: true, barHeight: '55%' },
             boxPlot: { colors: { upper: '#4299e1', lower: '#a5c8f0' } },
@@ -104,7 +98,6 @@ export function buildBoxPlotOptions(chart, isDark = false) {
         yaxis: { title: { text: '' } },
         grid: {
             strokeDashArray: 4,
-            borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
         },
         tooltip: { shared: false, y: { formatter: round } },
     };
@@ -133,11 +126,9 @@ export default class extends Controller {
         if (generation !== this._generation) {
             return;
         }
-
-        const isDark = isDarkTheme(this.element);
         this.chartInstance = new ApexCharts(
             this.element,
-            applyChartNonce(buildEncounterChartOptions(this.chartValue, isDark)),
+            applyChartNonce(buildEncounterChartOptions(this.chartValue)),
         );
         await this.chartInstance.render();
     }

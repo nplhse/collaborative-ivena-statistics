@@ -1,3 +1,4 @@
+import { LIGHT_CHART_COLORS } from './chart-colors.js';
 import { ANALYSIS_CHART_HEIGHT_PROFILE_EXPLORER } from './analysis-chart-height-profile.js';
 import { buildHeatmapSeries } from './build-heatmap-series.js';
 
@@ -18,18 +19,18 @@ function resolveAnalysisChartFontFamily() {
     return ANALYSIS_CHART_FONT_FAMILY;
 }
 
-const HEATMAP_EMPTY_COLOR = '#f1f5f9';
 const HEATMAP_COLORS = ['#2fb344', '#74b816', '#f59f00', '#f76707', '#d63939'];
 
 /**
  * @param {number[][]} matrix
+ * @param {string} [emptyColor] colour of cells without cases, see chart-colors.js
  */
-export function buildHeatmapColorScale(matrix) {
+export function buildHeatmapColorScale(matrix, emptyColor = LIGHT_CHART_COLORS.emptyCell) {
     const values = matrix
         .flat()
         .filter((value) => value > 0)
         .sort((a, b) => a - b);
-    const ranges = [{ from: 0, to: 0, color: HEATMAP_EMPTY_COLOR }];
+    const ranges = [{ from: 0, to: 0, color: emptyColor }];
 
     if (!values.length) {
         return { min: 0, max: 1, ranges };
@@ -81,7 +82,7 @@ export function buildHeatmapColorScale(matrix) {
 
 /**
  * @param {Record<string, unknown>} data
- * @param {{ chartHeightProfile?: string }} [buildOptions]
+ * @param {{ chartHeightProfile?: string, colors?: import('./chart-colors.js').ChartColors }} [buildOptions]
  * @returns {import('apexcharts').ApexOptions | null}
  */
 export function buildAnalysisHeatmapOptions(data, buildOptions = {}) {
@@ -93,7 +94,10 @@ export function buildAnalysisHeatmapOptions(data, buildOptions = {}) {
         return null;
     }
 
-    const colorScale = buildHeatmapColorScale(matrix);
+    const colorScale = buildHeatmapColorScale(
+        matrix,
+        (buildOptions.colors ?? LIGHT_CHART_COLORS).emptyCell,
+    );
     const series = buildHeatmapSeries(columnLabels, rowLabels, matrix);
     const chartFontFamily = resolveAnalysisChartFontFamily();
     const profile = buildOptions.chartHeightProfile ?? '';

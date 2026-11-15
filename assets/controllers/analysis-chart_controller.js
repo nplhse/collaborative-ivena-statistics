@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { chartColors } from '../lib/chart-colors.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 import { buildAnalysisChartOptions } from '../lib/build-analysis-chart-options.js';
 
@@ -29,7 +30,9 @@ export default class extends Controller {
             return;
         }
 
-        const options = buildAnalysisChartOptions(this.specValue);
+        const options = buildAnalysisChartOptions(this.specValue, {
+            colors: chartColors(this.element),
+        });
         if (!options) {
             return;
         }

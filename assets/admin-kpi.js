@@ -12,6 +12,7 @@ import TimelineDetailsController from './controllers/timeline-details_controller
 import VichFilePreviewController from './controllers/vich-file-preview_controller.js';
 import './styles/admin-kpi.css';
 import './styles/admin-navigation-inspector.css';
+import './styles/charts.css';
 
 const application = Application.start();
 application.register('access-trend-chart', AccessTrendChartController);
