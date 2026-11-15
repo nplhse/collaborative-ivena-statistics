@@ -12,13 +12,15 @@ namespace App\Shared\Application\Navigation\Menu;
 final readonly class NavigationMenu
 {
     /**
-     * @param list<NavigationSection> $sections
-     * @param list<string>            $activePath ids from the group down to the active entry; empty when no entry is active
+     * @param list<NavigationSection>   $sections
+     * @param list<string>              $activePath ids from the group down to the active entry; empty when no entry is active
+     * @param NavigationActiveRule|null $activeRule the rule that chose the active entry; null when no entry is active
      */
     public function __construct(
         public Menu $menu,
         public array $sections,
         public array $activePath,
+        public ?NavigationActiveRule $activeRule = null,
     ) {
     }
 
