@@ -18,6 +18,7 @@ use App\Tests\Support\Encounter\EncounterImportRunner;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
 use App\Tests\Support\Encounter\MatchingDataFixtures;
 use App\User\Domain\Entity\User;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -121,6 +122,19 @@ final class EncounterImportDeletionRefusalTest extends KernelTestCase
         } catch (\Throwable $error) {
             self::assertNotInstanceOf(ImportDeletionRefusedException::class, $error);
             self::assertStringContainsString('test failure', $error->getMessage());
+        }
+    }
+
+    public function testOtherForeignKeyViolationsStayViolations(): void
+    {
+        $this->violateAnotherForeignKeyWhenAVisitIsRemoved();
+
+        try {
+            $this->deletion()->delete($this->freshImport());
+            self::fail('The deletion should fail.');
+        } catch (\Throwable $error) {
+            self::assertInstanceOf(ForeignKeyConstraintViolationException::class, $error);
+            self::assertStringContainsString('test_attached_record_import_id_fkey', $error->getMessage());
         }
     }
 

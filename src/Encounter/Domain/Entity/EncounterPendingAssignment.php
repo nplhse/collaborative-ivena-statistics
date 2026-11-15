@@ -17,7 +17,8 @@ use Doctrine\ORM\Mapping as ORM;
  * pseudonym, time) so that the record can be tried again (#1307), and the candidates with their reason.
  *
  * Belongs to the import of its record and goes with it (cascade on import deletion; the encounter
- * import remover also deletes it explicitly).
+ * import remover also deletes it explicitly). Read by SQL until the conflict page and the retries (#1307)
+ * need accessors.
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'encounter_pending_assignment')]
@@ -70,68 +71,5 @@ class EncounterPendingAssignment
             static fn (AssignmentCandidate $candidate): array => ['encounter_id' => $candidate->encounterId, 'reason' => $candidate->reason->value],
             $candidates,
         );
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getHospital(): Hospital
-    {
-        return $this->hospital;
-    }
-
-    public function getKeyGeneration(): int
-    {
-        return $this->keyGeneration;
-    }
-
-    public function getImport(): Import
-    {
-        return $this->import;
-    }
-
-    public function getSchema(): string
-    {
-        return $this->schema;
-    }
-
-    public function getRecordId(): string
-    {
-        return $this->recordId;
-    }
-
-    public function getKind(): AssignmentKind
-    {
-        return $this->kind;
-    }
-
-    public function getAllocationId(): ?int
-    {
-        return $this->allocationId;
-    }
-
-    public function getCaseKey(): ?string
-    {
-        return $this->caseKey;
-    }
-
-    public function getRequestedAt(): ?\DateTimeImmutable
-    {
-        return $this->requestedAt;
-    }
-
-    /**
-     * @return list<array{encounter_id: int, reason: string}>
-     */
-    public function getCandidates(): array
-    {
-        return $this->candidates;
-    }
-
-    public function getCreatedAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
     }
 }

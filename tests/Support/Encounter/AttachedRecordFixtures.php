@@ -53,6 +53,16 @@ trait AttachedRecordFixtures
     }
 
     /**
+     * Another foreign key fails while the import's visits are removed: a visit's removal inserts a record
+     * of an import that does not exist.
+     */
+    private function violateAnotherForeignKeyWhenAVisitIsRemoved(): void
+    {
+        $this->attachedConnection()->executeStatement('CREATE FUNCTION test_violate_on_visit_removal() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN INSERT INTO test_attached_record (encounter_id, import_id) VALUES (NULL, -1); RETURN OLD; END $$');
+        $this->attachedConnection()->executeStatement('CREATE TRIGGER test_violate_on_visit_removal BEFORE DELETE ON encounter FOR EACH ROW EXECUTE FUNCTION test_violate_on_visit_removal()');
+    }
+
+    /**
      * Any other database error while the import is deleted.
      */
     private function failWhenTheLinkIsRemoved(): void
