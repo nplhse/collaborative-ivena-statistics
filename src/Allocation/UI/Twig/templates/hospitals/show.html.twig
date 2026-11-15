@@ -139,6 +139,11 @@
                             {% endif %}
                     </twig:Card>
                 </div>
+                {% if accessGrants is not null %}
+                    <div class="col-12">
+                        {{ include('@Allocation/hospitals/_access_summary.html.twig', {hospital: hospital, grants: accessGrants}) }}
+                    </div>
+                {% endif %}
                 <div class="col-12">
                     <twig:Card>
                             <div class="card-title">

@@ -1,0 +1,26 @@
+{#
+  Who has access to the hospital (#1240): stacked avatars of the users with a grant, at most five plus
+  "+N", each with name and username as tooltip and accessible name. Shown only to viewers who may manage
+  the grants (HospitalVoter::MANAGE_ACCESS_GRANTS); links to the access matrix. Needs hospital, grants.
+#}
+{% set shown = 5 %}
+<twig:Card data-testid="hospital-access-summary">
+    <div class="card-title">{{ 'hospital.access_summary.title'|trans({}, 'allocation') }}</div>
+    {% if grants is empty %}
+        <p class="text-secondary mb-2">{{ 'hospital.access_summary.empty'|trans({}, 'allocation') }}</p>
+    {% else %}
+        <div class="avatar-list avatar-list-stacked mb-2">
+            {% for grant in grants|slice(0, shown) %}
+                {% set grantName = user_display_name(grant.user.displayName, grant.user.username) %}
+                {% set grantLabel = grantName != grant.user.username ? grantName ~ ' · @' ~ grant.user.username : grantName %}
+                <twig:UserAvatar :user="grant.user" size="sm" :decorative="false" aria-label="{{ grantLabel }}" title="{{ grantLabel }}" data-controller="tooltip" />
+            {% endfor %}
+            {% if grants|length > shown %}
+                {% set more = grants|length - shown %}
+                <span class="avatar avatar-sm" role="img" aria-label="{{ 'hospital.access_summary.more'|trans({count: more}, 'allocation') }}" title="{{ 'hospital.access_summary.more'|trans({count: more}, 'allocation') }}" data-controller="tooltip" data-testid="hospital-access-summary-more">+{{ more }}</span>
+            {% endif %}
+        </div>
+        <p class="text-secondary mb-2">{{ 'hospital.access_summary.count'|trans({count: grants|length}, 'allocation') }}</p>
+    {% endif %}
+    <a href="{{ path('app_hospitals_edit_access', {id: hospital.id}) }}" data-testid="hospital-access-summary-manage">{{ 'hospital.access_summary.manage'|trans({}, 'allocation') }}</a>
+</twig:Card>

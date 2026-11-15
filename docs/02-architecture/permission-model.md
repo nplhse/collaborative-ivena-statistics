@@ -59,6 +59,8 @@ Exception: My Hospitals (`/hospitals`) lists only hospitals an administrator own
 
 Use `$this->denyAccessUnlessGranted()` in controllers and `#[IsGranted]` attributes where appropriate.
 
+`MANAGE_ACCESS_GRANTS` also decides who sees the **Access** card on the hospital detail page (`/explore/hospital/{publicId}`, #1240): stacked avatars of the users with a grant (at most five plus "+N"), their count and a link to the access matrix. Other participants do not see who has access.
+
 ## Explore collaboration
 
 Explore is a **collaborative** overview: participants may list and open allocations from other hospitals. Hospital filters (including “My hospitals”) are optional UX, not an authz boundary. See [ADR 011](decisions/011-collaborative-explore-allocation-visibility.md).

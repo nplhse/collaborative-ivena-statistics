@@ -6,13 +6,16 @@ namespace App\Tests\Allocation\Functional\Controller\Hospitals;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalLocation;
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
+use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Factory\AddressFactory;
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
@@ -138,6 +141,62 @@ final class ShowHospitalControllerTest extends WebTestCase
         self::assertContains('/explore/allocation?hospitalFilter='.$hospital->getId(), $actionHrefs);
         self::assertContains('/import?hospitalId='.$hospital->getId(), $actionHrefs);
         self::assertTrue($this->containsBenchmarkingHospitalScope($actionHrefs, (int) $hospital->getId()));
+    }
+
+    public function testOwnerSeesWhoHasAccessWithAtMostFiveAvatars(): void
+    {
+        $client = self::createClient();
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => $owner]);
+        // Usernames sort the grants: grantee-1 … grantee-6; the first one has a display name.
+        foreach (range(1, 6) as $i) {
+            HospitalAccessGrantFactory::createOne([
+                'hospital' => $hospital,
+                'user' => UserFactory::createOne(['username' => 'grantee-'.$i, 'displayName' => 1 === $i ? 'Gina Grant' : null]),
+                'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View]),
+                'createdBy' => $owner,
+            ]);
+        }
+
+        $client->loginUser($owner);
+        $crawler = $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        $summary = $crawler->filter('[data-testid="hospital-access-summary"]');
+        $avatars = $summary->filter('.avatar-list .avatar[data-avatar]');
+        self::assertCount(5, $avatars, 'at most five avatars');
+        self::assertSame('Gina Grant · @grantee-1', $avatars->first()->attr('aria-label'));
+        self::assertSame('GG', trim($avatars->first()->text()));
+        self::assertSame('grantee-2', $avatars->eq(1)->attr('aria-label'));
+        self::assertSame('+1', trim($summary->filter('[data-testid="hospital-access-summary-more"]')->text()));
+        self::assertSame('1 more person', $summary->filter('[data-testid="hospital-access-summary-more"]')->attr('aria-label'));
+        self::assertStringContainsString('6 people with permissions', $summary->text());
+        self::assertSame('/hospitals/'.$hospital->getId().'/edit/access', $summary->filter('[data-testid="hospital-access-summary-manage"]')->attr('href'));
+    }
+
+    public function testAccessSummaryWithoutGrantsSaysSoAndIsHiddenFromOtherParticipants(): void
+    {
+        $client = self::createClient();
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => $owner]);
+
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="hospital-access-summary"]', 'Nobody has a permission for this hospital yet.');
+        self::assertSelectorNotExists('[data-testid="hospital-access-summary"] .avatar-list');
+
+        // Other participants cannot manage the grants and do not see who has access.
+        $client->loginUser(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]));
+        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="hospital-access-summary"]');
     }
 
     public function testOwnerYearHeatmapLinksToHospitalFilteredAllocationList(): void
