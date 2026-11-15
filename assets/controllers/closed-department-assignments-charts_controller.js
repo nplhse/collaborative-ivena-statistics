@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import { buildHeatmapSeries } from '../lib/build-heatmap-series.js';
 import { formatChartMonthLabel } from '../lib/format-chart-month-label.js';
+import { chartColors } from '../lib/chart-colors.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 
 /* stimulusFetch: 'lazy' */
@@ -172,7 +173,7 @@ export default class extends Controller {
                 { name: transport.closedLabel ?? 'Closed', data: closedShares },
                 { name: transport.totalLabel ?? 'Total', data: totalShares },
             ],
-            colors: ['#206bc4', '#495057'],
+            colors: ['#206bc4', chartColors(this.element).neutralSeries],
             plotOptions: {
                 bar: {
                     horizontal: true,
@@ -200,7 +201,7 @@ export default class extends Controller {
     }
 
     buildHeatmapColorScale(matrix) {
-        const EMPTY = '#f1f5f9';
+        const EMPTY = chartColors(this.element).emptyCell;
         const COLORS = ['#2fb344', '#74b816', '#f59f00', '#f76707', '#d63939'];
 
         const values = matrix

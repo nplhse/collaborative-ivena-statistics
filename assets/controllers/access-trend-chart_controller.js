@@ -55,9 +55,6 @@ export default class extends Controller {
                 ? `${month.label} (${labels.incomplete ?? 'incomplete'})`
                 : month.label,
         );
-        const isDark =
-            document.body.classList.contains('ea-dark-scheme') ||
-            document.body.getAttribute('data-bs-theme') === 'dark';
         const serie = (key) =>
             months.map((month, index) => ({
                 x: categories[index],
@@ -74,10 +71,8 @@ export default class extends Controller {
                 zoom: { enabled: false },
                 fontFamily: 'inherit',
                 background: 'transparent',
-                foreColor: isDark ? '#adb5bd' : '#495057',
                 animations: { enabled: false },
             },
-            theme: { mode: isDark ? 'dark' : 'light' },
             series: [
                 { name: labels.signedIn ?? 'Signed in', data: serie('signedIn') },
                 { name: labels.anonymous ?? 'Anonymous', data: serie('anonymous') },
@@ -94,12 +89,10 @@ export default class extends Controller {
             legend: { show: true, position: 'top', horizontalAlign: 'left', fontSize: '12px' },
             grid: {
                 strokeDashArray: 4,
-                borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
             },
             tooltip: {
                 shared: true,
                 intersect: false,
-                theme: isDark ? 'dark' : 'light',
                 y: { formatter: (value) => Math.round(value ?? 0).toLocaleString() },
             },
         };

@@ -131,9 +131,6 @@ export default class extends Controller {
         );
         const capacity = [...data.capacity].reverse().find((value) => value !== null) ?? null;
         const max = Math.max(...totals, capacity ?? 0);
-        const isDark =
-            document.body.classList.contains('ea-dark-scheme') ||
-            document.body.getAttribute('data-bs-theme') === 'dark';
 
         return {
             chart: {
@@ -144,10 +141,8 @@ export default class extends Controller {
                 zoom: { enabled: false },
                 fontFamily: 'inherit',
                 background: 'transparent',
-                foreColor: isDark ? '#adb5bd' : '#495057',
                 animations: { enabled: false },
             },
-            theme: { mode: isDark ? 'dark' : 'light' },
             series: data.series.map((serie) => ({
                 name: labels[serie.key] ?? serie.key,
                 data: serie.data.map((value, index) => [timestamps[index], value]),
@@ -194,12 +189,10 @@ export default class extends Controller {
             legend: { show: true, position: 'top', horizontalAlign: 'left', fontSize: '12px' },
             grid: {
                 strokeDashArray: 4,
-                borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
             },
             tooltip: {
                 shared: true,
                 intersect: false,
-                theme: isDark ? 'dark' : 'light',
                 x: { format: 'dd.MM.yyyy' },
                 y: { formatter: (value) => formatBytes(value ?? 0) },
             },
