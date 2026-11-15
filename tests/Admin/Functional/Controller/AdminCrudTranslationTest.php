@@ -74,6 +74,7 @@ final class AdminCrudTranslationTest extends WebTestCase
         'Guest email', 'Title', 'Message', 'Page URL', 'Path', 'Context', 'User agent', 'App version', 'Subject ID',
         'Mode', 'Decided at', 'Updated at', 'Reporting period', 'Trigger', 'Recipient', 'Queued at', 'Delivered at',
         'Failure reason', 'Locale', 'Owned hospitals', 'Step', 'Completed at', 'System view', 'Config JSON',
+        'Username', 'Email', 'Password', 'Is Enabled', 'Is Verified', 'Credentials Expired', 'Roles',
         'label.width', 'label.height',
     ];
 

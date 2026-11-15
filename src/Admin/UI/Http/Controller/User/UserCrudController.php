@@ -311,11 +311,11 @@ final class UserCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.account', domain: 'admin'));
-        yield TextField::new('username');
+        yield TextField::new('username', new TranslatableMessage('label.username', domain: 'messages'));
         yield TextField::new('displayName', new TranslatableMessage('admin.user.field.display_name', domain: 'admin'))
             ->setHelp(new TranslatableMessage('admin.user.field.display_name_help', domain: 'admin'))
             ->setFormTypeOption('empty_data', '');
-        yield TextField::new('email');
+        yield TextField::new('email', new TranslatableMessage('label.email', domain: 'user'));
         yield ChoiceField::new('locale', new TranslatableMessage('admin.field.locale', domain: 'admin'))
             ->setTranslatableChoices([
                 SupportedLocales::DEFAULT => new TranslatableMessage('locale.english', domain: 'shared'),
@@ -323,7 +323,7 @@ final class UserCrudController extends AbstractCrudController
             ])
             ->setRequired(false)
             ->hideOnIndex();
-        yield TextField::new('password')
+        yield TextField::new('password', new TranslatableMessage('label.password', domain: 'user'))
             ->setFormType(PasswordType::class)
             ->setRequired(Crud::PAGE_NEW === $pageName)
             ->setHelp(new TranslatableMessage('admin.user.field.password_help', domain: 'admin'))
@@ -333,17 +333,17 @@ final class UserCrudController extends AbstractCrudController
             ->onlyOnForms();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.permissions', domain: 'admin'));
-        yield BooleanField::new('isEnabled')
+        yield BooleanField::new('isEnabled', new TranslatableMessage('label.enabled', domain: 'messages'))
             ->setHelp(new TranslatableMessage('help.admin.user.is_enabled', domain: 'admin'))
             ->renderAsSwitch();
-        yield BooleanField::new('isVerified')
+        yield BooleanField::new('isVerified', new TranslatableMessage('admin.user.field.is_verified', domain: 'admin'))
             ->hideOnIndex();
-        yield BooleanField::new('credentialsExpired')
+        yield BooleanField::new('credentialsExpired', new TranslatableMessage('admin.user.field.credentials_expired', domain: 'admin'))
             ->hideOnIndex();
         yield DateTimeField::new('createdAt', new TranslatableMessage('admin.user.field.created_at', domain: 'admin'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->onlyOnIndex();
-        yield ChoiceField::new('roles')
+        yield ChoiceField::new('roles', new TranslatableMessage('admin.user.field.roles', domain: 'admin'))
             ->setTranslatableChoices(array_combine(
                 self::ROLES,
                 array_map(static fn (string $role): TranslatableMessage => new TranslatableMessage('admin.user.role.'.strtolower(substr($role, 5)), domain: 'admin'), self::ROLES),
