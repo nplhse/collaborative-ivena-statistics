@@ -122,7 +122,7 @@
                 <label class="form-label" for="nav-inspector-user">{{ 'navigation.inspector.form.user'|trans }}</label>
                 <input type="text" class="form-control" id="nav-inspector-user" name="user" value="{{ username }}" placeholder="{{ 'navigation.inspector.form.user_placeholder'|trans }}" autocomplete="off">
             </div>
-            <div class="col-md-4">
+            <div class="col-md">
                 <label class="form-label" for="nav-inspector-route">{{ 'navigation.inspector.form.route'|trans }}</label>
                 <input type="text" class="form-control" id="nav-inspector-route" name="route" value="{{ route }}" placeholder="app_stats_insights_dimension" autocomplete="off" spellcheck="false">
             </div>
@@ -130,7 +130,8 @@
                 <label class="form-label" for="nav-inspector-parameters">{{ 'navigation.inspector.form.parameters'|trans }}</label>
                 <input type="text" class="form-control" id="nav-inspector-parameters" name="parameters" value="{{ parameter_query }}" placeholder="dimension=occasions" autocomplete="off" spellcheck="false">
             </div>
-            <div class="col-md-2 d-flex gap-2">
+            {# auto width: the buttons of the EasyAdmin 5.9 design no longer fit into a fixed col-md-2 #}
+            <div class="col-md-auto d-flex gap-2">
                 <button type="submit" class="btn btn-primary">{{ 'navigation.inspector.form.submit'|trans }}</button>
                 <a class="btn btn-secondary" href="?">{{ 'navigation.inspector.form.reset'|trans }}</a>
             </div>
