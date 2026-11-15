@@ -308,7 +308,7 @@ final class ReviewIndicationRawController extends AbstractController
     }
 
     /**
-     * @return list<array{label: string, user: string, at: \DateTimeImmutable}>
+     * @return list<array{label: string, user: User, at: \DateTimeImmutable}>
      */
     private function resolveOtherUserActivities(IndicationRaw $raw, ?User $currentUser): array
     {
@@ -332,7 +332,7 @@ final class ReviewIndicationRawController extends AbstractController
         ) {
             $activities[] = [
                 'label' => 'label.indication.match_proposed_by',
-                'user' => (string) $firstMatcher,
+                'user' => $firstMatcher,
                 'at' => $firstMatchedAt,
             ];
         }
@@ -351,7 +351,7 @@ final class ReviewIndicationRawController extends AbstractController
 
             $activities[] = [
                 'label' => $label,
-                'user' => (string) $reviewer,
+                'user' => $reviewer,
                 'at' => $reviewedAt,
             ];
         }

@@ -163,12 +163,13 @@
                     <label class="form-label" for="import-filter-owner">{{ 'label.import.filter.owner'|trans({}, 'import') }}</label>
                     <select name="ownerId" id="import-filter-owner" class="form-select">
                         <option value="">{{ 'label.import.filter.all_owners'|trans({}, 'import') }}</option>
+                        {% import '@Shared/_macros/users.html.twig' as users %}
                         {% for owner in owners %}
                             <option
                                 value="{{ owner.id }}"
                                 {{ filters.ownerId == owner.id ? 'selected' }}
                             >
-                                {{ owner.username }}
+                                {{ users.label(owner.displayName, owner.username) }}
                             </option>
                         {% endfor %}
                     </select>

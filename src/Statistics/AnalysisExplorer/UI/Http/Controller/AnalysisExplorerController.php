@@ -165,6 +165,8 @@ final class AnalysisExplorerController extends AbstractController
             'savedViewTitle' => $view instanceof SavedExplorerView ? $this->labelResolver->title($view) : null,
             'savedViewDescription' => $view instanceof SavedExplorerView ? $this->labelResolver->description($view) : null,
             'savedViewAuthorName' => $author['name'],
+            'savedViewAuthorDisplayName' => $author['displayName'],
+            'savedViewAuthorUserId' => $author['userId'],
             'savedViewAuthorUrl' => $author['url'],
             'savedViewActivityKind' => null === $activity ? null : $activity['kind'],
             'savedViewActivityRelative' => null === $activity ? null : $activity['relativeLabel'],

@@ -77,9 +77,10 @@
                         <dd class="col-7">{{ raw.createdAt|date('d.m.Y H:i') }}</dd>
                         <dt class="col-5">{{ 'label.indication.occurrences'|trans({}, 'messages') }}</dt>
                         <dd class="col-7">{{ occurrence_count }}</dd>
+                        {% import '@Shared/_macros/users.html.twig' as users %}
                         {% for activity in other_user_activities %}
                             <dt class="col-5">{{ activity.label|trans }}</dt>
-                            <dd class="col-7">{{ activity.user }}, {{ activity.at|date('d.m.Y H:i') }}</dd>
+                            <dd class="col-7">{{ users.link(activity.user, {avatar: 'inline'}) }}, {{ activity.at|date('d.m.Y H:i') }}</dd>
                         {% endfor %}
                         {% if raw.target %}
                             <dt class="col-5">{{ 'label.indication.proposed_target'|trans({}, 'messages') }}</dt>

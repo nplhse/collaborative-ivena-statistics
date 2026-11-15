@@ -12,9 +12,9 @@ namespace App\Admin\Application\Audit;
 final readonly class AuditFilterOptions
 {
     /**
-     * @param list<string>                            $intents
-     * @param list<string>                            $entityClasses
-     * @param list<array{id: int, name: string|null}> $actors        name is null for deleted users
+     * @param list<string>                                                      $intents
+     * @param list<string>                                                      $entityClasses
+     * @param list<array{id: int, name: string|null, displayName: string|null}> $actors        name (username) is null for deleted users
      */
     public function __construct(
         public array $intents,

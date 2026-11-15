@@ -193,7 +193,7 @@ final class ProjectActivityQueryTest extends DatabaseKernelTestCase
     public function testFiltersByPeriodTypeUserAndSearchAtQueryLevel(): void
     {
         $alice = UserFactory::createOne(['username' => 'filter-alice']);
-        $bob = UserFactory::createOne(['username' => 'filter-bob']);
+        $bob = UserFactory::createOne(['username' => 'filter-bob', 'displayName' => 'Bruno Harborman']);
         $aliceId = $alice->getId();
         $bobId = $bob->getId();
         self::assertNotNull($aliceId);
@@ -253,6 +253,13 @@ final class ProjectActivityQueryTest extends DatabaseKernelTestCase
         ));
         self::assertCount(1, $byUser->items);
         self::assertSame('Harbor Clinic', $byUser->items[0]->hospitalName);
+
+        // The free-text search also matches the display name (#1240).
+        $byDisplayName = $query->getPage(null, 20, new ProjectActivityFilters(
+            search: 'bruno',
+        ));
+        self::assertCount(1, $byDisplayName->items);
+        self::assertSame('filter-bob', $byDisplayName->items[0]->actorUsername);
 
         $byKeywordTitle = $query->getPage(null, 20, new ProjectActivityFilters(
             search: 'visible title',

@@ -33,3 +33,9 @@
         {%- if avatar %}</span>{% endif -%}
     {%- endif -%}
 {%- endmacro %}
+
+{# Plain-text label for selects and filter badges (#1240): "Name (@username)" when the viewer sees a display name, else the username. #}
+{% macro label(displayName, username) -%}
+    {%- set shown = user_display_name(displayName, username) -%}
+    {{- shown != username ? shown ~ ' (@' ~ username ~ ')' : shown -}}
+{%- endmacro %}

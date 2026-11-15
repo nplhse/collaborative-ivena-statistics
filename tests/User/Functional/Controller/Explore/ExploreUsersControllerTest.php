@@ -105,6 +105,18 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="user-badge-admin"]');
     }
 
+    public function testProfileTitleAndBreadcrumbUseTheDisplayName(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $profile = UserFactory::createOne(['username' => 'titled-user', 'displayName' => 'Tina Titel']);
+
+        $client->request(Request::METHOD_GET, '/explore/user/'.$profile->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertPageTitleContains('Tina Titel');
+        self::assertSelectorTextContains('.breadcrumb', 'Tina Titel');
+    }
+
     public function testListIsSortedAlphabeticallyByUsernameAscendingByDefault(): void
     {
         $client = $this->createClientAsParticipant();

@@ -29,6 +29,8 @@ final readonly class AuditTimelineEntry
         public ?string $outcome,
         public ?string $sessionRef,
         public array $changedFields,
+        /** Optional display name of the actor (#1240); the template applies the visibility rule. */
+        public ?string $actorDisplayName = null,
     ) {
     }
 
