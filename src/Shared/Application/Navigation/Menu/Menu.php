@@ -38,6 +38,12 @@ enum Menu: string
     public const string EXPLORE_GROUP_ORGANISATION = 'organisation';
 
     /**
+     * Case group of the explore sidebar (allocations, MCI cases), which other contexts attach to (ED visits from
+     * the Encounter context).
+     */
+    public const string EXPLORE_GROUP_CASES = 'cases';
+
+    /**
      * Query parameters a sidebar link carries over from the current page (ADR 035): the statistics scope and
      * period with the parameters they depend on. Comparison parameters and all other filters are never
      * carried; the target view validates the values and falls back to its own defaults.
