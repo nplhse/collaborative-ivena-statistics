@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { isDarkTheme } from '../lib/chart-theme.js';
 import { applyChartNonce, loadApexCharts } from '../lib/load-apexcharts.js';
 
 const COLORS = {
@@ -55,9 +56,7 @@ export default class extends Controller {
                 ? `${month.label} (${labels.incomplete ?? 'incomplete'})`
                 : month.label,
         );
-        const isDark =
-            document.body.classList.contains('ea-dark-scheme') ||
-            document.body.getAttribute('data-bs-theme') === 'dark';
+        const isDark = isDarkTheme(this.element);
         const serie = (key) =>
             months.map((month, index) => ({
                 x: categories[index],

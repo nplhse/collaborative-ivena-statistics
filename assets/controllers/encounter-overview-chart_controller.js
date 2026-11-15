@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { isDarkTheme } from '../lib/chart-theme.js';
 import { applyChartNonce, loadApexCharts } from '../lib/load-apexcharts.js';
 
 /**
@@ -133,7 +134,7 @@ export default class extends Controller {
             return;
         }
 
-        const isDark = document.body.getAttribute('data-bs-theme') === 'dark';
+        const isDark = isDarkTheme(this.element);
         this.chartInstance = new ApexCharts(
             this.element,
             applyChartNonce(buildEncounterChartOptions(this.chartValue, isDark)),

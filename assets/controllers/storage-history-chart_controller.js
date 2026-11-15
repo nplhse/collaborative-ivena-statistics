@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { isDarkTheme } from '../lib/chart-theme.js';
 import { applyChartNonce, loadApexCharts } from '../lib/load-apexcharts.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -131,9 +132,7 @@ export default class extends Controller {
         );
         const capacity = [...data.capacity].reverse().find((value) => value !== null) ?? null;
         const max = Math.max(...totals, capacity ?? 0);
-        const isDark =
-            document.body.classList.contains('ea-dark-scheme') ||
-            document.body.getAttribute('data-bs-theme') === 'dark';
+        const isDark = isDarkTheme(this.element);
 
         return {
             chart: {
