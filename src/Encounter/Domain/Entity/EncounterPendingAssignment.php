@@ -17,8 +17,12 @@ use Doctrine\ORM\Mapping as ORM;
  * pseudonym, time) so that the record can be tried again (#1307), and the candidates with their reason.
  *
  * Belongs to the import of its record and goes with it (cascade on import deletion; the encounter
- * import remover also deletes it explicitly). Read by SQL until the conflict page and the retries (#1307)
- * need accessors.
+ * import remover also deletes it explicitly).
+ *
+ * Written through the ORM by EncounterAssignments and read with SQL (AssignmentConflictQuery), so the class
+ * has no accessors until the decisions and retries (#1307) need them.
+ *
+ * @psalm-suppress UnusedProperty
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'encounter_pending_assignment')]

@@ -148,6 +148,16 @@ final class SchemaContributionsControllerTest extends WebTestCase
         self::assertCount(2, $row->filter('[data-test="encounter-assignment-candidate"] a[href^="/explore/ed-visits/visit/"]'));
     }
 
+    public function testReviewerWithoutConflictsSeesAnEmptyList(): void
+    {
+        $this->client->loginUser($this->reviewer);
+        $this->client->request(Request::METHOD_GET, '/tools/encounter-assignments/'.$this->hospital->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-test="encounter-assignment-no-conflicts"]');
+        self::assertSelectorNotExists('[data-test="encounter-assignment-conflict"]');
+    }
+
     public function testCaseViewerCannotOpenTheConflicts(): void
     {
         $this->uploadConflict();
