@@ -2,6 +2,8 @@
 
 **Status:** accepted
 
+Amended by [ADR 037](037-encounter-case-hub-and-schema-plugins.md): ownership applies per record of a schema; deleting an import removes only its records, and an import whose encounters carry records of other imports is refused.
+
 ## Context
 
 Hospitals export encounter data by period. Exports overlap, and one file can mix visits that are
