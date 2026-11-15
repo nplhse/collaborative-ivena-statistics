@@ -79,8 +79,8 @@ final class ImportVoterTest extends KernelTestCase
 
     public function testViewDeniedForAnonymousUser(): void
     {
-        $import = $this->createMock(Import::class);
-        $token = $this->createMock(TokenInterface::class);
+        $import = $this->createStub(Import::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
 
         self::assertSame(
@@ -92,7 +92,7 @@ final class ImportVoterTest extends KernelTestCase
     public function testViewDeniedWhenImportHasNoHospital(): void
     {
         $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
-        $import = $this->createMock(Import::class);
+        $import = $this->createStub(Import::class);
         $import->method('getHospital')->willReturn(null);
 
         self::assertSame(

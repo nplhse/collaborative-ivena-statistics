@@ -97,7 +97,7 @@ final class FileChecksumCalculatorTest extends TestCase
             $this->projectDir,
             Path::join($this->projectDir, 'var', 'imports'),
             $this->fs,
-            $this->createMock(LoggerInterface::class),
+            $this->createStub(LoggerInterface::class),
         );
     }
 }
