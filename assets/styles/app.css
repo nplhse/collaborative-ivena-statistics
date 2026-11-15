@@ -46,6 +46,63 @@
 }
 
 /*
+ * Light badges (#1287): Tabler's bg-{colour}-lt writes the full colour as text on a 10 % tint, which
+ * reaches only about 2:1 to 4.3:1. The text is mixed towards black (light) or white (dark mode), the
+ * same way as the avatars above. Measured on a card, every colour reaches at least 5.6:1 (light) and
+ * 5.3:1 (dark). Backgrounds stay as they are; other elements with bg-*-lt are not affected.
+ */
+.badge.bg-primary-lt { --app-badge-lt-color: var(--tblr-primary); }
+.badge.bg-secondary-lt { --app-badge-lt-color: var(--tblr-secondary); }
+.badge.bg-success-lt { --app-badge-lt-color: var(--tblr-success); }
+.badge.bg-info-lt { --app-badge-lt-color: var(--tblr-info); }
+.badge.bg-warning-lt { --app-badge-lt-color: var(--tblr-warning); }
+.badge.bg-danger-lt { --app-badge-lt-color: var(--tblr-danger); }
+.badge.bg-blue-lt { --app-badge-lt-color: var(--tblr-blue); }
+.badge.bg-azure-lt { --app-badge-lt-color: var(--tblr-azure); }
+.badge.bg-indigo-lt { --app-badge-lt-color: var(--tblr-indigo); }
+.badge.bg-purple-lt { --app-badge-lt-color: var(--tblr-purple); }
+.badge.bg-pink-lt { --app-badge-lt-color: var(--tblr-pink); }
+.badge.bg-red-lt { --app-badge-lt-color: var(--tblr-red); }
+.badge.bg-orange-lt { --app-badge-lt-color: var(--tblr-orange); }
+.badge.bg-yellow-lt { --app-badge-lt-color: var(--tblr-yellow); }
+.badge.bg-lime-lt { --app-badge-lt-color: var(--tblr-lime); }
+.badge.bg-green-lt { --app-badge-lt-color: var(--tblr-green); }
+.badge.bg-teal-lt { --app-badge-lt-color: var(--tblr-teal); }
+.badge.bg-cyan-lt { --app-badge-lt-color: var(--tblr-cyan); }
+
+:root {
+    --app-badge-lt-mix: black;
+}
+
+[data-bs-theme='dark'] {
+    --app-badge-lt-mix: white;
+}
+
+/* Two classes, so this also wins over text-{colour} classes next to bg-{colour}-lt. */
+.badge:is(
+        .bg-primary-lt,
+        .bg-secondary-lt,
+        .bg-success-lt,
+        .bg-info-lt,
+        .bg-warning-lt,
+        .bg-danger-lt,
+        .bg-blue-lt,
+        .bg-azure-lt,
+        .bg-indigo-lt,
+        .bg-purple-lt,
+        .bg-pink-lt,
+        .bg-red-lt,
+        .bg-orange-lt,
+        .bg-yellow-lt,
+        .bg-lime-lt,
+        .bg-green-lt,
+        .bg-teal-lt,
+        .bg-cyan-lt
+    ) {
+    color: color-mix(in oklab, var(--app-badge-lt-color) 65%, var(--app-badge-lt-mix)) !important;
+}
+
+/*
  * User cell in lists (#462): the avatar keeps the same distance to the name as to the card edge,
  * 1.25rem in the table and the 1rem inline padding of a DataTable card on small screens.
  */

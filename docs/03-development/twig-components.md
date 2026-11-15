@@ -414,7 +414,7 @@ Extra HTML attributes (`data-testid`) are merged onto the root element.
 
 ## Badge
 
-Canonical short status chip: `badge bg-{variant}-lt`. Tabler's `bg-{variant}-lt` sets both the light background and the text colour; Tabler has no `text-{variant}-lt-fg` class. Not a notice (`Alert`) and not an applied-filter chip (`ActiveFilters`).
+Canonical short status chip: `badge bg-{variant}-lt`. Tabler's `bg-{variant}-lt` sets both the light background and the text colour; Tabler has no `text-{variant}-lt-fg` class. For every `.badge.bg-{colour}-lt` (component or plain markup), `assets/styles/app.css` mixes the text colour towards black (light) or white (dark mode) so it reaches at least 4.5:1 (#1287); do not add `text-{colour}` classes for contrast. Not a notice (`Alert`) and not an applied-filter chip (`ActiveFilters`).
 
 Variants: `secondary` (default), `green`, `red`, `yellow`, `azure`, `purple`, `blue`, `orange`. Unknown values fall back to `secondary`. Text comes from the default slot or `label`. Extra attributes (`class`, `data-testid`) merge onto the `span`.
 
