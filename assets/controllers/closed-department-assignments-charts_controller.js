@@ -3,6 +3,7 @@ import { buildHeatmapColorScale } from '../lib/build-analysis-heatmap-options.js
 import { buildHeatmapSeries } from '../lib/build-heatmap-series.js';
 import { formatChartMonthLabel } from '../lib/format-chart-month-label.js';
 import { chartColors } from '../lib/chart-colors.js';
+import { onThemeChange } from '../lib/chart-theme.js';
 import { lineMarkers } from '../lib/chart-markers.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 
@@ -22,6 +23,7 @@ export default class extends Controller {
     ];
 
     connect() {
+        this.stopThemeWatch = onThemeChange(this.element, () => this.redrawForTheme());
         this.instances = [];
         this.heatmapInstance = null;
         this.timeSeriesInstance = null;
@@ -29,10 +31,20 @@ export default class extends Controller {
         void this.renderAll(this._renderGeneration);
     }
 
+    /** Redraws the charts with the data colours of the new colour scheme (#1320). */
+    redrawForTheme() {
+        this.disconnect();
+        this.connect();
+    }
+
     disconnect() {
+        this.stopThemeWatch?.();
+        this.stopThemeWatch = null;
         this._renderGeneration = (this._renderGeneration ?? 0) + 1;
         this.instances.forEach((chart) => chart.destroy());
         this.instances = [];
+        // The heatmap is not in `instances`; destroy it here so a redraw leaves no stale chart.
+        this.heatmapInstance?.destroy();
         this.heatmapInstance = null;
         this.timeSeriesInstance = null;
     }
