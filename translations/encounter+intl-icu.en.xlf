@@ -3749,6 +3749,10 @@
         <source>encounter.visit_list.period_help</source>
         <target>Visits by ED admission (else first assessment). At most {days} days.</target>
       </trans-unit>
+      <trans-unit id="Enc0C5120B9" resname="encounter.explore.tile.ed_visits">
+        <source>encounter.explore.tile.ed_visits</source>
+        <target>Emergency department visits per hospital</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -6,6 +6,7 @@ namespace App\Admin\UI\Http\Controller\Import;
 
 use App\Admin\UI\Http\Controller\ImportReject\ImportRejectCrudController;
 use App\Admin\UI\Http\Controller\JobRun\JobRunCrudController;
+use App\Admin\UI\Http\Controller\TranslatedEnumChoices;
 use App\Import\Application\Service\ImportDeletionService;
 use App\Import\Application\Service\ImportExportPeriodDeriver;
 use App\Import\Domain\Entity\Import;
@@ -32,6 +33,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Option\BadgeVariant;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
@@ -133,8 +135,8 @@ final class ImportCrudController extends AbstractCrudController
     {
         return $filters
             ->add(EntityFilter::new('hospital', new TranslatableMessage('admin.hospital.entity.singular', domain: 'admin')))
-            ->add(ChoiceFilter::new('status', new TranslatableMessage('label.status', domain: 'messages'))->setChoices(ImportStatus::cases()))
-            ->add(ChoiceFilter::new('type', new TranslatableMessage('import.field.type', domain: 'import'))->setChoices(ImportType::cases()))
+            ->add(ChoiceFilter::new('status', new TranslatableMessage('label.status', domain: 'messages'))->setTranslatableChoices(TranslatedEnumChoices::choices(ImportStatus::cases(), static fn (ImportStatus $status): string => 'import.status.label.'.strtolower($status->value), 'import')))
+            ->add(ChoiceFilter::new('type', new TranslatableMessage('import.field.type', domain: 'import'))->setTranslatableChoices(TranslatedEnumChoices::choices(ImportType::cases(), static fn (ImportType $type): string => 'import.type.label.'.strtolower($type->value), 'import')))
             ->add(DateTimeFilter::new('createdAt', new TranslatableMessage('label.created', domain: 'messages')))
             ->add(NumericFilter::new('rowCount', new TranslatableMessage('import.field.rowCount', domain: 'import')))
             ->add(NumericFilter::new('rowsPassed', new TranslatableMessage('import.field.rowsPassed', domain: 'import')))
@@ -150,10 +152,18 @@ final class ImportCrudController extends AbstractCrudController
 
         yield AssociationField::new('hospital', new TranslatableMessage('admin.hospital.entity.singular', domain: 'admin'));
 
-        yield ChoiceField::new('status', new TranslatableMessage('label.status', domain: 'messages'))
+        yield TranslatedEnumChoices::field('status', new TranslatableMessage('label.status', domain: 'messages'), ImportStatus::class, static fn (ImportStatus $status): string => 'import.status.label.'.strtolower($status->value), 'import')
             ->setDisabled()
-            ->renderAsBadges();
-        yield ChoiceField::new('type', new TranslatableMessage('import.field.type', domain: 'import'))
+            ->renderAsBadges([
+                ImportStatus::PENDING->value => 'secondary',
+                ImportStatus::RUNNING->value => 'info',
+                ImportStatus::COMPLETED->value => 'success',
+                ImportStatus::PARTIAL->value => 'warning',
+                ImportStatus::FAILED->value => 'danger',
+                ImportStatus::CANCELLED->value => 'secondary',
+            ])
+            ->setBadgeVariant(BadgeVariant::Dot);
+        yield TranslatedEnumChoices::field('type', new TranslatableMessage('import.field.type', domain: 'import'), ImportType::class, static fn (ImportType $type): string => 'import.type.label.'.strtolower($type->value), 'import')
             ->setDisabled()
             ->renderAsBadges();
         yield DateTimeField::new('createdAt', new TranslatableMessage('label.created', domain: 'messages'))

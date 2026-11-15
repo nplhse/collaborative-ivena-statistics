@@ -152,15 +152,17 @@ final class ListVisitsControllerTest extends WebTestCase
         self::assertCount(2, $crawler->filter('[data-testid="encounter-visit-list-hospitals"] a'), 'Every hospital with visits.');
     }
 
-    public function testNavigationEntryNeedsTheBetaRole(): void
+    public function testNavigationEntryAndExploreTileNeedTheBetaRole(): void
     {
         $this->client->loginUser($this->caseViewer());
         $crawler = $this->client->request(Request::METHOD_GET, '/explore', server: ['HTTP_Accept-Language' => 'en']);
         self::assertResponseIsSuccessful();
-        self::assertCount(1, $crawler->filter('a[href="/explore/ed-visits"]'));
+        self::assertCount(1, $crawler->filter('[data-testid="explore-tile-ed-visits"] a[href="/explore/ed-visits"]'), 'Tile on the Explore start page.');
+        self::assertCount(2, $crawler->filter('a[href="/explore/ed-visits"]'), 'Tile and sidebar entry.');
 
         $this->client->loginUser($this->user(['ROLE_USER', 'ROLE_PARTICIPANT']));
         $crawler = $this->client->request(Request::METHOD_GET, '/explore', server: ['HTTP_Accept-Language' => 'en']);
+        self::assertSelectorNotExists('[data-testid="explore-tile-ed-visits"]');
         self::assertCount(0, $crawler->filter('a[href="/explore/ed-visits"]'));
     }
 

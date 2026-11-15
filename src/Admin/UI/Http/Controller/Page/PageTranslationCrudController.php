@@ -35,6 +35,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Option\BadgeVariant;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
@@ -230,11 +231,15 @@ final class PageTranslationCrudController extends AbstractCrudController
             ->setHelp(new TranslatableMessage('help.page.slug', domain: 'content'))
             ->hideOnIndex();
         yield ChoiceField::new('status', 'label.status')
-            ->setChoices([
-                'Draft' => PageTranslation::STATUS_DRAFT,
-                'Published' => PageTranslation::STATUS_PUBLISHED,
+            ->setTranslatableChoices([
+                PageTranslation::STATUS_DRAFT => new TranslatableMessage('label.draft', domain: 'admin'),
+                PageTranslation::STATUS_PUBLISHED => new TranslatableMessage('label.published', domain: 'admin'),
             ])
-            ->renderAsBadges();
+            ->renderAsBadges([
+                PageTranslation::STATUS_DRAFT => 'secondary',
+                PageTranslation::STATUS_PUBLISHED => 'success',
+            ])
+            ->setBadgeVariant(BadgeVariant::Dot);
         yield BooleanField::new('showToc', new TranslatableMessage('label.show_toc', domain: 'content'))
             ->setHelp(new TranslatableMessage('help.page.show_toc', domain: 'content'))
             ->hideOnIndex();

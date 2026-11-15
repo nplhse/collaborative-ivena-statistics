@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Admin\Functional\Controller;
 
+use App\Allocation\Domain\Enum\AllocationGender;
+use App\Allocation\Domain\Enum\AllocationTransportType;
+use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Domain\Enum\IndicationRawReviewStatus;
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
@@ -20,7 +23,9 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Infrastructure\Factory\MediaFactory;
+use App\Content\Infrastructure\Factory\PageTranslationFactory;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Domain\Entity\MonthlyReminderDispatch;
 use App\Feedback\Domain\Entity\Feedback;
@@ -147,6 +152,45 @@ final class AdminCrudTranslationTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSame('Wartet auf Freigabe', trim($crawler->filter('td[data-column="reviewStatus"] .badge')->text()));
+    }
+
+    /**
+     * #1304: choice values show their German label on the detail page instead of the hard-coded English one.
+     *
+     * @return iterable<string, array{string, \Closure(): object, list<string>}>
+     */
+    public static function choiceValueProvider(): iterable
+    {
+        $clinical = ['gender' => AllocationGender::FEMALE, 'transportType' => AllocationTransportType::AIR, 'urgency' => AllocationUrgency::OUTPATIENT];
+        $clinicalLabels = ['Weiblich', 'Luft', 'Ambulante Versorgung'];
+
+        yield 'allocation' => ['allocation', static fn (): object => self::withReferenceData(static fn (): object => AllocationFactory::createOne($clinical)), $clinicalLabels];
+        yield 'mci case' => ['mci-case', static fn (): object => self::withReferenceData(static fn (): object => MciCaseFactory::createOne($clinical)), $clinicalLabels];
+        yield 'feedback' => ['feedback', self::feedback(...), ['Offen', 'Fehler']];
+        yield 'feedback quarantine' => ['feedback-quarantine', static fn (): object => self::persist(self::feedback()->quarantine(['manual'], null, null, new \DateTimeImmutable('2026-11-10 08:00:00'))), ['Fehler']];
+        yield 'monthly reminder dispatch' => ['monthly-reminder-dispatch', self::reminderDispatch(...), ['Administrator', 'In Warteschlange']];
+        yield 'user' => ['user', static fn (): object => UserFactory::new()->asAdmin()->create(['locale' => 'de']), ['Deutsch', 'Administrator']];
+        yield 'page translation' => ['page-translation', static fn (): object => PageTranslationFactory::createOne(['status' => PageTranslation::STATUS_DRAFT]), ['Entwurf']];
+    }
+
+    /**
+     * @param \Closure(): object $create
+     * @param list<string>       $expected
+     */
+    #[DataProvider('choiceValueProvider')]
+    public function testDetailShowsGermanChoiceValues(string $slug, \Closure $create, array $expected): void
+    {
+        $client = $this->germanAdmin();
+        $entity = $create();
+        self::assertTrue(method_exists($entity, 'getId'));
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/'.$slug.'/'.$entity->getId());
+
+        self::assertResponseIsSuccessful();
+        $values = implode(' | ', $crawler->filter('.field-value')->each(static fn ($value): string => trim($value->text())));
+        foreach ($expected as $label) {
+            self::assertStringContainsString($label, $values, $slug);
+        }
     }
 
     /**

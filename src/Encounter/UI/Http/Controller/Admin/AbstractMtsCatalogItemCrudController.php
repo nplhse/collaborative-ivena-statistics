@@ -26,6 +26,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Option\BadgeVariant;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
@@ -136,7 +137,8 @@ abstract class AbstractMtsCatalogItemCrudController extends AbstractCrudControll
                 MtsCatalogStatus::Curated->name => 'success',
                 MtsCatalogStatus::Provisional->name => 'warning',
                 MtsCatalogStatus::Merged->name => 'secondary',
-            ]);
+            ])
+            ->setBadgeVariant(BadgeVariant::Dot);
         yield DateTimeField::new('firstSeenAt', new TranslatableMessage('encounter.mts_catalog.field.first_seen_at', domain: 'encounter'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->hideOnForm();

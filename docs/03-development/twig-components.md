@@ -442,7 +442,7 @@ Generated avatar of a user (#462), defined in the User context: `src/User/UI/Twi
 |----------|---------|-------|
 | `user` | `null` | `User` entity; wins over the scalar fields |
 | `userId`, `displayName`, `username` | `null` | Scalars from a DTO (activity rows, directory, profile) |
-| `size` | `sm` | `xs`, `sm`, `md`, `lg`, `xl`; unknown values fall back to `sm` |
+| `size` | `sm` | `inline`, `xs`, `sm`, `md`, `lg`, `xl`; unknown values fall back to `sm`. `inline` scales with the surrounding font and keeps the line height (running text) |
 | `decorative` | `true` | `aria-hidden` next to a visible name; `false` adds `role="img"`, `aria-label` and `title` |
 
 Extra attributes (`class`, `data-testid`) merge onto the `span`.
@@ -452,6 +452,24 @@ Extra attributes (`class`, `data-testid`) merge onto the `span`.
 <strong>{{ user_display_name(comment.author.displayName, comment.author.username) }}</strong>
 
 <twig:UserAvatar :userId="activity.actorId" :displayName="activity.actorDisplayName" :username="activity.actorUsername" size="sm" />
+```
+
+### User links (`users.link`)
+
+For a `User` entity, prefer the macro `users.link()` in `@Shared/_macros/users.html.twig` over a hand-written avatar and name (#1240). It prints the name through `user_display_name()`, adds `title="@username"` when the visible name differs from the username, and links to the profile when the user has a public ID.
+
+| Option | Default | Notes |
+|--------|---------|-------|
+| `empty` | `—` | Text when the user is `null` |
+| `requireParticipant` | `false` | Link only for viewers with `ROLE_PARTICIPANT` |
+| `target` | `_top` | So DataTable rows and Turbo Frames navigate the full page |
+| `avatar` | `false` | `inline`, `xs` or `sm` adds a decorative `UserAvatar` before the name |
+
+Sizes: `inline` in running text (bylines, owner lines, "Created by"), where a fixed size would grow the line; `xs` and `sm` in table cells and lists. Icons in the same line as an inline avatar get the class `icon-text` (`assets/styles/app.css`), which centres them on the text like the avatar.
+
+```twig
+{% import '@Shared/_macros/users.html.twig' as users %}
+{{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ users.link(hospital.createdBy, {avatar: 'inline'}) }}</strong>
 ```
 
 ## DataTable

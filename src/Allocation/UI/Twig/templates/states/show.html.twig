@@ -64,7 +64,7 @@
                     </div>
                     <div class="mb-2">
                         <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
-                        {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ users.link(state.createdBy) }}</strong>
+                        {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ users.link(state.createdBy, {avatar: 'inline'}) }}</strong>
                     </div>
                     {% if state.updatedBy and state.updatedAt %}
                         <div class="mt-1 mb-2">
@@ -73,7 +73,7 @@
                         </div>
                         <div class="mb-2">
                             <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
-                            {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ users.link(state.updatedBy) }}</strong>
+                            {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ users.link(state.updatedBy, {avatar: 'inline'}) }}</strong>
                         </div>
                     {% endif %}
             </twig:Card>

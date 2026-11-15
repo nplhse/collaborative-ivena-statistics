@@ -61,6 +61,18 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[IsGranted('ROLE_ADMIN')]
 final class UserCrudController extends AbstractCrudController
 {
+    /** Roles an admin can assign, in the order of the form. */
+    private const array ROLES = [
+        UserRole::ADMIN,
+        UserRole::PARTICIPANT,
+        UserRole::BOARD_MEMBER,
+        UserRole::USER,
+        UserRole::REVIEW_INDICATIONS,
+        UserRole::CLOSURE_BETA,
+        UserRole::ENCOUNTER_BETA,
+        UserRole::ENCOUNTER_CATALOG_REVIEWER,
+    ];
+
     public function __construct(
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly AuditContext $auditContext,
@@ -154,7 +166,8 @@ final class UserCrudController extends AbstractCrudController
         $csrfToken = $context->getRequest()->request->has('token')
             ? (string) $context->getRequest()->request->get('token')
             : null;
-        if (!$this->isCsrfTokenValid('ea-delete', $csrfToken)) {
+        // EasyAdmin 5.10.1 binds the delete token to the CRUD controller (see AbstractCrudController::delete()).
+        if (!$this->isCsrfTokenValid('ea-delete-'.self::class, $csrfToken)) {
             return $this->redirectToRoute($context->getDashboardRouteName());
         }
 
@@ -304,9 +317,9 @@ final class UserCrudController extends AbstractCrudController
             ->setFormTypeOption('empty_data', '');
         yield TextField::new('email');
         yield ChoiceField::new('locale', new TranslatableMessage('admin.field.locale', domain: 'admin'))
-            ->setChoices([
-                'English' => SupportedLocales::DEFAULT,
-                'German' => SupportedLocales::GERMAN,
+            ->setTranslatableChoices([
+                SupportedLocales::DEFAULT => new TranslatableMessage('locale.english', domain: 'shared'),
+                SupportedLocales::GERMAN => new TranslatableMessage('locale.german', domain: 'shared'),
             ])
             ->setRequired(false)
             ->hideOnIndex();
@@ -331,16 +344,10 @@ final class UserCrudController extends AbstractCrudController
             ->setFormat('dd.MM.yyyy HH:mm')
             ->onlyOnIndex();
         yield ChoiceField::new('roles')
-            ->setChoices([
-                'Admin' => UserRole::ADMIN,
-                'Participant' => UserRole::PARTICIPANT,
-                'Board Member' => UserRole::BOARD_MEMBER,
-                'User' => UserRole::USER,
-                'Reviews indications' => UserRole::REVIEW_INDICATIONS,
-                'Closure beta' => UserRole::CLOSURE_BETA,
-                'Encounter beta' => UserRole::ENCOUNTER_BETA,
-                'Encounter catalog reviewer' => UserRole::ENCOUNTER_CATALOG_REVIEWER,
-            ])
+            ->setTranslatableChoices(array_combine(
+                self::ROLES,
+                array_map(static fn (string $role): TranslatableMessage => new TranslatableMessage('admin.user.role.'.strtolower(substr($role, 5)), domain: 'admin'), self::ROLES),
+            ))
             ->allowMultipleChoices()
             ->renderAsBadges([
                 UserRole::ADMIN => 'danger',

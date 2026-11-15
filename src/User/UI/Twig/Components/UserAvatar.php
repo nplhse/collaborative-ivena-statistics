@@ -24,7 +24,7 @@ final class UserAvatar
      */
     public const array PALETTE = ['blue', 'azure', 'indigo', 'purple', 'pink', 'red', 'green', 'teal'];
 
-    private const array SIZES = ['xs', 'sm', 'md', 'lg', 'xl'];
+    private const array SIZES = ['inline', 'xs', 'sm', 'md', 'lg', 'xl'];
 
     public ?User $user = null;
 

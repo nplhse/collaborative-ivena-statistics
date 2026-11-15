@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\MciCase;
 
+use App\Admin\UI\Http\Controller\TranslatedEnumChoices;
 use App\Allocation\Domain\Entity\MciCase;
 use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationTransportType;
@@ -14,7 +15,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -78,12 +78,7 @@ final class MciCaseCrudController extends AbstractCrudController
             ->hideOnIndex();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.patient', domain: 'admin'));
-        yield ChoiceField::new('gender', new TranslatableMessage('label.gender', domain: 'messages'))
-            ->setChoices([
-                'Male' => AllocationGender::MALE,
-                'Female' => AllocationGender::FEMALE,
-                'Other' => AllocationGender::OTHER,
-            ])
+        yield TranslatedEnumChoices::field('gender', new TranslatableMessage('label.gender', domain: 'messages'), AllocationGender::class, static fn (AllocationGender $gender): string => 'label.gender.'.strtolower($gender->name), 'messages')
             ->hideOnIndex();
         yield IntegerField::new('age', new TranslatableMessage('label.age', domain: 'messages'))
             ->hideOnIndex();
@@ -105,18 +100,9 @@ final class MciCaseCrudController extends AbstractCrudController
             ->hideOnIndex();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.transport', domain: 'admin'));
-        yield ChoiceField::new('transportType', new TranslatableMessage('label.transport_type', domain: 'messages'))
-            ->setChoices([
-                'Ground' => AllocationTransportType::GROUND,
-                'Air' => AllocationTransportType::AIR,
-            ])
+        yield TranslatedEnumChoices::field('transportType', new TranslatableMessage('label.transport_type', domain: 'messages'), AllocationTransportType::class, static fn (AllocationTransportType $type): string => 'label.transportType.'.strtolower($type->name), 'messages')
             ->hideOnIndex();
-        yield ChoiceField::new('urgency', new TranslatableMessage('label.urgency', domain: 'messages'))
-            ->setChoices([
-                'Emergency' => AllocationUrgency::EMERGENCY,
-                'Inpatient' => AllocationUrgency::INPATIENT,
-                'Outpatient' => AllocationUrgency::OUTPATIENT,
-            ])
+        yield TranslatedEnumChoices::field('urgency', new TranslatableMessage('label.urgency', domain: 'messages'), AllocationUrgency::class, static fn (AllocationUrgency $urgency): string => 'allocation.urgency.'.$urgency->value, 'allocation')
             ->hideOnIndex();
         yield AssociationField::new('speciality', new TranslatableMessage('label.speciality', domain: 'messages'))
             ->hideOnIndex();

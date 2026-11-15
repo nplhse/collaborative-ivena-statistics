@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Import;
 
+use App\Admin\UI\Http\Controller\TranslatedEnumChoices;
 use App\Import\Domain\Entity\ImportBatchRun;
+use App\Import\Domain\Enum\ImportBatchRunStatus;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -14,6 +16,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Option\BadgeVariant;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 
@@ -52,7 +55,14 @@ final class ImportBatchRunCrudController extends AbstractCrudController
         yield IdField::new('id')
             ->onlyOnDetail();
         yield ChoiceField::new('status', new TranslatableMessage('label.status', domain: 'messages'))
-            ->renderAsBadges();
+            ->setTranslatableChoices(TranslatedEnumChoices::choices(ImportBatchRunStatus::cases(), static fn (ImportBatchRunStatus $status): string => 'import.batch_run.status.'.$status->value, 'import'))
+            ->renderAsBadges([
+                ImportBatchRunStatus::Running->value => 'info',
+                ImportBatchRunStatus::Finished->value => 'success',
+                ImportBatchRunStatus::Interrupted->value => 'warning',
+                ImportBatchRunStatus::Failed->value => 'danger',
+            ])
+            ->setBadgeVariant(BadgeVariant::Dot);
         yield DateTimeField::new('startedAt', new TranslatableMessage('admin.job_run.field.started_at', domain: 'admin'))
             ->setFormat('dd.MM.yyyy HH:mm');
         yield DateTimeField::new('finishedAt', new TranslatableMessage('admin.job_run.field.finished_at', domain: 'admin'))

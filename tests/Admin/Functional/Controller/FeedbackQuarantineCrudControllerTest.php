@@ -108,6 +108,26 @@ final class FeedbackQuarantineCrudControllerTest extends WebTestCase
         self::assertTrue($this->reload($id)->isQuarantined());
     }
 
+    public function testDeleteUsesTheTokenOfTheRenderedDialog(): void
+    {
+        [$client] = $this->loggedInAdmin();
+        $id = $this->feedback('Spam to delete', quarantined: true);
+        $kept = $this->feedback('Spam with a forged token', quarantined: true);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/feedback-quarantine/'.$id);
+        $token = (string) $crawler->filter('#action-confirmation-form input[name="token"]')->attr('value');
+        $client->request(Request::METHOD_POST, \sprintf('/admin/feedback-quarantine/%d/delete', $id), ['token' => $token]);
+        self::assertResponseRedirects();
+
+        $client->request(Request::METHOD_POST, \sprintf('/admin/feedback-quarantine/%d/delete', $kept), ['token' => 'forged']);
+        self::assertResponseRedirects();
+
+        $repository = self::getContainer()->get(FeedbackRepository::class);
+        self::getContainer()->get(EntityManagerInterface::class)->clear();
+        self::assertNull($repository->find($id), 'the token rendered in the dialog deletes the entry');
+        self::assertNotNull($repository->find($kept), 'a forged token deletes nothing');
+    }
+
     public function testReleaseIsNotReachableByGet(): void
     {
         [$client] = $this->loggedInAdmin();
