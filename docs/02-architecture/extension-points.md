@@ -126,6 +126,26 @@ so the top navbar marks Explore as active; the entry's `route` and `detailRoutes
 the explore sidebar. Rules for such pages:
 [explore-glossary.md](../04-features/allocation/explore-glossary.md).
 
+## Explore overview tiles
+
+**Tag:** `allocation.explore_entry`
+
+**Interface:** `ExploreEntryProviderInterface` (`src/Allocation/Application/Explore/Overview/`)
+
+**Registry:** `ExploreEntryRegistry` (by `ExploreGroup`), passed by `ExploreController` to
+`@Allocation/explore.html.twig`, which renders the tiles of a group after its fixed ones
+(`_explore_contributed_tiles.html.twig`)
+
+**Implementations:** `EncounterExploreEntryProvider` (ED visit list, #1178, and the tiles of encounter schemas,
+ADR 037, #1274)
+
+Lets other contexts add a tile (title, description, Tabler icon, route, beta badge) to the groups `cases`,
+`organisation`, `structure` or `features` of the Explore overview without a dependency from `Allocation` on them.
+Explore decides the visibility: a tile is shown when `is_granted($grantedAttribute)` holds, checked without a
+subject; the target page checks its access itself. Tiles of a group are ordered by weight, then key; a key may be
+contributed once. Providers run on every request of the overview and must not query the database. Name target
+routes `app_explore_…`, so that the Explore entry of the navigation is active.
+
 ## Allocation case file sections
 
 **Tag:** `allocation.case_section`
@@ -153,14 +173,25 @@ budget (`ShowAllocationControllerTest`).
 **Consumer:** `ImportRelatedDataCleanupService::removeRows()`, used by import deletion and by the cleanup
 before a reprocess or a redelivered run
 
-**Implementations:** `EncounterImportDataRemover` (encounters created by the import, #1047),
-`EncounterMatchDataRemover` (links, proposals and decisions of the import's allocations or visits, then a
-matcher rerun for the freed hospital-days, #1053; priority 10, so it runs while the visits still exist)
+**Implementations:** `EncounterAttachedRecordsGuard` (refuses while records of other imports are attached to
+the import's encounters, ADR 037; priority 20, so it runs before any removal), `EncounterImportDataRemover`
+(the records every encounter schema handler created for the import and their pending assignments,
+#1047, #1274), `EncounterMatchDataRemover` (links, proposals and decisions of the import's allocations or
+visits, then a matcher rerun for the freed hospital-days, #1053; priority 10, so it runs while the visits
+still exist)
 
 Lets a context that stores rows per import remove them together with the import's own rows, in the same
 transaction, without a dependency from `Import` on that context. `key()` names the count in the cleanup
 log (`import.<key>.cleared`). Removers run before the allocation rows are deleted, in descending priority
 (`#[AsTaggedItem(priority: …)]`).
+
+A remover may refuse with `ImportDeletionRefusedException` (`src/Import/Application/Contracts/`): before it
+removed anything, or while the removal transaction can still roll back. The import then stays complete, and
+the exception's `reason` (a translatable message of the refusing context) is shown to the user: the import
+page and the administration show it as a flash message, a bulk deletion counts the import as skipped
+(`import.bulk_delete.refused`), and the deletion after an encounter key change skips it
+(`encounter.key_change.import_refused`). Callers reset the entity manager after a refusal, because the
+rolled-back transaction closes it.
 
 ## Import workflow dispatchers
 
@@ -197,19 +228,138 @@ detail page. The type also needs a workflow dispatcher (above) for its runs.
 
 **Tag:** `encounter.dimension`
 
-**Interface:** `EncounterDimensionInterface` (`src/Encounter/Application/Dimension/`)
+**Interface:** `EncounterDimensionInterface` (`src/Encounter/Contract/Schema/`)
 
 **Registry:** `EncounterDimensionRegistry` (by schema name)
 
 **Implementations:** `EdVisitDimension` (`ed_visit` v1, #1047)
 
 Each schema of the canonical exchange format (`ed_visit`; later `inpatient_stay`, `diagnosis`,
-`procedure`) provides its supported versions and, per version, the field contract in header order:
-name, type (`EncounterFieldType`), required flag, code list and range, plus the accepted fingerprint
-rules per version (`fingerprintRules()`). The encounter import (#1048) validates files against the
-contract (`EncounterFileValidator`, `EdVisitRowMapper`). Vendor formats are not server extensions; they
-are source profiles of the data preparation tool. See
+`procedure`) provides its label (`label()`, shown in the upload form and the import report), its
+supported versions and, per version, the field contract in header order: name, type
+(`EncounterFieldType`), required flag, code list and range, plus the accepted fingerprint rules per
+version (`fingerprintRules()`). The encounter import (#1048) validates files against the contract
+(`EncounterFileValidator`); the schema's handler maps and writes the rows (below). Vendor formats are not
+server extensions; they are source profiles of the data preparation tool. See
 [ADR 026](decisions/026-encounter-data-context-and-exchange-format.md).
+
+## Encounter assignments
+
+**Service:** `EncounterAssignmentsInterface` (`src/Encounter/Contract/Assignment/`), implemented by
+`EncounterAssignments`; injected by schema handlers of attaching schemas
+
+Finds the encounter of a record of a schema that attaches to existing encounters
+([ADR 037](decisions/037-encounter-case-hub-and-schema-plugins.md#finding-the-encounter)). An
+`AssignmentRequest` names hospital and key generation of the import and optionally an allocation, a case
+pseudonym and a time; candidates come only from that hospital and key generation:
+
+- by allocation: the encounter with an effective link (auto-accepted or confirmed) to the allocation;
+- by case pseudonym: every encounter with the pseudonym.
+
+The `AssignmentResult` is `assigned` (the allocation's encounter when the pseudonym finds nothing or agrees,
+otherwise exactly one pseudonym match), `no_candidate`, `ambiguous` (several pseudonym matches) or
+`contradictory` (the allocation's encounter and the pseudonym's encounters differ), with every candidate and
+its `CandidateReason`. Nothing is guessed, and there is no time rule yet. `recordPending()` keeps an
+unassigned record with its request and candidates in `encounter_pending_assignment`, inside the import's
+transaction; manual decisions and retries follow in #1307. Handlers count their results with
+`AssignmentCounts` and return them in `SchemaWriteResult::$assignments`: the import report shows assigned,
+unassigned (no candidate) and conflicts (ambiguous or contradictory). Record tables reference `encounter`
+with ON DELETE RESTRICT; `EncounterAttachedRecordsGuard` (above) finds them in the database catalog.
+
+## Encounter record sections
+
+**Tag:** `encounter.record_section`
+
+**Interface:** `RecordSectionProviderInterface` (`src/Encounter/Contract/Display/`)
+
+**Registry:** `RecordSectionRegistry`, used by `HospitalCourseCaseSectionProvider`
+
+**Implementations:** in the `test` environment `InpatientStayRecordSections` of the test bundle
+(`tests/Fixtures/Plugin/InpatientStay/`)
+
+Lets an encounter schema show its records of an encounter in the hospital course card of the allocation case
+file (ADR 037). The card asks only after it checked `VIEW_CASES` and found the effective link; a provider returns
+`RecordSection`s (key, Twig template of the schema, variables) or none, with one query at most (query budget of the
+case file).
+
+## Encounter Explore tiles
+
+**Tag:** `encounter.explore_entry`
+
+**Interface:** `ExploreEntryProviderInterface` (`src/Encounter/Contract/Display/`)
+
+**Consumer:** `EncounterExploreEntryProvider`, which forwards the tiles to the
+[Explore overview](#explore-overview-tiles) in the group `cases`, after the ED visit list
+
+**Implementations:** in the `test` environment `InpatientStayExploreEntries` of the test bundle
+
+Lets an encounter schema add a tile to the Explore overview. Explore shows it to users who may view cases of at least
+one hospital (`EncounterAttribute::VIEW_CASES_IN_ANY_HOSPITAL`, `EncounterCasesAnywhereVoter`: beta role and grant
+action `VIEW_CASES` or `REVIEW` somewhere, or `ROLE_ADMIN`); the target page checks `VIEW_CASES` per hospital.
+
+## Encounter schema bundles
+
+**Marker:** `EncounterPluginBundleInterface` (`src/Encounter/Contract/Plugin/`) on a Symfony bundle
+
+**Consumers:** `EncounterPluginRouteLoader` (route type `encounter_plugins`, `config/routes/encounter_plugins.php`),
+`TimestampMigrationComparator` (`src/Shared/Infrastructure/Doctrine/`, registered in `doctrine_migrations.yaml`)
+
+**Implementations:** in the `test` environment `InpatientStayTestBundle` (`tests/Fixtures/Plugin/InpatientStay/`,
+schema `inpatient_stay`, #1274)
+
+How a Composer-installed bundle contributes an encounter schema without changes to the application
+([ADR 037](decisions/037-encounter-case-hub-and-schema-plugins.md)); enabling it in `config/bundles.php` and running
+the migrations is all a deployment needs:
+
+- An `AbstractBundle` that implements `EncounterPluginBundleInterface`. `prependExtension()` adds its Doctrine
+  mapping and its migrations path; `loadExtension()` loads its services (autowired and autoconfigured, so the tags of
+  the contract interfaces apply).
+- `config/routes.php` of the bundle, imported by `EncounterPluginRouteLoader` for every enabled marked bundle.
+  Name pages under Explore `app_explore_…`.
+- Templates in `templates/` (namespace `@<Bundle>` without the `Bundle` suffix) and translations in
+  `translations/` (own domain, EN and DE), registered by Symfony.
+- Migrations named `Version<YYYYMMDDHHMMSS>`, ordered by timestamp with the core ones; record tables reference
+  `encounter` with ON DELETE RESTRICT and their import with ON DELETE CASCADE.
+- From the application only `App\Encounter\Contract\…`: schema (`EncounterDimensionInterface`), handler
+  (`EncounterSchemaHandlerInterface`), assignment (`EncounterAssignmentsInterface`), access for its pages
+  (`EncounterAccessInterface`: `canViewCases()`, `hospitalsWithViewCases()`), record sections and Explore tiles
+  (`Display`). Deptrac layer `Encounter_Plugin` (paths `tests/Fixtures/Plugin`; later `plugins/`) may only use
+  `Encounter_Contract`; `PluginBoundaryTest` enforces it in CI and checks that `src/` names no plugin.
+
+How to try the test bundle in a browser: [review](../04-features/encounter/encounter-schema-plugins-review.md#try-it-in-the-browser).
+
+## Encounter schema handlers
+
+**Tag:** `encounter.schema_handler`
+
+**Interface:** `EncounterSchemaHandlerInterface` (`src/Encounter/Contract/Import/`)
+
+**Registry:** `EncounterSchemaHandlerRegistry` (by schema name); consumers `EncounterFileImporter`,
+`EncounterImportDataRemover` and the upload form (`EncounterImportTypeExtension`)
+
+**Implementations:** `EdVisitSchemaHandler` (`ed_visit`, part of the core until MTS moves into its bundle,
+#1300); in the `test` environment the test bundle's `InpatientStayHandler` and the probe schema `probe`
+(`tests/Support/Encounter/Probe/`, `config/services/encounter_probe_test.yaml`, only the import seam)
+
+Processes the rows of one schema inside the shared encounter import workflow
+([ADR 037](decisions/037-encounter-case-hub-and-schema-plugins.md)). The core reads the file, validates
+manifest and header against the schema's field contract, checks key generation and key check value,
+records rejects, counts, coverage and file rejections, and owns the transaction. The handler:
+
+- `mapRow()` maps one row to an `EncounterRecordRow` (`coverageAt()` for the data coverage), a
+  rejected row (`RowError` with an `EncounterRowError` code, never the cell value) or a skipped row
+  (`RowMappingResult`);
+- `write()` writes the valid rows of the file inside the core's commit and returns a `SchemaWriteResult`
+  (inserted records; valid rows not inserted count as duplicates; `insertedDays` for matching after the
+  commit);
+- `removeForImport()` removes the records an import created (deletion, cleanup before a reprocess);
+- `createsEncounters()` tells whether the schema creates encounters (`ed_visit`) or attaches records to
+  existing ones; the deletion after an encounter key change deletes imports of attaching schemas first.
+
+A schema can be uploaded only when it has a field contract and a handler; without any such schema the
+encounter import type is not offered. A file whose schema has no handler (for example after its bundle
+was removed) is rejected as `schema_unsupported`. Plugins only use the types under
+`src/Encounter/Contract/` (Deptrac layer `Encounter_Contract`).
 
 ## Tools
 

@@ -68,18 +68,23 @@ final class EncounterImportRepository extends ServiceEntityRepository implements
     }
 
     /**
-     * Ids of the hospital's encounter imports uploaded with a key generation before the given one,
-     * ascending (key change with the option "delete", ADR 027).
+     * Ids of the hospital's encounter imports uploaded with a key generation before the given one, with
+     * the schema of each, ascending by id (key change with the option "delete", ADR 027).
      *
-     * @return list<int>
+     * @return array<int, string> schema by import id
      */
-    public function importIdsBeforeGeneration(int $hospitalId, int $keyGeneration): array
+    public function importsBeforeGeneration(int $hospitalId, int $keyGeneration): array
     {
-        $ids = $this->getEntityManager()->getConnection()->fetchFirstColumn(
-            'SELECT i.id FROM import i INNER JOIN encounter_import ei ON ei.import_id = i.id WHERE i.hospital_id = ? AND ei.key_generation < ? ORDER BY i.id',
+        $rows = $this->getEntityManager()->getConnection()->fetchAllAssociative(
+            'SELECT i.id, ei.exchange_schema FROM import i INNER JOIN encounter_import ei ON ei.import_id = i.id WHERE i.hospital_id = ? AND ei.key_generation < ? ORDER BY i.id',
             [$hospitalId, $keyGeneration],
         );
 
-        return array_map(intval(...), $ids);
+        $imports = [];
+        foreach ($rows as $row) {
+            $imports[(int) $row['id']] = (string) $row['exchange_schema'];
+        }
+
+        return $imports;
     }
 }

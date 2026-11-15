@@ -1,0 +1,11 @@
+# Test-only encounter schema `probe` (ADR 037, #1274): a contribution registered through the container like
+# a bundle's, to prove the import seam (handler selection, assignment counts, pending records) without a bundle.
+# What a schema shows in the case file and on the Explore overview is proven by the test bundle
+# tests/Fixtures/Plugin/InpatientStay.
+when@test:
+    services:
+        App\Tests\Support\Encounter\Probe\ProbeDimension:
+            autoconfigure: true
+        App\Tests\Support\Encounter\Probe\ProbeSchemaHandler:
+            autowire: true
+            autoconfigure: true

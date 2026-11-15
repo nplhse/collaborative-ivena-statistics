@@ -7,6 +7,7 @@ namespace App\Admin\UI\Http\Controller\Import;
 use App\Admin\UI\Http\Controller\ImportReject\ImportRejectCrudController;
 use App\Admin\UI\Http\Controller\JobRun\JobRunCrudController;
 use App\Admin\UI\Http\Controller\TranslatedEnumChoices;
+use App\Import\Application\Contracts\ImportDeletionRefusedException;
 use App\Import\Application\Service\ImportDeletionService;
 use App\Import\Application\Service\ImportExportPeriodDeriver;
 use App\Import\Domain\Entity\Import;
@@ -14,6 +15,7 @@ use App\Import\Domain\Enum\ImportExportPeriodSource;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -48,6 +50,7 @@ final class ImportCrudController extends AbstractCrudController
         private readonly ImportDeletionService $importDeletionService,
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly ImportExportPeriodDeriver $exportPeriodDeriver,
+        private readonly ManagerRegistry $managerRegistry,
     ) {
     }
 
@@ -262,6 +265,12 @@ final class ImportCrudController extends AbstractCrudController
     #[\Override]
     public function deleteEntity(EntityManagerInterface $entityManager, object $entityInstance): void
     {
-        $this->importDeletionService->delete($entityInstance);
+        try {
+            $this->importDeletionService->delete($entityInstance);
+        } catch (ImportDeletionRefusedException $refusal) {
+            // The removal rolled back; a failed transaction closes the entity manager.
+            $this->managerRegistry->resetManager();
+            $this->addFlash('danger', $refusal->reason);
+        }
     }
 }

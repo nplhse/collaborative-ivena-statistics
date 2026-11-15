@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\Application\MessageHandler;
 
 use App\Import\Application\Contracts\ImportBulkDeletionPublisherInterface;
+use App\Import\Application\Contracts\ImportDeletionRefusedException;
 use App\Import\Application\DTO\ImportBulkDeletionSummary;
 use App\Import\Application\Message\DeleteImportsMessage;
 use App\Import\Application\Service\ImportDeletionService;
@@ -73,6 +74,15 @@ final readonly class DeleteImportsMessageHandler
             try {
                 $refreshOverview = $this->deletionService->delete($import, refreshMaterializedView: false) || $refreshOverview;
                 $deleted[] = $importId;
+            } catch (ImportDeletionRefusedException $refusal) {
+                // A remover refused before or while the removal rolled back: the import stays complete.
+                ++$skipped;
+                $this->importLogger->info('import.bulk_delete.refused', [
+                    'operation_id' => $message->operationId,
+                    'id' => $importId,
+                    'msg' => $refusal->getMessage(),
+                ]);
+                $this->managerRegistry->resetManager();
             } catch (\Throwable $e) {
                 ++$failed;
                 $this->importLogger->error('import.bulk_delete.failed', [

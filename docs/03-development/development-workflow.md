@@ -212,6 +212,7 @@ New migrations:
 - Generate them with `php bin/console doctrine:migrations:diff` (or `make:migration`) and review the SQL.
 - Name the version with the actual current time, `Version<YYYYMMDDHHMMSS>` (`date '+%Y%m%d%H%M%S'`), never a rounded value such as `Version20261014190000`. If you rename one that already ran locally, update `doctrine_migration_versions` too.
 - Never edit a migration that is already on `develop` (or on `main`); add a new one instead. Other checkouts and the next release already depend on it.
+- Migrations run in the order of the timestamp in their class name, across namespaces (`TimestampMigrationComparator`, ADR 037), so that migrations of encounter schema bundles run after the core migrations they build on; equal timestamps are ordered by the full class name. A migration whose class name does not end in `Version<YYYYMMDDHHMMSS>` is refused. A bundle migration may only build on core migrations with an older timestamp.
 
 ## Branches, releases and hotfixes
 

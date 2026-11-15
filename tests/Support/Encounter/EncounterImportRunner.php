@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Support\Encounter;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Encounter\Application\Dimension\EdVisitDimension;
 use App\Encounter\Application\Import\ImportEncountersDispatcher;
 use App\Encounter\Domain\Entity\EncounterImport;
 use App\Import\Domain\Entity\Import;
@@ -26,9 +27,9 @@ trait EncounterImportRunner
     /** @var list<string> */
     private array $encounterFiles = [];
 
-    private function uploadEncounterFile(Hospital $hospital, User $creator, string $content, string $name, int $keyGeneration = 1): int
+    private function uploadEncounterFile(Hospital $hospital, User $creator, string $content, string $name, int $keyGeneration = 1, string $schema = EdVisitDimension::SCHEMA): int
     {
-        $importId = $this->storeEncounterFile($hospital, $creator, $content, $name, $keyGeneration);
+        $importId = $this->storeEncounterFile($hospital, $creator, $content, $name, $keyGeneration, $schema);
         $this->runEncounterImport($importId, ImportRunTrigger::Upload, (int) $creator->getId());
 
         return $importId;
@@ -36,8 +37,9 @@ trait EncounterImportRunner
 
     /**
      * Stores the file and the pending import like an upload, without registering or running a run.
+     * $schema is the schema chosen at upload; the manifest of $content should name the same one.
      */
-    private function storeEncounterFile(Hospital $hospital, User $creator, string $content, string $name, int $keyGeneration = 1): int
+    private function storeEncounterFile(Hospital $hospital, User $creator, string $content, string $name, int $keyGeneration = 1, string $schema = EdVisitDimension::SCHEMA): int
     {
         $storedPath = sprintf('var/imports/test-encounter/%s.csv', bin2hex(random_bytes(8)));
         $absolutePath = $this->projectDir().'/'.$storedPath;
@@ -63,7 +65,7 @@ trait EncounterImportRunner
             ->setRunTime(0)
             ->setRowCount(0);
         $em->persist($import);
-        $em->persist(new EncounterImport($import, 'ed_visit', $keyGeneration, $creatorReference, new \DateTimeImmutable('2026-11-01 10:00')));
+        $em->persist(new EncounterImport($import, $schema, $keyGeneration, $creatorReference, new \DateTimeImmutable('2026-11-01 10:00')));
         $em->flush();
 
         return (int) $import->getId();

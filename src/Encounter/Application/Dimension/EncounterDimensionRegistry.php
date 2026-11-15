@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Encounter\Application\Dimension;
 
+use App\Encounter\Contract\Schema\EncounterDimensionInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 /**

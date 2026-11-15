@@ -6,6 +6,7 @@ namespace App\Encounter\Application\Import;
 
 use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Domain\Entity\Hospital;
+use App\Encounter\Contract\Import\EncounterRecordRow;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterDisposition;
 use App\Encounter\Domain\Entity\EncounterTimes;
@@ -23,7 +24,7 @@ use App\Import\Domain\Entity\Import;
 /**
  * A valid `ed_visit` row with typed values, ready to become an Encounter.
  */
-final readonly class EdVisitRow
+final readonly class EdVisitRow implements EncounterRecordRow
 {
     /**
      * @param list<IsolationCode> $isolation
@@ -48,6 +49,15 @@ final readonly class EdVisitRow
         public ?true $tetanusProtected,
         public array $isolation,
     ) {
+    }
+
+    /**
+     * The time anchor of the visit (ADR 029); a mapped row always has one.
+     */
+    #[\Override]
+    public function coverageAt(): ?\DateTimeImmutable
+    {
+        return $this->times->anchorAt();
     }
 
     public function toEncounter(Hospital $hospital, Import $import, int $keyGeneration): Encounter

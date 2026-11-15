@@ -577,6 +577,98 @@
         <source>encounter.import.field.schema_help</source>
         <target>Art der Daten in der Datei. Sie muss zum Schema in der ersten Zeile der Datei passen.</target>
       </trans-unit>
+      <trans-unit id="EncE42F25F61" resname="encounter.import.schema.ed_visit">
+        <source>encounter.import.schema.ed_visit</source>
+        <target>Notaufnahmebesuche (MTS)</target>
+      </trans-unit>
+      <trans-unit id="EncA94053061" resname="encounter.import.schema.unknown">
+        <source>encounter.import.schema.unknown</source>
+        <target>{schema} (nicht installiert)</target>
+      </trans-unit>
+      <trans-unit id="EncB0ECE8E85" resname="encounter.import.delete_refused.attached_records">
+        <source>encounter.import.delete_refused.attached_records</source>
+        <target>Dieser Import kann nicht gelöscht oder neu verarbeitet werden, solange Datensätze anderer Importe an seinen Besuchen hängen. Löschen Sie zuerst diese Importe.</target>
+      </trans-unit>
+      <trans-unit id="Enc16758DEBB" resname="encounter.import.count.assigned">
+        <source>encounter.import.count.assigned</source>
+        <target>Zugeordnet</target>
+      </trans-unit>
+      <trans-unit id="Enc3562A2AD5" resname="encounter.import.count.unassigned">
+        <source>encounter.import.count.unassigned</source>
+        <target>Ohne Zuordnung</target>
+      </trans-unit>
+      <trans-unit id="Enc5318EF3DB" resname="encounter.import.count.conflicts">
+        <source>encounter.import.count.conflicts</source>
+        <target>Zuordnungskonflikte</target>
+      </trans-unit>
+      <trans-unit id="EncB8EEA354F" resname="tools.encounter_assignments.title">
+        <source>tools.encounter_assignments.title</source>
+        <target>Zuordnungskonflikte</target>
+      </trans-unit>
+      <trans-unit id="EncCE0CA2520" resname="tools.encounter_assignments.description">
+        <source>tools.encounter_assignments.description</source>
+        <target>Datensätze weiterer Behandlungsdaten, deren Fall zu mehreren Behandlungsfällen passt oder einer IVENA-Verknüpfung widerspricht.</target>
+      </trans-unit>
+      <trans-unit id="EncCF5F7E43D" resname="encounter.assignment.title">
+        <source>encounter.assignment.title</source>
+        <target>Zuordnungskonflikte</target>
+      </trans-unit>
+      <trans-unit id="Enc686D44562" resname="encounter.assignment.intro">
+        <source>encounter.assignment.intro</source>
+        <target>Datensätze weiterer Behandlungsdaten (zum Beispiel stationäre Aufenthalte), die sich keinem einzelnen Behandlungsfall zuordnen ließen. Wählen Sie eine Klinik, für die Sie prüfen dürfen.</target>
+      </trans-unit>
+      <trans-unit id="EncAF2B492E1" resname="encounter.assignment.no_hospitals">
+        <source>encounter.assignment.no_hospitals</source>
+        <target>Sie dürfen die Behandlungsdaten keiner Klinik prüfen.</target>
+      </trans-unit>
+      <trans-unit id="EncF3CAEC278" resname="encounter.assignment.conflicts_intro">
+        <source>encounter.assignment.conflicts_intro</source>
+        <target>Diese Datensätze bleiben ohne Behandlungsfall, bis über ihre Zuordnung entschieden ist. Die Entscheidung folgt in einer späteren Version; bis dahin zeigt die Liste die Kandidaten.</target>
+      </trans-unit>
+      <trans-unit id="Enc9DDAC20A4" resname="encounter.assignment.no_conflicts">
+        <source>encounter.assignment.no_conflicts</source>
+        <target>Es gibt keine offenen Zuordnungskonflikte.</target>
+      </trans-unit>
+      <trans-unit id="Enc64E72C625" resname="encounter.assignment.limited">
+        <source>encounter.assignment.limited</source>
+        <target>Angezeigt werden die neuesten {shown} von {total} Konflikten.</target>
+      </trans-unit>
+      <trans-unit id="EncDA22EF705" resname="encounter.assignment.column.schema">
+        <source>encounter.assignment.column.schema</source>
+        <target>Art der Daten</target>
+      </trans-unit>
+      <trans-unit id="Enc6A2FC137D" resname="encounter.assignment.column.kind">
+        <source>encounter.assignment.column.kind</source>
+        <target>Konflikt</target>
+      </trans-unit>
+      <trans-unit id="Enc95587BBE6" resname="encounter.assignment.column.import">
+        <source>encounter.assignment.column.import</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="Enc08A09C83A" resname="encounter.assignment.column.candidates">
+        <source>encounter.assignment.column.candidates</source>
+        <target>Kandidaten</target>
+      </trans-unit>
+      <trans-unit id="Enc46B52E0AD" resname="encounter.assignment.kind.ambiguous">
+        <source>encounter.assignment.kind.ambiguous</source>
+        <target>Mehrere Behandlungsfälle mit derselben Fallnummer</target>
+      </trans-unit>
+      <trans-unit id="Enc09AC21EEB" resname="encounter.assignment.kind.contradictory">
+        <source>encounter.assignment.kind.contradictory</source>
+        <target>Verknüpfung und Fall widersprechen sich</target>
+      </trans-unit>
+      <trans-unit id="EncF3EDA9DEE" resname="encounter.assignment.reason.allocation">
+        <source>encounter.assignment.reason.allocation</source>
+        <target>mit der Zuweisung verknüpft</target>
+      </trans-unit>
+      <trans-unit id="EncDC103E5BD" resname="encounter.assignment.reason.case_key">
+        <source>encounter.assignment.reason.case_key</source>
+        <target>gleicher Fall</target>
+      </trans-unit>
+      <trans-unit id="EncEABEC91E1" resname="encounter.assignment.candidate_gone">
+        <source>encounter.assignment.candidate_gone</source>
+        <target>Behandlungsfall existiert nicht mehr</target>
+      </trans-unit>
       <trans-unit id="EncI5609204C" resname="encounter.import.field.confirmation">
         <source>encounter.import.field.confirmation</source>
         <target>Ich bestätige, dass diese Datei mit dem Datenaufbereitungs-Werkzeug erstellt wurde und keine direkten Identifikatoren enthält (Namen, Geburtsdaten, Fallnummern, Freitext).</target>

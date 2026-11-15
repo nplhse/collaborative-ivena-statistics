@@ -4,60 +4,54 @@ declare(strict_types=1);
 
 namespace App\Encounter\Infrastructure\Import;
 
-use App\Allocation\Domain\Entity\Hospital;
-use App\Encounter\Application\Catalog\MtsCatalogFirstSeenWriter;
-use App\Encounter\Application\Import\EdVisitRow;
-use App\Encounter\Application\Import\EdVisitRowMapper;
 use App\Encounter\Application\Import\EncounterFileReader;
 use App\Encounter\Application\Import\EncounterFileRejectedException;
 use App\Encounter\Application\Import\EncounterFileValidator;
 use App\Encounter\Application\Import\EncounterImportResult;
 use App\Encounter\Application\Import\EncounterKeyGenerationChangedException;
 use App\Encounter\Application\Import\EncounterManifest;
-use App\Encounter\Application\Import\RowError;
+use App\Encounter\Application\Import\EncounterSchemaHandlerRegistry;
+use App\Encounter\Contract\Import\EncounterRecordRow;
+use App\Encounter\Contract\Import\EncounterSchemaHandlerInterface;
+use App\Encounter\Contract\Import\RowError;
+use App\Encounter\Contract\Import\SchemaWriteContext;
+use App\Encounter\Contract\Import\SchemaWriteResult;
 use App\Encounter\Domain\Entity\EncounterImport;
 use App\Encounter\Domain\Enum\EncounterFileRejection;
-use App\Encounter\Domain\Enum\MtsCatalogKind;
 use App\Encounter\Infrastructure\Repository\EncounterKeyStateRepository;
-use App\Encounter\Infrastructure\Repository\EncounterRepository;
 use App\Import\Application\Service\ImportRunCommitGuard;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportReject;
 use App\Import\Domain\ValueObject\ImportDataCoverage;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 
 /**
- * Processes one canonical exchange file of an encounter import (#1048, ADR 026, ADR 027, ADR 029).
+ * Processes one canonical exchange file of an encounter import (#1048, ADR 026, ADR 027, ADR 029,
+ * ADR 037). The steps below are shared by every schema; the schema's handler maps the rows and writes
+ * its records.
  *
- * 1. Read and validate the whole file; a file-level finding throws EncounterFileRejectedException and
+ * 1. Find the handler of the schema chosen at upload; without one the file is rejected as unsupported.
+ * 2. Read and validate the whole file; a file-level finding throws EncounterFileRejectedException and
  *    nothing is written.
- * 2. Map every row; invalid rows become rejects, rows without a time anchor are skipped.
- * 3. Write everything in one guarded commit: lock the hospital's key state, check the key generation
+ * 3. Map every row through the handler; invalid rows become rejects, rows the schema skips are counted.
+ * 4. Write everything in one guarded commit: lock the hospital's key state, check the key generation
  *    stored on the import (mismatch throws EncounterKeyGenerationChangedException), check or register
- *    the key check value, insert new visits row by row (known visits count as duplicates), record
- *    suspected duplicates and row rejects. MTS diagram and indicator codes of the new visits that resolve to
- *    nothing become provisional catalog entries (ADR 032, #1157); the visits keep the codes as sent. A failure
- *    rolls the whole commit back.
+ *    the key check value, let the handler write its records, record row rejects. A failure rolls the
+ *    whole commit back.
  *
  * Row rejects record line number, field, error code and profile version only.
  */
 final readonly class EncounterFileImporter
 {
-    /** Time anchors closer than this make a new visit with the same case key a suspected duplicate (ADR 029). */
-    public const int SUSPECTED_DUPLICATE_WINDOW_MINUTES = 15;
-
     /** @psalm-suppress PossiblyUnusedMethod Autowired. */
     public function __construct(
         private EntityManagerInterface $entityManager,
         private EncounterFileReader $reader,
         private EncounterFileValidator $validator,
-        private EdVisitRowMapper $rowMapper,
-        private EncounterRepository $encounters,
+        private EncounterSchemaHandlerRegistry $handlers,
         private EncounterKeyStateRepository $keyStates,
         private ImportRunCommitGuard $commitGuard,
-        private MtsCatalogFirstSeenWriter $firstSeen,
         private ClockInterface $clock,
     ) {
     }
@@ -68,6 +62,8 @@ final readonly class EncounterFileImporter
      */
     public function import(Import $import, EncounterImport $encounterImport, string $absolutePath): EncounterImportResult
     {
+        $handler = $this->handlers->find($encounterImport->getSchema()) ?? throw new EncounterFileRejectedException(EncounterFileRejection::SchemaUnsupported);
+
         $content = @file_get_contents($absolutePath);
         if (false === $content) {
             throw new \RuntimeException(sprintf('Source file of encounter import #%d could not be read.', (int) $import->getId()));
@@ -78,14 +74,14 @@ final readonly class EncounterFileImporter
         [$manifest, $fields] = $this->validator->validate($file, $encounterImport->getSchema());
         $encounterImport->recordManifest($manifest->schemaVersion, $manifest->profile, $manifest->profileVersion, $manifest->toolVersion);
 
-        /** @var list<EdVisitRow> $valid */
+        /** @var list<EncounterRecordRow> $valid */
         $valid = [];
         /** @var array<int, non-empty-list<RowError>> $rejects */
         $rejects = [];
         $skipped = 0;
         foreach ($file->rows as $line => $cells) {
-            $result = $this->rowMapper->map($line, $fields, $cells);
-            if ($result->row instanceof EdVisitRow) {
+            $result = $handler->mapRow($line, $fields, $cells);
+            if ($result->row instanceof EncounterRecordRow) {
                 $valid[] = $result->row;
             } elseif ($result->isSkipped()) {
                 ++$skipped;
@@ -96,30 +92,30 @@ final readonly class EncounterFileImporter
             }
         }
 
-        $counts = $this->commitGuard->transactional(
+        $written = $this->commitGuard->transactional(
             $this->entityManager,
-            fn (): array => $this->write($import, $encounterImport, $manifest, $valid, $rejects),
+            fn (): SchemaWriteResult => $this->write($import, $encounterImport, $handler, $manifest, $valid, $rejects),
         );
 
         return new EncounterImportResult(
             total: \count($file->rows),
-            inserted: $counts['inserted'],
-            duplicates: \count($valid) - $counts['inserted'],
+            inserted: $written->inserted,
+            duplicates: \count($valid) - $written->inserted,
             skipped: $skipped,
             rejected: \count($rejects),
-            suspectedDuplicates: $counts['suspected'],
+            // Suspected duplicates are specific to ed_visit and stay in the core until #1300.
+            suspectedDuplicates: $written instanceof EdVisitWriteResult ? $written->suspectedDuplicates : 0,
             coverage: $this->coverage($valid),
-            insertedDays: $counts['days'],
+            insertedDays: $written->insertedDays,
+            assignments: $written->assignments,
         );
     }
 
     /**
-     * @param list<EdVisitRow>                     $valid
+     * @param list<EncounterRecordRow>             $valid
      * @param array<int, non-empty-list<RowError>> $rejects
-     *
-     * @return array{inserted: int, suspected: int, days: list<string>}
      */
-    private function write(Import $import, EncounterImport $encounterImport, EncounterManifest $manifest, array $valid, array $rejects): array
+    private function write(Import $import, EncounterImport $encounterImport, EncounterSchemaHandlerInterface $handler, EncounterManifest $manifest, array $valid, array $rejects): SchemaWriteResult
     {
         $importId = (int) $import->getId();
         $hospital = $import->getHospital() ?? throw new \LogicException(sprintf('Import #%d has no hospital.', $importId));
@@ -141,40 +137,10 @@ final readonly class EncounterFileImporter
             throw new EncounterFileRejectedException(EncounterFileRejection::KeyCheckMismatch);
         }
 
-        /** @var Hospital $hospitalReference */
-        $hospitalReference = $this->entityManager->getReference(Hospital::class, $hospitalId);
+        $written = $handler->write(new SchemaWriteContext($hospitalId, $importId, $generation), $valid);
+
         /** @var Import $importReference */
         $importReference = $this->entityManager->getReference(Import::class, $importId);
-
-        $inserted = 0;
-        $suspected = 0;
-        $days = [];
-        $diagrams = [];
-        $indicators = [];
-        foreach ($valid as $row) {
-            $encounter = $row->toEncounter($hospitalReference, $importReference, $generation);
-            $encounterId = $this->encounters->insertIfNewReturningId($encounter);
-            if (null === $encounterId) {
-                continue;
-            }
-
-            ++$inserted;
-            foreach ([$row->triage->getDiagram(), $row->retriage->getDiagram()] as $code) {
-                if (null !== $code) {
-                    $diagrams[$code] = true;
-                }
-            }
-            foreach ([$row->triage->getIndicator(), $row->retriage->getIndicator()] as $code) {
-                if (null !== $code) {
-                    $indicators[$code] = true;
-                }
-            }
-            $days[$encounter->getAnchorAt()->format('Y-m-d')] = true;
-            if ($this->recordSuspectedDuplicates($importId, $encounterId, $row->line, $encounter->getAnchorSource()->value)) {
-                ++$suspected;
-            }
-        }
-
         foreach ($rejects as $line => $errors) {
             $reject = new ImportReject();
             $reject->setImport($importReference);
@@ -187,37 +153,13 @@ final readonly class EncounterFileImporter
 
         $this->entityManager->flush();
 
-        $seenAt = $this->clock->now();
-        $this->firstSeen->record(MtsCatalogKind::Diagram, array_fill_keys(array_map(strval(...), array_keys($diagrams)), $seenAt), ['import_id' => $importId]);
-        $this->firstSeen->record(MtsCatalogKind::Indicator, array_fill_keys(array_map(strval(...), array_keys($indicators)), $seenAt), ['import_id' => $importId]);
-
-        $days = array_keys($days);
-        sort($days);
-
-        return ['inserted' => $inserted, 'suspected' => $suspected, 'days' => $days];
+        return $written;
     }
 
     /**
-     * @return bool whether the new visit is a suspected duplicate of at least one earlier visit
-     */
-    private function recordSuspectedDuplicates(int $importId, int $encounterId, int $line, string $anchorSource): bool
-    {
-        $matches = $this->encounters->findSuspectedDuplicatesOf($encounterId, self::SUSPECTED_DUPLICATE_WINDOW_MINUTES);
-        foreach ($matches as $match) {
-            $this->entityManager->getConnection()->executeStatement(
-                'INSERT INTO encounter_suspected_duplicate (import_id, encounter_id, existing_encounter_id, line_number, anchor_difference_minutes, anchor_source, existing_anchor_source) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                [$importId, $encounterId, $match['id'], $line, $match['difference_minutes'], $anchorSource, $match['anchor_source']],
-                [Types::INTEGER, Types::INTEGER, Types::INTEGER, Types::INTEGER, Types::SMALLINT, Types::STRING, Types::STRING],
-            );
-        }
-
-        return [] !== $matches;
-    }
-
-    /**
-     * Visits of the file (new and known) per anchor day.
+     * Valid rows of the file (new and known) per day of their coverage time.
      *
-     * @param list<EdVisitRow> $rows
+     * @param list<EncounterRecordRow> $rows
      */
     private function coverage(array $rows): ImportDataCoverage
     {
@@ -229,7 +171,7 @@ final readonly class EncounterFileImporter
         $last = null;
         $daily = [];
         foreach ($rows as $row) {
-            $anchor = $row->times->anchorAt();
+            $anchor = $row->coverageAt();
             if (!$anchor instanceof \DateTimeImmutable) {
                 continue;
             }

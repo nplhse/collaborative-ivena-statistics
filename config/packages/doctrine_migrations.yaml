@@ -4,3 +4,6 @@ doctrine_migrations:
         # as migrations classes should NOT be autoloaded
         'DoctrineMigrations': '%kernel.project_dir%/migrations'
     enable_profiler: false
+    # Orders migrations by the timestamp in their name, across namespaces (bundles, ADR 037).
+    services:
+        'Doctrine\Migrations\Version\Comparator': 'App\Shared\Infrastructure\Doctrine\TimestampMigrationComparator'

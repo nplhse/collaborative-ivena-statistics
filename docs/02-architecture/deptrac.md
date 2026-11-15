@@ -35,6 +35,7 @@ Aligned with ADR 007–009:
 - **Admin:** may depend on all production context layers (CRUD back office)
 - **No production context → Admin UI** (e.g. no imports of `Admin\UI\…Controller` for URL generation)
 - **Documented partnerships:** Import/Allocation/Statistics/Engagement edges as defined in ADR 007; `Statistics_UI` → `Encounter_Application` for the encounter analytics page (#1055, see [bounded-contexts.md](bounded-contexts.md))
+- **Encounter contract:** `Encounter_Contract` (`src/Encounter/Contract/`) is the public API for encounter schema plugins ([ADR 037](decisions/037-encounter-case-hub-and-schema-plugins.md)); every Encounter layer may use it, and it depends on nothing of the application
 
 Pragmatic gaps (Doctrine `repositoryClass` on entities, Application → Infrastructure queries, UI → Infrastructure forms) are recorded in the baseline until refactors remove them.
 

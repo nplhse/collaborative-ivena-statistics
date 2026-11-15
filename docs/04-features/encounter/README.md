@@ -18,7 +18,9 @@ Decisions: [ADR 026](../../02-architecture/decisions/026-encounter-data-context-
 [ADR 029](../../02-architecture/decisions/029-encounter-import-lifecycle.md) (import lifecycle),
 [ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md) (matching),
 [ADR 032](../../02-architecture/decisions/032-mts-catalog-as-maintained-data.md) (MTS catalog),
-[ADR 033](../../02-architecture/decisions/033-learning-plausibility-table.md) (plausibility table).
+[ADR 033](../../02-architecture/decisions/033-learning-plausibility-table.md) (plausibility table),
+[ADR 037](../../02-architecture/decisions/037-encounter-case-hub-and-schema-plugins.md) (case hub and schema
+plugins; review in [encounter-schema-plugins-review.md](encounter-schema-plugins-review.md)).
 
 ## Flow
 
@@ -85,16 +87,21 @@ Implemented in #1047:
   through the EntityManager.
 - **Owning import:** `import_id` (`ON DELETE CASCADE`). Deleting an import and the cleanup before a
   reprocess both go through `ImportRelatedDataCleanupService`, which calls `EncounterImportDataRemover`
-  ([extension point](../../02-architecture/extension-points.md#import-data-removers)); it deletes
-  exactly the visits the import created. Links and review decisions (#1053, #1054) must reference
+  ([extension point](../../02-architecture/extension-points.md#import-data-removers)); it lets every
+  schema handler delete exactly the records the import created. Links and review decisions (#1053, #1054) must reference
   `encounter` with `ON DELETE CASCADE` so they go with their visit.
 - **Key state:** `encounter_key_state`, one row per hospital: `key_generation` (starts at 1),
   `active_check_value`, `retired_check_values`, `key_change_in_progress`. The import registers and
   checks check values ([Import](#import)); the [key change](#key-change) moves the generation. Changes
   through the ORM (the key change) are audited; the import's registration of a check value is not.
+- **Schema bundles** (ADR 037, #1274): further schemas come from Symfony bundles
+  ([extension point](../../02-architecture/extension-points.md#encounter-schema-bundles)); the test-only bundle
+  `inpatient_stay` proves the mechanism end to end (`tests/Encounter/Functional/Plugin/InpatientStayImportTest.php`).
 - **Schemas:** `EncounterDimensionInterface` (tag `encounter.dimension`) with `EdVisitDimension` as
   field contract of `ed_visit` v1
-  ([extension point](../../02-architecture/extension-points.md#encounter-schemas)).
+  ([extension point](../../02-architecture/extension-points.md#encounter-schemas)); rows are processed
+  by the schema's handler (`EncounterSchemaHandlerInterface`, `EdVisitSchemaHandler` for `ed_visit`,
+  [extension point](../../02-architecture/extension-points.md#encounter-schema-handlers), ADR 037).
 
 Example (tested in `EncounterImportLifecycleTest`): import A has visits on 1, 5, 10, 12 and 15 October,
 import B on 10, 12, 15, 20 and 31 October. B inserts the 20th and 31st and counts three duplicates.
@@ -194,6 +201,17 @@ and review decisions, its rejects, report, suspected-duplicate records and sourc
 imports stay (ADR 029). The confirmation dialog says so; the deletion is audited like every import
 deletion.
 
+**Attached records** (ADR 037, #1274): records of attaching schemas reference visits with ON DELETE
+RESTRICT. While such records of other imports hang on an import's visits, deleting or reprocessing that
+import is refused before anything is removed (`EncounterAttachedRecordsGuard`); should the database still
+block it (a record attached meanwhile), the removal rolls back and the same refusal is shown: "This import
+cannot be deleted or reprocessed while records of other imports are attached to its visits." Delete the
+attaching imports first. Until the encounter hub is split out of `encounter` (#1300) this concerns only
+`ed_visit` imports. Attaching schemas count their records as assigned, unassigned (no candidate) and
+conflicts in the report (`encounter_import.assigned / unassigned / conflicts`, null for `ed_visit`), and
+keep unassigned records in `encounter_pending_assignment`
+([extension point](../../02-architecture/extension-points.md#encounter-assignments)).
+
 ### Upload file retention
 
 Accepted files and files rejected for a possible processing error are kept for
@@ -260,7 +278,10 @@ Flow (`EncounterKeyChanger`, one transaction holding the key state lock that the
    **delete**: `DeleteEncounterDataAfterKeyChangeMessage` is queued in the same transaction (worker,
    queue `low`). The worker deletes every encounter import of the hospital with an earlier generation
    through `ImportDeletionService`: visits with links and review decisions, rejects, report, suspected
-   duplicates, source and reject files. An import that is still running is retried after a minute
+   duplicates, source and reject files. Imports of attaching schemas go first, `ed_visit` imports last
+   (ADR 037), so attached records do not block them; an import that is still refused stays complete with
+   its old generation, as with "keep", and is logged (`encounter.key_change.import_refused`). An import
+   that is still running is retried after a minute
    (Messenger retry strategy of the transport, at most three times; then the message is in the failed
    transport and the change stays in progress until it is retried). Afterwards it ends the change under
    the audit intent `encounter.key.change_completed`. Uploads stay refused until then.
@@ -304,6 +325,8 @@ Overviews cross both attributes, for example "EMS arrival, not linked".
 | Match validation: draw samples, record verdicts, read the report | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
 | Case-level views, case card on an allocation, visit list and visit detail page | beta role + encounter grant `VIEW_CASES`, or `ROLE_ADMIN` |
 | Open proposals (state "proposal pending") and links into the match review on the visit list and detail page | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
+| Assignment conflicts of attaching schemas (read only, #1274) | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
+| Explore tiles of further encounter schemas | beta role + encounter grant `VIEW_CASES` (or `REVIEW`) for at least one hospital, or `ROLE_ADMIN`; the target page checks the hospital |
 | Descriptive aggregates of the own hospital | beta role + any encounter grant + `STATISTICS`, or `ROLE_ADMIN` |
 | View or download a retained upload file | beta role + encounter grant `UPLOAD` on the hospital, or `ROLE_ADMIN` |
 | Reprocess a retained upload file | beta role + `UPLOAD`, or `ROLE_ADMIN` (shows no file content) |
@@ -970,6 +993,10 @@ beta role, or `ROLE_ADMIN`); everyone else sees the case file without it.
 - **Vitals:** with `documented_initial` labelled "documented first value" with the note that the time
   of measurement is not assured, and never placed on the timeline.
 - **Open visit** links to the [visit detail page](#visit-detail-page) (#1178).
+- **Records of other schemas** (ADR 037, #1274): below the blocks, the sections that encounter schemas
+  contribute for the linked encounter (`RecordSectionProviderInterface`, tag `encounter.record_section`,
+  [extension point](../../02-architecture/extension-points.md#encounter-record-sections)). The card has
+  checked `VIEW_CASES` before; each schema adds one query at most.
 
 The clinical blocks (triage, process times, timeline, vitals, disposition) are Twig macros in
 `@Encounter/visit/_course_macros.html.twig`, shared with the visit detail page.
@@ -1003,8 +1030,9 @@ list of unlinked visits; the breadcrumb and "Back to list" open the visit list o
 
 Implemented in #1178. All ED visits of one hospital in a period, with or without IVENA allocation, in Explore
 under "Cases" ("ED visits", beta badge; `EncounterNavigationProvider` shows it to the beta role, the pages check
-the grants). The Explore start page shows a tile in its "Cases" group for the beta role as well, written into
-`explore.html.twig` like the Users tile of the User context (the start page has no extension point).
+the grants). The Explore start page shows a tile in its "Cases" group for the beta role as well, contributed through
+the [Explore overview extension point](../../02-architecture/extension-points.md#explore-overview-tiles)
+(`EncounterExploreEntryProvider`, #1274); the tiles of further encounter schemas follow it.
 
 - `/explore/ed-visits` (`ListVisitHospitalsController`) lists the hospitals whose visits the user may see
   (`VisitListHospitals`: grant action `VIEW_CASES`, also set by `REVIEW`; every hospital with visits for
@@ -1138,6 +1166,7 @@ listed by `EncounterToolProvider` for `ROLE_ENCOUNTER_BETA` with a beta badge:
 | Encounter match review | `app_tools_encounter_review` | `/tools/encounter-review` (hospital list), `/tools/encounter-review/{id}/…` |
 | Encounter match validation | `app_tools_encounter_review` with `mode=validation` | the same hospital list, linking to `/tools/encounter-review/{id}/validation` |
 | Data preparation tool | `app_tools_data_prep` | `/tools/data-prep`, `/tools/data-prep/key`, `/tools/data-prep/local-map`, `/tools/data-prep/download` |
+| Assignment conflicts (#1274, read only; decisions in #1307) | `app_tools_encounter_assignments` | `/tools/encounter-assignments` (hospitals with grant `REVIEW`; administrators: every hospital with conflicts), `/tools/encounter-assignments/{id}` (open ambiguous and contradictory records of attaching schemas with their candidates, newest 200) |
 | Plausibility table (also needs `ROLE_ENCOUNTER_CATALOG_REVIEWER`, [above](#plausibility-table)) | `app_tools_encounter_plausibility*` | `/tools/encounter-plausibility`, `…/areas/new`, `…/areas/{code}/edit`, `…/areas/{code}/delete`, `…/snapshots/{id}`, `…/snapshots/{id}/{activate,retire,delete}` |
 
 There is no encounter entry in the main navigation anymore: descriptive figures are in Statistics

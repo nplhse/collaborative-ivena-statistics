@@ -9,7 +9,7 @@ use App\Encounter\Application\Contract\DepartmentCatalogInterface;
 use App\Encounter\Application\Dimension\EdVisitDimension;
 use App\Encounter\Application\Import\EdVisitRow;
 use App\Encounter\Application\Import\EdVisitRowMapper;
-use App\Encounter\Application\Import\RowError;
+use App\Encounter\Contract\Import\RowError;
 use App\Encounter\Domain\Enum\AnchorSource;
 use App\Encounter\Domain\Enum\ArrivalMode;
 use App\Encounter\Domain\Enum\CareLevel;
@@ -163,7 +163,7 @@ final class EdVisitRowMapperTest extends TestCase
     /**
      * @param array<string, string> $overrides
      */
-    private function map(array $overrides): \App\Encounter\Application\Import\RowMappingResult
+    private function map(array $overrides): \App\Encounter\Contract\Import\RowMappingResult
     {
         $cells = [
             'visit_fingerprint' => EdVisitFileBuilder::fingerprint('a'),

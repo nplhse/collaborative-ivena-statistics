@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Encounter\Domain\Enum;
+namespace App\Encounter\Contract\Import;
 
 /**
  * Error code of a rejected row of an encounter file (#1048). A reject records line number, field,

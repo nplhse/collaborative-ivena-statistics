@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Encounter\Application\Import;
+namespace App\Encounter\Contract\Import;
 
 /**
- * Outcome of mapping one data row: a valid visit, a rejected row with its findings, or a row without
- * any time anchor, which is skipped and counted (ADR 029).
+ * Outcome of mapping one data row: a valid row, a rejected row with its findings, or a row the schema
+ * skips and only counts (for `ed_visit`, a row without any time anchor, ADR 029). Consumers that need
+ * the concrete row class check it with instanceof.
  */
 final readonly class RowMappingResult
 {
@@ -14,12 +15,12 @@ final readonly class RowMappingResult
      * @param list<RowError> $errors
      */
     private function __construct(
-        public ?EdVisitRow $row,
+        public ?EncounterRecordRow $row,
         public array $errors,
     ) {
     }
 
-    public static function valid(EdVisitRow $row): self
+    public static function valid(EncounterRecordRow $row): self
     {
         return new self($row, []);
     }
@@ -39,6 +40,6 @@ final readonly class RowMappingResult
 
     public function isSkipped(): bool
     {
-        return !$this->row instanceof EdVisitRow && [] === $this->errors;
+        return !$this->row instanceof EncounterRecordRow && [] === $this->errors;
     }
 }

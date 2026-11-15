@@ -26,6 +26,8 @@ final readonly class EncounterToolProvider implements ToolProviderInterface
     public const string DATA_PREP = 'encounter_data_prep';
     public const string PLAUSIBILITY = 'encounter_plausibility';
 
+    public const string ASSIGNMENTS = 'encounter_assignments';
+
     public function __construct(
         private AuthorizationCheckerInterface $authorizationChecker,
     ) {
@@ -59,6 +61,16 @@ final readonly class EncounterToolProvider implements ToolProviderInterface
                 category: ToolCategory::Matching,
                 beta: true,
                 routeParameters: ['mode' => ListReviewHospitalsController::MODE_VALIDATION],
+            ),
+            new Tool(
+                key: self::ASSIGNMENTS,
+                titleKey: 'tools.encounter_assignments.title',
+                descriptionKey: 'tools.encounter_assignments.description',
+                translationDomain: 'encounter',
+                route: 'app_tools_encounter_assignments',
+                icon: 'tabler:link-off',
+                category: ToolCategory::Matching,
+                beta: true,
             ),
             new Tool(
                 key: self::DATA_PREP,

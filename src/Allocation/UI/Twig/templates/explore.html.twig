@@ -66,26 +66,7 @@
                         </div>
                     </a>
                 </div>
-                {# ED visits of the Encounter context (#1178), like the Users tile of the User context. Only for the
-                   beta role, as its sidebar entry; the pages check the encounter grants per hospital (ADR 028). #}
-                {% if is_granted('ROLE_ENCOUNTER_BETA') %}
-                    <div class="col-12 col-sm-6 col-md-4" data-testid="explore-tile-ed-visits">
-                        <a href="{{ path('app_explore_ed_visit_hospitals') }}">
-                            <div class="card p-3 d-flex flex-row align-items-center">
-                                <div class="me-3 text-primary">
-                                    <twig:ux:icon name="tabler:stethoscope" width="4em" height="4em" />
-                                </div>
-                                <div>
-                                    <div class="h3 mb-0">
-                                        {{ 'encounter.visit_list.title'|trans({}, 'encounter') }}
-                                        <span class="badge bg-azure-lt align-middle ms-1">{{ 'tools.beta'|trans({}, 'shared') }}</span>
-                                    </div>
-                                    <small class="text-secondary">{{ 'encounter.explore.tile.ed_visits'|trans({}, 'encounter') }}</small>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                {% endif %}
+                {{ include('@Allocation/_explore_contributed_tiles.html.twig', {entries: contributed_entries['cases'] ?? []}) }}
             </div>
         </section>
 
@@ -144,6 +125,7 @@
                         </div>
                     </a>
                 </div>
+                {{ include('@Allocation/_explore_contributed_tiles.html.twig', {entries: contributed_entries['organisation'] ?? []}) }}
             </div>
         </section>
 
@@ -176,6 +158,7 @@
                         </div>
                     </a>
                 </div>
+                {{ include('@Allocation/_explore_contributed_tiles.html.twig', {entries: contributed_entries['structure'] ?? []}) }}
             </div>
         </section>
 
@@ -260,6 +243,7 @@
                         </div>
                     </a>
                 </div>
+                {{ include('@Allocation/_explore_contributed_tiles.html.twig', {entries: contributed_entries['features'] ?? []}) }}
             </div>
         </section>
 

@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 final class EncounterToolProviderTest extends TestCase
 {
-    public function testBetaUserGetsReviewValidationAndDataPreparation(): void
+    public function testBetaUserGetsReviewValidationAssignmentConflictsAndDataPreparation(): void
     {
         $tools = new EncounterToolProvider($this->checker(['ROLE_ENCOUNTER_BETA']))->tools();
 
@@ -20,6 +20,7 @@ final class EncounterToolProviderTest extends TestCase
             [
                 EncounterToolProvider::REVIEW => ['app_tools_encounter_review', [], ToolCategory::Matching],
                 EncounterToolProvider::VALIDATION => ['app_tools_encounter_review', ['mode' => 'validation'], ToolCategory::Matching],
+                EncounterToolProvider::ASSIGNMENTS => ['app_tools_encounter_assignments', [], ToolCategory::Matching],
                 EncounterToolProvider::DATA_PREP => ['app_tools_data_prep', [], ToolCategory::DataPreparation],
             ],
             array_combine(
@@ -27,7 +28,7 @@ final class EncounterToolProviderTest extends TestCase
                 array_map(static fn (Tool $tool): array => [$tool->route, $tool->routeParameters, $tool->category], $tools),
             ),
         );
-        self::assertSame([true, true, true], array_map(static fn (Tool $tool): bool => $tool->beta, $tools));
+        self::assertSame([true, true, true, true], array_map(static fn (Tool $tool): bool => $tool->beta, $tools));
     }
 
     public function testUserWithoutBetaRoleGetsNoTool(): void
@@ -40,7 +41,7 @@ final class EncounterToolProviderTest extends TestCase
         $tools = new EncounterToolProvider($this->checker(['ROLE_ENCOUNTER_BETA', 'ROLE_ENCOUNTER_CATALOG_REVIEWER']))->tools();
         $plausibility = array_values(array_filter($tools, static fn (Tool $tool): bool => EncounterToolProvider::PLAUSIBILITY === $tool->key));
 
-        self::assertCount(4, $tools);
+        self::assertCount(5, $tools);
         self::assertCount(1, $plausibility);
         self::assertSame(['app_tools_encounter_plausibility', ToolCategory::Matching, true], [$plausibility[0]->route, $plausibility[0]->category, $plausibility[0]->beta]);
     }
