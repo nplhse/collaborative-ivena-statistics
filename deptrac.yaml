@@ -376,6 +376,13 @@ deptrac:
                 -
                     type: directory
                     value: src/Encounter/UI/.*
+        # Public contract for schema plugins (ADR 037): plugins may only use this layer of Encounter.
+        -
+            name: Encounter_Contract
+            collectors:
+                -
+                    type: directory
+                    value: src/Encounter/Contract/.*
     ruleset:
         Admin_Application:
             - Admin_Application
@@ -659,8 +666,11 @@ deptrac:
             - Statistics_Infrastructure
             - Statistics_UI
         # Encounter (ADR 025, 027) may use Allocation, Import, Shared and User, its infrastructure also Notification
-        # (admin notification of a key change, ADR 026); no context may use Encounter.
+        # (admin notification of a key change, ADR 026); no context may use Encounter. Every Encounter layer may use
+        # Encounter_Contract, which itself depends on nothing of the application (ADR 037).
+        Encounter_Contract: []
         Encounter_Domain:
+            - Encounter_Contract
             - Allocation_Domain
             - Import_Domain
             - Shared_Application
@@ -669,6 +679,7 @@ deptrac:
             - Shared_UI
             - User_Domain
         Encounter_Application:
+            - Encounter_Contract
             - Allocation_Application
             - Allocation_Domain
             - Encounter_Domain
@@ -681,6 +692,7 @@ deptrac:
             - User_Application
             - User_Domain
         Encounter_Infrastructure:
+            - Encounter_Contract
             - Allocation_Application
             - Allocation_Domain
             - Encounter_Application
@@ -696,6 +708,7 @@ deptrac:
             - User_Application
             - User_Domain
         Encounter_UI:
+            - Encounter_Contract
             - Allocation_Application
             - Allocation_Domain
             - Encounter_Application

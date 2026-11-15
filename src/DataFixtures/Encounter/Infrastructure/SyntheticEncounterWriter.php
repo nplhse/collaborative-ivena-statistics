@@ -95,9 +95,9 @@ final readonly class SyntheticEncounterWriter
         $last = null;
         foreach ($generated->visits as $index => $visit) {
             $cells = $key->keysOf($visit->caseNumber, $visit->cells) + $visit->cells;
-            $result = $this->rowMapper->map($index + 3, $fields, array_map(static fn (\App\Encounter\Application\Dimension\EncounterField $field): string => $cells[$field->name] ?? '', $fields));
+            $result = $this->rowMapper->map($index + 3, $fields, array_map(static fn (\App\Encounter\Contract\Schema\EncounterField $field): string => $cells[$field->name] ?? '', $fields));
             if (!$result->row instanceof EdVisitRow) {
-                throw new \LogicException(sprintf('Synthetic visit %d is not a valid ed_visit row: %s.', $index, implode(', ', array_map(static fn (\App\Encounter\Application\Import\RowError $error): string => $error->describe(), $result->errors)) ?: 'skipped'));
+                throw new \LogicException(sprintf('Synthetic visit %d is not a valid ed_visit row: %s.', $index, implode(', ', array_map(static fn (\App\Encounter\Contract\Import\RowError $error): string => $error->describe(), $result->errors)) ?: 'skipped'));
             }
 
             $encounter = $result->row->toEncounter($hospital, $import, $generation);

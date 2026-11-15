@@ -113,6 +113,11 @@ final class EncounterImportControllerTest extends WebTestCase
             ->attr('value');
         self::assertSame(json_encode([$encounterOption]), $crawler->filter('form[name="import_create"]')->attr('data-import-type-fields-types-value'));
         self::assertCount(1, $crawler->filter('select[name="import_create[hospital]"] option[value="'.$this->hospital->getId().'"]'));
+        // Every schema with a field contract and a handler, labelled by its schema (ADR 037); the test
+        // environment registers the schema `probe` next to `ed_visit`.
+        $schemas = $crawler->filter('select[name="import_create[encounterSchema]"] option');
+        self::assertSame(['ed_visit', 'probe'], $schemas->each(static fn ($option): string => (string) $option->attr('value')));
+        self::assertSame(['ED visits (MTS)', 'Probe records (test)'], $schemas->each(static fn ($option): string => trim($option->text())));
     }
 
     public function testUploadWithoutConfirmationIsRefused(): void
@@ -164,6 +169,7 @@ final class EncounterImportControllerTest extends WebTestCase
         $this->client->request(Request::METHOD_GET, '/import/'.$importId);
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-test="reject-row"]', 'heart_rate: out_of_range');
+        self::assertSelectorTextSame('[data-test="encounter-schema"]', 'ED visits (MTS)');
         self::assertStringNotContainsString('98765', (string) $this->client->getResponse()->getContent());
 
         // The hospital owner has hospital access but no encounter grant (ADR 028).

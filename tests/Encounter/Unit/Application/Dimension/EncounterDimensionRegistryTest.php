@@ -6,8 +6,8 @@ namespace App\Tests\Encounter\Unit\Application\Dimension;
 
 use App\Encounter\Application\Dimension\EdVisitDimension;
 use App\Encounter\Application\Dimension\EncounterDimensionRegistry;
-use App\Encounter\Application\Dimension\EncounterField;
-use App\Encounter\Application\Dimension\EncounterFieldType;
+use App\Encounter\Contract\Schema\EncounterField;
+use App\Encounter\Contract\Schema\EncounterFieldType;
 use PHPUnit\Framework\TestCase;
 
 final class EncounterDimensionRegistryTest extends TestCase

@@ -87,8 +87,8 @@ Implemented in #1047:
   through the EntityManager.
 - **Owning import:** `import_id` (`ON DELETE CASCADE`). Deleting an import and the cleanup before a
   reprocess both go through `ImportRelatedDataCleanupService`, which calls `EncounterImportDataRemover`
-  ([extension point](../../02-architecture/extension-points.md#import-data-removers)); it deletes
-  exactly the visits the import created. Links and review decisions (#1053, #1054) must reference
+  ([extension point](../../02-architecture/extension-points.md#import-data-removers)); it lets every
+  schema handler delete exactly the records the import created. Links and review decisions (#1053, #1054) must reference
   `encounter` with `ON DELETE CASCADE` so they go with their visit.
 - **Key state:** `encounter_key_state`, one row per hospital: `key_generation` (starts at 1),
   `active_check_value`, `retired_check_values`, `key_change_in_progress`. The import registers and
@@ -96,7 +96,9 @@ Implemented in #1047:
   through the ORM (the key change) are audited; the import's registration of a check value is not.
 - **Schemas:** `EncounterDimensionInterface` (tag `encounter.dimension`) with `EdVisitDimension` as
   field contract of `ed_visit` v1
-  ([extension point](../../02-architecture/extension-points.md#encounter-schemas)).
+  ([extension point](../../02-architecture/extension-points.md#encounter-schemas)); rows are processed
+  by the schema's handler (`EncounterSchemaHandlerInterface`, `EdVisitSchemaHandler` for `ed_visit`,
+  [extension point](../../02-architecture/extension-points.md#encounter-schema-handlers), ADR 037).
 
 Example (tested in `EncounterImportLifecycleTest`): import A has visits on 1, 5, 10, 12 and 15 October,
 import B on 10, 12, 15, 20 and 31 October. B inserts the 20th and 31st and counts three duplicates.

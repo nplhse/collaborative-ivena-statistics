@@ -2,17 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Encounter\Application\Dimension;
+namespace App\Encounter\Contract\Schema;
 
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+use Symfony\Contracts\Translation\TranslatableInterface;
 
 /**
  * A schema of the canonical encounter exchange format (ADR 026): a kind of record with fixed meaning,
  * independent of vendor formats. `ed_visit` is the first; `inpatient_stay`, `diagnosis` or `procedure`
- * would be further implementations.
+ * would be further implementations, contributed by bundles (ADR 037).
  *
  * A schema provides its field contract per version. Parsing and validating files against it is the
- * job of the encounter import (#1048).
+ * job of the encounter import (#1048); processing its rows is the job of its schema handler
+ * (EncounterSchemaHandlerInterface).
  */
 #[AutoconfigureTag(self::TAG)]
 interface EncounterDimensionInterface
@@ -23,6 +25,11 @@ interface EncounterDimensionInterface
      * Schema name as in the manifest (`schema=…`).
      */
     public function schema(): string;
+
+    /**
+     * Name of the schema for people, for example in the upload form and the import report.
+     */
+    public function label(): TranslatableInterface;
 
     /**
      * Schema versions the server accepts (`schema_version=…`), ascending.

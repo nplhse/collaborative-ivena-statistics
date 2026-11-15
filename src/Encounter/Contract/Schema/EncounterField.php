@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Encounter\Application\Dimension;
+namespace App\Encounter\Contract\Schema;
 
 /**
  * Contract of one column of a canonical exchange file. Empty cells are null; `required` fields must

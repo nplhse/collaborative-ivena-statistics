@@ -577,6 +577,14 @@
         <source>encounter.import.field.schema_help</source>
         <target>Kind of data in the file. It must match the schema in the file's first line.</target>
       </trans-unit>
+      <trans-unit id="EncE42F25F61" resname="encounter.import.schema.ed_visit">
+        <source>encounter.import.schema.ed_visit</source>
+        <target>ED visits (MTS)</target>
+      </trans-unit>
+      <trans-unit id="EncA94053061" resname="encounter.import.schema.unknown">
+        <source>encounter.import.schema.unknown</source>
+        <target>{schema} (not installed)</target>
+      </trans-unit>
       <trans-unit id="EncI5609204C" resname="encounter.import.field.confirmation">
         <source>encounter.import.field.confirmation</source>
         <target>I confirm that this file was produced with the data preparation tool and contains no direct identifiers (names, dates of birth, case numbers, free text).</target>

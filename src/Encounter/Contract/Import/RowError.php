@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Encounter\Application\Import;
-
-use App\Encounter\Domain\Enum\EncounterRowError;
+namespace App\Encounter\Contract\Import;
 
 /**
  * One finding of a rejected row: field and error code, never the cell value.
