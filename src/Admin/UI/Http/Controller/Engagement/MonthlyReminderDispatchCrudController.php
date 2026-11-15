@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Engagement;
 
+use App\Allocation\Domain\Entity\Hospital;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Application\MonthlyReminderSender;
 use App\Engagement\Domain\Entity\MonthlyReminderDispatch;
@@ -84,13 +85,30 @@ final class MonthlyReminderDispatchCrudController extends AbstractCrudController
 
                 return $hospital->isParticipating() && $hospital->getOwner() instanceof User;
             })
-            ->askConfirmation(new TranslatableMessage('admin.hospital.action.send_reminder.confirm', domain: 'admin'));
+            ->askConfirmation(static fn (MonthlyReminderDispatch $dispatch): TranslatableMessage|bool => self::sendReminderConfirmation($dispatch->getHospital()));
 
         return $actions
             ->disable(Action::NEW, Action::EDIT, Action::DELETE, Action::BATCH_DELETE)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $sendReminder)
             ->add(Crud::PAGE_DETAIL, $sendReminder);
+    }
+
+    /**
+     * Names the hospital and the owner who receives the reminder; shared with the hospital detail page.
+     * Without an owner the action is hidden, so the generic message is only a fallback.
+     */
+    public static function sendReminderConfirmation(Hospital $hospital): TranslatableMessage|bool
+    {
+        $owner = $hospital->getOwner();
+        if (!$owner instanceof User) {
+            return true;
+        }
+
+        return new TranslatableMessage('admin.hospital.action.send_reminder.confirm', [
+            'hospital' => (string) $hospital->getName(),
+            'owner' => $owner->getDisplayName() ?? (string) $owner->getUsername(),
+        ], 'admin');
     }
 
     #[AdminRoute(path: '/{entityId}/send-monthly-reminder', name: 'send_monthly_reminder')]

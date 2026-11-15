@@ -117,7 +117,7 @@ final class HospitalCrudController extends AbstractCrudController
                 ->set('requestId', Uuid::v4()->toRfc4122())
                 ->generateUrl())
             ->displayIf(static fn (Hospital $hospital): bool => $hospital->isParticipating() && $hospital->getOwner() instanceof \App\User\Domain\Entity\User)
-            ->askConfirmation(new TranslatableMessage('admin.hospital.action.send_reminder.confirm', domain: 'admin'));
+            ->askConfirmation(MonthlyReminderDispatchCrudController::sendReminderConfirmation(...));
 
         $reminderHistory = Action::new(
             'reminderHistory',

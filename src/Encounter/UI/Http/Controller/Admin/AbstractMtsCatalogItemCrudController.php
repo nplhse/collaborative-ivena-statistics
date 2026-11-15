@@ -6,6 +6,8 @@ namespace App\Encounter\UI\Http\Controller\Admin;
 
 use App\Encounter\Application\Catalog\MtsCatalogCuration;
 use App\Encounter\Application\Catalog\MtsCatalogException;
+use App\Encounter\Application\Contract\MtsCatalogRepositoryInterface;
+use App\Encounter\Domain\Entity\MtsAlias;
 use App\Encounter\Domain\Entity\MtsCatalogItem;
 use App\Encounter\Domain\Enum\MtsCatalogKind;
 use App\Encounter\Domain\Enum\MtsCatalogSource;
@@ -54,6 +56,7 @@ abstract class AbstractMtsCatalogItemCrudController extends AbstractCrudControll
         private readonly EntityManagerInterface $entityManager,
         private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly TranslatorInterface $translator,
+        private readonly MtsCatalogRepositoryInterface $repository,
     ) {
     }
 
@@ -95,7 +98,7 @@ abstract class AbstractMtsCatalogItemCrudController extends AbstractCrudControll
                 'token' => $this->container->get('security.csrf.token_manager')->getToken(self::CSRF_TOKEN_ID)->getValue(),
             ]))
             ->renderAsForm()
-            ->askConfirmation(new TranslatableMessage('encounter.mts_catalog.action.undo_merge.confirm', domain: 'encounter'))
+            ->askConfirmation($this->undoMergeConfirmation(...))
             ->displayIf(static fn (MtsCatalogItem $entry): bool => MtsCatalogStatus::Merged === $entry->getStatus());
 
         return $actions
@@ -258,6 +261,23 @@ abstract class AbstractMtsCatalogItemCrudController extends AbstractCrudControll
     /**
      * @return T
      */
+    /**
+     * Names the entry and the target its alias points to. The action is only shown for merged entries,
+     * so the alias lookup runs once on their detail page; without an alias the generic message stays.
+     */
+    private function undoMergeConfirmation(MtsCatalogItem $entry): TranslatableMessage
+    {
+        $alias = $this->repository->findAlias($entry->getKind(), $entry->getCode());
+        if (!$alias instanceof MtsAlias) {
+            return new TranslatableMessage('encounter.mts_catalog.action.undo_merge.confirm', domain: 'encounter');
+        }
+
+        return new TranslatableMessage('encounter.mts_catalog.action.undo_merge.confirm_target', [
+            'code' => $entry->getCode(),
+            'target' => $alias->getTargetCode(),
+        ], 'encounter');
+    }
+
     private function entry(Request $request): MtsCatalogItem
     {
         $entry = $this->entityManager->find(static::getEntityFqcn(), $request->attributes->getInt('entityId'));

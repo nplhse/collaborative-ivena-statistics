@@ -93,7 +93,11 @@ final class MonthlyReminderDispatchCrudControllerTest extends WebTestCase
         $admin = UserFactory::new()->asAdmin()->create([
             'username' => 'reminder-detail-'.bin2hex(random_bytes(4)),
         ]);
-        $hospital = HospitalFactory::createOne();
+        $owner = UserFactory::createOne(['displayName' => 'Dr. Erin Owner']);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'Klinikum Confirm',
+            'owner' => $owner,
+        ]);
         $dispatch = new MonthlyReminderDispatch(
             $hospital,
             '2026-08',
@@ -119,6 +123,10 @@ final class MonthlyReminderDispatchCrudControllerTest extends WebTestCase
         self::assertStringContainsString('Delivered at', $body);
         self::assertSelectorExists('a.action-sendMonthlyReminder');
         self::assertMatchesRegularExpression('/requestId=[0-9a-f-]{36}/', (string) $crawler->filter('a.action-sendMonthlyReminder')->first()->attr('href'));
+        self::assertSame(
+            'Send the monthly data submission reminder for Klinikum Confirm to Dr. Erin Owner now?',
+            $crawler->filter('a.action-sendMonthlyReminder')->first()->attr('data-action-confirmation-message'),
+        );
     }
 
     public function testReminderDispatchSendActionQueuesEmailForHospitalOwner(): void

@@ -103,12 +103,33 @@ final class MtsCatalogAdminTest extends WebTestCase
         $detail = $this->client->request(Request::METHOD_GET, \sprintf('/admin/encounter/mts-diagrams/%d', $id));
         $undo = $detail->filter(\sprintf('form[action*="/admin/encounter/mts-diagrams/%d/undo-merge"]', $id));
         self::assertCount(1, $undo, 'undo is a POST form');
+        self::assertSame(
+            'Undo the merge of brustenge into thoraxschmerz? The alias brustenge → thoraxschmerz is removed and brustenge becomes provisional again.',
+            $undo->filter('[data-action-confirmation-message]')->attr('data-action-confirmation-message'),
+        );
         self::assertCount(0, $detail->filter(\sprintf('a[href$="/admin/encounter/mts-diagrams/%d/merge"]', $id)), 'a merged entry cannot be merged again');
         $this->client->request(Request::METHOD_POST, (string) $undo->attr('action'));
 
         self::assertResponseRedirects();
         self::assertSame('provisional', $this->connection()->fetchOne('SELECT status FROM encounter_mts_diagram WHERE id = ?', [$id]));
         self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter_mts_alias'));
+    }
+
+    public function testUndoOfAMergedEntryWithoutAliasKeepsTheGenericConfirmation(): void
+    {
+        $this->client->loginUser($this->admin());
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $merged = new MtsDiagram('brustenge', 'Brustenge', MtsCatalogSource::FirstSeen, MtsCatalogStatus::Provisional);
+        $merged->markMerged();
+        $entityManager->persist($merged);
+        $entityManager->flush();
+
+        $detail = $this->client->request(Request::METHOD_GET, \sprintf('/admin/encounter/mts-diagrams/%d', $merged->getId()));
+        $undo = $detail->filter(\sprintf('form[action*="/admin/encounter/mts-diagrams/%d/undo-merge"]', $merged->getId()));
+        self::assertSame(
+            'Undo the merge? The alias is removed and the entry becomes provisional again.',
+            $undo->filter('[data-action-confirmation-message]')->attr('data-action-confirmation-message'),
+        );
     }
 
     public function testMergeOfACuratedEntryIsRefused(): void

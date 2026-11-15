@@ -359,7 +359,7 @@
       </trans-unit>
       <trans-unit id="admMr02" resname="admin.hospital.action.send_reminder.confirm">
         <source>admin.hospital.action.send_reminder.confirm</source>
-        <target>Monatliche Erinnerung zur Dateneinreichung jetzt an den Krankenhausbesitzer senden?</target>
+        <target>Monatliche Erinnerung zur Dateneinreichung für {hospital} jetzt an {owner} senden?</target>
       </trans-unit>
       <trans-unit id="admMr03" resname="flash.admin.hospital.reminder.sent">
         <source>flash.admin.hospital.reminder.sent</source>
@@ -1771,7 +1771,7 @@
       </trans-unit>
       <trans-unit id="admFbReleaseCDe" resname="admin.feedback.action.release.confirm">
         <source>admin.feedback.action.release.confirm</source>
-        <target>Dieses Feedback freigeben? Es wandert in die normale Feedback-Liste; es wird keine Benachrichtigung verschickt.</target>
+        <target>Feedback #{id} vom {createdAt, date,dd.MM.yyyy HH:mm} freigeben? Es wandert in die normale Feedback-Liste; es wird keine Benachrichtigung verschickt.</target>
       </trans-unit>
       <trans-unit id="admFbBatchRelDe" resname="admin.feedback.action.batch_release">
         <source>admin.feedback.action.batch_release</source>
@@ -1783,7 +1783,7 @@
       </trans-unit>
       <trans-unit id="admFbQuarCDe" resname="admin.feedback.action.quarantine.confirm">
         <source>admin.feedback.action.quarantine.confirm</source>
-        <target>Dieses Feedback in die Quarantäne verschieben? Es verschwindet aus der Feedback-Liste und der Zahl offener Einträge.</target>
+        <target>Feedback #{id} vom {createdAt, date,dd.MM.yyyy HH:mm} in die Quarantäne verschieben? Es verschwindet aus der Feedback-Liste und der Zahl offener Einträge.</target>
       </trans-unit>
       <trans-unit id="admFbFCreatedDe" resname="admin.feedback.field.created">
         <source>admin.feedback.field.created</source>

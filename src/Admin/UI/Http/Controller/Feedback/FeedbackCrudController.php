@@ -98,7 +98,11 @@ final class FeedbackCrudController extends AbstractCrudController
                 ->set('token', $this->container->get('security.csrf.token_manager')->getToken(FeedbackQuarantineCrudController::CSRF_TOKEN_ID)->getValue())
                 ->generateUrl())
             ->renderAsForm()
-            ->askConfirmation(new TranslatableMessage('admin.feedback.action.quarantine.confirm', domain: 'admin'));
+            // Names the entry by number and date only: the message text may be spam and stays out of the dialog.
+            ->askConfirmation(static fn (Feedback $feedback): TranslatableMessage => new TranslatableMessage('admin.feedback.action.quarantine.confirm', [
+                'id' => (int) $feedback->getId(),
+                'createdAt' => $feedback->getCreatedAt(),
+            ], 'admin'));
 
         return $actions
             ->disable(Action::NEW, Action::BATCH_DELETE)
