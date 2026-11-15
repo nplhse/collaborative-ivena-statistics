@@ -6,10 +6,12 @@ import CheckboxSelectAllController from './controllers/checkbox-select-all_contr
 import ConfirmSubmitController from './controllers/confirm-submit_controller.js';
 import CopyToClipboardController from './controllers/copy-to-clipboard_controller.js';
 import MessengerHistoryChartController from './controllers/messenger-history-chart_controller.js';
+import NavigationInspectorController from './controllers/navigation-inspector_controller.js';
 import StorageHistoryChartController from './controllers/storage-history-chart_controller.js';
 import TimelineDetailsController from './controllers/timeline-details_controller.js';
 import VichFilePreviewController from './controllers/vich-file-preview_controller.js';
 import './styles/admin-kpi.css';
+import './styles/admin-navigation-inspector.css';
 
 const application = Application.start();
 application.register('access-trend-chart', AccessTrendChartController);
@@ -19,6 +21,7 @@ application.register('checkbox-select-all', CheckboxSelectAllController);
 application.register('confirm-submit', ConfirmSubmitController);
 application.register('copy-to-clipboard', CopyToClipboardController);
 application.register('messenger-history-chart', MessengerHistoryChartController);
+application.register('navigation-inspector', NavigationInspectorController);
 application.register('storage-history-chart', StorageHistoryChartController);
 application.register('timeline-details', TimelineDetailsController);
 application.register('vich-file-preview', VichFilePreviewController);

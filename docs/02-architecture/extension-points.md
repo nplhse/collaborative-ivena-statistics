@@ -293,6 +293,17 @@ Lets a context add groups and entries to the named menus of `Menu` (`primary`, `
   only its children. A new entry in a provider therefore appears in the sitemap without further changes.
   Pages outside the menus (account and settings, My hospitals, login, registration, password reset, the
   administration) are deliberately not listed: the header and the user menu reach them.
+- Merging and visibility are in `NavigationContributions`, the order in `NavigationOrder`; the builder
+  uses both and says in `NavigationMenu::$activeRule` which rule chose the active entry
+  (`NavigationActiveRule`).
+
+**Debugging:** **Admin → System → Navigation tree** (`/admin/operations/navigation`, `ROLE_ADMIN`, #1237)
+shows every group and entry of every menu with its provider, label source, route data, permission and
+visibility (with the reason a hidden entry is hidden), the problems the builder would throw for as warnings,
+duplicate route claims, overlapping area prefixes, route names the router does not know, and the GET routes
+of an area that no entry claims. A route check shows the active path and rule per menu, and permissions can
+be evaluated for another user. The page reads through `NavigationInspector`
+(`src/Shared/Application/Navigation/Menu/Inspection/`).
 
 ## My Hospitals actions
 

@@ -2589,6 +2589,306 @@
         <source>admin.page_translation.action.switch_locale</source>
         <target>Sprache {locale}</target>
       </trans-unit>
+      <trans-unit id="navInsp01de" resname="navigation.inspector.menu_label">
+        <source>navigation.inspector.menu_label</source>
+        <target>Navigationsbaum</target>
+      </trans-unit>
+      <trans-unit id="navInsp02de" resname="navigation.inspector.tile">
+        <source>navigation.inspector.tile</source>
+        <target>Menüs, Berechtigungen und Routen-Zuordnung prüfen</target>
+      </trans-unit>
+      <trans-unit id="navInsp03de" resname="navigation.inspector.title">
+        <source>navigation.inspector.title</source>
+        <target>Navigationsbaum</target>
+      </trans-unit>
+      <trans-unit id="navInsp04de" resname="navigation.inspector.intro">
+        <source>navigation.inspector.intro</source>
+        <target>Alle Gruppen und Einträge aller Menüs, wie die Provider sie beitragen, in Menü-Reihenfolge, einschließlich verborgener Einträge mit dem Grund. Hilft herauszufinden, warum ein Eintrag fehlt, falsch einsortiert ist oder nicht aktiv wird.</target>
+      </trans-unit>
+      <trans-unit id="navInsp05de" resname="navigation.inspector.form.user">
+        <source>navigation.inspector.form.user</source>
+        <target>Auswerten für Benutzer</target>
+      </trans-unit>
+      <trans-unit id="navInsp06de" resname="navigation.inspector.form.user_placeholder">
+        <source>navigation.inspector.form.user_placeholder</source>
+        <target>Benutzername (leer: du)</target>
+      </trans-unit>
+      <trans-unit id="navInsp07de" resname="navigation.inspector.form.route">
+        <source>navigation.inspector.form.route</source>
+        <target>Route prüfen</target>
+      </trans-unit>
+      <trans-unit id="navInsp08de" resname="navigation.inspector.form.parameters">
+        <source>navigation.inspector.form.parameters</source>
+        <target>Routen-Parameter</target>
+      </trans-unit>
+      <trans-unit id="navInsp09de" resname="navigation.inspector.form.submit">
+        <source>navigation.inspector.form.submit</source>
+        <target>Prüfen</target>
+      </trans-unit>
+      <trans-unit id="navInsp10de" resname="navigation.inspector.form.reset">
+        <source>navigation.inspector.form.reset</source>
+        <target>Zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="navInsp11de" resname="navigation.inspector.unknown_user">
+        <source>navigation.inspector.unknown_user</source>
+        <target>Es gibt keinen Benutzer „{username}“.</target>
+      </trans-unit>
+      <trans-unit id="navInsp12de" resname="navigation.inspector.evaluated_for_current">
+        <source>navigation.inspector.evaluated_for_current</source>
+        <target>Berechtigungen werden für dich ausgewertet.</target>
+      </trans-unit>
+      <trans-unit id="navInsp13de" resname="navigation.inspector.evaluated_for_user">
+        <source>navigation.inspector.evaluated_for_user</source>
+        <target>Berechtigungen werden für den Benutzer „{username}“ ausgewertet.</target>
+      </trans-unit>
+      <trans-unit id="navInsp14de" resname="navigation.inspector.warnings.title">
+        <source>navigation.inspector.warnings.title</source>
+        <target>Warnungen</target>
+      </trans-unit>
+      <trans-unit id="navInsp15de" resname="navigation.inspector.warnings.none">
+        <source>navigation.inspector.warnings.none</source>
+        <target>In keinem Menü wurden Probleme gefunden.</target>
+      </trans-unit>
+      <trans-unit id="navInsp16de" resname="navigation.inspector.warnings.duplicate_claim">
+        <source>navigation.inspector.warnings.duplicate_claim</source>
+        <target>Route {route} wird von mehreren Einträgen beansprucht: {ids}</target>
+      </trans-unit>
+      <trans-unit id="navInsp17de" resname="navigation.inspector.warnings.overlapping_prefix">
+        <source>navigation.inspector.warnings.overlapping_prefix</source>
+        <target>Überlappende Bereichspräfixe: {overlap}</target>
+      </trans-unit>
+      <trans-unit id="navInsp18de" resname="navigation.inspector.warnings.unknown_route">
+        <source>navigation.inspector.warnings.unknown_route</source>
+        <target>Unbekannte Route: {route}</target>
+      </trans-unit>
+      <trans-unit id="navInsp19de" resname="navigation.inspector.route_check.title">
+        <source>navigation.inspector.route_check.title</source>
+        <target>Aktiver Pfad für {route}</target>
+      </trans-unit>
+      <trans-unit id="navInsp20de" resname="navigation.inspector.route_check.menu">
+        <source>navigation.inspector.route_check.menu</source>
+        <target>Menü</target>
+      </trans-unit>
+      <trans-unit id="navInsp21de" resname="navigation.inspector.route_check.path">
+        <source>navigation.inspector.route_check.path</source>
+        <target>Aktiver Pfad</target>
+      </trans-unit>
+      <trans-unit id="navInsp22de" resname="navigation.inspector.route_check.rule">
+        <source>navigation.inspector.route_check.rule</source>
+        <target>Zugeordnet über</target>
+      </trans-unit>
+      <trans-unit id="navInsp23de" resname="navigation.inspector.route_check.no_match">
+        <source>navigation.inspector.route_check.no_match</source>
+        <target>Kein Eintrag ist aktiv.</target>
+      </trans-unit>
+      <trans-unit id="navInsp24de" resname="navigation.inspector.route_check.hint">
+        <source>navigation.inspector.route_check.hint</source>
+        <target>Geprüft ohne den Bereich einer Seite; auf einer echten Seite markiert zusätzlich die Seitenleiste der Seite ihren Bereich in der oberen Navigation.</target>
+      </trans-unit>
+      <trans-unit id="navInsp25de" resname="navigation.inspector.rule.route">
+        <source>navigation.inspector.rule.route</source>
+        <target>Route</target>
+      </trans-unit>
+      <trans-unit id="navInsp26de" resname="navigation.inspector.rule.detail_route">
+        <source>navigation.inspector.rule.detail_route</source>
+        <target>Detailroute</target>
+      </trans-unit>
+      <trans-unit id="navInsp27de" resname="navigation.inspector.rule.sidebar_menu">
+        <source>navigation.inspector.rule.sidebar_menu</source>
+        <target>Route im Seitenleisten-Menü des Bereichs</target>
+      </trans-unit>
+      <trans-unit id="navInsp28de" resname="navigation.inspector.rule.area">
+        <source>navigation.inspector.rule.area</source>
+        <target>Bereich der Seite</target>
+      </trans-unit>
+      <trans-unit id="navInsp29de" resname="navigation.inspector.rule.area_route_prefix">
+        <source>navigation.inspector.rule.area_route_prefix</source>
+        <target>Routenpräfix des Bereichs</target>
+      </trans-unit>
+      <trans-unit id="navInsp30de" resname="navigation.inspector.menu.primary">
+        <source>navigation.inspector.menu.primary</source>
+        <target>Obere Navigation</target>
+      </trans-unit>
+      <trans-unit id="navInsp31de" resname="navigation.inspector.menu.footer">
+        <source>navigation.inspector.menu.footer</source>
+        <target>Footer</target>
+      </trans-unit>
+      <trans-unit id="navInsp32de" resname="navigation.inspector.menu.statistics">
+        <source>navigation.inspector.menu.statistics</source>
+        <target>Seitenleiste Statistiken</target>
+      </trans-unit>
+      <trans-unit id="navInsp33de" resname="navigation.inspector.menu.explore">
+        <source>navigation.inspector.menu.explore</source>
+        <target>Seitenleiste Erkunden</target>
+      </trans-unit>
+      <trans-unit id="navInsp34de" resname="navigation.inspector.primary_entry">
+        <source>navigation.inspector.primary_entry</source>
+        <target>Eintrag in der oberen Navigation</target>
+      </trans-unit>
+      <trans-unit id="navInsp35de" resname="navigation.inspector.carried_query_keys">
+        <source>navigation.inspector.carried_query_keys</source>
+        <target>Übernommene Query-Parameter</target>
+      </trans-unit>
+      <trans-unit id="navInsp36de" resname="navigation.inspector.untitled_group">
+        <source>navigation.inspector.untitled_group</source>
+        <target>Gruppe ohne Überschrift</target>
+      </trans-unit>
+      <trans-unit id="navInsp37de" resname="navigation.inspector.weight">
+        <source>navigation.inspector.weight</source>
+        <target>Gewicht</target>
+      </trans-unit>
+      <trans-unit id="navInsp38de" resname="navigation.inspector.literal_label">
+        <source>navigation.inspector.literal_label</source>
+        <target>Fester Text</target>
+      </trans-unit>
+      <trans-unit id="navInsp39de" resname="navigation.inspector.area_prefix">
+        <source>navigation.inspector.area_prefix</source>
+        <target>Bereichspräfix</target>
+      </trans-unit>
+      <trans-unit id="navInsp40de" resname="navigation.inspector.group_item">
+        <source>navigation.inspector.group_item</source>
+        <target>Keine, gruppiert seine Kinder</target>
+      </trans-unit>
+      <trans-unit id="navInsp41de" resname="navigation.inspector.granted">
+        <source>navigation.inspector.granted</source>
+        <target>erfüllt</target>
+      </trans-unit>
+      <trans-unit id="navInsp42de" resname="navigation.inspector.not_granted">
+        <source>navigation.inspector.not_granted</source>
+        <target>nicht erfüllt</target>
+      </trans-unit>
+      <trans-unit id="navInsp43de" resname="navigation.inspector.orphans">
+        <source>navigation.inspector.orphans</source>
+        <target>Einträge außerhalb des Baums</target>
+      </trans-unit>
+      <trans-unit id="navInsp44de" resname="navigation.inspector.provider_diff">
+        <source>navigation.inspector.provider_diff</source>
+        <target>von {provider}</target>
+      </trans-unit>
+      <trans-unit id="navInsp45de" resname="navigation.inspector.status.visible">
+        <source>navigation.inspector.status.visible</source>
+        <target>Sichtbar</target>
+      </trans-unit>
+      <trans-unit id="navInsp46de" resname="navigation.inspector.status.denied">
+        <source>navigation.inspector.status.denied</source>
+        <target>Verborgen · {attribute} fehlt</target>
+      </trans-unit>
+      <trans-unit id="navInsp47de" resname="navigation.inspector.status.hidden_parent">
+        <source>navigation.inspector.status.hidden_parent</source>
+        <target>Verborgen · Elternelement verborgen</target>
+      </trans-unit>
+      <trans-unit id="navInsp48de" resname="navigation.inspector.status.no_visible_children">
+        <source>navigation.inspector.status.no_visible_children</source>
+        <target>Verborgen · keine sichtbaren Kinder</target>
+      </trans-unit>
+      <trans-unit id="navInsp49de" resname="navigation.inspector.status.orphaned">
+        <source>navigation.inspector.status.orphaned</source>
+        <target>Außerhalb des Baums</target>
+      </trans-unit>
+      <trans-unit id="navInsp50de" resname="navigation.inspector.status.empty">
+        <source>navigation.inspector.status.empty</source>
+        <target>Leer für diesen Benutzer</target>
+      </trans-unit>
+      <trans-unit id="navInsp51de" resname="navigation.inspector.status.unknown_route">
+        <source>navigation.inspector.status.unknown_route</source>
+        <target>Route unbekannt</target>
+      </trans-unit>
+      <trans-unit id="navInsp52de" resname="navigation.inspector.status.active">
+        <source>navigation.inspector.status.active</source>
+        <target>Aktiv · {rule}</target>
+      </trans-unit>
+      <trans-unit id="navInsp53de" resname="navigation.inspector.status.on_path">
+        <source>navigation.inspector.status.on_path</source>
+        <target>Auf dem Pfad</target>
+      </trans-unit>
+      <trans-unit id="navInsp54de" resname="navigation.inspector.filter.search">
+        <source>navigation.inspector.filter.search</source>
+        <target>Suchen: Label, ID oder Route</target>
+      </trans-unit>
+      <trans-unit id="navInsp55de" resname="navigation.inspector.filter.scope">
+        <source>navigation.inspector.filter.scope</source>
+        <target>Angezeigte Einträge</target>
+      </trans-unit>
+      <trans-unit id="navInsp56de" resname="navigation.inspector.filter.all">
+        <source>navigation.inspector.filter.all</source>
+        <target>Alle</target>
+      </trans-unit>
+      <trans-unit id="navInsp57de" resname="navigation.inspector.filter.issues">
+        <source>navigation.inspector.filter.issues</source>
+        <target>Nur Abweichungen</target>
+      </trans-unit>
+      <trans-unit id="navInsp58de" resname="navigation.inspector.filter.show_hidden">
+        <source>navigation.inspector.filter.show_hidden</source>
+        <target>Verborgene zeigen</target>
+      </trans-unit>
+      <trans-unit id="navInsp59de" resname="navigation.inspector.filter.only_path">
+        <source>navigation.inspector.filter.only_path</source>
+        <target>Nur Pfad</target>
+      </trans-unit>
+      <trans-unit id="navInsp60de" resname="navigation.inspector.filter.count">
+        <source>navigation.inspector.filter.count</source>
+        <target>{shown} von {total} Einträgen</target>
+      </trans-unit>
+      <trans-unit id="navInsp61de" resname="navigation.inspector.filter.none">
+        <source>navigation.inspector.filter.none</source>
+        <target>Keine Einträge für diese Filter.</target>
+      </trans-unit>
+      <trans-unit id="navInsp62de" resname="navigation.inspector.filter.folded">
+        <source>navigation.inspector.filter.folded</source>
+        <target>{count} weitere Einträge ausgeblendet</target>
+      </trans-unit>
+      <trans-unit id="navInsp63de" resname="navigation.inspector.filter.show_all">
+        <source>navigation.inspector.filter.show_all</source>
+        <target>alle zeigen</target>
+      </trans-unit>
+      <trans-unit id="navInsp64de" resname="navigation.inspector.panel.hint">
+        <source>navigation.inspector.panel.hint</source>
+        <target>Eintrag anklicken, um alle Eigenschaften zu sehen.</target>
+      </trans-unit>
+      <trans-unit id="navInsp65de" resname="navigation.inspector.detail.id">
+        <source>navigation.inspector.detail.id</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="navInsp66de" resname="navigation.inspector.detail.label">
+        <source>navigation.inspector.detail.label</source>
+        <target>Label</target>
+      </trans-unit>
+      <trans-unit id="navInsp67de" resname="navigation.inspector.detail.route">
+        <source>navigation.inspector.detail.route</source>
+        <target>Route</target>
+      </trans-unit>
+      <trans-unit id="navInsp68de" resname="navigation.inspector.detail.detail_routes">
+        <source>navigation.inspector.detail.detail_routes</source>
+        <target>Detailrouten</target>
+      </trans-unit>
+      <trans-unit id="navInsp69de" resname="navigation.inspector.detail.permission">
+        <source>navigation.inspector.detail.permission</source>
+        <target>Berechtigung</target>
+      </trans-unit>
+      <trans-unit id="navInsp70de" resname="navigation.inspector.detail.no_permission">
+        <source>navigation.inspector.detail.no_permission</source>
+        <target>Keine eigene</target>
+      </trans-unit>
+      <trans-unit id="navInsp71de" resname="navigation.inspector.detail.display">
+        <source>navigation.inspector.detail.display</source>
+        <target>Darstellung</target>
+      </trans-unit>
+      <trans-unit id="navInsp72de" resname="navigation.inspector.detail.provider">
+        <source>navigation.inspector.detail.provider</source>
+        <target>Provider</target>
+      </trans-unit>
+      <trans-unit id="navInsp73de" resname="navigation.inspector.unclaimed.title">
+        <source>navigation.inspector.unclaimed.title</source>
+        <target>Bereichsrouten ohne Eintrag</target>
+      </trans-unit>
+      <trans-unit id="navInsp74de" resname="navigation.inspector.unclaimed.hint">
+        <source>navigation.inspector.unclaimed.hint</source>
+        <target>GET-Routen, die mit dem Bereichspräfix eines Eintrags der oberen Navigation beginnen, die aber kein Eintrag beansprucht. Solche Seiten markieren nur ihren Bereich; Frames und Hilfsrouten erscheinen hier ebenfalls.</target>
+      </trans-unit>
+      <trans-unit id="navInsp75de" resname="navigation.inspector.unclaimed.count">
+        <source>navigation.inspector.unclaimed.count</source>
+        <target>{count, plural, one {# Route} other {# Routen}}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

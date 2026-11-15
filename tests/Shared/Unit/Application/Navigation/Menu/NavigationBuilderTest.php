@@ -9,6 +9,7 @@ use App\Shared\Application\Navigation\Menu\Menu;
 use App\Shared\Application\Navigation\Menu\NavBadge;
 use App\Shared\Application\Navigation\Menu\NavBadgeColor;
 use App\Shared\Application\Navigation\Menu\NavGroup;
+use App\Shared\Application\Navigation\Menu\NavigationActiveRule;
 use App\Shared\Application\Navigation\Menu\NavigationBuilder;
 use App\Shared\Application\Navigation\Menu\NavigationMenu;
 use App\Shared\Application\Navigation\Menu\NavigationNode;
@@ -232,6 +233,37 @@ final class NavigationBuilderTest extends TestCase
         ], granted: []);
 
         self::assertSame([], $builder->build(Menu::Primary, 'app_import_show')->activePath);
+    }
+
+    public function testTheMenuNamesTheRuleThatChoseTheActiveEntry(): void
+    {
+        $builder = $this->builder([
+            Menu::Primary->value => $this->primaryTree(),
+            Menu::Statistics->value => $this->statisticsTree(),
+        ]);
+
+        self::assertSame(NavigationActiveRule::Route, $builder->build(Menu::Statistics, 'app_stats_top_lists')->activeRule);
+        self::assertSame(NavigationActiveRule::DetailRoute, $builder->build(Menu::Statistics, 'app_stats_top_lists_show')->activeRule);
+        self::assertSame(NavigationActiveRule::SidebarMenu, $builder->build(Menu::Primary, 'app_stats_insights')->activeRule);
+        self::assertSame(NavigationActiveRule::Area, $builder->build(Menu::Primary, 'app_other_page', Menu::Statistics)->activeRule);
+        self::assertSame(NavigationActiveRule::AreaRoutePrefix, $builder->build(Menu::Primary, 'app_blog_show')->activeRule);
+        self::assertNull($builder->build(Menu::Primary, 'app_other_page')->activeRule);
+    }
+
+    public function testAGivenPermissionCheckReplacesTheCurrentUsers(): void
+    {
+        $tree = [
+            'groups' => [$this->group('capacity')],
+            'items' => [$this->item('closures', 'capacity', 'Schließungen', route: 'r_closures', granted: 'ROLE_CLOSURE_BETA')],
+        ];
+
+        self::assertSame([], $this->builder([Menu::Statistics->value => $tree], granted: [])->build(Menu::Statistics)->sections);
+        self::assertSame(
+            ['capacity', 'closures'],
+            $this->builder([Menu::Statistics->value => $tree], granted: [])
+                ->build(Menu::Statistics, 'r_closures', isGranted: static fn (string $attribute): bool => 'ROLE_CLOSURE_BETA' === $attribute)
+                ->activePath,
+        );
     }
 
     public function testAnEntryWithAUrlIsALinkButNeverActive(): void

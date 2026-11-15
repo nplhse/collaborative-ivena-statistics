@@ -18,10 +18,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * - Maps the current route name exactly to one entry and marks the path from its group down to it. In
  *   the primary menu, when no own entry matches: a route of a sidebar menu marks the primary entry of that
  *   menu; then `$area` (the sidebar menu of the page); then the primary entry with the longest
- *   `areaRoutePrefix` the route starts with.
+ *   `areaRoutePrefix` the route starts with. The menu says which of these rules chose the active entry.
+ *
+ * Merging and visibility live in {@see NavigationContributions}, the order in {@see NavigationOrder}; the
+ * admin navigation inspector (#1237) uses the same classes.
  */
 final readonly class NavigationBuilder
 {
+    private NavigationOrder $order;
+
     /**
      * @param iterable<NavigationProviderInterface> $providers
      */
@@ -29,30 +34,34 @@ final readonly class NavigationBuilder
         #[AutowireIterator(NavigationProviderInterface::TAG)]
         private iterable $providers,
         private AuthorizationCheckerInterface $authorizationChecker,
-        private TranslatorInterface $translator,
+        TranslatorInterface $translator,
     ) {
+        $this->order = new NavigationOrder($translator);
     }
 
     /**
-     * @param array<string, mixed> $currentRouteParameters
+     * @param array<string, mixed>          $currentRouteParameters
+     * @param (\Closure(string): bool)|null $isGranted              permission check instead of the current user's,
+     *                                                              for the admin navigation inspector
      */
-    public function build(Menu $menu, ?string $currentRoute = null, ?Menu $area = null, array $currentRouteParameters = []): NavigationMenu
+    public function build(Menu $menu, ?string $currentRoute = null, ?Menu $area = null, array $currentRouteParameters = [], ?\Closure $isGranted = null): NavigationMenu
     {
-        [$groups, $items] = $this->collect($menu);
-        $visibleChildren = $this->visibleChildren($groups, $items);
+        $isGranted ??= fn (string $attribute): bool => $this->authorizationChecker->isGranted($attribute);
+        $contributions = $this->contributions($menu);
+        $visibleChildren = $this->visibleChildren($contributions, $isGranted);
 
-        $activeId = null === $currentRoute ? null : $this->matchRoute($visibleChildren, $currentRoute, $currentRouteParameters);
-        if (null === $activeId && Menu::Primary === $menu) {
-            $activeId = $this->primaryEntryFor($currentRoute, $currentRouteParameters, $area, $visibleChildren);
+        $match = null === $currentRoute ? null : $this->matchRoute($visibleChildren, $currentRoute, $currentRouteParameters);
+        if (null === $match && Menu::Primary === $menu) {
+            $match = $this->primaryEntryFor($currentRoute, $currentRouteParameters, $area, $visibleChildren, $isGranted);
         }
 
+        [$activeId, $activeRule] = $match ?? [null, null];
         $activePath = null === $activeId ? [] : $this->pathTo($activeId, $visibleChildren);
         $onPath = array_flip($activePath);
-        $collator = new \Collator($this->translator->getLocale());
 
         $sections = [];
-        foreach ($this->sorted(array_values($groups), $collator) as $group) {
-            $nodes = $this->nodes($group->id, $visibleChildren, $activeId, $onPath, $collator);
+        foreach ($this->order->sort(array_values($contributions->groups)) as $group) {
+            $nodes = $this->nodes($group->id, $visibleChildren, $activeId, $onPath);
             if ([] === $nodes) {
                 continue;
             }
@@ -60,7 +69,7 @@ final readonly class NavigationBuilder
             $sections[] = new NavigationSection($group, $nodes, isset($onPath[$group->id]));
         }
 
-        return new NavigationMenu($menu, $sections, $activePath);
+        return new NavigationMenu($menu, $sections, $activePath, $activeRule);
     }
 
     /**
@@ -71,19 +80,7 @@ final readonly class NavigationBuilder
      */
     public function duplicateRouteClaims(Menu $menu): array
     {
-        [, $items] = $this->collect($menu);
-
-        $claims = [];
-        foreach ($items as $item) {
-            $parameters = $item->routeParameters;
-            ksort($parameters);
-            $suffix = [] === $parameters ? '' : ' '.json_encode($parameters, \JSON_THROW_ON_ERROR);
-            foreach (array_unique($item->claimedRoutes()) as $route) {
-                $claims[$route.$suffix][] = $item->id;
-            }
-        }
-
-        return array_filter($claims, static fn (array $ids): bool => \count($ids) > 1);
+        return $this->contributions($menu)->duplicateRouteClaims();
     }
 
     /**
@@ -94,124 +91,35 @@ final readonly class NavigationBuilder
      */
     public function overlappingAreaRoutePrefixes(Menu $menu): array
     {
-        [, $items] = $this->collect($menu);
-
-        $prefixes = [];
-        foreach ($items as $item) {
-            if (null !== $item->areaRoutePrefix) {
-                $prefixes[$item->id] = $item->areaRoutePrefix;
-            }
-        }
-
-        $overlaps = [];
-        foreach ($prefixes as $id => $prefix) {
-            foreach ($prefixes as $otherId => $other) {
-                if ($id !== $otherId && str_starts_with($other, $prefix)) {
-                    $overlaps[] = \sprintf('"%s" (%s) contains "%s" (%s)', $prefix, $id, $other, $otherId);
-                }
-            }
-        }
-
-        return $overlaps;
+        return $this->contributions($menu)->overlappingAreaRoutePrefixes();
     }
 
-    /**
-     * @return array{array<string, NavGroup>, array<string, NavItem>}
-     */
-    private function collect(Menu $menu): array
+    private function contributions(Menu $menu): NavigationContributions
     {
-        $groups = [];
-        $items = [];
-        foreach ($this->providers as $provider) {
-            foreach ($provider->groups($menu) as $group) {
-                $this->assertNewId($group->id, $groups, $items, $menu);
-                $groups[$group->id] = $group;
-            }
-
-            foreach ($provider->items($menu) as $item) {
-                $this->assertNewId($item->id, $groups, $items, $menu);
-                $items[$item->id] = $item;
-            }
+        $contributions = NavigationContributions::collect($this->providers, $menu);
+        if ([] !== $contributions->problems) {
+            throw new \LogicException($contributions->problems[0]);
         }
 
-        foreach ($items as $item) {
-            $this->assertReachesGroup($item, $groups, $items, $menu);
-        }
-
-        return [$groups, $items];
-    }
-
-    /**
-     * @param array<string, NavGroup> $groups
-     * @param array<string, NavItem>  $items
-     */
-    private function assertNewId(string $id, array $groups, array $items, Menu $menu): void
-    {
-        if (isset($groups[$id]) || isset($items[$id])) {
-            throw new \LogicException(\sprintf('Navigation id "%s" is registered more than once in menu "%s".', $id, $menu->value));
-        }
-    }
-
-    /**
-     * @param array<string, NavGroup> $groups
-     * @param array<string, NavItem>  $items
-     */
-    private function assertReachesGroup(NavItem $item, array $groups, array $items, Menu $menu): void
-    {
-        $seen = [$item->id => true];
-        $parentId = $item->parentId;
-        while (!isset($groups[$parentId])) {
-            if (!isset($items[$parentId])) {
-                throw new \LogicException(\sprintf('Navigation item "%s" in menu "%s" names the unknown parent "%s".', $item->id, $menu->value, $parentId));
-            }
-
-            if (isset($seen[$parentId])) {
-                throw new \LogicException(\sprintf('Navigation item "%s" in menu "%s" is part of a parent cycle.', $item->id, $menu->value));
-            }
-
-            $seen[$parentId] = true;
-            $parentId = $items[$parentId]->parentId;
-        }
+        return $contributions;
     }
 
     /**
      * Visible items by the id of their parent (group or item), in provider order.
      *
-     * @param array<string, NavGroup> $groups
-     * @param array<string, NavItem>  $items
+     * @param \Closure(string): bool $isGranted
      *
      * @return array<string, list<NavItem>>
      */
-    private function visibleChildren(array $groups, array $items): array
+    private function visibleChildren(NavigationContributions $contributions, \Closure $isGranted): array
     {
-        $byParent = [];
-        foreach ($items as $item) {
-            $byParent[$item->parentId][] = $item;
-        }
+        $visibility = $contributions->visibility($isGranted);
 
         $visible = [];
-        $walk = function (string $parentId) use (&$walk, &$visible, $byParent): bool {
-            $any = false;
-            foreach ($byParent[$parentId] ?? [] as $item) {
-                if (null !== $item->grantedAttribute && !$this->authorizationChecker->isGranted($item->grantedAttribute)) {
-                    continue;
-                }
-
-                /** @var bool $hasVisibleChildren */
-                $hasVisibleChildren = $walk($item->id);
-                if (!$item->isLink() && !$hasVisibleChildren) {
-                    continue;
-                }
-
-                $visible[$parentId][] = $item;
-                $any = true;
+        foreach ($contributions->items as $item) {
+            if (NavigationVisibility::Visible === $visibility[$item->id]) {
+                $visible[$item->parentId][] = $item;
             }
-
-            return $any;
-        };
-
-        foreach (array_keys($groups) as $groupId) {
-            $walk($groupId);
         }
 
         return $visible;
@@ -220,13 +128,15 @@ final readonly class NavigationBuilder
     /**
      * @param array<string, list<NavItem>> $visibleChildren
      * @param array<string, mixed>         $routeParameters
+     *
+     * @return array{string, NavigationActiveRule}|null
      */
-    private function matchRoute(array $visibleChildren, string $route, array $routeParameters): ?string
+    private function matchRoute(array $visibleChildren, string $route, array $routeParameters): ?array
     {
         foreach ($visibleChildren as $children) {
             foreach ($children as $item) {
                 if ($item->matches($route, $routeParameters)) {
-                    return $item->id;
+                    return [$item->id, $route === $item->route ? NavigationActiveRule::Route : NavigationActiveRule::DetailRoute];
                 }
             }
         }
@@ -237,8 +147,11 @@ final readonly class NavigationBuilder
     /**
      * @param array<string, mixed>         $routeParameters
      * @param array<string, list<NavItem>> $visibleChildren of the primary menu
+     * @param \Closure(string): bool       $isGranted
+     *
+     * @return array{string, NavigationActiveRule}|null
      */
-    private function primaryEntryFor(?string $route, array $routeParameters, ?Menu $area, array $visibleChildren): ?string
+    private function primaryEntryFor(?string $route, array $routeParameters, ?Menu $area, array $visibleChildren, \Closure $isGranted): ?array
     {
         $candidates = [];
         if (null !== $route) {
@@ -248,16 +161,15 @@ final readonly class NavigationBuilder
                     continue;
                 }
 
-                [$groups, $items] = $this->collect($sidebar);
-                if (null !== $this->matchRoute($this->visibleChildren($groups, $items), $route, $routeParameters)) {
-                    $candidates[] = $entryId;
+                if (null !== $this->matchRoute($this->visibleChildren($this->contributions($sidebar), $isGranted), $route, $routeParameters)) {
+                    $candidates[] = [$entryId, NavigationActiveRule::SidebarMenu];
                 }
             }
         }
 
         $areaEntryId = $area?->primaryEntryId();
         if (null !== $areaEntryId) {
-            $candidates[] = $areaEntryId;
+            $candidates[] = [$areaEntryId, NavigationActiveRule::Area];
         }
 
         $visibleIds = [];
@@ -271,9 +183,9 @@ final readonly class NavigationBuilder
             }
         }
 
-        foreach ($candidates as $entryId) {
-            if (isset($visibleIds[$entryId])) {
-                return $entryId;
+        foreach ($candidates as $candidate) {
+            if (isset($visibleIds[$candidate[0]])) {
+                return $candidate;
             }
         }
 
@@ -283,7 +195,7 @@ final readonly class NavigationBuilder
 
         uksort($byPrefix, static fn (string $a, string $b): int => \strlen($b) <=> \strlen($a));
 
-        return reset($byPrefix);
+        return [reset($byPrefix), NavigationActiveRule::AreaRoutePrefix];
     }
 
     /**
@@ -315,44 +227,18 @@ final readonly class NavigationBuilder
      *
      * @return list<NavigationNode>
      */
-    private function nodes(string $parentId, array $visibleChildren, ?string $activeId, array $onPath, \Collator $collator): array
+    private function nodes(string $parentId, array $visibleChildren, ?string $activeId, array $onPath): array
     {
         $nodes = [];
-        foreach ($this->sorted($visibleChildren[$parentId] ?? [], $collator) as $item) {
+        foreach ($this->order->sort($visibleChildren[$parentId] ?? []) as $item) {
             $nodes[] = new NavigationNode(
                 $item,
-                $this->nodes($item->id, $visibleChildren, $activeId, $onPath, $collator),
+                $this->nodes($item->id, $visibleChildren, $activeId, $onPath),
                 $item->id === $activeId,
                 isset($onPath[$item->id]),
             );
         }
 
         return $nodes;
-    }
-
-    /**
-     * Weight ascending, then translated label in the current locale, then id.
-     *
-     * @template T of NavGroup|NavItem
-     *
-     * @param list<T> $entries
-     *
-     * @return list<T>
-     */
-    private function sorted(array $entries, \Collator $collator): array
-    {
-        $labels = [];
-        foreach ($entries as $entry) {
-            $labels[$entry->id] = $entry->label?->trans($this->translator) ?? '';
-        }
-
-        usort(
-            $entries,
-            static fn (NavGroup|NavItem $a, NavGroup|NavItem $b): int => ($a->weight <=> $b->weight)
-                ?: (int) $collator->compare($labels[$a->id], $labels[$b->id])
-                ?: $a->id <=> $b->id,
-        );
-
-        return $entries;
     }
 }
