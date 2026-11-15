@@ -1733,6 +1733,22 @@
         <source>usage_analytics.tile.accesses</source>
         <target>Seitenaufrufe pro Monat und Jahr seit Zählbeginn</target>
       </trans-unit>
+      <trans-unit id="uaOv01de" resname="usage_analytics.overview.requests_today">
+        <source>usage_analytics.overview.requests_today</source>
+        <target>Anfragen heute</target>
+      </trans-unit>
+      <trans-unit id="uaOv02de" resname="usage_analytics.overview.requests_7_days">
+        <source>usage_analytics.overview.requests_7_days</source>
+        <target>Anfragen (7 Tage)</target>
+      </trans-unit>
+      <trans-unit id="uaOv03de" resname="usage_analytics.overview.active_users">
+        <source>usage_analytics.overview.active_users</source>
+        <target>DAU / WAU / MAU</target>
+      </trans-unit>
+      <trans-unit id="uaOv04de" resname="usage_analytics.overview.sessions_7_days">
+        <source>usage_analytics.overview.sessions_7_days</source>
+        <target>Sitzungen (7 Tage)</target>
+      </trans-unit>
       <trans-unit id="admFqEntityDe" resname="admin.feedback_quarantine.entity">
         <source>admin.feedback_quarantine.entity</source>
         <target>Feedback in Quarantäne</target>
