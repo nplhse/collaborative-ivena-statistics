@@ -6,7 +6,7 @@
 - **Fixture tests** under `tests/DataFixtures/` (reference YAML, pattern validation)
 - **Import integration tests** for CSV processing, reject behaviour, and upload validation (Excel / unsupported extensions)
 - **Command tests** for requeue and exit-code behavior
-- **JavaScript tests** of the encounter data preparation tool with Node's built-in runner: `npm run test:js` (`tests/Encounter/DataPrep/*.test.js`, also part of `make lint-js`); see [data-preparation-tool.md](../04-features/tools/data-preparation-tool.md#tests)
+- **JavaScript tests** with Node's built-in runner: `npm run test:js`, also part of `make lint-js`. They cover the encounter data preparation tool (`tests/Encounter/DataPrep/*.test.js`, see [data-preparation-tool.md](../04-features/tools/data-preparation-tool.md#tests)), admin scripts (`tests/Admin/JS/*.test.js`) and the sidebar search filter (`tests/Shared/JavaScript/*.test.js`). A new directory has to be added to the `test:js`, `lint` and `format` scripts in `package.json`.
 
 ## Run locally
 

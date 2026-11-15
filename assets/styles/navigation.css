@@ -81,11 +81,15 @@
     color: var(--tblr-navbar-active-color);
 }
 
-/* Fold toggle: icon and label say what a click does; it covers rail entries that run under it. */
+/*
+ * Fold toggle: icon and label say what a click does; it covers rail entries that run under it. It repeats
+ * Tabler's right edge of the vertical navbar (an inset shadow on the aside), which its background covers.
+ */
 .site-sidebar .site-sidebar__footer {
     position: relative;
     z-index: 2;
     background: var(--tblr-navbar-bg);
+    box-shadow: inset calc(-1 * var(--tblr-navbar-border-width)) 0 0 0 var(--tblr-navbar-border-color);
 }
 
 .site-sidebar__fold {
@@ -102,6 +106,28 @@
     pointer-events: none;
 }
 
+/* Search field (#1248) above the tree; matches are marked in the labels. */
+.site-sidebar__search {
+    padding: 0.75rem 0.75rem 0;
+}
+
+.site-sidebar__search-input::-webkit-search-cancel-button {
+    cursor: pointer;
+}
+
+.site-sidebar mark.site-sidebar__match {
+    padding: 0;
+    color: inherit;
+    font-weight: var(--tblr-font-weight-bold);
+    background: color-mix(in srgb, var(--tblr-warning) 30%, transparent);
+    border-radius: 2px;
+}
+
+.site-sidebar__empty {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+}
+
 /* Rail (folded, not hovered): no nested lists, chevrons or badges; the active group's icon stays marked. */
 @media (min-width: 992px) {
     [data-bs-sidebar='folded'] .site-sidebar .site-sidebar__children,
@@ -111,6 +137,21 @@
     [data-bs-sidebar='folded'] .site-sidebar .site-sidebar__badge,
     [data-bs-sidebar='folded-hover'] .site-sidebar:not(:hover):not(:has(:focus-visible)) .site-sidebar__badge {
         display: none !important;
+    }
+
+    /* In the rail the search field is only its icon; focusing it (`/` or a click) opens Tabler's preview. */
+    [data-bs-sidebar='folded'] .site-sidebar .site-sidebar__search-input,
+    [data-bs-sidebar='folded-hover'] .site-sidebar:not(:hover):not(:has(:focus-visible)) .site-sidebar__search-input {
+        cursor: pointer;
+        color: transparent;
+        background: none;
+        border-color: transparent;
+        box-shadow: none;
+    }
+
+    [data-bs-sidebar='folded'] .site-sidebar .site-sidebar__search-input::placeholder,
+    [data-bs-sidebar='folded-hover'] .site-sidebar:not(:hover):not(:has(:focus-visible)) .site-sidebar__search-input::placeholder {
+        color: transparent;
     }
 
     [data-bs-sidebar='folded'] .site-sidebar .site-sidebar__on-path > .site-sidebar__group,

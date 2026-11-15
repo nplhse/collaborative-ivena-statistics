@@ -65,6 +65,34 @@ final class StatisticsSidebarTest extends WebTestCase
     }
 
     /**
+     * The search (#1248) filters in the browser on what the page renders: the translated label of every
+     * entry and group, its section, and the section titles. Badges are not part of the label.
+     */
+    public function testTheTreeCarriesWhatTheSearchFiltersOn(): void
+    {
+        $crawler = $this->get($this->client(['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA']), '/statistics/top-lists');
+
+        self::assertSelectorExists('[data-testid="sidebar-statistics"] input[type="search"][data-testid="sidebar-search"][aria-keyshortcuts="/"]');
+        self::assertSelectorExists('[data-testid="sidebar-search-empty"][hidden]');
+
+        $specialities = $crawler->filter('[data-testid="sidebar-entry-insights-dimension-specialities"]');
+        self::assertSame('insights-dimension-specialities', $specialities->attr('data-nav-id'));
+        self::assertSame($specialities->filter('.nav-link-title')->text(), $specialities->attr('data-nav-label'));
+        self::assertSame(
+            $crawler->filter('[data-testid="sidebar-group-insights"]')->attr('data-nav-section'),
+            $specialities->attr('data-nav-section'),
+            'Nested entries carry the section of their top-level group.',
+        );
+
+        $closures = $crawler->filter('[data-testid="sidebar-group-closures"]');
+        self::assertStringNotContainsString('Beta', (string) $closures->attr('data-nav-label'));
+        self::assertSame(
+            'Capacity & closures',
+            $crawler->filter(\sprintf('[data-nav-section-title="%s"]', $closures->attr('data-nav-section')))->attr('data-nav-label'),
+        );
+    }
+
+    /**
      * The scope with its hospital is covered by EncounterAnalyticsControllerTest.
      */
     public function testLinksCarryScopeAndPeriodWithTheirParametersButNoOtherFilter(): void
