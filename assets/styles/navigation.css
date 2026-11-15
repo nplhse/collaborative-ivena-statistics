@@ -81,11 +81,15 @@
     color: var(--tblr-navbar-active-color);
 }
 
-/* Fold toggle: icon and label say what a click does; it covers rail entries that run under it. */
+/*
+ * Fold toggle: icon and label say what a click does; it covers rail entries that run under it. It repeats
+ * Tabler's right edge of the vertical navbar (an inset shadow on the aside), which its background covers.
+ */
 .site-sidebar .site-sidebar__footer {
     position: relative;
     z-index: 2;
     background: var(--tblr-navbar-bg);
+    box-shadow: inset calc(-1 * var(--tblr-navbar-border-width)) 0 0 0 var(--tblr-navbar-border-color);
 }
 
 .site-sidebar__fold {
