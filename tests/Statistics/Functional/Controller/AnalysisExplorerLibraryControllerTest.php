@@ -177,6 +177,32 @@ final class AnalysisExplorerLibraryControllerTest extends WebTestCase
         self::assertSame('Private view that only its owner can see.', $lock->attr('title'));
     }
 
+    public function testAuthorIsShownByDisplayNameWithAvatarOnTheCardAndInTheExplorer(): void
+    {
+        $client = self::createClient();
+        $owner = $this->loginAsParticipant($client);
+        $owner->setDisplayName('Paula Private');
+        $viewId = $this->persistPrivateView($owner, 'Named author');
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/library?scope=public&period=last_12_months&search=Named+author',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $author = $crawler->filter('[data-testid="stats-analysis-explorer-author-'.$viewId.'"]');
+        self::assertStringContainsString('Paula Private', $author->text());
+        self::assertSame('PP', trim($author->filter('.avatar.avatar-inline')->text()));
+        self::assertSame('@'.$owner->getUsername(), $author->filter('a')->attr('title'));
+
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/analysis/explorer/'.$viewId);
+
+        $this->assertResponseIsSuccessful();
+        $meta = $crawler->filter('[data-testid="stats-analysis-explorer-meta"]');
+        self::assertStringContainsString('Paula Private', $meta->text());
+        self::assertSame('PP', trim($meta->filter('.avatar.avatar-inline')->text()));
+    }
+
     public function testLibraryShowsAssistantEntryWithCurrentScope(): void
     {
         $client = $this->createClientAsParticipant();

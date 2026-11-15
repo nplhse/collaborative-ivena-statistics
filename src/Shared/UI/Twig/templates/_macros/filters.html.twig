@@ -350,7 +350,8 @@
         {% set ownerName = null %}
         {% for owner in owners %}
             {% if ownerName is null and owner.id == filters.ownerId %}
-                {% set ownerName = owner.username %}
+                {% import '@Shared/_macros/users.html.twig' as users %}
+                {% set ownerName = users.label(owner.displayName ?? null, owner.username) %}
             {% endif %}
         {% endfor %}
         {% if ownerName is not null %}

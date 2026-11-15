@@ -180,6 +180,27 @@ final class AuditTimelineControllerTest extends WebTestCase
         self::assertCount(0, $all->filter('[data-audit-band]'), 'no bands across actors');
     }
 
+    public function testActorIsShownByDisplayNameWithTheUsernameAsTitle(): void
+    {
+        $client = $this->adminClient();
+        $actor = (int) UserFactory::createOne(['username' => 'audit-actor', 'displayName' => 'Audrey Audit'])->getId();
+        $this->connection()->executeStatement('DELETE FROM audit_log');
+        $this->insert('2026-11-13 09:00:00', 'r1', 'http', null, $actor);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/audit?actor='.$actor);
+
+        self::assertResponseIsSuccessful();
+        $name = $crawler->filter('[data-audit-entry] .ea-audit-actor');
+        self::assertSame('Audrey Audit', trim($name->text()));
+        self::assertSame('@audit-actor', $name->attr('title'));
+        self::assertSame('Audrey Audit (@audit-actor)', trim($crawler->filter('select[name="actor"] option[value="'.$actor.'"]')->text()));
+        self::assertStringContainsString('Audrey Audit (@audit-actor)', $crawler->filter('[data-audit-active-filters]')->text());
+
+        $details = $client->request(Request::METHOD_GET, '/admin/audit/entries/'.$this->lastEntryId().'/details');
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Audrey Audit (@audit-actor)', $details->text());
+    }
+
     public function testNewCountReportsEntriesWrittenAfterThePageWasLoaded(): void
     {
         $client = $this->adminClient();
@@ -326,6 +347,11 @@ final class AuditTimelineControllerTest extends WebTestCase
              VALUES (:at, :rid, :actor, :origin, 'update', 'App\\Example\\Thing', '1', '{}', NULL, :intent, 'generated', :session)",
             ['at' => $at, 'rid' => $requestId, 'actor' => $actorId, 'origin' => $origin, 'intent' => $intent, 'session' => $sessionRef],
         );
+    }
+
+    private function lastEntryId(): int
+    {
+        return (int) $this->connection()->fetchOne('SELECT MAX(id) FROM audit_log');
     }
 
     private function connection(): Connection

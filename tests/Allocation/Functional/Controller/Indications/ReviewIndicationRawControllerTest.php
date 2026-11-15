@@ -94,6 +94,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         $client = self::createClient();
         $proposer = UserFactory::createOne([
             'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS],
+            'displayName' => 'Petra Proposer',
         ]);
         $reviewer = UserFactory::createOne([
             'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS],
@@ -111,6 +112,9 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
         $client->loginUser($reviewer);
         $crawler = $client->request(Request::METHOD_GET, sprintf('/tools/indication-review/%s', $raw->getPublicIdString()));
         self::assertResponseIsSuccessful();
+        // The proposer is named by display name with an inline avatar (#1240).
+        self::assertStringContainsString('Petra Proposer', $crawler->filter('dl')->text());
+        self::assertSame('PP', trim($crawler->filter('dl .avatar.avatar-inline')->text()));
         $form = $crawler->selectButton('Accept')->form();
         $client->submit($form);
 

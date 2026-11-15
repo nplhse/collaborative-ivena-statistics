@@ -285,6 +285,31 @@ final class ListImportControllerTest extends WebTestCase
         self::assertStringContainsString('Foreign Import', $crawler->text());
     }
 
+    public function testOwnerFilterAndBadgeShowTheDisplayName(): void
+    {
+        $client = self::createClient();
+        [, , $createdBy] = $this->seedBaseActors();
+        $named = UserFactory::createOne([
+            'username' => 'named-owner',
+            'displayName' => 'Nora Named',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
+        $namedHospital = HospitalFactory::createOne([
+            'name' => 'Named Hospital',
+            'owner' => $named,
+            'createdBy' => $createdBy,
+            'state' => StateFactory::createOne(),
+            'dispatchArea' => DispatchAreaFactory::createOne(),
+        ]);
+        $this->createImportForList('Named Import', $namedHospital, $createdBy, ['filePath' => '/tmp/named.csv']);
+        $admin = UserFactory::createOne(['roles' => ['ROLE_ADMIN'], 'username' => 'admin-'.bin2hex(random_bytes(4))]);
+
+        $crawler = $this->requestAsUser($client, $admin, '/import?ownerId='.$named->getId());
+
+        self::assertSame('Nora Named (@named-owner)', trim($crawler->filter('#import-filter-owner option[value="'.$named->getId().'"]')->text()));
+        self::assertStringContainsString('Nora Named (@named-owner)', $crawler->text(), 'active filter badge');
+    }
+
     public function testStatusFilterShowsOnlyMatchingImports(): void
     {
         $client = self::createClient();

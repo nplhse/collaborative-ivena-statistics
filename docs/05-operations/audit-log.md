@@ -140,6 +140,10 @@ old links to that table and to its entries redirect to the timeline and to the e
   `intent`, `entity` (class name), `entityId`, `request`, `session`, `outcome`. Invalid values are
   ignored. The choices for actor, intent and object type are read from the audit log itself. Active
   filters are listed above the timeline with a reset link.
+- **Actor names:** the timeline shows the actor's current display name with the username as tooltip, the
+  entry details "Name (@username)", the actor filter and its badge "Name (@username)", sorted by the
+  visible name (#1240). Users without a display name appear by username. The log itself stores only
+  `actor_id`; the names are read from the user table when the page is rendered.
 - **Matching and context:** with a filter, a stack shows only the matching entries and says how many of
   the request's entries match. The request view shows all entries of the request and marks those that
   do not match as **Context**.

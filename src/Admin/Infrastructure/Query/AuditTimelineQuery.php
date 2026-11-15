@@ -26,6 +26,7 @@ final readonly class AuditTimelineQuery implements AuditTimelineReader
 {
     private const string COLUMNS = <<<'SQL'
         a.id, a.occurred_at, a.request_id, a.request_id_kind, a.actor_id, u.username AS actor_name,
+        u.display_name AS actor_display_name,
         a.origin, a.action, a.entity_class, a.entity_id, a.intent, a.outcome, a.session_ref,
         CASE WHEN json_typeof(a.changes) = 'object'
             THEN (SELECT string_agg(k, ',' ORDER BY k) FROM json_object_keys(a.changes) AS k)
@@ -158,17 +159,23 @@ final readonly class AuditTimelineQuery implements AuditTimelineReader
     public function filterOptions(): AuditFilterOptions
     {
         $actorIds = array_map(intval(...), $this->distinct('actor_id'));
-        $names = [] === $actorIds ? [] : $this->connection->fetchAllKeyValue(
-            'SELECT id, username FROM "user" WHERE id IN (:ids)',
+        /** @var array<int, array{username: string, display_name: string|null}> $users */
+        $users = [] === $actorIds ? [] : $this->connection->fetchAllAssociativeIndexed(
+            'SELECT id, username, display_name FROM "user" WHERE id IN (:ids)',
             ['ids' => $actorIds],
             ['ids' => ArrayParameterType::INTEGER],
         );
 
         $actors = array_map(
-            static fn (int $id): array => ['id' => $id, 'name' => isset($names[$id]) ? (string) $names[$id] : null],
+            static fn (int $id): array => [
+                'id' => $id,
+                'name' => isset($users[$id]) ? (string) $users[$id]['username'] : null,
+                'displayName' => isset($users[$id]) && null !== $users[$id]['display_name'] ? (string) $users[$id]['display_name'] : null,
+            ],
             $actorIds,
         );
-        usort($actors, static fn (array $a, array $b): int => [null === $a['name'], strtolower((string) $a['name']), $a['id']] <=> [null === $b['name'], strtolower((string) $b['name']), $b['id']]);
+        // Sorted by the visible label: display name, else username (#1240); deleted users last.
+        usort($actors, static fn (array $a, array $b): int => [null === $a['name'], mb_strtolower((string) ($a['displayName'] ?? $a['name'])), $a['id']] <=> [null === $b['name'], mb_strtolower((string) ($b['displayName'] ?? $b['name'])), $b['id']]);
 
         return new AuditFilterOptions($this->distinct('intent'), $this->distinct('entity_class'), $actors);
     }
@@ -310,6 +317,7 @@ final readonly class AuditTimelineQuery implements AuditTimelineReader
             outcome: null === $row['outcome'] ? null : (string) $row['outcome'],
             sessionRef: null === $row['session_ref'] ? null : (string) $row['session_ref'],
             changedFields: $changedFields,
+            actorDisplayName: null === $row['actor_display_name'] ? null : (string) $row['actor_display_name'],
         );
     }
 }

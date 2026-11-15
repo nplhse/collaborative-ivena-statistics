@@ -109,6 +109,12 @@ final class AnalysisExplorerShell
     public ?string $savedViewAuthorUrl = null;
 
     #[LiveProp(writable: false)]
+    public ?string $savedViewAuthorDisplayName = null;
+
+    #[LiveProp(writable: false)]
+    public ?int $savedViewAuthorUserId = null;
+
+    #[LiveProp(writable: false)]
     public ?string $savedViewActivityKind = null;
 
     #[LiveProp(writable: false)]
@@ -273,6 +279,8 @@ final class AnalysisExplorerShell
         ?string $savedViewDescription = null,
         ?string $savedViewAuthorName = null,
         ?string $savedViewAuthorUrl = null,
+        ?string $savedViewAuthorDisplayName = null,
+        ?int $savedViewAuthorUserId = null,
         ?string $savedViewActivityKind = null,
         ?string $savedViewActivityRelative = null,
         ?string $savedViewActivityAbsolute = null,
@@ -294,6 +302,8 @@ final class AnalysisExplorerShell
         $this->savedViewDescription = $savedViewDescription;
         $this->savedViewAuthorName = $savedViewAuthorName;
         $this->savedViewAuthorUrl = $savedViewAuthorUrl;
+        $this->savedViewAuthorDisplayName = $savedViewAuthorDisplayName;
+        $this->savedViewAuthorUserId = $savedViewAuthorUserId;
         $this->savedViewActivityKind = $savedViewActivityKind;
         $this->savedViewActivityRelative = $savedViewActivityRelative;
         $this->savedViewActivityAbsolute = $savedViewActivityAbsolute;

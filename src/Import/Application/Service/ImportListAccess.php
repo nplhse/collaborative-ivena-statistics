@@ -61,14 +61,17 @@ final readonly class ImportListAccess
     }
 
     /**
-     * @return list<array{id: int, username: string}>
+     * Sorted by the visible label: display name, else username (#1240).
+     *
+     * @return list<array{id: int, username: string, displayName: string|null}>
      */
     public function resolveOwnerChoices(User $user): array
     {
         $qb = $this->hospitalRepository->createQueryBuilder('h')
             ->innerJoin('h.owner', 'ownerUser')
-            ->select('DISTINCT ownerUser.id AS id', 'ownerUser.username AS username')
-            ->orderBy('ownerUser.username', \SortDirection::Ascending);
+            ->select('DISTINCT ownerUser.id AS id', 'ownerUser.username AS username', 'ownerUser.displayName AS displayName', 'LOWER(COALESCE(ownerUser.displayName, ownerUser.username)) AS HIDDEN sortLabel')
+            ->orderBy('sortLabel', \SortDirection::Ascending)
+            ->addOrderBy('ownerUser.username', \SortDirection::Ascending);
 
         if (!\in_array('ROLE_ADMIN', $user->getRoles(), true)) {
             $qb->andWhere('ownerUser = :user')
@@ -82,6 +85,7 @@ final readonly class ImportListAccess
             $out[] = [
                 'id' => (int) $row['id'],
                 'username' => (string) $row['username'],
+                'displayName' => null === $row['displayName'] ? null : (string) $row['displayName'],
             ];
         }
 

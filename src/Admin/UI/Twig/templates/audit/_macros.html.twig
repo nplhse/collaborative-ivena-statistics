@@ -18,16 +18,31 @@
     {%- else -%}default{%- endif -%}
 {%- endmacro %}
 
+{# Display name of the actor (#1240); the username stays available through actor_title(). #}
 {% macro actor_name(entry) -%}
-    {%- if entry.actorName is not null -%}{{ entry.actorName }}
+    {%- if entry.actorName is not null -%}{{ user_display_name(entry.actorDisplayName, entry.actorName) }}
     {%- elseif entry.actorId is not null -%}{{ 'audit.timeline.deleted_user'|trans({id: entry.actorId}, 'admin') }}
     {%- else -%}{{ 'audit.timeline.no_actor'|trans({}, 'admin') }}{%- endif -%}
+{%- endmacro %}
+
+{# "@username" when the visible actor name is a display name, else empty: for a title attribute. #}
+{% macro actor_title(entry) -%}
+    {%- if entry.actorName is not null and user_display_name(entry.actorDisplayName, entry.actorName) != entry.actorName -%}@{{ entry.actorName }}{%- endif -%}
+{%- endmacro %}
+
+{# Filter label of an actor from AuditFilterOptions: "Name (@username)", or the username alone. #}
+{% macro actor_option(actor) -%}
+    {%- if actor.name is null -%}{{ 'audit.timeline.deleted_user'|trans({id: actor.id}, 'admin') }}
+    {%- else -%}
+        {%- import '@Shared/_macros/users.html.twig' as users -%}
+        {{- users.label(actor.displayName, actor.name) -}}
+    {%- endif -%}
 {%- endmacro %}
 
 {# Summary line of one entry. Plain text only: it is the toggle of the expandable item. #}
 {% macro summary(entry, show_actor = true) %}
     {% import _self as audit %}
-    {% if show_actor %}<span class="ea-audit-actor">{{ audit.actor_name(entry) }}</span>{% endif %}
+    {% if show_actor %}{% set actorTitle = audit.actor_title(entry)|trim %}<span class="ea-audit-actor"{% if actorTitle %} title="{{ actorTitle }}"{% endif %}>{{ audit.actor_name(entry) }}</span>{% endif %}
     <span class="ea-audit-object">{{ entry.entityName }}{% if entry.entityId is not null %} #{{ entry.entityId }}{% endif %}</span>
     {% if entry.intent is not null %}<code class="ea-audit-intent">{{ entry.intent }}</code>{% endif %}
     {% if entry.changedFields is not empty %}

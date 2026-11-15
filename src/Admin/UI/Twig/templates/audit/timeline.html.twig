@@ -12,7 +12,7 @@
         <div class="d-flex flex-wrap align-items-center gap-2 mb-3" data-audit-active-filters>
             <span class="fw-semibold">{{ 'audit.timeline.active_filters'|trans({}, 'admin') }}</span>
             {% set actor_names = {} %}
-            {% for actor in options.actors %}{% set actor_names = actor_names|merge({('a' ~ actor.id): actor.name}) %}{% endfor %}
+            {% for actor in options.actors %}{% set actor_names = actor_names|merge({('a' ~ actor.id): audit.actor_option(actor)}) %}{% endfor %}
             {% for key, value in filter.toQuery %}
                 {% if key in ['origin', 'action', 'outcome'] %}
                     {% set shown = ('audit.' ~ key ~ '.' ~ value)|trans({}, 'admin') %}

@@ -11,7 +11,8 @@
     >
         <twig:block name="content">
             {% import '@Admin/audit/_macros.html.twig' as audit %}
-            <span class="ea-audit-actor">{{ audit.actor_name(first) }}</span>
+            {% set actorTitle = audit.actor_title(first)|trim %}
+            <span class="ea-audit-actor"{% if actorTitle %} title="{{ actorTitle }}"{% endif %}>{{ audit.actor_name(first) }}</span>
             {% if stack.intent is not null %}<code class="ea-audit-intent">{{ stack.intent }}</code>{% endif %}
             <span class="ea-audit-object">{{ stack.entityNames|join(', ') }}</span>
             <twig:ea:Badge>{{ ('audit.origin.' ~ first.origin)|trans({}, 'admin') }}</twig:ea:Badge>

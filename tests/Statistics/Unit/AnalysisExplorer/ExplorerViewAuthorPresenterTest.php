@@ -17,9 +17,9 @@ final class ExplorerViewAuthorPresenterTest extends TestCase
     {
         $presenter = $this->presenter();
 
-        self::assertSame(['name' => null, 'url' => null], $presenter->present(null));
+        self::assertSame(['name' => null, 'displayName' => null, 'userId' => null, 'url' => null], $presenter->present(null));
         self::assertSame(
-            ['name' => null, 'url' => null],
+            ['name' => null, 'displayName' => null, 'userId' => null, 'url' => null],
             $presenter->present(new SavedExplorerView('allocations-over-time', 'System', 'Allocations', [], null, true)),
         );
     }
@@ -31,8 +31,8 @@ final class ExplorerViewAuthorPresenterTest extends TestCase
         $withoutUsername = new SavedExplorerView(null, 'Nameless', 'My views', []);
         $withoutUsername->setCreatedBy(new User());
 
-        self::assertSame(['name' => null, 'url' => null], $presenter->present($withoutCreator));
-        self::assertSame(['name' => null, 'url' => null], $presenter->present($withoutUsername));
+        self::assertSame(['name' => null, 'displayName' => null, 'userId' => null, 'url' => null], $presenter->present($withoutCreator));
+        self::assertSame(['name' => null, 'displayName' => null, 'userId' => null, 'url' => null], $presenter->present($withoutUsername));
     }
 
     public function testLinksANamedCreatorToTheirProfile(): void
@@ -40,6 +40,7 @@ final class ExplorerViewAuthorPresenterTest extends TestCase
         $publicId = Uuid::v4();
         $user = new User();
         $user->setUsername('ada');
+        $user->setDisplayName('Ada Lovelace');
         $user->setPublicId($publicId);
         $view = new SavedExplorerView(null, 'Shared', 'My views', []);
         $view->setCreatedBy($user);
@@ -51,7 +52,7 @@ final class ExplorerViewAuthorPresenterTest extends TestCase
             ->willReturn('/explore/users/'.$publicId->toRfc4122());
 
         self::assertSame(
-            ['name' => 'ada', 'url' => '/explore/users/'.$publicId->toRfc4122()],
+            ['name' => 'ada', 'displayName' => 'Ada Lovelace', 'userId' => null, 'url' => '/explore/users/'.$publicId->toRfc4122()],
             new ExplorerViewAuthorPresenter($urls)->present($view),
         );
     }
@@ -67,7 +68,7 @@ final class ExplorerViewAuthorPresenterTest extends TestCase
         $urls->expects(self::never())->method('generate');
 
         self::assertSame(
-            ['name' => 'ada', 'url' => null],
+            ['name' => 'ada', 'displayName' => null, 'userId' => null, 'url' => null],
             new ExplorerViewAuthorPresenter($urls)->present($view),
         );
     }

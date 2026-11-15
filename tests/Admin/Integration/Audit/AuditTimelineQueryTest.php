@@ -48,7 +48,8 @@ final class AuditTimelineQueryTest extends KernelTestCase
         $this->query = self::getContainer()->get(AuditTimelineQuery::class);
 
         $this->alice = (int) UserFactory::createOne(['username' => 'alice'])->getId();
-        $this->bob = (int) UserFactory::createOne(['username' => 'bob'])->getId();
+        // bob has a display name that sorts before alice (#1240).
+        $this->bob = (int) UserFactory::createOne(['username' => 'bob', 'displayName' => 'Aaron Bob'])->getId();
         // Creating the users writes audit entries of its own; the fixture is the only content.
         $this->connection->executeStatement('DELETE FROM audit_log');
 
@@ -82,6 +83,7 @@ final class AuditTimelineQueryTest extends KernelTestCase
 
         self::assertCount(1, $entries);
         self::assertSame('alice', $entries[0]->actorName);
+        self::assertNull($entries[0]->actorDisplayName);
         self::assertSame(['email', 'name'], $entries[0]->changedFields);
         self::assertSame('user.admin.updated', $entries[0]->intent);
         self::assertTrue($entries[0]->legacyRequestId, 'rows without request_id_kind are legacy');
@@ -123,6 +125,14 @@ final class AuditTimelineQueryTest extends KernelTestCase
         self::assertSame([], $this->query->request('unknown', 10));
     }
 
+    public function testEntryCarriesTheDisplayNameOfTheActor(): void
+    {
+        $entries = $this->query->page(new AuditTimelineFilter(requestId: 'r3'), null, 10)['entries'];
+
+        self::assertSame('bob', $entries[0]->actorName);
+        self::assertSame('Aaron Bob', $entries[0]->actorDisplayName);
+    }
+
     public function testFilterOptionsListDistinctValuesAndActorsByName(): void
     {
         $options = $this->query->filterOptions();
@@ -130,9 +140,12 @@ final class AuditTimelineQueryTest extends KernelTestCase
         self::assertSame(['import.run.failed', 'user.admin.updated'], $options->intents);
         self::assertSame(['App\\Example\\Thing', 'data_export'], $options->entityClasses);
         self::assertSame(
-            [['id' => $this->alice, 'name' => 'alice'], ['id' => $this->bob, 'name' => 'bob']],
+            [
+                ['id' => $this->bob, 'name' => 'bob', 'displayName' => 'Aaron Bob'],
+                ['id' => $this->alice, 'name' => 'alice', 'displayName' => null],
+            ],
             $options->actors,
-            'entries without actor are offered separately as "none"',
+            'sorted by the visible label (display name, else username); entries without actor are offered separately as "none"',
         );
     }
 

@@ -85,7 +85,7 @@ The dedicated timeline (`app_activity_timeline`, `ROLE_USER`) reuses the same qu
 | `from` / `until` | `occurred_at` range (`Y-m-d`, until is inclusive of that day) |
 | `type` | one value from `ProjectActivityPage::feedTypes()` |
 | `user` | exact, case-insensitive username |
-| `search` | `LIKE` on username plus JSON `title` / `postTitle` / `excerpt` / `hospitalName` (not slugs or IDs) |
+| `search` | `LIKE` on username and display name plus JSON `title` / `postTitle` / `excerpt` / `hospitalName` (not slugs or IDs) |
 | `cursor` | keyset pagination on `/activity/feed` |
 
 Further pages use keyset pagination (`occurred_at DESC, id DESC`, cursor `occurredAt` + `id`) and load when the next Turbo Frame enters the viewport (`loading="lazy"`). A fallback link remains for clients without Turbo. Filter query parameters are preserved on that request.

@@ -2,7 +2,7 @@
 
 {% import '@Shared/_macros/badges.html.twig' as badges %}
 
-{% block title %}{{ 'title.user.show'|trans({}, 'user') }}: {{ profile.username }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.user.show'|trans({}, 'user') }}: {{ user_display_name(profile.displayName, profile.username) }} - {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -23,11 +23,11 @@
                 :items="[
                         { label: 'link.explore', path: path('app_explore_index') },
                         { label: 'link.users', path: path('app_explore_user_list') },
-                        { label: profile.username, translatable: false }
+                        { label: user_display_name(profile.displayName, profile.username), translatable: false }
                     ]"
             />
         {% else %}
-            <twig:Breadcrumbs :items="[{ label: profile.username, translatable: false }]" />
+            <twig:Breadcrumbs :items="[{ label: user_display_name(profile.displayName, profile.username), translatable: false }]" />
         {% endif %}
 
         <div class="row align-items-center" data-testid="user-profile-header">

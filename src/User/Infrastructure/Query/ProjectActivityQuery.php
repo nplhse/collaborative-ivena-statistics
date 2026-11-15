@@ -142,6 +142,8 @@ final readonly class ProjectActivityQuery implements ProjectActivityQueryInterfa
             $qb->andWhere(
                 $qb->expr()->orX(
                     $qb->expr()->like('LOWER(u.username)', ':search'),
+                    // Display names are only shown to signed-in users; the feed requires a login (#1240).
+                    $qb->expr()->like("LOWER(COALESCE(u.displayName, ''))", ':search'),
                     $qb->expr()->like("LOWER(COALESCE(JSON_GET_TEXT(a.metadata, 'title'), ''))", ':search'),
                     $qb->expr()->like("LOWER(COALESCE(JSON_GET_TEXT(a.metadata, 'postTitle'), ''))", ':search'),
                     $qb->expr()->like("LOWER(COALESCE(JSON_GET_TEXT(a.metadata, 'excerpt'), ''))", ':search'),

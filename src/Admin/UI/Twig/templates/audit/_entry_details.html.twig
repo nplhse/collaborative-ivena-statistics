@@ -22,7 +22,8 @@
         <dt class="col-sm-3">{{ 'audit.entry.id'|trans({}, 'admin') }}</dt>
         <dd class="col-sm-9 font-monospace">{{ entry.id }}</dd>
         <dt class="col-sm-3">{{ 'audit.filter.actor'|trans({}, 'admin') }}</dt>
-        <dd class="col-sm-9">{{ audit.actor_name(entry) }}</dd>
+        {% set actorTitle = audit.actor_title(entry)|trim %}
+        <dd class="col-sm-9">{{ audit.actor_name(entry) }}{% if actorTitle %} <span class="text-secondary">({{ actorTitle }})</span>{% endif %}</dd>
         <dt class="col-sm-3">{{ 'audit.filter.entity'|trans({}, 'admin') }}</dt>
         <dd class="col-sm-9 font-monospace text-break">{{ entry.entityClass }}{% if entry.entityId is not null %} #{{ entry.entityId }}{% endif %}</dd>
         <dt class="col-sm-3">{{ 'audit.filter.request'|trans({}, 'admin') }}</dt>

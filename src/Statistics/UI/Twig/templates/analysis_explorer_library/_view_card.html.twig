@@ -33,12 +33,12 @@
                 <twig:ux:icon name="tabler:server" class="icon icon-sm" />
                 {{ 'stats.analysis_explorer.library.card.system_source'|trans({}, 'statistics') }}
             {% else %}
-                <twig:ux:icon name="tabler:user" class="icon icon-sm" />
-                {% if card.authorUrl and card.authorName %}
-                    <a href="{{ card.authorUrl }}">{{ card.authorName }}</a>
-                {% else %}
-                    {{ card.authorName ?: ('stats.analysis_explorer.library.card.unknown_author'|trans({}, 'statistics')) }}
-                {% endif %}
+                {{ include('@Statistics/analysis_explorer_library/_author.html.twig', {
+                    authorName: card.authorName,
+                    authorDisplayName: card.authorDisplayName,
+                    authorUserId: card.authorUserId,
+                    authorUrl: card.authorUrl,
+                }) }}
             {% endif %}
             {% if card.activityIso %}
                 <span class="mx-1" aria-hidden="true">·</span>

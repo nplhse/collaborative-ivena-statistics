@@ -20,12 +20,13 @@
 {% endmacro %}
 
 {% import _self as f %}
+{% import '@Admin/audit/_macros.html.twig' as audit %}
 {% set any = 'audit.filter.any'|trans({}, 'admin') %}
 {% set query = filter.toQuery %}
 
 {% set actor_choices = [{value: 'none', label: 'audit.timeline.no_actor'|trans({}, 'admin')}] %}
 {% for actor in options.actors %}
-    {% set actor_choices = actor_choices|merge([{value: '' ~ actor.id, label: actor.name ?? 'audit.timeline.deleted_user'|trans({id: actor.id}, 'admin')}]) %}
+    {% set actor_choices = actor_choices|merge([{value: '' ~ actor.id, label: audit.actor_option(actor)}]) %}
 {% endfor %}
 {% set action_choices = [] %}
 {% for action in actions %}{% set action_choices = action_choices|merge([{value: action, label: ('audit.action.' ~ action)|trans({}, 'admin')}]) %}{% endfor %}
