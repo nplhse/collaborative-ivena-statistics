@@ -1,10 +1,5 @@
 {% extends '@EasyAdmin/page/content.html.twig' %}
 
-{% block configured_stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('styles/admin-kpi.css') }}">
-{% endblock %}
-
 {% block content_title %}{{ 'ops.failed_messages.detail_title'|trans({'%id%': message.id}, 'admin') }}{% endblock %}
 
 {% block main %}

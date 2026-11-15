@@ -217,6 +217,7 @@ final class AuditTimelineControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertCount(2, $crawler->filter('[data-audit-entry]'));
         self::assertCount(0, $crawler->filter('[data-audit-limit]'));
+        self::assertCount(1, $crawler->filter('link[rel="stylesheet"][href*="admin-kpi"]'), 'admin-kpi.css comes only from the asset-mapper entry (#1236)');
 
         $client->request(Request::METHOD_GET, '/admin/audit/requests/unknown');
         self::assertResponseStatusCodeSame(404);
@@ -295,6 +296,7 @@ final class AuditTimelineControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertStringContainsString(\sprintf('Audit entry #%d', $id), $page->filter('title')->text());
         self::assertCount(1, $page->filter(\sprintf('[data-audit-details="%d"]', $id)));
+        self::assertCount(1, $page->filter('link[rel="stylesheet"][href*="admin-kpi"]'), 'admin-kpi.css comes only from the asset-mapper entry (#1236)');
     }
 
     public function testUnknownEntryIs404(): void
