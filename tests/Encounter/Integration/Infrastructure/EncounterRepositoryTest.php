@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Encounter\Integration\Infrastructure;
 
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
-use App\Encounter\Domain\Entity\Encounter;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\EncounterDisposition;
 use App\Encounter\Domain\Entity\EncounterTimes;
 use App\Encounter\Domain\Entity\InitialVitals;
@@ -51,7 +51,7 @@ final class EncounterRepositoryTest extends KernelTestCase
         $department = DepartmentFactory::createOne(['name' => 'Internal medicine']);
         $at = static fn (string $time): \DateTimeImmutable => new \DateTimeImmutable('2026-10-12 '.$time);
 
-        $outcome = $this->encounterRepository()->insertIfNew(new Encounter(
+        $outcome = $this->encounterRepository()->insertIfNew(new EdVisit(
             hospital: $hospital,
             import: $import,
             keyGeneration: 2,
@@ -90,8 +90,8 @@ final class EncounterRepositoryTest extends KernelTestCase
 
         $em = $this->encounterEntityManager();
         $em->clear();
-        $visit = $em->getRepository(Encounter::class)->findOneBy(['visitFingerprint' => self::fingerprintFor('2026-10-12')]);
-        self::assertInstanceOf(Encounter::class, $visit);
+        $visit = $em->getRepository(EdVisit::class)->findOneBy(['visitFingerprint' => self::fingerprintFor('2026-10-12')]);
+        self::assertInstanceOf(EdVisit::class, $visit);
 
         self::assertNotNull($visit->getId());
         self::assertSame(self::fingerprintFor('2026-10-12'), $visit->getVisitFingerprint());
@@ -154,7 +154,7 @@ final class EncounterRepositoryTest extends KernelTestCase
         $hospital = $this->encounterHospital();
         $import = $this->encounterImport($hospital, 'A');
 
-        $this->encounterRepository()->insertIfNew(new Encounter(
+        $this->encounterRepository()->insertIfNew(new EdVisit(
             hospital: $hospital,
             import: $import,
             keyGeneration: 1,
@@ -167,8 +167,8 @@ final class EncounterRepositoryTest extends KernelTestCase
 
         $em = $this->encounterEntityManager();
         $em->clear();
-        $visit = $em->getRepository(Encounter::class)->findOneBy(['visitFingerprint' => self::fingerprintFor('2026-10-13')]);
-        self::assertInstanceOf(Encounter::class, $visit);
+        $visit = $em->getRepository(EdVisit::class)->findOneBy(['visitFingerprint' => self::fingerprintFor('2026-10-13')]);
+        self::assertInstanceOf(EdVisit::class, $visit);
         self::assertSame(AnchorSource::Admission, $visit->getAnchorSource());
         self::assertEquals(new \DateTimeImmutable('2026-10-13 00:01'), $visit->getAnchorAt());
         self::assertNull($visit->getVitals()->getReference());

@@ -7,7 +7,7 @@ namespace App\Encounter\Application\Import;
 use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Contract\Import\EncounterRecordRow;
-use App\Encounter\Domain\Entity\Encounter;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\EncounterDisposition;
 use App\Encounter\Domain\Entity\EncounterTimes;
 use App\Encounter\Domain\Entity\InitialVitals;
@@ -60,9 +60,9 @@ final readonly class EdVisitRow implements EncounterRecordRow
         return $this->times->anchorAt();
     }
 
-    public function toEncounter(Hospital $hospital, Import $import, int $keyGeneration): Encounter
+    public function toEdVisit(Hospital $hospital, Import $import, int $keyGeneration): EdVisit
     {
-        return new Encounter(
+        return new EdVisit(
             hospital: $hospital,
             import: $import,
             keyGeneration: $keyGeneration,

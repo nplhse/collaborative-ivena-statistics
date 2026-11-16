@@ -12,7 +12,10 @@ use App\Encounter\Application\Matching\MatchPlanner;
 use App\Encounter\Application\Matching\MatchRunResult;
 use App\Encounter\Application\Matching\MatchScope;
 use App\Encounter\Application\Matching\MatchWeights;
+use App\Encounter\Application\Matching\PlannedMatch;
 use App\Encounter\Application\Plausibility\PlausibilityLookup;
+use App\Encounter\Contract\Assignment\EncounterAllocationAssignmentsInterface;
+use App\Encounter\Contract\Assignment\EncounterHospitalLockInterface;
 use App\Encounter\Domain\Enum\MatchStatus;
 use App\Encounter\Infrastructure\Query\MatchInputQuery;
 use App\Encounter\Infrastructure\Repository\EncounterMatchRepository;
@@ -40,6 +43,8 @@ final readonly class EncounterMatcher implements EncounterMatcherInterface
         private PlausibilityLookup $plausibility,
         private ClockInterface $clock,
         private LoggerInterface $logger,
+        private EncounterAllocationAssignmentsInterface $assignments,
+        private EncounterHospitalLockInterface $hospitalLock,
     ) {
     }
 
@@ -48,7 +53,7 @@ final readonly class EncounterMatcher implements EncounterMatcherInterface
     public function run(MatchScope $scope): MatchRunResult
     {
         $result = $this->entityManager->wrapInTransaction(function () use ($scope): MatchRunResult {
-            $this->matches->lockHospital($scope->hospitalId);
+            $this->hospitalLock->lock($scope->hospitalId);
 
             [$allocations, $encounters] = $this->load($scope);
             $allocationIds = array_map(static fn (MatchingAllocation $a): int => $a->id, $allocations);
@@ -64,6 +69,11 @@ final readonly class EncounterMatcher implements EncounterMatcherInterface
             );
             $this->matches->insertPlanned($scope->hospitalId, $planned, $this->clock->now());
             $this->matches->deleteProposalsTouchingLinks($scope->hospitalId);
+            // The automatic links become the encounters' effective assignment in the same transaction (#1300).
+            $this->assignments->apply($this->matches->effectiveAllocationByEncounter(array_values(array_map(
+                static fn (PlannedMatch $match): int => $match->encounterId,
+                array_filter($planned, static fn (PlannedMatch $match): bool => MatchStatus::AutoAccepted === $match->status),
+            ))), null);
 
             $autoAccepted = 0;
             $proposed = 0;

@@ -300,6 +300,7 @@ final class EncounterImportControllerTest extends WebTestCase
         $crawler = $this->client->request(Request::METHOD_GET, '/import/'.$deleted);
         $modal = $crawler->filter('#import-delete-modal');
         self::assertStringContainsString('Visits of other imports stay', $modal->text());
+        self::assertStringContainsString('The encounters keep their IVENA assignment', $modal->text());
         $this->client->request(Request::METHOD_POST, '/import/'.$deleted.'/delete', ['_token' => $modal->filter('input[name="_token"]')->attr('value')]);
 
         self::assertResponseRedirects('/import');

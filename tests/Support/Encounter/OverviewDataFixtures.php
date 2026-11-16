@@ -6,6 +6,7 @@ namespace App\Tests\Support\Encounter;
 
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Hospital;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterDisposition;
 use App\Encounter\Domain\Entity\EncounterMatch;
@@ -107,7 +108,7 @@ trait OverviewDataFixtures
     ): int {
         $at = static fn (?string $time): ?\DateTimeImmutable => null === $time ? null : new \DateTimeImmutable($time);
         ++$this->overviewVisit;
-        $id = $this->encounterRepository()->insertIfNewReturningId(new Encounter(
+        $id = $this->encounterRepository()->insertIfNewReturningId(new EdVisit(
             hospital: $hospital,
             import: $import,
             keyGeneration: 1,
@@ -153,6 +154,7 @@ trait OverviewDataFixtures
 
         $em->persist($match);
         $em->flush();
+        EffectiveAssignments::syncFromMatches($em->getConnection());
 
         return $allocation;
     }

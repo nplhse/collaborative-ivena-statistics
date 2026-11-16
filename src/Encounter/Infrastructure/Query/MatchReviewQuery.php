@@ -24,7 +24,7 @@ use Doctrine\DBAL\Types\Types;
  */
 final readonly class MatchReviewQuery implements MatchReviewReaderInterface
 {
-    private const string VISIT_ANCHOR = 'COALESCE(e.ed_admission_at, e.first_assessment_contact_at)';
+    private const string VISIT_ANCHOR = 'COALESCE(v.ed_admission_at, v.first_assessment_contact_at)';
 
     private const string OPEN_CONFLICT = <<<'SQL'
 (m.status = 'proposed' AND m.conflict AND EXISTS (
@@ -45,7 +45,7 @@ SQL;
     #[\Override]
     public function latestVisitDay(int $hospitalId): ?\DateTimeImmutable
     {
-        $value = $this->connection->fetchOne('SELECT MAX(anchor_at) FROM encounter WHERE hospital_id = ?', [$hospitalId], [Types::INTEGER]);
+        $value = $this->connection->fetchOne('SELECT MAX(e.anchor_at) FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id WHERE e.hospital_id = ?', [$hospitalId], [Types::INTEGER]);
 
         return \is_string($value) ? new \DateTimeImmutable(substr($value, 0, 10)) : null;
     }
@@ -60,7 +60,7 @@ SQL;
     {
         /** @var list<array{id: int|string, name: string}> $rows */
         $rows = $this->connection->fetchAllAssociative(
-            'SELECT h.id, h.name FROM hospital h WHERE EXISTS (SELECT 1 FROM encounter e WHERE e.hospital_id = h.id) ORDER BY h.name, h.id',
+            'SELECT h.id, h.name FROM hospital h WHERE EXISTS (SELECT 1 FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id WHERE e.hospital_id = h.id) ORDER BY h.name, h.id',
         );
 
         return array_map(static fn (array $row): array => ['id' => (int) $row['id'], 'name' => $row['name']], $rows);
@@ -109,10 +109,10 @@ SQL,
         /** @var list<array{arrival_route: string, total: int|string, linked: int|string}> $visitRows */
         $visitRows = $this->connection->fetchAllAssociative(
             <<<SQL
-SELECT e.arrival_route, COUNT(*) AS total, COUNT(*) FILTER (WHERE {$this->visitLinked()}) AS linked
-FROM encounter e
+SELECT v.arrival_route, COUNT(*) AS total, COUNT(*) FILTER (WHERE {$this->visitLinked()}) AS linked
+FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id
 WHERE {$this->visitInPeriod()}
-GROUP BY e.arrival_route
+GROUP BY v.arrival_route
 SQL,
             $this->periodParameters($hospitalId, $period),
             $this->periodTypes(),
@@ -154,10 +154,11 @@ SQL,
 SELECT m.id, m.status, m.conflict, false AS open_conflict, m.score, m.points, m.pass, m.time_anchor,
        m.time_difference_minutes, m.decided_at, u.username AS decided_by,
        a.id AS allocation_id, a.arrival_at, a.gender, a.age AS allocation_age,
-       e.id AS encounter_id, {$this->anchor()} AS anchor_at, e.sex, e.age AS encounter_age, e.arrival_route
+       e.id AS encounter_id, {$this->anchor()} AS anchor_at, e.sex, e.age AS encounter_age, v.arrival_route
 FROM encounter_match m
 JOIN allocation a ON a.id = m.allocation_id
 JOIN encounter e ON e.id = m.encounter_id
+JOIN ed_visit v ON v.encounter_id = e.id
 LEFT JOIN "user" u ON u.id = m.decided_by_id
 WHERE {$this->doneCondition()}
 ORDER BY {$this->pairOrder($context)}
@@ -235,10 +236,11 @@ SELECT m.id, m.status, m.conflict, m.score, m.points, m.pass, m.time_anchor, m.t
        ) AS open_conflict,
        (SELECT COUNT(*) FROM encounter_match p WHERE p.allocation_id = a.id AND p.status = 'proposed') AS proposals,
        a.id AS allocation_id, a.arrival_at, a.gender, a.age AS allocation_age,
-       e.id AS encounter_id, {$this->anchor()} AS anchor_at, e.sex, e.age AS encounter_age, e.arrival_route
+       e.id AS encounter_id, {$this->anchor()} AS anchor_at, e.sex, e.age AS encounter_age, v.arrival_route
 FROM best m
 JOIN allocation a ON a.id = m.allocation_id
 JOIN encounter e ON e.id = m.encounter_id
+JOIN ed_visit v ON v.encounter_id = e.id
 ORDER BY a.arrival_at, a.id
 SQL,
             [...$this->periodParameters($hospitalId, $period), 'swaps' => '{'.implode(',', $swapAllocationIds).'}'],
@@ -306,10 +308,10 @@ SQL,
         /** @var list<array{id: int|string, visit_uid: string, anchor_at: string, substitute: bool, sex: string, age: int|string, arrival_route: string, arrival_mode: ?string, proposal_allocation_id: int|string|null}> $rows */
         $rows = $this->connection->fetchAllAssociative(
             <<<SQL
-SELECT e.id, e.visit_uid, {$this->anchor()} AS anchor_at, e.ed_admission_at IS NULL AS substitute, e.sex, e.age, e.arrival_route, e.arrival_mode,
+SELECT e.id, v.visit_uid, {$this->anchor()} AS anchor_at, v.ed_admission_at IS NULL AS substitute, e.sex, e.age, v.arrival_route, v.arrival_mode,
        (SELECT m.allocation_id FROM encounter_match m WHERE m.encounter_id = e.id AND m.status = 'proposed'
         ORDER BY m.score DESC, m.allocation_id LIMIT 1) AS proposal_allocation_id
-FROM encounter e
+FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id
 WHERE {$this->unlinkedVisitCondition()}
 ORDER BY {$this->anchor()}, e.id
 LIMIT :limit OFFSET :offset
@@ -335,7 +337,7 @@ SQL,
     public function countUnlinkedVisits(int $hospitalId, ReviewPeriod $period, ?ArrivalRoute $route): int
     {
         return (int) $this->connection->fetchOne(
-            "SELECT COUNT(*) FROM encounter e WHERE {$this->unlinkedVisitCondition()}",
+            "SELECT COUNT(*) FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id WHERE {$this->unlinkedVisitCondition()}",
             [...$this->periodParameters($hospitalId, $period), 'route' => $route?->value],
             [...$this->periodTypes(), 'route' => Types::STRING],
         );
@@ -391,7 +393,7 @@ SQL,
 
         /** @var list<array{id: int|string, mts_category: ?string, mts_diagram: ?string, mts_indicator: ?string}> $rows */
         $rows = [] === $encounterIds ? [] : $this->connection->fetchAllAssociative(
-            'SELECT id, mts_category, mts_diagram, mts_indicator FROM encounter WHERE id = ANY(CAST(:ids AS INT[]))',
+            'SELECT encounter_id AS id, mts_category, mts_diagram, mts_indicator FROM ed_visit WHERE encounter_id = ANY(CAST(:ids AS INT[]))',
             ['ids' => '{'.implode(',', $encounterIds).'}'],
             ['ids' => Types::STRING],
         );
@@ -471,11 +473,11 @@ WHERE m.hospital_id = :hospital AND m.status <> 'proposed'
   AND (
       m.allocation_id IN (SELECT a.id FROM allocation a WHERE a.hospital_id = :hospital AND a.arrival_at >= :from AND a.arrival_at < :to)
       OR m.encounter_id IN (
-          SELECT e.id FROM encounter e
+          SELECT e.id FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id
           WHERE e.hospital_id = :hospital
             AND e.anchor_at BETWEEN CAST(:from AS TIMESTAMP) - INTERVAL '1 day' AND CAST(:to AS TIMESTAMP) + INTERVAL '1 day'
-            AND COALESCE(e.ed_admission_at, e.first_assessment_contact_at) >= :from
-            AND COALESCE(e.ed_admission_at, e.first_assessment_contact_at) < :to
+            AND COALESCE(v.ed_admission_at, v.first_assessment_contact_at) >= :from
+            AND COALESCE(v.ed_admission_at, v.first_assessment_contact_at) < :to
       )
   )
 SQL,
@@ -580,7 +582,7 @@ SQL;
 
     private function unlinkedVisitCondition(): string
     {
-        return $this->visitInPeriod().' AND NOT '.$this->visitLinked().' AND (CAST(:route AS VARCHAR) IS NULL OR e.arrival_route = :route)';
+        return $this->visitInPeriod().' AND NOT '.$this->visitLinked().' AND (CAST(:route AS VARCHAR) IS NULL OR v.arrival_route = :route)';
     }
 
     private function visitInPeriod(): string

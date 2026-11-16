@@ -173,10 +173,9 @@ budget (`ShowAllocationControllerTest`).
 **Consumer:** `ImportRelatedDataCleanupService::removeRows()`, used by import deletion and by the cleanup
 before a reprocess or a redelivered run
 
-**Implementations:** `EncounterAttachedRecordsGuard` (refuses while records of other imports are attached to
-the import's encounters, ADR 037; priority 20, so it runs before any removal), `EncounterImportDataRemover`
-(the records every encounter schema handler created for the import and their pending assignments,
-#1047, #1274), `EncounterMatchDataRemover` (links, proposals and decisions of the import's allocations or
+**Implementations:** `EncounterImportDataRemover` (the records every encounter schema handler created for the
+import, their pending assignments and decisions, #1047, #1274, #1307; the encounters stay, #1300),
+`EncounterMatchDataRemover` (links, proposals and decisions of the import's allocations or
 visits, then a matcher rerun for the freed hospital-days, #1053; priority 10, so it runs while the visits
 still exist)
 
@@ -265,11 +264,17 @@ transaction. Reviewers decide conflicts on the conflict page (#1307): the core t
 `attach($recordId, $encounterId)`, which must update only an existing record of the schema that is still
 without encounter and return whether it did; the pending record is removed only after that. Automatic
 retries after encounter imports use the same method (`AssignmentRetrier`). Writes that decide the encounter
-of a record take `EncounterHospitalLockInterface` (one lock per hospital, inside the transaction); today
-the decisions and retries do, import write, reprocessing and the matcher join with #1300. Handlers count their results with
+of a record take `EncounterHospitalLockInterface` (one lock per hospital, inside the transaction): the
+decisions, retries, the encounter import write and the matcher (#1300). The effective assignment of an
+encounter to an IVENA allocation is `encounter.allocation_id`; a schema that keeps its own matching history
+writes it through `EncounterAllocationAssignmentsInterface` in the same transaction (the ED matching does).
+A handler that implements `ReprocessingSchemaHandlerInterface` reconciles its records when the import is
+reprocessed (keeps unchanged ones); others are removed and written again in the same transaction.
+Handlers count their results with
 `AssignmentCounts` and return them in `SchemaWriteResult::$assignments`: the import report shows assigned,
 unassigned (no candidate) and conflicts (ambiguous or contradictory). Record tables reference `encounter`
-with ON DELETE RESTRICT; `EncounterAttachedRecordsGuard` (above) finds them in the database catalog.
+with ON DELETE RESTRICT (or no action, as `ed_visit`), so an encounter is never removed while a record
+references it; removing an import removes only its records.
 
 ## Encounter record sections
 

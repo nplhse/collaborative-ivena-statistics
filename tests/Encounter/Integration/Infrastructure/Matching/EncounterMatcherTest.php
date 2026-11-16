@@ -18,6 +18,7 @@ use App\Import\Application\Event\ImportCompleted;
 use App\Import\Application\Service\ImportDeletionService;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
+use App\Tests\Support\Encounter\EffectiveAssignments;
 use App\Tests\Support\Encounter\EncounterDataFixtures;
 use App\Tests\Support\Encounter\MatchingDataFixtures;
 use App\User\Domain\Factory\UserFactory;
@@ -279,6 +280,7 @@ final class EncounterMatcherTest extends KernelTestCase
         self::assertInstanceOf(EncounterMatch::class, $match);
         $match->decide($decision, UserFactory::createOne(), new \DateTimeImmutable('2026-11-12 09:30:00'));
         $this->encounterEntityManager()->flush();
+        EffectiveAssignments::syncFromMatches($this->encounterEntityManager()->getConnection());
         $this->encounterEntityManager()->clear();
     }
 

@@ -6,6 +6,7 @@ namespace App\Tests\Encounter\Functional\Controller;
 
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Hospital;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterDisposition;
 use App\Encounter\Domain\Entity\EncounterMatch;
@@ -23,6 +24,7 @@ use App\Encounter\Domain\Enum\MtsCategory;
 use App\Encounter\Domain\Enum\Sex;
 use App\Encounter\Domain\Enum\VitalsReference;
 use App\Import\Domain\Enum\ImportType;
+use App\Tests\Support\Encounter\EffectiveAssignments;
 use App\Tests\Support\Encounter\EncounterDataFixtures;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
 use App\Tests\Support\Encounter\MatchingDataFixtures;
@@ -77,7 +79,7 @@ final class ShowVisitControllerTest extends WebTestCase
         $this->firstProposal = $this->allocationAt($this->hospital, $allocations, '14:00');
         $secondProposal = $this->allocationAt($this->hospital, $allocations, '14:05');
 
-        $linkedId = (int) $this->encounterRepository()->insertIfNewReturningId(new Encounter(
+        $linkedId = (int) $this->encounterRepository()->insertIfNewReturningId(new EdVisit(
             hospital: $this->hospital,
             import: $visits,
             keyGeneration: 1,
@@ -288,10 +290,10 @@ final class ShowVisitControllerTest extends WebTestCase
 
     private function uid(int $encounterId): string
     {
-        $encounter = $this->encounterEntityManager()->find(Encounter::class, $encounterId);
-        self::assertInstanceOf(Encounter::class, $encounter);
+        $uid = $this->encounterEntityManager()->getConnection()->fetchOne('SELECT visit_uid FROM ed_visit WHERE encounter_id = ?', [$encounterId]);
+        self::assertIsString($uid);
 
-        return $encounter->getVisitUid()->toRfc4122();
+        return $uid;
     }
 
     private function pair(Allocation $allocation, int $encounterId, MatchStatus $status, float $score): void
@@ -304,5 +306,6 @@ final class ShowVisitControllerTest extends WebTestCase
 
         $em->persist(new EncounterMatch($managed, $encounter, $status, AnchorSource::Admission, 7, new \DateTimeImmutable('2026-10-12 11:00'), $score, 9, [], 1, '1.0.0'));
         $em->flush();
+        EffectiveAssignments::syncFromMatches($em->getConnection());
     }
 }

@@ -585,10 +585,6 @@
         <source>encounter.import.schema.unknown</source>
         <target>{schema} (nicht installiert)</target>
       </trans-unit>
-      <trans-unit id="EncB0ECE8E85" resname="encounter.import.delete_refused.attached_records">
-        <source>encounter.import.delete_refused.attached_records</source>
-        <target>Dieser Import kann nicht gelöscht oder neu verarbeitet werden, solange Datensätze anderer Importe an seinen Besuchen hängen. Löschen Sie zuerst diese Importe.</target>
-      </trans-unit>
       <trans-unit id="Enc16758DEBB" resname="encounter.import.count.assigned">
         <source>encounter.import.count.assigned</source>
         <target>Zugeordnet</target>
@@ -1788,6 +1784,26 @@
       <trans-unit id="Enc1268E1C5" resname="encounter.course.no_link">
         <source>encounter.course.no_link</source>
         <target>Mit dieser Zuweisung ist kein Notaufnahmebesuch verknüpft. Vorschläge erscheinen in der Zuordnungsprüfung; diese Karte zeigt nur automatische und bestätigte Verknüpfungen.</target>
+      </trans-unit>
+      <trans-unit id="Enc0674BFC34" resname="encounter.course.unassign.hint">
+        <source>encounter.course.unassign.hint</source>
+        <target>Zu dieser Zuweisung gehört kein Notaufnahmebesuch mehr; die Datensätze oben bleiben beim Behandlungsfall.</target>
+      </trans-unit>
+      <trans-unit id="Enc550DD4AE8" resname="encounter.course.unassign.action">
+        <source>encounter.course.unassign.action</source>
+        <target>Zuordnung aufheben</target>
+      </trans-unit>
+      <trans-unit id="Enc00F87AFB7" resname="encounter.course.unassign.done">
+        <source>encounter.course.unassign.done</source>
+        <target>Die Zuordnung wurde aufgehoben. Der Behandlungsfall und seine Datensätze bleiben erhalten.</target>
+      </trans-unit>
+      <trans-unit id="Enc28FB29555" resname="encounter.course.unassign.not_possible">
+        <source>encounter.course.unassign.not_possible</source>
+        <target>Die Zuordnung wurde nicht aufgehoben: Sie hat sich inzwischen geändert oder gehört zu einem Notaufnahmebesuch.</target>
+      </trans-unit>
+      <trans-unit id="Enc5AD08FDB1" resname="encounter.course.unassign.invalid_token">
+        <source>encounter.course.unassign.invalid_token</source>
+        <target>Das Formular ist abgelaufen. Bitte versuchen Sie es erneut.</target>
       </trans-unit>
       <trans-unit id="Enc93337359" resname="encounter.course.origin.automatic">
         <source>encounter.course.origin.automatic</source>

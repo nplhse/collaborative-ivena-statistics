@@ -13,6 +13,7 @@ use App\Encounter\Contract\Assignment\AssignmentResult;
 use App\Encounter\Contract\Assignment\CandidateReason;
 use App\Encounter\Contract\Assignment\EncounterAssignmentsInterface;
 use App\Encounter\Contract\Import\SchemaWriteContext;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\Domain\Entity\EncounterTimes;
@@ -21,6 +22,7 @@ use App\Encounter\Domain\Enum\MatchStatus;
 use App\Encounter\Domain\Enum\Sex;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
+use App\Tests\Support\Encounter\EffectiveAssignments;
 use App\Tests\Support\Encounter\EncounterDataFixtures;
 use App\Tests\Support\Encounter\EncounterFileBuilder;
 use App\Tests\Support\Encounter\MatchingDataFixtures;
@@ -191,7 +193,7 @@ final class EncounterAssignmentsTest extends KernelTestCase
 
     private function encounter(Hospital $hospital, Import $import, string $label, string $case, int $keyGeneration = 1): int
     {
-        $id = $this->encounterRepository()->insertIfNewReturningId(new Encounter(
+        $id = $this->encounterRepository()->insertIfNewReturningId(new EdVisit(
             hospital: $hospital,
             import: $import,
             keyGeneration: $keyGeneration,
@@ -216,6 +218,7 @@ final class EncounterAssignmentsTest extends KernelTestCase
 
         $em->persist(new EncounterMatch($allocation, $encounter, $status, AnchorSource::Assessment, 7, new \DateTimeImmutable('2026-10-12 09:00'), 0.9697, 9, ['time' => 4], 1, '1.0.0'));
         $em->flush();
+        EffectiveAssignments::syncFromMatches($em->getConnection());
 
         return (int) $allocation->getId();
     }

@@ -15,7 +15,7 @@ use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Encounter\Application\Matching\MatchRunResult;
 use App\Encounter\Application\Matching\MatchScope;
-use App\Encounter\Domain\Entity\Encounter;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\EncounterTimes;
 use App\Encounter\Domain\Entity\Triage;
 use App\Encounter\Domain\Enum\ArrivalMode;
@@ -66,7 +66,7 @@ trait MatchingDataFixtures
     private function visitAt(Hospital $hospital, Import $import, ?string $admission, ?string $assessment = null, Sex $sex = Sex::Female, int $age = 70, ArrivalMode $mode = ArrivalMode::Ambulance, ?string $diagram = null): int
     {
         $at = static fn (?string $time): ?\DateTimeImmutable => null === $time ? null : new \DateTimeImmutable('2026-10-12 '.$time);
-        $id = $this->encounterRepository()->insertIfNewReturningId(new Encounter(
+        $id = $this->encounterRepository()->insertIfNewReturningId(new EdVisit(
             hospital: $hospital,
             import: $import,
             keyGeneration: 1,

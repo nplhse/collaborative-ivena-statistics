@@ -6,6 +6,7 @@ namespace App\Tests\Encounter\Functional\Controller;
 
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Hospital;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterDisposition;
 use App\Encounter\Domain\Entity\EncounterMatch;
@@ -22,6 +23,7 @@ use App\Encounter\Domain\Enum\MtsCategory;
 use App\Encounter\Domain\Enum\Sex;
 use App\Encounter\Domain\Enum\VitalsReference;
 use App\Import\Domain\Enum\ImportType;
+use App\Tests\Support\Encounter\EffectiveAssignments;
 use App\Tests\Support\Encounter\EncounterDataFixtures;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
 use App\Tests\Support\Encounter\MatchingDataFixtures;
@@ -71,7 +73,7 @@ final class HospitalCourseCardTest extends WebTestCase
         $this->linked = $this->allocationAt($this->hospital, $allocations, '10:00');
         $this->open = $this->allocationAt($this->hospital, $allocations, '14:00');
 
-        $linkedVisit = $this->encounterRepository()->insertIfNewReturningId(new Encounter(
+        $linkedVisit = $this->encounterRepository()->insertIfNewReturningId(new EdVisit(
             hospital: $this->hospital,
             import: $visits,
             keyGeneration: 1,
@@ -207,5 +209,6 @@ final class HospitalCourseCardTest extends WebTestCase
 
         $em->persist(new EncounterMatch($managed, $encounter, $status, AnchorSource::Admission, 7, new \DateTimeImmutable('2026-10-12 11:00'), 0.9697, 9, [], 1, '1.0.0'));
         $em->flush();
+        EffectiveAssignments::syncFromMatches($em->getConnection());
     }
 }

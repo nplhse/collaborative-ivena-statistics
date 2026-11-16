@@ -39,7 +39,7 @@ final readonly class MtsCatalogFirstSeenBackfill
     {
         /** @var array<string, string> $rows */
         $rows = $this->entityManager->getConnection()->fetchAllKeyValue(\sprintf(
-            'SELECT code, MIN(created_at) FROM (SELECT %1$s AS code, created_at FROM encounter WHERE %1$s IS NOT NULL UNION ALL SELECT %2$s, created_at FROM encounter WHERE %2$s IS NOT NULL) AS codes GROUP BY code ORDER BY code',
+            'SELECT code, MIN(created_at) FROM (SELECT %1$s AS code, created_at FROM ed_visit WHERE %1$s IS NOT NULL UNION ALL SELECT %2$s, created_at FROM ed_visit WHERE %2$s IS NOT NULL) AS codes GROUP BY code ORDER BY code',
             $initialColumn,
             $retriageColumn,
         ));

@@ -7,7 +7,7 @@ namespace App\Encounter\UI\Http\Controller\Visit;
 use App\Encounter\Application\CaseCard\HospitalCourseFactory;
 use App\Encounter\Application\Contract\HospitalCourseReaderInterface;
 use App\Encounter\Application\Security\EncounterAttribute;
-use App\Encounter\Domain\Entity\Encounter;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,7 +35,7 @@ final class ShowVisitController extends AbstractController
     public function __invoke(string $visitUid): Response
     {
         $encounter = $this->reader->visitByUid(Uuid::fromString($visitUid));
-        if (!$encounter instanceof Encounter) {
+        if (!$encounter instanceof EdVisit) {
             throw new NotFoundHttpException();
         }
 

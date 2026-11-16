@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Application\CaseCard;
 
 use App\Encounter\Application\Overview\ProcessInterval;
-use App\Encounter\Domain\Entity\Encounter;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\Domain\Enum\VitalsReference;
 
@@ -18,17 +18,18 @@ use App\Encounter\Domain\Enum\VitalsReference;
  */
 final class HospitalCourseFactory
 {
-    public function create(EncounterMatch $link): HospitalCourse
+    public function create(EdVisit $visit, EncounterMatch $link): HospitalCourse
     {
-        return $this->forEncounter($link->getEncounter(), $link);
+        return $this->forEncounter($visit, $link);
     }
 
     /**
      * @param EncounterMatch|null $effectiveLink an automatic or confirmed link of this visit, or null
      */
-    public function forEncounter(Encounter $encounter, ?EncounterMatch $effectiveLink): HospitalCourse
+    public function forEncounter(EdVisit $encounter, ?EncounterMatch $effectiveLink): HospitalCourse
     {
-        if ($effectiveLink instanceof EncounterMatch && $effectiveLink->getEncounter() !== $encounter) {
+        if ($effectiveLink instanceof EncounterMatch && $effectiveLink->getEncounter() !== $encounter->getEncounter()
+            && (null === $encounter->getId() || $effectiveLink->getEncounter()->getId() !== $encounter->getId())) {
             throw new \InvalidArgumentException('The link belongs to another visit.');
         }
 

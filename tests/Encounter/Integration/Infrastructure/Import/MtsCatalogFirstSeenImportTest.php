@@ -106,7 +106,7 @@ final class MtsCatalogFirstSeenImportTest extends KernelTestCase
         $importId = $this->upload(EdVisitFileBuilder::create()
             ->visit('a', '2026-10-01T08:15', overrides: ['mts_diagram' => 'brust_schmerzen']));
 
-        self::assertSame(['brust_schmerzen'], $this->connection()->fetchFirstColumn('SELECT mts_diagram FROM encounter WHERE import_id = ?', [$importId]));
+        self::assertSame(['brust_schmerzen'], $this->connection()->fetchFirstColumn('SELECT mts_diagram FROM ed_visit WHERE import_id = ?', [$importId]));
         self::assertSame([], $this->firstSeen('encounter_mts_diagram'));
     }
 
@@ -132,7 +132,7 @@ final class MtsCatalogFirstSeenImportTest extends KernelTestCase
         // Encounters imported before #1157 have no entries: remove the ones the import created.
         $this->connection()->executeStatement("DELETE FROM encounter_mts_diagram WHERE source = 'first_seen'");
         $this->connection()->executeStatement("DELETE FROM encounter_mts_indicator WHERE source = 'first_seen'");
-        $this->connection()->executeStatement("UPDATE encounter SET created_at = '2026-10-03 07:00:00' WHERE import_id = ?", [$importId]);
+        $this->connection()->executeStatement("UPDATE ed_visit SET created_at = '2026-10-03 07:00:00' WHERE import_id = ?", [$importId]);
 
         $tester = new CommandTester(new Application(self::$kernel)->find('app:encounter:mts-catalog:backfill-first-seen'));
         self::assertSame(0, $tester->execute([]));

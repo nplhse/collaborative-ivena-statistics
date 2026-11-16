@@ -57,6 +57,14 @@ IVENA links and review decisions — and then processes the retained file comple
 same duplicate check. Rows that belong to other imports are skipped again; the import's own rows are
 created anew. Reprocessing is only possible while the file is retained (ADR 026).
 
+**Amendment (#1300):** reprocessing an `ed_visit` import no longer removes and recreates its visits. In one
+write transaction it removes what belongs to the import as a whole (rejects, counters, pending assignments
+and their decisions), then reconciles by fingerprint: a visit still in the file keeps its encounter, uid,
+IVENA assignment and ED matching history and gets the file's values; visits no longer in the file are
+removed; new rows are inserted. A failed run commits nothing, so the last successful run stays complete. A
+changed fingerprint input still makes a new visit (with a new encounter); the old encounter keeps its
+assignment. Schemas without reconciliation are removed and written again in the same transaction.
+
 ### Deletion
 
 Deleting an import removes the visits it created, with their clinical data, IVENA links and review

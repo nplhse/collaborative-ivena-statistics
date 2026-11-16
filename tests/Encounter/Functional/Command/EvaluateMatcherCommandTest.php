@@ -143,7 +143,7 @@ final class EvaluateMatcherCommandTest extends KernelTestCase
     public function testComparesWithASyntheticTruth(): void
     {
         /** @var list<array{id: int, visit_fingerprint: string}> $visits */
-        $visits = $this->encounterEntityManager()->getConnection()->fetchAllAssociative('SELECT id, visit_fingerprint FROM encounter ORDER BY id');
+        $visits = $this->encounterEntityManager()->getConnection()->fetchAllAssociative('SELECT encounter_id AS id, visit_fingerprint FROM ed_visit ORDER BY encounter_id');
         $allocations = $this->encounterEntityManager()->getConnection()->fetchFirstColumn('SELECT id FROM allocation ORDER BY id');
         $file = sys_get_temp_dir().'/evaluate-matcher-truth-'.bin2hex(random_bytes(4)).'.json';
         new Filesystem()->dumpFile($file, json_encode(['format' => 'synthetic-encounter-truth', 'version' => 1, 'visits' => [

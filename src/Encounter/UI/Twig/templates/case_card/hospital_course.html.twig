@@ -9,9 +9,11 @@
         </div>
     </div>
     {% if course is null %}
-        <div class="card-body" data-testid="encounter-hospital-course-none">
-            <p class="text-secondary mb-0">{{ 'encounter.course.no_link'|trans({}, d) }}</p>
-        </div>
+        {% if record_sections is empty %}
+            <div class="card-body" data-testid="encounter-hospital-course-none">
+                <p class="text-secondary mb-0">{{ 'encounter.course.no_link'|trans({}, d) }}</p>
+            </div>
+        {% endif %}
     {% else %}
         {% set encounter = course.encounter %}
         {% set link = course.link %}
@@ -52,11 +54,20 @@
                 </div>
             </div>
         </div>
-        {# Records of other encounter schemas attached to the linked encounter (ADR 037). #}
-        {% for section in record_sections %}
-            <div class="card-body border-top" data-record-section="{{ section.key }}">
-                {{ include(section.template, section.context) }}
-            </div>
-        {% endfor %}
+    {% endif %}
+    {# Records of other encounter schemas at the allocation's encounter (ADR 037), also without ED visit. #}
+    {% for section in record_sections %}
+        <div class="card-body{{ course is not null or not loop.first ? ' border-top' }}" data-record-section="{{ section.key }}">
+            {{ include(section.template, section.context) }}
+        </div>
+    {% endfor %}
+    {% if can_unassign|default(false) %}
+        <div class="card-footer d-flex flex-wrap align-items-center gap-2" data-testid="encounter-course-unassign">
+            <span class="text-secondary small">{{ 'encounter.course.unassign.hint'|trans({}, d) }}</span>
+            <form method="post" action="{{ path('app_explore_allocation_encounter_unassign', {publicId: allocation_public_id}) }}" class="ms-auto">
+                <input type="hidden" name="_token" value="{{ csrf_token('encounter_unassign_' ~ allocation_id) }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'encounter.course.unassign.action'|trans({}, d) }}</button>
+            </form>
+        </div>
     {% endif %}
 </div>

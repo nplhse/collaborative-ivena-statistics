@@ -141,7 +141,7 @@ SQL,
 
         /** @var list<array{id: int|string, visit_fingerprint: string}> $rows */
         $rows = $this->entityManager->getConnection()->fetchAllAssociative(
-            'SELECT id, visit_fingerprint FROM encounter WHERE hospital_id = :hospital AND visit_fingerprint IN (:fingerprints)',
+            'SELECT encounter_id AS id, visit_fingerprint FROM ed_visit WHERE hospital_id = :hospital AND visit_fingerprint IN (:fingerprints)',
             ['hospital' => $hospitalId, 'fingerprints' => $fingerprints],
             ['hospital' => Types::INTEGER, 'fingerprints' => ArrayParameterType::STRING],
         );

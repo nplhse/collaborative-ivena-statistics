@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Encounter\Integration\Infrastructure;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterTimes;
 use App\Encounter\Domain\Enum\EncounterInsertOutcome;
@@ -51,7 +52,8 @@ final class ConcurrentEncounterInsertTest extends KernelTestCase
     protected function tearDown(): void
     {
         if (null !== $this->ids) {
-            $this->setup->executeStatement('DELETE FROM encounter WHERE import_id = ?', [$this->ids['import']]);
+            $this->setup->executeStatement('DELETE FROM ed_visit WHERE import_id = ?', [$this->ids['import']]);
+            $this->setup->executeStatement('DELETE FROM encounter WHERE hospital_id = ?', [$this->ids['hospital']]);
             $this->setup->executeStatement('DELETE FROM import WHERE id = ?', [$this->ids['import']]);
             $this->setup->executeStatement('DELETE FROM hospital WHERE id = ?', [$this->ids['hospital']]);
             $this->setup->executeStatement('DELETE FROM dispatch_area WHERE id = ?', [$this->ids['dispatch_area']]);
@@ -63,19 +65,27 @@ final class ConcurrentEncounterInsertTest extends KernelTestCase
         parent::tearDown();
     }
 
-    public function testTwoConcurrentInsertsOfTheSameFingerprintCreateOneEncounter(): void
+    public function testTwoConcurrentInsertsOfTheSameFingerprintCreateOneVisitAndNoEmptyEncounter(): void
     {
         self::assertNotNull($this->ids);
-        $statement = EncounterInsertStatement::for($this->entityManager(), $this->visit());
+        $em = $this->entityManager();
 
-        // Session 1: insert, transaction still open.
+        // Session 1: encounter and visit inserted, transaction still open.
         $this->setup->beginTransaction();
-        $firstId = $this->setup->executeQuery($statement->sql, $statement->params, $statement->types)->fetchOne();
-        self::assertNotFalse($firstId);
+        $hub = EncounterInsertStatement::forEncounter($em, $this->visit()->getEncounter());
+        $firstEncounter = (int) $this->setup->executeQuery($hub->sql, $hub->params, $hub->types)->fetchOne();
+        $visit = EncounterInsertStatement::forVisit($em, $this->visit(), $firstEncounter);
+        self::assertNotFalse($this->setup->executeQuery($visit->sql, $visit->params, $visit->types)->fetchOne());
 
-        // Session 2: same insert, sent without waiting for the result.
+        // Session 2 follows EncounterRepository: savepoint, its own encounter, then the visit, sent without waiting.
         $second = $this->pgsqlConnection();
-        self::assertTrue(pg_send_query_params($second, $this->numberedPlaceholders($statement->sql), $this->databaseValues($statement)));
+        pg_query($second, 'BEGIN');
+        pg_query($second, 'SAVEPOINT ed_visit_insert');
+        $secondHub = pg_query_params($second, $this->numberedPlaceholders($hub->sql), $this->databaseValues($hub));
+        self::assertNotFalse($secondHub);
+        $secondEncounter = (int) pg_fetch_result($secondHub, 0, 0);
+        $secondVisit = EncounterInsertStatement::forVisit($em, $this->visit(), $secondEncounter);
+        self::assertTrue(pg_send_query_params($second, $this->numberedPlaceholders($secondVisit->sql), $this->databaseValues($secondVisit)));
         usleep(200_000);
         self::assertTrue(pg_connection_busy($second), 'Session 2 waits for the uncommitted visit of session 1.');
 
@@ -84,20 +94,25 @@ final class ConcurrentEncounterInsertTest extends KernelTestCase
         $result = pg_get_result($second);
         self::assertNotFalse($result);
         self::assertSame(\PGSQL_TUPLES_OK, pg_result_status($result), (string) pg_result_error($result));
-        self::assertSame(0, pg_num_rows($result), 'Session 2 inserted nothing.');
+        self::assertSame(0, pg_num_rows($result), 'Session 2 inserted no visit.');
+        pg_query($second, 'ROLLBACK TO SAVEPOINT ed_visit_insert');
+        pg_query($second, 'COMMIT');
         pg_close($second);
 
-        // The application's own connection now sees the visit as known.
+        self::assertSame(1, (int) $this->setup->fetchOne('SELECT COUNT(*) FROM encounter WHERE hospital_id = ?', [$this->ids['hospital']]), 'The duplicate left no encounter behind.');
+
+        // The application's own connection now sees the visit as known and leaves no encounter either.
         self::assertSame(EncounterInsertOutcome::Duplicate, $this->repository()->insertIfNew($this->visit()));
         self::assertSame(1, $this->repository()->countByImportId($this->ids['import']));
+        self::assertSame(1, (int) $em->getConnection()->fetchOne('SELECT COUNT(*) FROM encounter WHERE hospital_id = ?', [$this->ids['hospital']]));
     }
 
-    private function visit(): Encounter
+    private function visit(): EdVisit
     {
         self::assertNotNull($this->ids);
         $em = $this->entityManager();
 
-        return new Encounter(
+        return new EdVisit(
             hospital: $em->getReference(Hospital::class, $this->ids['hospital']),
             import: $em->getReference(Import::class, $this->ids['import']),
             keyGeneration: 1,

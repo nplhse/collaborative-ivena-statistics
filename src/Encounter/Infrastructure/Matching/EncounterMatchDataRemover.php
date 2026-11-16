@@ -6,6 +6,7 @@ namespace App\Encounter\Infrastructure\Matching;
 
 use App\Encounter\Application\Matching\MatchScope;
 use App\Encounter\Application\Message\MatchEncountersMessage;
+use App\Encounter\Contract\Assignment\EncounterAllocationAssignmentsInterface;
 use App\Encounter\Infrastructure\Query\MatchTriggerQuery;
 use App\Encounter\Infrastructure\Repository\EncounterMatchRepository;
 use App\Import\Application\Contracts\ImportDataRemoverInterface;
@@ -36,6 +37,7 @@ final readonly class EncounterMatchDataRemover implements ImportDataRemoverInter
         private EncounterMatchRepository $matches,
         private MatchTriggerQuery $triggers,
         private MessageBusInterface $bus,
+        private EncounterAllocationAssignmentsInterface $assignments,
     ) {
     }
 
@@ -54,6 +56,7 @@ final readonly class EncounterMatchDataRemover implements ImportDataRemoverInter
         }
 
         $deleted = $this->matches->deleteForImport($importId);
+        $this->assignments->releaseAllocationsOfImport($importId);
 
         $days = [...$affected['days'], ...MatchScope::aroundVisitDays($affected['hospitalId'], $affected['visitDays'])->days];
         if ([] !== $days) {

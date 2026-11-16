@@ -585,10 +585,6 @@
         <source>encounter.import.schema.unknown</source>
         <target>{schema} (not installed)</target>
       </trans-unit>
-      <trans-unit id="EncB0ECE8E85" resname="encounter.import.delete_refused.attached_records">
-        <source>encounter.import.delete_refused.attached_records</source>
-        <target>This import cannot be deleted or reprocessed while records of other imports are attached to its visits. Delete those imports first.</target>
-      </trans-unit>
       <trans-unit id="Enc16758DEBB" resname="encounter.import.count.assigned">
         <source>encounter.import.count.assigned</source>
         <target>Assigned</target>
@@ -1788,6 +1784,26 @@
       <trans-unit id="Enc1268E1C5" resname="encounter.course.no_link">
         <source>encounter.course.no_link</source>
         <target>No emergency department visit is linked to this allocation. Proposals appear in the match review; this card shows automatic and confirmed links only.</target>
+      </trans-unit>
+      <trans-unit id="Enc0674BFC34" resname="encounter.course.unassign.hint">
+        <source>encounter.course.unassign.hint</source>
+        <target>No ED visit belongs to this assignment any more; the records above stay with the encounter.</target>
+      </trans-unit>
+      <trans-unit id="Enc550DD4AE8" resname="encounter.course.unassign.action">
+        <source>encounter.course.unassign.action</source>
+        <target>Remove assignment</target>
+      </trans-unit>
+      <trans-unit id="Enc00F87AFB7" resname="encounter.course.unassign.done">
+        <source>encounter.course.unassign.done</source>
+        <target>The assignment was removed. The encounter and its records stay.</target>
+      </trans-unit>
+      <trans-unit id="Enc28FB29555" resname="encounter.course.unassign.not_possible">
+        <source>encounter.course.unassign.not_possible</source>
+        <target>The assignment was not removed: it changed meanwhile or an ED visit belongs to it.</target>
+      </trans-unit>
+      <trans-unit id="Enc5AD08FDB1" resname="encounter.course.unassign.invalid_token">
+        <source>encounter.course.unassign.invalid_token</source>
+        <target>The form has expired. Please try again.</target>
       </trans-unit>
       <trans-unit id="Enc93337359" resname="encounter.course.origin.automatic">
         <source>encounter.course.origin.automatic</source>

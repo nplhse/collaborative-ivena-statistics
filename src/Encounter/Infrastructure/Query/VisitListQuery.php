@@ -22,7 +22,7 @@ use Doctrine\DBAL\Types\Types;
  */
 final readonly class VisitListQuery implements VisitListReaderInterface
 {
-    private const string ANCHOR = 'COALESCE(e.ed_admission_at, e.first_assessment_contact_at)';
+    private const string ANCHOR = 'COALESCE(v.ed_admission_at, v.first_assessment_contact_at)';
 
     private const string EFFECTIVE = "EXISTS (SELECT 1 FROM encounter_match l WHERE l.encounter_id = e.id AND l.status IN ('auto_accepted', 'confirmed'))";
 
@@ -45,11 +45,11 @@ final readonly class VisitListQuery implements VisitListReaderInterface
 
         $rows = $this->connection->fetchAllAssociative(
             <<<SQL
-SELECT e.id, e.visit_uid, {$anchor} AS anchor_at, e.ed_admission_at IS NULL AS substitute, e.age, e.sex,
-       e.arrival_route, e.arrival_mode, e.mts_category, e.mts_diagram, e.disposition_code, e.referral_source,
-       e.case_status, d.name AS department, {$state} AS link_state, a.id AS allocation_id, a.public_id AS allocation_public_id
-FROM encounter e
-LEFT JOIN department d ON d.id = e.admitting_department_id
+SELECT e.id, v.visit_uid, {$anchor} AS anchor_at, v.ed_admission_at IS NULL AS substitute, e.age, e.sex,
+       v.arrival_route, v.arrival_mode, v.mts_category, v.mts_diagram, v.disposition_code, v.referral_source,
+       v.case_status, d.name AS department, {$state} AS link_state, a.id AS allocation_id, a.public_id AS allocation_public_id
+FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id
+LEFT JOIN department d ON d.id = v.admitting_department_id
 LEFT JOIN encounter_match m ON m.encounter_id = e.id AND m.status IN ('auto_accepted', 'confirmed')
 LEFT JOIN allocation a ON a.id = m.allocation_id
 WHERE {$where}
@@ -86,7 +86,7 @@ SQL,
     {
         [$where, $parameters, $types] = $this->where($filter);
 
-        return (int) $this->connection->fetchOne("SELECT COUNT(*) FROM encounter e WHERE {$where}", $parameters, $types);
+        return (int) $this->connection->fetchOne("SELECT COUNT(*) FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id WHERE {$where}", $parameters, $types);
     }
 
     #[\Override]
@@ -97,7 +97,7 @@ SQL,
         }
 
         $sql = 'SELECT h.id, h.public_id, h.name FROM hospital h WHERE '
-            .(null === $hospitalIds ? 'EXISTS (SELECT 1 FROM encounter e WHERE e.hospital_id = h.id)' : 'h.id IN (:ids)')
+            .(null === $hospitalIds ? 'EXISTS (SELECT 1 FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id WHERE e.hospital_id = h.id)' : 'h.id IN (:ids)')
             .' ORDER BY h.name, h.id';
 
         /** @var list<array{id: int|string, public_id: string, name: string}> $rows */
@@ -111,7 +111,7 @@ SQL,
     {
         /** @var list<string> $codes */
         $codes = $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT e.mts_diagram FROM encounter e WHERE e.hospital_id = :hospital AND e.mts_diagram IS NOT NULL ORDER BY e.mts_diagram',
+            'SELECT DISTINCT v.mts_diagram FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id WHERE e.hospital_id = :hospital AND v.mts_diagram IS NOT NULL ORDER BY v.mts_diagram',
             ['hospital' => $hospitalId],
             ['hospital' => Types::INTEGER],
         );
@@ -135,25 +135,25 @@ SQL,
         $types = ['hospital' => Types::INTEGER, 'from' => Types::DATETIME_IMMUTABLE, 'to' => Types::DATETIME_IMMUTABLE];
 
         if ([] !== $filter->routes) {
-            $conditions[] = 'e.arrival_route IN (:routes)';
+            $conditions[] = 'v.arrival_route IN (:routes)';
             $parameters['routes'] = array_map(static fn (ArrivalRoute $route): string => $route->value, $filter->routes);
             $types['routes'] = ArrayParameterType::STRING;
         }
 
         if ([] !== $filter->categories) {
-            $conditions[] = 'e.mts_category IN (:categories)';
+            $conditions[] = 'v.mts_category IN (:categories)';
             $parameters['categories'] = array_map(static fn (MtsCategory $category): string => $category->value, $filter->categories);
             $types['categories'] = ArrayParameterType::STRING;
         }
 
         if (null !== $filter->diagram) {
-            $conditions[] = 'e.mts_diagram = :diagram';
+            $conditions[] = 'v.mts_diagram = :diagram';
             $parameters['diagram'] = $filter->diagram;
             $types['diagram'] = Types::STRING;
         }
 
         if ($filter->disposition instanceof \App\Encounter\Domain\Enum\Disposition) {
-            $conditions[] = 'e.disposition_code = :disposition';
+            $conditions[] = 'v.disposition_code = :disposition';
             $parameters['disposition'] = $filter->disposition->value;
             $types['disposition'] = Types::STRING;
         }

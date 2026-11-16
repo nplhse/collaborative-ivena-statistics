@@ -13,9 +13,7 @@ use App\Encounter\Contract\Assignment\CandidateReason;
 use App\Encounter\Contract\Assignment\EncounterAssignmentsInterface;
 use App\Encounter\Contract\Import\SchemaWriteContext;
 use App\Encounter\Domain\Entity\EncounterPendingAssignment;
-use App\Encounter\Domain\Enum\MatchStatus;
 use App\Import\Domain\Entity\Import;
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 
@@ -23,7 +21,7 @@ use Psr\Clock\ClockInterface;
  * Finding the encounter of a record (ADR 037). Candidates come only from the request's hospital and key
  * generation:
  *
- * - by allocation: the encounter with an effective link to the allocation (auto-accepted or confirmed);
+ * - by allocation: the encounter the allocation is effectively assigned to (`encounter.allocation_id`, #1300);
  * - by case pseudonym: every encounter with the pseudonym.
  *
  * The allocation is the primary anchor. It decides when the pseudonym finds nothing or agrees with it;
@@ -97,10 +95,8 @@ final readonly class EncounterAssignments implements EncounterAssignmentsInterfa
     private function linkedEncounter(AssignmentRequest $request): ?int
     {
         $id = $this->entityManager->getConnection()->fetchOne(
-            'SELECT m.encounter_id FROM encounter_match m INNER JOIN encounter e ON e.id = m.encounter_id
-             WHERE m.allocation_id = ? AND m.status IN (?) AND e.hospital_id = ? AND e.key_generation = ?',
-            [$request->allocationId, array_map(static fn (MatchStatus $status): string => $status->value, MatchStatus::effective()), $request->hospitalId, $request->keyGeneration],
-            [1 => ArrayParameterType::STRING],
+            'SELECT id FROM encounter WHERE allocation_id = ? AND hospital_id = ? AND key_generation = ?',
+            [$request->allocationId, $request->hospitalId, $request->keyGeneration],
         );
 
         return false === $id ? null : (int) $id;

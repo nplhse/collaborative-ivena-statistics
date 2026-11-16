@@ -39,39 +39,6 @@ trait AttachedRecordFixtures
     }
 
     /**
-     * A record of $importId gets attached to a visit while the import's deletion is already running: when
-     * its link is removed (EncounterMatchDataRemover, after EncounterAttachedRecordsGuard), so only the
-     * database can still block the deletion.
-     */
-    private function attachRecordWhenTheLinkIsRemoved(int $importId): void
-    {
-        $this->attachedConnection()->executeStatement(sprintf(
-            'CREATE FUNCTION test_attach_on_unlink() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN INSERT INTO test_attached_record (encounter_id, import_id) VALUES (OLD.encounter_id, %d); RETURN OLD; END $$',
-            $importId,
-        ));
-        $this->attachedConnection()->executeStatement('CREATE TRIGGER test_attach_on_unlink BEFORE DELETE ON encounter_match FOR EACH ROW EXECUTE FUNCTION test_attach_on_unlink()');
-    }
-
-    /**
-     * Another foreign key fails while the import's visits are removed: a visit's removal inserts a record
-     * of an import that does not exist.
-     */
-    private function violateAnotherForeignKeyWhenAVisitIsRemoved(): void
-    {
-        $this->attachedConnection()->executeStatement('CREATE FUNCTION test_violate_on_visit_removal() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN INSERT INTO test_attached_record (encounter_id, import_id) VALUES (NULL, -1); RETURN OLD; END $$');
-        $this->attachedConnection()->executeStatement('CREATE TRIGGER test_violate_on_visit_removal BEFORE DELETE ON encounter FOR EACH ROW EXECUTE FUNCTION test_violate_on_visit_removal()');
-    }
-
-    /**
-     * Any other database error while the import is deleted.
-     */
-    private function failWhenTheLinkIsRemoved(): void
-    {
-        $this->attachedConnection()->executeStatement("CREATE FUNCTION test_fail_on_unlink() RETURNS trigger LANGUAGE plpgsql AS \$\$ BEGIN RAISE EXCEPTION 'test failure'; END \$\$");
-        $this->attachedConnection()->executeStatement('CREATE TRIGGER test_fail_on_unlink BEFORE DELETE ON encounter_match FOR EACH ROW EXECUTE FUNCTION test_fail_on_unlink()');
-    }
-
-    /**
      * Effective (auto-accepted) link of the visit with the allocation. Create the allocation
      * (MatchingDataFixtures::allocationAt()) before an import run clears the entity manager.
      */
@@ -85,6 +52,7 @@ trait AttachedRecordFixtures
 
         $em->persist(new EncounterMatch($allocation, $encounter, MatchStatus::AutoAccepted, AnchorSource::Assessment, 7, new \DateTimeImmutable('2026-10-12 09:00'), 0.9697, 9, ['time' => 4, 'sex' => 2, 'age' => 2, 'arrival_route' => 1], 1, '1.0.0'));
         $em->flush();
+        EffectiveAssignments::syncFromMatches($em->getConnection());
     }
 
     /**

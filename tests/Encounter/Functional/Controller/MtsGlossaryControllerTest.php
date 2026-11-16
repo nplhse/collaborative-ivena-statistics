@@ -7,6 +7,7 @@ namespace App\Tests\Encounter\Functional\Controller;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Application\Catalog\MtsCatalogCuration;
 use App\Encounter\Application\Catalog\MtsCatalogFirstSeenWriter;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterTimes;
 use App\Encounter\Domain\Entity\MtsAlias;
@@ -349,7 +350,7 @@ final class MtsGlossaryControllerTest extends WebTestCase
         $import = $this->encounterImport($hospital, 'MTS glossary '.$this->visit);
         for ($i = 0; $i < $count; ++$i) {
             ++$this->visit;
-            $this->encounterRepository()->insertIfNew(new Encounter(
+            $this->encounterRepository()->insertIfNew(new EdVisit(
                 hospital: $hospital,
                 import: $import,
                 keyGeneration: 1,

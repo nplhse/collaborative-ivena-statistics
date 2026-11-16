@@ -105,7 +105,7 @@ trait EncounterImportRunner
         $ids = [];
         foreach ($labels as $label) {
             $id = $this->connection()->fetchOne(
-                'SELECT id FROM encounter WHERE import_id = ? AND visit_fingerprint = ?',
+                'SELECT encounter_id FROM ed_visit WHERE import_id = ? AND visit_fingerprint = ?',
                 [$importId, EdVisitFileBuilder::fingerprint($label)],
             );
             if (false !== $id) {
@@ -118,7 +118,7 @@ trait EncounterImportRunner
 
     private function encounterCount(int $importId): int
     {
-        return (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter WHERE import_id = ?', [$importId]);
+        return (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM ed_visit WHERE import_id = ?', [$importId]);
     }
 
     private function connection(): Connection
