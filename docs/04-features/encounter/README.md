@@ -278,6 +278,21 @@ reviewer (`REVIEW`) sees "Remove assignment" on the case card (`POST
 /explore/allocation/{publicId}/encounter/unassign`). The encounter and its records stay; a later record
 naming the allocation or a matcher run can assign it again. With an ED visit the match review decides.
 
+**Cleanup of encounters without records** (#1300, ADR 037): a daily job (`encounter_cleanup`, 03:30)
+removes encounters that no clinical record references any more, for example after an ED import was
+deleted. A clinical record is a row of any table whose foreign key to `encounter` refuses the deletion
+(`RESTRICT` or no action), read from the database catalog, so tables of disabled schema bundles count too.
+Rows that cascade with the encounter (ED matching history, suspected duplicates, validation items) are no
+records and go with it. An encounter with an IVENA assignment is removed as well; the allocation stays and
+can be assigned again by a later record or matcher run. There is no waiting time: an encounter that is
+empty at the run is removed.
+
+Each hospital runs in its own transaction under the encounter hospital lock, so a write that attaches a
+record to an existing encounter or assigns an allocation either finishes first (the encounter then has a
+record and stays) or starts after the cleanup (and creates a new encounter). If a foreign key still refuses
+the deletion, the hospital is rolled back and counted as skipped. Manual run:
+`php bin/console app:encounter:clean-up [--hospital=<id>]` (all hospitals with encounters when left out).
+
 ### Upload file retention
 
 Accepted files and files rejected for a possible processing error are kept for

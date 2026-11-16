@@ -1,6 +1,6 @@
 # ADR 037: Encounter as treatment case, schemas as Symfony bundles
 
-**Status:** accepted (#1274 part 1: contract, assignment, deletion rules and display proven with a test-only schema bundle; #1307 decisions and retries done; #1300 step 1 done: ED visit split out of the encounter, effective assignment on the encounter; cleanup and MTS bundle follow in #1300)
+**Status:** accepted (#1274 part 1: contract, assignment, deletion rules and display proven with a test-only schema bundle; #1307 decisions and retries done; #1300 step 1 done: ED visit split out of the encounter, effective assignment on the encounter; step 2 done: cleanup of encounters without records; MTS bundle follows in #1300)
 
 ## Context
 
@@ -202,8 +202,9 @@ The decision is implemented in steps:
 3. **#1300** splits the ED visit out of the `encounter` table (step 1 done: `ed_visit` keyed by the
    encounter id, data migrated 1:1 and back, effective assignment on the encounter, reprocessing of
    `ed_visit` reconciles by fingerprint in one transaction, see ADR 029; import write, reprocessing and the
-   matcher take the encounter hospital lock), adds the cleanup of encounters without records and ships
-   MTS as a bundle.
+   matcher take the encounter hospital lock; step 2 done: the cleanup of encounters without records runs
+   daily and by command, per hospital under the encounter hospital lock, and treats every refusing
+   foreign key to `encounter` as a record) and ships MTS as a bundle.
 
 Before step 1 of #1300, `ed_visit` was the only schema in production and its records were the encounters;
 deleting an `ed_visit` import whose visits carried records of another schema was refused. Since then an
@@ -219,8 +220,9 @@ ED import deletion removes the visits only.
   time of a record (for example the admission of a stay) decides between candidates.
 - **Merging and splitting:** what happens to records when a second schema may create encounters and a
   later allocation link makes two encounters the same case, or a link is removed.
-- **Cleanup criteria:** when a scheduled run treats an encounter without records as final (for
-  example after a waiting time while reassignments are open).
+- **Cleanup criteria:** whether a scheduled run should wait before it treats an encounter without
+  records as final (for example while reassignments are open). Since #1300 the daily cleanup removes
+  every encounter that is empty at the run.
 - **Disabled bundles:** how unassigned records and open conflicts of a schema whose bundle is disabled
   are shown and resolved.
 
