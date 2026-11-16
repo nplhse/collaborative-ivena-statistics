@@ -8,6 +8,8 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Application\Cleanup\EncounterCleanupResult;
 use App\Encounter\Application\Contract\EncounterCleanupInterface;
 use App\Encounter\Application\Message\CleanUpEncountersMessage;
+use App\Encounter\Contract\Assignment\EncounterHospitalLockInterface;
+use App\Encounter\Infrastructure\Cleanup\EncounterCleanup;
 use App\Encounter\Infrastructure\Scheduler\EncounterScheduleContribution;
 use App\Import\Domain\Enum\ImportType;
 use App\Tests\Support\Encounter\AttachedRecordFixtures;
@@ -100,6 +102,55 @@ final class EncounterCleanupTest extends KernelTestCase
 
         $schedule = new EncounterScheduleContribution();
         self::assertSame(EncounterScheduleContribution::JOB_CLEANUP, $schedule->recordedJobs()[CleanUpEncountersMessage::class]);
+    }
+
+    public function testAHospitalIsSkippedWhenAForeignKeyStillRefusesTheDeletion(): void
+    {
+        // A composite foreign key is not part of the check, so only the database refuses the deletion.
+        $this->connection()->executeStatement('ALTER TABLE encounter ADD CONSTRAINT test_encounter_id_hospital UNIQUE (id, hospital_id)');
+        $this->connection()->executeStatement('CREATE TABLE test_composite_record (encounter_id INT NOT NULL, hospital_id INT NOT NULL, FOREIGN KEY (encounter_id, hospital_id) REFERENCES encounter (id, hospital_id))');
+        $this->connection()->executeStatement('INSERT INTO test_composite_record VALUES (?, ?)', [$this->encounters['empty'], $this->hospital->getId()]);
+
+        $result = $this->cleanup()->run((int) $this->hospital->getId());
+
+        self::assertEquals(new EncounterCleanupResult(hospitals: 1, skippedHospitals: 1), $result);
+        self::assertCount(3, $this->remainingEncounters(), 'The hospital was rolled back as a whole.');
+    }
+
+    public function testWithoutAnyRecordTableEveryEncounterIsEmpty(): void
+    {
+        $constraints = $this->connection()->fetchAllAssociative(
+            "SELECT conrelid::regclass::text AS table, quote_ident(conname) AS name FROM pg_constraint WHERE contype = 'f' AND confrelid = 'encounter'::regclass AND confdeltype IN ('r', 'a')",
+        );
+        foreach ($constraints as $constraint) {
+            $this->connection()->executeStatement(sprintf('ALTER TABLE %s DROP CONSTRAINT %s', (string) $constraint['table'], (string) $constraint['name']));
+        }
+
+        self::assertSame(3, $this->cleanup()->run((int) $this->hospital->getId())->removed);
+        self::assertSame([], $this->remainingEncounters());
+    }
+
+    public function testAFailureRollsTheHospitalBackAndIsRethrown(): void
+    {
+        $lock = new class implements EncounterHospitalLockInterface {
+            #[\Override]
+            public function lock(int $hospitalId): void
+            {
+                throw new \RuntimeException('lock failed');
+            }
+        };
+        $cleanup = new EncounterCleanup($this->connection(), $lock);
+        $level = $this->connection()->getTransactionNestingLevel();
+
+        try {
+            $cleanup->run((int) $this->hospital->getId());
+            self::fail('The failure is rethrown.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('lock failed', $exception->getMessage());
+        }
+
+        self::assertSame($level, $this->connection()->getTransactionNestingLevel(), 'The hospital transaction is closed.');
+        self::assertCount(3, $this->remainingEncounters());
     }
 
     public function testANegativeHospitalIsRefused(): void
