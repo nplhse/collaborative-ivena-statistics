@@ -627,7 +627,7 @@
       </trans-unit>
       <trans-unit id="imp8A59819E" resname="import.delete.modal.body.encounter">
         <source>import.delete.modal.body.encounter</source>
-        <target>Delete the encounter import “{name}”? All visits it created are removed, with their matching history and review decisions, its rejects and the uploaded file. The encounters keep their IVENA assignment and the records of other imports; visits of other imports stay. This cannot be undone.</target>
+        <target>Delete the encounter import “{name}”? All visits it created are removed, with their matching history and review decisions, its rejects and the uploaded file. The encounters keep their IVENA assignment and the records of other imports. Visits of other imports stay. This cannot be undone.</target>
       </trans-unit>
       <trans-unit id="impDEBC5472" resname="import.reprocess.modal.body.encounter">
         <source>import.reprocess.modal.body.encounter</source>
