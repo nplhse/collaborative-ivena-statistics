@@ -14,6 +14,7 @@ use App\Encounter\Application\Matching\PlannedMatch;
 use App\Encounter\Application\Plausibility\PlausibilityLookup;
 use App\Encounter\Application\Review\MatchDecisionException;
 use App\Encounter\Application\Review\SwapProposal;
+use App\Encounter\Contract\Assignment\EncounterAllocationAssignmentsInterface;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\Domain\Entity\PlausibilitySnapshot;
@@ -53,6 +54,7 @@ final readonly class MatchDecider implements MatchDeciderInterface
         private PlausibilityLookup $plausibility,
         private AuditContext $auditContext,
         private ClockInterface $clock,
+        private EncounterAllocationAssignmentsInterface $assignments,
     ) {
     }
 
@@ -104,6 +106,7 @@ final readonly class MatchDecider implements MatchDeciderInterface
                 $this->entityManager->flush();
             });
             $this->matches->deleteProposalsTouchingLinks($hospitalId);
+            $this->syncAssignments([$encounterId, (int) $replaced?->getEncounter()->getId()], $user);
 
             return $replaced?->getEncounter()->getId();
         });
@@ -141,6 +144,7 @@ final readonly class MatchDecider implements MatchDeciderInterface
                 $pair->decide(MatchStatus::Rejected, $user, $this->clock->now());
                 $this->entityManager->flush();
             });
+            $this->syncAssignments([$encounterId], $user);
         });
     }
 
@@ -197,7 +201,19 @@ final readonly class MatchDecider implements MatchDeciderInterface
                 $this->entityManager->flush();
             });
             $this->matches->deleteProposalsTouchingLinks($hospitalId);
+            $this->syncAssignments([$proposal->currentEncounterId, $proposal->newEncounterId()], $user);
         });
+    }
+
+    /**
+     * The decision changed the ED matching history; the touched encounters' effective assignment
+     * (`encounter.allocation_id`, #1300) follows in the same transaction.
+     *
+     * @param list<int> $encounterIds 0 entries are ignored
+     */
+    private function syncAssignments(array $encounterIds, User $user): void
+    {
+        $this->assignments->apply($this->matches->effectiveAllocationByEncounter(array_values(array_filter($encounterIds))), $user->getId());
     }
 
     /**

@@ -9,6 +9,7 @@ use App\Encounter\Application\Matching\PlannedMatch;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\Domain\Enum\MatchStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -140,5 +141,35 @@ SQL,
             ['import' => $importId],
             ['import' => Types::INTEGER],
         );
+    }
+
+    /**
+     * The allocation of each encounter's effective pair (auto-accepted or confirmed), null without one: what
+     * `encounter.allocation_id` must say after an ED matching decision (#1300).
+     *
+     * @param list<int> $encounterIds
+     *
+     * @return array<int, int|null>
+     */
+    public function effectiveAllocationByEncounter(array $encounterIds): array
+    {
+        $encounterIds = array_values(array_unique($encounterIds));
+        if ([] === $encounterIds) {
+            return [];
+        }
+
+        /** @var array<int|string, int|string> $rows */
+        $rows = $this->getEntityManager()->getConnection()->fetchAllKeyValue(
+            'SELECT encounter_id, allocation_id FROM encounter_match WHERE encounter_id IN (:encounters) AND status IN (:effective)',
+            ['encounters' => $encounterIds, 'effective' => array_map(static fn (MatchStatus $s): string => $s->value, MatchStatus::effective())],
+            ['encounters' => ArrayParameterType::INTEGER, 'effective' => ArrayParameterType::STRING],
+        );
+
+        $result = [];
+        foreach ($encounterIds as $encounterId) {
+            $result[$encounterId] = isset($rows[$encounterId]) ? (int) $rows[$encounterId] : null;
+        }
+
+        return $result;
     }
 }

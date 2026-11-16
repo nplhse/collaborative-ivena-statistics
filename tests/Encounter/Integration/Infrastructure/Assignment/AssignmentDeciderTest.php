@@ -23,6 +23,7 @@ use App\Encounter\Domain\Enum\Sex;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
 use App\Tests\Fixtures\Plugin\InpatientStay\InpatientStayDimension;
+use App\Tests\Support\Encounter\EffectiveAssignments;
 use App\Tests\Support\Encounter\EncounterDataFixtures;
 use App\Tests\Support\Encounter\EncounterFileBuilder;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
@@ -281,6 +282,7 @@ final class AssignmentDeciderTest extends KernelTestCase
         self::assertInstanceOf(Allocation::class, $allocation);
         $em->persist(new EncounterMatch($allocation, $encounter, MatchStatus::AutoAccepted, AnchorSource::Assessment, 7, new \DateTimeImmutable('2026-10-12 09:00'), 0.9697, 9, ['time' => 4], 1, '1.0.0'));
         $em->flush();
+        EffectiveAssignments::syncFromMatches($em->getConnection());
     }
 
     private function changeCase(string $label, string $case): void

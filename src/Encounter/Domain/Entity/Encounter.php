@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Encounter\Domain\Entity;
 
+use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Domain\Enum\AdmissionType;
@@ -15,6 +16,7 @@ use App\Encounter\Domain\Enum\IsolationCode;
 use App\Encounter\Domain\Enum\ReferralSource;
 use App\Encounter\Domain\Enum\Sex;
 use App\Import\Domain\Entity\Import;
+use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Clock\Clock;
@@ -36,6 +38,7 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Table(name: 'encounter')]
 #[ORM\UniqueConstraint(name: 'uniq_encounter_visit', fields: ['hospital', 'keyGeneration', 'visitFingerprint'])]
 #[ORM\UniqueConstraint(name: 'uniq_encounter_visit_uid', fields: ['visitUid'])]
+#[ORM\UniqueConstraint(name: 'uniq_encounter_allocation', fields: ['allocation'])]
 #[ORM\Index(name: 'idx_encounter_case_key', fields: ['hospital', 'keyGeneration', 'caseKey'])]
 #[ORM\Index(name: 'idx_encounter_hospital_anchor', fields: ['hospital', 'anchorAt'])]
 #[ORM\Index(name: 'idx_encounter_hospital_route_anchor', fields: ['hospital', 'arrivalRoute', 'anchorAt'])]
@@ -131,6 +134,22 @@ class Encounter
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
+
+    /**
+     * Effective assignment to an IVENA allocation (#1300, ADR 037), at most one encounter per allocation. Set
+     * and removed only through EncounterAllocationAssignments; the ED matching keeps its candidates and
+     * decisions in EncounterMatch.
+     */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Allocation $allocation = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $allocationAssignedAt = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?User $allocationAssignedBy = null;
 
     /**
      * @param list<IsolationCode> $isolation
@@ -346,5 +365,10 @@ class Encounter
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getAllocation(): ?Allocation
+    {
+        return $this->allocation;
     }
 }

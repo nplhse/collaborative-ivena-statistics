@@ -85,6 +85,7 @@ trait AttachedRecordFixtures
 
         $em->persist(new EncounterMatch($allocation, $encounter, MatchStatus::AutoAccepted, AnchorSource::Assessment, 7, new \DateTimeImmutable('2026-10-12 09:00'), 0.9697, 9, ['time' => 4, 'sex' => 2, 'age' => 2, 'arrival_route' => 1], 1, '1.0.0'));
         $em->flush();
+        EffectiveAssignments::syncFromMatches($em->getConnection());
     }
 
     /**

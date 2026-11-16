@@ -163,7 +163,9 @@ SQL,
     }
 
     /**
-     * Effective links (both sides reserved) and rejected pairs touching the given allocations or visits.
+     * Effective assignments (both sides reserved) and rejected pairs touching the given allocations or visits.
+     * The effective assignment is `encounter.allocation_id` (#1300): it also reserves an allocation whose
+     * encounter has no ED matching history any more (its ED visit was deleted).
      *
      * @param list<int> $allocationIds
      * @param list<int> $encounterIds
@@ -199,6 +201,20 @@ SQL,
 
             $state['reservedAllocations'][$allocationId] = true;
             $state['reservedEncounters'][$encounterId] = true;
+        }
+
+        /** @var list<array{id: int|string, allocation_id: int|string}> $assigned */
+        $assigned = $this->connection->fetchAllAssociative(
+            'SELECT id, allocation_id FROM encounter WHERE allocation_id IS NOT NULL AND (allocation_id IN (:allocations) OR id IN (:encounters))',
+            [
+                'allocations' => [] === $allocationIds ? [0] : $allocationIds,
+                'encounters' => [] === $encounterIds ? [0] : $encounterIds,
+            ],
+            ['allocations' => ArrayParameterType::INTEGER, 'encounters' => ArrayParameterType::INTEGER],
+        );
+        foreach ($assigned as $row) {
+            $state['reservedAllocations'][(int) $row['allocation_id']] = true;
+            $state['reservedEncounters'][(int) $row['id']] = true;
         }
 
         return $state;
