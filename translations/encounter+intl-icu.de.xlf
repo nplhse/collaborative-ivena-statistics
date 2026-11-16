@@ -623,7 +623,7 @@
       </trans-unit>
       <trans-unit id="EncF3CAEC278" resname="encounter.assignment.conflicts_intro">
         <source>encounter.assignment.conflicts_intro</source>
-        <target>Diese Datensätze bleiben ohne Behandlungsfall, bis über ihre Zuordnung entschieden ist. Die Entscheidung folgt in einer späteren Version; bis dahin zeigt die Liste die Kandidaten.</target>
+        <target>Diese Datensätze bleiben ohne Behandlungsfall, bis über ihre Zuordnung entschieden ist. Ordnen Sie jeden einem seiner Kandidaten zu oder lassen Sie ihn vorerst nicht zugeordnet.</target>
       </trans-unit>
       <trans-unit id="Enc9DDAC20A4" resname="encounter.assignment.no_conflicts">
         <source>encounter.assignment.no_conflicts</source>
@@ -668,6 +668,82 @@
       <trans-unit id="EncEABEC91E1" resname="encounter.assignment.candidate_gone">
         <source>encounter.assignment.candidate_gone</source>
         <target>Behandlungsfall existiert nicht mehr</target>
+      </trans-unit>
+      <trans-unit id="Enc89173035F" resname="encounter.assignment.column.decision">
+        <source>encounter.assignment.column.decision</source>
+        <target>Entscheidung</target>
+      </trans-unit>
+      <trans-unit id="Enc1510E02F7" resname="encounter.assignment.column.record">
+        <source>encounter.assignment.column.record</source>
+        <target>Datensatz</target>
+      </trans-unit>
+      <trans-unit id="Enc685B740FE" resname="encounter.assignment.column.decided">
+        <source>encounter.assignment.column.decided</source>
+        <target>Entschieden</target>
+      </trans-unit>
+      <trans-unit id="EncC91E73C21" resname="encounter.assignment.record">
+        <source>encounter.assignment.record</source>
+        <target>Datensatz {id}</target>
+      </trans-unit>
+      <trans-unit id="Enc67569008A" resname="encounter.assignment.action.assign">
+        <source>encounter.assignment.action.assign</source>
+        <target>Zuordnen</target>
+      </trans-unit>
+      <trans-unit id="Enc929C241B2" resname="encounter.assignment.action.assign_label">
+        <source>encounter.assignment.action.assign_label</source>
+        <target>Datensatz diesem Behandlungsfall zuordnen</target>
+      </trans-unit>
+      <trans-unit id="EncD30443915" resname="encounter.assignment.action.defer">
+        <source>encounter.assignment.action.defer</source>
+        <target>Vorerst nicht zuordnen</target>
+      </trans-unit>
+      <trans-unit id="EncF621A1E1B" resname="encounter.assignment.deferred.title">
+        <source>encounter.assignment.deferred.title</source>
+        <target>Vorerst nicht zugeordnet ({count})</target>
+      </trans-unit>
+      <trans-unit id="Enc2C7A04E23" resname="encounter.assignment.deferred.intro">
+        <source>encounter.assignment.deferred.intro</source>
+        <target>Diese Datensätze wurden bei der Prüfung vorerst nicht zugeordnet. Sie können später weiterhin automatisch zugeordnet werden.</target>
+      </trans-unit>
+      <trans-unit id="Enc87C3020D9" resname="encounter.assignment.deferred.limited">
+        <source>encounter.assignment.deferred.limited</source>
+        <target>Angezeigt werden die letzten {shown} von {total} Datensätzen.</target>
+      </trans-unit>
+      <trans-unit id="EncAD7256450" resname="encounter.assignment.decided_by_unknown">
+        <source>encounter.assignment.decided_by_unknown</source>
+        <target>gelöschtes Konto</target>
+      </trans-unit>
+      <trans-unit id="Enc5354840D8" resname="encounter.assignment.flash.assign">
+        <source>encounter.assignment.flash.assign</source>
+        <target>Der Datensatz wurde zugeordnet.</target>
+      </trans-unit>
+      <trans-unit id="Enc294C6D56C" resname="encounter.assignment.flash.defer">
+        <source>encounter.assignment.flash.defer</source>
+        <target>Der Datensatz wurde vorerst nicht zugeordnet.</target>
+      </trans-unit>
+      <trans-unit id="Enc4A98CA0C3" resname="encounter.assignment.flash.invalid_token">
+        <source>encounter.assignment.flash.invalid_token</source>
+        <target>Das Formular ist abgelaufen. Bitte versuchen Sie es erneut.</target>
+      </trans-unit>
+      <trans-unit id="Enc136CA554E" resname="encounter.assignment.flash.changed">
+        <source>encounter.assignment.flash.changed</source>
+        <target>Die Zuordnung hat sich geändert, seit die Seite geladen wurde. Es wurde nichts entschieden; bitte prüfen Sie den aktuellen Stand.</target>
+      </trans-unit>
+      <trans-unit id="EncCC72BAB72" resname="encounter.assignment.flash.not_open">
+        <source>encounter.assignment.flash.not_open</source>
+        <target>Dieser Konflikt ist nicht mehr offen. Es wurde nichts entschieden.</target>
+      </trans-unit>
+      <trans-unit id="Enc8DA311418" resname="encounter.assignment.flash.invalid_candidate">
+        <source>encounter.assignment.flash.invalid_candidate</source>
+        <target>Dieser Behandlungsfall ist kein Kandidat des Konflikts. Es wurde nichts entschieden.</target>
+      </trans-unit>
+      <trans-unit id="Enc4F4EBA5B1" resname="encounter.assignment.flash.record_changed">
+        <source>encounter.assignment.flash.record_changed</source>
+        <target>Der Datensatz wurde inzwischen geändert oder entfernt. Es wurde nichts entschieden.</target>
+      </trans-unit>
+      <trans-unit id="Enc203408A93" resname="encounter.assignment.flash.encounter_gone">
+        <source>encounter.assignment.flash.encounter_gone</source>
+        <target>Der gewählte Behandlungsfall wurde inzwischen entfernt. Es wurde nichts entschieden.</target>
       </trans-unit>
       <trans-unit id="EncI5609204C" resname="encounter.import.field.confirmation">
         <source>encounter.import.field.confirmation</source>

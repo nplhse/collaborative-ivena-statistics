@@ -16,7 +16,8 @@ use Doctrine\ORM\EntityManagerInterface;
  *
  * Records created by other imports stay, also when the deleted import contained them as duplicates.
  * For `ed_visit`, links and review decisions (#1053, #1054) reference encounters with ON DELETE CASCADE
- * and are removed with them. Pending assignments of the import's records go as well.
+ * and are removed with them. Pending assignments of the import's records and the manual decisions on them
+ * (#1307) go as well.
  *
  * EncounterAttachedRecordsGuard refuses beforehand when records of other imports are attached to the
  * import's encounters. Should the database still block the removal through such a reference (a record
@@ -46,6 +47,9 @@ final readonly class EncounterImportDataRemover implements ImportDataRemoverInte
         // Read before deleting: after a violation the transaction accepts no further statement.
         $restricting = $this->references->restrictingReferences();
 
+        // Reprocessing keeps the import row, so its cascade does not fire: pending records and the decisions on
+        // them (#1307) are removed here explicitly, before the records themselves.
+        $this->entityManager->getConnection()->executeStatement('DELETE FROM encounter_assignment_decision WHERE import_id = ?', [$importId]);
         $this->entityManager->getConnection()->executeStatement('DELETE FROM encounter_pending_assignment WHERE import_id = ?', [$importId]);
 
         $removed = 0;

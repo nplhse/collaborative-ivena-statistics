@@ -212,6 +212,31 @@ conflicts in the report (`encounter_import.assigned / unassigned / conflicts`, n
 keep unassigned records in `encounter_pending_assignment`
 ([extension point](../../02-architecture/extension-points.md#encounter-assignments)).
 
+**Assignment conflicts** (ADR 037, #1307): users with the `REVIEW` grant decide each open conflict
+(ambiguous or contradictory) on `/tools/encounter-assignments/{id}`:
+
+- **Assign to a candidate:** the record is attached to the chosen encounter (through the schema's handler,
+  which only attaches a record that is still without encounter) and from then on appears like an
+  automatically assigned one, for example in the case file.
+- **Leave unassigned for now:** the conflict is closed without assignment; the record keeps status
+  `deferred` with the conflict the reviewer saw and stays eligible for automatic assignment. Deferred
+  records are listed read only in a collapsed section below the conflicts, with reviewer and time; there
+  is no action to reopen them.
+
+Both actions re-check the conflict before deciding: under the encounter hospital lock they reload the
+record and run the assignment again. If the kind or the candidate set (compared as an unordered set)
+differs from what the reviewer saw, nothing is decided and the page shows the current state with a
+warning. Each decision is kept in `encounter_assignment_decision` (who, when, the conflict seen, the chosen
+encounter). Deleting or reprocessing the import removes its pending records and decisions; reprocessing
+keeps the import row, so the encounter import remover deletes them explicitly, and the conflicts come back
+as before any decision. Records without candidate are only counted; their automatic retry follows with
+the second part of #1307.
+
+The **encounter hospital lock** (`EncounterHospitalLockInterface`, a transaction-level advisory lock per
+hospital) is taken by these decisions. Import write, reprocessing and the matcher take it only with
+#1300; until then they can run in parallel, which is why the decisions re-check the record and rely on
+the foreign keys (a candidate deleted meanwhile rolls the decision back).
+
 ### Upload file retention
 
 Accepted files and files rejected for a possible processing error are kept for
@@ -325,7 +350,7 @@ Overviews cross both attributes, for example "EMS arrival, not linked".
 | Match validation: draw samples, record verdicts, read the report | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
 | Case-level views, case card on an allocation, visit list and visit detail page | beta role + encounter grant `VIEW_CASES`, or `ROLE_ADMIN` |
 | Open proposals (state "proposal pending") and links into the match review on the visit list and detail page | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
-| Assignment conflicts of attaching schemas (read only, #1274) | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
+| Assignment conflicts of attaching schemas: view and decide (#1274, #1307) | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
 | Explore tiles of further encounter schemas | beta role + encounter grant `VIEW_CASES` (or `REVIEW`) for at least one hospital, or `ROLE_ADMIN`; the target page checks the hospital |
 | Descriptive aggregates of the own hospital | beta role + any encounter grant + `STATISTICS`, or `ROLE_ADMIN` |
 | View or download a retained upload file | beta role + encounter grant `UPLOAD` on the hospital, or `ROLE_ADMIN` |
@@ -1166,7 +1191,7 @@ listed by `EncounterToolProvider` for `ROLE_ENCOUNTER_BETA` with a beta badge:
 | Encounter match review | `app_tools_encounter_review` | `/tools/encounter-review` (hospital list), `/tools/encounter-review/{id}/…` |
 | Encounter match validation | `app_tools_encounter_review` with `mode=validation` | the same hospital list, linking to `/tools/encounter-review/{id}/validation` |
 | Data preparation tool | `app_tools_data_prep` | `/tools/data-prep`, `/tools/data-prep/key`, `/tools/data-prep/local-map`, `/tools/data-prep/download` |
-| Assignment conflicts (#1274, read only; decisions in #1307) | `app_tools_encounter_assignments` | `/tools/encounter-assignments` (hospitals with grant `REVIEW`; administrators: every hospital with conflicts), `/tools/encounter-assignments/{id}` (open ambiguous and contradictory records of attaching schemas with their candidates, newest 200) |
+| Assignment conflicts (#1274, #1307) | `app_tools_encounter_assignments` | `/tools/encounter-assignments` (hospitals with grant `REVIEW`; administrators: every hospital with conflicts), `/tools/encounter-assignments/{id}` (open ambiguous and contradictory records of attaching schemas with their candidates and the two decisions, newest 200; deferred records read only below), `POST /tools/encounter-assignments/{id}/conflicts/{pendingId}/assign\|defer` (`app_tools_encounter_assignments_decide`) |
 | Plausibility table (also needs `ROLE_ENCOUNTER_CATALOG_REVIEWER`, [above](#plausibility-table)) | `app_tools_encounter_plausibility*` | `/tools/encounter-plausibility`, `…/areas/new`, `…/areas/{code}/edit`, `…/areas/{code}/delete`, `…/snapshots/{id}`, `…/snapshots/{id}/{activate,retire,delete}` |
 
 There is no encounter entry in the main navigation anymore: descriptive figures are in Statistics
