@@ -136,7 +136,7 @@ SQL,
             <<<'SQL'
 DELETE FROM encounter_match m
 WHERE m.allocation_id IN (SELECT id FROM allocation WHERE import_id = :import)
-   OR m.encounter_id IN (SELECT id FROM encounter WHERE import_id = :import)
+   OR m.encounter_id IN (SELECT encounter_id FROM ed_visit WHERE import_id = :import)
 SQL,
             ['import' => $importId],
             ['import' => Types::INTEGER],

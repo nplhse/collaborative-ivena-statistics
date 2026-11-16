@@ -94,7 +94,7 @@ final class EncounterImportRunTest extends KernelTestCase
         self::assertSame(1, $this->import($second)->getRowsDeduplicated());
         self::assertSame(['c', 'd'], array_keys($this->visitIdsOfImport($second, 'b', 'c', 'd')));
         self::assertSame(['a', 'b'], array_keys($this->visitIdsOfImport($first, 'a', 'b')));
-        self::assertSame(54, (int) $this->connection()->fetchOne('SELECT age FROM encounter WHERE visit_fingerprint = ?', [EdVisitFileBuilder::fingerprint('b')]));
+        self::assertSame(54, (int) $this->connection()->fetchOne('SELECT e.age FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id WHERE v.visit_fingerprint = ?', [EdVisitFileBuilder::fingerprint('b')]));
         // The coverage describes the file: the known visit counts on its day.
         self::assertSame(['2026-10-01' => 1, '2026-10-02' => 2], $this->import($second)->getDataCoverage()?->dailyCounts);
         self::assertSame(['2026-10-02'], $events[0]->days ?? null);
@@ -342,7 +342,7 @@ final class EncounterImportRunTest extends KernelTestCase
     private function visitUids(int $importId): array
     {
         /* @var array<string, string> */
-        return $this->connection()->fetchAllKeyValue('SELECT visit_fingerprint, visit_uid FROM encounter WHERE import_id = ? ORDER BY visit_fingerprint', [$importId]);
+        return $this->connection()->fetchAllKeyValue('SELECT visit_fingerprint, visit_uid FROM ed_visit WHERE import_id = ? ORDER BY visit_fingerprint', [$importId]);
     }
 
     /**

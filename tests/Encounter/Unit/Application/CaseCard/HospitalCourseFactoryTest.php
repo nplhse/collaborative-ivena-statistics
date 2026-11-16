@@ -9,7 +9,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Application\CaseCard\HospitalCourseFactory;
 use App\Encounter\Application\CaseCard\IntervalValue;
 use App\Encounter\Application\CaseCard\TimelineEvent;
-use App\Encounter\Domain\Entity\Encounter;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\Domain\Entity\EncounterTimes;
 use App\Encounter\Domain\Entity\InitialVitals;
@@ -37,7 +37,7 @@ final class HospitalCourseFactoryTest extends TestCase
 
     public function testTimelineIsOrderedAndRelativeToTheEdAdmission(): void
     {
-        $course = new HospitalCourseFactory()->create($this->link(new InitialVitals(VitalsReference::AdmissionMeasurement, new \DateTimeImmutable('2026-10-12 10:09'), heartRate: 88)));
+        $course = new HospitalCourseFactory()->create(...$this->link(new InitialVitals(VitalsReference::AdmissionMeasurement, new \DateTimeImmutable('2026-10-12 10:09'), heartRate: 88)));
 
         self::assertSame(
             ['ivena_arrival 10:00 -7', 'ed_admission 10:07 0', 'vitals_measured 10:09 2', 'first_assessment 10:12 5', 'first_physician 10:40 33', 'ed_discharge 13:07 180'],
@@ -51,7 +51,7 @@ final class HospitalCourseFactoryTest extends TestCase
 
     public function testDocumentedInitialVitalsAreNeverOnTheTimeline(): void
     {
-        $course = new HospitalCourseFactory()->create($this->link(new InitialVitals(VitalsReference::DocumentedInitial, heartRate: 88)));
+        $course = new HospitalCourseFactory()->create(...$this->link(new InitialVitals(VitalsReference::DocumentedInitial, heartRate: 88)));
 
         self::assertFalse($course->vitalsOnTimeline);
         self::assertNotContains('vitals_measured', array_map(static fn (TimelineEvent $event): string => $event->key, $course->timeline));
@@ -59,7 +59,7 @@ final class HospitalCourseFactoryTest extends TestCase
 
     public function testMissingAdmissionLeavesIntervalsEmptyAndConfirmedLinksShowTheirOrigin(): void
     {
-        $course = new HospitalCourseFactory()->create($this->link(new InitialVitals(), admission: null, status: MatchStatus::Confirmed));
+        $course = new HospitalCourseFactory()->create(...$this->link(new InitialVitals(), admission: null, status: MatchStatus::Confirmed));
 
         self::assertSame([null, null, null], array_map(static fn (IntervalValue $value): ?int => $value->minutes, $course->intervals));
         self::assertNull($course->timeline[1]->minutesFromAdmission, 'first assessment without admission');
@@ -68,7 +68,7 @@ final class HospitalCourseFactoryTest extends TestCase
 
     public function testImplausibleDurationsAreFlagged(): void
     {
-        $course = new HospitalCourseFactory()->create($this->link(new InitialVitals(), discharge: '2026-10-13 10:08'));
+        $course = new HospitalCourseFactory()->create(...$this->link(new InitialVitals(), discharge: '2026-10-13 10:08'));
 
         self::assertSame(1441, $course->intervals[2]->minutes);
         self::assertFalse($course->intervals[2]->plausible, 'More than 24 hours.');
@@ -77,7 +77,7 @@ final class HospitalCourseFactoryTest extends TestCase
 
     public function testVisitWithoutLinkHasNoIvenaTimeAndTheSameDurations(): void
     {
-        $encounter = $this->link(new InitialVitals(VitalsReference::AdmissionMeasurement, new \DateTimeImmutable('2026-10-12 10:09'), heartRate: 88))->getEncounter();
+        [$encounter] = $this->link(new InitialVitals(VitalsReference::AdmissionMeasurement, new \DateTimeImmutable('2026-10-12 10:09'), heartRate: 88));
 
         $course = new HospitalCourseFactory()->forEncounter($encounter, null);
 
@@ -93,7 +93,7 @@ final class HospitalCourseFactoryTest extends TestCase
 
     public function testVisitWithOnlyAFirstAssessmentHasOneEventAndNoDurations(): void
     {
-        $encounter = new Encounter(
+        $encounter = new EdVisit(
             hospital: $this->hospital,
             import: new Import(),
             keyGeneration: 1,
@@ -114,16 +114,19 @@ final class HospitalCourseFactoryTest extends TestCase
 
     public function testLinkOfAnotherVisitIsRejected(): void
     {
-        $link = $this->link(new InitialVitals());
-        $other = $this->link(new InitialVitals())->getEncounter();
+        [, $link] = $this->link(new InitialVitals());
+        [$other] = $this->link(new InitialVitals());
 
         $this->expectException(\InvalidArgumentException::class);
         new HospitalCourseFactory()->forEncounter($other, $link);
     }
 
-    private function link(InitialVitals $vitals, ?string $admission = '2026-10-12 10:07', string $discharge = '2026-10-12 13:07', MatchStatus $status = MatchStatus::AutoAccepted): EncounterMatch
+    /**
+     * @return array{EdVisit, EncounterMatch}
+     */
+    private function link(InitialVitals $vitals, ?string $admission = '2026-10-12 10:07', string $discharge = '2026-10-12 13:07', MatchStatus $status = MatchStatus::AutoAccepted): array
     {
-        $encounter = new Encounter(
+        $encounter = new EdVisit(
             hospital: $this->hospital,
             import: new Import(),
             keyGeneration: 1,
@@ -141,11 +144,11 @@ final class HospitalCourseFactoryTest extends TestCase
         );
         $allocation = new Allocation()->setHospital($this->hospital)->setArrivalAt(new \DateTimeImmutable('2026-10-12 10:00'));
         $initial = MatchStatus::AutoAccepted === $status ? $status : MatchStatus::Proposed;
-        $match = new EncounterMatch($allocation, $encounter, $initial, AnchorSource::Admission, 7, new \DateTimeImmutable('2026-10-12 11:00'), score: 0.9697);
+        $match = new EncounterMatch($allocation, $encounter->getEncounter(), $initial, AnchorSource::Admission, 7, new \DateTimeImmutable('2026-10-12 11:00'), score: 0.9697);
         if ($status->isManual()) {
             $match->decide($status, new User(), new \DateTimeImmutable('2026-10-12 12:00'));
         }
 
-        return $match;
+        return [$encounter, $match];
     }
 }

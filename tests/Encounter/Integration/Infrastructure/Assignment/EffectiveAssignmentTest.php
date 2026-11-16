@@ -6,7 +6,10 @@ namespace App\Tests\Encounter\Integration\Infrastructure\Assignment;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Application\Contract\MatchDeciderInterface;
+use App\Encounter\Contract\Assignment\AssignmentKind;
+use App\Encounter\Contract\Assignment\AssignmentRequest;
 use App\Encounter\Contract\Assignment\EncounterAllocationAssignmentsInterface;
+use App\Encounter\Contract\Assignment\EncounterAssignmentsInterface;
 use App\Import\Application\Service\ImportDeletionService;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
@@ -133,6 +136,23 @@ final class EffectiveAssignmentTest extends KernelTestCase
         $this->matchDay($this->hospital);
 
         self::assertSame([$visit => (int) $allocation->getId()], $this->assignments());
+    }
+
+    public function testAfterTheEdImportIsDeletedAFurtherRecordOfTheAllocationFindsTheSameEncounter(): void
+    {
+        $allocation = (int) $this->allocationAt($this->hospital, $this->ivena, '10:00')->getId();
+        $visit = $this->visitAt($this->hospital, $this->ed, '10:05');
+        $this->matchDay($this->hospital);
+
+        $this->deletionService()->delete($this->ed);
+
+        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM ed_visit WHERE encounter_id = ?', [$visit]));
+        self::assertSame([$visit => $allocation], $this->assignments(), 'The effective assignment stays on the encounter.');
+        $assignments = self::getContainer()->get(EncounterAssignmentsInterface::class);
+        self::assertInstanceOf(EncounterAssignmentsInterface::class, $assignments);
+        $result = $assignments->find(new AssignmentRequest((int) $this->hospital->getId(), 1, $allocation));
+        self::assertSame(AssignmentKind::Assigned, $result->kind);
+        self::assertSame($visit, $result->encounterId);
     }
 
     /**

@@ -33,7 +33,7 @@ final readonly class EncounterKeyChangeSummaryQuery implements EncounterKeyChang
             'SELECT key_change_in_progress FROM encounter_key_state WHERE hospital_id = ?',
             [$hospitalId],
         );
-        $encounters = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM encounter WHERE hospital_id = ?', [$hospitalId]);
+        $encounters = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM ed_visit WHERE hospital_id = ?', [$hospitalId]);
         $imports = (int) $this->connection->fetchOne(
             'SELECT COUNT(*) FROM import i INNER JOIN encounter_import ei ON ei.import_id = i.id WHERE i.hospital_id = ?',
             [$hospitalId],

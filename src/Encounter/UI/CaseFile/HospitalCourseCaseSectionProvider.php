@@ -14,6 +14,8 @@ use App\Encounter\Application\Catalog\MtsCatalogEntry;
 use App\Encounter\Application\Contract\HospitalCourseReaderInterface;
 use App\Encounter\Application\Display\RecordSectionRegistry;
 use App\Encounter\Application\Security\EncounterAttribute;
+use App\Encounter\Contract\Assignment\EncounterAllocationAssignmentsInterface;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\UI\Glossary\MtsNames;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -38,6 +40,7 @@ final readonly class HospitalCourseCaseSectionProvider implements AllocationCase
         private MtsCatalog $mtsCatalog,
         private MtsNames $mtsNames,
         private RecordSectionRegistry $recordSections,
+        private EncounterAllocationAssignmentsInterface $assignments,
     ) {
     }
 
@@ -51,18 +54,29 @@ final readonly class HospitalCourseCaseSectionProvider implements AllocationCase
             return [];
         }
 
-        $link = $this->reader->effectiveLinkOfAllocation($allocationId);
-        if (!$link instanceof EncounterMatch) {
-            return [new AllocationCaseSection(self::KEY, '@Encounter/case_card/hospital_course.html.twig', ['course' => null])];
+        // The encounter of the allocation is its effective assignment (#1300); records of every schema hang on it,
+        // the ED visit is one of them.
+        $encounterId = $this->assignments->encounterOfAllocation($allocationId);
+        if (null === $encounterId) {
+            return [new AllocationCaseSection(self::KEY, '@Encounter/case_card/hospital_course.html.twig', ['course' => null, 'record_sections' => []])];
         }
 
-        $triage = $link->getEncounter()->getTriage();
+        $visit = $this->reader->visitOfEncounter($encounterId);
+        $link = $visit instanceof EdVisit ? $this->reader->effectiveLinkOfVisit($visit) : null;
+        if (!$visit instanceof EdVisit || !$link instanceof EncounterMatch) {
+            return [new AllocationCaseSection(self::KEY, '@Encounter/case_card/hospital_course.html.twig', [
+                'course' => null,
+                'record_sections' => $this->recordSections->forEncounter($encounterId),
+            ])];
+        }
+
+        $triage = $visit->getTriage();
 
         return [new AllocationCaseSection(self::KEY, '@Encounter/case_card/hospital_course.html.twig', [
-            'course' => $this->factory->create($link),
+            'course' => $this->factory->create($visit, $link),
             'diagram_name' => $this->diagramName($triage->getDiagram()),
             'indicator_name' => $this->indicatorName($triage->getIndicator()),
-            'record_sections' => $this->recordSections->forEncounter((int) $link->getEncounter()->getId()),
+            'record_sections' => $this->recordSections->forEncounter($encounterId),
         ])];
     }
 

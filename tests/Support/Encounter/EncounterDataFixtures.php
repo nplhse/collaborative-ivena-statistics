@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterTimes;
 use App\Encounter\Domain\Enum\EncounterInsertOutcome;
@@ -59,9 +60,9 @@ trait EncounterDataFixtures
     /**
      * Visit on $day at 08:15, anchored on the first assessment contact.
      */
-    private function visitOn(Hospital $hospital, Import $import, string $day, int $keyGeneration = 1): Encounter
+    private function visitOn(Hospital $hospital, Import $import, string $day, int $keyGeneration = 1): EdVisit
     {
-        return new Encounter(
+        return new EdVisit(
             hospital: $hospital,
             import: $import,
             keyGeneration: $keyGeneration,
@@ -98,7 +99,7 @@ trait EncounterDataFixtures
     private function visitDaysByImport(Hospital $hospital): array
     {
         $rows = $this->encounterEntityManager()->getConnection()->fetchAllAssociative(
-            'SELECT i.name, e.anchor_at FROM encounter e JOIN import i ON i.id = e.import_id WHERE e.hospital_id = ? ORDER BY e.anchor_at',
+            'SELECT i.name, e.anchor_at FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id JOIN import i ON i.id = v.import_id WHERE e.hospital_id = ? ORDER BY e.anchor_at',
             [$hospital->getId()],
         );
 

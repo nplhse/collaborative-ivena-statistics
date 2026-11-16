@@ -42,8 +42,8 @@ final readonly class EncounterOverviewQuery implements EncounterOverviewReaderIn
         [$where, $parameters] = $this->where($hospitalId, $period);
         /** @var array{visits: int|string, imports: int|string, days: int|string, first_anchor: ?string, last_anchor: ?string}|false $row */
         $row = $this->connection->fetchAssociative(
-            'SELECT COUNT(*) AS visits, COUNT(DISTINCT e.import_id) AS imports, COUNT(DISTINCT CAST(e.anchor_at AS date)) AS days,'
-            .' MIN(e.anchor_at) AS first_anchor, MAX(e.anchor_at) AS last_anchor FROM encounter e WHERE '.$where,
+            'SELECT COUNT(*) AS visits, COUNT(DISTINCT v.import_id) AS imports, COUNT(DISTINCT CAST(e.anchor_at AS date)) AS days,'
+            .' MIN(e.anchor_at) AS first_anchor, MAX(e.anchor_at) AS last_anchor FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id WHERE '.$where,
             $parameters,
         );
 
@@ -65,7 +65,7 @@ final readonly class EncounterOverviewQuery implements EncounterOverviewReaderIn
     {
         [$where, $parameters, $types] = $this->where($hospitalId, $period);
         $rows = $this->connection->fetchAllAssociative(
-            'SELECT e.arrival_route AS route, COALESCE(m.status, :not_linked) AS link, COUNT(*) AS visits FROM encounter e'
+            'SELECT v.arrival_route AS route, COALESCE(m.status, :not_linked) AS link, COUNT(*) AS visits FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id'
             .' LEFT JOIN encounter_match m ON m.encounter_id = e.id AND m.status IN (:effective)'
             .' WHERE '.$where.' GROUP BY 1, 2 ORDER BY 1, 2',
             $parameters + [
@@ -88,7 +88,7 @@ final readonly class EncounterOverviewQuery implements EncounterOverviewReaderIn
     {
         [$where, $parameters, $types] = $this->where($hospitalId, $period);
         $rows = $this->connection->fetchAllAssociative(
-            'SELECT e.arrival_route AS route, COUNT(*) AS visits FROM encounter e'
+            'SELECT v.arrival_route AS route, COUNT(*) AS visits FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id'
             .' JOIN encounter_match m ON m.encounter_id = e.id AND m.status = :automatic AND m.plausibility_decisive'
             .' WHERE '.$where.' GROUP BY 1 ORDER BY 1',
             $parameters + ['automatic' => MatchStatus::AutoAccepted->value],
@@ -106,25 +106,25 @@ final readonly class EncounterOverviewQuery implements EncounterOverviewReaderIn
     #[\Override]
     public function visitsByCategory(int $hospitalId, EncounterPeriod $period): array
     {
-        return $this->countBy('e.mts_category', $hospitalId, $period);
+        return $this->countBy('v.mts_category', $hospitalId, $period);
     }
 
     #[\Override]
     public function visitsByDiagram(int $hospitalId, EncounterPeriod $period): array
     {
-        return $this->countBy('e.mts_diagram', $hospitalId, $period);
+        return $this->countBy('v.mts_diagram', $hospitalId, $period);
     }
 
     #[\Override]
     public function visitsByDisposition(int $hospitalId, EncounterPeriod $period): array
     {
-        return $this->countBy('e.disposition_code', $hospitalId, $period);
+        return $this->countBy('v.disposition_code', $hospitalId, $period);
     }
 
     #[\Override]
     public function visitsByCareLevel(int $hospitalId, EncounterPeriod $period): array
     {
-        return $this->countBy('e.disposition_care_level', $hospitalId, $period, ' AND e.disposition_code IN (:with_care_level)', [
+        return $this->countBy('v.disposition_care_level', $hospitalId, $period, ' AND v.disposition_code IN (:with_care_level)', [
             'with_care_level' => [Disposition::Admitted->value, Disposition::TransferredExternal->value],
         ], ['with_care_level' => ArrayParameterType::STRING]);
     }
@@ -146,7 +146,7 @@ final readonly class EncounterOverviewQuery implements EncounterOverviewReaderIn
             .' percentile_cont(0.25) WITHIN GROUP (ORDER BY d) FILTER (WHERE '.$valid.') AS q1,'
             .' percentile_cont(0.5) WITHIN GROUP (ORDER BY d) FILTER (WHERE '.$valid.') AS median,'
             .' percentile_cont(0.75) WITHIN GROUP (ORDER BY d) FILTER (WHERE '.$valid.') AS q3'
-            .sprintf(' FROM (SELECT FLOOR(EXTRACT(EPOCH FROM (e.%2$s - e.%1$s)) / 60) AS d FROM encounter e WHERE %3$s) durations', $start, $end, $where),
+            .sprintf(' FROM (SELECT FLOOR(EXTRACT(EPOCH FROM (v.%2$s - v.%1$s)) / 60) AS d FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id WHERE %3$s) durations', $start, $end, $where),
             $parameters + ['max_minutes' => ProcessInterval::MAX_PLAUSIBLE_MINUTES],
             $types,
         );
@@ -182,7 +182,7 @@ final readonly class EncounterOverviewQuery implements EncounterOverviewReaderIn
             .' percentile_cont(0.5) WITHIN GROUP (ORDER BY d) AS median,'
             .' percentile_cont(0.75) WITHIN GROUP (ORDER BY d) AS q3,'
             .' percentile_cont(0.9) WITHIN GROUP (ORDER BY d) AS p90'
-            .sprintf(' FROM (SELECT COALESCE(e.mts_category, \'\') AS category, FLOOR(EXTRACT(EPOCH FROM (e.%2$s - e.%1$s)) / 60) AS d FROM encounter e WHERE %3$s) durations', $start, $end, $where)
+            .sprintf(' FROM (SELECT COALESCE(v.mts_category, \'\') AS category, FLOOR(EXTRACT(EPOCH FROM (v.%2$s - v.%1$s)) / 60) AS d FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id WHERE %3$s) durations', $start, $end, $where)
             .' WHERE d BETWEEN 0 AND :max_minutes GROUP BY category ORDER BY category',
             $parameters + ['max_minutes' => ProcessInterval::MAX_PLAUSIBLE_MINUTES],
             $types,
@@ -206,7 +206,7 @@ final readonly class EncounterOverviewQuery implements EncounterOverviewReaderIn
     {
         [$where, $parameters, $types] = $this->where($hospitalId, $period);
         $rows = $this->connection->fetchAllAssociative(
-            sprintf('SELECT CAST(date_trunc(\'%s\', e.anchor_at) AS date) AS bucket, e.arrival_route AS route, COUNT(*) AS visits FROM encounter e WHERE %s GROUP BY 1, 2 ORDER BY 1, 2', $grain->value, $where),
+            sprintf('SELECT CAST(date_trunc(\'%s\', e.anchor_at) AS date) AS bucket, v.arrival_route AS route, COUNT(*) AS visits FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id WHERE %s GROUP BY 1, 2 ORDER BY 1, 2', $grain->value, $where),
             $parameters,
             $types,
         );
@@ -223,7 +223,7 @@ final readonly class EncounterOverviewQuery implements EncounterOverviewReaderIn
     public function hospitalsWithVisits(): array
     {
         $rows = $this->connection->fetchAllKeyValue(
-            'SELECT h.id, h.name FROM hospital h WHERE EXISTS (SELECT 1 FROM encounter e WHERE e.hospital_id = h.id) ORDER BY h.name, h.id',
+            'SELECT h.id, h.name FROM hospital h WHERE EXISTS (SELECT 1 FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id WHERE e.hospital_id = h.id) ORDER BY h.name, h.id',
         );
 
         $hospitals = [];
@@ -244,7 +244,7 @@ final readonly class EncounterOverviewQuery implements EncounterOverviewReaderIn
     {
         [$where, $parameters, $types] = $this->where($hospitalId, $period);
         $rows = $this->connection->fetchAllKeyValue(
-            sprintf('SELECT COALESCE(%1$s, \'\') AS code, COUNT(*) AS visits FROM encounter e WHERE %2$s%3$s GROUP BY 1 ORDER BY 1', $column, $where, $extraCondition),
+            sprintf('SELECT COALESCE(%1$s, \'\') AS code, COUNT(*) AS visits FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id WHERE %2$s%3$s GROUP BY 1 ORDER BY 1', $column, $where, $extraCondition),
             $parameters + $extraParameters,
             $types + $extraTypes,
         );

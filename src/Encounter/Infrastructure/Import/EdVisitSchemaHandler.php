@@ -82,8 +82,8 @@ final readonly class EdVisitSchemaHandler implements EncounterSchemaHandlerInter
                 throw new \LogicException(sprintf('The ed_visit handler got a row of %s.', $row::class));
             }
 
-            $encounter = $row->toEncounter($hospitalReference, $importReference, $context->keyGeneration);
-            $encounterId = $this->encounters->insertIfNewReturningId($encounter);
+            $visit = $row->toEdVisit($hospitalReference, $importReference, $context->keyGeneration);
+            $encounterId = $this->encounters->insertIfNewReturningId($visit);
             if (null === $encounterId) {
                 continue;
             }
@@ -99,8 +99,8 @@ final readonly class EdVisitSchemaHandler implements EncounterSchemaHandlerInter
                     $indicators[$code] = true;
                 }
             }
-            $days[$encounter->getAnchorAt()->format('Y-m-d')] = true;
-            if ($this->recordSuspectedDuplicates($context->importId, $encounterId, $row->line, $encounter->getAnchorSource()->value)) {
+            $days[$visit->getAnchorAt()->format('Y-m-d')] = true;
+            if ($this->recordSuspectedDuplicates($context->importId, $encounterId, $row->line, $visit->getAnchorSource()->value)) {
                 ++$suspected;
             }
         }
@@ -115,9 +115,24 @@ final readonly class EdVisitSchemaHandler implements EncounterSchemaHandlerInter
         return new EdVisitWriteResult($inserted, $days, $suspected);
     }
 
+    /**
+     * Removes the import's ED visits with what belongs to them: suspected duplicates and validation items that
+     * name one of them (their encounter stays, so the foreign keys no longer cascade). The ED matching history
+     * of the visits is removed before by EncounterMatchDataRemover. The encounters keep their effective IVENA
+     * assignment and the records of other imports (#1300).
+     */
     #[\Override]
     public function removeForImport(int $importId): int
     {
+        $connection = $this->entityManager->getConnection();
+        $visits = 'SELECT encounter_id FROM ed_visit WHERE import_id = ?';
+        $connection->executeStatement(
+            "DELETE FROM encounter_suspected_duplicate WHERE import_id = ? OR encounter_id IN ({$visits}) OR existing_encounter_id IN ({$visits})",
+            [$importId, $importId, $importId],
+        );
+        $connection->executeStatement("DELETE FROM encounter_validation_item WHERE encounter_id IN ({$visits})", [$importId]);
+        $connection->executeStatement("UPDATE encounter_validation_item SET replacement_encounter_id = NULL WHERE replacement_encounter_id IN ({$visits})", [$importId]);
+
         return $this->encounters->deleteByImportId($importId);
     }
 

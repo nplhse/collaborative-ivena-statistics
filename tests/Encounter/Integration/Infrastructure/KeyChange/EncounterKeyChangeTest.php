@@ -117,7 +117,7 @@ final class EncounterKeyChangeTest extends KernelTestCase
         $generation = $this->changeKey(EncounterKeyChangeOption::Delete);
 
         self::assertSame(2, $generation);
-        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter WHERE hospital_id = ?', [$this->hospital->getId()]));
+        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM ed_visit WHERE hospital_id = ?', [$this->hospital->getId()]));
         self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM import WHERE hospital_id = ?', [$this->hospital->getId()]));
         self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter_import ei INNER JOIN import i ON i.id = ei.import_id WHERE i.hospital_id = ?', [$this->hospital->getId()]));
         foreach ($files as $file) {
@@ -302,7 +302,7 @@ final class EncounterKeyChangeTest extends KernelTestCase
     private function visitsOfHospital(): array
     {
         $visits = [];
-        foreach ($this->connection()->fetchAllAssociative('SELECT visit_fingerprint, visit_uid, key_generation FROM encounter WHERE hospital_id = ? ORDER BY visit_fingerprint', [$this->hospital->getId()]) as $row) {
+        foreach ($this->connection()->fetchAllAssociative('SELECT visit_fingerprint, visit_uid, key_generation FROM ed_visit WHERE hospital_id = ? ORDER BY visit_fingerprint', [$this->hospital->getId()]) as $row) {
             $visits[(string) $row['visit_fingerprint']] = ['visit_uid' => (string) $row['visit_uid'], 'key_generation' => (int) $row['key_generation']];
         }
 
@@ -315,7 +315,7 @@ final class EncounterKeyChangeTest extends KernelTestCase
     private function visitCountByGeneration(): array
     {
         $counts = [];
-        foreach ($this->connection()->fetchAllKeyValue('SELECT key_generation, COUNT(*) FROM encounter WHERE hospital_id = ? GROUP BY key_generation ORDER BY key_generation', [$this->hospital->getId()]) as $generation => $count) {
+        foreach ($this->connection()->fetchAllKeyValue('SELECT key_generation, COUNT(*) FROM ed_visit WHERE hospital_id = ? GROUP BY key_generation ORDER BY key_generation', [$this->hospital->getId()]) as $generation => $count) {
             $counts[(int) $generation] = (int) $count;
         }
 

@@ -100,7 +100,7 @@ final readonly class SyntheticEncounterWriter
                 throw new \LogicException(sprintf('Synthetic visit %d is not a valid ed_visit row: %s.', $index, implode(', ', array_map(static fn (\App\Encounter\Contract\Import\RowError $error): string => $error->describe(), $result->errors)) ?: 'skipped'));
             }
 
-            $encounter = $result->row->toEncounter($hospital, $import, $generation);
+            $encounter = $result->row->toEdVisit($hospital, $import, $generation);
             $encounterId = $this->encounters->insertIfNewReturningId($encounter);
             if (null === $encounterId) {
                 throw new \LogicException(sprintf('Synthetic visit %d already exists for hospital %s; the visits of a seed are written only once.', $index, $publicId));

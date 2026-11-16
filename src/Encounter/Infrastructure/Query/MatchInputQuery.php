@@ -93,7 +93,7 @@ SQL,
     public function encounter(int $hospitalId, int $encounterId): ?MatchingEncounter
     {
         $anchorAt = $this->connection->fetchOne(
-            'SELECT COALESCE(ed_admission_at, first_assessment_contact_at) FROM encounter WHERE id = :id AND hospital_id = :hospital',
+            'SELECT COALESCE(ed_admission_at, first_assessment_contact_at) FROM ed_visit WHERE encounter_id = :id AND hospital_id = :hospital',
             ['id' => $encounterId, 'hospital' => $hospitalId],
             ['id' => Types::INTEGER, 'hospital' => Types::INTEGER],
         );
@@ -124,13 +124,14 @@ SQL,
         /** @var list<array{id: int|string, ed_admission_at: ?string, first_assessment_contact_at: ?string, sex: string, age: int|string, arrival_mode: ?string, arrival_route: string, work_accident: ?bool, mts_diagram: ?string}> $rows */
         $rows = $this->connection->fetchAllAssociative(
             <<<'SQL'
-SELECT id, ed_admission_at, first_assessment_contact_at, sex, age, arrival_mode, arrival_route, work_accident, mts_diagram
-FROM encounter
-WHERE hospital_id = :hospital
-  AND anchor_at BETWEEN CAST(:from AS TIMESTAMP) - INTERVAL '1 day' AND CAST(:to AS TIMESTAMP) + INTERVAL '1 day'
-  AND COALESCE(ed_admission_at, first_assessment_contact_at) BETWEEN :from AND :to
-  AND import_id <> :ignore
-ORDER BY id
+SELECT e.id, v.ed_admission_at, v.first_assessment_contact_at, e.sex, e.age, v.arrival_mode, v.arrival_route, v.work_accident, v.mts_diagram
+FROM encounter e
+JOIN ed_visit v ON v.encounter_id = e.id
+WHERE e.hospital_id = :hospital
+  AND e.anchor_at BETWEEN CAST(:from AS TIMESTAMP) - INTERVAL '1 day' AND CAST(:to AS TIMESTAMP) + INTERVAL '1 day'
+  AND COALESCE(v.ed_admission_at, v.first_assessment_contact_at) BETWEEN :from AND :to
+  AND v.import_id <> :ignore
+ORDER BY e.id
 SQL,
             ['hospital' => $hospitalId, 'from' => $from, 'to' => $to, 'ignore' => $ignoreImportId ?? 0],
             ['hospital' => Types::INTEGER, 'from' => Types::DATETIME_IMMUTABLE, 'to' => Types::DATETIME_IMMUTABLE, 'ignore' => Types::INTEGER],

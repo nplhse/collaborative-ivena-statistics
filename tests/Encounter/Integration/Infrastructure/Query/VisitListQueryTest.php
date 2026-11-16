@@ -9,6 +9,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Application\Review\ReviewPeriod;
 use App\Encounter\Application\VisitList\VisitLinkState;
 use App\Encounter\Application\VisitList\VisitListFilter;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\Domain\Entity\EncounterTimes;
@@ -22,6 +23,7 @@ use App\Encounter\Domain\Enum\Sex;
 use App\Encounter\Infrastructure\Query\VisitListQuery;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
+use App\Tests\Support\Encounter\EffectiveAssignments;
 use App\Tests\Support\Encounter\EncounterDataFixtures;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
 use App\Tests\Support\Encounter\MatchingDataFixtures;
@@ -157,7 +159,7 @@ final class VisitListQueryTest extends KernelTestCase
 
     private function visit(Hospital $hospital, Import $import, string $admission, string $key, ?MtsCategory $category = null): int
     {
-        $id = $this->encounterRepository()->insertIfNewReturningId(new Encounter(
+        $id = $this->encounterRepository()->insertIfNewReturningId(new EdVisit(
             hospital: $hospital,
             import: $import,
             keyGeneration: 1,
@@ -191,5 +193,6 @@ final class VisitListQueryTest extends KernelTestCase
         }
         $em->persist($match);
         $em->flush();
+        EffectiveAssignments::syncFromMatches($em->getConnection());
     }
 }

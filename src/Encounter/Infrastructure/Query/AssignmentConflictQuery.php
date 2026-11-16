@@ -154,7 +154,7 @@ final readonly class AssignmentConflictQuery implements AssignmentConflictReader
     /**
      * @param list<int> $encounterIds
      *
-     * @return array<int, array{visit_uid: string, anchor_at: string}>
+     * @return array<int, array{visit_uid: ?string, anchor_at: string}>
      */
     private function visits(array $encounterIds): array
     {
@@ -162,9 +162,9 @@ final readonly class AssignmentConflictQuery implements AssignmentConflictReader
             return [];
         }
 
-        /** @var list<array{id: int|string, visit_uid: string, anchor_at: string}> $rows */
+        /** @var list<array{id: int|string, visit_uid: ?string, anchor_at: string}> $rows */
         $rows = $this->connection->fetchAllAssociative(
-            'SELECT id, visit_uid, anchor_at FROM encounter WHERE id IN (?)',
+            'SELECT e.id, v.visit_uid, e.anchor_at FROM encounter e LEFT JOIN ed_visit v ON v.encounter_id = e.id WHERE e.id IN (?)',
             [$encounterIds],
             [ArrayParameterType::INTEGER],
         );

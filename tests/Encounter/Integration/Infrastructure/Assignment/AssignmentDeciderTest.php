@@ -14,6 +14,7 @@ use App\Encounter\Contract\Assignment\AssignmentKind;
 use App\Encounter\Contract\Assignment\AssignmentRequest;
 use App\Encounter\Contract\Assignment\EncounterAssignmentsInterface;
 use App\Encounter\Contract\Import\SchemaWriteContext;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\Domain\Entity\EncounterTimes;
@@ -234,7 +235,7 @@ final class AssignmentDeciderTest extends KernelTestCase
 
     private function encounter(string $label, string $case): int
     {
-        $id = $this->encounterRepository()->insertIfNewReturningId(new Encounter(
+        $id = $this->encounterRepository()->insertIfNewReturningId(new EdVisit(
             hospital: $this->hospital,
             import: $this->visitImport,
             keyGeneration: 1,

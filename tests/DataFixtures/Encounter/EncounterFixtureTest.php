@@ -86,7 +86,7 @@ final class EncounterFixtureTest extends KernelTestCase
                 self::assertSame(
                     array_map(static fn (SyntheticVisit $visit): string => $visit->matchingAnchor()->format('Y-m-d H:i').'|'.$visit->cells['age'].'|'.$visit->cells['sex'], $generated->visits),
                     $connection->fetchFirstColumn(
-                        "SELECT to_char(COALESCE(ed_admission_at, first_assessment_contact_at), 'YYYY-MM-DD HH24:MI') || '|' || age || '|' || sex FROM encounter WHERE import_id = ? ORDER BY COALESCE(ed_admission_at, first_assessment_contact_at), id",
+                        "SELECT to_char(COALESCE(v.ed_admission_at, v.first_assessment_contact_at), 'YYYY-MM-DD HH24:MI') || '|' || e.age || '|' || e.sex FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id WHERE v.import_id = ? ORDER BY COALESCE(v.ed_admission_at, v.first_assessment_contact_at), e.id",
                         [$imports[$index]['id']],
                     ),
                 );

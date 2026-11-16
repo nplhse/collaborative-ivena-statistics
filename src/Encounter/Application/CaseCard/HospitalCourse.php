@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Encounter\Application\CaseCard;
 
-use App\Encounter\Domain\Entity\Encounter;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\Domain\Enum\MatchStatus;
 
@@ -27,7 +27,7 @@ final readonly class HospitalCourse
      */
     public function __construct(
         public ?EncounterMatch $link,
-        public Encounter $encounter,
+        public EdVisit $encounter,
         public array $timeline,
         public array $intervals,
         public bool $vitalsOnTimeline,

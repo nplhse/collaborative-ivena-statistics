@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Encounter\Unit\Domain;
 
 use App\Allocation\Domain\Entity\Hospital;
-use App\Encounter\Domain\Entity\Encounter;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\EncounterDisposition;
 use App\Encounter\Domain\Entity\EncounterTimes;
 use App\Encounter\Domain\Entity\InitialVitals;
@@ -21,7 +21,7 @@ use App\Import\Domain\Entity\Import;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-final class EncounterTest extends TestCase
+final class EdVisitTest extends TestCase
 {
     public function testAnchorIsFirstAssessmentContactWhenSet(): void
     {
@@ -137,8 +137,8 @@ final class EncounterTest extends TestCase
         int $keyGeneration = 1,
         ?EncounterTimes $times = null,
         ?ArrivalMode $arrivalMode = null,
-    ): Encounter {
-        return new Encounter(
+    ): EdVisit {
+        return new EdVisit(
             hospital: new Hospital(),
             import: new Import(),
             keyGeneration: $keyGeneration,

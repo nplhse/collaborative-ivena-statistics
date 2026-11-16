@@ -33,6 +33,7 @@ use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Tests\Fixtures\Plugin\InpatientStay\InpatientStayDimension;
 use App\Tests\Support\Encounter\EdVisitFileBuilder;
+use App\Tests\Support\Encounter\EffectiveAssignments;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -214,7 +215,7 @@ final readonly class SeedInpatientStayPocCommand
         $ids = [];
         foreach (['A', 'B', 'C'] as $label) {
             $ids[$label] = (int) $this->entityManager->getConnection()->fetchOne(
-                'SELECT id FROM encounter WHERE import_id = ? AND visit_fingerprint = ?',
+                'SELECT encounter_id FROM ed_visit WHERE import_id = ? AND visit_fingerprint = ?',
                 [$importId, EdVisitFileBuilder::fingerprint($label)],
             );
         }
@@ -232,5 +233,6 @@ final readonly class SeedInpatientStayPocCommand
 
         $this->entityManager->persist(new EncounterMatch($allocation, $encounter, MatchStatus::AutoAccepted, AnchorSource::Assessment, 7, new \DateTimeImmutable('2026-10-12 09:00'), 0.9697, 9, ['time' => 4], 1, '1.0.0'));
         $this->entityManager->flush();
+        EffectiveAssignments::syncFromMatches($this->entityManager->getConnection());
     }
 }

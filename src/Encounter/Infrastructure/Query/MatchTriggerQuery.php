@@ -66,7 +66,7 @@ final readonly class MatchTriggerQuery
         );
         /** @var list<string> $visitDays */
         $visitDays = $this->connection->fetchFirstColumn(
-            "SELECT DISTINCT to_char(COALESCE(ed_admission_at, first_assessment_contact_at), 'YYYY-MM-DD') AS day FROM encounter WHERE import_id = :import ORDER BY day",
+            "SELECT DISTINCT to_char(COALESCE(ed_admission_at, first_assessment_contact_at), 'YYYY-MM-DD') AS day FROM ed_visit WHERE import_id = :import ORDER BY day",
             ['import' => $importId],
             ['import' => Types::INTEGER],
         );
@@ -77,7 +77,7 @@ final readonly class MatchTriggerQuery
     private function hasEncounterData(int $hospitalId): bool
     {
         return false !== $this->connection->fetchOne(
-            'SELECT 1 FROM encounter WHERE hospital_id = :hospital LIMIT 1',
+            'SELECT 1 FROM ed_visit WHERE hospital_id = :hospital LIMIT 1',
             ['hospital' => $hospitalId],
             ['hospital' => Types::INTEGER],
         );

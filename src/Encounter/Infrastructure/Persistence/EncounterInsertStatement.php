@@ -4,17 +4,23 @@ declare(strict_types=1);
 
 namespace App\Encounter\Infrastructure\Persistence;
 
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\Encounter;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * `INSERT … ON CONFLICT DO NOTHING` for one new encounter, built from the entity's Doctrine mapping so
- * that columns and conversions always follow the entity (no second column list to keep in sync).
+ * The two inserts of a new ED visit, built from the entities' Doctrine mapping so that columns and
+ * conversions always follow the entities (no second column list to keep in sync):
  *
- * The conflict target is the visit identity `(hospital_id, key_generation, visit_fingerprint)`
- * (ADR 029). Under READ COMMITTED a second inserter of the same visit waits for the first
- * transaction and then inserts nothing, so parallel imports cannot create a visit twice.
+ * - the encounter (`INSERT … RETURNING id`);
+ * - the visit with that encounter id, `ON CONFLICT DO NOTHING` on its identity
+ *   `(hospital_id, key_generation, visit_fingerprint)` (ADR 029). Under READ COMMITTED a second inserter of
+ *   the same visit waits for the first transaction and then inserts nothing.
+ *
+ * EncounterRepository runs both in one savepoint and rolls it back for a duplicate, so no encounter stays
+ * without its visit.
  */
 final readonly class EncounterInsertStatement
 {
@@ -31,9 +37,42 @@ final readonly class EncounterInsertStatement
     ) {
     }
 
-    public static function for(EntityManagerInterface $em, Encounter $encounter): self
+    public static function forEncounter(EntityManagerInterface $em, Encounter $encounter): self
     {
-        $metadata = $em->getClassMetadata(Encounter::class);
+        [$columns, $params, $types] = self::columns($em, Encounter::class, $encounter);
+
+        return new self(
+            sprintf('INSERT INTO encounter (%s) VALUES (%s) RETURNING id', implode(', ', $columns), implode(', ', array_fill(0, \count($columns), '?'))),
+            $params,
+            $types,
+        );
+    }
+
+    public static function forVisit(EntityManagerInterface $em, EdVisit $visit, int $encounterId): self
+    {
+        [$columns, $params, $types] = self::columns($em, EdVisit::class, $visit, ['encounter_id' => $encounterId]);
+
+        return new self(
+            sprintf(
+                'INSERT INTO ed_visit (%s) VALUES (%s) ON CONFLICT %s DO NOTHING RETURNING encounter_id',
+                implode(', ', $columns),
+                implode(', ', array_fill(0, \count($columns), '?')),
+                self::CONFLICT_TARGET,
+            ),
+            $params,
+            $types,
+        );
+    }
+
+    /**
+     * @param class-string       $class
+     * @param array<string, int> $joinColumnValues values of owning to-one join columns by column name, instead of the related object's id
+     *
+     * @return array{list<string>, list<mixed>, list<Type>}
+     */
+    private static function columns(EntityManagerInterface $em, string $class, object $entity, array $joinColumnValues = []): array
+    {
+        $metadata = $em->getClassMetadata($class);
 
         $columns = [];
         $params = [];
@@ -44,7 +83,7 @@ final readonly class EncounterInsertStatement
                 continue; // identity column
             }
 
-            $value = $metadata->getFieldValue($encounter, $field);
+            $value = $metadata->getFieldValue($entity, $field);
             $columns[] = $mapping->columnName;
             $params[] = $value instanceof \BackedEnum ? $value->value : $value;
             $types[] = Type::getType($mapping->type);
@@ -55,23 +94,23 @@ final readonly class EncounterInsertStatement
                 continue;
             }
 
-            $related = $metadata->getFieldValue($encounter, $field);
-            $targetMetadata = $em->getClassMetadata($mapping->targetEntity);
             $joinColumn = $mapping->joinColumns[0];
-
             $columns[] = $joinColumn->name;
-            $params[] = \is_object($related) ? $targetMetadata->getFieldValue($related, $targetMetadata->getSingleIdentifierFieldName()) : null;
+            if (\array_key_exists($joinColumn->name, $joinColumnValues)) {
+                $params[] = $joinColumnValues[$joinColumn->name];
+                $types[] = Type::getType(Types::INTEGER);
+
+                continue;
+            }
+
+            $related = $metadata->getFieldValue($entity, $field);
+            $targetMetadata = $em->getClassMetadata($mapping->targetEntity);
+            // The entity's own id getter: reading the id of a reference that is not loaded yet does not load it
+            // (reflection on such a lazy object may see no id).
+            $params[] = \is_object($related) && method_exists($related, 'getId') ? $related->getId() : null;
             $types[] = Type::getType($targetMetadata->getTypeOfField($targetMetadata->getSingleIdentifierFieldName()) ?? 'integer');
         }
 
-        $sql = sprintf(
-            'INSERT INTO %s (%s) VALUES (%s) ON CONFLICT %s DO NOTHING RETURNING id',
-            $metadata->getTableName(),
-            implode(', ', $columns),
-            implode(', ', array_fill(0, \count($columns), '?')),
-            self::CONFLICT_TARGET,
-        );
-
-        return new self($sql, $params, $types);
+        return [$columns, $params, $types];
     }
 }

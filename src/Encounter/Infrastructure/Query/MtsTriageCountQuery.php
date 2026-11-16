@@ -48,7 +48,7 @@ final readonly class MtsTriageCountQuery implements MtsTriageCountReaderInterfac
 
         [$hospitalCondition, $parameters, $types] = $this->hospitalCondition($scope);
         $rows = $this->connection->fetchAllKeyValue(
-            'SELECT COALESCE(mts_indicator, \'\') AS code, COUNT(*) AS encounters FROM encounter'
+            'SELECT COALESCE(mts_indicator, \'\') AS code, COUNT(*) AS encounters FROM ed_visit'
             .' WHERE mts_diagram IN (:diagrams)'.$hospitalCondition
             .' GROUP BY code ORDER BY code',
             ['diagrams' => $diagrams] + $parameters,
@@ -71,7 +71,7 @@ final readonly class MtsTriageCountQuery implements MtsTriageCountReaderInterfac
 
         [$hospitalCondition, $parameters, $types] = $this->hospitalCondition($scope);
         $rows = $this->connection->fetchAllKeyValue(
-            sprintf('SELECT %1$s AS code, COUNT(*) AS encounters FROM encounter WHERE %1$s IS NOT NULL%2$s GROUP BY %1$s ORDER BY %1$s', $column, $hospitalCondition),
+            sprintf('SELECT %1$s AS code, COUNT(*) AS encounters FROM ed_visit WHERE %1$s IS NOT NULL%2$s GROUP BY %1$s ORDER BY %1$s', $column, $hospitalCondition),
             $parameters,
             $types,
         );

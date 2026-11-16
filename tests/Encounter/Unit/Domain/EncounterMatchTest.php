@@ -6,6 +6,7 @@ namespace App\Tests\Encounter\Unit\Domain;
 
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Hospital;
+use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\Domain\Entity\EncounterTimes;
@@ -107,7 +108,7 @@ final class EncounterMatchTest extends TestCase
 
     private function encounter(): Encounter
     {
-        return new Encounter(
+        return new EdVisit(
             hospital: $this->hospital,
             import: new Import(),
             keyGeneration: 1,
@@ -116,6 +117,6 @@ final class EncounterMatchTest extends TestCase
             age: 70,
             sex: Sex::Female,
             times: new EncounterTimes(edAdmissionAt: new \DateTimeImmutable('2026-10-12 10:05')),
-        );
+        )->getEncounter();
     }
 }

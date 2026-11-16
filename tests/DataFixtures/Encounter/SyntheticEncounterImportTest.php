@@ -99,20 +99,20 @@ final class SyntheticEncounterImportTest extends KernelTestCase
         $persisted = $this->writer()->write($this->hospital, self::SEED, '2026-10', $generated, $owner, new \DateTimeImmutable('2026-11-01 10:00'));
 
         self::assertCount(\count($generated->visits), $persisted);
-        $importId = (int) $this->connection()->fetchOne('SELECT import_id FROM encounter WHERE id = ?', [$persisted[0]->encounterId]);
+        $importId = (int) $this->connection()->fetchOne('SELECT import_id FROM ed_visit WHERE encounter_id = ?', [$persisted[0]->encounterId]);
         self::assertSame('synthetic/encounters/seed-740/'.$this->hospital->getPublicId().'/2026-10.csv', $this->import($importId)->getFilePath());
         self::assertSame(\count($generated->visits), $this->encounterImportOf($importId)->getInserted());
         self::assertSame('synthetic', $this->encounterImportOf($importId)->getProfile());
 
         // Arrival routes by group: linked and EMS without allocation are EMS, self and repeat visits self.
-        $routes = $this->connection()->fetchAllKeyValue('SELECT arrival_route, COUNT(*) FROM encounter WHERE import_id = ? GROUP BY arrival_route ORDER BY arrival_route', [$importId]);
+        $routes = $this->connection()->fetchAllKeyValue('SELECT arrival_route, COUNT(*) FROM ed_visit WHERE import_id = ? GROUP BY arrival_route ORDER BY arrival_route', [$importId]);
         $counts = $generated->countsByKind();
         $unknown = $generated->count(static fn (SyntheticVisit $visit): bool => !\in_array($visit->cells['arrival_mode'], ['ambulance', 'patient_transport', 'physician_vehicle', 'self'], true));
         self::assertSame(['ems' => $counts['linked'] + $counts['ems_without_allocation'], 'self' => $counts['self_presenter'] + $counts['repeat_visit'], 'unknown' => $unknown], array_map(intval(...), $routes));
 
         // The truth maps stored encounters to allocations: same age, sex and ED admission as generated.
         foreach ($persisted as $visit) {
-            $row = $this->connection()->fetchAssociative('SELECT age, sex, ed_admission_at FROM encounter WHERE id = ?', [$visit->encounterId]);
+            $row = $this->connection()->fetchAssociative('SELECT e.age, e.sex, v.ed_admission_at FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id WHERE e.id = ?', [$visit->encounterId]);
             self::assertIsArray($row);
             self::assertSame((int) $visit->visit->cells['age'], (int) $row['age']);
             self::assertSame($visit->visit->cells['sex'], $row['sex']);

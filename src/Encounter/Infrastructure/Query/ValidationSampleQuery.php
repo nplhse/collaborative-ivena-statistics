@@ -24,7 +24,7 @@ use Doctrine\DBAL\Types\Types;
  */
 final readonly class ValidationSampleQuery
 {
-    private const string VISIT_ANCHOR = 'COALESCE(e.ed_admission_at, e.first_assessment_contact_at)';
+    private const string VISIT_ANCHOR = 'COALESCE(v.ed_admission_at, v.first_assessment_contact_at)';
 
     /** @psalm-suppress PossiblyUnusedMethod Autowired. */
     public function __construct(
@@ -108,11 +108,11 @@ SQL,
         $ids = $this->connection->fetchFirstColumn(
             <<<SQL
 SELECT e.id
-FROM encounter e
+FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id
 WHERE e.hospital_id = :hospital
   AND e.anchor_at BETWEEN CAST(:from AS TIMESTAMP) - INTERVAL '1 day' AND CAST(:to AS TIMESTAMP) + INTERVAL '1 day'
   AND {$anchor} >= :from AND {$anchor} < :to
-  AND e.arrival_route IN ('ems', 'unknown')
+  AND v.arrival_route IN ('ems', 'unknown')
   AND NOT EXISTS (SELECT 1 FROM encounter_match m WHERE m.encounter_id = e.id AND m.status IN ('auto_accepted', 'confirmed', 'proposed'))
 ORDER BY md5(CONCAT(CAST(:seed AS TEXT), '|unlinked_visit|', e.id)), e.id
 SQL,

@@ -86,13 +86,13 @@ final class EncounterImportEdgeCaseTest extends KernelTestCase
             ->visit('a', '2026-10-01T08:15', overrides: ['admitting_department' => 'innere medizin'])
             ->build(), 'with department');
 
-        self::assertSame($department->getId(), (int) $this->connection()->fetchOne('SELECT admitting_department_id FROM encounter WHERE import_id = ?', [$importId]));
+        self::assertSame($department->getId(), (int) $this->connection()->fetchOne('SELECT admitting_department_id FROM ed_visit WHERE import_id = ?', [$importId]));
     }
 
     public function testKeyGenerationIsCheckedAgainInTheWritingCommit(): void
     {
         $importId = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build(), 'stale');
-        $this->connection()->executeStatement('DELETE FROM encounter WHERE import_id = ?', [$importId]);
+        $this->connection()->executeStatement('DELETE FROM ed_visit WHERE import_id = ?', [$importId]);
         // A key change between the check before the run and the commit (#1050).
         $this->connection()->executeStatement('UPDATE encounter_key_state SET key_generation = 2 WHERE hospital_id = ?', [$this->hospital->getId()]);
 
@@ -119,7 +119,7 @@ final class EncounterImportEdgeCaseTest extends KernelTestCase
     public function testKeyChangeInProgressStopsTheWritingCommit(): void
     {
         $importId = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build(), 'during change');
-        $this->connection()->executeStatement('DELETE FROM encounter WHERE import_id = ?', [$importId]);
+        $this->connection()->executeStatement('DELETE FROM ed_visit WHERE import_id = ?', [$importId]);
         $this->connection()->executeStatement('UPDATE encounter_key_state SET key_change_in_progress = true WHERE hospital_id = ?', [$this->hospital->getId()]);
 
         $em = $this->entityManager();
@@ -198,8 +198,8 @@ final class EncounterImportEdgeCaseTest extends KernelTestCase
         self::assertInstanceOf(EncounterSuspectedDuplicate::class, $duplicate);
         self::assertNotNull($duplicate->getId());
         self::assertSame($second, $duplicate->getImport()->getId());
-        self::assertSame($second, $duplicate->getEncounter()->getImport()->getId());
-        self::assertSame($first, $duplicate->getExistingEncounter()->getImport()->getId());
+        self::assertSame($second, (int) $this->connection()->fetchOne('SELECT import_id FROM ed_visit WHERE encounter_id = ?', [$duplicate->getEncounter()->getId()]));
+        self::assertSame($first, (int) $this->connection()->fetchOne('SELECT import_id FROM ed_visit WHERE encounter_id = ?', [$duplicate->getExistingEncounter()->getId()]));
         self::assertSame(3, $duplicate->getLineNumber());
         self::assertSame(5, $duplicate->getAnchorDifferenceMinutes());
         self::assertSame(AnchorSource::Admission, $duplicate->getAnchorSource());
