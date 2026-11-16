@@ -195,7 +195,7 @@ final class EncounterSourceFileRetentionTest extends KernelTestCase
     {
         $contribution = new EncounterScheduleContribution();
 
-        self::assertSame([DeleteExpiredEncounterSourceFilesMessage::class => 'encounter_source_file_retention'], $contribution->recordedJobs());
+        self::assertSame('encounter_source_file_retention', $contribution->recordedJobs()[DeleteExpiredEncounterSourceFilesMessage::class]);
         self::assertSame('10 3 * * *', (string) $contribution->recurringMessages()[0]->getTrigger());
         $jobRuns = self::getContainer()->getParameter('app.job_runs');
         self::assertIsArray($jobRuns);

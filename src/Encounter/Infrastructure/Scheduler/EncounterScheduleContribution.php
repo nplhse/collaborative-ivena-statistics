@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Encounter\Infrastructure\Scheduler;
 
+use App\Encounter\Application\Message\CleanUpEncountersMessage;
 use App\Encounter\Application\Message\DeleteExpiredEncounterSourceFilesMessage;
 use App\Shared\Infrastructure\Monitoring\JobRun\RecordedJobsInterface;
 use App\Shared\Infrastructure\Scheduler\ScheduleContributionInterface;
@@ -18,6 +19,8 @@ final readonly class EncounterScheduleContribution implements ScheduleContributi
 {
     public const string JOB_SOURCE_FILE_RETENTION = 'encounter_source_file_retention';
 
+    public const string JOB_CLEANUP = 'encounter_cleanup';
+
     private const string TIMEZONE = 'Europe/Berlin';
 
     #[\Override]
@@ -25,6 +28,7 @@ final readonly class EncounterScheduleContribution implements ScheduleContributi
     {
         return [
             RecurringMessage::cron('10 3 * * *', new DeleteExpiredEncounterSourceFilesMessage(), self::TIMEZONE),
+            RecurringMessage::cron('30 3 * * *', new CleanUpEncountersMessage(), self::TIMEZONE),
         ];
     }
 
@@ -33,6 +37,7 @@ final readonly class EncounterScheduleContribution implements ScheduleContributi
     {
         return [
             DeleteExpiredEncounterSourceFilesMessage::class => self::JOB_SOURCE_FILE_RETENTION,
+            CleanUpEncountersMessage::class => self::JOB_CLEANUP,
         ];
     }
 }

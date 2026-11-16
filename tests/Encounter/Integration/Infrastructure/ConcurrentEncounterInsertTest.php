@@ -21,7 +21,8 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 
 /**
- * Two database sessions insert the same visit at the same time (ADR 029).
+ * Two database sessions insert the same visit at the same time (ADR 029), and the encounter cleanup meets a
+ * write that holds the hospital lock (#1300).
  *
  * Session 1 inserts inside an open transaction. Session 2 sends the same insert asynchronously, so it
  * really runs while session 1 holds the uncommitted row and has to wait for it. After session 1
@@ -105,6 +106,61 @@ final class ConcurrentEncounterInsertTest extends KernelTestCase
         self::assertSame(EncounterInsertOutcome::Duplicate, $this->repository()->insertIfNew($this->visit()));
         self::assertSame(1, $this->repository()->countByImportId($this->ids['import']));
         self::assertSame(1, (int) $em->getConnection()->fetchOne('SELECT COUNT(*) FROM encounter WHERE hospital_id = ?', [$this->ids['hospital']]));
+    }
+
+    public function testTheCleanupWaitsForAWriteThatHoldsTheHospitalLockAndKeepsItsEncounter(): void
+    {
+        self::assertNotNull($this->ids);
+        $hospital = $this->ids['hospital'];
+        $encounter = (int) $this->setup->fetchOne(
+            "INSERT INTO encounter (hospital_id, key_generation, case_key, anchor_at, age, sex, created_at) VALUES (?, 1, ?, '2026-10-12 23:58:00', 70, 'M', '2026-11-01 12:00:00') RETURNING id",
+            [$hospital, hash('sha256', 'case|race')],
+        );
+
+        // A write path: hospital lock, then a visit for the empty encounter, not yet committed.
+        $writer = $this->pgsqlConnection();
+        pg_query($writer, 'BEGIN');
+        pg_query_params($writer, 'SELECT pg_advisory_xact_lock(1307, $1)', [$hospital]);
+        $visit = EncounterInsertStatement::forVisit($this->entityManager(), $this->visit(), $encounter);
+        self::assertNotFalse(pg_query_params($writer, $this->numberedPlaceholders($visit->sql), $this->databaseValues($visit)));
+
+        // The cleanup runs as its own process with its own connection, as the scheduled job does.
+        $process = proc_open(
+            [\PHP_BINARY, 'bin/console', 'app:encounter:clean-up', '--hospital='.$hospital, '--env=test', '--no-interaction'],
+            [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+            $pipes,
+            \dirname(__DIR__, 4),
+        );
+        self::assertIsResource($process);
+        $this->waitForLockWaiter($hospital);
+        self::assertTrue(proc_get_status($process)['running'], 'The cleanup waits for the hospital lock.');
+
+        pg_query($writer, 'COMMIT');
+        pg_close($writer);
+
+        $output = stream_get_contents($pipes[1]).stream_get_contents($pipes[2]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        self::assertSame(0, proc_close($process), $output);
+        self::assertSame(1, (int) $this->setup->fetchOne('SELECT COUNT(*) FROM encounter WHERE id = ?', [$encounter]), 'The encounter now has its visit and stays.');
+        self::assertSame(1, (int) $this->setup->fetchOne('SELECT COUNT(*) FROM ed_visit WHERE encounter_id = ?', [$encounter]));
+    }
+
+    private function waitForLockWaiter(int $hospital): void
+    {
+        $deadline = microtime(true) + 30;
+        while (microtime(true) < $deadline) {
+            $waiting = (int) $this->setup->fetchOne(
+                "SELECT COUNT(*) FROM pg_locks WHERE locktype = 'advisory' AND classid = 1307 AND objid = ? AND NOT granted",
+                [$hospital],
+            );
+            if ($waiting > 0) {
+                return;
+            }
+            usleep(100_000);
+        }
+
+        self::fail('The cleanup did not wait for the hospital lock.');
     }
 
     private function visit(): EdVisit
