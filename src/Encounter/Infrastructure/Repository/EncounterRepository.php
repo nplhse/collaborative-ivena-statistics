@@ -78,6 +78,25 @@ final class EncounterRepository extends ServiceEntityRepository
     }
 
     /**
+     * Gives a known visit of a reprocessed import the values of the file (#1300): the ED fields and the base data
+     * of its encounter (case key, anchor, age, sex). Identity, uid, IVENA assignment and ED matching history stay.
+     */
+    public function updateKnown(EdVisit $visit, int $encounterId): void
+    {
+        $em = $this->getEntityManager();
+        $connection = $em->getConnection();
+        $statement = EncounterInsertStatement::forVisitUpdate($em, $visit, $encounterId);
+        $connection->executeStatement($statement->sql, $statement->params, $statement->types);
+
+        $encounter = $visit->getEncounter();
+        $connection->executeStatement(
+            'UPDATE encounter SET case_key = ?, anchor_at = ?, age = ?, sex = ? WHERE id = ?',
+            [$encounter->getCaseKey(), $encounter->getAnchorAt(), $encounter->getAge(), $encounter->getSex()->value, $encounterId],
+            [Types::STRING, Types::DATETIME_IMMUTABLE, Types::SMALLINT, Types::STRING, Types::INTEGER],
+        );
+    }
+
+    /**
      * Earlier visits of the hospital and key generation with the same case key and a time anchor
      * within $windowMinutes of the given visit's anchor (suspected duplicates, ADR 029).
      *

@@ -37,6 +37,16 @@ interface EncounterAllocationAssignmentsInterface
     public function releaseAllocationsOfImport(int $importId): void;
 
     /**
+     * The encounter of an IVENA allocation for a record that a schema assigned uniquely to that allocation:
+     * the one the allocation is assigned to, or a new encounter from $base that is assigned to it in the same
+     * step (#1300, ADR 037). At most one encounter per allocation, also with parallel callers. The caller
+     * attaches its record in the same transaction, under the encounter hospital lock.
+     *
+     * @psalm-suppress PossiblyUnusedMethod Contract for encounter schema plugins (ADR 037); plugins and tests call it.
+     */
+    public function encounterForAllocation(int $allocationId, EncounterBaseData $base): int;
+
+    /**
      * The encounter the allocation is assigned to, or null.
      *
      * @psalm-suppress PossiblyUnusedMethod Contract for encounter schema plugins (ADR 037); plugins and tests call it.

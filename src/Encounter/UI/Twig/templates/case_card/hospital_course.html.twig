@@ -61,4 +61,13 @@
             {{ include(section.template, section.context) }}
         </div>
     {% endfor %}
+    {% if can_unassign|default(false) %}
+        <div class="card-footer d-flex flex-wrap align-items-center gap-2" data-testid="encounter-course-unassign">
+            <span class="text-secondary small">{{ 'encounter.course.unassign.hint'|trans({}, d) }}</span>
+            <form method="post" action="{{ path('app_explore_allocation_encounter_unassign', {publicId: allocation_public_id}) }}" class="ms-auto">
+                <input type="hidden" name="_token" value="{{ csrf_token('encounter_unassign_' ~ allocation_id) }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'encounter.course.unassign.action'|trans({}, d) }}</button>
+            </form>
+        </div>
+    {% endif %}
 </div>

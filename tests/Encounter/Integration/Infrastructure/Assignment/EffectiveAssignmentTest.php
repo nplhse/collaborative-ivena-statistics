@@ -10,6 +10,7 @@ use App\Encounter\Contract\Assignment\AssignmentKind;
 use App\Encounter\Contract\Assignment\AssignmentRequest;
 use App\Encounter\Contract\Assignment\EncounterAllocationAssignmentsInterface;
 use App\Encounter\Contract\Assignment\EncounterAssignmentsInterface;
+use App\Encounter\Contract\Assignment\EncounterBaseData;
 use App\Import\Application\Service\ImportDeletionService;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
@@ -153,6 +154,23 @@ final class EffectiveAssignmentTest extends KernelTestCase
         $result = $assignments->find(new AssignmentRequest((int) $this->hospital->getId(), 1, $allocation));
         self::assertSame(AssignmentKind::Assigned, $result->kind);
         self::assertSame($visit, $result->encounterId);
+    }
+
+    public function testARecordOfAnAllocationGetsTheAllocationsEncounterOrANewOne(): void
+    {
+        $allocation = (int) $this->allocationAt($this->hospital, $this->ivena, '10:00')->getId();
+        $other = (int) $this->allocationAt($this->hospital, $this->ivena, '14:00')->getId();
+        $visit = $this->visitAt($this->hospital, $this->ed, '10:05');
+        $this->matchDay($this->hospital);
+        $base = new EncounterBaseData((int) $this->hospital->getId(), 1, hash('sha256', 'case-of-the-stay'), new \DateTimeImmutable('2026-10-12 14:20'), 70, 'F');
+
+        self::assertSame($visit, $this->core()->encounterForAllocation($allocation, $base), 'The encounter the allocation is assigned to.');
+
+        $created = $this->core()->encounterForAllocation($other, $base);
+        self::assertNotSame($visit, $created);
+        self::assertSame($created, $this->core()->encounterOfAllocation($other), 'Created and assigned in one step.');
+        self::assertSame($created, $this->core()->encounterForAllocation($other, $base), 'At most one encounter per allocation.');
+        self::assertSame([$visit => $allocation, $created => $other], $this->assignments());
     }
 
     /**

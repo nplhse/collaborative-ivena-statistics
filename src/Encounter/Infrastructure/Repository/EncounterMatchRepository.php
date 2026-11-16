@@ -22,24 +22,9 @@ use Doctrine\Persistence\ManagerRegistry;
 final class EncounterMatchRepository extends ServiceEntityRepository
 {
     /** First key of the transaction-level advisory lock; the second is the hospital id. */
-    private const int LOCK_NAMESPACE = 1053;
-
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, EncounterMatch::class);
-    }
-
-    /**
-     * Serialises matcher runs and decisions of one hospital until the current transaction ends. The
-     * review (#1054) takes the same lock before it writes a decision.
-     */
-    public function lockHospital(int $hospitalId): void
-    {
-        $this->getEntityManager()->getConnection()->executeQuery(
-            'SELECT pg_advisory_xact_lock(:namespace, :hospital)',
-            ['namespace' => self::LOCK_NAMESPACE, 'hospital' => $hospitalId],
-            ['namespace' => Types::INTEGER, 'hospital' => Types::INTEGER],
-        );
     }
 
     /**

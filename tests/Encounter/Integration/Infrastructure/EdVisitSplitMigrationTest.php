@@ -40,8 +40,8 @@ final class EdVisitSplitMigrationTest extends KernelTestCase
     use Factories;
     use MatchingDataFixtures;
 
-    /** The migrations directory is not autoloaded for the static analysis, so the class is named by string. */
-    private const string MIGRATION = 'DoctrineMigrations\\Version'.'20261116183100';
+    /** The migrations directory is not autoloaded for the static analysis, so the class is built from its version. */
+    private const string MIGRATION_VERSION = '20261116183100';
 
     /** ED columns that move between the two tables. */
     private const string ED_COLUMNS = 'visit_uid, visit_fingerprint, import_id, anchor_source, arrival_mode, arrival_route, referral_source, admission_type, case_status, work_accident, tetanus_protected, isolation, ed_admission_at, first_assessment_contact_at, first_physician_at, ed_discharge_at, mts_category, mts_diagram, mts_indicator, mts_pain_score, disposition_code, disposition_care_level, admitting_department_id, vitals_reference, vitals_heart_rate';
@@ -202,14 +202,19 @@ final class EdVisitSplitMigrationTest extends KernelTestCase
     {
         $dependencyFactory = self::getContainer()->get('doctrine.migrations.dependency_factory');
         self::assertInstanceOf(DependencyFactory::class, $dependencyFactory);
-        self::assertTrue($dependencyFactory->getMigrationRepository()->hasMigration(self::MIGRATION));
+        self::assertTrue($dependencyFactory->getMigrationRepository()->hasMigration($this->migrationClass()));
 
         // A fresh instance per direction: planned SQL accumulates on the migration object.
-        $migration = $dependencyFactory->getMigrationFactory()->createVersion(self::MIGRATION);
+        $migration = $dependencyFactory->getMigrationFactory()->createVersion($this->migrationClass());
         $up ? $migration->up(new Schema()) : $migration->down(new Schema());
 
         foreach ($migration->getSql() as $query) {
             $this->connection()->executeStatement($query->getStatement());
         }
+    }
+
+    private function migrationClass(): string
+    {
+        return sprintf('DoctrineMigrations\\Version%s', self::MIGRATION_VERSION);
     }
 }

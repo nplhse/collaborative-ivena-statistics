@@ -9,7 +9,8 @@ use App\Encounter\Application\Catalog\MtsCatalogFirstSeenWriter;
 use App\Encounter\Application\Dimension\EdVisitDimension;
 use App\Encounter\Application\Import\EdVisitRow;
 use App\Encounter\Application\Import\EdVisitRowMapper;
-use App\Encounter\Contract\Import\EncounterSchemaHandlerInterface;
+use App\Encounter\Contract\Import\EncounterRecordRow;
+use App\Encounter\Contract\Import\ReprocessingSchemaHandlerInterface;
 use App\Encounter\Contract\Import\RowMappingResult;
 use App\Encounter\Contract\Import\SchemaWriteContext;
 use App\Encounter\Domain\Enum\MtsCatalogKind;
@@ -31,7 +32,7 @@ use Psr\Clock\ClockInterface;
  *
  * @psalm-suppress UnusedClass Tagged via EncounterSchemaHandlerInterface.
  */
-final readonly class EdVisitSchemaHandler implements EncounterSchemaHandlerInterface
+final readonly class EdVisitSchemaHandler implements ReprocessingSchemaHandlerInterface
 {
     /** Time anchors closer than this make a new visit with the same case key a suspected duplicate (ADR 029). */
     public const int SUSPECTED_DUPLICATE_WINDOW_MINUTES = 15;
@@ -67,6 +68,40 @@ final readonly class EdVisitSchemaHandler implements EncounterSchemaHandlerInter
     #[\Override]
     public function write(SchemaWriteContext $context, array $rows): EdVisitWriteResult
     {
+        return $this->writeRows($context, $rows, []);
+    }
+
+    /**
+     * Reconciles the import's visits by fingerprint (#1300, ADR 029): a visit still in the file keeps its
+     * encounter, uid and ED matching history and gets the file's values; visits no longer in the file are
+     * removed; new rows are inserted. Suspected duplicates of the import are found again for every visit. The
+     * days of all visits of the file are reported, so the matcher reruns for them.
+     */
+    #[\Override]
+    public function reprocess(SchemaWriteContext $context, array $rows): EdVisitWriteResult
+    {
+        $connection = $this->entityManager->getConnection();
+        /** @var array<string, int|string> $existing encounter id by visit fingerprint */
+        $existing = $connection->fetchAllKeyValue('SELECT visit_fingerprint, encounter_id FROM ed_visit WHERE import_id = ?', [$context->importId]);
+        $connection->executeStatement('DELETE FROM encounter_suspected_duplicate WHERE import_id = ?', [$context->importId]);
+
+        $inFile = [];
+        foreach ($rows as $row) {
+            if ($row instanceof EdVisitRow) {
+                $inFile[$row->visitFingerprint] = true;
+            }
+        }
+        $this->deleteVisits(array_values(array_map(intval(...), array_diff_key($existing, $inFile))));
+
+        return $this->writeRows($context, $rows, array_map(intval(...), array_intersect_key($existing, $inFile)));
+    }
+
+    /**
+     * @param list<EncounterRecordRow> $rows
+     * @param array<string, int>       $kept encounter id of the import's visits that stay, by fingerprint
+     */
+    private function writeRows(SchemaWriteContext $context, array $rows, array $kept): EdVisitWriteResult
+    {
         /** @var Hospital $hospitalReference */
         $hospitalReference = $this->entityManager->getReference(Hospital::class, $context->hospitalId);
         /** @var Import $importReference */
@@ -77,16 +112,25 @@ final readonly class EdVisitSchemaHandler implements EncounterSchemaHandlerInter
         $days = [];
         $diagrams = [];
         $indicators = [];
+        // Visits of this import not reached yet in the file: a visit is compared only with earlier ones, as when
+        // the file was first imported.
+        $notYetReached = array_flip($kept);
         foreach ($rows as $row) {
             if (!$row instanceof EdVisitRow) {
                 throw new \LogicException(sprintf('The ed_visit handler got a row of %s.', $row::class));
             }
 
             $visit = $row->toEdVisit($hospitalReference, $importReference, $context->keyGeneration);
-            $encounterId = $this->encounters->insertIfNewReturningId($visit);
-            if (null === $encounterId) {
-                continue;
+            if (isset($kept[$row->visitFingerprint])) {
+                $encounterId = $kept[$row->visitFingerprint];
+                $this->encounters->updateKnown($visit, $encounterId);
+            } else {
+                $encounterId = $this->encounters->insertIfNewReturningId($visit);
+                if (null === $encounterId) {
+                    continue;
+                }
             }
+            unset($notYetReached[$encounterId]);
 
             ++$inserted;
             foreach ([$row->triage->getDiagram(), $row->retriage->getDiagram()] as $code) {
@@ -100,7 +144,7 @@ final readonly class EdVisitSchemaHandler implements EncounterSchemaHandlerInter
                 }
             }
             $days[$visit->getAnchorAt()->format('Y-m-d')] = true;
-            if ($this->recordSuspectedDuplicates($context->importId, $encounterId, $row->line, $visit->getAnchorSource()->value)) {
+            if ($this->recordSuspectedDuplicates($context->importId, $encounterId, $row->line, $visit->getAnchorSource()->value, $notYetReached)) {
                 ++$suspected;
             }
         }
@@ -116,24 +160,39 @@ final readonly class EdVisitSchemaHandler implements EncounterSchemaHandlerInter
     }
 
     /**
-     * Removes the import's ED visits with what belongs to them: suspected duplicates and validation items that
-     * name one of them (their encounter stays, so the foreign keys no longer cascade). The ED matching history
-     * of the visits is removed before by EncounterMatchDataRemover. The encounters keep their effective IVENA
-     * assignment and the records of other imports (#1300).
+     * Removes the import's ED visits (import deletion; ADR 029) with what belongs to them, see deleteVisits().
      */
     #[\Override]
     public function removeForImport(int $importId): int
     {
         $connection = $this->entityManager->getConnection();
-        $visits = 'SELECT encounter_id FROM ed_visit WHERE import_id = ?';
-        $connection->executeStatement(
-            "DELETE FROM encounter_suspected_duplicate WHERE import_id = ? OR encounter_id IN ({$visits}) OR existing_encounter_id IN ({$visits})",
-            [$importId, $importId, $importId],
-        );
-        $connection->executeStatement("DELETE FROM encounter_validation_item WHERE encounter_id IN ({$visits})", [$importId]);
-        $connection->executeStatement("UPDATE encounter_validation_item SET replacement_encounter_id = NULL WHERE replacement_encounter_id IN ({$visits})", [$importId]);
+        $connection->executeStatement('DELETE FROM encounter_suspected_duplicate WHERE import_id = ?', [$importId]);
+        $visits = array_map(intval(...), $connection->fetchFirstColumn('SELECT encounter_id FROM ed_visit WHERE import_id = ?', [$importId]));
+        $this->deleteVisits($visits);
 
-        return $this->encounters->deleteByImportId($importId);
+        return \count($visits);
+    }
+
+    /**
+     * Removes ED visits with their ED matching history, the suspected duplicates and validation items that
+     * name them (their encounter stays, so the foreign keys no longer cascade). The encounters keep their
+     * effective IVENA assignment and the records of other imports (#1300).
+     *
+     * @param list<int> $encounterIds
+     */
+    private function deleteVisits(array $encounterIds): void
+    {
+        if ([] === $encounterIds) {
+            return;
+        }
+
+        $connection = $this->entityManager->getConnection();
+        $ids = ['{'.implode(',', $encounterIds).'}'];
+        $connection->executeStatement('DELETE FROM encounter_match WHERE encounter_id = ANY(CAST(? AS INT[]))', $ids);
+        $connection->executeStatement('DELETE FROM encounter_suspected_duplicate WHERE encounter_id = ANY(CAST(? AS INT[])) OR existing_encounter_id = ANY(CAST(? AS INT[]))', [...$ids, ...$ids]);
+        $connection->executeStatement('DELETE FROM encounter_validation_item WHERE encounter_id = ANY(CAST(? AS INT[]))', $ids);
+        $connection->executeStatement('UPDATE encounter_validation_item SET replacement_encounter_id = NULL WHERE replacement_encounter_id = ANY(CAST(? AS INT[]))', $ids);
+        $connection->executeStatement('DELETE FROM ed_visit WHERE encounter_id = ANY(CAST(? AS INT[]))', $ids);
     }
 
     /**
@@ -148,9 +207,15 @@ final readonly class EdVisitSchemaHandler implements EncounterSchemaHandlerInter
     /**
      * @return bool whether the new visit is a suspected duplicate of at least one earlier visit
      */
-    private function recordSuspectedDuplicates(int $importId, int $encounterId, int $line, string $anchorSource): bool
+    /**
+     * @param array<int, string> $notYetReached fingerprint by encounter id of the visits of this import later in the file, which are not compared
+     */
+    private function recordSuspectedDuplicates(int $importId, int $encounterId, int $line, string $anchorSource, array $notYetReached): bool
     {
-        $matches = $this->encounters->findSuspectedDuplicatesOf($encounterId, self::SUSPECTED_DUPLICATE_WINDOW_MINUTES);
+        $matches = array_values(array_filter(
+            $this->encounters->findSuspectedDuplicatesOf($encounterId, self::SUSPECTED_DUPLICATE_WINDOW_MINUTES),
+            static fn (array $match): bool => !isset($notYetReached[$match['id']]),
+        ));
         foreach ($matches as $match) {
             $this->entityManager->getConnection()->executeStatement(
                 'INSERT INTO encounter_suspected_duplicate (import_id, encounter_id, existing_encounter_id, line_number, anchor_difference_minutes, anchor_source, existing_anchor_source) VALUES (?, ?, ?, ?, ?, ?, ?)',

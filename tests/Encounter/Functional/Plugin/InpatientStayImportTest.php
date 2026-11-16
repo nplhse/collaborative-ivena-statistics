@@ -198,6 +198,20 @@ final class InpatientStayImportTest extends WebTestCase
         self::assertCount(0, $crawler->filter('[data-testid="encounter-course-link"]'), 'No ED visit any more.');
         self::assertSame('I21.4', trim($crawler->filter('[data-record-section="inpatient_stay"] [data-testid="inpatient-stay-diagnosis"]')->text()));
 
+        // 8b. Without ED visit, a reviewer can remove the assignment by hand; a case viewer cannot.
+        $this->client->loginUser($this->viewer);
+        $crawler = $this->client->request(Request::METHOD_GET, '/explore/allocation/'.$this->allocationX->getPublicId());
+        self::assertCount(0, $crawler->filter('[data-testid="encounter-course-unassign"]'));
+        $this->client->loginUser($this->reviewer);
+        $crawler = $this->client->request(Request::METHOD_GET, '/explore/allocation/'.$this->allocationX->getPublicId());
+        $this->client->submit($crawler->filter('[data-testid="encounter-course-unassign"] form')->form());
+        self::assertResponseRedirects('/explore/allocation/'.$this->allocationX->getPublicId());
+        $crawler = $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'The assignment was removed.');
+        self::assertCount(0, $crawler->filter('[data-record-section="inpatient_stay"]'));
+        self::assertNull($this->connection()->fetchOne('SELECT allocation_id FROM encounter WHERE id = ?', [$this->visits['A']]));
+        self::assertSame($this->visits['A'], (int) $this->connection()->fetchOne('SELECT encounter_id FROM test_inpatient_stay WHERE import_id = ? AND discharge_diagnosis = ?', [$stayImportId, 'I21.4']), 'The stay stays with its encounter.');
+
         // 9. Deleting the inpatient_stay import removes its stays and pending records; the encounters stay until the
         // cleanup of encounters without records.
         $crawler = $this->client->request(Request::METHOD_GET, '/import/'.$stayImportId);

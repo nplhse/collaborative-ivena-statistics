@@ -15,6 +15,7 @@ use App\Encounter\Application\Matching\MatchWeights;
 use App\Encounter\Application\Matching\PlannedMatch;
 use App\Encounter\Application\Plausibility\PlausibilityLookup;
 use App\Encounter\Contract\Assignment\EncounterAllocationAssignmentsInterface;
+use App\Encounter\Contract\Assignment\EncounterHospitalLockInterface;
 use App\Encounter\Domain\Enum\MatchStatus;
 use App\Encounter\Infrastructure\Query\MatchInputQuery;
 use App\Encounter\Infrastructure\Repository\EncounterMatchRepository;
@@ -43,6 +44,7 @@ final readonly class EncounterMatcher implements EncounterMatcherInterface
         private ClockInterface $clock,
         private LoggerInterface $logger,
         private EncounterAllocationAssignmentsInterface $assignments,
+        private EncounterHospitalLockInterface $hospitalLock,
     ) {
     }
 
@@ -51,7 +53,7 @@ final readonly class EncounterMatcher implements EncounterMatcherInterface
     public function run(MatchScope $scope): MatchRunResult
     {
         $result = $this->entityManager->wrapInTransaction(function () use ($scope): MatchRunResult {
-            $this->matches->lockHospital($scope->hospitalId);
+            $this->hospitalLock->lock($scope->hospitalId);
 
             [$allocations, $encounters] = $this->load($scope);
             $allocationIds = array_map(static fn (MatchingAllocation $a): int => $a->id, $allocations);

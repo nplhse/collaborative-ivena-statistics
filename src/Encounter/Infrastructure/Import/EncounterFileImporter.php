@@ -11,8 +11,10 @@ use App\Encounter\Application\Import\EncounterImportResult;
 use App\Encounter\Application\Import\EncounterKeyGenerationChangedException;
 use App\Encounter\Application\Import\EncounterManifest;
 use App\Encounter\Application\Import\EncounterSchemaHandlerRegistry;
+use App\Encounter\Contract\Assignment\EncounterHospitalLockInterface;
 use App\Encounter\Contract\Import\EncounterRecordRow;
 use App\Encounter\Contract\Import\EncounterSchemaHandlerInterface;
+use App\Encounter\Contract\Import\ReprocessingSchemaHandlerInterface;
 use App\Encounter\Contract\Import\RowError;
 use App\Encounter\Contract\Import\SchemaWriteContext;
 use App\Encounter\Contract\Import\SchemaWriteResult;
@@ -53,6 +55,7 @@ final readonly class EncounterFileImporter
         private EncounterKeyStateRepository $keyStates,
         private ImportRunCommitGuard $commitGuard,
         private ClockInterface $clock,
+        private EncounterHospitalLockInterface $hospitalLock,
     ) {
     }
 
@@ -60,7 +63,7 @@ final readonly class EncounterFileImporter
      * @throws EncounterFileRejectedException
      * @throws EncounterKeyGenerationChangedException
      */
-    public function import(Import $import, EncounterImport $encounterImport, string $absolutePath): EncounterImportResult
+    public function import(Import $import, EncounterImport $encounterImport, string $absolutePath, bool $reprocess = false): EncounterImportResult
     {
         $handler = $this->handlers->find($encounterImport->getSchema()) ?? throw new EncounterFileRejectedException(EncounterFileRejection::SchemaUnsupported);
 
@@ -72,6 +75,9 @@ final readonly class EncounterFileImporter
         $file = $this->reader->read($content);
         unset($content);
         [$manifest, $fields] = $this->validator->validate($file, $encounterImport->getSchema());
+        // Reset in memory only: the new counters are written with the new data, so a failed run keeps the report of
+        // the last successful one (#1300).
+        $encounterImport->resetForRun();
         $encounterImport->recordManifest($manifest->schemaVersion, $manifest->profile, $manifest->profileVersion, $manifest->toolVersion);
 
         /** @var list<EncounterRecordRow> $valid */
@@ -92,10 +98,12 @@ final readonly class EncounterFileImporter
             }
         }
 
-        $written = $this->commitGuard->transactional(
+        // One transaction also without an active run (the guard then runs the work as it is): the hospital lock and
+        // the replacement of a previous run need it.
+        $written = $this->entityManager->getConnection()->transactional(fn (): SchemaWriteResult => $this->commitGuard->transactional(
             $this->entityManager,
-            fn (): SchemaWriteResult => $this->write($import, $encounterImport, $handler, $manifest, $valid, $rejects),
-        );
+            fn (): SchemaWriteResult => $this->write($import, $encounterImport, $handler, $manifest, $valid, $rejects, $reprocess),
+        ));
 
         return new EncounterImportResult(
             total: \count($file->rows),
@@ -112,15 +120,44 @@ final readonly class EncounterFileImporter
     }
 
     /**
+     * Reprocessing in the write transaction (#1300, ADR 029): what belongs to the import as a whole goes first
+     * (rejects, row counters, pending assignments and the decisions on them, #1307), then the schema replaces its
+     * records, keeping unchanged ones where it can. Nothing is committed before the new data, so a failed run
+     * leaves the last successful one as it was.
+     *
+     * @param list<EncounterRecordRow> $valid
+     */
+    private function reprocess(Import $import, EncounterSchemaHandlerInterface $handler, SchemaWriteContext $context, array $valid): SchemaWriteResult
+    {
+        $connection = $this->entityManager->getConnection();
+        $connection->executeStatement('DELETE FROM import_reject WHERE import_id = ?', [$context->importId]);
+        $connection->executeStatement('DELETE FROM encounter_assignment_decision WHERE import_id = ?', [$context->importId]);
+        $connection->executeStatement('DELETE FROM encounter_pending_assignment WHERE import_id = ?', [$context->importId]);
+        $import->resetForReimport();
+        $import->markAsRunning();
+
+        if ($handler instanceof ReprocessingSchemaHandlerInterface) {
+            return $handler->reprocess($context, $valid);
+        }
+
+        $handler->removeForImport($context->importId);
+
+        return $handler->write($context, $valid);
+    }
+
+    /**
      * @param list<EncounterRecordRow>             $valid
      * @param array<int, non-empty-list<RowError>> $rejects
      */
-    private function write(Import $import, EncounterImport $encounterImport, EncounterSchemaHandlerInterface $handler, EncounterManifest $manifest, array $valid, array $rejects): SchemaWriteResult
+    private function write(Import $import, EncounterImport $encounterImport, EncounterSchemaHandlerInterface $handler, EncounterManifest $manifest, array $valid, array $rejects, bool $reprocess): SchemaWriteResult
     {
         $importId = (int) $import->getId();
         $hospital = $import->getHospital() ?? throw new \LogicException(sprintf('Import #%d has no hospital.', $importId));
         $hospitalId = (int) $hospital->getId();
         $generation = $encounterImport->getKeyGeneration();
+
+        // Serialises with the decisions, retries, the matcher and the cleanup of encounters (#1300).
+        $this->hospitalLock->lock($hospitalId);
 
         $keyState = $this->keyStates->lockForImport($hospitalId, $this->clock->now());
         if ($keyState['generation'] !== $generation || $keyState['key_change_in_progress']) {
@@ -137,7 +174,12 @@ final readonly class EncounterFileImporter
             throw new EncounterFileRejectedException(EncounterFileRejection::KeyCheckMismatch);
         }
 
-        $written = $handler->write(new SchemaWriteContext($hospitalId, $importId, $generation), $valid);
+        $context = new SchemaWriteContext($hospitalId, $importId, $generation);
+        if ($reprocess) {
+            $written = $this->reprocess($import, $handler, $context, $valid);
+        } else {
+            $written = $handler->write($context, $valid);
+        }
 
         /** @var Import $importReference */
         $importReference = $this->entityManager->getReference(Import::class, $importId);

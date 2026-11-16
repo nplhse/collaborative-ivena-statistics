@@ -1785,6 +1785,26 @@
         <source>encounter.course.no_link</source>
         <target>No emergency department visit is linked to this allocation. Proposals appear in the match review; this card shows automatic and confirmed links only.</target>
       </trans-unit>
+      <trans-unit id="Enc0674BFC34" resname="encounter.course.unassign.hint">
+        <source>encounter.course.unassign.hint</source>
+        <target>No ED visit belongs to this assignment any more; the records above stay with the encounter.</target>
+      </trans-unit>
+      <trans-unit id="Enc550DD4AE8" resname="encounter.course.unassign.action">
+        <source>encounter.course.unassign.action</source>
+        <target>Remove assignment</target>
+      </trans-unit>
+      <trans-unit id="Enc00F87AFB7" resname="encounter.course.unassign.done">
+        <source>encounter.course.unassign.done</source>
+        <target>The assignment was removed. The encounter and its records stay.</target>
+      </trans-unit>
+      <trans-unit id="Enc28FB29555" resname="encounter.course.unassign.not_possible">
+        <source>encounter.course.unassign.not_possible</source>
+        <target>The assignment was not removed: it changed meanwhile or an ED visit belongs to it.</target>
+      </trans-unit>
+      <trans-unit id="Enc5AD08FDB1" resname="encounter.course.unassign.invalid_token">
+        <source>encounter.course.unassign.invalid_token</source>
+        <target>The form has expired. Please try again.</target>
+      </trans-unit>
       <trans-unit id="Enc93337359" resname="encounter.course.origin.automatic">
         <source>encounter.course.origin.automatic</source>
         <target>Linked automatically</target>

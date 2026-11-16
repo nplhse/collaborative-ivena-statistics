@@ -15,6 +15,7 @@ use App\Encounter\Application\Plausibility\PlausibilityLookup;
 use App\Encounter\Application\Review\MatchDecisionException;
 use App\Encounter\Application\Review\SwapProposal;
 use App\Encounter\Contract\Assignment\EncounterAllocationAssignmentsInterface;
+use App\Encounter\Contract\Assignment\EncounterHospitalLockInterface;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\Domain\Entity\PlausibilitySnapshot;
@@ -55,6 +56,7 @@ final readonly class MatchDecider implements MatchDeciderInterface
         private AuditContext $auditContext,
         private ClockInterface $clock,
         private EncounterAllocationAssignmentsInterface $assignments,
+        private EncounterHospitalLockInterface $hospitalLock,
     ) {
     }
 
@@ -70,7 +72,7 @@ final readonly class MatchDecider implements MatchDeciderInterface
     public function confirm(int $hospitalId, int $allocationId, int $encounterId, User $user): ?int
     {
         return $this->entityManager->wrapInTransaction(function () use ($hospitalId, $allocationId, $encounterId, $user): ?int {
-            $this->matches->lockHospital($hospitalId);
+            $this->hospitalLock->lock($hospitalId);
             [$allocation, $matching] = $this->allocation($hospitalId, $allocationId);
             $this->assertEncounterOfHospital($hospitalId, $encounterId);
 
@@ -122,7 +124,7 @@ final readonly class MatchDecider implements MatchDeciderInterface
     public function reject(int $hospitalId, int $allocationId, int $encounterId, User $user): void
     {
         $this->entityManager->wrapInTransaction(function () use ($hospitalId, $allocationId, $encounterId, $user): void {
-            $this->matches->lockHospital($hospitalId);
+            $this->hospitalLock->lock($hospitalId);
             $this->allocation($hospitalId, $allocationId);
             $this->assertEncounterOfHospital($hospitalId, $encounterId);
 
@@ -157,7 +159,7 @@ final readonly class MatchDecider implements MatchDeciderInterface
     public function swap(int $hospitalId, int $allocationId, string $key, User $user): void
     {
         $this->entityManager->wrapInTransaction(function () use ($hospitalId, $allocationId, $key, $user): void {
-            $this->matches->lockHospital($hospitalId);
+            $this->hospitalLock->lock($hospitalId);
             [$allocation, $matching] = $this->allocation($hospitalId, $allocationId);
 
             $proposal = null;

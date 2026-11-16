@@ -67,6 +67,10 @@ final readonly class HospitalCourseCaseSectionProvider implements AllocationCase
             return [new AllocationCaseSection(self::KEY, '@Encounter/case_card/hospital_course.html.twig', [
                 'course' => null,
                 'record_sections' => $this->recordSections->forEncounter($encounterId),
+                // Without ED visit the ED match review cannot change the assignment; a reviewer can remove it here.
+                'can_unassign' => !$visit instanceof EdVisit && $this->authorizationChecker->isGranted(EncounterAttribute::REVIEW, $hospital),
+                'allocation_public_id' => $allocation->getPublicId(),
+                'allocation_id' => $allocationId,
             ])];
         }
 

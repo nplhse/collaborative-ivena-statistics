@@ -65,6 +65,34 @@ final readonly class EncounterInsertStatement
     }
 
     /**
+     * Refreshes a known visit from a reprocessed file (#1300): every ED value of the row; its identity (encounter,
+     * uid, hospital, key generation, fingerprint), owning import and creation time stay.
+     */
+    public static function forVisitUpdate(EntityManagerInterface $em, EdVisit $visit, int $encounterId): self
+    {
+        [$columns, $params, $types] = self::columns($em, EdVisit::class, $visit, ['encounter_id' => $encounterId]);
+        $keep = ['encounter_id', 'visit_uid', 'hospital_id', 'key_generation', 'visit_fingerprint', 'import_id', 'created_at'];
+
+        $assignments = [];
+        $setParams = [];
+        $setTypes = [];
+        foreach ($columns as $index => $column) {
+            if (\in_array($column, $keep, true)) {
+                continue;
+            }
+            $assignments[] = $column.' = ?';
+            $setParams[] = $params[$index];
+            $setTypes[] = $types[$index];
+        }
+
+        return new self(
+            sprintf('UPDATE ed_visit SET %s WHERE encounter_id = ?', implode(', ', $assignments)),
+            [...$setParams, $encounterId],
+            [...$setTypes, Type::getType(Types::INTEGER)],
+        );
+    }
+
+    /**
      * @param class-string       $class
      * @param array<string, int> $joinColumnValues values of owning to-one join columns by column name, instead of the related object's id
      *

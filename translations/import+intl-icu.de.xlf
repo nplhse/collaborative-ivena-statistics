@@ -627,11 +627,11 @@
       </trans-unit>
       <trans-unit id="imp8A59819E" resname="import.delete.modal.body.encounter">
         <source>import.delete.modal.body.encounter</source>
-        <target>Behandlungsdaten-Import „{name}“ löschen? Alle Besuche dieses Imports werden mit ihren IVENA-Verknüpfungen und Prüfentscheidungen, seinen abgelehnten Zeilen und der hochgeladenen Datei entfernt. Besuche anderer Importe bleiben erhalten. Das lässt sich nicht rückgängig machen.</target>
+        <target>Behandlungsdaten-Import „{name}“ löschen? Alle Besuche dieses Imports werden mit ihrem Zuordnungsverlauf und ihren Prüfentscheidungen, seinen abgelehnten Zeilen und der hochgeladenen Datei entfernt. Die Behandlungsfälle bleiben mit ihrer IVENA-Zuordnung und den Datensätzen anderer Importe erhalten, ebenso Besuche anderer Importe. Das lässt sich nicht rückgängig machen.</target>
       </trans-unit>
       <trans-unit id="impDEBC5472" resname="import.reprocess.modal.body.encounter">
         <source>import.reprocess.modal.body.encounter</source>
-        <target>Behandlungsdaten-Import „{name}“ neu verarbeiten? Zuerst werden alle Besuche dieses Imports mit ihren IVENA-Verknüpfungen und Prüfentscheidungen entfernt, dann wird die aufbewahrte Datei erneut importiert. Verknüpfungen und Prüfentscheidungen dieses Imports gehen verloren.</target>
+        <target>Behandlungsdaten-Import „{name}“ neu verarbeiten? Die aufbewahrte Datei wird erneut importiert: Unveränderte Besuche bleiben mit ihrer IVENA-Zuordnung und ihren Prüfentscheidungen erhalten, Besuche, die nicht mehr in der Datei stehen, werden entfernt, neue kommen hinzu. Schlägt der Lauf fehl, bleibt der bisherige Stand erhalten.</target>
       </trans-unit>
       <trans-unit id="imp1B9478E5" resname="label.import.encounter.fields">
         <source>label.import.encounter.fields</source>
