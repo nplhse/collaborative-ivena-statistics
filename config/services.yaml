@@ -80,6 +80,9 @@ services:
     App\Encounter\Contract\Assignment\EncounterAssignmentsInterface:
         alias: App\Encounter\Infrastructure\Assignment\EncounterAssignments
         public: true
+    App\Encounter\Contract\Assignment\EncounterHospitalLockInterface:
+        alias: App\Encounter\Infrastructure\Assignment\EncounterHospitalLock
+        public: true
 
     app.lock.pdo:
         class: PDO

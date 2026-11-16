@@ -106,4 +106,10 @@ final class ProbeSchemaHandler implements EncounterSchemaHandlerInterface
 
         return $known - \count($this->known);
     }
+
+    #[\Override]
+    public function attach(string $recordId, int $encounterId): bool
+    {
+        return false;
+    }
 }

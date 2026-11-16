@@ -52,4 +52,15 @@ interface EncounterSchemaHandlerInterface
      * returns the number of removed records.
      */
     public function removeForImport(int $importId): int;
+
+    /**
+     * Attaches one of its records that is still without encounter to $encounterId, inside the caller's
+     * transaction (manual decision or retry, #1307). Updates only an existing record whose encounter is
+     * still empty; returns whether exactly that record was updated, and false when the record is gone or
+     * already attached. A foreign key violation (the encounter was deleted meanwhile) is passed on.
+     *
+     * $recordId is the id the handler gave EncounterAssignmentsInterface::recordPending(). A schema that
+     * creates encounters and never keeps pending records returns false.
+     */
+    public function attach(string $recordId, int $encounterId): bool;
 }

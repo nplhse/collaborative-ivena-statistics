@@ -122,6 +122,15 @@ final readonly class EdVisitSchemaHandler implements EncounterSchemaHandlerInter
     }
 
     /**
+     * An ED visit is an encounter of its own and never waits for one (no pending records).
+     */
+    #[\Override]
+    public function attach(string $recordId, int $encounterId): bool
+    {
+        return false;
+    }
+
+    /**
      * @return bool whether the new visit is a suspected duplicate of at least one earlier visit
      */
     private function recordSuspectedDuplicates(int $importId, int $encounterId, int $line, string $anchorSource): bool
