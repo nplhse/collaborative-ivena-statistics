@@ -301,7 +301,25 @@ final class AssignmentRetrierTest extends KernelTestCase
         $this->connection()->executeStatement("INSERT INTO encounter_key_state (hospital_id, key_generation, retired_check_values, key_change_in_progress, created_at) VALUES (?, 1, '[]', true, NOW())", [$this->hospitalId()]);
 
         self::assertEquals(new AssignmentRetryResult(), $this->retrier()->retryHospital($this->hospitalId()));
+        self::assertEquals(new AssignmentRetryResult(), $this->retrier()->retryOne($this->hospitalId(), $this->stays['4']['pending']));
         self::assertNull($this->stayEncounter('4'));
+    }
+
+    public function testAnAssignedResultIsNeverStoredAsPending(): void
+    {
+        $rows = self::getContainer()->get(PendingAssignmentRows::class);
+        self::assertInstanceOf(PendingAssignmentRows::class, $rows);
+
+        $this->expectException(\LogicException::class);
+        $rows->reopen($this->stays['4']['pending'], AssignmentResult::assigned(new AssignmentCandidate($this->encounters['B'], CandidateReason::CaseKey)));
+    }
+
+    public function testTheCommandRefusesANegativeHospital(): void
+    {
+        $tester = new CommandTester(new Application(self::$kernel)->find('app:encounter:retry-assignments'));
+
+        self::assertSame(2, $tester->execute(['--hospital' => '-1']));
+        self::assertStringContainsString('Pass --hospital=<id> or leave it out.', $tester->getDisplay());
     }
 
     public function testTheCommandRetriesEveryHospitalWithWaitingRecords(): void
