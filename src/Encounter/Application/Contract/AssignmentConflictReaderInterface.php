@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Encounter\Application\Contract;
 
 use App\Encounter\Application\Assignment\AssignmentConflict;
+use App\Encounter\Application\Assignment\DeferredAssignment;
 
 /**
- * Open assignment conflicts for the read-only review page (ADR 037, #1274).
+ * Open assignment conflicts and deferred records for the conflict page (ADR 037, #1274, #1307).
  */
 interface AssignmentConflictReaderInterface
 {
@@ -26,4 +27,13 @@ interface AssignmentConflictReaderInterface
      * @return list<AssignmentConflict>
      */
     public function conflictsOf(int $hospitalId, int $limit): array;
+
+    public function countDeferredOf(int $hospitalId): int;
+
+    /**
+     * Records left unassigned for now, latest decision first.
+     *
+     * @return list<DeferredAssignment>
+     */
+    public function deferredOf(int $hospitalId, int $limit): array;
 }

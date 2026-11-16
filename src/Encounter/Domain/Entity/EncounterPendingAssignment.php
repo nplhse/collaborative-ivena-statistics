@@ -7,7 +7,9 @@ namespace App\Encounter\Domain\Entity;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Contract\Assignment\AssignmentCandidate;
 use App\Encounter\Contract\Assignment\AssignmentKind;
+use App\Encounter\Domain\Enum\PendingAssignmentStatus;
 use App\Import\Domain\Entity\Import;
+use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -19,8 +21,14 @@ use Doctrine\ORM\Mapping as ORM;
  * Belongs to the import of its record and goes with it (cascade on import deletion; the encounter
  * import remover also deletes it explicitly).
  *
- * Written through the ORM by EncounterAssignments and read with SQL (AssignmentConflictQuery), so the class
- * has no accessors until the decisions and retries (#1307) need them.
+ * Status `open` covers conflicts waiting for review and records without candidate; `deferred` is a
+ * conflict a reviewer left unassigned for now (#1307), with the state they saw (`seen_kind`,
+ * `seen_candidates`) and who decided when. Each manual decision is also kept in
+ * EncounterAssignmentDecision.
+ *
+ * Created through the ORM by EncounterAssignments; read and changed with SQL (AssignmentConflictQuery,
+ * AssignmentDecisions) inside the transaction that holds the encounter hospital lock, so the class has no
+ * accessors.
  *
  * @psalm-suppress UnusedProperty
  */
@@ -28,6 +36,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'encounter_pending_assignment')]
 #[ORM\UniqueConstraint(name: 'uniq_encounter_pending_record', fields: ['schema', 'recordId'])]
 #[ORM\Index(name: 'idx_encounter_pending_hospital_kind', fields: ['hospital', 'kind'])]
+#[ORM\Index(name: 'idx_encounter_pending_hospital_status', fields: ['hospital', 'status'])]
 class EncounterPendingAssignment
 {
     #[ORM\Id]
@@ -38,6 +47,24 @@ class EncounterPendingAssignment
     /** @var list<array{encounter_id: int, reason: string}> */
     #[ORM\Column(type: Types::JSON, options: ['jsonb' => true])]
     private array $candidates;
+
+    #[ORM\Column(length: 16, enumType: PendingAssignmentStatus::class, options: ['default' => 'open'])]
+    private PendingAssignmentStatus $status = PendingAssignmentStatus::Open;
+
+    /** Kind of the conflict the reviewer deferred. */
+    #[ORM\Column(length: 16, nullable: true, enumType: AssignmentKind::class)]
+    private ?AssignmentKind $seenKind = null;
+
+    /** @var list<array{encounter_id: int, reason: string}>|null candidates of the conflict the reviewer deferred */
+    #[ORM\Column(type: Types::JSON, nullable: true, options: ['jsonb' => true])]
+    private ?array $seenCandidates = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?User $decidedBy = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $decidedAt = null;
 
     /**
      * @param list<AssignmentCandidate> $candidates

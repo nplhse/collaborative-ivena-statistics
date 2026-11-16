@@ -16,9 +16,10 @@ use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatableInterface;
 
 /**
- * Open assignment conflicts of a hospital, read only (ADR 037, #1274): records of attaching schemas whose
- * case pseudonym matches several encounters or contradicts their allocation link, with the candidates.
- * The decisions (assign to a candidate, leave unassigned for now) follow in #1307.
+ * Open assignment conflicts of a hospital (ADR 037, #1274): records of attaching schemas whose case
+ * pseudonym matches several encounters or contradicts their allocation link, with the candidates and the two
+ * decisions (#1307, DecideAssignmentConflictController). Below, read only, the records left unassigned
+ * for now with reviewer and time.
  */
 #[IsGranted('ROLE_ENCOUNTER_BETA')]
 final class ListAssignmentConflictsController extends AbstractController
@@ -38,15 +39,18 @@ final class ListAssignmentConflictsController extends AbstractController
 
         $hospitalId = (int) $hospital->getId();
         $conflicts = $this->conflicts->conflictsOf($hospitalId, self::LIST_LIMIT);
+        $deferred = $this->conflicts->deferredOf($hospitalId, self::LIST_LIMIT);
         $labels = [];
-        foreach ($conflicts as $conflict) {
-            $labels[$conflict->schema] ??= $this->schemaLabel($conflict->schema);
+        foreach ([...$conflicts, ...$deferred] as $record) {
+            $labels[$record->schema] ??= $this->schemaLabel($record->schema);
         }
 
         return $this->render('@Encounter/assignment/conflicts.html.twig', [
             'hospital' => $hospital,
             'conflicts' => $conflicts,
             'total' => $this->conflicts->countOf($hospitalId),
+            'deferred' => $deferred,
+            'deferred_total' => $this->conflicts->countDeferredOf($hospitalId),
             'schema_labels' => $labels,
         ]);
     }

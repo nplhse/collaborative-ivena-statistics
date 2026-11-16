@@ -126,6 +126,15 @@ final readonly class InpatientStayHandler implements EncounterSchemaHandlerInter
         return (int) $this->connection->executeStatement('DELETE FROM test_inpatient_stay WHERE import_id = ?', [$importId]);
     }
 
+    #[\Override]
+    public function attach(string $recordId, int $encounterId): bool
+    {
+        return 1 === $this->connection->executeStatement(
+            'UPDATE test_inpatient_stay SET encounter_id = ? WHERE id = ? AND encounter_id IS NULL',
+            [$encounterId, (int) $recordId],
+        );
+    }
+
     /**
      * @param list<RowError> $errors
      */
