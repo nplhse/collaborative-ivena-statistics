@@ -137,10 +137,10 @@ final class AssignmentDeciderTest extends KernelTestCase
         $seen = $this->seen(AssignmentKind::Ambiguous, 'B', 'C');
         $this->changeCase('C', 'other');
 
-        self::assertSame(AssignmentDecisionOutcome::Changed, $this->decider()->assign($this->hospitalId(), $this->pendingId, $seen, $this->encounters['B'], $this->reviewer));
-        self::assertSame(AssignmentDecisionOutcome::Changed, $this->decider()->defer($this->hospitalId(), $this->pendingId, $seen, $this->reviewer));
+        self::assertSame(AssignmentDecisionOutcome::UniqueCandidate, $this->decider()->assign($this->hospitalId(), $this->pendingId, $seen, $this->encounters['B'], $this->reviewer));
+        self::assertSame(AssignmentDecisionOutcome::UniqueCandidate, $this->decider()->defer($this->hospitalId(), $this->pendingId, $seen, $this->reviewer));
 
-        self::assertNull($this->stayEncounter(), 'A unique candidate is not attached by a manual action.');
+        self::assertNull($this->stayEncounter(), 'A unique candidate is not attached by a manual action; the targeted retry does that.');
         $row = $this->pendingRow();
         self::assertSame(['open', 'ambiguous'], [$row['status'], $row['kind']]);
         self::assertSame($this->ids('B', 'C'), $this->candidateIds($row['candidates']));

@@ -15,6 +15,11 @@ enum AssignmentDecisionOutcome: string
     case NotOpen = 'not_open';
     /** The kind or the candidates differ from what the reviewer saw; the record now shows the fresh state. */
     case Changed = 'changed';
+    /**
+     * The assignment now finds exactly one encounter; the record is left as it is, and the caller starts the
+     * targeted retry for it after the commit.
+     */
+    case UniqueCandidate = 'unique_candidate';
     /** The chosen encounter is not one of the conflict's candidates. */
     case InvalidCandidate = 'invalid_candidate';
     /** The schema's record is gone or already attached, or the schema is no longer registered. */

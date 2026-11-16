@@ -229,13 +229,38 @@ differs from what the reviewer saw, nothing is decided and the page shows the cu
 warning. Each decision is kept in `encounter_assignment_decision` (who, when, the conflict seen, the chosen
 encounter). Deleting or reprocessing the import removes its pending records and decisions; reprocessing
 keeps the import row, so the encounter import remover deletes them explicitly, and the conflicts come back
-as before any decision. Records without candidate are only counted; their automatic retry follows with
-the second part of #1307.
+as before any decision. Records without candidate are only counted, not listed.
+
+If the assignment now finds exactly one encounter (for example a candidate left the case), the action also
+decides nothing; after its commit it starts the **targeted retry** of that record
+(`RetryEncounterAssignmentMessage`), which attaches it, so that the conflict cannot stay open in this state.
+
+**Automatic retries** (#1307, `AssignmentRetrier`): after every encounter import that added encounters
+(`EncountersImported`, after the run's commit) the records of the hospital's current key generation that
+are open without candidate or left unassigned for now are tried again (`RetryEncounterAssignmentsMessage`,
+`async_priority_low`). Open conflicts wait for review. Per record, with the stored request:
+
+| Fresh result | Open, no candidate | Left unassigned for now |
+|---|---|---|
+| exactly one encounter (`assigned`) | attached, pending record removed | attached, pending record removed |
+| no candidate | unchanged | open again without candidate, candidates emptied |
+| conflict equal to the one the reviewer saw | – | unchanged |
+| any other conflict | open conflict | open conflict with the new candidates |
+
+Only `assigned` attaches; a contradictory result stays a conflict even with a single candidate.
+Retries record no decision (the earlier decision stays in the history) and do not change the import
+report. Nothing is retried while a key change is in progress, nor records of an older key generation. A
+record or encounter that changed meanwhile (record gone or already attached, encounter deleted) is
+skipped and stays for the next retry. A record that names an IVENA allocation is retried after the next
+encounter import or by the command; a matcher run that links the allocation later does not start a retry
+yet. Manual run: `php bin/console app:encounter:retry-assignments [--hospital=<id>]` (all hospitals with
+waiting records when left out).
 
 The **encounter hospital lock** (`EncounterHospitalLockInterface`, a transaction-level advisory lock per
-hospital) is taken by these decisions. Import write, reprocessing and the matcher take it only with
-#1300; until then they can run in parallel, which is why the decisions re-check the record and rely on
-the foreign keys (a candidate deleted meanwhile rolls the decision back).
+hospital) is taken by the decisions and the retries. Import write, reprocessing and the matcher take it
+only with #1300; until then they can run in parallel, which is why decisions and retries re-check the
+record and rely on the foreign keys (a candidate deleted meanwhile rolls the decision or the record's
+retry back).
 
 ### Upload file retention
 
