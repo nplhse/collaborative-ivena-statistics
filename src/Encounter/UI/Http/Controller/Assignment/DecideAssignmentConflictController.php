@@ -8,11 +8,13 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Application\Assignment\AssignmentDecisionOutcome;
 use App\Encounter\Application\Assignment\AssignmentState;
 use App\Encounter\Application\Contract\AssignmentDeciderInterface;
+use App\Encounter\Application\Message\RetryEncounterAssignmentMessage;
 use App\Encounter\Application\Security\EncounterAttribute;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
@@ -20,13 +22,15 @@ use Symfony\Component\Translation\TranslatableMessage;
 /**
  * The two manual decisions on an open assignment conflict (ADR 037, #1307): assign the record to one of the
  * candidates, or leave it unassigned for now. The form carries the conflict as the reviewer saw it (kind and
- * candidate ids); when the conflict changed meanwhile nothing is decided and the page shows the new state.
+ * candidate ids); when the conflict changed meanwhile nothing is decided and the page shows the new state. If
+ * the assignment now finds a unique encounter, the targeted retry is dispatched after the decision's commit.
  */
 #[IsGranted('ROLE_ENCOUNTER_BETA')]
 final class DecideAssignmentConflictController extends AbstractController
 {
     public function __construct(
         private readonly AssignmentDeciderInterface $decider,
+        private readonly MessageBusInterface $bus,
     ) {
     }
 
@@ -55,9 +59,19 @@ final class DecideAssignmentConflictController extends AbstractController
             ? $this->decider->assign($hospitalId, $pendingId, $seen, $request->request->getInt('encounter'), $user)
             : $this->decider->defer($hospitalId, $pendingId, $seen, $user);
 
+        if (AssignmentDecisionOutcome::UniqueCandidate === $outcome) {
+            // The decision transaction has committed: the targeted retry attaches the record to its now unique
+            // encounter, so that the conflict cannot stay open in this state.
+            $this->bus->dispatch(new RetryEncounterAssignmentMessage($hospitalId, $pendingId));
+        }
+
         $this->addFlash(
             AssignmentDecisionOutcome::Decided === $outcome ? 'success' : 'warning',
-            new TranslatableMessage(AssignmentDecisionOutcome::Decided === $outcome ? 'encounter.assignment.flash.'.$action : 'encounter.assignment.flash.'.$outcome->value, domain: 'encounter'),
+            new TranslatableMessage(match ($outcome) {
+                AssignmentDecisionOutcome::Decided => 'encounter.assignment.flash.'.$action,
+                AssignmentDecisionOutcome::UniqueCandidate => 'encounter.assignment.flash.changed',
+                default => 'encounter.assignment.flash.'.$outcome->value,
+            }, domain: 'encounter'),
         );
 
         return $back;

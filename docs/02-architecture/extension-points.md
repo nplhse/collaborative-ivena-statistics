@@ -264,9 +264,9 @@ unassigned record with its request and candidates in `encounter_pending_assignme
 transaction. Reviewers decide conflicts on the conflict page (#1307): the core then calls the handler's
 `attach($recordId, $encounterId)`, which must update only an existing record of the schema that is still
 without encounter and return whether it did; the pending record is removed only after that. Automatic
-retries follow with the second part of #1307. Writes that decide the encounter of a record take
-`EncounterHospitalLockInterface` (one lock per hospital, inside the transaction); today the decisions do,
-import write, reprocessing and the matcher join with #1300. Handlers count their results with
+retries after encounter imports use the same method (`AssignmentRetrier`). Writes that decide the encounter
+of a record take `EncounterHospitalLockInterface` (one lock per hospital, inside the transaction); today
+the decisions and retries do, import write, reprocessing and the matcher join with #1300. Handlers count their results with
 `AssignmentCounts` and return them in `SchemaWriteResult::$assignments`: the import report shows assigned,
 unassigned (no candidate) and conflicts (ambiguous or contradictory). Record tables reference `encounter`
 with ON DELETE RESTRICT; `EncounterAttachedRecordsGuard` (above) finds them in the database catalog.

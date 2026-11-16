@@ -4,8 +4,8 @@
 
 **Status:** review for #1273, decision [ADR 037](../../02-architecture/decisions/037-encounter-case-hub-and-schema-plugins.md)
 (accepted). Part 1 of the implementation plan is done in #1274 (pull requests #1316, #1321, #1329, #1336,
-#1341); part 2 follows in #1300, the manual conflict decisions in #1307 and the generic data preparation tool in
-#1301. The trace of the MTS workflow and the findings describe the state before #1274.
+#1341); the manual conflict decisions and retries are done in #1307 (pull requests #1358 and the retries
+PR); part 2 follows in #1300 and the generic data preparation tool in #1301. The trace of the MTS workflow and the findings describe the state before #1274.
 
 ## Question
 
