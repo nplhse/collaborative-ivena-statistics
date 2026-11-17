@@ -1082,7 +1082,7 @@ beta role, or `ROLE_ADMIN`); everyone else sees the case file without it.
   checked `VIEW_CASES` before; each schema adds one query at most.
 
 The clinical blocks (triage, process times, timeline, vitals, disposition) are Twig macros in
-`@Encounter/visit/_course_macros.html.twig`, shared with the visit detail page.
+`@EdVisit/visit/_course_macros.html.twig`, shared with the visit detail page.
 
 ### Visit detail page
 
@@ -1188,7 +1188,7 @@ on Encounter.
   codes already stored in `encounter` (first seen = creation time of the oldest encounter with the code);
   safe to run again. Run it once when releasing #1157.
 - **Catalog for the tool (#1157).** `GET /data-prep/mts-catalog.json` (public, read only) serves the curated
-  entries and the aliases to them (provisional entries stay off the public endpoint until a person curates them); the tool keeps `src/Encounter/Application/Catalog/mts-de.json` as offline
+  entries and the aliases to them (provisional entries stay off the public endpoint until a person curates them); the tool keeps `plugins/ed-visit/src/Application/Catalog/mts-de.json` as offline
   fallback and writes the code of the source label, also for an alias
   ([data-preparation-tool.md](data-preparation-tool.md#mts-catalog)).
 - **Transfer to another instance (#1198).** `app:encounter:curation:export` / `app:encounter:curation:import`

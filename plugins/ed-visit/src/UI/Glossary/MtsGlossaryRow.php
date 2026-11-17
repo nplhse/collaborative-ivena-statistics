@@ -1,0 +1,27 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Cois\Plugin\EdVisit\UI\Glossary;
+
+use Cois\Plugin\EdVisit\Application\Glossary\MtsCount;
+
+/**
+ * One diagram or indicator row of the MTS glossary. `germanName` is set when `name` is an English
+ * name; `inCatalog` is false for indicator codes seen in data but not listed in the MTS catalog; `assigned` is true
+ * for an indicator assigned to the diagram of a diagram page (catalog definition, ADR 032).
+ *
+ * @psalm-suppress PossiblyUnusedProperty Read by the glossary templates.
+ */
+final readonly class MtsGlossaryRow
+{
+    public function __construct(
+        public string $code,
+        public string $name,
+        public ?string $germanName,
+        public ?MtsCount $count = null,
+        public bool $inCatalog = true,
+        public bool $assigned = false,
+    ) {
+    }
+}

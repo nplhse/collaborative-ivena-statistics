@@ -2,8 +2,8 @@
 
 {# Encounter data overview (#1055): one hospital, statistics period; figures from the Encounter context. #}
 {% set d = 'encounter' %}
-{% set threshold = constant('App\\Encounter\\Application\\Glossary\\MtsCount::THRESHOLD') %}
-{% set max_hours = constant('App\\Encounter\\Application\\Overview\\ProcessInterval::MAX_PLAUSIBLE_MINUTES') / 60 %}
+{% set threshold = constant('Cois\\Plugin\\EdVisit\\Application\\Glossary\\MtsCount::THRESHOLD') %}
+{% set max_hours = constant('Cois\\Plugin\\EdVisit\\Application\\Overview\\ProcessInterval::MAX_PLAUSIBLE_MINUTES') / 60 %}
 
 {% block title %}{{ 'stats.encounter.heading'|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
 

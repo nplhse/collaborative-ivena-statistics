@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Encounter\UI\Http\Controller\DataPrep;
 
 use App\Encounter\Application\Contract\DepartmentCatalogInterface;
-use App\Encounter\Domain\Enum\CareLevel;
-use App\Encounter\Domain\Enum\Disposition;
 use App\Encounter\UI\DataPrep\LocalMapFiles;
+use Cois\Plugin\EdVisit\Domain\Enum\CareLevel;
+use Cois\Plugin\EdVisit\Domain\Enum\Disposition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;

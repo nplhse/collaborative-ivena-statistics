@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Encounter\Application;
 
-use App\Encounter\Application\Dimension\EdVisitDimension;
 use App\Encounter\Contract\Schema\EncounterField;
+use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
 
 /**
  * One synthetic export of a hospital: the visits whose day lies in its range, as the source showed

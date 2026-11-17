@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Encounter\Infrastructure\Query;
 
 use App\Encounter\Application\Contract\EncounterKeyChangeSummaryReaderInterface;
-use App\Encounter\Domain\Enum\MatchStatus;
+use Cois\Plugin\EdVisit\Domain\Enum\MatchStatus;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 

@@ -290,8 +290,8 @@ lint-trans: ## Lint EN + DE translation contents
 lint-trans-de: ## Lint DE translation contents
 	@$(CONSOLE) lint:translations --locale=de
 
-lint-templates: ## Lint Twig template syntax (templates/ and src/)
-	@$(CONSOLE) lint:twig templates src --env=prod
+lint-templates: ## Lint Twig template syntax (templates/, src/ and plugin templates)
+	@$(CONSOLE) lint:twig templates src plugins/ed-visit/templates --env=prod
 
 # 3. Code style and refactoring (fix / check)
 swiss-knife: ## Apply Swiss Knife fixes (commented code, finalize classes)

@@ -6,9 +6,9 @@ namespace App\Tests\Support\Encounter;
 
 use App\Allocation\Domain\Entity\Allocation;
 use App\Encounter\Domain\Entity\Encounter;
-use App\Encounter\Domain\Entity\EncounterMatch;
 use App\Encounter\Domain\Enum\AnchorSource;
-use App\Encounter\Domain\Enum\MatchStatus;
+use Cois\Plugin\EdVisit\Domain\Entity\EncounterMatch;
+use Cois\Plugin\EdVisit\Domain\Enum\MatchStatus;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 

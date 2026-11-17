@@ -6,22 +6,22 @@ namespace App\Tests\Support\Encounter;
 
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Hospital;
-use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\Encounter;
-use App\Encounter\Domain\Entity\EncounterDisposition;
-use App\Encounter\Domain\Entity\EncounterMatch;
-use App\Encounter\Domain\Entity\EncounterTimes;
-use App\Encounter\Domain\Entity\Triage;
 use App\Encounter\Domain\Enum\AnchorSource;
-use App\Encounter\Domain\Enum\ArrivalMode;
-use App\Encounter\Domain\Enum\CareLevel;
-use App\Encounter\Domain\Enum\Disposition;
-use App\Encounter\Domain\Enum\MatchStatus;
-use App\Encounter\Domain\Enum\MtsCategory;
 use App\Encounter\Domain\Enum\Sex;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
 use App\User\Domain\Entity\User;
+use Cois\Plugin\EdVisit\Domain\Entity\EdVisit;
+use Cois\Plugin\EdVisit\Domain\Entity\EncounterDisposition;
+use Cois\Plugin\EdVisit\Domain\Entity\EncounterMatch;
+use Cois\Plugin\EdVisit\Domain\Entity\EncounterTimes;
+use Cois\Plugin\EdVisit\Domain\Entity\Triage;
+use Cois\Plugin\EdVisit\Domain\Enum\ArrivalMode;
+use Cois\Plugin\EdVisit\Domain\Enum\CareLevel;
+use Cois\Plugin\EdVisit\Domain\Enum\Disposition;
+use Cois\Plugin\EdVisit\Domain\Enum\MatchStatus;
+use Cois\Plugin\EdVisit\Domain\Enum\MtsCategory;
 
 /**
  * Hand-checkable data of the encounter overview (#1055). Period under test: 10–12 October 2026.

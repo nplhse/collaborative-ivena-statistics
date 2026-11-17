@@ -25,6 +25,7 @@ use App\Import\Application\Service\ImportRunCommitGuard;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportReject;
 use App\Import\Domain\ValueObject\ImportDataCoverage;
+use Cois\Plugin\EdVisit\Infrastructure\Import\EdVisitWriteResult;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 

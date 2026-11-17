@@ -37,7 +37,7 @@ final class EdVisitBundleTest extends KernelTestCase
         self::assertInstanceOf(MappingDriver::class, $driver);
         $driver = $driver->getDriver();
         self::assertInstanceOf(MappingDriverChain::class, $driver);
-        self::assertArrayHasKey('Cois\Plugin\EdVisit\Entity', $driver->getDrivers());
+        self::assertArrayHasKey('Cois\Plugin\EdVisit\Domain\Entity', $driver->getDrivers());
 
         $migrations = self::getContainer()->get('doctrine.migrations.dependency_factory');
         self::assertInstanceOf(DependencyFactory::class, $migrations);

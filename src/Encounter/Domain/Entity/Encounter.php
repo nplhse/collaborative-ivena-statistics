@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Domain\Enum\Sex;
 use App\User\Domain\Entity\User;
+use Cois\Plugin\EdVisit\Domain\Entity\EncounterMatch;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Clock\Clock;

@@ -7,8 +7,8 @@ namespace App\Encounter\UI\Access;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Application\Security\EncounterAttribute;
 use App\Encounter\Contract\Access\EncounterAccessInterface;
-use App\Encounter\UI\VisitList\VisitListHospitals;
 use App\User\Domain\Entity\User;
+use Cois\Plugin\EdVisit\UI\VisitList\VisitListHospitals;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 

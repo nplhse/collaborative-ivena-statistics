@@ -5,7 +5,7 @@
 ## Context
 
 The Manchester Triage System (MTS) catalog is a JSON file in the code
-(`src/Encounter/Application/Catalog/mts-de.json`, read by `MtsCatalog`, #1056). The data preparation tool
+(`plugins/ed-visit/src/Application/Catalog/mts-de.json`, read by `MtsCatalog`, #1056). The data preparation tool
 bundles it, the MTS glossary and the encounter pages read it. It holds the diagrams and indicators seen in
 one analysed ORBIS export (40 diagrams, about 70 indicators); the full MTS has more.
 

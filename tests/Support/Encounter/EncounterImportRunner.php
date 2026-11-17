@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Support\Encounter;
 
 use App\Allocation\Domain\Entity\Hospital;
-use App\Encounter\Application\Dimension\EdVisitDimension;
 use App\Encounter\Application\Import\ImportEncountersDispatcher;
 use App\Encounter\Domain\Entity\EncounterImport;
 use App\Import\Domain\Entity\Import;
@@ -13,6 +12,7 @@ use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\User\Domain\Entity\User;
+use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Filesystem\Filesystem;

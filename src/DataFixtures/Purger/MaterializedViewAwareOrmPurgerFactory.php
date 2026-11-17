@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Purger;
 
-use App\Encounter\Application\Plausibility\PlausibilityCuration;
 use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewDropper;
 use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups;
 use App\Statistics\Infrastructure\Query\Overview\OverviewMaterializedViewsInstaller;
+use Cois\Plugin\EdVisit\Application\Plausibility\PlausibilityCuration;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
 use Doctrine\Bundle\FixturesBundle\Purger\PurgerFactory;
 use Doctrine\Common\DataFixtures\Purger\ORMPurgerInterface;

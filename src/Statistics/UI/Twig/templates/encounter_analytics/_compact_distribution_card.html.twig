@@ -14,7 +14,7 @@
                 <span class="legend {{ colors[seg.key] ?? 'bg-secondary' }}"></span>
                 <span class="text-truncate">{{ labels[seg.key] ?? seg.key }}</span>
                 <span class="ms-auto text-secondary text-nowrap">
-                    <span data-testid="encounter-count">{{ include('@Encounter/glossary/_count.html.twig', {count: seg.count}) }}</span>
+                    <span data-testid="encounter-count">{{ include('@EdVisit/glossary/_count.html.twig', {count: seg.count}) }}</span>
                     {% if seg.share is not null %}&nbsp;&nbsp;{{ seg.share|format_number({fraction_digit: 1}) }}&nbsp;%{% endif %}
                 </span>
             </div>

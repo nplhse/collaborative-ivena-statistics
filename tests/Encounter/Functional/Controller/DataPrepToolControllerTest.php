@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Tests\Encounter\Functional\Controller;
 
-use App\Encounter\Application\Catalog\MtsCatalogCuration;
-use App\Encounter\Application\Catalog\MtsCatalogFirstSeenWriter;
-use App\Encounter\Domain\Entity\MtsAlias;
-use App\Encounter\Domain\Entity\MtsDiagram;
-use App\Encounter\Domain\Enum\MtsCatalogKind;
-use App\Encounter\Domain\Enum\MtsCatalogSource;
-use App\Encounter\Domain\Enum\MtsCatalogStatus;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
+use Cois\Plugin\EdVisit\Application\Catalog\MtsCatalogCuration;
+use Cois\Plugin\EdVisit\Application\Catalog\MtsCatalogFirstSeenWriter;
+use Cois\Plugin\EdVisit\Domain\Entity\MtsAlias;
+use Cois\Plugin\EdVisit\Domain\Entity\MtsDiagram;
+use Cois\Plugin\EdVisit\Domain\Enum\MtsCatalogKind;
+use Cois\Plugin\EdVisit\Domain\Enum\MtsCatalogSource;
+use Cois\Plugin\EdVisit\Domain\Enum\MtsCatalogStatus;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Encounter\UI\DataPrep;
 
-use App\Encounter\Application\Catalog\MtsCatalog;
+use Cois\Plugin\EdVisit\Application\Catalog\MtsCatalog;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;

@@ -25,7 +25,7 @@ never leave the computer.
 | Core (parse, transform, HMAC, content check; no DOM, no network) | `src/Encounter/UI/DataPrep/js/data-prep-core.js` |
 | Page logic | `src/Encounter/UI/DataPrep/js/data-prep-app.js` |
 | Public profiles (declarative JSON) | `src/Encounter/UI/DataPrep/profiles/` |
-| MTS catalog: loaded at start from `GET /data-prep/mts-catalog.json` (the database catalog, ADR 032); bundled copy as offline fallback | endpoint `MtsCatalogForDataPrepController` (`MtsCatalog::toolCatalog()`); bundled `src/Encounter/Application/Catalog/mts-de.json` (`MtsCatalog::bundledToolCatalog()`) |
+| MTS catalog: loaded at start from `GET /data-prep/mts-catalog.json` (the database catalog, ADR 032); bundled copy as offline fallback | endpoint `MtsCatalogForDataPrepController` (`MtsCatalog::toolCatalog()`); bundled `plugins/ed-visit/src/Application/Catalog/mts-de.json` (`MtsCatalog::bundledToolCatalog()`) |
 | `ed_visit` v1 field contract for the tool | `src/Encounter/UI/DataPrep/schema/ed_visit.v1.json` (must equal `EdVisitDimension`, checked by `DataPrepContractTest`) |
 | Template | `src/Encounter/UI/Twig/templates/data_prep/tool.html.twig` |
 | Renderer, version, changelog | `DataPrepToolRenderer`, `DataPrepRelease`, `DataPrepChangelog` in `src/Encounter/UI/DataPrep/` |
@@ -291,7 +291,7 @@ content again. The check reduces the risk, it does not find every identifier (AD
    `timestamp`, `catalog`, `integer`, `vital`, `bloodPressure`, `flag`, `codeSet`, `disposition`,
    `department`) and `dropped`.
 2. Register it in `DataPrepToolRenderer::PROFILES`. The renderer bundles the MTS catalog file
-   (`MtsCatalog::bundledToolCatalog()`) as offline fallback; a change to `src/Encounter/Application/Catalog/mts-de.json`
+   (`MtsCatalog::bundledToolCatalog()`) as offline fallback; a change to `plugins/ed-visit/src/Application/Catalog/mts-de.json`
    changes the tool only. The tool, the MTS glossary and the import read the catalog in the database, maintained
    in the back office (ADR 032).
 3. Add a synthetic sample and tests; `DataPrepContractTest` checks the codes against the schema.

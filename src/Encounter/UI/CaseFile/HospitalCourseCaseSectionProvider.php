@@ -8,16 +8,16 @@ use App\Allocation\Application\CaseFile\AllocationCaseSection;
 use App\Allocation\Application\CaseFile\AllocationCaseSectionProviderInterface;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Hospital;
-use App\Encounter\Application\CaseCard\HospitalCourseFactory;
-use App\Encounter\Application\Catalog\MtsCatalog;
-use App\Encounter\Application\Catalog\MtsCatalogEntry;
-use App\Encounter\Application\Contract\HospitalCourseReaderInterface;
 use App\Encounter\Application\Display\RecordSectionRegistry;
 use App\Encounter\Application\Security\EncounterAttribute;
 use App\Encounter\Contract\Assignment\EncounterAllocationAssignmentsInterface;
-use App\Encounter\Domain\Entity\EdVisit;
-use App\Encounter\Domain\Entity\EncounterMatch;
-use App\Encounter\UI\Glossary\MtsNames;
+use Cois\Plugin\EdVisit\Application\CaseCard\HospitalCourseFactory;
+use Cois\Plugin\EdVisit\Application\Catalog\MtsCatalog;
+use Cois\Plugin\EdVisit\Application\Catalog\MtsCatalogEntry;
+use Cois\Plugin\EdVisit\Application\Contract\HospitalCourseReaderInterface;
+use Cois\Plugin\EdVisit\Domain\Entity\EdVisit;
+use Cois\Plugin\EdVisit\Domain\Entity\EncounterMatch;
+use Cois\Plugin\EdVisit\UI\Glossary\MtsNames;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**

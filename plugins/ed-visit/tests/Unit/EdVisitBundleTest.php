@@ -29,14 +29,14 @@ final class EdVisitBundleTest extends TestCase
         self::assertSame([['orm' => ['mappings' => ['EdVisit' => [
             'type' => 'attribute',
             'is_bundle' => false,
-            'dir' => $root.'/src/Entity',
-            'prefix' => 'Cois\Plugin\EdVisit\Entity',
+            'dir' => $root.'/src/Domain/Entity',
+            'prefix' => 'Cois\Plugin\EdVisit\Domain\Entity',
         ]]]]], $container->getExtensionConfig('doctrine'));
         self::assertSame([['migrations_paths' => ['Cois\Plugin\EdVisit\Migrations' => $root.'/migrations']]], $container->getExtensionConfig('doctrine_migrations'));
         self::assertSame([['asset_mapper' => ['paths' => [$root.'/assets']]]], $container->getExtensionConfig('framework'));
         self::assertSame([['controller_paths' => [$root.'/assets/controllers']]], $container->getExtensionConfig('stimulus'));
 
-        foreach (['/src/Entity', '/migrations', '/assets/controllers'] as $directory) {
+        foreach (['/src/Domain/Entity', '/migrations', '/assets/controllers'] as $directory) {
             self::assertDirectoryExists($root.$directory);
         }
     }

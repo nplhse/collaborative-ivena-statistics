@@ -8,7 +8,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-1 gap-2">
                     <span class="text-truncate">{{ labels[row.key] ?? row.key }}</span>
                     <span class="text-secondary text-nowrap">
-                        <span data-testid="encounter-count">{{ include('@Encounter/glossary/_count.html.twig', {count: row.count}) }}</span>
+                        <span data-testid="encounter-count">{{ include('@EdVisit/glossary/_count.html.twig', {count: row.count}) }}</span>
                         {% if row.share is not null %}&nbsp;&nbsp;{{ row.share|format_number({fraction_digit: 1}) }}&nbsp;%{% endif %}
                     </span>
                 </div>

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Encounter\Application;
 
-use App\Encounter\Application\Dimension\EdVisitDimension;
+use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
 
 /**
  * A pseudonym key for synthetic encounter data and the keyed values of `ed-visit:v1` (#1052).
