@@ -9,6 +9,8 @@ use App\Encounter\Contract\DataPrep\DataPrepCatalog;
 use App\Encounter\Contract\DataPrep\DataPrepContributionInterface;
 use App\Encounter\Contract\DataPrep\DataPrepLocalMap;
 use App\Encounter\UI\DataPrep\DataPrepContributions;
+use App\Encounter\UI\DataPrep\DataPrepRelease;
+use App\Encounter\UI\DataPrep\DataPrepToolRenderer;
 use App\Encounter\UI\DataPrep\HideDataPrepWithoutContributionsListener;
 use App\Encounter\UI\Navigation\DataPrepToolProvider;
 use App\Tests\Fixtures\Plugin\InpatientStay\InpatientStayDataPrepContribution;
@@ -19,7 +21,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Twig\Environment;
 
 /**
  * The registry of data preparation contributions (#1301): order by schema, never by registration; validation of
@@ -97,6 +101,38 @@ final class DataPrepContributionsTest extends TestCase
         $this->registry([$this->contribution('probe', localMap: $map), $this->contribution('inpatient_stay', localMap: $map)])->localMap();
     }
 
+    public function testASchemaFileOfAnotherSchemaIsRefused(): void
+    {
+        $this->expectExceptionMessage('does not describe a version of schema "probe"');
+        $this->registry([$this->contribution('probe', schemaExtra: ['schema' => 'inpatient_stay'])])->schemas();
+    }
+
+    public function testTheOneLocalMapIsTheToolsAndUnreadableFilesAreReported(): void
+    {
+        $map = new DataPrepLocalMap('t', 'e');
+        self::assertSame($map, $this->registry([$this->contribution('probe', localMap: $map), new InpatientStayDataPrepContribution()])->localMap());
+        self::assertNull($this->registry([new InpatientStayDataPrepContribution()])->localMap());
+
+        $this->expectExceptionMessage('Cannot read data preparation file');
+        $this->registry([])->read($this->directory.'/missing.json');
+    }
+
+    public function testTheRendererRefusesAScriptWithAClosingScriptTag(): void
+    {
+        $script = $this->directory.'/module.js';
+        file_put_contents($script, "console.log('</script>');");
+        $renderer = new DataPrepToolRenderer(
+            $this->createStub(Environment::class),
+            $this->createStub(UrlGeneratorInterface::class),
+            new DataPrepRelease('1.3.0', '1.0.0', '2026-11-17'),
+            $this->registry([$this->contribution('probe', script: $script)]),
+            \dirname(__DIR__, 5).'/src/Encounter/UI/DataPrep',
+        );
+
+        $this->expectExceptionMessage('must not contain a closing script tag');
+        $renderer->render();
+    }
+
     public function testTwoContributionsForOneSchemaAreRefused(): void
     {
         $this->expectExceptionMessage('Two data preparation contributions for schema "inpatient_stay"');
@@ -147,7 +183,7 @@ final class DataPrepContributionsTest extends TestCase
      * @param array<string, mixed>  $schemaExtra
      * @param list<DataPrepCatalog> $catalogs
      */
-    private function contribution(string $schema, array $profiles = [], ?string $profileSchema = null, array $schemaExtra = [], array $catalogs = [], ?DataPrepLocalMap $localMap = null): DataPrepContributionInterface
+    private function contribution(string $schema, array $profiles = [], ?string $profileSchema = null, array $schemaExtra = [], array $catalogs = [], ?DataPrepLocalMap $localMap = null, ?string $script = null): DataPrepContributionInterface
     {
         $schemaFile = $this->directory.'/'.$schema.'.json';
         file_put_contents($schemaFile, json_encode(['schema' => $schema, 'version' => 1, 'fields' => [], ...$schemaExtra], \JSON_THROW_ON_ERROR));
@@ -157,12 +193,12 @@ final class DataPrepContributionsTest extends TestCase
             file_put_contents($file, json_encode(['id' => $id, 'schema' => $profileSchema ?? $schema], \JSON_THROW_ON_ERROR));
         }
 
-        return new readonly class($schema, $schemaFile, $profileFiles, $catalogs, $localMap) implements DataPrepContributionInterface {
+        return new readonly class($schema, $schemaFile, $profileFiles, $catalogs, $localMap, $script) implements DataPrepContributionInterface {
             /**
              * @param list<string>          $profileFiles
              * @param list<DataPrepCatalog> $catalogs
              */
-            public function __construct(private string $schema, private string $schemaFile, private array $profileFiles, private array $catalogs, private ?DataPrepLocalMap $localMap)
+            public function __construct(private string $schema, private string $schemaFile, private array $profileFiles, private array $catalogs, private ?DataPrepLocalMap $localMap, private ?string $script)
             {
             }
 
@@ -187,7 +223,7 @@ final class DataPrepContributionsTest extends TestCase
             #[\Override]
             public function scriptFile(): ?string
             {
-                return null;
+                return $this->script;
             }
 
             #[\Override]
