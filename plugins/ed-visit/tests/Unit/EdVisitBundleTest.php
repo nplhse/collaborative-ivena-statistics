@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Cois\Plugin\EdVisit\Tests\Unit;
 
 use Cois\Plugin\EdVisit\EdVisitBundle;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -55,9 +56,10 @@ final class EdVisitBundleTest extends TestCase
         self::assertSame([['asset_mapper' => ['paths' => [new EdVisitBundle()->getPath().'/assets']]]], $container->getExtensionConfig('framework'));
     }
 
-    public function testItLoadsItsServices(): void
+    #[DataProvider('environments')]
+    public function testItLoadsItsServicesAndTheSyntheticDataOnlyWithTheFixturesBundle(string $environment, bool $fixtures): void
     {
-        $container = $this->container();
+        $container = $this->container($environment);
         $extension = new EdVisitBundle()->getContainerExtension();
         self::assertNotNull($extension);
 
@@ -67,7 +69,21 @@ final class EdVisitBundleTest extends TestCase
             static fn (FileResource $resource): string => $resource->getResource(),
             array_filter($container->getResources(), static fn (object $resource): bool => $resource instanceof FileResource),
         );
-        self::assertContains(realpath(new EdVisitBundle()->getPath().'/config/services.php'), $files);
+        $root = new EdVisitBundle()->getPath();
+        self::assertContains(realpath($root.'/config/services.php'), $files);
+        self::assertSame($fixtures, \in_array(realpath($root.'/config/services_fixtures.php'), $files, true));
+        self::assertSame($fixtures, $container->hasDefinition(\Cois\Plugin\EdVisit\DataFixtures\EncounterFixture::class));
+    }
+
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function environments(): iterable
+    {
+        yield 'test' => ['test', true];
+        yield 'dev' => ['dev', true];
+        yield 'demo' => ['demo', true];
+        yield 'prod' => ['prod', false];
     }
 
     private function container(string $environment = 'test'): ContainerBuilder

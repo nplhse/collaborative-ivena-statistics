@@ -12,13 +12,19 @@ use PHPUnit\Framework\TestCase;
  */
 final class NoGlobalRandomnessTest extends TestCase
 {
-    private const array DIRECTORIES = ['Allocation', 'Encounter', 'Generator', 'Pattern'];
+    /** Generator code of the application and of the ED visit plugin's synthetic data (#1300). */
+    private const array DIRECTORIES = [
+        'src/DataFixtures/Allocation',
+        'src/DataFixtures/Generator',
+        'src/DataFixtures/Pattern',
+        'plugins/ed-visit/src/DataFixtures',
+    ];
 
     private const string FORBIDDEN = '/(?<![\w>:$])(mt_srand|mt_rand|mt_getrandmax|random_int|rand|srand|shuffle|str_shuffle|array_rand|lcg_value)\s*\(/';
 
     public function testTheGeneratorUsesNoGlobalRandomFunctions(): void
     {
-        $root = \dirname(__DIR__, 3).'/src/DataFixtures/';
+        $root = \dirname(__DIR__, 3).'/';
         $found = [];
 
         foreach (self::DIRECTORIES as $directory) {
