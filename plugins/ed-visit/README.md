@@ -43,6 +43,11 @@ From the application the plugin uses the Encounter contract and the names `Plugi
 The application requires the package from the Composer path repository `plugins/ed-visit` and enables
 `EdVisitBundle` in `config/bundles.php` for all environments. Run the migrations after enabling it.
 
+Without the bundle the application still boots and works: the encounter import offers the other registered
+schemas (or is hidden without any), the data preparation tool lists only their contributions, the conflict page
+shows candidates without a visit link, and the admin menu drops the MTS catalog. The tables stay. The tests in
+`tests/Encounter/Functional/WithoutEdVisit/` boot such a kernel (`tests/Support/Kernel/`).
+
 ## Tests
 
 ```bash
