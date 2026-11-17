@@ -8,5 +8,5 @@ return static function (ContainerConfigurator $container): void {
     $container->services()
         ->defaults()->autowire()->autoconfigure()
         ->load('App\\Tests\\Fixtures\\Plugin\\InpatientStay\\', '../')
-        ->exclude(['../config/', '../Entity/', '../Migrations/', '../fixtures/', '../templates/', '../translations/', '../InpatientStayTestBundle.php']);
+        ->exclude(['../config/', '../data-prep/', '../Entity/', '../Migrations/', '../fixtures/', '../templates/', '../translations/', '../InpatientStayTestBundle.php']);
 };

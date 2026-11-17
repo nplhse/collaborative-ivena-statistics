@@ -91,6 +91,25 @@ describe('reading the source file', () => {
         assert.equal(prep.detectProfile(['Fallnummer', 'Alter'], [profile]), null);
     });
 
+    it('stops on several matching profiles, whatever their order (#1301)', () => {
+        const { text } = prep.decodeBytes(sampleBytes);
+        const { header } = prep.readTable(text, ';');
+        const twin = { ...profile, id: 'orbis-mts-twin', label: 'ORBIS twin' };
+        for (const profiles of [
+            [profile, twin],
+            [twin, profile],
+        ]) {
+            assert.deepEqual(
+                prep
+                    .matchingProfiles(header, profiles)
+                    .map((match) => match.id)
+                    .sort(),
+                ['orbis-mts', 'orbis-mts-twin'],
+            );
+            assert.equal(prep.detectProfile(header, profiles), null);
+        }
+    });
+
     it('parses quoted cells with delimiters, quotes and line breaks', () => {
         assert.deepEqual(prep.parseCsv('a;b\r\n"x;1";"say ""hi"""\n"multi\nline";\n'), [
             ['a', 'b'],
@@ -687,6 +706,65 @@ describe('content check', () => {
         for (const label of [...bundledCatalog.diagrams, ...bundledCatalog.indicators]) {
             assert.deepEqual(prep.contentFindings(label), [], label);
         }
+    });
+});
+
+describe('schema without module (#1301)', () => {
+    it('handles the inpatient_stay test schema with its profile and schema file alone', async () => {
+        const stayBase = new URL('../../Fixtures/Plugin/InpatientStay/', import.meta.url);
+        const stayProfile = json(new URL('data-prep/profiles/inpatient-poc.json', stayBase));
+        const staySchema = {
+            ...json(new URL('data-prep/inpatient_stay.v1.json', stayBase)),
+            // InpatientStayDimension::keyRules(1), pinned by EncounterKeyRulesTest.
+            keys: {
+                fingerprint: {
+                    field: 'stay_fingerprint',
+                    rule: 'inpatient-stay:v1',
+                    parts: ['case_number', 'anchor'],
+                },
+                caseKey: { field: 'case_key', prefix: 'case:v1', parts: ['case_number'] },
+            },
+        };
+        assert.equal(prep.schemaModule('inpatient_stay').localMap.sections.length, 0);
+        const { text } = prep.decodeBytes(
+            readFileSync(new URL('fixtures/inpatient_stay_poc.source.csv', stayBase)),
+        );
+        const result = await prep.transform(prep.readTable(text, ';'), {
+            profile: stayProfile,
+            schema: staySchema,
+            key: await prep.loadKey(keyFile()),
+            localMap: prep.emptyLocalMap(stayProfile),
+        });
+
+        assert.deepEqual(result.header, [
+            'stay_fingerprint',
+            'case_key',
+            'admitted_at',
+            'discharge_diagnosis',
+            'discharged_at',
+        ]);
+        assert.equal(result.rows.length, 3);
+        const first = Object.fromEntries(
+            result.header.map((field, i) => [field, result.rows[0][i]]),
+        );
+        // Same case number and key as fingerprint vector 1: the same case key as the ED visit.
+        assert.equal(first.case_key, vectors.vectors[0].caseKey);
+        assert.equal(
+            first.stay_fingerprint,
+            await prep.hmacHex(
+                (await prep.loadKey(keyFile())).cryptoKey,
+                'inpatient-stay:v1|00012345|2026-10-05T10:05:00',
+            ),
+        );
+        assert.deepEqual(
+            [first.admitted_at, first.discharge_diagnosis, first.discharged_at],
+            ['2026-10-05T10:05', 'I21.4', '2026-10-12T11:00'],
+        );
+        assert.deepEqual(result.report.anchorSources, { admission: 3 });
+        assert.equal(
+            prep.exchangeFileName(result, stayProfile),
+            'inpatient_stay_inpatient-poc_2026-10-05_2026-10-20.csv',
+        );
     });
 });
 

@@ -1,0 +1,29 @@
+{
+    "schema": "inpatient_stay",
+    "version": 1,
+    "fields": [
+        {
+            "name": "stay_fingerprint",
+            "type": "hmac",
+            "required": true
+        },
+        {
+            "name": "case_key",
+            "type": "hmac",
+            "required": true
+        },
+        {
+            "name": "admitted_at",
+            "type": "timestamp",
+            "required": true
+        },
+        {
+            "name": "discharge_diagnosis",
+            "type": "catalog_code"
+        },
+        {
+            "name": "discharged_at",
+            "type": "timestamp"
+        }
+    ]
+}

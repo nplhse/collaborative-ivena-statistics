@@ -341,6 +341,10 @@
         <source>encounter.data_prep.js.profile_unknown</source>
         <target>The export format was not recognised. Please use a supported export.</target>
       </trans-unit>
+      <trans-unit id="Enc7C1A2B9D" resname="encounter.data_prep.js.profile_ambiguous">
+        <source>encounter.data_prep.js.profile_ambiguous</source>
+        <target>Several export formats match this file: {profiles}. The file is not processed; please contact the project team.</target>
+      </trans-unit>
       <trans-unit id="Enc22F48A05" resname="encounter.data_prep.js.profile_detected">
         <source>encounter.data_prep.js.profile_detected</source>
         <target>Export format</target>

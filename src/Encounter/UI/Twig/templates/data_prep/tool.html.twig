@@ -39,6 +39,7 @@
     mapApply: (js ~ 'map_apply')|trans({}, 'encounter'),
     mapApplied: (js ~ 'map_applied')|trans({}, 'encounter'),
     profileUnknown: (js ~ 'profile_unknown')|trans({}, 'encounter'),
+    profileAmbiguous: (js ~ 'profile_ambiguous')|trans({}, 'encounter'),
     profileDetected: (js ~ 'profile_detected')|trans({}, 'encounter'),
     rows: (js ~ 'rows')|trans({}, 'encounter'),
     columnSource: (js ~ 'column_source')|trans({}, 'encounter'),
@@ -107,8 +108,8 @@
 {%- set config = {
     version: release.version,
     latestUrl: latest_url,
-    catalogUrl: catalog_url,
-    schema: schema,
+    catalogUrls: catalog_urls,
+    schemas: schemas,
     profiles: profiles,
     catalogs: catalogs,
     messages: messages,
@@ -117,7 +118,7 @@
 <html lang="{{ app.request.locale|default('de') }}">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src {{ latest_url }} {{ catalog_url }}; base-uri 'none'; form-action 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src {{ latest_url }}{% for url in catalog_urls %} {{ url }}{% endfor %}; base-uri 'none'; form-action 'none'">
     <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="encounter-data-prep {{ release.version }}">
