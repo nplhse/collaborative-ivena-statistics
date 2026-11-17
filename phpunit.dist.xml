@@ -80,6 +80,7 @@
             <directory>tests/Statistics/Functional</directory>
             <directory>tests/Storage/Functional</directory>
             <directory>tests/User/Functional</directory>
+            <directory>plugins/ed-visit/tests/Functional</directory>
         </testsuite>
 
         <testsuite name="fixtures">
