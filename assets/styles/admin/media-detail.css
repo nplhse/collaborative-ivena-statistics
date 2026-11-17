@@ -31,6 +31,13 @@
     width: 2rem;
 }
 
+/* The ux:icon SVG has no size of its own; inside the flex button it would collapse to 0 x 0. */
+.media-detail-usage__copy-icon {
+    display: block;
+    height: 1rem;
+    width: 1rem;
+}
+
 .media-detail-usage__code {
     background-color: var(--bs-secondary-bg);
     border-radius: var(--bs-border-radius);
