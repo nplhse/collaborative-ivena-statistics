@@ -325,9 +325,9 @@
         <source>footer.column.more</source>
         <target>Weiteres</target>
       </trans-unit>
-      <trans-unit id="FtrHosterDe" resname="footer.hoster">
-        <source>footer.hoster</source>
-        <target>Gehostet bei {hoster}</target>
+      <trans-unit id="FtrUberspaceCreditDe" resname="footer.uberspace_credit">
+        <source>footer.uberspace_credit</source>
+        <target>Gehostet bei Uberspace</target>
       </trans-unit>
       <trans-unit id="LnkSitemapDe" resname="link.sitemap">
         <source>link.sitemap</source>

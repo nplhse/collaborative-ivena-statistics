@@ -14,8 +14,7 @@ twig:
         'app_blog_description': '%app.blog.description%'
         'app_mailer_from': '%app.mailer_from%'
         'app_copyright_start_year': '%app.meta.copyright_start_year%'
-        'app_hoster_name': '%app.meta.hoster.name%'
-        'app_hoster_url': '%app.meta.hoster.url%'
+        'app_uberspace_credit': '%app.meta.uberspace_credit%'
         'app_map_tiles':
             url: '%app.map_tiles.url%'
             attribution: '%app.map_tiles.attribution%'

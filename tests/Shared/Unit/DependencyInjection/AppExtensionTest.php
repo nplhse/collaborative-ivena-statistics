@@ -29,10 +29,7 @@ final class AppExtensionTest extends TestCase
                 ],
                 'meta' => [
                     'copyright_start_year' => 2024,
-                    'hoster' => [
-                        'name' => 'Uberspace',
-                        'url' => 'https://uberspace.de',
-                    ],
+                    'uberspace_credit' => false,
                 ],
             ],
         ], $container);
@@ -42,8 +39,9 @@ final class AppExtensionTest extends TestCase
         self::assertSame('en', $container->getParameter('app.content.default_locale'));
         self::assertSame('COIS', $container->getParameter('app.short_title'));
         self::assertSame(2024, $container->getParameter('app.meta.copyright_start_year'));
-        self::assertSame('Uberspace', $container->getParameter('app.meta.hoster.name'));
-        self::assertSame('https://uberspace.de', $container->getParameter('app.meta.hoster.url'));
+        self::assertFalse($container->getParameter('app.meta.uberspace_credit'));
+        self::assertFalse($container->hasParameter('app.meta.hoster.name'));
+        self::assertFalse($container->hasParameter('app.meta.hoster.url'));
         self::assertSame(['.ru'], $container->getParameter('app.registration.blocked_email_domains'));
     }
 
@@ -66,5 +64,20 @@ final class AppExtensionTest extends TestCase
             ['mailinator.com', '.ru'],
             $container->getParameter('app.registration.blocked_email_domains'),
         );
+    }
+
+    public function testUberspaceCreditIsOnByDefault(): void
+    {
+        $container = new ContainerBuilder();
+
+        new AppExtension()->load([
+            [
+                'title' => 'Collaborative IVENA statistics',
+                'short_title' => 'COIS',
+                'default_locale' => 'en',
+            ],
+        ], $container);
+
+        self::assertTrue($container->getParameter('app.meta.uberspace_credit'));
     }
 }

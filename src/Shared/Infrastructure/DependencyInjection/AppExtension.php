@@ -25,8 +25,7 @@ final class AppExtension extends Extension
 
         $metaConfig = $config['meta'];
         $container->setParameter('app.meta.copyright_start_year', $metaConfig['copyright_start_year']);
-        $container->setParameter('app.meta.hoster.name', $metaConfig['hoster']['name']);
-        $container->setParameter('app.meta.hoster.url', $metaConfig['hoster']['url']);
+        $container->setParameter('app.meta.uberspace_credit', $metaConfig['uberspace_credit']);
 
         // Import settings
         $importConfig = $config['import'];

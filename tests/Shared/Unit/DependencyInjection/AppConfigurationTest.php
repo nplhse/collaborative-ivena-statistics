@@ -25,8 +25,7 @@ final class AppConfigurationTest extends TestCase
         self::assertSame('Blog', $processed['blog']['title']);
         self::assertSame('Neuigkeiten, Updates und Hintergrundinformationen.', $processed['blog']['description']);
         self::assertSame(2025, $processed['meta']['copyright_start_year']);
-        self::assertSame('', $processed['meta']['hoster']['name']);
-        self::assertSame('', $processed['meta']['hoster']['url']);
+        self::assertTrue($processed['meta']['uberspace_credit']);
         self::assertSame('csv', $processed['import']['reject_writer']);
         self::assertSame(4, $processed['feedback']['spam']['min_submission_seconds']);
         self::assertSame(1800, $processed['feedback']['spam']['long_message_threshold']);
@@ -47,6 +46,27 @@ final class AppConfigurationTest extends TestCase
             'make money',
             'click here',
         ], $processed['feedback']['spam']['keywords']);
+    }
+
+    public function testUberspaceCreditCanBeTurnedOff(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [[
+            ...$this->minimalConfig(),
+            'meta' => ['uberspace_credit' => false],
+        ]]);
+
+        self::assertFalse($processed['meta']['uberspace_credit']);
+    }
+
+    public function testGenericHosterSettingIsRejected(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Unrecognized option "hoster"');
+
+        new Processor()->processConfiguration(new AppConfiguration(), [[
+            ...$this->minimalConfig(),
+            'meta' => ['hoster' => ['name' => 'Other hoster', 'url' => 'https://example.org']],
+        ]]);
     }
 
     public function testRegistrationBlockedEmailDomainsCanBeOverridden(): void
