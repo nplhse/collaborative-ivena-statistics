@@ -131,7 +131,7 @@ final class UserCrudControllerTest extends WebTestCase
         self::assertNotNull($targetId);
 
         $client->loginUser($admin);
-        $token = $this->csrfTokenAfterVisit($client, 'ea-delete');
+        $token = $this->deleteTokenFromIndex($client);
 
         $client->request(Request::METHOD_POST, '/admin/user/'.$targetId.'/delete', [
             'token' => $token,
@@ -169,7 +169,7 @@ final class UserCrudControllerTest extends WebTestCase
         self::assertNotNull($hospitalId);
 
         $client->loginUser($admin);
-        $token = $this->csrfTokenAfterVisit($client, 'ea-delete');
+        $token = $this->deleteTokenFromIndex($client);
 
         $client->request(Request::METHOD_POST, '/admin/user/'.$targetId.'/delete', [
             'token' => $token,
@@ -591,20 +591,12 @@ final class UserCrudControllerTest extends WebTestCase
         return $messages;
     }
 
-    private function csrfTokenAfterVisit(KernelBrowser $client, string $tokenId): string
+    /** The token of the delete dialog as EasyAdmin renders it, so a change of its token ID shows up here. */
+    private function deleteTokenFromIndex(KernelBrowser $client): string
     {
-        $client->request(Request::METHOD_GET, '/admin/user');
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user');
         self::assertResponseIsSuccessful();
 
-        $requestStack = $client->getContainer()->get('request_stack');
-        $request = $client->getRequest();
-        $requestStack->push($request);
-        try {
-            $token = $client->getContainer()->get('security.csrf.token_manager')->getToken($tokenId);
-        } finally {
-            $requestStack->pop();
-        }
-
-        return (string) $token->getValue();
+        return (string) $crawler->filter('#action-confirmation-form input[name="token"]')->attr('value');
     }
 }

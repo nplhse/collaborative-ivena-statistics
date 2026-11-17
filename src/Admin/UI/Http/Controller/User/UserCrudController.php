@@ -99,7 +99,8 @@ final class UserCrudController extends AbstractCrudController
         $csrfToken = $context->getRequest()->request->has('token')
             ? (string) $context->getRequest()->request->get('token')
             : null;
-        if (!$this->isCsrfTokenValid('ea-delete', $csrfToken)) {
+        // EasyAdmin 5.10.1 binds the delete token to the CRUD controller (see AbstractCrudController::delete()).
+        if (!$this->isCsrfTokenValid('ea-delete-'.self::class, $csrfToken)) {
             return $this->redirectToRoute($context->getDashboardRouteName());
         }
 
