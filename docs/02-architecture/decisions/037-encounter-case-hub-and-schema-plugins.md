@@ -221,8 +221,9 @@ The decision is implemented in steps:
    other in a cycle; the hospital course card takes the ED course through `EncounterCourseProviderInterface`;
    queued `MatchEncountersMessage`s keep working through a class alias; 4f done: the encounter analytics page
    comes from the bundle through the new extension point "Statistics pages" (also used by the test bundle);
-   the synthetic ED data and the ED parts of the data preparation tool still name the bundle and follow in
-   4g and 4h) and ships MTS as a bundle.
+   4g done: the synthetic ED data and its fixture are part of the bundle, loaded only in dev, test and demo, and
+   the fixture purge asks plugins which tables to keep; the ED parts of the data preparation tool still name the
+   bundle and follow in 4h) and ships MTS as a bundle.
 
 Before step 1 of #1300, `ed_visit` was the only schema in production and its records were the encounters;
 deleting an `ed_visit` import whose visits carried records of another schema was refused. Since then an

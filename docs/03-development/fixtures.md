@@ -147,12 +147,12 @@ See [../04-features/statistics/projection-and-materialized-views.md](../04-featu
 
 `doctrine:fixtures:load` purges the database before loading. In `dev` and `test`, a materialized-view-aware purger drops overview MVs before truncate and recreates them afterward (`MaterializedViewAwareOrmPurger`).
 
-Loading fixtures is not a complete reset. Curated state that is seeded by a migration and reviewed in the app stays (`MaterializedViewAwareOrmPurgerFactory`):
+Loading fixtures is not a complete reset. Curated state that is seeded by a migration and reviewed in the app stays. Plugins name these tables and the work after the purge themselves (`FixturePurgeParticipantInterface`, tag `app.fixtures.purge_participant`, #1300); the ED visit plugin (`EdVisitFixturePurge`) keeps:
 
 - the MTS catalog (`encounter_mts_*`, [ADR 032](../02-architecture/decisions/032-mts-catalog-as-maintained-data.md));
 - the curated plausibility problem areas with their PZC codes and rules (`encounter_plausibility_area`, `_area_code`, `_area_diagram`, [ADR 033](../02-architecture/decisions/033-learning-plausibility-table.md), #1219).
 
-Plausibility snapshots and their cells are derived from the areas and from the purged data, so they are purged: the active, retired and learned snapshots are gone. After the purge, the purger rebuilds one seed draft from the kept areas (`PlausibilityCuration::rebuildSeedDraft()`), in the same transaction as the purge and the fixtures. The draft is not activated: until an administrator or reviewer activates it on the plausibility page, the matcher's plausibility bonus is 0.
+Plausibility snapshots and their cells are derived from the areas and from the purged data, so they are purged: the active, retired and learned snapshots are gone. After the purge, the plugin rebuilds one seed draft from the kept areas (`PlausibilityCuration::rebuildSeedDraft()`), in the same transaction as the purge and the fixtures. The draft is not activated: until an administrator or reviewer activates it on the plausibility page, the matcher's plausibility bonus is 0.
 
 For a complete reset, including the areas back to their migration seed, use `make reset` (drops the database, runs the migrations, loads the fixtures).
 

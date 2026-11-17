@@ -2,12 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\DataFixtures\Encounter\Infrastructure;
+namespace Cois\Plugin\EdVisit\DataFixtures\Infrastructure;
 
 use App\Allocation\Domain\Entity\Hospital;
-use App\DataFixtures\Encounter\Application\GeneratedEncounters;
-use App\DataFixtures\Encounter\Application\PersistedVisit;
-use App\DataFixtures\Encounter\Application\SyntheticEncounterKey;
 use App\Encounter\Domain\Entity\EncounterImport;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
@@ -17,6 +14,9 @@ use App\User\Domain\Entity\User;
 use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
 use Cois\Plugin\EdVisit\Application\Import\EdVisitRow;
 use Cois\Plugin\EdVisit\Application\Import\EdVisitRowMapper;
+use Cois\Plugin\EdVisit\DataFixtures\Application\GeneratedEncounters;
+use Cois\Plugin\EdVisit\DataFixtures\Application\PersistedVisit;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticEncounterKey;
 use Cois\Plugin\EdVisit\Infrastructure\Repository\EncounterRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;

@@ -64,6 +64,20 @@ The sidebar entry comes from the page's own [navigation provider](#navigation-tr
 into the group `Menu::STATISTICS_GROUP_CLINICAL`, which Statistics defines and drops while it has no visible entry.
 Texts stay in the page's own translation domain; the ED visit page still uses `statistics` until it gets its own.
 
+## Fixture purge participants
+
+**Tag:** `app.fixtures.purge_participant` (tag the service yourself: `src/DataFixtures` is no autoconfigured resource)
+
+**Interface:** `FixturePurgeParticipantInterface` (`src/DataFixtures/Purger/`)
+
+**Consumer:** `MaterializedViewAwareOrmPurgerFactory` and `MaterializedViewAwareOrmPurger` (dev, test, demo)
+
+**Implementations:** `EdVisitFixturePurge` of the ED visit plugin (MTS catalog and plausibility areas, seed draft)
+
+Lets a plugin keep the tables it maintains in the app when fixtures are loaded (`keptTables()`) and rebuild data
+derived from them after the purge (`afterPurge()`, in the executor's transaction, before the materialized views are
+installed again). See [fixtures](../03-development/fixtures.md#purging-in-development).
+
 ## Statistics Insights
 
 **Tag:** `app.statistics.insight_dimension`
@@ -369,7 +383,11 @@ the migrations is all a deployment needs:
   `EncounterAccessGrantRepositoryInterface`, `DepartmentCatalogInterface`, `EncountersImported`; the entities and
   enums of Allocation, Import and User, `UserRole`, `ImportCompleted`, `ImportDataRemoverInterface`; and the
   extension points for navigation, tools, DataTable and audit (Shared), Explore and My Hospitals (Allocation),
-  `HospitalLookupInterface`, and the [Statistics page API](#statistics-pages).
+  `HospitalLookupInterface`, the [Statistics page API](#statistics-pages), and for synthetic data (dev, test and
+  demo only) a fixture API: `FixtureHospitals`, `PatternAllocationFixture`, `FixtureVolumeResolver`,
+  `ImportBatchPlanner`, `RandomStreams`, [`FixturePurgeParticipantInterface`](#fixture-purge-participants),
+  `EncounterAccessGrant`, `EncounterImport`, `ImportDataCoverage`. A bundle loads its fixture services only in the
+  environments with the fixtures bundle, as `EdVisitBundle` does with `config/services_fixtures.php`.
   `PluginBoundaryTest::ALLOWED` is the exact list and fails CI; it also checks that `src/` names no plugin,
   apart from the files `NOT_YET_MOVED` lists while #1300 moves them. Deptrac reports the same rule (layers
   `Encounter_PluginApi`, `Encounter_Plugin`).

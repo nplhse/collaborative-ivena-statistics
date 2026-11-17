@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DataFixtures\Encounter\Application;
+namespace Cois\Plugin\EdVisit\DataFixtures\Application;
 
 /**
  * Splits generated visits into exports as a hospital would upload them (#1052, ADR 029).

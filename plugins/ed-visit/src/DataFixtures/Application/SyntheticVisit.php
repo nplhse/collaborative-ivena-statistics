@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DataFixtures\Encounter\Application;
+namespace Cois\Plugin\EdVisit\DataFixtures\Application;
 
 /**
  * One generated ED visit with its truth (#1052).

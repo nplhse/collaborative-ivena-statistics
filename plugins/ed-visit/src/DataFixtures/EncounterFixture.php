@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\DataFixtures\Encounter;
+namespace Cois\Plugin\EdVisit\DataFixtures;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\DataFixtures\Allocation\FixtureHospitals;
 use App\DataFixtures\Allocation\PatternAllocationFixture;
-use App\DataFixtures\Encounter\Infrastructure\SyntheticEncounterLoader;
 use App\DataFixtures\FixtureVolumeResolver;
 use App\DataFixtures\Generator\Application\ImportBatchPlanner;
 use App\Encounter\Domain\Entity\EncounterAccessGrant;
 use App\Encounter\Domain\Enum\EncounterGrantAction;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
+use Cois\Plugin\EdVisit\DataFixtures\Infrastructure\SyntheticEncounterLoader;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;

@@ -63,6 +63,7 @@
                 <directory name="plugins/ed-visit/src/UI/Form/"/>
                 <directory name="src/Allocation/Infrastructure/Faker/Provider/" />
                 <directory name="src/DataFixtures"/>
+                <directory name="plugins/ed-visit/src/DataFixtures"/>
                 <directory name="src/Import/Application/Factory" />
                 <directory name="src/Import/Application/Service/" />
                 <directory name="src/Import/Application/Analysis/" />
@@ -112,6 +113,7 @@
                 <directory name="src/*/UI/Console/Command" />
                 <directory name="plugins/ed-visit/src/UI/Console/Command"/>
                 <directory name="src/DataFixtures" />
+                <directory name="plugins/ed-visit/src/DataFixtures" />
                 <directory name="src/Import/Infrastructure/Adapter/" />
                 <directory name="src/Import/Infrastructure/Mapping/" />
                 <directory name="src/Import/Infrastructure/Resolver/" />

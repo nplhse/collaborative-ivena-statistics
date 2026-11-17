@@ -21,7 +21,8 @@ final class PluginBoundaryTest extends TestCase
      * a schema needs to reference (the encounter entity for its Doctrine relation, the voter attributes, the
      * base-data enums, the grant repository, the department catalog, the import event), the entities and
      * enums of other contexts, and their documented extension points, among them the Statistics page API for a
-     * plugin's statistics page (filter, period and analysis context, time series, query keys).
+     * plugin's statistics page (filter, period and analysis context, time series, query keys) and the fixture API
+     * for its synthetic data.
      */
     private const array ALLOWED = [
         'App\\Encounter\\Contract\\',
@@ -61,22 +62,26 @@ final class PluginBoundaryTest extends TestCase
         \App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory::class,
         \App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver::class,
         \App\Statistics\UI\Http\Navigation\StatisticsQueryKeys::class,
+        // Fixture API for a plugin's synthetic data (dev, test and demo only, #1300).
+        \App\DataFixtures\Allocation\FixtureHospitals::class,
+        \App\DataFixtures\Allocation\PatternAllocationFixture::class,
+        \App\DataFixtures\FixtureVolumeResolver::class,
+        \App\DataFixtures\Generator\Application\ImportBatchPlanner::class,
+        \App\DataFixtures\Generator\Infrastructure\Random\RandomStreams::class,
+        \App\DataFixtures\Purger\FixturePurgeParticipantInterface::class,
+        \App\Encounter\Domain\Entity\EncounterAccessGrant::class,
+        \App\Encounter\Domain\Entity\EncounterImport::class,
+        \App\Import\Domain\ValueObject\ImportDataCoverage::class,
         'App\\Tests\\Fixtures\\Plugin\\',
     ];
 
     /**
-     * Application code that still names the ED visit plugin while #1300 moves it: the synthetic ED data and the
-     * fixture purger (step 4g) and the ED parts of the data preparation tool (bundled MTS catalog, local map
-     * values; #1301 and step 4h). Each step removes its entries.
+     * Application code that still names the ED visit plugin while #1300 moves it: the ED parts of the data
+     * preparation tool (bundled MTS catalog, local map values; #1301 and step 4h).
      */
     private const array NOT_YET_MOVED = [
         '/src/Encounter/UI/DataPrep/DataPrepToolRenderer.php',
         '/src/Encounter/UI/Http/Controller/DataPrep/ShowDataPrepLocalMapController.php',
-        '/src/DataFixtures/Encounter/Application/EdVisitExport.php',
-        '/src/DataFixtures/Encounter/Application/SyntheticEncounterKey.php',
-        '/src/DataFixtures/Encounter/Infrastructure/SyntheticEncounterWriter.php',
-        '/src/DataFixtures/Purger/MaterializedViewAwareOrmPurger.php',
-        '/src/DataFixtures/Purger/MaterializedViewAwareOrmPurgerFactory.php',
     ];
 
     public function testPluginsImportOnlyThePluginApiOfTheApplication(): void
@@ -123,7 +128,7 @@ final class PluginBoundaryTest extends TestCase
     {
         self::assertTrue($this->allowed(\App\Encounter\Contract\Import\SchemaWriteResult::class));
         self::assertTrue($this->allowed(\App\Encounter\Domain\Entity\Encounter::class));
-        self::assertFalse($this->allowed(\App\Encounter\Domain\Entity\EncounterImport::class));
+        self::assertFalse($this->allowed(\App\Encounter\Domain\Entity\EncounterKeyState::class));
         self::assertFalse($this->allowed(\App\Encounter\Infrastructure\Assignment\EncounterAssignments::class));
     }
 

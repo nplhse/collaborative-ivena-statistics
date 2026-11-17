@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\DataFixtures\Purger;
+namespace Cois\Plugin\EdVisit\Tests\DataFixtures;
 
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
@@ -23,7 +23,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
  * the load has an active and a learned snapshot to drop.
  */
 #[ResetDatabase]
-final class MaterializedViewAwareOrmPurgerTest extends KernelTestCase
+final class EdVisitFixturePurgeTest extends KernelTestCase
 {
     #[Test]
     public function fixtureLoadKeepsCuratedAreasAndRebuildsOneInactiveSeedDraft(): void

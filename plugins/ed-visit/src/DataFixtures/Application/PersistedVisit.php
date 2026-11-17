@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DataFixtures\Encounter\Application;
+namespace Cois\Plugin\EdVisit\DataFixtures\Application;
 
 /**
  * A generated visit stored as encounter `encounterId`; its truth stays with the visit (#1052).

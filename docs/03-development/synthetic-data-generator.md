@@ -42,7 +42,7 @@ The generator draws from `RandomStreams` (`src/DataFixtures/Generator/Infrastruc
 - the same seed and the same last day give the same data, compared by content (database ids change after every purge);
 - a hospital gets the same rows whether other hospitals take part or not, and a month gets the same rows alone or inside a longer period.
 
-MCI cases lie in the month of their hospital's import. `NoGlobalRandomnessTest` fails when code in `DataFixtures/Allocation`, `Encounter`, `Generator` or `Pattern` calls a global random function.
+MCI cases lie in the month of their hospital's import. `NoGlobalRandomnessTest` fails when code in `DataFixtures/Allocation`, `Generator` or `Pattern`, or the synthetic ED data in `plugins/ed-visit/src/DataFixtures`, calls a global random function.
 
 ## Pattern-based synthetic allocations
 
@@ -238,7 +238,7 @@ The same scenario, start day, seed and intensity give the same rows; applying a 
 
 ## Encounter data
 
-Synthetic ED visits for the encounter pilot (#1052, [encounter README](../04-features/encounter/README.md)) are generated from the synthetic allocations of a hospital, so matcher tests (#1053, #1057) know the true links. `app:encounter:evaluate-matcher --truth=<truth.json>` compares a replay of the matcher with that truth ([match validation](../04-features/encounter/README.md#match-validation)). Code: `src/DataFixtures/Encounter/`.
+Synthetic ED visits for the encounter pilot (#1052, [encounter README](../04-features/encounter/README.md)) are generated from the synthetic allocations of a hospital, so matcher tests (#1053, #1057) know the true links. `app:encounter:evaluate-matcher --truth=<truth.json>` compares a replay of the matcher with that truth ([match validation](../04-features/encounter/README.md#match-validation)). Code: `plugins/ed-visit/src/DataFixtures/`.
 
 `SyntheticEncounterGenerator` takes the allocations of one hospital and month (`AllocationSnapshot`: id, arrival, age, sex, urgency, emergency physician, air transport, work accident, department) and returns the visits with their truth (`SyntheticVisit`: case number, group, `ed_visit` cells, true allocation id, noise flags). Every group size is an exact rounded share (`EncounterShares`), not a random draw:
 
@@ -383,10 +383,10 @@ Generator coverage lives under `tests/DataFixtures/`:
 - `Generator/HospitalMonthGeneratorTest.php` also: the code defaults written as a package give the same rows, the markers record the checksum, an invalid package writes nothing
 - `Pattern/*Test.php` — default patterns, indication groups (urgency 2 as the common case, age bands, polytrauma apart from other multiple injuries), coherence rules, no impossible combinations in a sample of 1,500 cases, codes with the same wording stay apart, only offered departments
 - `Pattern/PatternCouplingsTest.php` — hand-checkable couplings: accident occasions only for injuries, influenza × 5 for respiratory codes, weekend nights × 1.3, rounding and urgency 3 transport times; `DefaultDistributionPatternsTest` checks them on sampled cases, with severe codes in basic care only where the capability allows them
-- `Encounter/SyntheticEncounterGeneratorTest.php` — group counts of 100 hand-made allocations by hand (85 linked, 13, 128, 4, 7 repeat visits; 4 time outliers, 17 age noise, 12 without admission, 5 late assessments), each allocation linked at most once, noise ranges, arrival modes, repeat visits, same visits per seed whatever the input order
-- `Encounter/SyntheticEncounterFilesTest.php` — key and fingerprints match the tool's reference vectors, overlapping exports and late assessments, manifest and header of the export file, truth with both fingerprints of a late assessment
-- `Encounter/SyntheticEncounterImportTest.php` — both exports through the encounter import without file or row rejects, known visits and suspected duplicates as expected from the visits; the writer stores every visit with its truth and arrival route and refuses a hospital with another key
-- `Encounter/EncounterFixtureTest.php` — the `encounters` group gives the demo hospital the visits the loader generates from its allocations, one import per month, and `app:generate:encounter-files` writes key, exports and truth
+- `plugins/ed-visit/tests/DataFixtures/SyntheticEncounterGeneratorTest.php` — group counts of 100 hand-made allocations by hand (85 linked, 13, 128, 4, 7 repeat visits; 4 time outliers, 17 age noise, 12 without admission, 5 late assessments), each allocation linked at most once, noise ranges, arrival modes, repeat visits, same visits per seed whatever the input order
+- `plugins/ed-visit/tests/DataFixtures/SyntheticEncounterFilesTest.php` — key and fingerprints match the tool's reference vectors, overlapping exports and late assessments, manifest and header of the export file, truth with both fingerprints of a late assessment
+- `plugins/ed-visit/tests/DataFixtures/SyntheticEncounterImportTest.php` — both exports through the encounter import without file or row rejects, known visits and suspected duplicates as expected from the visits; the writer stores every visit with its truth and arrival route and refuses a hospital with another key
+- `plugins/ed-visit/tests/DataFixtures/EncounterFixtureTest.php` — the `encounters` group gives the demo hospital the visits the loader generates from its allocations, one import per month, and `app:generate:encounter-files` writes key, exports and truth
 
 Run:
 

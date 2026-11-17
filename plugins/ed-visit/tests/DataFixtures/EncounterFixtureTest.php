@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\DataFixtures\Encounter;
+namespace Cois\Plugin\EdVisit\Tests\DataFixtures;
 
 use App\Allocation\Domain\Entity\Hospital;
-use App\DataFixtures\Encounter\Application\SyntheticVisit;
-use App\DataFixtures\Encounter\Infrastructure\SyntheticEncounterLoader;
 use App\DataFixtures\FixtureVolumeResolver;
 use App\Encounter\Domain\Entity\EncounterAccessGrant;
 use App\Encounter\Domain\Enum\EncounterGrantAction;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticVisit;
+use Cois\Plugin\EdVisit\DataFixtures\Infrastructure\SyntheticEncounterLoader;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;

@@ -19,6 +19,9 @@ use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
  */
 final class EdVisitBundle extends AbstractBundle implements EncounterPluginBundleInterface
 {
+    /** Environments with the fixtures bundle, where the synthetic ED data is loaded (config/bundles.php). */
+    private const array FIXTURE_ENVIRONMENTS = ['dev', 'test', 'demo'];
+
     #[\Override]
     public function getPath(): string
     {
@@ -59,5 +62,8 @@ final class EdVisitBundle extends AbstractBundle implements EncounterPluginBundl
     public function loadExtension(array $config, ContainerConfigurator $configurator, ContainerBuilder $container): void
     {
         $configurator->import('../config/services.php');
+        if (\in_array($container->getParameter('kernel.environment'), self::FIXTURE_ENVIRONMENTS, true)) {
+            $configurator->import('../config/services_fixtures.php');
+        }
     }
 }

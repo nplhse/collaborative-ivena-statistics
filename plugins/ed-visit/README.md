@@ -11,8 +11,9 @@ Source systems such as ORBIS are import profiles of the exchange format `ed_visi
 Since #1300 step 4 the bundle holds the ED visit code: schema, import, MTS catalog and curation, plausibility,
 matching with review, swap and validation, visit pages, the course in the case file, the admin pages of the
 catalog, the encounter analytics page under Statistics (Statistics page API) and the Stimulus controllers
-`encounter-match-review` and `encounter-overview-chart`. The synthetic ED data (still in DataFixtures) and the ED
-parts of the data preparation tool follow; translations still use the core domains `encounter` and `statistics`.
+`encounter-match-review` and `encounter-overview-chart`, and the synthetic ED data (`src/DataFixtures`, fixture
+group `encounters`, `app:generate:encounter-files`). The ED parts of the data preparation tool follow; translations
+still use the core domains `encounter` and `statistics`.
 
 ## Layout
 
@@ -24,6 +25,7 @@ Symfony bundle layout (ADR 037), not the context layout of the application:
 | `src/Domain/Entity/` | Doctrine mapping (attributes), registered by the bundle |
 | `config/routes.php` | the controllers of `src/UI/Http/Controller/` (attribute routes), imported by the core's plugin route loader |
 | `templates/` | Twig namespace `@EdVisit` |
+| `src/DataFixtures/`, `config/services_fixtures.php` | synthetic ED data, loaded only in dev, test and demo |
 | `legacy-class-aliases.php` | old class names of queued messages (`MatchEncountersMessage`), autoloaded |
 | `config/services.php` | services, autowired and autoconfigured |
 | `migrations/` | migrations of the plugin's own tables, namespace `Cois\Plugin\EdVisit\Migrations`, ordered by timestamp with the application's |

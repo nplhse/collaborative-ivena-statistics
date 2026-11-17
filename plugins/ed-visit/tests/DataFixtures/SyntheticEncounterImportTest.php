@@ -2,17 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\DataFixtures\Encounter;
+namespace Cois\Plugin\EdVisit\Tests\DataFixtures;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
-use App\DataFixtures\Encounter\Application\EncounterShares;
-use App\DataFixtures\Encounter\Application\GeneratedEncounters;
-use App\DataFixtures\Encounter\Application\SyntheticEncounterExports;
-use App\DataFixtures\Encounter\Application\SyntheticEncounterGenerator;
-use App\DataFixtures\Encounter\Application\SyntheticEncounterKey;
-use App\DataFixtures\Encounter\Application\SyntheticVisit;
-use App\DataFixtures\Encounter\Infrastructure\SyntheticEncounterWriter;
 use App\Encounter\Domain\Enum\EncounterGrantAction;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
@@ -20,6 +13,13 @@ use App\Tests\Support\Encounter\EncounterImportRunner;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
 use App\Tests\Support\Encounter\HandMadeAllocations;
 use App\User\Domain\Entity\User;
+use Cois\Plugin\EdVisit\DataFixtures\Application\EncounterShares;
+use Cois\Plugin\EdVisit\DataFixtures\Application\GeneratedEncounters;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticEncounterExports;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticEncounterGenerator;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticEncounterKey;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticVisit;
+use Cois\Plugin\EdVisit\DataFixtures\Infrastructure\SyntheticEncounterWriter;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -118,7 +118,7 @@ final class SyntheticEncounterImportTest extends KernelTestCase
             self::assertSame($visit->visit->cells['sex'], $row['sex']);
             self::assertSame($visit->visit->edAdmissionAt()?->format('Y-m-d H:i:s'), $row['ed_admission_at']);
         }
-        self::assertCount(85, array_filter($persisted, static fn (\App\DataFixtures\Encounter\Application\PersistedVisit $visit): bool => null !== $visit->trueAllocationId()));
+        self::assertCount(85, array_filter($persisted, static fn (\Cois\Plugin\EdVisit\DataFixtures\Application\PersistedVisit $visit): bool => null !== $visit->trueAllocationId()));
 
         $this->expectException(\LogicException::class);
         $this->writer()->write($this->hospital, self::SEED, '2026-10-again', $generated, $owner, new \DateTimeImmutable('2026-11-02 10:00'));

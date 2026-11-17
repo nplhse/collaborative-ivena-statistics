@@ -85,6 +85,7 @@
 
         <testsuite name="fixtures">
             <directory>tests/DataFixtures</directory>
+            <directory>plugins/ed-visit/tests/DataFixtures</directory>
         </testsuite>
 
         <testsuite name="system">
