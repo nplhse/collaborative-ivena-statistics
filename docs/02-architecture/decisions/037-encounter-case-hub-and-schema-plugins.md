@@ -1,6 +1,6 @@
 # ADR 037: Encounter as treatment case, schemas as Symfony bundles
 
-**Status:** accepted (#1274 part 1: contract, assignment, deletion rules and display proven with a test-only schema bundle; #1307 decisions and retries done; #1300 step 1 done: ED visit split out of the encounter, effective assignment on the encounter; step 2 done: cleanup of encounters without records; step 3 done: empty bundle `plugins/ed-visit`; the MTS move follows in #1300)
+**Status:** accepted (#1274 part 1: contract, assignment, deletion rules and display proven with a test-only schema bundle; #1307 decisions and retries done; #1300 done: ED visit split out of the encounter, effective assignment on the encounter, cleanup of encounters without records, ED visits with MTS shipped as the plugin `plugins/ed-visit`, the application runs without it; #1301 done: data preparation tool with schema contributions)
 
 ## Context
 
@@ -222,14 +222,17 @@ The decision is implemented in steps:
    daily and by command, per hospital under the encounter hospital lock, and treats every refusing
    foreign key to `encounter` as a record; step 3 done: the empty bundle `plugins/ed-visit`
    (`Cois\Plugin\EdVisit\EdVisitBundle`, package `nplhse/cois-ed-visit`) as a Composer path package, enabled
-   in every environment and covered by the static analysis; step 4 in progress: the ED visit code, its tests,
+   in every environment and covered by the static analysis; step 4 done: the ED visit code, its tests,
    templates and Stimulus controller moved into the bundle in one change, because its parts depend on each
    other in a cycle; the hospital course card takes the ED course through `EncounterCourseProviderInterface`;
-   queued `MatchEncountersMessage`s keep working through a class alias; 4f done: the encounter analytics page
-   comes from the bundle through the new extension point "Statistics pages" (also used by the test bundle);
-   4g done: the synthetic ED data and its fixture are part of the bundle, loaded only in dev, test and demo, and
-   the fixture purge asks plugins which tables to keep; the ED parts of the data preparation tool still name the
-   bundle and follow in 4h) and ships MTS as a bundle.
+   queued `MatchEncountersMessage`s keep working through a class alias; the encounter analytics page comes from
+   the bundle through the extension point "Statistics pages" (also used by the test bundle); the synthetic ED
+   data and its fixture are part of the bundle, loaded only in dev, test and demo, and the fixture purge asks
+   plugins which tables to keep; the ED part of the data preparation tool is a contribution of the bundle (#1301);
+   step 5 done: the application runs with the bundle disabled (core pages link encounters through
+   `EncounterLinkProviderInterface`, menus show plugin pages only while their routes exist; tested with kernels
+   without the bundle and without any schema); step 6 done: `make check-without-ed-visit` installs a copy
+   without the package and smoke-tests it). URLs, route names, permissions, texts and numbers are unchanged.
 
 Before step 1 of #1300, `ed_visit` was the only schema in production and its records were the encounters;
 deleting an `ed_visit` import whose visits carried records of another schema was refused. Since then an
@@ -249,7 +252,9 @@ ED import deletion removes the visits only.
   records as final (for example while reassignments are open). Since #1300 the daily cleanup removes
   every encounter that is empty at the run.
 - **Disabled bundles:** how unassigned records and open conflicts of a schema whose bundle is disabled
-  are shown and resolved.
+  are shown and resolved. Since #1300 the application runs without the `ed_visit` bundle: its tables stay
+  (core migrations created them) and the conflict page lists candidates without a link to a visit page. What
+  happens to pending records and conflicts of the disabled schema itself is still open.
 
 ## Consequences
 

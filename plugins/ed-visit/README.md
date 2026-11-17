@@ -54,3 +54,20 @@ shows candidates without a visit link, and the admin menu drops the MTS catalog.
 ```bash
 make test PATH_ARG=plugins/ed-visit/tests
 ```
+
+## Moving to its own repository
+
+The plugin is laid out so that it can leave this repository later (ADR 037). What it still takes from the
+application, and what a move would have to replace:
+
+| Dependency | Where | For a separate repository |
+|---|---|---|
+| Application classes | the Encounter contract and the names in `PluginBoundaryTest::ALLOWED` | the application is not a Composer package, so the plugin only fits the application version it was written for; release both together or publish the contract as a package |
+| Tables | `ed_visit`, `encounter_match`, `encounter_mts_*`, `encounter_plausibility_*`, `encounter_validation_*`, `encounter_suspected_duplicate` are created by core migrations from before the split; `migrations/` is empty | keep the core migrations; new tables of the plugin go into `migrations/` |
+| Translations | core domains `encounter`, `statistics`, `shared`, `allocation` | own domain `ed_visit` with its files in `translations/` (open follow-up) |
+| Assets | `assets/controllers/*` import `app/lib/load-apexcharts` from the application's importmap | ship the chart loader or keep the importmap entry as part of the contract |
+| Tests | `App\Tests\Support\Encounter` (fixture traits), `App\Tests\Support\Translation` and one helper of `tests/Encounter/Unit` | a test kit of the application, or copies in `tests/` |
+| Tool configuration | `phpunit.dist.xml` suites, `psalm.xml`, `package.json` lint and format paths, the `lint-templates` path in the `Makefile`; Rector, PHPStan, PHP-CS-Fixer and Deptrac scan `plugins/` | own configuration in the plugin repository |
+| Queued messages | `legacy-class-aliases.php` maps the old `MatchEncountersMessage` class | remove once no transport holds the old class name |
+
+`make check-without-ed-visit` shows that the application side already works without the package.

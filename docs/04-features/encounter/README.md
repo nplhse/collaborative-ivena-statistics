@@ -26,9 +26,9 @@ plugins; review in [encounter-schema-plugins-review.md](encounter-schema-plugins
 assignments and conflicts, cleanup, data preparation tool) is in `src/Encounter`; the ED visit schema with MTS
 (import, catalog and curation, plausibility, matching, review and validation, visit pages, case file course) is
 the plugin [`plugins/ed-visit`](../../../plugins/ed-visit/README.md) (`Cois\Plugin\EdVisit\…`), including the
-encounter analytics page under Statistics and the synthetic ED data with its fixture. The ED parts of the data
-preparation tool follow with #1301. URLs, route names and
-texts are unchanged.
+encounter analytics page under Statistics, the synthetic ED data with its fixture and the `ed_visit` contribution
+to the data preparation tool (#1301). URLs, route names and texts are unchanged. The application also runs without
+the plugin ([plugin README](../../../plugins/ed-visit/README.md#installation)).
 
 ## Flow
 
