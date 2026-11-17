@@ -141,10 +141,6 @@ final class VisitListQueryTest extends KernelTestCase
         self::assertCount(2, $this->query()->hospitals(null), 'Every hospital with visits.');
     }
 
-    /**
-     * @param list<ArrivalRoute> $routes
-     * @param list<MtsCategory>  $categories
-     */
     public function testVisitUidsOfGivenEncountersOnly(): void
     {
         $connection = $this->encounterEntityManager()->getConnection();
@@ -159,6 +155,10 @@ final class VisitListQueryTest extends KernelTestCase
         self::assertSame([], $this->query()->visitUids([]));
     }
 
+    /**
+     * @param list<ArrivalRoute> $routes
+     * @param list<MtsCategory>  $categories
+     */
     private function filter(bool $includeProposals, ?VisitLinkState $linkState = null, array $routes = [], array $categories = []): VisitListFilter
     {
         $day = new \DateTimeImmutable('2026-10-12');
