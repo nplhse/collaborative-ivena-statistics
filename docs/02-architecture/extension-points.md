@@ -64,6 +64,24 @@ The sidebar entry comes from the page's own [navigation provider](#navigation-tr
 into the group `Menu::STATISTICS_GROUP_CLINICAL`, which Statistics defines and drops while it has no visible entry.
 Texts stay in the page's own translation domain; the ED visit page still uses `statistics` until it gets its own.
 
+## Encounter data preparation contributions
+
+**Tag:** `encounter.data_prep_contribution`
+
+**Interface:** `DataPrepContributionInterface` (`src/Encounter/Contract/DataPrep/`), value objects `DataPrepCatalog`,
+`DataPrepLocalMap`
+
+**Registry:** `DataPrepContributions` (`src/Encounter/UI/DataPrep/`), used by the tool renderer, the guide, the local
+map page and its downloads, `DataPrepToolProvider` and `HideDataPrepWithoutContributionsListener`
+
+**Implementations:** `EdVisitDataPrepContribution` of the ED visit plugin; in the `test` environment
+`InpatientStayDataPrepContribution` of the test bundle
+
+Lets an encounter schema join the offline data preparation tool (#1301): schema file (fields only; the key rules come
+from `EncounterDimensionInterface::keyRules()`), source profiles, an optional script module, catalogs and an optional
+local map. Contributions are ordered by schema name; without one the tool is hidden. Details:
+[data-preparation-tool.md](../04-features/encounter/data-preparation-tool.md#schema-contributions).
+
 ## Fixture purge participants
 
 **Tag:** `app.fixtures.purge_participant` (tag the service yourself: `src/DataFixtures` is no autoconfigured resource)
@@ -378,7 +396,8 @@ the migrations is all a deployment needs:
 - From the application above all `App\Encounter\Contract\…`: schema (`EncounterDimensionInterface`), handler
   (`EncounterSchemaHandlerInterface`), assignment (`EncounterAssignmentsInterface`), access for its pages
   (`EncounterAccessInterface`: `canViewCases()`, `hospitalsWithViewCases()`), record sections, the course and
-  Explore tiles (`Display`). Besides that (ADR 037 amendment, #1300): the `Encounter` entity, `EncounterAttribute`,
+  Explore tiles (`Display`), the key rules of its dimension (`EncounterKeyRules`) and its part of the data
+  preparation tool (`DataPrep`, [contributions](#encounter-data-preparation-contributions)). Besides that (ADR 037 amendment, #1300): the `Encounter` entity, `EncounterAttribute`,
   the enums `AnchorSource`, `CaseStatus`, `EncounterGrantAction`, `EncounterInsertOutcome` and `Sex`,
   `EncounterAccessGrantRepositoryInterface`, `DepartmentCatalogInterface`, `EncountersImported`; the entities and
   enums of Allocation, Import and User, `UserRole`, `ImportCompleted`, `ImportDataRemoverInterface`; and the

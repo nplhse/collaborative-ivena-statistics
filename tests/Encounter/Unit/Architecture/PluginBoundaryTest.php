@@ -75,15 +75,6 @@ final class PluginBoundaryTest extends TestCase
         'App\\Tests\\Fixtures\\Plugin\\',
     ];
 
-    /**
-     * Application code that still names the ED visit plugin while #1300 moves it: the ED parts of the data
-     * preparation tool (bundled MTS catalog, local map values; #1301 and step 4h).
-     */
-    private const array NOT_YET_MOVED = [
-        '/src/Encounter/UI/DataPrep/DataPrepToolRenderer.php',
-        '/src/Encounter/UI/Http/Controller/DataPrep/ShowDataPrepLocalMapController.php',
-    ];
-
     public function testPluginsImportOnlyThePluginApiOfTheApplication(): void
     {
         $violations = [];
@@ -107,9 +98,6 @@ final class PluginBoundaryTest extends TestCase
     {
         $violations = [];
         foreach ($this->phpFiles('/src') as $file) {
-            if (\in_array(substr($file, \strlen($this->root())), self::NOT_YET_MOVED, true)) {
-                continue;
-            }
             // Class and namespace references; the schema name `inpatient_stay` may appear in docs as an example.
             if (1 === preg_match('/InpatientStay|Fixtures\\\\Plugin|Cois\\\\Plugin/', (string) file_get_contents($file))) {
                 $violations[] = substr($file, \strlen($this->root()));
@@ -130,13 +118,6 @@ final class PluginBoundaryTest extends TestCase
         self::assertTrue($this->allowed(\App\Encounter\Domain\Entity\Encounter::class));
         self::assertFalse($this->allowed(\App\Encounter\Domain\Entity\EncounterKeyState::class));
         self::assertFalse($this->allowed(\App\Encounter\Infrastructure\Assignment\EncounterAssignments::class));
-    }
-
-    public function testTheNotYetMovedFilesStillExist(): void
-    {
-        foreach (self::NOT_YET_MOVED as $file) {
-            self::assertFileExists($this->root().$file, 'Remove moved files from NOT_YET_MOVED.');
-        }
     }
 
     private function allowed(string $import): bool

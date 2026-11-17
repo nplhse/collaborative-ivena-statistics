@@ -194,6 +194,12 @@ Two rules hold for all of them:
 The tool becomes a generic shell (key file, fingerprinting, manifest, removal of identifying columns,
 local map); schemas contribute their schema file, profiles, scripts and catalogs (#1301).
 
+**Done in #1301:** key rules (fingerprint and case key) come from the dimension (`keyRules()`), the renderer
+adds them to the schema; schemas contribute through `DataPrepContributionInterface`, ordered by schema name;
+the profile of a file decides its schema, several matching profiles stop the export; only the export fields of
+the active schema version reach the file. The `ed_visit` contribution is registered by the plugin; its files
+move next to it in step 4h. Details: [data-preparation-tool.md](../../04-features/encounter/data-preparation-tool.md#schema-contributions).
+
 ### Transition
 
 The decision is implemented in steps:
