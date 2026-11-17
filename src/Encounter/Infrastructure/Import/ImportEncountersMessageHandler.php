@@ -33,7 +33,6 @@ use App\Import\Domain\Enum\ImportType;
 use App\Import\Domain\Service\ImportEvaluation;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
-use Cois\Plugin\EdVisit\Domain\Entity\EncounterSuspectedDuplicate;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Clock\ClockInterface;
@@ -117,7 +116,7 @@ final readonly class ImportEncountersMessageHandler
         $started = microtime(true);
         $status = ImportRunStatus::Failed->value;
         $error = null;
-        $this->auditContext->pushSuppressedEntityAudit([ImportReject::class, EncounterSuspectedDuplicate::class]);
+        $this->auditContext->pushSuppressedEntityAudit([ImportReject::class]);
         $this->commitGuard->activate($context);
         try {
             // A reprocess replaces the previous run's data inside the write transaction (#1300): nothing of the last

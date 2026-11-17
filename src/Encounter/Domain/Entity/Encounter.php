@@ -8,7 +8,6 @@ use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Domain\Enum\Sex;
 use App\User\Domain\Entity\User;
-use Cois\Plugin\EdVisit\Domain\Entity\EncounterMatch;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Clock\Clock;
@@ -64,7 +63,7 @@ class Encounter
     /**
      * Effective assignment to an IVENA allocation (#1300, ADR 037), at most one encounter per allocation. Set
      * and removed only through EncounterAllocationAssignments; the ED matching keeps its candidates and
-     * decisions in EncounterMatch.
+     * decisions in its own history (`encounter_match`).
      */
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]

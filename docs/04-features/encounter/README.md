@@ -22,6 +22,13 @@ Decisions: [ADR 026](../../02-architecture/decisions/026-encounter-data-context-
 [ADR 037](../../02-architecture/decisions/037-encounter-case-hub-and-schema-plugins.md) (treatment case and schema
 plugins; review in [encounter-schema-plugins-review.md](encounter-schema-plugins-review.md)).
 
+**Where the code lives (#1300):** the core of the treatment case (encounter, keys, grants, import shell,
+assignments and conflicts, cleanup, data preparation tool) is in `src/Encounter`; the ED visit schema with MTS
+(import, catalog and curation, plausibility, matching, review and validation, visit pages, case file course) is
+the plugin [`plugins/ed-visit`](../../../plugins/ed-visit/README.md) (`Cois\Plugin\EdVisit\…`). The encounter
+analytics (Statistics) and the synthetic ED data (DataFixtures) follow in the next steps. URLs, route names and
+texts are unchanged.
+
 ## Flow
 
 1. The hospital downloads the data preparation tool (one HTML file) from its landing page
@@ -71,7 +78,7 @@ Implemented in #1047:
   (`retriage_*`), `EncounterDisposition` (`disposition_code`, `disposition_care_level`) and
   `InitialVitals` (`vitals_*`). The admitting department is a foreign key to the department catalog
   (`SET NULL` when the department is deleted). Code lists are backed enums in
-  `src/Encounter/Domain/Enum/`; the isolation set is a sorted JSON list of codes. MTS diagram and
+  `plugins/ed-visit/src/Domain/Enum/`; the isolation set is a sorted JSON list of codes. MTS diagram and
   indicator are stored as codes of the MTS catalog ([MTS glossary](#mts-glossary)). No dimension tables:
   every field belongs to exactly one visit.
 - **Identity:** internal `visit_uid` (UUID v7), unique `(hospital_id, key_generation,

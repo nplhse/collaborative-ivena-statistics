@@ -17,6 +17,8 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * Both visits reference `encounter` with ON DELETE CASCADE, so the report goes with either of them
  * (deletion or reprocessing of one of the imports). It stores no case key or timestamp.
+ *
+ * @psalm-suppress UnusedClass Maps the table for the schema; EdVisitSchemaHandler writes and reads its rows with DBAL.
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'encounter_suspected_duplicate')]

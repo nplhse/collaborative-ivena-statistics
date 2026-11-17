@@ -9,6 +9,7 @@ use App\Encounter\Contract\Import\EncounterRecordRow;
 use App\Encounter\Contract\Import\ReprocessingSchemaHandlerInterface;
 use App\Encounter\Contract\Import\RowMappingResult;
 use App\Encounter\Contract\Import\SchemaWriteContext;
+use App\Encounter\Contract\Import\SchemaWriteResult;
 use App\Import\Domain\Entity\Import;
 use Cois\Plugin\EdVisit\Application\Catalog\MtsCatalogFirstSeenWriter;
 use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
@@ -66,7 +67,7 @@ final readonly class EdVisitSchemaHandler implements ReprocessingSchemaHandlerIn
     }
 
     #[\Override]
-    public function write(SchemaWriteContext $context, array $rows): EdVisitWriteResult
+    public function write(SchemaWriteContext $context, array $rows): SchemaWriteResult
     {
         return $this->writeRows($context, $rows, []);
     }
@@ -78,7 +79,7 @@ final readonly class EdVisitSchemaHandler implements ReprocessingSchemaHandlerIn
      * days of all visits of the file are reported, so the matcher reruns for them.
      */
     #[\Override]
-    public function reprocess(SchemaWriteContext $context, array $rows): EdVisitWriteResult
+    public function reprocess(SchemaWriteContext $context, array $rows): SchemaWriteResult
     {
         $connection = $this->entityManager->getConnection();
         /** @var array<string, int|string> $existing encounter id by visit fingerprint */
@@ -100,7 +101,7 @@ final readonly class EdVisitSchemaHandler implements ReprocessingSchemaHandlerIn
      * @param list<EncounterRecordRow> $rows
      * @param array<string, int>       $kept encounter id of the import's visits that stay, by fingerprint
      */
-    private function writeRows(SchemaWriteContext $context, array $rows, array $kept): EdVisitWriteResult
+    private function writeRows(SchemaWriteContext $context, array $rows, array $kept): SchemaWriteResult
     {
         /** @var Hospital $hospitalReference */
         $hospitalReference = $this->entityManager->getReference(Hospital::class, $context->hospitalId);
@@ -156,7 +157,7 @@ final readonly class EdVisitSchemaHandler implements ReprocessingSchemaHandlerIn
         $days = array_map(strval(...), array_keys($days));
         sort($days);
 
-        return new EdVisitWriteResult($inserted, $days, $suspected);
+        return new SchemaWriteResult($inserted, $days, suspectedDuplicates: $suspected);
     }
 
     /**

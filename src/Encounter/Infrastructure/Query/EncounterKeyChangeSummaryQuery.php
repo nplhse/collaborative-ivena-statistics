@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Encounter\Infrastructure\Query;
 
 use App\Encounter\Application\Contract\EncounterKeyChangeSummaryReaderInterface;
-use Cois\Plugin\EdVisit\Domain\Enum\MatchStatus;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
@@ -43,19 +42,20 @@ final readonly class EncounterKeyChangeSummaryQuery implements EncounterKeyChang
             'key_change_in_progress' => false !== $inProgress && (bool) $inProgress,
             'encounters' => $encounters,
             'imports' => $imports,
-            'links' => $this->countMatches($hospitalId, MatchStatus::effective()),
-            'decisions' => $this->countMatches($hospitalId, [MatchStatus::Confirmed, MatchStatus::Rejected]),
+            // Statuses of the ED matching history (`encounter_match`, plugin ed_visit): effective links and decisions.
+            'links' => $this->countMatches($hospitalId, ['auto_accepted', 'confirmed']),
+            'decisions' => $this->countMatches($hospitalId, ['confirmed', 'rejected']),
         ];
     }
 
     /**
-     * @param list<MatchStatus> $statuses
+     * @param list<string> $statuses
      */
     private function countMatches(int $hospitalId, array $statuses): int
     {
         return (int) $this->connection->fetchOne(
             'SELECT COUNT(*) FROM encounter_match WHERE hospital_id = :hospital AND status IN (:statuses)',
-            ['hospital' => $hospitalId, 'statuses' => array_map(static fn (MatchStatus $status): string => $status->value, $statuses)],
+            ['hospital' => $hospitalId, 'statuses' => $statuses],
             ['statuses' => ArrayParameterType::STRING],
         );
     }

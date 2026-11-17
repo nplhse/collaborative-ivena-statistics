@@ -25,7 +25,6 @@ use App\Import\Application\Service\ImportRunCommitGuard;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportReject;
 use App\Import\Domain\ValueObject\ImportDataCoverage;
-use Cois\Plugin\EdVisit\Infrastructure\Import\EdVisitWriteResult;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 
@@ -112,8 +111,7 @@ final readonly class EncounterFileImporter
             duplicates: \count($valid) - $written->inserted,
             skipped: $skipped,
             rejected: \count($rejects),
-            // Suspected duplicates are specific to ed_visit and stay in the core until #1300.
-            suspectedDuplicates: $written instanceof EdVisitWriteResult ? $written->suspectedDuplicates : 0,
+            suspectedDuplicates: $written->suspectedDuplicates,
             coverage: $this->coverage($valid),
             insertedDays: $written->insertedDays,
             assignments: $written->assignments,
