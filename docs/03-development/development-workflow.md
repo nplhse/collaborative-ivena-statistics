@@ -97,6 +97,7 @@ Checks never change source code (they may write caches, compiled containers and 
 | `make audit` | `composer audit` | no | network |
 | `make security` | Psalm taint analysis (`SARIF=results.sarif` writes a report) | no | — |
 | `make ci-full` | `ci`, `audit` and `security` | no | test database, network |
+| `make check-without-ed-visit` | Installs a temporary copy without the ED visit plugin and smoke-tests it (see below) | no | database server |
 
 Day to day and before a pull request: `make check` and the tests of every context whose behaviour can change (`make test PATH_ARG=tests/<Context>`). The complete suite runs in GitHub Actions on every pull request; run `make ci` locally only for changes to central infrastructure or to reproduce a CI failure. `make check` stops at the first failing check; `make -k check` runs all of them and lists every failure.
 
@@ -126,6 +127,25 @@ one weekly pull request against `develop` (`.github/dependabot.yml`).
 
 Tool caches live in `var/cache/` (`rector`, `phpstan`, `psalm`) and in `.php-cs-fixer.cache` / `.twig-cs-fixer.cache`;
 CI caches the same paths. `make clear` removes the ones in `var/cache/`.
+
+#### Install without the ED visit plugin
+
+`make check-without-ed-visit` (`bin/check-without-ed-visit`, #1300) proves that the application installs and runs
+without the package `nplhse/cois-ed-visit`. It copies the checkout (tracked and untracked files, plus `.env.local`,
+`vendor/` and `assets/vendor/`) to a temporary directory and there:
+
+1. removes the package with Composer (`composer.json`, `composer.lock`, the path repository and the plugin's test
+   autoload) and drops the bundle from `config/bundles.php` and the plugin directories from `phpunit.dist.xml`;
+2. checks that `Cois\Plugin\EdVisit\EdVisitBundle` is not loadable;
+3. warms the prod cache, lints the prod and test containers and compiles the asset map;
+4. migrates an empty test database `…_test_without_ed_visit` and validates the Doctrine mapping;
+5. runs `tests/Encounter/Functional/WithoutEdVisit` and `NewImportControllerTest`: boot, import selection, allocation
+   and closure imports, menus without dead links.
+
+The directory and the database are removed at the end; `bin/check-without-ed-visit --keep` leaves both for
+inspection (drop the database with `php bin/console doctrine:database:drop --env=test --force` in that directory).
+Run it before a pull request that changes what the core needs from the plugin, and before the release. It is not
+part of `make check` or CI.
 
 ### Translations
 
