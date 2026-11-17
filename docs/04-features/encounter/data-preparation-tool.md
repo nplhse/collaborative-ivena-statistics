@@ -24,15 +24,15 @@ never leave the computer.
 | Part | Location |
 |---|---|
 | Core (parse, generic rule types, keys, export boundary, content check, local map storage; no DOM, no network) | `src/Encounter/UI/DataPrep/js/data-prep-core.js` |
-| `ed_visit` schema module (age and sex, vitals, dispositions and care levels, departments, MTS catalog format) | `src/Encounter/UI/DataPrep/js/schemas/ed-visit.js` (moves into the plugin with step 4h of #1300) |
+| `ed_visit` schema module (age and sex, vitals, dispositions and care levels, departments, MTS catalog format) | `plugins/ed-visit/data-prep/js/ed-visit.js` |
 | Page logic | `src/Encounter/UI/DataPrep/js/data-prep-app.js` |
 | Contributions | `DataPrepContributionInterface` (`src/Encounter/Contract/DataPrep/`), registry `DataPrepContributions`; `EdVisitDataPrepContribution` (`plugins/ed-visit/src/UI/DataPrep/`), in tests `InpatientStayDataPrepContribution` |
-| Public profiles (declarative JSON) | `src/Encounter/UI/DataPrep/profiles/` (`ed_visit`) |
+| Public profiles (declarative JSON) | `plugins/ed-visit/data-prep/profiles/` (`ed_visit`) |
 | MTS catalog: loaded at start from `GET /data-prep/mts-catalog.json` (the database catalog, ADR 032); bundled copy as offline fallback | endpoint `MtsCatalogForDataPrepController` (`MtsCatalog::toolCatalog()`); bundled `plugins/ed-visit/src/Application/Catalog/mts-de.json` (`MtsCatalog::bundledToolCatalog()`) |
-| `ed_visit` v1 field contract for the tool | `src/Encounter/UI/DataPrep/schema/ed_visit.v1.json` (must equal `EdVisitDimension::fields(1)`, checked by `DataPrepContractTest`; no key rules, see [key rules](#key-rules)) |
+| `ed_visit` v1 field contract for the tool | `plugins/ed-visit/data-prep/schema/ed_visit.v1.json` (must equal `EdVisitDimension::fields(1)`, checked by `DataPrepContractTest`; no key rules, see [key rules](#key-rules)) |
 | Template | `src/Encounter/UI/Twig/templates/data_prep/tool.html.twig` |
 | Renderer, version, changelog | `DataPrepToolRenderer`, `DataPrepRelease`, `DataPrepChangelog` in `src/Encounter/UI/DataPrep/` |
-| Local map template and example | `src/Encounter/UI/DataPrep/local-map/{template,example}.json` (`LocalMapFiles`) |
+| Local map template and example | `plugins/ed-visit/data-prep/local-map/{template,example}.json` (read by `LocalMapFiles` through the contribution) |
 | Landing page and subpages | `ShowDataPrepGuideController`, `ShowDataPrepKeyController`, `ShowDataPrepLocalMapController`, `DataPrepHospitals`; templates `guide`, `key`, `local_map` in `src/Encounter/UI/Twig/templates/data_prep/` |
 | Routes (404 without a contribution, and no Tools card) | `GET /tools/data-prep` (landing page), `GET /tools/data-prep/key`, `GET /tools/data-prep/local-map`, `GET /tools/data-prep/download`, `GET /tools/data-prep/local-map-{template,example}.json` (all `ROLE_ENCOUNTER_BETA`), `GET /data-prep/latest.json` and `GET /data-prep/mts-catalog.json` (public) |
 | Tests | `tests/Encounter/DataPrep/*.test.js` (`npm run test:js`), `tests/Encounter/Unit/UI/DataPrep/`, `tests/Encounter/Functional/Controller/DataPrepToolControllerTest.php`, `DataPrepGuideControllerTest.php`, `tests/Encounter/Functional/DataPrep/ShippedDataPrepToolTest.php` |

@@ -9,10 +9,11 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 
 import '../../../src/Encounter/UI/DataPrep/js/data-prep-core.js';
-import '../../../src/Encounter/UI/DataPrep/js/schemas/ed-visit.js';
+import '../../../plugins/ed-visit/data-prep/js/ed-visit.js';
 
 const prep = globalThis.EncounterDataPrep;
-const base = new URL('../../../src/Encounter/UI/DataPrep/', import.meta.url);
+// The ed_visit contribution's files (step 4h of #1300).
+const base = new URL('../../../plugins/ed-visit/data-prep/', import.meta.url);
 const fixtures = new URL('./fixtures/', import.meta.url);
 const json = (url) => JSON.parse(readFileSync(url, 'utf8'));
 
