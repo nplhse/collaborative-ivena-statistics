@@ -322,7 +322,8 @@ How a Composer-installed bundle contributes an encounter schema without changes 
 the migrations is all a deployment needs:
 
 - An `AbstractBundle` that implements `EncounterPluginBundleInterface`. `prependExtension()` adds its Doctrine
-  mapping and its migrations path; `loadExtension()` loads its services (autowired and autoconfigured, so the tags of
+  mapping and its migrations path, and, with assets, its AssetMapper path and Stimulus controller path (the
+  application lists its own in `config/packages/stimulus.yaml`, so both apply); `loadExtension()` loads its services (autowired and autoconfigured, so the tags of
   the contract interfaces apply).
 - `config/routes.php` of the bundle, imported by `EncounterPluginRouteLoader` for every enabled marked bundle.
   Name pages under Explore `app_explore_…`.
@@ -333,7 +334,7 @@ the migrations is all a deployment needs:
 - From the application only `App\Encounter\Contract\…`: schema (`EncounterDimensionInterface`), handler
   (`EncounterSchemaHandlerInterface`), assignment (`EncounterAssignmentsInterface`), access for its pages
   (`EncounterAccessInterface`: `canViewCases()`, `hospitalsWithViewCases()`), record sections and Explore tiles
-  (`Display`). Deptrac layer `Encounter_Plugin` (paths `tests/Fixtures/Plugin`; later `plugins/`) may only use
+  (`Display`). Deptrac layer `Encounter_Plugin` (`tests/Fixtures/Plugin` and `plugins/*/src`) may only use
   `Encounter_Contract`; `PluginBoundaryTest` enforces it in CI and checks that `src/` names no plugin.
 
 How to try the test bundle in a browser: [review](../04-features/encounter/encounter-schema-plugins-review.md#try-it-in-the-browser).

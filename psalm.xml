@@ -8,6 +8,7 @@
 >
     <projectFiles>
         <directory name="src"/>
+        <directory name="plugins/ed-visit/src"/>
         <ignoreFiles>
             <directory name="vendor"/>
         </ignoreFiles>

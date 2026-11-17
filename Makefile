@@ -295,12 +295,12 @@ lint-templates: ## Lint Twig template syntax (templates/ and src/)
 
 # 3. Code style and refactoring (fix / check)
 swiss-knife: ## Apply Swiss Knife fixes (commented code, finalize classes)
-	@$(SWISS_KNIFE) check-commented-code src tests
-	@$(SWISS_KNIFE) finalize-classes src tests $(SWISS_KNIFE_FINALIZE_OPTS)
+	@$(SWISS_KNIFE) check-commented-code src tests plugins
+	@$(SWISS_KNIFE) finalize-classes src tests plugins $(SWISS_KNIFE_FINALIZE_OPTS)
 
 swiss-knife-check: ## Check for commented-out code and non-final classes
-	@$(SWISS_KNIFE) check-commented-code src tests
-	@$(SWISS_KNIFE) finalize-classes src tests --dry-run $(SWISS_KNIFE_FINALIZE_OPTS)
+	@$(SWISS_KNIFE) check-commented-code src tests plugins
+	@$(SWISS_KNIFE) finalize-classes src tests plugins --dry-run $(SWISS_KNIFE_FINALIZE_OPTS)
 
 rector: ## Run Rector
 	@$(RECTOR)

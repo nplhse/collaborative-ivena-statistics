@@ -1,0 +1,19 @@
+{
+    "name": "nplhse/cois-ed-visit",
+    "description": "ED visits (encounter schema ed_visit) with MTS for Collaborative IVENA Statistics (ADR 037).",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.4.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cois\\Plugin\\EdVisit\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Cois\\Plugin\\EdVisit\\Tests\\": "tests/"
+        }
+    }
+}

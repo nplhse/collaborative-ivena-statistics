@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a358db7034bbeb052eb846bead9ba135",
+    "content-hash": "b8f84b2e5b8aa1baf692f68cf73ee73e",
     "packages": [
         {
             "name": "azuyalabs/yasumi",
@@ -2198,6 +2198,36 @@
                 "source": "https://github.com/nelmio/NelmioSecurityBundle/tree/v3.9.0"
             },
             "time": "2026-02-23T10:58:33+00:00"
+        },
+        {
+            "name": "nplhse/cois-ed-visit",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "plugins/ed-visit",
+                "reference": "ed3811c582a7cf177a5ce766345c829c1c2d3a75"
+            },
+            "require": {
+                "php": ">=8.4.3"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Cois\\Plugin\\EdVisit\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Cois\\Plugin\\EdVisit\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "ED visits (encounter schema ed_visit) with MTS for Collaborative IVENA Statistics (ADR 037).",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -18135,6 +18165,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "nplhse/cois-ed-visit": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,

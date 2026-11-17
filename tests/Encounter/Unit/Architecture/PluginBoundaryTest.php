@@ -8,16 +8,18 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Encounter schema plugins use only the contract of the application (ADR 037), and the application knows no
- * plugin. Deptrac reports the same rule (layer Encounter_Plugin) but does not fail CI, this test does.
+ * plugin (test bundles and `plugins/`). Deptrac reports the same rule (layer Encounter_Plugin) but does not fail CI, this test does.
  */
 final class PluginBoundaryTest extends TestCase
 {
-    private const string PLUGINS = '/tests/Fixtures/Plugin';
+    /** Test bundles and the source of the shipped plugins. */
+    private const array PLUGINS = ['/tests/Fixtures/Plugin', '/plugins/ed-visit/src'];
 
     public function testPluginsImportOnlyTheEncounterContractFromTheApplication(): void
     {
         $violations = [];
-        foreach ($this->phpFiles(self::PLUGINS) as $file) {
+        $files = array_merge(...array_map($this->phpFiles(...), self::PLUGINS));
+        foreach ($files as $file) {
             preg_match_all('/^use (App\\\\[^;\s]+)/m', (string) file_get_contents($file), $matches);
             foreach ($matches[1] as $import) {
                 if (!str_starts_with($import, 'App\\Encounter\\Contract\\') && !str_starts_with($import, 'App\\Tests\\Fixtures\\Plugin\\')) {
@@ -26,7 +28,9 @@ final class PluginBoundaryTest extends TestCase
             }
         }
 
-        self::assertNotEmpty($this->phpFiles(self::PLUGINS));
+        foreach (self::PLUGINS as $directory) {
+            self::assertNotEmpty($this->phpFiles($directory), $directory);
+        }
         self::assertSame([], $violations);
     }
 
@@ -35,7 +39,7 @@ final class PluginBoundaryTest extends TestCase
         $violations = [];
         foreach ($this->phpFiles('/src') as $file) {
             // Class and namespace references; the schema name `inpatient_stay` may appear in docs as an example.
-            if (1 === preg_match('/InpatientStay|Fixtures\\\\Plugin/', (string) file_get_contents($file))) {
+            if (1 === preg_match('/InpatientStay|Fixtures\\\\Plugin|Cois\\\\Plugin/', (string) file_get_contents($file))) {
                 $violations[] = substr($file, \strlen($this->root()));
             }
         }

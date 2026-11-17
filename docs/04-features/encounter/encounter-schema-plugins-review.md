@@ -251,7 +251,7 @@ reader, validator, manifest and identifying-content detection, key state and key
 voter, retention, import cleanup and hub cleanup, dimension and handler registries, the hub entity, the
 assignment service with unassigned records and conflicts, the contract layer, the generic import report.
 
-**MTS bundle** (`plugins/encounter-ed-mts`, schema `ed_visit`): `EdVisitDimension`, row and mapper, the
+**MTS bundle** (`plugins/ed-visit`, `Cois\Plugin\EdVisit\EdVisitBundle`, schema `ed_visit`): `EdVisitDimension`, row and mapper, the
 `ed_visit` record table with all ED fields, MTS catalog with curation and glossary, plausibility table,
 matching with review, swap and validation tools, `EncounterMatchDataRemover`, ED visit list and detail
 pages, hospital course card content, the encounter analytics now in Statistics, the `ed_visit`
@@ -396,7 +396,7 @@ Part 2, moving MTS (#1300, one pull request per step):
 7. Hub split with data migration; `ed_visit` records reference the encounter with `RESTRICT`.
 8. Central hub cleanup (command, schedule, request by a bundle), checking every table that references
    `encounter`.
-9. Bundle skeleton `plugins/encounter-ed-mts` as Composer path repository: prepended mapping, migrations
+9. Bundle skeleton `plugins/ed-visit` as Composer path repository: prepended mapping, migrations
    and messenger routing.
 10. Move MTS in slices: catalog and glossary, plausibility, matching and review tools, visit pages and
     case file content, encounter analytics out of Statistics, synthetic data, tool contribution.
