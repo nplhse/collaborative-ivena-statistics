@@ -145,6 +145,20 @@ final class VisitListQueryTest extends KernelTestCase
      * @param list<ArrivalRoute> $routes
      * @param list<MtsCategory>  $categories
      */
+    public function testVisitUidsOfGivenEncountersOnly(): void
+    {
+        $connection = $this->encounterEntityManager()->getConnection();
+        /** @var array<int|string, string> $expected */
+        $expected = $connection->fetchAllKeyValue('SELECT encounter_id, visit_uid FROM ed_visit WHERE hospital_id = ? ORDER BY encounter_id LIMIT 2', [$this->hospital->getId()]);
+        $ids = array_map(intval(...), array_keys($expected));
+
+        $uids = $this->query()->visitUids([...$ids, 999999]);
+        ksort($uids);
+
+        self::assertSame(array_combine($ids, array_values($expected)), $uids, 'An id without ED visit gets no uid.');
+        self::assertSame([], $this->query()->visitUids([]));
+    }
+
     private function filter(bool $includeProposals, ?VisitLinkState $linkState = null, array $routes = [], array $categories = []): VisitListFilter
     {
         $day = new \DateTimeImmutable('2026-10-12');
