@@ -14,7 +14,7 @@ const json = (url) => JSON.parse(readFileSync(url, 'utf8'));
 const profile = json(new URL('profiles/orbis-mts.json', base));
 const schema = json(new URL('schema/ed_visit.v1.json', base));
 const bundledCatalog = json(
-    new URL('../../../src/Encounter/Application/Catalog/mts-de.json', import.meta.url),
+    new URL('../../../plugins/ed-visit/src/Application/Catalog/mts-de.json', import.meta.url),
 );
 // The bundled copy in the tool's catalog format, as DataPrepToolRenderer passes it (MtsCatalog::bundledToolCatalog()).
 const toolCatalog = (data, aliases = { diagrams: {}, indicators: {} }) =>

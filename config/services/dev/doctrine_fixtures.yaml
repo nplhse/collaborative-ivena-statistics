@@ -11,7 +11,7 @@ when@dev: &materialized_view_orm_purger
                 $inner: '@App\DataFixtures\Purger\VanillaOrmPurgerFactory'
                 $materializedViewDropper: '@App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewDropper'
                 $materializedViewsInstaller: '@App\Statistics\Infrastructure\Query\Overview\OverviewMaterializedViewsInstaller'
-                $plausibilityCuration: '@App\Encounter\Application\Plausibility\PlausibilityCuration'
+                $plausibilityCuration: '@Cois\Plugin\EdVisit\Application\Plausibility\PlausibilityCuration'
 
 when@test: *materialized_view_orm_purger
 when@demo: *materialized_view_orm_purger

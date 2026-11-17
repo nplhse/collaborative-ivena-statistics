@@ -13,15 +13,15 @@ use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
-use App\Encounter\Application\Matching\MatchRunResult;
-use App\Encounter\Application\Matching\MatchScope;
-use App\Encounter\Domain\Entity\EdVisit;
-use App\Encounter\Domain\Entity\EncounterTimes;
-use App\Encounter\Domain\Entity\Triage;
-use App\Encounter\Domain\Enum\ArrivalMode;
 use App\Encounter\Domain\Enum\Sex;
-use App\Encounter\Infrastructure\Matching\EncounterMatcher;
 use App\Import\Domain\Entity\Import;
+use Cois\Plugin\EdVisit\Application\Matching\MatchRunResult;
+use Cois\Plugin\EdVisit\Application\Matching\MatchScope;
+use Cois\Plugin\EdVisit\Domain\Entity\EdVisit;
+use Cois\Plugin\EdVisit\Domain\Entity\EncounterTimes;
+use Cois\Plugin\EdVisit\Domain\Entity\Triage;
+use Cois\Plugin\EdVisit\Domain\Enum\ArrivalMode;
+use Cois\Plugin\EdVisit\Infrastructure\Matching\EncounterMatcher;
 
 /**
  * Hand-checkable allocations and visits for matcher DB tests on 12 October 2026. Defaults as in the unit

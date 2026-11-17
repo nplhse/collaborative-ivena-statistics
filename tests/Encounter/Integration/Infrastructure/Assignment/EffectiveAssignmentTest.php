@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Encounter\Integration\Infrastructure\Assignment;
 
 use App\Allocation\Domain\Entity\Hospital;
-use App\Encounter\Application\Contract\MatchDeciderInterface;
 use App\Encounter\Contract\Assignment\AssignmentKind;
 use App\Encounter\Contract\Assignment\AssignmentRequest;
 use App\Encounter\Contract\Assignment\EncounterAllocationAssignmentsInterface;
@@ -18,6 +17,7 @@ use App\Tests\Support\Encounter\EncounterDataFixtures;
 use App\Tests\Support\Encounter\MatchingDataFixtures;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
+use Cois\Plugin\EdVisit\Application\Contract\MatchDeciderInterface;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;

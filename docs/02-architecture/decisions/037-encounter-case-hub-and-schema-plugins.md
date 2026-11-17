@@ -164,6 +164,15 @@ Two rules hold for all of them:
 
 - Plugins depend only on `App\Encounter\Contract\…` (interfaces, value objects, the base entity), on
   `Shared` extension points and on Symfony and Doctrine. A Deptrac layer enforces this.
+- **Amendment (#1300, 2026-11-17):** a full schema such as `ed_visit` also needs a few Encounter classes outside
+  the contract (the `Encounter` entity as target of its Doctrine relations, the voter attributes, the base-data
+  enums, the grant repository, the department catalog, the `EncountersImported` event) and the entities, enums
+  and documented extension points of other contexts (users and roles, hospitals, departments, allocations,
+  imports, navigation, tools, My Hospitals, Explore, glossary, DataTable, audit). Wrapping all of that in
+  contract facades was rejected as a large layer without benefit while plugins live in this repository. The
+  allowed names are listed in `PluginBoundaryTest::ALLOWED`, which fails CI, and in the Deptrac layers
+  `Encounter_PluginApi` and `Encounter_Plugin`; [extension points](../extension-points.md#encounter-schema-bundles)
+  lists them.
 - Where another context offers the extension point (allocation case file, Explore overview, import data
   removers, import detail page), Encounter implements it once and forwards to its plugins. A plugin
   needs no dependency on `Allocation` or `Import`.
@@ -206,7 +215,12 @@ The decision is implemented in steps:
    daily and by command, per hospital under the encounter hospital lock, and treats every refusing
    foreign key to `encounter` as a record; step 3 done: the empty bundle `plugins/ed-visit`
    (`Cois\Plugin\EdVisit\EdVisitBundle`, package `nplhse/cois-ed-visit`) as a Composer path package, enabled
-   in every environment and covered by the static analysis) and ships MTS as a bundle.
+   in every environment and covered by the static analysis; step 4 in progress: the ED visit code, its tests,
+   templates and Stimulus controller moved into the bundle in one change, because its parts depend on each
+   other in a cycle; the hospital course card takes the ED course through `EncounterCourseProviderInterface`;
+   queued `MatchEncountersMessage`s keep working through a class alias. The synthetic ED data, the encounter
+   analytics of Statistics and the ED parts of the data preparation tool still name the bundle and follow
+   in 4f, 4g and 4h) and ships MTS as a bundle.
 
 Before step 1 of #1300, `ed_visit` was the only schema in production and its records were the encounters;
 deleting an `ed_visit` import whose visits carried records of another schema was refused. Since then an

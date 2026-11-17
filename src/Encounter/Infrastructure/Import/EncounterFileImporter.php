@@ -111,8 +111,7 @@ final readonly class EncounterFileImporter
             duplicates: \count($valid) - $written->inserted,
             skipped: $skipped,
             rejected: \count($rejects),
-            // Suspected duplicates are specific to ed_visit and stay in the core until #1300.
-            suspectedDuplicates: $written instanceof EdVisitWriteResult ? $written->suspectedDuplicates : 0,
+            suspectedDuplicates: $written->suspectedDuplicates,
             coverage: $this->coverage($valid),
             insertedDays: $written->insertedDays,
             assignments: $written->assignments,

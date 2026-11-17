@@ -63,7 +63,7 @@ class Encounter
     /**
      * Effective assignment to an IVENA allocation (#1300, ADR 037), at most one encounter per allocation. Set
      * and removed only through EncounterAllocationAssignments; the ED matching keeps its candidates and
-     * decisions in EncounterMatch.
+     * decisions in its own history (`encounter_match`).
      */
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]

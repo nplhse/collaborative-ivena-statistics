@@ -2205,7 +2205,7 @@
             "dist": {
                 "type": "path",
                 "url": "plugins/ed-visit",
-                "reference": "ed3811c582a7cf177a5ce766345c829c1c2d3a75"
+                "reference": "b51abc22d77b80a2894a65162e45fe9855460a21"
             },
             "require": {
                 "php": ">=8.4.3"
@@ -2214,7 +2214,10 @@
             "autoload": {
                 "psr-4": {
                     "Cois\\Plugin\\EdVisit\\": "src/"
-                }
+                },
+                "files": [
+                    "legacy-class-aliases.php"
+                ]
             },
             "autoload-dev": {
                 "psr-4": {

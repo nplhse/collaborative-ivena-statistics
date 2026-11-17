@@ -6,8 +6,8 @@ declare(strict_types=1);
 /**
  * Fail when bounded-context test layer directories drift from named PHPUnit suites.
  *
- * Prevents F1-style regressions: tests under tests/{Context}/{Unit|Integration|Functional}
- * that are never picked up by `make test SUITE=…` / CI because they were not registered
+ * Prevents F1-style regressions: tests under tests/{Context}/{Unit|Integration|Functional} or
+ * plugins/{plugin}/tests/{Unit|Integration|Functional} that are never picked up by `make test SUITE=…` / CI because they were not registered
  * in phpunit.dist.xml.
  *
  * Usage: make check-phpunit-suite-dirs  or  composer check-phpunit-suite-dirs
@@ -55,12 +55,13 @@ foreach ($layers as $layerDir => $suiteName) {
     }
     $configuredSet = array_fill_keys($configured, true);
 
-    $pattern = $root.'/tests/*/'.$layerDir;
-    $found = glob($pattern, GLOB_ONLYDIR) ?: [];
+    $found = array_merge(
+        glob($root.'/tests/*/'.$layerDir, GLOB_ONLYDIR) ?: [],
+        glob($root.'/plugins/*/tests/'.$layerDir, GLOB_ONLYDIR) ?: [],
+    );
 
     foreach ($found as $absoluteDir) {
-        $context = basename(dirname($absoluteDir));
-        $relative = 'tests/'.$context.'/'.$layerDir;
+        $relative = substr($absoluteDir, strlen($root) + 1);
 
         if (!directoryContainsTestPhp($absoluteDir)) {
             continue;
@@ -91,7 +92,7 @@ if ([] !== $errors) {
     foreach ($errors as $error) {
         fwrite(STDERR, '  - '.$error."\n");
     }
-    fwrite(STDERR, "\nRegister every tests/{Context}/{Unit|Integration|Functional} directory that holds tests in the matching named suite.\n");
+    fwrite(STDERR, "\nRegister every tests/{Context}/{Unit|Integration|Functional} and plugins/{plugin}/tests/{…} directory that holds tests in the matching named suite.\n");
     exit(1);
 }
 

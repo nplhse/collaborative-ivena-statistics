@@ -8,17 +8,17 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
-use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\Encounter;
-use App\Encounter\Domain\Entity\EncounterTimes;
 use App\Encounter\Domain\Enum\EncounterInsertOutcome;
 use App\Encounter\Domain\Enum\Sex;
-use App\Encounter\Infrastructure\Repository\EncounterRepository;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\User\Domain\Factory\UserFactory;
+use Cois\Plugin\EdVisit\Domain\Entity\EdVisit;
+use Cois\Plugin\EdVisit\Domain\Entity\EncounterTimes;
+use Cois\Plugin\EdVisit\Infrastructure\Repository\EncounterRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**

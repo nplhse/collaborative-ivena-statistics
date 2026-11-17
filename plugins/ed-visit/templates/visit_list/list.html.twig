@@ -1,0 +1,170 @@
+{# Visit list of one hospital (#1178). Expects `hospital`, `hospitals`, `filter`, `period`, the filter options and the DataTable state. #}
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set d = 'encounter' %}
+{% set list_route = 'app_explore_ed_visit_list' %}
+{% set list_params = {publicId: hospital.publicIdString} %}
+{% set query = app.request.query.all %}
+{% set filter_keys = ['route', 'link', 'category', 'diagram', 'disposition'] %}
+
+{% block title %}{{ 'encounter.visit_list.title'|trans({}, d) }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
+
+{% block turbo_drive %}data-turbo=true{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            <twig:Navigation:Sidebar menu="explore" />
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <twig:PageHeader :title="'encounter.visit_list.title'|trans({}, d)" :pretitle="hospital.name">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.explore', path: path('app_explore_index') },
+                { label: 'encounter.visit_list.title', label_domain: 'encounter', translatable: true }
+            ]" />
+        </twig:block>
+        <twig:block name="context">
+            {{ include('@EdVisit/review/_period_context.html.twig') }}
+            {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
+        </twig:block>
+        <twig:block name="actions">
+            {% if hospitals|length > 1 %}
+                <div class="dropdown" data-testid="encounter-visit-list-hospital-switch">
+                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <twig:ux:icon name="tabler:building-hospital" class="w-3 h-3 me-1" />
+                        {{ 'encounter.visit_list.switch_hospital'|trans({}, d) }}
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        {% for choice in hospitals %}
+                            <a class="dropdown-item{{ choice.id == hospital.id ? ' active' }}" href="{{ path(list_route, {publicId: choice.public_id}|merge(period.query())) }}">{{ choice.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            <twig:FilterDrawerTrigger
+                drawerId="encounter-visit-filters"
+                :activeCount="filter.activeCount"
+                resetUrl="{{ filter.activeCount > 0 ? path(list_route, list_params|merge(period.query())) : null }}"
+                keepViewState
+            />
+        </twig:block>
+    </twig:PageHeader>
+{% endblock %}
+
+{% block page_content %}
+    <turbo-frame id="encounter-visit-list" data-turbo-action="advance">
+        {% if filter.activeCount > 0 %}
+            <div class="d-flex flex-wrap gap-1 mb-3" data-testid="encounter-visit-list-active-filters">
+                {% for key in filter_keys|filter(key => query[key] is defined and query[key] is not empty) %}
+                    {% set values = query[key] is iterable ? query[key] : [query[key]] %}
+                    {% set label %}
+                        {%- for value in values -%}
+                            {%- if key == 'route' -%}{{ ('encounter.arrival_route.' ~ value)|trans({}, d) }}
+                            {%- elseif key == 'link' -%}{{ ('encounter.visit.link.' ~ value)|trans({}, d) }}
+                            {%- elseif key == 'category' -%}{{ ('encounter.mts.category.' ~ value ~ '.name')|trans({}, d) }}
+                            {%- elseif key == 'diagram' -%}{{ encounter_mts_diagram_name(value) }}
+                            {%- else -%}{{ ('encounter.disposition.' ~ value)|trans({}, d) }}
+                            {%- endif -%}{{ not loop.last ? ', ' }}
+                        {%- endfor -%}
+                    {% endset %}
+                    <a class="badge bg-blue-lt text-decoration-none" href="{{ path(list_route, list_params|merge(query|filter((v, k) => k != key and k != 'page'))) }}">
+                        {{ ('encounter.visit_list.filter.' ~ key)|trans({}, d) }}: {{ label }}
+                        <twig:ux:icon name="tabler:x" class="w-3 h-3 ms-1" />
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <twig:DataTable
+            mobileLayout="cards"
+            mobilePrimaryColumn="anchor"
+            :mobileTitleColumns="['link']"
+            mobileBreakpoint="lg"
+            :paginator="paginator"
+            :paginationRoute="list_route"
+            :sortBy="sortBy"
+            :orderBy="orderBy"
+            emptyTitle="{{ (filter.activeCount > 0 ? 'empty.filtered.title' : 'encounter.visit_list.empty.title')|trans({}, filter.activeCount > 0 ? 'shared' : d) }}"
+            emptyDescription="{{ (filter.activeCount > 0 ? 'empty.filtered.description' : 'encounter.visit_list.empty.description')|trans({}, filter.activeCount > 0 ? 'shared' : d) }}"
+            emptyIcon="{{ filter.activeCount > 0 ? 'tabler:filter-off' : 'tabler:stethoscope' }}"
+            :columns="columns"
+            columnVisibilityEnabled
+            columnOrderingEnabled
+            :visibleColumnKeys="preferences.visibleColumns"
+            :columnOrder="preferences.columnOrder"
+            :preferenceKey="preference_key"
+            :preferenceSaveUrl="path('app_data_table_preferences_save')"
+            :preferenceCsrfToken="csrf_token('data_table_preference_' ~ preference_key)"
+            :preferenceReturnUrl="app.request.requestUri"
+            rowTestId="encounter-visit-list-row"
+        />
+    </turbo-frame>
+
+    <twig:FilterDrawer
+        id="encounter-visit-filters"
+        formId="encounter-visit-filter-form"
+        formAction="{{ path(list_route, list_params) }}"
+        resetUrl="{{ path(list_route, list_params|merge(period.query())) }}"
+        testId="encounter-visit-filters"
+        keepViewState
+    >
+        <div class="mb-3">
+            <label class="form-label" for="visit-from">{{ 'encounter.review.period.from'|trans({}, d) }}</label>
+            <input class="form-control" type="date" id="visit-from" name="from" value="{{ period.from|date('Y-m-d') }}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="visit-to">{{ 'encounter.review.period.to'|trans({}, d) }}</label>
+            <input class="form-control" type="date" id="visit-to" name="to" value="{{ period.to|date('Y-m-d') }}">
+            <small class="form-hint">{{ 'encounter.visit_list.period_help'|trans({days: constant('Cois\\Plugin\\EdVisit\\Application\\Review\\ReviewPeriod::MAX_DAYS')}, d) }}</small>
+        </div>
+        <div class="mb-3">
+            <div class="form-label">{{ 'encounter.visit_list.filter.route'|trans({}, d) }}</div>
+            {% for option in routes %}
+                <label class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="route[]" value="{{ option.value }}" {{ option in filter.routes ? 'checked' }}>
+                    <span class="form-check-label">{{ ('encounter.arrival_route.' ~ option.value)|trans({}, d) }}</span>
+                </label>
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="visit-link">{{ 'encounter.visit_list.filter.link'|trans({}, d) }}</label>
+            <select class="form-select" id="visit-link" name="link">
+                <option value="">{{ 'encounter.visit_list.filter.all'|trans({}, d) }}</option>
+                {% for state in link_states %}
+                    <option value="{{ state.value }}" {{ filter.linkState == state ? 'selected' }}>{{ ('encounter.visit.link.' ~ state.value)|trans({}, d) }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <div class="form-label">{{ 'encounter.visit_list.filter.category'|trans({}, d) }}</div>
+            {% for option in categories %}
+                <label class="form-check">
+                    <input class="form-check-input" type="checkbox" name="category[]" value="{{ option.value }}" {{ option in filter.categories ? 'checked' }}>
+                    <span class="form-check-label"><span class="badge bg-{{ option.value }} me-1"></span>{{ ('encounter.mts.category.' ~ option.value ~ '.name')|trans({}, d) }}</span>
+                </label>
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="visit-diagram">{{ 'encounter.visit_list.filter.diagram'|trans({}, d) }}</label>
+            <select class="form-select" id="visit-diagram" name="diagram">
+                <option value="">{{ 'encounter.visit_list.filter.all'|trans({}, d) }}</option>
+                {% for code in diagram_codes %}
+                    <option value="{{ code }}" {{ filter.diagram == code ? 'selected' }}>{{ encounter_mts_diagram_name(code) }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="visit-disposition">{{ 'encounter.visit_list.filter.disposition'|trans({}, d) }}</label>
+            <select class="form-select" id="visit-disposition" name="disposition">
+                <option value="">{{ 'encounter.visit_list.filter.all'|trans({}, d) }}</option>
+                {% for option in dispositions %}
+                    <option value="{{ option.value }}" {{ filter.disposition == option ? 'selected' }}>{{ ('encounter.disposition.' ~ option.value)|trans({}, d) }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </twig:FilterDrawer>
+{% endblock %}

@@ -8,5 +8,5 @@ return static function (ContainerConfigurator $container): void {
     $container->services()
         ->defaults()->autowire()->autoconfigure()
         ->load('Cois\\Plugin\\EdVisit\\', '../src/')
-        ->exclude(['../src/Entity/', '../src/EdVisitBundle.php']);
+        ->exclude(['../src/Domain/Entity/', '../src/EdVisitBundle.php']);
 };

@@ -360,26 +360,54 @@ deptrac:
             name: Encounter_Domain
             collectors:
                 -
-                    type: directory
-                    value: src/Encounter/Domain/.*
+                    type: bool
+                    must:
+                        -
+                            type: directory
+                            value: src/Encounter/Domain/.*
+                    must_not:
+                        -
+                            type: classNameRegex
+                            value: '#^App\\Encounter\\(Domain\\Entity\\Encounter|Application\\Security\\EncounterAttribute|Domain\\Enum\\(AnchorSource|CaseStatus|EncounterGrantAction|EncounterInsertOutcome|Sex)|Application\\Contract\\(DepartmentCatalogInterface|EncounterAccessGrantRepositoryInterface)|Application\\Event\\EncountersImported)$#'
         -
             name: Encounter_Application
             collectors:
                 -
-                    type: directory
-                    value: src/Encounter/Application/.*
+                    type: bool
+                    must:
+                        -
+                            type: directory
+                            value: src/Encounter/Application/.*
+                    must_not:
+                        -
+                            type: classNameRegex
+                            value: '#^App\\Encounter\\(Domain\\Entity\\Encounter|Application\\Security\\EncounterAttribute|Domain\\Enum\\(AnchorSource|CaseStatus|EncounterGrantAction|EncounterInsertOutcome|Sex)|Application\\Contract\\(DepartmentCatalogInterface|EncounterAccessGrantRepositoryInterface)|Application\\Event\\EncountersImported)$#'
         -
             name: Encounter_Infrastructure
             collectors:
                 -
-                    type: directory
-                    value: src/Encounter/Infrastructure/.*
+                    type: bool
+                    must:
+                        -
+                            type: directory
+                            value: src/Encounter/Infrastructure/.*
+                    must_not:
+                        -
+                            type: classNameRegex
+                            value: '#^App\\Encounter\\(Domain\\Entity\\Encounter|Application\\Security\\EncounterAttribute|Domain\\Enum\\(AnchorSource|CaseStatus|EncounterGrantAction|EncounterInsertOutcome|Sex)|Application\\Contract\\(DepartmentCatalogInterface|EncounterAccessGrantRepositoryInterface)|Application\\Event\\EncountersImported)$#'
         -
             name: Encounter_UI
             collectors:
                 -
-                    type: directory
-                    value: src/Encounter/UI/.*
+                    type: bool
+                    must:
+                        -
+                            type: directory
+                            value: src/Encounter/UI/.*
+                    must_not:
+                        -
+                            type: classNameRegex
+                            value: '#^App\\Encounter\\(Domain\\Entity\\Encounter|Application\\Security\\EncounterAttribute|Domain\\Enum\\(AnchorSource|CaseStatus|EncounterGrantAction|EncounterInsertOutcome|Sex)|Application\\Contract\\(DepartmentCatalogInterface|EncounterAccessGrantRepositoryInterface)|Application\\Event\\EncountersImported)$#'
         # Public contract for schema plugins (ADR 037): plugins may only use this layer of Encounter.
         -
             name: Encounter_Contract
@@ -387,6 +415,13 @@ deptrac:
                 -
                     type: directory
                     value: src/Encounter/Contract/.*
+        # The Encounter classes besides the contract that plugins may use (PluginBoundaryTest::ALLOWED, #1300).
+        -
+            name: Encounter_PluginApi
+            collectors:
+                -
+                    type: classNameRegex
+                    value: '#^App\\Encounter\\(Domain\\Entity\\Encounter|Application\\Security\\EncounterAttribute|Domain\\Enum\\(AnchorSource|CaseStatus|EncounterGrantAction|EncounterInsertOutcome|Sex)|Application\\Contract\\(DepartmentCatalogInterface|EncounterAccessGrantRepositoryInterface)|Application\\Event\\EncountersImported)$#'
         -
             name: Encounter_Plugin
             collectors:
@@ -682,10 +717,36 @@ deptrac:
         # (admin notification of a key change, ADR 026); no context may use Encounter. Every Encounter layer may use
         # Encounter_Contract, which itself depends on nothing of the application (ADR 037).
         Encounter_Contract: []
+        # Plugins (ADR 037, #1300): the contract, the Encounter plugin API, the entities and enums of other contexts and
+        # their documented extension points (PluginBoundaryTest::ALLOWED is the exact list and fails CI).
+        # Same dependencies as Encounter_Application, which the plugin API classes belong to by folder.
+        Encounter_PluginApi:
+            - Encounter_Contract
+            - Encounter_Domain
+            - Allocation_Application
+            - Allocation_Domain
+            - Import_Application
+            - Import_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
         Encounter_Plugin:
             - Encounter_Contract
+            - Encounter_PluginApi
+            - Allocation_Domain
+            - Allocation_Application
+            - Import_Domain
+            - Import_Application
+            - User_Domain
+            - Shared_Application
+            - Shared_Infrastructure
+            - Shared_UI
         Encounter_Domain:
             - Encounter_Contract
+            - Encounter_PluginApi
             - Allocation_Domain
             - Import_Domain
             - Shared_Application
@@ -695,6 +756,7 @@ deptrac:
             - User_Domain
         Encounter_Application:
             - Encounter_Contract
+            - Encounter_PluginApi
             - Allocation_Application
             - Allocation_Domain
             - Encounter_Domain
@@ -708,6 +770,7 @@ deptrac:
             - User_Domain
         Encounter_Infrastructure:
             - Encounter_Contract
+            - Encounter_PluginApi
             - Allocation_Application
             - Allocation_Domain
             - Encounter_Application
@@ -724,6 +787,7 @@ deptrac:
             - User_Domain
         Encounter_UI:
             - Encounter_Contract
+            - Encounter_PluginApi
             - Allocation_Application
             - Allocation_Domain
             - Encounter_Application

@@ -11,7 +11,6 @@ use App\Encounter\Application\Import\EncounterImportResult;
 use App\Encounter\Application\Import\EncounterKeyGenerationChangedException;
 use App\Encounter\Application\Message\ImportEncountersMessage;
 use App\Encounter\Domain\Entity\EncounterImport;
-use App\Encounter\Domain\Entity\EncounterSuspectedDuplicate;
 use App\Encounter\Domain\Enum\EncounterFileRejection;
 use App\Encounter\Infrastructure\Repository\EncounterImportRepository;
 use App\Encounter\Infrastructure\Repository\EncounterKeyStateRepository;
@@ -117,7 +116,7 @@ final readonly class ImportEncountersMessageHandler
         $started = microtime(true);
         $status = ImportRunStatus::Failed->value;
         $error = null;
-        $this->auditContext->pushSuppressedEntityAudit([ImportReject::class, EncounterSuspectedDuplicate::class]);
+        $this->auditContext->pushSuppressedEntityAudit([ImportReject::class]);
         $this->commitGuard->activate($context);
         try {
             // A reprocess replaces the previous run's data inside the write transaction (#1300): nothing of the last

@@ -11,8 +11,8 @@ use App\DataFixtures\Encounter\Application\SyntheticEncounterKey;
 use App\DataFixtures\Encounter\Application\SyntheticEncounterTruth;
 use App\DataFixtures\Encounter\Application\SyntheticVisit;
 use App\DataFixtures\Encounter\Application\SyntheticVisitKind;
-use App\Encounter\Application\Dimension\EdVisitDimension;
 use App\Encounter\Contract\Schema\EncounterField;
+use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
 use PHPUnit\Framework\TestCase;
 
 /**

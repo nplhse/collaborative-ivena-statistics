@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Cois\Plugin\EdVisit;
 
 use App\Encounter\Contract\Plugin\EncounterPluginBundleInterface;
+use Cois\Plugin\EdVisit\Application\Message\MatchEncountersMessage;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
 /**
  * Encounter schema plugin `ed_visit`: ED visits with MTS (ADR 037, #1300). It contributes everything through
- * the bundle: services (`config/services.php`), Doctrine mapping (`src/Entity`), migrations (`migrations/`),
- * assets and Stimulus controllers (`assets/`), and, once present, routes (`config/routes.php`), templates
- * (`@EdVisit`) and translations (domain `ed_visit`). From the application it uses only `App\Encounter\Contract\…`.
+ * the bundle: services (`config/services.php`), Doctrine mapping (`src/Domain/Entity`), migrations (`migrations/`),
+ * assets and Stimulus controllers (`assets/`), routes (`config/routes.php`) and templates (`@EdVisit`). From the application it uses only `App\Encounter\Contract\…`.
  *
  * @psalm-suppress UnusedClass Enabled in config/bundles.php.
  */
@@ -31,8 +31,8 @@ final class EdVisitBundle extends AbstractBundle implements EncounterPluginBundl
         $container->prependExtensionConfig('doctrine', ['orm' => ['mappings' => ['EdVisit' => [
             'type' => 'attribute',
             'is_bundle' => false,
-            'dir' => $this->getPath().'/src/Entity',
-            'prefix' => __NAMESPACE__.'\Entity',
+            'dir' => $this->getPath().'/src/Domain/Entity',
+            'prefix' => __NAMESPACE__.'\Domain\Entity',
         ]]]]);
         $container->prependExtensionConfig('doctrine_migrations', ['migrations_paths' => [
             __NAMESPACE__.'\Migrations' => $this->getPath().'/migrations',
@@ -43,6 +43,13 @@ final class EdVisitBundle extends AbstractBundle implements EncounterPluginBundl
         $container->prependExtensionConfig('stimulus', ['controller_paths' => [
             $this->getPath().'/assets/controllers',
         ]]);
+
+        // Tests run the bundle's messages synchronously, as the application's own (config/packages/messenger.yaml).
+        if ('test' === $container->getParameter('kernel.environment')) {
+            $container->prependExtensionConfig('framework', ['messenger' => ['routing' => [
+                MatchEncountersMessage::class => 'sync',
+            ]]]);
+        }
     }
 
     /**

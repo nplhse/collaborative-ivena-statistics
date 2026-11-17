@@ -284,13 +284,19 @@ references it; removing an import removes only its records.
 
 **Registry:** `RecordSectionRegistry`, used by `HospitalCourseCaseSectionProvider`
 
+**Course:** `EncounterCourseProviderInterface` (tag `encounter.course`, same directory), implemented by
+`EdVisitCourseProvider` of the ED visit plugin
+
 **Implementations:** in the `test` environment `InpatientStayRecordSections` of the test bundle
 (`tests/Fixtures/Plugin/InpatientStay/`)
 
 Lets an encounter schema show its records of an encounter in the hospital course card of the allocation case
 file (ADR 037). The card asks only after it checked `VIEW_CASES` and found the effective link; a provider returns
 `RecordSection`s (key, Twig template of the schema, variables) or none, with one query at most (query budget of the
-case file).
+case file). The schema whose records decide the assignment (the ED visit with its match review) contributes the
+course at the top of the card instead: `courseForEncounter()` returns an `EncounterCourse` (template and variables,
+or none when it has a record but nothing to show) or null without a record. While a course provider has a record,
+the card offers no "Remove assignment".
 
 ## Encounter Explore tiles
 
@@ -314,8 +320,8 @@ action `VIEW_CASES` or `REVIEW` somewhere, or `ROLE_ADMIN`); the target page che
 **Consumers:** `EncounterPluginRouteLoader` (route type `encounter_plugins`, `config/routes/encounter_plugins.php`),
 `TimestampMigrationComparator` (`src/Shared/Infrastructure/Doctrine/`, registered in `doctrine_migrations.yaml`)
 
-**Implementations:** in the `test` environment `InpatientStayTestBundle` (`tests/Fixtures/Plugin/InpatientStay/`,
-schema `inpatient_stay`, #1274)
+**Implementations:** `EdVisitBundle` (`plugins/ed-visit/`, schema `ed_visit`, #1300); in the `test` environment
+`InpatientStayTestBundle` (`tests/Fixtures/Plugin/InpatientStay/`, schema `inpatient_stay`, #1274)
 
 How a Composer-installed bundle contributes an encounter schema without changes to the application
 ([ADR 037](decisions/037-encounter-case-hub-and-schema-plugins.md)); enabling it in `config/bundles.php` and running
@@ -331,11 +337,19 @@ the migrations is all a deployment needs:
   `translations/` (own domain, EN and DE), registered by Symfony.
 - Migrations named `Version<YYYYMMDDHHMMSS>`, ordered by timestamp with the core ones; record tables reference
   `encounter` with ON DELETE RESTRICT and their import with ON DELETE CASCADE.
-- From the application only `App\Encounter\Contract\…`: schema (`EncounterDimensionInterface`), handler
+- From the application above all `App\Encounter\Contract\…`: schema (`EncounterDimensionInterface`), handler
   (`EncounterSchemaHandlerInterface`), assignment (`EncounterAssignmentsInterface`), access for its pages
-  (`EncounterAccessInterface`: `canViewCases()`, `hospitalsWithViewCases()`), record sections and Explore tiles
-  (`Display`). Deptrac layer `Encounter_Plugin` (`tests/Fixtures/Plugin` and `plugins/*/src`) may only use
-  `Encounter_Contract`; `PluginBoundaryTest` enforces it in CI and checks that `src/` names no plugin.
+  (`EncounterAccessInterface`: `canViewCases()`, `hospitalsWithViewCases()`), record sections, the course and
+  Explore tiles (`Display`). Besides that (ADR 037 amendment, #1300): the `Encounter` entity, `EncounterAttribute`,
+  the enums `AnchorSource`, `CaseStatus`, `EncounterGrantAction`, `EncounterInsertOutcome` and `Sex`,
+  `EncounterAccessGrantRepositoryInterface`, `DepartmentCatalogInterface`, `EncountersImported`; the entities and
+  enums of Allocation, Import and User, `UserRole`, `ImportCompleted`, `ImportDataRemoverInterface`; and the
+  extension points for navigation, tools, DataTable and audit (Shared), Explore and My Hospitals (Allocation).
+  `PluginBoundaryTest::ALLOWED` is the exact list and fails CI; it also checks that `src/` names no plugin,
+  apart from the files `NOT_YET_MOVED` lists while #1300 moves them. Deptrac reports the same rule (layers
+  `Encounter_PluginApi`, `Encounter_Plugin`).
+- A message class that moves into a plugin keeps its old name as an alias in the plugin's
+  `legacy-class-aliases.php` (autoloaded by its `composer.json`) until no transport holds it any more.
 
 How to try the test bundle in a browser: [review](../04-features/encounter/encounter-schema-plugins-review.md#try-it-in-the-browser).
 

@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Tests\Encounter\Integration\Infrastructure;
 
 use App\Allocation\Domain\Entity\Hospital;
-use App\Encounter\Domain\Entity\EdVisit;
 use App\Encounter\Domain\Entity\Encounter;
-use App\Encounter\Domain\Entity\EncounterTimes;
 use App\Encounter\Domain\Enum\EncounterInsertOutcome;
 use App\Encounter\Domain\Enum\Sex;
-use App\Encounter\Infrastructure\Persistence\EncounterInsertStatement;
-use App\Encounter\Infrastructure\Repository\EncounterRepository;
 use App\Import\Domain\Entity\Import;
+use Cois\Plugin\EdVisit\Domain\Entity\EdVisit;
+use Cois\Plugin\EdVisit\Domain\Entity\EncounterTimes;
+use Cois\Plugin\EdVisit\Infrastructure\Persistence\EncounterInsertStatement;
+use Cois\Plugin\EdVisit\Infrastructure\Repository\EncounterRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManagerInterface;

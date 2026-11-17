@@ -8,24 +8,21 @@ use App\Allocation\Application\CaseFile\AllocationCaseSection;
 use App\Allocation\Application\CaseFile\AllocationCaseSectionProviderInterface;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Hospital;
-use App\Encounter\Application\CaseCard\HospitalCourseFactory;
-use App\Encounter\Application\Catalog\MtsCatalog;
-use App\Encounter\Application\Catalog\MtsCatalogEntry;
-use App\Encounter\Application\Contract\HospitalCourseReaderInterface;
 use App\Encounter\Application\Display\RecordSectionRegistry;
 use App\Encounter\Application\Security\EncounterAttribute;
 use App\Encounter\Contract\Assignment\EncounterAllocationAssignmentsInterface;
-use App\Encounter\Domain\Entity\EdVisit;
-use App\Encounter\Domain\Entity\EncounterMatch;
-use App\Encounter\UI\Glossary\MtsNames;
+use App\Encounter\Contract\Display\EncounterCourse;
+use App\Encounter\Contract\Display\EncounterCourseProviderInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * Card "Hospital course" on the allocation case file (#1055), contributed through the Allocation
  * extension point so Allocation does not depend on Encounter. Only for users with VIEW_CASES on the
  * allocation's hospital (ADR 028; administrators hold it implicitly). Without an effective link the
- * card says so; proposals are not shown here (match review, #1054). With a link, the card also shows the
- * record sections of other encounter schemas for the linked encounter (ADR 037).
+ * card says so; proposals are not shown here (match review, #1054). With a link, the card shows the course of
+ * the schema that decides the assignment (EncounterCourseProviderInterface, the ED visit) and the record
+ * sections of every schema for the linked encounter (ADR 037).
  *
  * @psalm-suppress UnusedClass Tagged via AllocationCaseSectionProviderInterface.
  */
@@ -33,12 +30,15 @@ final readonly class HospitalCourseCaseSectionProvider implements AllocationCase
 {
     public const string KEY = 'encounter_hospital_course';
 
+    private const string TEMPLATE = '@Encounter/case_card/hospital_course.html.twig';
+
+    /**
+     * @param iterable<EncounterCourseProviderInterface> $courses
+     */
     public function __construct(
         private AuthorizationCheckerInterface $authorizationChecker,
-        private HospitalCourseReaderInterface $reader,
-        private HospitalCourseFactory $factory,
-        private MtsCatalog $mtsCatalog,
-        private MtsNames $mtsNames,
+        #[AutowireIterator(EncounterCourseProviderInterface::TAG)]
+        private iterable $courses,
         private RecordSectionRegistry $recordSections,
         private EncounterAllocationAssignmentsInterface $assignments,
     ) {
@@ -58,51 +58,30 @@ final readonly class HospitalCourseCaseSectionProvider implements AllocationCase
         // the ED visit is one of them.
         $encounterId = $this->assignments->encounterOfAllocation($allocationId);
         if (null === $encounterId) {
-            return [new AllocationCaseSection(self::KEY, '@Encounter/case_card/hospital_course.html.twig', ['course' => null, 'record_sections' => []])];
+            return [new AllocationCaseSection(self::KEY, self::TEMPLATE, ['course' => null, 'record_sections' => []])];
         }
 
-        $visit = $this->reader->visitOfEncounter($encounterId);
-        $link = $visit instanceof EdVisit ? $this->reader->effectiveLinkOfVisit($visit) : null;
-        if (!$visit instanceof EdVisit || !$link instanceof EncounterMatch) {
-            return [new AllocationCaseSection(self::KEY, '@Encounter/case_card/hospital_course.html.twig', [
-                'course' => null,
-                'record_sections' => $this->recordSections->forEncounter($encounterId),
-                // Without ED visit the ED match review cannot change the assignment; a reviewer can remove it here.
-                'can_unassign' => !$visit instanceof EdVisit && $this->authorizationChecker->isGranted(EncounterAttribute::REVIEW, $hospital),
-                'allocation_public_id' => $allocation->getPublicId(),
-                'allocation_id' => $allocationId,
-            ])];
-        }
+        $course = $this->course($encounterId);
 
-        $triage = $visit->getTriage();
-
-        return [new AllocationCaseSection(self::KEY, '@Encounter/case_card/hospital_course.html.twig', [
-            'course' => $this->factory->create($visit, $link),
-            'diagram_name' => $this->diagramName($triage->getDiagram()),
-            'indicator_name' => $this->indicatorName($triage->getIndicator()),
+        return [new AllocationCaseSection(self::KEY, self::TEMPLATE, [
+            'course' => null !== $course?->template ? $course : null,
             'record_sections' => $this->recordSections->forEncounter($encounterId),
+            // Without a deciding schema's record its review cannot change the assignment; a reviewer can remove it here.
+            'can_unassign' => !$course instanceof EncounterCourse && $this->authorizationChecker->isGranted(EncounterAttribute::REVIEW, $hospital),
+            'allocation_public_id' => $allocation->getPublicId(),
+            'allocation_id' => $allocationId,
         ])];
     }
 
-    private function diagramName(?string $code): ?string
+    private function course(int $encounterId): ?EncounterCourse
     {
-        if (null === $code) {
-            return null;
+        foreach ($this->courses as $provider) {
+            $course = $provider->courseForEncounter($encounterId);
+            if ($course instanceof EncounterCourse) {
+                return $course;
+            }
         }
 
-        $entry = $this->mtsCatalog->diagram($code);
-
-        return $entry instanceof MtsCatalogEntry ? $this->mtsNames->diagram($entry)->name : $code;
-    }
-
-    private function indicatorName(?string $code): ?string
-    {
-        if (null === $code) {
-            return null;
-        }
-
-        $entry = $this->mtsCatalog->indicator($code);
-
-        return $entry instanceof MtsCatalogEntry ? $this->mtsNames->indicator($entry)->name : $code;
+        return null;
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Encounter\Unit\Application\Import;
 
-use App\Encounter\Application\Dimension\EdVisitDimension;
 use App\Encounter\Application\Dimension\EncounterDimensionRegistry;
 use App\Encounter\Application\Import\EncounterFileReader;
 use App\Encounter\Application\Import\EncounterFileRejectedException;
@@ -12,6 +11,7 @@ use App\Encounter\Application\Import\EncounterFileValidator;
 use App\Encounter\Application\Import\IdentifyingContentDetector;
 use App\Encounter\Domain\Enum\EncounterFileRejection;
 use App\Tests\Support\Encounter\EdVisitFileBuilder;
+use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

@@ -7,6 +7,7 @@ use Rector\Doctrine\Set\DoctrineSetList;
 use Rector\Symfony\Set\SymfonySetList;
 
 $entityPath = __DIR__.'/src/**/Domain/Entity/*';
+$pluginEntityPath = __DIR__.'/plugins/*/src/Domain/Entity/*';
 
 $config = RectorConfig::configure()
     ->withPaths([
@@ -37,9 +38,9 @@ $config = RectorConfig::configure()
         __DIR__.'/tests/PHPStan/Unit/Rules/data',
         // Migrations of encounter schema plugins stay as generated, like the application's (not in the paths).
         __DIR__.'/plugins/*/migrations',
-        Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class => [$entityPath],
-        Rector\Php81\Rector\Property\ReadOnlyPropertyRector::class => [$entityPath],
-        Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector::class => [$entityPath],
+        Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class => [$entityPath, $pluginEntityPath],
+        Rector\Php81\Rector\Property\ReadOnlyPropertyRector::class => [$entityPath, $pluginEntityPath],
+        Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector::class => [$entityPath, $pluginEntityPath],
     ])
     ->withCache(__DIR__.'/var/cache/rector')
     ->withParallel();

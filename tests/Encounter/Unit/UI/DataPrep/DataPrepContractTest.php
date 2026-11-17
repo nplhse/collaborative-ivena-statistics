@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Encounter\Unit\UI\DataPrep;
 
-use App\Encounter\Application\Catalog\MtsCatalog;
-use App\Encounter\Application\Dimension\EdVisitDimension;
 use App\Encounter\Contract\Schema\EncounterField;
-use App\Encounter\Domain\Enum\CareLevel;
-use App\Encounter\Domain\Enum\Disposition;
+use Cois\Plugin\EdVisit\Application\Catalog\MtsCatalog;
+use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
+use Cois\Plugin\EdVisit\Domain\Enum\CareLevel;
+use Cois\Plugin\EdVisit\Domain\Enum\Disposition;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

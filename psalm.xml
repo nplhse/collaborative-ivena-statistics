@@ -26,6 +26,7 @@
         <ClassMustBeFinal>
             <errorLevel type="suppress">
                 <directory name="src/*/Domain/Entity"/>
+                <directory name="plugins/ed-visit/src/Domain/Entity"/>
                 <directory name="src/Shared/Application/Export/"/>
             </errorLevel>
         </ClassMustBeFinal>
@@ -43,16 +44,23 @@
                 <directory name="src/*/Application/Sitemap/" />
                 <directory name="src/*/Application/Exception/" />
                 <directory name="src/*/Domain/Entity/" />
+                <directory name="plugins/ed-visit/src/Domain/Entity/"/>
                 <directory name="src/*/Domain/Enum/" />
+                <directory name="plugins/ed-visit/src/Domain/Enum/"/>
                 <directory name="src/*/Domain/Validation/" />
                 <directory name="src/*/Infrastructure/Repository/" />
+                <directory name="plugins/ed-visit/src/Infrastructure/Repository/"/>
                 <directory name="src/*/Infrastructure/Query/" />
+                <directory name="plugins/ed-visit/src/Infrastructure/Query/"/>
                 <directory name="src/*/UI/Console/Command/" />
+                <directory name="plugins/ed-visit/src/UI/Console/Command/"/>
                 <directory name="src/*/UI/Http/Controller" />
+                <directory name="plugins/ed-visit/src/UI/Http/Controller"/>
                 <directory name="src/*/UI/Http/DTO/" />
                 <directory name="src/Allocation/Application/" />
                 <directory name="src/*/Infrastructure/Security/Voter/" />
                 <directory name="src/*/UI/Form/" />
+                <directory name="plugins/ed-visit/src/UI/Form/"/>
                 <directory name="src/Allocation/Infrastructure/Faker/Provider/" />
                 <directory name="src/DataFixtures"/>
                 <directory name="src/Import/Application/Factory" />
@@ -95,10 +103,14 @@
                 <directory name="src/*/Infrastructure/Factory/" />
                 <directory name="src/*/UI/Twig/Components" />
                 <directory name="src/*/UI/Form/" />
+                <directory name="plugins/ed-visit/src/UI/Form/"/>
                 <directory name="src/Allocation/Application/ReferenceCatalog/Package/Validation/" />
                 <directory name="src/*/UI/Twig" />
+                <directory name="plugins/ed-visit/src/UI/Twig"/>
                 <directory name="src/*/UI/Http/Controller" />
+                <directory name="plugins/ed-visit/src/UI/Http/Controller"/>
                 <directory name="src/*/UI/Console/Command" />
+                <directory name="plugins/ed-visit/src/UI/Console/Command"/>
                 <directory name="src/DataFixtures" />
                 <directory name="src/Import/Infrastructure/Adapter/" />
                 <directory name="src/Import/Infrastructure/Mapping/" />

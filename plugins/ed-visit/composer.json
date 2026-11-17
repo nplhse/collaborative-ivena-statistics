@@ -9,7 +9,10 @@
     "autoload": {
         "psr-4": {
             "Cois\\Plugin\\EdVisit\\": "src/"
-        }
+        },
+        "files": [
+            "legacy-class-aliases.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
