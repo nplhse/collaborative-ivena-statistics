@@ -80,6 +80,22 @@ final class ListVisitsControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="encounter-visit-list-hospital-switch"]', 'Only one hospital.');
     }
 
+    public function testLinksToOtherPagesLeaveTheListFrame(): void
+    {
+        $this->client->loginUser($this->caseViewer());
+        $frame = $this->list()->filter('turbo-frame#encounter-visit-list');
+
+        // Without target="_top" Turbo loads the target page into the frame and shows "Content missing" (#1380).
+        $visits = $frame->filter('[data-testid="encounter-visit-list-link"]');
+        $allocations = $frame->filter('[data-testid="encounter-visit-list-allocation-link"]');
+        self::assertCount(3, $visits);
+        self::assertCount(1, $allocations, 'The linked visit links its allocation.');
+        self::assertSame(['_top', '_top', '_top', '_top'], [
+            ...$visits->each(static fn ($link): ?string => $link->attr('target')),
+            ...$allocations->each(static fn ($link): ?string => $link->attr('target')),
+        ]);
+    }
+
     public function testReviewerSeesPendingVisitsAndCanFilterThem(): void
     {
         $this->client->loginUser($this->grantee([EncounterGrantAction::Review]));
