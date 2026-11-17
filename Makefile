@@ -8,7 +8,7 @@
         lint-templates swiss-knife swiss-knife-check rector rector-check fix-php lint-php fix-twig \
         lint-twig fix-js lint-js phpstan psalm deptrac deptrac-strict deptrac-baseline test testdox \
         demo-install demo-install-guard demo-start demo-consume demo-reminder \
-        coverage test-unit test-database purge-runtime purge reset clear
+        coverage test-unit test-database check-without-ed-visit purge-runtime purge reset clear
 
 # Executables
 COMPOSER      = composer
@@ -358,6 +358,9 @@ ARGS ?=
 
 test: ## Run tests (SUITE=all|unit|integration|functional|functional-http|browser|fixtures|system|materialized-view, PATH_ARG=tests/…, GROUP=, EXCLUDE_GROUP=, ARGS=)
 	@SUITE=$(SUITE) PATH_ARG=$(PATH_ARG) GROUP=$(GROUP) EXCLUDE_GROUP=$(EXCLUDE_GROUP) ./bin/run-tests --stop-on-failure --no-coverage $(ARGS)
+
+check-without-ed-visit: ## Install a temporary copy without the ED visit plugin package and smoke-test it (own test database, about 2 min)
+	@./bin/check-without-ed-visit
 
 testdox: ## Run tests with testdox (same SUITE/PATH_ARG/GROUP/EXCLUDE_GROUP/ARGS as test)
 	@SUITE=$(SUITE) PATH_ARG=$(PATH_ARG) GROUP=$(GROUP) EXCLUDE_GROUP=$(EXCLUDE_GROUP) ./bin/run-tests --testdox --no-coverage $(ARGS)

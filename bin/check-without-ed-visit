@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+# Check that the application installs and runs without the ED visit plugin package (#1300 step 6).
+#
+# Usage: bin/check-without-ed-visit [--keep]
+#
+# Copies the checkout (tracked and untracked, not ignored files) to a temporary directory, removes
+# nplhse/cois-ed-visit there with Composer, drops the bundle and the plugin paths, and runs: class check, prod
+# cache warmup, container lint, asset map compile, then the tests of tests/Encounter/Functional/WithoutEdVisit
+# and the import upload tests on an own, freshly migrated test database (suffix _without_ed_visit, dropped at the
+# end). --keep leaves the directory and the database for inspection. See docs/03-development/development-workflow.md.
+set -euo pipefail
+
+usage() {
+    sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'
+}
+
+keep=false
+for arg in "$@"; do
+    case "$arg" in
+        --keep) keep=true ;;
+        -h|--help) usage; exit 0 ;;
+        *) echo "Unknown argument: $arg" >&2; usage >&2; exit 2 ;;
+    esac
+done
+
+source=$(cd "$(dirname "$0")/.." && pwd -P)
+work=$(mktemp -d "${TMPDIR:-/tmp}/cois-without-ed-visit.XXXXXX")
+work=$(cd "$work" && pwd -P)
+database_created=false
+
+step() {
+    printf '\n== %s\n' "$1"
+}
+
+cleanup() {
+    local status=$?
+    if [ "$keep" = true ]; then
+        echo
+        echo "Kept: $work (test database suffix _without_ed_visit)"
+        exit "$status"
+    fi
+    if [ "$database_created" = true ]; then
+        (cd "$work" && php bin/console doctrine:database:drop --env=test --force --if-exists >/dev/null 2>&1) || true
+    fi
+    rm -rf "$work"
+    exit "$status"
+}
+trap cleanup EXIT
+
+# Copy a file or directory: APFS clone on macOS, reflink on Linux, plain copy as fallback.
+copy_path() {
+    local from=$1 to=$2
+    mkdir -p "$(dirname "$to")"
+    if cp -c -R "$from" "$to" 2>/dev/null; then return 0; fi
+    rm -rf "$to"
+    if cp --reflink=auto -R "$from" "$to" 2>/dev/null; then return 0; fi
+    rm -rf "$to"
+    cp -R "$from" "$to"
+}
+
+step "Copy the checkout to $work"
+(cd "$source" && git ls-files -z --cached --others --exclude-standard) \
+    | (cd "$source" && tar --null -T - -cf -) \
+    | (cd "$work" && tar -xf -)
+# Ignored files the run needs: local env files, installed packages and importmap packages.
+for path in .env.local vendor assets/vendor; do
+    if [ -e "$source/$path" ]; then
+        copy_path "$source/$path" "$work/$path"
+    fi
+done
+rm -rf "$work/plugins/ed-visit" "$work/vendor/nplhse/cois-ed-visit"
+printf 'TEST_DATABASE_SUFFIX=_without_ed_visit\n' > "$work/.env.test.local"
+
+cd "$work"
+
+step "Remove the package from composer.json and composer.lock"
+php -r '
+    $file = "composer.json";
+    $json = json_decode(file_get_contents($file), true, flags: JSON_THROW_ON_ERROR);
+    unset($json["require"]["nplhse/cois-ed-visit"], $json["autoload-dev"]["psr-4"]["Cois\\Plugin\\EdVisit\\Tests\\"]);
+    $json["repositories"] = array_values(array_filter(
+        $json["repositories"] ?? [],
+        static fn (array $repository): bool => "plugins/ed-visit" !== ($repository["url"] ?? null),
+    ));
+    if ([] === $json["repositories"]) {
+        unset($json["repositories"]);
+    }
+    file_put_contents($file, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)."\n");
+'
+composer update nplhse/cois-ed-visit --no-install --no-scripts --no-interaction --quiet
+if grep -q '"nplhse/cois-ed-visit"' composer.lock; then
+    echo "composer.lock still lists nplhse/cois-ed-visit" >&2
+    exit 1
+fi
+composer install --no-scripts --no-interaction --quiet
+
+step "Drop the bundle and the plugin paths"
+sed -i.bak '/EdVisit/d;/ed_visit`: ED visits/d' config/bundles.php && rm config/bundles.php.bak
+sed -i.bak '/plugins\/ed-visit/d' phpunit.dist.xml && rm phpunit.dist.xml.bak
+if grep -rq 'Cois\\Plugin\\EdVisit' config; then
+    echo "config/ still names the plugin:" >&2
+    grep -rn 'Cois\\Plugin\\EdVisit' config >&2
+    exit 1
+fi
+
+step "The plugin classes are not loadable"
+php -r 'require "vendor/autoload.php"; exit(class_exists("Cois\\Plugin\\EdVisit\\EdVisitBundle") ? 1 : 0);' \
+    || { echo "Cois\\Plugin\\EdVisit\\EdVisitBundle is still loadable" >&2; exit 1; }
+
+step "Prod: cache warmup, container lint, asset map"
+APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear --no-warmup --quiet
+APP_ENV=prod APP_DEBUG=0 php bin/console cache:warmup --quiet
+APP_ENV=prod APP_DEBUG=0 php bin/console lint:container
+APP_ENV=prod APP_DEBUG=0 php bin/console asset-map:compile --quiet
+
+step "Test: container lint, migrations on an empty database"
+php bin/console lint:container --env=test
+php bin/console doctrine:database:drop --env=test --force --if-exists --quiet
+php bin/console doctrine:database:create --env=test --quiet
+database_created=true
+php bin/console doctrine:migrations:migrate --env=test --no-interaction --quiet
+php bin/console doctrine:schema:validate --env=test --skip-sync
+
+step "Smoke tests: boot, import selection, allocation and closure imports, menus"
+vendor/bin/phpunit --no-coverage --do-not-cache-result \
+    tests/Encounter/Functional/WithoutEdVisit \
+    tests/Import/Functional/Controller/NewImportControllerTest.php
+
+step "The application works without nplhse/cois-ed-visit"
