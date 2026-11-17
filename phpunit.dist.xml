@@ -41,6 +41,7 @@
             <directory>tests/Statistics/Unit</directory>
             <directory>tests/Storage/Unit</directory>
             <directory>tests/User/Unit</directory>
+            <directory>plugins/ed-visit/tests/Unit</directory>
         </testsuite>
 
         <testsuite name="integration">
