@@ -26,9 +26,14 @@ export default class extends Controller {
 
     connect() {
         this.header = this.element.parentElement?.querySelector(':scope > header.navbar') ?? null;
+        // The demo environment shows a banner above the page (ADR 023); the sidebar starts below it as well (#1381).
+        this.banner = document.getElementById('demo-environment-banner');
         if (this.header) {
             this.resizeObserver = new ResizeObserver(() => this.syncHeaderHeight());
             this.resizeObserver.observe(this.header);
+            if (this.banner) {
+                this.resizeObserver.observe(this.banner);
+            }
             this.syncHeaderHeight();
         }
         this.syncFoldToggle();
@@ -137,6 +142,10 @@ export default class extends Controller {
         document.documentElement.style.setProperty(
             '--site-header-height',
             `${this.header.offsetHeight}px`,
+        );
+        document.documentElement.style.setProperty(
+            '--site-banner-height',
+            `${this.banner?.offsetHeight ?? 0}px`,
         );
     }
 

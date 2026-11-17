@@ -3,17 +3,27 @@
  * hover preview, section titles, mobile collapse, content offset) is Tabler's.
  */
 
-/* The top navbar keeps the full width and stays above the sidebar; the sidebar starts below it. */
+/*
+ * The top navbar keeps the full width and stays above the sidebar; the sidebar starts below it. In the demo
+ * environment the banner above the page (ADR 023) stays at the top as well, so the navbar and the sidebar start
+ * below it, on load and after scrolling (#1381). Without the banner its height is 0.
+ */
 @media (min-width: 992px) {
-    .page:has(> .site-sidebar) > header.navbar {
+    body:has(.page > .site-sidebar) > #demo-environment-banner {
         position: sticky;
         top: 0;
+        z-index: 1021;
+    }
+
+    .page:has(> .site-sidebar) > header.navbar {
+        position: sticky;
+        top: var(--site-banner-height, 0px);
         z-index: 1020;
         margin-inline-start: 0;
     }
 
     .page > .navbar-vertical.site-sidebar {
-        top: var(--site-header-height, 3.5rem);
+        top: calc(var(--site-banner-height, 0px) + var(--site-header-height, 3.5rem));
     }
 }
 
