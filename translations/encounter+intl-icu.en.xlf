@@ -3489,6 +3489,18 @@
         <source>tools.encounter_plausibility.description</source>
         <target>Review the curated problem areas of the matcher's PZC × MTS diagram table and activate snapshots.</target>
       </trans-unit>
+      <trans-unit id="Enc1A3C0F51" resname="encounter.data_prep.changelog.1_3_0.schemas">
+        <source>encounter.data_prep.changelog.1_3_0.schemas</source>
+        <target>The tool is built from the schemas the server offers; ED visits work as before.</target>
+      </trans-unit>
+      <trans-unit id="Enc2B4D1E62" resname="encounter.data_prep.changelog.1_3_0.ambiguous_profile">
+        <source>encounter.data_prep.changelog.1_3_0.ambiguous_profile</source>
+        <target>If several export formats match a file, the tool names them and does not process the file.</target>
+      </trans-unit>
+      <trans-unit id="Enc3C5E2D73" resname="encounter.data_prep.changelog.1_3_0.same_output">
+        <source>encounter.data_prep.changelog.1_3_0.same_output</source>
+        <target>The files for ED visits are unchanged apart from the tool version in the first line.</target>
+      </trans-unit>
       <trans-unit id="Enc0D9168CB" resname="encounter.data_prep.changelog.1_2_0.catalog_from_server">
         <source>encounter.data_prep.changelog.1_2_0.catalog_from_server</source>
         <target>At start, the tool loads the maintained MTS catalog from the server; offline it uses its bundled copy.</target>

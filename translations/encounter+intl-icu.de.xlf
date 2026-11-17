@@ -3489,6 +3489,18 @@
         <source>tools.encounter_plausibility.description</source>
         <target>Kuratierte Problembereiche der Matcher-Tabelle PZC × MTS-Diagramm prüfen und Snapshots aktivieren.</target>
       </trans-unit>
+      <trans-unit id="Enc1A3C0F51" resname="encounter.data_prep.changelog.1_3_0.schemas">
+        <source>encounter.data_prep.changelog.1_3_0.schemas</source>
+        <target>Das Tool wird aus den Schemata zusammengesetzt, die der Server anbietet; Notaufnahme-Besuche funktionieren wie bisher.</target>
+      </trans-unit>
+      <trans-unit id="Enc2B4D1E62" resname="encounter.data_prep.changelog.1_3_0.ambiguous_profile">
+        <source>encounter.data_prep.changelog.1_3_0.ambiguous_profile</source>
+        <target>Passen mehrere Exportformate zu einer Datei, nennt das Tool sie und verarbeitet die Datei nicht.</target>
+      </trans-unit>
+      <trans-unit id="Enc3C5E2D73" resname="encounter.data_prep.changelog.1_3_0.same_output">
+        <source>encounter.data_prep.changelog.1_3_0.same_output</source>
+        <target>Die Dateien für Notaufnahme-Besuche sind bis auf die Tool-Version in der ersten Zeile unverändert.</target>
+      </trans-unit>
       <trans-unit id="Enc0D9168CB" resname="encounter.data_prep.changelog.1_2_0.catalog_from_server">
         <source>encounter.data_prep.changelog.1_2_0.catalog_from_server</source>
         <target>Beim Start lädt das Tool den gepflegten MTS-Katalog vom Server; offline nutzt es die mitgelieferte Kopie.</target>
