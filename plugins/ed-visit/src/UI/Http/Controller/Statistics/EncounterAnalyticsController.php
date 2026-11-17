@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\UI\Http\Controller;
+namespace Cois\Plugin\EdVisit\UI\Http\Controller\Statistics;
 
 use App\Allocation\Application\Contracts\HospitalLookupInterface;
 use App\Allocation\Domain\Entity\Hospital;
@@ -12,6 +12,10 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\TimeSeries\TimeSeriesAxisFiller;
 use App\Statistics\Application\TimeSeries\TimeSeriesGrainResolver;
+use App\Statistics\UI\Http\Controller\AnalysisContextScopeMode;
+use App\Statistics\UI\Http\Controller\AnalysisContextViewModelFactory;
+use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
+use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
 use Cois\Plugin\EdVisit\Application\Overview\AggregateHospitalScope;
@@ -64,7 +68,7 @@ final class EncounterAnalyticsController extends AbstractController
     ): Response {
         $hospitals = $this->hospitalScope->forCurrentUser();
         if ([] === $hospitals) {
-            return $this->render('@Statistics/encounter_analytics/no_access.html.twig');
+            return $this->render('@EdVisit/encounter_analytics/no_access.html.twig');
         }
 
         $requested = $this->requestedHospitalId($request);
@@ -92,7 +96,7 @@ final class EncounterAnalyticsController extends AbstractController
         $hospital = $this->hospitalLookup->findById($requested);
         $canReview = $hospital instanceof Hospital && $this->isGranted(EncounterAttribute::REVIEW, $hospital);
 
-        return $this->render('@Statistics/encounter_analytics/index.html.twig', [
+        return $this->render('@EdVisit/encounter_analytics/index.html.twig', [
             'hospitalId' => $requested,
             'canReview' => $canReview,
             'reviewQuery' => $canReview ? $this->reviewQuery($bounds->from, $bounds->toExclusive) : [],

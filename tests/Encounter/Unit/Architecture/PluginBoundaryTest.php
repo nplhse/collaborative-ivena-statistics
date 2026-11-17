@@ -65,7 +65,7 @@ final class PluginBoundaryTest extends TestCase
         '/src/DataFixtures/Encounter/Infrastructure/SyntheticEncounterWriter.php',
         '/src/DataFixtures/Purger/MaterializedViewAwareOrmPurger.php',
         '/src/DataFixtures/Purger/MaterializedViewAwareOrmPurgerFactory.php',
-        '/src/Statistics/UI/Http/Controller/EncounterAnalyticsController.php',
+        '/plugins/ed-visit/src/UI/Http/Controller/Statistics/EncounterAnalyticsController.php',
     ];
 
     public function testPluginsImportOnlyThePluginApiOfTheApplication(): void

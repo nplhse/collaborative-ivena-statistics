@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Statistics\Functional\Controller;
+namespace Cois\Plugin\EdVisit\Tests\Functional\Controller;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalPermission;
