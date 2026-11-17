@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Encounter\Functional\Controller;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Allocation\Domain\HospitalPermissionMask;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Encounter\Application\Import\EncounterSourceFileRetention;
 use App\Encounter\Domain\Entity\EncounterImport;
 use App\Encounter\Domain\Enum\EncounterGrantAction;
@@ -156,9 +159,46 @@ final class EncounterImportControllerTest extends WebTestCase
         $this->client->loginUser($viewer);
         $this->client->request(Request::METHOD_GET, '/import/new');
 
+        // Without an upload right for any type the form is not offered at all (#1351).
+        self::assertResponseRedirects('/import');
+    }
+
+    public function testUploaderWithoutImportPermissionIsOfferedOnlyEncounterUploads(): void
+    {
+        $this->client->loginUser($this->uploader);
+        $crawler = $this->client->request(Request::METHOD_GET, '/import/new');
+
         self::assertResponseIsSuccessful();
-        self::assertStringNotContainsString('Encounter data (beta)', (string) $this->client->getResponse()->getContent());
-        self::assertSelectorNotExists('[data-test="import-type-extension-fields"]');
+        $types = $crawler->filter('select[name="import_create[type]"] option');
+        self::assertSame([ImportType::ENCOUNTER->value], $types->each(static fn ($option): string => (string) $option->attr('data-import-type')));
+        self::assertSame(
+            json_encode([ImportType::ENCOUNTER->value]),
+            $crawler->filter('select[name="import_create[hospital]"] option[value="'.$this->hospital->getId().'"]')->attr('data-import-types'),
+        );
+    }
+
+    public function testEncounterUploadToAHospitalWithOnlyTheImportPermissionIsRejected(): void
+    {
+        $importOnly = $this->hospital($this->user());
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $importOnly,
+            'user' => $this->uploader,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View, HospitalPermission::Import]),
+            'createdBy' => $importOnly->getOwner(),
+        ]);
+
+        $this->client->loginUser($this->uploader);
+        $crawler = $this->client->request(Request::METHOD_GET, '/import/new');
+        self::assertSame(
+            json_encode([ImportType::ALLOCATION->value]),
+            $crawler->filter('select[name="import_create[hospital]"] option[value="'.$importOnly->getId().'"]')->attr('data-import-types'),
+        );
+
+        $this->submitUpload('Wrong hospital', EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build(), hospital: $importOnly);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('form[name="import_create"]', 'You may not upload this import type for this hospital.');
+        self::assertCount(0, $this->entityManager()->getRepository(Import::class)->findAll());
     }
 
     public function testDetailPageShowsCodesButNoCellValuesAndIsHiddenFromUsersWithoutGrant(): void
@@ -347,13 +387,13 @@ final class EncounterImportControllerTest extends WebTestCase
         self::assertStringContainsString('listed encounter import', (string) $this->client->getResponse()->getContent());
     }
 
-    private function submitUpload(string $name, string $content, bool $confirm = true): void
+    private function submitUpload(string $name, string $content, bool $confirm = true, ?Hospital $hospital = null): void
     {
         $this->client->loginUser($this->uploader);
         $crawler = $this->client->request(Request::METHOD_GET, '/import/new');
         $form = $crawler->filter('form[name="import_create"]')->form();
         $form['import_create[name]'] = $name;
-        $form['import_create[hospital]'] = (string) $this->hospital->getId();
+        $form['import_create[hospital]'] = (string) ($hospital ?? $this->hospital)->getId();
         $form['import_create[type]'] = $crawler->filter('select[name="import_create[type]"] option')
             ->reduce(static fn ($option): bool => str_contains($option->text(), 'Encounter data'))
             ->attr('value') ?? '';

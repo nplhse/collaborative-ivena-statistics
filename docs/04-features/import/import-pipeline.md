@@ -18,6 +18,10 @@ Source: CSV or plain-text files (`.csv`, `.txt`) uploaded through the import UI.
 
 Excel files (`.xls`, `.xlsx`) are **not** supported. The importer reads rows via `SplCsvRowReader`; users must export spreadsheet data as CSV first.
 
+## Who may upload
+
+The upload form (`/import/new`) is only offered to users who can submit it (#1351). `ImportUploadTargets` lists, per import type, the hospitals the user may upload to; the form offers only those hospitals and types, the type field shows only the types allowed for the chosen hospital (Stimulus controller `import-type-fields`), and the controller checks the submitted combination again. A participant without any upload right is sent to the import list with a notice. Rules: [permission-model.md](../../02-architecture/permission-model.md#voters).
+
 ## Upload validation
 
 Rejected uploads are caught **before** dispatch to the worker. Validation runs in three layers:

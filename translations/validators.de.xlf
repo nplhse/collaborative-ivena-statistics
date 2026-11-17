@@ -713,6 +713,10 @@
         <source>validation.import.excel_rejected</source>
         <target>Excel-Dateien (.xls, .xlsx) werden nicht unterstützt. Bitte exportieren Sie die Daten als CSV.</target>
       </trans-unit>
+      <trans-unit id="impValHospTypeDe" resname="validation.import.hospital_type_not_allowed">
+        <source>validation.import.hospital_type_not_allowed</source>
+        <target>Diesen Importtyp dürfen Sie für dieses Krankenhaus nicht hochladen. Bitte wählen Sie ein anderes Krankenhaus oder einen anderen Typ.</target>
+      </trans-unit>
       <trans-unit id="pagev001" resname="page.validation.path_unique">
         <source>page.validation.path_unique</source>
         <target>Dieser Pfad existiert bereits.</target>

@@ -45,7 +45,10 @@
                     'data-import-type-fields-types-value': extension_type_values|json_encode,
                 }}) }}
                     {{ form_row(form.name) }}
-                    {{ form_row(form.hospital) }}
+                    {{ form_row(form.hospital, {attr: {
+                        'data-import-type-fields-target': 'hospital',
+                        'data-action': 'change->import-type-fields#filterTypes',
+                    }}) }}
                     {% if form.type is defined %}
                         {{ form_row(form.type, {attr: {
                             'data-import-type-fields-target': 'type',
