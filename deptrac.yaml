@@ -6,6 +6,8 @@ deptrac:
         - ./src
         # Encounter schema plugins shipped for tests (ADR 037); they may only use Encounter_Contract.
         - ./tests/Fixtures/Plugin
+        # Shipped encounter schema plugins (ADR 037, #1300), the same rule.
+        - ./plugins
     exclude_files:
         - '#src/DataFixtures/.*#'
         - '#.*/Infrastructure/Factory/.*#'
@@ -391,6 +393,9 @@ deptrac:
                 -
                     type: directory
                     value: tests/Fixtures/Plugin/.*
+                -
+                    type: directory
+                    value: plugins/[^/]+/src/.*
     ruleset:
         Admin_Application:
             - Admin_Application

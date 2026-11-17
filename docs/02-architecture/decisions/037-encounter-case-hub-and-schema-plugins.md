@@ -1,6 +1,6 @@
 # ADR 037: Encounter as treatment case, schemas as Symfony bundles
 
-**Status:** accepted (#1274 part 1: contract, assignment, deletion rules and display proven with a test-only schema bundle; #1307 decisions and retries done; #1300 step 1 done: ED visit split out of the encounter, effective assignment on the encounter; step 2 done: cleanup of encounters without records; MTS bundle follows in #1300)
+**Status:** accepted (#1274 part 1: contract, assignment, deletion rules and display proven with a test-only schema bundle; #1307 decisions and retries done; #1300 step 1 done: ED visit split out of the encounter, effective assignment on the encounter; step 2 done: cleanup of encounters without records; step 3 done: empty bundle `plugins/ed-visit`; the MTS move follows in #1300)
 
 ## Context
 
@@ -204,7 +204,9 @@ The decision is implemented in steps:
    `ed_visit` reconciles by fingerprint in one transaction, see ADR 029; import write, reprocessing and the
    matcher take the encounter hospital lock; step 2 done: the cleanup of encounters without records runs
    daily and by command, per hospital under the encounter hospital lock, and treats every refusing
-   foreign key to `encounter` as a record) and ships MTS as a bundle.
+   foreign key to `encounter` as a record; step 3 done: the empty bundle `plugins/ed-visit`
+   (`Cois\Plugin\EdVisit\EdVisitBundle`, package `nplhse/cois-ed-visit`) as a Composer path package, enabled
+   in every environment and covered by the static analysis) and ships MTS as a bundle.
 
 Before step 1 of #1300, `ed_visit` was the only schema in production and its records were the encounters;
 deleting an `ed_visit` import whose visits carried records of another schema was refused. Since then an

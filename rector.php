@@ -13,6 +13,7 @@ $config = RectorConfig::configure()
         __DIR__.'/config',
         __DIR__.'/src',
         __DIR__.'/tests',
+        __DIR__.'/plugins',
     ])
     ->withPhpSets(
         php84: true
@@ -34,6 +35,8 @@ $config = RectorConfig::configure()
     ->withSkip([
         // Fixtures for the wall clock PHPStan rules contain the patterns on purpose.
         __DIR__.'/tests/PHPStan/Unit/Rules/data',
+        // Migrations of encounter schema plugins stay as generated, like the application's (not in the paths).
+        __DIR__.'/plugins/*/migrations',
         Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class => [$entityPath],
         Rector\Php81\Rector\Property\ReadOnlyPropertyRector::class => [$entityPath],
         Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector::class => [$entityPath],

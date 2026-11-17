@@ -20,6 +20,7 @@
     <testsuites>
         <testsuite name="all">
             <directory>tests</directory>
+            <directory>plugins/ed-visit/tests</directory>
             <exclude>tests/Support</exclude>
         </testsuite>
 
@@ -58,6 +59,7 @@
             <directory>tests/Statistics/Integration</directory>
             <directory>tests/Storage/Integration</directory>
             <directory>tests/User/Integration</directory>
+            <directory>plugins/ed-visit/tests/Integration</directory>
         </testsuite>
 
         <testsuite name="functional">
@@ -95,6 +97,7 @@
     >
         <include>
             <directory>src</directory>
+            <directory>plugins/ed-visit/src</directory>
         </include>
 
         <exclude>

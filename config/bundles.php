@@ -31,4 +31,6 @@ return [
     Symfony\UX\Inspector\UXInspectorBundle::class => ['dev' => true],
     // Test-only encounter schema plugin `inpatient_stay` (ADR 037, #1274).
     App\Tests\Fixtures\Plugin\InpatientStay\InpatientStayTestBundle::class => ['test' => true],
+    // Encounter schema plugin `ed_visit`: ED visits with MTS (ADR 037, #1300), Composer path package in plugins/ed-visit.
+    Cois\Plugin\EdVisit\EdVisitBundle::class => ['all' => true],
 ];

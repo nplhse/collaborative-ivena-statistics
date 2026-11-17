@@ -107,6 +107,9 @@
             "config/packages/nelmio_security.yaml"
         ]
     },
+    "nplhse/cois-ed-visit": {
+        "version": "dev-main"
+    },
     "phpstan/phpstan": {
         "version": "2.1",
         "recipe": {
