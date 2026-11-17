@@ -51,14 +51,16 @@
                                             {% for candidate in conflict.candidates %}
                                                 <li class="d-flex align-items-center gap-2 mb-1" data-test="encounter-assignment-candidate" data-encounter="{{ candidate.encounterId }}">
                                                     <span>
-                                                        {% if candidate.visitUid is not null %}
-                                                            <a href="{{ path('app_explore_ed_visit_show', {visitUid: candidate.visitUid}) }}">{{ candidate.anchorAt|format_datetime('short', 'short') }}</a>
+                                                        {% if candidate.link is not null %}
+                                                            <a href="{{ candidate.link }}">{{ candidate.anchorAt|format_datetime('short', 'short') }}</a>
+                                                        {% elseif candidate.anchorAt is not null %}
+                                                            <span>{{ candidate.anchorAt|format_datetime('short', 'short') }}</span>
                                                         {% else %}
                                                             <span class="text-secondary">{{ 'encounter.assignment.candidate_gone'|trans({}, d) }}</span>
                                                         {% endif %}
                                                         <span class="text-secondary">· {{ ('encounter.assignment.reason.' ~ candidate.reason.value)|trans({}, d) }}</span>
                                                     </span>
-                                                    {% if candidate.visitUid is not null %}
+                                                    {% if candidate.anchorAt is not null %}
                                                         <form method="post" action="{{ decide_path }}" class="ms-auto" data-test="encounter-assignment-assign-form">
                                                             <input type="hidden" name="_token" value="{{ token }}">
                                                             <input type="hidden" name="kind" value="{{ state.kind.value }}">
@@ -128,8 +130,10 @@
                                             <ul class="list-unstyled mb-0">
                                                 {% for candidate in record.candidates %}
                                                     <li>
-                                                        {% if candidate.visitUid is not null %}
-                                                            <a href="{{ path('app_explore_ed_visit_show', {visitUid: candidate.visitUid}) }}">{{ candidate.anchorAt|format_datetime('short', 'short') }}</a>
+                                                        {% if candidate.link is not null %}
+                                                            <a href="{{ candidate.link }}">{{ candidate.anchorAt|format_datetime('short', 'short') }}</a>
+                                                        {% elseif candidate.anchorAt is not null %}
+                                                            <span>{{ candidate.anchorAt|format_datetime('short', 'short') }}</span>
                                                         {% else %}
                                                             <span class="text-secondary">{{ 'encounter.assignment.candidate_gone'|trans({}, d) }}</span>
                                                         {% endif %}

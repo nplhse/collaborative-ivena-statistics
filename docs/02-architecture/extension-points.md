@@ -354,6 +354,21 @@ course at the top of the card instead: `courseForEncounter()` returns an `Encoun
 or none when it has a record but nothing to show) or null without a record. While a course provider has a record,
 the card offers no "Remove assignment".
 
+## Encounter record page links
+
+**Tag:** `encounter.link`
+
+**Interface:** `EncounterLinkProviderInterface` (`src/Encounter/Contract/Display/`)
+
+**Registry:** `EncounterLinkRegistry`, used by `AssignmentConflictQuery` (the assignment conflict page)
+
+**Implementations:** `EdVisitEncounterLinkProvider` of the ED visit plugin (link to the visit page)
+
+Lets an encounter schema link encounters to its own record page on core pages that list encounters (#1300). The
+core asks once per page with the encounter ids, after it checked access to their hospital; the provider returns a
+URL for the encounters it has a page for, in one query, and the first link wins. Without a provider the conflict
+page shows the encounters' anchor without a link; they can still be assigned.
+
 ## Encounter Explore tiles
 
 **Tag:** `encounter.explore_entry`

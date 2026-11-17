@@ -11,6 +11,7 @@ use App\Encounter\UI\DataPrep\DataPrepToolRenderer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
@@ -37,6 +38,19 @@ final class ShowDataPrepGuideController extends AbstractController
             'changelog' => $this->changelog->entries(),
             'profiles' => $this->toolRenderer->profileSummaries(),
             'hospitals' => $this->hospitals->forCurrentUser(),
+            'review_url' => $this->reviewUrl(),
         ]);
+    }
+
+    /**
+     * The match review belongs to the ED visit plugin; without it the guide links no review (#1300).
+     */
+    private function reviewUrl(): ?string
+    {
+        try {
+            return $this->generateUrl('app_tools_encounter_review');
+        } catch (RouteNotFoundException) {
+            return null;
+        }
     }
 }

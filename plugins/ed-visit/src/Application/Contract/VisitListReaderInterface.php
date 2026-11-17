@@ -44,4 +44,13 @@ interface VisitListReaderInterface
      * @return list<string>
      */
     public function diagramCodes(int $hospitalId): array;
+
+    /**
+     * Visit uid by encounter id, for the given encounters that have an ED visit.
+     *
+     * @param list<int> $encounterIds
+     *
+     * @return array<int, string>
+     */
+    public function visitUids(array $encounterIds): array;
 }

@@ -82,6 +82,28 @@ SQL,
     }
 
     #[\Override]
+    public function visitUids(array $encounterIds): array
+    {
+        if ([] === $encounterIds) {
+            return [];
+        }
+
+        /** @var array<int|string, string> $rows */
+        $rows = $this->connection->fetchAllKeyValue(
+            'SELECT encounter_id, visit_uid FROM ed_visit WHERE encounter_id IN (?)',
+            [$encounterIds],
+            [ArrayParameterType::INTEGER],
+        );
+
+        $uids = [];
+        foreach ($rows as $encounterId => $visitUid) {
+            $uids[(int) $encounterId] = $visitUid;
+        }
+
+        return $uids;
+    }
+
+    #[\Override]
     public function countVisits(VisitListFilter $filter): int
     {
         [$where, $parameters, $types] = $this->where($filter);
