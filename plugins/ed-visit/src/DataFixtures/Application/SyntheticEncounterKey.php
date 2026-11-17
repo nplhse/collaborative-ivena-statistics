@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Cois\Plugin\EdVisit\DataFixtures\Application;
 
+use App\Encounter\Contract\Schema\EncounterKeyRules;
 use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
 
 /**
  * A pseudonym key for synthetic encounter data and the keyed values of `ed-visit:v1` (#1052).
  *
- * Same rules as the data preparation tool (exchange-format.md, ADR 027): the check value is
+ * Same rules as the data preparation tool (exchange-format.md, ADR 027), taken from EdVisitDimension::keyRules(): the check value is
  * HMAC-SHA256(key, "encounter-key-check"), the visit fingerprint HMAC-SHA256(key,
  * "ed-visit:v1|" + case number + "|" + anchor source + "|" + anchor with seconds) and the case key
  * HMAC-SHA256(key, "case:v1|" + case number). Synthetic sources have minute precision, so the
@@ -68,7 +69,7 @@ final readonly class SyntheticEncounterKey
 
     public function caseKey(string $caseNumber): string
     {
-        return hash_hmac('sha256', 'case:v1|'.$this->digits($caseNumber), $this->raw);
+        return hash_hmac('sha256', $this->rules()->caseKeyInput($caseNumber), $this->raw);
     }
 
     /**
@@ -78,8 +79,12 @@ final readonly class SyntheticEncounterKey
     public function visitFingerprint(string $caseNumber, string $anchorSource, string $anchor): string
     {
         $anchor = 16 === \strlen($anchor) ? $anchor.':00' : $anchor;
+        $at = \DateTimeImmutable::createFromFormat('!Y-m-d\TH:i:s', $anchor, new \DateTimeZone('UTC'));
+        if (!$at instanceof \DateTimeImmutable) {
+            throw new \InvalidArgumentException(sprintf('Invalid anchor "%s".', $anchor));
+        }
 
-        return hash_hmac('sha256', sprintf('%s|%s|%s|%s', EdVisitDimension::FINGERPRINT_RULE_V1, $this->digits($caseNumber), $anchorSource, $anchor), $this->raw);
+        return hash_hmac('sha256', $this->rules()->fingerprintInput($caseNumber, $anchorSource, $at), $this->raw);
     }
 
     /**
@@ -100,8 +105,11 @@ final readonly class SyntheticEncounterKey
         return ['visit_fingerprint' => $this->visitFingerprint($caseNumber, $source, $anchor), 'case_key' => $this->caseKey($caseNumber)];
     }
 
-    private function digits(string $caseNumber): string
+    /**
+     * The key rules of `ed_visit` version 1, the only version the synthetic data writes.
+     */
+    private function rules(): EncounterKeyRules
     {
-        return (string) preg_replace('/\D/', '', $caseNumber);
+        return new EdVisitDimension()->keyRules(1);
     }
 }

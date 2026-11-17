@@ -56,4 +56,12 @@ interface EncounterDimensionInterface
      * @throws \InvalidArgumentException for a version not in versions()
      */
     public function fingerprintRules(int $version): array;
+
+    /**
+     * How the fingerprint and the case key of one version are built (#1301); the data preparation tool and
+     * synthetic data use these rules, never a copy. The fingerprint rule is one of fingerprintRules().
+     *
+     * @throws \InvalidArgumentException for a version not in versions()
+     */
+    public function keyRules(int $version): EncounterKeyRules;
 }

@@ -7,6 +7,7 @@ namespace App\Tests\Support\Encounter\Probe;
 use App\Encounter\Contract\Schema\EncounterDimensionInterface;
 use App\Encounter\Contract\Schema\EncounterField;
 use App\Encounter\Contract\Schema\EncounterFieldType;
+use App\Encounter\Contract\Schema\EncounterKeyRules;
 use Symfony\Contracts\Translation\TranslatableInterface;
 
 /**
@@ -56,6 +57,14 @@ final readonly class ProbeDimension implements EncounterDimensionInterface
         $this->assertVersion($version);
 
         return [self::FINGERPRINT_RULE];
+    }
+
+    #[\Override]
+    public function keyRules(int $version): EncounterKeyRules
+    {
+        $this->assertVersion($version);
+
+        return new EncounterKeyRules('record_fingerprint', self::FINGERPRINT_RULE, [EncounterKeyRules::PART_CASE_NUMBER, EncounterKeyRules::PART_ANCHOR], 'case_key', 'case:v1');
     }
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Encounter\UI\DataPrep;
 
+use App\Encounter\Application\Dimension\EncounterDimensionRegistry;
 use Cois\Plugin\EdVisit\Application\Catalog\MtsCatalog;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -27,6 +28,7 @@ final readonly class DataPrepToolRenderer
         private UrlGeneratorInterface $urlGenerator,
         private DataPrepRelease $release,
         private MtsCatalog $mtsCatalog,
+        private EncounterDimensionRegistry $dimensions,
         #[Autowire('%kernel.project_dir%/src/Encounter/UI/DataPrep')]
         private string $sourceDirectory,
     ) {
@@ -47,7 +49,7 @@ final readonly class DataPrepToolRenderer
             'release' => $this->release,
             'latest_url' => $this->urlGenerator->generate('app_encounter_data_prep_latest', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'scripts' => $scripts,
-            'schema' => $this->decode(self::SCHEMA),
+            'schema' => $this->schema(self::SCHEMA),
             'profiles' => array_map($this->decode(...), self::PROFILES),
             'catalog_url' => $this->urlGenerator->generate('app_encounter_data_prep_mts_catalog', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'catalogs' => [MtsCatalog::ID => $this->mtsCatalog->bundledToolCatalog()],
@@ -68,6 +70,27 @@ final readonly class DataPrepToolRenderer
 
             return ['label' => $profile['label'], 'columns' => $profile['detect']['requiredColumns']];
         }, self::PROFILES);
+    }
+
+    /**
+     * The schema file with the key rules of its version from the dimension (#1301): the file keeps no copy, so
+     * the tool, the import and the synthetic data cannot drift apart.
+     *
+     * @return array<string, mixed>
+     */
+    public function schema(string $path): array
+    {
+        $schema = $this->decode($path);
+        if (isset($schema['keys'])) {
+            throw new \LogicException(sprintf('Schema file "%s" must not contain key rules; they come from the dimension.', $path));
+        }
+        $name = $schema['schema'] ?? null;
+        $version = $schema['version'] ?? null;
+        if (!\is_string($name) || !\is_int($version)) {
+            throw new \LogicException(sprintf('Schema file "%s" has no schema name and version.', $path));
+        }
+
+        return [...$schema, 'keys' => $this->dimensions->get($name)->keyRules($version)->toArray()];
     }
 
     private function read(string $path): string

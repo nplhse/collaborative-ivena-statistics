@@ -12,7 +12,6 @@ const fixtures = new URL('./fixtures/', import.meta.url);
 const json = (url) => JSON.parse(readFileSync(url, 'utf8'));
 
 const profile = json(new URL('profiles/orbis-mts.json', base));
-const schema = json(new URL('schema/ed_visit.v1.json', base));
 const bundledCatalog = json(
     new URL('../../../plugins/ed-visit/src/Application/Catalog/mts-de.json', import.meta.url),
 );
@@ -31,6 +30,9 @@ const toolCatalog = (data, aliases = { diagrams: {}, indicators: {} }) =>
     });
 const catalogs = { 'mts-de': toolCatalog(bundledCatalog) };
 const vectors = json(new URL('fingerprint-vectors.json', fixtures));
+// The schema as the renderer passes it: the file plus the key rules of the dimension (#1301), which the vectors
+// carry (DataPrepContractTest pins them to EdVisitDimension::keyRules(1)).
+const schema = { ...json(new URL('schema/ed_visit.v1.json', base)), keys: vectors.keys };
 const sampleBytes = readFileSync(new URL('orbis-mts-sample.csv', fixtures));
 const localMapJson = readFileSync(new URL('local-map.sample.json', fixtures), 'utf8');
 
@@ -424,11 +426,19 @@ describe('fingerprints', () => {
         for (const vector of vectors.vectors) {
             const caseNumber = prep.caseNumberOf(vector.caseNumber);
             const anchor = prep.parseSourceTimestamp(vector.anchor);
-            const input = prep.fingerprintInput(caseNumber, vector.anchorSource, anchor);
+            const values = { caseNumber, anchorSource: vector.anchorSource, anchor };
+            const input = prep.keyInput(
+                schema.keys.fingerprint.rule,
+                schema.keys.fingerprint.parts,
+                values,
+            );
             assert.equal(input, vector.input);
             assert.equal(await prep.hmacHex(key.cryptoKey, input), vector.visitFingerprint);
             assert.equal(
-                await prep.hmacHex(key.cryptoKey, `case:v1|${caseNumber}`),
+                await prep.hmacHex(
+                    key.cryptoKey,
+                    prep.keyInput(schema.keys.caseKey.prefix, schema.keys.caseKey.parts, values),
+                ),
                 vector.caseKey,
             );
         }

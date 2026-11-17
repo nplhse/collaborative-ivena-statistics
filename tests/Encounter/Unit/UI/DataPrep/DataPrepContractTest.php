@@ -86,24 +86,29 @@ final class DataPrepContractTest extends TestCase
     }
 
     /**
-     * Independent PHP computation of the vectors the JavaScript tests check against.
+     * The vectors the JavaScript tests check against follow the key rules of the dimension (#1301).
      */
     public function testFingerprintVectorsFollowTheDocumentedRule(): void
     {
         $data = $this->json(self::FIXTURES.'/fingerprint-vectors.json');
         $key = (string) hex2bin((string) $data['key']);
 
+        $rules = new EdVisitDimension()->keyRules(1);
+
         self::assertSame(hash_hmac('sha256', 'encounter-key-check', $key), $data['keyCheck']);
+        // The JS tests read the keys block from the vectors; it is what the renderer writes for ed_visit v1.
+        self::assertSame($rules->toArray(), $data['keys']);
         self::assertNotEmpty($data['vectors']);
         foreach ($data['vectors'] as $vector) {
             $caseNumber = (string) preg_replace('/\D/', '', (string) $vector['caseNumber']);
             self::assertSame(1, preg_match('/^(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})(?::(\d{2}))?$/', (string) $vector['anchor'], $m));
-            $anchor = sprintf('%s-%s-%sT%s:%s:%s', $m[3], $m[2], $m[1], $m[4], $m[5], $m[6] ?? '00');
-            $input = 'ed-visit:v1|'.$caseNumber.'|'.$vector['anchorSource'].'|'.$anchor;
+            $anchor = new \DateTimeImmutable(sprintf('%s-%s-%sT%s:%s:%s', $m[3], $m[2], $m[1], $m[4], $m[5], '' === ($m[6] ?? '') ? '00' : $m[6]));
+            $input = $rules->fingerprintInput((string) $vector['caseNumber'], (string) $vector['anchorSource'], $anchor);
 
             self::assertSame($input, $vector['input']);
             self::assertSame(hash_hmac('sha256', $input, $key), $vector['visitFingerprint']);
-            self::assertSame(hash_hmac('sha256', 'case:v1|'.$caseNumber, $key), $vector['caseKey']);
+            self::assertSame(hash_hmac('sha256', $rules->caseKeyInput((string) $vector['caseNumber']), $key), $vector['caseKey']);
+            self::assertSame('case:v1|'.$caseNumber, $rules->caseKeyInput((string) $vector['caseNumber']));
         }
     }
 

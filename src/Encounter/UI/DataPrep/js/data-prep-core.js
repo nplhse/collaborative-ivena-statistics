@@ -10,8 +10,6 @@
 (function (root) {
     'use strict';
 
-    const FINGERPRINT_RULE = 'ed-visit:v1';
-    const CASE_KEY_PREFIX = 'case:v1';
     const KEY_CHECK_INPUT = 'encounter-key-check';
     const KEY_FILE_FORMAT = 'encounter-key';
     const LOCAL_MAP_FORMAT = 'encounter-local-map';
@@ -395,17 +393,37 @@
         return String(value ?? '').replace(/\D/g, '');
     }
 
-    function fingerprintInput(caseNumber, anchorSource, anchor) {
-        return `${FINGERPRINT_RULE}|${caseNumber}|${anchorSource}|${formatSecond(anchor)}`;
+    /**
+     * Input of a keyed value: `rule|part|part…` after the key rules of the schema version (`schema.keys`, rendered
+     * from the dimension, #1301). Parts: `case_number` (digits), `anchor_source`, `anchor` (with seconds).
+     */
+    function keyInput(rule, parts, { caseNumber, anchorSource, anchor }) {
+        const value = (part) => {
+            switch (part) {
+                case 'case_number':
+                    return caseNumber;
+                case 'anchor_source':
+                    return anchorSource;
+                case 'anchor':
+                    return formatSecond(anchor);
+                default:
+                    throw new Error(`Unknown key part "${part}".`);
+            }
+        };
+        return [rule, ...parts.map(value)].join('|');
     }
 
-    async function visitKeys(key, caseNumber, anchorSource, anchor) {
+    /** Fingerprint and case key of one record, by the field names of the key rules. */
+    async function recordKeys(key, keys, values) {
         return {
-            visitFingerprint: await hmacHex(
+            fingerprint: await hmacHex(
                 key.cryptoKey,
-                fingerprintInput(caseNumber, anchorSource, anchor),
+                keyInput(keys.fingerprint.rule, keys.fingerprint.parts, values),
             ),
-            caseKey: await hmacHex(key.cryptoKey, `${CASE_KEY_PREFIX}|${caseNumber}`),
+            caseKey: await hmacHex(
+                key.cryptoKey,
+                keyInput(keys.caseKey.prefix, keys.caseKey.parts, values),
+            ),
         };
     }
 
@@ -698,6 +716,10 @@
         table,
         { profile, schema, key, localMap = emptyLocalMap(), catalogs = {} },
     ) {
+        const keyRules = schema.keys;
+        if (!keyRules?.fingerprint || !keyRules?.caseKey) {
+            throw new Error('The schema has no key rules.');
+        }
         const fieldsByName = new Map(schema.fields.map((field) => [field.name, field]));
         const outputHeader = schema.fields.map((field) => field.name);
         // ORBIS repeats some headers (`Zweiteinschätzung`); the first occurrence wins.
@@ -778,14 +800,14 @@
             }
             out.sex = sex;
 
-            const keys = await visitKeys(key, caseNumber, anchorSource, anchor);
-            if (seen.has(keys.visitFingerprint)) {
+            const keys = await recordKeys(key, keyRules, { caseNumber, anchorSource, anchor });
+            if (seen.has(keys.fingerprint)) {
                 report.skipped.duplicate++;
                 continue;
             }
-            seen.add(keys.visitFingerprint);
-            out.visit_fingerprint = keys.visitFingerprint;
-            out.case_key = keys.caseKey;
+            seen.add(keys.fingerprint);
+            out[keyRules.fingerprint.field] = keys.fingerprint;
+            out[keyRules.caseKey.field] = keys.caseKey;
             report.anchorSources[anchorSource]++;
             const anchorMinute = formatMinute(anchor);
             if (report.firstAnchor === null || anchorMinute < report.firstAnchor) {
@@ -1130,7 +1152,7 @@
             `profile_version=${profile.version}`,
             `tool=${toolVersion}`,
             `key_check=${keyCheck}`,
-            `fingerprint=${FINGERPRINT_RULE}`,
+            `fingerprint=${schema.keys.fingerprint.rule}`,
             `rows=${rows}`,
         ].join(';');
     }
@@ -1178,7 +1200,6 @@
     }
 
     root.EncounterDataPrep = Object.freeze({
-        FINGERPRINT_RULE,
         KEY_CHECK_INPUT,
         decodeBytes,
         parseCsv,
@@ -1192,7 +1213,7 @@
         parseCatalog,
         contentFindings,
         caseNumberOf,
-        fingerprintInput,
+        keyInput,
         hmacHex,
         importHmacKey,
         generateKeyFile,

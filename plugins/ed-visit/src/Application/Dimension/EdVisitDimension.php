@@ -7,6 +7,7 @@ namespace Cois\Plugin\EdVisit\Application\Dimension;
 use App\Encounter\Contract\Schema\EncounterDimensionInterface;
 use App\Encounter\Contract\Schema\EncounterField;
 use App\Encounter\Contract\Schema\EncounterFieldType;
+use App\Encounter\Contract\Schema\EncounterKeyRules;
 use App\Encounter\Domain\Enum\CaseStatus;
 use App\Encounter\Domain\Enum\Sex;
 use Cois\Plugin\EdVisit\Domain\Enum\AdmissionType;
@@ -58,6 +59,24 @@ final readonly class EdVisitDimension implements EncounterDimensionInterface
         $this->assertVersion($version);
 
         return [self::FINGERPRINT_RULE_V1];
+    }
+
+    /**
+     * `ed-visit:v1|case number|anchor source|anchor` and the shared case key `case:v1|case number`
+     * (exchange-format.md).
+     */
+    #[\Override]
+    public function keyRules(int $version): EncounterKeyRules
+    {
+        $this->assertVersion($version);
+
+        return new EncounterKeyRules(
+            'visit_fingerprint',
+            self::FINGERPRINT_RULE_V1,
+            [EncounterKeyRules::PART_CASE_NUMBER, EncounterKeyRules::PART_ANCHOR_SOURCE, EncounterKeyRules::PART_ANCHOR],
+            'case_key',
+            'case:v1',
+        );
     }
 
     #[\Override]
