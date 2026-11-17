@@ -4,29 +4,30 @@ declare(strict_types=1);
 
 namespace App\Encounter\UI\DataPrep;
 
-use App\Encounter\Application\Catalog\MtsCatalog;
+use App\Encounter\Contract\DataPrep\DataPrepCatalog;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;
 
 /**
- * Renders the offline data preparation tool as one self-contained HTML file (ADR 026, #1051):
- * inlined scripts, the `ed_visit` field contract and the bundled public profiles. Hospital-specific
- * local maps are never bundled. The MTS catalog is bundled from `mts-de.json` as offline fallback; at start the tool
- * fetches the maintained catalog from the public endpoint (MtsCatalog, ADR 032, #1157).
+ * Renders the offline data preparation tool as one self-contained HTML file (ADR 026, #1051): the generic core, the
+ * script modules of the schema contributions and the app, inlined; the schemas with their key rules, the public
+ * profiles and the bundled catalogs (#1301). Hospital-specific local maps are never bundled. At start the tool
+ * fetches the maintained catalogs from their public endpoints (ADR 032, #1157); without network it uses the
+ * bundled copies.
  */
 final readonly class DataPrepToolRenderer
 {
-    private const array SCRIPTS = ['js/data-prep-core.js', 'js/data-prep-app.js'];
-    private const array PROFILES = ['profiles/orbis-mts.json'];
-    private const string SCHEMA = 'schema/ed_visit.v1.json';
+    private const string CORE = 'js/data-prep-core.js';
+
+    private const string APP = 'js/data-prep-app.js';
 
     /** @psalm-suppress PossiblyUnusedMethod Wired by the container. */
     public function __construct(
         private Environment $twig,
         private UrlGeneratorInterface $urlGenerator,
         private DataPrepRelease $release,
-        private MtsCatalog $mtsCatalog,
+        private DataPrepContributions $contributions,
         #[Autowire('%kernel.project_dir%/src/Encounter/UI/DataPrep')]
         private string $sourceDirectory,
     ) {
@@ -34,23 +35,34 @@ final readonly class DataPrepToolRenderer
 
     public function render(): string
     {
-        $scripts = array_map(function (string $path): string {
-            $script = $this->read($path);
+        $scripts = array_map(static function (string $script): string {
             if (false !== stripos($script, '</script')) {
-                throw new \LogicException(sprintf('Script "%s" must not contain a closing script tag.', $path));
+                throw new \LogicException('A data preparation script must not contain a closing script tag.');
             }
 
             return $script;
-        }, self::SCRIPTS);
+        }, [
+            $this->contributions->read($this->sourceDirectory.'/'.self::CORE),
+            ...$this->contributions->scripts(),
+            $this->contributions->read($this->sourceDirectory.'/'.self::APP),
+        ]);
+        $catalogs = $this->contributions->catalogs();
+        $catalogUrls = array_combine(
+            array_map(static fn (DataPrepCatalog $catalog): string => $catalog->id, $catalogs),
+            array_map(fn (DataPrepCatalog $catalog): string => $this->urlGenerator->generate($catalog->route, [], UrlGeneratorInterface::ABSOLUTE_URL), $catalogs),
+        );
 
         return $this->twig->render('@Encounter/data_prep/tool.html.twig', [
             'release' => $this->release,
             'latest_url' => $this->urlGenerator->generate('app_encounter_data_prep_latest', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'scripts' => $scripts,
-            'schema' => $this->decode(self::SCHEMA),
-            'profiles' => array_map($this->decode(...), self::PROFILES),
-            'catalog_url' => $this->urlGenerator->generate('app_encounter_data_prep_mts_catalog', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            'catalogs' => [MtsCatalog::ID => $this->mtsCatalog->bundledToolCatalog()],
+            'schemas' => $this->contributions->schemas(),
+            'profiles' => $this->contributions->profiles(),
+            'catalog_urls' => $catalogUrls,
+            'catalogs' => array_combine(
+                array_keys($catalogUrls),
+                array_map(static fn (DataPrepCatalog $catalog): array => $catalog->payload, $catalogs),
+            ),
         ]);
     }
 
@@ -62,30 +74,8 @@ final readonly class DataPrepToolRenderer
      */
     public function profileSummaries(): array
     {
-        return array_map(function (string $path): array {
-            /** @var array{label: string, detect: array{requiredColumns: list<string>}} $profile */
-            $profile = $this->decode($path);
-
-            return ['label' => $profile['label'], 'columns' => $profile['detect']['requiredColumns']];
-        }, self::PROFILES);
-    }
-
-    private function read(string $path): string
-    {
-        $content = file_get_contents($this->sourceDirectory.'/'.$path);
-        if (false === $content) {
-            throw new \RuntimeException(sprintf('Cannot read data preparation tool source "%s".', $path));
-        }
-
-        return $content;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function decode(string $path): array
-    {
-        /* @var array<string, mixed> */
-        return json_decode($this->read($path), true, 512, \JSON_THROW_ON_ERROR);
+        return array_map(
+            /* @var array{label: string, detect: array{requiredColumns: list<string>}} $profile */
+            static fn (array $profile): array => ['label' => $profile['label'], 'columns' => $profile['detect']['requiredColumns']], $this->contributions->profiles());
     }
 }

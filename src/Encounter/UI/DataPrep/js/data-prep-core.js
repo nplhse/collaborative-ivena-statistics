@@ -10,54 +10,40 @@
 (function (root) {
     'use strict';
 
-    const FINGERPRINT_RULE = 'ed-visit:v1';
-    const CASE_KEY_PREFIX = 'case:v1';
     const KEY_CHECK_INPUT = 'encounter-key-check';
     const KEY_FILE_FORMAT = 'encounter-key';
     const LOCAL_MAP_FORMAT = 'encounter-local-map';
-    const CATALOG_FORMAT = 'encounter-mts-catalog';
-    const CATALOG_LISTS = ['diagrams', 'indicators'];
-    const CATALOG_CODE = /^[a-z0-9_]{1,64}$/;
-    const CARE_LEVELS = ['ward', 'monitoring', 'icu', 'or', 'unknown'];
-    const CARE_LEVEL_DISPOSITIONS = ['admitted', 'transferred_external'];
-    const VITAL_FIELDS = [
-        'bp_systolic',
-        'bp_diastolic',
-        'heart_rate',
-        'temperature',
-        'respiratory_rate',
-        'glucose',
-        'spo2',
-        'gcs',
-    ];
-    /** Name of a department of the reference catalog, as the import resolves it (#1048). */
-    // Patterns of the server's content check (IdentifyingContentDetector, #1048): a value that matches
-    // rejects the whole file there, so the local map must not produce one.
-    const SERVER_NAME_LIKE =
-        /\p{Lu}\p{Ll}+\s*,\s*\p{Lu}\p{Ll}+|\b(?:Dr|Prof|Herr|Frau|Mr|Mrs|Ms)\.?\s+\p{Lu}/u;
-    const SERVER_DATE_LIKE =
-        /\b\d{1,2}\.\d{1,2}\.\d{2,4}\b|\b\d{4}-\d{2}-\d{2}\b|\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/;
+    // ------------------------------------------------------------------ schema modules
 
-    function isDepartmentName(value) {
-        return (
-            typeof value === 'string' &&
-            !SERVER_NAME_LIKE.test(value) &&
-            !SERVER_DATE_LIKE.test(value) &&
-            value.length >= 1 &&
-            value.length <= 64 &&
-            value.trim() === value &&
-            ![...value].some(
-                (char) =>
-                    char === ';' ||
-                    char === '"' ||
-                    char.charCodeAt(0) < 32 ||
-                    char.charCodeAt(0) === 127,
-            )
-        );
+    /**
+     * Schema modules (#1301): what a schema adds to the generic core, registered by its own script after this one
+     * (for `ed_visit`: schemas/ed-visit.js). A schema without module works with the profile, the schema file and the
+     * generic rule types alone.
+     */
+    const schemaModules = new Map();
+    const GENERIC_MODULE = Object.freeze({
+        skipReasons: [],
+        report: () => ({}),
+        beforeKeys: () => null,
+        handledFields: [],
+        ruleTypes: {},
+        afterRow: () => {},
+        localMapFields: [],
+        columnPlan: () => {},
+        internalColumns: () => [],
+        localMap: { sections: [], reportSections: () => ({}) },
+    });
+
+    function registerSchema(id, module) {
+        if (schemaModules.has(id)) {
+            throw new Error(`Schema module "${id}" is already registered.`);
+        }
+        schemaModules.set(id, Object.freeze({ ...GENERIC_MODULE, ...module, id }));
     }
-    // Values from the hospital's own local map, not from the export: checked when the map is loaded
-    // (isDepartmentName), not by the content check of the run.
-    const LOCAL_MAP_FIELDS = ['admitting_department'];
+
+    function schemaModule(id) {
+        return schemaModules.get(id) ?? Object.freeze({ ...GENERIC_MODULE, id });
+    }
 
     // ------------------------------------------------------------------ text helpers
 
@@ -181,13 +167,18 @@
         return { header: header.map((name) => normalizeText(name)), rows };
     }
 
-    function detectProfile(header, profiles) {
+    /** Every profile whose required columns the header has; the order of the profiles never matters. */
+    function matchingProfiles(header, profiles) {
         const columns = new Set(header);
-        return (
-            profiles.find((profile) =>
-                profile.detect.requiredColumns.every((column) => columns.has(column)),
-            ) ?? null
+        return profiles.filter((profile) =>
+            profile.detect.requiredColumns.every((column) => columns.has(column)),
         );
+    }
+
+    /** The one matching profile, or null when none or several match (#1301: never the first of several). */
+    function detectProfile(header, profiles) {
+        const matches = matchingProfiles(header, profiles);
+        return matches.length === 1 ? matches[0] : null;
     }
 
     // ------------------------------------------------------------------ timestamps
@@ -395,23 +386,43 @@
         return String(value ?? '').replace(/\D/g, '');
     }
 
-    function fingerprintInput(caseNumber, anchorSource, anchor) {
-        return `${FINGERPRINT_RULE}|${caseNumber}|${anchorSource}|${formatSecond(anchor)}`;
+    /**
+     * Input of a keyed value: `rule|part|part…` after the key rules of the schema version (`schema.keys`, rendered
+     * from the dimension, #1301). Parts: `case_number` (digits), `anchor_source`, `anchor` (with seconds).
+     */
+    function keyInput(rule, parts, { caseNumber, anchorSource, anchor }) {
+        const value = (part) => {
+            switch (part) {
+                case 'case_number':
+                    return caseNumber;
+                case 'anchor_source':
+                    return anchorSource;
+                case 'anchor':
+                    return formatSecond(anchor);
+                default:
+                    throw new Error(`Unknown key part "${part}".`);
+            }
+        };
+        return [rule, ...parts.map(value)].join('|');
     }
 
-    async function visitKeys(key, caseNumber, anchorSource, anchor) {
+    /** Fingerprint and case key of one record, by the field names of the key rules. */
+    async function recordKeys(key, keys, values) {
         return {
-            visitFingerprint: await hmacHex(
+            fingerprint: await hmacHex(
                 key.cryptoKey,
-                fingerprintInput(caseNumber, anchorSource, anchor),
+                keyInput(keys.fingerprint.rule, keys.fingerprint.parts, values),
             ),
-            caseKey: await hmacHex(key.cryptoKey, `${CASE_KEY_PREFIX}|${caseNumber}`),
+            caseKey: await hmacHex(
+                key.cryptoKey,
+                keyInput(keys.caseKey.prefix, keys.caseKey.parts, values),
+            ),
         };
     }
 
     // ------------------------------------------------------------------ local map
 
-    /** Validated private local map of a hospital (format: data-preparation-tool.md). */
+    /** Validated private local map of a hospital (format: data-preparation-tool.md); sections from the schema. */
     function loadLocalMap(content, profile) {
         const data = typeof content === 'string' ? JSON.parse(content) : content;
         if (data?.format !== LOCAL_MAP_FORMAT || data.version !== 1) {
@@ -420,20 +431,13 @@
         if (data.profile !== undefined && data.profile !== profile.id) {
             throw new Error('profile-mismatch');
         }
+        const { sections } = schemaModule(profile.schema).localMap;
         const errors = [];
-        for (const [source, name] of Object.entries(data.departments ?? {})) {
-            if (!isDepartmentName(name)) {
-                errors.push(`departments.${source}`);
-            }
-        }
-        for (const [source, level] of Object.entries(data.stations ?? {})) {
-            if (!CARE_LEVELS.includes(level)) {
-                errors.push(`stations.${source}`);
-            }
-        }
-        for (const [source, target] of Object.entries(data.dispositions ?? {})) {
-            if (!isValidDispositionTarget(target)) {
-                errors.push(`dispositions.${source}`);
+        for (const section of sections) {
+            for (const [source, target] of Object.entries(data[section.name] ?? {})) {
+                if (!section.valid(target)) {
+                    errors.push(`${section.name}.${source}`);
+                }
             }
         }
         if (errors.length > 0) {
@@ -441,37 +445,36 @@
             error.entries = errors;
             throw error;
         }
-        return {
+        const loaded = {
             label: normalizeText(data.hospital ?? ''),
             data: localMapData(data, profile),
-            departments: lookupTable(data.departments),
-            stations: lookupTable(data.stations),
-            dispositions: lookupTable(data.dispositions),
-            counts: {
-                departments: Object.keys(data.departments ?? {}).length,
-                stations: Object.keys(data.stations ?? {}).length,
-                dispositions: Object.keys(data.dispositions ?? {}).length,
-            },
         };
+        for (const section of sections) {
+            loaded[section.name] = lookupTable(data[section.name]);
+        }
+        loaded.counts = Object.fromEntries(
+            sections.map((section) => [section.name, Object.keys(data[section.name] ?? {}).length]),
+        );
+        return loaded;
     }
 
     /** Plain copy of a map in the file format, as the editor changes and saves it (#1130). */
     function localMapData(data, profile) {
-        const copy = (section) => ({ ...(data?.[section] ?? {}) });
-        return {
+        const map = {
             format: LOCAL_MAP_FORMAT,
             version: 1,
             profile: data?.profile ?? profile.id,
             hospital: typeof data?.hospital === 'string' ? data.hospital : '',
-            departments: copy('departments'),
-            stations: copy('stations'),
-            dispositions: Object.fromEntries(
-                Object.entries(data?.dispositions ?? {}).map(([source, target]) => [
-                    source,
-                    { ...target },
-                ]),
-            ),
         };
+        for (const { name } of schemaModule(profile.schema).localMap.sections) {
+            map[name] = Object.fromEntries(
+                Object.entries(data?.[name] ?? {}).map(([source, target]) => [
+                    source,
+                    typeof target === 'object' && target !== null ? { ...target } : target,
+                ]),
+            );
+        }
+        return map;
     }
 
     /** Empty map for the profile, the start of a map made in the editor. */
@@ -479,23 +482,9 @@
         return localMapData({ hospital }, profile);
     }
 
-    /**
-     * Report fields (`report.unmapped`) whose values the local map assigns, with the map section:
-     * the `department` rule, the `disposition` rule and the care level from its station column.
-     */
+    /** Report fields (`report.unmapped`) whose values the local map assigns, with the map section. */
     function localMapSections(profile) {
-        const sections = {};
-        for (const [name, rule] of Object.entries(profile.fields)) {
-            if (rule.type === 'department') {
-                sections[name] = 'departments';
-            } else if (rule.type === 'disposition') {
-                sections[name] = 'dispositions';
-                if (rule.stationColumn) {
-                    sections.care_level = 'stations';
-                }
-            }
-        }
-        return sections;
+        return schemaModule(profile.schema).localMap.reportSections(profile);
     }
 
     /**
@@ -504,7 +493,10 @@
      * is not validated here: load it with loadLocalMap, as a map file.
      */
     function setLocalMapEntry(data, section, source, target) {
-        if (!['departments', 'stations', 'dispositions'].includes(section)) {
+        if (
+            ['format', 'version', 'profile', 'hospital'].includes(section) ||
+            !Object.hasOwn(data, section)
+        ) {
             throw new Error(`Unknown local map section "${section}".`);
         }
         const key = normalizeText(source);
@@ -522,41 +514,22 @@
         return `${JSON.stringify(data, null, 4)}\n`;
     }
 
-    const DISPOSITIONS = [
-        'home',
-        'to_physician',
-        'kv_practice',
-        'against_advice',
-        'left_before_completion',
-        'admitted',
-        'transferred_external',
-        'died',
-        'other',
-    ];
-
-    function isValidDispositionTarget(target) {
-        return (
-            DISPOSITIONS.includes(target?.disposition) &&
-            (target.careLevel === undefined ||
-                (CARE_LEVELS.includes(target.careLevel) &&
-                    CARE_LEVEL_DISPOSITIONS.includes(target.disposition)))
-        );
-    }
-
-    function emptyLocalMap() {
-        return {
-            label: '',
-            departments: new Map(),
-            stations: new Map(),
-            dispositions: new Map(),
-            counts: { departments: 0, stations: 0, dispositions: 0 },
-        };
+    /** A map without entries; with a profile, with the sections of its schema. */
+    function emptyLocalMap(profile = null) {
+        const sections = profile === null ? [] : schemaModule(profile.schema).localMap.sections;
+        const map = { label: '' };
+        for (const { name } of sections) {
+            map[name] = new Map();
+        }
+        map.counts = Object.fromEntries(sections.map(({ name }) => [name, 0]));
+        return map;
     }
 
     // ------------------------------------------------------------------ column preview
 
     /** Which source columns are kept, transformed or dropped, and why (allow-list). */
-    function columnPlan(header, profile) {
+    function columnPlan(header, profile, schema) {
+        const module = schemaModule(profile.schema);
         const used = new Map();
         const use = (column, target, status) => {
             if (!column) {
@@ -570,20 +543,18 @@
             used.set(column, entry);
         };
 
-        use(profile.keys.caseNumber, 'visit_fingerprint', 'transformed');
-        use(profile.keys.caseNumber, 'case_key', 'transformed');
+        const { fingerprint, caseKey } = schema.keys;
+        use(profile.keys.caseNumber, fingerprint.field, 'transformed');
+        use(profile.keys.caseNumber, caseKey.field, 'transformed');
         for (const anchor of profile.keys.anchors) {
-            use(anchor.column, 'visit_fingerprint', 'transformed');
+            use(anchor.column, fingerprint.field, 'transformed');
         }
-        use(profile.age.column, 'age', 'transformed');
+        module.columnPlan({ use, profile });
         for (const [name, rule] of Object.entries(profile.fields)) {
             const targets = rule.targets ?? [name];
             const status = ['timestamp', 'integer'].includes(rule.type) ? 'kept' : 'transformed';
             for (const column of rule.columns ?? [rule.column]) {
                 targets.forEach((target) => use(column, target, status));
-            }
-            if (rule.type === 'disposition') {
-                use(rule.stationColumn, 'care_level', 'transformed');
             }
         }
 
@@ -595,7 +566,7 @@
             columns.forEach((column) => dropReasons.set(column, reason));
         }
         const patterns = profile.dropped.derivedPatterns ?? [];
-        const internalUse = new Map([[profile.age.birthDateColumn, ['age']]]);
+        const internalUse = new Map(module.internalColumns(profile));
 
         return header
             .map((column, index) => ({ column, index }))
@@ -665,20 +636,24 @@
 
     // ------------------------------------------------------------------ transformation
 
-    function newReport(rowsRead) {
+    function newReport(rowsRead, profile, module) {
+        const skipped = { noCaseNumber: 0, noAnchor: 0 };
+        for (const reason of module.skipReasons) {
+            skipped[reason] = 0;
+        }
+        skipped.duplicate = 0;
         return {
             rowsRead,
             rowsWritten: 0,
-            skipped: { noCaseNumber: 0, noAnchor: 0, noAge: 0, noSex: 0, duplicate: 0 },
-            anchorSources: { assessment: 0, admission: 0 },
-            ageFromBirthDate: 0,
-            ageClamped: 0,
-            vitalsEmptied: {},
+            skipped,
+            anchorSources: Object.fromEntries(
+                profile.keys.anchors.map(({ source }) => [source, 0]),
+            ),
+            ...module.report(),
             invalidValues: {},
             unmapped: {},
             unlistedCatalogValues: {},
             catalogAliases: {},
-            careLevelUnknown: 0,
             firstAnchor: null,
             lastAnchor: null,
         };
@@ -690,7 +665,7 @@
     }
 
     /**
-     * Turn the rows of a source table into canonical `ed_visit` rows.
+     * Turn the rows of a source table into canonical rows of the schema (`schema.schema`).
      *
      * @returns {Promise<{header: string[], rows: string[][], report: object, content: object}>}
      */
@@ -698,8 +673,19 @@
         table,
         { profile, schema, key, localMap = emptyLocalMap(), catalogs = {} },
     ) {
+        const keyRules = schema.keys;
+        if (!keyRules?.fingerprint || !keyRules?.caseKey) {
+            throw new Error('The schema has no key rules.');
+        }
+        const module = schemaModule(schema.schema);
+        // A map without a section of the schema (an empty map, a map of another profile) counts as empty there.
+        for (const { name } of module.localMap.sections) {
+            if (!(localMap[name] instanceof Map)) {
+                localMap = { ...localMap, [name]: new Map() };
+            }
+        }
         const fieldsByName = new Map(schema.fields.map((field) => [field.name, field]));
-        const outputHeader = schema.fields.map((field) => field.name);
+        const outputHeader = exportFields(schema);
         // ORBIS repeats some headers (`Zweiteinschätzung`); the first occurrence wins.
         const columnIndex = new Map();
         table.header.forEach((column, index) => {
@@ -710,7 +696,7 @@
         const catalogTables = catalogLookups(catalogs);
         const cell = (row, column) =>
             columnIndex.has(column) ? normalizeText(row[columnIndex.get(column)]) : '';
-        const report = newReport(table.rows.length);
+        const report = newReport(table.rows.length, profile, module);
         const findings = new Map();
         const seen = new Set();
         const rows = [];
@@ -745,47 +731,21 @@
                 continue;
             }
 
-            // demographics (required)
-            const ageText = /^(\d{1,3})\b/.exec(cell(row, profile.age.column));
-            let age = ageText === null ? null : Number(ageText[1]);
-            if (age === null && profile.age.birthDateColumn) {
-                const birth = parseSourceTimestamp(cell(row, profile.age.birthDateColumn), {
-                    dateOnly: true,
-                });
-                if (birth !== null) {
-                    age = ageAt(birth, anchor);
-                    report.ageFromBirthDate++;
-                }
-            }
-            if (age === null) {
-                report.skipped.noAge++;
+            // Schema hooks may read source values such as the birth date here; only the export fields leave the row.
+            const skip = module.beforeKeys({ row, cell, out, report, profile, anchor });
+            if (skip !== null) {
+                report.skipped[skip]++;
                 continue;
             }
-            if (clampAge(age) !== age) {
-                report.ageClamped++;
-            }
-            out.age = String(clampAge(age));
 
-            const sexRule = profile.fields.sex;
-            const sex = mapCode(sexRule, cell(row, sexRule.column));
-            if (sex === undefined) {
-                const raw = cell(row, sexRule.column);
-                if (raw !== '') {
-                    count(report.unmapped, 'sex', raw);
-                }
-                report.skipped.noSex++;
-                continue;
-            }
-            out.sex = sex;
-
-            const keys = await visitKeys(key, caseNumber, anchorSource, anchor);
-            if (seen.has(keys.visitFingerprint)) {
+            const keys = await recordKeys(key, keyRules, { caseNumber, anchorSource, anchor });
+            if (seen.has(keys.fingerprint)) {
                 report.skipped.duplicate++;
                 continue;
             }
-            seen.add(keys.visitFingerprint);
-            out.visit_fingerprint = keys.visitFingerprint;
-            out.case_key = keys.caseKey;
+            seen.add(keys.fingerprint);
+            out[keyRules.fingerprint.field] = keys.fingerprint;
+            out[keyRules.caseKey.field] = keys.caseKey;
             report.anchorSources[anchorSource]++;
             const anchorMinute = formatMinute(anchor);
             if (report.firstAnchor === null || anchorMinute < report.firstAnchor) {
@@ -796,10 +756,10 @@
             }
 
             for (const [name, rule] of Object.entries(profile.fields)) {
-                if (name === 'sex') {
+                if (module.handledFields.includes(name)) {
                     continue;
                 }
-                applyRule(name, rule, {
+                applyRule(name, rule, module, {
                     row,
                     cell,
                     out,
@@ -811,17 +771,19 @@
                 });
             }
 
-            if (VITAL_FIELDS.some((field) => (out[field] ?? '') !== '')) {
-                out.vitals_reference = profile.vitalsReference;
-            }
+            module.afterRow({ out, profile, report });
 
             for (const field of outputHeader) {
                 const type = fieldsByName.get(field).type;
-                if (type !== 'timestamp' && type !== 'hmac' && !LOCAL_MAP_FIELDS.includes(field)) {
+                if (
+                    type !== 'timestamp' &&
+                    type !== 'hmac' &&
+                    !module.localMapFields.includes(field)
+                ) {
                     check(field, null, out[field] ?? '');
                 }
             }
-            rows.push(outputHeader.map((field) => out[field] ?? ''));
+            rows.push(exportRow(out, outputHeader));
         }
 
         report.rowsWritten = rows.length;
@@ -834,8 +796,21 @@
         };
     }
 
-    function applyRule(name, rule, context) {
-        const { cell, row, out, report, localMap, fieldsByName, check, catalogTables } = context;
+    /**
+     * Export boundary (#1301): the fields of the active schema version, in header order. Nothing else from a row
+     * reaches the exchange file, whatever a profile or a schema hook read on the way (case number, birth date,
+     * columns the profile does not know).
+     */
+    function exportFields(schema) {
+        return schema.fields.map((field) => field.name);
+    }
+
+    function exportRow(out, fields) {
+        return fields.map((field) => out[field] ?? '');
+    }
+
+    function applyRule(name, rule, module, context) {
+        const { cell, row, out, report, fieldsByName, check, catalogTables } = context;
         const raw = rule.column ? cell(row, rule.column) : '';
 
         switch (rule.type) {
@@ -901,47 +876,6 @@
                 out[name] = String(number);
                 return;
             }
-            case 'vital': {
-                const value = vitalValue(raw, rule, fieldsByName.get(name));
-                if (value.reason) {
-                    count(report.vitalsEmptied, name, value.reason);
-                }
-                if (value.text) {
-                    out[name] = value.text;
-                }
-                return;
-            }
-            case 'bloodPressure': {
-                if (raw === '') {
-                    return;
-                }
-                let text = raw;
-                if (rule.unit && text.toLowerCase().endsWith(rule.unit.toLowerCase())) {
-                    text = text.slice(0, -rule.unit.length).trim();
-                }
-                const match = /^(\d{1,3})\s*\/\s*(\d{1,3}|\?)?$/.exec(text);
-                const [systolicField, diastolicField] = rule.targets;
-                if (match === null) {
-                    count(report.vitalsEmptied, systolicField, 'unparseable');
-                    count(report.vitalsEmptied, diastolicField, 'unparseable');
-                    return;
-                }
-                const parts = [
-                    [systolicField, match[1]],
-                    [diastolicField, match[2]],
-                ];
-                for (const [field, part] of parts) {
-                    if (part === undefined || part === '?') {
-                        continue;
-                    }
-                    if (!inRange(Number(part), fieldsByName.get(field))) {
-                        count(report.vitalsEmptied, field, 'outOfRange');
-                        continue;
-                    }
-                    out[field] = String(Number(part));
-                }
-                return;
-            }
             case 'flag': {
                 if (raw === '') {
                     return;
@@ -973,25 +907,11 @@
                 }
                 return;
             }
-            case 'disposition':
-                applyDisposition(name, rule, raw, context);
-                return;
-            case 'department': {
-                const source = rule.columns
-                    .map((column) => cell(row, column))
-                    .find((value) => value !== '');
-                if (source === undefined) {
-                    return;
-                }
-                const code = localMap.departments.get(lookupKey(source));
-                if (code === undefined) {
-                    count(report.unmapped, name, source);
-                    return;
-                }
-                out[name] = code;
-                return;
-            }
             default:
+                if (Object.hasOwn(module.ruleTypes, rule.type)) {
+                    module.ruleTypes[rule.type](name, rule, raw, context);
+                    return;
+                }
                 throw new Error(`Unknown rule type "${rule.type}" in profile.`);
         }
     }
@@ -1003,7 +923,8 @@
     function catalogLookups(catalogs) {
         const tables = new Map();
         for (const [id, catalog] of Object.entries(catalogs)) {
-            for (const list of CATALOG_LISTS) {
+            const lists = Object.keys(catalog).filter((list) => Array.isArray(catalog[list]));
+            for (const list of lists) {
                 const aliases = new Map(Object.entries(catalog.aliases?.[list] ?? {}));
                 const codes = new Set([
                     ...(catalog[list] ?? []).map((entry) => entry.code),
@@ -1016,107 +937,16 @@
     }
 
     /**
-     * Validate an MTS catalog in the tool's format (`encounter-mts-catalog` version 1, #1157), as served by the
-     * public catalog endpoint and bundled as offline fallback. Returns a normalised copy; throws on anything else.
+     * Validate a catalog in the tool's format (for `ed_visit` the MTS catalog, #1157), as served by its public
+     * endpoint and bundled as offline fallback: the schema module that knows the format checks it.
      */
     function parseCatalog(payload) {
-        if (
-            payload === null ||
-            typeof payload !== 'object' ||
-            payload.format !== CATALOG_FORMAT ||
-            payload.version !== 1 ||
-            typeof payload.id !== 'string'
-        ) {
-            throw new Error('Not an MTS catalog of a supported version.');
-        }
-        const catalog = { format: CATALOG_FORMAT, version: 1, id: payload.id, aliases: {} };
-        for (const list of CATALOG_LISTS) {
-            const entries = payload[list];
-            if (!Array.isArray(entries)) {
-                throw new Error(`The MTS catalog has no list "${list}".`);
-            }
-            catalog[list] = entries.map((entry) => {
-                if (
-                    entry === null ||
-                    typeof entry !== 'object' ||
-                    !CATALOG_CODE.test(entry.code) ||
-                    typeof entry.name !== 'string'
-                ) {
-                    throw new Error(`Invalid entry in the MTS catalog list "${list}".`);
-                }
-                return {
-                    code: entry.code,
-                    name: entry.name,
-                    englishName: typeof entry.englishName === 'string' ? entry.englishName : null,
-                };
-            });
-            const aliases = payload.aliases?.[list] ?? {};
-            if (aliases === null || typeof aliases !== 'object') {
-                throw new Error(`Invalid aliases in the MTS catalog list "${list}".`);
-            }
-            catalog.aliases[list] = {};
-            for (const [code, target] of Object.entries(aliases)) {
-                if (!CATALOG_CODE.test(code) || !CATALOG_CODE.test(target)) {
-                    throw new Error(`Invalid alias in the MTS catalog list "${list}".`);
-                }
-                catalog.aliases[list][code] = target;
+        for (const module of schemaModules.values()) {
+            if (module.catalogFormat !== undefined && payload?.format === module.catalogFormat) {
+                return module.parseCatalog(payload);
             }
         }
-        return catalog;
-    }
-
-    function vitalValue(raw, rule, field) {
-        if (raw === '') {
-            return {};
-        }
-        const decimal = parseMeasurement(raw, rule.unit);
-        if (decimal === null) {
-            return { reason: 'unparseable' };
-        }
-        let text;
-        if (rule.decimals) {
-            text = roundHalfUp(decimal, rule.decimals);
-        } else if (rule.round) {
-            text = roundHalfUp(decimal, 0);
-        } else if (/^\d+$/.test(decimal)) {
-            text = String(Number(decimal));
-        } else {
-            return { reason: 'unparseable' };
-        }
-        if (!inRange(Number(text), field)) {
-            return { reason: 'outOfRange' };
-        }
-        return { text };
-    }
-
-    function applyDisposition(name, rule, raw, { cell, row, out, report, localMap }) {
-        if (raw === '') {
-            return;
-        }
-        const target =
-            localMap.dispositions.get(lookupKey(raw)) ?? lookupTable(rule.map).get(lookupKey(raw));
-        if (target === undefined) {
-            count(report.unmapped, name, raw);
-            return;
-        }
-        out[name] = target.disposition;
-        if (!CARE_LEVEL_DISPOSITIONS.includes(target.disposition)) {
-            return;
-        }
-        let careLevel = target.careLevel ?? null;
-        if (target.disposition === 'admitted' && rule.stationColumn) {
-            const station = cell(row, rule.stationColumn);
-            const mapped = station === '' ? undefined : localMap.stations.get(lookupKey(station));
-            if (mapped !== undefined) {
-                careLevel = mapped;
-            } else if (station !== '') {
-                count(report.unmapped, 'care_level', station);
-            }
-        }
-        if (careLevel === null || careLevel === 'unknown') {
-            report.careLevelUnknown++;
-        }
-        out.care_level = careLevel ?? 'unknown';
+        throw new Error('Not a catalog of a supported format.');
     }
 
     // ------------------------------------------------------------------ output
@@ -1130,7 +960,7 @@
             `profile_version=${profile.version}`,
             `tool=${toolVersion}`,
             `key_check=${keyCheck}`,
-            `fingerprint=${FINGERPRINT_RULE}`,
+            `fingerprint=${schema.keys.fingerprint.rule}`,
             `rows=${rows}`,
         ].join(';');
     }
@@ -1152,7 +982,7 @@
     function exchangeFileName(result, profile) {
         const first = result.report.firstAnchor?.slice(0, 10) ?? 'empty';
         const last = result.report.lastAnchor?.slice(0, 10) ?? 'empty';
-        return `ed_visit_${profile.id}_${first}_${last}.csv`;
+        return `${profile.schema}_${profile.id}_${first}_${last}.csv`;
     }
 
     // ------------------------------------------------------------------ versions
@@ -1177,13 +1007,29 @@
         return compareVersions(ownVersion, latest.version) < 0 ? 'update' : 'current';
     }
 
+    // Shared helpers for schema modules.
+    const helpers = Object.freeze({
+        normalizeText,
+        lookupKey,
+        lookupTable,
+        parseSourceTimestamp,
+        ageAt,
+        clampAge,
+        parseMeasurement,
+        roundHalfUp,
+        inRange,
+        mapCode,
+        count,
+    });
+
     root.EncounterDataPrep = Object.freeze({
-        FINGERPRINT_RULE,
+        helpers,
         KEY_CHECK_INPUT,
         decodeBytes,
         parseCsv,
         readTable,
         detectProfile,
+        matchingProfiles,
         parseSourceTimestamp,
         formatMinute,
         formatSecond,
@@ -1192,15 +1038,14 @@
         parseCatalog,
         contentFindings,
         caseNumberOf,
-        fingerprintInput,
+        keyInput,
         hmacHex,
         importHmacKey,
         generateKeyFile,
         loadKey,
-        CARE_LEVELS,
-        CARE_LEVEL_DISPOSITIONS,
-        DISPOSITIONS,
-        isDepartmentName,
+        registerSchema,
+        schemaModule,
+        exportFields,
         loadLocalMap,
         emptyLocalMap,
         newLocalMapData,

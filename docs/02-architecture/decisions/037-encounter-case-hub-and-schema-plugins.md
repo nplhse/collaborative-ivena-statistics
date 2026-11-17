@@ -1,6 +1,6 @@
-# ADR 037: Encounter as case hub, schemas as Symfony bundles
+# ADR 037: Encounter as treatment case, schemas as Symfony bundles
 
-**Status:** accepted (#1274 part 1: contract, assignment, deletion rules and display proven with a test-only schema bundle; hub split and MTS bundle follow in #1300)
+**Status:** accepted (#1274 part 1: contract, assignment, deletion rules and display proven with a test-only schema bundle; #1307 decisions and retries done; #1300 done: ED visit split out of the encounter, effective assignment on the encounter, cleanup of encounters without records, ED visits with MTS shipped as the plugin `plugins/ed-visit`, the application runs without it; #1301 done: data preparation tool with schema contributions)
 
 ## Context
 
@@ -44,9 +44,9 @@ Forces:
 - Allocation and closure imports stay import types of the core. `ImportType` is not extended by
   plugins.
 
-### Encounter as case hub
+### Encounter as treatment case
 
-- An `Encounter` is the hub of **one case** for which more exists than the IVENA allocation. It holds
+- An `Encounter` is **one treatment case** for which more exists than the IVENA allocation. It holds
   only base data: hospital, key generation, case pseudonym, anchor time, age, sex and at most one link
   to an allocation (unique per allocation, changeable).
 - Everything else is a **record** of a schema: an ED visit with MTS, an inpatient stay, a diagnosis
@@ -68,6 +68,29 @@ Forces:
   as anchor. Which time this is for `ed_visit` is an open question (below).
 - The boundary of ADR 027 stays: there is no patient-level key, and encounters of different cases are
   never linked.
+
+### Effective assignment (amendment, #1300)
+
+Terms used from here on: an **encounter** is one treatment case; its row in `encounter` is the **encounter
+record**; the **IVENA allocation** is the independent allocation record; a **clinical record** is a record
+of a schema (`ed_visit`, `inpatient_stay`, …) that references its encounter through `encounter_id`.
+
+- Expected arrival (`arrivalAt`), age, sex and target hospital of an allocation are features for matching,
+  not identity.
+- The **effective assignment** of an encounter to an IVENA allocation is `encounter.allocation_id`
+  (unique, `ON DELETE SET NULL`). It is the authoritative source: the case file, the assignment service and
+  the check whether an allocation is taken read it there. The core sets and removes it
+  (`EncounterAllocationAssignmentsInterface`); a schema with its own matching history (the ED matching in
+  `encounter_match`) writes that history and calls the core in the same transaction.
+- **Extension of the decision:** when a schema assigns a clinical record uniquely to an IVENA allocation,
+  it asks the core for that allocation's encounter, which returns the assigned encounter or creates one
+  and assigns it in the same step (`encounterForAllocation()`); at most one encounter per allocation. Which
+  schemas may create an encounter **without** an allocation stays a separate rule: for now only `ed_visit`
+  (an ED visit without allocation).
+- Deleting an import of a schema removes its records only; other clinical records and the effective
+  assignment stay at the encounter. A reviewer can remove the assignment by hand also when no ED visit is
+  left. Deleting or reprocessing an IVENA import sets the assignment to null; the encounter and its records
+  stay, and the matcher assigns the new allocation again when the match is unambiguous.
 
 ### Finding the encounter
 
@@ -106,7 +129,7 @@ time, or by creating a new encounter. The core answers with one of four results 
 - **Deleting or reprocessing an import** removes exactly the records of that import, through its schema,
   with the cleanup of ADR 029. Records of other imports at the same encounter stay. An encounter can be
   left without records for a while, for example during a reassignment.
-- **Hub cleanup** is a separate, central step of the core. It removes encounters that no record
+- **Cleanup of encounters without records** is a separate, central step of the core. It removes encounters that no record
   references, after checking every table that references `encounter`, including tables of disabled
   bundles. It can be started by hand, on a schedule or after defined events; a bundle can request it.
 
@@ -141,6 +164,16 @@ Two rules hold for all of them:
 
 - Plugins depend only on `App\Encounter\Contract\…` (interfaces, value objects, the base entity), on
   `Shared` extension points and on Symfony and Doctrine. A Deptrac layer enforces this.
+- **Amendment (#1300, 2026-11-17):** a full schema such as `ed_visit` also needs a few Encounter classes outside
+  the contract (the `Encounter` entity as target of its Doctrine relations, the voter attributes, the base-data
+  enums, the grant repository, the department catalog, the `EncountersImported` event) and the entities, enums
+  and documented extension points of other contexts (users and roles, hospitals, departments, allocations,
+  imports, navigation, tools, My Hospitals, Explore, glossary, DataTable, audit, and the Statistics page API for
+  a statistics page of its own). Wrapping all of that in
+  contract facades was rejected as a large layer without benefit while plugins live in this repository. The
+  allowed names are listed in `PluginBoundaryTest::ALLOWED`, which fails CI, and in the Deptrac layers
+  `Encounter_PluginApi` and `Encounter_Plugin`; [extension points](../extension-points.md#encounter-schema-bundles)
+  lists them.
 - Where another context offers the extension point (allocation case file, Explore overview, import data
   removers, import detail page), Encounter implements it once and forwards to its plugins. A plugin
   needs no dependency on `Allocation` or `Import`.
@@ -161,6 +194,12 @@ Two rules hold for all of them:
 The tool becomes a generic shell (key file, fingerprinting, manifest, removal of identifying columns,
 local map); schemas contribute their schema file, profiles, scripts and catalogs (#1301).
 
+**Done in #1301:** key rules (fingerprint and case key) come from the dimension (`keyRules()`), the renderer
+adds them to the schema; schemas contribute through `DataPrepContributionInterface`, ordered by schema name;
+the profile of a file decides its schema, several matching profiles stop the export; only the export fields of
+the active schema version reach the file. The `ed_visit` contribution is registered by the plugin; step 4h moved its
+files (schema, ORBIS profile, schema module, local map files) into `plugins/ed-visit/data-prep/`. Details: [data-preparation-tool.md](../../04-features/encounter/data-preparation-tool.md#schema-contributions).
+
 ### Transition
 
 The decision is implemented in steps:
@@ -176,14 +215,28 @@ The decision is implemented in steps:
    records without candidate and records left unassigned after later encounter imports, plus a targeted
    retry of one conflict whose assignment became unique. The hospital lock is taken by the decisions and
    retries only; import write, reprocessing and the matcher join it in step 3.
-3. **#1300** splits the hub out of the `encounter` table, migrates the existing data, adds the hub
-   cleanup and ships MTS as a bundle.
+3. **#1300** splits the ED visit out of the `encounter` table (step 1 done: `ed_visit` keyed by the
+   encounter id, data migrated 1:1 and back, effective assignment on the encounter, reprocessing of
+   `ed_visit` reconciles by fingerprint in one transaction, see ADR 029; import write, reprocessing and the
+   matcher take the encounter hospital lock; step 2 done: the cleanup of encounters without records runs
+   daily and by command, per hospital under the encounter hospital lock, and treats every refusing
+   foreign key to `encounter` as a record; step 3 done: the empty bundle `plugins/ed-visit`
+   (`Cois\Plugin\EdVisit\EdVisitBundle`, package `nplhse/cois-ed-visit`) as a Composer path package, enabled
+   in every environment and covered by the static analysis; step 4 done: the ED visit code, its tests,
+   templates and Stimulus controller moved into the bundle in one change, because its parts depend on each
+   other in a cycle; the hospital course card takes the ED course through `EncounterCourseProviderInterface`;
+   queued `MatchEncountersMessage`s keep working through a class alias; the encounter analytics page comes from
+   the bundle through the extension point "Statistics pages" (also used by the test bundle); the synthetic ED
+   data and its fixture are part of the bundle, loaded only in dev, test and demo, and the fixture purge asks
+   plugins which tables to keep; the ED part of the data preparation tool is a contribution of the bundle (#1301);
+   step 5 done: the application runs with the bundle disabled (core pages link encounters through
+   `EncounterLinkProviderInterface`, menus show plugin pages only while their routes exist; tested with kernels
+   without the bundle and without any schema); step 6 done: `make check-without-ed-visit` installs a copy
+   without the package and smoke-tests it). URLs, route names, permissions, texts and numbers are unchanged.
 
-Until step 3, `ed_visit` is the only schema in production, and its records are the encounters. The
-rules on finding the encounter and on records and ownership apply in this phase as decided; resolution
-and retry arrive with step 2. One consequence follows from `RESTRICT`: deleting an `ed_visit` import whose
-visits still carry records of another schema fails completely; the import, its visits and the attached
-records all stay. Only the test bundle can produce this case before step 3, and #1274 tests it.
+Before step 1 of #1300, `ed_visit` was the only schema in production and its records were the encounters;
+deleting an `ed_visit` import whose visits carried records of another schema was refused. Since then an
+ED import deletion removes the visits only.
 
 ## Open questions
 
@@ -195,10 +248,13 @@ records all stay. Only the test bundle can produce this case before step 3, and 
   time of a record (for example the admission of a stay) decides between candidates.
 - **Merging and splitting:** what happens to records when a second schema may create encounters and a
   later allocation link makes two encounters the same case, or a link is removed.
-- **Hub cleanup criteria:** when a scheduled run treats an encounter without records as final (for
-  example after a waiting time while reassignments are open).
+- **Cleanup criteria:** whether a scheduled run should wait before it treats an encounter without
+  records as final (for example while reassignments are open). Since #1300 the daily cleanup removes
+  every encounter that is empty at the run.
 - **Disabled bundles:** how unassigned records and open conflicts of a schema whose bundle is disabled
-  are shown and resolved.
+  are shown and resolved. Since #1300 the application runs without the `ed_visit` bundle: its tables stay
+  (core migrations created them) and the conflict page lists candidates without a link to a visit page. What
+  happens to pending records and conflicts of the disabled schema itself is still open.
 
 ## Consequences
 
@@ -214,9 +270,9 @@ records all stay. Only the test bundle can produce this case before step 3, and 
 
 **Negative:**
 
-- Splitting the hub out of the `encounter` table needs a data migration on pilot data
+- Splitting the ED visit out of the `encounter` table needs a data migration on pilot data
 - Unassigned records and conflicts need a review page and people with the `REVIEW` grant
-- Encounters without records exist until the hub cleanup runs
+- Encounters without records exist until the cleanup runs
 - Until the split, deleting an `ed_visit` import fails completely while records of another schema are
   attached
 - A record that names an allocation is not retried when a later matcher run links that allocation, only
@@ -252,7 +308,7 @@ records all stay. Only the test bundle can produce this case before step 3, and 
 
 - Amends [026-encounter-data-context-and-exchange-format.md](026-encounter-data-context-and-exchange-format.md)
   (model: one encounter is one case, not one ED visit),
-  [029-encounter-import-lifecycle.md](029-encounter-import-lifecycle.md) (ownership per record, hub
+  [029-encounter-import-lifecycle.md](029-encounter-import-lifecycle.md) (ownership per record, encounter
   cleanup) and [030-encounter-allocation-matching.md](030-encounter-allocation-matching.md) (matching
   owned by `ed_visit`)
 - [027-encounter-pseudonym-key.md](027-encounter-pseudonym-key.md),

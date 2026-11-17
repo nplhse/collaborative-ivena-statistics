@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Support\Encounter;
 
 use App\Allocation\Domain\Entity\Hospital;
-use App\Encounter\Application\Dimension\EdVisitDimension;
 use App\Encounter\Application\Import\ImportEncountersDispatcher;
 use App\Encounter\Domain\Entity\EncounterImport;
 use App\Import\Domain\Entity\Import;
@@ -13,6 +12,7 @@ use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\User\Domain\Entity\User;
+use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -105,7 +105,7 @@ trait EncounterImportRunner
         $ids = [];
         foreach ($labels as $label) {
             $id = $this->connection()->fetchOne(
-                'SELECT id FROM encounter WHERE import_id = ? AND visit_fingerprint = ?',
+                'SELECT encounter_id FROM ed_visit WHERE import_id = ? AND visit_fingerprint = ?',
                 [$importId, EdVisitFileBuilder::fingerprint($label)],
             );
             if (false !== $id) {
@@ -118,7 +118,7 @@ trait EncounterImportRunner
 
     private function encounterCount(int $importId): int
     {
-        return (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter WHERE import_id = ?', [$importId]);
+        return (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM ed_visit WHERE import_id = ?', [$importId]);
     }
 
     private function connection(): Connection

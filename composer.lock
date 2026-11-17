@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0400525ba8ee73d91eedb8cac15370af",
+    "content-hash": "dcb62be74eef45c9ea8c0a5cca17ac06",
     "packages": [
         {
             "name": "azuyalabs/yasumi",
@@ -2199,6 +2199,39 @@
                 "source": "https://github.com/nelmio/NelmioSecurityBundle/tree/v3.9.0"
             },
             "time": "2026-02-23T10:58:33+00:00"
+        },
+        {
+            "name": "nplhse/cois-ed-visit",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "plugins/ed-visit",
+                "reference": "b51abc22d77b80a2894a65162e45fe9855460a21"
+            },
+            "require": {
+                "php": ">=8.4.3"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Cois\\Plugin\\EdVisit\\": "src/"
+                },
+                "files": [
+                    "legacy-class-aliases.php"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Cois\\Plugin\\EdVisit\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "ED visits (encounter schema ed_visit) with MTS for Collaborative IVENA Statistics (ADR 037).",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -13228,7 +13261,8 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-03T12:14:22+00:00"
+            "time": "2026-11-03T12:14:22+00:00",
+            "published-time": "2026-11-03T12:14:36+00:00"
         },
         {
             "name": "phpstan/phpstan-doctrine",
@@ -18136,6 +18170,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "nplhse/cois-ed-visit": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Encounter\Unit\UI\DataPrep;
 
-use App\Encounter\Application\Catalog\MtsCatalog;
-use App\Encounter\Application\Dimension\EdVisitDimension;
+use App\Encounter\Contract\Schema\EncounterDimensionInterface;
 use App\Encounter\Contract\Schema\EncounterField;
-use App\Encounter\Domain\Enum\CareLevel;
-use App\Encounter\Domain\Enum\Disposition;
+use App\Tests\Fixtures\Plugin\InpatientStay\InpatientStayDimension;
+use Cois\Plugin\EdVisit\Application\Catalog\MtsCatalog;
+use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
+use Cois\Plugin\EdVisit\Domain\Enum\CareLevel;
+use Cois\Plugin\EdVisit\Domain\Enum\Disposition;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -18,10 +20,21 @@ use PHPUnit\Framework\TestCase;
  */
 final class DataPrepContractTest extends TestCase
 {
-    private const string SOURCE = __DIR__.'/../../../../../src/Encounter/UI/DataPrep';
+    /** The ed_visit contribution's files in the plugin (step 4h of #1300). */
+    private const string SOURCE = __DIR__.'/../../../../../plugins/ed-visit/data-prep';
     private const string FIXTURES = __DIR__.'/../../../DataPrep/fixtures';
 
-    public function testToolSchemaMatchesTheEdVisitDimension(): void
+    /**
+     * @return iterable<string, array{string, EncounterDimensionInterface}>
+     */
+    public static function schemaFiles(): iterable
+    {
+        yield 'ed_visit' => [self::SOURCE.'/schema/ed_visit.v1.json', new EdVisitDimension()];
+        yield 'inpatient_stay (test bundle)' => [__DIR__.'/../../../../Fixtures/Plugin/InpatientStay/data-prep/inpatient_stay.v1.json', new InpatientStayDimension()];
+    }
+
+    #[DataProvider('schemaFiles')]
+    public function testToolSchemaMatchesItsDimension(string $file, EncounterDimensionInterface $dimension): void
     {
         $expected = array_map(static function (EncounterField $field): array {
             $entry = ['name' => $field->name, 'type' => $field->type->value];
@@ -39,13 +52,14 @@ final class DataPrepContractTest extends TestCase
             }
 
             return $entry;
-        }, new EdVisitDimension()->fields(1));
+        }, $dimension->fields(1));
 
-        $schema = $this->json(self::SOURCE.'/schema/ed_visit.v1.json');
+        $schema = $this->json($file);
 
-        self::assertSame(EdVisitDimension::SCHEMA, $schema['schema']);
+        self::assertSame($dimension->schema(), $schema['schema']);
         self::assertSame(1, $schema['version']);
-        self::assertEquals($expected, $schema['fields'], 'Regenerate schema/ed_visit.v1.json from EdVisitDimension.');
+        self::assertEquals($expected, $schema['fields'], 'Regenerate the schema file from its dimension.');
+        self::assertArrayNotHasKey('keys', $schema, 'Key rules come from the dimension (#1301).');
     }
 
     #[DataProvider('profiles')]
@@ -86,24 +100,29 @@ final class DataPrepContractTest extends TestCase
     }
 
     /**
-     * Independent PHP computation of the vectors the JavaScript tests check against.
+     * The vectors the JavaScript tests check against follow the key rules of the dimension (#1301).
      */
     public function testFingerprintVectorsFollowTheDocumentedRule(): void
     {
         $data = $this->json(self::FIXTURES.'/fingerprint-vectors.json');
         $key = (string) hex2bin((string) $data['key']);
 
+        $rules = new EdVisitDimension()->keyRules(1);
+
         self::assertSame(hash_hmac('sha256', 'encounter-key-check', $key), $data['keyCheck']);
+        // The JS tests read the keys block from the vectors; it is what the renderer writes for ed_visit v1.
+        self::assertSame($rules->toArray(), $data['keys']);
         self::assertNotEmpty($data['vectors']);
         foreach ($data['vectors'] as $vector) {
             $caseNumber = (string) preg_replace('/\D/', '', (string) $vector['caseNumber']);
             self::assertSame(1, preg_match('/^(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})(?::(\d{2}))?$/', (string) $vector['anchor'], $m));
-            $anchor = sprintf('%s-%s-%sT%s:%s:%s', $m[3], $m[2], $m[1], $m[4], $m[5], $m[6] ?? '00');
-            $input = 'ed-visit:v1|'.$caseNumber.'|'.$vector['anchorSource'].'|'.$anchor;
+            $anchor = new \DateTimeImmutable(sprintf('%s-%s-%sT%s:%s:%s', $m[3], $m[2], $m[1], $m[4], $m[5], '' === ($m[6] ?? '') ? '00' : $m[6]));
+            $input = $rules->fingerprintInput((string) $vector['caseNumber'], (string) $vector['anchorSource'], $anchor);
 
             self::assertSame($input, $vector['input']);
             self::assertSame(hash_hmac('sha256', $input, $key), $vector['visitFingerprint']);
-            self::assertSame(hash_hmac('sha256', 'case:v1|'.$caseNumber, $key), $vector['caseKey']);
+            self::assertSame(hash_hmac('sha256', $rules->caseKeyInput((string) $vector['caseNumber']), $key), $vector['caseKey']);
+            self::assertSame('case:v1|'.$caseNumber, $rules->caseKeyInput((string) $vector['caseNumber']));
         }
     }
 

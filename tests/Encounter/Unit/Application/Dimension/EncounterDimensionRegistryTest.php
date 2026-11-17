@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Encounter\Unit\Application\Dimension;
 
-use App\Encounter\Application\Dimension\EdVisitDimension;
 use App\Encounter\Application\Dimension\EncounterDimensionRegistry;
 use App\Encounter\Contract\Schema\EncounterField;
 use App\Encounter\Contract\Schema\EncounterFieldType;
+use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
 use PHPUnit\Framework\TestCase;
 
 final class EncounterDimensionRegistryTest extends TestCase

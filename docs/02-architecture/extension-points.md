@@ -40,6 +40,62 @@ Definitions expose `icon()` for the hub catalog (same Tabler names as Explore), 
 
 `TopListCatalogCrossReference` maps catalogue dimensions to top-list keys and row destinations (Explore show pages for diagnoses, secondary diagnoses, departments, specialities, assignments, occasions, infections, and secondary transports, plus Insight dashboards for the same entity dimensions). Secondary diagnoses share the indication catalogue; the catalogue action opens `top_diagnoses`. There is no top list for indication groups, hospitals, states, dispatch areas, glossary terms, users, or cases.
 
+## Statistics pages
+
+**Not a registry:** a page of another context or a plugin that looks and behaves like a statistics page (#1300).
+
+**Implementations:** `EncounterAnalyticsController` of the ED visit plugin (`plugins/ed-visit/`); in the `test`
+environment `InpatientStayStatisticsController` of the test bundle
+
+**Page API** (the classes such a page may use; `PluginBoundaryTest::ALLOWED`, Deptrac layers
+`Statistics_PageApiApplication` and `Statistics_PageApiUi`):
+
+- the filter from the URL: `StatisticsFilter` through `#[ValueResolver(StatisticsFilterValueResolver::class)]`,
+  `StatisticsFilterScope`, `StatisticsQueryKeys` for the query parameters;
+- the period: `StatisticsPeriodResolver::resolve()` (half-open bounds), `TimeSeriesGrainResolver` and
+  `TimeSeriesAxisFiller` for the same time axis as every statistics time series;
+- the scope and period picker: `AnalysisContextViewModelFactory::create()` (passed as `statsAnalysisContext`;
+  `AnalysisContextScopeMode::AssignedHospital` with the page's own hospitals for one-hospital pages) and
+  `OverviewPeriodViewModelFactory` for the heading;
+- in the template: `@Statistics/_header_controls.html.twig` in the page header and the statistics sidebar
+  (`<twig:Navigation:Sidebar menu="statistics" />`).
+
+The sidebar entry comes from the page's own [navigation provider](#navigation-tree): encounter schema pages go
+into the group `Menu::STATISTICS_GROUP_CLINICAL`, which Statistics defines and drops while it has no visible entry.
+Texts stay in the page's own translation domain; the ED visit page still uses `statistics` until it gets its own.
+
+## Encounter data preparation contributions
+
+**Tag:** `encounter.data_prep_contribution`
+
+**Interface:** `DataPrepContributionInterface` (`src/Encounter/Contract/DataPrep/`), value objects `DataPrepCatalog`,
+`DataPrepLocalMap`
+
+**Registry:** `DataPrepContributions` (`src/Encounter/UI/DataPrep/`), used by the tool renderer, the guide, the local
+map page and its downloads, `DataPrepToolProvider` and `HideDataPrepWithoutContributionsListener`
+
+**Implementations:** `EdVisitDataPrepContribution` of the ED visit plugin; in the `test` environment
+`InpatientStayDataPrepContribution` of the test bundle
+
+Lets an encounter schema join the offline data preparation tool (#1301): schema file (fields only; the key rules come
+from `EncounterDimensionInterface::keyRules()`), source profiles, an optional script module, catalogs and an optional
+local map. Contributions are ordered by schema name; without one the tool is hidden. Details:
+[data-preparation-tool.md](../04-features/encounter/data-preparation-tool.md#schema-contributions).
+
+## Fixture purge participants
+
+**Tag:** `app.fixtures.purge_participant` (tag the service yourself: `src/DataFixtures` is no autoconfigured resource)
+
+**Interface:** `FixturePurgeParticipantInterface` (`src/DataFixtures/Purger/`)
+
+**Consumer:** `MaterializedViewAwareOrmPurgerFactory` and `MaterializedViewAwareOrmPurger` (dev, test, demo)
+
+**Implementations:** `EdVisitFixturePurge` of the ED visit plugin (MTS catalog and plausibility areas, seed draft)
+
+Lets a plugin keep the tables it maintains in the app when fixtures are loaded (`keptTables()`) and rebuild data
+derived from them after the purge (`afterPurge()`, in the executor's transaction, before the materialized views are
+installed again). See [fixtures](../03-development/fixtures.md#purging-in-development).
+
 ## Statistics Insights
 
 **Tag:** `app.statistics.insight_dimension`
@@ -136,8 +192,8 @@ the explore sidebar. Rules for such pages:
 `@Allocation/explore.html.twig`, which renders the tiles of a group after its fixed ones
 (`_explore_contributed_tiles.html.twig`)
 
-**Implementations:** `EncounterExploreEntryProvider` (ED visit list, #1178, and the tiles of encounter schemas,
-ADR 037, #1274)
+**Implementations:** `EncounterExploreEntryProvider` of the ED visit plugin (ED visit list, #1178) and
+`SchemaExploreEntryForwarder` of Encounter (the tiles of encounter schemas, ADR 037, #1274)
 
 Lets other contexts add a tile (title, description, Tabler icon, route, beta badge) to the groups `cases`,
 `organisation`, `structure` or `features` of the Explore overview without a dependency from `Allocation` on them.
@@ -173,10 +229,9 @@ budget (`ShowAllocationControllerTest`).
 **Consumer:** `ImportRelatedDataCleanupService::removeRows()`, used by import deletion and by the cleanup
 before a reprocess or a redelivered run
 
-**Implementations:** `EncounterAttachedRecordsGuard` (refuses while records of other imports are attached to
-the import's encounters, ADR 037; priority 20, so it runs before any removal), `EncounterImportDataRemover`
-(the records every encounter schema handler created for the import and their pending assignments,
-#1047, #1274), `EncounterMatchDataRemover` (links, proposals and decisions of the import's allocations or
+**Implementations:** `EncounterImportDataRemover` (the records every encounter schema handler created for the
+import, their pending assignments and decisions, #1047, #1274, #1307; the encounters stay, #1300),
+`EncounterMatchDataRemover` (links, proposals and decisions of the import's allocations or
 visits, then a matcher rerun for the freed hospital-days, #1053; priority 10, so it runs while the visits
 still exist)
 
@@ -265,11 +320,17 @@ transaction. Reviewers decide conflicts on the conflict page (#1307): the core t
 `attach($recordId, $encounterId)`, which must update only an existing record of the schema that is still
 without encounter and return whether it did; the pending record is removed only after that. Automatic
 retries after encounter imports use the same method (`AssignmentRetrier`). Writes that decide the encounter
-of a record take `EncounterHospitalLockInterface` (one lock per hospital, inside the transaction); today
-the decisions and retries do, import write, reprocessing and the matcher join with #1300. Handlers count their results with
+of a record take `EncounterHospitalLockInterface` (one lock per hospital, inside the transaction): the
+decisions, retries, the encounter import write and the matcher (#1300). The effective assignment of an
+encounter to an IVENA allocation is `encounter.allocation_id`; a schema that keeps its own matching history
+writes it through `EncounterAllocationAssignmentsInterface` in the same transaction (the ED matching does).
+A handler that implements `ReprocessingSchemaHandlerInterface` reconciles its records when the import is
+reprocessed (keeps unchanged ones); others are removed and written again in the same transaction.
+Handlers count their results with
 `AssignmentCounts` and return them in `SchemaWriteResult::$assignments`: the import report shows assigned,
 unassigned (no candidate) and conflicts (ambiguous or contradictory). Record tables reference `encounter`
-with ON DELETE RESTRICT; `EncounterAttachedRecordsGuard` (above) finds them in the database catalog.
+with ON DELETE RESTRICT (or no action, as `ed_visit`), so an encounter is never removed while a record
+references it; removing an import removes only its records.
 
 ## Encounter record sections
 
@@ -279,13 +340,34 @@ with ON DELETE RESTRICT; `EncounterAttachedRecordsGuard` (above) finds them in t
 
 **Registry:** `RecordSectionRegistry`, used by `HospitalCourseCaseSectionProvider`
 
+**Course:** `EncounterCourseProviderInterface` (tag `encounter.course`, same directory), implemented by
+`EdVisitCourseProvider` of the ED visit plugin
+
 **Implementations:** in the `test` environment `InpatientStayRecordSections` of the test bundle
 (`tests/Fixtures/Plugin/InpatientStay/`)
 
 Lets an encounter schema show its records of an encounter in the hospital course card of the allocation case
 file (ADR 037). The card asks only after it checked `VIEW_CASES` and found the effective link; a provider returns
 `RecordSection`s (key, Twig template of the schema, variables) or none, with one query at most (query budget of the
-case file).
+case file). The schema whose records decide the assignment (the ED visit with its match review) contributes the
+course at the top of the card instead: `courseForEncounter()` returns an `EncounterCourse` (template and variables,
+or none when it has a record but nothing to show) or null without a record. While a course provider has a record,
+the card offers no "Remove assignment".
+
+## Encounter record page links
+
+**Tag:** `encounter.link`
+
+**Interface:** `EncounterLinkProviderInterface` (`src/Encounter/Contract/Display/`)
+
+**Registry:** `EncounterLinkRegistry`, used by `AssignmentConflictQuery` (the assignment conflict page)
+
+**Implementations:** `EdVisitEncounterLinkProvider` of the ED visit plugin (link to the visit page)
+
+Lets an encounter schema link encounters to its own record page on core pages that list encounters (#1300). The
+core asks once per page with the encounter ids, after it checked access to their hospital; the provider returns a
+URL for the encounters it has a page for, in one query, and the first link wins. Without a provider the conflict
+page shows the encounters' anchor without a link; they can still be assigned.
 
 ## Encounter Explore tiles
 
@@ -293,8 +375,9 @@ case file).
 
 **Interface:** `ExploreEntryProviderInterface` (`src/Encounter/Contract/Display/`)
 
-**Consumer:** `EncounterExploreEntryProvider`, which forwards the tiles to the
-[Explore overview](#explore-overview-tiles) in the group `cases`, after the ED visit list
+**Consumer:** `SchemaExploreEntryForwarder` (`src/Encounter/UI/Navigation/`), which forwards the tiles to the
+[Explore overview](#explore-overview-tiles) in the group `cases`, after the ED visit list; it is part of the core,
+so the tiles stay without the ED visit plugin (#1300)
 
 **Implementations:** in the `test` environment `InpatientStayExploreEntries` of the test bundle
 
@@ -309,15 +392,16 @@ action `VIEW_CASES` or `REVIEW` somewhere, or `ROLE_ADMIN`); the target page che
 **Consumers:** `EncounterPluginRouteLoader` (route type `encounter_plugins`, `config/routes/encounter_plugins.php`),
 `TimestampMigrationComparator` (`src/Shared/Infrastructure/Doctrine/`, registered in `doctrine_migrations.yaml`)
 
-**Implementations:** in the `test` environment `InpatientStayTestBundle` (`tests/Fixtures/Plugin/InpatientStay/`,
-schema `inpatient_stay`, #1274)
+**Implementations:** `EdVisitBundle` (`plugins/ed-visit/`, schema `ed_visit`, #1300); in the `test` environment
+`InpatientStayTestBundle` (`tests/Fixtures/Plugin/InpatientStay/`, schema `inpatient_stay`, #1274)
 
 How a Composer-installed bundle contributes an encounter schema without changes to the application
 ([ADR 037](decisions/037-encounter-case-hub-and-schema-plugins.md)); enabling it in `config/bundles.php` and running
 the migrations is all a deployment needs:
 
 - An `AbstractBundle` that implements `EncounterPluginBundleInterface`. `prependExtension()` adds its Doctrine
-  mapping and its migrations path; `loadExtension()` loads its services (autowired and autoconfigured, so the tags of
+  mapping and its migrations path, and, with assets, its AssetMapper path and Stimulus controller path (the
+  application lists its own in `config/packages/stimulus.yaml`, so both apply); `loadExtension()` loads its services (autowired and autoconfigured, so the tags of
   the contract interfaces apply).
 - `config/routes.php` of the bundle, imported by `EncounterPluginRouteLoader` for every enabled marked bundle.
   Name pages under Explore `app_explore_…`.
@@ -325,11 +409,25 @@ the migrations is all a deployment needs:
   `translations/` (own domain, EN and DE), registered by Symfony.
 - Migrations named `Version<YYYYMMDDHHMMSS>`, ordered by timestamp with the core ones; record tables reference
   `encounter` with ON DELETE RESTRICT and their import with ON DELETE CASCADE.
-- From the application only `App\Encounter\Contract\…`: schema (`EncounterDimensionInterface`), handler
+- From the application above all `App\Encounter\Contract\…`: schema (`EncounterDimensionInterface`), handler
   (`EncounterSchemaHandlerInterface`), assignment (`EncounterAssignmentsInterface`), access for its pages
-  (`EncounterAccessInterface`: `canViewCases()`, `hospitalsWithViewCases()`), record sections and Explore tiles
-  (`Display`). Deptrac layer `Encounter_Plugin` (paths `tests/Fixtures/Plugin`; later `plugins/`) may only use
-  `Encounter_Contract`; `PluginBoundaryTest` enforces it in CI and checks that `src/` names no plugin.
+  (`EncounterAccessInterface`: `canViewCases()`, `hospitalsWithViewCases()`), record sections, the course and
+  Explore tiles (`Display`), the key rules of its dimension (`EncounterKeyRules`) and its part of the data
+  preparation tool (`DataPrep`, [contributions](#encounter-data-preparation-contributions)). Besides that (ADR 037 amendment, #1300): the `Encounter` entity, `EncounterAttribute`,
+  the enums `AnchorSource`, `CaseStatus`, `EncounterGrantAction`, `EncounterInsertOutcome` and `Sex`,
+  `EncounterAccessGrantRepositoryInterface`, `DepartmentCatalogInterface`, `EncountersImported`; the entities and
+  enums of Allocation, Import and User, `UserRole`, `ImportCompleted`, `ImportDataRemoverInterface`; and the
+  extension points for navigation, tools, DataTable and audit (Shared), Explore and My Hospitals (Allocation),
+  `HospitalLookupInterface`, the [Statistics page API](#statistics-pages), and for synthetic data (dev, test and
+  demo only) a fixture API: `FixtureHospitals`, `PatternAllocationFixture`, `FixtureVolumeResolver`,
+  `ImportBatchPlanner`, `RandomStreams`, [`FixturePurgeParticipantInterface`](#fixture-purge-participants),
+  `EncounterAccessGrant`, `EncounterImport`, `ImportDataCoverage`. A bundle loads its fixture services only in the
+  environments with the fixtures bundle, as `EdVisitBundle` does with `config/services_fixtures.php`.
+  `PluginBoundaryTest::ALLOWED` is the exact list and fails CI; it also checks that `src/` names no plugin,
+  apart from the files `NOT_YET_MOVED` lists while #1300 moves them. Deptrac reports the same rule (layers
+  `Encounter_PluginApi`, `Encounter_Plugin`).
+- A message class that moves into a plugin keeps its old name as an alias in the plugin's
+  `legacy-class-aliases.php` (autoloaded by its `composer.json`) until no transport holds it any more.
 
 How to try the test bundle in a browser: [review](../04-features/encounter/encounter-schema-plugins-review.md#try-it-in-the-browser).
 
@@ -376,7 +474,9 @@ was removed) is rejected as `schema_unsupported`. Plugins only use the types und
 the main navigation entry (`SharedNavigationProvider`) and the Tools section of the sitemap
 
 **Implementations:** `IndicationReviewToolProvider` (Allocation, indication matching review),
-`EncounterToolProvider` (Encounter: match review, match validation, data preparation tool; beta)
+`EncounterToolProvider` (ED visit plugin: match review, match validation, plausibility table; beta),
+`AssignmentConflictToolProvider` and `DataPrepToolProvider` (Encounter: assignment conflicts, data preparation tool;
+beta)
 
 Lets a context add an interactive workflow (review, validation, data preparation) to the Tools section
 without a dependency from `Shared` on it ([ADR 031](decisions/031-tools-section-and-tool-registry.md)).
@@ -408,7 +508,8 @@ area; [ADR 035](decisions/035-navigation-tree-and-contextual-sidebar.md)) and th
 `help`, `legal`, `more` with sitemap and cookie settings), `AllocationNavigationProvider` (Explore, Export;
 the explore sidebar with its groups, glossary routes from `CatalogGlossaryEntryRegistry`),
 `UserNavigationProvider` (Users in the explore group `Menu::EXPLORE_GROUP_ORGANISATION`),
-`EncounterNavigationProvider` (ED visits in the explore group `Menu::EXPLORE_GROUP_CASES`, beta role, #1178),
+`EncounterNavigationProvider` of the ED visit plugin (ED visits in the explore group `Menu::EXPLORE_GROUP_CASES`,
+beta role, #1178; encounter analytics in the statistics group `Menu::STATISTICS_GROUP_CLINICAL`, #1300),
 `StatisticsNavigationProvider` (Statistics entry and the statistics sidebar with its groups; Insights
 dimensions from `InsightDimensionRegistry`), `ImportNavigationProvider` (Import), `ContentNavigationProvider`
 (Blog and CMS header pages; footer: CMS pages, blog, activity)

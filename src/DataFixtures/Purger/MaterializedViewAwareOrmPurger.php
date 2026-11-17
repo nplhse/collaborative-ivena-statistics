@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Purger;
 
-use App\Encounter\Application\Plausibility\PlausibilityCuration;
 use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewDropper;
 use App\Statistics\Infrastructure\Query\Overview\OverviewMaterializedViewsInstaller;
 use Doctrine\Common\DataFixtures\Purger\ORMPurgerInterface;
@@ -16,7 +15,8 @@ final readonly class MaterializedViewAwareOrmPurger implements ORMPurgerInterfac
         private ORMPurgerInterface $inner,
         private StatisticsMaterializedViewDropper $materializedViewDropper,
         private OverviewMaterializedViewsInstaller $materializedViewsInstaller,
-        private PlausibilityCuration $plausibilityCuration,
+        /** @var iterable<FixturePurgeParticipantInterface> */
+        private iterable $participants,
     ) {
     }
 
@@ -32,9 +32,10 @@ final readonly class MaterializedViewAwareOrmPurger implements ORMPurgerInterfac
         $this->materializedViewDropper->dropAllForSchemaReset();
         $this->materializedViewsInstaller->resetInstallationState();
         $this->inner->purge();
-        // The problem areas survive the purge, their snapshots do not (#1219): rebuild the seed draft from the kept
-        // areas. It only reads the kept tables and runs in the executor's transaction; nothing is activated.
-        $this->plausibilityCuration->rebuildSeedDraft();
+        foreach ($this->participants as $participant) {
+            $participant->afterPurge();
+        }
+
         $this->materializedViewsInstaller->ensureInstalled();
     }
 }

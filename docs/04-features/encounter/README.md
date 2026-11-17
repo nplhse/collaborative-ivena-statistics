@@ -19,8 +19,16 @@ Decisions: [ADR 026](../../02-architecture/decisions/026-encounter-data-context-
 [ADR 030](../../02-architecture/decisions/030-encounter-allocation-matching.md) (matching),
 [ADR 032](../../02-architecture/decisions/032-mts-catalog-as-maintained-data.md) (MTS catalog),
 [ADR 033](../../02-architecture/decisions/033-learning-plausibility-table.md) (plausibility table),
-[ADR 037](../../02-architecture/decisions/037-encounter-case-hub-and-schema-plugins.md) (case hub and schema
+[ADR 037](../../02-architecture/decisions/037-encounter-case-hub-and-schema-plugins.md) (treatment case and schema
 plugins; review in [encounter-schema-plugins-review.md](encounter-schema-plugins-review.md)).
+
+**Where the code lives (#1300):** the core of the treatment case (encounter, keys, grants, import shell,
+assignments and conflicts, cleanup, data preparation tool) is in `src/Encounter`; the ED visit schema with MTS
+(import, catalog and curation, plausibility, matching, review and validation, visit pages, case file course) is
+the plugin [`plugins/ed-visit`](../../../plugins/ed-visit/README.md) (`Cois\Plugin\EdVisit\…`), including the
+encounter analytics page under Statistics, the synthetic ED data with its fixture and the `ed_visit` contribution
+to the data preparation tool (#1301). URLs, route names and texts are unchanged. The application also runs without
+the plugin ([plugin README](../../../plugins/ed-visit/README.md#installation)).
 
 ## Flow
 
@@ -49,24 +57,29 @@ local map, and the local map editor in the tool (1.1.0). #1157 added the public 
 
 ## Model
 
-- One `Encounter` = one ED visit of a hospital, with triage, process times, disposition, initial
-  vitals, flags and at most one link to an allocation.
-- Identity: internal `visit_uid`; duplicate detection by a keyed visit fingerprint, unique per
-  hospital and key generation.
-- Each encounter belongs to the import that created it. Deleting that import removes it, with its
-  links and review decisions.
+- One `Encounter` = one treatment case of a hospital (#1300, ADR 037): base data (hospital, key
+  generation, case pseudonym, anchor, age, sex) and the **effective assignment** to an IVENA allocation,
+  `encounter.allocation_id` (unique, `ON DELETE SET NULL`). It is the authoritative source; the case file,
+  the assignment service and the matcher's check whether an allocation is taken read it there.
+- Clinical records reference their encounter through `encounter_id`; one of them is the **ED visit**
+  (`EdVisit`, table `ed_visit`, keyed by the encounter id) with triage, process times, disposition,
+  initial vitals and flags. Identity: internal `visit_uid`; duplicate detection by a keyed visit
+  fingerprint, unique per hospital and key generation.
+- Each ED visit belongs to the import that created it. Deleting that import removes the visit with its ED
+  matching history, suspected duplicates and validation items; the encounter stays with its assignment and
+  the records of other imports, until the cleanup of encounters without records.
 - The administrative case number is carried as a pseudonym only to report suspected duplicates; it
   does not group encounters. No patient-level key.
 - `Allocation` is not changed and has no reference to encounter data.
 
 Implemented in #1047:
 
-- **One table `encounter`, one row per visit.** Groups of the `ed_visit` contract are Doctrine
-  embeddables in the same row: `EncounterTimes` (no prefix), `Triage` (`mts_*`), `Retriage`
+- **One table `ed_visit`, one row per visit** (until #1300 the table `encounter`). Groups of the `ed_visit`
+  contract are Doctrine embeddables in the same row: `EncounterTimes` (no prefix), `Triage` (`mts_*`), `Retriage`
   (`retriage_*`), `EncounterDisposition` (`disposition_code`, `disposition_care_level`) and
   `InitialVitals` (`vitals_*`). The admitting department is a foreign key to the department catalog
   (`SET NULL` when the department is deleted). Code lists are backed enums in
-  `src/Encounter/Domain/Enum/`; the isolation set is a sorted JSON list of codes. MTS diagram and
+  `plugins/ed-visit/src/Domain/Enum/`; the isolation set is a sorted JSON list of codes. MTS diagram and
   indicator are stored as codes of the MTS catalog ([MTS glossary](#mts-glossary)). No dimension tables:
   every field belongs to exactly one visit.
 - **Identity:** internal `visit_uid` (UUID v7), unique `(hospital_id, key_generation,
@@ -191,23 +204,30 @@ deleted. No file content. **Download** (`/import/{id}/source-file`) with `UPLOAD
 The import status follows the rejection ratio as for other imports (`ImportEvaluation`). The data
 coverage counts the valid visits of the file (new and known) per day of their time anchor.
 
-**Reprocess** (`/import/{id}/reprocess`, `UPLOAD`, only while the file is retained): the run removes the import's visits
-(their links and review decisions go with them) and imports the retained file again. The page warns
-before that links and review decisions of the import are lost.
+**Reprocess** (`/import/{id}/reprocess`, `UPLOAD`, only while the file is retained; #1300, amends ADR 029):
+one write transaction under the encounter hospital lock. What belongs to the import as a whole goes first
+(rejects, row counters, pending assignments and the decisions on them), then the visits reconcile by
+fingerprint: a visit still in the file keeps its encounter, `visit_uid` (URL), IVENA assignment and ED
+matching history and gets the file's values; visits no longer in the file are removed (with their ED
+matching history, suspected duplicates and validation items, the encounter stays); new rows are inserted.
+Suspected duplicates are found again. A run that fails commits nothing: the visits, assignments, history,
+rejects and report of the last successful run stay, the run is shown as failed. A changed fingerprint
+input (for example a later documented ED admission) makes a new visit with a new encounter; the old
+encounter keeps its assignment, and the matcher never moves an allocation that is assigned to another
+encounter. Schemas without reconciliation (`inpatient_stay`) are removed and written again in the same
+transaction.
 
 **Delete** (`/import/{id}/delete`, `UPLOAD` via `EncounterAttribute::DELETE_IMPORT`): goes through
-`ImportDeletionService` like every import deletion and removes the import's visits with their IVENA links
-and review decisions, its rejects, report, suspected-duplicate records and source file. Visits of other
-imports stay (ADR 029). The confirmation dialog says so; the deletion is audited like every import
+`ImportDeletionService` like every import deletion and removes the import's visits with their ED matching
+history (candidates, links, review decisions in `encounter_match`), suspected duplicates and validation
+items, its rejects, report and source file. The encounters stay with their effective IVENA assignment and
+the records of other imports (#1300). Visits of other imports stay (ADR 029). The confirmation dialog says so; the deletion is audited like every import
 deletion.
 
-**Attached records** (ADR 037, #1274): records of attaching schemas reference visits with ON DELETE
-RESTRICT. While such records of other imports hang on an import's visits, deleting or reprocessing that
-import is refused before anything is removed (`EncounterAttachedRecordsGuard`); should the database still
-block it (a record attached meanwhile), the removal rolls back and the same refusal is shown: "This import
-cannot be deleted or reprocessed while records of other imports are attached to its visits." Delete the
-attaching imports first. Until the encounter hub is split out of `encounter` (#1300) this concerns only
-`ed_visit` imports. Attaching schemas count their records as assigned, unassigned (no candidate) and
+**Attached records** (ADR 037, #1274): records of attaching schemas reference the encounter with ON DELETE
+RESTRICT; `ed_visit.encounter_id` has no delete action (checked at the end of the statement). Since #1300
+deleting or reprocessing an ED import no longer touches encounters, so it is never refused because of
+attached records. Attaching schemas count their records as assigned, unassigned (no candidate) and
 conflicts in the report (`encounter_import.assigned / unassigned / conflicts`, null for `ed_visit`), and
 keep unassigned records in `encounter_pending_assignment`
 ([extension point](../../02-architecture/extension-points.md#encounter-assignments)).
@@ -257,10 +277,29 @@ yet. Manual run: `php bin/console app:encounter:retry-assignments [--hospital=<i
 waiting records when left out).
 
 The **encounter hospital lock** (`EncounterHospitalLockInterface`, a transaction-level advisory lock per
-hospital) is taken by the decisions and the retries. Import write, reprocessing and the matcher take it
-only with #1300; until then they can run in parallel, which is why decisions and retries re-check the
-record and rely on the foreign keys (a candidate deleted meanwhile rolls the decision or the record's
-retry back).
+hospital) is taken by the decisions, the retries, the encounter import write (also a reprocess), the
+matcher and the match review (#1300). Decisions and retries still re-check the record and rely on the
+foreign keys, because an import deletion runs without it.
+
+**Removing an assignment by hand** (#1300): when the allocation's encounter has no ED visit any more, a
+reviewer (`REVIEW`) sees "Remove assignment" on the case card (`POST
+/explore/allocation/{publicId}/encounter/unassign`). The encounter and its records stay; a later record
+naming the allocation or a matcher run can assign it again. With an ED visit the match review decides.
+
+**Cleanup of encounters without records** (#1300, ADR 037): a daily job (`encounter_cleanup`, 03:30)
+removes encounters that no clinical record references any more, for example after an ED import was
+deleted. A clinical record is a row of any table whose foreign key to `encounter` refuses the deletion
+(`RESTRICT` or no action), read from the database catalog, so tables of disabled schema bundles count too.
+Rows that cascade with the encounter (ED matching history, suspected duplicates, validation items) are no
+records and go with it. An encounter with an IVENA assignment is removed as well; the allocation stays and
+can be assigned again by a later record or matcher run. There is no waiting time: an encounter that is
+empty at the run is removed.
+
+Each hospital runs in its own transaction under the encounter hospital lock, so a write that attaches a
+record to an existing encounter or assigns an allocation either finishes first (the encounter then has a
+record and stays) or starts after the cleanup (and creates a new encounter). If a foreign key still refuses
+the deletion, the hospital is rolled back and counted as skipped. Manual run:
+`php bin/console app:encounter:clean-up [--hospital=<id>]` (all hospitals with encounters when left out).
 
 ### Upload file retention
 
@@ -495,7 +534,7 @@ snapshot, `1.2.0` differs from `1.1.0` only by the rendezvous rule. To apply `1.
 open proposals and unlinked cases of past months, run `app:encounter:match --hospital=<id> --from=… --to=…` per
 hospital; check the effect first with `app:encounter:evaluate-matcher --snapshot=<id>`.
 
-**Runs** (`EncounterMatcher`, one transaction under a per-hospital advisory lock that the review takes too):
+**Runs** (`EncounterMatcher`, one transaction under the encounter hospital lock, which the review and the import take too). An automatic link is also written as the encounter's effective assignment in the same transaction (#1300):
 
 1. Scope: the allocations of one hospital whose IVENA arrival falls on the given days; candidate visits
    from the pass windows around them, whatever their day.
@@ -953,7 +992,7 @@ decided (ADR 033). Whether the bonus causes wrong links is judged in the
 ### Hospital overview
 
 Implemented in #1055. Statistics page `/statistics/encounter-analytics` ("Encounter data (beta)" in the
-statistics sub-navigation, title "Analysis" / "Auswertung"; `EncounterAnalyticsController` in `Statistics/UI`),
+statistics sub-navigation, title "Analysis" / "Auswertung"; `EncounterAnalyticsController` of the ED visit plugin since #1300, through the extension point "Statistics pages"),
 also linked from My Hospitals ("Encounter data" on each card whose hospital is in `AggregateHospitalScope`). It
 uses the statistics building blocks: the scope and period picker (`Statistics:AnalysisContext`) in
 `AnalysisContextScopeMode::AssignedHospital`, the statistics filter (`StatisticsFilterValueResolver`) and
@@ -1027,8 +1066,10 @@ through the [allocation case file extension point](../../02-architecture/extensi
 `EncounterAttribute::VIEW_CASES` on the allocation's hospital (grant `VIEW_CASES` or `REVIEW` with the
 beta role, or `ROLE_ADMIN`); everyone else sees the case file without it.
 
-- Reads the effective link of the allocation (`auto_accepted` or `confirmed`, `HospitalCourseQuery`).
-  Without one the card says that no visit is linked; proposals belong to the match review (#1054).
+- Finds the allocation's encounter through its effective assignment (`encounter.allocation_id`, #1300)
+  and shows the ED part when the encounter has an ED visit with an effective link (`HospitalCourseQuery`).
+  Records of other schemas at the encounter are shown also without ED visit. Without encounter the card
+  says that no visit is linked; proposals belong to the match review (#1054).
 - **Link:** origin "linked automatically" (nobody checked it) or "linked after confirmation", the
   agreement score in percent (rounded down) and the time difference between matching anchor and expected
   IVENA arrival.
@@ -1049,7 +1090,7 @@ beta role, or `ROLE_ADMIN`); everyone else sees the case file without it.
   checked `VIEW_CASES` before; each schema adds one query at most.
 
 The clinical blocks (triage, process times, timeline, vitals, disposition) are Twig macros in
-`@Encounter/visit/_course_macros.html.twig`, shared with the visit detail page.
+`@EdVisit/visit/_course_macros.html.twig`, shared with the visit detail page.
 
 ### Visit detail page
 
@@ -1082,7 +1123,8 @@ Implemented in #1178. All ED visits of one hospital in a period, with or without
 under "Cases" ("ED visits", beta badge; `EncounterNavigationProvider` shows it to the beta role, the pages check
 the grants). The Explore start page shows a tile in its "Cases" group for the beta role as well, contributed through
 the [Explore overview extension point](../../02-architecture/extension-points.md#explore-overview-tiles)
-(`EncounterExploreEntryProvider`, #1274); the tiles of further encounter schemas follow it.
+(`EncounterExploreEntryProvider`, #1274); the tiles of further encounter schemas follow it, forwarded by the core
+(`SchemaExploreEntryForwarder`, so they stay without the plugin).
 
 - `/explore/ed-visits` (`ListVisitHospitalsController`) lists the hospitals whose visits the user may see
   (`VisitListHospitals`: grant action `VIEW_CASES`, also set by `REVIEW`; every hospital with visits for
@@ -1155,7 +1197,7 @@ on Encounter.
   codes already stored in `encounter` (first seen = creation time of the oldest encounter with the code);
   safe to run again. Run it once when releasing #1157.
 - **Catalog for the tool (#1157).** `GET /data-prep/mts-catalog.json` (public, read only) serves the curated
-  entries and the aliases to them (provisional entries stay off the public endpoint until a person curates them); the tool keeps `src/Encounter/Application/Catalog/mts-de.json` as offline
+  entries and the aliases to them (provisional entries stay off the public endpoint until a person curates them); the tool keeps `plugins/ed-visit/src/Application/Catalog/mts-de.json` as offline
   fallback and writes the code of the source label, also for an alias
   ([data-preparation-tool.md](data-preparation-tool.md#mts-catalog)).
 - **Transfer to another instance (#1198).** `app:encounter:curation:export` / `app:encounter:curation:import`
@@ -1209,7 +1251,9 @@ imports that file and expects no file or row rejects.
 ## Tools section
 
 Since #1128 the interactive encounter workflows are tools ([ADR 031](../../02-architecture/decisions/031-tools-section-and-tool-registry.md)),
-listed by `EncounterToolProvider` for `ROLE_ENCOUNTER_BETA` with a beta badge:
+listed for `ROLE_ENCOUNTER_BETA` with a beta badge: match review, validation and plausibility table by
+`EncounterToolProvider` of the ED visit plugin, the data preparation tool and the assignment conflicts by the core
+(`DataPrepToolProvider`, `AssignmentConflictToolProvider`, so they stay without the plugin):
 
 | Tool | Route | Path |
 |---|---|---|

@@ -59,6 +59,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 
@@ -223,6 +224,17 @@ final class DashboardController extends AbstractDashboardController
         $this->addFlash('success', new TranslatableMessage('ops.failed_messages.flash.deleted_one', domain: 'admin'));
 
         return $this->redirectToFailedMessagesIndex();
+    }
+
+    private function routeExists(string $route): bool
+    {
+        try {
+            $this->generateUrl($route);
+
+            return true;
+        } catch (RouteNotFoundException) {
+            return false;
+        }
     }
 
     private function redirectToFailedMessagesIndex(): RedirectResponse
@@ -483,15 +495,20 @@ final class DashboardController extends AbstractDashboardController
             MenuItem::linkTo(SpecialityCrudController::class, new TranslatableMessage('menu.data.specialities', domain: 'admin'), 'fas fa-list'),
             MenuItem::linkTo(StateCrudController::class, new TranslatableMessage('menu.data.states', domain: 'admin'), 'fas fa-list'),
         ]);
-        // The Encounter context owns these pages; they are linked by route name because no context may use Encounter (deptrac).
-        yield MenuItem::subMenu(new TranslatableMessage('menu.data.mts_catalog', domain: 'admin'), 'fas fa-stethoscope')->setSubItems([
-            MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.diagrams', domain: 'admin'), 'fas fa-sitemap', 'app_admin_dashboard_encounter_mts_diagram_index'),
-            MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.indicators', domain: 'admin'), 'fas fa-list', 'app_admin_dashboard_encounter_mts_indicator_index'),
-            MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.aliases', domain: 'admin'), 'fas fa-right-left', 'app_admin_dashboard_encounter_mts_alias_index'),
-            MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.assignments', domain: 'admin'), 'fas fa-link', 'app_admin_dashboard_encounter_mts_assignment_index'),
+        // The ED visit plugin owns these pages; they are linked by route name because no context may use Encounter
+        // (deptrac), and only while the plugin is installed (#1300).
+        $mtsCatalogItems = array_values(array_filter([
+            'app_admin_dashboard_encounter_mts_diagram_index' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.diagrams', domain: 'admin'), 'fas fa-sitemap', 'app_admin_dashboard_encounter_mts_diagram_index'),
+            'app_admin_dashboard_encounter_mts_indicator_index' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.indicators', domain: 'admin'), 'fas fa-list', 'app_admin_dashboard_encounter_mts_indicator_index'),
+            'app_admin_dashboard_encounter_mts_alias_index' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.aliases', domain: 'admin'), 'fas fa-right-left', 'app_admin_dashboard_encounter_mts_alias_index'),
+            'app_admin_dashboard_encounter_mts_assignment_index' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.assignments', domain: 'admin'), 'fas fa-link', 'app_admin_dashboard_encounter_mts_assignment_index'),
             // Pilot page for administrators and catalog reviewers (ADR 033), outside the back office.
-            MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.plausibility', domain: 'admin'), 'fas fa-table-cells', 'app_tools_encounter_plausibility'),
-        ]);
+            'app_tools_encounter_plausibility' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.plausibility', domain: 'admin'), 'fas fa-table-cells', 'app_tools_encounter_plausibility'),
+        ], $this->routeExists(...), \ARRAY_FILTER_USE_KEY));
+        if ([] !== $mtsCatalogItems) {
+            yield MenuItem::subMenu(new TranslatableMessage('menu.data.mts_catalog', domain: 'admin'), 'fas fa-stethoscope')->setSubItems($mtsCatalogItems);
+        }
+
         yield MenuItem::subMenu(new TranslatableMessage('menu.imports', domain: 'admin'), 'fa fa-database')->setSubItems([
             MenuItem::linkTo(ImportCrudController::class, new TranslatableMessage('menu.imports.imports', domain: 'admin'), 'fa fa-database'),
             MenuItem::linkTo(ImportRejectCrudController::class, new TranslatableMessage('menu.imports.rejects', domain: 'admin'), 'fas fa-triangle-exclamation'),

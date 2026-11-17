@@ -20,6 +20,7 @@
     <testsuites>
         <testsuite name="all">
             <directory>tests</directory>
+            <directory>plugins/ed-visit/tests</directory>
             <exclude>tests/Support</exclude>
         </testsuite>
 
@@ -40,6 +41,7 @@
             <directory>tests/Statistics/Unit</directory>
             <directory>tests/Storage/Unit</directory>
             <directory>tests/User/Unit</directory>
+            <directory>plugins/ed-visit/tests/Unit</directory>
         </testsuite>
 
         <testsuite name="integration">
@@ -58,6 +60,7 @@
             <directory>tests/Statistics/Integration</directory>
             <directory>tests/Storage/Integration</directory>
             <directory>tests/User/Integration</directory>
+            <directory>plugins/ed-visit/tests/Integration</directory>
         </testsuite>
 
         <testsuite name="functional">
@@ -77,10 +80,12 @@
             <directory>tests/Statistics/Functional</directory>
             <directory>tests/Storage/Functional</directory>
             <directory>tests/User/Functional</directory>
+            <directory>plugins/ed-visit/tests/Functional</directory>
         </testsuite>
 
         <testsuite name="fixtures">
             <directory>tests/DataFixtures</directory>
+            <directory>plugins/ed-visit/tests/DataFixtures</directory>
         </testsuite>
 
         <testsuite name="system">
@@ -95,6 +100,7 @@
     >
         <include>
             <directory>src</directory>
+            <directory>plugins/ed-visit/src</directory>
         </include>
 
         <exclude>

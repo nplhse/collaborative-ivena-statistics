@@ -83,20 +83,19 @@ final class EncounterKeyChangeAttachedRecordsTest extends KernelTestCase
         self::assertFalse($this->keyChangeInProgress());
     }
 
-    public function testRefusedImportStaysCompleteAndTheKeyChangeEnds(): void
+    public function testTheEdImportIsDeletedWhileTheAttachedRecordKeepsItsEncounter(): void
     {
-        // The record belongs to an import the key change does not delete.
+        // The record belongs to an import the key change does not delete. Since #1300 the ED visit is a record of
+        // its own: deleting its import removes the visit, the encounter stays with the attached record.
         $other = $this->encounterImport($this->hospital, 'attaching records', ImportType::ALLOCATION);
         $this->attachRecord($this->visitA, (int) $other->getId());
 
         $this->changeKey();
 
         $this->entityManager()->clear();
-        $import = $this->entityManager()->find(Import::class, $this->edImportId);
-        self::assertInstanceOf(Import::class, $import);
-        self::assertSame(1, $this->encounterCount($this->edImportId));
-        self::assertSame(1, (int) $this->connection()->fetchOne('SELECT key_generation FROM encounter WHERE id = ?', [$this->visitA]), 'The visit keeps its old generation, as with "keep".');
-        self::assertFileExists($this->projectDir().'/'.$import->getFilePath());
+        self::assertNull($this->entityManager()->find(Import::class, $this->edImportId));
+        self::assertSame(0, $this->encounterCount($this->edImportId));
+        self::assertSame(1, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter WHERE id = ?', [$this->visitA]));
         self::assertSame(1, $this->attachedRecordCount());
         self::assertFalse($this->keyChangeInProgress());
     }

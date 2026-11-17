@@ -83,7 +83,7 @@ final class DataPrepToolOutputImportTest extends KernelTestCase
         self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM import_reject WHERE import_id = ?', [$importId]));
         self::assertSame(
             ['Innere Medizin', 'Unfallchirurgie'],
-            $this->connection()->fetchFirstColumn('SELECT d.name FROM encounter e JOIN department d ON d.id = e.admitting_department_id WHERE e.import_id = ? ORDER BY d.name', [$importId]),
+            $this->connection()->fetchFirstColumn('SELECT d.name FROM ed_visit e JOIN department d ON d.id = e.admitting_department_id WHERE e.import_id = ? ORDER BY d.name', [$importId]),
         );
 
         // The invented diagram and the indicator the bundled catalog lacks become provisional entries (#1157).

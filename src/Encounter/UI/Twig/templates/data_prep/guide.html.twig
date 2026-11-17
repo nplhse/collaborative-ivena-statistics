@@ -91,7 +91,9 @@
                             <strong>{{ (g ~ 'steps.upload.title')|trans({}, 'encounter') }}</strong>
                             <p class="mb-2">{{ (g ~ 'steps.upload.text')|trans({}, 'encounter') }}</p>
                             <a class="btn btn-outline-primary btn-sm" href="{{ path('app_import_new') }}">{{ 'encounter.import.action.new'|trans({}, 'encounter') }}</a>
-                            <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_tools_encounter_review') }}">{{ 'encounter.review.title'|trans({}, 'encounter') }}</a>
+                            {% if review_url is not null %}
+                                <a class="btn btn-outline-secondary btn-sm" href="{{ review_url }}">{{ 'encounter.review.title'|trans({}, 'encounter') }}</a>
+                            {% endif %}
                         </li>
                     </ol>
                 </div>

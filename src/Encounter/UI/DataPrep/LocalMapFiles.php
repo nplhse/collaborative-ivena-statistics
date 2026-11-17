@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Encounter\UI\DataPrep;
 
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
-
 /**
  * The empty template and the example of the hospital's private local map (#1130), offered on the
- * tool's landing page. Neither contains hospital-specific codes; the tool's tests load both with the
+ * tool's landing page; the files come from the contribution that defines the local map (#1301). Neither contains hospital-specific codes; the tool's tests load both with the
  * same validation as a hospital's own map.
  */
 final readonly class LocalMapFiles
@@ -19,8 +17,7 @@ final readonly class LocalMapFiles
 
     /** @psalm-suppress PossiblyUnusedMethod Wired by the container. */
     public function __construct(
-        #[Autowire('%kernel.project_dir%/src/Encounter/UI/DataPrep/local-map')]
-        private string $directory,
+        private DataPrepContributions $contributions,
     ) {
     }
 
@@ -30,12 +27,9 @@ final readonly class LocalMapFiles
             throw new \InvalidArgumentException(sprintf('Unknown local map file "%s".', $variant));
         }
 
-        $content = file_get_contents($this->directory.'/'.$variant.'.json');
-        if (false === $content) {
-            throw new \RuntimeException(sprintf('Cannot read local map file "%s".', $variant));
-        }
+        $map = $this->contributions->localMap() ?? throw new \RuntimeException('No data preparation contribution defines a local map.');
 
-        return $content;
+        return $this->contributions->read(self::TEMPLATE === $variant ? $map->templateFile : $map->exampleFile);
     }
 
     public function fileName(string $variant): string

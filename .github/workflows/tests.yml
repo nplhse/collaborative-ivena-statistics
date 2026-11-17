@@ -80,6 +80,8 @@ jobs:
               uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
               with:
                   coverage: pcov
+                  # pcov only watches src/ when it exists; plugins/ (ADR 037) has code to measure too.
+                  ini-values: pcov.directory=., pcov.exclude="~/(vendor|var|node_modules)/~"
                   extensions: "intl, mbstring, zip"
                   php-version: '8.4'
                   tools: composer:v2
@@ -143,6 +145,8 @@ jobs:
               uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
               with:
                   coverage: pcov
+                  # pcov only watches src/ when it exists; plugins/ (ADR 037) has code to measure too.
+                  ini-values: pcov.directory=., pcov.exclude="~/(vendor|var|node_modules)/~"
                   extensions: "intl, mbstring, pdo_pgsql, pgsql, zip"
                   php-version: '8.4'
                   tools: composer:v2

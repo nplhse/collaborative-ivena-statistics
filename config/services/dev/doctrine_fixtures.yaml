@@ -11,7 +11,8 @@ when@dev: &materialized_view_orm_purger
                 $inner: '@App\DataFixtures\Purger\VanillaOrmPurgerFactory'
                 $materializedViewDropper: '@App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewDropper'
                 $materializedViewsInstaller: '@App\Statistics\Infrastructure\Query\Overview\OverviewMaterializedViewsInstaller'
-                $plausibilityCuration: '@App\Encounter\Application\Plausibility\PlausibilityCuration'
+                # Plugins keep their maintained tables and rebuild derived data (FixturePurgeParticipantInterface, #1300).
+                $participants: !tagged_iterator app.fixtures.purge_participant
 
 when@test: *materialized_view_orm_purger
 when@demo: *materialized_view_orm_purger

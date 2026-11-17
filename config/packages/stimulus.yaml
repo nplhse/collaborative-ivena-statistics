@@ -1,0 +1,5 @@
+# Explicit, so that bundles can add their own controller paths (the EdVisit plugin, ADR 037) without replacing
+# the application's: the default applies only while no configuration sets the option.
+stimulus:
+    controller_paths:
+        - '%kernel.project_dir%/assets/controllers'

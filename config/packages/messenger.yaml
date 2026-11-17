@@ -65,6 +65,7 @@ framework:
             App\Shared\Application\Monitoring\Message\SampleMessengerQueuesMessage: async_priority_low
             App\Shared\Application\Monitoring\Message\CleanUpMonitoringMessage: async_priority_low
             App\Encounter\Application\Message\DeleteExpiredEncounterSourceFilesMessage: async_priority_low
+            App\Encounter\Application\Message\CleanUpEncountersMessage: async_priority_low
 
 when@dev:
     framework:
@@ -88,7 +89,6 @@ when@test:
                 App\Import\Application\Message\ImportClosuresMessage: sync
                 App\Encounter\Application\Message\ImportEncountersMessage: sync
                 App\Encounter\Application\Message\DeleteEncounterDataAfterKeyChangeMessage: sync
-                App\Encounter\Application\Message\MatchEncountersMessage: sync
                 App\Encounter\Application\Message\RetryEncounterAssignmentsMessage: sync
                 App\Encounter\Application\Message\RetryEncounterAssignmentMessage: sync
                 App\Import\Application\Message\DeleteImportsMessage: sync
@@ -108,4 +108,5 @@ when@test:
                 App\Shared\Application\Monitoring\Message\SampleMessengerQueuesMessage: sync
                 App\Shared\Application\Monitoring\Message\CleanUpMonitoringMessage: sync
                 App\Encounter\Application\Message\DeleteExpiredEncounterSourceFilesMessage: sync
+                App\Encounter\Application\Message\CleanUpEncountersMessage: sync
                 Symfony\Component\Mailer\Messenger\SendEmailMessage: sync

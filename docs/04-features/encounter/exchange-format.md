@@ -90,7 +90,7 @@ Rules:
   characters `_`; the slug is cut at 64 characters before leading and trailing `_` are trimmed, #1073),
   for example `Abdominelle Schmerzen bei Erwachsenen` → `abdominelle_schmerzen_bei_erwachsenen`; the
   server keeps the MTS catalog in the database (ADR 032, #1082); the tool loads it from
-  `/data-prep/mts-catalog.json` and falls back to its bundled copy `src/Encounter/Application/Catalog/mts-de.json`.
+  `/data-prep/mts-catalog.json` and falls back to its bundled copy `plugins/ed-visit/src/Application/Catalog/mts-de.json`.
   The tool writes the code of the source label, also when the catalog knows it as an alias. The
   server accepts any value matching `^[a-z0-9_]{1,64}$`, stores it unchanged (also when it is an alias code)
   and rejects the row otherwise. Codes of stored visits that resolve to nothing become provisional catalog
@@ -114,6 +114,9 @@ visit_fingerprint = hex(HMAC-SHA256(key, input))
 case_key          = hex(HMAC-SHA256(key, "case:v1|" + case_number))
 ```
 
+- The rule lives in `EdVisitDimension::keyRules(1)` (#1301); the data preparation tool and the synthetic
+  data take it from there ([key rules](data-preparation-tool.md#key-rules)). The case key `case:v1` is
+  shared by all schemas, so records of one case of different schemas find the same encounter.
 - Rows without case number or without both timestamps are skipped and counted in the tool's report.
 - If the source has no seconds, `:00` is used.
 - Known limits: a visit whose first assessment contact is entered later (untriaged visits) changes

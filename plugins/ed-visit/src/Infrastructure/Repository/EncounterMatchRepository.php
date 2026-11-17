@@ -1,0 +1,160 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Cois\Plugin\EdVisit\Infrastructure\Repository;
+
+use Cois\Plugin\EdVisit\Application\Matching\MatchPlanner;
+use Cois\Plugin\EdVisit\Application\Matching\PlannedMatch;
+use Cois\Plugin\EdVisit\Domain\Entity\EncounterMatch;
+use Cois\Plugin\EdVisit\Domain\Enum\MatchStatus;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\Persistence\ManagerRegistry;
+
+/**
+ * Writes the matcher's rows (ADR 030). Automatic rows go straight to the connection inside the caller's
+ * transaction; manual decisions go through the entity (#1054).
+ *
+ * @extends ServiceEntityRepository<EncounterMatch>
+ */
+final class EncounterMatchRepository extends ServiceEntityRepository
+{
+    /** First key of the transaction-level advisory lock; the second is the hospital id. */
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, EncounterMatch::class);
+    }
+
+    /**
+     * Removes the open proposals of the given allocations; links and decisions stay.
+     *
+     * @param list<int> $allocationIds
+     */
+    public function deleteProposalsOfAllocations(array $allocationIds): void
+    {
+        if ([] === $allocationIds) {
+            return;
+        }
+
+        $this->getEntityManager()->getConnection()->executeStatement(
+            'DELETE FROM encounter_match WHERE status = :status AND allocation_id = ANY(CAST(:allocations AS INT[]))',
+            ['status' => MatchStatus::Proposed->value, 'allocations' => '{'.implode(',', $allocationIds).'}'],
+            ['status' => Types::STRING, 'allocations' => Types::STRING],
+        );
+    }
+
+    /**
+     * Removes proposals of the hospital whose allocation or visit has an effective link.
+     */
+    public function deleteProposalsTouchingLinks(int $hospitalId): void
+    {
+        $this->getEntityManager()->getConnection()->executeStatement(
+            <<<'SQL'
+DELETE FROM encounter_match proposal
+WHERE proposal.hospital_id = :hospital
+  AND proposal.status = :proposed
+  AND EXISTS (
+      SELECT 1 FROM encounter_match link
+      WHERE link.status = ANY(CAST(:effective AS TEXT[]))
+        AND (link.allocation_id = proposal.allocation_id OR link.encounter_id = proposal.encounter_id)
+  )
+SQL,
+            ['hospital' => $hospitalId, 'proposed' => MatchStatus::Proposed->value, 'effective' => '{'.implode(',', array_map(static fn (MatchStatus $s): string => $s->value, MatchStatus::effective())).'}'],
+            ['hospital' => Types::INTEGER, 'proposed' => Types::STRING, 'effective' => Types::STRING],
+        );
+    }
+
+    /**
+     * @param list<PlannedMatch> $matches
+     */
+    public function insertPlanned(int $hospitalId, array $matches, \DateTimeImmutable $now): void
+    {
+        $connection = $this->getEntityManager()->getConnection();
+        foreach ($matches as $match) {
+            $connection->insert('encounter_match', [
+                'hospital_id' => $hospitalId,
+                'allocation_id' => $match->allocationId,
+                'encounter_id' => $match->encounterId,
+                'status' => $match->status->value,
+                'conflict' => $match->conflict,
+                'score' => $match->score,
+                'points' => $match->points,
+                'contributions' => json_encode($match->contributions, \JSON_THROW_ON_ERROR),
+                'pass' => $match->pass,
+                'matcher_version' => MatchPlanner::VERSION,
+                'time_anchor' => $match->timeAnchor->value,
+                'time_difference_minutes' => $match->timeDifferenceMinutes,
+                'plausibility_snapshot_id' => $match->plausibilitySnapshotId,
+                'plausibility_level' => $match->plausibilityLevel?->value,
+                'plausibility_decisive' => $match->plausibilityDecisive,
+                'created_at' => $now,
+            ], [
+                'hospital_id' => Types::INTEGER,
+                'allocation_id' => Types::INTEGER,
+                'encounter_id' => Types::INTEGER,
+                'status' => Types::STRING,
+                'conflict' => Types::BOOLEAN,
+                'score' => Types::FLOAT,
+                'points' => Types::SMALLINT,
+                'contributions' => Types::STRING,
+                'pass' => Types::SMALLINT,
+                'matcher_version' => Types::STRING,
+                'time_anchor' => Types::STRING,
+                'time_difference_minutes' => Types::INTEGER,
+                'plausibility_snapshot_id' => Types::INTEGER,
+                'plausibility_level' => Types::STRING,
+                'plausibility_decisive' => Types::BOOLEAN,
+                'created_at' => Types::DATETIME_IMMUTABLE,
+            ]);
+        }
+    }
+
+    /**
+     * Deletes every row of the allocations or visits of an import and returns their number (import
+     * deletion and reprocess). The foreign keys would cascade anyway; deleting here makes the count visible.
+     */
+    public function deleteForImport(int $importId): int
+    {
+        return $this->getEntityManager()->getConnection()->executeStatement(
+            <<<'SQL'
+DELETE FROM encounter_match m
+WHERE m.allocation_id IN (SELECT id FROM allocation WHERE import_id = :import)
+   OR m.encounter_id IN (SELECT encounter_id FROM ed_visit WHERE import_id = :import)
+SQL,
+            ['import' => $importId],
+            ['import' => Types::INTEGER],
+        );
+    }
+
+    /**
+     * The allocation of each encounter's effective pair (auto-accepted or confirmed), null without one: what
+     * `encounter.allocation_id` must say after an ED matching decision (#1300).
+     *
+     * @param list<int> $encounterIds
+     *
+     * @return array<int, int|null>
+     */
+    public function effectiveAllocationByEncounter(array $encounterIds): array
+    {
+        $encounterIds = array_values(array_unique($encounterIds));
+        if ([] === $encounterIds) {
+            return [];
+        }
+
+        /** @var array<int|string, int|string> $rows */
+        $rows = $this->getEntityManager()->getConnection()->fetchAllKeyValue(
+            'SELECT encounter_id, allocation_id FROM encounter_match WHERE encounter_id IN (:encounters) AND status IN (:effective)',
+            ['encounters' => $encounterIds, 'effective' => array_map(static fn (MatchStatus $s): string => $s->value, MatchStatus::effective())],
+            ['encounters' => ArrayParameterType::INTEGER, 'effective' => ArrayParameterType::STRING],
+        );
+
+        $result = [];
+        foreach ($encounterIds as $encounterId) {
+            $result[$encounterId] = isset($rows[$encounterId]) ? (int) $rows[$encounterId] : null;
+        }
+
+        return $result;
+    }
+}

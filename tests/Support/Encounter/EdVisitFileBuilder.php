@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Support\Encounter;
 
-use App\Encounter\Application\Dimension\EdVisitDimension;
 use App\Encounter\Contract\Schema\EncounterField;
+use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
 
 /**
  * Builds small synthetic `ed_visit` v1 files (exchange-format.md) for tests: manifest, exact header and

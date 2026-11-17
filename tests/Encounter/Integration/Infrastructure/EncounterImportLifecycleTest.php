@@ -9,13 +9,13 @@ use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
-use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Enum\EncounterInsertOutcome;
 use App\Import\Application\Service\ImportDeletionService;
 use App\Import\Application\Service\ImportPreviousRunCleanupService;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
 use App\Tests\Support\Encounter\EncounterDataFixtures;
+use Cois\Plugin\EdVisit\Domain\Entity\EdVisit;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -75,7 +75,7 @@ final class EncounterImportLifecycleTest extends KernelTestCase
         $before = $this->findVisit('2026-10-12');
 
         // Same visit in B with a different age (a correction in a later export): not applied.
-        $corrected = new Encounter(
+        $corrected = new EdVisit(
             hospital: $hospital,
             import: $importB,
             keyGeneration: 1,
@@ -164,12 +164,12 @@ final class EncounterImportLifecycleTest extends KernelTestCase
         self::assertFalse($uidOfB->equals($this->findVisit('2026-10-20')->getVisitUid()), 'B\'s visit is created anew');
     }
 
-    private function findVisit(string $day): Encounter
+    private function findVisit(string $day): EdVisit
     {
         $em = $this->encounterEntityManager();
         $em->clear();
-        $visit = $em->getRepository(Encounter::class)->findOneBy(['visitFingerprint' => self::fingerprintFor($day)]);
-        self::assertInstanceOf(Encounter::class, $visit);
+        $visit = $em->getRepository(EdVisit::class)->findOneBy(['visitFingerprint' => self::fingerprintFor($day)]);
+        self::assertInstanceOf(EdVisit::class, $visit);
 
         return $visit;
     }

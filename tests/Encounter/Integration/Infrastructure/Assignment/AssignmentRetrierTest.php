@@ -23,21 +23,23 @@ use App\Encounter\Contract\Assignment\EncounterAssignmentsInterface;
 use App\Encounter\Contract\Assignment\EncounterHospitalLockInterface;
 use App\Encounter\Contract\Import\SchemaWriteContext;
 use App\Encounter\Domain\Entity\Encounter;
-use App\Encounter\Domain\Entity\EncounterMatch;
-use App\Encounter\Domain\Entity\EncounterTimes;
 use App\Encounter\Domain\Enum\AnchorSource;
-use App\Encounter\Domain\Enum\MatchStatus;
 use App\Encounter\Domain\Enum\Sex;
 use App\Encounter\Infrastructure\Assignment\AssignmentRetrier;
 use App\Encounter\Infrastructure\Assignment\PendingAssignmentRows;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
 use App\Tests\Fixtures\Plugin\InpatientStay\InpatientStayDimension;
+use App\Tests\Support\Encounter\EffectiveAssignments;
 use App\Tests\Support\Encounter\EncounterDataFixtures;
 use App\Tests\Support\Encounter\EncounterFileBuilder;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
 use App\Tests\Support\Encounter\MatchingDataFixtures;
 use App\User\Domain\Entity\User;
+use Cois\Plugin\EdVisit\Domain\Entity\EdVisit;
+use Cois\Plugin\EdVisit\Domain\Entity\EncounterMatch;
+use Cois\Plugin\EdVisit\Domain\Entity\EncounterTimes;
+use Cois\Plugin\EdVisit\Domain\Enum\MatchStatus;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -336,7 +338,7 @@ final class AssignmentRetrierTest extends KernelTestCase
 
     private function encounter(string $label, string $case): int
     {
-        $id = $this->encounterRepository()->insertIfNewReturningId(new Encounter(
+        $id = $this->encounterRepository()->insertIfNewReturningId(new EdVisit(
             hospital: $this->hospital,
             import: $this->visitImport,
             keyGeneration: 1,
@@ -384,6 +386,7 @@ final class AssignmentRetrierTest extends KernelTestCase
         self::assertInstanceOf(Allocation::class, $allocation);
         $em->persist(new EncounterMatch($allocation, $encounter, MatchStatus::AutoAccepted, AnchorSource::Assessment, 7, new \DateTimeImmutable('2026-10-12 09:00'), 0.9697, 9, ['time' => 4], 1, '1.0.0'));
         $em->flush();
+        EffectiveAssignments::syncFromMatches($em->getConnection());
     }
 
     private function changeCase(string $label, string $case): void

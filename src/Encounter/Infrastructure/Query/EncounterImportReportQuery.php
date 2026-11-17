@@ -53,7 +53,7 @@ final readonly class EncounterImportReportQuery implements EncounterImportReport
             <<<'SQL'
 SELECT sd.line_number, sd.anchor_difference_minutes, sd.anchor_source, sd.existing_anchor_source, i.id AS existing_import_id, i.name AS existing_import_name
 FROM encounter_suspected_duplicate sd
-JOIN encounter existing ON existing.id = sd.existing_encounter_id
+JOIN ed_visit existing ON existing.encounter_id = sd.existing_encounter_id
 JOIN import i ON i.id = existing.import_id
 WHERE sd.import_id = :import
 ORDER BY sd.line_number, sd.id

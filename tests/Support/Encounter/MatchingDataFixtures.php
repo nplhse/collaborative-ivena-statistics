@@ -13,15 +13,15 @@ use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
-use App\Encounter\Application\Matching\MatchRunResult;
-use App\Encounter\Application\Matching\MatchScope;
-use App\Encounter\Domain\Entity\Encounter;
-use App\Encounter\Domain\Entity\EncounterTimes;
-use App\Encounter\Domain\Entity\Triage;
-use App\Encounter\Domain\Enum\ArrivalMode;
 use App\Encounter\Domain\Enum\Sex;
-use App\Encounter\Infrastructure\Matching\EncounterMatcher;
 use App\Import\Domain\Entity\Import;
+use Cois\Plugin\EdVisit\Application\Matching\MatchRunResult;
+use Cois\Plugin\EdVisit\Application\Matching\MatchScope;
+use Cois\Plugin\EdVisit\Domain\Entity\EdVisit;
+use Cois\Plugin\EdVisit\Domain\Entity\EncounterTimes;
+use Cois\Plugin\EdVisit\Domain\Entity\Triage;
+use Cois\Plugin\EdVisit\Domain\Enum\ArrivalMode;
+use Cois\Plugin\EdVisit\Infrastructure\Matching\EncounterMatcher;
 
 /**
  * Hand-checkable allocations and visits for matcher DB tests on 12 October 2026. Defaults as in the unit
@@ -66,7 +66,7 @@ trait MatchingDataFixtures
     private function visitAt(Hospital $hospital, Import $import, ?string $admission, ?string $assessment = null, Sex $sex = Sex::Female, int $age = 70, ArrivalMode $mode = ArrivalMode::Ambulance, ?string $diagram = null): int
     {
         $at = static fn (?string $time): ?\DateTimeImmutable => null === $time ? null : new \DateTimeImmutable('2026-10-12 '.$time);
-        $id = $this->encounterRepository()->insertIfNewReturningId(new Encounter(
+        $id = $this->encounterRepository()->insertIfNewReturningId(new EdVisit(
             hospital: $hospital,
             import: $import,
             keyGeneration: 1,

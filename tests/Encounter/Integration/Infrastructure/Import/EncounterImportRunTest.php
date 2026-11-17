@@ -94,7 +94,7 @@ final class EncounterImportRunTest extends KernelTestCase
         self::assertSame(1, $this->import($second)->getRowsDeduplicated());
         self::assertSame(['c', 'd'], array_keys($this->visitIdsOfImport($second, 'b', 'c', 'd')));
         self::assertSame(['a', 'b'], array_keys($this->visitIdsOfImport($first, 'a', 'b')));
-        self::assertSame(54, (int) $this->connection()->fetchOne('SELECT age FROM encounter WHERE visit_fingerprint = ?', [EdVisitFileBuilder::fingerprint('b')]));
+        self::assertSame(54, (int) $this->connection()->fetchOne('SELECT e.age FROM encounter e JOIN ed_visit v ON v.encounter_id = e.id WHERE v.visit_fingerprint = ?', [EdVisitFileBuilder::fingerprint('b')]));
         // The coverage describes the file: the known visit counts on its day.
         self::assertSame(['2026-10-01' => 1, '2026-10-02' => 2], $this->import($second)->getDataCoverage()?->dailyCounts);
         self::assertSame(['2026-10-02'], $events[0]->days ?? null);
@@ -250,7 +250,7 @@ final class EncounterImportRunTest extends KernelTestCase
         self::assertSame(0, $this->encounterCount($importId));
     }
 
-    public function testReprocessRemovesAndRecreatesOnlyThisImportsVisits(): void
+    public function testReprocessKeepsTheImportsUnchangedVisitsAndTouchesNoOtherImport(): void
     {
         $first = $this->upload(EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->visit('b', '2026-10-01T09:00', case: 'case-b'), 'first');
         $second = $this->upload(EdVisitFileBuilder::create()
@@ -268,8 +268,7 @@ final class EncounterImportRunTest extends KernelTestCase
         self::assertSame(2, $this->import($second)->getRunCount());
         $this->assertCounts($second, inserted: 2, duplicates: 1, skipped: 0, rejected: 0, suspected: 1);
         $secondAfter = $this->visitUids($second);
-        self::assertSame(array_keys($secondBefore), array_keys($secondAfter), 'The same visits belong to the import again.');
-        self::assertSame([], array_intersect($secondBefore, $secondAfter), 'They were removed and created anew.');
+        self::assertSame($secondBefore, $secondAfter, 'Unchanged visits keep their uid (#1300); they are not created anew.');
         self::assertSame($firstBefore, $this->visitUids($first), 'Visits of the other import are untouched.');
         self::assertSame(1, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter_suspected_duplicate WHERE import_id = ?', [$second]));
     }
@@ -342,7 +341,7 @@ final class EncounterImportRunTest extends KernelTestCase
     private function visitUids(int $importId): array
     {
         /* @var array<string, string> */
-        return $this->connection()->fetchAllKeyValue('SELECT visit_fingerprint, visit_uid FROM encounter WHERE import_id = ? ORDER BY visit_fingerprint', [$importId]);
+        return $this->connection()->fetchAllKeyValue('SELECT visit_fingerprint, visit_uid FROM ed_visit WHERE import_id = ? ORDER BY visit_fingerprint', [$importId]);
     }
 
     /**

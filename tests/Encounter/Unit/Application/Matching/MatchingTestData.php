@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Encounter\Unit\Application\Matching;
 
-use App\Encounter\Application\Matching\MatchingAllocation;
-use App\Encounter\Application\Matching\MatchingEncounter;
 use App\Encounter\Domain\Enum\AnchorSource;
-use App\Encounter\Domain\Enum\ArrivalMode;
-use App\Encounter\Domain\Enum\ArrivalRoute;
 use App\Encounter\Domain\Enum\Sex;
+use Cois\Plugin\EdVisit\Application\Matching\MatchingAllocation;
+use Cois\Plugin\EdVisit\Application\Matching\MatchingEncounter;
+use Cois\Plugin\EdVisit\Domain\Enum\ArrivalMode;
+use Cois\Plugin\EdVisit\Domain\Enum\ArrivalRoute;
 
 /**
  * Hand-checkable matcher inputs on 12 October 2026. Defaults: female, 70 years, ambulance, no physician,

@@ -83,6 +83,9 @@ services:
     App\Encounter\Contract\Assignment\EncounterHospitalLockInterface:
         alias: App\Encounter\Infrastructure\Assignment\EncounterHospitalLock
         public: true
+    App\Encounter\Contract\Assignment\EncounterAllocationAssignmentsInterface:
+        alias: App\Encounter\Infrastructure\Assignment\EncounterAllocationAssignments
+        public: true
 
     app.lock.pdo:
         class: PDO

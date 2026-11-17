@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Support\Encounter;
 
-use App\DataFixtures\Encounter\Application\AllocationSnapshot;
+use Cois\Plugin\EdVisit\DataFixtures\Application\AllocationSnapshot;
 
 /**
  * 100 hand-made allocations for the encounter generator (#1052): one every 7 hours from 1 October 2026

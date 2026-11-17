@@ -1,6 +1,5 @@
-{# Case card "Hospital course" on the allocation case file (#1055), contributed by Encounter. #}
+{# Case card "Hospital course" on the allocation case file (#1055), contributed by Encounter; the course comes from its schema (ED visit). #}
 {% set d = 'encounter' %}
-{% import '@Encounter/visit/_course_macros.html.twig' as course_blocks %}
 <div class="card" data-testid="encounter-hospital-course">
     <div class="card-header">
         <h3 class="card-title mb-0">{{ 'encounter.course.title'|trans({}, d) }}</h3>
@@ -9,54 +8,27 @@
         </div>
     </div>
     {% if course is null %}
-        <div class="card-body" data-testid="encounter-hospital-course-none">
-            <p class="text-secondary mb-0">{{ 'encounter.course.no_link'|trans({}, d) }}</p>
-        </div>
+        {% if record_sections is empty %}
+            <div class="card-body" data-testid="encounter-hospital-course-none">
+                <p class="text-secondary mb-0">{{ 'encounter.course.no_link'|trans({}, d) }}</p>
+            </div>
+        {% endif %}
     {% else %}
-        {% set encounter = course.encounter %}
-        {% set link = course.link %}
-        <div class="card-body">
-            <div class="d-flex flex-wrap align-items-center gap-2 mb-3" data-testid="encounter-course-link">
-                {% if course.automatic %}
-                    <span class="badge bg-blue-lt" data-testid="encounter-course-origin" data-origin="automatic">{{ 'encounter.course.origin.automatic'|trans({}, d) }}</span>
-                {% else %}
-                    <span class="badge bg-green-lt" data-testid="encounter-course-origin" data-origin="confirmed">{{ 'encounter.course.origin.confirmed'|trans({}, d) }}</span>
-                {% endif %}
-                {% if course.agreementPercent is not null %}
-                    <span class="text-secondary" data-testid="encounter-course-agreement">
-                        {{ 'encounter.course.agreement'|trans({percent: course.agreementPercent|round(0, 'floor')}, d) }}
-                    </span>
-                {% endif %}
-                <span class="text-secondary">· {{ ('encounter.course.anchor.' ~ link.timeAnchor.value)|trans({minutes: (link.timeDifferenceMinutes > 0 ? '+' : '') ~ link.timeDifferenceMinutes}, d) }}</span>
-                <a class="ms-auto" href="{{ path('app_explore_ed_visit_show', {visitUid: encounter.visitUid}) }}" data-testid="encounter-course-visit-link">{{ 'encounter.course.open_visit'|trans({}, d) }}</a>
-            </div>
-            <p class="small text-secondary">{{ (course.automatic ? 'encounter.course.origin.automatic_hint' : 'encounter.course.origin.confirmed_hint')|trans({}, d) }}</p>
-
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <h4 class="subheader">{{ 'encounter.course.section.triage'|trans({}, d) }}</h4>
-                    {{ course_blocks.triage(encounter, diagram_name, indicator_name) }}
-
-                    <h4 class="subheader mt-4">{{ 'encounter.course.section.process_times'|trans({}, d) }}</h4>
-                    {{ course_blocks.process_times(course) }}
-
-                    <h4 class="subheader mt-4">{{ 'encounter.course.section.disposition'|trans({}, d) }}</h4>
-                    {{ course_blocks.disposition(encounter) }}
-                </div>
-                <div class="col-md-6">
-                    <h4 class="subheader">{{ 'encounter.course.section.timeline'|trans({}, d) }}</h4>
-                    {{ course_blocks.timeline(course) }}
-
-                    <h4 class="subheader mt-4">{{ 'encounter.course.section.vitals'|trans({}, d) }}</h4>
-                    {{ course_blocks.vitals(course) }}
-                </div>
-            </div>
+        {{ include(course.template, course.context) }}
+    {% endif %}
+    {# Records of other encounter schemas at the allocation's encounter (ADR 037), also without ED visit. #}
+    {% for section in record_sections %}
+        <div class="card-body{{ course is not null or not loop.first ? ' border-top' }}" data-record-section="{{ section.key }}">
+            {{ include(section.template, section.context) }}
         </div>
-        {# Records of other encounter schemas attached to the linked encounter (ADR 037). #}
-        {% for section in record_sections %}
-            <div class="card-body border-top" data-record-section="{{ section.key }}">
-                {{ include(section.template, section.context) }}
-            </div>
-        {% endfor %}
+    {% endfor %}
+    {% if can_unassign|default(false) %}
+        <div class="card-footer d-flex flex-wrap align-items-center gap-2" data-testid="encounter-course-unassign">
+            <span class="text-secondary small">{{ 'encounter.course.unassign.hint'|trans({}, d) }}</span>
+            <form method="post" action="{{ path('app_explore_allocation_encounter_unassign', {publicId: allocation_public_id}) }}" class="ms-auto">
+                <input type="hidden" name="_token" value="{{ csrf_token('encounter_unassign_' ~ allocation_id) }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'encounter.course.unassign.action'|trans({}, d) }}</button>
+            </form>
+        </div>
     {% endif %}
 </div>

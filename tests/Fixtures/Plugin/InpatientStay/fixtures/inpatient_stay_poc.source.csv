@@ -1,0 +1,4 @@
+"Fallnummer";"Patientenname";"Geburtsdatum";"Aufnahme Station";"Entlassdiagnose";"Entlassung Station"
+"00012345";"Testperson, Anna";"01.02.1950";"05.10.2026  10:05:00";"I21.4";"12.10.2026  11:00:00"
+"0001-2345";"Testperson, Anna";"01.02.1950";"20.10.2026  12:30:00";"J18.9";"25.10.2026  09:30:00"
+"00023456";"Testmann, Bert";"03.04.1960";"06.10.2026  23:59:59";"S72.0";""

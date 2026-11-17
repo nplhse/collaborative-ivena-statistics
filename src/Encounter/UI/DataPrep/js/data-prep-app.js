@@ -2,9 +2,10 @@
  * Page logic of the offline data preparation tool (#1051). Inlined by the server after
  * data-prep-core.js; reads its configuration from the JSON block `#data-prep-config`.
  *
- * The only network requests are the update check against `config.latestUrl` and the MTS catalog from
- * `config.catalogUrl` (#1157), the only URLs the Content Security Policy allows. Without an answer the
- * bundled catalog (`config.catalogs`) is used. Values from the source file are only ever set as text content.
+ * The only network requests are the update check against `config.latestUrl` and the catalogs from
+ * `config.catalogUrls` (#1157), the only URLs the Content Security Policy allows. Without an answer the
+ * bundled catalogs (`config.catalogs`) are used. The schema of a run follows from the detected profile
+ * (`config.schemas`, #1301). Values from the source file are only ever set as text content.
  */
 (function (root) {
     'use strict';
@@ -166,9 +167,19 @@
     }
 
     async function loadCatalog() {
-        const bundled = Object.values(state.catalogs)[0];
+        const messages = await Promise.all(Object.entries(config.catalogUrls).map(loadOneCatalog));
+        if (messages.length > 0) {
+            const kind = messages.every((message) => message.kind === 'success')
+                ? 'success'
+                : 'info';
+            status('catalog-status', messages.map((message) => message.text).join(' '), kind);
+        }
+    }
+
+    async function loadOneCatalog([id, url]) {
+        const bundled = state.catalogs[id];
         try {
-            const response = await fetch(config.catalogUrl, {
+            const response = await fetch(url, {
                 method: 'GET',
                 mode: 'cors',
                 credentials: 'omit',
@@ -179,13 +190,13 @@
                 throw new Error(`HTTP ${response.status}`);
             }
             const catalog = prep.parseCatalog(await response.json());
-            if (!(catalog.id in state.catalogs)) {
-                throw new Error(`Unknown catalog "${catalog.id}".`);
+            if (catalog.id !== id) {
+                throw new Error(`Unexpected catalog "${catalog.id}".`);
             }
             state.catalogs = { ...state.catalogs, [catalog.id]: catalog };
-            status('catalog-status', `${t('catalogServer')} ${catalogSummary(catalog)}`, 'success');
+            return { kind: 'success', text: `${t('catalogServer')} ${catalogSummary(catalog)}` };
         } catch {
-            status('catalog-status', `${t('catalogBundled')} ${catalogSummary(bundled)}`, 'info');
+            return { kind: 'info', text: `${t('catalogBundled')} ${catalogSummary(bundled)}` };
         }
     }
 
@@ -308,8 +319,23 @@
 
     // ------------------------------------------------------------------ local map
 
+    /** Schema module of a profile (constants of the local map editor). */
+    function schemaOf(profile) {
+        return prep.schemaModule(profile.schema);
+    }
+
+    /** Schema of a profile as rendered by the server: fields and key rules of its version. */
+    function schemaFor(profile) {
+        return config.schemas[profile.schema];
+    }
+
+    /** The profile of the loaded file, else the first profile whose schema has a local map (profile order). */
     function mapProfile() {
-        return state.profile ?? config.profiles[0];
+        return (
+            state.profile ??
+            config.profiles.find((profile) => schemaOf(profile).localMap.sections.length > 0) ??
+            config.profiles[0]
+        );
     }
 
     /**
@@ -451,7 +477,9 @@
             });
             input.addEventListener('input', () => {
                 const name = input.value;
-                input.dataset.invalid = String(name !== '' && !prep.isDepartmentName(name));
+                input.dataset.invalid = String(
+                    name !== '' && !schemaOf(mapProfile()).isDepartmentName(name),
+                );
             });
             return input;
         }
@@ -464,7 +492,9 @@
                 },
                 [
                     option('', '—'),
-                    ...prep.CARE_LEVELS.map((level) => option(level, t(`careLevel_${level}`))),
+                    ...schemaOf(mapProfile()).CARE_LEVELS.map((level) =>
+                        option(level, t(`careLevel_${level}`)),
+                    ),
                 ],
             );
         }
@@ -476,7 +506,9 @@
             },
             [
                 option('', '—'),
-                ...prep.DISPOSITIONS.map((code) => option(code, t(`disposition_${code}`))),
+                ...schemaOf(mapProfile()).DISPOSITIONS.map((code) =>
+                    option(code, t(`disposition_${code}`)),
+                ),
             ],
         );
         const careLevel = element(
@@ -487,11 +519,15 @@
             },
             [
                 option('', t('mapEditCareLevelNone')),
-                ...prep.CARE_LEVELS.map((level) => option(level, t(`careLevel_${level}`))),
+                ...schemaOf(mapProfile()).CARE_LEVELS.map((level) =>
+                    option(level, t(`careLevel_${level}`)),
+                ),
             ],
         );
         disposition.addEventListener('change', () => {
-            const allowed = prep.CARE_LEVEL_DISPOSITIONS.includes(disposition.value);
+            const allowed = schemaOf(mapProfile()).CARE_LEVEL_DISPOSITIONS.includes(
+                disposition.value,
+            );
             careLevel.disabled = !allowed;
             if (!allowed) {
                 careLevel.value = '';
@@ -617,12 +653,23 @@
         const { text, encoding } = prep.decodeBytes(file.bytes);
         const firstLine = prep.parseCsv(text.slice(0, 20000), ';')[0] ?? [];
         const header = firstLine.map((name) => name.replace(/\s+/g, ' ').trim());
-        const profile = prep.detectProfile(header, config.profiles);
-        if (profile === null) {
-            status('source-status', t('profileUnknown'), 'error');
+        const matches = prep.matchingProfiles(header, config.profiles);
+        if (matches.length !== 1) {
+            // Several matching profiles stop the export: the order of the profiles must not decide (#1301).
+            status(
+                'source-status',
+                matches.length === 0
+                    ? t('profileUnknown')
+                    : t('profileAmbiguous').replace(
+                          '{profiles}',
+                          matches.map((match) => `${match.label} v${match.version}`).join(', '),
+                      ),
+                'error',
+            );
             refresh();
             return;
         }
+        const profile = matches[0];
         state.profile = profile;
         state.table = prep.readTable(text, profile.source.delimiter);
         status(
@@ -630,7 +677,7 @@
             `${t('profileDetected')}: ${profile.label} v${profile.version} — ${state.table.rows.length} ${t('rows')}, ${encoding}`,
             'success',
         );
-        renderColumnPlan(prep.columnPlan(state.table.header, profile));
+        renderColumnPlan(prep.columnPlan(state.table.header, profile, schemaFor(profile)));
         refresh();
     }
 
@@ -679,7 +726,7 @@
         try {
             state.result = await prep.transform(state.table, {
                 profile: state.profile,
-                schema: config.schema,
+                schema: schemaFor(state.profile),
                 key: state.key,
                 localMap: state.localMap ?? prep.emptyLocalMap(),
                 catalogs: state.catalogs,
@@ -705,10 +752,11 @@
             [t('reportAgeClamped'), report.ageClamped],
             [t('reportCareLevelUnknown'), report.careLevelUnknown],
             [t('reportPeriod'), `${report.firstAnchor ?? '—'} – ${report.lastAnchor ?? '—'}`],
-        ];
+            // A schema without one of these counters (no assessment anchor, no age, no care level) leaves the line out.
+        ].filter(([, value]) => value !== undefined);
         const emptied = [];
         for (const [bucket, label] of [
-            [report.vitalsEmptied, t('reportVitalsEmptied')],
+            [report.vitalsEmptied ?? {}, t('reportVitalsEmptied')],
             [report.invalidValues, t('reportInvalidValues')],
         ]) {
             for (const [field, reasons] of Object.entries(bucket)) {
@@ -800,7 +848,7 @@
         }
         const file = prep.buildExchangeFile(state.result, {
             profile: state.profile,
-            schema: config.schema,
+            schema: schemaFor(state.profile),
             toolVersion: config.version,
             keyCheck: state.key.check,
         });

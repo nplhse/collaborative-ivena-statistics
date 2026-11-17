@@ -11,7 +11,6 @@ use App\Encounter\Application\Import\EncounterImportResult;
 use App\Encounter\Application\Import\EncounterKeyGenerationChangedException;
 use App\Encounter\Application\Message\ImportEncountersMessage;
 use App\Encounter\Domain\Entity\EncounterImport;
-use App\Encounter\Domain\Entity\EncounterSuspectedDuplicate;
 use App\Encounter\Domain\Enum\EncounterFileRejection;
 use App\Encounter\Infrastructure\Repository\EncounterImportRepository;
 use App\Encounter\Infrastructure\Repository\EncounterKeyStateRepository;
@@ -23,7 +22,6 @@ use App\Import\Application\DTO\ImportSummary;
 use App\Import\Application\Exception\ImportFilePathOutsideBaseException;
 use App\Import\Application\Exception\ImportRunSupersededException;
 use App\Import\Application\Service\ImportFileStorage;
-use App\Import\Application\Service\ImportPreviousRunCleanupService;
 use App\Import\Application\Service\ImportRunCommitGuard;
 use App\Import\Application\Service\ImportRunErrorClassifier;
 use App\Import\Application\Service\ImportRunLifecycle;
@@ -45,7 +43,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Runs an encounter import (#1048) with the import run lifecycle of the other import types (ADR 016):
- * claim the run, check preconditions, remove the data of a previous run, process the file, end the run.
+ * claim the run, check preconditions, process the file (a reprocess replaces the previous run's data in the
+ * same write transaction, #1300), end the run.
  *
  * - The creator must still hold the beta role and the UPLOAD grant (or ROLE_ADMIN) on the hospital.
  * - The key generation stored at upload is checked before anything is removed and again in the commit
@@ -64,7 +63,6 @@ final readonly class ImportEncountersMessageHandler
         private ManagerRegistry $managerRegistry,
         private ImportRunLifecycle $runLifecycle,
         private ImportRunCommitGuard $commitGuard,
-        private ImportPreviousRunCleanupService $previousRunCleanup,
         private ImportFileStorage $fileStorage,
         private EncounterImportRepository $encounterImports,
         private EncounterKeyStateRepository $keyStates,
@@ -118,21 +116,17 @@ final readonly class ImportEncountersMessageHandler
         $started = microtime(true);
         $status = ImportRunStatus::Failed->value;
         $error = null;
-        $this->auditContext->pushSuppressedEntityAudit([ImportReject::class, EncounterSuspectedDuplicate::class]);
+        $this->auditContext->pushSuppressedEntityAudit([ImportReject::class]);
         $this->commitGuard->activate($context);
         try {
-            if ($import->hasRunBefore() || $context->resumed) {
-                $this->telemetry->startSpan('import.cleanup');
-                $this->previousRunCleanup->cleanup($import);
-                $this->telemetry->finishSpan();
-            }
-
+            // A reprocess replaces the previous run's data inside the write transaction (#1300): nothing of the last
+            // successful run is removed before the new data are committed.
+            $reprocess = $import->hasRunBefore() || $context->resumed;
             $import->markAsRunning();
-            $encounterImport->resetForRun();
             $this->flushWithIntent('import.run.started', $import);
 
             $this->telemetry->startSpan('import.rows');
-            $result = $this->fileImporter->import($import, $encounterImport, $source);
+            $result = $this->fileImporter->import($import, $encounterImport, $source, $reprocess);
             $this->telemetry->finishSpan(['rows' => $result->total, 'ok' => $result->total - $result->rejected, 'rejected' => $result->rejected]);
             $runtimeMs = $this->runtimeSince($started);
 

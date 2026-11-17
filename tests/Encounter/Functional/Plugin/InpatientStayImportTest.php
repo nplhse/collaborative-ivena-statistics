@@ -7,7 +7,6 @@ namespace App\Tests\Encounter\Functional\Plugin;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Application\Event\EncountersImported;
-use App\Encounter\Application\Message\MatchEncountersMessage;
 use App\Encounter\Domain\Enum\EncounterGrantAction;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
@@ -20,6 +19,7 @@ use App\Tests\Support\Encounter\EncounterTestFixtures;
 use App\Tests\Support\Encounter\MatchingDataFixtures;
 use App\Tests\Support\Encounter\Poc\InpatientStayPoc;
 use App\User\Domain\Entity\User;
+use Cois\Plugin\EdVisit\Application\Message\MatchEncountersMessage;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Field\ChoiceFormField;
@@ -183,25 +183,43 @@ final class InpatientStayImportTest extends WebTestCase
         $this->assertReport(inserted: 3, duplicates: 1, assigned: 1, conflicts: 1, unassigned: 1, rejected: 0, skipped: 0);
         self::assertSame(3, $this->stayCount($stayImportId));
 
-        // 8. Deleting the ed_visit import while the stay of row 1 hangs on visit A fails completely.
+        // 8. Deleting the ed_visit import (#1300): its visits and their ED matching history go; the encounters stay
+        // with their IVENA assignment, so the stay of row 1 is still in the case file of allocation X.
         $crawler = $this->client->request(Request::METHOD_GET, '/import/'.$this->edImportId);
         $this->client->request(Request::METHOD_POST, '/import/'.$this->edImportId.'/delete', ['_token' => $crawler->filter('#import-delete-modal input[name="_token"]')->attr('value')]);
-        self::assertResponseRedirects('/import/'.$this->edImportId);
-        $this->client->followRedirect();
-        self::assertSelectorTextContains('.alert', 'This import cannot be deleted or reprocessed while records of other imports are attached to its visits.');
-        self::assertSame(3, $this->encounterCount($this->edImportId));
+        self::assertResponseRedirects('/import');
+        self::assertNull($this->entityManager()->find(Import::class, $this->edImportId));
+        self::assertSame(0, $this->encounterCount($this->edImportId));
         self::assertSame(3, $this->stayCount($stayImportId));
-        self::assertCount(2, $this->links());
+        self::assertCount(0, $this->links(), 'The ED matching history of the visits is gone.');
+        self::assertSame($this->visits['A'], (int) $this->connection()->fetchOne('SELECT id FROM encounter WHERE allocation_id = ?', [$this->allocationX->getId()]));
+        $crawler = $this->client->request(Request::METHOD_GET, '/explore/allocation/'.$this->allocationX->getPublicId());
+        self::assertResponseIsSuccessful();
+        self::assertCount(0, $crawler->filter('[data-testid="encounter-course-link"]'), 'No ED visit any more.');
+        self::assertSame('I21.4', trim($crawler->filter('[data-record-section="inpatient_stay"] [data-testid="inpatient-stay-diagnosis"]')->text()));
 
-        // 9. Deleting the inpatient_stay import removes its stays and pending records; the visits stay.
+        // 8b. Without ED visit, a reviewer can remove the assignment by hand; a case viewer cannot.
+        $this->client->loginUser($this->viewer);
+        $crawler = $this->client->request(Request::METHOD_GET, '/explore/allocation/'.$this->allocationX->getPublicId());
+        self::assertCount(0, $crawler->filter('[data-testid="encounter-course-unassign"]'));
+        $this->client->loginUser($this->reviewer);
+        $crawler = $this->client->request(Request::METHOD_GET, '/explore/allocation/'.$this->allocationX->getPublicId());
+        $this->client->submit($crawler->filter('[data-testid="encounter-course-unassign"] form')->form());
+        self::assertResponseRedirects('/explore/allocation/'.$this->allocationX->getPublicId());
+        $crawler = $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'The assignment was removed.');
+        self::assertCount(0, $crawler->filter('[data-record-section="inpatient_stay"]'));
+        self::assertNull($this->connection()->fetchOne('SELECT allocation_id FROM encounter WHERE id = ?', [$this->visits['A']]));
+        self::assertSame($this->visits['A'], (int) $this->connection()->fetchOne('SELECT encounter_id FROM test_inpatient_stay WHERE import_id = ? AND discharge_diagnosis = ?', [$stayImportId, 'I21.4']), 'The stay stays with its encounter.');
+
+        // 9. Deleting the inpatient_stay import removes its stays and pending records; the encounters stay until the
+        // cleanup of encounters without records.
         $crawler = $this->client->request(Request::METHOD_GET, '/import/'.$stayImportId);
         $this->client->request(Request::METHOD_POST, '/import/'.$stayImportId.'/delete', ['_token' => $crawler->filter('#import-delete-modal input[name="_token"]')->attr('value')]);
         self::assertResponseRedirects('/import');
         self::assertSame(0, $this->stayCount($stayImportId));
         self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter_pending_assignment WHERE import_id = ?', [$stayImportId]));
-        self::assertSame(3, $this->encounterCount($this->edImportId));
-        self::assertCount(2, $this->links());
-        self::assertNotNull($this->entityManager()->find(Import::class, $this->edImportId));
+        self::assertSame(3, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter WHERE id IN (?, ?, ?)', [$this->visits['A'], $this->visits['B'], $this->visits['C']]));
     }
 
     public function testStaysTriggerNoEncounterMatchingWhileVisitsStillDo(): void

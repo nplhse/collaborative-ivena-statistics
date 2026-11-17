@@ -17,25 +17,29 @@ One self-contained HTML file. A hospital user downloads it from its landing page
 (`/tools/data-prep`, the Tools card "Data preparation tool", beta role required) and opens it
 from disk in a current browser. It reads the export of the hospital
 information system (HIS) and the hospital's key file, keeps only the agreed fields and saves a
-canonical `ed_visit` file for the upload. Names, dates of birth, staff, free text and the case number
+canonical exchange file of the matching schema (today `ed_visit`) for the upload. The tool is a generic
+shell; schemas contribute what it needs to know about them (#1301, [schema contributions](#schema-contributions)). Names, dates of birth, staff, free text and the case number
 never leave the computer.
 
 | Part | Location |
 |---|---|
-| Core (parse, transform, HMAC, content check; no DOM, no network) | `src/Encounter/UI/DataPrep/js/data-prep-core.js` |
+| Core (parse, generic rule types, keys, export boundary, content check, local map storage; no DOM, no network) | `src/Encounter/UI/DataPrep/js/data-prep-core.js` |
+| `ed_visit` schema module (age and sex, vitals, dispositions and care levels, departments, MTS catalog format) | `plugins/ed-visit/data-prep/js/ed-visit.js` |
 | Page logic | `src/Encounter/UI/DataPrep/js/data-prep-app.js` |
-| Public profiles (declarative JSON) | `src/Encounter/UI/DataPrep/profiles/` |
-| MTS catalog: loaded at start from `GET /data-prep/mts-catalog.json` (the database catalog, ADR 032); bundled copy as offline fallback | endpoint `MtsCatalogForDataPrepController` (`MtsCatalog::toolCatalog()`); bundled `src/Encounter/Application/Catalog/mts-de.json` (`MtsCatalog::bundledToolCatalog()`) |
-| `ed_visit` v1 field contract for the tool | `src/Encounter/UI/DataPrep/schema/ed_visit.v1.json` (must equal `EdVisitDimension`, checked by `DataPrepContractTest`) |
+| Contributions | `DataPrepContributionInterface` (`src/Encounter/Contract/DataPrep/`), registry `DataPrepContributions`; `EdVisitDataPrepContribution` (`plugins/ed-visit/src/UI/DataPrep/`), in tests `InpatientStayDataPrepContribution` |
+| Public profiles (declarative JSON) | `plugins/ed-visit/data-prep/profiles/` (`ed_visit`) |
+| MTS catalog: loaded at start from `GET /data-prep/mts-catalog.json` (the database catalog, ADR 032); bundled copy as offline fallback | endpoint `MtsCatalogForDataPrepController` (`MtsCatalog::toolCatalog()`); bundled `plugins/ed-visit/src/Application/Catalog/mts-de.json` (`MtsCatalog::bundledToolCatalog()`) |
+| `ed_visit` v1 field contract for the tool | `plugins/ed-visit/data-prep/schema/ed_visit.v1.json` (must equal `EdVisitDimension::fields(1)`, checked by `DataPrepContractTest`; no key rules, see [key rules](#key-rules)) |
 | Template | `src/Encounter/UI/Twig/templates/data_prep/tool.html.twig` |
 | Renderer, version, changelog | `DataPrepToolRenderer`, `DataPrepRelease`, `DataPrepChangelog` in `src/Encounter/UI/DataPrep/` |
-| Local map template and example | `src/Encounter/UI/DataPrep/local-map/{template,example}.json` (`LocalMapFiles`) |
+| Local map template and example | `plugins/ed-visit/data-prep/local-map/{template,example}.json` (read by `LocalMapFiles` through the contribution) |
 | Landing page and subpages | `ShowDataPrepGuideController`, `ShowDataPrepKeyController`, `ShowDataPrepLocalMapController`, `DataPrepHospitals`; templates `guide`, `key`, `local_map` in `src/Encounter/UI/Twig/templates/data_prep/` |
-| Routes | `GET /tools/data-prep` (landing page), `GET /tools/data-prep/key`, `GET /tools/data-prep/local-map`, `GET /tools/data-prep/download`, `GET /tools/data-prep/local-map-{template,example}.json` (all `ROLE_ENCOUNTER_BETA`), `GET /data-prep/latest.json` and `GET /data-prep/mts-catalog.json` (public) |
-| Tests | `tests/Encounter/DataPrep/*.test.js` (`npm run test:js`), `tests/Encounter/Unit/UI/DataPrep/`, `tests/Encounter/Functional/Controller/DataPrepToolControllerTest.php`, `DataPrepGuideControllerTest.php` |
+| Routes (404 without a contribution, and no Tools card) | `GET /tools/data-prep` (landing page), `GET /tools/data-prep/key`, `GET /tools/data-prep/local-map`, `GET /tools/data-prep/download`, `GET /tools/data-prep/local-map-{template,example}.json` (all `ROLE_ENCOUNTER_BETA`), `GET /data-prep/latest.json` and `GET /data-prep/mts-catalog.json` (public) |
+| Tests | `tests/Encounter/DataPrep/*.test.js` (`npm run test:js`), `tests/Encounter/Unit/UI/DataPrep/`, `tests/Encounter/Functional/Controller/DataPrepToolControllerTest.php`, `DataPrepGuideControllerTest.php`, `tests/Encounter/Functional/DataPrep/ShippedDataPrepToolTest.php` |
 
-The two scripts are plain scripts without imports; the server inlines them into the file, and the
-Node tests load the core as a side-effect module (`globalThis.EncounterDataPrep`). Translations come
+The scripts are plain scripts without imports; the server inlines the core, the script modules of the
+contributions and the app into the file, and the Node tests load them as side-effect modules
+(`globalThis.EncounterDataPrep`). Translations come
 from the `encounter` domain (`encounter.data_prep.*`) in the locale of the user who downloads the file.
 
 ## Versions and update check
@@ -103,8 +107,11 @@ The file sets, as a `<meta>` tag:
 
 ```
 default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:;
-connect-src <absolute URL of /data-prep/latest.json> <absolute URL of /data-prep/mts-catalog.json>; base-uri 'none'; form-action 'none'
+connect-src <absolute URL of /data-prep/latest.json> <absolute URL of each contributed catalog>; base-uri 'none'; form-action 'none'
 ```
+
+With the `ed_visit` contribution the catalog URL is `/data-prep/mts-catalog.json`; the policy text is the same as
+before #1301 (checked by `ShippedDataPrepToolTest`).
 
 So no request other than the update check and the MTS catalog (1.2.0) is possible, and no external script,
 style, font or image is loaded. Checked in the browser for v1: the page made exactly one request
@@ -207,11 +214,13 @@ Help for common problems is left for the help area.
 
 1. Key file: load (or remembered key), or create once.
 2. Local map: optional.
-3. Export: the profile is detected by its required header columns; UTF-8 if the bytes are valid
+3. Export: the profile is detected by its required header columns, and the profile decides the schema of
+   the run. If several profiles match, the tool names them and stops: the order of the profiles never
+   decides (there is no manual profile choice). UTF-8 if the bytes are valid
    UTF-8, otherwise Windows-1252; `;`, quoted cells. The column preview lists every source column as
    kept, transformed or dropped, with the target field or the reason.
 4. Prepare: transformation, report, content check and preview of the first ten rows.
-5. Save: `ed_visit_<profile>_<first anchor date>_<last anchor date>.csv`, UTF-8, LF, manifest line
+5. Save: `<schema>_<profile>_<first anchor date>_<last anchor date>.csv` (for ORBIS `ed_visit_orbis-mts_…`), UTF-8, LF, manifest line
    first ([exchange-format.md](exchange-format.md#file)).
 
 ## Transformation rules
@@ -222,7 +231,8 @@ The allow-list is the profile: a column the profile does not map is dropped. Rul
 | Topic | Rule |
 |---|---|
 | Rows | rows without case number or without both anchor timestamps are skipped and counted; so are rows without age (and without date of birth) or without a mappable sex, both required fields; a second row with the same fingerprint is skipped as duplicate |
-| Keys | `visit_fingerprint` and `case_key` exactly per [`ed-visit:v1`](exchange-format.md#visit-fingerprint-ed-visitv1), WebCrypto HMAC-SHA256 with the key file |
+| Keys | `visit_fingerprint` and `case_key` exactly per [`ed-visit:v1`](exchange-format.md#visit-fingerprint-ed-visitv1), WebCrypto HMAC-SHA256 with the key file, built from the [key rules](#key-rules) the server renders |
+| Export boundary | only the fields of the active schema version reach the file (`exportFields()`); a schema module may read source values such as the case number or the date of birth, but never writes them |
 | Age | leading number of `Alter`; without it, age at the anchor date from `Geburtsdatum`; then clamped to 1–99 |
 | Timestamps | `dd.mm.yyyy HH:MM[:SS]` with any whitespace between date and time; output `YYYY-MM-DDTHH:MM`, seconds cut; invalid values are emptied and counted |
 | Codes | profile map, case-insensitive; optional `prefixes`; empty markers (`-- keine --`) give empty; other values give empty and are listed as unmapped |
@@ -285,13 +295,46 @@ Findings list field, source column, kind, count and first line. With findings th
 saving needs an explicit confirmation that the values are not personal data; the import checks the
 content again. The check reduces the risk, it does not find every identifier (ADR 026).
 
+## Key rules
+
+The fingerprint and the case key of a schema version come from its dimension
+(`EncounterDimensionInterface::keyRules($version)`, #1301): field, rule or prefix and the parts
+(`case_number` as digits, `anchor_source`, `anchor` with seconds). The renderer adds them to the schema as
+`keys`; schema files must not carry their own copy. The tool's core, the manifest's `fingerprint=` and the
+synthetic data (`SyntheticEncounterKey`) all use these rules. All schemas share the case key `case:v1`, so
+records of one case find the same encounter; each schema has its own fingerprint rule
+(`ed-visit:v1`, in tests `inpatient-stay:v1`). `fixtures/fingerprint-vectors.json` carries the rendered block of
+`ed_visit` v1, pinned to the dimension by `DataPrepContractTest`.
+
+## Schema contributions
+
+A schema joins the tool through a service implementing `DataPrepContributionInterface` (tag
+`encounter.data_prep_contribution`, autoconfigured), usually in its bundle:
+
+| Method | Content |
+|---|---|
+| `schema()` | schema name, as in the manifest and in the profiles |
+| `schemaFile()` | schema file (`schema`, `version`, `fields`; no `keys`) |
+| `profileFiles()` | source profiles; each names the schema |
+| `scriptFile()` | optional script module that calls `EncounterDataPrep.registerSchema()` with its rule types and hooks (`beforeKeys`, `afterRow`, `columnPlan`, local map sections, catalog format); null for a schema the generic rule types cover |
+| `catalogs()` | `DataPrepCatalog`: id, bundled payload (offline fallback) and the public route the tool refreshes it from (allowed in the CSP) |
+| `localMap()` | `DataPrepLocalMap`: template and example files and the values of the local map page; at most one contribution may have one |
+
+Paths are absolute and must resolve from the installed package (bundle path or project directory).
+`DataPrepContributions` orders contributions by schema name and checks them when they are read (files,
+profile schema, unique profile and catalog ids, no key rules in schema files). Without any contribution the
+tool pages, the download and the local map files answer 404 and the Tools card is hidden; `latest.json`
+stays for tools already downloaded. The test bundle `inpatient_stay` contributes a schema file and one profile
+and runs with the generic core alone.
+
 ## Adding a profile
 
-1. Add `profiles/<id>.json` with `detect.requiredColumns`, `keys`, `age`, `fields` (rule types `code`,
-   `timestamp`, `catalog`, `integer`, `vital`, `bloodPressure`, `flag`, `codeSet`, `disposition`,
-   `department`) and `dropped`.
-2. Register it in `DataPrepToolRenderer::PROFILES`. The renderer bundles the MTS catalog file
-   (`MtsCatalog::bundledToolCatalog()`) as offline fallback; a change to `src/Encounter/Application/Catalog/mts-de.json`
+1. Add `profiles/<id>.json` with `schema`, `detect.requiredColumns`, `keys`, `fields` (generic rule types
+   `code`, `timestamp`, `catalog`, `integer`, `flag`, `codeSet`; with the `ed_visit` module also `age`,
+   `vital`, `bloodPressure`, `disposition`, `department`) and `dropped`. Its required columns must not match
+   the exports of another profile: several matches stop the tool.
+2. List it in its contribution's `profileFiles()`. The `ed_visit` contribution bundles the MTS catalog file
+   (`MtsCatalog::bundledToolCatalog()`) as offline fallback; a change to `plugins/ed-visit/src/Application/Catalog/mts-de.json`
    changes the tool only. The tool, the MTS glossary and the import read the catalog in the database, maintained
    in the back office (ADR 032).
 3. Add a synthetic sample and tests; `DataPrepContractTest` checks the codes against the schema.
@@ -304,6 +347,13 @@ Profiles are data only: a new rule type needs a change to the core and a new too
 - `npm run test:js` (part of `npm run check:js` / `make lint-js`): Node's built-in test runner on the
   synthetic sample `tests/Encounter/DataPrep/fixtures/orbis-mts-sample.csv` (invented values,
   Windows-1252), with hand-checked expected values, the content check and stable fingerprints.
-- `fixtures/fingerprint-vectors.json` holds fingerprint vectors; the JavaScript tests and
-  `DataPrepContractTest` (PHP `hash_hmac`) both check them.
+- `fixtures/fingerprint-vectors.json` holds fingerprint vectors and the rendered key rules of `ed_visit` v1;
+  the JavaScript tests and `DataPrepContractTest` (PHP, `EdVisitDimension::keyRules(1)`) both check them;
+  `EncounterKeyRulesTest` shows the shared case key of `ed_visit` and `inpatient_stay`.
+- `ShippedDataPrepToolTest` downloads the tool, runs that HTML file offline with Node
+  (`tests/Encounter/DataPrep/run-shipped-tool.js`: its own inline scripts, the bundled catalog, no network),
+  once with the ORBIS sample and once with the `inpatient_stay` PoC, checks the CSP and imports both files
+  through the regular import; the ORBIS file must equal `orbis-mts-sample.ed_visit.csv`. Skipped without `node`.
+- An export-boundary test feeds the ORBIS sample with an unknown column and a row whose age comes from the
+  date of birth; case numbers, names, dates of birth and the unknown column must not reach the file.
 - Real exports are never used in tests or committed.

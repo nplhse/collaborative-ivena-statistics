@@ -8,6 +8,7 @@ use App\Encounter\Application\Assignment\AssignmentConflict;
 use App\Encounter\Application\Assignment\AssignmentConflictCandidate;
 use App\Encounter\Application\Assignment\DeferredAssignment;
 use App\Encounter\Application\Contract\AssignmentConflictReaderInterface;
+use App\Encounter\Application\Display\EncounterLinkRegistry;
 use App\Encounter\Contract\Assignment\AssignmentKind;
 use App\Encounter\Contract\Assignment\CandidateReason;
 use Doctrine\DBAL\ArrayParameterType;
@@ -16,7 +17,8 @@ use Doctrine\DBAL\ParameterType;
 
 /**
  * Open assignment conflicts (`encounter_pending_assignment` with status `open` and kind ambiguous or
- * contradictory) and deferred records (#1307) of a hospital, with the visit uid and anchor of each candidate.
+ * contradictory) and deferred records (#1307) of a hospital, with the anchor and the record page link of each
+ * candidate (from the encounter schemas, #1300).
  *
  * @psalm-suppress UnusedClass Wired as the only implementation of AssignmentConflictReaderInterface.
  */
@@ -27,6 +29,7 @@ final readonly class AssignmentConflictQuery implements AssignmentConflictReader
     /** @psalm-suppress PossiblyUnusedMethod Autowired. */
     public function __construct(
         private Connection $connection,
+        private EncounterLinkRegistry $links,
     ) {
     }
 
@@ -122,7 +125,7 @@ final readonly class AssignmentConflictQuery implements AssignmentConflictReader
     }
 
     /**
-     * Candidates of each row with the visit uid and anchor of their encounter (null when it is gone).
+     * Candidates of each row with the anchor of their encounter (null when it is gone) and its record page link.
      *
      * @param array<int|string, string> $json candidates JSON by row id
      *
@@ -141,39 +144,40 @@ final readonly class AssignmentConflictQuery implements AssignmentConflictReader
             }
         }
 
-        $visits = $this->visits(array_values($encounterIds));
+        $anchors = $this->anchors(array_values($encounterIds));
+        $links = $this->links->forEncounters(array_keys($anchors));
 
         return array_map(static fn (array $candidates): array => array_map(static fn (array $candidate): AssignmentConflictCandidate => new AssignmentConflictCandidate(
             encounterId: $candidate['encounter_id'],
             reason: CandidateReason::from($candidate['reason']),
-            visitUid: $visits[$candidate['encounter_id']]['visit_uid'] ?? null,
-            anchorAt: isset($visits[$candidate['encounter_id']]) ? new \DateTimeImmutable($visits[$candidate['encounter_id']]['anchor_at']) : null,
+            link: $links[$candidate['encounter_id']] ?? null,
+            anchorAt: $anchors[$candidate['encounter_id']] ?? null,
         ), $candidates), $decoded);
     }
 
     /**
      * @param list<int> $encounterIds
      *
-     * @return array<int, array{visit_uid: string, anchor_at: string}>
+     * @return array<int, \DateTimeImmutable> anchor by id of the encounters that still exist
      */
-    private function visits(array $encounterIds): array
+    private function anchors(array $encounterIds): array
     {
         if ([] === $encounterIds) {
             return [];
         }
 
-        /** @var list<array{id: int|string, visit_uid: string, anchor_at: string}> $rows */
-        $rows = $this->connection->fetchAllAssociative(
-            'SELECT id, visit_uid, anchor_at FROM encounter WHERE id IN (?)',
+        /** @var array<int|string, string> $rows */
+        $rows = $this->connection->fetchAllKeyValue(
+            'SELECT id, anchor_at FROM encounter WHERE id IN (?)',
             [$encounterIds],
             [ArrayParameterType::INTEGER],
         );
 
-        $visits = [];
-        foreach ($rows as $row) {
-            $visits[(int) $row['id']] = ['visit_uid' => $row['visit_uid'], 'anchor_at' => $row['anchor_at']];
+        $anchors = [];
+        foreach ($rows as $id => $anchorAt) {
+            $anchors[(int) $id] = new \DateTimeImmutable($anchorAt);
         }
 
-        return $visits;
+        return $anchors;
     }
 }

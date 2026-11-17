@@ -341,6 +341,10 @@
         <source>encounter.data_prep.js.profile_unknown</source>
         <target>Das Exportformat wurde nicht erkannt. Bitte verwenden Sie einen unterstützten Export.</target>
       </trans-unit>
+      <trans-unit id="Enc7C1A2B9D" resname="encounter.data_prep.js.profile_ambiguous">
+        <source>encounter.data_prep.js.profile_ambiguous</source>
+        <target>Mehrere Exportformate passen zu dieser Datei: {profiles}. Die Datei wird nicht verarbeitet; bitte wenden Sie sich an das Projektteam.</target>
+      </trans-unit>
       <trans-unit id="Enc22F48A05" resname="encounter.data_prep.js.profile_detected">
         <source>encounter.data_prep.js.profile_detected</source>
         <target>Exportformat</target>
@@ -584,10 +588,6 @@
       <trans-unit id="EncA94053061" resname="encounter.import.schema.unknown">
         <source>encounter.import.schema.unknown</source>
         <target>{schema} (nicht installiert)</target>
-      </trans-unit>
-      <trans-unit id="EncB0ECE8E85" resname="encounter.import.delete_refused.attached_records">
-        <source>encounter.import.delete_refused.attached_records</source>
-        <target>Dieser Import kann nicht gelöscht oder neu verarbeitet werden, solange Datensätze anderer Importe an seinen Besuchen hängen. Löschen Sie zuerst diese Importe.</target>
       </trans-unit>
       <trans-unit id="Enc16758DEBB" resname="encounter.import.count.assigned">
         <source>encounter.import.count.assigned</source>
@@ -1788,6 +1788,26 @@
       <trans-unit id="Enc1268E1C5" resname="encounter.course.no_link">
         <source>encounter.course.no_link</source>
         <target>Mit dieser Zuweisung ist kein Notaufnahmebesuch verknüpft. Vorschläge erscheinen in der Zuordnungsprüfung; diese Karte zeigt nur automatische und bestätigte Verknüpfungen.</target>
+      </trans-unit>
+      <trans-unit id="Enc0674BFC34" resname="encounter.course.unassign.hint">
+        <source>encounter.course.unassign.hint</source>
+        <target>Zu dieser Zuweisung gehört kein Notaufnahmebesuch mehr; die Datensätze oben bleiben beim Behandlungsfall.</target>
+      </trans-unit>
+      <trans-unit id="Enc550DD4AE8" resname="encounter.course.unassign.action">
+        <source>encounter.course.unassign.action</source>
+        <target>Zuordnung aufheben</target>
+      </trans-unit>
+      <trans-unit id="Enc00F87AFB7" resname="encounter.course.unassign.done">
+        <source>encounter.course.unassign.done</source>
+        <target>Die Zuordnung wurde aufgehoben. Der Behandlungsfall und seine Datensätze bleiben erhalten.</target>
+      </trans-unit>
+      <trans-unit id="Enc28FB29555" resname="encounter.course.unassign.not_possible">
+        <source>encounter.course.unassign.not_possible</source>
+        <target>Die Zuordnung wurde nicht aufgehoben: Sie hat sich inzwischen geändert oder gehört zu einem Notaufnahmebesuch.</target>
+      </trans-unit>
+      <trans-unit id="Enc5AD08FDB1" resname="encounter.course.unassign.invalid_token">
+        <source>encounter.course.unassign.invalid_token</source>
+        <target>Das Formular ist abgelaufen. Bitte versuchen Sie es erneut.</target>
       </trans-unit>
       <trans-unit id="Enc93337359" resname="encounter.course.origin.automatic">
         <source>encounter.course.origin.automatic</source>
@@ -3468,6 +3488,18 @@
       <trans-unit id="Enc521607A3" resname="tools.encounter_plausibility.description">
         <source>tools.encounter_plausibility.description</source>
         <target>Kuratierte Problembereiche der Matcher-Tabelle PZC × MTS-Diagramm prüfen und Snapshots aktivieren.</target>
+      </trans-unit>
+      <trans-unit id="Enc1A3C0F51" resname="encounter.data_prep.changelog.1_3_0.schemas">
+        <source>encounter.data_prep.changelog.1_3_0.schemas</source>
+        <target>Das Tool wird aus den Schemata zusammengesetzt, die der Server anbietet; Notaufnahme-Besuche funktionieren wie bisher.</target>
+      </trans-unit>
+      <trans-unit id="Enc2B4D1E62" resname="encounter.data_prep.changelog.1_3_0.ambiguous_profile">
+        <source>encounter.data_prep.changelog.1_3_0.ambiguous_profile</source>
+        <target>Passen mehrere Exportformate zu einer Datei, nennt das Tool sie und verarbeitet die Datei nicht.</target>
+      </trans-unit>
+      <trans-unit id="Enc3C5E2D73" resname="encounter.data_prep.changelog.1_3_0.same_output">
+        <source>encounter.data_prep.changelog.1_3_0.same_output</source>
+        <target>Die Dateien für Notaufnahme-Besuche sind bis auf die Tool-Version in der ersten Zeile unverändert.</target>
       </trans-unit>
       <trans-unit id="Enc0D9168CB" resname="encounter.data_prep.changelog.1_2_0.catalog_from_server">
         <source>encounter.data_prep.changelog.1_2_0.catalog_from_server</source>
