@@ -12,6 +12,23 @@ cd <deploy_path>/current
 
 Commands that write data preview by default. Run them without `--apply` first, read the output, then apply. A command that finds nothing to do can be skipped.
 
+## v0.2.3-beta → v0.2.4-beta
+
+Security hotfix: EasyAdmin 5.10.2 for the advisories of 2026-11-17. No configuration changes, no migrations and no one-time commands. The admin backend has EasyAdmin's refreshed design from 5.9.
+
+### Before the deploy
+
+**Back up** the database and files ([backup-restore.md](backup-restore.md)).
+
+### Deploy
+
+Deploy as usual. The deploy installs the new EasyAdmin assets into `public/bundles`.
+
+### Check
+
+- `GET /health` reports `ok` and the footer shows `v0.2.4-beta`.
+- `/admin` and `/admin/user` open for an administrator.
+
 ## v0.2.2-beta → v0.2.3-beta
 
 Security hotfix for the admin feedback views. Deployer now keeps two releases instead of ten ([deployment.md](deployment.md#host-options)). No configuration changes, no migrations and no one-time commands.
