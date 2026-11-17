@@ -40,6 +40,30 @@ Definitions expose `icon()` for the hub catalog (same Tabler names as Explore), 
 
 `TopListCatalogCrossReference` maps catalogue dimensions to top-list keys and row destinations (Explore show pages for diagnoses, secondary diagnoses, departments, specialities, assignments, occasions, infections, and secondary transports, plus Insight dashboards for the same entity dimensions). Secondary diagnoses share the indication catalogue; the catalogue action opens `top_diagnoses`. There is no top list for indication groups, hospitals, states, dispatch areas, glossary terms, users, or cases.
 
+## Statistics pages
+
+**Not a registry:** a page of another context or a plugin that looks and behaves like a statistics page (#1300).
+
+**Implementations:** `EncounterAnalyticsController` of the ED visit plugin (`plugins/ed-visit/`); in the `test`
+environment `InpatientStayStatisticsController` of the test bundle
+
+**Page API** (the classes such a page may use; `PluginBoundaryTest::ALLOWED`, Deptrac layers
+`Statistics_PageApiApplication` and `Statistics_PageApiUi`):
+
+- the filter from the URL: `StatisticsFilter` through `#[ValueResolver(StatisticsFilterValueResolver::class)]`,
+  `StatisticsFilterScope`, `StatisticsQueryKeys` for the query parameters;
+- the period: `StatisticsPeriodResolver::resolve()` (half-open bounds), `TimeSeriesGrainResolver` and
+  `TimeSeriesAxisFiller` for the same time axis as every statistics time series;
+- the scope and period picker: `AnalysisContextViewModelFactory::create()` (passed as `statsAnalysisContext`;
+  `AnalysisContextScopeMode::AssignedHospital` with the page's own hospitals for one-hospital pages) and
+  `OverviewPeriodViewModelFactory` for the heading;
+- in the template: `@Statistics/_header_controls.html.twig` in the page header and the statistics sidebar
+  (`<twig:Navigation:Sidebar menu="statistics" />`).
+
+The sidebar entry comes from the page's own [navigation provider](#navigation-tree): encounter schema pages go
+into the group `Menu::STATISTICS_GROUP_CLINICAL`, which Statistics defines and drops while it has no visible entry.
+Texts stay in the page's own translation domain; the ED visit page still uses `statistics` until it gets its own.
+
 ## Statistics Insights
 
 **Tag:** `app.statistics.insight_dimension`
@@ -344,7 +368,8 @@ the migrations is all a deployment needs:
   the enums `AnchorSource`, `CaseStatus`, `EncounterGrantAction`, `EncounterInsertOutcome` and `Sex`,
   `EncounterAccessGrantRepositoryInterface`, `DepartmentCatalogInterface`, `EncountersImported`; the entities and
   enums of Allocation, Import and User, `UserRole`, `ImportCompleted`, `ImportDataRemoverInterface`; and the
-  extension points for navigation, tools, DataTable and audit (Shared), Explore and My Hospitals (Allocation).
+  extension points for navigation, tools, DataTable and audit (Shared), Explore and My Hospitals (Allocation),
+  `HospitalLookupInterface`, and the [Statistics page API](#statistics-pages).
   `PluginBoundaryTest::ALLOWED` is the exact list and fails CI; it also checks that `src/` names no plugin,
   apart from the files `NOT_YET_MOVED` lists while #1300 moves them. Deptrac reports the same rule (layers
   `Encounter_PluginApi`, `Encounter_Plugin`).
@@ -428,7 +453,8 @@ area; [ADR 035](decisions/035-navigation-tree-and-contextual-sidebar.md)) and th
 `help`, `legal`, `more` with sitemap and cookie settings), `AllocationNavigationProvider` (Explore, Export;
 the explore sidebar with its groups, glossary routes from `CatalogGlossaryEntryRegistry`),
 `UserNavigationProvider` (Users in the explore group `Menu::EXPLORE_GROUP_ORGANISATION`),
-`EncounterNavigationProvider` (ED visits in the explore group `Menu::EXPLORE_GROUP_CASES`, beta role, #1178),
+`EncounterNavigationProvider` of the ED visit plugin (ED visits in the explore group `Menu::EXPLORE_GROUP_CASES`,
+beta role, #1178; encounter analytics in the statistics group `Menu::STATISTICS_GROUP_CLINICAL`, #1300),
 `StatisticsNavigationProvider` (Statistics entry and the statistics sidebar with its groups; Insights
 dimensions from `InsightDimensionRegistry`), `ImportNavigationProvider` (Import), `ContentNavigationProvider`
 (Blog and CMS header pages; footer: CMS pages, blog, activity)

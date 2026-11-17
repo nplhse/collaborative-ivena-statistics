@@ -72,8 +72,15 @@ deptrac:
             name: Statistics_Application
             collectors:
                 -
-                    type: directory
-                    value: src/Statistics/Application/.*
+                    type: bool
+                    must:
+                        -
+                            type: directory
+                            value: src/Statistics/Application/.*
+                    must_not:
+                        -
+                            type: classNameRegex
+                            value: '#^App\\Statistics\\Application\\(DTO\\StatisticsFilter|DTO\\StatisticsFilterScope|StatisticsPeriodResolver|TimeSeries\\TimeSeriesAxisFiller|TimeSeries\\TimeSeriesGrainResolver)$#'
         -
             name: Statistics_Infrastructure
             collectors:
@@ -84,8 +91,29 @@ deptrac:
             name: Statistics_UI
             collectors:
                 -
-                    type: directory
-                    value: src/Statistics/UI/.*
+                    type: bool
+                    must:
+                        -
+                            type: directory
+                            value: src/Statistics/UI/.*
+                    must_not:
+                        -
+                            type: classNameRegex
+                            value: '#^App\\Statistics\\UI\\Http\\(Controller\\(AnalysisContextScopeMode|AnalysisContextViewModelFactory|OverviewPeriodViewModelFactory|StatisticsFilterValueResolver)|Navigation\\StatisticsQueryKeys)$#'
+        # Statistics page API (extension point "Statistics pages", #1300): what a plugin's statistics page may use,
+        # split by the folder its classes live in so that the Statistics layers keep their own rules.
+        -
+            name: Statistics_PageApiApplication
+            collectors:
+                -
+                    type: classNameRegex
+                    value: '#^App\\Statistics\\Application\\(DTO\\StatisticsFilter|DTO\\StatisticsFilterScope|StatisticsPeriodResolver|TimeSeries\\TimeSeriesAxisFiller|TimeSeries\\TimeSeriesGrainResolver)$#'
+        -
+            name: Statistics_PageApiUi
+            collectors:
+                -
+                    type: classNameRegex
+                    value: '#^App\\Statistics\\UI\\Http\\(Controller\\(AnalysisContextScopeMode|AnalysisContextViewModelFactory|OverviewPeriodViewModelFactory|StatisticsFilterValueResolver)|Navigation\\StatisticsQueryKeys)$#'
         -
             name: User_Domain
             collectors:
@@ -475,9 +503,11 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Statistics_PageApiUi
             - Storage_Application
             - Storage_Domain
             - Storage_Infrastructure
@@ -529,9 +559,11 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Statistics_PageApiUi
             - Storage_Application
             - Storage_Domain
             - Storage_Infrastructure
@@ -583,9 +615,11 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Statistics_PageApiUi
             - Storage_Application
             - Storage_Domain
             - Storage_Infrastructure
@@ -602,6 +636,7 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - User_Application
             - User_Domain
             - User_Infrastructure
@@ -626,6 +661,7 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - User_Application
             - User_Domain
             - User_Infrastructure
@@ -710,9 +746,11 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Statistics_PageApiUi
         # Encounter (ADR 025, 027) may use Allocation, Import, Shared and User, its infrastructure also Notification
         # (admin notification of a key change, ADR 026); no context may use Encounter. Every Encounter layer may use
         # Encounter_Contract, which itself depends on nothing of the application (ADR 037).
@@ -736,6 +774,8 @@ deptrac:
         Encounter_Plugin:
             - Encounter_Contract
             - Encounter_PluginApi
+            - Statistics_PageApiApplication
+            - Statistics_PageApiUi
             - Allocation_Domain
             - Allocation_Application
             - Import_Domain
@@ -810,9 +850,11 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Statistics_PageApiUi
         Engagement_Infrastructure:
             - Allocation_Application
             - Allocation_Domain
@@ -827,9 +869,11 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Statistics_PageApiUi
         Engagement_UI:
             - Allocation_Application
             - Allocation_Domain
@@ -842,9 +886,11 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Statistics_PageApiUi
         Feedback_Application:
             - Feedback_Domain
             - Shared_Application
@@ -899,6 +945,7 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
         Import_Domain:
             - Allocation_Application
             - Allocation_Domain
@@ -922,6 +969,7 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - User_Application
             - User_Domain
         Import_UI:
@@ -1175,6 +1223,7 @@ deptrac:
             - User_Domain
             - User_Infrastructure
             - User_UI
+            - Statistics_PageApiApplication
         Statistics_Domain:
             - Allocation_Application
             - Allocation_Domain
@@ -1202,7 +1251,49 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        # Same rules as the Statistics layer each part belongs to by folder.
+        Statistics_PageApiApplication:
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Analytics_Application
+            - Analytics_Domain
+            - Import_Application
+            - Import_Domain
+            - Import_Infrastructure
+            - Import_UI
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+            - Statistics_Domain
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Statistics_PageApiUi:
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Analytics_Application
+            - Analytics_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+            - Statistics_Domain
+            - Statistics_PageApiApplication
+            - Statistics_UI
             - User_Application
             - User_Domain
             - User_Infrastructure
@@ -1214,18 +1305,18 @@ deptrac:
             - Allocation_UI
             - Analytics_Application
             - Analytics_Domain
-            # Documented partnership (#1055): the encounter analytics page reads Encounter's overview contracts.
-            - Encounter_Application
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
             - User_Application
             - User_Domain
             - User_Infrastructure
             - User_UI
+            - Statistics_PageApiUi
         Storage_Application:
             - Notification_Application
             - Notification_Domain

@@ -53,7 +53,7 @@ final readonly class StatisticsNavigationProvider implements NavigationProviderI
             new NavGroup('allocations', $this->label('stats.nav.group.allocations'), 20),
             new NavGroup('comparisons', $this->label('stats.nav.group.comparisons'), 30),
             new NavGroup('capacity', $this->label('stats.nav.group.capacity'), 40),
-            new NavGroup('clinical', $this->label('stats.nav.group.clinical'), 50),
+            new NavGroup(Menu::STATISTICS_GROUP_CLINICAL, $this->label('stats.nav.group.clinical'), 50),
             new NavGroup('own', $this->label('stats.nav.group.own'), 60),
             new NavGroup('standalone', null, 70),
         ];
@@ -124,8 +124,7 @@ final readonly class StatisticsNavigationProvider implements NavigationProviderI
                 'app_stats_closure_profile_unit',
             ], weight: 50),
 
-            // Clinical data
-            new NavItem(id: 'encounter-analytics', parentId: 'clinical', label: $this->label('stats.nav.encounter'), route: 'app_stats_encounter_analytics', icon: 'tabler:stethoscope', badge: $beta, grantedAttribute: 'ROLE_ENCOUNTER_BETA'),
+            // Clinical data: entries come from encounter schema plugins (Menu::STATISTICS_GROUP_CLINICAL).
 
             // Own analyses
             $this->entry('analysis-explorer', 'own', 'link.stats.analysis_explorer', 'app_stats_analysis_library', 'tabler:chart-dots', 0, [

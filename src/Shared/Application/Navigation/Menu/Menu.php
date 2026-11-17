@@ -44,6 +44,12 @@ enum Menu: string
     public const string EXPLORE_GROUP_CASES = 'cases';
 
     /**
+     * Clinical data group of the statistics sidebar, which encounter schema plugins attach to (the encounter
+     * analytics of the ED visit plugin); Statistics drops it while it has no visible entry.
+     */
+    public const string STATISTICS_GROUP_CLINICAL = 'clinical';
+
+    /**
      * Query parameters a sidebar link carries over from the current page (ADR 035): the statistics scope and
      * period with the parameters they depend on. Comparison parameters and all other filters are never
      * carried; the target view validates the values and falls back to its own defaults.
