@@ -167,13 +167,18 @@
         return { header: header.map((name) => normalizeText(name)), rows };
     }
 
-    function detectProfile(header, profiles) {
+    /** Every profile whose required columns the header has; the order of the profiles never matters. */
+    function matchingProfiles(header, profiles) {
         const columns = new Set(header);
-        return (
-            profiles.find((profile) =>
-                profile.detect.requiredColumns.every((column) => columns.has(column)),
-            ) ?? null
+        return profiles.filter((profile) =>
+            profile.detect.requiredColumns.every((column) => columns.has(column)),
         );
+    }
+
+    /** The one matching profile, or null when none or several match (#1301: never the first of several). */
+    function detectProfile(header, profiles) {
+        const matches = matchingProfiles(header, profiles);
+        return matches.length === 1 ? matches[0] : null;
     }
 
     // ------------------------------------------------------------------ timestamps
@@ -1024,6 +1029,7 @@
         parseCsv,
         readTable,
         detectProfile,
+        matchingProfiles,
         parseSourceTimestamp,
         formatMinute,
         formatSecond,

@@ -38,9 +38,9 @@ final class DataPrepToolControllerTest extends WebTestCase
         self::assertSame([], $response->headers->getCookies(), 'The update check must not set cookies.');
         self::assertFalse($response->headers->has('Set-Cookie'));
         self::assertSame([
-            'version' => '1.2.0',
+            'version' => '1.3.0',
             'minVersion' => '1.0.0',
-            'releasedAt' => '2026-11-14',
+            'releasedAt' => '2026-11-17',
             'downloadUrl' => 'http://localhost/tools/data-prep/download',
         ], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
     }
@@ -109,7 +109,7 @@ final class DataPrepToolControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         $response = $client->getResponse();
-        self::assertSame('attachment; filename=encounter-data-prep-1.2.0.html', $response->headers->get('Content-Disposition'));
+        self::assertSame('attachment; filename=encounter-data-prep-1.3.0.html', $response->headers->get('Content-Disposition'));
         $html = (string) $response->getContent();
 
         self::assertStringContainsString(
@@ -119,13 +119,13 @@ final class DataPrepToolControllerTest extends WebTestCase
         self::assertStringContainsString('globalThis.EncounterDataPrep', $html, 'core script is inlined');
         self::assertStringContainsString("prep.registerSchema('ed_visit'", $html, 'the ed_visit schema module is inlined (#1301)');
         self::assertSame(1, preg_match('/<script type="application\/json" id="data-prep-config">(.*?)<\/script>/s', $html, $match));
-        /** @var array{schema: array{keys: mixed}} $config */
+        /** @var array{schemas: array<string, array{keys: mixed}>} $config */
         $config = json_decode($match[1], true, 512, \JSON_THROW_ON_ERROR);
-        self::assertSame(new EdVisitDimension()->keyRules(1)->toArray(), $config['schema']['keys'], 'the key rules come from the dimension (#1301)');
+        self::assertSame(new EdVisitDimension()->keyRules(1)->toArray(), $config['schemas']['ed_visit']['keys'], 'the key rules come from the dimension (#1301)');
         self::assertStringContainsString('"id":"orbis-mts"', $html, 'public profile is bundled');
         self::assertStringContainsString('"name":"visit_fingerprint"', $html, 'field contract is bundled');
         self::assertStringContainsString('"mts-de":{"format":"encounter-mts-catalog","version":1,"id":"mts-de"', $html, 'the bundled MTS catalog is the offline fallback (#1157)');
-        self::assertStringContainsString('"catalogUrl":"http://localhost/data-prep/mts-catalog.json"', $html);
+        self::assertStringContainsString('"catalogUrls":{"mts-de":"http://localhost/data-prep/mts-catalog.json"}', $html);
         self::assertStringContainsString('"catalogCounts":"diagrams: {diagrams}, indicators: {indicators}, aliases: {aliases}."', $html, 'placeholders are filled in by the tool');
         self::assertStringContainsString('id="map-save"', $html, 'the local map editor can save the map (#1130)');
         self::assertStringContainsString('"careLevel_icu":', $html, 'the editor labels care levels');
@@ -147,6 +147,6 @@ final class DataPrepToolControllerTest extends WebTestCase
         self::assertSelectorExists('#navbar-menu li.nav-item.active[data-testid="nav-tools"]');
         $link = $crawler->filter('[data-test="data-prep-download"][href="/tools/data-prep/download"]');
         self::assertCount(1, $link);
-        self::assertSame('encounter-data-prep-1.2.0.html', $link->attr('download'));
+        self::assertSame('encounter-data-prep-1.3.0.html', $link->attr('download'));
     }
 }

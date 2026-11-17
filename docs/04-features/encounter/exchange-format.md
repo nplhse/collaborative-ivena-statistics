@@ -114,6 +114,9 @@ visit_fingerprint = hex(HMAC-SHA256(key, input))
 case_key          = hex(HMAC-SHA256(key, "case:v1|" + case_number))
 ```
 
+- The rule lives in `EdVisitDimension::keyRules(1)` (#1301); the data preparation tool and the synthetic
+  data take it from there ([key rules](data-preparation-tool.md#key-rules)). The case key `case:v1` is
+  shared by all schemas, so records of one case of different schemas find the same encounter.
 - Rows without case number or without both timestamps are skipped and counted in the tool's report.
 - If the source has no seconds, `:00` is used.
 - Known limits: a visit whose first assessment contact is entered later (untriaged visits) changes

@@ -11,8 +11,9 @@ Source systems such as ORBIS are import profiles of the exchange format `ed_visi
 Since #1300 step 4 the bundle holds the ED visit code: schema, import, MTS catalog and curation, plausibility,
 matching with review, swap and validation, visit pages, the course in the case file, the admin pages of the
 catalog, the encounter analytics page under Statistics (Statistics page API) and the Stimulus controllers
-`encounter-match-review` and `encounter-overview-chart`, and the synthetic ED data (`src/DataFixtures`, fixture
-group `encounters`, `app:generate:encounter-files`). The ED parts of the data preparation tool follow; translations
+`encounter-match-review` and `encounter-overview-chart`, its part of the data preparation tool
+(`UI/DataPrep/EdVisitDataPrepContribution`, #1301; the files follow in step 4h), and the synthetic ED data (`src/DataFixtures`, fixture
+group `encounters`, `app:generate:encounter-files`). Translations
 still use the core domains `encounter` and `statistics`.
 
 ## Layout

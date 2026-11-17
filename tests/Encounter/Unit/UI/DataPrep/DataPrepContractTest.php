@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Encounter\Unit\UI\DataPrep;
 
+use App\Encounter\Contract\Schema\EncounterDimensionInterface;
 use App\Encounter\Contract\Schema\EncounterField;
+use App\Tests\Fixtures\Plugin\InpatientStay\InpatientStayDimension;
 use Cois\Plugin\EdVisit\Application\Catalog\MtsCatalog;
 use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
 use Cois\Plugin\EdVisit\Domain\Enum\CareLevel;
@@ -21,7 +23,17 @@ final class DataPrepContractTest extends TestCase
     private const string SOURCE = __DIR__.'/../../../../../src/Encounter/UI/DataPrep';
     private const string FIXTURES = __DIR__.'/../../../DataPrep/fixtures';
 
-    public function testToolSchemaMatchesTheEdVisitDimension(): void
+    /**
+     * @return iterable<string, array{string, EncounterDimensionInterface}>
+     */
+    public static function schemaFiles(): iterable
+    {
+        yield 'ed_visit' => [self::SOURCE.'/schema/ed_visit.v1.json', new EdVisitDimension()];
+        yield 'inpatient_stay (test bundle)' => [__DIR__.'/../../../../Fixtures/Plugin/InpatientStay/data-prep/inpatient_stay.v1.json', new InpatientStayDimension()];
+    }
+
+    #[DataProvider('schemaFiles')]
+    public function testToolSchemaMatchesItsDimension(string $file, EncounterDimensionInterface $dimension): void
     {
         $expected = array_map(static function (EncounterField $field): array {
             $entry = ['name' => $field->name, 'type' => $field->type->value];
@@ -39,13 +51,14 @@ final class DataPrepContractTest extends TestCase
             }
 
             return $entry;
-        }, new EdVisitDimension()->fields(1));
+        }, $dimension->fields(1));
 
-        $schema = $this->json(self::SOURCE.'/schema/ed_visit.v1.json');
+        $schema = $this->json($file);
 
-        self::assertSame(EdVisitDimension::SCHEMA, $schema['schema']);
+        self::assertSame($dimension->schema(), $schema['schema']);
         self::assertSame(1, $schema['version']);
-        self::assertEquals($expected, $schema['fields'], 'Regenerate schema/ed_visit.v1.json from EdVisitDimension.');
+        self::assertEquals($expected, $schema['fields'], 'Regenerate the schema file from its dimension.');
+        self::assertArrayNotHasKey('keys', $schema, 'Key rules come from the dimension (#1301).');
     }
 
     #[DataProvider('profiles')]

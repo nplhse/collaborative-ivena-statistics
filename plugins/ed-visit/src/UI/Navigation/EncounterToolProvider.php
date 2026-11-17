@@ -23,7 +23,6 @@ final readonly class EncounterToolProvider implements ToolProviderInterface
 {
     public const string REVIEW = 'encounter_review';
     public const string VALIDATION = 'encounter_validation';
-    public const string DATA_PREP = 'encounter_data_prep';
     public const string PLAUSIBILITY = 'encounter_plausibility';
 
     public const string ASSIGNMENTS = 'encounter_assignments';
@@ -70,16 +69,6 @@ final readonly class EncounterToolProvider implements ToolProviderInterface
                 route: 'app_tools_encounter_assignments',
                 icon: 'tabler:link-off',
                 category: ToolCategory::Matching,
-                beta: true,
-            ),
-            new Tool(
-                key: self::DATA_PREP,
-                titleKey: 'tools.encounter_data_prep.title',
-                descriptionKey: 'tools.encounter_data_prep.description',
-                translationDomain: 'encounter',
-                route: 'app_tools_data_prep',
-                icon: 'tabler:file-export',
-                category: ToolCategory::DataPreparation,
                 beta: true,
             ),
         ];
