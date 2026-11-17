@@ -72,9 +72,9 @@ final class PluginBoundaryTest extends TestCase
     private const array NOT_YET_MOVED = [
         '/src/Encounter/UI/DataPrep/DataPrepToolRenderer.php',
         '/src/Encounter/UI/Http/Controller/DataPrep/ShowDataPrepLocalMapController.php',
-        '/src/DataFixtures/Encounter/Application/EdVisitExport.php',
-        '/src/DataFixtures/Encounter/Application/SyntheticEncounterKey.php',
-        '/src/DataFixtures/Encounter/Infrastructure/SyntheticEncounterWriter.php',
+        '/plugins/ed-visit/src/DataFixtures/Application/EdVisitExport.php',
+        '/plugins/ed-visit/src/DataFixtures/Application/SyntheticEncounterKey.php',
+        '/plugins/ed-visit/src/DataFixtures/Infrastructure/SyntheticEncounterWriter.php',
         '/src/DataFixtures/Purger/MaterializedViewAwareOrmPurger.php',
         '/src/DataFixtures/Purger/MaterializedViewAwareOrmPurgerFactory.php',
     ];

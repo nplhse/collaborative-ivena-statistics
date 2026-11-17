@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Cois\Plugin\EdVisit\Tests\Unit\Application\Matching;
 
-use App\DataFixtures\Encounter\Application\AllocationSnapshot;
-use App\DataFixtures\Encounter\Application\SyntheticEncounterGenerator;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use App\Encounter\Domain\Enum\Sex;
 use Cois\Plugin\EdVisit\Application\Matching\MatchingAllocation;
 use Cois\Plugin\EdVisit\Application\Matching\MatchingEncounter;
 use Cois\Plugin\EdVisit\Application\Matching\MatchingSettings;
 use Cois\Plugin\EdVisit\Application\Matching\MatchPlanner;
+use Cois\Plugin\EdVisit\DataFixtures\Application\AllocationSnapshot;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticEncounterGenerator;
 use Cois\Plugin\EdVisit\Domain\Enum\ArrivalMode;
 use Cois\Plugin\EdVisit\Domain\Enum\ArrivalRoute;
 use Cois\Plugin\EdVisit\Domain\Enum\MatchStatus;

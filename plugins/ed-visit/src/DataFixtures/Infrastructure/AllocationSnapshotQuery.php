@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\DataFixtures\Encounter\Infrastructure;
+namespace Cois\Plugin\EdVisit\DataFixtures\Infrastructure;
 
-use App\DataFixtures\Encounter\Application\AllocationSnapshot;
+use Cois\Plugin\EdVisit\DataFixtures\Application\AllocationSnapshot;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
 

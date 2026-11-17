@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\DataFixtures\Encounter\Infrastructure;
+namespace Cois\Plugin\EdVisit\DataFixtures\Infrastructure;
 
 use App\Allocation\Domain\Entity\Hospital;
-use App\DataFixtures\Encounter\Application\EncounterShares;
-use App\DataFixtures\Encounter\Application\GeneratedEncounters;
-use App\DataFixtures\Encounter\Application\PersistedVisit;
-use App\DataFixtures\Encounter\Application\SyntheticEncounterGenerator;
 use App\User\Domain\Entity\User;
+use Cois\Plugin\EdVisit\DataFixtures\Application\EncounterShares;
+use Cois\Plugin\EdVisit\DataFixtures\Application\GeneratedEncounters;
+use Cois\Plugin\EdVisit\DataFixtures\Application\PersistedVisit;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticEncounterGenerator;
 
 /**
  * Generates the visits of one hospital and month from the allocations in the database (#1052):

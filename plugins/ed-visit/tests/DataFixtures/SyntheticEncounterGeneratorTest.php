@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\DataFixtures\Encounter;
+namespace Cois\Plugin\EdVisit\Tests\DataFixtures;
 
-use App\DataFixtures\Encounter\Application\AllocationSnapshot;
-use App\DataFixtures\Encounter\Application\EncounterShares;
-use App\DataFixtures\Encounter\Application\GeneratedEncounters;
-use App\DataFixtures\Encounter\Application\SyntheticEncounterGenerator;
-use App\DataFixtures\Encounter\Application\SyntheticVisit;
-use App\DataFixtures\Encounter\Application\SyntheticVisitKind;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use App\Tests\Support\Encounter\HandMadeAllocations;
+use Cois\Plugin\EdVisit\DataFixtures\Application\AllocationSnapshot;
+use Cois\Plugin\EdVisit\DataFixtures\Application\EncounterShares;
+use Cois\Plugin\EdVisit\DataFixtures\Application\GeneratedEncounters;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticEncounterGenerator;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticVisit;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticVisitKind;
 use PHPUnit\Framework\TestCase;
 
 /**

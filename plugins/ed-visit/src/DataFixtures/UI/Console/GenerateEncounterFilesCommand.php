@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\DataFixtures\Encounter\UI\Console;
+namespace Cois\Plugin\EdVisit\DataFixtures\UI\Console;
 
 use App\Allocation\Domain\Entity\Hospital;
-use App\DataFixtures\Encounter\Application\SyntheticEncounterExports;
-use App\DataFixtures\Encounter\Application\SyntheticEncounterKey;
-use App\DataFixtures\Encounter\Application\SyntheticEncounterTruth;
-use App\DataFixtures\Encounter\Infrastructure\SyntheticEncounterLoader;
 use App\DataFixtures\FixtureVolumeResolver;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticEncounterExports;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticEncounterKey;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticEncounterTruth;
+use Cois\Plugin\EdVisit\DataFixtures\Infrastructure\SyntheticEncounterLoader;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Console\Attribute\AsCommand;

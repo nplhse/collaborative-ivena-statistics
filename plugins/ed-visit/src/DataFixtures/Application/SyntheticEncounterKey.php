@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DataFixtures\Encounter\Application;
+namespace Cois\Plugin\EdVisit\DataFixtures\Application;
 
 use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
 

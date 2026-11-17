@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\DataFixtures\Encounter;
+namespace Cois\Plugin\EdVisit\Tests\DataFixtures;
 
-use App\DataFixtures\Encounter\Application\EdVisitExport;
-use App\DataFixtures\Encounter\Application\GeneratedEncounters;
-use App\DataFixtures\Encounter\Application\SyntheticEncounterExports;
-use App\DataFixtures\Encounter\Application\SyntheticEncounterKey;
-use App\DataFixtures\Encounter\Application\SyntheticEncounterTruth;
-use App\DataFixtures\Encounter\Application\SyntheticVisit;
-use App\DataFixtures\Encounter\Application\SyntheticVisitKind;
 use App\Encounter\Contract\Schema\EncounterField;
 use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
+use Cois\Plugin\EdVisit\DataFixtures\Application\EdVisitExport;
+use Cois\Plugin\EdVisit\DataFixtures\Application\GeneratedEncounters;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticEncounterExports;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticEncounterKey;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticEncounterTruth;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticVisit;
+use Cois\Plugin\EdVisit\DataFixtures\Application\SyntheticVisitKind;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class SyntheticEncounterFilesTest extends TestCase
 {
-    private const string VECTORS = __DIR__.'/../../Encounter/DataPrep/fixtures/fingerprint-vectors.json';
+    private const string VECTORS = __DIR__.'/../../../../tests/Encounter/DataPrep/fixtures/fingerprint-vectors.json';
 
     public function testKeyFollowsTheFingerprintRuleOfTheTool(): void
     {

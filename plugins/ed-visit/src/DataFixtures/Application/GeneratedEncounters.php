@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DataFixtures\Encounter\Application;
+namespace Cois\Plugin\EdVisit\DataFixtures\Application;
 
 /**
  * The visits generated for one hospital and month, ordered by matching anchor and case number, and
