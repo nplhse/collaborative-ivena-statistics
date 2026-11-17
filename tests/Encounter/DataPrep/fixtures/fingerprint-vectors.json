@@ -1,6 +1,20 @@
 {
     "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
     "keyCheck": "d38023a584daada902a2d80af9711bfba55dc414eac482a8a66ed454a7a2d119",
+    "schema": "ed_visit",
+    "schemaVersion": 1,
+    "keys": {
+        "fingerprint": {
+            "field": "visit_fingerprint",
+            "rule": "ed-visit:v1",
+            "parts": ["case_number", "anchor_source", "anchor"]
+        },
+        "caseKey": {
+            "field": "case_key",
+            "prefix": "case:v1",
+            "parts": ["case_number"]
+        }
+    },
     "vectors": [
         {
             "caseNumber": "00012345",

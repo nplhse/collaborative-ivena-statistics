@@ -9,6 +9,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 
 import '../../../src/Encounter/UI/DataPrep/js/data-prep-core.js';
+import '../../../src/Encounter/UI/DataPrep/js/schemas/ed-visit.js';
 
 const prep = globalThis.EncounterDataPrep;
 const base = new URL('../../../src/Encounter/UI/DataPrep/', import.meta.url);
@@ -16,7 +17,6 @@ const fixtures = new URL('./fixtures/', import.meta.url);
 const json = (url) => JSON.parse(readFileSync(url, 'utf8'));
 
 const profile = json(new URL('profiles/orbis-mts.json', base));
-const schema = json(new URL('schema/ed_visit.v1.json', base));
 const bundledCatalog = json(
     new URL('../../../plugins/ed-visit/src/Application/Catalog/mts-de.json', import.meta.url),
 );
@@ -35,6 +35,9 @@ const toolCatalog = (data, aliases = { diagrams: {}, indicators: {} }) =>
     });
 const catalogs = { 'mts-de': toolCatalog(bundledCatalog) };
 const vectors = json(new URL('fingerprint-vectors.json', fixtures));
+// The schema as the renderer passes it: the file plus the key rules of the dimension (#1301), which the vectors
+// carry (DataPrepContractTest pins them to EdVisitDimension::keyRules(1)).
+const schema = { ...json(new URL('schema/ed_visit.v1.json', base)), keys: vectors.keys };
 const output = new URL('orbis-mts-sample.ed_visit.csv', fixtures);
 
 // The released tool version (`app.encounter.data_prep.version`), as the tool writes it into the manifest.

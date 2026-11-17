@@ -7,6 +7,7 @@ namespace App\Tests\Fixtures\Plugin\InpatientStay;
 use App\Encounter\Contract\Schema\EncounterDimensionInterface;
 use App\Encounter\Contract\Schema\EncounterField;
 use App\Encounter\Contract\Schema\EncounterFieldType;
+use App\Encounter\Contract\Schema\EncounterKeyRules;
 use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatableInterface;
 
@@ -57,6 +58,18 @@ final readonly class InpatientStayDimension implements EncounterDimensionInterfa
         $this->assertVersion($version);
 
         return [self::FINGERPRINT_RULE];
+    }
+
+    /**
+     * Own fingerprint over case number and admission (the profile's only anchor); the case key is the shared
+     * `case:v1` rule, so a stay finds the encounter of an ED visit with the same case number.
+     */
+    #[\Override]
+    public function keyRules(int $version): EncounterKeyRules
+    {
+        $this->assertVersion($version);
+
+        return new EncounterKeyRules('stay_fingerprint', self::FINGERPRINT_RULE, [EncounterKeyRules::PART_CASE_NUMBER, EncounterKeyRules::PART_ANCHOR], 'case_key', 'case:v1');
     }
 
     /**

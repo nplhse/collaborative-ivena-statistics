@@ -308,6 +308,11 @@
 
     // ------------------------------------------------------------------ local map
 
+    /** Schema module of a profile (constants of the local map editor). */
+    function schemaOf(profile) {
+        return prep.schemaModule(profile.schema);
+    }
+
     function mapProfile() {
         return state.profile ?? config.profiles[0];
     }
@@ -451,7 +456,9 @@
             });
             input.addEventListener('input', () => {
                 const name = input.value;
-                input.dataset.invalid = String(name !== '' && !prep.isDepartmentName(name));
+                input.dataset.invalid = String(
+                    name !== '' && !schemaOf(mapProfile()).isDepartmentName(name),
+                );
             });
             return input;
         }
@@ -464,7 +471,9 @@
                 },
                 [
                     option('', '—'),
-                    ...prep.CARE_LEVELS.map((level) => option(level, t(`careLevel_${level}`))),
+                    ...schemaOf(mapProfile()).CARE_LEVELS.map((level) =>
+                        option(level, t(`careLevel_${level}`)),
+                    ),
                 ],
             );
         }
@@ -476,7 +485,9 @@
             },
             [
                 option('', '—'),
-                ...prep.DISPOSITIONS.map((code) => option(code, t(`disposition_${code}`))),
+                ...schemaOf(mapProfile()).DISPOSITIONS.map((code) =>
+                    option(code, t(`disposition_${code}`)),
+                ),
             ],
         );
         const careLevel = element(
@@ -487,11 +498,15 @@
             },
             [
                 option('', t('mapEditCareLevelNone')),
-                ...prep.CARE_LEVELS.map((level) => option(level, t(`careLevel_${level}`))),
+                ...schemaOf(mapProfile()).CARE_LEVELS.map((level) =>
+                    option(level, t(`careLevel_${level}`)),
+                ),
             ],
         );
         disposition.addEventListener('change', () => {
-            const allowed = prep.CARE_LEVEL_DISPOSITIONS.includes(disposition.value);
+            const allowed = schemaOf(mapProfile()).CARE_LEVEL_DISPOSITIONS.includes(
+                disposition.value,
+            );
             careLevel.disabled = !allowed;
             if (!allowed) {
                 careLevel.value = '';
@@ -630,7 +645,7 @@
             `${t('profileDetected')}: ${profile.label} v${profile.version} — ${state.table.rows.length} ${t('rows')}, ${encoding}`,
             'success',
         );
-        renderColumnPlan(prep.columnPlan(state.table.header, profile));
+        renderColumnPlan(prep.columnPlan(state.table.header, profile, config.schema));
         refresh();
     }
 

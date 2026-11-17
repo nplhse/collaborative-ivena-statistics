@@ -42,6 +42,12 @@ final class SyntheticEncounterFilesTest extends TestCase
         );
     }
 
+    public function testAnAnchorThatIsNoTimestampIsRefused(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        SyntheticEncounterKey::forHospital(740, 'a')->visitFingerprint('42', 'admission', '06.10.2026 23:59');
+    }
+
     public function testKeyIsFixedPerSeedAndHospitalAndReadableByTheTool(): void
     {
         $key = SyntheticEncounterKey::forHospital(740, 'a');

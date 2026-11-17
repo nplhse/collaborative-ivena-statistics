@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 
 import '../../../src/Encounter/UI/DataPrep/js/data-prep-core.js';
+import '../../../src/Encounter/UI/DataPrep/js/schemas/ed-visit.js';
 
 const prep = globalThis.EncounterDataPrep;
 const base = new URL('../../../src/Encounter/UI/DataPrep/', import.meta.url);
@@ -12,7 +13,6 @@ const fixtures = new URL('./fixtures/', import.meta.url);
 const json = (url) => JSON.parse(readFileSync(url, 'utf8'));
 
 const profile = json(new URL('profiles/orbis-mts.json', base));
-const schema = json(new URL('schema/ed_visit.v1.json', base));
 const bundledCatalog = json(
     new URL('../../../plugins/ed-visit/src/Application/Catalog/mts-de.json', import.meta.url),
 );
@@ -31,6 +31,9 @@ const toolCatalog = (data, aliases = { diagrams: {}, indicators: {} }) =>
     });
 const catalogs = { 'mts-de': toolCatalog(bundledCatalog) };
 const vectors = json(new URL('fingerprint-vectors.json', fixtures));
+// The schema as the renderer passes it: the file plus the key rules of the dimension (#1301), which the vectors
+// carry (DataPrepContractTest pins them to EdVisitDimension::keyRules(1)).
+const schema = { ...json(new URL('schema/ed_visit.v1.json', base)), keys: vectors.keys };
 const sampleBytes = readFileSync(new URL('orbis-mts-sample.csv', fixtures));
 const localMapJson = readFileSync(new URL('local-map.sample.json', fixtures), 'utf8');
 
@@ -113,7 +116,7 @@ describe('column preview', () => {
     it('keeps, transforms and drops columns by the allow-list', () => {
         const { text } = prep.decodeBytes(sampleBytes);
         const plan = new Map(
-            prep.columnPlan(prep.readTable(text).header, profile).map((c) => [c.column, c]),
+            prep.columnPlan(prep.readTable(text).header, profile, schema).map((c) => [c.column, c]),
         );
 
         for (const column of [
@@ -134,7 +137,7 @@ describe('column preview', () => {
         assert.equal(plan.get('BegruendungHerabtriagierung').reason, 'freeText');
         assert.deepEqual(plan.get('ZweiteinschaetzungDiagramm').targets, ['retriage_diagram']);
         const repeated = prep
-            .columnPlan(prep.readTable(text).header, profile)
+            .columnPlan(prep.readTable(text).header, profile, schema)
             .filter((c) => c.column === 'Zweiteinschätzung');
         assert.equal(repeated.length, 2, 'the repeated ORBIS header is listed per column');
         assert.ok(repeated.every((c) => c.status === 'dropped'));
@@ -424,11 +427,19 @@ describe('fingerprints', () => {
         for (const vector of vectors.vectors) {
             const caseNumber = prep.caseNumberOf(vector.caseNumber);
             const anchor = prep.parseSourceTimestamp(vector.anchor);
-            const input = prep.fingerprintInput(caseNumber, vector.anchorSource, anchor);
+            const values = { caseNumber, anchorSource: vector.anchorSource, anchor };
+            const input = prep.keyInput(
+                schema.keys.fingerprint.rule,
+                schema.keys.fingerprint.parts,
+                values,
+            );
             assert.equal(input, vector.input);
             assert.equal(await prep.hmacHex(key.cryptoKey, input), vector.visitFingerprint);
             assert.equal(
-                await prep.hmacHex(key.cryptoKey, `case:v1|${caseNumber}`),
+                await prep.hmacHex(
+                    key.cryptoKey,
+                    prep.keyInput(schema.keys.caseKey.prefix, schema.keys.caseKey.parts, values),
+                ),
                 vector.caseKey,
             );
         }
@@ -630,8 +641,8 @@ describe('local map editor', () => {
                 JSON.stringify(target),
             );
         }
-        assert.equal(prep.isDepartmentName('Innere Medizin'), true);
-        assert.equal(prep.isDepartmentName('Chirurgie, Allgemein'), false);
+        assert.equal(prep.schemaModule('ed_visit').isDepartmentName('Innere Medizin'), true);
+        assert.equal(prep.schemaModule('ed_visit').isDepartmentName('Chirurgie, Allgemein'), false);
         assert.throws(() => prep.setLocalMapEntry(base, 'other', 'X', 'Y'), /Unknown local map/);
     });
 
@@ -676,6 +687,53 @@ describe('content check', () => {
         for (const label of [...bundledCatalog.diagrams, ...bundledCatalog.indicators]) {
             assert.deepEqual(prep.contentFindings(label), [], label);
         }
+    });
+});
+
+describe('export boundary (#1301)', () => {
+    it('writes only the export fields of the schema version, never case number, birth date or unknown columns', async () => {
+        const identifying = ['Fall-ID', 'Fallnummer', 'Patientenname', 'Geburtsdatum'];
+        let sourceValues = [];
+        const result = await run({
+            edit(table) {
+                table.header.push('Unbekannte Spalte');
+                table.rows.forEach((row) => row.push('GEHEIM-4711'));
+                // The first visit has no age: the schema hook derives it from the birth date and keeps the date local.
+                setCell(table, 'Alter', 0, '');
+                sourceValues = table.rows.flatMap((row) =>
+                    identifying.map((column) => row[table.header.indexOf(column)]),
+                );
+            },
+        });
+        const file = prep.buildExchangeFile(result, {
+            profile,
+            schema,
+            toolVersion: '9.9.9',
+            keyCheck: vectors.keyCheck,
+        });
+
+        assert.deepEqual(result.header, prep.exportFields(schema));
+        assert.deepEqual(
+            result.header,
+            schema.fields.map((field) => field.name),
+        );
+        const cells = new Set(result.rows.flat());
+        for (const value of sourceValues.filter((value) => value !== '')) {
+            assert.equal(cells.has(value), false, `source value "${value}" reached the export`);
+        }
+        assert.equal(file.includes('GEHEIM-4711'), false);
+        assert.equal(file.includes('Unbekannte Spalte'), false);
+        assert.equal(file.includes('01.02.1950'), false);
+        assert.equal(file.includes('1950-02-01'), false);
+
+        // The derived fields stay: age from the birth date, fingerprint and case key.
+        const unchanged = await run();
+        assert.equal(result.report.ageFromBirthDate, unchanged.report.ageFromBirthDate + 1);
+        const first = byField(result, 0);
+        assert.equal(first.age, '76');
+        assert.match(first.visit_fingerprint, /^[0-9a-f]{64}$/);
+        assert.match(first.case_key, /^[0-9a-f]{64}$/);
+        assert.equal(first.sex, 'F');
     });
 });
 
