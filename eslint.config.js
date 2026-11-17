@@ -30,7 +30,7 @@ export default [
     },
     {
         // Offline data preparation tool (#1051): plain scripts inlined into one HTML file.
-        files: ['src/Encounter/UI/DataPrep/js/**/*.js'],
+        files: ['src/Encounter/UI/DataPrep/js/**/*.js', 'plugins/*/data-prep/js/**/*.js'],
         languageOptions: {
             ecmaVersion: 'latest',
             sourceType: 'script',

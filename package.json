@@ -6,10 +6,10 @@
         "node": ">=22.13.0"
     },
     "scripts": {
-        "lint": "eslint assets/ plugins/ed-visit/assets/ src/Encounter/UI/DataPrep/js/ tests/Encounter/DataPrep/ tests/Admin/JS/ tests/Shared/JavaScript/",
-        "lint:fix": "eslint assets/ plugins/ed-visit/assets/ src/Encounter/UI/DataPrep/js/ tests/Encounter/DataPrep/ tests/Admin/JS/ tests/Shared/JavaScript/ --fix",
-        "format": "prettier --write \"assets/**/*.js\" \"plugins/ed-visit/assets/**/*.js\" \"src/Encounter/UI/DataPrep/**/*.{js,json}\" \"plugins/ed-visit/src/Application/Catalog/*.json\" \"tests/Encounter/DataPrep/**/*.{js,json}\" \"tests/Admin/JS/**/*.js\" \"tests/Shared/JavaScript/**/*.js\"",
-        "format:check": "prettier --check \"assets/**/*.js\" \"plugins/ed-visit/assets/**/*.js\" \"src/Encounter/UI/DataPrep/**/*.{js,json}\" \"plugins/ed-visit/src/Application/Catalog/*.json\" \"tests/Encounter/DataPrep/**/*.{js,json}\" \"tests/Admin/JS/**/*.js\" \"tests/Shared/JavaScript/**/*.js\"",
+        "lint": "eslint assets/ plugins/ed-visit/assets/ plugins/ed-visit/data-prep/js/ src/Encounter/UI/DataPrep/js/ tests/Encounter/DataPrep/ tests/Admin/JS/ tests/Shared/JavaScript/",
+        "lint:fix": "eslint assets/ plugins/ed-visit/assets/ plugins/ed-visit/data-prep/js/ src/Encounter/UI/DataPrep/js/ tests/Encounter/DataPrep/ tests/Admin/JS/ tests/Shared/JavaScript/ --fix",
+        "format": "prettier --write \"assets/**/*.js\" \"plugins/ed-visit/assets/**/*.js\" \"src/Encounter/UI/DataPrep/**/*.{js,json}\" \"plugins/ed-visit/data-prep/**/*.{js,json}\" \"plugins/ed-visit/src/Application/Catalog/*.json\" \"tests/Encounter/DataPrep/**/*.{js,json}\" \"tests/Admin/JS/**/*.js\" \"tests/Shared/JavaScript/**/*.js\"",
+        "format:check": "prettier --check \"assets/**/*.js\" \"plugins/ed-visit/assets/**/*.js\" \"src/Encounter/UI/DataPrep/**/*.{js,json}\" \"plugins/ed-visit/data-prep/**/*.{js,json}\" \"plugins/ed-visit/src/Application/Catalog/*.json\" \"tests/Encounter/DataPrep/**/*.{js,json}\" \"tests/Admin/JS/**/*.js\" \"tests/Shared/JavaScript/**/*.js\"",
         "test:js": "node --test \"tests/Encounter/DataPrep/*.test.js\" \"tests/Admin/JS/*.test.js\" \"tests/Shared/JavaScript/*.test.js\"",
         "check:js": "npm run format:check && npm run lint && npm run test:js"
     },

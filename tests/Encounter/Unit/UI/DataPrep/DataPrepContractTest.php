@@ -20,7 +20,8 @@ use PHPUnit\Framework\TestCase;
  */
 final class DataPrepContractTest extends TestCase
 {
-    private const string SOURCE = __DIR__.'/../../../../../src/Encounter/UI/DataPrep';
+    /** The ed_visit contribution's files in the plugin (step 4h of #1300). */
+    private const string SOURCE = __DIR__.'/../../../../../plugins/ed-visit/data-prep';
     private const string FIXTURES = __DIR__.'/../../../DataPrep/fixtures';
 
     /**

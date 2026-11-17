@@ -11,27 +11,24 @@ use Cois\Plugin\EdVisit\Application\Catalog\MtsCatalog;
 use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
 use Cois\Plugin\EdVisit\Domain\Enum\CareLevel;
 use Cois\Plugin\EdVisit\Domain\Enum\Disposition;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * The `ed_visit` part of the data preparation tool (#1301): schema file, the ORBIS MTS profile, the schema module
  * (vitals, dispositions, care levels, departments, MTS catalog format), the bundled MTS catalog with its public
  * endpoint and the local map of departments, stations and dispositions.
  *
- * The files still live in the core until step 4h of #1300 moves them next to this class; until then their paths
- * are built from the project directory, which is what a deployed release has as well.
+ * The files live in the plugin's `data-prep/` folder (step 4h of #1300); their paths are built from the bundle
+ * directory, so they resolve wherever the package is installed.
  *
  * @psalm-suppress UnusedClass Tagged via DataPrepContributionInterface.
  */
 final readonly class EdVisitDataPrepContribution implements DataPrepContributionInterface
 {
-    private const string ASSETS = '/src/Encounter/UI/DataPrep';
+    private const string ASSETS = '/data-prep';
 
     /** @psalm-suppress PossiblyUnusedMethod Autowired. */
     public function __construct(
         private MtsCatalog $mtsCatalog,
-        #[Autowire(param: 'kernel.project_dir')]
-        private string $projectDir,
     ) {
     }
 
@@ -56,7 +53,7 @@ final readonly class EdVisitDataPrepContribution implements DataPrepContribution
     #[\Override]
     public function scriptFile(): string
     {
-        return $this->asset('/js/schemas/ed-visit.js');
+        return $this->asset('/js/ed-visit.js');
     }
 
     #[\Override]
@@ -81,6 +78,6 @@ final readonly class EdVisitDataPrepContribution implements DataPrepContribution
 
     private function asset(string $path): string
     {
-        return $this->projectDir.self::ASSETS.$path;
+        return \dirname(__DIR__, 3).self::ASSETS.$path;
     }
 }
