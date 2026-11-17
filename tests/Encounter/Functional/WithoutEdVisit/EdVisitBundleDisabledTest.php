@@ -141,6 +141,25 @@ final class EdVisitBundleDisabledTest extends WebTestCase
         self::assertCount(0, $crawler->filter('a[href="/tools/encounter-review"]'));
     }
 
+    public function testTheCoreEntriesOnExploreAndToolsStay(): void
+    {
+        $this->client->loginUser($this->reviewer);
+
+        // The tile of the remaining schema, forwarded by the core; no ED visit tile.
+        $crawler = $this->client->request(Request::METHOD_GET, '/explore');
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('[data-testid="explore-tile-inpatient-stays"] a[href="/explore/inpatient-stays"]'));
+        self::assertCount(0, $crawler->filter('[data-testid="explore-tile-ed-visits"]'));
+
+        // The core tools; none of the plugin.
+        $crawler = $this->client->request(Request::METHOD_GET, '/tools');
+        self::assertResponseIsSuccessful();
+        $keys = $crawler->filter('[data-testid="tools-card"]')->each(static fn (Crawler $card): string => (string) $card->attr('data-tool-key'));
+        self::assertContains('encounter_assignments', $keys);
+        self::assertContains('encounter_data_prep', $keys);
+        self::assertSame([], array_values(array_intersect($keys, ['encounter_review', 'encounter_validation', 'encounter_plausibility'])));
+    }
+
     public function testGrantAndKeyPagesWork(): void
     {
         $owner = $this->user();

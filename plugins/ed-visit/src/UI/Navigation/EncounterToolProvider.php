@@ -11,10 +11,10 @@ use Cois\Plugin\EdVisit\UI\Http\Controller\Review\ListReviewHospitalsController;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
- * Lists the encounter match review, the match validation and the data preparation tool in the Tools
- * section (ADR 031). All three belong to the encounter pilot and need ROLE_ENCOUNTER_BETA, like their
- * controllers; the per-hospital REVIEW grant is checked on the pages (the hospital list shows only the
- * hospitals the user may review), so the navigation needs no database query. The plausibility table of the
+ * Lists the encounter match review and the match validation in the Tools section (ADR 031); the assignment
+ * conflicts and the data preparation tool come from the core. Both belong to the encounter pilot and need
+ * ROLE_ENCOUNTER_BETA, like their controllers; the per-hospital REVIEW grant is checked on the pages (the hospital
+ * list shows only the hospitals the user may review), so the navigation needs no database query. The plausibility table of the
  * matcher (ADR 033) is listed only for ROLE_ENCOUNTER_CATALOG_REVIEWER as well.
  *
  * @psalm-suppress UnusedClass Tagged via ToolProviderInterface.
@@ -24,8 +24,6 @@ final readonly class EncounterToolProvider implements ToolProviderInterface
     public const string REVIEW = 'encounter_review';
     public const string VALIDATION = 'encounter_validation';
     public const string PLAUSIBILITY = 'encounter_plausibility';
-
-    public const string ASSIGNMENTS = 'encounter_assignments';
 
     public function __construct(
         private AuthorizationCheckerInterface $authorizationChecker,
@@ -60,16 +58,6 @@ final readonly class EncounterToolProvider implements ToolProviderInterface
                 category: ToolCategory::Matching,
                 beta: true,
                 routeParameters: ['mode' => ListReviewHospitalsController::MODE_VALIDATION],
-            ),
-            new Tool(
-                key: self::ASSIGNMENTS,
-                titleKey: 'tools.encounter_assignments.title',
-                descriptionKey: 'tools.encounter_assignments.description',
-                translationDomain: 'encounter',
-                route: 'app_tools_encounter_assignments',
-                icon: 'tabler:link-off',
-                category: ToolCategory::Matching,
-                beta: true,
             ),
         ];
 
