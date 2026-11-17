@@ -304,7 +304,6 @@ deptrac:
       - App\User\Domain\Entity\User
     App\Import\UI\Http\Controller\NewImportController:
       - App\User\Domain\Entity\User
-      - App\User\Domain\Security\UserRole
     App\Import\UI\Http\Controller\ProcessingImportController:
       - App\Import\Infrastructure\Security\Voter\ImportVoter
     App\Import\UI\Http\Controller\ReprocessImportController:

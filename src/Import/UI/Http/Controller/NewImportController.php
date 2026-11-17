@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Import\UI\Http\Controller;
 
-use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Allocation\Domain\Entity\Hospital;
-use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Import\Application\Contracts\ImportTypeExtensionInterface;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Message\ImportClosuresMessage;
@@ -17,16 +15,17 @@ use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Application\Service\ImportStartDispatcher;
 use App\Import\Application\Service\ImportTypeExtensionRegistry;
 use App\Import\Application\Service\ImportUploadGuard;
+use App\Import\Application\Service\ImportUploadTargets;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportRun;
 use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
+use App\Import\Infrastructure\Security\Voter\ImportCreateVoter;
 use App\Import\UI\Form\ImportCreateType;
 use App\Shared\Application\RateLimit\ClientRateLimit;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
-use App\User\Domain\Security\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -55,7 +54,7 @@ final class NewImportController extends AbstractController
         private readonly ImportUploadGuard $importUploadGuard,
         private readonly TranslatorInterface $translator,
         private readonly AuditContext $auditContext,
-        private readonly HospitalPermissionAccess $hospitalPermissionAccess,
+        private readonly ImportUploadTargets $uploadTargets,
         private readonly ImportRunLifecycle $runLifecycle,
         private readonly DevelopmentHospitalOverride $hospitalOverride,
         private readonly ImportTypeExtensionRegistry $typeExtensions,
@@ -68,17 +67,32 @@ final class NewImportController extends AbstractController
         #[Autowire(service: 'limiter.import_create')]
         RateLimiterFactory $importCreateLimiter,
     ): Response {
-        $currentUser = $this->getUser();
-        $extensions = $currentUser instanceof User ? $this->typeExtensions->availableTo($currentUser) : [];
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
+
+        // Without any hospital to upload to, the form could not be submitted (#1351).
+        if (!$this->isGranted(ImportCreateVoter::CREATE)) {
+            $this->addFlash('info', new TranslatableMessage('flash.import.no_upload_permission', domain: 'import'));
+
+            return $this->redirectToRoute('app_import_index');
+        }
+
+        $uploadTargets = $this->uploadTargets->hospitalIdsByType($user);
+        $extensions = array_values(array_filter(
+            $this->typeExtensions->availableTo($user),
+            static fn (ImportTypeExtensionInterface $extension): bool => \array_key_exists($extension::importType()->value, $uploadTargets),
+        ));
         $form = $this->createForm(ImportCreateType::class, null, [
-            'include_closure_type' => $this->isGranted(UserRole::CLOSURE_BETA),
+            'upload_targets' => $uploadTargets,
             'type_extensions' => $extensions,
         ]);
         $form->handleRequest($request);
 
         // Remember-Me sessions are enough to start an import; do not re-add
-        // IS_AUTHENTICATED_FULLY here (see #568). ROLE_PARTICIPANT and
-        // HospitalPermission::Import remain the authorization boundary.
+        // IS_AUTHENTICATED_FULLY here (see #568). ROLE_PARTICIPANT and the per-hospital
+        // upload rights (ImportUploadTargets) remain the authorization boundary.
 
         if ($form->isSubmitted()) {
             $this->rejectUnsupportedImportFile($form);
@@ -90,20 +104,21 @@ final class NewImportController extends AbstractController
 
         /** @var Hospital $hospital */
         $hospital = $form->get('hospital')->getData();
-        $user = $this->getUser();
         $hospitalId = $hospital->getId();
         $importType = $this->resolveImportType($form);
         $extension = $this->typeExtensions->for($importType);
-        if (!$user instanceof User || null === $hospitalId) {
+        if (null === $hospitalId) {
             throw $this->createAccessDeniedException();
         }
 
-        if ($extension instanceof ImportTypeExtensionInterface) {
-            // Types of other contexts decide access themselves (`import.type_extension`).
-            if (!$extension->isAvailableTo($user) || !\in_array($hospitalId, $extension->uploadHospitalIds($user), true)) {
-                throw $this->createAccessDeniedException();
-            }
+        // Hospital and type are each valid choices, but the user may not upload this type there.
+        if (!$this->uploadTargets->canUpload($user, $importType, $hospitalId)) {
+            $form->get('hospital')->addError(new FormError($this->translator->trans('validation.import.hospital_type_not_allowed', [], 'validators')));
 
+            return $this->renderUploadForm($form, $extensions);
+        }
+
+        if ($extension instanceof ImportTypeExtensionInterface) {
             $errors = $extension->validateUpload($form, $hospital, $user);
             foreach ($errors as $field => $message) {
                 $form->get($form->has($field) ? $field : 'file')->addError(new FormError($message));
@@ -112,8 +127,6 @@ final class NewImportController extends AbstractController
             if ([] !== $errors) {
                 return $this->renderUploadForm($form, $extensions);
             }
-        } elseif (!$this->hospitalPermissionAccess->hasPermission($user, $hospitalId, HospitalPermission::Import)) {
-            throw $this->createAccessDeniedException();
         }
 
         $userId = $user->getId();
@@ -125,10 +138,6 @@ final class NewImportController extends AbstractController
             $this->addFlash('warning', new TranslatableMessage('flash.import.rate_limited', domain: 'import'));
 
             return $this->redirectToRoute('app_import_new');
-        }
-
-        if (ImportType::CLOSURE === $importType && !$this->isGranted(UserRole::CLOSURE_BETA)) {
-            throw $this->createAccessDeniedException();
         }
 
         /** @var Hospital $managedHospital */

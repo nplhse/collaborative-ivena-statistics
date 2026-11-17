@@ -269,8 +269,8 @@ case of `ImportType`; the processing context owns message, handler, pages and ac
 
 **Interface:** `ImportTypeExtensionInterface` (`src/Import/Application/Contracts/`)
 
-**Registry:** `ImportTypeExtensionRegistry`; consumers `ImportCreateType` / `NewImportController` (upload form),
-`ImportVoter`, `ListImportsQuery` and `ImportDetailViewFactory` (`detail.typeSection` on the detail page)
+**Registry:** `ImportTypeExtensionRegistry`; consumers `ImportUploadTargets` (who may upload which type where, #1351),
+`ImportCreateType` / `NewImportController` (upload form), `ImportVoter`, `ListImportsQuery` and `ImportDetailViewFactory` (`detail.typeSection` on the detail page)
 
 **Implementations:** `EncounterImportTypeExtension` (`ImportType::ENCOUNTER`, #1048)
 

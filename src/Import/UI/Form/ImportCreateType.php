@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Import\UI\Form;
 
 use App\Allocation\Domain\Entity\Hospital;
-use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Import\Application\Contracts\ImportTypeExtensionInterface;
 use App\Import\Application\Service\DevelopmentHospitalOverride;
@@ -52,6 +51,11 @@ final class ImportCreateType extends AbstractType
             throw new AccessDeniedException('You must be logged in to create imports.');
         }
 
+        /** @var array<string, list<int>> $uploadTargets */
+        $uploadTargets = $options['upload_targets'];
+        /** @var list<ImportTypeExtensionInterface> $extensions */
+        $extensions = $options['type_extensions'];
+
         $builder
             ->add('name', TextType::class, [
                 'required' => true,
@@ -61,28 +65,24 @@ final class ImportCreateType extends AbstractType
                 'class' => Hospital::class,
                 'choice_label' => 'name',
                 'placeholder' => 'label.import.selectHospital',
-                'query_builder' => fn (): QueryBuilder => $this->hospitalQueryBuilder($user, $options['type_extensions']),
+                'query_builder' => fn (): QueryBuilder => $this->hospitalQueryBuilder($uploadTargets),
+                // The types allowed per hospital; the `import-type-fields` controller offers only those (#1351).
+                'choice_attr' => static fn (Hospital $hospital): array => [
+                    'data-import-types' => json_encode(self::typesForHospital($uploadTargets, (int) $hospital->getId()), \JSON_THROW_ON_ERROR),
+                ],
                 'constraints' => [new Assert\NotNull()],
             ]);
 
-        /** @var list<ImportTypeExtensionInterface> $extensions */
-        $extensions = $options['type_extensions'];
-        $choices = ['label.import.type.allocation' => ImportType::ALLOCATION];
-        if (true === ($options['include_closure_type'] ?? false)) {
-            $choices['label.import.type.closure'] = ImportType::CLOSURE;
-        }
-
-        foreach ($extensions as $extension) {
-            $choices[$extension->label()] = $extension::importType();
-        }
-
-        if (\count($choices) > 1) {
+        $choices = $this->typeChoices($uploadTargets, $extensions);
+        // Without a type field the import is an allocation import, so a single other type still needs it.
+        if (\count($choices) > 1 || (1 === \count($choices) && !\in_array(ImportType::ALLOCATION, $choices, true))) {
             $builder->add('type', ChoiceType::class, [
                 'mapped' => false,
                 'required' => true,
                 'label' => 'label.import.type',
-                'data' => ImportType::ALLOCATION,
+                'data' => array_values($choices)[0],
                 'choices' => $choices,
+                'choice_attr' => static fn (ImportType $type): array => ['data-import-type' => $type->value],
                 'help' => 'label.import.type.help',
                 'constraints' => [new Assert\NotNull()],
             ]);
@@ -130,40 +130,63 @@ final class ImportCreateType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Import::class,
             'translation_domain' => 'import',
-            'include_closure_type' => false,
+            'upload_targets' => [],
             'type_extensions' => [],
         ]);
-        $resolver->setAllowedTypes('include_closure_type', 'bool');
+        $resolver->setAllowedTypes('upload_targets', 'array');
         $resolver->setAllowedTypes('type_extensions', 'array');
     }
 
     /**
-     * Hospitals with the import permission, plus those where the user may upload a type of another
-     * context (for example the encounter grant UPLOAD, ADR 028).
+     * Every hospital the user may upload at least one type to ({@see \App\Import\Application\Service\ImportUploadTargets}).
      *
-     * @param list<ImportTypeExtensionInterface> $extensions
+     * @param array<string, list<int>> $uploadTargets
      */
-    private function hospitalQueryBuilder(User $user, array $extensions): QueryBuilder
+    private function hospitalQueryBuilder(array $uploadTargets): QueryBuilder
     {
-        $queryBuilder = $this->hospitalRepository->getQueryBuilderForHospitalsWithPermission($user, HospitalPermission::Import);
-        $extensionHospitalIds = [];
+        $hospitalIds = array_values(array_unique(array_merge(...array_values($uploadTargets))));
+        $queryBuilder = $this->hospitalRepository->createQueryBuilder('h')->orderBy('h.name', 'ASC');
+
+        return [] === $hospitalIds
+            ? $queryBuilder->where('1 = 0')
+            : $queryBuilder->where('h.id IN (:hospitalIds)')->setParameter('hospitalIds', $hospitalIds);
+    }
+
+    /**
+     * Types the user may upload somewhere, labelled, in the order allocation, closure, other contexts.
+     *
+     * @param array<string, list<int>>           $uploadTargets
+     * @param list<ImportTypeExtensionInterface> $extensions
+     *
+     * @return array<string, ImportType>
+     */
+    private function typeChoices(array $uploadTargets, array $extensions): array
+    {
+        $labels = [
+            ImportType::ALLOCATION->value => 'label.import.type.allocation',
+            ImportType::CLOSURE->value => 'label.import.type.closure',
+        ];
         foreach ($extensions as $extension) {
-            $extensionHospitalIds = [...$extensionHospitalIds, ...$extension->uploadHospitalIds($user)];
+            $labels[$extension::importType()->value] = $extension->label();
         }
 
-        if ([] === $extensionHospitalIds) {
-            return $queryBuilder;
+        $choices = [];
+        foreach (array_keys($uploadTargets) as $typeValue) {
+            if (isset($labels[$typeValue])) {
+                $choices[$labels[$typeValue]] = ImportType::from($typeValue);
+            }
         }
 
-        /** @var list<int> $importHospitalIds */
-        $importHospitalIds = array_map(
-            static fn (Hospital $hospital): int => (int) $hospital->getId(),
-            $queryBuilder->getQuery()->getResult(),
-        );
+        return $choices;
+    }
 
-        return $this->hospitalRepository->createQueryBuilder('h')
-            ->where('h.id IN (:hospitalIds)')
-            ->setParameter('hospitalIds', array_values(array_unique([...$importHospitalIds, ...$extensionHospitalIds])))
-            ->orderBy('h.name', 'ASC');
+    /**
+     * @param array<string, list<int>> $uploadTargets
+     *
+     * @return list<string>
+     */
+    private static function typesForHospital(array $uploadTargets, int $hospitalId): array
+    {
+        return array_keys(array_filter($uploadTargets, static fn (array $hospitalIds): bool => \in_array($hospitalId, $hospitalIds, true)));
     }
 }

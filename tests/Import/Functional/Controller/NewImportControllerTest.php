@@ -127,6 +127,52 @@ final class NewImportControllerTest extends WebTestCase
             ->assertSeeElement('input[type="file"][name="import_create[file]"]');
     }
 
+    public function testParticipantWithoutUploadRightIsRedirectedToTheImportList(): void
+    {
+        $this->createOwnerWithHospital();
+        $participant = UserFactory::new()->withoutAutorefresh()->create([
+            'username' => 'no-upload-user',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
+
+        $this->browser()
+            ->actingAs($participant)
+            ->interceptRedirects()
+            ->visit('/import/new')
+            ->assertRedirectedTo('/import')
+            ->assertSeeIn('.messages', 'You cannot start an import yet');
+    }
+
+    public function testOwnerWithoutClosureBetaIsOfferedOnlyAllocationImports(): void
+    {
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+
+        $this->browser()
+            ->actingAs($owner)
+            ->visit('/import/new')
+            ->assertSuccessful()
+            ->assertNotSeeElement('select[name="import_create[type]"]')
+            ->assertSeeElement(\sprintf('select[name="import_create[hospital]"] option[value="%d"][data-import-types=\'["Allocation"]\']', $hospitalId));
+    }
+
+    public function testClosureBetaOwnerIsOfferedBothTypesForTheHospital(): void
+    {
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $owner->setRoles(['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA']);
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->persist($owner);
+        $em->flush();
+
+        $this->browser()
+            ->actingAs($owner)
+            ->visit('/import/new')
+            ->assertSuccessful()
+            ->assertSeeElement('select[name="import_create[type]"] option[data-import-type="Allocation"]')
+            ->assertSeeElement('select[name="import_create[type]"] option[data-import-type="Closure"]')
+            ->assertSeeElement(\sprintf('select[name="import_create[hospital]"] option[value="%d"][data-import-types=\'["Allocation","Closure"]\']', $hospitalId));
+    }
+
     public function testSubmitWithCsvRedirectsToProcessingAndPersists(): void
     {
         [$owner, $hospitalId] = $this->createOwnerWithHospital();
