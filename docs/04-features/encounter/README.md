@@ -1123,7 +1123,8 @@ Implemented in #1178. All ED visits of one hospital in a period, with or without
 under "Cases" ("ED visits", beta badge; `EncounterNavigationProvider` shows it to the beta role, the pages check
 the grants). The Explore start page shows a tile in its "Cases" group for the beta role as well, contributed through
 the [Explore overview extension point](../../02-architecture/extension-points.md#explore-overview-tiles)
-(`EncounterExploreEntryProvider`, #1274); the tiles of further encounter schemas follow it.
+(`EncounterExploreEntryProvider`, #1274); the tiles of further encounter schemas follow it, forwarded by the core
+(`SchemaExploreEntryForwarder`, so they stay without the plugin).
 
 - `/explore/ed-visits` (`ListVisitHospitalsController`) lists the hospitals whose visits the user may see
   (`VisitListHospitals`: grant action `VIEW_CASES`, also set by `REVIEW`; every hospital with visits for
@@ -1250,7 +1251,9 @@ imports that file and expects no file or row rejects.
 ## Tools section
 
 Since #1128 the interactive encounter workflows are tools ([ADR 031](../../02-architecture/decisions/031-tools-section-and-tool-registry.md)),
-listed by `EncounterToolProvider` for `ROLE_ENCOUNTER_BETA` with a beta badge:
+listed for `ROLE_ENCOUNTER_BETA` with a beta badge: match review, validation and plausibility table by
+`EncounterToolProvider` of the ED visit plugin, the data preparation tool and the assignment conflicts by the core
+(`DataPrepToolProvider`, `AssignmentConflictToolProvider`, so they stay without the plugin):
 
 | Tool | Route | Path |
 |---|---|---|

@@ -192,8 +192,8 @@ the explore sidebar. Rules for such pages:
 `@Allocation/explore.html.twig`, which renders the tiles of a group after its fixed ones
 (`_explore_contributed_tiles.html.twig`)
 
-**Implementations:** `EncounterExploreEntryProvider` (ED visit list, #1178, and the tiles of encounter schemas,
-ADR 037, #1274)
+**Implementations:** `EncounterExploreEntryProvider` of the ED visit plugin (ED visit list, #1178) and
+`SchemaExploreEntryForwarder` of Encounter (the tiles of encounter schemas, ADR 037, #1274)
 
 Lets other contexts add a tile (title, description, Tabler icon, route, beta badge) to the groups `cases`,
 `organisation`, `structure` or `features` of the Explore overview without a dependency from `Allocation` on them.
@@ -375,8 +375,9 @@ page shows the encounters' anchor without a link; they can still be assigned.
 
 **Interface:** `ExploreEntryProviderInterface` (`src/Encounter/Contract/Display/`)
 
-**Consumer:** `EncounterExploreEntryProvider`, which forwards the tiles to the
-[Explore overview](#explore-overview-tiles) in the group `cases`, after the ED visit list
+**Consumer:** `SchemaExploreEntryForwarder` (`src/Encounter/UI/Navigation/`), which forwards the tiles to the
+[Explore overview](#explore-overview-tiles) in the group `cases`, after the ED visit list; it is part of the core,
+so the tiles stay without the ED visit plugin (#1300)
 
 **Implementations:** in the `test` environment `InpatientStayExploreEntries` of the test bundle
 
@@ -473,7 +474,9 @@ was removed) is rejected as `schema_unsupported`. Plugins only use the types und
 the main navigation entry (`SharedNavigationProvider`) and the Tools section of the sitemap
 
 **Implementations:** `IndicationReviewToolProvider` (Allocation, indication matching review),
-`EncounterToolProvider` (Encounter: match review, match validation, data preparation tool; beta)
+`EncounterToolProvider` (ED visit plugin: match review, match validation, plausibility table; beta),
+`AssignmentConflictToolProvider` and `DataPrepToolProvider` (Encounter: assignment conflicts, data preparation tool;
+beta)
 
 Lets a context add an interactive workflow (review, validation, data preparation) to the Tools section
 without a dependency from `Shared` on it ([ADR 031](decisions/031-tools-section-and-tool-registry.md)).
