@@ -8,6 +8,7 @@ use App\Tests\Support\Encounter\EncounterTestFixtures;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use Cois\Plugin\EdVisit\Application\Catalog\MtsCatalogCuration;
 use Cois\Plugin\EdVisit\Application\Catalog\MtsCatalogFirstSeenWriter;
+use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
 use Cois\Plugin\EdVisit\Domain\Entity\MtsAlias;
 use Cois\Plugin\EdVisit\Domain\Entity\MtsDiagram;
 use Cois\Plugin\EdVisit\Domain\Enum\MtsCatalogKind;
@@ -116,6 +117,11 @@ final class DataPrepToolControllerTest extends WebTestCase
             str_replace('&#039;', "'", $html),
         );
         self::assertStringContainsString('globalThis.EncounterDataPrep', $html, 'core script is inlined');
+        self::assertStringContainsString("prep.registerSchema('ed_visit'", $html, 'the ed_visit schema module is inlined (#1301)');
+        self::assertSame(1, preg_match('/<script type="application\/json" id="data-prep-config">(.*?)<\/script>/s', $html, $match));
+        /** @var array{schema: array{keys: mixed}} $config */
+        $config = json_decode($match[1], true, 512, \JSON_THROW_ON_ERROR);
+        self::assertSame(new EdVisitDimension()->keyRules(1)->toArray(), $config['schema']['keys'], 'the key rules come from the dimension (#1301)');
         self::assertStringContainsString('"id":"orbis-mts"', $html, 'public profile is bundled');
         self::assertStringContainsString('"name":"visit_fingerprint"', $html, 'field contract is bundled');
         self::assertStringContainsString('"mts-de":{"format":"encounter-mts-catalog","version":1,"id":"mts-de"', $html, 'the bundled MTS catalog is the offline fallback (#1157)');
