@@ -18,7 +18,8 @@ use Twig\Environment;
  */
 final readonly class DataPrepToolRenderer
 {
-    private const array SCRIPTS = ['js/data-prep-core.js', 'js/data-prep-app.js'];
+    /** Core, the schema modules, then the app (#1301). */
+    private const array SCRIPTS = ['js/data-prep-core.js', 'js/schemas/ed-visit.js', 'js/data-prep-app.js'];
     private const array PROFILES = ['profiles/orbis-mts.json'];
     private const string SCHEMA = 'schema/ed_visit.v1.json';
 
