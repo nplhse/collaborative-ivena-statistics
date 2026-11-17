@@ -17,7 +17,7 @@ Existing installations: no extra steps, see the [upgrade guide](docs/05-operatio
 
 ### Dependencies
 
-- **deps:** Update EasyAdmin to 5.10.2 for the security advisories of 2026-11-17 (#1377)
+- **deps:** Update EasyAdmin to 5.10.2 for the security advisories of 2026-11-17 (#1377) ([#1384](https://github.com/nplhse/collaborative-ivena-statistics/pull/1384))
 
 ## [0.2.3-beta] - 2026-11-13
 
