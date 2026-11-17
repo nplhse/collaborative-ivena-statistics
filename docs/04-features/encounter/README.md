@@ -25,8 +25,8 @@ plugins; review in [encounter-schema-plugins-review.md](encounter-schema-plugins
 **Where the code lives (#1300):** the core of the treatment case (encounter, keys, grants, import shell,
 assignments and conflicts, cleanup, data preparation tool) is in `src/Encounter`; the ED visit schema with MTS
 (import, catalog and curation, plausibility, matching, review and validation, visit pages, case file course) is
-the plugin [`plugins/ed-visit`](../../../plugins/ed-visit/README.md) (`Cois\Plugin\EdVisit\…`). The encounter
-analytics (Statistics) and the synthetic ED data (DataFixtures) follow in the next steps. URLs, route names and
+the plugin [`plugins/ed-visit`](../../../plugins/ed-visit/README.md) (`Cois\Plugin\EdVisit\…`), including the
+encounter analytics page under Statistics. The synthetic ED data (DataFixtures) follows in the next step. URLs, route names and
 texts are unchanged.
 
 ## Flow
@@ -991,7 +991,7 @@ decided (ADR 033). Whether the bonus causes wrong links is judged in the
 ### Hospital overview
 
 Implemented in #1055. Statistics page `/statistics/encounter-analytics` ("Encounter data (beta)" in the
-statistics sub-navigation, title "Analysis" / "Auswertung"; `EncounterAnalyticsController` in `Statistics/UI`),
+statistics sub-navigation, title "Analysis" / "Auswertung"; `EncounterAnalyticsController` of the ED visit plugin since #1300, through the extension point "Statistics pages"),
 also linked from My Hospitals ("Encounter data" on each card whose hospital is in `AggregateHospitalScope`). It
 uses the statistics building blocks: the scope and period picker (`Statistics:AnalysisContext`) in
 `AnalysisContextScopeMode::AssignedHospital`, the statistics filter (`StatisticsFilterValueResolver`) and

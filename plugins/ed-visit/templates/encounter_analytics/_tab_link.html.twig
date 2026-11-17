@@ -1,7 +1,7 @@
 {# IVENA link tab: arrival route × link status as stacked bars and table. #}
 {% set route_rows = overview.routeLink|filter(r => r.route != 'total') %}
 <div class="card">
-    {{ include('@Statistics/encounter_analytics/_card_header.html.twig', {
+    {{ include('@EdVisit/encounter_analytics/_card_header.html.twig', {
         title: 'stats.encounter.route_link.title'|trans({}, 'statistics'),
     }) }}
     <div class="card-body">
@@ -33,12 +33,12 @@
                 {% for row in overview.routeLink %}
                     <tr data-testid="encounter-route-link-row" data-route="{{ row.route }}" class="{{ row.route == 'total' ? 'fw-semibold' }}">
                         <td>{{ route_labels[row.route] }}</td>
-                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.automatic}) }}
-                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.bonusDecided}) }}
-                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.confirmed}) }}
-                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.linked}) }}
-                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.notLinked}) }}
-                        {{ include('@Statistics/encounter_analytics/_count_cell.html.twig', {row: row.total, with_share: false}) }}
+                        {{ include('@EdVisit/encounter_analytics/_count_cell.html.twig', {row: row.automatic}) }}
+                        {{ include('@EdVisit/encounter_analytics/_count_cell.html.twig', {row: row.bonusDecided}) }}
+                        {{ include('@EdVisit/encounter_analytics/_count_cell.html.twig', {row: row.confirmed}) }}
+                        {{ include('@EdVisit/encounter_analytics/_count_cell.html.twig', {row: row.linked}) }}
+                        {{ include('@EdVisit/encounter_analytics/_count_cell.html.twig', {row: row.notLinked}) }}
+                        {{ include('@EdVisit/encounter_analytics/_count_cell.html.twig', {row: row.total, with_share: false}) }}
                     </tr>
                 {% endfor %}
             </tbody>

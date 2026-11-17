@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import { applyChartNonce, loadApexCharts } from '../lib/load-apexcharts.js';
+import { applyChartNonce, loadApexCharts } from 'app/lib/load-apexcharts';
 
 /**
  * Bar chart of the encounter overview (#1055). Suppressed counts (ADR 012) arrive as null and are

@@ -135,7 +135,8 @@ final class SitemapProviderTest extends KernelTestCase
             ['Overview', 'Duration and time burden', 'Timeline drilldown', 'Groups and events', 'Constellations'],
             $this->labels($closures->children),
         );
-        self::assertSame(['Treatment data'], $this->labels($statistics->groups[4]->entries));
+        // The ED visit plugin and, in the test environment, the inpatient_stay test bundle add their statistics pages.
+        self::assertSame(['Treatment data', 'Inpatient stays (test)'], $this->labels($statistics->groups[4]->entries));
 
         self::assertSame(
             [['Encounter assignment conflicts', 'Encounter match review', 'Encounter match validation', 'Indication matching review'], ['Data preparation tool']],

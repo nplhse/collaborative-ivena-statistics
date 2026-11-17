@@ -1,6 +1,6 @@
 {# Distribution card for few categories: segmented bar, then one category per line (dot, label, count, share). Suppressed segments are not drawn; the line shows "< 5". #}
 <div class="card" data-testid="{{ testid }}">
-    {{ include('@Statistics/encounter_analytics/_card_header.html.twig') }}
+    {{ include('@EdVisit/encounter_analytics/_card_header.html.twig') }}
     <div class="card-body py-3">
         <div class="progress progress-separated mb-2">
             {% for seg in segments %}

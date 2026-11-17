@@ -49,6 +49,14 @@
         <source>inpatient_stay_test.no</source>
         <target>nein</target>
       </trans-unit>
+      <trans-unit id="Ist5BE9FC9F0" resname="inpatient_stay_test.statistics.title">
+        <source>inpatient_stay_test.statistics.title</source>
+        <target>Stationäre Aufenthalte (Test)</target>
+      </trans-unit>
+      <trans-unit id="Ist906195C8F" resname="inpatient_stay_test.statistics.count">
+        <source>inpatient_stay_test.statistics.count</source>
+        <target>{count, plural, one {# Aufenthalt} other {# Aufenthalte}} im Zeitraum aufgenommen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

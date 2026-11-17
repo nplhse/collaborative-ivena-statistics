@@ -168,7 +168,8 @@ Two rules hold for all of them:
   the contract (the `Encounter` entity as target of its Doctrine relations, the voter attributes, the base-data
   enums, the grant repository, the department catalog, the `EncountersImported` event) and the entities, enums
   and documented extension points of other contexts (users and roles, hospitals, departments, allocations,
-  imports, navigation, tools, My Hospitals, Explore, glossary, DataTable, audit). Wrapping all of that in
+  imports, navigation, tools, My Hospitals, Explore, glossary, DataTable, audit, and the Statistics page API for
+  a statistics page of its own). Wrapping all of that in
   contract facades was rejected as a large layer without benefit while plugins live in this repository. The
   allowed names are listed in `PluginBoundaryTest::ALLOWED`, which fails CI, and in the Deptrac layers
   `Encounter_PluginApi` and `Encounter_Plugin`; [extension points](../extension-points.md#encounter-schema-bundles)
@@ -218,9 +219,10 @@ The decision is implemented in steps:
    in every environment and covered by the static analysis; step 4 in progress: the ED visit code, its tests,
    templates and Stimulus controller moved into the bundle in one change, because its parts depend on each
    other in a cycle; the hospital course card takes the ED course through `EncounterCourseProviderInterface`;
-   queued `MatchEncountersMessage`s keep working through a class alias. The synthetic ED data, the encounter
-   analytics of Statistics and the ED parts of the data preparation tool still name the bundle and follow
-   in 4f, 4g and 4h) and ships MTS as a bundle.
+   queued `MatchEncountersMessage`s keep working through a class alias; 4f done: the encounter analytics page
+   comes from the bundle through the new extension point "Statistics pages" (also used by the test bundle);
+   the synthetic ED data and the ED parts of the data preparation tool still name the bundle and follow in
+   4g and 4h) and ships MTS as a bundle.
 
 Before step 1 of #1300, `ed_visit` was the only schema in production and its records were the encounters;
 deleting an `ed_visit` import whose visits carried records of another schema was refused. Since then an

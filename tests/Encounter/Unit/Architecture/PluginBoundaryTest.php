@@ -20,7 +20,8 @@ final class PluginBoundaryTest extends TestCase
      * What a plugin may import from the application (#1300): the Encounter contract, the few Encounter classes
      * a schema needs to reference (the encounter entity for its Doctrine relation, the voter attributes, the
      * base-data enums, the grant repository, the department catalog, the import event), the entities and
-     * enums of other contexts, and their documented extension points.
+     * enums of other contexts, and their documented extension points, among them the Statistics page API for a
+     * plugin's statistics page (filter, period and analysis context, time series, query keys).
      */
     private const array ALLOWED = [
         'App\\Encounter\\Contract\\',
@@ -49,13 +50,24 @@ final class PluginBoundaryTest extends TestCase
         'App\\Shared\\UI\\Twig\\DataTable\\',
         \App\Shared\UI\Http\DataTablePreferenceQueryState::class,
         'App\\Shared\\Infrastructure\\Audit\\',
+        \App\Allocation\Application\Contracts\HospitalLookupInterface::class,
+        \App\Statistics\Application\DTO\StatisticsFilter::class,
+        \App\Statistics\Application\DTO\StatisticsFilterScope::class,
+        \App\Statistics\Application\StatisticsPeriodResolver::class,
+        \App\Statistics\Application\TimeSeries\TimeSeriesAxisFiller::class,
+        \App\Statistics\Application\TimeSeries\TimeSeriesGrainResolver::class,
+        \App\Statistics\UI\Http\Controller\AnalysisContextScopeMode::class,
+        \App\Statistics\UI\Http\Controller\AnalysisContextViewModelFactory::class,
+        \App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory::class,
+        \App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver::class,
+        \App\Statistics\UI\Http\Navigation\StatisticsQueryKeys::class,
         'App\\Tests\\Fixtures\\Plugin\\',
     ];
 
     /**
      * Application code that still names the ED visit plugin while #1300 moves it: the synthetic ED data and the
-     * fixture purger (step 4g), the encounter analytics of Statistics (step 4f) and the ED parts of the data
-     * preparation tool (bundled MTS catalog, local map values; #1301 and step 4h). Each step removes its entries.
+     * fixture purger (step 4g) and the ED parts of the data preparation tool (bundled MTS catalog, local map
+     * values; #1301 and step 4h). Each step removes its entries.
      */
     private const array NOT_YET_MOVED = [
         '/src/Encounter/UI/DataPrep/DataPrepToolRenderer.php',
@@ -65,7 +77,6 @@ final class PluginBoundaryTest extends TestCase
         '/src/DataFixtures/Encounter/Infrastructure/SyntheticEncounterWriter.php',
         '/src/DataFixtures/Purger/MaterializedViewAwareOrmPurger.php',
         '/src/DataFixtures/Purger/MaterializedViewAwareOrmPurgerFactory.php',
-        '/src/Statistics/UI/Http/Controller/EncounterAnalyticsController.php',
     ];
 
     public function testPluginsImportOnlyThePluginApiOfTheApplication(): void
