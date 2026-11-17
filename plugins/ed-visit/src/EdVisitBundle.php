@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Cois\Plugin\EdVisit;
 
 use App\Encounter\Contract\Plugin\EncounterPluginBundleInterface;
+use Cois\Plugin\EdVisit\Application\Message\MatchEncountersMessage;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
@@ -42,6 +43,13 @@ final class EdVisitBundle extends AbstractBundle implements EncounterPluginBundl
         $container->prependExtensionConfig('stimulus', ['controller_paths' => [
             $this->getPath().'/assets/controllers',
         ]]);
+
+        // Tests run the bundle's messages synchronously, as the application's own (config/packages/messenger.yaml).
+        if ('test' === $container->getParameter('kernel.environment')) {
+            $container->prependExtensionConfig('framework', ['messenger' => ['routing' => [
+                MatchEncountersMessage::class => 'sync',
+            ]]]);
+        }
     }
 
     /**

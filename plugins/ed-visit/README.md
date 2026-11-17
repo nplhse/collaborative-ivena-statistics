@@ -8,8 +8,11 @@ Source systems such as ORBIS are import profiles of the exchange format `ed_visi
 
 ## Status
 
-Skeleton (#1300 step 3): the bundle is installed and enabled but contributes no schema yet. The ED visit code
-moves here from `src/Encounter` in the next steps.
+Since #1300 step 4 the bundle holds the ED visit code: schema, import, MTS catalog and curation, plausibility,
+matching with review, swap and validation, visit pages, the course in the case file, the admin pages of the
+catalog and the `encounter-match-review` Stimulus controller. The encounter analytics (still in Statistics), the
+synthetic ED data (still in DataFixtures) and the ED parts of the data preparation tool follow; translations
+still use the core domain `encounter`.
 
 ## Layout
 
@@ -17,15 +20,19 @@ Symfony bundle layout (ADR 037), not the context layout of the application:
 
 | Path | Contents |
 |---|---|
-| `src/` | `Cois\Plugin\EdVisit\…`, bundle class `EdVisitBundle` |
-| `src/Entity/` | Doctrine mapping (attributes), registered by the bundle |
+| `src/` | `Cois\Plugin\EdVisit\…` in the layers `Application`, `Domain`, `Infrastructure`, `UI` (as in `src/Encounter`), bundle class `EdVisitBundle` |
+| `src/Domain/Entity/` | Doctrine mapping (attributes), registered by the bundle |
+| `config/routes.php` | the controllers of `src/UI/Http/Controller/` (attribute routes), imported by the core's plugin route loader |
+| `templates/` | Twig namespace `@EdVisit` |
+| `legacy-class-aliases.php` | old class names of queued messages (`MatchEncountersMessage`), autoloaded |
 | `config/services.php` | services, autowired and autoconfigured |
 | `migrations/` | migrations of the plugin's own tables, namespace `Cois\Plugin\EdVisit\Migrations`, ordered by timestamp with the application's |
 | `assets/`, `assets/controllers/` | AssetMapper path and Stimulus controllers, registered by the bundle |
 | `tests/` | `Cois\Plugin\EdVisit\Tests\…`, run with the application's PHPUnit configuration |
 
-From the application the plugin uses only `App\Encounter\Contract\…`; Deptrac (layer `Encounter_Plugin`) and
-`PluginBoundaryTest` check it.
+From the application the plugin uses the Encounter contract and the names `PluginBoundaryTest::ALLOWED` lists
+([extension points](../../docs/02-architecture/extension-points.md#encounter-schema-bundles)); Deptrac (layer
+`Encounter_Plugin`) reports it, the test fails CI.
 
 ## Installation
 

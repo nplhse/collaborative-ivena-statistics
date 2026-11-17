@@ -33,12 +33,26 @@ final class EdVisitBundleTest extends TestCase
             'prefix' => 'Cois\Plugin\EdVisit\Domain\Entity',
         ]]]]], $container->getExtensionConfig('doctrine'));
         self::assertSame([['migrations_paths' => ['Cois\Plugin\EdVisit\Migrations' => $root.'/migrations']]], $container->getExtensionConfig('doctrine_migrations'));
-        self::assertSame([['asset_mapper' => ['paths' => [$root.'/assets']]]], $container->getExtensionConfig('framework'));
+        self::assertSame([
+            ['messenger' => ['routing' => [\Cois\Plugin\EdVisit\Application\Message\MatchEncountersMessage::class => 'sync']]],
+            ['asset_mapper' => ['paths' => [$root.'/assets']]],
+        ], $container->getExtensionConfig('framework'), 'Tests run the messages synchronously.');
         self::assertSame([['controller_paths' => [$root.'/assets/controllers']]], $container->getExtensionConfig('stimulus'));
 
         foreach (['/src/Domain/Entity', '/migrations', '/assets/controllers'] as $directory) {
             self::assertDirectoryExists($root.$directory);
         }
+    }
+
+    public function testOutsideTestsItRoutesNoMessage(): void
+    {
+        $container = $this->container('prod');
+        $extension = new EdVisitBundle()->getContainerExtension();
+        self::assertInstanceOf(PrependExtensionInterface::class, $extension);
+
+        $extension->prepend($container);
+
+        self::assertSame([['asset_mapper' => ['paths' => [new EdVisitBundle()->getPath().'/assets']]]], $container->getExtensionConfig('framework'));
     }
 
     public function testItLoadsItsServices(): void
@@ -56,10 +70,10 @@ final class EdVisitBundleTest extends TestCase
         self::assertContains(realpath(new EdVisitBundle()->getPath().'/config/services.php'), $files);
     }
 
-    private function container(): ContainerBuilder
+    private function container(string $environment = 'test'): ContainerBuilder
     {
         $container = new ContainerBuilder();
-        $container->setParameter('kernel.environment', 'test');
+        $container->setParameter('kernel.environment', $environment);
         $container->setParameter('kernel.build_dir', sys_get_temp_dir());
         foreach (['doctrine', 'doctrine_migrations', 'framework', 'stimulus'] as $name) {
             $container->registerExtension(new class($name) extends Extension {

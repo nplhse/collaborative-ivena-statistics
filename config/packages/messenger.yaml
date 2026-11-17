@@ -89,7 +89,6 @@ when@test:
                 App\Import\Application\Message\ImportClosuresMessage: sync
                 App\Encounter\Application\Message\ImportEncountersMessage: sync
                 App\Encounter\Application\Message\DeleteEncounterDataAfterKeyChangeMessage: sync
-                Cois\Plugin\EdVisit\Application\Message\MatchEncountersMessage: sync
                 App\Encounter\Application\Message\RetryEncounterAssignmentsMessage: sync
                 App\Encounter\Application\Message\RetryEncounterAssignmentMessage: sync
                 App\Import\Application\Message\DeleteImportsMessage: sync
