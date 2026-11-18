@@ -26,6 +26,7 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Clock\NativeClock;
@@ -574,6 +575,38 @@ final class NewImportControllerTest extends WebTestCase
                 $filesystem->remove($isolatedBase);
             }
         }
+    }
+
+    /**
+     * Name, hospital and file had no label key, so the German form showed "Name", "Hospital" and "File" (#1412).
+     */
+    #[DataProvider('formLabelsByLocale')]
+    public function testUploadFormLabelsAreTranslated(string $locale, string $name, string $hospital, string $file): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        [$owner] = $this->createOwnerWithHospital();
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $owner->setLocale($locale);
+        $em->flush();
+        $client->loginUser($owner);
+
+        $client->request(Request::METHOD_GET, '/import/new');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextSame('label[for="import_create_name"]', $name);
+        self::assertSelectorTextSame('label[for="import_create_hospital"]', $hospital);
+        self::assertSelectorTextSame('label[for="import_create_file"]', $file);
+    }
+
+    /**
+     * @return iterable<string, array{string, string, string, string}>
+     */
+    public static function formLabelsByLocale(): iterable
+    {
+        yield 'en' => ['en', 'Name', 'Hospital', 'File'];
+        yield 'de' => ['de', 'Name', 'Krankenhaus', 'Datei'];
     }
 
     /**
