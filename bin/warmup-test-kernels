@@ -5,23 +5,20 @@ declare(strict_types=1);
 
 /*
  * Compiles the containers that some tests boot besides the regular test kernel, so those tests do not build them
- * in-process (#1343): the test kernels without bundles (#1300 step 5), the demo kernel of DemoEnvironmentConfigTest
- * and the prod kernel of ContentSecurityPolicyTest. Each one takes a minute or more under coverage and blocks a ParaTest worker.
+ * in-process (#1343): the test kernels without bundles (#1300 step 5) and the demo kernel of
+ * DemoEnvironmentConfigTest. Each one takes a minute or more under coverage and blocks a ParaTest worker.
  *
- * `make test-database` (and so CI) runs it first, without coverage (php -d pcov.enabled=0), and then runs the tests
- * with TEST_PREWARMED_KERNELS=1 so the prod test keeps the prebuilt container. The test kernels are debug kernels
- * and rebuild themselves when a file changes; the prod container does not, so it is always built from scratch.
+ * `make test-database` (and so CI) runs it first, without coverage (php -d pcov.enabled=0). The prod header check
+ * that used to need a prod container here runs in the CI job "Prod kernel smoke" (bin/check-prod-csp).
  */
 
 use App\Kernel;
 use App\Tests\Support\Kernel\KernelWithoutEdVisit;
 use App\Tests\Support\Kernel\KernelWithoutEncounterSchemas;
-use App\Tests\Support\Kernel\ProdKernelForTests;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 require dirname(__DIR__).'/vendor/autoload.php';
@@ -38,11 +35,9 @@ $kernels = [
     [new KernelWithoutEdVisit('test', $debug), true],
     [new KernelWithoutEncounterSchemas('test', $debug), true],
     [new Kernel('demo', true), false],
-    [new ProdKernelForTests(), true],
 ];
 
 $output = new ConsoleOutput();
-new Filesystem()->remove(new ProdKernelForTests()->getCacheDir());
 $exitCode = 0;
 
 foreach ($kernels as [$kernel, $runWarmupCommand]) {
