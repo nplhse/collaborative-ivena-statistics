@@ -39,4 +39,15 @@ final class CaseFlowGeoKeyResolverTest extends TestCase
 
         self::assertSame('some-area', $resolver->resolve(1, 'Some Area'));
     }
+
+    public function testHasMapShapeOnlyForConfiguredFeatureKeys(): void
+    {
+        $configPath = \dirname(__DIR__, 4).'/config/case_flow/dispatch_area_geo_map.yaml';
+        $resolver = new CaseFlowGeoKeyResolver($configPath);
+
+        self::assertTrue($resolver->hasMapShape($resolver->resolve(1, 'Frankfurt')));
+        self::assertTrue($resolver->hasMapShape($resolver->resolve(1, 'Rheingau Taunus')));
+        // Outside Hesse: the slug fallback matches no polygon.
+        self::assertFalse($resolver->hasMapShape($resolver->resolve(99, 'Mainz-Bingen')));
+    }
 }

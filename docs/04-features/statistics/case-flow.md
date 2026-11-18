@@ -43,16 +43,16 @@ Pipeline: **Population / Scope → Geographic aggregation → Map layers → Pre
 
 Layers (selected per mode):
 
-- Origin choropleth (Hessen dispatch-area GeoJSON): sequential blue scale with square-root contrast. **Relative (%)** (default) colours each region by its share of all mapped cases on a 0–100 % scale and labels the share. **Absolute** stretches colour to the highest case count in the current selection and labels the counts. Because share is count ÷ total, region ranking stays the same; the scale and labels are what change.
+- Origin choropleth (Hessen dispatch-area GeoJSON): sequential blue scale with square-root contrast. **Relative (%)** (default) colours each region by its share of all cases with an origin dispatch area on a 0–100 % scale and labels the share. Origins without a polygon (outside the 24 Hessian areas in `dispatch_area_geo_map.yaml`) stay in that denominator but are not drawn, so the visible shares can add up to less than 100 %; the legend shows them as one chip (see below). **Absolute** stretches colour to the highest case count in the current selection and labels the counts. Because share is count ÷ total, region ranking stays the same; the scale and labels are what change.
 - Destination hospital pins (regional, expanded)
 - Hospital pin + isochrone bands (single-hospital scope). Compact and expanded views share origin/isochrone checkboxes when both layers are present; destination pins and the hospital pin stay overlay-only.
-- Observed transport-time intensity colours the isochrone rings. The compact legend puts share/count and travel-time scales on one row with pin keys and unmapped-count chips; method text (share vs count, estimated vs observed, omitted destinations) sits behind a **Notes** disclosure.
+- Observed transport-time intensity colours the isochrone rings. The compact legend puts share/count and travel-time scales on one row with pin keys and unmapped-count chips (isochrone: unknown time, beyond max; Case Flow: cases from areas without a map shape, `CaseFlowPrivacySuppressor::summarizeUnshapedOrigins()`, polygon check `CaseFlowGeoKeyResolver::hasMapShape()`); method text (share vs count, estimated vs observed, omitted destinations) sits behind a **Notes** disclosure.
 
 ## Components
 
 - **Service:** `CaseFlowDashboardService` orchestrates queries, destination pins, and isochrone assembly
 - **Queries:** `CaseFlowRegionalMetricsQuery`, `CaseFlowDestinationStructureQuery`, `GeographicDestinationHospitalQuery`, …
-- **Privacy:** `CaseFlowPrivacySuppressor` suppresses small-N cells and omits destination pins with n < 10 or without coordinates (grouped by hospital). Dispatch-area maps count omitted inside/outside destinations in the legend without naming them.
+- **Privacy:** `CaseFlowPrivacySuppressor` suppresses small-N cells and omits destination pins with n < 10 or without coordinates (grouped by hospital). Dispatch-area maps count omitted inside/outside destinations in the legend without naming them. The chip for origins without a map shape is one sum without origin names; below `MIN_CASES_PER_CELL` it reads "fewer than 10 cases" without count or share.
 - **Filters:** Scope, period, and the statistics drawer (`ProjectionDrawerFilterSql`) apply to map and charts together
 
 ## Geographic segment profile

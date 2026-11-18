@@ -4,7 +4,9 @@
 {% set omittedOutside = payload.omittedOutsideDestinationHospitals|default(0) %}
 {% set omittedInside = payload.omittedInsideDestinationHospitals|default(0) %}
 {% set showPins = payload.selectedDispatchAreaId|default(null) %}
-{% set showUnmapped = unknownCount > 0 or beyondMaxCount > 0 %}
+{% set unshapedOrigins = unshapedOrigins|default(null) %}
+{% set showUnshaped = unshapedOrigins is not null and not unshapedOrigins.empty %}
+{% set showUnmapped = unknownCount > 0 or beyondMaxCount > 0 or showUnshaped %}
 {% set showNotes = showValueModes or showIsochroneLegend or omittedOutside > 0 or omittedInside > 0 %}
 {% set shareSwatches = ['#deebf7', '#9ecae1', '#4292c6', '#2171b5', '#08306b'] %}
 {% set travelSwatches = ['#2f9e44', '#74b816', '#fab005', '#fd7e14', '#e03131'] %}
@@ -77,6 +79,18 @@
                 {% if beyondMaxCount > 0 %}
                     <span class="badge bg-secondary-lt text-secondary fw-normal">
                         {{ 'stats.case_flow.map.chip.beyond_max'|trans({count: beyondMaxCount}, 'statistics') }}
+                    </span>
+                {% endif %}
+                {% if showUnshaped %}
+                    {# Origins without a polygon stay in the share denominator (#1405); never named, see CaseFlowPrivacySuppressor. #}
+                    <span class="badge bg-secondary-lt text-secondary fw-normal"
+                          title="{{ 'stats.case_flow.map.chip.unshaped_hint'|trans({}, 'statistics') }}"
+                          {% if withTestIds %}data-testid="stats-case-flow-map-unshaped"{% endif %}>
+                        {% if unshapedOrigins.suppressed %}
+                            {{ 'stats.case_flow.map.chip.unshaped_suppressed'|trans({min: constant('App\\Statistics\\CaseFlow\\Application\\CaseFlowPrivacyPolicy::MIN_CASES_PER_CELL')}, 'statistics') }}
+                        {% else %}
+                            {{ 'stats.case_flow.map.chip.unshaped'|trans({count: unshapedOrigins.caseCount, share: unshapedOrigins.sharePercent}, 'statistics') }}
+                        {% endif %}
                     </span>
                 {% endif %}
             </div>

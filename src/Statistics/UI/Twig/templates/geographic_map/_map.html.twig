@@ -8,6 +8,7 @@
   frameClass: string
   unknownCount: int
   beyondMaxCount: int
+  unshapedOrigins: CaseFlowUnshapedOrigins|null
   titleKey: string
   showTitle: bool
 #}
@@ -18,6 +19,7 @@
 {% set frameClass = frameClass|default('case-flow-map-square') %}
 {% set unknownCount = unknownCount|default(0) %}
 {% set beyondMaxCount = beyondMaxCount|default(0) %}
+{% set unshapedOrigins = unshapedOrigins|default(null) %}
 {% set titleKey = titleKey|default('stats.case_flow.section.map') %}
 {% set showTitle = showTitle ?? true %}
 {% set layers = payload.layers|default([]) %}
@@ -110,6 +112,7 @@
             showIsochroneLegend: showIsochroneLegend,
             unknownCount: unknownCount,
             beyondMaxCount: beyondMaxCount,
+            unshapedOrigins: unshapedOrigins,
             withTestIds: true,
             notesOpen: false,
         }) }}
@@ -166,6 +169,7 @@
                     showIsochroneLegend: showIsochroneLegend,
                     unknownCount: unknownCount,
                     beyondMaxCount: beyondMaxCount,
+                    unshapedOrigins: unshapedOrigins,
                     withTestIds: false,
                     notesOpen: true,
                 }) }}

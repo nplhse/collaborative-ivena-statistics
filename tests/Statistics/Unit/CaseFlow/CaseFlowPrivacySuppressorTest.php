@@ -212,4 +212,67 @@ final class CaseFlowPrivacySuppressorTest extends TestCase
         self::assertSame(0, $pinSet->omittedInsideCount);
         self::assertSame(2, $pinSet->omittedOutsideCount);
     }
+
+    public function testSummarizeUnshapedOriginsCountsCasesWithoutPolygon(): void
+    {
+        // 100 cases in the denominator; Frankfurt (50) and Darmstadt (5, suppressed on the map) have a polygon.
+        // Mainz (30) and Aschaffenburg (15) have none: 45 of 100 cases = 45.0 % are not drawn.
+        $rows = [
+            new CaseFlowOriginRow(1, 'Frankfurt', 50, 10),
+            new CaseFlowOriginRow(3, 'Mainz', 30, 5),
+            new CaseFlowOriginRow(4, 'Aschaffenburg', 15, 2),
+            new CaseFlowOriginRow(2, 'Darmstadt', 5, 1),
+        ];
+
+        $unshaped = $this->suppressor->summarizeUnshapedOrigins(
+            $rows,
+            100,
+            static fn (int $id, string $name): string => strtolower($name),
+            static fn (string $key): bool => \in_array($key, ['frankfurt', 'darmstadt'], true),
+        );
+
+        self::assertFalse($unshaped->suppressed);
+        self::assertFalse($unshaped->isEmpty());
+        self::assertSame(45, $unshaped->caseCount);
+        self::assertSame(45.0, $unshaped->sharePercent);
+    }
+
+    public function testSummarizeUnshapedOriginsWithholdsCountBelowPrivacyThreshold(): void
+    {
+        // Mainz (4) + Aschaffenburg (5) = 9 cases without polygon, below MIN_CASES_PER_CELL (10).
+        $rows = [
+            new CaseFlowOriginRow(1, 'Frankfurt', 91, 10),
+            new CaseFlowOriginRow(4, 'Aschaffenburg', 5, 1),
+            new CaseFlowOriginRow(3, 'Mainz', 4, 1),
+        ];
+
+        $unshaped = $this->suppressor->summarizeUnshapedOrigins(
+            $rows,
+            100,
+            static fn (int $id, string $name): string => strtolower($name),
+            static fn (string $key): bool => 'frankfurt' === $key,
+        );
+
+        self::assertTrue($unshaped->suppressed);
+        self::assertFalse($unshaped->isEmpty());
+        self::assertSame(0, $unshaped->caseCount);
+        self::assertSame(0.0, $unshaped->sharePercent);
+    }
+
+    public function testSummarizeUnshapedOriginsIsEmptyWhenEveryOriginHasPolygon(): void
+    {
+        $rows = [
+            new CaseFlowOriginRow(1, 'Frankfurt', 60, 10),
+            new CaseFlowOriginRow(2, 'Darmstadt', 40, 5),
+        ];
+
+        $unshaped = $this->suppressor->summarizeUnshapedOrigins(
+            $rows,
+            100,
+            static fn (int $id, string $name): string => strtolower($name),
+            static fn (string $key): bool => true,
+        );
+
+        self::assertTrue($unshaped->isEmpty());
+    }
 }

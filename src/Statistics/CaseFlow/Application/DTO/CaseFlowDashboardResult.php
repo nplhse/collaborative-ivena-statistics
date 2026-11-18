@@ -44,6 +44,7 @@ final readonly class CaseFlowDashboardResult
         public ?int $selectedDispatchAreaId = null,
         public int $omittedInsideDestinationHospitals = 0,
         public int $omittedOutsideDestinationHospitals = 0,
+        public CaseFlowUnshapedOrigins $unshapedOrigins = new CaseFlowUnshapedOrigins(),
     ) {
     }
 }

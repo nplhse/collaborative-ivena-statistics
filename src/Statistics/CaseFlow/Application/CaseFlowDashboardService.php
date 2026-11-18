@@ -71,6 +71,12 @@ final readonly class CaseFlowDashboardService
             $originTotal,
             fn (int $id, string $name): string => $this->geoKeyResolver->resolve($id, $name),
         );
+        $unshapedOrigins = $this->privacySuppressor->summarizeUnshapedOrigins(
+            $originRows,
+            $originTotal,
+            fn (int $id, string $name): string => $this->geoKeyResolver->resolve($id, $name),
+            $this->geoKeyResolver->hasMapShape(...),
+        );
 
         $transportRows = $this->transportDistributionQuery->fetchTransportTime($from, $toExclusive, $scope, $originStateId, $drawerFilter);
 
@@ -154,6 +160,7 @@ final readonly class CaseFlowDashboardService
             $criteria->isDispatchAreaScope() ? $scope->dispatchAreaId : null,
             $omittedInsideDestinationHospitals,
             $omittedOutsideDestinationHospitals,
+            $unshapedOrigins,
         );
     }
 
