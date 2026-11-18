@@ -12,6 +12,7 @@ use App\Encounter\Application\Contract\EncounterUploadHospitalsInterface;
 use App\Encounter\Application\Dimension\EncounterDimensionRegistry;
 use App\Encounter\Application\Import\EncounterSchemaHandlerRegistry;
 use App\Encounter\Application\Security\EncounterAttribute;
+use App\Encounter\Contract\Import\SuspectedDuplicateReaderInterface;
 use App\Encounter\Domain\Entity\EncounterImport;
 use App\Import\Application\Contracts\ImportTypeExtensionInterface;
 use App\Import\Application\DTO\ImportTypeDetailSection;
@@ -226,9 +227,21 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
                 ? null
                 : $import->getCreatedAt()->modify(\sprintf('+%d days', $this->sourceFileRetentionDays)),
             'rejects' => $this->report->rejects($importId, self::LIST_LIMIT),
-            'suspected_duplicates' => $this->report->suspectedDuplicates($importId, self::LIST_LIMIT),
+            'suspected_duplicates' => $this->suspectedDuplicates($schema, $importId),
             'list_limit' => self::LIST_LIMIT,
         ]);
+    }
+
+    /**
+     * Suspected duplicates from the import's schema, if it flags any (SuspectedDuplicateReaderInterface, #1375).
+     *
+     * @return list<array{line: int, difference_minutes: int, anchor_source: string, existing_anchor_source: string, existing_import_id: int, existing_import_name: string}>
+     */
+    private function suspectedDuplicates(string $schema, int $importId): array
+    {
+        $handler = $this->handlers->find($schema);
+
+        return $handler instanceof SuspectedDuplicateReaderInterface ? $handler->suspectedDuplicates($importId, self::LIST_LIMIT) : [];
     }
 
     /**

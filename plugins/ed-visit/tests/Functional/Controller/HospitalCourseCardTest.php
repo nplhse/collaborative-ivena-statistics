@@ -10,6 +10,7 @@ use App\Encounter\Domain\Entity\Encounter;
 use App\Encounter\Domain\Enum\AnchorSource;
 use App\Encounter\Domain\Enum\EncounterGrantAction;
 use App\Encounter\Domain\Enum\Sex;
+use App\Encounter\UI\Http\Controller\Assignment\UnassignEncounterController;
 use App\Import\Domain\Enum\ImportType;
 use App\Tests\Support\Encounter\EffectiveAssignments;
 use App\Tests\Support\Encounter\EncounterDataFixtures;
@@ -127,6 +128,28 @@ final class HospitalCourseCardTest extends WebTestCase
         self::assertSelectorTextContains('[data-testid="encounter-course-disposition"]', 'Monitoring / intermediate care');
     }
 
+    public function testAnAssignmentTheEdVisitDecidesCannotBeRemovedByHand(): void
+    {
+        // The core asks the course providers (#1375): while the ED visit returns a course, its review decides.
+        $reviewer = $this->user();
+        $this->encounterGrant($this->hospital, $reviewer, [EncounterGrantAction::Review, EncounterGrantAction::ViewCases]);
+        $allocationId = (int) $this->linked->getId();
+        $encounterId = $this->entityManager()->getConnection()->fetchOne('SELECT id FROM encounter WHERE allocation_id = ?', [$allocationId]);
+        self::assertNotFalse($encounterId, 'The linked allocation is assigned to the visit\'s encounter.');
+
+        $this->client->disableReboot();
+        $this->client->loginUser($reviewer);
+        $this->caseFile($this->linked);
+        self::assertSelectorNotExists('[data-testid="encounter-course-unassign"]');
+
+        $this->client->request(Request::METHOD_POST, '/explore/allocation/'.$this->linked->getPublicId().'/encounter/unassign', [
+            '_token' => $this->csrfToken(UnassignEncounterController::tokenId($allocationId)),
+        ]);
+
+        self::assertResponseRedirects('/explore/allocation/'.$this->linked->getPublicId());
+        self::assertSame((int) $encounterId, (int) $this->entityManager()->getConnection()->fetchOne('SELECT id FROM encounter WHERE allocation_id = ?', [$allocationId]));
+    }
+
     public function testAllocationWithOnlyAProposalShowsNoVisit(): void
     {
         $this->client->loginUser($this->caseViewer());
@@ -189,6 +212,21 @@ final class HospitalCourseCardTest extends WebTestCase
         $this->encounterGrant($this->hospital, $viewer, [EncounterGrantAction::ViewCases]);
 
         return $viewer;
+    }
+
+    private function csrfToken(string $tokenId): string
+    {
+        $requestStack = $this->client->getContainer()->get('request_stack');
+        $request = $this->client->getRequest();
+        $requestStack->push($request);
+        try {
+            $token = $this->client->getContainer()->get('security.csrf.token_manager')->getToken($tokenId)->getValue();
+            $request->getSession()->save();
+
+            return $token;
+        } finally {
+            $requestStack->pop();
+        }
     }
 
     private function caseFile(Allocation $allocation): Crawler

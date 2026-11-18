@@ -172,6 +172,40 @@ final class EdVisitBundleDisabledTest extends WebTestCase
         }
     }
 
+    public function testTheKeyChangePageCountsTheEncountersOfTheCore(): void
+    {
+        // Encounters come from the core table, links and decisions only from schemas that have them (#1375).
+        $this->client->loginUser($this->reviewer);
+        $crawler = $this->client->request(Request::METHOD_GET, '/hospitals/'.$this->hospital->getId().'/edit/encounter-key');
+        self::assertResponseIsSuccessful();
+
+        $message = (string) $crawler->filter('[data-encounter-key-change-delete-message-value]')->attr('data-encounter-key-change-delete-message-value');
+        self::assertStringContainsString('3 encounters', $message);
+        self::assertStringNotContainsString('link', $message);
+    }
+
+    public function testAReviewerRemovesAnAssignmentByHand(): void
+    {
+        // No schema returns a course for the encounter, so the case file offers the removal (#1375).
+        $this->client->loginUser($this->reviewer);
+        $crawler = $this->client->request(Request::METHOD_GET, '/explore/allocation/'.$this->allocationX->getPublicId());
+        self::assertResponseIsSuccessful();
+
+        $this->client->submit($crawler->filter('[data-testid="encounter-course-unassign"] form')->form());
+
+        self::assertResponseRedirects('/explore/allocation/'.$this->allocationX->getPublicId());
+        self::assertFalse($this->connection()->fetchOne('SELECT id FROM encounter WHERE allocation_id = ?', [$this->allocationX->getId()]));
+    }
+
+    public function testTheAnalyticsPageOfThePluginIsNotFound(): void
+    {
+        // No core rule names the plugin page any more (#1375): without the plugin it is a 404 for everyone.
+        $this->client->loginUser($this->user(['ROLE_USER', 'ROLE_PARTICIPANT']));
+        $this->client->request(Request::METHOD_GET, '/statistics/encounter-analytics');
+
+        self::assertResponseStatusCodeSame(404);
+    }
+
     public function testNoMenuEntryPointsToAMissingRoute(): void
     {
         $admin = $this->user(['ROLE_USER', 'ROLE_ADMIN', 'ROLE_PARTICIPANT', 'ROLE_ENCOUNTER_BETA', 'ROLE_ENCOUNTER_CATALOG_REVIEWER']);

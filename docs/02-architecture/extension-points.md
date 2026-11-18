@@ -352,7 +352,23 @@ file (ADR 037). The card asks only after it checked `VIEW_CASES` and found the e
 case file). The schema whose records decide the assignment (the ED visit with its match review) contributes the
 course at the top of the card instead: `courseForEncounter()` returns an `EncounterCourse` (template and variables,
 or none when it has a record but nothing to show) or null without a record. While a course provider has a record,
-the card offers no "Remove assignment".
+the card offers no "Remove assignment", and `UnassignEncounterController` refuses the removal by the same rule
+(#1375).
+
+## Encounter key change figures
+
+**Tag:** `encounter.key_change_figures`
+
+**Interface:** `KeyChangeFiguresProviderInterface` (`src/Encounter/Contract/KeyChange/`)
+
+**Consumer:** `EncounterKeyChangeSummaryQuery` (the key change page, ADR 027)
+
+**Implementations:** `KeyChangeFiguresQuery` of the ED visit plugin (links and decisions of the match review)
+
+The key change page tells what a key change with "delete" removes. The core counts the hospital's encounters
+(table `encounter`) and encounter imports; a schema adds what it keeps of its own, as `KeyChangeFigures` (effective
+IVENA links, review decisions). The core adds the figures of all providers up; without a provider they are 0 and the
+page text leaves them out (#1375).
 
 ## Encounter record page links
 
@@ -458,6 +474,10 @@ records rejects, counts, coverage and file rejections, and owns the transaction.
 - `removeForImport()` removes the records an import created (deletion, cleanup before a reprocess);
 - `createsEncounters()` tells whether the schema creates encounters (`ed_visit`) or attaches records to
   existing ones; the deletion after an encounter key change deletes imports of attaching schemas first.
+
+A handler that also implements `SuspectedDuplicateReaderInterface` lists the records it flagged as possible
+duplicates (`SchemaWriteResult::$suspectedDuplicates`) for the encounter section of the import detail page
+(`ed_visit`, ADR 029); the core shows no list for other schemas (#1375).
 
 A schema can be uploaded only when it has a field contract and a handler; without any such schema the
 encounter import type is not offered. A file whose schema has no handler (for example after its bundle

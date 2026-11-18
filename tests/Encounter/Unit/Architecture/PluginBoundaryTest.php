@@ -13,6 +13,9 @@ use PHPUnit\Framework\TestCase;
  */
 final class PluginBoundaryTest extends TestCase
 {
+    /** SQL that reads or writes a table of the ED visit plugin. */
+    private const string PLUGIN_TABLE_SQL = '/\b(?:FROM|JOIN|INTO|UPDATE)\s+(?:ed_visit|encounter_match|encounter_suspected_duplicate)\b/i';
+
     /** Test bundles and the source of the shipped plugins. */
     private const array PLUGINS = ['/tests/Fixtures/Plugin', '/plugins/ed-visit/src'];
 
@@ -105,6 +108,21 @@ final class PluginBoundaryTest extends TestCase
         }
 
         self::assertSame([], $violations);
+    }
+
+    public function testTheApplicationQueriesNoTableOfTheEdVisitPlugin(): void
+    {
+        // The tables belong to the plugin (#1375); the application reaches them only through its extension points.
+        $violations = [];
+        foreach ($this->phpFiles('/src') as $file) {
+            if (1 === preg_match(self::PLUGIN_TABLE_SQL, (string) file_get_contents($file))) {
+                $violations[] = substr($file, \strlen($this->root()));
+            }
+        }
+
+        self::assertSame([], $violations);
+        self::assertSame(1, preg_match(self::PLUGIN_TABLE_SQL, 'SELECT 1 FROM ed_visit WHERE encounter_id = ?'), 'The pattern finds a query.');
+        self::assertSame(0, preg_match(self::PLUGIN_TABLE_SQL, 'the ED matching history (`encounter_match`)'), 'Docs may name the tables.');
     }
 
     public function testThePatternFindsAForbiddenImport(): void

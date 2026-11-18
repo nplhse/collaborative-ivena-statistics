@@ -72,7 +72,6 @@ security:
         - { path: ^/encounter, roles: ROLE_ENCOUNTER_BETA }
         # Closure Analytics left the beta (#1350): participants only, not every user like the rest of /statistics.
         - { path: ^/statistics/closure-analytics, roles: ROLE_PARTICIPANT }
-        - { path: ^/statistics/encounter-analytics, roles: ROLE_ENCOUNTER_BETA }
         - { path: ^/statistics, roles: ROLE_USER }
         - { path: ^/tools, roles: ROLE_USER }
         - { path: ^/activity, roles: ROLE_USER }
