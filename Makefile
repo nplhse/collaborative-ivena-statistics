@@ -383,9 +383,9 @@ test-unit: ## Run the unit suite via ParaTest, no database (PROCESSES=4, COVERAG
 
 test-database: test-warmup ## Run every non-unit suite via ParaTest, needs the test DB (PROCESSES=4, COVERAGE=1, JUNIT=1, ARGS=)
 	@mkdir -p var/coverage/logs
-	@TEST_PREWARMED_KERNELS=1 $(PARATEST) --testsuite $(DATABASE_SUITES) --processes=$(PROCESSES) $(call PARATEST_REPORTS,integration) $(ARGS)
+	@$(PARATEST) --testsuite $(DATABASE_SUITES) --processes=$(PROCESSES) $(call PARATEST_REPORTS,integration) $(ARGS)
 
-test-warmup: ## Compile the extra test containers (kernels without bundles, prod kernel of the CSP test) without coverage
+test-warmup: ## Compile the extra test containers (kernels without bundles, demo kernel) without coverage
 	@php -d pcov.enabled=0 bin/warmup-test-kernels
 
 ## —— Cleanup 🚮 ————————————————————————————————————————————————————————————————

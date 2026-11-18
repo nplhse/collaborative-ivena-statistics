@@ -76,7 +76,8 @@ With Sentry configured, check **Issues** (not Logs) within a few minutes. In **N
 
 ### Automated test
 
-[`tests/Shared/Functional/Security/ContentSecurityPolicyTest.php`](../../tests/Shared/Functional/Security/ContentSecurityPolicyTest.php) asserts the prod header and smoke-loads `/explore/allocation` and `/statistics/`.
+- [`bin/check-prod-csp`](../../bin/check-prod-csp) checks the prod header, with `SENTRY_CSP_REPORT_URI` empty and set. CI runs it in the **Prod kernel smoke** job; locally: `APP_ENV=prod APP_DEBUG=0 php bin/check-prod-csp`.
+- [`tests/Shared/Functional/Security/ContentSecurityPolicyTest.php`](../../tests/Shared/Functional/Security/ContentSecurityPolicyTest.php) asserts that the test environment sends no CSP header and smoke-loads `/explore/allocation` and `/statistics/`.
 
 ## Sentry integration
 
