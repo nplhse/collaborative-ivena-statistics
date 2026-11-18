@@ -9,7 +9,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 
 /**
- * Row rejects and suspected duplicates of one encounter import (#1048). Reject rows of encounter
+ * Row rejects of one encounter import (#1048); suspected duplicates come from the schema (#1375). Reject rows of encounter
  * imports only hold profile and profile version (EncounterFileImporter), so nothing here can show
  * a cell value.
  *
@@ -44,32 +44,5 @@ final readonly class EncounterImportReportQuery implements EncounterImportReport
         }
 
         return $rejects;
-    }
-
-    #[\Override]
-    public function suspectedDuplicates(int $importId, int $limit): array
-    {
-        $rows = $this->connection->fetchAllAssociative(
-            <<<'SQL'
-SELECT sd.line_number, sd.anchor_difference_minutes, sd.anchor_source, sd.existing_anchor_source, i.id AS existing_import_id, i.name AS existing_import_name
-FROM encounter_suspected_duplicate sd
-JOIN ed_visit existing ON existing.encounter_id = sd.existing_encounter_id
-JOIN import i ON i.id = existing.import_id
-WHERE sd.import_id = :import
-ORDER BY sd.line_number, sd.id
-LIMIT :limit
-SQL,
-            ['import' => $importId, 'limit' => $limit],
-            ['import' => ParameterType::INTEGER, 'limit' => ParameterType::INTEGER],
-        );
-
-        return array_map(static fn (array $row): array => [
-            'line' => (int) $row['line_number'],
-            'difference_minutes' => (int) $row['anchor_difference_minutes'],
-            'anchor_source' => (string) $row['anchor_source'],
-            'existing_anchor_source' => (string) $row['existing_anchor_source'],
-            'existing_import_id' => (int) $row['existing_import_id'],
-            'existing_import_name' => (string) $row['existing_import_name'],
-        ], $rows);
     }
 }
