@@ -51,7 +51,7 @@ final readonly class DemoHospitalSetup
         $email = $username.'@'.self::EMAIL_DOMAIN;
 
         $user = $this->users->create(new CreateUserInput($username, $email, self::PASSWORD, grantAdmin: false));
-        $user->setRoles(array_values(array_unique([...$user->getRoles(), UserRole::PARTICIPANT, UserRole::CLOSURE_BETA])));
+        $user->setRoles(array_values(array_unique([...$user->getRoles(), UserRole::PARTICIPANT])));
 
         return new DemoParticipant((int) $user->getId(), $username, $email, self::PASSWORD);
     }

@@ -76,7 +76,7 @@ It asks for:
 
 After a summary and a confirmation it:
 
-1. creates an active synthetic participant account with `ROLE_PARTICIPANT` and `ROLE_CLOSURE_BETA`:
+1. creates an active synthetic participant account with `ROLE_PARTICIPANT`:
    login `demo` (later ones `demo2`, `demo3`, …), e-mail `<login>@demo.invalid`, password `Ivena!1234`
    for every demo participant, so it is easy to type in front of an audience;
 2. creates the hospital (owner: the participant, participating from the first month), or gives an existing
@@ -156,7 +156,7 @@ month that is not complete by yesterday (or `FIXTURES_UNTIL`) and a month that a
 the hospital. It writes nothing into the database.
 
 During the presentation, logged in as a participant with the import permission for the hospital
-(and `ROLE_CLOSURE_BETA` for the closure file; the wizard's account has both, other accounts get the role in EasyAdmin):
+(the wizard's account has it as the owner):
 
 1. Import page → choose the hospital → upload the allocation file. `make demo-consume` must run.
 2. When it is processed, upload the closure file as a closure import.

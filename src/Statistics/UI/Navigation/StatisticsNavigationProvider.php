@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Statistics\UI\Navigation;
 
 use App\Shared\Application\Navigation\Menu\Menu;
-use App\Shared\Application\Navigation\Menu\NavBadge;
 use App\Shared\Application\Navigation\Menu\NavGroup;
 use App\Shared\Application\Navigation\Menu\NavigationProviderInterface;
 use App\Shared\Application\Navigation\Menu\NavItem;
@@ -88,8 +87,6 @@ final readonly class StatisticsNavigationProvider implements NavigationProviderI
      */
     private function sidebarItems(): array
     {
-        $beta = new NavBadge($this->label('stats.nav.badge.beta'));
-
         return [
             // Overview
             $this->entry('dashboard', 'overview', 'link.stats.dashboard', 'app_stats_dashboard', 'tabler:dashboard', -100, ['app_stats_overview_self_benchmark', 'app_stats_overview_top_reports']),
@@ -106,10 +103,9 @@ final readonly class StatisticsNavigationProvider implements NavigationProviderI
             // Comparisons
             $this->entry('benchmarking', 'comparisons', 'link.stats.benchmarking', 'app_stats_benchmarking', 'tabler:scale'),
 
-            // Capacity and closures. Closure Analytics needs ROLE_CLOSURE_BETA (access_control) and ROLE_PARTICIPANT
-            // (controllers); the group carries the first, its parts the second, so the entry shows only with both.
+            // Capacity and closures. Closure Analytics needs ROLE_PARTICIPANT (access_control and controllers).
             $this->entry('closed-department-assignments', 'capacity', 'link.stats.closed_department_assignments', 'app_stats_closed_department_assignments', 'tabler:door-off', 10, ['app_stats_closed_department_assignments_details', 'app_stats_closed_department_assignments_rankings']),
-            new NavItem(id: 'closures', parentId: 'capacity', label: new TranslatableMessage('link.stats.closure_analytics', [], 'shared'), icon: 'tabler:calendar-off', badge: $beta, grantedAttribute: 'ROLE_CLOSURE_BETA', weight: 20, sharedFilterState: true),
+            new NavItem(id: 'closures', parentId: 'capacity', label: new TranslatableMessage('link.stats.closure_analytics', [], 'shared'), icon: 'tabler:calendar-off', grantedAttribute: 'ROLE_PARTICIPANT', weight: 20, sharedFilterState: true),
             new NavItem(id: 'closures-overview', parentId: 'closures', label: $this->label('stats.closure.tabs.overview'), route: 'app_stats_closure_analytics', grantedAttribute: 'ROLE_PARTICIPANT', detailRoutes: ['app_stats_closure_analytics_details', 'app_stats_closure_analytics_volume_burden'], weight: 10),
             new NavItem(id: 'closures-duration', parentId: 'closures', label: $this->label('stats.closure.tabs.duration'), route: 'app_stats_closure_analytics_duration', grantedAttribute: 'ROLE_PARTICIPANT', detailRoutes: ['app_stats_closure_analytics_interval'], weight: 20),
             new NavItem(id: 'closures-timeline', parentId: 'closures', label: $this->label('stats.closure.tabs.timeline'), route: 'app_stats_closure_analytics_timeline', grantedAttribute: 'ROLE_PARTICIPANT', weight: 30),

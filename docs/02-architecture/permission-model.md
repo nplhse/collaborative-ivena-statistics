@@ -14,11 +14,10 @@ Defined in `src/User/Domain/Security/UserRole.php`:
 | `ROLE_PARTICIPANT` | Hospital participant; `/hospitals`, `/explore` (allocation list/detail) |
 | `ROLE_ADMIN` | EasyAdmin back office, impersonation; receives the admin notifications (`admin.*`), each admin chooses them on the notification settings page |
 | `ROLE_REVIEW_INDICATIONS` | Indication raw review worklist |
-| `ROLE_CLOSURE_BETA` | Opt-in beta switch for closure-list imports and Closure Analytics. Not part of the role hierarchy, so `ROLE_ADMIN` does not grant it. Assign it on the user in EasyAdmin. It is not a public role. |
 | `ROLE_ENCOUNTER_BETA` | Participation in the encounter data pilot: the encounter tools under `/tools` (review, validation, data preparation), the encounter analysis and the encounter grant pages. Inherited by `ROLE_ADMIN`. The role itself grants no case access. Assign it on the user in EasyAdmin. |
 | `ROLE_ENCOUNTER_CATALOG_REVIEWER` | Review of the matcher's plausibility table (#1153, [ADR 033](decisions/033-learning-plausibility-table.md)) as the tool `/tools/encounter-plausibility` ([ADR 031](decisions/031-tools-section-and-tool-registry.md)): edit the curated problem areas, review snapshots, activate and retire them, run the learning job and read its reports (#1155). Needs `ROLE_ENCOUNTER_BETA` as well; grants no case access. Inherited by `ROLE_ADMIN`. Maintenance of the MTS catalog itself stays with `ROLE_ADMIN` ([ADR 032](decisions/032-mts-catalog-as-maintained-data.md)). |
 
-`ROLE_ADMIN` inherits `ROLE_PARTICIPANT`, `ROLE_REVIEW_INDICATIONS`, `ROLE_ENCOUNTER_BETA` and `ROLE_ENCOUNTER_CATALOG_REVIEWER` only. `ROLE_CLOSURE_BETA` stays explicit so production users and the first testers stay separate.
+`ROLE_ADMIN` inherits `ROLE_PARTICIPANT`, `ROLE_REVIEW_INDICATIONS`, `ROLE_ENCOUNTER_BETA` and `ROLE_ENCOUNTER_CATALOG_REVIEWER`. The former opt-in role `ROLE_CLOSURE_BETA` was removed when Closure Analytics and closure imports left the beta (#1350); a migration took it off all users.
 
 ## Hospital permissions (bitmask)
 
@@ -58,7 +57,7 @@ Exception: My Hospitals (`/hospitals`) lists only hospitals an administrator own
 
 `AllocationVoter::VIEW` requires `ROLE_PARTICIPANT` (not merely `ROLE_USER`) and applies to **any** allocation — it does **not** check `HospitalPermission::View`. Path `access_control` on `/explore` also requires `ROLE_PARTICIPANT`.
 
-`ImportCreateVoter::IMPORT_CREATE` (#1351) asks `ImportUploadTargets`, the one place that says where a user may upload which import type: allocation and closure lists to hospitals with `HospitalPermission::Import` (owners and admins included; closure lists also need `ROLE_CLOSURE_BETA`), types of other contexts to the hospitals of their `import.type_extension` (for example the encounter grant `UPLOAD`), all only with `ROLE_PARTICIPANT`. Without a subject it grants when the user may upload at least one type to at least one hospital; with a `Hospital` it grants when they may upload at least one type there. It adds no rights of its own. `/import/new` redirects to the import list with a notice when it is denied, and on submit the chosen type and hospital must match.
+`ImportCreateVoter::IMPORT_CREATE` (#1351) asks `ImportUploadTargets`, the one place that says where a user may upload which import type: allocation and closure lists to hospitals with `HospitalPermission::Import` (owners and admins included), types of other contexts to the hospitals of their `import.type_extension` (for example the encounter grant `UPLOAD`), all only with `ROLE_PARTICIPANT`. Without a subject it grants when the user may upload at least one type to at least one hospital; with a `Hospital` it grants when they may upload at least one type there. It adds no rights of its own. `/import/new` redirects to the import list with a notice when it is denied, and on submit the chosen type and hospital must match.
 
 Use `$this->denyAccessUnlessGranted()` in controllers and `#[IsGranted]` attributes where appropriate.
 
@@ -134,8 +133,9 @@ Benchmarking pages require `HospitalPermission::Benchmarking` (or admin/owner). 
 See [../04-features/statistics/statistics-filter-and-scope.md](../04-features/statistics/statistics-filter-and-scope.md) for how permissions affect filter scopes.
 
 Closure analytics (`/statistics/closure-analytics`) keeps that Statistics grant and
-adds `ROLE_PARTICIPANT` on top of `ROLE_CLOSURE_BETA`. `ClosureAnalyticsHospitalScope`
+requires `ROLE_PARTICIPANT` (`access_control` and the controllers), like the import pages; it needs
+no beta role since #1350. `ClosureAnalyticsHospitalScope`
 forces every overview, timeline, event, detail, interval, group and export query
-onto `accessibleHospitalIds()`. Administrators with the beta role may select across
+onto `accessibleHospitalIds()`. Administrators may select across
 hospitals. The restriction is not applied to other statistics pages, and closures
 are not listed in the Analysis Explorer.

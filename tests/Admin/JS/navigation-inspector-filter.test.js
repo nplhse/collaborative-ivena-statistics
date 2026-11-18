@@ -13,7 +13,7 @@ const node = (id, text, { issue = false, hidden = false, onPath = false } = {}, 
     children,
 });
 
-// Capacity group of the statistics sidebar for a user without ROLE_CLOSURE_BETA, with the duration part of
+// Capacity group of the statistics sidebar for a user without ROLE_PARTICIPANT, with the duration part of
 // Closures on the path of the checked route.
 const tree = () => [
     node('assignments', 'Notzuweisungen app_stats_closed_department_assignments'),

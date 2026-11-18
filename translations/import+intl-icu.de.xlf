@@ -327,7 +327,7 @@
       </trans-unit>
       <trans-unit id="impTypeClosureDe" resname="label.import.type.closure">
         <source>label.import.type.closure</source>
-        <target>Schließungsliste (Beta)</target>
+        <target>Schließungsliste</target>
       </trans-unit>
       <trans-unit id="impTypeEncounterDe" resname="label.import.type.encounter">
         <source>label.import.type.encounter</source>
@@ -348,10 +348,6 @@
       <trans-unit id="impHospOverrideSrcDe" resname="label.import.hospitalOverride.sourceLabel">
         <source>label.import.hospitalOverride.sourceLabel</source>
         <target>In der Datei genannte Klinik: {label}</target>
-      </trans-unit>
-      <trans-unit id="impTypeHelpDe" resname="label.import.type.help">
-        <source>label.import.type.help</source>
-        <target>Schließungslisten sind eine Beta und nur mit der Rolle „Schließungen (Beta)“ sichtbar.</target>
       </trans-unit>
       <trans-unit id="impSumAllocDe" resname="import.summary.allocations_imported">
         <source>import.summary.allocations_imported</source>

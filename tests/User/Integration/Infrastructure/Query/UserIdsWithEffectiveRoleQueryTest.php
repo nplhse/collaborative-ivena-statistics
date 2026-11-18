@@ -18,7 +18,7 @@ final class UserIdsWithEffectiveRoleQueryTest extends DatabaseKernelTestCase
         $disabledParticipant = UserFactory::new()->asParticipant()->create(['isEnabled' => false]);
         $plainUser = UserFactory::createOne(['roles' => []]);
         $boardMemberOnly = UserFactory::createOne(['roles' => [UserRole::BOARD_MEMBER]]);
-        $closureBeta = UserFactory::createOne(['roles' => [UserRole::CLOSURE_BETA]]);
+        $encounterBetaOnly = UserFactory::createOne(['roles' => [UserRole::ENCOUNTER_BETA]]);
 
         $ids = (self::getContainer()->get(UserIdsWithEffectiveRoleQuery::class))(UserRole::PARTICIPANT);
 
@@ -27,7 +27,7 @@ final class UserIdsWithEffectiveRoleQueryTest extends DatabaseKernelTestCase
         self::assertContains($disabledParticipant->getId(), $ids, 'The enabled flag is not part of the role check.');
         self::assertNotContains($plainUser->getId(), $ids);
         self::assertNotContains($boardMemberOnly->getId(), $ids);
-        self::assertNotContains($closureBeta->getId(), $ids);
+        self::assertNotContains($encounterBetaOnly->getId(), $ids);
     }
 
     public function testEveryUserHasTheBaseRole(): void

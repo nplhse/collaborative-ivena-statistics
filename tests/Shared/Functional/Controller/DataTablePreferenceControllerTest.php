@@ -25,7 +25,7 @@ final class DataTablePreferenceControllerTest extends WebTestCase
     public function testAuthenticatedUserCanSaveAndResetTablePreference(): void
     {
         $client = self::createClient();
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA']]);
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $client->loginUser($user);
         $key = ClosureEventTableColumns::PREFERENCE_KEY;
         $crawler = $client->request(
@@ -141,7 +141,7 @@ final class DataTablePreferenceControllerTest extends WebTestCase
     public function testUnitTablePreferenceStoresColumnsSortAndPageSize(): void
     {
         $client = self::createClient();
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA']]);
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $client->loginUser($user);
         $key = ClosureUnitTableColumns::PREFERENCE_KEY;
         $client->request(

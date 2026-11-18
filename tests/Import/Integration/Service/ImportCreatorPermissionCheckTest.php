@@ -73,15 +73,13 @@ final class ImportCreatorPermissionCheckTest extends DatabaseKernelTestCase
         self::assertNull($this->check->failureFor($this->import($creator, $hospital)));
     }
 
-    public function testClosureImportNeedsTheBetaRole(): void
+    public function testClosureImportNeedsNoExtraRole(): void
     {
+        // Closure imports left the beta (#1350): the import permission is enough, as for allocations.
         $owner = $this->participant();
         $import = $this->import($owner, $this->hospital($owner), ImportType::CLOSURE);
 
-        self::assertSame(ImportRunReasonCode::MissingClosureRole, $this->check->failureFor($import));
-
-        $betaOwner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA']]);
-        self::assertNull($this->check->failureFor($this->import($betaOwner, $this->hospital($betaOwner), ImportType::CLOSURE)));
+        self::assertNull($this->check->failureFor($import));
     }
 
     private function participant(): User

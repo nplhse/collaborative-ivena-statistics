@@ -12,6 +12,7 @@ enum ImportRunReasonCode: string
     case MissingCreator = 'missing_creator';
     case MissingHospital = 'missing_hospital';
     case MissingImportPermission = 'missing_import_permission';
+    /** Legacy (#1350): no longer produced since closure imports left the beta; kept for stored runs. */
     case MissingClosureRole = 'missing_closure_role';
     case TypeMismatch = 'type_mismatch';
     case MissingFilePath = 'missing_file_path';
@@ -31,7 +32,7 @@ enum ImportRunReasonCode: string
             self::MissingCreator => 'Import has no creator user',
             self::MissingHospital => 'Import has no hospital',
             self::MissingImportPermission => 'Creator has no current import permission',
-            self::MissingClosureRole => 'Creator has no closure beta role',
+            self::MissingClosureRole => 'Creator had no closure beta role (legacy)',
             self::TypeMismatch => 'Import type does not match the processing workflow',
             self::MissingFilePath => 'Import has no file path',
             self::InvalidFilePath => 'Invalid import file path',

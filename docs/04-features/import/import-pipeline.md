@@ -9,7 +9,7 @@ Upload/dispatch is separated from processing in the worker.
 
 - Allocation records
 - MCI/MANV-related rows
-- Closure intervals, when the upload is a closure list and the user has `ROLE_CLOSURE_BETA` ([closure-import.md](closure-import.md))
+- Closure intervals, when the upload is a closure list ([closure-import.md](closure-import.md))
 - Encounters (ED visits) from canonical `ed_visit` files (`ImportType::ENCOUNTER`), with the encounter beta
   role and grant `UPLOAD` ([encounter README](../encounter/README.md#import))
 - Rejected rows are recorded as rejects

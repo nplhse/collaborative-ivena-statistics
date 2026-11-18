@@ -33,8 +33,8 @@ final class ClosureAnalyticsVolumeAccessTest extends WebTestCase
     public function testVolumeStaysInsideTheAuthorizedHospital(): void
     {
         $client = self::createClient();
-        $owner = $this->login($client, [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA]);
-        $other = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA]]);
+        $owner = $this->login($client, [UserRole::USER, UserRole::PARTICIPANT]);
+        $other = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
         $own = $this->seedClosure($owner, 'Own Volume Hospital', 'own-volume');
         $foreign = $this->seedClosure($other, 'Foreign Volume Hospital', 'foreign-volume');
         self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->rebuild();
@@ -67,7 +67,7 @@ final class ClosureAnalyticsVolumeAccessTest extends WebTestCase
     public function testShortClosureChartsExplainTheirValuesAndShowEverything(): void
     {
         $client = self::createClient();
-        $owner = $this->login($client, [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA]);
+        $owner = $this->login($client, [UserRole::USER, UserRole::PARTICIPANT]);
         $seed = $this->seedClosure($owner, 'Short Volume Hospital', 'short-volume');
         self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->rebuild();
 
@@ -92,7 +92,7 @@ final class ClosureAnalyticsVolumeAccessTest extends WebTestCase
     public function testFullDayClosureHidesItsMiddleExplicitly(): void
     {
         $client = self::createClient();
-        $owner = $this->login($client, [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA]);
+        $owner = $this->login($client, [UserRole::USER, UserRole::PARTICIPANT]);
         $seed = $this->seedClosure($owner, 'Long Volume Hospital', 'long-volume', '2026-05-01 10:00:00', '2026-05-02 10:00:00');
         self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->rebuild();
 

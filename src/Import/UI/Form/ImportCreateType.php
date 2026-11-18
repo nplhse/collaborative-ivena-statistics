@@ -83,7 +83,6 @@ final class ImportCreateType extends AbstractType
                 'data' => array_values($choices)[0],
                 'choices' => $choices,
                 'choice_attr' => static fn (ImportType $type): array => ['data-import-type' => $type->value],
-                'help' => 'label.import.type.help',
                 'constraints' => [new Assert\NotNull()],
             ]);
         }

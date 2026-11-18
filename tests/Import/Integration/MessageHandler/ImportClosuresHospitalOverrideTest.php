@@ -132,7 +132,7 @@ final class ImportClosuresHospitalOverrideTest extends DatabaseKernelTestCase
     {
         $owner = UserFactory::createOne([
             'username' => 'closure-override-'.bin2hex(random_bytes(4)),
-            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA'],
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
         ]);
         $state = StateFactory::createOne();
         $dispatch = DispatchAreaFactory::createOne(['state' => $state]);

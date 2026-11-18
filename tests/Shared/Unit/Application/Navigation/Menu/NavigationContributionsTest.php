@@ -69,7 +69,7 @@ final class NavigationContributionsTest extends TestCase
             [
                 // capacity: a visible link, a denied group with a child, a route-less group whose only child is denied
                 $this->item('emergency', 'capacity', 'r_emergency'),
-                $this->item('closures', 'capacity', null, 'ROLE_CLOSURE_BETA'),
+                $this->item('closures', 'capacity', null, 'ROLE_PARTICIPANT'),
                 $this->item('closures-overview', 'closures', 'r_closures'),
                 $this->item('parts', 'capacity', null),
                 $this->item('parts-hidden', 'parts', 'r_parts', 'ROLE_ENCOUNTER_BETA'),

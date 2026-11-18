@@ -29,6 +29,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -53,11 +54,11 @@ final class NewImportControllerTest extends WebTestCase
         $this->fixturesDir = \dirname(__DIR__, 2).'/Fixtures';
     }
 
-    public function testClosureBetaUserCanUploadAClosureList(): void
+    public function testParticipantCanUploadAClosureList(): void
     {
         $owner = UserFactory::new()->withoutAutorefresh()->create([
-            'username' => 'closure-beta-owner',
-            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA'],
+            'username' => 'closure-owner',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
         ]);
         $createdBy = UserFactory::new()->withoutAutorefresh()->create(['username' => 'closure-area-user']);
         $state = StateFactory::new()->withoutAutorefresh()->create(['name' => 'Hessen']);
@@ -76,7 +77,7 @@ final class NewImportControllerTest extends WebTestCase
         $em = self::getContainer()->get(EntityManagerInterface::class);
         $em->clear();
         /** @var User $freshOwner */
-        $freshOwner = $em->getRepository(User::class)->findOneBy(['username' => 'closure-beta-owner']);
+        $freshOwner = $em->getRepository(User::class)->findOneBy(['username' => 'closure-owner']);
         self::assertNotNull($freshOwner);
 
         $csvPath = tempnam(sys_get_temp_dir(), 'closure-upload');
@@ -143,26 +144,10 @@ final class NewImportControllerTest extends WebTestCase
             ->assertSeeIn('.messages', 'You cannot start an import yet');
     }
 
-    public function testOwnerWithoutClosureBetaIsOfferedOnlyAllocationImports(): void
+    public function testOwnerIsOfferedAllocationAndClosureImportsForTheHospital(): void
     {
+        // Closure lists left the beta (#1350): the import permission is enough.
         [$owner, $hospitalId] = $this->createOwnerWithHospital();
-
-        $this->browser()
-            ->actingAs($owner)
-            ->visit('/import/new')
-            ->assertSuccessful()
-            ->assertNotSeeElement('select[name="import_create[type]"]')
-            ->assertSeeElement(\sprintf('select[name="import_create[hospital]"] option[value="%d"][data-import-types=\'["Allocation"]\']', $hospitalId));
-    }
-
-    public function testClosureBetaOwnerIsOfferedBothTypesForTheHospital(): void
-    {
-        [$owner, $hospitalId] = $this->createOwnerWithHospital();
-        $owner->setRoles(['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA']);
-        /** @var EntityManagerInterface $em */
-        $em = self::getContainer()->get(EntityManagerInterface::class);
-        $em->persist($owner);
-        $em->flush();
 
         $this->browser()
             ->actingAs($owner)
@@ -266,6 +251,7 @@ final class NewImportControllerTest extends WebTestCase
                     'name' => 'Remember Me Import',
                     'hospital' => (string) $hospitalId,
                     '_token' => $form['import_create[_token]']->getValue(),
+                    'type' => $this->allocationType($crawler),
                 ],
             ],
             [
@@ -326,6 +312,7 @@ final class NewImportControllerTest extends WebTestCase
                     'name' => 'Rate Limited Import',
                     'hospital' => (string) $hospitalId,
                     '_token' => $form['import_create[_token]']->getValue(),
+                    'type' => $this->allocationType($crawler),
                 ],
             ],
             [
@@ -355,7 +342,7 @@ final class NewImportControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('[name="import_create[hospitalOverride]"]');
 
-        $this->postAllocationUpload($client, $crawler->filter('form')->form()['import_create[_token]']->getValue(), 'Forged Override Import', $hospitalId, ['hospitalOverride' => '1']);
+        $this->postAllocationUpload($client, $crawler, 'Forged Override Import', $hospitalId, ['hospitalOverride' => '1']);
 
         // The field does not exist outside dev, so the posted value is an extra field and the form is invalid.
         self::assertResponseIsSuccessful();
@@ -376,11 +363,9 @@ final class NewImportControllerTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, '/import/new');
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('input[type="checkbox"][name="import_create[hospitalOverride]"]');
-        $token = $crawler->filter('form')->form()['import_create[_token]']->getValue();
-
-        $this->postAllocationUpload($client, $token, 'Override Import', $hospitalId, ['hospitalOverride' => '1']);
+        $this->postAllocationUpload($client, $crawler, 'Override Import', $hospitalId, ['hospitalOverride' => '1']);
         self::assertResponseRedirects();
-        $this->postAllocationUpload($client, $token, 'Plain Import', $hospitalId);
+        $this->postAllocationUpload($client, $crawler, 'Plain Import', $hospitalId);
         self::assertResponseRedirects();
 
         /** @var EntityManagerInterface $em */
@@ -560,6 +545,7 @@ final class NewImportControllerTest extends WebTestCase
                         'name' => 'Upload Failure Attempt',
                         'hospital' => (string) $hospitalId,
                         '_token' => $form['import_create[_token]']->getValue(),
+                        'type' => $this->allocationType($crawler),
                     ],
                 ],
                 [
@@ -634,16 +620,26 @@ final class NewImportControllerTest extends WebTestCase
     /**
      * @param array<string, string> $extra additional form fields
      */
-    private function postAllocationUpload(KernelBrowser $client, string $token, string $name, int $hospitalId, array $extra = []): void
+    private function postAllocationUpload(KernelBrowser $client, Crawler $crawler, string $name, int $hospitalId, array $extra = []): void
     {
+        $token = $crawler->filter('form')->form()['import_create[_token]']->getValue();
         $uploadPath = sys_get_temp_dir().'/allocation_import_sample_'.bin2hex(random_bytes(4)).'.csv';
         self::assertTrue(copy($this->fixturesDir.'/allocation_import_sample.csv', $uploadPath));
 
         $client->request(
             Request::METHOD_POST,
             '/import/new',
-            ['import_create' => ['name' => $name, 'hospital' => (string) $hospitalId, '_token' => $token, ...$extra]],
+            ['import_create' => ['name' => $name, 'hospital' => (string) $hospitalId, 'type' => $this->allocationType($crawler), '_token' => $token, ...$extra]],
             ['import_create' => ['file' => new UploadedFile($uploadPath, 'allocation_import_sample.csv', 'text/csv', null, true)]],
         );
+    }
+
+    /**
+     * Value of the allocation option in the type field; every user with the import permission chooses
+     * between allocation and closure lists (#1350).
+     */
+    private function allocationType(Crawler $crawler): string
+    {
+        return (string) $crawler->filter('select[name="import_create[type]"] option[data-import-type="Allocation"]')->attr('value');
     }
 }

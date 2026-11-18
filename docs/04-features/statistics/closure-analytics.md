@@ -5,9 +5,9 @@ Closure Analytics evaluates imported `closure_interval` rows. It is separate fro
 use the IVENA allocation snapshot `department_was_closed`.
 
 Access to the navigation entry and every `/statistics/closure-analytics` endpoint
-requires the explicit `ROLE_CLOSURE_BETA` opt-in and `ROLE_PARTICIPANT`.
-`ROLE_ADMIN` does not grant the beta role implicitly, but an administrator who has
-the beta role inherits `ROLE_PARTICIPANT` and may evaluate every hospital.
+requires `ROLE_PARTICIPANT`, like the other participant pages. Closure Analytics left the
+beta in #1350; the former opt-in role `ROLE_CLOSURE_BETA` no longer exists. Administrators
+inherit `ROLE_PARTICIPANT` and may evaluate every hospital.
 
 Hospital access is enforced in `ClosureAnalyticsHospitalScope` through the existing
 `HospitalPermission::Statistics` grants (`HospitalAccessInterface::accessibleHospitalIds()`).
@@ -345,7 +345,7 @@ rendered as a data table. Each row is one combination of speciality, department,
 care level and reason, plus the department provenance. A department that appears
 only in assignments is a row without care level or reason. The period picker and
 the closure date filter are the same controls as the rest of closure statistics.
-Access stays `ROLE_CLOSURE_BETA` and the hospital scope.
+Access stays `ROLE_PARTICIPANT` and the hospital scope.
 
 KPIs are the event count, how many of those events have at least one volume
 piece of quality `reliable` or `limited` with positive evaluable seconds, the

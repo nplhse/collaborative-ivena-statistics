@@ -88,7 +88,7 @@ final class CreateDemoHospitalCommandTest extends KernelTestCase
         self::assertIsArray($user);
         self::assertSame(['demo', 'demo@demo.invalid'], [$user['username'], $user['email']], 'the first demo participant is called demo');
         self::assertTrue($user['is_enabled'] && $user['is_verified']);
-        self::assertEqualsCanonicalizing(['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA'], json_decode((string) $user['roles'], true));
+        self::assertEqualsCanonicalizing(['ROLE_USER', 'ROLE_PARTICIPANT'], json_decode((string) $user['roles'], true));
         self::assertMatchesRegularExpression('/Participant password\s+Ivena!1234/', $display, 'the known demo password');
         self::assertStringContainsString('a new account "demo", password Ivena!1234', $display, 'the summary names the account');
         $setup = self::getContainer()->get(DemoHospitalSetup::class);

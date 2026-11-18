@@ -125,7 +125,7 @@ final class ClosureHospitalAssignmentTest extends DatabaseKernelTestCase
     {
         return UserFactory::createOne([
             'username' => 'closure-hospital-'.bin2hex(random_bytes(4)),
-            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA'],
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
         ]);
     }
 

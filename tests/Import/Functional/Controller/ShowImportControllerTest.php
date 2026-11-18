@@ -63,7 +63,7 @@ final class ShowImportControllerTest extends WebTestCase
         $client = self::createClient();
         [$owner, $importId, , , $hospitalId] = $this->createImportWithRelations(
             ImportType::CLOSURE,
-            ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA'],
+            ['ROLE_USER', 'ROLE_PARTICIPANT'],
             382,
             'Closure upload',
         );
@@ -72,7 +72,7 @@ final class ShowImportControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, \sprintf('/import/%d', $importId));
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', 'Closure list (beta)');
+        self::assertSelectorTextContains('body', 'Closure list');
         self::assertSelectorTextContains('#import-imported-records', '382 Closures imported');
         self::assertSelectorTextNotContains('body', 'Deduplicated');
         self::assertSelectorTextContains('body', 'All closure intervals and related data will be removed.');
@@ -158,7 +158,7 @@ final class ShowImportControllerTest extends WebTestCase
         $client = self::createClient();
         [$owner, $importId] = $this->createImportWithRelations(
             ImportType::CLOSURE,
-            ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA'],
+            ['ROLE_USER', 'ROLE_PARTICIPANT'],
             2,
             'Closure upload',
             ImportStatus::COMPLETED,

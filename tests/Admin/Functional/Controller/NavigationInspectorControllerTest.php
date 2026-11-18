@@ -41,22 +41,25 @@ final class NavigationInspectorControllerTest extends WebTestCase
 
     public function testHiddenEntriesAreShownWithTheirReason(): void
     {
-        $this->adminClient()->request(Request::METHOD_GET, self::URL);
+        $client = $this->adminClient();
+        UserFactory::new()->with(['username' => 'plain-viewer', 'roles' => ['ROLE_USER']])->create();
+
+        $client->request(Request::METHOD_GET, self::URL, ['user' => 'plain-viewer']);
 
         self::assertSelectorExists(
             '[data-testid="nav-inspector-menu-statistics"] [data-nav-inspector-item="closures"] [data-visibility="denied"]',
-            'Admins do not have ROLE_CLOSURE_BETA.',
+            'Closure Analytics needs ROLE_PARTICIPANT.',
         );
         self::assertSelectorExists('[data-testid="nav-inspector-menu-statistics"] [data-nav-inspector-item="closures-overview"] [data-visibility="hidden_parent"]');
         self::assertSelectorExists('[data-nav-inspector-item="closures"][data-nav-hidden][data-nav-issue]', 'The filter can find hidden entries.');
-        self::assertSelectorNotExists('[data-nav-inspector-item="benchmarking"] [data-visibility]', 'Visible entries carry no status.');
+        self::assertSelectorNotExists('[data-nav-inspector-item="dashboard"] [data-visibility]', 'Visible entries carry no status.');
         self::assertSelectorExists('template[data-nav-details="closures"]', 'Every entry has its properties for the side panel.');
     }
 
     public function testPermissionsCanBeEvaluatedForAnotherUser(): void
     {
         $client = $this->adminClient();
-        UserFactory::new()->with(['username' => 'closure-tester', 'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA']])->create();
+        UserFactory::new()->with(['username' => 'closure-tester', 'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']])->create();
 
         $client->request(Request::METHOD_GET, self::URL, ['user' => 'closure-tester']);
 
@@ -69,7 +72,8 @@ final class NavigationInspectorControllerTest extends WebTestCase
         $this->adminClient()->request(Request::METHOD_GET, self::URL, ['user' => 'nobody-here']);
 
         self::assertSelectorTextContains('[data-testid="nav-inspector-unknown-user"]', 'There is no user "nobody-here".');
-        self::assertSelectorExists('[data-nav-inspector-item="closures"] [data-visibility="denied"]');
+        // Evaluated for the admin, who sees Closure Analytics (#1350).
+        self::assertSelectorExists('[data-nav-inspector-item="closures"]:not([data-nav-hidden])');
     }
 
     public function testTheRouteCheckShowsTheActivePathAndTheRuleInEveryMenu(): void

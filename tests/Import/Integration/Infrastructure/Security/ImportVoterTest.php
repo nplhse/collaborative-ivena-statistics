@@ -366,21 +366,22 @@ final class ImportVoterTest extends KernelTestCase
         );
     }
 
-    public function testClosureReprocessDeniedWhenTheCreatorLostTheBetaRole(): void
+    public function testClosureReprocessByAdminNeedsNoExtraRoleOfTheCreator(): void
     {
-        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_CLOSURE_BETA']]);
+        // Closure imports left the beta (#1350): the creator's import permission is enough.
+        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
         $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $import = $this->createImportForOwner($owner, type: ImportType::CLOSURE, filePath: $this->storedFile());
 
         self::assertSame(
-            Voter::ACCESS_DENIED,
+            Voter::ACCESS_GRANTED,
             $this->voter->vote($this->createToken($admin), $import, [ImportVoter::REPROCESS]),
         );
     }
 
-    public function testClosureReprocessGrantedWhenTheCreatorHasTheBetaRole(): void
+    public function testClosureReprocessGrantedForTheCreator(): void
     {
-        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA']]);
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $import = $this->createImportForOwner($owner, type: ImportType::CLOSURE, filePath: $this->storedFile());
 
         self::assertSame(
@@ -395,29 +396,19 @@ final class ImportVoterTest extends KernelTestCase
         self::assertFalse($this->voter->supportsType(Hospital::class));
     }
 
-    public function testClosureImportIsHiddenWithoutBetaRole(): void
+    public function testClosureImportIsVisibleAndDeletableLikeOtherImports(): void
     {
+        // Closure imports left the beta (#1350): no extra role is needed.
         $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
-        $import = $this->createImportForOwner($owner, type: ImportType::CLOSURE);
-
-        self::assertSame(
-            Voter::ACCESS_DENIED,
-            $this->voter->vote($this->createToken($owner), $import, [ImportVoter::VIEW]),
-        );
-        self::assertSame(
-            Voter::ACCESS_DENIED,
-            $this->voter->vote($this->createToken($owner), $import, [ImportVoter::DELETE]),
-        );
-    }
-
-    public function testClosureImportIsVisibleWithBetaRole(): void
-    {
-        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA']]);
         $import = $this->createImportForOwner($owner, type: ImportType::CLOSURE);
 
         self::assertSame(
             Voter::ACCESS_GRANTED,
             $this->voter->vote($this->createToken($owner), $import, [ImportVoter::VIEW]),
+        );
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($owner), $import, [ImportVoter::DELETE]),
         );
     }
 

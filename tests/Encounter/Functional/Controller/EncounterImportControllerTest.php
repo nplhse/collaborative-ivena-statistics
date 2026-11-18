@@ -190,7 +190,7 @@ final class EncounterImportControllerTest extends WebTestCase
         $this->client->loginUser($this->uploader);
         $crawler = $this->client->request(Request::METHOD_GET, '/import/new');
         self::assertSame(
-            json_encode([ImportType::ALLOCATION->value]),
+            json_encode([ImportType::ALLOCATION->value, ImportType::CLOSURE->value]),
             $crawler->filter('select[name="import_create[hospital]"] option[value="'.$importOnly->getId().'"]')->attr('data-import-types'),
         );
 
