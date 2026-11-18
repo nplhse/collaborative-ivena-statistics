@@ -4153,6 +4153,10 @@
         <source>stats.analysis_explorer.metric.percent_of_total</source>
         <target>Share of total</target>
       </trans-unit>
+      <trans-unit id="statsAexM01b" resname="stats.analysis_explorer.metric.percent_of_series">
+        <source>stats.analysis_explorer.metric.percent_of_series</source>
+        <target>Share within group</target>
+      </trans-unit>
       <trans-unit id="statsAexM02" resname="stats.analysis_explorer.metric.resus_rate">
         <source>stats.analysis_explorer.metric.resus_rate</source>
         <target>Resuscitation room rate</target>
