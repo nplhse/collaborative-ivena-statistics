@@ -7,10 +7,10 @@ namespace App\Import\UI\Form;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Import\Application\Contracts\ImportTypeExtensionInterface;
-use App\Import\Application\Service\DevelopmentHospitalOverride;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Domain\Validation\Constraints\ImportSourceFile;
+use App\Import\Infrastructure\Security\Voter\ImportCreateVoter;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -23,6 +23,8 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -33,11 +35,25 @@ use Symfony\Component\Validator\Constraints\File as FileConstraint;
  */
 final class ImportCreateType extends AbstractType
 {
+    /**
+     * Import options (#1352): unmapped checkboxes shown in the upload form's Options section. Each one exists
+     * only for users the voter attribute grants it to, in the environments where it applies; the controller
+     * asks the same attribute before it uses the value. Later options (dry run, ...) are added here.
+     *
+     * @var array<string, array{attribute: string, label: string, help: string}>
+     */
+    private const array OPTIONS = [
+        'hospitalOverride' => [
+            'attribute' => ImportCreateVoter::OPTION_HOSPITAL_OVERRIDE,
+            'label' => 'label.import.hospitalOverride',
+            'help' => 'label.import.hospitalOverride.help',
+        ],
+    ];
+
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private readonly HospitalRepository $hospitalRepository,
         private readonly Security $security,
-        private readonly DevelopmentHospitalOverride $hospitalOverride,
         #[Autowire(param: 'app.imports_max_size')]
         private readonly string $maxSize = '5M',
     ) {
@@ -87,14 +103,16 @@ final class ImportCreateType extends AbstractType
             ]);
         }
 
-        // Development only (#878): outside `dev` the field does not exist, so a posted value is an extra field.
-        if ($this->hospitalOverride->isAvailable()) {
-            $builder->add('hospitalOverride', CheckboxType::class, [
-                'mapped' => false,
-                'required' => false,
-                'label' => 'label.import.hospitalOverride',
-                'help' => 'label.import.hospitalOverride.help',
-            ]);
+        // An option the user may not use does not exist, so a posted value is an extra field.
+        foreach (self::OPTIONS as $name => $option) {
+            if ($this->security->isGranted($option['attribute'])) {
+                $builder->add($name, CheckboxType::class, [
+                    'mapped' => false,
+                    'required' => false,
+                    'label' => $option['label'],
+                    'help' => $option['help'],
+                ]);
+            }
         }
 
         foreach ($extensions as $extension) {
@@ -121,6 +139,18 @@ final class ImportCreateType extends AbstractType
                 'label' => 'label.btn.import',
             ])
         ;
+    }
+
+    /**
+     * Names of the option fields this form has, for the Options section of the template.
+     */
+    #[\Override]
+    public function buildView(FormView $view, FormInterface $form, array $options): void
+    {
+        $view->vars['import_options'] = array_values(array_filter(
+            array_keys(self::OPTIONS),
+            $form->has(...),
+        ));
     }
 
     #[\Override]

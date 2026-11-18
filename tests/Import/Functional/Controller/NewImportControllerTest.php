@@ -14,9 +14,9 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
-use App\Import\Application\Service\DevelopmentHospitalOverride;
 use App\Import\Application\Service\FileUploader;
 use App\Import\Application\Service\ImportFileStorage;
+use App\Import\Application\Service\ImportHospitalOverride;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Infrastructure\Repository\ImportRunRepository;
@@ -341,6 +341,7 @@ final class NewImportControllerTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, '/import/new');
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('[name="import_create[hospitalOverride]"]');
+        self::assertSelectorNotExists('[data-test="import-options"]', 'Without any available option there is no Options section.');
 
         $this->postAllocationUpload($client, $crawler, 'Forged Override Import', $hospitalId, ['hospitalOverride' => '1']);
 
@@ -356,13 +357,16 @@ final class NewImportControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $client->disableReboot();
-        self::getContainer()->set(DevelopmentHospitalOverride::class, new DevelopmentHospitalOverride('dev'));
+        self::getContainer()->set(ImportHospitalOverride::class, new ImportHospitalOverride('dev'));
         [$owner, $hospitalId] = $this->createOwnerWithHospital();
         $client->loginUser($owner);
 
         $crawler = $client->request(Request::METHOD_GET, '/import/new');
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('input[type="checkbox"][name="import_create[hospitalOverride]"]');
+        self::assertSelectorExists('[data-test="import-options"] input[type="checkbox"][name="import_create[hospitalOverride]"]');
+        self::assertSelectorTextContains('[data-test="import-options"] label', 'Override target hospital');
+        self::assertSelectorTextNotContains('[data-test="import-options"] label', 'development only');
+        self::assertSelectorNotExists('#import-options-body.show', 'The Options section starts collapsed.');
         $this->postAllocationUpload($client, $crawler, 'Override Import', $hospitalId, ['hospitalOverride' => '1']);
         self::assertResponseRedirects();
         $this->postAllocationUpload($client, $crawler, 'Plain Import', $hospitalId);
@@ -383,7 +387,7 @@ final class NewImportControllerTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/import/'.$override->getId());
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', 'Imported with the development-only target hospital override.');
+        self::assertSelectorTextContains('body', 'Imported with the target hospital override.');
 
         @\unlink((string) $override->getFilePath());
         @\unlink((string) $plain->getFilePath());
@@ -615,6 +619,26 @@ final class NewImportControllerTest extends WebTestCase
         self::assertNotNull($freshOwner);
 
         return [$freshOwner, (int) $hospital->getId()];
+    }
+
+    public function testOptionsSectionOpensWhenAnOptionIsSetAndTheFormIsShownAgain(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        self::getContainer()->set(ImportHospitalOverride::class, new ImportHospitalOverride('demo'));
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $client->loginUser($owner);
+
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-test="import-options"] [name="import_create[hospitalOverride]"]', 'The option is offered in the demo.');
+
+        // An empty name makes the form invalid; the ticked option keeps the section open.
+        $this->postAllocationUpload($client, $crawler, '', $hospitalId, ['hospitalOverride' => '1']);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#import-options-body.show');
+        self::assertCheckboxChecked('import_create[hospitalOverride]');
     }
 
     /**

@@ -335,7 +335,7 @@
       </trans-unit>
       <trans-unit id="impHospOverrideDe" resname="label.import.hospitalOverride">
         <source>label.import.hospitalOverride</source>
-        <target>Zielklinik überschreiben (nur Entwicklung)</target>
+        <target>Zielklinik überschreiben</target>
       </trans-unit>
       <trans-unit id="impHospOverrideHelpDe" resname="label.import.hospitalOverride.help">
         <source>label.import.hospitalOverride.help</source>
@@ -343,11 +343,19 @@
       </trans-unit>
       <trans-unit id="impHospOverrideNoticeDe" resname="label.import.hospitalOverride.notice">
         <source>label.import.hospitalOverride.notice</source>
-        <target>Mit der Zielklinik-Überschreibung (nur Entwicklung) importiert. Diese Zeilen sind echte Betriebsdaten, keine synthetischen Daten.</target>
+        <target>Mit der Zielklinik-Überschreibung importiert. Diese Zeilen sind echte Betriebsdaten, keine synthetischen Daten.</target>
       </trans-unit>
       <trans-unit id="impHospOverrideSrcDe" resname="label.import.hospitalOverride.sourceLabel">
         <source>label.import.hospitalOverride.sourceLabel</source>
         <target>In der Datei genannte Klinik: {label}</target>
+      </trans-unit>
+      <trans-unit id="impOptionsDe" resname="label.import.options">
+        <source>label.import.options</source>
+        <target>Optionen</target>
+      </trans-unit>
+      <trans-unit id="impOptionsDemoDe" resname="label.import.options.demoWarning">
+        <source>label.import.options.demoWarning</source>
+        <target>Dies ist die Demo, deren Banner alle Daten als synthetisch ausweist. Ein Import mit Zielklinik-Überschreibung enthält echte Betriebsdaten und ist auf seiner Importseite gekennzeichnet. Zeige ihn nur, wenn das Publikum diese Daten sehen darf.</target>
       </trans-unit>
       <trans-unit id="impSumAllocDe" resname="import.summary.allocations_imported">
         <source>import.summary.allocations_imported</source>

@@ -45,14 +45,20 @@ The file input uses `accept=".csv,.txt"`. Windows may report CSV exports as `app
 
 User-facing messages are in the `validators` domain (`validation.import.*`); help text on the form uses `label.import.helpFile` in the `import` domain.
 
-## Development-only target hospital override
+## Import options and the target hospital override
 
-In the `dev` environment the upload form has an extra checkbox, **Override target hospital (development only)** (#878). It lets a developer load a real allocation or closure export into a fictional demo hospital and is recorded on the import (`hospital_override`, `hospital_override_source_label`).
+The upload form has an **Options** section below the file field, right above the submit button (#1352). It lists only the options the current user can use in the current environment and is missing when there is none. A quiet toggle with a chevron opens it, like an accordion; it starts collapsed and opens on its own when an option is set or has a validation error. The fields of other contexts' import types (for example the encounter fields of `ed_visit`) keep their own fieldset.
 
+Options are registered in one place, `ImportCreateType::OPTIONS`: an unmapped checkbox with label, help and a voter attribute. An option the voter does not grant is not added to the form, so a posted value is an extra field and the form is invalid; the controller asks the same attribute before it uses the value.
+
+The first option is **Override target hospital** (#878). It lets a real allocation or closure export be loaded into a fictional demo hospital and is recorded on the import (`hospital_override`, `hospital_override_source_label`).
+
+- Available in `dev` and `demo` (`ImportHospitalOverride`), never in `prod` or `test`; tests switch it on by replacing that service.
+- Right: `ImportCreateVoter::OPTION_HOSPITAL_OVERRIDE`, granted to everyone who may upload to the selected hospital (without subject: to at least one hospital). Form and controller use it; the asynchronous closure handler has no user and only checks the environment.
 - Allocations are always stored on the selected hospital; the file's `Krankenhaus-Kurzname` is not compared, so the flag only records the intent.
-- Closures: the flag lets a single file hospital name that matches another catalog hospital pass (details: [closure-import.md](closure-import.md#development-only-target-hospital-override)).
-- Permissions, validation, duplicate handling and reference resolution do not change. Outside `dev` the option does not exist and a stored flag has no effect.
-- These imports are real operational data, not synthetic data; the synthetic data generator never replaces them.
+- Closures: the flag lets a single file hospital name that matches another catalog hospital pass (details: [closure-import.md](closure-import.md#target-hospital-override-dev-and-demo)).
+- Permissions, validation, duplicate handling and reference resolution do not change. Outside `dev` and `demo` the option does not exist and a stored flag has no effect.
+- These imports are real operational data, not synthetic data; the synthetic data generator never replaces them. In the demo the Options section warns that such an import contradicts the "all data is synthetic" banner ([ADR 023](../../02-architecture/decisions/023-demo-environment.md#real-exports-through-the-target-hospital-override)).
 
 ## Technical flow
 

@@ -86,6 +86,21 @@ plain `php bin/console`).
   `app_demo_mode`: the layout shows a banner ("all data is synthetic") and prefixes the page title;
   the EasyAdmin layout (`templates/bundles/EasyAdminBundle/layout.html.twig`) shows the same banner.
 
+### Real exports through the target hospital override
+
+*Note added with #1352.* The target hospital override of the import form (#878) is available in `dev`
+**and** `demo`. It loads a real IVENA export into a fictional demo hospital, so a demo database can hold
+real operational data although the banner says that all data is synthetic. This was a deliberate choice: a
+demo or staging installation may show how real exports of a prospective hospital look in the platform.
+
+- The demo's isolation is unchanged: such data stays in `app_demo` and `var/demo/imports`, and nothing in
+  the demo reaches production.
+- Every such import is marked on its import page ("Imported with the target hospital override. These rows
+  are real operational data"), and in the demo the Options section of the upload form warns that the
+  import contradicts the banner. Whoever presents decides whether the audience may see that data.
+- `make demo-install` and the wizard still load synthetic data only; the override is an explicit action of
+  a user who may upload to the hospital.
+
 ### Generation runs (#791 step 3)
 
 Generating a hospital for the presentation must not wait for the projections, and the participant should

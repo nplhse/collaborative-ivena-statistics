@@ -8,7 +8,6 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Import\Application\Contracts\ImportTypeExtensionInterface;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Message\ImportClosuresMessage;
-use App\Import\Application\Service\DevelopmentHospitalOverride;
 use App\Import\Application\Service\FileChecksumCalculator;
 use App\Import\Application\Service\FileUploader;
 use App\Import\Application\Service\ImportRunLifecycle;
@@ -56,7 +55,6 @@ final class NewImportController extends AbstractController
         private readonly AuditContext $auditContext,
         private readonly ImportUploadTargets $uploadTargets,
         private readonly ImportRunLifecycle $runLifecycle,
-        private readonly DevelopmentHospitalOverride $hospitalOverride,
         private readonly ImportTypeExtensionRegistry $typeExtensions,
         private readonly ImportStartDispatcher $startDispatcher,
     ) {
@@ -181,7 +179,7 @@ final class NewImportController extends AbstractController
             ->setRunCount(0)
             ->setRunTime(0)
             ->setRowCount(0)
-            ->setHospitalOverride($this->resolveHospitalOverride($form));
+            ->setHospitalOverride($this->resolveHospitalOverride($form, $hospital));
 
         $checksum = $this->checksumCalculator->forPath($targetPath);
         $import->setFileChecksum($checksum);
@@ -261,13 +259,13 @@ final class NewImportController extends AbstractController
     }
 
     /**
-     * The explicit development-only target hospital override (#878); never set outside `dev`.
+     * The explicit target hospital override (#878, #1352): only where the voter grants it for this hospital.
      *
      * @param FormInterface<mixed> $form
      */
-    private function resolveHospitalOverride(FormInterface $form): bool
+    private function resolveHospitalOverride(FormInterface $form, Hospital $hospital): bool
     {
-        if (!$this->hospitalOverride->isAvailable() || !$form->has('hospitalOverride')) {
+        if (!$form->has('hospitalOverride') || !$this->isGranted(ImportCreateVoter::OPTION_HOSPITAL_OVERRIDE, $hospital)) {
             return false;
         }
 

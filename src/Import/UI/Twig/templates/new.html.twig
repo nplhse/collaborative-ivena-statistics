@@ -55,9 +55,6 @@
                             'data-action': 'change->import-type-fields#toggle',
                         }}) }}
                     {% endif %}
-                    {% if form.hospitalOverride is defined %}
-                        {{ form_row(form.hospitalOverride) }}
-                    {% endif %}
                     {% if extension_fields|default([]) is not empty %}
                         <fieldset class="form-fieldset" data-test="import-type-extension-fields" data-import-type-fields-target="section">
                             <div class="form-label text-secondary">{{ 'label.import.encounter.fields'|trans({}, 'import') }}</div>
@@ -67,6 +64,40 @@
                         </fieldset>
                     {% endif %}
                     {{ form_row(form.file) }}
+                    {# Import options (#1352): only those the user may use here; no options, no section. #}
+                    {% set import_options = form.vars.import_options|default([]) %}
+                    {% if import_options is not empty %}
+                        {% set options_open = false %}
+                        {% for name in import_options %}
+                            {% set field = attribute(form, name) %}
+                            {% if field.vars.data or field.vars.errors|length > 0 %}
+                                {% set options_open = true %}
+                            {% endif %}
+                        {% endfor %}
+                        <div class="mb-3" data-test="import-options">
+                            <button type="button"
+                                    class="btn btn-link btn-sm p-0 text-secondary text-decoration-none import-options-toggle{{ options_open ? '' : ' collapsed' }}"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#import-options-body"
+                                    aria-expanded="{{ options_open ? 'true' : 'false' }}"
+                                    aria-controls="import-options-body">
+                                {{ 'label.import.options'|trans({}, 'import') }}
+                                <twig:ux:icon name="tabler:chevron-down" class="icon ms-1 import-options-chevron" />
+                            </button>
+                            <div id="import-options-body" class="collapse{{ options_open ? ' show' : '' }}">
+                                <div class="pt-2 ps-3 border-start">
+                                    {% if app.environment == 'demo' and 'hospitalOverride' in import_options %}
+                                        <div class="alert alert-warning" data-test="import-options-demo-warning">
+                                            {{ 'label.import.options.demoWarning'|trans({}, 'import') }}
+                                        </div>
+                                    {% endif %}
+                                    {% for name in import_options %}
+                                        {{ form_row(attribute(form, name)) }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
                     {{ form_row(form.submit) }}
                 {{ form_end(form) }}
             </twig:Card>
