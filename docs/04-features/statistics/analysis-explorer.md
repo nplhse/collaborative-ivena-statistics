@@ -181,6 +181,21 @@ This is separate from saved-view metadata (`savedViewDescription` / `ExplorerDes
 
 CSV export re-runs the normalizer + runner pipeline (same guards as `rerunAnalysis()`). Config is submitted via POST with CSRF as `appliedConfigState`. Scope, period, filters, axes and metrics come from that state — the same source as the chart and data table. URL query parameters are not overlaid onto the export (URL scope/period overlay applies only when loading a saved view).
 
+### Reference hospital comparison (#1346)
+
+A viewer with `HospitalPermission::Benchmarking` can compare up to **5 reference hospitals** with **the other hospitals in the selected scope** (allocations data source only). It is a synthetic series, not a separate benchmarking system.
+
+| Item | Behaviour |
+|---|---|
+| Groups | One series per reference hospital (its name) plus "Other hospitals in scope" / "Andere Kliniken im Scope" (`GenericAnalysis` dimension `reference_group`: `CASE WHEN hospital_id IN (:reference_hospitals) THEN hospital_id::text ELSE 'others' END`, ids always bound). The groups are disjoint and add up to the population without comparison. |
+| Preconditions | Allocations source; no manual column axis (the comparison takes the series slot; the form clears and disables the column field); a scope other than a single hospital; 1–5 distinct references; Benchmarking on every reference (admins: any hospital); every reference inside the scope; hospitals in scope − references ≥ `ScopePrivacyPolicy::MIN_HOSPITALS` (3), for **every** scope kind including "all" and "my hospitals". |
+| Hospitals in scope | `ScopeHospitalIdsQuery`: the distinct hospitals with allocations in `allocation_stats_projection` under the analysis scope conditions, independent of the period. |
+| Share within group | `percent_of_series` (count distributions only): count of the bucket in the group ÷ all counted cases of the group (after filters and the usual handling of missing values, before chart or export limits). A group without cases has no share ("–", empty CSV cell); an empty bucket in a group with cases is 0 %. "Other hospitals" is a case-weighted pool, not an average of hospital shares. Switching the comparison on preselects "show percent" if the metric is a count distribution; for averages and rates the display stays as it is. A later explicit choice is stored and kept. With the share on, the chart plots the shares. |
+| Effective view | `ExplorerReferenceComparisonPolicy::effective()` decides per viewer, in `AnalysisExecution` (live explorer), `SavedExplorerViewLoader` (saved and public views) and the CSV export. If the comparison is not available, the effective view has no references, no `percent_of_series` and no group labels (the rest is normalised again, so a grouped bar chart that only fits the comparison falls back), and shows the neutral notice `stats.analysis_explorer.reference_comparison.unavailable`. There is no partial comparison. The stored configuration is not changed by opening it. The page and the CSV only ever receive the effective configuration, so an unauthorised viewer of a public view, or an anonymous viewer of a system view (the only saved views anonymous viewers can open), never gets the reference ids or names. |
+| Table and CSV | Flat table with a "Group" column and the share within the group; no footer share (shares add up per group). The CSV uses the same group labels; never rows per other hospital. Without an effective comparison the group column is absent. |
+| Known limitation | The minimum counts hospitals of the scope, not hospitals that contribute cases after the analysis filters. After filtering, "Other hospitals in scope" can in effect contain a single contributing hospital. Minimum checks on contributing hospitals and stricter rules for small groups are #1347. |
+| Saving | Saving stores the configuration as it is in the explorer at that moment. If the comparison was not available when the view was opened (for example a grant was withdrawn), saving stores it without the comparison. |
+
 ### Chart row limit
 
 Charts can optionally show only the **top 5** or **top 10** row buckets (primary axis). Default is **all** rows — unlike Generic Analysis, which auto-limits categorical charts to top 5.
@@ -219,7 +234,7 @@ Charts can optionally show only the **top 5** or **top 10** row buckets (primary
 }
 ```
 
-v1–v3 configs with known fields are upgraded on load via `ExplorerConfigMapper` + `AnalysisAxisUpgradeMapper`. Unknown catalog keys fail. Serialisation always writes v4. `presentation.mode` is not part of v4.
+v1–v4 configs with known fields are upgraded on load via `ExplorerConfigMapper` + `AnalysisAxisUpgradeMapper`. Unknown catalog keys fail. Serialisation always writes v5, which adds `query.referenceHospitals` (list of hospital ids, empty without comparison, #1346); a v4 state loads unchanged, without a comparison. `presentation.mode` is not part of v5.
 
 ### Hospitals data source
 
@@ -236,7 +251,7 @@ v1–v3 configs with known fields are upgraded on load via `ExplorerConfigMapper
 
 ```json
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "dataSource": "hospitals",
   "query": {
     "scope": { "group": "public", "detail": null },
@@ -260,7 +275,7 @@ Saved views are bound to `configJson.dataSource`. When opening a saved view with
 
 UI-only LiveProps on the shell: `isEditOpen`, `configWarning`, `analysisRevision`, `appliedConfigState`, `locale`. Chart/table output is request-scoped (not persisted in LiveProps).
 
-## Config state format (schema version 4)
+## Config state format (schema version 5)
 
 Legacy v1/v2 examples are upgraded on load. Current serialisation format:
 

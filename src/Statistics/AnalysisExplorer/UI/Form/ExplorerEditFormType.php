@@ -6,6 +6,7 @@ namespace App\Statistics\AnalysisExplorer\UI\Form;
 
 use App\Statistics\AnalysisExplorer\Application\AnalysisAxisResolver;
 use App\Statistics\AnalysisExplorer\Application\AnalysisFilterChoiceProvider;
+use App\Statistics\AnalysisExplorer\Application\Comparison\ExplorerReferenceComparisonPolicy;
 use App\Statistics\AnalysisExplorer\Application\DataSourceCapabilitiesRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerColumnGrainResolver;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
@@ -58,6 +59,7 @@ final class ExplorerEditFormType extends AbstractType
         private readonly Security $security,
         private readonly AnalysisFilterChoiceProvider $filterChoiceProvider,
         private readonly ExplorerEditFormFilterFieldMapper $filterFieldMapper,
+        private readonly ExplorerReferenceComparisonPolicy $referenceComparisonPolicy,
     ) {
     }
 
@@ -86,6 +88,12 @@ final class ExplorerEditFormType extends AbstractType
             ->add('tableLayout', PreTranslatedChoiceType::class, ['label' => 'stats.analysis_explorer.edit.table_layout', 'choices' => []])
             ->add('chartRowLimit', PreTranslatedChoiceType::class, ['label' => 'stats.generic_analysis.table.row_limit_label', 'choices' => []])
             ->add('hospitalPopulation', PreTranslatedChoiceType::class, ['label' => 'stats.analysis_explorer.edit.hospital_population', 'choices' => []])
+            ->add('referenceHospitals', PreTranslatedChoiceType::class, [
+                'label' => 'stats.analysis_explorer.edit.reference_hospitals',
+                'choices' => [],
+                'multiple' => true,
+                'required' => false,
+            ])
             ->add('additionalTableMetrics', PreTranslatedChoiceType::class, [
                 'label' => 'stats.analysis_explorer.edit.additional_table_metrics',
                 'choices' => [],
@@ -133,6 +141,7 @@ final class ExplorerEditFormType extends AbstractType
             }
 
             $submitted = $this->withDefaultMatrixLayout($submitted, $current);
+            $submitted = $this->withComparisonDefaults($submitted, $current);
             $preview = $this->previewFromSubmitted($submitted, $current);
 
             /** @var \Symfony\Component\Form\FormInterface<ExplorerEditFormData> $form */
@@ -142,6 +151,15 @@ final class ExplorerEditFormType extends AbstractType
                 $submitted['hospitalPopulation'] = $adjusted->hospitalPopulation;
             }
             $event->setData($submitted);
+        });
+
+        // The column field is disabled while comparing (#1346), and Symfony does not write a disabled field back.
+        $builder->addEventListener(FormEvents::SUBMIT, static function (FormEvent $event): void {
+            $data = $event->getData();
+            if ($data instanceof ExplorerEditFormData && [] !== $data->referenceHospitals) {
+                $data->columnDimension = null;
+                $data->columnGrain = null;
+            }
         });
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($locale): void {
@@ -213,6 +231,7 @@ final class ExplorerEditFormType extends AbstractType
             tableLayout: \is_string($submitted['tableLayout'] ?? null) ? $submitted['tableLayout'] : $current->tableLayout,
             chartRowLimit: \is_string($submitted['chartRowLimit'] ?? null) ? $submitted['chartRowLimit'] : $current->chartRowLimit,
             hospitalPopulation: \is_string($submitted['hospitalPopulation'] ?? null) ? $submitted['hospitalPopulation'] : $current->hospitalPopulation,
+            referenceHospitals: \array_key_exists('referenceHospitals', $submitted) ? ExplorerEditFormData::normalizeReferenceHospitals($submitted['referenceHospitals']) : $current->referenceHospitals,
             additionalTableMetrics: \array_key_exists('additionalTableMetrics', $submitted)
                 ? array_values(array_filter(
                     \is_array($submitted['additionalTableMetrics']) ? $submitted['additionalTableMetrics'] : [],
@@ -270,6 +289,17 @@ final class ExplorerEditFormType extends AbstractType
                 'rowGrain' => AnalysisDimensionGrain::Total->value,
             ]);
         }
+        // Reference comparison (#1346): only candidates of this scope, at most as many as the scope allows; while it is
+        // on, the comparison takes the series slot and the column axis is cleared.
+        $referenceCandidates = $this->referenceComparisonPolicy->candidates($dataSourceKey, $filter, $user instanceof User ? $user : null);
+        $references = $referenceCandidates->restrict($formData->referenceHospitals);
+        if ($references !== $formData->referenceHospitals) {
+            $formData = $this->rebuildFormData($formData, ['referenceHospitals' => $references]);
+        }
+        if ([] !== $references && null !== $formData->columnDimension && self::NONE_COLUMN !== $formData->columnDimension) {
+            $formData = $this->rebuildFormData($formData, ['columnDimension' => self::NONE_COLUMN, 'columnGrain' => self::NONE_COLUMN]);
+        }
+
         $formData = $this->withResolvedColumnGrain($formData, $rowAxis, $capabilities);
         $columnAxis = $this->resolveColumnAxis($formData, $rowAxis, $capabilities, $filter->period);
         $compareChoiceBlocked = $this->compareChoiceBlocked($dataSourceKey, $rowAxis, $columnAxis);
@@ -282,7 +312,7 @@ final class ExplorerEditFormType extends AbstractType
         $previewConfig = $this->previewFactory->fromFormData($capabilities, $rowAxis, $columnAxis, $metric, $formData);
         $compatibleMetrics = array_values(array_filter(
             $this->metricCapabilityPolicy->metricsForConfig($previewConfig),
-            static fn (AnalysisMetricKey $key): bool => AnalysisMetricKey::PercentOfTotal !== $key,
+            static fn (AnalysisMetricKey $key): bool => !$key->isShareDisplay(),
         ));
         $isDistributionProfile = $metric->isDistributionProfile();
         $additionalMetricChoices = $isDistributionProfile
@@ -314,8 +344,22 @@ final class ExplorerEditFormType extends AbstractType
 
         $form->add('columnDimension', PreTranslatedChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.column_dimension',
-            'help' => 'stats.analysis_explorer.edit.column_dimension_help',
             'choices' => $this->columnDimensionChoices($rowAxis, $capabilities, $dataSourceKey, $locale),
+            'disabled' => [] !== $references,
+            'help' => [] !== $references
+                ? 'stats.analysis_explorer.edit.column_dimension_reference_help'
+                : 'stats.analysis_explorer.edit.column_dimension_help',
+        ]);
+
+        $form->add('referenceHospitals', PreTranslatedChoiceType::class, [
+            'label' => 'stats.analysis_explorer.edit.reference_hospitals',
+            'help' => 'stats.analysis_explorer.edit.reference_hospitals_help',
+            'help_translation_parameters' => ['max' => $referenceCandidates->maxReferences],
+            'choices' => array_flip($referenceCandidates->names),
+            'multiple' => true,
+            'required' => false,
+            'disabled' => !$referenceCandidates->isAvailable(),
+            'attr' => ['data-testid' => 'stats-analysis-explorer-reference-hospitals'],
         ]);
 
         $columnGrainChoices = [];
@@ -772,6 +816,30 @@ final class ExplorerEditFormType extends AbstractType
     }
 
     /**
+     * Switching the reference comparison on (#1346) clears the column axis. With the case count it also preselects the
+     * share within each group; averages and rates keep their display. Afterwards the user's choice stays.
+     *
+     * @param array<string, mixed> $submitted
+     *
+     * @return array<string, mixed>
+     */
+    private function withComparisonDefaults(array $submitted, ExplorerEditFormData $current): array
+    {
+        $submittedReferences = ExplorerEditFormData::normalizeReferenceHospitals($submitted['referenceHospitals'] ?? []);
+        if ([] === $submittedReferences || [] !== $current->referenceHospitals) {
+            return $submitted;
+        }
+
+        $submitted['columnDimension'] = self::NONE_COLUMN;
+        $metric = $submitted['metric'] ?? $current->metric;
+        if (AnalysisMetricKey::AllocationCount->value === $metric) {
+            $submitted['showPercentOfTotal'] = '1';
+        }
+
+        return $submitted;
+    }
+
+    /**
      * @param array<string, mixed> $overrides
      */
     private function rebuildFormData(ExplorerEditFormData $source, array $overrides): ExplorerEditFormData
@@ -789,6 +857,7 @@ final class ExplorerEditFormType extends AbstractType
             tableLayout: $overrides['tableLayout'] ?? $source->tableLayout,
             chartRowLimit: $overrides['chartRowLimit'] ?? $source->chartRowLimit,
             hospitalPopulation: $overrides['hospitalPopulation'] ?? $source->hospitalPopulation,
+            referenceHospitals: $overrides['referenceHospitals'] ?? $source->referenceHospitals,
             additionalTableMetrics: $overrides['additionalTableMetrics'] ?? $source->additionalTableMetrics,
             filterDepartmentId: $source->filterDepartmentId,
             filterSpecialityId: $source->filterSpecialityId,

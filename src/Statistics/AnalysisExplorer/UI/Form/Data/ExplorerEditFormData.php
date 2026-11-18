@@ -21,6 +21,8 @@ final class ExplorerEditFormData
         public string $tableLayout = 'flat',
         public string $chartRowLimit = 'all',
         public string $hospitalPopulation = 'participating',
+        /** @var list<int> reference hospitals of the comparison (#1346); empty = off */
+        public array $referenceHospitals = [],
         /** @var list<string> */
         public array $additionalTableMetrics = [],
         public ?int $filterDepartmentId = null,
@@ -37,5 +39,27 @@ final class ExplorerEditFormData
         public ?int $filterSecondaryIndicationId = null,
         public ?int $filterIndicationGroupId = null,
     ) {
+    }
+
+    /**
+     * Reference hospital ids from submitted or stored values: positive integers, distinct, in their order (#1346).
+     *
+     * @return list<int>
+     */
+    public static function normalizeReferenceHospitals(mixed $value): array
+    {
+        if (!\is_array($value)) {
+            return [];
+        }
+
+        $ids = [];
+        foreach ($value as $item) {
+            $id = filter_var($item, \FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+            if (\is_int($id) && !\in_array($id, $ids, true)) {
+                $ids[] = $id;
+            }
+        }
+
+        return $ids;
     }
 }

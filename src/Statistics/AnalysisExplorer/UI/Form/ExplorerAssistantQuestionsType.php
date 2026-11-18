@@ -419,7 +419,7 @@ final class ExplorerAssistantQuestionsType extends AbstractType
         $preview = $this->previewFactory->fromFormData($capabilities, $rowAxis, $columnAxis, $metric, $formData);
         $metrics = array_values(array_filter(
             $this->metricCapabilityPolicy->metricsForConfig($preview),
-            static fn (AnalysisMetricKey $key): bool => AnalysisMetricKey::PercentOfTotal !== $key && $key->isChartable(),
+            static fn (AnalysisMetricKey $key): bool => !$key->isShareDisplay() && $key->isChartable(),
         ));
 
         return [] === $metrics ? [AnalysisMetricKey::defaultFor($draft->dataSource)] : $metrics;

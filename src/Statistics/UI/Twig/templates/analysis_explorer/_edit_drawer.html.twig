@@ -52,6 +52,15 @@
             </fieldset>
         {% endif %}
 
+        {% if not form.referenceHospitals.vars.disabled %}
+            {# Reference comparison (#1346): the viewer's hospitals against the other hospitals of the scope. #}
+            <fieldset class="border-0 p-0 mb-4" data-testid="stats-analysis-explorer-reference-comparison-field">
+                <legend class="fs-6 fw-semibold mb-1">{{ 'stats.analysis_explorer.edit.section.reference_comparison'|trans({}, 'statistics') }}</legend>
+                <p class="form-text mt-0 mb-2">{{ 'stats.analysis_explorer.edit.section.reference_comparison_help'|trans({}, 'statistics') }}</p>
+                {{ form_row(form.referenceHospitals, compactRow) }}
+            </fieldset>
+        {% endif %}
+
         <div class="accordion accordion-flush" id="analysisExplorerFilterAccordion" data-testid="stats-analysis-explorer-edit-section-filters">
             <div class="accordion-item">
                 {{ editAccordion.header(

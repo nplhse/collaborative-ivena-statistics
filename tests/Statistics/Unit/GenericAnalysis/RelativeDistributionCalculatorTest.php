@@ -41,6 +41,27 @@ final class RelativeDistributionCalculatorTest extends TestCase
         self::assertSame(100.0, $enriched[2]['derivedMetrics']['percent_of_bucket']);
     }
 
+    public function testPercentOfSeriesDividesByTheCasesOfTheSeries(): void
+    {
+        // Reference A: X 3, Y 1; others (B–E pooled by cases): X 4, Y 4 (#1346).
+        $result = new AnalysisResult(
+            rows: [
+                GenericAnalysisTestFixtures::resultRow('X', 3, series: '1'),
+                GenericAnalysisTestFixtures::resultRow('Y', 1, series: '1'),
+                GenericAnalysisTestFixtures::resultRow('X', 4, series: 'others'),
+                GenericAnalysisTestFixtures::resultRow('Y', 4, series: 'others'),
+            ],
+            grandTotal: 12,
+            primaryDimensionKey: 'indication',
+            metricKeys: ['count', 'percent_of_series'],
+            seriesDimensionKey: 'reference_group',
+        );
+
+        $enriched = $this->calculator->enrich($result, $result->metricKeys);
+
+        self::assertSame([75.0, 25.0, 50.0, 50.0], array_map(static fn (array $row): float => $row['derivedMetrics']['percent_of_series'], $enriched));
+    }
+
     public function testSkipsRelativeMetricsWhenNotRequested(): void
     {
         $result = new AnalysisResult(

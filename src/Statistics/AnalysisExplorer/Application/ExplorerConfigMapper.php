@@ -27,7 +27,8 @@ use Psr\Clock\ClockInterface;
 
 final readonly class ExplorerConfigMapper
 {
-    private const int SCHEMA_VERSION = 4;
+    /** Version 5 (#1346) adds `query.referenceHospitals`; version 4 states load unchanged, without a comparison. */
+    private const int SCHEMA_VERSION = 5;
 
     public function __construct(
         private ExplorerStatisticsFilterInputFactory $filterInputFactory,
@@ -54,11 +55,12 @@ final readonly class ExplorerConfigMapper
             columnDimension: $config->columnAxis?->dimensionKey->value,
             columnGrain: $config->columnAxis?->resolvedGrain()->value,
             metric: $config->visualMetricKey->value,
-            showPercentOfTotal: $config->showsPercentOfTotal(),
+            showPercentOfTotal: $config->showsPercentOfTotal() || $config->showsPercentOfSeries(),
             chartType: $config->presentation->chartType->value,
             tableLayout: $config->presentation->tableLayout->value,
             chartRowLimit: $config->presentation->chartRowLimit->value,
             hospitalPopulation: $config->hospitalPopulationMode->value,
+            referenceHospitals: $config->referenceHospitalIds,
             additionalTableMetrics: AnalysisMetricKey::additionalTableMetricValues(
                 $config->metricKeys,
                 $config->visualMetricKey,
@@ -82,12 +84,19 @@ final readonly class ExplorerConfigMapper
 
         [$rowAxis, $columnAxis] = $this->axesFromFormData($formData, $capabilities, $filter->period);
 
+        // The reference comparison (#1346) takes the series slot: allocations only, no manual column axis.
+        $referenceHospitalIds = AnalysisDataSourceKey::Allocations === $base->dataSourceKey ? $formData->referenceHospitals : [];
+        if ([] !== $referenceHospitalIds) {
+            $columnAxis = null;
+        }
+
         $preview = $this->previewFactory->fromFormData(
             $capabilities,
             $rowAxis,
             $columnAxis,
             $visualMetricKey,
             $formData,
+            $referenceHospitalIds,
         );
 
         $metricKeys = $this->metricCapabilityPolicy->normalizeMetricKeys($preview->metricKeys, $preview->withStatisticsFilter($filter));
@@ -113,7 +122,8 @@ final readonly class ExplorerConfigMapper
                 chartRowLimit: $chartRowLimit,
             ))
             ->withTitle($this->titleFactory->titleForAxes($rowAxis, $columnAxis, $base->dataSourceKey))
-            ->withHospitalPopulationMode($hospitalPopulationMode);
+            ->withHospitalPopulationMode($hospitalPopulationMode)
+            ->withReferenceHospitalIds($referenceHospitalIds);
 
         return $config->withFilters($this->analysisFilterPolicy->sanitizeForConfig(
             $config,
@@ -130,6 +140,7 @@ final readonly class ExplorerConfigMapper
             'scope' => $this->scopeToStateArray($config->statisticsFilter),
             'period' => $this->periodToStateArray($config->statisticsFilter),
             'hospitalPopulation' => $config->hospitalPopulationMode->value,
+            'referenceHospitals' => $config->referenceHospitalIds,
             'metrics' => array_map(static fn (AnalysisMetricKey $key): string => $key->value, $config->metricKeys),
             'visualMetric' => $config->visualMetricKey->value,
             'rows' => $config->rowAxis->toStateArray(),
@@ -191,11 +202,13 @@ final readonly class ExplorerConfigMapper
             columnDimension: $columnAxis?->dimensionKey->value,
             columnGrain: $columnAxis?->resolvedGrain()->value,
             metric: $visualMetricKey->value,
-            showPercentOfTotal: \in_array(AnalysisMetricKey::PercentOfTotal, $metricKeys, true),
+            showPercentOfTotal: \in_array(AnalysisMetricKey::PercentOfTotal, $metricKeys, true)
+                || \in_array(AnalysisMetricKey::PercentOfSeries, $metricKeys, true),
             chartType: (string) ($state['presentation']['chartType'] ?? ChartPresentationType::Bar->value),
             tableLayout: (string) ($state['presentation']['tableLayout'] ?? TableLayout::Flat->value),
             chartRowLimit: $chartRowLimit->value,
             hospitalPopulation: (string) ($queryState['hospitalPopulation'] ?? ExplorerHospitalPopulationMode::Participating->value),
+            referenceHospitals: ExplorerEditFormData::normalizeReferenceHospitals($queryState['referenceHospitals'] ?? []),
             additionalTableMetrics: AnalysisMetricKey::additionalTableMetricValues($metricKeys, $visualMetricKey),
         );
         $formData = $this->analysisFilterMapper->applyToFormData($formData, $storedFilters);

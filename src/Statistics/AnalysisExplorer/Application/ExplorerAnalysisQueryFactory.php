@@ -41,6 +41,7 @@ final readonly class ExplorerAnalysisQueryFactory
             periodBounds: StatisticsPeriodResolver::resolve($config->statisticsFilter),
             hospitalPopulationMode: $config->hospitalPopulationMode,
             filters: $filters,
+            referenceHospitalIds: $config->referenceHospitalIds,
         );
     }
 }

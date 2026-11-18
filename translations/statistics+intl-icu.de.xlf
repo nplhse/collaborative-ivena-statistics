@@ -7800,6 +7800,42 @@
         <source>stats.nav.badge.beta</source>
         <target>Beta</target>
       </trans-unit>
+      <trans-unit id="statsAeRefOthersDE" resname="stats.analysis_explorer.reference_comparison.others">
+        <source>stats.analysis_explorer.reference_comparison.others</source>
+        <target>Andere Kliniken im Scope</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefUnavailableDE" resname="stats.analysis_explorer.reference_comparison.unavailable">
+        <source>stats.analysis_explorer.reference_comparison.unavailable</source>
+        <target>Der Vergleich mit Referenzkliniken ist in dieser Ansicht nicht verfügbar.</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefGroupDE" resname="stats.analysis_explorer.reference_comparison.group">
+        <source>stats.analysis_explorer.reference_comparison.group</source>
+        <target>Gruppe</target>
+      </trans-unit>
+      <trans-unit id="statsAeExportPctSeriesDE" resname="stats.analysis_explorer.export.percent_of_series">
+        <source>stats.analysis_explorer.export.percent_of_series</source>
+        <target>Anteil innerhalb der Gruppe</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit0DE" resname="stats.analysis_explorer.edit.reference_hospitals">
+        <source>stats.analysis_explorer.edit.reference_hospitals</source>
+        <target>Referenzkliniken</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit1DE" resname="stats.analysis_explorer.edit.reference_hospitals_help">
+        <source>stats.analysis_explorer.edit.reference_hospitals_help</source>
+        <target>Bis zu {max} Ihrer Kliniken mit Benchmarking-Berechtigung. Jede wird mit den anderen Kliniken im Scope verglichen.</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit2DE" resname="stats.analysis_explorer.edit.column_dimension_reference_help">
+        <source>stats.analysis_explorer.edit.column_dimension_reference_help</source>
+        <target>Beim Vergleich mit Referenzkliniken sind keine Spalten verfügbar: Die Gruppen nehmen diesen Platz ein.</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit3DE" resname="stats.analysis_explorer.edit.section.reference_comparison">
+        <source>stats.analysis_explorer.edit.section.reference_comparison</source>
+        <target>Mit Referenzkliniken vergleichen</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit4DE" resname="stats.analysis_explorer.edit.section.reference_comparison_help">
+        <source>stats.analysis_explorer.edit.section.reference_comparison_help</source>
+        <target>Zeigt jede gewählte Klinik neben den anderen Kliniken im Scope, als Anteile innerhalb jeder Gruppe. Die anderen Kliniken werden nach ihren Fällen zusammengefasst.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

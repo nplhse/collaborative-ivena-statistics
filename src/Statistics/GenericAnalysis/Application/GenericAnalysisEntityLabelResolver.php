@@ -14,12 +14,14 @@ use App\Allocation\Infrastructure\Repository\OccasionRepository;
 use App\Allocation\Infrastructure\Repository\SpecialityRepository;
 use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Statistics\GenericAnalysis\Application\Contract\GenericAnalysisEntityLabelResolverInterface;
+use App\Statistics\GenericAnalysis\Domain\ReferenceComparison;
 
 final readonly class GenericAnalysisEntityLabelResolver implements GenericAnalysisEntityLabelResolverInterface
 {
     /** @var list<string> */
     private const array ENTITY_DIMENSION_KEYS = [
         'hospital',
+        ReferenceComparison::DIMENSION_KEY,
         'state',
         'dispatchArea',
         'department',
@@ -71,7 +73,8 @@ final readonly class GenericAnalysisEntityLabelResolver implements GenericAnalys
         }
 
         return match ($dimensionKey) {
-            'hospital' => $this->hospitalLookup->findNamesByIds($uniqueIds),
+            // Reference hospitals of the comparison (#1346) carry their hospital name; "others" is not numeric.
+            'hospital', ReferenceComparison::DIMENSION_KEY => $this->hospitalLookup->findNamesByIds($uniqueIds),
             'state' => $this->loadIdNameMap($this->stateRepository, 's', $uniqueIds),
             'dispatchArea' => $this->loadIdNameMap($this->dispatchAreaRepository, 'da', $uniqueIds),
             'department' => $this->loadIdNameMap($this->departmentRepository, 'd', $uniqueIds),

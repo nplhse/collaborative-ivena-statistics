@@ -81,7 +81,7 @@ final readonly class AnalysisViewConfigNormalizer
         $tableLayout = $config->presentation->tableLayout;
         $comparableMetricCount = \count(array_filter(
             $metricKeys,
-            static fn (\App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey $metricKey): bool => \App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey::PercentOfTotal !== $metricKey,
+            static fn (\App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey $metricKey): bool => !$metricKey->isShareDisplay(),
         ));
         if ($visualMetricKey->isDistributionProfile() || $requestedDistributionProfile instanceof \App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey) {
             $tableLayout = \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Flat;
@@ -110,6 +110,7 @@ final readonly class AnalysisViewConfigNormalizer
             title: $this->titleFactory->titleForAxes($rowAxis, $columnAxis, $capabilities->dataSourceKey),
             hospitalPopulationMode: $config->hospitalPopulationMode,
             filters: $this->analysisFilterPolicy->sanitizeForConfig($config, $config->filters),
+            referenceHospitalIds: $config->referenceHospitalIds,
         );
     }
 

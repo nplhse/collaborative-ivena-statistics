@@ -7,6 +7,7 @@ namespace App\Statistics\AnalysisExplorer\UI\Http\Controller;
 use App\Shared\Application\RateLimit\ClientRateLimit;
 use App\Statistics\AnalysisExplorer\Application\AnalysisRunnerRegistry;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
+use App\Statistics\AnalysisExplorer\Application\Comparison\ExplorerReferenceComparisonPolicy;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisQueryFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTableExportBuilder;
@@ -30,6 +31,7 @@ final class AnalysisExplorerExportController extends AbstractController
     private const string CSRF_TOKEN_ID = 'explorer_export_csv';
 
     public function __construct(
+        private readonly ExplorerReferenceComparisonPolicy $referenceComparisonPolicy,
         private readonly ExplorerConfigMapper $configMapper,
         private readonly AnalysisViewConfigNormalizer $configNormalizer,
         private readonly ExplorerAnalysisQueryFactory $queryFactory,
@@ -76,7 +78,8 @@ final class AnalysisExplorerExportController extends AbstractController
         }
 
         $config = $this->configMapper->viewConfigFromState($state, $user);
-        $normalizedConfig = $this->configNormalizer->normalize($config);
+        // The posted state comes from the client: the comparison is checked again for this viewer (#1346).
+        $normalizedConfig = $this->referenceComparisonPolicy->effective($this->configNormalizer->normalize($config), $user)->config;
 
         try {
             $query = $this->queryFactory->create($normalizedConfig, $user);

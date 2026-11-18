@@ -22,6 +22,7 @@ use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionException;
 use App\Statistics\GenericAnalysis\Domain\HospitalAnalysisConstants;
+use App\Statistics\GenericAnalysis\Domain\ReferenceComparison;
 
 final class DimensionRegistry
 {
@@ -199,6 +200,22 @@ final class DimensionRegistry
         $this->register($categorical('secondary_indication', 'secondary_indication_normalized_id', 'Secondary indication'));
         $this->register($categorical('infection', 'infection_id', 'Infection'));
         $this->register($categorical('hospital', 'hospital_id', 'Hospital'));
+        // Synthetic series of the reference comparison (#1346); only set by ReferenceComparisonModifier, never chosen
+        // as an axis. Buckets: the reference hospital ids and the pooled rest.
+        $this->register(new AnalysisDimension(
+            key: ReferenceComparison::DIMENSION_KEY,
+            column: 'hospital_id',
+            label: 'Reference comparison',
+            type: AnalysisDimensionType::Categorical,
+            sqlExpression: sprintf(
+                "CASE WHEN hospital_id IN (:%s) THEN hospital_id::text ELSE '%s' END",
+                ReferenceComparison::PARAMETER,
+                ReferenceComparison::OTHERS_BUCKET,
+            ),
+            valueLabelTranslationKeys: [
+                ReferenceComparison::OTHERS_BUCKET => 'stats.analysis_explorer.reference_comparison.others',
+            ],
+        ));
         $this->register($categorical('dispatchArea', 'dispatch_area_id', 'Dispatch area'));
         $this->register($categorical('state', 'state_id', 'State'));
 

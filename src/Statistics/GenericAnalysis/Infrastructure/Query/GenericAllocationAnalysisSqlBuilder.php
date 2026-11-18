@@ -98,6 +98,7 @@ final readonly class GenericAllocationAnalysisSqlBuilder
         }
 
         $types = $this->scopeSqlFilter->parameterTypes($params);
+        ReferenceGroupSqlParameters::apply($query, $primary, $series, $params, $types);
 
         if (!$query->includeNullBuckets) {
             $this->appendExcludeNullConditions($conditions, $params, $types, $primary, $usesAllocationAlias);

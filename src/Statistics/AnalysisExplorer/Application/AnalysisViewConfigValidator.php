@@ -107,7 +107,7 @@ final readonly class AnalysisViewConfigValidator
         $hasRate = false;
         $hasDistribution = false;
         foreach ($metricKeys as $metricKey) {
-            if (AnalysisMetricKey::PercentOfTotal === $metricKey) {
+            if ($metricKey->isShareDisplay()) {
                 $hasDistribution = true;
             }
             if ('rate' === $metricKey->metricCategory()->value) {

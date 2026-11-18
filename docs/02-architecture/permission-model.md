@@ -130,6 +130,8 @@ Implementation:
 
 Benchmarking pages require `HospitalPermission::Benchmarking` (or admin/owner). Other statistics pages require `HospitalPermission::Statistics`.
 
+Benchmarking also unlocks the reference hospital comparison in the Analysis Explorer (#1346): only hospitals with Benchmarking for the viewer (admins: any) can be references, checked per viewer on every request, for saved and public views and the CSV export (`ExplorerReferenceComparisonPolicy`). See [analysis-explorer.md](../04-features/statistics/analysis-explorer.md#reference-hospital-comparison-1346).
+
 See [../04-features/statistics/statistics-filter-and-scope.md](../04-features/statistics/statistics-filter-and-scope.md) for how permissions affect filter scopes.
 
 Closure analytics (`/statistics/closure-analytics`) keeps that Statistics grant and

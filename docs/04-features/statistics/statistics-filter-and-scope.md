@@ -78,6 +78,8 @@ The minimum of 3 hospitals is `ScopePrivacyPolicy::MIN_HOSPITALS`. With two hosp
 
 Dispatch-area eligibility uses distinct hospitals that appear with that origin `dispatch_area_id` (count MV). Filtering then uses `dispatch_area_id = :id` on `allocation_stats_projection` via `StatisticsScopeCriteria.dispatchAreaId`.
 
+The Analysis Explorer's reference hospital comparison (#1346) applies the same minimum to the hospitals that remain after the references: hospitals in scope − references ≥ 3, for every scope kind including "all" and "my hospitals" (which have no minimum of their own). See [analysis-explorer.md](analysis-explorer.md#reference-hospital-comparison-1346).
+
 ## Comparison scope
 
 `ComparisonScopeResolver` builds a secondary filter for benchmarking and Top Lists comparison views. It derives a default cohort from the primary scope's dominant location/tier via `AllocationStatsProjectionScopeQuery`.
