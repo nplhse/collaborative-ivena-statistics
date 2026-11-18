@@ -580,7 +580,10 @@ visibility (with the reason a hidden entry is hidden), the problems the builder 
 duplicate route claims, overlapping area prefixes, route names the router does not know, and the GET routes
 of an area that no entry claims. A route check shows the active path and rule per menu, and permissions can
 be evaluated for another user. The page reads through `NavigationInspector`
-(`src/Shared/Application/Navigation/Menu/Inspection/`).
+(`src/Shared/Application/Navigation/Menu/Inspection/`). It takes the route names and their methods from
+`RouteMethodCatalog`, which caches them in `var/cache/<env>/navigation/` like the router caches itself: with debug
+the list is rebuilt when a routing resource changes, without debug it stays until the cache is cleared, which every
+deploy does (#1343).
 
 ## My Hospitals actions
 
