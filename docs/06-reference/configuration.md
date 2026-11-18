@@ -39,6 +39,7 @@
 | `MAP_TILE_URL` | Leaflet tile URL template of all maps | default OpenStreetMap (`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`). Empty: no basemap (manual switch). If the tile server is unreachable, maps drop the basemap on their own. See [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md#map-tiles-and-offline-use). |
 | `MAP_TILE_ATTRIBUTION` | Attribution HTML shown on the maps | default OpenStreetMap; set it to match the tile source |
 | `MAP_TILE_MAX_ZOOM` | Highest zoom level of the maps | default `18`; match it to the tile server |
+| `DEMO_MAIL` | Mail of the demo environment | `mailpit` (default, local Mailpit) or `off` (discard all mail); no other value; demo only, see [../05-operations/demo-environment.md](../05-operations/demo-environment.md#preview-demo-emails) |
 | `FIXTURES_PROFILE` | Which hospitals get synthetic allocations | `single`, `minimal`, `medium`, `realistic`, `large`; default `medium` in `dev`, `minimal` in `test`, `large` in `demo`; see [../03-development/fixtures.md](../03-development/fixtures.md#profiles) |
 | `FIXTURES_SCALE` | Factor on the synthetic allocations per day | `0.01`–`10`, default `1` (close to real volumes); see [../03-development/fixtures.md](../03-development/fixtures.md) |
 | `FIXTURES_UNTIL` | Last day of the synthetic data | `Y-m-d`, default empty (yesterday); a fixed date gives the same data on every day; see [../03-development/fixtures.md](../03-development/fixtures.md) |
