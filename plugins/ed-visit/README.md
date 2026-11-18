@@ -45,7 +45,10 @@ The application requires the package from the Composer path repository `plugins/
 
 Without the bundle the application still boots and works: the encounter import offers the other registered
 schemas (or is hidden without any), the data preparation tool lists only their contributions, the conflict page
-shows candidates without a visit link, and the admin menu drops the MTS catalog. The tables stay. The tests in
+shows candidates without a visit link, and the admin menu drops the MTS catalog. The tables stay, with their data.
+Without the bundle no entity maps them, so `doctrine:migrations:diff` and `doctrine:schema:update` propose to
+drop them (#1372): remove those statements from a generated migration, or drop the tables on purpose once the data
+is no longer needed. The tests in
 `tests/Encounter/Functional/WithoutEdVisit/` boot such a kernel (`tests/Support/Kernel/`);
 `make check-without-ed-visit` installs a copy without the package itself ([development workflow](../../docs/03-development/development-workflow.md#install-without-the-ed-visit-plugin)).
 

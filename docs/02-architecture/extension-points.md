@@ -82,6 +82,22 @@ from `EncounterDimensionInterface::keyRules()`), source profiles, an optional sc
 local map. Contributions are ordered by schema name; without one the tool is hidden. Details:
 [data-preparation-tool.md](../04-features/encounter/data-preparation-tool.md#schema-contributions).
 
+## DBAL-managed tables
+
+**Tag:** `app.dbal_managed_tables`
+
+**Interface:** `DbalManagedTablesInterface` (`src/Shared/Application/Database/`)
+
+**Consumer:** `DbalManagedTablesSchemaFilter` (`doctrine.dbal.schema_filter` of the default connection)
+
+**Implementations:** `ClosureAnalysisDbalTables` (Statistics), `MessengerMonitoringDbalTables` (Shared),
+`GenerationRunDbalTables` (DataFixtures, dev/test/demo)
+
+Lists tables a context creates in its migrations and uses with DBAL only. The schema filter hides them and their
+sequences from `doctrine:migrations:diff` and `doctrine:schema:update`, so a generated migration does not drop them
+(#1372). Never list a table an entity maps: its mapping changes would no longer reach generated migrations.
+`SchemaDiffDropsNoTableTest` checks that every table the filter shows is mapped.
+
 ## Fixture purge participants
 
 **Tag:** `app.fixtures.purge_participant` (tag the service yourself: `src/DataFixtures` is no autoconfigured resource)
