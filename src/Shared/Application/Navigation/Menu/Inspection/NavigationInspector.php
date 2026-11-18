@@ -13,7 +13,6 @@ use App\Shared\Application\Navigation\Menu\NavigationProviderInterface;
 use App\Shared\Application\Navigation\Menu\NavigationVisibility;
 use App\Shared\Application\Navigation\Menu\NavItem;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -39,7 +38,7 @@ final readonly class NavigationInspector
         private NavigationBuilder $builder,
         private AuthorizationCheckerInterface $authorizationChecker,
         private TranslatorInterface $translator,
-        private RouterInterface $router,
+        private RouteMethodCatalog $routes,
     ) {
         $this->order = new NavigationOrder($translator);
     }
@@ -52,7 +51,7 @@ final readonly class NavigationInspector
     public function inspect(?\Closure $isGranted = null, ?string $userIdentifier = null, ?string $route = null, array $routeParameters = []): NavigationInspection
     {
         $isGranted ??= fn (string $attribute): bool => $this->authorizationChecker->isGranted($attribute);
-        $knownRoutes = $this->router->getRouteCollection()->all();
+        $knownRoutes = $this->routes->all();
 
         $menus = [];
         $claimed = [];
@@ -81,9 +80,9 @@ final readonly class NavigationInspector
     }
 
     /**
-     * @param \Closure(string): bool                          $isGranted
-     * @param array<string, \Symfony\Component\Routing\Route> $knownRoutes
-     * @param array<string, string>                           $routeParameters
+     * @param \Closure(string): bool      $isGranted
+     * @param array<string, list<string>> $knownRoutes     route name => allowed methods
+     * @param array<string, string>       $routeParameters
      */
     private function menu(NavigationContributions $contributions, \Closure $isGranted, array $knownRoutes, ?string $route, array $routeParameters): InspectedMenu
     {
@@ -188,9 +187,9 @@ final readonly class NavigationInspector
      * Routes that a page can be opened with (GET), that start with the area prefix of a primary entry and
      * that no entry of any menu claims. Such pages only mark the area in the top navbar.
      *
-     * @param array<string, string>                           $areaPrefixes primary entry id => prefix
-     * @param array<string, true>                             $claimed      route names claimed in any menu
-     * @param array<string, \Symfony\Component\Routing\Route> $knownRoutes
+     * @param array<string, string>       $areaPrefixes primary entry id => prefix
+     * @param array<string, true>         $claimed      route names claimed in any menu
+     * @param array<string, list<string>> $knownRoutes  route name => allowed methods
      *
      * @return array<string, array{prefix: string, routes: list<string>}>
      */
@@ -199,8 +198,7 @@ final readonly class NavigationInspector
         $unclaimed = [];
         foreach ($areaPrefixes as $entryId => $prefix) {
             $routes = [];
-            foreach ($knownRoutes as $name => $definition) {
-                $methods = $definition->getMethods();
+            foreach ($knownRoutes as $name => $methods) {
                 if (str_starts_with($name, $prefix) && !isset($claimed[$name]) && ([] === $methods || \in_array('GET', $methods, true))) {
                     $routes[] = $name;
                 }

@@ -9,6 +9,7 @@ use App\Shared\Application\Navigation\Menu\Inspection\InspectedNode;
 use App\Shared\Application\Navigation\Menu\Inspection\InspectedSection;
 use App\Shared\Application\Navigation\Menu\Inspection\NavigationInspection;
 use App\Shared\Application\Navigation\Menu\Inspection\NavigationInspector;
+use App\Shared\Application\Navigation\Menu\Inspection\RouteMethodCatalog;
 use App\Shared\Application\Navigation\Menu\LiteralLabel;
 use App\Shared\Application\Navigation\Menu\Menu;
 use App\Shared\Application\Navigation\Menu\NavGroup;
@@ -18,6 +19,8 @@ use App\Shared\Application\Navigation\Menu\NavigationProviderInterface;
 use App\Shared\Application\Navigation\Menu\NavigationVisibility;
 use App\Shared\Application\Navigation\Menu\NavItem;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Config\ConfigCacheFactory;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
@@ -240,9 +243,26 @@ final class NavigationInspectorTest extends TestCase
         };
 
         return [
-            new NavigationInspector($providers, new NavigationBuilder($providers, $authorizationChecker, $translator), $authorizationChecker, $translator, $router),
+            new NavigationInspector($providers, new NavigationBuilder($providers, $authorizationChecker, $translator), $authorizationChecker, $translator, new RouteMethodCatalog($router, new ConfigCacheFactory(true), $this->cacheDir())),
             $statistics,
         ];
+    }
+
+    private ?string $cacheDir = null;
+
+    #[\Override]
+    protected function tearDown(): void
+    {
+        if (null !== $this->cacheDir) {
+            new Filesystem()->remove($this->cacheDir);
+        }
+
+        parent::tearDown();
+    }
+
+    private function cacheDir(): string
+    {
+        return $this->cacheDir ??= sys_get_temp_dir().'/navigation_inspector_test_'.bin2hex(random_bytes(4));
     }
 
     private function menu(NavigationInspection $inspection, Menu $menu): InspectedMenu
