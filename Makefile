@@ -8,7 +8,7 @@
         lint-templates swiss-knife swiss-knife-check rector rector-check fix-php lint-php fix-twig \
         lint-twig fix-js lint-js phpstan psalm deptrac deptrac-strict deptrac-baseline test testdox \
         demo-install demo-install-guard demo-start demo-consume demo-reminder \
-        coverage test-unit test-database check-without-ed-visit purge-runtime purge reset clear
+        coverage test-unit test-database test-warmup check-without-ed-visit purge-runtime purge reset clear
 
 # Executables
 COMPOSER      = composer
@@ -381,9 +381,12 @@ test-unit: ## Run the unit suite via ParaTest, no database (PROCESSES=4, COVERAG
 	@mkdir -p var/coverage/logs
 	@$(PARATEST) --testsuite unit --processes=$(PROCESSES) $(call PARATEST_REPORTS,unit) $(ARGS)
 
-test-database: ## Run every non-unit suite via ParaTest, needs the test DB (PROCESSES=4, COVERAGE=1, JUNIT=1, ARGS=)
+test-database: test-warmup ## Run every non-unit suite via ParaTest, needs the test DB (PROCESSES=4, COVERAGE=1, JUNIT=1, ARGS=)
 	@mkdir -p var/coverage/logs
-	@$(PARATEST) --testsuite $(DATABASE_SUITES) --processes=$(PROCESSES) $(call PARATEST_REPORTS,integration) $(ARGS)
+	@TEST_PREWARMED_KERNELS=1 $(PARATEST) --testsuite $(DATABASE_SUITES) --processes=$(PROCESSES) $(call PARATEST_REPORTS,integration) $(ARGS)
+
+test-warmup: ## Compile the extra test containers (kernels without bundles, prod kernel of the CSP test) without coverage
+	@php -d pcov.enabled=0 bin/warmup-test-kernels
 
 ## —— Cleanup 🚮 ————————————————————————————————————————————————————————————————
 purge-runtime: ## Remove compiled assets, uploads, imports, cache, and logs

@@ -163,10 +163,12 @@ jobs:
                   php bin/console importmap:install
                   php bin/console asset-map:compile
 
+            # Without coverage: pcov would instrument the container compilation as well (#1343).
             - name: Warm test cache
-              run: php bin/console cache:warmup --env=test
+              run: php -d pcov.enabled=0 bin/console cache:warmup --env=test
 
             # Same command as `make test-database` locally; COVERAGE and JUNIT write the files uploaded below.
+            # It first compiles the extra test containers without coverage (`make test-warmup`, #1343).
             - name: Execute database-backed tests via ParaTest
               run: |
                   make -s test-database COVERAGE=1 JUNIT=1
