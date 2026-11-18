@@ -4,6 +4,8 @@
 
 **Purpose:** Deployment, workers, mail, backups, observability, and incident diagnosis.
 
+The project recommends [Uberspace](https://uberspace.de/) for hosting, and these docs assume it ([deployment.md](deployment.md)).
+
 ## Documents
 
 | Document | Type | Description |

@@ -2,6 +2,8 @@
 
 This application is deployed with [Deployer](https://deployer.org/) using the Symfony recipe. Production runs on [Uberspace](https://uberspace.de/) with a **user systemd** service for the Symfony Messenger worker.
 
+The project **recommends Uberspace** for hosting. The operations docs assume it: deployment, [Messenger workers](messenger-workers.md), [backups](backup-restore.md) and [hosts.yaml.example](../../hosts.yaml.example) are written for Uberspace. Other hosts can work, but you have to adapt these steps yourself. The footer shows "Hosted on Uberspace" by default; on another host, set `APP_UBERSPACE_CREDIT=false` ([configuration](../06-reference/configuration.md)).
+
 Upgrading an existing installation to a new release needs configuration changes and one-time commands that a deploy does not run: see [upgrading.md](upgrading.md).
 
 ## Paths on the server

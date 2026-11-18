@@ -27,6 +27,7 @@
 | `SYMFONY_TRUSTED_PROXIES` | Reverse proxies whose `X-Forwarded-*` headers are trusted | only behind a proxy that sets these headers: its address or range, for example `127.0.0.1`. Without it, client IPs (rate limits, audit log) are the proxy's address. Never `REMOTE_ADDR` or `0.0.0.0/0` unless only the proxy can reach the server |
 | `APP_TITLE` | Application display title | overrides `app.title` in `app.yaml` |
 | `APP_CONTENT_DEFAULT_LOCALE` | CMS page content fallback locale | default `en`; set `de` in production |
+| `APP_UBERSPACE_CREDIT` | "Hosted on Uberspace" in the footer | default `true`; set `false` when the installation is not hosted on Uberspace (the project recommends Uberspace, see [deployment](../05-operations/deployment.md)) |
 | `SENTRY_DSN` | Sentry DSN | empty = disabled |
 | `SENTRY_ENVIRONMENT` | Sentry environment | falls back to `APP_ENV` |
 | `SENTRY_RELEASE` | Sentry release | optional; falls back to `App\Kernel::APP_VERSION` |
@@ -69,7 +70,7 @@ Custom app settings in `config/packages/app.yaml` (via `AppExtension`):
 | `app.feedback.spam.history_days` | `30` | Window for repeated guest emails and repeated messages |
 | `app.feedback.quarantine.retention_days` | `30` | Days after going into quarantine until quarantined feedback is deleted ([feedback](../04-features/feedback/README.md#retention-and-stored-data)) |
 | `app.meta.copyright_start_year` | `2025` | Start year for footer copyright range (`© 2025–{current year}`) |
-| `app.meta.hoster.name` / `app.meta.hoster.url` | `Uberspace` / `https://uberspace.de` | Optional hosting provider shown in the footer meta line |
+| `app.meta.uberspace_credit` | `true` (`APP_UBERSPACE_CREDIT`) | Shows "Hosted on Uberspace" with a link in the footer meta line; off leaves the item out. There is no setting for other hosters |
 | `app.storage.thresholds.notice_percent` / `warning_percent` / `critical_percent` | `80` / `90` / `99` | Storage levels in percent of the capacity reference; must increase strictly and stay below 100 (checked at container build) |
 | `app.storage.measurement_max_age_hours` | `36` | A storage measurement older than this is `stale` for Application Health |
 

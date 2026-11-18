@@ -15,16 +15,12 @@
                             collaborative-ivena-statistics
                         </a>
                     </li>
-                    {% if app_hoster_name %}
+                    {% if app_uberspace_credit %}
                         <li class="list-inline-item" data-testid="footer-meta-hoster">
                             <twig:ux:icon name="game-icons:asteroid" style="height: 1em;" />
-                            {% if app_hoster_url %}
-                                <a href="{{ app_hoster_url }}" class="link-secondary">
-                                    {{ 'footer.hoster'|trans({hoster: app_hoster_name}, 'shared') }}
-                                </a>
-                            {% else %}
-                                {{ 'footer.hoster'|trans({hoster: app_hoster_name}, 'shared') }}
-                            {% endif %}
+                            <a href="https://uberspace.de" class="link-secondary">
+                                {{ 'footer.uberspace_credit'|trans({}, 'shared') }}
+                            </a>
                         </li>
                     {% endif %}
                     <li class="list-inline-item" data-testid="footer-meta-version">
