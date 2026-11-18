@@ -36,7 +36,7 @@ final class DbalManagedTablesSchemaFilter
     }
 
     /**
-     * @param string|AbstractAsset<Name> $asset
+     * @param string|AbstractAsset<covariant Name> $asset
      */
     public function __invoke(string|AbstractAsset $asset): bool
     {

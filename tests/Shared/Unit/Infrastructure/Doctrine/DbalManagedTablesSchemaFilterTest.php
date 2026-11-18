@@ -6,6 +6,11 @@ namespace App\Tests\Shared\Unit\Infrastructure\Doctrine;
 
 use App\Shared\Application\Database\DbalManagedTablesInterface;
 use App\Shared\Infrastructure\Doctrine\DbalManagedTablesSchemaFilter;
+use Doctrine\DBAL\Schema\AbstractAsset;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 final class DbalManagedTablesSchemaFilterTest extends TestCase
@@ -29,6 +34,24 @@ final class DbalManagedTablesSchemaFilterTest extends TestCase
         self::assertTrue($filter('allocation_id_seq'));
         self::assertTrue($filter('generation_run_hospital'), 'Only listed tables, not tables that share a prefix.');
         self::assertTrue($filter('messenger_messages'));
+    }
+
+    public function testReadsTheNameOfSchemaAssetObjects(): void
+    {
+        // SchemaTool passes table and sequence objects instead of names, qualified or not.
+        $filter = new DbalManagedTablesSchemaFilter([$this->provider(['closure_event'])]);
+        $column = Column::editor()->setUnquotedName('id')->setTypeName(Types::INTEGER)->create();
+
+        self::assertFalse($filter(Table::editor()->setUnquotedName('closure_event', 'public')->setColumns($column)->create()));
+        self::assertFalse($filter(Sequence::editor()->setUnquotedName('closure_event_id_seq')->create()));
+        self::assertTrue($filter(Table::editor()->setUnquotedName('allocation')->setColumns($column)->create()));
+    }
+
+    public function testKeepsAssetsWithoutAName(): void
+    {
+        $filter = new DbalManagedTablesSchemaFilter([$this->provider(['closure_event'])]);
+
+        self::assertTrue($filter(self::createStub(AbstractAsset::class)));
     }
 
     public function testWithoutProvidersNothingIsHidden(): void
