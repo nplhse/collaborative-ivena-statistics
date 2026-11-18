@@ -51,6 +51,26 @@ final class DemoEnvironmentConfigTest extends KernelTestCase
         self::assertArrayNotHasKey('DAMADoctrineTestBundle', $bundles);
     }
 
+    public function testDemoEnvironmentSendsMailToMailpitByDefault(): void
+    {
+        $container = $this->bootDemoKernel();
+
+        self::assertSame('smtp://127.0.0.1:1025', $container->getParameter('app.mailer_dsn'));
+    }
+
+    public function testDemoMailOffDiscardsEveryMail(): void
+    {
+        $_SERVER['DEMO_MAIL'] = $_ENV['DEMO_MAIL'] = 'off';
+
+        try {
+            $container = $this->bootDemoKernel();
+
+            self::assertSame('null://null', $container->getParameter('app.mailer_dsn'));
+        } finally {
+            unset($_SERVER['DEMO_MAIL'], $_ENV['DEMO_MAIL']);
+        }
+    }
+
     public function testOtherEnvironmentsAreNotInDemoMode(): void
     {
         self::bootKernel();
