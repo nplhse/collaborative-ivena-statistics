@@ -122,6 +122,9 @@ jobs:
         runs-on: ubuntu-latest
         env:
             APP_SECRET: ci-test-placeholder-not-for-production
+            # Non-debug kernels: about 40 % less time and memory (#1343). Doctrine profiling stays on in
+            # when@test for the query-count tests; container deprecations are checked by `make lint-container`.
+            APP_DEBUG: 0
             SYMFONY_DEPRECATIONS_HELPER: 'max[total]=0&verbose=1'
         services:
             postgres:
@@ -164,6 +167,7 @@ jobs:
                   php bin/console asset-map:compile
 
             # Without coverage: pcov would instrument the container compilation as well (#1343).
+            # APP_DEBUG=0 from the job env, so this is the container the tests use.
             - name: Warm test cache
               run: php -d pcov.enabled=0 bin/console cache:warmup --env=test
 
