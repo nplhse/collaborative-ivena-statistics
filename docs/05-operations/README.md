@@ -24,7 +24,7 @@ The project recommends [Uberspace](https://uberspace.de/) for hosting, and these
 | [audit-log-maintenance.md](audit-log-maintenance.md) | Guide | Audit log maintenance; purge import-generated Assessment entries |
 | [admin-entity-coverage.md](admin-entity-coverage.md) | Reference | EasyAdmin entity matrix; user disable vs delete |
 | [hospital-geodata.md](hospital-geodata.md) | Guide | Geocode hospital coordinates and fetch destination isochrones |
-| [demo-environment.md](demo-environment.md) | Guide | Local offline demo (`APP_ENV=demo`): install, start, safety |
+| [demo-environment.md](demo-environment.md) | Guide | Local offline demo (`APP_ENV=demo`): install, start, safety; internal staging on a server |
 | [../04-features/import/repair-indication-corruption.md](../04-features/import/repair-indication-corruption.md) | Runbook | One-time issue 521 repair on production (CSV quotes, stubs, STEMI leftover) |
 
 ## Reading order

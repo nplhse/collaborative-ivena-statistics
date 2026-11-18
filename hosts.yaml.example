@@ -9,3 +9,34 @@ hosts:
     web_url: https://your-username.uberspace.de
     messenger_systemd_service: "messenger.service"
     messenger_restart_on_deploy: "true"
+
+  # Internal staging: the demo environment of the develop branch on an account of its own
+  # (docs/05-operations/demo-environment.md#staging-on-a-server).
+  staging:
+    hostname: "asteroid.uberspace.de"
+    remote_user: "your-staging-username"
+    deploy_path: "/home/your-staging-username/www"
+    web_url: https://your-staging-username.uber.space
+    branch: develop
+    keep_releases: 1
+    env:
+      APP_ENV: demo
+      APP_DEBUG: "0"
+    # Like Deployer's default, without --no-dev: the demo loads its data with the fixture code.
+    composer_options: "--verbose --prefer-dist --no-progress --no-interaction --optimize-autoloader"
+    shared_files:
+      - .env.local
+      - .env.demo.local
+    shared_dirs:
+      - var/log
+      - var/demo
+      - public/uploads/demo
+    writable_dirs:
+      - var
+      - var/cache
+      - var/log
+      - var/sessions
+      - var/demo
+      - public/uploads/demo
+    messenger_systemd_service: "messenger.service"
+    messenger_restart_on_deploy: "true"

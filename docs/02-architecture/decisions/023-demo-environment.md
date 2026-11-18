@@ -65,7 +65,9 @@ plain `php bin/console`).
   demo at a real mail server and real recipients stay out of reach. Earlier the demo used
   `null://null`; #791 step 7 switched to Mailpit so presenters can show the emails the demo sends
   (`make demo-reminder HOSPITAL=<id>`). Mail and notification delivery messages run synchronously
-  as in dev, so the demo needs no mail worker.
+  as in dev, so the demo needs no mail worker. `DEMO_MAIL=off` switches to `null://null` for a demo
+  without Mailpit (see [Internal staging on a server](#internal-staging-on-a-server)); the env var
+  processor `DemoMailerDsnEnvVarProcessor` accepts only `mailpit` and `off`, so the guarantee holds.
 - Sentry: `dsn: null`, no traces, no logs, also fixed in config.
 - Breached-password lookup (`framework.validation.not_compromised_password`): off, as in `test`; the demo
   wizard creates participant accounts offline.
@@ -239,6 +241,27 @@ and case numbers start with `SYNTH-`.
 Two places that allowed only `dev` and `test` also allow `demo`: creating missing overview
 materialized views on the fly (`OverviewMaterializedViewsInstaller`) and
 `app:dev:reset-operational-data`. Both stay refused in `prod`.
+
+### Internal staging on a server
+
+Amendment: the demo environment also serves as an internal staging installation of `develop` on
+an Uberspace account of its own, deployed with the production Deployer recipe. The `staging` host in
+`hosts.yaml` sets `APP_ENV=demo`, installs the dev packages and shares the demo files; `deploy.php`
+does not know the host. Deployer and the demo stay as they are, apart from three additions:
+
+- `DEMO_MAIL=off` discards mail, because a server has no Mailpit and synchronous mail delivery would
+  otherwise fail.
+- `bin/ops/demo-reset.sh`, run nightly by cron, restores a snapshot (database, demo imports and
+  media) and, on its first run after a deploy, rebuilds the data and takes a new snapshot. It keeps
+  the disk usage of the account flat.
+- Access protection is HTTP Basic Auth in front of the application, set up on the server; the demo
+  accounts and their passwords are known and must not be reachable without it.
+
+A separate account keeps staging off the disk quota, database and services of production.
+Alternatives considered: a `staging` environment of its own (more configuration for a single
+installation), a deploy task per staging feature in `deploy.php` (more code than the host options
+need), and staging in the production account (shared quota and database server). Operations guide:
+[demo-environment.md](../../05-operations/demo-environment.md#staging-on-a-server).
 
 ## Consequences
 
