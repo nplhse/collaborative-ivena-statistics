@@ -385,6 +385,8 @@ final class EncounterImportControllerTest extends WebTestCase
         $this->client->request(Request::METHOD_GET, '/import');
         self::assertResponseIsSuccessful();
         self::assertStringContainsString('listed encounter import', (string) $this->client->getResponse()->getContent());
+        // An encounter-only uploader is offered the upload form as well (#1351).
+        self::assertSelectorExists('a[href="/import/new"]');
     }
 
     private function submitUpload(string $name, string $content, bool $confirm = true, ?Hospital $hospital = null): void

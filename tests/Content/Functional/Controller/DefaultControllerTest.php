@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Content\Functional\Controller;
 
+use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
@@ -181,6 +184,8 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorExists('a[data-testid="dashboard-metric-hospitals"][href="/explore/hospital?participating=1"]');
         self::assertSelectorExists('a[data-testid="dashboard-metric-users"][href="/explore/user"]');
         self::assertSelectorExists('a[data-testid="dashboard-metric-imports"][href="/import"]');
+        // Without an upload right the dashboard does not offer the import form (#1351).
+        self::assertSelectorNotExists('a[href="/import/new"]');
 
         $client->request(Request::METHOD_GET, '/statistics/');
 
@@ -216,6 +221,30 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'View your Hospitals');
         self::assertSelectorTextContains('body', 'Import new Allocations');
         self::assertSelectorExists('a[href="/hospitals"]');
+        self::assertSelectorExists('a[href="/import/new"]');
+    }
+
+    public function testParticipantWithImportGrantButNoOwnHospitalIsOfferedTheImportForm(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne([
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+            'username' => 'participant-import-grant-user',
+        ]);
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $hospital = HospitalFactory::createOne(['owner' => $owner]);
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $hospital,
+            'user' => $user,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View, HospitalPermission::Import]),
+            'createdBy' => $owner,
+        ]);
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Import new Allocations');
         self::assertSelectorExists('a[href="/import/new"]');
     }
 
