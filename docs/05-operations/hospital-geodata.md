@@ -28,7 +28,7 @@ Hospital users and reviewers do **not** load or refresh geographic data in the U
 | No destination pin | `Hospital.latitude` / `longitude` are empty | Operator: `app:geo:geocode-hospitals --hospital-id=… --apply` |
 | Travel-time band around the destination | An isochrone file exists and the recorded travel time is between 5 and 50 minutes | — |
 | Pin but no travel-time band | No isochrone file yet, origin mismatch after a coordinate change, or travel time outside 5–50 minutes | Operator: `app:geo:fetch-isochrones --hospital-id=… --apply` (geocode first if the pin is missing) |
-| District polygons / origin highlight | Hessen map asset; independent of OpenRouteService | See [orientation-map.md](../04-features/allocation/orientation-map.md) |
+| District polygons / origin highlight | Map asset for Hesse and neighbouring areas; independent of OpenRouteService | See [orientation-map.md](../04-features/allocation/orientation-map.md) and [Adding another federal state](#adding-another-federal-state) |
 
 The hospital-population statistics map uses a separate city/PLZ centroid YAML for local and CI fixtures. It is not updated by these commands.
 
@@ -115,16 +115,24 @@ No `--force` unless you intend to overwrite already geocoded coordinates. Narrow
 
 Geocode and isochrones are **per hospital**, grouped under `{stateId}` on disk. Repeat the first-time sequence for the new state's ID. That is enough for pins and travel-time polygons **if** hospitals have coordinates.
 
-The orientation map **polygons** (dispatch-area outlines, Hessen GeoJSON) are still a Hessen pilot:
+Map **polygons** (dispatch-area outlines) come from repository files. Besides Hesse they cover the neighbouring dispatch areas that occur as allocation origins (#1404). To add a dispatch area outside Hesse:
 
-| Piece | Location | What to add for a new state |
-|-------|----------|-----------------------------|
-| Dispatch-area name → GeoJSON key | `config/case_flow/dispatch_area_geo_map.yaml` | Names as stored on `DispatchArea` |
-| Area polygons | `assets/geo/hessen-landkreise.geojson` (today) | A GeoJSON with matching feature keys |
-| Factory | `CatalogOrientationMapFactory` (`HESSEN_STATE_NAME`) | Enable the new state name and load its files |
-| Stimulus map | `assets/controllers/catalog-orientation-map_controller.js` | Usually unchanged if GeoJSON + keys are wired |
+| Step | Location | What to do |
+|------|----------|------------|
+| 1. Coverage | — | Find out which districts (Kreise) the control centre covers, with a citable source and the official district keys (AGS) |
+| 2. Raw districts | `assets/geo/.source/neighbour-kreise-raw.geojson` | Add the district features from Opendatasoft `georef-germany-kreis` (BKG VG250), same format as the existing features |
+| 3. Sources | `config/case_flow/dispatch_area_geo_sources.yaml` | New key with `name`, `state`, `krs_names`, `krs_codes` and a source comment. The build fails if a code does not match the raw data |
+| 4. Name → key | `config/case_flow/dispatch_area_geo_map.yaml` | The dispatch-area name **exactly** as stored on `DispatchArea` after import normalisation |
+| 5. Build | `php bin/console app:statistics:case-flow:build-geojson` | Rewrites `assets/geo/hessen-landkreise.geojson`; commit it with the sources |
 
-Until those map files exist, allocation show for the new state can still display hospital pins and isochrones when coordinates/files are present, but district highlighting stays disabled.
+No code change is needed: maps read `state` and `neighbour` from the GeoJSON. Neighbouring areas get a dashed outline and do not set the default map view. A federal state page in Explore shows a map as soon as one area of that state exists. Making this data instead of repository files is planned in #1406.
+
+Example download of district features by key (needs network access to `public.opendatasoft.com`):
+
+```bash
+curl -G "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/georef-germany-kreis/exports/geojson" \
+  --data-urlencode "where=krs_code in ('03159','03155')"
+```
 
 ## Command statuses
 

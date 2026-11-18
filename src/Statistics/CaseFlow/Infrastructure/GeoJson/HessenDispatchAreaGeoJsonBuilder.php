@@ -5,45 +5,67 @@ declare(strict_types=1);
 namespace App\Statistics\CaseFlow\Infrastructure\GeoJson;
 
 /**
- * Builds merged Hessen dispatch-area GeoJSON from raw Kreis boundaries.
+ * Builds merged dispatch-area GeoJSON from raw Kreis boundaries: the Hessian dispatch areas plus
+ * the neighbouring ones outside Hesse that are configured in dispatch_area_geo_sources.yaml.
  */
 final class HessenDispatchAreaGeoJsonBuilder
 {
     /**
-     * @param array<string, mixed> $sourcesConfig parsed dispatch_area_geo_sources.yaml
+     * @param array<string, mixed> $sourcesConfig     parsed dispatch_area_geo_sources.yaml
+     * @param list<string>         $rawGeoJsonPaths   raw Kreis GeoJSON files (BKG VG250 via Opendatasoft)
      *
      * @return array{type: string, features: list<array<string, mixed>>}
      */
-    public function build(array $sourcesConfig, string $rawGeoJsonPath): array
+    public function build(array $sourcesConfig, array $rawGeoJsonPaths): array
     {
-        if (!is_file($rawGeoJsonPath)) {
-            throw new \InvalidArgumentException(sprintf('Raw GeoJSON not found: %s', $rawGeoJsonPath));
-        }
-
-        $raw = json_decode((string) file_get_contents($rawGeoJsonPath), true, 512, JSON_THROW_ON_ERROR);
         /** @var array<string, array<string, mixed>> $byKrsName */
         $byKrsName = [];
 
-        foreach ($raw['features'] ?? [] as $feature) {
-            $krsName = $this->normalizeKrsName($feature['properties']['krs_name'] ?? null);
-            if (null === $krsName) {
-                continue;
+        foreach ($rawGeoJsonPaths as $rawGeoJsonPath) {
+            if (!is_file($rawGeoJsonPath)) {
+                throw new \InvalidArgumentException(sprintf('Raw GeoJSON not found: %s', $rawGeoJsonPath));
             }
-            $byKrsName[$krsName] = $feature;
+
+            $raw = json_decode((string) file_get_contents($rawGeoJsonPath), true, 512, JSON_THROW_ON_ERROR);
+
+            foreach ($raw['features'] ?? [] as $feature) {
+                $krsName = $this->firstString($feature['properties']['krs_name'] ?? null);
+                if (null === $krsName) {
+                    continue;
+                }
+                $byKrsName[$krsName] = $feature;
+            }
         }
 
-        /** @var array<string, array{name: string, krs_names: list<string>}> $dispatchAreas */
+        $coreState = $sourcesConfig['core_state'] ?? null;
+        if (!\is_string($coreState) || '' === trim($coreState)) {
+            throw new \RuntimeException('dispatch_area_geo_sources.yaml needs a core_state.');
+        }
+
+        /** @var array<string, array{name: string, state?: string, krs_names: list<string>, krs_codes?: list<string>}> $dispatchAreas */
         $dispatchAreas = $sourcesConfig['dispatch_areas'] ?? [];
         $features = [];
 
         foreach ($dispatchAreas as $key => $definition) {
+            $state = $definition['state'] ?? $coreState;
+            $krsCodes = $definition['krs_codes'] ?? null;
+            if (null !== $krsCodes && \count($krsCodes) !== \count($definition['krs_names'])) {
+                throw new \RuntimeException(sprintf('krs_codes and krs_names differ in length (dispatch key "%s")', $key));
+            }
+
             $geometries = [];
             $mergedKrsNames = [];
 
-            foreach ($definition['krs_names'] as $krsName) {
+            foreach ($definition['krs_names'] as $index => $krsName) {
                 if (!isset($byKrsName[$krsName])) {
                     throw new \RuntimeException(sprintf('Kreis geometry missing for "%s" (dispatch key "%s")', $krsName, $key));
                 }
+
+                $rawCode = $this->firstString($byKrsName[$krsName]['properties']['krs_code'] ?? null);
+                if (null !== $krsCodes && $rawCode !== $krsCodes[$index]) {
+                    throw new \RuntimeException(sprintf('Kreis "%s" has code %s, configured %s (dispatch key "%s")', $krsName, $rawCode ?? 'none', $krsCodes[$index], $key));
+                }
+
                 $geometries[] = $byKrsName[$krsName]['geometry'];
                 $mergedKrsNames[] = $krsName;
             }
@@ -53,6 +75,8 @@ final class HessenDispatchAreaGeoJsonBuilder
                 'properties' => [
                     'key' => $key,
                     'name' => $definition['name'],
+                    'state' => $state,
+                    'neighbour' => $state !== $coreState,
                     'krs_names' => $mergedKrsNames,
                 ],
                 'geometry' => $this->mergeGeometries($geometries),
@@ -65,7 +89,7 @@ final class HessenDispatchAreaGeoJsonBuilder
         ];
     }
 
-    private function normalizeKrsName(mixed $value): ?string
+    private function firstString(mixed $value): ?string
     {
         if (\is_array($value)) {
             $value = $value[0] ?? null;

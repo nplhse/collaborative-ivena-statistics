@@ -1,5 +1,13 @@
 # Maps dispatch-area geo keys to one or more official Kreis geometries (merged on the map).
-# Source: BKG VG250 via Opendatasoft georef-germany-kreis (Hessen, lan_name = Hessen).
+# Source: BKG VG250 via Opendatasoft georef-germany-kreis.
+#   - Hessen: assets/geo/.source/hessen-kreise-raw.geojson (lan_name = Hessen, year 2023)
+#   - Neighbouring dispatch areas: assets/geo/.source/neighbour-kreise-raw.geojson (year 2025)
+#
+# Entries without `state` belong to `core_state`. Entries with another state are neighbouring
+# dispatch areas outside Hesse: drawn in a distinct style, they do not set the default map view.
+# Each neighbouring entry lists the official district keys (AGS) in `krs_codes`, in the order of
+# `krs_names`; the build checks them against the raw data. Coverage sources are cited per entry.
+core_state: Hessen
 dispatch_areas:
     bergstrasse:
         name: Bergstraße
@@ -99,3 +107,59 @@ dispatch_areas:
         name: Wiesbaden
         krs_names:
             - Kreisfreie Stadt Wiesbaden
+    # Leitstelle Göttingen: Landkreis Göttingen incl. the city of Göttingen and the former
+    # Landkreis Osterode am Harz (merged 2016). Landtag Niedersachsen, Drucksache 19/6425.
+    goettingen:
+        name: Göttingen
+        state: Niedersachsen
+        krs_names:
+            - Landkreis Göttingen
+        krs_codes:
+            - '03159'
+    # Integrierte Einsatzleitstelle Landkreis Northeim. landkreis-northeim.de (Einsatzleitstelle).
+    northeim:
+        name: Northeim
+        state: Niedersachsen
+        krs_names:
+            - Landkreis Northeim
+        krs_codes:
+            - '03155'
+    # Zentrale Rettungsleitstelle Landkreis Eichsfeld. kreis-eic.de (Zentrale Rettungsleitstelle).
+    eichsfeld:
+        name: Eichsfeld
+        state: Thüringen
+        krs_names:
+            - Landkreis Eichsfeld
+        krs_codes:
+            - '16061'
+    # ILS Schweinfurt: city and district of Schweinfurt, Haßberge, Bad Kissingen, Rhön-Grabfeld.
+    # The ILS area is the rescue service area under the BayRDG (Art. 1 BayILSG).
+    schweinfurt:
+        name: Schweinfurt
+        state: Bayern
+        krs_names:
+            - Kreisfreie Stadt Schweinfurt
+            - Landkreis Schweinfurt
+            - Landkreis Haßberge
+            - Landkreis Bad Kissingen
+            - Landkreis Rhön-Grabfeld
+        krs_codes:
+            - '09662'
+            - '09678'
+            - '09674'
+            - '09672'
+            - '09673'
+    # ILS Bayerischer Untermain (ZRF Bayerischer Untermain): city and district of Aschaffenburg,
+    # Landkreis Miltenberg. The stored dispatch-area name is only known after the first import
+    # from this area; check the entry in dispatch_area_geo_map.yaml then (#1404).
+    bayerischer-untermain:
+        name: Bayerischer Untermain
+        state: Bayern
+        krs_names:
+            - Kreisfreie Stadt Aschaffenburg
+            - Landkreis Aschaffenburg
+            - Landkreis Miltenberg
+        krs_codes:
+            - '09661'
+            - '09671'
+            - '09676'
