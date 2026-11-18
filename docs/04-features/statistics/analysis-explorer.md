@@ -92,6 +92,7 @@ Opening the proposal goes to the blank explorer. When `guide` is present, `Analy
 - Legacy `/statistics/analytics/*` URLs redirect here; old saved Generic Analysis views are not migrated.
 - Charts display a single `visualMetric`; additional metrics appear in the table only.
 - Chart axis titles (`xAxisLabel` / `yAxisLabel`) render inside ApexCharts; the analysis title stays in the card header and is added to PNG exports only.
+- The value axis title uses the same translated metric label as the results table and the export (`stats.analysis_explorer.metric.<key>`; distribution profiles use their profile label). Every chartable metric therefore needs that key in EN and DE; `ExplorerChartMetricLabelTranslationTest` checks it.
 - Default locale remains `en`; German catalog exists for explorer keys in `statistics+intl-icu.de.xlf`.
 
 ## Architecture
