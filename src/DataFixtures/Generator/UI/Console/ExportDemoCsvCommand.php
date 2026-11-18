@@ -90,7 +90,7 @@ final readonly class ExportDemoCsvCommand
 
         $io->table(['File', 'Rows', 'Upload as'], [
             [$files->allocationsPath, (string) $files->allocations, 'allocations (first)'],
-            [$files->closuresPath, (string) $files->closures, 'closures (after the allocations are processed; needs the closure beta role)'],
+            [$files->closuresPath, (string) $files->closures, 'closures (after the allocations are processed)'],
         ]);
         if (0 === $files->closures) {
             $io->note('The month has no closures; the closure file only holds the header and need not be uploaded.');

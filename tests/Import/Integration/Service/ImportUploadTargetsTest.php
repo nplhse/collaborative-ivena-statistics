@@ -39,7 +39,7 @@ final class ImportUploadTargetsTest extends KernelTestCase
         self::assertFalse($targets->canUpload($user));
     }
 
-    public function testOwnerMayUploadAllocationsToOwnHospitalOnly(): void
+    public function testOwnerMayUploadToOwnHospitalOnly(): void
     {
         $owner = $this->user(self::PARTICIPANT);
         $own = $this->hospital($owner);
@@ -47,10 +47,10 @@ final class ImportUploadTargetsTest extends KernelTestCase
 
         $targets = $this->targets();
 
-        self::assertSame([ImportType::ALLOCATION->value => [$own]], $targets->hospitalIdsByType($owner));
+        self::assertSame([ImportType::ALLOCATION->value => [$own], ImportType::CLOSURE->value => [$own]], $targets->hospitalIdsByType($owner));
         self::assertTrue($targets->canUpload($owner, ImportType::ALLOCATION, $own));
+        self::assertTrue($targets->canUpload($owner, ImportType::CLOSURE, $own));
         self::assertFalse($targets->canUpload($owner, null, $foreign));
-        self::assertFalse($targets->canUpload($owner, ImportType::CLOSURE, $own));
     }
 
     public function testImportGrantCountsButOtherPermissionsDoNot(): void
@@ -61,12 +61,13 @@ final class ImportUploadTargetsTest extends KernelTestCase
         $this->grant($user, $withImport, HospitalPermission::View, HospitalPermission::Import);
         $this->grant($user, $withStatistics, HospitalPermission::View, HospitalPermission::Statistics);
 
-        self::assertSame([ImportType::ALLOCATION->value => [$withImport]], $this->targets()->hospitalIdsByType($user));
+        self::assertSame([ImportType::ALLOCATION->value => [$withImport], ImportType::CLOSURE->value => [$withImport]], $this->targets()->hospitalIdsByType($user));
     }
 
-    public function testClosureListsNeedTheBetaRole(): void
+    public function testClosureListsNeedNoExtraRole(): void
     {
-        $user = $this->user([...self::PARTICIPANT, 'ROLE_CLOSURE_BETA']);
+        // Closure lists left the beta (#1350).
+        $user = $this->user(self::PARTICIPANT);
         $hospital = $this->hospital($user);
 
         self::assertSame(

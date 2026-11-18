@@ -38,15 +38,15 @@ final class StatisticsSidebarTest extends WebTestCase
 
     public function testBetaEntriesCarryTheirBadge(): void
     {
-        $this->get($this->client(['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA', 'ROLE_ENCOUNTER_BETA']), '/statistics/top-lists');
+        $this->get($this->client(['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_ENCOUNTER_BETA']), '/statistics/top-lists');
 
-        self::assertSelectorTextContains('[data-testid="sidebar-group-closures"] .site-sidebar__badge.bg-azure-lt', 'Beta');
+        self::assertSelectorNotExists('[data-testid="sidebar-group-closures"] .site-sidebar__badge', 'Closure Analytics left the beta (#1350).');
         self::assertSelectorTextContains('[data-testid="sidebar-entry-encounter-analytics"] .site-sidebar__badge.bg-azure-lt', 'Beta');
     }
 
     public function testClosuresAreShownOnlyWithBothRolesThePagesRequire(): void
     {
-        $this->get($this->client(['ROLE_USER', 'ROLE_CLOSURE_BETA']), '/statistics/top-lists');
+        $this->get($this->client(['ROLE_USER']), '/statistics/top-lists');
 
         self::assertSelectorNotExists(
             '[data-testid="sidebar-group-closures"]',
@@ -70,7 +70,7 @@ final class StatisticsSidebarTest extends WebTestCase
      */
     public function testTheTreeCarriesWhatTheSearchFiltersOn(): void
     {
-        $crawler = $this->get($this->client(['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA']), '/statistics/top-lists');
+        $crawler = $this->get($this->client(['ROLE_USER', 'ROLE_PARTICIPANT']), '/statistics/top-lists');
 
         self::assertSelectorExists('[data-testid="sidebar-statistics"] input[type="search"][data-testid="sidebar-search"][aria-keyshortcuts="/"]');
         self::assertSelectorExists('[data-testid="sidebar-search-empty"][hidden]');
@@ -119,7 +119,7 @@ final class StatisticsSidebarTest extends WebTestCase
 
     public function testPartsOfOneAnalysisKeepTheWholeFilterStateExceptComparisonAndPage(): void
     {
-        $crawler = $this->get($this->client(['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA']), '/statistics/closure-analytics/duration', [
+        $crawler = $this->get($this->client(['ROLE_USER', 'ROLE_PARTICIPANT']), '/statistics/closure-analytics/duration', [
             'scope' => 'public',
             'period' => 'last_12_months',
             'closure_reasons' => ['capacity'],

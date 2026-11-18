@@ -16,8 +16,8 @@ use Symfony\Contracts\Service\ResetInterface;
  * Where a user may upload which import type (#1351). The upload form, the controller, the
  * `IMPORT_CREATE` voter and every link to the form ask this one place, so they cannot disagree.
  *
- * - Allocation and closure lists: hospitals with `HospitalPermission::Import` (owners and admins included).
- * - Closure lists additionally need the opt-in role `ROLE_CLOSURE_BETA` while they are a beta.
+ * - Allocation and closure lists: hospitals with `HospitalPermission::Import` (owners and admins included);
+ *   closure lists left the beta in #1350 and need no extra role.
  * - Types of other contexts (`import.type_extension`): `isAvailableTo()` and `uploadHospitalIds()`.
  * - Nothing without `ROLE_PARTICIPANT`, the boundary of the import pages.
  */
@@ -91,11 +91,7 @@ final class ImportUploadTargets implements ResetInterface
         $importHospitalIds = $this->hospitalPermissionAccess->resolveHospitalIdsWithPermission($user, HospitalPermission::Import);
         if ([] !== $importHospitalIds) {
             $targets[ImportType::ALLOCATION->value] = $importHospitalIds;
-
-            // Opt-in beta role, not part of the role hierarchy (#1350 takes closure lists out of the beta).
-            if (\in_array(UserRole::CLOSURE_BETA, $user->getRoles(), true)) {
-                $targets[ImportType::CLOSURE->value] = $importHospitalIds;
-            }
+            $targets[ImportType::CLOSURE->value] = $importHospitalIds;
         }
 
         foreach ($this->typeExtensions->availableTo($user) as $extension) {

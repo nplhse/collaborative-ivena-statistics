@@ -30,7 +30,7 @@ final class ClosureAnalyticsHospitalScopeTest extends TestCase
     public function testRoleWithoutParticipantDoesNotInheritHospitalGrants(): void
     {
         $scope = $this->scope([4], false);
-        $user = $this->user([UserRole::USER, UserRole::CLOSURE_BETA]);
+        $user = $this->user([UserRole::USER]);
 
         self::assertSame([], $scope->allowedHospitalIds($user));
     }

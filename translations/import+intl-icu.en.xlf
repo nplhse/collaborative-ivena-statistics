@@ -327,7 +327,7 @@
       </trans-unit>
       <trans-unit id="impTypeClosureEn" resname="label.import.type.closure">
         <source>label.import.type.closure</source>
-        <target>Closure list (beta)</target>
+        <target>Closure list</target>
       </trans-unit>
       <trans-unit id="impTypeEncounterEn" resname="label.import.type.encounter">
         <source>label.import.type.encounter</source>
@@ -348,10 +348,6 @@
       <trans-unit id="impHospOverrideSrcEn" resname="label.import.hospitalOverride.sourceLabel">
         <source>label.import.hospitalOverride.sourceLabel</source>
         <target>Hospital named in the file: {label}</target>
-      </trans-unit>
-      <trans-unit id="impTypeHelpEn" resname="label.import.type.help">
-        <source>label.import.type.help</source>
-        <target>Closure lists are a beta and stay hidden without the Closure beta role.</target>
       </trans-unit>
       <trans-unit id="impSumAllocEn" resname="import.summary.allocations_imported">
         <source>import.summary.allocations_imported</source>

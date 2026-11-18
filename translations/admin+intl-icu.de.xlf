@@ -2981,10 +2981,6 @@
         <source>admin.user.role.review_indications</source>
         <target>Prüft Indikationen</target>
       </trans-unit>
-      <trans-unit id="c1304851849a1" resname="admin.user.role.closure_beta">
-        <source>admin.user.role.closure_beta</source>
-        <target>Schließungen (Beta)</target>
-      </trans-unit>
       <trans-unit id="c13042f22e961" resname="admin.user.role.encounter_beta">
         <source>admin.user.role.encounter_beta</source>
         <target>Behandlungsdaten (Beta)</target>

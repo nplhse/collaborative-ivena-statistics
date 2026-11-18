@@ -63,7 +63,7 @@ The import detail page (`/import/{id}`) has a **Reprocess import** button next t
 The button is shown only when `ImportVoter::REPROCESS` grants it:
 
 - the user may delete the import (admin, hospital owner, or the creator while they can access the hospital), and
-- the creator may still process it (`ImportCreatorPermissionCheck`: import permission for the hospital, and `ROLE_CLOSURE_BETA` for closure imports; the message handlers use the same check), and
+- the creator may still process it (`ImportCreatorPermissionCheck`: import permission for the hospital; the message handlers use the same check. Runs rejected earlier with `missing_closure_role` keep that reason; the check no longer produces it since #1350), and
 - the stored source file still exists.
 
 While the import is `Running` the button is disabled, and a request that arrives anyway is rejected with a flash message. A `Pending` import can be reprocessed; the new run supersedes the queued one.

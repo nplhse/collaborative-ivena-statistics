@@ -64,7 +64,7 @@ final class NavigationInspectorTest extends TestCase
     {
         [$inspector] = $this->inspector(granted: ['ROLE_USER']);
 
-        $inspection = $inspector->inspect(static fn (string $attribute): bool => 'ROLE_CLOSURE_BETA' === $attribute, 'beta-user');
+        $inspection = $inspector->inspect(static fn (string $attribute): bool => 'ROLE_PARTICIPANT' === $attribute, 'beta-user');
 
         $closures = $this->menu($inspection, Menu::Statistics)->sections[1]->nodes[0];
         self::assertSame(NavigationVisibility::Visible, $closures->visibility);
@@ -156,7 +156,7 @@ final class NavigationInspectorTest extends TestCase
         $statistics = $this->provider(Menu::Statistics, [new NavGroup('overview', null, -10), new NavGroup('capacity', new TranslatableMessage('capacity'))], [
             new NavItem('top-lists', 'overview', new LiteralLabel('Top lists'), 'app_stats_top_lists', detailRoutes: ['app_stats_top_lists_show']),
             new NavItem('dashboard', 'overview', new TranslatableMessage('nav.dashboard', [], 'shared'), 'app_stats_dashboard', weight: -10),
-            new NavItem('closures', 'capacity', new TranslatableMessage('closures'), grantedAttribute: 'ROLE_CLOSURE_BETA'),
+            new NavItem('closures', 'capacity', new TranslatableMessage('closures'), grantedAttribute: 'ROLE_PARTICIPANT'),
             new NavItem('closures-overview', 'closures', new TranslatableMessage('overview'), 'app_stats_closures'),
         ]);
         $providers = $extra instanceof NavigationProviderInterface ? [$primary, $statistics, $extra] : [$primary, $statistics];

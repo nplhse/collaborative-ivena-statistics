@@ -305,7 +305,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-closure-intervals"]', '100 records');
 
         $secondUser = UserFactory::createOne([
-            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA],
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT],
         ]);
         $client->loginUser($secondUser);
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all_time');
@@ -1452,7 +1452,7 @@ SQL,
     private function loginAsClosureBetaUser(KernelBrowser $client): User
     {
         $user = UserFactory::createOne([
-            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA],
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT],
         ]);
         $client->followRedirects(true);
         $client->loginUser($user);

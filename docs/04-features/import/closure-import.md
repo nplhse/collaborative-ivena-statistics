@@ -2,7 +2,7 @@
 
 **Audience:** Operators and developers importing IVENA closure lists.
 
-The closure import is a beta. Only users with `ROLE_CLOSURE_BETA` can choose it, see those imports in the participant list, or open them. `ROLE_ADMIN` does not include that role. Assign it on the user in EasyAdmin. The EasyAdmin import screen still lists every import for operators.
+Closure lists are imported like allocation lists: every participant with the import permission for a hospital can choose the type, and sees and opens those imports like other imports. The import left the beta in #1350; the former opt-in role `ROLE_CLOSURE_BETA` no longer exists. The EasyAdmin import screen lists every import for operators.
 
 Allocation imports are unchanged. The flag `departmentWasClosed` on allocations is not derived from these intervals.
 

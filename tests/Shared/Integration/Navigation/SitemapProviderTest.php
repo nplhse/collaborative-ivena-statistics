@@ -119,7 +119,7 @@ final class SitemapProviderTest extends KernelTestCase
     public function testBetaRolesAddClosuresTreatmentDataAndBetaTools(): void
     {
         $this->seedContentPages();
-        $this->authenticate(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA', 'ROLE_ENCOUNTER_BETA']]));
+        $this->authenticate(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_ENCOUNTER_BETA']]));
 
         $statistics = $this->findSection('statistics');
         self::assertSame(
@@ -130,7 +130,7 @@ final class SitemapProviderTest extends KernelTestCase
         [$forcedAssignments, $closures] = $statistics->groups[3]->entries;
         self::assertSame('Forced assignments', $forcedAssignments->label);
         self::assertSame('Closures', $closures->label);
-        self::assertNotNull($closures->badge);
+        self::assertNull($closures->badge, 'Closure Analytics left the beta (#1350).');
         self::assertSame(
             ['Overview', 'Duration and time burden', 'Timeline drilldown', 'Groups and events', 'Constellations'],
             $this->labels($closures->children),
@@ -183,7 +183,7 @@ final class SitemapProviderTest extends KernelTestCase
     public function testEveryUrlIsListedOnce(): void
     {
         $this->seedContentPages();
-        $this->authenticate(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA', 'ROLE_ENCOUNTER_BETA']]));
+        $this->authenticate(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_ENCOUNTER_BETA']]));
 
         $urls = $this->allUrls(withSectionUrls: false);
 

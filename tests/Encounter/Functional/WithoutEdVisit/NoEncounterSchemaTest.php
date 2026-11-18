@@ -40,9 +40,11 @@ final class NoEncounterSchemaTest extends WebTestCase
 
         $crawler = $client->request(Request::METHOD_GET, '/import/new');
         self::assertResponseIsSuccessful();
-        // Allocations are the only type left for this user, so the form shows no type choice (as for a user
-        // without encounter grant when schemas exist).
-        self::assertCount(0, $crawler->filter('select[name="import_create[type]"]'));
+        // Without schemas the encounter type is not offered; allocations and closure lists remain (#1350).
+        self::assertSame(
+            ['Allocation', 'Closure'],
+            $crawler->filter('select[name="import_create[type]"] option')->each(static fn ($option): string => (string) $option->attr('data-import-type')),
+        );
         self::assertCount(0, $crawler->filter('select[name="import_create[encounterSchema]"]'));
 
         $client->request(Request::METHOD_GET, '/tools/data-prep');

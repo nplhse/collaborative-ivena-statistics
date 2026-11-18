@@ -88,7 +88,7 @@ final class AllocationAndClosureImportWithoutEdVisitTest extends WebTestCase
      */
     private function ownerWithHospital(): array
     {
-        UserFactory::new()->withoutAutorefresh()->create(['username' => 'import-owner', 'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA']]);
+        UserFactory::new()->withoutAutorefresh()->create(['username' => 'import-owner', 'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $owner = $this->entityManager()->getRepository(User::class)->findOneBy(['username' => 'import-owner']);
         self::assertInstanceOf(User::class, $owner);
         $state = StateFactory::new()->withoutAutorefresh()->create(['name' => 'Hessen']);

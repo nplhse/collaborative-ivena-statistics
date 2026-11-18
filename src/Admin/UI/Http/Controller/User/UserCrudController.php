@@ -68,7 +68,6 @@ final class UserCrudController extends AbstractCrudController
         UserRole::BOARD_MEMBER,
         UserRole::USER,
         UserRole::REVIEW_INDICATIONS,
-        UserRole::CLOSURE_BETA,
         UserRole::ENCOUNTER_BETA,
         UserRole::ENCOUNTER_CATALOG_REVIEWER,
     ];
@@ -355,7 +354,6 @@ final class UserCrudController extends AbstractCrudController
                 UserRole::BOARD_MEMBER => 'info',
                 UserRole::USER => 'primary',
                 UserRole::REVIEW_INDICATIONS => 'secondary',
-                UserRole::CLOSURE_BETA => 'dark',
                 UserRole::ENCOUNTER_BETA => 'dark',
                 UserRole::ENCOUNTER_CATALOG_REVIEWER => 'dark',
             ]);

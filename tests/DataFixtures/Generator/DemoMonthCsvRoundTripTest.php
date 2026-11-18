@@ -15,7 +15,6 @@ use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\User\Domain\Entity\User;
-use App\User\Domain\Security\UserRole;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
@@ -83,8 +82,6 @@ final class DemoMonthCsvRoundTripTest extends KernelTestCase
             self::assertInstanceOf(Hospital::class, $hospital);
             $owner = $hospital->getOwner();
             self::assertInstanceOf(User::class, $owner);
-            $owner->setRoles([...$owner->getRoles(), UserRole::CLOSURE_BETA]);
-            $this->entityManager()->flush();
 
             $uploadedAllocations = $this->upload($allocationFile, ImportType::ALLOCATION, $hospital, $owner);
             self::getContainer()->get(ImportAllocationsMessageHandler::class)(new ImportAllocationsMessage($uploadedAllocations));

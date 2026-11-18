@@ -83,7 +83,7 @@ final class NavigationBuilderTest extends TestCase
                     $this->item('encounter', 'clinical', 'Behandlungsdaten', granted: 'ROLE_ENCOUNTER_BETA'),
                     $this->item('encounter-overview', 'encounter', 'Übersicht', route: 'r_encounter'),
                     $this->item('closures', 'capacity', 'Schließungen'),
-                    $this->item('closures-overview', 'closures', 'Übersicht', route: 'r_closures', granted: 'ROLE_CLOSURE_BETA'),
+                    $this->item('closures-overview', 'closures', 'Übersicht', route: 'r_closures', granted: 'ROLE_PARTICIPANT'),
                 ],
             ],
         ], granted: []);
@@ -158,7 +158,7 @@ final class NavigationBuilderTest extends TestCase
                 'groups' => [$this->group('capacity')],
                 'items' => [
                     $this->item('assignments', 'capacity', 'Notzuweisungen', route: 'r_assignments'),
-                    $this->item('closures', 'capacity', 'Schließungen', route: 'r_closures', granted: 'ROLE_CLOSURE_BETA'),
+                    $this->item('closures', 'capacity', 'Schließungen', route: 'r_closures', granted: 'ROLE_PARTICIPANT'),
                 ],
             ],
         ], granted: []);
@@ -254,14 +254,14 @@ final class NavigationBuilderTest extends TestCase
     {
         $tree = [
             'groups' => [$this->group('capacity')],
-            'items' => [$this->item('closures', 'capacity', 'Schließungen', route: 'r_closures', granted: 'ROLE_CLOSURE_BETA')],
+            'items' => [$this->item('closures', 'capacity', 'Schließungen', route: 'r_closures', granted: 'ROLE_PARTICIPANT')],
         ];
 
         self::assertSame([], $this->builder([Menu::Statistics->value => $tree], granted: [])->build(Menu::Statistics)->sections);
         self::assertSame(
             ['capacity', 'closures'],
             $this->builder([Menu::Statistics->value => $tree], granted: [])
-                ->build(Menu::Statistics, 'r_closures', isGranted: static fn (string $attribute): bool => 'ROLE_CLOSURE_BETA' === $attribute)
+                ->build(Menu::Statistics, 'r_closures', isGranted: static fn (string $attribute): bool => 'ROLE_PARTICIPANT' === $attribute)
                 ->activePath,
         );
     }

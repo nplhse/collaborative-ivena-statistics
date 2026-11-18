@@ -2981,10 +2981,6 @@
         <source>admin.user.role.review_indications</source>
         <target>Reviews indications</target>
       </trans-unit>
-      <trans-unit id="c1304995d35ef" resname="admin.user.role.closure_beta">
-        <source>admin.user.role.closure_beta</source>
-        <target>Closure beta</target>
-      </trans-unit>
       <trans-unit id="c13042638efe0" resname="admin.user.role.encounter_beta">
         <source>admin.user.role.encounter_beta</source>
         <target>Encounter beta</target>
