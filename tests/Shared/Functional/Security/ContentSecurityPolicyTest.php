@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Functional\Security;
 
+use App\Tests\Support\Kernel\ProdKernelForTests;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -18,17 +19,22 @@ final class ContentSecurityPolicyTest extends WebTestCase
     use InteractsWithAuthenticatedUser;
 
     /**
-     * Shared by both prod tests: the report URI is read at runtime, so one compiled prod container is enough.
+     * Both prod tests share one compiled prod container: the report URI is read at runtime. CI compiles it before
+     * the tests (bin/warmup-test-kernels, TEST_PREWARMED_KERNELS=1). Otherwise it is built fresh for this class,
+     * because a non-debug container does not notice changed files.
      */
-    private static ?string $prodCacheDir = null;
+    #[\Override]
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        self::removeProdCacheUnlessPrewarmed();
+    }
 
     #[\Override]
     public static function tearDownAfterClass(): void
     {
-        if (null !== self::$prodCacheDir && is_dir(self::$prodCacheDir)) {
-            new Filesystem()->remove(self::$prodCacheDir);
-        }
-        self::$prodCacheDir = null;
+        self::removeProdCacheUnlessPrewarmed();
 
         parent::tearDownAfterClass();
     }
@@ -84,23 +90,16 @@ final class ContentSecurityPolicyTest extends WebTestCase
             $env['DATABASE_URL'] = $databaseUrl;
         }
 
-        $cacheDir = self::$prodCacheDir ??= sys_get_temp_dir().'/ivena_csp_test_'.uniqid('', true);
-        $envKeys = array_keys($env);
-        $envKeys[] = 'APP_CACHE_DIR';
-        $envSnapshot = $this->snapshotEnv($envKeys);
+        $envSnapshot = $this->snapshotEnv(array_keys($env));
+        $kernel = new ProdKernelForTests();
 
         try {
             foreach ($env as $key => $value) {
                 $this->setEnv($key, $value);
             }
-            $this->setEnv('APP_CACHE_DIR', $cacheDir);
 
             self::ensureKernelShutdown();
-
-            $kernel = self::bootKernel([
-                'environment' => 'prod',
-                'debug' => false,
-            ]);
+            $kernel->boot();
 
             $response = $kernel->handle(Request::create('https://localhost/health', Request::METHOD_GET));
 
@@ -120,9 +119,19 @@ final class ContentSecurityPolicyTest extends WebTestCase
                 self::assertStringNotContainsString('report-uri', $header);
             }
         } finally {
-            self::ensureKernelShutdown();
+            $kernel->shutdown();
             $this->restoreEnv($envSnapshot);
         }
+    }
+
+    private static function removeProdCacheUnlessPrewarmed(): void
+    {
+        $prewarmed = $_SERVER['TEST_PREWARMED_KERNELS'] ?? $_ENV['TEST_PREWARMED_KERNELS'] ?? getenv('TEST_PREWARMED_KERNELS');
+        if (\in_array($prewarmed, ['1', 'true'], true)) {
+            return;
+        }
+
+        new Filesystem()->remove(new ProdKernelForTests()->getCacheDir());
     }
 
     /**

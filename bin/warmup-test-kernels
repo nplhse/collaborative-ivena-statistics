@@ -1,0 +1,74 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/*
+ * Compiles the containers that some tests boot besides the regular test kernel, so those tests do not build them
+ * in-process (#1343): the test kernels without bundles (#1300 step 5) and the prod kernel of
+ * ContentSecurityPolicyTest. Each one takes a minute or more under coverage and blocks a ParaTest worker.
+ *
+ * `make test-database` (and so CI) runs it first, without coverage (php -d pcov.enabled=0), and then runs the tests
+ * with TEST_PREWARMED_KERNELS=1 so the prod test keeps the prebuilt container. The test kernels are debug kernels
+ * and rebuild themselves when a file changes; the prod container does not, so it is always built from scratch.
+ */
+
+use App\Tests\Support\Kernel\KernelWithoutEdVisit;
+use App\Tests\Support\Kernel\KernelWithoutEncounterSchemas;
+use App\Tests\Support\Kernel\ProdKernelForTests;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\KernelInterface;
+
+require dirname(__DIR__).'/vendor/autoload.php';
+
+// Same environment as the tests (phpunit.dist.xml forces APP_ENV=test, tests/bootstrap.php loads .env).
+$_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = 'test';
+new Dotenv()->bootEnv(dirname(__DIR__).'/.env');
+$debug = (bool) $_SERVER['APP_DEBUG'];
+
+$kernels = [
+    new KernelWithoutEdVisit('test', $debug),
+    new KernelWithoutEncounterSchemas('test', $debug),
+    new ProdKernelForTests(),
+];
+
+$output = new ConsoleOutput();
+new Filesystem()->remove(new ProdKernelForTests()->getCacheDir());
+$exitCode = 0;
+
+foreach ($kernels as $kernel) {
+    $startedAt = hrtime(true);
+    $result = warmUp($kernel);
+    $seconds = (hrtime(true) - $startedAt) / 1e9;
+
+    $output->writeln(sprintf(
+        '%s %s (%s, debug %s) in %.1f s',
+        0 === $result ? 'Warmed' : 'FAILED',
+        $kernel::class,
+        $kernel->getEnvironment(),
+        $kernel->isDebug() ? 'on' : 'off',
+        $seconds,
+    ));
+    $exitCode = max($exitCode, $result);
+}
+
+exit($exitCode);
+
+function warmUp(KernelInterface $kernel): int
+{
+    $application = new Application($kernel);
+    $application->setAutoExit(false);
+
+    try {
+        // Errors still reach the output; the warmup itself stays quiet.
+        $quiet = new ConsoleOutput(ConsoleOutput::VERBOSITY_QUIET);
+
+        return $application->run(new ArrayInput(['command' => 'cache:warmup']), $quiet);
+    } finally {
+        $kernel->shutdown();
+    }
+}

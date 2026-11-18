@@ -132,6 +132,7 @@ make lint-trans-de  # lint DE catalogue only
 
 - **Unit job** (parallel, no database, PCOV): `make test-unit COVERAGE=1 JUNIT=1`, clover artifact `coverage-unit`
 - **Database job** (parallel, PostgreSQL, PCOV): `make test-database COVERAGE=1 JUNIT=1`, suites `integration,functional,fixtures,system`, clover artifact `coverage-integration`. The list lives in `DATABASE_SUITES` in the `Makefile`; use it, not `all` with `--exclude-testsuite unit`: `all` contains the unit folders too, so they would run twice.
+- **Extra test containers are compiled before the tests** (#1343). Some tests boot another kernel than the regular test kernel: `KernelWithoutEdVisit`, `KernelWithoutEncounterSchemas` (#1300) and `ProdKernelForTests` (`ContentSecurityPolicyTest`). Compiling such a container inside a test took one to two and a half minutes under PCOV and blocked a ParaTest worker. `make test-database` therefore runs `make test-warmup` first (`bin/warmup-test-kernels`, without PCOV) and starts ParaTest with `TEST_PREWARMED_KERNELS=1`. The test cache itself is warmed without PCOV too. A new test kernel class belongs in `bin/warmup-test-kernels`.
 - **Coverage job** (after both succeed): one Codecov upload with both clovers, no flags (full project coverage)
 - **Prod kernel smoke**: `composer install --no-dev` (with Composer scripts, so `cache:clear` boots the prod kernel), `lint:container` and `asset-map:compile` in `APP_ENV=prod`
 - CI writes only the clover report; the HTML and text reports come from `make coverage`
