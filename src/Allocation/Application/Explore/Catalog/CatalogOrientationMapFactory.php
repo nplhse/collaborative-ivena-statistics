@@ -15,17 +15,18 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Resolves Hessen GeoJSON orientation for Explore catalog detail pages.
+ * Resolves dispatch-area GeoJSON orientation (Hessen and neighbouring areas) for Explore catalog detail pages.
  */
 final readonly class CatalogOrientationMapFactory
 {
-    private const string HESSEN_STATE_NAME = 'Hessen';
-
     /** @var array<string, string> */
     private array $nameToGeoKey;
 
     /** @var array<string, string> */
     private array $districtLabels;
+
+    /** @var array<string, string> geo key => federal state name */
+    private array $areaStates;
 
     public function __construct(
         #[Autowire('%kernel.project_dir%/config/case_flow/dispatch_area_geo_map.yaml')]
@@ -36,7 +37,7 @@ final readonly class CatalogOrientationMapFactory
         private HospitalLookupInterface $hospitalLookup,
     ) {
         $this->nameToGeoKey = $this->loadNameToGeoKey($configPath);
-        $this->districtLabels = $this->loadDistrictLabels($geoJsonPath);
+        [$this->districtLabels, $this->areaStates] = $this->loadFeatureProperties($geoJsonPath);
     }
 
     public function forDispatchArea(?string $name): CatalogOrientationMap
@@ -59,11 +60,13 @@ final readonly class CatalogOrientationMapFactory
             return CatalogOrientationMap::disabled();
         }
 
-        if (0 !== strcasecmp(trim($name), self::HESSEN_STATE_NAME)) {
-            return CatalogOrientationMap::disabled();
+        foreach ($this->areaStates as $state) {
+            if (0 === strcasecmp(trim($name), $state)) {
+                return new CatalogOrientationMap(enabled: true, showAllAreas: true, stateName: $state);
+            }
         }
 
-        return new CatalogOrientationMap(enabled: true, showAllAreas: true);
+        return CatalogOrientationMap::disabled();
     }
 
     public function forHospital(
@@ -243,30 +246,31 @@ final readonly class CatalogOrientationMapFactory
     }
 
     /**
-     * @return array<string, string>
+     * @return array{0: array<string, string>, 1: array<string, string>} district labels and federal states by geo key
      */
-    private function loadDistrictLabels(string $geoJsonPath): array
+    private function loadFeatureProperties(string $geoJsonPath): array
     {
         if (!is_file($geoJsonPath)) {
-            return [];
+            return [[], []];
         }
 
         $raw = file_get_contents($geoJsonPath);
         if (false === $raw || '' === $raw) {
-            return [];
+            return [[], []];
         }
 
         try {
             $parsed = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
-            return [];
+            return [[], []];
         }
 
         if (!\is_array($parsed) || !isset($parsed['features']) || !\is_array($parsed['features'])) {
-            return [];
+            return [[], []];
         }
 
         $labels = [];
+        $states = [];
         foreach ($parsed['features'] as $feature) {
             if (!\is_array($feature)) {
                 continue;
@@ -278,8 +282,17 @@ final readonly class CatalogOrientationMapFactory
             }
 
             $key = $properties['key'] ?? null;
+            if (!\is_string($key) || '' === $key) {
+                continue;
+            }
+
+            $state = $properties['state'] ?? null;
+            if (\is_string($state) && '' !== trim($state)) {
+                $states[$key] = trim($state);
+            }
+
             $names = $properties['krs_names'] ?? null;
-            if (!\is_string($key) || '' === $key || !\is_array($names)) {
+            if (!\is_array($names)) {
                 continue;
             }
 
@@ -295,6 +308,6 @@ final readonly class CatalogOrientationMapFactory
             }
         }
 
-        return $labels;
+        return [$labels, $states];
     }
 }

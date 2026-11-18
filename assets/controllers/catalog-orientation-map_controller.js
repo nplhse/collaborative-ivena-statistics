@@ -85,6 +85,7 @@ export default class extends Controller {
         geoUrl: String,
         highlightKey: { type: String, default: '' },
         showAll: { type: Boolean, default: false },
+        state: { type: String, default: '' },
         markerLat: { type: Number, default: Number.NaN },
         markerLng: { type: Number, default: Number.NaN },
         markerLabel: { type: String, default: '' },
@@ -166,6 +167,15 @@ export default class extends Controller {
     }
 
     featuresForDisplay(geojson) {
+        if (this.showAllValue && this.stateValue && Array.isArray(geojson?.features)) {
+            return {
+                ...geojson,
+                features: geojson.features.filter(
+                    (feature) => feature?.properties?.state === this.stateValue,
+                ),
+            };
+        }
+
         if (this.showAllValue || !this.highlightKeyValue || !Array.isArray(geojson?.features)) {
             return geojson;
         }

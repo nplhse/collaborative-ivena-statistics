@@ -76,19 +76,35 @@ final class CatalogOrientationMapFactoryTest extends TestCase
 
         self::assertTrue($map->enabled);
         self::assertTrue($map->showAllAreas);
+        self::assertSame('Hessen', $map->stateName);
         self::assertNull($map->highlightKey);
     }
 
-    public function testStateIsDisabledOutsideHessenPilot(): void
+    public function testStateWithNeighbouringAreasShowsOnlyThatState(): void
     {
-        self::assertFalse($this->factory->forState('Bayern')->enabled);
-        self::assertFalse($this->factory->forState('Niedersachsen')->enabled);
+        $map = $this->factory->forState('niedersachsen');
+
+        self::assertTrue($map->enabled);
+        self::assertTrue($map->showAllAreas);
+        self::assertSame('Niedersachsen', $map->stateName);
     }
 
-    public function testDispatchAreaIsDisabledForNonHessenCatalogNames(): void
+    public function testStateWithoutMappedAreasIsDisabled(): void
     {
-        self::assertFalse($this->factory->forDispatchArea('Göttingen')->enabled);
-        self::assertFalse($this->factory->forDispatchArea('Bayerischer Untermain')->enabled);
+        self::assertFalse($this->factory->forState('Berlin')->enabled);
+        self::assertFalse($this->factory->forState('Nordrhein-Westfalen')->enabled);
+    }
+
+    public function testNeighbouringDispatchAreasOutsideHessenHaveAShape(): void
+    {
+        self::assertSame('goettingen', $this->factory->forDispatchArea('Göttingen')->highlightKey);
+        self::assertSame('eichsfeld', $this->factory->forDispatchArea('Eichsfeld')->highlightKey);
+        self::assertSame('bayerischer-untermain', $this->factory->forDispatchArea('Bayerischer Untermain')->highlightKey);
+    }
+
+    public function testDispatchAreaIsDisabledForUnmappedNames(): void
+    {
+        self::assertFalse($this->factory->forDispatchArea('Hamburg')->enabled);
     }
 
     public function testStateIsDisabledForEmptyName(): void
