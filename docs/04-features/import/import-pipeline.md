@@ -20,7 +20,9 @@ Excel files (`.xls`, `.xlsx`) are **not** supported. The importer reads rows via
 
 ## Who may upload
 
-The upload form (`/import/new`) is only offered to users who can submit it (#1351). `ImportUploadTargets` lists, per import type, the hospitals the user may upload to; the form offers only those hospitals and types, the type field shows only the types allowed for the chosen hospital (Stimulus controller `import-type-fields`), and the controller checks the submitted combination again. A participant without any upload right is sent to the import list with a notice. Rules: [permission-model.md](../../02-architecture/permission-model.md#voters).
+The upload form (`/import/new`) is only offered to users who can submit it (#1351). `ImportUploadTargets` lists, per import type, the hospitals the user may upload to; the form offers only those hospitals and types, the type field shows only the types allowed for the chosen hospital (Stimulus controller `import-type-fields`), and the controller checks the submitted combination again. A participant without any upload right is sent to the import list with a notice.
+
+Links to the form use the same source: the import list and the dashboard ask `IMPORT_CREATE` (any type); the empty states of the allocation list, the Analysis Explorer and the reports, and the onboarding step "Start your first import", ask `ImportUploadTargets::canUpload($user, ImportType::ALLOCATION)` because they offer an allocation import; the data preparation guide asks for `ImportType::ENCOUNTER`. My Hospitals and the hospital detail page show the upload link per hospital with `HospitalPermission::Import`, which is the same rule for allocation imports. The welcome mail and the monthly reminder link the form only for hospital owners, who always have that permission. Rules: [permission-model.md](../../02-architecture/permission-model.md#voters).
 
 ## Upload validation
 

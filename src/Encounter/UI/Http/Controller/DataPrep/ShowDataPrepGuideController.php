@@ -8,6 +8,9 @@ use App\Encounter\UI\DataPrep\DataPrepChangelog;
 use App\Encounter\UI\DataPrep\DataPrepHospitals;
 use App\Encounter\UI\DataPrep\DataPrepRelease;
 use App\Encounter\UI\DataPrep\DataPrepToolRenderer;
+use App\Import\Application\Service\ImportUploadTargets;
+use App\Import\Domain\Enum\ImportType;
+use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -27,18 +30,23 @@ final class ShowDataPrepGuideController extends AbstractController
         private readonly DataPrepChangelog $changelog,
         private readonly DataPrepHospitals $hospitals,
         private readonly DataPrepToolRenderer $toolRenderer,
+        private readonly ImportUploadTargets $uploadTargets,
     ) {
     }
 
     #[Route('/tools/data-prep', name: 'app_tools_data_prep', methods: ['GET'])]
     public function __invoke(): Response
     {
+        $user = $this->getUser();
+
         return $this->render('@Encounter/data_prep/guide.html.twig', [
             'release' => $this->release,
             'changelog' => $this->changelog->entries(),
             'profiles' => $this->toolRenderer->profileSummaries(),
             'hospitals' => $this->hospitals->forCurrentUser(),
             'review_url' => $this->reviewUrl(),
+            // The upload button only for users who can upload encounter data somewhere (#1351).
+            'can_upload' => $user instanceof User && $this->uploadTargets->canUpload($user, ImportType::ENCOUNTER),
         ]);
     }
 

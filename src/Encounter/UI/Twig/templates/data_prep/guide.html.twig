@@ -90,7 +90,9 @@
                         <li>
                             <strong>{{ (g ~ 'steps.upload.title')|trans({}, 'encounter') }}</strong>
                             <p class="mb-2">{{ (g ~ 'steps.upload.text')|trans({}, 'encounter') }}</p>
-                            <a class="btn btn-outline-primary btn-sm" href="{{ path('app_import_new') }}">{{ 'encounter.import.action.new'|trans({}, 'encounter') }}</a>
+                            {% if can_upload %}
+                                <a class="btn btn-outline-primary btn-sm" href="{{ path('app_import_new') }}" data-test="data-prep-guide-upload">{{ 'encounter.import.action.new'|trans({}, 'encounter') }}</a>
+                            {% endif %}
                             {% if review_url is not null %}
                                 <a class="btn btn-outline-secondary btn-sm" href="{{ review_url }}">{{ 'encounter.review.title'|trans({}, 'encounter') }}</a>
                             {% endif %}

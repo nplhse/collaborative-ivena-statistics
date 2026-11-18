@@ -7,7 +7,8 @@ namespace App\Onboarding\Application;
 use App\Allocation\Application\Allocations\AllocationListHospitalScopeResolver;
 use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Allocation\Domain\Enum\HospitalPermission;
-use App\Import\Application\Service\ImportListAccess;
+use App\Import\Application\Service\ImportUploadTargets;
+use App\Import\Domain\Enum\ImportType;
 use App\Onboarding\Application\Dto\OnboardingStepView;
 use App\Onboarding\Domain\Enum\OnboardingStepKey;
 use App\User\Domain\Entity\User;
@@ -20,7 +21,7 @@ final readonly class OnboardingStepCatalog
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private HospitalPermissionAccess $hospitalPermissionAccess,
-        private ImportListAccess $importListAccess,
+        private ImportUploadTargets $uploadTargets,
         private UrlGeneratorInterface $urlGenerator,
     ) {
     }
@@ -37,7 +38,7 @@ final readonly class OnboardingStepCatalog
         }
 
         $hasClinicAccess = $this->hasClinicAccess($user);
-        $hasImportPermission = [] !== $this->importListAccess->resolveAccessibleHospitalIds($user);
+        $hasImportPermission = $this->hasImportPermission($user);
         $hasStatisticsPermission = $this->hasStatisticsPermission($user);
         $ownsHospitals = $user->getHospitals()->count() > 0;
 
@@ -92,7 +93,8 @@ final readonly class OnboardingStepCatalog
 
     public function hasImportPermission(User $user): bool
     {
-        return [] !== $this->importListAccess->resolveAccessibleHospitalIds($user);
+        // "Start your first import" leads to an allocation import (#1351).
+        return $this->uploadTargets->canUpload($user, ImportType::ALLOCATION);
     }
 
     /**

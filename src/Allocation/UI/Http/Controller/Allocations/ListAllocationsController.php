@@ -14,7 +14,8 @@ use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Infrastructure\Query\ListAllocationsQuery;
 use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
 use App\Allocation\UI\Twig\AllocationListColumns;
-use App\Import\Application\Service\ImportListAccess;
+use App\Import\Application\Service\ImportUploadTargets;
+use App\Import\Domain\Enum\ImportType;
 use App\Shared\Application\DataTable\DataTablePreferenceService;
 use App\Shared\UI\Http\DataTablePreferenceQueryState;
 use App\User\Domain\Entity\User;
@@ -31,7 +32,7 @@ final class ListAllocationsController extends AbstractController
         private readonly ListAllocationsQuery $allocationsQuery,
         private readonly ExploreFilterOptionsProvider $filterOptionsProvider,
         private readonly AllocationListHospitalScopeOptionsProvider $hospitalScopeOptionsProvider,
-        private readonly ImportListAccess $importListAccess,
+        private readonly ImportUploadTargets $uploadTargets,
         private readonly AllocationListColumns $columns,
         private readonly DataTablePreferenceService $dataTablePreferences,
     ) {
@@ -89,7 +90,8 @@ final class ListAllocationsController extends AbstractController
             ...$filterOptions,
             'transportTypes' => AllocationTransportType::cases(),
             'hospitalScopeOptions' => $hospitalScopeOptions,
-            'canImport' => $participant instanceof User && [] !== $this->importListAccess->resolveAccessibleHospitalIds($participant),
+            // The empty state offers an allocation import (#1351).
+            'canImport' => $participant instanceof User && $this->uploadTargets->canUpload($participant, ImportType::ALLOCATION),
         ]);
     }
 

@@ -83,6 +83,8 @@ final class DataPrepGuideControllerTest extends WebTestCase
         self::assertCount(1, $row, 'an owner without a grant still sees the hospital');
         self::assertCount(0, $row->filter('[data-test="data-prep-grant-action"]'));
         self::assertCount(1, $row->filter('[data-test="data-prep-manage-grants"]'));
+        // The owner has no encounter upload grant, so the guide offers no upload (#1351).
+        self::assertSelectorNotExists('[data-test="data-prep-guide-upload"]');
 
         $crawler = $client->request(Request::METHOD_GET, '/tools/data-prep/key');
         self::assertResponseIsSuccessful();
@@ -99,6 +101,7 @@ final class DataPrepGuideControllerTest extends WebTestCase
         $row = $crawler->filter(sprintf('[data-test="data-prep-hospital"][data-hospital="%d"]', $hospitalId));
         self::assertSame(['Upload'], $row->filter('[data-test="data-prep-grant-action"]')->each(static fn ($badge): string => trim($badge->text())));
         self::assertCount(0, $row->filter('[data-test="data-prep-manage-grants"]'));
+        self::assertSelectorExists('[data-test="data-prep-guide-upload"][href="/import/new"]');
 
         $client->request(Request::METHOD_GET, '/tools/data-prep/key');
         self::assertResponseIsSuccessful();

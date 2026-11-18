@@ -14,6 +14,8 @@
     {% set hasOwnedHospitals = app.user and app.user.hospitals|length > 0 %}
     {% set canViewOwnedHospitals = is_granted('ROLE_PARTICIPANT') and hasOwnedHospitals %}
     {% set canExplore = is_granted('ROLE_PARTICIPANT') %}
+    {# Same check as the upload form (#1351). #}
+    {% set canImport = is_granted(constant('App\\Import\\Infrastructure\\Security\\Voter\\ImportCreateVoter::CREATE')) %}
     {% set showParticipantAccessNotice = is_granted('ROLE_USER') and not is_granted('ROLE_PARTICIPANT') %}
     {% set analysisTitleKey = is_granted('ROLE_PARTICIPANT')
         ? 'dashboard.next_steps.analysis.title'
@@ -52,10 +54,10 @@
         url: path('app_stats_dashboard'),
     }]) %}
     {% set nextSteps = nextSteps|merge([{
-        title: canViewOwnedHospitals ? 'dashboard.next_steps.import.title' : 'dashboard.next_steps.blog.title',
-        description: canViewOwnedHospitals ? 'dashboard.next_steps.import.description' : 'dashboard.next_steps.blog.description',
-        icon: canViewOwnedHospitals ? 'tabler:database-import' : 'tabler:notes',
-        url: canViewOwnedHospitals ? path('app_import_new') : path('app_blog_index'),
+        title: canImport ? 'dashboard.next_steps.import.title' : 'dashboard.next_steps.blog.title',
+        description: canImport ? 'dashboard.next_steps.import.description' : 'dashboard.next_steps.blog.description',
+        icon: canImport ? 'tabler:database-import' : 'tabler:notes',
+        url: canImport ? path('app_import_new') : path('app_blog_index'),
     }]) %}
 
     <div class="d-flex flex-column gap-3">

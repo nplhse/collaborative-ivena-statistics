@@ -329,7 +329,6 @@ deptrac:
       - App\Allocation\Application\Allocations\AllocationListHospitalScopeResolver
       - App\Allocation\Application\Service\HospitalPermissionAccess
       - App\Allocation\Domain\Enum\HospitalPermission
-      - App\Import\Application\Service\ImportListAccess
     App\Onboarding\Domain\Entity\UserOnboardingStep:
       - App\Onboarding\Infrastructure\Repository\UserOnboardingStepRepository
     App\Statistics\Application\ClinicalFeaturesProvider:
