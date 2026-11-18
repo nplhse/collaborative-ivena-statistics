@@ -83,7 +83,7 @@ final class HessenDispatchAreaGeoJsonBuilderTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Kreis "Landkreis Göttingen" has code 03159, configured 03155');
 
-        (new HessenDispatchAreaGeoJsonBuilder())->build($sources, $this->rawPaths());
+        new HessenDispatchAreaGeoJsonBuilder()->build($sources, $this->rawPaths());
     }
 
     public function testCoreStateIsRequired(): void
@@ -91,7 +91,7 @@ final class HessenDispatchAreaGeoJsonBuilderTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('core_state');
 
-        (new HessenDispatchAreaGeoJsonBuilder())->build(['dispatch_areas' => []], $this->rawPaths());
+        new HessenDispatchAreaGeoJsonBuilder()->build(['dispatch_areas' => []], $this->rawPaths());
     }
 
     /**
@@ -102,7 +102,7 @@ final class HessenDispatchAreaGeoJsonBuilderTest extends TestCase
         /** @var array<string, mixed> $sources */
         $sources = Yaml::parseFile(self::PROJECT.'/config/case_flow/dispatch_area_geo_sources.yaml');
 
-        return (new HessenDispatchAreaGeoJsonBuilder())->build($sources, $this->rawPaths());
+        return new HessenDispatchAreaGeoJsonBuilder()->build($sources, $this->rawPaths());
     }
 
     /**

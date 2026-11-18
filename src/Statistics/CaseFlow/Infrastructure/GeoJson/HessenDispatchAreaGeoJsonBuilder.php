@@ -11,8 +11,8 @@ namespace App\Statistics\CaseFlow\Infrastructure\GeoJson;
 final class HessenDispatchAreaGeoJsonBuilder
 {
     /**
-     * @param array<string, mixed> $sourcesConfig     parsed dispatch_area_geo_sources.yaml
-     * @param list<string>         $rawGeoJsonPaths   raw Kreis GeoJSON files (BKG VG250 via Opendatasoft)
+     * @param array<string, mixed> $sourcesConfig   parsed dispatch_area_geo_sources.yaml
+     * @param list<string>         $rawGeoJsonPaths raw Kreis GeoJSON files (BKG VG250 via Opendatasoft)
      *
      * @return array{type: string, features: list<array<string, mixed>>}
      */
