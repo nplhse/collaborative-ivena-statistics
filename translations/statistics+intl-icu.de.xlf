@@ -6405,6 +6405,18 @@
         <source>stats.case_flow.map.chip.beyond_max</source>
         <target>{count, plural, one {# ≥ 50 Min.} other {# ≥ 50 Min.}}</target>
       </trans-unit>
+      <trans-unit id="GeoFlowDe38a" resname="stats.case_flow.map.chip.unshaped">
+        <source>stats.case_flow.map.chip.unshaped</source>
+        <target>{count, plural, one {# Fall ({share, number} %) aus Gebieten ohne Kartenfläche} other {# Fälle ({share, number} %) aus Gebieten ohne Kartenfläche}}</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe38b" resname="stats.case_flow.map.chip.unshaped_suppressed">
+        <source>stats.case_flow.map.chip.unshaped_suppressed</source>
+        <target>Weniger als {min, number} Fälle aus Gebieten ohne Kartenfläche</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe38c" resname="stats.case_flow.map.chip.unshaped_hint">
+        <source>stats.case_flow.map.chip.unshaped_hint</source>
+        <target>Diese Fälle zählen bei den Anteilen mit, haben aber keine Fläche auf der Karte. Die sichtbaren Anteile ergeben deshalb weniger als 100 %.</target>
+      </trans-unit>
       <trans-unit id="GeoSegDe01" resname="stats.case_flow.segment.title">
         <source>stats.case_flow.segment.title</source>
         <target>Geografisches Segmentprofil</target>

@@ -49,6 +49,15 @@ final class CaseFlowGeoKeyResolver
         return $this->slugify($originName);
     }
 
+    /**
+     * Whether the choropleth has a polygon for this feature key. Only keys of the configured mapping have one;
+     * the slug fallback of resolve() matches no feature unless it happens to equal a mapped key.
+     */
+    public function hasMapShape(string $geoFeatureKey): bool
+    {
+        return \in_array($geoFeatureKey, $this->nameToGeoKey, true);
+    }
+
     private function slugify(string $value): string
     {
         $slug = mb_strtolower($value);
