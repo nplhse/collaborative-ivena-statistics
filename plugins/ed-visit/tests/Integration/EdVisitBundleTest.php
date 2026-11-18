@@ -19,6 +19,16 @@ use Symfony\Component\Console\Tester\CommandTester;
  */
 final class EdVisitBundleTest extends KernelTestCase
 {
+    private ?CommandTester $debugConfig = null;
+
+    #[\Override]
+    protected function tearDown(): void
+    {
+        $this->debugConfig = null;
+
+        parent::tearDown();
+    }
+
     public function testTheBundleIsEnabledInEveryEnvironment(): void
     {
         self::bootKernel();
@@ -48,8 +58,6 @@ final class EdVisitBundleTest extends KernelTestCase
 
     public function testItAddsItsAssetsAndStimulusControllersNextToTheApplications(): void
     {
-        self::bootKernel();
-
         $assetPaths = $this->config('framework', 'asset_mapper.paths');
         self::assertStringContainsString('plugins/ed-visit/assets', $assetPaths);
         self::assertStringContainsString('assets/', $assetPaths);
@@ -67,12 +75,16 @@ final class EdVisitBundleTest extends KernelTestCase
         return $projectDir;
     }
 
+    /**
+     * Without debug (as in CI, #1343), debug:config compiles the container again and swaps the kernel's bundles for
+     * new ones that were never booted, so shutting that kernel down later fails. The command gets a kernel of its
+     * own that is never shut down, and one command instance that keeps the compiled container for every call.
+     */
     private function config(string $extension, string $path): string
     {
-        self::assertNotNull(self::$kernel);
-        $tester = new CommandTester(new Application(self::$kernel)->find('debug:config'));
-        self::assertSame(0, $tester->execute(['name' => $extension, 'path' => $path]));
+        $this->debugConfig ??= new CommandTester(new Application(self::createKernel())->find('debug:config'));
+        self::assertSame(0, $this->debugConfig->execute(['name' => $extension, 'path' => $path]));
 
-        return $tester->getDisplay();
+        return $this->debugConfig->getDisplay();
     }
 }

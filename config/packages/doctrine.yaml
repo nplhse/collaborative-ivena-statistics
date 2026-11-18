@@ -115,6 +115,10 @@ doctrine:
 when@test:
     doctrine:
         dbal:
+            # Query-count tests read the profiler's db collector. Doctrine ties profiling to kernel.debug, and the
+            # database tests run without debug in CI (#1343), so it is switched on here explicitly. Backtraces stay
+            # tied to kernel.debug (off in CI): nothing asserts on them and they cost memory per query.
+            profiling: true
             # "TEST_DATABASE_SUFFIX" names the checkout: bin/worktree-init sets it per worktree in
             # .env.test.local, so parallel worktrees do not reset each other's test databases.
             # "TEST_TOKEN" is typically set by ParaTest and names the worker.
