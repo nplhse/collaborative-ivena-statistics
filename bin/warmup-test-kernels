@@ -5,14 +5,15 @@ declare(strict_types=1);
 
 /*
  * Compiles the containers that some tests boot besides the regular test kernel, so those tests do not build them
- * in-process (#1343): the test kernels without bundles (#1300 step 5) and the prod kernel of
- * ContentSecurityPolicyTest. Each one takes a minute or more under coverage and blocks a ParaTest worker.
+ * in-process (#1343): the test kernels without bundles (#1300 step 5), the demo kernel of DemoEnvironmentConfigTest
+ * and the prod kernel of ContentSecurityPolicyTest. Each one takes a minute or more under coverage and blocks a ParaTest worker.
  *
  * `make test-database` (and so CI) runs it first, without coverage (php -d pcov.enabled=0), and then runs the tests
  * with TEST_PREWARMED_KERNELS=1 so the prod test keeps the prebuilt container. The test kernels are debug kernels
  * and rebuild themselves when a file changes; the prod container does not, so it is always built from scratch.
  */
 
+use App\Kernel;
 use App\Tests\Support\Kernel\KernelWithoutEdVisit;
 use App\Tests\Support\Kernel\KernelWithoutEncounterSchemas;
 use App\Tests\Support\Kernel\ProdKernelForTests;
@@ -30,19 +31,23 @@ $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = 'test';
 new Dotenv()->bootEnv(dirname(__DIR__).'/.env');
 $debug = (bool) $_SERVER['APP_DEBUG'];
 
+// Kernel => run cache:warmup (true) or only boot it, which compiles the container (false). The demo kernel is only
+// booted: its console guard refuses any database that is not a demo database, and the test only boots it as well.
+// DemoEnvironmentConfigTest boots it with debug on, so it rebuilds itself when a file changes.
 $kernels = [
-    new KernelWithoutEdVisit('test', $debug),
-    new KernelWithoutEncounterSchemas('test', $debug),
-    new ProdKernelForTests(),
+    [new KernelWithoutEdVisit('test', $debug), true],
+    [new KernelWithoutEncounterSchemas('test', $debug), true],
+    [new Kernel('demo', true), false],
+    [new ProdKernelForTests(), true],
 ];
 
 $output = new ConsoleOutput();
 new Filesystem()->remove(new ProdKernelForTests()->getCacheDir());
 $exitCode = 0;
 
-foreach ($kernels as $kernel) {
+foreach ($kernels as [$kernel, $runWarmupCommand]) {
     $startedAt = hrtime(true);
-    $result = warmUp($kernel);
+    $result = warmUp($kernel, $runWarmupCommand);
     $seconds = (hrtime(true) - $startedAt) / 1e9;
 
     $output->writeln(sprintf(
@@ -58,16 +63,21 @@ foreach ($kernels as $kernel) {
 
 exit($exitCode);
 
-function warmUp(KernelInterface $kernel): int
+function warmUp(KernelInterface $kernel, bool $runWarmupCommand): int
 {
+    if (!$runWarmupCommand) {
+        $kernel->boot();
+        $kernel->shutdown();
+
+        return 0;
+    }
+
     $application = new Application($kernel);
     $application->setAutoExit(false);
 
     try {
-        // Errors still reach the output; the warmup itself stays quiet.
-        $quiet = new ConsoleOutput(ConsoleOutput::VERBOSITY_QUIET);
-
-        return $application->run(new ArrayInput(['command' => 'cache:warmup']), $quiet);
+        // --quiet wins over SHELL_VERBOSITY, which a debug kernel sets when it boots; errors still reach the output.
+        return $application->run(new ArrayInput(['command' => 'cache:warmup', '--quiet' => true]), new ConsoleOutput());
     } finally {
         $kernel->shutdown();
     }
