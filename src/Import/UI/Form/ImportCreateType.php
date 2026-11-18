@@ -58,10 +58,12 @@ final class ImportCreateType extends AbstractType
 
         $builder
             ->add('name', TextType::class, [
+                'label' => 'label.import.name',
                 'required' => true,
                 'constraints' => [new Assert\NotBlank(), new Assert\Length(max: 255)],
             ])
             ->add('hospital', EntityType::class, [
+                'label' => 'label.import.hospital',
                 'class' => Hospital::class,
                 'choice_label' => 'name',
                 'placeholder' => 'label.import.selectHospital',
@@ -103,6 +105,7 @@ final class ImportCreateType extends AbstractType
 
         $builder
             ->add('file', FileType::class, [
+                'label' => 'label.import.file',
                 'mapped' => false,
                 'required' => true,
                 'attr' => [

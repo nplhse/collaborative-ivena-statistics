@@ -321,6 +321,18 @@
         <source>label.import.type</source>
         <target>Import type</target>
       </trans-unit>
+      <trans-unit id="impNameEn" resname="label.import.name">
+        <source>label.import.name</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="impHospitalEn" resname="label.import.hospital">
+        <source>label.import.hospital</source>
+        <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="impFileEn" resname="label.import.file">
+        <source>label.import.file</source>
+        <target>File</target>
+      </trans-unit>
       <trans-unit id="impTypeAllocEn" resname="label.import.type.allocation">
         <source>label.import.type.allocation</source>
         <target>Allocations</target>
