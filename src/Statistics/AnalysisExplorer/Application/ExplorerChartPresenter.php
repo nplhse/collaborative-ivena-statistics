@@ -409,7 +409,8 @@ final readonly class ExplorerChartPresenter
             return $this->translator->trans($profile->labelTranslationKey, [], 'statistics');
         }
 
-        return $this->metricRegistry->get($this->metricKeyMapper->toRegistryKey($metricKey))->label;
+        // Same key as the results table, the export and the edit form, so chart and table name a metric alike (#1408).
+        return $this->translator->trans('stats.analysis_explorer.metric.'.$metricKey->value, [], 'statistics');
     }
 
     private function metricFormat(AnalysisMetricKey $metricKey): string

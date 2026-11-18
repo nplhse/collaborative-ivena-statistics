@@ -158,7 +158,8 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         self::assertArrayHasKey('bar', $barSpecs);
         self::assertSame('bar', $barSpecs['bar']['chartType']);
         self::assertSame('Month', $barSpecs['bar']['xAxisLabel']);
-        self::assertSame('Count', $barSpecs['bar']['yAxisLabel']);
+        // The test translator returns the key: the axis title is translated, not MetricRegistry's "Count" (#1408).
+        self::assertSame('stats.analysis_explorer.metric.allocation_count', $barSpecs['bar']['yAxisLabel']);
 
         $lineSpecs = $presenter->buildSpecs($result, new PresentationConfig(chartType: ChartPresentationType::Line));
         self::assertArrayHasKey('line', $lineSpecs);
