@@ -1970,6 +1970,23 @@ a.catalog-year-heatmap-cell:focus-visible {
     transform: rotate(180deg);
 }
 
+/* Options of the import upload form (#1352): a quiet toggle whose chevron turns when the options are open. */
+.import-options-chevron {
+    transition: transform 0.15s ease-in-out;
+}
+
+.import-options-toggle:not(.collapsed) .import-options-chevron {
+    transform: rotate(180deg);
+}
+
+/* No button background after a mouse click; keyboard focus keeps its ring (:focus-visible). */
+.import-options-toggle:hover,
+.import-options-toggle:active,
+.import-options-toggle:focus:not(:focus-visible) {
+    background-color: transparent;
+    box-shadow: none;
+}
+
 /* The icon box is as high as one line of text, so the icon sits centred on the (first) line of the hint. */
 .my-hospitals-finding-icon {
     display: inline-flex;

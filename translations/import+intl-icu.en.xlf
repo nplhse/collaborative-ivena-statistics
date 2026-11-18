@@ -335,7 +335,7 @@
       </trans-unit>
       <trans-unit id="impHospOverrideEn" resname="label.import.hospitalOverride">
         <source>label.import.hospitalOverride</source>
-        <target>Override target hospital (development only)</target>
+        <target>Override target hospital</target>
       </trans-unit>
       <trans-unit id="impHospOverrideHelpEn" resname="label.import.hospitalOverride.help">
         <source>label.import.hospitalOverride.help</source>
@@ -343,11 +343,19 @@
       </trans-unit>
       <trans-unit id="impHospOverrideNoticeEn" resname="label.import.hospitalOverride.notice">
         <source>label.import.hospitalOverride.notice</source>
-        <target>Imported with the development-only target hospital override. These rows are real operational data, not synthetic data.</target>
+        <target>Imported with the target hospital override. These rows are real operational data, not synthetic data.</target>
       </trans-unit>
       <trans-unit id="impHospOverrideSrcEn" resname="label.import.hospitalOverride.sourceLabel">
         <source>label.import.hospitalOverride.sourceLabel</source>
         <target>Hospital named in the file: {label}</target>
+      </trans-unit>
+      <trans-unit id="impOptionsEn" resname="label.import.options">
+        <source>label.import.options</source>
+        <target>Options</target>
+      </trans-unit>
+      <trans-unit id="impOptionsDemoEn" resname="label.import.options.demoWarning">
+        <source>label.import.options.demoWarning</source>
+        <target>This is the demo, whose banner says that all data is synthetic. An import with the target hospital override holds real operational data; it is marked on its import page. Keep it out of presentations unless the audience may see that data.</target>
       </trans-unit>
       <trans-unit id="impSumAllocEn" resname="import.summary.allocations_imported">
         <source>import.summary.allocations_imported</source>

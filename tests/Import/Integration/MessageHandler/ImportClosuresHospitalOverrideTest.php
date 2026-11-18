@@ -13,7 +13,7 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\Message\ImportClosuresMessage;
 use App\Import\Application\MessageHandler\ImportClosuresMessageHandler;
-use App\Import\Application\Service\DevelopmentHospitalOverride;
+use App\Import\Application\Service\ImportHospitalOverride;
 use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportRunTrigger;
@@ -40,7 +40,7 @@ final class ImportClosuresHospitalOverrideTest extends DatabaseKernelTestCase
     public function testOverrideStoresRowsOnTheSelectedHospitalInDevelopment(): void
     {
         self::bootKernel();
-        self::getContainer()->set(DevelopmentHospitalOverride::class, new DevelopmentHospitalOverride('dev'));
+        self::getContainer()->set(ImportHospitalOverride::class, new ImportHospitalOverride('dev'));
         ['id' => $id, 'hospital' => $hospitalId] = $this->arrangeImport(hospitalOverride: true);
 
         $this->runImport($id);
@@ -61,7 +61,7 @@ final class ImportClosuresHospitalOverrideTest extends DatabaseKernelTestCase
     public function testStoredOverrideIsIgnoredOutsideDevelopment(): void
     {
         self::bootKernel();
-        self::assertFalse(self::getContainer()->get(DevelopmentHospitalOverride::class)->isAvailable(), 'The test environment is not dev.');
+        self::assertFalse(self::getContainer()->get(ImportHospitalOverride::class)->isAvailable(), 'The test environment is not dev.');
         ['id' => $id] = $this->arrangeImport(hospitalOverride: true);
 
         $this->runImport($id);
@@ -77,7 +77,7 @@ final class ImportClosuresHospitalOverrideTest extends DatabaseKernelTestCase
     public function testImportWithoutOverrideKeepsTheConflictCheckInDevelopment(): void
     {
         self::bootKernel();
-        self::getContainer()->set(DevelopmentHospitalOverride::class, new DevelopmentHospitalOverride('dev'));
+        self::getContainer()->set(ImportHospitalOverride::class, new ImportHospitalOverride('dev'));
         ['id' => $id] = $this->arrangeImport(hospitalOverride: false);
 
         $this->runImport($id);

@@ -1,6 +1,6 @@
 # Demo environment
 
-A local, offline demo of the platform with synthetic data only (issue #791, [ADR 023](../02-architecture/decisions/023-demo-environment.md)). It runs next to the development environment and never touches its database. The same environment also serves as an internal staging installation on a server of its own: see [Staging on a server](#staging-on-a-server).
+A local, offline demo of the platform with synthetic data (issue #791, [ADR 023](../02-architecture/decisions/023-demo-environment.md)). It runs next to the development environment and never touches its database. The same environment also serves as an internal staging installation on a server of its own: see [Staging on a server](#staging-on-a-server).
 
 | | Development | Demo |
 |---|---|---|
@@ -45,6 +45,8 @@ make demo-consume  # Messenger worker: imports, projections, scheduler
 ```
 
 `DEMO_PORT=8002 make demo-start` uses another port. The page title starts with "Demo" and a banner says that all data is synthetic, in the application and in the admin area.
+
+The installed data is synthetic. A real export loaded with the import option **Override target hospital** (available in the demo, #1352) is the exception: it stays real operational data, is marked on its import page, and the upload form warns about it ([ADR 023](../02-architecture/decisions/023-demo-environment.md#real-exports-through-the-target-hospital-override)).
 
 The demo targets call `APP_ENV=demo php bin/console`, not `symfony console`: the Symfony CLI can export `DATABASE_URL` of a Docker database, which would override `.env.demo` (the guard would then stop the command).
 

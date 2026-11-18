@@ -6,6 +6,8 @@ namespace App\Tests\Import\Integration\Infrastructure\Security;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Import\Application\Service\ImportHospitalOverride;
+use App\Import\Application\Service\ImportUploadTargets;
 use App\Import\Infrastructure\Security\Voter\ImportCreateVoter;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
@@ -68,6 +70,33 @@ final class ImportCreateVoterTest extends KernelTestCase
 
         self::assertSame(Voter::ACCESS_ABSTAIN, $this->voter->vote($this->token($owner), $hospital, ['VIEW']));
         self::assertSame(Voter::ACCESS_ABSTAIN, $this->voter->vote($this->token($owner), $owner, [ImportCreateVoter::CREATE]));
+    }
+
+    public function testHospitalOverrideOptionIsDeniedOutsideDevAndDemo(): void
+    {
+        $owner = $this->participant();
+        $own = HospitalFactory::createOne(['owner' => $owner]);
+
+        // The test kernel runs in `test`, where the option does not exist even for the hospital owner.
+        self::assertSame(Voter::ACCESS_DENIED, $this->voter->vote($this->token($owner), null, [ImportCreateVoter::OPTION_HOSPITAL_OVERRIDE]));
+        self::assertSame(Voter::ACCESS_DENIED, $this->voter->vote($this->token($owner), $own, [ImportCreateVoter::OPTION_HOSPITAL_OVERRIDE]));
+    }
+
+    public function testHospitalOverrideOptionFollowsUploadRightInDemo(): void
+    {
+        $voter = new ImportCreateVoter(
+            self::getContainer()->get(ImportUploadTargets::class),
+            new ImportHospitalOverride('demo'),
+        );
+        $owner = $this->participant();
+        $own = HospitalFactory::createOne(['owner' => $owner]);
+        $foreign = $this->foreignHospital();
+        $outsider = $this->participant();
+
+        self::assertSame(Voter::ACCESS_GRANTED, $voter->vote($this->token($owner), null, [ImportCreateVoter::OPTION_HOSPITAL_OVERRIDE]));
+        self::assertSame(Voter::ACCESS_GRANTED, $voter->vote($this->token($owner), $own, [ImportCreateVoter::OPTION_HOSPITAL_OVERRIDE]));
+        self::assertSame(Voter::ACCESS_DENIED, $voter->vote($this->token($owner), $foreign, [ImportCreateVoter::OPTION_HOSPITAL_OVERRIDE]));
+        self::assertSame(Voter::ACCESS_DENIED, $voter->vote($this->token($outsider), null, [ImportCreateVoter::OPTION_HOSPITAL_OVERRIDE]));
     }
 
     private function participant(): User

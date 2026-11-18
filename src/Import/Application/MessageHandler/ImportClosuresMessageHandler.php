@@ -22,11 +22,11 @@ use App\Import\Application\Factory\RowReaderFactory;
 use App\Import\Application\Mapping\ClosureHospitalGuard;
 use App\Import\Application\Mapping\ClosureHospitalProfile;
 use App\Import\Application\Message\ImportClosuresMessage;
-use App\Import\Application\Service\DevelopmentHospitalOverride;
 use App\Import\Application\Service\ImportCreatorPermissionCheck;
 use App\Import\Application\Service\ImportDataCoverageCalculator;
 use App\Import\Application\Service\ImportExportPeriodDeriver;
 use App\Import\Application\Service\ImportFileStorage;
+use App\Import\Application\Service\ImportHospitalOverride;
 use App\Import\Application\Service\ImportPreviousRunCleanupService;
 use App\Import\Application\Service\ImportRunCommitGuard;
 use App\Import\Application\Service\ImportRunErrorClassifier;
@@ -74,7 +74,7 @@ final readonly class ImportClosuresMessageHandler
         private ImportExportPeriodDeriver $exportPeriodDeriver,
         private ImportDataCoverageCalculator $dataCoverageCalculator,
         private ImportRunTelemetryInterface $telemetry,
-        private DevelopmentHospitalOverride $hospitalOverride,
+        private ImportHospitalOverride $hospitalOverride,
     ) {
     }
 
@@ -454,8 +454,9 @@ final readonly class ImportClosuresMessageHandler
     }
 
     /**
-     * The stored override flag counts only in the development environment (#878); elsewhere the
-     * normal hospital checks apply, for example when a development database is processed elsewhere.
+     * The stored override flag counts only where the override exists, `dev` and `demo` (#878, #1352); elsewhere
+     * the normal hospital checks apply, for example when such a database is processed elsewhere. The handler
+     * runs without a user: who may set the flag was decided at upload by `ImportCreateVoter`.
      */
     private function allowsHospitalOverride(Import $import): bool
     {
