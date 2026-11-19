@@ -9,6 +9,7 @@ import MessengerHistoryChartController from './controllers/messenger-history-cha
 import NavigationInspectorController from './controllers/navigation-inspector_controller.js';
 import StorageHistoryChartController from './controllers/storage-history-chart_controller.js';
 import TimelineDetailsController from './controllers/timeline-details_controller.js';
+import UsageTrendChartController from './controllers/usage-trend-chart_controller.js';
 import VichFilePreviewController from './controllers/vich-file-preview_controller.js';
 import './styles/admin-kpi.css';
 import './styles/admin-navigation-inspector.css';
@@ -25,6 +26,7 @@ application.register('messenger-history-chart', MessengerHistoryChartController)
 application.register('navigation-inspector', NavigationInspectorController);
 application.register('storage-history-chart', StorageHistoryChartController);
 application.register('timeline-details', TimelineDetailsController);
+application.register('usage-trend-chart', UsageTrendChartController);
 application.register('vich-file-preview', VichFilePreviewController);
 
 // Lets the Symfony UX Inspector read controller details in the admin area. The

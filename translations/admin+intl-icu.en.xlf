@@ -365,6 +365,30 @@
         <source>kpi.card.rejection_rate</source>
         <target>Rejection rate</target>
       </trans-unit>
+      <trans-unit id="kpiTrend01" resname="kpi.usage_trend.title">
+        <source>kpi.usage_trend.title</source>
+        <target>Usage (last 90 days)</target>
+      </trans-unit>
+      <trans-unit id="kpiTrend02" resname="kpi.usage_trend.details">
+        <source>kpi.usage_trend.details</source>
+        <target>Usage analytics</target>
+      </trans-unit>
+      <trans-unit id="kpiTrend03" resname="kpi.usage_trend.dau">
+        <source>kpi.usage_trend.dau</source>
+        <target>Daily users</target>
+      </trans-unit>
+      <trans-unit id="kpiTrend04" resname="kpi.usage_trend.wau">
+        <source>kpi.usage_trend.wau</source>
+        <target>Users in 7 days</target>
+      </trans-unit>
+      <trans-unit id="kpiTrend05" resname="kpi.usage_trend.mau">
+        <source>kpi.usage_trend.mau</source>
+        <target>Users in 30 days</target>
+      </trans-unit>
+      <trans-unit id="kpiTrend06" resname="kpi.usage_trend.history_hint">
+        <source>kpi.usage_trend.history_hint</source>
+        <target>Weekly and monthly users are added by the nightly aggregation, one day at a time. The monthly line starts with the first day whose 30-day window is complete.</target>
+      </trans-unit>
       <trans-unit id="kpi006" resname="kpi.chart.title">
         <source>kpi.chart.title</source>
         <target>Daily trend (last 30 days)</target>

@@ -1,6 +1,6 @@
-<div class="ea-dashboard-kpi mb-4">
+<div class="ea-dashboard-kpi h-100 d-flex flex-column">
     <h3 class="h5 text-secondary text-uppercase mb-3">{{ 'kpi.chart.title'|trans({}, 'admin') }}</h3>
-    <div class="card"
+    <div class="card flex-grow-1"
          data-controller="admin-kpi-chart"
          data-admin-kpi-chart-chart-value="{{ kpi_chart.toChartValue|json_encode|e('html_attr') }}"
          data-turbo-permanent>

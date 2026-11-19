@@ -7,7 +7,7 @@
             value: kpi_users.mau,
             is_percent: false,
             detail: 'kpi.card.active_users.detail'|trans({dau: kpi_users.dau, wau: kpi_users.wau}, 'admin'),
-            change: null,
+            change: kpi_users_change,
             url: kpi_users_url,
         }) }}
         {% for card in kpi_cards.cards %}

@@ -152,6 +152,21 @@ final readonly class AnalyticsDayAggregationQuery
     }
 
     /**
+     * Distinct users in the `$days` Berlin calendar days ending with `$day` (rolling WAU/MAU).
+     */
+    public function countDistinctUsers(\DateTimeImmutable $day, int $days): int
+    {
+        [, $to] = AnalyticsCalendar::dayBounds($day);
+        $from = $to->modify(sprintf('-%d days', $days));
+
+        return $this->toInt($this->connection->fetchOne(
+            'SELECT COUNT(DISTINCT analytics_user_key) FROM analytics_request WHERE occurred_at >= :from AND occurred_at < :to AND analytics_user_key IS NOT NULL',
+            $this->boundParams($from, $to),
+            $this->boundTypes(),
+        ));
+    }
+
+    /**
      * Oldest completed calendar days that still have raw rows and no aggregation marker.
      *
      * @return list<\DateTimeImmutable>
