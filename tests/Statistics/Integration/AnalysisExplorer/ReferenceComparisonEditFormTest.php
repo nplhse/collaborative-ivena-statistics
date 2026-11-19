@@ -24,13 +24,14 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
  * Switching the reference comparison (#1346) on in the edit form: the column axis is removed and the field disabled,
  * the share within each group is preselected for the case count only, and a later explicit choice survives saving
- * and reopening. Five hospitals with allocations make up the public scope; a sixth has no allocations.
+ * and reopening. The comparison is opt-in: its switch is off without references, and switching it off removes them. Five hospitals with allocations make up the public scope; a sixth has no allocations.
  */
 #[ResetDatabase]
 final class ReferenceComparisonEditFormTest extends KernelTestCase
@@ -86,6 +87,64 @@ final class ReferenceComparisonEditFormTest extends KernelTestCase
         self::assertNull($data->columnDimension);
         self::assertTrue($data->showPercentOfTotal);
         self::assertTrue($form->get('columnDimension')->getConfig()->getOption('disabled'));
+    }
+
+    public function testTheSwitchIsOffWithoutReferencesAndOnWithThem(): void
+    {
+        self::assertFalse($this->form($this->formData())->get('referenceComparison')->getData());
+        $form = $this->form($this->formData(referenceHospitals: [$this->hospitals[0]]));
+        self::assertTrue($form->get('referenceComparison')->getData());
+        self::assertTrue($form->get('referenceHospitals')->getConfig()->getOption('expanded'), 'The hospitals are checkboxes.');
+    }
+
+    public function testTheGroupTitleAndHelpFollowTheNumberOfOwnHospitals(): void
+    {
+        $form = $this->form($this->formData());
+        self::assertSame(['count' => 5, 'max' => 2], $form->get('referenceComparison')->getConfig()->getOption('help_translation_parameters'), 'Five hospitals in scope leave room for two references.');
+
+        $translator = self::getContainer()->get(TranslatorInterface::class);
+        $title = 'stats.analysis_explorer.edit.section.own_hospitals_comparison';
+        self::assertSame('Meine Klinik im Vergleich', $translator->trans($title, ['count' => 1], 'statistics', 'de'));
+        self::assertSame('Meine Kliniken im Vergleich', $translator->trans($title, ['count' => 3], 'statistics', 'de'));
+        self::assertSame(
+            'Vergleicht Ihre Klinik mit den anderen Kliniken im Scope.',
+            $translator->trans('stats.analysis_explorer.edit.reference_hospitals_help', ['count' => 1, 'max' => 1], 'statistics', 'de'),
+        );
+    }
+
+    public function testSwitchingOffRemovesTheReferencesAndTheShare(): void
+    {
+        $form = $this->form($this->formData(referenceHospitals: [$this->hospitals[0]], showPercentOfTotal: true));
+        // The hospital stays ticked in the hidden panel; the switch decides.
+        $submitted = $this->submitted('allocation_count', [$this->hospitals[0]], comparison: false);
+        $submitted['showPercentOfTotal'] = '1';
+        $form->submit($submitted);
+
+        $data = $this->data($form);
+        self::assertSame([], $data->referenceHospitals);
+        self::assertFalse($data->showPercentOfTotal, 'The share the comparison preselected goes with it.');
+        self::assertFalse($form->get('columnDimension')->getConfig()->getOption('disabled'));
+    }
+
+    public function testASubmissionWithoutTheSwitchKeepsTheReferences(): void
+    {
+        $form = $this->form($this->formData(referenceHospitals: [$this->hospitals[0]]));
+        $submitted = $this->submitted('allocation_count', [$this->hospitals[0]]);
+        unset($submitted['referenceComparison']);
+        $form->submit($submitted);
+
+        self::assertSame([$this->hospitals[0]], $this->data($form)->referenceHospitals);
+    }
+
+    public function testSwitchingOnWithoutAHospitalChangesNothing(): void
+    {
+        $form = $this->form($this->formData(columnDimension: 'urgency'));
+        $form->submit($this->submitted('allocation_count', [], columnDimension: 'urgency', comparison: true));
+
+        $data = $this->data($form);
+        self::assertSame([], $data->referenceHospitals);
+        self::assertSame('urgency', $data->columnDimension);
+        self::assertFalse($data->showPercentOfTotal);
     }
 
     public function testSwitchingOnWithARateKeepsTheDisplay(): void
@@ -167,15 +226,17 @@ final class ReferenceComparisonEditFormTest extends KernelTestCase
     }
 
     /**
-     * The share checkbox is left out: an unticked checkbox is not submitted.
+     * The share checkbox is left out: an unticked checkbox is not submitted. The comparison switch follows the
+     * references unless given; the Live Component sends an unticked switch as null.
      *
      * @param list<int> $referenceHospitals
      *
      * @return array<string, mixed>
      */
-    private function submitted(string $metric, array $referenceHospitals, string $columnDimension = ''): array
+    private function submitted(string $metric, array $referenceHospitals, string $columnDimension = '', ?bool $comparison = null): array
     {
         return [
+            'referenceComparison' => ($comparison ?? [] !== $referenceHospitals) ? '1' : null,
             'scopePeriod' => ['scopeGroup' => 'public', 'period' => 'all_time'],
             'dataSource' => 'allocations',
             'rowDimension' => 'indication',

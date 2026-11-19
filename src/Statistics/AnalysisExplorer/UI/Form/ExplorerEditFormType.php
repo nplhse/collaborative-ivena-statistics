@@ -88,10 +88,16 @@ final class ExplorerEditFormType extends AbstractType
             ->add('tableLayout', PreTranslatedChoiceType::class, ['label' => 'stats.analysis_explorer.edit.table_layout', 'choices' => []])
             ->add('chartRowLimit', PreTranslatedChoiceType::class, ['label' => 'stats.generic_analysis.table.row_limit_label', 'choices' => []])
             ->add('hospitalPopulation', PreTranslatedChoiceType::class, ['label' => 'stats.analysis_explorer.edit.hospital_population', 'choices' => []])
+            ->add('referenceComparison', CheckboxType::class, [
+                'label' => 'stats.analysis_explorer.edit.section.reference_comparison',
+                'mapped' => false,
+                'required' => false,
+            ])
             ->add('referenceHospitals', PreTranslatedChoiceType::class, [
                 'label' => 'stats.analysis_explorer.edit.reference_hospitals',
                 'choices' => [],
                 'multiple' => true,
+                'expanded' => true,
                 'required' => false,
             ])
             ->add('additionalTableMetrics', PreTranslatedChoiceType::class, [
@@ -351,12 +357,25 @@ final class ExplorerEditFormType extends AbstractType
                 : 'stats.analysis_explorer.edit.column_dimension_help',
         ]);
 
+        // The comparison is an opt-in extra: the switch is off unless references are set, and switching it off removes them.
+        $form->add('referenceComparison', CheckboxType::class, [
+            'label' => 'stats.analysis_explorer.edit.section.reference_comparison',
+            'mapped' => false,
+            'required' => false,
+            'data' => [] !== $references,
+            'disabled' => !$referenceCandidates->isAvailable(),
+            'help' => 'stats.analysis_explorer.edit.reference_hospitals_help',
+            'help_translation_parameters' => [
+                'count' => \count($referenceCandidates->names),
+                'max' => min($referenceCandidates->maxReferences, \count($referenceCandidates->names)),
+            ],
+        ]);
+
         $form->add('referenceHospitals', PreTranslatedChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.reference_hospitals',
-            'help' => 'stats.analysis_explorer.edit.reference_hospitals_help',
-            'help_translation_parameters' => ['max' => $referenceCandidates->maxReferences],
             'choices' => array_flip($referenceCandidates->names),
             'multiple' => true,
+            'expanded' => true,
             'required' => false,
             'disabled' => !$referenceCandidates->isAvailable(),
             'attr' => ['data-testid' => 'stats-analysis-explorer-reference-hospitals'],
@@ -819,24 +838,44 @@ final class ExplorerEditFormType extends AbstractType
      * Switching the reference comparison on (#1346) clears the column axis. With the case count it also preselects the
      * share within each group; averages and rates keep their display. Afterwards the user's choice stays.
      *
+     * Switching it off removes the references, and with the case count also the share it preselected, so the previous
+     * view comes back. A submission without the switch leaves the references as they are.
+     *
      * @param array<string, mixed> $submitted
      *
      * @return array<string, mixed>
      */
     private function withComparisonDefaults(array $submitted, ExplorerEditFormData $current): array
     {
+        $metric = $submitted['metric'] ?? $current->metric;
+        if (\array_key_exists('referenceComparison', $submitted) && !$this->isChecked($submitted['referenceComparison'])) {
+            $submitted['referenceHospitals'] = [];
+            if ([] !== $current->referenceHospitals && AnalysisMetricKey::AllocationCount->value === $metric) {
+                unset($submitted['showPercentOfTotal']);
+            }
+
+            return $submitted;
+        }
+
         $submittedReferences = ExplorerEditFormData::normalizeReferenceHospitals($submitted['referenceHospitals'] ?? []);
         if ([] === $submittedReferences || [] !== $current->referenceHospitals) {
             return $submitted;
         }
 
         $submitted['columnDimension'] = self::NONE_COLUMN;
-        $metric = $submitted['metric'] ?? $current->metric;
         if (AnalysisMetricKey::AllocationCount->value === $metric) {
             $submitted['showPercentOfTotal'] = '1';
         }
 
         return $submitted;
+    }
+
+    /**
+     * A checkbox counts as checked when it is submitted with a value; Live Components send an unchecked one as null or false.
+     */
+    private function isChecked(mixed $value): bool
+    {
+        return null !== $value && false !== $value && '' !== $value && '0' !== $value;
     }
 
     /**

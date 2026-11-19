@@ -7822,19 +7822,19 @@
       </trans-unit>
       <trans-unit id="statsAeRefEdit1EN" resname="stats.analysis_explorer.edit.reference_hospitals_help">
         <source>stats.analysis_explorer.edit.reference_hospitals_help</source>
-        <target>Up to {max} of your hospitals with the Benchmarking permission. Each one is compared with the other hospitals in the scope.</target>
+        <target>{count, plural, one {Compares your hospital with the other hospitals in the scope.} other {Compares up to {max} of your hospitals with the other hospitals in the scope.}}</target>
       </trans-unit>
       <trans-unit id="statsAeRefEdit2EN" resname="stats.analysis_explorer.edit.column_dimension_reference_help">
         <source>stats.analysis_explorer.edit.column_dimension_reference_help</source>
         <target>Columns are not available while comparing reference hospitals: the groups take this place.</target>
       </trans-unit>
+      <trans-unit id="statsAeRefEdit5EN" resname="stats.analysis_explorer.edit.section.own_hospitals_comparison">
+        <source>stats.analysis_explorer.edit.section.own_hospitals_comparison</source>
+        <target>{count, plural, one {My hospital in comparison} other {My hospitals in comparison}}</target>
+      </trans-unit>
       <trans-unit id="statsAeRefEdit3EN" resname="stats.analysis_explorer.edit.section.reference_comparison">
         <source>stats.analysis_explorer.edit.section.reference_comparison</source>
-        <target>Compare with reference hospitals</target>
-      </trans-unit>
-      <trans-unit id="statsAeRefEdit4EN" resname="stats.analysis_explorer.edit.section.reference_comparison_help">
-        <source>stats.analysis_explorer.edit.section.reference_comparison_help</source>
-        <target>Shows each chosen hospital next to the other hospitals in the scope, as shares within each group. The other hospitals are pooled by their cases.</target>
+        <target>Compare with the other hospitals in the scope</target>
       </trans-unit>
     </body>
   </file>

@@ -7822,19 +7822,19 @@
       </trans-unit>
       <trans-unit id="statsAeRefEdit1DE" resname="stats.analysis_explorer.edit.reference_hospitals_help">
         <source>stats.analysis_explorer.edit.reference_hospitals_help</source>
-        <target>Bis zu {max} Ihrer Kliniken mit Benchmarking-Berechtigung. Jede wird mit den anderen Kliniken im Scope verglichen.</target>
+        <target>{count, plural, one {Vergleicht Ihre Klinik mit den anderen Kliniken im Scope.} other {Vergleicht bis zu {max} Ihrer Kliniken mit den anderen Kliniken im Scope.}}</target>
       </trans-unit>
       <trans-unit id="statsAeRefEdit2DE" resname="stats.analysis_explorer.edit.column_dimension_reference_help">
         <source>stats.analysis_explorer.edit.column_dimension_reference_help</source>
         <target>Beim Vergleich mit Referenzkliniken sind keine Spalten verfügbar: Die Gruppen nehmen diesen Platz ein.</target>
       </trans-unit>
+      <trans-unit id="statsAeRefEdit5DE" resname="stats.analysis_explorer.edit.section.own_hospitals_comparison">
+        <source>stats.analysis_explorer.edit.section.own_hospitals_comparison</source>
+        <target>{count, plural, one {Meine Klinik im Vergleich} other {Meine Kliniken im Vergleich}}</target>
+      </trans-unit>
       <trans-unit id="statsAeRefEdit3DE" resname="stats.analysis_explorer.edit.section.reference_comparison">
         <source>stats.analysis_explorer.edit.section.reference_comparison</source>
-        <target>Mit Referenzkliniken vergleichen</target>
-      </trans-unit>
-      <trans-unit id="statsAeRefEdit4DE" resname="stats.analysis_explorer.edit.section.reference_comparison_help">
-        <source>stats.analysis_explorer.edit.section.reference_comparison_help</source>
-        <target>Zeigt jede gewählte Klinik neben den anderen Kliniken im Scope, als Anteile innerhalb jeder Gruppe. Die anderen Kliniken werden nach ihren Fällen zusammengefasst.</target>
+        <target>Mit den anderen Kliniken im Scope vergleichen</target>
       </trans-unit>
     </body>
   </file>
