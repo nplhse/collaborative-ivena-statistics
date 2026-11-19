@@ -127,6 +127,36 @@ final class ListVisitsControllerTest extends WebTestCase
         self::assertCount(1, $this->states($this->list('&limit=2&page=2')));
     }
 
+    public function testImportFilterListsTheVisitsOfOneImportWhateverThePeriod(): void
+    {
+        $other = $this->encounterImport($this->hospital, 'Late visits');
+        $this->visitAt($this->hospital, $other, '18:45');
+        $this->client->loginUser($this->caseViewer());
+        $list = '/explore/ed-visits/'.$this->hospital->getPublicIdString();
+
+        self::assertCount(4, $this->states($this->list()), 'Both imports in October.');
+
+        // November holds no visit; the import filter lists the import's October visit anyway (#1413).
+        $this->client->enableProfiler();
+        $crawler = $this->client->request(Request::METHOD_GET, $list.'?from=2026-11-01&to=2026-11-30&importId='.$other->getId(), server: ['HTTP_Accept-Language' => 'de-DE,de;q=0.9']);
+        self::assertResponseIsSuccessful();
+        $this->assertNoMissingTranslations($this->client->getProfile());
+        self::assertSame(['12.10.2026, 18:45' => 'unlinked'], $this->states($crawler));
+        self::assertSelectorTextContains('[data-testid="encounter-visit-list-import-filter"]', 'Import: Late visits');
+        self::assertSame($list.'?from=2026-11-01&to=2026-11-30', $crawler->filter('[data-testid="encounter-visit-list-import-filter"]')->attr('href'), 'Removing the import keeps the period.');
+        self::assertSame((string) $other->getId(), $crawler->filter('#encounter-visit-filter-form input[name="importId"]')->attr('value'), 'The filter form keeps the import.');
+        self::assertSelectorNotExists('[data-test="encounter-review-period"]');
+    }
+
+    public function testImportFilterOfAnotherHospitalIsNotFound(): void
+    {
+        $foreign = $this->encounterImport($this->hospital($this->user()), 'Foreign visits');
+        $this->client->loginUser($this->caseViewer());
+
+        $this->request('&importId='.$foreign->getId());
+        self::assertResponseStatusCodeSame(404);
+    }
+
     public function testAccessNeedsViewCasesOnTheHospital(): void
     {
         $this->client->loginUser($this->grantee([EncounterGrantAction::Upload]));

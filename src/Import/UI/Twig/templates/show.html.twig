@@ -240,12 +240,12 @@
                         </twig:Card>
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-12 mb-3">
                         {{ include('@Import/_data_coverage.html.twig', {coverage: detail.coverage}) }}
                     </div>
 
                     {% if detail.typeSection is not null %}
-                        <div class="col-12" data-test="import-type-section">
+                        <div class="col-12 mb-3" data-test="import-type-section">
                             {{ include(detail.typeSection.template, detail.typeSection.context) }}
                         </div>
                     {% endif %}

@@ -1,4 +1,4 @@
-{# Visit list of one hospital (#1178). Expects `hospital`, `hospitals`, `filter`, `period`, the filter options and the DataTable state. #}
+{# Visit list of one hospital (#1178). Expects `hospital`, `hospitals`, `filter`, `import` (filtered import or null, #1413), `period`, the filter options and the DataTable state. #}
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
 {% set d = 'encounter' %}
@@ -28,7 +28,9 @@
             ]" />
         </twig:block>
         <twig:block name="context">
-            {{ include('@EdVisit/review/_period_context.html.twig') }}
+            {% if import is null %}
+                {{ include('@EdVisit/review/_period_context.html.twig') }}
+            {% endif %}
             {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
         </twig:block>
         <twig:block name="actions">
@@ -59,6 +61,12 @@
     <turbo-frame id="encounter-visit-list" data-turbo-action="advance">
         {% if filter.activeCount > 0 %}
             <div class="d-flex flex-wrap gap-1 mb-3" data-testid="encounter-visit-list-active-filters">
+                {% if import is not null %}
+                    <a class="badge bg-blue-lt text-decoration-none" data-testid="encounter-visit-list-import-filter" href="{{ path(list_route, list_params|merge(query|filter((v, k) => k != 'importId' and k != 'page'))) }}">
+                        {{ 'encounter.visit_list.filter.import'|trans({}, d) }}: {{ import.name ?? ('#' ~ import.id) }}
+                        <twig:ux:icon name="tabler:x" class="w-3 h-3 ms-1" />
+                    </a>
+                {% endif %}
                 {% for key in filter_keys|filter(key => query[key] is defined and query[key] is not empty) %}
                     {% set values = query[key] is iterable ? query[key] : [query[key]] %}
                     {% set label %}
@@ -112,6 +120,10 @@
         testId="encounter-visit-filters"
         keepViewState
     >
+        {% if import is not null %}
+            <input type="hidden" name="importId" value="{{ import.id }}">
+            <div class="alert alert-info" data-testid="encounter-visit-list-import-hint">{{ 'encounter.visit_list.import_period_hint'|trans({}, d) }}</div>
+        {% endif %}
         <div class="mb-3">
             <label class="form-label" for="visit-from">{{ 'encounter.review.period.from'|trans({}, d) }}</label>
             <input class="form-control" type="date" id="visit-from" name="from" value="{{ period.from|date('Y-m-d') }}">

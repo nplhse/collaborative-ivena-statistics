@@ -110,10 +110,12 @@ final class EdVisitBundleDisabledTest extends WebTestCase
         $this->client->request(Request::METHOD_GET, '/import/'.$import->getId());
         self::assertResponseIsSuccessful();
         $counts = [];
-        foreach (['inserted', 'duplicates', 'assigned', 'conflicts', 'unassigned'] as $key) {
+        foreach (['inserted', 'assigned', 'conflicts', 'unassigned'] as $key) {
             $counts[$key] = (int) trim($this->client->getCrawler()->filter('[data-test="count-'.$key.'"]')->text());
         }
-        self::assertSame(['inserted' => 3, 'duplicates' => 1, 'assigned' => 1, 'conflicts' => 1, 'unassigned' => 1], $counts);
+        self::assertSame(['inserted' => 3, 'assigned' => 1, 'conflicts' => 1, 'unassigned' => 1], $counts);
+        // The known stay is counted in the run card of the page (#1413).
+        self::assertSame(1, $import->getRowsDeduplicated());
 
         // The stay of case A is in the case file of allocation X.
         $crawler = $this->client->request(Request::METHOD_GET, '/explore/allocation/'.$this->allocationX->getPublicId());

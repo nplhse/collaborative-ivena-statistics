@@ -1,5 +1,6 @@
-{# Encounter section of the import detail page (EncounterImportTypeExtension). No file content, no cell values. #}
-{% import '@Shared/_macros/users.html.twig' as users %}
+{# Encounter section of the import detail page (EncounterImportTypeExtension). No file content, no cell values.
+   Rejected rows and the duplicate count are in the run card of the page; suspected duplicates and row rejects
+   only with `show_admin_details` (#1413). #}
 {% if encounter_import.fileRejection is not null %}
     <div class="alert alert-danger" role="alert" data-test="encounter-file-rejection">
         <h4 class="alert-title">{{ 'encounter.import.rejected.title'|trans({}, 'encounter') }}</h4>
@@ -16,7 +17,7 @@
     </div>
     <div class="card-body">
         <div class="datagrid">
-            {% for key in ['inserted', 'duplicates', 'skipped', 'rejected', 'suspectedDuplicates'] %}
+            {% for key in show_admin_details ? ['inserted', 'skipped', 'suspectedDuplicates'] : ['inserted', 'skipped'] %}
                 <div class="datagrid-item">
                     <div class="datagrid-title">{{ ('encounter.import.count.' ~ key)|trans({}, 'encounter') }}</div>
                     <div class="datagrid-content" data-test="count-{{ key }}">{{ attribute(encounter_import, key)|format_number }}</div>
@@ -44,10 +45,6 @@
                 <div class="datagrid-content">{{ encounter_import.toolVersion ?? '–' }}</div>
             </div>
             <div class="datagrid-item">
-                <div class="datagrid-title">{{ 'encounter.import.field.key_generation'|trans({}, 'encounter') }}</div>
-                <div class="datagrid-content">{{ encounter_import.keyGeneration }}</div>
-            </div>
-            <div class="datagrid-item">
                 <div class="datagrid-title">{{ 'encounter.import.field.source_file'|trans({}, 'encounter') }}</div>
                 <div class="datagrid-content" data-test="encounter-source-file">
                     {% if encounter_import.sourceFileDeleted %}
@@ -61,16 +58,11 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="datagrid-item">
-                <div class="datagrid-title">{{ 'encounter.import.field.confirmation'|trans({}, 'encounter') }}</div>
-                <div class="datagrid-content" data-test="encounter-confirmation">
-                    {{ users.link(encounter_import.confirmedBy, {avatar: 'inline', empty: '–'}) }}, {{ encounter_import.confirmedAt|format_datetime('short', 'short') }}
-                </div>
-            </div>
         </div>
     </div>
 </div>
 
+{% if show_admin_details %}
 <div class="card mt-3" data-test="encounter-suspected-duplicates">
     <div class="card-header">
         <h3 class="card-title">{{ 'encounter.import.suspected.title'|trans({}, 'encounter') }}</h3>
@@ -141,3 +133,4 @@
         {% endif %}
     {% endif %}
 </div>
+{% endif %}

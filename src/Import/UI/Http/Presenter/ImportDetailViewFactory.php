@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Import\UI\Http\Presenter;
 
+use App\Import\Application\DTO\ImportTypeDetailSection;
+use App\Import\Application\DTO\ImportTypeRecordAction;
 use App\Import\Application\Service\ImportTypeExtensionRegistry;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
@@ -44,6 +46,7 @@ final readonly class ImportDetailViewFactory
 
         $importedCount = $import->getRowsPassed() ?? 0;
         $coverage = $this->coverageViewFactory->create($import);
+        $typeSection = ImportType::ENCOUNTER === $type ? $this->typeExtensions->for($type)?->detailSection($import) : null;
 
         return match ($type) {
             ImportType::ALLOCATION => new ImportDetailView(
@@ -84,18 +87,34 @@ final readonly class ImportDetailViewFactory
                 ],
                 coverage: $coverage,
             ),
-            // Owned by the Encounter context, which adds its report section (`import.type_extension`).
+            // Owned by the Encounter context, which adds its report section and record links (`import.type_extension`).
             ImportType::ENCOUNTER => new ImportDetailView(
                 typeLabel: $this->trans('label.import.type.encounter'),
                 importedRecordsLabel: $this->trans('import.summary.encounters_imported', ['count' => $importedCount]),
                 showsDeduplication: true,
                 deleteConfirmation: $this->confirmation($import, 'import.delete.modal.body.encounter'),
                 reprocessConfirmation: $this->confirmation($import, 'import.reprocess.modal.body.encounter'),
-                recordActions: [],
+                recordActions: $this->extensionRecordActions($typeSection),
                 coverage: $coverage,
-                typeSection: $this->typeExtensions->for($type)?->detailSection($import),
+                typeSection: $typeSection,
             ),
         };
+    }
+
+    /**
+     * @return list<ImportDetailAction>
+     */
+    private function extensionRecordActions(?ImportTypeDetailSection $section): array
+    {
+        return array_map(
+            static fn (ImportTypeRecordAction $action): ImportDetailAction => new ImportDetailAction(
+                label: $action->label,
+                url: $action->url,
+                icon: $action->icon,
+                variant: 'outline-primary',
+            ),
+            $section->recordActions ?? [],
+        );
     }
 
     private function closureAnalyticsUrl(Import $import): string

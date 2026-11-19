@@ -6,6 +6,7 @@ namespace Cois\Plugin\EdVisit\UI\Http\Controller\Visit;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Application\Security\EncounterAttribute;
+use App\Import\Domain\Entity\Import;
 use App\Shared\Application\DataTable\DataTablePreferenceService;
 use App\Shared\UI\Http\DataTablePreferenceQueryState;
 use App\User\Domain\Entity\User;
@@ -18,6 +19,7 @@ use Cois\Plugin\EdVisit\Domain\Enum\MtsCategory;
 use Cois\Plugin\EdVisit\UI\Review\ReviewContextResolver;
 use Cois\Plugin\EdVisit\UI\VisitList\VisitListColumns;
 use Cois\Plugin\EdVisit\UI\VisitList\VisitListHospitals;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,7 +32,8 @@ use Symfony\UX\Pagination\PaginatorInterface;
 
 /**
  * All ED visits of one hospital in a period (#1178), with or without IVENA allocation. Needs VIEW_CASES on the
- * hospital (ADR 028); open proposals are review information and are shown only with REVIEW.
+ * hospital (ADR 028); open proposals are review information and are shown only with REVIEW. `importId` lists the
+ * visits of one import of the hospital instead of a period (#1413); an import of another hospital is not found.
  */
 #[IsGranted('ROLE_ENCOUNTER_BETA')]
 final class ListVisitsController extends AbstractController
@@ -42,6 +45,7 @@ final class ListVisitsController extends AbstractController
         private readonly VisitListColumns $columns,
         private readonly DataTablePreferenceService $preferences,
         private readonly PaginatorInterface $paginator,
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -53,6 +57,7 @@ final class ListVisitsController extends AbstractController
     ): Response {
         $this->denyAccessUnlessGranted(EncounterAttribute::VIEW_CASES, $hospital);
         $hospitalId = (int) $hospital->getId();
+        $import = $this->import($request, $hospitalId);
 
         $filter = new VisitListFilter(
             $hospitalId,
@@ -63,6 +68,7 @@ final class ListVisitsController extends AbstractController
             $this->enums($request, 'category', MtsCategory::class),
             $request->query->getString('diagram') ?: null,
             Disposition::tryFrom($request->query->getString('disposition')),
+            $import?->getId(),
         );
 
         $schema = $this->columns->preferenceSchema();
@@ -76,6 +82,7 @@ final class ListVisitsController extends AbstractController
             'hospital' => $hospital,
             'hospitals' => $this->hospitals->forUser($user),
             'filter' => $filter,
+            'import' => $import,
             'period' => $filter->period,
             'routes' => ArrivalRoute::cases(),
             'categories' => MtsCategory::cases(),
@@ -92,6 +99,20 @@ final class ListVisitsController extends AbstractController
                 fn (): int => $this->reader->countVisits($filter),
             )->perPage($limit)->paginate(max(1, $request->query->getInt('page', 1))),
         ]);
+    }
+
+    private function import(Request $request, int $hospitalId): ?Import
+    {
+        if (!$request->query->has('importId')) {
+            return null;
+        }
+
+        $import = $this->entityManager->find(Import::class, $request->query->getInt('importId'));
+        if (!$import instanceof Import || $import->getHospital()?->getId() !== $hospitalId) {
+            throw $this->createNotFoundException('Import not found for this hospital.');
+        }
+
+        return $import;
     }
 
     /**

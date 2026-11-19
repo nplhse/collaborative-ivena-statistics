@@ -124,7 +124,7 @@ final class InpatientStayImportTest extends WebTestCase
         $this->client->request(Request::METHOD_GET, '/import/'.$stayImportId);
         self::assertResponseIsSuccessful();
         self::assertSelectorTextSame('[data-test="encounter-schema"]', 'Inpatient stays (test)');
-        $this->assertReport(inserted: 3, duplicates: 1, assigned: 1, conflicts: 1, unassigned: 1, rejected: 0, skipped: 0);
+        $this->assertReport($stayImportId, inserted: 3, duplicates: 1, assigned: 1, conflicts: 1, unassigned: 1, rejected: 0, skipped: 0);
 
         // 3. Case file: the stay of row 1 at allocation X, for R and V; nothing at allocation Y.
         foreach ([$this->reviewer, $this->viewer] as $user) {
@@ -180,7 +180,7 @@ final class InpatientStayImportTest extends WebTestCase
         $this->client->request(Request::METHOD_POST, '/import/'.$stayImportId.'/reprocess', ['_token' => $crawler->filter('#import-reprocess-modal input[name="_token"]')->attr('value')]);
         self::assertResponseRedirects('/import/'.$stayImportId.'/processing');
         $this->client->request(Request::METHOD_GET, '/import/'.$stayImportId);
-        $this->assertReport(inserted: 3, duplicates: 1, assigned: 1, conflicts: 1, unassigned: 1, rejected: 0, skipped: 0);
+        $this->assertReport($stayImportId, inserted: 3, duplicates: 1, assigned: 1, conflicts: 1, unassigned: 1, rejected: 0, skipped: 0);
         self::assertSame(3, $this->stayCount($stayImportId));
 
         // 8. Deleting the ed_visit import (#1300): its visits and their ED matching history go; the encounters stay
@@ -285,14 +285,18 @@ final class InpatientStayImportTest extends WebTestCase
         return (int) $import->getId();
     }
 
-    private function assertReport(int $inserted, int $duplicates, int $assigned, int $conflicts, int $unassigned, int $rejected, int $skipped): void
+    private function assertReport(int $importId, int $inserted, int $duplicates, int $assigned, int $conflicts, int $unassigned, int $rejected, int $skipped): void
     {
-        $counts = [];
-        foreach (['inserted', 'duplicates', 'assigned', 'conflicts', 'unassigned', 'rejected', 'skipped'] as $key) {
-            $counts[$key] = (int) trim($this->client->getCrawler()->filter('[data-test="count-'.$key.'"]')->text());
-        }
+        $count = fn (string $key): int => (int) trim($this->client->getCrawler()->filter('[data-test="count-'.$key.'"]')->text());
+        // Duplicates and rejected rows are shown in the run card of the page only (#1413).
+        $import = $this->entityManager()->find(Import::class, $importId);
+        self::assertInstanceOf(Import::class, $import);
+        $this->entityManager()->refresh($import);
 
-        self::assertSame(['inserted' => $inserted, 'duplicates' => $duplicates, 'assigned' => $assigned, 'conflicts' => $conflicts, 'unassigned' => $unassigned, 'rejected' => $rejected, 'skipped' => $skipped], $counts);
+        self::assertSame(
+            ['inserted' => $inserted, 'duplicates' => $duplicates, 'assigned' => $assigned, 'conflicts' => $conflicts, 'unassigned' => $unassigned, 'rejected' => $rejected, 'skipped' => $skipped],
+            ['inserted' => $count('inserted'), 'duplicates' => (int) $import->getRowsDeduplicated(), 'assigned' => $count('assigned'), 'conflicts' => $count('conflicts'), 'unassigned' => $count('unassigned'), 'rejected' => (int) $import->getRowsRejected(), 'skipped' => $count('skipped')],
+        );
     }
 
     private function stayCount(int $importId): int
