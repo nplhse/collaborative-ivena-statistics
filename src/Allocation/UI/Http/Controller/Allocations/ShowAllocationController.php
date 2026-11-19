@@ -7,6 +7,7 @@ namespace App\Allocation\UI\Http\Controller\Allocations;
 use App\Allocation\Application\Explore\Catalog\CatalogOrientationMapFactory;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Infrastructure\Security\Voter\AllocationVoter;
+use App\Shared\UI\Http\Routing\OpensById;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,6 +21,7 @@ final class ShowAllocationController extends AbstractController
     ) {
     }
 
+    #[OpensById(Allocation::class)]
     #[Route(
         '/explore/allocation/{publicId}',
         name: 'app_explore_allocation_show',

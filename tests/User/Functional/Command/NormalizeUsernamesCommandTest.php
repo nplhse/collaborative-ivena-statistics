@@ -90,6 +90,18 @@ final class NormalizeUsernamesCommandTest extends KernelTestCase
         self::assertSame('Jane Doe', $withSpace->getUsername(), 'Jane-Doe would collide with jane-doe (#1353)');
     }
 
+    public function testDigitsOnlyUsernameIsReportedForManualRename(): void
+    {
+        $digitsOnly = UserFactory::createOne(['username' => '1234']);
+
+        $tester = $this->createCommandTester();
+        $tester->execute(['--apply' => true]);
+
+        self::assertStringContainsString(NormalizeUsernamesCommand::STATUS_STILL_INVALID, $tester->getDisplay());
+        \Zenstruck\Foundry\Persistence\refresh($digitsOnly);
+        self::assertSame('1234', $digitsOnly->getUsername(), 'Digits only are reserved for IDs (#1354); an admin renames by hand.');
+    }
+
     private function createCommandTester(): CommandTester
     {
         /** @var NormalizeUsernamesCommand $command */

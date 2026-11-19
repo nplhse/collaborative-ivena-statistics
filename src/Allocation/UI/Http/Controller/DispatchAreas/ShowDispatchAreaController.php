@@ -12,6 +12,7 @@ use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
+use App\Shared\UI\Http\Routing\OpensById;
 use App\User\Domain\Entity\User;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,6 +31,7 @@ final class ShowDispatchAreaController extends AbstractController
     ) {
     }
 
+    #[OpensById(DispatchArea::class)]
     #[Route(
         '/explore/dispatch_area/{publicId}',
         name: 'app_explore_dispatch_area_show',

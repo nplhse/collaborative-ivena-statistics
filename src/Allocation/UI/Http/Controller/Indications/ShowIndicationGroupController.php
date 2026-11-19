@@ -8,6 +8,7 @@ use App\Allocation\Application\Explore\Catalog\CatalogActionFactory;
 use App\Allocation\Domain\Entity\IndicationGroup;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
 use App\Allocation\Infrastructure\Repository\IndicationGroupRepository;
+use App\Shared\UI\Http\Routing\OpensById;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,6 +24,7 @@ final class ShowIndicationGroupController extends AbstractController
     ) {
     }
 
+    #[OpensById(IndicationGroup::class)]
     #[Route(
         '/explore/indication_group/{publicId}',
         name: 'app_explore_indication_group_show',

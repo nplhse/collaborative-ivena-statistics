@@ -69,6 +69,8 @@ Explore is a **collaborative** overview: participants may list and open allocati
 
 Import, export, clinic management, and hospital-scoped statistics filters remain grant-based via `HospitalPermissionAccess`.
 
+Opening an Explore detail page by the internal numeric ID (`/explore/{type}/{id}`, #1354) is for `ROLE_ADMIN` only. Everyone else gets a 404, whether the ID exists or not, so the numeric IDs reveal nothing. The redirect target then applies its own access checks. The ID itself (`<twig:AdminObjectId>`) is shown to administrators only. Usernames of digits only are not allowed (`UserUsernameConstraints::DIGITS_ONLY_PATTERN`), because `/explore/user/{id}` shares the path with the profile.
+
 ## Encounter grants
 
 Decided in [ADR 028](decisions/028-encounter-access-grants.md), implemented in #1046.

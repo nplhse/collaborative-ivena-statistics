@@ -10,6 +10,7 @@ use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Application\Explore\Catalog\CatalogOrientationMapFactory;
 use App\Allocation\Domain\Entity\State;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
+use App\Shared\UI\Http\Routing\OpensById;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +27,7 @@ final class ShowStateController extends AbstractController
     ) {
     }
 
+    #[OpensById(State::class)]
     #[Route(
         '/explore/state/{publicId}',
         name: 'app_explore_state_show',

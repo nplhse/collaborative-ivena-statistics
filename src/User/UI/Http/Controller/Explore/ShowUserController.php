@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\UI\Http\Controller\Explore;
 
+use App\Shared\UI\Http\Routing\OpensById;
 use App\User\Application\Contract\PublishedPostPreviewMapInterface;
 use App\User\Application\Explore\PostPublishedActivitySlugs;
 use App\User\Domain\Entity\User;
@@ -23,6 +24,7 @@ final class ShowUserController extends AbstractController
     ) {
     }
 
+    #[OpensById(User::class)]
     #[Route(
         '/explore/user/{username}',
         name: 'app_explore_user_show',

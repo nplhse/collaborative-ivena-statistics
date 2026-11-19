@@ -29,6 +29,7 @@
             <div class="col">
                 <h1 id="indication-name" class="fw-bold">{{ indication.name }}</h1>
                 <div class="list-inline list-inline-dots text-secondary">
+                    <twig:AdminObjectId :id="indication.id" />
                     <div class="list-inline-item">
                         {{ 'catalog.type.indication'|trans({}, 'allocation') }}
                     </div>

@@ -428,6 +428,19 @@ Do **not** restyle Explore DataTable cells with this component. Hospital, urgenc
 </twig:Badge>
 ```
 
+## AdminObjectId
+
+Internal numeric ID of an object for administrators (#1354): `src/Shared/UI/Twig/Components/AdminObjectId.php`, template `@Shared/components/AdminObjectId.html.twig`. Renders a `list-inline-item` ("ID 40", selectable, title "Internal ID, visible to administrators only.") only with `ROLE_ADMIN` and a non-null `id`; for everyone else it renders nothing. Put it as the first item of the detail page's header metadata (`list-inline list-inline-dots`), so the ID sits in the same place on every page. Extra attributes merge onto the item.
+
+```twig
+<div class="list-inline list-inline-dots text-secondary">
+    <twig:AdminObjectId :id="hospital.id" />
+    ...
+</div>
+```
+
+To let administrators also open the page by that ID, mark its controller with `#[OpensById]` ([extension points](../02-architecture/extension-points.md#explore-detail-pages-open-by-id)).
+
 ## UserAvatar
 
 Generated avatar of a user (#462), defined in the User context: `src/User/UI/Twig/Components/UserAvatar.php`, template `@User/components/UserAvatar.html.twig`. Tabler `avatar` markup, round by default.

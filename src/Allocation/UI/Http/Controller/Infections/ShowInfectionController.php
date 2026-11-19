@@ -9,6 +9,7 @@ use App\Allocation\Application\Explore\Catalog\CatalogAllocationYearUrlFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
+use App\Shared\UI\Http\Routing\OpensById;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +25,7 @@ final class ShowInfectionController extends AbstractController
     ) {
     }
 
+    #[OpensById(Infection::class)]
     #[Route(
         '/explore/infection/{publicId}',
         name: 'app_explore_infection_show',

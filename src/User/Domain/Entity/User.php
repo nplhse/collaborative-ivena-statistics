@@ -43,6 +43,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
         pattern: UserUsernameConstraints::PATTERN,
         message: 'validation.username.format',
     )]
+    #[Assert\Regex(
+        pattern: UserUsernameConstraints::DIGITS_ONLY_PATTERN,
+        message: 'validation.username.digits_only',
+        match: false,
+    )]
     private ?string $username = null;
 
     #[ORM\Column(length: 180, unique: true)]

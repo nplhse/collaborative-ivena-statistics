@@ -629,6 +629,14 @@
         <source>kpi.trend.flat</source>
         <target>Keine Veränderung</target>
       </trans-unit>
+      <trans-unit id="lblAdminObjectIdDe" resname="label.admin_object_id">
+        <source>label.admin_object_id</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="lblAdminObjectIdHintDe" resname="label.admin_object_id.hint">
+        <source>label.admin_object_id.hint</source>
+        <target>Interne ID, nur für Administratoren sichtbar.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
