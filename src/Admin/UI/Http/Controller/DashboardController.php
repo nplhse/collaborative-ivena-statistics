@@ -58,6 +58,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
@@ -78,6 +79,7 @@ final class DashboardController extends AbstractDashboardController
         private readonly StorageReportService $storageReportService,
         private readonly MessengerMonitoringService $messengerMonitoringService,
         private readonly AccessTrendService $accessTrendService,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -85,6 +87,7 @@ final class DashboardController extends AbstractDashboardController
     public function index(): Response
     {
         $health = $this->operationalDashboardService->getHealthStatus();
+        $period = KpiDashboardService::periodFromQuery($this->requestStack->getCurrentRequest()?->query->getString('period') ?? '');
         $activeUsers = $this->analyticsDashboardService->getActiveUsers();
 
         return $this->render('@Admin/dashboard/index.html.twig', [
@@ -95,8 +98,10 @@ final class DashboardController extends AbstractDashboardController
             ),
             'kpi_usage_trend' => $this->analyticsDashboardService->getUsageTrend(),
             'kpi_users_url' => $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_usage_analytics_overview')->generateUrl(),
-            'kpi_cards' => $this->kpiDashboardService->getCards(),
-            'kpi_chart' => $this->kpiDashboardService->getChart(),
+            'kpi_period' => $period,
+            'kpi_periods' => KpiDashboardService::PERIODS,
+            'kpi_cards' => $this->kpiDashboardService->getCards($period),
+            'kpi_chart' => $this->kpiDashboardService->getChart($period),
             'ops_messenger' => $this->operationalDashboardService->getMessengerStatus($health),
             'ops_storage' => $this->operationalDashboardService->getStorageSummary(),
             'ops_storage_url' => $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_storage')->generateUrl(),

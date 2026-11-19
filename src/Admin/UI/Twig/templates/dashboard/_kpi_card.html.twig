@@ -1,6 +1,7 @@
 {#
     One KPI card. Variables: label, icon, value (null = no data), is_percent, detail (string or null),
-    change (KpiChangeDto or null = no comparison line), url (or null), key (data attribute for tests).
+    change (KpiChangeDto or null = no comparison line), change_days (period of the comparison, default kpi_period),
+    url (or null), key (data attribute for tests).
 #}
 <div class="col-12 col-sm-6 col-xl-3 mb-3 ea-kpi-card" data-kpi-card="{{ key }}">
     {% if url %}
@@ -41,7 +42,7 @@
                                 {{ amount|format_number }}
                             {%- endif -%}
                         </span>
-                        <span class="text-secondary">{{ 'kpi.change.previous_period'|trans({}, 'admin') }}</span>
+                        <span class="text-secondary">{{ 'kpi.change.previous_period'|trans({days: change_days ?? kpi_period}, 'admin') }}</span>
                     {% endif %}
                 </p>
             {% endif %}

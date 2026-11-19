@@ -84,6 +84,32 @@ final class DashboardOperationsTest extends WebTestCase
         self::assertLessThan($notificationsPosition, $operationsPosition, 'recent events come last');
     }
 
+    public function testPeriodSwitchSelectsTheKpiPeriodAndKeepsActiveUsersAt30Days(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin');
+        self::assertSame(['30', '90', '365'], $crawler->filter('[data-kpi-period-switch] a')->each(
+            static fn (Crawler $link): string => (string) $link->attr('data-kpi-period'),
+        ));
+        self::assertSame('30', $crawler->filter('[data-kpi-period-switch] a[aria-current]')->attr('data-kpi-period'));
+
+        $crawler = $client->click($crawler->filter('[data-kpi-period="90"]')->link());
+
+        self::assertResponseIsSuccessful();
+        self::assertSame('90', $crawler->filter('[data-kpi-period-switch] a[aria-current]')->attr('data-kpi-period'));
+        $text = $crawler->text();
+        self::assertStringContainsString('Key metrics (last 90 days)', $text);
+        self::assertStringContainsString('Imports per day (last 90 days)', $text);
+        self::assertSame('±0 vs. previous 90 days', $crawler->filter('[data-kpi-card="active_hospitals"] [data-kpi-change]')->text());
+        self::assertStringContainsString('always 30 days', $crawler->filter('[data-kpi-card="active_users"] [data-kpi-detail]')->text());
+        self::assertSame('No previous value to compare', $crawler->filter('[data-kpi-card="active_users"] [data-kpi-change]')->text());
+
+        $client->request(Request::METHOD_GET, '/admin?period=7');
+        self::assertSame('30', $client->getCrawler()->filter('[data-kpi-period-switch] a[aria-current]')->attr('data-kpi-period'), 'unknown periods fall back to 30');
+    }
+
     public function testMessengerCardIsHealthyWithEmptyQueues(): void
     {
         $client = self::createClient();

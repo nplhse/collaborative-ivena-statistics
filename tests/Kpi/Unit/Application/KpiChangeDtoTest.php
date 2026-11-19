@@ -37,4 +37,13 @@ final class KpiChangeDtoTest extends TestCase
         self::assertSame(0.0, KpiDashboardService::percentChange(7, 7));
         self::assertNull(KpiDashboardService::percentChange(10, 0));
     }
+
+    public function testPeriodFromQueryAcceptsOnlyTheOfferedPeriods(): void
+    {
+        self::assertSame(90, KpiDashboardService::periodFromQuery('90'));
+        self::assertSame(365, KpiDashboardService::periodFromQuery('365'));
+        self::assertSame(30, KpiDashboardService::periodFromQuery(''));
+        self::assertSame(30, KpiDashboardService::periodFromQuery('7'));
+        self::assertSame(30, KpiDashboardService::periodFromQuery('abc'));
+    }
 }

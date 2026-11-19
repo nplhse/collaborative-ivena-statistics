@@ -31,3 +31,36 @@ export function seriesPointCount(series) {
         0,
     );
 }
+
+/**
+ * Discrete markers for values whose neighbours are both missing (null or undefined). ApexCharts draws no line
+ * through such a value, so without a marker it stays invisible (#1322).
+ *
+ * @param {{ data?: (number|null)[] }[]} series
+ * @param {string[]} colors one colour per series
+ * @param {number[]} [lineSeries] indexes of the line series to mark; default all
+ * @returns {{ seriesIndex: number, dataPointIndex: number, size: number, fillColor: string, strokeColor: string }[]}
+ */
+export function isolatedPointMarkers(series, colors, lineSeries) {
+    const markers = [];
+    (series ?? []).forEach((entry, seriesIndex) => {
+        if (lineSeries && !lineSeries.includes(seriesIndex)) {
+            return;
+        }
+        const data = Array.isArray(entry?.data) ? entry.data : [];
+        const missing = (index) => data[index] === null || data[index] === undefined;
+        data.forEach((_, index) => {
+            if (!missing(index) && missing(index - 1) && missing(index + 1)) {
+                markers.push({
+                    seriesIndex,
+                    dataPointIndex: index,
+                    size: SINGLE_POINT_MARKER_SIZE,
+                    fillColor: colors[seriesIndex],
+                    strokeColor: colors[seriesIndex],
+                });
+            }
+        });
+    });
+
+    return markers;
+}

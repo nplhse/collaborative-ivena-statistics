@@ -7,25 +7,28 @@ namespace App\Kpi\Application\DTO;
 final readonly class KpiChartSeriesDto
 {
     /**
-     * @param list<string> $labels
-     * @param list<int>    $recordsPerDay
-     * @param list<float>  $rejectionRatePerDay
+     * @param list<string>     $labels
+     * @param list<int>        $importedPerDay      rows read minus rows rejected
+     * @param list<int>        $rejectedPerDay
+     * @param list<float|null> $rejectionRatePerDay null on days without rows read
      */
     public function __construct(
         public array $labels,
-        public array $recordsPerDay,
+        public array $importedPerDay,
+        public array $rejectedPerDay,
         public array $rejectionRatePerDay,
     ) {
     }
 
     /**
-     * @return array{labels: list<string>, recordsPerDay: list<int>, rejectionRatePerDay: list<float>}
+     * @return array{labels: list<string>, importedPerDay: list<int>, rejectedPerDay: list<int>, rejectionRatePerDay: list<float|null>}
      */
     public function toChartValue(): array
     {
         return [
             'labels' => $this->labels,
-            'recordsPerDay' => $this->recordsPerDay,
+            'importedPerDay' => $this->importedPerDay,
+            'rejectedPerDay' => $this->rejectedPerDay,
             'rejectionRatePerDay' => $this->rejectionRatePerDay,
         ];
     }

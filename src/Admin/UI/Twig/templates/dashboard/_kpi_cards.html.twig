@@ -6,8 +6,10 @@
             icon: 'fas fa-users',
             value: kpi_users.mau,
             is_percent: false,
-            detail: 'kpi.card.active_users.detail'|trans({dau: kpi_users.dau, wau: kpi_users.wau}, 'admin'),
+            detail: 'kpi.card.active_users.detail'|trans({dau: kpi_users.dau, wau: kpi_users.wau}, 'admin')
+                ~ (kpi_period != 30 ? ' · ' ~ 'kpi.card.active_users.always_30'|trans({}, 'admin') : ''),
             change: kpi_users_change,
+            change_days: 30,
             url: kpi_users_url,
         }) }}
         {% for card in kpi_cards.cards %}

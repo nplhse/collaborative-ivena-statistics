@@ -103,38 +103,33 @@ final class KpiDailyRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return list<array{date: \DateTimeImmutable, recordsProcessed: int, recordsRejected: int, recordsTotal: int}>
+     * Global rows from `$from` up to `$toExclusive`, ordered by date; days without a row are missing.
+     *
+     * @return list<array{date: \DateTimeImmutable, recordsRejected: int, recordsTotal: int}>
      */
-    public function getDailySeriesLast30DaysGlobal(): array
+    public function getDailySeriesGlobal(\DateTimeImmutable $from, \DateTimeImmutable $toExclusive): array
     {
-        $from = $this->dateDaysAgo(30);
-
-        /** @var list<array{date: \DateTimeImmutable, recordsProcessed: int|string, recordsRejected: int|string, recordsTotal: int|string}> $rows */
+        /** @var list<array{date: \DateTimeImmutable, recordsRejected: int|string, recordsTotal: int|string}> $rows */
         $rows = $this->createQueryBuilder('k')
             ->select(
                 'k.date AS date',
-                'k.recordsProcessed AS recordsProcessed',
                 'k.recordsRejected AS recordsRejected',
                 'k.recordsTotal AS recordsTotal',
             )
             ->where('k.hospital IS NULL')
             ->andWhere('k.date >= :from')
-            ->setParameter('from', $from, Types::DATE_IMMUTABLE)
+            ->andWhere('k.date < :toExclusive')
+            ->setParameter('from', $from->setTime(0, 0), Types::DATE_IMMUTABLE)
+            ->setParameter('toExclusive', $toExclusive->setTime(0, 0), Types::DATE_IMMUTABLE)
             ->orderBy('k.date', \SortDirection::Ascending)
             ->getQuery()
             ->getArrayResult();
 
-        $normalized = [];
-        foreach ($rows as $row) {
-            $normalized[] = [
-                'date' => $row['date'],
-                'recordsProcessed' => (int) $row['recordsProcessed'],
-                'recordsRejected' => (int) $row['recordsRejected'],
-                'recordsTotal' => (int) $row['recordsTotal'],
-            ];
-        }
-
-        return $normalized;
+        return array_map(static fn (array $row): array => [
+            'date' => $row['date'],
+            'recordsRejected' => (int) $row['recordsRejected'],
+            'recordsTotal' => (int) $row['recordsTotal'],
+        ], $rows);
     }
 
     public static function calculateRejectionRate(int $rejected, int $total): float

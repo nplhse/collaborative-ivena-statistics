@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import { lineMarkers } from '../lib/chart-markers.js';
+import { isolatedPointMarkers, lineMarkers } from '../lib/chart-markers.js';
 import { applyChartNonce, loadApexCharts } from '../lib/load-apexcharts.js';
 
 const COLORS = ['#206bc4', '#2fb344', '#ae3ec9'];
@@ -67,7 +67,7 @@ export default class extends Controller {
             series,
             colors: COLORS,
             stroke: { width: 2, curve: 'straight' },
-            markers: lineMarkers(labels.length, { discrete: isolatedPoints(series) }),
+            markers: lineMarkers(labels.length, { discrete: isolatedPointMarkers(series, COLORS) }),
             dataLabels: { enabled: false },
             xaxis: {
                 categories: labels,
@@ -93,30 +93,4 @@ export default class extends Controller {
             },
         };
     }
-}
-
-/**
- * Markers for values whose neighbours are both missing; ApexCharts draws no line through them.
- *
- * @param {{ data: (number|null)[] }[]} series
- * @returns {{ seriesIndex: number, dataPointIndex: number, size: number, fillColor: string, strokeColor: string }[]}
- */
-export function isolatedPoints(series) {
-    const markers = [];
-    series.forEach((entry, seriesIndex) => {
-        entry.data.forEach((value, index) => {
-            const missing = (i) => entry.data[i] === null || entry.data[i] === undefined;
-            if (!missing(index) && missing(index - 1) && missing(index + 1)) {
-                markers.push({
-                    seriesIndex,
-                    dataPointIndex: index,
-                    size: 4,
-                    fillColor: COLORS[seriesIndex],
-                    strokeColor: COLORS[seriesIndex],
-                });
-            }
-        });
-    });
-
-    return markers;
 }
