@@ -98,7 +98,7 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertCount(1, $row->filter('[data-testid="user-badge-user"]'));
         self::assertCount(0, $row->filter('[data-testid="user-badge-participant"]'));
 
-        $client->request(Request::METHOD_GET, '/explore/user/'.$listed->getPublicIdString());
+        $client->request(Request::METHOD_GET, '/explore/user/'.$listed->getUsername());
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="user-badge-user"]');
         self::assertSelectorNotExists('[data-testid="user-badge-participant"]');
@@ -110,7 +110,7 @@ final class ExploreUsersControllerTest extends WebTestCase
         $client = $this->createClientAsParticipant();
         $profile = UserFactory::createOne(['username' => 'titled-user', 'displayName' => 'Tina Titel']);
 
-        $client->request(Request::METHOD_GET, '/explore/user/'.$profile->getPublicIdString());
+        $client->request(Request::METHOD_GET, '/explore/user/'.$profile->getUsername());
 
         self::assertResponseIsSuccessful();
         self::assertPageTitleContains('Tina Titel');
@@ -379,7 +379,7 @@ final class ExploreUsersControllerTest extends WebTestCase
 
         $this->backfillActivity();
 
-        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$profileUser->getPublicIdString());
+        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$profileUser->getUsername());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#user-username', 'profile-user');
@@ -418,7 +418,7 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertNotEmpty($time->attr('title'));
         self::assertDoesNotMatchRegularExpression('/^\d{2}\.\d{2}\.\d{4}$/', trim($time->text()));
 
-        $client->request(Request::METHOD_GET, '/explore/user/'.$viewer->getPublicIdString());
+        $client->request(Request::METHOD_GET, '/explore/user/'.$viewer->getUsername());
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="user-badge-self"]');
     }
@@ -436,7 +436,7 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-testid="user-directory-list"]', 'site-admin');
 
-        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$admin->getPublicIdString());
+        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$admin->getUsername());
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="user-badge-admin"]');
         self::assertSelectorNotExists('[data-testid="user-badge-participant"]');
@@ -509,7 +509,7 @@ final class ExploreUsersControllerTest extends WebTestCase
         ]);
         $forbidden->request(
             Request::METHOD_GET,
-            '/explore/user/'.$profileUser->getPublicIdString().'/activity',
+            '/explore/user/'.$profileUser->getUsername().'/activity',
         );
         self::assertResponseStatusCodeSame(403);
 
@@ -548,7 +548,7 @@ final class ExploreUsersControllerTest extends WebTestCase
 
         $this->backfillActivity();
 
-        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$profileUser->getPublicIdString());
+        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$profileUser->getUsername());
         self::assertResponseIsSuccessful();
         self::assertCount(20, $crawler->filter('[data-testid="profile-activity-item"]'));
         self::assertSelectorExists('[data-testid="profile-activity-next"]');
@@ -590,7 +590,7 @@ final class ExploreUsersControllerTest extends WebTestCase
             ]),
         ]);
 
-        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$viewer->getPublicIdString());
+        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$viewer->getUsername());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="user-badge-self"]');
@@ -599,7 +599,7 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertCount(0, $crawler->filter('a[href^="/explore/hospital"]'), 'hospital pages are Explore, which needs ROLE_PARTICIPANT');
         self::assertCount(0, $crawler->filter('.breadcrumb a[href="/explore"], .breadcrumb a[href="/explore/user"]'));
 
-        $client->request(Request::METHOD_GET, '/explore/user/'.$viewer->getPublicIdString().'/activity');
+        $client->request(Request::METHOD_GET, '/explore/user/'.$viewer->getUsername().'/activity');
         self::assertResponseIsSuccessful();
     }
 
@@ -608,7 +608,7 @@ final class ExploreUsersControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $other = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
 
-        $client->request(Request::METHOD_GET, '/explore/user/'.$other->getPublicIdString());
+        $client->request(Request::METHOD_GET, '/explore/user/'.$other->getUsername());
 
         self::assertResponseStatusCodeSame(403);
     }
@@ -630,7 +630,7 @@ final class ExploreUsersControllerTest extends WebTestCase
         $viewer = $this->loginAsParticipant($client);
         HospitalFactory::createOne(['name' => 'Own Klinik', 'owner' => $viewer]);
 
-        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$viewer->getPublicIdString());
+        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$viewer->getUsername());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="user-profile-back-to-list"]');
@@ -648,7 +648,7 @@ final class ExploreUsersControllerTest extends WebTestCase
 
         $this->backfillActivity();
 
-        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$profileUser->getPublicIdString());
+        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$profileUser->getUsername());
 
         self::assertResponseIsSuccessful();
         self::assertCount(1, $crawler->filter('[data-testid="profile-activity-item"]'));
@@ -674,7 +674,7 @@ final class ExploreUsersControllerTest extends WebTestCase
             'roles' => [UserRole::USER, UserRole::PARTICIPANT],
         ]);
 
-        $client->request(Request::METHOD_GET, '/explore/user/'.$named->getPublicIdString());
+        $client->request(Request::METHOD_GET, '/explore/user/'.$named->getUsername());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextSame('#user-username', 'Michael Müller');
@@ -703,5 +703,85 @@ final class ExploreUsersControllerTest extends WebTestCase
         );
         self::assertSame('fallback', $namelessRow->filter('.avatar')->attr('data-avatar'));
         self::assertSame('nameless-user', trim($namelessRow->filter('a[href^="/explore/user/"]')->last()->text()));
+        self::assertSame('/explore/user/mmueller', $profileLinks->last()->attr('href'), 'profiles are linked by username (#1353)');
+    }
+
+    public function testProfileIsReachedByUsernameIgnoringTheCase(): void
+    {
+        $client = $this->createClientAsParticipant();
+        UserFactory::createOne(['username' => 'Ada.Lovelace', 'roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
+
+        $client->request(Request::METHOD_GET, '/explore/user/Ada.Lovelace');
+        self::assertResponseIsSuccessful();
+
+        $client->request(Request::METHOD_GET, '/explore/user/ada.lovelace');
+        self::assertResponseRedirects('/explore/user/Ada.Lovelace', 301);
+
+        $client->request(Request::METHOD_GET, '/explore/user/ADA.LOVELACE/activity?cursor=abc');
+        self::assertResponseRedirects('/explore/user/Ada.Lovelace/activity?cursor=abc', 301);
+    }
+
+    public function testProfilesOfUnicodeAndLegacyUsernamesAreReachable(): void
+    {
+        $client = $this->createClientAsParticipant();
+        UserFactory::createOne(['username' => 'jürgen', 'roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
+
+        $client->request(Request::METHOD_GET, '/explore/user/j%C3%BCrgen');
+        self::assertResponseIsSuccessful();
+
+        $client->request(Request::METHOD_GET, '/explore/user/J%C3%9CRGEN');
+        self::assertResponseRedirects('/explore/user/j%C3%BCrgen', 301);
+
+        // Usernames from before the username rule keep a profile (NormalizeUsernamesCommand renames them).
+        UserFactory::createOne(['username' => 'John Doe', 'roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
+        $client->request(Request::METHOD_GET, '/explore/user/John%20Doe');
+        self::assertResponseIsSuccessful();
+    }
+
+    /** TRANSITION REDIRECT (#1353) — remove in v0.4-beta together with the user's public UUID. */
+    public function testOldUuidProfileUrlsRedirectToTheUsername(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $user = UserFactory::createOne(['username' => 'grace', 'roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
+
+        $client->request(Request::METHOD_GET, '/explore/user/'.$user->getPublicIdString());
+        self::assertResponseRedirects('/explore/user/grace', 301);
+
+        $client->request(Request::METHOD_GET, '/explore/user/'.$user->getPublicIdString().'/activity');
+        self::assertResponseRedirects('/explore/user/grace/activity', 301);
+    }
+
+    public function testUnknownOrDisabledProfilesAreNotFound(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $disabled = UserFactory::createOne([
+            'username' => 'gone',
+            'isEnabled' => false,
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT],
+        ]);
+
+        foreach ([
+            '/explore/user/nobody',
+            '/explore/user/nobody/activity',
+            '/explore/user/00000000-0000-4000-8000-000000000001',
+            '/explore/user/gone',
+            '/explore/user/GONE',
+            '/explore/user/'.$disabled->getPublicIdString(),
+            '/explore/user/gone/activity',
+        ] as $url) {
+            $client->request(Request::METHOD_GET, $url);
+            self::assertResponseStatusCodeSame(404, $url);
+        }
+    }
+
+    public function testOtherProfilesStayForbiddenForNonParticipantsWhateverTheSpelling(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $other = UserFactory::createOne(['username' => 'Hedy', 'roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
+
+        foreach (['/explore/user/Hedy', '/explore/user/hedy', '/explore/user/'.$other->getPublicIdString()] as $url) {
+            $client->request(Request::METHOD_GET, $url);
+            self::assertResponseStatusCodeSame(403, $url);
+        }
     }
 }

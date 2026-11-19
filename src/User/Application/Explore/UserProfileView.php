@@ -12,7 +12,6 @@ final readonly class UserProfileView
      * @param list<ProfileActivity>     $activities
      */
     public function __construct(
-        public string $publicId,
         public string $username,
         public bool $isAdmin,
         public bool $isParticipant,

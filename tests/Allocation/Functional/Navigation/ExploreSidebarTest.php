@@ -60,7 +60,7 @@ final class ExploreSidebarTest extends WebTestCase
         $client = self::createClient();
         $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
         $client->loginUser($user);
-        $client->request(Request::METHOD_GET, '/explore/user/'.$user->getPublicId()?->toRfc4122());
+        $client->request(Request::METHOD_GET, '/explore/user/'.$user->getUsername());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('[data-testid="sidebar-explore"]', 'Every explore entry needs ROLE_PARTICIPANT; an empty sidebar is not rendered.');
@@ -71,7 +71,7 @@ final class ExploreSidebarTest extends WebTestCase
         $client = self::createClient();
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $client->loginUser($user);
-        $client->request(Request::METHOD_GET, '/explore/user/'.$user->getPublicId()?->toRfc4122());
+        $client->request(Request::METHOD_GET, '/explore/user/'.$user->getUsername());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="sidebar-entry-users"].active');

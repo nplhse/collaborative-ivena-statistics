@@ -75,6 +75,21 @@ final class NormalizeUsernamesCommandTest extends KernelTestCase
         self::assertSame('foo@bar', $invalid->getUsername());
     }
 
+    public function testReplacementThatDiffersOnlyInCaseFromAnotherUsernameIsACollision(): void
+    {
+        $taken = UserFactory::createOne(['username' => 'jane-doe']);
+        $withSpace = UserFactory::createOne(['username' => 'Jane Doe']);
+
+        $tester = $this->createCommandTester();
+        $tester->execute(['--apply' => true]);
+
+        self::assertStringContainsString(NormalizeUsernamesCommand::STATUS_COLLISION, $tester->getDisplay());
+        \Zenstruck\Foundry\Persistence\refresh($taken);
+        \Zenstruck\Foundry\Persistence\refresh($withSpace);
+        self::assertSame('jane-doe', $taken->getUsername());
+        self::assertSame('Jane Doe', $withSpace->getUsername(), 'Jane-Doe would collide with jane-doe (#1353)');
+    }
+
     private function createCommandTester(): CommandTester
     {
         /** @var NormalizeUsernamesCommand $command */

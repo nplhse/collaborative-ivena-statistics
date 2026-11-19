@@ -35,6 +35,7 @@ trait HasPublicId
         return $this;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod Not every entity with a public ID calls it (#1353: no longer User). */
     public function getPublicIdString(): string
     {
         if (!$this->publicId instanceof Uuid) {

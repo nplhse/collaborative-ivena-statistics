@@ -12,7 +12,6 @@ final readonly class ProjectActivity
         public ProfileActivityType $type,
         public string $stableId,
         public string $actorUsername,
-        public ?string $actorPublicId = null,
         public ?string $hospitalName = null,
         public ?string $hospitalPublicId = null,
         public ?int $milestone = null,

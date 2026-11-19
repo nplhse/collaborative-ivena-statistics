@@ -11,7 +11,6 @@ final readonly class UserListItem
      * @param list<UserHospitalSummary> $hospitals
      */
     public function __construct(
-        public string $publicId,
         public string $username,
         public bool $isAdmin,
         public bool $isParticipant,

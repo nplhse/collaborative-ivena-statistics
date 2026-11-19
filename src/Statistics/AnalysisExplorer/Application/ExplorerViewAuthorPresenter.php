@@ -7,7 +7,6 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\User\Domain\Entity\User;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Uid\Uuid;
 
 final readonly class ExplorerViewAuthorPresenter
 {
@@ -40,15 +39,11 @@ final readonly class ExplorerViewAuthorPresenter
             return self::NONE;
         }
 
-        $publicId = $creator->getPublicId();
-
         return [
             'name' => $name,
             'displayName' => $creator->getDisplayName(),
             'userId' => $creator->getId(),
-            'url' => $publicId instanceof Uuid
-                ? $this->urlGenerator->generate('app_explore_user_show', ['publicId' => $publicId->toRfc4122()])
-                : null,
+            'url' => $this->urlGenerator->generate('app_explore_user_show', ['username' => $name]),
         ];
     }
 }

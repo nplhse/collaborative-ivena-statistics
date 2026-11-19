@@ -67,7 +67,7 @@ security:
         - { path: ^/import, roles: ROLE_PARTICIPANT }
         - { path: ^/explore/indication/raw/assign, roles: ROLE_PARTICIPANT }
         # Profiles: every user may open their own; UserProfileVoter decides per profile.
-        - { path: '^/explore/user/[0-9a-f-]{36}(/activity)?$', roles: ROLE_USER }
+        - { path: '^/explore/user/[^/]+(/activity)?$', roles: ROLE_USER }
         - { path: ^/explore, roles: ROLE_PARTICIPANT }
         - { path: ^/encounter, roles: ROLE_ENCOUNTER_BETA }
         # Closure Analytics left the beta (#1350): participants only, not every user like the rest of /statistics.

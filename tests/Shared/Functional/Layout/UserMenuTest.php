@@ -29,7 +29,7 @@ final class UserMenuTest extends DatabaseWebTestCase
             $this->menuEntries($crawler),
         );
         self::assertSame(
-            '/explore/user/'.$user->getPublicIdString(),
+            '/explore/user/'.$user->getUsername(),
             $crawler->filter('[data-testid="user-menu-profile"]')->attr('href'),
         );
     }

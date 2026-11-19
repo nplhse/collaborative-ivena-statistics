@@ -16,7 +16,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Psr\Clock\ClockInterface;
-use Symfony\Component\Uid\Uuid;
 
 /** @psalm-suppress UnusedClass Wired as ProjectActivityQueryInterface. */
 final readonly class ProjectActivityQuery implements ProjectActivityQueryInterface
@@ -164,14 +163,12 @@ final readonly class ProjectActivityQuery implements ProjectActivityQueryInterfa
         $metadata = $activity->getMetadata();
         $type = ProfileActivityType::from($activity->getType()->value);
         $milestone = $metadata['milestone'] ?? null;
-        $publicId = $user->getPublicId();
 
         return new ProjectActivity(
             occurredAt: $activity->getOccurredAt(),
             type: $type,
             stableId: ProjectActivityCursor::padId($id),
             actorUsername: $user->getUsername() ?? '',
-            actorPublicId: $publicId instanceof Uuid ? $publicId->toRfc4122() : null,
             hospitalName: $this->stringMetadata($metadata, 'hospitalName'),
             hospitalPublicId: $this->stringMetadata($metadata, 'hospitalPublicId'),
             milestone: \is_int($milestone) ? $milestone : (is_numeric($milestone) ? (int) $milestone : null),

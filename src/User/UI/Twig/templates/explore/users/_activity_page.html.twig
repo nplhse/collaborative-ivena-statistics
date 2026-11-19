@@ -5,7 +5,7 @@
     }) }}
     {% if page.hasMore and page.nextCursor and page.nextFrameId %}
         {{ include('@User/explore/users/_activity_next_frame.html.twig', {
-            profilePublicId: profilePublicId,
+            profileUsername: profileUsername,
             nextCursor: page.nextCursor,
             frameId: page.nextFrameId,
         }) }}

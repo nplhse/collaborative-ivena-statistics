@@ -112,7 +112,7 @@
                         }) }}
                         {% if profile.hasMoreActivities and profile.activityNextCursor and profile.activityNextFrameId %}
                             {{ include('@User/explore/users/_activity_next_frame.html.twig', {
-                                profilePublicId: profile.publicId,
+                                profileUsername: profile.username,
                                 nextCursor: profile.activityNextCursor,
                                 frameId: profile.activityNextFrameId,
                             }) }}
