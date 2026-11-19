@@ -79,6 +79,8 @@ ORDER BY job, finished_at DESC;
 
 Four checks add to Application Health ([health-check.md](health-check.md#messenger-and-scheduler-checks)): `messenger_backlog`, `messenger_stalled`, `messenger_retries` and `scheduled_jobs`. None is public, but each counts towards the status of `/health`. The admin dashboard shows them with their severity and links them here or to the job runs.
 
+Beside the storage card, the dashboard has a compact Messenger card. Its status is the worst of the four Messenger checks (`messenger_failed`, `messenger_backlog`, `messenger_stalled`, `messenger_retries`) from the same report as the health banner, so the two never disagree. It also shows the messages ready to be handled per queue (`high`, `low`, `mail`; same numbers as the transport table on this page), the failure queue with a link to it, and when the oldest ready message was created. It links to this page (#1322).
+
 ## Retention
 
 The daily job `monitoring_retention` keeps the tables bounded:

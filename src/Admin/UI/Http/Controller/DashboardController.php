@@ -83,15 +83,16 @@ final class DashboardController extends AbstractDashboardController
     #[\Override]
     public function index(): Response
     {
+        $health = $this->operationalDashboardService->getHealthStatus();
+
         return $this->render('@Admin/dashboard/index.html.twig', [
             'kpi_cards' => $this->kpiDashboardService->getCards(),
             'kpi_chart' => $this->kpiDashboardService->getChart(),
-            'ops_cards' => $this->operationalDashboardService->getOpsCards(),
+            'ops_messenger' => $this->operationalDashboardService->getMessengerStatus($health),
             'ops_storage' => $this->operationalDashboardService->getStorageSummary(),
             'ops_storage_url' => $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_storage')->generateUrl(),
-            'ops_health' => $this->operationalDashboardService->getHealthStatus(),
+            'ops_health' => $health,
             'recent_notifications' => $this->operationalDashboardService->getRecentNotificationEvents(),
-            'dashboard_sections' => $this->buildDashboardSections(),
         ]);
     }
 
@@ -244,197 +245,6 @@ final class DashboardController extends AbstractDashboardController
                 ->setRoute('app_admin_dashboard_operations_failed_messages')
                 ->generateUrl(),
         );
-    }
-
-    /**
-     * @return list<array{title: string|TranslatableMessage, tiles: list<array{label: string|TranslatableMessage, description: string|TranslatableMessage|null, icon: string, url: string, badge: array{value: int, style: string}|null}>}>
-     */
-    private function buildDashboardSections(): array
-    {
-        $openFeedbackCount = $this->feedbackRepository->countOpen();
-
-        $sections = $this->dashboardSections();
-        $built = [];
-
-        foreach ($sections as $section) {
-            $tiles = [];
-
-            foreach ($section['tiles'] as $tile) {
-                $badge = null;
-                if (isset($tile['badge_key']) && 'feedback' === $tile['badge_key']) {
-                    $badge = [
-                        'value' => $openFeedbackCount,
-                        'style' => $openFeedbackCount > 0 ? 'info' : 'primary',
-                    ];
-                }
-
-                if (isset($tile['route'])) {
-                    $url = $this->adminUrlGenerator->setRoute($tile['route'])->generateUrl();
-                } elseif (isset($tile['controller'])) {
-                    $url = $this->adminUrlGenerator->setController($tile['controller'])->generateUrl();
-                } else {
-                    throw new \LogicException('Dashboard tile must define either route or controller.');
-                }
-
-                $tiles[] = [
-                    'label' => $tile['label'],
-                    'description' => $tile['description'] ?? null,
-                    'icon' => $tile['icon'],
-                    'url' => $url,
-                    'badge' => $badge,
-                ];
-            }
-
-            $built[] = [
-                'title' => $section['title'],
-                'tiles' => $tiles,
-            ];
-        }
-
-        return $built;
-    }
-
-    /**
-     * @return list<array{title: string|TranslatableMessage, tiles: list<array{label: string|TranslatableMessage, description?: string|TranslatableMessage, icon: string, controller?: class-string, route?: string, badge_key?: string}>}>
-     */
-    private function dashboardSections(): array
-    {
-        return [
-            [
-                'title' => 'Management',
-                'tiles' => [
-                    [
-                        'label' => 'Feedback',
-                        'description' => 'Review and respond to user feedback',
-                        'icon' => 'fas fa-comment-dots',
-                        'controller' => FeedbackCrudController::class,
-                        'badge_key' => 'feedback',
-                    ],
-                    [
-                        'label' => 'Onboarding steps',
-                        'description' => 'Review user onboarding progress',
-                        'icon' => 'fas fa-shoe-prints',
-                        'controller' => UserOnboardingStepCrudController::class,
-                    ],
-                    [
-                        'label' => 'Users',
-                        'description' => 'Manage user accounts and permissions',
-                        'icon' => 'fas fa-users',
-                        'controller' => UserCrudController::class,
-                    ],
-                ],
-            ],
-            [
-                'title' => 'Data',
-                'tiles' => [
-                    [
-                        'label' => 'Data',
-                        'description' => 'Reference data and allocations',
-                        'icon' => 'fas fa-layer-group',
-                        'controller' => AllocationCrudController::class,
-                    ],
-                    [
-                        'label' => 'Import Rejects',
-                        'description' => 'Review failed import records',
-                        'icon' => 'fas fa-triangle-exclamation',
-                        'controller' => ImportRejectCrudController::class,
-                    ],
-                    [
-                        'label' => 'Imports',
-                        'description' => 'View import history and status',
-                        'icon' => 'fa fa-database',
-                        'controller' => ImportCrudController::class,
-                    ],
-                ],
-            ],
-            [
-                'title' => 'Content',
-                'tiles' => [
-                    [
-                        'label' => 'Blog',
-                        'description' => 'Manage blog posts and related content',
-                        'icon' => 'fas fa-book',
-                        'controller' => PostCrudController::class,
-                    ],
-                    [
-                        'label' => 'Pages',
-                        'description' => 'Edit static pages and site content',
-                        'icon' => 'fas fa-file',
-                        'controller' => PageCrudController::class,
-                    ],
-                    [
-                        'label' => 'Media',
-                        'description' => 'Upload images and PDFs for pages and blog',
-                        'icon' => 'fas fa-photo-film',
-                        'controller' => MediaCrudController::class,
-                    ],
-                ],
-            ],
-            [
-                'title' => new TranslatableMessage('usage_analytics.menu.section', domain: 'admin'),
-                'tiles' => [
-                    [
-                        'label' => new TranslatableMessage('usage_analytics.menu.overview', domain: 'admin'),
-                        'description' => new TranslatableMessage('usage_analytics.tile.overview', domain: 'admin'),
-                        'icon' => 'fas fa-gauge-high',
-                        'route' => 'app_admin_dashboard_operations_usage_analytics_overview',
-                    ],
-                    [
-                        'label' => new TranslatableMessage('usage_analytics.menu.accesses', domain: 'admin'),
-                        'description' => new TranslatableMessage('usage_analytics.tile.accesses', domain: 'admin'),
-                        'icon' => 'fas fa-chart-column',
-                        'route' => 'app_admin_dashboard_operations_usage_analytics_accesses',
-                    ],
-                ],
-            ],
-            [
-                'title' => 'System',
-                'tiles' => [
-                    [
-                        'label' => new TranslatableMessage('audit.timeline.title', domain: 'admin'),
-                        'description' => new TranslatableMessage('audit.timeline.tile', domain: 'admin'),
-                        'icon' => 'fas fa-clipboard-list',
-                        'route' => 'app_admin_dashboard_audit_timeline',
-                    ],
-                    [
-                        'label' => 'Cookie consents',
-                        'description' => 'View recorded cookie consent choices',
-                        'icon' => 'fas fa-cookie-bite',
-                        'controller' => CookieConsentCrudController::class,
-                    ],
-                    [
-                        'label' => 'Disk usage',
-                        'description' => 'Storage by category, location and history',
-                        'icon' => 'fas fa-hard-drive',
-                        'route' => 'app_admin_dashboard_operations_storage',
-                    ],
-                    [
-                        'label' => 'Messenger',
-                        'description' => 'Message handling, queues, retries and failures',
-                        'icon' => 'fas fa-tower-broadcast',
-                        'route' => 'app_admin_dashboard_operations_messenger',
-                    ],
-                    [
-                        'label' => new TranslatableMessage('navigation.inspector.menu_label', domain: 'admin'),
-                        'description' => new TranslatableMessage('navigation.inspector.tile', domain: 'admin'),
-                        'icon' => 'fas fa-sitemap',
-                        'route' => 'app_admin_dashboard_operations_navigation_index',
-                    ],
-                    [
-                        'label' => 'Failed messages',
-                        'description' => 'Inspect messenger failed queue',
-                        'icon' => 'fas fa-triangle-exclamation',
-                        'route' => 'app_admin_dashboard_operations_failed_messages',
-                    ],
-                    [
-                        'label' => 'Monthly reminders',
-                        'description' => 'Scheduler reminder dispatch history',
-                        'icon' => 'fas fa-envelope',
-                        'controller' => MonthlyReminderDispatchCrudController::class,
-                    ],
-                ],
-            ],
-        ];
     }
 
     #[\Override]

@@ -485,22 +485,6 @@
         <source>ops.section.title</source>
         <target>Operations</target>
       </trans-unit>
-      <trans-unit id="opsCard01" resname="ops.card.failed_messages">
-        <source>ops.card.failed_messages</source>
-        <target>Failed messages</target>
-      </trans-unit>
-      <trans-unit id="opsCard02" resname="ops.card.queue_high">
-        <source>ops.card.queue_high</source>
-        <target>High-priority queue</target>
-      </trans-unit>
-      <trans-unit id="opsCard03" resname="ops.card.queue_low">
-        <source>ops.card.queue_low</source>
-        <target>Low-priority queue</target>
-      </trans-unit>
-      <trans-unit id="opsCard06" resname="ops.card.reminders_this_month">
-        <source>ops.card.reminders_this_month</source>
-        <target>Reminders this month</target>
-      </trans-unit>
       <trans-unit id="opsHlth01" resname="ops.health.status.healthy">
         <source>ops.health.status.healthy</source>
         <target>Healthy</target>
@@ -832,6 +816,22 @@
       <trans-unit id="opsMsg19" resname="ops.messenger.kpi.failed_queue">
         <source>ops.messenger.kpi.failed_queue</source>
         <target>{count, plural, =0 {Failure queue empty} =1 {One message in the failure queue} other {# messages in the failure queue}}</target>
+      </trans-unit>
+      <trans-unit id="opsMsgCard01" resname="ops.messenger.card.title">
+        <source>ops.messenger.card.title</source>
+        <target>Messenger</target>
+      </trans-unit>
+      <trans-unit id="opsMsgCard02" resname="ops.messenger.card.details">
+        <source>ops.messenger.card.details</source>
+        <target>Details</target>
+      </trans-unit>
+      <trans-unit id="opsMsgCard03" resname="ops.messenger.card.pending">
+        <source>ops.messenger.card.pending</source>
+        <target>{count, plural, =1 {message ready to be handled} other {messages ready to be handled}}</target>
+      </trans-unit>
+      <trans-unit id="opsMsgCard04" resname="ops.messenger.card.oldest">
+        <source>ops.messenger.card.oldest</source>
+        <target>Oldest waiting since {date}</target>
       </trans-unit>
       <trans-unit id="opsMsg20" resname="ops.messenger.section.transports">
         <source>ops.messenger.section.transports</source>
@@ -1725,14 +1725,6 @@
         <source>usage_analytics.menu.accesses</source>
         <target>Accesses</target>
       </trans-unit>
-      <trans-unit id="uaNav08" resname="usage_analytics.tile.overview">
-        <source>usage_analytics.tile.overview</source>
-        <target>Requests, retention, feature areas</target>
-      </trans-unit>
-      <trans-unit id="uaNav09" resname="usage_analytics.tile.accesses">
-        <source>usage_analytics.tile.accesses</source>
-        <target>Page views per month and year since counting started</target>
-      </trans-unit>
       <trans-unit id="uaOv01" resname="usage_analytics.overview.requests_today">
         <source>usage_analytics.overview.requests_today</source>
         <target>Requests today</target>
@@ -2213,10 +2205,6 @@
         <source>audit.timeline.new_more</source>
         <target>More than %count% new entries – show</target>
       </trans-unit>
-      <trans-unit id="auditTile01" resname="audit.timeline.tile">
-        <source>audit.timeline.tile</source>
-        <target>Activity in the application, grouped by request and session</target>
-      </trans-unit>
       <trans-unit id="admCrudFieldDescription" resname="admin.field.description">
         <source>admin.field.description</source>
         <target>Description</target>
@@ -2664,10 +2652,6 @@
       <trans-unit id="navInsp01" resname="navigation.inspector.menu_label">
         <source>navigation.inspector.menu_label</source>
         <target>Navigation tree</target>
-      </trans-unit>
-      <trans-unit id="navInsp02" resname="navigation.inspector.tile">
-        <source>navigation.inspector.tile</source>
-        <target>Inspect menus, permissions and route matching</target>
       </trans-unit>
       <trans-unit id="navInsp03" resname="navigation.inspector.title">
         <source>navigation.inspector.title</source>

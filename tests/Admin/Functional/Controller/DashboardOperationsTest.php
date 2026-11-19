@@ -43,7 +43,8 @@ final class DashboardOperationsTest extends WebTestCase
         self::assertResponseIsSuccessful();
         $text = $crawler->text();
         self::assertStringContainsString('Operations', $text);
-        self::assertStringContainsString('Failed messages', $text);
+        self::assertStringContainsString('Failure queue empty', $crawler->filter('.ea-messenger-card')->text());
+        self::assertStringNotContainsString('Queue high', $text, 'the three Messenger cards are replaced by one');
         self::assertStringContainsString('Configured budget', $crawler->filter('.ea-storage-card')->text());
         self::assertStringNotContainsString('Total storage', $text);
         self::assertStringNotContainsString('Imports / media', $text);
@@ -62,6 +63,82 @@ final class DashboardOperationsTest extends WebTestCase
         self::assertCount(0, $crawler->filter('[data-controller="admin-ops-chart"]'));
         self::assertCount(1, $crawler->filter('.ea-storage-card'));
         self::assertCount(1, $crawler->filter('.ea-storage-card a[href*="/admin/operations/storage"]'));
+        self::assertCount(1, $crawler->filter('.ea-messenger-card a[href*="/admin/operations/messenger"]'));
+
+        $notificationsPosition = strpos($text, 'Recent notifications');
+        $operationsPosition = strpos($text, 'Operations');
+        self::assertNotFalse($operationsPosition);
+        self::assertLessThan($operationsPosition, $kpiPosition, 'key metrics come before operations');
+        self::assertLessThan($notificationsPosition, $operationsPosition, 'recent events come last');
+    }
+
+    public function testMessengerCardIsHealthyWithEmptyQueues(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+        $this->store(StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable('-1 hour')));
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin');
+
+        self::assertResponseIsSuccessful();
+        $card = $crawler->filter('.ea-messenger-card');
+        self::assertSame('healthy', $card->attr('data-messenger-status'));
+        self::assertStringContainsString('Healthy', $card->text());
+        self::assertSame('0', $card->filter('[data-messenger-card="pending"]')->text());
+        self::assertSame(['high 0', 'low 0', 'mail 0'], $card->filter('[data-messenger-card="queues"] li')->each(
+            static fn (Crawler $item): string => trim((string) preg_replace('/\s+/', ' ', $item->text())),
+        ));
+        self::assertCount(0, $card->filter('[data-messenger-card="oldest"]'));
+    }
+
+    public function testMessengerCardFollowsTheBacklogChecksAndCountsReadyMessagesPerQueue(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+        $this->store(StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable('-1 hour')));
+        $utc = new \DateTimeZone('UTC');
+        $connection = self::getContainer()->get(EntityManagerInterface::class)->getConnection();
+        $oldest = new \DateTimeImmutable('2026-01-15 08:10:00', $utc);
+        // Two ready messages in low, one in high, one in mail waiting for a retry (not ready) and one failed message.
+        foreach ([['low', $oldest, $oldest], ['low', new \DateTimeImmutable('-5 minutes', $utc), null], ['high', new \DateTimeImmutable('-2 minutes', $utc), null], ['mail', new \DateTimeImmutable('-1 minute', $utc), new \DateTimeImmutable('+1 hour', $utc)], ['failed', new \DateTimeImmutable('-1 minute', $utc), null]] as [$queue, $createdAt, $availableAt]) {
+            $connection->insert('messenger_messages', [
+                'body' => 'x',
+                'headers' => '{}',
+                'queue_name' => $queue,
+                'created_at' => $createdAt->format('Y-m-d H:i:s'),
+                'available_at' => ($availableAt ?? $createdAt)->format('Y-m-d H:i:s'),
+            ]);
+        }
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin');
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Unhealthy', $crawler->filter('.ea-ops-health-banner')->text());
+        $card = $crawler->filter('.ea-messenger-card');
+        self::assertSame('unhealthy', $card->attr('data-messenger-status'), 'the card takes the worst Messenger check, like the banner');
+        self::assertSame('3', $card->filter('[data-messenger-card="pending"]')->text(), 'the message waiting for a retry and the failed one are not ready');
+        self::assertSame(['high 1', 'low 2', 'mail 0'], $card->filter('[data-messenger-card="queues"] li')->each(
+            static fn (Crawler $item): string => trim((string) preg_replace('/\s+/', ' ', $item->text())),
+        ));
+        self::assertSame('Oldest waiting since 15.01.2026 09:10', $card->filter('[data-messenger-card="oldest"]')->text(), 'shown in Europe/Berlin');
+        $failed = $card->filter('a[data-messenger-card="failed"]');
+        self::assertSame('One message in the failure queue', $failed->text());
+        self::assertStringEndsWith('/admin/operations/failed-messages', (string) $failed->attr('href'));
+    }
+
+    public function testMessengerCardIsDegradedByFailedMessagesAlone(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+        $this->store(StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable('-1 hour')));
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+        self::getContainer()->get(EntityManagerInterface::class)->getConnection()->insert('messenger_messages', ['body' => 'x', 'headers' => '{}', 'queue_name' => 'failed', 'created_at' => $now, 'available_at' => $now]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin');
+
+        $card = $crawler->filter('.ea-messenger-card');
+        self::assertSame('degraded', $card->attr('data-messenger-status'));
+        self::assertSame('0', $card->filter('[data-messenger-card="pending"]')->text(), 'the failure queue is not a backlog');
     }
 
     public function testDashboardShowsTheCompactStorageCardFromTheLatestMeasurement(): void

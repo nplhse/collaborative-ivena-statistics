@@ -4,41 +4,16 @@
 
 {% block main %}
     {{ include('@Admin/dashboard/_ops_health.html.twig') }}
-    {{ include('@Admin/dashboard/_ops_cards.html.twig') }}
-    {{ include('@Admin/dashboard/_ops_storage.html.twig') }}
-    {{ include('@Admin/dashboard/_ops_notifications.html.twig') }}
 
     <h3 class="h5 text-secondary text-uppercase mb-3">{{ 'kpi.section.title'|trans({}, 'admin') }}</h3>
     {{ include('@Admin/dashboard/_kpi_cards.html.twig') }}
     {{ include('@Admin/dashboard/_kpi_chart.html.twig') }}
 
-    {% for section in dashboard_sections %}
-        <h3 class="h5 text-secondary text-uppercase mb-3">{{ section.title|trans }}</h3>
-        <div class="row mb-4">
-            {% for tile in section.tiles %}
-                <div class="col-12 col-sm-6 col-lg-4 mb-3">
-                    <a href="{{ tile.url }}" class="text-decoration-none text-body">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body d-flex flex-column">
-                                <div class="d-flex align-items-start justify-content-between mb-2">
-                                    <div class="d-flex align-items-center gap-2">
-                                        {% if tile.icon %}
-                                            <i class="{{ tile.icon }} fa-lg text-secondary" aria-hidden="true"></i>
-                                        {% endif %}
-                                        <h4 class="card-title h5 mb-0">{{ tile.label|trans }}</h4>
-                                    </div>
-                                    {% if tile.badge %}
-                                        <twig:ea:Badge color="{{ tile.badge.style }}" variant="solid" radius="full">{{ tile.badge.value }}</twig:ea:Badge>
-                                    {% endif %}
-                                </div>
-                                {% if tile.description %}
-                                    <p class="card-text text-secondary small mb-0">{{ tile.description|trans }}</p>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            {% endfor %}
-        </div>
-    {% endfor %}
+    <h3 class="h5 text-secondary text-uppercase mb-3">{{ 'ops.section.title'|trans({}, 'admin') }}</h3>
+    <div class="row ea-dashboard-ops">
+        <div class="col-12 col-xl-6 mb-4">{{ include('@Admin/dashboard/_ops_storage.html.twig') }}</div>
+        <div class="col-12 col-xl-6 mb-4">{{ include('@Admin/dashboard/_ops_messenger.html.twig') }}</div>
+    </div>
+
+    {{ include('@Admin/dashboard/_ops_notifications.html.twig') }}
 {% endblock %}

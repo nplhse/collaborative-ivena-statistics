@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Admin\Infrastructure\Repository;
 
-use App\Admin\Application\DTO\MessengerQueueStatDto;
-use App\Admin\Application\DTO\MessengerStatsDto;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
@@ -15,37 +13,6 @@ final readonly class MessengerStatsRepository
     public function __construct(
         private Connection $connection,
     ) {
-    }
-
-    public function getStats(): MessengerStatsDto
-    {
-        /** @var list<array{queue_name: string, pending_count: int|string, oldest_created_at: ?string}> $rows */
-        $rows = $this->connection->fetchAllAssociative(
-            'SELECT queue_name, COUNT(*) AS pending_count, MIN(created_at) AS oldest_created_at
-             FROM messenger_messages
-             WHERE delivered_at IS NULL
-             GROUP BY queue_name
-             ORDER BY queue_name ASC',
-        );
-
-        $queues = [];
-        $failedCount = 0;
-
-        foreach ($rows as $row) {
-            $queueName = $row['queue_name'];
-            $pendingCount = (int) $row['pending_count'];
-            $oldest = isset($row['oldest_created_at'])
-                ? new \DateTimeImmutable($row['oldest_created_at'])
-                : null;
-
-            $queues[] = new MessengerQueueStatDto($queueName, $pendingCount, $oldest);
-
-            if ('failed' === $queueName) {
-                $failedCount = $pendingCount;
-            }
-        }
-
-        return new MessengerStatsDto($queues, $failedCount);
     }
 
     /**
