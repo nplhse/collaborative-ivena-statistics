@@ -6,8 +6,8 @@
             {% if comment.author %}
                 {% set authorName = user_display_name(comment.author.displayName, comment.author.username) %}
                 <strong class="text-truncate" title="{{ comment.author.username }}">
-                    {%- if is_granted('ROLE_PARTICIPANT') and comment.author.publicId -%}
-                        <a href="{{ path('app_explore_user_show', {publicId: comment.author.publicId}) }}" target="_top">{{ authorName }}</a>
+                    {%- if is_granted('ROLE_PARTICIPANT') and comment.author.username -%}
+                        <a href="{{ path('app_explore_user_show', {username: comment.author.username}) }}" target="_top">{{ authorName }}</a>
                     {%- else -%}
                         {{ authorName }}
                     {%- endif -%}

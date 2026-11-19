@@ -145,7 +145,7 @@ final class ProjectActivityQueryTest extends DatabaseKernelTestCase
         self::assertSame(ProfileActivityType::HOSPITAL_OWNER_GRANTED, $page->items[1]->type);
         self::assertSame('Grant Klinik', $page->items[1]->hospitalName);
         self::assertSame('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', $page->items[1]->hospitalPublicId);
-        self::assertNotNull($page->items[1]->actorPublicId);
+        self::assertNotSame('', $page->items[1]->actorUsername);
         self::assertSame(ProfileActivityType::HOSPITAL_ASSOCIATED, $page->items[2]->type);
     }
 

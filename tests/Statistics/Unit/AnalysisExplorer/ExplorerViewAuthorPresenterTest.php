@@ -9,7 +9,6 @@ use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Uid\Uuid;
 
 final class ExplorerViewAuthorPresenterTest extends TestCase
 {
@@ -37,38 +36,20 @@ final class ExplorerViewAuthorPresenterTest extends TestCase
 
     public function testLinksANamedCreatorToTheirProfile(): void
     {
-        $publicId = Uuid::v4();
         $user = new User();
         $user->setUsername('ada');
         $user->setDisplayName('Ada Lovelace');
-        $user->setPublicId($publicId);
         $view = new SavedExplorerView(null, 'Shared', 'My views', []);
         $view->setCreatedBy($user);
 
         $urls = $this->createMock(UrlGeneratorInterface::class);
         $urls->expects(self::once())
             ->method('generate')
-            ->with('app_explore_user_show', ['publicId' => $publicId->toRfc4122()])
-            ->willReturn('/explore/users/'.$publicId->toRfc4122());
+            ->with('app_explore_user_show', ['username' => 'ada'])
+            ->willReturn('/explore/user/ada');
 
         self::assertSame(
-            ['name' => 'ada', 'displayName' => 'Ada Lovelace', 'userId' => null, 'url' => '/explore/users/'.$publicId->toRfc4122()],
-            new ExplorerViewAuthorPresenter($urls)->present($view),
-        );
-    }
-
-    public function testKeepsTheNameWhenTheCreatorHasNoPublicId(): void
-    {
-        $user = new User();
-        $user->setUsername('ada');
-        $view = new SavedExplorerView(null, 'Shared', 'My views', []);
-        $view->setCreatedBy($user);
-
-        $urls = $this->createMock(UrlGeneratorInterface::class);
-        $urls->expects(self::never())->method('generate');
-
-        self::assertSame(
-            ['name' => 'ada', 'displayName' => null, 'userId' => null, 'url' => null],
+            ['name' => 'ada', 'displayName' => 'Ada Lovelace', 'userId' => null, 'url' => '/explore/user/ada'],
             new ExplorerViewAuthorPresenter($urls)->present($view),
         );
     }

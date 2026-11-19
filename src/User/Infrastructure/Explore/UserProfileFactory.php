@@ -42,7 +42,6 @@ final readonly class UserProfileFactory
         $activityPage = $this->activityQuery->getPage($user, null);
 
         return new UserProfileView(
-            publicId: $user->getPublicIdString(),
             username: $username,
             isAdmin: UserPublicRoleResolver::isAdmin($user),
             isParticipant: UserPublicRoleResolver::isParticipant($user),
