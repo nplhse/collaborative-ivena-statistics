@@ -16,7 +16,8 @@ use Doctrine\DBAL\Types\Types;
 /**
  * Visit list of one hospital (#1178). One row per visit: the effective link is joined (the partial unique index
  * `uniq_encounter_match_effective_encounter` allows at most one), open proposals are only tested with EXISTS,
- * never joined. The period uses the matching anchor of the review (ED admission, else first assessment).
+ * never joined. The period uses the matching anchor of the review (ED admission, else first assessment); a list
+ * of one import ignores it (#1413).
  *
  * @psalm-suppress UnusedClass Wired as the only implementation of VisitListReaderInterface.
  */
@@ -146,15 +147,23 @@ SQL,
      */
     private function where(VisitListFilter $filter): array
     {
-        // The fingerprint anchor (indexed) lies at most a day away from the matching anchor.
-        $conditions = [
-            'e.hospital_id = :hospital',
-            "e.anchor_at BETWEEN CAST(:from AS TIMESTAMP) - INTERVAL '1 day' AND CAST(:to AS TIMESTAMP) + INTERVAL '1 day'",
-            self::ANCHOR.' >= :from',
-            self::ANCHOR.' < :to',
-        ];
-        $parameters = ['hospital' => $filter->hospitalId, 'from' => $filter->period->from, 'to' => $filter->period->toExclusive()];
-        $types = ['hospital' => Types::INTEGER, 'from' => Types::DATETIME_IMMUTABLE, 'to' => Types::DATETIME_IMMUTABLE];
+        $conditions = ['e.hospital_id = :hospital'];
+        $parameters = ['hospital' => $filter->hospitalId];
+        $types = ['hospital' => Types::INTEGER];
+
+        if (null !== $filter->importId) {
+            // All visits of the import, whatever their date (#1413).
+            $conditions[] = 'v.import_id = :import';
+            $parameters['import'] = $filter->importId;
+            $types['import'] = Types::INTEGER;
+        } else {
+            // The fingerprint anchor (indexed) lies at most a day away from the matching anchor.
+            $conditions[] = "e.anchor_at BETWEEN CAST(:from AS TIMESTAMP) - INTERVAL '1 day' AND CAST(:to AS TIMESTAMP) + INTERVAL '1 day'";
+            $conditions[] = self::ANCHOR.' >= :from';
+            $conditions[] = self::ANCHOR.' < :to';
+            $parameters += ['from' => $filter->period->from, 'to' => $filter->period->toExclusive()];
+            $types += ['from' => Types::DATETIME_IMMUTABLE, 'to' => Types::DATETIME_IMMUTABLE];
+        }
 
         if ([] !== $filter->routes) {
             $conditions[] = 'v.arrival_route IN (:routes)';

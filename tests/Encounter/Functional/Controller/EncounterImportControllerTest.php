@@ -102,8 +102,10 @@ final class EncounterImportControllerTest extends WebTestCase
         $this->client->request(Request::METHOD_GET, '/import/'.$import->getId());
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-test="count-inserted"]', '2');
-        // The confirmation names the uploader by display name (#1240).
-        self::assertSelectorTextContains('[data-test="encounter-confirmation"]', 'Uwe Upload');
+        // Rejected rows and known visits are in the run card only; the confirmation is audited, not shown (#1413).
+        self::assertSelectorNotExists('[data-test="count-rejected"]');
+        self::assertSelectorNotExists('[data-test="count-duplicates"]');
+        self::assertSelectorNotExists('[data-test="encounter-confirmation"]');
     }
 
     public function testFormOffersTheToolLinkAndEncounterFields(): void
@@ -213,10 +215,20 @@ final class EncounterImportControllerTest extends WebTestCase
         $this->client->loginUser($this->uploader);
         $this->client->request(Request::METHOD_GET, '/import/'.$importId);
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('[data-test="reject-row"]', 'heart_rate: out_of_range');
         self::assertSelectorTextSame('[data-test="encounter-schema"]', 'ED visits (MTS)');
         // ed_visit does not assign records to encounters, so the report has no assignment counts (ADR 037).
         self::assertSelectorNotExists('[data-test="count-assigned"]');
+        // Row rejects and suspected duplicates are admin information (#1413).
+        self::assertSelectorNotExists('[data-test="encounter-rejects"]');
+        self::assertSelectorNotExists('[data-test="encounter-suspected-duplicates"]');
+        self::assertSelectorNotExists('[data-test="count-suspectedDuplicates"]');
+
+        $this->client->loginUser($this->admin());
+        $this->client->request(Request::METHOD_GET, '/import/'.$importId);
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-test="reject-row"]', 'heart_rate: out_of_range');
+        self::assertSelectorExists('[data-test="encounter-suspected-duplicates"]');
+        self::assertSelectorTextSame('[data-test="count-suspectedDuplicates"]', '0');
         self::assertStringNotContainsString('98765', (string) $this->client->getResponse()->getContent());
 
         // The hospital owner has hospital access but no encounter grant (ADR 028).
@@ -242,6 +254,40 @@ final class EncounterImportControllerTest extends WebTestCase
         self::assertSelectorTextSame('[data-test="count-assigned"]', '1');
         self::assertSelectorTextSame('[data-test="count-unassigned"]', '1');
         self::assertSelectorTextSame('[data-test="count-conflicts"]', '0');
+    }
+
+    public function testEdVisitImportLinksToItsVisitsOnlyWithViewCases(): void
+    {
+        $importId = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build(), 'linked visits');
+        $probeImportId = $this->uploadEncounterFile($this->hospital, $this->uploader, EncounterFileBuilder::for(ProbeDimension::SCHEMA, ProbeDimension::header(), ProbeDimension::FINGERPRINT_RULE)
+            ->row(['record_fingerprint' => hash('sha256', 'probe|1'), 'case_key' => EncounterFileBuilder::caseKey('1'), 'recorded_at' => '2026-10-01T12:00'])
+            ->build(), 'probe records', schema: ProbeDimension::SCHEMA);
+        $visitsLink = 'a[href^="/explore/ed-visits/"]';
+
+        // UPLOAD alone does not show cases.
+        $this->client->loginUser($this->uploader);
+        $this->client->request(Request::METHOD_GET, '/import/'.$importId);
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists($visitsLink);
+
+        $viewer = $this->user();
+        $this->encounterGrant($this->hospital, $viewer, [EncounterGrantAction::Upload, EncounterGrantAction::ViewCases]);
+        $this->client->loginUser($viewer);
+        $crawler = $this->client->request(Request::METHOD_GET, '/import/'.$importId);
+        self::assertResponseIsSuccessful();
+        self::assertSame(
+            '/explore/ed-visits/'.$this->hospital->getPublicIdString().'?importId='.$importId,
+            $crawler->filter($visitsLink)->attr('href'),
+        );
+
+        $this->client->click($crawler->filter($visitsLink)->link());
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(1, '[data-testid="encounter-visit-list-row"]');
+
+        // The probe schema contributes no link to its records.
+        $this->client->request(Request::METHOD_GET, '/import/'.$probeImportId);
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists($visitsLink);
     }
 
     public function testRejectedRawExportShowsTheReasonAndCannotBeReprocessed(): void

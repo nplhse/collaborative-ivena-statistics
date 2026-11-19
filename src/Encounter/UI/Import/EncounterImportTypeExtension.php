@@ -12,10 +12,13 @@ use App\Encounter\Application\Contract\EncounterUploadHospitalsInterface;
 use App\Encounter\Application\Dimension\EncounterDimensionRegistry;
 use App\Encounter\Application\Import\EncounterSchemaHandlerRegistry;
 use App\Encounter\Application\Security\EncounterAttribute;
+use App\Encounter\Contract\Display\ImportRecordsLink;
+use App\Encounter\Contract\Display\ImportRecordsLinkProviderInterface;
 use App\Encounter\Contract\Import\SuspectedDuplicateReaderInterface;
 use App\Encounter\Domain\Entity\EncounterImport;
 use App\Import\Application\Contracts\ImportTypeExtensionInterface;
 use App\Import\Application\DTO\ImportTypeDetailSection;
+use App\Import\Application\DTO\ImportTypeRecordAction;
 use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
@@ -23,7 +26,9 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -46,8 +51,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *   the hospital's key change is in progress (ADR 027).
  * - List and detail: only for UPLOAD on the hospital (ADR 028); reprocess, download and delete as well.
  *   Reprocess and download only while the upload file is kept (ADR 026, #1049).
- * - Detail page section: counts, file rejection, until when the file is kept or when it was deleted,
- *   row rejects and suspected duplicates, never file content or cell values.
+ * - Detail page section: counts, file rejection, until when the file is kept or when it was deleted; row
+ *   rejects and suspected duplicates only for ROLE_ADMIN (#1413); never file content or cell values. With
+ *   VIEW_CASES on the hospital, the schema's link to the imported records (`encounter.import_records_link`).
  *
  * @psalm-suppress UnusedClass Tagged via ImportTypeExtensionInterface.
  */
@@ -58,7 +64,11 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
 
     private const int LIST_LIMIT = 200;
 
-    /** @psalm-suppress PossiblyUnusedMethod Autowired. */
+    /**
+     * @param iterable<ImportRecordsLinkProviderInterface> $recordsLinks
+     *
+     * @psalm-suppress PossiblyUnusedMethod Autowired.
+     */
     public function __construct(
         private RoleHierarchyInterface $roleHierarchy,
         private AccessDecisionManagerInterface $accessDecisionManager,
@@ -73,8 +83,11 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
         private TranslatorInterface $translator,
         private UrlGeneratorInterface $urlGenerator,
         private ClockInterface $clock,
+        private Security $security,
         #[Autowire(param: 'app.encounter.source_file_retention_days')]
         private int $sourceFileRetentionDays,
+        #[AutowireIterator(ImportRecordsLinkProviderInterface::TAG)]
+        private iterable $recordsLinks = [],
     ) {
     }
 
@@ -215,9 +228,12 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
         }
 
         $schema = $encounterImport->getSchema();
+        // Row rejects and suspected duplicates are admin information (#1413); not loaded for anyone else.
+        $isAdmin = $this->security->isGranted(UserRole::ADMIN);
 
         return new ImportTypeDetailSection('@Encounter/imports/_import_section.html.twig', [
             'encounter_import' => $encounterImport,
+            'show_admin_details' => $isAdmin,
             // A schema whose bundle is no longer installed is shown by its name.
             'schema_label' => $this->dimensions->has($schema)
                 ? $this->dimensions->get($schema)->label()
@@ -226,10 +242,32 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
             'source_file_kept_until' => $encounterImport->isSourceFileDeleted()
                 ? null
                 : $import->getCreatedAt()->modify(\sprintf('+%d days', $this->sourceFileRetentionDays)),
-            'rejects' => $this->report->rejects($importId, self::LIST_LIMIT),
-            'suspected_duplicates' => $this->suspectedDuplicates($schema, $importId),
+            'rejects' => $isAdmin ? $this->report->rejects($importId, self::LIST_LIMIT) : [],
+            'suspected_duplicates' => $isAdmin ? $this->suspectedDuplicates($schema, $importId) : [],
             'list_limit' => self::LIST_LIMIT,
-        ]);
+        ], $this->recordActions($import, $schema));
+    }
+
+    /**
+     * The schema's link to the records of the import, only with VIEW_CASES on its hospital (#1413).
+     *
+     * @return list<ImportTypeRecordAction>
+     */
+    private function recordActions(Import $import, string $schema): array
+    {
+        $hospital = $import->getHospital();
+        if (!$hospital instanceof Hospital || !$this->security->isGranted(EncounterAttribute::VIEW_CASES, $hospital)) {
+            return [];
+        }
+
+        foreach ($this->recordsLinks as $provider) {
+            $link = $provider->linkForImport($schema, (int) $import->getId(), $hospital->getPublicIdString());
+            if ($link instanceof ImportRecordsLink) {
+                return [new ImportTypeRecordAction($link->label->trans($this->translator), $link->url, $link->icon)];
+            }
+        }
+
+        return [];
     }
 
     /**

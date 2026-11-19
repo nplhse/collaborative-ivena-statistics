@@ -184,14 +184,18 @@ triage and retriage) of the new visits that resolve to nothing become provisiona
 **Suspected duplicates**: a new visit with the same `case_key` as another visit of the hospital and key
 generation (earlier, or earlier in the same file) and a time anchor at most 15 minutes away is inserted
 and recorded in `encounter_suspected_duplicate` (line, minutes, anchor sources, both visits). The report
-page lists them for users with `UPLOAD`, without case keys or timestamps. They are never merged.
+page lists them for `ROLE_ADMIN` only (#1413), without case keys or timestamps. They are never merged.
 
 **List and detail page** (`/import`, `/import/{id}`): encounter imports are listed and opened only with
 `UPLOAD` on their hospital (or `ROLE_ADMIN`); hospital ownership or hospital grants alone do not show them
-(ADR 028). The detail page adds an encounter section: new visits, known visits, skipped and rejected
-rows, suspected duplicates, profile, tool version, key generation, confirmation, file rejection, the
-reject list and the suspected-duplicate list, and until when the upload file is kept or when it was
-deleted. No file content. **Download** (`/import/{id}/source-file`) with `UPLOAD` on the hospital (or
+(ADR 028). The detail page adds an encounter section: new visits, rows without time anchor, schema,
+profile, tool version, file rejection, and until when the upload file is kept or when it was deleted.
+Rejected rows and known visits (deduplicated) are counted in the run card of the page only; the key
+generation and the upload confirmation are stored and audited but not shown. The suspected-duplicate count,
+the suspected-duplicate list and the reject list are admin information and shown only to `ROLE_ADMIN`
+(#1413). With `VIEW_CASES` on the hospital the actions offer the records of the import in Explore, if the
+schema contributes the link ([extension point](../../02-architecture/extension-points.md#encounter-import-record-links));
+for ED visits that is the visit list filtered to the import. No file content. **Download** (`/import/{id}/source-file`) with `UPLOAD` on the hospital (or
 `ROLE_ADMIN`), only while the file is kept; downloads are audited (`import.source_file.downloaded`).
 
 | Count | Meaning |
@@ -1143,6 +1147,9 @@ the [Explore overview extension point](../../02-architecture/extension-points.md
   (only with `REVIEW`) or *not linked*, as on the [visit detail page](#visit-detail-page).
 - **Filters:** arrival route, IVENA link (*proposal pending* only with `REVIEW`; otherwise ignored), MTS
   category, MTS diagram (codes occurring in the hospital's visits) and disposition.
+- **Import** (`importId`, #1413): the visits of one import of the hospital, whatever their date; the period does
+  not apply while the filter is set. Reached from the import detail page; an import of another hospital is not
+  found (404).
 - Also reached from My Hospitals ("ED visits" on the cards of the hospitals with `VIEW_CASES`).
 - No export, no editing, no decisions.
 

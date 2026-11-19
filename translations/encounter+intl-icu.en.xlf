@@ -773,10 +773,6 @@
         <source>encounter.import.source_file.kept_until</source>
         <target>Kept until {date} ({days, plural, one {# day} other {# days}} after upload), then deleted</target>
       </trans-unit>
-      <trans-unit id="EncIC392E5AE" resname="encounter.import.field.key_generation">
-        <source>encounter.import.field.key_generation</source>
-        <target>Key generation</target>
-      </trans-unit>
       <trans-unit id="EncI6CF25B17" resname="encounter.import.key_change_in_progress">
         <source>encounter.import.key_change_in_progress</source>
         <target>A key change is in progress for this hospital. Uploads are possible again once it is finished.</target>
@@ -789,17 +785,9 @@
         <source>encounter.import.count.inserted</source>
         <target>New visits</target>
       </trans-unit>
-      <trans-unit id="EncI84913CD1" resname="encounter.import.count.duplicates">
-        <source>encounter.import.count.duplicates</source>
-        <target>Known visits (skipped)</target>
-      </trans-unit>
       <trans-unit id="EncIA61CED99" resname="encounter.import.count.skipped">
         <source>encounter.import.count.skipped</source>
         <target>Rows without time anchor</target>
-      </trans-unit>
-      <trans-unit id="EncI30B16508" resname="encounter.import.count.rejected">
-        <source>encounter.import.count.rejected</source>
-        <target>Rejected rows</target>
       </trans-unit>
       <trans-unit id="EncI80DB5639" resname="encounter.import.count.suspectedDuplicates">
         <source>encounter.import.count.suspectedDuplicates</source>
@@ -3952,6 +3940,18 @@
       <trans-unit id="Enc0C5120B9" resname="encounter.explore.tile.ed_visits">
         <source>encounter.explore.tile.ed_visits</source>
         <target>Emergency department visits per hospital</target>
+      </trans-unit>
+      <trans-unit id="Enc58EB6654" resname="encounter.import.action.open_visits">
+        <source>encounter.import.action.open_visits</source>
+        <target>Show imported visits</target>
+      </trans-unit>
+      <trans-unit id="Enc8E708119" resname="encounter.visit_list.filter.import">
+        <source>encounter.visit_list.filter.import</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="Enc7FDB14A6" resname="encounter.visit_list.import_period_hint">
+        <source>encounter.visit_list.import_period_hint</source>
+        <target>The list shows all visits of this import; the period does not apply. Remove the import filter to filter by period.</target>
       </trans-unit>
     </body>
   </file>

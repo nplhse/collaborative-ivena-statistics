@@ -401,6 +401,22 @@ core asks once per page with the encounter ids, after it checked access to their
 URL for the encounters it has a page for, in one query, and the first link wins. Without a provider the conflict
 page shows the encounters' anchor without a link; they can still be assigned.
 
+## Encounter import record links
+
+**Tag:** `encounter.import_records_link`
+
+**Interface:** `ImportRecordsLinkProviderInterface` (`src/Encounter/Contract/Display/`)
+
+**Consumer:** `EncounterImportTypeExtension::detailSection()`, which passes the link to the import detail page as
+a record action (`ImportTypeDetailSection::$recordActions`)
+
+**Implementations:** `EdVisitImportRecordsLinkProvider` of the ED visit plugin (visit list filtered to the import)
+
+Lets an encounter schema link an import of its schema to the records it brought in, as a button in the actions of
+the import detail page (#1413). The core asks only with `VIEW_CASES` on the import's hospital, passing the schema,
+the import id and the hospital's public id; a provider returns a link for its own schema only, and the first link
+wins. Imports of a schema without a provider show no button.
+
 ## Encounter Explore tiles
 
 **Tag:** `encounter.explore_entry`

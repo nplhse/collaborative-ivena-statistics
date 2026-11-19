@@ -11,7 +11,8 @@ use Cois\Plugin\EdVisit\Domain\Enum\MtsCategory;
 
 /**
  * Filters of the visit list of one hospital (#1178). `includeProposals` is true only for callers that checked
- * REVIEW on the hospital; without it `Pending` is never a state and a `Pending` filter is dropped.
+ * REVIEW on the hospital; without it `Pending` is never a state and a `Pending` filter is dropped. With `importId`
+ * the list holds the visits of that import of the hospital and the period does not apply (#1413).
  */
 final readonly class VisitListFilter
 {
@@ -30,12 +31,13 @@ final readonly class VisitListFilter
         public array $categories = [],
         public ?string $diagram = null,
         public ?Disposition $disposition = null,
+        public ?int $importId = null,
     ) {
         $this->linkState = VisitLinkState::Pending === $linkState && !$includeProposals ? null : $linkState;
     }
 
     /**
-     * Number of active filters besides hospital and period.
+     * Number of active filters besides hospital and period, the import included.
      *
      * @psalm-suppress PossiblyUnusedMethod Called by the template.
      */
@@ -45,6 +47,7 @@ final readonly class VisitListFilter
             + ($this->linkState instanceof VisitLinkState ? 1 : 0)
             + ([] === $this->categories ? 0 : 1)
             + (null === $this->diagram ? 0 : 1)
-            + ($this->disposition instanceof Disposition ? 1 : 0);
+            + ($this->disposition instanceof Disposition ? 1 : 0)
+            + (null === $this->importId ? 0 : 1);
     }
 }
