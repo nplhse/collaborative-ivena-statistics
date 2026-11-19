@@ -59,6 +59,9 @@ final readonly class AnalysisTotalsCalculator
             }
         }
 
+        // Shares within a series (#1346) add up to 100 % per series; a grand total over all series has no meaning.
+        unset($grand[AnalysisMetricKey::PercentOfSeries->value]);
+
         foreach ($metricKeys as $metricKey) {
             if (AnalysisMetricKey::PercentOfTotal !== $metricKey) {
                 continue;

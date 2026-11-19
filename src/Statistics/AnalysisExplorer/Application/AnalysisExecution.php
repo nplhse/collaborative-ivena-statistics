@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Shared\Infrastructure\Monitoring\Sentry\SentrySpanTracer;
+use App\Statistics\AnalysisExplorer\Application\Comparison\ExplorerReferenceComparisonPolicy;
+use App\Statistics\AnalysisExplorer\Application\Comparison\ReferenceComparisonDecision;
 use App\Statistics\AnalysisExplorer\Application\DTO\AnalysisExecutionResult;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
@@ -28,6 +30,7 @@ final readonly class AnalysisExecution
         private ExplorerChartPresenter $chartPresenter,
         private ExplorerResultsTablePresenter $tablePresenter,
         private HospitalAccessInterface $hospitalAccess,
+        private ExplorerReferenceComparisonPolicy $referenceComparisonPolicy,
         private StatisticsSourceDataProbe $sourceDataProbe,
         private LoggerInterface $logger,
         private SentrySpanTracer $spanTracer,
@@ -91,6 +94,15 @@ final readonly class AnalysisExecution
             return $this->failed($normalized, $rewritten, 'scope_forbidden');
         }
 
+        // Only the comparison this viewer may see runs and reaches the page (#1346); the stored one stays as it is.
+        $comparison = $this->referenceComparisonPolicy->effective($normalized, $user);
+        $warningKey = null;
+        if ($comparison->dropped) {
+            $normalized = $comparison->config;
+            $rewritten = true;
+            $warningKey = ReferenceComparisonDecision::NOTICE_KEY;
+        }
+
         try {
             $query = $this->queryFactory->create($normalized, $user);
             $result = $this->runnerRegistry->run($normalized, $query);
@@ -122,12 +134,13 @@ final readonly class AnalysisExecution
         return new AnalysisExecutionResult(
             config: $normalized,
             result: $result,
-            chartSpecs: $this->chartPresenter->buildSpecs($result, $normalized->presentation),
+            chartSpecs: $this->chartPresenter->buildSpecs($result, $normalized->presentation, $normalized->showsPercentOfSeries()),
             defaultChartType: $this->chartPresenter->defaultChartType($normalized->presentation),
             hasChart: $this->chartPresenter->hasChart($result),
             table: $this->tablePresenter->create($normalized, $result),
             emptyReason: $emptyReason,
             configRewritten: $rewritten,
+            warningKey: $warningKey,
         );
     }
 

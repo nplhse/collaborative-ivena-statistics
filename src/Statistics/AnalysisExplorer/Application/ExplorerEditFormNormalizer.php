@@ -160,6 +160,7 @@ final readonly class ExplorerEditFormNormalizer
             tableLayout: $tableLayout->value,
             chartRowLimit: $chartRowLimit->value,
             hospitalPopulation: $hospitalPopulation->value,
+            referenceHospitals: $formData->referenceHospitals,
             additionalTableMetrics: $additionalTableMetrics,
             filterDepartmentId: $formData->filterDepartmentId,
             filterSpecialityId: $formData->filterSpecialityId,

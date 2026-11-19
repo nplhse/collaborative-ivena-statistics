@@ -4153,6 +4153,10 @@
         <source>stats.analysis_explorer.metric.percent_of_total</source>
         <target>Share of total</target>
       </trans-unit>
+      <trans-unit id="statsAexM01b" resname="stats.analysis_explorer.metric.percent_of_series">
+        <source>stats.analysis_explorer.metric.percent_of_series</source>
+        <target>Share within group</target>
+      </trans-unit>
       <trans-unit id="statsAexM02" resname="stats.analysis_explorer.metric.resus_rate">
         <source>stats.analysis_explorer.metric.resus_rate</source>
         <target>Resuscitation room rate</target>
@@ -7811,6 +7815,42 @@
       <trans-unit id="StatsNav09En" resname="stats.nav.badge.beta">
         <source>stats.nav.badge.beta</source>
         <target>Beta</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefOthersEN" resname="stats.analysis_explorer.reference_comparison.others">
+        <source>stats.analysis_explorer.reference_comparison.others</source>
+        <target>Other hospitals in scope</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefUnavailableEN" resname="stats.analysis_explorer.reference_comparison.unavailable">
+        <source>stats.analysis_explorer.reference_comparison.unavailable</source>
+        <target>The comparison with reference hospitals is not available in this view.</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefGroupEN" resname="stats.analysis_explorer.reference_comparison.group">
+        <source>stats.analysis_explorer.reference_comparison.group</source>
+        <target>Group</target>
+      </trans-unit>
+      <trans-unit id="statsAeExportPctSeriesEN" resname="stats.analysis_explorer.export.percent_of_series">
+        <source>stats.analysis_explorer.export.percent_of_series</source>
+        <target>Share within group</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit0EN" resname="stats.analysis_explorer.edit.reference_hospitals">
+        <source>stats.analysis_explorer.edit.reference_hospitals</source>
+        <target>Reference hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit1EN" resname="stats.analysis_explorer.edit.reference_hospitals_help">
+        <source>stats.analysis_explorer.edit.reference_hospitals_help</source>
+        <target>{count, plural, one {Compares your hospital with the other hospitals in the scope.} other {Compares up to {max} of your hospitals with the other hospitals in the scope.}}</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit2EN" resname="stats.analysis_explorer.edit.column_dimension_reference_help">
+        <source>stats.analysis_explorer.edit.column_dimension_reference_help</source>
+        <target>Columns are not available while comparing reference hospitals: the groups take this place.</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit5EN" resname="stats.analysis_explorer.edit.section.own_hospitals_comparison">
+        <source>stats.analysis_explorer.edit.section.own_hospitals_comparison</source>
+        <target>{count, plural, one {My hospital in comparison} other {My hospitals in comparison}}</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit3EN" resname="stats.analysis_explorer.edit.section.reference_comparison">
+        <source>stats.analysis_explorer.edit.section.reference_comparison</source>
+        <target>Compare with the other hospitals in the scope</target>
       </trans-unit>
     </body>
   </file>

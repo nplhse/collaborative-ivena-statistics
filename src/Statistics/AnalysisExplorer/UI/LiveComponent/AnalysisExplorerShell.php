@@ -1138,7 +1138,7 @@ final class AnalysisExplorerShell
             return;
         }
 
-        $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $config->presentation);
+        $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $config->presentation, $config->showsPercentOfSeries());
         $this->defaultChartType = $this->chartPresenter->defaultChartType($config->presentation);
         $this->hasChart = $this->chartPresenter->hasChart($this->result);
         $this->chartRowLimit = $config->presentation->chartRowLimit->value;
@@ -1163,7 +1163,7 @@ final class AnalysisExplorerShell
             return;
         }
 
-        $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $config->presentation);
+        $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $config->presentation, $config->showsPercentOfSeries());
         $this->defaultChartType = $this->chartPresenter->defaultChartType($config->presentation);
         $this->hasChart = $this->chartPresenter->hasChart($this->result);
         $this->chartRowLimit = $config->presentation->chartRowLimit->value;
@@ -1242,6 +1242,7 @@ final class AnalysisExplorerShell
             tableLayout: \is_string($submitted['tableLayout'] ?? null) ? $submitted['tableLayout'] : $formData->tableLayout,
             chartRowLimit: \is_string($submitted['chartRowLimit'] ?? null) ? $submitted['chartRowLimit'] : $formData->chartRowLimit,
             hospitalPopulation: \is_string($submitted['hospitalPopulation'] ?? null) ? $submitted['hospitalPopulation'] : $formData->hospitalPopulation,
+            referenceHospitals: \array_key_exists('referenceHospitals', $submitted) ? ExplorerEditFormData::normalizeReferenceHospitals($submitted['referenceHospitals']) : $formData->referenceHospitals,
             additionalTableMetrics: \array_key_exists('additionalTableMetrics', $submitted)
                 ? array_values(array_filter(
                     \is_array($submitted['additionalTableMetrics']) ? $submitted['additionalTableMetrics'] : [],

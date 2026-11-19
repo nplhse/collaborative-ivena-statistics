@@ -215,7 +215,7 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
 
         self::assertFalse($result->notFound);
         self::assertFalse($result->usedFallback);
-        self::assertSame(4, $result->state['schemaVersion'] ?? null);
+        self::assertSame(5, $result->state['schemaVersion'] ?? null);
         self::assertSame(['allocation_count'], $result->state['query']['metrics'] ?? null);
         self::assertSame('allocation_count', $result->state['query']['visualMetric'] ?? null);
         self::assertSame('time', $result->state['query']['rows']['dimension'] ?? null);

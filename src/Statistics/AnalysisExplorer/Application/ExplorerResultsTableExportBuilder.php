@@ -45,7 +45,9 @@ final readonly class ExplorerResultsTableExportBuilder
 
     private function buildFlatDocument(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): TabularExportDocument
     {
-        $showPercent = $viewConfig->showsPercentOfTotal();
+        // The reference comparison (#1346): the same group labels as the explorer and the share within each group.
+        $showsSeriesShare = $viewConfig->showsPercentOfSeries();
+        $showPercent = $viewConfig->showsPercentOfTotal() || $showsSeriesShare;
         $countMetric = $this->countMetricForPercent($result);
         $hasSeries = $result->hasSeries();
         $headers = [
@@ -54,11 +56,13 @@ final readonly class ExplorerResultsTableExportBuilder
         if ($hasSeries) {
             $headers[] = new TabularExportColumn(
                 'series',
-                $this->distributionSeriesAxisLabel($viewConfig, $result),
+                $viewConfig->hasReferenceComparison()
+                    ? $this->translator->trans('stats.analysis_explorer.reference_comparison.group', [], 'statistics')
+                    : $this->distributionSeriesAxisLabel($viewConfig, $result),
             );
         }
         foreach ($result->metricKeys as $metricKey) {
-            if ($showPercent && AnalysisMetricKey::PercentOfTotal === $metricKey) {
+            if ($showPercent && $metricKey->isShareDisplay()) {
                 continue;
             }
 
@@ -66,7 +70,7 @@ final readonly class ExplorerResultsTableExportBuilder
             if ($showPercent && $this->summabilityPolicy->supportsPercentShare($metricKey)) {
                 $headers[] = new TabularExportColumn(
                     $this->flatPercentColumnKey($metricKey, $countMetric),
-                    $this->translator->trans('stats.analysis_explorer.export.percent_of_total', [], 'statistics'),
+                    $this->translator->trans($showsSeriesShare ? 'stats.analysis_explorer.export.percent_of_series' : 'stats.analysis_explorer.export.percent_of_total', [], 'statistics'),
                 );
             }
         }
@@ -78,13 +82,15 @@ final readonly class ExplorerResultsTableExportBuilder
                 $cells[] = $row->seriesLabel ?? '';
             }
             foreach ($result->metricKeys as $metricKey) {
-                if ($showPercent && AnalysisMetricKey::PercentOfTotal === $metricKey) {
+                if ($showPercent && $metricKey->isShareDisplay()) {
                     continue;
                 }
 
                 $cells[] = $row->valueFor($metricKey);
                 if ($showPercent && $this->summabilityPolicy->supportsPercentShare($metricKey)) {
-                    $cells[] = $this->resolveFlatPercentShare($row, $metricKey, $result, $countMetric);
+                    $cells[] = $showsSeriesShare
+                        ? ($metricKey === $countMetric ? $row->valueFor(AnalysisMetricKey::PercentOfSeries) : null)
+                        : $this->resolveFlatPercentShare($row, $metricKey, $result, $countMetric);
                 }
             }
             $rows[] = $cells;
@@ -97,13 +103,14 @@ final readonly class ExplorerResultsTableExportBuilder
                 $footer[] = '';
             }
             foreach ($result->metricKeys as $metricKey) {
-                if ($showPercent && AnalysisMetricKey::PercentOfTotal === $metricKey) {
+                if ($showPercent && $metricKey->isShareDisplay()) {
                     continue;
                 }
 
                 $footer[] = $result->totalFor($metricKey);
                 if ($showPercent && $this->summabilityPolicy->supportsPercentShare($metricKey)) {
-                    $footer[] = 100.0;
+                    // Shares within each group add up per group; there is no share over all groups.
+                    $footer[] = $showsSeriesShare ? null : 100.0;
                 }
             }
             $footerRows[] = $footer;

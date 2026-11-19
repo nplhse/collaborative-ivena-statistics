@@ -1649,6 +1649,10 @@
         <source>stats.analysis_explorer.metric.percent_of_total</source>
         <target>Anteil am Gesamt</target>
       </trans-unit>
+      <trans-unit id="statsAexM01b" resname="stats.analysis_explorer.metric.percent_of_series">
+        <source>stats.analysis_explorer.metric.percent_of_series</source>
+        <target>Anteil innerhalb der Gruppe</target>
+      </trans-unit>
       <trans-unit id="statsAexM07" resname="stats.analysis_explorer.metric.pregnancy_rate">
         <source>stats.analysis_explorer.metric.pregnancy_rate</source>
         <target>Schwangerschaftsrate</target>
@@ -7811,6 +7815,42 @@
       <trans-unit id="StatsNav09De" resname="stats.nav.badge.beta">
         <source>stats.nav.badge.beta</source>
         <target>Beta</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefOthersDE" resname="stats.analysis_explorer.reference_comparison.others">
+        <source>stats.analysis_explorer.reference_comparison.others</source>
+        <target>Andere Kliniken im Scope</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefUnavailableDE" resname="stats.analysis_explorer.reference_comparison.unavailable">
+        <source>stats.analysis_explorer.reference_comparison.unavailable</source>
+        <target>Der Vergleich mit Referenzkliniken ist in dieser Ansicht nicht verfügbar.</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefGroupDE" resname="stats.analysis_explorer.reference_comparison.group">
+        <source>stats.analysis_explorer.reference_comparison.group</source>
+        <target>Gruppe</target>
+      </trans-unit>
+      <trans-unit id="statsAeExportPctSeriesDE" resname="stats.analysis_explorer.export.percent_of_series">
+        <source>stats.analysis_explorer.export.percent_of_series</source>
+        <target>Anteil innerhalb der Gruppe</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit0DE" resname="stats.analysis_explorer.edit.reference_hospitals">
+        <source>stats.analysis_explorer.edit.reference_hospitals</source>
+        <target>Referenzkliniken</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit1DE" resname="stats.analysis_explorer.edit.reference_hospitals_help">
+        <source>stats.analysis_explorer.edit.reference_hospitals_help</source>
+        <target>{count, plural, one {Vergleicht Ihre Klinik mit den anderen Kliniken im Scope.} other {Vergleicht bis zu {max} Ihrer Kliniken mit den anderen Kliniken im Scope.}}</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit2DE" resname="stats.analysis_explorer.edit.column_dimension_reference_help">
+        <source>stats.analysis_explorer.edit.column_dimension_reference_help</source>
+        <target>Beim Vergleich mit Referenzkliniken sind keine Spalten verfügbar: Die Gruppen nehmen diesen Platz ein.</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit5DE" resname="stats.analysis_explorer.edit.section.own_hospitals_comparison">
+        <source>stats.analysis_explorer.edit.section.own_hospitals_comparison</source>
+        <target>{count, plural, one {Meine Klinik im Vergleich} other {Meine Kliniken im Vergleich}}</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit3DE" resname="stats.analysis_explorer.edit.section.reference_comparison">
+        <source>stats.analysis_explorer.edit.section.reference_comparison</source>
+        <target>Mit den anderen Kliniken im Scope vergleichen</target>
       </trans-unit>
     </body>
   </file>

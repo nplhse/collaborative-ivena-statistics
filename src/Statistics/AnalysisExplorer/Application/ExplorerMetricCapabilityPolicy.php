@@ -37,6 +37,10 @@ final readonly class ExplorerMetricCapabilityPolicy
         return $available;
     }
 
+    /**
+     * Whether the "show percent" option is available: of the total, or within each series while the reference
+     * comparison is on (#1346). Only for count distributions, never for averages or rates.
+     */
     public function canShowPercentOfTotal(AnalysisViewConfig $config): bool
     {
         if (!\in_array($config->visualMetricKey, [AnalysisMetricKey::AllocationCount, AnalysisMetricKey::HospitalCount], true)) {
@@ -47,7 +51,10 @@ final readonly class ExplorerMetricCapabilityPolicy
             return false;
         }
 
-        return $this->isMetricAllowedForConfig(AnalysisMetricKey::PercentOfTotal, $config);
+        return $this->isMetricAllowedForConfig(
+            $config->hasReferenceComparison() ? AnalysisMetricKey::PercentOfSeries : AnalysisMetricKey::PercentOfTotal,
+            $config,
+        );
     }
 
     /**
@@ -80,15 +87,15 @@ final readonly class ExplorerMetricCapabilityPolicy
             return [$defaultMetric];
         }
 
-        if (\in_array(AnalysisMetricKey::PercentOfTotal, $normalized, true)
-            && !\in_array($defaultMetric, $normalized, true)) {
+        $hasShareDisplay = [] !== array_filter($normalized, static fn (AnalysisMetricKey $key): bool => $key->isShareDisplay());
+        if ($hasShareDisplay && !\in_array($defaultMetric, $normalized, true)) {
             array_unshift($normalized, $defaultMetric);
         }
 
-        if ($this->hasRateMetric($normalized) && \in_array(AnalysisMetricKey::PercentOfTotal, $normalized, true)) {
+        if ($this->hasRateMetric($normalized) && $hasShareDisplay) {
             $normalized = array_values(array_filter(
                 $normalized,
-                static fn (AnalysisMetricKey $key): bool => AnalysisMetricKey::PercentOfTotal !== $key,
+                static fn (AnalysisMetricKey $key): bool => !$key->isShareDisplay(),
             ));
         }
 
@@ -114,11 +121,16 @@ final readonly class ExplorerMetricCapabilityPolicy
             return $this->profileRegistry->isAllowedForConfig($config);
         }
 
-        if (AnalysisMetricKey::PercentOfTotal === $metricKey) {
+        if ($metricKey->isShareDisplay()) {
             $defaultMetric = AnalysisMetricKey::defaultFor($config->dataSourceKey);
+            if ($defaultMetric !== $config->visualMetricKey || $this->hasRateMetric($config->metricKeys)) {
+                return false;
+            }
 
-            return $defaultMetric === $config->visualMetricKey
-                && !$this->hasRateMetric($config->metricKeys);
+            // With the reference comparison (#1346) the share is taken within each series, never of the total.
+            return AnalysisMetricKey::PercentOfSeries === $metricKey
+                ? $config->hasReferenceComparison()
+                : !$config->hasReferenceComparison();
         }
 
         if (AnalysisMetricKey::defaultFor($config->dataSourceKey) === $metricKey) {

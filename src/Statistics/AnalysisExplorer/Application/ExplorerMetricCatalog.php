@@ -48,7 +48,7 @@ final class ExplorerMetricCatalog
         $enabledSet = match ($dataSourceKey) {
             AnalysisDataSourceKey::Allocations => array_flip(array_map(
                 static fn (AnalysisMetricKey $key): string => $key->value,
-                array_merge(AnalysisMetricKey::enabledAllocationsCatalog(), [AnalysisMetricKey::PercentOfTotal]),
+                array_merge(AnalysisMetricKey::enabledAllocationsCatalog(), [AnalysisMetricKey::PercentOfTotal, AnalysisMetricKey::PercentOfSeries]),
             )),
             AnalysisDataSourceKey::Hospitals => array_flip(array_map(
                 static fn (AnalysisMetricKey $key): string => $key->value,

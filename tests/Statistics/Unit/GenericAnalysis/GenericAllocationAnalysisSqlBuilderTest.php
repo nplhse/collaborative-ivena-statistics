@@ -10,11 +10,14 @@ use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\Mapping\AllocationStatsHospitalLocationProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
+use App\Statistics\GenericAnalysis\Domain\Exception\InvalidAnalysisConfigurationException;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionException;
+use App\Statistics\GenericAnalysis\Domain\ReferenceComparison;
 use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationAnalysisSqlBuilder;
 use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAnalysisScopeSqlFilter;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
+use Doctrine\DBAL\ArrayParameterType;
 use PHPUnit\Framework\TestCase;
 
 final class GenericAllocationAnalysisSqlBuilderTest extends TestCase
@@ -87,6 +90,34 @@ final class GenericAllocationAnalysisSqlBuilderTest extends TestCase
 
         self::assertStringContainsString('urgency_code AS series', $sql);
         self::assertStringContainsString('GROUP BY bucket, series', $sql);
+    }
+
+    public function testReferenceComparisonBindsTheHospitalIdsAsAnArray(): void
+    {
+        [$sql, $params, $types] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'indication',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            seriesDimensionKey: ReferenceComparison::DIMENSION_KEY,
+            referenceHospitalIds: [7, 3],
+        ));
+
+        self::assertStringContainsString("CASE WHEN hospital_id IN (:reference_hospitals) THEN hospital_id::text ELSE 'others' END AS series", $sql);
+        self::assertStringNotContainsString('7', $sql, 'The ids are bound, never part of the SQL text.');
+        self::assertSame([7, 3], $params['reference_hospitals']);
+        self::assertSame(ArrayParameterType::INTEGER, $types['reference_hospitals']);
+    }
+
+    public function testReferenceComparisonSeriesWithoutReferencesIsInvalid(): void
+    {
+        $this->expectException(InvalidAnalysisConfigurationException::class);
+
+        $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'indication',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            seriesDimensionKey: ReferenceComparison::DIMENSION_KEY,
+        ));
     }
 
     public function testHospitalCohortDimensionUsesCaseExpression(): void

@@ -40,7 +40,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         $state = $mapper->toStateArray($config);
         $restored = $mapper->viewConfigFromState($state, null);
 
-        self::assertSame(4, $state['schemaVersion']);
+        self::assertSame(5, $state['schemaVersion']);
         self::assertSame($config->title, $restored->title);
         self::assertSame($config->dataSourceKey, $restored->dataSourceKey);
         self::assertSame($config->metricKeys, $restored->metricKeys);
@@ -460,7 +460,8 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         } catch (InvalidExplorerConfigException) {
         }
 
-        $state['schemaVersion'] = 5;
+        // Version 5 (#1346) is the current one; a newer version is refused.
+        $state['schemaVersion'] = 6;
         $state['query']['metrics'] = ['allocation_count'];
         $state['query']['visualMetric'] = 'allocation_count';
 

@@ -56,6 +56,7 @@ final readonly class GenericAllocationDistributionSqlBuilder
             $query->periodBounds,
         );
         $types = $this->scopeSqlFilter->parameterTypes($params);
+        ReferenceGroupSqlParameters::apply($query, $primary, $series, $params, $types);
 
         $conditions[] = 'arrival_at IS NOT NULL';
         $conditions[] = 'created_at IS NOT NULL';

@@ -132,7 +132,7 @@ trait AnalysisExplorerTestSupport
 
     protected function createExplorerAllocationQueryMapper(): ExplorerAllocationQueryMapper
     {
-        return new ExplorerAllocationQueryMapper($this->createExplorerMetricKeyMapper());
+        return new ExplorerAllocationQueryMapper($this->createExplorerMetricKeyMapper(), new \App\Statistics\GenericAnalysis\Application\ReferenceComparisonModifier());
     }
 
     protected function createExplorerMetricProfileRegistry(): ExplorerMetricProfileRegistry

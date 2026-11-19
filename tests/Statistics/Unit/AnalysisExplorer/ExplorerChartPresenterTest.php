@@ -227,4 +227,43 @@ final class ExplorerChartPresenterTest extends TestCase
         self::assertSame([12.5, 8.0], $specs['bar']['values']);
         self::assertTrue($specs['bar']['percentScale']);
     }
+
+    public function testPlotsTheShareWithinEachGroupAsGroupedBars(): void
+    {
+        // Reference comparison (#1346): A has 3 of 4 cases in X, the others 4 of 8.
+        $presenter = $this->createExplorerChartPresenter();
+        $row = static fn (string $bucket, string $series, string $label, int $count, float $share): AnalysisResultRow => new AnalysisResultRow(
+            bucket: $bucket,
+            bucketLabel: $bucket,
+            seriesKey: $series,
+            seriesLabel: $label,
+            metricValues: ['allocation_count' => $count, 'percent_of_series' => $share],
+        );
+        $result = new AnalysisRunResult(
+            title: 'Reference comparison',
+            metricKeys: [AnalysisMetricKey::AllocationCount, AnalysisMetricKey::PercentOfSeries],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Indication),
+            columnAxis: null,
+            rows: [
+                $row('X', '7', 'Hospital A', 3, 75.0),
+                $row('X', 'others', 'Other hospitals in scope', 4, 50.0),
+                $row('Y', '7', 'Hospital A', 1, 25.0),
+                $row('Y', 'others', 'Other hospitals in scope', 4, 50.0),
+            ],
+            totals: new AnalysisTotals(grand: ['allocation_count' => 12]),
+        );
+
+        // Even a stacked bar chart groups the shares: they add up per group, not per bucket.
+        $spec = $presenter->buildSpecs($result, new PresentationConfig(chartType: ChartPresentationType::StackedBar), plotSeriesShare: true)['stacked_bar'];
+
+        self::assertTrue($spec['barGrouped']);
+        self::assertTrue($spec['seriesShare']);
+        self::assertArrayNotHasKey('stacked', $spec);
+        self::assertSame([[75.0, 25.0], [50.0, 50.0]], array_map(static fn (array $series): array => $series['data'], $spec['series']));
+
+        $counts = $presenter->buildSpecs($result, new PresentationConfig(chartType: ChartPresentationType::GroupedBar))['grouped_bar'];
+        self::assertArrayNotHasKey('seriesShare', $counts);
+        self::assertSame([[3.0, 1.0], [4.0, 4.0]], array_map(static fn (array $series): array => $series['data'], $counts['series']));
+    }
 }

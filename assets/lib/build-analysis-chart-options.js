@@ -268,7 +268,9 @@ export function buildAnalysisChartOptions(data, buildOptions = {}) {
 
     const multi = series.length > 1;
     const percentScale = data.percentScale === true || data.valueFormat === 'percent';
-    const barGrouped = data.barGrouped === true && !percentScale;
+    // Shares within each series (reference comparison, #1346) add up per series, not per bar: never stack them.
+    const seriesShare = data.seriesShare === true;
+    const barGrouped = data.barGrouped === true && (!percentScale || seriesShare);
     const categoryAxisTitle =
         typeof data.xAxisLabel === 'string' && data.xAxisLabel !== '' ? data.xAxisLabel : undefined;
     const valueAxisTitle =
@@ -315,7 +317,7 @@ export function buildAnalysisChartOptions(data, buildOptions = {}) {
         !isLine &&
         multi &&
         chartType === 'bar' &&
-        (data.stacked === true || percentScale || !barGrouped);
+        (data.stacked === true || (percentScale && !seriesShare) || !barGrouped);
 
     let maxVal = 0;
     if (stackedBars) {
