@@ -1649,6 +1649,10 @@
         <source>stats.analysis_explorer.metric.percent_of_total</source>
         <target>Anteil am Gesamt</target>
       </trans-unit>
+      <trans-unit id="statsAexM01b" resname="stats.analysis_explorer.metric.percent_of_series">
+        <source>stats.analysis_explorer.metric.percent_of_series</source>
+        <target>Anteil innerhalb der Gruppe</target>
+      </trans-unit>
       <trans-unit id="statsAexM07" resname="stats.analysis_explorer.metric.pregnancy_rate">
         <source>stats.analysis_explorer.metric.pregnancy_rate</source>
         <target>Schwangerschaftsrate</target>
