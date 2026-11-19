@@ -1,8 +1,14 @@
 <div class="ea-dashboard-kpi h-100 d-flex flex-column">
-    <h3 class="h5 text-secondary text-uppercase mb-3">{{ 'kpi.chart.title'|trans({}, 'admin') }}</h3>
+    <h3 class="h5 text-secondary text-uppercase mb-3">{{ 'kpi.chart.title'|trans({days: kpi_period}, 'admin') }}</h3>
     <div class="card flex-grow-1"
          data-controller="admin-kpi-chart"
          data-admin-kpi-chart-chart-value="{{ kpi_chart.toChartValue|json_encode|e('html_attr') }}"
+         data-admin-kpi-chart-labels-value="{{ {
+             imported: 'kpi.chart.imported'|trans({}, 'admin'),
+             rejected: 'kpi.chart.rejected'|trans({}, 'admin'),
+             rate: 'kpi.chart.rejection_rate'|trans({}, 'admin'),
+             records: 'kpi.chart.records'|trans({}, 'admin'),
+         }|json_encode|e('html_attr') }}"
          data-turbo-permanent>
         <div class="card-body">
             <div class="ea-kpi-chart-target" data-admin-kpi-chart-target="chart"></div>

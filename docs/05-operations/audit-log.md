@@ -192,6 +192,10 @@ feedback in quarantine) are not repeated.
 
 Sent reminders (`hospital.reminder_sent`) need no action and stay in the audit timeline only (#1173).
 
+Checked again for the dashboard rework (#1322), no intent added: failed encounter imports run through
+`ImportRunLifecycle` and already appear as `import.run.failed`; failed scheduled job runs are not audited and
+show in the health banner and on the job runs page; feedback in quarantine has its own menu entry.
+
 Each request and intent counts once. Every event links to its request (`/admin/audit/requests/{requestId}`);
 "Show all in the audit log" opens the unfiltered timeline. Records that no longer exist are shown by id.
 

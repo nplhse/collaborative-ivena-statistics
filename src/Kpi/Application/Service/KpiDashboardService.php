@@ -16,7 +16,8 @@ use Symfony\Component\Translation\TranslatableMessage;
 final readonly class KpiDashboardService
 {
     private const string TIMEZONE = 'Europe/Berlin';
-    private const int PERIOD_DAYS = 30;
+    /** Periods of the admin KPI row in days; the first one is the default. */
+    public const array PERIODS = [30, 90, 365];
 
     public function __construct(
         private KpiDailyRepository $kpiDailyRepository,
@@ -26,15 +27,21 @@ final readonly class KpiDashboardService
     }
 
     /**
-     * The KPI cards for the last 30 Berlin calendar days including today, each compared with the 30 days before.
-     * Definitions: docs/04-features/kpi/kpi-aggregation.md#admin-kpi-row.
+     * A period from the query string, falling back to the default for anything that is not one of PERIODS.
      */
-    public function getCards(): KpiCardsDto
+    public static function periodFromQuery(string $value): int
     {
-        $today = $this->clock->now()->setTimezone(new \DateTimeZone(self::TIMEZONE))->modify('today');
-        $from = $today->modify(sprintf('-%d days', self::PERIOD_DAYS - 1));
-        $toExclusive = $today->modify('+1 day');
-        $previousFrom = $from->modify(sprintf('-%d days', self::PERIOD_DAYS));
+        return \in_array((int) $value, self::PERIODS, true) ? (int) $value : self::PERIODS[0];
+    }
+
+    /**
+     * The KPI cards for the last `$days` Berlin calendar days including today, each compared with the `$days` days
+     * before. Definitions: docs/04-features/kpi/kpi-aggregation.md#admin-kpi-row.
+     */
+    public function getCards(int $days = self::PERIODS[0]): KpiCardsDto
+    {
+        [$from, $toExclusive] = $this->period($days);
+        $previousFrom = $from->modify(sprintf('-%d days', $days));
 
         $current = $this->kpiDailyRepository->globalTotalsInRange($from, $toExclusive);
         $previous = $this->kpiDailyRepository->globalTotalsInRange($previousFrom, $from);
@@ -100,7 +107,7 @@ final readonly class KpiDashboardService
     }
 
     /**
-     * @param array{importsCount: int, recordsTotal: int, recordsRejected: int} $totals
+     * @param array{recordsTotal: int, recordsRejected: int, ...} $totals
      */
     private function rejectionRate(array $totals): ?float
     {
@@ -111,32 +118,37 @@ final readonly class KpiDashboardService
         return KpiDailyRepository::calculateRejectionRate($totals['recordsRejected'], $totals['recordsTotal']);
     }
 
-    public function getChart(): KpiChartSeriesDto
+    /**
+     * Imported and rejected records and the rejection rate per day of the last `$days` days including today.
+     * The rate is null on days without rows read.
+     */
+    public function getChart(int $days = self::PERIODS[0]): KpiChartSeriesDto
     {
-        $series = $this->kpiDailyRepository->getDailySeriesLast30DaysGlobal();
+        [$from, $toExclusive] = $this->period($days);
         $indexed = [];
-        foreach ($series as $row) {
+        foreach ($this->kpiDailyRepository->getDailySeriesGlobal($from, $toExclusive) as $row) {
             $indexed[$row['date']->format('Y-m-d')] = $row;
         }
 
-        $labels = [];
-        $recordsPerDay = [];
-        $rejectionRatePerDay = [];
-        $tz = new \DateTimeZone(self::TIMEZONE);
-        $today = $this->clock->now()->setTimezone($tz)->modify('today');
-
-        for ($offset = 29; $offset >= 0; --$offset) {
-            $day = $today->modify(sprintf('-%d days', $offset));
-            $key = $day->format('Y-m-d');
-            $labels[] = $day->format('d.m.');
-            $row = $indexed[$key] ?? null;
-            $records = $row['recordsProcessed'] ?? 0;
-            $total = $row['recordsTotal'] ?? 0;
-            $rejected = $row['recordsRejected'] ?? 0;
-            $recordsPerDay[] = $records;
-            $rejectionRatePerDay[] = KpiDailyRepository::calculateRejectionRate($rejected, $total);
+        $labels = $imported = $rejected = $rates = [];
+        for ($day = $from; $day < $toExclusive; $day = $day->modify('+1 day')) {
+            $row = $indexed[$day->format('Y-m-d')] ?? ['recordsTotal' => 0, 'recordsRejected' => 0];
+            $labels[] = $day->format(365 === $days ? 'd.m.y' : 'd.m.');
+            $imported[] = $row['recordsTotal'] - $row['recordsRejected'];
+            $rejected[] = $row['recordsRejected'];
+            $rates[] = $this->rejectionRate($row);
         }
 
-        return new KpiChartSeriesDto($labels, $recordsPerDay, $rejectionRatePerDay);
+        return new KpiChartSeriesDto($labels, $imported, $rejected, $rates);
+    }
+
+    /**
+     * @return array{0: \DateTimeImmutable, 1: \DateTimeImmutable} first day and the day after the last
+     */
+    private function period(int $days): array
+    {
+        $today = $this->clock->now()->setTimezone(new \DateTimeZone(self::TIMEZONE))->modify('today');
+
+        return [$today->modify(sprintf('-%d days', $days - 1)), $today->modify('+1 day')];
     }
 }

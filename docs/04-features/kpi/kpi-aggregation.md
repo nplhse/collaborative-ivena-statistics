@@ -46,11 +46,13 @@ Messenger routing: `async_priority_low` (sync in `test`).
 
 ## Admin KPI row
 
-The admin dashboard (`/admin`) shows four cards. The section title names the period: the last 30 Berlin calendar
-days including today. Each card is compared with the 30 days before; this period ends with
-the day before the current period starts. The comparison line reads, for example, "+38.5 % vs. previous 30 days"
-and turns green or red depending on which direction is better. When there is nothing to compare with, it reads
-"No previous value to compare".
+The admin dashboard (`/admin`) shows four cards. A switch next to the section title selects the period: the last
+30 (default), 90 or 365 Berlin calendar days including today (`?period=30|90|365`; other values fall back to 30).
+Each card is compared with the period of the same length before it, which ends with the day before the current
+period starts. The comparison line reads, for example, "+38.5 % vs. previous 90 days" and turns green or red
+depending on which direction is better. When there is nothing to compare with, it reads
+"No previous value to compare". "Active users" always counts 30 days (raw rows are kept for 30 days only) and
+says so when another period is selected.
 
 | Card | Value | Secondary line | Change |
 |------|-------|----------------|--------|
@@ -59,8 +61,9 @@ and turns green or red depending on which direction is better. When there is not
 | Records imported | Rows read minus rows rejected, from final imports (global rows) | Rows read and number of imports | Relative change in percent, one decimal; none when the previous period has no imported records |
 | Rejection rate | Rows rejected / rows read × 100, two decimals; "–" when no rows were read | Rows rejected of rows read | Difference in percentage points; none when one of the periods has no rows; lower is better |
 
-- Below the cards, the usage trend shows DAU, WAU and MAU per day for the last 90 days, next to the daily imports
-  chart. Days without a counted value leave a gap; the line fills up as the nightly aggregation adds days.
+- Below the cards, the usage trend shows DAU, WAU and MAU per day for the last 90 days (independent of the
+  switch), next to the imports chart. The imports chart follows the switch: imported and rejected records per
+  day as stacked bars and the daily rejection rate as a line; a day without rows read has no rate. Days without a counted value leave a gap; the line fills up as the nightly aggregation adds days.
 - Users come from the usage analytics ([usage-analytics.md](../analytics/usage-analytics.md)), the other cards from
   the global or per-hospital `kpi_daily` rows (`KpiDailyRepository`). Days without a row count as zero.
 - Imports are counted on the day they were created, so a running import shows up after the next aggregation.

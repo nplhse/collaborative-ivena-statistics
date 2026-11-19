@@ -44,7 +44,7 @@ final class AdminDashboardTest extends WebTestCase
         self::assertStringNotContainsString('Review and respond to user feedback', $main);
         self::assertStringContainsString('Key metrics (last 30 days)', $text);
         self::assertStringNotContainsString('Recent failed imports', $text, 'failed imports are covered by the notifications card');
-        self::assertStringContainsString('Daily trend (last 30 days)', $text);
+        self::assertStringContainsString('Imports per day (last 30 days)', $text);
 
         $path = $client->getRequest()->getPathInfo();
         self::assertMatchesRegularExpression('#^/admin/?$#', $path);

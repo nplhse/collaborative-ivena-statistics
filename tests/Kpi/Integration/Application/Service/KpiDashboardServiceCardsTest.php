@@ -95,6 +95,37 @@ final class KpiDashboardServiceCardsTest extends DatabaseKernelTestCase
         self::assertNull($rejection->change?->delta);
     }
 
+    public function testA90DayPeriodIsComparedWithThe90DaysBefore(): void
+    {
+        // 90 days: 22.08.–19.11.2026, previous: 24.05.–21.08.2026.
+        $this->insertGlobal('2026-08-22', imports: 1, total: 100, rejected: 20);
+        $this->insertGlobal('2026-08-21', imports: 1, total: 50, rejected: 0);
+        $this->insertGlobal('2026-05-23', imports: 9, total: 999, rejected: 999); // before both periods
+
+        [, $records, $rejection] = self::getContainer()->get(KpiDashboardService::class)->getCards(90)->cards;
+
+        self::assertSame(80, $records->value);
+        self::assertEquals(new KpiChangeDto(60.0, KpiChangeDto::UNIT_PERCENT), $records->change, '(80 − 50) / 50');
+        self::assertSame(20.0, $rejection->value);
+        self::assertEquals(new KpiChangeDto(20.0, KpiChangeDto::UNIT_POINTS, lowerIsBetter: true), $rejection->change, '20 − 0');
+    }
+
+    public function testChartHasOneEntryPerDayWithImportedRejectedAndRate(): void
+    {
+        $this->insertGlobal('2026-11-19', imports: 2, total: 300, rejected: 30);
+        $this->insertGlobal('2026-11-17', imports: 1, total: 10, rejected: 0);
+        $this->insertGlobal('2026-10-20', imports: 1, total: 100, rejected: 100); // before the 30 days
+
+        $chart = self::getContainer()->get(KpiDashboardService::class)->getChart(30);
+
+        self::assertCount(30, $chart->labels);
+        self::assertSame(['21.10.', '19.11.'], [$chart->labels[0], $chart->labels[29]]);
+        self::assertSame([10, 0, 270], \array_slice($chart->importedPerDay, 27));
+        self::assertSame([0, 0, 30], \array_slice($chart->rejectedPerDay, 27));
+        self::assertSame([0.0, null, 10.0], \array_slice($chart->rejectionRatePerDay, 27), 'no rows read on 18.11., no rate');
+        self::assertCount(365, self::getContainer()->get(KpiDashboardService::class)->getChart(365)->labels);
+    }
+
     /**
      * @return list<KpiCardDto>
      */

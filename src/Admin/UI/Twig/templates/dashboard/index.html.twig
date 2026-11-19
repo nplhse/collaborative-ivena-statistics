@@ -5,7 +5,17 @@
 {% block main %}
     {{ include('@Admin/dashboard/_ops_health.html.twig') }}
 
-    <h3 class="h5 text-secondary text-uppercase mb-3">{{ 'kpi.section.title'|trans({}, 'admin') }}</h3>
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <h3 class="h5 text-secondary text-uppercase mb-0">{{ 'kpi.section.title'|trans({days: kpi_period}, 'admin') }}</h3>
+        <nav class="btn-group btn-group-sm" role="group" aria-label="{{ 'kpi.period.label'|trans({}, 'admin') }}" data-kpi-period-switch>
+            {% for days in kpi_periods %}
+                <a href="{{ ea_url().set('period', days) }}"
+                   class="btn {{ days == kpi_period ? 'btn-primary' : 'btn-secondary' }}"
+                   {% if days == kpi_period %}aria-current="true"{% endif %}
+                   data-kpi-period="{{ days }}">{{ 'kpi.period.days'|trans({days: days}, 'admin') }}</a>
+            {% endfor %}
+        </nav>
+    </div>
     {{ include('@Admin/dashboard/_kpi_cards.html.twig') }}
     <div class="row">
         <div class="col-12 col-xl-6 mb-4">{{ include('@Admin/dashboard/_usage_trend.html.twig') }}</div>
