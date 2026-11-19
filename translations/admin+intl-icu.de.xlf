@@ -485,22 +485,6 @@
         <source>ops.section.title</source>
         <target>Betrieb</target>
       </trans-unit>
-      <trans-unit id="opsCard01de" resname="ops.card.failed_messages">
-        <source>ops.card.failed_messages</source>
-        <target>Fehlgeschlagene Nachrichten</target>
-      </trans-unit>
-      <trans-unit id="opsCard02de" resname="ops.card.queue_high">
-        <source>ops.card.queue_high</source>
-        <target>High-Priority-Warteschlange</target>
-      </trans-unit>
-      <trans-unit id="opsCard03de" resname="ops.card.queue_low">
-        <source>ops.card.queue_low</source>
-        <target>Low-Priority-Warteschlange</target>
-      </trans-unit>
-      <trans-unit id="opsCard06de" resname="ops.card.reminders_this_month">
-        <source>ops.card.reminders_this_month</source>
-        <target>Erinnerungen diesen Monat</target>
-      </trans-unit>
       <trans-unit id="opsHlth01de" resname="ops.health.status.healthy">
         <source>ops.health.status.healthy</source>
         <target>Fehlerfrei</target>
@@ -832,6 +816,22 @@
       <trans-unit id="opsMsg19de" resname="ops.messenger.kpi.failed_queue">
         <source>ops.messenger.kpi.failed_queue</source>
         <target>{count, plural, =0 {Fehler-Queue leer} =1 {Eine Nachricht in der Fehler-Queue} other {# Nachrichten in der Fehler-Queue}}</target>
+      </trans-unit>
+      <trans-unit id="opsMsgCard01de" resname="ops.messenger.card.title">
+        <source>ops.messenger.card.title</source>
+        <target>Messenger</target>
+      </trans-unit>
+      <trans-unit id="opsMsgCard02de" resname="ops.messenger.card.details">
+        <source>ops.messenger.card.details</source>
+        <target>Details</target>
+      </trans-unit>
+      <trans-unit id="opsMsgCard03de" resname="ops.messenger.card.pending">
+        <source>ops.messenger.card.pending</source>
+        <target>{count, plural, =1 {Nachricht bereit zur Verarbeitung} other {Nachrichten bereit zur Verarbeitung}}</target>
+      </trans-unit>
+      <trans-unit id="opsMsgCard04de" resname="ops.messenger.card.oldest">
+        <source>ops.messenger.card.oldest</source>
+        <target>Älteste wartet seit {date}</target>
       </trans-unit>
       <trans-unit id="opsMsg20de" resname="ops.messenger.section.transports">
         <source>ops.messenger.section.transports</source>
@@ -1725,14 +1725,6 @@
         <source>usage_analytics.menu.accesses</source>
         <target>Zugriffe</target>
       </trans-unit>
-      <trans-unit id="uaNav08de" resname="usage_analytics.tile.overview">
-        <source>usage_analytics.tile.overview</source>
-        <target>Anfragen, Wiederkehr, Bereiche</target>
-      </trans-unit>
-      <trans-unit id="uaNav09de" resname="usage_analytics.tile.accesses">
-        <source>usage_analytics.tile.accesses</source>
-        <target>Seitenaufrufe pro Monat und Jahr seit Zählbeginn</target>
-      </trans-unit>
       <trans-unit id="uaOv01de" resname="usage_analytics.overview.requests_today">
         <source>usage_analytics.overview.requests_today</source>
         <target>Anfragen heute</target>
@@ -2213,10 +2205,6 @@
         <source>audit.timeline.new_more</source>
         <target>Mehr als %count% neue Einträge – anzeigen</target>
       </trans-unit>
-      <trans-unit id="auditTile01de" resname="audit.timeline.tile">
-        <source>audit.timeline.tile</source>
-        <target>Aktivitäten in der Anwendung, gruppiert nach Anfrage und Sitzung</target>
-      </trans-unit>
       <trans-unit id="admCrudFieldDescriptionDe" resname="admin.field.description">
         <source>admin.field.description</source>
         <target>Beschreibung</target>
@@ -2664,10 +2652,6 @@
       <trans-unit id="navInsp01de" resname="navigation.inspector.menu_label">
         <source>navigation.inspector.menu_label</source>
         <target>Navigationsbaum</target>
-      </trans-unit>
-      <trans-unit id="navInsp02de" resname="navigation.inspector.tile">
-        <source>navigation.inspector.tile</source>
-        <target>Menüs, Berechtigungen und Routen-Zuordnung prüfen</target>
       </trans-unit>
       <trans-unit id="navInsp03de" resname="navigation.inspector.title">
         <source>navigation.inspector.title</source>

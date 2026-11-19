@@ -23,7 +23,7 @@ final class AdminDashboardTest extends WebTestCase
 {
     use Factories;
 
-    public function testDashboardShowsTilesWithoutRedirectingToUserCrud(): void
+    public function testDashboardRendersWithoutLinkTilesOrRedirectingToUserCrud(): void
     {
         $client = self::createClient();
 
@@ -39,10 +39,9 @@ final class AdminDashboardTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         $text = $client->getCrawler()->text();
-        self::assertStringContainsString('Users', $text);
-        self::assertStringContainsString('Pages', $text);
-        self::assertStringContainsString('Feedback', $text);
-        self::assertStringContainsString('Reference data and allocations', $text);
+        $main = $client->getCrawler()->filter('#main')->text();
+        self::assertStringNotContainsString('Reference data and allocations', $main, 'the link tiles repeated the sidebar and are gone');
+        self::assertStringNotContainsString('Review and respond to user feedback', $main);
         self::assertStringContainsString('Key metrics (last 30 days)', $text);
         self::assertStringNotContainsString('Recent failed imports', $text, 'failed imports are covered by the notifications card');
         self::assertStringContainsString('Daily trend (last 30 days)', $text);

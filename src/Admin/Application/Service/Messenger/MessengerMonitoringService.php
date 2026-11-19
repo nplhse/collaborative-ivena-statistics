@@ -86,6 +86,16 @@ final readonly class MessengerMonitoringService
     }
 
     /**
+     * Live state of every queue right now: ready messages, messages waiting for a retry or delay, oldest ready one.
+     *
+     * @return array<string, array{pending: int, waiting: int, oldestPendingAt: \DateTimeImmutable|null}>
+     */
+    public function liveQueues(): array
+    {
+        return $this->repository->queues($this->clock->now());
+    }
+
+    /**
      * One point per hour, or per day (Europe/Berlin) for the 30-day period, from the start of the period to now.
      */
     private function history(\DateTimeImmutable $now, \DateTimeImmutable $since, MessengerMonitoringPeriod $period): MessengerHistoryDto
