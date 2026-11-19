@@ -7,6 +7,7 @@ namespace App\Content\UI\Http\DTO;
 use App\User\Application\Explore\ProjectActivityFilters;
 use App\User\Application\Explore\ProjectActivityPage;
 use App\User\Domain\Enum\UserActivityType;
+use Symfony\Component\Uid\Uuid;
 
 final readonly class ActivityTimelineQueryParametersDTO
 {
@@ -22,6 +23,9 @@ final readonly class ActivityTimelineQueryParametersDTO
 
     public ?string $cursor;
 
+    /** Public ID of a hospital: the feed on the hospital page (#488). Not a visible filter. */
+    public ?string $hospital;
+
     public function __construct(
         ?string $from = null,
         ?string $until = null,
@@ -29,6 +33,7 @@ final readonly class ActivityTimelineQueryParametersDTO
         ?string $user = null,
         ?string $search = null,
         ?string $cursor = null,
+        ?string $hospital = null,
     ) {
         $this->from = $this->normalizeDate($from);
         $this->until = $this->normalizeDate($until);
@@ -36,6 +41,8 @@ final readonly class ActivityTimelineQueryParametersDTO
         $this->user = $this->emptyStringToNull($user);
         $this->search = $this->emptyStringToNull($search);
         $this->cursor = $this->emptyStringToNull($cursor);
+        $hospital = $this->emptyStringToNull($hospital);
+        $this->hospital = null !== $hospital && Uuid::isValid($hospital) ? $hospital : null;
     }
 
     public function hasActiveFilters(): bool
@@ -59,6 +66,7 @@ final readonly class ActivityTimelineQueryParametersDTO
                 'type' => $this->type,
                 'user' => $this->user,
                 'search' => $this->search,
+                'hospital' => $this->hospital,
             ],
             static fn (?string $value): bool => null !== $value && '' !== $value,
         );
@@ -77,6 +85,7 @@ final readonly class ActivityTimelineQueryParametersDTO
             type: $type,
             username: $this->user,
             search: $this->search,
+            hospitalPublicId: $this->hospital,
         );
     }
 

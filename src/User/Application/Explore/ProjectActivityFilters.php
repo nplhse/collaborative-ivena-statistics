@@ -14,6 +14,8 @@ final readonly class ProjectActivityFilters
         public ?UserActivityType $type = null,
         public ?string $username = null,
         public ?string $search = null,
+        /** Only activities of this hospital (metadata `hospitalPublicId`), #488. */
+        public ?string $hospitalPublicId = null,
     ) {
     }
 }

@@ -1493,6 +1493,10 @@
         <source>hospital.access_summary.manage</source>
         <target>Zugriff verwalten</target>
       </trans-unit>
+      <trans-unit id="ttlHospActivityDe" resname="title.hospital.activity">
+        <source>title.hospital.activity</source>
+        <target>Aktivität</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
