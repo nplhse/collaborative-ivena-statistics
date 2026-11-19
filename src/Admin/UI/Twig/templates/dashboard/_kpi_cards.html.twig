@@ -1,27 +1,26 @@
 <div class="ea-dashboard-kpi mb-4">
     <div class="row">
+        {{ include('@Admin/dashboard/_kpi_card.html.twig', {
+            key: 'active_users',
+            label: 'kpi.card.active_users'|trans({}, 'admin'),
+            icon: 'fas fa-users',
+            value: kpi_users.mau,
+            is_percent: false,
+            detail: 'kpi.card.active_users.detail'|trans({dau: kpi_users.dau, wau: kpi_users.wau}, 'admin'),
+            change: null,
+            url: kpi_users_url,
+        }) }}
         {% for card in kpi_cards.cards %}
-            <div class="col-12 col-sm-6 col-xl-3 mb-3 ea-kpi-card">
-                {% if card.detailUrl %}
-                    <a href="{{ card.detailUrl }}" class="text-decoration-none text-body d-block h-100">
-                {% endif %}
-                <div class="card h-100">
-                    <div class="card-body d-flex flex-column">
-                        <div class="d-flex align-items-start justify-content-between mb-2">
-                            <div class="d-flex align-items-center gap-2">
-                                {% if card.icon %}
-                                    <i class="{{ card.icon }} fa-lg text-secondary" aria-hidden="true"></i>
-                                {% endif %}
-                                <span class="text-secondary small mb-0">{{ card.label|trans }}</span>
-                            </div>
-                        </div>
-                        <p class="ea-kpi-value mb-0">{{ card.value }}</p>
-                    </div>
-                </div>
-                {% if card.detailUrl %}
-                    </a>
-                {% endif %}
-            </div>
+            {{ include('@Admin/dashboard/_kpi_card.html.twig', {
+                key: card.label.message|replace({'kpi.card.': ''}),
+                label: card.label|trans,
+                icon: card.icon,
+                value: card.value,
+                is_percent: card.isPercent,
+                detail: card.detail ? card.detail|trans : null,
+                change: card.change,
+                url: card.detailUrl,
+            }) }}
         {% endfor %}
     </div>
 </div>

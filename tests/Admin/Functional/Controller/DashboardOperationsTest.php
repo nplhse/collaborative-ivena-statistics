@@ -59,6 +59,15 @@ final class DashboardOperationsTest extends WebTestCase
         self::assertNotFalse($kpiPosition);
         self::assertLessThan($kpiPosition, $healthPosition);
 
+        self::assertSame(
+            ['active_users', 'active_hospitals', 'records_imported', 'rejection_rate'],
+            $crawler->filter('[data-kpi-card]')->each(static fn (Crawler $card): string => (string) $card->attr('data-kpi-card')),
+        );
+        self::assertCount(1, $crawler->filter('[data-kpi-card="active_users"] a[href*="/admin/operations/usage-analytics/overview"]'));
+        self::assertSame('of 0 participating hospitals', $crawler->filter('[data-kpi-card="active_hospitals"] [data-kpi-detail]')->text());
+        self::assertSame('±0 vs. previous 30 days', $crawler->filter('[data-kpi-card="active_hospitals"] [data-kpi-change]')->text());
+        self::assertSame('–', $crawler->filter('[data-kpi-card="rejection_rate"] [data-kpi-value]')->text(), 'no rows, no rate');
+        self::assertSame('No previous value to compare', $crawler->filter('[data-kpi-card="records_imported"] [data-kpi-change]')->text());
         self::assertCount(1, $crawler->filter('[data-controller="admin-kpi-chart"]'));
         self::assertCount(0, $crawler->filter('[data-controller="admin-ops-chart"]'));
         self::assertCount(1, $crawler->filter('.ea-storage-card'));

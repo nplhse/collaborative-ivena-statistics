@@ -325,13 +325,41 @@
         <source>kpi.card.active_hospitals</source>
         <target>Aktive Krankenhäuser</target>
       </trans-unit>
-      <trans-unit id="kpi003" resname="kpi.card.imports">
-        <source>kpi.card.imports</source>
-        <target>Importe</target>
+      <trans-unit id="kpiRow01de" resname="kpi.card.active_users">
+        <source>kpi.card.active_users</source>
+        <target>Aktive Nutzer</target>
       </trans-unit>
-      <trans-unit id="kpi004" resname="kpi.card.records_processed">
-        <source>kpi.card.records_processed</source>
-        <target>Verarbeitete Datensätze</target>
+      <trans-unit id="kpiRow02de" resname="kpi.card.active_users.detail">
+        <source>kpi.card.active_users.detail</source>
+        <target>Heute {dau, number} · letzte 7 Tage {wau, number}</target>
+      </trans-unit>
+      <trans-unit id="kpiRow03de" resname="kpi.card.active_hospitals.detail">
+        <source>kpi.card.active_hospitals.detail</source>
+        <target>von {participating, number} teilnehmenden Krankenhäusern</target>
+      </trans-unit>
+      <trans-unit id="kpiRow04de" resname="kpi.card.records_imported">
+        <source>kpi.card.records_imported</source>
+        <target>Importierte Datensätze</target>
+      </trans-unit>
+      <trans-unit id="kpiRow05de" resname="kpi.card.records_imported.detail">
+        <source>kpi.card.records_imported.detail</source>
+        <target>{total, number} Zeilen gelesen in {imports, plural, =1 {einem Import} other {# Importen}}</target>
+      </trans-unit>
+      <trans-unit id="kpiRow06de" resname="kpi.card.rejection_rate.detail">
+        <source>kpi.card.rejection_rate.detail</source>
+        <target>{rejected, number} von {total, number} Zeilen zurückgewiesen</target>
+      </trans-unit>
+      <trans-unit id="kpiRow07de" resname="kpi.change.previous_period">
+        <source>kpi.change.previous_period</source>
+        <target>ggü. den 30 Tagen davor</target>
+      </trans-unit>
+      <trans-unit id="kpiRow08de" resname="kpi.change.unavailable">
+        <source>kpi.change.unavailable</source>
+        <target>Kein Vergleichswert</target>
+      </trans-unit>
+      <trans-unit id="kpiRow09de" resname="kpi.change.unit.points">
+        <source>kpi.change.unit.points</source>
+        <target>%-Punkte</target>
       </trans-unit>
       <trans-unit id="kpi005" resname="kpi.card.rejection_rate">
         <source>kpi.card.rejection_rate</source>
