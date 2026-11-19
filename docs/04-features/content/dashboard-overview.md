@@ -87,10 +87,20 @@ The dedicated timeline (`app_activity_timeline`, `ROLE_USER`) reuses the same qu
 | `user` | exact, case-insensitive username |
 | `search` | `LIKE` on username and display name plus JSON `title` / `postTitle` / `excerpt` / `hospitalName` (not slugs or IDs) |
 | `cursor` | keyset pagination on `/activity/feed` |
+| `hospital` | public ID (UUID) of a hospital: only activities whose metadata `hospitalPublicId` matches, with the types of `ProjectActivityPage::hospitalFeedTypes()` (#488). Used by the hospital page, not shown as a filter on `/activity`; invalid values are ignored |
 
 Further pages use keyset pagination (`occurred_at DESC, id DESC`, cursor `occurredAt` + `id`) and load when the next Turbo Frame enters the viewport (`loading="lazy"`). A fallback link remains for clients without Turbo. Filter query parameters are preserved on that request.
 
 Index: `idx_user_activity_project_feed` on `(occurred_at DESC, id DESC)`.
+
+### Hospital activity
+
+The hospital detail page (`/explore/hospital/{publicId}`, `ROLE_PARTICIPANT`) shows an **Activity** card in the main column (#488). It lazy-loads `/activity/feed?hospital={publicId}` into the `activity-timeline` Turbo Frame, so items, timestamps, avatars, links and further pages are the same as on `/activity`.
+
+- **Population:** `user_activity` rows whose metadata `hospitalPublicId` is this hospital, of the types `first_import`, `import_milestone`, `hospital_associated`, `hospital_disassociated`, `hospital_owner_granted` and `hospital_owner_revoked`. Unlike the project feed, removed access and ownership are included; the same rows are already visible to signed-in users on the actors' profiles. Disabled users are omitted, as in every feed.
+- **Not included:** single imports (the projection only knows each user's import milestones; imports stay in the import list), configuration changes, audit log entries. Nothing is derived from other tables.
+- The items leave out the hospital name, which is the page itself. Without activity the card shows the shared `EmptyState`.
+- The filter is a `JSON_GET_TEXT(metadata, 'hospitalPublicId')` comparison without its own index; `user_activity` holds a few rows per user.
 
 Privacy: all `ROLE_USER` viewers see the feed. Each item shows the actor's [`UserAvatar`](../../03-development/twig-components.md#useravatar) and display name (username as fallback and tooltip); the activity type is a small icon before the action text. Profile and hospital links render only for `ROLE_PARTICIPANT`. Failures in the activity endpoints are logged and replaced with a compact error state; the rest of the dashboard remains usable.
 

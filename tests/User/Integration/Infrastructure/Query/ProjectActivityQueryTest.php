@@ -378,6 +378,49 @@ final class ProjectActivityQueryTest extends DatabaseKernelTestCase
         self::assertSame('Future Clinic', $page->items[0]->hospitalName);
     }
 
+    public function testHospitalFilterShowsAllHospitalTypesOfThatHospitalOnly(): void
+    {
+        $user = UserFactory::createOne(['username' => 'hospital-feed']);
+        $userId = $user->getId();
+        self::assertNotNull($userId);
+        $here = ['hospitalName' => 'Klinik A', 'hospitalPublicId' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'];
+        $elsewhere = ['hospitalName' => 'Klinik B', 'hospitalPublicId' => 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'];
+
+        // Klinik A: six hospital activities, one per type, 1st to 6th of June.
+        $this->record($user, UserActivityType::HOSPITAL_ASSOCIATED, new \DateTimeImmutable('2026-06-01 08:00:00'), UserActivityDeduplicationKey::hospitalAssociated($userId, 1, 1), $here);
+        $this->record($user, UserActivityType::HOSPITAL_OWNER_GRANTED, new \DateTimeImmutable('2026-06-02 08:00:00'), UserActivityDeduplicationKey::hospitalOwnerGranted($userId, 1), $here);
+        $this->record($user, UserActivityType::FIRST_IMPORT, new \DateTimeImmutable('2026-06-03 08:00:00'), UserActivityDeduplicationKey::importMilestone($userId, 1), ['milestone' => 1] + $here);
+        $this->record($user, UserActivityType::IMPORT_MILESTONE, new \DateTimeImmutable('2026-06-04 08:00:00'), UserActivityDeduplicationKey::importMilestone($userId, 10), ['milestone' => 10] + $here);
+        $this->record($user, UserActivityType::HOSPITAL_OWNER_REVOKED, new \DateTimeImmutable('2026-06-05 08:00:00'), UserActivityDeduplicationKey::hospitalOwnerRevoked($userId, 1), $here);
+        $this->record($user, UserActivityType::HOSPITAL_DISASSOCIATED, new \DateTimeImmutable('2026-06-06 08:00:00'), UserActivityDeduplicationKey::hospitalDisassociated($userId, 1, 1), $here);
+        // Not Klinik A: another hospital, and an activity without a hospital.
+        $this->record($user, UserActivityType::HOSPITAL_ASSOCIATED, new \DateTimeImmutable('2026-06-07 08:00:00'), UserActivityDeduplicationKey::hospitalAssociated($userId, 2, 2), $elsewhere);
+        $this->record($user, UserActivityType::JOINED, new \DateTimeImmutable('2026-06-08 08:00:00'), UserActivityDeduplicationKey::joined($userId));
+
+        $query = self::getContainer()->get(ProjectActivityQuery::class);
+        $filters = new ProjectActivityFilters(hospitalPublicId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');
+
+        $first = $query->getPage(null, 4, $filters);
+        self::assertSame(
+            [ProfileActivityType::HOSPITAL_DISASSOCIATED, ProfileActivityType::HOSPITAL_OWNER_REVOKED, ProfileActivityType::IMPORT_MILESTONE, ProfileActivityType::FIRST_IMPORT],
+            array_map(static fn ($item): ProfileActivityType => $item->type, $first->items),
+        );
+        self::assertNotNull($first->nextCursor);
+
+        $second = $query->getPage($first->nextCursor, 4, $filters);
+        self::assertSame(
+            [ProfileActivityType::HOSPITAL_OWNER_GRANTED, ProfileActivityType::HOSPITAL_ASSOCIATED],
+            array_map(static fn ($item): ProfileActivityType => $item->type, $second->items),
+        );
+        self::assertNull($second->nextCursor);
+
+        // Without the hospital filter the project feed keeps hiding removed access and ownership.
+        $types = array_map(static fn ($item): ProfileActivityType => $item->type, $query->getPage(null, 20)->items);
+        self::assertNotContains(ProfileActivityType::HOSPITAL_DISASSOCIATED, $types);
+        self::assertNotContains(ProfileActivityType::HOSPITAL_OWNER_REVOKED, $types);
+        self::assertCount(6, $types);
+    }
+
     /**
      * @param array<string, scalar|null> $metadata
      */

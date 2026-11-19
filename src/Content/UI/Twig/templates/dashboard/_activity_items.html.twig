@@ -6,8 +6,12 @@
     post_published: 'tabler:file-text',
     comment_created: 'tabler:message-circle',
     hospital_associated: 'tabler:link',
+    hospital_disassociated: 'tabler:link-off',
     hospital_owner_granted: 'tabler:key',
+    hospital_owner_revoked: 'tabler:key-off',
 } %}
+{# On the hospital page every item belongs to that hospital, so its name is left out (#488). #}
+{% set hide_hospital = hide_hospital|default(false) %}
 
 {% for activity in activities %}
     <div
@@ -44,8 +48,12 @@
                         {{ 'label.user.activity.comment_created'|trans({}, 'user') }}
                     {% elseif activity.type.value == 'hospital_associated' %}
                         {{ 'label.user.activity.hospital_associated'|trans({}, 'user') }}
+                    {% elseif activity.type.value == 'hospital_disassociated' %}
+                        {{ 'label.user.activity.hospital_disassociated'|trans({}, 'user') }}
                     {% elseif activity.type.value == 'hospital_owner_granted' %}
                         {{ 'label.user.activity.hospital_owner_granted'|trans({}, 'user') }}
+                    {% elseif activity.type.value == 'hospital_owner_revoked' %}
+                        {{ 'label.user.activity.hospital_owner_revoked'|trans({}, 'user') }}
                     {% endif %}
                 </div>
                 {% if activity.type.value == 'post_published' and activity.postTitle %}
@@ -76,7 +84,7 @@
                     {% if activity.excerpt %}
                         <div class="text-secondary small text-truncate">{{ activity.excerpt }}</div>
                     {% endif %}
-                {% elseif activity.hospitalName %}
+                {% elseif activity.hospitalName and not hide_hospital %}
                     <div class="text-secondary">
                         {% if is_granted('ROLE_PARTICIPANT') and activity.hospitalPublicId %}
                             <a href="{{ path('app_explore_hospital_show', {publicId: activity.hospitalPublicId}) }}" target="_top">

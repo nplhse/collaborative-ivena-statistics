@@ -95,7 +95,9 @@ final readonly class ProjectActivityQuery implements ProjectActivityQueryInterfa
      */
     private function resolvedTypes(?ProjectActivityFilters $filters): array
     {
-        $types = ProjectActivityPage::feedTypes();
+        $types = null !== $filters?->hospitalPublicId
+            ? ProjectActivityPage::hospitalFeedTypes()
+            : ProjectActivityPage::feedTypes();
         if (!$filters instanceof ProjectActivityFilters || !$filters->type instanceof UserActivityType) {
             return $types;
         }
@@ -128,6 +130,11 @@ final readonly class ProjectActivityQuery implements ProjectActivityQueryInterfa
         if ($filters->untilExclusive instanceof \DateTimeImmutable) {
             $qb->andWhere('a.occurredAt < :untilExclusive')
                 ->setParameter('untilExclusive', $filters->untilExclusive, Types::DATETIME_IMMUTABLE);
+        }
+
+        if (null !== $filters->hospitalPublicId) {
+            $qb->andWhere("JSON_GET_TEXT(a.metadata, 'hospitalPublicId') = :hospitalPublicId")
+                ->setParameter('hospitalPublicId', $filters->hospitalPublicId);
         }
 
         $username = null !== $filters->username ? trim($filters->username) : '';

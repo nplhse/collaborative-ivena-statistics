@@ -1237,6 +1237,14 @@
         <source>page.editor.draft.badge</source>
         <target>Ungespeicherter Entwurf</target>
       </trans-unit>
+      <trans-unit id="actHospEmptyDe" resname="activity.hospital.empty">
+        <source>activity.hospital.empty</source>
+        <target>Noch keine Aktivität</target>
+      </trans-unit>
+      <trans-unit id="actHospEmptyDescDe" resname="activity.hospital.empty_description">
+        <source>activity.hospital.empty_description</source>
+        <target>Hier erscheinen Änderungen an Zugriff und Eigentümerschaft dieser Klinik sowie Import-Meilensteine.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

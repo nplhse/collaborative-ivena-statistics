@@ -1237,6 +1237,14 @@
         <source>page.editor.draft.badge</source>
         <target>Unsaved draft</target>
       </trans-unit>
+      <trans-unit id="actHospEmptyEn" resname="activity.hospital.empty">
+        <source>activity.hospital.empty</source>
+        <target>No activity yet</target>
+      </trans-unit>
+      <trans-unit id="actHospEmptyDescEn" resname="activity.hospital.empty_description">
+        <source>activity.hospital.empty_description</source>
+        <target>Changes to access and ownership of this hospital and import milestones appear here.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

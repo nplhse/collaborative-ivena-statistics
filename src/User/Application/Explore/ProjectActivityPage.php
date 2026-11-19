@@ -30,6 +30,24 @@ final readonly class ProjectActivityPage
     }
 
     /**
+     * Types that carry a hospital in their metadata (`hospitalPublicId`), shown on the hospital
+     * page (#488). Unlike the project feed this includes removed access and ownership.
+     *
+     * @return list<UserActivityType>
+     */
+    public static function hospitalFeedTypes(): array
+    {
+        return [
+            UserActivityType::FIRST_IMPORT,
+            UserActivityType::IMPORT_MILESTONE,
+            UserActivityType::HOSPITAL_ASSOCIATED,
+            UserActivityType::HOSPITAL_DISASSOCIATED,
+            UserActivityType::HOSPITAL_OWNER_GRANTED,
+            UserActivityType::HOSPITAL_OWNER_REVOKED,
+        ];
+    }
+
+    /**
      * @param list<ProjectActivity> $items
      */
     public function __construct(
