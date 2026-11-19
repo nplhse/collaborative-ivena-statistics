@@ -7,6 +7,7 @@ namespace App\Analytics\Application\Service;
 use App\Analytics\Application\DTO\AnalyticsAggregationResult;
 use App\Analytics\Domain\AnalyticsCalendar;
 use App\Analytics\Domain\Entity\AnalyticsAccessDaily;
+use App\Analytics\Domain\Entity\AnalyticsActiveUsersDaily;
 use App\Analytics\Domain\Entity\AnalyticsAggregationRun;
 use App\Analytics\Domain\Entity\AnalyticsRequestDaily;
 use App\Analytics\Domain\Entity\AnalyticsUniquesDaily;
@@ -22,6 +23,7 @@ final readonly class AnalyticsDailyAggregationService
         private AnalyticsDayAggregationQuery $aggregationQuery,
         private AnalyticsDailyAggregateStore $aggregateStore,
         private EntityManagerInterface $entityManager,
+        private AnalyticsRawRetentionService $retentionService,
     ) {
     }
 
@@ -52,6 +54,7 @@ final readonly class AnalyticsDailyAggregationService
             $rowsWritten += $this->persistUniques($calendarDate);
             $accessCounts = $this->aggregationQuery->fetchAccessCounts($calendarDate);
             $rowsWritten += $this->persistAccesses($calendarDate, $rawRequestCount, $accessCounts);
+            $this->recordActiveUsers($calendarDate);
 
             $this->entityManager->persist(new AnalyticsAggregationRun(
                 date: $calendarDate,
@@ -128,5 +131,32 @@ final readonly class AnalyticsDailyAggregationService
         ));
 
         return 1;
+    }
+
+    /**
+     * Rolling WAU/MAU of the day (#1322). A window counts only when it starts on or after the retention cutoff:
+     * older raw days may be deleted already, and counting them would understate the users. A window that cannot
+     * be counted keeps the value stored before, so re-aggregating older days never replaces a complete value.
+     */
+    private function recordActiveUsers(\DateTimeImmutable $date): void
+    {
+        $cutoff = AnalyticsCalendar::daysAgo($this->retentionService->retentionDays());
+        $count = fn (int $days): ?int => $date->modify(sprintf('-%d days', $days - 1)) >= $cutoff
+            ? $this->aggregationQuery->countDistinctUsers($date, $days)
+            : null;
+        $wau = $count(7);
+        $mau = $count(30);
+
+        $row = $this->entityManager->getRepository(AnalyticsActiveUsersDaily::class)->findOneBy(['date' => $date]);
+        if (null === $row) {
+            if (null === $wau && null === $mau) {
+                return;
+            }
+
+            $row = new AnalyticsActiveUsersDaily($date);
+            $this->entityManager->persist($row);
+        }
+
+        $row->record($wau, $mau);
     }
 }

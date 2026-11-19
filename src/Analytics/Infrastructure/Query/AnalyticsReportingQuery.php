@@ -224,6 +224,39 @@ final readonly class AnalyticsReportingQuery
     }
 
     /**
+     * Daily, weekly and monthly users per aggregated day from `$from` up to `$toExclusive` (Berlin dates), keyed by
+     * `Y-m-d`. DAU is 0 for an aggregated day without requests; WAU/MAU are null when their window could not be
+     * counted. Days without an aggregation run are missing.
+     *
+     * @return array<string, array{dau: int, wau: ?int, mau: ?int}>
+     */
+    public function activeUsersByDay(\DateTimeImmutable $from, \DateTimeImmutable $toExclusive): array
+    {
+        $rows = $this->connection->fetchAllAssociative(
+            <<<'SQL'
+                SELECT r.date AS date, COALESCE(u.dau, 0) AS dau, a.wau AS wau, a.mau AS mau
+                FROM analytics_aggregation_run r
+                LEFT JOIN analytics_uniques_daily u ON u.date = r.date
+                LEFT JOIN analytics_active_users_daily a ON a.date = r.date
+                WHERE r.date >= :from AND r.date < :to
+                ORDER BY r.date
+                SQL,
+            ['from' => $from->format('Y-m-d'), 'to' => $toExclusive->format('Y-m-d')],
+        );
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[(string) $row['date']] = [
+                'dau' => $this->toInt($row['dau']),
+                'wau' => null === $row['wau'] ? null : $this->toInt($row['wau']),
+                'mau' => null === $row['mau'] ? null : $this->toInt($row['mau']),
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
      * @return array{from: ParameterType, fromDate: ParameterType, today: ParameterType}
      */
     private function windowTypes(): array

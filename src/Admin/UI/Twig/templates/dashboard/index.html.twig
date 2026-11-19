@@ -7,7 +7,10 @@
 
     <h3 class="h5 text-secondary text-uppercase mb-3">{{ 'kpi.section.title'|trans({}, 'admin') }}</h3>
     {{ include('@Admin/dashboard/_kpi_cards.html.twig') }}
-    {{ include('@Admin/dashboard/_kpi_chart.html.twig') }}
+    <div class="row">
+        <div class="col-12 col-xl-6 mb-4">{{ include('@Admin/dashboard/_usage_trend.html.twig') }}</div>
+        <div class="col-12 col-xl-6 mb-4">{{ include('@Admin/dashboard/_kpi_chart.html.twig') }}</div>
+    </div>
 
     <h3 class="h5 text-secondary text-uppercase mb-3">{{ 'ops.section.title'|trans({}, 'admin') }}</h3>
     <div class="row ea-dashboard-ops">

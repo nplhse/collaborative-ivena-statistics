@@ -45,6 +45,7 @@ use App\Admin\UI\Http\Controller\User\UserCrudController;
 use App\Analytics\Application\Service\AccessTrendService;
 use App\Analytics\Application\Service\AnalyticsDashboardService;
 use App\Feedback\Infrastructure\Repository\FeedbackRepository;
+use App\Kpi\Application\DTO\KpiChangeDto;
 use App\Kpi\Application\Service\KpiDashboardService;
 use App\Storage\Application\View\StorageReportService;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
@@ -84,9 +85,15 @@ final class DashboardController extends AbstractDashboardController
     public function index(): Response
     {
         $health = $this->operationalDashboardService->getHealthStatus();
+        $activeUsers = $this->analyticsDashboardService->getActiveUsers();
 
         return $this->render('@Admin/dashboard/index.html.twig', [
-            'kpi_users' => $this->analyticsDashboardService->getActiveUsers(),
+            'kpi_users' => $activeUsers,
+            'kpi_users_change' => new KpiChangeDto(
+                null === $activeUsers['previousMau'] ? null : KpiDashboardService::percentChange($activeUsers['mau'], $activeUsers['previousMau']),
+                KpiChangeDto::UNIT_PERCENT,
+            ),
+            'kpi_usage_trend' => $this->analyticsDashboardService->getUsageTrend(),
             'kpi_users_url' => $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_usage_analytics_overview')->generateUrl(),
             'kpi_cards' => $this->kpiDashboardService->getCards(),
             'kpi_chart' => $this->kpiDashboardService->getChart(),

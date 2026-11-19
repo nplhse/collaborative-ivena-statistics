@@ -40,6 +40,7 @@ Only **completed** days are aggregated by the scheduler (yesterday and catch-up)
 | `analytics_request_daily` | date + area + route + auth + role | request counts |
 | `analytics_uniques_daily` | date | daily distinct users/visitors/sessions (not summable across days) |
 | `analytics_access_daily` | date + auth | counted accesses (page views, [definition](usage-analytics.md#counted-accesses)); only for counted days, see below |
+| `analytics_active_users_daily` | date | rolling WAU (7 days) and MAU (30 days) ending with the day; see [below](#rolling-weekly-and-monthly-users) |
 
 ### Counted accesses per day
 
@@ -59,6 +60,24 @@ both counts are zero, so a day without rows is outside the counted period, not a
 The rows follow the same idempotency and retention rules as the other tables: rebuilt with the
 day while raw rows exist, kept unchanged once the raw rows are deleted, never deleted by retention.
 
+### Rolling weekly and monthly users
+
+`analytics_active_users_daily` stores, per day, the distinct users of the 7 days (WAU) and of the 30 days (MAU)
+ending with that day (#1322). Distinct users cannot be added up from daily counts, so both values are counted
+from the raw rows when the day is aggregated:
+
+- A window is counted only when it starts on or after the retention cutoff (today minus
+  `ANALYTICS_RAW_RETENTION_DAYS`). Older raw days may be deleted already, and counting without them would
+  understate the users. With the default of 30 days, the nightly run of yesterday counts both windows;
+  re-aggregating older days counts at most the WAU.
+- A window that cannot be counted is left as it is: a stored value is never replaced by an incomplete one, and
+  a day where neither window can be counted gets no row.
+- The rows are not part of the day's rebuild (`AnalyticsDailyAggregateStore::deleteByDate()`) and are never
+  deleted by retention.
+
+A day that the scheduler misses and catches up later gets no MAU, because its window starts before the cutoff
+by then. The usage trend shows such a day as a gap.
+
 ## What reporting uses
 
 Admin Usage Analytics views keep their existing 7-/30-day windows.
@@ -67,6 +86,8 @@ Admin Usage Analytics views keep their existing 7-/30-day windows.
 |--------|--------|
 | Request counts, feature areas, top routes, auth split | Aggregate tables for completed days with a run marker, plus raw rows for today and any unaggregated gaps |
 | DAU/WAU/MAU, sessions | Raw tables (not reconstructable from daily counts) |
+| Usage trend on the admin dashboard (90 days) | `analytics_uniques_daily` (DAU) and `analytics_active_users_daily` (WAU/MAU) for aggregated days, raw rows for today |
+| Previous MAU on the admin users card | `analytics_active_users_daily.mau` of the day 30 days ago |
 | Accesses page (total, years, months) | `analytics_access_daily` for days with rows, plus raw rows for days without rows when all their requests are classified (today, days not aggregated yet); never both for one day |
 
 Failed aggregation never deletes the corresponding raw day, so those metrics stay available until the day is successfully rolled up.

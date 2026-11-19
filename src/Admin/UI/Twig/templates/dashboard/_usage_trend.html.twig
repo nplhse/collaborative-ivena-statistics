@@ -1,0 +1,22 @@
+<div class="ea-dashboard-usage-trend h-100 d-flex flex-column">
+    <div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2 mb-3">
+        <h3 class="h5 text-secondary text-uppercase mb-0">{{ 'kpi.usage_trend.title'|trans({}, 'admin') }}</h3>
+        <a class="small" href="{{ kpi_users_url }}">{{ 'kpi.usage_trend.details'|trans({}, 'admin') }}</a>
+    </div>
+    <div class="card flex-grow-1"
+         data-controller="usage-trend-chart"
+         data-usage-trend-chart-chart-value="{{ kpi_usage_trend.toChartValue|json_encode|e('html_attr') }}"
+         data-usage-trend-chart-labels-value="{{ {
+             dau: 'kpi.usage_trend.dau'|trans({}, 'admin'),
+             wau: 'kpi.usage_trend.wau'|trans({}, 'admin'),
+             mau: 'kpi.usage_trend.mau'|trans({}, 'admin'),
+         }|json_encode|e('html_attr') }}"
+         data-turbo-permanent>
+        <div class="card-body">
+            <div class="ea-kpi-chart-target" data-usage-trend-chart-target="chart"></div>
+            {% if not kpi_usage_trend.hasMonthlyHistory %}
+                <p class="small text-secondary mb-0" data-usage-trend-hint>{{ 'kpi.usage_trend.history_hint'|trans({}, 'admin') }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
