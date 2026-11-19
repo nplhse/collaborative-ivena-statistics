@@ -749,6 +749,10 @@
         <source>validation.username.format</source>
         <target>Bitte nur Buchstaben und Zahlen verwenden. Punkt, Unterstrich und Bindestrich sind möglich, Leerzeichen nicht.</target>
       </trans-unit>
+      <trans-unit id="usrv002" resname="validation.username.digits_only">
+        <source>validation.username.digits_only</source>
+        <target>Bitte mindestens einen Buchstaben oder ein Zeichen verwenden. Benutzernamen nur aus Ziffern sind nicht erlaubt.</target>
+      </trans-unit>
       <trans-unit id="pagev013" resname="page.validation.key_unique">
         <source>page.validation.key_unique</source>
         <target>Dieser Seiten-Schlüssel ist bereits einer anderen Seite zugewiesen.</target>

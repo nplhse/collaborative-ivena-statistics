@@ -633,6 +633,18 @@ Lets other contexts add a quick action per hospital to the My Hospitals cards wi
 return actions only where the user may open the target, with a constant number of queries per page.
 Details: [my-hospitals.md](../04-features/allocation/my-hospitals.md#page).
 
+## Explore detail pages: open by ID
+
+**Not a registry:** an attribute on the controller method (#1354).
+
+**Attribute:** `App\Shared\UI\Http\Routing\OpensById(entity)`
+
+**Consumer:** `OpenObjectByIdController` (`/explore/{type}/{id}`, `app_explore_object_by_id`) through `OpensByIdTargets` (both in `src/Shared/UI/Http/Controller/`)
+
+**Implementations:** the Explore detail pages of allocation, assignment, department, dispatch area, hospital, indication, indication group, infection, MCI case, occasion, secondary transport, speciality, state and user.
+
+Administrators can open these pages by the internal numeric ID, for example `/explore/hospital/40`, and are redirected (302) to the canonical URL. A detail route takes part when its controller method has `#[OpensById(Entity::class)]` and its path is `/explore/{type}/{parameter}` with exactly one variable. The controller loads the entity by ID and fills the variable from the entity property of the same name (`publicId`, `username`). New detail pages only need the attribute and `<twig:AdminObjectId>` in the header ([Twig components](../03-development/twig-components.md#adminobjectid)); `OpenObjectByIdControllerTest` lists the expected pages. Who may use it: [permission model](permission-model.md#explore-collaboration).
+
 ## Related documentation
 
 - [../04-features/import/import-pipeline.md](../04-features/import/import-pipeline.md)

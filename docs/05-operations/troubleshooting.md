@@ -15,6 +15,8 @@ systemctl --user status messenger
 journalctl --user -u messenger -f
 ```
 
+Logs, Sentry events, the audit log and EasyAdmin name objects by their internal numeric ID. Administrators see that ID in the header of every Explore detail page and can open an object by it: `/explore/{type}/{id}`, for example `/explore/hospital/40` or `/explore/user/12`, redirects to the detail page (#1354).
+
 ## Common problems
 
 | Symptom | Likely cause | Quick fix |

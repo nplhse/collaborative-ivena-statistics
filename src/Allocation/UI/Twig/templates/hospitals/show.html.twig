@@ -32,6 +32,7 @@
             <div class="col">
                 <h1 id="hospital-name" class="fw-bold">{{ hospital.name }}</h1>
                 <div class="list-inline list-inline-dots text-secondary">
+                    <twig:AdminObjectId :id="hospital.id" />
                     <div class="list-inline-item">
                         <twig:ux:icon name="tabler:map" width="1em" height="1em" class="icon-text" />
                         {{ explore_entity_link(hospital.dispatchArea, {class: 'link-secondary'}) }}, {{ explore_entity_link(hospital.state, {class: 'link-secondary'}) }}

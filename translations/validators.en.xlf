@@ -749,6 +749,10 @@
         <source>validation.username.format</source>
         <target>Please use letters and numbers. Periods, underscores, and hyphens are fine, but spaces are not.</target>
       </trans-unit>
+      <trans-unit id="usrv002" resname="validation.username.digits_only">
+        <source>validation.username.digits_only</source>
+        <target>Please use at least one letter or symbol. Usernames made of digits only are not allowed.</target>
+      </trans-unit>
       <trans-unit id="pagev013" resname="page.validation.key_unique">
         <source>page.validation.key_unique</source>
         <target>This page key is already assigned to another page.</target>

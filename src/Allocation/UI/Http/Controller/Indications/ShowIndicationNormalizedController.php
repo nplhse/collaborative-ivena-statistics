@@ -12,6 +12,7 @@ use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogIndicationNormalizationQuery;
 use App\Allocation\Infrastructure\Security\Voter\IndicationRawReviewVoter;
+use App\Shared\UI\Http\Routing\OpensById;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +30,7 @@ final class ShowIndicationNormalizedController extends AbstractController
     ) {
     }
 
+    #[OpensById(IndicationNormalized::class)]
     #[Route(
         '/explore/indication/{publicId}',
         name: 'app_explore_indication_show',

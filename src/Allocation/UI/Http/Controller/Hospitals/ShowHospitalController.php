@@ -13,6 +13,7 @@ use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
 use App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository;
 use App\Allocation\Infrastructure\Security\Voter\HospitalVoter;
+use App\Shared\UI\Http\Routing\OpensById;
 use App\User\Domain\Entity\User;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,6 +33,7 @@ final class ShowHospitalController extends AbstractController
     ) {
     }
 
+    #[OpensById(Hospital::class)]
     #[Route(
         '/explore/hospital/{publicId}',
         name: 'app_explore_hospital_show',
