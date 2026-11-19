@@ -32,4 +32,17 @@ final readonly class AnalyticsDashboardService
             retention: $this->requestRepository->retentionSnapshot(),
         );
     }
+
+    /**
+     * Distinct users today (DAU), in the last 7 days (WAU) and in the last 30 days (MAU), Berlin calendar days
+     * including today; the same numbers as on the usage analytics overview.
+     *
+     * @return array{dau: int, wau: int, mau: int}
+     */
+    public function getActiveUsers(): array
+    {
+        $retention = $this->requestRepository->retentionSnapshot();
+
+        return ['dau' => $retention['dau'], 'wau' => $retention['wau'], 'mau' => $retention['mau']];
+    }
 }

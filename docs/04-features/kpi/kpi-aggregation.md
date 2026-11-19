@@ -44,6 +44,27 @@ php bin/console app:kpi:aggregate --days=30
 
 Messenger routing: `async_priority_low` (sync in `test`).
 
+## Admin KPI row
+
+The admin dashboard (`/admin`) shows four cards. The section title names the period: the last 30 Berlin calendar
+days including today. Each card except "Active users" is compared with the 30 days before; this period ends with
+the day before the current period starts. The comparison line reads, for example, "+38.5 % vs. previous 30 days"
+and turns green or red depending on which direction is better. When there is nothing to compare with, it reads
+"No previous value to compare".
+
+| Card | Value | Secondary line | Change |
+|------|-------|----------------|--------|
+| Active users | MAU: distinct users in the last 30 days | DAU (today) and WAU (last 7 days) | none yet; raw rows are kept for 30 days only |
+| Active hospitals | Hospitals that participate today and have a `kpi_daily` row with at least one successful import (completed or partial) in the period | Number of hospitals that participate today | Difference in hospitals; the previous period uses the same participating hospitals |
+| Records imported | Rows read minus rows rejected, from final imports (global rows) | Rows read and number of imports | Relative change in percent, one decimal; none when the previous period has no imported records |
+| Rejection rate | Rows rejected / rows read × 100, two decimals; "–" when no rows were read | Rows rejected of rows read | Difference in percentage points; none when one of the periods has no rows; lower is better |
+
+- Users come from the usage analytics ([usage-analytics.md](../analytics/usage-analytics.md)), the other cards from
+  the global or per-hospital `kpi_daily` rows (`KpiPeriodReaderInterface`, implemented by `KpiPeriodQuery`). Days without a row count as zero.
+- Imports are counted on the day they were created, so a running import shows up after the next aggregation.
+- Hospitals that do not participate can still import; they count towards "Records imported" and "Rejection rate",
+  but not towards "Active hospitals".
+
 ## Frontend
 
 Admin KPI dashboard uses entrypoint `admin-kpi` in `importmap.php`.

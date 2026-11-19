@@ -35,40 +35,6 @@ final class KpiDailyRepository extends ServiceEntityRepository
             ->execute();
     }
 
-    /**
-     * @return array{
-     *     importsCount: int,
-     *     recordsProcessed: int,
-     *     recordsRejected: int,
-     *     recordsTotal: int,
-     * }
-     */
-    public function sumLast30DaysGlobal(): array
-    {
-        $from = $this->dateDaysAgo(30);
-
-        /** @var array{importsCount: int|string|null, recordsProcessed: int|string|null, recordsRejected: int|string|null, recordsTotal: int|string|null}|null $row */
-        $row = $this->createQueryBuilder('k')
-            ->select(
-                'COALESCE(SUM(k.importsCount), 0) AS importsCount',
-                'COALESCE(SUM(k.recordsProcessed), 0) AS recordsProcessed',
-                'COALESCE(SUM(k.recordsRejected), 0) AS recordsRejected',
-                'COALESCE(SUM(k.recordsTotal), 0) AS recordsTotal',
-            )
-            ->where('k.hospital IS NULL')
-            ->andWhere('k.date >= :from')
-            ->setParameter('from', $from, Types::DATE_IMMUTABLE)
-            ->getQuery()
-            ->getOneOrNullResult();
-
-        return [
-            'importsCount' => (int) ($row['importsCount'] ?? 0),
-            'recordsProcessed' => (int) ($row['recordsProcessed'] ?? 0),
-            'recordsRejected' => (int) ($row['recordsRejected'] ?? 0),
-            'recordsTotal' => (int) ($row['recordsTotal'] ?? 0),
-        ];
-    }
-
     public function countActiveHospitalsLast30Days(): int
     {
         $from = $this->dateDaysAgo(30);

@@ -325,13 +325,41 @@
         <source>kpi.card.active_hospitals</source>
         <target>Active hospitals</target>
       </trans-unit>
-      <trans-unit id="kpi003" resname="kpi.card.imports">
-        <source>kpi.card.imports</source>
-        <target>Imports</target>
+      <trans-unit id="kpiRow01" resname="kpi.card.active_users">
+        <source>kpi.card.active_users</source>
+        <target>Active users</target>
       </trans-unit>
-      <trans-unit id="kpi004" resname="kpi.card.records_processed">
-        <source>kpi.card.records_processed</source>
-        <target>Records processed</target>
+      <trans-unit id="kpiRow02" resname="kpi.card.active_users.detail">
+        <source>kpi.card.active_users.detail</source>
+        <target>Today {dau, number} · last 7 days {wau, number}</target>
+      </trans-unit>
+      <trans-unit id="kpiRow03" resname="kpi.card.active_hospitals.detail">
+        <source>kpi.card.active_hospitals.detail</source>
+        <target>of {participating, number} participating hospitals</target>
+      </trans-unit>
+      <trans-unit id="kpiRow04" resname="kpi.card.records_imported">
+        <source>kpi.card.records_imported</source>
+        <target>Records imported</target>
+      </trans-unit>
+      <trans-unit id="kpiRow05" resname="kpi.card.records_imported.detail">
+        <source>kpi.card.records_imported.detail</source>
+        <target>{total, number} rows read in {imports, plural, =1 {one import} other {# imports}}</target>
+      </trans-unit>
+      <trans-unit id="kpiRow06" resname="kpi.card.rejection_rate.detail">
+        <source>kpi.card.rejection_rate.detail</source>
+        <target>{rejected, number} of {total, number} rows rejected</target>
+      </trans-unit>
+      <trans-unit id="kpiRow07" resname="kpi.change.previous_period">
+        <source>kpi.change.previous_period</source>
+        <target>vs. previous 30 days</target>
+      </trans-unit>
+      <trans-unit id="kpiRow08" resname="kpi.change.unavailable">
+        <source>kpi.change.unavailable</source>
+        <target>No previous value to compare</target>
+      </trans-unit>
+      <trans-unit id="kpiRow09" resname="kpi.change.unit.points">
+        <source>kpi.change.unit.points</source>
+        <target>pp</target>
       </trans-unit>
       <trans-unit id="kpi005" resname="kpi.card.rejection_rate">
         <source>kpi.card.rejection_rate</source>

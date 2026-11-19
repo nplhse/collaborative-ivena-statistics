@@ -86,6 +86,8 @@ final class DashboardController extends AbstractDashboardController
         $health = $this->operationalDashboardService->getHealthStatus();
 
         return $this->render('@Admin/dashboard/index.html.twig', [
+            'kpi_users' => $this->analyticsDashboardService->getActiveUsers(),
+            'kpi_users_url' => $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_usage_analytics_overview')->generateUrl(),
             'kpi_cards' => $this->kpiDashboardService->getCards(),
             'kpi_chart' => $this->kpiDashboardService->getChart(),
             'ops_messenger' => $this->operationalDashboardService->getMessengerStatus($health),
