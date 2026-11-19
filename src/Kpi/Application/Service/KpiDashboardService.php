@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Kpi\Application\Service;
 
 use App\Kpi\Application\Contract\AdminLinkGeneratorInterface;
-use App\Kpi\Application\Contract\KpiPeriodReaderInterface;
 use App\Kpi\Application\DTO\KpiCardDto;
 use App\Kpi\Application\DTO\KpiCardsDto;
 use App\Kpi\Application\DTO\KpiChangeDto;
@@ -23,7 +22,6 @@ final readonly class KpiDashboardService
         private KpiDailyRepository $kpiDailyRepository,
         private AdminLinkGeneratorInterface $adminLinkGenerator,
         private ClockInterface $clock,
-        private KpiPeriodReaderInterface $periodQuery,
     ) {
     }
 
@@ -38,10 +36,10 @@ final readonly class KpiDashboardService
         $toExclusive = $today->modify('+1 day');
         $previousFrom = $from->modify(sprintf('-%d days', self::PERIOD_DAYS));
 
-        $current = $this->periodQuery->globalTotals($from, $toExclusive);
-        $previous = $this->periodQuery->globalTotals($previousFrom, $from);
-        $activeHospitals = $this->periodQuery->countActiveParticipatingHospitals($from, $toExclusive);
-        $previousActiveHospitals = $this->periodQuery->countActiveParticipatingHospitals($previousFrom, $from);
+        $current = $this->kpiDailyRepository->globalTotalsInRange($from, $toExclusive);
+        $previous = $this->kpiDailyRepository->globalTotalsInRange($previousFrom, $from);
+        $activeHospitals = $this->kpiDailyRepository->countActiveParticipatingHospitalsInRange($from, $toExclusive);
+        $previousActiveHospitals = $this->kpiDailyRepository->countActiveParticipatingHospitalsInRange($previousFrom, $from);
 
         $imported = $current['recordsTotal'] - $current['recordsRejected'];
         $previousImported = $previous['recordsTotal'] - $previous['recordsRejected'];
@@ -55,7 +53,7 @@ final readonly class KpiDashboardService
                 detailUrl: $this->adminLinkGenerator->hospitalCrudIndexUrl(),
                 icon: 'fas fa-hospital',
                 detail: new TranslatableMessage('kpi.card.active_hospitals.detail', [
-                    'participating' => $this->periodQuery->countParticipatingHospitals(),
+                    'participating' => $this->kpiDailyRepository->countParticipatingHospitals(),
                 ], 'admin'),
                 change: new KpiChangeDto((float) ($activeHospitals - $previousActiveHospitals), KpiChangeDto::UNIT_COUNT),
             ),

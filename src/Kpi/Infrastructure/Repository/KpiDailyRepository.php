@@ -50,6 +50,59 @@ final class KpiDailyRepository extends ServiceEntityRepository
     }
 
     /**
+     * Totals of the global rows over a period of Berlin calendar days (`$toExclusive` is the first day after it);
+     * days without a row count as zero. Used by the admin KPI row.
+     *
+     * @return array{importsCount: int, recordsTotal: int, recordsRejected: int}
+     */
+    public function globalTotalsInRange(\DateTimeImmutable $from, \DateTimeImmutable $toExclusive): array
+    {
+        $row = $this->getEntityManager()->getConnection()->fetchAssociative(
+            <<<'SQL'
+                SELECT
+                    COALESCE(SUM(k.imports_count), 0) AS imports_count,
+                    COALESCE(SUM(k.records_total), 0) AS records_total,
+                    COALESCE(SUM(k.records_rejected), 0) AS records_rejected
+                FROM kpi_daily k
+                WHERE k.hospital_id IS NULL
+                  AND k.date >= :from
+                  AND k.date < :to
+                SQL,
+            ['from' => $from->format('Y-m-d'), 'to' => $toExclusive->format('Y-m-d')],
+        );
+
+        return [
+            'importsCount' => (int) ($row['imports_count'] ?? 0),
+            'recordsTotal' => (int) ($row['records_total'] ?? 0),
+            'recordsRejected' => (int) ($row['records_rejected'] ?? 0),
+        ];
+    }
+
+    /**
+     * Hospitals that participate today and had at least one successful import in the period.
+     */
+    public function countActiveParticipatingHospitalsInRange(\DateTimeImmutable $from, \DateTimeImmutable $toExclusive): int
+    {
+        return (int) $this->getEntityManager()->getConnection()->fetchOne(
+            <<<'SQL'
+                SELECT COUNT(DISTINCT k.hospital_id)
+                FROM kpi_daily k
+                INNER JOIN hospital h ON h.id = k.hospital_id
+                WHERE h.is_participating = true
+                  AND k.successful_imports_count > 0
+                  AND k.date >= :from
+                  AND k.date < :to
+                SQL,
+            ['from' => $from->format('Y-m-d'), 'to' => $toExclusive->format('Y-m-d')],
+        );
+    }
+
+    public function countParticipatingHospitals(): int
+    {
+        return (int) $this->getEntityManager()->getConnection()->fetchOne('SELECT COUNT(*) FROM hospital WHERE is_participating = true');
+    }
+
+    /**
      * @return list<array{date: \DateTimeImmutable, recordsProcessed: int, recordsRejected: int, recordsTotal: int}>
      */
     public function getDailySeriesLast30DaysGlobal(): array

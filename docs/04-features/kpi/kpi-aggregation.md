@@ -60,7 +60,7 @@ and turns green or red depending on which direction is better. When there is not
 | Rejection rate | Rows rejected / rows read × 100, two decimals; "–" when no rows were read | Rows rejected of rows read | Difference in percentage points; none when one of the periods has no rows; lower is better |
 
 - Users come from the usage analytics ([usage-analytics.md](../analytics/usage-analytics.md)), the other cards from
-  the global or per-hospital `kpi_daily` rows (`KpiPeriodReaderInterface`, implemented by `KpiPeriodQuery`). Days without a row count as zero.
+  the global or per-hospital `kpi_daily` rows (`KpiDailyRepository`). Days without a row count as zero.
 - Imports are counted on the day they were created, so a running import shows up after the next aggregation.
 - Hospitals that do not participate can still import; they count towards "Records imported" and "Rejection rate",
   but not towards "Active hospitals".
