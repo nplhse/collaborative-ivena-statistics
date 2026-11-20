@@ -139,6 +139,8 @@ final class EncounterAllocationListTest extends WebTestCase
         $this->list('?encounter=without');
 
         self::assertSelectorTextContains('.alert .badge', 'Linked encounter: Without linked encounter');
+        // The drawer section is named after the data, the select after the filter.
+        self::assertSelectorTextContains('[data-testid="allocation-filter-section-encounter"] .accordion-header', 'Encounter data');
     }
 
     private function participantWithCaseAccessToA(): User

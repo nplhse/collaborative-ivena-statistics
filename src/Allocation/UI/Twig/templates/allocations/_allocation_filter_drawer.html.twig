@@ -343,7 +343,7 @@
                         {{ editAccordion.header(
                             'allocation-filter-' ~ extension.key ~ '-heading',
                             'allocation-filter-' ~ extension.key ~ '-panel',
-                            extensionFilter.label|trans({}, extensionFilter.domain),
+                            (extensionFilter.section ?? extensionFilter.label)|trans({}, extensionFilter.domain),
                             'allocation-filter-section-' ~ extension.key ~ '-toggle',
                             extension.value is not null,
                         ) }}

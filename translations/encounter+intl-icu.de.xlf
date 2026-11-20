@@ -3985,6 +3985,10 @@
         <source>encounter.allocation_list.none</source>
         <target>–</target>
       </trans-unit>
+      <trans-unit id="Enc319A0E02" resname="encounter.allocation_list.filter.section">
+        <source>encounter.allocation_list.filter.section</source>
+        <target>Behandlungsdaten</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -64,6 +64,7 @@ final readonly class EncounterAllocationListExtension implements AllocationListE
             ],
             domain: 'encounter',
             help: 'encounter.allocation_list.filter.help',
+            section: 'encounter.allocation_list.filter.section',
         );
     }
 

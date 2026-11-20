@@ -273,7 +273,7 @@ of its column and of the row value its cell template reads.
 - **Access per row.** The list spans hospitals. `isAvailableFor()` decides whether a user sees filter and column at
   all; `applyFilter()` must also exclude rows of hospitals the user may not see when that data decides the filter,
   and `cellsFor()` returns no value for those rows. One grant for one hospital never reveals data of another.
-- **Filter.** `filter()` describes a select (label, "all" label, choices, translation domain, help). The drawer gets
+- **Filter.** `filter()` describes a select (label, "all" label, choices, translation domain, help, optional section heading). The drawer gets
   one accordion section per extension; the active filter count, the active filter badges, paging and the filter reset
   handle it like the built-in filters. Unknown values and values of unavailable extensions are ignored.
 - **Column.** `column()` is a DataTable column (usually `DataTableColumns::configurable(..., 'visible' => false)`).
