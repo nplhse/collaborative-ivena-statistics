@@ -134,6 +134,22 @@ final class PostgresDatabaseDumperTest extends DatabaseKernelTestCase
         self::assertSame('app on db:5432', $dumper->target());
     }
 
+    public function testPreflightFailsWhenTheDatabaseIsNotReachable(): void
+    {
+        $tools = $this->createStub(PostgresTools::class);
+        $tools->method('version')->willReturn('pg_dump 18');
+        $connection = $this->createStub(Connection::class);
+        $connection->method('fetchOne')->willThrowException(new \RuntimeException('connection refused'));
+
+        try {
+            new PostgresDatabaseDumper($connection, $tools)->preflight();
+            self::fail('An unreachable database should fail the preflight.');
+        } catch (BackupFailed $failure) {
+            self::assertSame('The database is not reachable.', $failure->getMessage());
+            self::assertInstanceOf(\RuntimeException::class, $failure->getPrevious());
+        }
+    }
+
     private function ownConnection(): Connection
     {
         self::bootKernel();

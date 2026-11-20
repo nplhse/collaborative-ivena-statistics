@@ -14,6 +14,7 @@ use App\Tests\Support\Storage\StorageFixtureDirectory;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -75,6 +76,15 @@ final class CreateBackupCommandTest extends KernelTestCase
         self::assertStringContainsString('Check the server.', $display);
         self::assertStringContainsString('No backup was created.', $display);
         self::assertSame([], glob($this->fixture->path.'/{,.}ivena-stats-*', \GLOB_BRACE));
+    }
+
+    public function testShowsTheUnderlyingErrorWhenVeryVerbose(): void
+    {
+        $tester = $this->tester(failingDump: true);
+
+        self::assertSame(Command::FAILURE, $tester->execute(['--target-dir' => $this->fixture->path], ['interactive' => false, 'verbosity' => OutputInterface::VERBOSITY_VERY_VERBOSE]));
+
+        self::assertStringContainsString(BackupFailed::class, $tester->getDisplay());
     }
 
     public function testRefusesATargetBelowPublic(): void
