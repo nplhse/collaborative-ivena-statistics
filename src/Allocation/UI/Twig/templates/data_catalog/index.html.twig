@@ -1,0 +1,59 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'data_catalog.title'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            <twig:Navigation:Sidebar menu="explore" />
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                    { label: 'link.explore', path: path('app_explore_index') },
+                    { label: 'data_catalog.title', label_domain: 'allocation' }
+                ]"
+        />
+
+        <div class="page-header d-print-none">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'data_catalog.title'|trans({}, 'allocation') }}</h2>
+                    <div class="text-body-secondary mt-1">{{ 'data_catalog.subtitle'|trans({}, 'allocation') }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="container-xl">
+        <div class="row g-3" data-testid="data-catalog-index">
+            {% for object in objects %}
+                <div class="col-12 col-md-6">
+                    <a href="{{ path('app_explore_data_catalog_show', {objectKey: object.key}) }}" class="card card-link h-100" data-testid="data-catalog-object" data-object-key="{{ object.key }}">
+                        <div class="card-body d-flex align-items-start gap-3">
+                            <span class="text-primary">
+                                <twig:ux:icon name="{{ object.icon }}" width="2.5em" height="2.5em" />
+                            </span>
+                            <div class="flex-fill">
+                                <div class="h3 mb-1">{{ object.titleKey|trans({}, object.domain) }}</div>
+                                <div class="text-secondary">{{ object.descriptionKey|trans({}, object.domain) }}</div>
+                                <div class="mt-2 d-flex flex-wrap gap-2 small">
+                                    <span class="badge bg-secondary-lt">{{ 'data_catalog.variable_count'|trans({count: object.variableCount}, 'allocation') }}</span>
+                                    <span class="badge {{ object.contributedByPlugin ? 'bg-purple-lt' : 'bg-blue-lt' }}">
+                                        {{ (object.contributedByPlugin ? 'data_catalog.origin.plugin' : 'data_catalog.origin.core')|trans({}, 'allocation') }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

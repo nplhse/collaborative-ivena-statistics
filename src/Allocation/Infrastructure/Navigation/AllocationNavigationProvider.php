@@ -115,6 +115,7 @@ final readonly class AllocationNavigationProvider implements NavigationProviderI
             $this->catalog('secondary-transports', 'features', 'link.secondary_transports', 'app_explore_secondary_transport', 'tabler:helicopter', 60),
 
             $this->entry('glossary', 'reference', 'link.glossary', 'app_explore_glossary_index', 'tabler:book', 10, $this->glossaryRoutes()),
+            $this->entry('data-catalog', 'reference', 'link.data_catalog', 'app_explore_data_catalog_index', 'tabler:database', 20, ['app_explore_data_catalog_show']),
         ];
     }
 

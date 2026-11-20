@@ -265,5 +265,24 @@
                 </div>
             </div>
         </section>
+
+        <section class="mb-4" data-testid="explore-group-data-catalog">
+            <h3 class="mb-3">{{ 'data_catalog.title'|trans({}, 'allocation') }}</h3>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6 col-md-4">
+                    <a href="{{ path('app_explore_data_catalog_index') }}" data-testid="explore-tile-data-catalog">
+                        <div class="card p-3 d-flex flex-row align-items-center">
+                            <div class="me-3 text-primary">
+                                <twig:ux:icon name="tabler:database" width="4em" height="4em" />
+                            </div>
+                            <div>
+                                <div class="h3 mb-0">{{ 'data_catalog.title'|trans({}, 'allocation') }}</div>
+                                <small class="text-secondary">{{ 'data_catalog.tile'|trans({}, 'allocation') }}</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
     </div>
 {% endblock %}

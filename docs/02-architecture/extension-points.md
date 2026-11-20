@@ -198,6 +198,25 @@ so the top navbar marks Explore as active; the entry's `route` and `detailRoutes
 the explore sidebar. Rules for such pages:
 [explore-glossary.md](../04-features/allocation/explore-glossary.md).
 
+## Explore data catalog
+
+**Tag:** `allocation.data_catalog_object`
+
+**Interface:** `DataCatalogContributorInterface` (`src/Allocation/Application/Explore/DataCatalog/`)
+
+**Registry:** `DataCatalogRegistry` (rejects duplicate object and variable keys); `DataCatalog` resolves the
+visible objects for `/explore/data-catalog`
+
+**Implementations:** `AllocationDataCatalogContributor` (allocation, #1415); contributors live in
+`Application/DataCatalog/`, which `psalm.xml` exempts from `UnusedClass` (tag-only wiring)
+
+Each context documents the stored fields of its data objects through the same interface, the core
+included. A `DataObjectDefinition` names the entity, translation domain, icon, groups of
+`VariableDefinition`s (stable key, mapped property, optional range and code labels), whether a plugin
+contributes it, and an optional granted attribute. Table, column, type, nullability, enum codes and
+reference targets come from the Doctrine mapping. Rules and translation keys:
+[data-catalog.md](../04-features/allocation/data-catalog.md).
+
 ## Explore overview tiles
 
 **Tag:** `allocation.explore_entry`
