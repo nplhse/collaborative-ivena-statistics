@@ -674,6 +674,132 @@ final class NewImportControllerTest extends WebTestCase
         self::assertCheckboxChecked('import_create[hospitalOverride]');
     }
 
+    public function testSubmitWithAnUploadTokenImportsTheBackgroundUploadOnce(): void
+    {
+        $client = self::createClient();
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $client->loginUser($owner);
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        $token = $this->uploadInBackground($client, $crawler);
+        $pendingFile = $this->pendingDir().'/'.$owner->getId().'/'.$token.'.upload';
+        self::assertFileExists($pendingFile);
+
+        $this->postWithUploadToken($client, $crawler, 'Background Upload', $hospitalId, $token);
+
+        self::assertResponseRedirects();
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $imports = $em->getRepository(Import::class)->findBy(['name' => 'Background Upload']);
+        self::assertCount(1, $imports);
+        self::assertSame('csv', $imports[0]->getFileExtension());
+        self::assertGreaterThan(0, $imports[0]->getFileSize());
+        self::assertFileDoesNotExist($pendingFile, 'The pending file moved into the import storage.');
+        self::assertFileDoesNotExist($this->pendingDir().'/'.$owner->getId().'/'.$token.'.json');
+
+        // A second submission of the same token (double click, back button) finds no file and creates nothing.
+        $this->postWithUploadToken($client, $crawler, 'Background Upload', $hospitalId, $token);
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $em->getRepository(Import::class)->findBy(['name' => 'Background Upload']));
+        @\unlink(self::getContainer()->get(ImportFileStorage::class)->resolve((string) $imports[0]->getFilePath()));
+    }
+
+    public function testAnUploadTokenOfAnotherUserIsNotUsed(): void
+    {
+        $client = self::createClient();
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $otherOwner = UserFactory::createOne(['username' => 'other-owner', 'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        HospitalFactory::createOne(['name' => 'Other Hospital', 'owner' => $otherOwner]);
+
+        $client->loginUser($otherOwner);
+        $foreignToken = $this->uploadInBackground($client, $client->request(Request::METHOD_GET, '/import/new'));
+
+        $client->loginUser($owner);
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        $this->postWithUploadToken($client, $crawler, 'Foreign Upload', $hospitalId, $foreignToken);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#import_create_file.is-invalid');
+        self::assertSame('', $client->getCrawler()->filter('form')->attr('data-import-upload-pending-name-value'));
+        self::assertNull(self::getContainer()->get(EntityManagerInterface::class)->getRepository(Import::class)->findOneBy(['name' => 'Foreign Upload']));
+        self::assertFileExists($this->pendingDir().'/'.$otherOwner->getId().'/'.$foreignToken.'.upload', 'The other user keeps the file.');
+    }
+
+    public function testAFileSentWithTheFormWinsOverAnUploadToken(): void
+    {
+        $client = self::createClient();
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $client->loginUser($owner);
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        $token = $this->uploadInBackground($client, $crawler);
+
+        $this->postAllocationUpload($client, $crawler, 'Direct Upload', $hospitalId, ['uploadToken' => $token]);
+
+        self::assertResponseRedirects();
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $import = $em->getRepository(Import::class)->findOneBy(['name' => 'Direct Upload']);
+        self::assertNotNull($import);
+        self::assertFileExists($this->pendingDir().'/'.$owner->getId().'/'.$token.'.upload', 'The background upload was not used; the hourly job removes it.');
+        @\unlink(self::getContainer()->get(ImportFileStorage::class)->resolve((string) $import->getFilePath()));
+    }
+
+    public function testTheBackgroundUploadSurvivesAnErrorInAnotherField(): void
+    {
+        $client = self::createClient();
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $client->loginUser($owner);
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        $token = $this->uploadInBackground($client, $crawler);
+
+        $this->postWithUploadToken($client, $crawler, '', $hospitalId, $token);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#import_create_name.is-invalid');
+        self::assertSelectorNotExists('#import_create_file.is-invalid');
+        self::assertSame($token, $client->getCrawler()->filter('#import_create_uploadToken')->attr('value'));
+        self::assertSame('allocation_import_sample.csv', $client->getCrawler()->filter('form')->attr('data-import-upload-pending-name-value'));
+        self::assertFileExists($this->pendingDir().'/'.$owner->getId().'/'.$token.'.upload');
+    }
+
+    private function uploadInBackground(KernelBrowser $client, Crawler $crawler): string
+    {
+        $uploadPath = sys_get_temp_dir().'/allocation_import_sample_'.bin2hex(random_bytes(4)).'.csv';
+        self::assertTrue(copy($this->fixturesDir.'/allocation_import_sample.csv', $uploadPath));
+
+        $client->request(
+            Request::METHOD_POST,
+            '/import/upload',
+            ['_token' => (string) $crawler->filter('form')->attr('data-import-upload-csrf-value')],
+            ['file' => new UploadedFile($uploadPath, 'allocation_import_sample.csv', 'text/csv', null, true)],
+        );
+        self::assertResponseStatusCodeSame(201);
+
+        /** @var array{token: string} $answer */
+        $answer = json_decode((string) $client->getResponse()->getContent(), true, 4, \JSON_THROW_ON_ERROR);
+
+        return $answer['token'];
+    }
+
+    private function postWithUploadToken(KernelBrowser $client, Crawler $crawler, string $name, int $hospitalId, string $uploadToken): void
+    {
+        $client->request(Request::METHOD_POST, '/import/new', ['import_create' => [
+            'name' => $name,
+            'hospital' => (string) $hospitalId,
+            'type' => $this->allocationType($crawler),
+            'uploadToken' => $uploadToken,
+            '_token' => $crawler->filter('form')->form()['import_create[_token]']->getValue(),
+        ]]);
+    }
+
+    private function pendingDir(): string
+    {
+        $baseDir = self::getContainer()->getParameter('app.imports_base_dir');
+        self::assertIsString($baseDir);
+
+        return $baseDir.'/pending';
+    }
+
     /**
      * @param array<string, string> $extra additional form fields
      */

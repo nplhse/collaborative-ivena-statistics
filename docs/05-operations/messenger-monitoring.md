@@ -59,6 +59,7 @@ Every scheduler job writes a `job_run` row, with the trigger `scheduler`. Jobs w
 | `monitoring_retention` | `CleanUpMonitoringMessage` | daily 03:50 | 1500 | `folded_daily_rows`, `deleted_hourly_rows`, `deleted_failures`, `deleted_queue_samples`, `deleted_job_runs` |
 | `encounter_source_file_retention` | `DeleteExpiredEncounterSourceFilesMessage` | daily 03:10 | 1500 | `deleted_files`, `missing_files`, `failed_deletions`, `retention_days` ([encounter README](../04-features/encounter/README.md#upload-file-retention)) |
 | `encounter_cleanup` | `CleanUpEncountersMessage` | daily 03:30 | 1500 | `hospitals`, `removed`, `removed_with_assignment`, `skipped_hospitals` ([encounter README](../04-features/encounter/README.md#import)) |
+| `import_pending_upload_purge` | `PurgePendingImportUploadsMessage` | hourly :25 | 120 | `deleted_files` ([import pipeline](../04-features/import/import-pipeline.md#background-upload)) |
 
 Times are Europe/Berlin.
 

@@ -38,11 +38,26 @@
                         {% endif %}
                     {% endfor %}
                 {% endif %}
+                {# Background upload of the file (#977): `import-upload` posts the file on selection, the form sends the token. #}
                 {{ form_start(form, {attr: {
                     enctype: 'multipart/form-data',
                     'data-turbo': 'false',
-                    'data-controller': 'import-type-fields',
+                    'data-controller': 'import-type-fields import-upload',
                     'data-import-type-fields-types-value': extension_type_values|json_encode,
+                    'data-import-upload-url-value': path('app_import_upload'),
+                    'data-import-upload-discard-url-value': path('app_import_upload_discard', {token: '00000000000000000000000000000000'})|replace({'00000000000000000000000000000000': '__TOKEN__'}),
+                    'data-import-upload-csrf-value': csrf_token(upload_csrf_token_id),
+                    'data-import-upload-pending-name-value': pending_upload ? pending_upload.originalName : '',
+                    'data-import-upload-messages-value': {
+                        uploading: 'label.import.upload.uploading'|trans({percent: '{percent}'}, 'import'),
+                        uploaded: 'label.import.upload.uploaded'|trans({}, 'import'),
+                        kept: 'label.import.upload.kept'|trans({}, 'import'),
+                        waiting: 'label.import.upload.waiting'|trans({}, 'import'),
+                        failed: 'label.import.upload.failed'|trans({}, 'import'),
+                        retry: 'label.import.upload.retry'|trans({}, 'import'),
+                        remove: 'label.import.upload.remove'|trans({}, 'import'),
+                    }|json_encode,
+                    'data-action': 'submit->import-upload#submit',
                 }}) }}
                     {{ form_row(form.name) }}
                     {{ form_row(form.hospital, {attr: {
@@ -63,7 +78,23 @@
                             {% endfor %}
                         </fieldset>
                     {% endif %}
-                    {{ form_row(form.file) }}
+                    <div class="mb-3" data-test="import-file">
+                        {{ form_label(form.file) }}
+                        <div class="import-dropzone"
+                             data-import-upload-target="zone"
+                             data-action="dragover->import-upload#dragOver dragleave->import-upload#dragLeave drop->import-upload#drop click->import-upload#browse">
+                            <twig:ux:icon name="tabler:file-import" class="import-dropzone-icon text-secondary" />
+                            <div class="text-secondary mb-3">{{ 'label.import.upload.dropzone'|trans({}, 'import') }}</div>
+                            {{ form_widget(form.file, {attr: {
+                                'data-import-upload-target': 'input',
+                                'data-action': 'change->import-upload#select',
+                            }}) }}
+                            <div class="import-upload-status" data-import-upload-target="status" data-test="import-upload-status" role="status" aria-live="polite" hidden></div>
+                        </div>
+                        {{ form_errors(form.file) }}
+                        {{ form_help(form.file) }}
+                    </div>
+                    {{ form_widget(form.uploadToken, {attr: {'data-import-upload-target': 'token'}}) }}
                     {# Import options (#1352): only those the user may use here; no options, no section. #}
                     {% set import_options = form.vars.import_options|default([]) %}
                     {% if import_options is not empty %}
@@ -98,7 +129,7 @@
                             </div>
                         </div>
                     {% endif %}
-                    {{ form_row(form.submit) }}
+                    {{ form_row(form.submit, {attr: {'data-import-upload-target': 'submit'}}) }}
                 {{ form_end(form) }}
             </twig:Card>
         </div>

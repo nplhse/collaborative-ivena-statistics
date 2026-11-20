@@ -45,6 +45,19 @@ The file input uses `accept=".csv,.txt"`. Windows may report CSV exports as `app
 
 User-facing messages are in the `validators` domain (`validation.import.*`); help text on the form uses `label.import.helpFile` in the `import` domain.
 
+## Background upload
+
+The file field of the upload form is a drop area around the native file input (#977). Selecting or dropping a file uploads it at once, while the user fills in the rest of the form; the submission then sends only a token. Without JavaScript the form is the plain file upload it was before.
+
+1. **Upload:** the Stimulus controller `import-upload` posts the file to `POST /import/upload` (`app_import_upload`, `PendingImportUploadController`). The endpoint needs `ROLE_PARTICIPANT`, `IMPORT_CREATE`, the CSRF token `import_upload` and the rate limit `import_upload` (60 per hour per user and IP). It applies the same file checks as the form (`ImportSourceFile`, `ImportUploadGuard`, `app.imports_max_size`) and answers `201` with `{token, name, size}`, or `422` with the message. No import is created.
+2. **Storage:** `PendingImportUploadStore` keeps the file outside `public/` under `var/imports/pending/<user id>/<token>.upload`, with `<token>.json` next to it (client name, MIME type, size, time). The token is 128 random bits and is only looked up in the folder of the current user, so it cannot reach another user's file or an arbitrary path. Storage measurement counts the folder as imports.
+3. **Submission:** the hidden field `uploadToken` carries the token. A `PRE_SUBMIT` listener of `ImportCreateType` puts the stored file into the file field as an `UploadedFile`, so every constraint, the controller's permission and type checks, the extension hooks and the move into the import storage run exactly as for a direct upload. A file sent with the form wins over a token; a foreign or expired token leaves the file field empty. Moving the file consumes the token: a second submission with the same token finds no file and gets `validation.import.upload_consumed` instead of a second import.
+4. **Form errors:** when another field is invalid, token and file stay; the form shows "Already uploaded: <name>" and the user does not upload again.
+5. **Client behaviour:** a newer selection aborts the older request and ignores its late answer; the replaced upload is deleted (`replaces`), "Remove" deletes it (`POST /import/upload/{token}/discard`). Submitting during the transfer shows a waiting note and submits when the upload is done; the submit button is disabled after the first submission. A failed upload keeps the file in the input (so the plain submission still works) and offers "Try again" unless the server rejected the file.
+6. **Cleanup:** the hourly scheduler job `import_pending_upload_purge` deletes pending files older than 24 hours (`PendingImportUploadStore::RETENTION_HOURS`, by file time), metric `deleted_files` ([messenger-monitoring.md](../../05-operations/messenger-monitoring.md#scheduler-jobs-in-the-run-log)).
+
+Automatic detection of the file format and preselection of the import type are not part of this; see #1005.
+
 ## Import options and the target hospital override
 
 The upload form has an **Options** section below the file field, right above the submit button (#1352). It lists only the options the current user can use in the current environment and is missing when there is none. A quiet toggle with a chevron opens it, like an accordion; it starts collapsed and opens on its own when an option is set or has a validation error. The fields of other contexts' import types (for example the encounter fields of `ed_visit`) keep their own fieldset.
@@ -62,7 +75,7 @@ The first option is **Override target hospital** (#878). It lets a real allocati
 
 ## Technical flow
 
-1. Create import in the UI (file + context)
+1. Create import in the UI (file + context; the file may arrive earlier as a [background upload](#background-upload))
 2. Store file under `var/imports/...`
 3. Register a new [import run](import-runs.md) (`ImportRun`, status `queued`) and point `Import::currentRunId` to it
 4. The UI, or `app:import:start <IMPORT_ID>` for the import's type, dispatches the matching message with the run id

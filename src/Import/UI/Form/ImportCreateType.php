@@ -7,6 +7,7 @@ namespace App\Import\UI\Form;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Import\Application\Contracts\ImportTypeExtensionInterface;
+use App\Import\Application\Service\PendingImportUploadStore;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Domain\Validation\Constraints\ImportSourceFile;
@@ -20,11 +21,15 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -54,6 +59,7 @@ final class ImportCreateType extends AbstractType
     public function __construct(
         private readonly HospitalRepository $hospitalRepository,
         private readonly Security $security,
+        private readonly PendingImportUploadStore $pendingUploads,
         #[Autowire(param: 'app.imports_max_size')]
         private readonly string $maxSize = '5M',
     ) {
@@ -138,10 +144,50 @@ final class ImportCreateType extends AbstractType
                 ],
                 'help' => 'label.import.helpFile',
             ])
+            // Token of a file the form uploaded in the background (#977); see addPendingUpload().
+            ->add('uploadToken', HiddenType::class, [
+                'mapped' => false,
+                'required' => false,
+            ])
             ->add('submit', SubmitType::class, [
                 'label' => 'label.btn.import',
             ])
         ;
+
+        $userId = (int) $user->getId();
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($userId): void {
+            $this->addPendingUpload($event, $userId);
+        });
+    }
+
+    /**
+     * A file uploaded in the background stands in for the file field (#977), so every constraint, the
+     * controller's checks and the move into the import storage stay the same as for a direct upload. A file
+     * sent with the form wins over a token; a token of another user or an expired one leaves the field empty.
+     */
+    private function addPendingUpload(FormEvent $event, int $userId): void
+    {
+        $data = $event->getData();
+        if (!\is_array($data)) {
+            return;
+        }
+
+        $token = \is_string($data['uploadToken'] ?? null) ? $data['uploadToken'] : '';
+        if (($data['file'] ?? null) instanceof UploadedFile || '' === $token) {
+            $data['uploadToken'] = '';
+            $event->setData($data);
+
+            return;
+        }
+
+        $file = $this->pendingUploads->uploadedFile($token, $userId);
+        if (!$file instanceof UploadedFile) {
+            $data['uploadToken'] = '';
+        } else {
+            $data['file'] = $file;
+        }
+
+        $event->setData($data);
     }
 
     /**
