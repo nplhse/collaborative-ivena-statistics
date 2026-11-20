@@ -3953,6 +3953,78 @@
         <source>encounter.visit_list.import_period_hint</source>
         <target>Die Liste zeigt alle Besuche dieses Imports; der Zeitraum gilt dafür nicht. Entfernen Sie den Import-Filter, um nach Zeitraum zu filtern.</target>
       </trans-unit>
+      <trans-unit id="dcEncDe001" resname="data_catalog.group.time">
+        <source>data_catalog.group.time</source>
+        <target>Zeit</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe002" resname="data_catalog.group.patient">
+        <source>data_catalog.group.patient</source>
+        <target>Patient</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe003" resname="data_catalog.group.assignment">
+        <source>data_catalog.group.assignment</source>
+        <target>Zuordnung</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe004" resname="data_catalog.object.encounter.title">
+        <source>data_catalog.object.encounter.title</source>
+        <target>Behandlungsfall</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe005" resname="data_catalog.object.encounter.description">
+        <source>data_catalog.object.encounter.description</source>
+        <target>Ein Behandlungsfall einer Klinik mit den Basisdaten, die alle klinischen Datensätze teilen, und seiner Zuordnung zu einer IVENA-Zuweisung.</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe006" resname="data_catalog.unit.years">
+        <source>data_catalog.unit.years</source>
+        <target>Jahre</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe007" resname="data_catalog.variable.encounter.anchor_at.label">
+        <source>data_catalog.variable.encounter.anchor_at.label</source>
+        <target>Ankerzeit</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe008" resname="data_catalog.variable.encounter.anchor_at.description">
+        <source>data_catalog.variable.encounter.anchor_at.description</source>
+        <target>Zeitpunkt, aus dem der Behandlungsfall angelegt wurde, bei einem Notaufnahmebesuch die Ankunftszeit (minutengenau).</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe009" resname="data_catalog.variable.encounter.age.label">
+        <source>data_catalog.variable.encounter.age.label</source>
+        <target>Alter</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe010" resname="data_catalog.variable.encounter.age.description">
+        <source>data_catalog.variable.encounter.age.description</source>
+        <target>Alter des Patienten in Jahren.</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe011" resname="data_catalog.variable.encounter.sex.label">
+        <source>data_catalog.variable.encounter.sex.label</source>
+        <target>Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe012" resname="data_catalog.variable.encounter.sex.description">
+        <source>data_catalog.variable.encounter.sex.description</source>
+        <target>Geschlecht des Patienten laut Klinik.</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe013" resname="data_catalog.variable.encounter.hospital.label">
+        <source>data_catalog.variable.encounter.hospital.label</source>
+        <target>Klinik</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe014" resname="data_catalog.variable.encounter.hospital.description">
+        <source>data_catalog.variable.encounter.hospital.description</source>
+        <target>Klinik, die den Patienten behandelt hat.</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe015" resname="data_catalog.variable.encounter.allocation.label">
+        <source>data_catalog.variable.encounter.allocation.label</source>
+        <target>Zuweisung</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe016" resname="data_catalog.variable.encounter.allocation.description">
+        <source>data_catalog.variable.encounter.allocation.description</source>
+        <target>IVENA-Zuweisung, der der Behandlungsfall zugeordnet ist, falls vorhanden.</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe017" resname="data_catalog.variable.encounter.allocation_assigned_at.label">
+        <source>data_catalog.variable.encounter.allocation_assigned_at.label</source>
+        <target>Zugeordnet am</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe018" resname="data_catalog.variable.encounter.allocation_assigned_at.description">
+        <source>data_catalog.variable.encounter.allocation_assigned_at.description</source>
+        <target>Zeitpunkt, zu dem die Zuordnung zur Zuweisung gesetzt wurde.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

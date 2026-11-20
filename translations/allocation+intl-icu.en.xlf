@@ -1921,6 +1921,338 @@
         <source>data_catalog.variable.allocation.state.description</source>
         <target>State of the dispatch area.</target>
       </trans-unit>
+      <trans-unit id="dcEn101" resname="data_catalog.group.incident">
+        <source>data_catalog.group.incident</source>
+        <target>Incident</target>
+      </trans-unit>
+      <trans-unit id="dcEn102" resname="data_catalog.group.master_data">
+        <source>data_catalog.group.master_data</source>
+        <target>Master data</target>
+      </trans-unit>
+      <trans-unit id="dcEn103" resname="data_catalog.group.structure">
+        <source>data_catalog.group.structure</source>
+        <target>Structure</target>
+      </trans-unit>
+      <trans-unit id="dcEn104" resname="data_catalog.object.mci_case.title">
+        <source>data_catalog.object.mci_case.title</source>
+        <target>MCI case</target>
+      </trans-unit>
+      <trans-unit id="dcEn105" resname="data_catalog.object.mci_case.description">
+        <source>data_catalog.object.mci_case.description</source>
+        <target>A patient of a mass casualty incident (MCI) assigned to a hospital, from the IVENA export.</target>
+      </trans-unit>
+      <trans-unit id="dcEn106" resname="data_catalog.object.hospital.title">
+        <source>data_catalog.object.hospital.title</source>
+        <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="dcEn107" resname="data_catalog.object.hospital.description">
+        <source>data_catalog.object.hospital.description</source>
+        <target>Master data of a hospital: structure, location and participation.</target>
+      </trans-unit>
+      <trans-unit id="dcEn108" resname="data_catalog.variable.mci_case.created_at.label">
+        <source>data_catalog.variable.mci_case.created_at.label</source>
+        <target>Allocation time</target>
+      </trans-unit>
+      <trans-unit id="dcEn109" resname="data_catalog.variable.mci_case.created_at.description">
+        <source>data_catalog.variable.mci_case.created_at.description</source>
+        <target>Time the MCI case was created in IVENA (local time).</target>
+      </trans-unit>
+      <trans-unit id="dcEn110" resname="data_catalog.variable.mci_case.arrival_at.label">
+        <source>data_catalog.variable.mci_case.arrival_at.label</source>
+        <target>Arrival time</target>
+      </trans-unit>
+      <trans-unit id="dcEn111" resname="data_catalog.variable.mci_case.arrival_at.description">
+        <source>data_catalog.variable.mci_case.arrival_at.description</source>
+        <target>Arrival time at the hospital as recorded in IVENA (local time).</target>
+      </trans-unit>
+      <trans-unit id="dcEn112" resname="data_catalog.variable.mci_case.mci_id.label">
+        <source>data_catalog.variable.mci_case.mci_id.label</source>
+        <target>MCI ID</target>
+      </trans-unit>
+      <trans-unit id="dcEn113" resname="data_catalog.variable.mci_case.mci_id.description">
+        <source>data_catalog.variable.mci_case.mci_id.description</source>
+        <target>Identifier of the MCI event; cases with the same ID belong to the same event.</target>
+      </trans-unit>
+      <trans-unit id="dcEn114" resname="data_catalog.variable.mci_case.mci_title.label">
+        <source>data_catalog.variable.mci_case.mci_title.label</source>
+        <target>MCI title</target>
+      </trans-unit>
+      <trans-unit id="dcEn115" resname="data_catalog.variable.mci_case.mci_title.description">
+        <source>data_catalog.variable.mci_case.mci_title.description</source>
+        <target>Title of the MCI event as entered in IVENA.</target>
+      </trans-unit>
+      <trans-unit id="dcEn116" resname="data_catalog.variable.mci_case.age.label">
+        <source>data_catalog.variable.mci_case.age.label</source>
+        <target>Age</target>
+      </trans-unit>
+      <trans-unit id="dcEn117" resname="data_catalog.variable.mci_case.age.description">
+        <source>data_catalog.variable.mci_case.age.description</source>
+        <target>Age of the patient in years.</target>
+      </trans-unit>
+      <trans-unit id="dcEn118" resname="data_catalog.variable.mci_case.gender.label">
+        <source>data_catalog.variable.mci_case.gender.label</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="dcEn119" resname="data_catalog.variable.mci_case.gender.description">
+        <source>data_catalog.variable.mci_case.gender.description</source>
+        <target>Gender of the patient as recorded in IVENA.</target>
+      </trans-unit>
+      <trans-unit id="dcEn120" resname="data_catalog.variable.mci_case.is_pregnant.label">
+        <source>data_catalog.variable.mci_case.is_pregnant.label</source>
+        <target>Pregnant</target>
+      </trans-unit>
+      <trans-unit id="dcEn121" resname="data_catalog.variable.mci_case.is_pregnant.description">
+        <source>data_catalog.variable.mci_case.is_pregnant.description</source>
+        <target>The patient is pregnant.</target>
+      </trans-unit>
+      <trans-unit id="dcEn122" resname="data_catalog.variable.mci_case.urgency.label">
+        <source>data_catalog.variable.mci_case.urgency.label</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="dcEn123" resname="data_catalog.variable.mci_case.urgency.description">
+        <source>data_catalog.variable.mci_case.urgency.description</source>
+        <target>Triage category SK1 to SK3.</target>
+      </trans-unit>
+      <trans-unit id="dcEn124" resname="data_catalog.variable.mci_case.indication_raw.label">
+        <source>data_catalog.variable.mci_case.indication_raw.label</source>
+        <target>Indication (original)</target>
+      </trans-unit>
+      <trans-unit id="dcEn125" resname="data_catalog.variable.mci_case.indication_raw.description">
+        <source>data_catalog.variable.mci_case.indication_raw.description</source>
+        <target>Indication (PZC) as reported in IVENA.</target>
+      </trans-unit>
+      <trans-unit id="dcEn126" resname="data_catalog.variable.mci_case.indication_normalized.label">
+        <source>data_catalog.variable.mci_case.indication_normalized.label</source>
+        <target>Indication (normalised)</target>
+      </trans-unit>
+      <trans-unit id="dcEn127" resname="data_catalog.variable.mci_case.indication_normalized.description">
+        <source>data_catalog.variable.mci_case.indication_normalized.description</source>
+        <target>Normalised indication mapped from the original indication.</target>
+      </trans-unit>
+      <trans-unit id="dcEn128" resname="data_catalog.variable.mci_case.is_cpr.label">
+        <source>data_catalog.variable.mci_case.is_cpr.label</source>
+        <target>CPR</target>
+      </trans-unit>
+      <trans-unit id="dcEn129" resname="data_catalog.variable.mci_case.is_cpr.description">
+        <source>data_catalog.variable.mci_case.is_cpr.description</source>
+        <target>The patient is under resuscitation.</target>
+      </trans-unit>
+      <trans-unit id="dcEn130" resname="data_catalog.variable.mci_case.is_ventilated.label">
+        <source>data_catalog.variable.mci_case.is_ventilated.label</source>
+        <target>Ventilated</target>
+      </trans-unit>
+      <trans-unit id="dcEn131" resname="data_catalog.variable.mci_case.is_ventilated.description">
+        <source>data_catalog.variable.mci_case.is_ventilated.description</source>
+        <target>The patient is ventilated.</target>
+      </trans-unit>
+      <trans-unit id="dcEn132" resname="data_catalog.variable.mci_case.is_shock.label">
+        <source>data_catalog.variable.mci_case.is_shock.label</source>
+        <target>Shock</target>
+      </trans-unit>
+      <trans-unit id="dcEn133" resname="data_catalog.variable.mci_case.is_shock.description">
+        <source>data_catalog.variable.mci_case.is_shock.description</source>
+        <target>The patient is in shock.</target>
+      </trans-unit>
+      <trans-unit id="dcEn134" resname="data_catalog.variable.mci_case.infection.label">
+        <source>data_catalog.variable.mci_case.infection.label</source>
+        <target>Infection</target>
+      </trans-unit>
+      <trans-unit id="dcEn135" resname="data_catalog.variable.mci_case.infection.description">
+        <source>data_catalog.variable.mci_case.infection.description</source>
+        <target>Reported infectious disease.</target>
+      </trans-unit>
+      <trans-unit id="dcEn136" resname="data_catalog.variable.mci_case.requires_resus.label">
+        <source>data_catalog.variable.mci_case.requires_resus.label</source>
+        <target>Resus room requested</target>
+      </trans-unit>
+      <trans-unit id="dcEn137" resname="data_catalog.variable.mci_case.requires_resus.description">
+        <source>data_catalog.variable.mci_case.requires_resus.description</source>
+        <target>A resuscitation room was requested.</target>
+      </trans-unit>
+      <trans-unit id="dcEn138" resname="data_catalog.variable.mci_case.requires_cathlab.label">
+        <source>data_catalog.variable.mci_case.requires_cathlab.label</source>
+        <target>Cath lab requested</target>
+      </trans-unit>
+      <trans-unit id="dcEn139" resname="data_catalog.variable.mci_case.requires_cathlab.description">
+        <source>data_catalog.variable.mci_case.requires_cathlab.description</source>
+        <target>A cardiac catheterisation lab was requested.</target>
+      </trans-unit>
+      <trans-unit id="dcEn140" resname="data_catalog.variable.mci_case.transport_type.label">
+        <source>data_catalog.variable.mci_case.transport_type.label</source>
+        <target>Transport type</target>
+      </trans-unit>
+      <trans-unit id="dcEn141" resname="data_catalog.variable.mci_case.transport_type.description">
+        <source>data_catalog.variable.mci_case.transport_type.description</source>
+        <target>Ground or air transport.</target>
+      </trans-unit>
+      <trans-unit id="dcEn142" resname="data_catalog.variable.mci_case.is_with_physician.label">
+        <source>data_catalog.variable.mci_case.is_with_physician.label</source>
+        <target>Physician escort</target>
+      </trans-unit>
+      <trans-unit id="dcEn143" resname="data_catalog.variable.mci_case.is_with_physician.description">
+        <source>data_catalog.variable.mci_case.is_with_physician.description</source>
+        <target>A physician accompanies the transport.</target>
+      </trans-unit>
+      <trans-unit id="dcEn144" resname="data_catalog.variable.mci_case.hospital.label">
+        <source>data_catalog.variable.mci_case.hospital.label</source>
+        <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="dcEn145" resname="data_catalog.variable.mci_case.hospital.description">
+        <source>data_catalog.variable.mci_case.hospital.description</source>
+        <target>Destination hospital of the MCI patient.</target>
+      </trans-unit>
+      <trans-unit id="dcEn146" resname="data_catalog.variable.mci_case.speciality.label">
+        <source>data_catalog.variable.mci_case.speciality.label</source>
+        <target>Speciality</target>
+      </trans-unit>
+      <trans-unit id="dcEn147" resname="data_catalog.variable.mci_case.speciality.description">
+        <source>data_catalog.variable.mci_case.speciality.description</source>
+        <target>Speciality the patient was assigned to.</target>
+      </trans-unit>
+      <trans-unit id="dcEn148" resname="data_catalog.variable.mci_case.department.label">
+        <source>data_catalog.variable.mci_case.department.label</source>
+        <target>Department</target>
+      </trans-unit>
+      <trans-unit id="dcEn149" resname="data_catalog.variable.mci_case.department.description">
+        <source>data_catalog.variable.mci_case.department.description</source>
+        <target>Department the patient was assigned to.</target>
+      </trans-unit>
+      <trans-unit id="dcEn150" resname="data_catalog.variable.mci_case.department_was_closed.label">
+        <source>data_catalog.variable.mci_case.department_was_closed.label</source>
+        <target>Department was closed</target>
+      </trans-unit>
+      <trans-unit id="dcEn151" resname="data_catalog.variable.mci_case.department_was_closed.description">
+        <source>data_catalog.variable.mci_case.department_was_closed.description</source>
+        <target>IVENA flag whether the department was closed at assignment.</target>
+      </trans-unit>
+      <trans-unit id="dcEn152" resname="data_catalog.variable.mci_case.occasion.label">
+        <source>data_catalog.variable.mci_case.occasion.label</source>
+        <target>Occasion</target>
+      </trans-unit>
+      <trans-unit id="dcEn153" resname="data_catalog.variable.mci_case.occasion.description">
+        <source>data_catalog.variable.mci_case.occasion.description</source>
+        <target>Reason for the mission as recorded in IVENA.</target>
+      </trans-unit>
+      <trans-unit id="dcEn154" resname="data_catalog.variable.mci_case.dispatch_area.label">
+        <source>data_catalog.variable.mci_case.dispatch_area.label</source>
+        <target>Dispatch area</target>
+      </trans-unit>
+      <trans-unit id="dcEn155" resname="data_catalog.variable.mci_case.dispatch_area.description">
+        <source>data_catalog.variable.mci_case.dispatch_area.description</source>
+        <target>Dispatch area the allocation came from.</target>
+      </trans-unit>
+      <trans-unit id="dcEn156" resname="data_catalog.variable.mci_case.state.label">
+        <source>data_catalog.variable.mci_case.state.label</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="dcEn157" resname="data_catalog.variable.mci_case.state.description">
+        <source>data_catalog.variable.mci_case.state.description</source>
+        <target>State of the dispatch area.</target>
+      </trans-unit>
+      <trans-unit id="dcEn158" resname="data_catalog.variable.hospital.name.label">
+        <source>data_catalog.variable.hospital.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcEn159" resname="data_catalog.variable.hospital.name.description">
+        <source>data_catalog.variable.hospital.name.description</source>
+        <target>Name of the hospital.</target>
+      </trans-unit>
+      <trans-unit id="dcEn160" resname="data_catalog.variable.hospital.is_participating.label">
+        <source>data_catalog.variable.hospital.is_participating.label</source>
+        <target>Participating</target>
+      </trans-unit>
+      <trans-unit id="dcEn161" resname="data_catalog.variable.hospital.is_participating.description">
+        <source>data_catalog.variable.hospital.is_participating.description</source>
+        <target>The hospital takes part in the collaborative statistics.</target>
+      </trans-unit>
+      <trans-unit id="dcEn162" resname="data_catalog.variable.hospital.participating_since.label">
+        <source>data_catalog.variable.hospital.participating_since.label</source>
+        <target>Participating since</target>
+      </trans-unit>
+      <trans-unit id="dcEn163" resname="data_catalog.variable.hospital.participating_since.description">
+        <source>data_catalog.variable.hospital.participating_since.description</source>
+        <target>Date from which the hospital takes part.</target>
+      </trans-unit>
+      <trans-unit id="dcEn164" resname="data_catalog.variable.hospital.size.label">
+        <source>data_catalog.variable.hospital.size.label</source>
+        <target>Size</target>
+      </trans-unit>
+      <trans-unit id="dcEn165" resname="data_catalog.variable.hospital.size.description">
+        <source>data_catalog.variable.hospital.size.description</source>
+        <target>Size class by number of beds.</target>
+      </trans-unit>
+      <trans-unit id="dcEn166" resname="data_catalog.variable.hospital.beds.label">
+        <source>data_catalog.variable.hospital.beds.label</source>
+        <target>Beds</target>
+      </trans-unit>
+      <trans-unit id="dcEn167" resname="data_catalog.variable.hospital.beds.description">
+        <source>data_catalog.variable.hospital.beds.description</source>
+        <target>Number of beds from the hospital master data.</target>
+      </trans-unit>
+      <trans-unit id="dcEn168" resname="data_catalog.variable.hospital.tier.label">
+        <source>data_catalog.variable.hospital.tier.label</source>
+        <target>Level of care</target>
+      </trans-unit>
+      <trans-unit id="dcEn169" resname="data_catalog.variable.hospital.tier.description">
+        <source>data_catalog.variable.hospital.tier.description</source>
+        <target>Level of emergency care of the hospital.</target>
+      </trans-unit>
+      <trans-unit id="dcEn170" resname="data_catalog.variable.hospital.location.label">
+        <source>data_catalog.variable.hospital.location.label</source>
+        <target>Location</target>
+      </trans-unit>
+      <trans-unit id="dcEn171" resname="data_catalog.variable.hospital.location.description">
+        <source>data_catalog.variable.hospital.location.description</source>
+        <target>Urban, mixed or rural location.</target>
+      </trans-unit>
+      <trans-unit id="dcEn172" resname="data_catalog.variable.hospital.postal_code.label">
+        <source>data_catalog.variable.hospital.postal_code.label</source>
+        <target>Postal code</target>
+      </trans-unit>
+      <trans-unit id="dcEn173" resname="data_catalog.variable.hospital.postal_code.description">
+        <source>data_catalog.variable.hospital.postal_code.description</source>
+        <target>Postal code of the hospital address.</target>
+      </trans-unit>
+      <trans-unit id="dcEn174" resname="data_catalog.variable.hospital.city.label">
+        <source>data_catalog.variable.hospital.city.label</source>
+        <target>City</target>
+      </trans-unit>
+      <trans-unit id="dcEn175" resname="data_catalog.variable.hospital.city.description">
+        <source>data_catalog.variable.hospital.city.description</source>
+        <target>City of the hospital address.</target>
+      </trans-unit>
+      <trans-unit id="dcEn176" resname="data_catalog.variable.hospital.latitude.label">
+        <source>data_catalog.variable.hospital.latitude.label</source>
+        <target>Latitude</target>
+      </trans-unit>
+      <trans-unit id="dcEn177" resname="data_catalog.variable.hospital.latitude.description">
+        <source>data_catalog.variable.hospital.latitude.description</source>
+        <target>Geographic latitude of the hospital (WGS 84).</target>
+      </trans-unit>
+      <trans-unit id="dcEn178" resname="data_catalog.variable.hospital.longitude.label">
+        <source>data_catalog.variable.hospital.longitude.label</source>
+        <target>Longitude</target>
+      </trans-unit>
+      <trans-unit id="dcEn179" resname="data_catalog.variable.hospital.longitude.description">
+        <source>data_catalog.variable.hospital.longitude.description</source>
+        <target>Geographic longitude of the hospital (WGS 84).</target>
+      </trans-unit>
+      <trans-unit id="dcEn180" resname="data_catalog.variable.hospital.dispatch_area.label">
+        <source>data_catalog.variable.hospital.dispatch_area.label</source>
+        <target>Dispatch area</target>
+      </trans-unit>
+      <trans-unit id="dcEn181" resname="data_catalog.variable.hospital.dispatch_area.description">
+        <source>data_catalog.variable.hospital.dispatch_area.description</source>
+        <target>Dispatch area the hospital belongs to.</target>
+      </trans-unit>
+      <trans-unit id="dcEn182" resname="data_catalog.variable.hospital.state.label">
+        <source>data_catalog.variable.hospital.state.label</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="dcEn183" resname="data_catalog.variable.hospital.state.description">
+        <source>data_catalog.variable.hospital.state.description</source>
+        <target>State the hospital is located in.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

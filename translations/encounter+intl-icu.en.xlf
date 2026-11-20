@@ -3953,6 +3953,78 @@
         <source>encounter.visit_list.import_period_hint</source>
         <target>The list shows all visits of this import; the period does not apply. Remove the import filter to filter by period.</target>
       </trans-unit>
+      <trans-unit id="dcEncEn001" resname="data_catalog.group.time">
+        <source>data_catalog.group.time</source>
+        <target>Time</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn002" resname="data_catalog.group.patient">
+        <source>data_catalog.group.patient</source>
+        <target>Patient</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn003" resname="data_catalog.group.assignment">
+        <source>data_catalog.group.assignment</source>
+        <target>Assignment</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn004" resname="data_catalog.object.encounter.title">
+        <source>data_catalog.object.encounter.title</source>
+        <target>Encounter</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn005" resname="data_catalog.object.encounter.description">
+        <source>data_catalog.object.encounter.description</source>
+        <target>A treatment case of a hospital with the base data that all clinical records share, and its assignment to an IVENA allocation.</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn006" resname="data_catalog.unit.years">
+        <source>data_catalog.unit.years</source>
+        <target>years</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn007" resname="data_catalog.variable.encounter.anchor_at.label">
+        <source>data_catalog.variable.encounter.anchor_at.label</source>
+        <target>Anchor time</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn008" resname="data_catalog.variable.encounter.anchor_at.description">
+        <source>data_catalog.variable.encounter.anchor_at.description</source>
+        <target>Time the encounter was created from, for an ED visit the arrival time (minute precision).</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn009" resname="data_catalog.variable.encounter.age.label">
+        <source>data_catalog.variable.encounter.age.label</source>
+        <target>Age</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn010" resname="data_catalog.variable.encounter.age.description">
+        <source>data_catalog.variable.encounter.age.description</source>
+        <target>Age of the patient in years.</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn011" resname="data_catalog.variable.encounter.sex.label">
+        <source>data_catalog.variable.encounter.sex.label</source>
+        <target>Sex</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn012" resname="data_catalog.variable.encounter.sex.description">
+        <source>data_catalog.variable.encounter.sex.description</source>
+        <target>Sex of the patient as delivered by the hospital.</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn013" resname="data_catalog.variable.encounter.hospital.label">
+        <source>data_catalog.variable.encounter.hospital.label</source>
+        <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn014" resname="data_catalog.variable.encounter.hospital.description">
+        <source>data_catalog.variable.encounter.hospital.description</source>
+        <target>Hospital that treated the patient.</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn015" resname="data_catalog.variable.encounter.allocation.label">
+        <source>data_catalog.variable.encounter.allocation.label</source>
+        <target>Allocation</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn016" resname="data_catalog.variable.encounter.allocation.description">
+        <source>data_catalog.variable.encounter.allocation.description</source>
+        <target>IVENA allocation the encounter is assigned to, if any.</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn017" resname="data_catalog.variable.encounter.allocation_assigned_at.label">
+        <source>data_catalog.variable.encounter.allocation_assigned_at.label</source>
+        <target>Assigned at</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn018" resname="data_catalog.variable.encounter.allocation_assigned_at.description">
+        <source>data_catalog.variable.encounter.allocation_assigned_at.description</source>
+        <target>Time the assignment to the allocation was set.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

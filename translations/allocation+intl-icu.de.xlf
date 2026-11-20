@@ -1921,6 +1921,338 @@
         <source>data_catalog.variable.allocation.state.description</source>
         <target>Bundesland des Leitstellenbereichs.</target>
       </trans-unit>
+      <trans-unit id="dcDe101" resname="data_catalog.group.incident">
+        <source>data_catalog.group.incident</source>
+        <target>Ereignis</target>
+      </trans-unit>
+      <trans-unit id="dcDe102" resname="data_catalog.group.master_data">
+        <source>data_catalog.group.master_data</source>
+        <target>Stammdaten</target>
+      </trans-unit>
+      <trans-unit id="dcDe103" resname="data_catalog.group.structure">
+        <source>data_catalog.group.structure</source>
+        <target>Struktur</target>
+      </trans-unit>
+      <trans-unit id="dcDe104" resname="data_catalog.object.mci_case.title">
+        <source>data_catalog.object.mci_case.title</source>
+        <target>MANV-Fall</target>
+      </trans-unit>
+      <trans-unit id="dcDe105" resname="data_catalog.object.mci_case.description">
+        <source>data_catalog.object.mci_case.description</source>
+        <target>Ein einer Klinik zugewiesener Patient eines Massenanfalls von Verletzten (MANV), aus dem IVENA-Export.</target>
+      </trans-unit>
+      <trans-unit id="dcDe106" resname="data_catalog.object.hospital.title">
+        <source>data_catalog.object.hospital.title</source>
+        <target>Klinik</target>
+      </trans-unit>
+      <trans-unit id="dcDe107" resname="data_catalog.object.hospital.description">
+        <source>data_catalog.object.hospital.description</source>
+        <target>Stammdaten einer Klinik: Struktur, Lage und Teilnahme.</target>
+      </trans-unit>
+      <trans-unit id="dcDe108" resname="data_catalog.variable.mci_case.created_at.label">
+        <source>data_catalog.variable.mci_case.created_at.label</source>
+        <target>Zuweisungszeitpunkt</target>
+      </trans-unit>
+      <trans-unit id="dcDe109" resname="data_catalog.variable.mci_case.created_at.description">
+        <source>data_catalog.variable.mci_case.created_at.description</source>
+        <target>Zeitpunkt, zu dem der MANV-Fall in IVENA angelegt wurde (Ortszeit).</target>
+      </trans-unit>
+      <trans-unit id="dcDe110" resname="data_catalog.variable.mci_case.arrival_at.label">
+        <source>data_catalog.variable.mci_case.arrival_at.label</source>
+        <target>Ankunftszeit</target>
+      </trans-unit>
+      <trans-unit id="dcDe111" resname="data_catalog.variable.mci_case.arrival_at.description">
+        <source>data_catalog.variable.mci_case.arrival_at.description</source>
+        <target>Ankunftszeit in der Klinik laut IVENA (Ortszeit).</target>
+      </trans-unit>
+      <trans-unit id="dcDe112" resname="data_catalog.variable.mci_case.mci_id.label">
+        <source>data_catalog.variable.mci_case.mci_id.label</source>
+        <target>MANV-ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe113" resname="data_catalog.variable.mci_case.mci_id.description">
+        <source>data_catalog.variable.mci_case.mci_id.description</source>
+        <target>Kennung des MANV-Ereignisses; Fälle mit derselben ID gehören zum selben Ereignis.</target>
+      </trans-unit>
+      <trans-unit id="dcDe114" resname="data_catalog.variable.mci_case.mci_title.label">
+        <source>data_catalog.variable.mci_case.mci_title.label</source>
+        <target>MANV-Titel</target>
+      </trans-unit>
+      <trans-unit id="dcDe115" resname="data_catalog.variable.mci_case.mci_title.description">
+        <source>data_catalog.variable.mci_case.mci_title.description</source>
+        <target>Titel des MANV-Ereignisses, wie in IVENA eingegeben.</target>
+      </trans-unit>
+      <trans-unit id="dcDe116" resname="data_catalog.variable.mci_case.age.label">
+        <source>data_catalog.variable.mci_case.age.label</source>
+        <target>Alter</target>
+      </trans-unit>
+      <trans-unit id="dcDe117" resname="data_catalog.variable.mci_case.age.description">
+        <source>data_catalog.variable.mci_case.age.description</source>
+        <target>Alter des Patienten in Jahren.</target>
+      </trans-unit>
+      <trans-unit id="dcDe118" resname="data_catalog.variable.mci_case.gender.label">
+        <source>data_catalog.variable.mci_case.gender.label</source>
+        <target>Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="dcDe119" resname="data_catalog.variable.mci_case.gender.description">
+        <source>data_catalog.variable.mci_case.gender.description</source>
+        <target>Geschlecht des Patienten laut IVENA.</target>
+      </trans-unit>
+      <trans-unit id="dcDe120" resname="data_catalog.variable.mci_case.is_pregnant.label">
+        <source>data_catalog.variable.mci_case.is_pregnant.label</source>
+        <target>Schwanger</target>
+      </trans-unit>
+      <trans-unit id="dcDe121" resname="data_catalog.variable.mci_case.is_pregnant.description">
+        <source>data_catalog.variable.mci_case.is_pregnant.description</source>
+        <target>Die Patientin ist schwanger.</target>
+      </trans-unit>
+      <trans-unit id="dcDe122" resname="data_catalog.variable.mci_case.urgency.label">
+        <source>data_catalog.variable.mci_case.urgency.label</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="dcDe123" resname="data_catalog.variable.mci_case.urgency.description">
+        <source>data_catalog.variable.mci_case.urgency.description</source>
+        <target>Sichtungskategorie SK1 bis SK3.</target>
+      </trans-unit>
+      <trans-unit id="dcDe124" resname="data_catalog.variable.mci_case.indication_raw.label">
+        <source>data_catalog.variable.mci_case.indication_raw.label</source>
+        <target>Indikation (Original)</target>
+      </trans-unit>
+      <trans-unit id="dcDe125" resname="data_catalog.variable.mci_case.indication_raw.description">
+        <source>data_catalog.variable.mci_case.indication_raw.description</source>
+        <target>Indikation (PZC) wie in IVENA gemeldet.</target>
+      </trans-unit>
+      <trans-unit id="dcDe126" resname="data_catalog.variable.mci_case.indication_normalized.label">
+        <source>data_catalog.variable.mci_case.indication_normalized.label</source>
+        <target>Indikation (normalisiert)</target>
+      </trans-unit>
+      <trans-unit id="dcDe127" resname="data_catalog.variable.mci_case.indication_normalized.description">
+        <source>data_catalog.variable.mci_case.indication_normalized.description</source>
+        <target>Der Original-Indikation zugeordnete normalisierte Indikation.</target>
+      </trans-unit>
+      <trans-unit id="dcDe128" resname="data_catalog.variable.mci_case.is_cpr.label">
+        <source>data_catalog.variable.mci_case.is_cpr.label</source>
+        <target>Reanimation</target>
+      </trans-unit>
+      <trans-unit id="dcDe129" resname="data_catalog.variable.mci_case.is_cpr.description">
+        <source>data_catalog.variable.mci_case.is_cpr.description</source>
+        <target>Der Patient wird reanimiert.</target>
+      </trans-unit>
+      <trans-unit id="dcDe130" resname="data_catalog.variable.mci_case.is_ventilated.label">
+        <source>data_catalog.variable.mci_case.is_ventilated.label</source>
+        <target>Beatmet</target>
+      </trans-unit>
+      <trans-unit id="dcDe131" resname="data_catalog.variable.mci_case.is_ventilated.description">
+        <source>data_catalog.variable.mci_case.is_ventilated.description</source>
+        <target>Der Patient wird beatmet.</target>
+      </trans-unit>
+      <trans-unit id="dcDe132" resname="data_catalog.variable.mci_case.is_shock.label">
+        <source>data_catalog.variable.mci_case.is_shock.label</source>
+        <target>Schock</target>
+      </trans-unit>
+      <trans-unit id="dcDe133" resname="data_catalog.variable.mci_case.is_shock.description">
+        <source>data_catalog.variable.mci_case.is_shock.description</source>
+        <target>Der Patient ist im Schock.</target>
+      </trans-unit>
+      <trans-unit id="dcDe134" resname="data_catalog.variable.mci_case.infection.label">
+        <source>data_catalog.variable.mci_case.infection.label</source>
+        <target>Infektion</target>
+      </trans-unit>
+      <trans-unit id="dcDe135" resname="data_catalog.variable.mci_case.infection.description">
+        <source>data_catalog.variable.mci_case.infection.description</source>
+        <target>Gemeldete Infektionskrankheit.</target>
+      </trans-unit>
+      <trans-unit id="dcDe136" resname="data_catalog.variable.mci_case.requires_resus.label">
+        <source>data_catalog.variable.mci_case.requires_resus.label</source>
+        <target>Schockraum angefordert</target>
+      </trans-unit>
+      <trans-unit id="dcDe137" resname="data_catalog.variable.mci_case.requires_resus.description">
+        <source>data_catalog.variable.mci_case.requires_resus.description</source>
+        <target>Für den Patienten wurde ein Schockraum angefordert.</target>
+      </trans-unit>
+      <trans-unit id="dcDe138" resname="data_catalog.variable.mci_case.requires_cathlab.label">
+        <source>data_catalog.variable.mci_case.requires_cathlab.label</source>
+        <target>Herzkatheter angefordert</target>
+      </trans-unit>
+      <trans-unit id="dcDe139" resname="data_catalog.variable.mci_case.requires_cathlab.description">
+        <source>data_catalog.variable.mci_case.requires_cathlab.description</source>
+        <target>Für den Patienten wurde ein Herzkatheterlabor angefordert.</target>
+      </trans-unit>
+      <trans-unit id="dcDe140" resname="data_catalog.variable.mci_case.transport_type.label">
+        <source>data_catalog.variable.mci_case.transport_type.label</source>
+        <target>Transportart</target>
+      </trans-unit>
+      <trans-unit id="dcDe141" resname="data_catalog.variable.mci_case.transport_type.description">
+        <source>data_catalog.variable.mci_case.transport_type.description</source>
+        <target>Boden- oder Lufttransport.</target>
+      </trans-unit>
+      <trans-unit id="dcDe142" resname="data_catalog.variable.mci_case.is_with_physician.label">
+        <source>data_catalog.variable.mci_case.is_with_physician.label</source>
+        <target>Arztbegleitung</target>
+      </trans-unit>
+      <trans-unit id="dcDe143" resname="data_catalog.variable.mci_case.is_with_physician.description">
+        <source>data_catalog.variable.mci_case.is_with_physician.description</source>
+        <target>Ein Arzt begleitet den Transport.</target>
+      </trans-unit>
+      <trans-unit id="dcDe144" resname="data_catalog.variable.mci_case.hospital.label">
+        <source>data_catalog.variable.mci_case.hospital.label</source>
+        <target>Klinik</target>
+      </trans-unit>
+      <trans-unit id="dcDe145" resname="data_catalog.variable.mci_case.hospital.description">
+        <source>data_catalog.variable.mci_case.hospital.description</source>
+        <target>Zielklinik des MANV-Patienten.</target>
+      </trans-unit>
+      <trans-unit id="dcDe146" resname="data_catalog.variable.mci_case.speciality.label">
+        <source>data_catalog.variable.mci_case.speciality.label</source>
+        <target>Fachgebiet</target>
+      </trans-unit>
+      <trans-unit id="dcDe147" resname="data_catalog.variable.mci_case.speciality.description">
+        <source>data_catalog.variable.mci_case.speciality.description</source>
+        <target>Fachgebiet, dem zugewiesen wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe148" resname="data_catalog.variable.mci_case.department.label">
+        <source>data_catalog.variable.mci_case.department.label</source>
+        <target>Fachbereich</target>
+      </trans-unit>
+      <trans-unit id="dcDe149" resname="data_catalog.variable.mci_case.department.description">
+        <source>data_catalog.variable.mci_case.department.description</source>
+        <target>Fachbereich, dem zugewiesen wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe150" resname="data_catalog.variable.mci_case.department_was_closed.label">
+        <source>data_catalog.variable.mci_case.department_was_closed.label</source>
+        <target>Fachbereich war abgemeldet</target>
+      </trans-unit>
+      <trans-unit id="dcDe151" resname="data_catalog.variable.mci_case.department_was_closed.description">
+        <source>data_catalog.variable.mci_case.department_was_closed.description</source>
+        <target>IVENA-Angabe, ob der Fachbereich bei der Zuweisung abgemeldet war.</target>
+      </trans-unit>
+      <trans-unit id="dcDe152" resname="data_catalog.variable.mci_case.occasion.label">
+        <source>data_catalog.variable.mci_case.occasion.label</source>
+        <target>Anlass</target>
+      </trans-unit>
+      <trans-unit id="dcDe153" resname="data_catalog.variable.mci_case.occasion.description">
+        <source>data_catalog.variable.mci_case.occasion.description</source>
+        <target>Einsatzanlass laut IVENA.</target>
+      </trans-unit>
+      <trans-unit id="dcDe154" resname="data_catalog.variable.mci_case.dispatch_area.label">
+        <source>data_catalog.variable.mci_case.dispatch_area.label</source>
+        <target>Leitstellenbereich</target>
+      </trans-unit>
+      <trans-unit id="dcDe155" resname="data_catalog.variable.mci_case.dispatch_area.description">
+        <source>data_catalog.variable.mci_case.dispatch_area.description</source>
+        <target>Leitstellenbereich, aus dem zugewiesen wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe156" resname="data_catalog.variable.mci_case.state.label">
+        <source>data_catalog.variable.mci_case.state.label</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="dcDe157" resname="data_catalog.variable.mci_case.state.description">
+        <source>data_catalog.variable.mci_case.state.description</source>
+        <target>Bundesland des Leitstellenbereichs.</target>
+      </trans-unit>
+      <trans-unit id="dcDe158" resname="data_catalog.variable.hospital.name.label">
+        <source>data_catalog.variable.hospital.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcDe159" resname="data_catalog.variable.hospital.name.description">
+        <source>data_catalog.variable.hospital.name.description</source>
+        <target>Name der Klinik.</target>
+      </trans-unit>
+      <trans-unit id="dcDe160" resname="data_catalog.variable.hospital.is_participating.label">
+        <source>data_catalog.variable.hospital.is_participating.label</source>
+        <target>Teilnehmend</target>
+      </trans-unit>
+      <trans-unit id="dcDe161" resname="data_catalog.variable.hospital.is_participating.description">
+        <source>data_catalog.variable.hospital.is_participating.description</source>
+        <target>Die Klinik nimmt an der gemeinsamen Statistik teil.</target>
+      </trans-unit>
+      <trans-unit id="dcDe162" resname="data_catalog.variable.hospital.participating_since.label">
+        <source>data_catalog.variable.hospital.participating_since.label</source>
+        <target>Teilnahme seit</target>
+      </trans-unit>
+      <trans-unit id="dcDe163" resname="data_catalog.variable.hospital.participating_since.description">
+        <source>data_catalog.variable.hospital.participating_since.description</source>
+        <target>Datum, ab dem die Klinik teilnimmt.</target>
+      </trans-unit>
+      <trans-unit id="dcDe164" resname="data_catalog.variable.hospital.size.label">
+        <source>data_catalog.variable.hospital.size.label</source>
+        <target>Größe</target>
+      </trans-unit>
+      <trans-unit id="dcDe165" resname="data_catalog.variable.hospital.size.description">
+        <source>data_catalog.variable.hospital.size.description</source>
+        <target>Größenklasse nach Bettenzahl.</target>
+      </trans-unit>
+      <trans-unit id="dcDe166" resname="data_catalog.variable.hospital.beds.label">
+        <source>data_catalog.variable.hospital.beds.label</source>
+        <target>Betten</target>
+      </trans-unit>
+      <trans-unit id="dcDe167" resname="data_catalog.variable.hospital.beds.description">
+        <source>data_catalog.variable.hospital.beds.description</source>
+        <target>Bettenzahl aus den Klinikstammdaten.</target>
+      </trans-unit>
+      <trans-unit id="dcDe168" resname="data_catalog.variable.hospital.tier.label">
+        <source>data_catalog.variable.hospital.tier.label</source>
+        <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="dcDe169" resname="data_catalog.variable.hospital.tier.description">
+        <source>data_catalog.variable.hospital.tier.description</source>
+        <target>Stufe der Notfallversorgung der Klinik.</target>
+      </trans-unit>
+      <trans-unit id="dcDe170" resname="data_catalog.variable.hospital.location.label">
+        <source>data_catalog.variable.hospital.location.label</source>
+        <target>Lage</target>
+      </trans-unit>
+      <trans-unit id="dcDe171" resname="data_catalog.variable.hospital.location.description">
+        <source>data_catalog.variable.hospital.location.description</source>
+        <target>Städtische, gemischte oder ländliche Lage.</target>
+      </trans-unit>
+      <trans-unit id="dcDe172" resname="data_catalog.variable.hospital.postal_code.label">
+        <source>data_catalog.variable.hospital.postal_code.label</source>
+        <target>Postleitzahl</target>
+      </trans-unit>
+      <trans-unit id="dcDe173" resname="data_catalog.variable.hospital.postal_code.description">
+        <source>data_catalog.variable.hospital.postal_code.description</source>
+        <target>Postleitzahl der Klinikadresse.</target>
+      </trans-unit>
+      <trans-unit id="dcDe174" resname="data_catalog.variable.hospital.city.label">
+        <source>data_catalog.variable.hospital.city.label</source>
+        <target>Ort</target>
+      </trans-unit>
+      <trans-unit id="dcDe175" resname="data_catalog.variable.hospital.city.description">
+        <source>data_catalog.variable.hospital.city.description</source>
+        <target>Ort der Klinikadresse.</target>
+      </trans-unit>
+      <trans-unit id="dcDe176" resname="data_catalog.variable.hospital.latitude.label">
+        <source>data_catalog.variable.hospital.latitude.label</source>
+        <target>Breitengrad</target>
+      </trans-unit>
+      <trans-unit id="dcDe177" resname="data_catalog.variable.hospital.latitude.description">
+        <source>data_catalog.variable.hospital.latitude.description</source>
+        <target>Geografische Breite der Klinik (WGS 84).</target>
+      </trans-unit>
+      <trans-unit id="dcDe178" resname="data_catalog.variable.hospital.longitude.label">
+        <source>data_catalog.variable.hospital.longitude.label</source>
+        <target>Längengrad</target>
+      </trans-unit>
+      <trans-unit id="dcDe179" resname="data_catalog.variable.hospital.longitude.description">
+        <source>data_catalog.variable.hospital.longitude.description</source>
+        <target>Geografische Länge der Klinik (WGS 84).</target>
+      </trans-unit>
+      <trans-unit id="dcDe180" resname="data_catalog.variable.hospital.dispatch_area.label">
+        <source>data_catalog.variable.hospital.dispatch_area.label</source>
+        <target>Leitstellenbereich</target>
+      </trans-unit>
+      <trans-unit id="dcDe181" resname="data_catalog.variable.hospital.dispatch_area.description">
+        <source>data_catalog.variable.hospital.dispatch_area.description</source>
+        <target>Leitstellenbereich, zu dem die Klinik gehört.</target>
+      </trans-unit>
+      <trans-unit id="dcDe182" resname="data_catalog.variable.hospital.state.label">
+        <source>data_catalog.variable.hospital.state.label</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="dcDe183" resname="data_catalog.variable.hospital.state.description">
+        <source>data_catalog.variable.hospital.state.description</source>
+        <target>Bundesland, in dem die Klinik liegt.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
