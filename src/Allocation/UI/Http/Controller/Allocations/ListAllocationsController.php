@@ -6,6 +6,8 @@ namespace App\Allocation\UI\Http\Controller\Allocations;
 
 use App\Allocation\Application\Allocations\AllocationListHospitalScopeOptionsProvider;
 use App\Allocation\Application\Explore\ExploreFilterOptionsProvider;
+use App\Allocation\Application\ListExtension\AllocationListExtensionFilter;
+use App\Allocation\Application\ListExtension\AllocationListExtensionRegistry;
 use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Domain\Enum\ClosureAtAssignment;
@@ -36,6 +38,7 @@ final class ListAllocationsController extends AbstractController
         private readonly ImportUploadTargets $uploadTargets,
         private readonly AllocationListColumns $columns,
         private readonly DataTablePreferenceService $dataTablePreferences,
+        private readonly AllocationListExtensionRegistry $listExtensions,
     ) {
     }
 
@@ -56,12 +59,23 @@ final class ListAllocationsController extends AbstractController
             $queryPreferences->pageSize,
         );
 
+        // Filters and columns of other contexts (#1203); a filter value can show its column without being picked.
+        $extensionFilters = $this->listExtensions->activeFilters($request->query->all(), $participant);
+        $visibleColumns = array_values(array_unique([
+            ...$preferences->visibleColumns,
+            ...$this->listExtensions->columnsShownBy($extensionFilters, $participant),
+        ]));
+
         $paginator = $this->allocationsQuery->getPaginator(
             $query,
             $participant,
-            array_values(array_intersect(AllocationListColumns::JOINED_COLUMNS, $preferences->visibleColumns)),
+            array_values(array_intersect(
+                [...AllocationListColumns::JOINED_COLUMNS, ...$this->columns->extensionColumnKeys($participant)],
+                $visibleColumns,
+            )),
             // An explicit limit wins (shared links); otherwise the user's saved page size applies.
             $request->query->has('limit') ? null : $preferences->pageSize,
+            $extensionFilters,
         );
         $hospitalScopeOptions = null;
         if ($participant instanceof User && $this->hospitalScopeOptionsProvider->canUseFilter($participant)) {
@@ -78,12 +92,14 @@ final class ListAllocationsController extends AbstractController
             'pagination_route' => 'app_explore_allocation_list',
             'sortBy' => $query->sortBy,
             'orderBy' => $query->orderBy,
-            'allocationColumns' => AllocationListColumns::columns(),
+            'allocationColumns' => $this->columns->columnsFor($participant),
             'allocationPreferences' => $preferences,
+            'allocationVisibleColumns' => $visibleColumns,
             'allocationPreferenceKey' => $schema->key,
             'allocationPreferencesPersisted' => $participant instanceof User,
             'filters' => $query,
-            'activeFilterCount' => $this->countActiveFilters($query),
+            'activeFilterCount' => $this->countActiveFilters($query) + \count($extensionFilters),
+            'listExtensionFilters' => $this->extensionFilterViews($extensionFilters, $participant),
             'tiers' => HospitalTier::cases(),
             'locations' => HospitalLocation::cases(),
             'sizes' => HospitalSize::cases(),
@@ -95,6 +111,21 @@ final class ListAllocationsController extends AbstractController
             // The empty state offers an allocation import (#1351).
             'canImport' => $participant instanceof User && $this->uploadTargets->canUpload($participant, ImportType::ALLOCATION),
         ]);
+    }
+
+    /**
+     * @param array<string, string> $activeFilters
+     *
+     * @return list<array{key: string, filter: AllocationListExtensionFilter, value: string|null}>
+     */
+    private function extensionFilterViews(array $activeFilters, ?User $user): array
+    {
+        $views = [];
+        foreach ($this->listExtensions->availableFor($user) as $key => $extension) {
+            $views[] = ['key' => $key, 'filter' => $extension->filter(), 'value' => $activeFilters[$key] ?? null];
+        }
+
+        return $views;
     }
 
     private function countActiveFilters(AllocationQueryParametersDTO $queryParametersDTO): int

@@ -6,6 +6,7 @@ namespace App\Allocation\Infrastructure\Query;
 
 use App\Allocation\Application\Allocations\AllocationListFilterCriteriaFactory;
 use App\Allocation\Application\Export\AllocationListFilterApplicator;
+use App\Allocation\Application\ListExtension\AllocationListExtensionRegistry;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
@@ -31,6 +32,7 @@ final readonly class ListAllocationsQuery
         private AllocationListFilterApplicator $filterApplicator,
         private AllocationListFilterCriteriaFactory $filterCriteriaFactory,
         private AllocationListResultCountQuery $resultCountQuery,
+        private AllocationListExtensionRegistry $extensions,
     ) {
     }
 
@@ -48,14 +50,16 @@ final readonly class ListAllocationsQuery
     ];
 
     /**
-     * @param list<string> $optionalColumns visible optional columns; only these are joined
-     * @param int|null     $pageSize        page size to use instead of the query's `limit` (a saved preference)
+     * @param list<string>          $optionalColumns  visible optional columns; only these are joined or filled
+     * @param int|null              $pageSize         page size to use instead of the query's `limit` (a saved preference)
+     * @param array<string, string> $extensionFilters active filters of list extensions (#1203), keyed by extension key
      */
     public function getPaginator(
         AllocationQueryParametersDTO $queryParametersDTO,
         ?User $user = null,
         array $optionalColumns = [],
         ?int $pageSize = null,
+        array $extensionFilters = [],
     ): CursorPaginator {
         $limit = max(1, $pageSize ?? $queryParametersDTO->limit);
         $qb = $this->entityManager->createQueryBuilder();
@@ -129,6 +133,7 @@ final readonly class ListAllocationsQuery
         };
 
         $this->filterApplicator->apply($qb, $this->filterCriteriaFactory->fromQuery($queryParametersDTO, $user));
+        $this->extensions->applyFilters($qb, $extensionFilters, $user);
 
         $resultCount = $this->resultCountQuery->count($qb);
 
@@ -142,7 +147,7 @@ final readonly class ListAllocationsQuery
             $slice = $this->fetchSlice($qb, $queryParametersDTO, $sortField, null, $limit);
         }
 
-        $rows = $this->withOptionalColumns($slice['rows'], $optionalColumns);
+        $rows = $this->extensions->withCells($this->withOptionalColumns($slice['rows'], $optionalColumns), $optionalColumns, $user);
         $nextCursor = null;
         $previousCursor = null;
         if ([] !== $rows) {

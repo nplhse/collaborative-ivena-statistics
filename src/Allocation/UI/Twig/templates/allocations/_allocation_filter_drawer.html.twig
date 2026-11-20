@@ -336,5 +336,32 @@
                         </div>
                     {{ editAccordion.panel_end() }}
                 </div>
+                {# Filters of other contexts (allocation list extensions, #1203), one section each. #}
+                {% for extension in listExtensionFilters|default([]) %}
+                    {% set extensionFilter = extension.filter %}
+                    <div class="accordion-item" data-testid="allocation-filter-section-{{ extension.key }}">
+                        {{ editAccordion.header(
+                            'allocation-filter-' ~ extension.key ~ '-heading',
+                            'allocation-filter-' ~ extension.key ~ '-panel',
+                            (extensionFilter.section ?? extensionFilter.label)|trans({}, extensionFilter.domain),
+                            'allocation-filter-section-' ~ extension.key ~ '-toggle',
+                            extension.value is not null,
+                        ) }}
+                        {{ editAccordion.panel_start('allocation-filter-' ~ extension.key ~ '-panel', 'allocation-filter-' ~ extension.key ~ '-heading', extension.value is not null) }}
+                            <div class="accordion-body">
+                                <label class="form-label" for="allocation-filter-{{ extension.key }}">{{ extensionFilter.label|trans({}, extensionFilter.domain) }}</label>
+                                <select name="{{ extension.key }}" id="allocation-filter-{{ extension.key }}" class="form-select" data-testid="allocation-filter-{{ extension.key }}">
+                                    <option value="">{{ extensionFilter.allLabel|trans({}, extensionFilter.domain) }}</option>
+                                    {% for value, label in extensionFilter.choices %}
+                                        <option value="{{ value }}" {{ extension.value == value ? 'selected' }}>{{ label|trans({}, extensionFilter.domain) }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% if extensionFilter.help %}
+                                    <div class="form-text">{{ extensionFilter.help|trans({}, extensionFilter.domain) }}</div>
+                                {% endif %}
+                            </div>
+                        {{ editAccordion.panel_end() }}
+                    </div>
+                {% endfor %}
             </div>
 </twig:FilterDrawer>

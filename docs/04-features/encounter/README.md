@@ -419,6 +419,7 @@ Overviews cross both attributes, for example "EMS arrival, not linked".
 | Case-level views, case card on an allocation, visit list and visit detail page | beta role + encounter grant `VIEW_CASES`, or `ROLE_ADMIN` |
 | Open proposals (state "proposal pending") and links into the match review on the visit list and detail page | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
 | Assignment conflicts of attaching schemas: view and decide (#1274, #1307) | beta role + encounter grant `REVIEW`, or `ROLE_ADMIN` |
+| Filter "Linked encounter" and column "Encounter" in the Explore allocation list (#1203) | beta role + encounter grant `VIEW_CASES` (or `REVIEW`) for at least one hospital, or `ROLE_ADMIN`; rows and cells only for those hospitals ([explore-allocation-list.md](../allocation/explore-allocation-list.md#filters-and-columns-of-other-contexts)) |
 | Explore tiles of further encounter schemas | beta role + encounter grant `VIEW_CASES` (or `REVIEW`) for at least one hospital, or `ROLE_ADMIN`; the target page checks the hospital |
 | Descriptive aggregates of the own hospital | beta role + any encounter grant + `STATISTICS`, or `ROLE_ADMIN` |
 | View or download a retained upload file | beta role + encounter grant `UPLOAD` on the hospital, or `ROLE_ADMIN` |

@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Twig;
 
+use App\Allocation\Application\ListExtension\AllocationListExtensionRegistry;
 use App\Shared\Application\DataTable\DataTablePreferenceDefinitionInterface;
 use App\Shared\Application\DataTable\DataTablePreferenceSchema;
 use App\Shared\UI\Twig\DataTable\DataTableColumns;
+use App\User\Domain\Entity\User;
 
 /**
  * Columns of the Explore allocation list. Sorting stays limited to the keyset keys
  * (arrival time and age); the optional columns only change what is shown.
  */
-final class AllocationListColumns implements DataTablePreferenceDefinitionInterface
+final readonly class AllocationListColumns implements DataTablePreferenceDefinitionInterface
 {
     public const string PREFERENCE_KEY = 'explore.allocations';
 
@@ -25,6 +27,53 @@ final class AllocationListColumns implements DataTablePreferenceDefinitionInterf
      * @var list<string>
      */
     public const array JOINED_COLUMNS = ['speciality', 'department', 'assignment', 'occasion'];
+
+    /** @psalm-suppress PossiblyUnusedMethod Autowired. */
+    public function __construct(
+        private ?AllocationListExtensionRegistry $extensions = null,
+    ) {
+    }
+
+    /**
+     * The columns the user can see: the base columns plus the columns of the list extensions available to the
+     * user (#1203), before the row action.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function columnsFor(?User $user): array
+    {
+        return $this->withExtensionColumns($this->extensions?->columnsFor($user) ?? []);
+    }
+
+    /**
+     * Keys of the extension columns available to the user.
+     *
+     * @return list<string>
+     */
+    public function extensionColumnKeys(?User $user): array
+    {
+        return array_keys($this->extensions?->availableFor($user) ?? []);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $extensionColumns
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function withExtensionColumns(array $extensionColumns): array
+    {
+        $columns = [];
+        $actions = [];
+        foreach (self::columns() as $column) {
+            if ('actions' === ($column['key'] ?? null)) {
+                $actions[] = $column;
+            } else {
+                $columns[] = $column;
+            }
+        }
+
+        return [...$columns, ...$extensionColumns, ...$actions];
+    }
 
     /**
      * @return list<array<string, mixed>>
@@ -65,9 +114,10 @@ final class AllocationListColumns implements DataTablePreferenceDefinitionInterf
     #[\Override]
     public function preferenceSchema(): DataTablePreferenceSchema
     {
+        // Every extension column is part of the schema, so a saved choice survives; columnsFor() decides who sees it.
         return DataTablePreferenceSchema::fromColumns(
             self::PREFERENCE_KEY,
-            self::columns(),
+            $this->withExtensionColumns($this->extensions?->allColumns() ?? []),
             sortKeys: self::SORT_KEYS,
             defaultSortBy: 'arrivalAt',
             defaultOrderBy: 'desc',
