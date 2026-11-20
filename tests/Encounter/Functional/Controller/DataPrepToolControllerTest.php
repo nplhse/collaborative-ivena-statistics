@@ -140,7 +140,7 @@ final class DataPrepToolControllerTest extends WebTestCase
 
         $crawler = $client->request(Request::METHOD_GET, '/tools');
         self::assertResponseIsSuccessful();
-        self::assertCount(1, $crawler->filter('[data-tools-category="data_preparation"] [data-tool-key="encounter_data_prep"][href="/tools/data-prep"]'), 'the Tools card links the landing page (#1128)');
+        self::assertCount(1, $crawler->filter('[data-tools-category="data_preparation"] [data-tool-key="encounter_data_prep"] [data-testid="tools-card-link"][href="/tools/data-prep"]'), 'the Tools card links the landing page (#1128)');
 
         $crawler = $client->request(Request::METHOD_GET, '/tools/data-prep');
         self::assertResponseIsSuccessful();

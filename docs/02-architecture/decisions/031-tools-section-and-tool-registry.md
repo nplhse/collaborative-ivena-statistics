@@ -58,3 +58,14 @@ several contexts (Allocation, Encounter, later MTS management), and `Shared` mus
 - The navigation entry appears only for users with at least one tool.
 - Moving existing workflows changes their URLs; redirects keep bookmarks working during the beta.
 - Extension point documented in [extension-points.md](../extension-points.md#tools).
+
+## Amendment (November 2026, #1201): topics
+
+Besides its category (what kind of work it is), a tool names the **topics** it is about
+(`ToolTopic`: allocations, encounter data, indications, imports), so users find the tools for one subject.
+The landing page shows the topics as badges and filters by one of them (`/tools?topic=<topic>`, a
+dropdown offered once the user's tools have at least two topics; an unknown topic or one without visible
+tools is ignored). Topics are a fixed enum in `Shared`, like `ToolCategory`, so the labels stay consistent and
+are translated in one place; a plugin chooses from them and a new topic is a change in `Shared`. Free
+topic strings per provider were rejected because spelling variants would split the filter.
+

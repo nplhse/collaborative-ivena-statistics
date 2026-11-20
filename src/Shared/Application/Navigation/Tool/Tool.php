@@ -13,6 +13,7 @@ final readonly class Tool
 {
     /**
      * @param array<string, int|string> $routeParameters
+     * @param list<ToolTopic>           $topics          what the tool is about, shown as badges and used by the topic filter
      */
     public function __construct(
         public string $key,
@@ -24,6 +25,12 @@ final readonly class Tool
         public ToolCategory $category,
         public bool $beta = false,
         public array $routeParameters = [],
+        public array $topics = [],
     ) {
+    }
+
+    public function hasTopic(ToolTopic $topic): bool
+    {
+        return \in_array($topic, $this->topics, true);
     }
 }

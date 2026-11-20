@@ -8,6 +8,7 @@ use App\Allocation\Infrastructure\Security\Voter\IndicationRawReviewVoter;
 use App\Shared\Application\Navigation\Tool\Tool;
 use App\Shared\Application\Navigation\Tool\ToolCategory;
 use App\Shared\Application\Navigation\Tool\ToolProviderInterface;
+use App\Shared\Application\Navigation\Tool\ToolTopic;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
@@ -41,6 +42,7 @@ final readonly class IndicationReviewToolProvider implements ToolProviderInterfa
                 route: 'app_tools_indication_review',
                 icon: 'tabler:list-check',
                 category: ToolCategory::Matching,
+                topics: [ToolTopic::Indications, ToolTopic::Allocations],
             ),
         ];
     }

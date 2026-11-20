@@ -8,6 +8,7 @@ use App\Encounter\UI\DataPrep\DataPrepContributions;
 use App\Shared\Application\Navigation\Tool\Tool;
 use App\Shared\Application\Navigation\Tool\ToolCategory;
 use App\Shared\Application\Navigation\Tool\ToolProviderInterface;
+use App\Shared\Application\Navigation\Tool\ToolTopic;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
@@ -43,6 +44,7 @@ final readonly class DataPrepToolProvider implements ToolProviderInterface
                 icon: 'tabler:file-export',
                 category: ToolCategory::DataPreparation,
                 beta: true,
+                topics: [ToolTopic::Encounters, ToolTopic::Imports],
             ),
         ];
     }

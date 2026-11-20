@@ -8,6 +8,7 @@ use App\Shared\Application\Navigation\Tool\Tool;
 use App\Shared\Application\Navigation\Tool\ToolCategory;
 use App\Shared\Application\Navigation\Tool\ToolProviderInterface;
 use App\Shared\Application\Navigation\Tool\ToolRegistry;
+use App\Shared\Application\Navigation\Tool\ToolTopic;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -60,6 +61,36 @@ final class ToolRegistryTest extends TestCase
         self::assertSame(['prep'], array_map(static fn (Tool $tool): string => $tool->key, $groups[0]->tools));
     }
 
+    public function testAvailableTopicsAreUniqueAndFollowTheTopicOrder(): void
+    {
+        $registry = new ToolRegistry([
+            $this->provider($this->tool('prep', ToolCategory::DataPreparation, ToolTopic::Imports, ToolTopic::Encounters)),
+            $this->provider($this->tool('review', ToolCategory::Matching, ToolTopic::Encounters, ToolTopic::Allocations)),
+            $this->provider($this->tool('plain', ToolCategory::Matching)),
+        ], $this->translator());
+
+        self::assertSame(
+            [ToolTopic::Allocations, ToolTopic::Encounters, ToolTopic::Imports],
+            $registry->availableTopics(),
+            'Indications is no topic of any tool and stays out; the others follow the order of ToolTopic.',
+        );
+    }
+
+    public function testATopicKeepsOnlyItsToolsAndDropsCategoriesLeftEmpty(): void
+    {
+        $registry = new ToolRegistry([
+            $this->provider($this->tool('prep', ToolCategory::DataPreparation, ToolTopic::Imports)),
+            $this->provider($this->tool('review', ToolCategory::Matching, ToolTopic::Allocations), $this->tool('conflicts', ToolCategory::Matching)),
+        ], $this->translator());
+
+        $groups = $registry->groupedByCategory(ToolTopic::Allocations);
+
+        self::assertCount(1, $groups);
+        self::assertSame(ToolCategory::Matching, $groups[0]->category);
+        self::assertSame(['review'], array_map(static fn (Tool $tool): string => $tool->key, $groups[0]->tools));
+        self::assertCount(2, $registry->groupedByCategory(), 'Without a topic every tool is listed.');
+    }
+
     public function testDuplicateKeysAreRejected(): void
     {
         $registry = new ToolRegistry([
@@ -73,9 +104,9 @@ final class ToolRegistryTest extends TestCase
         $registry->availableTools();
     }
 
-    private function tool(string $key, ToolCategory $category): Tool
+    private function tool(string $key, ToolCategory $category, ToolTopic ...$topics): Tool
     {
-        return new Tool($key, $key, 'description', 'shared', 'app_tools_index', 'tabler:tool', $category);
+        return new Tool($key, $key, 'description', 'shared', 'app_tools_index', 'tabler:tool', $category, topics: array_values($topics));
     }
 
     /**

@@ -249,7 +249,7 @@ final class EncounterAccessGrantControllerTest extends WebTestCase
             $crawler->filter('[data-tools-category="matching"] [data-tool-key^="encounter_"]')->each(static fn ($card): string => (string) $card->attr('data-tool-key')),
         );
         self::assertCount(4, $crawler->filter('[data-tool-key^="encounter_"] [data-testid="tools-card-beta"]'));
-        self::assertSelectorExists('[data-tool-key="encounter_validation"][href="/tools/encounter-review?mode=validation"]');
+        self::assertSelectorExists('[data-tool-key="encounter_validation"] [data-testid="tools-card-link"][href="/tools/encounter-review?mode=validation"]');
         self::assertSelectorNotExists('[data-test="nav-encounter"]');
     }
 
