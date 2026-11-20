@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Import\UI\Http\Controller;
 
-use App\Import\Application\Service\ImportUploadGuard;
 use App\Import\Application\Service\PendingImportUploadStore;
 use App\Import\Domain\Validation\Constraints\ImportSourceFile;
 use App\Import\Infrastructure\Security\Voter\ImportCreateVoter;
@@ -27,7 +26,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * Background upload of the import form (#977): stores the selected file as a pending upload of the current
  * user and answers with its token. Creates no import; the form submission consumes the token and runs the
- * regular checks again. Same file rules as the form (type, Excel rejection, size), CSRF token `import_upload`.
+ * regular checks again. Same file rules as the form (`ImportSourceFile` with `ImportUploadGuard`, size), CSRF
+ * token `import_upload`.
  */
 #[IsGranted('ROLE_PARTICIPANT')]
 final class PendingImportUploadController extends AbstractController
@@ -36,7 +36,6 @@ final class PendingImportUploadController extends AbstractController
 
     public function __construct(
         private readonly PendingImportUploadStore $store,
-        private readonly ImportUploadGuard $uploadGuard,
         private readonly ValidatorInterface $validator,
         private readonly TranslatorInterface $translator,
         #[Autowire(param: 'app.imports_max_size')]
@@ -64,12 +63,6 @@ final class PendingImportUploadController extends AbstractController
         $violations = $this->validator->validate($file, [new ImportSourceFile(), new Assert\File(maxSize: $this->maxSize)]);
         if (\count($violations) > 0) {
             return $this->json(['error' => (string) $violations->get(0)->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-
-        // The guard also checks the detected MIME type, which the constraint skips for some clients.
-        $rejection = $this->uploadGuard->resolveRejectionMessageKey($file);
-        if (null !== $rejection) {
-            return $this->error($rejection, 'validators', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         try {

@@ -7,6 +7,7 @@ namespace App\Tests\Import\Functional\Controller;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Tests\Support\RateLimit\DeniesRateLimiter;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -24,6 +25,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class PendingImportUploadControllerTest extends WebTestCase
 {
+    use DeniesRateLimiter;
     use Factories;
 
     private KernelBrowser $client;
@@ -94,6 +96,30 @@ final class PendingImportUploadControllerTest extends WebTestCase
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
         self::assertStringContainsString('Excel', (string) $answer['error']);
+        self::assertDirectoryDoesNotExist($this->pendingDir.'/'.$owner->getId());
+    }
+
+    public function testARequestWithoutAFileIsRejected(): void
+    {
+        $this->client->loginUser($this->owner());
+
+        $this->client->request(Request::METHOD_POST, '/import/upload', ['_token' => $this->csrfToken()]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertStringContainsString('could not be uploaded', (string) $this->client->getResponse()->getContent());
+    }
+
+    public function testUploadsAreRateLimited(): void
+    {
+        $this->client->disableReboot();
+        $owner = $this->owner();
+        $this->client->loginUser($owner);
+        $csrfToken = $this->csrfToken();
+        $this->denyRateLimiter('limiter.import_upload', $this->userAndIpRateLimitKey('import_upload', (int) $owner->getId()));
+
+        $this->client->request(Request::METHOD_POST, '/import/upload', ['_token' => $csrfToken], ['file' => $this->file('export.csv')]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_TOO_MANY_REQUESTS);
         self::assertDirectoryDoesNotExist($this->pendingDir.'/'.$owner->getId());
     }
 

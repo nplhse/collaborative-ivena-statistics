@@ -725,6 +725,25 @@ final class NewImportControllerTest extends WebTestCase
         self::assertFileExists($this->pendingDir().'/'.$otherOwner->getId().'/'.$foreignToken.'.upload', 'The other user keeps the file.');
     }
 
+    public function testAFileSentWithTheFormWinsOverAnUploadToken(): void
+    {
+        $client = self::createClient();
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $client->loginUser($owner);
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        $token = $this->uploadInBackground($client, $crawler);
+
+        $this->postAllocationUpload($client, $crawler, 'Direct Upload', $hospitalId, ['uploadToken' => $token]);
+
+        self::assertResponseRedirects();
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $import = $em->getRepository(Import::class)->findOneBy(['name' => 'Direct Upload']);
+        self::assertNotNull($import);
+        self::assertFileExists($this->pendingDir().'/'.$owner->getId().'/'.$token.'.upload', 'The background upload was not used; the hourly job removes it.');
+        @\unlink(self::getContainer()->get(ImportFileStorage::class)->resolve((string) $import->getFilePath()));
+    }
+
     public function testTheBackgroundUploadSurvivesAnErrorInAnotherField(): void
     {
         $client = self::createClient();

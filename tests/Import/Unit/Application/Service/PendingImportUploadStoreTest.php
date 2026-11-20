@@ -91,6 +91,36 @@ final class PendingImportUploadStoreTest extends TestCase
         self::assertNotNull($this->store->find($fresh->token, 8));
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function damagedMetadata(): iterable
+    {
+        yield 'no JSON' => ['{'];
+        yield 'not an object' => ['"export.csv"'];
+        yield 'missing size' => ['{"originalName":"a.csv","mimeType":"text/csv","uploadedAt":"2026-11-20T12:00:00+01:00"}'];
+        yield 'unreadable time' => ['{"originalName":"a.csv","mimeType":"text/csv","size":1,"uploadedAt":"yesterday"}'];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('damagedMetadata')]
+    public function testDamagedMetadataMakesTheUploadUnknown(string $metadata): void
+    {
+        $upload = $this->store->store($this->upload('export.csv', 'x'), 7);
+        file_put_contents($this->baseDir.'/pending/7/'.$upload->token.'.json', $metadata);
+
+        self::assertNull($this->store->find($upload->token, 7));
+        self::assertNull($this->store->uploadedFile($upload->token, 7));
+    }
+
+    public function testDeleteIgnoresSomethingThatIsNoToken(): void
+    {
+        $upload = $this->store->store($this->upload('export.csv', 'x'), 7);
+
+        $this->store->delete('../7/'.$upload->token, 7);
+
+        self::assertNotNull($this->store->find($upload->token, 7));
+    }
+
     public function testPurgeWithoutPendingUploadsDeletesNothing(): void
     {
         self::assertSame(0, $this->store->purgeExpired());
