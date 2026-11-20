@@ -533,7 +533,8 @@ beta)
 Lets a context add an interactive workflow (review, validation, data preparation) to the Tools section
 without a dependency from `Shared` on it ([ADR 031](decisions/031-tools-section-and-tool-registry.md)).
 A `Tool` names its title and description keys with their translation domain, the route, a Tabler icon,
-a `ToolCategory` and an optional beta flag. Tool keys are unique. The landing page lists the categories
+a `ToolCategory`, an optional beta flag and its topics (`ToolTopic`, #1201: badges on the card and the topic
+filter `/tools?topic=`; choose from the enum, a new topic is a change in `Shared`). Tool keys are unique. The landing page lists the categories
 in the order of `ToolCategory` and the tools inside a category alphabetically by their translated title in
 the current locale (`\Collator`). Providers check access themselves and return no tool for users who may
 not open it; the main navigation asks the providers (`ToolRegistry::hasTools()`) on every page, so decide

@@ -7,6 +7,7 @@ namespace Cois\Plugin\EdVisit\UI\Navigation;
 use App\Shared\Application\Navigation\Tool\Tool;
 use App\Shared\Application\Navigation\Tool\ToolCategory;
 use App\Shared\Application\Navigation\Tool\ToolProviderInterface;
+use App\Shared\Application\Navigation\Tool\ToolTopic;
 use Cois\Plugin\EdVisit\UI\Http\Controller\Review\ListReviewHospitalsController;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
@@ -47,6 +48,7 @@ final readonly class EncounterToolProvider implements ToolProviderInterface
                 icon: 'tabler:arrows-exchange',
                 category: ToolCategory::Matching,
                 beta: true,
+                topics: [ToolTopic::Allocations, ToolTopic::Encounters],
             ),
             new Tool(
                 key: self::VALIDATION,
@@ -58,6 +60,7 @@ final readonly class EncounterToolProvider implements ToolProviderInterface
                 category: ToolCategory::Matching,
                 beta: true,
                 routeParameters: ['mode' => ListReviewHospitalsController::MODE_VALIDATION],
+                topics: [ToolTopic::Allocations, ToolTopic::Encounters],
             ),
         ];
 
@@ -72,6 +75,7 @@ final readonly class EncounterToolProvider implements ToolProviderInterface
                 icon: 'tabler:table',
                 category: ToolCategory::Matching,
                 beta: true,
+                topics: [ToolTopic::Indications, ToolTopic::Encounters],
             );
         }
 

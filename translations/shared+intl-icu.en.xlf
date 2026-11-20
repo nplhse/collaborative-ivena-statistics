@@ -373,6 +373,34 @@
         <source>tools.beta</source>
         <target>Beta</target>
       </trans-unit>
+      <trans-unit id="ToolsTopicAllocationsEn" resname="tools.topic.allocations">
+        <source>tools.topic.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="ToolsTopicEncountersEn" resname="tools.topic.encounters">
+        <source>tools.topic.encounters</source>
+        <target>Encounter data</target>
+      </trans-unit>
+      <trans-unit id="ToolsTopicIndicationsEn" resname="tools.topic.indications">
+        <source>tools.topic.indications</source>
+        <target>Indications</target>
+      </trans-unit>
+      <trans-unit id="ToolsTopicImportsEn" resname="tools.topic.imports">
+        <source>tools.topic.imports</source>
+        <target>Imports</target>
+      </trans-unit>
+      <trans-unit id="ToolsTopicFilterLabelEn" resname="tools.topic.filter_label">
+        <source>tools.topic.filter_label</source>
+        <target>Topic</target>
+      </trans-unit>
+      <trans-unit id="ToolsTopicAllEn" resname="tools.topic.all">
+        <source>tools.topic.all</source>
+        <target>All topics</target>
+      </trans-unit>
+      <trans-unit id="ToolsTopicShowOnlyEn" resname="tools.topic.show_only">
+        <source>tools.topic.show_only</source>
+        <target>Show only tools about {topic}</target>
+      </trans-unit>
       <trans-unit id="ToolsCatMatchEn" resname="tools.category.matching">
         <source>tools.category.matching</source>
         <target>Matching and review</target>
