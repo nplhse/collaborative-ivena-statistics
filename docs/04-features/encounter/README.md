@@ -726,7 +726,7 @@ none linked to another visit than the reference.
 
 ## Match review
 
-Implemented in #1054. Pages under `/tools/encounter-review` (Tools card "Encounter match review"): beta role + encounter
+Implemented in #1054. Pages under `/tools/encounter-review` (Tools card "ED match review"): beta role + encounter
 grant `REVIEW` on the hospital, or `ROLE_ADMIN`. With one reviewable hospital the entry opens it directly;
 administrators see every hospital with encounter data. Another hospital's page answers 403, an allocation
 of another hospital under one's own hospital 404.
@@ -1260,15 +1260,16 @@ imports that file and expects no file or row rejects.
 Since #1128 the interactive encounter workflows are tools ([ADR 031](../../02-architecture/decisions/031-tools-section-and-tool-registry.md)),
 listed for `ROLE_ENCOUNTER_BETA` with a beta badge: match review, validation and plausibility table by
 `EncounterToolProvider` of the ED visit plugin, the data preparation tool and the assignment conflicts by the core
-(`DataPrepToolProvider`, `AssignmentConflictToolProvider`, so they stay without the plugin):
+(`DataPrepToolProvider`, `AssignmentConflictToolProvider`, so they stay without the plugin). Names and
+naming rules: [tools.md](../tools.md).
 
 | Tool | Route | Path |
 |---|---|---|
-| Encounter match review | `app_tools_encounter_review` | `/tools/encounter-review` (hospital list), `/tools/encounter-review/{id}/…` |
-| Encounter match validation | `app_tools_encounter_review` with `mode=validation` | the same hospital list, linking to `/tools/encounter-review/{id}/validation` |
-| Data preparation tool | `app_tools_data_prep` | `/tools/data-prep`, `/tools/data-prep/key`, `/tools/data-prep/local-map`, `/tools/data-prep/download` |
+| ED match review | `app_tools_encounter_review` | `/tools/encounter-review` (hospital list), `/tools/encounter-review/{id}/…` |
+| ED match validation | `app_tools_encounter_review` with `mode=validation` | the same hospital list, linking to `/tools/encounter-review/{id}/validation` |
+| Encounter data preparation | `app_tools_data_prep` | `/tools/data-prep`, `/tools/data-prep/key`, `/tools/data-prep/local-map`, `/tools/data-prep/download` |
 | Assignment conflicts (#1274, #1307) | `app_tools_encounter_assignments` | `/tools/encounter-assignments` (hospitals with grant `REVIEW`; administrators: every hospital with conflicts), `/tools/encounter-assignments/{id}` (open ambiguous and contradictory records of attaching schemas with their candidates and the two decisions, newest 200; deferred records read only below), `POST /tools/encounter-assignments/{id}/conflicts/{pendingId}/assign\|defer` (`app_tools_encounter_assignments_decide`) |
-| Plausibility table (also needs `ROLE_ENCOUNTER_CATALOG_REVIEWER`, [above](#plausibility-table)) | `app_tools_encounter_plausibility*` | `/tools/encounter-plausibility`, `…/areas/new`, `…/areas/{code}/edit`, `…/areas/{code}/delete`, `…/snapshots/{id}`, `…/snapshots/{id}/{activate,retire,delete}` |
+| PZC × MTS plausibility table (also needs `ROLE_ENCOUNTER_CATALOG_REVIEWER`, [above](#plausibility-table)) | `app_tools_encounter_plausibility*` | `/tools/encounter-plausibility`, `…/areas/new`, `…/areas/{code}/edit`, `…/areas/{code}/delete`, `…/snapshots/{id}`, `…/snapshots/{id}/{activate,retire,delete}` |
 
 There is no encounter entry in the main navigation anymore: descriptive figures are in Statistics
 (`/statistics/encounter-analytics`), the MTS glossary and the case card in Explore, the upload in Import and

@@ -463,7 +463,7 @@
       </trans-unit>
       <trans-unit id="IndRevWLDe" resname="title.indication.review_worklist">
         <source>title.indication.review_worklist</source>
-        <target>Indikations-Review-Arbeitsliste</target>
+        <target>Indikations-Review</target>
       </trans-unit>
       <trans-unit id="ToolsIndRevTitleDe" resname="tools.indication_review.title">
         <source>tools.indication_review.title</source>
@@ -471,7 +471,7 @@
       </trans-unit>
       <trans-unit id="ToolsIndRevDescDe" resname="tools.indication_review.description">
         <source>tools.indication_review.description</source>
-        <target>Original-Indikationen aus den Importen prüfen und dem Katalog zuordnen.</target>
+        <target>Original-Indikationen aus den Importen prüfen und dem Indikationskatalog zuordnen.</target>
       </trans-unit>
       <trans-unit id="De976594cc" resname="title.indication.sample_allocations">
         <source>title.indication.sample_allocations</source>

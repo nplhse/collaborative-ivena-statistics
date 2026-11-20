@@ -603,11 +603,11 @@
       </trans-unit>
       <trans-unit id="EncB8EEA354F" resname="tools.encounter_assignments.title">
         <source>tools.encounter_assignments.title</source>
-        <target>Encounter assignment conflicts</target>
+        <target>Assignment conflicts</target>
       </trans-unit>
       <trans-unit id="EncCE0CA2520" resname="tools.encounter_assignments.description">
         <source>tools.encounter_assignments.description</source>
-        <target>Records of further encounter data whose case matches several encounters or contradicts an IVENA link.</target>
+        <target>Resolve additional encounter data that matches several encounters or contradicts an existing IVENA link.</target>
       </trans-unit>
       <trans-unit id="EncCF5F7E43D" resname="encounter.assignment.title">
         <source>encounter.assignment.title</source>
@@ -1011,7 +1011,7 @@
       </trans-unit>
       <trans-unit id="Enc78837119" resname="encounter.review.title">
         <source>encounter.review.title</source>
-        <target>Match review</target>
+        <target>ED match review</target>
       </trans-unit>
       <trans-unit id="Enc709F53B6" resname="encounter.review.intro">
         <source>encounter.review.intro</source>
@@ -2079,7 +2079,7 @@
       </trans-unit>
       <trans-unit id="Enc1775A938" resname="encounter.validation.title">
         <source>encounter.validation.title</source>
-        <target>Match validation</target>
+        <target>ED match validation</target>
       </trans-unit>
       <trans-unit id="EncC6E0F574" resname="encounter.validation.intro">
         <source>encounter.validation.intro</source>
@@ -2555,7 +2555,7 @@
       </trans-unit>
       <trans-unit id="Enc9DDB4F7A" resname="encounter.data_prep.guide.title">
         <source>encounter.data_prep.guide.title</source>
-        <target>Data preparation tool</target>
+        <target>Encounter data preparation</target>
       </trans-unit>
       <trans-unit id="EncFF795C42" resname="encounter.data_prep.guide.release.title">
         <source>encounter.data_prep.guide.release.title</source>
@@ -3143,7 +3143,7 @@
       </trans-unit>
       <trans-unit id="EncC82A4C1F" resname="encounter.plausibility.title">
         <source>encounter.plausibility.title</source>
-        <target>Plausibility table</target>
+        <target>PZC × MTS plausibility table</target>
       </trans-unit>
       <trans-unit id="Enc9E0D70A0" resname="encounter.plausibility.intro">
         <source>encounter.plausibility.intro</source>
@@ -3443,7 +3443,7 @@
       </trans-unit>
       <trans-unit id="ToolsEncRevTitle" resname="tools.encounter_review.title">
         <source>tools.encounter_review.title</source>
-        <target>Encounter match review</target>
+        <target>ED match review</target>
       </trans-unit>
       <trans-unit id="ToolsEncRevDesc" resname="tools.encounter_review.description">
         <source>tools.encounter_review.description</source>
@@ -3451,7 +3451,7 @@
       </trans-unit>
       <trans-unit id="ToolsEncValTitle" resname="tools.encounter_validation.title">
         <source>tools.encounter_validation.title</source>
-        <target>Encounter match validation</target>
+        <target>ED match validation</target>
       </trans-unit>
       <trans-unit id="ToolsEncValDesc" resname="tools.encounter_validation.description">
         <source>tools.encounter_validation.description</source>
@@ -3459,11 +3459,11 @@
       </trans-unit>
       <trans-unit id="ToolsEncPrepTitle" resname="tools.encounter_data_prep.title">
         <source>tools.encounter_data_prep.title</source>
-        <target>Data preparation tool</target>
+        <target>Encounter data preparation</target>
       </trans-unit>
       <trans-unit id="ToolsEncPrepDesc" resname="tools.encounter_data_prep.description">
         <source>tools.encounter_data_prep.description</source>
-        <target>Turn the ED export of your hospital information system into a pseudonymised file for the upload.</target>
+        <target>Turn the ED export of your hospital information system locally into a pseudonymised upload file, with triage (MTS) and process times where the schema provides them.</target>
       </trans-unit>
       <trans-unit id="MyHospActEncData" resname="my_hospitals.action.encounter_data">
         <source>my_hospitals.action.encounter_data</source>
@@ -3471,11 +3471,11 @@
       </trans-unit>
       <trans-unit id="EncB426FDD6" resname="tools.encounter_plausibility.title">
         <source>tools.encounter_plausibility.title</source>
-        <target>Plausibility table</target>
+        <target>PZC × MTS plausibility table</target>
       </trans-unit>
       <trans-unit id="Enc521607A3" resname="tools.encounter_plausibility.description">
         <source>tools.encounter_plausibility.description</source>
-        <target>Review the curated problem areas of the matcher's PZC × MTS diagram table and activate snapshots.</target>
+        <target>Define which combinations of indication (PZC) and MTS chart count as plausible in the matching, and activate snapshots.</target>
       </trans-unit>
       <trans-unit id="Enc1A3C0F51" resname="encounter.data_prep.changelog.1_3_0.schemas">
         <source>encounter.data_prep.changelog.1_3_0.schemas</source>

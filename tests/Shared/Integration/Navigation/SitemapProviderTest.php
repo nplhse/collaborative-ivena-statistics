@@ -113,7 +113,7 @@ final class SitemapProviderTest extends KernelTestCase
 
         $tools = $this->findSection('tools');
         self::assertSame($this->url('app_tools_index'), $tools->url);
-        self::assertSame(['Indication matching review'], $this->labels($tools->groups[0]->entries));
+        self::assertSame(['Indication review'], $this->labels($tools->groups[0]->entries));
     }
 
     public function testBetaRolesAddClosuresTreatmentDataAndBetaTools(): void
@@ -139,7 +139,7 @@ final class SitemapProviderTest extends KernelTestCase
         self::assertSame(['Treatment data', 'Inpatient stays (test)'], $this->labels($statistics->groups[4]->entries));
 
         self::assertSame(
-            [['Encounter assignment conflicts', 'Encounter match review', 'Encounter match validation', 'Indication matching review'], ['Data preparation tool']],
+            [['Assignment conflicts', 'ED match review', 'ED match validation', 'Indication review'], ['Encounter data preparation']],
             array_map(fn (SitemapGroup $group): array => $this->labels($group->entries), $this->findSection('tools')->groups),
         );
     }

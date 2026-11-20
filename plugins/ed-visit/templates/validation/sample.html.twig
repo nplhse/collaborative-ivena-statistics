@@ -9,8 +9,8 @@
         <twig:block name="breadcrumbs">
             <twig:Breadcrumbs :items="[
                 { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
-                { label: 'encounter.review.title', label_domain: 'encounter', translatable: true, path: path('app_tools_encounter_review_hospital', {id: hospital.id}) },
-                { label: 'encounter.validation.title', label_domain: 'encounter', translatable: true, path: path('app_tools_encounter_validation', {id: hospital.id}) },
+                { label: 'encounter.validation.title', label_domain: 'encounter', translatable: true, path: path('app_tools_encounter_review', {mode: 'validation'}) },
+                { label: hospital.name, translatable: false, path: path('app_tools_encounter_validation', {id: hospital.id}) },
                 { label: period_label, translatable: false }
             ]" />
         </twig:block>
