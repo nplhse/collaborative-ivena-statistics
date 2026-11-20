@@ -24,7 +24,7 @@
     {% endif %}
 {% endmacro %}
 
-{% macro allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes, assignments, occasions, hospitalScopeOptions = null) %}
+{% macro allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes, assignments, occasions, hospitalScopeOptions = null, extensionFilters = []) %}
     {% set rawFilters = [] %}
 
     {% set selectedHospitalFilter = filters.resolvedHospitalFilter %}
@@ -291,6 +291,13 @@
             {% endif %}
         {% endif %}
     {% endif %}
+
+    {# --- Filters of other contexts (allocation list extensions, #1203) --- #}
+    {% for extension in extensionFilters %}
+        {% if extension.value is not null %}
+            {% set rawFilters = rawFilters|merge([{key: extension.filter.label, domain: extension.filter.domain, value: extension.filter.choices[extension.value]|trans({}, extension.filter.domain)}]) %}
+        {% endif %}
+    {% endfor %}
 
     {{ _self.render_active_filters(rawFilters) }}
 {% endmacro %}

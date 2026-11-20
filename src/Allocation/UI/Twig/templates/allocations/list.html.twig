@@ -39,7 +39,7 @@
         {% import '@Shared/_macros/filters.html.twig' as activeFilters %}
 
         {% if activeFilterCount > 0 %}
-            {{ activeFilters.allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes, assignments, occasions, hospitalScopeOptions) }}
+            {{ activeFilters.allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes, assignments, occasions, hospitalScopeOptions, listExtensionFilters|default([])) }}
         {% endif %}
 
         {% set listIsFiltered = activeFilterCount > 0 %}
@@ -61,7 +61,7 @@
             :columns="allocationColumns"
             columnVisibilityEnabled
             columnOrderingEnabled
-            :visibleColumnKeys="allocationPreferences.visibleColumns"
+            :visibleColumnKeys="allocationVisibleColumns"
             :columnOrder="allocationPreferences.columnOrder"
             :preferenceKey="allocationPreferencesPersisted ? allocationPreferenceKey : null"
             :preferenceSaveUrl="allocationPreferencesPersisted ? path('app_data_table_preferences_save') : null"

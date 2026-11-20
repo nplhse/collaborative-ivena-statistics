@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Allocation\Integration\Query;
 
+use App\Allocation\Application\ListExtension\AllocationListExtensionRegistry;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
@@ -104,7 +105,7 @@ final class AllocationListResultCountQueryTest extends KernelTestCase
             $slow->from(Allocation::class, $alias);
         }
 
-        $count = new AllocationListResultCountQuery($entityManager, new ArrayAdapter(), new NullLogger(), 20)->count($slow);
+        $count = new AllocationListResultCountQuery($entityManager, new ArrayAdapter(), new NullLogger(), new AllocationListExtensionRegistry([]), 20)->count($slow);
 
         self::assertEquals(ResultCount::moreThan(AllocationListResultCountQuery::EXACT_LIMIT), $count);
         self::assertSame($before, $connection->fetchOne('SHOW statement_timeout'));

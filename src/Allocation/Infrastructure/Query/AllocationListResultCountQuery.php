@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Infrastructure\Query;
 
+use App\Allocation\Application\ListExtension\AllocationListExtensionRegistry;
 use App\Shared\Infrastructure\Pagination\ResultCount;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DBALException;
@@ -33,7 +34,8 @@ final readonly class AllocationListResultCountQuery
 
     /**
      * Tables whose writes can change the count of a list filter: the rows themselves, hospital master data
-     * (tier, size, location filters) and closures with their imports (closure-at-assignment filter).
+     * (tier, size, location filters) and closures with their imports (closure-at-assignment filter). List
+     * extensions add the tables their filters read (#1203).
      */
     private const array DATA_TABLES = ['allocation', 'hospital', 'import', 'closure_interval'];
 
@@ -42,6 +44,7 @@ final readonly class AllocationListResultCountQuery
         #[Autowire(service: 'cache.allocation.list_result_count')]
         private CacheInterface $cache,
         private LoggerInterface $logger,
+        private AllocationListExtensionRegistry $extensions,
         private int $timeoutMilliseconds = 500,
     ) {
     }
@@ -142,7 +145,7 @@ final readonly class AllocationListResultCountQuery
      */
     private function dataVersion(): string
     {
-        $tables = "'".implode("', '", self::DATA_TABLES)."'";
+        $tables = "'".implode("', '", array_unique([...self::DATA_TABLES, ...$this->extensions->dataTables()]))."'";
         $writes = static fn (string $view): string => \sprintf(
             '(SELECT COALESCE(SUM(n_tup_ins + n_tup_upd + n_tup_del), 0) FROM %s WHERE relname IN (%s))',
             $view,

@@ -255,6 +255,36 @@ template renders the whole card. Providers check access themselves (the page its
 database queries for ordinary participants (check roles before grants): the case file has a query
 budget (`ShowAllocationControllerTest`).
 
+## Allocation list filters and columns
+
+**Tag:** `allocation.list_extension`
+
+**Interface:** `AllocationListExtensionInterface` (`src/Allocation/Application/ListExtension/`)
+
+**Registry:** `AllocationListExtensionRegistry`, used by `ListAllocationsController`, `ListAllocationsQuery`,
+`AllocationListResultCountQuery` and `AllocationListColumns`
+
+**Implementations:** `EncounterAllocationListExtension` (filter "Associated encounter" and column "Encounter", #1203)
+
+Lets other contexts add one select filter and one column to the Explore allocation list (`/explore/allocation`)
+without a dependency from `Allocation` on them. An extension owns a key: the query parameter of its filter, the key
+of its column and of the row value its cell template reads.
+
+- **Access per row.** The list spans hospitals. `isAvailableFor()` decides whether a user sees filter and column at
+  all; `applyFilter()` must also exclude rows of hospitals the user may not see when that data decides the filter,
+  and `cellsFor()` returns no value for those rows. One grant for one hospital never reveals data of another.
+- **Filter.** `filter()` describes a select (label, "all" label, choices, translation domain, help). The drawer gets
+  one accordion section per extension; the active filter count, the active filter badges, paging and the filter reset
+  handle it like the built-in filters. Unknown values and values of unavailable extensions are ignored.
+- **Column.** `column()` is a DataTable column (usually `DataTableColumns::configurable(..., 'visible' => false)`).
+  Every extension column is part of the preference schema, so a saved choice survives, but only available users get
+  it in the picker. `showsColumnFor()` can show the column while a filter value is active, without saving it.
+  `cellsFor()` runs once per page with the ids and hospitals of the visible rows; one or two queries, never one per row.
+- **Count.** `dataTables()` names the tables a filter reads; their writes start a new cached result count
+  ([explore-allocation-list.md](../04-features/allocation/explore-allocation-list.md#result-count)).
+
+The export of the own hospital's allocations does not apply extension filters.
+
 ## Import data removers
 
 **Tag:** `import.data_remover`
