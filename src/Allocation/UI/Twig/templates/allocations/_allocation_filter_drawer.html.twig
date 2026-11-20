@@ -27,6 +27,7 @@
         or filters.assignment is not null
         or filters.occasion is not empty
         or filters.departmentWasClosed is not null
+        or filters.closureAtAssignment is not empty
         or filters.transportType is not empty
         or filters.hasCreatedAtRange %}
     {% set clinicalActive = filters.requiresResus is not null
@@ -298,7 +299,18 @@
                                                {{ filters.departmentWasClosed ? 'checked' }}>
                                         <span class="form-check-label">{{ 'field.departmentWasClosed'|trans({}, 'messages') }}</span>
                                     </label>
-                                    <div class="form-text">{{ 'help.export.department_was_closed_filter'|trans({}, 'allocation') }}</div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label" for="allocation-filter-closure-at-assignment">{{ 'label.closure_at_assignment'|trans({}, 'allocation') }}</label>
+                                    <select name="closureAtAssignment" id="allocation-filter-closure-at-assignment" class="form-select" data-testid="allocation-filter-closure-at-assignment">
+                                        <option value="">{{ 'label.closure_at_assignment.all'|trans({}, 'allocation') }}</option>
+                                        {% for state in closureAtAssignmentStates %}
+                                            <option value="{{ state.value }}" {{ filters.closureAtAssignment == state.value ? 'selected' }}>
+                                                {{ state.label()|trans({}, 'allocation') }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-text">{{ 'help.closure_at_assignment_filter'|trans({}, 'allocation') }}</div>
                                 </div>
                             </div>
                         </div>

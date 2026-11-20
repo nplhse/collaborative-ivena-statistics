@@ -6,6 +6,7 @@ namespace App\Allocation\Infrastructure\Query;
 
 use App\Allocation\Application\Allocations\AllocationListFilterCriteriaFactory;
 use App\Allocation\Application\Export\AllocationListFilterApplicator;
+use App\Allocation\Application\Filter\ClosureAtAssignmentRule;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
@@ -14,6 +15,7 @@ use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\Domain\Entity\SecondaryTransport;
 use App\Allocation\Domain\Entity\State;
+use App\Allocation\Domain\Enum\ClosureAtAssignment;
 use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
 use App\Shared\Infrastructure\Pagination\CursorCodec;
 use App\Shared\Infrastructure\Pagination\CursorPaginator;
@@ -129,7 +131,11 @@ final readonly class ListAllocationsQuery
 
         $this->filterApplicator->apply($qb, $this->filterCriteriaFactory->fromQuery($queryParametersDTO, $user));
 
-        $estimatedNumResults = $this->estimateNumResults($qb);
+        // The planner cannot estimate the closure EXISTS conditions (#571); "about 4" for 260 rows
+        // misleads more than no estimate.
+        $estimatedNumResults = ClosureAtAssignmentRule::fromQuery($queryParametersDTO->closureAtAssignment) instanceof ClosureAtAssignment
+            ? null
+            : $this->estimateNumResults($qb);
 
         $cursor = $this->decodeCursor($queryParametersDTO);
         $slice = $this->fetchSlice($qb, $queryParametersDTO, $sortField, $cursor, $limit);

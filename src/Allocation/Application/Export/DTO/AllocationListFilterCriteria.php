@@ -31,6 +31,8 @@ final readonly class AllocationListFilterCriteria
         public ?int $assignment = null,
         public ?string $occasion = null,
         public ?int $departmentWasClosed = null,
+        /** Value of {@see \App\Allocation\Domain\Enum\ClosureAtAssignment} (#571). */
+        public ?string $closureAtAssignment = null,
         public ?string $transportType = null,
         /** @var list<int>|null */
         public ?array $hospitalIds = null,

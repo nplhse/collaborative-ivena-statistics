@@ -202,6 +202,8 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertSelectorTextContains('#allocation-gender', 'Male');
         self::assertSelectorTextContains('.department-line', 'Test Department');
         self::assertSelectorTextContains('.department-line', 'Test Speciality');
+        // No closure import covers the allocation (#571).
+        self::assertSelectorExists('[data-testid="closure-at-assignment"][data-closure-at-assignment="unknown"]');
         self::assertSelectorNotExists('[data-testid="allocation-insight-department"]');
         self::assertSelectorNotExists('[data-testid="allocation-insight-speciality"]');
         self::assertSelectorNotExists('[data-testid="allocation-insight-indication"]');

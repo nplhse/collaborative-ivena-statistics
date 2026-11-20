@@ -205,6 +205,30 @@
         <source>help.export.department_was_closed_filter</source>
         <target>Nur Zuweisungen exportieren, bei denen der Fachbereich abgemeldet war.</target>
       </trans-unit>
+      <trans-unit id="caaDe01" resname="label.closure_at_assignment">
+        <source>label.closure_at_assignment</source>
+        <target>Laut Abmeldezeiten</target>
+      </trans-unit>
+      <trans-unit id="caaDe02" resname="label.closure_at_assignment.all">
+        <source>label.closure_at_assignment.all</source>
+        <target>Alle</target>
+      </trans-unit>
+      <trans-unit id="caaDe03" resname="closure_at_assignment.closed">
+        <source>closure_at_assignment.closed</source>
+        <target>Abgemeldet</target>
+      </trans-unit>
+      <trans-unit id="caaDe04" resname="closure_at_assignment.open">
+        <source>closure_at_assignment.open</source>
+        <target>Nicht abgemeldet</target>
+      </trans-unit>
+      <trans-unit id="caaDe05" resname="closure_at_assignment.unknown">
+        <source>closure_at_assignment.unknown</source>
+        <target>Keine Abmeldedaten</target>
+      </trans-unit>
+      <trans-unit id="caaDe06" resname="help.closure_at_assignment_filter">
+        <source>help.closure_at_assignment_filter</source>
+        <target>Nur für Kliniken und Zeiträume mit importierten Abmeldezeiten.</target>
+      </trans-unit>
       <trans-unit id="ExpLblDe01" resname="label.export.hospitals_select_all">
         <source>label.export.hospitals_select_all</source>
         <target>Alle auswählen</target>

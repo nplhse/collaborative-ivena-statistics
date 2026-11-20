@@ -1125,6 +1125,30 @@
         <source>help.export.department_was_closed_filter</source>
         <target>Include only allocations where the department was closed.</target>
       </trans-unit>
+      <trans-unit id="caaEn01" resname="label.closure_at_assignment">
+        <source>label.closure_at_assignment</source>
+        <target>According to closure data</target>
+      </trans-unit>
+      <trans-unit id="caaEn02" resname="label.closure_at_assignment.all">
+        <source>label.closure_at_assignment.all</source>
+        <target>All</target>
+      </trans-unit>
+      <trans-unit id="caaEn03" resname="closure_at_assignment.closed">
+        <source>closure_at_assignment.closed</source>
+        <target>Closed</target>
+      </trans-unit>
+      <trans-unit id="caaEn04" resname="closure_at_assignment.open">
+        <source>closure_at_assignment.open</source>
+        <target>Not closed</target>
+      </trans-unit>
+      <trans-unit id="caaEn05" resname="closure_at_assignment.unknown">
+        <source>closure_at_assignment.unknown</source>
+        <target>No closure data</target>
+      </trans-unit>
+      <trans-unit id="caaEn06" resname="help.closure_at_assignment_filter">
+        <source>help.closure_at_assignment_filter</source>
+        <target>Only for hospitals and periods with imported closure data.</target>
+      </trans-unit>
       <trans-unit id="ExpColEn01" resname="export.column.row">
         <source>export.column.row</source>
         <target>Row</target>

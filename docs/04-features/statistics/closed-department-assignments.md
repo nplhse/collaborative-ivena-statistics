@@ -65,7 +65,9 @@ The existing hospital-scope isochrone widget is reused with `departmentWasClosed
 
 ## Limitations
 
-- The flag is source data, not an independent availability check.
+- The flag is source data, not an independent availability check. The closure
+  imports give a second signal per allocation, which this page does not use:
+  [closed at assignment](closure-architecture.md#closed-at-assignment).
 - Case Complexity Score does not exist and is not shown.
 - Heatmap cells (weekday × 2-hour slot) do not drill down to Explore.
 - Public scope shows aggregates only.

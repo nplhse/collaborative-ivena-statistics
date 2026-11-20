@@ -84,6 +84,33 @@ missing. While a hospital has a completed import without a derived period, the
 rebuild falls back to "day with at least one allocation". Hospital-phase gaps
 stay computable and are labelled as gaps inside that estimate.
 
+## Closed at assignment
+
+`ClosureAtAssignmentRule` (Allocation context) is the one definition of whether an
+allocation's department was closed for its SK at `created_at`, according to the
+closure imports (#571). It reads `closure_interval` and `import`, not the derived
+analysis tables, so it does not wait for a rebuild.
+
+| State | Rule |
+| --- | --- |
+| `closed` | An interval of a completed or partial closure import has the allocation's hospital and department, `starts_at <= created_at < ends_at`, and a care level that closes the allocation's SK |
+| `open` | Not `closed`, and a completed or partial closure import of the hospital covers `created_at` with its export period `[export_starts_at, export_ends_at)` |
+| `unknown` | Neither. An import without an export period covers nothing |
+
+- A care level closes its own SK; `other` closes SK1–SK3
+  (`ClosureCareLevel::closesUrgencies()`). SK1 does not close SK2 or SK3.
+- Overlapping or duplicate intervals do not count twice; the rule only asks
+  whether one exists.
+- The department is the allocation's own department. A closure of another
+  department in the same speciality does not close it.
+- `closed` does not need an export period, `open` does. An allocation without
+  closure data never becomes `open`.
+- The IVENA flag `department_was_closed` stays untouched; the two signals can
+  disagree.
+- `careLevelClosesUrgency()` renders the care level to SK condition for SQL and
+  DQL; the event assignment lists of Closure Analytics use it on
+  `closure_analysis_care_level`, limited to the event's intervals.
+
 ## Phases and counting
 
 Phases are a derived view (ADR 015). A population is hospital, scope,

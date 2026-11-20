@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\ClosureAnalytics\Infrastructure\Query;
 
+use App\Allocation\Application\Filter\ClosureAtAssignmentRule;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Statistics\ClosureAnalytics\Application\ClosureEventAssignmentPopulation;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventAllocationRow;
@@ -360,6 +361,8 @@ SQL;
 
     private function closureMatchSql(string $alias): string
     {
+        $closesUrgency = ClosureAtAssignmentRule::careLevelClosesUrgency('cl.care_level', $alias.'.urgency');
+
         return <<<SQL
 EXISTS (
     SELECT 1
@@ -370,12 +373,7 @@ EXISTS (
       AND ai.department_id = {$alias}.department_id
       AND {$alias}.created_at >= ai.starts_at
       AND {$alias}.created_at < ai.ends_at
-      AND (
-          (cl.care_level = 'emergency' AND {$alias}.urgency = 1)
-          OR (cl.care_level = 'inpatient' AND {$alias}.urgency = 2)
-          OR (cl.care_level = 'outpatient' AND {$alias}.urgency = 3)
-          OR (cl.care_level NOT IN ('emergency', 'inpatient', 'outpatient') AND {$alias}.urgency IN (1, 2, 3))
-      )
+      AND {$closesUrgency}
 )
 SQL;
     }

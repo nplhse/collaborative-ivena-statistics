@@ -56,6 +56,10 @@ Legacy URLs `?isInfectious=1` / `?isInfectious=0` still work (any / none). Speci
 
 Labels: `label.all_allocations` (empty infection option), `label.all_secondary_indications`, `label.no_secondary_indication`, `label.no_secondary_transport`, `label.any_secondary_transport`, `label.no_occasion`, `label.no_infection`, `label.any_infection`. The infection and secondary-indication selects separate those special options from the catalog list with a disabled divider.
 
+## Closed according to closure data
+
+`closureAtAssignment` (`closed`, `open`, `unknown`) filters by the imported closure intervals, not by the IVENA flag `departmentWasClosed`; both filters can be combined. The rule is described in [closure-architecture.md](../statistics/closure-architecture.md#closed-at-assignment). Empty select = no filter, and the three values add up to all allocations. The allocation detail page shows the same value under the department. The help text says that only hospitals and periods with imported closure data can be `closed` or `open`.
+
 ## Pagination
 
 The list uses keyset (cursor) pagination, not `OFFSET`, because `allocation` is the largest table. Pages are ordered by the sort field (`arrivalAt` or `age`) plus `id` as a tie-breaker, in the same direction. That keeps the order stable when many rows share a timestamp or age.
@@ -83,6 +87,7 @@ Sorting stays on `arrivalAt` and `age`, the two keyset keys. Speciality, departm
 | Filter criteria | `src/Allocation/Application/Allocations/AllocationListFilterCriteriaFactory.php` |
 | Created-at range | `src/Allocation/Application/Allocations/AllocationCreatedAtRangeParser.php` |
 | SQL filter | `src/Allocation/Application/Export/AllocationListFilterApplicator.php` |
+| Closed at assignment | `src/Allocation/Application/Filter/ClosureAtAssignmentRule.php`, `src/Allocation/Application/Allocations/ClosureAtAssignmentResolver.php` |
 | Keyset query | `src/Allocation/Infrastructure/Query/ListAllocationsQuery.php`, `src/Shared/Infrastructure/Pagination/` |
 | Columns | `src/Allocation/UI/Twig/AllocationListColumns.php` |
 | UI | Shared `FilterDrawer` / `FilterDrawerTrigger` Twig components (`src/Shared/UI/Twig/Components/`); allocation-specific fields in `src/Allocation/UI/Twig/templates/allocations/_allocation_filter_drawer.html.twig` |
