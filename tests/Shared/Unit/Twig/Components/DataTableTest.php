@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Shared\Unit\Twig\Components;
 
 use App\Shared\Infrastructure\Pagination\CursorPaginator;
+use App\Shared\Infrastructure\Pagination\ResultCount;
 use App\Shared\UI\Twig\Components\DataTable;
 use App\Shared\UI\Twig\DataTable\BadgePalette;
 use App\Shared\UI\Twig\DataTable\DataTableColumn;
@@ -288,7 +289,7 @@ final class DataTableTest extends TestCase
             25,
             'next-cursor',
             'prev-cursor',
-            1200,
+            ResultCount::exact(1200),
         );
         $table->columns = [DataTableColumn::fromArray(['key' => 'name', 'label' => 'Name'])];
 

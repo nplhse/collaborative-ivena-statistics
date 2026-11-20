@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Tests\Shared\Unit\Infrastructure\Pagination;
 
 use App\Shared\Infrastructure\Pagination\CursorPaginator;
+use App\Shared\Infrastructure\Pagination\ResultCount;
 use PHPUnit\Framework\TestCase;
 
 final class CursorPaginatorTest extends TestCase
 {
     public function testImplementsTheUxCursorContract(): void
     {
-        $paginator = new CursorPaginator([['id' => 1], ['id' => 2]], 2, 'next', 'prev', 9, 'current');
+        $paginator = new CursorPaginator([['id' => 1], ['id' => 2]], 2, 'next', 'prev', ResultCount::exact(9), 'current');
 
         self::assertSame([['id' => 1], ['id' => 2]], $paginator->getItems());
         self::assertSame([['id' => 1], ['id' => 2]], iterator_to_array($paginator));
@@ -23,11 +24,29 @@ final class CursorPaginatorTest extends TestCase
         self::assertTrue($paginator->hasPrevious());
         self::assertSame('next', $paginator->getNextCursor());
         self::assertSame('prev', $paginator->getPreviousCursor());
-        self::assertSame(9, $paginator->getEstimatedNumResults());
-        self::assertSame(5, $paginator->getEstimatedLastPage());
+        self::assertSame(9, $paginator->getResultCount()?->count);
+        self::assertSame(5, $paginator->getLastPage());
         self::assertSame('', $paginator->getInfo());
         self::assertSame('prev', $paginator->jsonSerialize()['previous_cursor']);
-        self::assertSame(9, $paginator->jsonSerialize()['estimated_total']);
+        self::assertSame(9, $paginator->jsonSerialize()['total']);
+        self::assertFalse($paginator->jsonSerialize()['total_is_lower_bound']);
+    }
+
+    public function testALowerBoundHasNoLastPage(): void
+    {
+        $paginator = new CursorPaginator([['id' => 1]], 50, 'next', null, ResultCount::moreThan(10_000));
+
+        self::assertTrue($paginator->getResultCount()?->isLowerBound);
+        self::assertNull($paginator->getLastPage());
+        self::assertSame(10_000, $paginator->jsonSerialize()['total']);
+        self::assertTrue($paginator->jsonSerialize()['total_is_lower_bound']);
+    }
+
+    public function testAResultCountCannotBeNegative(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        ResultCount::exact(-1);
     }
 
     public function testBoundaryPagesHaveNoLinks(): void
@@ -39,7 +58,7 @@ final class CursorPaginatorTest extends TestCase
         self::assertFalse($paginator->hasPrevious());
         self::assertNull($paginator->getNextUrl());
         self::assertNull($paginator->getPreviousUrl());
-        self::assertNull($paginator->getEstimatedLastPage());
+        self::assertNull($paginator->getLastPage());
     }
 
     public function testUrlsNeedAGenerator(): void

@@ -1,10 +1,16 @@
-{# Cursor paginations (CursorPaginationInterface) have no exact total; some offer an estimate. #}
+{# Cursor paginations (CursorPaginationInterface) have no total of their own; some add a ResultCount. #}
 {% if paginator.nextCursor is defined %}
-    {% set estimatedTotal = paginator.estimatedNumResults is defined ? paginator.estimatedNumResults : null %}
-    {% if estimatedTotal %}
-        {{ 'label.pagination_numbers_estimated'|trans({
-            total: estimatedTotal|number_format(0, ',', '.'),
-            pages: paginator.estimatedLastPage|number_format(0, ',', '.'),
+    {% set resultCount = paginator.resultCount is defined ? paginator.resultCount : null %}
+    {% if resultCount and resultCount.isLowerBound %}
+        {{ 'label.pagination_numbers_more_than'|trans({
+            total: resultCount.count|number_format(0, ',', '.'),
+        }, 'messages') }}
+    {% elseif resultCount and resultCount.count > 0 %}
+        {{ 'label.pagination_numbers_counted'|trans({
+            count: resultCount.count,
+            total: resultCount.count|number_format(0, ',', '.'),
+            pageCount: paginator.lastPage,
+            pages: paginator.lastPage|number_format(0, ',', '.'),
         }, 'messages') }}
     {% else %}
         {{ 'label.pagination_showing_results'|trans({}, 'messages') }}

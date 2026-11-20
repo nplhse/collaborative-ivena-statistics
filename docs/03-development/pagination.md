@@ -34,7 +34,7 @@ Measured with the Symfony profiler on the demo database (about 2.3 million alloc
 | Closure analytics: units, recurring profiles | Numbered over rows built in PHP | small | none, the total comes from the same list | Keep numbered |
 | Closure analytics: events | Numbered | ~1,600 events | ~8 ms | Keep numbered |
 | Closure analytics: details (intervals) | Numbered | ~17,000 intervals | ~180 ms of ~1 s database time | Keep numbered: the number of closures is itself a statistic |
-| Allocation explorer | Cursor (keyset) | ~2.3 million rows | estimate from `EXPLAIN`, no `COUNT(*)` | See [explore-allocation-list.md](../04-features/allocation/explore-allocation-list.md#pagination) |
+| Allocation explorer | Cursor (keyset) | ~2.3 million rows | 8–270 ms, cached per filter; above the 500 ms limit a capped count ("more than 10,000") | See [explore-allocation-list.md](../04-features/allocation/explore-allocation-list.md#pagination) |
 
 Out of scope here: the activity timeline and user-profile feeds (their own Turbo Frame cursor feeds) and EasyAdmin.
 

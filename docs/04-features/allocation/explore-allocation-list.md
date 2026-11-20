@@ -68,7 +68,21 @@ The list uses keyset (cursor) pagination, not `OFFSET`, because `allocation` is 
 - **Predicate** — `sort <= :v AND (sort < :v OR (sort = :v AND id < :id))` for descending pages (mirrored for ascending). The leading bound lets PostgreSQL start the index scan (`idx_allocation_arrival_at_id`, `idx_allocation_age_id`) at the cursor row. Without it, the OR alone made PostgreSQL scan and discard every row before the cursor: on 2.3 million rows a deep page took about 80–180 ms warm and over a second cold, now well under 1 ms.
 - **Previous** — paging back runs the same query in the opposite order and reverses the rows. When paging back reaches the start with fewer rows than a page (rows were deleted meanwhile), a normal first page is loaded instead. The first page has no previous link.
 - **Limit + 1** — one extra row tells whether another page exists in that direction.
-- **Count** — the footer shows an estimate from `EXPLAIN` (`ListAllocationsQuery::estimateNumResults`), not an exact `COUNT(*)`.
+- **Count** — the footer shows the number of rows of the filtered list (`AllocationListResultCountQuery`, #1432), see [Result count](#result-count).
+
+### Result count
+
+The list counts its rows with `COUNT(*)` over the same Doctrine query as the page, so every filter parameter is bound like in the list itself (multi-value filters such as several hospitals included).
+
+| Situation | Footer |
+|---|---|
+| Count finished | exact: "195.172 Ergebnisse auf 3.904 Seiten" |
+| Count exceeded the time limit (500 ms), the first 10,001 rows could be counted | "Mehr als 10.000 Ergebnisse" (exact below 10,000) |
+| Both failed | "Ergebnisse werden angezeigt" |
+
+- **Time limit** — the count runs in a nested transaction with `statement_timeout` set locally and reset before release, so the limit never applies to later queries, also inside an outer transaction (tests). A failed or timed-out count is logged as a warning.
+- **Cache** — `cache.allocation.list_result_count`, keyed by the count SQL, its parameters and a data version. Paging through the same filter does not count again. The data version sums the row writes (`n_tup_ins + n_tup_upd + n_tup_del`) of `allocation`, `hospital`, `import` and `closure_interval` from `pg_stat_user_tables` and, for the current transaction, `pg_stat_xact_user_tables`, so imports, deletions, generator runs and edits of these tables start a new count. Exact counts are kept up to 24 hours, lower bounds one minute (a cold cache can make a single count miss the limit).
+- **Why not `EXPLAIN`** — until #1432 the footer showed the row estimate of `EXPLAIN`. On 2.3 million rows it was within 1–2 % for simple filters but 17 times too low for an indication filter, twice too high for hospital + urgency + year and 22 times too high for the closure filter; with several hospitals it failed silently. An exact `COUNT(*)` took 8–270 ms on the same data (4 cores, warm cache). A capped count does not help for large results: the `LIMIT` disables parallel workers, so counting up to one million rows was slower than counting all.
 
 `CursorPaginator` implements the Symfony UX `CursorPaginationInterface`, so `DataTable` treats it like any UX cursor pagination. A full switch to the UX Doctrine cursor adapter was evaluated in [#651](https://github.com/nplhse/collaborative-ivena-statistics/issues/651) and kept back: it builds the same unbounded OR predicate, routes our entity-class joins through Doctrine's two-query paginator, has no estimated count and is still experimental.
 

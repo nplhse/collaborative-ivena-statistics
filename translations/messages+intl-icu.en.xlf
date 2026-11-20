@@ -769,9 +769,13 @@
         <source>label.pagination_results</source>
         <target>{pageSize} records</target>
       </trans-unit>
-      <trans-unit id="dtPagEstEn" resname="label.pagination_numbers_estimated">
-        <source>label.pagination_numbers_estimated</source>
-        <target>Showing approx. {total} results across {pages} pages.</target>
+      <trans-unit id="dtPagCountEn" resname="label.pagination_numbers_counted">
+        <source>label.pagination_numbers_counted</source>
+        <target>{count, plural, one {1 result} other {{total} results}} across {pageCount, plural, one {1 page} other {{pages} pages}}.</target>
+      </trans-unit>
+      <trans-unit id="dtPagMoreEn" resname="label.pagination_numbers_more_than">
+        <source>label.pagination_numbers_more_than</source>
+        <target>More than {total} results.</target>
       </trans-unit>
       <trans-unit id="dtPagShowEn" resname="label.pagination_showing_results">
         <source>label.pagination_showing_results</source>
