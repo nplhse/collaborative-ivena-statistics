@@ -8,6 +8,7 @@ use App\Allocation\Application\Allocations\AllocationListHospitalScopeOptionsPro
 use App\Allocation\Application\Explore\ExploreFilterOptionsProvider;
 use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\Allocation\Domain\Enum\ClosureAtAssignment;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
@@ -89,6 +90,7 @@ final class ListAllocationsController extends AbstractController
             'urgencies' => AllocationUrgency::cases(),
             ...$filterOptions,
             'transportTypes' => AllocationTransportType::cases(),
+            'closureAtAssignmentStates' => ClosureAtAssignment::cases(),
             'hospitalScopeOptions' => $hospitalScopeOptions,
             // The empty state offers an allocation import (#1351).
             'canImport' => $participant instanceof User && $this->uploadTargets->canUpload($participant, ImportType::ALLOCATION),
@@ -112,6 +114,7 @@ final class ListAllocationsController extends AbstractController
             'assignment',
             'occasion',
             'departmentWasClosed',
+            'closureAtAssignment',
             'transportType',
             'dispatchArea',
             'state',

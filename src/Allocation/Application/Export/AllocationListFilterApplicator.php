@@ -6,9 +6,11 @@ namespace App\Allocation\Application\Export;
 
 use App\Allocation\Application\Export\DTO\AllocationListFilterCriteria;
 use App\Allocation\Application\Export\DTO\ExportDateTimeRange;
+use App\Allocation\Application\Filter\ClosureAtAssignmentRule;
 use App\Allocation\Application\Filter\OptionalRelationFilter;
 use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\Allocation\Domain\Enum\ClosureAtAssignment;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
@@ -159,6 +161,11 @@ final class AllocationListFilterApplicator
                     'departmentWasClosed',
                     filter_var($criteria->departmentWasClosed, FILTER_VALIDATE_BOOLEAN),
                 );
+        }
+
+        $closureAtAssignment = ClosureAtAssignmentRule::fromQuery($criteria->closureAtAssignment);
+        if ($closureAtAssignment instanceof ClosureAtAssignment) {
+            ClosureAtAssignmentRule::apply($qb, 'a', $closureAtAssignment);
         }
 
         if (null !== $criteria->transportType && '' !== $criteria->transportType) {

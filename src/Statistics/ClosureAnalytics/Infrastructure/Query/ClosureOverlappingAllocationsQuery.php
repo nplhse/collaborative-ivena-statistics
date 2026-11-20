@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\ClosureAnalytics\Infrastructure\Query;
 
+use App\Allocation\Application\Filter\ClosureAtAssignmentRule;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureOverlappingAllocationRow;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureOverlapWindow;
@@ -53,6 +54,7 @@ final readonly class ClosureOverlappingAllocationsQuery
         }
 
         $windowsSql = implode("\nUNION ALL\n", $selects);
+        $closesUrgency = ClosureAtAssignmentRule::careLevelClosesUrgency('cl.care_level', 'a.urgency');
 
         /** @var list<array<string, int|string|null>> $rows */
         $rows = $this->connection->fetchAllAssociative(<<<SQL
@@ -69,12 +71,7 @@ JOIN windows w
    AND (a.created_at AT TIME ZONE 'Europe/Berlin') >= w.starts_at
    AND (a.created_at AT TIME ZONE 'Europe/Berlin') < w.ends_at
 INNER JOIN closure_analysis_care_level cl ON cl.analysis_interval_id = w.interval_id
-   AND (
-       (cl.care_level = 'emergency' AND a.urgency = 1)
-       OR (cl.care_level = 'inpatient' AND a.urgency = 2)
-       OR (cl.care_level = 'outpatient' AND a.urgency = 3)
-       OR (cl.care_level NOT IN ('emergency', 'inpatient', 'outpatient') AND a.urgency IN (1, 2, 3))
-   )
+   AND {$closesUrgency}
 JOIN department d ON d.id = a.department_id
 JOIN indication_raw iraw ON iraw.id = a.indication_raw_id
 LEFT JOIN indication_normalized inor ON inor.id = a.indication_normalized_id

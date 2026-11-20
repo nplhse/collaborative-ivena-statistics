@@ -147,7 +147,7 @@ php bin/console app:import:requeue-all --only-ids="$(cat var/export/reference-fr
 
 ## Dispatch-area names
 
-`DispatchAreaNameNormalizer` (code) trims, maps NBSP to space, collapses whitespace, strips a leading `_`, parenthetical suffixes, longest-first prefixes (`Kommunale Regionalleitstelle`, `Integrierte Leitstelle`, `Zentrale Leitstelle`, `Regionalleitstelle`, `Leitstelle`, `Landkreis`, `Kreis`) and a trailing `Kreis` / `Führungsstab`, and fixes known encoding typos. Lookup stays name-based. The maps know the 24 dispatch areas of Hesse by their exact name (`config/case_flow/dispatch_area_geo_map.yaml`); an area with another name has no shape.
+`DispatchAreaNameNormalizer` (code) trims, maps NBSP to space, collapses whitespace, strips a leading `_`, parenthetical suffixes, longest-first prefixes (`Kommunale Regionalleitstelle`, `Integrierte Leitstelle`, `Zentrale Leitstelle`, `Regionalleitstelle`, `Leitstelle`, `Landkreis`, `Kreis`) and a trailing `Kreis` / `Führungsstab`, and fixes known encoding typos. Lookup stays name-based. The maps know the 24 dispatch areas of Hesse and some neighbouring dispatch areas outside Hesse by their exact name (`config/case_flow/dispatch_area_geo_map.yaml`); an area with another name has no shape.
 
 Department and speciality aliases live in the `department_alias` and `speciality_alias` tables and travel with the package. The explore department page lists the known spellings.
 

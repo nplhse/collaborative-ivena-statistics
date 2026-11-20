@@ -13,7 +13,7 @@ use Symfony\Component\Yaml\Yaml;
 
 #[AsCommand(
     name: 'app:statistics:case-flow:build-geojson',
-    description: 'Build merged Hessen dispatch-area GeoJSON for Case flow map overlays',
+    description: 'Build merged dispatch-area GeoJSON (Hessen and neighbouring areas) for the map overlays',
 )]
 final readonly class BuildCaseFlowGeoJsonCommand
 {
@@ -27,12 +27,15 @@ final readonly class BuildCaseFlowGeoJsonCommand
     public function __invoke(SymfonyStyle $io): int
     {
         $sourcesPath = $this->projectDir.'/config/case_flow/dispatch_area_geo_sources.yaml';
-        $rawPath = $this->projectDir.'/assets/geo/.source/hessen-kreise-raw.geojson';
+        $rawPaths = [
+            $this->projectDir.'/assets/geo/.source/hessen-kreise-raw.geojson',
+            $this->projectDir.'/assets/geo/.source/neighbour-kreise-raw.geojson',
+        ];
         $outputPath = $this->projectDir.'/assets/geo/hessen-landkreise.geojson';
 
         /** @var array<string, mixed> $sourcesConfig */
         $sourcesConfig = Yaml::parseFile($sourcesPath);
-        $collection = $this->builder->build($sourcesConfig, $rawPath);
+        $collection = $this->builder->build($sourcesConfig, $rawPaths);
 
         file_put_contents(
             $outputPath,

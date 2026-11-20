@@ -68,6 +68,10 @@
                                 {{ include('@Allocation/allocations/_department_was_closed_indicator.html.twig') }}
                             {% endif %}
                         </div>
+                        <div class="small text-secondary mt-1" data-testid="closure-at-assignment" data-closure-at-assignment="{{ closureAtAssignment.value }}">
+                            {{ 'label.closure_at_assignment'|trans({}, 'allocation') }}:
+                            <span class="{{ closureAtAssignment.value == 'closed' ? 'text-red fw-medium' }}">{{ closureAtAssignment.label()|trans({}, 'allocation') }}</span>
+                        </div>
                     </div>
                 </twig:Card>
             </div>
