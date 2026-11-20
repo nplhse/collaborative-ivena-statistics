@@ -35,6 +35,13 @@ final class DataCatalogResolutionTest extends KernelTestCase
         self::assertNull($object->variable('test_hospital.missing'));
     }
 
+    public function testPrefixedCodeLabelsAppendTheSuffix(): void
+    {
+        $object = $this->resolver()->resolve($this->hospital(CodeLabels::prefixed('hospital.tier.', 'messages', '.name')));
+
+        self::assertSame('hospital.tier.Basic.name', $object->variable('test_hospital.tier')?->codes[0]->labelKey);
+    }
+
     public function testEnumLabelsNeedALabelMethod(): void
     {
         $this->expectException(\LogicException::class);

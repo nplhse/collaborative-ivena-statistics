@@ -116,7 +116,7 @@ final readonly class DataCatalogMetadataResolver
                 }
 
                 if (null !== $labels->prefix) {
-                    return new CatalogCode($code, $labels->prefix.$code, $labels->domain);
+                    return new CatalogCode($code, $labels->prefix.$code.$labels->suffix, $labels->domain);
                 }
 
                 if (!method_exists($case, 'label')) {

@@ -4025,6 +4025,414 @@
         <source>data_catalog.variable.encounter.allocation_assigned_at.description</source>
         <target>Time the assignment to the allocation was set.</target>
       </trans-unit>
+      <trans-unit id="dcEdEn001" resname="data_catalog.object.ed_visit.title">
+        <source>data_catalog.object.ed_visit.title</source>
+        <target>ED visit</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn002" resname="data_catalog.object.ed_visit.description">
+        <source>data_catalog.object.ed_visit.description</source>
+        <target>An emergency department visit with times, Manchester triage, disposition and initial vital signs, delivered by the hospital.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn003" resname="data_catalog.group.case">
+        <source>data_catalog.group.case</source>
+        <target>Case</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn004" resname="data_catalog.group.arrival">
+        <source>data_catalog.group.arrival</source>
+        <target>Arrival</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn005" resname="data_catalog.group.triage">
+        <source>data_catalog.group.triage</source>
+        <target>Triage</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn006" resname="data_catalog.group.retriage">
+        <source>data_catalog.group.retriage</source>
+        <target>Re-triage</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn007" resname="data_catalog.group.disposition">
+        <source>data_catalog.group.disposition</source>
+        <target>Disposition</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn008" resname="data_catalog.group.vitals">
+        <source>data_catalog.group.vitals</source>
+        <target>Vital signs</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn009" resname="data_catalog.group.context">
+        <source>data_catalog.group.context</source>
+        <target>Context</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn010" resname="data_catalog.variable.ed_visit.encounter.label">
+        <source>data_catalog.variable.ed_visit.encounter.label</source>
+        <target>Encounter</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn011" resname="data_catalog.variable.ed_visit.encounter.description">
+        <source>data_catalog.variable.ed_visit.encounter.description</source>
+        <target>Treatment case the visit belongs to, with age, sex, hospital and the IVENA assignment.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn012" resname="data_catalog.variable.ed_visit.anchor_source.label">
+        <source>data_catalog.variable.ed_visit.anchor_source.label</source>
+        <target>Anchor source</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn013" resname="data_catalog.variable.ed_visit.anchor_source.description">
+        <source>data_catalog.variable.ed_visit.anchor_source.description</source>
+        <target>Time the visit is anchored on: first assessment contact or ED admission.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn014" resname="data_catalog.variable.ed_visit.case_status.label">
+        <source>data_catalog.variable.ed_visit.case_status.label</source>
+        <target>Case status</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn015" resname="data_catalog.variable.ed_visit.case_status.description">
+        <source>data_catalog.variable.ed_visit.case_status.description</source>
+        <target>Administrative case status, for example outpatient or inpatient.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn016" resname="data_catalog.variable.ed_visit.arrival_mode.label">
+        <source>data_catalog.variable.ed_visit.arrival_mode.label</source>
+        <target>Arrival mode</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn017" resname="data_catalog.variable.ed_visit.arrival_mode.description">
+        <source>data_catalog.variable.ed_visit.arrival_mode.description</source>
+        <target>How the patient arrived, as delivered by the hospital.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn018" resname="data_catalog.variable.ed_visit.arrival_route.label">
+        <source>data_catalog.variable.ed_visit.arrival_route.label</source>
+        <target>Arrival route</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn019" resname="data_catalog.variable.ed_visit.arrival_route.description">
+        <source>data_catalog.variable.ed_visit.arrival_route.description</source>
+        <target>Route derived from the arrival mode: EMS, self or unknown.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn020" resname="data_catalog.variable.ed_visit.referral_source.label">
+        <source>data_catalog.variable.ed_visit.referral_source.label</source>
+        <target>Referral</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn021" resname="data_catalog.variable.ed_visit.referral_source.description">
+        <source>data_catalog.variable.ed_visit.referral_source.description</source>
+        <target>Who referred the patient.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn022" resname="data_catalog.variable.ed_visit.admission_type.label">
+        <source>data_catalog.variable.ed_visit.admission_type.label</source>
+        <target>Admission type</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn023" resname="data_catalog.variable.ed_visit.admission_type.description">
+        <source>data_catalog.variable.ed_visit.admission_type.description</source>
+        <target>Emergency or elective admission.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn024" resname="data_catalog.variable.ed_visit.ed_admission_at.label">
+        <source>data_catalog.variable.ed_visit.ed_admission_at.label</source>
+        <target>ED admission</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn025" resname="data_catalog.variable.ed_visit.ed_admission_at.description">
+        <source>data_catalog.variable.ed_visit.ed_admission_at.description</source>
+        <target>Admission to the emergency department.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn026" resname="data_catalog.variable.ed_visit.first_assessment_contact_at.label">
+        <source>data_catalog.variable.ed_visit.first_assessment_contact_at.label</source>
+        <target>First assessment contact</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn027" resname="data_catalog.variable.ed_visit.first_assessment_contact_at.description">
+        <source>data_catalog.variable.ed_visit.first_assessment_contact_at.description</source>
+        <target>First contact for the initial assessment.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn028" resname="data_catalog.variable.ed_visit.assessment_start_at.label">
+        <source>data_catalog.variable.ed_visit.assessment_start_at.label</source>
+        <target>Assessment start</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn029" resname="data_catalog.variable.ed_visit.assessment_start_at.description">
+        <source>data_catalog.variable.ed_visit.assessment_start_at.description</source>
+        <target>Start of the initial assessment (triage).</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn030" resname="data_catalog.variable.ed_visit.assessment_end_at.label">
+        <source>data_catalog.variable.ed_visit.assessment_end_at.label</source>
+        <target>Assessment end</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn031" resname="data_catalog.variable.ed_visit.assessment_end_at.description">
+        <source>data_catalog.variable.ed_visit.assessment_end_at.description</source>
+        <target>End of the initial assessment (triage).</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn032" resname="data_catalog.variable.ed_visit.physician_target_at.label">
+        <source>data_catalog.variable.ed_visit.physician_target_at.label</source>
+        <target>Physician target time</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn033" resname="data_catalog.variable.ed_visit.physician_target_at.description">
+        <source>data_catalog.variable.ed_visit.physician_target_at.description</source>
+        <target>Latest time for the first physician contact by the triage category.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn034" resname="data_catalog.variable.ed_visit.first_physician_at.label">
+        <source>data_catalog.variable.ed_visit.first_physician_at.label</source>
+        <target>First physician contact</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn035" resname="data_catalog.variable.ed_visit.first_physician_at.description">
+        <source>data_catalog.variable.ed_visit.first_physician_at.description</source>
+        <target>First contact with a physician.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn036" resname="data_catalog.variable.ed_visit.treatment_end_at.label">
+        <source>data_catalog.variable.ed_visit.treatment_end_at.label</source>
+        <target>Treatment end</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn037" resname="data_catalog.variable.ed_visit.treatment_end_at.description">
+        <source>data_catalog.variable.ed_visit.treatment_end_at.description</source>
+        <target>End of treatment in the emergency department.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn038" resname="data_catalog.variable.ed_visit.ed_discharge_at.label">
+        <source>data_catalog.variable.ed_visit.ed_discharge_at.label</source>
+        <target>ED discharge</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn039" resname="data_catalog.variable.ed_visit.ed_discharge_at.description">
+        <source>data_catalog.variable.ed_visit.ed_discharge_at.description</source>
+        <target>Patient leaves the emergency department.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn040" resname="data_catalog.variable.ed_visit.admin_admission_at.label">
+        <source>data_catalog.variable.ed_visit.admin_admission_at.label</source>
+        <target>Administrative admission</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn041" resname="data_catalog.variable.ed_visit.admin_admission_at.description">
+        <source>data_catalog.variable.ed_visit.admin_admission_at.description</source>
+        <target>Administrative admission of the case.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn042" resname="data_catalog.variable.ed_visit.admin_discharge_at.label">
+        <source>data_catalog.variable.ed_visit.admin_discharge_at.label</source>
+        <target>Administrative discharge</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn043" resname="data_catalog.variable.ed_visit.admin_discharge_at.description">
+        <source>data_catalog.variable.ed_visit.admin_discharge_at.description</source>
+        <target>Administrative discharge of the case.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn044" resname="data_catalog.variable.ed_visit.pre_inpatient_admission_at.label">
+        <source>data_catalog.variable.ed_visit.pre_inpatient_admission_at.label</source>
+        <target>Pre-inpatient admission</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn045" resname="data_catalog.variable.ed_visit.pre_inpatient_admission_at.description">
+        <source>data_catalog.variable.ed_visit.pre_inpatient_admission_at.description</source>
+        <target>Admission for pre-inpatient treatment.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn046" resname="data_catalog.variable.ed_visit.mts_category.label">
+        <source>data_catalog.variable.ed_visit.mts_category.label</source>
+        <target>MTS category</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn047" resname="data_catalog.variable.ed_visit.mts_category.description">
+        <source>data_catalog.variable.ed_visit.mts_category.description</source>
+        <target>Triage category of the Manchester Triage System.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn048" resname="data_catalog.variable.ed_visit.mts_diagram.label">
+        <source>data_catalog.variable.ed_visit.mts_diagram.label</source>
+        <target>MTS presentation (diagram)</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn049" resname="data_catalog.variable.ed_visit.mts_diagram.description">
+        <source>data_catalog.variable.ed_visit.mts_diagram.description</source>
+        <target>Presentation (diagram) of the MTS catalog.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn050" resname="data_catalog.variable.ed_visit.mts_indicator.label">
+        <source>data_catalog.variable.ed_visit.mts_indicator.label</source>
+        <target>MTS indicator</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn051" resname="data_catalog.variable.ed_visit.mts_indicator.description">
+        <source>data_catalog.variable.ed_visit.mts_indicator.description</source>
+        <target>Indicator of the MTS catalog that decided the category.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn052" resname="data_catalog.variable.ed_visit.pain_score.label">
+        <source>data_catalog.variable.ed_visit.pain_score.label</source>
+        <target>Pain score</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn053" resname="data_catalog.variable.ed_visit.pain_score.description">
+        <source>data_catalog.variable.ed_visit.pain_score.description</source>
+        <target>Pain on a numeric rating scale.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn054" resname="data_catalog.variable.ed_visit.retriage_category.label">
+        <source>data_catalog.variable.ed_visit.retriage_category.label</source>
+        <target>Re-triage category</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn055" resname="data_catalog.variable.ed_visit.retriage_category.description">
+        <source>data_catalog.variable.ed_visit.retriage_category.description</source>
+        <target>MTS category of a repeated assessment.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn056" resname="data_catalog.variable.ed_visit.retriage_diagram.label">
+        <source>data_catalog.variable.ed_visit.retriage_diagram.label</source>
+        <target>Re-triage presentation (diagram)</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn057" resname="data_catalog.variable.ed_visit.retriage_diagram.description">
+        <source>data_catalog.variable.ed_visit.retriage_diagram.description</source>
+        <target>Presentation (diagram) of the repeated assessment.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn058" resname="data_catalog.variable.ed_visit.retriage_indicator.label">
+        <source>data_catalog.variable.ed_visit.retriage_indicator.label</source>
+        <target>Re-triage indicator</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn059" resname="data_catalog.variable.ed_visit.retriage_indicator.description">
+        <source>data_catalog.variable.ed_visit.retriage_indicator.description</source>
+        <target>Indicator of the repeated assessment.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn060" resname="data_catalog.variable.ed_visit.retriage_at.label">
+        <source>data_catalog.variable.ed_visit.retriage_at.label</source>
+        <target>Re-triage time</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn061" resname="data_catalog.variable.ed_visit.retriage_at.description">
+        <source>data_catalog.variable.ed_visit.retriage_at.description</source>
+        <target>Time of the repeated assessment.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn062" resname="data_catalog.variable.ed_visit.disposition.label">
+        <source>data_catalog.variable.ed_visit.disposition.label</source>
+        <target>Disposition</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn063" resname="data_catalog.variable.ed_visit.disposition.description">
+        <source>data_catalog.variable.ed_visit.disposition.description</source>
+        <target>Where the patient went after the emergency department.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn064" resname="data_catalog.variable.ed_visit.care_level.label">
+        <source>data_catalog.variable.ed_visit.care_level.label</source>
+        <target>Care level</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn065" resname="data_catalog.variable.ed_visit.care_level.description">
+        <source>data_catalog.variable.ed_visit.care_level.description</source>
+        <target>Level of care on admission, for example ward or ICU.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn066" resname="data_catalog.variable.ed_visit.admitting_department.label">
+        <source>data_catalog.variable.ed_visit.admitting_department.label</source>
+        <target>Admitting department</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn067" resname="data_catalog.variable.ed_visit.admitting_department.description">
+        <source>data_catalog.variable.ed_visit.admitting_department.description</source>
+        <target>Department that admitted the patient.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn068" resname="data_catalog.variable.ed_visit.vitals_reference.label">
+        <source>data_catalog.variable.ed_visit.vitals_reference.label</source>
+        <target>Vitals reference</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn069" resname="data_catalog.variable.ed_visit.vitals_reference.description">
+        <source>data_catalog.variable.ed_visit.vitals_reference.description</source>
+        <target>Whether the vital signs were measured at admission or are the first documented values.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn070" resname="data_catalog.variable.ed_visit.vitals_measured_at.label">
+        <source>data_catalog.variable.ed_visit.vitals_measured_at.label</source>
+        <target>Vitals measured at</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn071" resname="data_catalog.variable.ed_visit.vitals_measured_at.description">
+        <source>data_catalog.variable.ed_visit.vitals_measured_at.description</source>
+        <target>Time the vital signs were measured.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn072" resname="data_catalog.variable.ed_visit.bp_systolic.label">
+        <source>data_catalog.variable.ed_visit.bp_systolic.label</source>
+        <target>Systolic blood pressure</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn073" resname="data_catalog.variable.ed_visit.bp_systolic.description">
+        <source>data_catalog.variable.ed_visit.bp_systolic.description</source>
+        <target>Initial systolic blood pressure.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn074" resname="data_catalog.variable.ed_visit.bp_diastolic.label">
+        <source>data_catalog.variable.ed_visit.bp_diastolic.label</source>
+        <target>Diastolic blood pressure</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn075" resname="data_catalog.variable.ed_visit.bp_diastolic.description">
+        <source>data_catalog.variable.ed_visit.bp_diastolic.description</source>
+        <target>Initial diastolic blood pressure.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn076" resname="data_catalog.variable.ed_visit.heart_rate.label">
+        <source>data_catalog.variable.ed_visit.heart_rate.label</source>
+        <target>Heart rate</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn077" resname="data_catalog.variable.ed_visit.heart_rate.description">
+        <source>data_catalog.variable.ed_visit.heart_rate.description</source>
+        <target>Initial heart rate.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn078" resname="data_catalog.variable.ed_visit.temperature.label">
+        <source>data_catalog.variable.ed_visit.temperature.label</source>
+        <target>Temperature</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn079" resname="data_catalog.variable.ed_visit.temperature.description">
+        <source>data_catalog.variable.ed_visit.temperature.description</source>
+        <target>Initial body temperature.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn080" resname="data_catalog.variable.ed_visit.respiratory_rate.label">
+        <source>data_catalog.variable.ed_visit.respiratory_rate.label</source>
+        <target>Respiratory rate</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn081" resname="data_catalog.variable.ed_visit.respiratory_rate.description">
+        <source>data_catalog.variable.ed_visit.respiratory_rate.description</source>
+        <target>Initial respiratory rate.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn082" resname="data_catalog.variable.ed_visit.glucose.label">
+        <source>data_catalog.variable.ed_visit.glucose.label</source>
+        <target>Blood glucose</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn083" resname="data_catalog.variable.ed_visit.glucose.description">
+        <source>data_catalog.variable.ed_visit.glucose.description</source>
+        <target>Initial blood glucose.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn084" resname="data_catalog.variable.ed_visit.spo2.label">
+        <source>data_catalog.variable.ed_visit.spo2.label</source>
+        <target>Oxygen saturation</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn085" resname="data_catalog.variable.ed_visit.spo2.description">
+        <source>data_catalog.variable.ed_visit.spo2.description</source>
+        <target>Initial peripheral oxygen saturation.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn086" resname="data_catalog.variable.ed_visit.gcs.label">
+        <source>data_catalog.variable.ed_visit.gcs.label</source>
+        <target>Glasgow Coma Scale</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn087" resname="data_catalog.variable.ed_visit.gcs.description">
+        <source>data_catalog.variable.ed_visit.gcs.description</source>
+        <target>Initial Glasgow Coma Scale score.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn088" resname="data_catalog.variable.ed_visit.work_accident.label">
+        <source>data_catalog.variable.ed_visit.work_accident.label</source>
+        <target>Work accident</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn089" resname="data_catalog.variable.ed_visit.work_accident.description">
+        <source>data_catalog.variable.ed_visit.work_accident.description</source>
+        <target>The visit is due to a work accident.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn090" resname="data_catalog.variable.ed_visit.tetanus_protected.label">
+        <source>data_catalog.variable.ed_visit.tetanus_protected.label</source>
+        <target>Tetanus protection</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn091" resname="data_catalog.variable.ed_visit.tetanus_protected.description">
+        <source>data_catalog.variable.ed_visit.tetanus_protected.description</source>
+        <target>The patient has tetanus protection.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn092" resname="data_catalog.code.anchor_source.assessment">
+        <source>data_catalog.code.anchor_source.assessment</source>
+        <target>First assessment contact</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn093" resname="data_catalog.code.anchor_source.admission">
+        <source>data_catalog.code.anchor_source.admission</source>
+        <target>ED admission</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn094" resname="data_catalog.code.admission_type.emergency">
+        <source>data_catalog.code.admission_type.emergency</source>
+        <target>Emergency</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn095" resname="data_catalog.code.admission_type.elective">
+        <source>data_catalog.code.admission_type.elective</source>
+        <target>Elective</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn096" resname="data_catalog.code.vitals_reference.admission_measurement">
+        <source>data_catalog.code.vitals_reference.admission_measurement</source>
+        <target>Measured at admission</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn097" resname="data_catalog.code.vitals_reference.documented_initial">
+        <source>data_catalog.code.vitals_reference.documented_initial</source>
+        <target>First documented values</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn098" resname="data_catalog.unit.mmhg">
+        <source>data_catalog.unit.mmhg</source>
+        <target>mmHg</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn099" resname="data_catalog.unit.per_minute">
+        <source>data_catalog.unit.per_minute</source>
+        <target>/min</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn100" resname="data_catalog.unit.celsius">
+        <source>data_catalog.unit.celsius</source>
+        <target>°C</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn101" resname="data_catalog.unit.mg_dl">
+        <source>data_catalog.unit.mg_dl</source>
+        <target>mg/dl</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn102" resname="data_catalog.unit.percent">
+        <source>data_catalog.unit.percent</source>
+        <target>%</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

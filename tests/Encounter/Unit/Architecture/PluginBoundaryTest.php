@@ -42,6 +42,8 @@ final class PluginBoundaryTest extends TestCase
         'App\\Allocation\\Domain\\Entity\\',
         'App\\Allocation\\Domain\\Enum\\',
         'App\\Allocation\\Application\\Explore\\',
+        // Range of a documented variable in the Explore data catalog (#1415).
+        \App\Allocation\Application\DTO\DataCatalog\ValueRange::class,
         'App\\Allocation\\Application\\Hospital\\MyHospitals\\Action\\',
         'App\\Import\\Domain\\Entity\\',
         'App\\Import\\Domain\\Enum\\',
