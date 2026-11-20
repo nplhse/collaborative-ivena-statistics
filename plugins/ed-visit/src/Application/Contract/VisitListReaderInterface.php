@@ -53,4 +53,13 @@ interface VisitListReaderInterface
      * @return array<int, string>
      */
     public function visitUids(array $encounterIds): array;
+
+    /**
+     * Initial triage by encounter id, for the given encounters that have an ED visit (#1203).
+     *
+     * @param list<int> $encounterIds
+     *
+     * @return array<int, array{category: ?string, diagram: ?string, indicator: ?string}>
+     */
+    public function triages(array $encounterIds): array;
 }

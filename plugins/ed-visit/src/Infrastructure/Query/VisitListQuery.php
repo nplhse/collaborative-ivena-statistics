@@ -105,6 +105,32 @@ SQL,
     }
 
     #[\Override]
+    public function triages(array $encounterIds): array
+    {
+        if ([] === $encounterIds) {
+            return [];
+        }
+
+        /** @var list<array{encounter_id: int|string, mts_category: ?string, mts_diagram: ?string, mts_indicator: ?string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT encounter_id, mts_category, mts_diagram, mts_indicator FROM ed_visit WHERE encounter_id IN (?)',
+            [$encounterIds],
+            [ArrayParameterType::INTEGER],
+        );
+
+        $triages = [];
+        foreach ($rows as $row) {
+            $triages[(int) $row['encounter_id']] = [
+                'category' => $row['mts_category'],
+                'diagram' => $row['mts_diagram'],
+                'indicator' => $row['mts_indicator'],
+            ];
+        }
+
+        return $triages;
+    }
+
+    #[\Override]
     public function countVisits(VisitListFilter $filter): int
     {
         [$where, $parameters, $types] = $this->where($filter);
