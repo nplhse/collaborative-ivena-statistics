@@ -53,8 +53,31 @@ How it behaves:
   service `database` (from a git worktree also set `COMPOSE_PROJECT_NAME` to the main checkout's project).
   `make backup` picks `docker` when that service is running.
 
-Verifying and restoring these backups with `app:backup:verify` and `app:backup:restore` follows in the next
-steps of #949. Until then, restore them by hand as in the [restore runbook](#restore-runbook).
+## Verify command
+
+`app:backup:verify` checks a backup without restoring it and without changing anything:
+
+```bash
+php bin/console app:backup:verify                                     # newest backup in BACKUP_DIR
+php bin/console app:backup:verify ivena-stats-full-20261120T030000Z   # by name in BACKUP_DIR
+php bin/console app:backup:verify ~/backups/ivena-stats-full-20261120T030000Z # by path, e.g. a copied backup
+make backup-verify                                                    # newest; BACKUP=<directory> for another
+```
+
+| Step | Checks |
+|------|--------|
+| Manifest | present, a known format version (a backup of a newer format is refused), every field typed |
+| Payload checksums | every listed file exists with the recorded size and SHA-256; files that are not part of the backup are shown as warnings |
+| Database dump | `pg_restore --list` reads the dump, and every table of the manifest has data in it |
+| File archives | every entry is a regular file with a relative path (no `..`, links or devices); each file matches its line in `<component>.sha256`; number of files and bytes match the manifest |
+
+The archives are read and hashed in PHP while they are streamed; nothing is extracted. All checks run even when
+one fails, and the command lists every problem at the end. It exits with `1` when the backup has a problem or
+cannot be read, so it can follow the backup in cron (see [Cron](#cron-operator-managed)). It needs
+`pg_restore` (same `BACKUP_PG_TOOLS` switch as the backup) but no database connection.
+
+Restoring these backups with `app:backup:restore` follows in the last step of #949. Until then, restore them by
+hand as in the [restore runbook](#restore-runbook), after a successful verify.
 
 ## Scripts (legacy)
 
@@ -72,6 +95,7 @@ a manifest; `restore-database.sh` restores any custom-format dump, including `da
 
 ```bash
 make backup         # full backup with manifest (app:backup:create)
+make backup-verify  # verify the newest backup (app:backup:verify)
 make backup-db      # legacy: database only
 make backup-files   # legacy: imports + media only
 make restore-db BACKUP_FILE=var/backups/ivena-stats-db-....dump RESTORE_CONFIRM=yes
@@ -204,7 +228,7 @@ Schedule regular backups on the server (example — adjust paths and times):
 
 ```cron
 # Daily full backup at 03:00 UTC (set BACKUP_DIR=$HOME/backups in shared/.env.local, or pass --target-dir)
-0 3 * * * cd <deploy_path>/current && php bin/console app:backup:create --no-interaction --env=prod >> ~/backups/backup.log 2>&1
+0 3 * * * cd <deploy_path>/current && php bin/console app:backup:create --no-interaction --env=prod >> ~/backups/backup.log 2>&1 && php bin/console app:backup:verify --env=prod >> ~/backups/backup.log 2>&1
 
 # Retention: delete backups older than 30 days (directories of the new format, files of the legacy scripts)
 15 5 * * * find ~/backups -maxdepth 1 -name 'ivena-stats-*' -mtime +30 -exec rm -rf {} +
@@ -249,7 +273,7 @@ Cron is configured on Uberspace outside this repository.
 
 `restore-database.sh` drops and recreates schema `public` (`DROP SCHEMA public CASCADE`), then restores from the dump without `--clean`. The `SCHEMA - public` TOC entry is skipped because the script already created that schema. PostGIS extensions and tables (`spatial_ref_sys`, …) listed in the dump TOC are skipped so restores work on plain Postgres (e.g. local Docker) even when the dump came from a host with PostGIS. Schema drift after restore is unlikely if the dump matches the deployed code version; if not, run `php bin/console doctrine:migrations:status`.
 
-For a backup of the new format use its `database.dump` as `BACKUP_FILE`. Afterwards compare the row counts
+For a backup of the new format run `app:backup:verify` on it first, then use its `database.dump` as `BACKUP_FILE`. Afterwards compare the row counts
 with `table_rows` in its `manifest.json`.
 
 ### 2. Import and media files

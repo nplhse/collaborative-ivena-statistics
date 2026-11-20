@@ -65,7 +65,8 @@ final readonly class TarFileArchiver implements FileArchiverInterface
         $filesystem->dumpFile($listFile, implode("\n", array_map(static fn (string $relative): string => './'.$relative, array_keys($files)))."\n");
 
         try {
-            $process = new Process(['tar', '-czf', $archiveFile, '-C', $root, '-T', $listFile], $this->projectDir);
+            // COPYFILE_DISABLE keeps bsdtar on macOS from adding "._" metadata entries that are not in the list.
+            $process = new Process(['tar', '-czf', $archiveFile, '-C', $root, '-T', $listFile], $this->projectDir, ['COPYFILE_DISABLE' => '1']);
             $process->setTimeout(null);
             $process->run();
             if (!$process->isSuccessful()) {

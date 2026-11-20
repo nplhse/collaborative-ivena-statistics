@@ -124,6 +124,26 @@ final class PostgresToolsTest extends TestCase
         }
     }
 
+    public function testAFailedListingNamesPgRestore(): void
+    {
+        $fixture = new StorageFixtureDirectory();
+        $dump = $fixture->file('database.dump', 10);
+
+        try {
+            foreach ([PostgresTools::LOCAL, PostgresTools::DOCKER] as $mode) {
+                try {
+                    new PostgresTools($this->connection(), self::URL, $mode, $fixture->path)->listDump($dump);
+                    self::fail('Listing a damaged dump should fail.');
+                } catch (BackupFailed $failure) {
+                    // Docker mode fails at copying into the container: the empty directory has no compose file.
+                    self::assertMatchesRegularExpression('/^(pg_restore|docker compose cp) failed with exit code \d+/', $failure->getMessage(), $mode);
+                }
+            }
+        } finally {
+            $fixture->remove();
+        }
+    }
+
     private function connection(): Connection
     {
         $connection = $this->createStub(Connection::class);

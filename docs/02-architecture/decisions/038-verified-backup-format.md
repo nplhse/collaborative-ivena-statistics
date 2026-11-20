@@ -88,10 +88,19 @@ with the password in `PGPASSWORD` and never as an argument. `BACKUP_PG_TOOLS=doc
 the tools inside the Compose service `database` and copies the files with `docker compose cp`. All external
 commands are argument lists without a shell.
 
+### Verify
+
+`app:backup:verify` checks a backup without changing it: the manifest (a newer `format_version` is refused), size
+and SHA-256 of every payload, the dump's table of contents (`pg_restore --list`, every manifest table has data)
+and every archive entry. Archives are streamed and hashed in PHP instead of being extracted: no temporary copy
+of the files is needed, and entries a restore must never write (absolute paths, `..`, links, devices) are
+detected before any extraction. Each file is compared with its line in the `.sha256` list, and the totals with
+the manifest. All checks run and every problem is listed; the exit code is `1` when there is one.
+
 ### Commands
 
-`app:backup:create` creates a backup (this decision, #949 step 1). `app:backup:verify` and `app:backup:restore`
-follow in the next steps of #949 and read this format. Make targets are thin wrappers; the scripts in
+`app:backup:create` creates a backup (#949 step 1), `app:backup:verify` verifies one (step 2).
+`app:backup:restore` follows in the last step of #949 and reads this format. Make targets are thin wrappers; the scripts in
 `bin/ops/` remain for backups made before this format.
 
 ## Alternatives considered
@@ -115,5 +124,5 @@ follow in the next steps of #949 and read this format. Make targets are thin wra
 - One format for #949, #489 and #727; partial backups can add components and types without a new format.
 - Backups made with the old scripts have no manifest; they are restored with `bin/ops/restore-database.sh` and
   `tar` as documented in [backup-restore.md](../../05-operations/backup-restore.md).
-- The server needs `pg_dump` of the server's major version or newer, and `tar`.
+- The server needs `pg_dump` and `pg_restore` of the server's major version or newer, and `tar`.
 - Checksums detect damage, not tampering: whoever can replace a backup can replace its manifest too.

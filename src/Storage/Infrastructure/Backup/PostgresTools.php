@@ -106,6 +106,27 @@ readonly class PostgresTools
     }
 
     /**
+     * Returns the table of contents of a custom-format dump (`pg_restore --list`); needs no database connection.
+     *
+     * @throws BackupFailed when pg_restore cannot read the dump
+     */
+    public function listDump(string $dumpFile): string
+    {
+        if (self::DOCKER === $this->mode()) {
+            $containerFile = '/tmp/ivena-backup-'.bin2hex(random_bytes(8)).'.dump';
+            try {
+                $this->mustRun(['docker', 'compose', 'cp', $dumpFile, self::DOCKER_SERVICE.':'.$containerFile], 'docker compose cp');
+
+                return $this->mustRun([...$this->prefix(), 'pg_restore', '--list', $containerFile], 'pg_restore');
+            } finally {
+                $this->process([...$this->prefix(), 'rm', '-f', $containerFile])->run();
+            }
+        }
+
+        return $this->mustRun(['pg_restore', '--list', $dumpFile], 'pg_restore');
+    }
+
+    /**
      * @return list<string>
      */
     private function prefix(): array
@@ -184,13 +205,15 @@ readonly class PostgresTools
      *
      * @throws BackupFailed
      */
-    private function mustRun(array $command, string $label, array $environment = []): void
+    private function mustRun(array $command, string $label, array $environment = []): string
     {
         $process = $this->process($command, $environment);
         $process->run();
         if (!$process->isSuccessful()) {
             throw new BackupFailed(sprintf('%s failed with exit code %d: %s', $label, (int) $process->getExitCode(), $this->excerpt($process->getErrorOutput())), 'Check that the database is reachable and that the client tools match the server version.');
         }
+
+        return $process->getOutput();
     }
 
     /**
