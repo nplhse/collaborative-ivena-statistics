@@ -8,6 +8,9 @@
              data-catalog-orientation-map-highlight-key-value="{{ orientationMap.highlightKey }}"
          {% endif %}
          data-catalog-orientation-map-show-all-value="{{ orientationMap.showAllAreas ? 'true' : 'false' }}"
+         {% if orientationMap.stateName %}
+             data-catalog-orientation-map-state-value="{{ orientationMap.stateName }}"
+         {% endif %}
          data-catalog-orientation-map-show-route-value="{{ orientationMap.showRoute ? 'true' : 'false' }}"
          {% if orientationMap.hasDestinationHighlight %}
              data-catalog-orientation-map-destination-highlight-key-value="{{ orientationMap.destinationHighlightKey }}"

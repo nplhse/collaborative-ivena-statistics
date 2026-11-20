@@ -50,6 +50,10 @@ final class DispatchAreaNameNormalizerTest extends TestCase
         yield 'leading underscore zentrale leitstelle landkreis' => ['_Zentrale Leitstelle Landkreis Eichsfeld', 'Eichsfeld'];
         yield 'leading underscore integrierte leitstelle' => ['_Integrierte Leitstelle Schweinfurt', 'Schweinfurt'];
         yield 'integrierte leitstelle without underscore' => ['Integrierte Leitstelle Northeim', 'Northeim'];
+        yield 'bayerischer untermain schichtfuehrer' => ['Integrierte Leitstelle Bayerischer Untermain (Schichtführer)', 'Bayerischer Untermain'];
+        yield 'bayerischer untermain disponentin' => ['Integrierte Leitstelle Bayerischer Untermain (Disponentin)', 'Bayerischer Untermain'];
+        yield 'bayerischer untermain ausbildungsbeauftragter' => ['Integrierte Leitstelle Bayerischer Untermain (Ausbildungsbeauftragter)', 'Bayerischer Untermain'];
+        yield 'schweinfurt disponent' => ['Integrierte Leitstelle Schweinfurt (Disponent)', 'Schweinfurt'];
         yield 'frankfurt fuehrungsstab' => ['Frankfurt Führungsstab', 'Frankfurt'];
         yield 'bergstrasse fuehrungsstab' => ['Bergstraße Führungsstab', 'Bergstraße'];
         yield 'nbsp and extra spaces' => ["  Frankfurt\u{00A0}Führungsstab  ", 'Frankfurt'];

@@ -19,23 +19,32 @@ final class HesseGeographyTest extends TestCase
 {
     private const string PROJECT = __DIR__.'/../../../../..';
 
-    public function testDistrictsAreExactlyTheDispatchAreasOfTheGeoMap(): void
+    public function testDistrictsAreExactlyTheHessianDispatchAreasOfTheGeoMap(): void
     {
         /** @var array{dispatch_area_geo_map: array<string, string>} $config */
         $config = Yaml::parseFile(self::PROJECT.'/config/case_flow/dispatch_area_geo_map.yaml');
+        /** @var array{dispatch_areas: array<string, array{state?: string}>} $sources */
+        $sources = Yaml::parseFile(self::PROJECT.'/config/case_flow/dispatch_area_geo_sources.yaml');
 
+        // Neighbouring dispatch areas outside Hesse have a map shape but no synthetic hospitals.
+        $hessian = array_filter(
+            $config['dispatch_area_geo_map'],
+            static fn (string $geoKey): bool => !isset($sources['dispatch_areas'][$geoKey]['state']),
+        );
         $fromProvider = array_map(static fn (array $district): string => $district['geo_key'], HesseDistricts::DISTRICTS);
 
-        self::assertSame($config['dispatch_area_geo_map'], $fromProvider);
+        self::assertSame($hessian, $fromProvider);
     }
 
     public function testEveryDistrictHasAShapeOnTheMap(): void
     {
-        /** @var array{features: list<array{properties: array{key: string, name: string}}>} $geojson */
+        /** @var array{features: list<array{properties: array{key: string, name: string, neighbour: bool}}>} $geojson */
         $geojson = json_decode((string) file_get_contents(self::PROJECT.'/'.HesseDistrictPolygons::GEOJSON), true, 512, \JSON_THROW_ON_ERROR);
         $names = [];
         foreach ($geojson['features'] as $feature) {
-            $names[$feature['properties']['key']] = $feature['properties']['name'];
+            if (!$feature['properties']['neighbour']) {
+                $names[$feature['properties']['key']] = $feature['properties']['name'];
+            }
         }
 
         foreach (HesseDistricts::DISTRICTS as $name => $district) {

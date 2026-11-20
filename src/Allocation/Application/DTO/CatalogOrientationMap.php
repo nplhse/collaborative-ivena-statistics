@@ -26,6 +26,7 @@ final readonly class CatalogOrientationMap
         public ?array $isochronesGeoJson = null,
         public ?int $recordedTravelMinutes = null,
         public array $contextMarkers = [],
+        public ?string $stateName = null,
     ) {
     }
 

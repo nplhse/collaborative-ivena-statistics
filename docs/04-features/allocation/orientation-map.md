@@ -2,7 +2,7 @@
 
 **Audience:** Developers changing the Explore allocation detail map.
 
-The orientation map on `/explore/allocation/{publicId}` (and related catalog pages) is a Leaflet map: Hessen dispatch-area polygons, origin/destination markers, and an optional destination-isochrone band.
+The orientation map on `/explore/allocation/{publicId}` (and related catalog pages) is a Leaflet map: dispatch-area polygons (Hesse and neighbouring areas outside Hesse), origin/destination markers, and an optional destination-isochrone band.
 
 It is **read-only** at request time. Coordinates come from `Hospital.latitude` / `longitude`. Isochrones come from files under `var/geo/hospital-isochrones`. Operators refresh that data with console commands — see [../../05-operations/hospital-geodata.md](../../05-operations/hospital-geodata.md).
 
@@ -10,7 +10,7 @@ It is **read-only** at request time. Coordinates come from `Hospital.latitude` /
 
 | Layer | Source | Notes |
 |-------|--------|-------|
-| Dispatch-area polygons | `assets/geo/hessen-landkreise.geojson` + `config/case_flow/dispatch_area_geo_map.yaml` | Hessen pilot only. Unknown area names disable the map. |
+| Dispatch-area polygons | `assets/geo/hessen-landkreise.geojson` + `config/case_flow/dispatch_area_geo_map.yaml` | Hesse and configured neighbouring areas. Unknown area names disable the map. The state page shows the areas whose `state` matches; a state without areas has no map. |
 | Origin | Allocation dispatch area | Highlighted polygon |
 | Destination pin | Destination hospital lat/lng | Orange pin. Missing coords: no pin. |
 | Travel-time band | Stored hospital isochrones, filtered to `createdAt` → `arrivalAt` | 5-minute bands up to 50 minutes (`IsochroneTravelBand`). Intersection with the origin polygon is emphasized. |
@@ -32,7 +32,7 @@ Primary allocations do not load extra hospital pins.
 
 - **New pin type or legend:** factory DTO + Twig + Stimulus + translations (`allocation+intl-icu`).
 - **New travel-time rule:** `IsochroneTravelBand` (keep the stored GeoJSON bands; do not call OpenRouteService here).
-- **New federal state polygons:** see the table in [hospital-geodata.md](../../05-operations/hospital-geodata.md) (YAML map, GeoJSON, factory state name). Geocoding/isochrones are independent and already per `stateId`.
+- **New dispatch area outside Hesse:** see [hospital-geodata.md](../../05-operations/hospital-geodata.md#adding-another-federal-state) (raw districts, YAML, rebuild). No code change; the factory reads `state` from the GeoJSON. Geocoding/isochrones are independent and already per `stateId`.
 - **Pin position looks wrong:** coordinates are probably still a city/PLZ centroid. Re-run street geocoding with `--hospital-id` and `--force`, then refetch isochrones.
 
 ## Tests

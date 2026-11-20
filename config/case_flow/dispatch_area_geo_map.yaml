@@ -23,3 +23,9 @@ dispatch_area_geo_map:
     Werra-Meißner: werra-meissner
     Wetterau: wetterau
     Wiesbaden: wiesbaden
+    # Neighbouring dispatch areas outside Hesse (see dispatch_area_geo_sources.yaml).
+    Göttingen: goettingen
+    Northeim: northeim
+    Eichsfeld: eichsfeld
+    Schweinfurt: schweinfurt
+    'Bayerischer Untermain': bayerischer-untermain

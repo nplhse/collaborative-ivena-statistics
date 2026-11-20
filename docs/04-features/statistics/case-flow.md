@@ -133,7 +133,7 @@ Stimulus controllers:
 - `geo-map_controller.js` (shared geographic map)
 - `case-flow-charts_controller.js`
 
-GeoJSON: `assets/geo/hessen-landkreise.geojson`
+GeoJSON: `assets/geo/hessen-landkreise.geojson` (Hessian dispatch areas plus neighbouring ones outside Hesse). Neighbouring areas (`properties.neighbour`) get a dashed outline and use the same colour scale. Areas without cases do not widen the map view, so neighbouring areas only move it when they have cases.
 
 ## GeoJSON build command
 
@@ -141,7 +141,7 @@ GeoJSON: `assets/geo/hessen-landkreise.geojson`
 php bin/console app:statistics:case-flow:build-geojson
 ```
 
-Merges Hessen dispatch-area GeoJSON from `config/case_flow/dispatch_area_geo_sources.yaml`.
+Merges dispatch-area GeoJSON from `config/case_flow/dispatch_area_geo_sources.yaml` and the raw district files in `assets/geo/.source/`. Steps for a new area: [hospital-geodata.md](../../05-operations/hospital-geodata.md#adding-another-federal-state).
 
 ## Related
 
