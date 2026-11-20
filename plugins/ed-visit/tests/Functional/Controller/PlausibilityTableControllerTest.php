@@ -87,7 +87,7 @@ final class PlausibilityTableControllerTest extends WebTestCase
         self::assertSame('779 sonstige Notfallsituationen', trim($crawler->filter('[data-test="encounter-plausibility-unassigned"] .badge')->text()), 'stored codes without an area');
 
         $tools = $this->client->request(Request::METHOD_GET, '/tools');
-        self::assertCount(1, $tools->filter('[data-tool-key="encounter_plausibility"][href="/tools/encounter-plausibility"]'));
+        self::assertCount(1, $tools->filter('[data-tool-key="encounter_plausibility"] [data-testid="tools-card-link"][href="/tools/encounter-plausibility"]'));
 
         $this->client->loginUser($this->user());
         $tools = $this->client->request(Request::METHOD_GET, '/tools');

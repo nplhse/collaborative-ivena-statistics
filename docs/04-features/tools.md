@@ -11,19 +11,28 @@ the naming rules for tools. The registry and the `Tool` definition are described
 
 State after #1201. Names are the same on the Tools card, the page title and the breadcrumb.
 
-| Tool (EN / DE) | Category | Provider (context) | Visible for | Entry |
-|---|---|---|---|---|
-| Indication review / Indikations-Review | Matching and review | `IndicationReviewToolProvider` (Allocation) | `IndicationRawReviewVoter::VIEW` (participants) | `/tools/indication-review` |
-| ED match review / Abgleichsprüfung Notaufnahme | Matching and review | `EncounterToolProvider` (ED visit plugin) | `ROLE_ENCOUNTER_BETA`; pages also need encounter grant `REVIEW` or `ROLE_ADMIN` | `/tools/encounter-review` (hospital list) |
-| ED match validation / Abgleichsvalidierung Notaufnahme | Matching and review | `EncounterToolProvider` (ED visit plugin) | as the match review | `/tools/encounter-review?mode=validation` (hospital list) |
-| PZC × MTS plausibility table / Plausibilitätstabelle PZC × MTS | Matching and review | `EncounterToolProvider` (ED visit plugin) | `ROLE_ENCOUNTER_BETA` and `ROLE_ENCOUNTER_CATALOG_REVIEWER` | `/tools/encounter-plausibility` |
-| Assignment conflicts / Zuordnungskonflikte | Matching and review | `AssignmentConflictToolProvider` (Encounter) | `ROLE_ENCOUNTER_BETA`; pages also need encounter grant `REVIEW` or `ROLE_ADMIN` | `/tools/encounter-assignments` (hospital list) |
-| Encounter data preparation / Aufbereitung der Behandlungsdaten | Data preparation | `DataPrepToolProvider` (Encounter) | `ROLE_ENCOUNTER_BETA`, only while a schema contributes to the tool | `/tools/data-prep` (guide and download) |
+| Tool (EN / DE) | Category | Topics | Provider (context) | Visible for | Entry |
+|---|---|---|---|---|---|
+| Indication review / Indikations-Review | Matching and review | Indications, Allocations | `IndicationReviewToolProvider` (Allocation) | `IndicationRawReviewVoter::VIEW` (participants) | `/tools/indication-review` |
+| ED match review / Abgleichsprüfung Notaufnahme | Matching and review | Allocations, Encounter data | `EncounterToolProvider` (ED visit plugin) | `ROLE_ENCOUNTER_BETA`; pages also need encounter grant `REVIEW` or `ROLE_ADMIN` | `/tools/encounter-review` (hospital list) |
+| ED match validation / Abgleichsvalidierung Notaufnahme | Matching and review | Allocations, Encounter data | `EncounterToolProvider` (ED visit plugin) | as the match review | `/tools/encounter-review?mode=validation` (hospital list) |
+| PZC × MTS plausibility table / Plausibilitätstabelle PZC × MTS | Matching and review | Indications, Encounter data | `EncounterToolProvider` (ED visit plugin) | `ROLE_ENCOUNTER_BETA` and `ROLE_ENCOUNTER_CATALOG_REVIEWER` | `/tools/encounter-plausibility` |
+| Assignment conflicts / Zuordnungskonflikte | Matching and review | Encounter data | `AssignmentConflictToolProvider` (Encounter) | `ROLE_ENCOUNTER_BETA`; pages also need encounter grant `REVIEW` or `ROLE_ADMIN` | `/tools/encounter-assignments` (hospital list) |
+| Encounter data preparation / Aufbereitung der Behandlungsdaten | Data preparation | Encounter data, Imports | `DataPrepToolProvider` (Encounter) | `ROLE_ENCOUNTER_BETA`, only while a schema contributes to the tool | `/tools/data-prep` (guide and download) |
 
 All encounter tools carry the beta badge. Details of each workflow:
 [indication-normalization.md](allocation/indication-normalization.md),
 [encounter README](encounter/README.md#tools-section) (match review, validation, plausibility table,
 assignment conflicts) and [data-preparation-tool.md](encounter/data-preparation-tool.md).
+
+## Topics
+
+Each tool names the topics it is about (`ToolTopic`: Allocations / Zuweisungen, Encounter data /
+Behandlungsdaten, Indications / Indikationen, Imports / Importe; [ADR 031](../02-architecture/decisions/031-tools-section-and-tool-registry.md#amendment-november-2026-1201-topics)).
+The card shows them as badges that link to `/tools?topic=<topic>`; the dropdown "Topic" in the page header
+lists the topics of the user's tools in the order of the enum and appears once there are at least two.
+An unknown topic, or one none of the user's tools has, shows all tools. Name the main subject first, and
+only topics a user would search the tool by.
 
 ## Naming rules
 

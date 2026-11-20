@@ -10,7 +10,7 @@ use Symfony\UX\Pagination\CursorPaginationInterface;
  * One keyset page of rows, built by a hand-written query.
  *
  * Implements the Symfony UX cursor contract so DataTable treats it like any
- * other cursor pagination; adds an estimated total that UX cursors do not have.
+ * other cursor pagination; adds a result count that UX cursors do not have.
  * The rows themselves carry no URL knowledge: callers that need URLs from the
  * paginator (rather than from DataTable) attach a generator with withCursorUrlGenerator().
  *
@@ -27,7 +27,7 @@ final readonly class CursorPaginator implements CursorPaginationInterface
         private int $pageSize,
         private ?string $nextCursor,
         private ?string $previousCursor = null,
-        private ?int $estimatedNumResults = null,
+        private ?ResultCount $resultCount = null,
         private ?string $cursor = null,
         private ?\Closure $cursorUrlGenerator = null,
     ) {
@@ -43,7 +43,7 @@ final readonly class CursorPaginator implements CursorPaginationInterface
             $this->pageSize,
             $this->nextCursor,
             $this->previousCursor,
-            $this->estimatedNumResults,
+            $this->resultCount,
             $this->cursor,
             $generator,
         );
@@ -146,22 +146,25 @@ final readonly class CursorPaginator implements CursorPaginationInterface
         return '';
     }
 
-    public function getEstimatedNumResults(): ?int
+    public function getResultCount(): ?ResultCount
     {
-        return $this->estimatedNumResults;
-    }
-
-    public function getEstimatedLastPage(): ?int
-    {
-        if (null === $this->estimatedNumResults || 0 >= $this->estimatedNumResults) {
-            return null;
-        }
-
-        return (int) ceil($this->estimatedNumResults / $this->pageSize);
+        return $this->resultCount;
     }
 
     /**
-     * @return array{items: list<array<string, mixed>>, per_page: int, cursor: ?string, next_cursor: ?string, previous_cursor: ?string, has_next: bool, has_previous: bool, estimated_total: ?int}
+     * Number of pages for an exact count; null for a lower bound or no count.
+     */
+    public function getLastPage(): ?int
+    {
+        if (!$this->resultCount instanceof ResultCount || $this->resultCount->isLowerBound || 0 >= $this->resultCount->count) {
+            return null;
+        }
+
+        return (int) ceil($this->resultCount->count / $this->pageSize);
+    }
+
+    /**
+     * @return array{items: list<array<string, mixed>>, per_page: int, cursor: ?string, next_cursor: ?string, previous_cursor: ?string, has_next: bool, has_previous: bool, total: ?int, total_is_lower_bound: bool}
      */
     #[\Override]
     public function jsonSerialize(): array
@@ -174,7 +177,8 @@ final readonly class CursorPaginator implements CursorPaginationInterface
             'previous_cursor' => $this->previousCursor,
             'has_next' => $this->hasNext(),
             'has_previous' => $this->hasPrevious(),
-            'estimated_total' => $this->estimatedNumResults,
+            'total' => $this->resultCount?->count,
+            'total_is_lower_bound' => $this->resultCount->isLowerBound ?? false,
         ];
     }
 }

@@ -7,6 +7,7 @@ namespace App\Encounter\UI\Navigation;
 use App\Shared\Application\Navigation\Tool\Tool;
 use App\Shared\Application\Navigation\Tool\ToolCategory;
 use App\Shared\Application\Navigation\Tool\ToolProviderInterface;
+use App\Shared\Application\Navigation\Tool\ToolTopic;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
@@ -42,6 +43,7 @@ final readonly class AssignmentConflictToolProvider implements ToolProviderInter
                 icon: 'tabler:link-off',
                 category: ToolCategory::Matching,
                 beta: true,
+                topics: [ToolTopic::Encounters],
             ),
         ];
     }

@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Shared\Integration\Twig\Components;
 
 use App\Shared\Infrastructure\Pagination\CursorPaginator;
+use App\Shared\Infrastructure\Pagination\ResultCount;
 use App\Shared\UI\Twig\Components\DataTable;
 use App\Shared\UI\Twig\DataTable\DataTableBulkAction;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
@@ -242,7 +244,7 @@ final class DataTableComponentTest extends KernelTestCase
                 25,
                 'next',
                 null,
-                80,
+                ResultCount::exact(80),
             ),
             'columns' => [
                 ['key' => 'name', 'label' => 'label.name', 'type' => 'text', 'sortable' => true],
@@ -269,7 +271,37 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertStringContainsString('id="result-count"', $html);
         self::assertStringContainsString('card-footer', $html);
         self::assertStringContainsString('Next', $html);
-        self::assertStringContainsString('Showing approx.', $html);
+        self::assertStringContainsString('80 results across 4 pages.', $html);
+    }
+
+    /**
+     * @return iterable<string, array{ResultCount, string}>
+     */
+    public static function resultCounts(): iterable
+    {
+        yield 'one row' => [ResultCount::exact(1), '1 result across 1 page.'];
+        yield 'exact count' => [ResultCount::exact(195_172), '195.172 results across 7.807 pages.'];
+        yield 'lower bound' => [ResultCount::moreThan(10_000), 'More than 10.000 results.'];
+    }
+
+    #[DataProvider('resultCounts')]
+    public function testCursorFooterShowsTheResultCount(ResultCount $resultCount, string $expected): void
+    {
+        $requestStack = self::getContainer()->get(RequestStack::class);
+        self::assertInstanceOf(RequestStack::class, $requestStack);
+        $requestStack->push(Request::create('/explore/allocation', 'GET', [
+            '_route' => 'app_explore_allocation_list',
+        ]));
+
+        $html = (string) $this->renderTwigComponent('DataTable', [
+            'paginationRoute' => 'app_explore_allocation_list',
+            'paginator' => new CursorPaginator([['name' => 'Kiel']], 25, 'next', null, $resultCount),
+            'columns' => [
+                ['key' => 'name', 'label' => 'label.name', 'type' => 'text'],
+            ],
+        ]);
+
+        self::assertStringContainsString($expected, $html);
     }
 
     public function testCursorFooterWithoutEstimateShowsGenericCopy(): void
@@ -293,7 +325,7 @@ final class DataTableComponentTest extends KernelTestCase
         ]);
 
         self::assertStringContainsString('Showing results.', $html);
-        self::assertStringNotContainsString('Showing approx.', $html);
+        self::assertStringNotContainsString('results across', $html);
         self::assertStringContainsString('id="result-count"', $html);
         self::assertStringContainsString('card-footer', $html);
     }

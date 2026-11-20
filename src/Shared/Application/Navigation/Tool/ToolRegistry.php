@@ -71,13 +71,39 @@ final readonly class ToolRegistry
     }
 
     /**
+     * The topics of the tools the current user may use, in the order of ToolTopic.
+     *
+     * @return list<ToolTopic>
+     */
+    public function availableTopics(): array
+    {
+        $topics = [];
+        foreach ($this->providers as $provider) {
+            foreach ($provider->tools() as $tool) {
+                foreach ($tool->topics as $topic) {
+                    $topics[$topic->value] = true;
+                }
+            }
+        }
+
+        return array_values(array_filter(
+            ToolTopic::cases(),
+            static fn (ToolTopic $topic): bool => isset($topics[$topic->value]),
+        ));
+    }
+
+    /**
+     * @param ToolTopic|null $topic only the tools about this topic; null for all tools
+     *
      * @return list<ToolGroup>
      */
-    public function groupedByCategory(): array
+    public function groupedByCategory(?ToolTopic $topic = null): array
     {
         $byCategory = [];
         foreach ($this->availableTools() as $tool) {
-            $byCategory[$tool->category->value][] = $tool;
+            if (!$topic instanceof ToolTopic || $tool->hasTopic($topic)) {
+                $byCategory[$tool->category->value][] = $tool;
+            }
         }
 
         $groups = [];
