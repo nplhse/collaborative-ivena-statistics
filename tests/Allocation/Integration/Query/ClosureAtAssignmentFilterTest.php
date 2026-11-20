@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Allocation\Integration\Query;
 
+use App\Allocation\Application\Allocations\ClosureAtAssignmentResolver;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Domain\Entity\Hospital;
@@ -18,7 +19,6 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
-use App\Allocation\Application\Allocations\ClosureAtAssignmentResolver;
 use App\Allocation\Infrastructure\Query\ListAllocationsQuery;
 use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
 use App\Import\Domain\Entity\Import;

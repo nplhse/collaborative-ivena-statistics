@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\Controller\Allocations;
 
+use App\Allocation\Application\Allocations\ClosureAtAssignmentResolver;
 use App\Allocation\Application\Explore\Catalog\CatalogOrientationMapFactory;
 use App\Allocation\Domain\Entity\Allocation;
-use App\Allocation\Application\Allocations\ClosureAtAssignmentResolver;
 use App\Allocation\Infrastructure\Security\Voter\AllocationVoter;
 use App\Shared\UI\Http\Routing\OpensById;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
