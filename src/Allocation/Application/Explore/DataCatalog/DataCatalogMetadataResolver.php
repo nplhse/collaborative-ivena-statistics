@@ -56,7 +56,7 @@ final readonly class DataCatalogMetadataResolver
         $segments = explode('.', $variable->property);
         $nullable = false;
 
-        while ([] !== $segments) {
+        while (true) {
             $path = implode('.', $segments);
             if ($metadata->hasField($path)) {
                 $field = $metadata->getFieldMapping($path);
@@ -99,8 +99,6 @@ final readonly class DataCatalogMetadataResolver
 
             $metadata = $target;
         }
-
-        throw new \LogicException(sprintf('Data catalog variable "%s" has an empty property.', $variable->key));
     }
 
     /**
