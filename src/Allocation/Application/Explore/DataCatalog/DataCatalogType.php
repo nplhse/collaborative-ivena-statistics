@@ -1,0 +1,42 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Allocation\Application\Explore\DataCatalog;
+
+use Doctrine\DBAL\Types\Types;
+
+enum DataCatalogType: string
+{
+    case INTEGER = 'integer';
+    case DECIMAL = 'decimal';
+    case DATETIME = 'datetime';
+    case DATE = 'date';
+    case TIME = 'time';
+    case BOOLEAN = 'boolean';
+    case CODE = 'code';
+    case TEXT = 'text';
+    case REFERENCE = 'reference';
+
+    public static function fromDoctrine(string $type, bool $hasEnum): self
+    {
+        if ($hasEnum) {
+            return self::CODE;
+        }
+
+        return match ($type) {
+            Types::INTEGER, Types::SMALLINT, Types::BIGINT => self::INTEGER,
+            Types::DECIMAL, Types::FLOAT, Types::SMALLFLOAT => self::DECIMAL,
+            Types::DATETIME_MUTABLE, Types::DATETIME_IMMUTABLE, Types::DATETIMETZ_MUTABLE, Types::DATETIMETZ_IMMUTABLE => self::DATETIME,
+            Types::DATE_MUTABLE, Types::DATE_IMMUTABLE => self::DATE,
+            Types::TIME_MUTABLE, Types::TIME_IMMUTABLE => self::TIME,
+            Types::BOOLEAN => self::BOOLEAN,
+            default => self::TEXT,
+        };
+    }
+
+    public function labelKey(): string
+    {
+        return 'data_catalog.type.'.$this->value;
+    }
+}

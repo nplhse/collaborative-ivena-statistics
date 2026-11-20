@@ -665,6 +665,10 @@
         <source>label.admin_object_id.hint</source>
         <target>Interne ID, nur für Administratoren sichtbar.</target>
       </trans-unit>
+      <trans-unit id="lnkDataCatalogDe" resname="link.data_catalog">
+        <source>link.data_catalog</source>
+        <target>Datenkatalog</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -36,7 +36,7 @@ final class ExploreSidebarTest extends WebTestCase
                 'hospitals', 'states', 'dispatch-areas', 'users',
                 'specialities', 'departments',
                 'indications', 'indication-groups', 'assignments', 'infections', 'occasions', 'secondary-transports',
-                'glossary',
+                'glossary', 'data-catalog',
             ],
             $crawler->filter('[data-testid="sidebar-explore"] [data-testid^="sidebar-entry-"]')->each(
                 static fn (Crawler $node): string => substr((string) $node->attr('data-testid'), \strlen('sidebar-entry-')),
