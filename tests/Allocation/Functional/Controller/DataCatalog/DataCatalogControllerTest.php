@@ -19,7 +19,7 @@ final class DataCatalogControllerTest extends WebTestCase
     use InteractsWithAuthenticatedUser;
     use Factories;
 
-    public function testOverviewListsTheAllocationObject(): void
+    public function testOverviewListsTheCoreObjects(): void
     {
         $client = $this->createClientAsParticipant();
         $client->request(Request::METHOD_GET, '/explore/data-catalog');
@@ -28,6 +28,29 @@ final class DataCatalogControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="data-catalog-object"][data-object-key="allocation"]');
         self::assertSelectorTextContains('[data-object-key="allocation"]', 'Allocation');
         self::assertSelectorTextContains('[data-object-key="allocation"]', '32 variables');
+        self::assertSelectorTextContains('[data-object-key="mci_case"]', '25 variables');
+        self::assertSelectorTextContains('[data-object-key="hospital"]', '13 variables');
+    }
+
+    public function testReferenceToADocumentedObjectLinksToItsEntry(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/explore/data-catalog/allocation');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#allocation-hospital a[href="/explore/data-catalog/hospital"]');
+    }
+
+    public function testHospitalDetailShowsPrefixedCodeLabelsAndEmbeddedColumns(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/explore/data-catalog/hospital');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('#hospital-size [data-testid="data-catalog-codes"]', 'Small');
+        self::assertSelectorTextContains('#hospital-postal-code [data-testid="data-catalog-storage"]', 'hospital.address_postal_code');
+        self::assertSelectorTextNotContains('body', 'data_catalog.');
+        self::assertSelectorTextNotContains('body', 'hospital.size.');
     }
 
     public function testDetailShowsGroupedVariablesWithStorageCodesAndRange(): void
@@ -79,7 +102,7 @@ final class DataCatalogControllerTest extends WebTestCase
     {
         $client = $this->createClientAsParticipant();
 
-        foreach (['/explore/data-catalog', '/explore/data-catalog/allocation'] as $url) {
+        foreach (['/explore/data-catalog', '/explore/data-catalog/allocation', '/explore/data-catalog/mci_case', '/explore/data-catalog/hospital'] as $url) {
             self::assertSame([], $this->caseDataQueries($client, $url), $url);
         }
     }
@@ -102,7 +125,7 @@ final class DataCatalogControllerTest extends WebTestCase
         foreach ($collector->getQueries() as $queries) {
             foreach ($queries as $query) {
                 $sql = (string) $query['sql'];
-                if (1 === preg_match('/\b(FROM|JOIN)\s+"?(allocation|assessment|encounter|ed_visit)"?\b/i', $sql)) {
+                if (1 === preg_match('/\b(FROM|JOIN)\s+"?(allocation|assessment|mci_case|encounter|ed_visit)"?\b/i', $sql)) {
                     $matches[] = $sql;
                 }
             }

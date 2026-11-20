@@ -111,6 +111,7 @@
                 <directory name="src/*/UI/Http/Controller" />
                 <!-- Data catalog contributors are only wired through the allocation.data_catalog_object tag (#1415). -->
                 <directory name="src/*/Application/DataCatalog/" />
+                <directory name="plugins/ed-visit/src/Application/DataCatalog/" />
                 <directory name="plugins/ed-visit/src/UI/Http/Controller"/>
                 <directory name="src/*/UI/Console/Command" />
                 <directory name="plugins/ed-visit/src/UI/Console/Command"/>

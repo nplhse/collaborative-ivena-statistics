@@ -19,6 +19,20 @@ Access follows Explore (`ROLE_PARTICIPANT`); an object with a granted attribute 
 have it, and its detail page answers 404 otherwise. Table and column names are shown to everyone who sees
 the catalog, as a small code line per variable, because they describe structure, not data.
 
+## Documented objects
+
+| Object | Contributor | Visible to |
+|---|---|---|
+| `allocation` (with the ABCDE assessment) | `AllocationDataCatalogContributor` | Explore users |
+| `mci_case` | `AllocationDataCatalogContributor` | Explore users |
+| `hospital` | `AllocationDataCatalogContributor` | Explore users |
+| `encounter` (base data) | `EncounterDataCatalogContributor` (`src/Encounter/Application/DataCatalog/`) | `ENCOUNTER_VIEW_CASES_IN_ANY_HOSPITAL` |
+| `ed_visit` (plugin) | `EdVisitDataCatalogContributor` (`plugins/ed-visit/src/Application/DataCatalog/`) | `ENCOUNTER_VIEW_CASES_IN_ANY_HOSPITAL` |
+
+Left out on purpose: owners, audit fields (created/updated by), the import reference, the encounter case key
+and key generation (pseudonyms for matching), the user who set an encounter assignment, the ED visit uid and
+fingerprint, and the ED isolation codes (a JSON code set, which the catalog cannot describe yet).
+
 ## Variables
 
 A variable is opt-in: only listed fields appear. Surrogate and public ids, hashes, free-text notes and
@@ -32,8 +46,8 @@ import references stay out unless chosen on purpose.
 | Table and column | Doctrine mapping; embedded fields (`times.arrivedAt`) and to-one paths (`assessment.airway`) resolve to their own table and column |
 | Type | Doctrine type: integer, decimal, date/time, boolean, code (enum), text, reference (to-one association) |
 | May be missing | Doctrine nullability; a path through an optional association is nullable |
-| Codes | `Enum::cases()`; labels from the enum's `label()` key (`CodeLabels::fromEnumLabel($domain)`) or a key prefix plus the code (`CodeLabels::prefixed($prefix, $domain)`) |
-| Range | Curated `ValueRange` (min, max, unit key), only where the code already defines a domain range, for example the import validation of the age (1–99) |
+| Codes | `Enum::cases()`; labels from the enum's `label()` key (`CodeLabels::fromEnumLabel($domain)`) or a key prefix, the code and an optional suffix (`CodeLabels::prefixed($prefix, $domain, $suffix)`) |
+| Range | Curated `ValueRange` (min, max, unit key), only where the code already defines a domain range: the import validation of the age (1–99) for allocations and MCI cases, the `Encounter` constructor for encounters, the exchange-format field contract (`EdVisitDimension`) for ED visit pain score and vital signs. The unit key is translated in the object's domain |
 | Reference target | Doctrine target entity; linked to its catalog entry when that object is documented and visible, otherwise its table is named |
 
 Object keys: `data_catalog.object.<key>.title` / `.description`; group labels: `data_catalog.group.<group>`,
@@ -51,7 +65,7 @@ Implement `DataCatalogContributorInterface` (tag `allocation.data_catalog_object
 owning context or plugin, in its `Application/DataCatalog/` directory, and return `DataObjectDefinition`s.
 Contributors are wired only through the tag, which Psalm cannot see; `psalm.xml` exempts
 `src/*/Application/DataCatalog/` from `UnusedClass` for that reason (a plugin adds its own directory
-there). Set `contributedByPlugin: true` for a plugin and a `grantedAttribute` when its data area is
+there). `PluginBoundaryTest::ALLOWED` lets a plugin use the extension point and `ValueRange`. Set `contributedByPlugin: true` for a plugin and a `grantedAttribute` when its data area is
 restricted. See
 [extension-points.md](../../02-architecture/extension-points.md#explore-data-catalog).
 
@@ -60,8 +74,8 @@ restricted. See
 | Area | Path |
 |---|---|
 | Extension point, registry, resolver | `src/Allocation/Application/Explore/DataCatalog/` |
-| Allocation contributor | `src/Allocation/Application/DataCatalog/` |
+| Contributors | `src/Allocation/Application/DataCatalog/`, `src/Encounter/Application/DataCatalog/`, `plugins/ed-visit/src/Application/DataCatalog/` |
 | View DTOs | `src/Allocation/Application/DTO/DataCatalog/` |
 | Controllers | `src/Allocation/UI/Http/Controller/DataCatalog/` |
 | Templates | `src/Allocation/UI/Twig/templates/data_catalog/` |
-| Tests | `tests/Allocation/{Unit,Integration,Functional}/**/DataCatalog*` |
+| Tests | `tests/Allocation/{Unit,Integration,Functional}/**/DataCatalog*`, `tests/Encounter/Functional/DataCatalog/`, `plugins/ed-visit/tests/**/DataCatalog/` |

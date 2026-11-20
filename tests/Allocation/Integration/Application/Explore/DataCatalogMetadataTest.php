@@ -12,6 +12,7 @@ use App\Allocation\Application\Explore\DataCatalog\DataCatalogRegistry;
 use App\Allocation\Application\Explore\DataCatalog\DataCatalogType;
 use App\Allocation\Application\Explore\DataCatalog\DataObjectDefinition;
 use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\Allocation\Domain\Enum\HospitalSize;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Translation\TranslatorBagInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -55,6 +56,53 @@ final class DataCatalogMetadataTest extends KernelTestCase
 
         $createdAt = $this->variable($allocation, 'allocation.created_at');
         self::assertSame(['created_at', DataCatalogType::DATETIME, false], [$createdAt->column, $createdAt->type, $createdAt->nullable]);
+    }
+
+    public function testMciCaseAndHospitalVariablesMatchTheDoctrineMapping(): void
+    {
+        $mciCase = $this->object('mci_case');
+
+        $mciId = $this->variable($mciCase, 'mci_case.mci_id');
+        self::assertSame(['mci_case', 'mci_id', DataCatalogType::TEXT, false], [$mciId->table, $mciId->column, $mciId->type, $mciId->nullable]);
+
+        $age = $this->variable($mciCase, 'mci_case.age');
+        self::assertSame([DataCatalogType::INTEGER, true, 1, 99], [$age->type, $age->nullable, $age->range?->min, $age->range?->max]);
+
+        $hospitalRef = $this->variable($mciCase, 'mci_case.hospital');
+        self::assertSame(['hospital_id', DataCatalogType::REFERENCE, false, 'hospital'], [$hospitalRef->column, $hospitalRef->type, $hospitalRef->nullable, $hospitalRef->referenceTable]);
+
+        $hospital = $this->object('hospital');
+
+        $size = $this->variable($hospital, 'hospital.size');
+        self::assertSame(['hospital', 'size', DataCatalogType::CODE, false], [$size->table, $size->column, $size->type, $size->nullable]);
+        self::assertSame(
+            array_map(static fn (HospitalSize $case): string => $case->value, HospitalSize::cases()),
+            array_map(static fn (CatalogCode $code): string => $code->code, $size->codes),
+        );
+        self::assertSame(['hospital.size.Small', 'allocation'], [$size->codes[0]->labelKey, $size->codes[0]->domain]);
+
+        $postalCode = $this->variable($hospital, 'hospital.postal_code');
+        self::assertSame(['hospital', 'address_postal_code', DataCatalogType::TEXT, false], [$postalCode->table, $postalCode->column, $postalCode->type, $postalCode->nullable]);
+
+        $latitude = $this->variable($hospital, 'hospital.latitude');
+        self::assertSame([DataCatalogType::DECIMAL, true], [$latitude->type, $latitude->nullable]);
+    }
+
+    public function testEncounterVariablesMatchTheDoctrineMapping(): void
+    {
+        $encounter = $this->object('encounter');
+        self::assertSame('encounter', $encounter->domain);
+
+        $sex = $this->variable($encounter, 'encounter.sex');
+        self::assertSame(['encounter', 'sex', DataCatalogType::CODE, false], [$sex->table, $sex->column, $sex->type, $sex->nullable]);
+        self::assertSame(['M', 'F', 'X'], array_map(static fn (CatalogCode $code): string => $code->code, $sex->codes));
+        self::assertSame('encounter.review.value.sex_M', $sex->codes[0]->labelKey);
+
+        $age = $this->variable($encounter, 'encounter.age');
+        self::assertSame([DataCatalogType::INTEGER, false, 1, 99], [$age->type, $age->nullable, $age->range?->min, $age->range?->max]);
+
+        $allocation = $this->variable($encounter, 'encounter.allocation');
+        self::assertSame(['allocation_id', DataCatalogType::REFERENCE, true, 'allocation'], [$allocation->column, $allocation->type, $allocation->nullable, $allocation->referenceTable]);
     }
 
     public function testTranslationsExistInEnglishAndGerman(): void

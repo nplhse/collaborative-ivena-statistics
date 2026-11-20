@@ -3989,6 +3989,486 @@
         <source>encounter.allocation_list.filter.section</source>
         <target>Behandlungsdaten</target>
       </trans-unit>
+      <trans-unit id="dcEncDe001" resname="data_catalog.group.time">
+        <source>data_catalog.group.time</source>
+        <target>Zeit</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe002" resname="data_catalog.group.patient">
+        <source>data_catalog.group.patient</source>
+        <target>Patient</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe003" resname="data_catalog.group.assignment">
+        <source>data_catalog.group.assignment</source>
+        <target>Zuordnung</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe004" resname="data_catalog.object.encounter.title">
+        <source>data_catalog.object.encounter.title</source>
+        <target>Behandlungsfall</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe005" resname="data_catalog.object.encounter.description">
+        <source>data_catalog.object.encounter.description</source>
+        <target>Ein Behandlungsfall einer Klinik mit den Basisdaten, die alle klinischen Datensätze teilen, und seiner Zuordnung zu einer IVENA-Zuweisung.</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe006" resname="data_catalog.unit.years">
+        <source>data_catalog.unit.years</source>
+        <target>Jahre</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe007" resname="data_catalog.variable.encounter.anchor_at.label">
+        <source>data_catalog.variable.encounter.anchor_at.label</source>
+        <target>Ankerzeit</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe008" resname="data_catalog.variable.encounter.anchor_at.description">
+        <source>data_catalog.variable.encounter.anchor_at.description</source>
+        <target>Zeitpunkt, aus dem der Behandlungsfall angelegt wurde, bei einem Notaufnahmebesuch die Ankunftszeit (minutengenau).</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe009" resname="data_catalog.variable.encounter.age.label">
+        <source>data_catalog.variable.encounter.age.label</source>
+        <target>Alter</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe010" resname="data_catalog.variable.encounter.age.description">
+        <source>data_catalog.variable.encounter.age.description</source>
+        <target>Alter des Patienten in Jahren.</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe011" resname="data_catalog.variable.encounter.sex.label">
+        <source>data_catalog.variable.encounter.sex.label</source>
+        <target>Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe012" resname="data_catalog.variable.encounter.sex.description">
+        <source>data_catalog.variable.encounter.sex.description</source>
+        <target>Geschlecht des Patienten laut Klinik.</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe013" resname="data_catalog.variable.encounter.hospital.label">
+        <source>data_catalog.variable.encounter.hospital.label</source>
+        <target>Klinik</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe014" resname="data_catalog.variable.encounter.hospital.description">
+        <source>data_catalog.variable.encounter.hospital.description</source>
+        <target>Klinik, die den Patienten behandelt hat.</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe015" resname="data_catalog.variable.encounter.allocation.label">
+        <source>data_catalog.variable.encounter.allocation.label</source>
+        <target>Zuweisung</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe016" resname="data_catalog.variable.encounter.allocation.description">
+        <source>data_catalog.variable.encounter.allocation.description</source>
+        <target>IVENA-Zuweisung, der der Behandlungsfall zugeordnet ist, falls vorhanden.</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe017" resname="data_catalog.variable.encounter.allocation_assigned_at.label">
+        <source>data_catalog.variable.encounter.allocation_assigned_at.label</source>
+        <target>Zugeordnet am</target>
+      </trans-unit>
+      <trans-unit id="dcEncDe018" resname="data_catalog.variable.encounter.allocation_assigned_at.description">
+        <source>data_catalog.variable.encounter.allocation_assigned_at.description</source>
+        <target>Zeitpunkt, zu dem die Zuordnung zur Zuweisung gesetzt wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe001" resname="data_catalog.object.ed_visit.title">
+        <source>data_catalog.object.ed_visit.title</source>
+        <target>Notaufnahmebesuch</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe002" resname="data_catalog.object.ed_visit.description">
+        <source>data_catalog.object.ed_visit.description</source>
+        <target>Ein Besuch in der Notaufnahme mit Zeiten, Manchester-Triage, Verbleib und ersten Vitalwerten, geliefert von der Klinik.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe003" resname="data_catalog.group.case">
+        <source>data_catalog.group.case</source>
+        <target>Fall</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe004" resname="data_catalog.group.arrival">
+        <source>data_catalog.group.arrival</source>
+        <target>Ankunft</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe005" resname="data_catalog.group.triage">
+        <source>data_catalog.group.triage</source>
+        <target>Triage</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe006" resname="data_catalog.group.retriage">
+        <source>data_catalog.group.retriage</source>
+        <target>Re-Triage</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe007" resname="data_catalog.group.disposition">
+        <source>data_catalog.group.disposition</source>
+        <target>Verbleib</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe008" resname="data_catalog.group.vitals">
+        <source>data_catalog.group.vitals</source>
+        <target>Vitalwerte</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe009" resname="data_catalog.group.context">
+        <source>data_catalog.group.context</source>
+        <target>Kontext</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe010" resname="data_catalog.variable.ed_visit.encounter.label">
+        <source>data_catalog.variable.ed_visit.encounter.label</source>
+        <target>Behandlungsfall</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe011" resname="data_catalog.variable.ed_visit.encounter.description">
+        <source>data_catalog.variable.ed_visit.encounter.description</source>
+        <target>Behandlungsfall, zu dem der Besuch gehört, mit Alter, Geschlecht, Klinik und IVENA-Zuordnung.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe012" resname="data_catalog.variable.ed_visit.anchor_source.label">
+        <source>data_catalog.variable.ed_visit.anchor_source.label</source>
+        <target>Ankerquelle</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe013" resname="data_catalog.variable.ed_visit.anchor_source.description">
+        <source>data_catalog.variable.ed_visit.anchor_source.description</source>
+        <target>Zeitpunkt, an dem der Besuch verankert ist: erster Ersteinschätzungskontakt oder Aufnahme in der Notaufnahme.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe014" resname="data_catalog.variable.ed_visit.case_status.label">
+        <source>data_catalog.variable.ed_visit.case_status.label</source>
+        <target>Fallstatus</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe015" resname="data_catalog.variable.ed_visit.case_status.description">
+        <source>data_catalog.variable.ed_visit.case_status.description</source>
+        <target>Administrativer Fallstatus, zum Beispiel ambulant oder stationär.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe016" resname="data_catalog.variable.ed_visit.arrival_mode.label">
+        <source>data_catalog.variable.ed_visit.arrival_mode.label</source>
+        <target>Ankunftsart</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe017" resname="data_catalog.variable.ed_visit.arrival_mode.description">
+        <source>data_catalog.variable.ed_visit.arrival_mode.description</source>
+        <target>Wie der Patient gekommen ist, laut Klinik.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe018" resname="data_catalog.variable.ed_visit.arrival_route.label">
+        <source>data_catalog.variable.ed_visit.arrival_route.label</source>
+        <target>Zugangsweg</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe019" resname="data_catalog.variable.ed_visit.arrival_route.description">
+        <source>data_catalog.variable.ed_visit.arrival_route.description</source>
+        <target>Aus der Ankunftsart abgeleiteter Weg: Rettungsdienst, selbst oder unbekannt.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe020" resname="data_catalog.variable.ed_visit.referral_source.label">
+        <source>data_catalog.variable.ed_visit.referral_source.label</source>
+        <target>Einweisung</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe021" resname="data_catalog.variable.ed_visit.referral_source.description">
+        <source>data_catalog.variable.ed_visit.referral_source.description</source>
+        <target>Wer den Patienten eingewiesen hat.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe022" resname="data_catalog.variable.ed_visit.admission_type.label">
+        <source>data_catalog.variable.ed_visit.admission_type.label</source>
+        <target>Aufnahmeart</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe023" resname="data_catalog.variable.ed_visit.admission_type.description">
+        <source>data_catalog.variable.ed_visit.admission_type.description</source>
+        <target>Notfall- oder elektive Aufnahme.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe024" resname="data_catalog.variable.ed_visit.ed_admission_at.label">
+        <source>data_catalog.variable.ed_visit.ed_admission_at.label</source>
+        <target>Aufnahme Notaufnahme</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe025" resname="data_catalog.variable.ed_visit.ed_admission_at.description">
+        <source>data_catalog.variable.ed_visit.ed_admission_at.description</source>
+        <target>Aufnahme in der Notaufnahme.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe026" resname="data_catalog.variable.ed_visit.first_assessment_contact_at.label">
+        <source>data_catalog.variable.ed_visit.first_assessment_contact_at.label</source>
+        <target>Erster Ersteinschätzungskontakt</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe027" resname="data_catalog.variable.ed_visit.first_assessment_contact_at.description">
+        <source>data_catalog.variable.ed_visit.first_assessment_contact_at.description</source>
+        <target>Erster Kontakt zur Ersteinschätzung.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe028" resname="data_catalog.variable.ed_visit.assessment_start_at.label">
+        <source>data_catalog.variable.ed_visit.assessment_start_at.label</source>
+        <target>Beginn Ersteinschätzung</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe029" resname="data_catalog.variable.ed_visit.assessment_start_at.description">
+        <source>data_catalog.variable.ed_visit.assessment_start_at.description</source>
+        <target>Beginn der Ersteinschätzung (Triage).</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe030" resname="data_catalog.variable.ed_visit.assessment_end_at.label">
+        <source>data_catalog.variable.ed_visit.assessment_end_at.label</source>
+        <target>Ende Ersteinschätzung</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe031" resname="data_catalog.variable.ed_visit.assessment_end_at.description">
+        <source>data_catalog.variable.ed_visit.assessment_end_at.description</source>
+        <target>Ende der Ersteinschätzung (Triage).</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe032" resname="data_catalog.variable.ed_visit.physician_target_at.label">
+        <source>data_catalog.variable.ed_visit.physician_target_at.label</source>
+        <target>Arzt-Zielzeit</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe033" resname="data_catalog.variable.ed_visit.physician_target_at.description">
+        <source>data_catalog.variable.ed_visit.physician_target_at.description</source>
+        <target>Spätester Zeitpunkt des ersten Arztkontakts nach Triagekategorie.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe034" resname="data_catalog.variable.ed_visit.first_physician_at.label">
+        <source>data_catalog.variable.ed_visit.first_physician_at.label</source>
+        <target>Erster Arztkontakt</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe035" resname="data_catalog.variable.ed_visit.first_physician_at.description">
+        <source>data_catalog.variable.ed_visit.first_physician_at.description</source>
+        <target>Erster Kontakt mit einem Arzt.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe036" resname="data_catalog.variable.ed_visit.treatment_end_at.label">
+        <source>data_catalog.variable.ed_visit.treatment_end_at.label</source>
+        <target>Behandlungsende</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe037" resname="data_catalog.variable.ed_visit.treatment_end_at.description">
+        <source>data_catalog.variable.ed_visit.treatment_end_at.description</source>
+        <target>Ende der Behandlung in der Notaufnahme.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe038" resname="data_catalog.variable.ed_visit.ed_discharge_at.label">
+        <source>data_catalog.variable.ed_visit.ed_discharge_at.label</source>
+        <target>Entlassung Notaufnahme</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe039" resname="data_catalog.variable.ed_visit.ed_discharge_at.description">
+        <source>data_catalog.variable.ed_visit.ed_discharge_at.description</source>
+        <target>Der Patient verlässt die Notaufnahme.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe040" resname="data_catalog.variable.ed_visit.admin_admission_at.label">
+        <source>data_catalog.variable.ed_visit.admin_admission_at.label</source>
+        <target>Administrative Aufnahme</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe041" resname="data_catalog.variable.ed_visit.admin_admission_at.description">
+        <source>data_catalog.variable.ed_visit.admin_admission_at.description</source>
+        <target>Administrative Aufnahme des Falls.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe042" resname="data_catalog.variable.ed_visit.admin_discharge_at.label">
+        <source>data_catalog.variable.ed_visit.admin_discharge_at.label</source>
+        <target>Administrative Entlassung</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe043" resname="data_catalog.variable.ed_visit.admin_discharge_at.description">
+        <source>data_catalog.variable.ed_visit.admin_discharge_at.description</source>
+        <target>Administrative Entlassung des Falls.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe044" resname="data_catalog.variable.ed_visit.pre_inpatient_admission_at.label">
+        <source>data_catalog.variable.ed_visit.pre_inpatient_admission_at.label</source>
+        <target>Vorstationäre Aufnahme</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe045" resname="data_catalog.variable.ed_visit.pre_inpatient_admission_at.description">
+        <source>data_catalog.variable.ed_visit.pre_inpatient_admission_at.description</source>
+        <target>Aufnahme zur vorstationären Behandlung.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe046" resname="data_catalog.variable.ed_visit.mts_category.label">
+        <source>data_catalog.variable.ed_visit.mts_category.label</source>
+        <target>MTS-Kategorie</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe047" resname="data_catalog.variable.ed_visit.mts_category.description">
+        <source>data_catalog.variable.ed_visit.mts_category.description</source>
+        <target>Triagekategorie nach Manchester-Triage-System.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe048" resname="data_catalog.variable.ed_visit.mts_diagram.label">
+        <source>data_catalog.variable.ed_visit.mts_diagram.label</source>
+        <target>MTS-Präsentation (Diagramm)</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe049" resname="data_catalog.variable.ed_visit.mts_diagram.description">
+        <source>data_catalog.variable.ed_visit.mts_diagram.description</source>
+        <target>Präsentationsdiagramm aus dem MTS-Katalog.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe050" resname="data_catalog.variable.ed_visit.mts_indicator.label">
+        <source>data_catalog.variable.ed_visit.mts_indicator.label</source>
+        <target>MTS-Indikator</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe051" resname="data_catalog.variable.ed_visit.mts_indicator.description">
+        <source>data_catalog.variable.ed_visit.mts_indicator.description</source>
+        <target>Indikator aus dem MTS-Katalog, der die Kategorie bestimmt hat.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe052" resname="data_catalog.variable.ed_visit.pain_score.label">
+        <source>data_catalog.variable.ed_visit.pain_score.label</source>
+        <target>Schmerzskala</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe053" resname="data_catalog.variable.ed_visit.pain_score.description">
+        <source>data_catalog.variable.ed_visit.pain_score.description</source>
+        <target>Schmerz auf der numerischen Ratingskala.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe054" resname="data_catalog.variable.ed_visit.retriage_category.label">
+        <source>data_catalog.variable.ed_visit.retriage_category.label</source>
+        <target>Re-Triage-Kategorie</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe055" resname="data_catalog.variable.ed_visit.retriage_category.description">
+        <source>data_catalog.variable.ed_visit.retriage_category.description</source>
+        <target>MTS-Kategorie einer wiederholten Einschätzung.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe056" resname="data_catalog.variable.ed_visit.retriage_diagram.label">
+        <source>data_catalog.variable.ed_visit.retriage_diagram.label</source>
+        <target>Re-Triage-Präsentation (Diagramm)</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe057" resname="data_catalog.variable.ed_visit.retriage_diagram.description">
+        <source>data_catalog.variable.ed_visit.retriage_diagram.description</source>
+        <target>Präsentationsdiagramm der wiederholten Einschätzung.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe058" resname="data_catalog.variable.ed_visit.retriage_indicator.label">
+        <source>data_catalog.variable.ed_visit.retriage_indicator.label</source>
+        <target>Re-Triage-Indikator</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe059" resname="data_catalog.variable.ed_visit.retriage_indicator.description">
+        <source>data_catalog.variable.ed_visit.retriage_indicator.description</source>
+        <target>Indikator der wiederholten Einschätzung.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe060" resname="data_catalog.variable.ed_visit.retriage_at.label">
+        <source>data_catalog.variable.ed_visit.retriage_at.label</source>
+        <target>Zeitpunkt Re-Triage</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe061" resname="data_catalog.variable.ed_visit.retriage_at.description">
+        <source>data_catalog.variable.ed_visit.retriage_at.description</source>
+        <target>Zeitpunkt der wiederholten Einschätzung.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe062" resname="data_catalog.variable.ed_visit.disposition.label">
+        <source>data_catalog.variable.ed_visit.disposition.label</source>
+        <target>Verbleib</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe063" resname="data_catalog.variable.ed_visit.disposition.description">
+        <source>data_catalog.variable.ed_visit.disposition.description</source>
+        <target>Wohin der Patient nach der Notaufnahme ging.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe064" resname="data_catalog.variable.ed_visit.care_level.label">
+        <source>data_catalog.variable.ed_visit.care_level.label</source>
+        <target>Versorgungsbereich</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe065" resname="data_catalog.variable.ed_visit.care_level.description">
+        <source>data_catalog.variable.ed_visit.care_level.description</source>
+        <target>Versorgungsbereich bei Aufnahme, zum Beispiel Normalstation oder Intensivstation.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe066" resname="data_catalog.variable.ed_visit.admitting_department.label">
+        <source>data_catalog.variable.ed_visit.admitting_department.label</source>
+        <target>Aufnehmender Fachbereich</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe067" resname="data_catalog.variable.ed_visit.admitting_department.description">
+        <source>data_catalog.variable.ed_visit.admitting_department.description</source>
+        <target>Fachbereich, der den Patienten aufgenommen hat.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe068" resname="data_catalog.variable.ed_visit.vitals_reference.label">
+        <source>data_catalog.variable.ed_visit.vitals_reference.label</source>
+        <target>Bezug der Vitalwerte</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe069" resname="data_catalog.variable.ed_visit.vitals_reference.description">
+        <source>data_catalog.variable.ed_visit.vitals_reference.description</source>
+        <target>Ob die Vitalwerte bei Aufnahme gemessen wurden oder die ersten dokumentierten Werte sind.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe070" resname="data_catalog.variable.ed_visit.vitals_measured_at.label">
+        <source>data_catalog.variable.ed_visit.vitals_measured_at.label</source>
+        <target>Messzeitpunkt Vitalwerte</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe071" resname="data_catalog.variable.ed_visit.vitals_measured_at.description">
+        <source>data_catalog.variable.ed_visit.vitals_measured_at.description</source>
+        <target>Zeitpunkt der Messung der Vitalwerte.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe072" resname="data_catalog.variable.ed_visit.bp_systolic.label">
+        <source>data_catalog.variable.ed_visit.bp_systolic.label</source>
+        <target>Systolischer Blutdruck</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe073" resname="data_catalog.variable.ed_visit.bp_systolic.description">
+        <source>data_catalog.variable.ed_visit.bp_systolic.description</source>
+        <target>Erster systolischer Blutdruck.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe074" resname="data_catalog.variable.ed_visit.bp_diastolic.label">
+        <source>data_catalog.variable.ed_visit.bp_diastolic.label</source>
+        <target>Diastolischer Blutdruck</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe075" resname="data_catalog.variable.ed_visit.bp_diastolic.description">
+        <source>data_catalog.variable.ed_visit.bp_diastolic.description</source>
+        <target>Erster diastolischer Blutdruck.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe076" resname="data_catalog.variable.ed_visit.heart_rate.label">
+        <source>data_catalog.variable.ed_visit.heart_rate.label</source>
+        <target>Herzfrequenz</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe077" resname="data_catalog.variable.ed_visit.heart_rate.description">
+        <source>data_catalog.variable.ed_visit.heart_rate.description</source>
+        <target>Erste Herzfrequenz.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe078" resname="data_catalog.variable.ed_visit.temperature.label">
+        <source>data_catalog.variable.ed_visit.temperature.label</source>
+        <target>Temperatur</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe079" resname="data_catalog.variable.ed_visit.temperature.description">
+        <source>data_catalog.variable.ed_visit.temperature.description</source>
+        <target>Erste Körpertemperatur.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe080" resname="data_catalog.variable.ed_visit.respiratory_rate.label">
+        <source>data_catalog.variable.ed_visit.respiratory_rate.label</source>
+        <target>Atemfrequenz</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe081" resname="data_catalog.variable.ed_visit.respiratory_rate.description">
+        <source>data_catalog.variable.ed_visit.respiratory_rate.description</source>
+        <target>Erste Atemfrequenz.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe082" resname="data_catalog.variable.ed_visit.glucose.label">
+        <source>data_catalog.variable.ed_visit.glucose.label</source>
+        <target>Blutzucker</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe083" resname="data_catalog.variable.ed_visit.glucose.description">
+        <source>data_catalog.variable.ed_visit.glucose.description</source>
+        <target>Erster Blutzucker.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe084" resname="data_catalog.variable.ed_visit.spo2.label">
+        <source>data_catalog.variable.ed_visit.spo2.label</source>
+        <target>Sauerstoffsättigung</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe085" resname="data_catalog.variable.ed_visit.spo2.description">
+        <source>data_catalog.variable.ed_visit.spo2.description</source>
+        <target>Erste periphere Sauerstoffsättigung.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe086" resname="data_catalog.variable.ed_visit.gcs.label">
+        <source>data_catalog.variable.ed_visit.gcs.label</source>
+        <target>Glasgow Coma Scale</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe087" resname="data_catalog.variable.ed_visit.gcs.description">
+        <source>data_catalog.variable.ed_visit.gcs.description</source>
+        <target>Erster Wert der Glasgow Coma Scale.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe088" resname="data_catalog.variable.ed_visit.work_accident.label">
+        <source>data_catalog.variable.ed_visit.work_accident.label</source>
+        <target>Arbeitsunfall</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe089" resname="data_catalog.variable.ed_visit.work_accident.description">
+        <source>data_catalog.variable.ed_visit.work_accident.description</source>
+        <target>Der Besuch geht auf einen Arbeitsunfall zurück.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe090" resname="data_catalog.variable.ed_visit.tetanus_protected.label">
+        <source>data_catalog.variable.ed_visit.tetanus_protected.label</source>
+        <target>Tetanusschutz</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe091" resname="data_catalog.variable.ed_visit.tetanus_protected.description">
+        <source>data_catalog.variable.ed_visit.tetanus_protected.description</source>
+        <target>Der Patient hat Tetanusschutz.</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe092" resname="data_catalog.code.anchor_source.assessment">
+        <source>data_catalog.code.anchor_source.assessment</source>
+        <target>Erster Ersteinschätzungskontakt</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe093" resname="data_catalog.code.anchor_source.admission">
+        <source>data_catalog.code.anchor_source.admission</source>
+        <target>Aufnahme Notaufnahme</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe094" resname="data_catalog.code.admission_type.emergency">
+        <source>data_catalog.code.admission_type.emergency</source>
+        <target>Notfall</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe095" resname="data_catalog.code.admission_type.elective">
+        <source>data_catalog.code.admission_type.elective</source>
+        <target>Elektiv</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe096" resname="data_catalog.code.vitals_reference.admission_measurement">
+        <source>data_catalog.code.vitals_reference.admission_measurement</source>
+        <target>Bei Aufnahme gemessen</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe097" resname="data_catalog.code.vitals_reference.documented_initial">
+        <source>data_catalog.code.vitals_reference.documented_initial</source>
+        <target>Erste dokumentierte Werte</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe098" resname="data_catalog.unit.mmhg">
+        <source>data_catalog.unit.mmhg</source>
+        <target>mmHg</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe099" resname="data_catalog.unit.per_minute">
+        <source>data_catalog.unit.per_minute</source>
+        <target>/min</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe100" resname="data_catalog.unit.celsius">
+        <source>data_catalog.unit.celsius</source>
+        <target>°C</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe101" resname="data_catalog.unit.mg_dl">
+        <source>data_catalog.unit.mg_dl</source>
+        <target>mg/dl</target>
+      </trans-unit>
+      <trans-unit id="dcEdDe102" resname="data_catalog.unit.percent">
+        <source>data_catalog.unit.percent</source>
+        <target>%</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
