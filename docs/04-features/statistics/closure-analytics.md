@@ -538,10 +538,11 @@ the current hour, so the earliest cutoff still wins per population hour. The
 hospital baseline loads hourly counts one hospital at a time and walks the
 period hours with `ClosureVolumeClock::buckets()` instead of a list.
 
-## Deferred allocation matching
+## Allocation matching
 
-SK-aware joins for the course-tab assignment list on the detail page and Explore
-filters for closure intervals still require the contract from issue #571. The
-volume view above is separate from that list. No value is derived from
-`department_was_closed`, and the dedicated Notzuweisungen statistics module is
-not changed.
+The course-tab assignment list and the interval detail list use the care level
+to SK rule of [closed at assignment](closure-architecture.md#closed-at-assignment),
+limited to the intervals of the event. The Explore allocation list filters by
+the same rule across all intervals (`closureAtAssignment`). The volume view above
+is separate from both lists. No value is derived from `department_was_closed`,
+and the dedicated Notzuweisungen statistics module is not changed.

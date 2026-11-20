@@ -50,6 +50,7 @@ final readonly class AllocationListFilterCriteriaFactory
             assignment: $base->assignment,
             occasion: $base->occasion,
             departmentWasClosed: $base->departmentWasClosed,
+            closureAtAssignment: $base->closureAtAssignment,
             transportType: $base->transportType,
             hospitalIds: $hospitalIds,
             createdFrom: $base->createdFrom,
