@@ -188,13 +188,14 @@ demo-reminder: ## Send the monthly reminder of a demo hospital to Mailpit (HOSPI
 	@$(DEMO_CONSOLE) app:reminder:preview --hospital-id=$(HOSPITAL) --send
 
 ## —— Backups 💾 ———————————————————————————————————————————————————————————————
-backup-db: ## PostgreSQL dump to var/backups (uses Docker database service when running)
+backup: ## Full backup with manifest to BACKUP_DIR or var/backups (app:backup:create; Docker database when it runs)
+	@BACKUP_PG_TOOLS=$${BACKUP_PG_TOOLS:-$$($(DOCKER) compose ps --status running --services 2>/dev/null | grep -qx database && echo docker || echo local)} $(CONSOLE) app:backup:create --no-interaction
+
+backup-db: ## Legacy: PostgreSQL dump only (bin/ops script, no manifest)
 	@./bin/ops/backup-database.sh
 
-backup-files: ## Archive var/imports and public/uploads/media to var/backups
+backup-files: ## Legacy: archive var/imports and public/uploads/media only (bin/ops script, no manifest)
 	@./bin/ops/backup-files.sh
-
-backup: backup-db backup-files ## Full backup (database + files)
 
 restore-db: ## Restore DB from BACKUP_FILE=var/backups/....dump RESTORE_CONFIRM=yes
 	@if [ -z "$(BACKUP_FILE)" ]; then echo "Set BACKUP_FILE=var/backups/ivena-stats-db-....dump" >&2; exit 1; fi

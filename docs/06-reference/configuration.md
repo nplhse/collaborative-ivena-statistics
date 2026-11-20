@@ -49,6 +49,8 @@
 | `FIXTURES_CATALOG_MAPPING` | Mapping file (JSON) that binds the generator's names to another catalog | default empty; see [../03-development/synthetic-data-generator.md](../03-development/synthetic-data-generator.md#mapping-file) |
 | `STORAGE_BUDGET_BYTES` | Storage budget in bytes, the default capacity reference | empty or `0` = no budget (level `unknown`); falls back to the former `APP_ADMIN_STORAGE_LIMIT_BYTES`. See [Storage monitoring](#storage-monitoring) |
 | `STORAGE_CAPACITY_SOURCE` | Capacity reference: `budget` or `filesystem` | default `budget`; `filesystem` only on a dedicated server or VPS |
+| `BACKUP_DIR` | Default target directory of `app:backup:create` | default `var/backups`; on a Deployer host set a directory outside the deploy path, e.g. `~/backups`. See [../05-operations/backup-restore.md](../05-operations/backup-restore.md) |
+| `BACKUP_PG_TOOLS` | Where the PostgreSQL client tools run for backups | `local` (default, `pg_dump` on `PATH`) or `docker` (Compose service `database`, local development); ADR 038 |
 
 ## Application configuration (`app.yaml`)
 
