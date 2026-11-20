@@ -150,8 +150,8 @@ dispatch_areas:
             - '09672'
             - '09673'
     # ILS Bayerischer Untermain (ZRF Bayerischer Untermain): city and district of Aschaffenburg,
-    # Landkreis Miltenberg. The stored dispatch-area name is only known after the first import
-    # from this area; check the entry in dispatch_area_geo_map.yaml then (#1404).
+    # Landkreis Miltenberg. IVENA exports name it "Integrierte Leitstelle Bayerischer Untermain
+    # (<role>)", which DispatchAreaNameNormalizer turns into "Bayerischer Untermain".
     bayerischer-untermain:
         name: Bayerischer Untermain
         state: Bayern
