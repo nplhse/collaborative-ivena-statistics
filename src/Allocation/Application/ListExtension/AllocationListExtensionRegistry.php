@@ -87,10 +87,17 @@ final readonly class AllocationListExtensionRegistry
      */
     public function columnsFor(?User $user): array
     {
-        return array_values(array_map(
-            static fn (AllocationListExtensionInterface $extension): array => $extension->column(),
-            $this->availableFor($user),
-        ));
+        return $this->columnsOf($this->availableFor($user));
+    }
+
+    /**
+     * Keys of the columns of the extensions available to the user.
+     *
+     * @return list<string>
+     */
+    public function columnKeysFor(?User $user): array
+    {
+        return $this->keysOf($this->columnsFor($user));
     }
 
     /**
@@ -100,10 +107,7 @@ final readonly class AllocationListExtensionRegistry
      */
     public function allColumns(): array
     {
-        return array_values(array_map(
-            static fn (AllocationListExtensionInterface $extension): array => $extension->column(),
-            $this->extensions,
-        ));
+        return $this->columnsOf($this->extensions);
     }
 
     /**
@@ -117,8 +121,8 @@ final readonly class AllocationListExtensionRegistry
     {
         $keys = [];
         foreach ($this->availableFor($user) as $key => $extension) {
-            if (isset($activeFilters[$key]) && $extension->showsColumnFor($activeFilters[$key])) {
-                $keys[] = $key;
+            if (isset($activeFilters[$key])) {
+                array_push($keys, ...$extension->columnsShownFor($activeFilters[$key]));
             }
         }
 
@@ -144,15 +148,50 @@ final readonly class AllocationListExtensionRegistry
             'hospital_id' => isset($row['hospital_id']) ? (int) $row['hospital_id'] : null,
         ], $rows);
 
-        foreach ($this->availableFor($user) as $key => $extension) {
-            if (!\in_array($key, $visibleColumns, true)) {
+        foreach ($this->availableFor($user) as $extension) {
+            $visible = array_values(array_intersect($this->keysOf($extension->columns()), $visibleColumns));
+            if ([] === $visible) {
                 continue;
             }
-            $cells = $extension->cellsFor($keys, $user);
-            $rows = array_map(static fn (array $row): array => [...$row, $key => $cells[(int) $row['id']] ?? null], $rows);
+            $cells = $extension->cellsFor($keys, $visible, $user);
+            $rows = array_map(static function (array $row) use ($visible, $cells): array {
+                foreach ($visible as $column) {
+                    $row[$column] = $cells[$column][(int) $row['id']] ?? null;
+                }
+
+                return $row;
+            }, $rows);
         }
 
         return $rows;
+    }
+
+    /**
+     * @param array<string, AllocationListExtensionInterface> $extensions
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function columnsOf(array $extensions): array
+    {
+        $columns = [];
+        foreach ($extensions as $extension) {
+            array_push($columns, ...$extension->columns());
+        }
+
+        return $columns;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $columns
+     *
+     * @return list<string>
+     */
+    private function keysOf(array $columns): array
+    {
+        return array_values(array_filter(array_map(
+            static fn (array $column): string => \is_string($column['key'] ?? null) ? $column['key'] : '',
+            $columns,
+        )));
     }
 
     /**

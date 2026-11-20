@@ -52,7 +52,7 @@ final readonly class AllocationListColumns implements DataTablePreferenceDefinit
      */
     public function extensionColumnKeys(?User $user): array
     {
-        return array_keys($this->extensions?->availableFor($user) ?? []);
+        return $this->extensions?->columnKeysFor($user) ?? [];
     }
 
     /**

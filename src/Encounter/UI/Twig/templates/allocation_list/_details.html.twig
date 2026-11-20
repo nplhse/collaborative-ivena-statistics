@@ -1,5 +1,0 @@
-{# Details of one encounter in the column "Encounter" (#1203), one block per schema (extension point
-   `encounter.list_detail`). Loaded after the list has rendered; access was checked per encounter. #}
-{% for detail in details %}
-    <span class="d-block small mt-1">{{ include(detail.template, detail.context, with_context: false) }}</span>
-{% endfor %}
