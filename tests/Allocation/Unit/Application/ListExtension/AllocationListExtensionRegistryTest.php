@@ -43,8 +43,13 @@ final class AllocationListExtensionRegistryTest extends TestCase
         $rows = [['id' => 7, 'hospital_id' => 3], ['id' => 8, 'hospital_id' => null]];
 
         self::assertSame(
-            [['id' => 7, 'hospital_id' => 3, 'encounter' => 'cell-7'], ['id' => 8, 'hospital_id' => null, 'encounter' => null]],
+            [['id' => 7, 'hospital_id' => 3, 'encounter' => 'encounter-7'], ['id' => 8, 'hospital_id' => null, 'encounter' => null]],
             $registry->withCells($rows, ['encounter'], new User()),
+        );
+        // Every visible column of an extension is answered by one call.
+        self::assertSame(
+            [['id' => 7, 'hospital_id' => 3, 'encounter' => 'encounter-7', 'encounter_detail' => 'encounter_detail-7'], ['id' => 8, 'hospital_id' => null, 'encounter' => null, 'encounter_detail' => null]],
+            $registry->withCells($rows, ['encounter_detail', 'encounter'], new User()),
         );
         self::assertSame($rows, $registry->withCells($rows, ['timestamps'], new User()));
     }
@@ -55,7 +60,8 @@ final class AllocationListExtensionRegistryTest extends TestCase
         $hidden = new AllocationListColumns(new AllocationListExtensionRegistry([$this->extension('encounter', available: false)]));
 
         $keys = array_column($columns->columnsFor(new User()), 'key');
-        self::assertSame(['encounter', 'actions'], \array_slice($keys, -2));
+        self::assertSame(['encounter', 'encounter_detail', 'actions'], \array_slice($keys, -3));
+        self::assertSame(['encounter', 'encounter_detail'], $columns->extensionColumnKeys(new User()));
         self::assertNotContains('encounter', array_column($hidden->columnsFor(new User()), 'key'));
         // The preference schema keeps the column for everyone, so a saved choice is not lost.
         self::assertContains('encounter', $hidden->preferenceSchema()->columnOrder);
@@ -106,21 +112,29 @@ final class AllocationListExtensionRegistryTest extends TestCase
             }
 
             #[\Override]
-            public function column(): array
+            public function columns(): array
             {
-                return ['key' => $this->key, 'label' => 'label', 'type' => 'custom', 'visible' => false];
+                return [
+                    ['key' => $this->key, 'label' => 'label', 'type' => 'custom', 'visible' => false],
+                    ['key' => $this->key.'_detail', 'label' => 'detail', 'type' => 'custom', 'visible' => false],
+                ];
             }
 
             #[\Override]
-            public function showsColumnFor(string $filterValue): bool
+            public function columnsShownFor(string $filterValue): array
             {
-                return 'with' === $filterValue;
+                return 'with' === $filterValue ? [$this->key] : [];
             }
 
             #[\Override]
-            public function cellsFor(array $rows, ?User $user): array
+            public function cellsFor(array $rows, array $visibleColumns, ?User $user): array
             {
-                return [7 => 'cell-7'];
+                $cells = [];
+                foreach ($visibleColumns as $column) {
+                    $cells[$column] = [7 => $column.'-7'];
+                }
+
+                return $cells;
             }
 
             #[\Override]

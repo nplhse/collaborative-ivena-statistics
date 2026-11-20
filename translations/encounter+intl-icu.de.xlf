@@ -4469,6 +4469,18 @@
         <source>data_catalog.unit.percent</source>
         <target>%</target>
       </trans-unit>
+      <trans-unit id="EncBDDE6C50" resname="encounter.allocation_list.column.triage_category">
+        <source>encounter.allocation_list.column.triage_category</source>
+        <target>Triage-Kategorie</target>
+      </trans-unit>
+      <trans-unit id="EncA24FE0B4" resname="encounter.allocation_list.column.triage_diagram">
+        <source>encounter.allocation_list.column.triage_diagram</source>
+        <target>MTS-Diagramm</target>
+      </trans-unit>
+      <trans-unit id="EncC4F3CC3A" resname="encounter.allocation_list.column.triage_indicator">
+        <source>encounter.allocation_list.column.triage_indicator</source>
+        <target>MTS-Indikator</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
