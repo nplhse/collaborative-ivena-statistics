@@ -7,7 +7,6 @@ namespace App\Storage\Infrastructure\Backup;
 use App\Storage\Application\Backup\BackupFailed;
 use App\Storage\Application\Backup\DatabaseDump;
 use App\Storage\Application\Contract\DatabaseDumperInterface;
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
@@ -65,7 +64,7 @@ final readonly class PostgresDatabaseDumper implements DatabaseDumperInterface
             $this->connection->executeStatement('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY');
             $snapshot = (string) $this->connection->fetchOne('SELECT pg_export_snapshot()');
             $serverVersion = (string) $this->connection->fetchOne('SHOW server_version');
-            $tableRows = $this->tableRows();
+            $tableRows = PublicTableRows::count($this->connection);
             $migrations = \array_key_exists(self::MIGRATIONS_TABLE, $tableRows) ? $this->executedMigrations() : [];
 
             $this->tools->dump($snapshot, $targetFile);
@@ -78,26 +77,6 @@ final readonly class PostgresDatabaseDumper implements DatabaseDumperInterface
         }
 
         return new DatabaseDump($serverVersion, $toolVersion, $migrations, $tableRows);
-    }
-
-    /**
-     * @return array<string, int>
-     */
-    private function tableRows(): array
-    {
-        /** @var list<string> $tables */
-        $tables = $this->connection->fetchFirstColumn(
-            "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' AND table_name NOT IN (?) ORDER BY table_name",
-            [PostgresTools::POSTGIS_TABLES],
-            [ArrayParameterType::STRING],
-        );
-
-        $rows = [];
-        foreach ($tables as $table) {
-            $rows[$table] = (int) $this->connection->fetchOne(sprintf('SELECT COUNT(*) FROM public.%s', $this->connection->quoteSingleIdentifier($table)));
-        }
-
-        return $rows;
     }
 
     /**
