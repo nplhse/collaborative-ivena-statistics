@@ -98,7 +98,7 @@ Other contexts add a filter and a column through the [allocation list extension 
 
 | Extension | Filter | Column | Who sees it |
 |---|---|---|---|
-| Encounter (#1203) | `encounter`: all / with / without associated encounter (effective assignment `encounter.allocation_id`) | "Encounter": badge linking to the encounter's record page (ED visit), else to the case card "Hospital course"; shown automatically while the filter is "with" | beta role + encounter grant `VIEW_CASES` (or `REVIEW`) for at least one hospital, or `ROLE_ADMIN` |
+| Encounter (#1203) | `encounter`: "Linked encounter" (DE "Verknüpfter Behandlungsfall"), all / with / without (effective assignment `encounter.allocation_id`) | "Encounter" (DE "Behandlungsfall"): badge "Linked" linking to the encounter's record page (ED visit), else to the case card "Hospital course"; shown automatically while the filter is "with" | beta role + encounter grant `VIEW_CASES` (or `REVIEW`) for at least one hospital, or `ROLE_ADMIN` |
 
 An active encounter filter keeps only allocations of hospitals with `VIEW_CASES`, for "without" as well: for other hospitals it is unknown whether an encounter exists. "Without" also contains periods for which a hospital has not uploaded encounter data. The column cell is empty for rows of other hospitals.
 

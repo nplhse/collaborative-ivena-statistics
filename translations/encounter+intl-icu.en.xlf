@@ -3955,7 +3955,7 @@
       </trans-unit>
       <trans-unit id="EncFC6C4F96" resname="encounter.allocation_list.filter.label">
         <source>encounter.allocation_list.filter.label</source>
-        <target>Associated encounter</target>
+        <target>Linked encounter</target>
       </trans-unit>
       <trans-unit id="Enc9C187819" resname="encounter.allocation_list.filter.all">
         <source>encounter.allocation_list.filter.all</source>
@@ -3963,15 +3963,15 @@
       </trans-unit>
       <trans-unit id="Enc2FBB10C3" resname="encounter.allocation_list.filter.with">
         <source>encounter.allocation_list.filter.with</source>
-        <target>With associated encounter</target>
+        <target>With linked encounter</target>
       </trans-unit>
       <trans-unit id="EncF9AB59BB" resname="encounter.allocation_list.filter.without">
         <source>encounter.allocation_list.filter.without</source>
-        <target>Without associated encounter</target>
+        <target>Without linked encounter</target>
       </trans-unit>
       <trans-unit id="EncD787EA10" resname="encounter.allocation_list.filter.help">
         <source>encounter.allocation_list.filter.help</source>
-        <target>Only allocations of hospitals whose encounter cases you may see. "Without" also includes periods for which the hospital has not uploaded encounter data.</target>
+        <target>Only allocations of hospitals whose encounters you may view. "Without" also includes periods for which the hospital has not uploaded treatment data yet.</target>
       </trans-unit>
       <trans-unit id="Enc51EA34E2" resname="encounter.allocation_list.column">
         <source>encounter.allocation_list.column</source>
@@ -3979,7 +3979,7 @@
       </trans-unit>
       <trans-unit id="EncC2A670A3" resname="encounter.allocation_list.badge">
         <source>encounter.allocation_list.badge</source>
-        <target>Encounter</target>
+        <target>Linked</target>
       </trans-unit>
       <trans-unit id="EncA9883864" resname="encounter.allocation_list.none">
         <source>encounter.allocation_list.none</source>

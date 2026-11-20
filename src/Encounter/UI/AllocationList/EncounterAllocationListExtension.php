@@ -15,7 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 
 /**
- * Filter "Associated encounter" and column "Encounter" of the Explore allocation list (#1203), contributed through
+ * Filter "Linked encounter" and column "Encounter" of the Explore allocation list (#1203), contributed through
  * the Allocation extension point so Allocation does not depend on Encounter.
  *
  * Access is decided per hospital (ADR 028): only users with VIEW_CASES on at least one hospital see filter and

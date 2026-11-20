@@ -29,7 +29,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Filter "Associated encounter" and column "Encounter" of the Explore allocation list (#1203). Access is decided
+ * Filter "Linked encounter" and column "Encounter" of the Explore allocation list (#1203). Access is decided
  * per hospital (ADR 028): a grant for one hospital never reveals encounter data of another.
  *
  * Fixture: hospital A (VIEW_CASES for the user) with allocation A1 linked to an encounter and A2 without;
@@ -138,7 +138,7 @@ final class EncounterAllocationListTest extends WebTestCase
 
         $this->list('?encounter=without');
 
-        self::assertSelectorTextContains('.alert .badge', 'Associated encounter: Without associated encounter');
+        self::assertSelectorTextContains('.alert .badge', 'Linked encounter: Without linked encounter');
     }
 
     private function participantWithCaseAccessToA(): User

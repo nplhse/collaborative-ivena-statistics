@@ -264,7 +264,7 @@ budget (`ShowAllocationControllerTest`).
 **Registry:** `AllocationListExtensionRegistry`, used by `ListAllocationsController`, `ListAllocationsQuery`,
 `AllocationListResultCountQuery` and `AllocationListColumns`
 
-**Implementations:** `EncounterAllocationListExtension` (filter "Associated encounter" and column "Encounter", #1203)
+**Implementations:** `EncounterAllocationListExtension` (filter "Linked encounter" and column "Encounter", #1203)
 
 Lets other contexts add one select filter and one column to the Explore allocation list (`/explore/allocation`)
 without a dependency from `Allocation` on them. An extension owns a key: the query parameter of its filter, the key
