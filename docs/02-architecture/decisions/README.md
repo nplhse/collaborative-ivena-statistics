@@ -53,6 +53,7 @@ Each ADR includes:
 | [035](035-navigation-tree-and-contextual-sidebar.md) | One navigation tree and a contextual sidebar for Statistics and Explore | accepted |
 | [036](036-page-editor-draft-copy.md) | Draft copy for autosave in the page block editor | accepted |
 | [037](037-encounter-case-hub-and-schema-plugins.md) | Encounter as treatment case, schemas as Symfony bundles | accepted |
+| [038](038-verified-backup-format.md) | Verified backups as one directory with a manifest | accepted |
 
 ## Template
 

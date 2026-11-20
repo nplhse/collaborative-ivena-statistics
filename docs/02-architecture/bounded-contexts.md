@@ -18,7 +18,7 @@ Each bounded context under `src/` follows the layered structure described in [ov
 | `Onboarding` | Participant dashboard onboarding steps and progress |
 | `Engagement` | Monthly submission reminders and related mail content |
 | `Notification` | Personal notifications: definitions, preferences, inbox and delivery (ADR 016) |
-| `Storage` | Storage monitoring: daily measurement, capacity levels, storage health check and admin notifications (ADR 017) |
+| `Storage` | Storage monitoring: daily measurement, capacity levels, storage health check and admin notifications (ADR 017); verified backups (ADR 038) |
 | `DataFixtures` | Reference YAML, pattern-based demo data, dev/test fixture groups |
 | `Encounter` | In development (#1043): encounter data from hospital systems (ED visits), import of the canonical exchange format, matching with allocations, encounter access grants (ADR 026–030). May depend on `Allocation`, `Import`, `Shared` and `User`, its infrastructure also on `Notification` (admin notification of a key change). No context depends on it (Deptrac); since #1300 the ED visit schema with its pages, including the encounter analytics page under Statistics, is the plugin `plugins/ed-visit`. Hospital pages link it through the `allocation.hospital_edit_section` extension point |
 
