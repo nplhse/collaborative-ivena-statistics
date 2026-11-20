@@ -15,6 +15,7 @@ use App\Import\Application\Service\ImportStartDispatcher;
 use App\Import\Application\Service\ImportTypeExtensionRegistry;
 use App\Import\Application\Service\ImportUploadGuard;
 use App\Import\Application\Service\ImportUploadTargets;
+use App\Import\Application\Service\PendingImportUploadStore;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportRun;
 use App\Import\Domain\Enum\ImportRunTrigger;
@@ -57,6 +58,7 @@ final class NewImportController extends AbstractController
         private readonly ImportRunLifecycle $runLifecycle,
         private readonly ImportTypeExtensionRegistry $typeExtensions,
         private readonly ImportStartDispatcher $startDispatcher,
+        private readonly PendingImportUploadStore $pendingUploads,
     ) {
     }
 
@@ -154,6 +156,14 @@ final class NewImportController extends AbstractController
             return $this->renderUploadForm($form, $extensions);
         }
 
+        $uploadToken = (string) $form->get('uploadToken')->getData();
+        // A background upload (#977) is consumed by moving it; a second submission of the same token finds no file.
+        if ('' !== $uploadToken && !is_file($file->getPathname())) {
+            $form->get('file')->addError(new FormError($this->translator->trans('validation.import.upload_consumed', [], 'validators')));
+
+            return $this->renderUploadForm($form, $extensions);
+        }
+
         $clientMime = $file->getClientMimeType();
         $clientSize = $file->getSize();
 
@@ -180,6 +190,10 @@ final class NewImportController extends AbstractController
             ->setRunTime(0)
             ->setRowCount(0)
             ->setHospitalOverride($this->resolveHospitalOverride($form, $hospital));
+
+        if ('' !== $uploadToken) {
+            $this->pendingUploads->delete($uploadToken, $userId);
+        }
 
         $checksum = $this->checksumCalculator->forPath($targetPath);
         $import->setFileChecksum($checksum);
@@ -237,8 +251,17 @@ final class NewImportController extends AbstractController
             $extensionFields = [...$extensionFields, ...$extension->formFields()];
         }
 
+        // After a validation error the background upload stays and the form shows it instead of asking again.
+        $user = $this->getUser();
+        $uploadToken = $form->has('uploadToken') ? (string) $form->get('uploadToken')->getData() : '';
+        $pendingUpload = '' !== $uploadToken && $user instanceof User
+            ? $this->pendingUploads->find($uploadToken, (int) $user->getId())
+            : null;
+
         return $this->render('@Import/new.html.twig', [
             'form' => $form->createView(),
+            'pending_upload' => $pendingUpload,
+            'upload_csrf_token_id' => PendingImportUploadController::CSRF_TOKEN_ID,
             'extension_fields' => $extensionFields,
             'extension_types' => array_map(static fn (ImportTypeExtensionInterface $extension): string => $extension::importType()->value, $extensions),
         ]);

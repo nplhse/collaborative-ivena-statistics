@@ -137,6 +137,38 @@
         <source>label.import.helpFile</source>
         <target>Supported format: CSV (semicolon-separated). Please export Excel files as CSV first.</target>
       </trans-unit>
+      <trans-unit id="impUploadEnDropzone" resname="label.import.upload.dropzone">
+        <source>label.import.upload.dropzone</source>
+        <target>Drop the file here or click to choose it. It is uploaded right away while you fill in the rest.</target>
+      </trans-unit>
+      <trans-unit id="impUploadEnIng" resname="label.import.upload.uploading">
+        <source>label.import.upload.uploading</source>
+        <target>Uploading … {percent} %</target>
+      </trans-unit>
+      <trans-unit id="impUploadEnEd" resname="label.import.upload.uploaded">
+        <source>label.import.upload.uploaded</source>
+        <target>Uploaded</target>
+      </trans-unit>
+      <trans-unit id="impUploadEnKept" resname="label.import.upload.kept">
+        <source>label.import.upload.kept</source>
+        <target>Already uploaded</target>
+      </trans-unit>
+      <trans-unit id="impUploadEnWaiting" resname="label.import.upload.waiting">
+        <source>label.import.upload.waiting</source>
+        <target>The file is still uploading. The import starts as soon as it is done.</target>
+      </trans-unit>
+      <trans-unit id="impUploadEnFailed" resname="label.import.upload.failed">
+        <source>label.import.upload.failed</source>
+        <target>The upload failed. Check your connection and try again.</target>
+      </trans-unit>
+      <trans-unit id="impUploadEnRetry" resname="label.import.upload.retry">
+        <source>label.import.upload.retry</source>
+        <target>Try again</target>
+      </trans-unit>
+      <trans-unit id="impUploadEnRemove" resname="label.import.upload.remove">
+        <source>label.import.upload.remove</source>
+        <target>Remove</target>
+      </trans-unit>
       <trans-unit id="impSelHospEn" resname="label.import.selectHospital">
         <source>label.import.selectHospital</source>
         <target>Select hospital</target>

@@ -10,6 +10,7 @@ use App\Encounter\Application\Message\DeleteExpiredEncounterSourceFilesMessage;
 use App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage;
 use App\Feedback\Application\Message\PurgeQuarantinedFeedbackMessage;
 use App\Feedback\Application\Message\SendFeedbackQuarantineSummaryMessage;
+use App\Import\Application\Message\PurgePendingImportUploadsMessage;
 use App\Kpi\Application\Message\GenerateDailyKpisMessage;
 use App\Notification\Application\Message\CleanUpNotificationsMessage;
 use App\Notification\Application\Message\ReconcileNotificationsMessage;
@@ -31,7 +32,7 @@ final class DefaultScheduleProviderKernelTest extends KernelTestCase
         self::bootKernel();
         $provider = self::getContainer()->get(DefaultScheduleProvider::class);
         $recurringMessages = $provider->getSchedule()->getRecurringMessages();
-        self::assertCount(13, $recurringMessages);
+        self::assertCount(14, $recurringMessages);
 
         $classes = [];
         foreach ($recurringMessages as $recurringMessage) {
@@ -63,5 +64,6 @@ final class DefaultScheduleProviderKernelTest extends KernelTestCase
         self::assertContains(CleanUpEncountersMessage::class, $classes);
         self::assertContains(SendFeedbackQuarantineSummaryMessage::class, $classes);
         self::assertContains(PurgeQuarantinedFeedbackMessage::class, $classes);
+        self::assertContains(PurgePendingImportUploadsMessage::class, $classes);
     }
 }

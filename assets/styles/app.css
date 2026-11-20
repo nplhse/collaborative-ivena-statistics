@@ -1970,6 +1970,49 @@ a.catalog-year-heatmap-cell:focus-visible {
     transform: rotate(180deg);
 }
 
+/* File field of the import form (#977): a drop area around the native file input; the input stays usable. */
+.import-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 14rem;
+    padding: 2rem 1rem;
+    text-align: center;
+    border: 2px dashed var(--tblr-border-color);
+    border-radius: var(--tblr-border-radius-lg);
+    cursor: pointer;
+    transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+}
+
+.import-dropzone:hover {
+    border-color: var(--tblr-primary);
+}
+
+.import-dropzone-icon {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 0.75rem;
+}
+
+.import-dropzone .form-control {
+    width: 100%;
+    max-width: 32rem;
+}
+
+.import-dropzone.is-dragover {
+    border-color: var(--tblr-primary);
+    background-color: var(--tblr-primary-lt);
+}
+
+.import-upload-status[data-state='error'] {
+    color: var(--tblr-danger);
+}
+
+.import-upload-status[data-state='uploaded'] {
+    color: var(--tblr-success);
+}
+
 /* Options of the import upload form (#1352): a quiet toggle whose chevron turns when the options are open. */
 .import-options-chevron {
     transition: transform 0.15s ease-in-out;

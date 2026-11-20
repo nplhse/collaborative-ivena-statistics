@@ -713,6 +713,14 @@
         <source>validation.import.excel_rejected</source>
         <target>Excel files (.xls, .xlsx) are not supported. Please export your data as CSV.</target>
       </trans-unit>
+      <trans-unit id="impValUploadEnFailed" resname="validation.import.upload_failed">
+        <source>validation.import.upload_failed</source>
+        <target>The file could not be uploaded. Please choose it again.</target>
+      </trans-unit>
+      <trans-unit id="impValUploadEnConsumed" resname="validation.import.upload_consumed">
+        <source>validation.import.upload_consumed</source>
+        <target>This file has already been used for an import. Please choose the file again.</target>
+      </trans-unit>
       <trans-unit id="impValHospTypeEn" resname="validation.import.hospital_type_not_allowed">
         <source>validation.import.hospital_type_not_allowed</source>
         <target>You may not upload this import type for this hospital. Choose another hospital or type.</target>

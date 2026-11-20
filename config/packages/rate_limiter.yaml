@@ -36,6 +36,11 @@ framework:
             policy: fixed_window
             limit: 30
             interval: '1 hour'
+        # Background uploads of the import form (#977): every file selection, including replaced files.
+        import_upload:
+            policy: fixed_window
+            limit: 60
+            interval: '1 hour'
         allocations_export:
             policy: fixed_window
             limit: 10
@@ -90,6 +95,10 @@ when@test:
                 limit: 10000
                 interval: '1 second'
             import_create:
+                policy: fixed_window
+                limit: 10000
+                interval: '1 second'
+            import_upload:
                 policy: fixed_window
                 limit: 10000
                 interval: '1 second'

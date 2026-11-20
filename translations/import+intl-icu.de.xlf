@@ -261,6 +261,38 @@
         <source>label.import.helpFile</source>
         <target>Unterstütztes Format: CSV (Semikolon-getrennt). Excel-Dateien bitte zuerst als CSV exportieren.</target>
       </trans-unit>
+      <trans-unit id="impUploadDeDropzone" resname="label.import.upload.dropzone">
+        <source>label.import.upload.dropzone</source>
+        <target>Datei hierher ziehen oder klicken, um sie auszuwählen. Sie wird sofort hochgeladen, während Sie den Rest ausfüllen.</target>
+      </trans-unit>
+      <trans-unit id="impUploadDeIng" resname="label.import.upload.uploading">
+        <source>label.import.upload.uploading</source>
+        <target>Wird hochgeladen … {percent} %</target>
+      </trans-unit>
+      <trans-unit id="impUploadDeEd" resname="label.import.upload.uploaded">
+        <source>label.import.upload.uploaded</source>
+        <target>Hochgeladen</target>
+      </trans-unit>
+      <trans-unit id="impUploadDeKept" resname="label.import.upload.kept">
+        <source>label.import.upload.kept</source>
+        <target>Bereits hochgeladen</target>
+      </trans-unit>
+      <trans-unit id="impUploadDeWaiting" resname="label.import.upload.waiting">
+        <source>label.import.upload.waiting</source>
+        <target>Die Datei wird noch hochgeladen. Der Import startet, sobald sie da ist.</target>
+      </trans-unit>
+      <trans-unit id="impUploadDeFailed" resname="label.import.upload.failed">
+        <source>label.import.upload.failed</source>
+        <target>Das Hochladen ist fehlgeschlagen. Prüfen Sie die Verbindung und versuchen Sie es erneut.</target>
+      </trans-unit>
+      <trans-unit id="impUploadDeRetry" resname="label.import.upload.retry">
+        <source>label.import.upload.retry</source>
+        <target>Erneut versuchen</target>
+      </trans-unit>
+      <trans-unit id="impUploadDeRemove" resname="label.import.upload.remove">
+        <source>label.import.upload.remove</source>
+        <target>Entfernen</target>
+      </trans-unit>
       <trans-unit id="impSelHospDe" resname="label.import.selectHospital">
         <source>label.import.selectHospital</source>
         <target>Krankenhaus auswählen</target>
