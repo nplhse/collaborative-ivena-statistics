@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Encounter\UI\Http\Controller\AllocationList;
 
-use App\Encounter\Application\Display\EncounterListDetailRegistry;
+use App\Encounter\Application\Display\EncounterListColumnRegistry;
 use App\Encounter\UI\AllocationList\EncounterCaseHospitals;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,13 +13,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Details of the column "Encounter" of the Explore allocation list (#1203), loaded after the page has rendered:
- * one request for every linked encounter of a page. Each encounter is checked by its own hospital (VIEW_CASES,
- * ADR 028); ids the user may not see are dropped silently, so the answer reveals nothing about them.
+ * Cells of the encounter schema columns of the Explore allocation list (#1203), loaded after the page has rendered:
+ * one request for every schema cell of a page. Each encounter is checked by its own hospital (VIEW_CASES,
+ * ADR 028); ids the user may not see are dropped silently, so the answer reveals nothing about them. Unknown
+ * columns are ignored.
  *
- * Answers `{"details": {"<encounter id>": "<html>"}}`; encounters without details are missing.
+ * Answers `{"cells": {"<encounter id>": {"<column>": "<html>"}}}`; cells without a value are missing.
  */
-final class EncounterListDetailsController extends AbstractController
+final class EncounterListCellsController extends AbstractController
 {
     /** At most one page of the list (100 rows) per request. */
     public const int MAX_ENCOUNTERS = 100;
@@ -27,23 +28,26 @@ final class EncounterListDetailsController extends AbstractController
     /** @psalm-suppress PossiblyUnusedMethod Autowired. */
     public function __construct(
         private readonly EncounterCaseHospitals $caseHospitals,
-        private readonly EncounterListDetailRegistry $details,
+        private readonly EncounterListColumnRegistry $columns,
     ) {
     }
 
-    #[Route('/explore/allocation/encounter-details', name: 'app_explore_allocation_encounter_details', methods: ['GET'])]
+    #[Route('/explore/allocation/encounter-cells', name: 'app_explore_allocation_encounter_cells', methods: ['GET'])]
     public function __invoke(Request $request): JsonResponse
     {
         $user = $this->getUser();
-        $requested = $this->encounterIds($request->query->getString('encounters'));
+        $requested = array_slice($this->ids($request->query->getString('encounters')), 0, self::MAX_ENCOUNTERS);
         $visible = $user instanceof User ? $this->caseHospitals->visibleEncounters($user, $requested) : [];
+        $columns = array_values(array_intersect($this->keys($request->query->getString('columns')), array_keys($this->columns->columns())));
 
         $html = [];
-        foreach ($this->details->forEncounters($visible) as $encounterId => $details) {
-            $html[(string) $encounterId] = $this->renderView('@Encounter/allocation_list/_details.html.twig', ['details' => $details]);
+        foreach ($this->columns->cells($visible, $columns) as $column => $byEncounter) {
+            foreach ($byEncounter as $encounterId => $cell) {
+                $html[(string) $encounterId][$column] = $this->renderView('@Encounter/allocation_list/_schema_value.html.twig', ['cell' => $cell]);
+            }
         }
 
-        $response = new JsonResponse(['details' => (object) $html]);
+        $response = new JsonResponse(['cells' => (object) $html]);
         $response->setPrivate();
         $response->headers->addCacheControlDirective('no-store');
 
@@ -53,7 +57,7 @@ final class EncounterListDetailsController extends AbstractController
     /**
      * @return list<int>
      */
-    private function encounterIds(string $value): array
+    private function ids(string $value): array
     {
         $ids = [];
         foreach (explode(',', $value) as $part) {
@@ -63,6 +67,14 @@ final class EncounterListDetailsController extends AbstractController
             }
         }
 
-        return \array_slice($ids, 0, self::MAX_ENCOUNTERS);
+        return $ids;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function keys(string $value): array
+    {
+        return array_values(array_unique(array_filter(array_map(trim(...), explode(',', $value)))));
     }
 }

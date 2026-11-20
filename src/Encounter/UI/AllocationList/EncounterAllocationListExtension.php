@@ -7,6 +7,7 @@ namespace App\Encounter\UI\AllocationList;
 use App\Allocation\Application\ListExtension\AllocationListExtensionFilter;
 use App\Allocation\Application\ListExtension\AllocationListExtensionInterface;
 use App\Encounter\Application\Display\EncounterLinkRegistry;
+use App\Encounter\Application\Display\EncounterListColumnRegistry;
 use App\Encounter\Domain\Entity\Encounter;
 use App\Shared\UI\Twig\DataTable\DataTableColumns;
 use App\User\Domain\Entity\User;
@@ -23,6 +24,10 @@ use Doctrine\ORM\QueryBuilder;
  * hospitals it is unknown whether an encounter exists. A cell is filled only for rows of those hospitals.
  * The effective assignment is `encounter.allocation_id` (#1300); proposals are not shown here.
  *
+ * Besides the link column, every column of an encounter schema (extension point `encounter.list_column`, for example
+ * the triage of the ED visit) becomes a picker column. Their cells hold a placeholder that is filled after the page has
+ * rendered, one request for all of them (EncounterListCellsController).
+ *
  * @psalm-suppress UnusedClass Tagged via AllocationListExtensionInterface.
  */
 final readonly class EncounterAllocationListExtension implements AllocationListExtensionInterface
@@ -37,6 +42,7 @@ final readonly class EncounterAllocationListExtension implements AllocationListE
         private EncounterCaseHospitals $caseHospitals,
         private EntityManagerInterface $entityManager,
         private EncounterLinkRegistry $links,
+        private EncounterListColumnRegistry $schemaColumns,
     ) {
     }
 
@@ -86,23 +92,33 @@ final readonly class EncounterAllocationListExtension implements AllocationListE
     }
 
     #[\Override]
-    public function column(): array
+    public function columns(): array
     {
-        return DataTableColumns::configurable(self::KEY, 'encounter.allocation_list.column', 'custom', [
+        $columns = [DataTableColumns::configurable(self::KEY, 'encounter.allocation_list.column', 'custom', [
             'labelDomain' => 'encounter',
             'visible' => false,
             'cellTemplate' => '@Encounter/allocation_list/_cell.html.twig',
-        ]);
+        ])];
+        foreach ($this->schemaColumns->columns() as $column) {
+            $columns[] = DataTableColumns::configurable($column->key, $column->label, 'custom', [
+                'labelDomain' => $column->domain,
+                'visible' => false,
+                'cellTemplate' => '@Encounter/allocation_list/_schema_cell.html.twig',
+            ]);
+        }
+
+        return $columns;
     }
 
     #[\Override]
-    public function showsColumnFor(string $filterValue): bool
+    public function columnsShownFor(string $filterValue): array
     {
-        return self::WITH === $filterValue;
+        // Only the link; schema columns are picked on purpose.
+        return self::WITH === $filterValue ? [self::KEY] : [];
     }
 
     #[\Override]
-    public function cellsFor(array $rows, ?User $user): array
+    public function cellsFor(array $rows, array $visibleColumns, ?User $user): array
     {
         if (!$user instanceof User) {
             return [];
@@ -118,31 +134,49 @@ final readonly class EncounterAllocationListExtension implements AllocationListE
             return [];
         }
 
+        $encounterByAllocation = $this->encountersOf($visible);
+        $urls = \in_array(self::KEY, $visibleColumns, true) && [] !== $encounterByAllocation
+            ? $this->links->forEncounters(array_values($encounterByAllocation))
+            : [];
+
+        // Visible rows without an encounter get "none"; rows of other hospitals get no value at all.
+        $cells = [];
+        foreach ($visibleColumns as $column) {
+            foreach ($visible as $allocationId) {
+                $encounterId = $encounterByAllocation[$allocationId] ?? null;
+                $cells[$column][$allocationId] = match (true) {
+                    null === $encounterId => ['linked' => false],
+                    self::KEY === $column => ['linked' => true, 'encounter_id' => $encounterId, 'url' => $urls[$encounterId] ?? null],
+                    default => ['linked' => true, 'encounter_id' => $encounterId, 'column' => $column],
+                };
+            }
+        }
+
+        return $cells;
+    }
+
+    /**
+     * @param list<int> $allocationIds
+     *
+     * @return array<int, int> encounter id by allocation id
+     */
+    private function encountersOf(array $allocationIds): array
+    {
         /** @var list<array{allocationId: int|string, encounterId: int|string}> $pairs */
         $pairs = $this->entityManager->createQueryBuilder()
             ->select('IDENTITY(e.allocation) AS allocationId', 'e.id AS encounterId')
             ->from(Encounter::class, 'e')
             ->where('e.allocation IN (:allocationIds)')
-            ->setParameter('allocationIds', $visible, ArrayParameterType::INTEGER)
+            ->setParameter('allocationIds', $allocationIds, ArrayParameterType::INTEGER)
             ->getQuery()
             ->getArrayResult();
 
-        $encounterByAllocation = [];
+        $encounters = [];
         foreach ($pairs as $pair) {
-            $encounterByAllocation[(int) $pair['allocationId']] = (int) $pair['encounterId'];
-        }
-        $urls = [] === $encounterByAllocation ? [] : $this->links->forEncounters(array_values($encounterByAllocation));
-
-        // Visible rows without an encounter get "none"; rows of other hospitals get no value at all.
-        $cells = [];
-        foreach ($visible as $allocationId) {
-            $encounterId = $encounterByAllocation[$allocationId] ?? null;
-            $cells[$allocationId] = null === $encounterId
-                ? ['linked' => false]
-                : ['linked' => true, 'encounter_id' => $encounterId, 'url' => $urls[$encounterId] ?? null];
+            $encounters[(int) $pair['allocationId']] = (int) $pair['encounterId'];
         }
 
-        return $cells;
+        return $encounters;
     }
 
     #[\Override]

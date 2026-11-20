@@ -1124,7 +1124,7 @@ list of unlinked visits; the breadcrumb and "Back to list" open the visit list o
 
 ### Explore allocation list
 
-Filter "Linked encounter" (DE "Verknüpfter Behandlungsfall") in the drawer section "Encounter data" (DE "Behandlungsdaten") and column "Encounter" (#1203), see [explore-allocation-list.md](../allocation/explore-allocation-list.md#filters-and-columns-of-other-contexts). The column shows a badge linking to the visit page and, loaded after the page, the initial triage of the ED visit ([encounter list details](../../02-architecture/extension-points.md#encounter-list-details)). Both only for hospitals with `VIEW_CASES`, checked per row and per encounter.
+Filter "Linked encounter" (DE "Verknüpfter Behandlungsfall") in the drawer section "Encounter data" (DE "Behandlungsdaten") and column "Encounter" (#1203), see [explore-allocation-list.md](../allocation/explore-allocation-list.md#filters-and-columns-of-other-contexts). The column shows a badge linking to the visit page. The ED visit adds the picker columns "Triage category" (DE "Triage-Kategorie"), "MTS diagram" and "MTS indicator", loaded after the page ([encounter list columns](../../02-architecture/extension-points.md#encounter-list-columns)). All only for hospitals with `VIEW_CASES`, checked per row and per encounter.
 
 ### Visit list
 

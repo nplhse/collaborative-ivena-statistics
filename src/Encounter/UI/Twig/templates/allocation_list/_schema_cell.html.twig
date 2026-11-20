@@ -1,0 +1,19 @@
+{# A column of an encounter schema in the Explore allocation list (#1203, extension point `encounter.list_column`).
+   No value: the user may not see encounter data of this hospital (ADR 028). The value is loaded after the page has
+   rendered: one request for every schema cell of the page, checked per encounter. #}
+{% set cell = row[column.key] ?? null %}
+{% if cell is not null %}
+    {% if cell.linked %}
+        <span class="d-block placeholder-glow"
+              data-controller="encounter-list-cell"
+              data-encounter-list-cell-id-value="{{ cell.encounter_id }}"
+              data-encounter-list-cell-column-value="{{ cell.column }}"
+              data-encounter-list-cell-url-value="{{ path('app_explore_allocation_encounter_cells') }}"
+              data-testid="allocation-list-encounter-cell">
+            <span class="placeholder placeholder-xs col-8" aria-hidden="true"></span>
+            <span class="visually-hidden">{{ 'label.loading'|trans({}, 'messages') }}</span>
+        </span>
+    {% else %}
+        <span class="text-secondary">{{ 'encounter.allocation_list.none'|trans({}, 'encounter') }}</span>
+    {% endif %}
+{% endif %}

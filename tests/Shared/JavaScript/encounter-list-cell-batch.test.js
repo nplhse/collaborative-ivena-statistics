@@ -1,10 +1,10 @@
-// Batching of the lazily loaded encounter details in the Explore allocation list (#1203). Run with `npm run test:js`.
+// Batching of the lazily loaded encounter schema cells in the Explore allocation list (#1203). Run with `npm run test:js`.
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
-    createDetailBatcher,
+    createCellBatcher,
     MAX_IDS_PER_REQUEST,
-} from '../../../assets/js/encounter/listDetailBatch.js';
+} from '../../../assets/js/encounter/listCellBatch.js';
 
 function manualSchedule() {
     const callbacks = [];
@@ -14,36 +14,38 @@ function manualSchedule() {
     };
 }
 
-describe('encounter list detail batch', () => {
-    it('loads the cells of one tick with one request and answers each cell', async () => {
+describe('encounter list cell batch', () => {
+    it('loads every cell of one tick, all ids and columns, with one request', async () => {
         const calls = [];
         const { schedule, run } = manualSchedule();
-        const request = createDetailBatcher(async (url, ids) => {
-            calls.push([url, ids]);
-            return { 7: '<b>red</b>' };
+        const request = createCellBatcher(async (url, ids, columns) => {
+            calls.push([url, ids, columns]);
+            return { 7: { category: '<b>red</b>', diagram: 'Chest pain' } };
         }, schedule);
 
-        const first = request('/details', '7');
-        const second = request('/details', '8');
-        const again = request('/details', '7');
+        const category = request('/cells', '7', 'category');
+        const diagram = request('/cells', '7', 'diagram');
+        const twice = request('/cells', '7', 'category');
+        const other = request('/cells', '8', 'category');
         run();
 
-        assert.deepEqual(calls, [['/details', ['7', '8']]]);
-        assert.equal(await first, '<b>red</b>');
-        assert.equal(await again, '<b>red</b>');
-        assert.equal(await second, null);
+        assert.deepEqual(calls, [['/cells', ['7', '8'], ['category', 'diagram']]]);
+        assert.equal(await category, '<b>red</b>');
+        assert.equal(await twice, '<b>red</b>');
+        assert.equal(await diagram, 'Chest pain');
+        assert.equal(await other, null);
     });
 
     it('splits more ids than one request may carry', async () => {
         const sizes = [];
         const { schedule, run } = manualSchedule();
-        const request = createDetailBatcher(async (url, ids) => {
+        const request = createCellBatcher(async (url, ids) => {
             sizes.push(ids.length);
             return {};
         }, schedule);
 
         const all = Array.from({ length: MAX_IDS_PER_REQUEST + 1 }, (_, index) =>
-            request('/details', String(index + 1)),
+            request('/cells', String(index + 1), 'category'),
         );
         run();
         await Promise.all(all);
@@ -53,11 +55,11 @@ describe('encounter list detail batch', () => {
 
     it('answers null when the request fails, so the placeholder can go', async () => {
         const { schedule, run } = manualSchedule();
-        const request = createDetailBatcher(async () => {
+        const request = createCellBatcher(async () => {
             throw new Error('offline');
         }, schedule);
 
-        const cell = request('/details', '3');
+        const cell = request('/cells', '3', 'category');
         run();
 
         assert.equal(await cell, null);
@@ -66,15 +68,15 @@ describe('encounter list detail batch', () => {
     it('starts a new request for cells of a later tick', async () => {
         let requests = 0;
         const { schedule, run } = manualSchedule();
-        const request = createDetailBatcher(async () => {
+        const request = createCellBatcher(async () => {
             requests += 1;
             return {};
         }, schedule);
 
-        const first = request('/details', '1');
+        const first = request('/cells', '1', 'category');
         run();
         await first;
-        const later = request('/details', '2');
+        const later = request('/cells', '2', 'category');
         run();
         await later;
 

@@ -266,11 +266,12 @@ budget (`ShowAllocationControllerTest`).
 **Registry:** `AllocationListExtensionRegistry`, used by `ListAllocationsController`, `ListAllocationsQuery`,
 `AllocationListResultCountQuery` and `AllocationListColumns`
 
-**Implementations:** `EncounterAllocationListExtension` (filter "Linked encounter" and column "Encounter", #1203)
+**Implementations:** `EncounterAllocationListExtension` (filter "Linked encounter", column "Encounter" and the columns of encounter schemas, #1203)
 
-Lets other contexts add one select filter and one column to the Explore allocation list (`/explore/allocation`)
-without a dependency from `Allocation` on them. An extension owns a key: the query parameter of its filter, the key
-of its column and of the row value its cell template reads.
+Lets other contexts add one select filter and one or more columns to the Explore allocation list
+(`/explore/allocation`) without a dependency from `Allocation` on them. An extension owns a key, the query parameter of
+its filter; its columns have their own keys, unique across the list, which are also the row values their cell
+templates read.
 
 - **Access per row.** The list spans hospitals. `isAvailableFor()` decides whether a user sees filter and column at
   all; `applyFilter()` must also exclude rows of hospitals the user may not see when that data decides the filter,
@@ -278,10 +279,11 @@ of its column and of the row value its cell template reads.
 - **Filter.** `filter()` describes a select (label, "all" label, choices, translation domain, help, optional section heading). The drawer gets
   one accordion section per extension; the active filter count, the active filter badges, paging and the filter reset
   handle it like the built-in filters. Unknown values and values of unavailable extensions are ignored.
-- **Column.** `column()` is a DataTable column (usually `DataTableColumns::configurable(..., 'visible' => false)`).
+- **Columns.** `columns()` are DataTable columns (usually `DataTableColumns::configurable(..., 'visible' => false)`).
   Every extension column is part of the preference schema, so a saved choice survives, but only available users get
-  it in the picker. `showsColumnFor()` can show the column while a filter value is active, without saving it.
-  `cellsFor()` runs once per page with the ids and hospitals of the visible rows; one or two queries, never one per row.
+  them in the picker. `columnsShownFor()` can show columns while a filter value is active, without saving them.
+  `cellsFor()` runs once per page with the ids and hospitals of the visible rows and the extension's visible columns;
+  a few queries, never one per row.
 - **Count.** `dataTables()` names the tables a filter reads; their writes start a new cached result count
   ([explore-allocation-list.md](../04-features/allocation/explore-allocation-list.md#result-count)).
 
@@ -452,26 +454,29 @@ core asks once per page with the encounter ids, after it checked access to their
 URL for the encounters it has a page for, in one query, and the first link wins. Without a provider the conflict
 page shows the encounters' anchor without a link; they can still be assigned.
 
-## Encounter list details
+## Encounter list columns
 
-**Tag:** `encounter.list_detail`
+**Tag:** `encounter.list_column`
 
-**Interface:** `EncounterListDetailProviderInterface` (`src/Encounter/Contract/Display/`)
+**Interface:** `EncounterListColumnProviderInterface` (`src/Encounter/Contract/Display/`)
 
-**Registry:** `EncounterListDetailRegistry`, used by `EncounterListDetailsController`
-(`GET /explore/allocation/encounter-details`)
+**Registry:** `EncounterListColumnRegistry`, used by `EncounterAllocationListExtension` (columns) and
+`EncounterListCellsController` (`GET /explore/allocation/encounter-cells`)
 
-**Implementations:** `EdVisitListDetailProvider` of the ED visit plugin (initial triage: MTS category, presentation
-diagram, indicator)
+**Implementations:** `EdVisitListColumnProvider` of the ED visit plugin: "Triage category" (MTS colour badge with its
+name), "MTS diagram", "MTS indicator"
 
-Lets an encounter schema show short details of its records in the column "Encounter" of the Explore allocation list
-(#1203). The list renders the badge and a placeholder; the Stimulus controller `encounter-list-detail` collects the
-encounter ids of all placeholders of a page and loads their details with one request (at most 100 ids). The endpoint
-checks `VIEW_CASES` per encounter by its own hospital and drops ids the user may not see, then asks every provider once
-for all remaining ids. A provider returns an `EncounterListDetail` (Twig template of the schema and its variables) per
-encounter it has a record for, with one query per call, and checks no access itself. The answer is
-`{"details": {"<id>": "<html>"}}` with `Cache-Control: no-store, private`; without details the placeholder is removed
-and the badge stays.
+Lets an encounter schema add picker columns to the Explore allocation list (#1203). `columns()` declares
+`EncounterListColumn`s (key unique across schemas and prefixed with the schema, label, translation domain); the
+encounter list extension turns each into a column of the [allocation list](#allocation-list-filters-and-columns), not
+shown by default and not by the encounter filter. A visible cell of a linked encounter holds a placeholder; the
+Stimulus controller `encounter-list-cell` collects the encounter ids and columns of all placeholders of a page and
+loads them with one request (at most 100 ids). The endpoint checks `VIEW_CASES` per encounter by its own hospital,
+drops ids the user may not see and unknown columns, then asks each provider once for its requested columns.
+`cellsForEncounters()` answers an `EncounterListCell` (Twig template of the schema and its variables) per column and
+encounter with a value, with one query per call, and checks no access itself. The answer is
+`{"cells": {"<id>": {"<column>": "<html>"}}}` with `Cache-Control: no-store, private`; without a value the
+placeholder is removed and the cell stays empty.
 
 ## Encounter import record links
 
