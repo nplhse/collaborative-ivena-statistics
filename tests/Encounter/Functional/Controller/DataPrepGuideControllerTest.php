@@ -47,7 +47,7 @@ final class DataPrepGuideControllerTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, '/tools/data-prep');
 
         self::assertResponseIsSuccessful();
-        self::assertSame('Data preparation tool', trim($crawler->filter('.breadcrumb-item.active')->text()));
+        self::assertSame('Encounter data preparation', trim($crawler->filter('.breadcrumb-item.active')->text()));
         self::assertSame('1.3.0', trim($crawler->filter('[data-test="data-prep-version"]')->text()));
         self::assertSame('2026-11-17', trim($crawler->filter('[data-test="data-prep-released-at"]')->text()));
         self::assertSame('1.0.0', trim($crawler->filter('[data-test="data-prep-min-version"]')->text()));

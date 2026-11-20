@@ -375,7 +375,7 @@
       </trans-unit>
       <trans-unit id="ToolsCatMatchDe" resname="tools.category.matching">
         <source>tools.category.matching</source>
-        <target>Zuordnung und Review</target>
+        <target>Abgleich und Prüfung</target>
       </trans-unit>
       <trans-unit id="ToolsCatPrepDe" resname="tools.category.data_preparation">
         <source>tools.category.data_preparation</source>

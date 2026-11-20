@@ -14,7 +14,7 @@ file, check value, prefixes). Output format: [exchange-format.md](exchange-forma
 ## What it is
 
 One self-contained HTML file. A hospital user downloads it from its landing page
-(`/tools/data-prep`, the Tools card "Data preparation tool", beta role required) and opens it
+(`/tools/data-prep`, the Tools card "Encounter data preparation", beta role required) and opens it
 from disk in a current browser. It reads the export of the hospital
 information system (HIS) and the hospital's key file, keeps only the agreed fields and saves a
 canonical exchange file of the matching schema (today `ed_visit`) for the upload. The tool is a generic
