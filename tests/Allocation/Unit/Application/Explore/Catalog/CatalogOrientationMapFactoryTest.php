@@ -11,6 +11,7 @@ use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\SecondaryTransport;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class CatalogOrientationMapFactoryTest extends TestCase
@@ -100,6 +101,43 @@ final class CatalogOrientationMapFactoryTest extends TestCase
         self::assertSame('goettingen', $this->factory->forDispatchArea('Göttingen')->highlightKey);
         self::assertSame('eichsfeld', $this->factory->forDispatchArea('Eichsfeld')->highlightKey);
         self::assertSame('bayerischer-untermain', $this->factory->forDispatchArea('Bayerischer Untermain')->highlightKey);
+    }
+
+    #[DataProvider('unreadableGeoJson')]
+    public function testUnreadableGeoJsonDisablesStateMapsButKeepsAreaKeys(?string $contents): void
+    {
+        $geoJsonPath = sys_get_temp_dir().'/orientation-map-'.bin2hex(random_bytes(4)).'.geojson';
+        if (null !== $contents) {
+            file_put_contents($geoJsonPath, $contents);
+        }
+
+        try {
+            $factory = new CatalogOrientationMapFactory(
+                \dirname(__DIR__, 6).'/config/case_flow/dispatch_area_geo_map.yaml',
+                $geoJsonPath,
+                $this->isochroneProvider,
+                $this->hospitalLookup,
+            );
+
+            self::assertFalse($factory->forState('Hessen')->enabled);
+            self::assertSame('frankfurt', $factory->forDispatchArea('Frankfurt')->highlightKey);
+        } finally {
+            if (is_file($geoJsonPath)) {
+                unlink($geoJsonPath);
+            }
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string|null}>
+     */
+    public static function unreadableGeoJson(): iterable
+    {
+        yield 'missing file' => [null];
+        yield 'empty file' => [''];
+        yield 'invalid json' => ['{"type": '];
+        yield 'no feature list' => ['{"type": "FeatureCollection"}'];
+        yield 'feature without key' => ['{"features": [{"properties": {"state": "Hessen"}}]}'];
     }
 
     public function testDispatchAreaIsDisabledForUnmappedNames(): void

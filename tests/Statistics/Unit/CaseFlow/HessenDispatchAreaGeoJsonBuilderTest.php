@@ -86,6 +86,59 @@ final class HessenDispatchAreaGeoJsonBuilderTest extends TestCase
         new HessenDispatchAreaGeoJsonBuilder()->build($sources, $this->rawPaths());
     }
 
+    public function testDistrictCodesNeedOneCodePerDistrict(): void
+    {
+        $sources = [
+            'core_state' => 'Hessen',
+            'dispatch_areas' => [
+                'schweinfurt' => [
+                    'name' => 'Schweinfurt',
+                    'state' => 'Bayern',
+                    'krs_names' => ['Kreisfreie Stadt Schweinfurt', 'Landkreis Schweinfurt'],
+                    'krs_codes' => ['09662'],
+                ],
+            ],
+        ];
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('krs_codes and krs_names differ in length (dispatch key "schweinfurt")');
+
+        new HessenDispatchAreaGeoJsonBuilder()->build($sources, $this->rawPaths());
+    }
+
+    public function testMissingRawFileIsReported(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Raw GeoJSON not found: /nonexistent/raw.geojson');
+
+        new HessenDispatchAreaGeoJsonBuilder()->build(['core_state' => 'Hessen', 'dispatch_areas' => []], ['/nonexistent/raw.geojson']);
+    }
+
+    public function testRawFeaturesWithoutDistrictNameAreSkipped(): void
+    {
+        $rawPath = sys_get_temp_dir().'/raw-kreise-'.bin2hex(random_bytes(4)).'.geojson';
+        file_put_contents($rawPath, json_encode(['type' => 'FeatureCollection', 'features' => [
+            ['type' => 'Feature', 'properties' => ['krs_name' => ['  ']], 'geometry' => ['type' => 'Polygon', 'coordinates' => []]],
+            ['type' => 'Feature', 'properties' => ['krs_name' => ['Landkreis Test'], 'krs_code' => ['99999']], 'geometry' => [
+                'type' => 'Polygon',
+                'coordinates' => [[[9.0, 50.0], [9.1, 50.0], [9.1, 50.1], [9.0, 50.0]]],
+            ]],
+        ]], JSON_THROW_ON_ERROR));
+
+        try {
+            $collection = new HessenDispatchAreaGeoJsonBuilder()->build([
+                'core_state' => 'Hessen',
+                'dispatch_areas' => ['test' => ['name' => 'Test', 'krs_names' => ['Landkreis Test'], 'krs_codes' => ['99999']]],
+            ], [$rawPath]);
+        } finally {
+            unlink($rawPath);
+        }
+
+        self::assertCount(1, $collection['features']);
+        self::assertSame('Hessen', $collection['features'][0]['properties']['state']);
+        self::assertFalse($collection['features'][0]['properties']['neighbour']);
+    }
+
     public function testCoreStateIsRequired(): void
     {
         $this->expectException(\RuntimeException::class);
