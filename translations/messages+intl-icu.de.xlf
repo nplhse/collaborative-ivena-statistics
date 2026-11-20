@@ -1021,9 +1021,13 @@
         <source>label.pagination_results</source>
         <target>{pageSize} Einträge</target>
       </trans-unit>
-      <trans-unit id="DePaginationEst" resname="label.pagination_numbers_estimated">
-        <source>label.pagination_numbers_estimated</source>
-        <target>Etwa {total} Ergebnisse auf {pages} Seiten.</target>
+      <trans-unit id="DePaginationCount" resname="label.pagination_numbers_counted">
+        <source>label.pagination_numbers_counted</source>
+        <target>{count, plural, one {1 Ergebnis} other {{total} Ergebnisse}} auf {pageCount, plural, one {1 Seite} other {{pages} Seiten}}.</target>
+      </trans-unit>
+      <trans-unit id="DePaginationMore" resname="label.pagination_numbers_more_than">
+        <source>label.pagination_numbers_more_than</source>
+        <target>Mehr als {total} Ergebnisse.</target>
       </trans-unit>
       <trans-unit id="DePaginationShow" resname="label.pagination_showing_results">
         <source>label.pagination_showing_results</source>

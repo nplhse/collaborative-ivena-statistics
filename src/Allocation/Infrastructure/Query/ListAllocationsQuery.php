@@ -6,7 +6,6 @@ namespace App\Allocation\Infrastructure\Query;
 
 use App\Allocation\Application\Allocations\AllocationListFilterCriteriaFactory;
 use App\Allocation\Application\Export\AllocationListFilterApplicator;
-use App\Allocation\Application\Filter\ClosureAtAssignmentRule;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
@@ -15,7 +14,6 @@ use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\Domain\Entity\SecondaryTransport;
 use App\Allocation\Domain\Entity\State;
-use App\Allocation\Domain\Enum\ClosureAtAssignment;
 use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
 use App\Shared\Infrastructure\Pagination\CursorCodec;
 use App\Shared\Infrastructure\Pagination\CursorPaginator;
@@ -32,6 +30,7 @@ final readonly class ListAllocationsQuery
         private CursorCodec $cursorCodec,
         private AllocationListFilterApplicator $filterApplicator,
         private AllocationListFilterCriteriaFactory $filterCriteriaFactory,
+        private AllocationListResultCountQuery $resultCountQuery,
     ) {
     }
 
@@ -131,11 +130,7 @@ final readonly class ListAllocationsQuery
 
         $this->filterApplicator->apply($qb, $this->filterCriteriaFactory->fromQuery($queryParametersDTO, $user));
 
-        // The planner cannot estimate the closure EXISTS conditions (#571); "about 4" for 260 rows
-        // misleads more than no estimate.
-        $estimatedNumResults = ClosureAtAssignmentRule::fromQuery($queryParametersDTO->closureAtAssignment) instanceof ClosureAtAssignment
-            ? null
-            : $this->estimateNumResults($qb);
+        $resultCount = $this->resultCountQuery->count($qb);
 
         $cursor = $this->decodeCursor($queryParametersDTO);
         $slice = $this->fetchSlice($qb, $queryParametersDTO, $sortField, $cursor, $limit);
@@ -168,7 +163,7 @@ final readonly class ListAllocationsQuery
             $limit,
             $nextCursor,
             $previousCursor,
-            $estimatedNumResults,
+            $resultCount,
             null !== $cursor ? $queryParametersDTO->cursor : null,
         );
     }
@@ -309,84 +304,5 @@ final readonly class ListAllocationsQuery
         }
 
         return (string) $value;
-    }
-
-    private function estimateNumResults(QueryBuilder $qb): ?int
-    {
-        $estimateQb = clone $qb;
-        $estimateQb
-            ->resetDQLPart('orderBy')
-            ->select('a.id');
-
-        $query = $estimateQb->getQuery();
-        $rawSql = $query->getSQL();
-        $explainSql = \is_array($rawSql) ? implode(' ', $rawSql) : $rawSql;
-        $connection = $this->entityManager->getConnection();
-
-        try {
-            foreach ($query->getParameters() as $parameter) {
-                $quoted = $this->quoteForExplain($parameter->getValue());
-                $explainSql = preg_replace('/\?/', $quoted, $explainSql, 1) ?? $explainSql;
-            }
-
-            $rows = $connection
-                ->executeQuery('EXPLAIN '.$explainSql)
-                ->fetchAllAssociative();
-        } catch (\Throwable) {
-            return null;
-        }
-
-        return $this->extractEstimatedRows($rows);
-    }
-
-    /**
-     * @param list<array<string, mixed>> $rows
-     */
-    private function extractEstimatedRows(array $rows): ?int
-    {
-        foreach ($rows as $row) {
-            if (isset($row['rows']) && \is_numeric($row['rows'])) {
-                return (int) $row['rows'];
-            }
-
-            if (isset($row['QUERY PLAN']) && \is_string($row['QUERY PLAN']) && 1 === preg_match('/rows=(\d+)/', $row['QUERY PLAN'], $matches)) {
-                return (int) $matches[1];
-            }
-        }
-
-        return null;
-    }
-
-    private function quoteForExplain(mixed $value): string
-    {
-        if ($value instanceof \BackedEnum) {
-            return $this->quoteForExplain($value->value);
-        }
-
-        if ($value instanceof \DateTimeInterface) {
-            return "'".$value->format('Y-m-d H:i:s')."'";
-        }
-
-        if (\is_array($value)) {
-            $quoted = array_map($this->quoteForExplain(...), $value);
-
-            return '('.implode(', ', $quoted).')';
-        }
-
-        if (\is_int($value) || \is_float($value)) {
-            return (string) $value;
-        }
-
-        if (\is_bool($value)) {
-            return $value ? 'true' : 'false';
-        }
-
-        if (null === $value) {
-            return 'NULL';
-        }
-
-        $escaped = str_replace("'", "''", (string) $value);
-
-        return "'".$escaped."'";
     }
 }
