@@ -207,7 +207,9 @@ the explore sidebar. Rules for such pages:
 **Registry:** `DataCatalogRegistry` (rejects duplicate object and variable keys); `DataCatalog` resolves the
 visible objects for `/explore/data-catalog`
 
-**Implementations:** `AllocationDataCatalogContributor` (allocation, #1415); contributors live in
+**Implementations:** `AllocationDataCatalogContributor` (allocation, MCI case, hospital),
+`EncounterDataCatalogContributor` (encounter base data, gated by `ENCOUNTER_VIEW_CASES_IN_ANY_HOSPITAL`),
+#1415; contributors live in
 `Application/DataCatalog/`, which `psalm.xml` exempts from `UnusedClass` (tag-only wiring)
 
 Each context documents the stored fields of its data objects through the same interface, the core
