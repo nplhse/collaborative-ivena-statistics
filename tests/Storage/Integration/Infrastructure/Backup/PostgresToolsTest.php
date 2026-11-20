@@ -144,6 +144,28 @@ final class PostgresToolsTest extends TestCase
         }
     }
 
+    public function testAFailedRestoreNamesTheToolButNotThePassword(): void
+    {
+        $fixture = new StorageFixtureDirectory();
+        $dump = $fixture->file('database.dump', 10);
+
+        try {
+            foreach ([PostgresTools::LOCAL, PostgresTools::DOCKER] as $mode) {
+                try {
+                    new PostgresTools($this->connection(), self::URL, $mode, $fixture->path)->restore($dump, "1; 0 0 TABLE public x app\n");
+                    self::fail('Restoring a damaged dump should fail.');
+                } catch (BackupFailed $failure) {
+                    self::assertMatchesRegularExpression('/^(pg_restore|docker compose cp) failed with exit code \\d+/', $failure->getMessage(), $mode);
+                    self::assertStringNotContainsString('secret', $failure->getMessage());
+                }
+            }
+
+            self::assertSame([], glob(sys_get_temp_dir().'/ivena-restore-*') ?: [], 'The list file is removed.');
+        } finally {
+            $fixture->remove();
+        }
+    }
+
     private function connection(): Connection
     {
         $connection = $this->createStub(Connection::class);

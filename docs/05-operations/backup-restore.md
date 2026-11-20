@@ -76,8 +76,55 @@ one fails, and the command lists every problem at the end. It exits with `1` whe
 cannot be read, so it can follow the backup in cron (see [Cron](#cron-operator-managed)). It needs
 `pg_restore` (same `BACKUP_PG_TOOLS` switch as the backup) but no database connection.
 
-Restoring these backups with `app:backup:restore` follows in the last step of #949. Until then, restore them by
-hand as in the [restore runbook](#restore-runbook), after a successful verify.
+## Restore command
+
+`app:backup:restore` replaces the database and the file directories with a backup:
+
+```bash
+php bin/console app:backup:restore                                    # newest backup in BACKUP_DIR; shows the plan, asks
+php bin/console app:backup:restore ivena-stats-full-20261120T030000Z  # by name or path, as for verify
+php bin/console app:backup:restore <backup> --no-interaction --confirm-destructive # unattended
+php bin/console app:backup:restore <backup> --keep-previous           # with a way back (needs space for a second copy)
+make backup-restore                                                   # newest; BACKUP=<directory> for another
+```
+
+Before anything is replaced, the command shows the plan (backup, target database, every target directory) and
+asks; unattended runs must pass `--confirm-destructive`. It then runs these steps:
+
+| Step | What happens |
+|------|--------------|
+| Preflight | lock (no backup or restore at the same time), `pg_restore` available, no messages waiting in the queues (`failed` does not count), target directories writable |
+| Backup verification | the complete check of `app:backup:verify`; any problem stops the restore |
+| File staging | each archive is extracted next to its target directory (`.<dir>.restore-<time>`) and checked file by file against its checksum list |
+| Database restore | schema `public` is dropped and recreated (with `--keep-previous`: renamed to `pre_restore_<time>`), the dump is restored into the new `public` in one transaction (PostGIS objects skipped as before), and the row count of every table must match the manifest |
+| File switch | each target directory is renamed to `<dir>.pre-restore-<time>`, the staged directory takes its place |
+| Completion | the replaced directories are removed (with `--keep-previous`: the previous schema is dropped, the directories are kept) |
+
+How it behaves:
+
+- **Checks first.** Verify, queue check and file staging run before the database is touched; a failure there
+  changes nothing.
+- **Default: the current database is dropped before the restore.** This needs no space for a second copy of the
+  database. If the restore fails after that, the database is empty (or differs from the backup) and the error
+  says so: fix the cause and restore again. **Create a backup before a restore** if you may need the current
+  state again.
+- **`--keep-previous`: a way back.** The current schema is renamed instead and moved back on any failure, and the
+  replaced directories are kept as `<dir>.pre-restore-<time>` for you to remove once the application works. This
+  needs free space for a second copy of the database.
+- **Files.** The staged files need space for a second copy of the file components until the switch. A failure
+  while switching switches the directories back (with `--keep-previous` also the database). The error says what
+  the failure left behind, for example "The database and the files were not changed."
+- **Older backups** (fewer migrations than the application) are restored; the command then asks you to run
+  `php bin/console doctrine:migrations:migrate`. **Newer backups** (migrations this application does not know)
+  are refused: restore them with the version that made them.
+- **Deployer links** are followed: the shared directory is replaced, the link in the release stays.
+- A component whose directory was **missing when the backup was made** is left unchanged (warning in the plan).
+- Messages that were waiting in the queues when the backup was made are restored with the database and are
+  handled again once the worker runs.
+- The database user must own schema `public` (as for `restore-database.sh`).
+
+Afterwards: run the migrations if the command asks for it, `php bin/console cache:clear`, start the Messenger
+worker, and check the application (see [Restore runbook](#restore-runbook)).
 
 ## Scripts (legacy)
 
@@ -96,6 +143,7 @@ a manifest; `restore-database.sh` restores any custom-format dump, including `da
 ```bash
 make backup         # full backup with manifest (app:backup:create)
 make backup-verify  # verify the newest backup (app:backup:verify)
+make backup-restore # restore the newest backup, asks first (app:backup:restore)
 make backup-db      # legacy: database only
 make backup-files   # legacy: imports + media only
 make restore-db BACKUP_FILE=var/backups/ivena-stats-db-....dump RESTORE_CONFIRM=yes
@@ -107,7 +155,22 @@ make verify-restore            # compare after restore
 
 ### Restore drill (recommended)
 
-Use `verify-restore.sh` to prove backup + restore round-trip without hand-written SQL.
+With the backup commands the drill is short; the restore itself compares every table with the manifest:
+
+```bash
+docker compose up -d database
+make backup                     # full backup of database and files
+make backup-verify
+make backup-restore             # shows the plan, asks, restores the newest backup
+php bin/console cache:clear
+```
+
+Change some data between backup and restore (for example delete an import) to see it come back. To try the way
+back, run the restore with `--keep-previous` and remove the `*.pre-restore-*` directories afterwards.
+
+#### Legacy drill (scripts)
+
+Use `verify-restore.sh` to prove a round-trip of the legacy scripts without hand-written SQL.
 Symfony provides `dbal:run-sql` (not `doctrine:query:sql`) if you need ad-hoc queries.
 
 1. Start the database:
@@ -245,6 +308,50 @@ Cron is configured on Uberspace outside this repository.
 | `.env.local` copies | keep 4 (secure storage) |
 
 ## Restore runbook
+
+### Backups with a manifest (app:backup:create)
+
+1. Stop the Messenger worker to avoid writes during restore:
+
+   ```bash
+   systemctl --user stop messenger
+   ```
+
+2. If you may need the current state again (for example a restore after a bad import, not after a lost
+   database), back it up first; the restore drops the current database:
+
+   ```bash
+   cd <deploy_path>/current
+   php bin/console app:backup:create --no-interaction --env=prod
+   ```
+
+3. Restore database and files (shows the plan and asks before it changes anything). Add `--keep-previous` only
+   when there is free space for a second copy of the database:
+
+   ```bash
+   php bin/console app:backup:restore ~/backups/ivena-stats-full-YYYYMMDDTHHMMSSZ --env=prod
+   ```
+
+4. If the command says the backup is behind the application, run the migrations:
+
+   ```bash
+   php bin/console doctrine:migrations:migrate --env=prod
+   ```
+
+5. Clear cache and restart the worker:
+
+   ```bash
+   php bin/console cache:clear --env=prod
+   systemctl --user start messenger
+   ```
+
+6. Smoke test: `curl -sS https://<host>/health | jq` (expect HTTP 200, `checks.database: ok`), then login, import
+   list, statistics dashboard. With `--keep-previous`, then remove the `*.pre-restore-*` directories the command
+   listed.
+
+Restore `.env.local` separately if needed ([3. Secrets](#3-secrets-envlocal)).
+
+The manual steps below are for legacy backups and for a restore without the command.
 
 ### 1. Database
 

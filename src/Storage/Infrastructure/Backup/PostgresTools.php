@@ -127,6 +127,43 @@ readonly class PostgresTools
     }
 
     /**
+     * Restores the entries of $list (a filtered `pg_restore --list`) from $dumpFile into the connected database.
+     *
+     * Runs in one transaction (--single-transaction --exit-on-error): either every entry is restored or none.
+     * Ownership and privileges are not restored; the objects belong to the connecting user.
+     *
+     * @throws BackupFailed
+     */
+    public function restore(string $dumpFile, string $list): void
+    {
+        $arguments = ['--no-owner', '--no-acl', '--no-password', '--exit-on-error', '--single-transaction'];
+        $listFile = (string) tempnam(sys_get_temp_dir(), 'ivena-restore-');
+        chmod($listFile, 0o600);
+        file_put_contents($listFile, $list);
+
+        try {
+            if (self::DOCKER === $this->mode()) {
+                $suffix = bin2hex(random_bytes(8));
+                $containerDump = '/tmp/ivena-restore-'.$suffix.'.dump';
+                $containerList = '/tmp/ivena-restore-'.$suffix.'.list';
+                try {
+                    $this->mustRun(['docker', 'compose', 'cp', $dumpFile, self::DOCKER_SERVICE.':'.$containerDump], 'docker compose cp');
+                    $this->mustRun(['docker', 'compose', 'cp', $listFile, self::DOCKER_SERVICE.':'.$containerList], 'docker compose cp');
+                    $this->mustRun([...$this->prefix(), 'pg_restore', ...$this->dockerConnectionArguments(), ...$arguments, '--use-list='.$containerList, $containerDump], 'pg_restore');
+                } finally {
+                    $this->process([...$this->prefix(), 'rm', '-f', $containerDump, $containerList])->run();
+                }
+
+                return;
+            }
+
+            $this->mustRun(['pg_restore', ...$this->localConnectionArguments(), ...$arguments, '--use-list='.$listFile, $dumpFile], 'pg_restore', $this->passwordEnvironment());
+        } finally {
+            @unlink($listFile);
+        }
+    }
+
+    /**
      * @return list<string>
      */
     private function prefix(): array

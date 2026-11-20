@@ -1,7 +1,7 @@
 .DEFAULT_GOAL = help
 .PHONY: help install install-dev install-guard setup-dev setup-prod prod upgrade-dev upgrade-prod \
         upgrade warmup update-security-advisories start build up down logs compile consume asset \
-        backup-db backup-files backup backup-verify restore-db verify-restore-baseline verify-restore env-check \
+        backup-db backup-files backup backup-verify backup-restore restore-db verify-restore-baseline verify-restore env-check \
         fixtures trans trans-de trans-all trans-de-all lint analyse check fix ci ci-full cs \
         static-analysis audit security check-phpunit-suite-dirs composer-validate check-conflicts \
         lint-yaml lint-container check-deprecations lint-xliff lint-trans lint-trans-de \
@@ -193,6 +193,9 @@ backup: ## Full backup with manifest to BACKUP_DIR or var/backups (app:backup:cr
 
 backup-verify: ## Verify the newest backup in BACKUP_DIR, or BACKUP=<directory> (app:backup:verify; Docker database when it runs)
 	@BACKUP_PG_TOOLS=$${BACKUP_PG_TOOLS:-$$($(DOCKER) compose ps --status running --services 2>/dev/null | grep -qx database && echo docker || echo local)} $(CONSOLE) app:backup:verify $(BACKUP)
+
+backup-restore: ## Restore the newest backup in BACKUP_DIR, or BACKUP=<directory>; asks first (app:backup:restore; Docker database when it runs)
+	@BACKUP_PG_TOOLS=$${BACKUP_PG_TOOLS:-$$($(DOCKER) compose ps --status running --services 2>/dev/null | grep -qx database && echo docker || echo local)} $(CONSOLE) app:backup:restore $(BACKUP)
 
 backup-db: ## Legacy: PostgreSQL dump only (bin/ops script, no manifest)
 	@./bin/ops/backup-database.sh

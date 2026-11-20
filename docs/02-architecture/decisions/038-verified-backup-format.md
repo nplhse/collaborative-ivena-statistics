@@ -97,11 +97,43 @@ of the files is needed, and entries a restore must never write (absolute paths, 
 detected before any extraction. Each file is compared with its line in the `.sha256` list, and the totals with
 the manifest. All checks run and every problem is listed; the exit code is `1` when there is one.
 
+### Restore
+
+`app:backup:restore` replaces database and files only after the backup has been verified and its files have been
+staged:
+
+- **Migration state.** The executed migrations of the backup are compared with the migrations this application
+  knows. A backup with fewer is restored and the operator is asked to migrate; a backup with migrations the code
+  does not know is refused, because this code cannot describe its schema.
+- **Preflight and verify.** It refuses while the message queues hold work (except `failed`) and runs the
+  complete verify first; any problem stops it before a change.
+- **Files are staged first.** Each archive is extracted next to its target (`.<dir>.restore-<time>`) and every file
+  is checked against its list. Targets are resolved to their real directory, so a Deployer `shared/` link stays
+  in place and the shared directory is replaced. A component whose directory was missing in the backup is left
+  alone: an empty restore could otherwise remove files of a differently configured path.
+- **Database: dropped first by default.** Schema `public` is dropped and recreated (one transaction, as
+  `restore-database.sh` does), the dump is restored in one transaction without PostGIS objects, and every table
+  count must match the manifest. The database needs no space for a second copy, which matters because it is
+  large. The price: a failure after the drop leaves an empty (or, after a count mismatch, a differing) database;
+  the error says so, and the operator restores again. Everything that can fail without the database (verify,
+  queues, file staging) runs before the drop.
+- **`--keep-previous`: a way back when there is space.** Schema `public` is renamed to `pre_restore_<time>` instead
+  and a new one created; any failure drops the new schema and renames the old one back, so a failed restore
+  changes nothing. This needs the space of a second copy of the database for the duration of the restore.
+- **Switch, then clean up.** Target directories are renamed to `<dir>.pre-restore-<time>` and the staged ones take
+  their place; a failure here switches the directories back (with `--keep-previous` also the database). After a
+  complete restore the replaced directories are removed and, with `--keep-previous`, the old schema is dropped.
+  With `--keep-previous` the replaced directories are kept for the operator to remove after checking the
+  application.
+
+The staged files need space for a second copy of the file components until the switch. Every failure states what
+it left behind. Unattended restores need `--confirm-destructive`.
+
 ### Commands
 
-`app:backup:create` creates a backup (#949 step 1), `app:backup:verify` verifies one (step 2).
-`app:backup:restore` follows in the last step of #949 and reads this format. Make targets are thin wrappers; the scripts in
-`bin/ops/` remain for backups made before this format.
+`app:backup:create` creates a backup, `app:backup:verify` verifies one, `app:backup:restore` restores one (#949).
+Make targets (`backup`, `backup-verify`, `backup-restore`) are thin wrappers; the scripts in `bin/ops/` remain for
+backups made before this format.
 
 ## Alternatives considered
 
@@ -118,10 +150,19 @@ the manifest. All checks run and every problem is listed; the exit code is `1` w
   `tar` is present on every target host. Rejected.
 - **Per-file checksums inside the manifest.** Would make the manifest grow with every import file. They live in
   the `.sha256` payloads instead, which are covered by the manifest checksums.
+- **Restore into a separate database and switch `DATABASE_URL`.** Would keep the old database completely, but
+  needs the right to create databases (not given on shared hosting) and a configuration change during the
+  restore, and twice the space like `--keep-previous`. Rejected.
+- **Always keep the previous schema until the end.** Makes every failed restore a no-change, but needs a second
+  copy of a large database; kept as the opt-in `--keep-previous` instead of the default.
 
 ## Consequences
 
 - One format for #949, #489 and #727; partial backups can add components and types without a new format.
+- A restore needs free disk space for a second copy of the file components while it runs (and of the database
+  with `--keep-previous`), and a database user that owns schema `public`.
+- Without `--keep-previous`, a restore that fails after the drop leaves no current database; creating a backup
+  before a restore is the operator's way back.
 - Backups made with the old scripts have no manifest; they are restored with `bin/ops/restore-database.sh` and
   `tar` as documented in [backup-restore.md](../../05-operations/backup-restore.md).
 - The server needs `pg_dump` and `pg_restore` of the server's major version or newer, and `tar`.
