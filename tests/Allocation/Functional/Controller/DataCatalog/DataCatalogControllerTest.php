@@ -71,7 +71,7 @@ final class DataCatalogControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/explore');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('[data-testid="explore-tile-data-catalog"]');
+        self::assertSelectorExists('[data-testid="data-catalog-tile"]');
         self::assertSelectorExists('a[href="/explore/data-catalog"]');
     }
 
