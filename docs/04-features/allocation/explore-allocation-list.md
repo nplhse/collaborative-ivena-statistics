@@ -92,6 +92,16 @@ The list counts its rows with `COUNT(*)` over the same Doctrine query as the pag
 
 Sorting stays on `arrivalAt` and `age`, the two keyset keys. Speciality, department, assignment and occasion need a join: `ListAllocationsQuery` reads their names for the ids of the current page only, after the keyset query. Joining them into the keyset query took 113 ms instead of 43 ms per page on the demo database; the page lookup adds about 5 ms. Filters, the filter reset and paging keep the chosen columns.
 
+### Filters and columns of other contexts
+
+Other contexts add a filter and a column through the [allocation list extension point](../../02-architecture/extension-points.md#allocation-list-filters-and-columns). Each gets its own section in the filter drawer and its own picker column; the rules for access per row are described there.
+
+| Extension | Filter | Column | Who sees it |
+|---|---|---|---|
+| Encounter (#1203) | `encounter`: all / with / without associated encounter (effective assignment `encounter.allocation_id`) | "Encounter": badge linking to the encounter's record page (ED visit), else to the case card "Hospital course"; shown automatically while the filter is "with" | beta role + encounter grant `VIEW_CASES` (or `REVIEW`) for at least one hospital, or `ROLE_ADMIN` |
+
+An active encounter filter keeps only allocations of hospitals with `VIEW_CASES`, for "without" as well: for other hospitals it is unknown whether an encounter exists. "Without" also contains periods for which a hospital has not uploaded encounter data. The column cell is empty for rows of other hospitals.
+
 ## Code locations
 
 | Area | Path |

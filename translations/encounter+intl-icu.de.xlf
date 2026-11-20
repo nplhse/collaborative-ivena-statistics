@@ -3953,6 +3953,38 @@
         <source>encounter.visit_list.import_period_hint</source>
         <target>Die Liste zeigt alle Besuche dieses Imports; der Zeitraum gilt dafür nicht. Entfernen Sie den Import-Filter, um nach Zeitraum zu filtern.</target>
       </trans-unit>
+      <trans-unit id="Enc912BBC85" resname="encounter.allocation_list.filter.label">
+        <source>encounter.allocation_list.filter.label</source>
+        <target>Zugehöriges Encounter</target>
+      </trans-unit>
+      <trans-unit id="Enc5128D1DD" resname="encounter.allocation_list.filter.all">
+        <source>encounter.allocation_list.filter.all</source>
+        <target>Alle Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="Enc6300BE99" resname="encounter.allocation_list.filter.with">
+        <source>encounter.allocation_list.filter.with</source>
+        <target>Mit zugehörigem Encounter</target>
+      </trans-unit>
+      <trans-unit id="Enc3B315F7B" resname="encounter.allocation_list.filter.without">
+        <source>encounter.allocation_list.filter.without</source>
+        <target>Ohne zugehöriges Encounter</target>
+      </trans-unit>
+      <trans-unit id="EncF545878C" resname="encounter.allocation_list.filter.help">
+        <source>encounter.allocation_list.filter.help</source>
+        <target>Nur Zuweisungen von Kliniken, deren Encounter-Fälle Sie sehen dürfen. „Ohne“ enthält auch Zeiträume, für die die Klinik noch keine Encounter-Daten hochgeladen hat.</target>
+      </trans-unit>
+      <trans-unit id="Enc1C4151C4" resname="encounter.allocation_list.column">
+        <source>encounter.allocation_list.column</source>
+        <target>Encounter</target>
+      </trans-unit>
+      <trans-unit id="Enc09C14653" resname="encounter.allocation_list.badge">
+        <source>encounter.allocation_list.badge</source>
+        <target>Encounter</target>
+      </trans-unit>
+      <trans-unit id="EncBD16DB9D" resname="encounter.allocation_list.none">
+        <source>encounter.allocation_list.none</source>
+        <target>–</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
