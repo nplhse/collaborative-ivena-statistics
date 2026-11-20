@@ -281,4 +281,18 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
         self::assertStringNotContainsString('stats.analysis_explorer', $crawler->text());
         self::assertStringNotContainsString('label.importId', $crawler->text());
     }
+
+    public function testClosureAtAssignmentFilterShowsActiveBadge(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedDependencies();
+        AllocationFactory::createOne();
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/allocation?closureAtAssignment=unknown&limit=50');
+
+        self::assertResponseIsSuccessful();
+        $badges = $crawler->filter('.badge.bg-blue-lt')->each(static fn ($badge): string => trim((string) preg_replace('/\s+/', ' ', $badge->text())));
+        self::assertContains('According to closure data: No closure data', $badges);
+        self::assertStringNotContainsString('closure_at_assignment', $crawler->text());
+    }
 }

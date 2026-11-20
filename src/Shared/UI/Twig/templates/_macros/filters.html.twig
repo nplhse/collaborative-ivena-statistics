@@ -114,6 +114,10 @@
         {% set rawFilters = rawFilters|merge([{key: 'field.departmentWasClosed', value: _self.boolean_value(filters.departmentWasClosed)}]) %}
     {% endif %}
 
+    {% if filters.closureAtAssignment is not empty %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.closure_at_assignment', domain: 'allocation', value: ('closure_at_assignment.' ~ filters.closureAtAssignment)|trans({}, 'allocation')}]) %}
+    {% endif %}
+
     {% if filters.hasCreatedAtRange %}
         {% set createdRange = [] %}
         {% if filters.createdFromDate is not empty %}
