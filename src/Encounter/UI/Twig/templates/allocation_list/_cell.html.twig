@@ -1,6 +1,7 @@
 {# Column "Encounter" of the Explore allocation list (#1203). No value: the user may not see encounter data of
    this hospital (ADR 028), so the cell stays empty. With an encounter the badge links to its record page, or to the
-   hospital course card of the case file when no schema offers a page. #}
+   hospital course card of the case file when no schema offers a page. Short clinical details (for example the
+   triage of the ED visit) are loaded after the page has rendered: one request for all encounters of the page. #}
 {% set cell = row.encounter ?? null %}
 {% if cell is not null %}
     {% if cell.linked %}
@@ -10,6 +11,14 @@
            data-testid="allocation-list-encounter-link">
             {{ 'encounter.allocation_list.badge'|trans({}, 'encounter') }}
         </a>
+        <span class="d-block placeholder-glow"
+              data-controller="encounter-list-detail"
+              data-encounter-list-detail-id-value="{{ cell.encounter_id }}"
+              data-encounter-list-detail-url-value="{{ path('app_explore_allocation_encounter_details') }}"
+              data-testid="allocation-list-encounter-detail">
+            <span class="placeholder placeholder-xs col-8 mt-1" aria-hidden="true"></span>
+            <span class="visually-hidden">{{ 'label.loading'|trans({}, 'messages') }}</span>
+        </span>
     {% else %}
         <span class="text-secondary" data-testid="allocation-list-encounter-none">{{ 'encounter.allocation_list.none'|trans({}, 'encounter') }}</span>
     {% endif %}

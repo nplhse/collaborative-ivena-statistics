@@ -1122,6 +1122,10 @@ list of unlinked visits; the breadcrumb and "Back to list" open the visit list o
 - Also shown: basic data (ED admission, age, sex, arrival route and mode, referral, case status),
   disposition, work accident and isolation.
 
+### Explore allocation list
+
+Filter "Linked encounter" (DE "Verknüpfter Behandlungsfall") in the drawer section "Encounter data" (DE "Behandlungsdaten") and column "Encounter" (#1203), see [explore-allocation-list.md](../allocation/explore-allocation-list.md#filters-and-columns-of-other-contexts). The column shows a badge linking to the visit page and, loaded after the page, the initial triage of the ED visit ([encounter list details](../../02-architecture/extension-points.md#encounter-list-details)). Both only for hospitals with `VIEW_CASES`, checked per row and per encounter.
+
 ### Visit list
 
 Implemented in #1178. All ED visits of one hospital in a period, with or without IVENA allocation, in Explore

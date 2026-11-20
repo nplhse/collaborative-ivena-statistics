@@ -452,6 +452,27 @@ core asks once per page with the encounter ids, after it checked access to their
 URL for the encounters it has a page for, in one query, and the first link wins. Without a provider the conflict
 page shows the encounters' anchor without a link; they can still be assigned.
 
+## Encounter list details
+
+**Tag:** `encounter.list_detail`
+
+**Interface:** `EncounterListDetailProviderInterface` (`src/Encounter/Contract/Display/`)
+
+**Registry:** `EncounterListDetailRegistry`, used by `EncounterListDetailsController`
+(`GET /explore/allocation/encounter-details`)
+
+**Implementations:** `EdVisitListDetailProvider` of the ED visit plugin (initial triage: MTS category, presentation
+diagram, indicator)
+
+Lets an encounter schema show short details of its records in the column "Encounter" of the Explore allocation list
+(#1203). The list renders the badge and a placeholder; the Stimulus controller `encounter-list-detail` collects the
+encounter ids of all placeholders of a page and loads their details with one request (at most 100 ids). The endpoint
+checks `VIEW_CASES` per encounter by its own hospital and drops ids the user may not see, then asks every provider once
+for all remaining ids. A provider returns an `EncounterListDetail` (Twig template of the schema and its variables) per
+encounter it has a record for, with one query per call, and checks no access itself. The answer is
+`{"details": {"<id>": "<html>"}}` with `Cache-Control: no-store, private`; without details the placeholder is removed
+and the badge stays.
+
 ## Encounter import record links
 
 **Tag:** `encounter.import_records_link`
