@@ -208,8 +208,8 @@ the explore sidebar. Rules for such pages:
 visible objects for `/explore/data-catalog`
 
 **Implementations:** `AllocationDataCatalogContributor` (allocation, MCI case, hospital),
-`EncounterDataCatalogContributor` (encounter base data, gated by `ENCOUNTER_VIEW_CASES_IN_ANY_HOSPITAL`),
-#1415; contributors live in
+`EncounterDataCatalogContributor` (encounter base data), `EdVisitDataCatalogContributor` (ed-visit plugin), both
+gated by `ENCOUNTER_VIEW_CASES_IN_ANY_HOSPITAL`, #1415; contributors live in
 `Application/DataCatalog/`, which `psalm.xml` exempts from `UnusedClass` (tag-only wiring)
 
 Each context documents the stored fields of its data objects through the same interface, the core
