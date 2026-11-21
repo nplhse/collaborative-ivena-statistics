@@ -61,4 +61,39 @@ final class MediaRepository extends ServiceEntityRepository
 
         return $media instanceof Media ? $media : null;
     }
+
+    /**
+     * Ids of media items whose file is still in the old upload directory (ADR 039), oldest first.
+     *
+     * @return list<int>
+     */
+    public function findIdsNotMoved(): array
+    {
+        /** @var list<int|string> $ids */
+        $ids = $this->createQueryBuilder('m')
+            ->select('m.id')
+            ->where('m.storageKey IS NULL')
+            ->andWhere('m.filename IS NOT NULL')
+            ->andWhere("m.filename <> ''")
+            ->orderBy('m.id', 'ASC')
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return array_map(intval(...), $ids);
+    }
+
+    /**
+     * Every old file name a media item refers to, moved or not.
+     *
+     * @return list<string>
+     */
+    public function findLegacyFilenames(): array
+    {
+        /** @var list<string|null> $names */
+        $names = $this->getEntityManager()->getConnection()->fetchFirstColumn(
+            'SELECT filename FROM media WHERE filename IS NOT NULL UNION SELECT legacy_filename FROM media WHERE legacy_filename IS NOT NULL',
+        );
+
+        return array_values(array_filter($names, static fn (?string $name): bool => null !== $name && '' !== $name));
+    }
 }
