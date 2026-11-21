@@ -108,6 +108,8 @@ Timestamps are rendered as localized relative time (`just now`, `3 days ago`, â€
 
 `post_published` entries show a compact content preview taken live from currently published posts on the current page (`publishedAt <= now`), using the same first-paragraph sanitizer as the blog list (`PostContentSanitizer`). The activity projection keeps only title/slug; unpublished, scheduled, deleted, or empty posts omit the preview block. Keyword search still looks at activity metadata, not the post body.
 
+On `/activity` and the hospital feed every item has a reaction bar, loaded after the page ([reactions.md](reactions.md)); the five-item preview on the dashboard has none.
+
 ## Performance
 
 Typical **initial** dashboard request (warm allocation cache):

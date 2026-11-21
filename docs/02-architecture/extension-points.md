@@ -723,6 +723,21 @@ Details: [my-hospitals.md](../04-features/allocation/my-hospitals.md#page).
 
 Administrators can open these pages by the internal numeric ID, for example `/explore/hospital/40`, and are redirected (302) to the canonical URL. A detail route takes part when its controller method has `#[OpensById(Entity::class)]` and its path is `/explore/{type}/{parameter}` with exactly one variable. The controller loads the entity by ID and fills the variable from the entity property of the same name (`publicId`, `username`). New detail pages only need the attribute and `<twig:AdminObjectId>` in the header ([Twig components](../03-development/twig-components.md#adminobjectid)); `OpenObjectByIdControllerTest` lists the expected pages. Who may use it: [permission model](permission-model.md#explore-collaboration).
 
+## Reaction targets
+
+**Tag:** `app.content.reaction_target` (set by `#[AutoconfigureTag]` on the interface)
+
+**Interface:** `ReactionTargetProviderInterface` (`src/Content/Application/Contract/`)
+
+**Registry:** `ReactionTargetRegistry`
+
+**Implementations:** `PostReactionTarget`, `CommentReactionTarget`, `ActivityReactionTarget` (`src/Content/Infrastructure/Reaction/`)
+
+A kind of content that can receive reactions (#467). The provider says which ids a viewer may see (reactions follow
+the visibility of their target) and which ids still exist (for the daily cleanup). A new target, for example help
+articles, needs a case in `ReactionTargetType`, a provider and the reaction placeholder in its template; the
+`reaction` table stays as it is. Details: [reactions.md](../04-features/content/reactions.md).
+
 ## Related documentation
 
 - [../04-features/import/import-pipeline.md](../04-features/import/import-pipeline.md)

@@ -1,0 +1,82 @@
+# Reactions
+
+**Audience:** Developers working on the blog, comments, the activity timeline or a new kind of content.
+
+Users react to blog posts, comments and activity timeline entries with one of eight emojis (#467). Reactions are
+lightweight feedback, not a vote: there is no negative reaction, no score and no ranking.
+
+## Behaviour
+
+- A signed-in user has at most one reaction per target. Choosing another reaction replaces it; choosing the current
+  one again removes it.
+- The bar shows one chip per reaction given at least once, with its count, in the order of `ReactionType`. The
+  viewer's own reaction is highlighted (`aria-pressed="true"`). The picker (🙂 +) offers all eight.
+- **Signed-in users** see who reacted in the chip's tooltip: the first ten display names (username as fallback),
+  oldest first, then "and N more".
+- **Visitors** see the counts on blog posts and comments, without names and without controls. Activities are not
+  visible to visitors, so neither are their reactions.
+- Reactions of disabled users are not counted, as their activities are not shown either.
+
+| Reaction | Value | DE | EN |
+|---|---|---|---|
+| 👍 | `like` | Gefällt mir | Like |
+| ❤️ | `love` | Danke | Love |
+| 🎉 | `hooray` | Glückwunsch | Hooray |
+| 🚀 | `rocket` | Großartig | Rocket |
+| 💡 | `insightful` | Interessant | Insightful |
+| 👀 | `eyes` | Schaue ich mir an | Eyes |
+| 😄 | `funny` | Lustig | Funny |
+| 🤔 | `thinking` | Nachdenklich | Thinking |
+
+## Where the bar appears
+
+| Target | Template | Visible to |
+|---|---|---|
+| Blog post | `blog/show.html.twig`, below the content | everyone, while the post is published |
+| Comment and reply | `blog/_comment.html.twig`, below the text | everyone, while the post is published |
+| Activity | `dashboard/_activity_items.html.twig` with `show_reactions: true` (`/activity` and the hospital feed) | signed-in users; not for disabled actors or announcements of posts not yet published |
+
+The dashboard preview (five items) has no bar, to stay compact.
+
+## Lazy loading
+
+Reactions are an addition to the page, so pages never wait for them:
+
+1. A page renders only a placeholder per target (`reaction/_placeholder.html.twig`, id `reactions-<type>-<id>`).
+2. The Stimulus controller `reactions-loader` waits until a placeholder is near the viewport. Placeholders that come
+   into view together are collected for 50 ms and loaded with **one** request, at most 50 targets each:
+   `GET /reactions?targets=post:12,comment:40,…` (`app_reactions_show`).
+3. The answer is Turbo Streams: `replace` with the bar for every target the viewer may see, `remove` for the others
+   (unknown ids, drafts, activities for visitors).
+4. Reacting posts the bar's form to `POST /reactions/{type}/{id}` (`app_reaction_toggle`, `ROLE_USER`, CSRF token
+   id `reaction`). Turbo sends it and replaces the bar with the answer. Without JavaScript the form posts normally and
+   redirects back to the page (same host only, otherwise to the homepage).
+
+If a request fails, the placeholder stays empty; the page shows no error. The responses are `private, no-store`;
+since names and the own reaction only arrive with the bar, the HTML of a blog post no longer depends on the viewer.
+
+`ReactionSummaryQuery` reads counts, own reaction and names of all targets of a request with one query per target
+type.
+
+## Model
+
+Table `reaction`: `user_id` (foreign key, `ON DELETE CASCADE`), `target_type`, `target_id`, `type`, `created_at`,
+`updated_at`; unique on (`user_id`, `target_type`, `target_id`), index on (`target_type`, `target_id`).
+
+The target is referenced by type and id **without** a foreign key, so a new kind of content needs no schema change:
+a case in `ReactionTargetType`, a `ReactionTargetProviderInterface` implementation and the placeholder in its template
+([extension points](../../02-architecture/extension-points.md#reaction-targets)). The providers decide which targets
+a viewer may see and which still exist; `ReactionService` refuses reactions to targets the user cannot see.
+
+Every change dispatches `ReactionChanged` (target, user, previous and current reaction). Nothing listens yet; grouped
+reaction notifications (#973) are planned to.
+
+Reactions are not written to the audit log.
+
+## Cleanup
+
+Deleting a user deletes their reactions (foreign key). Deleting a post, comment or activity leaves its reactions
+behind: they are never shown, because only reactions of displayed targets are read, and the daily job
+`reaction_cleanup` (`CleanUpReactionsMessage`, 05:40 Europe/Berlin) deletes them. It asks every provider which of the
+referenced ids still exist, in batches of 500, and records `reactions_deleted` in the job run. PostgreSQL never reuses
+ids, so an old reaction cannot attach itself to new content.

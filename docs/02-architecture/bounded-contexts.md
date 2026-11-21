@@ -14,7 +14,7 @@ Each bounded context under `src/` follows the layered structure described in [ov
 | `Analytics` | Server-side usage analytics (request tracking, consent-gated visitor keys) |
 | `Install` | `app:env:check` |
 | `Shared` | Cross-cutting concerns (audit, monitoring, mail, infrastructure) |
-| `Content` | Content pages, blog, the media library with its storage and integrity check (ADR 039), and the authenticated home dashboard (composition of project metrics and activity). Its infrastructure may depend on `Notification` (admin notification about missing or damaged media files) |
+| `Content` | Content pages, blog, the media library with its storage and integrity check (ADR 039), reactions to posts, comments and activities (#467), and the authenticated home dashboard (composition of project metrics and activity). Its infrastructure may depend on `Notification` (admin notification about missing or damaged media files) |
 | `Onboarding` | Participant dashboard onboarding steps and progress |
 | `Engagement` | Monthly submission reminders and related mail content |
 | `Notification` | Personal notifications: definitions, preferences, inbox and delivery (ADR 016) |
