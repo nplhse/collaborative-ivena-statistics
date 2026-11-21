@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Content\Application\Page;
 
+use App\Content\Application\Media\MediaPublicUrlResolver;
 use App\Content\Application\Page\DTO\PageImageContentFinding;
 use App\Content\Domain\Entity\Media;
 use App\Content\Domain\Entity\Page;
@@ -25,6 +26,7 @@ final readonly class PageImageContentAnalyzer
         private PageRepository $pageRepository,
         private MediaRepository $mediaRepository,
         private LocalMediaFileLocator $fileLocator,
+        private MediaPublicUrlResolver $publicUrlResolver,
         private MediaDimensionsExtractor $dimensionsExtractor,
         #[Autowire(param: 'app.page_content_width_estimate')]
         private int $contentWidthEstimate,
@@ -151,7 +153,7 @@ final readonly class PageImageContentAnalyzer
             }
         }
 
-        if (false !== preg_match_all('/<img[^>]+src="(\/uploads\/media\/[^"]+)"[^>]*>/i', $html, $imgMatches, PREG_SET_ORDER)) {
+        if (false !== preg_match_all('/<img[^>]+src="(\/(?:uploads\/)?media\/[^"]+)"[^>]*>/i', $html, $imgMatches, PREG_SET_ORDER)) {
             foreach ($imgMatches as $matchIndex => $match) {
                 if ($this->htmlContainsPageContentImageClass($html)) {
                     continue;
@@ -201,7 +203,7 @@ final readonly class PageImageContentAnalyzer
      */
     private function resolveMediaContextFromHtml(string $html): array
     {
-        if (preg_match('/src="(\/uploads\/media\/[^"]+)"/', $html, $match)) {
+        if (preg_match('/src="(\/(?:uploads\/)?media\/[^"]+)"/', $html, $match)) {
             return $this->resolveMediaContext(['src' => $match[1]]);
         }
 
@@ -227,7 +229,7 @@ final readonly class PageImageContentAnalyzer
             if (null === $absolutePath || !is_file($absolutePath)) {
                 return [
                     'mediaId' => $media->getId(),
-                    'filename' => $media->getFilename(),
+                    'filename' => $media->getStoredName(),
                     'imageWidth' => $media->getWidth(),
                     'imageHeight' => $media->getHeight(),
                     'status' => 'missing_file',
@@ -246,7 +248,7 @@ final readonly class PageImageContentAnalyzer
 
             return [
                 'mediaId' => $media->getId(),
-                'filename' => $media->getFilename(),
+                'filename' => $media->getStoredName(),
                 'imageWidth' => $width,
                 'imageHeight' => $height,
                 'status' => (null === $width || null === $height) ? 'dimensions_unknown' : 'ok',
@@ -264,8 +266,15 @@ final readonly class PageImageContentAnalyzer
             ];
         }
 
-        $filename = $this->fileLocator->resolveFilenameFromPublicSrc($src);
-        if (null === $filename) {
+        $storageKey = $this->publicUrlResolver->storageKeyFromUrl($src);
+        $legacyFilename = $this->publicUrlResolver->legacyFilenameFromUrl($src);
+        $filename = $storageKey ?? $legacyFilename;
+        $absolutePath = match (true) {
+            null !== $storageKey => $this->fileLocator->resolveAbsolutePathFromStorageKey($storageKey),
+            null !== $legacyFilename => $this->fileLocator->resolveLegacyPath($legacyFilename),
+            default => null,
+        };
+        if (null === $filename || null === $absolutePath) {
             return [
                 'mediaId' => null,
                 'filename' => null,
@@ -275,7 +284,6 @@ final readonly class PageImageContentAnalyzer
             ];
         }
 
-        $absolutePath = $this->fileLocator->resolveAbsolutePathFromFilename($filename);
         if (!is_file($absolutePath)) {
             return [
                 'mediaId' => null,
@@ -316,14 +324,14 @@ final readonly class PageImageContentAnalyzer
         }
 
         $src = trim((string) ($data['src'] ?? ''));
-        $filename = $this->fileLocator->resolveFilenameFromPublicSrc($src);
-        if (null === $filename) {
-            return null;
+        $storageKey = $this->publicUrlResolver->storageKeyFromUrl($src);
+        if (null !== $storageKey) {
+            return $this->mediaRepository->findOneByStorageKey($storageKey, MediaType::IMAGE);
         }
 
-        $media = $this->mediaRepository->findOneBy(['filename' => $filename, 'type' => MediaType::IMAGE]);
+        $legacyFilename = $this->publicUrlResolver->legacyFilenameFromUrl($src);
 
-        return $media instanceof Media ? $media : null;
+        return null !== $legacyFilename ? $this->mediaRepository->findOneByLegacyFilename($legacyFilename, MediaType::IMAGE) : null;
     }
 
     private function buildFinding(

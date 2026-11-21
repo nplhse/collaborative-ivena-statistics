@@ -66,3 +66,7 @@
 .media-detail-usage__hint li + li {
     margin-top: 0.35rem;
 }
+
+.media-detail-usage__preview img {
+    max-height: 20rem;
+}

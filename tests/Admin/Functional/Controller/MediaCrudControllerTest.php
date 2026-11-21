@@ -83,11 +83,11 @@ final class MediaCrudControllerTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, '/admin/media/new');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('[data-controller="vich-file-preview"]');
+        self::assertSelectorExists('[data-controller="file-input-preview"]');
         $fileInput = $crawler->filter('input[type="file"]');
         self::assertGreaterThan(0, $fileInput->count());
         self::assertNull($fileInput->attr('onchange'));
-        self::assertStringContainsString('vich-file-preview#preview', (string) $fileInput->attr('data-action'));
+        self::assertStringContainsString('file-input-preview#preview', (string) $fileInput->attr('data-action'));
     }
 
     public function testNonAdminGetsForbiddenOnMediaIndex(): void
@@ -104,14 +104,14 @@ final class MediaCrudControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
-    public function testDeleteRemovesDatabaseRecordAndFile(): void
+    public function testDeleteRemovesDatabaseRecordAndLegacyFile(): void
     {
         self::createClient();
 
         UserFactory::new()->asAdmin()->create();
-        $media = MediaFactory::createOne(['filename' => 'delete-me.png']);
+        $media = MediaFactory::new()->legacy('delete-me.png')->create();
         $id = $media->getId();
-        $path = self::getContainer()->getParameter('kernel.project_dir').'/public/uploads/media/delete-me.png';
+        $path = $this->legacyMediaDirectory().'/delete-me.png';
 
         self::assertFileExists($path);
 
@@ -123,5 +123,17 @@ final class MediaCrudControllerTest extends WebTestCase
 
         self::assertNull($em->find(Media::class, $id));
         self::assertFileDoesNotExist($path);
+    }
+
+    /** Old upload directory of the test environment (ADR 039), created when missing. */
+    private function legacyMediaDirectory(): string
+    {
+        $directory = self::getContainer()->getParameter('app.media_legacy_dir');
+        self::assertIsString($directory);
+        if (!is_dir($directory)) {
+            mkdir($directory, 0o777, true);
+        }
+
+        return $directory;
     }
 }

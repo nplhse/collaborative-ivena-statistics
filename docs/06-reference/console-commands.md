@@ -132,6 +132,9 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | Command | Purpose |
 |---|---|
 | `app:content:analyze-page-images` | Analyze CMS page images; optional dimension backfill and layout migration. Runs on deploy via Deployer. |
+| `app:media:migrate-storage` | Move media files that are still in the old upload directory into the media storage, verified by SHA-256 (`--dry-run`, `--legacy-dir`). Runs on every deploy via Deployer; does nothing once every file has moved. Exit code `1` only when a copy failed. See [../04-features/content/media-storage.md](../04-features/content/media-storage.md). |
+| `app:media:rewrite-content-urls` | Replace old `/uploads/media/…` URLs in posts and pages with the URLs of the moved media. Previews by default; `--apply` writes. Run once after the v0.3 deploy ([upgrading](../05-operations/upgrading.md#v024-beta--v03-beta)). |
+| `app:media:check` | Check the media files against the media library (existence, size, rolling SHA-256; `--full` hashes all) and delete files no media item refers to after 24 hours (`--dry-run` only reports). Exit code `1` when files are missing or damaged. The scheduler runs it daily. |
 
 ### User
 
@@ -190,4 +193,5 @@ Some commands mirror scheduled Messenger jobs:
 | Daily 08:00 Europe/Berlin | `SendMonthlySubmissionRemindersMessage` | `app:reminder:preview --hospital-id=ID --send` (per hospital) |
 | Daily 02:15 Europe/Berlin | `AggregateDailyAnalyticsMessage` | `app:analytics:aggregate` (yesterday + catch-up + cleanup) |
 | Daily 03:30 Europe/Berlin | `MeasureStorageMessage` | `app:storage:analyze --persist` |
+| Daily 05:10 Europe/Berlin | `CheckMediaIntegrityMessage` | `app:media:check` |
 | Hourly at minute 17 | `ReconcileNotificationsMessage` | `app:notification:reconcile` (last 24 hours) |

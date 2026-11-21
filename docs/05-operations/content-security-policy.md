@@ -151,7 +151,7 @@ Mitigations already in place for the known Failed Messages / dashboard KPI noise
 Further admin surfaces (media, import reject, feedback context, audit timeline):
 
 - Media snippet copy → Stimulus (`copy-to-clipboard`)
-- Vich upload filename preview → Stimulus (`vich-file-preview`) instead of EasyAdmin `onchange`
+- Media upload filename preview → Stimulus (`file-input-preview`) instead of EasyAdmin `onchange`
 - Import Reject / Feedback JSON → `<pre class="ea-json-pre">` (no CodeMirror `CodeEditorField`)
 - Audit timeline: details load through the Stimulus controller `timeline-details`, the new-entries notice through `audit-new-entries`; JSON max-height and layout are CSS classes in `admin-kpi.css` (`.timeline-*`, `.ea-audit-*`)
 

@@ -12,6 +12,54 @@ cd <deploy_path>/current
 
 Commands that write data preview by default. Run them without `--apply` first, read the output, then apply. A command that finds nothing to do can be skipped.
 
+## v0.2.4-beta → v0.3-beta
+
+Media files move from `public/uploads/media` into the media storage `var/media` (#489,
+[ADR 039](../02-architecture/decisions/039-managed-media-storage.md)). The deploy moves them itself; one command
+afterwards replaces the old URLs in the content.
+
+### Before the deploy
+
+- Make a backup (`app:backup:create`) and check that `shared/public/uploads/media` holds the media files.
+- The deploy copies every media file once more into `shared/var/media`: free space for a second copy of the media is
+  needed until v0.4 removes the old directory.
+- Cron jobs that call `bin/ops/backup-files.sh` back up `var/media` from now on; prefer `app:backup:create`.
+
+### Deploy
+
+`vendor/bin/dep deploy` runs `app:media:migrate-storage` after the database migrations and before the switch. Its
+output lists media items whose file was missing already and files without media item; neither stops the deploy. A copy
+that fails stops the deploy before the switch, and the previous release keeps running. `vendor/bin/dep rollback` works
+until the next step.
+
+### After the deploy
+
+Once the release works, replace the old URLs in posts and pages:
+
+```bash
+php bin/console app:media:rewrite-content-urls              # preview
+php bin/console app:media:rewrite-content-urls --apply
+```
+
+or `vendor/bin/dep media:rewrite-content-urls <host>`. Old file names listed by the preview have no moved media item;
+their URLs keep working through the redirect until v0.4. After this step a rollback to v0.2 shows broken images in the
+rewritten content.
+
+### Check
+
+```bash
+php bin/console app:media:migrate-storage --dry-run   # "Every media item is in the media storage."
+php bin/console app:media:check --full                # exit code 0, no missing or damaged files
+```
+
+Media items whose file was already missing before the deploy stay outside the storage. The dry run then says
+"No file left to move, but N media item(s) have no file", and `app:media:check` reports them as missing
+(`uploads/media/<filename>`): restore their files from a backup into `shared/public/uploads/media` and deploy or run
+`app:media:migrate-storage --legacy-dir=<deploy_path>/shared/public/uploads/media` again, or delete the media items.
+
+Open a page and a blog post with images: the images load from `/media/…`. An old link `/uploads/media/<file>`
+redirects to the new URL.
+
 ## v0.2.2-beta → v0.2.3-beta
 
 Security hotfix for the admin feedback views. Deployer now keeps two releases instead of ten ([deployment.md](deployment.md#host-options)). No configuration changes, no migrations and no one-time commands.
@@ -22,7 +70,7 @@ Security hotfix for the admin feedback views. Deployer now keeps two releases in
 
 The deploy deletes all releases except the new one and the current one. Make sure nothing on the server still depends on an older release:
 
-- Media uploads are in `<deploy_path>/shared/public/uploads/media`. If that directory is missing or empty, run the one-time `media:migrate-to-shared` first ([deployment.md](deployment.md#media-uploads-shared-across-releases)).
+- Media uploads are in `<deploy_path>/shared/public/uploads/media`. If that directory is missing or empty, run the one-time `media:migrate-to-shared` first ([deployment.md of v0.2.3-beta](https://github.com/nplhse/collaborative-ivena-statistics/blob/v0.2.3-beta/docs/05-operations/deployment.md#media-uploads-shared-across-releases)).
 - No backup, export or worker unit points at a fixed `<deploy_path>/releases/N` path.
 
 To keep more releases on a host, set `keep_releases` in its `hosts.yaml` entry.

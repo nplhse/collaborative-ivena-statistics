@@ -1,9 +1,0 @@
-# Prevent directory listing and execution of uploaded scripts
-Options -Indexes
-
-<IfModule mod_php.c>
-    php_flag engine off
-</IfModule>
-<FilesMatch "\.php$">
-    Require all denied
-</FilesMatch>

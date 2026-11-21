@@ -144,8 +144,8 @@ asset: ## Recompile local assets
 	@$(CONSOLE) asset-map:compile
 
 ## —— Demo environment 🎬 —————————————————————————————————————————————————————
-# APP_ENV=demo with its own database app_demo (.env.demo), storage under var/demo and
-# public/uploads/demo, synthetic data only (ADR 023, docs/05-operations/demo-environment.md).
+# APP_ENV=demo with its own database app_demo (.env.demo), storage under var/demo,
+# synthetic data only (ADR 023, docs/05-operations/demo-environment.md).
 # Plain php, not the Symfony CLI: the CLI may export DATABASE_URL of a Docker database, which
 # would win over .env.demo (DemoEnvironmentGuard refuses it anyway). Without debug mode the demo
 # container is not rebuilt after code changes, so the targets delete var/cache/demo first.
@@ -159,8 +159,8 @@ demo-install: ## Create the demo DB app_demo with synthetic data (DEMO_PRESET=la
 	@$(DEMO_CONSOLE) doctrine:database:drop --if-exists --force
 	@$(DEMO_CONSOLE) doctrine:database:create
 	@$(DEMO_CONSOLE) doctrine:migrations:migrate --no-interaction
-	@rm -rf var/demo/imports public/uploads/demo/media
-	@mkdir -p var/demo/imports/rejects public/uploads/demo/media
+	@rm -rf var/demo/imports var/demo/media public/uploads/demo/media
+	@mkdir -p var/demo/imports/rejects var/demo/media
 	@$(FIXTURES_XDEBUG) FIXTURES_PROFILE=$(DEMO_PRESET) $(DEMO_CONSOLE) doctrine:fixtures:load --group=dev --no-interaction
 	@$(FIXTURES_XDEBUG) $(DEMO_CONSOLE) app:statistics:rebuild-closure-volume-projection
 	@$(FIXTURES_XDEBUG) $(DEMO_CONSOLE) app:statistics:refresh-mviews
@@ -200,7 +200,7 @@ backup-restore: ## Restore the newest backup in BACKUP_DIR, or BACKUP=<directory
 backup-db: ## Legacy: PostgreSQL dump only (bin/ops script, no manifest)
 	@./bin/ops/backup-database.sh
 
-backup-files: ## Legacy: archive var/imports and public/uploads/media only (bin/ops script, no manifest)
+backup-files: ## Legacy: archive var/imports and var/media only (bin/ops script, no manifest)
 	@./bin/ops/backup-files.sh
 
 restore-db: ## Restore DB from BACKUP_FILE=var/backups/....dump RESTORE_CONFIRM=yes
@@ -398,7 +398,7 @@ test-warmup: ## Compile the extra test containers (kernels without bundles, demo
 ## —— Cleanup 🚮 ————————————————————————————————————————————————————————————————
 purge-runtime: ## Remove compiled assets, uploads, imports, cache, and logs
 	@rm -rf public/assets/*
-	@find public/uploads/media -mindepth 1 ! -name '.gitkeep' ! -name '.htaccess' -delete 2>/dev/null || true
+	@rm -rf var/media public/uploads/media
 	@rm -rf var/imports/*
 	@mkdir -p var/imports var/imports/rejects
 	@rm -rf var/cache/* var/logs/*

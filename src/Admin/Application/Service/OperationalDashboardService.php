@@ -146,6 +146,7 @@ final readonly class OperationalDashboardService
                 ),
                 'storage' => $this->storageHealthItemFactory->create($value),
                 'messenger_backlog', 'messenger_stalled', 'messenger_retries' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-tower-broadcast', $messengerUrl),
+                'media' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-photo-film', $this->adminUrlGenerator->setRoute('app_admin_dashboard_media_index')->generateUrl()),
                 'scheduled_jobs' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-stopwatch', $this->adminUrlGenerator->setController(self::JOB_RUN_CONTROLLER)->setAction('index')->generateUrl()),
                 default => new HealthCheckItemDto(
                     key: $key,

@@ -78,8 +78,8 @@ final class MediaDimensionsBackfillServiceTest extends KernelTestCase
             'height' => null,
         ]);
 
-        $projectDir = self::getContainer()->getParameter('kernel.project_dir');
-        $path = $projectDir.'/public/uploads/media/backfill-missing-file.png';
+        $legacyDir = $this->legacyMediaDirectory();
+        $path = $legacyDir.'/backfill-missing-file.png';
         if (is_file($path)) {
             unlink($path);
         }
@@ -100,9 +100,9 @@ final class MediaDimensionsBackfillServiceTest extends KernelTestCase
             'height' => null,
         ]);
 
-        $projectDir = self::getContainer()->getParameter('kernel.project_dir');
+        $legacyDir = $this->legacyMediaDirectory();
         file_put_contents(
-            $projectDir.'/public/uploads/media/backfill-unknown-dims.png',
+            $legacyDir.'/backfill-unknown-dims.png',
             'not-an-image',
         );
 
@@ -123,5 +123,17 @@ final class MediaDimensionsBackfillServiceTest extends KernelTestCase
     private function backfillService(): MediaDimensionsBackfillService
     {
         return self::getContainer()->get(MediaDimensionsBackfillService::class);
+    }
+
+    /** Old upload directory of the test environment (ADR 039), created when missing. */
+    private function legacyMediaDirectory(): string
+    {
+        $directory = self::getContainer()->getParameter('app.media_legacy_dir');
+        self::assertIsString($directory);
+        if (!is_dir($directory)) {
+            mkdir($directory, 0o777, true);
+        }
+
+        return $directory;
     }
 }

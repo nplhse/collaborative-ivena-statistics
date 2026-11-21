@@ -88,10 +88,6 @@
     word-break: break-word;
 }
 
-.ea-vich-image-static {
-    cursor: initial;
-}
-
 /* Storage card and Disk Usage page (ADR 017). Bootstrap variables keep light and dark mode readable. */
 .ea-storage-bar {
     display: flex;

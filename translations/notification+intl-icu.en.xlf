@@ -561,6 +561,18 @@
         <source>admin.encounter_key_changed.label</source>
         <target>Pseudonym key changes (encounter data)</target>
       </trans-unit>
+      <trans-unit id="NtfMediaIntegrityTitle" resname="admin.media_integrity_problem.title">
+        <source>admin.media_integrity_problem.title</source>
+        <target>{missing, plural, =0 {} one {# media file is missing} other {# media files are missing}}{missing, plural, =0 {} other {{damaged, plural, =0 {} other {, }}}}{damaged, plural, =0 {} one {# media file is damaged} other {# media files are damaged}}</target>
+      </trans-unit>
+      <trans-unit id="NtfMediaIntegrityMessage" resname="admin.media_integrity_problem.message">
+        <source>admin.media_integrity_problem.message</source>
+        <target>The media integrity check found {missing, plural, =0 {no missing file} one {one missing file} other {# missing files}} and {damaged, plural, =0 {no damaged file} one {one damaged file} other {# damaged files}}. Pages and posts that use them show broken images or links. Run app:media:check on the server to see which files are affected, and restore them from a backup.</target>
+      </trans-unit>
+      <trans-unit id="NtfMediaIntegrityLabel" resname="admin.media_integrity_problem.label">
+        <source>admin.media_integrity_problem.label</source>
+        <target>Missing or damaged media files</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

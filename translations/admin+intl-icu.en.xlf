@@ -585,6 +585,10 @@
         <source>ops.health.check.storage</source>
         <target>Storage</target>
       </trans-unit>
+      <trans-unit id="opsHlthMedia" resname="ops.health.check.media">
+        <source>ops.health.check.media</source>
+        <target>Media files</target>
+      </trans-unit>
       <trans-unit id="opsHlthMsg00" resname="ops.health.check.messenger">
         <source>ops.health.check.messenger</source>
         <target>Messenger</target>
@@ -1397,6 +1401,10 @@
         <source>admin.job_run.job.storage_measurement</source>
         <target>Storage measurement</target>
       </trans-unit>
+      <trans-unit id="admJobRunJobMediaIntegrityCheck" resname="admin.job_run.job.media_integrity_check">
+        <source>admin.job_run.job.media_integrity_check</source>
+        <target>Media integrity check</target>
+      </trans-unit>
       <trans-unit id="admJobRunJobMessengerQueueSample" resname="admin.job_run.job.messenger_queue_sample">
         <source>admin.job_run.job.messenger_queue_sample</source>
         <target>Messenger queue sample</target>
@@ -1676,6 +1684,38 @@
       <trans-unit id="admJobRunMetricFailures" resname="admin.job_run.metric.failures">
         <source>admin.job_run.metric.failures</source>
         <target>Failures</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricFiles" resname="admin.job_run.metric.files">
+        <source>admin.job_run.metric.files</source>
+        <target>Files</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricHashed" resname="admin.job_run.metric.hashed">
+        <source>admin.job_run.metric.hashed</source>
+        <target>Hashed</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricMissing" resname="admin.job_run.metric.missing">
+        <source>admin.job_run.metric.missing</source>
+        <target>Missing</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDamaged" resname="admin.job_run.metric.damaged">
+        <source>admin.job_run.metric.damaged</source>
+        <target>Damaged</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricOrphansDeleted" resname="admin.job_run.metric.orphans_deleted">
+        <source>admin.job_run.metric.orphans_deleted</source>
+        <target>Orphans deleted</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricOrphansKept" resname="admin.job_run.metric.orphans_kept">
+        <source>admin.job_run.metric.orphans_kept</source>
+        <target>Orphans kept</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricLeftoversDeleted" resname="admin.job_run.metric.leftovers_deleted">
+        <source>admin.job_run.metric.leftovers_deleted</source>
+        <target>Leftovers deleted</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricUnexpected" resname="admin.job_run.metric.unexpected">
+        <source>admin.job_run.metric.unexpected</source>
+        <target>Unexpected files</target>
       </trans-unit>
       <trans-unit id="admJobRunMetricPending" resname="admin.job_run.metric.pending">
         <source>admin.job_run.metric.pending</source>

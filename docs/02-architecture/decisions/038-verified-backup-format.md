@@ -63,7 +63,7 @@ Components have logical names, independent of where their files are today:
 |---|---|---|
 | `database` | schema `public` | PostGIS tables (`spatial_ref_sys`, …) excluded, as before |
 | `imports` | `app.imports_base_dir` | without `pending/` (temporary uploads, #977) |
-| `media` | `app.media_upload_dir` | keeps its name when #489 moves the files |
+| `media` | `app.media_storage_dir` (before ADR 039: `app.media_upload_dir`) | kept its name when #489 moved the files; without `variants/` and `.tmp/` (ADR 039) |
 | `geo` | `app.hospital_isochrones_dir` | prepared locations are derived and not included |
 | `reference` | `var/reference` | a copy in the private data repository is still required (ADR 020) |
 

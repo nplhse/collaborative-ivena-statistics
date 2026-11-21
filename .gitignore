@@ -44,9 +44,8 @@ phpstan.neon
 ###< vincentlanglet/twig-cs-fixer ###
 
 # Uploaded media files (keep directory structure)
-/public/uploads/media/*
-!/public/uploads/media/.gitkeep
-!/public/uploads/media/.htaccess
+# Old media upload directory (ADR 039): read until every file has moved to var/media, removed in v0.4.
+/public/uploads/media/
 
 # macOS
 .DS_Store

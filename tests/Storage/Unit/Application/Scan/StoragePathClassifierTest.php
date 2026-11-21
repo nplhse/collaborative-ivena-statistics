@@ -23,7 +23,9 @@ final class StoragePathClassifierTest extends TestCase
         yield 'logs' => [StorageLocation::Project, 'var/log/prod.log', StorageCategory::Temporary, 'var_log'];
         yield 'import files' => [StorageLocation::Shared, 'var/imports/2026/a.csv', StorageCategory::Imports, 'var_imports'];
         yield 'import rejects' => [StorageLocation::Project, 'var/import_rejects/1.csv', StorageCategory::Imports, 'import_rejects'];
-        yield 'media' => [StorageLocation::Shared, 'public/uploads/media/a.jpg', StorageCategory::Media, 'media_uploads'];
+        yield 'media storage' => [StorageLocation::Shared, 'var/media/originals/2026/11/a.jpg', StorageCategory::Media, 'media_uploads'];
+        yield 'old media directory' => [StorageLocation::Shared, 'public/uploads/media/a.jpg', StorageCategory::Media, 'media_uploads'];
+        yield 'demo media storage' => [StorageLocation::Project, 'var/demo/media/originals/2026/11/a.jpg', StorageCategory::Media, 'media_uploads'];
         yield 'geodata' => [StorageLocation::Shared, 'var/geo/hospital-isochrones/1.json', StorageCategory::Other, 'geodata'];
         yield 'demo files' => [StorageLocation::Project, 'var/demo/imports/2026/a.csv', StorageCategory::Other, 'var_other'];
         yield 'demo media' => [StorageLocation::Project, 'public/uploads/demo/media/a.jpg', StorageCategory::Media, 'media_uploads'];

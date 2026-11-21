@@ -36,7 +36,7 @@ wrong `.env.local` would show real data in a presentation.
 |---|---|
 | Database | `app_demo` on the local server (`.env.demo`) |
 | Imports, rejects | `var/demo/imports`, `var/demo/imports/rejects` (`app.imports_base_dir`, `app.rejects_base_dir`) |
-| Media uploads | `public/uploads/demo/media` (`app.media_upload_dir`, Vich mapping `media`) |
+| Media files | `var/demo/media` (`app.media_storage_dir`, ADR 039; before: `public/uploads/demo/media`) |
 | Cache, logs | `var/cache/demo`, `var/log/demo.log` (Symfony default per environment) |
 | Messenger | same Doctrine transports; the queues live in `app_demo`, so they are separate |
 | Locks | PostgreSQL advisory locks of `app_demo` |

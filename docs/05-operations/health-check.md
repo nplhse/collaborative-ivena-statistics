@@ -32,6 +32,7 @@ curl -sS https://<host>/health | jq
 | `messenger_stalled` | no | Ready messages without any handling attempt (ADR 019) |
 | `messenger_retries` | no | Retry rate of the last 24 hours (ADR 019) |
 | `scheduled_jobs` | no | Last finished run of every scheduler job (ADR 019) |
+| `media` | no | Latest stored media integrity check (ADR 039), one query: `ok`, `unchecked` before the first run (healthy), or `missing=<n> damaged=<n>` (degraded). Details: `php bin/console app:media:check` ([media storage](../04-features/content/media-storage.md#integrity-check)) |
 
 Further checks come from services implementing `App\Shared\Application\Health\HealthCheckContributorInterface` (autoconfigured tag `app.health_check_contributor`). They run after the database check, in container order, and only mark themselves public when their value is a plain status string.
 

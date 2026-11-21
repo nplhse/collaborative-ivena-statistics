@@ -7,7 +7,7 @@ A local, offline demo of the platform with synthetic data (issue #791, [ADR 023]
 | `APP_ENV` | `dev` | `demo` |
 | Database | `.env.local` (often `app`) | `app_demo` from `.env.demo` |
 | URL | http://127.0.0.1:8000 | http://127.0.0.1:8001 |
-| Imports, uploads | `var/imports`, `public/uploads/media` | `var/demo/imports`, `public/uploads/demo/media` |
+| Imports, media files | `var/imports`, `var/media` | `var/demo/imports`, `var/demo/media` |
 | Cookies | `PHPSESSID`, `consent_subject_id`, … | `demo_PHPSESSID`, `demo_consent_subject_id`, … |
 | Debug mode, profiler | on | off |
 | Mail | Mailpit (`smtp://127.0.0.1:1025`) | Mailpit (`smtp://127.0.0.1:1025`) or none (`DEMO_MAIL=off`), never a real server ([Preview demo emails](#preview-demo-emails)) |
@@ -313,7 +313,7 @@ curl -sI http://<host>/ | head -1
 ### Nightly reset
 
 `bin/ops/demo-reset.sh` stops the worker, puts the demo back to its snapshot (database,
-`var/demo/imports`, `public/uploads/demo/media`), empties `var/log/demo.log`, clears the cache pools
+`var/demo/imports`, `var/demo/media`), empties `var/log/demo.log`, clears the cache pools
 and starts the worker again. On its first run after a deploy (another release than the snapshot's)
 it rebuilds the data with `make demo-install` and takes a new snapshot instead, so new migrations
 and fixture changes arrive in the data by the next morning; run it right after the deploy to have

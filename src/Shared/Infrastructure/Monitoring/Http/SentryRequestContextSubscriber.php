@@ -87,7 +87,8 @@ final readonly class SentryRequestContextSubscriber
         $route = $request->attributes->get('_route');
         $controller = $request->attributes->get('_controller');
         $boundedContext = $this->boundedContextResolver->resolveFromController(\is_string($controller) ? $controller : null);
-        $userData = $this->userData($request);
+        // Stateless routes (media files, the data preparation update check) have no session to read a user from.
+        $userData = true === $request->attributes->get('_stateless') ? null : $this->userData($request);
 
         $this->hub->configureScope(static function (Scope $scope) use ($route, $boundedContext, $userData): void {
             if (\is_string($route) && '' !== $route) {
