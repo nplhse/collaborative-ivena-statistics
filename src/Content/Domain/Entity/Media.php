@@ -311,13 +311,6 @@ class Media implements \Stringable
         return $this;
     }
 
-    public function markVerified(\DateTimeImmutable $verifiedAt): self
-    {
-        $this->verifiedAt = $verifiedAt;
-
-        return $this;
-    }
-
     /** Name of the file for operators: the storage key, or the old file name of a media item not yet moved. */
     public function getStoredName(): ?string
     {
