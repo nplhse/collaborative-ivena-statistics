@@ -40,7 +40,7 @@ final readonly class ContentNavigationProvider implements NavigationProviderInte
      */
     private const array FOOTER_PAGES = [
         Menu::FOOTER_GROUP_PROJECT => ['about', 'features'],
-        Menu::FOOTER_GROUP_HELP => ['faq'],
+        Menu::FOOTER_GROUP_HELP => ['help'],
         Menu::FOOTER_GROUP_LEGAL => ['imprint', 'privacy', 'terms'],
     ];
 
@@ -62,7 +62,14 @@ final readonly class ContentNavigationProvider implements NavigationProviderInte
         $items = [];
         foreach (self::FOOTER_PAGES as $groupId => $pageKeys) {
             foreach ($pageKeys as $position => $pageKey) {
-                foreach ($this->pageNavigationProvider->linksForKeys($pageKey) as $link) {
+                $links = $this->pageNavigationProvider->linksForKeys($pageKey);
+                if ([] === $links && 'help' === $pageKey) {
+                    // The help section replaces the FAQ (#596); until it is published the FAQ keeps its place.
+                    $pageKey = 'faq';
+                    $links = $this->pageNavigationProvider->linksForKeys($pageKey);
+                }
+
+                foreach ($links as $link) {
                     $items[] = new NavItem(
                         id: 'page-'.$pageKey,
                         parentId: $groupId,

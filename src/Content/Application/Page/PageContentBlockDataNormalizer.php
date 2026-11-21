@@ -25,6 +25,8 @@ final readonly class PageContentBlockDataNormalizer
             'variant', 'title', 'html', 'iconMode', 'icon',
         ],
         PageContentBlockType::Accordion->value => ['items'],
+        PageContentBlockType::HelpSearch->value => [],
+        PageContentBlockType::HelpTopics->value => [],
     ];
 
     /**

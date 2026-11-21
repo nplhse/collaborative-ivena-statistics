@@ -7,6 +7,7 @@ namespace App\DataFixtures\Content;
 use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PageKey;
+use App\Content\Domain\Enum\PageType;
 use App\Content\Domain\Enum\PostStatus;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\Content\Infrastructure\Factory\PostCategoryFactory;
@@ -18,6 +19,9 @@ use Symfony\Component\Clock\Clock;
 
 final class DemoContentLoader
 {
+    /** @var array<int, string> path of each help page by object id, to build the paths of its articles */
+    private array $helpPaths = [];
+
     public function load(): void
     {
         $this->loadPages();
@@ -207,6 +211,77 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             '<p>Hospitals that share their IVENA allocation data with the platform. Visible to signed-in users only.</p>');
 
         $this->loadGuidePages();
+        $this->loadHelpPages();
+    }
+
+    /**
+     * The help section (#596): start page with search and topics, main topics and articles with headings for the
+     * outline. Some articles have a help key for links from the application.
+     */
+    private function loadHelpPages(): void
+    {
+        $help = $this->createPage([
+            'title' => 'Help',
+            'slug' => 'help',
+            'path' => '/help',
+            'key' => PageKey::Help,
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'sortOrder' => 40,
+            'content' => [
+                ...$this->richtext('<p>Guides and answers for working with Collaborative IVENA Statistics, from your first import to the benchmark charts.</p>'),
+                ['type' => 'help_search', 'enabled' => true, 'data' => []],
+                ['type' => 'help_topics', 'enabled' => true, 'data' => []],
+            ],
+        ]);
+
+        $start = $this->helpArticle($help, 'Getting started', 'getting-started', 0, null,
+            '<p>Everything you need before your first import.</p>');
+        $this->helpArticle($start, 'Creating your account', 'creating-your-account', 0, 'account.create',
+            '<h2>Register</h2><p>Open the registration page, enter your work email address and choose a password. Confirm the email we send you.</p>'
+            .'<h2>Complete your profile</h2><p>Add your name and your role in the emergency department so other participants know who you are.</p>');
+        $this->helpArticle($start, 'Requesting access to your hospital', 'hospital-access', 1, 'hospital.assignment',
+            '<h2>Send a request</h2><p>Open <strong>My hospitals</strong> and choose <strong>Request hospital assignment</strong>. Pick your hospital and tell us your relation to it.</p>'
+            .'<h2>What happens next</h2><p>An administrator reviews the request and grants access or ownership. You get a notification with the decision.</p>');
+
+        $import = $this->helpArticle($help, 'Importing data', 'importing-data', 1, null,
+            '<p>How IVENA exports become statistics.</p>');
+        $this->helpArticle($import, 'Preparing the IVENA export', 'preparing-the-export', 0, 'import.export',
+            '<h2>Choose the period</h2><p>Export one quarter at a time; larger periods may time out in IVENA.</p>'
+            .'<h2>Keep the default columns</h2><p>The import expects the default column set of the IVENA allocation export as a CSV file.</p>');
+        $this->helpArticle($import, 'Understanding rejected rows', 'rejected-rows', 1, 'import.rejects',
+            '<h2>Why rows are rejected</h2><p>Rows that fail the plausibility checks are rejected, for example a missing arrival time or an unknown department code.</p>'
+            .'<h2>Fixing rejected rows</h2><p>Correct the rows in IVENA and import the file again. The import report lists every rejected row with its reason.</p>');
+
+        $statistics = $this->helpArticle($help, 'Statistics and benchmarking', 'statistics', 2, null,
+            '<p>Explore your allocations and compare them with anonymised peer groups.</p>');
+        $this->helpArticle($statistics, 'Using the analysis explorer', 'analysis-explorer', 0, 'statistics.explorer',
+            '<h2>Filters and scope</h2><p>Choose the period, the hospitals and the dimension you want to analyse. Saved views keep your settings.</p>'
+            .'<h2>Reading the results</h2><p>Tables and charts show counts and shares; missing values are listed separately.</p>');
+        $this->helpArticle($statistics, 'Reading the benchmark charts', 'benchmark-charts', 1, 'statistics.benchmarking',
+            '<h2>Comparison groups</h2><p>Each chart shows your hospital next to the median of its comparison group by state, dispatch area or cohort.</p>');
+    }
+
+    private function helpArticle(Page $parent, string $title, string $slug, int $sortOrder, ?string $helpKey, string $html): Page
+    {
+        $parentPath = $this->helpPaths[spl_object_id($parent)] ?? '/help';
+        $path = $parentPath.'/'.$slug;
+
+        $article = $this->createPage([
+            'title' => $title,
+            'slug' => $slug,
+            'path' => $path,
+            'parent' => $parent,
+            'type' => PageType::Help,
+            'helpKey' => $helpKey,
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'sortOrder' => $sortOrder,
+            'content' => $this->richtext($html),
+        ]);
+        $this->helpPaths[spl_object_id($article)] = $path;
+
+        return $article;
     }
 
     /**

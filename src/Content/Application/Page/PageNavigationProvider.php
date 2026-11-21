@@ -29,7 +29,7 @@ final class PageNavigationProvider implements NavigationPageLinksProviderInterfa
 
     /** @var list<PageKey> */
     private const array SHARED_HEADER_KEYS = [
-        PageKey::Faq,
+        PageKey::Help,
     ];
 
     /** @var array<string, Page>|null */
@@ -124,7 +124,23 @@ final class PageNavigationProvider implements NavigationPageLinksProviderInterfa
             $keys = [...self::GUEST_ONLY_HEADER_KEYS, ...$keys];
         }
 
-        return $this->buildLinksForKeys(...$keys);
+        return $this->buildLinksForKeys(...$this->withFaqFallback($keys));
+    }
+
+    /**
+     * The help section replaces the FAQ (#596). Until a help start page is published, the FAQ page keeps its place.
+     *
+     * @param list<PageKey> $keys
+     *
+     * @return list<PageKey>
+     */
+    public function withFaqFallback(array $keys): array
+    {
+        if (!\in_array(PageKey::Help, $keys, true) || $this->getPageByKey(PageKey::Help) instanceof Page) {
+            return $keys;
+        }
+
+        return array_map(static fn (PageKey $key): PageKey => PageKey::Help === $key ? PageKey::Faq : $key, $keys);
     }
 
     /**
@@ -165,6 +181,9 @@ final class PageNavigationProvider implements NavigationPageLinksProviderInterfa
     }
 
     /**
+     * The sitemap lists the help start page with its main topics only (#596); the articles below them are reached
+     * through the help navigation and the help search.
+     *
      * @param list<PageNavigationNode> $nodes
      *
      * @return list<SitemapPageNode>
@@ -175,7 +194,7 @@ final class PageNavigationProvider implements NavigationPageLinksProviderInterfa
             fn (PageNavigationNode $node): SitemapPageNode => new SitemapPageNode(
                 url: $node->url,
                 label: $node->title,
-                children: $this->toSitemapPageNodes($node->children),
+                children: $node->help ? [] : $this->toSitemapPageNodes($node->children),
             ),
             $nodes,
         );

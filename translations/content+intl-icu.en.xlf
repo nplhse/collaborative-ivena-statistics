@@ -1289,6 +1289,138 @@
         <source>reaction.tooltip.count</source>
         <target>{label}: {count}</target>
       </trans-unit>
+      <trans-unit id="help_page_key_help" resname="page.key.help">
+        <source>page.key.help</source>
+        <target>Help</target>
+      </trans-unit>
+      <trans-unit id="help_page_type_page" resname="page.type.page">
+        <source>page.type.page</source>
+        <target>Page</target>
+      </trans-unit>
+      <trans-unit id="help_page_type_help" resname="page.type.help">
+        <source>page.type.help</source>
+        <target>Help article</target>
+      </trans-unit>
+      <trans-unit id="help_label_block_type_help_search" resname="label.block_type.help_search">
+        <source>label.block_type.help_search</source>
+        <target>Help search</target>
+      </trans-unit>
+      <trans-unit id="help_label_block_type_help_topics" resname="label.block_type.help_topics">
+        <source>label.block_type.help_topics</source>
+        <target>Help topics</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_article" resname="label.help_article">
+        <source>label.help_article</source>
+        <target>Help article</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_articles" resname="label.help_articles">
+        <source>label.help_articles</source>
+        <target>Help</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_parent" resname="label.help_parent">
+        <source>label.help_parent</source>
+        <target>Topic</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_key" resname="label.help_key">
+        <source>label.help_key</source>
+        <target>Help key</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_key_help" resname="label.help_key_help">
+        <source>label.help_key_help</source>
+        <target>Optional stable name for links from the application, e.g. import.rejects. Lowercase letters, digits, dots and hyphens.</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_feedback" resname="label.help_feedback">
+        <source>label.help_feedback</source>
+        <target>Helpful?</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_label" resname="help.search.label">
+        <source>help.search.label</source>
+        <target>Search the help</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_placeholder" resname="help.search.placeholder">
+        <source>help.search.placeholder</source>
+        <target>Search the help …</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_submit" resname="help.search.submit">
+        <source>help.search.submit</source>
+        <target>Search</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_title" resname="help.search.title">
+        <source>help.search.title</source>
+        <target>Search the help</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_empty_query" resname="help.search.empty_query">
+        <source>help.search.empty_query</source>
+        <target>Enter what you are looking for.</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_no_results" resname="help.search.no_results">
+        <source>help.search.no_results</source>
+        <target>No help articles for “{query}”</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_no_results_hint" resname="help.search.no_results_hint">
+        <source>help.search.no_results_hint</source>
+        <target>Try fewer or other words, or browse the topics.</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_results" resname="help.search.results">
+        <source>help.search.results</source>
+        <target>{count, plural, one {# article} other {# articles}} for “{query}”</target>
+      </trans-unit>
+      <trans-unit id="help_help_topics_all" resname="help.topics.all">
+        <source>help.topics.all</source>
+        <target>All {count} articles</target>
+      </trans-unit>
+      <trans-unit id="help_help_article_pagination" resname="help.article.pagination">
+        <source>help.article.pagination</source>
+        <target>Previous and next article</target>
+      </trans-unit>
+      <trans-unit id="help_help_article_previous" resname="help.article.previous">
+        <source>help.article.previous</source>
+        <target>Previous</target>
+      </trans-unit>
+      <trans-unit id="help_help_article_next" resname="help.article.next">
+        <source>help.article.next</source>
+        <target>Next</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_question" resname="help.feedback.question">
+        <source>help.feedback.question</source>
+        <target>Was this article helpful?</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_thanks" resname="help.feedback.thanks">
+        <source>help.feedback.thanks</source>
+        <target>Thank you for your feedback!</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_yes" resname="help.feedback.yes">
+        <source>help.feedback.yes</source>
+        <target>Yes</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_no" resname="help.feedback.no">
+        <source>help.feedback.no</source>
+        <target>No</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_comment_label" resname="help.feedback.comment_label">
+        <source>help.feedback.comment_label</source>
+        <target>What was missing or unclear?</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_comment_placeholder" resname="help.feedback.comment_placeholder">
+        <source>help.feedback.comment_placeholder</source>
+        <target>Optional: tell us what to improve.</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_comment_submit" resname="help.feedback.comment_submit">
+        <source>help.feedback.comment_submit</source>
+        <target>Send</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_comment_hint" resname="help.feedback.comment_hint">
+        <source>help.feedback.comment_hint</source>
+        <target>The editors read every comment.</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_commented" resname="help.feedback.commented">
+        <source>help.feedback.commented</source>
+        <target>Thank you, your comment has reached the editors.</target>
+      </trans-unit>
+      <trans-unit id="help_help_navigation_title" resname="help.navigation.title">
+        <source>help.navigation.title</source>
+        <target>Help topics</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

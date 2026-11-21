@@ -913,6 +913,26 @@
         <source>hospital_assignment_request.explanation.required</source>
         <target>Erläutern Sie Ihren Bezug zur Klinik.</target>
       </trans-unit>
+      <trans-unit id="help_page_validation_help_parent_required_de" resname="page.validation.help_parent_required">
+        <source>page.validation.help_parent_required</source>
+        <target>Ein Hilfeartikel muss unter der Hilfe-Startseite oder einem anderen Hilfeartikel liegen.</target>
+      </trans-unit>
+      <trans-unit id="help_page_validation_help_child_type_de" resname="page.validation.help_child_type">
+        <source>page.validation.help_child_type</source>
+        <target>Seiten unterhalb der Hilfe sind Hilfeartikel. Verwalten Sie sie unter „Hilfe“.</target>
+      </trans-unit>
+      <trans-unit id="help_page_validation_help_key_help_only_de" resname="page.validation.help_key_help_only">
+        <source>page.validation.help_key_help_only</source>
+        <target>Nur Hilfeartikel haben einen Hilfe-Schlüssel.</target>
+      </trans-unit>
+      <trans-unit id="help_page_validation_help_key_unique_de" resname="page.validation.help_key_unique">
+        <source>page.validation.help_key_unique</source>
+        <target>Dieser Hilfe-Schlüssel wird bereits von einem anderen Hilfeartikel verwendet.</target>
+      </trans-unit>
+      <trans-unit id="help_page_validation_help_key_format_de" resname="page.validation.help_key_format">
+        <source>page.validation.help_key_format</source>
+        <target>Verwenden Sie Kleinbuchstaben und Ziffern, getrennt durch Punkte, Bindestriche oder Unterstriche.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

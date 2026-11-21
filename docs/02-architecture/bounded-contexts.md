@@ -8,13 +8,13 @@ Each bounded context under `src/` follows the layered structure described in [ov
 | `Statistics` | Projection, materialized views, analytics (Explorer, Benchmarking, Case Flow, …) |
 | `Allocation` | Core domain data (allocations, master data, indication review), hospital access and hospital assignment requests (#975). Its infrastructure may depend on `Notification` (notifications of assignment requests) |
 | `User` | Authentication, registration, password reset |
-| `Feedback` | Feedback widget and notifications |
+| `Feedback` | Feedback widget and notifications. Its infrastructure listens to Content's `HelpArticleCommented` and stores comments on help articles in the inbox (#596) |
 | `Admin` | EasyAdmin back office |
 | `Kpi` | Daily KPI aggregation into `kpi_daily` |
 | `Analytics` | Server-side usage analytics (request tracking, consent-gated visitor keys) |
 | `Install` | `app:env:check` |
 | `Shared` | Cross-cutting concerns (audit, monitoring, mail, infrastructure) |
-| `Content` | Content pages, blog, the media library with its storage and integrity check (ADR 039), reactions to posts, comments and activities (#467), and the authenticated home dashboard (composition of project metrics and activity). Its infrastructure may depend on `Notification` (admin notification about missing or damaged media files) |
+| `Content` | Content pages, blog, the media library with its storage and integrity check (ADR 039), reactions to posts, comments and activities (#467), the help section (#596), and the authenticated home dashboard (composition of project metrics and activity). Its infrastructure may depend on `Notification` (admin notification about missing or damaged media files) |
 | `Onboarding` | Participant dashboard onboarding steps and progress |
 | `Engagement` | Monthly submission reminders and related mail content |
 | `Notification` | Personal notifications: definitions, preferences, inbox and delivery (ADR 016) |

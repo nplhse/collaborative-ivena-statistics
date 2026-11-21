@@ -12,6 +12,7 @@ enum PageKey: string
     case About = 'about';
     case Features = 'features';
     case Faq = 'faq';
+    case Help = 'help';
 
     public function translationKey(): string
     {
@@ -24,6 +25,7 @@ enum PageKey: string
             self::About => 'tabler:users-group',
             self::Features => 'tabler:sparkles',
             self::Faq => 'tabler:info-square-rounded',
+            self::Help => 'tabler:book',
             default => 'tabler:file-text',
         };
     }

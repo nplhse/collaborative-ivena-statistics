@@ -36,6 +36,7 @@ use App\Admin\UI\Http\Controller\MciCase\MciCaseCrudController;
 use App\Admin\UI\Http\Controller\Media\MediaCrudController;
 use App\Admin\UI\Http\Controller\Occasion\OccasionCrudController;
 use App\Admin\UI\Http\Controller\Onboarding\UserOnboardingStepCrudController;
+use App\Admin\UI\Http\Controller\Page\HelpArticleCrudController;
 use App\Admin\UI\Http\Controller\Page\PageCrudController;
 use App\Admin\UI\Http\Controller\Page\PageTranslationCrudController;
 use App\Admin\UI\Http\Controller\SecondaryTransport\SecondaryTransportCrudController;
@@ -365,6 +366,7 @@ final class DashboardController extends AbstractDashboardController
         ]);
         yield MenuItem::linkTo(PageCrudController::class, new TranslatableMessage('label.pages', domain: 'content'), 'fas fa-file');
         yield MenuItem::linkTo(PageTranslationCrudController::class, new TranslatableMessage('label.page_translations', domain: 'content'), 'fas fa-language');
+        yield MenuItem::linkTo(HelpArticleCrudController::class, new TranslatableMessage('label.help_articles', domain: 'content'), 'fas fa-circle-question');
         yield MenuItem::linkTo(MediaCrudController::class, new TranslatableMessage('label.media_library', domain: 'content'), 'fas fa-photo-film');
 
         yield MenuItem::section(new TranslatableMessage('usage_analytics.menu.section', domain: 'admin'));
