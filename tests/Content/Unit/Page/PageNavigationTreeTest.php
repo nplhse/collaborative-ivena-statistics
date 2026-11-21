@@ -111,6 +111,56 @@ final class PageNavigationTreeTest extends TestCase
         self::assertNull($this->tree->findByKey($this->fixture(), PageKey::Imprint));
     }
 
+    public function testFullTreeLeavesOutHelpArticlesButKeepsTheHelpStartPage(): void
+    {
+        $nodes = $this->tree->select($this->helpFixture(), null, false, 12);
+
+        self::assertSame(['A', 'Help'], $this->titles($nodes));
+        self::assertSame([], $nodes[1]->children, 'articles of the help start page are left out');
+        self::assertSame([], $this->flagged($nodes, 'current'), 'a current help article is not marked in the page tree');
+    }
+
+    public function testHelpSubtreeShowsTheArticles(): void
+    {
+        $nodes = $this->tree->select($this->helpFixture(), 10, true, 12);
+
+        self::assertSame(['Help'], $this->titles($nodes));
+        self::assertSame(['Topic 1', 'Topic 2'], $this->titles($nodes[0]->children));
+        self::assertSame(['Article 1b'], $this->flagged($nodes, 'current'));
+        self::assertSame(['Help', 'Topic 1'], $this->flagged($nodes, 'ancestor'));
+    }
+
+    public function testHelpArticlesAreListedInReadingOrder(): void
+    {
+        self::assertSame(
+            ['Topic 1', 'Article 1a', 'Article 1b', 'Topic 2'],
+            $this->titles($this->tree->helpArticles($this->helpFixture())),
+        );
+        self::assertSame([], $this->tree->helpArticles($this->fixture()), 'no help start page, no articles');
+    }
+
+    /**
+     * @return list<PageNavigationNode>
+     */
+    private function helpFixture(): array
+    {
+        return [
+            $this->node(1, 'A', children: [$this->node(2, 'A1')]),
+            $this->node(10, 'Help', PageKey::Help, [
+                $this->helpNode(11, 'Topic 1', [$this->helpNode(13, 'Article 1a'), $this->helpNode(12, 'Article 1b')]),
+                $this->helpNode(14, 'Topic 2'),
+            ]),
+        ];
+    }
+
+    /**
+     * @param list<PageNavigationNode> $children
+     */
+    private function helpNode(int $id, string $title, array $children = []): PageNavigationNode
+    {
+        return new PageNavigationNode($id, null, $title, '/help/'.$id, $children, help: true);
+    }
+
     /**
      * @return list<PageNavigationNode>
      */

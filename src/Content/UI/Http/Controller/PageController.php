@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Content\UI\Http\Controller;
 
+use App\Content\Application\Help\HelpNavigation;
 use App\Content\Application\Page\PageAccessChecker;
 use App\Content\Application\Page\PageLocaleAlternateLinkBuilder;
 use App\Content\Application\Page\PageNavigationTreeProvider;
@@ -30,6 +31,7 @@ final class PageController extends AbstractController
         private readonly PageLocaleAlternateLinkBuilder $pageLocaleAlternateLinkBuilder,
         private readonly PageTableOfContentsBuilder $pageTableOfContentsBuilder,
         private readonly TranslatorInterface $translator,
+        private readonly HelpNavigation $helpNavigation,
     ) {
     }
 
@@ -64,10 +66,13 @@ final class PageController extends AbstractController
         $request->attributes->set(PageNavigationTreeProvider::CURRENT_PAGE_ATTRIBUTE, $page->getId());
         $request->attributes->set('locale_switch_targets', $localeSwitchTargets);
 
+        // Help pages (#596) always show their outline and use the help sidebar instead of the latest posts.
+        $inHelp = $page->isInHelp();
         $tableOfContents = $this->pageTableOfContentsBuilder->build(
             $translation->getContent(),
-            $translation->isShowToc(),
+            $inHelp || $translation->isShowToc(),
         );
+        $pageId = $page->getId();
 
         return $this->render('@Content/page/show.html.twig', [
             'page' => $page,
@@ -75,7 +80,9 @@ final class PageController extends AbstractController
             'content' => $tableOfContents->content,
             'toc' => $tableOfContents->isEmpty() ? [] : $tableOfContents->items,
             'breadcrumbItems' => $this->buildBreadcrumbItems($page, $translation),
-            ...$this->pageSidebarDataProvider->getData(),
+            'help' => $inHelp,
+            'help_neighbours' => $page->isHelpArticle() && null !== $pageId ? $this->helpNavigation->neighbours($pageId) : null,
+            ...($inHelp ? [] : $this->pageSidebarDataProvider->getData()),
         ]);
     }
 

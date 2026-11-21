@@ -135,6 +135,7 @@ final class PageNavigationTreeProvider implements ResetInterface
                 title: $node['title'],
                 url: $this->urlGenerator->generate('app_page_show', ['path' => $pathSegment]),
                 children: $this->toNodes($children),
+                help: $node['page']->isHelpArticle(),
             );
         }
 

@@ -52,6 +52,9 @@
                             </div>
                         </div>
                     </article>
+                    {% if help_neighbours is defined and help_neighbours %}
+                        {{ include('@Content/help/_article_footer.html.twig', {neighbours: help_neighbours, page: page}) }}
+                    {% endif %}
                 </div>
                 <div class="col-lg-4">
                     {{ include('@Content/page/_sidebar.html.twig') }}

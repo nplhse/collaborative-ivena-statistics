@@ -60,6 +60,8 @@ final readonly class PageContentBlockDataFieldsConfigurator
             PageContentBlockType::Headline->value => $this->addHeadlineFields($dataForm),
             PageContentBlockType::Highlight->value => $this->addHighlightFields($dataForm),
             PageContentBlockType::Accordion->value => $this->addAccordionFields($dataForm),
+            // Help blocks (#596) have no settings; their content comes from the help tree.
+            PageContentBlockType::HelpSearch->value, PageContentBlockType::HelpTopics->value => null,
             default => $this->addRichtextFields($dataForm),
         };
     }

@@ -26,6 +26,8 @@ final readonly class PageNavigationNode
         public bool $current = false,
         public bool $ancestor = false,
         public bool $expanded = false,
+        /** A help article (#596): left out of the general page tree, shown in the help navigation. */
+        public bool $help = false,
     ) {
     }
 
@@ -48,6 +50,7 @@ final readonly class PageNavigationNode
             current: $current,
             ancestor: $ancestor,
             expanded: $expanded,
+            help: $this->help,
         );
     }
 }

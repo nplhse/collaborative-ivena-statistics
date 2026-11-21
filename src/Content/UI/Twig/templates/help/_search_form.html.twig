@@ -1,0 +1,32 @@
+{#
+    Search in the help articles (#596). variant: 'sidebar' (card in the help sidebar) or 'hero' (large field of the
+    help search block on the start page). query: the current search terms.
+#}
+{% set variant = variant|default('sidebar') %}
+{% set field_id = 'help-search-' ~ variant %}
+{% set form %}
+    <form method="get" action="{{ path('app_help_search') }}" role="search" data-testid="help-search-form">
+        <label class="visually-hidden" for="{{ field_id }}">{{ 'help.search.label'|trans({}, 'content') }}</label>
+        <div class="input-group{{ variant == 'hero' ? ' input-group-lg' }}">
+            <span class="input-group-text"><twig:ux:icon name="tabler:search" class="icon" aria-hidden="true" /></span>
+            <input
+                type="search"
+                id="{{ field_id }}"
+                name="q"
+                value="{{ query|default('') }}"
+                class="form-control"
+                placeholder="{{ 'help.search.placeholder'|trans({}, 'content') }}"
+                maxlength="{{ constant('App\\Content\\Application\\Contract\\HelpSearchQueryInterface::MAX_QUERY_LENGTH') }}"
+                autocomplete="off"
+            >
+            <button type="submit" class="btn btn-primary">{{ 'help.search.submit'|trans({}, 'content') }}</button>
+        </div>
+    </form>
+{% endset %}
+{% if variant == 'hero' %}
+    <div class="help-search help-search--hero">{{ form }}</div>
+{% else %}
+    <div class="card" data-testid="help-search">
+        <div class="card-body">{{ form }}</div>
+    </div>
+{% endif %}

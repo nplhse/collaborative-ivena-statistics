@@ -55,7 +55,8 @@ final class PageNavigationTree
     /**
      * Returns the entries of one navigation.
      *
-     * - Without a root: the full tree.
+     * - Without a root: the full tree without help articles (#596); the help start page stays, its articles are
+     *   shown by the help navigation.
      * - With a root: its children, or the root itself as the only (expanded) entry when $includeRoot is true.
      *   A root that is not in $nodes gives an empty list.
      *
@@ -68,8 +69,9 @@ final class PageNavigationTree
      */
     public function select(array $nodes, ?int $rootPageId, bool $includeRoot, ?int $currentPageId): array
     {
-        $selected = $nodes;
-        if (null !== $rootPageId) {
+        if (null === $rootPageId) {
+            $selected = $this->withoutHelpArticles($nodes);
+        } else {
             $root = $this->find($nodes, $rootPageId);
             if (!$root instanceof PageNavigationNode) {
                 return [];
@@ -82,6 +84,55 @@ final class PageNavigationTree
         $alwaysExpanded = null !== $rootPageId && $includeRoot ? $rootPageId : null;
 
         return $this->mark($selected, $path, $currentPageId, $alwaysExpanded);
+    }
+
+    /**
+     * Help articles in display order (depth first) below the help start page, for previous and next links.
+     *
+     * @param list<PageNavigationNode> $nodes
+     *
+     * @return list<PageNavigationNode>
+     */
+    public function helpArticles(array $nodes): array
+    {
+        $root = $this->findByKey($nodes, PageKey::Help);
+
+        return $root instanceof PageNavigationNode ? $this->flatten($root->children) : [];
+    }
+
+    /**
+     * @param list<PageNavigationNode> $nodes
+     *
+     * @return list<PageNavigationNode>
+     */
+    private function flatten(array $nodes): array
+    {
+        $flat = [];
+        foreach ($nodes as $node) {
+            $flat[] = $node;
+            $flat = [...$flat, ...$this->flatten($node->children)];
+        }
+
+        return $flat;
+    }
+
+    /**
+     * @param list<PageNavigationNode> $nodes
+     *
+     * @return list<PageNavigationNode>
+     */
+    private function withoutHelpArticles(array $nodes): array
+    {
+        $kept = [];
+        foreach ($nodes as $node) {
+            if ($node->help) {
+                continue;
+            }
+
+            $kept[] = $node->withState($this->withoutHelpArticles($node->children), $node->current, $node->ancestor, $node->expanded);
+        }
+
+        return $kept;
     }
 
     /**
