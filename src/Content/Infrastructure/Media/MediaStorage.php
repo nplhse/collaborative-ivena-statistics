@@ -64,7 +64,12 @@ final readonly class MediaStorage
         $key = sprintf('%s/%s/%s.%s', self::ORIGINALS, $month, Uuid::v7()->toRfc4122(), $extension);
         $temporary = Path::join($this->root(), self::TEMPORARY, Uuid::v7()->toRfc4122().'.part');
 
-        $this->filesystem->mkdir(\dirname($temporary));
+        try {
+            $this->filesystem->mkdir(\dirname($temporary));
+        } catch (\Throwable $exception) {
+            throw new MediaStorageException('Could not prepare the media storage for writing.', 0, $exception);
+        }
+
         [$size, $checksum] = $this->copy($sourcePath, $temporary);
 
         $target = $this->absolutePath($key);

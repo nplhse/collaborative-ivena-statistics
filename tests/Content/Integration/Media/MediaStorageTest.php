@@ -128,6 +128,16 @@ final class MediaStorageTest extends TestCase
         self::assertSame([], glob($this->root.'/.tmp/*') ?: []);
     }
 
+    public function testAStorageThatCannotPrepareItsTemporaryDirectoryReportsItAsAStorageError(): void
+    {
+        new Filesystem()->dumpFile($this->root.'/.tmp', 'a file where the temporary directory belongs');
+
+        $this->expectException(MediaStorageException::class);
+        $this->expectExceptionMessage('Could not prepare the media storage for writing.');
+
+        $this->storage('2026-11-21 10:00')->store($this->source, 'png');
+    }
+
     public function testVariantsAndDeletionRefuseKeysOutsideTheLayout(): void
     {
         $storage = $this->storage('2026-11-21');

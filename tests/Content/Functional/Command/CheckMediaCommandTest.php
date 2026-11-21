@@ -83,6 +83,32 @@ final class CheckMediaCommandTest extends KernelTestCase
         self::assertStringContainsString('notes.txt', $tester->getDisplay());
     }
 
+    public function testTooManyOrphansAreKeptAndExplained(): void
+    {
+        MediaFactory::createOne();
+        for ($i = 10; $i < 21; ++$i) {
+            $this->orphan(sprintf('originals/2026/10/0193a8f2-7c1e-7000-8000-0000000000%02d.png', $i));
+        }
+
+        $tester = $this->tester();
+        $tester->execute([]);
+
+        self::assertStringContainsString('they are too many to be leftovers', $tester->getDisplay());
+    }
+
+    public function testLongListsAreShortened(): void
+    {
+        MediaFactory::createOne();
+        for ($i = 1; $i <= 22; ++$i) {
+            $this->orphan(sprintf('note-%02d.txt', $i));
+        }
+
+        $tester = $this->tester();
+        $tester->execute([]);
+
+        self::assertStringContainsString('and 2 more', $tester->getDisplay());
+    }
+
     public function testFailsWhileABackupHoldsTheFiles(): void
     {
         $lock = self::getContainer()->get(LockFactory::class)->createLock(MediaStorageMigrator::LOCK, null);
