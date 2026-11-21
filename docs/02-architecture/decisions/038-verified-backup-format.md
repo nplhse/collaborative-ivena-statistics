@@ -49,6 +49,11 @@ the **full list of executed migrations** (in timestamp order, ADR 037) and the *
 schema `public`. Per file component it holds the number of files, their bytes, skipped symbolic links and
 whether the source directory was missing. Per payload file it holds size and SHA-256.
 
+The rows of runtime tables (`BackupFormat::RUNTIME_TABLES`: `lock_keys`, the locks of the Symfony lock store,
+#1452) are neither dumped, counted nor restored; only their structure is. Otherwise a restore would bring back the
+`backup-maintenance` lock the backup held while it dumped, with a token no process owns, and block backups,
+restores and the media check until it expired. Restores of older backups skip these rows and their counts.
+
 It contains no records, no personal data, no credentials and no absolute paths. File lists with names stay in
 the `.sha256` payloads.
 

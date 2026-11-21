@@ -8,6 +8,7 @@ use App\Storage\Application\Backup\BackupCreator;
 use App\Storage\Application\Backup\BackupFailed;
 use App\Storage\Application\Backup\BackupRestorer;
 use App\Storage\Application\Backup\BackupSources;
+use App\Storage\Application\Backup\BackupVerifier;
 use App\Storage\Application\Backup\RestoreStep;
 use App\Storage\Application\Contract\ArchiveExtractorInterface;
 use App\Storage\Application\Contract\MigrationCatalogInterface;
@@ -163,6 +164,17 @@ final class BackupRestorerTest extends TestCase
         self::assertSame('The database and the files were not changed.', $failure->state);
         self::assertSame(['preflight'], $this->database->calls);
         $this->assertFilesUnchanged();
+    }
+
+    public function testAcceptsAnOlderManifestThatCountsTheLockTable(): void
+    {
+        $this->backup = BackupDirectoryBuilder::write($this->fixture->directory('older'), tableRows: ['allocation' => 4, 'hospital' => 2, 'lock_keys' => 1]);
+        // An older dump still holds the rows of the lock table.
+        $restorer = $this->restorer(verifier: new BackupVerifier(StubBackupReaders::dumpReader(['allocation', 'hospital', 'lock_keys']), StubBackupReaders::archiveReader()));
+
+        $restorer->restore($restorer->plan($this->backup), $this->quiet());
+
+        self::assertSame(['preflight', 'clear', 'restore database.dump'], $this->database->calls, 'the lock row is not restored, so its count is not checked (#1452)');
     }
 
     public function testSaysTheDatabaseIsGoneWhenTheRestoreFailsAfterDroppingIt(): void
@@ -355,12 +367,12 @@ final class BackupRestorerTest extends TestCase
     /**
      * @param list<string> $available
      */
-    private function restorer(array $available = [self::MIGRATION_1, self::MIGRATION_2], ?ArchiveExtractorInterface $extractor = null): BackupRestorer
+    private function restorer(array $available = [self::MIGRATION_1, self::MIGRATION_2], ?ArchiveExtractorInterface $extractor = null, ?BackupVerifier $verifier = null): BackupRestorer
     {
         $app = $this->fixture->path.'/app';
 
         return new BackupRestorer(
-            StubBackupReaders::verifier(),
+            $verifier ?? StubBackupReaders::verifier(),
             $this->database,
             $extractor ?? StubBackupReaders::extractor(),
             new readonly class($available) implements MigrationCatalogInterface {
