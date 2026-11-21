@@ -37,10 +37,6 @@
         <source>onboarding.steps.request_clinic_access.action</source>
         <target>Send request</target>
       </trans-unit>
-      <trans-unit id="OnbStpEn04" resname="onboarding.steps.request_clinic_access.feedback_message">
-        <source>onboarding.steps.request_clinic_access.feedback_message</source>
-        <target>Hello, I would like to get access to my clinic. Clinic: [please enter name]. Thank you!</target>
-      </trans-unit>
       <trans-unit id="OnbStpEn05" resname="onboarding.steps.verify_own_clinic.title">
         <source>onboarding.steps.verify_own_clinic.title</source>
         <target>Review your hospitals</target>

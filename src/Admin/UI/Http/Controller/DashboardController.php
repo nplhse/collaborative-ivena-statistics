@@ -21,6 +21,7 @@ use App\Admin\UI\Http\Controller\Engagement\MonthlyReminderDispatchCrudControlle
 use App\Admin\UI\Http\Controller\Feedback\FeedbackCrudController;
 use App\Admin\UI\Http\Controller\Feedback\FeedbackQuarantineCrudController;
 use App\Admin\UI\Http\Controller\Hospital\HospitalAccessGrantCrudController;
+use App\Admin\UI\Http\Controller\Hospital\HospitalAssignmentRequestCrudController;
 use App\Admin\UI\Http\Controller\Hospital\HospitalCrudController;
 use App\Admin\UI\Http\Controller\Import\ImportBatchRunCrudController;
 use App\Admin\UI\Http\Controller\Import\ImportBatchRunItemCrudController;
@@ -42,6 +43,7 @@ use App\Admin\UI\Http\Controller\Speciality\SpecialityCrudController;
 use App\Admin\UI\Http\Controller\State\StateCrudController;
 use App\Admin\UI\Http\Controller\Statistics\SavedExplorerViewCrudController;
 use App\Admin\UI\Http\Controller\User\UserCrudController;
+use App\Allocation\Infrastructure\Repository\HospitalAssignmentRequestRepository;
 use App\Analytics\Application\Service\AccessTrendService;
 use App\Analytics\Application\Service\AnalyticsDashboardService;
 use App\Feedback\Infrastructure\Repository\FeedbackRepository;
@@ -72,6 +74,7 @@ final class DashboardController extends AbstractDashboardController
     public function __construct(
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly FeedbackRepository $feedbackRepository,
+        private readonly HospitalAssignmentRequestRepository $assignmentRequestRepository,
         private readonly KpiDashboardService $kpiDashboardService,
         private readonly OperationalDashboardService $operationalDashboardService,
         private readonly MessengerStatsRepository $messengerStatsRepository,
@@ -274,8 +277,19 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToDashboard(new TranslatableMessage('menu.dashboard', domain: 'admin'), 'fa fa-home');
         yield MenuItem::linkToRoute(new TranslatableMessage('menu.back_to_frontend', domain: 'admin'), 'fas fa-backward-fast', 'app_default');
         yield MenuItem::section(new TranslatableMessage('menu.section.management', domain: 'admin'));
-        yield MenuItem::subMenu(new TranslatableMessage('menu.users', domain: 'admin'), 'fas fa-users')->setSubItems([
+        // Pending hospital assignment requests (#975) show their count on the entry and, collapsed, on the group.
+        $pendingAssignmentRequests = $this->assignmentRequestRepository->countPending();
+        $assignmentRequestMenu = MenuItem::linkTo(HospitalAssignmentRequestCrudController::class, new TranslatableMessage('menu.users.assignment_requests', domain: 'admin'), 'fas fa-user-plus');
+        $usersMenu = MenuItem::subMenu(new TranslatableMessage('menu.users', domain: 'admin'), 'fas fa-users')
+            ->setCssClass('ea-sidebar-link-summary-badge');
+        if ($pendingAssignmentRequests > 0) {
+            $assignmentRequestMenu->setBadge($pendingAssignmentRequests, 'warning');
+            $usersMenu->setBadge($pendingAssignmentRequests, 'warning');
+        }
+
+        yield $usersMenu->setSubItems([
             MenuItem::linkTo(UserCrudController::class, new TranslatableMessage('menu.users.accounts', domain: 'admin'), 'fas fa-user'),
+            $assignmentRequestMenu,
             MenuItem::linkTo(HospitalAccessGrantCrudController::class, new TranslatableMessage('menu.users.hospital_access', domain: 'admin'), 'fas fa-key'),
             MenuItem::linkTo(UserOnboardingStepCrudController::class, new TranslatableMessage('menu.users.onboarding_steps', domain: 'admin'), 'fas fa-shoe-prints'),
         ]);

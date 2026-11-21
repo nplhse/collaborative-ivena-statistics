@@ -43,6 +43,10 @@ Grants are stored in `HospitalAccessGrant` as an integer mask and validated via 
 
 Exception: My Hospitals (`/hospitals`) lists only hospitals an administrator owns or was granted, not all of them. See [my-hospitals.md](../04-features/allocation/my-hospitals.md).
 
+Participants get owners and grants through hospital assignment requests (#975): administrators approve a request as
+an access grant or as ownership, and choose for a transfer whether the previous owner keeps full access as a grant.
+The request adds no permission of its own. See [hospital-assignment-requests.md](../04-features/allocation/hospital-assignment-requests.md).
+
 ## Voters
 
 | Voter | Attributes | Subject |

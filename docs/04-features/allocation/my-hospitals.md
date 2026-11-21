@@ -19,6 +19,9 @@ Administrators are deliberately not given every hospital here, unlike `HospitalP
 them as having access everywhere: a list of all hospitals is the back office's job. An administrator without own or
 granted hospitals sees the empty state.
 
+The header links to the participant's assignment requests and to a new request; the empty state offers the request as
+its action ([hospital-assignment-requests.md](hospital-assignment-requests.md), #975).
+
 The permissions per hospital are carried in `MyHospitalsEntry::$permissionMask` (see
 [permission model](../../02-architecture/permission-model.md)). The data-status parts of the overview (#971) use it
 to show a hospital's information only with the matching permission. Edit and access-grant actions stay behind `HospitalVoter::EDIT`

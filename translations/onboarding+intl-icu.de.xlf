@@ -33,10 +33,6 @@
         <source>onboarding.steps.request_clinic_access.description</source>
         <target>Bitten Sie das Team, Ihr Konto der richtigen Klinik zuzuordnen.</target>
       </trans-unit>
-      <trans-unit id="OnbStpDe04" resname="onboarding.steps.request_clinic_access.feedback_message">
-        <source>onboarding.steps.request_clinic_access.feedback_message</source>
-        <target>Hallo, ich möchte Zugriff auf meine Klinik erhalten. Klinik: [bitte Namen eintragen]. Vielen Dank!</target>
-      </trans-unit>
       <trans-unit id="OnbStpDe01" resname="onboarding.steps.request_clinic_access.title">
         <source>onboarding.steps.request_clinic_access.title</source>
         <target>Zugang zur eigenen Klinik anfragen</target>

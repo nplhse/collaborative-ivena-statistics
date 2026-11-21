@@ -4,7 +4,7 @@ Alpha onboarding for users with `ROLE_PARTICIPANT`: a dashboard card guides new 
 
 ## Steps
 
-1. Request clinic access (feedback drawer)
+1. Request clinic access (the hospital assignment request form, [#975](../allocation/hospital-assignment-requests.md))
 2. Review own clinic
 3. Start first import (CSV or `.txt` export; not Excel — see [import-pipeline.md](../import/import-pipeline.md#upload-validation))
 4. Browse imported allocations in Explore (links to `/explore/allocation?hospitalFilter=my_hospitals`)

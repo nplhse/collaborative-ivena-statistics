@@ -24,6 +24,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @extends ServiceEntityRepository<Hospital>
@@ -100,6 +101,39 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         }
 
         return $names;
+    }
+
+    /**
+     * Every hospital as a choice of the hospital assignment request form (#975), by name: public id and a label
+     * with the city, so hospitals of the same name can be told apart.
+     *
+     * @return list<array{publicId: string, label: string}>
+     */
+    public function findAssignmentRequestChoices(): array
+    {
+        /** @var list<array{publicId: Uuid|string, name: string|null, city: string|null}> $rows */
+        $rows = $this->createQueryBuilder('h')
+            ->select('h.publicId', 'h.name', 'h.address.city AS city')
+            ->orderBy('h.name', 'ASC')
+            ->addOrderBy('h.id', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+
+        $choices = [];
+        foreach ($rows as $row) {
+            $name = trim((string) $row['name']);
+            if ('' === $name) {
+                continue;
+            }
+
+            $city = trim((string) $row['city']);
+            $choices[] = [
+                'publicId' => $row['publicId'] instanceof Uuid ? $row['publicId']->toRfc4122() : (string) $row['publicId'],
+                'label' => '' === $city ? $name : sprintf('%s (%s)', $name, $city),
+            ];
+        }
+
+        return $choices;
     }
 
     public function countParticipating(): int

@@ -5,6 +5,7 @@
 | Document | Description |
 |----------|-------------|
 | [my-hospitals.md](my-hospitals.md) | My Hospitals page: listed hospitals and permissions |
+| [hospital-assignment-requests.md](hospital-assignment-requests.md) | Requesting a hospital assignment and the administrators' review |
 | [explore-allocation-list.md](explore-allocation-list.md) | Allocation list route and filters |
 | [explore-glossary.md](explore-glossary.md) | Glossary pages, including pages of other contexts (MTS) |
 | [data-catalog.md](data-catalog.md) | Data catalog of stored variables and how contexts and plugins add theirs |

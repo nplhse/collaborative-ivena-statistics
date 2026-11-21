@@ -1,0 +1,63 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'hospital_assignment_request.title.new'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'title.hospitals.my', path: path('app_hospitals_index') },
+                { label: 'hospital_assignment_request.title.list', path: path('app_hospital_assignment_request_index'), label_domain: 'allocation' },
+                { label: 'hospital_assignment_request.title.new', label_domain: 'allocation' }
+            ]"
+        />
+        <div class="page-header d-print-none">
+            <h2 class="page-title">{{ 'hospital_assignment_request.title.new'|trans({}, 'allocation') }}</h2>
+            <div class="text-body-secondary mt-1">{{ 'hospital_assignment_request.intro'|trans({}, 'allocation') }}</div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="row row-cards">
+        <div class="col-lg-8">
+            <div class="card" data-testid="hospital-assignment-request-form">
+                {{ form_start(form) }}
+                <div class="card-body">
+                    {% set listId = form.hospitalName.vars.id ~ '-datalist' %}
+                    {{ form_row(form.hospitalName, {
+                        attr: form.hospitalName.vars.attr|merge({
+                            list: listId,
+                            'data-datalist-chooser-list-id-value': listId,
+                            'data-datalist-chooser-hidden-selector-value': '#' ~ form.hospital.vars.id,
+                            value: preselectedHospital ? (hospitalChoices|filter(c => c.publicId == preselectedHospital.publicIdString)|first).label|default(preselectedHospital.name) : form.hospitalName.vars.value,
+                        }),
+                    }) }}
+                    <datalist id="{{ listId }}">
+                        {% for choice in hospitalChoices %}
+                            <option value="{{ choice.label }}" data-id="{{ choice.publicId }}"></option>
+                        {% endfor %}
+                    </datalist>
+                    {{ form_widget(form.hospital) }}
+
+                    {{ form_row(form.reason) }}
+                    {{ form_row(form.explanation) }}
+                    {{ form_row(form.comment) }}
+                </div>
+                <div class="card-footer d-flex justify-content-end gap-2">
+                    <a class="btn btn-link" href="{{ path('app_hospital_assignment_request_index') }}">{{ 'action.cancel'|trans({}, 'messages') }}</a>
+                    {{ form_widget(form.submit, {attr: {class: 'btn btn-primary'}}) }}
+                </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">{{ 'hospital_assignment_request.what_happens.title'|trans({}, 'allocation') }}</h3>
+                    <p class="text-body-secondary mb-0">{{ 'hospital_assignment_request.what_happens.text'|trans({}, 'allocation') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
