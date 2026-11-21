@@ -913,6 +913,26 @@
         <source>hospital_assignment_request.explanation.required</source>
         <target>Explain your relation to the hospital.</target>
       </trans-unit>
+      <trans-unit id="help_page_validation_help_parent_required" resname="page.validation.help_parent_required">
+        <source>page.validation.help_parent_required</source>
+        <target>A help article must be placed below the help start page or another help article.</target>
+      </trans-unit>
+      <trans-unit id="help_page_validation_help_child_type" resname="page.validation.help_child_type">
+        <source>page.validation.help_child_type</source>
+        <target>Pages below the help are help articles. Manage them under “Help”.</target>
+      </trans-unit>
+      <trans-unit id="help_page_validation_help_key_help_only" resname="page.validation.help_key_help_only">
+        <source>page.validation.help_key_help_only</source>
+        <target>Only help articles have a help key.</target>
+      </trans-unit>
+      <trans-unit id="help_page_validation_help_key_unique" resname="page.validation.help_key_unique">
+        <source>page.validation.help_key_unique</source>
+        <target>This help key is already used by another help article.</target>
+      </trans-unit>
+      <trans-unit id="help_page_validation_help_key_format" resname="page.validation.help_key_format">
+        <source>page.validation.help_key_format</source>
+        <target>Use lowercase letters and digits, separated by dots, hyphens or underscores.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Content\Domain\Entity;
 
+use App\Content\Domain\PageContentText;
 use App\Content\Infrastructure\Repository\PageTranslationRepository;
 use App\Shared\Application\Locale\SupportedLocales;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
@@ -86,6 +87,10 @@ class PageTranslation implements \Stringable
     #[Audit\AuditIgnore]
     #[ORM\Column(type: \Doctrine\DBAL\Types\Types::JSON, nullable: true)]
     private ?array $draftContent = null;
+
+    /** Plain text of the saved content for the help search (#596); drafts are not searched. */
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::TEXT, options: ['default' => ''])]
+    private string $searchText = '';
 
     /** Increases with every autosave, explicit save and discarded draft; requests based on an older one are refused. */
     #[Audit\AuditIgnore]
@@ -210,6 +215,7 @@ class PageTranslation implements \Stringable
     public function setContent(array $content): self
     {
         $this->content = $content;
+        $this->searchText = PageContentText::extract($content);
 
         return $this;
     }
@@ -232,8 +238,14 @@ class PageTranslation implements \Stringable
     public function setEditorContent(array $content): self
     {
         $this->content = $content;
+        $this->searchText = PageContentText::extract($content);
 
         return $this;
+    }
+
+    public function getSearchText(): string
+    {
+        return $this->searchText;
     }
 
     /**
