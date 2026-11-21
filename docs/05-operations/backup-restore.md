@@ -33,7 +33,7 @@ Each run creates one directory, for example `var/backups/ivena-stats-full-202611
 | File | Content |
 |------|---------|
 | `manifest.json` | format version, time (UTC), app version, executed migrations, rows per table, files and bytes per component, size and SHA-256 of every payload |
-| `database.dump` | `pg_dump` custom format, schema `public` without PostGIS tables |
+| `database.dump` | `pg_dump` custom format, schema `public` without PostGIS tables and without the rows of `lock_keys` (runtime locks, #1452) |
 | `files/<component>.tar.gz` | regular files of `imports` (without `pending/`), `media` (without `variants/` and `.tmp/`), `geo`, `reference`; paths relative to the component directory |
 | `files/<component>.sha256` | SHA-256 of every file in that archive (`sha256sum -c` format) |
 
@@ -96,7 +96,7 @@ asks; unattended runs must pass `--confirm-destructive`. It then runs these step
 | Preflight | lock (no backup or restore at the same time), `pg_restore` available, no messages waiting in the queues (`failed` does not count), target directories writable |
 | Backup verification | the complete check of `app:backup:verify`; any problem stops the restore |
 | File staging | each archive is extracted next to its target directory (`.<dir>.restore-<time>`) and checked file by file against its checksum list |
-| Database restore | schema `public` is dropped and recreated (with `--keep-previous`: renamed to `pre_restore_<time>`), the dump is restored into the new `public` in one transaction (PostGIS objects skipped as before), and the row count of every table must match the manifest |
+| Database restore | schema `public` is dropped and recreated (with `--keep-previous`: renamed to `pre_restore_<time>`), the dump is restored into the new `public` in one transaction (PostGIS objects and the rows of `lock_keys` skipped), and the row count of every table must match the manifest (`lock_keys` is not counted) |
 | File switch | each target directory is renamed to `<dir>.pre-restore-<time>`, the staged directory takes its place |
 | Completion | the replaced directories are removed (with `--keep-previous`: the previous schema is dropped, the directories are kept) |
 

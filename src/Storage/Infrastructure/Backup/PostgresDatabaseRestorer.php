@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Storage\Infrastructure\Backup;
 
 use App\Storage\Application\Backup\BackupFailed;
+use App\Storage\Application\Backup\BackupFormat;
 use App\Storage\Application\Contract\DatabaseRestorerInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\TableNotFoundException;
@@ -103,9 +104,11 @@ final readonly class PostgresDatabaseRestorer implements DatabaseRestorerInterfa
     #[\Override]
     public function restore(string $dumpFile): void
     {
+        // Rows of runtime tables are skipped as well, for backups made before they were left out of the dump (#1452).
+        $runtimeData = '/^\d+; \d+ \d+ TABLE DATA public (?:'.implode('|', array_map(static fn (string $table): string => preg_quote($table, '/'), BackupFormat::RUNTIME_TABLES)).') /';
         $entries = array_filter(
             explode("\n", $this->tools->listDump($dumpFile)),
-            static fn (string $line): bool => 1 !== preg_match(self::TOC_EXCLUDE, $line),
+            static fn (string $line): bool => 1 !== preg_match(self::TOC_EXCLUDE, $line) && 1 !== preg_match($runtimeData, $line),
         );
 
         $this->tools->restore($dumpFile, implode("\n", $entries)."\n");

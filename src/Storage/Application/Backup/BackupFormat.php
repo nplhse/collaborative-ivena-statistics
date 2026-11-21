@@ -21,6 +21,15 @@ final class BackupFormat
 
     public const string DATABASE_DUMP = 'database.dump';
 
+    /**
+     * Tables in schema public that hold runtime state of the running installation, not application data: the locks of
+     * the Symfony lock store (#1452). Their structure is backed up, their rows are neither dumped, counted nor
+     * restored, so a restore never brings back a lock no process owns, not even from a backup made before this rule.
+     *
+     * @var list<string>
+     */
+    public const array RUNTIME_TABLES = ['lock_keys'];
+
     public const string TYPE_FULL = 'full';
 
     private const string PREFIX = 'ivena-stats-';

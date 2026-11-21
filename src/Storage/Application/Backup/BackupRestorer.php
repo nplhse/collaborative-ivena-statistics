@@ -325,6 +325,11 @@ final readonly class BackupRestorer
     {
         $different = [];
         foreach ($expected as $table => $rows) {
+            // Manifests made before #1452 count the runtime tables; their rows are not restored.
+            if (\in_array($table, BackupFormat::RUNTIME_TABLES, true)) {
+                continue;
+            }
+
             if (($actual[$table] ?? null) !== $rows) {
                 $different[] = sprintf('%s (%s instead of %d)', $table, isset($actual[$table]) ? (string) $actual[$table] : 'missing', $rows);
             }

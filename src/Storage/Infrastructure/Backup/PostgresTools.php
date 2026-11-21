@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Storage\Infrastructure\Backup;
 
 use App\Storage\Application\Backup\BackupFailed;
+use App\Storage\Application\Backup\BackupFormat;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Tools\DsnParser;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -88,6 +89,9 @@ readonly class PostgresTools
         $arguments = ['--format=custom', '--schema=public', '--no-password', '--snapshot='.$snapshot];
         foreach (self::POSTGIS_TABLES as $table) {
             $arguments[] = '--exclude-table=public.'.$table;
+        }
+        foreach (BackupFormat::RUNTIME_TABLES as $table) {
+            $arguments[] = '--exclude-table-data=public.'.$table;
         }
 
         if (self::DOCKER === $this->mode()) {

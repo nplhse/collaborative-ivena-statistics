@@ -60,10 +60,22 @@ final class PostgresDatabaseRestorerTest extends KernelTestCase
 
         $restorer->restore('/backups/x/database.dump');
         self::assertSame(['hospital' => 2], $restorer->tableRows());
-        self::assertSame("3; 0 0 TABLE public hospital app\n4; 0 0 TABLE DATA public hospital app\n", $lists[0], 'Extensions, PostGIS tables and schema public are not restored.');
+        self::assertSame(
+            "3; 0 0 TABLE public hospital app\n4; 0 0 TABLE DATA public hospital app\n8; 0 0 TABLE public lock_keys app\n",
+            $lists[0],
+            'Extensions, PostGIS tables, schema public and the rows of the lock table are not restored.',
+        );
 
         $restorer->discard($stash);
         self::assertSame(['public'], $this->schemas());
+    }
+
+    public function testRowCountsLeaveOutTheLockTable(): void
+    {
+        $this->scratch->executeStatement('CREATE TABLE public.lock_keys (key_id VARCHAR(64) PRIMARY KEY, key_token VARCHAR(44), key_expiration INT)');
+        $this->scratch->executeStatement("INSERT INTO public.lock_keys VALUES ('backup-maintenance', 'token', 1795255789)");
+
+        self::assertSame(['allocation' => 3], $this->restorer()->tableRows(), 'locks are runtime state, not counted in the manifest (#1452)');
     }
 
     public function testClearDropsTheCurrentSchemaWithoutACopy(): void
@@ -168,6 +180,8 @@ final class PostgresDatabaseRestorerTest extends KernelTestCase
             3; 0 0 TABLE public hospital app
             7; 0 0 TABLE public spatial_ref_sys app
             4; 0 0 TABLE DATA public hospital app
+            8; 0 0 TABLE public lock_keys app
+            9; 0 0 TABLE DATA public lock_keys app
             TOC;
 
         $scratch = $this->scratch;
