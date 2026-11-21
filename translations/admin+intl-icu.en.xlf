@@ -1405,6 +1405,10 @@
         <source>admin.job_run.job.media_integrity_check</source>
         <target>Media integrity check</target>
       </trans-unit>
+      <trans-unit id="admJobRunJobReactionCleanup" resname="admin.job_run.job.reaction_cleanup">
+        <source>admin.job_run.job.reaction_cleanup</source>
+        <target>Reaction cleanup</target>
+      </trans-unit>
       <trans-unit id="admJobRunJobMessengerQueueSample" resname="admin.job_run.job.messenger_queue_sample">
         <source>admin.job_run.job.messenger_queue_sample</source>
         <target>Messenger queue sample</target>
@@ -1704,6 +1708,10 @@
       <trans-unit id="admJobRunMetricOrphansDeleted" resname="admin.job_run.metric.orphans_deleted">
         <source>admin.job_run.metric.orphans_deleted</source>
         <target>Orphans deleted</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricReactionsDeleted" resname="admin.job_run.metric.reactions_deleted">
+        <source>admin.job_run.metric.reactions_deleted</source>
+        <target>Reactions deleted</target>
       </trans-unit>
       <trans-unit id="admJobRunMetricOrphansKept" resname="admin.job_run.metric.orphans_kept">
         <source>admin.job_run.metric.orphans_kept</source>

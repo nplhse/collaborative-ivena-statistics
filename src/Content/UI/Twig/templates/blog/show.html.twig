@@ -76,6 +76,7 @@
                                  data-lightbox-gallery-value="content-gallery">
                                 {{ content|raw }}
                             </div>
+                            {{ include('@Content/reaction/_placeholder.html.twig', {target_type: 'post', target_id: post.id}) }}
                         </div>
                     </article>
 

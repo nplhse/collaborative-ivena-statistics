@@ -89,6 +89,8 @@ app:
             overdue_after_minutes: 1500
         import_pending_upload_purge:
             overdue_after_minutes: 120
+        reaction_cleanup:
+            overdue_after_minutes: 1500
 
     encounter:
         # Days an upload file is kept for error analysis and reprocessing before the daily job deletes it

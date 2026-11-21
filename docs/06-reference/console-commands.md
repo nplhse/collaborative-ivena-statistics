@@ -194,4 +194,5 @@ Some commands mirror scheduled Messenger jobs:
 | Daily 02:15 Europe/Berlin | `AggregateDailyAnalyticsMessage` | `app:analytics:aggregate` (yesterday + catch-up + cleanup) |
 | Daily 03:30 Europe/Berlin | `MeasureStorageMessage` | `app:storage:analyze --persist` |
 | Daily 05:10 Europe/Berlin | `CheckMediaIntegrityMessage` | `app:media:check` |
+| Daily 05:40 Europe/Berlin | `CleanUpReactionsMessage` | none ([reactions](../04-features/content/reactions.md#cleanup)) |
 | Hourly at minute 17 | `ReconcileNotificationsMessage` | `app:notification:reconcile` (last 24 hours) |

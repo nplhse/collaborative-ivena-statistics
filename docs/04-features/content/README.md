@@ -8,3 +8,4 @@
 | [page-navigation.md](page-navigation.md) | `Content:PageNavigation` component: page tree and subtrees |
 | [dashboard-overview.md](dashboard-overview.md) | Authenticated home dashboard KPIs and activity timeline |
 | [media-storage.md](media-storage.md) | Media library: storage layout, URLs, moving old files, integrity check |
+| [reactions.md](reactions.md) | Reactions to blog posts, comments and activities: model, lazy loading, visibility, cleanup |

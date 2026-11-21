@@ -6,6 +6,7 @@ namespace App\Tests\Shared\Integration\Infrastructure\Scheduler;
 
 use App\Analytics\Application\Message\AggregateDailyAnalyticsMessage;
 use App\Content\Application\Message\CheckMediaIntegrityMessage;
+use App\Content\Application\Message\CleanUpReactionsMessage;
 use App\Encounter\Application\Message\CleanUpEncountersMessage;
 use App\Encounter\Application\Message\DeleteExpiredEncounterSourceFilesMessage;
 use App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage;
@@ -33,7 +34,7 @@ final class DefaultScheduleProviderKernelTest extends KernelTestCase
         self::bootKernel();
         $provider = self::getContainer()->get(DefaultScheduleProvider::class);
         $recurringMessages = $provider->getSchedule()->getRecurringMessages();
-        self::assertCount(15, $recurringMessages);
+        self::assertCount(16, $recurringMessages);
 
         $classes = [];
         foreach ($recurringMessages as $recurringMessage) {
@@ -67,5 +68,6 @@ final class DefaultScheduleProviderKernelTest extends KernelTestCase
         self::assertContains(PurgeQuarantinedFeedbackMessage::class, $classes);
         self::assertContains(PurgePendingImportUploadsMessage::class, $classes);
         self::assertContains(CheckMediaIntegrityMessage::class, $classes);
+        self::assertContains(CleanUpReactionsMessage::class, $classes);
     }
 }

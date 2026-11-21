@@ -12,6 +12,8 @@
 } %}
 {# On the hospital page every item belongs to that hospital, so its name is left out (#488). #}
 {% set hide_hospital = hide_hospital|default(false) %}
+{# Reaction bars (#467) on the timeline and the hospital feed, not in the compact dashboard preview. #}
+{% set show_reactions = show_reactions|default(false) %}
 
 {% for activity in activities %}
     <div
@@ -94,6 +96,9 @@
                             {{ activity.hospitalName }}
                         {% endif %}
                     </div>
+                {% endif %}
+                {% if show_reactions and activity.id %}
+                    {{ include('@Content/reaction/_placeholder.html.twig', {target_type: 'activity', target_id: activity.id}) }}
                 {% endif %}
             </div>
         </div>

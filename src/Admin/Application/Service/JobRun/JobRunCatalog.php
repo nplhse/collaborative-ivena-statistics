@@ -32,6 +32,9 @@ final class JobRunCatalog
     /** Job of the media integrity check (Content, ContentScheduleContribution::JOB_MEDIA_INTEGRITY, ADR 039). */
     public const string JOB_MEDIA_INTEGRITY = 'media_integrity_check';
 
+    /** Job of the reaction cleanup (Content, ContentScheduleContribution::JOB_REACTION_CLEANUP, #467). */
+    public const string JOB_REACTION_CLEANUP = 'reaction_cleanup';
+
     /** @var list<string> */
     public const array JOBS = [
         ImportRunTelemetry::JOB_ALLOCATIONS,
@@ -47,6 +50,7 @@ final class JobRunCatalog
         NotificationScheduleContribution::JOB_RECONCILE,
         StorageScheduleContribution::JOB,
         self::JOB_MEDIA_INTEGRITY,
+        self::JOB_REACTION_CLEANUP,
         MonitoringScheduleContribution::JOB_QUEUE_SAMPLE,
         MonitoringScheduleContribution::JOB_RETENTION,
     ];
@@ -189,6 +193,9 @@ final class JobRunCatalog
             'orphans_kept' => self::FORMAT_COUNT,
             'leftovers_deleted' => self::FORMAT_COUNT,
             'unexpected' => self::FORMAT_COUNT,
+        ],
+        self::JOB_REACTION_CLEANUP => [
+            'reactions_deleted' => self::FORMAT_COUNT,
         ],
         MonitoringScheduleContribution::JOB_QUEUE_SAMPLE => [
             'pending' => self::FORMAT_COUNT,

@@ -1,0 +1,12 @@
+{# Turbo Streams for the reaction bars of one request (#467): visible targets get their bar, the placeholders of the
+   others are removed. #}
+{% for summary in summaries %}
+    <turbo-stream action="replace" targets="#{{ summary.target.domId }}">
+        <template>
+            {{ include('@Content/reaction/_bar.html.twig', {summary: summary, canReact: canReact}) }}
+        </template>
+    </turbo-stream>
+{% endfor %}
+{% for target in hidden %}
+    <turbo-stream action="remove" targets="#{{ target.domId }}"></turbo-stream>
+{% endfor %}
