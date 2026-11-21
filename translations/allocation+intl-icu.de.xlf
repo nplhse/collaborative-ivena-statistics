@@ -1199,7 +1199,7 @@
       </trans-unit>
       <trans-unit id="emptyOwnTiDe" resname="empty.owned.title">
         <source>empty.owned.title</source>
-        <target>Deinem Konto ist keine Klinik zugeordnet</target>
+        <target>Ihrem Konto ist keine Klinik zugeordnet</target>
       </trans-unit>
       <trans-unit id="emptyOwnDeDe" resname="empty.owned.description">
         <source>empty.owned.description</source>
