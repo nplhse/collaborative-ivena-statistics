@@ -17,7 +17,7 @@ final class PageContentBlockTypeTest extends TestCase
     public function testValuesReturnsAllCaseValues(): void
     {
         self::assertSame(
-            ['richtext', 'image', 'cta', 'quote', 'headline', 'highlight', 'accordion'],
+            ['richtext', 'image', 'cta', 'quote', 'headline', 'highlight', 'accordion', 'help_search', 'help_topics'],
             PageContentBlockType::values(),
         );
     }
@@ -53,7 +53,16 @@ final class PageContentBlockTypeTest extends TestCase
 
     public function testEveryTypeDeclaresContentFields(): void
     {
+        // The help blocks (#596) have no fields: their content comes from the help tree when the page is shown.
+        $withoutFields = [PageContentBlockType::HelpSearch, PageContentBlockType::HelpTopics];
+
         foreach (PageContentBlockType::cases() as $type) {
+            if (\in_array($type, $withoutFields, true)) {
+                self::assertSame([], $type->contentFields(), $type->value);
+
+                continue;
+            }
+
             self::assertNotSame([], $type->contentFields(), $type->value);
             self::assertSame($type->contentFields(), $type->transferableFieldsTo($type));
         }

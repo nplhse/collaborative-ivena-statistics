@@ -31,6 +31,12 @@ The quarantine is built in steps on the integration branch `feature/feedback-qua
 5. For normal entries, `FeedbackReceivedNotificationSubscriber` publishes `admin.feedback_received`
    ([notifications](../notification/README.md#notification-types)).
 
+**Comments on help articles** (#596) take a second way in: when a signed-in user says a help article did not help
+and writes what was missing, `HelpArticleCommentedListener` receives Content's `HelpArticleCommented`, runs the same
+spam check (signed in, no honeypot, no render time) and records an *improvement* with the article URL and the context
+`extra.source = help_article` (`help_article_id`, `help_article_title`, `locale`). A rejected comment is dropped.
+See [help.md](../content/help.md#was-this-article-helpful).
+
 Every outcome gets the same success message, so the response never tells which rule matched or that
 an entry went into quarantine. Rejects are logged by `FeedbackSpamRejectLogger` with reason codes and
 hashed IP and email, never with the message. Quarantined entries are not logged.

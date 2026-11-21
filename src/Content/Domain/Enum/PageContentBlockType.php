@@ -13,6 +13,10 @@ enum PageContentBlockType: string
     case Headline = 'headline';
     case Highlight = 'highlight';
     case Accordion = 'accordion';
+    /** Search field of the help (#596); no fields, the search is rendered when the page is shown. */
+    case HelpSearch = 'help_search';
+    /** Main topics of the help with their articles (#596), taken from the help tree when the page is shown. */
+    case HelpTopics = 'help_topics';
 
     public function translationKey(): string
     {
@@ -35,6 +39,7 @@ enum PageContentBlockType: string
             self::Headline => ['text'],
             self::Highlight => ['title', 'html', 'icon'],
             self::Accordion => ['items'],
+            self::HelpSearch, self::HelpTopics => [],
         };
     }
 

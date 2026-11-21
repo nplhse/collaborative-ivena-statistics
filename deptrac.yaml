@@ -916,6 +916,8 @@ deptrac:
             - User_Infrastructure
             - User_UI
         Feedback_Infrastructure:
+            # Comments on unhelpful help articles (#596) arrive as a Content event and go to the feedback inbox.
+            - Content_Application
             - Feedback_Application
             - Feedback_Domain
             - Notification_Application

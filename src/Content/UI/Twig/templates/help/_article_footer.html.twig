@@ -1,0 +1,31 @@
+{#
+    Below a help article (#596): whether it helped (signed-in users) and the previous and next article in reading order.
+    neighbours: {previous: ?PageNavigationNode, next: ?PageNavigationNode}; page: the shown page.
+#}
+{% if is_granted('ROLE_USER') %}
+    {{ include('@Content/help/_feedback_placeholder.html.twig', {page: page}) }}
+{% endif %}
+{% if neighbours.previous or neighbours.next %}
+    <nav class="row g-3 mb-4" aria-label="{{ 'help.article.pagination'|trans({}, 'content') }}" data-testid="help-article-pagination">
+        <div class="col-sm-6">
+            {% if neighbours.previous %}
+                <a class="card card-link h-100" href="{{ neighbours.previous.url }}" rel="prev" data-testid="help-article-previous">
+                    <div class="card-body">
+                        <div class="text-secondary small">← {{ 'help.article.previous'|trans({}, 'content') }}</div>
+                        <div class="fw-medium">{{ neighbours.previous.title }}</div>
+                    </div>
+                </a>
+            {% endif %}
+        </div>
+        <div class="col-sm-6">
+            {% if neighbours.next %}
+                <a class="card card-link h-100 text-sm-end" href="{{ neighbours.next.url }}" rel="next" data-testid="help-article-next">
+                    <div class="card-body">
+                        <div class="text-secondary small">{{ 'help.article.next'|trans({}, 'content') }} →</div>
+                        <div class="fw-medium">{{ neighbours.next.title }}</div>
+                    </div>
+                </a>
+            {% endif %}
+        </div>
+    </nav>
+{% endif %}

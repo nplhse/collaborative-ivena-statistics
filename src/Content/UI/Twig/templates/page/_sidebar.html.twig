@@ -1,4 +1,12 @@
+{# Help pages (#596): search, outline and the help navigation instead of the page tree and the latest posts. #}
+{% set help = help|default(false) %}
 <div class="row row-cards" data-testid="page-sidebar">
+    {# The help start page has its own search block. #}
+    {% if help and not (page is defined and page.key and page.key.value == 'help') %}
+        <div class="col-12">
+            {{ include('@Content/help/_search_form.html.twig', {query: help_query|default(''), variant: 'sidebar'}) }}
+        </div>
+    {% endif %}
     {% if toc is defined and toc is not empty %}
         <div class="col-12">
             <div class="card" data-testid="page-toc">
@@ -28,26 +36,37 @@
     {% endif %}
 
     <div class="col-12">
-        <twig:Content:PageNavigation />
+        {% if help %}
+            <twig:Content:PageNavigation
+                :root="enum('App\\Content\\Domain\\Enum\\PageKey').Help"
+                :includeRoot="true"
+                title="{{ 'help.navigation.title'|trans({}, 'content') }}"
+                data-testid="help-navigation"
+            />
+        {% else %}
+            <twig:Content:PageNavigation />
+        {% endif %}
     </div>
 
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title d-flex align-items-center gap-2">
-                    <twig:ux:icon name="tabler:clock-hour-4" class="w-4 h-4" />
-                    {{ 'blog.sidebar.latest_posts'|trans({}, 'content') }}
-                </h3>
-            </div>
-            <div class="list-group list-group-flush">
-                {% for latest in latest_posts %}
-                    <a href="{{ path('app_blog_show', {slug: latest.slug}) }}" class="list-group-item list-group-item-action">
-                        {{ latest.title }}
-                    </a>
-                {% else %}
-                    <div class="list-group-item text-secondary">{{ 'blog.sidebar.no_latest_posts'|trans({}, 'content') }}</div>
-                {% endfor %}
+    {% if not help %}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title d-flex align-items-center gap-2">
+                        <twig:ux:icon name="tabler:clock-hour-4" class="w-4 h-4" />
+                        {{ 'blog.sidebar.latest_posts'|trans({}, 'content') }}
+                    </h3>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for latest in latest_posts %}
+                        <a href="{{ path('app_blog_show', {slug: latest.slug}) }}" class="list-group-item list-group-item-action">
+                            {{ latest.title }}
+                        </a>
+                    {% else %}
+                        <div class="list-group-item text-secondary">{{ 'blog.sidebar.no_latest_posts'|trans({}, 'content') }}</div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
-    </div>
+    {% endif %}
 </div>

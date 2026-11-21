@@ -1,0 +1,2 @@
+{# "Was this article helpful?" (#596), loaded after the article for signed-in users. #}
+<turbo-frame id="help-feedback-{{ page.id }}" src="{{ path('app_help_feedback', {pageId: page.id}) }}" loading="lazy" class="d-block mb-4" data-testid="help-feedback-frame"></turbo-frame>
