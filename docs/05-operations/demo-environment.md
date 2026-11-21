@@ -32,6 +32,18 @@ This drops and recreates `app_demo`, runs the migrations, empties the demo stora
 - When `app_demo` already holds an installation, the target stops; `DEMO_CONFIRM=yes` replaces it.
 - Users and passwords are the ones of the dev fixtures (for example `foo`).
 
+## Remove the demo
+
+```bash
+make demo-uninstall DEMO_CONFIRM=yes
+```
+
+This drops `app_demo` and deletes everything the demo keeps on the disk: `var/demo` (imports, media,
+geodata), the old upload directory `public/uploads/demo`, `var/cache/demo` and `var/log/demo.log`.
+Use it when the demo is no longer needed on this machine; its files are kept apart from the development
+environment (ADR 023), so nothing else cleans them up. Without `DEMO_CONFIRM=yes` the target stops
+before it changes anything. The development database and `var/media` stay untouched.
+
 ## Start the demo
 
 Two terminals:
@@ -272,6 +284,10 @@ the demo environment ([hosts.yaml.example](../../hosts.yaml.example)):
   survive a deploy
 
 A deploy runs the migrations of `develop` against the demo data, as production will later.
+
+To give up a staging installation, remove the cron job of the nightly reset, the snapshot
+(`~/demo-snapshot`), the deploy path and the `_demo` database on the server; the demo files live
+inside the deploy path, so nothing is left behind.
 
 ### One-time setup on the server
 
