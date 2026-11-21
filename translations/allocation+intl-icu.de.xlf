@@ -1203,11 +1203,11 @@
       </trans-unit>
       <trans-unit id="emptyOwnDeDe" resname="empty.owned.description">
         <source>empty.owned.description</source>
-        <target>Klinikzugänge vergibt eine Klinikadministration. Das Onboarding auf dem Dashboard erklärt, wie du Zugang anfragen kannst.</target>
+        <target>Beantragen Sie die Zuordnung zu der Klinik, für die Sie arbeiten. Die Administration entscheidet, welchen Zugang Sie erhalten.</target>
       </trans-unit>
       <trans-unit id="emptyOwnCtaDe" resname="empty.owned.cta">
         <source>empty.owned.cta</source>
-        <target>Zum Dashboard</target>
+        <target>Klinikzuordnung beantragen</target>
       </trans-unit>
       <trans-unit id="emptyGrnTiDe" resname="empty.access_grants.title">
         <source>empty.access_grants.title</source>
@@ -2252,6 +2252,162 @@
       <trans-unit id="dcDe183" resname="data_catalog.variable.hospital.state.description">
         <source>data_catalog.variable.hospital.state.description</source>
         <target>Bundesland, in dem die Klinik liegt.</target>
+      </trans-unit>
+      <trans-unit id="harTitleNewDe" resname="hospital_assignment_request.title.new">
+        <source>hospital_assignment_request.title.new</source>
+        <target>Klinikzuordnung beantragen</target>
+      </trans-unit>
+      <trans-unit id="harTitleListDe" resname="hospital_assignment_request.title.list">
+        <source>hospital_assignment_request.title.list</source>
+        <target>Meine Zuordnungsanträge</target>
+      </trans-unit>
+      <trans-unit id="harIntroDe" resname="hospital_assignment_request.intro">
+        <source>hospital_assignment_request.intro</source>
+        <target>Beantragen Sie die Zuordnung zu einer Klinik, für die Sie arbeiten. Eine Administratorin oder ein Administrator prüft den Antrag und entscheidet, welchen Zugang Sie erhalten.</target>
+      </trans-unit>
+      <trans-unit id="harFieldHospitalDe" resname="hospital_assignment_request.field.hospital">
+        <source>hospital_assignment_request.field.hospital</source>
+        <target>Klinik</target>
+      </trans-unit>
+      <trans-unit id="harFieldHospitalHelpDe" resname="hospital_assignment_request.field.hospital_help">
+        <source>hospital_assignment_request.field.hospital_help</source>
+        <target>Wählen Sie Ihre Klinik aus der Liste. Ist sie nicht aufgeführt, geben Sie ihren Namen ein: Die Administration ordnet ihn zu.</target>
+      </trans-unit>
+      <trans-unit id="harFieldHospitalPlaceholderDe" resname="hospital_assignment_request.field.hospital_placeholder">
+        <source>hospital_assignment_request.field.hospital_placeholder</source>
+        <target>Namen der Klinik eingeben</target>
+      </trans-unit>
+      <trans-unit id="harFieldReasonDe" resname="hospital_assignment_request.field.reason">
+        <source>hospital_assignment_request.field.reason</source>
+        <target>Ihr Bezug zur Klinik</target>
+      </trans-unit>
+      <trans-unit id="harFieldExplanationDe" resname="hospital_assignment_request.field.explanation">
+        <source>hospital_assignment_request.field.explanation</source>
+        <target>Erläuterung</target>
+      </trans-unit>
+      <trans-unit id="harFieldExplanationHelpDe" resname="hospital_assignment_request.field.explanation_help">
+        <source>hospital_assignment_request.field.explanation_help</source>
+        <target>Pflicht bei „Sonstiges“.</target>
+      </trans-unit>
+      <trans-unit id="harFieldCommentDe" resname="hospital_assignment_request.field.comment">
+        <source>hospital_assignment_request.field.comment</source>
+        <target>Kommentar an die Administration (optional)</target>
+      </trans-unit>
+      <trans-unit id="harReasonEdLeadershipDe" resname="hospital_assignment_request.reason.ed_leadership">
+        <source>hospital_assignment_request.reason.ed_leadership</source>
+        <target>Leitung der Notaufnahme</target>
+      </trans-unit>
+      <trans-unit id="harReasonHospitalManagementDe" resname="hospital_assignment_request.reason.hospital_management">
+        <source>hospital_assignment_request.reason.hospital_management</source>
+        <target>Klinikleitung</target>
+      </trans-unit>
+      <trans-unit id="harReasonDataSubmissionDe" resname="hospital_assignment_request.reason.data_submission">
+        <source>hospital_assignment_request.reason.data_submission</source>
+        <target>Verantwortlich für die Datenlieferung</target>
+      </trans-unit>
+      <trans-unit id="harReasonOtherDe" resname="hospital_assignment_request.reason.other">
+        <source>hospital_assignment_request.reason.other</source>
+        <target>Sonstiges</target>
+      </trans-unit>
+      <trans-unit id="harActionSubmitDe" resname="hospital_assignment_request.action.submit">
+        <source>hospital_assignment_request.action.submit</source>
+        <target>Antrag senden</target>
+      </trans-unit>
+      <trans-unit id="harActionNewDe" resname="hospital_assignment_request.action.new">
+        <source>hospital_assignment_request.action.new</source>
+        <target>Klinikzuordnung beantragen</target>
+      </trans-unit>
+      <trans-unit id="harActionWithdrawDe" resname="hospital_assignment_request.action.withdraw">
+        <source>hospital_assignment_request.action.withdraw</source>
+        <target>Antrag zurückziehen</target>
+      </trans-unit>
+      <trans-unit id="harActionWithdrawConfirmDe" resname="hospital_assignment_request.action.withdraw_confirm">
+        <source>hospital_assignment_request.action.withdraw_confirm</source>
+        <target>Diesen Antrag zurückziehen?</target>
+      </trans-unit>
+      <trans-unit id="harActionRequestForHospitalDe" resname="hospital_assignment_request.action.request_for_hospital">
+        <source>hospital_assignment_request.action.request_for_hospital</source>
+        <target>Zuordnung beantragen</target>
+      </trans-unit>
+      <trans-unit id="harActionPendingDe" resname="hospital_assignment_request.action.pending">
+        <source>hospital_assignment_request.action.pending</source>
+        <target>Antrag offen</target>
+      </trans-unit>
+      <trans-unit id="harWhatHappensTitleDe" resname="hospital_assignment_request.what_happens.title">
+        <source>hospital_assignment_request.what_happens.title</source>
+        <target>Wie es weitergeht</target>
+      </trans-unit>
+      <trans-unit id="harWhatHappensTextDe" resname="hospital_assignment_request.what_happens.text">
+        <source>hospital_assignment_request.what_happens.text</source>
+        <target>Die Administration erhält Ihren Antrag und prüft ihn. Sie werden über die Entscheidung benachrichtigt und sehen den Stand unter „Meine Zuordnungsanträge“. Ein Antrag allein gibt Ihnen noch keinen Zugang.</target>
+      </trans-unit>
+      <trans-unit id="harStatusPendingDe" resname="hospital_assignment_request.status.pending">
+        <source>hospital_assignment_request.status.pending</source>
+        <target>Offen</target>
+      </trans-unit>
+      <trans-unit id="harStatusApprovedDe" resname="hospital_assignment_request.status.approved">
+        <source>hospital_assignment_request.status.approved</source>
+        <target>Angenommen</target>
+      </trans-unit>
+      <trans-unit id="harStatusRejectedDe" resname="hospital_assignment_request.status.rejected">
+        <source>hospital_assignment_request.status.rejected</source>
+        <target>Abgelehnt</target>
+      </trans-unit>
+      <trans-unit id="harStatusWithdrawnDe" resname="hospital_assignment_request.status.withdrawn">
+        <source>hospital_assignment_request.status.withdrawn</source>
+        <target>Zurückgezogen</target>
+      </trans-unit>
+      <trans-unit id="harNotInListDe" resname="hospital_assignment_request.not_in_list">
+        <source>hospital_assignment_request.not_in_list</source>
+        <target>(nicht in der Liste)</target>
+      </trans-unit>
+      <trans-unit id="harSubmittedAtDe" resname="hospital_assignment_request.submitted_at">
+        <source>hospital_assignment_request.submitted_at</source>
+        <target>gestellt am {date, date, medium}</target>
+      </trans-unit>
+      <trans-unit id="harOutcomeAccessGrantDe" resname="hospital_assignment_request.outcome.access_grant">
+        <source>hospital_assignment_request.outcome.access_grant</source>
+        <target>Sie haben Zugang zu dieser Klinik erhalten.</target>
+      </trans-unit>
+      <trans-unit id="harOutcomeOwnershipDe" resname="hospital_assignment_request.outcome.ownership">
+        <source>hospital_assignment_request.outcome.ownership</source>
+        <target>Sie sind jetzt Eigentümerin oder Eigentümer dieser Klinik.</target>
+      </trans-unit>
+      <trans-unit id="harDecisionMessageDe" resname="hospital_assignment_request.decision_message">
+        <source>hospital_assignment_request.decision_message</source>
+        <target>Nachricht der Administration</target>
+      </trans-unit>
+      <trans-unit id="harEmptyTitleDe" resname="hospital_assignment_request.empty.title">
+        <source>hospital_assignment_request.empty.title</source>
+        <target>Noch keine Anträge</target>
+      </trans-unit>
+      <trans-unit id="harEmptyDescriptionDe" resname="hospital_assignment_request.empty.description">
+        <source>hospital_assignment_request.empty.description</source>
+        <target>Beantragen Sie die Zuordnung zu der Klinik, für die Sie arbeiten.</target>
+      </trans-unit>
+      <trans-unit id="harFlashSubmittedDe" resname="hospital_assignment_request.flash.submitted">
+        <source>hospital_assignment_request.flash.submitted</source>
+        <target>Ihr Antrag wurde gesendet. Sie werden über die Entscheidung benachrichtigt.</target>
+      </trans-unit>
+      <trans-unit id="harFlashWithdrawnDe" resname="hospital_assignment_request.flash.withdrawn">
+        <source>hospital_assignment_request.flash.withdrawn</source>
+        <target>Ihr Antrag wurde zurückgezogen.</target>
+      </trans-unit>
+      <trans-unit id="harRefusedAlreadyAssignedDe" resname="hospital_assignment_request.refused.already_assigned">
+        <source>hospital_assignment_request.refused.already_assigned</source>
+        <target>Sie haben bereits Zugang zu dieser Klinik.</target>
+      </trans-unit>
+      <trans-unit id="harRefusedAlreadyPendingDe" resname="hospital_assignment_request.refused.already_pending">
+        <source>hospital_assignment_request.refused.already_pending</source>
+        <target>Für diese Klinik gibt es bereits einen offenen Antrag von Ihnen.</target>
+      </trans-unit>
+      <trans-unit id="harRefusedNotOwnDe" resname="hospital_assignment_request.refused.not_own">
+        <source>hospital_assignment_request.refused.not_own</source>
+        <target>Dieser Antrag gehört einer anderen Person.</target>
+      </trans-unit>
+      <trans-unit id="harRefusedNotPendingDe" resname="hospital_assignment_request.refused.not_pending">
+        <source>hospital_assignment_request.refused.not_pending</source>
+        <target>Dieser Antrag wurde bereits entschieden oder zurückgezogen.</target>
       </trans-unit>
     </body>
   </file>

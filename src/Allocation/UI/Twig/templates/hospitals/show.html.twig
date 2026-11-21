@@ -57,6 +57,15 @@
                             </a>
                         </span>
                     {% endif %}
+                    {% if assignmentRequestState == 'available' %}
+                        <a class="btn btn-primary" href="{{ path('app_hospital_assignment_request_new', {hospital: hospital.publicIdString}) }}" data-testid="hospital-request-assignment">
+                            <twig:ux:icon name="tabler:user-plus" width="1em" height="1em" />&nbsp;{{ 'hospital_assignment_request.action.request_for_hospital'|trans({}, 'allocation') }}
+                        </a>
+                    {% elseif assignmentRequestState == 'pending' %}
+                        <a class="btn" href="{{ path('app_hospital_assignment_request_index') }}" data-testid="hospital-assignment-request-pending">
+                            <twig:ux:icon name="tabler:clock" width="1em" height="1em" />&nbsp;{{ 'hospital_assignment_request.action.pending'|trans({}, 'allocation') }}
+                        </a>
+                    {% endif %}
                     <span class="d-none d-sm-inline">
                         <a class="btn" href="{{ path('app_explore_hospital_list') }}">
                             <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />

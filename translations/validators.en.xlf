@@ -901,6 +901,18 @@
         <source>validation.encounter.import.schema_required</source>
         <target>Choose the schema of the encounter file.</target>
       </trans-unit>
+      <trans-unit id="valHarReasonRequired" resname="hospital_assignment_request.reason.required">
+        <source>hospital_assignment_request.reason.required</source>
+        <target>Choose your relation to the hospital.</target>
+      </trans-unit>
+      <trans-unit id="valHarHospitalRequired" resname="hospital_assignment_request.hospital.required">
+        <source>hospital_assignment_request.hospital.required</source>
+        <target>Choose a hospital or enter its name.</target>
+      </trans-unit>
+      <trans-unit id="valHarExplanationRequired" resname="hospital_assignment_request.explanation.required">
+        <source>hospital_assignment_request.explanation.required</source>
+        <target>Explain your relation to the hospital.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -12,6 +12,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
 use App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository;
+use App\Allocation\Infrastructure\Repository\HospitalAssignmentRequestRepository;
 use App\Allocation\Infrastructure\Security\Voter\HospitalVoter;
 use App\Shared\UI\Http\Routing\OpensById;
 use App\User\Domain\Entity\User;
@@ -30,6 +31,7 @@ final class ShowHospitalController extends AbstractController
         private readonly CatalogAllocationYearUrlFactory $yearUrlFactory,
         private readonly HospitalPermissionAccess $hospitalPermissionAccess,
         private readonly HospitalAccessGrantRepository $hospitalAccessGrantRepository,
+        private readonly HospitalAssignmentRequestRepository $assignmentRequestRepository,
     ) {
     }
 
@@ -63,8 +65,16 @@ final class ShowHospitalController extends AbstractController
             ? $this->hospitalAccessGrantRepository->findForHospital($hospital)
             : null;
 
+        // Participants without access may ask to be assigned (#975); a pending request is shown instead.
+        $assignmentRequestState = match (true) {
+            !$user instanceof User || $revealSensitiveMetrics => null,
+            $this->assignmentRequestRepository->hasPendingForRequesterAndHospital($user, $hospital) => 'pending',
+            default => 'available',
+        };
+
         return $this->render('@Allocation/hospitals/show.html.twig', [
             'hospital' => $hospital,
+            'assignmentRequestState' => $assignmentRequestState,
             'coverage' => $coverage,
             'actions' => $this->actionFactory->forHospital(
                 $id,

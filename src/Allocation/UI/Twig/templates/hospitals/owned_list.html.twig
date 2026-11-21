@@ -22,11 +22,17 @@
                         {% endif %}
                     </div>
                 </div>
-                {% if selection.canChoose %}
-                    <div class="col-auto ms-auto d-print-none">
-                        {{ include('@Allocation/hospitals/_my_hospitals_selection.html.twig') }}
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        {% if selection.canChoose %}
+                            {{ include('@Allocation/hospitals/_my_hospitals_selection.html.twig') }}
+                        {% endif %}
+                        <a class="btn" href="{{ path('app_hospital_assignment_request_index') }}" data-testid="my-hospitals-assignment-requests">{{ 'hospital_assignment_request.title.list'|trans({}, 'allocation') }}</a>
+                        <a class="btn btn-primary" href="{{ path('app_hospital_assignment_request_new') }}" data-testid="my-hospitals-request-assignment">
+                            <twig:ux:icon name="tabler:plus" width="1em" height="1em" />&nbsp;{{ 'hospital_assignment_request.action.new'|trans({}, 'allocation') }}
+                        </a>
                     </div>
-                {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -62,7 +68,7 @@
                     icon="tabler:building-hospital"
                 >
                     <twig:block name="actions">
-                        <a class="btn btn-primary" href="{{ path('app_default') }}" target="_top">{{ 'empty.owned.cta'|trans({}, 'allocation') }}</a>
+                        <a class="btn btn-primary" href="{{ path('app_hospital_assignment_request_new') }}" target="_top" data-testid="my-hospitals-empty-request-assignment">{{ 'empty.owned.cta'|trans({}, 'allocation') }}</a>
                     </twig:block>
                 </twig:EmptyState>
             </div>

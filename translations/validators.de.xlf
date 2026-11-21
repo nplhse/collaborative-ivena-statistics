@@ -901,6 +901,18 @@
         <source>validation.encounter.import.schema_required</source>
         <target>Wählen Sie das Schema der Behandlungsdaten-Datei.</target>
       </trans-unit>
+      <trans-unit id="valHarReasonRequiredDe" resname="hospital_assignment_request.reason.required">
+        <source>hospital_assignment_request.reason.required</source>
+        <target>Wählen Sie Ihren Bezug zur Klinik.</target>
+      </trans-unit>
+      <trans-unit id="valHarHospitalRequiredDe" resname="hospital_assignment_request.hospital.required">
+        <source>hospital_assignment_request.hospital.required</source>
+        <target>Wählen Sie eine Klinik oder geben Sie ihren Namen ein.</target>
+      </trans-unit>
+      <trans-unit id="valHarExplanationRequiredDe" resname="hospital_assignment_request.explanation.required">
+        <source>hospital_assignment_request.explanation.required</source>
+        <target>Erläutern Sie Ihren Bezug zur Klinik.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

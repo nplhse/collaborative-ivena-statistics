@@ -19,7 +19,6 @@ final readonly class OnboardingStepView
         public bool $isActionable,
         public ?string $actionUrl,
         public string $actionType,
-        public ?TranslatableMessage $feedbackMessage = null,
     ) {
     }
 }

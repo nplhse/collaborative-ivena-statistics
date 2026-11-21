@@ -5,6 +5,8 @@ export default class extends Controller {
     static values = {
         listId: String,
         hiddenSelector: String,
+        // false: text that matches no option is allowed (and sent as typed); only exact matches select an option.
+        strict: { type: Boolean, default: true },
     };
 
     connect() {
@@ -36,7 +38,7 @@ export default class extends Controller {
         const opts = Array.from(this.listEl.options);
 
         let match = opts.find((o) => o.value.trim().toLowerCase() === val);
-        if (!match && allowPrefix && val) {
+        if (!match && allowPrefix && val && this.strictValue) {
             match = opts.find((o) => o.value.trim().toLowerCase().startsWith(val));
         }
 
@@ -45,7 +47,7 @@ export default class extends Controller {
             this.element.setCustomValidity('');
         } else {
             this.hidden.value = '';
-            this.element.setCustomValidity('Please choose valid entity.');
+            this.element.setCustomValidity(this.strictValue ? 'Please choose valid entity.' : '');
         }
     }
 }

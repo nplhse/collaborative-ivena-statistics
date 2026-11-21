@@ -65,17 +65,9 @@
                             <p class="text-secondary small mb-2">{{ step.description|trans }}</p>
                             <div class="d-flex align-items-center justify-content-between gap-2">
                                 <div class="d-flex align-items-center">
-                                    {% if step.actionType == 'feedback' %}
-                                        <button type="button"
-                                                class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"
-                                                data-controller="onboarding-step"
-                                                data-onboarding-step-message-value="{{ step.feedbackMessage is not null ? step.feedbackMessage|trans|e('html_attr') : '' }}"
-                                                data-action="onboarding-step#openClinicAccessFeedback">
-                                            {{ 'onboarding.steps.request_clinic_access.action'|trans({}, 'onboarding') }}
-                                            <twig:ux:icon name="tabler:message-circle" class="onboarding-step-action-icon" style="height: 1.1em;" />
-                                        </button>
-                                    {% elseif step.actionUrl %}
+                                    {% if step.actionUrl %}
                                         {% set stepActionIcon = {
+                                            request_clinic_access: 'tabler:user-plus',
                                             verify_own_clinic: 'tabler:building-hospital',
                                             start_first_import: 'tabler:database-import',
                                             view_explore_data: 'tabler:compass',

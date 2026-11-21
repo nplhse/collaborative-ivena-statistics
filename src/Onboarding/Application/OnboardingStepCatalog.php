@@ -65,10 +65,7 @@ final readonly class OnboardingStepCatalog
                 isAutoCompleted: $isAutoCompleted,
                 isActionable: $isActionable,
                 actionUrl: $isActionable ? $this->resolveActionUrl($stepKey, $ownsHospitals) : null,
-                actionType: $this->resolveActionType($stepKey),
-                feedbackMessage: OnboardingStepKey::RequestClinicAccess === $stepKey
-                    ? new TranslatableMessage('onboarding.steps.request_clinic_access.feedback_message', domain: 'onboarding')
-                    : null,
+                actionType: 'link',
             );
         }
 
@@ -189,18 +186,11 @@ final readonly class OnboardingStepCatalog
         return OnboardingStepKey::RequestClinicAccess === $stepKey && $hasClinicAccess;
     }
 
-    private function resolveActionType(OnboardingStepKey $stepKey): string
+    private function resolveActionUrl(OnboardingStepKey $stepKey, bool $ownsHospitals): string
     {
         return match ($stepKey) {
-            OnboardingStepKey::RequestClinicAccess => 'feedback',
-            default => 'link',
-        };
-    }
-
-    private function resolveActionUrl(OnboardingStepKey $stepKey, bool $ownsHospitals): ?string
-    {
-        return match ($stepKey) {
-            OnboardingStepKey::RequestClinicAccess => null,
+            // A dedicated request instead of a feedback message (#975).
+            OnboardingStepKey::RequestClinicAccess => $this->urlGenerator->generate('app_hospital_assignment_request_new'),
             OnboardingStepKey::VerifyOwnClinic => $ownsHospitals
                 ? $this->urlGenerator->generate('app_hospitals_index')
                 : $this->urlGenerator->generate('app_explore_hospital_list'),
