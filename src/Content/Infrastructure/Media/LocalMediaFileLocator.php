@@ -6,40 +6,49 @@ namespace App\Content\Infrastructure\Media;
 
 use App\Content\Domain\Entity\Media;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Filesystem\Path;
 
+/**
+ * Where the file of a media item is on disk: in the media storage (ADR 039), or in the old upload directory for a
+ * media item not yet moved (until v0.4).
+ */
 final readonly class LocalMediaFileLocator
 {
     /** @psalm-suppress PossiblyUnusedMethod Symfony autowires this service */
     public function __construct(
-        #[Autowire(param: 'app.media_upload_dir')]
-        private string $uploadDir,
+        private MediaStorage $storage,
+        #[Autowire(param: 'app.media_legacy_dir')]
+        private string $legacyDir,
     ) {
     }
 
     public function resolveAbsolutePath(Media $media): ?string
     {
+        $storageKey = $media->getStorageKey();
+        if (null !== $storageKey) {
+            return MediaStorage::isValidKey($storageKey) ? $this->storage->absolutePath($storageKey) : null;
+        }
+
         $filename = $media->getFilename();
         if (null === $filename || '' === $filename) {
             return null;
         }
 
-        return rtrim($this->uploadDir, '/').'/'.$filename;
+        return $this->resolveLegacyPath($filename);
     }
 
-    public function resolveAbsolutePathFromFilename(string $filename): string
+    public function resolveAbsolutePathFromStorageKey(string $storageKey): ?string
     {
-        return rtrim($this->uploadDir, '/').'/'.ltrim($filename, '/');
+        return MediaStorage::isValidKey($storageKey) ? $this->storage->absolutePath($storageKey) : null;
     }
 
-    public function resolveFilenameFromPublicSrc(string $src): ?string
+    /** Path of a file in the old upload directory; null for a name that would leave the directory. */
+    public function resolveLegacyPath(string $filename): ?string
     {
-        $prefix = '/uploads/media/';
-        if (!str_starts_with($src, $prefix)) {
+        if ('' === $filename || str_contains($filename, '/') || str_contains($filename, '\\') || \in_array($filename, ['.', '..'], true)) {
             return null;
         }
 
-        $filename = substr($src, strlen($prefix));
-
-        return '' !== $filename ? $filename : null;
+        return Path::join($this->legacyDir, $filename);
     }
 }

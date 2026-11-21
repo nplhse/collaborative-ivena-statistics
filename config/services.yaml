@@ -15,7 +15,9 @@ parameters:
     app.imports_max_size: '15M'
     app.imports_base_dir: '%kernel.project_dir%/var/imports'
     app.media_max_size: '10M'
-    app.media_upload_dir: '%kernel.project_dir%/public/uploads/media'
+    # Media storage (ADR 039); the old upload directory is read until the move of every file (removed in v0.4).
+    app.media_storage_dir: '%kernel.project_dir%/var/media'
+    app.media_legacy_dir: '%kernel.project_dir%/public/uploads/media'
     app.page_content_width_estimate: 800
     app.rejects_base_dir: '%kernel.project_dir%/var/imports/rejects'
     env(APP_URL): ''
@@ -173,11 +175,17 @@ when@demo:
         app.cookie_prefix: 'demo_'
         app.imports_base_dir: '%kernel.project_dir%/var/demo/imports'
         app.rejects_base_dir: '%kernel.project_dir%/var/demo/imports/rejects'
-        app.media_upload_dir: '%kernel.project_dir%/public/uploads/demo/media'
+        app.media_storage_dir: '%kernel.project_dir%/var/demo/media'
+        app.media_legacy_dir: '%kernel.project_dir%/public/uploads/demo/media'
         app.hospital_isochrones_dir: '%kernel.project_dir%/var/demo/geo/hospital-isochrones'
         app.prepared_locations_dir: '%kernel.project_dir%/var/demo/geo/prepared-locations'
 
 when@test:
+    parameters:
+        # Test files stay out of the development storage; the keys are unique, so ParaTest workers can share it.
+        app.media_storage_dir: '%kernel.cache_dir%/media'
+        app.media_legacy_dir: '%kernel.cache_dir%/legacy-media'
+
     services:
         # One lock directory per ParaTest worker, like its test database (dbname_suffix with TEST_TOKEN):
         # a rebuild in another worker must not hold the lock a test asserts on.

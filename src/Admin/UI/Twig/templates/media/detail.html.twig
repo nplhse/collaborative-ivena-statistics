@@ -23,6 +23,11 @@
                         </div>
                     </div>
                     <div class="form-fieldset-body show">
+                        {% if media.type.value == 'image' %}
+                            <figure class="media-detail-usage__preview mb-3">
+                                <img src="{{ media_public_url }}" class="img-thumbnail" alt="{{ 'label.preview'|trans({}, 'messages') }}" data-testid="media-detail-preview">
+                            </figure>
+                        {% endif %}
                         <div class="media-detail-usage__snippet" data-controller="copy-to-clipboard" data-copy-to-clipboard-idle-class-value="btn-secondary" data-copy-to-clipboard-success-class-value="btn-success">
                             <div class="media-detail-usage__toolbar">
                                 <label for="media-snippet">{{ 'label.html_snippet'|trans({}, 'messages') }}</label>

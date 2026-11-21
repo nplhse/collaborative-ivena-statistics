@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Content\Domain\Entity;
 
 use App\Content\Domain\Enum\MediaType;
+use App\Content\Domain\Enum\MediaVisibility;
 use App\Content\Infrastructure\Repository\MediaRepository;
 use App\Shared\Domain\Traits\Blamable;
 use App\User\Domain\Entity\User;
@@ -12,12 +13,13 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Clock\Clock;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
-use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
 #[ORM\Table(name: 'media')]
+#[ORM\UniqueConstraint(name: 'uniq_media_storage_key', columns: ['storage_key'])]
+#[ORM\Index(name: 'idx_media_legacy_filename', columns: ['legacy_filename'])]
+#[ORM\Index(name: 'idx_media_filename', columns: ['filename'])]
 #[ORM\HasLifecycleCallbacks]
-#[Vich\Uploadable]
 class Media implements \Stringable
 {
     use Blamable;
@@ -34,8 +36,28 @@ class Media implements \Stringable
     #[ORM\Column]
     private ?int $id = null;
 
+    /** File name below the old upload directory; only for media not yet moved to the storage (ADR 039, until v0.4). */
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $filename = null;
+
+    /** Path of the file below the media storage root, for example `originals/2026/11/<uuid>.png` (ADR 039). */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $storageKey = null;
+
+    /** SHA-256 of the stored file, written when the file is stored and compared by the integrity check. */
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $checksumSha256 = null;
+
+    /** When the integrity check last hashed the stored file. */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $verifiedAt = null;
+
+    /** Name below the old upload directory before the move, so old URLs can still be resolved (until v0.4). */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $legacyFilename = null;
+
+    #[ORM\Column(length: 16, enumType: MediaVisibility::class, options: ['default' => 'public'])]
+    private MediaVisibility $visibility = MediaVisibility::Public;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $originalFilename = null;
@@ -76,13 +98,7 @@ class Media implements \Stringable
     #[ORM\JoinColumn(nullable: true)]
     protected ?User $updatedBy = null;
 
-    #[Vich\UploadableField(
-        mapping: 'media',
-        fileNameProperty: 'filename',
-        size: 'size',
-        mimeType: 'mimeType',
-        originalName: 'originalFilename',
-    )]
+    /** The uploaded file until the upload handler has stored it in the media storage; not persisted. */
     #[Assert\NotNull(groups: ['media_create'])]
     #[Assert\File(
         maxSize: '10M',
@@ -242,6 +258,70 @@ class Media implements \Stringable
         $this->file = $file;
 
         return $this;
+    }
+
+    public function getStorageKey(): ?string
+    {
+        return $this->storageKey;
+    }
+
+    public function getChecksumSha256(): ?string
+    {
+        return $this->checksumSha256;
+    }
+
+    public function getVerifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->verifiedAt;
+    }
+
+    public function getLegacyFilename(): ?string
+    {
+        return $this->legacyFilename;
+    }
+
+    public function getVisibility(): MediaVisibility
+    {
+        return $this->visibility;
+    }
+
+    public function setVisibility(MediaVisibility $visibility): self
+    {
+        $this->visibility = $visibility;
+
+        return $this;
+    }
+
+    /**
+     * Points the media item at a file of the media storage. A media item moved from the old upload directory keeps
+     * its old name as {@see getLegacyFilename()} and no longer has a {@see getFilename()}.
+     */
+    public function attachStoredFile(string $storageKey, int $size, string $checksumSha256, \DateTimeImmutable $verifiedAt): self
+    {
+        if (null === $this->storageKey && null !== $this->filename && '' !== $this->filename) {
+            $this->legacyFilename = $this->filename;
+        }
+
+        $this->storageKey = $storageKey;
+        $this->size = $size;
+        $this->checksumSha256 = $checksumSha256;
+        $this->verifiedAt = $verifiedAt;
+        $this->filename = null;
+
+        return $this;
+    }
+
+    public function markVerified(\DateTimeImmutable $verifiedAt): self
+    {
+        $this->verifiedAt = $verifiedAt;
+
+        return $this;
+    }
+
+    /** Name of the file for operators: the storage key, or the old file name of a media item not yet moved. */
+    public function getStoredName(): ?string
+    {
+        return $this->storageKey ?? $this->filename;
     }
 
     #[ORM\PreUpdate]

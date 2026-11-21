@@ -24,7 +24,6 @@ return [
     SymfonyCasts\Bundle\VerifyEmail\SymfonyCastsVerifyEmailBundle::class => ['all' => true],
     Symfony\UX\LiveComponent\LiveComponentBundle::class => ['all' => true],
     Sentry\SentryBundle\SentryBundle::class => ['all' => true],
-    Vich\UploaderBundle\VichUploaderBundle::class => ['all' => true],
     DAMA\DoctrineTestBundle\DAMADoctrineTestBundle::class => ['test' => true],
     Nelmio\SecurityBundle\NelmioSecurityBundle::class => ['all' => true],
     Symfony\UX\Pagination\UXPaginationBundle::class => ['all' => true],
