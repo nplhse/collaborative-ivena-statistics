@@ -2359,11 +2359,7 @@
       </trans-unit>
       <trans-unit id="harNotInList" resname="hospital_assignment_request.not_in_list">
         <source>hospital_assignment_request.not_in_list</source>
-        <target>(not in the list)</target>
-      </trans-unit>
-      <trans-unit id="harSubmittedAt" resname="hospital_assignment_request.submitted_at">
-        <source>hospital_assignment_request.submitted_at</source>
-        <target>submitted on {date, date, medium}</target>
+        <target>Not in the list</target>
       </trans-unit>
       <trans-unit id="harOutcomeAccessGrant" resname="hospital_assignment_request.outcome.access_grant">
         <source>hospital_assignment_request.outcome.access_grant</source>
@@ -2376,6 +2372,38 @@
       <trans-unit id="harDecisionMessage" resname="hospital_assignment_request.decision_message">
         <source>hospital_assignment_request.decision_message</source>
         <target>Message from the administrators</target>
+      </trans-unit>
+      <trans-unit id="harCardMenu" resname="hospital_assignment_request.card.menu">
+        <source>hospital_assignment_request.card.menu</source>
+        <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="harCardReason" resname="hospital_assignment_request.card.reason">
+        <source>hospital_assignment_request.card.reason</source>
+        <target>Relation to the hospital</target>
+      </trans-unit>
+      <trans-unit id="harCardSubmitted" resname="hospital_assignment_request.card.submitted">
+        <source>hospital_assignment_request.card.submitted</source>
+        <target>Submitted</target>
+      </trans-unit>
+      <trans-unit id="harCardClosedApproved" resname="hospital_assignment_request.card.closed.approved">
+        <source>hospital_assignment_request.card.closed.approved</source>
+        <target>Approved</target>
+      </trans-unit>
+      <trans-unit id="harCardClosedRejected" resname="hospital_assignment_request.card.closed.rejected">
+        <source>hospital_assignment_request.card.closed.rejected</source>
+        <target>Rejected</target>
+      </trans-unit>
+      <trans-unit id="harCardClosedWithdrawn" resname="hospital_assignment_request.card.closed.withdrawn">
+        <source>hospital_assignment_request.card.closed.withdrawn</source>
+        <target>Withdrawn</target>
+      </trans-unit>
+      <trans-unit id="harCardExplanation" resname="hospital_assignment_request.card.explanation">
+        <source>hospital_assignment_request.card.explanation</source>
+        <target>Explanation</target>
+      </trans-unit>
+      <trans-unit id="harCardComment" resname="hospital_assignment_request.card.comment">
+        <source>hospital_assignment_request.card.comment</source>
+        <target>Your comment</target>
       </trans-unit>
       <trans-unit id="harEmptyTitle" resname="hospital_assignment_request.empty.title">
         <source>hospital_assignment_request.empty.title</source>

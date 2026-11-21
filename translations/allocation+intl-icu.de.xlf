@@ -2359,11 +2359,7 @@
       </trans-unit>
       <trans-unit id="harNotInListDe" resname="hospital_assignment_request.not_in_list">
         <source>hospital_assignment_request.not_in_list</source>
-        <target>(nicht in der Liste)</target>
-      </trans-unit>
-      <trans-unit id="harSubmittedAtDe" resname="hospital_assignment_request.submitted_at">
-        <source>hospital_assignment_request.submitted_at</source>
-        <target>gestellt am {date, date, medium}</target>
+        <target>Nicht in der Liste</target>
       </trans-unit>
       <trans-unit id="harOutcomeAccessGrantDe" resname="hospital_assignment_request.outcome.access_grant">
         <source>hospital_assignment_request.outcome.access_grant</source>
@@ -2376,6 +2372,38 @@
       <trans-unit id="harDecisionMessageDe" resname="hospital_assignment_request.decision_message">
         <source>hospital_assignment_request.decision_message</source>
         <target>Nachricht der Administration</target>
+      </trans-unit>
+      <trans-unit id="harCardMenuDe" resname="hospital_assignment_request.card.menu">
+        <source>hospital_assignment_request.card.menu</source>
+        <target>Aktionen</target>
+      </trans-unit>
+      <trans-unit id="harCardReasonDe" resname="hospital_assignment_request.card.reason">
+        <source>hospital_assignment_request.card.reason</source>
+        <target>Bezug zur Klinik</target>
+      </trans-unit>
+      <trans-unit id="harCardSubmittedDe" resname="hospital_assignment_request.card.submitted">
+        <source>hospital_assignment_request.card.submitted</source>
+        <target>Gestellt am</target>
+      </trans-unit>
+      <trans-unit id="harCardClosedApprovedDe" resname="hospital_assignment_request.card.closed.approved">
+        <source>hospital_assignment_request.card.closed.approved</source>
+        <target>Angenommen am</target>
+      </trans-unit>
+      <trans-unit id="harCardClosedRejectedDe" resname="hospital_assignment_request.card.closed.rejected">
+        <source>hospital_assignment_request.card.closed.rejected</source>
+        <target>Abgelehnt am</target>
+      </trans-unit>
+      <trans-unit id="harCardClosedWithdrawnDe" resname="hospital_assignment_request.card.closed.withdrawn">
+        <source>hospital_assignment_request.card.closed.withdrawn</source>
+        <target>Zurückgezogen am</target>
+      </trans-unit>
+      <trans-unit id="harCardExplanationDe" resname="hospital_assignment_request.card.explanation">
+        <source>hospital_assignment_request.card.explanation</source>
+        <target>Erläuterung</target>
+      </trans-unit>
+      <trans-unit id="harCardCommentDe" resname="hospital_assignment_request.card.comment">
+        <source>hospital_assignment_request.card.comment</source>
+        <target>Ihr Kommentar</target>
       </trans-unit>
       <trans-unit id="harEmptyTitleDe" resname="hospital_assignment_request.empty.title">
         <source>hospital_assignment_request.empty.title</source>

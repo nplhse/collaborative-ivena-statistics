@@ -1,7 +1,7 @@
 {% set variant = {
-    pending: 'warning',
-    approved: 'success',
-    rejected: 'danger',
+    pending: 'yellow',
+    approved: 'green',
+    rejected: 'red',
     withdrawn: 'secondary',
 }[request.status.value] %}
 <twig:Badge :variant="variant">{{ ('hospital_assignment_request.status.' ~ request.status.value)|trans({}, 'allocation') }}</twig:Badge>
