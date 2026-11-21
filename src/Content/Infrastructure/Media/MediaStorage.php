@@ -102,11 +102,6 @@ final readonly class MediaStorage
         return Path::join($this->root(), self::VARIANTS, $match[1], $match[2], $match[3]);
     }
 
-    public function exists(string $key): bool
-    {
-        return self::isValidKey($key) && is_file($this->absolutePath($key));
-    }
-
     /** Removes the file of a key and its derived files. A missing file is not an error. */
     public function delete(string $key): void
     {

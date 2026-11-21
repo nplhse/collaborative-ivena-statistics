@@ -54,13 +54,13 @@ final class MediaStorageTest extends TestCase
         self::assertNotSame($storage->store($this->source, 'png')->storageKey, $storage->store($this->source, 'png')->storageKey);
     }
 
-    public function testExistsFindsTheStoredFile(): void
+    public function testTheStoredFileIsAtItsKey(): void
     {
         $storage = $this->storage('2026-11-21 10:00');
         $key = $storage->store($this->source, 'png')->storageKey;
 
-        self::assertTrue($storage->exists($key));
-        self::assertFalse($storage->exists('originals/2026/11/0193a8f2-7c1e-7000-8000-000000000001.png'));
+        self::assertTrue(is_file($storage->absolutePath($key)));
+        self::assertFalse(is_file($storage->absolutePath('originals/2026/11/0193a8f2-7c1e-7000-8000-000000000001.png')));
     }
 
     public function testDeleteRemovesTheFileAndItsVariants(): void
@@ -72,7 +72,7 @@ final class MediaStorageTest extends TestCase
 
         $storage->delete($key);
 
-        self::assertFalse($storage->exists($key));
+        self::assertFalse(is_file($storage->absolutePath($key)));
         self::assertDirectoryDoesNotExist($variants);
     }
 

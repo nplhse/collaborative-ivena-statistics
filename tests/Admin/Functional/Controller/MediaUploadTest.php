@@ -91,8 +91,8 @@ final class MediaUploadTest extends WebTestCase
         self::assertNotSame($oldKey, $replaced->getStorageKey());
         self::assertSame(MediaType::PDF, $replaced->getType());
         self::assertNull($replaced->getWidth());
-        self::assertFalse($this->storage()->exists($oldKey), 'the replaced file is removed');
-        self::assertTrue($this->storage()->exists((string) $replaced->getStorageKey()));
+        self::assertFalse(is_file($this->storage()->absolutePath($oldKey)), 'the replaced file is removed');
+        self::assertTrue(is_file($this->storage()->absolutePath((string) $replaced->getStorageKey())));
     }
 
     public function testDeletingAMediaItemRemovesItsFile(): void
@@ -105,7 +105,7 @@ final class MediaUploadTest extends WebTestCase
         $entityManager->remove($this->find((int) $media->getId()));
         $entityManager->flush();
 
-        self::assertFalse($this->storage()->exists($key));
+        self::assertFalse(is_file($this->storage()->absolutePath($key)));
     }
 
     private function adminClient(): KernelBrowser
