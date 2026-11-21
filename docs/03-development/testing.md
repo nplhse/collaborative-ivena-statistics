@@ -93,11 +93,14 @@ Application code never reads the wall clock directly (ADR [021](../02-architectu
 |-------|-----|
 | Services | Inject `Psr\Clock\ClockInterface`, call `$this->clock->now()` |
 | Entities, value objects, static helpers | `Symfony\Component\Clock\Clock::get()->now()` |
+| Twig templates | `clock_now()`, e.g. `clock_now()|date('Y')`, instead of `'now'|date` |
 | Tests | `use ClockSensitiveTrait;` and `self::mockTime('2026-05-15 10:00:00')` |
 
 Absolute values stay fine: `new \DateTimeImmutable('2026-05-01 00:00:00')`, `new \DateTimeImmutable('@'.$timestamp)`, `new \DateTimeImmutable($row['created_at'])`. Relative values go through the clock: `$this->clock->now()->modify('first day of this month')` instead of `new \DateTimeImmutable('first day of this month')`, `$this->clock->now()->getTimestamp()` instead of `time()`, `$this->clock->now()->format('Y')` instead of `date('Y')`.
 
 Parsing with `createFromFormat()` always starts the format with `!`: `\DateTimeImmutable::createFromFormat('!Y-m-d', $value)`. Without it, every field the format does not mention comes from the current time, so `'Y-m-d'` returns the date with the time of day the code runs at.
+
+PHPStan checks PHP only; in templates `'now'|date` reads the system time unnoticed.
 
 PHPStan reports violations in `src/` with the identifiers `wallClock.dateTime`, `wallClock.function` and `wallClock.createFromFormat`; there is no baseline for them. A deliberate exception needs `@phpstan-ignore wallClock.function (reason)`.
 
