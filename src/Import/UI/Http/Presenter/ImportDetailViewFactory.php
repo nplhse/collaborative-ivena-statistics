@@ -70,6 +70,7 @@ final readonly class ImportDetailViewFactory
                     ),
                 ],
                 coverage: $coverage,
+                showsDeduplicationBreakdown: true,
             ),
             ImportType::CLOSURE => new ImportDetailView(
                 typeLabel: $this->trans('label.import.type.closure'),

@@ -214,6 +214,7 @@
                                     </div>
                                 </div>
                                 {% if (import.rowsDeduplicated ?? 0) > 0 %}
+                                {% if detail.showsDeduplicationBreakdown %}
                                 <div class="datagrid-item">
                                     <div class="datagrid-title">{{ 'import.field.rowsDeduplicatedDiscarded'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
@@ -226,6 +227,7 @@
                                         {{ import.rowsDeduplicatedReplaced ?? 0 }}
                                     </div>
                                 </div>
+                                {% endif %}
                                 <div class="datagrid-item">
                                     <div class="datagrid-title">{{ 'import.field.duplicationRate'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
