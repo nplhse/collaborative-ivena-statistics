@@ -1,0 +1,128 @@
+{% extends '@EasyAdmin/crud/detail.html.twig' %}
+
+{% macro user_line(user) %}
+    {{ user.username }}{% if user.email %} &lt;{{ user.email }}&gt;{% endif %}
+{% endmacro %}
+
+{% block main %}
+    {{ parent() }}
+
+    {% set request = assignment_request %}
+    {% set hospital = request.hospital %}
+    <section class="mt-4" data-testid="assignment-request-context">
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <div class="form-fieldset"><fieldset>
+                    <div class="form-fieldset-header"><div class="form-fieldset-title"><span class="not-collapsible form-fieldset-title-content">{{ 'admin.hospital_assignment_request.section.requester'|trans({}, 'admin') }}</span></div></div>
+                    <div class="form-fieldset-body show">
+                        <dl class="mb-0">
+                            <dt>{{ 'admin.hospital_assignment_request.field.requester'|trans({}, 'admin') }}</dt>
+                            <dd>{{ _self.user_line(request.requester) }}</dd>
+                            <dt>{{ 'admin.hospital_assignment_request.field.registered_at'|trans({}, 'admin') }}</dt>
+                            <dd>{{ request.requester.createdAt|format_datetime('medium', 'short') }}</dd>
+                            <dt>{{ 'admin.hospital_assignment_request.field.requester_hospitals'|trans({}, 'admin') }}</dt>
+                            <dd data-testid="assignment-request-requester-hospitals">
+                                {% for owned in request.requester.hospitals %}
+                                    <div>{{ owned.name }} <span class="badge badge-secondary">{{ 'admin.hospital_assignment_request.label.owner'|trans({}, 'admin') }}</span></div>
+                                {% endfor %}
+                                {% for grant in requester_grants %}
+                                    <div>{{ grant.hospital.name }} <span class="badge badge-secondary">{{ 'admin.hospital_assignment_request.label.grant'|trans({}, 'admin') }}</span></div>
+                                {% endfor %}
+                                {% if request.requester.hospitals is empty and requester_grants is empty %}<span class="text-muted">{{ 'admin.hospital_assignment_request.label.none'|trans({}, 'admin') }}</span>{% endif %}
+                            </dd>
+                        </dl>
+                    </div>
+                </fieldset></div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-fieldset"><fieldset>
+                    <div class="form-fieldset-header"><div class="form-fieldset-title"><span class="not-collapsible form-fieldset-title-content">{{ 'admin.hospital_assignment_request.section.request'|trans({}, 'admin') }}</span></div></div>
+                    <div class="form-fieldset-body show">
+                        <dl class="mb-0">
+                            <dt>{{ 'admin.hospital_assignment_request.field.hospital'|trans({}, 'admin') }}</dt>
+                            <dd data-testid="assignment-request-hospital">
+                                {% if hospital %}{{ hospital.name }}{% endif %}
+                                {% if request.requestedHospitalName %}
+                                    <div class="text-muted">{{ 'admin.hospital_assignment_request.label.entered_name'|trans({name: request.requestedHospitalName}, 'admin') }}</div>
+                                {% endif %}
+                            </dd>
+                            <dt>{{ 'admin.hospital_assignment_request.field.reason'|trans({}, 'admin') }}</dt>
+                            <dd>{{ ('hospital_assignment_request.reason.' ~ request.reason.value)|trans({}, 'allocation') }}{% if request.explanation %}: {{ request.explanation }}{% endif %}</dd>
+                            {% if request.comment %}
+                                <dt>{{ 'admin.hospital_assignment_request.field.comment'|trans({}, 'admin') }}</dt>
+                                <dd class="text-break">{{ request.comment }}</dd>
+                            {% endif %}
+                            {% if hospital %}
+                                <dt>{{ 'admin.hospital_assignment_request.field.owner'|trans({}, 'admin') }}</dt>
+                                <dd data-testid="assignment-request-owner">{% if hospital.owner %}{{ _self.user_line(hospital.owner) }}{% else %}<span class="text-muted">{{ 'admin.hospital_assignment_request.label.none'|trans({}, 'admin') }}</span>{% endif %}</dd>
+                                <dt>{{ 'admin.hospital_assignment_request.field.grants'|trans({}, 'admin') }}</dt>
+                                <dd>
+                                    {% for grant in hospital_grants %}<div>{{ _self.user_line(grant.user) }}</div>{% else %}<span class="text-muted">{{ 'admin.hospital_assignment_request.label.none'|trans({}, 'admin') }}</span>{% endfor %}
+                                </dd>
+                            {% endif %}
+                            {% if not request.pending %}
+                                <dt>{{ 'admin.hospital_assignment_request.field.decision'|trans({}, 'admin') }}</dt>
+                                <dd data-testid="assignment-request-decision">
+                                    {{ ('admin.hospital_assignment_request.status.' ~ request.status.value)|trans({}, 'admin') }}
+                                    {% if request.outcome %} · {{ ('hospital_assignment_request.outcome.' ~ request.outcome.value)|trans({}, 'allocation') }}{% endif %}
+                                    {% if request.previousOwner %} · {{ ('admin.hospital_assignment_request.previous_owner_access.' ~ request.previousOwnerAccess.value)|trans({}, 'admin') }} ({{ request.previousOwner.username }}){% endif %}
+                                    {% if request.decisionMessage %}<div class="text-muted">{{ request.decisionMessage }}</div>{% endif %}
+                                </dd>
+                            {% endif %}
+                        </dl>
+                    </div>
+                </fieldset></div>
+            </div>
+        </div>
+
+        {% if decision_forms is defined %}
+            <div class="row g-3 mt-1" data-testid="assignment-request-decisions">
+                {% if decision_forms.resolve is defined %}
+                    <div class="col-lg-6">
+                        <div class="card"><div class="card-body">
+                            <h3 class="h5">{{ 'admin.hospital_assignment_request.decision.resolve'|trans({}, 'admin') }}</h3>
+                            {{ form_start(decision_forms.resolve) }}
+                            {{ form_widget(decision_forms.resolve) }}
+                            <button type="submit" class="btn btn-primary" data-testid="assignment-request-resolve">{{ 'admin.hospital_assignment_request.action.resolve'|trans({}, 'admin') }}</button>
+                            {{ form_end(decision_forms.resolve) }}
+                        </div></div>
+                    </div>
+                {% endif %}
+                {% if decision_forms.grant is defined %}
+                    <div class="col-lg-6">
+                        <div class="card"><div class="card-body">
+                            <h3 class="h5">{{ 'admin.hospital_assignment_request.decision.grant'|trans({}, 'admin') }}</h3>
+                            {{ form_start(decision_forms.grant) }}
+                            {{ form_widget(decision_forms.grant) }}
+                            <button type="submit" class="btn btn-primary" data-testid="assignment-request-approve-grant">{{ 'admin.hospital_assignment_request.action.approve_grant'|trans({}, 'admin') }}</button>
+                            {{ form_end(decision_forms.grant) }}
+                        </div></div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card"><div class="card-body">
+                            <h3 class="h5">{{ 'admin.hospital_assignment_request.decision.ownership'|trans({}, 'admin') }}</h3>
+                            {% if hospital.owner %}
+                                <div class="alert alert-warning" data-testid="assignment-request-transfer-warning">
+                                    {{ 'admin.hospital_assignment_request.transfer_warning'|trans({current: hospital.owner.username, new: request.requester.username}, 'admin') }}
+                                </div>
+                            {% endif %}
+                            {{ form_start(decision_forms.ownership) }}
+                            {{ form_widget(decision_forms.ownership) }}
+                            <button type="submit" class="btn btn-warning" data-testid="assignment-request-approve-ownership">{{ 'admin.hospital_assignment_request.action.approve_ownership'|trans({}, 'admin') }}</button>
+                            {{ form_end(decision_forms.ownership) }}
+                        </div></div>
+                    </div>
+                {% endif %}
+                <div class="col-lg-6">
+                    <div class="card"><div class="card-body">
+                        <h3 class="h5">{{ 'admin.hospital_assignment_request.decision.reject'|trans({}, 'admin') }}</h3>
+                        {{ form_start(decision_forms.reject) }}
+                        {{ form_widget(decision_forms.reject) }}
+                        <button type="submit" class="btn btn-danger" data-testid="assignment-request-reject">{{ 'admin.hospital_assignment_request.action.reject'|trans({}, 'admin') }}</button>
+                        {{ form_end(decision_forms.reject) }}
+                    </div></div>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}

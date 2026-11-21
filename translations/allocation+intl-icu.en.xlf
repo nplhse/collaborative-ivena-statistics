@@ -2409,6 +2409,26 @@
         <source>hospital_assignment_request.refused.not_pending</source>
         <target>This request was already decided or withdrawn.</target>
       </trans-unit>
+      <trans-unit id="harRefHospitalAssignmentRequestRefusedChangedMeanwhile" resname="hospital_assignment_request.refused.changed_meanwhile">
+        <source>hospital_assignment_request.refused.changed_meanwhile</source>
+        <target>The request was changed meanwhile. Check it again and decide anew.</target>
+      </trans-unit>
+      <trans-unit id="harRefHospitalAssignmentRequestRefusedOwnerChanged" resname="hospital_assignment_request.refused.owner_changed">
+        <source>hospital_assignment_request.refused.owner_changed</source>
+        <target>The owner of the hospital changed meanwhile. Check the transfer again.</target>
+      </trans-unit>
+      <trans-unit id="harRefHospitalAssignmentRequestRefusedHospitalRequired" resname="hospital_assignment_request.refused.hospital_required">
+        <source>hospital_assignment_request.refused.hospital_required</source>
+        <target>Match the request to an existing hospital first.</target>
+      </trans-unit>
+      <trans-unit id="harRefHospitalAssignmentRequestRefusedPreviousOwnerChoiceRequired" resname="hospital_assignment_request.refused.previous_owner_choice_required">
+        <source>hospital_assignment_request.refused.previous_owner_choice_required</source>
+        <target>Choose what happens to the access of the current owner.</target>
+      </trans-unit>
+      <trans-unit id="harRefHospitalAssignmentRequestRefusedInvalidPermissions" resname="hospital_assignment_request.refused.invalid_permissions">
+        <source>hospital_assignment_request.refused.invalid_permissions</source>
+        <target>Choose at least the permission to view the hospital.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

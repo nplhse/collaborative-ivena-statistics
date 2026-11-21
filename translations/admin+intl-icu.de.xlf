@@ -3121,6 +3121,206 @@
         <source>admin.user.field.credentials_expired</source>
         <target>Zugangsdaten abgelaufen</target>
       </trans-unit>
+      <trans-unit id="admHarDeMenuUsersAssignmentRequests" resname="menu.users.assignment_requests">
+        <source>menu.users.assignment_requests</source>
+        <target>Zuordnungsanträge</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestEntitySingular" resname="admin.hospital_assignment_request.entity.singular">
+        <source>admin.hospital_assignment_request.entity.singular</source>
+        <target>Zuordnungsantrag</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestEntityPlural" resname="admin.hospital_assignment_request.entity.plural">
+        <source>admin.hospital_assignment_request.entity.plural</source>
+        <target>Zuordnungsanträge</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFieldStatus" resname="admin.hospital_assignment_request.field.status">
+        <source>admin.hospital_assignment_request.field.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFieldRequester" resname="admin.hospital_assignment_request.field.requester">
+        <source>admin.hospital_assignment_request.field.requester</source>
+        <target>Beantragt von</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFieldHospital" resname="admin.hospital_assignment_request.field.hospital">
+        <source>admin.hospital_assignment_request.field.hospital</source>
+        <target>Klinik</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFieldReason" resname="admin.hospital_assignment_request.field.reason">
+        <source>admin.hospital_assignment_request.field.reason</source>
+        <target>Grund</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFieldComment" resname="admin.hospital_assignment_request.field.comment">
+        <source>admin.hospital_assignment_request.field.comment</source>
+        <target>Kommentar</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFieldCreatedAt" resname="admin.hospital_assignment_request.field.created_at">
+        <source>admin.hospital_assignment_request.field.created_at</source>
+        <target>Gestellt</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFieldClosedAt" resname="admin.hospital_assignment_request.field.closed_at">
+        <source>admin.hospital_assignment_request.field.closed_at</source>
+        <target>Abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFieldDecidedBy" resname="admin.hospital_assignment_request.field.decided_by">
+        <source>admin.hospital_assignment_request.field.decided_by</source>
+        <target>Entschieden von</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFieldRegisteredAt" resname="admin.hospital_assignment_request.field.registered_at">
+        <source>admin.hospital_assignment_request.field.registered_at</source>
+        <target>Registriert</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFieldRequesterHospitals" resname="admin.hospital_assignment_request.field.requester_hospitals">
+        <source>admin.hospital_assignment_request.field.requester_hospitals</source>
+        <target>Bisherige Kliniken der antragstellenden Person</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFieldOwner" resname="admin.hospital_assignment_request.field.owner">
+        <source>admin.hospital_assignment_request.field.owner</source>
+        <target>Aktuelle Eigentümerschaft</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFieldGrants" resname="admin.hospital_assignment_request.field.grants">
+        <source>admin.hospital_assignment_request.field.grants</source>
+        <target>Personen mit Zugang</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFieldDecision" resname="admin.hospital_assignment_request.field.decision">
+        <source>admin.hospital_assignment_request.field.decision</source>
+        <target>Entscheidung</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestStatusPending" resname="admin.hospital_assignment_request.status.pending">
+        <source>admin.hospital_assignment_request.status.pending</source>
+        <target>Offen</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestStatusApproved" resname="admin.hospital_assignment_request.status.approved">
+        <source>admin.hospital_assignment_request.status.approved</source>
+        <target>Angenommen</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestStatusRejected" resname="admin.hospital_assignment_request.status.rejected">
+        <source>admin.hospital_assignment_request.status.rejected</source>
+        <target>Abgelehnt</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestStatusWithdrawn" resname="admin.hospital_assignment_request.status.withdrawn">
+        <source>admin.hospital_assignment_request.status.withdrawn</source>
+        <target>Zurückgezogen</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestSectionRequester" resname="admin.hospital_assignment_request.section.requester">
+        <source>admin.hospital_assignment_request.section.requester</source>
+        <target>Antragstellende Person</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestSectionRequest" resname="admin.hospital_assignment_request.section.request">
+        <source>admin.hospital_assignment_request.section.request</source>
+        <target>Antrag und Klinik</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestLabelOwner" resname="admin.hospital_assignment_request.label.owner">
+        <source>admin.hospital_assignment_request.label.owner</source>
+        <target>Eigentümer</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestLabelGrant" resname="admin.hospital_assignment_request.label.grant">
+        <source>admin.hospital_assignment_request.label.grant</source>
+        <target>Zugang</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestLabelNone" resname="admin.hospital_assignment_request.label.none">
+        <source>admin.hospital_assignment_request.label.none</source>
+        <target>keine</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestLabelEnteredName" resname="admin.hospital_assignment_request.label.entered_name">
+        <source>admin.hospital_assignment_request.label.entered_name</source>
+        <target>Eingegebener Name: {name}</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestDecisionResolve" resname="admin.hospital_assignment_request.decision.resolve">
+        <source>admin.hospital_assignment_request.decision.resolve</source>
+        <target>Klinik zuordnen</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestDecisionGrant" resname="admin.hospital_assignment_request.decision.grant">
+        <source>admin.hospital_assignment_request.decision.grant</source>
+        <target>Als Zugang annehmen</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestDecisionOwnership" resname="admin.hospital_assignment_request.decision.ownership">
+        <source>admin.hospital_assignment_request.decision.ownership</source>
+        <target>Als Eigentümerschaft annehmen</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestDecisionReject" resname="admin.hospital_assignment_request.decision.reject">
+        <source>admin.hospital_assignment_request.decision.reject</source>
+        <target>Ablehnen</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFormHospital" resname="admin.hospital_assignment_request.form.hospital">
+        <source>admin.hospital_assignment_request.form.hospital</source>
+        <target>Klinik</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFormHospitalPlaceholder" resname="admin.hospital_assignment_request.form.hospital_placeholder">
+        <source>admin.hospital_assignment_request.form.hospital_placeholder</source>
+        <target>Gemeinte Klinik auswählen</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFormPermissions" resname="admin.hospital_assignment_request.form.permissions">
+        <source>admin.hospital_assignment_request.form.permissions</source>
+        <target>Berechtigungen</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFormPermissionsHelp" resname="admin.hospital_assignment_request.form.permissions_help">
+        <source>admin.hospital_assignment_request.form.permissions_help</source>
+        <target>Vorbelegt nach dem Grund des Antrags.</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFormPreviousOwnerAccess" resname="admin.hospital_assignment_request.form.previous_owner_access">
+        <source>admin.hospital_assignment_request.form.previous_owner_access</source>
+        <target>Zugang der bisherigen Eigentümerschaft nach der Übertragung</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFormConfirmTransfer" resname="admin.hospital_assignment_request.form.confirm_transfer">
+        <source>admin.hospital_assignment_request.form.confirm_transfer</source>
+        <target>Ich bestätige, dass die Eigentümerschaft dieser Klinik übertragen wird.</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFormMessage" resname="admin.hospital_assignment_request.form.message">
+        <source>admin.hospital_assignment_request.form.message</source>
+        <target>Nachricht an die antragstellende Person (optional)</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFormRejectionMessage" resname="admin.hospital_assignment_request.form.rejection_message">
+        <source>admin.hospital_assignment_request.form.rejection_message</source>
+        <target>Begründung der Ablehnung</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestFormRejectionMessageHelp" resname="admin.hospital_assignment_request.form.rejection_message_help">
+        <source>admin.hospital_assignment_request.form.rejection_message_help</source>
+        <target>Die antragstellende Person sieht diese Nachricht.</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestPreviousOwnerAccessKeepFullAccess" resname="admin.hospital_assignment_request.previous_owner_access.keep_full_access">
+        <source>admin.hospital_assignment_request.previous_owner_access.keep_full_access</source>
+        <target>Behält vollen Zugang (Zugang mit allen Berechtigungen)</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestPreviousOwnerAccessRemoveAccess" resname="admin.hospital_assignment_request.previous_owner_access.remove_access">
+        <source>admin.hospital_assignment_request.previous_owner_access.remove_access</source>
+        <target>Verliert den Zugang zur Klinik</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestTransferWarning" resname="admin.hospital_assignment_request.transfer_warning">
+        <source>admin.hospital_assignment_request.transfer_warning</source>
+        <target>Diese Klinik gehört {current}. Bei Annahme als Eigentümerschaft wird stattdessen {new} Eigentümer.</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestActionResolve" resname="admin.hospital_assignment_request.action.resolve">
+        <source>admin.hospital_assignment_request.action.resolve</source>
+        <target>Klinik zuordnen</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestActionApproveGrant" resname="admin.hospital_assignment_request.action.approve_grant">
+        <source>admin.hospital_assignment_request.action.approve_grant</source>
+        <target>Annehmen und Zugang geben</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestActionApproveOwnership" resname="admin.hospital_assignment_request.action.approve_ownership">
+        <source>admin.hospital_assignment_request.action.approve_ownership</source>
+        <target>Annehmen und Eigentümerschaft übertragen</target>
+      </trans-unit>
+      <trans-unit id="admHarDeAdminHospitalAssignmentRequestActionReject" resname="admin.hospital_assignment_request.action.reject">
+        <source>admin.hospital_assignment_request.action.reject</source>
+        <target>Antrag ablehnen</target>
+      </trans-unit>
+      <trans-unit id="admHarDeFlashAdminHospitalAssignmentRequestHospitalResolved" resname="flash.admin.hospital_assignment_request.hospital_resolved">
+        <source>flash.admin.hospital_assignment_request.hospital_resolved</source>
+        <target>Der Antrag ist der Klinik zugeordnet.</target>
+      </trans-unit>
+      <trans-unit id="admHarDeFlashAdminHospitalAssignmentRequestApproved" resname="flash.admin.hospital_assignment_request.approved">
+        <source>flash.admin.hospital_assignment_request.approved</source>
+        <target>Der Antrag ist angenommen.</target>
+      </trans-unit>
+      <trans-unit id="admHarDeFlashAdminHospitalAssignmentRequestRejected" resname="flash.admin.hospital_assignment_request.rejected">
+        <source>flash.admin.hospital_assignment_request.rejected</source>
+        <target>Der Antrag ist abgelehnt.</target>
+      </trans-unit>
+      <trans-unit id="admHarDeFlashAdminHospitalAssignmentRequestInvalid" resname="flash.admin.hospital_assignment_request.invalid">
+        <source>flash.admin.hospital_assignment_request.invalid</source>
+        <target>Die Entscheidung ist unvollständig. Bitte prüfen Sie das Formular.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

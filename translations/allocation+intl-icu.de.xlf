@@ -2409,6 +2409,26 @@
         <source>hospital_assignment_request.refused.not_pending</source>
         <target>Dieser Antrag wurde bereits entschieden oder zurückgezogen.</target>
       </trans-unit>
+      <trans-unit id="harRefDeHospitalAssignmentRequestRefusedChangedMeanwhile" resname="hospital_assignment_request.refused.changed_meanwhile">
+        <source>hospital_assignment_request.refused.changed_meanwhile</source>
+        <target>Der Antrag wurde inzwischen geändert. Bitte prüfen Sie ihn erneut und entscheiden Sie neu.</target>
+      </trans-unit>
+      <trans-unit id="harRefDeHospitalAssignmentRequestRefusedOwnerChanged" resname="hospital_assignment_request.refused.owner_changed">
+        <source>hospital_assignment_request.refused.owner_changed</source>
+        <target>Die Eigentümerschaft der Klinik hat sich inzwischen geändert. Bitte prüfen Sie die Übertragung erneut.</target>
+      </trans-unit>
+      <trans-unit id="harRefDeHospitalAssignmentRequestRefusedHospitalRequired" resname="hospital_assignment_request.refused.hospital_required">
+        <source>hospital_assignment_request.refused.hospital_required</source>
+        <target>Ordnen Sie den Antrag zuerst einer bestehenden Klinik zu.</target>
+      </trans-unit>
+      <trans-unit id="harRefDeHospitalAssignmentRequestRefusedPreviousOwnerChoiceRequired" resname="hospital_assignment_request.refused.previous_owner_choice_required">
+        <source>hospital_assignment_request.refused.previous_owner_choice_required</source>
+        <target>Wählen Sie, was mit dem Zugang der bisherigen Eigentümerschaft geschieht.</target>
+      </trans-unit>
+      <trans-unit id="harRefDeHospitalAssignmentRequestRefusedInvalidPermissions" resname="hospital_assignment_request.refused.invalid_permissions">
+        <source>hospital_assignment_request.refused.invalid_permissions</source>
+        <target>Wählen Sie mindestens die Berechtigung, die Klinik zu sehen.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
