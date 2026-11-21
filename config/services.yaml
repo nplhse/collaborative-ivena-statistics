@@ -185,9 +185,10 @@ when@demo:
 
 when@test:
     parameters:
-        # Test files stay out of the development storage; the keys are unique, so ParaTest workers can share it.
-        app.media_storage_dir: '%kernel.cache_dir%/media'
-        app.media_legacy_dir: '%kernel.cache_dir%/legacy-media'
+        # Test files stay out of the development storage. One storage per ParaTest worker, like its test database:
+        # integrity check tests empty the storage root, which must not remove files another worker is writing.
+        app.media_storage_dir: '%kernel.cache_dir%/media%env(default::TEST_TOKEN)%'
+        app.media_legacy_dir: '%kernel.cache_dir%/legacy-media%env(default::TEST_TOKEN)%'
 
     services:
         # One lock directory per ParaTest worker, like its test database (dbname_suffix with TEST_TOKEN):
