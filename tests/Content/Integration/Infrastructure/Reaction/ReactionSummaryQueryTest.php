@@ -82,6 +82,18 @@ final class ReactionSummaryQueryTest extends DatabaseKernelTestCase
         self::assertSame(2, $count->unnamed());
     }
 
+    public function testIgnoresReactionTypesThatNoLongerExist(): void
+    {
+        self::getContainer()->get(EntityManagerInterface::class)->getConnection()->executeStatement(
+            "INSERT INTO reaction (user_id, target_type, target_id, type, created_at, updated_at) VALUES (?, 'post', 2, 'removed', NOW(), NOW())",
+            [$this->anna->getId()],
+        );
+
+        $summaries = $this->query()->summaries([new ReactionTarget(ReactionTargetType::Post, 2)], null, false);
+
+        self::assertSame([['funny', 1, false, []]], $this->flatten($summaries['post:2']->counts));
+    }
+
     /**
      * @return list<ReactionTarget>
      */
