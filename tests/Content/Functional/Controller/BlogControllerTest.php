@@ -496,6 +496,7 @@ final class BlogControllerTest extends WebTestCase
         self::assertResponseRedirects('/blog/reply-target', Response::HTTP_SEE_OTHER);
         $client->followRedirect();
         self::assertSelectorTextContains('body', 'Nested reply');
+        self::assertSelectorTextSame('section.card .card-header .badge', '2 comments', 'replies count as comments (#1456)');
     }
 
     public function testAdminSeesEditShortcutToPostBackend(): void

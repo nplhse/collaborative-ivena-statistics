@@ -83,7 +83,7 @@
                     <section class="card">
                         <div class="card-header d-flex align-items-center justify-content-between">
                             <h2 class="card-title mb-0">{{ 'blog.comments.title'|trans({}, 'content') }}</h2>
-                            <span class="badge bg-secondary-lt">{{ 'blog.comments.count'|trans(({count: comments|length}), 'content') }}</span>
+                            <span class="badge bg-secondary-lt">{{ 'blog.comments.count'|trans(({count: comment_count}), 'content') }}</span>
                         </div>
                         <div class="card-body">
                             {% if is_granted('ROLE_USER') %}

@@ -121,6 +121,7 @@ final class BlogController extends AbstractController
             'post' => $post,
             'content' => $this->postContentSanitizer->sanitize((string) $post->getContent()),
             'comments' => $this->postCommentRepository->findRootCommentsForPost($post),
+            'comment_count' => $this->postCommentRepository->countForPost($post),
             'previous_post' => $this->postRepository->findPreviousPublishedPost($post),
             'next_post' => $this->postRepository->findNextPublishedPost($post),
             ...$this->buildSidebarData(),
