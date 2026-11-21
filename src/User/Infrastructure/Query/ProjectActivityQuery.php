@@ -184,6 +184,7 @@ final readonly class ProjectActivityQuery implements ProjectActivityQueryInterfa
             excerpt: $this->stringMetadata($metadata, 'excerpt'),
             actorId: $user->getId(),
             actorDisplayName: $user->getDisplayName(),
+            id: $id,
         );
     }
 

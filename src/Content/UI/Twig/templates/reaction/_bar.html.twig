@@ -1,0 +1,58 @@
+{#
+    Reactions of one target (#467): one chip per given reaction with its count. Signed-in users see who reacted and
+    can react: a chip toggles that reaction, the picker offers all of them; their own reaction is highlighted.
+    Visitors only see the counts.
+#}
+{% set target = summary.target %}
+<div id="{{ target.domId }}" class="reaction-bar" data-testid="reaction-bar" data-reaction-target="{{ target.key }}">
+    {% if canReact %}
+        <form method="post" action="{{ path('app_reaction_toggle', {targetType: target.type.value, targetId: target.id}) }}" class="reaction-bar__form">
+            <input type="hidden" name="_token" value="{{ csrf_token(constant('App\\Content\\UI\\Http\\Controller\\ReactionController::CSRF_TOKEN_ID')) }}">
+            {% for count in summary.counts %}
+                {% set label = count.type.labelKey|trans({}, 'content') %}
+                {% set tooltip = 'reaction.tooltip.names'|trans({label: label, names: count.names|join(', '), more: count.unnamed}, 'content') %}
+                <button
+                    type="submit"
+                    name="type"
+                    value="{{ count.type.value }}"
+                    class="reaction-chip{{ count.own ? ' reaction-chip--own' }}"
+                    title="{{ tooltip }}"
+                    aria-label="{{ tooltip }}"
+                    aria-pressed="{{ count.own ? 'true' : 'false' }}"
+                    data-testid="reaction-chip"
+                    data-reaction-type="{{ count.type.value }}"
+                ><span class="reaction-chip__emoji" aria-hidden="true">{{ count.type.emoji }}</span><span class="reaction-chip__count">{{ count.count }}</span></button>
+            {% endfor %}
+            <div class="dropdown reaction-picker">
+                <button
+                    type="button"
+                    class="reaction-chip reaction-chip--add"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    title="{{ 'reaction.add'|trans({}, 'content') }}"
+                    aria-label="{{ 'reaction.add'|trans({}, 'content') }}"
+                    data-testid="reaction-add"
+                ><span class="reaction-chip__emoji" aria-hidden="true">🙂</span><twig:ux:icon name="tabler:plus" class="reaction-chip__plus" aria-hidden="true" /></button>
+                <div class="dropdown-menu reaction-picker__menu">
+                    {% for type in enum_cases('App\\Content\\Domain\\Enum\\ReactionType') %}
+                        {% set label = type.labelKey|trans({}, 'content') %}
+                        <button
+                            type="submit"
+                            name="type"
+                            value="{{ type.value }}"
+                            class="reaction-picker__option{{ summary.own == type ? ' reaction-picker__option--own' }}"
+                            title="{{ label }}"
+                            aria-label="{{ label }}"
+                            data-testid="reaction-option"
+                        ><span aria-hidden="true">{{ type.emoji }}</span></button>
+                    {% endfor %}
+                </div>
+            </div>
+        </form>
+    {% else %}
+        {% for count in summary.counts %}
+            {% set tooltip = 'reaction.tooltip.count'|trans({label: count.type.labelKey|trans({}, 'content'), count: count.count}, 'content') %}
+            <span class="reaction-chip reaction-chip--static" title="{{ tooltip }}" aria-label="{{ tooltip }}" data-testid="reaction-chip" data-reaction-type="{{ count.type.value }}"><span class="reaction-chip__emoji" aria-hidden="true">{{ count.type.emoji }}</span><span class="reaction-chip__count">{{ count.count }}</span></span>
+        {% endfor %}
+    {% endif %}
+</div>

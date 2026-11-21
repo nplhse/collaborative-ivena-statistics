@@ -1245,6 +1245,50 @@
         <source>activity.hospital.empty_description</source>
         <target>Changes to access and ownership of this hospital and import milestones appear here.</target>
       </trans-unit>
+      <trans-unit id="reactTypeLike" resname="reaction.type.like">
+        <source>reaction.type.like</source>
+        <target>Like</target>
+      </trans-unit>
+      <trans-unit id="reactTypeLove" resname="reaction.type.love">
+        <source>reaction.type.love</source>
+        <target>Love</target>
+      </trans-unit>
+      <trans-unit id="reactTypeHooray" resname="reaction.type.hooray">
+        <source>reaction.type.hooray</source>
+        <target>Hooray</target>
+      </trans-unit>
+      <trans-unit id="reactTypeRocket" resname="reaction.type.rocket">
+        <source>reaction.type.rocket</source>
+        <target>Rocket</target>
+      </trans-unit>
+      <trans-unit id="reactTypeInsightful" resname="reaction.type.insightful">
+        <source>reaction.type.insightful</source>
+        <target>Insightful</target>
+      </trans-unit>
+      <trans-unit id="reactTypeEyes" resname="reaction.type.eyes">
+        <source>reaction.type.eyes</source>
+        <target>Eyes</target>
+      </trans-unit>
+      <trans-unit id="reactTypeFunny" resname="reaction.type.funny">
+        <source>reaction.type.funny</source>
+        <target>Funny</target>
+      </trans-unit>
+      <trans-unit id="reactTypeThinking" resname="reaction.type.thinking">
+        <source>reaction.type.thinking</source>
+        <target>Thinking</target>
+      </trans-unit>
+      <trans-unit id="reactAdd" resname="reaction.add">
+        <source>reaction.add</source>
+        <target>Add a reaction</target>
+      </trans-unit>
+      <trans-unit id="reactTooltipNames" resname="reaction.tooltip.names">
+        <source>reaction.tooltip.names</source>
+        <target>{label}: {names}{more, plural, =0 {} one { and # more} other { and # more}}</target>
+      </trans-unit>
+      <trans-unit id="reactTooltipCount" resname="reaction.tooltip.count">
+        <source>reaction.tooltip.count</source>
+        <target>{label}: {count}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

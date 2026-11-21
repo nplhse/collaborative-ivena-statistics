@@ -20,6 +20,8 @@ final readonly class ProjectActivity
         public ?string $excerpt = null,
         public ?int $actorId = null,
         public ?string $actorDisplayName = null,
+        /** Id of the user_activity row; reactions refer to it (#467). */
+        public ?int $id = null,
     ) {
     }
 }
