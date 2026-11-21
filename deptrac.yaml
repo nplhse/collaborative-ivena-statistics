@@ -705,6 +705,9 @@ deptrac:
         Content_Infrastructure:
             - Content_Application
             - Content_Domain
+            # Admin notification about missing or damaged media files (ADR 039), as Encounter does (ADR 027).
+            - Notification_Application
+            - Notification_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure

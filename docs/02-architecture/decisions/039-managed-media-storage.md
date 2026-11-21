@@ -135,8 +135,9 @@ are not rewritten.
 - the file is older than a grace period (24 hours), so an upload whose row is not committed yet is safe, and files
   of a reset demo are removed one day later;
 - no backup or restore runs (the check takes the lock `backup-maintenance` of ADR 038);
-- `media` is not empty, and the orphans are below a share of the files (20 %); a larger share points to a wrong
-  database or an incomplete restore, so the run deletes nothing and reports instead.
+- `media` is not empty, and the orphans are at most 10 or at most 20 % of the files; more points to a wrong
+  database or an incomplete restore, so the run deletes nothing and reports instead. A demo reset restores database
+  and files from one snapshot, so it leaves no orphans behind.
 
 Every deletion is logged with key, size and modification time. Missing and damaged files are never fixed
 automatically: the way back is a restore from a backup.
@@ -179,7 +180,7 @@ storage monitoring. Content no longer needs them once the rewrite has run.
   backups hold the files.
 - **Mark a storage root with the installation it belongs to.** Would stop the cleanup of one installation from deleting
   files of another one that shares the directory. Not done: installations do not share a storage root (the demo has its
-  own), and the 20 % rule stops a mass deletion.
+  own), and the orphan rule stops a mass deletion.
 
 ## Consequences
 

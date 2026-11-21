@@ -29,6 +29,9 @@ final class JobRunCatalog
     public const string FORMAT_HOSPITALS = 'hospitals';
     public const string FORMAT_TEXT = 'text';
 
+    /** Job of the media integrity check (Content, ContentScheduleContribution::JOB_MEDIA_INTEGRITY, ADR 039). */
+    public const string JOB_MEDIA_INTEGRITY = 'media_integrity_check';
+
     /** @var list<string> */
     public const array JOBS = [
         ImportRunTelemetry::JOB_ALLOCATIONS,
@@ -43,6 +46,7 @@ final class JobRunCatalog
         NotificationScheduleContribution::JOB_CLEANUP,
         NotificationScheduleContribution::JOB_RECONCILE,
         StorageScheduleContribution::JOB,
+        self::JOB_MEDIA_INTEGRITY,
         MonitoringScheduleContribution::JOB_QUEUE_SAMPLE,
         MonitoringScheduleContribution::JOB_RETENTION,
     ];
@@ -174,6 +178,17 @@ final class JobRunCatalog
             'skip_reason' => self::FORMAT_TEXT,
             'level' => self::FORMAT_TEXT,
             'failures' => self::FORMAT_COUNT,
+        ],
+        self::JOB_MEDIA_INTEGRITY => [
+            'skip_reason' => self::FORMAT_TEXT,
+            'files' => self::FORMAT_COUNT,
+            'hashed' => self::FORMAT_COUNT,
+            'missing' => self::FORMAT_COUNT,
+            'damaged' => self::FORMAT_COUNT,
+            'orphans_deleted' => self::FORMAT_COUNT,
+            'orphans_kept' => self::FORMAT_COUNT,
+            'leftovers_deleted' => self::FORMAT_COUNT,
+            'unexpected' => self::FORMAT_COUNT,
         ],
         MonitoringScheduleContribution::JOB_QUEUE_SAMPLE => [
             'pending' => self::FORMAT_COUNT,

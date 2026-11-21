@@ -561,6 +561,18 @@
         <source>admin.encounter_key_changed.label</source>
         <target>Wechsel des Pseudonymschlüssels (Behandlungsdaten)</target>
       </trans-unit>
+      <trans-unit id="NtfMediaIntegrityTitleDe" resname="admin.media_integrity_problem.title">
+        <source>admin.media_integrity_problem.title</source>
+        <target>{missing, plural, =0 {} one {# Mediendatei fehlt} other {# Mediendateien fehlen}}{missing, plural, =0 {} other {{damaged, plural, =0 {} other {, }}}}{damaged, plural, =0 {} one {# Mediendatei ist beschädigt} other {# Mediendateien sind beschädigt}}</target>
+      </trans-unit>
+      <trans-unit id="NtfMediaIntegrityMessageDe" resname="admin.media_integrity_problem.message">
+        <source>admin.media_integrity_problem.message</source>
+        <target>Die Prüfung der Mediendateien hat {missing, plural, =0 {keine fehlende Datei} one {eine fehlende Datei} other {# fehlende Dateien}} und {damaged, plural, =0 {keine beschädigte Datei} one {eine beschädigte Datei} other {# beschädigte Dateien}} gefunden. Seiten und Beiträge, die sie verwenden, zeigen defekte Bilder oder Links. Führen Sie auf dem Server app:media:check aus, um die betroffenen Dateien zu sehen, und stellen Sie sie aus einem Backup wieder her.</target>
+      </trans-unit>
+      <trans-unit id="NtfMediaIntegrityLabelDe" resname="admin.media_integrity_problem.label">
+        <source>admin.media_integrity_problem.label</source>
+        <target>Fehlende oder beschädigte Mediendateien</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
