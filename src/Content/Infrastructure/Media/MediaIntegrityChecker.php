@@ -50,6 +50,7 @@ final readonly class MediaIntegrityChecker implements MediaIntegrityCheckerInter
     /** @psalm-suppress PossiblyUnusedMethod Symfony autowires this service */
     public function __construct(
         private MediaStorage $storage,
+        private LocalMediaFileLocator $fileLocator,
         private Connection $connection,
         private MediaIntegrityCheckRepository $checks,
         private LockFactory $lockFactory,
@@ -108,6 +109,9 @@ final readonly class MediaIntegrityChecker implements MediaIntegrityCheckerInter
 
             $present[$key] = $row;
         }
+
+        // Media items not yet moved (until v0.4) are missing when their file is not in the old directory either.
+        $missing = [...$missing, ...$this->notMovedWithoutFile()];
 
         [$hashed, $hashDamaged] = $this->hash($present, $full, $dryRun, $now);
         $damaged = [...$damaged, ...$hashDamaged];
@@ -188,6 +192,24 @@ final readonly class MediaIntegrityChecker implements MediaIntegrityCheckerInter
         }
 
         return $media;
+    }
+
+    /**
+     * Media items still in the old upload directory whose file is not there, as `uploads/media/<filename>`.
+     *
+     * @return list<string>
+     */
+    private function notMovedWithoutFile(): array
+    {
+        $missing = [];
+        foreach ($this->connection->fetchFirstColumn("SELECT filename FROM media WHERE storage_key IS NULL AND filename IS NOT NULL AND filename <> '' ORDER BY id") as $filename) {
+            $path = $this->fileLocator->resolveLegacyPath((string) $filename);
+            if (null === $path || !is_file($path)) {
+                $missing[] = 'uploads/media/'.$filename;
+            }
+        }
+
+        return $missing;
     }
 
     /**

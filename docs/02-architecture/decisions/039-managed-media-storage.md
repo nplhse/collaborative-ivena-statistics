@@ -119,7 +119,7 @@ are history.
 
 | Finding | Detection | Action |
 |---|---|---|
-| missing | a row whose file does not exist | reported, admins notified |
+| missing | a row whose file does not exist; until v0.4 also a row not yet moved whose old file is gone | reported, admins notified |
 | damaged | size or SHA-256 differs from the row | reported, admins notified; the file stays for analysis and restore |
 | orphan | a file below `originals/` or `variants/` that no row refers to | **deleted** |
 | leftover | a file in `.tmp/` | **deleted** |

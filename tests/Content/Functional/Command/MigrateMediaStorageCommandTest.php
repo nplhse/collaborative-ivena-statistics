@@ -40,6 +40,18 @@ final class MigrateMediaStorageCommandTest extends KernelTestCase
         self::assertStringContainsString('command-missing.png', $tester->getDisplay());
     }
 
+    public function testDoesNotClaimEveryItemIsStoredWhileAFileIsMissing(): void
+    {
+        MediaFactory::new()->legacy('command-never-there.png')->create();
+        unlink($this->legacyDir().'/command-never-there.png');
+
+        $tester = $this->tester();
+
+        self::assertSame(Command::SUCCESS, $tester->execute(['--dry-run' => true]));
+        self::assertStringNotContainsString('Every media item is in the media storage.', $tester->getDisplay());
+        self::assertStringContainsString('1 media item(s) have no file', $tester->getDisplay());
+    }
+
     public function testDryRunSaysWhatWouldMoveAndMovesNothing(): void
     {
         MediaFactory::new()->legacy('command-dry.png')->create();

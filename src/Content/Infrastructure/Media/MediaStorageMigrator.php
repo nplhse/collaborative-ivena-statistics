@@ -63,6 +63,10 @@ final readonly class MediaStorageMigrator implements MediaStorageMigratorInterfa
             throw new MediaMaintenanceException('A backup, restore or media task is running. Wait until it has finished and try again.');
         }
 
+        // A relative directory (as documented for restores: --legacy-dir=var/media) is relative to the working directory.
+        $cwd = getcwd();
+        $legacyDir = Path::makeAbsolute($legacyDir, false === $cwd ? $this->storage->root() : $cwd);
+
         try {
             return $this->run(rtrim($legacyDir, '/'), $dryRun, $progress);
         } finally {

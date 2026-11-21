@@ -41,7 +41,7 @@ old file name back from a URL found in content; the snippets of the media librar
 
 | Command | What it does |
 |---|---|
-| `app:media:migrate-storage [--dry-run] [--legacy-dir=<dir>]` | Copies every media item that still has a `filename` into the storage, checks the copy by SHA-256, then sets its key and keeps the old name in `legacy_filename`. Missing files and files without media item are listed. Exit code 1 only if a copy failed. Deployer runs it on every deploy. |
+| `app:media:migrate-storage [--dry-run] [--legacy-dir=<dir>]` | Copies every media item that still has a `filename` into the storage, checks the copy by SHA-256, then sets its key and keeps the old name in `legacy_filename`. Missing files and files without media item are listed; "Every media item is in the media storage." appears only when no media item is left outside it. A relative `--legacy-dir` is relative to the working directory. Exit code 1 only if a copy failed. Deployer runs it on every deploy. |
 | `app:media:rewrite-content-urls [--apply]` | Replaces `/uploads/media/<filename>` of moved media items in post content and in page content and drafts. Previews without `--apply`; leaves `updated_at` and the audit log alone. |
 
 The old directory is never changed by these commands. When `--legacy-dir` is the storage root itself (flat files of a
@@ -54,7 +54,7 @@ source is removed instead.
 
 | Finding | Detection | Action |
 |---|---|---|
-| missing | a media item without its file | reported: admin dashboard and `/health` (`media`, degraded), notification `admin.media_integrity_problem` |
+| missing | a media item without its file; until v0.4 also a media item not yet moved whose file is not in the old directory (listed as `uploads/media/<filename>`) | reported: admin dashboard and `/health` (`media`, degraded), notification `admin.media_integrity_problem` |
 | damaged | size, or SHA-256 of a hashed file, differs from the media item | reported like missing; the file stays |
 | orphan | a file below `originals/` or a directory below `variants/` that no media item refers to | deleted when older than 24 hours (`app.media_check_grace_hours`) |
 | leftover | a file in `.tmp/` | deleted when older than 24 hours |

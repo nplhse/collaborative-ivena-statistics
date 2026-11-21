@@ -52,6 +52,11 @@ php bin/console app:media:migrate-storage --dry-run   # "Every media item is in 
 php bin/console app:media:check --full                # exit code 0, no missing or damaged files
 ```
 
+Media items whose file was already missing before the deploy stay outside the storage. The dry run then says
+"No file left to move, but N media item(s) have no file", and `app:media:check` reports them as missing
+(`uploads/media/<filename>`): restore their files from a backup into `shared/public/uploads/media` and deploy or run
+`app:media:migrate-storage --legacy-dir=<deploy_path>/shared/public/uploads/media` again, or delete the media items.
+
 Open a page and a blog post with images: the images load from `/media/…`. An old link `/uploads/media/<file>`
 redirects to the new URL.
 

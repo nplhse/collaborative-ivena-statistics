@@ -159,6 +159,22 @@ final class MediaStorageMigratorTest extends KernelTestCase
         }
     }
 
+    public function testARelativeStorageRootIsRecognisedAndItsFlatFilesAreRemoved(): void
+    {
+        $root = $this->storage()->root();
+        new Filesystem()->dumpFile($root.'/restored-relative.png', 'flat bytes');
+        $this->mockTime('2025-01-15 12:00:00');
+        $media = MediaFactory::createOne(['filename' => 'restored-relative.png']);
+        $cwd = (string) getcwd();
+        self::assertStringStartsWith($cwd.'/', $root, 'the test storage lies below the working directory');
+
+        $result = self::getContainer()->get(MediaStorageMigrator::class)->migrate(substr($root, \strlen($cwd) + 1), false, static function (): void {});
+
+        self::assertSame(1, $result->moved);
+        self::assertStringStartsWith('originals/2025/01/', (string) $this->reload($media)->getStorageKey());
+        self::assertFileDoesNotExist($root.'/restored-relative.png', 'as documented for restores: --legacy-dir=var/media');
+    }
+
     /**
      * @return array{Media, Media}
      */

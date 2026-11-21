@@ -79,8 +79,9 @@ final readonly class MigrateMediaStorageCommand
         }
 
         $io->success(match (true) {
+            0 === $result->moved && [] === $result->missing => 'Every media item is in the media storage.',
+            0 === $result->moved => sprintf('No file left to move, but %d media item(s) have no file and are not in the media storage.', \count($result->missing)),
             $dryRun => 'Dry run finished. Run the command without --dry-run to move the files.',
-            0 === $result->moved => 'Every media item is in the media storage.',
             default => sprintf('%d media item(s) moved. The old directory is unchanged and can be removed after v0.4.', $result->moved),
         });
 
