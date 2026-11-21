@@ -60,7 +60,7 @@ make reset   # like purge, then load demo fixtures (see [fixtures.md](fixtures.m
 
 ### Run the demo environment
 
-A separate `APP_ENV=demo` with its own database `app_demo` and synthetic data for presentations: `make demo-install`, `make demo-start`, `make demo-consume`. See [../05-operations/demo-environment.md](../05-operations/demo-environment.md).
+A separate `APP_ENV=demo` with its own database `app_demo` and synthetic data for presentations: `make demo-install`, `make demo-start`, `make demo-consume`; `make demo-uninstall` removes it again. See [../05-operations/demo-environment.md](../05-operations/demo-environment.md).
 
 ### Start the local worker
 

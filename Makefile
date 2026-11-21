@@ -173,6 +173,17 @@ demo-install-guard:
 		exit 1; \
 	fi
 
+demo-uninstall: ## Remove the demo: drop app_demo and delete var/demo, its cache and log (DEMO_CONFIRM=yes)
+	@if [ "$(DEMO_CONFIRM)" != "yes" ]; then \
+		echo "demo-uninstall drops the demo database app_demo and deletes var/demo with its imports and media." >&2; \
+		echo "Remove the demo: make demo-uninstall DEMO_CONFIRM=yes" >&2; \
+		exit 1; \
+	fi
+	@rm -rf var/cache/demo
+	@$(DEMO_CONSOLE) doctrine:database:drop --if-exists --force
+	@rm -rf var/cache/demo var/demo public/uploads/demo var/log/demo.log
+	@echo "Demo removed: database app_demo, var/demo, public/uploads/demo, cache and log."
+
 demo-start: ## Serve the demo on http://127.0.0.1:8001 (DEMO_PORT=; built-in PHP server, Ctrl+C stops)
 	@rm -rf var/cache/demo
 	@$(DEMO_CONSOLE) asset-map:compile

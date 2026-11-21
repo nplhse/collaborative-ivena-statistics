@@ -39,7 +39,8 @@ Constraints:
 
 Media live in one storage root, the parameter `app.media_storage_dir` (`var/media`). The demo environment keeps
 its own root (`var/demo/media`) through the same parameter, as it already does for imports (ADR 023); code,
-layout and URLs are the same in every environment. Deployer keeps `var/media` in `shared_dirs`.
+layout and URLs are the same in every environment. `make demo-uninstall` removes the demo with its root, so media of a demo that is no longer
+used do not stay behind. Deployer keeps `var/media` in `shared_dirs`.
 
 ```
 var/media/
