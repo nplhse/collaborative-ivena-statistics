@@ -324,6 +324,8 @@ final class HospitalAssignmentRequestCrudController extends AbstractCrudControll
                 ])
                 ->add('confirmTransfer', CheckboxType::class, [
                     'label' => 'admin.hospital_assignment_request.form.confirm_transfer',
+                    // The admin theme renders labels as inline-block; a long one would wrap below its checkbox.
+                    'label_attr' => ['class' => 'd-inline'],
                     'mapped' => false,
                     'constraints' => [new Assert\IsTrue()],
                 ]);
