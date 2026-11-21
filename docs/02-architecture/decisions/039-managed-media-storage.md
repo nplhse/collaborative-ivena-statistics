@@ -82,11 +82,12 @@ until v0.4.
   for PDFs, `ETag`, `Last-Modified`, `X-Content-Type-Options: nosniff`, `Content-Disposition: inline` with the
   original name). Only keys of existing rows are served, so no path from the request reaches the filesystem.
 - Public media get `Cache-Control: public, max-age=31536000, immutable`, which is safe because the content of a
-  key never changes. Restricted media are refused to anonymous users and get `private, no-store`; who may see
-  them is decided in #580.
+  key never changes. Restricted media are not delivered at all until #580 decides who may see them.
+- The routes are stateless: no session, no consent cookie, no usage tracking. A file request therefore never reads
+  the logged-in user (the Sentry request context skips the user on stateless routes as well).
 - **Legacy route** `GET /uploads/media/{filename}`: a migrated file is redirected permanently (301) to its new
-  URL; a file not yet migrated is served from the old directory, looked up by `media.filename`, so the time
-  between deploy and migration has no broken links. The route is removed in v0.4.
+  URL; a file not yet migrated is served from the old directory, looked up by `media.filename` (cached for an hour),
+  so the time between deploy and migration has no broken links. The route is removed in v0.4.
 
 ### Migration of existing files
 

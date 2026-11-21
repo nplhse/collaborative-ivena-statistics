@@ -83,6 +83,17 @@ final class SentryRequestContextSubscriberTest extends KernelTestCase
         }
     }
 
+    public function testStatelessRoutesGetNoUserBecauseTheyHaveNoSession(): void
+    {
+        $request = $this->statisticsRequest();
+        $request->attributes->set('_stateless', true);
+
+        $event = $this->eventAfter(new AuditContext(), $this->user(), $request);
+
+        self::assertNull($event->getUser());
+        self::assertSame('app_stats_dashboard', $event->getTags()['route'] ?? null);
+    }
+
     private function statisticsRequest(): Request
     {
         $request = Request::create('/statistics/');
