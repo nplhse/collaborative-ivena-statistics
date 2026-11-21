@@ -24,7 +24,9 @@ The same rules as before and as the sitemap:
 - Visibility through `PageAccessChecker`: `public` for everyone, `authenticated` only when signed in.
 - Siblings ordered by `sortOrder`, then by ID.
 - A page whose parent is not visible is not shown either, even if it is public itself.
-- There is no "hide from navigation" flag; every visible page appears.
+- There is no "hide from navigation" flag; every visible page appears, except help articles: the full tree leaves
+  them out and shows the help start page alone. A subtree below the help start page shows them
+  ([help.md](help.md)).
 
 ## API
 

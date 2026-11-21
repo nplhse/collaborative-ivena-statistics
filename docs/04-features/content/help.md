@@ -1,0 +1,79 @@
+# Help
+
+**Audience:** Developers and editors working on the help section.
+
+The help section (#596) holds searchable help articles, like product documentation: a start page with a search and
+the main topics, articles with an outline, a topic tree in the sidebar, previous and next links, and a "Was this
+article helpful?" question for signed-in users. It replaces the FAQ page.
+
+## Model
+
+Help articles are editorial pages ([page-translations.md](page-translations.md)) with their own type, so they reuse
+translations, the block editor, drafts and the audit log:
+
+| Part | Where |
+|---|---|
+| Help start page | a page with the key `help` (`PageKey::Help`) and type `page` |
+| Help article | a page with type `help` (`PageType::Help`) below the start page or another article |
+| Help key | optional, unique `page.help_key`, e.g. `import.rejects`, for links from the application |
+| Search text | `page_translation.search_text`: plain text of the saved content (`PageContentText`), set whenever the content is saved; drafts are not searched |
+| Answers | `help_feedback`: one helpful / not helpful answer per signed-in user and article |
+
+Validation keeps the help one tree (`Page::validateHelpSection()`): an article sits below the start page or another
+article, every page there is an article, and only articles have a help key (lowercase letters and digits, separated
+by dots, hyphens or underscores).
+
+URLs come from the page paths, e.g. `/help/importing-data/rejected-rows`. The search is `/help/search` (`app_help_search`);
+a page with that path would be hidden behind it.
+
+## Pages
+
+- **Start page:** any blocks plus two help blocks without settings: *Help search* (`help_search`, the large search
+  field) and *Help topics* (`help_topics`, one card per main topic with its first five articles).
+- **Article:** the page template with the help sidebar: search, *On this page* (always shown for help pages, built by
+  `PageTableOfContentsBuilder` from the headings) and the help tree (`<twig:Content:PageNavigation>` with the start page
+  as root). Below the article: *Was this article helpful?* and the previous and next article in reading order
+  (depth first, `HelpNavigation::neighbours()`). The start page has no sidebar search, its search block is enough.
+- **Search results:** same layout; titles weigh more than text, the excerpt marks the matched words.
+
+Which articles a viewer sees follows the page rules: published translation in the request locale or the content
+default locale, and visibility (`public` or `authenticated`). Navigation, neighbours, topics, search and
+`help_link()` all start from the same visible page tree (`HelpNavigation`).
+
+## Elsewhere on the site
+
+| Place | Help |
+|---|---|
+| Page tree on other pages and the dashboard | the start page only, without its articles |
+| Header and footer | "Help" links the start page; until it is published the FAQ page keeps its place |
+| Sitemap page `/sitemap` | the start page with its main topics, not every article |
+| `sitemap.xml` | every public, published article (as every public page) |
+| Admin | *Content → Help* lists the articles with their answers (👍 / 👎); *Pages* leaves them out |
+
+The FAQ page type (`PageKey::Faq`) still works but is no longer linked once the help exists.
+
+## Search
+
+`HelpSearchQuery` uses PostgreSQL full-text search on the translation each article shows: German stems for German
+translations, English stems otherwise; every word is a prefix ("imp" finds "Import") and all words are required.
+Characters other than letters and digits are dropped, so the terms cannot carry query syntax. At most 20 results.
+The help holds tens to a few hundred articles, so the search builds its vectors per query; an index can follow when
+it grows.
+
+## Was this article helpful?
+
+Only signed-in users answer; visitors do not see the question. The question loads after the article in a Turbo Frame
+(`/help/feedback/{pageId}`); answering again changes the answer. After "No" the user can say what was missing. The
+comment (at least 3 characters) leaves Content as the event `HelpArticleCommented`; the Feedback context stores it in
+the feedback inbox as an improvement with the article as context, after its usual spam check
+([feedback](../feedback/README.md)). Without JavaScript the forms post normally and return to the article.
+
+## Links from the application
+
+```twig
+{% set help_url = help_link('import.rejects') %}
+{% if help_url %}<a href="{{ help_url }}">{{ 'Need help?'|trans }}</a>{% endif %}
+```
+
+`help_link()` returns null when the article is missing or hidden from the viewer, so templates can leave the link out.
+No template uses it yet.
