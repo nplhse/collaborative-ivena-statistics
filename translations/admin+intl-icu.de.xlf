@@ -1405,6 +1405,10 @@
         <source>admin.job_run.job.media_integrity_check</source>
         <target>Prüfung der Mediendateien</target>
       </trans-unit>
+      <trans-unit id="admJobRunJobReactionCleanupDe" resname="admin.job_run.job.reaction_cleanup">
+        <source>admin.job_run.job.reaction_cleanup</source>
+        <target>Bereinigung der Reaktionen</target>
+      </trans-unit>
       <trans-unit id="admJobRunJobMessengerQueueSampleDe" resname="admin.job_run.job.messenger_queue_sample">
         <source>admin.job_run.job.messenger_queue_sample</source>
         <target>Messenger-Warteschlangen-Stichprobe</target>
@@ -1704,6 +1708,10 @@
       <trans-unit id="admJobRunMetricOrphansDeletedDe" resname="admin.job_run.metric.orphans_deleted">
         <source>admin.job_run.metric.orphans_deleted</source>
         <target>Verwaiste gelöscht</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricReactionsDeletedDe" resname="admin.job_run.metric.reactions_deleted">
+        <source>admin.job_run.metric.reactions_deleted</source>
+        <target>Reaktionen gelöscht</target>
       </trans-unit>
       <trans-unit id="admJobRunMetricOrphansKeptDe" resname="admin.job_run.metric.orphans_kept">
         <source>admin.job_run.metric.orphans_kept</source>
