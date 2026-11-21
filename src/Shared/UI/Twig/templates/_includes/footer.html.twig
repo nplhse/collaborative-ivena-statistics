@@ -4,7 +4,7 @@
 
         <div class="row border-top py-3 text-center text-lg-start">
             <div class="col-12">
-                {% set copyright_end_year = 'now'|date('Y') %}
+                {% set copyright_end_year = clock_now()|date('Y') %}
                 <ul class="list-inline list-inline-dots mb-0">
                     <li class="list-inline-item" data-testid="footer-meta-copyright">
                         &copy; {{ app_copyright_start_year }}{% if app_copyright_start_year != copyright_end_year %}&ndash;{{ copyright_end_year }}{% endif %}
