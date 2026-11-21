@@ -41,7 +41,7 @@ final readonly class MediaFileController
         methods: ['GET', 'HEAD'],
         stateless: true,
     )]
-    public function file(Request $request, string $year, string $month, string $name): Response
+    public function file(Request $request, string $year, string $month, string $name): BinaryFileResponse
     {
         $storageKey = MediaPublicUrlResolver::storageKeyFromPath($year.'/'.$month.'/'.$name);
         $file = null !== $storageKey ? $this->lookup->findStoredFile($storageKey) : null;

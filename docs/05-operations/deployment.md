@@ -22,27 +22,30 @@ cd <deploy_path>/current && php bin/console messenger:stats
 cd <deploy_path>/current && php bin/console messenger:failed:show
 ```
 
-### Media uploads (shared across releases)
+### Media files (shared across releases)
 
-Uploaded images and PDFs live in `public/uploads/media`, which Deployer keeps in
-`shared/public/uploads/media` so files survive release changes.
+Uploaded images and PDFs of the CMS and the blog live in the media storage `var/media`, which Deployer keeps in
+`shared/var/media` ([ADR 039](../02-architecture/decisions/039-managed-media-storage.md)). Files are stored as
+`originals/<YYYY>/<MM>/<uuid>.<ext>`, one directory per month of the upload, and served by the application under
+`/media/<YYYY>/<MM>/<uuid>.<ext>` with long-lived caching. Upload is admin-only with a MIME allowlist. Nothing below
+`public/` holds media any more, so there is no directory listing or script rule to maintain.
 
-Public URLs under `/uploads/media/…` are intentional for CMS/blog content. Upload is
-Admin-only with a MIME allowlist; filenames use Vich `SmartUniqueNamer` (hard to guess).
-
-**Directory listing:** Apache `Options -Indexes` is set in repo `public/.htaccess` and
-`public/uploads/media/.htaccess`. After migrating to the Deployer shared directory, ensure
-`shared/public/uploads/media/.htaccess` still contains the PHP-deny and `-Indexes` rules
-(copy from a release if missing). If the stack ever uses nginx, set `autoindex off` for
-`/uploads/`. Signed URLs are not required while media remains public CMS content.
-
-**One-time migration** after enabling the shared directory (copies from the release
-that currently holds the most media files):
+**Moving the old files (v0.3).** Releases before v0.3 kept media in `shared/public/uploads/media`. Every deploy runs
+`app:media:migrate-storage` before the switch to the new release (task `media:migrate-storage`): it copies each file
+not yet moved into the storage, verifies it by SHA-256 and stores its key. It does nothing once every file has moved.
+The old directory stays untouched, so `vendor/bin/dep rollback` keeps working, and old URLs `/uploads/media/<file>`
+redirect to the new ones. After the release is accepted, replace the old URLs in posts and pages once:
 
 ```bash
-vendor/bin/dep media:migrate-to-shared coishub.uber.space
-vendor/bin/dep deploy coishub.uber.space
+vendor/bin/dep media:rewrite-content-urls coishub.uber.space
 ```
+
+Afterwards a rollback to a release before v0.3 shows broken images in the rewritten content. The redirect, the old
+directory and `shared/public/uploads/media` are removed in v0.4.
+
+**Integrity check.** The scheduler runs `app:media:check` daily at 05:10 (Europe/Berlin): missing or damaged files
+show up in the admin dashboard and `/health` (check `media`) and are sent to administrators; files no media item refers
+to are deleted after 24 hours ([media storage](../04-features/content/media-storage.md)).
 
 **Post-deploy maintenance** (requires the `app:content:analyze-page-images` console
 command in the deployed release):
@@ -189,9 +192,10 @@ Typical order (Symfony recipe plus project tasks):
 2. Asset map compile and cache warmup
 3. **`messenger:stop`** — `messenger:stop-workers` on the **previous** release (graceful shutdown)
 4. Database migrations
-5. Symlink switch to the new release (`current`)
-6. **`messenger:restart`** — `systemctl --user restart messenger.service`
-7. Cleanup: releases beyond `keep_releases` (2) are deleted. Files that must survive a release change belong in `shared/`.
+5. **`media:migrate-storage`** — moves media files that are still in the old upload directory into `shared/var/media` ([media files](#media-files-shared-across-releases))
+6. Symlink switch to the new release (`current`)
+7. **`messenger:restart`** — `systemctl --user restart messenger.service`
+8. Cleanup: releases beyond `keep_releases` (2) are deleted. Files that must survive a release change belong in `shared/`.
 
 **First deploy:** If the systemd unit does not exist yet, `messenger:restart` fails. Either create the unit first (see [messenger-workers.md](messenger-workers.md)) or set `messenger_restart_on_deploy: false` in `hosts.yaml` until the worker is ready.
 

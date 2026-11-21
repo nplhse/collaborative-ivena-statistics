@@ -51,7 +51,9 @@ final class BackupRoundTripTest extends TestCase
         $this->fixture->file('app/imports/2026/hospital-1.csv', 120);
         $this->fixture->file('app/imports/.hidden', 1);
         $this->fixture->file('app/imports/pending/7/upload.bin', 9);
-        $this->fixture->file('app/media/logo.png', 2048);
+        $this->fixture->file('app/media/originals/2026/11/logo.png', 2048);
+        $this->fixture->file('app/media/variants/2026/11/logo/thumb-320.webp', 300);
+        $this->fixture->file('app/media/.tmp/upload.part', 10);
         $this->fixture->file('app/reference/catalog.json', 64);
         $sources = new BackupSources($app.'/imports', $app.'/media', $app.'/geo', $app.'/reference');
         $lockFactory = new LockFactory(new InMemoryStore());
@@ -86,8 +88,8 @@ final class BackupRoundTripTest extends TestCase
 
         // The application keeps working after the backup.
         unlink($app.'/imports/2026/hospital-1.csv');
-        file_put_contents($app.'/media/logo.png', 'changed');
-        $this->fixture->file('app/media/new.png', 5);
+        file_put_contents($app.'/media/originals/2026/11/logo.png', 'changed');
+        $this->fixture->file('app/media/originals/2026/11/new.png', 5);
 
         $restorer = new BackupRestorer(
             $verifier,
@@ -106,8 +108,8 @@ final class BackupRoundTripTest extends TestCase
         $result = $restorer->restore($restorer->plan($backup), $quiet);
 
         self::assertSame(['.hidden', '2026/hospital-1.csv'], $this->files($app.'/imports'), 'Pending uploads are not part of a backup.');
-        self::assertSame(['logo.png'], $this->files($app.'/media'));
-        self::assertSame(str_repeat('x', 2048), file_get_contents($app.'/media/logo.png'));
+        self::assertSame(['originals/2026/11/logo.png'], $this->files($app.'/media'), 'Derived variants and files being written are not part of a backup (ADR 039).');
+        self::assertSame(str_repeat('x', 2048), file_get_contents($app.'/media/originals/2026/11/logo.png'));
         self::assertSame(['catalog.json'], $this->files($app.'/reference'));
 
         self::assertSame([], $result->previousDirectories, 'The replaced directories are removed after the switch.');

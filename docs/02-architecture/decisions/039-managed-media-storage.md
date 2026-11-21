@@ -1,6 +1,6 @@
 # ADR 039: Managed media storage outside the web root with checksums and integrity checks
 
-**Status:** proposed
+**Status:** accepted
 
 ## Context
 
@@ -67,10 +67,11 @@ variants), resolve the path of a key and hash. The admin form uses a plain file 
 `vich/uploader-bundle` and its form theme are removed.
 
 - **Store:** write to `.tmp/`, compute size and SHA-256 while writing, `rename` into `originals/…`, then set
-  `storage_key`, `size` and `checksum_sha256` on the entity. If the database transaction fails, the file is
-  removed; if that fails too, the integrity check removes it later as an orphan.
+  `storage_key`, `size` and `checksum_sha256` on the entity. If the database transaction then fails, the file stays
+  as an orphan, and the integrity check removes it after the grace period.
 - **Delete:** after the commit that removes the row (or replaces the file). A failed delete leaves an orphan for the
-  integrity check, never a row without a file.
+  integrity check, never a row without a file. A media item not yet moved takes its file in the old directory along,
+  as VichUploader did.
 
 New columns on `media`: `storage_key`, `checksum_sha256`, `verified_at` (last full hash check), `legacy_filename`
 (the old name, for the transition) and `visibility` (`public`, `restricted`; default `public`). `filename` stays
@@ -78,7 +79,7 @@ until v0.4.
 
 ### Delivery
 
-- `GET /media/{key}` looks the key up in `media` and serves the file with `BinaryFileResponse` (range requests
+- `GET /media/<YYYY>/<MM>/<uuid>.<ext>` (the key without `originals/`) looks the key up in `media` and serves the file with `BinaryFileResponse` (range requests
   for PDFs, `ETag`, `Last-Modified`, `X-Content-Type-Options: nosniff`, `Content-Disposition: inline` with the
   original name). Only keys of existing rows are served, so no path from the request reaches the filesystem.
 - Public media get `Cache-Control: public, max-age=31536000, immutable`, which is safe because the content of a
@@ -97,8 +98,8 @@ until v0.4.
    the row stays as it is.
 2. The file is **copied**, not moved, through `.tmp/` into `originals/<YYYY>/<MM>/` of `createdAt`; size and
    SHA-256 of the copy are compared with the source.
-3. Only then `storage_key`, `checksum_sha256`, `verified_at` and `legacy_filename` are set, in one transaction per
-   row. A run that stops halfway leaves the remaining rows untouched; a second run skips migrated rows.
+3. Only then `storage_key`, `checksum_sha256`, `verified_at` and `legacy_filename` are set, in one flush per
+   row; a failed flush removes the copy again. A run that stops halfway leaves the remaining rows untouched; a second run skips migrated rows.
 4. Files in the old directory without a row are listed, not copied.
 
 The old directory is not changed. The previous release keeps working with it (rollback), and the files stay
@@ -106,10 +107,11 @@ available until v0.4.
 
 ### Rewriting old URLs in content
 
-`app:media:rewrite-content-urls [--dry-run]` replaces `/uploads/media/<legacy_filename>` with the new URL in
+`app:media:rewrite-content-urls [--apply]` replaces `/uploads/media/<legacy_filename>` with the new URL in
 `post.content` and in `page_translation.content` and its draft. It replaces only URLs whose `legacy_filename`
-belongs to a migrated row and lists all others; a second run changes nothing. Audit log entries are history and
-are not rewritten.
+belongs to a migrated row and lists all others; a second run changes nothing. Without `--apply` it only previews.
+The rewrite is a technical migration, not an edit: it changes neither `updated_at` nor the audit log, whose entries
+are history.
 
 ### Integrity check and cleanup
 
@@ -121,6 +123,7 @@ are not rewritten.
 | damaged | size or SHA-256 differs from the row | reported, admins notified; the file stays for analysis and restore |
 | orphan | a file below `originals/` or `variants/` that no row refers to | **deleted** |
 | leftover | a file in `.tmp/` | **deleted** |
+| outside the layout | any other file below the root | listed only |
 
 - **Quick check** (every run): existence and size of every row, and the orphans. It reads no file contents.
 - **Rolling full check:** each run also hashes the files with the oldest `verified_at` up to a byte budget, so every
@@ -128,12 +131,11 @@ are not rewritten.
 - The scheduler runs the check daily (a schedule contribution, ADR 019); `--dry-run` reports what would be deleted.
 - The result of the last run is stored and read by a health check contributor `media` (one query, no filesystem
   access in `/health`). Missing or damaged files make it `degraded`. Admins are notified through the notification
-  system (ADR 016), once per finding.
+  system (ADR 016), once per set of affected files. Results are kept for 90 days.
 
 **Deleting orphans** is automatic only when all of these hold:
 
-- the file is older than a grace period (24 hours), so an upload whose row is not committed yet is safe, and files
-  of a reset demo are removed one day later;
+- the file is older than a grace period (24 hours), so an upload whose row is not committed yet is safe;
 - no backup or restore runs (the check takes the lock `backup-maintenance` of ADR 038);
 - `media` is not empty, and the orphans are at most 10 or at most 20 % of the files; more points to a wrong
   database or an incomplete restore, so the run deletes nothing and reports instead. A demo reset restores database
@@ -153,9 +155,22 @@ excluded: variants are derived. A backup made before this change has flat files 
 ### Deploy
 
 `shared_dirs` and `writable_dirs` get `var/media` instead of `public/uploads/media`. After `database:migrate` and
-before `deploy:symlink`, Deployer runs `app:media:migrate-storage --legacy-dir={{deploy_path}}/shared/public/uploads/media`
-and `app:media:rewrite-content-urls`. Both do nothing when nothing is left. A failure stops the deploy before the
-switch, and the previous release keeps serving the old directory. The old task `media:migrate-to-shared` is removed.
+before `deploy:symlink`, Deployer runs `app:media:migrate-storage --legacy-dir={{deploy_path}}/shared/public/uploads/media`.
+It does nothing when nothing is left. A failure stops the deploy before the switch, and the previous release keeps
+serving the old directory, so `dep rollback` keeps working.
+
+`app:media:rewrite-content-urls` is not part of the deploy: once content points to `/media/…`, a release before this
+change cannot show those images. It runs once after the release is accepted (Deployer task `media:rewrite-content-urls`,
+upgrade guide); without `--apply` it only previews. The old task `media:migrate-to-shared` is removed.
+
+### Layers
+
+The console commands and the delivery route depend on ports in `Content/Application/Contract`
+(`MediaFileLookupInterface`, `MediaStorageMigratorInterface`, `MediaIntegrityCheckerInterface`,
+`MediaUrlRewriterInterface`), implemented in `Content/Infrastructure/Media`, so UI and Application do not depend on
+Infrastructure (ADR 007). The admin notification lives in `Content/Infrastructure/Notification`; Content's
+infrastructure may depend on `Notification` for it, as Encounter's does (ADR 027). The integrity check is scheduled
+from Content (job `media_integrity_check`).
 
 ### Removed in v0.4
 
@@ -192,3 +207,5 @@ storage monitoring. Content no longer needs them once the rewrite has run.
   the backups.
 - For the transition the server holds the media twice (old directory and new storage) until the cleanup in v0.4.
 - Restoring a backup from before this change needs the extra migration step described above.
+- After the content rewrite, a rollback to a release before this change shows broken images in the rewritten content;
+  the rewrite therefore runs only after the release is accepted.

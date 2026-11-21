@@ -51,13 +51,15 @@ add('shared_dirs', [
     // Reference catalog packages (ADR 020): an export must survive the next deploy.
     'var/reference',
     'var/geo/hospital-isochrones',
-    'public/uploads/media',
+    // Media storage (ADR 039). shared/public/uploads/media of older releases stays until v0.4: the previous release
+    // still serves it, and media:migrate-storage copies from it.
+    'var/media',
 ]);
 add('writable_dirs', [
     'var/imports',
     'var/reference',
     'var/geo/hospital-isochrones',
-    'public/uploads/media',
+    'var/media',
 ]);
 
 /*
@@ -123,35 +125,20 @@ after('deploy:publish', 'messenger:restart');
 
 after('deploy:failed', 'deploy:unlock');
 
-desc('Copy media uploads from the richest previous release into shared/public/uploads/media');
-task('media:migrate-to-shared', function () {
-    $deployPath = get('deploy_path');
-    $sharedMedia = $deployPath.'/shared/public/uploads/media';
+desc('Move media files from the old upload directory into the media storage (ADR 039)');
+task('media:migrate-storage', function () {
+    run('cd {{release_or_current_path}} && {{bin/console}} app:media:migrate-storage --legacy-dir={{deploy_path}}/shared/public/uploads/media {{console_options}}');
+});
 
-    $source = trim(run(<<<BASH
-        best=''
-        best_count=0
-        for dir in {$deployPath}/releases/*/public/uploads/media; do
-            [ -d "\$dir" ] || continue
-            count=\$(find "\$dir" -maxdepth 1 -type f ! -name '.gitkeep' | wc -l | tr -d ' ')
-            if [ "\$count" -gt "\$best_count" ]; then
-                best_count=\$count
-                best="\$dir"
-            fi
-        done
-        printf '%s' "\$best"
-    BASH));
+// Before the switch, so the new release starts with every file in the storage. It copies and leaves the old
+// directory alone, so `dep rollback` keeps working; a failure stops the deploy before the switch.
+after('database:migrate', 'media:migrate-storage');
 
-    if ('' === $source) {
-        writeln('<comment>No release media directory with files found; nothing to migrate.</comment>');
-
-        return;
-    }
-
-    writeln('<info>Migrating media from '.$source.' to '.$sharedMedia.'</info>');
-    run('mkdir -p '.escapeshellarg($sharedMedia));
-    run('cp -a '.escapeshellarg($source.'/').'. '.escapeshellarg($sharedMedia.'/'));
-    run('chmod -R ug+rwX '.escapeshellarg($sharedMedia));
+// Not part of every deploy: once old URLs in content point to /media, the previous release cannot show those
+// images any more. Run it after the release is accepted (upgrade guide, v0.2.x → v0.3).
+desc('Replace old /uploads/media URLs in posts and pages with the URLs of the moved media (ADR 039)');
+task('media:rewrite-content-urls', function () {
+    run('cd {{current_path}} && {{bin/console}} app:media:rewrite-content-urls --apply {{console_options}}');
 });
 
 set('content_analyze_page_images_options', '--backfill-dimensions --migrate-size');

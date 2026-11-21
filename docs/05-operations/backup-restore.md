@@ -1,6 +1,6 @@
 # Backup & restore
 
-Operational guide for PostgreSQL, import files, and media uploads.
+Operational guide for PostgreSQL, import files, and media files.
 
 ## Scope
 
@@ -8,7 +8,7 @@ Operational guide for PostgreSQL, import files, and media uploads.
 |-------|----------------------|------------------------------|
 | PostgreSQL database | from `DATABASE_URL` | from `shared/.env.local` → `DATABASE_URL` |
 | Import uploads | `var/imports/` | `<deploy_path>/shared/var/imports/` ([paths on the server](deployment.md#paths-on-the-server)) |
-| Media uploads | `public/uploads/media/` | `<deploy_path>/shared/public/uploads/media/` |
+| Media files | `var/media/` ([media storage](../04-features/content/media-storage.md)) | `<deploy_path>/shared/var/media/`; before v0.3 `shared/public/uploads/media/`, kept until v0.4 and not backed up any more |
 | Hospital isochrones | `var/geo/hospital-isochrones/` | `<deploy_path>/shared/var/geo/hospital-isochrones/` |
 | Reference catalog packages | `var/reference/` | `<deploy_path>/shared/var/reference/` — private; keep copies in the private data repository, not in these backups only ([ADR 020](../02-architecture/decisions/020-portable-reference-catalog.md)) |
 | Encounter curation packages | `var/encounter/` | copied in by hand for an import; not a backup of the catalog or the plausibility table, which are in the database dump ([curation package](../04-features/encounter/curation-package.md)) |
@@ -34,7 +34,7 @@ Each run creates one directory, for example `var/backups/ivena-stats-full-202611
 |------|---------|
 | `manifest.json` | format version, time (UTC), app version, executed migrations, rows per table, files and bytes per component, size and SHA-256 of every payload |
 | `database.dump` | `pg_dump` custom format, schema `public` without PostGIS tables |
-| `files/<component>.tar.gz` | regular files of `imports` (without `pending/`), `media`, `geo`, `reference`; paths relative to the component directory |
+| `files/<component>.tar.gz` | regular files of `imports` (without `pending/`), `media` (without `variants/` and `.tmp/`), `geo`, `reference`; paths relative to the component directory |
 | `files/<component>.sha256` | SHA-256 of every file in that archive (`sha256sum -c` format) |
 
 How it behaves:
@@ -122,9 +122,26 @@ How it behaves:
 - Messages that were waiting in the queues when the backup was made are restored with the database and are
   handled again once the worker runs.
 - The database user must own schema `public` (as for `restore-database.sh`).
+- **Media variants** are derived and not part of a backup; the restore replaces `var/media` with the backed-up
+  originals.
 
 Afterwards: run the migrations if the command asks for it, `php bin/console cache:clear`, start the Messenger
 worker, and check the application (see [Restore runbook](#restore-runbook)).
+
+### Backups from before v0.3
+
+A backup made before the media storage (ADR 039) holds the media as flat files (`files/media.tar.gz` without
+`originals/`) and a database without storage keys. After restoring it into v0.3, run the migrations as the restore
+asks, then move the flat files into the storage layout:
+
+```bash
+php bin/console doctrine:migrations:migrate
+php bin/console app:media:migrate-storage --legacy-dir=var/media     # on the server: --legacy-dir=<deploy_path>/shared/var/media
+php bin/console app:media:rewrite-content-urls --apply
+php bin/console app:media:check --full
+```
+
+`app:media:migrate-storage` removes each flat file once it is moved, because it was given the storage root itself.
 
 ## Scripts (legacy)
 
@@ -267,7 +284,7 @@ Deployer keeps persistent data outside release directories ([deployment.md](depl
 - `shared/.env.local`
 - `shared/var/imports`
 - `shared/var/reference` (reference catalog packages, ADR 020)
-- `shared/public/uploads/media`
+- `shared/var/media` (media storage, ADR 039; `shared/public/uploads/media` of releases before v0.3 stays until v0.4)
 
 ### Manual backup commands
 
@@ -391,8 +408,8 @@ Check the archive against the manifest first (`sha256sum`), then extract it into
 ```bash
 cd ~/backups/ivena-stats-full-YYYYMMDDTHHMMSSZ
 sha256sum files/media.tar.gz          # compare with payloads in manifest.json
-tar -xzf files/media.tar.gz -C <deploy_path>/shared/public/uploads/media
-(cd <deploy_path>/shared/public/uploads/media && sha256sum -c ~/backups/ivena-stats-full-YYYYMMDDTHHMMSSZ/files/media.sha256)
+tar -xzf files/media.tar.gz -C <deploy_path>/shared/var/media
+(cd <deploy_path>/shared/var/media && sha256sum -c ~/backups/ivena-stats-full-YYYYMMDDTHHMMSSZ/files/media.sha256)
 ```
 
 Do the same for `imports` (`shared/var/imports`), `geo` (`shared/var/geo/hospital-isochrones`) and `reference`
@@ -401,10 +418,10 @@ Do the same for `imports` (`shared/var/imports`), `geo` (`shared/var/geo/hospita
 ```bash
 cd <deploy_path>
 tar -xzf ~/backups/ivena-stats-files-YYYYMMDD-HHMMSS.tar.gz -C <deploy_path>/shared
-# archives contain paths relative to their source roots (var/imports, public/uploads/media)
+# archives contain paths relative to their source roots (var/imports, and for media public/uploads/media before v0.3, var/media since)
 ```
 
-Verify permissions on `shared/var/imports` and `shared/public/uploads/media` (writable by the web user).
+Verify permissions on `shared/var/imports` and `shared/var/media` (writable by the web user). A restored media archive from before v0.3 needs the extra step in [Backups from before v0.3](#backups-from-before-v03).
 
 ### 3. Secrets (`.env.local`)
 

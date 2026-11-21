@@ -310,11 +310,11 @@ final readonly class MediaIntegrityChecker implements MediaIntegrityCheckerInter
     private function removeEmptyDirectories(): void
     {
         foreach ([MediaStorage::ORIGINALS, MediaStorage::VARIANTS] as $top) {
-            foreach (glob($this->storage->root().'/'.$top.'/*/*', \GLOB_ONLYDIR) ?: [] as $month) {
-                @rmdir($month);
-            }
-            foreach (glob($this->storage->root().'/'.$top.'/*', \GLOB_ONLYDIR) ?: [] as $year) {
-                @rmdir($year);
+            foreach ([$top.'/*/*', $top.'/*'] as $pattern) {
+                $directories = glob($this->storage->root().'/'.$pattern, \GLOB_ONLYDIR);
+                foreach (false === $directories ? [] : $directories as $directory) {
+                    @rmdir($directory);
+                }
             }
         }
     }

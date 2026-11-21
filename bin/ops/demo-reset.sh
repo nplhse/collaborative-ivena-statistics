@@ -10,7 +10,7 @@ Usage:
 
 The first run after a deploy (the release differs from the one of the snapshot) rebuilds the demo
 data with `make demo-install` and takes a new snapshot: database dump, var/demo/imports and
-public/uploads/demo/media. Every other run restores that snapshot. Both stop the Messenger worker,
+var/demo/media. Every other run restores that snapshot. Both stop the Messenger worker,
 empty the demo log and clear the cache pools.
 
 Environment:
@@ -61,7 +61,7 @@ console() {
 }
 
 # What visitors add during the day; the demo's geodata under var/demo/geo stays as it is.
-FILE_DIRS=(var/demo/imports public/uploads/demo/media)
+FILE_DIRS=(var/demo/imports var/demo/media)
 
 systemctl --user stop "$SERVICE"
 trap 'systemctl --user start "$SERVICE"' EXIT

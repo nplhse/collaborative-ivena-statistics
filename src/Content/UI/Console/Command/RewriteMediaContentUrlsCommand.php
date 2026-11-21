@@ -11,9 +11,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Replaces old media URLs in posts and pages with the URLs of the moved files (ADR 039). Deployer runs it after
- * app:media:migrate-storage; it changes nothing when every URL is current. Old file names that belong to no moved
- * media item are listed and keep their URL, which the redirect serves until v0.4.
+ * Replaces old media URLs in posts and pages with the URLs of the moved files (ADR 039). Previews by default; --apply
+ * writes. Run once after the release with the media storage is accepted (upgrade guide); it changes nothing when every
+ * URL is current. Old file names that belong to no moved media item are listed and keep their URL, which the redirect
+ * serves until v0.4.
  */
 #[AsCommand(
     name: 'app:media:rewrite-content-urls',
@@ -30,9 +31,10 @@ final readonly class RewriteMediaContentUrlsCommand
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Option(description: 'Only show what would be replaced', name: 'dry-run')]
-        bool $dryRun = false,
+        #[Option(description: 'Write the replacements (without it, only show what would be replaced)', name: 'apply')]
+        bool $apply = false,
     ): int {
+        $dryRun = !$apply;
         $io->title('Rewrite old media URLs in content');
 
         $result = $this->rewriter->rewrite($dryRun);
@@ -52,7 +54,7 @@ final readonly class RewriteMediaContentUrlsCommand
         }
 
         $io->success(match (true) {
-            $dryRun => 'Dry run finished; nothing was changed.',
+            $dryRun => 'Preview finished; nothing was changed. Run the command with --apply to replace the URLs.',
             0 === $result->rewrittenUrls => 'No old media URL left to replace.',
             default => sprintf('%d URL(s) replaced.', $result->rewrittenUrls),
         });

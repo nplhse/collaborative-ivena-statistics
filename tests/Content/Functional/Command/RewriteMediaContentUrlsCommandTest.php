@@ -24,8 +24,18 @@ final class RewriteMediaContentUrlsCommandTest extends KernelTestCase
 
         $tester = new CommandTester(new Application($kernel)->find('app:media:rewrite-content-urls'));
 
-        self::assertSame(Command::SUCCESS, $tester->execute([]));
+        self::assertSame(Command::SUCCESS, $tester->execute(['--apply' => true]));
         self::assertStringContainsString('never-moved.png', $tester->getDisplay());
         self::assertStringContainsString('No old media URL left to replace.', $tester->getDisplay());
+    }
+
+    public function testPreviewsWithoutApply(): void
+    {
+        $kernel = self::bootKernel();
+
+        $tester = new CommandTester(new Application($kernel)->find('app:media:rewrite-content-urls'));
+
+        self::assertSame(Command::SUCCESS, $tester->execute([]));
+        self::assertStringContainsString('Run the command with --apply', $tester->getDisplay());
     }
 }

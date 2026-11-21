@@ -8,7 +8,7 @@ source "$ROOT/bin/ops/_lib.sh"
 cd "$ROOT"
 
 IMPORTS_DIR="${IMPORTS_DIR:-$ROOT/var/imports}"
-MEDIA_DIR="${MEDIA_DIR:-$ROOT/public/uploads/media}"
+MEDIA_DIR="${MEDIA_DIR:-$ROOT/var/media}"
 BACKUP_DIR="$(ops_ensure_backup_dir)"
 TIMESTAMP="$(ops_timestamp)"
 OUTPUT_FILE="${BACKUP_FILE:-$BACKUP_DIR/ivena-stats-files-$TIMESTAMP.tar.gz}"
