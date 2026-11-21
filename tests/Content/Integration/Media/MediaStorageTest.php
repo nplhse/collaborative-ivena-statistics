@@ -114,6 +114,34 @@ final class MediaStorageTest extends TestCase
         $this->storage('2026-11-21')->store($this->source, '../php');
     }
 
+    public function testAFailedMoveIntoTheMonthIsReportedAndLeavesNoPartialFile(): void
+    {
+        new Filesystem()->dumpFile($this->root.'/originals/2026/11', 'a file where the month directory belongs');
+
+        try {
+            $this->storage('2026-11-21 10:00')->store($this->source, 'png');
+            self::fail('A store into a blocked month directory must fail.');
+        } catch (MediaStorageException $exception) {
+            self::assertStringContainsString('Could not move the stored file', $exception->getMessage());
+        }
+
+        self::assertSame([], glob($this->root.'/.tmp/*') ?: []);
+    }
+
+    public function testVariantsAndDeletionRefuseKeysOutsideTheLayout(): void
+    {
+        $storage = $this->storage('2026-11-21');
+
+        try {
+            $storage->variantDirectory('originals/../../x.png');
+            self::fail('An invalid key must be refused.');
+        } catch (MediaStorageException) {
+        }
+
+        $this->expectException(MediaStorageException::class);
+        $storage->delete('../../.env.local');
+    }
+
     private function storage(string $now): MediaStorage
     {
         return new MediaStorage($this->root, new MockClock(new \DateTimeImmutable($now)));

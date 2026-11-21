@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace App\Tests\Content\Integration\Media;
 
+use App\Content\Application\Media\MediaMaintenanceException;
 use App\Content\Domain\Entity\Media;
 use App\Content\Infrastructure\Factory\MediaFactory;
 use App\Content\Infrastructure\Media\MediaStorage;
 use App\Content\Infrastructure\Media\MediaStorageMigrator;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Lock\LockFactory;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
@@ -104,6 +107,58 @@ final class MediaStorageMigratorTest extends KernelTestCase
         self::assertFileDoesNotExist($root.'/restored-flat.png', 'a flat file of an old backup is removed once it is moved');
     }
 
+    public function testACopyThatCannotBeWrittenIsReportedAndTheMediaItemStaysAsItWas(): void
+    {
+        new Filesystem()->dumpFile($this->legacyDir.'/blocked.png', 'blocked bytes');
+        $this->mockTime('2025-04-10 09:00:00');
+        $media = $this->legacyMedia('blocked.png');
+        new Filesystem()->dumpFile($this->storage()->root().'/originals/2025/04', 'a file where the month directory belongs');
+
+        try {
+            $result = $this->migrate(false);
+        } finally {
+            new Filesystem()->remove($this->storage()->root().'/originals/2025/04');
+        }
+
+        self::assertSame(0, $result->moved);
+        self::assertTrue($result->hasFailures());
+        self::assertStringStartsWith('blocked.png: ', $result->failed[0]);
+        self::assertSame('blocked.png', $this->reload($media)->getFilename());
+        self::assertNull($this->reload($media)->getStorageKey());
+    }
+
+    public function testAFileWithoutExtensionGetsTheExtensionOfItsMimeType(): void
+    {
+        new Filesystem()->dumpFile($this->legacyDir.'/report', "%PDF-1.4\n");
+        $media = MediaFactory::new()->asPdf()->create(['filename' => 'report']);
+
+        $this->migrate(false);
+
+        self::assertStringEndsWith('.pdf', (string) $this->reload($media)->getStorageKey());
+    }
+
+    public function testANameThatLeavesTheDirectoryIsTreatedAsMissing(): void
+    {
+        MediaFactory::createOne(['filename' => 'gone.png']);
+        $this->connection()->executeStatement("UPDATE media SET filename = '../outside.png' WHERE filename = 'gone.png'");
+        self::getContainer()->get(EntityManagerInterface::class)->clear();
+
+        self::assertSame(['../outside.png'], $this->migrate(false)->missing);
+    }
+
+    public function testRefusesWhileABackupHoldsTheFiles(): void
+    {
+        $lock = self::getContainer()->get(LockFactory::class)->createLock(MediaStorageMigrator::LOCK, null);
+        self::assertTrue($lock->acquire());
+
+        try {
+            $this->expectException(MediaMaintenanceException::class);
+            $this->migrate(false);
+        } finally {
+            $lock->release();
+        }
+    }
+
     /**
      * @return array{Media, Media}
      */
@@ -153,5 +208,10 @@ final class MediaStorageMigratorTest extends KernelTestCase
     private function storage(): MediaStorage
     {
         return self::getContainer()->get(MediaStorage::class);
+    }
+
+    private function connection(): Connection
+    {
+        return self::getContainer()->get(Connection::class);
     }
 }
