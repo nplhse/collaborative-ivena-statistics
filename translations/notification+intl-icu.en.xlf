@@ -573,6 +573,42 @@
         <source>admin.media_integrity_problem.label</source>
         <target>Missing or damaged media files</target>
       </trans-unit>
+      <trans-unit id="NtfHarAdminHospitalAssignmentRequestedTitle" resname="admin.hospital_assignment_requested.title">
+        <source>admin.hospital_assignment_requested.title</source>
+        <target>Hospital assignment requested: {hospitalName}</target>
+      </trans-unit>
+      <trans-unit id="NtfHarAdminHospitalAssignmentRequestedMessage" resname="admin.hospital_assignment_requested.message">
+        <source>admin.hospital_assignment_requested.message</source>
+        <target>{username} asks to be assigned to {hospitalName} ({reason, select, ed_leadership {emergency department leadership} hospital_management {hospital management} data_submission {data submission} other {other reason}}). Review the request to approve or reject it.</target>
+      </trans-unit>
+      <trans-unit id="NtfHarAdminHospitalAssignmentRequestedLabel" resname="admin.hospital_assignment_requested.label">
+        <source>admin.hospital_assignment_requested.label</source>
+        <target>Hospital assignment requests</target>
+      </trans-unit>
+      <trans-unit id="NtfHarHospitalAssignmentDecidedTitle" resname="hospital_assignment.decided.title">
+        <source>hospital_assignment.decided.title</source>
+        <target>{decision, select, approved {Your request for {hospitalName} was approved} other {Your request for {hospitalName} was rejected}}</target>
+      </trans-unit>
+      <trans-unit id="NtfHarHospitalAssignmentDecidedMessage" resname="hospital_assignment.decided.message">
+        <source>hospital_assignment.decided.message</source>
+        <target>{decision, select, approved {{outcome, select, ownership {You are now the owner of {hospitalName}.} other {You now have access to {hospitalName}.}}} other {An administrator rejected your request for {hospitalName}. Your requests show the reason, if one was given.}}</target>
+      </trans-unit>
+      <trans-unit id="NtfHarHospitalAssignmentDecidedLabel" resname="hospital_assignment.decided.label">
+        <source>hospital_assignment.decided.label</source>
+        <target>Decisions on my hospital assignment requests</target>
+      </trans-unit>
+      <trans-unit id="NtfHarHospitalAssignmentOwnershipTransferredTitle" resname="hospital_assignment.ownership_transferred.title">
+        <source>hospital_assignment.ownership_transferred.title</source>
+        <target>Ownership of {hospitalName} was transferred</target>
+      </trans-unit>
+      <trans-unit id="NtfHarHospitalAssignmentOwnershipTransferredMessage" resname="hospital_assignment.ownership_transferred.message">
+        <source>hospital_assignment.ownership_transferred.message</source>
+        <target>An administrator made {newOwner} the owner of {hospitalName}. {access, select, keep_full_access {You keep full access to the hospital.} other {You no longer have access to the hospital.}}</target>
+      </trans-unit>
+      <trans-unit id="NtfHarHospitalAssignmentOwnershipTransferredLabel" resname="hospital_assignment.ownership_transferred.label">
+        <source>hospital_assignment.ownership_transferred.label</source>
+        <target>Transfers of my hospitals</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

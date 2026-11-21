@@ -656,6 +656,8 @@ deptrac:
             - Allocation_Domain
             - Import_Domain
             - Notification_Application
+            # Notification definitions of hospital assignment requests (#975) use its enums.
+            - Notification_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure

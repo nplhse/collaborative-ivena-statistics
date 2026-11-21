@@ -573,6 +573,42 @@
         <source>admin.media_integrity_problem.label</source>
         <target>Fehlende oder beschädigte Mediendateien</target>
       </trans-unit>
+      <trans-unit id="NtfHarDeAdminHospitalAssignmentRequestedTitle" resname="admin.hospital_assignment_requested.title">
+        <source>admin.hospital_assignment_requested.title</source>
+        <target>Klinikzuordnung beantragt: {hospitalName}</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeAdminHospitalAssignmentRequestedMessage" resname="admin.hospital_assignment_requested.message">
+        <source>admin.hospital_assignment_requested.message</source>
+        <target>{username} beantragt die Zuordnung zu {hospitalName} ({reason, select, ed_leadership {Leitung der Notaufnahme} hospital_management {Klinikleitung} data_submission {Datenlieferung} other {sonstiger Grund}}). Prüfen Sie den Antrag, um ihn anzunehmen oder abzulehnen.</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeAdminHospitalAssignmentRequestedLabel" resname="admin.hospital_assignment_requested.label">
+        <source>admin.hospital_assignment_requested.label</source>
+        <target>Anträge auf Klinikzuordnung</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeHospitalAssignmentDecidedTitle" resname="hospital_assignment.decided.title">
+        <source>hospital_assignment.decided.title</source>
+        <target>{decision, select, approved {Ihr Antrag für {hospitalName} wurde angenommen} other {Ihr Antrag für {hospitalName} wurde abgelehnt}}</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeHospitalAssignmentDecidedMessage" resname="hospital_assignment.decided.message">
+        <source>hospital_assignment.decided.message</source>
+        <target>{decision, select, approved {{outcome, select, ownership {Sie sind jetzt Eigentümerin oder Eigentümer von {hospitalName}.} other {Sie haben jetzt Zugang zu {hospitalName}.}}} other {Die Administration hat Ihren Antrag für {hospitalName} abgelehnt. Ihre Anträge zeigen die Begründung, falls eine angegeben wurde.}}</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeHospitalAssignmentDecidedLabel" resname="hospital_assignment.decided.label">
+        <source>hospital_assignment.decided.label</source>
+        <target>Entscheidungen über meine Zuordnungsanträge</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeHospitalAssignmentOwnershipTransferredTitle" resname="hospital_assignment.ownership_transferred.title">
+        <source>hospital_assignment.ownership_transferred.title</source>
+        <target>Eigentümerschaft von {hospitalName} wurde übertragen</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeHospitalAssignmentOwnershipTransferredMessage" resname="hospital_assignment.ownership_transferred.message">
+        <source>hospital_assignment.ownership_transferred.message</source>
+        <target>Die Administration hat {newOwner} zur Eigentümerschaft von {hospitalName} gemacht. {access, select, keep_full_access {Sie behalten vollen Zugang zur Klinik.} other {Sie haben keinen Zugang mehr zur Klinik.}}</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeHospitalAssignmentOwnershipTransferredLabel" resname="hospital_assignment.ownership_transferred.label">
+        <source>hospital_assignment.ownership_transferred.label</source>
+        <target>Übertragungen meiner Kliniken</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -6,7 +6,7 @@ Each bounded context under `src/` follows the layered structure described in [ov
 |---|---|
 | `Import` | CSV upload (`.csv`/`.txt` only), validation, dispatch, async processing, rejects |
 | `Statistics` | Projection, materialized views, analytics (Explorer, Benchmarking, Case Flow, …) |
-| `Allocation` | Core domain data (allocations, master data, indication review) |
+| `Allocation` | Core domain data (allocations, master data, indication review), hospital access and hospital assignment requests (#975). Its infrastructure may depend on `Notification` (notifications of assignment requests) |
 | `User` | Authentication, registration, password reset |
 | `Feedback` | Feedback widget and notifications |
 | `Admin` | EasyAdmin back office |
