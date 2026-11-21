@@ -38,7 +38,7 @@ final class UserImpersonationTest extends WebTestCase
             ->assertSeeIn('body', 'End impersonation')
             ->assertSeeIn('body', $target->getUserIdentifier())
             ->assertSeeElement('[data-testid="user-menu-avatar"].avatar-impersonating')
-            ->assertElementAttributeContains('a[aria-label="Open user menu"]', 'title', 'As: '.$target->getUserIdentifier())
+            ->assertElementAttributeContains('a[aria-label="Open user menu"] [data-controller="tooltip"]', 'title', 'As: '.$target->getUserIdentifier())
         ;
     }
 
