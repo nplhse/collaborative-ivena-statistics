@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Allocation\Unit\Domain\Entity;
 
+use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\District;
 use App\Allocation\Domain\Entity\DistrictGeometry;
 use App\Allocation\Domain\Enum\DistrictBoundaryFetchStatus;
@@ -53,6 +54,39 @@ final class DistrictTest extends TestCase
         $district->updateTimestamps();
 
         self::assertEquals(new \DateTimeImmutable('2026-11-23 08:30:00'), $district->getUpdatedAt());
+    }
+
+    public function testKeepsItsMaintainedFields(): void
+    {
+        self::mockTime('2026-11-22 12:00:00');
+        $area = new DispatchArea();
+
+        $district = new District('06411', 'Darmstadt')
+            ->setName('Wissenschaftsstadt Darmstadt')
+            ->setKind('Kreisfreie Stadt')
+            ->setDispatchArea($area);
+
+        self::assertNull($district->getId());
+        self::assertSame('Wissenschaftsstadt Darmstadt', $district->getName());
+        self::assertSame('Wissenschaftsstadt Darmstadt', (string) $district);
+        self::assertSame('Kreisfreie Stadt', $district->getKind());
+        self::assertSame($area, $district->getDispatchArea());
+        self::assertEquals(new \DateTimeImmutable('2026-11-22 12:00:00'), $district->getCreatedAt());
+        self::assertNull($district->getUpdatedAt());
+    }
+
+    public function testANewGeometryIsEmptyAndIdle(): void
+    {
+        $district = new District('06411', 'Darmstadt');
+
+        $geometry = new DistrictGeometry($district);
+
+        self::assertSame($district, $geometry->getDistrict());
+        self::assertNull($geometry->getGeometry());
+        self::assertSame(DistrictBoundaryFetchStatus::Idle, $geometry->getFetchStatus());
+        self::assertNull($geometry->getFetchAttemptId());
+        self::assertNull($geometry->getFetchError());
+        self::assertNull($geometry->getFetchRequestedAt());
     }
 
     public function testStoringAGeometryKeepsItsProvenance(): void
