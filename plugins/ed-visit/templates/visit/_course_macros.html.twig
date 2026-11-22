@@ -3,6 +3,11 @@
     detail page (#1178). Every value may be missing; missing values render as a dash or a short sentence.
 #}
 
+{# Agreement of a link or proposal (score 0–1); the colour follows the matcher's thresholds and score bands. #}
+{% macro agreement_badge(score, testid = null) %}
+    <span class="badge {{ encounter_agreement_badge_class(score) }}"{% if testid %} data-testid="{{ testid }}"{% endif %}>{{ 'encounter.course.agreement'|trans({percent: (score * 100)|round(0, 'floor')}, 'encounter') }}</span>
+{% endmacro %}
+
 {% macro triage(encounter, diagram_name, indicator_name) %}
     {% set d = 'encounter' %}
     <div class="datagrid" data-testid="encounter-course-triage">
@@ -30,51 +35,8 @@
     </div>
 {% endmacro %}
 
-{% macro process_times(course) %}
-    {% set d = 'encounter' %}
-    <dl class="row mb-0" data-testid="encounter-course-intervals">
-        {% for value in course.intervals %}
-            <dt class="col-7 fw-normal text-secondary">{{ ('encounter.process.' ~ value.interval.value ~ '.label')|trans({}, d) }}</dt>
-            <dd class="col-5 mb-1" data-testid="encounter-course-interval" data-interval="{{ value.interval.value }}">
-                {% if value.minutes is null %}
-                    –
-                {% else %}
-                    {{ 'encounter.unit.minutes'|trans({minutes: value.minutes}, d) }}
-                    {% if not value.plausible %}
-                        <span class="badge bg-warning-lt ms-1" data-testid="encounter-course-implausible">{{ 'encounter.course.implausible'|trans({}, d) }}</span>
-                    {% endif %}
-                {% endif %}
-            </dd>
-        {% endfor %}
-    </dl>
-{% endmacro %}
-
-{% macro timeline(course) %}
-    {% set d = 'encounter' %}
-    <ul class="list-unstyled mb-0" data-testid="encounter-course-timeline">
-        {% for event in course.timeline %}
-            {# The allocation's arrival is the expected arrival reported through IVENA, not a time of the ED. #}
-            {% set expected = event.key == 'ivena_arrival' %}
-            <li class="d-flex gap-2 mb-1{{ expected ? ' text-secondary' : '' }}" data-testid="encounter-course-event" data-event="{{ event.key }}">
-                <span class="font-monospace{{ expected ? '' : ' fw-semibold' }}">{{ event.at|date('H:i') }}</span>
-                {% if expected %}
-                    <span><span class="fst-italic">{{ 'encounter.course.event.ivena_arrival'|trans({}, d) }}</span> <span class="badge bg-secondary-lt" data-testid="encounter-course-event-source">{{ 'encounter.visit.timeline.from_ivena'|trans({}, d) }}</span></span>
-                {% else %}
-                    <span>{{ ('encounter.course.event.' ~ event.key)|trans({}, d) }}</span>
-                {% endif %}
-                {% if event.minutesFromAdmission is not null and event.key != 'ed_admission' %}
-                    <span class="text-secondary ms-auto">{{ 'encounter.course.relative'|trans({minutes: (event.minutesFromAdmission > 0 ? '+' : '') ~ event.minutesFromAdmission}, d) }}</span>
-                {% endif %}
-            </li>
-        {% endfor %}
-    </ul>
-    {% if course.timeline is not empty %}
-        <p class="small text-secondary mt-1 mb-0">{{ 'encounter.course.timeline_day'|trans({day: (course.timeline|first).at|date('d.m.Y')}, d) }}</p>
-    {% endif %}
-{% endmacro %}
-
-{# with_hint: the case card labels and explains documented first values; the visit detail page shows only the values. #}
-{% macro vitals(course, with_hint = true) %}
+{# with_hint: the case card labels documented first values; the visit detail page shows only the values. compact: the documented values, at most three per row, the explanation moves into the badge's tooltip. #}
+{% macro vitals(course, with_hint = true, compact = false) %}
     {% set d = 'encounter' %}
     {% set vitals = course.encounter.vitals %}
     {% if vitals.reference is null %}
@@ -87,12 +49,12 @@
             {% elseif vitals.reference.value == 'admission_measurement' %}
                 {{ 'encounter.course.vitals.admission_measurement_no_time'|trans({}, d) }}
             {% else %}
-                <span class="badge bg-secondary-lt me-1">{{ 'encounter.course.vitals.documented_initial'|trans({}, d) }}</span>
-                <span class="text-secondary">{{ 'encounter.course.vitals.documented_initial_hint'|trans({}, d) }}</span>
+                <span class="badge bg-secondary-lt me-1"{% if compact %} title="{{ 'encounter.course.vitals.documented_initial_hint'|trans({}, d) }}"{% endif %}>{{ 'encounter.course.vitals.documented_initial'|trans({}, d) }}</span>
+                {% if not compact %}<span class="text-secondary">{{ 'encounter.course.vitals.documented_initial_hint'|trans({}, d) }}</span>{% endif %}
             {% endif %}
         </p>
         {% endif %}
-        <div class="datagrid" data-testid="encounter-course-vitals">
+        <div class="{{ compact ? 'row row-cols-2 row-cols-md-3 g-3' : 'datagrid' }}" data-testid="encounter-course-vitals">
             {% for field, value in {
                 blood_pressure: vitals.bpSystolic is not null or vitals.bpDiastolic is not null ? (vitals.bpSystolic ?? '–') ~ '/' ~ (vitals.bpDiastolic ?? '–') ~ ' mmHg' : null,
                 heart_rate: vitals.heartRate is not null ? vitals.heartRate ~ ' /min' : null,
@@ -102,10 +64,12 @@
                 glucose: vitals.glucose is not null ? vitals.glucose ~ ' mg/dl' : null,
                 gcs: vitals.gcs,
             } %}
-                <div class="datagrid-item">
+                {% if not compact or value is not null %}
+                <div class="{{ compact ? 'col' : 'datagrid-item' }}">
                     <div class="datagrid-title">{{ ('encounter.course.vitals.' ~ field)|trans({}, d) }}</div>
                     <div class="datagrid-content" data-vital="{{ field }}">{{ value ?? '–' }}</div>
                 </div>
+                {% endif %}
             {% endfor %}
         </div>
     {% endif %}

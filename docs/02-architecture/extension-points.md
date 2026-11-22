@@ -411,7 +411,8 @@ references it; removing an import removes only its records.
 
 **Interface:** `RecordSectionProviderInterface` (`src/Encounter/Contract/Display/`)
 
-**Registry:** `RecordSectionRegistry`, used by `HospitalCourseCaseSectionProvider`
+**Registry:** `RecordSectionRegistry`, used by `HospitalCourseCaseSectionProvider`; the ED visit detail page
+(`ShowVisitController`, section "Further clinical data", #1401) reads the tagged providers through the contract
 
 **Course:** `EncounterCourseProviderInterface` (tag `encounter.course`, same directory), implemented by
 `EdVisitCourseProvider` of the ED visit plugin
