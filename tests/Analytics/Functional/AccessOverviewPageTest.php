@@ -38,7 +38,8 @@ final class AccessOverviewPageTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSame('10', trim($crawler->filter('[data-testid="accesses-total"]')->text()));
         self::assertStringContainsString('Oct 29, 2026', $crawler->filter('[data-testid="accesses-counted-since"]')->text());
-        self::assertStringContainsString('not visitors or sessions', $crawler->filter('main, body')->first()->text());
+        // The definition of an access is a tooltip on the total, not a visible paragraph (#1494).
+        self::assertStringContainsString('not visitors or sessions', (string) $crawler->filter('span[role="img"][data-bs-toggle="tooltip"]')->attr('title'));
 
         $months = $crawler->filter('[data-testid="accesses-months"] tbody tr');
         self::assertCount(2, $months);

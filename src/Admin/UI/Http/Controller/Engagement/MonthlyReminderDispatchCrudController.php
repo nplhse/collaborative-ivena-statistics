@@ -62,7 +62,6 @@ final class MonthlyReminderDispatchCrudController extends AbstractCrudController
             ->setEntityLabelInSingular(new TranslatableMessage('admin.monthly_reminder_dispatch.entity.singular', domain: 'admin'))
             ->setEntityLabelInPlural(new TranslatableMessage('admin.monthly_reminder_dispatch.entity.plural', domain: 'admin'))
             ->setPageTitle(Crud::PAGE_INDEX, new TranslatableMessage('ops.reminder_dispatch.title', domain: 'admin'))
-            ->setHelp(Crud::PAGE_INDEX, new TranslatableMessage('ops.reminder_dispatch.help', domain: 'admin'))
             ->setSearchFields(['reportingPeriod', 'trigger', 'hospital.name'])
             ->setDefaultSort(['sentAt' => 'DESC']);
     }

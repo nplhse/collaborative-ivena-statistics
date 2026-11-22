@@ -82,7 +82,6 @@ final class FeedbackQuarantineCrudController extends AbstractCrudController
                 ['id' => $f->getId() ?? 0],
                 'admin',
             ))
-            ->setHelp(Crud::PAGE_INDEX, new TranslatableMessage('admin.feedback_quarantine.help', domain: 'admin'))
             ->setSearchFields(['message', 'guestEmail'])
             ->setDefaultSort(['createdAt' => 'DESC']);
     }
@@ -109,6 +108,7 @@ final class FeedbackQuarantineCrudController extends AbstractCrudController
                 ->set('token', $this->container->get('security.csrf.token_manager')->getToken(self::CSRF_TOKEN_ID)->getValue())
                 ->generateUrl())
             ->renderAsForm()
+            ->setHtmlAttributes(['title' => new TranslatableMessage('admin.feedback.action.release.hint', domain: 'admin')])
             // Names the entry by number and date only: the message text may be spam and stays out of the dialog.
             ->askConfirmation(static fn (Feedback $feedback): TranslatableMessage => new TranslatableMessage('admin.feedback.action.release.confirm', [
                 'id' => (int) $feedback->getId(),
@@ -117,6 +117,7 @@ final class FeedbackQuarantineCrudController extends AbstractCrudController
 
         $batchRelease = Action::new(self::BATCH_RELEASE, new TranslatableMessage('admin.feedback.action.batch_release', domain: 'admin'), 'fas fa-check')
             ->linkToCrudAction(self::BATCH_RELEASE)
+            ->setHtmlAttributes(['title' => new TranslatableMessage('admin.feedback.action.release.hint', domain: 'admin')])
             ->createAsBatchAction();
 
         return $actions

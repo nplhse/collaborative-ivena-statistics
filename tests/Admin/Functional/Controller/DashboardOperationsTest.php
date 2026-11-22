@@ -71,7 +71,6 @@ final class DashboardOperationsTest extends WebTestCase
         self::assertSame('No previous value to compare', $crawler->filter('[data-kpi-card="active_users"] [data-kpi-change]')->text(), 'no stored MAU 30 days ago');
         self::assertCount(1, $crawler->filter('[data-controller="admin-kpi-chart"]'));
         self::assertCount(1, $crawler->filter('[data-controller="usage-trend-chart"]'));
-        self::assertCount(1, $crawler->filter('[data-usage-trend-hint]'), 'no monthly history yet');
         self::assertCount(0, $crawler->filter('[data-controller="admin-ops-chart"]'));
         self::assertCount(1, $crawler->filter('.ea-storage-card'));
         self::assertCount(1, $crawler->filter('.ea-storage-card a[href*="/admin/operations/storage"]'));

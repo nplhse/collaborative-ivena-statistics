@@ -17,17 +17,13 @@
 
 {% block main %}
     {% import _self as accesses %}
-    {{ include('@Admin/operations/usage_analytics/_privacy_note.html.twig') }}
-
-    <p class="text-secondary mb-4">{{ 'usage_analytics.accesses.definition'|trans }}</p>
-
     {% if not trend.hasData %}
         <twig:ea:Alert variant="secondary" data-testid="accesses-empty">{{ 'usage_analytics.accesses.empty'|trans({}, 'admin') }}</twig:ea:Alert>
     {% else %}
         <div class="row g-3 mb-4">
             <div class="col-sm-6 col-xl-4">
                 <div class="card h-100"><div class="card-body">
-                    <div class="text-secondary small">{{ 'usage_analytics.accesses.total'|trans }}</div>
+                    <div class="text-secondary small">{{ 'usage_analytics.accesses.total'|trans }}{{ include('@Admin/_info_tooltip.html.twig', {text: 'usage_analytics.accesses.definition'|trans({}, 'admin')}) }}</div>
                     <div class="fs-2 fw-bold" data-testid="accesses-total">{{ trend.total|number_format(0, ',', '.') }}</div>
                     <div class="text-secondary small" data-testid="accesses-counted-since">
                         {{ 'usage_analytics.accesses.counted_since'|trans({date: trend.countingSince|format_date('medium', timezone: 'Europe/Berlin')}) }}
@@ -82,7 +78,6 @@
                 </div>
                 <div class="card-body">
                     <div data-access-trend-chart-target="chart" role="img" aria-label="{{ 'usage_analytics.accesses.chart.title'|trans }}"></div>
-                    <p class="text-secondary small mb-0 mt-2">{{ 'usage_analytics.accesses.chart.hint'|trans }}</p>
                 </div>
             </div>
 

@@ -385,10 +385,6 @@
         <source>kpi.usage_trend.mau</source>
         <target>Users in 30 days</target>
       </trans-unit>
-      <trans-unit id="kpiTrend06" resname="kpi.usage_trend.history_hint">
-        <source>kpi.usage_trend.history_hint</source>
-        <target>Weekly and monthly users are added by the nightly aggregation, one day at a time. The monthly line starts with the first day whose 30-day window is complete.</target>
-      </trans-unit>
       <trans-unit id="kpiPeriod01" resname="kpi.period.label">
         <source>kpi.period.label</source>
         <target>Period</target>
@@ -725,10 +721,6 @@
         <source>ops.failed_messages.title</source>
         <target>Failed messenger messages</target>
       </trans-unit>
-      <trans-unit id="opsFm02" resname="ops.failed_messages.help">
-        <source>ops.failed_messages.help</source>
-        <target>Inspect and remove messages from the failed queue. Use the CLI to retry failed messages.</target>
-      </trans-unit>
       <trans-unit id="opsFm03" resname="ops.failed_messages.created">
         <source>ops.failed_messages.created</source>
         <target>Created</target>
@@ -824,10 +816,6 @@
       <trans-unit id="opsMsg02" resname="ops.messenger.title">
         <source>ops.messenger.title</source>
         <target>Messenger monitoring</target>
-      </trans-unit>
-      <trans-unit id="opsMsg03" resname="ops.messenger.help">
-        <source>ops.messenger.help</source>
-        <target>Background message handling by the workers: outcomes, retries and duration in the selected period, queues as they are now.</target>
       </trans-unit>
       <trans-unit id="opsMsg04" resname="ops.messenger.period.label">
         <source>ops.messenger.period.label</source>
@@ -1040,10 +1028,6 @@
       <trans-unit id="opsRd01" resname="ops.reminder_dispatch.title">
         <source>ops.reminder_dispatch.title</source>
         <target>Monthly reminder dispatches</target>
-      </trans-unit>
-      <trans-unit id="opsRd02" resname="ops.reminder_dispatch.help">
-        <source>ops.reminder_dispatch.help</source>
-        <target>Every monthly reminder send, by scheduler, admin or CLI, with its delivery status. There is one entry per hospital, upload month and trigger; sending again updates it.</target>
       </trans-unit>
       <trans-unit id="admFsAccount" resname="admin.fieldset.account">
         <source>admin.fieldset.account</source>
@@ -1797,10 +1781,6 @@
         <source>usage_analytics.accesses.chart.incomplete</source>
         <target>incomplete</target>
       </trans-unit>
-      <trans-unit id="uaAcc10" resname="usage_analytics.accesses.chart.hint">
-        <source>usage_analytics.accesses.chart.hint</source>
-        <target>Lighter bars: month not over yet or counting started during the month.</target>
-      </trans-unit>
       <trans-unit id="uaAcc11" resname="usage_analytics.accesses.years.title">
         <source>usage_analytics.accesses.years.title</source>
         <target>Per year</target>
@@ -1840,10 +1820,6 @@
       <trans-unit id="uaAcc17" resname="usage_analytics.accesses.note.partial">
         <source>usage_analytics.accesses.note.partial</source>
         <target>Counted from {date}</target>
-      </trans-unit>
-      <trans-unit id="uaNav01" resname="usage_analytics.privacy_note">
-        <source>usage_analytics.privacy_note</source>
-        <target>Aggregated usage insights only. No individual users, no user search, no raw identifiers. Visitor, session and user keys are only stored with analytics cookie consent.</target>
       </trans-unit>
       <trans-unit id="uaNav02" resname="usage_analytics.menu.section">
         <source>usage_analytics.menu.section</source>
@@ -1933,10 +1909,6 @@
         <source>admin.feedback_quarantine.detail_title</source>
         <target>Quarantined feedback #{id}</target>
       </trans-unit>
-      <trans-unit id="admFqHelp" resname="admin.feedback_quarantine.help">
-        <source>admin.feedback_quarantine.help</source>
-        <target>Suspected spam, kept for review. Messages are shown as plain text: links are not clickable and nothing is loaded from other sites. Releasing moves an entry to the normal feedback list without a notification.</target>
-      </trans-unit>
       <trans-unit id="admFbRelease" resname="admin.feedback.action.release">
         <source>admin.feedback.action.release</source>
         <target>Release</target>
@@ -1944,6 +1916,10 @@
       <trans-unit id="admFbReleaseC" resname="admin.feedback.action.release.confirm">
         <source>admin.feedback.action.release.confirm</source>
         <target>Release feedback #{id} from {createdAt, date,dd.MM.yyyy HH:mm}? It moves to the normal feedback list; no notification is sent.</target>
+      </trans-unit>
+      <trans-unit id="fbRelHintEn" resname="admin.feedback.action.release.hint">
+        <source>admin.feedback.action.release.hint</source>
+        <target>Moves the entry to the normal feedback list without a notification.</target>
       </trans-unit>
       <trans-unit id="admFbBatchRel" resname="admin.feedback.action.batch_release">
         <source>admin.feedback.action.batch_release</source>
@@ -2024,10 +2000,6 @@
       <trans-unit id="auditTl01" resname="audit.timeline.title">
         <source>audit.timeline.title</source>
         <target>Audit timeline</target>
-      </trans-unit>
-      <trans-unit id="auditTl02" resname="audit.timeline.help">
-        <source>audit.timeline.help</source>
-        <target>Newest first. Entries of one request are stacked; each entry stays a record of its own.</target>
       </trans-unit>
       <trans-unit id="auditTl03" resname="audit.timeline.empty">
         <source>audit.timeline.empty</source>
@@ -2788,10 +2760,6 @@
       <trans-unit id="navInsp03" resname="navigation.inspector.title">
         <source>navigation.inspector.title</source>
         <target>Navigation tree</target>
-      </trans-unit>
-      <trans-unit id="navInsp04" resname="navigation.inspector.intro">
-        <source>navigation.inspector.intro</source>
-        <target>Every group and entry of every menu as the providers contribute them, in menu order, including hidden entries and the reason they are hidden. Use it to find out why an entry is missing, sits in the wrong place or does not become active.</target>
       </trans-unit>
       <trans-unit id="navInsp05" resname="navigation.inspector.form.user">
         <source>navigation.inspector.form.user</source>

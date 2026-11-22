@@ -4,8 +4,6 @@
 {% block content_title %}{{ 'audit.timeline.title'|trans({}, 'admin') }}{% endblock %}
 
 {% block main %}
-    <p class="text-secondary">{{ 'audit.timeline.help'|trans({}, 'admin') }}</p>
-
     {{ include('@Admin/audit/_filter_form.html.twig') }}
 
     {% if not filter.isEmpty %}

@@ -24,8 +24,7 @@
     {% set totals = report.totals %}
     <div class="ea-messenger-page">
 
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <p class="text-secondary mb-0">{{ 'ops.messenger.help'|trans({}, 'admin') }}</p>
+    <div class="d-flex flex-wrap justify-content-end align-items-center gap-2 mb-3">
         <div class="btn-group" role="group" aria-label="{{ 'ops.messenger.period.label'|trans({}, 'admin') }}">
             {% for period in periods %}
                 <twig:ea:Button htmlElement="a"
@@ -47,7 +46,7 @@
         </div>
         <div class="col-sm-6 col-xl-2">
             <div class="card h-100"><div class="card-body">
-                <div class="text-secondary small">{{ 'ops.messenger.kpi.failed'|trans({}, 'admin') }}</div>
+                <div class="text-secondary small">{{ 'ops.messenger.kpi.failed'|trans({}, 'admin') }}{{ include('@Admin/_info_tooltip.html.twig', {text: 'ops.messenger.footnote'|trans({}, 'admin')}) }}</div>
                 <div class="fs-3 fw-bold{{ totals.failed > 0 ? ' text-danger' : '' }}" data-messenger-kpi="failed">{{ totals.failed|number_format(0, ',', '.') }}</div>
                 <div class="text-secondary small">{{ 'ops.messenger.kpi.success_rate'|trans({}, 'admin') }}: {{ _self.rate(totals.successRate) }}</div>
             </div></div>
@@ -237,6 +236,5 @@
         {% endif %}
     </div>
 
-    <p class="text-secondary small mb-0">{{ 'ops.messenger.footnote'|trans({}, 'admin') }}</p>
     </div>
 {% endblock %}

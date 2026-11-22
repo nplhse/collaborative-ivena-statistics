@@ -119,6 +119,17 @@ view models) and reach the template as a variable. Import those by name. `IconFi
 missing. In the test env, on-demand Iconify is off (`config/packages/ux_icons.yaml`), so a missing icon also fails
 the rendering test instead of calling the network.
 
+## Explanatory texts on admin pages
+
+Admin pages show data and actions, not explanations (#1494). Add a visible explanatory text (intro, definition,
+hint under a heading, footnote, CRUD page help) only when an admin would otherwise misread a number and decide
+wrongly, trigger an action with consequences they cannot see, or miss a legal or privacy obligation the page has to
+state. Warnings, empty states, confirmation dialogs and form field help are not affected.
+
+Put a short explanation that is still useful into a tooltip on an info icon next to the label:
+`{{ include('@Admin/_info_tooltip.html.twig', {text: 'key'|trans({}, 'domain')}) }}`. For an EasyAdmin action use
+`setHtmlAttributes(['title' => new TranslatableMessage(...)])`. Definitions and background belong in `docs/`.
+
 ## Development workflow
 
 After changing JS or CSS:

@@ -169,11 +169,6 @@
             <div class="col-xl-7">
                 <div class="card h-100">
                     <div class="card-header">{{ 'storage.section.locations'|trans({}, 'storage') }}</div>
-                    {% if not disk_usage.isDeployer %}
-                        <div class="card-body pb-0">
-                            <p class="text-secondary small mb-0">{{ 'storage.locations.standalone_hint'|trans({}, 'storage') }}</p>
-                        </div>
-                    {% endif %}
                     <div class="table-responsive">
                         <table class="table mb-0 align-middle ea-storage-table">
                             <thead>
@@ -214,7 +209,7 @@
             </div>
             <div class="col-xl-5">
                 <div class="card h-100">
-                    <div class="card-header">{{ 'storage.section.capacity'|trans({}, 'storage') }}</div>
+                    <div class="card-header">{{ 'storage.section.capacity'|trans({}, 'storage') }}{{ include('@Admin/_info_tooltip.html.twig', {text: 'storage.capacity.thresholds'|trans({notice: capacity.thresholds.noticePercent, warning: capacity.thresholds.warningPercent, critical: capacity.thresholds.criticalPercent}, 'storage')}) }}</div>
                     <div class="card-body">
                         <div class="mb-4">
                             <div class="d-flex justify-content-between align-items-center mb-1">
@@ -239,7 +234,7 @@
                         </div>
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <h3 class="h6 mb-0">{{ 'storage.capacity_source.filesystem'|trans({}, 'storage') }}</h3>
+                                <h3 class="h6 mb-0">{{ 'storage.capacity_source.filesystem'|trans({}, 'storage') }}{{ include('@Admin/_info_tooltip.html.twig', {text: 'storage.capacity.filesystem_hint'|trans({}, 'storage')}) }}</h3>
                                 {% if capacity.activeSource.value == 'filesystem' %}
                                     <twig:ea:Badge color="primary">{{ 'storage.capacity.reference'|trans({}, 'storage') }}</twig:ea:Badge>
                                 {% endif %}
@@ -256,14 +251,10 @@
                                 {% if capacity.filesystemUsedPercent is not null %}
                                     {{ include('@Admin/operations/storage/_meter.html.twig', {percent: capacity.filesystemUsedPercent, style: capacity.filesystemStyle}) }}
                                 {% endif %}
-                                <p class="text-secondary small mt-2 mb-0">{{ 'storage.capacity.filesystem_hint'|trans({}, 'storage') }}</p>
                             {% else %}
                                 <p class="text-secondary small mb-0">{{ 'storage.capacity.no_filesystem'|trans({}, 'storage') }}</p>
                             {% endif %}
                         </div>
-                        <p class="text-secondary small mb-0">
-                            {{ 'storage.capacity.thresholds'|trans({notice: capacity.thresholds.noticePercent, warning: capacity.thresholds.warningPercent, critical: capacity.thresholds.criticalPercent}, 'storage') }}
-                        </p>
                     </div>
                 </div>
             </div>

@@ -14,9 +14,6 @@
          data-turbo-permanent>
         <div class="card-body">
             <div class="ea-kpi-chart-target" data-usage-trend-chart-target="chart"></div>
-            {% if not kpi_usage_trend.hasMonthlyHistory %}
-                <p class="small text-secondary mb-0" data-usage-trend-hint>{{ 'kpi.usage_trend.history_hint'|trans({}, 'admin') }}</p>
-            {% endif %}
         </div>
     </div>
 </div>

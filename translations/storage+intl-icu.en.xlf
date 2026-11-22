@@ -401,10 +401,6 @@
         <source>storage.link.media</source>
         <target>Open media library</target>
       </trans-unit>
-      <trans-unit id="StgE3CD340D" resname="storage.locations.standalone_hint">
-        <source>storage.locations.standalone_hint</source>
-        <target>Standalone mode: all files belong to the project directory; there are no releases or shared directory.</target>
-      </trans-unit>
       <trans-unit id="Stg32B135A4" resname="storage.capacity.reference">
         <source>storage.capacity.reference</source>
         <target>Reference</target>
