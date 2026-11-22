@@ -81,7 +81,7 @@
                                         {% if step.clinicAccess and step.clinicAccess.status.value in ['pending', 'rejected'] %}
                                             {% set stepActionIcon = 'tabler:file-text' %}
                                         {% endif %}
-                                        <a href="{{ step.actionUrl }}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1" data-testid="onboarding-step-action">
+                                        <a href="{{ step.actionUrl }}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1"{% if step.clinicAccess and step.clinicAccess.status.value in ['pending', 'rejected'] %} data-turbo="false"{% endif %} data-testid="onboarding-step-action">
                                             {{ step.actionLabel ? step.actionLabel|trans : ('onboarding.steps.' ~ step.key.value ~ '.action')|trans({}, 'onboarding') }}
                                             <twig:ux:icon name="{{ stepActionIcon }}" class="onboarding-step-action-icon" style="height: 1.1em;" />
                                         </a>

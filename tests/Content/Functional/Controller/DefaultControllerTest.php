@@ -287,10 +287,11 @@ final class DefaultControllerTest extends WebTestCase
 
         $requestUrl = '/hospitals/requests#request-'.$request->getPublicIdString();
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists(sprintf('a[data-testid="dashboard-tile-access-request-pending"][href="%s"]', $requestUrl));
+        // A full page load, so the browser marks the linked card as :target (Turbo does not).
+        self::assertSelectorExists(sprintf('a[data-testid="dashboard-tile-access-request-pending"][href="%s"][data-turbo="false"]', $requestUrl));
         self::assertSelectorTextContains('[data-testid="dashboard-tile-access-request-pending"]', 'Your request for Klinikum Nord is being reviewed.');
         self::assertSelectorTextContains('[data-testid="onboarding-step-request_clinic_access"] [data-testid="onboarding-request-status"]', 'Pending');
-        self::assertSelectorExists(sprintf('[data-testid="onboarding-step-request_clinic_access"] a[data-testid="onboarding-step-action"][href="%s"]', $requestUrl));
+        self::assertSelectorExists(sprintf('[data-testid="onboarding-step-request_clinic_access"] a[data-testid="onboarding-step-action"][href="%s"][data-turbo="false"]', $requestUrl));
         self::assertSelectorNotExists('[data-testid="onboarding-step-request_clinic_access"] form');
     }
 
