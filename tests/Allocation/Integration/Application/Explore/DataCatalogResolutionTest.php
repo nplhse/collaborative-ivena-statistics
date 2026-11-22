@@ -4,17 +4,21 @@ declare(strict_types=1);
 
 namespace App\Tests\Allocation\Integration\Application\Explore;
 
+use App\Allocation\Application\DTO\DataCatalog\CatalogCode;
 use App\Allocation\Application\DTO\DataCatalog\CatalogObject;
 use App\Allocation\Application\Explore\DataCatalog\CodeLabels;
 use App\Allocation\Application\Explore\DataCatalog\DataCatalog;
 use App\Allocation\Application\Explore\DataCatalog\DataCatalogContributorInterface;
 use App\Allocation\Application\Explore\DataCatalog\DataCatalogMetadataResolver;
 use App\Allocation\Application\Explore\DataCatalog\DataCatalogRegistry;
+use App\Allocation\Application\Explore\DataCatalog\DataCatalogType;
 use App\Allocation\Application\Explore\DataCatalog\DataObjectDefinition;
 use App\Allocation\Application\Explore\DataCatalog\VariableDefinition;
 use App\Allocation\Application\Explore\DataCatalog\VariableGroupDefinition;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Enum\HospitalTier;
+use App\Import\Domain\Entity\Import;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Security\Core\Authorization\AccessDecision;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -48,6 +52,41 @@ final class DataCatalogResolutionTest extends KernelTestCase
         $this->expectExceptionMessage('HospitalTier has no label() method.');
 
         $this->resolver()->resolve($this->hospital(CodeLabels::fromEnumLabel('messages')));
+    }
+
+    public function testCodeSetTakesItsCodesFromTheNamedEnum(): void
+    {
+        $object = $this->resolver()->resolve($this->codeSet('dataCoverage', HospitalTier::class));
+        $tiers = $object->variable('test_import.tiers');
+
+        self::assertNotNull($tiers);
+        self::assertSame([DataCatalogType::CODE_SET, 'data_coverage', true], [$tiers->type, $tiers->column, $tiers->nullable]);
+        self::assertSame(['Basic', 'Extended', 'Full'], array_map(static fn (CatalogCode $code): string => $code->code, $tiers->codes));
+        self::assertSame('hospital.tier.Full', $tiers->codes[2]->labelKey);
+    }
+
+    public function testCodeSetWithAnUnknownEnumIsRejected(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('Data catalog variable "test_import.tiers": code set enum "App\\Missing\\TierCode" is no backed enum.');
+
+        $this->resolver()->resolve($this->codeSet('dataCoverage', 'App\\Missing\\TierCode'));
+    }
+
+    public function testCodeSetWithAClassThatIsNoBackedEnumIsRejected(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('code set enum "App\\Import\\Domain\\Entity\\Import" is no backed enum.');
+
+        $this->resolver()->resolve($this->codeSet('dataCoverage', Import::class));
+    }
+
+    public function testCodeSetOnAColumnThatIsNotJsonIsRejected(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('Data catalog variable "test_import.tiers": a code set needs a JSON column, "name" is mapped as string.');
+
+        $this->resolver()->resolve($this->codeSet('name', HospitalTier::class));
     }
 
     public function testUnknownPropertyIsRejected(): void
@@ -89,6 +128,13 @@ final class DataCatalogResolutionTest extends KernelTestCase
         return new DataObjectDefinition('test_hospital', Hospital::class, 'shared', 'tabler:building-hospital', [
             new VariableGroupDefinition('structure', [new VariableDefinition('test_hospital.tier', 'tier', codeLabels: $labels)]),
         ], grantedAttribute: 'ROLE_TEST_HOSPITALS');
+    }
+
+    private function codeSet(string $property, string $enum): DataObjectDefinition
+    {
+        return new DataObjectDefinition('test_import', Import::class, 'import', 'tabler:file-import', [
+            new VariableGroupDefinition('context', [new VariableDefinition('test_import.tiers', $property, codeLabels: CodeLabels::prefixed('hospital.tier.', 'messages'), codeSetEnum: $enum)]),
+        ]);
     }
 
     private function catalog(bool $granted): DataCatalog

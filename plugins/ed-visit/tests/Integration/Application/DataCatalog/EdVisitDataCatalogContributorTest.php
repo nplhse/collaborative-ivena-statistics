@@ -25,7 +25,7 @@ final class EdVisitDataCatalogContributorTest extends KernelTestCase
 
         self::assertCount(1, $definitions);
         self::assertSame(['ed_visit', true, EncounterAttribute::VIEW_CASES_IN_ANY_HOSPITAL], [$definitions[0]->key, $definitions[0]->contributedByPlugin, $definitions[0]->grantedAttribute]);
-        self::assertSame(41, $this->object()->variableCount());
+        self::assertSame(42, $this->object()->variableCount());
     }
 
     public function testEmbeddedFieldsResolveToTheirPrefixedColumns(): void
@@ -46,6 +46,18 @@ final class EdVisitDataCatalogContributorTest extends KernelTestCase
 
         $encounter = $this->variable($object, 'ed_visit.encounter');
         self::assertSame(['encounter_id', DataCatalogType::REFERENCE, false, 'encounter'], [$encounter->column, $encounter->type, $encounter->nullable, $encounter->referenceTable]);
+    }
+
+    public function testIsolationIsACodeSetWithTheNineExchangeFormatCodes(): void
+    {
+        $isolation = $this->variable($this->object(), 'ed_visit.isolation');
+
+        self::assertSame(['ed_visit', 'isolation', DataCatalogType::CODE_SET, false], [$isolation->table, $isolation->column, $isolation->type, $isolation->nullable]);
+        self::assertSame(
+            ['gastroenteritis', 'clostridioides', 'covid19', 'mdro', 'mrsa', 'esbl', 'pseudomonas', 'tb', 'other'],
+            array_map(static fn (CatalogCode $code): string => $code->code, $isolation->codes),
+        );
+        self::assertSame(['encounter.visit.isolation.tb', 'encounter'], [$isolation->codes[7]->labelKey, $isolation->codes[7]->domain]);
     }
 
     public function testRangesComeFromTheFieldContract(): void

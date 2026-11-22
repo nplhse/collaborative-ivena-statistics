@@ -1617,6 +1617,10 @@
         <source>data_catalog.type.reference</source>
         <target>Verweis</target>
       </trans-unit>
+      <trans-unit id="dcDe184" resname="data_catalog.type.code_set">
+        <source>data_catalog.type.code_set</source>
+        <target>Code-Menge</target>
+      </trans-unit>
       <trans-unit id="dcDe025" resname="data_catalog.group.identification">
         <source>data_catalog.group.identification</source>
         <target>Identifikation</target>

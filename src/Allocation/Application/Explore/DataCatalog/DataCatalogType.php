@@ -15,6 +15,7 @@ enum DataCatalogType: string
     case TIME = 'time';
     case BOOLEAN = 'boolean';
     case CODE = 'code';
+    case CODE_SET = 'code_set';
     case TEXT = 'text';
     case REFERENCE = 'reference';
 
