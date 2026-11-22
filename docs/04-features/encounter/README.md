@@ -1075,27 +1075,34 @@ beta role, or `ROLE_ADMIN`); everyone else sees the case file without it.
   and shows the ED part when the encounter has an ED visit with an effective link (`HospitalCourseQuery`).
   Records of other schemas at the encounter are shown also without ED visit. Without encounter the card
   says that no visit is linked; proposals belong to the match review (#1054).
+The card is an excerpt that gives an impression of the ED stay (#1401); all values are on the
+[visit detail page](#visit-detail-page).
+
 - **Link:** origin "linked automatically" (nobody checked it) or "linked after confirmation", the
-  agreement score in percent (rounded down) and the time difference between matching anchor and expected
-  IVENA arrival.
-- **Triage:** initial MTS category, diagram (catalog name), indicator, pain score.
-- **Timeline:** expected IVENA arrival, ED admission, first assessment, first physician, treatment end,
-  ED discharge, in time order, each with minutes relative to the ED admission. The expected IVENA
-  arrival comes from the allocation, not from the ED, and is set apart as "from IVENA" (#1277). Vitals appear on it only
-  with `vitals_reference = admission_measurement` and a measurement time.
+  agreement badge (see below), the time difference between matching anchor and expected IVENA arrival, and
+  **Open visit** as the main action.
+- **Triage and disposition**, side by side: initial MTS category with diagram and indicator; disposition with
+  admitting department and care level.
 - **Process times:** the three intervals of the overview for this visit; a value outside 0–1440 minutes
   is marked as excluded from the statistics.
-- **Disposition:** disposition, care level, admitting department.
-- **Vitals:** with `documented_initial` labelled "documented first value" with the note that the time
-  of measurement is not assured, and never placed on the timeline.
-- **Open visit** links to the [visit detail page](#visit-detail-page) (#1178).
+- **Times:** expected IVENA arrival, ED admission, first assessment, first physician, treatment end and
+  ED discharge in time order. The expected IVENA arrival comes from the allocation, not from the ED, and is
+  set apart as "from IVENA" (#1277). Vitals appear here only with `vitals_reference = admission_measurement`
+  and a measurement time.
+- **Vitals:** only documented values, at most three per row. With `documented_initial` labelled "documented
+  first value"; the note that the time of measurement is not assured is the label's tooltip.
 - **Records of other schemas** (ADR 037, #1274): below the blocks, the sections that encounter schemas
   contribute for the linked encounter (`RecordSectionProviderInterface`, tag `encounter.record_section`,
   [extension point](../../02-architecture/extension-points.md#encounter-record-sections)). The card has
   checked `VIEW_CASES` before; each schema adds one query at most.
 
-The clinical blocks (triage, process times, timeline, vitals, disposition) are Twig macros in
-`@EdVisit/visit/_course_macros.html.twig`, shared with the visit detail page.
+The blocks shared with the visit detail page (triage, vitals, disposition, agreement badge) are Twig macros in
+`@EdVisit/visit/_course_macros.html.twig`.
+
+**Agreement badge** (`AgreementBadgeExtension`): the colour follows `app.encounter.matching` and
+`app.encounter.validation.score_bands`. By default red below the proposal threshold (0.50), orange up to the next
+band bound (0.70), yellow up to the auto-accept threshold (0.90), green from there. It is display only: the score is
+a ranking, not a probability (ADR 030), and a confirmed link can have a low score.
 
 ### Visit detail page
 
@@ -1110,17 +1117,21 @@ list of unlinked visits; the breadcrumb and "Back to list" open the visit list o
   the ED admission and stay empty without it. The page title uses the ED admission, else the first
   assessment, and says so.
 - With an effective link, the allocation's arrival time appears only as the **expected IVENA arrival**:
-  set apart in the timeline (never part of a process time) and in the card "IVENA allocation" with the
-  link origin, agreement, allocation and a link to its case file (only for users who may open it,
-  `AllocationVoter::VIEW`).
+  set apart in the timeline (never part of a process time). The card "IVENA allocation" shows the link origin,
+  agreement, indication and urgency; users who may open the allocation (`AllocationVoter::VIEW`) also see
+  department and speciality, transport, requested resources, the features that apply, a documented infection
+  and the link to its case file.
 - Link state of the visit: **linked** (effective link), **proposal pending** (no effective link, at least
   one `proposed` pair; only with `REVIEW`, listing each proposal with a link to its review page) or
   **not linked** (everything else, including visits with only rejected pairs and, without `REVIEW`, visits
   with open proposals). Nothing is decided on this page.
-- Missing values render as a dash or a short sentence (no times, no process times without ED admission,
-  no vitals); the cards stay in place.
-- Also shown: basic data (ED admission, age, sex, arrival route and mode, referral, case status),
-  disposition, work accident and isolation.
+- Sections (#1401): overview (ED admission, age, sex, arrival route and mode, referral, case status, work
+  accident, isolation), triage, process times with the timeline, vitals, disposition, further clinical data
+  of other schemas ([record sections](../../02-architecture/extension-points.md)) and the IVENA allocation.
+  Badges in the page header jump to the sections; each card names its source (ED data or IVENA).
+- A section without any value is hidden and its header badge is greyed out; the overview and the allocation
+  always stay. Single missing values inside a shown section render as a dash. Without ED admission no
+  interval can be computed, and the process times section says so above the documented times.
 
 ### Explore allocation list
 

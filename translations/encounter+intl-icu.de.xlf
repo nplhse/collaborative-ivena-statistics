@@ -1837,10 +1837,6 @@
         <source>encounter.course.section.disposition</source>
         <target>Verbleib</target>
       </trans-unit>
-      <trans-unit id="Enc1D6E2AAE" resname="encounter.course.section.timeline">
-        <source>encounter.course.section.timeline</source>
-        <target>Zeitverlauf</target>
-      </trans-unit>
       <trans-unit id="Enc2D17BDE9" resname="encounter.course.section.vitals">
         <source>encounter.course.section.vitals</source>
         <target>Erste Vitalwerte</target>
@@ -1880,10 +1876,6 @@
       <trans-unit id="Enc70A4DF63" resname="encounter.course.relative">
         <source>encounter.course.relative</source>
         <target>{minutes} min</target>
-      </trans-unit>
-      <trans-unit id="EncEF0EF7D1" resname="encounter.course.timeline_day">
-        <source>encounter.course.timeline_day</source>
-        <target>Zeiten ab {day}, Ortszeit. Minuten relativ zur Aufnahme ZNA.</target>
       </trans-unit>
       <trans-unit id="EncE4F7F725" resname="encounter.course.event.ivena_arrival">
         <source>encounter.course.event.ivena_arrival</source>
@@ -3653,25 +3645,29 @@
         <source>encounter.visit.expected_ivena_arrival</source>
         <target>Erwartete IVENA-Ankunft</target>
       </trans-unit>
-      <trans-unit id="Enc9BD92735" resname="encounter.visit.timeline_none">
-        <source>encounter.visit.timeline_none</source>
-        <target>Keine Zeiten dokumentiert.</target>
-      </trans-unit>
       <trans-unit id="EncF37C0E3C" resname="encounter.visit.process_times_none">
         <source>encounter.visit.process_times_none</source>
         <target>Ohne Aufnahme ZNA keine Prozesszeiten.</target>
       </trans-unit>
+      <trans-unit id="EncC14AEEBA" resname="encounter.visit.section.overview">
+        <source>encounter.visit.section.overview</source>
+        <target>Überblick</target>
+      </trans-unit>
+      <trans-unit id="EncCBEE1A9B" resname="encounter.visit.section.further">
+        <source>encounter.visit.section.further</source>
+        <target>Weitere klinische Daten</target>
+      </trans-unit>
+      <trans-unit id="Enc82182E44" resname="encounter.visit.source.ed">
+        <source>encounter.visit.source.ed</source>
+        <target>Notaufnahmedaten</target>
+      </trans-unit>
+      <trans-unit id="Enc4AE78A8E" resname="encounter.visit.field.resources">
+        <source>encounter.visit.field.resources</source>
+        <target>Ressourcen</target>
+      </trans-unit>
       <trans-unit id="Enc7586D94C" resname="encounter.visit.section.allocation">
         <source>encounter.visit.section.allocation</source>
         <target>IVENA-Zuweisung</target>
-      </trans-unit>
-      <trans-unit id="Enc1890123B" resname="encounter.visit.section.basic">
-        <source>encounter.visit.section.basic</source>
-        <target>Basisdaten</target>
-      </trans-unit>
-      <trans-unit id="Enc85A1E489" resname="encounter.visit.section.flags">
-        <source>encounter.visit.section.flags</source>
-        <target>Merkmale</target>
       </trans-unit>
       <trans-unit id="EncA0919C2A" resname="encounter.visit.link.linked">
         <source>encounter.visit.link.linked</source>
@@ -3684,14 +3680,6 @@
       <trans-unit id="Enc32771986" resname="encounter.visit.link.unlinked">
         <source>encounter.visit.link.unlinked</source>
         <target>Nicht verknüpft</target>
-      </trans-unit>
-      <trans-unit id="EncDB6C8E47" resname="encounter.visit.link.automatic">
-        <source>encounter.visit.link.automatic</source>
-        <target>automatisch</target>
-      </trans-unit>
-      <trans-unit id="EncC06B7B22" resname="encounter.visit.link.confirmed">
-        <source>encounter.visit.link.confirmed</source>
-        <target>bestätigt</target>
       </trans-unit>
       <trans-unit id="EncBCB9D032" resname="encounter.visit.link.allocation">
         <source>encounter.visit.link.allocation</source>

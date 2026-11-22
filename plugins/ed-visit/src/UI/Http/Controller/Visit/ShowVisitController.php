@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Cois\Plugin\EdVisit\UI\Http\Controller\Visit;
 
 use App\Encounter\Application\Security\EncounterAttribute;
+use App\Encounter\Contract\Display\RecordSection;
+use App\Encounter\Contract\Display\RecordSectionProviderInterface;
 use Cois\Plugin\EdVisit\Application\CaseCard\HospitalCourseFactory;
 use Cois\Plugin\EdVisit\Application\Contract\HospitalCourseReaderInterface;
 use Cois\Plugin\EdVisit\Domain\Entity\EdVisit;
 use Cois\Plugin\EdVisit\Domain\Entity\EncounterMatch;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
@@ -25,9 +28,14 @@ use Symfony\Component\Uid\Uuid;
 #[IsGranted('ROLE_ENCOUNTER_BETA')]
 final class ShowVisitController extends AbstractController
 {
+    /**
+     * @param iterable<RecordSectionProviderInterface> $recordSectionProviders
+     */
     public function __construct(
         private readonly HospitalCourseReaderInterface $reader,
         private readonly HospitalCourseFactory $factory,
+        #[AutowireIterator(RecordSectionProviderInterface::TAG)]
+        private readonly iterable $recordSectionProviders,
     ) {
     }
 
@@ -50,6 +58,20 @@ final class ShowVisitController extends AbstractController
             'hospital' => $hospital,
             'course' => $this->factory->forEncounter($encounter, $link),
             'proposals' => $showProposals ? $this->reader->openProposalsOfVisit($encounter) : [],
+            'record_sections' => $this->recordSections((int) $encounter->getId()),
         ]);
+    }
+
+    /**
+     * @return list<RecordSection>
+     */
+    private function recordSections(int $encounterId): array
+    {
+        $sections = [];
+        foreach ($this->recordSectionProviders as $provider) {
+            array_push($sections, ...$provider->sectionsForEncounter($encounterId));
+        }
+
+        return $sections;
     }
 }
