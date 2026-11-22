@@ -25,6 +25,9 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
         parent::__construct($registry, Post::class);
     }
 
+    /**
+     * All published posts of the blog start page: pinned posts first (#1486), then by publication date.
+     */
     public function publishedQuery(): QueryBuilder
     {
         $qb = $this->createQueryBuilder('p')
@@ -35,7 +38,9 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('status', PostStatus::PUBLISHED)
             ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
-            ->orderBy('p.publishedAt', \SortDirection::Descending);
+            ->orderBy('p.pinned', \SortDirection::Descending)
+            ->addOrderBy('p.publishedAt', \SortDirection::Descending)
+            ->addOrderBy('p.id', \SortDirection::Descending);
 
         return $qb;
     }
@@ -76,9 +81,12 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
     }
 
     /**
+     * Published posts by publication date; with $pinnedFirst pinned posts come first (dashboard blog card, #1486).
+     * The sidebars, RSS and the sitemap keep the plain date order.
+     *
      * @return list<Post>
      */
-    public function findPublishedForIndex(?int $limit = null): array
+    public function findPublishedForIndex(?int $limit = null, bool $pinnedFirst = false): array
     {
         $qb = $this->createQueryBuilder('p')
             ->addSelect('c')
@@ -87,7 +95,14 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('status', PostStatus::PUBLISHED)
             ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
-            ->orderBy('p.publishedAt', \SortDirection::Descending);
+            ->orderBy('p.publishedAt', \SortDirection::Descending)
+            ->addOrderBy('p.id', \SortDirection::Descending);
+
+        if ($pinnedFirst) {
+            $qb->orderBy('p.pinned', \SortDirection::Descending)
+                ->addOrderBy('p.publishedAt', \SortDirection::Descending)
+                ->addOrderBy('p.id', \SortDirection::Descending);
+        }
 
         if (null !== $limit) {
             $qb->setMaxResults($limit);

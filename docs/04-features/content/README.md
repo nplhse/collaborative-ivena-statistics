@@ -10,3 +10,4 @@
 | [media-storage.md](media-storage.md) | Media library: storage layout, URLs, moving old files, integrity check |
 | [help.md](help.md) | Help section: help articles, search, topic tree, helpfulness |
 | [reactions.md](reactions.md) | Reactions to blog posts, comments and activities: model, lazy loading, visibility, cleanup |
+| [blog-pinned-and-announcements.md](blog-pinned-and-announcements.md) | Pinned blog posts and announcements as notifications |

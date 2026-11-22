@@ -1437,6 +1437,42 @@
         <source>dashboard.next_steps.access_request.rejected.description</source>
         <target>Open your request for {hospital} to see the reason.</target>
       </trans-unit>
+      <trans-unit id="PinAnnEn01" resname="blog.pinned">
+        <source>blog.pinned</source>
+        <target>Pinned</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn02" resname="admin.post.field.pinned">
+        <source>admin.post.field.pinned</source>
+        <target>Pinned</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn03" resname="admin.post.field.pinned.help">
+        <source>admin.post.field.pinned.help</source>
+        <target>Pinned posts stand above all others on the blog start page and in the latest posts until you unpin them.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn04" resname="admin.post.field.announced_at">
+        <source>admin.post.field.announced_at</source>
+        <target>Announced on</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn05" resname="admin.post.action.announce">
+        <source>admin.post.action.announce</source>
+        <target>Send as announcement</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn06" resname="admin.post.action.announce.confirm">
+        <source>admin.post.action.announce.confirm</source>
+        <target>Send “{title}” as an announcement to {count, plural, one {# user} other {# users}}? Each post can be announced only once.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn07" resname="flash.admin.post.announced">
+        <source>flash.admin.post.announced</source>
+        <target>“{title}” is being sent as an announcement.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn08" resname="flash.admin.post.not_announceable">
+        <source>flash.admin.post.not_announceable</source>
+        <target>Only a published post that was not announced before can be announced.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn09" resname="flash.admin.post.invalid_token">
+        <source>flash.admin.post.invalid_token</source>
+        <target>The request has expired. Please try again.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

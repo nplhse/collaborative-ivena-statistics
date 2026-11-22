@@ -40,7 +40,7 @@ final class DefaultController extends AbstractController
 
             return $this->render('@Content/dashboard/dashboard.html.twig', [
                 'metrics' => $metrics,
-                'recentPosts' => $this->postRepository->findPublishedForIndex(5),
+                'recentPosts' => $this->postRepository->findPublishedForIndex(5, pinnedFirst: true),
                 'onboardingCard' => $onboardingCard,
                 'clinicAccess' => $clinicAccess,
             ]);

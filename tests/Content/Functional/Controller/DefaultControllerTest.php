@@ -424,6 +424,22 @@ final class DefaultControllerTest extends WebTestCase
         return $request;
     }
 
+    public function testDashboardListsPinnedPostFirstWithMarker(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne();
+        PostFactory::createOne(['title' => 'Old pinned post', 'slug' => 'old-pinned-post', 'status' => PostStatus::PUBLISHED, 'publishedAt' => new \DateTimeImmutable('2020-01-01 09:00:00'), 'pinned' => true]);
+        PostFactory::createOne(['title' => 'Fresh post', 'slug' => 'fresh-post', 'status' => PostStatus::PUBLISHED, 'publishedAt' => new \DateTimeImmutable('2020-06-01 09:00:00')]);
+
+        $client->loginUser($user);
+        $crawler = $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        $titles = $crawler->filter('a[href^="/blog/"] .fw-medium')->each(static fn ($node): string => trim($node->text()));
+        self::assertSame(['Pinned: Old pinned post', 'Fresh post'], $titles);
+        self::assertCount(1, $crawler->filter('[data-testid="dashboard-post-pinned"]'));
+    }
+
     public function testDashboardSidebarShowsPublishedPostsAndPages(): void
     {
         $client = self::createClient();

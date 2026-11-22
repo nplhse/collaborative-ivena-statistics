@@ -53,6 +53,14 @@ class Post implements \Stringable
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $publishedAt = null;
 
+    /** Pinned posts stand above the others on the blog start page and in the latest-posts lists until unpinned (#1486). */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $pinned = false;
+
+    /** When the post was sent as an announcement notification; a post is announced at most once (#1486). */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $announcedAt = null;
+
     #[ORM\ManyToOne(inversedBy: 'posts')]
     #[ORM\JoinColumn(nullable: false)]
     private ?PostCategory $category = null;
@@ -153,6 +161,37 @@ class Post implements \Stringable
         $this->publishedAt = $publishedAt;
 
         return $this;
+    }
+
+    public function isPinned(): bool
+    {
+        return $this->pinned;
+    }
+
+    public function setPinned(bool $pinned): static
+    {
+        $this->pinned = $pinned;
+
+        return $this;
+    }
+
+    public function getAnnouncedAt(): ?\DateTimeImmutable
+    {
+        return $this->announcedAt;
+    }
+
+    /** Published, visible at $now and not announced yet. */
+    public function canBeAnnounced(\DateTimeImmutable $now): bool
+    {
+        return PostStatus::PUBLISHED === $this->status
+            && $this->publishedAt instanceof \DateTimeImmutable
+            && $this->publishedAt <= $now
+            && !$this->announcedAt instanceof \DateTimeImmutable;
+    }
+
+    public function markAnnounced(\DateTimeImmutable $at): void
+    {
+        $this->announcedAt = $at;
     }
 
     public function getCategory(): ?PostCategory

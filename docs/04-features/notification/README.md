@@ -31,6 +31,7 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | `user.first_import` | Imports | in-app, toast | the import's creator (hospital-scoped; not announced when the import is gone) | the creator's first successful import is recorded |
 | `engagement.monthly_reminder` | Reports | email (web optional) | the hospital owner | the monthly reminder is due (first working day), an administrator sends it by hand, or it is sent from the CLI |
 | `announcement.new_feature` | Announcements | web | every enabled user | a new feature is introduced (parameter `feature`); the notification system itself was announced by a migration at deploy time |
+| `announcement.post` | Announcements | web, toast, email (all on by default, configurable) | every enabled user | an administrator sends a published blog post as an announcement, once per post ([details](../content/blog-pinned-and-announcements.md)) |
 | `hospital_assignment.decided` | Account | in-app, email | the requester | an administrator approves or rejects their hospital assignment request |
 | `hospital_assignment.ownership_transferred` | Account | in-app, email | the previous owner | an approved request transfers the ownership of their hospital; says whether they keep full access |
 | `participation.activated` | Account | in-app, toast, email (mandatory: the welcome mail) | the activated user | an administrator activates participation |

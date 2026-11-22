@@ -75,6 +75,25 @@ final class BlogControllerTest extends WebTestCase
         self::assertSelectorTextNotContains('body', 'Draft Post');
     }
 
+    public function testPinnedPostStandsFirstAndIsMarked(): void
+    {
+        $client = self::createClient();
+        $category = PostCategoryFactory::createOne();
+        PostFactory::createOne(['title' => 'Pinned announcement', 'status' => PostStatus::PUBLISHED, 'publishedAt' => new \DateTimeImmutable('2020-01-01 09:00:00'), 'pinned' => true, 'category' => $category]);
+        PostFactory::createOne(['title' => 'Recent news', 'status' => PostStatus::PUBLISHED, 'publishedAt' => new \DateTimeImmutable('2020-06-01 09:00:00'), 'category' => $category]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/blog');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame('Pinned announcement', trim($crawler->filter('.page-body .col-lg-8 h2')->first()->text()));
+        self::assertSelectorTextContains('[data-testid="blog-post-pinned"]', 'Pinned');
+        self::assertCount(1, $crawler->filter('[data-testid="blog-post-pinned"]'));
+
+        // The sidebar lists only the newest posts, without pinning.
+        $sidebar = $crawler->filter('.page-body .col-lg-4 .list-group-item')->each(static fn (Crawler $node): string => trim($node->text()));
+        self::assertSame(['Recent news', 'Pinned announcement'], \array_slice($sidebar, 0, 2));
+    }
+
     public function testIndexSupportsPagination(): void
     {
         $client = self::createClient();

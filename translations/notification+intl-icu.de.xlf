@@ -609,6 +609,18 @@
         <source>hospital_assignment.ownership_transferred.label</source>
         <target>Übertragungen meiner Kliniken</target>
       </trans-unit>
+      <trans-unit id="NtfPostAnnDe1" resname="announcement.post.label">
+        <source>announcement.post.label</source>
+        <target>Ankündigungen aus dem Blog</target>
+      </trans-unit>
+      <trans-unit id="NtfPostAnnDe2" resname="announcement.post.title">
+        <source>announcement.post.title</source>
+        <target>Ankündigung: {title}</target>
+      </trans-unit>
+      <trans-unit id="NtfPostAnnDe3" resname="announcement.post.message">
+        <source>announcement.post.message</source>
+        <target>Lesen Sie die neue Ankündigung im Blog.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
