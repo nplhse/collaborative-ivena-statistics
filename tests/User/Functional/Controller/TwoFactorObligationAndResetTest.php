@@ -8,6 +8,8 @@ use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Content\Application\Media\MediaPublicUrlResolver;
+use App\Content\Infrastructure\Factory\MediaFactory;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Security\TwoFactor\TwoFactorAvailability;
@@ -60,6 +62,19 @@ final class TwoFactorObligationAndResetTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-test="two-factor-required"]');
         self::assertSelectorTextContains('.alert', 'Administrators must set up two-factor authentication before they can continue.');
+    }
+
+    public function testObligationKeepsPublicMediaFilesPublic(): void
+    {
+        $this->requireTwoFactorForAdmins();
+        $media = MediaFactory::createOne(['originalFilename' => 'logo.png']);
+
+        $this->client->request(Request::METHOD_GET, new MediaPublicUrlResolver()->resolve($media));
+
+        // Reading the token for every request would start a session and turn the response private.
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('public', (string) $this->client->getResponse()->headers->get('Cache-Control'));
+        self::assertSame([], $this->client->getResponse()->headers->getCookies());
     }
 
     public function testObligationRefusesOtherRequestsThanPageLoads(): void

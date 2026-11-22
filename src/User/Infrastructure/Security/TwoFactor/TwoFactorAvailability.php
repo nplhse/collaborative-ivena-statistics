@@ -30,11 +30,15 @@ final readonly class TwoFactorAvailability
         return !$this->demoMode && $this->cipher->isConfigured();
     }
 
+    /** Whether the obligation for administrators applies at all; cheap, no user needed. */
+    public function isRequiredForAdmins(): bool
+    {
+        return $this->requiredForAdmins && $this->isAvailable();
+    }
+
     /** Whether this user must have two-factor authentication: administrators, when the obligation is on. */
     public function isRequiredFor(User $user): bool
     {
-        return $this->requiredForAdmins
-            && $this->isAvailable()
-            && \in_array(UserRole::ADMIN, $user->getRoles(), true);
+        return $this->isRequiredForAdmins() && \in_array(UserRole::ADMIN, $user->getRoles(), true);
     }
 }

@@ -54,7 +54,9 @@ final readonly class RequireTwoFactorListener
 
     public function __invoke(RequestEvent $event): void
     {
-        if (!$event->isMainRequest()) {
+        // Reading the token starts the session and makes the response private (e.g. public media files), so it is read
+        // only when the obligation is on and the visitor already has a session.
+        if (!$event->isMainRequest() || !$this->availability->isRequiredForAdmins() || !$event->getRequest()->hasPreviousSession()) {
             return;
         }
 
