@@ -385,10 +385,6 @@
         <source>kpi.usage_trend.mau</source>
         <target>Nutzer in 30 Tagen</target>
       </trans-unit>
-      <trans-unit id="kpiTrend06de" resname="kpi.usage_trend.history_hint">
-        <source>kpi.usage_trend.history_hint</source>
-        <target>Die Wochen- und Monatswerte ergänzt die nächtliche Auswertung Tag für Tag. Die Monatslinie beginnt mit dem ersten Tag, dessen 30-Tage-Zeitraum vollständig erfasst ist.</target>
-      </trans-unit>
       <trans-unit id="kpiPeriod01de" resname="kpi.period.label">
         <source>kpi.period.label</source>
         <target>Zeitraum</target>
@@ -725,10 +721,6 @@
         <source>ops.failed_messages.title</source>
         <target>Fehlgeschlagene Messenger-Nachrichten</target>
       </trans-unit>
-      <trans-unit id="opsFm02de" resname="ops.failed_messages.help">
-        <source>ops.failed_messages.help</source>
-        <target>Fehlgeschlagene Nachrichten einsehen und aus der Failed-Queue entfernen. Für erneutes Zustellen die CLI verwenden.</target>
-      </trans-unit>
       <trans-unit id="opsFm03de" resname="ops.failed_messages.created">
         <source>ops.failed_messages.created</source>
         <target>Erstellt</target>
@@ -824,10 +816,6 @@
       <trans-unit id="opsMsg02de" resname="ops.messenger.title">
         <source>ops.messenger.title</source>
         <target>Messenger-Überwachung</target>
-      </trans-unit>
-      <trans-unit id="opsMsg03de" resname="ops.messenger.help">
-        <source>ops.messenger.help</source>
-        <target>Verarbeitung von Hintergrundnachrichten durch die Worker: Ergebnisse, Wiederholungen und Dauer im gewählten Zeitraum, Warteschlangen im aktuellen Stand.</target>
       </trans-unit>
       <trans-unit id="opsMsg04de" resname="ops.messenger.period.label">
         <source>ops.messenger.period.label</source>
@@ -1040,10 +1028,6 @@
       <trans-unit id="opsRd01de" resname="ops.reminder_dispatch.title">
         <source>ops.reminder_dispatch.title</source>
         <target>Monatliche Erinnerungsversände</target>
-      </trans-unit>
-      <trans-unit id="opsRd02de" resname="ops.reminder_dispatch.help">
-        <source>ops.reminder_dispatch.help</source>
-        <target>Alle Versände der monatlichen Erinnerung, ob per Scheduler, Administrator oder Konsole, mit ihrem Zustellstatus. Je Klinik, Upload-Monat und Auslöser gibt es einen Eintrag; ein erneuter Versand aktualisiert ihn.</target>
       </trans-unit>
       <trans-unit id="admFsAccountDe" resname="admin.fieldset.account">
         <source>admin.fieldset.account</source>
@@ -1797,10 +1781,6 @@
         <source>usage_analytics.accesses.chart.incomplete</source>
         <target>unvollständig</target>
       </trans-unit>
-      <trans-unit id="uaAcc10de" resname="usage_analytics.accesses.chart.hint">
-        <source>usage_analytics.accesses.chart.hint</source>
-        <target>Hellere Balken: Monat noch nicht vorbei oder Zählung im Laufe des Monats begonnen.</target>
-      </trans-unit>
       <trans-unit id="uaAcc11de" resname="usage_analytics.accesses.years.title">
         <source>usage_analytics.accesses.years.title</source>
         <target>Pro Jahr</target>
@@ -1840,10 +1820,6 @@
       <trans-unit id="uaAcc17de" resname="usage_analytics.accesses.note.partial">
         <source>usage_analytics.accesses.note.partial</source>
         <target>Gezählt ab {date}</target>
-      </trans-unit>
-      <trans-unit id="uaNav01de" resname="usage_analytics.privacy_note">
-        <source>usage_analytics.privacy_note</source>
-        <target>Nur zusammengefasste Nutzungsdaten. Keine einzelnen Personen, keine Personensuche, keine Rohkennungen. Besucher-, Sitzungs- und Nutzerschlüssel werden nur mit Einwilligung in Analyse-Cookies gespeichert.</target>
       </trans-unit>
       <trans-unit id="uaNav02de" resname="usage_analytics.menu.section">
         <source>usage_analytics.menu.section</source>
@@ -1933,10 +1909,6 @@
         <source>admin.feedback_quarantine.detail_title</source>
         <target>Feedback #{id} in Quarantäne</target>
       </trans-unit>
-      <trans-unit id="admFqHelpDe" resname="admin.feedback_quarantine.help">
-        <source>admin.feedback_quarantine.help</source>
-        <target>Spamverdacht, zur Prüfung aufbewahrt. Nachrichten erscheinen als reiner Text: Links sind nicht klickbar, und es wird nichts von anderen Seiten geladen. Freigegebene Einträge wandern ohne Benachrichtigung in die normale Feedback-Liste.</target>
-      </trans-unit>
       <trans-unit id="admFbReleaseDe" resname="admin.feedback.action.release">
         <source>admin.feedback.action.release</source>
         <target>Freigeben</target>
@@ -1944,6 +1916,10 @@
       <trans-unit id="admFbReleaseCDe" resname="admin.feedback.action.release.confirm">
         <source>admin.feedback.action.release.confirm</source>
         <target>Feedback #{id} vom {createdAt, date,dd.MM.yyyy HH:mm} freigeben? Es wandert in die normale Feedback-Liste; es wird keine Benachrichtigung verschickt.</target>
+      </trans-unit>
+      <trans-unit id="fbRelHintDe" resname="admin.feedback.action.release.hint">
+        <source>admin.feedback.action.release.hint</source>
+        <target>Verschiebt den Eintrag ohne Benachrichtigung in die normale Feedback-Liste.</target>
       </trans-unit>
       <trans-unit id="admFbBatchRelDe" resname="admin.feedback.action.batch_release">
         <source>admin.feedback.action.batch_release</source>
@@ -2024,10 +2000,6 @@
       <trans-unit id="auditTl01de" resname="audit.timeline.title">
         <source>audit.timeline.title</source>
         <target>Audit-Timeline</target>
-      </trans-unit>
-      <trans-unit id="auditTl02de" resname="audit.timeline.help">
-        <source>audit.timeline.help</source>
-        <target>Neueste zuerst. Einträge einer Anfrage werden gestapelt; jeder Eintrag bleibt ein eigener Datensatz.</target>
       </trans-unit>
       <trans-unit id="auditTl03de" resname="audit.timeline.empty">
         <source>audit.timeline.empty</source>
@@ -2788,10 +2760,6 @@
       <trans-unit id="navInsp03de" resname="navigation.inspector.title">
         <source>navigation.inspector.title</source>
         <target>Navigationsbaum</target>
-      </trans-unit>
-      <trans-unit id="navInsp04de" resname="navigation.inspector.intro">
-        <source>navigation.inspector.intro</source>
-        <target>Alle Gruppen und Einträge aller Menüs, wie die Provider sie beitragen, in Menü-Reihenfolge, einschließlich verborgener Einträge mit dem Grund. Hilft herauszufinden, warum ein Eintrag fehlt, falsch einsortiert ist oder nicht aktiv wird.</target>
       </trans-unit>
       <trans-unit id="navInsp05de" resname="navigation.inspector.form.user">
         <source>navigation.inspector.form.user</source>

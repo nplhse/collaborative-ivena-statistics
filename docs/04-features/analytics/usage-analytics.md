@@ -18,6 +18,9 @@ Stored: route name, feature area, HTTP status, authenticated flag, primary role,
 
 Not stored: IP, full URLs, query parameters (names or values), SQL, raw user agent, referrer, POST/form bodies, Symfony session id, user id.
 
+The admin pages show aggregated figures only: no individual users, no user search and no raw identifiers. Visitor,
+session and user keys are stored only with analytics cookie consent. The pages no longer repeat this note (#1494).
+
 ## Cookie consent (`analytics` preference)
 
 Preferences live in `cookie_consent.preferences` JSON: `{ essential, analytics }`. Legacy `monitoring` keys in stored JSON are ignored.

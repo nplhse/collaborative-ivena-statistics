@@ -8,17 +8,13 @@
 
     <dl class="row mb-3">
         <dt class="col-sm-3">{{ 'audit.filter.request'|trans({}, 'admin') }}</dt>
-        <dd class="col-sm-9 font-monospace text-break">{{ request_id }}</dd>
+        <dd class="col-sm-9"><span class="font-monospace text-break">{{ request_id }}</span>{% if entries[0].legacyRequestId %} <twig:ea:Badge title="{{ 'audit.timeline.legacy_help'|trans({}, 'admin') }}">{{ 'audit.timeline.legacy'|trans({}, 'admin') }}</twig:ea:Badge>{% endif %}</dd>
         {% if stats is not null %}
             <dt class="col-sm-3">{{ 'audit.request.entries'|trans({}, 'admin') }}</dt>
             <dd class="col-sm-9">
                 {{ stats.total }}
                 {% if not filter.isEmpty %}<span class="text-secondary">· {{ 'audit.timeline.request_matching'|trans({matching: stats.matching, total: stats.total}, 'admin') }}</span>{% endif %}
             </dd>
-        {% endif %}
-        {% if entries[0].legacyRequestId %}
-            <dt class="col-sm-3">{{ 'audit.timeline.legacy'|trans({}, 'admin') }}</dt>
-            <dd class="col-sm-9 text-secondary">{{ 'audit.timeline.legacy_help'|trans({}, 'admin') }}</dd>
         {% endif %}
     </dl>
 

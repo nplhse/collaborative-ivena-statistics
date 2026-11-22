@@ -401,10 +401,6 @@
         <source>storage.link.media</source>
         <target>Mediathek öffnen</target>
       </trans-unit>
-      <trans-unit id="StgE3CD340D" resname="storage.locations.standalone_hint">
-        <source>storage.locations.standalone_hint</source>
-        <target>Eigenständiger Modus: Alle Dateien liegen im Projektverzeichnis; es gibt keine Releases und kein Shared-Verzeichnis.</target>
-      </trans-unit>
       <trans-unit id="Stg32B135A4" resname="storage.capacity.reference">
         <source>storage.capacity.reference</source>
         <target>Referenz</target>

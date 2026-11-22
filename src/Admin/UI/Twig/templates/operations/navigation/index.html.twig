@@ -114,8 +114,6 @@
 {% endmacro %}
 
 {% block main %}
-    <p class="text-body-secondary">{{ 'navigation.inspector.intro'|trans }}</p>
-
     <form method="get" class="card mb-4" data-testid="nav-inspector-form">
         <div class="card-body row g-3 align-items-end">
             <div class="col-md-3">
@@ -170,7 +168,7 @@
 
     {% if inspection.route %}
         <section class="mb-4" data-testid="nav-inspector-route-check">
-            <h2 class="h6">{{ 'navigation.inspector.route_check.title'|trans({route: inspection.route}) }}</h2>
+            <h2 class="h6">{{ 'navigation.inspector.route_check.title'|trans({route: inspection.route}) }}{{ include('@Admin/_info_tooltip.html.twig', {text: 'navigation.inspector.route_check.hint'|trans({}, 'admin')}) }}</h2>
             <table class="table table-sm align-middle mb-1">
                 <thead>
                     <tr>
@@ -197,7 +195,6 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <p class="small text-body-secondary mb-0">{{ 'navigation.inspector.route_check.hint'|trans }}</p>
         </section>
     {% endif %}
 
@@ -280,8 +277,7 @@
     </div>
 
     <section data-testid="nav-inspector-unclaimed">
-        <h2 class="h6">{{ 'navigation.inspector.unclaimed.title'|trans }}</h2>
-        <p class="small text-body-secondary">{{ 'navigation.inspector.unclaimed.hint'|trans }}</p>
+        <h2 class="h6">{{ 'navigation.inspector.unclaimed.title'|trans }}{{ include('@Admin/_info_tooltip.html.twig', {text: 'navigation.inspector.unclaimed.hint'|trans({}, 'admin')}) }}</h2>
         {% for entryId, area in inspection.unclaimedAreaRoutes %}
             <details class="mb-2" data-nav-inspector-unclaimed="{{ entryId }}">
                 <summary><span class="nav-inspector-mono">{{ entryId }}</span> · <span class="nav-inspector-mono">{{ area.prefix }}*</span> · {{ 'navigation.inspector.unclaimed.count'|trans({count: area.routes|length}) }}</summary>

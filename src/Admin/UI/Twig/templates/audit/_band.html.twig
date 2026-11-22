@@ -16,9 +16,6 @@
     {% if group.continuesNewer %}<span class="small text-secondary" data-audit-band-continues="newer">{{ 'audit.band.continues_newer'|trans({}, 'admin') }}</span>{% endif %}
     {% if group.continuesOlder %}<span class="small text-secondary" data-audit-band-continues="older">{{ 'audit.band.continues_older'|trans({}, 'admin') }}</span>{% endif %}
 </div>
-{% if group.inferred %}
-    <p class="small text-secondary mb-1">{{ 'audit.band.inferred_help'|trans({minutes: 30}, 'admin') }}</p>
-{% endif %}
 <twig:Timeline nested>
     {% for item in group.items %}
         {{ include('@Admin/audit/_item.html.twig') }}
