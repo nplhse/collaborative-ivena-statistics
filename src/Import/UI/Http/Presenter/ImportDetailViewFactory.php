@@ -91,7 +91,8 @@ final readonly class ImportDetailViewFactory
             // Owned by the Encounter context, which adds its report section and record links (`import.type_extension`).
             ImportType::ENCOUNTER => new ImportDetailView(
                 typeLabel: $this->trans('label.import.type.encounter'),
-                importedRecordsLabel: $this->trans('import.summary.encounters_imported', ['count' => $importedCount]),
+                // Known visits pass validation but are skipped; only inserted visits count as imported (#1463).
+                importedRecordsLabel: $this->trans('import.summary.encounters_imported', ['count' => $typeSection->importedRecordCount ?? $importedCount]),
                 showsDeduplication: true,
                 deleteConfirmation: $this->confirmation($import, 'import.delete.modal.body.encounter'),
                 reprocessConfirmation: $this->confirmation($import, 'import.reprocess.modal.body.encounter'),
