@@ -822,7 +822,7 @@ final class AnalysisExplorerShell
         $this->baselineConfigState = $this->appliedConfigState;
         $this->baselineViewTitle = $this->savedViewTitle;
         $this->baselineViewDescription = $this->savedViewDescription;
-        $this->metadataManuallyEdited = false;
+        $this->metadataManuallyEdited = $this->metadataDiffersFromGenerated($this->appliedConfig());
         $this->syncUnsavedChangeState();
         $this->configWarning = null;
         $this->saveNotice = $this->translator->trans('stats.analysis_explorer.saved', [], 'statistics');
@@ -898,7 +898,7 @@ final class AnalysisExplorerShell
         $this->baselineViewTitle = $this->savedViewTitle;
         $this->baselineViewDescription = $this->savedViewDescription;
         $this->viewVisibility = $view->getVisibility()->value;
-        $this->metadataManuallyEdited = false;
+        $this->metadataManuallyEdited = $this->metadataDiffersFromGenerated($this->appliedConfig());
         $this->isEditMetadataOpen = false;
         $this->syncUnsavedChangeState();
         $this->configWarning = null;
@@ -931,6 +931,7 @@ final class AnalysisExplorerShell
         if (null !== $this->savedViewTitle && '' !== trim($this->savedViewTitle)) {
             $this->baselineViewTitle = $this->savedViewTitle;
             $this->baselineViewDescription = $this->savedViewDescription ?? '';
+            $this->metadataManuallyEdited = $this->metadataDiffersFromGenerated($config);
 
             return;
         }
@@ -980,6 +981,21 @@ final class AnalysisExplorerShell
         $this->savedViewDescription = $this->descriptionFactory->descriptionForConfig($normalizedConfig);
 
         return true;
+    }
+
+    /**
+     * A title or description of a saved user view that differs from the generated one was chosen by the user and
+     * survives filter changes; one that still equals the generated text keeps following the config (#1420). System
+     * views have no saved view id and always follow the config.
+     */
+    private function metadataDiffersFromGenerated(?AnalysisViewConfig $config): bool
+    {
+        if (null === $this->savedViewId || !$config instanceof AnalysisViewConfig) {
+            return false;
+        }
+
+        return trim($this->savedViewTitle ?? '') !== trim($config->title)
+            || trim($this->savedViewDescription ?? '') !== trim($this->descriptionFactory->descriptionForConfig($config));
     }
 
     private function metadataEditedInCurrentDrawerSession(): bool

@@ -6,12 +6,15 @@ namespace App\Tests\Statistics\Integration\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
+use App\Statistics\AnalysisExplorer\Application\ExplorerDescriptionFactory;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewService;
+use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\User\Domain\Factory\UserFactory;
+use Symfony\UX\LiveComponent\Test\TestLiveComponent;
 
 final class AnalysisExplorerShellSavedViewActionsTest extends AnalysisExplorerShellTestCase
 {
@@ -212,5 +215,71 @@ final class AnalysisExplorerShellSavedViewActionsTest extends AnalysisExplorerSh
         }
 
         self::assertSame('gender', $testComponent->component()->appliedConfig()->rowAxis->dimensionKey->value);
+    }
+
+    public function testApplyingAFilterKeepsTheCustomTitleOfASavedView(): void
+    {
+        $testComponent = $this->createSavedViewComponent('Referenzvergleich Bebra', 'Eigene Beschreibung');
+
+        $this->changeRowsToGender($testComponent);
+
+        self::assertSame('Referenzvergleich Bebra', $testComponent->component()->savedViewTitle);
+        self::assertSame('Eigene Beschreibung', $testComponent->component()->savedViewDescription);
+        self::assertSame('gender', $testComponent->component()->appliedConfigState['query']['rows']['dimension']);
+    }
+
+    public function testApplyingAFilterUpdatesAGeneratedTitleOfASavedView(): void
+    {
+        $config = $this->defaultConfig();
+        $generatedTitle = $config->title;
+        $generatedDescription = self::getContainer()->get(ExplorerDescriptionFactory::class)->descriptionForConfig($config);
+        $testComponent = $this->createSavedViewComponent($generatedTitle, $generatedDescription);
+
+        $this->changeRowsToGender($testComponent);
+
+        self::assertNotSame($generatedTitle, $testComponent->component()->savedViewTitle);
+        self::assertNotSame($generatedDescription, $testComponent->component()->savedViewDescription);
+    }
+
+    private function defaultConfig(): AnalysisViewConfig
+    {
+        return self::getContainer()->get(DefaultAnalysisViewFactory::class)->createDefault(new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::Last12Months,
+        ));
+    }
+
+    private function createSavedViewComponent(string $title, string $description): TestLiveComponent
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $state = self::getContainer()->get(ExplorerConfigMapper::class)->toStateArray($this->defaultConfig());
+        $view = self::getContainer()->get(SavedExplorerViewService::class)->create($user, $title, $state, $description);
+        $view->setCreatedBy($user);
+        self::getContainer()->get(SavedExplorerViewRepository::class)->save($view);
+
+        return $this->createLiveComponent('AnalysisExplorerShell', [
+            'appliedConfigState' => $state,
+            'locale' => 'en',
+            'libraryUrl' => '/statistics/analysis/library',
+            'savedViewId' => $view->getId(),
+            'savedViewTitle' => $title,
+            'savedViewDescription' => $description,
+            'canSave' => true,
+            'canSaveAs' => true,
+        ])->actingAs($user);
+    }
+
+    private function changeRowsToGender(TestLiveComponent $testComponent): void
+    {
+        $testComponent->call('openEdit');
+        $formName = $this->formName($testComponent->render());
+        $testComponent
+            ->submitForm($this->formPayload($formName, [
+                'rowDimension' => 'gender',
+                'rowGrain' => 'total',
+            ]))
+            ->call('applyEdit');
     }
 }
