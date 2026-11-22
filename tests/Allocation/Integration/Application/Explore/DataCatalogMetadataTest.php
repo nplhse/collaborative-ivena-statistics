@@ -88,6 +88,20 @@ final class DataCatalogMetadataTest extends KernelTestCase
         self::assertSame([DataCatalogType::DECIMAL, true], [$latitude->type, $latitude->nullable]);
     }
 
+    public function testRegionVariablesMatchTheDoctrineMapping(): void
+    {
+        $dispatchArea = $this->object('dispatch_area');
+
+        $name = $this->variable($dispatchArea, 'dispatch_area.name');
+        self::assertSame(['dispatch_area', 'name', DataCatalogType::TEXT, false], [$name->table, $name->column, $name->type, $name->nullable]);
+
+        $state = $this->variable($dispatchArea, 'dispatch_area.state');
+        self::assertSame(['state_id', DataCatalogType::REFERENCE, false, 'state'], [$state->column, $state->type, $state->nullable, $state->referenceTable]);
+
+        $stateName = $this->variable($this->object('state'), 'state.name');
+        self::assertSame(['state', 'name', DataCatalogType::TEXT, false], [$stateName->table, $stateName->column, $stateName->type, $stateName->nullable]);
+    }
+
     public function testEncounterVariablesMatchTheDoctrineMapping(): void
     {
         $encounter = $this->object('encounter');

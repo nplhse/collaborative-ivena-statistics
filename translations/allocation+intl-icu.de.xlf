@@ -2261,6 +2261,46 @@
         <source>data_catalog.variable.hospital.state.description</source>
         <target>Bundesland, in dem die Klinik liegt.</target>
       </trans-unit>
+      <trans-unit id="dcDe186" resname="data_catalog.object.dispatch_area.title">
+        <source>data_catalog.object.dispatch_area.title</source>
+        <target>Leitstellenbereich</target>
+      </trans-unit>
+      <trans-unit id="dcDe187" resname="data_catalog.object.dispatch_area.description">
+        <source>data_catalog.object.dispatch_area.description</source>
+        <target>Bereich einer Leitstelle; auf ihn beziehen sich die Herkunft der Zuweisungen und der Standort der Kliniken.</target>
+      </trans-unit>
+      <trans-unit id="dcDe188" resname="data_catalog.variable.dispatch_area.name.label">
+        <source>data_catalog.variable.dispatch_area.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcDe189" resname="data_catalog.variable.dispatch_area.name.description">
+        <source>data_catalog.variable.dispatch_area.name.description</source>
+        <target>Name des Leitstellenbereichs, wie er im IVENA-Export verwendet wird.</target>
+      </trans-unit>
+      <trans-unit id="dcDe190" resname="data_catalog.variable.dispatch_area.state.label">
+        <source>data_catalog.variable.dispatch_area.state.label</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="dcDe191" resname="data_catalog.variable.dispatch_area.state.description">
+        <source>data_catalog.variable.dispatch_area.state.description</source>
+        <target>Bundesland, zu dem der Leitstellenbereich gehört.</target>
+      </trans-unit>
+      <trans-unit id="dcDe192" resname="data_catalog.object.state.title">
+        <source>data_catalog.object.state.title</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="dcDe193" resname="data_catalog.object.state.description">
+        <source>data_catalog.object.state.description</source>
+        <target>Bundesland; fasst Leitstellenbereiche und Kliniken zusammen.</target>
+      </trans-unit>
+      <trans-unit id="dcDe194" resname="data_catalog.variable.state.name.label">
+        <source>data_catalog.variable.state.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcDe195" resname="data_catalog.variable.state.name.description">
+        <source>data_catalog.variable.state.name.description</source>
+        <target>Name des Bundeslands.</target>
+      </trans-unit>
       <trans-unit id="harTitleNewDe" resname="hospital_assignment_request.title.new">
         <source>hospital_assignment_request.title.new</source>
         <target>Klinikzuordnung beantragen</target>

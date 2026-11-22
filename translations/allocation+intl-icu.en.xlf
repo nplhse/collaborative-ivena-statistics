@@ -2261,6 +2261,46 @@
         <source>data_catalog.variable.hospital.state.description</source>
         <target>State the hospital is located in.</target>
       </trans-unit>
+      <trans-unit id="dcEn186" resname="data_catalog.object.dispatch_area.title">
+        <source>data_catalog.object.dispatch_area.title</source>
+        <target>Dispatch area</target>
+      </trans-unit>
+      <trans-unit id="dcEn187" resname="data_catalog.object.dispatch_area.description">
+        <source>data_catalog.object.dispatch_area.description</source>
+        <target>Area served by one dispatch centre; the origin of allocations and the location of hospitals refer to it.</target>
+      </trans-unit>
+      <trans-unit id="dcEn188" resname="data_catalog.variable.dispatch_area.name.label">
+        <source>data_catalog.variable.dispatch_area.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcEn189" resname="data_catalog.variable.dispatch_area.name.description">
+        <source>data_catalog.variable.dispatch_area.name.description</source>
+        <target>Name of the dispatch area as used in the IVENA export.</target>
+      </trans-unit>
+      <trans-unit id="dcEn190" resname="data_catalog.variable.dispatch_area.state.label">
+        <source>data_catalog.variable.dispatch_area.state.label</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="dcEn191" resname="data_catalog.variable.dispatch_area.state.description">
+        <source>data_catalog.variable.dispatch_area.state.description</source>
+        <target>State the dispatch area belongs to.</target>
+      </trans-unit>
+      <trans-unit id="dcEn192" resname="data_catalog.object.state.title">
+        <source>data_catalog.object.state.title</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="dcEn193" resname="data_catalog.object.state.description">
+        <source>data_catalog.object.state.description</source>
+        <target>Federal state; groups dispatch areas and hospitals.</target>
+      </trans-unit>
+      <trans-unit id="dcEn194" resname="data_catalog.variable.state.name.label">
+        <source>data_catalog.variable.state.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcEn195" resname="data_catalog.variable.state.name.description">
+        <source>data_catalog.variable.state.name.description</source>
+        <target>Name of the state.</target>
+      </trans-unit>
       <trans-unit id="harTitleNew" resname="hospital_assignment_request.title.new">
         <source>hospital_assignment_request.title.new</source>
         <target>Request hospital assignment</target>

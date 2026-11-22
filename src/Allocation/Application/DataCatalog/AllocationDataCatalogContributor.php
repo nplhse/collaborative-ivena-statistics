@@ -11,12 +11,15 @@ use App\Allocation\Application\Explore\DataCatalog\DataObjectDefinition;
 use App\Allocation\Application\Explore\DataCatalog\VariableDefinition;
 use App\Allocation\Application\Explore\DataCatalog\VariableGroupDefinition;
 use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\MciCase;
+use App\Allocation\Domain\Entity\State;
 
 /**
- * Core data objects of the Allocation context (#1415). Surrogate and public ids, the case id hash,
- * free-text notes, the import reference, owners and audit fields are left out on purpose.
+ * Core data objects and reference objects of the Allocation context (#1415, #1492). Surrogate and
+ * public ids, the case id hash, free-text notes, the import reference, owners and audit fields are
+ * left out on purpose.
  */
 final readonly class AllocationDataCatalogContributor implements DataCatalogContributorInterface
 {
@@ -25,7 +28,7 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
     #[\Override]
     public function dataObjects(): array
     {
-        return [$this->allocation(), $this->mciCase(), $this->hospital()];
+        return [$this->allocation(), $this->mciCase(), $this->hospital(), $this->dispatchArea(), $this->state()];
     }
 
     private function allocation(): DataObjectDefinition
@@ -160,6 +163,27 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
                 new VariableDefinition('hospital.longitude', 'longitude'),
                 new VariableDefinition('hospital.dispatch_area', 'dispatchArea'),
                 new VariableDefinition('hospital.state', 'state'),
+            ]),
+        ]);
+    }
+
+    private function dispatchArea(): DataObjectDefinition
+    {
+        return new DataObjectDefinition('dispatch_area', DispatchArea::class, self::DOMAIN, 'tabler:map-pin', [
+            new VariableGroupDefinition('master_data', [
+                new VariableDefinition('dispatch_area.name', 'name'),
+            ]),
+            new VariableGroupDefinition('geography', [
+                new VariableDefinition('dispatch_area.state', 'state'),
+            ]),
+        ]);
+    }
+
+    private function state(): DataObjectDefinition
+    {
+        return new DataObjectDefinition('state', State::class, self::DOMAIN, 'tabler:map', [
+            new VariableGroupDefinition('master_data', [
+                new VariableDefinition('state.name', 'name'),
             ]),
         ]);
     }
