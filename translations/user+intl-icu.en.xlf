@@ -667,7 +667,7 @@
       </trans-unit>
       <trans-unit id="LL02" resname="help.settings.login_link_2fa">
         <source>help.settings.login_link_2fa</source>
-        <target>Anyone with access to your mailbox can then sign in as well. We recommend also protecting your account with two-factor authentication once it is available.</target>
+        <target>Anyone with access to your mailbox can then sign in as well. We recommend also protecting your account with two-factor authentication.</target>
       </trans-unit>
       <trans-unit id="LL03" resname="label.settings.login_link_on">
         <source>label.settings.login_link_on</source>
@@ -772,6 +772,150 @@
       <trans-unit id="LL28" resname="text.login_link.confirm_question">
         <source>text.login_link.confirm_question</source>
         <target>Do you want to sign in with this account?</target>
+      </trans-unit>
+      <trans-unit id="TF00" resname="title.two_factor.login">
+        <source>title.two_factor.login</source>
+        <target>Two-factor authentication</target>
+      </trans-unit>
+      <trans-unit id="TF01" resname="text.two_factor.login">
+        <source>text.two_factor.login</source>
+        <target>Enter the six-digit code from your authenticator app.</target>
+      </trans-unit>
+      <trans-unit id="TF02" resname="label.two_factor.code">
+        <source>label.two_factor.code</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="TF03" resname="help.two_factor.backup_code">
+        <source>help.two_factor.backup_code</source>
+        <target>No access to your app? Enter one of your backup codes instead.</target>
+      </trans-unit>
+      <trans-unit id="TF04" resname="label.two_factor.verify">
+        <source>label.two_factor.verify</source>
+        <target>Verify</target>
+      </trans-unit>
+      <trans-unit id="TF05" resname="label.two_factor.cancel">
+        <source>label.two_factor.cancel</source>
+        <target>Cancel and sign out</target>
+      </trans-unit>
+      <trans-unit id="TF06" resname="flash.two_factor.code_invalid">
+        <source>flash.two_factor.code_invalid</source>
+        <target>The code is not correct.</target>
+      </trans-unit>
+      <trans-unit id="TF07" resname="flash.two_factor.code_reused">
+        <source>flash.two_factor.code_reused</source>
+        <target>This code was already used. Please wait for the next code from your app.</target>
+      </trans-unit>
+      <trans-unit id="TF08" resname="title.settings.two_factor">
+        <source>title.settings.two_factor</source>
+        <target>Two-factor authentication</target>
+      </trans-unit>
+      <trans-unit id="TF09" resname="text.settings.section.two_factor">
+        <source>text.settings.section.two_factor</source>
+        <target>Protect your sign-in with a code from an authenticator app.</target>
+      </trans-unit>
+      <trans-unit id="TF10" resname="label.settings.two_factor_on">
+        <source>label.settings.two_factor_on</source>
+        <target>On</target>
+      </trans-unit>
+      <trans-unit id="TF11" resname="label.settings.two_factor_off">
+        <source>label.settings.two_factor_off</source>
+        <target>Off</target>
+      </trans-unit>
+      <trans-unit id="TF12" resname="help.settings.two_factor">
+        <source>help.settings.two_factor</source>
+        <target>After your password or a sign-in link, you also enter a six-digit code from an authenticator app such as Aegis, 2FAS or 1Password.</target>
+      </trans-unit>
+      <trans-unit id="TF13" resname="text.settings.two_factor.enabled_since">
+        <source>text.settings.two_factor.enabled_since</source>
+        <target>Switched on since {date}.</target>
+      </trans-unit>
+      <trans-unit id="TF14" resname="text.settings.two_factor.backup_codes_left">
+        <source>text.settings.two_factor.backup_codes_left</source>
+        <target>{left} of {total} backup codes left.</target>
+      </trans-unit>
+      <trans-unit id="TF15" resname="label.settings.two_factor_current_code">
+        <source>label.settings.two_factor_current_code</source>
+        <target>Current code or backup code</target>
+      </trans-unit>
+      <trans-unit id="TF16" resname="label.settings.two_factor_renew_backup_codes">
+        <source>label.settings.two_factor_renew_backup_codes</source>
+        <target>Create new backup codes</target>
+      </trans-unit>
+      <trans-unit id="TF17" resname="label.settings.two_factor_disable">
+        <source>label.settings.two_factor_disable</source>
+        <target>Switch off</target>
+      </trans-unit>
+      <trans-unit id="TF18" resname="label.settings.two_factor_qr_code">
+        <source>label.settings.two_factor_qr_code</source>
+        <target>QR code for your authenticator app</target>
+      </trans-unit>
+      <trans-unit id="TF19" resname="text.settings.two_factor.scan">
+        <source>text.settings.two_factor.scan</source>
+        <target>Scan this QR code with your authenticator app. To use several devices, scan it with each of them now.</target>
+      </trans-unit>
+      <trans-unit id="TF20" resname="text.settings.two_factor.manual_key">
+        <source>text.settings.two_factor.manual_key</source>
+        <target>Or enter this key in the app:</target>
+      </trans-unit>
+      <trans-unit id="TF21" resname="label.settings.two_factor_first_code">
+        <source>label.settings.two_factor_first_code</source>
+        <target>Code from the app</target>
+      </trans-unit>
+      <trans-unit id="TF22" resname="label.settings.two_factor_enable">
+        <source>label.settings.two_factor_enable</source>
+        <target>Switch on</target>
+      </trans-unit>
+      <trans-unit id="TF23" resname="title.settings.two_factor_backup_codes">
+        <source>title.settings.two_factor_backup_codes</source>
+        <target>Backup codes</target>
+      </trans-unit>
+      <trans-unit id="TF24" resname="text.settings.two_factor.backup_codes_once">
+        <source>text.settings.two_factor.backup_codes_once</source>
+        <target>Save these codes now, for example in your password manager. They are shown only once. Each code works once if you cannot use your authenticator app.</target>
+      </trans-unit>
+      <trans-unit id="TF25" resname="label.settings.two_factor_codes_saved">
+        <source>label.settings.two_factor_codes_saved</source>
+        <target>I have saved the codes</target>
+      </trans-unit>
+      <trans-unit id="TF26" resname="label.settings.two_factor_set_up">
+        <source>label.settings.two_factor_set_up</source>
+        <target>Set up two-factor authentication</target>
+      </trans-unit>
+      <trans-unit id="TF27" resname="flash.settings.two_factor.code_invalid">
+        <source>flash.settings.two_factor.code_invalid</source>
+        <target>The code is not correct. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="TF28" resname="flash.settings.two_factor.too_many_attempts">
+        <source>flash.settings.two_factor.too_many_attempts</source>
+        <target>Too many attempts. Please try again in 15 minutes.</target>
+      </trans-unit>
+      <trans-unit id="TF29" resname="flash.settings.two_factor.enabled">
+        <source>flash.settings.two_factor.enabled</source>
+        <target>Two-factor authentication is switched on.</target>
+      </trans-unit>
+      <trans-unit id="TF30" resname="flash.settings.two_factor.disabled">
+        <source>flash.settings.two_factor.disabled</source>
+        <target>Two-factor authentication is switched off.</target>
+      </trans-unit>
+      <trans-unit id="TF31" resname="text.settings.two_factor.active">
+        <source>text.settings.two_factor.active</source>
+        <target>Your account is protected with an authenticator app.</target>
+      </trans-unit>
+      <trans-unit id="TF32" resname="help.settings.two_factor_renew">
+        <source>help.settings.two_factor_renew</source>
+        <target>New codes replace all previous ones.</target>
+      </trans-unit>
+      <trans-unit id="TF33" resname="label.settings.two_factor_disable_heading">
+        <source>label.settings.two_factor_disable_heading</source>
+        <target>Switch off two-factor authentication</target>
+      </trans-unit>
+      <trans-unit id="TF34" resname="help.settings.two_factor_disable">
+        <source>help.settings.two_factor_disable</source>
+        <target>Afterwards your password or a sign-in link is enough to sign in again.</target>
+      </trans-unit>
+      <trans-unit id="TF35" resname="label.settings.two_factor_copy_codes">
+        <source>label.settings.two_factor_copy_codes</source>
+        <target>Copy all codes</target>
       </trans-unit>
     </body>
   </file>

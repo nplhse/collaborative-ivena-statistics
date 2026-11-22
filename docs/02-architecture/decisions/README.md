@@ -55,6 +55,7 @@ Each ADR includes:
 | [037](037-encounter-case-hub-and-schema-plugins.md) | Encounter as treatment case, schemas as Symfony bundles | accepted |
 | [038](038-verified-backup-format.md) | Verified backups as one directory with a manifest | accepted |
 | [039](039-managed-media-storage.md) | Managed media storage outside the web root with checksums and integrity checks | accepted |
+| [040](040-two-factor-authentication.md) | Two-factor authentication with an authenticator app (TOTP) | accepted |
 
 ## Template
 

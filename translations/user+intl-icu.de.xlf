@@ -667,7 +667,7 @@
       </trans-unit>
       <trans-unit id="DeLL02" resname="help.settings.login_link_2fa">
         <source>help.settings.login_link_2fa</source>
-        <target>Damit kann sich auch anmelden, wer Zugriff auf Ihr Postfach hat. Wir empfehlen, Ihr Konto zusätzlich mit der Zwei-Faktor-Authentifizierung zu schützen, sobald sie verfügbar ist.</target>
+        <target>Damit kann sich auch anmelden, wer Zugriff auf Ihr Postfach hat. Wir empfehlen, Ihr Konto zusätzlich mit der Zwei-Faktor-Authentifizierung zu schützen.</target>
       </trans-unit>
       <trans-unit id="DeLL03" resname="label.settings.login_link_on">
         <source>label.settings.login_link_on</source>
@@ -772,6 +772,150 @@
       <trans-unit id="DeLL28" resname="text.login_link.confirm_question">
         <source>text.login_link.confirm_question</source>
         <target>Möchten Sie sich mit diesem Konto anmelden?</target>
+      </trans-unit>
+      <trans-unit id="DeTF00" resname="title.two_factor.login">
+        <source>title.two_factor.login</source>
+        <target>Zwei-Faktor-Authentifizierung</target>
+      </trans-unit>
+      <trans-unit id="DeTF01" resname="text.two_factor.login">
+        <source>text.two_factor.login</source>
+        <target>Geben Sie den sechsstelligen Code aus Ihrer Authenticator-App ein.</target>
+      </trans-unit>
+      <trans-unit id="DeTF02" resname="label.two_factor.code">
+        <source>label.two_factor.code</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="DeTF03" resname="help.two_factor.backup_code">
+        <source>help.two_factor.backup_code</source>
+        <target>Kein Zugriff auf Ihre App? Geben Sie stattdessen einen Ihrer Backup-Codes ein.</target>
+      </trans-unit>
+      <trans-unit id="DeTF04" resname="label.two_factor.verify">
+        <source>label.two_factor.verify</source>
+        <target>Bestätigen</target>
+      </trans-unit>
+      <trans-unit id="DeTF05" resname="label.two_factor.cancel">
+        <source>label.two_factor.cancel</source>
+        <target>Abbrechen und abmelden</target>
+      </trans-unit>
+      <trans-unit id="DeTF06" resname="flash.two_factor.code_invalid">
+        <source>flash.two_factor.code_invalid</source>
+        <target>Der Code ist nicht korrekt.</target>
+      </trans-unit>
+      <trans-unit id="DeTF07" resname="flash.two_factor.code_reused">
+        <source>flash.two_factor.code_reused</source>
+        <target>Dieser Code wurde bereits verwendet. Bitte warten Sie auf den nächsten Code Ihrer App.</target>
+      </trans-unit>
+      <trans-unit id="DeTF08" resname="title.settings.two_factor">
+        <source>title.settings.two_factor</source>
+        <target>Zwei-Faktor-Authentifizierung</target>
+      </trans-unit>
+      <trans-unit id="DeTF09" resname="text.settings.section.two_factor">
+        <source>text.settings.section.two_factor</source>
+        <target>Schützen Sie Ihre Anmeldung mit einem Code aus einer Authenticator-App.</target>
+      </trans-unit>
+      <trans-unit id="DeTF10" resname="label.settings.two_factor_on">
+        <source>label.settings.two_factor_on</source>
+        <target>Aktiv</target>
+      </trans-unit>
+      <trans-unit id="DeTF11" resname="label.settings.two_factor_off">
+        <source>label.settings.two_factor_off</source>
+        <target>Aus</target>
+      </trans-unit>
+      <trans-unit id="DeTF12" resname="help.settings.two_factor">
+        <source>help.settings.two_factor</source>
+        <target>Nach Ihrem Passwort oder einem Anmeldelink geben Sie zusätzlich einen sechsstelligen Code aus einer Authenticator-App wie Aegis, 2FAS oder 1Password ein.</target>
+      </trans-unit>
+      <trans-unit id="DeTF13" resname="text.settings.two_factor.enabled_since">
+        <source>text.settings.two_factor.enabled_since</source>
+        <target>Eingeschaltet seit {date}.</target>
+      </trans-unit>
+      <trans-unit id="DeTF14" resname="text.settings.two_factor.backup_codes_left">
+        <source>text.settings.two_factor.backup_codes_left</source>
+        <target>{left} von {total} Backup-Codes übrig.</target>
+      </trans-unit>
+      <trans-unit id="DeTF15" resname="label.settings.two_factor_current_code">
+        <source>label.settings.two_factor_current_code</source>
+        <target>Aktueller Code oder Backup-Code</target>
+      </trans-unit>
+      <trans-unit id="DeTF16" resname="label.settings.two_factor_renew_backup_codes">
+        <source>label.settings.two_factor_renew_backup_codes</source>
+        <target>Neue Backup-Codes erstellen</target>
+      </trans-unit>
+      <trans-unit id="DeTF17" resname="label.settings.two_factor_disable">
+        <source>label.settings.two_factor_disable</source>
+        <target>Ausschalten</target>
+      </trans-unit>
+      <trans-unit id="DeTF18" resname="label.settings.two_factor_qr_code">
+        <source>label.settings.two_factor_qr_code</source>
+        <target>QR-Code für Ihre Authenticator-App</target>
+      </trans-unit>
+      <trans-unit id="DeTF19" resname="text.settings.two_factor.scan">
+        <source>text.settings.two_factor.scan</source>
+        <target>Scannen Sie diesen QR-Code mit Ihrer Authenticator-App. Wenn Sie mehrere Geräte nutzen möchten, scannen Sie ihn jetzt mit jedem davon.</target>
+      </trans-unit>
+      <trans-unit id="DeTF20" resname="text.settings.two_factor.manual_key">
+        <source>text.settings.two_factor.manual_key</source>
+        <target>Oder geben Sie diesen Schlüssel in der App ein:</target>
+      </trans-unit>
+      <trans-unit id="DeTF21" resname="label.settings.two_factor_first_code">
+        <source>label.settings.two_factor_first_code</source>
+        <target>Code aus der App</target>
+      </trans-unit>
+      <trans-unit id="DeTF22" resname="label.settings.two_factor_enable">
+        <source>label.settings.two_factor_enable</source>
+        <target>Einschalten</target>
+      </trans-unit>
+      <trans-unit id="DeTF23" resname="title.settings.two_factor_backup_codes">
+        <source>title.settings.two_factor_backup_codes</source>
+        <target>Backup-Codes</target>
+      </trans-unit>
+      <trans-unit id="DeTF24" resname="text.settings.two_factor.backup_codes_once">
+        <source>text.settings.two_factor.backup_codes_once</source>
+        <target>Speichern Sie diese Codes jetzt, zum Beispiel in Ihrem Passwort-Manager. Sie werden nur einmal angezeigt. Jeder Code funktioniert einmal, wenn Sie Ihre Authenticator-App nicht nutzen können.</target>
+      </trans-unit>
+      <trans-unit id="DeTF25" resname="label.settings.two_factor_codes_saved">
+        <source>label.settings.two_factor_codes_saved</source>
+        <target>Ich habe die Codes gespeichert</target>
+      </trans-unit>
+      <trans-unit id="DeTF26" resname="label.settings.two_factor_set_up">
+        <source>label.settings.two_factor_set_up</source>
+        <target>Zwei-Faktor-Authentifizierung einrichten</target>
+      </trans-unit>
+      <trans-unit id="DeTF27" resname="flash.settings.two_factor.code_invalid">
+        <source>flash.settings.two_factor.code_invalid</source>
+        <target>Der Code ist nicht korrekt. Bitte versuchen Sie es erneut.</target>
+      </trans-unit>
+      <trans-unit id="DeTF28" resname="flash.settings.two_factor.too_many_attempts">
+        <source>flash.settings.two_factor.too_many_attempts</source>
+        <target>Zu viele Versuche. Bitte versuchen Sie es in 15 Minuten erneut.</target>
+      </trans-unit>
+      <trans-unit id="DeTF29" resname="flash.settings.two_factor.enabled">
+        <source>flash.settings.two_factor.enabled</source>
+        <target>Die Zwei-Faktor-Authentifizierung ist eingeschaltet.</target>
+      </trans-unit>
+      <trans-unit id="DeTF30" resname="flash.settings.two_factor.disabled">
+        <source>flash.settings.two_factor.disabled</source>
+        <target>Die Zwei-Faktor-Authentifizierung ist ausgeschaltet.</target>
+      </trans-unit>
+      <trans-unit id="DeTF31" resname="text.settings.two_factor.active">
+        <source>text.settings.two_factor.active</source>
+        <target>Ihr Konto ist mit einer Authenticator-App geschützt.</target>
+      </trans-unit>
+      <trans-unit id="DeTF32" resname="help.settings.two_factor_renew">
+        <source>help.settings.two_factor_renew</source>
+        <target>Neue Codes ersetzen alle bisherigen.</target>
+      </trans-unit>
+      <trans-unit id="DeTF33" resname="label.settings.two_factor_disable_heading">
+        <source>label.settings.two_factor_disable_heading</source>
+        <target>Zwei-Faktor-Authentifizierung ausschalten</target>
+      </trans-unit>
+      <trans-unit id="DeTF34" resname="help.settings.two_factor_disable">
+        <source>help.settings.two_factor_disable</source>
+        <target>Danach genügt zum Anmelden wieder Ihr Passwort oder ein Anmeldelink.</target>
+      </trans-unit>
+      <trans-unit id="DeTF35" resname="label.settings.two_factor_copy_codes">
+        <source>label.settings.two_factor_copy_codes</source>
+        <target>Alle Codes kopieren</target>
       </trans-unit>
     </body>
   </file>

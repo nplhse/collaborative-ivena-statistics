@@ -32,6 +32,12 @@ framework:
             policy: fixed_window
             limit: 10
             interval: '1 hour'
+        # Codes entered in the two-factor settings (#1357) to switch it off or renew the backup codes, per user.
+        # Codes at sign-in count towards login_throttling in security.yaml.
+        two_factor_settings_code:
+            policy: fixed_window
+            limit: 5
+            interval: '15 minutes'
         # Login link requests (#1355): per IP and per entered identifier (hashed). Exceeding either sends no mail
         # but shows the same page as a successful request.
         login_link_request:

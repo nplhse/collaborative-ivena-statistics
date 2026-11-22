@@ -79,7 +79,12 @@
                                         <h4 class="subheader mb-3">{{ 'label.settings.login_link'|trans({}, 'user') }}</h4>
                                         <div class="mb-4" data-test="login-link-setting">
                                             <p class="text-secondary mb-2">{{ 'help.settings.login_link'|trans({}, 'user') }}</p>
-                                            <p class="text-secondary mb-3">{{ 'help.settings.login_link_2fa'|trans({}, 'user') }}</p>
+                                            {% if two_factor_available() and not app.user.totpAuthenticationEnabled %}
+                                                <p class="text-secondary mb-3" data-test="login-link-two-factor-hint">
+                                                    {{ 'help.settings.login_link_2fa'|trans({}, 'user') }}
+                                                    <a href="{{ path('app_settings_two_factor') }}">{{ 'label.settings.two_factor_set_up'|trans({}, 'user') }}</a>
+                                                </p>
+                                            {% endif %}
                                             <form method="post" action="{{ path('app_settings_login_link') }}" class="d-flex align-items-center gap-3">
                                                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('settings_login_link') }}">
                                                 <input type="hidden" name="enabled" value="{{ app.user.loginLinkEnabled ? '0' : '1' }}">

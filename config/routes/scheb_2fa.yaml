@@ -1,0 +1,8 @@
+# Code form and check path of two-factor authentication (#1357), see `two_factor` in security.yaml.
+app_two_factor_login:
+    path: /2fa
+    defaults:
+        _controller: "scheb_two_factor.form_controller::form"
+
+app_two_factor_check:
+    path: /2fa/check

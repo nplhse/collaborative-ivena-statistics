@@ -29,7 +29,7 @@ password; `/login/confirm` (re-authentication) always asks for it.
 
 - **Opt-in:** `User::$loginLinkEnabled` (column `login_link_enabled`, default off), switched on in the account settings
   (`POST /settings/login-link`, needs `IS_AUTHENTICATED_FULLY`). The settings recommend two-factor authentication
-  (#1357) next to the switch, without requiring it. Administrators do not get the option and cannot use a link:
+  ([below](#two-factor-authentication)) next to the switch, without requiring it, when it is available. Administrators do not get the option and cannot use a link:
   `User::isLoginLinkAllowed()` is false for `ROLE_ADMIN`.
 - **Request:** `/login/link` (own page) and the second button of the login form ("Send me a sign-in link", posts
   `login[username]` to the same route without a password). Username or email are accepted, with the same rule as the
@@ -50,6 +50,34 @@ password; `/login/confirm` (re-authentication) always asks for it.
   links lead back to the login page with an error.
 - **Mail:** `@User/security/login_link_email.html.twig` through `TransactionalMailer::sendLoginLinkEmail()` and the
   `async_mail` transport. The mail worker must run, otherwise links expire before they arrive.
+
+## Two-factor authentication
+
+Users can protect their account with a six-digit code from an authenticator app (#1357,
+[ADR 040](../../02-architecture/decisions/040-two-factor-authentication.md)). It is optional for everyone.
+
+- **Bundle:** `scheb/2fa-bundle` with TOTP and backup codes (`config/packages/scheb_2fa.yaml`, `two_factor` in the
+  `main` firewall). After the password or the login link, an account with two-factor authentication gets a two-factor
+  token and can only reach `/2fa` (code form, `@User/security/two_factor.html.twig`), `/2fa/check` and `/logout` until
+  the code is entered.
+- **Not asked** for remember-me sessions (the cookie is set only after the code), on `/login/confirm`
+  (`SkipOnPasswordConfirmationCondition`) and when an administrator impersonates a user.
+- **Wrong codes** count towards `login_throttling` and are logged as `security.login.failure` with
+  `InvalidTwoFactorCodeException`. A code is accepted once (`code_reuse_cache`); `leeway: 10` seconds.
+- **Setup:** `/settings/two-factor` (needs `IS_AUTHENTICATED_FULLY`) shows a QR code and the key; the first code
+  switches it on. Several devices scan the same QR code; setting it up again creates a new secret. The pending secret
+  stays in the session (encrypted) until the code is confirmed.
+- **Backup codes:** ten codes of ten letters (`BackupCodeGenerator`), shown once after switching on or renewing, stored
+  as password hashes (`user.backup_code_hashes`). Each works once on the code form.
+- **Changes** (renew backup codes, switch off) need a current code or a backup code, a CSRF token and stay within
+  `two_factor_settings_code` (5 per 15 minutes per user). Audit intents: `user.settings.two_factor_enabled`,
+  `user.settings.two_factor_backup_codes_renewed`, `user.settings.two_factor_disabled`.
+- **Secret storage:** `user.totp_secret_encrypted`, encrypted with `APP_TWO_FACTOR_KEY` (`TwoFactorSecretCipher`,
+  libsodium) and decrypted after loading (`TwoFactorSecretLoader`); the decrypted secret is never serialized into the
+  session.
+- **Availability:** offered only with a valid `APP_TWO_FACTOR_KEY` (64 hex characters) and never in the demo
+  (`TwoFactorAvailability`). If accounts use it and the key is missing or wrong, codes fail and only backup codes work;
+  the `two_factor` health check reports it ([health-check.md](../../05-operations/health-check.md)).
 
 ## Account checks
 
@@ -81,5 +109,6 @@ logged. An aggregated view for administrators is planned in #1487.
 
 `tests/User/Functional/Controller/SecurityControllerTest.php` covers username and email login, the generic errors and
 the shared throttling; `LoginLinkTest` covers the login link (opt-in, same answer for every request, rate limit,
-confirmation page, single use, invalidation, consent); `RememberMeLoginTest` and `ConfirmPasswordControllerTest` cover
+confirmation page, single use, invalidation, consent); `TwoFactorLoginTest` and `TwoFactorSettingsTest` cover the
+second factor; `RememberMeLoginTest` and `ConfirmPasswordControllerTest` cover
 sessions and re-authentication.

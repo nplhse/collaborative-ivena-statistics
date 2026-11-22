@@ -40,7 +40,14 @@ security:
                 max_uses: 1
                 used_link_cache: cache.app
 
-            # Limits failed login attempts per IP + username (Symfony default key).
+            # Second factor with an authenticator app (#1357, ADR 040, config/packages/scheb_2fa.yaml). After the
+            # password or the login link, accounts with two-factor authentication must enter a code on /2fa.
+            two_factor:
+                auth_form_path: app_two_factor_login
+                check_path: app_two_factor_check
+                enable_csrf: true
+
+            # Limits failed login attempts per IP + username (Symfony default key). Also counts wrong two-factor codes.
             # 5 attempts / 15 minutes balances brute-force protection with typo tolerance.
             login_throttling:
                 max_attempts: 5
@@ -71,6 +78,9 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        # During two-factor authentication only the code form and logout are reachable (#1357).
+        - { path: ^/logout, roles: PUBLIC_ACCESS }
+        - { path: ^/2fa, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
         - { path: ^/health, roles: PUBLIC_ACCESS }
         - { path: ^/_error_preview, roles: PUBLIC_ACCESS }
         - { path: ^/_error/, roles: PUBLIC_ACCESS }
