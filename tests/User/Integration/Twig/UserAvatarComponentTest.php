@@ -89,6 +89,21 @@ final class UserAvatarComponentTest extends KernelTestCase
         self::assertStringContainsString('aria-label="mmueller"', $html);
     }
 
+    public function testRevealDisplayNameShowsInitialsAndNameToAnonymousViewers(): void
+    {
+        $avatar = $this->renderTwigComponent('UserAvatar', [
+            'userId' => 8,
+            'displayName' => 'Michael Müller',
+            'username' => 'mmueller',
+            'decorative' => false,
+            'revealDisplayName' => true,
+        ])->crawler()->filter('.avatar');
+
+        self::assertSame('initials', $avatar->attr('data-avatar'));
+        self::assertSame('MM', trim($avatar->text()));
+        self::assertSame('Michael Müller', $avatar->attr('aria-label'));
+    }
+
     public function testDecorativeAvatarIsHiddenFromAssistiveTechnology(): void
     {
         $this->signIn();

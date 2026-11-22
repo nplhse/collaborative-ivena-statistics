@@ -233,6 +233,58 @@ final class LoginLinkTest extends WebTestCase
         self::assertSelectorNotExists('[data-avatar]');
     }
 
+    public function testSignedInUsersAreSentToTheDashboard(): void
+    {
+        $this->client->loginUser($this->createUser('link-user'));
+
+        $this->client->request(Request::METHOD_GET, '/login/link');
+
+        self::assertResponseRedirects('/');
+    }
+
+    public function testRequestWithoutValidCsrfTokenIsDenied(): void
+    {
+        $this->createUser('link-user');
+
+        $this->client->request(Request::METHOD_POST, '/login/link', [
+            'identifier' => 'link-user@example.test',
+            '_link_csrf_token' => 'invalid',
+        ]);
+
+        // Access denied for a visitor: the entry point sends them to the login page.
+        self::assertResponseRedirects('/login');
+        self::assertEmailCount(0);
+    }
+
+    public function testEmptyIdentifierShowsTheFormAgain(): void
+    {
+        $this->requestLink('   ');
+
+        self::assertResponseRedirects('/login/link');
+        self::assertEmailCount(0);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function malformedLinks(): iterable
+    {
+        yield 'unknown user' => ['/login/link/check?user=nobody&expires=9999999999&hash=abc'];
+        yield 'non-numeric expiry' => ['/login/link/check?user=link-user&expires=soon&hash=abc'];
+    }
+
+    #[DataProvider('malformedLinks')]
+    public function testMalformedLinksShowOnlyTheUsername(string $link): void
+    {
+        $this->createUser('link-user', ['displayName' => 'Linda Link']);
+
+        $this->client->request(Request::METHOD_GET, $link);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-test="login-link-account"]', 'Sign in as');
+        self::assertSelectorNotExists('[data-avatar]');
+    }
+
     public function testCheckRouteWithoutParametersLeadsToTheLogin(): void
     {
         $this->client->request(Request::METHOD_GET, '/login/link/check');
@@ -257,6 +309,18 @@ final class LoginLinkTest extends WebTestCase
         self::assertTrue($user->isLoginLinkEnabled());
 
         $this->client->submit($crawler->selectButton('Switch off')->form());
+        refresh($user);
+        self::assertFalse($user->isLoginLinkEnabled());
+    }
+
+    public function testSettingsSwitchNeedsAValidCsrfToken(): void
+    {
+        $user = $this->createUser('link-user', ['loginLinkEnabled' => false]);
+        $this->client->loginUser($user);
+
+        $this->client->request(Request::METHOD_POST, '/settings/login-link', ['enabled' => '1', '_csrf_token' => 'invalid']);
+
+        self::assertResponseStatusCodeSame(403);
         refresh($user);
         self::assertFalse($user->isLoginLinkEnabled());
     }
