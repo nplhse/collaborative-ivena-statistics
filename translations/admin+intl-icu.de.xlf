@@ -585,6 +585,10 @@
         <source>ops.health.check.media</source>
         <target>Mediendateien</target>
       </trans-unit>
+      <trans-unit id="opsHlthTwoFactorDe" resname="ops.health.check.two_factor">
+        <source>ops.health.check.two_factor</source>
+        <target>2FA-Schlüssel</target>
+      </trans-unit>
       <trans-unit id="opsHlthMsg00de" resname="ops.health.check.messenger">
         <source>ops.health.check.messenger</source>
         <target>Messenger</target>

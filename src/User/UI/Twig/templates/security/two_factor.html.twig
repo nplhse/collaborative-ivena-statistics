@@ -1,0 +1,42 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{# Code form of two-factor authentication (#1357), rendered by scheb/2fa-bundle after the password or the login link. #}
+{% block title %}{{ 'title.two_factor.login'|trans({}, 'user') }} - {{ parent() }}{% endblock %}
+
+{% block page_body %}
+    <div class="container container-tight py-4">
+        <twig:Card size="md">
+            <h2 class="text-center mb-3">{{ 'title.two_factor.login'|trans({}, 'user') }}</h2>
+            <p class="text-center text-secondary mb-4">{{ 'text.two_factor.login'|trans({}, 'user') }}</p>
+
+            {% if authenticationError %}
+                <twig:Alert type="danger" data-test="two-factor-error">
+                    {% if authenticationError in ['code_invalid', 'code_reused'] %}
+                        {{ ('flash.two_factor.' ~ authenticationError)|trans({}, 'user') }}
+                    {% else %}
+                        {{ authenticationError|trans(authenticationErrorData, 'security') }}
+                    {% endif %}
+                </twig:Alert>
+            {% endif %}
+
+            <form method="post" action="{{ checkPathUrl ? checkPathUrl : path(checkPathRoute) }}">
+                <div class="mb-3">
+                    <label class="form-label" for="_auth_code">{{ 'label.two_factor.code'|trans({}, 'user') }}</label>
+                    {# Backup codes contain letters, so no numeric keyboard. #}
+                    <input id="_auth_code" class="form-control" type="text" name="{{ authCodeParameterName }}"
+                           autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" required autofocus>
+                    <small class="form-hint">{{ 'help.two_factor.backup_code'|trans({}, 'user') }}</small>
+                </div>
+                {% if isCsrfProtectionEnabled %}
+                    <input type="hidden" name="{{ csrfParameterName }}" value="{{ csrf_token(csrfTokenId) }}">
+                {% endif %}
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary w-100">{{ 'label.two_factor.verify'|trans({}, 'user') }}</button>
+                </div>
+            </form>
+            <div class="text-center text-secondary mt-3">
+                <a href="{{ logoutPath }}">{{ 'label.two_factor.cancel'|trans({}, 'user') }}</a>
+            </div>
+        </twig:Card>
+    </div>
+{% endblock %}

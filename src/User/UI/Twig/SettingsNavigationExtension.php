@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\User\UI\Twig;
 
+use App\User\Infrastructure\Security\TwoFactor\TwoFactorAvailability;
 use Twig\Attribute\AsTwigFunction;
 
 /**
  * The areas of the user settings, in display order. The overview tiles and the section
  * navigation of the single settings pages both render this list, so they cannot drift apart.
  * Notifications belong to the Notification context, which renders its page in this layout.
+ * Two-factor authentication is listed only where it can be set up (#1357).
  */
 final readonly class SettingsNavigationExtension
 {
@@ -39,6 +41,13 @@ final readonly class SettingsNavigationExtension
             'descriptionKey' => 'text.settings.section.password',
         ],
         [
+            'key' => 'two_factor',
+            'route' => 'app_settings_two_factor',
+            'icon' => 'tabler:shield-lock',
+            'labelKey' => 'title.settings.two_factor',
+            'descriptionKey' => 'text.settings.section.two_factor',
+        ],
+        [
             'key' => 'notifications',
             'route' => 'app_settings_notifications',
             'icon' => 'tabler:bell',
@@ -46,6 +55,11 @@ final readonly class SettingsNavigationExtension
             'descriptionKey' => 'text.settings.section.notifications',
         ],
     ];
+
+    public function __construct(
+        private TwoFactorAvailability $twoFactorAvailability,
+    ) {
+    }
 
     /**
      * Translation keys are in the `user` domain.
@@ -55,6 +69,17 @@ final readonly class SettingsNavigationExtension
     #[AsTwigFunction(name: 'settings_sections')]
     public function sections(): array
     {
-        return self::SECTIONS;
+        if ($this->twoFactorAvailability->isAvailable()) {
+            return self::SECTIONS;
+        }
+
+        return array_values(array_filter(self::SECTIONS, static fn (array $section): bool => 'two_factor' !== $section['key']));
+    }
+
+    /** Whether users can set up two-factor authentication (#1357); hides the hints that point to it otherwise. */
+    #[AsTwigFunction(name: 'two_factor_available')]
+    public function twoFactorAvailable(): bool
+    {
+        return $this->twoFactorAvailability->isAvailable();
     }
 }
