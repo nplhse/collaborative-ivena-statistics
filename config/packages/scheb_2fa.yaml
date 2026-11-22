@@ -1,0 +1,20 @@
+# Second factor with an authenticator app (#1357, ADR 040, docs/04-features/user/authentication.md).
+scheb_two_factor:
+    # Tokens that ask for the code: our authenticators and the login link create a PostAuthenticationToken.
+    # Remember-me (RememberMeToken) and switch_user (SwitchUserToken) do not ask; those sessions passed the code before.
+    security_tokens:
+        - Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken
+        - Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken
+    # /login/confirm checks the password of a session that already passed the code.
+    two_factor_condition: App\User\Infrastructure\Security\TwoFactor\SkipOnPasswordConfirmationCondition
+    # A code is accepted once; replaying it within the window is rejected.
+    code_reuse_cache: cache.app
+    code_reuse_cache_duration: 90
+    totp:
+        enabled: true
+        issuer: '%app.short_title%'
+        # Seconds of clock drift accepted on either side (below the 30-second period).
+        leeway: 10
+        template: '@User/security/two_factor.html.twig'
+    backup_codes:
+        enabled: true

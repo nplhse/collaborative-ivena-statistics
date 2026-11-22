@@ -36,4 +36,18 @@
             {% endif %}
         </div>
     </div>
+    {% if kpi.hasSparkline %}
+        {# Tabler draws it on page load; the controller also covers pages that Turbo renders later. #}
+        <span class="sparkline kpi-sparkline mt-3"
+              data-bs-toggle="sparkline"
+              data-controller="tabler-sparkline"
+              data-bs-values="{{ kpi.sparklineValues }}"
+              aria-hidden="true"
+              data-testid="kpi-sparkline">
+            {%- for point in kpi.sparklinePoints -%}
+                <span class="kpi-sparkline-point" style="left: {{ point.left }}%; top: {{ point.top }}%;" title="{{ point.label }}: {{ point.value|format_number }}"></span>
+            {%- endfor -%}
+        </span>
+        <span class="visually-hidden">{{ 'kpi.sparkline.label'|trans({points: kpi.sparkline|map(point => point.label ~ ': ' ~ point.value|format_number)|join(', ')}, 'shared') }}</span>
+    {% endif %}
 </twig:Card>

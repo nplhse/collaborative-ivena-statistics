@@ -63,6 +63,8 @@ final class MonthlyReportBuilderDrawerFilterTest extends DatabaseKernelTestCase
         self::assertSame(3, $view->closedDepartment->closedCount);
         self::assertSame(75.0, $view->closedDepartment->sharePercent);
         self::assertSame(4, array_sum($view->dailyChart['counts']));
+        // Sparkline (#1239): data starts in February, so October to January are left out; the last point is the tile.
+        self::assertSame([['label' => 'Feb 2024', 'value' => 2], ['label' => 'Mar 2024', 'value' => 4]], $view->allocationTrend);
     }
 
     public function testWithoutDrawerFilterTheReportCountsEveryAllocation(): void
@@ -82,6 +84,7 @@ final class MonthlyReportBuilderDrawerFilterTest extends DatabaseKernelTestCase
         self::assertSame(3, $view->closedDepartment->closedCount);
         self::assertSame(30.0, $view->closedDepartment->sharePercent);
         self::assertSame(10, array_sum($view->dailyChart['counts']));
+        self::assertSame([['label' => 'Feb 2024', 'value' => 5], ['label' => 'Mar 2024', 'value' => 10]], $view->allocationTrend);
     }
 
     private function build(int $hospitalId, ?StatisticsDrawerFilter $drawerFilter): MonthlyReportView

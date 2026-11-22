@@ -9,12 +9,13 @@ use App\Statistics\Application\Insights\HospitalInsight;
 final readonly class MonthlyReportView
 {
     /**
-     * @param list<MonthlyReportSegment> $urgencySegments
-     * @param list<MonthlyReportSegment> $genderSegments
-     * @param list<MonthlyReportTopRow>  $topDiagnoses
-     * @param list<MonthlyReportTopRow>  $topOccasions
-     * @param list<MonthlyReportTopRow>  $topDepartments
-     * @param list<HospitalInsight>      $insights
+     * @param list<MonthlyReportSegment>             $urgencySegments
+     * @param list<MonthlyReportSegment>             $genderSegments
+     * @param list<MonthlyReportTopRow>              $topDiagnoses
+     * @param list<MonthlyReportTopRow>              $topOccasions
+     * @param list<MonthlyReportTopRow>              $topDepartments
+     * @param list<HospitalInsight>                  $insights
+     * @param list<array{label: string, value: int}> $allocationTrend allocations per month up to the report month, see MonthlyReportBuilder::TREND_MONTHS
      * @param array{
      *     chartType: string,
      *     labels: list<string>,
@@ -56,6 +57,7 @@ final readonly class MonthlyReportView
         public bool $nextEnabled,
         public bool $hasSourceData = false,
         public bool $canImport = false,
+        public array $allocationTrend = [],
     ) {
     }
 }

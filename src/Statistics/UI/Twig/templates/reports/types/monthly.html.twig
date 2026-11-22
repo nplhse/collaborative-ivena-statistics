@@ -17,6 +17,7 @@
             <twig:KpiCard
                 :label="'stats.reports.monthly.kpi.allocations'|trans({}, 'statistics')"
                 :value="report.allocationCount"
+                :sparkline="report.allocationTrend"
                 data-testid="stats-monthly-report-kpis"
             />
         </div>

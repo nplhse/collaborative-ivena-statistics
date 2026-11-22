@@ -3373,3 +3373,43 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
 .glossary-table td {
     overflow-wrap: anywhere;
 }
+
+/* KpiCard sparkline (#1239): full width at the bottom of the card, thin and quiet. The SVG is stretched to the
+   card width, so the stroke keeps its width with non-scaling-stroke. */
+.sparkline.kpi-sparkline {
+    --tblr-sparkline-width: 100%;
+    --tblr-sparkline-height: 2rem;
+    --tblr-sparkline-stroke: color-mix(in oklab, var(--tblr-primary) 55%, transparent);
+    --tblr-sparkline-stroke-width: 1.25;
+    display: block;
+}
+
+.kpi-sparkline .sparkline-svg polyline {
+    vector-effect: non-scaling-stroke;
+}
+
+/* Hover target on each point of a KpiCard sparkline: the native title shows month and value, a dot marks the point. */
+.kpi-sparkline-point {
+    position: absolute;
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: default;
+    /* Above the SVG, which Tabler appends after the points. */
+    z-index: 1;
+}
+
+.kpi-sparkline-point::after {
+    position: absolute;
+    inset: 0.25rem;
+    border-radius: 50%;
+    background: var(--tblr-primary);
+    content: '';
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+}
+
+.kpi-sparkline-point:hover::after {
+    opacity: 1;
+}

@@ -116,8 +116,9 @@ final class ProjectionTimeSeriesQuery
         ?\DateTimeImmutable $toExclusive,
         ?array $hospitalIds,
         ?int $dispatchAreaId = null,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): array {
-        $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds, null, $dispatchAreaId)
+        $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds, $drawerFilter, $dispatchAreaId)
             ->select('p.createdYear AS year', 'p.createdMonth AS month', 'COUNT(p.id) AS count')
             ->groupBy('year', 'month')
             ->orderBy('year', \SortDirection::Ascending)
