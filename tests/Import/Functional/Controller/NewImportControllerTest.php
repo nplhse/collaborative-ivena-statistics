@@ -318,7 +318,7 @@ final class NewImportControllerTest extends WebTestCase
             ],
             [
                 'import_create' => [
-                    'file' => new UploadedFile($csvPath, 'allocation_import_sample.csv', 'text/csv', null, true),
+                    'file' => new UploadedFile($this->uploadCopy($csvPath), 'allocation_import_sample.csv', 'text/csv', null, true),
                 ],
             ],
         );
@@ -538,6 +538,11 @@ final class NewImportControllerTest extends WebTestCase
         $client->loginUser($owner);
 
         try {
+            if (is_writable($uploadDir)) {
+                // Root (for example in a container) writes to directories regardless of their mode (#1464).
+                self::markTestSkipped('Directory permissions are not enforced for this user.');
+            }
+
             $crawler = $client->request(Request::METHOD_GET, '/import/new');
             self::assertResponseIsSuccessful();
 
@@ -555,7 +560,7 @@ final class NewImportControllerTest extends WebTestCase
                 ],
                 [
                     'import_create' => [
-                        'file' => new UploadedFile($csvPath, 'allocation_import_sample.csv', 'text/csv', null, true),
+                        'file' => new UploadedFile($this->uploadCopy($csvPath), 'allocation_import_sample.csv', 'text/csv', null, true),
                     ],
                 ],
             );
@@ -824,5 +829,17 @@ final class NewImportControllerTest extends WebTestCase
     private function allocationType(Crawler $crawler): string
     {
         return (string) $crawler->filter('select[name="import_create[type]"] option[data-import-type="Allocation"]')->attr('value');
+    }
+
+    /**
+     * A temporary copy of a fixture for an upload: a successful upload moves the file, which must never be a tracked
+     * fixture (#1464).
+     */
+    private function uploadCopy(string $fixturePath): string
+    {
+        $uploadPath = sys_get_temp_dir().'/'.pathinfo($fixturePath, \PATHINFO_FILENAME).'_'.bin2hex(random_bytes(4)).'.csv';
+        self::assertTrue(copy($fixturePath, $uploadPath));
+
+        return $uploadPath;
     }
 }

@@ -39,6 +39,11 @@ final class MediaDimensionsExtractorTest extends TestCase
         chmod($path, 0000);
 
         try {
+            if (is_readable($path)) {
+                // Root (for example in a container) reads files regardless of their mode (#1464).
+                self::markTestSkipped('File permissions are not enforced for this user.');
+            }
+
             self::assertNull($this->extractor()->extract($path));
         } finally {
             chmod($path, 0644);
