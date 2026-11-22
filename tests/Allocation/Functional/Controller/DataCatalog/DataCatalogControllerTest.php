@@ -30,6 +30,8 @@ final class DataCatalogControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-object-key="allocation"]', '32 variables');
         self::assertSelectorTextContains('[data-object-key="mci_case"]', '25 variables');
         self::assertSelectorTextContains('[data-object-key="hospital"]', '13 variables');
+        self::assertSelectorTextContains('[data-object-key="dispatch_area"]', '2 variables');
+        self::assertSelectorTextContains('[data-object-key="state"]', '1 variable');
     }
 
     public function testReferenceToADocumentedObjectLinksToItsEntry(): void
@@ -39,6 +41,25 @@ final class DataCatalogControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('#allocation-hospital a[href="/explore/data-catalog/hospital"]');
+        self::assertSelectorExists('#allocation-dispatch-area a[href="/explore/data-catalog/dispatch_area"]');
+        self::assertSelectorExists('#allocation-state a[href="/explore/data-catalog/state"]');
+    }
+
+    public function testRegionDetailsShowTheirVariablesAndLinkTheirParent(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/explore/data-catalog/dispatch_area');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h2.page-title', 'Dispatch area');
+        self::assertSelectorTextContains('#dispatch-area-name [data-testid="data-catalog-storage"]', 'dispatch_area.name');
+        self::assertSelectorExists('#dispatch-area-state a[href="/explore/data-catalog/state"]');
+        self::assertSelectorTextNotContains('body', 'data_catalog.');
+
+        $client->request(Request::METHOD_GET, '/explore/data-catalog/state');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('#state-name [data-testid="data-catalog-storage"]', 'state.name');
     }
 
     public function testHospitalDetailShowsPrefixedCodeLabelsAndEmbeddedColumns(): void
@@ -102,7 +123,7 @@ final class DataCatalogControllerTest extends WebTestCase
     {
         $client = $this->createClientAsParticipant();
 
-        foreach (['/explore/data-catalog', '/explore/data-catalog/allocation', '/explore/data-catalog/mci_case', '/explore/data-catalog/hospital'] as $url) {
+        foreach (['/explore/data-catalog', '/explore/data-catalog/allocation', '/explore/data-catalog/mci_case', '/explore/data-catalog/hospital', '/explore/data-catalog/dispatch_area', '/explore/data-catalog/state'] as $url) {
             self::assertSame([], $this->caseDataQueries($client, $url), $url);
         }
     }
