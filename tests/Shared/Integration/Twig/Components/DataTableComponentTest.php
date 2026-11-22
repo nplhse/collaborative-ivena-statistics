@@ -755,6 +755,52 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertCount(0, $crawler->filter('tbody .data-table-cell__label'));
     }
 
+    #[DataProvider('offsetPrintNoteCases')]
+    public function testOffsetPaginationNamesTheCurrentPageInPrintOnlyWhenThereAreMorePages(int $records, int $pageSize, bool $expected): void
+    {
+        $crawler = new Crawler((string) $this->renderTwigComponent('DataTable', [
+            'columns' => [['key' => 'name', 'label' => 'label.name', 'type' => 'text']],
+            'rows' => [['name' => 'Alpha']],
+            'paginator' => $this->offsetPaginator(array_fill(0, $records, ['name' => 'Alpha']), $pageSize),
+        ]));
+
+        self::assertCount($expected ? 1 : 0, $crawler->filter('[data-testid="data-table-print-note"]'));
+    }
+
+    /**
+     * @return iterable<string, array{int, int, bool}>
+     */
+    public static function offsetPrintNoteCases(): iterable
+    {
+        yield 'fewer records than one page' => [5, 10, false];
+        yield 'exactly one full page' => [10, 10, false];
+        yield 'one record on a second page' => [11, 10, true];
+        yield 'three pages' => [30, 10, true];
+    }
+
+    #[DataProvider('cursorPrintNoteCases')]
+    public function testCursorPaginationNamesTheCurrentPageInPrintOnlyWhenThereAreMorePages(?string $next, ?string $previous, bool $expected): void
+    {
+        $crawler = new Crawler((string) $this->renderTwigComponent('DataTable', [
+            'columns' => [['key' => 'name', 'label' => 'label.name', 'type' => 'text']],
+            'rows' => [['name' => 'Alpha']],
+            'paginator' => new CursorPaginator([['name' => 'Alpha']], 25, $next, $previous),
+        ]));
+
+        self::assertCount($expected ? 1 : 0, $crawler->filter('[data-testid="data-table-print-note"]'));
+    }
+
+    /**
+     * @return iterable<string, array{?string, ?string, bool}>
+     */
+    public static function cursorPrintNoteCases(): iterable
+    {
+        yield 'only page' => [null, null, false];
+        yield 'first of several pages' => ['next', null, true];
+        yield 'middle page' => ['next', 'previous', true];
+        yield 'last page' => [null, 'previous', true];
+    }
+
     /**
      * A table with a sort menu and a column picker.
      *
