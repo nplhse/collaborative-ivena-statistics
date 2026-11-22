@@ -245,6 +245,18 @@
         <source>label.login.remember_me</source>
         <target>Remember me</target>
       </trans-unit>
+      <trans-unit id="LoginId01" resname="label.login.identifier">
+        <source>label.login.identifier</source>
+        <target>Username or email</target>
+      </trans-unit>
+      <trans-unit id="LoginId02" resname="message.login.email_switch_notice">
+        <source>message.login.email_switch_notice</source>
+        <target>From version 1.0, you sign in with your email address only. You can already use it instead of your username.</target>
+      </trans-unit>
+      <trans-unit id="LoginId03" resname="message.login.email_switch_hint">
+        <source>message.login.email_switch_hint</source>
+        <target>Please note that from version 1.0, only the email address can be used to sign in.</target>
+      </trans-unit>
       <trans-unit id="LocSet02" resname="label.settings.language">
         <source>label.settings.language</source>
         <target>Language</target>

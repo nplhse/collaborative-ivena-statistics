@@ -41,6 +41,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
@@ -135,6 +136,8 @@ final class UserCrudController extends AbstractCrudController
     {
         return $filters
             ->add(DateTimeFilter::new('createdAt', new TranslatableMessage('admin.user.field.created_at', domain: 'admin')))
+            // From version 1.0 users sign in with their email only (#1355, #1356): find accounts to follow up.
+            ->add(BooleanFilter::new('isVerified', new TranslatableMessage('admin.user.field.is_verified', domain: 'admin')))
             ->add(IdSetFilter::new(
                 'participantPermissions',
                 new TranslatableMessage('admin.user.filter.participant_permissions', domain: 'admin'),

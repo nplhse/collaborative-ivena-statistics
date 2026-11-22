@@ -132,6 +132,7 @@ final class SettingsControllerTest extends WebTestCase
             ->assertNotSeeElement('input[value="settings-account-user"]')
             ->assertSeeElement('input[name="settings_profile[displayName]"]')
             ->assertSeeElement('input[value="settings-account@example.test"][readonly]')
+            ->assertSeeIn('[data-test="email-login-notice"]', 'From version 1.0, you sign in with your email address only.')
             ->assertSeeElement('select[name="settings_locale[locale]"]')
             ->assertNotSeeElement('.card-body a[href="/settings/password"].btn')
             ->assertSeeElement('.card-footer button[type="submit"][form="settings-locale-form"]')

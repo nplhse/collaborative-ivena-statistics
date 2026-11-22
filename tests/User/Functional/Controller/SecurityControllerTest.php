@@ -37,7 +37,7 @@ final class SecurityControllerTest extends WebTestCase
 
         $this->browser()
             ->visit('/login')
-            ->fillField('Username', 'foo')
+            ->fillField('Username or email', 'foo')
             ->fillField('Password', 'password')
             ->click('Sign in')
             ->assertSuccessful()
@@ -67,7 +67,7 @@ final class SecurityControllerTest extends WebTestCase
 
         $this->acceptEssentialCookies($this->browser())
             ->visit('/login')
-            ->fillField('Username', 'disabled-user')
+            ->fillField('Username or email', 'disabled-user')
             ->fillField('Password', 'password')
             ->click('Sign in')
             ->assertSuccessful()
@@ -85,7 +85,7 @@ final class SecurityControllerTest extends WebTestCase
 
         $this->acceptEssentialCookies($this->browser())
             ->visit('/login')
-            ->fillField('Username', 'unverified-user')
+            ->fillField('Username or email', 'unverified-user')
             ->fillField('Password', 'password')
             ->click('Sign in')
             ->assertSuccessful()
@@ -100,7 +100,7 @@ final class SecurityControllerTest extends WebTestCase
 
         $this->acceptEssentialCookies($this->browser())
             ->visit('/login')
-            ->fillField('Username', 'login-user')
+            ->fillField('Username or email', 'login-user')
             ->fillField('Password', 'wrong-password')
             ->click('Sign in')
             ->assertSuccessful()
@@ -128,7 +128,7 @@ final class SecurityControllerTest extends WebTestCase
         $this->acceptEssentialCookies($this->browser())
             ->visit('/settings')
             ->assertSeeIn('h2', 'Login')
-            ->fillField('Username', 'redirect-user')
+            ->fillField('Username or email', 'redirect-user')
             ->fillField('Password', 'password')
             ->click('Sign in')
             ->assertSuccessful()
@@ -146,7 +146,7 @@ final class SecurityControllerTest extends WebTestCase
         for ($attempt = 0; $attempt < 5; ++$attempt) {
             $browser
                 ->visit('/login')
-                ->fillField('Username', 'throttle-user')
+                ->fillField('Username or email', 'throttle-user')
                 ->fillField('Password', 'wrong-password')
                 ->click('Sign in')
                 ->assertSuccessful()
@@ -155,11 +155,97 @@ final class SecurityControllerTest extends WebTestCase
 
         $browser
             ->visit('/login')
-            ->fillField('Username', 'throttle-user')
+            ->fillField('Username or email', 'throttle-user')
             ->fillField('Password', 'wrong-password')
             ->click('Sign in')
             ->assertSuccessful()
             ->assertSee('Too many failed login attempts')
+        ;
+    }
+
+    public function testUserCanLoginWithEmailInAnyCase(): void
+    {
+        UserFactory::new(['username' => 'mail-user', 'email' => 'mail-user@example.test'])->create();
+
+        $this->loginWithConsent($this->browser(), '  Mail-User@Example.TEST ')
+            ->assertSeeIn('#user_name', 'mail-user')
+        ;
+    }
+
+    public function testUnknownEmailShowsTheSameErrorAsAWrongPassword(): void
+    {
+        UserFactory::new(['username' => 'known-user', 'email' => 'known-user@example.test'])->create();
+
+        $this->acceptEssentialCookies($this->browser())
+            ->visit('/login')
+            ->fillField('Username or email', 'nobody@example.test')
+            ->fillField('Password', 'password')
+            ->click('Sign in')
+            ->assertSuccessful()
+            ->assertSeeIn('.alert.alert-danger', 'Invalid credentials.')
+            ->use(static function (Crawler $crawler): void {
+                self::assertSame('nobody@example.test', $crawler->filter('input[name="login[username]"]')->attr('value'));
+            })
+            ->visit('/login')
+            ->fillField('Username or email', 'known-user@example.test')
+            ->fillField('Password', 'wrong-password')
+            ->click('Sign in')
+            ->assertSuccessful()
+            ->assertSeeIn('.alert.alert-danger', 'Invalid credentials.')
+        ;
+    }
+
+    public function testUnverifiedUserCannotLoginWithEmail(): void
+    {
+        UserFactory::new([
+            'isVerified' => false,
+            'username' => 'unverified-mail-user',
+            'email' => 'unverified-mail-user@example.test',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'unverified-mail-user@example.test')
+            ->assertSeeIn('.alert.alert-danger', 'Invalid credentials.')
+            ->assertNotSeeElement('#user_name')
+        ;
+    }
+
+    public function testFailedEmailAttemptsAlsoThrottleTheUsername(): void
+    {
+        UserFactory::new(['username' => 'shared-limit-user', 'email' => 'shared-limit-user@example.test'])->create();
+
+        $browser = $this->acceptEssentialCookies($this->browser());
+        for ($attempt = 0; $attempt < 5; ++$attempt) {
+            $this->loginWithConsent($browser, 'Shared-Limit-User@example.test', 'wrong-password');
+        }
+
+        $this->loginWithConsent($browser, 'shared-limit-user')
+            ->assertSee('Too many failed login attempts')
+            ->assertNotSeeElement('#user_name')
+        ;
+    }
+
+    public function testFailedUsernameAttemptsAlsoThrottleTheEmail(): void
+    {
+        UserFactory::new(['username' => 'shared-limit-user', 'email' => 'shared-limit-user@example.test'])->create();
+
+        $browser = $this->acceptEssentialCookies($this->browser());
+        for ($attempt = 0; $attempt < 5; ++$attempt) {
+            $this->loginWithConsent($browser, 'shared-limit-user', 'wrong-password');
+        }
+
+        $this->loginWithConsent($browser, 'shared-limit-user@example.test')
+            ->assertSee('Too many failed login attempts')
+            ->assertNotSeeElement('#user_name')
+        ;
+    }
+
+    public function testLoginPageAnnouncesTheEmailOnlyLoginOfVersionOne(): void
+    {
+        $this->browser()
+            ->visit('/login')
+            ->assertSuccessful()
+            ->assertSee('Username or email')
+            ->assertSee('Please note that from version 1.0, only the email address can be used to sign in.')
         ;
     }
 

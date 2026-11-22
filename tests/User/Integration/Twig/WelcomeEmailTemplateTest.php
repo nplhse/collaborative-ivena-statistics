@@ -38,5 +38,6 @@ final class WelcomeEmailTemplateTest extends KernelTestCase
         self::assertMatchesRegularExpression('/line-height: 32px[^>]*>\s*1\s*</', $html);
         self::assertMatchesRegularExpression('/line-height: 32px[^>]*>\s*2\s*</', $html);
         self::assertStringContainsString('border-radius: 50%', $html);
+        self::assertStringContainsString('From version 1.0, you sign in with your email address only.', $html);
     }
 }

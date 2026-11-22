@@ -4,6 +4,9 @@ The application uses Symfony roles for global access and hospital-scoped permiss
 
 Related: [decisions/002-hospital-permission-bitmask.md](decisions/002-hospital-permission-bitmask.md), [decisions/011-collaborative-explore-allocation-visibility.md](decisions/011-collaborative-explore-allocation-visibility.md)
 
+How users sign in (identifiers, throttling, sessions) is described in
+[authentication.md](../04-features/user/authentication.md).
+
 ## Global roles
 
 Defined in `src/User/Domain/Security/UserRole.php`:
