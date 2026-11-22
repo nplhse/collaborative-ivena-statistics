@@ -323,3 +323,14 @@ summary.timeline-summary:focus-visible {
 .ea-sidebar-item.is-expanded > .ea-sidebar-link-summary-badge > .ea-sidebar-badge {
     display: none;
 }
+
+/* EasyAdmin 5.10 prose sets the top margin of the first child of a custom page's content and of that child's first
+   child to 0 (#1502). For a Bootstrap .row this drops the row's negative margin and the vertical gutter of its first
+   column only, so the first card of the row ends up taller than the others. Restore the Bootstrap gutter. */
+body.page-content .content-body > .row:first-child {
+    margin-top: calc(-1 * var(--bs-gutter-y));
+}
+
+body.page-content .content-body > .row:first-child > :first-child {
+    margin-top: var(--bs-gutter-y);
+}
