@@ -97,7 +97,6 @@
                             <thead>
                                 <tr>
                                     <th>{{ 'catalog.glossary.column.label'|trans({}, 'allocation') }}</th>
-                                    <th class="w-1">{{ 'catalog.glossary.column.code'|trans({}, 'allocation') }}</th>
                                     {% if has_counts %}
                                         <th class="w-1 text-end">{{ 'encounter.mts.column.encounters'|trans({}, 'encounter') }}</th>
                                     {% endif %}
@@ -108,13 +107,15 @@
                                     <tr data-testid="mts-indicator" data-code="{{ row.code }}">
                                         <td>
                                             {{ row.name }}
-                                            {% if not row.inCatalog %}
-                                                <span class="badge bg-secondary-lt ms-1">{{ 'encounter.mts.not_in_catalog'|trans({}, 'encounter') }}</span>
-                                            {% elseif not row.assigned and assigned_indicators > 0 %}
-                                                <span class="badge bg-secondary-lt ms-1" data-testid="mts-indicator-not-assigned">{{ 'encounter.mts.diagram.not_assigned'|trans({}, 'encounter') }}</span>
-                                            {% endif %}
+                                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                                {{ include('@EdVisit/glossary/_code_badge.html.twig', {code: row.code}) }}
+                                                {% if not row.inCatalog %}
+                                                    <span class="badge bg-secondary-lt">{{ 'encounter.mts.not_in_catalog'|trans({}, 'encounter') }}</span>
+                                                {% elseif not row.assigned and assigned_indicators > 0 %}
+                                                    <span class="badge bg-secondary-lt" data-testid="mts-indicator-not-assigned">{{ 'encounter.mts.diagram.not_assigned'|trans({}, 'encounter') }}</span>
+                                                {% endif %}
+                                            </div>
                                         </td>
-                                        <td><code class="text-break">{{ row.code }}</code></td>
                                         {% if has_counts %}
                                             <td class="text-end" data-testid="mts-count">{{ include('@EdVisit/glossary/_count.html.twig', {count: row.count}) }}</td>
                                         {% endif %}
@@ -122,7 +123,7 @@
                                 {% endfor %}
                                 {% if without_indicator and not filter %}
                                     <tr data-testid="mts-indicator" data-code="">
-                                        <td class="text-secondary" colspan="2">{{ 'encounter.mts.diagram.without_indicator'|trans({}, 'encounter') }}</td>
+                                        <td class="text-secondary">{{ 'encounter.mts.diagram.without_indicator'|trans({}, 'encounter') }}</td>
                                         <td class="text-end" data-testid="mts-count">{{ include('@EdVisit/glossary/_count.html.twig', {count: without_indicator}) }}</td>
                                     </tr>
                                 {% endif %}
