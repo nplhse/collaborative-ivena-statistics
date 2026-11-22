@@ -60,6 +60,7 @@ Role-based reading orders live in each section's README:
 - [Data quality indicator](04-features/statistics/data-quality-indicator.md)
 - [Analysis Explorer](04-features/statistics/analysis-explorer.md)
 - [Participant onboarding](04-features/onboarding/participant-onboarding.md)
+- [What's new for you](04-features/onboarding/whats-new.md)
 - [Explore allocation list](04-features/allocation/explore-allocation-list.md)
 - [Explore MCI cases](04-features/allocation/explore-mci-cases.md)
 - [Allocation orientation map](04-features/allocation/orientation-map.md)
