@@ -306,6 +306,7 @@ delta and whether a change is good or bad.
 | `invertTrend` | `false` | With `colorizeTrend`, swaps green and red for figures where more is worse |
 | `href` | `null` | Linked card, as in `Card` |
 | `fractionDigits` | `0` | Maximum fraction digits for both `value` and `delta`. Trailing zeros are dropped: with `1`, `10.0` shows as `10` and `12.5` as `12.5`. |
+| `sparkline` | `[]` | Trend across the bottom of the card, oldest first: `list<{label, value}>`. Drawn by Tabler's sparkline (`.sparkline`, `data-bs-toggle="sparkline"`) as a thin, quiet line (`.kpi-sparkline` in `app.css`), one point per entry, so the caller decides how many points there are. Hovering a point shows its label and value (native `title` on a hover target that `getSparklinePoints()` places with Tabler's line geometry); the `tabler-sparkline` Stimulus controller also draws it on pages that Turbo renders later. Screen readers get the labels and values as text. Fewer than two points show nothing. |
 
 How the trend is shown:
 - The direction comes from the sign of the delta after rounding to `fractionDigits`. With one fraction digit, `0.04`
@@ -317,8 +318,9 @@ Limitations:
 - There is one delta per card.
 - The delta shares `fractionDigits` with the value. A count with a relative change in one fraction digit passes the
   count as a pre-formatted string (see the monthly report, `@Statistics/reports/types/monthly.html.twig`).
-- Several comparison periods, status stripes and sparklines are not supported yet. Extend the component when a page
-  needs them.
+- Several comparison periods and status stripes are not supported yet. Extend the component when a page needs them.
+- The caller prepares the sparkline points; the component does not fill gaps or choose a period. The monthly report
+  passes the allocations of up to six months (`MonthlyReportBuilder::TREND_MONTHS`, #1239).
 
 A plain count:
 

@@ -144,7 +144,8 @@ Explorer (including export; dropped when `age_group` is a row or column axis) an
 
 **Monthly report.** Every drawer filter, not only `age_group`, applies to every number of the report
 (#1039): the allocation count, the shares, the urgency and gender distributions, the mean transport time,
-the top lists, the closed department summary, the daily chart and the self-benchmark behind the insights
+the top lists, the closed department summary, the daily chart, the sparkline of the allocation tile (#1239) and the
+self-benchmark behind the insights
 (both sides of `BenchmarkReportService::buildForOverview`), for the reporting month and for the previous
 month and the same month a year ago. Numerator and denominator are both filtered, so the shares of a top
 list refer to the filtered count. Only the rejection rate insight (hospital scope, `kpi_daily`) stays
