@@ -75,6 +75,24 @@
                                         {% endif %}
                                     </div>
 
+                                    {% if not is_granted('ROLE_ADMIN') %}
+                                        <h4 class="subheader mb-3">{{ 'label.settings.login_link'|trans({}, 'user') }}</h4>
+                                        <div class="mb-4" data-test="login-link-setting">
+                                            <p class="text-secondary mb-2">{{ 'help.settings.login_link'|trans({}, 'user') }}</p>
+                                            <p class="text-secondary mb-3">{{ 'help.settings.login_link_2fa'|trans({}, 'user') }}</p>
+                                            <form method="post" action="{{ path('app_settings_login_link') }}" class="d-flex align-items-center gap-3">
+                                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('settings_login_link') }}">
+                                                <input type="hidden" name="enabled" value="{{ app.user.loginLinkEnabled ? '0' : '1' }}">
+                                                <span class="badge {{ app.user.loginLinkEnabled ? 'bg-green text-green-fg' : 'bg-secondary-lt' }}">
+                                                    {{ (app.user.loginLinkEnabled ? 'label.settings.login_link_on' : 'label.settings.login_link_off')|trans({}, 'user') }}
+                                                </span>
+                                                <button class="btn btn-outline-secondary" type="submit">
+                                                    {{ (app.user.loginLinkEnabled ? 'label.settings.login_link_disable' : 'label.settings.login_link_enable')|trans({}, 'user') }}
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                    {% endif %}
                                     <h4 class="subheader mb-3">{{ 'label.settings.language'|trans({}, 'user') }}</h4>
                                     {# The save button sits in the card footer; the resend form above rules out one form around the whole card. #}
                                     {{ form_start(localeForm, {attr: {id: 'settings-locale-form'}}) }}

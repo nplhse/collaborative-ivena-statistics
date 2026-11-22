@@ -39,6 +39,12 @@ final class UserAvatar
     /** Decorative avatars sit next to the visible name and are hidden from assistive technology. */
     public bool $decorative = true;
 
+    /**
+     * Shows the initials to a visitor who is not signed in. Only for pages that verified the visitor may see this
+     * user's name, such as the confirmation page of a valid login link (#1355).
+     */
+    public bool $revealDisplayName = false;
+
     /** @psalm-suppress PossiblyUnusedMethod Wired by the container. */
     public function __construct(
         private readonly UserDisplayNameExtension $displayNames,
@@ -48,7 +54,7 @@ final class UserAvatar
     public function getInitials(): ?string
     {
         $displayName = $this->user?->getDisplayName() ?? $this->displayName;
-        if (null === $displayName || !$this->displayNames->canSeeDisplayNames()) {
+        if (null === $displayName || (!$this->revealDisplayName && !$this->displayNames->canSeeDisplayNames())) {
             return null;
         }
 
@@ -84,6 +90,11 @@ final class UserAvatar
 
     public function getLabel(): string
     {
+        $displayName = $this->user?->getDisplayName() ?? $this->displayName;
+        if ($this->revealDisplayName && null !== $displayName && '' !== trim($displayName)) {
+            return $displayName;
+        }
+
         return $this->displayNames->userDisplayName(
             $this->user?->getDisplayName() ?? $this->displayName,
             $this->user?->getUserIdentifier() ?? $this->username,

@@ -18,7 +18,7 @@
 | [analytics/](analytics/) | Server-side usage analytics |
 | [notification/](notification/) | Personal notifications: inbox, toasts, email |
 | [storage/](storage/) | Storage monitoring: daily measurement, Disk Usage page, capacity alerts |
-| [user/authentication.md](user/authentication.md) | Sign-in with username or email, account checks, throttling, sessions |
+| [user/authentication.md](user/authentication.md) | Sign-in with username or email, login link, account checks, throttling, sessions |
 | [tools.md](tools.md) | Tools section: inventory, naming rules |
 | [encounter/](encounter/) | Encounter data pilot (in development): hospital ED data linked with allocations |
 

@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Shared\Application\Locale\SupportedLocales;
 use App\Shared\Domain\Traits\HasPublicId;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
+use App\User\Domain\Security\UserRole;
 use App\User\Domain\Validator\UserUsernameConstraints;
 use App\User\Infrastructure\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -81,6 +82,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
 
     #[ORM\Column(options: ['default' => true])]
     private bool $isEnabled = true;
+
+    /** Opt-in for signing in with a one-time link sent by email (#1355); off by default. */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $loginLinkEnabled = false;
 
     /**
      * Replaced by the preference override of `engagement.monthly_reminder` (ADR 016, step 7b). Kept
@@ -248,6 +253,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
         $this->isEnabled = $isEnabled;
 
         return $this;
+    }
+
+    public function isLoginLinkEnabled(): bool
+    {
+        return $this->loginLinkEnabled;
+    }
+
+    public function setLoginLinkEnabled(bool $loginLinkEnabled): static
+    {
+        $this->loginLinkEnabled = $loginLinkEnabled;
+
+        return $this;
+    }
+
+    /**
+     * Whether a login link may be sent to and used by this user (#1355): only after opting in, never for
+     * administrators. Part of the login link signature (`security.yaml`), so opting out or becoming an administrator
+     * invalidates links that are still open.
+     */
+    public function isLoginLinkAllowed(): bool
+    {
+        return $this->loginLinkEnabled && !\in_array(UserRole::ADMIN, $this->getRoles(), true);
     }
 
     public function getLocale(): ?string

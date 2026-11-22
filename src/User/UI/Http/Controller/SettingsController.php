@@ -9,6 +9,7 @@ use App\Shared\Application\Locale\SupportedLocales;
 use App\Shared\Application\Locale\UserLocalePreferenceUpdater;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
 use App\User\Infrastructure\Security\EmailVerifier;
 use App\User\UI\Form\ForceChangePasswordType;
 use App\User\UI\Form\SettingsEmailType;
@@ -142,6 +143,42 @@ final class SettingsController extends AbstractController
 
         $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user);
         $this->addFlash('success', new TranslatableMessage('flash.settings.email.verification_resent', domain: 'user'));
+
+        return $this->redirectToRoute('app_settings_account');
+    }
+
+    /**
+     * Opt-in for the login link (#1355). Not offered to administrators; they sign in with their password only.
+     */
+    #[Route('/settings/login-link', name: 'app_settings_login_link', methods: ['POST'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function loginLink(Request $request): RedirectResponse
+    {
+        $user = $this->requireUser();
+
+        if (!$this->isCsrfTokenValid('settings_login_link', (string) $request->request->get('_csrf_token'))) {
+            throw $this->createAccessDeniedException('flash.security.invalid_csrf');
+        }
+
+        if ($this->isGranted(UserRole::ADMIN)) {
+            throw $this->createAccessDeniedException('Administrators sign in with their password only.');
+        }
+
+        $enabled = '1' === $request->request->getString('enabled');
+        if ($enabled !== $user->isLoginLinkEnabled()) {
+            $user->setLoginLinkEnabled($enabled);
+            $this->auditContext->beginIntent('user.settings.login_link_changed', []);
+            try {
+                $this->entityManager->flush();
+            } finally {
+                $this->auditContext->endIntent();
+            }
+        }
+
+        $this->addFlash('success', new TranslatableMessage(
+            $enabled ? 'flash.settings.login_link.enabled' : 'flash.settings.login_link.disabled',
+            domain: 'user',
+        ));
 
         return $this->redirectToRoute('app_settings_account');
     }

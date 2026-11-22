@@ -25,4 +25,14 @@ interface TransactionalMailer
         ResetPasswordToken $resetToken,
         string $locale,
     ): void;
+
+    /**
+     * One-time login link (#1355); `$lifetimeMinutes` is shown in the mail.
+     */
+    public function sendLoginLinkEmail(
+        string $recipientEmail,
+        string $loginLinkUrl,
+        int $lifetimeMinutes,
+        string $locale,
+    ): void;
 }

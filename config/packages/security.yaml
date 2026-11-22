@@ -28,6 +28,18 @@ security:
                 - App\User\Infrastructure\Security\ConfirmPasswordAuthenticator
             user_checker: App\User\Infrastructure\Security\UserAccountStatusChecker
 
+            # One-time login link by email (#1355): opt-in and never for administrators (User::isLoginLinkAllowed(),
+            # part of the signature). The link opens a confirmation page; only its POST signs in, so mail scanners that
+            # open links in advance cannot use up the link.
+            login_link:
+                check_route: app_login_link_check
+                check_post_only: true
+                # Also in LoginLinkController::SIGNATURE_PROPERTIES (confirmation page).
+                signature_properties: [email, password, loginLinkAllowed]
+                lifetime: 900
+                max_uses: 1
+                used_link_cache: cache.app
+
             # Limits failed login attempts per IP + username (Symfony default key).
             # 5 attempts / 15 minutes balances brute-force protection with typo tolerance.
             login_throttling:
