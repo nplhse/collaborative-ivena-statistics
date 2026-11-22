@@ -13,6 +13,7 @@ use App\Allocation\Application\DTO\MyHospitals\UploaderContribution;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Domain\ValueObject\ImportDataCoverage;
+use App\Import\Domain\ValueObject\ImportDataCoverageGap;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
@@ -199,8 +200,15 @@ final readonly class HospitalDataSnapshotQuery implements HospitalDataSnapshotRe
 
             $coverage = $this->coverage($row['data_coverage']);
             $gapDays = $coverage?->daysWithoutData() ?? 0;
-            if ($gapDays > 0) {
-                $issues[] = new ImportIssue($importId, ImportIssueKind::DayGaps, $uploadedAt, $gapDays);
+            if ($coverage instanceof ImportDataCoverage && $gapDays > 0) {
+                $issues[] = new ImportIssue(
+                    $importId,
+                    ImportIssueKind::DayGaps,
+                    $uploadedAt,
+                    $gapDays,
+                    array_map(static fn (ImportDataCoverageGap $gap): int => $gap->days(), $coverage->gaps()),
+                    $coverage->records / $coverage->periodDays(),
+                );
             }
 
             $period = $this->coveredPeriod($row['export_starts_at'], $row['export_ends_at'], $coverage);

@@ -111,6 +111,8 @@ final class HospitalDataSnapshotQueryTest extends KernelTestCase
             ],
             array_map(static fn (ImportIssue $i): string => $i->kind->value.' #'.$i->importId.' '.$i->amount, $snapshot->importIssues),
         );
+        // 2 records over the 3 days from 1 to 3 February; one gap of one day (2 February).
+        self::assertSame([[1], 2 / 3], [$snapshot->importIssues[1]->gapDays, $snapshot->importIssues[1]->recordsPerDay]);
 
         $emptySnapshot = $snapshots[(int) $empty->getId()];
         self::assertSame(0, $emptySnapshot->allocationCount);

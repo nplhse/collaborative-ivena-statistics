@@ -7,6 +7,7 @@ namespace App\Allocation\Application\Hospital\MyHospitals;
 use App\Allocation\Application\DTO\MyHospitals\DataStatusFinding;
 use App\Allocation\Application\DTO\MyHospitals\DataStatusFindingType;
 use App\Allocation\Application\DTO\MyHospitals\HospitalDataSnapshot;
+use App\Allocation\Application\DTO\MyHospitals\ImportIssue;
 use App\Allocation\Application\DTO\MyHospitals\ImportIssueKind;
 use App\Allocation\Application\DTO\MyHospitals\MonthGap;
 use App\Allocation\Application\DTO\MyHospitals\MonthStatus;
@@ -19,6 +20,13 @@ final class DataStatusFindingRules
 {
     /** Import problems older than this are history, not a current hint. */
     public const int RECENT_IMPORT_DAYS = 90;
+
+    /**
+     * A gap of days without records counts only when the hospital would normally have recorded at least this many
+     * records in it: records per day of the import × gap length (#1092). A large hospital gets a hint for a single
+     * empty day, a hospital with about one record a day only from five empty days in a row.
+     */
+    public const float DAY_GAP_MIN_EXPECTED_RECORDS = 5.0;
 
     /** The latest allocation is older than this many days. */
     public const int NOT_UPDATED_AFTER_DAYS = 90;
@@ -68,8 +76,12 @@ final class DataStatusFindingRules
     private function importFindings(HospitalDataSnapshot $snapshot, \DateTimeImmutable $now): array
     {
         $recentFrom = $now->modify(\sprintf('-%d days', self::RECENT_IMPORT_DAYS));
+        $issues = $snapshot->importIssues;
+        // By weight (failed and cancelled, then rejected rows, then day gaps), newest first within a kind (#1092).
+        usort($issues, static fn (ImportIssue $a, ImportIssue $b): int => [self::weight($a->kind), $b->uploadedAt] <=> [self::weight($b->kind), $a->uploadedAt]);
+
         $findings = [];
-        foreach (array_reverse($snapshot->importIssues) as $issue) {
+        foreach ($issues as $issue) {
             if ($issue->uploadedAt < $recentFrom) {
                 continue;
             }
@@ -80,16 +92,45 @@ final class DataStatusFindingRules
                 continue;
             }
 
+            $amount = ImportIssueKind::DayGaps === $issue->kind ? $this->notableGapDays($issue) : $issue->amount;
+            if (ImportIssueKind::DayGaps === $issue->kind && 0 === $amount) {
+                continue;
+            }
+
             $type = match ($issue->kind) {
                 ImportIssueKind::Failed => DataStatusFindingType::ImportFailed,
                 ImportIssueKind::Cancelled => DataStatusFindingType::ImportCancelled,
                 ImportIssueKind::Rejects => DataStatusFindingType::ImportRejects,
                 ImportIssueKind::DayGaps => DataStatusFindingType::ImportDayGaps,
             };
-            $findings[] = new DataStatusFinding($type, amount: $issue->amount, importId: $issue->importId, periodStart: $issue->uploadedAt);
+            $findings[] = new DataStatusFinding($type, amount: $amount, importId: $issue->importId, periodStart: $issue->uploadedAt);
         }
 
         return $findings;
+    }
+
+    private static function weight(ImportIssueKind $kind): int
+    {
+        return match ($kind) {
+            ImportIssueKind::Failed, ImportIssueKind::Cancelled => 0,
+            ImportIssueKind::Rejects => 1,
+            ImportIssueKind::DayGaps => 2,
+        };
+    }
+
+    /**
+     * Days in the gaps of an import that are long enough for its volume, see {@see self::DAY_GAP_MIN_EXPECTED_RECORDS}.
+     */
+    private function notableGapDays(ImportIssue $issue): int
+    {
+        $days = 0;
+        foreach ($issue->gapDays as $gapDays) {
+            if ($issue->recordsPerDay * (float) $gapDays >= self::DAY_GAP_MIN_EXPECTED_RECORDS) {
+                $days += $gapDays;
+            }
+        }
+
+        return $days;
     }
 
     /**
