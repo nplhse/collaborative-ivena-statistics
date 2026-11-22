@@ -106,4 +106,39 @@ final class KpiCardTest extends TestCase
         $card->value = null;
         self::assertFalse($card->isNumericValue());
     }
+
+    public function testSparklinePointsFollowTablersLineGeometry(): void
+    {
+        $card = new KpiCard();
+        $card->sparkline = array_map(
+            static fn (string $label, int $value): array => ['label' => $label, 'value' => $value],
+            ['Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+            [40, 15, 0, 25, 126],
+        );
+
+        $points = $card->getSparklinePoints();
+
+        // x spread evenly; y = 2 + (1 - (value - 0) / 126) × 20 of 24 units, e.g. 126 → 2 / 24 = 8.33 %, 0 → 22 / 24 = 91.67 %.
+        self::assertSame([0.0, 25.0, 50.0, 75.0, 100.0], array_column($points, 'left'));
+        self::assertSame([65.21, 81.75, 91.67, 75.13, 8.33], array_column($points, 'top'));
+        self::assertSame(['Jun', 40], [$points[0]['label'], $points[0]['value']]);
+        self::assertSame('40,15,0,25,126', $card->getSparklineValues());
+    }
+
+    public function testSparklineWithEqualValuesLiesAtTheBottom(): void
+    {
+        $card = new KpiCard();
+        $card->sparkline = [['label' => 'Sep', 'value' => 5], ['label' => 'Oct', 'value' => 5]];
+
+        self::assertSame([91.67, 91.67], array_column($card->getSparklinePoints(), 'top'));
+    }
+
+    public function testFewerThanTwoPointsHaveNoSparkline(): void
+    {
+        $card = new KpiCard();
+        $card->sparkline = [['label' => 'Oct', 'value' => 5]];
+
+        self::assertFalse($card->hasSparkline());
+        self::assertSame([], $card->getSparklinePoints());
+    }
 }

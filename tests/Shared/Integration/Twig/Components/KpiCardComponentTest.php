@@ -47,6 +47,33 @@ final class KpiCardComponentTest extends KernelTestCase
         self::assertSame('not available', $this->text($crawler, '.h1 .visually-hidden'));
     }
 
+    public function testSparklinePassesItsValuesToTablerAndNamesThemForScreenReaders(): void
+    {
+        $crawler = $this->render([
+            'label' => 'Allocations',
+            'value' => 1240,
+            'sparkline' => [['label' => 'Feb 2024', 'value' => 980], ['label' => 'Mar 2024', 'value' => 0], ['label' => 'Apr 2024', 'value' => 1240]],
+        ], 'en');
+
+        $sparkline = $crawler->filter('[data-testid="kpi-sparkline"]');
+        self::assertCount(1, $sparkline);
+        self::assertSame('980,0,1240', $sparkline->attr('data-bs-values'));
+        self::assertSame('sparkline', $sparkline->attr('data-bs-toggle'));
+        self::assertSame('tabler-sparkline', $sparkline->attr('data-controller'));
+        self::assertSame('Trend: Feb 2024: 980, Mar 2024: 0, Apr 2024: 1,240', $this->text($crawler, '[data-testid="kpi-sparkline"] + .visually-hidden'));
+        self::assertSame(
+            ['Feb 2024: 980', 'Mar 2024: 0', 'Apr 2024: 1,240'],
+            $crawler->filter('[data-testid="kpi-sparkline"] .kpi-sparkline-point')->each(static fn (Crawler $point): string => (string) $point->attr('title')),
+        );
+    }
+
+    public function testFewerThanTwoPointsShowNoSparkline(): void
+    {
+        $crawler = $this->render(['label' => 'Allocations', 'value' => 3, 'sparkline' => [['label' => 'Apr 2024', 'value' => 3]]], 'en');
+
+        self::assertCount(0, $crawler->filter('[data-testid="kpi-sparkline"]'));
+    }
+
     public function testZeroValueIsShownAsZero(): void
     {
         $crawler = $this->render(['label' => 'Allocations', 'value' => 0], 'en');

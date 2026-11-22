@@ -19,6 +19,11 @@ final class KpiCard
 
     public const string TREND_FLAT = 'flat';
 
+    /** Tabler's default sparkline viewBox height and padding, see {@see self::getSparklinePoints()}. */
+    private const float SPARKLINE_HEIGHT = 24.0;
+
+    private const float SPARKLINE_PAD = 2.0;
+
     /** @psalm-suppress PropertyNotSetInConstructor Hydrated by Twig Component attributes. */
     public string $label;
 
@@ -44,6 +49,14 @@ final class KpiCard
     public ?string $href = null;
 
     public int $fractionDigits = 0;
+
+    /**
+     * Optional trend across the bottom of the card, drawn by Tabler's sparkline (#1239). Oldest first; the caller decides what the
+     * points are. Fewer than two points show no sparkline.
+     *
+     * @var list<array{label: string, value: int|float}>
+     */
+    public array $sparkline = [];
 
     /** Numbers are formatted for the locale; strings are printed as the caller prepared them. */
     public function isNumericValue(): bool
@@ -105,6 +118,54 @@ final class KpiCard
     public function getDeltaUnitLabel(): ?string
     {
         return $this->deltaUnit ?? $this->unit;
+    }
+
+    public function hasSparkline(): bool
+    {
+        return \count($this->sparkline) >= 2;
+    }
+
+    /**
+     * Where each point sits in the sparkline, in percent of its box, so a hover target with the value can sit on it.
+     * Mirrors the geometry of Tabler's line sparkline: x spread evenly, y between a padding of 2 of 24 units, the
+     * lowest value at the bottom and the highest at the top (all values equal: bottom).
+     *
+     * @return list<array{label: string, value: int|float, left: float, top: float}>
+     */
+    public function getSparklinePoints(): array
+    {
+        if (!$this->hasSparkline()) {
+            return [];
+        }
+
+        $values = array_map(static fn (array $point): float => (float) $point['value'], $this->sparkline);
+        $min = $values[0];
+        $max = $values[0];
+        foreach ($values as $value) {
+            $min = min($min, $value);
+            $max = max($max, $value);
+        }
+        $span = $max > $min ? $max - $min : 1.0;
+        $last = (float) (\count($values) - 1);
+
+        $points = [];
+        foreach ($this->sparkline as $index => $point) {
+            $y = self::SPARKLINE_PAD + (1.0 - ($values[$index] - $min) / $span) * (self::SPARKLINE_HEIGHT - 2.0 * self::SPARKLINE_PAD);
+            $points[] = [
+                'label' => $point['label'],
+                'value' => $point['value'],
+                'left' => round((float) $index / $last * 100.0, 2),
+                'top' => round($y / self::SPARKLINE_HEIGHT * 100.0, 2),
+            ];
+        }
+
+        return $points;
+    }
+
+    /** Values for Tabler's `data-bs-values`, comma-separated. */
+    public function getSparklineValues(): string
+    {
+        return implode(',', array_map(static fn (array $point): string => (string) $point['value'], $this->sparkline));
     }
 
     public function getDeltaSign(): string

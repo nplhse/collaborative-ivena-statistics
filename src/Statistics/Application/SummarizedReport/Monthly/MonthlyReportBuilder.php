@@ -44,6 +44,9 @@ final readonly class MonthlyReportBuilder
 {
     private const int TOP_LIMIT = 5;
 
+    /** Months in the sparkline of the allocation tile, the report month included (#1239). */
+    public const int TREND_MONTHS = 6;
+
     /** @var array<string, string> */
     private const array GENDER_BAR_CLASSES = [
         'M' => 'bg-primary',
@@ -296,7 +299,48 @@ final readonly class MonthlyReportBuilder
             nextEnabled: $period['navigationNextEnabled'],
             hasSourceData: $this->sourceDataProbe->hasSourceData($context->user, $monthFilter),
             canImport: $this->sourceDataProbe->canImport($context->user),
+            allocationTrend: $hasData
+                ? $this->buildAllocationTrend($period['monthStart'], $period['monthEndExclusive'], $scopeCriteria->hospitalIds, $scopeCriteria->dispatchAreaId, $drawerFilter, $locale)
+                : [],
         );
+    }
+
+    /**
+     * Allocations per calendar month for the sparkline of the allocation tile (#1239): the report month and the
+     * months before it, in the scope and filter drawer of the report, so the last point is the tile's value.
+     * Months before the first month with allocations are left out; later months without allocations count as 0.
+     * Fewer than two points show no trend.
+     *
+     * @param list<int>|null $hospitalIds
+     *
+     * @return list<array{label: string, value: int}>
+     */
+    private function buildAllocationTrend(
+        \DateTimeImmutable $monthStart,
+        \DateTimeImmutable $monthEndExclusive,
+        ?array $hospitalIds,
+        ?int $dispatchAreaId,
+        ?StatisticsDrawerFilter $drawerFilter,
+        string $locale,
+    ): array {
+        $firstMonth = $monthStart->modify(sprintf('-%d months', self::TREND_MONTHS - 1));
+        $counts = [];
+        foreach ($this->timeSeriesQuery->countByMonthInPeriod($firstMonth, $monthEndExclusive, $hospitalIds, $dispatchAreaId, $drawerFilter) as $row) {
+            $counts[sprintf('%04d-%02d', $row['year'], $row['month'])] = $row['count'];
+        }
+
+        $trend = [];
+        for ($month = $firstMonth; $month < $monthEndExclusive; $month = $month->modify('+1 month')) {
+            $count = $counts[$month->format('Y-m')] ?? 0;
+            if ([] === $trend && 0 === $count) {
+                continue;
+            }
+
+            $formatted = \IntlDateFormatter::formatObject($month, 'LLL yyyy', $locale);
+            $trend[] = ['label' => false !== $formatted ? $formatted : $month->format('Y-m'), 'value' => $count];
+        }
+
+        return \count($trend) >= 2 ? $trend : [];
     }
 
     /**

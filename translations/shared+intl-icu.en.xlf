@@ -657,6 +657,10 @@
         <source>kpi.trend.flat</source>
         <target>No change</target>
       </trans-unit>
+      <trans-unit id="KpiSparklineEn" resname="kpi.sparkline.label">
+        <source>kpi.sparkline.label</source>
+        <target>Trend: {points}</target>
+      </trans-unit>
       <trans-unit id="lblAdminObjectIdEn" resname="label.admin_object_id">
         <source>label.admin_object_id</source>
         <target>ID</target>
