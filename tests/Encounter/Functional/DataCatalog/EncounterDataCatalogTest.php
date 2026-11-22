@@ -40,7 +40,7 @@ final class EncounterDataCatalogTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/explore/data-catalog');
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('[data-object-key="encounter"]', '6 variables');
+        self::assertSelectorTextContains('[data-object-key="encounter"]', '8 variables');
 
         $client->request(Request::METHOD_GET, '/explore/data-catalog/encounter');
         self::assertResponseIsSuccessful();

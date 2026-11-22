@@ -25,10 +25,11 @@ use App\Allocation\Domain\Entity\Speciality;
 use App\Allocation\Domain\Entity\State;
 
 /**
- * Core data objects and reference objects of the Allocation context (#1415, #1492). Surrogate and
- * public ids, the case id hash, free-text notes and editorial descriptions, display order, the import
- * reference, owners and audit fields are left out on purpose; so are mapping tables (aliases, raw
- * indications) and the many-to-many link between indications and indication groups.
+ * Core data objects and reference objects of the Allocation context (#1415, #1492, #1499). Public
+ * ids, the case id hash, free-text notes and editorial descriptions, display order, the import
+ * reference, owners and the users who created or changed a record are left out on purpose; so are
+ * mapping tables (aliases, raw indications) and the many-to-many link between indications and
+ * indication groups.
  */
 final readonly class AllocationDataCatalogContributor implements DataCatalogContributorInterface
 {
@@ -109,6 +110,7 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
                 new VariableDefinition('allocation.dispatch_area', 'dispatchArea'),
                 new VariableDefinition('allocation.state', 'state'),
             ]),
+            $this->record('allocation', withTimestamps: false),
         ]);
     }
 
@@ -162,6 +164,7 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
                 new VariableDefinition('mci_case.dispatch_area', 'dispatchArea'),
                 new VariableDefinition('mci_case.state', 'state'),
             ]),
+            $this->record('mci_case', withTimestamps: false),
         ]);
     }
 
@@ -187,6 +190,7 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
                 new VariableDefinition('hospital.dispatch_area', 'dispatchArea'),
                 new VariableDefinition('hospital.state', 'state'),
             ]),
+            $this->record('hospital'),
         ]);
     }
 
@@ -199,6 +203,7 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
             new VariableGroupDefinition('geography', [
                 new VariableDefinition('dispatch_area.state', 'state'),
             ]),
+            $this->record('dispatch_area'),
         ]);
     }
 
@@ -208,6 +213,7 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
             new VariableGroupDefinition('master_data', [
                 new VariableDefinition('state.name', 'name'),
             ]),
+            $this->record('state'),
         ]);
     }
 
@@ -218,6 +224,7 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
                 new VariableDefinition('indication_normalized.code', 'code'),
                 new VariableDefinition('indication_normalized.name', 'name'),
             ]),
+            $this->record('indication_normalized'),
         ]);
     }
 
@@ -228,6 +235,7 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
                 new VariableDefinition('indication_group.name', 'name'),
                 new VariableDefinition('indication_group.category', 'category'),
             ]),
+            $this->record('indication_group'),
         ]);
     }
 
@@ -242,6 +250,22 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
             new VariableGroupDefinition('master_data', [
                 new VariableDefinition($key.'.name', 'name'),
             ]),
+            $this->record($key),
         ]);
+    }
+
+    /**
+     * Surrogate id and, where the entity stores them, the record timestamps (#1499). Allocation and MCI
+     * case store no record timestamp; their `created_at` is the IVENA time in the group `time`.
+     */
+    private function record(string $key, bool $withTimestamps = true): VariableGroupDefinition
+    {
+        $variables = [new VariableDefinition($key.'.id', 'id')];
+        if ($withTimestamps) {
+            $variables[] = new VariableDefinition($key.'.created_at', 'createdAt');
+            $variables[] = new VariableDefinition($key.'.updated_at', 'updatedAt');
+        }
+
+        return new VariableGroupDefinition('record', $variables);
     }
 }

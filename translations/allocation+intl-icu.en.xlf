@@ -2445,6 +2445,290 @@
         <source>data_catalog.variable.secondary_transport.name.description</source>
         <target>Name of the secondary transport type as used in the IVENA export.</target>
       </trans-unit>
+      <trans-unit id="dcEn232" resname="data_catalog.group.record">
+        <source>data_catalog.group.record</source>
+        <target>Record</target>
+      </trans-unit>
+      <trans-unit id="dcEn233" resname="data_catalog.variable.allocation.id.label">
+        <source>data_catalog.variable.allocation.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcEn234" resname="data_catalog.variable.allocation.id.description">
+        <source>data_catalog.variable.allocation.id.description</source>
+        <target>Unique numeric key of the allocation in the database; other tables refer to it.</target>
+      </trans-unit>
+      <trans-unit id="dcEn235" resname="data_catalog.variable.mci_case.id.label">
+        <source>data_catalog.variable.mci_case.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcEn236" resname="data_catalog.variable.mci_case.id.description">
+        <source>data_catalog.variable.mci_case.id.description</source>
+        <target>Unique numeric key of the MCI case in the database; other tables refer to it.</target>
+      </trans-unit>
+      <trans-unit id="dcEn237" resname="data_catalog.variable.hospital.id.label">
+        <source>data_catalog.variable.hospital.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcEn238" resname="data_catalog.variable.hospital.id.description">
+        <source>data_catalog.variable.hospital.id.description</source>
+        <target>Unique numeric key of the hospital in the database; other tables refer to it.</target>
+      </trans-unit>
+      <trans-unit id="dcEn239" resname="data_catalog.variable.hospital.created_at.label">
+        <source>data_catalog.variable.hospital.created_at.label</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="dcEn240" resname="data_catalog.variable.hospital.created_at.description">
+        <source>data_catalog.variable.hospital.created_at.description</source>
+        <target>When the record of the hospital was saved in the database.</target>
+      </trans-unit>
+      <trans-unit id="dcEn241" resname="data_catalog.variable.hospital.updated_at.label">
+        <source>data_catalog.variable.hospital.updated_at.label</source>
+        <target>Updated at</target>
+      </trans-unit>
+      <trans-unit id="dcEn242" resname="data_catalog.variable.hospital.updated_at.description">
+        <source>data_catalog.variable.hospital.updated_at.description</source>
+        <target>When the record of the hospital was last changed; empty if never changed.</target>
+      </trans-unit>
+      <trans-unit id="dcEn243" resname="data_catalog.variable.dispatch_area.id.label">
+        <source>data_catalog.variable.dispatch_area.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcEn244" resname="data_catalog.variable.dispatch_area.id.description">
+        <source>data_catalog.variable.dispatch_area.id.description</source>
+        <target>Unique numeric key of the dispatch area in the database; other tables refer to it.</target>
+      </trans-unit>
+      <trans-unit id="dcEn245" resname="data_catalog.variable.dispatch_area.created_at.label">
+        <source>data_catalog.variable.dispatch_area.created_at.label</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="dcEn246" resname="data_catalog.variable.dispatch_area.created_at.description">
+        <source>data_catalog.variable.dispatch_area.created_at.description</source>
+        <target>When the record of the dispatch area was saved in the database.</target>
+      </trans-unit>
+      <trans-unit id="dcEn247" resname="data_catalog.variable.dispatch_area.updated_at.label">
+        <source>data_catalog.variable.dispatch_area.updated_at.label</source>
+        <target>Updated at</target>
+      </trans-unit>
+      <trans-unit id="dcEn248" resname="data_catalog.variable.dispatch_area.updated_at.description">
+        <source>data_catalog.variable.dispatch_area.updated_at.description</source>
+        <target>When the record of the dispatch area was last changed; empty if never changed.</target>
+      </trans-unit>
+      <trans-unit id="dcEn249" resname="data_catalog.variable.state.id.label">
+        <source>data_catalog.variable.state.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcEn250" resname="data_catalog.variable.state.id.description">
+        <source>data_catalog.variable.state.id.description</source>
+        <target>Unique numeric key of the state in the database; other tables refer to it.</target>
+      </trans-unit>
+      <trans-unit id="dcEn251" resname="data_catalog.variable.state.created_at.label">
+        <source>data_catalog.variable.state.created_at.label</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="dcEn252" resname="data_catalog.variable.state.created_at.description">
+        <source>data_catalog.variable.state.created_at.description</source>
+        <target>When the record of the state was saved in the database.</target>
+      </trans-unit>
+      <trans-unit id="dcEn253" resname="data_catalog.variable.state.updated_at.label">
+        <source>data_catalog.variable.state.updated_at.label</source>
+        <target>Updated at</target>
+      </trans-unit>
+      <trans-unit id="dcEn254" resname="data_catalog.variable.state.updated_at.description">
+        <source>data_catalog.variable.state.updated_at.description</source>
+        <target>When the record of the state was last changed; empty if never changed.</target>
+      </trans-unit>
+      <trans-unit id="dcEn255" resname="data_catalog.variable.indication_normalized.id.label">
+        <source>data_catalog.variable.indication_normalized.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcEn256" resname="data_catalog.variable.indication_normalized.id.description">
+        <source>data_catalog.variable.indication_normalized.id.description</source>
+        <target>Unique numeric key of the indication in the database; other tables refer to it.</target>
+      </trans-unit>
+      <trans-unit id="dcEn257" resname="data_catalog.variable.indication_normalized.created_at.label">
+        <source>data_catalog.variable.indication_normalized.created_at.label</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="dcEn258" resname="data_catalog.variable.indication_normalized.created_at.description">
+        <source>data_catalog.variable.indication_normalized.created_at.description</source>
+        <target>When the record of the indication was saved in the database.</target>
+      </trans-unit>
+      <trans-unit id="dcEn259" resname="data_catalog.variable.indication_normalized.updated_at.label">
+        <source>data_catalog.variable.indication_normalized.updated_at.label</source>
+        <target>Updated at</target>
+      </trans-unit>
+      <trans-unit id="dcEn260" resname="data_catalog.variable.indication_normalized.updated_at.description">
+        <source>data_catalog.variable.indication_normalized.updated_at.description</source>
+        <target>When the record of the indication was last changed; empty if never changed.</target>
+      </trans-unit>
+      <trans-unit id="dcEn261" resname="data_catalog.variable.indication_group.id.label">
+        <source>data_catalog.variable.indication_group.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcEn262" resname="data_catalog.variable.indication_group.id.description">
+        <source>data_catalog.variable.indication_group.id.description</source>
+        <target>Unique numeric key of the indication group in the database; other tables refer to it.</target>
+      </trans-unit>
+      <trans-unit id="dcEn263" resname="data_catalog.variable.indication_group.created_at.label">
+        <source>data_catalog.variable.indication_group.created_at.label</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="dcEn264" resname="data_catalog.variable.indication_group.created_at.description">
+        <source>data_catalog.variable.indication_group.created_at.description</source>
+        <target>When the record of the indication group was saved in the database.</target>
+      </trans-unit>
+      <trans-unit id="dcEn265" resname="data_catalog.variable.indication_group.updated_at.label">
+        <source>data_catalog.variable.indication_group.updated_at.label</source>
+        <target>Updated at</target>
+      </trans-unit>
+      <trans-unit id="dcEn266" resname="data_catalog.variable.indication_group.updated_at.description">
+        <source>data_catalog.variable.indication_group.updated_at.description</source>
+        <target>When the record of the indication group was last changed; empty if never changed.</target>
+      </trans-unit>
+      <trans-unit id="dcEn267" resname="data_catalog.variable.speciality.id.label">
+        <source>data_catalog.variable.speciality.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcEn268" resname="data_catalog.variable.speciality.id.description">
+        <source>data_catalog.variable.speciality.id.description</source>
+        <target>Unique numeric key of the speciality in the database; other tables refer to it.</target>
+      </trans-unit>
+      <trans-unit id="dcEn269" resname="data_catalog.variable.speciality.created_at.label">
+        <source>data_catalog.variable.speciality.created_at.label</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="dcEn270" resname="data_catalog.variable.speciality.created_at.description">
+        <source>data_catalog.variable.speciality.created_at.description</source>
+        <target>When the record of the speciality was saved in the database.</target>
+      </trans-unit>
+      <trans-unit id="dcEn271" resname="data_catalog.variable.speciality.updated_at.label">
+        <source>data_catalog.variable.speciality.updated_at.label</source>
+        <target>Updated at</target>
+      </trans-unit>
+      <trans-unit id="dcEn272" resname="data_catalog.variable.speciality.updated_at.description">
+        <source>data_catalog.variable.speciality.updated_at.description</source>
+        <target>When the record of the speciality was last changed; empty if never changed.</target>
+      </trans-unit>
+      <trans-unit id="dcEn273" resname="data_catalog.variable.department.id.label">
+        <source>data_catalog.variable.department.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcEn274" resname="data_catalog.variable.department.id.description">
+        <source>data_catalog.variable.department.id.description</source>
+        <target>Unique numeric key of the department in the database; other tables refer to it.</target>
+      </trans-unit>
+      <trans-unit id="dcEn275" resname="data_catalog.variable.department.created_at.label">
+        <source>data_catalog.variable.department.created_at.label</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="dcEn276" resname="data_catalog.variable.department.created_at.description">
+        <source>data_catalog.variable.department.created_at.description</source>
+        <target>When the record of the department was saved in the database.</target>
+      </trans-unit>
+      <trans-unit id="dcEn277" resname="data_catalog.variable.department.updated_at.label">
+        <source>data_catalog.variable.department.updated_at.label</source>
+        <target>Updated at</target>
+      </trans-unit>
+      <trans-unit id="dcEn278" resname="data_catalog.variable.department.updated_at.description">
+        <source>data_catalog.variable.department.updated_at.description</source>
+        <target>When the record of the department was last changed; empty if never changed.</target>
+      </trans-unit>
+      <trans-unit id="dcEn279" resname="data_catalog.variable.assignment.id.label">
+        <source>data_catalog.variable.assignment.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcEn280" resname="data_catalog.variable.assignment.id.description">
+        <source>data_catalog.variable.assignment.id.description</source>
+        <target>Unique numeric key of the assignment type in the database; other tables refer to it.</target>
+      </trans-unit>
+      <trans-unit id="dcEn281" resname="data_catalog.variable.assignment.created_at.label">
+        <source>data_catalog.variable.assignment.created_at.label</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="dcEn282" resname="data_catalog.variable.assignment.created_at.description">
+        <source>data_catalog.variable.assignment.created_at.description</source>
+        <target>When the record of the assignment type was saved in the database.</target>
+      </trans-unit>
+      <trans-unit id="dcEn283" resname="data_catalog.variable.assignment.updated_at.label">
+        <source>data_catalog.variable.assignment.updated_at.label</source>
+        <target>Updated at</target>
+      </trans-unit>
+      <trans-unit id="dcEn284" resname="data_catalog.variable.assignment.updated_at.description">
+        <source>data_catalog.variable.assignment.updated_at.description</source>
+        <target>When the record of the assignment type was last changed; empty if never changed.</target>
+      </trans-unit>
+      <trans-unit id="dcEn285" resname="data_catalog.variable.infection.id.label">
+        <source>data_catalog.variable.infection.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcEn286" resname="data_catalog.variable.infection.id.description">
+        <source>data_catalog.variable.infection.id.description</source>
+        <target>Unique numeric key of the infection in the database; other tables refer to it.</target>
+      </trans-unit>
+      <trans-unit id="dcEn287" resname="data_catalog.variable.infection.created_at.label">
+        <source>data_catalog.variable.infection.created_at.label</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="dcEn288" resname="data_catalog.variable.infection.created_at.description">
+        <source>data_catalog.variable.infection.created_at.description</source>
+        <target>When the record of the infection was saved in the database.</target>
+      </trans-unit>
+      <trans-unit id="dcEn289" resname="data_catalog.variable.infection.updated_at.label">
+        <source>data_catalog.variable.infection.updated_at.label</source>
+        <target>Updated at</target>
+      </trans-unit>
+      <trans-unit id="dcEn290" resname="data_catalog.variable.infection.updated_at.description">
+        <source>data_catalog.variable.infection.updated_at.description</source>
+        <target>When the record of the infection was last changed; empty if never changed.</target>
+      </trans-unit>
+      <trans-unit id="dcEn291" resname="data_catalog.variable.occasion.id.label">
+        <source>data_catalog.variable.occasion.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcEn292" resname="data_catalog.variable.occasion.id.description">
+        <source>data_catalog.variable.occasion.id.description</source>
+        <target>Unique numeric key of the occasion in the database; other tables refer to it.</target>
+      </trans-unit>
+      <trans-unit id="dcEn293" resname="data_catalog.variable.occasion.created_at.label">
+        <source>data_catalog.variable.occasion.created_at.label</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="dcEn294" resname="data_catalog.variable.occasion.created_at.description">
+        <source>data_catalog.variable.occasion.created_at.description</source>
+        <target>When the record of the occasion was saved in the database.</target>
+      </trans-unit>
+      <trans-unit id="dcEn295" resname="data_catalog.variable.occasion.updated_at.label">
+        <source>data_catalog.variable.occasion.updated_at.label</source>
+        <target>Updated at</target>
+      </trans-unit>
+      <trans-unit id="dcEn296" resname="data_catalog.variable.occasion.updated_at.description">
+        <source>data_catalog.variable.occasion.updated_at.description</source>
+        <target>When the record of the occasion was last changed; empty if never changed.</target>
+      </trans-unit>
+      <trans-unit id="dcEn297" resname="data_catalog.variable.secondary_transport.id.label">
+        <source>data_catalog.variable.secondary_transport.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcEn298" resname="data_catalog.variable.secondary_transport.id.description">
+        <source>data_catalog.variable.secondary_transport.id.description</source>
+        <target>Unique numeric key of the secondary transport type in the database; other tables refer to it.</target>
+      </trans-unit>
+      <trans-unit id="dcEn299" resname="data_catalog.variable.secondary_transport.created_at.label">
+        <source>data_catalog.variable.secondary_transport.created_at.label</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="dcEn300" resname="data_catalog.variable.secondary_transport.created_at.description">
+        <source>data_catalog.variable.secondary_transport.created_at.description</source>
+        <target>When the record of the secondary transport type was saved in the database.</target>
+      </trans-unit>
+      <trans-unit id="dcEn301" resname="data_catalog.variable.secondary_transport.updated_at.label">
+        <source>data_catalog.variable.secondary_transport.updated_at.label</source>
+        <target>Updated at</target>
+      </trans-unit>
+      <trans-unit id="dcEn302" resname="data_catalog.variable.secondary_transport.updated_at.description">
+        <source>data_catalog.variable.secondary_transport.updated_at.description</source>
+        <target>When the record of the secondary transport type was last changed; empty if never changed.</target>
+      </trans-unit>
       <trans-unit id="harTitleNew" resname="hospital_assignment_request.title.new">
         <source>hospital_assignment_request.title.new</source>
         <target>Request hospital assignment</target>

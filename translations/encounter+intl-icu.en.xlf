@@ -4061,6 +4061,26 @@
         <source>data_catalog.variable.encounter.allocation_assigned_at.description</source>
         <target>Time the assignment to the allocation was set.</target>
       </trans-unit>
+      <trans-unit id="dcEncEn019" resname="data_catalog.group.record">
+        <source>data_catalog.group.record</source>
+        <target>Record</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn020" resname="data_catalog.variable.encounter.id.label">
+        <source>data_catalog.variable.encounter.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn021" resname="data_catalog.variable.encounter.id.description">
+        <source>data_catalog.variable.encounter.id.description</source>
+        <target>Unique numeric key of the encounter in the database; clinical records such as the ED visit refer to it.</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn022" resname="data_catalog.variable.encounter.created_at.label">
+        <source>data_catalog.variable.encounter.created_at.label</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="dcEncEn023" resname="data_catalog.variable.encounter.created_at.description">
+        <source>data_catalog.variable.encounter.created_at.description</source>
+        <target>When the record of the encounter was saved in the database.</target>
+      </trans-unit>
       <trans-unit id="dcEdEn001" resname="data_catalog.object.ed_visit.title">
         <source>data_catalog.object.ed_visit.title</source>
         <target>ED visit</target>
@@ -4432,6 +4452,14 @@
       <trans-unit id="dcEdEn104" resname="data_catalog.variable.ed_visit.isolation.description">
         <source>data_catalog.variable.ed_visit.isolation.description</source>
         <target>Documented reasons for isolation, such as infectious diseases or multidrug-resistant organisms. Several codes per visit; an empty list means none was documented.</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn105" resname="data_catalog.variable.ed_visit.created_at.label">
+        <source>data_catalog.variable.ed_visit.created_at.label</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="dcEdEn106" resname="data_catalog.variable.ed_visit.created_at.description">
+        <source>data_catalog.variable.ed_visit.created_at.description</source>
+        <target>When the record of the ED visit was saved in the database.</target>
       </trans-unit>
       <trans-unit id="dcEdEn092" resname="data_catalog.code.anchor_source.assessment">
         <source>data_catalog.code.anchor_source.assessment</source>

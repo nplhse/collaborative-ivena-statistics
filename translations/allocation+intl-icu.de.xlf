@@ -2445,6 +2445,290 @@
         <source>data_catalog.variable.secondary_transport.name.description</source>
         <target>Name der Sekundärtransportart, wie er im IVENA-Export verwendet wird.</target>
       </trans-unit>
+      <trans-unit id="dcDe232" resname="data_catalog.group.record">
+        <source>data_catalog.group.record</source>
+        <target>Datensatz</target>
+      </trans-unit>
+      <trans-unit id="dcDe233" resname="data_catalog.variable.allocation.id.label">
+        <source>data_catalog.variable.allocation.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe234" resname="data_catalog.variable.allocation.id.description">
+        <source>data_catalog.variable.allocation.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel der Zuweisung in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe235" resname="data_catalog.variable.mci_case.id.label">
+        <source>data_catalog.variable.mci_case.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe236" resname="data_catalog.variable.mci_case.id.description">
+        <source>data_catalog.variable.mci_case.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel des MANV-Falls in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe237" resname="data_catalog.variable.hospital.id.label">
+        <source>data_catalog.variable.hospital.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe238" resname="data_catalog.variable.hospital.id.description">
+        <source>data_catalog.variable.hospital.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel der Klinik in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe239" resname="data_catalog.variable.hospital.created_at.label">
+        <source>data_catalog.variable.hospital.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe240" resname="data_catalog.variable.hospital.created_at.description">
+        <source>data_catalog.variable.hospital.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz der Klinik in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe241" resname="data_catalog.variable.hospital.updated_at.label">
+        <source>data_catalog.variable.hospital.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe242" resname="data_catalog.variable.hospital.updated_at.description">
+        <source>data_catalog.variable.hospital.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes der Klinik; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe243" resname="data_catalog.variable.dispatch_area.id.label">
+        <source>data_catalog.variable.dispatch_area.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe244" resname="data_catalog.variable.dispatch_area.id.description">
+        <source>data_catalog.variable.dispatch_area.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel des Leitstellenbereichs in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe245" resname="data_catalog.variable.dispatch_area.created_at.label">
+        <source>data_catalog.variable.dispatch_area.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe246" resname="data_catalog.variable.dispatch_area.created_at.description">
+        <source>data_catalog.variable.dispatch_area.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz des Leitstellenbereichs in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe247" resname="data_catalog.variable.dispatch_area.updated_at.label">
+        <source>data_catalog.variable.dispatch_area.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe248" resname="data_catalog.variable.dispatch_area.updated_at.description">
+        <source>data_catalog.variable.dispatch_area.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes des Leitstellenbereichs; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe249" resname="data_catalog.variable.state.id.label">
+        <source>data_catalog.variable.state.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe250" resname="data_catalog.variable.state.id.description">
+        <source>data_catalog.variable.state.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel des Bundeslands in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe251" resname="data_catalog.variable.state.created_at.label">
+        <source>data_catalog.variable.state.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe252" resname="data_catalog.variable.state.created_at.description">
+        <source>data_catalog.variable.state.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz des Bundeslands in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe253" resname="data_catalog.variable.state.updated_at.label">
+        <source>data_catalog.variable.state.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe254" resname="data_catalog.variable.state.updated_at.description">
+        <source>data_catalog.variable.state.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes des Bundeslands; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe255" resname="data_catalog.variable.indication_normalized.id.label">
+        <source>data_catalog.variable.indication_normalized.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe256" resname="data_catalog.variable.indication_normalized.id.description">
+        <source>data_catalog.variable.indication_normalized.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel der Indikation in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe257" resname="data_catalog.variable.indication_normalized.created_at.label">
+        <source>data_catalog.variable.indication_normalized.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe258" resname="data_catalog.variable.indication_normalized.created_at.description">
+        <source>data_catalog.variable.indication_normalized.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz der Indikation in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe259" resname="data_catalog.variable.indication_normalized.updated_at.label">
+        <source>data_catalog.variable.indication_normalized.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe260" resname="data_catalog.variable.indication_normalized.updated_at.description">
+        <source>data_catalog.variable.indication_normalized.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes der Indikation; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe261" resname="data_catalog.variable.indication_group.id.label">
+        <source>data_catalog.variable.indication_group.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe262" resname="data_catalog.variable.indication_group.id.description">
+        <source>data_catalog.variable.indication_group.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel der Indikationsgruppe in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe263" resname="data_catalog.variable.indication_group.created_at.label">
+        <source>data_catalog.variable.indication_group.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe264" resname="data_catalog.variable.indication_group.created_at.description">
+        <source>data_catalog.variable.indication_group.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz der Indikationsgruppe in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe265" resname="data_catalog.variable.indication_group.updated_at.label">
+        <source>data_catalog.variable.indication_group.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe266" resname="data_catalog.variable.indication_group.updated_at.description">
+        <source>data_catalog.variable.indication_group.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes der Indikationsgruppe; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe267" resname="data_catalog.variable.speciality.id.label">
+        <source>data_catalog.variable.speciality.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe268" resname="data_catalog.variable.speciality.id.description">
+        <source>data_catalog.variable.speciality.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel des Fachgebiets in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe269" resname="data_catalog.variable.speciality.created_at.label">
+        <source>data_catalog.variable.speciality.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe270" resname="data_catalog.variable.speciality.created_at.description">
+        <source>data_catalog.variable.speciality.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz des Fachgebiets in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe271" resname="data_catalog.variable.speciality.updated_at.label">
+        <source>data_catalog.variable.speciality.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe272" resname="data_catalog.variable.speciality.updated_at.description">
+        <source>data_catalog.variable.speciality.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes des Fachgebiets; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe273" resname="data_catalog.variable.department.id.label">
+        <source>data_catalog.variable.department.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe274" resname="data_catalog.variable.department.id.description">
+        <source>data_catalog.variable.department.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel des Fachbereichs in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe275" resname="data_catalog.variable.department.created_at.label">
+        <source>data_catalog.variable.department.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe276" resname="data_catalog.variable.department.created_at.description">
+        <source>data_catalog.variable.department.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz des Fachbereichs in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe277" resname="data_catalog.variable.department.updated_at.label">
+        <source>data_catalog.variable.department.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe278" resname="data_catalog.variable.department.updated_at.description">
+        <source>data_catalog.variable.department.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes des Fachbereichs; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe279" resname="data_catalog.variable.assignment.id.label">
+        <source>data_catalog.variable.assignment.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe280" resname="data_catalog.variable.assignment.id.description">
+        <source>data_catalog.variable.assignment.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel des Zuweisungstyps in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe281" resname="data_catalog.variable.assignment.created_at.label">
+        <source>data_catalog.variable.assignment.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe282" resname="data_catalog.variable.assignment.created_at.description">
+        <source>data_catalog.variable.assignment.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz des Zuweisungstyps in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe283" resname="data_catalog.variable.assignment.updated_at.label">
+        <source>data_catalog.variable.assignment.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe284" resname="data_catalog.variable.assignment.updated_at.description">
+        <source>data_catalog.variable.assignment.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes des Zuweisungstyps; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe285" resname="data_catalog.variable.infection.id.label">
+        <source>data_catalog.variable.infection.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe286" resname="data_catalog.variable.infection.id.description">
+        <source>data_catalog.variable.infection.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel der Infektion in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe287" resname="data_catalog.variable.infection.created_at.label">
+        <source>data_catalog.variable.infection.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe288" resname="data_catalog.variable.infection.created_at.description">
+        <source>data_catalog.variable.infection.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz der Infektion in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe289" resname="data_catalog.variable.infection.updated_at.label">
+        <source>data_catalog.variable.infection.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe290" resname="data_catalog.variable.infection.updated_at.description">
+        <source>data_catalog.variable.infection.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes der Infektion; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe291" resname="data_catalog.variable.occasion.id.label">
+        <source>data_catalog.variable.occasion.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe292" resname="data_catalog.variable.occasion.id.description">
+        <source>data_catalog.variable.occasion.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel des Anlasses in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe293" resname="data_catalog.variable.occasion.created_at.label">
+        <source>data_catalog.variable.occasion.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe294" resname="data_catalog.variable.occasion.created_at.description">
+        <source>data_catalog.variable.occasion.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz des Anlasses in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe295" resname="data_catalog.variable.occasion.updated_at.label">
+        <source>data_catalog.variable.occasion.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe296" resname="data_catalog.variable.occasion.updated_at.description">
+        <source>data_catalog.variable.occasion.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes des Anlasses; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe297" resname="data_catalog.variable.secondary_transport.id.label">
+        <source>data_catalog.variable.secondary_transport.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe298" resname="data_catalog.variable.secondary_transport.id.description">
+        <source>data_catalog.variable.secondary_transport.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel der Sekundärtransportart in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe299" resname="data_catalog.variable.secondary_transport.created_at.label">
+        <source>data_catalog.variable.secondary_transport.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe300" resname="data_catalog.variable.secondary_transport.created_at.description">
+        <source>data_catalog.variable.secondary_transport.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz der Sekundärtransportart in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe301" resname="data_catalog.variable.secondary_transport.updated_at.label">
+        <source>data_catalog.variable.secondary_transport.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe302" resname="data_catalog.variable.secondary_transport.updated_at.description">
+        <source>data_catalog.variable.secondary_transport.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes der Sekundärtransportart; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
       <trans-unit id="harTitleNewDe" resname="hospital_assignment_request.title.new">
         <source>hospital_assignment_request.title.new</source>
         <target>Klinikzuordnung beantragen</target>

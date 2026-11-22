@@ -21,6 +21,7 @@ use Cois\Plugin\EdVisit\Domain\Enum\IsolationCode;
  * Ranges come from the field contract of the exchange format (EdVisitDimension), so the catalog and the import
  * check the same limits. Left out on purpose: the visit uid and fingerprint, the key generation, the import and
  * the hospital (on the encounter). The isolation codes are a JSON code set, so their enum is named here (#1443).
+ * The visit has no id of its own: its primary key is the encounter (`ed_visit.encounter`).
  */
 final readonly class EdVisitDataCatalogContributor implements DataCatalogContributorInterface
 {
@@ -95,6 +96,9 @@ final readonly class EdVisitDataCatalogContributor implements DataCatalogContrib
                     new VariableDefinition('ed_visit.work_accident', 'workAccident'),
                     new VariableDefinition('ed_visit.tetanus_protected', 'tetanusProtected'),
                     new VariableDefinition('ed_visit.isolation', 'isolation', codeLabels: CodeLabels::prefixed('encounter.visit.isolation.', self::DOMAIN), codeSetEnum: IsolationCode::class),
+                ]),
+                new VariableGroupDefinition('record', [
+                    new VariableDefinition('ed_visit.created_at', 'createdAt'),
                 ]),
             ], contributedByPlugin: true, grantedAttribute: EncounterAttribute::VIEW_CASES_IN_ANY_HOSPITAL),
         ];

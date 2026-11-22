@@ -28,15 +28,15 @@ final class DataCatalogControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="data-catalog-object"][data-object-key="allocation"]');
         self::assertSelectorTextContains('[data-object-key="allocation"]', 'Allocation');
-        self::assertSelectorTextContains('[data-object-key="allocation"]', '32 variables');
-        self::assertSelectorTextContains('[data-object-key="mci_case"]', '25 variables');
-        self::assertSelectorTextContains('[data-object-key="hospital"]', '13 variables');
-        self::assertSelectorTextContains('[data-object-key="dispatch_area"]', '2 variables');
-        self::assertSelectorTextContains('[data-object-key="state"]', '1 variable');
-        self::assertSelectorTextContains('[data-object-key="indication_normalized"]', '2 variables');
-        self::assertSelectorTextContains('[data-object-key="indication_group"]', '2 variables');
+        self::assertSelectorTextContains('[data-object-key="allocation"]', '33 variables');
+        self::assertSelectorTextContains('[data-object-key="mci_case"]', '26 variables');
+        self::assertSelectorTextContains('[data-object-key="hospital"]', '16 variables');
+        self::assertSelectorTextContains('[data-object-key="dispatch_area"]', '5 variables');
+        self::assertSelectorTextContains('[data-object-key="state"]', '4 variables');
+        self::assertSelectorTextContains('[data-object-key="indication_normalized"]', '5 variables');
+        self::assertSelectorTextContains('[data-object-key="indication_group"]', '5 variables');
         foreach (['speciality', 'department', 'assignment', 'infection', 'occasion', 'secondary_transport'] as $key) {
-            self::assertSelectorTextContains(sprintf('[data-object-key="%s"]', $key), '1 variable');
+            self::assertSelectorTextContains(sprintf('[data-object-key="%s"]', $key), '4 variables');
         }
     }
 
