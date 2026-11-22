@@ -11,8 +11,6 @@
 {% endblock %}
 
 {% block page_content %}
-    {% set hasOwnedHospitals = app.user and app.user.hospitals|length > 0 %}
-    {% set canViewOwnedHospitals = is_granted('ROLE_PARTICIPANT') and hasOwnedHospitals %}
     {% set canExplore = is_granted('ROLE_PARTICIPANT') %}
     {# Same check as the upload form (#1351). #}
     {% set canImport = is_granted(constant('App\\Import\\Infrastructure\\Security\\Voter\\ImportCreateVoter::CREATE')) %}
@@ -24,19 +22,43 @@
         ? 'dashboard.next_steps.analysis.description'
         : 'dashboard.next_steps.analysis.public.description' %}
     {% set nextSteps = [] %}
-    {% if canViewOwnedHospitals %}
+    {# Clinic access: owner or access grant; without it the tile leads to the assignment request (#1483). #}
+    {% set clinicAccessStatus = clinicAccess is defined and clinicAccess is not null ? clinicAccess.status.value : null %}
+    {% if clinicAccessStatus == 'granted' %}
         {% set nextSteps = nextSteps|merge([{
             title: 'dashboard.next_steps.hospitals.owned.title',
             description: 'dashboard.next_steps.hospitals.owned.description',
             icon: 'tabler:building-hospital',
             url: path('app_hospitals_index'),
+            testId: 'dashboard-tile-hospitals',
         }]) %}
-    {% elseif canExplore %}
+    {% elseif clinicAccessStatus == 'pending' %}
         {% set nextSteps = nextSteps|merge([{
-            title: 'dashboard.next_steps.hospitals.all.title',
-            description: 'dashboard.next_steps.hospitals.all.description',
-            icon: 'tabler:building-hospital',
-            url: path('app_explore_hospital_list'),
+            title: 'dashboard.next_steps.access_request.pending.title',
+            description: 'dashboard.next_steps.access_request.pending.description',
+            params: {hospital: clinicAccess.hospitalLabel},
+            icon: 'tabler:clock',
+            iconClass: 'bg-yellow-lt text-yellow',
+            url: clinicAccess.requestUrl,
+            testId: 'dashboard-tile-access-request-pending',
+        }]) %}
+    {% elseif clinicAccessStatus == 'rejected' %}
+        {% set nextSteps = nextSteps|merge([{
+            title: 'dashboard.next_steps.access_request.rejected.title',
+            description: 'dashboard.next_steps.access_request.rejected.description',
+            params: {hospital: clinicAccess.hospitalLabel},
+            icon: 'tabler:alert-circle',
+            iconClass: 'bg-red-lt text-red',
+            url: clinicAccess.requestUrl,
+            testId: 'dashboard-tile-access-request-rejected',
+        }]) %}
+    {% elseif clinicAccessStatus == 'no_request' %}
+        {% set nextSteps = nextSteps|merge([{
+            title: 'dashboard.next_steps.access_request.new.title',
+            description: 'dashboard.next_steps.access_request.new.description',
+            icon: 'tabler:user-plus',
+            url: path('app_hospital_assignment_request_new'),
+            testId: 'dashboard-tile-access-request',
         }]) %}
     {% endif %}
     {% if canExplore %}
@@ -68,14 +90,14 @@
                 <div class="row row-cards">
                     {% for step in nextSteps %}
                         <div class="col-12 col-md-6">
-                            <a href="{{ step.url }}" class="card card-link h-100 text-reset text-decoration-none">
+                            <a href="{{ step.url }}" class="card card-link h-100 text-reset text-decoration-none"{% if step.testId is defined %} data-testid="{{ step.testId }}"{% endif %}>
                                 <div class="card-body d-flex gap-3">
-                                    <span class="avatar avatar-lg bg-primary-lt text-primary flex-shrink-0">
+                                    <span class="avatar avatar-lg {{ step.iconClass ?? 'bg-primary-lt text-primary' }} flex-shrink-0">
                                         {{ ux_icon(step.icon, {style: 'height: 1.75em;'}) }}
                                     </span>
                                     <div>
-                                        <h3 class="h4 mb-1">{{ step.title|trans({}, 'content') }}</h3>
-                                        <p class="text-secondary mb-0">{{ step.description|trans({}, 'content') }}</p>
+                                        <h3 class="h4 mb-1">{{ step.title|trans(step.params ?? {}, 'content') }}</h3>
+                                        <p class="text-secondary mb-0">{{ step.description|trans(step.params ?? {}, 'content') }}</p>
                                     </div>
                                 </div>
                             </a>

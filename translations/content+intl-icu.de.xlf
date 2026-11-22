@@ -245,17 +245,9 @@
         <source>dashboard.next_steps.explore.title</source>
         <target>Unsere Daten erkunden</target>
       </trans-unit>
-      <trans-unit id="De44dc8459" resname="dashboard.next_steps.hospitals.all.description">
-        <source>dashboard.next_steps.hospitals.all.description</source>
-        <target>Durchsuchen Sie das vollständige Krankenhausverzeichnis und entdecken Sie teilnehmende Einrichtungen.</target>
-      </trans-unit>
-      <trans-unit id="Dedc29aea8" resname="dashboard.next_steps.hospitals.all.title">
-        <source>dashboard.next_steps.hospitals.all.title</source>
-        <target>Alle Krankenhäuser ansehen</target>
-      </trans-unit>
       <trans-unit id="De592cd5f6" resname="dashboard.next_steps.hospitals.owned.description">
         <source>dashboard.next_steps.hospitals.owned.description</source>
-        <target>Schauen Sie sich Ihre eigenen teilnehmenden Krankenhäuser an.</target>
+        <target>Schauen Sie sich Ihre teilnehmenden Krankenhäuser an.</target>
       </trans-unit>
       <trans-unit id="De6a79ffef" resname="dashboard.next_steps.hospitals.owned.title">
         <source>dashboard.next_steps.hospitals.owned.title</source>
@@ -1420,6 +1412,30 @@
       <trans-unit id="help_help_navigation_title_de" resname="help.navigation.title">
         <source>help.navigation.title</source>
         <target>Hilfethemen</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqDe01" resname="dashboard.next_steps.access_request.new.title">
+        <source>dashboard.next_steps.access_request.new.title</source>
+        <target>Klinikzuordnung beantragen</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqDe02" resname="dashboard.next_steps.access_request.new.description">
+        <source>dashboard.next_steps.access_request.new.description</source>
+        <target>Beantragen Sie die Zuordnung zu Ihrer Klinik, um mit deren Daten zu arbeiten.</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqDe03" resname="dashboard.next_steps.access_request.pending.title">
+        <source>dashboard.next_steps.access_request.pending.title</source>
+        <target>Anfrage in Prüfung</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqDe04" resname="dashboard.next_steps.access_request.pending.description">
+        <source>dashboard.next_steps.access_request.pending.description</source>
+        <target>Ihre Anfrage für {hospital} wird geprüft.</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqDe05" resname="dashboard.next_steps.access_request.rejected.title">
+        <source>dashboard.next_steps.access_request.rejected.title</source>
+        <target>Anfrage abgelehnt</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqDe06" resname="dashboard.next_steps.access_request.rejected.description">
+        <source>dashboard.next_steps.access_request.rejected.description</source>
+        <target>Öffnen Sie Ihre Anfrage für {hospital}, um die Begründung zu sehen.</target>
       </trans-unit>
     </body>
   </file>
