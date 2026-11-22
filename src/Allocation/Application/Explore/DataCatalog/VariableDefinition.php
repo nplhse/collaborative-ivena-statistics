@@ -11,7 +11,8 @@ use App\Allocation\Application\DTO\DataCatalog\ValueRange;
  * path through to-one associations (`assessment.airway`).
  *
  * `$codeSetEnum` names the backed enum of a code set stored as a JSON list (several codes per record),
- * because the mapping of a JSON column has no `enumType`.
+ * because the mapping of a JSON column has no `enumType`. `$glossary` names the glossary page that
+ * defines the values (#1507).
  */
 final readonly class VariableDefinition
 {
@@ -24,6 +25,7 @@ final readonly class VariableDefinition
         public ?ValueRange $range = null,
         public ?CodeLabels $codeLabels = null,
         public ?string $codeSetEnum = null,
+        public ?GlossaryReference $glossary = null,
     ) {
     }
 }

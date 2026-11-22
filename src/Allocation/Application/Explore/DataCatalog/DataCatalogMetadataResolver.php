@@ -84,6 +84,7 @@ final readonly class DataCatalogMetadataResolver
                     null === $enum ? [] : $this->codes($enum, $variable->codeLabels),
                     $variable->range,
                     storageType: $this->storageType($field),
+                    glossary: $variable->glossary,
                 );
             }
 

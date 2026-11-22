@@ -817,6 +817,10 @@
         <source>catalog.glossary.column.code</source>
         <target>Code</target>
       </trans-unit>
+      <trans-unit id="catGlEnStoredAs" resname="catalog.glossary.stored_as">
+        <source>catalog.glossary.stored_as</source>
+        <target>Stored as</target>
+      </trans-unit>
       <trans-unit id="CatGlColLabEn" resname="catalog.glossary.column.label">
         <source>catalog.glossary.column.label</source>
         <target>Label</target>
@@ -1572,6 +1576,10 @@
       <trans-unit id="dcEn303" resname="data_catalog.storage_type">
         <source>data_catalog.storage_type</source>
         <target>Column type in the database</target>
+      </trans-unit>
+      <trans-unit id="dcEn312" resname="data_catalog.glossary_link">
+        <source>data_catalog.glossary_link</source>
+        <target>Definitions in the glossary</target>
       </trans-unit>
       <trans-unit id="dcEn304" resname="data_catalog.codes_count">
         <source>data_catalog.codes_count</source>

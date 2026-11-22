@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Application\Explore\DataCatalog;
 
+use App\Allocation\Application\DTO\DataCatalog\CatalogGlossaryUsage;
 use App\Allocation\Application\DTO\DataCatalog\CatalogGroup;
 use App\Allocation\Application\DTO\DataCatalog\CatalogObject;
 use App\Allocation\Application\DTO\DataCatalog\CatalogVariable;
@@ -58,6 +59,29 @@ final readonly class DataCatalog
                 ),
             ), $object->groups),
         ), $objects);
+    }
+
+    /**
+     * Visible variables whose values the glossary page with this route and parameters defines (#1507).
+     *
+     * @param array<string, string> $parameters
+     *
+     * @return list<CatalogGlossaryUsage>
+     */
+    public function glossaryUsages(string $route, array $parameters = []): array
+    {
+        $usages = [];
+        foreach ($this->visibleObjects() as $object) {
+            foreach ($object->groups as $group) {
+                foreach ($group->variables as $variable) {
+                    if (true === $variable->glossary?->isFor($route, $parameters)) {
+                        $usages[] = new CatalogGlossaryUsage($object->key, $object->domain, $variable);
+                    }
+                }
+            }
+        }
+
+        return $usages;
     }
 
     public function visibleObject(string $key): ?CatalogObject

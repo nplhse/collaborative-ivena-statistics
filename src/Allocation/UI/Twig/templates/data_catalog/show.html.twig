@@ -128,6 +128,11 @@
                                         {% else %}
                                             <span class="text-secondary">—</span>
                                         {% endif %}
+                                        {% if variable.glossary is not null %}
+                                            <div class="mt-1">
+                                                <a href="{{ path(variable.glossary.route, variable.glossary.parameters) }}{{ variable.glossary.section is not null ? '#' ~ variable.glossary.section }}" class="badge bg-azure-lt text-decoration-none" data-testid="data-catalog-glossary-link"><twig:ux:icon name="tabler:book" class="me-1" width="1em" height="1em" aria-hidden="true" />{{ 'data_catalog.glossary_link'|trans({}, 'allocation') }}</a>
+                                            </div>
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {% endfor %}
