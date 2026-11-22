@@ -917,6 +917,18 @@
         <source>label.settings.two_factor_copy_codes</source>
         <target>Alle Codes kopieren</target>
       </trans-unit>
+      <trans-unit id="DeTF36" resname="flash.settings.two_factor.required">
+        <source>flash.settings.two_factor.required</source>
+        <target>Administratorinnen und Administratoren müssen die Zwei-Faktor-Authentifizierung einrichten, bevor sie fortfahren können.</target>
+      </trans-unit>
+      <trans-unit id="DeTF37" resname="text.settings.two_factor.required">
+        <source>text.settings.two_factor.required</source>
+        <target>Für die Administration ist die Zwei-Faktor-Authentifizierung vorgeschrieben. Richten Sie sie ein, um fortzufahren.</target>
+      </trans-unit>
+      <trans-unit id="DeTF38" resname="label.settings.two_factor_recommended">
+        <source>label.settings.two_factor_recommended</source>
+        <target>Empfohlen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -3313,6 +3313,26 @@
         <source>flash.admin.hospital_assignment_request.invalid</source>
         <target>The decision is incomplete. Check the form and try again.</target>
       </trans-unit>
+      <trans-unit id="adminUserTwoFactor00" resname="admin.user.field.two_factor">
+        <source>admin.user.field.two_factor</source>
+        <target>Two-factor authentication</target>
+      </trans-unit>
+      <trans-unit id="adminUserTwoFactor01" resname="admin.user.action.reset_two_factor">
+        <source>admin.user.action.reset_two_factor</source>
+        <target>Reset two-factor authentication</target>
+      </trans-unit>
+      <trans-unit id="adminUserTwoFactor02" resname="admin.user.action.reset_two_factor.confirm">
+        <source>admin.user.action.reset_two_factor.confirm</source>
+        <target>Reset two-factor authentication of {username}? The account then signs in without a code and gets an email about it.</target>
+      </trans-unit>
+      <trans-unit id="adminUserTwoFactor03" resname="flash.admin.user.two_factor_reset.done">
+        <source>flash.admin.user.two_factor_reset.done</source>
+        <target>Two-factor authentication of {username} was reset.</target>
+      </trans-unit>
+      <trans-unit id="adminUserTwoFactor04" resname="flash.admin.user.two_factor_reset.invalid_token">
+        <source>flash.admin.user.two_factor_reset.invalid_token</source>
+        <target>The request has expired. Please try again.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

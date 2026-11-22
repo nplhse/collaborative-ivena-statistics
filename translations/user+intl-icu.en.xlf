@@ -917,6 +917,18 @@
         <source>label.settings.two_factor_copy_codes</source>
         <target>Copy all codes</target>
       </trans-unit>
+      <trans-unit id="TF36" resname="flash.settings.two_factor.required">
+        <source>flash.settings.two_factor.required</source>
+        <target>Administrators must set up two-factor authentication before they can continue.</target>
+      </trans-unit>
+      <trans-unit id="TF37" resname="text.settings.two_factor.required">
+        <source>text.settings.two_factor.required</source>
+        <target>Two-factor authentication is required for administrators. Set it up to continue.</target>
+      </trans-unit>
+      <trans-unit id="TF38" resname="label.settings.two_factor_recommended">
+        <source>label.settings.two_factor_recommended</source>
+        <target>Recommended</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -40,7 +40,12 @@
                                                     <twig:ux:icon :name="section.icon" class="icon" aria-hidden="true" />
                                                 </span>
                                                 <span class="d-block text-break">
-                                                    <span class="d-block fw-semibold text-body">{{ section.labelKey|trans({}, 'user') }}</span>
+                                                    <span class="d-block fw-semibold text-body">
+                                                        {{ section.labelKey|trans({}, 'user') }}
+                                                        {% if section.key == 'two_factor' and twoFactorRecommended %}
+                                                            <span class="badge bg-yellow-lt ms-1" data-testid="settings-two-factor-recommended">{{ 'label.settings.two_factor_recommended'|trans({}, 'user') }}</span>
+                                                        {% endif %}
+                                                    </span>
                                                     <span class="d-block text-secondary mt-1">{{ section.descriptionKey|trans({}, 'user') }}</span>
                                                 </span>
                                             </span>

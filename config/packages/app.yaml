@@ -32,6 +32,12 @@ app:
         blocked_email_domains:
             - .ru
 
+    security:
+        two_factor:
+            # Administrators must set up two-factor authentication before they can use the application (#1357,
+            # ADR 040). Off by default; always off in dev and demo (below). Needs APP_TWO_FACTOR_KEY.
+            required_for_admins: false
+
     closure_volume:
         reference_weeks_before: 4
         reference_weeks_after: 4
@@ -165,3 +171,16 @@ app:
         quarantine:
             # Days after going into quarantine until an entry is deleted.
             retention_days: 30
+
+# Two-factor obligation never applies locally or in the demo, whatever the base value says (#1357).
+when@dev:
+    app:
+        security:
+            two_factor:
+                required_for_admins: false
+
+when@demo:
+    app:
+        security:
+            two_factor:
+                required_for_admins: false

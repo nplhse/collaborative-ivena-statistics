@@ -3313,6 +3313,26 @@
         <source>flash.admin.hospital_assignment_request.invalid</source>
         <target>Die Entscheidung ist unvollständig. Bitte prüfen Sie das Formular.</target>
       </trans-unit>
+      <trans-unit id="adminUserTwoFactor00De" resname="admin.user.field.two_factor">
+        <source>admin.user.field.two_factor</source>
+        <target>Zwei-Faktor-Authentifizierung</target>
+      </trans-unit>
+      <trans-unit id="adminUserTwoFactor01De" resname="admin.user.action.reset_two_factor">
+        <source>admin.user.action.reset_two_factor</source>
+        <target>Zwei-Faktor-Authentifizierung zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="adminUserTwoFactor02De" resname="admin.user.action.reset_two_factor.confirm">
+        <source>admin.user.action.reset_two_factor.confirm</source>
+        <target>Zwei-Faktor-Authentifizierung von {username} zurücksetzen? Das Konto meldet sich danach ohne Code an und erhält darüber eine E-Mail.</target>
+      </trans-unit>
+      <trans-unit id="adminUserTwoFactor03De" resname="flash.admin.user.two_factor_reset.done">
+        <source>flash.admin.user.two_factor_reset.done</source>
+        <target>Die Zwei-Faktor-Authentifizierung von {username} wurde zurückgesetzt.</target>
+      </trans-unit>
+      <trans-unit id="adminUserTwoFactor04De" resname="flash.admin.user.two_factor_reset.invalid_token">
+        <source>flash.admin.user.two_factor_reset.invalid_token</source>
+        <target>Die Anfrage ist abgelaufen. Bitte versuchen Sie es erneut.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

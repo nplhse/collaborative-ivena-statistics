@@ -15,7 +15,7 @@ Defined in `src/User/Domain/Security/UserRole.php`:
 |------|---------|
 | `ROLE_USER` | Base access; public statistics (`/statistics`) |
 | `ROLE_PARTICIPANT` | Hospital participant; `/hospitals`, `/explore` (allocation list/detail) |
-| `ROLE_ADMIN` | EasyAdmin back office, impersonation; receives the admin notifications (`admin.*`), each admin chooses them on the notification settings page |
+| `ROLE_ADMIN` | EasyAdmin back office, impersonation, resetting two-factor authentication of other accounts; receives the admin notifications (`admin.*`), each admin chooses them on the notification settings page. Must set up two-factor authentication when `app.security.two_factor.required_for_admins` is on ([authentication.md](../04-features/user/authentication.md#two-factor-authentication)) |
 | `ROLE_REVIEW_INDICATIONS` | Indication raw review worklist |
 | `ROLE_ENCOUNTER_BETA` | Participation in the encounter data pilot: the encounter tools under `/tools` (review, validation, data preparation), the encounter analysis and the encounter grant pages. Inherited by `ROLE_ADMIN`. The role itself grants no case access. Assign it on the user in EasyAdmin. |
 | `ROLE_ENCOUNTER_CATALOG_REVIEWER` | Review of the matcher's plausibility table (#1153, [ADR 033](decisions/033-learning-plausibility-table.md)) as the tool `/tools/encounter-plausibility` ([ADR 031](decisions/031-tools-section-and-tool-registry.md)): edit the curated problem areas, review snapshots, activate and retire them, run the learning job and read its reports (#1155). Needs `ROLE_ENCOUNTER_BETA` as well; grants no case access. Inherited by `ROLE_ADMIN`. Maintenance of the MTS catalog itself stays with `ROLE_ADMIN` ([ADR 032](decisions/032-mts-catalog-as-maintained-data.md)). |

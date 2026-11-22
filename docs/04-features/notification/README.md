@@ -35,6 +35,7 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | `hospital_assignment.decided` | Account | in-app, email | the requester | an administrator approves or rejects their hospital assignment request |
 | `hospital_assignment.ownership_transferred` | Account | in-app, email | the previous owner | an approved request transfers the ownership of their hospital; says whether they keep full access |
 | `participation.activated` | Account | in-app, toast, email (mandatory: the welcome mail) | the activated user | an administrator activates participation |
+| `security.two_factor_reset` | Account | in-app, email (mandatory) | the user | an administrator or an operator resets two-factor authentication (#1357) |
 | `admin.user_registered` | Administration | in-app, email | all admins (each chooses in the settings) | a user registers |
 | `admin.import_failed` | Administration | in-app, email | all admins (each chooses in the settings) | an import run ends as failed (text from the reason code) |
 | `admin.feedback_received` | Administration | in-app, email | all admins (each chooses in the settings) | someone sends feedback that is not quarantined ([feedback](../feedback/README.md#submission-flow)) |
