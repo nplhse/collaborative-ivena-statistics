@@ -88,6 +88,10 @@ final class BlogControllerTest extends WebTestCase
         self::assertSame('Pinned announcement', trim($crawler->filter('.page-body .col-lg-8 h2')->first()->text()));
         self::assertSelectorTextContains('[data-testid="blog-post-pinned"]', 'Pinned');
         self::assertCount(1, $crawler->filter('[data-testid="blog-post-pinned"]'));
+
+        // The sidebar lists only the newest posts, without pinning.
+        $sidebar = $crawler->filter('.page-body .col-lg-4 .list-group-item')->each(static fn (Crawler $node): string => trim($node->text()));
+        self::assertSame(['Recent news', 'Pinned announcement'], \array_slice($sidebar, 0, 2));
     }
 
     public function testIndexSupportsPagination(): void

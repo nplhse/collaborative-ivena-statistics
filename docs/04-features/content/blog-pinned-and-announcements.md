@@ -9,11 +9,11 @@ independent of each other: pinning sends nothing, announcing does not pin.
   pinned until an administrator unpins it.
 - Order: pinned posts first, then by publication date (several pinned posts among themselves by date), on
   - the blog start page (`PostRepository::publishedQuery()`),
-  - the latest-posts lists of the dashboard, the blog sidebar and the page sidebar
-    (`findPublishedForIndex($limit, pinnedFirst: true)`).
-- Category and tag pages, RSS and the XML sitemap keep the plain date order.
+  - the dashboard's blog card (`findPublishedForIndex($limit, pinnedFirst: true)`).
+- The "latest posts" in the blog and page sidebars list only the newest posts by date, without pinning; so do category
+  and tag pages, RSS and the XML sitemap.
 - Marking: a "Pinned" badge and a primary border on the blog start page; a pin icon (with a visually hidden "Pinned"
-  label) in the latest-posts lists.
+  label) in the dashboard's blog card.
 - Only visible posts count: a pinned draft or a post with a future publication date stays hidden.
 
 ## Announcements

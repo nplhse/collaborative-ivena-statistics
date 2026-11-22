@@ -81,8 +81,8 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
     }
 
     /**
-     * Published posts by publication date; with $pinnedFirst pinned posts come first (latest-posts lists, #1486).
-     * RSS and the sitemap keep the plain date order.
+     * Published posts by publication date; with $pinnedFirst pinned posts come first (dashboard blog card, #1486).
+     * The sidebars, RSS and the sitemap keep the plain date order.
      *
      * @return list<Post>
      */

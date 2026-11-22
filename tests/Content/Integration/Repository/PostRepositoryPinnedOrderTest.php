@@ -15,8 +15,8 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Pinned posts stand first on the blog start page and in the latest-posts lists (#1486); RSS, sitemap and category
- * pages keep the date order. Now is 2026-11-22 12:00.
+ * Pinned posts stand first on the blog start page and in the dashboard's blog card (#1486); the sidebars, RSS, the
+ * sitemap and category pages keep the date order. Now is 2026-11-22 12:00.
  */
 #[ResetDatabase]
 final class PostRepositoryPinnedOrderTest extends KernelTestCase
@@ -46,13 +46,13 @@ final class PostRepositoryPinnedOrderTest extends KernelTestCase
         self::assertSame(['Older pinned', 'Newest', 'Middle'], $this->titles($posts));
     }
 
-    public function testLatestPostsListPinnedPostsFirstOnRequest(): void
+    public function testDashboardCardListsPinnedPostsFirst(): void
     {
         self::assertSame(['Older pinned', 'Newest', 'Middle'], $this->titles($this->repository()->findPublishedForIndex(5, pinnedFirst: true)));
         self::assertSame(['Older pinned', 'Newest'], $this->titles($this->repository()->findPublishedForIndex(2, pinnedFirst: true)));
     }
 
-    public function testDateOrderStaysForFeedsAndCategories(): void
+    public function testDateOrderStaysForSidebarsFeedsAndCategories(): void
     {
         self::assertSame(['Newest', 'Middle', 'Older pinned'], $this->titles($this->repository()->findPublishedForIndex()));
 
