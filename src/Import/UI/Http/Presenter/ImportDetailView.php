@@ -22,6 +22,11 @@ final readonly class ImportDetailView
         public array $recordActions,
         public ImportCoverageView $coverage,
         public ?ImportTypeDetailSection $typeSection = null,
+        /**
+         * Whether duplicates were discarded or replaced an earlier row; only allocation imports decide that per row.
+         * Encounter imports skip known visits, so they show only the number of duplicates (#1418).
+         */
+        public bool $showsDeduplicationBreakdown = false,
     ) {
     }
 }

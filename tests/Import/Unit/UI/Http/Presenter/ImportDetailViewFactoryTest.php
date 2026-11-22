@@ -24,6 +24,7 @@ final class ImportDetailViewFactoryTest extends TestCase
         self::assertSame('label.import.type.allocation', $view->typeLabel);
         self::assertSame('import.summary.allocations_imported:1245', $view->importedRecordsLabel);
         self::assertTrue($view->showsDeduplication);
+        self::assertTrue($view->showsDeduplicationBreakdown);
         self::assertSame('import.delete.modal.body:Morning upload', $view->deleteConfirmation);
         self::assertCount(2, $view->recordActions);
         self::assertSame('app_explore_allocation_list?importId=42', $view->recordActions[0]->url);
@@ -40,12 +41,21 @@ final class ImportDetailViewFactoryTest extends TestCase
         self::assertSame('label.import.type.closure', $view->typeLabel);
         self::assertSame('import.summary.closures_imported:382', $view->importedRecordsLabel);
         self::assertFalse($view->showsDeduplication);
+        self::assertFalse($view->showsDeduplicationBreakdown);
         self::assertSame('import.delete.modal.body.closure:Night closures', $view->deleteConfirmation);
         self::assertCount(1, $view->recordActions);
         self::assertSame('import.action.open_closure_analytics', $view->recordActions[0]->label);
         self::assertSame('tabler:calendar-off', $view->recordActions[0]->icon);
         self::assertSame('app_stats_closure_analytics?closureHospitals%5B0%5D=18', $view->recordActions[0]->url);
         self::assertStringNotContainsString('explore', $view->recordActions[0]->url);
+    }
+
+    public function testEncounterProfileShowsDuplicatesWithoutTheAllocationBreakdown(): void
+    {
+        $view = $this->factory()->create($this->import(ImportType::ENCOUNTER, 5, 18, 40, 'Visits'));
+
+        self::assertTrue($view->showsDeduplication, 'known visits are counted as duplicates');
+        self::assertFalse($view->showsDeduplicationBreakdown, 'known visits are skipped, never discarded or replaced (#1418)');
     }
 
     public function testCreateRejectsAnUnpersistedImport(): void
