@@ -661,6 +661,46 @@
         <source>label.settings.login_link</source>
         <target>Anmelden per Link</target>
       </trans-unit>
+      <trans-unit id="SEC01de" resname="title.settings.security">
+        <source>title.settings.security</source>
+        <target>Anmeldung &amp; Sicherheit</target>
+      </trans-unit>
+      <trans-unit id="SEC02de" resname="text.settings.section.security">
+        <source>text.settings.section.security</source>
+        <target>Passwort, Anmelden per Link und Zwei-Faktor-Authentifizierung.</target>
+      </trans-unit>
+      <trans-unit id="SEC03de" resname="text.settings.login_link.active">
+        <source>text.settings.login_link.active</source>
+        <target>Der Anmelde-Link ist aktiv.</target>
+      </trans-unit>
+      <trans-unit id="SEC04de" resname="text.settings.login_link.active_detail">
+        <source>text.settings.login_link.active_detail</source>
+        <target>Auf der Anmeldeseite können Sie sich einen Anmelde-Link an {email} schicken lassen.</target>
+      </trans-unit>
+      <trans-unit id="SEC05de" resname="text.settings.login_link.inactive">
+        <source>text.settings.login_link.inactive</source>
+        <target>Der Anmelde-Link ist deaktiviert.</target>
+      </trans-unit>
+      <trans-unit id="SEC06de" resname="text.settings.login_link.inactive_detail">
+        <source>text.settings.login_link.inactive_detail</source>
+        <target>Sie melden sich mit Ihrem Passwort an.</target>
+      </trans-unit>
+      <trans-unit id="SEC07de" resname="text.settings.section.login_link">
+        <source>text.settings.section.login_link</source>
+        <target>Anmelden mit einem einmaligen Link per E-Mail.</target>
+      </trans-unit>
+      <trans-unit id="SEC08de" resname="label.settings.password">
+        <source>label.settings.password</source>
+        <target>Passwort</target>
+      </trans-unit>
+      <trans-unit id="SEC10de" resname="label.settings.status_on">
+        <source>label.settings.status_on</source>
+        <target>Aktiv</target>
+      </trans-unit>
+      <trans-unit id="SEC11de" resname="label.settings.status_off">
+        <source>label.settings.status_off</source>
+        <target>Aus</target>
+      </trans-unit>
       <trans-unit id="DeLL01" resname="help.settings.login_link">
         <source>help.settings.login_link</source>
         <target>Wenn aktiviert, können Sie sich auf der Anmeldeseite einen einmaligen Anmelde-Link an Ihre E-Mail-Adresse schicken lassen, statt Ihr Passwort einzugeben. Der Link ist 15 Minuten gültig.</target>

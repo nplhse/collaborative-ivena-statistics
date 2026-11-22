@@ -159,6 +159,40 @@ final class SettingsController extends AbstractController
     }
 
     /**
+     * "Sign-in & security" (#1508): the status of the password, the login link and two-factor authentication, each
+     * with a link to its own page.
+     */
+    #[Route('/settings/security', name: 'app_settings_security', methods: ['GET'])]
+    public function security(): Response
+    {
+        $user = $this->requireUser();
+        $twoFactorAvailable = $this->twoFactorAvailability->isAvailable();
+
+        return $this->render('@User/settings/security.html.twig', [
+            'loginLinkAvailable' => !$this->isGranted(UserRole::ADMIN),
+            'twoFactorAvailable' => $twoFactorAvailable,
+            'twoFactorRecommended' => $twoFactorAvailable
+                && !$user->isTotpAuthenticationEnabled()
+                && $this->twoFactorRecommendation->isRecommendedFor($user),
+        ]);
+    }
+
+    /**
+     * The login link page (#1355, #1508): its status and the switch. Not offered to administrators; they sign in with
+     * their password only.
+     */
+    #[Route('/settings/login-link', name: 'app_settings_login_link_show', methods: ['GET'])]
+    public function loginLinkSettings(): Response
+    {
+        $this->requireUser();
+        if ($this->isGranted(UserRole::ADMIN)) {
+            throw $this->createNotFoundException('Administrators sign in with their password only.');
+        }
+
+        return $this->render('@User/settings/login_link.html.twig');
+    }
+
+    /**
      * Opt-in for the login link (#1355). Not offered to administrators; they sign in with their password only.
      */
     #[Route('/settings/login-link', name: 'app_settings_login_link', methods: ['POST'])]
@@ -191,7 +225,7 @@ final class SettingsController extends AbstractController
             domain: 'user',
         ));
 
-        return $this->redirectToRoute('app_settings_account');
+        return $this->redirectToRoute('app_settings_login_link_show');
     }
 
     #[Route('/settings/email', name: 'app_settings_email')]

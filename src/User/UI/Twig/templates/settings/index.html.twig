@@ -42,7 +42,7 @@
                                                 <span class="d-block text-break">
                                                     <span class="d-block fw-semibold text-body">
                                                         {{ section.labelKey|trans({}, 'user') }}
-                                                        {% if section.key == 'two_factor' and twoFactorRecommended %}
+                                                        {% if section.key == 'security' and twoFactorRecommended %}
                                                             <span class="badge bg-yellow-lt ms-1" data-testid="settings-two-factor-recommended">{{ 'label.settings.two_factor_recommended'|trans({}, 'user') }}</span>
                                                         {% endif %}
                                                     </span>

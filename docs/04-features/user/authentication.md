@@ -22,13 +22,23 @@ Users sign in on `/login` with their **username or email address** and their pas
   `message.login.email_switch_notice` elsewhere). Administrators can find accounts without a verified email with the
   "Email verified" filter in the user list.
 
+## Settings: Sign-in & security
+
+"Sign-in & security" (`/settings/security`, #1508) is an area of the user settings with three pages below it: the
+password (`/settings/password`), the login link (`/settings/login-link`, not for administrators) and two-factor
+authentication (`/settings/two-factor`, where it is available). Its own page lists the three with their status (on /
+off, "recommended" for two-factor authentication) and links to each page. `SettingsNavigationExtension` defines the
+area and its sub-items for the overview tiles and the settings navigation.
+
 ## Login link
 
 Users can sign in with a one-time link sent by email instead of their password (#1355). Every account keeps its
 password; `/login/confirm` (re-authentication) always asks for it.
 
-- **Opt-in:** `User::$loginLinkEnabled` (column `login_link_enabled`, default off), switched on in the account settings
-  (`POST /settings/login-link`, needs `IS_AUTHENTICATED_FULLY`). The settings recommend two-factor authentication
+- **Opt-in:** `User::$loginLinkEnabled` (column `login_link_enabled`, default off), switched on its own settings page
+  below "Sign-in & security" (`GET /settings/login-link`, #1508; `POST /settings/login-link`, needs
+  `IS_AUTHENTICATED_FULLY`). The page shows the status prominently (badge and status row) and recommends two-factor
+  authentication
   ([below](#two-factor-authentication)) next to the switch, without requiring it, when it is available. Administrators do not get the option and cannot use a link:
   `User::isLoginLinkAllowed()` is false for `ROLE_ADMIN`.
 - **Request:** `/login/link` (own page) and the second button of the login form ("Send me a sign-in link", posts
@@ -75,8 +85,10 @@ Users can protect their account with a six-digit code from an authenticator app 
 - **Secret storage:** `user.totp_secret_encrypted`, encrypted with `APP_TWO_FACTOR_KEY` (`TwoFactorSecretCipher`,
   libsodium) and decrypted after loading (`TwoFactorSecretLoader`); the decrypted secret is never serialized into the
   session.
-- **Recommended** for hospital owners and users with an import grant: the settings overview marks the tile
-  (`TwoFactorRecommendationQuery`).
+- **Recommended** for administrators without two-factor authentication: the settings overview marks the "Sign-in &
+  security" tile and its overview page the two-factor row (`TwoFactorRecommendationQuery`). Until #1508 hospital owners
+  and users with an import grant were marked too; as they are most of the members, the recommendation is limited to
+  administrators for now and the wider group is evaluated later.
 - **Obligation for administrators:** `app.security.two_factor.required_for_admins` in `config/packages/app.yaml`
   (default `false`, forced off in dev and demo). When on and the feature is available, `RequireTwoFactorListener` sends
   administrators without it to `/settings/two-factor` on every page load (other requests get a 403) and they cannot

@@ -1,0 +1,76 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'label.settings.login_link'|trans({}, 'user') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'title.settings', path: path('app_settings_index') },
+                { label: 'title.settings.security', label_domain: 'user', path: path('app_settings_security') },
+                { label: 'label.settings.login_link', label_domain: 'user' },
+            ]"
+        />
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'label.settings.login_link'|trans({}, 'user') }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_body %}
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="row g-0">
+                    {{ include('@User/settings/_sidebar.html.twig', {active: 'login_link'}) }}
+                    <div class="col-12 col-md-9 d-flex flex-column">
+                        {% set login_link_on = app.user.loginLinkEnabled %}
+                        <div class="card-header">
+                            <h3 class="card-title">{{ 'label.settings.login_link'|trans({}, 'user') }}</h3>
+                            <div class="card-actions">
+                                <span class="badge {{ login_link_on ? 'bg-green text-green-fg' : 'bg-secondary-lt' }}" data-test="login-link-status">
+                                    {{ (login_link_on ? 'label.settings.login_link_on' : 'label.settings.login_link_off')|trans({}, 'user') }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body flex-grow-1" data-test="login-link-setting">
+                            <div class="d-flex align-items-center gap-3 mb-3" data-test="login-link-state">
+                                <span class="avatar avatar-md {{ login_link_on ? 'bg-green-lt' : 'bg-secondary-lt' }}" aria-hidden="true">
+                                    <twig:ux:icon :name="login_link_on ? 'tabler:mail-check' : 'tabler:mail'" class="icon icon-lg" />
+                                </span>
+                                <div>
+                                    <div class="fw-bold">{{ (login_link_on ? 'text.settings.login_link.active' : 'text.settings.login_link.inactive')|trans({}, 'user') }}</div>
+                                    <div class="text-secondary">
+                                        {{ login_link_on
+                                            ? 'text.settings.login_link.active_detail'|trans({email: app.user.email}, 'user')
+                                            : 'text.settings.login_link.inactive_detail'|trans({}, 'user') }}
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-secondary">{{ 'help.settings.login_link'|trans({}, 'user') }}</p>
+                            {% if two_factor_available() and not app.user.totpAuthenticationEnabled %}
+                                {# A real hint, not dismissible: the link is only as safe as the mailbox (#1508). #}
+                                <twig:Alert type="info" class="mb-0" data-test="login-link-two-factor-hint">
+                                    {{ 'help.settings.login_link_2fa'|trans({}, 'user') }}
+                                    <a href="{{ path('app_settings_two_factor') }}" class="alert-link">{{ 'label.settings.two_factor_set_up'|trans({}, 'user') }}</a>
+                                </twig:Alert>
+                            {% endif %}
+                        </div>
+                        {# The switch sits in the card footer, like the save button of the password page: green on, red off. #}
+                        <form method="post" action="{{ path('app_settings_login_link') }}" class="card-footer d-flex justify-content-end">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('settings_login_link') }}">
+                            <input type="hidden" name="enabled" value="{{ login_link_on ? '0' : '1' }}">
+                            <button class="btn {{ login_link_on ? 'btn-danger' : 'btn-success' }}" type="submit" data-test="login-link-switch">
+                                {{ (login_link_on ? 'label.settings.login_link_disable' : 'label.settings.login_link_enable')|trans({}, 'user') }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
