@@ -260,7 +260,9 @@ The project follows Gitflow with `main` as the default branch ([ADR 024](../02-a
 
 Release `0.3-beta` as an example. Every step on the release branch is a pull request into `release/0.3-beta`; the branch only takes fixes, version and docs, no new features.
 
-1. **Milestone:** no open issues or pull requests left in the milestone; move what does not make it.
+1. **Milestone:** no open issues or pull requests left in the milestone; move what does not make it. Check that the
+   ["What's new for you" card](../04-features/onboarding/whats-new.md#adding-a-release) lists the release's
+   user-facing features and its migration records the installation, or that the release deliberately has no card.
 2. **Branch:** create `release/0.3-beta` from `origin/develop` and push it.
 3. **Version:** set `APP_VERSION` in `src/Kernel.php` to `v0.3-beta`. It feeds the footer, the health check and the Sentry release.
 4. **Changelog:** write the `## [0.3-beta] - <date>` section ([Changelog](#changelog)), with a short summary and, if needed, a link to the upgrade guide.

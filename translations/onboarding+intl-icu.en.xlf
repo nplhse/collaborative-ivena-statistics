@@ -113,6 +113,66 @@
         <source>onboarding.request_status.rejected</source>
         <target>Rejected</target>
       </trans-unit>
+      <trans-unit id="WhatsNewEn01" resname="whats_new.card.title">
+        <source>whats_new.card.title</source>
+        <target>What’s new for you</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn02" resname="whats_new.card.intro">
+        <source>whats_new.card.intro</source>
+        <target>The latest update brings a few things that matter to you.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn03" resname="whats_new.card.dismiss">
+        <source>whats_new.card.dismiss</source>
+        <target>Got it, hide</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn04" resname="whats_new.items.display_name.missing.title">
+        <source>whats_new.items.display_name.missing.title</source>
+        <target>Choose a display name</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn05" resname="whats_new.items.display_name.missing.description">
+        <source>whats_new.items.display_name.missing.description</source>
+        <target>Others see a display name instead of your username, for example in comments and activities.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn06" resname="whats_new.items.display_name.missing.action">
+        <source>whats_new.items.display_name.missing.action</source>
+        <target>Set display name</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn07" resname="whats_new.items.display_name.set.title">
+        <source>whats_new.items.display_name.set.title</source>
+        <target>Your display name: {name}</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn08" resname="whats_new.items.display_name.set.description">
+        <source>whats_new.items.display_name.set.description</source>
+        <target>Others now see this name instead of your username. You can change it at any time.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn09" resname="whats_new.items.display_name.set.action">
+        <source>whats_new.items.display_name.set.action</source>
+        <target>Change display name</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn10" resname="whats_new.items.my_hospitals.title">
+        <source>whats_new.items.my_hospitals.title</source>
+        <target>My Hospitals as an overview</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn11" resname="whats_new.items.my_hospitals.description">
+        <source>whats_new.items.my_hospitals.description</source>
+        <target>See at a glance which data your hospitals have contributed and where months are missing.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn12" resname="whats_new.items.my_hospitals.action">
+        <source>whats_new.items.my_hospitals.action</source>
+        <target>Open My Hospitals</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn13" resname="whats_new.items.settings_overview.title">
+        <source>whats_new.items.settings_overview.title</source>
+        <target>All settings in one place</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn14" resname="whats_new.items.settings_overview.description">
+        <source>whats_new.items.settings_overview.description</source>
+        <target>Profile, sign-in and notifications: choose which notifications you receive and how.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn15" resname="whats_new.items.settings_overview.action">
+        <source>whats_new.items.settings_overview.action</source>
+        <target>Open settings</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

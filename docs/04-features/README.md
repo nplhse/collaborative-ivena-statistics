@@ -11,7 +11,7 @@
 | [import/](import/) | CSV import pipeline, requeue, reject analysis, reference catalog |
 | [statistics/](statistics/) | Projection, explorer, data quality, dashboards |
 | [allocation/](allocation/) | Allocation exploration, indication normalization |
-| [onboarding/](onboarding/) | Participant onboarding checklist |
+| [onboarding/](onboarding/) | Participant onboarding checklist, "What's new for you" card |
 | [content/](content/) | Pages, translations, home dashboard overview |
 | [feedback/](feedback/) | Feedback widget, spam protection, quarantine |
 | [kpi/](kpi/) | Daily KPI aggregation |
