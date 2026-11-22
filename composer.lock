@@ -1524,8 +1524,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-17T07:22:19+00:00",
-            "published-time": "2026-11-17T07:23:09+00:00"
+            "time": "2026-11-17T07:22:19+00:00"
         },
         {
             "name": "egulias/email-validator",
@@ -6705,16 +6704,16 @@
         },
         {
             "name": "symfony/polyfill-php85",
-            "version": "v1.43.0",
+            "version": "v1.44.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php85.git",
-                "reference": "86a42cbcc07adc331481a5ab310a4024bfc227f6"
+                "reference": "94c794cb5ba51784bc259f11e9f128593297d8dc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php85/zipball/86a42cbcc07adc331481a5ab310a4024bfc227f6",
-                "reference": "86a42cbcc07adc331481a5ab310a4024bfc227f6",
+                "url": "https://api.github.com/repos/symfony/polyfill-php85/zipball/94c794cb5ba51784bc259f11e9f128593297d8dc",
+                "reference": "94c794cb5ba51784bc259f11e9f128593297d8dc",
                 "shasum": ""
             },
             "require": {
@@ -6761,7 +6760,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php85/tree/v1.43.0"
+                "source": "https://github.com/symfony/polyfill-php85/tree/v1.44.0"
             },
             "funding": [
                 {
@@ -6781,7 +6780,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-25T15:46:47+00:00"
+            "time": "2026-10-30T15:20:09+00:00"
         },
         {
             "name": "symfony/polyfill-php86",
@@ -13081,8 +13080,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-03T12:14:22+00:00",
-            "published-time": "2026-11-03T12:14:36+00:00"
+            "time": "2026-11-03T12:14:22+00:00"
         },
         {
             "name": "phpstan/phpstan-doctrine",
@@ -17860,16 +17858,16 @@
         },
         {
             "name": "zenstruck/foundry",
-            "version": "v2.16.0",
+            "version": "v2.17.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zenstruck/foundry.git",
-                "reference": "29199b9a8363af0f96daaf3ade8fff191fd63952"
+                "reference": "af9a39400231bf92ea128235b81b30c2287443ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zenstruck/foundry/zipball/29199b9a8363af0f96daaf3ade8fff191fd63952",
-                "reference": "29199b9a8363af0f96daaf3ade8fff191fd63952",
+                "url": "https://api.github.com/repos/zenstruck/foundry/zipball/af9a39400231bf92ea128235b81b30c2287443ba",
+                "reference": "af9a39400231bf92ea128235b81b30c2287443ba",
                 "shasum": ""
             },
             "require": {
@@ -17972,7 +17970,7 @@
             ],
             "support": {
                 "issues": "https://github.com/zenstruck/foundry/issues",
-                "source": "https://github.com/zenstruck/foundry/tree/v2.16.0"
+                "source": "https://github.com/zenstruck/foundry/tree/v2.17.0"
             },
             "funding": [
                 {
@@ -17984,7 +17982,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-09T12:40:49+00:00"
+            "time": "2026-11-18T11:18:19+00:00"
         }
     ],
     "aliases": [],
@@ -18001,5 +17999,5 @@
         "ext-iconv": "*"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.11.0"
+    "plugin-api-version": "2.9.0"
 }
