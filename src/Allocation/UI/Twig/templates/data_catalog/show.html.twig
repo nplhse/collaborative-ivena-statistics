@@ -49,12 +49,22 @@
         </nav>
 
         {% for group in object.groups %}
-            <section class="card mb-3" id="{{ group.anchor }}" data-testid="data-catalog-group" data-group-key="{{ group.key }}">
+            <section class="card mb-3 data-catalog-group" id="{{ group.anchor }}" data-testid="data-catalog-group" data-group-key="{{ group.key }}">
                 <div class="card-header">
                     <h3 class="card-title">{{ group.labelKey|trans({}, object.domain) }}</h3>
+                    <div class="card-actions">
+                        <a href="#top" data-turbo="false" class="btn btn-sm btn-ghost-secondary btn-icon" title="{{ 'data_catalog.back_to_top'|trans({}, 'allocation') }}" aria-label="{{ 'data_catalog.back_to_top'|trans({}, 'allocation') }}" data-testid="data-catalog-back-to-top">
+                            <twig:ux:icon name="tabler:arrow-up" class="icon" />
+                        </a>
+                    </div>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-vcenter card-table">
+                    <table class="table table-vcenter card-table data-catalog-table">
+                        <colgroup>
+                            <col>
+                            <col class="data-catalog-table__type">
+                            <col class="data-catalog-table__values">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>{{ 'data_catalog.column.variable'|trans({}, 'allocation') }}</th>

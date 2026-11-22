@@ -8,13 +8,15 @@ use App\Allocation\Application\DTO\DataCatalog\CatalogCode;
 use App\Allocation\Application\DTO\DataCatalog\CatalogGroup;
 use App\Allocation\Application\DTO\DataCatalog\CatalogObject;
 use App\Allocation\Application\DTO\DataCatalog\CatalogVariable;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ToOneOwningSideMapping;
 
 /**
  * Reads table, column, type, nullability, codes and reference targets of documented variables from
- * the Doctrine mapping. Loading class metadata runs no database query.
+ * the Doctrine mapping. Loading class metadata runs no database query. The enum of a code set (a JSON
+ * list of codes) is named by the definition, because the mapping cannot provide it.
  */
 final readonly class DataCatalogMetadataResolver
 {
@@ -61,11 +63,17 @@ final readonly class DataCatalogMetadataResolver
             if ($metadata->hasField($path)) {
                 $field = $metadata->getFieldMapping($path);
                 $enum = $field->enumType;
+                $type = DataCatalogType::fromDoctrine($field->type, null !== $enum);
+
+                if (null !== $variable->codeSetEnum) {
+                    $enum = $this->codeSetEnum($variable, $field->type);
+                    $type = DataCatalogType::CODE_SET;
+                }
 
                 return new CatalogVariable(
                     $variable->key,
                     $domain,
-                    DataCatalogType::fromDoctrine($field->type, null !== $enum),
+                    $type,
                     $nullable || true === $field->nullable,
                     $metadata->getTableName(),
                     $field->columnName,
@@ -99,6 +107,23 @@ final readonly class DataCatalogMetadataResolver
 
             $metadata = $target;
         }
+    }
+
+    /**
+     * @return class-string<\BackedEnum>
+     */
+    private function codeSetEnum(VariableDefinition $variable, string $columnType): string
+    {
+        $enum = (string) $variable->codeSetEnum;
+        if (!is_a($enum, \BackedEnum::class, true)) {
+            throw new \LogicException(sprintf('Data catalog variable "%s": code set enum "%s" is no backed enum.', $variable->key, $enum));
+        }
+
+        if (Types::JSON !== $columnType) {
+            throw new \LogicException(sprintf('Data catalog variable "%s": a code set needs a JSON column, "%s" is mapped as %s.', $variable->key, $variable->property, $columnType));
+        }
+
+        return $enum;
     }
 
     /**

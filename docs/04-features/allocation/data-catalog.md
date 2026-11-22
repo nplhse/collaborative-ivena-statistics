@@ -31,7 +31,7 @@ the catalog, as a small code line per variable, because they describe structure,
 
 Left out on purpose: owners, audit fields (created/updated by), the import reference, the encounter case key
 and key generation (pseudonyms for matching), the user who set an encounter assignment, the ED visit uid and
-fingerprint, and the ED isolation codes (a JSON code set, which the catalog cannot describe yet).
+fingerprint.
 
 ## Variables
 
@@ -44,9 +44,9 @@ import references stay out unless chosen on purpose.
 | Group | Curated (`time`, `patient`, `urgency`, `clinical`, `resources`, `transport`, `destination`, `context`, `geography`, …) |
 | Label and description | Translation keys `data_catalog.variable.<key>.label` / `.description` in the object's domain, EN and DE |
 | Table and column | Doctrine mapping; embedded fields (`times.arrivedAt`) and to-one paths (`assessment.airway`) resolve to their own table and column |
-| Type | Doctrine type: integer, decimal, date/time, boolean, code (enum), text, reference (to-one association) |
+| Type | Doctrine type: integer, decimal, date/time, boolean, code (enum), text, reference (to-one association); code set (several codes per record, stored as a JSON list) when the definition names its enum |
 | May be missing | Doctrine nullability; a path through an optional association is nullable |
-| Codes | `Enum::cases()`; labels from the enum's `label()` key (`CodeLabels::fromEnumLabel($domain)`) or a key prefix, the code and an optional suffix (`CodeLabels::prefixed($prefix, $domain, $suffix)`) |
+| Codes | `Enum::cases()` of the column's `enumType`, or of the definition's `codeSetEnum` for a code set; labels from the enum's `label()` key (`CodeLabels::fromEnumLabel($domain)`) or a key prefix, the code and an optional suffix (`CodeLabels::prefixed($prefix, $domain, $suffix)`) |
 | Range | Curated `ValueRange` (min, max, unit key), only where the code already defines a domain range: the import validation of the age (1–99) for allocations and MCI cases, the `Encounter` constructor for encounters, the exchange-format field contract (`EdVisitDimension`) for ED visit pain score and vital signs. The unit key is translated in the object's domain |
 | Reference target | Doctrine target entity; linked to its catalog entry when that object is documented and visible, otherwise its table is named |
 
@@ -56,6 +56,9 @@ both in the object's domain. Type, column and status labels (`data_catalog.type.
 ## Add a stored variable
 
 1. Add a `VariableDefinition` to the object's contributor (for Allocation `AllocationDataCatalogContributor`).
+   For a code set stored as a JSON list (`ed_visit.isolation`, #1443) name its backed enum with
+   `codeSetEnum`, because a JSON column has no `enumType`; the resolver rejects a class that is no backed
+   enum and a code set on a column that is not JSON.
 2. Add label and description in EN and DE in the object's translation domain.
 3. Run `DataCatalogMetadataTest`: it resolves every variable against the mapping and checks the translations.
 

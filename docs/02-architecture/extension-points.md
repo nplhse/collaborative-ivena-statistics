@@ -214,7 +214,7 @@ gated by `ENCOUNTER_VIEW_CASES_IN_ANY_HOSPITAL`, #1415; contributors live in
 
 Each context documents the stored fields of its data objects through the same interface, the core
 included. A `DataObjectDefinition` names the entity, translation domain, icon, groups of
-`VariableDefinition`s (stable key, mapped property, optional range and code labels), whether a plugin
+`VariableDefinition`s (stable key, mapped property, optional range, code labels and code-set enum), whether a plugin
 contributes it, and an optional granted attribute. Table, column, type, nullability, enum codes and
 reference targets come from the Doctrine mapping. Rules and translation keys:
 [data-catalog.md](../04-features/allocation/data-catalog.md).

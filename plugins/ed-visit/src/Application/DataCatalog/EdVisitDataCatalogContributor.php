@@ -14,12 +14,13 @@ use App\Encounter\Application\Security\EncounterAttribute;
 use App\Encounter\Contract\Schema\EncounterField;
 use Cois\Plugin\EdVisit\Application\Dimension\EdVisitDimension;
 use Cois\Plugin\EdVisit\Domain\Entity\EdVisit;
+use Cois\Plugin\EdVisit\Domain\Enum\IsolationCode;
 
 /**
  * The ED visit in the Explore data catalog (#1415), shown only to users who may see cases of any hospital.
  * Ranges come from the field contract of the exchange format (EdVisitDimension), so the catalog and the import
- * check the same limits. Left out on purpose: the visit uid and fingerprint, the key generation, the import,
- * the hospital (on the encounter) and the isolation codes (a JSON code set the catalog cannot describe yet).
+ * check the same limits. Left out on purpose: the visit uid and fingerprint, the key generation, the import and
+ * the hospital (on the encounter). The isolation codes are a JSON code set, so their enum is named here (#1443).
  */
 final readonly class EdVisitDataCatalogContributor implements DataCatalogContributorInterface
 {
@@ -93,6 +94,7 @@ final readonly class EdVisitDataCatalogContributor implements DataCatalogContrib
                 new VariableGroupDefinition('context', [
                     new VariableDefinition('ed_visit.work_accident', 'workAccident'),
                     new VariableDefinition('ed_visit.tetanus_protected', 'tetanusProtected'),
+                    new VariableDefinition('ed_visit.isolation', 'isolation', codeLabels: CodeLabels::prefixed('encounter.visit.isolation.', self::DOMAIN), codeSetEnum: IsolationCode::class),
                 ]),
             ], contributedByPlugin: true, grantedAttribute: EncounterAttribute::VIEW_CASES_IN_ANY_HOSPITAL),
         ];

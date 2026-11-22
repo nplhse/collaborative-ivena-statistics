@@ -1549,6 +1549,10 @@
         <source>data_catalog.groups</source>
         <target>Gruppen</target>
       </trans-unit>
+      <trans-unit id="dcDe185" resname="data_catalog.back_to_top">
+        <source>data_catalog.back_to_top</source>
+        <target>Nach oben</target>
+      </trans-unit>
       <trans-unit id="dcDe008" resname="data_catalog.column.variable">
         <source>data_catalog.column.variable</source>
         <target>Variable</target>
@@ -1616,6 +1620,10 @@
       <trans-unit id="dcDe024" resname="data_catalog.type.reference">
         <source>data_catalog.type.reference</source>
         <target>Verweis</target>
+      </trans-unit>
+      <trans-unit id="dcDe184" resname="data_catalog.type.code_set">
+        <source>data_catalog.type.code_set</source>
+        <target>Code-Menge</target>
       </trans-unit>
       <trans-unit id="dcDe025" resname="data_catalog.group.identification">
         <source>data_catalog.group.identification</source>
