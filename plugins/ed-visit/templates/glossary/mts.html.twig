@@ -37,7 +37,6 @@
                 <table class="table table-vcenter card-table mb-0">
                     <thead>
                         <tr>
-                            <th class="w-1">{{ 'catalog.glossary.column.code'|trans({}, 'allocation') }}</th>
                             <th>{{ 'encounter.mts.column.colour'|trans({}, 'encounter') }}</th>
                             <th>{{ 'catalog.glossary.column.label'|trans({}, 'allocation') }}</th>
                             <th>{{ 'encounter.mts.column.target'|trans({}, 'encounter') }}</th>
@@ -49,12 +48,14 @@
                     <tbody>
                         {% for row in categories %}
                             <tr data-testid="mts-category" data-code="{{ row.category.value }}">
-                                <td><code>{{ row.category.value }}</code></td>
                                 <td>
                                     <span class="badge bg-{{ row.category.value }} me-1"></span>
                                     {{ ('encounter.mts.category.' ~ row.category.value ~ '.colour')|trans({}, 'encounter') }}
                                 </td>
-                                <td>{{ ('encounter.mts.category.' ~ row.category.value ~ '.name')|trans({}, 'encounter') }}</td>
+                                <td>
+                                    {{ ('encounter.mts.category.' ~ row.category.value ~ '.name')|trans({}, 'encounter') }}
+                                    <div class="mt-1">{{ include('@EdVisit/glossary/_code_badge.html.twig', {code: row.category.value}) }}</div>
+                                </td>
                                 <td>{{ 'encounter.mts.target_minutes'|trans({minutes: row.category.physicianContactTargetMinutes}, 'encounter') }}</td>
                                 {% if has_counts %}
                                     <td class="text-end" data-testid="mts-count">{{ include('@EdVisit/glossary/_count.html.twig', {count: row.count}) }}</td>

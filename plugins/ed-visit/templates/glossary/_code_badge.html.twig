@@ -1,0 +1,3 @@
+{# The code of an MTS glossary row as a neutral badge below its name (#1509). Expects `code`. #}
+{# Words stay whole: a long code wraps only after an underscore. The code is escaped first. #}
+<span class="badge bg-secondary-lt font-monospace text-wrap text-start mw-100" data-testid="mts-code">{{ code|e|replace({_: '_<wbr>'})|raw }}</span>

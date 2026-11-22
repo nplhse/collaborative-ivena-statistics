@@ -88,6 +88,16 @@ final class MtsGlossaryControllerTest extends WebTestCase
         self::assertCount(70, $crawler->filter('[data-testid="mts-indicator"]'));
         self::assertSelectorTextContains('[data-testid="mts-category"][data-code="orange"]', '10 minutes');
         self::assertSelectorTextContains('[data-testid="mts-category"][data-code="blue"]', '120 minutes');
+        // #1509: no separate code column; every row shows its code in one piece as a badge below the name.
+        self::assertCount(0, $crawler->filter('table th')->reduce(static fn (Crawler $th): bool => 'Code' === trim($th->text())));
+        foreach (['mts-category', 'mts-diagram', 'mts-indicator'] as $testid) {
+            $rows = $crawler->filter(sprintf('[data-testid="%s"]', $testid));
+            self::assertSame(
+                $rows->each(static fn (Crawler $row): string => (string) $row->attr('data-code')),
+                $rows->each(static fn (Crawler $row): string => trim($row->filter('[data-testid="mts-code"]')->text())),
+                $testid,
+            );
+        }
         self::assertSelectorExists('[data-testid="mts-counts-none"]');
         self::assertSelectorNotExists('[data-testid="mts-count"]');
 
