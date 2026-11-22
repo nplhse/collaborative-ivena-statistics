@@ -17,7 +17,7 @@ final readonly class CachedHospitalDataSnapshotReader
 {
     private const int TTL_SECONDS = 86400;
 
-    private const string KEY_PREFIX = 'hospital_data_snapshot.v1.';
+    private const string KEY_PREFIX = 'hospital_data_snapshot.v2.';
 
     public function __construct(
         private HospitalDataSnapshotReaderInterface $reader,

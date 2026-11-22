@@ -12,6 +12,6 @@ enum ImportIssueKind: string
     case Cancelled = 'cancelled';
     /** Completed partially; `amount` = rejected rows. */
     case Rejects = 'rejects';
-    /** Days without records inside the import's period (#778); `amount` = days. */
+    /** Days without records inside the import's period (#778); `amount` = days, `gapDays` and `recordsPerDay` set. */
     case DayGaps = 'day_gaps';
 }

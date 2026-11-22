@@ -47,13 +47,73 @@ final class DataStatusFindingRulesTest extends TestCase
         $snapshot = SnapshotBuilder::snapshot(
             issues: [
                 new ImportIssue(3, ImportIssueKind::Rejects, new \DateTimeImmutable('2026-10-01 12:00:00'), 12),
-                new ImportIssue(4, ImportIssueKind::DayGaps, new \DateTimeImmutable('2026-11-01 12:00:00'), 3),
+                // 10 records a day: a gap of 3 days would have held about 30.
+                new ImportIssue(4, ImportIssueKind::DayGaps, new \DateTimeImmutable('2026-11-01 12:00:00'), 3, [3], 10.0),
             ],
             lastUploadAt: '2026-11-01 12:00:00',
         );
 
-        // Newest first.
-        self::assertSame(['import_day_gaps #4 3', 'import_rejects #3 12'], $this->describe($this->findings($snapshot)));
+        // Rejected rows weigh more than day gaps, although the day gaps are newer.
+        self::assertSame(['import_rejects #3 12', 'import_day_gaps #4 3'], $this->describe($this->findings($snapshot)));
+    }
+
+    /**
+     * Records per day × gap length must reach 5 for a gap to count; the amount sums the days of the gaps that count.
+     *
+     * @return iterable<string, array{list<int>, float, list<string>}>
+     */
+    public static function dayGapCases(): iterable
+    {
+        // 10 a day: 10 × 1 = 10 and 10 × 2 = 20 both reach 5, so 1 + 2 = 3 days.
+        yield 'large hospital, every gap counts' => [[1, 2], 10.0, ['import_day_gaps #4 3']];
+        // 1 a day: 1 × 1, 1 × 2 and 1 × 4 stay below 5.
+        yield 'small hospital, short gaps are normal' => [[1, 2, 4], 1.0, []];
+        // 1 a day: only the 5-day gap reaches 1 × 5 = 5.
+        yield 'small hospital, five days in a row count' => [[1, 2, 5], 1.0, ['import_day_gaps #4 5']];
+        // 2.5 a day: 2.5 × 1 = 2.5 does not count, 2.5 × 2 = 5 does.
+        yield 'two days at 2.5 a day reach the threshold exactly' => [[1, 2], 2.5, ['import_day_gaps #4 2']];
+    }
+
+    /**
+     * @param list<int>    $gapDays
+     * @param list<string> $expected
+     */
+    #[DataProvider('dayGapCases')]
+    public function testDayGapsCountOnlyWhenLongEnoughForTheVolume(array $gapDays, float $recordsPerDay, array $expected): void
+    {
+        $snapshot = SnapshotBuilder::snapshot(
+            issues: [new ImportIssue(4, ImportIssueKind::DayGaps, new \DateTimeImmutable('2026-11-01 12:00:00'), array_sum($gapDays), $gapDays, $recordsPerDay)],
+            lastUploadAt: '2026-11-01 12:00:00',
+        );
+
+        self::assertSame($expected, $this->describe($this->findings($snapshot)));
+    }
+
+    public function testImportHintsAreOrderedByWeightThenNewestFirst(): void
+    {
+        $snapshot = SnapshotBuilder::snapshot(
+            issues: [
+                new ImportIssue(1, ImportIssueKind::Failed, new \DateTimeImmutable('2026-09-01 12:00:00'), 0),
+                new ImportIssue(2, ImportIssueKind::DayGaps, new \DateTimeImmutable('2026-09-10 12:00:00'), 6, [6], 1.0),
+                new ImportIssue(3, ImportIssueKind::Rejects, new \DateTimeImmutable('2026-09-20 12:00:00'), 4),
+                new ImportIssue(4, ImportIssueKind::Cancelled, new \DateTimeImmutable('2026-10-01 12:00:00'), 0),
+                new ImportIssue(5, ImportIssueKind::DayGaps, new \DateTimeImmutable('2026-10-10 12:00:00'), 1, [1], 8.0),
+                new ImportIssue(6, ImportIssueKind::Rejects, new \DateTimeImmutable('2026-10-20 12:00:00'), 2),
+            ],
+            lastUploadAt: '2026-08-31 12:00:00',
+        );
+
+        self::assertSame(
+            [
+                'import_cancelled #4',
+                'import_failed #1',
+                'import_rejects #6 2',
+                'import_rejects #3 4',
+                'import_day_gaps #5 1',
+                'import_day_gaps #2 6',
+            ],
+            $this->describe($this->findings($snapshot)),
+        );
     }
 
     /**

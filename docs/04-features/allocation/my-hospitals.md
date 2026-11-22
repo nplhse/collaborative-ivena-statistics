@@ -106,12 +106,20 @@ hides the gap of a single hospital.
 |------|------|------------|------|
 | Import failed / cancelled | in the last 90 days and no relevant import uploaded later | `IMPORT` | the import |
 | Rejected rows | partial import with rejected rows, last 90 days | `IMPORT` | the import |
-| Days without records | relevant import whose `data_coverage` has gaps, last 90 days | `IMPORT` | the import |
+| Days without records | relevant import whose `data_coverage` has a gap in which the hospital would normally have recorded at least 5 allocations (records per day of the import × gap length ≥ 5), last 90 days; the hint counts the days of those gaps only | `IMPORT` | the import |
 | Not updated | latest allocation more than 90 days before today | `VIEW` | upload (with `IMPORT`), else none |
 | Possible gap | consecutive `missing` months, whole history | `STATISTICS` | the hospital's imports (with `IMPORT`), else none |
 | Volume change | a fully covered month in the twelve-month view differs by more than 50 % from the median of up to 12 earlier fully covered months; needs at least 6 of them | `STATISTICS` | the hospital's statistics |
 
 Partial, missing and current months are never compared, and a peak or a quiet month is not labelled an error.
+
+Days without records depend on the hospital's volume (#1092): records per day are the import's records divided by
+the days of its period. A hospital with 10 allocations a day gets the hint for a single empty day, one with about one
+a day only from five empty days in a row, so small hospitals no longer get it for nearly every import. A finished
+month still counts as `covered` only when imports cover every day of it; there is no tolerance for partial months.
+
+Import hints are ordered by weight, then newest first: failed and cancelled imports, then rejected rows, then days
+without records. The other hints follow in the order of the table.
 
 The hints appear only in the hospital's card (`_my_hospitals_finding.html.twig`): a field with their number ("3
 hints") that expands to the list. They are worded neutrally and are never called errors. A hint about one import
