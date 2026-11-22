@@ -14,6 +14,13 @@ definitions, not data of a hospital.
 | Urgency, transport type, hospital classifications, clinical indicators | `app_explore_glossary_show` (`/explore/glossary/{slug}`) | Allocation | `CatalogGlossaryFactory`, `CatalogGlossarySlug` |
 | Manchester Triage System (MTS): categories, presentation diagrams, indicators | `app_explore_glossary_mts`, `app_explore_glossary_mts_diagram` | Encounter | `MtsCatalog`, `MtsCategory` ([encounter README](../encounter/README.md#mts-glossary)) |
 
+## Links to the data catalog
+
+A catalog variable whose values a glossary page defines names that page with a `GlossaryReference`
+([data-catalog.md](data-catalog.md), #1507). The variable shows "Definitions in the glossary"; the glossary
+page shows "Stored as" with the visible variables per section. Sections that variables point to carry a
+`key` (`CatalogGlossarySection::$key`, e.g. `tier`), which is the anchor of the section.
+
 ## Pages of other contexts
 
 Other contexts add an entry to the glossary hub through `CatalogGlossaryEntryProviderInterface`

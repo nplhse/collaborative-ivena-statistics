@@ -929,6 +929,10 @@
         <source>catalog.glossary.column.code</source>
         <target>Code</target>
       </trans-unit>
+      <trans-unit id="catGlDeStoredAs" resname="catalog.glossary.stored_as">
+        <source>catalog.glossary.stored_as</source>
+        <target>Gespeichert als</target>
+      </trans-unit>
       <trans-unit id="CatGlColLabDe" resname="catalog.glossary.column.label">
         <source>catalog.glossary.column.label</source>
         <target>Bezeichnung</target>
@@ -1572,6 +1576,10 @@
       <trans-unit id="dcDe303" resname="data_catalog.storage_type">
         <source>data_catalog.storage_type</source>
         <target>Spaltentyp in der Datenbank</target>
+      </trans-unit>
+      <trans-unit id="dcDe312" resname="data_catalog.glossary_link">
+        <source>data_catalog.glossary_link</source>
+        <target>Definitionen im Glossar</target>
       </trans-unit>
       <trans-unit id="dcDe304" resname="data_catalog.codes_count">
         <source>data_catalog.codes_count</source>

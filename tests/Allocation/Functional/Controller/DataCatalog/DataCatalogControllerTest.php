@@ -150,6 +150,21 @@ final class DataCatalogControllerTest extends WebTestCase
         self::assertSelectorTextContains('#time-zone-note', "AT TIME ZONE 'Europe/Berlin'");
     }
 
+    public function testClassifiedVariablesLinkToTheirGlossaryDefinition(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/explore/data-catalog/allocation');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('#allocation-urgency a[data-testid="data-catalog-glossary-link"][href="/explore/glossary/urgency"]', 'Definitions in the glossary');
+        self::assertSelectorExists('#allocation-transport-type a[data-testid="data-catalog-glossary-link"][href="/explore/glossary/transport-type"]');
+        self::assertSelectorNotExists('#allocation-age [data-testid="data-catalog-glossary-link"]');
+
+        $client->request(Request::METHOD_GET, '/explore/data-catalog/hospital');
+        self::assertSelectorExists('#hospital-tier a[data-testid="data-catalog-glossary-link"][href="/explore/glossary/hospital-classifications#tier"]');
+        self::assertSelectorExists('#hospital-location a[data-testid="data-catalog-glossary-link"][href="/explore/glossary/hospital-classifications#location"]');
+    }
+
     public function testCodeListsUpToFiveCodesStayOpen(): void
     {
         $client = $this->createClientAsParticipant();

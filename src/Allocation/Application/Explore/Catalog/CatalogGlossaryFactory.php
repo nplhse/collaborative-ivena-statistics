@@ -126,9 +126,9 @@ final readonly class CatalogGlossaryFactory
         return new CatalogGlossaryPage(
             CatalogGlossarySlug::HospitalClassifications,
             [
-                new CatalogGlossarySection('catalog.glossary.section.hospital_tier', $tierTerms),
-                new CatalogGlossarySection('catalog.glossary.section.hospital_size', $sizeTerms),
-                new CatalogGlossarySection('catalog.glossary.section.hospital_location', $locationTerms),
+                new CatalogGlossarySection('catalog.glossary.section.hospital_tier', $tierTerms, key: 'tier'),
+                new CatalogGlossarySection('catalog.glossary.section.hospital_size', $sizeTerms, key: 'size'),
+                new CatalogGlossarySection('catalog.glossary.section.hospital_location', $locationTerms, key: 'location'),
             ],
         );
     }

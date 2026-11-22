@@ -3351,6 +3351,29 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
     overflow-wrap: anywhere;
 }
 
+/* Glossary: every section table uses the same column widths, so the columns line up across sections and
+   pages (#1507). Below the minimum width the table scrolls inside .table-responsive. */
+.glossary-table {
+    table-layout: fixed;
+    min-width: 40rem;
+}
+
+.glossary-table__code {
+    width: 9rem;
+}
+
+.glossary-table__label {
+    width: 25%;
+}
+
+.glossary-table__action {
+    width: 11rem;
+}
+
+.glossary-table td {
+    overflow-wrap: anywhere;
+}
+
 /* KpiCard sparkline (#1239): full width at the bottom of the card, thin and quiet. The SVG is stretched to the
    card width, so the stroke keeps its width with non-scaling-stroke. */
 .sparkline.kpi-sparkline {

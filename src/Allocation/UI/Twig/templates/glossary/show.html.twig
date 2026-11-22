@@ -49,18 +49,33 @@
 {% block page_content %}
     <div data-testid="glossary-detail">
         {% for section in page.sections %}
-            <div class="card mb-3" data-testid="glossary-section">
+            {% set sectionUsages = catalogUsages|filter(usage => usage.section == section.key) %}
+            <div class="card mb-3" data-testid="glossary-section"{% if section.key is not null %} id="{{ section.key }}" data-section-key="{{ section.key }}"{% endif %}>
                 <div class="card-header">
                     <h3 class="card-title">{{ section.titleKey|trans({}, section.titleDomain) }}</h3>
                 </div>
+                {% if sectionUsages is not empty %}
+                    <div class="card-body py-2 small" data-testid="glossary-catalog-usages">
+                        <span class="text-secondary me-1">{{ 'catalog.glossary.stored_as'|trans({}, 'allocation') }}</span>
+                        {% for usage in sectionUsages %}
+                            <a href="{{ path('app_explore_data_catalog_show', {objectKey: usage.objectKey}) }}#{{ usage.variable.anchor }}" class="badge bg-azure-lt text-decoration-none me-1" data-testid="glossary-catalog-usage" data-variable-key="{{ usage.variable.key }}"><twig:ux:icon name="tabler:database" class="me-1" width="1em" height="1em" aria-hidden="true" />{{ usage.objectTitleKey|trans({}, usage.objectDomain) }} · {{ usage.variable.labelKey|trans({}, usage.objectDomain) }}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
                 <div class="table-responsive">
-                    <table class="table table-vcenter card-table mb-0">
+                    <table class="table table-vcenter card-table mb-0 glossary-table">
+                        <colgroup>
+                            <col class="glossary-table__code">
+                            <col class="glossary-table__label">
+                            <col>
+                            <col class="glossary-table__action">
+                        </colgroup>
                         <thead>
                             <tr>
-                                <th class="w-1">{{ 'catalog.glossary.column.code'|trans({}, 'allocation') }}</th>
+                                <th>{{ 'catalog.glossary.column.code'|trans({}, 'allocation') }}</th>
                                 <th>{{ 'catalog.glossary.column.label'|trans({}, 'allocation') }}</th>
                                 <th>{{ 'catalog.glossary.column.definition'|trans({}, 'allocation') }}</th>
-                                <th class="w-1"></th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -73,7 +88,7 @@
                                             {{ term.descriptionKey|trans({}, term.descriptionDomain) }}
                                         {% endif %}
                                     </td>
-                                    <td>
+                                    <td class="text-end">
                                         {% if term.hasFilter %}
                                             <a
                                                 class="btn btn-sm btn-outline-primary"

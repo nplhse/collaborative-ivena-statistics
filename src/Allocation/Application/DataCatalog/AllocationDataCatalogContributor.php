@@ -8,6 +8,7 @@ use App\Allocation\Application\DTO\DataCatalog\ValueRange;
 use App\Allocation\Application\Explore\DataCatalog\CodeLabels;
 use App\Allocation\Application\Explore\DataCatalog\DataCatalogContributorInterface;
 use App\Allocation\Application\Explore\DataCatalog\DataObjectDefinition;
+use App\Allocation\Application\Explore\DataCatalog\GlossaryReference;
 use App\Allocation\Application\Explore\DataCatalog\VariableDefinition;
 use App\Allocation\Application\Explore\DataCatalog\VariableGroupDefinition;
 use App\Allocation\Domain\Entity\Allocation;
@@ -70,7 +71,7 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
                 new VariableDefinition('allocation.is_pregnant', 'isPregnant'),
             ]),
             new VariableGroupDefinition('urgency', [
-                new VariableDefinition('allocation.urgency', 'urgency', codeLabels: $enumLabels),
+                new VariableDefinition('allocation.urgency', 'urgency', codeLabels: $enumLabels, glossary: $this->glossary('urgency')),
             ]),
             new VariableGroupDefinition('clinical', [
                 new VariableDefinition('allocation.indication_raw', 'indicationRaw'),
@@ -91,7 +92,7 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
                 new VariableDefinition('allocation.requires_cathlab', 'requiresCathlab'),
             ]),
             new VariableGroupDefinition('transport', [
-                new VariableDefinition('allocation.transport_type', 'transportType', codeLabels: $enumLabels),
+                new VariableDefinition('allocation.transport_type', 'transportType', codeLabels: $enumLabels, glossary: $this->glossary('transport-type')),
                 new VariableDefinition('allocation.is_with_physician', 'isWithPhysician'),
                 new VariableDefinition('allocation.secondary_transport', 'secondaryTransport'),
             ]),
@@ -133,7 +134,7 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
                 new VariableDefinition('mci_case.is_pregnant', 'isPregnant'),
             ]),
             new VariableGroupDefinition('urgency', [
-                new VariableDefinition('mci_case.urgency', 'urgency', codeLabels: $enumLabels),
+                new VariableDefinition('mci_case.urgency', 'urgency', codeLabels: $enumLabels, glossary: $this->glossary('urgency')),
             ]),
             new VariableGroupDefinition('clinical', [
                 new VariableDefinition('mci_case.indication_raw', 'indicationRaw'),
@@ -148,7 +149,7 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
                 new VariableDefinition('mci_case.requires_cathlab', 'requiresCathlab'),
             ]),
             new VariableGroupDefinition('transport', [
-                new VariableDefinition('mci_case.transport_type', 'transportType', codeLabels: $enumLabels),
+                new VariableDefinition('mci_case.transport_type', 'transportType', codeLabels: $enumLabels, glossary: $this->glossary('transport-type')),
                 new VariableDefinition('mci_case.is_with_physician', 'isWithPhysician'),
             ]),
             new VariableGroupDefinition('destination', [
@@ -177,10 +178,10 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
                 new VariableDefinition('hospital.participating_since', 'participatingSince'),
             ]),
             new VariableGroupDefinition('structure', [
-                new VariableDefinition('hospital.size', 'size', codeLabels: CodeLabels::prefixed('hospital.size.', self::DOMAIN)),
+                new VariableDefinition('hospital.size', 'size', codeLabels: CodeLabels::prefixed('hospital.size.', self::DOMAIN), glossary: $this->glossary('hospital-classifications', 'size')),
                 new VariableDefinition('hospital.beds', 'beds'),
-                new VariableDefinition('hospital.tier', 'tier', codeLabels: CodeLabels::prefixed('hospital.tier.', self::DOMAIN)),
-                new VariableDefinition('hospital.location', 'location', codeLabels: CodeLabels::prefixed('hospital.location.', self::DOMAIN)),
+                new VariableDefinition('hospital.tier', 'tier', codeLabels: CodeLabels::prefixed('hospital.tier.', self::DOMAIN), glossary: $this->glossary('hospital-classifications', 'tier')),
+                new VariableDefinition('hospital.location', 'location', codeLabels: CodeLabels::prefixed('hospital.location.', self::DOMAIN), glossary: $this->glossary('hospital-classifications', 'location')),
             ]),
             new VariableGroupDefinition('geography', [
                 new VariableDefinition('hospital.postal_code', 'address.postalCode'),
@@ -267,5 +268,13 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
         }
 
         return new VariableGroupDefinition('record', $variables);
+    }
+
+    /**
+     * A definition page of the Allocation glossary (`app_explore_glossary_show`, #1507).
+     */
+    private function glossary(string $slug, ?string $section = null): GlossaryReference
+    {
+        return new GlossaryReference('app_explore_glossary_show', ['slug' => $slug], $section);
     }
 }

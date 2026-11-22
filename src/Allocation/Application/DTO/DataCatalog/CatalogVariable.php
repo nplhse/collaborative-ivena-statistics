@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Allocation\Application\DTO\DataCatalog;
 
 use App\Allocation\Application\Explore\DataCatalog\DataCatalogType;
+use App\Allocation\Application\Explore\DataCatalog\GlossaryReference;
 
 final readonly class CatalogVariable
 {
@@ -30,6 +31,7 @@ final readonly class CatalogVariable
         public ?string $referenceObjectKey = null,
         public ?string $referenceObjectDomain = null,
         public ?string $storageType = null,
+        public ?GlossaryReference $glossary = null,
     ) {
     }
 
@@ -69,6 +71,7 @@ final readonly class CatalogVariable
             $objectKey,
             $objectDomain,
             $this->storageType,
+            $this->glossary,
         );
     }
 }
