@@ -3325,3 +3325,28 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
     border-color: var(--tblr-primary);
     box-shadow: 0 0 0 0.2rem rgba(var(--tblr-primary-rgb), 0.25);
 }
+
+/* Data catalog: links to a group or variable stop below the sticky navbar instead of under it. */
+.data-catalog-group,
+.data-catalog-table tr[id] {
+    scroll-margin-top: 5rem;
+}
+
+/* Data catalog: every group table uses the same column widths, so the columns line up across groups.
+   Below the minimum width the table scrolls inside .table-responsive. */
+.data-catalog-table {
+    table-layout: fixed;
+    min-width: 40rem;
+}
+
+.data-catalog-table__type {
+    width: 11rem;
+}
+
+.data-catalog-table__values {
+    width: 35%;
+}
+
+.data-catalog-table td {
+    overflow-wrap: anywhere;
+}
