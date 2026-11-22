@@ -79,10 +79,10 @@ final class PlausibilityLearningControllerTest extends WebTestCase
         $this->assertNoMissingTranslations($this->client->getProfile());
         self::assertSame([(string) $reviewed->getId()], $this->replayHospitals($crawler));
         self::assertSame(['none', 'active', 'draft', 'cross_fitted'], $crawler->filter('[data-test="encounter-plausibility-replay-row"]')->extract(['data-variant']));
-        $content = (string) $this->client->getResponse()->getContent();
-        self::assertStringContainsString('4101', $content, 'figures of the reviewed hospital');
+        $text = $this->pageText($crawler);
+        self::assertMatchesRegularExpression('/\b4101\b/', $text, 'figures of the reviewed hospital');
         foreach (['5202', '9303', '7777'] as $count) {
-            self::assertStringNotContainsString($count, $content, 'no figure of another hospital and no count over all hospitals');
+            self::assertDoesNotMatchRegularExpression('/\b'.$count.'\b/', $text, 'no figure of another hospital and no count over all hospitals');
         }
 
         self::assertCount(0, $crawler->filter('[data-test="encounter-plausibility-learning-total-eligible"]'));
@@ -100,7 +100,7 @@ final class PlausibilityLearningControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSame([], $this->replayHospitals($crawler));
         self::assertCount(1, $crawler->filter('[data-test="encounter-plausibility-learning-no-replay"]'));
-        self::assertStringNotContainsString('4101', (string) $this->client->getResponse()->getContent());
+        self::assertDoesNotMatchRegularExpression('/\b4101\b/', $this->pageText($crawler));
 
         $this->client->loginUser($this->admin());
         $crawler = $this->client->request(Request::METHOD_GET, '/tools/encounter-plausibility/snapshots/'.$snapshotId);
@@ -165,5 +165,14 @@ final class PlausibilityLearningControllerTest extends WebTestCase
     private function snapshotCount(): int
     {
         return (int) self::getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM encounter_plausibility_snapshot');
+    }
+
+    /**
+     * Visible text of the page. Figures are matched as whole numbers in it, so random values such as CSRF tokens or
+     * asset hashes in attributes cannot contain them by chance (#1337).
+     */
+    private function pageText(Crawler $crawler): string
+    {
+        return $crawler->filter('body')->text();
     }
 }
