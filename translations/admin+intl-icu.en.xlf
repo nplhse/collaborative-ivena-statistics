@@ -1809,10 +1809,6 @@
         <source>usage_analytics.accesses.months.title</source>
         <target>Per month</target>
       </trans-unit>
-      <trans-unit id="uaAcc18" resname="usage_analytics.accesses.months.range_hint">
-        <source>usage_analytics.accesses.months.range_hint</source>
-        <target>Same range as the chart</target>
-      </trans-unit>
       <trans-unit id="uaAcc19" resname="usage_analytics.accesses.range.label">
         <source>usage_analytics.accesses.range.label</source>
         <target>Time range</target>
