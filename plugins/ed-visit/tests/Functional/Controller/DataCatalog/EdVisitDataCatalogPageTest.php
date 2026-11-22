@@ -49,6 +49,7 @@ final class EdVisitDataCatalogPageTest extends WebTestCase
         self::assertSelectorTextContains('#ed-visit-temperature [data-testid="data-catalog-range"]', '°C');
         self::assertSelectorTextContains('#ed-visit-ed-admission-at [data-testid="data-catalog-storage"]', 'ed_visit.ed_admission_at');
         self::assertSelectorExists('#ed-visit-encounter a[href="/explore/data-catalog/encounter"]');
+        self::assertSelectorCount(8, '[data-testid="data-catalog-group"] .card-header a[href="#top"]');
         self::assertSelectorTextNotContains('body', 'data_catalog.');
         self::assertSelectorTextNotContains('body', 'encounter.mts.');
     }
