@@ -25,7 +25,7 @@ final class EdVisitDataCatalogContributorTest extends KernelTestCase
 
         self::assertCount(1, $definitions);
         self::assertSame(['ed_visit', true, EncounterAttribute::VIEW_CASES_IN_ANY_HOSPITAL], [$definitions[0]->key, $definitions[0]->contributedByPlugin, $definitions[0]->grantedAttribute]);
-        self::assertSame(42, $this->object()->variableCount());
+        self::assertSame(43, $this->object()->variableCount());
     }
 
     public function testEmbeddedFieldsResolveToTheirPrefixedColumns(): void

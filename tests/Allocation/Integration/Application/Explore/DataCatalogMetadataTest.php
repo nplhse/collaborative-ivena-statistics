@@ -117,6 +117,30 @@ final class DataCatalogMetadataTest extends KernelTestCase
         self::assertSame(['indication_group', 'category', DataCatalogType::TEXT, true], [$category->table, $category->column, $category->type, $category->nullable]);
     }
 
+    public function testRecordGroupListsTheIdAndTheStoredTimestamps(): void
+    {
+        foreach (['allocation', 'mci_case'] as $key) {
+            $object = $this->object($key);
+            $id = $this->variable($object, $key.'.id');
+            self::assertSame(['record', $key, 'id', DataCatalogType::INTEGER, false], [$object->groups[array_key_last($object->groups)]->key, $id->table, $id->column, $id->type, $id->nullable], $key);
+            self::assertNull($object->variable($key.'.updated_at'), $key.': no record timestamp');
+        }
+
+        $hospital = $this->object('hospital');
+        $createdAt = $this->variable($hospital, 'hospital.created_at');
+        self::assertSame(['hospital', 'created_at', DataCatalogType::DATETIME, false], [$createdAt->table, $createdAt->column, $createdAt->type, $createdAt->nullable]);
+        $updatedAt = $this->variable($hospital, 'hospital.updated_at');
+        self::assertSame(['updated_at', DataCatalogType::DATETIME, true], [$updatedAt->column, $updatedAt->type, $updatedAt->nullable]);
+
+        $occasionId = $this->variable($this->object('occasion'), 'occasion.id');
+        self::assertSame(['occasion', 'id', DataCatalogType::INTEGER, false], [$occasionId->table, $occasionId->column, $occasionId->type, $occasionId->nullable]);
+
+        $encounter = $this->object('encounter');
+        $encounterId = $this->variable($encounter, 'encounter.id');
+        self::assertSame(['encounter', 'id', DataCatalogType::INTEGER, false], [$encounterId->table, $encounterId->column, $encounterId->type, $encounterId->nullable]);
+        self::assertSame(DataCatalogType::DATETIME, $this->variable($encounter, 'encounter.created_at')->type);
+    }
+
     public function testEncounterVariablesMatchTheDoctrineMapping(): void
     {
         $encounter = $this->object('encounter');

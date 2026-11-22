@@ -38,7 +38,7 @@ final class EdVisitDataCatalogPageTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/explore/data-catalog');
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('[data-object-key="ed_visit"]', '42 variables');
+        self::assertSelectorTextContains('[data-object-key="ed_visit"]', '43 variables');
         self::assertSelectorTextContains('[data-object-key="ed_visit"]', 'Plugin');
 
         $client->request(Request::METHOD_GET, '/explore/data-catalog/ed_visit');
@@ -49,7 +49,7 @@ final class EdVisitDataCatalogPageTest extends WebTestCase
         self::assertSelectorTextContains('#ed-visit-temperature [data-testid="data-catalog-range"]', '°C');
         self::assertSelectorTextContains('#ed-visit-ed-admission-at [data-testid="data-catalog-storage"]', 'ed_visit.ed_admission_at');
         self::assertSelectorExists('#ed-visit-encounter a[href="/explore/data-catalog/encounter"]');
-        self::assertSelectorCount(8, '[data-testid="data-catalog-group"] .card-header a[href="#top"]');
+        self::assertSelectorCount(9, '[data-testid="data-catalog-group"] .card-header a[href="#top"]');
         self::assertSelectorTextNotContains('body', 'data_catalog.');
         self::assertSelectorTextNotContains('body', 'encounter.mts.');
     }

@@ -16,7 +16,7 @@ use App\Encounter\Domain\Entity\Encounter;
 /**
  * The encounter base data in the Explore data catalog (#1415), shown only to users who may see cases of
  * any hospital. The case key and its generation are pseudonyms for matching and are left out on purpose,
- * as are the creation time and the user who set the assignment.
+ * as is the user who set the assignment.
  */
 final readonly class EncounterDataCatalogContributor implements DataCatalogContributorInterface
 {
@@ -38,6 +38,10 @@ final readonly class EncounterDataCatalogContributor implements DataCatalogContr
                     new VariableDefinition('encounter.hospital', 'hospital'),
                     new VariableDefinition('encounter.allocation', 'allocation'),
                     new VariableDefinition('encounter.allocation_assigned_at', 'allocationAssignedAt'),
+                ]),
+                new VariableGroupDefinition('record', [
+                    new VariableDefinition('encounter.id', 'id'),
+                    new VariableDefinition('encounter.created_at', 'createdAt'),
                 ]),
             ], grantedAttribute: EncounterAttribute::VIEW_CASES_IN_ANY_HOSPITAL),
         ];

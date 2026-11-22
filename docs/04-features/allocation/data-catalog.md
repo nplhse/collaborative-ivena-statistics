@@ -31,7 +31,7 @@ the catalog, as a small code line per variable, because they describe structure,
 | `encounter` (base data) | `EncounterDataCatalogContributor` (`src/Encounter/Application/DataCatalog/`) | `ENCOUNTER_VIEW_CASES_IN_ANY_HOSPITAL` |
 | `ed_visit` (plugin) | `EdVisitDataCatalogContributor` (`plugins/ed-visit/src/Application/DataCatalog/`) | `ENCOUNTER_VIEW_CASES_IN_ANY_HOSPITAL` |
 
-Left out on purpose: owners, audit fields (created/updated by), the import reference, the encounter case key
+Left out on purpose: owners, the users who created or changed a record (created/updated by), the import reference, the encounter case key
 and key generation (pseudonyms for matching), the user who set an encounter assignment, the ED visit uid and
 fingerprint. For the reference objects also the editorial description and display order of indication groups,
 the mapping tables (department and speciality aliases, raw indications) and the many-to-many link between
@@ -39,19 +39,25 @@ indications and indication groups, which is no to-one reference; the description
 With them, every reference of `allocation`, `mci_case` and `hospital` links to a catalog entry, except the raw
 indications.
 
+Every object ends with the group `record` ("Datensatz", #1499): its numeric `id`, the key other tables refer to,
+and the record timestamps `created_at` / `updated_at` where the entity stores them (hospital and reference
+objects both, encounter and ED visit only `created_at`). Allocation and MCI case store no record timestamp; their
+`created_at` in the group `time` is the IVENA time. The ED visit has no id of its own, its primary key is
+`ed_visit.encounter`. Public ids (UUIDs in Explore URLs) and the users who created or changed a record stay out.
+
 Regions are documented like the other objects: their stored fields, nothing more. Map geometry and the
 official district keys (AGS) of dispatch areas live in `config/case_flow/*.yaml`, not in the database, and are
 not part of the catalog (see [case-flow.md](../statistics/case-flow.md)).
 
 ## Variables
 
-A variable is opt-in: only listed fields appear. Surrogate and public ids, hashes, free-text notes and
-import references stay out unless chosen on purpose.
+A variable is opt-in: only listed fields appear. Public ids, hashes, free-text notes and import references
+stay out unless chosen on purpose; the surrogate id is listed in the group `record`.
 
 | Information | Source |
 |---|---|
 | Key (`allocation.urgency`) | Curated, stable, independent of property and column; unique across all objects |
-| Group | Curated (`time`, `patient`, `urgency`, `clinical`, `resources`, `transport`, `destination`, `context`, `geography`, …) |
+| Group | Curated (`time`, `patient`, `urgency`, `clinical`, `resources`, `transport`, `destination`, `context`, `geography`, …; `record` last) |
 | Label and description | Translation keys `data_catalog.variable.<key>.label` / `.description` in the object's domain, EN and DE |
 | Table and column | Doctrine mapping; embedded fields (`times.arrivedAt`) and to-one paths (`assessment.airway`) resolve to their own table and column |
 | Type | Doctrine type: integer, decimal, date/time, boolean, code (enum), text, reference (to-one association); code set (several codes per record, stored as a JSON list) when the definition names its enum |
