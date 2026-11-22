@@ -56,7 +56,7 @@ trait CookieConsentTestHelper
         return $this->acceptEssentialCookies($browser)
             ->visit('/login')
             ->assertSeeIn('title', 'Login')
-            ->fillField('Username', $username)
+            ->fillField('Username or email', $username)
             ->fillField('Password', $password)
             ->click('Sign in')
             ->assertSuccessful();

@@ -417,6 +417,18 @@
         <source>label.login.remember_me</source>
         <target>Angemeldet bleiben</target>
       </trans-unit>
+      <trans-unit id="DeLoginId01" resname="label.login.identifier">
+        <source>label.login.identifier</source>
+        <target>Benutzername oder E-Mail</target>
+      </trans-unit>
+      <trans-unit id="DeLoginId02" resname="message.login.email_switch_notice">
+        <source>message.login.email_switch_notice</source>
+        <target>Ab Version 1.0 melden Sie sich nur noch mit Ihrer E-Mail-Adresse an. Sie können sie schon jetzt statt Ihres Benutzernamens verwenden.</target>
+      </trans-unit>
+      <trans-unit id="DeLoginId03" resname="message.login.email_switch_hint">
+        <source>message.login.email_switch_hint</source>
+        <target>Bitte beachten Sie, dass ab Version 1.0 nur noch die E-Mail-Adresse zum Anmelden verwendet werden kann.</target>
+      </trans-unit>
       <trans-unit id="De01c17ebe" resname="label.settings.verification_status">
         <source>label.settings.verification_status</source>
         <target>Verifizierungsstatus:</target>

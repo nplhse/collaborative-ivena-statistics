@@ -6,6 +6,7 @@ namespace App\User\Infrastructure\Security;
 
 use App\Shared\Infrastructure\Consent\CookieConsentService;
 use App\User\Domain\Entity\User;
+use App\User\Infrastructure\Repository\UserRepository;
 use App\User\UI\Form\LoginType;
 use App\User\UI\Http\DTO\LoginTypeDTO;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -36,6 +37,7 @@ final class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly FormFactoryInterface $formFactory,
         private readonly CookieConsentService $cookieConsentService,
+        private readonly UserRepository $userRepository,
     ) {
     }
 
@@ -56,7 +58,7 @@ final class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $loginTypeDTO->getUsername());
 
         return new Passport(
-            new UserBadge($loginTypeDTO->getUsername()),
+            new UserBadge($this->resolveUserIdentifier($loginTypeDTO->getUsername())),
             new PasswordCredentials($loginTypeDTO->getPassword()),
             $this->getBadges($request, $loginTypeDTO)
         );
@@ -88,6 +90,23 @@ final class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
     protected function getLoginUrl(Request $request): string
     {
         return $this->urlGenerator->generate(self::LOGIN_ROUTE);
+    }
+
+    /**
+     * Users sign in with their username or their email address (#1355). An email is resolved to the account's username,
+     * so the user badge and the login throttling key (IP + identifier) are the same for both forms. Usernames cannot
+     * contain "@" (`UserUsernameConstraints::PATTERN`), so an unknown email stays as entered and fails with the generic
+     * error like an unknown username.
+     */
+    private function resolveUserIdentifier(string $identifier): string
+    {
+        if (!str_contains($identifier, '@')) {
+            return $identifier;
+        }
+
+        $user = $this->userRepository->findOneBy(['email' => mb_strtolower($identifier)]);
+
+        return $user?->getUserIdentifier() ?? $identifier;
     }
 
     /**

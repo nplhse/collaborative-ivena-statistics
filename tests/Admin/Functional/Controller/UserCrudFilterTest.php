@@ -105,6 +105,24 @@ final class UserCrudFilterTest extends WebTestCase
         self::assertSame(['newer-user', 'older-user'], $this->usernames($crawler));
     }
 
+    public function testVerifiedFilterListsAccountsWithoutVerifiedEmail(): void
+    {
+        $client = self::createClient();
+        $this->createUser('verified-user', '2026-10-10 10:00');
+        $unverified = $this->createUser('unverified-user', '2026-10-11 10:00');
+        $unverified->setIsVerified(false);
+        \Zenstruck\Foundry\Persistence\save($unverified);
+        $client->loginUser($this->createAdmin());
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user?filters[isVerified]=0&sort[username]=ASC');
+        self::assertResponseIsSuccessful();
+        self::assertSame(['unverified-user'], $this->usernames($crawler));
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user?filters[isVerified]=1&sort[username]=ASC');
+        self::assertResponseIsSuccessful();
+        self::assertSame(['filter-admin', 'verified-user'], $this->usernames($crawler));
+    }
+
     public function testParticipantFilterCountsRolesInheritedFromAdmin(): void
     {
         $client = self::createClient();
