@@ -141,6 +141,9 @@
                 {% if onboardingCard is defined and onboardingCard is not null %}
                     {{ include('@Content/dashboard/_onboarding_card.html.twig') }}
                 {% endif %}
+                {% if whatsNewCard is defined and whatsNewCard is not null %}
+                    {{ include('@Content/dashboard/_whats_new_card.html.twig') }}
+                {% endif %}
                 <twig:Card
                     title="{{ 'dashboard.blog.recent_title'|trans({}, 'content') }}"
                     headerClass="d-flex flex-wrap align-items-center justify-content-between gap-2"

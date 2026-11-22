@@ -8,6 +8,7 @@ use App\Content\Application\Dashboard\DashboardMetricsService;
 use App\Content\Infrastructure\Repository\PostRepository;
 use App\Onboarding\Application\OnboardingProgressService;
 use App\Onboarding\Application\OnboardingStepCatalog;
+use App\Onboarding\Application\WhatsNew\WhatsNewService;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,6 +21,7 @@ final class DefaultController extends AbstractController
         private readonly PostRepository $postRepository,
         private readonly OnboardingProgressService $onboardingProgressService,
         private readonly OnboardingStepCatalog $onboardingStepCatalog,
+        private readonly WhatsNewService $whatsNewService,
     ) {
     }
 
@@ -43,6 +45,8 @@ final class DefaultController extends AbstractController
                 'recentPosts' => $this->postRepository->findPublishedForIndex(5),
                 'onboardingCard' => $onboardingCard,
                 'clinicAccess' => $clinicAccess,
+                // What a release brings for accounts older than the update (#1485).
+                'whatsNewCard' => $user instanceof User ? $this->whatsNewService->buildCardForUser($user) : null,
             ]);
         }
 

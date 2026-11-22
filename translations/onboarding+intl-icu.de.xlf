@@ -113,6 +113,66 @@
         <source>onboarding.request_status.rejected</source>
         <target>Abgelehnt</target>
       </trans-unit>
+      <trans-unit id="WhatsNewDe01" resname="whats_new.card.title">
+        <source>whats_new.card.title</source>
+        <target>Neu für Sie</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe02" resname="whats_new.card.intro">
+        <source>whats_new.card.intro</source>
+        <target>Mit dem letzten Update ist einiges dazugekommen, das für Sie interessant ist.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe03" resname="whats_new.card.dismiss">
+        <source>whats_new.card.dismiss</source>
+        <target>Alles klar, ausblenden</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe04" resname="whats_new.items.display_name.missing.title">
+        <source>whats_new.items.display_name.missing.title</source>
+        <target>Anzeigenamen festlegen</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe05" resname="whats_new.items.display_name.missing.description">
+        <source>whats_new.items.display_name.missing.description</source>
+        <target>Statt Ihres Benutzernamens sehen andere einen Anzeigenamen, zum Beispiel bei Kommentaren und Aktivitäten.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe06" resname="whats_new.items.display_name.missing.action">
+        <source>whats_new.items.display_name.missing.action</source>
+        <target>Anzeigenamen festlegen</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe07" resname="whats_new.items.display_name.set.title">
+        <source>whats_new.items.display_name.set.title</source>
+        <target>Ihr Anzeigename: {name}</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe08" resname="whats_new.items.display_name.set.description">
+        <source>whats_new.items.display_name.set.description</source>
+        <target>Andere sehen jetzt diesen Namen statt Ihres Benutzernamens. Sie können ihn jederzeit ändern.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe09" resname="whats_new.items.display_name.set.action">
+        <source>whats_new.items.display_name.set.action</source>
+        <target>Anzeigenamen ändern</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe10" resname="whats_new.items.my_hospitals.title">
+        <source>whats_new.items.my_hospitals.title</source>
+        <target>„Meine Krankenhäuser“ als Überblick</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe11" resname="whats_new.items.my_hospitals.description">
+        <source>whats_new.items.my_hospitals.description</source>
+        <target>Sehen Sie auf einen Blick, welche Daten Ihre Krankenhäuser beigetragen haben und wo Monate fehlen.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe12" resname="whats_new.items.my_hospitals.action">
+        <source>whats_new.items.my_hospitals.action</source>
+        <target>Meine Krankenhäuser öffnen</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe13" resname="whats_new.items.settings_overview.title">
+        <source>whats_new.items.settings_overview.title</source>
+        <target>Alle Einstellungen an einem Ort</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe14" resname="whats_new.items.settings_overview.description">
+        <source>whats_new.items.settings_overview.description</source>
+        <target>Profil, Anmeldung und Benachrichtigungen: Legen Sie fest, welche Benachrichtigungen Sie auf welchem Weg erhalten.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe15" resname="whats_new.items.settings_overview.action">
+        <source>whats_new.items.settings_overview.action</source>
+        <target>Einstellungen öffnen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
