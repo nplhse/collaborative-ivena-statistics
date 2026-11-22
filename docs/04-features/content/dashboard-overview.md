@@ -15,7 +15,7 @@ Authenticated `GET /` (`DefaultController`) renders `@Content/dashboard/dashboar
 
 1. Full-width KPI cards (allocations, participating hospitals, users, imports), above the two-column layout
 2. Main column: action tiles, then a **recent activity preview** (lazy Turbo Frame)
-3. Sidebar: participant notice, onboarding, latest blog posts, pages
+3. Sidebar: participant notice, onboarding, latest blog posts (pinned posts first, [details](blog-pinned-and-announcements.md)), pages
 
 Guests still see `@Content/public/home.html.twig`. Totals come from the same `DashboardMetricsService`.
 
