@@ -131,6 +131,27 @@ final class HospitalInsightSelectorTest extends TestCase
 
         self::assertCount(1, $insights);
         self::assertSame('monthly_reminder.insight.quality.title', $insights[0]->title);
+        self::assertNull($insights[0]->note);
+    }
+
+    public function testQualityInsightCarriesTheRejectionRateNote(): void
+    {
+        $selector = new HospitalInsightSelector($this->translator());
+
+        $insights = $selector->select(
+            null,
+            null,
+            [],
+            new BenchmarkDistribution(BenchmarkMetricKey::IndicationMix, []),
+            -2.4,
+            'https://example.test/stats',
+            'your last 12 months',
+            'May 2026',
+            rejectionRateNote: 'Applies to all imported rows.',
+        );
+
+        self::assertCount(1, $insights);
+        self::assertSame('Applies to all imported rows.', $insights[0]->note);
     }
 
     public function testResusInsightUsesBaselineComparison(): void

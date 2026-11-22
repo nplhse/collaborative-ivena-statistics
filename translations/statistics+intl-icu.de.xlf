@@ -5137,6 +5137,10 @@
         <source>stats.reports.monthly.empty.body</source>
         <target>Für {period} liegen im gewählten Vergleich noch keine Zuweisungsdaten vor.</target>
       </trans-unit>
+      <trans-unit id="A7d9b784a1" resname="stats.reports.monthly.insights.rejection_rate_unfiltered">
+        <source>stats.reports.monthly.insights.rejection_rate_unfiltered</source>
+        <target>Gilt für alle Importzeilen, unabhängig vom Filter.</target>
+      </trans-unit>
       <trans-unit id="Af8b7a092b" resname="stats.reports.monthly.empty.cta_import">
         <source>stats.reports.monthly.empty.cta_import</source>
         <target>Daten hochladen</target>

@@ -139,9 +139,19 @@ definition and covered by tests.
 
 **Where it applies.** Every query on Top Lists (including CSV export; the comparison side gets the
 same filter), Case Flow (the public baseline used for insights stays unfiltered) and the Analysis
-Explorer (including export; dropped when `age_group` is a row or column axis). The monthly report
-shows the drawer but applies the filter only to part of its numbers. Overview, Benchmarking and
-Insights (including Compare) do not read `age_group`.
+Explorer (including export; dropped when `age_group` is a row or column axis) and the monthly report
+(see below). Overview, Benchmarking and Insights (including Compare) do not read `age_group`.
+
+**Monthly report.** Every drawer filter, not only `age_group`, applies to every number of the report
+(#1039): the allocation count, the shares, the urgency and gender distributions, the mean transport time,
+the top lists, the closed department summary, the daily chart and the self-benchmark behind the insights
+(both sides of `BenchmarkReportService::buildForOverview`), for the reporting month and for the previous
+month and the same month a year ago. Numerator and denominator are both filtered, so the shares of a top
+list refer to the filtered count. Only the rejection rate insight (hospital scope, `kpi_daily`) stays
+unfiltered: it counts rejected import rows, which never become allocations and have no urgency, age or other
+drawer field. While a drawer filter is active, the insight carries a short note that it applies to all
+imported rows (`HospitalInsight::$note`). The links to Dashboard and Benchmarking keep scope and period only,
+because those pages have no drawer.
 
 ## Sidebar links
 

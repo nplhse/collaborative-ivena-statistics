@@ -39,6 +39,7 @@ final readonly class HospitalInsightSelector
         string $baselinePeriodLabel,
         string $reportingPeriodLabel,
         ?string $locale = null,
+        ?string $rejectionRateNote = null,
     ): array {
         $candidates = [];
 
@@ -91,6 +92,7 @@ final readonly class HospitalInsightSelector
                     'delta' => number_format(abs($rejectionRateDeltaPp), 1, '.', ''),
                 ], $locale),
                 HospitalInsightTrend::Up,
+                note: $rejectionRateNote,
             );
         }
 

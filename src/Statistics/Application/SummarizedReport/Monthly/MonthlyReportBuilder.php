@@ -10,6 +10,7 @@ use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Kpi\Infrastructure\Repository\KpiDailyRepository;
 use App\Statistics\Application\DTO\StatisticsContext;
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
@@ -90,11 +91,16 @@ final readonly class MonthlyReportBuilder
 
         $scopeCriteria = $this->scopeResolver->resolveCriteria($monthContext);
         $bounds = StatisticsPeriodResolver::resolve($monthFilter);
+        // Every number of the report follows the filter drawer, numerators and denominators alike (#1039).
+        $drawerFilter = $context->drawerFilter instanceof StatisticsDrawerFilter && $context->drawerFilter->isActive()
+            ? $context->drawerFilter
+            : null;
         $overviewMetrics = ($this->overviewMetricsQuery)(
             OverviewQueryCriteria::fromPeriodBounds(
                 $bounds,
                 $scopeCriteria->hospitalIds,
                 $scopeCriteria->dispatchAreaId,
+                drawerFilter: $drawerFilter,
             ),
         );
 
@@ -172,6 +178,7 @@ final readonly class MonthlyReportBuilder
                 $previousMonthLabel,
                 $benchmarkingUrl,
                 $locale,
+                $drawerFilter,
             )
             : [];
 
@@ -187,6 +194,7 @@ final readonly class MonthlyReportBuilder
                     $period['previousMonthEndExclusive'],
                     $scopeCriteria->hospitalIds,
                     $scopeCriteria->dispatchAreaId,
+                    drawerFilter: $drawerFilter,
                 ),
             );
             $urgencySegments = $this->urgencySegments(
@@ -243,6 +251,7 @@ final readonly class MonthlyReportBuilder
                 $scopeCriteria,
                 $closedDepartmentDetailUrl,
                 $locale,
+                $drawerFilter,
             )
             : MonthlyReportClosedDepartmentView::empty($closedDepartmentDetailUrl);
 
@@ -270,6 +279,8 @@ final readonly class MonthlyReportBuilder
                 $period['monthEndExclusive'],
                 $scopeCriteria->hospitalIds,
                 $locale,
+                $drawerFilter,
+                $scopeCriteria->dispatchAreaId,
             ),
             importCreateUrl: $this->urlGenerator->generate('app_import_new'),
             dashboardUrl: $dashboardUrl,
@@ -319,6 +330,7 @@ final readonly class MonthlyReportBuilder
         string $previousMonthLabel,
         string $benchmarkingUrl,
         string $locale,
+        ?StatisticsDrawerFilter $drawerFilter,
     ): array {
         $previousFilter = $this->filterForMonth(
             $monthFilter,
@@ -327,6 +339,7 @@ final readonly class MonthlyReportBuilder
         );
         $selfReport = $this->benchmarkReportService->buildForOverview(
             $this->benchmarkCriteriaFactory->create($monthContext, $previousFilter),
+            $drawerFilter,
         );
 
         $physicianMetric = $this->findMetric($selfReport->kpiMetrics, BenchmarkMetricKey::WithPhysician);
@@ -347,6 +360,11 @@ final readonly class MonthlyReportBuilder
             $previousMonthLabel,
             $periodLabel,
             $locale,
+            // The rejection rate counts rejected import rows, which never become allocations and have no urgency,
+            // age or other drawer field; with a drawer filter its insight says that it is unfiltered (#1039).
+            $drawerFilter instanceof StatisticsDrawerFilter
+                ? $this->translator->trans('stats.reports.monthly.insights.rejection_rate_unfiltered', [], 'statistics', $locale)
+                : null,
         );
     }
 
@@ -462,12 +480,14 @@ final readonly class MonthlyReportBuilder
         StatisticsScopeCriteria $scopeCriteria,
         string $detailUrl,
         string $locale,
+        ?StatisticsDrawerFilter $drawerFilter,
     ): MonthlyReportClosedDepartmentView {
-        $metrics = $this->closedDepartmentMetricsQuery->fetch($monthStart, $monthEndExclusive, $scopeCriteria);
+        $metrics = $this->closedDepartmentMetricsQuery->fetch($monthStart, $monthEndExclusive, $scopeCriteria, $drawerFilter);
         $previousMetrics = $this->closedDepartmentMetricsQuery->fetchKpis(
             $previousMonthStart,
             $previousMonthEndExclusive,
             $scopeCriteria,
+            $drawerFilter,
         );
 
         return new MonthlyReportClosedDepartmentView(
@@ -624,8 +644,10 @@ final readonly class MonthlyReportBuilder
         \DateTimeImmutable $monthEndExclusive,
         ?array $hospitalIds,
         string $locale,
+        ?StatisticsDrawerFilter $drawerFilter,
+        ?int $dispatchAreaId,
     ): array {
-        $byDay = $this->timeSeriesQuery->countByDayInPeriod($monthStart, $monthEndExclusive, $hospitalIds);
+        $byDay = $this->timeSeriesQuery->countByDayInPeriod($monthStart, $monthEndExclusive, $hospitalIds, $drawerFilter, $dispatchAreaId);
         $labels = [];
         $counts = [];
         $cursor = $monthStart;

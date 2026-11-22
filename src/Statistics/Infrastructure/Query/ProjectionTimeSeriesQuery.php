@@ -210,9 +210,14 @@ final class ProjectionTimeSeriesQuery
      *
      * @return array<string,int>
      */
-    public function countByDayInPeriod(?\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
-    {
-        $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds)
+    public function countByDayInPeriod(
+        ?\DateTimeImmutable $from,
+        \DateTimeImmutable $toExclusive,
+        ?array $hospitalIds,
+        ?StatisticsDrawerFilter $drawerFilter = null,
+        ?int $dispatchAreaId = null,
+    ): array {
+        $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds, $drawerFilter, $dispatchAreaId)
             ->select('p.createdYear AS year', 'p.createdMonth AS month', 'p.createdDay AS day', 'COUNT(p.id) AS count')
             ->groupBy('year', 'month', 'day')
             ->orderBy('year', \SortDirection::Ascending)

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\ClosedDepartmentAssignments\Infrastructure\Query;
 
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
@@ -11,6 +12,8 @@ use App\Statistics\Application\Mapping\DepartmentWasClosedSql;
 use App\Statistics\Application\Mapping\StatisticsTransportTimeSql;
 use App\Statistics\ClosedDepartmentAssignments\Infrastructure\Query\Dto\ClosedDepartmentMetricsRow;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardSqlFilter;
+use App\Statistics\Infrastructure\Query\ProjectionDrawerFilterSql;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
 final readonly class ClosedDepartmentMetricsQuery
@@ -24,12 +27,13 @@ final readonly class ClosedDepartmentMetricsQuery
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): ClosedDepartmentMetricsRow {
         if (\is_array($scope->hospitalIds) && [] === $scope->hospitalIds) {
             return ClosedDepartmentMetricsRow::empty();
         }
 
-        [$where, $params, $types] = IndicationDashboardSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
+        [$where, $params, $types] = $this->scopePeriodWhere($from, $toExclusive, $scope, $drawerFilter);
         $closed = DepartmentWasClosedSql::closed();
         $mean = StatisticsTransportTimeSql::meanPreciseMinutes();
 
@@ -62,12 +66,13 @@ SQL;
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): ClosedDepartmentMetricsRow {
         if (\is_array($scope->hospitalIds) && [] === $scope->hospitalIds) {
             return ClosedDepartmentMetricsRow::empty();
         }
 
-        [$where, $params, $types] = IndicationDashboardSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
+        [$where, $params, $types] = $this->scopePeriodWhere($from, $toExclusive, $scope, $drawerFilter);
 
         $closed = DepartmentWasClosedSql::closed();
         $regular = DepartmentWasClosedSql::regular();
@@ -158,6 +163,25 @@ SQL;
             $this->toFloatOrNull($row['closed_mean_transport'] ?? null),
             $this->toFloatOrNull($row['regular_mean_transport'] ?? null),
         );
+    }
+
+    /**
+     * @return array{0: string, 1: array<string, mixed>, 2: array<string, ArrayParameterType>}
+     */
+    private function scopePeriodWhere(
+        ?\DateTimeImmutable $from,
+        ?\DateTimeImmutable $toExclusive,
+        StatisticsScopeCriteria $scope,
+        ?StatisticsDrawerFilter $drawerFilter,
+    ): array {
+        [$where, $params, $types] = IndicationDashboardSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
+        if (!$drawerFilter instanceof StatisticsDrawerFilter || !$drawerFilter->isActive()) {
+            return [$where, $params, $types];
+        }
+
+        [$drawerConditions, $drawerParams] = new ProjectionDrawerFilterSql()->apply($drawerFilter);
+
+        return [implode(' AND ', [$where, ...$drawerConditions]), [...$params, ...$drawerParams], $types];
     }
 
     private function toFloatOrNull(mixed $value): ?float

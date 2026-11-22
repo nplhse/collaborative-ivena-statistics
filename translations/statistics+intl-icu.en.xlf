@@ -1189,6 +1189,10 @@
         <source>stats.reports.monthly.empty.body</source>
         <target>There is no allocation data for {period} in the selected scope yet.</target>
       </trans-unit>
+      <trans-unit id="A5b43773e6" resname="stats.reports.monthly.insights.rejection_rate_unfiltered">
+        <source>stats.reports.monthly.insights.rejection_rate_unfiltered</source>
+        <target>Applies to all imported rows, regardless of the filter.</target>
+      </trans-unit>
       <trans-unit id="Ae0e8da29e" resname="stats.reports.monthly.empty.cta_import">
         <source>stats.reports.monthly.empty.cta_import</source>
         <target>Upload data</target>
