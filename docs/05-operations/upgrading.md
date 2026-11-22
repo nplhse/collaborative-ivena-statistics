@@ -32,6 +32,13 @@ output lists media items whose file was missing already and files without media 
 that fails stops the deploy before the switch, and the previous release keeps running. `vendor/bin/dep rollback` works
 until the next step.
 
+The deploy also runs `app:geo:import-legacy-districts` and its `--verify` before the switch: it takes the existing
+district assignments and boundaries over into the database, without network access
+([ADR 041](../02-architecture/decisions/041-dispatch-area-geography-as-master-data.md)). If a check fails, the deploy
+stops, the previous release keeps running and the output names the dispatch areas. Fix the cause and deploy again; the
+takeover continues where it stopped and keeps existing data. An installation with none of the 29 existing areas has
+nothing to take over. Without Deployer, run both commands after the migrations and before activating the new code.
+
 ### After the deploy
 
 Once the release works, replace the old URLs in posts and pages:
