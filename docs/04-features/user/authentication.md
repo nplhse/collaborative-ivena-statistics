@@ -85,8 +85,10 @@ Users can protect their account with a six-digit code from an authenticator app 
 - **Secret storage:** `user.totp_secret_encrypted`, encrypted with `APP_TWO_FACTOR_KEY` (`TwoFactorSecretCipher`,
   libsodium) and decrypted after loading (`TwoFactorSecretLoader`); the decrypted secret is never serialized into the
   session.
-- **Recommended** for hospital owners and users with an import grant: the settings overview marks the "Sign-in &
-  security" tile and its overview page the two-factor row (`TwoFactorRecommendationQuery`).
+- **Recommended** for administrators without two-factor authentication: the settings overview marks the "Sign-in &
+  security" tile and its overview page the two-factor row (`TwoFactorRecommendationQuery`). Until #1508 hospital owners
+  and users with an import grant were marked too; as they are most of the members, the recommendation is limited to
+  administrators for now and the wider group is evaluated later.
 - **Obligation for administrators:** `app.security.two_factor.required_for_admins` in `config/packages/app.yaml`
   (default `false`, forced off in dev and demo). When on and the feature is available, `RequireTwoFactorListener` sends
   administrators without it to `/settings/two-factor` on every page load (other requests get a 403) and they cannot

@@ -159,8 +159,10 @@ final class TwoFactorObligationAndResetTest extends WebTestCase
         self::assertSelectorNotExists('form[action*="/reset-two-factor"]');
     }
 
-    public function testTwoFactorIsRecommendedToHospitalOwnersAndImportGrantees(): void
+    public function testTwoFactorIsRecommendedToAdministratorsOnly(): void
     {
+        // #1508: for now only administrators; hospital owners and import grantees are most of the members.
+        $admin = UserFactory::new(['username' => 'admin-user'])->asAdmin()->create();
         $owner = UserFactory::new(['username' => 'owner'])->create();
         $hospital = HospitalFactory::createOne(['owner' => $owner]);
         $importer = UserFactory::new(['username' => 'importer'])->create();
@@ -169,24 +171,22 @@ final class TwoFactorObligationAndResetTest extends WebTestCase
             'user' => $importer,
             'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View, HospitalPermission::Import]),
         ]);
-        $viewer = UserFactory::new(['username' => 'viewer'])->create();
-        HospitalAccessGrantFactory::createOne([
-            'hospital' => $hospital,
-            'user' => $viewer,
-            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View, HospitalPermission::Statistics]),
-        ]);
 
-        foreach (['owner' => $owner, 'importer' => $importer] as $user) {
+        $this->client->loginUser($admin);
+        $this->client->request(Request::METHOD_GET, '/settings');
+        self::assertSelectorTextContains('[data-testid="settings-two-factor-recommended"]', 'Recommended');
+        $this->client->request(Request::METHOD_GET, '/settings/security');
+        self::assertSelectorExists('[data-test="security-two-factor-recommended"]');
+
+        foreach ([$owner, $importer] as $user) {
             $this->client->loginUser($user);
             $this->client->request(Request::METHOD_GET, '/settings');
-            self::assertSelectorTextContains('[data-testid="settings-two-factor-recommended"]', 'Recommended');
+            self::assertSelectorNotExists('[data-testid="settings-two-factor-recommended"]');
+            $this->client->request(Request::METHOD_GET, '/settings/security');
+            self::assertSelectorNotExists('[data-test="security-two-factor-recommended"]');
         }
 
-        $this->client->loginUser($viewer);
-        $this->client->request(Request::METHOD_GET, '/settings');
-        self::assertSelectorNotExists('[data-testid="settings-two-factor-recommended"]');
-
-        $this->client->loginUser($this->withTwoFactor($owner));
+        $this->client->loginUser($this->withTwoFactor($admin));
         $this->client->request(Request::METHOD_GET, '/settings');
         self::assertSelectorNotExists('[data-testid="settings-two-factor-recommended"]');
     }

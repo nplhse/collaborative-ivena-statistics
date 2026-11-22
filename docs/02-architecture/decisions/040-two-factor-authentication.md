@@ -33,7 +33,8 @@ the remember-me cookie only after the code. `scheb/2fa-totp` brings `spomky-labs
 ### Optional for everyone, configurable for administrators
 
 Every user can switch on two-factor authentication in the settings (`/settings/two-factor`). Hospital owners and users
-with an import grant see it marked as recommended. Nobody is required to, unless an installation switches on the
+with an import grant see it marked as recommended. *Amended 2026-11-22 (#1508): for now only administrators see the
+recommendation, because hospital owners are most of the members; the wider group is evaluated later.* Nobody is required to, unless an installation switches on the
 obligation for administrators in the app configuration (`app.security.two_factor.required_for_admins`, default
 `false`, always off in dev and demo). Then administrators without it are sent to the setup and cannot switch it off.
 It is a configuration node, not an environment variable: it is a lasting policy of the installation, not a secret.
