@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace App\Admin\UI\Http\Controller\Blog;
 
 use App\Content\Application\Blog\ContentActivityNotifier;
+use App\Content\Application\Blog\PostAnnouncementService;
 use App\Content\Application\Blog\PostContentSanitizer;
 use App\Content\Application\Blog\PostSlugResolver;
 use App\Content\Application\Contract\MediaLibraryAdminUrlProviderInterface;
 use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Enum\PostStatus;
+use App\Content\Domain\Exception\PostCannotBeAnnouncedException;
+use App\User\Infrastructure\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Asset;
@@ -21,17 +25,22 @@ use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Option\BadgeVariant;
 use Psr\Clock\ClockInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -42,6 +51,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[IsGranted('ROLE_ADMIN')]
 final class PostCrudController extends AbstractCrudController
 {
+    private const string ANNOUNCE_CSRF_TOKEN_ID = 'admin_post_announce';
+
     public function __construct(
         private readonly PostSlugResolver $postSlugResolver,
         private readonly TranslatorInterface $translator,
@@ -49,6 +60,9 @@ final class PostCrudController extends AbstractCrudController
         private readonly MediaLibraryAdminUrlProviderInterface $mediaLibraryAdminUrlProvider,
         private readonly ContentActivityNotifier $contentActivityNotifier,
         private readonly ClockInterface $clock,
+        private readonly PostAnnouncementService $postAnnouncementService,
+        private readonly UserRepository $userRepository,
+        private readonly AdminUrlGenerator $adminUrlGenerator,
     ) {
     }
 
@@ -77,9 +91,48 @@ final class PostCrudController extends AbstractCrudController
     #[\Override]
     public function configureActions(Actions $actions): Actions
     {
+        // Sends the post as an announcement notification to every enabled user, once (#1486).
+        $announce = Action::new('announcePost', new TranslatableMessage('admin.post.action.announce', domain: 'content'), 'fas fa-bullhorn')
+            ->displayIf(fn (Post $post): bool => $post->canBeAnnounced($this->clock->now()))
+            ->linkToUrl(fn (Post $post): string => $this->adminUrlGenerator
+                ->unsetAll()
+                ->setController(self::class)
+                ->setAction('announcePost')
+                ->setEntityId($post->getId())
+                ->set('token', $this->container->get('security.csrf.token_manager')->getToken(self::ANNOUNCE_CSRF_TOKEN_ID)->getValue())
+                ->generateUrl())
+            ->renderAsForm()
+            ->askConfirmation(fn (Post $post): TranslatableMessage => new TranslatableMessage('admin.post.action.announce.confirm', [
+                'title' => (string) $post->getTitle(),
+                'count' => \count($this->userRepository->findEnabledUserIds()),
+            ], 'content'));
+
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_DETAIL, $announce)
             ->add(Crud::PAGE_EDIT, Action::INDEX);
+    }
+
+    #[AdminRoute(path: '/{entityId}/announce', name: 'announce', options: ['methods' => ['POST']])]
+    public function announcePost(#[MapEntity(id: 'entityId')] Post $post, Request $request): RedirectResponse
+    {
+        if (!$this->isCsrfTokenValid(self::ANNOUNCE_CSRF_TOKEN_ID, $request->query->getString('token'))) {
+            $this->addFlash('danger', new TranslatableMessage('flash.admin.post.invalid_token', domain: 'content'));
+        } else {
+            try {
+                $this->postAnnouncementService->announce($post);
+                $this->addFlash('success', new TranslatableMessage('flash.admin.post.announced', ['title' => (string) $post->getTitle()], 'content'));
+            } catch (PostCannotBeAnnouncedException) {
+                $this->addFlash('warning', new TranslatableMessage('flash.admin.post.not_announceable', domain: 'content'));
+            }
+        }
+
+        return $this->redirect($this->adminUrlGenerator
+            ->unsetAll()
+            ->setController(self::class)
+            ->setAction(Action::DETAIL)
+            ->setEntityId($post->getId())
+            ->generateUrl());
     }
 
     #[\Override]
@@ -107,6 +160,11 @@ final class PostCrudController extends AbstractCrudController
             ->setBadgeVariant(BadgeVariant::Dot);
         yield DateTimeField::new('publishedAt', 'label.published_at')
             ->setHelp(new TranslatableMessage('help.blog.published_at', domain: 'content'));
+        yield BooleanField::new('pinned', new TranslatableMessage('admin.post.field.pinned', domain: 'content'))
+            ->setHelp(new TranslatableMessage('admin.post.field.pinned.help', domain: 'content'));
+        yield DateTimeField::new('announcedAt', new TranslatableMessage('admin.post.field.announced_at', domain: 'content'))
+            ->setFormat('dd.MM.yy HH:mm')
+            ->onlyOnDetail();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.content', domain: 'admin'));
         yield TextEditorField::new('content', 'label.content')

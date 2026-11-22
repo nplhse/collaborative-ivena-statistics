@@ -155,7 +155,7 @@
                     <div class="list-group list-group-flush">
                         {% for post in recentPosts %}
                             <a href="{{ path('app_blog_show', {slug: post.slug}) }}" class="list-group-item list-group-item-action">
-                                <div class="fw-medium">{{ post.title }}</div>
+                                <div class="fw-medium d-flex align-items-center gap-1"{% if post.pinned %} data-testid="dashboard-post-pinned"{% endif %}>{% if post.pinned %}<twig:ux:icon name="tabler:pin" class="text-primary flex-shrink-0" style="height: 1em;" aria-hidden="true" /><span class="visually-hidden">{{ 'blog.pinned'|trans({}, 'content') }}: </span>{% endif %}<span>{{ post.title }}</span></div>
                                 <div class="text-secondary small">{{ post.publishedAt|date('d.m.Y') }}</div>
                             </a>
                         {% else %}

@@ -220,7 +220,7 @@ final class BlogController extends AbstractController
     private function buildSidebarData(): array
     {
         return [
-            'latest_posts' => $this->postRepository->findPublishedForIndex(5),
+            'latest_posts' => $this->postRepository->findPublishedForIndex(5, pinnedFirst: true),
             'sidebar_categories' => $this->categoryRepository->findSidebarItems(),
             'sidebar_tags' => $this->tagRepository->findSidebarItems(),
         ];

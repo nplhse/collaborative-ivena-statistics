@@ -1437,6 +1437,42 @@
         <source>dashboard.next_steps.access_request.rejected.description</source>
         <target>Öffnen Sie Ihre Anfrage für {hospital}, um die Begründung zu sehen.</target>
       </trans-unit>
+      <trans-unit id="PinAnnDe01" resname="blog.pinned">
+        <source>blog.pinned</source>
+        <target>Angepinnt</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe02" resname="admin.post.field.pinned">
+        <source>admin.post.field.pinned</source>
+        <target>Angepinnt</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe03" resname="admin.post.field.pinned.help">
+        <source>admin.post.field.pinned.help</source>
+        <target>Angepinnte Beiträge stehen auf der Blog-Startseite und bei den neuesten Beiträgen über allen anderen, bis Sie sie wieder lösen.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe04" resname="admin.post.field.announced_at">
+        <source>admin.post.field.announced_at</source>
+        <target>Angekündigt am</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe05" resname="admin.post.action.announce">
+        <source>admin.post.action.announce</source>
+        <target>Als Ankündigung senden</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe06" resname="admin.post.action.announce.confirm">
+        <source>admin.post.action.announce.confirm</source>
+        <target>„{title}“ als Ankündigung an {count, plural, one {# Person} other {# Personen}} senden? Jeder Beitrag kann nur einmal angekündigt werden.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe07" resname="flash.admin.post.announced">
+        <source>flash.admin.post.announced</source>
+        <target>„{title}“ wird als Ankündigung verschickt.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe08" resname="flash.admin.post.not_announceable">
+        <source>flash.admin.post.not_announceable</source>
+        <target>Nur ein veröffentlichter Beitrag, der noch nicht angekündigt wurde, kann angekündigt werden.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe09" resname="flash.admin.post.invalid_token">
+        <source>flash.admin.post.invalid_token</source>
+        <target>Die Anfrage ist abgelaufen. Bitte versuchen Sie es erneut.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

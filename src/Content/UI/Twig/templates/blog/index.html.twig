@@ -36,9 +36,15 @@
                     <div class="row row-cards">
                         {% for post in paginator %}
                             <div class="col-12">
-                                <div class="card">
+                                <div class="card{% if post.pinned %} border-primary{% endif %}"{% if post.pinned %} data-testid="blog-post-pinned"{% endif %}>
                                     <div class="card-body">
                                         <div class="d-flex flex-column gap-2">
+                                            {% if post.pinned %}
+                                                <span class="badge bg-primary-lt align-self-start d-inline-flex align-items-center gap-1">
+                                                    <twig:ux:icon name="tabler:pin" style="height: 1em;" />
+                                                    {{ 'blog.pinned'|trans({}, 'content') }}
+                                                </span>
+                                            {% endif %}
                                             <h2 class="h3 mb-0">
                                                 <a href="{{ path('app_blog_show', {slug: post.slug}) }}">{{ post.title }}</a>
                                             </h2>

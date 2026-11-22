@@ -59,8 +59,9 @@
                 </div>
                 <div class="list-group list-group-flush">
                     {% for latest in latest_posts %}
-                        <a href="{{ path('app_blog_show', {slug: latest.slug}) }}" class="list-group-item list-group-item-action">
-                            {{ latest.title }}
+                        <a href="{{ path('app_blog_show', {slug: latest.slug}) }}" class="list-group-item list-group-item-action d-flex align-items-center gap-1">
+                            {% if latest.pinned %}<twig:ux:icon name="tabler:pin" class="text-primary flex-shrink-0" style="height: 1em;" aria-hidden="true" /><span class="visually-hidden">{{ 'blog.pinned'|trans({}, 'content') }}: </span>{% endif %}
+                            <span>{{ latest.title }}</span>
                         </a>
                     {% else %}
                         <div class="list-group-item text-secondary">{{ 'blog.sidebar.no_latest_posts'|trans({}, 'content') }}</div>

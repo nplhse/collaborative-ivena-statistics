@@ -51,6 +51,24 @@ final class UserRepository extends ServiceEntityRepository implements PasswordUp
      * Used to upgrade (rehash) the user's password automatically over time.
      */
     /**
+     * Ids of every enabled user, e.g. the recipients of an announcement (#1486).
+     *
+     * @return list<int>
+     */
+    public function findEnabledUserIds(): array
+    {
+        /** @var list<int|string> $ids */
+        $ids = $this->createQueryBuilder('u')
+            ->select('u.id')
+            ->where('u.isEnabled = true')
+            ->orderBy('u.id', 'ASC')
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return array_map(static fn (int|string $id): int => (int) $id, $ids);
+    }
+
+    /**
      * @param list<string> $requiredRoles
      *
      * @return list<User>

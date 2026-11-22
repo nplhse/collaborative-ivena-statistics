@@ -23,7 +23,7 @@ final readonly class PageSidebarDataProvider
     public function getData(): array
     {
         return [
-            'latest_posts' => $this->postRepository->findPublishedForIndex(5),
+            'latest_posts' => $this->postRepository->findPublishedForIndex(5, pinnedFirst: true),
         ];
     }
 }

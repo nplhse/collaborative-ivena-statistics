@@ -609,6 +609,18 @@
         <source>hospital_assignment.ownership_transferred.label</source>
         <target>Transfers of my hospitals</target>
       </trans-unit>
+      <trans-unit id="NtfPostAnnEn1" resname="announcement.post.label">
+        <source>announcement.post.label</source>
+        <target>Announcements from the blog</target>
+      </trans-unit>
+      <trans-unit id="NtfPostAnnEn2" resname="announcement.post.title">
+        <source>announcement.post.title</source>
+        <target>Announcement: {title}</target>
+      </trans-unit>
+      <trans-unit id="NtfPostAnnEn3" resname="announcement.post.message">
+        <source>announcement.post.message</source>
+        <target>Read the new announcement in the blog.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
