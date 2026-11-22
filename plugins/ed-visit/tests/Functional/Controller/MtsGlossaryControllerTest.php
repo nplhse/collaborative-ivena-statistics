@@ -97,6 +97,35 @@ final class MtsGlossaryControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="mts-diagram-total"]');
     }
 
+    /**
+     * Each section links to the catalog variables that store its codes (#1507), triage and retriage, but only
+     * for users who may see the ed_visit catalog object.
+     */
+    public function testSectionsLinkToTheCatalogVariablesThatStoreTheirCodes(): void
+    {
+        $this->client->loginUser($this->user(['ROLE_USER', 'ROLE_PARTICIPANT']));
+        $this->overview();
+        self::assertSelectorNotExists('[data-testid="glossary-catalog-usage"]');
+
+        $this->client->loginUser($this->user(['ROLE_USER', 'ROLE_ADMIN', 'ROLE_PARTICIPANT', 'ROLE_ENCOUNTER_BETA']));
+        $crawler = $this->overview();
+
+        foreach ([
+            'categories' => ['ed_visit.mts_category', 'ed_visit.retriage_category'],
+            'diagrams' => ['ed_visit.mts_diagram', 'ed_visit.retriage_diagram'],
+            'indicators' => ['ed_visit.mts_indicator', 'ed_visit.retriage_indicator'],
+        ] as $section => $variables) {
+            $usages = $crawler->filter('#'.$section.' [data-testid="glossary-catalog-usage"]');
+            self::assertSame($variables, $usages->each(static fn (Crawler $usage): ?string => $usage->attr('data-variable-key')));
+        }
+
+        self::assertSame(
+            '/explore/data-catalog/ed_visit#ed-visit-mts-category',
+            $crawler->filter('#categories [data-testid="glossary-catalog-usage"]')->first()->attr('href'),
+        );
+        self::assertSelectorTextContains('#categories [data-testid="glossary-catalog-usages"]', 'Stored as');
+    }
+
     public function testBetaUserWithoutGrantSeesNoCounts(): void
     {
         $user = $this->user();

@@ -29,10 +29,11 @@
 
         {{ include('@EdVisit/glossary/_counts_note.html.twig') }}
 
-        <div class="card mb-3" data-testid="mts-categories">
+        <div class="card mb-3" id="categories" data-testid="mts-categories">
             <div class="card-header">
                 <h3 class="card-title">{{ 'encounter.mts.section.categories'|trans({}, 'encounter') }}</h3>
             </div>
+            {{ include('@Allocation/glossary/_catalog_usages.html.twig', {usages: catalog_usages|filter(usage => usage.section == 'categories')}) }}
             <div class="table-responsive">
                 <table class="table table-vcenter card-table mb-0">
                     <thead>
@@ -73,6 +74,7 @@
                     title: 'encounter.mts.section.diagrams'|trans({}, 'encounter'),
                     rows: diagrams,
                     testid: 'mts-diagram',
+                    section_key: 'diagrams',
                     link_route: 'app_explore_glossary_mts_diagram',
                 }) }}
             </div>
@@ -81,6 +83,7 @@
                     title: 'encounter.mts.section.indicators'|trans({}, 'encounter'),
                     rows: indicators,
                     testid: 'mts-indicator',
+                    section_key: 'indicators',
                     link_route: null,
                 }) }}
             </div>

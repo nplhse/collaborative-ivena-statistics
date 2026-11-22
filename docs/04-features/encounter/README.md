@@ -1163,7 +1163,8 @@ the [Explore overview extension point](../../02-architecture/extension-points.md
 Implemented in #1056. Explore → Glossary → Manchester Triage System (`/explore/glossary/mts`, one page
 per diagram under `/explore/glossary/mts/diagram/{code}`), contributed through the Explore glossary
 extension point ([explore-glossary.md](../allocation/explore-glossary.md)); Allocation does not depend
-on Encounter.
+on Encounter. The sections link to the triage and retriage variables of the data catalog that store their
+codes and back (#1507).
 
 - **Catalog in the database.** Implemented in #1082 as decided in
   [ADR 032](../../02-architecture/decisions/032-mts-catalog-as-maintained-data.md). Tables of the Encounter

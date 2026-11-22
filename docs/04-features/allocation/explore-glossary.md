@@ -19,7 +19,11 @@ definitions, not data of a hospital.
 A catalog variable whose values a glossary page defines names that page with a `GlossaryReference`
 ([data-catalog.md](data-catalog.md), #1507). The variable shows "Definitions in the glossary"; the glossary
 page shows "Stored as" with the visible variables per section. Sections that variables point to carry a
-`key` (`CatalogGlossarySection::$key`, e.g. `tier`), which is the anchor of the section.
+`key` (`CatalogGlossarySection::$key`, e.g. `tier`), which is the anchor of the section. Pages of other
+contexts do the same: the MTS glossary (ed-visit plugin) has the sections `categories`, `diagrams` and
+`indicators`, named by the triage and retriage variables of `ed_visit`, and renders the shared partial
+`@Allocation/glossary/_catalog_usages.html.twig`. Only visible variables are listed, so a user without
+encounter access sees no "Stored as" on the MTS page.
 
 ## Pages of other contexts
 

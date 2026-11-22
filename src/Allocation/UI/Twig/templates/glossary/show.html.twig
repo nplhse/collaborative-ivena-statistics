@@ -54,14 +54,7 @@
                 <div class="card-header">
                     <h3 class="card-title">{{ section.titleKey|trans({}, section.titleDomain) }}</h3>
                 </div>
-                {% if sectionUsages is not empty %}
-                    <div class="card-body py-2 small" data-testid="glossary-catalog-usages">
-                        <span class="text-secondary me-1">{{ 'catalog.glossary.stored_as'|trans({}, 'allocation') }}</span>
-                        {% for usage in sectionUsages %}
-                            <a href="{{ path('app_explore_data_catalog_show', {objectKey: usage.objectKey}) }}#{{ usage.variable.anchor }}" class="badge bg-azure-lt text-decoration-none me-1" data-testid="glossary-catalog-usage" data-variable-key="{{ usage.variable.key }}"><twig:ux:icon name="tabler:database" class="me-1" width="1em" height="1em" aria-hidden="true" />{{ usage.objectTitleKey|trans({}, usage.objectDomain) }} · {{ usage.variable.labelKey|trans({}, usage.objectDomain) }}</a>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+                {{ include('@Allocation/glossary/_catalog_usages.html.twig', {usages: sectionUsages}) }}
                 <div class="table-responsive">
                     <table class="table table-vcenter card-table mb-0 glossary-table">
                         <colgroup>
