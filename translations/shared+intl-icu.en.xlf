@@ -333,6 +333,10 @@
         <source>link.sitemap</source>
         <target>Sitemap</target>
       </trans-unit>
+      <trans-unit id="PrintPrintedAtEn" resname="print.printed_at">
+        <source>print.printed_at</source>
+        <target>Printed on {date}</target>
+      </trans-unit>
       <trans-unit id="SitemapTitleEn" resname="sitemap.title">
         <source>sitemap.title</source>
         <target>Sitemap</target>
@@ -484,6 +488,10 @@
       <trans-unit id="lblDataTablePositionEn" resname="label.data_table.position">
         <source>label.data_table.position</source>
         <target>Position</target>
+      </trans-unit>
+      <trans-unit id="lblDataTablePrintPageEn" resname="label.data_table.print_current_page">
+        <source>label.data_table.print_current_page</source>
+        <target>This printout contains only the currently displayed page of this list.</target>
       </trans-unit>
       <trans-unit id="lblDataTableRequiredEn" resname="label.data_table.required">
         <source>label.data_table.required</source>

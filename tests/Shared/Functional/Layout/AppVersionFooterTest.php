@@ -31,6 +31,7 @@ final class AppVersionFooterTest extends WebTestCase
         self::assertSelectorTextContains('[data-testid="footer-meta-hoster"]', 'Uberspace');
         self::assertSame('https://uberspace.de', $crawler->filter('[data-testid="footer-meta-hoster"] a')->attr('href'));
         self::assertSelectorTextContains('[data-testid="footer-meta-version"]', Kernel::APP_VERSION);
+        self::assertSelectorTextContains('[data-testid="print-meta"]', Kernel::APP_VERSION);
     }
 
     public function testCopyrightShowsOneYearInTheStartYear(): void
