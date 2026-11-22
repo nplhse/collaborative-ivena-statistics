@@ -1569,6 +1569,18 @@
         <source>data_catalog.storage</source>
         <target>Stored in table.column</target>
       </trans-unit>
+      <trans-unit id="dcEn303" resname="data_catalog.storage_type">
+        <source>data_catalog.storage_type</source>
+        <target>Column type in the database</target>
+      </trans-unit>
+      <trans-unit id="dcEn304" resname="data_catalog.codes_count">
+        <source>data_catalog.codes_count</source>
+        <target>{count, plural, one {# code} other {# codes}}</target>
+      </trans-unit>
+      <trans-unit id="dcEn305" resname="data_catalog.local_time">
+        <source>data_catalog.local_time</source>
+        <target>Local time {timezone}, stored without offset</target>
+      </trans-unit>
       <trans-unit id="dcEn012" resname="data_catalog.nullable.yes">
         <source>data_catalog.nullable.yes</source>
         <target>may be missing</target>
@@ -1595,7 +1607,7 @@
       </trans-unit>
       <trans-unit id="dcEn018" resname="data_catalog.type.datetime">
         <source>data_catalog.type.datetime</source>
-        <target>Date and time</target>
+        <target>DateTime</target>
       </trans-unit>
       <trans-unit id="dcEn019" resname="data_catalog.type.date">
         <source>data_catalog.type.date</source>
@@ -1607,15 +1619,15 @@
       </trans-unit>
       <trans-unit id="dcEn021" resname="data_catalog.type.boolean">
         <source>data_catalog.type.boolean</source>
-        <target>Yes/no</target>
+        <target>Boolean</target>
       </trans-unit>
       <trans-unit id="dcEn022" resname="data_catalog.type.code">
         <source>data_catalog.type.code</source>
-        <target>Code</target>
+        <target>Enum</target>
       </trans-unit>
       <trans-unit id="dcEn023" resname="data_catalog.type.text">
         <source>data_catalog.type.text</source>
-        <target>Text</target>
+        <target>String</target>
       </trans-unit>
       <trans-unit id="dcEn024" resname="data_catalog.type.reference">
         <source>data_catalog.type.reference</source>
@@ -1623,7 +1635,7 @@
       </trans-unit>
       <trans-unit id="dcEn184" resname="data_catalog.type.code_set">
         <source>data_catalog.type.code_set</source>
-        <target>Code set</target>
+        <target>Enum set</target>
       </trans-unit>
       <trans-unit id="dcEn025" resname="data_catalog.group.identification">
         <source>data_catalog.group.identification</source>

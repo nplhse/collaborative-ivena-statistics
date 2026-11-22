@@ -26,6 +26,7 @@ final class ShowDataCatalogObjectController extends AbstractController
 
         return $this->render('@Allocation/data_catalog/show.html.twig', [
             'object' => $object,
+            'timezone' => date_default_timezone_get(),
         ]);
     }
 }

@@ -119,6 +119,32 @@ final class DataCatalogControllerTest extends WebTestCase
         self::assertSelectorTextNotContains('body', 'data_catalog.');
     }
 
+    public function testTypeCellShowsTermIconAndStorageType(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/explore/data-catalog/allocation');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('#allocation-is-cpr [data-testid="data-catalog-type"]', 'Boolean');
+        self::assertSelectorExists('#allocation-is-cpr [data-testid="data-catalog-type"][data-type="boolean"] svg');
+        self::assertSelectorTextContains('#allocation-is-cpr [data-testid="data-catalog-storage-type"]', 'boolean');
+        self::assertSelectorTextContains('#allocation-gender [data-testid="data-catalog-type"]', 'Enum');
+        self::assertSelectorTextContains('#allocation-gender [data-testid="data-catalog-storage-type"]', 'varchar(255)');
+        self::assertSelectorTextContains('#allocation-hospital [data-testid="data-catalog-storage-type"]', 'int');
+        self::assertSelectorTextContains('#allocation-created-at [data-testid="data-catalog-local-time"]', 'Local time Europe/Berlin, stored without offset');
+        self::assertSelectorNotExists('#allocation-age [data-testid="data-catalog-local-time"]');
+    }
+
+    public function testCodeListsUpToFiveCodesStayOpen(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/explore/data-catalog/allocation');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(5, '#allocation-assessment-breathing [data-testid="data-catalog-codes"] li');
+        self::assertSelectorNotExists('#allocation-assessment-breathing details');
+    }
+
     public function testGermanLocaleShowsGermanLabels(): void
     {
         $client = self::createClient();

@@ -83,19 +83,35 @@
                                             <span class="ms-2 text-nowrap" title="{{ 'data_catalog.storage'|trans({}, 'allocation') }}"><twig:ux:icon name="tabler:database" class="w-3 h-3" /> <code data-testid="data-catalog-storage">{{ variable.table }}.{{ variable.column }}</code></span>
                                         </div>
                                     </td>
-                                    <td class="align-top text-nowrap">
-                                        {{ variable.type.labelKey|trans({}, 'allocation') }}
+                                    <td class="align-top" data-testid="data-catalog-type" data-type="{{ variable.type.value }}">
+                                        <span class="text-nowrap"><twig:ux:icon name="{{ variable.type.icon }}" class="text-secondary me-1" width="1.1em" height="1.1em" aria-hidden="true" />{{ variable.type.labelKey|trans({}, 'allocation') }}</span>
+                                        {% if variable.storageType is not null %}
+                                            <div class="small" title="{{ 'data_catalog.storage_type'|trans({}, 'allocation') }}"><code data-testid="data-catalog-storage-type">{{ variable.storageType }}</code></div>
+                                        {% endif %}
+                                        {% if variable.type.isLocalTime %}
+                                            <div class="small text-secondary" data-testid="data-catalog-local-time">{{ 'data_catalog.local_time'|trans({timezone: timezone}, 'allocation') }}</div>
+                                        {% endif %}
                                         <div class="small text-secondary">
                                             {{ (variable.nullable ? 'data_catalog.nullable.yes' : 'data_catalog.nullable.no')|trans({}, 'allocation') }}
                                         </div>
                                     </td>
                                     <td class="align-top">
                                         {% if variable.codes is not empty %}
-                                            <ul class="list-unstyled mb-0" data-testid="data-catalog-codes">
-                                                {% for code in variable.codes %}
-                                                    <li><code>{{ code.code }}</code>{% if code.labelKey is not null %} {{ code.labelKey|trans({}, code.domain) }}{% endif %}</li>
-                                                {% endfor %}
-                                            </ul>
+                                            {% set codeList %}
+                                                <ul class="list-unstyled mb-0" data-testid="data-catalog-codes">
+                                                    {% for code in variable.codes %}
+                                                        <li><code>{{ code.code }}</code>{% if code.labelKey is not null %} {{ code.labelKey|trans({}, code.domain) }}{% endif %}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endset %}
+                                            {% if variable.collapsesCodes %}
+                                                <details data-testid="data-catalog-codes-toggle">
+                                                    <summary>{{ 'data_catalog.codes_count'|trans({count: variable.codes|length}, 'allocation') }}</summary>
+                                                    {{ codeList }}
+                                                </details>
+                                            {% else %}
+                                                {{ codeList }}
+                                            {% endif %}
                                         {% elseif variable.range is not null %}
                                             <span data-testid="data-catalog-range">
                                                 {{ variable.range.min is null ? '…' : variable.range.min|format_number }}

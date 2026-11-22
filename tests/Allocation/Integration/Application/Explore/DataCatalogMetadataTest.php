@@ -141,6 +141,27 @@ final class DataCatalogMetadataTest extends KernelTestCase
         self::assertSame(DataCatalogType::DATETIME, $this->variable($encounter, 'encounter.created_at')->type);
     }
 
+    public function testStorageTypeIsTheColumnDeclarationOfThePlatform(): void
+    {
+        $allocation = $this->object('allocation');
+        $expected = [
+            'allocation.urgency' => 'int',
+            'allocation.gender' => 'varchar(255)',
+            'allocation.is_cpr' => 'boolean',
+            'allocation.created_at' => 'timestamp(0) without time zone',
+            'allocation.hospital' => 'int',
+        ];
+        foreach ($expected as $key => $storageType) {
+            self::assertSame($storageType, $this->variable($allocation, $key)->storageType, $key);
+        }
+
+        $hospital = $this->object('hospital');
+        self::assertSame('double precision', $this->variable($hospital, 'hospital.latitude')->storageType);
+        self::assertSame('varchar(255)', $this->variable($hospital, 'hospital.postal_code')->storageType, 'Default length of the schema tool.');
+        self::assertSame('varchar(120)', $this->variable($this->object('indication_group'), 'indication_group.category')->storageType);
+        self::assertSame('varchar(1)', $this->variable($this->object('encounter'), 'encounter.sex')->storageType);
+    }
+
     public function testEncounterVariablesMatchTheDoctrineMapping(): void
     {
         $encounter = $this->object('encounter');
