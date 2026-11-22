@@ -89,6 +89,8 @@ app:
             overdue_after_minutes: 1500
         import_pending_upload_purge:
             overdue_after_minutes: 120
+        media_integrity_check:
+            overdue_after_minutes: 1500
         reaction_cleanup:
             overdue_after_minutes: 1500
 
