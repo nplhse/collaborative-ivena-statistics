@@ -11,6 +11,8 @@ final readonly class HospitalInsight
         public string $body,
         public HospitalInsightTrend $trend,
         public ?string $linkUrl = null,
+        /** Short remark shown with the insight, for example that it ignores the report's filters. */
+        public ?string $note = null,
     ) {
     }
 }

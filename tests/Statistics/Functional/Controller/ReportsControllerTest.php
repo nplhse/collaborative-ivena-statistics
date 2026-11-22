@@ -356,6 +356,65 @@ final class ReportsControllerTest extends WebTestCase
         $this->assertStringContainsString('year=2026', (string) $link);
         $this->assertStringContainsString('month=3', (string) $link);
         $this->assertSelectorNotExists('[data-testid="stats-monthly-report-closed-department-empty"]');
+
+        // The drawer filter applies to the headline and to the closed department section alike (#1039).
+        $client->request(Request::METHOD_GET, '/statistics/reports/monthly?scope=public&year=2026&month=3&urgency=1');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="statistics-filters-active"]');
+        $this->assertSelectorTextContains('[data-testid="stats-monthly-report-kpis"]', '3');
+        $this->assertSelectorTextSame('[data-testid="stats-monthly-report-closed-department-count"] .h1', '3');
+        $this->assertSelectorTextContains('[data-testid="stats-monthly-report-closed-department-count"] .h1 + .small', '100');
+    }
+
+    public function testMonthlyReportMarksTheRejectionRateInsightAsUnfiltered(): void
+    {
+        $client = self::createClient();
+        $owner = $this->loginAsParticipant($client);
+        $state = StateFactory::createOne(['name' => 'MonthlyNoteState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'MonthlyNoteDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne(['name' => 'MonthlyNoteHospital', 'owner' => $owner, 'state' => $state, 'dispatchArea' => $dispatchArea]);
+        DepartmentFactory::createOne();
+        SpecialityFactory::createOne();
+        AssignmentFactory::createOne();
+        IndicationRawFactory::createOne(['name' => 'MonthlyNoteRaw', 'code' => 912_802]);
+        IndicationNormalizedFactory::createOne(['name' => 'MonthlyNoteNorm']);
+        $import = ImportFactory::createOne(['name' => 'MonthlyNoteImport', 'hospital' => $hospital, 'createdBy' => $owner]);
+        AllocationFactory::createMany(2, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'createdAt' => new \DateTimeImmutable('2026-03-10 10:00:00'),
+        ]);
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+        // Rejected import rows: 10 % in February, 5 % in March.
+        $connection = self::getContainer()->get(Connection::class);
+        foreach ([['2026-02-15', 10], ['2026-03-15', 5]] as [$date, $rejected]) {
+            $connection->insert('kpi_daily', [
+                'date' => $date,
+                'hospital_id' => $hospital->getId(),
+                'imports_count' => 1,
+                'successful_imports_count' => 1,
+                'records_total' => 100,
+                'records_processed' => 100 - $rejected,
+                'records_rejected' => $rejected,
+                'failed_imports_count' => 0,
+                'created_at' => $date.' 12:00:00',
+            ]);
+        }
+        $url = '/statistics/reports/monthly?scope=hospital&hospital='.$hospital->getId().'&year=2026&month=3';
+
+        $client->request(Request::METHOD_GET, $url);
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-monthly-report-insights"]');
+        $this->assertSelectorNotExists('[data-testid="stats-monthly-report-insight-note"]');
+
+        // The rejection rate counts import rows and cannot follow the drawer; its insight says so (#1039).
+        $client->request(Request::METHOD_GET, $url.'&urgency=1');
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('[data-testid="stats-monthly-report-insights"] [data-testid="stats-monthly-report-insight-note"]', 'regardless of the filter');
     }
 
     public function testMonthlyReportShowsClosedDepartmentZeroStateWhenNoClosedAllocations(): void

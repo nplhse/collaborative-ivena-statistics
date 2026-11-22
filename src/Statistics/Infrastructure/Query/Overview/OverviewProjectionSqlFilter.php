@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Statistics\Infrastructure\Query\Overview;
 
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
+use App\Statistics\Infrastructure\Query\ProjectionDrawerFilterSql;
+
 /**
  * Builds SQL WHERE fragments and DBAL parameters for allocation_stats_projection reads.
  */
@@ -36,6 +39,12 @@ final class OverviewProjectionSqlFilter
         if (null !== $criteria->dispatchAreaId) {
             $conditions[] = sprintf('%sdispatch_area_id = :dispatch_area_id', $prefix);
             $params['dispatch_area_id'] = $criteria->dispatchAreaId;
+        }
+
+        if ($criteria->drawerFilter instanceof StatisticsDrawerFilter && $criteria->drawerFilter->isActive()) {
+            [$drawerConditions, $drawerParams] = new ProjectionDrawerFilterSql()->apply($criteria->drawerFilter, $tableAlias);
+            $conditions = [...$conditions, ...$drawerConditions];
+            $params = [...$params, ...$drawerParams];
         }
 
         return [implode(' AND ', $conditions), $params];

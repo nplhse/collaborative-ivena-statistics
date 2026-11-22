@@ -77,6 +77,9 @@
                             <div class="list-group-item">
                                 <div class="fw-bold">{{ insight.title }}</div>
                                 <div class="text-secondary">{{ insight.body }}</div>
+                                {% if insight.note %}
+                                    <div class="small text-secondary fst-italic mt-1" data-testid="stats-monthly-report-insight-note">{{ insight.note }}</div>
+                                {% endif %}
                             </div>
                         {% endfor %}
                     </div>
