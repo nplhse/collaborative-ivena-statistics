@@ -210,5 +210,14 @@ Long-term view of [counted accesses](#counted-accesses), built by `AccessTrendSe
 - **Incomplete periods** are marked: the current month and year ("Not over yet") and the period in
   which the counting started ("Counted from …"). The chart draws them lighter.
 - **Time zone:** days, months and years are Europe/Berlin calendar periods.
+- **Range** (#1001): the chart shows the last 12 months by default; buttons switch to 24 months or
+  all months. The per-month table follows the chosen range (newest first); the per-year table and the
+  totals always cover the whole counted period.
+- **What is loaded:** `AnalyticsAccessTrendQuery::monthlyAccesses()` sums the days into months in the
+  database and returns one row per month with the month's first counted day, so the page no longer
+  reads one row per day. `AccessTrendBuilder` fills months without accesses with 0 and sums the years
+  from the months. The page always receives every monthly sum (12 per year) and the range is applied
+  in the browser (`access-trend-chart` controller, `assets/lib/access-trend-range.js`): the data stays
+  small, and switching the range needs no request.
 
 Count-based widgets (requests, feature areas, routes) combine daily aggregates with raw rows for today and any unaggregated gaps. Distinct-user metrics (DAU/WAU/MAU, sessions) stay on the raw 30-day window. Details: [aggregation-and-retention.md](aggregation-and-retention.md).

@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { lastMonths } from '../lib/access-trend-range.js';
 import { applyChartNonce, loadApexCharts } from '../lib/load-apexcharts.js';
 
 const COLORS = {
@@ -9,15 +10,19 @@ const COLORS = {
 /**
  * Counted accesses per month (#950): stacked bars of signed-in and anonymous page views. Months that are not
  * over yet or in which the counting started are drawn lighter and marked in the label.
+ *
+ * The range buttons (#1001) show the last 12 or 24 months or all of them (0); the month table rows follow the
+ * same range. All monthly sums arrive with the page, so switching needs no request.
  */
 /* stimulusFetch: 'lazy' */
 export default class extends Controller {
     static values = {
         months: Array,
         labels: Object,
+        range: { type: Number, default: 12 },
     };
 
-    static targets = ['chart'];
+    static targets = ['chart', 'rangeButton', 'monthRow'];
 
     connect() {
         this.chartInstance = null;
@@ -33,6 +38,33 @@ export default class extends Controller {
         }
     }
 
+    selectRange(event) {
+        const months = Number(event.params.months);
+        if (!Number.isInteger(months) || months < 0) {
+            return;
+        }
+
+        this.rangeValue = months;
+    }
+
+    rangeValueChanged() {
+        this.rangeButtonTargets.forEach((button) => {
+            const active = Number(button.dataset.accessTrendChartMonthsParam) === this.rangeValue;
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+
+        // Rows are newest first, so the first `range` rows are the months in range.
+        this.monthRowTargets.forEach((row, index) => {
+            row.hidden = this.rangeValue > 0 && index >= this.rangeValue;
+        });
+
+        if (this.chartInstance) {
+            this._renderGeneration += 1;
+            void this.renderChart(this._renderGeneration);
+        }
+    }
+
     async renderChart(generation) {
         if (!this.hasChartTarget || this.monthsValue.length === 0) {
             return;
@@ -43,13 +75,19 @@ export default class extends Controller {
             return;
         }
 
-        this.chartInstance = new ApexCharts(this.chartTarget, applyChartNonce(this.buildOptions()));
-        await this.chartInstance.render();
+        const options = applyChartNonce(
+            this.buildOptions(lastMonths(this.monthsValue, this.rangeValue)),
+        );
+        if (this.chartInstance) {
+            this.chartInstance.updateOptions(options, true, false);
+        } else {
+            this.chartInstance = new ApexCharts(this.chartTarget, options);
+            await this.chartInstance.render();
+        }
     }
 
-    buildOptions() {
+    buildOptions(months) {
         const labels = this.labelsValue ?? {};
-        const months = this.monthsValue;
         const categories = months.map((month) =>
             month.incomplete
                 ? `${month.label} (${labels.incomplete ?? 'incomplete'})`
