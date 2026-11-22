@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Content\Functional\Controller;
 
+use App\Allocation\Domain\Entity\HospitalAssignmentRequest;
+use App\Allocation\Domain\Enum\HospitalAssignmentReason;
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
@@ -27,7 +29,9 @@ use App\Content\Infrastructure\Factory\PostFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Onboarding\Domain\Enum\OnboardingStepKey;
 use App\Onboarding\Infrastructure\Factory\UserOnboardingStepFactory;
+use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -174,11 +178,13 @@ final class DefaultControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', 'View all Hospitals');
+        // Without clinic access the first tile leads to the assignment request (#1483).
+        self::assertSelectorExists('a[data-testid="dashboard-tile-access-request"][href="/hospitals/requests/new"]');
+        self::assertSelectorTextContains('[data-testid="dashboard-tile-access-request"]', 'Request hospital assignment');
+        self::assertSelectorTextNotContains('body', 'View all Hospitals');
         self::assertSelectorTextContains('body', 'Explore our Data');
         self::assertSelectorTextContains('body', 'Analyze your Data');
         self::assertSelectorNotExists('[data-testid="dashboard-participant-access-notice"]');
-        self::assertSelectorExists('a[href="/explore/hospital"]');
         self::assertSelectorExists('a[href="/explore"]');
         self::assertSelectorExists('a[data-testid="dashboard-metric-allocations"][href="/explore/allocation"]');
         self::assertSelectorExists('a[data-testid="dashboard-metric-hospitals"][href="/explore/hospital?participating=1"]');
@@ -220,7 +226,8 @@ final class DefaultControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('body', 'View your Hospitals');
         self::assertSelectorTextContains('body', 'Import new Allocations');
-        self::assertSelectorExists('a[href="/hospitals"]');
+        self::assertSelectorExists('a[data-testid="dashboard-tile-hospitals"][href="/hospitals"]');
+        self::assertSelectorNotExists('[data-testid^="dashboard-tile-access-request"]');
         self::assertSelectorExists('a[href="/import/new"]');
     }
 
@@ -248,6 +255,66 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorExists('a[href="/import/new"]');
     }
 
+    public function testParticipantWithOnlyAnAccessGrantSeesTheirHospitals(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => HospitalFactory::createOne(['owner' => $owner]),
+            'user' => $user,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View]),
+            'createdBy' => $owner,
+        ]);
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('a[data-testid="dashboard-tile-hospitals"][href="/hospitals"]');
+        self::assertSelectorNotExists('[data-testid^="dashboard-tile-access-request"]');
+        self::assertSelectorNotExists('[data-testid="onboarding-step-request_clinic_access"]');
+    }
+
+    public function testPendingAssignmentRequestIsShownInTileAndOnboardingStep(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $request = $this->storeAssignmentRequest($user, 'Klinikum Nord');
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        $requestUrl = '/hospitals/requests#request-'.$request->getPublicIdString();
+        self::assertResponseIsSuccessful();
+        // A full page load, so the browser marks the linked card as :target (Turbo does not).
+        self::assertSelectorExists(sprintf('a[data-testid="dashboard-tile-access-request-pending"][href="%s"][data-turbo="false"]', $requestUrl));
+        self::assertSelectorTextContains('[data-testid="dashboard-tile-access-request-pending"]', 'Your request for Klinikum Nord is being reviewed.');
+        self::assertSelectorTextContains('[data-testid="onboarding-step-request_clinic_access"] [data-testid="onboarding-request-status"]', 'Pending');
+        self::assertSelectorExists(sprintf('[data-testid="onboarding-step-request_clinic_access"] a[data-testid="onboarding-step-action"][href="%s"][data-turbo="false"]', $requestUrl));
+        self::assertSelectorNotExists('[data-testid="onboarding-step-request_clinic_access"] form');
+    }
+
+    public function testRejectedAssignmentRequestShowsOnlyItsStatus(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $request = $this->storeAssignmentRequest($user, 'Klinikum Nord');
+        $request->reject(UserFactory::new()->asAdmin()->create(), 'Please ask your department head first.', new \DateTimeImmutable('2026-11-21'));
+        self::getContainer()->get(EntityManagerInterface::class)->flush();
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists(sprintf('a[data-testid="dashboard-tile-access-request-rejected"][href="/hospitals/requests#request-%s"]', $request->getPublicIdString()));
+        self::assertSelectorTextContains('[data-testid="dashboard-tile-access-request-rejected"]', 'Request rejected');
+        self::assertSelectorTextContains('[data-testid="onboarding-step-request_clinic_access"] [data-testid="onboarding-request-status"]', 'Rejected');
+        self::assertSelectorExists('[data-testid="onboarding-step-request_clinic_access"] a[data-testid="onboarding-step-secondary-action"][href="/hospitals/requests/new"]');
+        // The reviewer's message stays on the request page.
+        self::assertSelectorTextNotContains('body', 'Please ask your department head first.');
+    }
+
     public function testParticipantWithoutClinicSeesOnboardingCard(): void
     {
         $client = self::createClient();
@@ -267,6 +334,7 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="onboarding-step-view_overview_statistics"][data-testid-onboarding-locked="true"]');
         self::assertSelectorExists('[data-testid="onboarding-step-view_explore_data"][data-testid-onboarding-locked="true"]');
         self::assertSelectorNotExists('[data-testid="dashboard-onboarding-progress"]');
+        self::assertSelectorNotExists('[data-testid="onboarding-step-request_clinic_access"] form');
     }
 
     public function testHospitalOwnerSeesOnlyNextSequentialOnboardingStepActionable(): void
@@ -343,6 +411,17 @@ final class DefaultControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('[data-testid="dashboard-onboarding-card"]');
+    }
+
+    private function storeAssignmentRequest(User $user, string $hospitalName): HospitalAssignmentRequest
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $hospital = HospitalFactory::createOne(['name' => $hospitalName, 'owner' => UserFactory::createOne()]);
+        $request = new HospitalAssignmentRequest($user, $hospital, null, HospitalAssignmentReason::DataSubmission, null, null, new \DateTimeImmutable('2026-11-20'));
+        $entityManager->persist($request);
+        $entityManager->flush();
+
+        return $request;
     }
 
     public function testDashboardSidebarShowsPublishedPostsAndPages(): void

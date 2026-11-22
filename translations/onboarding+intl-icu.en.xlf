@@ -85,6 +85,34 @@
         <source>onboarding.steps.view_overview_statistics.action</source>
         <target>Open statistics</target>
       </trans-unit>
+      <trans-unit id="OnbReqEn01" resname="onboarding.steps.request_clinic_access.pending.description">
+        <source>onboarding.steps.request_clinic_access.pending.description</source>
+        <target>Your request for {hospital} is being reviewed. You will be notified once it is decided.</target>
+      </trans-unit>
+      <trans-unit id="OnbReqEn02" resname="onboarding.steps.request_clinic_access.pending.action">
+        <source>onboarding.steps.request_clinic_access.pending.action</source>
+        <target>View request</target>
+      </trans-unit>
+      <trans-unit id="OnbReqEn03" resname="onboarding.steps.request_clinic_access.rejected.description">
+        <source>onboarding.steps.request_clinic_access.rejected.description</source>
+        <target>Your request for {hospital} was rejected. The request shows the reason.</target>
+      </trans-unit>
+      <trans-unit id="OnbReqEn04" resname="onboarding.steps.request_clinic_access.rejected.action">
+        <source>onboarding.steps.request_clinic_access.rejected.action</source>
+        <target>View request</target>
+      </trans-unit>
+      <trans-unit id="OnbReqEn05" resname="onboarding.steps.request_clinic_access.rejected.retry">
+        <source>onboarding.steps.request_clinic_access.rejected.retry</source>
+        <target>Request again</target>
+      </trans-unit>
+      <trans-unit id="OnbReqEn06" resname="onboarding.request_status.pending">
+        <source>onboarding.request_status.pending</source>
+        <target>Pending</target>
+      </trans-unit>
+      <trans-unit id="OnbReqEn07" resname="onboarding.request_status.rejected">
+        <source>onboarding.request_status.rejected</source>
+        <target>Rejected</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

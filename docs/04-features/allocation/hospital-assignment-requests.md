@@ -13,7 +13,10 @@ the permission model: an approval creates an ordinary hospital access grant or m
 | Withdraw | `POST /hospitals/requests/{publicId}/withdraw` (CSRF) | the requester; other users get 404 |
 
 - Entry points: My Hospitals (header and empty state), the hospital detail page for participants without access to it
-  (a pending request is shown instead), and the onboarding step "Request access to your clinic".
+  (a pending request is shown instead), the onboarding step "Request access to your clinic" and the first action tile
+  of the dashboard. While a request is pending or rejected, the onboarding step and the tile link to it instead
+  ([participant onboarding](../onboarding/participant-onboarding.md#step-1-and-the-assignment-request), #1483).
+- Every card on "My requests" is an anchor `#request-<public id>`; the linked card is highlighted.
 - The participant picks a hospital by name from every hospital (label: name and city). A name that matches no entry
   is sent as the name of a hospital they could not find; no hospital is created from it. Without JavaScript an
   exact label still selects the hospital.

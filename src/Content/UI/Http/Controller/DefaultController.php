@@ -7,6 +7,7 @@ namespace App\Content\UI\Http\Controller;
 use App\Content\Application\Dashboard\DashboardMetricsService;
 use App\Content\Infrastructure\Repository\PostRepository;
 use App\Onboarding\Application\OnboardingProgressService;
+use App\Onboarding\Application\OnboardingStepCatalog;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,6 +19,7 @@ final class DefaultController extends AbstractController
         private readonly DashboardMetricsService $dashboardMetricsService,
         private readonly PostRepository $postRepository,
         private readonly OnboardingProgressService $onboardingProgressService,
+        private readonly OnboardingStepCatalog $onboardingStepCatalog,
     ) {
     }
 
@@ -31,11 +33,16 @@ final class DefaultController extends AbstractController
             $onboardingCard = $user instanceof User
                 ? $this->onboardingProgressService->buildCardForUser($user)
                 : null;
+            // Decides the first action tile for participants (#1483).
+            $clinicAccess = $user instanceof User && $this->isGranted('ROLE_PARTICIPANT')
+                ? $this->onboardingStepCatalog->resolveClinicAccessState($user)
+                : null;
 
             return $this->render('@Content/dashboard/dashboard.html.twig', [
                 'metrics' => $metrics,
                 'recentPosts' => $this->postRepository->findPublishedForIndex(5),
                 'onboardingCard' => $onboardingCard,
+                'clinicAccess' => $clinicAccess,
             ]);
         }
 

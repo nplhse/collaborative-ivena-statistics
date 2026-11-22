@@ -57,6 +57,31 @@ final class HospitalAssignmentRequestRepositoryTest extends KernelTestCase
         self::assertNull($repository->findOneByPublicId('not-a-uuid'));
     }
 
+    public function testTheCurrentRequestIsTheNewestPendingOneOtherwiseTheNewest(): void
+    {
+        self::bootKernel();
+        $user = UserFactory::new()->asParticipant()->create();
+        $repository = self::getContainer()->get(HospitalAssignmentRequestRepository::class);
+        self::assertNull($repository->findCurrentForRequester($user));
+
+        $olderPending = $this->requestAt($user, HospitalFactory::createOne(), '2026-11-10');
+        $newerPending = $this->requestAt($user, HospitalFactory::createOne(), '2026-11-12');
+        $newestRejected = $this->requestAt($user, HospitalFactory::createOne(), '2026-11-14');
+        $newestRejected->reject(UserFactory::new()->asAdmin()->create(), null, new \DateTimeImmutable('2026-11-15'));
+        $this->entityManager()->flush();
+        $this->requestAt(UserFactory::new()->asParticipant()->create(), HospitalFactory::createOne(), '2026-11-20');
+
+        self::assertSame($newerPending, $repository->findCurrentForRequester($user));
+
+        $newerPending->withdraw(new \DateTimeImmutable('2026-11-16'));
+        $this->entityManager()->flush();
+        self::assertSame($olderPending, $repository->findCurrentForRequester($user));
+
+        $olderPending->withdraw(new \DateTimeImmutable('2026-11-17'));
+        $this->entityManager()->flush();
+        self::assertSame($newestRejected, $repository->findCurrentForRequester($user));
+    }
+
     public function testADecisionOnAnOutdatedVersionIsRefused(): void
     {
         self::bootKernel();
@@ -83,6 +108,14 @@ final class HospitalAssignmentRequestRepositoryTest extends KernelTestCase
     private function request(User $user, Hospital $hospital): HospitalAssignmentRequest
     {
         return new HospitalAssignmentRequest($user, $hospital, null, HospitalAssignmentReason::DataSubmission, null, null, new \DateTimeImmutable('2026-11-21'));
+    }
+
+    private function requestAt(User $user, Hospital $hospital, string $createdAt): HospitalAssignmentRequest
+    {
+        $request = new HospitalAssignmentRequest($user, $hospital, null, HospitalAssignmentReason::DataSubmission, null, null, new \DateTimeImmutable($createdAt));
+        $this->store($request);
+
+        return $request;
     }
 
     private function store(HospitalAssignmentRequest $request): void

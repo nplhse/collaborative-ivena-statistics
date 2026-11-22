@@ -42,6 +42,28 @@ final class HospitalAssignmentRequestRepository extends ServiceEntityRepository
         return $this->findBy(['requester' => $requester], ['createdAt' => 'DESC', 'id' => 'DESC']);
     }
 
+    /**
+     * The request that describes where a participant stands (#1483): the newest pending one, otherwise the newest
+     * request of any status.
+     */
+    public function findCurrentForRequester(User $requester): ?HospitalAssignmentRequest
+    {
+        /** @var HospitalAssignmentRequest|null $request */
+        $request = $this->createQueryBuilder('r')
+            ->addSelect('CASE WHEN r.status = :pending THEN 0 ELSE 1 END AS HIDDEN pendingFirst')
+            ->where('IDENTITY(r.requester) = :requesterId')
+            ->setParameter('requesterId', $requester->getId(), Types::INTEGER)
+            ->setParameter('pending', HospitalAssignmentRequestStatus::Pending->value, Types::STRING)
+            ->orderBy('pendingFirst', 'ASC')
+            ->addOrderBy('r.createdAt', 'DESC')
+            ->addOrderBy('r.id', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $request;
+    }
+
     public function hasPendingForRequesterAndHospital(User $requester, Hospital $hospital): bool
     {
         return null !== $this->findOneBy([

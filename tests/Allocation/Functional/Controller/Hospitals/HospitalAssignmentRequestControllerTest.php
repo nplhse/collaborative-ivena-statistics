@@ -151,6 +151,17 @@ final class HospitalAssignmentRequestControllerTest extends WebTestCase
         self::assertSame(HospitalAssignmentRequestStatus::Withdrawn, $this->reload($request)->getStatus());
     }
 
+    public function testEveryRequestCardIsAnAnchor(): void
+    {
+        $client = $this->participantClient($user);
+        $request = $this->storedRequest($user, $this->hospital());
+
+        $crawler = $client->request(Request::METHOD_GET, '/hospitals/requests');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame('request-'.$request->getPublicIdString(), $crawler->filter('[data-testid="hospital-assignment-request"]')->attr('id'));
+    }
+
     public function testRequestsOfOtherUsersCannotBeWithdrawn(): void
     {
         $client = $this->participantClient();

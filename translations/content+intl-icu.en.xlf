@@ -13,14 +13,6 @@
         <source>dashboard.next_steps.hospitals.owned.description</source>
         <target>Review participating hospitals and jump into their latest allocation details.</target>
       </trans-unit>
-      <trans-unit id="dshNxtHospAllTit" resname="dashboard.next_steps.hospitals.all.title">
-        <source>dashboard.next_steps.hospitals.all.title</source>
-        <target>View all Hospitals</target>
-      </trans-unit>
-      <trans-unit id="dshNxtHospAllDesc" resname="dashboard.next_steps.hospitals.all.description">
-        <source>dashboard.next_steps.hospitals.all.description</source>
-        <target>Browse the full hospital directory and discover participating facilities.</target>
-      </trans-unit>
       <trans-unit id="dshNxtExplTit" resname="dashboard.next_steps.explore.title">
         <source>dashboard.next_steps.explore.title</source>
         <target>Explore our Data</target>
@@ -1420,6 +1412,30 @@
       <trans-unit id="help_help_navigation_title" resname="help.navigation.title">
         <source>help.navigation.title</source>
         <target>Help topics</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqEn01" resname="dashboard.next_steps.access_request.new.title">
+        <source>dashboard.next_steps.access_request.new.title</source>
+        <target>Request hospital assignment</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqEn02" resname="dashboard.next_steps.access_request.new.description">
+        <source>dashboard.next_steps.access_request.new.description</source>
+        <target>Ask to be assigned to your hospital to work with its data.</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqEn03" resname="dashboard.next_steps.access_request.pending.title">
+        <source>dashboard.next_steps.access_request.pending.title</source>
+        <target>Request under review</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqEn04" resname="dashboard.next_steps.access_request.pending.description">
+        <source>dashboard.next_steps.access_request.pending.description</source>
+        <target>Your request for {hospital} is being reviewed.</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqEn05" resname="dashboard.next_steps.access_request.rejected.title">
+        <source>dashboard.next_steps.access_request.rejected.title</source>
+        <target>Request rejected</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqEn06" resname="dashboard.next_steps.access_request.rejected.description">
+        <source>dashboard.next_steps.access_request.rejected.description</source>
+        <target>Open your request for {hospital} to see the reason.</target>
       </trans-unit>
     </body>
   </file>
