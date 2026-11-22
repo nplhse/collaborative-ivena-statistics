@@ -10,7 +10,9 @@ use App\Shared\Application\Locale\UserLocalePreferenceUpdater;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
+use App\User\Infrastructure\Query\TwoFactorRecommendationQuery;
 use App\User\Infrastructure\Security\EmailVerifier;
+use App\User\Infrastructure\Security\TwoFactor\TwoFactorAvailability;
 use App\User\UI\Form\ForceChangePasswordType;
 use App\User\UI\Form\SettingsEmailType;
 use App\User\UI\Form\SettingsLocaleType;
@@ -38,13 +40,22 @@ final class SettingsController extends AbstractController
         private readonly AuditContext $auditContext,
         private readonly UserLocalePreferenceUpdater $userLocalePreferenceUpdater,
         private readonly LocaleResolver $localeResolver,
+        private readonly TwoFactorAvailability $twoFactorAvailability,
+        private readonly TwoFactorRecommendationQuery $twoFactorRecommendation,
     ) {
     }
 
     #[Route('/settings', name: 'app_settings_index', methods: ['GET'])]
     public function index(): Response
     {
-        return $this->render('@User/settings/index.html.twig');
+        $user = $this->requireUser();
+
+        return $this->render('@User/settings/index.html.twig', [
+            // Hospital owners and import grantees (#1357): the two-factor tile says it is recommended.
+            'twoFactorRecommended' => $this->twoFactorAvailability->isAvailable()
+                && !$user->isTotpAuthenticationEnabled()
+                && $this->twoFactorRecommendation->isRecommendedFor($user),
+        ]);
     }
 
     #[Route('/settings/account', name: 'app_settings_account', methods: ['GET', 'POST'])]

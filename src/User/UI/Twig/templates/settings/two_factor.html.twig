@@ -66,6 +66,8 @@
                                     </div>
                                 </form>
                             </div>
+                            {# Administrators keep it while the obligation is on (app.security.two_factor.required_for_admins). #}
+                            {% if not required %}
                             <div class="card-body flex-grow-1" data-test="two-factor-disable-section">
                                 <h3 class="card-title text-danger">{{ 'label.settings.two_factor_disable_heading'|trans({}, 'user') }}</h3>
                                 <p class="card-subtitle">{{ 'help.settings.two_factor_disable'|trans({}, 'user') }}</p>
@@ -80,8 +82,12 @@
                                     </div>
                                 </form>
                             </div>
+                            {% endif %}
                         {% else %}
                             <div class="card-body flex-grow-1">
+                                {% if required %}
+                                    <twig:Alert type="warning" data-test="two-factor-required">{{ 'text.settings.two_factor.required'|trans({}, 'user') }}</twig:Alert>
+                                {% endif %}
                                 <p class="text-secondary">{{ 'help.settings.two_factor'|trans({}, 'user') }}</p>
                                 <div class="row g-4" data-test="two-factor-setup">
                                     <div class="col-12 col-lg-auto text-center">

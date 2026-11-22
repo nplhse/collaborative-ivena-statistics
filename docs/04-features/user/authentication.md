@@ -75,6 +75,16 @@ Users can protect their account with a six-digit code from an authenticator app 
 - **Secret storage:** `user.totp_secret_encrypted`, encrypted with `APP_TWO_FACTOR_KEY` (`TwoFactorSecretCipher`,
   libsodium) and decrypted after loading (`TwoFactorSecretLoader`); the decrypted secret is never serialized into the
   session.
+- **Recommended** for hospital owners and users with an import grant: the settings overview marks the tile
+  (`TwoFactorRecommendationQuery`).
+- **Obligation for administrators:** `app.security.two_factor.required_for_admins` in `config/packages/app.yaml`
+  (default `false`, forced off in dev and demo). When on and the feature is available, `RequireTwoFactorListener` sends
+  administrators without it to `/settings/two-factor` on every page load (other requests get a 403) and they cannot
+  switch it off. Setup, password confirmation, logout, cookie and language choice stay reachable.
+- **Reset:** administrators reset it for other accounts on the user's detail page in EasyAdmin (POST with CSRF token,
+  `IS_AUTHENTICATED_FULLY`); for the last administrator an operator runs `app:user:reset-two-factor <username>`.
+  `TwoFactorReset` switches it off, writes the audit intent `user.two_factor.reset_by_admin` or
+  `user.two_factor.reset_by_console` and sends the notification `security.two_factor_reset` with a mandatory email.
 - **Availability:** offered only with a valid `APP_TWO_FACTOR_KEY` (64 hex characters) and never in the demo
   (`TwoFactorAvailability`). If accounts use it and the key is missing or wrong, codes fail and only backup codes work;
   the `two_factor` health check reports it ([health-check.md](../../05-operations/health-check.md)).
@@ -109,6 +119,6 @@ logged. An aggregated view for administrators is planned in #1487.
 
 `tests/User/Functional/Controller/SecurityControllerTest.php` covers username and email login, the generic errors and
 the shared throttling; `LoginLinkTest` covers the login link (opt-in, same answer for every request, rate limit,
-confirmation page, single use, invalidation, consent); `TwoFactorLoginTest` and `TwoFactorSettingsTest` cover the
-second factor; `RememberMeLoginTest` and `ConfirmPasswordControllerTest` cover
+confirmation page, single use, invalidation, consent); `TwoFactorLoginTest`, `TwoFactorSettingsTest`,
+`TwoFactorObligationAndResetTest` and `ResetTwoFactorCommandTest` cover the second factor; `RememberMeLoginTest` and `ConfirmPasswordControllerTest` cover
 sessions and re-authentication.

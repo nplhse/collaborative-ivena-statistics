@@ -30,11 +30,19 @@ grants only `IS_AUTHENTICATED_2FA_IN_PROGRESS`, the code form on `/2fa` and the 
 the remember-me cookie only after the code. `scheb/2fa-totp` brings `spomky-labs/otphp` and uses the Symfony clock
 (ADR 021). The QR code is rendered as SVG with `bacon/bacon-qr-code` 3 (`endroid/qr-code` 6 needs PHP 8.5).
 
-### Optional for everyone
+### Optional for everyone, configurable for administrators
 
-Every user can switch on two-factor authentication in the settings (`/settings/two-factor`). Nobody is required to.
-An obligation for administrators will be a node of the app configuration
-(`app.security.two_factor.required_for_admins`, default `false`, always off in dev and demo) in a later step of #1357.
+Every user can switch on two-factor authentication in the settings (`/settings/two-factor`). Hospital owners and users
+with an import grant see it marked as recommended. Nobody is required to, unless an installation switches on the
+obligation for administrators in the app configuration (`app.security.two_factor.required_for_admins`, default
+`false`, always off in dev and demo). Then administrators without it are sent to the setup and cannot switch it off.
+It is a configuration node, not an environment variable: it is a lasting policy of the installation, not a secret.
+
+### Recovery
+
+When the app and the backup codes are lost, an administrator resets two-factor authentication in the user list (not
+for the own account), and for the last administrator an operator runs `app:user:reset-two-factor <username>`. Both
+write an audit entry and tell the user with a mandatory email (notification `security.two_factor_reset`).
 
 ### When the code is asked
 
@@ -95,5 +103,5 @@ The demo hides the feature (`app.demo_mode`). Tests use a fixed key in `.env.tes
 - A failed code after a login link uses up the link; the user requests a new one.
 - New columns on `user`: `totp_secret_encrypted`, `totp_enabled_at`, `backup_code_hashes`. They go with the account
   when it is deleted.
-- Follow-up in #1357: reset by an administrator (with audit entry and mail), a console command for the last
-  administrator, and the configurable obligation for administrators.
+- An installation that switches on the obligation must have `APP_TWO_FACTOR_KEY`; without it the obligation does not
+  apply, so administrators cannot be locked into a setup that is not offered.

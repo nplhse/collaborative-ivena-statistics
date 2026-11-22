@@ -63,6 +63,7 @@ final class TwoFactorSettingsController extends AbstractController
         if ($user->isTotpAuthenticationEnabled()) {
             return $this->render('@User/settings/two_factor.html.twig', [
                 'enabled' => true,
+                'required' => $this->availability->isRequiredFor($user),
                 'enabledAt' => $user->getTotpEnabledAt(),
                 'backupCodesLeft' => $user->countBackupCodes(),
                 'backupCodesTotal' => BackupCodeGenerator::COUNT,
@@ -73,6 +74,7 @@ final class TwoFactorSettingsController extends AbstractController
 
         return $this->render('@User/settings/two_factor.html.twig', [
             'enabled' => false,
+            'required' => $this->availability->isRequiredFor($user),
             'qrCode' => $this->qrCodeDataUri($this->totpAuthenticator->getQRContent($setup)),
             'secret' => trim(chunk_split($setup->getSecret(), 4, ' ')),
         ]);
@@ -151,6 +153,10 @@ final class TwoFactorSettingsController extends AbstractController
     #[Route('/settings/two-factor/disable', name: 'app_settings_two_factor_disable', methods: ['POST'])]
     public function disable(Request $request): RedirectResponse
     {
+        if ($this->availability->isRequiredFor($this->requireAvailableFeature())) {
+            throw $this->createAccessDeniedException('Administrators must keep two-factor authentication.');
+        }
+
         $user = $this->requireEnabledTwoFactor($request);
         if (!$user instanceof User) {
             return $this->redirectToRoute('app_settings_two_factor');

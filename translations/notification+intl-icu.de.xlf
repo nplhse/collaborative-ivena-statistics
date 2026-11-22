@@ -621,6 +621,18 @@
         <source>announcement.post.message</source>
         <target>Lesen Sie die neue Ankündigung im Blog.</target>
       </trans-unit>
+      <trans-unit id="NtfTwoFactorResetTitle" resname="security.two_factor_reset.title">
+        <source>security.two_factor_reset.title</source>
+        <target>Zwei-Faktor-Authentifizierung wurde zurückgesetzt</target>
+      </trans-unit>
+      <trans-unit id="NtfTwoFactorResetMessage" resname="security.two_factor_reset.message">
+        <source>security.two_factor_reset.message</source>
+        <target>Ihr Konto fragt keinen Code aus einer Authenticator-App mehr ab. Wenn Sie das nicht veranlasst haben, ändern Sie Ihr Passwort und wenden Sie sich an die Administration. In Ihren Einstellungen können Sie die Zwei-Faktor-Authentifizierung wieder einrichten.</target>
+      </trans-unit>
+      <trans-unit id="NtfTwoFactorResetLabel" resname="security.two_factor_reset.label">
+        <source>security.two_factor_reset.label</source>
+        <target>Zwei-Faktor-Authentifizierung zurückgesetzt</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -17,9 +17,11 @@ use App\User\Application\Event\UserRegistered;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use App\User\Infrastructure\Query\UserIdsWithEffectiveRoleQuery;
+use App\User\Infrastructure\Security\TwoFactor\TwoFactorReset;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\OrderBy;
 use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -45,6 +47,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -62,6 +65,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[IsGranted('ROLE_ADMIN')]
 final class UserCrudController extends AbstractCrudController
 {
+    private const string RESET_TWO_FACTOR_CSRF_TOKEN_ID = 'admin_user_reset_two_factor';
+
     /** Roles an admin can assign, in the order of the form. */
     private const array ROLES = [
         UserRole::ADMIN,
@@ -82,6 +87,7 @@ final class UserCrudController extends AbstractCrudController
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly HospitalAccessGrantRepository $hospitalAccessGrantRepository,
         private readonly UserIdsWithEffectiveRoleQuery $userIdsWithEffectiveRole,
+        private readonly TwoFactorReset $twoFactorReset,
     ) {
     }
 
@@ -155,6 +161,7 @@ final class UserCrudController extends AbstractCrudController
             ->add(Crud::PAGE_INDEX, $this->createImpersonateAction())
             ->add(Crud::PAGE_DETAIL, $this->createImpersonateAction())
             ->add(Crud::PAGE_DETAIL, $this->createAccessGrantsAction())
+            ->add(Crud::PAGE_DETAIL, $this->createResetTwoFactorAction())
             ->add(Crud::PAGE_EDIT, Action::INDEX)
             ->add(Crud::PAGE_EDIT, Action::DELETE)
             ->update(Crud::PAGE_INDEX, Action::DELETE, $this->withUserDeleteVisibility(...))
@@ -285,6 +292,53 @@ final class UserCrudController extends AbstractCrudController
                 ->generateUrl());
     }
 
+    /**
+     * Switches off two-factor authentication of an account that lost its app and its backup codes (#1357, ADR 040).
+     * Not for the own account: administrators switch it off in their settings.
+     */
+    #[AdminRoute(path: '/{entityId}/reset-two-factor', name: 'reset_two_factor', options: ['methods' => ['POST']])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function resetTwoFactor(#[MapEntity(id: 'entityId')] User $user, Request $request): RedirectResponse
+    {
+        if (!$this->isCsrfTokenValid(self::RESET_TWO_FACTOR_CSRF_TOKEN_ID, $request->query->getString('token'))) {
+            $this->addFlash('danger', new TranslatableMessage('flash.admin.user.two_factor_reset.invalid_token', domain: 'admin'));
+        } elseif ($this->isCurrentUser($user)) {
+            throw $this->createAccessDeniedException('Administrators switch off their own two-factor authentication in the settings.');
+        } elseif ($this->twoFactorReset->reset($user, TwoFactorReset::INTENT_ADMIN)) {
+            $this->addFlash('success', new TranslatableMessage('flash.admin.user.two_factor_reset.done', ['username' => $user->getUserIdentifier()], 'admin'));
+        }
+
+        return $this->redirect($this->adminUrlGenerator
+            ->unsetAll()
+            ->setController(self::class)
+            ->setAction(Action::DETAIL)
+            ->setEntityId($user->getId())
+            ->generateUrl());
+    }
+
+    private function createResetTwoFactorAction(): Action
+    {
+        return Action::new(
+            'resetTwoFactor',
+            new TranslatableMessage('admin.user.action.reset_two_factor', domain: 'admin'),
+            'fas fa-shield-halved',
+        )
+            ->linkToUrl(fn (User $user): string => $this->adminUrlGenerator
+                ->unsetAll()
+                ->setController(self::class)
+                ->setAction('resetTwoFactor')
+                ->setEntityId($user->getId())
+                ->set('token', $this->container->get('security.csrf.token_manager')->getToken(self::RESET_TWO_FACTOR_CSRF_TOKEN_ID)->getValue())
+                ->generateUrl())
+            ->renderAsForm()
+            ->askConfirmation(static fn (User $user): TranslatableMessage => new TranslatableMessage(
+                'admin.user.action.reset_two_factor.confirm',
+                ['username' => $user->getUserIdentifier()],
+                'admin',
+            ))
+            ->displayIf(fn (User $user): bool => $user->isTotpAuthenticationEnabled() && !$this->isCurrentUser($user));
+    }
+
     private function createImpersonateAction(): Action
     {
         return Action::new('impersonate', 'label.impersonate', 'fas fa-user-secret')
@@ -342,6 +396,8 @@ final class UserCrudController extends AbstractCrudController
             ->hideOnIndex();
         yield BooleanField::new('credentialsExpired', new TranslatableMessage('admin.user.field.credentials_expired', domain: 'admin'))
             ->hideOnIndex();
+        yield BooleanField::new('totpAuthenticationEnabled', new TranslatableMessage('admin.user.field.two_factor', domain: 'admin'))
+            ->onlyOnDetail();
         yield DateTimeField::new('createdAt', new TranslatableMessage('admin.user.field.created_at', domain: 'admin'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->onlyOnIndex();

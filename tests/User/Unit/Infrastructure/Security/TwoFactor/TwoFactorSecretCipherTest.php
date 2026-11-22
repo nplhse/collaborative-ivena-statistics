@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\User\Unit\Infrastructure\Security\TwoFactor;
 
+use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
 use App\User\Infrastructure\Security\TwoFactor\TwoFactorAvailability;
 use App\User\Infrastructure\Security\TwoFactor\TwoFactorSecretCipher;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -70,6 +72,19 @@ final class TwoFactorSecretCipherTest extends TestCase
         $this->expectException(\LogicException::class);
 
         new TwoFactorSecretCipher('')->encrypt('JBSWY3DPEHPK3PXP');
+    }
+
+    public function testObligationAppliesToAdministratorsOnlyWhileTheFeatureIsAvailable(): void
+    {
+        $admin = new User()->setUsername('admin')->setRoles([UserRole::USER, UserRole::ADMIN]);
+        $user = new User()->setUsername('user')->setRoles([UserRole::USER]);
+        $cipher = new TwoFactorSecretCipher(self::KEY);
+
+        self::assertTrue(new TwoFactorAvailability($cipher, false, true)->isRequiredFor($admin));
+        self::assertFalse(new TwoFactorAvailability($cipher, false, true)->isRequiredFor($user));
+        self::assertFalse(new TwoFactorAvailability($cipher, false, false)->isRequiredFor($admin));
+        self::assertFalse(new TwoFactorAvailability($cipher, true, true)->isRequiredFor($admin), 'never in the demo');
+        self::assertFalse(new TwoFactorAvailability(new TwoFactorSecretCipher(''), false, true)->isRequiredFor($admin), 'never without a key');
     }
 
     public function testDemoModeHidesTheFeature(): void
