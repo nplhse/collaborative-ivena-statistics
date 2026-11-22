@@ -88,9 +88,6 @@
                                         {% if variable.storageType is not null %}
                                             <div class="small" title="{{ 'data_catalog.storage_type'|trans({}, 'allocation') }}"><code data-testid="data-catalog-storage-type">{{ variable.storageType }}</code></div>
                                         {% endif %}
-                                        {% if variable.type.isLocalTime %}
-                                            <div class="small text-secondary" data-testid="data-catalog-local-time">{{ 'data_catalog.local_time'|trans({timezone: timezone}, 'allocation') }}</div>
-                                        {% endif %}
                                         <div class="small text-secondary">
                                             {{ (variable.nullable ? 'data_catalog.nullable.yes' : 'data_catalog.nullable.no')|trans({}, 'allocation') }}
                                         </div>
@@ -125,6 +122,9 @@
                                             </a>
                                         {% elseif variable.referenceTable is not null %}
                                             <span class="text-secondary">{{ 'data_catalog.reference_to'|trans({}, 'allocation') }}</span> <code>{{ variable.referenceTable }}</code>
+                                        {% elseif variable.type.isLocalTime %}
+                                            <div data-testid="data-catalog-time-zone">{{ 'data_catalog.time_zone'|trans({timezone: timezone}, 'allocation') }}</div>
+                                            <a href="#time-zone-note" class="badge bg-azure-lt text-decoration-none mt-1" data-testid="data-catalog-time-zone-link"><twig:ux:icon name="tabler:info-circle" class="me-1" width="1em" height="1em" aria-hidden="true" />{{ 'data_catalog.time_zone_note.link'|trans({}, 'allocation') }}</a>
                                         {% else %}
                                             <span class="text-secondary">—</span>
                                         {% endif %}
@@ -136,5 +136,42 @@
                 </div>
             </section>
         {% endfor %}
+
+        {% if timeZoneExamples is not empty %}
+            <section class="card card-sm mb-3" id="time-zone-note" data-testid="data-catalog-time-zone-note">
+                <div class="card-header">
+                    <h3 class="card-title"><twig:ux:icon name="tabler:clock-hour-4" class="text-secondary me-2" width="1.25em" height="1.25em" aria-hidden="true" />{{ 'data_catalog.time_zone_note.title'|trans({}, 'allocation') }}</h3>
+                </div>
+                <div class="card-body small">
+                    <p>{{ 'data_catalog.time_zone_note.text'|trans({timezone: timezone}, 'allocation') }}</p>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="fw-bold mb-1">{{ 'data_catalog.time_zone_note.recipes'|trans({}, 'allocation') }}</div>
+                            <table class="table table-sm mb-0">
+                                <tbody>
+                                    <tr><th scope="row">SQL</th><td><code>created_at AT TIME ZONE '{{ timezone }}'</code></td></tr>
+                                    <tr><th scope="row">Python</th><td><code>s.dt.tz_localize("{{ timezone }}", ambiguous="infer")</code></td></tr>
+                                    <tr><th scope="row">R</th><td><code>lubridate::force_tz(x, "{{ timezone }}")</code></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fw-bold mb-1">{{ 'data_catalog.time_zone_note.examples'|trans({}, 'allocation') }}</div>
+                            <table class="table table-sm mb-0" data-testid="data-catalog-time-zone-examples">
+                                <thead>
+                                    <tr><th>{{ timezone }}</th><th>UTC</th></tr>
+                                </thead>
+                                <tbody>
+                                    {% for example in timeZoneExamples %}
+                                        <tr><td><code>{{ example.local }}</code></td><td><code>{{ example.utc }}</code></td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <p class="text-secondary mt-3 mb-0">{{ 'data_catalog.time_zone_note.dst'|trans({}, 'allocation') }}</p>
+                </div>
+            </section>
+        {% endif %}
     </div>
 {% endblock %}

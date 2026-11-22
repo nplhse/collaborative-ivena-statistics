@@ -117,10 +117,6 @@ final readonly class DataCatalogMetadataResolver
 
     private function storageType(FieldMapping $field): string
     {
-        if (null !== $field->columnDefinition) {
-            return strtolower($field->columnDefinition);
-        }
-
         // The platform's jsonb option is deprecated in DBAL; the mapping still sets it, so name it directly.
         if (Types::JSON === $field->type && true === ($field->options['jsonb'] ?? false)) {
             return 'jsonb';

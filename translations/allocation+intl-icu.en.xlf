@@ -1577,9 +1577,33 @@
         <source>data_catalog.codes_count</source>
         <target>{count, plural, one {# code} other {# codes}}</target>
       </trans-unit>
-      <trans-unit id="dcEn305" resname="data_catalog.local_time">
-        <source>data_catalog.local_time</source>
-        <target>Local time {timezone}, stored without offset</target>
+      <trans-unit id="dcEn305" resname="data_catalog.time_zone">
+        <source>data_catalog.time_zone</source>
+        <target>Time zone {timezone}</target>
+      </trans-unit>
+      <trans-unit id="dcEn306" resname="data_catalog.time_zone_note.title">
+        <source>data_catalog.time_zone_note.title</source>
+        <target>Reconstructing the exact point in time</target>
+      </trans-unit>
+      <trans-unit id="dcEn307" resname="data_catalog.time_zone_note.text">
+        <source>data_catalog.time_zone_note.text</source>
+        <target>Times are stored as the clock time in {timezone}. Together with this time zone they give the exact point in time, for example in UTC.</target>
+      </trans-unit>
+      <trans-unit id="dcEn308" resname="data_catalog.time_zone_note.recipes">
+        <source>data_catalog.time_zone_note.recipes</source>
+        <target>In analyses</target>
+      </trans-unit>
+      <trans-unit id="dcEn309" resname="data_catalog.time_zone_note.dst">
+        <source>data_catalog.time_zone_note.dst</source>
+        <target>When clocks go back in autumn, one hour of clock time occurs twice; values from that hour are ambiguous without further information.</target>
+      </trans-unit>
+      <trans-unit id="dcEn310" resname="data_catalog.time_zone_note.link">
+        <source>data_catalog.time_zone_note.link</source>
+        <target>See note</target>
+      </trans-unit>
+      <trans-unit id="dcEn311" resname="data_catalog.time_zone_note.examples">
+        <source>data_catalog.time_zone_note.examples</source>
+        <target>Example</target>
       </trans-unit>
       <trans-unit id="dcEn012" resname="data_catalog.nullable.yes">
         <source>data_catalog.nullable.yes</source>
