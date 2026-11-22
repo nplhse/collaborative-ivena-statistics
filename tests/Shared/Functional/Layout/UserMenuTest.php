@@ -128,7 +128,8 @@ final class UserMenuTest extends DatabaseWebTestCase
         self::assertSelectorNotExists('.navbar-username', 'the avatar replaces the visible username');
         self::assertSelectorExists('.visually-hidden #user_name');
         self::assertSelectorNotExists('[data-testid="user-menu-avatar"].avatar-impersonating');
-        self::assertSelectorExists('a[aria-label="Open user menu"][title="Michael Müller"]');
+        self::assertSelectorExists('a[aria-label="Open user menu"] [data-controller="tooltip"][title="Michael Müller"]');
+        self::assertSelectorNotExists('[data-bs-toggle="dropdown"][data-controller~="tooltip"]', 'a dropdown toggle carries no second Bootstrap component (#1419)');
 
         $client->loginUser(UserFactory::createOne());
         $client->request(Request::METHOD_GET, '/settings');
