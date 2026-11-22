@@ -11,15 +11,24 @@ use App\Allocation\Application\Explore\DataCatalog\DataObjectDefinition;
 use App\Allocation\Application\Explore\DataCatalog\VariableDefinition;
 use App\Allocation\Application\Explore\DataCatalog\VariableGroupDefinition;
 use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Domain\Entity\Assignment;
+use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Entity\IndicationGroup;
+use App\Allocation\Domain\Entity\IndicationNormalized;
+use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\Domain\Entity\MciCase;
+use App\Allocation\Domain\Entity\Occasion;
+use App\Allocation\Domain\Entity\SecondaryTransport;
+use App\Allocation\Domain\Entity\Speciality;
 use App\Allocation\Domain\Entity\State;
 
 /**
  * Core data objects and reference objects of the Allocation context (#1415, #1492). Surrogate and
- * public ids, the case id hash, free-text notes, the import reference, owners and audit fields are
- * left out on purpose.
+ * public ids, the case id hash, free-text notes and editorial descriptions, display order, the import
+ * reference, owners and audit fields are left out on purpose; so are mapping tables (aliases, raw
+ * indications) and the many-to-many link between indications and indication groups.
  */
 final readonly class AllocationDataCatalogContributor implements DataCatalogContributorInterface
 {
@@ -28,7 +37,21 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
     #[\Override]
     public function dataObjects(): array
     {
-        return [$this->allocation(), $this->mciCase(), $this->hospital(), $this->dispatchArea(), $this->state()];
+        return [
+            $this->allocation(),
+            $this->mciCase(),
+            $this->hospital(),
+            $this->dispatchArea(),
+            $this->state(),
+            $this->named('speciality', Speciality::class, 'tabler:hierarchy-2'),
+            $this->named('department', Department::class, 'tabler:bed'),
+            $this->indicationNormalized(),
+            $this->indicationGroup(),
+            $this->named('assignment', Assignment::class, 'tabler:transfer'),
+            $this->named('infection', Infection::class, 'tabler:virus'),
+            $this->named('occasion', Occasion::class, 'tabler:flag'),
+            $this->named('secondary_transport', SecondaryTransport::class, 'tabler:helicopter'),
+        ];
     }
 
     private function allocation(): DataObjectDefinition
@@ -184,6 +207,40 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
         return new DataObjectDefinition('state', State::class, self::DOMAIN, 'tabler:map', [
             new VariableGroupDefinition('master_data', [
                 new VariableDefinition('state.name', 'name'),
+            ]),
+        ]);
+    }
+
+    private function indicationNormalized(): DataObjectDefinition
+    {
+        return new DataObjectDefinition('indication_normalized', IndicationNormalized::class, self::DOMAIN, 'tabler:heartbeat', [
+            new VariableGroupDefinition('master_data', [
+                new VariableDefinition('indication_normalized.code', 'code'),
+                new VariableDefinition('indication_normalized.name', 'name'),
+            ]),
+        ]);
+    }
+
+    private function indicationGroup(): DataObjectDefinition
+    {
+        return new DataObjectDefinition('indication_group', IndicationGroup::class, self::DOMAIN, 'tabler:stack-2', [
+            new VariableGroupDefinition('master_data', [
+                new VariableDefinition('indication_group.name', 'name'),
+                new VariableDefinition('indication_group.category', 'category'),
+            ]),
+        ]);
+    }
+
+    /**
+     * A reference object whose only documented field is its name.
+     *
+     * @param class-string $entityClass
+     */
+    private function named(string $key, string $entityClass, string $icon): DataObjectDefinition
+    {
+        return new DataObjectDefinition($key, $entityClass, self::DOMAIN, $icon, [
+            new VariableGroupDefinition('master_data', [
+                new VariableDefinition($key.'.name', 'name'),
             ]),
         ]);
     }

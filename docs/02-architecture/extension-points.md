@@ -207,7 +207,8 @@ the explore sidebar. Rules for such pages:
 **Registry:** `DataCatalogRegistry` (rejects duplicate object and variable keys); `DataCatalog` resolves the
 visible objects for `/explore/data-catalog`
 
-**Implementations:** `AllocationDataCatalogContributor` (allocation, MCI case, hospital, dispatch area, state),
+**Implementations:** `AllocationDataCatalogContributor` (allocation, MCI case, hospital, dispatch area, state and the other
+reference objects),
 `EncounterDataCatalogContributor` (encounter base data), `EdVisitDataCatalogContributor` (ed-visit plugin), both
 gated by `ENCOUNTER_VIEW_CASES_IN_ANY_HOSPITAL`, #1415; contributors live in
 `Application/DataCatalog/`, which `psalm.xml` exempts from `UnusedClass` (tag-only wiring)

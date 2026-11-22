@@ -27,12 +27,17 @@ the catalog, as a small code line per variable, because they describe structure,
 | `mci_case` | `AllocationDataCatalogContributor` | Explore users |
 | `hospital` | `AllocationDataCatalogContributor` | Explore users |
 | `dispatch_area`, `state` (regions, #1492) | `AllocationDataCatalogContributor` | Explore users |
+| `speciality`, `department`, `indication_normalized`, `indication_group`, `assignment`, `infection`, `occasion`, `secondary_transport` (reference objects, #1492) | `AllocationDataCatalogContributor` | Explore users |
 | `encounter` (base data) | `EncounterDataCatalogContributor` (`src/Encounter/Application/DataCatalog/`) | `ENCOUNTER_VIEW_CASES_IN_ANY_HOSPITAL` |
 | `ed_visit` (plugin) | `EdVisitDataCatalogContributor` (`plugins/ed-visit/src/Application/DataCatalog/`) | `ENCOUNTER_VIEW_CASES_IN_ANY_HOSPITAL` |
 
 Left out on purpose: owners, audit fields (created/updated by), the import reference, the encounter case key
 and key generation (pseudonyms for matching), the user who set an encounter assignment, the ED visit uid and
-fingerprint.
+fingerprint. For the reference objects also the editorial description and display order of indication groups,
+the mapping tables (department and speciality aliases, raw indications) and the many-to-many link between
+indications and indication groups, which is no to-one reference; the descriptions of both objects mention it.
+With them, every reference of `allocation`, `mci_case` and `hospital` links to a catalog entry, except the raw
+indications.
 
 Regions are documented like the other objects: their stored fields, nothing more. Map geometry and the
 official district keys (AGS) of dispatch areas live in `config/case_flow/*.yaml`, not in the database, and are

@@ -2301,6 +2301,150 @@
         <source>data_catalog.variable.state.name.description</source>
         <target>Name of the state.</target>
       </trans-unit>
+      <trans-unit id="dcEn196" resname="data_catalog.object.speciality.title">
+        <source>data_catalog.object.speciality.title</source>
+        <target>Speciality</target>
+      </trans-unit>
+      <trans-unit id="dcEn197" resname="data_catalog.object.speciality.description">
+        <source>data_catalog.object.speciality.description</source>
+        <target>Broad medical speciality of the destination, e.g. internal medicine or surgery.</target>
+      </trans-unit>
+      <trans-unit id="dcEn198" resname="data_catalog.variable.speciality.name.label">
+        <source>data_catalog.variable.speciality.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcEn199" resname="data_catalog.variable.speciality.name.description">
+        <source>data_catalog.variable.speciality.name.description</source>
+        <target>Name of the speciality as used in the IVENA export.</target>
+      </trans-unit>
+      <trans-unit id="dcEn200" resname="data_catalog.object.department.title">
+        <source>data_catalog.object.department.title</source>
+        <target>Department</target>
+      </trans-unit>
+      <trans-unit id="dcEn201" resname="data_catalog.object.department.description">
+        <source>data_catalog.object.department.description</source>
+        <target>Specialised clinical unit within a speciality, e.g. cardiology.</target>
+      </trans-unit>
+      <trans-unit id="dcEn202" resname="data_catalog.variable.department.name.label">
+        <source>data_catalog.variable.department.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcEn203" resname="data_catalog.variable.department.name.description">
+        <source>data_catalog.variable.department.name.description</source>
+        <target>Name of the department as used in the IVENA export.</target>
+      </trans-unit>
+      <trans-unit id="dcEn204" resname="data_catalog.object.indication_normalized.title">
+        <source>data_catalog.object.indication_normalized.title</source>
+        <target>Indication (normalised)</target>
+      </trans-unit>
+      <trans-unit id="dcEn205" resname="data_catalog.object.indication_normalized.description">
+        <source>data_catalog.object.indication_normalized.description</source>
+        <target>Normalised indication (patient allocation code, PZC) that raw indications from the import are matched to. An indication can belong to several indication groups.</target>
+      </trans-unit>
+      <trans-unit id="dcEn206" resname="data_catalog.variable.indication_normalized.code.label">
+        <source>data_catalog.variable.indication_normalized.code.label</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="dcEn207" resname="data_catalog.variable.indication_normalized.code.description">
+        <source>data_catalog.variable.indication_normalized.code.description</source>
+        <target>Numeric patient allocation code (PZC) of the indication.</target>
+      </trans-unit>
+      <trans-unit id="dcEn208" resname="data_catalog.variable.indication_normalized.name.label">
+        <source>data_catalog.variable.indication_normalized.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcEn209" resname="data_catalog.variable.indication_normalized.name.description">
+        <source>data_catalog.variable.indication_normalized.name.description</source>
+        <target>Wording of the indication.</target>
+      </trans-unit>
+      <trans-unit id="dcEn210" resname="data_catalog.object.indication_group.title">
+        <source>data_catalog.object.indication_group.title</source>
+        <target>Indication group</target>
+      </trans-unit>
+      <trans-unit id="dcEn211" resname="data_catalog.object.indication_group.description">
+        <source>data_catalog.object.indication_group.description</source>
+        <target>Grouping of related indications for comparative analyses. An indication group contains several indications.</target>
+      </trans-unit>
+      <trans-unit id="dcEn212" resname="data_catalog.variable.indication_group.name.label">
+        <source>data_catalog.variable.indication_group.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcEn213" resname="data_catalog.variable.indication_group.name.description">
+        <source>data_catalog.variable.indication_group.name.description</source>
+        <target>Name of the indication group.</target>
+      </trans-unit>
+      <trans-unit id="dcEn214" resname="data_catalog.variable.indication_group.category.label">
+        <source>data_catalog.variable.indication_group.category.label</source>
+        <target>Category</target>
+      </trans-unit>
+      <trans-unit id="dcEn215" resname="data_catalog.variable.indication_group.category.description">
+        <source>data_catalog.variable.indication_group.category.description</source>
+        <target>Higher-level category of the group, e.g. the PZC category of its codes.</target>
+      </trans-unit>
+      <trans-unit id="dcEn216" resname="data_catalog.object.assignment.title">
+        <source>data_catalog.object.assignment.title</source>
+        <target>Assignment type</target>
+      </trans-unit>
+      <trans-unit id="dcEn217" resname="data_catalog.object.assignment.description">
+        <source>data_catalog.object.assignment.description</source>
+        <target>Who initiated the allocation, e.g. patient, physician or emergency medical service.</target>
+      </trans-unit>
+      <trans-unit id="dcEn218" resname="data_catalog.variable.assignment.name.label">
+        <source>data_catalog.variable.assignment.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcEn219" resname="data_catalog.variable.assignment.name.description">
+        <source>data_catalog.variable.assignment.name.description</source>
+        <target>Name of the assignment type as used in the IVENA export.</target>
+      </trans-unit>
+      <trans-unit id="dcEn220" resname="data_catalog.object.infection.title">
+        <source>data_catalog.object.infection.title</source>
+        <target>Infection</target>
+      </trans-unit>
+      <trans-unit id="dcEn221" resname="data_catalog.object.infection.description">
+        <source>data_catalog.object.infection.description</source>
+        <target>Potential infectious disease that may require isolation at the destination hospital.</target>
+      </trans-unit>
+      <trans-unit id="dcEn222" resname="data_catalog.variable.infection.name.label">
+        <source>data_catalog.variable.infection.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcEn223" resname="data_catalog.variable.infection.name.description">
+        <source>data_catalog.variable.infection.name.description</source>
+        <target>Name of the infection as used in the IVENA export.</target>
+      </trans-unit>
+      <trans-unit id="dcEn224" resname="data_catalog.object.occasion.title">
+        <source>data_catalog.object.occasion.title</source>
+        <target>Occasion</target>
+      </trans-unit>
+      <trans-unit id="dcEn225" resname="data_catalog.object.occasion.description">
+        <source>data_catalog.object.occasion.description</source>
+        <target>Origin or context of the emergency, e.g. public place, doctor's practice or home.</target>
+      </trans-unit>
+      <trans-unit id="dcEn226" resname="data_catalog.variable.occasion.name.label">
+        <source>data_catalog.variable.occasion.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcEn227" resname="data_catalog.variable.occasion.name.description">
+        <source>data_catalog.variable.occasion.name.description</source>
+        <target>Name of the occasion as used in the IVENA export.</target>
+      </trans-unit>
+      <trans-unit id="dcEn228" resname="data_catalog.object.secondary_transport.title">
+        <source>data_catalog.object.secondary_transport.title</source>
+        <target>Secondary transport</target>
+      </trans-unit>
+      <trans-unit id="dcEn229" resname="data_catalog.object.secondary_transport.description">
+        <source>data_catalog.object.secondary_transport.description</source>
+        <target>Type of secondary transport for interhospital or follow-up transports.</target>
+      </trans-unit>
+      <trans-unit id="dcEn230" resname="data_catalog.variable.secondary_transport.name.label">
+        <source>data_catalog.variable.secondary_transport.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcEn231" resname="data_catalog.variable.secondary_transport.name.description">
+        <source>data_catalog.variable.secondary_transport.name.description</source>
+        <target>Name of the secondary transport type as used in the IVENA export.</target>
+      </trans-unit>
       <trans-unit id="harTitleNew" resname="hospital_assignment_request.title.new">
         <source>hospital_assignment_request.title.new</source>
         <target>Request hospital assignment</target>

@@ -102,6 +102,21 @@ final class DataCatalogMetadataTest extends KernelTestCase
         self::assertSame(['state', 'name', DataCatalogType::TEXT, false], [$stateName->table, $stateName->column, $stateName->type, $stateName->nullable]);
     }
 
+    public function testReferenceObjectVariablesMatchTheDoctrineMapping(): void
+    {
+        foreach (['speciality', 'department', 'assignment', 'infection', 'occasion', 'secondary_transport'] as $key) {
+            $name = $this->variable($this->object($key), $key.'.name');
+            self::assertSame([$key, 'name', DataCatalogType::TEXT, false], [$name->table, $name->column, $name->type, $name->nullable], $key);
+        }
+
+        $indication = $this->object('indication_normalized');
+        $code = $this->variable($indication, 'indication_normalized.code');
+        self::assertSame(['indication_normalized', 'code', DataCatalogType::INTEGER, false], [$code->table, $code->column, $code->type, $code->nullable]);
+
+        $category = $this->variable($this->object('indication_group'), 'indication_group.category');
+        self::assertSame(['indication_group', 'category', DataCatalogType::TEXT, true], [$category->table, $category->column, $category->type, $category->nullable]);
+    }
+
     public function testEncounterVariablesMatchTheDoctrineMapping(): void
     {
         $encounter = $this->object('encounter');

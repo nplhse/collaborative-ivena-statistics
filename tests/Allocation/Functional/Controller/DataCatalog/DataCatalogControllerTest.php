@@ -9,6 +9,7 @@ use App\User\Domain\Factory\UserFactory;
 use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -32,6 +33,11 @@ final class DataCatalogControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-object-key="hospital"]', '13 variables');
         self::assertSelectorTextContains('[data-object-key="dispatch_area"]', '2 variables');
         self::assertSelectorTextContains('[data-object-key="state"]', '1 variable');
+        self::assertSelectorTextContains('[data-object-key="indication_normalized"]', '2 variables');
+        self::assertSelectorTextContains('[data-object-key="indication_group"]', '2 variables');
+        foreach (['speciality', 'department', 'assignment', 'infection', 'occasion', 'secondary_transport'] as $key) {
+            self::assertSelectorTextContains(sprintf('[data-object-key="%s"]', $key), '1 variable');
+        }
     }
 
     public function testReferenceToADocumentedObjectLinksToItsEntry(): void
@@ -43,6 +49,30 @@ final class DataCatalogControllerTest extends WebTestCase
         self::assertSelectorExists('#allocation-hospital a[href="/explore/data-catalog/hospital"]');
         self::assertSelectorExists('#allocation-dispatch-area a[href="/explore/data-catalog/dispatch_area"]');
         self::assertSelectorExists('#allocation-state a[href="/explore/data-catalog/state"]');
+        self::assertSelectorExists('#allocation-indication-normalized a[href="/explore/data-catalog/indication_normalized"]');
+        self::assertSelectorExists('#allocation-assignment a[href="/explore/data-catalog/assignment"]');
+        self::assertSelectorExists('#allocation-secondary-transport a[href="/explore/data-catalog/secondary_transport"]');
+    }
+
+    public function testEveryReferenceOfTheCoreObjectsLinksToAnEntryExceptRawIndications(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $expected = [
+            'allocation' => ['allocation.indication_raw', 'allocation.secondary_indication_raw'],
+            'mci_case' => ['mci_case.indication_raw'],
+            'hospital' => [],
+        ];
+
+        foreach ($expected as $object => $rawReferences) {
+            $crawler = $client->request(Request::METHOD_GET, '/explore/data-catalog/'.$object);
+            self::assertResponseIsSuccessful();
+
+            $unlinked = $crawler->filterXPath('//tr[@data-variable-key][.//span[normalize-space(.)="Reference to"]]')->each(
+                static fn (Crawler $row): string => (string) $row->attr('data-variable-key'),
+            );
+            self::assertSame($rawReferences, $unlinked, $object);
+        }
     }
 
     public function testRegionDetailsShowTheirVariablesAndLinkTheirParent(): void
@@ -123,7 +153,7 @@ final class DataCatalogControllerTest extends WebTestCase
     {
         $client = $this->createClientAsParticipant();
 
-        foreach (['/explore/data-catalog', '/explore/data-catalog/allocation', '/explore/data-catalog/mci_case', '/explore/data-catalog/hospital', '/explore/data-catalog/dispatch_area', '/explore/data-catalog/state'] as $url) {
+        foreach (['/explore/data-catalog', '/explore/data-catalog/allocation', '/explore/data-catalog/mci_case', '/explore/data-catalog/hospital', '/explore/data-catalog/dispatch_area', '/explore/data-catalog/state', '/explore/data-catalog/indication_normalized', '/explore/data-catalog/indication_group'] as $url) {
             self::assertSame([], $this->caseDataQueries($client, $url), $url);
         }
     }
