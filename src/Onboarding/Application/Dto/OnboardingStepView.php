@@ -9,6 +9,10 @@ use Symfony\Component\Translation\TranslatableMessage;
 
 final readonly class OnboardingStepView
 {
+    /**
+     * A step without $actionLabel uses the label of its key; $canMarkComplete is false for a step that completes only
+     * by itself (#1483).
+     */
     public function __construct(
         public OnboardingStepKey $key,
         public int $position,
@@ -19,6 +23,11 @@ final readonly class OnboardingStepView
         public bool $isActionable,
         public ?string $actionUrl,
         public string $actionType,
+        public ?TranslatableMessage $actionLabel = null,
+        public ?string $secondaryActionUrl = null,
+        public ?TranslatableMessage $secondaryActionLabel = null,
+        public bool $canMarkComplete = true,
+        public ?ClinicAccessState $clinicAccess = null,
     ) {
     }
 }

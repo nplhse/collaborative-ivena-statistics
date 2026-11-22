@@ -9,6 +9,7 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Onboarding\Domain\Enum\OnboardingStepKey;
 use App\Onboarding\Infrastructure\Repository\UserOnboardingStepRepository;
+use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -24,19 +25,36 @@ final class CompleteOnboardingStepControllerTest extends WebTestCase
     public function testParticipantCanMarkAvailableStepComplete(): void
     {
         $client = self::createClient();
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $user = $this->participantOwningAHospital();
         $client->loginUser($user);
         $client->request(Request::METHOD_GET, '/');
 
-        $token = $this->csrfToken($client, 'onboarding_complete_'.OnboardingStepKey::RequestClinicAccess->value);
+        $token = $this->csrfToken($client, 'onboarding_complete_'.OnboardingStepKey::VerifyOwnClinic->value);
 
-        $client->request(Request::METHOD_POST, '/onboarding/steps/request_clinic_access/complete', [
+        $client->request(Request::METHOD_POST, '/onboarding/steps/verify_own_clinic/complete', [
             '_token' => $token,
         ]);
 
         self::assertResponseRedirects('/');
         $repo = $client->getContainer()->get(UserOnboardingStepRepository::class);
-        self::assertNotNull($repo->findForUserAndStep($user, OnboardingStepKey::RequestClinicAccess));
+        self::assertNotNull($repo->findForUserAndStep($user, OnboardingStepKey::VerifyOwnClinic));
+    }
+
+    public function testRequestStepCannotBeMarkedCompleteWithoutClinicAccess(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        $token = $this->csrfToken($client, 'onboarding_complete_'.OnboardingStepKey::RequestClinicAccess->value);
+        $client->request(Request::METHOD_POST, '/onboarding/steps/request_clinic_access/complete', [
+            '_token' => $token,
+        ]);
+
+        self::assertResponseStatusCodeSame(403);
+        $repo = $client->getContainer()->get(UserOnboardingStepRepository::class);
+        self::assertNull($repo->findForUserAndStep($user, OnboardingStepKey::RequestClinicAccess));
     }
 
     public function testCannotMarkStepThreeBeforeStepTwo(): void
@@ -92,26 +110,26 @@ final class CompleteOnboardingStepControllerTest extends WebTestCase
     public function testRecompletingAlreadyPersistedStepIsIdempotent(): void
     {
         $client = self::createClient();
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $user = $this->participantOwningAHospital();
         $client->loginUser($user);
         $client->request(Request::METHOD_GET, '/');
 
-        $token = $this->csrfToken($client, 'onboarding_complete_'.OnboardingStepKey::RequestClinicAccess->value);
-        $client->request(Request::METHOD_POST, '/onboarding/steps/request_clinic_access/complete', [
+        $token = $this->csrfToken($client, 'onboarding_complete_'.OnboardingStepKey::VerifyOwnClinic->value);
+        $client->request(Request::METHOD_POST, '/onboarding/steps/verify_own_clinic/complete', [
             '_token' => $token,
         ]);
         self::assertResponseRedirects('/');
 
         $client->request(Request::METHOD_GET, '/');
-        $token = $this->csrfToken($client, 'onboarding_complete_'.OnboardingStepKey::RequestClinicAccess->value);
-        $client->request(Request::METHOD_POST, '/onboarding/steps/request_clinic_access/complete', [
+        $token = $this->csrfToken($client, 'onboarding_complete_'.OnboardingStepKey::VerifyOwnClinic->value);
+        $client->request(Request::METHOD_POST, '/onboarding/steps/verify_own_clinic/complete', [
             '_token' => $token,
         ]);
 
         self::assertResponseRedirects('/');
         $repo = $client->getContainer()->get(UserOnboardingStepRepository::class);
         self::assertCount(1, $repo->findCompletedByUser($user));
-        self::assertNotNull($repo->findForUserAndStep($user, OnboardingStepKey::RequestClinicAccess));
+        self::assertNotNull($repo->findForUserAndStep($user, OnboardingStepKey::VerifyOwnClinic));
     }
 
     public function testAutoCompletedStepIsRejectedWithoutPersisting(): void
@@ -150,6 +168,21 @@ final class CompleteOnboardingStepControllerTest extends WebTestCase
         ]);
 
         self::assertResponseStatusCodeSame(403);
+    }
+
+    private function participantOwningAHospital(): User
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $state = StateFactory::createOne(['createdBy' => $user]);
+        $dispatchArea = DispatchAreaFactory::createOne(['createdBy' => $user, 'state' => $state]);
+        HospitalFactory::createOne([
+            'createdBy' => $user,
+            'dispatchArea' => $dispatchArea,
+            'owner' => $user,
+            'state' => $state,
+        ]);
+
+        return $user;
     }
 
     private function csrfToken(KernelBrowser $client, string $tokenId): string

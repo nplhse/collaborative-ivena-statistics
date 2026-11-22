@@ -64,6 +64,11 @@ final readonly class OnboardingProgressService
 
     public function markCompleted(User $user, OnboardingStepKey $stepKey): void
     {
+        // Completes only through clinic access (#1483).
+        if (OnboardingStepKey::RequestClinicAccess === $stepKey) {
+            throw new AccessDeniedHttpException('This onboarding step completes when clinic access is granted.');
+        }
+
         $persisted = $this->persistedCompletedMap($user);
         if (!$this->stepCatalog->isStepAvailableForUser($user, $stepKey, $persisted)) {
             throw new AccessDeniedHttpException('Onboarding step is not available for this user.');
