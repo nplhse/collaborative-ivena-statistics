@@ -1569,6 +1569,42 @@
         <source>data_catalog.storage</source>
         <target>Gespeichert in Tabelle.Spalte</target>
       </trans-unit>
+      <trans-unit id="dcDe303" resname="data_catalog.storage_type">
+        <source>data_catalog.storage_type</source>
+        <target>Spaltentyp in der Datenbank</target>
+      </trans-unit>
+      <trans-unit id="dcDe304" resname="data_catalog.codes_count">
+        <source>data_catalog.codes_count</source>
+        <target>{count, plural, one {# Code} other {# Codes}}</target>
+      </trans-unit>
+      <trans-unit id="dcDe305" resname="data_catalog.time_zone">
+        <source>data_catalog.time_zone</source>
+        <target>Zeitzone {timezone}</target>
+      </trans-unit>
+      <trans-unit id="dcDe306" resname="data_catalog.time_zone_note.title">
+        <source>data_catalog.time_zone_note.title</source>
+        <target>Genauen Zeitpunkt rekonstruieren</target>
+      </trans-unit>
+      <trans-unit id="dcDe307" resname="data_catalog.time_zone_note.text">
+        <source>data_catalog.time_zone_note.text</source>
+        <target>Zeiten werden als Uhrzeit in {timezone} gespeichert. Zusammen mit dieser Zeitzone ergeben sie den genauen Zeitpunkt, zum Beispiel in UTC.</target>
+      </trans-unit>
+      <trans-unit id="dcDe308" resname="data_catalog.time_zone_note.recipes">
+        <source>data_catalog.time_zone_note.recipes</source>
+        <target>In Auswertungen</target>
+      </trans-unit>
+      <trans-unit id="dcDe309" resname="data_catalog.time_zone_note.dst">
+        <source>data_catalog.time_zone_note.dst</source>
+        <target>Bei der Zeitumstellung im Herbst kommt eine Stunde Uhrzeit zweimal vor; Werte aus dieser Stunde sind ohne weitere Angaben nicht eindeutig.</target>
+      </trans-unit>
+      <trans-unit id="dcDe310" resname="data_catalog.time_zone_note.link">
+        <source>data_catalog.time_zone_note.link</source>
+        <target>Siehe Hinweis</target>
+      </trans-unit>
+      <trans-unit id="dcDe311" resname="data_catalog.time_zone_note.examples">
+        <source>data_catalog.time_zone_note.examples</source>
+        <target>Beispiel</target>
+      </trans-unit>
       <trans-unit id="dcDe012" resname="data_catalog.nullable.yes">
         <source>data_catalog.nullable.yes</source>
         <target>kann fehlen</target>
@@ -1587,43 +1623,43 @@
       </trans-unit>
       <trans-unit id="dcDe016" resname="data_catalog.type.integer">
         <source>data_catalog.type.integer</source>
-        <target>Ganzzahl</target>
+        <target>Integer</target>
       </trans-unit>
       <trans-unit id="dcDe017" resname="data_catalog.type.decimal">
         <source>data_catalog.type.decimal</source>
-        <target>Dezimalzahl</target>
+        <target>Decimal</target>
       </trans-unit>
       <trans-unit id="dcDe018" resname="data_catalog.type.datetime">
         <source>data_catalog.type.datetime</source>
-        <target>Datum und Uhrzeit</target>
+        <target>DateTime</target>
       </trans-unit>
       <trans-unit id="dcDe019" resname="data_catalog.type.date">
         <source>data_catalog.type.date</source>
-        <target>Datum</target>
+        <target>Date</target>
       </trans-unit>
       <trans-unit id="dcDe020" resname="data_catalog.type.time">
         <source>data_catalog.type.time</source>
-        <target>Uhrzeit</target>
+        <target>Time</target>
       </trans-unit>
       <trans-unit id="dcDe021" resname="data_catalog.type.boolean">
         <source>data_catalog.type.boolean</source>
-        <target>Ja/Nein</target>
+        <target>Boolean</target>
       </trans-unit>
       <trans-unit id="dcDe022" resname="data_catalog.type.code">
         <source>data_catalog.type.code</source>
-        <target>Code</target>
+        <target>Enum</target>
       </trans-unit>
       <trans-unit id="dcDe023" resname="data_catalog.type.text">
         <source>data_catalog.type.text</source>
-        <target>Text</target>
+        <target>String</target>
       </trans-unit>
       <trans-unit id="dcDe024" resname="data_catalog.type.reference">
         <source>data_catalog.type.reference</source>
-        <target>Verweis</target>
+        <target>Referenz</target>
       </trans-unit>
       <trans-unit id="dcDe184" resname="data_catalog.type.code_set">
         <source>data_catalog.type.code_set</source>
-        <target>Code-Menge</target>
+        <target>Enum-Set</target>
       </trans-unit>
       <trans-unit id="dcDe025" resname="data_catalog.group.identification">
         <source>data_catalog.group.identification</source>

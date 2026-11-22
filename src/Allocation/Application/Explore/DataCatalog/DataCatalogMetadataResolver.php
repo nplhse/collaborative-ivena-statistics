@@ -8,15 +8,19 @@ use App\Allocation\Application\DTO\DataCatalog\CatalogCode;
 use App\Allocation\Application\DTO\DataCatalog\CatalogGroup;
 use App\Allocation\Application\DTO\DataCatalog\CatalogObject;
 use App\Allocation\Application\DTO\DataCatalog\CatalogVariable;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\FieldMapping;
 use Doctrine\ORM\Mapping\ToOneOwningSideMapping;
 
 /**
  * Reads table, column, type, nullability, codes and reference targets of documented variables from
  * the Doctrine mapping. Loading class metadata runs no database query. The enum of a code set (a JSON
- * list of codes) is named by the definition, because the mapping cannot provide it.
+ * list of codes) is named by the definition, because the mapping cannot provide it. The storage type is
+ * the column declaration of the configured platform; with a configured server version this needs no
+ * connection either.
  */
 final readonly class DataCatalogMetadataResolver
 {
@@ -79,6 +83,7 @@ final readonly class DataCatalogMetadataResolver
                     $field->columnName,
                     null === $enum ? [] : $this->codes($enum, $variable->codeLabels),
                     $variable->range,
+                    storageType: $this->storageType($field),
                 );
             }
 
@@ -102,11 +107,46 @@ final readonly class DataCatalogMetadataResolver
                     $joinColumn->name,
                     referenceClass: $association->targetEntity,
                     referenceTable: $target->getTableName(),
+                    storageType: $this->referenceStorageType($target, $joinColumn->referencedColumnName),
                 );
             }
 
             $metadata = $target;
         }
+    }
+
+    private function storageType(FieldMapping $field): string
+    {
+        // The platform's jsonb option is deprecated in DBAL; the mapping still sets it, so name it directly.
+        if (Types::JSON === $field->type && true === ($field->options['jsonb'] ?? false)) {
+            return 'jsonb';
+        }
+
+        $length = $field->length;
+        if (null === $length && Types::STRING === $field->type) {
+            // Same default as the schema tool, so the declaration matches the created column.
+            $length = $this->entityManager->getConfiguration()->getDefaultStringTypeSchemaLength();
+        }
+
+        $column = array_filter([
+            'length' => $length,
+            'precision' => $field->precision,
+            'scale' => $field->scale,
+        ], static fn (?int $value): bool => null !== $value);
+
+        $platform = $this->entityManager->getConnection()->getDatabasePlatform();
+
+        return strtolower(Type::getType($field->type)->getSQLDeclaration($column, $platform));
+    }
+
+    /**
+     * @param ClassMetadata<object> $target
+     */
+    private function referenceStorageType(ClassMetadata $target, string $referencedColumn): ?string
+    {
+        $field = $target->getFieldForColumn($referencedColumn);
+
+        return $target->hasField($field) ? $this->storageType($target->getFieldMapping($field)) : null;
     }
 
     /**

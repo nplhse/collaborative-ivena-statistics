@@ -8,9 +8,13 @@ use App\Allocation\Application\Explore\DataCatalog\DataCatalogType;
 
 final readonly class CatalogVariable
 {
+    /** Code lists longer than this start collapsed (#1499). */
+    public const int VISIBLE_CODES = 5;
+
     /**
      * @param list<CatalogCode> $codes
      * @param class-string|null $referenceClass target entity of a reference
+     * @param string|null       $storageType    SQL column type of the platform, e.g. `varchar(255)`
      */
     public function __construct(
         public string $key,
@@ -25,7 +29,13 @@ final readonly class CatalogVariable
         public ?string $referenceTable = null,
         public ?string $referenceObjectKey = null,
         public ?string $referenceObjectDomain = null,
+        public ?string $storageType = null,
     ) {
+    }
+
+    public function collapsesCodes(): bool
+    {
+        return \count($this->codes) > self::VISIBLE_CODES;
     }
 
     public function anchor(): string
@@ -58,6 +68,7 @@ final readonly class CatalogVariable
             $this->referenceTable,
             $objectKey,
             $objectDomain,
+            $this->storageType,
         );
     }
 }

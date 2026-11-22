@@ -119,6 +119,47 @@ final class DataCatalogControllerTest extends WebTestCase
         self::assertSelectorTextNotContains('body', 'data_catalog.');
     }
 
+    public function testTypeCellShowsTermIconAndStorageType(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/explore/data-catalog/allocation');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('#allocation-is-cpr [data-testid="data-catalog-type"]', 'Boolean');
+        self::assertSelectorExists('#allocation-is-cpr [data-testid="data-catalog-type"][data-type="boolean"] svg');
+        self::assertSelectorTextContains('#allocation-is-cpr [data-testid="data-catalog-storage-type"]', 'boolean');
+        self::assertSelectorTextContains('#allocation-gender [data-testid="data-catalog-type"]', 'Enum');
+        self::assertSelectorTextContains('#allocation-gender [data-testid="data-catalog-storage-type"]', 'varchar(255)');
+        self::assertSelectorTextContains('#allocation-hospital [data-testid="data-catalog-storage-type"]', 'int');
+    }
+
+    public function testTimesNameTheirTimeZoneAndTheNoteShowsHowToGetUtc(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $crawler = $client->request(Request::METHOD_GET, '/explore/data-catalog/allocation');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('#allocation-created-at [data-testid="data-catalog-time-zone"]', 'Time zone Europe/Berlin');
+        self::assertSelectorTextContains('#allocation-created-at a[href="#time-zone-note"]', 'See note');
+        self::assertSelectorNotExists('#allocation-age [data-testid="data-catalog-time-zone"]');
+        // Winter time is UTC+1, summer time UTC+2.
+        self::assertSame(
+            [['2026-01-15 14:30', '2026-01-15 13:30'], ['2026-07-01 14:30', '2026-07-01 12:30']],
+            $crawler->filter('#time-zone-note [data-testid="data-catalog-time-zone-examples"] tbody tr')->each(static fn (Crawler $row): array => $row->filter('td')->each(static fn (Crawler $cell): string => trim($cell->text()))),
+        );
+        self::assertSelectorTextContains('#time-zone-note', "AT TIME ZONE 'Europe/Berlin'");
+    }
+
+    public function testCodeListsUpToFiveCodesStayOpen(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/explore/data-catalog/allocation');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(5, '#allocation-assessment-breathing [data-testid="data-catalog-codes"] li');
+        self::assertSelectorNotExists('#allocation-assessment-breathing details');
+    }
+
     public function testGermanLocaleShowsGermanLabels(): void
     {
         $client = self::createClient();

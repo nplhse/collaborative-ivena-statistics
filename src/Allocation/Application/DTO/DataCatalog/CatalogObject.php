@@ -36,6 +36,19 @@ final readonly class CatalogObject
         return array_sum(array_map(static fn (CatalogGroup $group): int => \count($group->variables), $this->groups));
     }
 
+    public function hasLocalTime(): bool
+    {
+        foreach ($this->groups as $group) {
+            foreach ($group->variables as $variable) {
+                if ($variable->type->isLocalTime()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public function variable(string $key): ?CatalogVariable
     {
         foreach ($this->groups as $group) {

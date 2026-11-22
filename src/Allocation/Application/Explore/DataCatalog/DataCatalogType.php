@@ -40,4 +40,32 @@ enum DataCatalogType: string
     {
         return 'data_catalog.type.'.$this->value;
     }
+
+    /**
+     * Date-times and times are stored as local wall-clock time of the application time zone, without an
+     * offset (`timestamp without time zone`, `time`); the catalog says so next to the type (#1499).
+     */
+    public function isLocalTime(): bool
+    {
+        return self::DATETIME === $this || self::TIME === $this;
+    }
+
+    /**
+     * Tabler icon shown next to the type label (#1499); the label stays, so the type never depends on the icon.
+     */
+    public function icon(): string
+    {
+        return match ($this) {
+            self::INTEGER => 'tabler:123',
+            self::DECIMAL => 'tabler:decimal',
+            self::DATETIME => 'tabler:calendar-time',
+            self::DATE => 'tabler:calendar',
+            self::TIME => 'tabler:clock',
+            self::BOOLEAN => 'tabler:toggle-left',
+            self::CODE => 'tabler:list',
+            self::CODE_SET => 'tabler:list-check',
+            self::TEXT => 'tabler:abc',
+            self::REFERENCE => 'tabler:link',
+        };
+    }
 }
