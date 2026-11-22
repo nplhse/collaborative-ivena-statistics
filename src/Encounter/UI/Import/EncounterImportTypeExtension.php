@@ -245,7 +245,7 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
             'rejects' => $isAdmin ? $this->report->rejects($importId, self::LIST_LIMIT) : [],
             'suspected_duplicates' => $isAdmin ? $this->suspectedDuplicates($schema, $importId) : [],
             'list_limit' => self::LIST_LIMIT,
-        ], $this->recordActions($import, $schema));
+        ], $this->recordActions($import, $schema), $encounterImport->getInserted());
     }
 
     /**

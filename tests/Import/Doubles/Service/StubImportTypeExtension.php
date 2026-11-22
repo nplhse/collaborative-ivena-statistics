@@ -25,6 +25,7 @@ final readonly class StubImportTypeExtension implements ImportTypeExtensionInter
     public function __construct(
         private bool $available,
         private array $uploadHospitalIds,
+        private ?ImportTypeDetailSection $detailSection = null,
     ) {
     }
 
@@ -89,6 +90,6 @@ final readonly class StubImportTypeExtension implements ImportTypeExtensionInter
     #[\Override]
     public function detailSection(Import $import): ?ImportTypeDetailSection
     {
-        return null;
+        return $this->detailSection;
     }
 }

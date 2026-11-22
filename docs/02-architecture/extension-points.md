@@ -346,7 +346,10 @@ case of `ImportType`; the processing context owns message, handler, pages and ac
 Lets an import type of another context use the generic import pages: whether the user may choose the
 type, the hospitals they may upload it for and see it on, extra unmapped form fields with their checks,
 own state created with the import, the decision for every `ImportVoter` attribute and a section on the
-detail page. The type also needs a workflow dispatcher (above) for its runs.
+detail page. The section can also set the headline count of imported records
+(`ImportTypeDetailSection::$importedRecordCount`) when the type counts them differently from the rows that
+passed validation: encounter imports count inserted visits, not the known visits they skip (#1463). The type
+also needs a workflow dispatcher (above) for its runs.
 
 ## Encounter schemas
 

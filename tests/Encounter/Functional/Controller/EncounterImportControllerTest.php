@@ -237,6 +237,26 @@ final class EncounterImportControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
+    public function testDetailPageCountsOnlyInsertedVisitsAsImported(): void
+    {
+        $file = EdVisitFileBuilder::create()
+            ->visit('a', '2026-10-01T08:15')
+            ->visit('b', '2026-10-01T09:15')
+            ->build();
+        $firstImportId = $this->uploadEncounterFile($this->hospital, $this->uploader, $file, 'first upload');
+        // The same visits again: both pass validation but are known, so nothing is inserted (#1463).
+        $secondImportId = $this->uploadEncounterFile($this->hospital, $this->uploader, $file, 'same file again');
+
+        $this->client->loginUser($this->uploader);
+        $this->client->request(Request::METHOD_GET, '/import/'.$firstImportId);
+        self::assertResponseIsSuccessful();
+        self::assertSame('2 Encounters imported', $this->importedRecordsText());
+
+        $this->client->request(Request::METHOD_GET, '/import/'.$secondImportId);
+        self::assertResponseIsSuccessful();
+        self::assertSame('0 Encounters imported', $this->importedRecordsText());
+    }
+
     public function testDetailPageOfAnAttachingSchemaShowsItsAssignmentCounts(): void
     {
         // Visit a has case 1; the probe rows of cases 1 and 2 are assigned and kept without encounter.
@@ -485,5 +505,10 @@ final class EncounterImportControllerTest extends WebTestCase
         $this->uploads[] = $path;
 
         return $path;
+    }
+
+    private function importedRecordsText(): string
+    {
+        return trim($this->client->getCrawler()->filter('#import-imported-records')->text());
     }
 }

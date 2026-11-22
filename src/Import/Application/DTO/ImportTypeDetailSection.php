@@ -15,11 +15,15 @@ final readonly class ImportTypeDetailSection
     /**
      * @param array<string, mixed>         $context
      * @param list<ImportTypeRecordAction> $recordActions
+     * @param int|null                     $importedRecordCount records the import actually added, when the type
+     *                                                          counts them differently from the rows that passed
+     *                                                          (#1463)
      */
     public function __construct(
         public string $template,
         public array $context = [],
         public array $recordActions = [],
+        public ?int $importedRecordCount = null,
     ) {
     }
 }
