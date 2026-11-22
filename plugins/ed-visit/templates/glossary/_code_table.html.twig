@@ -1,9 +1,10 @@
-{# Table of MtsGlossaryRow. Expects `title`, `rows`, `testid`, `link_route` (nullable) and `has_counts`. #}
-<div class="card" data-testid="{{ testid }}s">
+{# Table of MtsGlossaryRow. Expects `title`, `rows`, `testid`, `link_route` (nullable), `section_key`, `catalog_usages` and `has_counts`. #}
+<div class="card" id="{{ section_key }}" data-testid="{{ testid }}s">
     <div class="card-header">
         <h3 class="card-title">{{ title }}</h3>
         <div class="card-actions text-secondary">{{ rows|length }}</div>
     </div>
+    {{ include('@Allocation/glossary/_catalog_usages.html.twig', {usages: catalog_usages|filter(usage => usage.section == section_key)}) }}
     <div class="table-responsive">
         <table class="table table-vcenter card-table mb-0">
             <thead>

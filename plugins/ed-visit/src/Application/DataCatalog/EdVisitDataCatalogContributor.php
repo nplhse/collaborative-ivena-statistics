@@ -8,6 +8,7 @@ use App\Allocation\Application\DTO\DataCatalog\ValueRange;
 use App\Allocation\Application\Explore\DataCatalog\CodeLabels;
 use App\Allocation\Application\Explore\DataCatalog\DataCatalogContributorInterface;
 use App\Allocation\Application\Explore\DataCatalog\DataObjectDefinition;
+use App\Allocation\Application\Explore\DataCatalog\GlossaryReference;
 use App\Allocation\Application\Explore\DataCatalog\VariableDefinition;
 use App\Allocation\Application\Explore\DataCatalog\VariableGroupDefinition;
 use App\Encounter\Application\Security\EncounterAttribute;
@@ -21,7 +22,8 @@ use Cois\Plugin\EdVisit\Domain\Enum\IsolationCode;
  * Ranges come from the field contract of the exchange format (EdVisitDimension), so the catalog and the import
  * check the same limits. Left out on purpose: the visit uid and fingerprint, the key generation, the import and
  * the hospital (on the encounter). The isolation codes are a JSON code set, so their enum is named here (#1443).
- * The visit has no id of its own: its primary key is the encounter (`ed_visit.encounter`).
+ * The visit has no id of its own: its primary key is the encounter (`ed_visit.encounter`). Triage and retriage codes
+ * link to their section of the MTS glossary (#1507).
  */
 final readonly class EdVisitDataCatalogContributor implements DataCatalogContributorInterface
 {
@@ -64,15 +66,15 @@ final readonly class EdVisitDataCatalogContributor implements DataCatalogContrib
                     $time('pre_inpatient_admission_at', 'preInpatientAdmissionAt'),
                 ]),
                 new VariableGroupDefinition('triage', [
-                    new VariableDefinition('ed_visit.mts_category', 'triage.category', codeLabels: $mts),
-                    new VariableDefinition('ed_visit.mts_diagram', 'triage.diagram'),
-                    new VariableDefinition('ed_visit.mts_indicator', 'triage.indicator'),
+                    new VariableDefinition('ed_visit.mts_category', 'triage.category', codeLabels: $mts, glossary: $this->mtsGlossary('categories')),
+                    new VariableDefinition('ed_visit.mts_diagram', 'triage.diagram', glossary: $this->mtsGlossary('diagrams')),
+                    new VariableDefinition('ed_visit.mts_indicator', 'triage.indicator', glossary: $this->mtsGlossary('indicators')),
                     new VariableDefinition('ed_visit.pain_score', 'triage.painScore', $this->range('pain_score')),
                 ]),
                 new VariableGroupDefinition('retriage', [
-                    new VariableDefinition('ed_visit.retriage_category', 'retriage.category', codeLabels: $mts),
-                    new VariableDefinition('ed_visit.retriage_diagram', 'retriage.diagram'),
-                    new VariableDefinition('ed_visit.retriage_indicator', 'retriage.indicator'),
+                    new VariableDefinition('ed_visit.retriage_category', 'retriage.category', codeLabels: $mts, glossary: $this->mtsGlossary('categories')),
+                    new VariableDefinition('ed_visit.retriage_diagram', 'retriage.diagram', glossary: $this->mtsGlossary('diagrams')),
+                    new VariableDefinition('ed_visit.retriage_indicator', 'retriage.indicator', glossary: $this->mtsGlossary('indicators')),
                     new VariableDefinition('ed_visit.retriage_at', 'retriage.at'),
                 ]),
                 new VariableGroupDefinition('disposition', [
@@ -102,6 +104,11 @@ final readonly class EdVisitDataCatalogContributor implements DataCatalogContrib
                 ]),
             ], contributedByPlugin: true, grantedAttribute: EncounterAttribute::VIEW_CASES_IN_ANY_HOSPITAL),
         ];
+    }
+
+    private function mtsGlossary(string $section): GlossaryReference
+    {
+        return new GlossaryReference('app_explore_glossary_mts', section: $section);
     }
 
     private function range(string $field, ?string $unitKey = null): ValueRange
