@@ -73,6 +73,25 @@ final readonly class SymfonyTransactionalMailer implements TransactionalMailer
         $this->mailer->send($email);
     }
 
+    #[\Override]
+    public function sendLoginLinkEmail(
+        string $recipientEmail,
+        string $loginLinkUrl,
+        int $lifetimeMinutes,
+        string $locale,
+    ): void {
+        $email = $this->createTemplatedEmail($locale)
+            ->to($recipientEmail)
+            ->subject($this->translator->trans('email.login_link.title', [], 'user', $locale))
+            ->htmlTemplate('@User/security/login_link_email.html.twig')
+            ->context([
+                'loginLinkUrl' => $loginLinkUrl,
+                'lifetimeMinutes' => $lifetimeMinutes,
+            ]);
+
+        $this->mailer->send($email);
+    }
+
     private function createTemplatedEmail(string $locale): TemplatedEmail
     {
         $email = new TemplatedEmail()

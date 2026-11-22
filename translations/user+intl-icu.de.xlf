@@ -657,6 +657,122 @@
         <source>label.user.activity.hospital_owner_revoked</source>
         <target>Klinikverantwortung abgegeben</target>
       </trans-unit>
+      <trans-unit id="DeLL00" resname="label.settings.login_link">
+        <source>label.settings.login_link</source>
+        <target>Anmelden per Link</target>
+      </trans-unit>
+      <trans-unit id="DeLL01" resname="help.settings.login_link">
+        <source>help.settings.login_link</source>
+        <target>Wenn aktiviert, können Sie sich auf der Anmeldeseite einen einmaligen Anmelde-Link an Ihre E-Mail-Adresse schicken lassen, statt Ihr Passwort einzugeben. Der Link ist 15 Minuten gültig.</target>
+      </trans-unit>
+      <trans-unit id="DeLL02" resname="help.settings.login_link_2fa">
+        <source>help.settings.login_link_2fa</source>
+        <target>Damit kann sich auch anmelden, wer Zugriff auf Ihr Postfach hat. Wir empfehlen, Ihr Konto zusätzlich mit der Zwei-Faktor-Authentifizierung zu schützen, sobald sie verfügbar ist.</target>
+      </trans-unit>
+      <trans-unit id="DeLL03" resname="label.settings.login_link_on">
+        <source>label.settings.login_link_on</source>
+        <target>Aktiv</target>
+      </trans-unit>
+      <trans-unit id="DeLL04" resname="label.settings.login_link_off">
+        <source>label.settings.login_link_off</source>
+        <target>Aus</target>
+      </trans-unit>
+      <trans-unit id="DeLL05" resname="label.settings.login_link_enable">
+        <source>label.settings.login_link_enable</source>
+        <target>Aktivieren</target>
+      </trans-unit>
+      <trans-unit id="DeLL06" resname="label.settings.login_link_disable">
+        <source>label.settings.login_link_disable</source>
+        <target>Deaktivieren</target>
+      </trans-unit>
+      <trans-unit id="DeLL07" resname="flash.settings.login_link.enabled">
+        <source>flash.settings.login_link.enabled</source>
+        <target>Die Anmeldung per Link ist jetzt aktiviert.</target>
+      </trans-unit>
+      <trans-unit id="DeLL08" resname="flash.settings.login_link.disabled">
+        <source>flash.settings.login_link.disabled</source>
+        <target>Die Anmeldung per Link ist jetzt deaktiviert. Bereits verschickte Links funktionieren nicht mehr.</target>
+      </trans-unit>
+      <trans-unit id="DeLL09" resname="title.login_link.request">
+        <source>title.login_link.request</source>
+        <target>Anmelden per Link</target>
+      </trans-unit>
+      <trans-unit id="DeLL10" resname="text.login_link.request_intro">
+        <source>text.login_link.request_intro</source>
+        <target>Geben Sie Ihren Benutzernamen oder Ihre E-Mail-Adresse ein. Wenn die Anmeldung per Link für Ihr Konto aktiviert ist, schicken wir Ihnen einen Link, mit dem Sie sich einmal anmelden können.</target>
+      </trans-unit>
+      <trans-unit id="DeLL11" resname="label.login_link.send">
+        <source>label.login_link.send</source>
+        <target>Anmelde-Link per E-Mail senden</target>
+      </trans-unit>
+      <trans-unit id="DeLL12" resname="label.login_link.back_to_login">
+        <source>label.login_link.back_to_login</source>
+        <target>Zurück zur Anmeldung</target>
+      </trans-unit>
+      <trans-unit id="DeLL13" resname="title.login_link.sent">
+        <source>title.login_link.sent</source>
+        <target>Prüfen Sie Ihr Postfach</target>
+      </trans-unit>
+      <trans-unit id="DeLL14" resname="text.login_link.sent">
+        <source>text.login_link.sent</source>
+        <target>Wenn zu Ihrer Eingabe ein Konto mit aktivierter Anmeldung per Link existiert, haben wir einen Link an die hinterlegte E-Mail-Adresse geschickt. Der Link ist {minutes} Minuten gültig und funktioniert einmal.</target>
+      </trans-unit>
+      <trans-unit id="DeLL15" resname="text.login_link.sent_hint">
+        <source>text.login_link.sent_hint</source>
+        <target>Keine E-Mail erhalten? Prüfen Sie Ihren Spam-Ordner oder melden Sie sich mit Ihrem Passwort an. Die Anmeldung per Link können Sie in Ihren Kontoeinstellungen aktivieren.</target>
+      </trans-unit>
+      <trans-unit id="DeLL16" resname="label.login_link.request_again">
+        <source>label.login_link.request_again</source>
+        <target>Neuen Link anfordern</target>
+      </trans-unit>
+      <trans-unit id="DeLL17" resname="title.login_link.confirm">
+        <source>title.login_link.confirm</source>
+        <target>Anmeldung bestätigen</target>
+      </trans-unit>
+      <trans-unit id="DeLL18" resname="text.login_link.confirm_account">
+        <source>text.login_link.confirm_account</source>
+        <target>Als {username} anmelden?</target>
+      </trans-unit>
+      <trans-unit id="DeLL19" resname="label.login_link.not_you">
+        <source>label.login_link.not_you</source>
+        <target>Nicht Sie? Zurück zur Anmeldung</target>
+      </trans-unit>
+      <trans-unit id="DeLL20" resname="email.login_link.title">
+        <source>email.login_link.title</source>
+        <target>Ihr Anmelde-Link</target>
+      </trans-unit>
+      <trans-unit id="DeLL21" resname="email.login_link.preheader">
+        <source>email.login_link.preheader</source>
+        <target>Mit diesem Link melden Sie sich einmal an.</target>
+      </trans-unit>
+      <trans-unit id="DeLL22" resname="email.login_link.heading">
+        <source>email.login_link.heading</source>
+        <target>Ihr Anmelde-Link</target>
+      </trans-unit>
+      <trans-unit id="DeLL23" resname="email.login_link.intro">
+        <source>email.login_link.intro</source>
+        <target>Sie haben einen Link zur Anmeldung bei {app} angefordert. Melden Sie sich über den Button unten an.</target>
+      </trans-unit>
+      <trans-unit id="DeLL24" resname="email.login_link.expiry">
+        <source>email.login_link.expiry</source>
+        <target>Der Link ist {minutes} Minuten gültig und funktioniert einmal.</target>
+      </trans-unit>
+      <trans-unit id="DeLL25" resname="email.login_link.cta">
+        <source>email.login_link.cta</source>
+        <target>Anmelden</target>
+      </trans-unit>
+      <trans-unit id="DeLL26" resname="email.login_link.fallback_before_link">
+        <source>email.login_link.fallback_before_link</source>
+        <target>Probleme mit dem Button? Kopieren Sie diese URL in Ihren Browser: </target>
+      </trans-unit>
+      <trans-unit id="DeLL27" resname="email.login_link.fallback_after_link">
+        <source>email.login_link.fallback_after_link</source>
+        <target> Wenn Sie diesen Link nicht angefordert haben, können Sie diese E-Mail ignorieren.</target>
+      </trans-unit>
+      <trans-unit id="DeLL28" resname="text.login_link.confirm_question">
+        <source>text.login_link.confirm_question</source>
+        <target>Möchten Sie sich mit diesem Konto anmelden?</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

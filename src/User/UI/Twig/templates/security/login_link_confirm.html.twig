@@ -1,0 +1,48 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.login_link.confirm'|trans({}, 'user') }} - {{ parent() }}{% endblock %}
+
+{% block page_body %}
+    <div class="container container-tight py-4">
+        <twig:Card size="md">
+            <h2 class="text-center mb-4">{{ 'title.login_link.confirm'|trans({}, 'user') }}</h2>
+
+            {% if not hasConsentDecision %}
+                <twig:Alert type="warning">
+                    {{ 'flash.security.cookie_consent_required'|trans({}, 'security') }}
+                    <a class="alert-link" href="{{ path('app_cookie_preferences') }}">{{ 'cookie.banner.settings'|trans({}, 'shared') }}</a>
+                </twig:Alert>
+            {% endif %}
+
+            {% if account %}
+                {# Valid link: show who signs in; its holder can sign in anyway. #}
+                <div class="text-center mb-4" data-test="login-link-account">
+                    <twig:UserAvatar :user="account" size="xl" :revealDisplayName="true" class="mb-3" />
+                    {% if account.displayName %}
+                        <div class="h3 mb-1">{{ account.displayName }}</div>
+                    {% endif %}
+                    <div class="text-secondary">@{{ account.username }}</div>
+                    <p class="mt-3 mb-0">{{ 'text.login_link.confirm_question'|trans({}, 'user') }}</p>
+                </div>
+            {% else %}
+                <p class="text-center mb-4" data-test="login-link-account">
+                    {{ 'text.login_link.confirm_account'|trans({username: username}, 'user') }}
+                </p>
+            {% endif %}
+
+            {# Only this POST signs in (check_post_only), so mail scanners that open the link cannot use it up. #}
+            <form method="post" action="{{ path('app_login_link_check') }}">
+                <input type="hidden" name="user" value="{{ username }}" />
+                <input type="hidden" name="expires" value="{{ expires }}" />
+                <input type="hidden" name="hash" value="{{ hash }}" />
+
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary w-100">{{ 'label.signin'|trans({}, 'messages') }}</button>
+                </div>
+            </form>
+            <div class="text-center text-secondary mt-3">
+                <a href="{{ path('app_login') }}">{{ 'label.login_link.not_you'|trans({}, 'user') }}</a>
+            </div>
+        </twig:Card>
+    </div>
+{% endblock %}

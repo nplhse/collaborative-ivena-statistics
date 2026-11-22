@@ -91,6 +91,35 @@ final class SymfonyTransactionalMailerTest extends TestCase
         );
     }
 
+    public function testSendLoginLinkEmailPassesTheLinkAndLifetimeToTheTemplate(): void
+    {
+        $mailer = $this->createMock(MailerInterface::class);
+        $mailer->expects(self::once())
+            ->method('send')
+            ->with(self::callback(function (TemplatedEmail $email): bool {
+                self::assertSame(['link@example.test'], array_map(
+                    static fn (\Symfony\Component\Mime\Address $address): string => $address->getAddress(),
+                    $email->getTo(),
+                ));
+                self::assertSame('Ihr Anmelde-Link', $email->getSubject());
+                self::assertSame('de', $email->getLocale());
+                self::assertSame('@User/security/login_link_email.html.twig', $email->getHtmlTemplate());
+                self::assertSame([
+                    'loginLinkUrl' => 'https://example.test/login/link/check?user=link',
+                    'lifetimeMinutes' => 15,
+                ], $email->getContext());
+
+                return true;
+            }));
+
+        $this->createMailer($mailer)->sendLoginLinkEmail(
+            'link@example.test',
+            'https://example.test/login/link/check?user=link',
+            15,
+            'de',
+        );
+    }
+
     public function testReplyToIsAppliedWhenConfigured(): void
     {
         $mailer = $this->createMock(MailerInterface::class);
@@ -152,6 +181,7 @@ final class SymfonyTransactionalMailerTest extends TestCase
             static fn (string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string => match ($id) {
                 'email.verify.title' => 'de' === $locale ? 'E-Mail-Adresse bestätigen' : 'Confirm your email address',
                 'email.reset_password.title' => 'de' === $locale ? 'Passwort zurücksetzen' : 'Reset your password',
+                'email.login_link.title' => 'de' === $locale ? 'Ihr Anmelde-Link' : 'Your sign-in link',
                 'email.welcome.title' => sprintf(
                     'de' === $locale ? 'Willkommen bei %s' : 'Welcome to %s',
                     (string) ($parameters['app'] ?? ''),

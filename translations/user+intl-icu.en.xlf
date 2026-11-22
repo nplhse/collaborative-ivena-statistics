@@ -657,6 +657,122 @@
         <source>label.user.activity.hospital_owner_revoked</source>
         <target>Hospital ownership ended</target>
       </trans-unit>
+      <trans-unit id="LL00" resname="label.settings.login_link">
+        <source>label.settings.login_link</source>
+        <target>Sign in with a link</target>
+      </trans-unit>
+      <trans-unit id="LL01" resname="help.settings.login_link">
+        <source>help.settings.login_link</source>
+        <target>When switched on, you can have a one-time sign-in link sent to your email address on the login page instead of entering your password. The link is valid for 15 minutes.</target>
+      </trans-unit>
+      <trans-unit id="LL02" resname="help.settings.login_link_2fa">
+        <source>help.settings.login_link_2fa</source>
+        <target>Anyone with access to your mailbox can then sign in as well. We recommend also protecting your account with two-factor authentication once it is available.</target>
+      </trans-unit>
+      <trans-unit id="LL03" resname="label.settings.login_link_on">
+        <source>label.settings.login_link_on</source>
+        <target>On</target>
+      </trans-unit>
+      <trans-unit id="LL04" resname="label.settings.login_link_off">
+        <source>label.settings.login_link_off</source>
+        <target>Off</target>
+      </trans-unit>
+      <trans-unit id="LL05" resname="label.settings.login_link_enable">
+        <source>label.settings.login_link_enable</source>
+        <target>Switch on</target>
+      </trans-unit>
+      <trans-unit id="LL06" resname="label.settings.login_link_disable">
+        <source>label.settings.login_link_disable</source>
+        <target>Switch off</target>
+      </trans-unit>
+      <trans-unit id="LL07" resname="flash.settings.login_link.enabled">
+        <source>flash.settings.login_link.enabled</source>
+        <target>Sign-in with a link is now switched on.</target>
+      </trans-unit>
+      <trans-unit id="LL08" resname="flash.settings.login_link.disabled">
+        <source>flash.settings.login_link.disabled</source>
+        <target>Sign-in with a link is now switched off. Links that were already sent no longer work.</target>
+      </trans-unit>
+      <trans-unit id="LL09" resname="title.login_link.request">
+        <source>title.login_link.request</source>
+        <target>Sign in with a link</target>
+      </trans-unit>
+      <trans-unit id="LL10" resname="text.login_link.request_intro">
+        <source>text.login_link.request_intro</source>
+        <target>Enter your username or email address. If sign-in with a link is switched on for your account, we send you a link that signs you in once.</target>
+      </trans-unit>
+      <trans-unit id="LL11" resname="label.login_link.send">
+        <source>label.login_link.send</source>
+        <target>Send me a sign-in link</target>
+      </trans-unit>
+      <trans-unit id="LL12" resname="label.login_link.back_to_login">
+        <source>label.login_link.back_to_login</source>
+        <target>Back to login</target>
+      </trans-unit>
+      <trans-unit id="LL13" resname="title.login_link.sent">
+        <source>title.login_link.sent</source>
+        <target>Check your inbox</target>
+      </trans-unit>
+      <trans-unit id="LL14" resname="text.login_link.sent">
+        <source>text.login_link.sent</source>
+        <target>If an account with sign-in by link exists for your entry, we have sent a link to its email address. The link is valid for {minutes} minutes and works once.</target>
+      </trans-unit>
+      <trans-unit id="LL15" resname="text.login_link.sent_hint">
+        <source>text.login_link.sent_hint</source>
+        <target>No email? Check your spam folder or sign in with your password. Sign-in with a link can be switched on in your account settings.</target>
+      </trans-unit>
+      <trans-unit id="LL16" resname="label.login_link.request_again">
+        <source>label.login_link.request_again</source>
+        <target>Request a new link</target>
+      </trans-unit>
+      <trans-unit id="LL17" resname="title.login_link.confirm">
+        <source>title.login_link.confirm</source>
+        <target>Confirm sign-in</target>
+      </trans-unit>
+      <trans-unit id="LL18" resname="text.login_link.confirm_account">
+        <source>text.login_link.confirm_account</source>
+        <target>Sign in as {username}?</target>
+      </trans-unit>
+      <trans-unit id="LL19" resname="label.login_link.not_you">
+        <source>label.login_link.not_you</source>
+        <target>Not you? Back to login</target>
+      </trans-unit>
+      <trans-unit id="LL20" resname="email.login_link.title">
+        <source>email.login_link.title</source>
+        <target>Your sign-in link</target>
+      </trans-unit>
+      <trans-unit id="LL21" resname="email.login_link.preheader">
+        <source>email.login_link.preheader</source>
+        <target>Use the link to sign in once.</target>
+      </trans-unit>
+      <trans-unit id="LL22" resname="email.login_link.heading">
+        <source>email.login_link.heading</source>
+        <target>Your sign-in link</target>
+      </trans-unit>
+      <trans-unit id="LL23" resname="email.login_link.intro">
+        <source>email.login_link.intro</source>
+        <target>You asked for a link to sign in to {app}. Use the button below to sign in.</target>
+      </trans-unit>
+      <trans-unit id="LL24" resname="email.login_link.expiry">
+        <source>email.login_link.expiry</source>
+        <target>The link is valid for {minutes} minutes and works once.</target>
+      </trans-unit>
+      <trans-unit id="LL25" resname="email.login_link.cta">
+        <source>email.login_link.cta</source>
+        <target>Sign in</target>
+      </trans-unit>
+      <trans-unit id="LL26" resname="email.login_link.fallback_before_link">
+        <source>email.login_link.fallback_before_link</source>
+        <target>Trouble with the button? Copy this URL into your browser: </target>
+      </trans-unit>
+      <trans-unit id="LL27" resname="email.login_link.fallback_after_link">
+        <source>email.login_link.fallback_after_link</source>
+        <target> If you did not ask for this link, you can ignore this email.</target>
+      </trans-unit>
+      <trans-unit id="LL28" resname="text.login_link.confirm_question">
+        <source>text.login_link.confirm_question</source>
+        <target>Do you want to sign in with this account?</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

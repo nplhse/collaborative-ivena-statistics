@@ -1,0 +1,18 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.login_link.sent'|trans({}, 'user') }} - {{ parent() }}{% endblock %}
+
+{% block page_body %}
+    <div class="container container-tight py-4">
+        <twig:Card size="md">
+            <h2 class="text-center mb-4">{{ 'title.login_link.sent'|trans({}, 'user') }}</h2>
+            <p data-test="login-link-sent">{{ 'text.login_link.sent'|trans({minutes: lifetimeMinutes}, 'user') }}</p>
+            <p class="text-secondary">{{ 'text.login_link.sent_hint'|trans({}, 'user') }}</p>
+            <div class="text-center text-secondary mt-3">
+                <a href="{{ path('app_login_link_request') }}">{{ 'label.login_link.request_again'|trans({}, 'user') }}</a>
+                &middot;
+                <a href="{{ path('app_login') }}">{{ 'label.login_link.back_to_login'|trans({}, 'user') }}</a>
+            </div>
+        </twig:Card>
+    </div>
+{% endblock %}

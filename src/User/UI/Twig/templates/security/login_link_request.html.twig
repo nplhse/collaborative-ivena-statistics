@@ -1,0 +1,28 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.login_link.request'|trans({}, 'user') }} - {{ parent() }}{% endblock %}
+
+{% block page_body %}
+    <div class="container container-tight py-4">
+        <twig:Card size="md">
+            <h2 class="text-center mb-4">{{ 'title.login_link.request'|trans({}, 'user') }}</h2>
+            <p class="text-secondary mb-4">{{ 'text.login_link.request_intro'|trans({}, 'user') }}</p>
+
+            <form method="post" action="{{ path('app_login_link_request') }}">
+                <div class="mb-3">
+                    <label class="form-label required" for="login-link-identifier">{{ 'label.login.identifier'|trans({}, 'user') }}</label>
+                    <input id="login-link-identifier" class="form-control" type="text" name="identifier" value="{{ identifier }}" required autocomplete="username" />
+                </div>
+
+                <input type="hidden" name="_link_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('login_link_request') }}" />
+
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary w-100">{{ 'label.login_link.send'|trans({}, 'user') }}</button>
+                </div>
+            </form>
+            <div class="text-center text-secondary mt-3">
+                <a href="{{ path('app_login') }}">{{ 'label.login_link.back_to_login'|trans({}, 'user') }}</a>
+            </div>
+        </twig:Card>
+    </div>
+{% endblock %}
