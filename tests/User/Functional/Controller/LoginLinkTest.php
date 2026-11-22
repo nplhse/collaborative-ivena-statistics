@@ -297,14 +297,24 @@ final class LoginLinkTest extends WebTestCase
         $user = $this->createUser('link-user', ['loginLinkEnabled' => false]);
         $this->client->loginUser($user);
 
-        $crawler = $this->client->request(Request::METHOD_GET, '/settings/account');
+        // #1508: the opt-in has its own page below "Sign-in & security", with its status shown like two-factor authentication.
+        $crawler = $this->client->request(Request::METHOD_GET, '/settings/login-link');
         self::assertSelectorTextContains('[data-test="login-link-setting"]', 'two-factor authentication');
-        self::assertSelectorTextContains('[data-test="login-link-setting"] .badge', 'Off');
+        self::assertSelectorTextContains('[data-test="login-link-status"]', 'Off');
+        self::assertSelectorTextContains('[data-test="login-link-state"]', 'The sign-in link is off.');
+        self::assertSelectorExists('.alert[data-test="login-link-two-factor-hint"]');
+        self::assertSelectorExists('form.card-footer [data-test="login-link-switch"].btn-success');
 
         $this->client->submit($crawler->selectButton('Switch on')->form());
-        self::assertResponseRedirects('/settings/account');
+        self::assertResponseRedirects('/settings/login-link');
         $crawler = $this->client->followRedirect();
-        self::assertSelectorTextContains('[data-test="login-link-setting"] .badge', 'On');
+        self::assertSelectorTextContains('[data-test="login-link-status"]', 'On');
+        self::assertSelectorTextContains('[data-test="login-link-state"]', 'The sign-in link is active.');
+        self::assertSelectorExists('form.card-footer [data-test="login-link-switch"].btn-danger');
+
+        $this->client->request(Request::METHOD_GET, '/settings/security');
+        self::assertSelectorTextContains('[data-test="security-login-link-status"]', 'On');
+        $crawler = $this->client->request(Request::METHOD_GET, '/settings/login-link');
         refresh($user);
         self::assertTrue($user->isLoginLinkEnabled());
 
@@ -333,6 +343,11 @@ final class LoginLinkTest extends WebTestCase
         $this->client->request(Request::METHOD_GET, '/settings/account');
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('[data-test="login-link-setting"]');
+        $this->client->request(Request::METHOD_GET, '/settings/security');
+        self::assertSelectorNotExists('[data-test="security-login-link"]');
+        self::assertSelectorNotExists('[data-testid="settings-subsection-login_link"]');
+        $this->client->request(Request::METHOD_GET, '/settings/login-link');
+        self::assertResponseStatusCodeSame(404);
 
         $this->client->request(Request::METHOD_POST, '/settings/login-link', ['enabled' => '1']);
         self::assertResponseStatusCodeSame(403);

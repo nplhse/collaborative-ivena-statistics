@@ -1,0 +1,94 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.settings.security'|trans({}, 'user') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'title.settings', path: path('app_settings_index') },
+                { label: 'title.settings.security', label_domain: 'user' },
+            ]"
+        />
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'title.settings.security'|trans({}, 'user') }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% macro status_badge(on, test) %}
+    <span class="badge {{ on ? 'bg-green text-green-fg' : 'bg-secondary-lt' }}" data-test="{{ test }}">
+        {{ (on ? 'label.settings.status_on' : 'label.settings.status_off')|trans({}, 'user') }}
+    </span>
+{% endmacro %}
+
+{% block page_body %}
+    {% import _self as security %}
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="row g-0">
+                    {{ include('@User/settings/_sidebar.html.twig', {active: 'security'}) }}
+                    <div class="col-12 col-md-9 d-flex flex-column">
+                        <div class="card-header">
+                            <h3 class="card-title">{{ 'title.settings.security'|trans({}, 'user') }}</h3>
+                        </div>
+                        {# One row per sign-in setting (#1508): what it is, whether it is on, and the way to its page. #}
+                        <div class="list-group list-group-flush flex-grow-1" data-testid="settings-security-overview">
+                            <a class="list-group-item list-group-item-action" href="{{ path('app_settings_password') }}" data-test="security-password">
+                                <div class="d-flex align-items-center gap-3">
+                                    {# Every account has a password, so this row offers the change instead of showing a status. #}
+                                    <span class="avatar avatar-md bg-primary-lt text-primary" aria-hidden="true"><twig:ux:icon name="tabler:lock" class="icon icon-lg" /></span>
+                                    <div class="flex-fill">
+                                        <div class="fw-bold">{{ 'label.settings.password'|trans({}, 'user') }}</div>
+                                        <div class="text-secondary">{{ 'text.settings.section.password'|trans({}, 'user') }}</div>
+                                    </div>
+                                    <twig:ux:icon name="tabler:chevron-right" class="icon text-secondary" aria-hidden="true" />
+                                </div>
+                            </a>
+                            {% if loginLinkAvailable %}
+                                {% set login_link_on = app.user.loginLinkEnabled %}
+                                <a class="list-group-item list-group-item-action" href="{{ path('app_settings_login_link_show') }}" data-test="security-login-link">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="avatar avatar-md {{ login_link_on ? 'bg-green-lt' : 'bg-secondary-lt' }}" aria-hidden="true">
+                                            <twig:ux:icon :name="login_link_on ? 'tabler:mail-check' : 'tabler:mail'" class="icon icon-lg" />
+                                        </span>
+                                        <div class="flex-fill">
+                                            <div class="fw-bold">{{ 'label.settings.login_link'|trans({}, 'user') }}</div>
+                                            <div class="text-secondary">{{ (login_link_on ? 'text.settings.login_link.active' : 'text.settings.login_link.inactive')|trans({}, 'user') }}</div>
+                                        </div>
+                                        {{ security.status_badge(login_link_on, 'security-login-link-status') }}
+                                        <twig:ux:icon name="tabler:chevron-right" class="icon text-secondary" aria-hidden="true" />
+                                    </div>
+                                </a>
+                            {% endif %}
+                            {% if twoFactorAvailable %}
+                                {% set two_factor_on = app.user.totpAuthenticationEnabled %}
+                                <a class="list-group-item list-group-item-action" href="{{ path('app_settings_two_factor') }}" data-test="security-two-factor">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="avatar avatar-md {{ two_factor_on ? 'bg-green-lt' : 'bg-secondary-lt' }}" aria-hidden="true">
+                                            <twig:ux:icon :name="two_factor_on ? 'tabler:shield-check' : 'tabler:shield-lock'" class="icon icon-lg" />
+                                        </span>
+                                        <div class="flex-fill">
+                                            <div class="fw-bold">{{ 'title.settings.two_factor'|trans({}, 'user') }}</div>
+                                            <div class="text-secondary">{{ (two_factor_on ? 'text.settings.two_factor.active' : 'text.settings.section.two_factor')|trans({}, 'user') }}</div>
+                                        </div>
+                                        {% if twoFactorRecommended %}
+                                            <span class="badge bg-yellow-lt" data-test="security-two-factor-recommended">{{ 'label.settings.two_factor_recommended'|trans({}, 'user') }}</span>
+                                        {% endif %}
+                                        {{ security.status_badge(two_factor_on, 'security-two-factor-status') }}
+                                        <twig:ux:icon name="tabler:chevron-right" class="icon text-secondary" aria-hidden="true" />
+                                    </div>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

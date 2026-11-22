@@ -41,11 +41,20 @@ final class TwoFactorSettingsTest extends WebTestCase
     {
         $this->signIn($this->createUser());
 
-        $this->client->request(Request::METHOD_GET, '/settings');
+        $this->client->request(Request::METHOD_GET, '/settings/security');
         self::assertSelectorExists('[data-testid="settings-section-nav"] a[href="/settings/two-factor"]');
 
-        $this->client->request(Request::METHOD_GET, '/settings/account');
+        $this->client->request(Request::METHOD_GET, '/settings/login-link');
         self::assertSelectorExists('[data-test="login-link-two-factor-hint"] a[href="/settings/two-factor"]');
+
+        // The overview of "Sign-in & security" shows the status of every sub-item and links to it (#1508).
+        $this->client->request(Request::METHOD_GET, '/settings/security');
+        // The password row offers the change; every account has one, so it shows no status badge.
+        self::assertSelectorExists('a[data-test="security-password"][href="/settings/password"]');
+        self::assertSelectorNotExists('[data-test="security-password"] .badge');
+        self::assertSelectorTextContains('[data-test="security-login-link-status"]', 'On');
+        self::assertSelectorTextContains('[data-test="security-two-factor-status"]', 'Off');
+        self::assertSelectorExists('a[data-test="security-two-factor"][href="/settings/two-factor"]');
     }
 
     public function testSetupShowsAQrCodeAndKeepsTheSecretOnReload(): void

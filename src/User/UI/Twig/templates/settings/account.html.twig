@@ -33,10 +33,11 @@
                                 <div class="card-header">
                                     <h3 class="card-title">{{ 'label.settings.my_account'|trans({}, 'user') }}</h3>
                                 </div>
-                                <div class="card-body flex-grow-1">
-                                    <h4 class="subheader mb-3">{{ 'label.settings.profile_details'|trans({}, 'user') }}</h4>
+                                {# One card body per section; Tabler draws a line between them (#1508). #}
+                                <div class="card-body" data-testid="settings-section-profile">
+                                    <h3 class="card-title">{{ 'label.settings.profile_details'|trans({}, 'user') }}</h3>
                                     {{ form_start(profileForm, {attr: {id: 'settings-profile-form', 'data-testid': 'settings-profile-form'}}) }}
-                                        <div class="row g-3 align-items-start mb-4">
+                                        <div class="row g-3 align-items-start">
                                             <div class="col-auto pt-4">
                                                 <twig:UserAvatar :user="app.user" size="md" data-testid="settings-profile-avatar" />
                                             </div>
@@ -48,8 +49,10 @@
                                             </div>
                                         </div>
                                     {{ form_end(profileForm) }}
+                                </div>
 
-                                    <h4 class="subheader mb-3">{{ 'label.email'|trans({}, 'user') }}</h4>
+                                <div class="card-body" data-testid="settings-section-email">
+                                    <h3 class="card-title">{{ 'label.email'|trans({}, 'user') }}</h3>
                                     <div class="row g-3 align-items-end mb-2">
                                         <div class="col-md-8">
                                             <label class="form-label" for="settings-email">{{ 'label.email_address'|trans({}, 'user') }}</label>
@@ -60,54 +63,33 @@
                                         </div>
                                     </div>
                                     <p class="form-hint mb-2" data-test="email-login-notice">{{ 'message.login.email_switch_notice'|trans({}, 'user') }}</p>
-                                    <div class="mb-4">
-                                        <small class="form-text d-flex align-items-center gap-2">
-                                            <span>{{ 'label.settings.verification_status'|trans({}, 'user') }}</span>
-                                            <span class="badge {{ app.user.isVerified ? 'bg-green text-green-fg' : 'bg-yellow text-yellow-fg' }}">
-                                                {{ app.user.isVerified ? 'label.verified'|trans({}, 'messages') : 'label.not_verified'|trans({}, 'messages') }}
-                                            </span>
-                                        </small>
-                                        {% if not app.user.isVerified %}
-                                            <form method="post" action="{{ path('app_settings_resend_verification') }}" class="mt-2">
-                                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('resend_verification_email') }}">
-                                                <button class="btn btn-outline-secondary" type="submit">{{ 'label.settings.resend_verification'|trans({}, 'user') }}</button>
-                                            </form>
-                                        {% endif %}
-                                    </div>
-
-                                    {% if not is_granted('ROLE_ADMIN') %}
-                                        <h4 class="subheader mb-3">{{ 'label.settings.login_link'|trans({}, 'user') }}</h4>
-                                        <div class="mb-4" data-test="login-link-setting">
-                                            <p class="text-secondary mb-2">{{ 'help.settings.login_link'|trans({}, 'user') }}</p>
-                                            {% if two_factor_available() and not app.user.totpAuthenticationEnabled %}
-                                                <p class="text-secondary mb-3" data-test="login-link-two-factor-hint">
-                                                    {{ 'help.settings.login_link_2fa'|trans({}, 'user') }}
-                                                    <a href="{{ path('app_settings_two_factor') }}">{{ 'label.settings.two_factor_set_up'|trans({}, 'user') }}</a>
-                                                </p>
-                                            {% endif %}
-                                            <form method="post" action="{{ path('app_settings_login_link') }}" class="d-flex align-items-center gap-3">
-                                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('settings_login_link') }}">
-                                                <input type="hidden" name="enabled" value="{{ app.user.loginLinkEnabled ? '0' : '1' }}">
-                                                <span class="badge {{ app.user.loginLinkEnabled ? 'bg-green text-green-fg' : 'bg-secondary-lt' }}">
-                                                    {{ (app.user.loginLinkEnabled ? 'label.settings.login_link_on' : 'label.settings.login_link_off')|trans({}, 'user') }}
-                                                </span>
-                                                <button class="btn btn-outline-secondary" type="submit">
-                                                    {{ (app.user.loginLinkEnabled ? 'label.settings.login_link_disable' : 'label.settings.login_link_enable')|trans({}, 'user') }}
-                                                </button>
-                                            </form>
-                                        </div>
-
+                                    <small class="form-text d-flex align-items-center gap-2">
+                                        <span>{{ 'label.settings.verification_status'|trans({}, 'user') }}</span>
+                                        <span class="badge {{ app.user.isVerified ? 'bg-green text-green-fg' : 'bg-yellow text-yellow-fg' }}">
+                                            {{ app.user.isVerified ? 'label.verified'|trans({}, 'messages') : 'label.not_verified'|trans({}, 'messages') }}
+                                        </span>
+                                    </small>
+                                    {% if not app.user.isVerified %}
+                                        <form method="post" action="{{ path('app_settings_resend_verification') }}" class="mt-2">
+                                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('resend_verification_email') }}">
+                                            <button class="btn btn-outline-secondary" type="submit">{{ 'label.settings.resend_verification'|trans({}, 'user') }}</button>
+                                        </form>
                                     {% endif %}
-                                    <h4 class="subheader mb-3">{{ 'label.settings.language'|trans({}, 'user') }}</h4>
-                                    {# The save button sits in the card footer; the resend form above rules out one form around the whole card. #}
-                                    {{ form_start(localeForm, {attr: {id: 'settings-locale-form'}}) }}
-                                        <p class="text-secondary mb-3">{{ 'help.settings.language'|trans({}, 'user') }}</p>
-                                        {{ form_row(localeForm.locale) }}
-                                    {{ form_end(localeForm) }}
                                 </div>
-                                <div class="card-footer d-flex justify-content-end gap-2">
-                                    <a class="btn btn-link" href="{{ path('app_settings_index') }}">{{ 'action.cancel'|trans({}, 'messages') }}</a>
-                                    <button class="btn btn-primary" type="submit" form="settings-locale-form">{{ 'label.btn.save'|trans({}, 'messages') }}</button>
+
+                                <div class="card-body flex-grow-1" data-testid="settings-section-language">
+                                    <h3 class="card-title">{{ 'label.settings.language'|trans({}, 'user') }}</h3>
+                                    <p class="card-subtitle">{{ 'help.settings.language'|trans({}, 'user') }}</p>
+                                    {{ form_start(localeForm, {attr: {id: 'settings-locale-form'}}) }}
+                                        <div class="row g-3 align-items-end">
+                                            <div class="col-md-8">
+                                                {{ form_row(localeForm.locale) }}
+                                            </div>
+                                            <div class="col-md-4 d-grid">
+                                                <button class="btn btn-primary" type="submit">{{ 'label.btn.save'|trans({}, 'messages') }}</button>
+                                            </div>
+                                        </div>
+                                    {{ form_end(localeForm) }}
                                 </div>
                             </div>
                         </div>

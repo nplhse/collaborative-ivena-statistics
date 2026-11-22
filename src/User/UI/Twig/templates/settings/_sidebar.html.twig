@@ -23,14 +23,33 @@
                 {{ 'label.settings.overview'|trans({}, 'user') }}
             </a>
             {% for section in settings_sections() %}
+                {# An area with sub-items (#1508) opens only on its own pages; elsewhere a chevron hints at more below it. #}
+                {% set expanded = section.children is not empty and (active == section.key or active in section.children|map(child => child.key)) %}
                 <a
                     class="list-group-item list-group-item-action d-flex align-items-center gap-2{{ active == section.key ? ' active' : '' }}"
                     href="{{ path(section.route) }}"
                     {% if active == section.key %}aria-current="page"{% endif %}
+                    {% if section.children is not empty %}data-testid="settings-section-{{ section.key }}"{% endif %}
                 >
                     <twig:ux:icon :name="section.icon" class="icon" aria-hidden="true" />
                     {{ section.labelKey|trans({}, 'user') }}
+                    {% if section.children is not empty %}
+                        <twig:ux:icon :name="expanded ? 'tabler:chevron-up' : 'tabler:chevron-down'" class="icon ms-auto text-secondary" aria-hidden="true" />
+                    {% endif %}
                 </a>
+                {% if expanded %}
+                    {% for child in section.children %}
+                        <a
+                            class="list-group-item list-group-item-action d-flex align-items-center gap-2 ps-5{{ active == child.key ? ' active' : '' }}"
+                            href="{{ path(child.route) }}"
+                            data-testid="settings-subsection-{{ child.key }}"
+                            {% if active == child.key %}aria-current="page"{% endif %}
+                        >
+                            <twig:ux:icon :name="child.icon" class="icon" aria-hidden="true" />
+                            {{ child.labelKey|trans({}, 'user') }}
+                        </a>
+                    {% endfor %}
+                {% endif %}
             {% endfor %}
         </div>
     </nav>

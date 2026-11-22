@@ -661,6 +661,46 @@
         <source>label.settings.login_link</source>
         <target>Sign in with a link</target>
       </trans-unit>
+      <trans-unit id="SEC01" resname="title.settings.security">
+        <source>title.settings.security</source>
+        <target>Sign-in &amp; security</target>
+      </trans-unit>
+      <trans-unit id="SEC02" resname="text.settings.section.security">
+        <source>text.settings.section.security</source>
+        <target>Password, sign-in link and two-factor authentication.</target>
+      </trans-unit>
+      <trans-unit id="SEC03" resname="text.settings.login_link.active">
+        <source>text.settings.login_link.active</source>
+        <target>The sign-in link is active.</target>
+      </trans-unit>
+      <trans-unit id="SEC04" resname="text.settings.login_link.active_detail">
+        <source>text.settings.login_link.active_detail</source>
+        <target>On the login page you can have a sign-in link sent to {email}.</target>
+      </trans-unit>
+      <trans-unit id="SEC05" resname="text.settings.login_link.inactive">
+        <source>text.settings.login_link.inactive</source>
+        <target>The sign-in link is off.</target>
+      </trans-unit>
+      <trans-unit id="SEC06" resname="text.settings.login_link.inactive_detail">
+        <source>text.settings.login_link.inactive_detail</source>
+        <target>You sign in with your password.</target>
+      </trans-unit>
+      <trans-unit id="SEC07" resname="text.settings.section.login_link">
+        <source>text.settings.section.login_link</source>
+        <target>Sign in with a one-time link sent by email.</target>
+      </trans-unit>
+      <trans-unit id="SEC08" resname="label.settings.password">
+        <source>label.settings.password</source>
+        <target>Password</target>
+      </trans-unit>
+      <trans-unit id="SEC10" resname="label.settings.status_on">
+        <source>label.settings.status_on</source>
+        <target>On</target>
+      </trans-unit>
+      <trans-unit id="SEC11" resname="label.settings.status_off">
+        <source>label.settings.status_off</source>
+        <target>Off</target>
+      </trans-unit>
       <trans-unit id="LL01" resname="help.settings.login_link">
         <source>help.settings.login_link</source>
         <target>When switched on, you can have a one-time sign-in link sent to your email address on the login page instead of entering your password. The link is valid for 15 minutes.</target>

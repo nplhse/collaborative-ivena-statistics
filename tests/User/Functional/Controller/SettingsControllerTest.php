@@ -35,15 +35,25 @@ final class SettingsControllerTest extends WebTestCase
             ->assertNotSeeElement('select[name="settings_locale[locale]"]')
             ->assertSeeIn('[data-testid="settings-section-nav"] [aria-current="page"]', 'Overview')
             ->assertNotSeeElement('[data-testid="settings-back-to-overview"]')
-            ->assertElementCount('[data-testid="settings-overview"] a.settings-tile', 5)
+            // #1508: password, sign-in link and two-factor authentication sit below "Sign-in & security".
+            ->assertElementCount('[data-testid="settings-overview"] a.settings-tile', 4)
             ->assertElementAttributeContains('[data-testid="settings-tile-account"]', 'href', '/settings/account')
             ->assertElementAttributeContains('[data-testid="settings-tile-email"]', 'href', '/settings/email')
-            ->assertElementAttributeContains('[data-testid="settings-tile-password"]', 'href', '/settings/password')
-            ->assertElementAttributeContains('[data-testid="settings-tile-two_factor"]', 'href', '/settings/two-factor')
+            ->assertElementAttributeContains('[data-testid="settings-tile-security"]', 'href', '/settings/security')
+            ->assertSeeIn('[data-testid="settings-tile-security"]', 'Sign-in & security')
+            // Its sub-items open only on its own pages; here a chevron hints at them.
+            ->assertNotSeeElement('[data-testid^="settings-subsection-"]')
+            ->assertSeeElement('[data-testid="settings-section-security"]')
             ->assertElementAttributeContains('[data-testid="settings-tile-notifications"]', 'href', '/settings/notifications')
             ->assertSeeIn('[data-testid="settings-tile-account"]', 'My Account')
             ->assertSeeIn('[data-testid="settings-tile-account"]', 'Display name, email verification status and language.')
             ->assertSeeIn('[data-testid="settings-tile-notifications"]', 'Notifications')
+            ->visit('/settings/security')
+            ->assertElementAttributeContains('[data-testid="settings-subsection-password"]', 'href', '/settings/password')
+            ->assertElementAttributeContains('[data-testid="settings-subsection-login_link"]', 'href', '/settings/login-link')
+            ->assertElementAttributeContains('[data-testid="settings-subsection-two_factor"]', 'href', '/settings/two-factor')
+            ->visit('/settings/two-factor')
+            ->assertSeeElement('[data-testid="settings-subsection-two_factor"][aria-current="page"]')
         ;
     }
 
@@ -57,7 +67,7 @@ final class SettingsControllerTest extends WebTestCase
 
         $browser = $this->loginWithConsent($this->browser(), 'settings-tiles-user');
 
-        foreach (['account' => 'Account Settings', 'email' => 'Change email', 'password' => 'Change password', 'notifications' => 'Notifications'] as $tile => $heading) {
+        foreach (['account' => 'Account Settings', 'email' => 'Change email', 'security' => 'Sign-in & security', 'notifications' => 'Notifications'] as $tile => $heading) {
             $browser
                 ->visit('/settings')
                 ->click(sprintf('[data-testid="settings-tile-%s"]', $tile))
@@ -92,7 +102,9 @@ final class SettingsControllerTest extends WebTestCase
     {
         yield 'account' => ['/settings/account', 'My Account'];
         yield 'email' => ['/settings/email', 'Change email'];
+        yield 'security' => ['/settings/security', 'Sign-in & security'];
         yield 'password' => ['/settings/password', 'Set new password'];
+        yield 'login link' => ['/settings/login-link', 'Sign in with a link'];
         yield 'notifications' => ['/settings/notifications', 'Notifications'];
     }
 
@@ -136,9 +148,13 @@ final class SettingsControllerTest extends WebTestCase
             ->assertSeeIn('[data-test="email-login-notice"]', 'From version 1.0, you sign in with your email address only.')
             ->assertSeeElement('select[name="settings_locale[locale]"]')
             ->assertNotSeeElement('.card-body a[href="/settings/password"].btn')
-            ->assertSeeElement('.card-footer button[type="submit"][form="settings-locale-form"]')
-            ->assertSeeElement('form#settings-locale-form select[name="settings_locale[locale]"]')
-            ->assertElementAttributeContains('.card-footer a.btn-link', 'href', '/settings')
+            // #1508: one section per setting, each form with its own save button, no shared footer.
+            ->assertSeeElement('[data-testid="settings-section-profile"] form#settings-profile-form button[type="submit"]')
+            ->assertSeeElement('[data-testid="settings-section-email"] input[value="settings-account@example.test"]')
+            ->assertSeeElement('[data-testid="settings-section-language"] form#settings-locale-form select[name="settings_locale[locale]"]')
+            ->assertSeeElement('[data-testid="settings-section-language"] form#settings-locale-form button[type="submit"]')
+            ->assertNotSeeElement('.card-footer')
+            ->assertNotSeeElement('[data-test="login-link-setting"]')
         ;
     }
 
