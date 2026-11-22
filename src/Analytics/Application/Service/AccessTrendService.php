@@ -22,6 +22,8 @@ final readonly class AccessTrendService
 
     public function getTrend(): AccessTrend
     {
-        return $this->builder->build($this->query->dailyAccesses(), AnalyticsCalendar::startOfToday());
+        $today = AnalyticsCalendar::startOfToday();
+
+        return $this->builder->build($this->query->monthlyAccesses($today), $today);
     }
 }

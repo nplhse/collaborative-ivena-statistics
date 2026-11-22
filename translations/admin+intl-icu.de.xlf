@@ -1809,6 +1809,22 @@
         <source>usage_analytics.accesses.months.title</source>
         <target>Pro Monat</target>
       </trans-unit>
+      <trans-unit id="uaAcc18de" resname="usage_analytics.accesses.months.range_hint">
+        <source>usage_analytics.accesses.months.range_hint</source>
+        <target>Gleicher Zeitraum wie im Diagramm</target>
+      </trans-unit>
+      <trans-unit id="uaAcc19de" resname="usage_analytics.accesses.range.label">
+        <source>usage_analytics.accesses.range.label</source>
+        <target>Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="uaAcc20de" resname="usage_analytics.accesses.range.months">
+        <source>usage_analytics.accesses.range.months</source>
+        <target>{count} Monate</target>
+      </trans-unit>
+      <trans-unit id="uaAcc21de" resname="usage_analytics.accesses.range.all">
+        <source>usage_analytics.accesses.range.all</source>
+        <target>Alle</target>
+      </trans-unit>
       <trans-unit id="uaAcc13de" resname="usage_analytics.accesses.column.year">
         <source>usage_analytics.accesses.column.year</source>
         <target>Jahr</target>

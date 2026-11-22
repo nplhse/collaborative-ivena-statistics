@@ -31,15 +31,14 @@ final class AccessTrendBuilderTest extends TestCase
 
     public function testSumsMonthsAndYearsAcrossTheYearBoundary(): void
     {
-        // Counting starts on 2026-11-20. December has no counted day, so it is zero, not missing.
-        $days = [
-            ['date' => '2026-11-20', 'authenticated' => 2, 'anonymous' => 5],
-            ['date' => '2026-11-30', 'authenticated' => 1, 'anonymous' => 0],
-            ['date' => '2027-01-01', 'authenticated' => 3, 'anonymous' => 4],
-            ['date' => '2027-02-10', 'authenticated' => 0, 'anonymous' => 6],
+        // Counting starts on 2026-11-20. December has no row, so it is zero, not missing.
+        $months = [
+            ['month' => '2026-11', 'firstDay' => '2026-11-20', 'authenticated' => 3, 'anonymous' => 5],
+            ['month' => '2027-01', 'firstDay' => '2027-01-01', 'authenticated' => 3, 'anonymous' => 4],
+            ['month' => '2027-02', 'firstDay' => '2027-02-10', 'authenticated' => 0, 'anonymous' => 6],
         ];
 
-        $trend = $this->builder->build($days, $this->day('2027-02-10'));
+        $trend = $this->builder->build($months, $this->day('2027-02-10'));
 
         self::assertSame('2026-11-20', $trend->countingSince?->format('Y-m-d'));
         self::assertSame(6, $trend->authenticated);
@@ -66,12 +65,12 @@ final class AccessTrendBuilderTest extends TestCase
 
     public function testCompleteOnlyWhenOverAndFullyCounted(): void
     {
-        $days = [
-            ['date' => '2026-09-01', 'authenticated' => 1, 'anonymous' => 1],
-            ['date' => '2026-10-31', 'authenticated' => 1, 'anonymous' => 1],
+        $months = [
+            ['month' => '2026-09', 'firstDay' => '2026-09-01', 'authenticated' => 1, 'anonymous' => 1],
+            ['month' => '2026-10', 'firstDay' => '2026-10-31', 'authenticated' => 1, 'anonymous' => 1],
         ];
 
-        $trend = $this->builder->build($days, $this->day('2026-11-01'));
+        $trend = $this->builder->build($months, $this->day('2026-11-01'));
 
         // Counting started on the first day of September, so September is complete.
         self::assertTrue($trend->months[0]->isComplete());
@@ -84,16 +83,17 @@ final class AccessTrendBuilderTest extends TestCase
         self::assertFalse($trend->years[0]->isComplete());
     }
 
-    public function testIgnoresDaysAfterToday(): void
+    public function testIgnoresMonthsAfterTheCurrentOne(): void
     {
-        $days = [
-            ['date' => '2026-11-01', 'authenticated' => 1, 'anonymous' => 0],
-            ['date' => '2026-11-03', 'authenticated' => 9, 'anonymous' => 9],
+        $months = [
+            ['month' => '2026-11', 'firstDay' => '2026-11-01', 'authenticated' => 1, 'anonymous' => 0],
+            ['month' => '2026-12', 'firstDay' => '2026-12-01', 'authenticated' => 9, 'anonymous' => 9],
         ];
 
-        $trend = $this->builder->build($days, $this->day('2026-11-02'));
+        $trend = $this->builder->build($months, $this->day('2026-11-02'));
 
         self::assertSame(1, $trend->total());
+        self::assertSame(['2026-11'], array_map(static fn (AccessPeriod $month): string => $month->key, $trend->months));
     }
 
     public function testRejectsAnInvalidDay(): void
@@ -101,7 +101,7 @@ final class AccessTrendBuilderTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid day "2026-0x-01".');
 
-        $this->builder->build([['date' => '2026-0x-01', 'authenticated' => 1, 'anonymous' => 0]], $this->day('2026-11-02'));
+        $this->builder->build([['month' => '2026-01', 'firstDay' => '2026-0x-01', 'authenticated' => 1, 'anonymous' => 0]], $this->day('2026-11-02'));
     }
 
     /**
