@@ -41,7 +41,8 @@
             {% for request in requests %}
                 {% set status = request.status.value %}
                 <div class="col-12">
-                    <div class="card" data-testid="hospital-assignment-request">
+                    {# Anchor for links from the dashboard and the onboarding card (#1483). #}
+                    <div class="card hospital-assignment-request-card" id="request-{{ request.publicIdString }}" data-testid="hospital-assignment-request">
                         <div class="card-header">
                             <div>
                                 <h3 class="card-title">

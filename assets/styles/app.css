@@ -3315,3 +3315,13 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
 .encounter-validation-expand[open] > summary .encounter-validation-expand__chevron {
     transform: rotate(90deg);
 }
+
+/* My requests (#1483): links from the dashboard jump to one request; it stays clear of the sticky header and is marked. */
+.hospital-assignment-request-card {
+    scroll-margin-top: 5rem;
+}
+
+.hospital-assignment-request-card:target {
+    border-color: var(--tblr-primary);
+    box-shadow: 0 0 0 0.2rem rgba(var(--tblr-primary-rgb), 0.25);
+}
