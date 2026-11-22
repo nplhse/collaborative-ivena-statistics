@@ -39,4 +39,15 @@ final class PostCommentRepository extends ServiceEntityRepository
 
         return $comments;
     }
+
+    /** All comments of a post, replies included, as the blog list counts them (#1456). */
+    public function countForPost(Post $post): int
+    {
+        return (int) $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->andWhere('IDENTITY(c.post) = :postId')
+            ->setParameter('postId', $post->getId(), Types::INTEGER)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
