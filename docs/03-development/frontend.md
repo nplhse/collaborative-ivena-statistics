@@ -140,7 +140,10 @@ applies automatically when the browser prints and does not change the screen lay
 - Printed output is always light and A4. DataTables stay tables on paper instead of switching to
   their mobile cards.
 - A paginated DataTable prints the current page only and says so in its footer.
-- Lazy Turbo Frames that have not loaded yet are left out of the printout.
+- Charts are scaled to the paper by `assets/lib/print-preparation.js`; controllers need no print code.
+- Lazy Turbo Frames that have not loaded yet are left out of a printout from the browser menu. The
+  print icon in the statistics header (`_includes/print_button.html.twig`) loads them first and is
+  shown only on pages that have such frames.
 - Every printout ends with the application name, version and print time.
 
 ## Development workflow
