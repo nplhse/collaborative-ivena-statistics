@@ -453,7 +453,7 @@ Separate pull requests into `feature/notification-system`, within this one archi
 - The producer owns the group and recomputes it from its own records, so retries and concurrent jobs give the same result. The Notification context stores only the outcome.
 - Grouped types are in-app only. They create no delivery and no toast, and updating an entry never raises the unread count.
 - A grouped entry claims no deduplication key: a group that was withdrawn must be able to come back within the TTL.
-- A read or removed entry is final. Later events start a new entry.
+- A read or removed entry is final. Later events start a new entry. One exception: when an entry names a person whose account is deleted, `redactPerson()` removes the names, also from read entries.
 
 ## Consequences
 

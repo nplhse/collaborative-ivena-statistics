@@ -26,6 +26,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final readonly class RefreshReactionNotificationMessageHandler
 {
+    private const int NAMED_ACTORS = 2;
+
     public function __construct(
         private Connection $connection,
         private ReactionTargetRegistry $targets,
@@ -141,7 +143,7 @@ final readonly class RefreshReactionNotificationMessageHandler
      *
      * @param array{type: string, id: int} $key
      *
-     * @return array{count: int, maxId: int, newestAt: ?\DateTimeImmutable, byType: array<string, int>}
+     * @return array{count: int, maxId: int, newestAt: ?\DateTimeImmutable, byType: array<string, int>, actors: list<array{id: int, name: string}>}
      */
     private function group(array $key, int $floor, int $ownerId): array
     {
@@ -166,11 +168,37 @@ final readonly class RefreshReactionNotificationMessageHandler
             $newestAt = !$newestAt instanceof \DateTimeImmutable || $at > $newestAt ? $at : $newestAt;
         }
 
-        return ['count' => $count, 'maxId' => $maxId, 'newestAt' => $newestAt, 'byType' => $byType];
+        return [
+            'count' => $count,
+            'maxId' => $maxId,
+            'newestAt' => $newestAt,
+            'byType' => $byType,
+            'actors' => 0 === $count ? [] : $this->latestActors($key, $floor, $ownerId),
+        ];
     }
 
     /**
-     * @param array{count: int, maxId: int, newestAt: ?\DateTimeImmutable, byType: array<string, int>} $group
+     * The people the entry names: the two latest reactions of the group.
+     *
+     * @param array{type: string, id: int} $key
+     *
+     * @return list<array{id: int, name: string}>
+     */
+    private function latestActors(array $key, int $floor, int $ownerId): array
+    {
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT u.id, COALESCE(NULLIF(TRIM(u.display_name), \'\'), u.username) AS name
+             FROM reaction r INNER JOIN "user" u ON u.id = r.user_id
+             WHERE r.target_type = :type AND r.target_id = :id AND r.id > :floor AND r.user_id <> :owner AND u.is_enabled = TRUE
+             ORDER BY r.id DESC LIMIT '.self::NAMED_ACTORS,
+            [...$key, 'floor' => $floor, 'owner' => $ownerId],
+        );
+
+        return array_map(static fn (array $row): array => ['id' => (int) $row['id'], 'name' => (string) $row['name']], $rows);
+    }
+
+    /**
+     * @param array{count: int, maxId: int, newestAt: ?\DateTimeImmutable, byType: array<string, int>, actors: list<array{id: int, name: string}>} $group
      *
      * @return array<string, scalar|null>
      */
@@ -188,6 +216,15 @@ final readonly class RefreshReactionNotificationMessageHandler
             'title' => $target->title ?? '',
             'count' => $group['count'],
             'breakdown' => implode(' ', $breakdown),
+            'actors' => match (true) {
+                1 === $group['count'] => 'one',
+                2 === $group['count'] => 'two',
+                default => 'many',
+            },
+            'firstActor' => $group['actors'][0]['name'] ?? null,
+            'secondActor' => $group['actors'][1]['name'] ?? null,
+            'others' => max(0, $group['count'] - self::NAMED_ACTORS),
+            'actorIds' => ','.implode(',', array_column($group['actors'], 'id')).',',
         ];
     }
 
