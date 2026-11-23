@@ -190,7 +190,7 @@ Typical order (Symfony recipe plus project tasks):
 
 1. New release is prepared and vendors installed (`composer install --no-dev`; its Composer `auto-scripts` also run `assets:install`, which copies bundle assets such as EasyAdmin to `public/bundles/`)
 2. Asset map compile and cache warmup
-3. **`messenger:stop`** — `messenger:stop-workers` on the **previous** release (graceful shutdown)
+3. **`messenger:stop`** — `systemctl --user stop messenger.service`, so no worker or scheduler runs during the migrations. With the PHP extension `pcntl` the worker finishes its current message first (up to `TimeoutStopSec`); without it the message is interrupted and delivered again. If the deploy fails after this step, the worker is started again on the previous release
 4. Database migrations
 5. **`media:migrate-storage`** — moves media files that are still in the old upload directory into `shared/var/media` ([media files](#media-files-shared-across-releases))
 6. Symlink switch to the new release (`current`)

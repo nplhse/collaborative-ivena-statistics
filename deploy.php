@@ -82,17 +82,20 @@ task('deploy:cache:warmup', function () {
 after('deploy:vendors', 'deploy:assets');
 after('deploy:assets', 'deploy:cache:warmup');
 
-desc('Gracefully stop Messenger workers on the previous release');
+// Through systemd: the unit has Restart=always, so messenger:stop-workers would bring the old worker back after
+// a few seconds, while the migrations run.
+desc('Stop the Messenger systemd user service before the migrations');
 task('messenger:stop', function () {
     if (!get('messenger_restart_on_deploy')) {
         return;
     }
     if (!has('previous_release')) {
-        writeln('<comment>No previous release; skipping messenger:stop-workers</comment>');
+        writeln('<comment>No previous release; skipping messenger:stop</comment>');
 
         return;
     }
-    run('cd {{previous_release}} && {{bin/console}} messenger:stop-workers {{console_options}}');
+    run('systemctl --user stop '.escapeshellarg(get('messenger_systemd_service')));
+    set('messenger_stopped_by_deploy', true);
 });
 
 desc('Restart Messenger systemd user service');
@@ -102,6 +105,14 @@ task('messenger:restart', function () {
     }
     $service = get('messenger_systemd_service');
     run('systemctl --user restart '.escapeshellarg($service));
+});
+
+desc('Start the Messenger worker again when a failed deploy had stopped it');
+task('messenger:restart-after-failure', function () {
+    if (!get('messenger_stopped_by_deploy', false)) {
+        return;
+    }
+    invoke('messenger:restart');
 });
 
 desc('Reset OPcache after deploy');
@@ -116,13 +127,14 @@ task('deploy:cache:opcache', function () {
 });
 
 // Attach tasks from recipes& contrib to default workflow
-before('deploy:symlink', 'messenger:stop');
 after('deploy:symlink', 'deploy:uberspace:webroot');
 after('deploy:uberspace:webroot', 'deploy:cache:opcache');
 
 before('deploy:publish', 'database:migrate');
+before('database:migrate', 'messenger:stop');
 after('deploy:publish', 'messenger:restart');
 
+after('deploy:failed', 'messenger:restart-after-failure');
 after('deploy:failed', 'deploy:unlock');
 
 desc('Move media files from the old upload directory into the media storage (ADR 039)');
