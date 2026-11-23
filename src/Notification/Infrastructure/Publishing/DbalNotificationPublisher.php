@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Notification\Infrastructure\Publishing;
 
+use App\Notification\Application\Contract\GroupedNotificationWriterInterface;
 use App\Notification\Application\Contract\NotificationPreferenceStoreInterface;
 use App\Notification\Application\Contract\NotificationPublisherInterface;
 use App\Notification\Application\Definition\NotificationDefinition;
@@ -32,11 +33,13 @@ use Symfony\Component\DependencyInjection\Attribute\AsAlias;
  * deliveries and their jobs are committed together. A duplicate creates nothing but resumes the
  * instance's deliveries that are still pending after a grace period. Inside an open transaction of the caller it runs as a savepoint. DBAL is used
  * instead of the entity manager so that publishing never flushes pending changes of the caller.
+ * Grouped entries (GroupedNotificationWriterInterface) use the same insert, without deduplication.
  *
  * @psalm-suppress UnusedClass Wired via #[AsAlias] for NotificationPublisherInterface.
  */
 #[AsAlias(NotificationPublisherInterface::class)]
-final readonly class DbalNotificationPublisher implements NotificationPublisherInterface
+#[AsAlias(GroupedNotificationWriterInterface::class)]
+final readonly class DbalNotificationPublisher implements NotificationPublisherInterface, GroupedNotificationWriterInterface
 {
     /**
      * How long a toast may be claimed by an active browser context.
@@ -86,6 +89,98 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
                 ]);
             }
         }
+    }
+
+    #[\Override]
+    public function create(NotificationRequest $request): ?int
+    {
+        $definition = $this->registry->get($request->type);
+        $this->assertValid($request, $definition);
+
+        if ([NotificationChannel::InApp] !== $definition->availableChannels) {
+            throw new \InvalidArgumentException(sprintf('Grouped notification "%s" must offer the in-app channel only.', $request->type));
+        }
+
+        $recipientIds = array_values(array_unique($request->recipientUserIds));
+        if (1 !== \count($recipientIds)) {
+            throw new \InvalidArgumentException(sprintf('Grouped notification "%s" needs exactly one recipient.', $request->type));
+        }
+
+        $recipientId = $recipientIds[0];
+        $channels = $this->channelResolver->resolve($definition, $this->preferences->overridesFor($recipientId, $definition));
+        if (!$channels->has(NotificationChannel::InApp)) {
+            return null;
+        }
+
+        $now = $this->clock->now();
+
+        return $this->connection->transactional(function (Connection $connection) use ($request, $definition, $recipientId, $now): int {
+            $notificationId = $this->insertNotification($connection, $request, $definition, $recipientId, $now, true, null);
+            $this->bumpRecipientState($connection, $recipientId, $now);
+
+            return $notificationId;
+        });
+    }
+
+    #[\Override]
+    public function isEnabledFor(string $type, int $recipientId): bool
+    {
+        $definition = $this->registry->get($type);
+
+        return $this->channelResolver
+            ->resolve($definition, $this->preferences->overridesFor($recipientId, $definition))
+            ->has(NotificationChannel::InApp);
+    }
+
+    #[\Override]
+    public function replace(int $notificationId, array $parameters, ?\DateTimeImmutable $moveTo = null): bool
+    {
+        return $this->connection->transactional(function (Connection $connection) use ($notificationId, $parameters, $moveTo): bool {
+            $recipientId = $connection->fetchOne(
+                <<<'SQL'
+                    UPDATE notification
+                    SET parameters = :parameters,
+                        created_at = COALESCE(CAST(:move_to AS TIMESTAMP(0)), created_at)
+                    WHERE id = :id AND read_at IS NULL AND removed_at IS NULL AND in_app_visible = true
+                    RETURNING recipient_id
+                    SQL,
+                ['parameters' => $parameters, 'move_to' => $moveTo, 'id' => $notificationId],
+                ['parameters' => Types::JSON, 'move_to' => Types::DATETIME_IMMUTABLE],
+            );
+
+            if (false === $recipientId) {
+                return false;
+            }
+
+            $this->changeRecipientState($connection, (int) $recipientId, 0);
+
+            return true;
+        });
+    }
+
+    #[\Override]
+    public function withdraw(int $notificationId): bool
+    {
+        return $this->connection->transactional(function (Connection $connection) use ($notificationId): bool {
+            $recipientId = $connection->fetchOne(
+                <<<'SQL'
+                    UPDATE notification
+                    SET removed_at = :now
+                    WHERE id = :id AND read_at IS NULL AND removed_at IS NULL AND in_app_visible = true
+                    RETURNING recipient_id
+                    SQL,
+                ['now' => $this->clock->now(), 'id' => $notificationId],
+                ['now' => Types::DATETIME_IMMUTABLE],
+            );
+
+            if (false === $recipientId) {
+                return false;
+            }
+
+            $this->changeRecipientState($connection, (int) $recipientId, -1);
+
+            return true;
+        });
     }
 
     private function assertValid(NotificationRequest $request, NotificationDefinition $definition): void
@@ -278,6 +373,45 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
                         updated_at = EXCLUDED.updated_at
                 SQL,
             ['user' => $recipientId, 'now' => $now],
+            ['now' => Types::DATETIME_IMMUTABLE],
+        );
+    }
+
+    /** A new version makes open dropdowns reload, also when the unread count stays the same. */
+    #[\Override]
+    public function redactPerson(string $type, int $personId, array $parameters): int
+    {
+        return $this->connection->transactional(function (Connection $connection) use ($type, $personId, $parameters): int {
+            $recipients = $connection->fetchFirstColumn(
+                <<<'SQL'
+                    UPDATE notification
+                    SET parameters = CAST(CAST(parameters AS JSONB) || CAST(:parameters AS JSONB) AS JSON)
+                    WHERE type = :type AND parameters->>'actorIds' LIKE :person
+                    RETURNING recipient_id
+                    SQL,
+                ['parameters' => $parameters, 'type' => $type, 'person' => '%,'.$personId.',%'],
+                ['parameters' => Types::JSON],
+            );
+
+            foreach (array_unique(array_map(intval(...), $recipients)) as $recipientId) {
+                $this->changeRecipientState($connection, $recipientId, 0);
+            }
+
+            return \count($recipients);
+        });
+    }
+
+    private function changeRecipientState(Connection $connection, int $recipientId, int $unreadDelta): void
+    {
+        $connection->executeStatement(
+            <<<'SQL'
+                UPDATE notification_recipient_state
+                SET version = version + 1,
+                    unread_count = GREATEST(unread_count + :delta, 0),
+                    updated_at = :now
+                WHERE user_id = :recipient
+                SQL,
+            ['delta' => $unreadDelta, 'now' => $this->clock->now(), 'recipient' => $recipientId],
             ['now' => Types::DATETIME_IMMUTABLE],
         );
     }

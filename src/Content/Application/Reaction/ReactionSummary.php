@@ -15,12 +15,25 @@ use App\Content\Domain\Enum\ReactionType;
 final readonly class ReactionSummary
 {
     /**
-     * @param list<ReactionCount> $counts only reactions given at least once
+     * @param list<ReactionCount>       $counts       only reactions given at least once
+     * @param list<ReactionParticipant> $participants the latest people who reacted, newest first; empty when names are
+     *                                                not shown
      */
     public function __construct(
         public ReactionTarget $target,
         public array $counts = [],
+        public array $participants = [],
     ) {
+    }
+
+    /**
+     * Everyone who reacted: a user has at most one reaction per target.
+     *
+     * @psalm-suppress PossiblyUnusedMethod Read by the reaction bar template.
+     */
+    public function participantCount(): int
+    {
+        return array_sum(array_map(static fn (ReactionCount $count): int => $count->count, $this->counts));
     }
 
     /** @psalm-suppress PossiblyUnusedMethod Read by the reaction bar template. */

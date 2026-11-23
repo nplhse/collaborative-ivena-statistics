@@ -32,6 +32,12 @@
         <div class="text-secondary" id="result-count">
             {{ include('@Shared/components/data_table/_result_count.html.twig') }}
         </div>
+
+        {% if this.cursorPaginator ? (paginator.hasNext or paginator.hasPrevious) : paginator.totalItems|default(0) > this.pageSize %}
+            <div class="d-none d-print-block" data-testid="data-table-print-note">
+                {{ 'label.data_table.print_current_page'|trans({}, 'shared') }}
+            </div>
+        {% endif %}
     </div>
 
     {% if this.cursorPaginator %}

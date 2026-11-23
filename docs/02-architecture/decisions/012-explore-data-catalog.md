@@ -29,7 +29,7 @@ We needed a shared product and technical model for a scientific **data catalog**
 
 6. **Descriptions stay optional and light.** Catalog detail pages do **not** render a dedicated description card or auto-generated fallback text. Prefer entity fields (`note`, `description`) in basic info when editorial content exists, and i18n for glossary term definitions. Introduce a shared `catalog_entry` store only if several types prove the same editorial workflow.
 
-7. **Information architecture.** Explore navigation (since [ADR 035](035-navigation-tree-and-contextual-sidebar.md) the explore sidebar) and hub use the same domain groups and order: Overview → Cases → Organisation → Klinikstruktur (structure) → Merkmale (features) → Glossary (classifications). Reference lists such as infections and secondary transports live under Merkmale, not under the glossary.
+7. **Information architecture.** Explore navigation (since [ADR 035](035-navigation-tree-and-contextual-sidebar.md) the explore sidebar) and hub use the same domain groups and order: Overview → Cases → Organisation → Klinikstruktur (structure) → Merkmale (features) → Glossary (classifications). Reference lists such as infections and secondary transports live under Merkmale, not under the glossary. The glossary has since moved to the help section ([ADR 042](042-glossary-and-data-catalog-in-help.md)).
 
 ## Consequences
 

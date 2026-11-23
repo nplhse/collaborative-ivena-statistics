@@ -130,6 +130,22 @@ Put a short explanation that is still useful into a tooltip on an info icon next
 `{{ include('@Admin/_info_tooltip.html.twig', {text: 'key'|trans({}, 'domain')}) }}`. For an EasyAdmin action use
 `setHtmlAttributes(['title' => new TranslatableMessage(...)])`. Definitions and background belong in `docs/`.
 
+## Print layout
+
+`assets/styles/print.css` is the shared print stylesheet of the application (not the admin area). It
+applies automatically when the browser prints and does not change the screen layout.
+
+- Mark page-specific controls with `d-print-none`. Page titles stay visible, even inside a
+  `.page-header.d-print-none`.
+- Printed output is always light and A4. DataTables stay tables on paper instead of switching to
+  their mobile cards.
+- A paginated DataTable prints the current page only and says so in its footer.
+- Charts are scaled to the paper by `assets/lib/print-preparation.js`; controllers need no print code.
+- Lazy Turbo Frames that have not loaded yet are left out of a printout from the browser menu. The
+  print icon in the statistics header (`_includes/print_button.html.twig`) loads them first and is
+  shown only on pages that have such frames.
+- Every printout ends with the application name, version and print time.
+
 ## Development workflow
 
 After changing JS or CSS:

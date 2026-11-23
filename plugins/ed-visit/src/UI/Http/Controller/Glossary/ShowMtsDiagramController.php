@@ -23,8 +23,8 @@ final class ShowMtsDiagramController extends AbstractController
     }
 
     #[Route(
-        '/explore/glossary/mts/diagram/{code}',
-        name: 'app_explore_glossary_mts_diagram',
+        '/help/glossary/mts/diagram/{code}',
+        name: 'app_help_glossary_mts_diagram',
         requirements: ['code' => '[a-z0-9_]{1,64}'],
         methods: ['GET'],
         priority: 20,

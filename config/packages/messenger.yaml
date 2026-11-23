@@ -64,6 +64,7 @@ framework:
             App\Storage\Application\Message\MeasureStorageMessage: async_priority_low
             App\Content\Application\Message\CheckMediaIntegrityMessage: async_priority_low
             App\Content\Application\Message\CleanUpReactionsMessage: async_priority_low
+            App\Content\Application\Message\RefreshReactionNotificationMessage: async_priority_low
             App\Content\Application\Message\AnnouncePostMessage: async_priority_low
             App\Feedback\Application\Message\SendFeedbackQuarantineSummaryMessage: async_priority_low
             App\Feedback\Application\Message\PurgeQuarantinedFeedbackMessage: async_priority_low
@@ -80,6 +81,8 @@ when@dev:
                 Symfony\Component\Mailer\Messenger\SendEmailMessage: sync
                 # Benachrichtigungs-E-Mails ebenfalls sofort (ADR 016); läuft im Request des Auslösers
                 App\Notification\Application\Message\DeliverNotificationMessage: sync
+                # Reaction notifications appear without a worker.
+                App\Content\Application\Message\RefreshReactionNotificationMessage: sync
                 # Background stages of tracked generation runs (ADR 023); their handlers exist only in dev, test and demo.
                 App\DataFixtures\Generator\Application\Run\Message\ProjectGeneratedHospital: async_priority_low
                 App\DataFixtures\Generator\Application\Run\Message\FinishGenerationRun: async_priority_low
@@ -111,6 +114,7 @@ when@test:
                 App\Storage\Application\Message\MeasureStorageMessage: sync
                 App\Content\Application\Message\CheckMediaIntegrityMessage: sync
                 App\Content\Application\Message\CleanUpReactionsMessage: sync
+                App\Content\Application\Message\RefreshReactionNotificationMessage: sync
                 App\Content\Application\Message\AnnouncePostMessage: sync
                 App\Feedback\Application\Message\SendFeedbackQuarantineSummaryMessage: sync
                 App\Feedback\Application\Message\PurgeQuarantinedFeedbackMessage: sync

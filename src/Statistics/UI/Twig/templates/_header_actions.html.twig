@@ -5,6 +5,8 @@
 {% set showIndicationTopList = statsIndicationTopListUrl|default(null) %}
 {% set showInsightCompareLaunch = statsShowCompareLaunchButton|default(false) %}
 
+{{ include('@Shared/_includes/print_button.html.twig') }}
+
 {% if showTopListCatalog or showTopListCompareEnable %}
     <div class="btn-group" role="group" data-testid="stats-top-lists-header-actions">
         {% if showTopListCatalog %}

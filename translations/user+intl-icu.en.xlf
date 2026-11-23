@@ -427,11 +427,11 @@
       </trans-unit>
       <trans-unit id="em.welcomeExpDesc" resname="email.welcome.next_steps.explore.description">
         <source>email.welcome.next_steps.explore.description</source>
-        <target>Explore allocations and reference data in the data catalog.</target>
+        <target>Browse allocations and reference data.</target>
       </trans-unit>
       <trans-unit id="em.welcomeExpTitle" resname="email.welcome.next_steps.explore.title">
         <source>email.welcome.next_steps.explore.title</source>
-        <target>Open the data catalog</target>
+        <target>Explore data</target>
       </trans-unit>
       <trans-unit id="em.welcomeHospAllDesc" resname="email.welcome.next_steps.hospitals.all.description">
         <source>email.welcome.next_steps.hospitals.all.description</source>
@@ -637,10 +637,6 @@
         <source>label.user.activity.comment_created</source>
         <target>Wrote a comment</target>
       </trans-unit>
-      <trans-unit id="usrLblActivityCommentOnEn" resname="label.user.activity.comment_on">
-        <source>label.user.activity.comment_on</source>
-        <target>On</target>
-      </trans-unit>
       <trans-unit id="usrLblActivityHospitalAssociatedEn" resname="label.user.activity.hospital_associated">
         <source>label.user.activity.hospital_associated</source>
         <target>Associated with a hospital</target>
@@ -656,6 +652,74 @@
       <trans-unit id="usrLblActivityHospitalOwnerRevokedEn" resname="label.user.activity.hospital_owner_revoked">
         <source>label.user.activity.hospital_owner_revoked</source>
         <target>Hospital ownership ended</target>
+      </trans-unit>
+      <trans-unit id="actSentJoinedPlainEn" resname="label.user.activity.sentence.joined.plain">
+        <source>label.user.activity.sentence.joined.plain</source>
+        <target>{actor} joined the platform.</target>
+      </trans-unit>
+      <trans-unit id="actSentFirstImportObjectEn" resname="label.user.activity.sentence.first_import.object">
+        <source>label.user.activity.sentence.first_import.object</source>
+        <target>{actor} imported data for {object} for the first time.</target>
+      </trans-unit>
+      <trans-unit id="actSentFirstImportPlainEn" resname="label.user.activity.sentence.first_import.plain">
+        <source>label.user.activity.sentence.first_import.plain</source>
+        <target>{actor} imported data for the first time.</target>
+      </trans-unit>
+      <trans-unit id="actSentImportMilestoneObjectEn" resname="label.user.activity.sentence.import_milestone.object">
+        <source>label.user.activity.sentence.import_milestone.object</source>
+        <target>{actor} has completed {count} data imports in total, most recently for {object}.</target>
+      </trans-unit>
+      <trans-unit id="actSentImportMilestonePlainEn" resname="label.user.activity.sentence.import_milestone.plain">
+        <source>label.user.activity.sentence.import_milestone.plain</source>
+        <target>{actor} has completed {count} data imports in total.</target>
+      </trans-unit>
+      <trans-unit id="actSentPostPublishedObjectEn" resname="label.user.activity.sentence.post_published.object">
+        <source>label.user.activity.sentence.post_published.object</source>
+        <target>{actor} published the post “{object}”.</target>
+      </trans-unit>
+      <trans-unit id="actSentPostPublishedPlainEn" resname="label.user.activity.sentence.post_published.plain">
+        <source>label.user.activity.sentence.post_published.plain</source>
+        <target>{actor} published a post.</target>
+      </trans-unit>
+      <trans-unit id="actSentCommentCreatedObjectEn" resname="label.user.activity.sentence.comment_created.object">
+        <source>label.user.activity.sentence.comment_created.object</source>
+        <target>{actor} commented on “{object}”.</target>
+      </trans-unit>
+      <trans-unit id="actSentCommentCreatedPlainEn" resname="label.user.activity.sentence.comment_created.plain">
+        <source>label.user.activity.sentence.comment_created.plain</source>
+        <target>{actor} commented on a post.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalAssociatedObjectEn" resname="label.user.activity.sentence.hospital_associated.object">
+        <source>label.user.activity.sentence.hospital_associated.object</source>
+        <target>{actor} is now associated with {object}.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalAssociatedPlainEn" resname="label.user.activity.sentence.hospital_associated.plain">
+        <source>label.user.activity.sentence.hospital_associated.plain</source>
+        <target>{actor} is now associated with a hospital.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalDisassociatedObjectEn" resname="label.user.activity.sentence.hospital_disassociated.object">
+        <source>label.user.activity.sentence.hospital_disassociated.object</source>
+        <target>{actor} is no longer associated with {object}.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalDisassociatedPlainEn" resname="label.user.activity.sentence.hospital_disassociated.plain">
+        <source>label.user.activity.sentence.hospital_disassociated.plain</source>
+        <target>{actor} is no longer associated with a hospital.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalOwnerGrantedObjectEn" resname="label.user.activity.sentence.hospital_owner_granted.object">
+        <source>label.user.activity.sentence.hospital_owner_granted.object</source>
+        <target>{actor} is now responsible for {object}.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalOwnerGrantedPlainEn" resname="label.user.activity.sentence.hospital_owner_granted.plain">
+        <source>label.user.activity.sentence.hospital_owner_granted.plain</source>
+        <target>{actor} is now responsible for a hospital.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalOwnerRevokedObjectEn" resname="label.user.activity.sentence.hospital_owner_revoked.object">
+        <source>label.user.activity.sentence.hospital_owner_revoked.object</source>
+        <target>{actor} is no longer responsible for {object}.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalOwnerRevokedPlainEn" resname="label.user.activity.sentence.hospital_owner_revoked.plain">
+        <source>label.user.activity.sentence.hospital_owner_revoked.plain</source>
+        <target>{actor} is no longer responsible for a hospital.</target>
       </trans-unit>
       <trans-unit id="LL00" resname="label.settings.login_link">
         <source>label.settings.login_link</source>

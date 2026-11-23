@@ -1,0 +1,10 @@
+{% set print_label = 'print.action'|trans({}, 'shared') %}
+<button type="button"
+        class="btn btn-icon d-print-none print-action"
+        title="{{ print_label }}"
+        aria-label="{{ print_label }}"
+        data-controller="tooltip print"
+        data-action="print#print"
+        data-testid="print-action">
+    <twig:ux:icon name="tabler:printer" class="icon icon-sm" aria-hidden="true" />
+</button>

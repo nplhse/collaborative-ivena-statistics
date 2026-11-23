@@ -13,10 +13,11 @@ use App\Shared\Application\Navigation\Menu\NavItem;
 use Symfony\Component\Translation\TranslatableMessage;
 
 /**
- * Explore and Export in the primary menu, and the explore sidebar (ADR 035).
+ * Explore and Export in the primary menu, the explore sidebar (ADR 035), and the reference entries of the
+ * help column in the footer (ADR 042).
  *
  * Allocation owns the explore menu: its groups follow the former Explore dropdowns (cases, organisation,
- * hospital structure, features) with the overview first and the classifications last. Every entry needs
+ * hospital structure, features) with the overview first. Every entry needs
  * ROLE_PARTICIPANT like the Explore pages; a user who only opens their own profile under /explore/user sees
  * no sidebar. Users are added by the User context to {@see Menu::EXPLORE_GROUP_ORGANISATION}.
  *
@@ -44,7 +45,6 @@ final readonly class AllocationNavigationProvider implements NavigationProviderI
             new NavGroup(Menu::EXPLORE_GROUP_ORGANISATION, $this->label('link.explore.group.organisation'), 30),
             new NavGroup('structure', $this->label('link.explore.group.structure'), 40),
             new NavGroup('features', $this->label('link.explore.group.features'), 50),
-            new NavGroup('reference', null, 60),
         ];
     }
 
@@ -54,6 +54,7 @@ final readonly class AllocationNavigationProvider implements NavigationProviderI
         return match ($menu) {
             Menu::Primary => $this->primaryItems(),
             Menu::Explore => $this->sidebarItems(),
+            Menu::Footer => $this->referenceItems(),
             default => [],
         };
     }
@@ -113,9 +114,20 @@ final readonly class AllocationNavigationProvider implements NavigationProviderI
             $this->catalog('infections', 'features', 'link.infections', 'app_explore_infection', 'tabler:virus', 40),
             $this->catalog('occasions', 'features', 'link.occasions', 'app_explore_occasion', 'tabler:flag', 50),
             $this->catalog('secondary-transports', 'features', 'link.secondary_transports', 'app_explore_secondary_transport', 'tabler:helicopter', 60),
+        ];
+    }
 
-            $this->entry('glossary', 'reference', 'link.glossary', 'app_explore_glossary_index', 'tabler:book', 10, $this->glossaryRoutes()),
-            $this->entry('data-catalog', 'reference', 'link.data_catalog', 'app_explore_data_catalog_index', 'tabler:database', 20, ['app_explore_data_catalog_show']),
+    /**
+     * Glossary and data catalog in the help column of the footer, which also feeds the Reference card of the
+     * help (ADR 042). Both stay reserved for participants.
+     *
+     * @return list<NavItem>
+     */
+    private function referenceItems(): array
+    {
+        return [
+            $this->entry('glossary', Menu::FOOTER_GROUP_HELP, 'link.glossary', 'app_help_glossary_index', 'tabler:book', 20, $this->glossaryRoutes()),
+            $this->entry('data-catalog', Menu::FOOTER_GROUP_HELP, 'link.data_catalog', 'app_help_data_catalog_index', 'tabler:database', 30, ['app_help_data_catalog_show']),
         ];
     }
 
@@ -127,7 +139,7 @@ final readonly class AllocationNavigationProvider implements NavigationProviderI
      */
     private function glossaryRoutes(): array
     {
-        $routes = ['app_explore_glossary_show'];
+        $routes = ['app_help_glossary_show'];
         foreach ($this->glossaryEntries->entries() as $entry) {
             $routes = [...$routes, $entry->route, ...$entry->detailRoutes];
         }

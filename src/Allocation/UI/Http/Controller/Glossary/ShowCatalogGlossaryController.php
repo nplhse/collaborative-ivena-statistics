@@ -21,8 +21,8 @@ final class ShowCatalogGlossaryController extends AbstractController
     }
 
     #[Route(
-        '/explore/glossary/{slug}',
-        name: 'app_explore_glossary_show',
+        '/help/glossary/{slug}',
+        name: 'app_help_glossary_show',
         requirements: ['slug' => 'urgency|transport-type|hospital-classifications|clinical-indicators'],
         methods: ['GET'],
         priority: 10,
@@ -38,7 +38,7 @@ final class ShowCatalogGlossaryController extends AbstractController
 
         return $this->render('@Allocation/glossary/show.html.twig', [
             'page' => $page,
-            'catalogUsages' => $this->dataCatalog->glossaryUsages('app_explore_glossary_show', ['slug' => $glossarySlug->value]),
+            'catalogUsages' => $this->dataCatalog->glossaryUsages('app_help_glossary_show', ['slug' => $glossarySlug->value]),
         ]);
     }
 }

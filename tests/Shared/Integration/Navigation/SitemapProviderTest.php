@@ -98,13 +98,13 @@ final class SitemapProviderTest extends KernelTestCase
         $this->authenticate(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]));
 
         self::assertSame(
-            ['explore', 'statistics', 'import', 'tools', 'blog', 'page-faq', 'footer-project', 'footer-legal', 'footer-more', 'pages'],
+            ['explore', 'statistics', 'import', 'tools', 'blog', 'page-faq', 'footer-project', 'footer-help', 'footer-legal', 'footer-more', 'pages'],
             $this->sectionKeys(),
         );
 
         $explore = $this->findSection('explore');
         self::assertSame(
-            [null, 'Cases', 'Organisation', 'Hospital structure', 'Features', null],
+            [null, 'Cases', 'Organisation', 'Hospital structure', 'Features'],
             array_map(static fn (SitemapGroup $group): ?string => $group->label, $explore->groups),
         );
         self::assertSame(['Hospitals', 'States', 'Dispatch Areas', 'Users'], $this->labels($explore->groups[2]->entries), 'Users come from the User context.');

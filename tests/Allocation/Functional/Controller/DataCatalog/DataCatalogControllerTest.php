@@ -23,7 +23,7 @@ final class DataCatalogControllerTest extends WebTestCase
     public function testOverviewListsTheCoreObjects(): void
     {
         $client = $this->createClientAsParticipant();
-        $client->request(Request::METHOD_GET, '/explore/data-catalog');
+        $client->request(Request::METHOD_GET, '/help/data-catalog');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="data-catalog-object"][data-object-key="allocation"]');
@@ -43,15 +43,15 @@ final class DataCatalogControllerTest extends WebTestCase
     public function testReferenceToADocumentedObjectLinksToItsEntry(): void
     {
         $client = $this->createClientAsParticipant();
-        $client->request(Request::METHOD_GET, '/explore/data-catalog/allocation');
+        $client->request(Request::METHOD_GET, '/help/data-catalog/allocation');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('#allocation-hospital a[href="/explore/data-catalog/hospital"]');
-        self::assertSelectorExists('#allocation-dispatch-area a[href="/explore/data-catalog/dispatch_area"]');
-        self::assertSelectorExists('#allocation-state a[href="/explore/data-catalog/state"]');
-        self::assertSelectorExists('#allocation-indication-normalized a[href="/explore/data-catalog/indication_normalized"]');
-        self::assertSelectorExists('#allocation-assignment a[href="/explore/data-catalog/assignment"]');
-        self::assertSelectorExists('#allocation-secondary-transport a[href="/explore/data-catalog/secondary_transport"]');
+        self::assertSelectorExists('#allocation-hospital a[href="/help/data-catalog/hospital"]');
+        self::assertSelectorExists('#allocation-dispatch-area a[href="/help/data-catalog/dispatch_area"]');
+        self::assertSelectorExists('#allocation-state a[href="/help/data-catalog/state"]');
+        self::assertSelectorExists('#allocation-indication-normalized a[href="/help/data-catalog/indication_normalized"]');
+        self::assertSelectorExists('#allocation-assignment a[href="/help/data-catalog/assignment"]');
+        self::assertSelectorExists('#allocation-secondary-transport a[href="/help/data-catalog/secondary_transport"]');
     }
 
     public function testEveryReferenceOfTheCoreObjectsLinksToAnEntryExceptRawIndications(): void
@@ -65,7 +65,7 @@ final class DataCatalogControllerTest extends WebTestCase
         ];
 
         foreach ($expected as $object => $rawReferences) {
-            $crawler = $client->request(Request::METHOD_GET, '/explore/data-catalog/'.$object);
+            $crawler = $client->request(Request::METHOD_GET, '/help/data-catalog/'.$object);
             self::assertResponseIsSuccessful();
 
             $unlinked = $crawler->filterXPath('//tr[@data-variable-key][.//span[normalize-space(.)="Reference to"]]')->each(
@@ -78,15 +78,15 @@ final class DataCatalogControllerTest extends WebTestCase
     public function testRegionDetailsShowTheirVariablesAndLinkTheirParent(): void
     {
         $client = $this->createClientAsParticipant();
-        $client->request(Request::METHOD_GET, '/explore/data-catalog/dispatch_area');
+        $client->request(Request::METHOD_GET, '/help/data-catalog/dispatch_area');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h2.page-title', 'Dispatch area');
         self::assertSelectorTextContains('#dispatch-area-name [data-testid="data-catalog-storage"]', 'dispatch_area.name');
-        self::assertSelectorExists('#dispatch-area-state a[href="/explore/data-catalog/state"]');
+        self::assertSelectorExists('#dispatch-area-state a[href="/help/data-catalog/state"]');
         self::assertSelectorTextNotContains('body', 'data_catalog.');
 
-        $client->request(Request::METHOD_GET, '/explore/data-catalog/state');
+        $client->request(Request::METHOD_GET, '/help/data-catalog/state');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#state-name [data-testid="data-catalog-storage"]', 'state.name');
@@ -95,7 +95,7 @@ final class DataCatalogControllerTest extends WebTestCase
     public function testHospitalDetailShowsPrefixedCodeLabelsAndEmbeddedColumns(): void
     {
         $client = $this->createClientAsParticipant();
-        $client->request(Request::METHOD_GET, '/explore/data-catalog/hospital');
+        $client->request(Request::METHOD_GET, '/help/data-catalog/hospital');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#hospital-size [data-testid="data-catalog-codes"]', 'Small');
@@ -107,7 +107,7 @@ final class DataCatalogControllerTest extends WebTestCase
     public function testDetailShowsGroupedVariablesWithStorageCodesAndRange(): void
     {
         $client = $this->createClientAsParticipant();
-        $client->request(Request::METHOD_GET, '/explore/data-catalog/allocation');
+        $client->request(Request::METHOD_GET, '/help/data-catalog/allocation');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="data-catalog-group"][data-group-key="clinical"]');
@@ -122,7 +122,7 @@ final class DataCatalogControllerTest extends WebTestCase
     public function testTypeCellShowsTermIconAndStorageType(): void
     {
         $client = $this->createClientAsParticipant();
-        $client->request(Request::METHOD_GET, '/explore/data-catalog/allocation');
+        $client->request(Request::METHOD_GET, '/help/data-catalog/allocation');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#allocation-is-cpr [data-testid="data-catalog-type"]', 'Boolean');
@@ -136,7 +136,7 @@ final class DataCatalogControllerTest extends WebTestCase
     public function testTimesNameTheirTimeZoneAndTheNoteShowsHowToGetUtc(): void
     {
         $client = $this->createClientAsParticipant();
-        $crawler = $client->request(Request::METHOD_GET, '/explore/data-catalog/allocation');
+        $crawler = $client->request(Request::METHOD_GET, '/help/data-catalog/allocation');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#allocation-created-at [data-testid="data-catalog-time-zone"]', 'Time zone Europe/Berlin');
@@ -153,22 +153,22 @@ final class DataCatalogControllerTest extends WebTestCase
     public function testClassifiedVariablesLinkToTheirGlossaryDefinition(): void
     {
         $client = $this->createClientAsParticipant();
-        $client->request(Request::METHOD_GET, '/explore/data-catalog/allocation');
+        $client->request(Request::METHOD_GET, '/help/data-catalog/allocation');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('#allocation-urgency a[data-testid="data-catalog-glossary-link"][href="/explore/glossary/urgency"]', 'Definitions in the glossary');
-        self::assertSelectorExists('#allocation-transport-type a[data-testid="data-catalog-glossary-link"][href="/explore/glossary/transport-type"]');
+        self::assertSelectorTextContains('#allocation-urgency a[data-testid="data-catalog-glossary-link"][href="/help/glossary/urgency"]', 'Definitions in the glossary');
+        self::assertSelectorExists('#allocation-transport-type a[data-testid="data-catalog-glossary-link"][href="/help/glossary/transport-type"]');
         self::assertSelectorNotExists('#allocation-age [data-testid="data-catalog-glossary-link"]');
 
-        $client->request(Request::METHOD_GET, '/explore/data-catalog/hospital');
-        self::assertSelectorExists('#hospital-tier a[data-testid="data-catalog-glossary-link"][href="/explore/glossary/hospital-classifications#tier"]');
-        self::assertSelectorExists('#hospital-location a[data-testid="data-catalog-glossary-link"][href="/explore/glossary/hospital-classifications#location"]');
+        $client->request(Request::METHOD_GET, '/help/data-catalog/hospital');
+        self::assertSelectorExists('#hospital-tier a[data-testid="data-catalog-glossary-link"][href="/help/glossary/hospital-classifications#tier"]');
+        self::assertSelectorExists('#hospital-location a[data-testid="data-catalog-glossary-link"][href="/help/glossary/hospital-classifications#location"]');
     }
 
     public function testCodeListsUpToFiveCodesStayOpen(): void
     {
         $client = $this->createClientAsParticipant();
-        $client->request(Request::METHOD_GET, '/explore/data-catalog/allocation');
+        $client->request(Request::METHOD_GET, '/help/data-catalog/allocation');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorCount(5, '#allocation-assessment-breathing [data-testid="data-catalog-codes"] li');
@@ -179,7 +179,7 @@ final class DataCatalogControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $client->loginUser(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'], 'locale' => 'de']));
-        $client->request(Request::METHOD_GET, '/explore/data-catalog/allocation');
+        $client->request(Request::METHOD_GET, '/help/data-catalog/allocation');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h2.page-title', 'Zuweisung');
@@ -190,26 +190,16 @@ final class DataCatalogControllerTest extends WebTestCase
     public function testUnknownObjectReturnsNotFound(): void
     {
         $client = $this->createClientAsParticipant();
-        $client->request(Request::METHOD_GET, '/explore/data-catalog/unknown');
+        $client->request(Request::METHOD_GET, '/help/data-catalog/unknown');
 
         self::assertResponseStatusCodeSame(404);
-    }
-
-    public function testExploreOverviewLinksToTheCatalog(): void
-    {
-        $client = $this->createClientAsParticipant();
-        $client->request(Request::METHOD_GET, '/explore');
-
-        self::assertResponseIsSuccessful();
-        self::assertSelectorExists('[data-testid="data-catalog-tile"]');
-        self::assertSelectorExists('a[href="/explore/data-catalog"]');
     }
 
     public function testCatalogPagesQueryNoCaseData(): void
     {
         $client = $this->createClientAsParticipant();
 
-        foreach (['/explore/data-catalog', '/explore/data-catalog/allocation', '/explore/data-catalog/mci_case', '/explore/data-catalog/hospital', '/explore/data-catalog/dispatch_area', '/explore/data-catalog/state', '/explore/data-catalog/indication_normalized', '/explore/data-catalog/indication_group'] as $url) {
+        foreach (['/help/data-catalog', '/help/data-catalog/allocation', '/help/data-catalog/mci_case', '/help/data-catalog/hospital', '/help/data-catalog/dispatch_area', '/help/data-catalog/state', '/help/data-catalog/indication_normalized', '/help/data-catalog/indication_group'] as $url) {
             self::assertSame([], $this->caseDataQueries($client, $url), $url);
         }
     }

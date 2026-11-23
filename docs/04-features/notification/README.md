@@ -22,6 +22,7 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 
 | Type | Category | Default channels | Recipients | Published when |
 |------|----------|------------------|------------|----------------|
+| `content.reaction_received` | Community | in-app (only channel) | author or owner of the content | others reacted to a post, comment or activity; one grouped entry per target ([details](../content/reactions.md#notifications)) |
 | `import.completed` | Imports | in-app, toast | upload: creator and hospital owner; reprocess or console run: its initiator; batch and bulk reprocess runs: nobody (see `import.batch_finished`) | an import run ends as completed or partial |
 | `import.failed` | Imports | in-app, toast | as above | an import run ends as failed (text from the reason code) |
 | `import.batch_finished` | Imports | in-app, toast | the user who started the batch (`--notify-user` or bulk reprocess) | the last item of a batch finished and none failed ([details](../import/batch-requeue.md#completion-and-summary)) |
@@ -126,6 +127,19 @@ The class is found automatically: `NotificationDefinitionPass` collects every cl
 - **Hospital scope:** types with `accessScope: Hospital` need `scopeReferenceId` (the hospital id).
 - **Role scope:** types with `accessScope: Role` declare `requiredRole` (e.g. `ROLE_ADMIN`) in the definition.
 - **Errors:** invalid requests throw. Storage errors for a single recipient are logged as `notification.publish_failed` and never thrown, so they cannot change the outcome of the caller.
+
+## Grouped notifications
+
+A type that summarises several events in one entry uses `GroupedNotificationWriterInterface` instead of the publisher ([ADR 016](../../02-architecture/decisions/016-notification-system.md#grouped-notifications)). The type must offer the in-app channel only.
+
+| Method | Effect |
+|---|---|
+| `create()` | New entry for one recipient, unread count + 1. Returns `null` when the recipient switched the type off. |
+| `isEnabledFor()` | Whether the recipient currently receives the type, so that a producer can stop updating its group. |
+| `replace()` | New parameters for an unread entry, optionally a new position in the inbox. The unread count stays. Returns `false` when the entry is gone, read or removed. |
+| `withdraw()` | Removes an unread entry, unread count − 1. Returns `false` when the entry is gone, read or removed. |
+
+The producer keeps its own group state and recomputes the text from its records, so a retry changes nothing. Storage errors are thrown, unlike in `publish()`, so the producer's job is retried.
 
 ## Inbox
 

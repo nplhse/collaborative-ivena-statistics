@@ -18,7 +18,7 @@ final class ListCatalogGlossaryController extends AbstractController
     ) {
     }
 
-    #[Route('/explore/glossary', name: 'app_explore_glossary_index', methods: ['GET'])]
+    #[Route('/help/glossary', name: 'app_help_glossary_index', methods: ['GET'])]
     public function __invoke(): Response
     {
         return $this->render('@Allocation/glossary/index.html.twig', [

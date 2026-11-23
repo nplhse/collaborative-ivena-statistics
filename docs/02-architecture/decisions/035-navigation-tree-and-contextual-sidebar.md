@@ -157,6 +157,8 @@ owns the explore menu; the User context adds Users to Organisation. Every explor
 `ROLE_PARTICIPANT` like the pages; on a user's own profile without that role no entry is visible and no
 sidebar is rendered. Glossary pages of other contexts mark Classifications through the routes their
 glossary entry declares (`CatalogGlossaryEntry::$detailRoutes`). Explore links carry no query parameters.
+Glossary and data catalog have since left the explore sidebar for the help section
+([ADR 042](042-glossary-and-data-catalog-in-help.md)).
 
 ### Navigation model
 

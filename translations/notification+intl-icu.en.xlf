@@ -321,6 +321,10 @@
         <source>notification.category.announcements</source>
         <target>Announcements</target>
       </trans-unit>
+      <trans-unit id="NtfCatCommunityEn" resname="notification.category.community">
+        <source>notification.category.community</source>
+        <target>Community</target>
+      </trans-unit>
       <trans-unit id="Ntf162B4673" resname="notification.category.administration">
         <source>notification.category.administration</source>
         <target>Administration</target>
@@ -608,6 +612,18 @@
       <trans-unit id="NtfHarHospitalAssignmentOwnershipTransferredLabel" resname="hospital_assignment.ownership_transferred.label">
         <source>hospital_assignment.ownership_transferred.label</source>
         <target>Transfers of my hospitals</target>
+      </trans-unit>
+      <trans-unit id="NtfReactLabelEn" resname="content.reaction_received.label">
+        <source>content.reaction_received.label</source>
+        <target>Reactions to my content</target>
+      </trans-unit>
+      <trans-unit id="NtfReactTitleEn" resname="content.reaction_received.title">
+        <source>content.reaction_received.title</source>
+        <target>{count, plural, one {New reaction} other {# new reactions}}</target>
+      </trans-unit>
+      <trans-unit id="NtfReactMsgEn" resname="content.reaction_received.message">
+        <source>content.reaction_received.message</source>
+        <target>{actors, select, one {{firstActor}} two {{firstActor} and {secondActor}} many {{firstActor}, {secondActor} and {others, plural, one {# other} other {# others}}} other {{count, plural, one {One person} other {# people}}}} reacted to {targetType, select, post {your post “{title}”} comment {your comment on “{title}”} other {your entry in the activity feed}}: {breakdown}</target>
       </trans-unit>
       <trans-unit id="NtfPostAnnEn1" resname="announcement.post.label">
         <source>announcement.post.label</source>

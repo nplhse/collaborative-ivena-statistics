@@ -192,10 +192,10 @@ edit shell.
 
 **Implementations:** `EncounterGlossaryEntryProvider` (MTS glossary, #1056)
 
-Lets other contexts add a card to the Explore glossary hub that links to a glossary page on their own
-route, without a dependency from `Allocation` on them. Route names start with `app_explore_glossary_`
-so the top navbar marks Explore as active; the entry's `route` and `detailRoutes` mark Classifications in
-the explore sidebar. Rules for such pages:
+Lets other contexts add a card to the glossary hub in the help that links to a glossary page on their own
+route, without a dependency from `Allocation` on them. Route names start with `app_help_glossary_` and
+paths with `/help/glossary/`; the entry's `route` and `detailRoutes` belong to the glossary entry of the
+navigation tree ([ADR 042](decisions/042-glossary-and-data-catalog-in-help.md)). Rules for such pages:
 [explore-glossary.md](../04-features/allocation/explore-glossary.md).
 
 ## Explore data catalog
@@ -205,7 +205,7 @@ the explore sidebar. Rules for such pages:
 **Interface:** `DataCatalogContributorInterface` (`src/Allocation/Application/Explore/DataCatalog/`)
 
 **Registry:** `DataCatalogRegistry` (rejects duplicate object and variable keys); `DataCatalog` resolves the
-visible objects for `/explore/data-catalog`
+visible objects for `/help/data-catalog`
 
 **Implementations:** `AllocationDataCatalogContributor` (allocation, MCI case, hospital, dispatch area, state and the other
 reference objects),
@@ -411,7 +411,8 @@ references it; removing an import removes only its records.
 
 **Interface:** `RecordSectionProviderInterface` (`src/Encounter/Contract/Display/`)
 
-**Registry:** `RecordSectionRegistry`, used by `HospitalCourseCaseSectionProvider`
+**Registry:** `RecordSectionRegistry`, used by `HospitalCourseCaseSectionProvider`; the ED visit detail page
+(`ShowVisitController`, section "Further clinical data", #1401) reads the tagged providers through the contract
 
 **Course:** `EncounterCourseProviderInterface` (tag `encounter.course`, same directory), implemented by
 `EdVisitCourseProvider` of the ED visit plugin
@@ -740,7 +741,7 @@ Administrators can open these pages by the internal numeric ID, for example `/ex
 A kind of content that can receive reactions (#467). The provider says which ids a viewer may see (reactions follow
 the visibility of their target) and which ids still exist (for the daily cleanup). A new target, for example help
 articles, needs a case in `ReactionTargetType`, a provider and the reaction placeholder in its template; the
-`reaction` table stays as it is. Details: [reactions.md](../04-features/content/reactions.md).
+`reaction` table stays as it is. Its `notificationTarget()` names the owner and link for reaction notifications. Details: [reactions.md](../04-features/content/reactions.md).
 
 ## Related documentation
 

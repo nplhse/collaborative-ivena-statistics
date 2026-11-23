@@ -401,7 +401,7 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-testid="user-profile-activity-feed"]', 'Published Profile Post');
         self::assertSelectorTextContains('[data-testid="activity-post-preview"]', 'Profile preview paragraph');
         self::assertSelectorTextNotContains('[data-testid="user-profile-activity-feed"]', 'More');
-        self::assertSelectorTextContains('[data-testid="user-profile-activity-feed"]', 'Joined the platform');
+        self::assertSelectorTextContains('[data-testid="user-profile-activity-feed"]', 'joined the platform');
         self::assertSelectorTextNotContains('[data-testid="user-profile-activity-feed"]', 'Draft Profile Post');
         self::assertSelectorNotExists('.pagination');
         self::assertSelectorNotExists('[data-testid="profile-activity-next"]');
@@ -571,7 +571,7 @@ final class ExploreUsersControllerTest extends WebTestCase
         );
         self::assertResponseIsSuccessful();
         self::assertGreaterThanOrEqual(6, $nextCrawler->filter('[data-testid="profile-activity-item"]')->count());
-        self::assertSelectorTextContains('[data-activity-type="joined"]', 'Joined the platform');
+        self::assertSelectorTextContains('[data-activity-type="joined"]', 'joined the platform');
         self::assertSelectorNotExists('[data-testid="profile-activity-next"]');
         self::assertStringNotContainsString('Hidden Draft Feed Post', $client->getResponse()->getContent() ?: '');
         self::assertStringNotContainsString('Secret draft comment', $client->getResponse()->getContent() ?: '');

@@ -107,6 +107,7 @@ final class HospitalCourseCardTest extends WebTestCase
         self::assertSelectorExists(self::CARD);
         self::assertSame('automatic', $crawler->filter('[data-testid="encounter-course-origin"]')->attr('data-origin'));
         self::assertSelectorTextContains('[data-testid="encounter-course-agreement"]', 'Agreement 96 %');
+        self::assertStringContainsString('bg-green-lt', (string) $crawler->filter('[data-testid="encounter-course-agreement"]')->attr('class'), '0.9697 reaches the auto-accept threshold.');
         self::assertSelectorTextContains('[data-testid="encounter-course-link"]', 'min from expected IVENA arrival');
         self::assertSelectorTextContains('[data-testid="encounter-course-category"]', 'Very urgent');
         self::assertSelectorTextContains('[data-testid="encounter-course-triage"]', 'Chest pain');
@@ -119,13 +120,25 @@ final class HospitalCourseCardTest extends WebTestCase
         self::assertStringContainsString('Expected IVENA arrival', $arrival->text());
         self::assertSame('from IVENA', trim($arrival->filter('[data-testid="encounter-course-event-source"]')->text()));
         self::assertSame(
-            ['5 min', '33 min', '180 min'],
-            $crawler->filter('[data-testid="encounter-course-interval"]')->each(static fn (Crawler $value): string => trim($value->text())),
+            ['5 min', '33 min', '3 h 0 min'],
+            $crawler->filter('[data-testid="encounter-course-interval"] .h3')->each(static fn (Crawler $value): string => trim($value->text())),
+            'Admission 10:07 to 10:12, 10:40 and 13:07.',
+        );
+        self::assertSame(
+            [true, true, true],
+            $crawler->filter('[data-testid="encounter-course-interval"] .subheader')->each(static fn (Crawler $label): bool => str_contains($label->html(), '<svg')),
+            'Every process time has its icon.',
         );
         self::assertSame('documented_initial', $crawler->filter('[data-testid="encounter-course-vitals-reference"]')->attr('data-reference'));
         self::assertSelectorTextContains('[data-testid="encounter-course-vitals-reference"]', 'Documented first value');
         self::assertSelectorTextContains('[data-vital="blood_pressure"]', '145/90 mmHg');
-        self::assertSelectorTextContains('[data-testid="encounter-course-disposition"]', 'Monitoring / intermediate care');
+        self::assertSame(
+            ['blood_pressure', 'heart_rate', 'temperature'],
+            $crawler->filter('[data-testid="encounter-course-vitals"] [data-vital]')->each(static fn (Crawler $vital): string => (string) $vital->attr('data-vital')),
+            'The excerpt lists only documented values.',
+        );
+        self::assertSelectorTextContains('[data-testid="encounter-course-disposition"]', 'Admitted to this hospital');
+        self::assertSelectorTextContains('[data-testid="encounter-course-excerpt"]', 'Monitoring / intermediate care');
     }
 
     public function testAnAssignmentTheEdVisitDecidesCannotBeRemovedByHand(): void

@@ -20,7 +20,7 @@ final class ShowCatalogGlossaryControllerTest extends WebTestCase
     public function testGlossaryIndexListsEntriesAndRelatedCatalogs(): void
     {
         $client = $this->createClientAsAreaUser();
-        $client->request(Request::METHOD_GET, '/explore/glossary');
+        $client->request(Request::METHOD_GET, '/help/glossary');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="glossary-index"]');
@@ -32,7 +32,7 @@ final class ShowCatalogGlossaryControllerTest extends WebTestCase
     public function testUrgencyGlossaryShowsTermsWithAllocationFilters(): void
     {
         $client = $this->createClientAsAreaUser();
-        $crawler = $client->request(Request::METHOD_GET, '/explore/glossary/urgency');
+        $crawler = $client->request(Request::METHOD_GET, '/help/glossary/urgency');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="glossary-detail"]');
@@ -46,29 +46,29 @@ final class ShowCatalogGlossaryControllerTest extends WebTestCase
     public function testGlossaryPagesLinkToTheCatalogVariablesThatStoreThem(): void
     {
         $client = $this->createClientAsAreaUser();
-        $crawler = $client->request(Request::METHOD_GET, '/explore/glossary/urgency');
+        $crawler = $client->request(Request::METHOD_GET, '/help/glossary/urgency');
 
         self::assertResponseIsSuccessful();
         self::assertSame(
             [
-                ['allocation.urgency', '/explore/data-catalog/allocation#allocation-urgency'],
-                ['mci_case.urgency', '/explore/data-catalog/mci_case#mci-case-urgency'],
+                ['allocation.urgency', '/help/data-catalog/allocation#allocation-urgency'],
+                ['mci_case.urgency', '/help/data-catalog/mci_case#mci-case-urgency'],
             ],
             $this->usages($crawler->filter('[data-testid="glossary-section"]')),
         );
         self::assertSelectorTextContains('[data-testid="glossary-catalog-usages"]', 'Stored as');
 
-        $crawler = $client->request(Request::METHOD_GET, '/explore/glossary/hospital-classifications');
+        $crawler = $client->request(Request::METHOD_GET, '/help/glossary/hospital-classifications');
         self::assertResponseIsSuccessful();
         foreach (['tier', 'size', 'location'] as $section) {
             self::assertSame(
-                [['hospital.'.$section, '/explore/data-catalog/hospital#hospital-'.$section]],
+                [['hospital.'.$section, '/help/data-catalog/hospital#hospital-'.$section]],
                 $this->usages($crawler->filter(sprintf('#%s[data-testid="glossary-section"]', $section))),
                 $section,
             );
         }
 
-        $client->request(Request::METHOD_GET, '/explore/glossary/clinical-indicators');
+        $client->request(Request::METHOD_GET, '/help/glossary/clinical-indicators');
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('[data-testid="glossary-catalog-usages"]');
     }
@@ -76,7 +76,7 @@ final class ShowCatalogGlossaryControllerTest extends WebTestCase
     public function testUnknownGlossarySlugReturnsNotFound(): void
     {
         $client = $this->createClientAsAreaUser();
-        $client->request(Request::METHOD_GET, '/explore/glossary/unknown');
+        $client->request(Request::METHOD_GET, '/help/glossary/unknown');
 
         self::assertResponseStatusCodeSame(404);
     }

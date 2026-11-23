@@ -15,7 +15,7 @@ final class ListDataCatalogController extends AbstractController
     {
     }
 
-    #[Route('/explore/data-catalog', name: 'app_explore_data_catalog_index', methods: ['GET'])]
+    #[Route('/help/data-catalog', name: 'app_help_data_catalog_index', methods: ['GET'])]
     public function __invoke(): Response
     {
         return $this->render('@Allocation/data_catalog/index.html.twig', [

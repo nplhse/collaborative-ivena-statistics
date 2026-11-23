@@ -91,6 +91,8 @@ security:
         # Profiles: every user may open their own; UserProfileVoter decides per profile.
         - { path: '^/explore/user/[^/]+(/activity)?$', roles: ROLE_USER }
         - { path: ^/explore, roles: ROLE_PARTICIPANT }
+        # Glossary and data catalog in the help (ADR 042). The boundary keeps CMS articles like /help/glossary-basics public.
+        - { path: '^/help/(glossary|data-catalog)(/|$)', roles: ROLE_PARTICIPANT }
         - { path: ^/encounter, roles: ROLE_ENCOUNTER_BETA }
         # Closure Analytics left the beta (#1350): participants only, not every user like the rest of /statistics.
         - { path: ^/statistics/closure-analytics, roles: ROLE_PARTICIPANT }

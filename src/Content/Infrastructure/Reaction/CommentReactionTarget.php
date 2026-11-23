@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Content\Infrastructure\Reaction;
 
 use App\Content\Application\Contract\ReactionTargetProviderInterface;
+use App\Content\Application\Reaction\ReactionNotificationTarget;
 use App\Content\Domain\Enum\PostStatus;
 use App\Content\Domain\Enum\ReactionTargetType;
 use App\User\Domain\Entity\User;
@@ -60,5 +61,25 @@ final readonly class CommentReactionTarget implements ReactionTargetProviderInte
             ['ids' => $ids],
             ['ids' => ArrayParameterType::INTEGER],
         ));
+    }
+
+    #[\Override]
+    public function notificationTarget(int $id): ?ReactionNotificationTarget
+    {
+        $row = $this->connection->fetchAssociative(
+            'SELECT c.author_id, p.title, p.slug FROM post_comment c INNER JOIN post p ON p.id = c.post_id WHERE c.id = :id',
+            ['id' => $id],
+        );
+        if (false === $row) {
+            return null;
+        }
+
+        return new ReactionNotificationTarget(
+            ownerId: null === $row['author_id'] ? null : (int) $row['author_id'],
+            title: (string) $row['title'],
+            route: 'app_blog_show',
+            routeParameters: ['slug' => (string) $row['slug']],
+            fragment: 'reactions-comment-'.$id,
+        );
     }
 }

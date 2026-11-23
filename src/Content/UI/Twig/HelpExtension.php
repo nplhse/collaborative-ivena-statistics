@@ -39,6 +39,23 @@ final readonly class HelpExtension
     }
 
     /**
+     * Leading breadcrumb for code-rendered pages of the help (ADR 042); empty when the help is not visible.
+     *
+     * @return list<array{label: string, path: string, translatable: false}>
+     *
+     * @psalm-suppress PossiblyUnusedMethod Called from Twig.
+     */
+    #[AsTwigFunction('help_breadcrumbs')]
+    public function breadcrumbs(): array
+    {
+        $root = $this->helpNavigation->root();
+
+        return $root instanceof PageNavigationNode
+            ? [['label' => $root->title, 'path' => $root->url, 'translatable' => false]]
+            : [];
+    }
+
+    /**
      * URL of the help article with this help key, for "Need help?" links in the application. Null when there is no
      * such article or the viewer cannot open it, so a template can leave the link out.
      *

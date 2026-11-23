@@ -50,6 +50,9 @@
         </div>
     {% endblock %}
 {% endblock %}
+<div class="print-meta d-none d-print-block" data-testid="print-meta">
+    {{ app_title }} {{ app_version }} · {{ 'print.printed_at'|trans({date: '<time data-print-time>' ~ (clock_now()|format_datetime('medium', 'long')|e) ~ '</time>'}, 'shared')|raw }}
+</div>
 {% if cookie_consent is not null and not cookie_consent.decided %}
     {{ include('@Shared/_includes/cookie_banner.html.twig') }}
 {% endif %}

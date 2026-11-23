@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Content\Application\Contract;
 
+use App\Content\Application\Reaction\ReactionNotificationTarget;
 use App\Content\Domain\Enum\ReactionTargetType;
 use App\User\Domain\Entity\User;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
@@ -32,4 +33,7 @@ interface ReactionTargetProviderInterface
      * @return list<int> the ids whose content still exists, visible or not
      */
     public function existingIds(array $ids): array;
+
+    /** Owner, name and link of a target for its reaction notification (#973); null when it no longer exists. */
+    public function notificationTarget(int $id): ?ReactionNotificationTarget;
 }
