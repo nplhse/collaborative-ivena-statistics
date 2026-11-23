@@ -111,6 +111,20 @@ No `--force` unless you intend to overwrite already geocoded coordinates. Narrow
 2. `app:geo:geocode-hospitals --hospital-id=<id> --apply --force` after a dry-run review. `--force` is required because coordinates already exist.
 3. `app:geo:fetch-isochrones --hospital-id=<id> --apply` — refetches the file when the stored origin no longer matches.
 
+## Districts and their boundaries
+
+Districts are master data ([ADR 041](../02-architecture/decisions/041-dispatch-area-geography-as-master-data.md)). In the
+admin under **Data → Districts**:
+
+1. Create the district with its official key (AGS) and name, and assign its dispatch area.
+2. Click **Fetch district boundary**. A background job fetches it from the BKG (VG250, `dl-de/by-2-0`), so a Messenger
+   worker must be running. Nothing else calls the BKG: not creating records, imports or map requests.
+3. The district shows whether the boundary is missing, being fetched or failed. A failed fetch, or one that did not finish
+   within 15 minutes, can be started again. An existing boundary is not replaced.
+
+A dispatch area has a complete map area once every assigned district has a boundary. `app:geo:check-dispatch-areas`
+lists the areas with allocations that are not complete yet.
+
 ## Adding another federal state
 
 Geocode and isochrones are **per hospital**, grouped under `{stateId}` on disk. Repeat the first-time sequence for the new state's ID. That is enough for pins and travel-time polygons **if** hospitals have coordinates.

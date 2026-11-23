@@ -933,6 +933,14 @@
         <source>page.validation.help_key_format</source>
         <target>Use lowercase letters and digits, separated by dots, hyphens or underscores.</target>
       </trans-unit>
+      <trans-unit id="geo1406a135cfe822" resname="district.ags.invalid">
+        <source>district.ags.invalid</source>
+        <target>The official key must have exactly five digits.</target>
+      </trans-unit>
+      <trans-unit id="geo140695b6ceba42" resname="district.ags.unique">
+        <source>district.ags.unique</source>
+        <target>A district with this official key already exists.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

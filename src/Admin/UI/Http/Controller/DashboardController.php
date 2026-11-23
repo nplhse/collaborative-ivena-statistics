@@ -17,6 +17,7 @@ use App\Admin\UI\Http\Controller\Blog\PostTagCrudController;
 use App\Admin\UI\Http\Controller\Consent\CookieConsentCrudController;
 use App\Admin\UI\Http\Controller\Department\DepartmentCrudController;
 use App\Admin\UI\Http\Controller\DispatchArea\DispatchAreaCrudController;
+use App\Admin\UI\Http\Controller\DispatchArea\DistrictCrudController;
 use App\Admin\UI\Http\Controller\Engagement\MonthlyReminderDispatchCrudController;
 use App\Admin\UI\Http\Controller\Feedback\FeedbackCrudController;
 use App\Admin\UI\Http\Controller\Feedback\FeedbackQuarantineCrudController;
@@ -323,6 +324,7 @@ final class DashboardController extends AbstractDashboardController
             MenuItem::linkTo(AssignmentCrudController::class, new TranslatableMessage('menu.data.assignments', domain: 'admin'), 'fas fa-list'),
             MenuItem::linkTo(DepartmentCrudController::class, new TranslatableMessage('menu.data.departments', domain: 'admin'), 'fas fa-list'),
             MenuItem::linkTo(DispatchAreaCrudController::class, new TranslatableMessage('menu.data.dispatch_areas', domain: 'admin'), 'fas fa-list'),
+            MenuItem::linkTo(DistrictCrudController::class, new TranslatableMessage('menu.data.districts', domain: 'admin'), 'fas fa-list'),
             MenuItem::linkTo(HospitalCrudController::class, new TranslatableMessage('menu.data.hospitals', domain: 'admin'), 'fas fa-list'),
             MenuItem::linkTo(IndicationNormalizedCrudController::class, new TranslatableMessage('menu.data.indications_normalized', domain: 'admin'), 'fas fa-list'),
             MenuItem::linkTo(IndicationGroupCrudController::class, new TranslatableMessage('menu.data.indication_groups', domain: 'admin'), 'fas fa-object-group'),

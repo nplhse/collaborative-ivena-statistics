@@ -10,7 +10,9 @@ use App\Shared\Domain\Traits\HasRequiredPublicId;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Clock\Clock;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * A German district (Kreis or kreisfreie Stadt), identified by its official key (AGS). It belongs to at most one
@@ -22,6 +24,7 @@ use Symfony\Component\Clock\Clock;
 #[ORM\Index(name: 'idx_district_dispatch_area', columns: ['dispatch_area_id'])]
 #[ORM\UniqueConstraint(name: 'uniq_district_ags', columns: ['ags'])]
 #[ORM\HasLifecycleCallbacks]
+#[UniqueEntity(fields: ['ags'], message: 'district.ags.unique')]
 class District implements \Stringable
 {
     use Blamable;
@@ -33,18 +36,21 @@ class District implements \Stringable
     private ?int $id = null;
 
     #[ORM\Column(length: 5)]
+    #[Assert\Regex(pattern: '/^\d{5}$/D', message: 'district.ags.invalid')]
     private string $ags;
 
     #[ORM\Column(length: 2)]
     private string $stateCode;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private string $name;
 
     #[ORM\Column(length: 64, nullable: true)]
     private ?string $kind = null;
 
-    #[ORM\ManyToOne(targetEntity: DispatchArea::class)]
+    #[ORM\ManyToOne(targetEntity: DispatchArea::class, inversedBy: 'districts')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?DispatchArea $dispatchArea = null;
 
@@ -73,8 +79,7 @@ class District implements \Stringable
             throw new \InvalidArgumentException(sprintf('"%s" is not a five-digit district key (AGS).', $ags));
         }
 
-        $this->ags = $ags;
-        $this->stateCode = substr($ags, 0, 2);
+        $this->setAgs($ags);
         $this->name = $name;
         $this->createdAt = Clock::get()->now();
     }
@@ -87,6 +92,17 @@ class District implements \Stringable
     public function getAgs(): string
     {
         return $this->ags;
+    }
+
+    /**
+     * For the admin form of a new district; the form validates the key before anything is stored.
+     */
+    public function setAgs(string $ags): static
+    {
+        $this->ags = $ags;
+        $this->stateCode = substr($ags, 0, 2);
+
+        return $this;
     }
 
     public function getStateCode(): string
