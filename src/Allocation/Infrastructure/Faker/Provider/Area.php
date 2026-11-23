@@ -46,7 +46,7 @@ final class Area extends Base
     }
 
     /**
-     * @return array{geo_key: string, towns: list<array{city: string, postal_code: string, location: 'Urban'|'Mixed'|'Rural'}>}
+     * @return array{towns: list<array{city: string, postal_code: string, location: 'Urban'|'Mixed'|'Rural'}>}
      */
     private static function district(string $dispatchArea): array
     {

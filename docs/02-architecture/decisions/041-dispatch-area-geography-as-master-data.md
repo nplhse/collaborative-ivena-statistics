@@ -62,5 +62,5 @@ The shapes cache key contains a fingerprint of the source rows instead of an exp
 - A new region is data maintenance and needs no release.
 - Assigning a district without a geometry hides its dispatch area from the maps until the fetch succeeds.
 - Existing boundaries keep their vintages (2023 and 2025) until they are refreshed (#1517).
-- This supersedes the statements in ADR 020 and `reference-catalog-inventory.md` that map geography stays in the
-  repository; both are updated when the old path is removed.
+- This supersedes the statements in ADR 020 that map geography stays in the repository (see its amendment of
+  November 2026). `reference-catalog-inventory.md` describes the new state.

@@ -107,7 +107,6 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | `app:statistics:refresh-mviews` | Refresh materialized views manually. |
 | `app:statistics:deduplicate-projection` | Detect and remove duplicate projection/allocation rows. Use `--dry-run` first. |
 | `app:statistics:explorer-views:sync` | Seed or update Analysis Explorer system demo views. See [../04-features/statistics/analysis-explorer.md](../04-features/statistics/analysis-explorer.md). |
-| `app:statistics:case-flow:build-geojson` | Build the merged dispatch-area GeoJSON asset (Hesse and neighbouring areas) for the maps. Steps: [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md#adding-another-federal-state). |
 
 ### KPI, analytics, and engagement
 

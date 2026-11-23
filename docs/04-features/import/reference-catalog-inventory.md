@@ -204,10 +204,10 @@ Consequences for a restore:
 
 ## Geography
 
-- **Maps:** `config/case_flow/dispatch_area_geo_map.yaml` maps each dispatch area name to a geo key: the 24 dispatch areas of Hesse plus neighbouring dispatch areas outside Hesse that occur as allocation origins (#1404). `config/case_flow/dispatch_area_geo_sources.yaml` maps the keys to official district names (neighbouring entries also carry `state`, the district keys `krs_codes` and a source for the coverage), and `app:statistics:case-flow:build-geojson` (`BuildCaseFlowGeoJsonCommand`) builds `assets/geo/hessen-landkreise.geojson` from `assets/geo/.source/hessen-kreise-raw.geojson` and `assets/geo/.source/neighbour-kreise-raw.geojson` (BKG VG250 via Opendatasoft). Each feature carries `state` and `neighbour`. Explore, case flow, hospital population and isochrone maps match a dispatch area **by exact name**. A dispatch area with another name has no shape. These files are public geography and stay in the repository.
+- **Maps:** districts (`district`, official key AGS) belong to at most one dispatch area, their boundaries are in `district_geometry` ([ADR 041](../../02-architecture/decisions/041-dispatch-area-geography-as-master-data.md)). A catalog package carries districts and assignments, never boundaries; those move through the database backup or the admin fetch.
 - **Hospital coordinates:** `latitude`/`longitude` on the hospital, filled by `app:geo:geocode-hospitals` through OpenRouteService (`OPENROUTESERVICE_API_KEY`). `HospitalGeoScopeResolver` selects hospitals by hospital, dispatch area or state.
 - **Isochrones:** `app:geo:fetch-isochrones` stores one GeoJSON per hospital in `var/geo/hospital-isochrones/<state id>/<hospital public id>.geojson` (`HospitalIsochroneFileStore`, Deployer shared directory). The hospital part is portable; the state part is the local database id. Prepared isochrones survive a restore only if the state keeps its id. The path stays on the state id: to reuse geographic data in another installation (offline demo, #791), prepare a location (`app:geo:prepare-location`, keyed by slug) and apply it there (`app:geo:apply-prepared-location`); see [hospital-geodata.md](../../05-operations/hospital-geodata.md#prepared-locations-offline-use).
-- **For synthetic data:** synthetic dispatch areas use the Hessian names from `dispatch_area_geo_map.yaml` (neighbouring areas get no synthetic hospitals), and synthetic hospital coordinates lie inside their district polygon, so all maps work offline without geocoding.
+- **For synthetic data:** synthetic dispatch areas use the Hessian areas and official districts of `HesseDistricts`, their coarse shapes come from `resources/geo/demo-districts.geojson`, and synthetic hospital coordinates lie inside them, so all maps work offline without geocoding.
 
 ## Indications and the PZC list
 
@@ -230,7 +230,8 @@ The synthetic indication provider holds the official codes with their official w
 | `fixtures/patterns/*.yaml` | Distribution patterns; values are close to uniform (urgency ≈ 33 % each, `is_cpr` and `is_pregnant` ≈ 50 %), so they come from fake data | Neither useful nor private | Removed; replaced by pattern packages and code defaults |
 | `src/Import/Application/Mapping/Closure*Catalog.php` | IVENA labels of closure care level, reason, facility kind | Technical default | Stays in code |
 | `src/Import/Application/Mapping/DispatchAreaNameNormalizer.php` | Generic prefixes and suffixes of dispatch area names | Technical default | Stays in code |
-| `config/case_flow/*.yaml`, `assets/geo/*` | Geography for the maps (Hesse and neighbouring dispatch areas) | Public | Stays |
+| `resources/geo/demo-districts.geojson` | Coarse demo shapes of the Hessian districts for fixtures | Public (BKG, `dl-de/by-2-0`, changed) | Stays |
+| `resources/geo/legacy-districts-1406.geojson` | One-time takeover of the former map geometry | Public (BKG, `dl-de/by-2-0`) | Removed with #1519 |
 | `src/Allocation/Infrastructure/Faker/Provider/*` | Synthetic names, areas, indications | Synthetic | Extended (ADR 020) |
 
 Documentation (`reference-catalog.md`, `reference-catalog-yaml.md`, `docs/03-development/fixtures.md`) recommends committing exports to `fixtures/reference/catalog.yaml`; it is rewritten at the end of #740.

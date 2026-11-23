@@ -14,6 +14,7 @@ See also: [../04-features/allocation/orientation-map.md](../04-features/allocati
 | `Hospital.latitude` / `longitude` | Database | `app:geo:geocode-hospitals --apply` (production). Fixtures still seed city/PLZ centroids for local/CI. | Map pins, isochrone command |
 | Destination isochrones (5–50 min, 5-minute bands, driving-car) | `var/geo/hospital-isochrones/{stateId}/{hospitalPublicId}.geojson` | `app:geo:fetch-isochrones --apply`, `app:geo:apply-prepared-location --apply` | Allocation show map (one 5-minute band); Statistics Overview / Insights origin heatmap (10-minute bands at 10/20/30/40/50 min, hospital scope) |
 | Prepared locations (address, coordinates, isochrones; one JSON per slug) | `var/geo/prepared-locations/{slug}.json` (`app.prepared_locations_dir`) | `app:geo:prepare-location --apply` | `app:geo:apply-prepared-location` |
+| District boundaries | `district_geometry`, part of the database backup | One-time takeover, admin action **Fetch district boundary**, demo fixtures | `GET /statistics/geo/dispatch-areas.geojson` |
 | Map background tiles | Tile server from `MAP_TILE_URL` (default OpenStreetMap) | — (not stored) | Browser (Leaflet), see [Map tiles](#map-tiles-and-offline-use) |
 
 IDs in the CLI are numeric Doctrine IDs (`Hospital`, `DispatchArea`, `State`), not names or ISO codes. Isochrone files include `properties.origin` (`lat`/`lng` used for the OpenRouteService request). The fetch command skips an existing file only when that origin still matches the hospital coordinates.
@@ -129,24 +130,7 @@ lists the areas with allocations that are not complete yet.
 
 Geocode and isochrones are **per hospital**, grouped under `{stateId}` on disk. Repeat the first-time sequence for the new state's ID. That is enough for pins and travel-time polygons **if** hospitals have coordinates.
 
-Map **polygons** (dispatch-area outlines) come from repository files. Besides Hesse they cover the neighbouring dispatch areas that occur as allocation origins (#1404). To add a dispatch area outside Hesse:
-
-| Step | Location | What to do |
-|------|----------|------------|
-| 1. Coverage | — | Find out which districts (Kreise) the control centre covers, with a citable source and the official district keys (AGS) |
-| 2. Raw districts | `assets/geo/.source/neighbour-kreise-raw.geojson` | Add the district features from Opendatasoft `georef-germany-kreis` (BKG VG250), same format as the existing features |
-| 3. Sources | `config/case_flow/dispatch_area_geo_sources.yaml` | New key with `name`, `state`, `krs_names`, `krs_codes` and a source comment. The build fails if a code does not match the raw data |
-| 4. Name → key | `config/case_flow/dispatch_area_geo_map.yaml` | The dispatch-area name **exactly** as stored on `DispatchArea` after import normalisation |
-| 5. Build | `php bin/console app:statistics:case-flow:build-geojson` | Rewrites `assets/geo/hessen-landkreise.geojson`; commit it with the sources |
-
-No code change is needed: maps read `state` and `neighbour` from the GeoJSON. Neighbouring areas get a dashed outline and do not set the default map view. A federal state page in Explore shows a map as soon as one area of that state exists. Making this data instead of repository files is planned in #1406.
-
-Example download of district features by key (needs network access to `public.opendatasoft.com`):
-
-```bash
-curl -G "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/georef-germany-kreis/exports/geojson" \
-  --data-urlencode "where=krs_code in ('03159','03155')"
-```
+Map **polygons** (dispatch-area outlines) come from the database. A new dispatch area from any state gets its shape through data maintenance, without a code change or release: create its districts, assign them and fetch their boundaries as described in [Districts and their boundaries](#districts-and-their-boundaries). An area without a hospital gets a dashed outline and does not set the default map view. A federal state page in Explore shows a map as soon as one area of that state has a complete shape.
 
 ## Command statuses
 
@@ -252,8 +236,8 @@ browser console shows a handful of failed tile requests, not one per tile. A til
 instead of failing is not detected; in that case set `MAP_TILE_URL` empty.
 
 Everything else the maps load is local: Leaflet and Turf through AssetMapper (`assets/vendor`, run
-`php bin/console importmap:install` once while online), and the district polygons in
-`assets/geo/hessen-landkreise.geojson`.
+`php bin/console importmap:install` once while online), and the district polygons from
+the database.
 
 There is no local tile cache and no command downloads tiles; bulk downloading from
 `tile.openstreetmap.org` is not allowed by the OpenStreetMap tile usage policy. When `MAP_TILE_URL`

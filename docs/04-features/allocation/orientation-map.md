@@ -32,7 +32,7 @@ Primary allocations do not load extra hospital pins.
 
 - **New pin type or legend:** factory DTO + Twig + Stimulus + translations (`allocation+intl-icu`).
 - **New travel-time rule:** `IsochroneTravelBand` (keep the stored GeoJSON bands; do not call OpenRouteService here).
-- **New dispatch area outside Hesse:** see [hospital-geodata.md](../../05-operations/hospital-geodata.md#adding-another-federal-state) (raw districts, YAML, rebuild). No code change; the factory reads `state` from the GeoJSON. Geocoding/isochrones are independent and already per `stateId`.
+- **New dispatch area:** create and assign its districts and fetch their boundaries, see [hospital-geodata.md](../../05-operations/hospital-geodata.md#districts-and-their-boundaries). No code change.
 - **Pin position looks wrong:** coordinates are probably still a city/PLZ centroid. Re-run street geocoding with `--hospital-id` and `--force`, then refetch isochrones.
 
 ## Tests
