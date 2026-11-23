@@ -193,9 +193,10 @@ Typical order (Symfony recipe plus project tasks):
 3. **`messenger:stop`** — `messenger:stop-workers` on the **previous** release (graceful shutdown)
 4. Database migrations
 5. **`media:migrate-storage`** — moves media files that are still in the old upload directory into `shared/var/media` ([media files](#media-files-shared-across-releases))
-6. Symlink switch to the new release (`current`)
-7. **`messenger:restart`** — `systemctl --user restart messenger.service`
-8. Cleanup: releases beyond `keep_releases` (2) are deleted. Files that must survive a release change belong in `shared/`.
+6. **`geo:import-legacy-districts`** (temporary, v0.3) — takes the legacy district geography over into the database and verifies it. A failed check stops the deploy before the switch; a completed takeover is skipped ([ADR 041](../02-architecture/decisions/041-dispatch-area-geography-as-master-data.md))
+7. Symlink switch to the new release (`current`)
+8. **`messenger:restart`** — `systemctl --user restart messenger.service`
+9. Cleanup: releases beyond `keep_releases` (2) are deleted. Files that must survive a release change belong in `shared/`.
 
 **First deploy:** If the systemd unit does not exist yet, `messenger:restart` fails. Either create the unit first (see [messenger-workers.md](messenger-workers.md)) or set `messenger_restart_on_deploy: false` in `hosts.yaml` until the worker is ready.
 
