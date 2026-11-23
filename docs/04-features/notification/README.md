@@ -127,6 +127,18 @@ The class is found automatically: `NotificationDefinitionPass` collects every cl
 - **Role scope:** types with `accessScope: Role` declare `requiredRole` (e.g. `ROLE_ADMIN`) in the definition.
 - **Errors:** invalid requests throw. Storage errors for a single recipient are logged as `notification.publish_failed` and never thrown, so they cannot change the outcome of the caller.
 
+## Grouped notifications
+
+A type that summarises several events in one entry uses `GroupedNotificationWriterInterface` instead of the publisher ([ADR 016](../../02-architecture/decisions/016-notification-system.md#grouped-notifications)). The type must offer the in-app channel only.
+
+| Method | Effect |
+|---|---|
+| `create()` | New entry for one recipient, unread count + 1. Returns `null` when the recipient switched the type off. |
+| `replace()` | New parameters for an unread entry, optionally a new position in the inbox. The unread count stays. Returns `false` when the entry is gone, read or removed. |
+| `withdraw()` | Removes an unread entry, unread count − 1. Returns `false` when the entry is gone, read or removed. |
+
+The producer keeps its own group state and recomputes the text from its records, so a retry changes nothing. Storage errors are thrown, unlike in `publish()`, so the producer's job is retried.
+
 ## Inbox
 
 - **Bell:** `NotificationBell` in the header shows an unread dot from `notification_recipient_state` (one primary-key lookup); the count is in its label. Its dropdown loads lazily from `/notifications/dropdown` and shows the unread count, the **5 newest unread** entries with their relative time (fewer if fewer are unread) and a link to the overview with the total number of entries.

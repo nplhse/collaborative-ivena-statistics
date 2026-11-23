@@ -446,6 +446,15 @@ Separate pull requests into `feature/notification-system`, within this one archi
    - **7b** (after step 6) Migrate the monthly reminder and its opt-out.
 8. Migrate admin notifications and the feedback admin mail.
 
+### Grouped notifications
+
+*Amended 2026-11-23 (#973).* Entries are immutable, with one exception: a type that summarises several events in one entry may update that entry **while it is unread**, through `GroupedNotificationWriterInterface`.
+
+- The producer owns the group and recomputes it from its own records, so retries and concurrent jobs give the same result. The Notification context stores only the outcome.
+- Grouped types are in-app only. They create no delivery and no toast, and updating an entry never raises the unread count.
+- A grouped entry claims no deduplication key: a group that was withdrawn must be able to come back within the TTL.
+- A read or removed entry is final. Later events start a new entry.
+
 ## Consequences
 
 **Positive:**
