@@ -2,25 +2,16 @@
 
 {% block title %}{{ diagram.name }} - {{ 'encounter.mts.glossary.title'|trans({}, 'encounter') }} - {{ parent() }}{% endblock %}
 
-{% block header %}
-    {% embed '@Shared/_embeds/header.html.twig' %}
-        {% block header_after %}
-            <twig:Navigation:Sidebar menu="explore" />
-        {% endblock %}
-    {% endembed %}
-{% endblock %}
-
 {% block page_header %}
     {{ include('@EdVisit/glossary/_header.html.twig', {
-        breadcrumbs: [
-            {label: 'link.explore', path: path('app_explore_index')},
-            {label: 'title.glossary.index', label_domain: 'allocation', path: path('app_explore_glossary_index')},
-            {label: 'encounter.mts.glossary.title'|trans({}, 'encounter'), translatable: false, path: path('app_explore_glossary_mts')},
+        breadcrumbs: help_breadcrumbs()|merge([
+            {label: 'title.glossary.index', label_domain: 'allocation', path: path('app_help_glossary_index')},
+            {label: 'encounter.mts.glossary.title'|trans({}, 'encounter'), translatable: false, path: path('app_help_glossary_mts')},
             {label: diagram.name, translatable: false},
-        ],
+        ]),
         title: diagram.name,
         subtitle: 'encounter.mts.diagram.type'|trans({}, 'encounter'),
-        back_path: path('app_explore_glossary_mts'),
+        back_path: path('app_help_glossary_mts'),
     }) }}
 {% endblock %}
 
@@ -66,7 +57,7 @@
                     <p class="text-secondary small mb-2" data-testid="mts-diagram-indicators-source">
                         {{ (has_counts ? 'encounter.mts.diagram.indicators_source_with_counts' : 'encounter.mts.diagram.indicators_source_definition')|trans({}, 'encounter') }}
                     </p>
-                    <form method="get" action="{{ path('app_explore_glossary_mts_diagram', {code: diagram.code}) }}" class="row g-2 align-items-center" role="search" data-testid="mts-indicator-filter">
+                    <form method="get" action="{{ path('app_help_glossary_mts_diagram', {code: diagram.code}) }}" class="row g-2 align-items-center" role="search" data-testid="mts-indicator-filter">
                         <div class="col">
                             <label class="visually-hidden" for="mts-indicator-filter">{{ 'encounter.mts.diagram.filter_label'|trans({}, 'encounter') }}</label>
                             <input type="search" id="mts-indicator-filter" name="q" value="{{ filter }}" class="form-control" placeholder="{{ 'encounter.mts.diagram.filter_placeholder'|trans({}, 'encounter') }}" maxlength="100">
@@ -79,7 +70,7 @@
                         </div>
                         {% if filter %}
                             <div class="col-auto">
-                                <a class="btn" href="{{ path('app_explore_glossary_mts_diagram', {code: diagram.code}) }}">
+                                <a class="btn" href="{{ path('app_help_glossary_mts_diagram', {code: diagram.code}) }}">
                                     <twig:ux:icon name="tabler:filter-off" class="me-1" width="1em" height="1em" />
                                     {{ 'encounter.mts.diagram.filter_reset'|trans({}, 'encounter') }}
                                 </a>

@@ -2,22 +2,13 @@
 
 {% block title %}{{ page.titleKey|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
 
-{% block header %}
-    {% embed '@Shared/_embeds/header.html.twig' %}
-        {% block header_after %}
-            <twig:Navigation:Sidebar menu="explore" />
-        {% endblock %}
-    {% endembed %}
-{% endblock %}
-
 {% block page_header %}
     <div class="container-xl">
         <twig:Breadcrumbs
-            :items="[
-                    { label: 'link.explore', path: path('app_explore_index') },
-                    { label: 'title.glossary.index', path: path('app_explore_glossary_index') },
+            :items="help_breadcrumbs()|merge([
+                    { label: 'title.glossary.index', path: path('app_help_glossary_index') },
                     { label: page.titleKey }
-                ]"
+                ])"
         />
 
         <div class="row align-items-center">
@@ -36,7 +27,7 @@
             </div>
             <div class="col-auto ms-auto">
                 <div class="btn-list">
-                    <a class="btn" href="{{ path('app_explore_glossary_index') }}">
+                    <a class="btn" href="{{ path('app_help_glossary_index') }}">
                         <twig:ux:icon name="tabler:chevron-left" class="me-2" width="1em" height="1em" />
                         {{ 'label.back_to_list'|trans({}, 'messages') }}
                     </a>

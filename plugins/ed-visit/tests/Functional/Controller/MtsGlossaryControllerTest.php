@@ -72,10 +72,10 @@ final class MtsGlossaryControllerTest extends WebTestCase
     public function testGlossaryHubLinksTheMtsGlossary(): void
     {
         $this->client->loginUser($this->user(['ROLE_USER', 'ROLE_PARTICIPANT']));
-        $crawler = $this->client->request(Request::METHOD_GET, '/explore/glossary');
+        $crawler = $this->client->request(Request::METHOD_GET, '/help/glossary');
 
         self::assertResponseIsSuccessful();
-        self::assertSame('/explore/glossary/mts', $crawler->filter('[data-glossary-key="mts"]')->attr('href'));
+        self::assertSame('/help/glossary/mts', $crawler->filter('[data-glossary-key="mts"]')->attr('href'));
     }
 
     public function testParticipantWithoutEncounterAccessSeesDefinitionsWithoutCounts(): void
@@ -130,7 +130,7 @@ final class MtsGlossaryControllerTest extends WebTestCase
         }
 
         self::assertSame(
-            '/explore/data-catalog/ed_visit#ed-visit-mts-category',
+            '/help/data-catalog/ed_visit#ed-visit-mts-category',
             $crawler->filter('#categories [data-testid="glossary-catalog-usage"]')->first()->attr('href'),
         );
         self::assertSelectorTextContains('#categories [data-testid="glossary-catalog-usages"]', 'Stored as');
@@ -314,7 +314,7 @@ final class MtsGlossaryControllerTest extends WebTestCase
         $this->encounterGrant($this->hospitalA, $viewer, [EncounterGrantAction::ViewCases]);
         $this->client->loginUser($viewer);
         $this->client->enableProfiler();
-        $crawler = $this->client->request(Request::METHOD_GET, '/explore/glossary/mts', server: ['HTTP_Accept-Language' => 'de-DE,de;q=0.9']);
+        $crawler = $this->client->request(Request::METHOD_GET, '/help/glossary/mts', server: ['HTTP_Accept-Language' => 'de-DE,de;q=0.9']);
 
         self::assertResponseIsSuccessful();
         $this->assertNoMissingTranslations($this->client->getProfile());
@@ -322,7 +322,7 @@ final class MtsGlossaryControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-testid="mts-category"][data-code="red"]', 'Sofort');
 
         $this->client->enableProfiler();
-        $this->client->request(Request::METHOD_GET, '/explore/glossary/mts/diagram/thoraxschmerz', server: ['HTTP_Accept-Language' => 'de-DE,de;q=0.9']);
+        $this->client->request(Request::METHOD_GET, '/help/glossary/mts/diagram/thoraxschmerz', server: ['HTTP_Accept-Language' => 'de-DE,de;q=0.9']);
         self::assertResponseIsSuccessful();
         $this->assertNoMissingTranslations($this->client->getProfile());
     }
@@ -330,7 +330,7 @@ final class MtsGlossaryControllerTest extends WebTestCase
     public function testUnknownDiagramIsNotFound(): void
     {
         $this->client->loginUser($this->user(['ROLE_USER', 'ROLE_PARTICIPANT']));
-        $this->client->request(Request::METHOD_GET, '/explore/glossary/mts/diagram/no_such_diagram');
+        $this->client->request(Request::METHOD_GET, '/help/glossary/mts/diagram/no_such_diagram');
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -338,14 +338,14 @@ final class MtsGlossaryControllerTest extends WebTestCase
     public function testGlossaryNeedsTheParticipantRole(): void
     {
         $this->client->loginUser($this->user(['ROLE_USER']));
-        $this->client->request(Request::METHOD_GET, '/explore/glossary/mts');
+        $this->client->request(Request::METHOD_GET, '/help/glossary/mts');
 
         self::assertResponseStatusCodeSame(403);
     }
 
     private function overview(): Crawler
     {
-        $crawler = $this->client->request(Request::METHOD_GET, '/explore/glossary/mts', server: ['HTTP_Accept-Language' => 'en']);
+        $crawler = $this->client->request(Request::METHOD_GET, '/help/glossary/mts', server: ['HTTP_Accept-Language' => 'en']);
         self::assertResponseIsSuccessful();
 
         return $crawler;
@@ -353,7 +353,7 @@ final class MtsGlossaryControllerTest extends WebTestCase
 
     private function diagram(string $code, ?string $filter = null): Crawler
     {
-        $crawler = $this->client->request(Request::METHOD_GET, '/explore/glossary/mts/diagram/'.$code, null === $filter ? [] : ['q' => $filter], server: ['HTTP_Accept-Language' => 'en']);
+        $crawler = $this->client->request(Request::METHOD_GET, '/help/glossary/mts/diagram/'.$code, null === $filter ? [] : ['q' => $filter], server: ['HTTP_Accept-Language' => 'en']);
         self::assertResponseIsSuccessful();
 
         return $crawler;

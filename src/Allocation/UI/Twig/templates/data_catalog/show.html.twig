@@ -4,22 +4,13 @@
 
 {% block title %}{{ objectTitle }} - {{ 'data_catalog.title'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
 
-{% block header %}
-    {% embed '@Shared/_embeds/header.html.twig' %}
-        {% block header_after %}
-            <twig:Navigation:Sidebar menu="explore" />
-        {% endblock %}
-    {% endembed %}
-{% endblock %}
-
 {% block page_header %}
     <div class="container-xl">
         <twig:Breadcrumbs
-            :items="[
-                    { label: 'link.explore', path: path('app_explore_index') },
-                    { label: 'data_catalog.title', label_domain: 'allocation', path: path('app_explore_data_catalog_index') },
+            :items="help_breadcrumbs()|merge([
+                    { label: 'data_catalog.title', label_domain: 'allocation', path: path('app_help_data_catalog_index') },
                     { label: objectTitle, translatable: false }
-                ]"
+                ])"
         />
 
         <div class="page-header d-print-none">
@@ -117,7 +108,7 @@
                                                 {% if variable.range.unitKey is not null %}{{ variable.range.unitKey|trans({}, variable.domain) }}{% endif %}
                                             </span>
                                         {% elseif variable.referenceObjectKey is not null %}
-                                            <a href="{{ path('app_explore_data_catalog_show', {objectKey: variable.referenceObjectKey}) }}">
+                                            <a href="{{ path('app_help_data_catalog_show', {objectKey: variable.referenceObjectKey}) }}">
                                                 {{ ('data_catalog.object.' ~ variable.referenceObjectKey ~ '.title')|trans({}, variable.referenceObjectDomain) }}
                                             </a>
                                         {% elseif variable.referenceTable is not null %}

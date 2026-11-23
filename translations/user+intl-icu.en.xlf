@@ -427,11 +427,11 @@
       </trans-unit>
       <trans-unit id="em.welcomeExpDesc" resname="email.welcome.next_steps.explore.description">
         <source>email.welcome.next_steps.explore.description</source>
-        <target>Explore allocations and reference data in the data catalog.</target>
+        <target>Browse allocations and reference data.</target>
       </trans-unit>
       <trans-unit id="em.welcomeExpTitle" resname="email.welcome.next_steps.explore.title">
         <source>email.welcome.next_steps.explore.title</source>
-        <target>Open the data catalog</target>
+        <target>Explore data</target>
       </trans-unit>
       <trans-unit id="em.welcomeHospAllDesc" resname="email.welcome.next_steps.hospitals.all.description">
         <source>email.welcome.next_steps.hospitals.all.description</source>

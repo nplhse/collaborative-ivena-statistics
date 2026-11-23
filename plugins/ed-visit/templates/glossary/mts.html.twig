@@ -2,24 +2,15 @@
 
 {% block title %}{{ 'encounter.mts.glossary.title'|trans({}, 'encounter') }} - {{ parent() }}{% endblock %}
 
-{% block header %}
-    {% embed '@Shared/_embeds/header.html.twig' %}
-        {% block header_after %}
-            <twig:Navigation:Sidebar menu="explore" />
-        {% endblock %}
-    {% endembed %}
-{% endblock %}
-
 {% block page_header %}
     {{ include('@EdVisit/glossary/_header.html.twig', {
-        breadcrumbs: [
-            {label: 'link.explore', path: path('app_explore_index')},
-            {label: 'title.glossary.index', label_domain: 'allocation', path: path('app_explore_glossary_index')},
+        breadcrumbs: help_breadcrumbs()|merge([
+            {label: 'title.glossary.index', label_domain: 'allocation', path: path('app_help_glossary_index')},
             {label: 'encounter.mts.glossary.title'|trans({}, 'encounter'), translatable: false},
-        ],
+        ]),
         title: 'encounter.mts.glossary.title'|trans({}, 'encounter'),
         subtitle: 'catalog.type.glossary'|trans({}, 'allocation'),
-        back_path: path('app_explore_glossary_index'),
+        back_path: path('app_help_glossary_index'),
     }) }}
 {% endblock %}
 
@@ -76,7 +67,7 @@
                     rows: diagrams,
                     testid: 'mts-diagram',
                     section_key: 'diagrams',
-                    link_route: 'app_explore_glossary_mts_diagram',
+                    link_route: 'app_help_glossary_mts_diagram',
                 }) }}
             </div>
             <div class="col-12 col-xl-6">

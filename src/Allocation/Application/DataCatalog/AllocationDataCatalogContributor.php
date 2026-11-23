@@ -271,10 +271,10 @@ final readonly class AllocationDataCatalogContributor implements DataCatalogCont
     }
 
     /**
-     * A definition page of the Allocation glossary (`app_explore_glossary_show`, #1507).
+     * A definition page of the Allocation glossary (`app_help_glossary_show`, #1507).
      */
     private function glossary(string $slug, ?string $section = null): GlossaryReference
     {
-        return new GlossaryReference('app_explore_glossary_show', ['slug' => $slug], $section);
+        return new GlossaryReference('app_help_glossary_show', ['slug' => $slug], $section);
     }
 }

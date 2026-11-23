@@ -48,6 +48,10 @@
         {% endif %}
     </div>
 
+    {% if help %}
+        <twig:Content:HelpReference />
+    {% endif %}
+
     {% if not help %}
         <div class="col-12">
             <div class="card">

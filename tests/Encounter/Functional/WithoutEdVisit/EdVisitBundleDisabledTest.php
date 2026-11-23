@@ -167,12 +167,12 @@ final class EdVisitBundleDisabledTest extends WebTestCase
         $this->client->loginUser($this->reviewer);
 
         // The encounter base data stays (#1415); the ED visit object belongs to the plugin.
-        $crawler = $this->client->request(Request::METHOD_GET, '/explore/data-catalog');
+        $crawler = $this->client->request(Request::METHOD_GET, '/help/data-catalog');
         self::assertResponseIsSuccessful();
         self::assertCount(1, $crawler->filter('[data-testid="data-catalog-object"][data-object-key="encounter"]'));
         self::assertCount(0, $crawler->filter('[data-object-key="ed_visit"]'));
 
-        $this->client->request(Request::METHOD_GET, '/explore/data-catalog/ed_visit');
+        $this->client->request(Request::METHOD_GET, '/help/data-catalog/ed_visit');
         self::assertResponseStatusCodeSame(404);
     }
 
