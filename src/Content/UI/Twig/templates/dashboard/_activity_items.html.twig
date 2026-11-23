@@ -27,7 +27,7 @@
             </div>
             <div class="col min-w-0">
                 {% set actorName = user_display_name(activity.actorDisplayName, activity.actorUsername) %}
-                <div class="fw-medium" title="{{ activity.actorUsername }}" data-testid="activity-actor">
+                <div class="activity-lead fw-medium mb-1" title="{{ activity.actorUsername }}" data-testid="activity-actor">
                     {% if is_granted('ROLE_PARTICIPANT') and activity.actorUsername %}
                         <a href="{{ path('app_explore_user_show', {username: activity.actorUsername}) }}" target="_top">{{ actorName }}</a>
                     {% else %}
