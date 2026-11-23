@@ -1,4 +1,5 @@
 import './bootstrap.js';
+import { installPrintPreparation } from './lib/print-preparation.js';
 
 import './styles/app.css';
 import './styles/pages/content-blocks.css';
@@ -14,3 +15,5 @@ import './styles/feedback-widget.css';
 import './styles/charts.css';
 import './styles/reactions.css';
 import './styles/print.css';
+
+installPrintPreparation(window, document);

@@ -2,6 +2,14 @@
  * Print layout (#969). Loaded after Tabler, applies to the browser's print output only and leaves the
  * screen untouched. The print context (period, scope, filters in a header) belongs to #1403.
  */
+/*
+ * The print icon only earns its place where sections load lazily: it loads them before printing. On all
+ * other pages the browser's own print command gives the same result.
+ */
+.page:not(:has(.page-body turbo-frame[src][loading])) .print-action {
+    display: none;
+}
+
 @media print {
     @page {
         size: A4;
@@ -42,6 +50,7 @@
     .modal,
     .modal-backdrop,
     .toast-container,
+    .tooltip,
     .feedback-widget,
     .pagination,
     .dropdown,
@@ -207,6 +216,29 @@
     .badge {
         border: 1px solid #8a94a6;
         color: #182433 !important;
+    }
+
+    /* Charts are scaled to the paper: print-preparation.js gives their SVG a viewBox. */
+    .chart-sm,
+    .chart-lg,
+    .apexcharts-canvas {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+    }
+
+    svg.apexcharts-svg[data-print-viewbox] {
+        display: block;
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    .apexcharts-toolbar,
+    .apexcharts-menu,
+    .apexcharts-tooltip,
+    .apexcharts-xaxistooltip,
+    .apexcharts-yaxistooltip {
+        display: none !important;
     }
 
     /* Only the result count stays from the table footer: it says which records are on paper. */

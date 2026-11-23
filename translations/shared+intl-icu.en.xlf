@@ -333,6 +333,10 @@
         <source>link.sitemap</source>
         <target>Sitemap</target>
       </trans-unit>
+      <trans-unit id="PrintActionEn" resname="print.action">
+        <source>print.action</source>
+        <target>Print</target>
+      </trans-unit>
       <trans-unit id="PrintPrintedAtEn" resname="print.printed_at">
         <source>print.printed_at</source>
         <target>Printed on {date}</target>
