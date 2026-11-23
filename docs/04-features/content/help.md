@@ -24,7 +24,7 @@ article, every page there is an article, and only articles have a help key (lowe
 by dots, hyphens or underscores).
 
 URLs come from the page paths, e.g. `/help/importing-data/rejected-rows`. The search is `/help/search` (`app_help_search`);
-a page with that path would be hidden behind it.
+a page with that path would be hidden behind it. The same holds for `/help/glossary` and `/help/data-catalog`.
 
 ## Pages
 
@@ -48,6 +48,7 @@ default locale, and visibility (`public` or `authenticated`). Navigation, neighb
 | Header and footer | "Help" links the start page; until it is published the FAQ page keeps its place |
 | Sitemap page `/sitemap` | the start page with its main topics, not every article |
 | `sitemap.xml` | every public, published article (as every public page) |
+| Reference card | the help sidebar links glossary and data catalog for participants (`Content:HelpReference`, [ADR 042](../../02-architecture/decisions/042-glossary-and-data-catalog-in-help.md)); these code-rendered pages are not articles and not part of the search |
 | Admin | *Content → Help* lists the articles with their answers (👍 / 👎); *Pages* leaves them out |
 
 The FAQ page type (`PageKey::Faq`) still works but is no longer linked once the help exists.

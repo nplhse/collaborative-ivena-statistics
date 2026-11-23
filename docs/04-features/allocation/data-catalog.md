@@ -2,7 +2,7 @@
 
 **Audience:** Developers who add stored variables or let a context or plugin document its data objects.
 
-The data catalog (`/explore/data-catalog`, #1415) shows what is stored: per data object the variables in
+The data catalog (`/help/data-catalog`, #1415) shows what is stored: per data object the variables in
 groups, with label, short description, storage location, type, whether the value may be missing, and the
 permitted codes or range. It shows structure only and runs no query against case data. It is the first
 slice of #597; data profiles, mappings to analyses and versioning stay there.
@@ -11,11 +11,12 @@ slice of #597; data profiles, mappings to analyses and versioning stay there.
 
 | Route | Page |
 |---|---|
-| `app_explore_data_catalog_index` (`/explore/data-catalog`) | One card per visible object: name, description, number of variables, core or plugin |
-| `app_explore_data_catalog_show` (`/explore/data-catalog/{objectKey}`) | Groups with in-page links, one table per group, an anchor per variable |
+| `app_help_data_catalog_index` (`/help/data-catalog`) | One card per visible object: name, description, number of variables, core or plugin |
+| `app_help_data_catalog_show` (`/help/data-catalog/{objectKey}`) | Groups with in-page links, one table per group, an anchor per variable |
 
-Explore links to the catalog with a tile and a sidebar entry in the reference group, next to the glossary.
-Access follows Explore (`ROLE_PARTICIPANT`); an object with a granted attribute is shown only to users who
+The help links to the catalog from its Reference card and the footer help column, next to the glossary
+([ADR 042](../../02-architecture/decisions/042-glossary-and-data-catalog-in-help.md)).
+Access needs `ROLE_PARTICIPANT`; an object with a granted attribute is shown only to users who
 have it, and its detail page answers 404 otherwise. Table and column names are shown to everyone who sees
 the catalog, as a small code line per variable, because they describe structure, not data.
 
