@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Content\UI\Http\Controller;
 
 use App\Content\Application\Contract\ReactionSummaryQueryInterface;
+use App\Content\Application\Contract\ReactionTargetProviderInterface;
+use App\Content\Application\Reaction\ReactionNotificationTarget;
 use App\Content\Application\Reaction\ReactionService;
 use App\Content\Application\Reaction\ReactionTarget;
 use App\Content\Application\Reaction\ReactionTargetRegistry;
@@ -19,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\UX\Turbo\TurboBundle;
 
 /**
@@ -49,6 +52,34 @@ final class ReactionController extends AbstractController
         $requested = ReactionTarget::listFromString($request->query->getString('targets'), self::MAX_TARGETS);
 
         return $this->renderStreams($request, $this->visibleTargets($requested, $viewer), $requested, $viewer);
+    }
+
+    /** The link of a reaction notification (#973): opens the content, or says that it is gone. */
+    #[IsGranted('ROLE_USER')]
+    #[Route(
+        '/reactions/open/{targetType}/{targetId}',
+        name: 'app_reaction_open',
+        requirements: ['targetType' => '[a-z_]+', 'targetId' => Requirement::POSITIVE_INT],
+        methods: ['GET'],
+    )]
+    public function open(string $targetType, int $targetId): RedirectResponse
+    {
+        $type = ReactionTargetType::tryFrom($targetType);
+        $provider = $type instanceof ReactionTargetType ? $this->targets->get($type) : null;
+        $target = $provider?->notificationTarget($targetId);
+
+        if (!$provider instanceof ReactionTargetProviderInterface || !$target instanceof ReactionNotificationTarget || [] === $provider->visibleIds([$targetId], $this->viewer())) {
+            $this->addFlash('warning', new TranslatableMessage('reaction.notification.unavailable', [], 'content'));
+
+            return $this->redirectToRoute('app_notification_index');
+        }
+
+        $parameters = $target->routeParameters;
+        if (null !== $target->fragment) {
+            $parameters['_fragment'] = $target->fragment;
+        }
+
+        return $this->redirectToRoute($target->route, $parameters);
     }
 
     #[IsGranted('ROLE_USER')]

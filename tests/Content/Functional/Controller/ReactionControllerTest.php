@@ -181,6 +181,52 @@ final class ReactionControllerTest extends WebTestCase
         self::assertSame(0, $this->storedReactions());
     }
 
+    public function testNotificationLinkOpensThePost(): void
+    {
+        $client = self::createClient();
+        $post = PostFactory::createOne(['slug' => 'open-post']);
+        $client->loginUser(UserFactory::createOne());
+
+        $client->request(Request::METHOD_GET, '/reactions/open/post/'.$post->getId());
+
+        self::assertResponseRedirects('/blog/open-post');
+    }
+
+    public function testNotificationLinkOpensTheCommentOnItsPost(): void
+    {
+        $client = self::createClient();
+        $post = PostFactory::createOne(['slug' => 'open-comment']);
+        $comment = PostCommentFactory::createOne(['post' => $post]);
+        $client->loginUser(UserFactory::createOne());
+
+        $client->request(Request::METHOD_GET, '/reactions/open/comment/'.$comment->getId());
+
+        self::assertResponseRedirects('/blog/open-comment#reactions-comment-'.$comment->getId());
+    }
+
+    public function testNotificationLinkOfAMissingTargetSaysItIsGone(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::createOne());
+
+        $client->request(Request::METHOD_GET, '/reactions/open/post/999999');
+
+        self::assertResponseRedirects('/notifications');
+        $client->followRedirect();
+        self::assertSelectorTextContains('.messages', 'no longer available');
+    }
+
+    public function testNotificationLinkNeedsASignedInUser(): void
+    {
+        $client = self::createClient();
+        $post = PostFactory::createOne();
+
+        $client->request(Request::METHOD_GET, '/reactions/open/post/'.$post->getId());
+
+        self::assertResponseRedirects();
+        self::assertStringContainsString('/login', (string) $client->getResponse()->headers->get('Location'));
+    }
+
     public function testTimelineRendersActivityPlaceholders(): void
     {
         $client = self::createClient();

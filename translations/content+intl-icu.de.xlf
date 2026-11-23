@@ -1237,6 +1237,10 @@
         <source>activity.hospital.empty_description</source>
         <target>Hier erscheinen Änderungen an Zugriff und Eigentümerschaft dieser Klinik sowie Import-Meilensteine.</target>
       </trans-unit>
+      <trans-unit id="reactNotifUnavailDe" resname="reaction.notification.unavailable">
+        <source>reaction.notification.unavailable</source>
+        <target>Dieser Inhalt ist nicht mehr verfügbar.</target>
+      </trans-unit>
       <trans-unit id="reactTypeLikeDe" resname="reaction.type.like">
         <source>reaction.type.like</source>
         <target>Gefällt mir</target>

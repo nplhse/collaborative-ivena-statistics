@@ -741,7 +741,7 @@ Administrators can open these pages by the internal numeric ID, for example `/ex
 A kind of content that can receive reactions (#467). The provider says which ids a viewer may see (reactions follow
 the visibility of their target) and which ids still exist (for the daily cleanup). A new target, for example help
 articles, needs a case in `ReactionTargetType`, a provider and the reaction placeholder in its template; the
-`reaction` table stays as it is. Details: [reactions.md](../04-features/content/reactions.md).
+`reaction` table stays as it is. Its `notificationTarget()` names the owner and link for reaction notifications. Details: [reactions.md](../04-features/content/reactions.md).
 
 ## Related documentation
 

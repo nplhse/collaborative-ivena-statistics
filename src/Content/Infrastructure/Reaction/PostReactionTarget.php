@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Content\Infrastructure\Reaction;
 
 use App\Content\Application\Contract\ReactionTargetProviderInterface;
+use App\Content\Application\Reaction\ReactionNotificationTarget;
 use App\Content\Domain\Enum\PostStatus;
 use App\Content\Domain\Enum\ReactionTargetType;
 use App\User\Domain\Entity\User;
@@ -59,5 +60,21 @@ final readonly class PostReactionTarget implements ReactionTargetProviderInterfa
             ['ids' => $ids],
             ['ids' => ArrayParameterType::INTEGER],
         ));
+    }
+
+    #[\Override]
+    public function notificationTarget(int $id): ?ReactionNotificationTarget
+    {
+        $row = $this->connection->fetchAssociative('SELECT created_by_id, title, slug FROM post WHERE id = :id', ['id' => $id]);
+        if (false === $row) {
+            return null;
+        }
+
+        return new ReactionNotificationTarget(
+            ownerId: null === $row['created_by_id'] ? null : (int) $row['created_by_id'],
+            title: (string) $row['title'],
+            route: 'app_blog_show',
+            routeParameters: ['slug' => (string) $row['slug']],
+        );
     }
 }
