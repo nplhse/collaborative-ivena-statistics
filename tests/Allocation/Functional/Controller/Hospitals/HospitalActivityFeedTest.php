@@ -46,7 +46,7 @@ final class HospitalActivityFeedTest extends WebTestCase
         $actor = UserFactory::createOne(['username' => 'grant-holder']);
         $actorId = $actor->getId();
         self::assertNotNull($actorId);
-        $here = ['hospitalName' => 'Klinik A', 'hospitalPublicId' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'];
+        $here = ['hospitalName' => 'Klinik A', 'hospitalPublicId' => '2ff031a9-3e94-5ece-8ecd-43ca1881d81f'];
 
         $this->record($actor, UserActivityType::HOSPITAL_ASSOCIATED, '2026-06-01', UserActivityDeduplicationKey::hospitalAssociated($actorId, 1, 1), $here);
         $this->record($actor, UserActivityType::HOSPITAL_DISASSOCIATED, '2026-06-02', UserActivityDeduplicationKey::hospitalDisassociated($actorId, 1, 1), $here);
@@ -56,7 +56,7 @@ final class HospitalActivityFeedTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/activity/feed?hospital=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+            '/activity/feed?hospital=2ff031a9-3e94-5ece-8ecd-43ca1881d81f',
             [],
             [],
             ['HTTP_TURBO_FRAME' => 'activity-timeline'],
@@ -68,7 +68,7 @@ final class HospitalActivityFeedTest extends WebTestCase
             $crawler->filter('[data-testid="activity-timeline-item"]')->each(static fn ($node): string => (string) $node->attr('data-activity-type')),
         );
         self::assertSelectorTextContains('[data-testid="activity-timeline-item"]', 'grant-holder');
-        self::assertStringNotContainsString('Klinik A', (string) $client->getResponse()->getContent(), 'The hospital name is left out on its own page.');
+        self::assertSelectorTextContains('[data-testid="activity-timeline-item"] [data-testid="activity-sentence"]', 'is no longer responsible for Klinik A');
     }
 
     public function testHospitalWithoutActivityShowsTheEmptyState(): void

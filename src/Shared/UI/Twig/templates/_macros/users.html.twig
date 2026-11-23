@@ -1,5 +1,6 @@
 {#
   Renders a user by name as profile link (/explore/user/{username}, #1353), optionally only for ROLE_PARTICIPANT.
+  Takes a User entity, or a hash {userId, username, displayName} for read models.
   The visible name follows user_display_name() (#462): signed-in viewers see the display name, with the
   username as title; anonymous visitors see the username.
 
@@ -22,7 +23,7 @@
         {%- set username = user.username -%}
         {%- set name = user_display_name(user.displayName, username) -%}
         {%- set showTitle = name != username -%}
-        {%- if avatar -%}<span class="user-link"><twig:UserAvatar :user="user" :size="avatar" /> {% endif -%}
+        {%- if avatar -%}<span class="user-link">{% if user.userId is defined %}<twig:UserAvatar :userId="user.userId" :displayName="user.displayName" :username="user.username" :size="avatar" />{% else %}<twig:UserAvatar :user="user" :size="avatar" />{% endif %} {% endif -%}
         {%- if (not requireParticipant or is_granted('ROLE_PARTICIPANT')) and username -%}
             <a href="{{ path('app_explore_user_show', {username: username}) }}"{% if target %} target="{{ target }}"{% endif %}{% if showTitle %} title="@{{ username }}"{% endif %}>{{ name }}</a>
         {%- elseif showTitle -%}

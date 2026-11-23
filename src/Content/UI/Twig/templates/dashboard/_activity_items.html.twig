@@ -1,3 +1,8 @@
+{% import '@Shared/_macros/users.html.twig' as users %}
+{#
+    Activity entries of the dashboard, the timeline, the hospital feed and user profiles: the icon of the activity, one
+    sentence (who did what with what), and a row with the time and the reactions.
+#}
 {% set previews = previews|default({}) %}
 {% set activityIcons = {
     joined: 'tabler:user-plus',
@@ -10,90 +15,47 @@
     hospital_owner_granted: 'tabler:key',
     hospital_owner_revoked: 'tabler:key-off',
 } %}
-{# On the hospital page every item belongs to that hospital, so its name is left out (#488). #}
-{% set hide_hospital = hide_hospital|default(false) %}
 {% set show_reactions = show_reactions|default(false) %}
 
 {% for activity in activities %}
+    {% set type = activity.type.value %}
+    {% set actor = {userId: activity.actorId, username: activity.actorUsername, displayName: activity.actorDisplayName} %}
+    {# Both parts are captured with auto-escaping, so the sentence below can print them as HTML. #}
+    {% set actorHtml %}<span class="fw-medium" data-testid="activity-actor" title="{{ activity.actorUsername }}">{{ users.link(actor, {requireParticipant: true, avatar: 'inline'}) }}</span>{% endset %}
+    {% set objectHtml = '' %}
+    {% if type in ['post_published', 'comment_created'] %}
+        {% if activity.postTitle %}
+            {% set objectHtml %}<span class="fw-medium">{% if activity.postSlug %}<a href="{{ path('app_blog_show', {slug: activity.postSlug}) }}" target="_top">{{ activity.postTitle }}</a>{% else %}{{ activity.postTitle }}{% endif %}</span>{% endset %}
+        {% endif %}
+    {% elseif activity.hospitalName and type != 'joined' %}
+        {% set objectHtml %}<span class="fw-medium">{% if is_granted('ROLE_PARTICIPANT') and activity.hospitalPublicId %}<a href="{{ path('app_explore_hospital_show', {publicId: activity.hospitalPublicId}) }}" target="_top">{{ activity.hospitalName }}</a>{% else %}{{ activity.hospitalName }}{% endif %}</span>{% endset %}
+    {% endif %}
+    {% set sentenceKey = 'label.user.activity.sentence.' ~ type ~ (objectHtml != '' ? '.object' : '.plain') %}
     <div
         class="list-group-item"
         data-testid="{{ activity_item_testid|default('dashboard-activity-item') }}"
-        data-activity-type="{{ activity.type.value }}"
+        data-activity-type="{{ type }}"
         data-activity-stable-id="{{ activity.stableId }}"
     >
         <div class="row align-items-start">
             <div class="col-auto">
-                <twig:UserAvatar :userId="activity.actorId" :displayName="activity.actorDisplayName" :username="activity.actorUsername" size="sm" />
+                <span class="avatar avatar-sm rounded" data-testid="activity-icon">
+                    <twig:ux:icon name="{{ activityIcons[type] }}" width="1.25em" height="1.25em" aria-hidden="true" />
+                </span>
             </div>
             <div class="col min-w-0">
-                {% set actorName = user_display_name(activity.actorDisplayName, activity.actorUsername) %}
-                <div class="activity-lead fw-medium mb-1" title="{{ activity.actorUsername }}" data-testid="activity-actor">
-                    {% if is_granted('ROLE_PARTICIPANT') and activity.actorUsername %}
-                        <a href="{{ path('app_explore_user_show', {username: activity.actorUsername}) }}" target="_top">{{ actorName }}</a>
-                    {% else %}
-                        {{ actorName }}
-                    {% endif %}
+                <div class="activity-lead" data-testid="activity-sentence">
+                    {{- sentenceKey|trans({actor: actorHtml, object: objectHtml, count: activity.milestone ?? 0}, 'user')|raw -}}
                 </div>
-                <div>
-                    <twig:ux:icon name="{{ activityIcons[activity.type.value] }}" class="icon text-secondary me-1" aria-hidden="true" />
-                    {% if activity.type.value == 'joined' %}
-                        {{ 'label.user.activity.joined'|trans({}, 'user') }}
-                    {% elseif activity.type.value == 'first_import' %}
-                        {{ 'label.user.activity.first_import'|trans({}, 'user') }}
-                    {% elseif activity.type.value == 'import_milestone' %}
-                        {{ 'label.user.activity.import_milestone'|trans(({count: activity.milestone}), 'user') }}
-                    {% elseif activity.type.value == 'post_published' %}
-                        {{ 'label.user.activity.post_published'|trans({}, 'user') }}
-                    {% elseif activity.type.value == 'comment_created' %}
-                        {{ 'label.user.activity.comment_created'|trans({}, 'user') }}
-                    {% elseif activity.type.value == 'hospital_associated' %}
-                        {{ 'label.user.activity.hospital_associated'|trans({}, 'user') }}
-                    {% elseif activity.type.value == 'hospital_disassociated' %}
-                        {{ 'label.user.activity.hospital_disassociated'|trans({}, 'user') }}
-                    {% elseif activity.type.value == 'hospital_owner_granted' %}
-                        {{ 'label.user.activity.hospital_owner_granted'|trans({}, 'user') }}
-                    {% elseif activity.type.value == 'hospital_owner_revoked' %}
-                        {{ 'label.user.activity.hospital_owner_revoked'|trans({}, 'user') }}
-                    {% endif %}
-                </div>
-                {% if activity.type.value == 'post_published' and activity.postTitle %}
-                    <div>
-                        {% if activity.postSlug %}
-                            <a href="{{ path('app_blog_show', {slug: activity.postSlug}) }}" target="_top">„{{ activity.postTitle }}“</a>
-                        {% else %}
-                            <span class="text-secondary">„{{ activity.postTitle }}“</span>
-                        {% endif %}
-                    </div>
+                {% if type == 'post_published' and activity.postTitle %}
                     {% set preview = activity.postSlug ? previews[activity.postSlug]|default('') : '' %}
                     {% if preview %}
-                        <div class="text-secondary small activity-post-preview" data-testid="activity-post-preview">
+                        <div class="text-secondary small activity-post-preview mt-1" data-testid="activity-post-preview">
                             {{ preview|raw }}
                         </div>
                     {% endif %}
-                {% elseif activity.type.value == 'comment_created' %}
-                    {% if activity.postTitle %}
-                        <div>
-                            {{ 'label.user.activity.comment_on'|trans({}, 'user') }}
-                            {% if activity.postSlug %}
-                                <a href="{{ path('app_blog_show', {slug: activity.postSlug}) }}" target="_top">„{{ activity.postTitle }}“</a>
-                            {% else %}
-                                <span class="text-secondary">„{{ activity.postTitle }}“</span>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                    {% if activity.excerpt %}
-                        <div class="text-secondary small text-truncate">{{ activity.excerpt }}</div>
-                    {% endif %}
-                {% elseif activity.hospitalName and not hide_hospital %}
-                    <div class="text-secondary">
-                        {% if is_granted('ROLE_PARTICIPANT') and activity.hospitalPublicId %}
-                            <a href="{{ path('app_explore_hospital_show', {publicId: activity.hospitalPublicId}) }}" target="_top">
-                                {{ activity.hospitalName }}
-                            </a>
-                        {% else %}
-                            {{ activity.hospitalName }}
-                        {% endif %}
-                    </div>
+                {% elseif type == 'comment_created' and activity.excerpt %}
+                    <div class="text-secondary small text-truncate mt-1">{{ activity.excerpt }}</div>
                 {% endif %}
                 <div class="activity-meta" data-testid="activity-meta">
                     <twig:RelativeTimestamp :datetime="activity.occurredAt" />

@@ -21,7 +21,6 @@
                 activities: page.items,
                 previews: previews|default({}),
                 activity_item_testid: 'activity-timeline-item',
-                hide_hospital: query.hospital is not null,
                 show_reactions: true,
             }) }}
             {% if page.hasMore and page.nextCursor and nextFrameId %}

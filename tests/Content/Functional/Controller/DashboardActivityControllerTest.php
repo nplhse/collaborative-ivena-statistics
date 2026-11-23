@@ -218,10 +218,9 @@ final class DashboardActivityControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="dashboard-activity-item"][data-activity-type="import_milestone"]');
         self::assertSelectorExists('[data-testid="dashboard-activity-item"][data-activity-type="comment_created"]');
         self::assertSelectorExists('[data-testid="dashboard-activity-item"][data-activity-type="post_published"]');
-        self::assertSelectorTextContains('body', 'Imported first dataset');
-        self::assertSelectorTextContains('body', 'Reached 5 data imports');
-        self::assertSelectorTextContains('body', 'Wrote a comment');
-        self::assertSelectorTextContains('body', 'On');
+        self::assertSelectorTextContains('body', 'for the first time');
+        self::assertSelectorTextContains('body', 'has completed 5 data imports in total');
+        self::assertSelectorTextContains('body', 'commented on');
         self::assertSelectorTextContains('body', 'Untitled Comment Post');
         self::assertSelectorTextContains('body', 'Nice work');
         self::assertSelectorTextContains('body', 'Draft Headline');
@@ -449,12 +448,12 @@ final class DashboardActivityControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         $item = $crawler->filter('[data-testid="dashboard-activity-item"]')->first();
-        self::assertSame('AM', trim($item->filter('.avatar')->text()));
+        self::assertSame('AM', trim($item->filter('[data-testid="activity-actor"] .avatar')->text()));
         self::assertStringContainsString(
             'bg-'.\App\User\UI\Twig\Components\UserAvatar::PALETTE[$actorId % 8].'-lt',
-            (string) $item->filter('.avatar')->attr('class'),
+            (string) $item->filter('[data-testid="activity-actor"] .avatar')->attr('class'),
         );
-        self::assertSame('Andreas Meyer', trim($item->filter('[data-testid="activity-actor"]')->text()));
+        self::assertStringEndsWith('Andreas Meyer', trim($item->filter('[data-testid="activity-actor"]')->text()));
         self::assertSame('activity-named-actor', $item->filter('[data-testid="activity-actor"]')->attr('title'));
     }
 }
