@@ -27,6 +27,13 @@ interface GroupedNotificationWriterInterface
     public function create(NotificationRequest $request): ?int;
 
     /**
+     * Whether the recipient currently receives this type. A producer stops updating its group when they do not.
+     *
+     * @psalm-suppress PossiblyUnusedMethod Port for producing contexts.
+     */
+    public function isEnabledFor(string $type, int $recipientId): bool;
+
+    /**
      * Updates the text of an entry that is still unread, without raising the unread count.
      *
      * @param array<string, scalar|null> $parameters translation parameters

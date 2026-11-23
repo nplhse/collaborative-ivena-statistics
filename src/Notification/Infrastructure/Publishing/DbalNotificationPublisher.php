@@ -123,6 +123,16 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
     }
 
     #[\Override]
+    public function isEnabledFor(string $type, int $recipientId): bool
+    {
+        $definition = $this->registry->get($type);
+
+        return $this->channelResolver
+            ->resolve($definition, $this->preferences->overridesFor($recipientId, $definition))
+            ->has(NotificationChannel::InApp);
+    }
+
+    #[\Override]
     public function replace(int $notificationId, array $parameters, ?\DateTimeImmutable $moveTo = null): bool
     {
         return $this->connection->transactional(function (Connection $connection) use ($notificationId, $parameters, $moveTo): bool {

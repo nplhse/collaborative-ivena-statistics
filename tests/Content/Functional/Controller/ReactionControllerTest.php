@@ -15,6 +15,7 @@ use App\User\Domain\Entity\UserActivity;
 use App\User\Domain\Enum\UserActivityType;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -179,6 +180,93 @@ final class ReactionControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(404);
 
         self::assertSame(0, $this->storedReactions());
+    }
+
+    public function testNotificationLinkOpensThePost(): void
+    {
+        $client = self::createClient();
+        $post = PostFactory::createOne(['slug' => 'open-post']);
+        $client->loginUser(UserFactory::createOne());
+
+        $client->request(Request::METHOD_GET, '/reactions/open/post/'.$post->getId());
+
+        self::assertResponseRedirects('/blog/open-post');
+    }
+
+    public function testNotificationLinkOpensTheCommentOnItsPost(): void
+    {
+        $client = self::createClient();
+        $post = PostFactory::createOne(['slug' => 'open-comment']);
+        $comment = PostCommentFactory::createOne(['post' => $post]);
+        $client->loginUser(UserFactory::createOne());
+
+        $client->request(Request::METHOD_GET, '/reactions/open/comment/'.$comment->getId());
+
+        self::assertResponseRedirects('/blog/open-comment#reactions-comment-'.$comment->getId());
+    }
+
+    public function testNotificationLinkOfAMissingTargetSaysItIsGone(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::createOne());
+
+        $client->request(Request::METHOD_GET, '/reactions/open/post/999999');
+
+        self::assertResponseRedirects('/notifications');
+        $client->followRedirect();
+        self::assertSelectorTextContains('.messages', 'no longer available');
+    }
+
+    /**
+     * @param array<string, mixed> $metadata
+     */
+    #[DataProvider('activityLinks')]
+    public function testNotificationLinkOfAnActivityOpensItsContent(UserActivityType $type, array $metadata, string $location): void
+    {
+        $client = self::createClient();
+        $owner = UserFactory::createOne();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $activity = new UserActivity($owner, $type, new \DateTimeImmutable('2026-11-01 10:00:00'), 'link-'.$owner->getId(), $metadata);
+        $entityManager->persist($activity);
+        $entityManager->flush();
+        $client->loginUser($owner);
+
+        $client->request(Request::METHOD_GET, '/reactions/open/activity/'.$activity->getId());
+
+        self::assertResponseRedirects($location);
+    }
+
+    /**
+     * @return iterable<string, array{UserActivityType, array<string, mixed>, string}>
+     */
+    public static function activityLinks(): iterable
+    {
+        yield 'post' => [UserActivityType::POST_PUBLISHED, ['slug' => 'a-post'], '/blog/a-post'];
+        yield 'comment' => [UserActivityType::COMMENT_CREATED, ['postSlug' => 'a-post', 'commentId' => 7], '/blog/a-post#reactions-comment-7'];
+        yield 'hospital' => [UserActivityType::HOSPITAL_ASSOCIATED, ['hospitalPublicId' => '2ff031a9-3e94-5ece-8ecd-43ca1881d81f'], '/explore/hospital/2ff031a9-3e94-5ece-8ecd-43ca1881d81f'];
+        yield 'neither' => [UserActivityType::JOINED, [], '/activity'];
+    }
+
+    public function testNotificationLinkOfAMissingCommentOrActivitySaysItIsGone(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::createOne());
+
+        foreach (['comment', 'activity'] as $type) {
+            $client->request(Request::METHOD_GET, '/reactions/open/'.$type.'/999999');
+            self::assertResponseRedirects('/notifications');
+        }
+    }
+
+    public function testNotificationLinkNeedsASignedInUser(): void
+    {
+        $client = self::createClient();
+        $post = PostFactory::createOne();
+
+        $client->request(Request::METHOD_GET, '/reactions/open/post/'.$post->getId());
+
+        self::assertResponseRedirects();
+        self::assertStringContainsString('/login', (string) $client->getResponse()->headers->get('Location'));
     }
 
     public function testTimelineRendersActivityPlaceholders(): void

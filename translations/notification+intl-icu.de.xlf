@@ -321,6 +321,10 @@
         <source>notification.category.announcements</source>
         <target>Ankündigungen</target>
       </trans-unit>
+      <trans-unit id="NtfCatCommunityDe" resname="notification.category.community">
+        <source>notification.category.community</source>
+        <target>Community</target>
+      </trans-unit>
       <trans-unit id="Ntf162B4673" resname="notification.category.administration">
         <source>notification.category.administration</source>
         <target>Administration</target>
@@ -608,6 +612,18 @@
       <trans-unit id="NtfHarDeHospitalAssignmentOwnershipTransferredLabel" resname="hospital_assignment.ownership_transferred.label">
         <source>hospital_assignment.ownership_transferred.label</source>
         <target>Übertragungen meiner Kliniken</target>
+      </trans-unit>
+      <trans-unit id="NtfReactLabelDe" resname="content.reaction_received.label">
+        <source>content.reaction_received.label</source>
+        <target>Reaktionen auf meine Inhalte</target>
+      </trans-unit>
+      <trans-unit id="NtfReactTitleDe" resname="content.reaction_received.title">
+        <source>content.reaction_received.title</source>
+        <target>{count, plural, one {Neue Reaktion} other {# neue Reaktionen}}</target>
+      </trans-unit>
+      <trans-unit id="NtfReactMsgDe" resname="content.reaction_received.message">
+        <source>content.reaction_received.message</source>
+        <target>{targetType, select, post {Ihr Beitrag „{title}“ hat} comment {Ihr Kommentar zu „{title}“ hat} other {Ihr Eintrag in der Aktivitätsübersicht hat}} {count, plural, one {eine neue Reaktion} other {# neue Reaktionen}} erhalten: {breakdown}</target>
       </trans-unit>
       <trans-unit id="NtfPostAnnDe1" resname="announcement.post.label">
         <source>announcement.post.label</source>

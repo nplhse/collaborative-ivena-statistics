@@ -1237,6 +1237,10 @@
         <source>activity.hospital.empty_description</source>
         <target>Changes to access and ownership of this hospital and import milestones appear here.</target>
       </trans-unit>
+      <trans-unit id="reactNotifUnavailEn" resname="reaction.notification.unavailable">
+        <source>reaction.notification.unavailable</source>
+        <target>This content is no longer available.</target>
+      </trans-unit>
       <trans-unit id="reactTypeLike" resname="reaction.type.like">
         <source>reaction.type.like</source>
         <target>Like</target>
