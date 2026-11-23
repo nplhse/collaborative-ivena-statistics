@@ -255,11 +255,15 @@ final readonly class ImportAllocationsMessageHandler
         $this->exportPeriodDeriver->apply($fresh);
         $this->dataCoverageCalculator->apply($fresh);
 
-        $this->telemetry->startSpan('import.deduplicate');
-        $dedupResult = $this->deduplicationService->deduplicateForImport($fresh);
-        $this->telemetry->finishSpan();
-        $this->deduplicationService->applyDeduplicationStats($fresh, $dedupResult);
-        $summary = $this->deduplicationService->adjustSummary($summary, $dedupResult);
+        // A failing file must not replace rows of other imports. Deduplication keeps total and rejected, so it cannot
+        // change this decision.
+        if (!ImportEvaluation::fails($summary)) {
+            $this->telemetry->startSpan('import.deduplicate');
+            $dedupResult = $this->deduplicationService->deduplicateForImport($fresh);
+            $this->telemetry->finishSpan();
+            $this->deduplicationService->applyDeduplicationStats($fresh, $dedupResult);
+            $summary = $this->deduplicationService->adjustSummary($summary, $dedupResult);
+        }
 
         ImportEvaluation::apply($fresh, $summary, $runtimeMs);
 

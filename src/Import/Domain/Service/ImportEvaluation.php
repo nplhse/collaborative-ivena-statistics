@@ -13,9 +13,17 @@ final class ImportEvaluation
 
     public const float FAILED_MIN_RATIO = 0.35;
 
+    /**
+     * Whether a run with this summary ends as failed: an empty file or too many rejected rows.
+     */
+    public static function fails(ImportSummary $summary): bool
+    {
+        return 0 === $summary->total || $summary->rejectionRatio() >= self::FAILED_MIN_RATIO;
+    }
+
     public static function apply(Import $import, ImportSummary $summary, int $runtimeMs): void
     {
-        if (0 === $summary->total) {
+        if (self::fails($summary)) {
             $import->markAsFailed(
                 runtimeMs: $runtimeMs,
                 total: $summary->total,
@@ -26,25 +34,12 @@ final class ImportEvaluation
             return;
         }
 
-        $ratio = $summary->rejectionRatio();
-
-        if ($ratio < self::COMPLETE_MAX_RATIO) {
+        if ($summary->rejectionRatio() < self::COMPLETE_MAX_RATIO) {
             $import->markAsCompleted(
                 total: $summary->total,
                 ok: $summary->ok,
                 rejected: $summary->rejected,
                 runtimeMs: $runtimeMs,
-            );
-
-            return;
-        }
-
-        if ($ratio >= self::FAILED_MIN_RATIO) {
-            $import->markAsFailed(
-                runtimeMs: $runtimeMs,
-                total: $summary->total,
-                ok: $summary->ok,
-                rejected: $summary->rejected,
             );
 
             return;
