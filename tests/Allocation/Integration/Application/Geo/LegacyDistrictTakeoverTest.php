@@ -139,6 +139,57 @@ final class LegacyDistrictTakeoverTest extends KernelTestCase
         self::assertSame(['"South": a district has no geometry.'], $report->problems);
     }
 
+    public function testVerificationFailsOnAChangedGeometry(): void
+    {
+        $this->areas();
+        $this->takeover()->import();
+        $this->em()->getConnection()->executeStatement(
+            'UPDATE district_geometry SET geometry = ? WHERE district_id = ?',
+            [json_encode(self::NORTH), $this->district('06003')->getId()],
+        );
+
+        $report = $this->takeover()->verify();
+
+        self::assertSame(LegacyDistrictTakeoverOutcome::Failed, $report->outcome);
+        self::assertSame(['"South": the geometry differs from the reference.'], $report->problems);
+    }
+
+    public function testReportsADistrictWithoutAnAreaInTheTransferFile(): void
+    {
+        $this->areas();
+        $transfer = json_decode((string) file_get_contents($this->file), true, 32, \JSON_THROW_ON_ERROR);
+        $transfer['features'][] = $this->feature('06004', 'Unassigned', 2023, self::NORTH);
+        file_put_contents($this->file, json_encode($transfer, \JSON_THROW_ON_ERROR));
+
+        $report = $this->takeover()->import();
+
+        self::assertSame(['District 06004 belongs to no dispatch area in the transfer file.'], $report->problems);
+        self::assertSame(3, $report->created);
+    }
+
+    public function testADuplicateAreaNameWritesNothing(): void
+    {
+        $this->areas();
+        DispatchAreaFactory::createOne(['name' => 'North']);
+
+        $report = $this->takeover()->import();
+
+        self::assertSame(LegacyDistrictTakeoverOutcome::Failed, $report->outcome);
+        self::assertSame(['Dispatch area "North" exists more than once.'], $report->problems);
+        self::assertSame(0, $this->em()->getRepository(District::class)->count([]));
+    }
+
+    public function testAMissingTransferFileStopsTheTakeover(): void
+    {
+        $this->areas();
+        unlink($this->file);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Cannot read the transfer file');
+
+        $this->takeover()->import();
+    }
+
     public function testAPartialSetOfAreasWritesNothing(): void
     {
         DispatchAreaFactory::createOne(['name' => 'North']);

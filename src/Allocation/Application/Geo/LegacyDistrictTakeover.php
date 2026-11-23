@@ -253,7 +253,7 @@ final readonly class LegacyDistrictTakeover
      */
     private function readTransfer(): array
     {
-        $content = file_get_contents($this->transferFile);
+        $content = is_readable($this->transferFile) ? file_get_contents($this->transferFile) : false;
         if (false === $content) {
             throw new \RuntimeException(sprintf('Cannot read the transfer file "%s".', $this->transferFile));
         }
