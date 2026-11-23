@@ -3191,7 +3191,7 @@
       </trans-unit>
       <trans-unit id="statsPf20" resname="stats.case_flow.section.map">
         <source>stats.case_flow.section.map</source>
-        <target>Hesse dispatch area map</target>
+        <target>Dispatch area map</target>
       </trans-unit>
       <trans-unit id="statsPf21" resname="stats.case_flow.map.mode.label">
         <source>stats.case_flow.map.mode.label</source>

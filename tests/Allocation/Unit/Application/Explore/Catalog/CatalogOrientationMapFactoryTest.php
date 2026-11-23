@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Tests\Allocation\Unit\Application\Explore\Catalog;
 
+use App\Allocation\Application\Contracts\DispatchAreaGeoIndexInterface;
 use App\Allocation\Application\Contracts\HospitalIsochroneProviderInterface;
 use App\Allocation\Application\Contracts\HospitalLookupInterface;
 use App\Allocation\Application\Explore\Catalog\CatalogOrientationMapFactory;
+use App\Allocation\Application\Geo\DTO\DispatchAreaGeoSnapshot;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\SecondaryTransport;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class CatalogOrientationMapFactoryTest extends TestCase
@@ -34,15 +35,15 @@ final class CatalogOrientationMapFactoryTest extends TestCase
         ?HospitalIsochroneProviderInterface $isochroneProvider = null,
         ?HospitalLookupInterface $hospitalLookup = null,
     ): CatalogOrientationMapFactory {
-        $projectDir = \dirname(__DIR__, 6);
-        $configPath = $projectDir.'/config/case_flow/dispatch_area_geo_map.yaml';
-        $geoJsonPath = $projectDir.'/assets/geo/hessen-landkreise.geojson';
-        self::assertFileExists($configPath);
-        self::assertFileExists($geoJsonPath);
+        $index = $this->createStub(DispatchAreaGeoIndexInterface::class);
+        $index->method('snapshot')->willReturn(new DispatchAreaGeoSnapshot([
+            '1' => ['state' => 'Hessen', 'districts' => ['Kreisfreie Stadt Frankfurt am Main']],
+            '2' => ['state' => 'Hessen', 'districts' => ['Offenbach am Main', 'Offenbach']],
+            '3' => ['state' => 'Niedersachsen', 'districts' => ['Göttingen']],
+        ]));
 
         return new CatalogOrientationMapFactory(
-            $configPath,
-            $geoJsonPath,
+            $index,
             $isochroneProvider ?? $this->isochroneProvider,
             $hospitalLookup ?? $this->hospitalLookup,
         );
@@ -50,25 +51,24 @@ final class CatalogOrientationMapFactoryTest extends TestCase
 
     public function testDispatchAreaResolvesKnownHessenKey(): void
     {
-        $map = $this->factory->forDispatchArea('Frankfurt');
+        $map = $this->factory->forDispatchArea(1);
 
         self::assertTrue($map->enabled);
-        self::assertSame('frankfurt', $map->highlightKey);
+        self::assertSame('1', $map->highlightKey);
         self::assertFalse($map->showAllAreas);
     }
 
-    public function testDispatchAreaIsDisabledForUnknownName(): void
+    public function testDispatchAreaIsDisabledForAnUnknownId(): void
     {
-        $map = $this->factory->forDispatchArea('Unknown Area XYZ');
+        $map = $this->factory->forDispatchArea(99);
 
         self::assertFalse($map->enabled);
         self::assertNull($map->highlightKey);
     }
 
-    public function testDispatchAreaIsDisabledForEmptyName(): void
+    public function testDispatchAreaIsDisabledWithoutAnId(): void
     {
         self::assertFalse($this->factory->forDispatchArea(null)->enabled);
-        self::assertFalse($this->factory->forDispatchArea('   ')->enabled);
     }
 
     public function testStateEnablesFullHessenMap(): void
@@ -96,53 +96,9 @@ final class CatalogOrientationMapFactoryTest extends TestCase
         self::assertFalse($this->factory->forState('Nordrhein-Westfalen')->enabled);
     }
 
-    public function testNeighbouringDispatchAreasOutsideHessenHaveAShape(): void
+    public function testDispatchAreaIsDisabledWithoutACompleteShape(): void
     {
-        self::assertSame('goettingen', $this->factory->forDispatchArea('Göttingen')->highlightKey);
-        self::assertSame('eichsfeld', $this->factory->forDispatchArea('Eichsfeld')->highlightKey);
-        self::assertSame('bayerischer-untermain', $this->factory->forDispatchArea('Bayerischer Untermain')->highlightKey);
-    }
-
-    #[DataProvider('unreadableGeoJson')]
-    public function testUnreadableGeoJsonDisablesStateMapsButKeepsAreaKeys(?string $contents): void
-    {
-        $geoJsonPath = sys_get_temp_dir().'/orientation-map-'.bin2hex(random_bytes(4)).'.geojson';
-        if (null !== $contents) {
-            file_put_contents($geoJsonPath, $contents);
-        }
-
-        try {
-            $factory = new CatalogOrientationMapFactory(
-                \dirname(__DIR__, 6).'/config/case_flow/dispatch_area_geo_map.yaml',
-                $geoJsonPath,
-                $this->isochroneProvider,
-                $this->hospitalLookup,
-            );
-
-            self::assertFalse($factory->forState('Hessen')->enabled);
-            self::assertSame('frankfurt', $factory->forDispatchArea('Frankfurt')->highlightKey);
-        } finally {
-            if (is_file($geoJsonPath)) {
-                unlink($geoJsonPath);
-            }
-        }
-    }
-
-    /**
-     * @return iterable<string, array{string|null}>
-     */
-    public static function unreadableGeoJson(): iterable
-    {
-        yield 'missing file' => [null];
-        yield 'empty file' => [''];
-        yield 'invalid json' => ['{"type": '];
-        yield 'no feature list' => ['{"type": "FeatureCollection"}'];
-        yield 'feature without key' => ['{"features": [{"properties": {"state": "Hessen"}}]}'];
-    }
-
-    public function testDispatchAreaIsDisabledForUnmappedNames(): void
-    {
-        self::assertFalse($this->factory->forDispatchArea('Hamburg')->enabled);
+        self::assertFalse($this->factory->forDispatchArea(98)->enabled);
     }
 
     public function testStateIsDisabledForEmptyName(): void
@@ -153,10 +109,10 @@ final class CatalogOrientationMapFactoryTest extends TestCase
 
     public function testHospitalMapHighlightsDispatchAreaAndKeepsMarker(): void
     {
-        $map = $this->factory->forHospital('Frankfurt', 50.1109, 8.6821, 'Uni-Klinik');
+        $map = $this->factory->forHospital(1, 50.1109, 8.6821, 'Uni-Klinik');
 
         self::assertTrue($map->enabled);
-        self::assertSame('frankfurt', $map->highlightKey);
+        self::assertSame('1', $map->highlightKey);
         self::assertTrue($map->hasMarker());
         self::assertSame(50.1109, $map->markerLatitude);
         self::assertSame(8.6821, $map->markerLongitude);
@@ -167,17 +123,17 @@ final class CatalogOrientationMapFactoryTest extends TestCase
 
     public function testHospitalMapWithoutCoordinatesStillShowsArea(): void
     {
-        $map = $this->factory->forHospital('Frankfurt', null, null, 'Uni-Klinik');
+        $map = $this->factory->forHospital(1, null, null, 'Uni-Klinik');
 
         self::assertTrue($map->enabled);
-        self::assertSame('frankfurt', $map->highlightKey);
+        self::assertSame('1', $map->highlightKey);
         self::assertFalse($map->hasMarker());
         self::assertNull($map->markerLabel);
     }
 
     public function testHospitalMapIsDisabledForUnknownDispatchArea(): void
     {
-        $map = $this->factory->forHospital('Unknown Area XYZ', 50.1, 8.6, 'Klinik');
+        $map = $this->factory->forHospital(99, 50.1, 8.6, 'Klinik');
 
         self::assertFalse($map->enabled);
         self::assertFalse($map->hasMarker());
@@ -194,7 +150,7 @@ final class CatalogOrientationMapFactoryTest extends TestCase
         ));
 
         self::assertTrue($map->enabled);
-        self::assertSame('frankfurt', $map->highlightKey);
+        self::assertSame('1', $map->highlightKey);
         self::assertTrue($map->hasMarker());
         self::assertTrue($map->showRoute);
         self::assertSame(50.1109, $map->markerLatitude);
@@ -216,8 +172,8 @@ final class CatalogOrientationMapFactoryTest extends TestCase
         ));
 
         self::assertTrue($map->enabled);
-        self::assertSame('frankfurt', $map->highlightKey);
-        self::assertSame('offenbach', $map->destinationHighlightKey);
+        self::assertSame('1', $map->highlightKey);
+        self::assertSame('2', $map->destinationHighlightKey);
         self::assertTrue($map->showRoute);
         self::assertTrue($map->hasMarker());
     }
@@ -230,7 +186,7 @@ final class CatalogOrientationMapFactoryTest extends TestCase
         ));
 
         self::assertTrue($map->enabled);
-        self::assertSame('frankfurt', $map->highlightKey);
+        self::assertSame('1', $map->highlightKey);
         self::assertFalse($map->hasMarker());
         self::assertFalse($map->showRoute);
         self::assertNull($map->markerLabel);
@@ -259,7 +215,7 @@ final class CatalogOrientationMapFactoryTest extends TestCase
             ->setName('Klinik')
             ->setLatitude(50.1)
             ->setLongitude(8.6);
-        $originOnly = new Allocation()->setDispatchArea(new DispatchArea()->setName('Frankfurt'));
+        $originOnly = new Allocation()->setDispatchArea($this->area('Frankfurt'));
         $hospitalOnly = new Allocation()->setHospital($hospital);
 
         self::assertFalse($this->factory->forAllocation($originOnly)->enabled);
@@ -276,7 +232,7 @@ final class CatalogOrientationMapFactoryTest extends TestCase
         ));
 
         self::assertTrue($map->enabled);
-        self::assertSame('frankfurt', $map->highlightKey);
+        self::assertSame('1', $map->highlightKey);
         self::assertTrue($map->showRoute);
         self::assertTrue($map->hasMarker());
         self::assertFalse($map->hasDestinationHighlight());
@@ -372,7 +328,7 @@ final class CatalogOrientationMapFactoryTest extends TestCase
 
     public function testAllocationMapAddsOtherHospitalsInOriginAreaForSecondaryTransport(): void
     {
-        $origin = new DispatchArea()->setName('Frankfurt');
+        $origin = $this->area('Frankfurt');
         $destination = new Hospital()
             ->setName('Zielklinik')
             ->setDispatchArea($origin)
@@ -432,10 +388,10 @@ final class CatalogOrientationMapFactoryTest extends TestCase
         ?\DateTimeImmutable $arrivalAt = null,
         ?SecondaryTransport $secondaryTransport = null,
     ): Allocation {
-        $origin = new DispatchArea()->setName($originName);
+        $origin = $this->area($originName);
         $hospitalArea = $originName === $hospitalAreaName
             ? $origin
-            : new DispatchArea()->setName($hospitalAreaName);
+            : $this->area($hospitalAreaName);
 
         $hospital = new Hospital()
             ->setName($hospitalName)
@@ -460,5 +416,13 @@ final class CatalogOrientationMapFactoryTest extends TestCase
         }
 
         return $allocation;
+    }
+
+    private function area(string $name): DispatchArea
+    {
+        $area = new DispatchArea()->setName($name);
+        new \ReflectionProperty(DispatchArea::class, 'id')->setValue($area, ['Frankfurt' => 1, 'Offenbach' => 2][$name] ?? 99);
+
+        return $area;
     }
 }

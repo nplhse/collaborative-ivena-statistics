@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
+use App\Allocation\Application\Geo\DTO\DispatchAreaGeoSnapshot;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
@@ -17,7 +18,6 @@ use App\Statistics\Application\IsochroneOriginMap\IsochroneOriginHeatmapAssemble
 use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
-use App\Statistics\CaseFlow\Application\CaseFlowGeoKeyResolver;
 use App\Statistics\CaseFlow\Application\CaseFlowPrivacySuppressor;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowMode;
 use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowDispatchAreaMatch;
@@ -43,7 +43,6 @@ final class IsochroneOriginHeatmapController extends AbstractController
         private readonly InsightDimensionRegistry $insightDimensionRegistry,
         private readonly CaseFlowOriginDistributionQuery $originDistributionQuery,
         private readonly CaseFlowPrivacySuppressor $privacySuppressor,
-        private readonly CaseFlowGeoKeyResolver $geoKeyResolver,
         private readonly GeographicMapPayloadBuilder $geographicMapPayloadBuilder,
     ) {
     }
@@ -168,7 +167,7 @@ final class IsochroneOriginHeatmapController extends AbstractController
             $this->privacySuppressor->buildMapFeatures(
                 $originRows,
                 $originTotal,
-                fn (int $dispatchAreaId, string $name): string => $this->geoKeyResolver->resolve($dispatchAreaId, $name),
+                static fn (int $dispatchAreaId): string => DispatchAreaGeoSnapshot::keyFor($dispatchAreaId),
             ),
             [],
             $heatmap,

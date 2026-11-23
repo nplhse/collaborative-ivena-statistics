@@ -8,7 +8,7 @@ import {
     prepareMapContainer,
     scheduleInvalidateSize,
 } from '../js/geo-map/createMap.js';
-import { loadGeoJson } from '../js/geo-map/loadGeoJson.js';
+import { addBoundaryAttributions, loadGeoJson } from '../js/geo-map/loadGeoJson.js';
 import { hospitalPinIcon } from '../js/geo-map/hospitalPin.js';
 import { isNeighbourArea, NEIGHBOUR_AREA_DASH } from '../js/geo-map/choropleth.js';
 
@@ -69,13 +69,14 @@ export default class extends Controller {
                 onEachFeature: (feature, layer) => this.bindFeatureTooltip(feature, layer),
             }).addTo(this.map);
 
+            addBoundaryAttributions(this.map, geojson);
             this.renderMarkers();
 
             const focusBounds = this.focusBounds();
             if (focusBounds?.isValid()) {
                 this.map.fitBounds(focusBounds, { padding: [16, 16] });
             } else {
-                this.map.setView([50.55, 9.0], 8);
+                this.map.setView([51.1, 10.4], 6);
             }
 
             this.scheduleInvalidateSize();
@@ -84,7 +85,7 @@ export default class extends Controller {
         }
     }
 
-    /** Hessian areas and participating hospitals; neighbouring areas and reference pins do not widen the view. */
+    /** Areas with hospitals and participating hospitals; neighbouring areas and reference pins do not widen the view. */
     focusBounds() {
         const bounds = L.latLngBounds([]);
         this.geoLayer.eachLayer((layer) => {

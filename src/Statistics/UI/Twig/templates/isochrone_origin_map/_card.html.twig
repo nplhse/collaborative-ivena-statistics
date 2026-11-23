@@ -3,7 +3,7 @@
 {{ include('@Statistics/geographic_map/_map.html.twig', {
     payload: mapPayload,
     testId: 'stats-isochrone-origin-map',
-    geoUrl: showOriginLayers ? asset('geo/hessen-landkreise.geojson') : null,
+    geoUrl: showOriginLayers ? path('app_stats_geo_dispatch_areas') : null,
     showValueModes: showOriginLayers,
     showExpand: true,
     showIsochroneLegend: true,

@@ -44,7 +44,7 @@ Stimulus controllers:
 - `hospital-population-map_controller.js` (Participation)
 - `hospital-population-regional-table_controller.js` (Participation)
 
-Geo keys shared with Case Flow via `CaseFlowGeoKeyResolver`.
+Map keys are dispatch area ids, shared with Case Flow; the shapes come from `GET /statistics/geo/dispatch-areas.geojson` (ADR 041).
 
 ## Related
 
