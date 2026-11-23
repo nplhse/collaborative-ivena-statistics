@@ -108,11 +108,13 @@ Each active hospital gets one import per month. The number of allocations per da
 
 ## Reference data
 
-`ReferenceCatalogFixture` builds the synthetic catalog with `SyntheticReferenceCatalogBuilder` (seed 740, 60 hospitals) and loads it through the same validation and import as a real package (`app:reference:validate`, `app:reference:import`):
+`ReferenceCatalogFixture` builds the synthetic catalog with `SyntheticReferenceCatalogBuilder` (catalog seed 1269, 60 hospitals) and loads it through the same validation and import as a real package (`app:reference:validate`, `app:reference:import`):
 
-- Hesse with exactly the 24 dispatch areas the maps know and their 26 official districts (Kassel and Offenbach have two each; geometries follow with the demo data of #1406); hospitals have addresses and coordinates inside their district.
+- Hesse with exactly the 24 dispatch areas the maps know and their 26 official districts (Kassel and Offenbach have two each). Fixtures store coarse shapes from `resources/geo/demo-districts.geojson` in the database (provider `demo`), without a network call; hospitals have addresses and coordinates inside their district.
 - The 208 official PZC indications with their official wording; raw labels are the official wording, generated variants (abbreviation, typo) and a few unmapped labels.
 - Departments and specialities with generated aliases, lookups and a few indication groups.
+
+Hospital coordinates take exactly one value from Faker, so a change of the demo shapes does not reshuffle later hospitals. The catalog seed keeps the size and care-tier mix of the participating hospitals that the presets were tuned on; a demo built before #1406 has other hospitals and is rebuilt once.
 
 The same seed gives the same package byte for byte (UUIDv5 ids). Participation is not part of the catalog: `HospitalParticipationFixture` makes every third hospital participate and gives the demo user `foo` one of the active hospitals of the profile.
 

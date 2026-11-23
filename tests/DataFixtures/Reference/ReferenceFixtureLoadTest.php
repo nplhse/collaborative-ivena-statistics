@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\DataFixtures\Reference;
 
+use App\Allocation\Application\Geo\DistrictGeometryValidator;
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogPackageWriter;
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogType;
+use App\Allocation\Infrastructure\Query\DispatchAreaShapeStatusQuery;
 use App\DataFixtures\Reference\SyntheticReferenceCatalogBuilder;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
@@ -64,6 +66,22 @@ final class ReferenceFixtureLoadTest extends KernelTestCase
              WHERE r.id IS NULL',
         );
         self::assertSame(0, $unlinked, 'Every normalized indication must have a linked raw row.');
+
+        $geometries = $connection->fetchAllAssociative('SELECT geometry, geometry_provider, geometry_attribution FROM district_geometry');
+        self::assertCount(26, $geometries);
+        foreach ($geometries as $row) {
+            self::assertSame('demo', $row['geometry_provider']);
+            self::assertSame('© BKG (2023) dl-de/by-2-0 (Daten verändert)', $row['geometry_attribution']);
+            self::assertTrue(DistrictGeometryValidator::isUsable((array) json_decode((string) $row['geometry'], true, 512, \JSON_THROW_ON_ERROR)));
+        }
+
+        /** @var DispatchAreaShapeStatusQuery $shapeStatus */
+        $shapeStatus = $container->get(DispatchAreaShapeStatusQuery::class);
+        $statuses = $shapeStatus->all();
+        self::assertCount(24, $statuses);
+        foreach ($statuses as $status) {
+            self::assertTrue($status->hasShape(), $status->name);
+        }
     }
 
     /**

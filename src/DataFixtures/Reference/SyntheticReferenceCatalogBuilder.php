@@ -50,7 +50,8 @@ use Symfony\Component\Uid\Uuid;
  */
 final readonly class SyntheticReferenceCatalogBuilder
 {
-    public const int DEFAULT_SEED = 740;
+    /** Chosen so that the participating hospitals keep the size and care-tier mix the presets were tuned on (#1406). */
+    public const int DEFAULT_SEED = 1269;
 
     public const int DEFAULT_HOSPITALS = 60;
 
