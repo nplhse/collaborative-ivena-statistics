@@ -8,6 +8,7 @@
             {{ include('@Content/dashboard/_activity_items.html.twig', {
                 activities: page.items,
                 previews: previews|default({}),
+                show_reactions: true,
             }) }}
         </div>
     {% endif %}

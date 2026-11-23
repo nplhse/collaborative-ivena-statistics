@@ -139,6 +139,7 @@ final readonly class UserProfileActivityQuery
             postTitle: $this->stringMetadata($metadata, 'title') ?? $this->stringMetadata($metadata, 'postTitle'),
             postSlug: $this->stringMetadata($metadata, 'slug') ?? $this->stringMetadata($metadata, 'postSlug'),
             excerpt: $this->stringMetadata($metadata, 'excerpt'),
+            id: $id,
         );
     }
 

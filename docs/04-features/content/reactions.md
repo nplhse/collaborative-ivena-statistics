@@ -34,9 +34,9 @@ lightweight feedback, not a vote: there is no negative reaction, no score and no
 |---|---|---|
 | Blog post | `blog/show.html.twig`, below the content | everyone, while the post is published |
 | Comment and reply | `blog/_comment.html.twig`, below the text | everyone, while the post is published |
-| Activity | `dashboard/_activity_items.html.twig` with `show_reactions: true` (`/activity` and the hospital feed) | signed-in users; not for disabled actors or announcements of posts not yet published |
+| Activity | `dashboard/_activity_items.html.twig` with `show_reactions: true` (dashboard, `/activity` and the hospital feed), `explore/users/_activity_items.html.twig` (user profile) | signed-in users; not for disabled actors or announcements of posts not yet published |
 
-The dashboard preview (five items) has no bar, to stay compact.
+In activity entries the bar shares a row with the relative time (`.activity-meta`), below the name and the action.
 
 ## Lazy loading
 
