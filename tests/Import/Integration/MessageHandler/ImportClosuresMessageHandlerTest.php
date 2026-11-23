@@ -206,6 +206,25 @@ final class ImportClosuresMessageHandlerTest extends DatabaseKernelTestCase
         self::assertCount(0, $this->em->getRepository(ClosureInterval::class)->findBy(['import' => $id]), 'The earlier run\'s intervals were cleaned up.');
     }
 
+    public function testRunAboveTheRejectionLimitDiscardsItsIntervalsAndKeepsTheRejects(): void
+    {
+        ['id' => $id, 'path' => $path] = $this->arrangeRunnableImport();
+        // 1 valid + 1 rejected row (unknown department): 50 % rejected.
+        \file_put_contents($path, "Closure Handler Hospital;Innere Medizin;Unbekannt;Notfallversorgung;02.01.2026;08:00:00;30;02.01.2026;08:30:00;Überlastung der Notaufnahme;02.01.2026 08:05:00;02.01.2026 08:05:00;Klinik\n", \FILE_APPEND);
+        $run = self::getContainer()->get(ImportRunLifecycle::class)->register($id, ImportRunTrigger::Console);
+
+        $this->handler->__invoke(new ImportClosuresMessage($id, $run->getId()->toRfc4122()));
+
+        $this->em->clear();
+        $import = $this->imports->find($id);
+        self::assertInstanceOf(Import::class, $import);
+        self::assertSame(ImportStatus::FAILED, $import->getStatus());
+        self::assertSame(2, $import->getRowCount());
+        self::assertSame(1, $import->getRowsRejected());
+        self::assertCount(0, $this->em->getRepository(ClosureInterval::class)->findBy(['import' => $id]));
+        self::assertSame(1, (int) $this->em->getConnection()->fetchOne('SELECT COUNT(*) FROM import_reject WHERE import_id = ?', [$id]));
+    }
+
     public function testRetryableErrorIsRethrownAndLeavesTheRunOpen(): void
     {
         ['id' => $id] = $this->arrangeRunnableImport();

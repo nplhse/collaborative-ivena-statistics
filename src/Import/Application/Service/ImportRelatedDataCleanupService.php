@@ -7,9 +7,11 @@ namespace App\Import\Application\Service;
 use App\Allocation\Infrastructure\Repository\AllocationRepository;
 use App\Allocation\Infrastructure\Repository\ClosureIntervalRepository;
 use App\Allocation\Infrastructure\Repository\MciCaseRepository;
+use App\Import\Application\Contracts\FailedImportRunDataRemoverInterface;
 use App\Import\Application\Contracts\ImportDataRemoverInterface;
 use App\Import\Application\DTO\ImportDataRemoval;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Repository\ImportRejectRepository;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\Statistics\Application\Contract\ClosureRebuildRequestInterface;
@@ -22,7 +24,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 
-final readonly class ImportRelatedDataCleanupService
+final readonly class ImportRelatedDataCleanupService implements FailedImportRunDataRemoverInterface
 {
     public function __construct(
         private EntityManagerInterface $em,
@@ -58,12 +60,12 @@ final readonly class ImportRelatedDataCleanupService
      * Deletes the import's result rows in one transaction, or as part of the caller's transaction.
      * Call completeRemoval() after that transaction has committed.
      */
-    public function removeRows(Import $import): ImportDataRemoval
+    public function removeRows(Import $import, bool $keepRejects = false): ImportDataRemoval
     {
         $importId = (int) $import->getId();
         $needsMaterializedViewRefresh = $this->projectionOverviewChangeDetector->willRemoveHospitalsFromProjection($importId);
 
-        [$counts, $contributedCounts] = $this->em->wrapInTransaction(function () use ($import, $importId): array {
+        [$counts, $contributedCounts] = $this->em->wrapInTransaction(function () use ($import, $importId, $keepRejects): array {
             $assessmentIds = $this->collectAssessmentIdsForImport($importId);
 
             // Data of other contexts first: it may reference the import's own rows.
@@ -74,7 +76,7 @@ final readonly class ImportRelatedDataCleanupService
 
             return [[
                 'projection' => $this->statsProjectionRebuilder->deleteForImport($importId),
-                'rejects' => $this->importRejectRepository->deleteByImport($import),
+                'rejects' => $keepRejects ? 0 : $this->importRejectRepository->deleteByImport($import),
                 'allocations' => $this->allocationRepository->deleteByImport($import),
                 'closure_intervals' => $this->closureIntervalRepository->deleteByImport($import),
                 'assessments' => $this->deleteAssessmentsByIds($assessmentIds),
@@ -83,6 +85,33 @@ final readonly class ImportRelatedDataCleanupService
         });
 
         return new ImportDataRemoval($counts, $needsMaterializedViewRefresh, $contributedCounts);
+    }
+
+    #[\Override]
+    public function removeRowsOfFailedRun(Import $import): ImportDataRemoval
+    {
+        return $this->removeRows($import, keepRejects: true);
+    }
+
+    #[\Override]
+    public function completeFailedRunRemoval(Import $import, ImportDataRemoval $removal, bool $previousRunRemoved): void
+    {
+        $this->completeRemoval($import, $removal, true);
+
+        // The rows of the earlier run left before this run started, so the removal above may have counted nothing.
+        if (!$previousRunRemoved || $removal->counts['closure_intervals'] > 0 || $removal->counts['allocations'] > 0) {
+            return;
+        }
+
+        $hospitalId = $import->getHospital()?->getId();
+        $hospitalId = \is_int($hospitalId) ? $hospitalId : null;
+        if (ImportType::CLOSURE === $import->getType()) {
+            $this->closureRebuildScheduler->requestAnalysis($hospitalId, $import->getExportStartsAt(), $import->getExportEndsAt());
+
+            return;
+        }
+
+        $this->closureRebuildScheduler->requestVolume($hospitalId, $import->getExportStartsAt(), $import->getExportEndsAt());
     }
 
     /**

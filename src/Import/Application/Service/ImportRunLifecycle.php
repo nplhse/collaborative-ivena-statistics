@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Import\Application\Service;
 
+use App\Import\Application\Contracts\FailedImportRunDataRemoverInterface;
+use App\Import\Application\DTO\ImportDataRemoval;
 use App\Import\Application\DTO\ImportRunContext;
 use App\Import\Application\DTO\ImportRunOutcome;
 use App\Import\Application\Event\ImportCompleted;
@@ -17,6 +19,7 @@ use App\Import\Domain\Enum\ImportRunReasonCode;
 use App\Import\Domain\Enum\ImportRunStatus;
 use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
+use App\Import\Domain\Enum\ImportType;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\User\Domain\Entity\User;
@@ -50,6 +53,7 @@ final readonly class ImportRunLifecycle
         private ImportMilestoneRecorder $milestoneRecorder,
         private ImportBatchCompletion $batchCompletion,
         private ClockInterface $clock,
+        private FailedImportRunDataRemoverInterface $failedRunDataRemover,
     ) {
     }
 
@@ -278,6 +282,13 @@ final readonly class ImportRunLifecycle
 
             // The row is locked now; work on its committed state, not on a stale copy in the identity map.
             $em->refresh($import);
+
+            // An import is Running only after the rows of its previous run were removed, so all its rows are this
+            // run's. Otherwise (for example the file is missing on a reprocess) they belong to the last successful run.
+            $ownsRows = ImportStatus::RUNNING === $import->getStatus()
+                && \in_array($import->getType(), [ImportType::ALLOCATION, ImportType::CLOSURE], true);
+            $previousRunRemoved = $ownsRows && $import->hasRunBefore();
+
             $outcome = $evaluate($import);
 
             $now = $this->clock->now();
@@ -301,6 +312,10 @@ final readonly class ImportRunLifecycle
 
             $this->flushWithIntent($em, $auditIntent, $context->importId, $context->runId, $auditMetadata);
 
+            $removal = $ownsRows && ImportRunStatus::Failed === $outcome->status
+                ? $this->failedRunDataRemover->removeRowsOfFailedRun($import)
+                : null;
+
             $batchRunId = $batchRunItem?->getRun()?->getId();
             if (null !== $batchRunId) {
                 $this->batchCompletion->completeIfFinished($connection, $batchRunId, $now);
@@ -315,12 +330,33 @@ final readonly class ImportRunLifecycle
             throw $e;
         }
 
+        if ($removal instanceof ImportDataRemoval) {
+            $this->completeFailedRunRemoval($context, $import, $removal, $previousRunRemoved);
+        }
+
         $this->dispatchOutcome($context, $outcome);
         if (null !== $milestoneId) {
             $this->dispatcher->dispatch(new ImportMilestoneReached($milestoneId));
         }
 
         return $outcome;
+    }
+
+    /**
+     * The run has ended and its rows are gone. A failing follow-up must not turn that into a run error.
+     */
+    private function completeFailedRunRemoval(ImportRunContext $context, Import $import, ImportDataRemoval $removal, bool $previousRunRemoved): void
+    {
+        try {
+            $this->failedRunDataRemover->completeFailedRunRemoval($import, $removal, $previousRunRemoved);
+        } catch (\Throwable $e) {
+            $this->importLogger->critical('import.run.failed_run_follow_up_failed', [
+                'id' => $context->importId,
+                'run_id' => $context->runId->toRfc4122(),
+                'ex' => $e::class,
+                'msg' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**

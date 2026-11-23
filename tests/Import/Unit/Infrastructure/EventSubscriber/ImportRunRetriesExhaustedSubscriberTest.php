@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Unit\Infrastructure\EventSubscriber;
 
+use App\Import\Application\Contracts\FailedImportRunDataRemoverInterface;
 use App\Import\Application\Contracts\ImportBatchSummaryPublisherInterface;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Service\ImportBatchCompletion;
@@ -66,7 +67,7 @@ final class ImportRunRetriesExhaustedSubscriberTest extends TestCase
     private function subscriber(ManagerRegistry $registry, LoggerInterface $logger): ImportRunRetriesExhaustedSubscriber
     {
         return new ImportRunRetriesExhaustedSubscriber(
-            new ImportRunLifecycle($registry, new EventDispatcher(), new AuditContext(), $logger, new ImportMilestoneRecorder(), new ImportBatchCompletion($this->createStub(Connection::class), $this->createStub(ImportBatchSummaryPublisherInterface::class), $logger, new NativeClock()), new NativeClock()),
+            new ImportRunLifecycle($registry, new EventDispatcher(), new AuditContext(), $logger, new ImportMilestoneRecorder(), new ImportBatchCompletion($this->createStub(Connection::class), $this->createStub(ImportBatchSummaryPublisherInterface::class), $logger, new NativeClock()), new NativeClock(), $this->createStub(FailedImportRunDataRemoverInterface::class)),
             $logger,
             new ImportRunTelemetry(
                 new JobRunRecorder($this->createStub(Connection::class), new MockClock(), $logger),
