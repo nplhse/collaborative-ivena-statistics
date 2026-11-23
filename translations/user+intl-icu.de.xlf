@@ -111,11 +111,11 @@
       </trans-unit>
       <trans-unit id="EmlWlcExpDDe" resname="email.welcome.next_steps.explore.description">
         <source>email.welcome.next_steps.explore.description</source>
-        <target>Erkunden Sie Zuweisungen und Stammdaten im Data Catalog.</target>
+        <target>Erkunden Sie Zuweisungen und Stammdaten.</target>
       </trans-unit>
       <trans-unit id="EmlWlcExpTDe" resname="email.welcome.next_steps.explore.title">
         <source>email.welcome.next_steps.explore.title</source>
-        <target>Datenkatalog öffnen</target>
+        <target>Daten erkunden</target>
       </trans-unit>
       <trans-unit id="EmlWlcHospADDe" resname="email.welcome.next_steps.hospitals.all.description">
         <source>email.welcome.next_steps.hospitals.all.description</source>
