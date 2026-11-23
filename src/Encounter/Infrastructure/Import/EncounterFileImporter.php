@@ -21,9 +21,11 @@ use App\Encounter\Contract\Import\SchemaWriteResult;
 use App\Encounter\Domain\Entity\EncounterImport;
 use App\Encounter\Domain\Enum\EncounterFileRejection;
 use App\Encounter\Infrastructure\Repository\EncounterKeyStateRepository;
+use App\Import\Application\DTO\ImportSummary;
 use App\Import\Application\Service\ImportRunCommitGuard;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportReject;
+use App\Import\Domain\Service\ImportEvaluation;
 use App\Import\Domain\ValueObject\ImportDataCoverage;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
@@ -37,6 +39,7 @@ use Psr\Clock\ClockInterface;
  * 2. Read and validate the whole file; a file-level finding throws EncounterFileRejectedException and
  *    nothing is written.
  * 3. Map every row through the handler; invalid rows become rejects, rows the schema skips are counted.
+ *    A file that fails the rejection limit writes no records (#1551).
  * 4. Write everything in one guarded commit: lock the hospital's key state, check the key generation
  *    stored on the import (mismatch throws EncounterKeyGenerationChangedException), check or register
  *    the key check value, let the handler write its records, record row rejects. A failure rolls the
@@ -75,10 +78,6 @@ final readonly class EncounterFileImporter
         $file = $this->reader->read($content);
         unset($content);
         [$manifest, $fields] = $this->validator->validate($file, $encounterImport->getSchema());
-        // Reset in memory only: the new counters are written with the new data, so a failed run keeps the report of
-        // the last successful one (#1300).
-        $encounterImport->resetForRun();
-        $encounterImport->recordManifest($manifest->schemaVersion, $manifest->profile, $manifest->profileVersion, $manifest->toolVersion);
 
         /** @var list<EncounterRecordRow> $valid */
         $valid = [];
@@ -98,6 +97,31 @@ final readonly class EncounterFileImporter
             }
         }
 
+        // A failing file writes no records and registers no key check value (#1551). On a reprocess the last successful
+        // run stays complete; a first run keeps its rejects so the failure can be analysed.
+        $total = \count($file->rows);
+        $fails = ImportEvaluation::fails(new ImportSummary($total, $total - \count($rejects), \count($rejects)));
+        if ($fails && $reprocess) {
+            return $this->failedResult($total, $skipped, \count($rejects), true);
+        }
+
+        // Reset in memory only: the new counters are written with the new data, so a failed run keeps the report of
+        // the last successful one (#1300).
+        $encounterImport->resetForRun();
+        $encounterImport->recordManifest($manifest->schemaVersion, $manifest->profile, $manifest->profileVersion, $manifest->toolVersion);
+
+        if ($fails) {
+            $this->entityManager->getConnection()->transactional(fn () => $this->commitGuard->transactional(
+                $this->entityManager,
+                function () use ($import, $manifest, $rejects): void {
+                    $this->persistRejects((int) $import->getId(), $manifest, $rejects);
+                    $this->entityManager->flush();
+                },
+            ));
+
+            return $this->failedResult($total, $skipped, \count($rejects), false);
+        }
+
         // One transaction also without an active run (the guard then runs the work as it is): the hospital lock and
         // the replacement of a previous run need it.
         $written = $this->entityManager->getConnection()->transactional(fn (): SchemaWriteResult => $this->commitGuard->transactional(
@@ -106,7 +130,7 @@ final readonly class EncounterFileImporter
         ));
 
         return new EncounterImportResult(
-            total: \count($file->rows),
+            total: $total,
             inserted: $written->inserted,
             duplicates: \count($valid) - $written->inserted,
             skipped: $skipped,
@@ -115,6 +139,21 @@ final readonly class EncounterFileImporter
             coverage: $this->coverage($valid),
             insertedDays: $written->insertedDays,
             assignments: $written->assignments,
+        );
+    }
+
+    private function failedResult(int $total, int $skipped, int $rejected, bool $keepsLastRun): EncounterImportResult
+    {
+        return new EncounterImportResult(
+            total: $total,
+            inserted: 0,
+            duplicates: 0,
+            skipped: $skipped,
+            rejected: $rejected,
+            suspectedDuplicates: 0,
+            coverage: ImportDataCoverage::empty(),
+            insertedDays: [],
+            keepsLastRun: $keepsLastRun,
         );
     }
 
@@ -180,6 +219,17 @@ final readonly class EncounterFileImporter
             $written = $handler->write($context, $valid);
         }
 
+        $this->persistRejects($importId, $manifest, $rejects);
+        $this->entityManager->flush();
+
+        return $written;
+    }
+
+    /**
+     * @param array<int, non-empty-list<RowError>> $rejects
+     */
+    private function persistRejects(int $importId, EncounterManifest $manifest, array $rejects): void
+    {
         /** @var Import $importReference */
         $importReference = $this->entityManager->getReference(Import::class, $importId);
         foreach ($rejects as $line => $errors) {
@@ -191,10 +241,6 @@ final readonly class EncounterFileImporter
             $reject->setRow(['profile' => $manifest->profile, 'profile_version' => $manifest->profileVersion]);
             $this->entityManager->persist($reject);
         }
-
-        $this->entityManager->flush();
-
-        return $written;
     }
 
     /**
