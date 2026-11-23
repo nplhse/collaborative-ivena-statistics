@@ -171,6 +171,22 @@ final class ReactionNotificationsTest extends DatabaseKernelTestCase
         self::assertSame(0, $this->unreadCount($owner));
     }
 
+    public function testRemovingAReactionFromAReadGroupKeepsTheReadEntry(): void
+    {
+        $owner = UserFactory::createOne();
+        $reactor = UserFactory::createOne();
+        $target = $this->postOf($owner, 'Post');
+        $this->react($reactor, $target, ReactionType::Like);
+        $this->markAllRead($owner);
+
+        $this->react($reactor, $target, ReactionType::Like);
+
+        $entries = $this->entries($owner);
+        self::assertCount(1, $entries);
+        self::assertSame(1, $entries[0]['parameters']['count']);
+        self::assertSame(0, $this->unreadCount($owner));
+    }
+
     public function testADeletedReadEntryDoesNotBringBackTheLifetimeTotal(): void
     {
         $owner = UserFactory::createOne();
