@@ -54,7 +54,7 @@ final readonly class AllocationNavigationProvider implements NavigationProviderI
         return match ($menu) {
             Menu::Primary => $this->primaryItems(),
             Menu::Explore => $this->sidebarItems(),
-            Menu::Footer => $this->referenceItems(),
+            Menu::Footer => [...$this->referenceItems(), $this->dataSourcesItem()],
             default => [],
         };
     }
@@ -129,6 +129,20 @@ final readonly class AllocationNavigationProvider implements NavigationProviderI
             $this->entry('glossary', Menu::FOOTER_GROUP_HELP, 'link.glossary', 'app_help_glossary_index', 'tabler:book', 20, $this->glossaryRoutes()),
             $this->entry('data-catalog', Menu::FOOTER_GROUP_HELP, 'link.data_catalog', 'app_help_data_catalog_index', 'tabler:database', 30, ['app_help_data_catalog_show']),
         ];
+    }
+
+    /**
+     * Public, in the legal column after the CMS pages (#1516).
+     */
+    private function dataSourcesItem(): NavItem
+    {
+        return new NavItem(
+            id: 'data-sources',
+            parentId: Menu::FOOTER_GROUP_LEGAL,
+            label: $this->label('link.data_sources'),
+            route: 'app_data_sources',
+            weight: 40,
+        );
     }
 
     /**

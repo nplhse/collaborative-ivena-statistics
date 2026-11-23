@@ -2977,6 +2977,50 @@
         <source>hospital_assignment_request.refused.invalid_permissions</source>
         <target>Choose at least the permission to view the hospital.</target>
       </trans-unit>
+      <trans-unit id="dataSourcestitleEn" resname="data_sources.title">
+        <source>data_sources.title</source>
+        <target>Data sources and licences</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesintroEn" resname="data_sources.intro">
+        <source>data_sources.intro</source>
+        <target>This installation uses the following geographic data sources. This page lists their use, licence and required source note.</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesfielduseEn" resname="data_sources.field.use">
+        <source>data_sources.field.use</source>
+        <target>Used for</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesfieldlicenceEn" resname="data_sources.field.licence">
+        <source>data_sources.field.licence</source>
+        <target>Licence</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesfieldattributionEn" resname="data_sources.field.attribution">
+        <source>data_sources.field.attribution</source>
+        <target>Source note</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesuseboundariesEn" resname="data_sources.use.boundaries">
+        <source>data_sources.use.boundaries</source>
+        <target>District boundaries</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesusegeocodingEn" resname="data_sources.use.geocoding">
+        <source>data_sources.use.geocoding</source>
+        <target>Geocoding of hospital addresses</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesuseisochronesEn" resname="data_sources.use.isochrones">
+        <source>data_sources.use.isochrones</source>
+        <target>Travel-time isochrones</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesusetilesEn" resname="data_sources.use.tiles">
+        <source>data_sources.use.tiles</source>
+        <target>Map background</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesconfigured_tilesEn" resname="data_sources.configured_tiles">
+        <source>data_sources.configured_tiles</source>
+        <target>Configured map service</target>
+      </trans-unit>
+      <trans-unit id="dataSourceslicence_of_providerEn" resname="data_sources.licence_of_provider">
+        <source>data_sources.licence_of_provider</source>
+        <target>See the provider's source note</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
