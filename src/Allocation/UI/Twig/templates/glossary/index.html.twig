@@ -2,21 +2,12 @@
 
 {% block title %}{{ 'title.glossary.index'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
 
-{% block header %}
-    {% embed '@Shared/_embeds/header.html.twig' %}
-        {% block header_after %}
-            <twig:Navigation:Sidebar menu="explore" />
-        {% endblock %}
-    {% endembed %}
-{% endblock %}
-
 {% block page_header %}
     <div class="container-xl">
         <twig:Breadcrumbs
-            :items="[
-                    { label: 'link.explore', path: path('app_explore_index') },
+            :items="help_breadcrumbs()|merge([
                     { label: 'title.glossary.index' }
-                ]"
+                ])"
         />
 
         <div class="page-header d-print-none">
@@ -37,7 +28,7 @@
         <div class="row g-3" data-testid="glossary-index">
             {% for entry in entries %}
                 <div class="col-12 col-md-6">
-                    <a href="{{ path('app_explore_glossary_show', {slug: entry.slug.value}) }}" class="card card-link" data-testid="glossary-entry">
+                    <a href="{{ path('app_help_glossary_show', {slug: entry.slug.value}) }}" class="card card-link" data-testid="glossary-entry">
                         <div class="card-body d-flex align-items-start gap-3">
                             <span class="text-primary">
                                 <twig:ux:icon name="{{ entry.icon }}" width="2.5em" height="2.5em" />

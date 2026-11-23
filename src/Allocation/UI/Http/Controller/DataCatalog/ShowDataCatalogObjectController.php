@@ -16,7 +16,7 @@ final class ShowDataCatalogObjectController extends AbstractController
     {
     }
 
-    #[Route('/explore/data-catalog/{objectKey}', name: 'app_explore_data_catalog_show', requirements: ['objectKey' => '[a-z][a-z0-9_]*'], methods: ['GET'])]
+    #[Route('/help/data-catalog/{objectKey}', name: 'app_help_data_catalog_show', requirements: ['objectKey' => '[a-z][a-z0-9_]*'], methods: ['GET'])]
     public function __invoke(string $objectKey): Response
     {
         $object = $this->dataCatalog->visibleObject($objectKey);

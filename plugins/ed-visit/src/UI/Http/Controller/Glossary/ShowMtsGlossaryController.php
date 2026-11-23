@@ -24,12 +24,12 @@ final class ShowMtsGlossaryController extends AbstractController
     ) {
     }
 
-    #[Route('/explore/glossary/mts', name: 'app_explore_glossary_mts', methods: ['GET'], priority: 20)]
+    #[Route('/help/glossary/mts', name: 'app_help_glossary_mts', methods: ['GET'], priority: 20)]
     public function __invoke(): Response
     {
         return $this->render('@EdVisit/glossary/mts.html.twig', [
             ...$this->glossaryFactory->overview(),
-            'catalog_usages' => $this->dataCatalog->glossaryUsages('app_explore_glossary_mts'),
+            'catalog_usages' => $this->dataCatalog->glossaryUsages('app_help_glossary_mts'),
         ]);
     }
 }

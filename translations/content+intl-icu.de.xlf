@@ -1413,6 +1413,10 @@
         <source>help.navigation.title</source>
         <target>Hilfethemen</target>
       </trans-unit>
+      <trans-unit id="help_help_reference_title_de" resname="help.reference.title">
+        <source>help.reference.title</source>
+        <target>Nachschlagen</target>
+      </trans-unit>
       <trans-unit id="DashAccReqDe01" resname="dashboard.next_steps.access_request.new.title">
         <source>dashboard.next_steps.access_request.new.title</source>
         <target>Klinikzuordnung beantragen</target>

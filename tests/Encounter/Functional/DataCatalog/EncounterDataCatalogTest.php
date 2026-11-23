@@ -24,12 +24,12 @@ final class EncounterDataCatalogTest extends WebTestCase
         $client = self::createClient();
         $client->loginUser(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]));
 
-        $client->request(Request::METHOD_GET, '/explore/data-catalog');
+        $client->request(Request::METHOD_GET, '/help/data-catalog');
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-object-key="allocation"]');
         self::assertSelectorNotExists('[data-object-key="encounter"]');
 
-        $client->request(Request::METHOD_GET, '/explore/data-catalog/encounter');
+        $client->request(Request::METHOD_GET, '/help/data-catalog/encounter');
         self::assertResponseStatusCodeSame(404);
     }
 
@@ -38,15 +38,15 @@ final class EncounterDataCatalogTest extends WebTestCase
         $client = self::createClient();
         $client->loginUser(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_PARTICIPANT', 'ROLE_ENCOUNTER_BETA']]));
 
-        $client->request(Request::METHOD_GET, '/explore/data-catalog');
+        $client->request(Request::METHOD_GET, '/help/data-catalog');
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-object-key="encounter"]', '8 variables');
 
-        $client->request(Request::METHOD_GET, '/explore/data-catalog/encounter');
+        $client->request(Request::METHOD_GET, '/help/data-catalog/encounter');
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#encounter-sex [data-testid="data-catalog-codes"]', 'female');
         self::assertSelectorTextContains('#encounter-age [data-testid="data-catalog-range"]', 'years');
-        self::assertSelectorExists('#encounter-allocation a[href="/explore/data-catalog/allocation"]');
+        self::assertSelectorExists('#encounter-allocation a[href="/help/data-catalog/allocation"]');
         self::assertSelectorTextNotContains('body', 'data_catalog.');
     }
 }

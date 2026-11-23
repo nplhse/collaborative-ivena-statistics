@@ -108,7 +108,7 @@ final readonly class EdVisitDataCatalogContributor implements DataCatalogContrib
 
     private function mtsGlossary(string $section): GlossaryReference
     {
-        return new GlossaryReference('app_explore_glossary_mts', section: $section);
+        return new GlossaryReference('app_help_glossary_mts', section: $section);
     }
 
     private function range(string $field, ?string $unitKey = null): ValueRange

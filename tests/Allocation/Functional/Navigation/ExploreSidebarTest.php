@@ -36,23 +36,12 @@ final class ExploreSidebarTest extends WebTestCase
                 'hospitals', 'states', 'dispatch-areas', 'users',
                 'specialities', 'departments',
                 'indications', 'indication-groups', 'assignments', 'infections', 'occasions', 'secondary-transports',
-                'glossary', 'data-catalog',
             ],
             $crawler->filter('[data-testid="sidebar-explore"] [data-testid^="sidebar-entry-"]')->each(
                 static fn (Crawler $node): string => substr((string) $node->attr('data-testid'), \strlen('sidebar-entry-')),
             ),
         );
         self::assertSame('/explore/state', $crawler->filter('[data-testid="sidebar-entry-states"] a')->attr('href'), 'Explore links carry no list filters.');
-    }
-
-    public function testAGlossaryPageOfAnotherContextMarksTheClassifications(): void
-    {
-        $client = self::createClient();
-        $client->loginUser(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]));
-        $client->request(Request::METHOD_GET, '/explore/glossary/mts');
-
-        self::assertResponseIsSuccessful();
-        self::assertSelectorExists('[data-testid="sidebar-entry-glossary"].active', 'The MTS glossary (Encounter) reaches the entry through the glossary registry.');
     }
 
     public function testTheOwnProfileWithoutParticipantRoleShowsNoSidebar(): void

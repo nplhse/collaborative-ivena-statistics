@@ -1413,6 +1413,10 @@
         <source>help.navigation.title</source>
         <target>Help topics</target>
       </trans-unit>
+      <trans-unit id="help_help_reference_title" resname="help.reference.title">
+        <source>help.reference.title</source>
+        <target>Reference</target>
+      </trans-unit>
       <trans-unit id="DashAccReqEn01" resname="dashboard.next_steps.access_request.new.title">
         <source>dashboard.next_steps.access_request.new.title</source>
         <target>Request hospital assignment</target>
