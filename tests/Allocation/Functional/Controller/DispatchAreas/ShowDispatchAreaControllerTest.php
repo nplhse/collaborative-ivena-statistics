@@ -7,6 +7,7 @@ namespace App\Tests\Allocation\Functional\Controller\DispatchAreas;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Tests\Support\Geo\DispatchAreaShapes;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -17,6 +18,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class ShowDispatchAreaControllerTest extends WebTestCase
 {
+    use DispatchAreaShapes;
     use InteractsWithAuthenticatedUser;
     use Factories;
 
@@ -32,6 +34,7 @@ final class ShowDispatchAreaControllerTest extends WebTestCase
             'dispatchArea' => $area,
         ]);
 
+        $this->giveDispatchAreasShapes();
         $crawler = $client->request(Request::METHOD_GET, '/explore/dispatch_area/'.$area->getPublicIdString());
 
         self::assertResponseIsSuccessful();

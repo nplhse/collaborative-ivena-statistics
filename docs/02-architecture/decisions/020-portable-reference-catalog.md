@@ -174,6 +174,12 @@ To generate synthetic data on a real catalog, or to import real files into ficti
 
 The given package must contain all catalog types; a complete export or one with `--types=department,speciality,assignment,occasion,infection,secondary-transport,indication-normalized,indication-raw,indication-group` works. Names the generator uses but the catalog spells differently are bound in a private mapping file in `var/reference/` (ADR 022, amendment for #875). The restore runbook (development reset, `--mode=replace`) stays for installations that need the real hospitals too.
 
+## Amendment (November 2026, #1406): format version 2 with districts
+
+Version 2 adds the section `districts` (natural key `ags`, without geometry). This is a deliberate exception to "only the current version": version 1 packages stay readable and keep their checksum, because private catalogs exist in that format. Districts are matched by AGS even with another id, and a restore keeps district rows, because geometries are not in a package and would otherwise be lost. Details: [ADR 041](041-dispatch-area-geography-as-master-data.md).
+
+The map files named in this ADR (`config/case_flow/*.yaml`, `assets/geo/hessen-landkreise.geojson`) no longer exist. Map shapes are read from the database, and the synthetic areas use `HesseDistricts` and `resources/geo/demo-districts.geojson`.
+
 ## Consequences
 
 - Export → empty database → import → export gives the same package, apart from `exported_at`.

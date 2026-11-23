@@ -1,7 +1,7 @@
 <div class="card h-100"
      data-controller="hospital-population-map"
      data-hospital-population-map-payload-value="{{ mapPayload|json_encode|e('html_attr') }}"
-     data-hospital-population-map-geo-url-value="{{ asset('geo/hessen-landkreise.geojson') }}"
+     data-hospital-population-map-geo-url-value="{{ path('app_stats_geo_dispatch_areas') }}"
      data-hospital-population-map-tier-label-value="{{ 'stats.hospital_population.table.tier'|trans({}, 'statistics')|e('html_attr') }}"
      data-hospital-population-map-location-label-value="{{ 'stats.hospital_population.table.location'|trans({}, 'statistics')|e('html_attr') }}"
      data-hospital-population-map-beds-label-value="{{ 'label.hospital_beds'|trans({}, 'messages')|e('html_attr') }}"

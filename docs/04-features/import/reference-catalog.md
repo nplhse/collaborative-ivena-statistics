@@ -18,6 +18,8 @@ No real reference data is stored in this repository.
 
 A package holds the catalog only. It holds no users, permissions, hospital owners or participation, allocations, imports, rejects, closures or projections. Use the [database backup](../../05-operations/backup-restore.md) for those.
 
+Since format version 2 a package also holds districts (`districts`: AGS, name, kind, state key, dispatch area), **never their boundaries**. Geometries move through the database backup or the admin action "fetch boundary" ([ADR 041](../../02-architecture/decisions/041-dispatch-area-geography-as-master-data.md)). Exports always use version 2; version 1 packages can still be validated and imported.
+
 Public ids are stable across environments; database ids are not. After a restore, rows get new local ids. Bookmarked statistics URLs with ids, saved Explorer views and hospital notifications refer to local ids; that is why the restore refuses while they exist (see below and the [inventory](reference-catalog-inventory.md)).
 
 ## Commands
@@ -39,11 +41,12 @@ The import validates the whole package first, then plans every row:
 - A row is matched by its id, then by its natural key (name; state and name for dispatch areas; code and name for normalized indications; code and label for raw indications).
 - Same id and same natural key: the row is skipped. Existing rows are never changed or deleted.
 - Same id with another natural key, or same natural key with another id: **conflict**.
+- Districts are matched by **AGS**, whatever their id, because each installation's takeover gave them an id of its own. An existing district keeps its name, assignment and geometry. An id that already belongs to another AGS is a conflict.
 - A new row may only refer to rows in the package or in the database. Aliases conflict when they belong to another department or speciality, or match another one's name.
 
 One conflict stops the import before anything is written; every conflict is listed with its path in the file. `--dry-run` prints the plan only. Otherwise all rows are written in one transaction with the ids from the package, and the reference data cache is cleared.
 
-New rows get `createdBy` from `--user=` (default `admin`); reviewed raw indications also get it as `reviewedBy`. Imported hospitals do not participate and have no owner. An additive import is not a restore: it never removes or renames anything.
+New rows get `createdBy` from `--user=` (default `admin`); reviewed raw indications also get it as `reviewedBy`. Imported hospitals do not participate and have no owner. Imported districts have no geometry, and the import never starts a boundary fetch. An additive import is not a restore: it never removes or renames anything.
 
 ## Restore (`--mode=replace`)
 
@@ -60,7 +63,8 @@ A restore replaces the whole catalog with a **complete** package (`meta.complete
 
    Several of these foreign keys cascade; the restore never lets them delete rows silently. Access grants are a blocker, never deleted.
 4. Without blockers it deletes the catalog (including aliases and the group join table) and inserts the package in **one transaction**, keeping the package ids. A failure rolls back and leaves the old catalog in place.
-5. Afterwards it refreshes the materialized views and clears the reference data cache.
+5. District rows and their geometries are **not** deleted. A version 2 package sets name, kind and assignment of the districts it lists and adds missing ones; districts it does not list stay without an area. A version 1 package keeps each assignment whose dispatch area is still in the package.
+6. Afterwards it refreshes the materialized views and clears the reference data cache.
 
 `--dry-run` shows rows to delete and create per type and the blockers, and writes nothing.
 
@@ -147,7 +151,7 @@ php bin/console app:import:requeue-all --only-ids="$(cat var/export/reference-fr
 
 ## Dispatch-area names
 
-`DispatchAreaNameNormalizer` (code) trims, maps NBSP to space, collapses whitespace, strips a leading `_`, parenthetical suffixes, longest-first prefixes (`Kommunale Regionalleitstelle`, `Integrierte Leitstelle`, `Zentrale Leitstelle`, `Regionalleitstelle`, `Leitstelle`, `Landkreis`, `Kreis`) and a trailing `Kreis` / `Führungsstab`, and fixes known encoding typos. Lookup stays name-based. The maps know the 24 dispatch areas of Hesse and some neighbouring dispatch areas outside Hesse by their exact name (`config/case_flow/dispatch_area_geo_map.yaml`); an area with another name has no shape.
+`DispatchAreaNameNormalizer` (code) trims, maps NBSP to space, collapses whitespace, strips a leading `_`, parenthetical suffixes, longest-first prefixes (`Kommunale Regionalleitstelle`, `Integrierte Leitstelle`, `Zentrale Leitstelle`, `Regionalleitstelle`, `Leitstelle`, `Landkreis`, `Kreis`) and a trailing `Kreis` / `Führungsstab`, and fixes known encoding typos. Lookup stays name-based. The maps join by dispatch area id, so a name no longer decides whether an area has a shape; an area needs assigned districts with boundaries ([ADR 041](../../02-architecture/decisions/041-dispatch-area-geography-as-master-data.md)).
 
 Department and speciality aliases live in the `department_alias` and `speciality_alias` tables and travel with the package. The explore department page lists the known spellings.
 

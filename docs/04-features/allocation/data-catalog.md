@@ -46,9 +46,9 @@ objects both, encounter and ED visit only `created_at`). Allocation and MCI case
 `created_at` in the group `time` is the IVENA time. The ED visit has no id of its own, its primary key is
 `ed_visit.encounter`. Public ids (UUIDs in Explore URLs) and the users who created or changed a record stay out.
 
-Regions are documented like the other objects: their stored fields, nothing more. Map geometry and the
-official district keys (AGS) of dispatch areas live in `config/case_flow/*.yaml`, not in the database, and are
-not part of the catalog (see [case-flow.md](../statistics/case-flow.md)).
+Regions are documented like the other objects: their stored fields, nothing more. Districts with their
+official keys (AGS) and map geometry are maintained in the admin and are not part of this catalog (see
+[hospital-geodata.md](../../05-operations/hospital-geodata.md#districts-and-their-boundaries)).
 
 ## Variables
 

@@ -7,6 +7,7 @@ namespace App\Allocation\Application\ReferenceCatalog\Import;
 use App\Allocation\Application\ReferenceCatalog\Package\AliasedEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\CatalogEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\DispatchAreaEntry;
+use App\Allocation\Application\ReferenceCatalog\Package\DistrictEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\HospitalEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\IndicationGroupEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\RawIndicationEntry;
@@ -16,6 +17,7 @@ use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogViolatio
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogType;
 use App\Allocation\Domain\Entity\DepartmentAlias;
 use App\Allocation\Domain\Entity\DispatchArea;
+use App\Allocation\Domain\Entity\District;
 use App\Allocation\Domain\Entity\SpecialityAlias;
 use App\Allocation\Domain\Entity\State;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,6 +29,8 @@ use Symfony\Component\Uid\Uuid;
  * A row is matched by id, then by natural key. Same id with another natural key, or same
  * natural key with another id, is a conflict. Matched rows are skipped and never changed.
  * Rows to create must only refer to rows in the package or in the database.
+ * A district is the same district by its AGS, whatever its id: each installation's takeover gave it
+ * an id of its own (ADR 041). An existing district keeps its assignment and geometry.
  */
 final readonly class ReferenceCatalogImportPlanner
 {
@@ -91,6 +95,8 @@ final readonly class ReferenceCatalogImportPlanner
                         continue;
                     }
 
+                    $plan->skip($type);
+                } elseif (isset($idsByKey[$key]) && ReferenceCatalogType::District === $type) {
                     $plan->skip($type);
                 } elseif (isset($idsByKey[$key])) {
                     $plan->conflict($path, sprintf('The database has the same %s (%s) with another id: %s.', $type->value, $label, $idsByKey[$key]));
@@ -171,6 +177,8 @@ final readonly class ReferenceCatalogImportPlanner
         $problems = [];
         if ($entry instanceof DispatchAreaEntry) {
             $problems[] = $missing(ReferenceCatalogType::State, $entry->state, $path.'.state');
+        } elseif ($entry instanceof DistrictEntry && null !== $entry->dispatchArea) {
+            $problems[] = $missing(ReferenceCatalogType::DispatchArea, $entry->dispatchArea, $path.'.dispatch_area');
         } elseif ($entry instanceof RawIndicationEntry && null !== $entry->target) {
             $problems[] = $missing(ReferenceCatalogType::IndicationNormalized, $entry->target, $path.'.target');
         } elseif ($entry instanceof IndicationGroupEntry) {
@@ -202,6 +210,14 @@ final readonly class ReferenceCatalogImportPlanner
             foreach ($result as $row) {
                 $state = $this->id($row['state']);
                 $rows[$this->id($row['id'])] = ['key' => ReferenceCatalogNaturalKey::dispatchArea($state, (string) $row['name']), 'state' => $state];
+            }
+
+            return $rows;
+        }
+
+        if (ReferenceCatalogType::District === $type) {
+            foreach ($this->entityManager->createQuery('SELECT e.publicId AS id, e.ags AS ags FROM '.District::class.' e')->getArrayResult() as $row) {
+                $rows[$this->id($row['id'])] = ['key' => (string) $row['ags']];
             }
 
             return $rows;

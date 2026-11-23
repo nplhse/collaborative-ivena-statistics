@@ -95,14 +95,14 @@ final readonly class ReferenceCatalogPackageReader
         $format = \is_array($meta) ? ($meta['format'] ?? null) : null;
         $version = \is_array($meta) ? ($meta['version'] ?? null) : null;
 
-        if (ReferenceCatalogFormat::NAME === $format && ReferenceCatalogFormat::VERSION === $version) {
+        if (ReferenceCatalogFormat::NAME === $format && \in_array($version, ReferenceCatalogFormat::SUPPORTED_VERSIONS, true)) {
             return null;
         }
 
         return new ReferenceCatalogViolation('meta', sprintf(
-            'Unsupported package: expected format "%s" version %d, found format %s version %s. Export the catalog again with this application version.',
+            'Unsupported package: expected format "%s" version %s, found format %s version %s. Export the catalog again with this application version.',
             ReferenceCatalogFormat::NAME,
-            ReferenceCatalogFormat::VERSION,
+            implode(' or ', ReferenceCatalogFormat::SUPPORTED_VERSIONS),
             \is_string($format) ? sprintf('"%s"', $format) : 'none',
             \is_int($version) ? (string) $version : 'none',
         ));

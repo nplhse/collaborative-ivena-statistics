@@ -82,6 +82,7 @@ final readonly class ReferenceCatalogPackageWriter
             $package->indicationsRaw,
             $package->indicationGroups,
             $package->hospitals,
+            $package->districts,
         );
     }
 }

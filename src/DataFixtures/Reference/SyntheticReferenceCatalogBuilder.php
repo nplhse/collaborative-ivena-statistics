@@ -7,6 +7,7 @@ namespace App\DataFixtures\Reference;
 use App\Allocation\Application\ReferenceCatalog\Package\AliasedEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\AliasEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\DispatchAreaEntry;
+use App\Allocation\Application\ReferenceCatalog\Package\DistrictEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\HospitalAddress;
 use App\Allocation\Application\ReferenceCatalog\Package\HospitalCoordinates;
 use App\Allocation\Application\ReferenceCatalog\Package\HospitalEntry;
@@ -49,7 +50,8 @@ use Symfony\Component\Uid\Uuid;
  */
 final readonly class SyntheticReferenceCatalogBuilder
 {
-    public const int DEFAULT_SEED = 740;
+    /** Chosen so that the participating hospitals keep the size and care-tier mix the presets were tuned on (#1406). */
+    public const int DEFAULT_SEED = 1269;
 
     public const int DEFAULT_HOSPITALS = 60;
 
@@ -123,9 +125,35 @@ final readonly class SyntheticReferenceCatalogBuilder
             $this->rawIndications($normalized, $faker),
             $this->groups($normalized),
             $this->hospitals($hospitals, $stateId, $areas, $faker),
+            $this->districts($areas),
         );
 
         return $this->writer->seal($package);
+    }
+
+    /**
+     * @param array<string, DispatchAreaEntry> $areas
+     *
+     * @return list<DistrictEntry>
+     */
+    private function districts(array $areas): array
+    {
+        $entries = [];
+        foreach (HesseDistricts::OFFICIAL_DISTRICTS as $area => $districts) {
+            foreach ($districts as $district) {
+                $entries[$district['ags']] = new DistrictEntry(
+                    $this->id(ReferenceCatalogType::District, $district['ags']),
+                    $district['ags'],
+                    $district['name'],
+                    $district['kind'],
+                    substr($district['ags'], 0, 2),
+                    $areas[$area]->id,
+                );
+            }
+        }
+        ksort($entries);
+
+        return array_values($entries);
     }
 
     /**

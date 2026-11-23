@@ -611,7 +611,7 @@
       </trans-unit>
       <trans-unit id="CatMapHintDe" resname="catalog.orientation_map.hint">
         <source>catalog.orientation_map.hint</source>
-        <target>Hessen-Pilot auf Basis der Leitstellengrenzen. Die Karte dient der Orientierung und ist keine flächengenaue Verwaltungsgrenze.</target>
+        <target>Auf Basis der Kreisgrenzen des Leitstellenbereichs. Die Karte dient der Orientierung und ist keine flächengenaue Verwaltungsgrenze.</target>
       </trans-unit>
       <trans-unit id="AllocOdSecDe" resname="allocation.section.origin_destination">
         <source>allocation.section.origin_destination</source>

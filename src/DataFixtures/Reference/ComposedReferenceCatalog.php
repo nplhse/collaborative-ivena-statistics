@@ -14,7 +14,7 @@ use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogType;
 /**
  * Combines the synthetic geography and hospitals with the catalog of another package (ADR 020).
  *
- * States, dispatch areas and hospitals come from the synthetic package, so hospital identities and
+ * States, dispatch areas, districts and hospitals come from the synthetic package, so hospital identities and
  * locations stay synthetic and the maps know every area. Departments, specialities, lookups,
  * indications and groups come from the given package, for example a private catalog, so real files
  * and the generator resolve against it. The result is a complete package and goes through the same
@@ -79,6 +79,7 @@ final readonly class ComposedReferenceCatalog
             $catalog->indicationsRaw,
             $catalog->indicationGroups,
             $synthetic->hospitals,
+            $synthetic->districts,
         ));
     }
 }

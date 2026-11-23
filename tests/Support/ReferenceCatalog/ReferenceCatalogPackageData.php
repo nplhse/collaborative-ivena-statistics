@@ -26,6 +26,8 @@ final class ReferenceCatalogPackageData
     public const string UNMAPPED_RAW = '0192d6a1-0000-7000-8000-000000000052';
     public const string GROUP = '0192d6a1-0000-7000-8000-000000000061';
     public const string HOSPITAL = '0192d6a1-0000-7000-8000-000000000071';
+    public const string DISTRICT = '0192d6a1-0000-7000-8000-000000000091';
+    public const string OTHER_DISTRICT = '0192d6a1-0000-7000-8000-000000000092';
 
     /**
      * @return array<string, mixed>
@@ -35,7 +37,7 @@ final class ReferenceCatalogPackageData
         $data = [
             'meta' => [
                 'format' => 'ivena-reference-catalog',
-                'version' => 1,
+                'version' => 2,
                 'exported_at' => '2026-10-26T10:00:00+01:00',
                 'complete' => true,
                 'types' => ReferenceCatalogType::values(),
@@ -106,7 +108,26 @@ final class ReferenceCatalogPackageData
                     'coordinates' => ['lat' => 50.11, 'lng' => 8.68],
                 ],
             ],
+            'districts' => [
+                ['id' => self::DISTRICT, 'ags' => '06412', 'name' => 'Frankfurt am Main', 'kind' => 'Kreisfreie Stadt', 'state' => '06', 'dispatch_area' => self::AREA],
+                ['id' => self::OTHER_DISTRICT, 'ags' => '09679', 'name' => 'Würzburg', 'kind' => 'Landkreis', 'state' => '09', 'dispatch_area' => null],
+            ],
         ];
+
+        return self::withCounts($data);
+    }
+
+    /**
+     * The same catalog in format version 1, which has no districts.
+     *
+     * @return array<string, mixed>
+     */
+    public static function completeVersion1(): array
+    {
+        $data = self::complete();
+        unset($data['districts']);
+        $data['meta']['version'] = 1;
+        $data['meta']['types'] = array_values(array_diff($data['meta']['types'], [ReferenceCatalogType::District->value]));
 
         return self::withCounts($data);
     }

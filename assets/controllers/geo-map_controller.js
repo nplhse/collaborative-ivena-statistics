@@ -10,7 +10,7 @@ import {
     prepareMapContainer,
     scheduleInvalidateSize,
 } from '../js/geo-map/createMap.js';
-import { loadGeoJson } from '../js/geo-map/loadGeoJson.js';
+import { addBoundaryAttributions, loadGeoJson } from '../js/geo-map/loadGeoJson.js';
 import {
     choroplethStyleForFeature,
     choroplethTooltip,
@@ -32,8 +32,8 @@ import {
 } from '../js/geo-map/isochroneRings.js';
 import { escapeHtml } from '../js/geo-map/escapeHtml.js';
 
-const DEFAULT_CENTER = [50.55, 9.0];
-const DEFAULT_ZOOM = 8;
+const DEFAULT_CENTER = [51.1, 10.4];
+const DEFAULT_ZOOM = 6;
 
 /* stimulusFetch: 'lazy' */
 export default class extends Controller {
@@ -226,6 +226,7 @@ export default class extends Controller {
                         }
                     },
                 }).addTo(map);
+                addBoundaryAttributions(map, geojson);
                 context.labelLayer = syncChoroplethLabels(map, context.geoLayer, values, null, {
                     expanded,
                 });

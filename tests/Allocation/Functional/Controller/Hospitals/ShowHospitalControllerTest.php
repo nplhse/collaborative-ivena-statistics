@@ -24,6 +24,7 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Tests\Support\Geo\DispatchAreaShapes;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -34,6 +35,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class ShowHospitalControllerTest extends WebTestCase
 {
+    use DispatchAreaShapes;
     use Factories;
     use InteractsWithAuthenticatedUser;
 
@@ -70,6 +72,7 @@ final class ShowHospitalControllerTest extends WebTestCase
             'createdAt' => new \DateTimeImmutable('2025-01-02 03:04:05'),
         ]);
 
+        $this->giveDispatchAreasShapes();
         $crawler = $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
 
         self::assertResponseIsSuccessful();
@@ -89,7 +92,8 @@ final class ShowHospitalControllerTest extends WebTestCase
         self::assertSelectorNotExists('a.btn-primary[href="/hospitals/'.$hospital->getId().'/edit"]');
         self::assertSelectorExists('[data-testid="catalog-orientation-map"]');
         $map = $crawler->filter('[data-testid="catalog-orientation-map"]');
-        self::assertSame('frankfurt', $map->attr('data-catalog-orientation-map-highlight-key-value'));
+        self::assertSame($this->dispatchAreaKey('Frankfurt'), $map->attr('data-catalog-orientation-map-highlight-key-value'));
+        $this->assertHasMapFeature($this->dispatchAreaKey('Frankfurt'));
         self::assertSame('50.1109', $map->attr('data-catalog-orientation-map-marker-lat-value'));
         self::assertSame('8.6821', $map->attr('data-catalog-orientation-map-marker-lng-value'));
         self::assertSame('false', $map->attr('data-catalog-orientation-map-show-route-value'));

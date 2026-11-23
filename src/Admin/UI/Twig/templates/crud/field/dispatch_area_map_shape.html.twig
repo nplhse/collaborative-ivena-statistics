@@ -1,0 +1,15 @@
+{% set status = field.formattedValue %}
+{% if status %}
+    {% if status.hasShape %}
+        <twig:ea:Badge color="success">{{ 'admin.dispatch_area.map_shape.complete'|trans({}, 'admin') }}</twig:ea:Badge>
+    {% elseif status.districtCount == 0 %}
+        <twig:ea:Badge color="secondary">{{ 'admin.dispatch_area.map_shape.no_districts'|trans({}, 'admin') }}</twig:ea:Badge>
+    {% else %}
+        <twig:ea:Badge color="warning">{{ 'admin.dispatch_area.map_shape.incomplete'|trans({count: status.missingDistricts|length}, 'admin') }}</twig:ea:Badge>
+        {% if ea().crud.currentPage == 'detail' %}
+            <ul class="list-unstyled small mt-2 mb-0">
+                {% for district in status.missingDistricts %}<li>{{ district }}</li>{% endfor %}
+            </ul>
+        {% endif %}
+    {% endif %}
+{% endif %}

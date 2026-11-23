@@ -3333,6 +3333,130 @@
         <source>flash.admin.user.two_factor_reset.invalid_token</source>
         <target>The request has expired. Please try again.</target>
       </trans-unit>
+      <trans-unit id="geo1406bcced5f0ba" resname="menu.data.districts">
+        <source>menu.data.districts</source>
+        <target>Districts</target>
+      </trans-unit>
+      <trans-unit id="geo14067f3164b2f5" resname="admin.district.entity.singular">
+        <source>admin.district.entity.singular</source>
+        <target>District</target>
+      </trans-unit>
+      <trans-unit id="geo140620cabae78e" resname="admin.district.entity.plural">
+        <source>admin.district.entity.plural</source>
+        <target>Districts</target>
+      </trans-unit>
+      <trans-unit id="geo1406b01723b63f" resname="admin.district.field.ags">
+        <source>admin.district.field.ags</source>
+        <target>Official key (AGS)</target>
+      </trans-unit>
+      <trans-unit id="geo140633a029239a" resname="admin.district.field.kind">
+        <source>admin.district.field.kind</source>
+        <target>Kind</target>
+      </trans-unit>
+      <trans-unit id="geo140672886b5f5b" resname="admin.district.field.dispatch_area">
+        <source>admin.district.field.dispatch_area</source>
+        <target>Dispatch area</target>
+      </trans-unit>
+      <trans-unit id="geo1406939ffa8a5d" resname="admin.district.field.boundary">
+        <source>admin.district.field.boundary</source>
+        <target>District boundary</target>
+      </trans-unit>
+      <trans-unit id="geo14062d80b6d997" resname="admin.district.action.fetch_boundary">
+        <source>admin.district.action.fetch_boundary</source>
+        <target>Fetch district boundary</target>
+      </trans-unit>
+      <trans-unit id="geo1406a9f7092282" resname="admin.district.boundary.ready">
+        <source>admin.district.boundary.ready</source>
+        <target>Available</target>
+      </trans-unit>
+      <trans-unit id="geo140697156b2849" resname="admin.district.boundary.missing">
+        <source>admin.district.boundary.missing</source>
+        <target>Missing</target>
+      </trans-unit>
+      <trans-unit id="geo14066a617df14b" resname="admin.district.boundary.running">
+        <source>admin.district.boundary.running</source>
+        <target>Fetching</target>
+      </trans-unit>
+      <trans-unit id="geo14063a8893a021" resname="admin.district.boundary.failed">
+        <source>admin.district.boundary.failed</source>
+        <target>Fetch failed</target>
+      </trans-unit>
+      <trans-unit id="geo1406adfcfd64a5" resname="admin.district.boundary.failure.not_found">
+        <source>admin.district.boundary.failure.not_found</source>
+        <target>The BKG does not know this key.</target>
+      </trans-unit>
+      <trans-unit id="geo1406bddc8ca0cf" resname="admin.district.boundary.failure.unavailable">
+        <source>admin.district.boundary.failure.unavailable</source>
+        <target>The BKG service was not available.</target>
+      </trans-unit>
+      <trans-unit id="geo140609b46a5f6f" resname="admin.district.boundary.failure.rate_limited">
+        <source>admin.district.boundary.failure.rate_limited</source>
+        <target>The BKG service limited the requests.</target>
+      </trans-unit>
+      <trans-unit id="geo1406387cfc2a23" resname="admin.district.boundary.failure.invalid_geometry">
+        <source>admin.district.boundary.failure.invalid_geometry</source>
+        <target>The BKG returned an unusable boundary.</target>
+      </trans-unit>
+      <trans-unit id="geo14065ce2b597a8" resname="admin.district.boundary.failure.dispatch_failed">
+        <source>admin.district.boundary.failure.dispatch_failed</source>
+        <target>The job could not be queued.</target>
+      </trans-unit>
+      <trans-unit id="geo1406264d653e7a" resname="admin.district.boundary.failure.timed_out">
+        <source>admin.district.boundary.failure.timed_out</source>
+        <target>The job did not finish in time.</target>
+      </trans-unit>
+      <trans-unit id="geo14065fc09a22a4" resname="admin.district.boundary.provider">
+        <source>admin.district.boundary.provider</source>
+        <target>Source</target>
+      </trans-unit>
+      <trans-unit id="geo140693274a2a44" resname="admin.district.boundary.licence">
+        <source>admin.district.boundary.licence</source>
+        <target>Licence</target>
+      </trans-unit>
+      <trans-unit id="geo1406e2604e4362" resname="admin.district.boundary.attribution">
+        <source>admin.district.boundary.attribution</source>
+        <target>Source note</target>
+      </trans-unit>
+      <trans-unit id="geo140624b8976fd7" resname="admin.district.boundary.fetched_at">
+        <source>admin.district.boundary.fetched_at</source>
+        <target>Fetched at</target>
+      </trans-unit>
+      <trans-unit id="geo140604b6e00633" resname="admin.district.boundary.fetched_at_unknown">
+        <source>admin.district.boundary.fetched_at_unknown</source>
+        <target>Not known</target>
+      </trans-unit>
+      <trans-unit id="geo1406a614fa060e" resname="flash.admin.district.fetch.started">
+        <source>flash.admin.district.fetch.started</source>
+        <target>The boundary of {name} is being fetched.</target>
+      </trans-unit>
+      <trans-unit id="geo1406bd88920d41" resname="flash.admin.district.fetch.not_started">
+        <source>flash.admin.district.fetch.not_started</source>
+        <target>No fetch was started for {name}: the boundary exists or a fetch is running.</target>
+      </trans-unit>
+      <trans-unit id="geo14061744d845a0" resname="flash.admin.district.fetch.invalid_token">
+        <source>flash.admin.district.fetch.invalid_token</source>
+        <target>The request has expired. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="geo14061e183e4aff" resname="admin.dispatch_area.field.districts">
+        <source>admin.dispatch_area.field.districts</source>
+        <target>Districts</target>
+      </trans-unit>
+      <trans-unit id="geo140674772e5f5a" resname="admin.dispatch_area.field.map_shape">
+        <source>admin.dispatch_area.field.map_shape</source>
+        <target>Map area</target>
+      </trans-unit>
+      <trans-unit id="geo140659ffc10bcb" resname="admin.dispatch_area.map_shape.complete">
+        <source>admin.dispatch_area.map_shape.complete</source>
+        <target>Complete</target>
+      </trans-unit>
+      <trans-unit id="geo14068599c59c8d" resname="admin.dispatch_area.map_shape.no_districts">
+        <source>admin.dispatch_area.map_shape.no_districts</source>
+        <target>No districts</target>
+      </trans-unit>
+      <trans-unit id="geo140625c4581918" resname="admin.dispatch_area.map_shape.incomplete">
+        <source>admin.dispatch_area.map_shape.incomplete</source>
+        <target>{count, plural, one {# boundary missing} other {# boundaries missing}}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

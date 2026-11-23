@@ -1,7 +1,7 @@
 {{ include('@Statistics/geographic_map/_map.html.twig', {
     payload: chartPayload.geographicMap|default(chartPayload),
     testId: 'stats-case-flow-map',
-    geoUrl: asset('geo/hessen-landkreise.geojson'),
+    geoUrl: path('app_stats_geo_dispatch_areas'),
     showValueModes: true,
     showExpand: true,
     showIsochroneLegend: dashboard.isochrone is not null,

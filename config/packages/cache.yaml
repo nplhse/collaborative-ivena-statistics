@@ -24,6 +24,9 @@ framework:
             # Explore allocation list result counts (#1432); keys include a data version, TTL set per item.
             cache.allocation.list_result_count:
                 adapter: cache.app
+            # Dispatch-area map shapes (#1406); keys contain a fingerprint of the source rows.
+            cache.geo.dispatch_area_shapes:
+                adapter: cache.app
 
 when@test:
     framework:
@@ -38,4 +41,6 @@ when@test:
                 cache.allocation.hospital_data_status:
                     adapter: cache.adapter.array
                 cache.allocation.list_result_count:
+                    adapter: cache.adapter.array
+                cache.geo.dispatch_area_shapes:
                     adapter: cache.adapter.array

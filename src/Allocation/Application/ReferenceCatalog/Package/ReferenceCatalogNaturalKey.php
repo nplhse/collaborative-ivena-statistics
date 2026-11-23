@@ -19,6 +19,7 @@ final class ReferenceCatalogNaturalKey
     {
         return match (true) {
             $entry instanceof DispatchAreaEntry => self::dispatchArea($entry->state, $entry->name),
+            $entry instanceof DistrictEntry => $entry->ags,
             $entry instanceof NormalizedIndicationEntry => self::normalizedIndication($entry->code, $entry->name),
             $entry instanceof RawIndicationEntry => self::rawIndication($entry->code, $entry->name),
             default => self::name($entry->name),
@@ -49,6 +50,7 @@ final class ReferenceCatalogNaturalKey
     {
         return match ($type) {
             ReferenceCatalogType::DispatchArea => 'state and name',
+            ReferenceCatalogType::District => 'AGS',
             ReferenceCatalogType::IndicationNormalized => 'code and name',
             ReferenceCatalogType::IndicationRaw => 'code and label',
             default => 'name',

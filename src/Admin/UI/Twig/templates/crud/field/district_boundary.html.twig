@@ -1,0 +1,18 @@
+{% set status = field.formattedValue %}
+{% set badge = {ready: 'success', missing: 'secondary', running: 'info', failed: 'danger'}[status.state] %}
+<twig:ea:Badge color="{{ badge }}">{{ ('admin.district.boundary.' ~ status.state)|trans({}, 'admin') }}</twig:ea:Badge>
+{% if status.failure %}
+    <div class="small text-danger mt-1">{{ ('admin.district.boundary.failure.' ~ status.failure.value)|trans({}, 'admin') }}</div>
+{% endif %}
+{% if ea().crud.currentPage == 'detail' and status.state == 'ready' %}
+    <dl class="small mt-2 mb-0">
+        <dt>{{ 'admin.district.boundary.provider'|trans({}, 'admin') }}</dt>
+        <dd>{{ status.provider ?? '–' }}</dd>
+        <dt>{{ 'admin.district.boundary.licence'|trans({}, 'admin') }}</dt>
+        <dd>{{ status.licence ?? '–' }}</dd>
+        <dt>{{ 'admin.district.boundary.attribution'|trans({}, 'admin') }}</dt>
+        <dd>{{ status.attribution ?? '–' }}</dd>
+        <dt>{{ 'admin.district.boundary.fetched_at'|trans({}, 'admin') }}</dt>
+        <dd>{{ status.fetchedAt ? status.fetchedAt|date('d.m.Y H:i') : 'admin.district.boundary.fetched_at_unknown'|trans({}, 'admin') }}</dd>
+    </dl>
+{% endif %}

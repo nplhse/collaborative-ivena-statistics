@@ -499,7 +499,7 @@
       </trans-unit>
       <trans-unit id="CatMapHintEn" resname="catalog.orientation_map.hint">
         <source>catalog.orientation_map.hint</source>
-        <target>Hessen pilot based on dispatch-area boundaries. The map is for orientation only and is not a precise administrative border.</target>
+        <target>Based on the district boundaries of the dispatch area. The map is for orientation only and is not a precise administrative border.</target>
       </trans-unit>
       <trans-unit id="AllocOdSecEn" resname="allocation.section.origin_destination">
         <source>allocation.section.origin_destination</source>
