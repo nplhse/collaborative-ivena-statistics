@@ -26,6 +26,24 @@ enum ImportRunReasonCode: string
     /** Encounter import: the hospital's pseudonym key generation changed after the upload (ADR 027). */
     case KeyGenerationChanged = 'key_generation_changed';
 
+    /**
+     * The run stopped at a precondition, before it removed the rows of an earlier run.
+     */
+    public function endsBeforeProcessing(): bool
+    {
+        return match ($this) {
+            self::MissingCreator,
+            self::MissingHospital,
+            self::MissingImportPermission,
+            self::MissingClosureRole,
+            self::TypeMismatch,
+            self::MissingFilePath,
+            self::InvalidFilePath,
+            self::FileNotFound => true,
+            default => false,
+        };
+    }
+
     public function describe(): string
     {
         return match ($this) {
