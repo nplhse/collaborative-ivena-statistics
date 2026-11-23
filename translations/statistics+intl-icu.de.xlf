@@ -2747,7 +2747,7 @@
       </trans-unit>
       <trans-unit id="De06abf92a" resname="stats.case_flow.section.map">
         <source>stats.case_flow.section.map</source>
-        <target>Leitstellenkarte Hessen</target>
+        <target>Leitstellenkarte</target>
       </trans-unit>
       <trans-unit id="De10f7b020" resname="stats.case_flow.section.origin_distribution">
         <source>stats.case_flow.section.origin_distribution</source>

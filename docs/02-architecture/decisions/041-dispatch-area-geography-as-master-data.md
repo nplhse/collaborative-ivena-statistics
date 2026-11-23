@@ -53,6 +53,10 @@ file. If the check fails, the deployment stops and the previous release stays ac
 - **A shared geo provider registry in this change:** not needed for one boundary source; it can be planned separately
   together with geocoding, coordinate provenance and isochrones.
 
+## Implementation note (step 6)
+
+The shapes cache key contains a fingerprint of the source rows instead of an explicit invalidation. A committed change of an assignment, geometry, area or hospital therefore takes effect on the next read, also after a catalog import, restore or database restore, and no save path can forget to clear the cache. Feature keys are dispatch area ids.
+
 ## Consequences
 
 - A new region is data maintenance and needs no release.

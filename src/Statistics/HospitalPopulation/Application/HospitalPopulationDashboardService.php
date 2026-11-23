@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Statistics\HospitalPopulation\Application;
 
+use App\Allocation\Application\Geo\DTO\DispatchAreaGeoSnapshot;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
-use App\Statistics\CaseFlow\Application\CaseFlowGeoKeyResolver;
 use App\Statistics\HospitalPopulation\Application\DTO\CoverageCrossTable;
 use App\Statistics\HospitalPopulation\Application\DTO\DistributionSummaryRow;
 use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationAllocationsResult;
@@ -38,7 +38,6 @@ final readonly class HospitalPopulationDashboardService
         private DescriptiveStatisticsCalculator $descriptiveStatisticsCalculator,
         private AllocationBasisSummaryCalculator $allocationBasisSummaryCalculator,
         private BedsBoxPlotBuilder $bedsBoxPlotBuilder,
-        private CaseFlowGeoKeyResolver $geoKeyResolver,
     ) {
     }
 
@@ -321,7 +320,7 @@ final readonly class HospitalPopulationDashboardService
             $features[] = new HospitalPopulationMapChoroplethFeature(
                 dispatchAreaId: $row->dispatchAreaId,
                 landkreis: $row->dispatchAreaName,
-                geoFeatureKey: $this->geoKeyResolver->resolve($row->dispatchAreaId, $row->dispatchAreaName),
+                geoFeatureKey: DispatchAreaGeoSnapshot::keyFor($row->dispatchAreaId),
                 population: $row->population,
                 participants: $row->participants,
                 coverage: $row->coverage,

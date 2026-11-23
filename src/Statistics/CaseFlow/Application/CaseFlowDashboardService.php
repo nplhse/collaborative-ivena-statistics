@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\CaseFlow\Application;
 
+use App\Allocation\Application\Contracts\DispatchAreaGeoIndexInterface;
+use App\Allocation\Application\Geo\DTO\DispatchAreaGeoSnapshot;
 use App\Statistics\Application\IsochroneOriginMap\IsochroneOriginHeatmapAssembler;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowCriteria;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowDashboardResult;
@@ -32,7 +34,7 @@ final readonly class CaseFlowDashboardService
         private CaseFlowDistributionBuilder $distributionBuilder,
         private CaseFlowStructureDistributionAssembler $structureDistributionAssembler,
         private CaseFlowInsightEngine $insightEngine,
-        private CaseFlowGeoKeyResolver $geoKeyResolver,
+        private DispatchAreaGeoIndexInterface $geoIndex,
         private GeographicDestinationHospitalQuery $destinationHospitalQuery,
         private IsochroneOriginHeatmapAssembler $isochroneAssembler,
     ) {
@@ -69,13 +71,13 @@ final readonly class CaseFlowDashboardService
         $mapFeatures = $this->privacySuppressor->buildMapFeatures(
             $originRows,
             $originTotal,
-            fn (int $id, string $name): string => $this->geoKeyResolver->resolve($id, $name),
+            static fn (int $id): string => DispatchAreaGeoSnapshot::keyFor($id),
         );
         $unshapedOrigins = $this->privacySuppressor->summarizeUnshapedOrigins(
             $originRows,
             $originTotal,
-            fn (int $id, string $name): string => $this->geoKeyResolver->resolve($id, $name),
-            $this->geoKeyResolver->hasMapShape(...),
+            static fn (int $id): string => DispatchAreaGeoSnapshot::keyFor($id),
+            $this->geoIndex->snapshot()->hasShape(...),
         );
 
         $transportRows = $this->transportDistributionQuery->fetchTransportTime($from, $toExclusive, $scope, $originStateId, $drawerFilter);

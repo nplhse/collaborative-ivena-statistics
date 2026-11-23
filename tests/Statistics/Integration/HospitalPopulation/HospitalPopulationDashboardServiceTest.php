@@ -20,6 +20,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\Statistics\HospitalPopulation\Application\HospitalPopulationDashboardService;
+use App\Tests\Support\Geo\DispatchAreaShapes;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -28,6 +29,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class HospitalPopulationDashboardServiceTest extends KernelTestCase
 {
+    use DispatchAreaShapes;
     use Factories;
 
     public function testBuildsDashboardWithCoverageAndAllocationBasis(): void
@@ -95,6 +97,11 @@ final class HospitalPopulationDashboardServiceTest extends KernelTestCase
         self::assertSame(2, $participation->kpis->dispatchAreasTotal);
         self::assertSame(1, $participation->kpis->dispatchAreasRepresented);
         self::assertCount(2, $participation->mapMarkers);
+        $this->giveDispatchAreasShapes();
+        self::assertCount(2, $participation->mapChoropleth);
+        foreach ($participation->mapChoropleth as $feature) {
+            $this->assertHasMapFeature($feature->geoFeatureKey);
+        }
         self::assertCount(2, $participation->regionalCoverage);
         self::assertSame('Example State', $participation->regionalCoverage[0]->stateName);
 

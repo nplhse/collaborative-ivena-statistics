@@ -19,6 +19,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Geo\HospitalIsochroneFileStore;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Tests\Support\Geo\DispatchAreaShapes;
 use App\Tests\Support\MaterializedView\RefreshesStatisticsMaterializedViewsTrait;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\Tests\Support\Statistics\RefreshesStatisticsFunctionalDataTrait;
@@ -32,6 +33,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class CaseFlowControllerTest extends WebTestCase
 {
+    use DispatchAreaShapes;
     use Factories;
     use InteractsWithAuthenticatedUser;
     use RefreshesStatisticsFunctionalDataTrait;
@@ -71,6 +73,7 @@ final class CaseFlowControllerTest extends WebTestCase
 
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
 
+        $this->giveDispatchAreasShapes();
         $this->loginAsRoleUser($client);
         $crawler = $client->request(Request::METHOD_GET, '/statistics/case-flow?scope=public&period=last_12_months');
 
@@ -84,7 +87,8 @@ final class CaseFlowControllerTest extends WebTestCase
 
         self::assertSame('system_flow', $payload['mode']);
         self::assertNotEmpty($payload['mapFeatures']);
-        self::assertSame('caseflowctrldispatch', $payload['mapFeatures'][0]['geoKey']);
+        self::assertSame((string) $dispatchArea->getId(), $payload['mapFeatures'][0]['geoKey']);
+        $this->assertHasMapFeature($payload['mapFeatures'][0]['geoKey']);
         self::assertArrayHasKey('geographicMap', $payload);
         self::assertContains('originChoropleth', $payload['geographicMap']['layers']);
         self::assertArrayNotHasKey('flowStackedBar', $payload);

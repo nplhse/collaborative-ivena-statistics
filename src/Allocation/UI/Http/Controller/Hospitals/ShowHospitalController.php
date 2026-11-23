@@ -89,7 +89,7 @@ final class ShowHospitalController extends AbstractController
                 ? $this->yearUrlFactory->forYears(['hospitalFilter' => (string) $id], $coverage->years)
                 : [],
             'orientationMap' => $this->orientationMapFactory->forHospital(
-                $dispatchArea?->getName(),
+                $dispatchArea?->getId(),
                 $hospital->getLatitude(),
                 $hospital->getLongitude(),
                 $hospital->getName(),

@@ -24,6 +24,7 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Geo\HospitalIsochroneFileStore;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Tests\Support\Geo\DispatchAreaShapes;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
@@ -35,6 +36,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class ShowAllocationControllerTest extends WebTestCase
 {
+    use DispatchAreaShapes;
     use Factories;
     use InteractsWithAuthenticatedUser;
 
@@ -457,6 +459,7 @@ final class ShowAllocationControllerTest extends WebTestCase
             'occasion' => OccasionFactory::createOne(),
         ]);
 
+        $this->giveDispatchAreasShapes();
         $crawler = $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
 
         self::assertResponseIsSuccessful();
@@ -466,7 +469,7 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="allocation-cross-district"]');
 
         $map = $crawler->filter('[data-testid="catalog-orientation-map"]');
-        self::assertSame('frankfurt', $map->attr('data-catalog-orientation-map-highlight-key-value'));
+        self::assertSame($this->dispatchAreaKey('Frankfurt'), $map->attr('data-catalog-orientation-map-highlight-key-value'));
         self::assertSame('50.1109', $map->attr('data-catalog-orientation-map-marker-lat-value'));
         self::assertSame('8.6821', $map->attr('data-catalog-orientation-map-marker-lng-value'));
         self::assertSame('true', $map->attr('data-catalog-orientation-map-show-route-value'));
@@ -543,6 +546,7 @@ final class ShowAllocationControllerTest extends WebTestCase
             'secondaryTransport' => SecondaryTransportFactory::createOne(),
         ]);
 
+        $this->giveDispatchAreasShapes();
         $crawler = $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
 
         self::assertResponseIsSuccessful();
@@ -593,6 +597,7 @@ final class ShowAllocationControllerTest extends WebTestCase
             'occasion' => OccasionFactory::createOne(),
         ]);
 
+        $this->giveDispatchAreasShapes();
         $crawler = $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
 
         self::assertResponseIsSuccessful();
@@ -601,7 +606,7 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertSelectorNotExists('.catalog-orientation-map-legend');
 
         $map = $crawler->filter('[data-testid="catalog-orientation-map"]');
-        self::assertSame('frankfurt', $map->attr('data-catalog-orientation-map-highlight-key-value'));
+        self::assertSame($this->dispatchAreaKey('Frankfurt'), $map->attr('data-catalog-orientation-map-highlight-key-value'));
         self::assertSame('false', $map->attr('data-catalog-orientation-map-show-route-value'));
         self::assertNull($map->attr('data-catalog-orientation-map-marker-lat-value'));
         self::assertNull($map->attr('data-catalog-orientation-map-destination-highlight-key-value'));
@@ -683,6 +688,7 @@ final class ShowAllocationControllerTest extends WebTestCase
             'occasion' => OccasionFactory::createOne(),
         ]);
 
+        $this->giveDispatchAreasShapes();
         $crawler = $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
 
         self::assertResponseIsSuccessful();
@@ -691,8 +697,8 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertSelectorExists('a[href="/explore/dispatch_area/'.$hospitalArea->getPublicIdString().'"]');
 
         $map = $crawler->filter('[data-testid="catalog-orientation-map"]');
-        self::assertSame('frankfurt', $map->attr('data-catalog-orientation-map-highlight-key-value'));
-        self::assertSame('offenbach', $map->attr('data-catalog-orientation-map-destination-highlight-key-value'));
+        self::assertSame($this->dispatchAreaKey('Frankfurt'), $map->attr('data-catalog-orientation-map-highlight-key-value'));
+        self::assertSame($this->dispatchAreaKey('Offenbach'), $map->attr('data-catalog-orientation-map-destination-highlight-key-value'));
         self::assertSame('true', $map->attr('data-catalog-orientation-map-show-route-value'));
         self::assertNull($map->attr('data-catalog-orientation-map-isochrones-value'));
     }
@@ -757,6 +763,7 @@ final class ShowAllocationControllerTest extends WebTestCase
         ]);
 
         try {
+            $this->giveDispatchAreasShapes();
             $crawler = $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
 
             self::assertResponseIsSuccessful();

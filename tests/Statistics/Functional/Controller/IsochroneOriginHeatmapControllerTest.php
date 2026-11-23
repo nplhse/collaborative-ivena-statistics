@@ -22,6 +22,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Geo\HospitalIsochroneFileStore;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Tests\Support\Geo\DispatchAreaShapes;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -33,6 +34,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class IsochroneOriginHeatmapControllerTest extends WebTestCase
 {
+    use DispatchAreaShapes;
     use Factories;
     use InteractsWithAuthenticatedUser;
 
@@ -146,13 +148,18 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             self::assertNotNull($crawler->filter('[data-testid="stats-geo-map-layer-isochrones"]')->attr('checked'));
             $geoUrl = $crawler->filter('[data-testid="stats-isochrone-origin-map"]')->attr('data-geo-map-geo-url-value');
             self::assertNotNull($geoUrl);
-            self::assertStringContainsString('hessen-landkreise', $geoUrl);
+            self::assertSame('/statistics/geo/dispatch-areas.geojson', $geoUrl);
             $payloadJson = (string) $crawler->filter('[data-testid="stats-isochrone-origin-map"]')->attr('data-geo-map-payload-value');
             self::assertStringStartsWith('{', $payloadJson);
             $payload = json_decode($payloadJson, true);
             self::assertIsArray($payload);
             self::assertSame(['isochroneBands', 'hospitalPin'], $payload['compactEnabledLayers']);
             self::assertContains('originChoropleth', $payload['compactLayers']);
+            self::assertNotEmpty($payload['mapFeatures']);
+            $this->giveDispatchAreasShapes();
+            foreach ($payload['mapFeatures'] as $feature) {
+                $this->assertHasMapFeature($feature['geoKey']);
+            }
             $bandCount = 0;
             foreach ($payload['bands'] as $band) {
                 $bandCount += (int) $band['count'];

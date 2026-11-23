@@ -10,7 +10,7 @@ It is **read-only** at request time. Coordinates come from `Hospital.latitude` /
 
 | Layer | Source | Notes |
 |-------|--------|-------|
-| Dispatch-area polygons | `assets/geo/hessen-landkreise.geojson` + `config/case_flow/dispatch_area_geo_map.yaml` | Hesse and configured neighbouring areas. Unknown area names disable the map. The state page shows the areas whose `state` matches; a state without areas has no map. |
+| Dispatch-area polygons | `GET /statistics/geo/dispatch-areas.geojson`, built from `district` and `district_geometry` by `DispatchAreaGeoIndex` | An area is shown only when it has at least one district and every assigned district has a usable geometry (ADR 041) |
 | Origin | Allocation dispatch area | Highlighted polygon |
 | Destination pin | Destination hospital lat/lng | Orange pin. Missing coords: no pin. |
 | Travel-time band | Stored hospital isochrones, filtered to `createdAt` → `arrivalAt` | 5-minute bands up to 50 minutes (`IsochroneTravelBand`). Intersection with the origin polygon is emphasized. |

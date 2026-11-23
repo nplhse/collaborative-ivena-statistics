@@ -41,7 +41,7 @@ export function choroplethScaleMax(valueByKey) {
     return maxVisibleChoroplethValue(valueByKey);
 }
 
-/** Dash pattern for dispatch areas outside Hesse (GeoJSON property `neighbour`). */
+/** Dash pattern for dispatch areas without a hospital (GeoJSON property `neighbour`). */
 export const NEIGHBOUR_AREA_DASH = '5 4';
 
 export function isNeighbourArea(feature) {

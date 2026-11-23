@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\CaseFlow\Application\GeographicSegment;
 
-use App\Statistics\CaseFlow\Application\CaseFlowGeoKeyResolver;
+use App\Allocation\Application\Geo\DTO\DispatchAreaGeoSnapshot;
 use App\Statistics\CaseFlow\Application\CaseFlowPrivacySuppressor;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowCriteria;
 use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowDispatchAreaMatch;
@@ -16,7 +16,6 @@ final readonly class GeographicSegmentCatalogService
     public function __construct(
         private CaseFlowOriginDistributionQuery $originDistributionQuery,
         private CaseFlowPrivacySuppressor $privacySuppressor,
-        private CaseFlowGeoKeyResolver $geoKeyResolver,
         private GeographicSegmentCatalogFactory $catalogFactory,
     ) {
     }
@@ -41,7 +40,7 @@ final readonly class GeographicSegmentCatalogService
         $mapFeatures = $this->privacySuppressor->buildMapFeatures(
             $originRows,
             $originTotal,
-            fn (int $id, string $name): string => $this->geoKeyResolver->resolve($id, $name),
+            static fn (int $id): string => DispatchAreaGeoSnapshot::keyFor($id),
         );
 
         return $this->catalogFactory->fromMapFeatures($mapFeatures, null, false);
