@@ -269,6 +269,35 @@ final class ReactionControllerTest extends WebTestCase
         self::assertStringContainsString('/login', (string) $client->getResponse()->headers->get('Location'));
     }
 
+    public function testBarShowsTheLatestPeopleAndCountsTheOthers(): void
+    {
+        $client = self::createClient();
+        $post = PostFactory::createOne();
+        foreach (['Anna', 'Ben', 'Cem', 'Dana', 'Emil', 'Fay'] as $name) {
+            $this->react(UserFactory::createOne(['displayName' => $name]), ReactionTargetType::Post, (int) $post->getId(), ReactionType::Like);
+        }
+        $client->loginUser(UserFactory::createOne());
+
+        $bar = $this->bar($this->load($client, 'post:'.$post->getId()), 'post', (int) $post->getId());
+
+        self::assertSame(['Fay', 'Emil', 'Dana', 'Cem'], $bar->filter('[data-testid="reaction-avatar"]')->each(static fn (Crawler $avatar): string => (string) $avatar->attr('title')));
+        self::assertSame('6 people reacted', $bar->filter('[data-testid="reaction-people"]')->attr('aria-label'));
+        self::assertSame('+2', trim($bar->filter('[data-testid="reaction-more"]')->text()));
+        self::assertSame('+4', trim($bar->filter('[data-testid="reaction-more-compact"]')->text()), 'phones show two avatars');
+    }
+
+    public function testVisitorsSeeNoAvatars(): void
+    {
+        $client = self::createClient();
+        $post = PostFactory::createOne();
+        $this->react(UserFactory::createOne(['displayName' => 'Anna']), ReactionTargetType::Post, (int) $post->getId(), ReactionType::Like);
+
+        $bar = $this->bar($this->load($client, 'post:'.$post->getId()), 'post', (int) $post->getId());
+
+        self::assertCount(1, $bar->filter('[data-testid="reaction-chip"]'));
+        self::assertCount(0, $bar->filter('[data-testid="reaction-people"]'));
+    }
+
     public function testTimelineRendersActivityPlaceholders(): void
     {
         $client = self::createClient();

@@ -13,6 +13,8 @@ lightweight feedback, not a vote: there is no negative reaction, no score and no
   viewer's own reaction is highlighted (`aria-pressed="true"`). The picker (🙂 +) offers all eight.
 - **Signed-in users** see who reacted in the chip's tooltip: the first ten display names (username as fallback),
   oldest first, then "and N more".
+- **Signed-in users** also see who took part as a stack of avatars at the end of the bar: the four latest people (two
+  on phones), then "+N" for everyone else.
 - **Visitors** see the counts on blog posts and comments, without names and without controls. Activities are not
   visible to visitors, so neither are their reactions.
 - Reactions of disabled users are not counted, as their activities are not shown either.
@@ -56,7 +58,7 @@ If a request fails, the placeholder stays empty; the page shows no error. The re
 since names and the own reaction only arrive with the bar, the HTML of a blog post no longer depends on the viewer.
 
 `ReactionSummaryQuery` reads counts, own reaction and names of all targets of a request with one query per target
-type.
+type, and for signed-in users the latest participants with a second one.
 
 ## Model
 
