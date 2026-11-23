@@ -29,9 +29,10 @@ use Doctrine\ORM\EntityManagerInterface;
 /**
  * Development-only target hospital override for closure imports (#878).
  *
- * The file names "Klinikum Weststadt", a different catalog hospital. Row 1 is valid, row 2 names an
- * unknown department. With the override in `dev`, row 1 is stored on the selected demo hospital and
- * row 2 is still rejected; outside `dev` both rows are rejected as HOSPITAL_CONFLICT.
+ * The file names "Klinikum Weststadt", a different catalog hospital. Rows 1 to 3 are valid, row 4 names an
+ * unknown department (1 of 4 rejected, so the import does not fail). With the override in `dev`, the valid rows
+ * are stored on the selected demo hospital and row 4 is still rejected; outside `dev` all rows are rejected as
+ * HOSPITAL_CONFLICT.
  */
 final class ImportClosuresHospitalOverrideTest extends DatabaseKernelTestCase
 {
@@ -46,15 +47,18 @@ final class ImportClosuresHospitalOverrideTest extends DatabaseKernelTestCase
         $this->runImport($id);
 
         $import = $this->freshImport($id);
-        self::assertSame(2, $import->getRowCount());
-        self::assertSame(1, $import->getRowsPassed());
+        self::assertSame(4, $import->getRowCount());
+        self::assertSame(3, $import->getRowsPassed());
         self::assertSame(1, $import->getRowsRejected(), 'The unknown department is still rejected.');
         self::assertTrue($import->isHospitalOverride());
         self::assertSame(self::FILE_HOSPITAL, $import->getHospitalOverrideSourceLabel());
 
         $intervals = $this->em()->getRepository(ClosureInterval::class)->findBy(['import' => $id]);
-        self::assertCount(1, $intervals);
-        self::assertSame($hospitalId, $intervals[0]->getHospital()?->getId());
+        self::assertCount(3, $intervals);
+        foreach ($intervals as $interval) {
+            self::assertSame($hospitalId, $interval->getHospital()?->getId());
+        }
+
         self::assertSame(['REF_NOT_FOUND' => 1], $this->rejectCodes($id));
     }
 
@@ -68,10 +72,10 @@ final class ImportClosuresHospitalOverrideTest extends DatabaseKernelTestCase
 
         $import = $this->freshImport($id);
         self::assertSame(0, $import->getRowsPassed());
-        self::assertSame(2, $import->getRowsRejected());
+        self::assertSame(4, $import->getRowsRejected());
         self::assertNull($import->getHospitalOverrideSourceLabel());
         self::assertSame([], $this->em()->getRepository(ClosureInterval::class)->findBy(['import' => $id]));
-        self::assertSame(['HOSPITAL_CONFLICT' => 2], $this->rejectCodes($id));
+        self::assertSame(['HOSPITAL_CONFLICT' => 4], $this->rejectCodes($id));
     }
 
     public function testImportWithoutOverrideKeepsTheConflictCheckInDevelopment(): void
@@ -84,7 +88,7 @@ final class ImportClosuresHospitalOverrideTest extends DatabaseKernelTestCase
 
         $import = $this->freshImport($id);
         self::assertSame(0, $import->getRowsPassed());
-        self::assertSame(['HOSPITAL_CONFLICT' => 2], $this->rejectCodes($id));
+        self::assertSame(['HOSPITAL_CONFLICT' => 4], $this->rejectCodes($id));
     }
 
     private function runImport(int $id): void
@@ -143,6 +147,8 @@ final class ImportClosuresHospitalOverrideTest extends DatabaseKernelTestCase
 
         $csv = "Krankenhaus-Kurzname;Fachgebiet;Fachbereich;Behandlungsdringlichkeit;Datum (Schließungs-Beginn);Uhrzeit (Schließungs-Beginn);Schließungs-Dauer (Minuten);Datum (Schließungs-Ende);Uhrzeit (Schließungs-Ende);Grund;Eingetragen am;Geändert am;Typ\n";
         $csv .= self::FILE_HOSPITAL.";Innere Medizin;Kardiologie;Notfallversorgung;01.01.2026;00:10:00;60;01.01.2026;01:10:00;Überlastung der Notaufnahme;01.01.2026 00:20:22;01.01.2026 00:20:22;Klinik\n";
+        $csv .= self::FILE_HOSPITAL.";Innere Medizin;Kardiologie;Notfallversorgung;03.01.2026;00:10:00;60;03.01.2026;01:10:00;Überlastung der Notaufnahme;03.01.2026 00:20:22;03.01.2026 00:20:22;Klinik\n";
+        $csv .= self::FILE_HOSPITAL.";Innere Medizin;Kardiologie;Notfallversorgung;04.01.2026;00:10:00;60;04.01.2026;01:10:00;Überlastung der Notaufnahme;04.01.2026 00:20:22;04.01.2026 00:20:22;Klinik\n";
         $csv .= self::FILE_HOSPITAL.";Innere Medizin;Unbekannter Fachbereich;Notfallversorgung;02.01.2026;08:00:00;30;02.01.2026;08:30:00;Überlastung der Notaufnahme;02.01.2026 08:05:00;02.01.2026 08:05:00;Klinik\n";
 
         $importsBaseDir = (string) self::getContainer()->getParameter('app.imports_base_dir');
