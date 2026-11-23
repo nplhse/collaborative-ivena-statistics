@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Allocation\Functional\Controller;
 
+use App\Content\UI\Twig\Components\HelpReference;
+use App\Shared\Application\Navigation\Menu\NavigationBuilder;
 use App\Tests\Support\Content\HelpPages;
 use App\User\Domain\Factory\UserFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -134,6 +136,36 @@ final class HelpReferenceTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="help-reference"]');
         self::assertSelectorNotExists('[data-testid="footer-nav-glossary"]');
         self::assertSelectorNotExists('[data-testid="footer-nav-data-catalog"]');
+    }
+
+    public function testTheBreadcrumbStartsWithThePublishedHelp(): void
+    {
+        $client = $this->clientWithRoles(['ROLE_USER', 'ROLE_PARTICIPANT']);
+        HelpPages::root();
+
+        $crawler = $client->request(Request::METHOD_GET, '/help/glossary');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame('Help', trim($crawler->filter('.breadcrumb a[href="/help"]')->text()));
+    }
+
+    public function testTheBreadcrumbLeavesOutAnUnpublishedHelp(): void
+    {
+        $client = $this->clientWithRoles(['ROLE_USER', 'ROLE_PARTICIPANT']);
+
+        $client->request(Request::METHOD_GET, '/help/glossary');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('.breadcrumb a[href="/help"]');
+    }
+
+    public function testTheReferenceCardHasNoEntriesWithoutAHelpColumn(): void
+    {
+        self::bootKernel();
+
+        $component = new HelpReference(self::getContainer()->get(NavigationBuilder::class));
+
+        self::assertSame([], $component->getItems(), 'A guest without published help pages has no help column.');
     }
 
     public function testExploreNoLongerLinksToTheReference(): void
