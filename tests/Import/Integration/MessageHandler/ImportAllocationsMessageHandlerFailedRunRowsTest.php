@@ -5,15 +5,20 @@ declare(strict_types=1);
 namespace App\Tests\Import\Integration\MessageHandler;
 
 use App\Import\Application\DTO\ImportRunContext;
+use App\Import\Application\Event\ImportFailed;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\MessageHandler\ImportAllocationsMessageHandler;
 use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Infrastructure\EventSubscriber\ImportRunRetriesExhaustedSubscriber;
+use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Statistics\Application\Contract\ClosureRebuildRequestInterface;
 use Doctrine\DBAL\Driver\AbstractException;
 use Doctrine\DBAL\Exception\DeadlockException;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 
@@ -95,6 +100,34 @@ final class ImportAllocationsMessageHandlerFailedRunRowsTest extends ImportAlloc
         self::assertSame(ImportStatus::FAILED, $this->imports->find($id)?->getStatus());
         self::assertSame(1, $this->countAllocationsForImport($id));
         self::assertSame(1, $this->countProjectionRowsForImport($id));
+    }
+
+    public function testAFailingFollowUpDoesNotChangeTheEndedRun(): void
+    {
+        self::ensureKernelShutdown();
+        self::bootKernel();
+        $container = self::getContainer();
+        $rebuildRequests = $this->createStub(ClosureRebuildRequestInterface::class);
+        $rebuildRequests->method('requestVolume')->willThrowException(new \RuntimeException('rebuild request failed'));
+        $container->set(ClosureRebuildRequestInterface::class, $rebuildRequests);
+        $this->em = $container->get(EntityManagerInterface::class);
+        $this->imports = $container->get(ImportRepository::class);
+        $this->handler = $container->get(ImportAllocationsMessageHandler::class);
+
+        ['id' => $sourceId, 'csvPath' => $csvPath] = $this->arrangeSingleRowSuccessfulCsvImport();
+        $id = $this->arrangeImportOfSameHospital($sourceId, $this->csvWithRejectedRows($csvPath, 1));
+        /** @var list<int> $failed */
+        $failed = [];
+        $container->get(EventDispatcherInterface::class)->addListener(ImportFailed::class, static function (ImportFailed $event) use (&$failed): void {
+            $failed[] = $event->importId;
+        });
+
+        $this->processInNewRun($id);
+
+        $this->em->clear();
+        self::assertSame([$id], $failed, 'The outcome is still reported.');
+        self::assertSame(ImportStatus::FAILED, $this->imports->find($id)?->getStatus());
+        self::assertSame(0, $this->countAllocationsForImport($id));
     }
 
     /**
