@@ -75,6 +75,21 @@ final class DistrictTest extends TestCase
         self::assertNull($district->getUpdatedAt());
     }
 
+    public function testADispatchAreaAddsAndRemovesItsDistricts(): void
+    {
+        $area = new DispatchArea();
+        $district = new District('06611', 'Kassel');
+
+        $area->addDistrict($district);
+        $area->addDistrict($district);
+        self::assertCount(1, $area->getDistricts());
+        self::assertSame($area, $district->getDispatchArea());
+
+        $area->removeDistrict($district);
+        self::assertCount(0, $area->getDistricts());
+        self::assertNull($district->getDispatchArea());
+    }
+
     public function testANewGeometryIsEmptyAndIdle(): void
     {
         $district = new District('06411', 'Darmstadt');

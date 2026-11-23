@@ -35,6 +35,9 @@ final class DistrictBoundaryFetchTest extends KernelTestCase
     private array $outcomes = [];
     private int $calls = 0;
     private bool $queueFails = false;
+    /** @var (\Closure(): void)|null */
+    private ?\Closure $duringFetch = null;
+    private ?DistrictBoundaryOutcome $lateOutcome = null;
 
     #[\Override]
     protected function setUp(): void
@@ -72,6 +75,31 @@ final class DistrictBoundaryFetchTest extends KernelTestCase
         self::assertSame('© BKG (2026) second', $geometry->getGeometryAttribution());
         self::assertEquals($storedAt, $geometry->getGeometryFetchedAt());
         self::assertSame(DistrictBoundaryStatus::READY, $this->boundaryStatus($district)->state);
+    }
+
+    public function testAResultArrivingAfterANewerAttemptSucceededIsDiscarded(): void
+    {
+        $district = $this->district();
+        $fetch = $this->fetch();
+        $fetch->request($district);
+        $firstJob = $this->queue[0];
+
+        // While the first job waits for the service, a newer attempt starts and stores its geometry.
+        $this->duringFetch = function () use ($district, $fetch): void {
+            $this->duringFetch = null;
+            $this->clock->modify('+16 minutes');
+            self::assertTrue($fetch->request($district));
+            $this->outcomes = [$this->found(self::SECOND, 'second')];
+            $fetch->run($this->queue[1]->districtId, $this->queue[1]->attemptId);
+            $this->outcomes = [];
+        };
+        $this->lateOutcome = $this->found(self::FIRST, 'first');
+
+        $fetch->run($firstJob->districtId, $firstJob->attemptId);
+
+        $geometry = $this->geometry($district);
+        self::assertSame((string) json_encode(self::SECOND), $geometry->getGeometry());
+        self::assertSame('second', $geometry->getGeometryAttribution());
     }
 
     public function testAJobAlreadyInFlightCannotReplaceAGeometryStoredMeanwhile(): void
@@ -245,6 +273,11 @@ final class DistrictBoundaryFetchTest extends KernelTestCase
     public function nextOutcome(): DistrictBoundaryOutcome
     {
         ++$this->calls;
+        if ($this->duringFetch instanceof \Closure) {
+            ($this->duringFetch)();
+
+            return $this->lateOutcome ?? DistrictBoundaryOutcome::failed(DistrictBoundaryFetchFailure::Unavailable);
+        }
 
         return array_shift($this->outcomes) ?? DistrictBoundaryOutcome::failed(DistrictBoundaryFetchFailure::Unavailable);
     }
