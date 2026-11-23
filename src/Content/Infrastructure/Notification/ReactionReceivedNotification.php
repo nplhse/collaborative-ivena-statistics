@@ -24,4 +24,7 @@ use App\Notification\Domain\Enum\NotificationChannel;
 final class ReactionReceivedNotification extends AppNotification
 {
     public const string TYPE = 'content.reaction_received';
+
+    /** Replaces the names in an entry once one of the people named in it has deleted their account. */
+    public const array WITHOUT_NAMES = ['actors' => 'none', 'firstActor' => null, 'secondActor' => null, 'others' => 0, 'actorIds' => null];
 }

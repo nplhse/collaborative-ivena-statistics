@@ -186,6 +186,32 @@ final class GroupedNotificationWriterTest extends DatabaseKernelTestCase
         self::assertSame(0, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM notification WHERE recipient_id = ?', [$userId]));
     }
 
+    public function testRedactPersonChangesReadAndUnreadEntriesNamingThatPersonOnly(): void
+    {
+        $userId = $this->createUserId();
+        $unread = $this->createNaming($userId, 'a', ',7,13,');
+        $read = $this->createNaming($userId, 'b', ',7,');
+        $other = $this->createNaming($userId, 'c', ',17,70,');
+        $this->inbox->markRead($userId, $read);
+        $unreadBefore = $this->recipientState($userId)['unread_count'];
+
+        $changed = $this->writer->redactPerson('test.grouped', 7, ['name' => null, 'actorIds' => null]);
+
+        self::assertSame(2, $changed);
+        self::assertSame(['name' => null, 'actorIds' => null], $this->parameters($unread));
+        self::assertSame(['name' => null, 'actorIds' => null], $this->parameters($read));
+        self::assertSame(['name' => 'Anna', 'actorIds' => ',17,70,'], $this->parameters($other), 'ids 17 and 70 only contain the digit');
+        self::assertSame($unreadBefore, $this->recipientState($userId)['unread_count']);
+    }
+
+    private function createNaming(int $userId, string $target, string $actorIds): int
+    {
+        $id = $this->writer->create(new NotificationRequest('test.grouped', [$userId], 'test.grouped:'.$target, ['name' => 'Anna', 'actorIds' => $actorIds]));
+        self::assertNotNull($id);
+
+        return $id;
+    }
+
     private function create(int $userId, int $count): int
     {
         $id = $this->writer->create($this->request($userId, $count));

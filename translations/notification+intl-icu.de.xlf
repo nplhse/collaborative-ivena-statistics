@@ -623,7 +623,7 @@
       </trans-unit>
       <trans-unit id="NtfReactMsgDe" resname="content.reaction_received.message">
         <source>content.reaction_received.message</source>
-        <target>{targetType, select, post {Ihr Beitrag „{title}“ hat} comment {Ihr Kommentar zu „{title}“ hat} other {Ihr Eintrag in der Aktivitätsübersicht hat}} {count, plural, one {eine neue Reaktion} other {# neue Reaktionen}} erhalten: {breakdown}</target>
+        <target>{actors, select, one {{firstActor} hat} two {{firstActor} und {secondActor} haben} many {{firstActor}, {secondActor} und {others, plural, one {# weitere Person} other {# weitere}} haben} other {{count, plural, one {Eine Person hat} other {# Personen haben}}}} auf {targetType, select, post {Ihren Beitrag „{title}“} comment {Ihren Kommentar zu „{title}“} other {Ihren Eintrag in der Aktivitätsübersicht}} reagiert: {breakdown}</target>
       </trans-unit>
       <trans-unit id="NtfPostAnnDe1" resname="announcement.post.label">
         <source>announcement.post.label</source>

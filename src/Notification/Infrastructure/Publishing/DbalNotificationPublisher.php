@@ -378,6 +378,29 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
     }
 
     /** A new version makes open dropdowns reload, also when the unread count stays the same. */
+    #[\Override]
+    public function redactPerson(string $type, int $personId, array $parameters): int
+    {
+        return $this->connection->transactional(function (Connection $connection) use ($type, $personId, $parameters): int {
+            $recipients = $connection->fetchFirstColumn(
+                <<<'SQL'
+                    UPDATE notification
+                    SET parameters = CAST(CAST(parameters AS JSONB) || CAST(:parameters AS JSONB) AS JSON)
+                    WHERE type = :type AND parameters->>'actorIds' LIKE :person
+                    RETURNING recipient_id
+                    SQL,
+                ['parameters' => $parameters, 'type' => $type, 'person' => '%,'.$personId.',%'],
+                ['parameters' => Types::JSON],
+            );
+
+            foreach (array_unique(array_map(intval(...), $recipients)) as $recipientId) {
+                $this->changeRecipientState($connection, $recipientId, 0);
+            }
+
+            return \count($recipients);
+        });
+    }
+
     private function changeRecipientState(Connection $connection, int $recipientId, int $unreadDelta): void
     {
         $connection->executeStatement(

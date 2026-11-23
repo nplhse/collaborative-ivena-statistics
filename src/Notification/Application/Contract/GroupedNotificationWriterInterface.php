@@ -53,4 +53,17 @@ interface GroupedNotificationWriterInterface
      * @psalm-suppress PossiblyUnusedMethod Port for producing contexts; the first caller arrives with #973.
      */
     public function withdraw(int $notificationId): bool;
+
+    /**
+     * Overwrites parameters in every entry of the type that names this person, read entries included, because the
+     * person's account is being deleted. Such entries list the people they name in the parameter `actorIds`
+     * (",3,7,"). The unread count and the position stay as they are.
+     *
+     * @param array<string, scalar|null> $parameters replacements for the parameters that identify people
+     *
+     * @return int number of changed entries
+     *
+     * @psalm-suppress PossiblyUnusedReturnValue The count is for callers that report it.
+     */
+    public function redactPerson(string $type, int $personId, array $parameters): int;
 }

@@ -26,9 +26,11 @@ use App\User\Domain\Enum\UserActivityType;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Clock\Clock;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * The whole path from a reaction to its grouped entry; in the test environment the refresh job runs synchronously.
@@ -58,7 +60,7 @@ final class ReactionNotificationsTest extends DatabaseKernelTestCase
 
         $entries = $this->entries($owner);
         self::assertCount(1, $entries);
-        self::assertSame(['targetType' => 'post', 'title' => 'Launch', 'count' => 12, 'breakdown' => '👍 7 ❤️ 3 🎉 2'], $entries[0]['parameters']);
+        self::assertSame(['targetType' => 'post', 'title' => 'Launch', 'count' => 12, 'breakdown' => '👍 7 ❤️ 3 🎉 2'], $this->numbers($entries[0]));
         self::assertSame(1, $this->unreadCount($owner));
         self::assertSame(0, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM notification_delivery'), 'never by email');
         self::assertNull($entries[0]['toast_pending_until'], 'never as a toast');
@@ -153,7 +155,7 @@ final class ReactionNotificationsTest extends DatabaseKernelTestCase
         $entries = $this->entries($owner);
         self::assertCount(2, $entries);
         self::assertSame(2, $entries[0]['parameters']['count'], 'the read entry stays as it was');
-        self::assertSame(['targetType' => 'post', 'title' => 'Post', 'count' => 1, 'breakdown' => '🎉 1'], $entries[1]['parameters']);
+        self::assertSame(['targetType' => 'post', 'title' => 'Post', 'count' => 1, 'breakdown' => '🎉 1'], $this->numbers($entries[1]));
         self::assertSame(1, $this->unreadCount($owner));
     }
 
@@ -306,7 +308,7 @@ final class ReactionNotificationsTest extends DatabaseKernelTestCase
 
         $this->react(UserFactory::createOne(), new ReactionTarget(ReactionTargetType::Activity, (int) $activity->getId()), ReactionType::Hooray);
 
-        self::assertSame(['targetType' => 'activity', 'title' => '', 'count' => 1, 'breakdown' => '🎉 1'], $this->entries($owner)[0]['parameters']);
+        self::assertSame(['targetType' => 'activity', 'title' => '', 'count' => 1, 'breakdown' => '🎉 1'], $this->numbers($this->entries($owner)[0]));
     }
 
     public function testReactionsFromBeforeTheReleaseAreNotReported(): void
@@ -339,6 +341,95 @@ final class ReactionNotificationsTest extends DatabaseKernelTestCase
 
         self::assertSame([], $this->entries($owner));
         self::assertSame(0, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM reaction_notification_state'));
+    }
+
+    public function testEntryNamesTheTwoLatestPeopleAndCountsTheOthers(): void
+    {
+        $owner = UserFactory::createOne(['displayName' => 'Owner']);
+        $target = $this->postOf($owner, 'Launch');
+        foreach (['Anna', 'Ben', 'Cem', 'Dana'] as $name) {
+            $this->react(UserFactory::createOne(['displayName' => $name]), $target, ReactionType::Like);
+        }
+        $this->react($owner, $target, ReactionType::Love);
+
+        $parameters = $this->entries($owner)[0]['parameters'];
+
+        self::assertSame('many', $parameters['actors']);
+        self::assertSame('Dana', $parameters['firstActor'], 'newest first, the own reaction does not count');
+        self::assertSame('Cem', $parameters['secondActor']);
+        self::assertSame(2, $parameters['others']);
+    }
+
+    public function testAnEmptyDisplayNameFallsBackToTheUsername(): void
+    {
+        $owner = UserFactory::createOne();
+        $this->react(UserFactory::createOne(['username' => 'plain-user', 'displayName' => '  ']), $this->postOf($owner, 'Post'), ReactionType::Like);
+
+        $parameters = $this->entries($owner)[0]['parameters'];
+
+        self::assertSame('one', $parameters['actors']);
+        self::assertSame('plain-user', $parameters['firstActor']);
+        self::assertNull($parameters['secondActor']);
+    }
+
+    /**
+     * @param list<string> $names
+     */
+    #[DataProvider('renderedMessages')]
+    public function testMessageReadsNaturally(array $names, string $locale, string $expected): void
+    {
+        $owner = UserFactory::createOne();
+        $target = $this->postOf($owner, 'Launch');
+        foreach ($names as $name) {
+            $this->react(UserFactory::createOne(['displayName' => $name]), $target, ReactionType::Like);
+        }
+
+        $message = self::getContainer()->get(TranslatorInterface::class)->trans('content.reaction_received.message', $this->entries($owner)[0]['parameters'], 'notification', $locale);
+
+        self::assertSame($expected, $message);
+    }
+
+    /**
+     * @return iterable<string, array{list<string>, string, string}>
+     */
+    public static function renderedMessages(): iterable
+    {
+        yield 'one, en' => [['Anna'], 'en', 'Anna reacted to your post “Launch”: 👍 1'];
+        yield 'two, en' => [['Anna', 'Ben'], 'en', 'Ben and Anna reacted to your post “Launch”: 👍 2'];
+        yield 'three, en' => [['Anna', 'Ben', 'Cem'], 'en', 'Cem, Ben and 1 other reacted to your post “Launch”: 👍 3'];
+        yield 'four, en' => [['Anna', 'Ben', 'Cem', 'Dana'], 'en', 'Dana, Cem and 2 others reacted to your post “Launch”: 👍 4'];
+        yield 'one, de' => [['Anna'], 'de', 'Anna hat auf Ihren Beitrag „Launch“ reagiert: 👍 1'];
+        yield 'two, de' => [['Anna', 'Ben'], 'de', 'Ben und Anna haben auf Ihren Beitrag „Launch“ reagiert: 👍 2'];
+        yield 'three, de' => [['Anna', 'Ben', 'Cem'], 'de', 'Cem, Ben und 1 weitere Person haben auf Ihren Beitrag „Launch“ reagiert: 👍 3'];
+        yield 'four, de' => [['Anna', 'Ben', 'Cem', 'Dana'], 'de', 'Dana, Cem und 2 weitere haben auf Ihren Beitrag „Launch“ reagiert: 👍 4'];
+    }
+
+    public function testDeletingAnAccountRemovesItsNameFromReadAndUnreadEntries(): void
+    {
+        $owner = UserFactory::createOne();
+        $leaving = UserFactory::createOne(['displayName' => 'Leaving']);
+        $staying = UserFactory::createOne(['displayName' => 'Staying']);
+        $read = $this->postOf($owner, 'Read');
+        $this->react($staying, $read, ReactionType::Like);
+        $this->react($leaving, $read, ReactionType::Love);
+        $this->markAllRead($owner);
+        $this->react($leaving, $this->postOf($owner, 'Unread'), ReactionType::Like);
+        $this->react($staying, $this->postOf($owner, 'Unrelated'), ReactionType::Like);
+
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->remove($entityManager->find(User::class, $leaving->getId()));
+        $entityManager->flush();
+
+        $entries = $this->entries($owner);
+        self::assertCount(3, $entries);
+        self::assertSame(['none', null, 2], [$entries[0]['parameters']['actors'], $entries[0]['parameters']['firstActor'], $entries[0]['parameters']['count']]);
+        self::assertSame(['none', null], [$entries[1]['parameters']['actors'], $entries[1]['parameters']['firstActor']]);
+        self::assertSame('Staying', $entries[2]['parameters']['firstActor']);
+        self::assertStringNotContainsString('Leaving', (string) json_encode($entries));
+        self::assertSame(2, $this->unreadCount($owner));
+
+        $message = self::getContainer()->get(TranslatorInterface::class)->trans('content.reaction_received.message', $entries[0]['parameters'], 'notification', 'en');
+        self::assertSame('2 people reacted to your post “Read”: 👍 1 ❤️ 1', $message);
     }
 
     private function postOf(User $owner, string $title): ReactionTarget
@@ -393,6 +484,18 @@ final class ReactionNotificationsTest extends DatabaseKernelTestCase
                 'toast_pending_until' => null === $row['toast_pending_until'] ? null : (string) $row['toast_pending_until'],
             ];
         }, $rows);
+    }
+
+    /**
+     * The numbers of an entry, without the people it names.
+     *
+     * @param array{parameters: array<string, mixed>, created_at: string, toast_pending_until: ?string} $entry
+     *
+     * @return array<string, mixed>
+     */
+    private function numbers(array $entry): array
+    {
+        return array_intersect_key($entry['parameters'], array_flip(['targetType', 'title', 'count', 'breakdown']));
     }
 
     private function unreadCount(User $user): int

@@ -77,12 +77,16 @@ Reactions are not written to the audit log.
 ## Notifications
 
 Authors are told about reactions to their posts, comments and activities with one grouped in-app entry per target
-(#973): "Your post *Title* received 12 new reactions: 👍 7 ❤️ 3 🎉 2". The type `content.reaction_received` is on by
+(#973): "Anna, Ben and 10 others reacted to your post *Title*: 👍 7 ❤️ 3 🎉 2". The type `content.reaction_received` is on by
 default, has its own row in the category *Community* of the notification settings, and offers neither email nor toast.
 
 - **Recipient:** the post's author, the comment's author, or the activity's user, for every activity type. Nobody is
   told about their own reaction, and reactions of disabled users are not counted. One reaction per person means that
   the number of reactions is also the number of people.
+- **Names:** the entry names the two latest people of the group (display name, or username as fallback) and counts the
+  others. The names are stored in the entry, so a renamed user keeps the old name until the group changes. When an
+  account is deleted, the names are removed from every entry that mentions it, read ones included, and the entry then
+  reads "3 people reacted".
 - **Grouping:** `ReactionChanged` schedules `RefreshReactionNotificationMessage` with a 30 s delay, so a quick misclick
   creates nothing. The job recomputes the group from the `reaction` table under a row lock, so running it again changes
   nothing.
