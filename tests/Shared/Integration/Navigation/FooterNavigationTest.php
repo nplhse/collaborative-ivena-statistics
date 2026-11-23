@@ -42,7 +42,7 @@ final class FooterNavigationTest extends KernelTestCase
     {
         $this->createPage(PageKey::About, 'About us', '/about');
 
-        self::assertSame(['project', 'more'], $this->columnIds($this->footer()));
+        self::assertSame(['project', 'legal', 'more'], $this->columnIds($this->footer()));
     }
 
     public function testAllColumnsListPublishedPagesAndStaticLinksInOrder(): void
@@ -61,7 +61,7 @@ final class FooterNavigationTest extends KernelTestCase
             [
                 'project' => ['About us => /about', 'Features overview => /features', 'Blog => /blog'],
                 'help' => ['Frequently asked questions => /faq'],
-                'legal' => ['Imprint => /imprint', 'Privacy policy => /privacy', 'Terms of use => /terms'],
+                'legal' => ['Imprint => /imprint', 'Privacy policy => /privacy', 'Terms of use => /terms', 'Data sources and licences => /data-sources'],
                 'more' => ['Sitemap => /sitemap', 'Cookie settings => /cookies/preferences'],
             ],
             $this->linksByColumn($footer),

@@ -33,6 +33,10 @@ Hospital users and reviewers do **not** load or refresh geographic data in the U
 
 The hospital-population statistics map uses a separate city/PLZ centroid YAML for local and CI fixtures. It is not updated by these commands.
 
+## Data sources page
+
+The public page `/data-sources` (footer, legal column) lists the geographic sources with their use, licence and source note. District boundaries come from the provenance stored in `district_geometry`. The map tile entry follows `MAP_TILE_URL` and `MAP_TILE_ATTRIBUTION`, without showing the address. When you add another external source without stored provenance, add it to `DataSourceCatalog`.
+
 ## Command scopes
 
 Both commands share the same interface. Specify **exactly one** scope:

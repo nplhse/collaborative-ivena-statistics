@@ -2977,6 +2977,50 @@
         <source>hospital_assignment_request.refused.invalid_permissions</source>
         <target>Wählen Sie mindestens die Berechtigung, die Klinik zu sehen.</target>
       </trans-unit>
+      <trans-unit id="dataSourcestitleDe" resname="data_sources.title">
+        <source>data_sources.title</source>
+        <target>Datenquellen und Lizenzen</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesintroDe" resname="data_sources.intro">
+        <source>data_sources.intro</source>
+        <target>Diese Installation nutzt die folgenden geografischen Datenquellen. Hier stehen ihre Verwendung, Lizenz und der jeweilige Quellenvermerk.</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesfielduseDe" resname="data_sources.field.use">
+        <source>data_sources.field.use</source>
+        <target>Verwendung</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesfieldlicenceDe" resname="data_sources.field.licence">
+        <source>data_sources.field.licence</source>
+        <target>Lizenz</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesfieldattributionDe" resname="data_sources.field.attribution">
+        <source>data_sources.field.attribution</source>
+        <target>Quellenvermerk</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesuseboundariesDe" resname="data_sources.use.boundaries">
+        <source>data_sources.use.boundaries</source>
+        <target>Kreisgrenzen</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesusegeocodingDe" resname="data_sources.use.geocoding">
+        <source>data_sources.use.geocoding</source>
+        <target>Geokodierung von Klinikadressen</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesuseisochronesDe" resname="data_sources.use.isochrones">
+        <source>data_sources.use.isochrones</source>
+        <target>Fahrzeit-Isochronen</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesusetilesDe" resname="data_sources.use.tiles">
+        <source>data_sources.use.tiles</source>
+        <target>Kartenhintergrund</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesconfigured_tilesDe" resname="data_sources.configured_tiles">
+        <source>data_sources.configured_tiles</source>
+        <target>Konfigurierter Kartendienst</target>
+      </trans-unit>
+      <trans-unit id="dataSourceslicence_of_providerDe" resname="data_sources.licence_of_provider">
+        <source>data_sources.licence_of_provider</source>
+        <target>Siehe Quellenvermerk des Anbieters</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

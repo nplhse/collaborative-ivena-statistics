@@ -50,7 +50,7 @@ final class SitemapProviderTest extends KernelTestCase
             ['blog', 'page-about', 'page-features', 'page-faq', 'footer-legal', 'footer-more', 'pages'],
             $this->sectionKeys(),
         );
-        self::assertSame(['Page imprint', 'Page privacy', 'Page terms'], $this->labels($this->findSection('footer-legal')->groups[0]->entries));
+        self::assertSame(['Page imprint', 'Page privacy', 'Page terms', 'Data sources and licences'], $this->labels($this->findSection('footer-legal')->groups[0]->entries));
         self::assertSame(['Cookie settings'], $this->labels($this->findSection('footer-more')->groups[0]->entries), 'The sitemap does not link to itself.');
 
         $pages = $this->findSection('pages')->groups[0]->entries;
