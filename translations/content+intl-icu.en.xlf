@@ -1285,6 +1285,14 @@
         <source>reaction.tooltip.count</source>
         <target>{label}: {count}</target>
       </trans-unit>
+      <trans-unit id="reactPeopleCountEn" resname="reaction.people">
+        <source>reaction.people</source>
+        <target>{count, plural, one {# person reacted} other {# people reacted}}</target>
+      </trans-unit>
+      <trans-unit id="reactPeopleMoreEn" resname="reaction.people_more">
+        <source>reaction.people_more</source>
+        <target>{count, plural, one {# more person} other {# more people}}</target>
+      </trans-unit>
       <trans-unit id="help_page_key_help" resname="page.key.help">
         <source>page.key.help</source>
         <target>Help</target>

@@ -55,4 +55,23 @@
             <span class="reaction-chip reaction-chip--static" title="{{ tooltip }}" aria-label="{{ tooltip }}" data-testid="reaction-chip" data-reaction-type="{{ count.type.value }}"><span class="reaction-chip__emoji" aria-hidden="true">{{ count.type.emoji }}</span><span class="reaction-chip__count">{{ count.count }}</span></span>
         {% endfor %}
     {% endif %}
+    {% if summary.participants is not empty %}
+        {# Four avatars, two on phones; the counter always adds up to everyone who reacted. #}
+        {% set total = summary.participantCount %}
+        {% set shown = summary.participants|length %}
+        <div class="reaction-people avatar-list avatar-list-stacked" role="group" aria-label="{{ 'reaction.people'|trans({count: total}, 'content') }}" data-testid="reaction-people">
+            {% for participant in summary.participants %}
+                {% set name = user_display_name(participant.displayName, participant.username) %}
+                <twig:UserAvatar :userId="participant.userId" :displayName="participant.displayName" :username="participant.username" size="xs" :decorative="false" aria-label="{{ name }}" title="{{ name }}" class="{{ loop.index > 2 ? 'd-none d-sm-inline-flex' }}" data-controller="tooltip" data-testid="reaction-avatar" />
+            {% endfor %}
+            {% if total > shown %}
+                {% set label = 'reaction.people_more'|trans({count: total - shown}, 'content') %}
+                <span class="avatar avatar-xs reaction-people__more d-none d-sm-inline-flex" role="img" aria-label="{{ label }}" title="{{ label }}" data-controller="tooltip" data-testid="reaction-more">+{{ total - shown }}</span>
+            {% endif %}
+            {% if total > 2 %}
+                {% set label = 'reaction.people_more'|trans({count: total - 2}, 'content') %}
+                <span class="avatar avatar-xs reaction-people__more d-sm-none" role="img" aria-label="{{ label }}" title="{{ label }}" data-testid="reaction-more-compact">+{{ total - 2 }}</span>
+            {% endif %}
+        </div>
+    {% endif %}
 </div>

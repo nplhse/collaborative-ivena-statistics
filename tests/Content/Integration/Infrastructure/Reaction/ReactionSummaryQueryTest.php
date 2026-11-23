@@ -6,6 +6,7 @@ namespace App\Tests\Content\Integration\Infrastructure\Reaction;
 
 use App\Content\Application\Contract\ReactionSummaryQueryInterface;
 use App\Content\Application\Reaction\ReactionCount;
+use App\Content\Application\Reaction\ReactionParticipant;
 use App\Content\Application\Reaction\ReactionTarget;
 use App\Content\Domain\Entity\Reaction;
 use App\Content\Domain\Enum\ReactionTargetType;
@@ -92,6 +93,47 @@ final class ReactionSummaryQueryTest extends DatabaseKernelTestCase
         $summaries = $this->query()->summaries([new ReactionTarget(ReactionTargetType::Post, 2)], null, false);
 
         self::assertSame([['funny', 1, false, []]], $this->flatten($summaries['post:2']->counts));
+    }
+
+    public function testParticipantsAreTheLatestPeopleWithoutDisabledUsers(): void
+    {
+        $summaries = $this->query()->summaries($this->targets(), null, true);
+
+        self::assertSame(['dana', 'ben', 'anna'], $this->usernames($summaries['post:1']->participants), 'newest first, cem is disabled');
+        self::assertSame(3, $summaries['post:1']->participantCount());
+        self::assertSame(['ben'], $this->usernames($summaries['post:2']->participants));
+        self::assertSame(['anna'], $this->usernames($summaries['comment:1']->participants), 'same id, other target type');
+        self::assertSame([], $summaries['post:3']->participants);
+    }
+
+    public function testParticipantsStopAtFourWhileTheCountStaysComplete(): void
+    {
+        foreach (['p1', 'p2', 'p3', 'p4', 'p5', 'p6'] as $index => $username) {
+            $this->react(UserFactory::createOne(['username' => $username]), ReactionTargetType::Post, 9, 0 === $index % 2 ? ReactionType::Like : ReactionType::Love, '2026-11-05 10:00:00');
+        }
+
+        $summary = $this->query()->summaries([new ReactionTarget(ReactionTargetType::Post, 9)], null, true)['post:9'];
+
+        self::assertSame(['p6', 'p5', 'p4', 'p3'], $this->usernames($summary->participants));
+        self::assertSame(6, $summary->participantCount());
+    }
+
+    public function testVisitorsGetNoParticipants(): void
+    {
+        $summaries = $this->query()->summaries($this->targets(), null, false);
+
+        self::assertSame([], $summaries['post:1']->participants);
+        self::assertSame(3, $summaries['post:1']->participantCount());
+    }
+
+    /**
+     * @param list<ReactionParticipant> $participants
+     *
+     * @return list<string>
+     */
+    private function usernames(array $participants): array
+    {
+        return array_map(static fn (ReactionParticipant $participant): string => $participant->username, $participants);
     }
 
     /**
