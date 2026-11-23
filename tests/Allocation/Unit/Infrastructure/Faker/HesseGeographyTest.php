@@ -14,30 +14,12 @@ use Faker\Factory;
 use Faker\Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Yaml\Yaml;
 
 final class HesseGeographyTest extends TestCase
 {
     private const string PROJECT = __DIR__.'/../../../../..';
 
-    public function testDistrictsAreExactlyTheHessianDispatchAreasOfTheGeoMap(): void
-    {
-        /** @var array{dispatch_area_geo_map: array<string, string>} $config */
-        $config = Yaml::parseFile(self::PROJECT.'/config/case_flow/dispatch_area_geo_map.yaml');
-        /** @var array{dispatch_areas: array<string, array{state?: string}>} $sources */
-        $sources = Yaml::parseFile(self::PROJECT.'/config/case_flow/dispatch_area_geo_sources.yaml');
-
-        // Neighbouring dispatch areas outside Hesse have a map shape but no synthetic hospitals.
-        $hessian = array_filter(
-            $config['dispatch_area_geo_map'],
-            static fn (string $geoKey): bool => !isset($sources['dispatch_areas'][$geoKey]['state']),
-        );
-        $fromProvider = array_map(static fn (array $district): string => $district['geo_key'], HesseDistricts::DISTRICTS);
-
-        self::assertSame($hessian, $fromProvider);
-    }
-
-    public function testEveryDistrictHasAShapeOnTheMap(): void
+    public function testEveryDistrictHasADemoShape(): void
     {
         /** @var array{features: list<array{properties: array{ags: string, name: string, kind: string}, geometry: array<array-key, mixed>}>} $geojson */
         $geojson = json_decode((string) file_get_contents(self::PROJECT.'/'.HesseDistrictPolygons::GEOJSON), true, 512, \JSON_THROW_ON_ERROR);

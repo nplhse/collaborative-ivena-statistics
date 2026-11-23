@@ -178,6 +178,8 @@ The given package must contain all catalog types; a complete export or one with 
 
 Version 2 adds the section `districts` (natural key `ags`, without geometry). This is a deliberate exception to "only the current version": version 1 packages stay readable and keep their checksum, because private catalogs exist in that format. Districts are matched by AGS even with another id, and a restore keeps district rows, because geometries are not in a package and would otherwise be lost. Details: [ADR 041](041-dispatch-area-geography-as-master-data.md).
 
+The map files named in this ADR (`config/case_flow/*.yaml`, `assets/geo/hessen-landkreise.geojson`) no longer exist. Map shapes are read from the database, and the synthetic areas use `HesseDistricts` and `resources/geo/demo-districts.geojson`.
+
 ## Consequences
 
 - Export → empty database → import → export gives the same package, apart from `exported_at`.

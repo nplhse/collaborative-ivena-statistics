@@ -43,7 +43,7 @@ Pipeline: **Population / Scope → Geographic aggregation → Map layers → Pre
 
 Layers (selected per mode):
 
-- Origin choropleth (dispatch-area shapes from the database): sequential blue scale with square-root contrast. **Relative (%)** (default) colours each region by its share of all cases with an origin dispatch area on a 0–100 % scale and labels the share. Origins without a polygon (outside the 24 Hessian areas in `dispatch_area_geo_map.yaml`) stay in that denominator but are not drawn, so the visible shares can add up to less than 100 %; the legend shows them as one chip (see below). **Absolute** stretches colour to the highest case count in the current selection and labels the counts. Because share is count ÷ total, region ranking stays the same; the scale and labels are what change.
+- Origin choropleth (dispatch-area shapes from the database): sequential blue scale with square-root contrast. **Relative (%)** (default) colours each region by its share of all cases with an origin dispatch area on a 0–100 % scale and labels the share. Origins without a complete shape stay in that denominator but are not drawn, so the visible shares can add up to less than 100 %; the legend shows them as one chip (see below). **Absolute** stretches colour to the highest case count in the current selection and labels the counts. Because share is count ÷ total, region ranking stays the same; the scale and labels are what change.
 - Destination hospital pins (regional, expanded)
 - Hospital pin + isochrone bands (single-hospital scope). Compact and expanded views share origin/isochrone checkboxes when both layers are present; destination pins and the hospital pin stay overlay-only.
 - Observed transport-time intensity colours the isochrone rings. The compact legend puts share/count and travel-time scales on one row with pin keys and unmapped-count chips (isochrone: unknown time, beyond max; Case Flow: cases from areas without a map shape, `CaseFlowPrivacySuppressor::summarizeUnshapedOrigins()`, polygon check `CaseFlowGeoKeyResolver::hasMapShape()`); method text (share vs count, estimated vs observed, omitted destinations) sits behind a **Notes** disclosure.
@@ -135,13 +135,7 @@ Stimulus controllers:
 
 GeoJSON: `GET /statistics/geo/dispatch-areas.geojson` (`ROLE_USER`, private, ETag), built from the districts and geometries in the database. Features are keyed by dispatch area id. Areas without a hospital have `neighbour: true` and are drawn dashed. An area with a missing district geometry is not drawn, and its cases count towards the "cases without map area" hint (ADR 041).
 
-## GeoJSON build command
-
-```bash
-php bin/console app:statistics:case-flow:build-geojson
-```
-
-Merges dispatch-area GeoJSON from `config/case_flow/dispatch_area_geo_sources.yaml` and the raw district files in `assets/geo/.source/`. Steps for a new area: [hospital-geodata.md](../../05-operations/hospital-geodata.md#adding-another-federal-state).
+A new dispatch area gets its shape through data maintenance: [hospital-geodata.md](../../05-operations/hospital-geodata.md#districts-and-their-boundaries).
 
 ## Related
 
