@@ -9,7 +9,6 @@ use App\Allocation\Application\ReferenceCatalog\Package\NormalizedIndicationEntr
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogPackageReader;
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogPackageWriter;
 use App\Allocation\Infrastructure\Faker\Provider\HesseDistrictPolygons;
-use App\Allocation\Infrastructure\Faker\Provider\HesseDistricts;
 use App\DataFixtures\Reference\SyntheticReferenceCatalogBuilder;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -87,7 +86,7 @@ final class SyntheticReferenceCatalogBuilderTest extends KernelTestCase
             $name = $areaNames[$hospital->area];
             $covered[$name] = true;
             self::assertNotNull($hospital->coordinates);
-            self::assertTrue(HesseDistrictPolygons::contains(HesseDistricts::DISTRICTS[$name]['geo_key'], $hospital->coordinates->lat, $hospital->coordinates->lng), $hospital->name);
+            self::assertTrue(HesseDistrictPolygons::contains($name, $hospital->coordinates->lat, $hospital->coordinates->lng), $hospital->name);
         }
 
         self::assertCount(24, $covered);
