@@ -29,6 +29,10 @@ final readonly class ReferenceCatalogChecksum
         }
 
         unset($data['meta']);
+        // Version 1 had no such section, and its stored checksums must stay valid.
+        if (ReferenceCatalogFormat::VERSION_WITHOUT_DISTRICTS === $package->meta->version) {
+            unset($data['districts']);
+        }
 
         return hash(ReferenceCatalogFormat::CHECKSUM_ALGORITHM, json_encode($data, self::JSON_FLAGS));
     }

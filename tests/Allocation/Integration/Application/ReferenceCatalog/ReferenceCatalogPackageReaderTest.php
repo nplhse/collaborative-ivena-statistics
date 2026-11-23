@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Integration\Application\ReferenceCatalog;
 
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogChecksum;
+use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogPackage;
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogPackageReader;
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogReadResult;
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogViolation;
 use App\Tests\Support\ReferenceCatalog\ReferenceCatalogPackageData as Data;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 final class ReferenceCatalogPackageReaderTest extends KernelTestCase
 {
@@ -49,7 +51,7 @@ final class ReferenceCatalogPackageReaderTest extends KernelTestCase
     public function testRejectsAnotherVersionBeforeAnyOtherCheck(): void
     {
         $data = Data::complete();
-        $data['meta']['version'] = 2;
+        $data['meta']['version'] = 3;
         $data['hospitals'][0]['beds'] = 'many';
         $data['unknown'] = true;
 
@@ -57,7 +59,49 @@ final class ReferenceCatalogPackageReaderTest extends KernelTestCase
 
         self::assertCount(1, $result->violations);
         self::assertSame('meta', $result->violations[0]->path);
-        self::assertStringContainsString('expected format "ivena-reference-catalog" version 1, found format "ivena-reference-catalog" version 2', $result->violations[0]->message);
+        self::assertStringContainsString('expected format "ivena-reference-catalog" version 1 or 2, found format "ivena-reference-catalog" version 3', $result->violations[0]->message);
+    }
+
+    public function testAVersion1PackageStaysReadableWithItsOriginalChecksum(): void
+    {
+        $data = Data::completeVersion1();
+        /** @var NormalizerInterface $normalizer */
+        $normalizer = self::getContainer()->get(NormalizerInterface::class);
+        /** @var DenormalizerInterface $denormalizer */
+        $denormalizer = self::getContainer()->get(DenormalizerInterface::class);
+        $sections = $normalizer->normalize($denormalizer->denormalize($data, ReferenceCatalogPackage::class, 'json'), 'json');
+        self::assertIsArray($sections);
+        unset($sections['meta'], $sections['districts']);
+        $data['meta']['checksum']['value'] = hash('sha256', json_encode($sections, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES | \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR));
+
+        $result = $this->read($data);
+
+        self::assertSame([], $result->violations);
+        self::assertNotNull($result->package);
+        self::assertTrue($result->package->meta->complete);
+        self::assertSame([], $result->package->districts);
+    }
+
+    public function testAVersion1PackageCannotListDistricts(): void
+    {
+        $data = Data::completeVersion1();
+        $data['meta']['types'][] = 'district';
+
+        $messages = $this->messagesByPath($this->read($this->sealed($data)));
+
+        self::assertSame('Format version 1 has no districts.', $messages['meta.types']);
+    }
+
+    public function testReportsADistrictWithAnotherStateKeyOrUnknownArea(): void
+    {
+        $data = Data::complete();
+        $data['districts'][0]['state'] = '09';
+        $data['districts'][1]['dispatch_area'] = '0192d6a1-0000-7000-8000-0000000000ff';
+
+        $messages = $this->messagesByPath($this->read($this->sealed($data)));
+
+        self::assertArrayHasKey('districts[0].state', $messages);
+        self::assertArrayHasKey('districts[1].dispatch_area', $messages);
     }
 
     public function testRejectsAnotherFormat(): void

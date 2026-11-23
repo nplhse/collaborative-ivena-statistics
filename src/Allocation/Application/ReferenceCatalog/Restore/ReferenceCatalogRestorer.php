@@ -8,6 +8,8 @@ use App\Allocation\Application\ReferenceCatalog\Import\ReferenceCatalogImportApp
 use App\Allocation\Application\ReferenceCatalog\Import\ReferenceCatalogImportPlanner;
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogPackage;
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogType;
+use App\Allocation\Domain\Entity\DispatchArea;
+use App\Allocation\Domain\Entity\District;
 use App\Statistics\Application\Contract\MaterializedViewRefresherInterface;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,6 +22,9 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * Refuses while any row outside the catalog refers to it. Deletes the catalog, aliases and
  * join tables and inserts the package in one transaction, keeping the package ids; a failure
  * leaves the old catalog in place. Never deletes operational data or permissions.
+ *
+ * District rows stay, because their geometry is not in a package (ADR 041). A package with districts
+ * sets their name, kind and assignment; one without keeps the assignments whose area it still has.
  */
 final readonly class ReferenceCatalogRestorer
 {
@@ -63,6 +68,10 @@ final readonly class ReferenceCatalogRestorer
         $connection = $this->entityManager->getConnection();
         $counts = [];
         foreach (ReferenceCatalogType::importOrder() as $type) {
+            if (ReferenceCatalogType::District === $type) {
+                continue;
+            }
+
             $table = $this->entityManager->getClassMetadata($type->entityClass())->getTableName();
             $counts[$type->value] = (int) $connection->fetchOne(sprintf('SELECT COUNT(*) FROM %s', $table));
             if (ReferenceCatalogType::Department === $type || ReferenceCatalogType::Speciality === $type) {
@@ -100,6 +109,9 @@ final readonly class ReferenceCatalogRestorer
         }
 
         $connection = $this->entityManager->getConnection();
+        /** @var array<string, string> $previousAssignments */
+        $previousAssignments = $connection->fetchAllKeyValue('SELECT d.ags, a.public_id FROM district d JOIN dispatch_area a ON a.id = d.dispatch_area_id');
+
         foreach (self::PURGE_ORDER as $table) {
             $connection->executeStatement(sprintf('DELETE FROM %s', $table));
         }
@@ -116,5 +128,38 @@ final readonly class ReferenceCatalogRestorer
         }
 
         $this->applier->write($plan, $importingUser);
+        $this->restoreDistricts($package, $previousAssignments);
+    }
+
+    /**
+     * @param array<string, string> $previousAssignments AGS → public id of the dispatch area before the restore
+     */
+    private function restoreDistricts(ReferenceCatalogPackage $package, array $previousAssignments): void
+    {
+        $areas = [];
+        foreach ($this->entityManager->getRepository(DispatchArea::class)->findAll() as $area) {
+            $areas[strtolower($area->getPublicIdString())] = $area;
+        }
+
+        $entries = [];
+        foreach ($package->districts as $entry) {
+            $entries[$entry->ags] = $entry;
+        }
+        $packageHasDistricts = \in_array(ReferenceCatalogType::District->value, $package->meta->types, true);
+
+        foreach ($this->entityManager->getRepository(District::class)->findAll() as $district) {
+            $ags = $district->getAgs();
+            if (!$packageHasDistricts) {
+                $district->setDispatchArea($areas[strtolower($previousAssignments[$ags] ?? '')] ?? null);
+            } elseif (isset($entries[$ags])) {
+                $entry = $entries[$ags];
+                $district
+                    ->setName($entry->name)
+                    ->setKind($entry->kind)
+                    ->setDispatchArea(null === $entry->dispatchArea ? null : $areas[strtolower($entry->dispatchArea)] ?? null);
+            }
+        }
+
+        $this->entityManager->flush();
     }
 }

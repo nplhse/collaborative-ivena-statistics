@@ -18,7 +18,7 @@ final readonly class PackageMeta
     public function __construct(
         #[Assert\EqualTo(ReferenceCatalogFormat::NAME)]
         public string $format,
-        #[Assert\EqualTo(ReferenceCatalogFormat::VERSION)]
+        #[Assert\Choice(choices: ReferenceCatalogFormat::SUPPORTED_VERSIONS)]
         public int $version,
         #[SerializedName('exported_at')]
         #[Assert\NotBlank]

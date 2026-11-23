@@ -33,6 +33,7 @@ final readonly class ReferenceCatalogPackage
      * @param list<RawIndicationEntry>        $indicationsRaw
      * @param list<IndicationGroupEntry>      $indicationGroups
      * @param list<HospitalEntry>             $hospitals
+     * @param list<DistrictEntry>             $districts
      */
     public function __construct(
         #[Assert\Valid]
@@ -66,6 +67,8 @@ final readonly class ReferenceCatalogPackage
         public array $indicationGroups = [],
         #[Assert\Valid]
         public array $hospitals = [],
+        #[Assert\Valid]
+        public array $districts = [],
     ) {
     }
 
@@ -92,6 +95,7 @@ final readonly class ReferenceCatalogPackage
         return match ($type) {
             ReferenceCatalogType::State => $this->states,
             ReferenceCatalogType::DispatchArea => $this->dispatchAreas,
+            ReferenceCatalogType::District => $this->districts,
             ReferenceCatalogType::Department => $this->departments,
             ReferenceCatalogType::Speciality => $this->specialities,
             ReferenceCatalogType::Assignment => $this->assignments,

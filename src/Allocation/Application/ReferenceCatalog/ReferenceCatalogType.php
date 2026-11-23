@@ -7,6 +7,7 @@ namespace App\Allocation\Application\ReferenceCatalog;
 use App\Allocation\Domain\Entity\Assignment;
 use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Domain\Entity\DispatchArea;
+use App\Allocation\Domain\Entity\District;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\IndicationGroup;
 use App\Allocation\Domain\Entity\IndicationNormalized;
@@ -21,6 +22,7 @@ enum ReferenceCatalogType: string
 {
     case State = 'state';
     case DispatchArea = 'dispatch-area';
+    case District = 'district';
     case Department = 'department';
     case Speciality = 'speciality';
     case Assignment = 'assignment';
@@ -37,6 +39,7 @@ enum ReferenceCatalogType: string
         return match ($this) {
             self::State => 'states',
             self::DispatchArea => 'dispatch_areas',
+            self::District => 'districts',
             self::Department => 'departments',
             self::Speciality => 'specialities',
             self::Assignment => 'assignments',
@@ -51,13 +54,14 @@ enum ReferenceCatalogType: string
     }
 
     /**
-     * @return class-string<State|DispatchArea|Department|Speciality|Assignment|Occasion|Infection|SecondaryTransport|IndicationNormalized|IndicationRaw|IndicationGroup|Hospital>
+     * @return class-string<State|DispatchArea|District|Department|Speciality|Assignment|Occasion|Infection|SecondaryTransport|IndicationNormalized|IndicationRaw|IndicationGroup|Hospital>
      */
     public function entityClass(): string
     {
         return match ($this) {
             self::State => State::class,
             self::DispatchArea => DispatchArea::class,
+            self::District => District::class,
             self::Department => Department::class,
             self::Speciality => Speciality::class,
             self::Assignment => Assignment::class,
@@ -87,6 +91,7 @@ enum ReferenceCatalogType: string
         return [
             self::State,
             self::DispatchArea,
+            self::District,
             self::Department,
             self::Speciality,
             self::Assignment,

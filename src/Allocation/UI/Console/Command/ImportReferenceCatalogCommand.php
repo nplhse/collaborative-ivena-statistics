@@ -113,7 +113,7 @@ final readonly class ImportReferenceCatalogCommand
 
     private function replace(SymfonyStyle $io, ReferenceCatalogPackage $package, User $user, bool $dryRun): int
     {
-        $io->note('Restore: deletes the whole catalog and inserts the package with its ids. It never deletes operational data or permissions and refuses while they exist.');
+        $io->note('Restore: deletes the whole catalog and inserts the package with its ids. It keeps districts and their boundaries, never deletes operational data or permissions and refuses while they exist.');
 
         if (!$package->meta->complete) {
             $io->error('A restore needs a complete package (meta.complete = true). Export without --types.');

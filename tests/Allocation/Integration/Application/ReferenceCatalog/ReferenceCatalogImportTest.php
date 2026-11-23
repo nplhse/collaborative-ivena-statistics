@@ -291,6 +291,45 @@ final class ReferenceCatalogImportTest extends KernelTestCase
         self::assertSame($this->withoutExportTime($first), $this->withoutExportTime($second));
     }
 
+    public function testImportedDistrictsKeepTheirAreaAndGetNoGeometry(): void
+    {
+        self::bootKernel();
+        $this->applier()->apply($this->plan(Data::complete()), UserFactory::createOne());
+
+        $connection = $this->em()->getConnection();
+        self::assertSame(
+            [['ags' => '06412', 'area' => Data::AREA], ['ags' => '09679', 'area' => null]],
+            $connection->fetchAllAssociative('SELECT d.ags, a.public_id AS area FROM district d LEFT JOIN dispatch_area a ON a.id = d.dispatch_area_id ORDER BY d.ags'),
+        );
+        self::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM district_geometry'));
+    }
+
+    public function testADistrictWithTheSameAgsAndAnotherIdStaysAsItIs(): void
+    {
+        self::bootKernel();
+        $this->applier()->apply($this->plan(Data::complete()), UserFactory::createOne());
+
+        $data = Data::complete();
+        $data['districts'][0]['id'] = '0192d6a1-0000-7000-8000-0000000000a1';
+        $data['districts'][0]['name'] = 'Anderer Name';
+        $data['districts'][0]['dispatch_area'] = Data::OTHER_AREA;
+        $plan = $this->plan($data);
+
+        self::assertSame([], $plan->conflicts);
+        self::assertSame(['create' => 0, 'skip' => 2], $plan->counts['district']);
+    }
+
+    public function testADistrictIdUsedForAnotherAgsIsAConflict(): void
+    {
+        self::bootKernel();
+        $this->applier()->apply($this->plan(Data::complete()), UserFactory::createOne());
+
+        $data = Data::complete();
+        $data['districts'][0]['ags'] = '06413';
+
+        self::assertArrayHasKey('districts[0].id', $this->messagesByPath($this->plan($data)));
+    }
+
     /**
      * @param array<string, mixed> $data
      */
@@ -336,6 +375,7 @@ final class ReferenceCatalogImportTest extends KernelTestCase
     {
         $em = $this->em();
         $connection = $em->getConnection();
+        $connection->executeStatement('DELETE FROM district');
         $connection->executeStatement('DELETE FROM department_alias');
         $connection->executeStatement('DELETE FROM speciality_alias');
         $connection->executeStatement('DELETE FROM indication_group_indication_normalized');

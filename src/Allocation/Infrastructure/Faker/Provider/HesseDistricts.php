@@ -18,6 +18,44 @@ final class HesseDistricts
     public const string STATE = 'Hessen';
 
     /**
+     * Official districts of each dispatch area; Kassel and Offenbach each cover a city and a county.
+     *
+     * @var array<string, list<array{ags: string, name: string, kind: 'Kreisfreie Stadt'|'Landkreis'}>>
+     */
+    public const array OFFICIAL_DISTRICTS = [
+        'Bergstraße' => [['ags' => '06431', 'name' => 'Bergstraße', 'kind' => 'Landkreis']],
+        'Darmstadt' => [['ags' => '06411', 'name' => 'Darmstadt', 'kind' => 'Kreisfreie Stadt']],
+        'Darmstadt-Dieburg' => [['ags' => '06432', 'name' => 'Darmstadt-Dieburg', 'kind' => 'Landkreis']],
+        'Frankfurt' => [['ags' => '06412', 'name' => 'Frankfurt am Main', 'kind' => 'Kreisfreie Stadt']],
+        'Fulda' => [['ags' => '06631', 'name' => 'Fulda', 'kind' => 'Landkreis']],
+        'Gießen' => [['ags' => '06531', 'name' => 'Gießen', 'kind' => 'Landkreis']],
+        'Groß-Gerau' => [['ags' => '06433', 'name' => 'Groß-Gerau', 'kind' => 'Landkreis']],
+        'Hersfeld-Rotenburg' => [['ags' => '06632', 'name' => 'Hersfeld-Rotenburg', 'kind' => 'Landkreis']],
+        'Hochtaunus' => [['ags' => '06434', 'name' => 'Hochtaunuskreis', 'kind' => 'Landkreis']],
+        'Kassel' => [
+            ['ags' => '06611', 'name' => 'Kassel', 'kind' => 'Kreisfreie Stadt'],
+            ['ags' => '06633', 'name' => 'Kassel', 'kind' => 'Landkreis'],
+        ],
+        'Lahn-Dill' => [['ags' => '06532', 'name' => 'Lahn-Dill-Kreis', 'kind' => 'Landkreis']],
+        'Limburg-Weilburg' => [['ags' => '06533', 'name' => 'Limburg-Weilburg', 'kind' => 'Landkreis']],
+        'Main-Kinzig' => [['ags' => '06435', 'name' => 'Main-Kinzig-Kreis', 'kind' => 'Landkreis']],
+        'Main-Taunus' => [['ags' => '06436', 'name' => 'Main-Taunus-Kreis', 'kind' => 'Landkreis']],
+        'Marburg-Biedenkopf' => [['ags' => '06534', 'name' => 'Marburg-Biedenkopf', 'kind' => 'Landkreis']],
+        'Odenwald' => [['ags' => '06437', 'name' => 'Odenwaldkreis', 'kind' => 'Landkreis']],
+        'Offenbach' => [
+            ['ags' => '06413', 'name' => 'Offenbach am Main', 'kind' => 'Kreisfreie Stadt'],
+            ['ags' => '06438', 'name' => 'Offenbach', 'kind' => 'Landkreis'],
+        ],
+        'Rheingau Taunus' => [['ags' => '06439', 'name' => 'Rheingau-Taunus-Kreis', 'kind' => 'Landkreis']],
+        'Schwalm-Eder' => [['ags' => '06634', 'name' => 'Schwalm-Eder-Kreis', 'kind' => 'Landkreis']],
+        'Vogelsberg' => [['ags' => '06535', 'name' => 'Vogelsbergkreis', 'kind' => 'Landkreis']],
+        'Waldeck-Frankenberg' => [['ags' => '06635', 'name' => 'Waldeck-Frankenberg', 'kind' => 'Landkreis']],
+        'Werra-Meißner' => [['ags' => '06636', 'name' => 'Werra-Meißner-Kreis', 'kind' => 'Landkreis']],
+        'Wetterau' => [['ags' => '06440', 'name' => 'Wetteraukreis', 'kind' => 'Landkreis']],
+        'Wiesbaden' => [['ags' => '06414', 'name' => 'Wiesbaden', 'kind' => 'Kreisfreie Stadt']],
+    ];
+
+    /**
      * @var array<string, array{geo_key: string, towns: list<array{city: string, postal_code: string, location: 'Urban'|'Mixed'|'Rural'}>}>
      */
     public const array DISTRICTS = [
