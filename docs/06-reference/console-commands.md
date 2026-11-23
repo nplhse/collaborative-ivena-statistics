@@ -93,6 +93,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | `app:geo:list-prepared-locations` | List prepared locations (slug, label, address, coordinates, bands, date). Read-only, offline. |
 | `app:geo:apply-prepared-location <slug> --hospital-id=` | Apply a prepared location to a hospital without network access: sets coordinates, fills an empty address, writes the isochrone file. Default: dry-run; `--apply` writes; different existing coordinates need `--force`. |
 | `app:geo:import-legacy-districts [--verify]` | One-time, offline takeover of the legacy district geography into the database (#1406). Repeatable and never overwrites maintained data; `--verify` compares all 29 areas with the reference data and stores the completion marker. Runs on deploy before the switch; skipped in demo. |
+| `app:geo:check-dispatch-areas` | Read-only. List dispatch areas with allocations but no complete map shape, and districts assigned across a state border. Exit code 1 if an area with allocations has no complete shape. |
 
 ### Statistics
 

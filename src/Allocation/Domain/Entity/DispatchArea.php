@@ -40,6 +40,13 @@ class DispatchArea implements \Stringable
     #[ORM\OneToMany(targetEntity: Hospital::class, mappedBy: 'dispatchArea')]
     private Collection $hospitals;
 
+    /**
+     * @var Collection<int, District>
+     */
+    #[ORM\OneToMany(targetEntity: District::class, mappedBy: 'dispatchArea')]
+    #[ORM\OrderBy(['ags' => 'ASC'])]
+    private Collection $districts;
+
     #[ORM\Column()]
     private \DateTimeImmutable $createdAt;
 
@@ -59,6 +66,7 @@ class DispatchArea implements \Stringable
     {
         $this->createdAt = Clock::get()->now();
         $this->hospitals = new ArrayCollection();
+        $this->districts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -113,6 +121,33 @@ class DispatchArea implements \Stringable
         // set the owning side to null (unless already changed)
         if ($this->hospitals->removeElement($hospital) && $hospital->getDispatchArea() === $this) {
             $hospital->setDispatchArea(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, District>
+     */
+    public function getDistricts(): Collection
+    {
+        return $this->districts;
+    }
+
+    public function addDistrict(District $district): static
+    {
+        if (!$this->districts->contains($district)) {
+            $this->districts->add($district);
+            $district->setDispatchArea($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDistrict(District $district): static
+    {
+        if ($this->districts->removeElement($district) && $district->getDispatchArea() === $this) {
+            $district->setDispatchArea(null);
         }
 
         return $this;

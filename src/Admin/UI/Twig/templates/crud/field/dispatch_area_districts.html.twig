@@ -1,0 +1,10 @@
+{% set districts = entity.instance.districts %}
+{% if districts is empty %}
+    <span class="text-muted">–</span>
+{% else %}
+    <ul class="list-unstyled mb-0">
+        {% for district in districts %}
+            <li>{{ district.ags }} {{ district.name }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
