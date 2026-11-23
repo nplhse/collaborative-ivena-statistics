@@ -25,7 +25,6 @@
                 </span>
             </div>
             <div class="col min-w-0">
-                <twig:RelativeTimestamp :datetime="activity.occurredAt" />
                 <div class="fw-medium">
                     {% if activity.type.value == 'joined' %}
                         {{ 'label.user.activity.joined'|trans({}, 'user') }}
@@ -86,6 +85,12 @@
                         {% endif %}
                     </div>
                 {% endif %}
+                <div class="activity-meta" data-testid="activity-meta">
+                    <twig:RelativeTimestamp :datetime="activity.occurredAt" />
+                    {% if activity.id %}
+                        {{ include('@Content/reaction/_placeholder.html.twig', {target_type: 'activity', target_id: activity.id}) }}
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

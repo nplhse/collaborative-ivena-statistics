@@ -8,6 +8,20 @@
     margin-top: 0.5rem;
 }
 
+/* Activity entries: the time sits in one row with the reactions, so the name and the action stand out above it. */
+.activity-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+    min-height: 1.75rem;
+    margin-top: 0.5rem;
+}
+
+.activity-meta .reaction-bar {
+    margin-top: 0;
+}
+
 .reaction-bar--pending {
     visibility: hidden;
 }
