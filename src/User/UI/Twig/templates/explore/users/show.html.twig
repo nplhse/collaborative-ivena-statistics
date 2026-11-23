@@ -107,9 +107,11 @@
                     />
                 {% else %}
                     <div class="list-group list-group-flush">
-                        {{ include('@User/explore/users/_activity_items.html.twig', {
+                        {{ include('@Content/dashboard/_activity_items.html.twig', {
                             activities: profile.activities,
                             previews: previews|default({}),
+                            activity_item_testid: 'profile-activity-item',
+                            show_reactions: true,
                         }) }}
                         {% if profile.hasMoreActivities and profile.activityNextCursor and profile.activityNextFrameId %}
                             {{ include('@User/explore/users/_activity_next_frame.html.twig', {

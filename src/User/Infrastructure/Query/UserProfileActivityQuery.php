@@ -125,6 +125,7 @@ final readonly class UserProfileActivityQuery
             throw new \LogicException('UserActivity must be persisted.');
         }
 
+        $user = $activity->getUser();
         $metadata = $activity->getMetadata();
         $type = ProfileActivityType::from($activity->getType()->value);
         $milestone = $metadata['milestone'] ?? null;
@@ -140,6 +141,9 @@ final readonly class UserProfileActivityQuery
             postSlug: $this->stringMetadata($metadata, 'slug') ?? $this->stringMetadata($metadata, 'postSlug'),
             excerpt: $this->stringMetadata($metadata, 'excerpt'),
             id: $id,
+            actorUsername: $user->getUsername(),
+            actorId: $user->getId(),
+            actorDisplayName: $user->getDisplayName(),
         );
     }
 
