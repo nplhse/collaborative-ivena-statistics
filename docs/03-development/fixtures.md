@@ -110,7 +110,7 @@ Each active hospital gets one import per month. The number of allocations per da
 
 `ReferenceCatalogFixture` builds the synthetic catalog with `SyntheticReferenceCatalogBuilder` (seed 740, 60 hospitals) and loads it through the same validation and import as a real package (`app:reference:validate`, `app:reference:import`):
 
-- Hesse with exactly the 24 dispatch areas the maps know; hospitals have addresses and coordinates inside their district.
+- Hesse with exactly the 24 dispatch areas the maps know and their 26 official districts (Kassel and Offenbach have two each; geometries follow with the demo data of #1406); hospitals have addresses and coordinates inside their district.
 - The 208 official PZC indications with their official wording; raw labels are the official wording, generated variants (abbreviation, typo) and a few unmapped labels.
 - Departments and specialities with generated aliases, lookups and a few indication groups.
 

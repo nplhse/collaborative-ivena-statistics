@@ -55,7 +55,7 @@ final class ImportReferenceCatalogCommandTest extends KernelTestCase
         self::assertSame(Command::SUCCESS, $exitCode);
         $display = $this->flat($tester->getDisplay());
         self::assertStringContainsString('It is not a restore', $display);
-        self::assertStringContainsString('Imported 17 row(s)', $display);
+        self::assertStringContainsString('Imported 19 row(s)', $display);
         self::assertSame(1, $this->em()->getRepository(Hospital::class)->count([]));
 
         self::assertSame(Command::SUCCESS, $tester->execute(['--source' => $this->file]));
@@ -72,7 +72,7 @@ final class ImportReferenceCatalogCommandTest extends KernelTestCase
         $exitCode = $tester->execute(['--source' => $this->file, '--dry-run' => true]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
-        self::assertStringContainsString('17 row(s) would be created', $this->flat($tester->getDisplay()));
+        self::assertStringContainsString('19 row(s) would be created', $this->flat($tester->getDisplay()));
         self::assertSame(0, $this->em()->getRepository(State::class)->count([]));
     }
 

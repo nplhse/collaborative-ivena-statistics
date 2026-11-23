@@ -34,6 +34,27 @@ final class SyntheticReferenceCatalogBuilderTest extends KernelTestCase
         self::assertContains(null, array_map(static fn (\App\Allocation\Application\ReferenceCatalog\Package\RawIndicationEntry $raw): ?string => $raw->target, $package->indicationsRaw), 'unmapped raw labels');
     }
 
+    public function testEveryDispatchAreaHasItsOfficialDistricts(): void
+    {
+        $package = $this->builder()->build();
+        $areaNames = [];
+        foreach ($package->dispatchAreas as $area) {
+            $areaNames[$area->id] = $area->name;
+        }
+
+        $perArea = [];
+        foreach ($package->districts as $district) {
+            self::assertNotNull($district->dispatchArea);
+            self::assertSame('06', $district->state);
+            $perArea[$areaNames[$district->dispatchArea]][] = $district->ags;
+        }
+
+        self::assertCount(26, $package->districts);
+        self::assertCount(24, $perArea);
+        self::assertSame(['06611', '06633'], $perArea['Kassel']);
+        self::assertSame(['06413', '06438'], $perArea['Offenbach']);
+    }
+
     public function testTheSameSeedGivesTheSameBytes(): void
     {
         $first = $this->writer()->encode($this->builder()->build(7, 30));

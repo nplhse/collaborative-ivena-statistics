@@ -7,6 +7,7 @@ namespace App\Allocation\Application\ReferenceCatalog\Import;
 use App\Allocation\Application\ReferenceCatalog\Package\AliasedEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\CatalogEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\DispatchAreaEntry;
+use App\Allocation\Application\ReferenceCatalog\Package\DistrictEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\HospitalEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\IndicationGroupEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\NamedEntry;
@@ -19,6 +20,7 @@ use App\Allocation\Domain\Entity\Assignment;
 use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Domain\Entity\DepartmentAlias;
 use App\Allocation\Domain\Entity\DispatchArea;
+use App\Allocation\Domain\Entity\District;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\IndicationGroup;
 use App\Allocation\Domain\Entity\IndicationNormalized;
@@ -44,7 +46,8 @@ use Symfony\Component\Uid\Uuid;
  * Writes the rows of an import plan in one transaction and keeps the package ids (ADR 020).
  *
  * The importing user becomes createdBy and, for reviewed raw indications, reviewedBy.
- * Imported hospitals do not participate and have no owner.
+ * Imported hospitals do not participate and have no owner. Imported districts have no geometry and
+ * start no boundary fetch; an admin requests it (ADR 041).
  */
 final readonly class ReferenceCatalogImportApplier
 {
@@ -103,13 +106,17 @@ final readonly class ReferenceCatalogImportApplier
         $this->entityManager->flush();
     }
 
-    private function create(ReferenceCatalogType $type, CatalogEntry $entry, User $user, ImportEntityRegistry $entities): State|DispatchArea|Department|Speciality|Assignment|Occasion|Infection|SecondaryTransport|IndicationNormalized|IndicationRaw|IndicationGroup|Hospital
+    private function create(ReferenceCatalogType $type, CatalogEntry $entry, User $user, ImportEntityRegistry $entities): State|DispatchArea|District|Department|Speciality|Assignment|Occasion|Infection|SecondaryTransport|IndicationNormalized|IndicationRaw|IndicationGroup|Hospital
     {
         return match (true) {
             $entry instanceof StateEntry => new State()->setName($entry->name)->setCreatedBy($user),
             $entry instanceof DispatchAreaEntry => new DispatchArea()
                 ->setName($entry->name)
                 ->setState($entities->state($entry->state))
+                ->setCreatedBy($user),
+            $entry instanceof DistrictEntry => new District($entry->ags, $entry->name)
+                ->setKind($entry->kind)
+                ->setDispatchArea(null === $entry->dispatchArea ? null : $entities->dispatchArea($entry->dispatchArea))
                 ->setCreatedBy($user),
             $entry instanceof AliasedEntry => (ReferenceCatalogType::Department === $type ? new Department() : new Speciality())
                 ->setName($entry->name)
