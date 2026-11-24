@@ -1385,6 +1385,10 @@
         <source>help.article.next</source>
         <target>Next</target>
       </trans-unit>
+      <trans-unit id="help_link_title" resname="help.link.title">
+        <source>help.link.title</source>
+        <target>Help for this area</target>
+      </trans-unit>
       <trans-unit id="help_help_feedback_question" resname="help.feedback.question">
         <source>help.feedback.question</source>
         <target>Was this article helpful?</target>

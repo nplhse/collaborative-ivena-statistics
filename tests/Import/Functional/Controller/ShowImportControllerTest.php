@@ -12,6 +12,7 @@ use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Domain\ValueObject\ImportDataCoverage;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Tests\Support\Content\HelpPages;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -75,6 +76,44 @@ final class ShowImportControllerTest extends WebTestCase
             ->reduce(static fn ($item): bool => 'Status' === trim($item->filter('.datagrid-title')->text()));
         self::assertCount(1, $statusField);
         self::assertSame('Abgeschlossen', trim($statusField->filter('.datagrid-content')->text()), 'Header badge and status field show the same label.');
+    }
+
+    public function testHelpLinkPointsToTheImportStatusArticle(): void
+    {
+        $client = self::createClient();
+        $this->createHelpArticles();
+        [$owner, $importId] = $this->createImportWithRelations(status: ImportStatus::COMPLETED);
+
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, \sprintf('/import/%d', $importId));
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="help-link"][href="/help/import-status"]');
+    }
+
+    public function testHelpLinkOfAPartialImportPointsToTheRejectedRowsArticle(): void
+    {
+        $client = self::createClient();
+        $this->createHelpArticles();
+        [$owner, $importId] = $this->createImportWithRelations(status: ImportStatus::PARTIAL);
+
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, \sprintf('/import/%d', $importId));
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="help-link"][href="/help/rejected-rows"]');
+    }
+
+    public function testHelpLinkIsLeftOutWithoutHelpArticle(): void
+    {
+        $client = self::createClient();
+        [$owner, $importId] = $this->createImportWithRelations(status: ImportStatus::COMPLETED);
+
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, \sprintf('/import/%d', $importId));
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="help-link"]');
     }
 
     public function testClosureImportHidesAllocationLinks(): void
@@ -257,6 +296,13 @@ final class ShowImportControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, \sprintf('/import/%d', $import->getId()));
 
         self::assertResponseStatusCodeSame(403);
+    }
+
+    private function createHelpArticles(): void
+    {
+        $root = HelpPages::root();
+        HelpPages::article($root, 'Import status', '/help/import-status', '<p>Text</p>', 0, ['helpKey' => 'import.status']);
+        HelpPages::article($root, 'Rejected rows', '/help/rejected-rows', '<p>Text</p>', 1, ['helpKey' => 'import.rejects']);
     }
 
     /**
