@@ -34,7 +34,15 @@ final class PageNavigationQueryTest extends WebTestCase
         $client = self::createClient();
         $this->createPages();
 
-        self::assertSame(0, $this->treeQueryCount($client, '/blog'));
+        self::assertSame(0, $this->treeQueryCount($client, '/'));
+    }
+
+    public function testBlogSidebarLoadsTheTreeOnce(): void
+    {
+        $client = self::createClient();
+        $this->createPages();
+
+        self::assertSame(1, $this->treeQueryCount($client, '/blog'));
     }
 
     private function createPages(): void

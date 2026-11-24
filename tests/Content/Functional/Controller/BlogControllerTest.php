@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Content\Functional\Controller;
 
 use App\Content\Application\Media\MediaImageFigureHtmlBuilder;
+use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Enum\PostStatus;
+use App\Content\Infrastructure\Factory\PageFactory;
 use App\Content\Infrastructure\Factory\PostCategoryFactory;
 use App\Content\Infrastructure\Factory\PostCommentFactory;
 use App\Content\Infrastructure\Factory\PostFactory;
@@ -425,6 +428,21 @@ final class BlogControllerTest extends WebTestCase
         self::assertSelectorTextContains('.list-inline', 'Author: detail-author');
         self::assertSelectorTextContains('.page-prev', 'Older Post');
         self::assertSelectorTextContains('.page-next', 'Newer Post');
+    }
+
+    public function testSidebarShowsThePageNavigationOnIndexAndPost(): void
+    {
+        $client = self::createClient();
+        PageFactory::createOne(['title' => 'About us', 'slug' => 'about-us', 'status' => PageTranslation::STATUS_PUBLISHED, 'visibility' => Page::VISIBILITY_PUBLIC]);
+        PageFactory::createOne(['title' => 'Members', 'slug' => 'members', 'status' => PageTranslation::STATUS_PUBLISHED, 'visibility' => Page::VISIBILITY_AUTHENTICATED]);
+        PostFactory::createOne(['title' => 'Post with sidebar', 'slug' => 'post-with-sidebar', 'status' => PostStatus::PUBLISHED, 'publishedAt' => new \DateTimeImmutable('2020-01-01 10:00')]);
+
+        foreach (['/blog', '/blog/post-with-sidebar'] as $url) {
+            $crawler = $client->request(Request::METHOD_GET, $url);
+
+            self::assertResponseIsSuccessful();
+            self::assertSame(['About us'], $crawler->filter('[data-testid="page-navigation"] nav a')->each(static fn (Crawler $link): string => trim($link->text())), $url);
+        }
     }
 
     public function testCreatingPostWritesAuditLogEntry(): void
