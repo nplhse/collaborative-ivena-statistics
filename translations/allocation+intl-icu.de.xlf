@@ -281,6 +281,10 @@
         <source>help.no_hospitals_assigned</source>
         <target>Ihrem Konto sind leider keine Krankenhäuser zugewiesen.</target>
       </trans-unit>
+      <trans-unit id="hospAddrEmptyDe" resname="hospital.address.empty">
+        <source>hospital.address.empty</source>
+        <target>Keine Adresse hinterlegt.</target>
+      </trans-unit>
       <trans-unit id="Dec60f9ece" resname="hospital.size.Large">
         <source>hospital.size.Large</source>
         <target>Groß</target>

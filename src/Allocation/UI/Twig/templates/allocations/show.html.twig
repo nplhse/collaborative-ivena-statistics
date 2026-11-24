@@ -179,13 +179,17 @@
                                         {{ badges.render('hospital_size', destinationHospital.size.value, destinationHospital.beds) }}
                                     {% endif %}
                                 </div>
-                                <div class="text-secondary small mt-2 d-flex align-items-start gap-2">
-                                    <twig:ux:icon name="tabler:map-pin" class="w-3 h-3 mt-1" />
-                                    <span>
-                                        {{ destinationHospital.address.street }}, {{ destinationHospital.address.postalCode }} {{ destinationHospital.address.city }}
-                                        · {{ destinationHospital.address.country }}
-                                    </span>
-                                </div>
+                                {% set destinationAddress = destinationHospital.address %}
+                                {% set destinationAddressLine = [
+                                    [destinationAddress.street, (destinationAddress.postalCode ~ ' ' ~ destinationAddress.city)|trim]|filter(part => part is not empty)|join(', '),
+                                    destinationAddress.country,
+                                ]|filter(part => part is not empty)|join(' · ') %}
+                                {% if destinationAddressLine is not empty %}
+                                    <div class="text-secondary small mt-2 d-flex align-items-start gap-2" data-testid="allocation-destination-address">
+                                        <twig:ux:icon name="tabler:map-pin" class="w-3 h-3 mt-1" />
+                                        <span>{{ destinationAddressLine }}</span>
+                                    </div>
+                                {% endif %}
                                 <div class="text-secondary small mt-1">
                                     {{ explore_entity_link(destinationArea, {class: 'link-secondary'}) }}
                                     · {{ explore_entity_link(destinationHospital.state, {class: 'link-secondary'}) }}

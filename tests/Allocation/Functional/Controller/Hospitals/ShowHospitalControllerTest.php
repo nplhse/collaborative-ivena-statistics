@@ -107,6 +107,32 @@ final class ShowHospitalControllerTest extends WebTestCase
         self::assertNotContains('/import?hospitalId='.$hospital->getId(), $actionHrefs);
     }
 
+    public function testShowSaysSoWhenHospitalHasNoAddress(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $address = AddressFactory::new(['street' => '', 'postalCode' => '', 'city' => '', 'state' => '', 'country' => ''])->create();
+        $hospital = HospitalFactory::createOne(['address' => $address]);
+
+        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextSame('#hospital-address', 'No address on file.');
+    }
+
+    public function testShowSkipsMissingAddressParts(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $address = AddressFactory::new(['street' => '', 'postalCode' => '', 'city' => 'Teststadt', 'state' => 'Hessen', 'country' => ''])->create();
+        $hospital = HospitalFactory::createOne(['address' => $address]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSame('Teststadt<br>Hessen', trim((string) preg_replace('/\s+/', '', $crawler->filter('#hospital-address em')->html())));
+    }
+
     public function testShowDisplaysOwnerAndAuthorByDisplayNameWithAvatar(): void
     {
         $client = $this->createClientAsParticipant();
