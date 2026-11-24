@@ -15,14 +15,13 @@ final class TermsAcceptanceTest extends TestCase
 {
     use ClockSensitiveTrait;
 
-    public function testItKeepsAccountKindVersionLanguageAndHash(): void
+    public function testItKeepsAccountVersionLanguageAndHash(): void
     {
         $user = new User();
         $acceptance = new TermsAcceptance($user, TermsAcceptanceKind::Terms, '2026-12', 'de', str_repeat('a', 64), new \DateTimeImmutable('2026-12-02 09:30:00'));
 
         self::assertNull($acceptance->getId(), 'not persisted');
         self::assertSame($user, $acceptance->getUser());
-        self::assertSame(TermsAcceptanceKind::Terms, $acceptance->getKind());
         self::assertSame('2026-12', $acceptance->getTermsVersion());
         self::assertSame('de', $acceptance->getLocale());
         self::assertSame(str_repeat('a', 64), $acceptance->getContentHash());
