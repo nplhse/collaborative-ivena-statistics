@@ -6,6 +6,8 @@ namespace App\Tests\Content\Integration\Validation;
 
 use App\Content\Domain\Validation\Constraints\KnownIcon;
 use App\Content\Domain\Validation\Constraints\KnownIconValidator;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 use Symfony\UX\Icons\Exception\IconNotFoundException;
 use Symfony\UX\Icons\IconRendererInterface;
@@ -58,5 +60,19 @@ final class KnownIconValidatorTest extends ConstraintValidatorTestCase
         $this->validator->validate('tabler:does-not-exist', $constraint);
 
         $this->buildViolation($constraint->unknownMessage)->setParameter('{icon}', 'tabler:does-not-exist')->assertRaised();
+    }
+
+    public function testOtherConstraintsAreRejected(): void
+    {
+        $this->expectException(UnexpectedTypeException::class);
+
+        $this->validator->validate('tabler:file-import', new NotBlank());
+    }
+
+    public function testNonStringValuesAreRejected(): void
+    {
+        $this->expectException(UnexpectedTypeException::class);
+
+        $this->validator->validate(42, new KnownIcon());
     }
 }
