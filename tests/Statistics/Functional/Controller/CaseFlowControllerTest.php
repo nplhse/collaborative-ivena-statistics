@@ -85,6 +85,7 @@ final class CaseFlowControllerTest extends WebTestCase
         $payloadJson = (string) $crawler->filter('[data-controller="case-flow-charts"]')->attr('data-case-flow-charts-payload-value');
         $payload = json_decode(html_entity_decode($payloadJson, ENT_QUOTES), true, 512, JSON_THROW_ON_ERROR);
 
+        self::assertSame('Cases', $crawler->filter('[data-controller="case-flow-charts"]')->attr('data-case-flow-charts-cases-label-value'));
         self::assertSame('system_flow', $payload['mode']);
         self::assertNotEmpty($payload['mapFeatures']);
         self::assertSame((string) $dispatchArea->getId(), $payload['mapFeatures'][0]['geoKey']);

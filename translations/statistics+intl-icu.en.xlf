@@ -3353,6 +3353,10 @@
         <source>stats.closed_department.table.department</source>
         <target>Department</target>
       </trans-unit>
+      <trans-unit id="statsChartSeriesCases" resname="stats.chart.series.cases">
+        <source>stats.chart.series.cases</source>
+        <target>Cases</target>
+      </trans-unit>
       <trans-unit id="statsCda23" resname="stats.closed_department.table.count">
         <source>stats.closed_department.table.count</source>
         <target>Cases</target>

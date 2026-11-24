@@ -5,6 +5,7 @@ import { loadApexCharts } from '../lib/load-apexcharts.js';
 export default class extends Controller {
     static values = {
         payload: Object,
+        casesLabel: { type: String, default: 'Cases' },
     };
 
     static targets = ['originBarChart', 'transportTimeChart'];
@@ -61,7 +62,7 @@ export default class extends Controller {
                 toolbar: { show: false },
                 fontFamily: 'inherit',
             },
-            series: [{ name: 'Cases', data: data.values ?? [] }],
+            series: [{ name: this.casesLabelValue, data: data.values ?? [] }],
             colors: ['#206bc4'],
             xaxis: { categories: data.labels ?? [] },
             plotOptions: {

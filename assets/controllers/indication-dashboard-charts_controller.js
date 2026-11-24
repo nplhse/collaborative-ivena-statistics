@@ -12,6 +12,7 @@ export default class extends Controller {
     static values = {
         payload: Object,
         heatmapMode: { type: String, default: 'dayTime' },
+        casesLabel: { type: String, default: 'Cases' },
     };
 
     static targets = [
@@ -161,7 +162,7 @@ export default class extends Controller {
         const windowSize = Math.min(6, Math.max(3, Math.floor(values.length / 5) || 3));
         const showMovingAverage = values.length >= windowSize;
         const movingAverageLabel = element.dataset.movingAverageLabel ?? 'Moving average';
-        const series = [{ name: 'Cases', data: values }];
+        const series = [{ name: this.casesLabelValue, data: values }];
 
         if (showMovingAverage) {
             series.push({
@@ -236,7 +237,7 @@ export default class extends Controller {
                 fontFamily: 'inherit',
                 zoom: { enabled: false },
             },
-            series: [{ name: 'Cases', data: values }],
+            series: [{ name: this.casesLabelValue, data: values }],
             xaxis: {
                 categories: labels,
                 tickAmount: options.sparseTicks ? Math.min(6, labels.length) : undefined,

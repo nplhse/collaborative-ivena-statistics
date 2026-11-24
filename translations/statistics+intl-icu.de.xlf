@@ -2873,6 +2873,10 @@
         <source>stats.closed_department.table.department</source>
         <target>Fachbereich</target>
       </trans-unit>
+      <trans-unit id="statsChartSeriesCasesDe" resname="stats.chart.series.cases">
+        <source>stats.chart.series.cases</source>
+        <target>Fälle</target>
+      </trans-unit>
       <trans-unit id="CdaDe23" resname="stats.closed_department.table.count">
         <source>stats.closed_department.table.count</source>
         <target>Fälle</target>

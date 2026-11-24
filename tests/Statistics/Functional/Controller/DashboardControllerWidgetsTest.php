@@ -232,6 +232,7 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
         );
         self::assertSame('shift', $shiftButton->attr('data-indication-dashboard-charts-mode-param'));
 
+        self::assertSame('Cases', $crawler->filter('[data-testid="stats-charts"]')->attr('data-indication-dashboard-charts-cases-label-value'));
         $payloadRaw = (string) $crawler->filter('[data-testid="stats-charts"]')->attr('data-indication-dashboard-charts-payload-value');
         /** @var array<string, mixed> $payload */
         $payload = json_decode(html_entity_decode($payloadRaw, ENT_QUOTES), true, flags: JSON_THROW_ON_ERROR);

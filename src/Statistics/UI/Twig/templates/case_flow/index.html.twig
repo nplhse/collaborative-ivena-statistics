@@ -38,7 +38,8 @@
     {{ include('@Statistics/_filter_active_badges.html.twig') }}
 
     <div data-controller="case-flow-charts"
-         data-case-flow-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">
+         data-case-flow-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}"
+         data-case-flow-charts-cases-label-value="{{ 'stats.chart.series.cases'|trans({}, 'statistics') }}">
 
         {{ include('@Statistics/case_flow/_summary_deck.html.twig') }}
 
