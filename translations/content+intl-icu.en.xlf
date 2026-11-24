@@ -1385,6 +1385,22 @@
         <source>help.article.next</source>
         <target>Next</target>
       </trans-unit>
+      <trans-unit id="help_search_terms_label" resname="help.search_terms.label">
+        <source>help.search_terms.label</source>
+        <target>Search hits for “{query}”</target>
+      </trans-unit>
+      <trans-unit id="help_search_terms_back" resname="help.search_terms.back">
+        <source>help.search_terms.back</source>
+        <target>Back to the search results</target>
+      </trans-unit>
+      <trans-unit id="help_search_terms_clear" resname="help.search_terms.clear">
+        <source>help.search_terms.clear</source>
+        <target>Remove highlighting</target>
+      </trans-unit>
+      <trans-unit id="help_link_title" resname="help.link.title">
+        <source>help.link.title</source>
+        <target>Help for this area</target>
+      </trans-unit>
       <trans-unit id="help_help_feedback_question" resname="help.feedback.question">
         <source>help.feedback.question</source>
         <target>Was this article helpful?</target>

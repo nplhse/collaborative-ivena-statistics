@@ -1,0 +1,18 @@
+{#
+    Above a help article opened from the search (#1590): the search terms, the way back to the hit in the result list
+    and a link that removes the marks. terms: the search; page: the shown page.
+#}
+<div class="alert alert-info d-flex flex-wrap align-items-center gap-2 mb-3 d-print-none"
+     role="status"
+     data-help-search-terms-target="bar"
+     data-testid="help-search-terms-bar">
+    <twig:ux:icon name="tabler:search" class="icon" aria-hidden="true" />
+    <span class="me-auto">{{ 'help.search_terms.label'|trans({query: terms}, 'content') }}</span>
+    <a class="alert-link" href="{{ path('app_help_search', {q: terms}) }}#help-search-hit-{{ page.id }}" data-testid="help-search-terms-back">
+        {{ 'help.search_terms.back'|trans({}, 'content') }}
+    </a>
+    <span class="text-secondary" aria-hidden="true">·</span>
+    <a class="alert-link" href="{{ path('app_page_show', {path: app.request.attributes.get('path')}) }}" data-action="help-search-terms#clear" data-testid="help-search-terms-clear">
+        {{ 'help.search_terms.clear'|trans({}, 'content') }}
+    </a>
+</div>

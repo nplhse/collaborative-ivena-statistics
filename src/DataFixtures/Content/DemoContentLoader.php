@@ -237,10 +237,10 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
 
         $start = $this->helpArticle($help, 'Getting started', 'getting-started', 0, null,
             '<p>Everything you need before your first import.</p>');
-        $this->helpArticle($start, 'Creating your account', 'creating-your-account', 0, 'account.create',
+        $this->helpArticle($start, 'Creating your account', 'creating-your-account', 0, 'start.account',
             '<h2>Register</h2><p>Open the registration page, enter your work email address and choose a password. Confirm the email we send you.</p>'
             .'<h2>Complete your profile</h2><p>Add your name and your role in the emergency department so other participants know who you are.</p>');
-        $this->helpArticle($start, 'Requesting access to your hospital', 'hospital-access', 1, 'hospital.assignment',
+        $this->helpArticle($start, 'Requesting access to your hospital', 'hospital-access', 1, 'start.hospital_access',
             '<h2>Send a request</h2><p>Open <strong>My hospitals</strong> and choose <strong>Request hospital assignment</strong>. Pick your hospital and tell us your relation to it.</p>'
             .'<h2>What happens next</h2><p>An administrator reviews the request and grants access or ownership. You get a notification with the decision.</p>');
 
@@ -258,7 +258,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
         $this->helpArticle($statistics, 'Using the analysis explorer', 'analysis-explorer', 0, 'statistics.explorer',
             '<h2>Filters and scope</h2><p>Choose the period, the hospitals and the dimension you want to analyse. Saved views keep your settings.</p>'
             .'<h2>Reading the results</h2><p>Tables and charts show counts and shares; missing values are listed separately.</p>');
-        $this->helpArticle($statistics, 'Reading the benchmark charts', 'benchmark-charts', 1, 'statistics.benchmarking',
+        $this->helpArticle($statistics, 'Reading the benchmark charts', 'benchmark-charts', 1, 'statistics.benchmarks',
             '<h2>Comparison groups</h2><p>Each chart shows your hospital next to the median of its comparison group by state, dispatch area or cohort.</p>');
     }
 

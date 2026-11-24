@@ -1,0 +1,15 @@
+{% set help_url = help_link(key) %}
+{% if help_url %}
+    {% set help_label = 'help.link.title'|trans({}, 'content') %}
+    <a{{ attributes.defaults({
+        class: 'btn btn-icon btn-ghost-primary d-print-none',
+        href: help_url,
+        title: help_label,
+        'aria-label': help_label,
+        'data-controller': 'tooltip',
+        'data-testid': 'help-link',
+        'data-help-key': key,
+    }) }}>
+        <twig:ux:icon name="tabler:help-circle" class="icon" style="width: 1.5rem; height: 1.5rem;" aria-hidden="true" />
+    </a>
+{% endif %}

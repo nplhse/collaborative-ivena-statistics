@@ -12,8 +12,15 @@
             ]"
         />
         <div class="page-header d-print-none">
-            <h2 class="page-title">{{ 'hospital_assignment_request.title.new'|trans({}, 'allocation') }}</h2>
-            <div class="text-body-secondary mt-1">{{ 'hospital_assignment_request.intro'|trans({}, 'allocation') }}</div>
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'hospital_assignment_request.title.new'|trans({}, 'allocation') }}</h2>
+                    <div class="text-body-secondary mt-1">{{ 'hospital_assignment_request.intro'|trans({}, 'allocation') }}</div>
+                </div>
+                <div class="col-auto ms-auto">
+                    <twig:Content:HelpLink key="start.hospital_access" />
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

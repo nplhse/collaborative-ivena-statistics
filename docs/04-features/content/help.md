@@ -67,6 +67,13 @@ Characters other than letters and digits are dropped, so the terms cannot carry 
 The help holds tens to a few hundred articles, so the search builds its vectors per query; an index can follow when
 it grows.
 
+A hit links its article with the search as `?q=…` (#1590). On a help article with `q`, a bar above the text names the
+search, links back to the result list at that hit (`/help/search?q=…#help-search-hit-<page id>`; the controller
+`help-search-results` marks that hit, as Turbo does not set `:target`) and removes the marks. The Stimulus controller `help-search-terms` marks the words in the article text
+the same way the search matches them (letters and digits, case-insensitive, as the start of a word) and scrolls to the
+first one; words found only through German stemming stay unmarked. Other pages ignore `q`. Page views store only the
+path, not the search.
+
 ## Was this article helpful?
 
 Only signed-in users answer; visitors do not see the question. The question loads after the article in a Turbo Frame
@@ -77,10 +84,27 @@ the feedback inbox as an improvement with the article as context, after its usua
 
 ## Links from the application
 
+Page headers of the application link their help article with a borderless question-mark button in the primary color (#1590):
+
 ```twig
-{% set help_url = help_link('import.rejects') %}
-{% if help_url %}<a href="{{ help_url }}">{{ 'Need help?'|trans }}</a>{% endif %}
+<twig:Content:HelpLink key="import.status" />
 ```
 
-`help_link()` returns null when the article is missing or hidden from the viewer, so templates can leave the link out.
-No template uses it yet.
+The component renders nothing when the article is missing or hidden from the viewer (`help_link()` returns null), so
+a page never shows an empty link. Extra classes are added to the button (`class="btn-sm"`); the tooltip and the accessible name say "Help for this area". Statistics pages that
+use the shared header controls pass the key as `statsHelpKey` to `@Statistics/_header_controls.html.twig`. For other
+uses, `help_link()` returns the URL or null.
+
+Help keys the application links; an article needs exactly this key to be linked:
+
+| Help key | Linked from |
+|---|---|
+| `import.status` | import list, new import, import details (except partial imports) |
+| `import.rejects` | details of a partial import |
+| `statistics.overview` | statistics overview |
+| `statistics.filters` | dialog for scope and period on statistics pages |
+| `statistics.benchmarks` | benchmarking |
+| `start.hospital_access` | My hospitals, hospital assignment request |
+| `ivena.record` | allocation details |
+
+The demo help (`DemoContentLoader`) uses the same keys where it has a matching article.

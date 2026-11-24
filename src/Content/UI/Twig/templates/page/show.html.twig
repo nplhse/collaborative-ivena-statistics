@@ -37,12 +37,19 @@
     <div class="page-body">
         <div class="container-xl">
             <div class="row g-3">
-                <div class="col-lg-8">
+                {# Search terms of a help search (#1590): marked in the article, with a way back to the result list. #}
+                {% set help_search_terms = page.isHelpArticle ? app.request.query.getString('q')|slice(0, 100)|trim : '' %}
+                <div class="col-lg-8"
+                     {% if help_search_terms is not empty %}data-controller="help-search-terms" data-help-search-terms-terms-value="{{ help_search_terms }}"{% endif %}>
+                    {% if help_search_terms is not empty %}
+                        {{ include('@Content/help/_search_terms_bar.html.twig', {terms: help_search_terms, page: page}) }}
+                    {% endif %}
                     <article class="card mb-4">
                         <div class="card-body">
                             <div class="page-content-blocks content"
                                  data-controller="lightbox"
-                                 data-lightbox-gallery-value="content-gallery">
+                                 data-lightbox-gallery-value="content-gallery"
+                                 {% if help_search_terms is not empty %}data-help-search-terms-target="content"{% endif %}>
                                 {% for block in content %}
                                     {% if block.enabled is not defined or block.enabled %}
                                         {% if block.type in page_content_block_types() %}

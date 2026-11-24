@@ -1385,6 +1385,22 @@
         <source>help.article.next</source>
         <target>Nächster</target>
       </trans-unit>
+      <trans-unit id="help_search_terms_label_de" resname="help.search_terms.label">
+        <source>help.search_terms.label</source>
+        <target>Suchtreffer für „{query}“</target>
+      </trans-unit>
+      <trans-unit id="help_search_terms_back_de" resname="help.search_terms.back">
+        <source>help.search_terms.back</source>
+        <target>Zurück zu den Suchergebnissen</target>
+      </trans-unit>
+      <trans-unit id="help_search_terms_clear_de" resname="help.search_terms.clear">
+        <source>help.search_terms.clear</source>
+        <target>Markierung entfernen</target>
+      </trans-unit>
+      <trans-unit id="help_link_title_de" resname="help.link.title">
+        <source>help.link.title</source>
+        <target>Hilfe zu diesem Bereich</target>
+      </trans-unit>
       <trans-unit id="help_help_feedback_question_de" resname="help.feedback.question">
         <source>help.feedback.question</source>
         <target>War dieser Artikel hilfreich?</target>
