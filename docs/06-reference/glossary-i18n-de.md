@@ -151,7 +151,9 @@ Boolean flags and explorer metrics — largely established.
 | Clinical features | Klinische Merkmale | |
 | Clinical care (group) | Klinische Versorgung | |
 
-### ABCDE assessment (`label.assessment.*`) — **no DE yet**
+### ABCD assessment (`label.assessment.*`) — **no DE yet**
+
+IVENA records A to D only (airway, breathing, circulation, disability) and no E, so the assessment is called ABCD.
 
 | EN (category) | DE | Status |
 |---|---|---|
@@ -171,7 +173,7 @@ Boolean flags and explorer metrics — largely established.
 | Circulation — stable | Kreislauf stabil | clinical review |
 | Circulation — unstable | Kreislauf instabil | clinical review |
 | Circulation — ongoing CPR | laufende Reanimation | clinical review |
-| Disability | Neurologie | ABCDE-D |
+| Disability | Neurologie | ABCD-D |
 | GCS below 15 / below 9 | GCS &lt; 15 / GCS &lt; 9 | keep GCS abbreviation |
 
 ---

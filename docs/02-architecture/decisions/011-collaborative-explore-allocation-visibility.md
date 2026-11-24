@@ -23,7 +23,7 @@ Separately, path-level `access_control` already requires `ROLE_PARTICIPANT` for 
 
 **Negative:**
 
-- Clinical free-text and hospital identity are visible across centers to every participant
+- Clinical free-text and hospital identity are visible across centers to every participant (free text corrected in November 2026, see [Correction](#correction-november-2026-1548))
 - Must be communicated in onboarding / beta expectations
 
 ## Alternatives
@@ -36,3 +36,9 @@ Separately, path-level `access_control` already requires `ROLE_PARTICIPANT` for 
 - [../permission-model.md](../permission-model.md)
 - [../../04-features/allocation/explore-allocation-list.md](../../04-features/allocation/explore-allocation-list.md)
 - `src/Allocation/Infrastructure/Security/Voter/AllocationVoter.php`
+
+## Correction (November 2026, #1548)
+
+The negative consequence above overstated what participants see. Hospital identity is visible to every participant in Explore, as decided. The IVENA free text (`allocation.notes`) is not shown anywhere in the application: no participant-facing page renders it, and since #1549 the admin area does not show it either. It can only be read with direct database access.
+
+Rejected rows and uploaded source files still contain the original free text. They are available to administrators only, for error analysis and re-imports. The decision itself is unchanged.
