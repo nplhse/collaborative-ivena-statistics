@@ -643,7 +643,7 @@
       </trans-unit>
       <trans-unit id="NtfTwoFactorResetMessage" resname="security.two_factor_reset.message">
         <source>security.two_factor_reset.message</source>
-        <target>Your account no longer asks for a code from an authenticator app. If you did not ask for this, change your password and contact the administration. You can set up two-factor authentication again in your settings.</target>
+        <target>Your account no longer asks for a code from an authenticator app. If you did not ask for this, change your password and contact an administrator. You can set up two-factor authentication again in your settings.</target>
       </trans-unit>
       <trans-unit id="NtfTwoFactorResetLabel" resname="security.two_factor_reset.label">
         <source>security.two_factor_reset.label</source>

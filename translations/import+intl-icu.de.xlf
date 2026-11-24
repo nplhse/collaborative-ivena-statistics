@@ -15,7 +15,7 @@
       </trans-unit>
       <trans-unit id="FlsImpNoUpDe" resname="flash.import.no_upload_permission">
         <source>flash.import.no_upload_permission</source>
-        <target>Du kannst noch keinen Import starten: Dafür brauchst du für mindestens ein Krankenhaus die Berechtigung zum Importieren. Bitte den Inhaber des Krankenhauses oder einen Administrator um Zugriff.</target>
+        <target>Du kannst noch keinen Import starten: Dafür brauchst du für mindestens ein Krankenhaus die Berechtigung zum Importieren. Bitte den Inhaber des Krankenhauses oder eine:n Administrator:in um Zugriff.</target>
       </trans-unit>
       <trans-unit id="FlsImpRunDe" resname="flash.import.delete_running_blocked">
         <source>flash.import.delete_running_blocked</source>

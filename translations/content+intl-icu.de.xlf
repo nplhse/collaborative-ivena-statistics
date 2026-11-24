@@ -295,7 +295,7 @@
       </trans-unit>
       <trans-unit id="De442f4a00" resname="dashboard.participant_access.intro">
         <source>dashboard.participant_access.intro</source>
-        <target>Als registrierter Benutzer können Sie aggregierte Statistiken im Netzwerk erkunden. Der volle Funktionsumfang erfordert einen von einem Administrator zugewiesenen Teilnehmerzugang.</target>
+        <target>Als registrierter Benutzer können Sie aggregierte Statistiken im Netzwerk erkunden. Der volle Funktionsumfang erfordert einen Teilnehmerzugang, den Administrator:innen zuweisen.</target>
       </trans-unit>
       <trans-unit id="De751cf74b" resname="dashboard.participant_access.title">
         <source>dashboard.participant_access.title</source>

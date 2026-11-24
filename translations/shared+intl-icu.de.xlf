@@ -679,7 +679,7 @@
       </trans-unit>
       <trans-unit id="lblAdminObjectIdHintDe" resname="label.admin_object_id.hint">
         <source>label.admin_object_id.hint</source>
-        <target>Interne ID, nur für Administratoren sichtbar.</target>
+        <target>Interne ID, nur für Administrator:innen sichtbar.</target>
       </trans-unit>
       <trans-unit id="lnkDataCatalogDe" resname="link.data_catalog">
         <source>link.data_catalog</source>
