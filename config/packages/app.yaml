@@ -35,8 +35,9 @@ app:
     security:
         two_factor:
             # Administrators must set up two-factor authentication before they can use the application (#1357,
-            # ADR 040). Off by default; always off in dev and demo (below). Needs APP_TWO_FACTOR_KEY.
-            required_for_admins: false
+            # ADR 040). On by default since #1567, so production is safe without extra configuration; off in dev,
+            # demo and test (below). Needs APP_TWO_FACTOR_KEY, without it the obligation has no effect.
+            required_for_admins: true
 
     closure_volume:
         reference_weeks_before: 4
@@ -180,6 +181,13 @@ when@dev:
                 required_for_admins: false
 
 when@demo:
+    app:
+        security:
+            two_factor:
+                required_for_admins: false
+
+# Tests sign in administrators without two-factor authentication; tests of the obligation switch it on themselves (#1567).
+when@test:
     app:
         security:
             two_factor:

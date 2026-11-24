@@ -37,6 +37,8 @@ with an import grant see it marked as recommended. *Amended 2026-11-22 (#1508): 
 recommendation, because hospital owners are most of the members; the wider group is evaluated later.* Nobody is required to, unless an installation switches on the
 obligation for administrators in the app configuration (`app.security.two_factor.required_for_admins`, default
 `false`, always off in dev and demo). Then administrators without it are sent to the setup and cannot switch it off.
+*Amended 2026-11-24 (#1567): the default is `true`, because the revised terms of use name two-factor authentication
+as mandatory for administrators; dev, demo and test keep it off.*
 It is a configuration node, not an environment variable: it is a lasting policy of the installation, not a secret.
 
 ### Recovery

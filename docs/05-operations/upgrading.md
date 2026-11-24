@@ -24,6 +24,11 @@ afterwards replaces the old URLs in the content.
 - The deploy copies every media file once more into `shared/var/media`: free space for a second copy of the media is
   needed until v0.4 removes the old directory.
 - Cron jobs that call `bin/ops/backup-files.sh` back up `var/media` from now on; prefer `app:backup:create`.
+- **Two-factor authentication** is new and **required for administrators** (#1357, #1567,
+  [ADR 040](../02-architecture/decisions/040-two-factor-authentication.md)). Set `APP_TWO_FACTOR_KEY` in
+  `shared/.env.local` (64 hex characters: `php -r 'echo bin2hex(random_bytes(32)), PHP_EOL;'`) and keep a copy with
+  the other secrets ([configuration.md](../06-reference/configuration.md)). Without the key two-factor authentication
+  is not offered and the obligation has no effect. Tell the administrators to have an authenticator app at hand.
 
 ### Deploy
 
@@ -52,6 +57,11 @@ or `vendor/bin/dep media:rewrite-content-urls <host>`. Old file names listed by 
 their URLs keep working through the redirect until v0.4. After this step a rollback to v0.2 shows broken images in the
 rewritten content.
 
+Every administrator is sent to `/settings/two-factor` on the next page load and sets up two-factor authentication
+there; until then other pages are not reachable. Keep the backup codes. If an administrator loses both, another
+administrator resets it on the user's detail page; for the last administrator run
+`php bin/console app:user:reset-two-factor <username>`.
+
 ### Check
 
 ```bash
@@ -66,6 +76,9 @@ Media items whose file was already missing before the deploy stay outside the st
 
 Open a page and a blog post with images: the images load from `/media/…`. An old link `/uploads/media/<file>`
 redirects to the new URL.
+
+The `two_factor` health check reports `ok` (not `disabled`), and every administrator has two-factor authentication
+switched on (user list in the admin).
 
 ## v0.2.4-beta → v0.2.5-beta
 
