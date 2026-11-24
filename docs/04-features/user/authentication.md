@@ -90,7 +90,7 @@ Users can protect their account with a six-digit code from an authenticator app 
   and users with an import grant were marked too; as they are most of the members, the recommendation is limited to
   administrators for now and the wider group is evaluated later.
 - **Obligation for administrators:** `app.security.two_factor.required_for_admins` in `config/packages/app.yaml`
-  (default `false`, forced off in dev and demo). When on and the feature is available, `RequireTwoFactorListener` sends
+  (default `true` since #1567, forced off in dev, demo and test). When on and the feature is available, `RequireTwoFactorListener` sends
   administrators without it to `/settings/two-factor` on every page load (other requests get a 403) and they cannot
   switch it off. Setup, password confirmation, logout, cookie and language choice stay reachable.
 - **Reset:** administrators reset it for other accounts on the user's detail page in EasyAdmin (POST with CSRF token,
