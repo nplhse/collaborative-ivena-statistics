@@ -32,7 +32,7 @@ final readonly class PageNavigationNode
         public ?string $summary = null,
         /** Estimated reading time of the shown translation in minutes (#1578). */
         public int $readingMinutes = 1,
-        /** Icon of the page (#1590), e.g. `tabler:upload`; null when the editor chose none. */
+        /** Icon of the page (#1590), e.g. `tabler:file-import`; null when the editor chose none. */
         public ?string $icon = null,
     ) {
     }

@@ -19,7 +19,7 @@ final class KnownIconValidatorTest extends ConstraintValidatorTestCase
     {
         $renderer = $this->createStub(IconRendererInterface::class);
         $renderer->method('renderIcon')->willReturnCallback(static function (string $name): string {
-            if ('tabler:upload' !== $name) {
+            if ('tabler:file-import' !== $name) {
                 throw new IconNotFoundException(\sprintf('Icon "%s" not found.', $name));
             }
 
@@ -39,7 +39,7 @@ final class KnownIconValidatorTest extends ConstraintValidatorTestCase
 
     public function testKnownIconIsValid(): void
     {
-        $this->validator->validate('tabler:upload', new KnownIcon());
+        $this->validator->validate('tabler:file-import', new KnownIcon());
 
         $this->assertNoViolation();
     }

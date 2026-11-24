@@ -7,7 +7,7 @@ namespace App\Content\Domain\Validation\Constraints;
 use Symfony\Component\Validator\Constraint;
 
 /**
- * An icon name like `tabler:upload` that the icon set knows (#1590); an unknown icon would fail when the page is shown.
+ * An icon name like `tabler:file-import` that the icon set knows (#1590); an unknown icon would fail when the page is shown.
  * Empty values are valid.
  */
 #[\Attribute(\Attribute::TARGET_PROPERTY)]

@@ -89,7 +89,7 @@ final class HelpArticleCrudControllerTest extends WebTestCase
             'Page[icon]' => 'upload',
         ]));
         self::assertResponseStatusCodeSame(422);
-        self::assertSelectorTextContains('form[name="Page"]', 'Enter an icon such as tabler:upload.');
+        self::assertSelectorTextContains('form[name="Page"]', 'Enter an icon such as tabler:file-import.');
 
         $crawler = $client->request(Request::METHOD_GET, '/admin/help-article/new');
         $client->submit($crawler->filter('form[name="Page"]')->form([

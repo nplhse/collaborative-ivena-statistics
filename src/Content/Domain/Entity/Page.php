@@ -68,7 +68,7 @@ class Page implements \Stringable
     #[ORM\Column(length: self::MAX_HELP_KEY_LENGTH, nullable: true)]
     private ?string $helpKey = null;
 
-    /** Optional icon (#1590), e.g. `tabler:upload`: shown on help topic cards and subpage cards. */
+    /** Optional icon (#1590), e.g. `tabler:file-import`: shown on help topic cards and subpage cards. */
     #[KnownIcon]
     #[Assert\Length(max: self::MAX_ICON_LENGTH)]
     #[ORM\Column(length: self::MAX_ICON_LENGTH, nullable: true)]

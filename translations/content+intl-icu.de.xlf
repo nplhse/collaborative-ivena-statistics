@@ -1339,7 +1339,7 @@
       </trans-unit>
       <trans-unit id="label_page_icon_help_de" resname="label.page_icon_help">
         <source>label.page_icon_help</source>
-        <target>Optionales Tabler-Symbol für Themen- und Unterseiten-Karten, z. B. tabler:upload.</target>
+        <target>Optionales Tabler-Symbol für Themen- und Unterseiten-Karten, z. B. tabler:file-import.</target>
       </trans-unit>
       <trans-unit id="help_label_help_feedback_de" resname="label.help_feedback">
         <source>label.help_feedback</source>
