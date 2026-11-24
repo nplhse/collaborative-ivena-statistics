@@ -17,7 +17,7 @@ Existing installations: no extra steps, see the [upgrade guide](docs/05-operatio
 
 ### Dependencies
 
-- **deps:** Update symfony/ux-icons and ux-live-component to 3.8.1 for the security advisories of 2026-11-24
+- **deps:** Update symfony/ux-icons and ux-live-component to 3.8.1 for the security advisories of 2026-11-24 ([#1585](https://github.com/nplhse/collaborative-ivena-statistics/pull/1585))
 
 ## [0.2.4-beta] - 2026-11-17
 
