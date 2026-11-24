@@ -104,4 +104,21 @@ final class PageTranslationTest extends TestCase
 
         $draftChild->validateParentTranslation($context);
     }
+
+    public function testSummaryIsTrimmedToOneLineAndEmptyMeansNone(): void
+    {
+        self::assertSame('Two steps to start.', new PageTranslation()->setSummary("  Two steps\n to   start.  ")->getSummary());
+        self::assertNull(new PageTranslation()->setSummary('   ')->getSummary());
+        self::assertNull(new PageTranslation()->setSummary(null)->getSummary());
+    }
+
+    public function testReadingTimeCountsTheWordsOfTheSavedContentAt200PerMinute(): void
+    {
+        $words = static fn (int $count): array => [['type' => 'richtext', 'data' => ['html' => '<p>'.trim(str_repeat('word ', $count)).'</p>']]];
+
+        self::assertSame(1, new PageTranslation()->getReadingMinutes(), 'no content');
+        self::assertSame(1, new PageTranslation()->setContent($words(200))->getReadingMinutes());
+        self::assertSame(2, new PageTranslation()->setContent($words(201))->getReadingMinutes());
+        self::assertSame(3, new PageTranslation()->setContent($words(600))->getReadingMinutes());
+    }
 }

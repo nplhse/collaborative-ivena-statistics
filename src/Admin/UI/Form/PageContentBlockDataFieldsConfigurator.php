@@ -31,7 +31,7 @@ final readonly class PageContentBlockDataFieldsConfigurator
         'level', 'align', 'spacingBefore', 'spacingAfter',
         'variant', 'title', 'iconMode', 'icon',
         'size', 'float',
-        'items',
+        'items', 'numbered',
     ];
 
     /** @psalm-suppress PossiblyUnusedMethod Symfony autowires this service */
@@ -60,6 +60,8 @@ final readonly class PageContentBlockDataFieldsConfigurator
             PageContentBlockType::Headline->value => $this->addHeadlineFields($dataForm),
             PageContentBlockType::Highlight->value => $this->addHighlightFields($dataForm),
             PageContentBlockType::Accordion->value => $this->addAccordionFields($dataForm),
+            PageContentBlockType::Cards->value => $this->addCardsFields($dataForm),
+            PageContentBlockType::ChildPages->value => $this->addChildPagesFields($dataForm),
             // Help blocks (#596) have no settings; their content comes from the help tree.
             PageContentBlockType::HelpSearch->value, PageContentBlockType::HelpTopics->value => null,
             default => $this->addRichtextFields($dataForm),
@@ -330,6 +332,35 @@ final readonly class PageContentBlockDataFieldsConfigurator
             'by_reference' => false,
             'prototype' => true,
             'required' => true,
+        ]);
+    }
+
+    /**
+     * @param FormInterface<array<string, mixed>> $dataForm
+     */
+    private function addCardsFields(FormInterface $dataForm): void
+    {
+        $dataForm->add('items', CollectionType::class, [
+            'label' => 'label.cards_items',
+            'entry_type' => PageContentCardItemType::class,
+            'allow_add' => true,
+            'allow_delete' => true,
+            'by_reference' => false,
+            'prototype' => true,
+            'required' => true,
+            'help' => 'help.page.cards_items',
+        ]);
+    }
+
+    /**
+     * @param FormInterface<array<string, mixed>> $dataForm
+     */
+    private function addChildPagesFields(FormInterface $dataForm): void
+    {
+        $dataForm->add('numbered', CheckboxType::class, [
+            'label' => 'label.child_pages_numbered',
+            'required' => false,
+            'help' => 'help.page.child_pages_numbered',
         ]);
     }
 }

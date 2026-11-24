@@ -33,6 +33,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Option\BadgeVariant;
@@ -46,6 +47,8 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\UX\Icons\Exception\IconNotFoundException;
+use Symfony\UX\Icons\IconRendererInterface;
 
 /**
  * @extends AbstractCrudController<PageTranslation>
@@ -70,6 +73,7 @@ final class PageTranslationCrudController extends AbstractCrudController
         private readonly PageRepository $pageRepository,
         private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly CsrfTokenManagerInterface $csrfTokenManager,
+        private readonly IconRendererInterface $iconRenderer,
     ) {
     }
 
@@ -229,6 +233,12 @@ final class PageTranslationCrudController extends AbstractCrudController
         yield TextField::new('slug', 'label.slug')
             ->setRequired(false)
             ->setHelp(new TranslatableMessage('help.page.slug', domain: 'content'))
+            ->hideOnIndex();
+        yield TextareaField::new('summary', new TranslatableMessage('label.summary', domain: 'content'))
+            ->setRequired(false)
+            ->setNumOfRows(2)
+            ->setFormTypeOption('attr', ['maxlength' => PageTranslation::MAX_SUMMARY_LENGTH])
+            ->setHelp(new TranslatableMessage('help.page.summary', domain: 'content'))
             ->hideOnIndex();
         yield ChoiceField::new('status', 'label.status')
             ->setTranslatableChoices([
@@ -520,7 +530,41 @@ final class PageTranslationCrudController extends AbstractCrudController
             return [sprintf('Block %d: %s', $position, $exception->getMessage())];
         }
 
-        return $this->pageContentValidator->validateBlockAt($position, $prepared[0] ?? $block);
+        return [
+            ...$this->pageContentValidator->validateBlockAt($position, $prepared[0] ?? $block),
+            ...$this->unknownCardIcons($position, $prepared[0] ?? $block),
+        ];
+    }
+
+    /**
+     * Card icons (#1578) that the icon set does not know; they would fail when the page is shown.
+     *
+     * @param array<array-key, mixed> $block
+     *
+     * @return list<string>
+     */
+    private function unknownCardIcons(int $position, array $block): array
+    {
+        $items = $block['data']['items'] ?? null;
+        if (\App\Content\Domain\Enum\PageContentBlockType::Cards->value !== ($block['type'] ?? null) || !is_array($items)) {
+            return [];
+        }
+
+        $errors = [];
+        foreach (array_values($items) as $index => $item) {
+            $icon = is_array($item) ? trim((string) ($item['icon'] ?? '')) : '';
+            if ('' === $icon) {
+                continue;
+            }
+
+            try {
+                $this->iconRenderer->renderIcon($icon);
+            } catch (IconNotFoundException) {
+                $errors[] = sprintf('Block %d card %d: %s', $position, $index + 1, $this->translator->trans('page.validation.cards_unknown_icon', ['{icon}' => $icon], 'validators'));
+            }
+        }
+
+        return $errors;
     }
 
     private function shouldSynchronizePath(PageTranslation $translation): bool

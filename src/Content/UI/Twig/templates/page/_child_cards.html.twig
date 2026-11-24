@@ -1,0 +1,29 @@
+{#
+    Cards for subpages (#1578): title, short description and reading time of each page.
+    nodes: list<PageNavigationNode>; numbered: show "Step n" for pages that describe a sequence.
+#}
+{% if nodes is not empty %}
+    <div class="row row-cards page-child-cards" data-testid="page-child-cards">
+        {% for node in nodes %}
+            <div class="col-md-6">
+                <a class="card card-link card-link-pop h-100" href="{{ node.url }}" data-testid="page-child-card">
+                    <div class="card-body d-flex flex-column">
+                        {% if numbered|default(false) %}
+                            <div class="mb-2">
+                                <span class="badge bg-primary-lt">{{ 'page.child_pages.step'|trans({number: loop.index}, 'content') }}</span>
+                            </div>
+                        {% endif %}
+                        <h3 class="card-title mb-1">{{ node.title }}</h3>
+                        {% if node.summary %}
+                            <p class="text-secondary mb-0">{{ node.summary }}</p>
+                        {% endif %}
+                        <div class="d-flex align-items-center justify-content-between mt-auto pt-3 small">
+                            <span class="text-secondary">{{ 'page.child_pages.reading_time'|trans({minutes: node.readingMinutes}, 'content') }}</span>
+                            <span class="text-primary">{{ 'page.child_pages.read'|trans({}, 'content') }} →</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

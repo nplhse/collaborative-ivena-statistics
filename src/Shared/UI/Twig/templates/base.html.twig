@@ -7,6 +7,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    {% block meta_description %}{% endblock %}
     <title>{% if app_demo_mode %}{{ 'demo.title_prefix'|trans({}, 'shared') }} · {% endif %}{% block title %}{{ app_title }}{% endblock %}</title>
 
     {% if 'html' == app.request.getRequestFormat() %}

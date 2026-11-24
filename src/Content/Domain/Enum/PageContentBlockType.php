@@ -17,6 +17,10 @@ enum PageContentBlockType: string
     case HelpSearch = 'help_search';
     /** Main topics of the help with their articles (#596), taken from the help tree when the page is shown. */
     case HelpTopics = 'help_topics';
+    /** One to four cards with icon, title, text and link (#1578). */
+    case Cards = 'cards';
+    /** Cards for the visible subpages of the page (#1578), taken from the page tree when the page is shown. */
+    case ChildPages = 'child_pages';
 
     public function translationKey(): string
     {
@@ -38,8 +42,8 @@ enum PageContentBlockType: string
             self::Quote => ['text'],
             self::Headline => ['text'],
             self::Highlight => ['title', 'html', 'icon'],
-            self::Accordion => ['items'],
-            self::HelpSearch, self::HelpTopics => [],
+            self::Accordion, self::Cards => ['items'],
+            self::HelpSearch, self::HelpTopics, self::ChildPages => [],
         };
     }
 

@@ -84,6 +84,8 @@ final class PageNavigationTreeProvider implements ResetInterface
         $pages = [];
         /** @var array<int, array{title: string, path: string}> $displayByPageId */
         $displayByPageId = [];
+        /** @var array<int, PageTranslation> $translationByPageId */
+        $translationByPageId = [];
 
         foreach ($this->pageRepository->findAllWithPublishedTranslation() as $page) {
             $translation = $this->pageTranslationResolver->resolveForDisplay($page, $locale);
@@ -105,17 +107,19 @@ final class PageNavigationTreeProvider implements ResetInterface
                 'title' => (string) $translation->getTitle(),
                 'path' => (string) $translation->getPath(),
             ];
+            $translationByPageId[$pageId] = $translation;
         }
 
-        return $this->toNodes($this->pageNavigationTreeBuilder->build($pages, $displayByPageId));
+        return $this->toNodes($this->pageNavigationTreeBuilder->build($pages, $displayByPageId), $translationByPageId);
     }
 
     /**
      * @param array<int, array{page: Page, title: string, path: string, children: array<int, mixed>}> $nodes
+     * @param array<int, PageTranslation>                                                             $translationByPageId
      *
      * @return list<PageNavigationNode>
      */
-    private function toNodes(array $nodes): array
+    private function toNodes(array $nodes, array $translationByPageId): array
     {
         $result = [];
 
@@ -134,8 +138,10 @@ final class PageNavigationTreeProvider implements ResetInterface
                 key: $node['page']->getKey(),
                 title: $node['title'],
                 url: $this->urlGenerator->generate('app_page_show', ['path' => $pathSegment]),
-                children: $this->toNodes($children),
+                children: $this->toNodes($children, $translationByPageId),
                 help: $node['page']->isHelpArticle(),
+                summary: $translationByPageId[$pageId]->getSummary(),
+                readingMinutes: $translationByPageId[$pageId]->getReadingMinutes(),
             );
         }
 

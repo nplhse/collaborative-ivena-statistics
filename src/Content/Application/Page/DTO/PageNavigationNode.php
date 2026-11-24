@@ -28,6 +28,10 @@ final readonly class PageNavigationNode
         public bool $expanded = false,
         /** A help article (#596): left out of the general page tree, shown in the help navigation. */
         public bool $help = false,
+        /** Short description of the shown translation (#1578), null when the editor wrote none. */
+        public ?string $summary = null,
+        /** Estimated reading time of the shown translation in minutes (#1578). */
+        public int $readingMinutes = 1,
     ) {
     }
 
@@ -51,6 +55,8 @@ final readonly class PageNavigationNode
             ancestor: $ancestor,
             expanded: $expanded,
             help: $this->help,
+            summary: $this->summary,
+            readingMinutes: $this->readingMinutes,
         );
     }
 }

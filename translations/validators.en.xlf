@@ -941,6 +941,30 @@
         <source>district.ags.unique</source>
         <target>A district with this official key already exists.</target>
       </trans-unit>
+      <trans-unit id="cms1578v01en" resname="page.validation.child_pages_numbered_must_be_bool">
+        <source>page.validation.child_pages_numbered_must_be_bool</source>
+        <target>“Number as steps” must be yes or no.</target>
+      </trans-unit>
+      <trans-unit id="cms1578v02en" resname="page.validation.cards_items_required">
+        <source>page.validation.cards_items_required</source>
+        <target>At least one card is required.</target>
+      </trans-unit>
+      <trans-unit id="cms1578v03en" resname="page.validation.cards_too_many">
+        <source>page.validation.cards_too_many</source>
+        <target>At most {max} cards are allowed.</target>
+      </trans-unit>
+      <trans-unit id="cms1578v04en" resname="page.validation.cards_invalid_icon">
+        <source>page.validation.cards_invalid_icon</source>
+        <target>Invalid icon name. Expected for example tabler:info-circle.</target>
+      </trans-unit>
+      <trans-unit id="cms1578v05en" resname="page.validation.cards_invalid_link">
+        <source>page.validation.cards_invalid_link</source>
+        <target>The link must be a path on this site (starting with /) or an http(s) address.</target>
+      </trans-unit>
+      <trans-unit id="cms1578v06en" resname="page.validation.cards_unknown_icon">
+        <source>page.validation.cards_unknown_icon</source>
+        <target>The icon “{icon}” does not exist.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

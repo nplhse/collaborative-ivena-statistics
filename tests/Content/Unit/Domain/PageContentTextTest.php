@@ -33,4 +33,14 @@ final class PageContentTextTest extends TestCase
     {
         self::assertSame('', PageContentText::extract([]));
     }
+
+    public function testKeepsCardTitlesTextsAndLinkLabelsButNotIconsOrUrls(): void
+    {
+        self::assertSame('Staff Start here. Open guide', PageContentText::extract([
+            ['type' => 'cards', 'data' => ['items' => [
+                ['icon' => 'tabler:user', 'title' => 'Staff', 'html' => '<p>Start here.</p>', 'linkUrl' => '/help/start', 'linkLabel' => 'Open guide'],
+            ]]],
+            ['type' => 'child_pages', 'data' => ['numbered' => true]],
+        ]));
+    }
 }

@@ -27,6 +27,10 @@ class PageTranslation implements \Stringable
 {
     public const string STATUS_DRAFT = 'draft';
     public const string STATUS_PUBLISHED = 'published';
+    public const int MAX_SUMMARY_LENGTH = 300;
+
+    /** Words per minute for the estimated reading time; a common value for reading on screen. */
+    private const int READING_WORDS_PER_MINUTE = 200;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -67,6 +71,11 @@ class PageTranslation implements \Stringable
 
     #[ORM\Column(options: ['default' => false])]
     private bool $showToc = false;
+
+    /** One sentence about the page (#1578): shown on subpage cards and help topic cards, in the help search and as meta description. */
+    #[Assert\Length(max: self::MAX_SUMMARY_LENGTH)]
+    #[ORM\Column(length: self::MAX_SUMMARY_LENGTH, nullable: true)]
+    private ?string $summary = null;
 
     /**
      * @var list<array{
@@ -246,6 +255,29 @@ class PageTranslation implements \Stringable
     public function getSearchText(): string
     {
         return $this->searchText;
+    }
+
+    public function getSummary(): ?string
+    {
+        return $this->summary;
+    }
+
+    public function setSummary(?string $summary): self
+    {
+        $summary = null === $summary ? '' : trim((string) preg_replace('/\s+/u', ' ', $summary));
+        $this->summary = '' === $summary ? null : $summary;
+
+        return $this;
+    }
+
+    /**
+     * Estimated reading time of the saved content in whole minutes, at least 1.
+     */
+    public function getReadingMinutes(): int
+    {
+        $words = '' === $this->searchText ? 0 : \count(preg_split('/\s+/u', $this->searchText) ?: []);
+
+        return max(1, (int) ceil($words / self::READING_WORDS_PER_MINUTE));
     }
 
     /**

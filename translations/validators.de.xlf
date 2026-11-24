@@ -941,6 +941,30 @@
         <source>district.ags.unique</source>
         <target>Ein Kreis mit diesem Schlüssel existiert bereits.</target>
       </trans-unit>
+      <trans-unit id="cms1578v01de" resname="page.validation.child_pages_numbered_must_be_bool">
+        <source>page.validation.child_pages_numbered_must_be_bool</source>
+        <target>„Als Schritte nummerieren“ muss ja oder nein sein.</target>
+      </trans-unit>
+      <trans-unit id="cms1578v02de" resname="page.validation.cards_items_required">
+        <source>page.validation.cards_items_required</source>
+        <target>Mindestens eine Karte ist erforderlich.</target>
+      </trans-unit>
+      <trans-unit id="cms1578v03de" resname="page.validation.cards_too_many">
+        <source>page.validation.cards_too_many</source>
+        <target>Höchstens {max} Karten sind möglich.</target>
+      </trans-unit>
+      <trans-unit id="cms1578v04de" resname="page.validation.cards_invalid_icon">
+        <source>page.validation.cards_invalid_icon</source>
+        <target>Ungültiger Symbolname. Erwartet wird z. B. tabler:info-circle.</target>
+      </trans-unit>
+      <trans-unit id="cms1578v05de" resname="page.validation.cards_invalid_link">
+        <source>page.validation.cards_invalid_link</source>
+        <target>Der Link muss ein Pfad auf dieser Website (beginnend mit /) oder eine http(s)-Adresse sein.</target>
+      </trans-unit>
+      <trans-unit id="cms1578v06de" resname="page.validation.cards_unknown_icon">
+        <source>page.validation.cards_unknown_icon</source>
+        <target>Das Symbol „{icon}“ gibt es nicht.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -38,7 +38,9 @@
                                 {% for hit in hits %}
                                     <a class="list-group-item list-group-item-action" href="{{ path('app_page_show', {path: hit.path|trim('/')}) }}" data-testid="help-search-hit">
                                         <div class="fw-medium">{{ hit.title }}</div>
-                                        {% if hit.excerpt %}
+                                        {% if hit.summary %}
+                                            <div class="text-secondary small help-search-summary">{{ hit.summary }}</div>
+                                        {% elseif hit.excerpt %}
                                             <div class="text-secondary small help-search-excerpt">{{ hit.excerptHtml|raw }}</div>
                                         {% endif %}
                                     </a>

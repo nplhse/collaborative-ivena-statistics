@@ -2,6 +2,12 @@
 
 {% block title %}{{ translation.title }} - {{ parent() }}{% endblock %}
 
+{% block meta_description %}
+    {% if translation.summary %}
+        <meta name="description" content="{{ translation.summary }}">
+    {% endif %}
+{% endblock %}
+
 {% block page_header %}
     <div class="container-xl">
         <twig:Breadcrumbs :items="breadcrumbItems" />
@@ -52,6 +58,12 @@
                             </div>
                         </div>
                     </article>
+                    {# Help topics (#1578) list their articles as cards, unless the editor placed the subpages block. #}
+                    {% if page.isHelpArticle and content|filter(b => b.type == 'child_pages' and (b.enabled ?? true))|length == 0 %}
+                        <div class="mb-4">
+                            {{ include('@Content/page/_child_cards.html.twig', {nodes: page_children(), numbered: false}) }}
+                        </div>
+                    {% endif %}
                     {% if help_neighbours is defined and help_neighbours %}
                         {{ include('@Content/help/_article_footer.html.twig', {neighbours: help_neighbours, page: page}) }}
                     {% endif %}

@@ -29,12 +29,17 @@ a page with that path would be hidden behind it. The same holds for `/help/gloss
 ## Pages
 
 - **Start page:** any blocks plus two help blocks without settings: *Help search* (`help_search`, the large search
-  field) and *Help topics* (`help_topics`, one card per main topic with its first five articles).
+  field) and *Help topics* (`help_topics`, one card per main topic with its short description and first five
+  articles). The *Cards* block suits entry points such as "Where to start" ([page-translations.md](page-translations.md#blocks)).
+- **Topic:** an article with subpages lists them as cards below its text: title, short description and reading time
+  (#1578). Placing the *Subpages* block in the content moves the cards there instead, for example to number them as
+  steps.
 - **Article:** the page template with the help sidebar: search, *On this page* (always shown for help pages, built by
   `PageTableOfContentsBuilder` from the headings) and the help tree (`<twig:Content:PageNavigation>` with the start page
   as root). Below the article: *Was this article helpful?* and the previous and next article in reading order
   (depth first, `HelpNavigation::neighbours()`). The start page has no sidebar search, its search block is enough.
-- **Search results:** same layout; titles weigh more than text, the excerpt marks the matched words.
+- **Search results:** same layout; titles and short descriptions weigh more than text. A hit shows its short
+  description, or without one the excerpt with the matched words marked.
 
 Which articles a viewer sees follows the page rules: published translation in the request locale or the content
 default locale, and visibility (`public` or `authenticated`). Navigation, neighbours, topics, search and

@@ -24,6 +24,7 @@ final class PageFactory extends PersistentObjectFactory
         'status',
         'content',
         'showToc',
+        'summary',
         'locale',
     ];
 

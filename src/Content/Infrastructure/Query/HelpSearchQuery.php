@@ -36,7 +36,7 @@ final readonly class HelpSearchQuery implements HelpSearchQueryInterface
             return [];
         }
 
-        $document = "setweight(to_tsvector(d.cfg, d.title), 'A') || setweight(to_tsvector(d.cfg, d.search_text), 'B')";
+        $document = "setweight(to_tsvector(d.cfg, d.title), 'A') || setweight(to_tsvector(d.cfg, coalesce(d.summary, '')), 'A') || setweight(to_tsvector(d.cfg, d.search_text), 'B')";
         $headlineOptions = \sprintf(
             'StartSel=%s, StopSel=%s, MaxWords=35, MinWords=15, MaxFragments=2, FragmentDelimiter=" … "',
             HelpSearchHit::MATCH_START,
@@ -45,7 +45,7 @@ final readonly class HelpSearchQuery implements HelpSearchQueryInterface
 
         $rows = $this->connection->fetchAllAssociative(
             'WITH shown AS (
-                SELECT DISTINCT ON (t.page_id) t.page_id, t.locale, t.title, t.path, t.search_text
+                SELECT DISTINCT ON (t.page_id) t.page_id, t.locale, t.title, t.path, t.summary, t.search_text
                 FROM page_translation t
                 WHERE t.page_id IN (:pageIds) AND t.status = :published AND t.locale IN (:locale, :defaultLocale)
                 ORDER BY t.page_id, (t.locale = :locale) DESC
@@ -53,7 +53,7 @@ final readonly class HelpSearchQuery implements HelpSearchQueryInterface
                 SELECT s.*, CAST(CASE WHEN s.locale = \'de\' THEN \'german\' ELSE \'english\' END AS regconfig) AS cfg
                 FROM shown s
             )
-            SELECT d.page_id, d.title, d.path,
+            SELECT d.page_id, d.title, d.path, d.summary,
                    ts_headline(d.cfg, d.search_text, to_tsquery(d.cfg, :query), :headline) AS excerpt
             FROM docs d
             WHERE ('.$document.') @@ to_tsquery(d.cfg, :query)
@@ -76,6 +76,7 @@ final readonly class HelpSearchQuery implements HelpSearchQueryInterface
                 (string) $row['title'],
                 (string) $row['path'],
                 (string) $row['excerpt'],
+                null !== $row['summary'] ? (string) $row['summary'] : null,
             ),
             $rows,
         );

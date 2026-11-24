@@ -1,0 +1,2 @@
+{# Subpages block (#1578): cards for the visible subpages of this page, taken from the page tree. #}
+{{ include('@Content/page/_child_cards.html.twig', {nodes: page_children(), numbered: block.data.numbered|default(false)}) }}

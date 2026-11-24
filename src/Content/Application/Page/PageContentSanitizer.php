@@ -39,8 +39,8 @@ final readonly class PageContentSanitizer
                 continue;
             }
 
-            if (PageContentBlockType::Accordion->value === $type) {
-                $sanitized[] = $this->sanitizeAccordionBlock($block);
+            if (PageContentBlockType::Accordion->value === $type || PageContentBlockType::Cards->value === $type) {
+                $sanitized[] = $this->sanitizeItemsBlock($block);
                 continue;
             }
 
@@ -70,7 +70,7 @@ final readonly class PageContentSanitizer
      *
      * @return array{type: string, data: array<string, mixed>, enabled?: bool}
      */
-    private function sanitizeAccordionBlock(array $block): array
+    private function sanitizeItemsBlock(array $block): array
     {
         $data = is_array($block['data'] ?? null) ? $block['data'] : [];
         $items = is_array($data['items'] ?? null) ? $data['items'] : [];

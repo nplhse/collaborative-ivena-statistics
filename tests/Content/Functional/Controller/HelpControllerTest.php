@@ -64,6 +64,42 @@ final class HelpControllerTest extends WebTestCase
         self::assertCount(0, $crawler->filter('[data-testid="help-article-pagination"]'));
     }
 
+    public function testTopicPageListsItsArticlesAsCardsAndTheStartPageShowsTopicSummaries(): void
+    {
+        $client = self::createClient();
+        $this->fixture();
+
+        $crawler = $client->request(Request::METHOD_GET, '/help/importing');
+
+        self::assertResponseIsSuccessful();
+        $cards = $crawler->filter('[data-testid="page-child-card"]');
+        self::assertSame(['Export', 'Rejected rows'], $cards->filter('.card-title')->each(static fn (Crawler $title): string => trim($title->text())));
+        self::assertSame(['/help/importing/export', '/help/importing/rejected-rows'], $cards->each(static fn (Crawler $card): string => (string) $card->attr('href')));
+        self::assertStringContainsString('Create the CSV file in IVENA, not in a spreadsheet.', $cards->first()->text());
+        self::assertStringContainsString('1 minute read', $cards->first()->text());
+        self::assertCount(0, $crawler->filter('[data-testid="page-child-cards"] .badge'), 'not numbered');
+        self::assertSame('How IVENA exports get into the application.', $crawler->filter('meta[name="description"]')->attr('content'));
+
+        $crawler = $client->request(Request::METHOD_GET, '/help/importing/export');
+        self::assertCount(0, $crawler->filter('[data-testid="page-child-cards"]'), 'articles without subpages show no cards');
+
+        $crawler = $client->request(Request::METHOD_GET, '/help');
+        self::assertStringContainsString('How IVENA exports get into the application.', $crawler->filter('[data-testid="help-topic"]')->first()->text());
+        self::assertCount(0, $crawler->filter('[data-testid="page-child-cards"]'), 'the start page has its topic overview');
+    }
+
+    public function testSearchShowsTheSummaryInsteadOfTheExcerpt(): void
+    {
+        $client = self::createClient();
+        $this->fixture();
+
+        $crawler = $client->request(Request::METHOD_GET, '/help/search?q=quarter');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame('Create the CSV file in IVENA, not in a spreadsheet.', trim($crawler->filter('[data-testid="help-search-hit"] .help-search-summary')->text()));
+        self::assertCount(0, $crawler->filter('[data-testid="help-search-hit"] .help-search-excerpt'));
+    }
+
     public function testOtherPagesAndTheSitemapLeaveOutTheArticles(): void
     {
         $client = self::createClient();
@@ -185,8 +221,8 @@ final class HelpControllerTest extends WebTestCase
     {
         PageFactory::createOne(['title' => 'Guide', 'slug' => 'guide', 'path' => '/guide', 'status' => 'published']);
         $root = HelpPages::root();
-        $this->importing = HelpPages::article($root, 'Importing', '/help/importing', '<p>About imports.</p>');
-        HelpPages::article($this->importing, 'Export', '/help/importing/export', '<p>Export by quarter.</p>');
+        $this->importing = HelpPages::article($root, 'Importing', '/help/importing', '<p>About imports.</p>', 0, ['summary' => 'How IVENA exports get into the application.']);
+        HelpPages::article($this->importing, 'Export', '/help/importing/export', '<p>Export by quarter.</p>', 0, ['summary' => 'Create the CSV file in IVENA, not in a spreadsheet.']);
         $this->rejects = HelpPages::article($this->importing, 'Rejected rows', '/help/importing/rejected-rows',
             '<h2>Why rows are rejected</h2><p>Rows that fail the plausibility checks.</p><h2>Fixing them</h2><p>Import again.</p>', 1, ['helpKey' => 'import.rejects']);
         HelpPages::article($root, 'Statistics', '/help/statistics', '<p>About statistics.</p>', 1);

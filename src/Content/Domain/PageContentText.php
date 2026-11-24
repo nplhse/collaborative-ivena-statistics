@@ -11,7 +11,7 @@ namespace App\Content\Domain;
 final class PageContentText
 {
     /** Block data keys whose values are text a reader sees. */
-    private const array TEXT_KEYS = ['html', 'text', 'title', 'headline', 'caption', 'alt', 'buttonLabel', 'items'];
+    private const array TEXT_KEYS = ['html', 'text', 'title', 'headline', 'caption', 'alt', 'buttonLabel', 'items', 'linkLabel'];
 
     /**
      * @param list<array{type: string, data: array<string, mixed>, enabled?: bool}> $content
