@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f594e9560a37b045c4d263e5a98f7738",
+    "content-hash": "34ce2fdf8c57b7f3849cdf5b2187b7db",
     "packages": [
         {
             "name": "azuyalabs/yasumi",
@@ -2722,7 +2722,8 @@
                 "issues": "https://github.com/php-fig/container/issues",
                 "source": "https://github.com/php-fig/container/tree/2.0.2"
             },
-            "time": "2021-11-05T16:47:00+00:00"
+            "time": "2021-11-05T16:47:00+00:00",
+            "published-time": "2021-11-05T16:53:27+00:00"
         },
         {
             "name": "psr/event-dispatcher",
@@ -4165,7 +4166,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-16T14:15:10+00:00"
+            "time": "2026-09-16T14:15:10+00:00",
+            "published-time": "2026-11-04T11:25:34+00:00"
         },
         {
             "name": "symfony/doctrine-bridge",
@@ -9219,7 +9221,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-11-02T10:58:30+00:00"
+            "time": "2026-11-02T10:58:30+00:00",
+            "published-time": "2026-11-04T11:31:29+00:00"
         },
         {
             "name": "symfony/uid",
@@ -9301,16 +9304,16 @@
         },
         {
             "name": "symfony/ux-icons",
-            "version": "v3.8.0",
+            "version": "v3.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-icons.git",
-                "reference": "b4701c2e843d1ba77c83b01295cd00913385f27b"
+                "reference": "b5a0303482211bfc97a24726890acde6bd6cb6b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-icons/zipball/b4701c2e843d1ba77c83b01295cd00913385f27b",
-                "reference": "b4701c2e843d1ba77c83b01295cd00913385f27b",
+                "url": "https://api.github.com/repos/symfony/ux-icons/zipball/b5a0303482211bfc97a24726890acde6bd6cb6b8",
+                "reference": "b5a0303482211bfc97a24726890acde6bd6cb6b8",
                 "shasum": ""
             },
             "require": {
@@ -9372,7 +9375,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-icons/tree/v3.8.0"
+                "source": "https://github.com/symfony/ux-icons/tree/v3.8.1"
             },
             "funding": [
                 {
@@ -9392,20 +9395,21 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-11-15T08:13:44+00:00"
+            "time": "2026-11-24T07:03:25+00:00",
+            "published-time": "2026-11-24T07:25:40+00:00"
         },
         {
             "name": "symfony/ux-live-component",
-            "version": "v3.7.2",
+            "version": "v3.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-live-component.git",
-                "reference": "0cce5abd5742b47cf5160fb815775783ea6d5429"
+                "reference": "e49210a05005317b9a6c885b0d9953e77909fd3e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-live-component/zipball/0cce5abd5742b47cf5160fb815775783ea6d5429",
-                "reference": "0cce5abd5742b47cf5160fb815775783ea6d5429",
+                "url": "https://api.github.com/repos/symfony/ux-live-component/zipball/e49210a05005317b9a6c885b0d9953e77909fd3e",
+                "reference": "e49210a05005317b9a6c885b0d9953e77909fd3e",
                 "shasum": ""
             },
             "require": {
@@ -9474,7 +9478,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-live-component/tree/v3.7.2"
+                "source": "https://github.com/symfony/ux-live-component/tree/v3.8.1"
             },
             "funding": [
                 {
@@ -9494,7 +9498,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-11-08T07:40:03+00:00"
+            "time": "2026-11-24T07:24:53+00:00",
+            "published-time": "2026-11-24T07:25:38+00:00"
         },
         {
             "name": "symfony/ux-pagination",
@@ -10397,16 +10402,16 @@
         },
         {
             "name": "twig/html-extra",
-            "version": "v3.29.0",
+            "version": "v3.31.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/html-extra.git",
-                "reference": "7147611979df81edb78baf7d003860b72e335c3f"
+                "reference": "92d388bd1685a1ef772c44d5f21f867e9550700a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/html-extra/zipball/7147611979df81edb78baf7d003860b72e335c3f",
-                "reference": "7147611979df81edb78baf7d003860b72e335c3f",
+                "url": "https://api.github.com/repos/twigphp/html-extra/zipball/92d388bd1685a1ef772c44d5f21f867e9550700a",
+                "reference": "92d388bd1685a1ef772c44d5f21f867e9550700a",
                 "shasum": ""
             },
             "require": {
@@ -10416,7 +10421,7 @@
                 "twig/twig": "^3.13|^4.0"
             },
             "require-dev": {
-                "symfony/phpunit-bridge": "^6.4|^7.0"
+                "symfony/phpunit-bridge": "^7.4|^8.0"
             },
             "type": "library",
             "autoload": {
@@ -10449,7 +10454,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/twigphp/html-extra/tree/v3.29.0"
+                "source": "https://github.com/twigphp/html-extra/tree/v3.31.0"
             },
             "funding": [
                 {
@@ -10461,7 +10466,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-06T20:35:36+00:00"
+            "time": "2026-11-23T16:19:15+00:00",
+            "published-time": "2026-11-23T16:31:48+00:00"
         },
         {
             "name": "twig/intl-extra",
