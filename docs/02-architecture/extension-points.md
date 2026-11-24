@@ -728,6 +728,8 @@ Details: [my-hospitals.md](../04-features/allocation/my-hospitals.md#page).
 
 Administrators can open these pages by the internal numeric ID, for example `/explore/hospital/40`, and are redirected (302) to the canonical URL. A detail route takes part when its controller method has `#[OpensById(Entity::class)]` and its path is `/explore/{type}/{parameter}` with exactly one variable. The controller loads the entity by ID and fills the variable from the entity property of the same name (`publicId`, `username`). New detail pages only need the attribute and `<twig:AdminObjectId>` in the header ([Twig components](../03-development/twig-components.md#adminobjectid)); `OpenObjectByIdControllerTest` lists the expected pages. Who may use it: [permission model](permission-model.md#explore-collaboration).
 
+`OpensByIdTargets` reads the routes once and keeps the type map in the config cache file `opens_by_id_targets.php` in the cache directory, because loading the route collection on every request is slow (#1601). Like the compiled router, the file is rebuilt in debug mode when a route resource changes, for example when a controller gains or loses the attribute. In prod it is rebuilt after `cache:clear`.
+
 ## Reaction targets
 
 **Tag:** `app.content.reaction_target` (set by `#[AutoconfigureTag]` on the interface)
