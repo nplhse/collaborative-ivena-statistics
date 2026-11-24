@@ -2449,10 +2449,6 @@
         <source>admin.allocation.field.case_id_hash</source>
         <target>Case ID hash</target>
       </trans-unit>
-      <trans-unit id="admCrudAllocationFieldNotes" resname="admin.allocation.field.notes">
-        <source>admin.allocation.field.notes</source>
-        <target>Notes</target>
-      </trans-unit>
       <trans-unit id="admCrudMciCaseFieldMciId" resname="admin.mci_case.field.mci_id">
         <source>admin.mci_case.field.mci_id</source>
         <target>MANV (Hash)</target>
