@@ -8,6 +8,7 @@ use App\Content\Application\Media\MediaPublicUrlResolver;
 use App\Content\Domain\Enum\MediaVisibility;
 use App\Content\Infrastructure\Factory\MediaFactory;
 use App\Content\Infrastructure\Media\MediaStorage;
+use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -22,6 +23,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class MediaFileControllerTest extends WebTestCase
 {
+    use CookieConsentTestHelper;
     use Factories;
 
     public function testStoredFileIsDeliveredWithLongLivedPublicCaching(): void
@@ -51,6 +53,21 @@ final class MediaFileControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $client->loginUser(UserFactory::createOne());
+        $url = new MediaPublicUrlResolver()->resolve(MediaFactory::createOne());
+
+        $client->request(Request::METHOD_GET, $url);
+
+        $this->assertDeliveredStateless($client);
+    }
+
+    public function testUserSignedInWithRememberMeGetsTheFileWithPublicCachingAndNoCookie(): void
+    {
+        $client = self::createClient();
+        UserFactory::createOne(['username' => 'media-remember-me', 'isVerified' => true]);
+        $client->getContainer()->get('cache.rate_limiter')->clear();
+        // A real login with "remember me": with its cookie, the remember-me authenticator reads the token (#1595).
+        $this->loginWithRememberMe($client, 'media-remember-me');
+        self::assertNotNull($client->getCookieJar()->get('REMEMBERME'));
         $url = new MediaPublicUrlResolver()->resolve(MediaFactory::createOne());
 
         $client->request(Request::METHOD_GET, $url);
