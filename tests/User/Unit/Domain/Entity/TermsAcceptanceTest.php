@@ -22,7 +22,8 @@ final class TermsAcceptanceTest extends TestCase
 
         self::assertNull($acceptance->getId(), 'not persisted');
         self::assertSame($user, $acceptance->getUser());
-        self::assertSame(['terms'], array_map(static fn (TermsAcceptanceKind $kind): string => $kind->value, [$acceptance->getKind()]));
+        // assertEquals: PHPStan reports assertSame of the only enum case as always true.
+        self::assertEquals(TermsAcceptanceKind::Terms, $acceptance->getKind());
         self::assertSame('2026-12', $acceptance->getTermsVersion());
         self::assertSame('de', $acceptance->getLocale());
         self::assertSame(str_repeat('a', 64), $acceptance->getContentHash());
