@@ -167,7 +167,7 @@
       </trans-unit>
       <trans-unit id="aJrjagd" resname="public.home.about.p2">
         <source>public.home.about.p2</source>
-        <target>For every allocation, an anonymized dataset is created and stored, including variables such as age, sex, coded suspected diagnosis, urgency, assignment pathway, physician accompaniment, CPR, ventilation, infection status, pregnancy, and requested resources like resuscitation room or cath lab.</target>
+        <target>For every allocation, a pseudonymized dataset without patient names or identifiers is created and stored, including variables such as age, sex, coded suspected diagnosis, urgency, assignment pathway, physician accompaniment, CPR, ventilation, infection status, pregnancy, and requested resources like resuscitation room or cath lab.</target>
       </trans-unit>
       <trans-unit id="DF5.wOi" resname="public.home.about.p3">
         <source>public.home.about.p3</source>
@@ -235,7 +235,7 @@
       </trans-unit>
       <trans-unit id=".YOlX__" resname="public.home.features.detail.statistics.text">
         <source>public.home.features.detail.statistics.text</source>
-        <target>Create focused analyses for specific research questions and compare institutional patterns with anonymized clusters.</target>
+        <target>Create focused analyses for specific research questions and compare institutional patterns with aggregated comparison groups.</target>
       </trans-unit>
       <trans-unit id="VF9iPLp" resname="public.home.features.detail.statistics.title">
         <source>public.home.features.detail.statistics.title</source>
@@ -259,7 +259,7 @@
       </trans-unit>
       <trans-unit id="o35EWat" resname="public.home.hero.preview_text">
         <source>public.home.hero.preview_text</source>
-        <target>Participating hospitals can combine IVENA allocation data, run shared analyses, and compare anonymized benchmarks in one place.</target>
+        <target>Participating hospitals can combine IVENA allocation data, run shared analyses, and compare aggregated benchmarks in one place.</target>
       </trans-unit>
       <trans-unit id="EFn3O.C" resname="public.home.hero.preview_title">
         <source>public.home.hero.preview_title</source>

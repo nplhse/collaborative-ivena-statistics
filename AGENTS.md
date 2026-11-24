@@ -6,7 +6,7 @@ says where to look and what to check. If this file and `docs/` disagree, say so.
 
 ## Project
 
-Collaborative IVENA Statistics: a Symfony monolith that imports anonymised EMS allocation exports
+Collaborative IVENA Statistics: a Symfony monolith that imports pseudonymised EMS allocation exports
 (IVENA eHealth) from participating hospitals and turns them into statistics for comparison and
 research. Real clinical data is never part of the repository; local work uses synthetic fixtures.
 

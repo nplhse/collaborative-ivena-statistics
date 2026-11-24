@@ -25,7 +25,7 @@ Dates of future phases are the milestone due dates. They are targets, not commit
 ### Alpha (v0.0.1 – v0.0.5, May – July 2026)
 
 Development started in July 2025; the first tagged release followed in May 2026. The alpha
-phase answered one question first: can the core of the domain, importing anonymised IVENA
+phase answered one question first: can the core of the domain, importing pseudonymised IVENA
 allocation exports and turning them into statistics, be built at all? v0.0.1 was that proof of
 concept. The following alphas each had one focus: imports (v0.0.2), statistics (v0.0.3), user
 and developer experience (v0.0.4) and beta readiness (v0.0.5). By the end, import, Explore, the
