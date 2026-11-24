@@ -161,11 +161,20 @@
                                 {{ 'label.address'|trans({}, 'messages') }}
                             </div>
                             <div id="hospital-address" class="mb-2">
-                                <em>
-                                    {{ hospital.address.street }}<br />
-                                    {{ hospital.address.postalCode }}, {{ hospital.address.city }}<br />
-                                    {{ hospital.address.state }}, {{ hospital.address.country }}
-                                </em>
+                                {% set addressLines = [
+                                    hospital.address.street,
+                                    [hospital.address.postalCode, hospital.address.city]|filter(part => part is not empty)|join(', '),
+                                    [hospital.address.state, hospital.address.country]|filter(part => part is not empty)|join(', '),
+                                ]|filter(line => line is not empty) %}
+                                {% if addressLines is not empty %}
+                                    <em>
+                                        {% for line in addressLines %}
+                                            {{ line }}{% if not loop.last %}<br />{% endif %}
+                                        {% endfor %}
+                                    </em>
+                                {% else %}
+                                    <span class="text-secondary">{{ 'hospital.address.empty'|trans({}, 'allocation') }}</span>
+                                {% endif %}
                             </div>
                     </twig:Card>
                 </div>

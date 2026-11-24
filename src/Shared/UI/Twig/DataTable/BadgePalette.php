@@ -30,9 +30,9 @@ final class BadgePalette
             'Large' => ['class' => 'bg-teal text-teal-fg', 'label' => 'hospital.badge.size.Large', 'domain' => 'allocation'],
         ],
         'allocation_urgency' => [
-            '1' => ['class' => 'bg-red text-red-fg', 'label' => 'Emergency Care'],
-            '2' => ['class' => 'bg-yellow text-yellow-fg', 'label' => 'Inpatient Care'],
-            '3' => ['class' => 'bg-green text-green-fg', 'label' => 'Outpatient Care'],
+            '1' => ['class' => 'bg-red text-red-fg', 'label' => 'allocation.urgency.1', 'domain' => 'allocation'],
+            '2' => ['class' => 'bg-yellow text-yellow-fg', 'label' => 'allocation.urgency.2', 'domain' => 'allocation'],
+            '3' => ['class' => 'bg-green text-green-fg', 'label' => 'allocation.urgency.3', 'domain' => 'allocation'],
         ],
         'closure_care_level' => [
             'emergency' => ['class' => 'bg-red-lt text-red'],

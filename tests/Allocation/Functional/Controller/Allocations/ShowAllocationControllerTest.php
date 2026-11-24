@@ -228,6 +228,7 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-testid="allocation-destination-profile"]', HospitalTier::cases()[0]->value);
         self::assertSelectorTextContains('[data-testid="allocation-destination-profile"]', HospitalSize::cases()[0]->value);
         self::assertSelectorTextContains('[data-testid="allocation-destination-profile"]', '321');
+        self::assertSelectorTextSame('[data-testid="allocation-destination-address"]', 'Fake Street 123, 12345 Teststadt · DE');
         self::assertSelectorNotExists('[data-testid="catalog-orientation-map"]');
         self::assertSelectorNotExists('[data-testid="allocation-origin-district"]');
         self::assertSelectorNotExists('[data-testid="allocation-cross-district"]');
@@ -374,6 +375,73 @@ final class ShowAllocationControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-testid="allocation-transport-type"]', 'Unknown');
+    }
+
+    public function testShowOmitsDestinationAddressLineWhenHospitalHasNoAddress(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $createdBy = UserFactory::createOne(['username' => 'area-user']);
+        $state = StateFactory::createOne(['name' => 'Hessen']);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Dispatch Area', 'state' => $state]);
+        $address = AddressFactory::new(['street' => '', 'postalCode' => '', 'city' => '', 'state' => '', 'country' => ''])->create();
+        $hospital = HospitalFactory::createOne([
+            'address' => $address,
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+            'createdBy' => $createdBy,
+        ]);
+        $allocation = AllocationFactory::createOne([
+            'import' => ImportFactory::createOne(['hospital' => $hospital, 'createdBy' => $createdBy]),
+            'hospital' => $hospital,
+            'dispatchArea' => $dispatch,
+            'state' => $state,
+            'assignment' => AssignmentFactory::createOne(),
+            'department' => DepartmentFactory::createOne(),
+            'speciality' => SpecialityFactory::createOne(),
+            'indicationRaw' => IndicationRawFactory::createOne(),
+            'indicationNormalized' => IndicationNormalizedFactory::createOne(),
+            'occasion' => OccasionFactory::createOne(),
+        ]);
+
+        $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="allocation-destination"]');
+        self::assertSelectorNotExists('[data-testid="allocation-destination-address"]');
+    }
+
+    public function testShowOnlyJoinsPresentAddressParts(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $createdBy = UserFactory::createOne(['username' => 'area-user']);
+        $state = StateFactory::createOne(['name' => 'Hessen']);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Dispatch Area', 'state' => $state]);
+        $address = AddressFactory::new(['street' => '', 'postalCode' => '', 'city' => 'Teststadt', 'state' => '', 'country' => 'DE'])->create();
+        $hospital = HospitalFactory::createOne([
+            'address' => $address,
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+            'createdBy' => $createdBy,
+        ]);
+        $allocation = AllocationFactory::createOne([
+            'import' => ImportFactory::createOne(['hospital' => $hospital, 'createdBy' => $createdBy]),
+            'hospital' => $hospital,
+            'dispatchArea' => $dispatch,
+            'state' => $state,
+            'assignment' => AssignmentFactory::createOne(),
+            'department' => DepartmentFactory::createOne(),
+            'speciality' => SpecialityFactory::createOne(),
+            'indicationRaw' => IndicationRawFactory::createOne(),
+            'indicationNormalized' => IndicationNormalizedFactory::createOne(),
+            'occasion' => OccasionFactory::createOne(),
+        ]);
+
+        $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextSame('[data-testid="allocation-destination-address"]', 'Teststadt · DE');
     }
 
     public function testShowReturns403ForRoleUserWithoutParticipantRole(): void

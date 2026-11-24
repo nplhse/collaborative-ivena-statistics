@@ -65,6 +65,10 @@
         <source>help.no_hospitals_assigned</source>
         <target>Sorry there are no hospitals assigned to your account.</target>
       </trans-unit>
+      <trans-unit id="hospAddrEmpty" resname="hospital.address.empty">
+        <source>hospital.address.empty</source>
+        <target>No address on file.</target>
+      </trans-unit>
       <trans-unit id="2GXLZcX" resname="hospital.size.Large">
         <source>hospital.size.Large</source>
         <target>Large Size</target>
