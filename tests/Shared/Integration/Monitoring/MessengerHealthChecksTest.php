@@ -128,6 +128,18 @@ final class MessengerHealthChecksTest extends KernelTestCase
         self::assertEquals($this->at('-3 hours'), $this->query()->lastMigrationAt());
     }
 
+    public function testWithoutTheMigrationsTableTheJobsCountFromTheRunLog(): void
+    {
+        // DDL is transactional in PostgreSQL, so the rollback after the test restores the table.
+        $this->connection()->executeStatement('ALTER TABLE doctrine_migration_versions RENAME TO doctrine_migration_versions_hidden');
+        $this->finishedRun('old_job', 'succeeded', '-30 hours');
+
+        self::assertNull($this->query()->lastMigrationAt());
+        self::assertSame([HealthCheckStatus::Degraded, 'overdue: new_job (30 h)'], $this->outcome($this->jobs(new JobRunThresholdConfig([
+            'new_job' => ['slow_seconds' => null, 'long_seconds' => null, 'memory_mb' => null, 'overdue_after_minutes' => 1500],
+        ]))));
+    }
+
     public function testEnoughAttemptsWithFewRetriesAreHealthy(): void
     {
         $this->metric('-1 hour', attempts: 30, retried: 3);
