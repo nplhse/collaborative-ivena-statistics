@@ -19,7 +19,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
@@ -133,7 +132,6 @@ final class AllocationCrudController extends AbstractCrudController
             ->onlyOnDetail();
         yield TextField::new('caseIdHash', new TranslatableMessage('admin.allocation.field.case_id_hash', domain: 'admin'))
             ->hideOnIndex();
-        yield TextareaField::new('notes', new TranslatableMessage('admin.allocation.field.notes', domain: 'admin'))
-            ->hideOnIndex();
+        // The IVENA free text (`notes`) is never shown: it can contain personal data and is not analysed (#1549).
     }
 }
