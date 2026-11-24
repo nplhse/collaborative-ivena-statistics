@@ -847,7 +847,7 @@
       </trans-unit>
       <trans-unit id="De22221dd0" resname="public.home.about.p2">
         <source>public.home.about.p2</source>
-        <target>Für jede Zuweisung wird ein anonymisierter Datensatz erstellt und gespeichert, der Variablen wie Alter, Geschlecht, kodierte Verdachtsdiagnose, Dringlichkeit, Zuweisungsweg, Arztbegleitung, Reanimation, Beatmung, Infektionsstatus, Schwangerschaft sowie angeforderte Ressourcen wie Schockraum oder Herzkatheter umfasst.</target>
+        <target>Für jede Zuweisung wird ein pseudonymisierter Datensatz ohne Namen oder Kennungen von Patienten erstellt und gespeichert, der Variablen wie Alter, Geschlecht, kodierte Verdachtsdiagnose, Dringlichkeit, Zuweisungsweg, Arztbegleitung, Reanimation, Beatmung, Infektionsstatus, Schwangerschaft sowie angeforderte Ressourcen wie Schockraum oder Herzkatheter umfasst.</target>
       </trans-unit>
       <trans-unit id="De55252d46" resname="public.home.about.p3">
         <source>public.home.about.p3</source>
@@ -915,7 +915,7 @@
       </trans-unit>
       <trans-unit id="De03474743" resname="public.home.features.detail.statistics.text">
         <source>public.home.features.detail.statistics.text</source>
-        <target>Erstellen Sie fokussierte Analysen für spezifische Forschungsfragen und vergleichen Sie institutionelle Muster mit anonymisierten Clustern.</target>
+        <target>Erstellen Sie fokussierte Analysen für spezifische Forschungsfragen und vergleichen Sie institutionelle Muster mit zusammengefassten Vergleichsgruppen.</target>
       </trans-unit>
       <trans-unit id="Dec1dbf3b2" resname="public.home.features.detail.statistics.title">
         <source>public.home.features.detail.statistics.title</source>
@@ -939,7 +939,7 @@
       </trans-unit>
       <trans-unit id="De51530979" resname="public.home.hero.preview_text">
         <source>public.home.hero.preview_text</source>
-        <target>Teilnehmende Krankenhäuser können IVENA-Zuweisungsdaten zusammenführen, gemeinsame Analysen durchführen und anonymisierte Benchmarks an einem Ort vergleichen.</target>
+        <target>Teilnehmende Krankenhäuser können IVENA-Zuweisungsdaten zusammenführen, gemeinsame Analysen durchführen und zusammengefasste Benchmarks an einem Ort vergleichen.</target>
       </trans-unit>
       <trans-unit id="De07853e4e" resname="public.home.hero.preview_title">
         <source>public.home.hero.preview_title</source>

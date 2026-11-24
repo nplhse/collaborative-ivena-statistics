@@ -22,7 +22,7 @@ Yet these data often remain fragmented across individual institutions, limiting 
 
 **Collaborative IVENA Statistics aims to make better use of information that already exists.**
 
-By combining and standardising anonymised routine data, the platform enables participating hospitals and researchers to examine emergency care beyond the boundaries of individual institutions.
+By combining and standardising pseudonymised routine data, the platform enables participating hospitals and researchers to examine emergency care beyond the boundaries of individual institutions.
 
 The project pursues three complementary goals:
 
@@ -44,7 +44,7 @@ The underlying principle is simple: valuable research should not always require 
 
 The platform supports a collaborative workflow built around existing IVENA exports:
 
-1. **Import:** Participating hospitals contribute anonymised IVENA allocation data through a structured import process.
+1. **Import:** Participating hospitals contribute pseudonymised IVENA allocation data through a structured import process.
 2. **Standardise:** Imported records are validated, processed, and mapped to consistent data structures to enable comparisons across institutions.
 3. **Explore and investigate:** Interactive analyses make patterns and temporal developments accessible and provide a data foundation for research questions such as:
    - How does emergency care demand change throughout the day, week, or year?

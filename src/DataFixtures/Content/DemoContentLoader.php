@@ -73,7 +73,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
                         'html' => '<p>Use of this platform requires acceptance of the collaborative IVENA statistics participation terms.</p>'
                             .'<h2>Goals</h2><ul>'
                             .'<li>Operate a shared platform for emergency care research based on IVENA allocation data.</li>'
-                            .'<li>Enable benchmarking against anonymised hospital clusters.</li>'
+                            .'<li>Enable benchmarking against aggregated hospital clusters.</li>'
                             .'<li>Support quality assurance within participating hospitals.</li></ul>'
                             .'<h2>Participation</h2><p>Participating hospitals import their own IVENA exports. '
                             .'Direct access to raw database exports is not provided. Competitive comparisons between named competitors are not permitted.</p>',
@@ -102,7 +102,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
                     'data' => [
                         'html' => '<p>Emergency medical services are among the largest referrers to emergency departments, yet large-scale analyses of EMS patient characteristics remain rare. '
                             .'Since 2017, the web-based IVENA system has been used to register EMS patients digitally at acute care hospitals across Germany.</p>'
-                            .'<p>Each allocation produces an anonymised dataset with age, urgency, speciality, clinical flags, and requested resources such as resuscitation room or cath lab capacity.</p>',
+                            .'<p>Each allocation produces a pseudonymised dataset without patient names or identifiers, with age, urgency, speciality, clinical flags, and requested resources such as resuscitation room or cath lab capacity.</p>',
                     ],
                 ],
                 [
@@ -254,7 +254,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             .'<h2>Fixing rejected rows</h2><p>Correct the rows in IVENA and import the file again. The import report lists every rejected row with its reason.</p>');
 
         $statistics = $this->helpArticle($help, 'Statistics and benchmarking', 'statistics', 2, null,
-            '<p>Explore your allocations and compare them with anonymised peer groups.</p>');
+            '<p>Explore your allocations and compare them with aggregated peer groups.</p>');
         $this->helpArticle($statistics, 'Using the analysis explorer', 'analysis-explorer', 0, 'statistics.explorer',
             '<h2>Filters and scope</h2><p>Choose the period, the hospitals and the dimension you want to analyse. Saved views keep your settings.</p>'
             .'<h2>Reading the results</h2><p>Tables and charts show counts and shares; missing values are listed separately.</p>');
@@ -312,7 +312,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             '<p>Missing arrival time, unknown department code, or an age outside the plausible range.</p>');
 
         $statistics = $this->subpage($guide, 'Statistics and benchmarking', 'statistics', 2, Page::VISIBILITY_PUBLIC,
-            '<p>Compare your allocations with anonymised peer groups by state, dispatch area or hospital cohort.</p>');
+            '<p>Compare your allocations with aggregated peer groups by state, dispatch area or hospital cohort.</p>');
         $this->subpage($statistics, 'Reading the benchmark charts', 'benchmark-charts', 0, Page::VISIBILITY_AUTHENTICATED,
             '<p>Each chart shows your hospital next to the median of its comparison group. Visible to signed-in users only.</p>');
     }
@@ -420,9 +420,9 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
                 'title' => 'There is a particular quiet in cities just before sunrise.',
                 'slug' => 'quiet-in-cities-before-sunrise',
                 'content' => '<p>Benchmarking has been one of the most requested capabilities since the project started. '
-                    .'Hospitals want to understand how their allocation patterns compare to anonymised peer groups without exposing identifiable competitor data.</p>'
+                    .'Hospitals want to understand how their allocation patterns compare to aggregated peer groups without exposing identifiable competitor data.</p>'
                     .'<p>The new statistics explorer adds configurable analyses with saved scopes, filters for urgency and speciality, and first benchmarking views that compare a hospital against size-based clusters.</p>'
-                    .'<p>All comparisons remain aggregated and anonymised. Named hospitals outside a user\'s own organisation are never shown side by side in a competitive layout.</p>'
+                    .'<p>Benchmarks compare a hospital with aggregated peer groups. Explore still shows individual pseudonymised allocations of all participating hospitals, and a named reference hospital appears only where its owner has granted benchmarking access.</p>'
                     .'<p>Early testers used the explorer to review seasonal shifts in paediatric transfers and to monitor how often specific clinical flags appear in high-urgency cases. '
                     .'Those workflows informed default chart presets and the layout of the filter panel.</p>'
                     .'<p>We plan to extend benchmarking with additional cluster dimensions and export options for research working groups. '
@@ -438,7 +438,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
                 'slug' => 'old-map-folded-in-coat-pocket',
                 'content' => '<p>In early 2021, members of a regional emergency medicine working group began discussing how rarely EMS allocation data is analysed at scale. '
                     .'Individual hospitals held rich IVENA exports, but there was no infrastructure to combine them responsibly for collaborative research.</p>'
-                    .'<p>The idea behind Collaborative IVENA Statistics grew out of those conversations: a shared platform where participating hospitals retain control over their own data while contributing to anonymised aggregate analyses.</p>'
+                    .'<p>The idea behind Collaborative IVENA Statistics grew out of those conversations: a shared platform where participating hospitals retain control over their own data while contributing to shared aggregate analyses.</p>'
                     .'<p>Initial prototypes focused on import mechanics and reference data alignment across sites with different IVENA configuration histories. '
                     .'Even simple questions, such as comparing urgency distributions between urban and rural catchment areas, required substantial normalisation work.</p>'
                     .'<p>Today the project spans multiple hospitals and continues to be shaped by clinicians, coordinators, and data staff who use the platform in parallel with their daily operations.</p>'
