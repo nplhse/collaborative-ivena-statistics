@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0400525ba8ee73d91eedb8cac15370af",
+    "content-hash": "92467d6274bc7263ec96c8389f6e028d",
     "packages": [
         {
             "name": "azuyalabs/yasumi",
@@ -3730,16 +3730,16 @@
         },
         {
             "name": "symfony/deprecation-contracts",
-            "version": "v3.7.1",
+            "version": "v3.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/deprecation-contracts.git",
-                "reference": "f3202fa1b5097b0af062dc978b32ecf63404e31d"
+                "reference": "feb1edf4e546af3b85c5caebe8359a20db230ca3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/f3202fa1b5097b0af062dc978b32ecf63404e31d",
-                "reference": "f3202fa1b5097b0af062dc978b32ecf63404e31d",
+                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/feb1edf4e546af3b85c5caebe8359a20db230ca3",
+                "reference": "feb1edf4e546af3b85c5caebe8359a20db230ca3",
                 "shasum": ""
             },
             "require": {
@@ -3752,7 +3752,7 @@
                     "name": "symfony/contracts"
                 },
                 "branch-alias": {
-                    "dev-main": "3.7-dev"
+                    "dev-main": "3.8-dev"
                 }
             },
             "autoload": {
@@ -3777,7 +3777,7 @@
             "description": "A generic function and convention to trigger deprecation notices",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.7.1"
+                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.8.1"
             },
             "funding": [
                 {
@@ -3797,8 +3797,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-06-05T06:23:12+00:00",
-            "published-time": "2026-06-27T21:46:34+00:00"
+            "time": "2026-09-16T14:15:10+00:00",
+            "published-time": "2026-11-04T11:25:34+00:00"
         },
         {
             "name": "symfony/doctrine-bridge",
@@ -8995,16 +8995,16 @@
         },
         {
             "name": "symfony/ux-icons",
-            "version": "v3.6.0",
+            "version": "v3.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-icons.git",
-                "reference": "7df597be46d9fb681bdf34dcd5d6102f952db8f4"
+                "reference": "b5a0303482211bfc97a24726890acde6bd6cb6b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-icons/zipball/7df597be46d9fb681bdf34dcd5d6102f952db8f4",
-                "reference": "7df597be46d9fb681bdf34dcd5d6102f952db8f4",
+                "url": "https://api.github.com/repos/symfony/ux-icons/zipball/b5a0303482211bfc97a24726890acde6bd6cb6b8",
+                "reference": "b5a0303482211bfc97a24726890acde6bd6cb6b8",
                 "shasum": ""
             },
             "require": {
@@ -9066,7 +9066,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-icons/tree/v3.6.0"
+                "source": "https://github.com/symfony/ux-icons/tree/v3.8.1"
             },
             "funding": [
                 {
@@ -9086,21 +9086,21 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-07T05:37:39+00:00",
-            "published-time": "2026-10-13T08:07:29+00:00"
+            "time": "2026-11-24T07:03:25+00:00",
+            "published-time": "2026-11-24T07:25:40+00:00"
         },
         {
             "name": "symfony/ux-live-component",
-            "version": "v3.6.0",
+            "version": "v3.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-live-component.git",
-                "reference": "088a2b95d6e7c95fd91f5b198d72f5d972fd7b50"
+                "reference": "e49210a05005317b9a6c885b0d9953e77909fd3e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-live-component/zipball/088a2b95d6e7c95fd91f5b198d72f5d972fd7b50",
-                "reference": "088a2b95d6e7c95fd91f5b198d72f5d972fd7b50",
+                "url": "https://api.github.com/repos/symfony/ux-live-component/zipball/e49210a05005317b9a6c885b0d9953e77909fd3e",
+                "reference": "e49210a05005317b9a6c885b0d9953e77909fd3e",
                 "shasum": ""
             },
             "require": {
@@ -9120,7 +9120,7 @@
                 "doctrine/annotations": "^1.0|^2.0",
                 "doctrine/collections": "^1.6.8|^2.0",
                 "doctrine/doctrine-bundle": "^2.14|^3.0|^4.0",
-                "doctrine/orm": "^2.9.4|^3.0",
+                "doctrine/orm": "^2.17.3|^3.0",
                 "doctrine/persistence": "^2.5.2|^3.0|^4.0",
                 "phpdocumentor/reflection-docblock": "^5.6.2",
                 "phpunit/phpunit": "^11.1|^12.0",
@@ -9169,7 +9169,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-live-component/tree/v3.6.0"
+                "source": "https://github.com/symfony/ux-live-component/tree/v3.8.1"
             },
             "funding": [
                 {
@@ -9189,8 +9189,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-13T08:04:44+00:00",
-            "published-time": "2026-10-13T08:08:39+00:00"
+            "time": "2026-11-24T07:24:53+00:00",
+            "published-time": "2026-11-24T07:25:38+00:00"
         },
         {
             "name": "symfony/ux-pagination",
@@ -10089,16 +10089,16 @@
         },
         {
             "name": "twig/html-extra",
-            "version": "v3.29.0",
+            "version": "v3.31.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/html-extra.git",
-                "reference": "7147611979df81edb78baf7d003860b72e335c3f"
+                "reference": "92d388bd1685a1ef772c44d5f21f867e9550700a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/html-extra/zipball/7147611979df81edb78baf7d003860b72e335c3f",
-                "reference": "7147611979df81edb78baf7d003860b72e335c3f",
+                "url": "https://api.github.com/repos/twigphp/html-extra/zipball/92d388bd1685a1ef772c44d5f21f867e9550700a",
+                "reference": "92d388bd1685a1ef772c44d5f21f867e9550700a",
                 "shasum": ""
             },
             "require": {
@@ -10108,7 +10108,7 @@
                 "twig/twig": "^3.13|^4.0"
             },
             "require-dev": {
-                "symfony/phpunit-bridge": "^6.4|^7.0"
+                "symfony/phpunit-bridge": "^7.4|^8.0"
             },
             "type": "library",
             "autoload": {
@@ -10141,7 +10141,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/twigphp/html-extra/tree/v3.29.0"
+                "source": "https://github.com/twigphp/html-extra/tree/v3.31.0"
             },
             "funding": [
                 {
@@ -10153,8 +10153,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-06T20:35:36+00:00",
-            "published-time": "2026-09-18T09:10:36+00:00"
+            "time": "2026-11-23T16:19:15+00:00",
+            "published-time": "2026-11-23T16:31:48+00:00"
         },
         {
             "name": "twig/intl-extra",
