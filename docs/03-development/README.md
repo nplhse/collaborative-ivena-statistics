@@ -16,6 +16,7 @@
 | [frontend.md](frontend.md) | Concept | Stimulus, Asset Mapper, Live Components |
 | [twig-components.md](twig-components.md) | Concept | Shared Card, Alert, ActiveFilters, and FilterDrawer primitives |
 | [pagination.md](pagination.md) | Concept | When to use numbered, lookahead, cursor or no pagination |
+| [help-screenshots.md](help-screenshots.md) | Guide | Mockups and rendering of screenshots for the help |
 
 ## Reading order
 

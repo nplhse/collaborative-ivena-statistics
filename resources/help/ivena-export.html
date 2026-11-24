@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>IVENA eHealth – imitation for help screenshots</title>
+<!--
+  Imitation of the IVENA eHealth export forms for screenshots in the help (docs/03-development/help-screenshots.md).
+  No real data: hospital, dispatch centre and person are fictitious. No original logo or regional branding.
+  Views: ?view=zuweisung (default) | ?view=schliessung ; step markers: &annotate=1 ; header and tabs only: &crop=menu
+-->
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #ccc; font: 11px Arial, sans-serif; color: #000; }
+  .page { width: 960px; margin: 0 auto; background: #fff; padding-bottom: 12px; }
+  html, body { background: #fff; }
+  .header { position: relative; height: 66px; background: #fc0; display: flex; align-items: center; gap: 12px; padding: 0 8px; }
+  .logo { width: 54px; height: 54px; display: flex; align-items: center; justify-content: center; }
+  .logo svg { width: 54px; height: 54px; display: block; }
+  .header .title { font-size: 18px; font-weight: bold; }
+  .header .user { position: absolute; right: 10px; bottom: 6px; font-size: 11px; }
+  .menu { display: flex; margin: 0; padding: 0; list-style: none; font-size: 12px; font-weight: bold; border-bottom: 2px solid #f44; height: 22px; }
+  .menu a { display: block; padding: 3px 10px; color: #000; text-decoration: none; }
+  .menu a.aktiv { background: #f44; color: #fff; }
+  .version { font-size: 11px; padding: 4px 8px; }
+  .tabs { display: flex; margin: 0 5px; padding: 4px 0 2px; list-style: none; font-size: 12px; font-weight: bold; gap: 2px; border-bottom: 2px solid #fc0; }
+  .tabs a { display: block; padding: 3px 5px 2px 8px; background: #fff; color: #000; text-decoration: none; border: 1px solid #ddd; border-bottom: 0; }
+  .tabs a.aktiv { background: #fc0; border-color: #fc0; }
+  h1 { font-size: 14px; background: #e6e6e6; margin: 10px 9px 6px; padding: 4px; }
+  .intro { font-size: 12px; margin: 0 13px 10px; line-height: 1.4; }
+  table.form { width: 944px; margin: 0 8px; border-collapse: collapse; font-size: 12px; }
+  table.form th { background: #888; color: #fff; text-align: left; padding: 5px; border: 2px solid #fff; }
+  table.form td { background: #ccc; padding: 5px; border: 2px solid #fff; vertical-align: top; }
+  table.form td.label { width: 243px; }
+  table.form td.label small { display: block; font-size: 11px; margin-top: 2px; }
+  .search { display: flex; gap: 3px; margin-bottom: 4px; }
+  .search input { width: 293px; height: 25px; border: 1px solid #888; padding: 1px 2px 1px 8px; font: 13px Arial; color: #777; }
+  .btn { background: #f93; border: 2px solid transparent; font: bold 11px Arial, sans-serif; padding: 4px 10px; cursor: default; }
+  .btn-sm { padding: 1px 3px; }
+  .filters { margin: 4px 0; display: flex; gap: 10px; align-items: center; }
+  .tree { background: #fff; border: 1px solid #aaa; padding: 4px 6px; margin: 4px 0; }
+  .tree .ls { font-weight: bold; margin: 2px 0; }
+  .tree .kh { margin: 2px 0 2px 18px; }
+  .fg { columns: 2; column-gap: 20px; background: #fff; border: 1px solid #aaa; padding: 4px 6px; margin-top: 4px; }
+  .fg div { break-inside: avoid; margin-bottom: 4px; }
+  .fg b { display: block; }
+  .fg label { display: block; margin-left: 16px; }
+  .fg .more { color: #555; font-style: italic; }
+  label { cursor: default; }
+  input[type=checkbox], input[type=radio] { margin: 0 4px 0 0; vertical-align: -2px; }
+  .date { width: 80px; height: 22px; border: 2px inset #767676; padding: 1px 2px; font: 13px Arial; }
+  .time { width: 48px; }
+  .cal { font-size: 11px; color: #00c; text-decoration: underline; margin: 0 8px 0 3px; }
+  .opt { display: block; margin: 3px 0; }
+  .submit { margin: 8px 8px 0; }
+  .history { margin: 10px 8px 0; font-size: 12px; }
+  .history .meta { font-size: 9px; padding: 2px 4px; }
+  /* Markierungen für die Hilfe (annotate=1) */
+  .mark { position: relative; display: inline-block; }
+  body.annotate .mark { outline: 3px solid #0054a6; outline-offset: 2px; border-radius: 2px; }
+  body.annotate .mark:not(a):not(button) { padding-right: 16px; }
+  body.annotate td .mark { margin: 5px 0; }
+  body.annotate .opt { margin: 6px 0; }
+  body.annotate .mark::after { content: attr(data-step); position: absolute; top: -12px; right: -12px; width: 22px; height: 22px; border-radius: 50%; background: #0054a6; color: #fff; font: bold 13px/22px Arial, sans-serif; text-align: center; box-shadow: 0 0 0 2px #fff; z-index: 2; }
+  body:not(.annotate) .mark { outline: none; }
+  body:not(.v-zuweisung) .only-zuweisung, body:not(.v-schliessung) .only-schliessung { display: none !important; }
+  body.crop-menu .content { display: none; }
+  body.crop-menu .page { min-height: 0; padding-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><rect x="4" y="12" width="4" height="7" rx="0.5"/><rect x="10" y="7" width="4" height="12" rx="0.5"/><rect x="16" y="3" width="4" height="16" rx="0.5"/></svg></div>
+    <div class="title">IVENA eHealth - Interdisziplinärer Versorgungsnachweis</div>
+    <div class="user">Sie sind angemeldet als Max Mustermann</div>
+  </div>
+  <ul class="menu">
+    <li><a>Abmelden</a></li>
+    <li><a>Regelversorgung</a></li>
+    <li><a>Übersicht KHS</a></li>
+    <li><a>Alarmierungen</a></li>
+    <li><a>Schließungen</a></li>
+    <li><a>MANV</a></li>
+    <li><a class="aktiv mark" data-step="1">Auswertungen</a></li>
+    <li><a>Downloads</a></li>
+    <li><a>Mehr</a></li>
+  </ul>
+  <div class="version">&nbsp;</div>
+  <ul class="tabs">
+    <li><a class="tab-schliessung mark-s" data-step="2">Schließung</a></li>
+    <li><a class="tab-zuweisung mark-z" data-step="2">Zuweisung</a></li>
+    <li><a>Disp.-Änderung</a></li>
+    <li><a>MANV</a></li>
+    <li><a>PZC-Zuordnung</a></li>
+    <li><a>Raster-Auswertung</a></li>
+  </ul>
+
+  <div class="content">
+    <h1 class="only-zuweisung">Zuweisungen exportieren</h1>
+    <h1 class="only-schliessung">Schließungen exportieren</h1>
+    <p class="intro only-zuweisung">Dieser Export liefert alle Zuweisungen in die ausgewählten Krankenhäuser im unten angegebenen Zeitraum.<br>Es werden nur Zuweisungen berücksichtigt, die auch tatsächlich in diese Häuser gegangen sind (also nicht solche, die bspw. wieder gelöscht oder in ein anderes Haus gebracht wurden).</p>
+    <p class="intro only-schliessung">Dieser Export liefert alle Schließungen (Abmeldungen) der angewählten Krankenhäuser im unten angegebenen Zeitraum.<br>Auf Wunsch kann der Export auch auf Schließungen einzelner medizinischer Fachgebiete eingeschränkt werden.</p>
+
+    <table class="form">
+      <tr><th colspan="2">Ihre Exportkriterien</th></tr>
+      <tr>
+        <td class="label">Organisationseinheit(en)<small class="only-zuweisung">Krankenhäuser, deren Zuweisungen exportiert werden sollen</small><small class="only-schliessung">Krankenhäuser, deren Schließungen exportiert werden sollen</small></td>
+        <td>
+          <div class="search"><input value="Suchbegriffe ..." readonly><button class="btn">Suchen</button></div>
+          <div class="filters"><label><input type="checkbox" checked>Krankenhäuser</label><label><input type="checkbox" checked>Arztpraxen</label><button class="btn btn-sm">Suchvorlagen</button></div>
+          <div class="tree">
+            <div class="ls">Leitstelle Musterstadt</div>
+            <div class="kh"><label class="mark" data-step="3"><input type="checkbox" checked>Klinikum Musterstadt (1)</label></div>
+          </div>
+          <button class="btn btn-sm">Alle sichtbaren markieren</button> <button class="btn btn-sm">Auswahl löschen</button>
+        </td>
+      </tr>
+      <tr class="only-schliessung">
+        <td class="label">Fachgebiete<small>Die exportierten Datensätze auf diese medizinischen Fachgebiete beschränken</small></td>
+        <td>
+          <label><input type="checkbox">Alle auswählen/abwählen</label>
+          <div class="fg">
+            <div><b><label><input type="checkbox">Chirurgie</label></b><label><input type="checkbox">Allgemein- und Viszeralchirurgie</label><label><input type="checkbox">Unfallchirurgie</label></div>
+            <div><b><label><input type="checkbox">Innere Medizin</label></b><label><input type="checkbox">Allgemeine Innere Medizin</label><label><input type="checkbox">Kardiologie</label></div>
+            <div><b><label><input type="checkbox">Neurologie</label></b><label><input type="checkbox">Allgemeine Neurologie</label><label><input type="checkbox">Stroke Unit</label></div>
+            <div><b><label><input type="checkbox">Zentrale Notaufnahme</label></b><label><input type="checkbox">Schockraum Chirurgisch</label><label><input type="checkbox">Schockraum Konservativ</label></div>
+            <div class="more">… weitere Fachgebiete</div>
+          </div>
+        </td>
+      </tr>
+      <tr class="only-zuweisung">
+        <td class="label">Datum (Zuweisungszeitraum)</td>
+        <td><span class="mark" data-step="4">von <input class="date" value="01.01.2025" readonly><span class="cal">Kalender anzeigen</span> bis <input class="date" value="31.12.2025" readonly><span class="cal">Kalender anzeigen</span></span></td>
+      </tr>
+      <tr class="only-schliessung">
+        <td class="label">Datum (Sperrbeginn)</td>
+        <td><label class="opt"><input type="checkbox">Schließungen, die zum angegebenen Zeitpunkt aktiv waren</label>
+          <span class="mark" data-step="4">von <input class="date" value="01.01.2025" readonly><span class="cal">Kalender anzeigen</span><input class="date time" value="00:00" readonly> Uhr &nbsp; bis <input class="date" value="31.12.2025" readonly><span class="cal">Kalender anzeigen</span><input class="date time" value="23:59" readonly> Uhr</span></td>
+      </tr>
+      <tr>
+        <td class="label">Weitere Optionen<small class="only-schliessung">Wenn Sie das Häkchen bei „Schließungseinheiten zusammenfassen“ setzen, werden alle Fachbereiche, die gemeinsam geschlossen wurden, in nur einer Zeile exportiert. Wenn das Häkchen nicht gesetzt ist, wird für jeden Fachbereich und jede Behandlungsdringlichkeit eine eigene Zeile exportiert.</small></td>
+        <td>
+          <label class="opt only-schliessung"><span class="mark" data-step="5"><input type="checkbox" checked>Schliessungseinheiten zusammenfassen</span></label>
+          <label class="opt"><span class="mark z5" data-step="5"><input type="checkbox">Datumsfelder in Einzelfelder ausgeben (Wochentag, Tag, Monat, Monatsname, Jahr, Stunde und Minute)</span></label>
+          <span class="only-zuweisung">
+            <label class="opt"><input type="checkbox">Zertifikate in der Auswertung anzeigen</label>
+            <label class="opt"><input type="checkbox">PZC-Filter in der Auswertung anzeigen</label>
+            <label class="opt"><input type="checkbox">Noch in Entwicklung: Zuweisungszeiten als Matrix</label>
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <td class="label">Format</td>
+        <td>
+          <label class="opt"><span class="mark m-format" data-step="6"><input type="radio" name="f" checked>Komma-Separierte Liste (CSV)</span></label>
+          <label class="opt"><input type="radio" name="f">Microsoft Excel 97 - 2003</label>
+          <label class="opt"><input type="radio" name="f">Microsoft Excel 2007+</label>
+        </td>
+      </tr>
+    </table>
+    <div class="submit"><button class="btn mark m-submit" data-step="7">Exportieren</button></div>
+    <div class="history"><b>Historie</b><div class="meta">Abgerufen am 15.01.2026 09:30 Uhr</div></div>
+  </div>
+</div>
+<script>
+  const p = new URLSearchParams(location.search);
+  const view = p.get('view') === 'schliessung' ? 'schliessung' : 'zuweisung';
+  document.body.classList.add('v-' + view);
+  if (p.get('annotate') === '1') document.body.classList.add('annotate');
+  if (p.get('crop') === 'menu') document.body.classList.add('crop-menu');
+  const active = document.querySelector(view === 'schliessung' ? '.tab-schliessung' : '.tab-zuweisung');
+  active.classList.add('aktiv', 'mark');
+  // In the closure view the extra option shifts the later steps, so the numbering stays continuous.
+  if (view === 'schliessung') {
+    document.querySelector('.z5').dataset.step = '6';
+    document.querySelector('.m-format').dataset.step = '7';
+    document.querySelector('.m-submit').dataset.step = '8';
+  }
+</script>
+</body>
+</html>

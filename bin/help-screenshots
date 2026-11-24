@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# Renders the screenshots for the help from the mockups in resources/help/ with headless Chrome (PNG, 2x).
+#
+# Usage: bin/help-screenshots [output directory]   (default: var/help-screenshots)
+#
+# Set CHROME to the Chrome or Chromium binary when it is not found automatically.
+# See docs/03-development/help-screenshots.md.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+OUT="${1:-$ROOT/var/help-screenshots}"
+
+find_chrome() {
+    local candidate
+    for candidate in \
+        "${CHROME:-}" \
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+        "/Applications/Chromium.app/Contents/MacOS/Chromium" \
+        "$(command -v google-chrome 2>/dev/null || true)" \
+        "$(command -v chromium 2>/dev/null || true)" \
+        "$(command -v chromium-browser 2>/dev/null || true)"; do
+        if [ -n "$candidate" ] && [ -x "$candidate" ]; then
+            printf '%s' "$candidate"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+CHROME_BIN="$(find_chrome)" || {
+    echo "Chrome or Chromium not found. Set CHROME to its binary." >&2
+    exit 1
+}
+
+# A throwaway profile, so the run neither reads nor changes a browser profile of the user.
+PROFILE="$(mktemp -d)"
+trap 'rm -rf "$PROFILE"' EXIT
+
+mkdir -p "$OUT"
+
+# file | mockup | query | width,height (CSS pixels)
+SHOTS=(
+    "ivena-menue-auswertungen.png|ivena-export.html|view=zuweisung&annotate=1&crop=menu|980,140"
+    "ivena-export-zuweisungen.png|ivena-export.html|view=zuweisung&annotate=1|980,690"
+    "ivena-export-schliessungen.png|ivena-export.html|view=schliessung&annotate=1|980,868"
+)
+
+for shot in "${SHOTS[@]}"; do
+    IFS='|' read -r file mockup query size <<< "$shot"
+    "$CHROME_BIN" --headless=new --disable-gpu --hide-scrollbars --no-first-run \
+        --user-data-dir="$PROFILE" --force-device-scale-factor=2 --window-size="$size" \
+        --screenshot="$OUT/$file" "file://$ROOT/resources/help/$mockup?$query" >/dev/null 2>&1
+    echo "$OUT/$file"
+done
