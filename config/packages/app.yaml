@@ -190,13 +190,21 @@ when@dev:
 
 when@demo:
     app:
+        # Demo accounts are shared (ADR 023); nobody accepts the terms for them at login (#1564).
+        terms:
+            version: ~
+            published_at: ~
         security:
             two_factor:
                 required_for_admins: false
 
 # Tests sign in administrators without two-factor authentication; tests of the obligation switch it on themselves (#1567).
+# The same holds for the terms of use: tests of the login prompt set a version themselves (#1564).
 when@test:
     app:
+        terms:
+            version: ~
+            published_at: ~
         security:
             two_factor:
                 required_for_admins: false

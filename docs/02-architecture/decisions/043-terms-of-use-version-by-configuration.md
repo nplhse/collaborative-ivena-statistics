@@ -22,8 +22,11 @@ field or revision history. Editors change the page for typos and wording as well
    `User\Application\Contract` and is implemented by `Content\Infrastructure\Adapter\DoctrineTermsDocumentProvider`,
    like the other User contracts that Content implements. User does not depend on Content.
 4. **Registration stores the first row.** While no version is configured, it is stored without a version.
-5. **Without a configured version nobody is asked again at login.** This lets the release with this table ship before
-   the revised terms are published. The login gate itself follows in the second step of #1564.
+5. **A configured version is accepted before anything else.** A signed-in user without a row for it is sent to an
+   acceptance page, like the two-factor obligation of ADR 040 and before it. Logout, the language and cookie choice and
+   the terms, imprint and privacy pages stay reachable; impersonating administrators and stateless routes are exempt.
+   Without a configured version nobody is asked, so a release can ship before the revised terms are published. The demo
+   never asks, because its accounts are shared (ADR 023).
 
 ## Consequences
 

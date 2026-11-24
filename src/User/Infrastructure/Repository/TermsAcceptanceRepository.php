@@ -25,4 +25,10 @@ final class TermsAcceptanceRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['user' => $user, 'kind' => $kind], ['acceptedAt' => 'DESC', 'id' => 'DESC']);
     }
+
+    /** Whether the account ever accepted this version. */
+    public function hasAccepted(User $user, string $version, TermsAcceptanceKind $kind = TermsAcceptanceKind::Terms): bool
+    {
+        return null !== $this->findOneBy(['user' => $user, 'kind' => $kind, 'termsVersion' => $version]);
+    }
 }

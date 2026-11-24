@@ -9,13 +9,19 @@ use PHPUnit\Framework\TestCase;
 
 final class TermsVersionTest extends TestCase
 {
-    public function testWithoutAVersionThereIsNone(): void
+    public function testWithoutAVersionThereIsNoneAndNoDate(): void
     {
-        self::assertNull(new TermsVersion()->current());
+        $version = new TermsVersion();
+
+        self::assertNull($version->current());
+        self::assertNull($version->publishedAt());
     }
 
-    public function testTheConfiguredVersionIsCurrent(): void
+    public function testTheConfiguredVersionIsCurrentWithItsDate(): void
     {
-        self::assertSame('2026-12', new TermsVersion('2026-12')->current());
+        $version = new TermsVersion('2026-12', '2026-12-01');
+
+        self::assertSame('2026-12', $version->current());
+        self::assertSame('2026-12-01 00:00', $version->publishedAt()?->format('Y-m-d H:i'));
     }
 }

@@ -1033,6 +1033,30 @@
         <source>label.settings.two_factor_recommended</source>
         <target>Recommended</target>
       </trans-unit>
+      <trans-unit id="termsAccept00" resname="title.terms.accept">
+        <source>title.terms.accept</source>
+        <target>Accept the terms of use</target>
+      </trans-unit>
+      <trans-unit id="termsAccept01" resname="text.terms.accept_intro">
+        <source>text.terms.accept_intro</source>
+        <target>The terms of use have changed. Please read version {version} of {date} and accept it to continue using the platform.</target>
+      </trans-unit>
+      <trans-unit id="termsAccept02" resname="link.terms.read">
+        <source>link.terms.read</source>
+        <target>Read the terms of use (opens in a new tab)</target>
+      </trans-unit>
+      <trans-unit id="termsAccept03" resname="label.terms.accept">
+        <source>label.terms.accept</source>
+        <target>I have read and accept the terms of use.</target>
+      </trans-unit>
+      <trans-unit id="termsAccept04" resname="label.terms.submit">
+        <source>label.terms.submit</source>
+        <target>Accept and continue</target>
+      </trans-unit>
+      <trans-unit id="termsAccept05" resname="text.terms.decline">
+        <source>text.terms.decline</source>
+        <target>Without your acceptance your access rests.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
