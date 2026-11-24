@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Import\Application\Service;
 
+use App\Import\Application\Contracts\FailedImportRowsReaderInterface;
 use App\Import\Application\DTO\FailedImportRowsAction;
 use App\Import\Application\DTO\FailedImportRowsCandidate;
 use App\Import\Application\DTO\ImportDataRemoval;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportRunReasonCode;
 use App\Import\Domain\Enum\ImportStatus;
-use App\Import\Infrastructure\Query\FailedImportRowsQuery;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -19,7 +19,7 @@ use Doctrine\ORM\EntityManagerInterface;
 final readonly class FailedImportRowsDiscarder
 {
     public function __construct(
-        private FailedImportRowsQuery $query,
+        private FailedImportRowsReaderInterface $query,
         private ImportFileStorage $fileStorage,
         private ImportRelatedDataCleanupService $cleanup,
         private EntityManagerInterface $em,
