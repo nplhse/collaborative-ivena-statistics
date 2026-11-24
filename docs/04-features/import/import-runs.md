@@ -56,6 +56,35 @@ Retryable errors no longer mark the import `FAILED` immediately. While Messenger
 
 A redelivered message (run already `running`) first removes the chunks that the failed attempt committed, using the same cleanup as a reimport. The cleanup deletes rows inside a guarded commit, so a superseded run never deletes data of a newer run; the materialized view refresh and the reject file deletion follow after the commit.
 
+### Rows of a failed run
+
+A failed allocation or closure run removes the rows it wrote, in the transaction that ends the run (#1551). The import record, its counts, the rejected rows, the reject file and the source file stay, so the failure can be analysed and the import reprocessed. A failing allocation file is not deduplicated and never changes rows of other imports.
+
+An import is `Running` only after the rows of its previous run were removed. `ImportRunLifecycle` uses this to decide who owns the rows:
+
+- Import `Running` when the run fails: all rows belong to this run and are removed.
+- Any other status, for example a reprocess whose file is missing: the rows belong to the last successful run. They stay and remain in the statistics, although the import now shows `FAILED`.
+
+A reprocess that fails after its cleanup leaves the import empty until a later reprocess succeeds. Closure figures are rebuilt in that case too.
+
+### Cleaning up older failed imports
+
+Imports that failed before #1551 can still hold rows. `app:import:discard-failed-rows` reports them and changes nothing without `--force`:
+
+```bash
+php bin/console app:import:discard-failed-rows
+php bin/console app:import:discard-failed-rows --force
+```
+
+| Action in the report | Meaning |
+|---|---|
+| `discard` | `--force` removes the rows, refreshes the views and requests the closure rebuild. Rejected rows and files stay. |
+| `keep: last successful run` | The last run stopped at a precondition, so the rows are still those of the last successful run. |
+| `keep: source file missing` | The rows could not be restored after a removal, so they stay until someone decides by hand. |
+| `no rows` | Nothing to remove. The import is listed because it replaced rows of older imports. |
+
+The report also names hospitals that would have no allocations left and therefore leave the comparison groups. If a failed import replaced rows, the command lists the older overlapping imports of that hospital. Remove the rows first, then reprocess those imports with `app:import:start`; the command does not reprocess on its own. It is safe to run twice.
+
 ## Reprocessing from the detail page
 
 The import detail page (`/import/{id}`) has a **Reprocess import** button next to *Delete import*. After a confirmation dialog, `ReprocessImportController` (`POST /import/{id}/reprocess`, CSRF token `import_reprocess_<id>`) calls `ImportStartDispatcher` with trigger `reprocess` and the current user as initiator, then redirects to the processing page. It uses the same workflow as `app:import:start`, so every import type is supported without choosing a workflow.

@@ -215,7 +215,9 @@ fingerprint: a visit still in the file keeps its encounter, `visit_uid` (URL), I
 matching history and gets the file's values; visits no longer in the file are removed (with their ED
 matching history, suspected duplicates and validation items, the encounter stays); new rows are inserted.
 Suspected duplicates are found again. A run that fails commits nothing: the visits, assignments, history,
-rejects and report of the last successful run stay, the run is shown as failed. A changed fingerprint
+rejects and report of the last successful run stay, the run is shown as failed. The same holds for a file
+above the rejection limit of 35 % or without rows: it writes no records and registers no key check value. On
+a first import such a file keeps only its rejects and report (#1551). A changed fingerprint
 input (for example a later documented ED admission) makes a new visit with a new encounter; the old
 encounter keeps its assignment, and the matcher never moves an allocation that is assigned to another
 encounter. Schemas without reconciliation (`inpatient_stay`) are removed and written again in the same

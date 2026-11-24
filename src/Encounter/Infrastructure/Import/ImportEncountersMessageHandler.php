@@ -171,8 +171,11 @@ final readonly class ImportEncountersMessageHandler
 
     private function applyResult(Import $fresh, EncounterImportResult $result, int $runtimeMs): ImportRunOutcome
     {
-        $this->encounterImportOf($fresh)->recordCounts($result->inserted, $result->duplicates, $result->skipped, $result->rejected, $result->suspectedDuplicates, $result->assignments);
-        $fresh->applyDataCoverage($result->coverage);
+        if (!$result->keepsLastRun) {
+            $this->encounterImportOf($fresh)->recordCounts($result->inserted, $result->duplicates, $result->skipped, $result->rejected, $result->suspectedDuplicates, $result->assignments);
+            $fresh->applyDataCoverage($result->coverage);
+        }
+
         ImportEvaluation::apply($fresh, new ImportSummary($result->total, $result->total - $result->rejected, $result->rejected), $runtimeMs);
         $fresh->setRowsDeduplicated($result->duplicates);
 

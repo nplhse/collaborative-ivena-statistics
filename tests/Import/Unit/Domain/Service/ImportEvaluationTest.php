@@ -69,6 +69,29 @@ final class ImportEvaluationTest extends TestCase
         self::assertSame(0, $import->getRowsRejected());
     }
 
+    #[DataProvider('failsProvider')]
+    public function testFailsMatchesTheStatusApplied(ImportSummary $summary, bool $expected): void
+    {
+        $import = new Import();
+
+        ImportEvaluation::apply($import, $summary, 1);
+
+        self::assertSame($expected, ImportEvaluation::fails($summary));
+        self::assertSame($expected, ImportStatus::FAILED === $import->getStatus());
+    }
+
+    /**
+     * @return iterable<string, array{ImportSummary, bool}>
+     */
+    public static function failsProvider(): iterable
+    {
+        yield 'empty file' => [ImportSummary::empty(), true];
+        yield 'no rejects' => [new ImportSummary(total: 100, ok: 100, rejected: 0), false];
+        yield '34.9 % rejected' => [new ImportSummary(total: 1000, ok: 651, rejected: 349), false];
+        yield '35 % rejected' => [new ImportSummary(total: 1000, ok: 650, rejected: 350), true];
+        yield 'all rejected' => [new ImportSummary(total: 10, ok: 0, rejected: 10), true];
+    }
+
     /**
      * @return iterable<string, array{ImportSummary}>
      */

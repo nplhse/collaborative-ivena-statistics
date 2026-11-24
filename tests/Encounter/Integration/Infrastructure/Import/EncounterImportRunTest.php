@@ -277,12 +277,15 @@ final class EncounterImportRunTest extends KernelTestCase
     {
         $importId = $this->upload(EdVisitFileBuilder::create()
             ->visit('a', '2026-10-01T08:15')
+            ->visit('c', '2026-10-01T10:15')
+            ->visit('d', '2026-10-01T11:15')
             ->visit('b', '2026-10-01T09:15', overrides: ['spo2' => '120']));
 
         $this->runEncounterImport($importId);
 
+        // 1 of 4 rows rejected (25 %), so the import stays below the failure limit.
         self::assertSame(1, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM import_reject WHERE import_id = ?', [$importId]));
-        self::assertSame(1, $this->encounterCount($importId));
+        self::assertSame(3, $this->encounterCount($importId));
     }
 
     private function upload(EdVisitFileBuilder $file, string $name = 'encounters', int $keyGeneration = 1): int
