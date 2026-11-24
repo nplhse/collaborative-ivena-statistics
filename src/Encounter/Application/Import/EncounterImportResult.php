@@ -16,6 +16,7 @@ final readonly class EncounterImportResult
 {
     /**
      * @param list<string> $insertedDays days (Y-m-d) with new encounters, ascending
+     * @param bool         $keepsLastRun the file fails on a reprocess: records, rejects and report of the last run stay
      */
     public function __construct(
         public int $total,
@@ -27,6 +28,7 @@ final readonly class EncounterImportResult
         public ImportDataCoverage $coverage,
         public array $insertedDays,
         public ?AssignmentCounts $assignments = null,
+        public bool $keepsLastRun = false,
     ) {
     }
 }

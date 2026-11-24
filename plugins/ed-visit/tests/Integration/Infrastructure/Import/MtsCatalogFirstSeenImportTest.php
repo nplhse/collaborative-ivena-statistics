@@ -112,14 +112,18 @@ final class MtsCatalogFirstSeenImportTest extends KernelTestCase
 
     public function testRejectedRowsAndKnownVisitsCreateNothing(): void
     {
-        $this->upload(EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15'));
+        $this->upload(EdVisitFileBuilder::create()
+            ->visit('a', '2026-10-01T08:15')
+            ->visit('c', '2026-10-01T10:15'));
 
+        // 2 known + 1 rejected row stays below the rejection limit, so the import is stored (#1551).
         $importId = $this->upload(EdVisitFileBuilder::create()
             ->visit('a', '2026-10-01T08:15', overrides: ['mts_diagram' => 'nur_bekannter_besuch'])
+            ->visit('c', '2026-10-01T10:15')
             ->visit('b', '2026-10-01T09:15', overrides: ['mts_diagram' => 'abgelehnte_zeile', 'spo2' => '120']), 'second');
 
         self::assertSame(0, $this->encounterImportOf($importId)->getInserted());
-        self::assertSame(1, $this->encounterImportOf($importId)->getDuplicates());
+        self::assertSame(2, $this->encounterImportOf($importId)->getDuplicates());
         self::assertSame(1, $this->encounterImportOf($importId)->getRejected());
         self::assertSame([], $this->firstSeen('encounter_mts_diagram'));
     }

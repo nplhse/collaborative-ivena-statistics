@@ -118,6 +118,36 @@ final class EncounterReprocessTest extends KernelTestCase
         self::assertSame($before, $this->snapshot($this->edImportId), 'Visits, uids, assignment, matching history, rejects and counters are those of the last successful run.');
     }
 
+    public function testAReprocessAboveTheRejectionLimitKeepsTheLastSuccessfulRun(): void
+    {
+        $before = $this->snapshot($this->edImportId);
+        // 1 valid + 2 rejected rows: 2 / 3 = 66.7 % rejected. Without the guard, b and c would be removed.
+        $this->replaceSourceFile($this->edImportId, $this->file('a')
+            ->visit('e', '2026-10-12T20:00', overrides: ['spo2' => '120'])
+            ->visit('f', '2026-10-12T21:00', overrides: ['spo2' => '120'])
+            ->build());
+
+        $this->runEncounterImport($this->edImportId);
+
+        self::assertSame(ImportStatus::FAILED, $this->freshImport($this->edImportId)->getStatus());
+        self::assertSame($before, $this->snapshot($this->edImportId));
+    }
+
+    public function testAFirstImportAboveTheRejectionLimitWritesNoRecordsAndKeepsItsRejects(): void
+    {
+        // 1 valid + 2 rejected rows: 2 / 3 = 66.7 % rejected.
+        $id = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()
+            ->visit('x', '2026-10-13T08:00', 'X')
+            ->visit('y', '2026-10-13T09:00', 'Y', overrides: ['spo2' => '120'])
+            ->visit('z', '2026-10-13T10:00', 'Z', overrides: ['spo2' => '120'])
+            ->build(), 'failing file');
+
+        self::assertSame(ImportStatus::FAILED, $this->freshImport($id)->getStatus());
+        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM ed_visit WHERE import_id = ?', [$id]));
+        self::assertSame(2, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM import_reject WHERE import_id = ?', [$id]));
+        self::assertSame(2, $this->encounterImportOf($id)->getRejected());
+    }
+
     public function testAFailedReprocessOfAStayImportKeepsItsPendingRecordsAndDecisions(): void
     {
         // Visits B and C share the case of stay row 3, which becomes an ambiguous conflict.
