@@ -101,12 +101,28 @@ SQL,
 
     /**
      * Start of the run log: the oldest job_run row. Before the run log has existed for a job's interval, a job
-     * without any run is not overdue yet (e.g. right after the deploy that introduced it).
+     * without any run is not overdue yet.
      */
     public function runLogSince(): ?\DateTimeImmutable
     {
         $first = $this->connection->fetchOne('SELECT MIN(started_at) FROM job_run');
 
         return null === $first || false === $first ? null : new \DateTimeImmutable((string) $first);
+    }
+
+    /**
+     * When the last Doctrine migration ran, as a stand-in for the last deploy (#1562): a job that a release adds is
+     * not overdue before its interval has passed since then. Null without the migrations table or without a time.
+     */
+    public function lastMigrationAt(): ?\DateTimeImmutable
+    {
+        if (true !== $this->connection->fetchOne("SELECT to_regclass('doctrine_migration_versions') IS NOT NULL")) {
+            return null;
+        }
+
+        // Doctrine Migrations writes executed_at without a zone in PHP's default time zone; it is read back in it.
+        $last = $this->connection->fetchOne('SELECT MAX(executed_at) FROM doctrine_migration_versions');
+
+        return null === $last || false === $last ? null : new \DateTimeImmutable((string) $last);
     }
 }
