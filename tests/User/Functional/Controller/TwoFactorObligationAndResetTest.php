@@ -77,6 +77,22 @@ final class TwoFactorObligationAndResetTest extends WebTestCase
         self::assertSame([], $this->client->getResponse()->headers->getCookies());
     }
 
+    public function testObligationLeavesMediaFilesOfSignedInAdministratorsWithoutTwoFactorAlone(): void
+    {
+        $this->requireTwoFactorForAdmins();
+        $this->client->loginUser(UserFactory::new()->asAdmin()->create());
+        $media = MediaFactory::createOne(['originalFilename' => 'logo.png']);
+
+        $this->client->request(Request::METHOD_GET, new MediaPublicUrlResolver()->resolve($media));
+
+        // The media route is stateless (#1570): no redirect to the setup, no session, public caching.
+        self::assertResponseIsSuccessful();
+        $cacheControl = (string) $this->client->getResponse()->headers->get('Cache-Control');
+        self::assertStringContainsString('public', $cacheControl);
+        self::assertStringNotContainsString('private', $cacheControl);
+        self::assertSame([], $this->client->getResponse()->headers->getCookies());
+    }
+
     public function testObligationRefusesOtherRequestsThanPageLoads(): void
     {
         $this->requireTwoFactorForAdmins();

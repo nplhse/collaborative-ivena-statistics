@@ -8,6 +8,8 @@ use App\Content\Application\Media\MediaPublicUrlResolver;
 use App\Content\Domain\Enum\MediaVisibility;
 use App\Content\Infrastructure\Factory\MediaFactory;
 use App\Content\Infrastructure\Media\MediaStorage;
+use App\User\Domain\Factory\UserFactory;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,6 +45,29 @@ final class MediaFileControllerTest extends WebTestCase
         self::assertStringContainsString('inline', (string) $response->headers->get('Content-Disposition'));
         self::assertStringContainsString("filename*=utf-8''Gr%C3%B6%C3%9Fe%20%C3%9Cbersicht.png", (string) $response->headers->get('Content-Disposition'));
         self::assertSame([], $response->headers->getCookies(), 'the stateless route sets no cookie');
+    }
+
+    public function testSignedInUserGetsTheFileWithPublicCachingAndNoCookie(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::createOne());
+        $url = new MediaPublicUrlResolver()->resolve(MediaFactory::createOne());
+
+        $client->request(Request::METHOD_GET, $url);
+
+        $this->assertDeliveredStateless($client);
+    }
+
+    public function testAnonymousVisitorWithASessionGetsTheFileWithPublicCachingAndNoCookie(): void
+    {
+        $client = self::createClient();
+        $client->request(Request::METHOD_GET, '/login');
+        self::assertNotNull($client->getCookieJar()->get('MOCKSESSID'), 'the login page starts a session');
+        $url = new MediaPublicUrlResolver()->resolve(MediaFactory::createOne());
+
+        $client->request(Request::METHOD_GET, $url);
+
+        $this->assertDeliveredStateless($client);
     }
 
     public function testUnchangedFileAnswersNotModified(): void
@@ -121,5 +146,21 @@ final class MediaFileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/uploads/media/unknown.png');
 
         self::assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * A request with a session cookie must not touch the session on the stateless route (#1570): in debug mode
+     * Symfony throws, otherwise the response turns private.
+     */
+    private function assertDeliveredStateless(KernelBrowser $client): void
+    {
+        self::assertResponseIsSuccessful();
+        $response = $client->getResponse();
+        $cacheControl = (string) $response->headers->get('Cache-Control');
+        self::assertStringContainsString('public', $cacheControl);
+        self::assertStringContainsString('max-age=31536000', $cacheControl);
+        self::assertStringContainsString('immutable', $cacheControl);
+        self::assertStringNotContainsString('private', $cacheControl);
+        self::assertSame([], $response->headers->getCookies(), 'the stateless route sets no cookie');
     }
 }
