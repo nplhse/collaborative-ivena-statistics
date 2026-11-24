@@ -15,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
@@ -33,13 +34,8 @@ final class TermsAcceptanceController extends AbstractController
     }
 
     #[Route('/terms/accept', name: RequireTermsAcceptanceListener::ACCEPT_ROUTE, methods: ['GET', 'POST'])]
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request, #[CurrentUser] User $user): Response
     {
-        $user = $this->getUser();
-        if (!$user instanceof User) {
-            throw $this->createAccessDeniedException('Authenticated user required.');
-        }
-
         $session = $request->getSession();
         if (!$this->status->isOutstanding($user, $session)) {
             return $this->redirect($this->targetPath($request));
