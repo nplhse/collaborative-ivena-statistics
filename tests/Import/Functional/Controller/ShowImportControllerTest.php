@@ -41,7 +41,7 @@ final class ShowImportControllerTest extends WebTestCase
         self::assertSelectorTextContains('.datagrid', 'CSV');
         self::assertSelectorTextContains('.datagrid', 'Mime Type');
         self::assertSelectorTextContains('.datagrid', 'KB');
-        self::assertSelectorTextContains('body', 'Pending');
+        self::assertSelectorTextSame('[data-testid="import-status-badge"]', 'Pending');
         self::assertSelectorTextContains('body', 'Allocations');
         self::assertSelectorTextContains('#import-imported-records', '4 Allocations imported');
         self::assertSelectorTextContains('body', 'Deduplicated rows (total)');
@@ -56,6 +56,25 @@ final class ShowImportControllerTest extends WebTestCase
         self::assertIsString($mciHref);
         self::assertStringContainsString('importId='.$importId, $allocationHref);
         self::assertStringContainsString('importId='.$importId, $mciHref);
+    }
+
+    public function testStatusBadgeShowsTheTranslatedLabel(): void
+    {
+        $client = self::createClient();
+        [$owner, $importId] = $this->createImportWithRelations(status: ImportStatus::COMPLETED);
+
+        $owner->setLocale('de');
+        self::getContainer()->get(EntityManagerInterface::class)->flush();
+
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, \sprintf('/import/%d', $importId));
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextSame('[data-testid="import-status-badge"]', 'Abgeschlossen');
+        $statusField = $client->getCrawler()->filter('.datagrid-item')
+            ->reduce(static fn ($item): bool => 'Status' === trim($item->filter('.datagrid-title')->text()));
+        self::assertCount(1, $statusField);
+        self::assertSame('Abgeschlossen', trim($statusField->filter('.datagrid-content')->text()), 'Header badge and status field show the same label.');
     }
 
     public function testClosureImportHidesAllocationLinks(): void

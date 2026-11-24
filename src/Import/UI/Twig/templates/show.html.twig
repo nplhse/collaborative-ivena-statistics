@@ -45,7 +45,7 @@
                                 Running: 'blue',
                                 Pending: 'secondary',
                             }[import.status.value]|default('secondary') %}
-                            <twig:Badge :variant="importStatusVariant">{{ import.status.value }}</twig:Badge>
+                            <twig:Badge :variant="importStatusVariant" data-testid="import-status-badge">{{ ('import.status.label.' ~ import.status.value|lower)|trans({}, 'import') }}</twig:Badge>
                         </div>
                     </div>
                 </div>
