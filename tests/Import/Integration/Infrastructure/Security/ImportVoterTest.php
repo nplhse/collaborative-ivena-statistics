@@ -101,6 +101,18 @@ final class ImportVoterTest extends KernelTestCase
         );
     }
 
+    public function testDownloadSourceDeniedWhenImportHasNoHospital(): void
+    {
+        $admin = UserFactory::new()->asAdmin()->create();
+        $import = $this->createStub(Import::class);
+        $import->method('getHospital')->willReturn(null);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($admin), $import, [ImportVoter::DOWNLOAD_SOURCE]),
+        );
+    }
+
     public function testDeleteGrantedForHospitalOwner(): void
     {
         $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
