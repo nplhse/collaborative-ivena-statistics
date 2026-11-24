@@ -1,7 +1,7 @@
 {% for node in nodes %}
     {% set branchId = navId ~ '-branch-' ~ node.pageId %}
     <li class="page-nav-item{{ node.current ? ' is-current' }}{{ node.ancestor ? ' is-ancestor' }}">
-        <div class="page-nav-row">
+        <div class="page-nav-row" style="--page-nav-depth: {{ depth }}">
             <a href="{{ node.url }}" class="page-nav-link"{% if node.current %} aria-current="page"{% endif %}>{{ node.title }}</a>
             {% if node.hasChildren %}
                 <button type="button"
@@ -16,7 +16,7 @@
         </div>
         {% if node.hasChildren %}
             <ul id="{{ branchId }}" class="page-nav-list page-nav-branch list-unstyled mb-0"{% if not node.expanded %} hidden{% endif %}>
-                {{ include('@Content/components/_page_navigation_nodes.html.twig', {nodes: node.children, navId: navId}, with_context: false) }}
+                {{ include('@Content/components/_page_navigation_nodes.html.twig', {nodes: node.children, navId: navId, depth: depth + 1}, with_context: false) }}
             </ul>
         {% endif %}
     </li>

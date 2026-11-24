@@ -28,6 +28,8 @@ The same rules as before and as the sitemap:
 - There is no "hide from navigation" flag; every visible page appears, except help articles: the full tree leaves
   them out and shows the help start page alone. A subtree below the help start page shows them
   ([help.md](help.md)).
+- The full tree also leaves out the legal pages with the keys `imprint`, `privacy` and `terms` and their subpages
+  (#1582). The footer links them; the sitemap page and `sitemap.xml` keep them.
 
 ## API
 
@@ -65,10 +67,10 @@ No template picks a subtree automatically yet. Add one only for a concrete use c
 - `PageController::show` stores the shown page's ID in the request attribute
   `PageNavigationTreeProvider::CURRENT_PAGE_ATTRIBUTE`. Every instance on the page reads it, so templates do not
   pass the current page.
-- The current page gets `aria-current="page"` and semibold text in the body colour (weight, not colour alone).
-  Its ancestors are marked as well (`is-ancestor`) and use the body colour; other entries are muted. The style
-  follows the table of contents in the same sidebar: plain text links, no backgrounds, hover only changes the
-  text colour.
+- Every page is one row, like the list-group cards in the same sidebar (latest posts, reference, #1582): rows are
+  separated by a border and get a background on hover. Subpages are indented rows below their page and a step
+  quieter in colour. The current page gets `aria-current="page"`, semibold text, a background and a bar on the left
+  (weight and bar, not colour alone). Its ancestors are marked as well (`is-ancestor`) and use the body colour.
 - Initially open: the ancestors of the current page and the current page itself when it has children, and the
   root with `includeRoot`. Everything else is collapsed. Without a current page (dashboard) all branches are
   collapsed.

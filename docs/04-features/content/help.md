@@ -35,8 +35,9 @@ a page with that path would be hidden behind it. The same holds for `/help/gloss
   (#1578). Placing the *Subpages* block in the content moves the cards there instead, for example to number them as
   steps.
 - **Article:** the page template with the help sidebar: search, *On this page* (always shown for help pages, built by
-  `PageTableOfContentsBuilder` from the headings) and the help tree (`<twig:Content:PageNavigation>` with the start page
-  as root). Below the article: *Was this article helpful?* and the previous and next article in reading order
+  `PageTableOfContentsBuilder` from the headings) and the help tree (`<twig:Content:PageNavigation>` below the start page,
+  which itself is not listed, #1582), followed by the reference card and the page navigation with the other editorial pages (#1582). Below the
+  article: *Was this article helpful?* and the previous and next article in reading order
   (depth first, `HelpNavigation::neighbours()`). The start page has no sidebar search, its search block is enough.
 - **Search results:** same layout; titles and short descriptions weigh more than text. A hit shows its short
   description, or without one the excerpt with the matched words marked.

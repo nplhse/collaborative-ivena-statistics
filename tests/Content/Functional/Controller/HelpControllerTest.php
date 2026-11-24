@@ -43,10 +43,11 @@ final class HelpControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSame(['Why rows are rejected', 'Fixing them'], $crawler->filter('[data-testid="page-toc"] a')->each(static fn (Crawler $link): string => trim($link->text())), 'outline without show-TOC flag');
         self::assertCount(1, $crawler->filter('[data-testid="help-search"]'));
-        self::assertSame(['Help', 'Importing', 'Export', 'Rejected rows', 'Statistics'], $this->navigationTitles($crawler, '[data-testid="help-navigation"]'));
+        self::assertSame(['Importing', 'Export', 'Rejected rows', 'Statistics'], $this->navigationTitles($crawler, '[data-testid="help-navigation"]'), 'the topics without the start page');
         self::assertSame('Export', trim($crawler->filter('[data-testid="help-article-previous"] .fw-medium')->text()));
         self::assertSame('Statistics', trim($crawler->filter('[data-testid="help-article-next"] .fw-medium')->text()));
         self::assertCount(0, $crawler->filter('[data-testid="help-feedback-frame"]'), 'visitors cannot rate');
+        self::assertSame(['Guide', 'Help'], $this->navigationTitles($crawler, '[data-testid="help-page-navigation"]'), 'the other pages stay reachable');
         self::assertStringNotContainsString('blog.sidebar.latest_posts', $crawler->html());
     }
 
