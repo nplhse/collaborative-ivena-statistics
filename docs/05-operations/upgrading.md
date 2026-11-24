@@ -23,7 +23,8 @@ afterwards replaces the old URLs in the content.
 - Make a backup (`app:backup:create`) and check that `shared/public/uploads/media` holds the media files.
 - The deploy copies every media file once more into `shared/var/media`: free space for a second copy of the media is
   needed until v0.4 removes the old directory.
-- Cron jobs that call `bin/ops/backup-files.sh` back up `var/media` from now on; prefer `app:backup:create`.
+- Cron jobs that call `bin/ops/backup-files.sh` back up `var/media` from now on; replace them with the weekly
+  scheduled backup after the deploy (below).
 - **Two-factor authentication** is new and **required for administrators** (#1357, #1567,
   [ADR 040](../02-architecture/decisions/040-two-factor-authentication.md)). Set `APP_TWO_FACTOR_KEY` in
   `shared/.env.local` (64 hex characters: `php -r 'echo bin2hex(random_bytes(32)), PHP_EOL;'`) and keep a copy with
@@ -61,6 +62,14 @@ Every administrator is sent to `/settings/two-factor` on the next page load and 
 there; until then other pages are not reachable. Keep the backup codes. If an administrator loses both, another
 administrator resets it on the user's detail page; for the last administrator run
 `php bin/console app:user:reset-two-factor <username>`.
+
+Set up the automatic backups, which start with this release (#1568,
+[scheduled backups](backup-restore.md#scheduled-backups)):
+
+1. On the server, run `bin/ops/scheduled-backup.sh --dry-run` once from `current`, then add the weekly crontab line
+   (Wednesdays 03:00 UTC) and remove old backup cron lines.
+2. On the operator's machine, run `bin/ops/pull-backups.sh` once by hand, then install the `launchd` job for the
+   off-site copy ([off-site copy](backup-restore.md#off-site-copy)).
 
 ### Check
 
