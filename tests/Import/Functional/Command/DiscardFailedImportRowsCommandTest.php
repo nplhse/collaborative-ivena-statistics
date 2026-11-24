@@ -21,6 +21,10 @@ use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Statistics\Application\Contract\ClosureRebuildRequestInterface;
+use App\Statistics\Application\Contract\MaterializedViewRefresherInterface;
+use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
@@ -82,6 +86,35 @@ final class DiscardFailedImportRowsCommandTest extends KernelTestCase
         self::assertSame(0, $second->execute(['--force' => true]));
         self::assertStringContainsString('No failed import holds rows', $second->getDisplay());
         self::assertSame(1, $this->countAllocations($keptId));
+    }
+
+    public function testForceRemovesProjectionRowsAndRequestsTheClosureRebuild(): void
+    {
+        $id = $this->failedImportWithRows(2, withSourceFile: true);
+        $keptId = $this->completedImportWithRows(1);
+        $this->rebuildProjection($id, $keptId);
+        self::assertSame(2, $this->countProjectionRows($id), 'precondition');
+        [$rebuildRequests, $refreshes] = $this->recordFollowUps();
+
+        self::assertSame(0, $this->tester()->execute(['--force' => true]));
+
+        self::assertSame(0, $this->countProjectionRows($id));
+        self::assertSame(1, $this->countProjectionRows($keptId));
+        self::assertSame([['volume', (int) $this->hospital->getId()]], $rebuildRequests->calls);
+        self::assertSame([], $refreshes->calls, 'The hospital keeps rows, so the overview views stay as they are.');
+    }
+
+    public function testForceRefreshesTheOverviewViewsWhenAHospitalLeavesTheStatistics(): void
+    {
+        $id = $this->failedImportWithRows(1, withSourceFile: true);
+        $this->rebuildProjection($id);
+        self::assertSame(1, $this->countProjectionRows($id), 'precondition');
+        [, $refreshes] = $this->recordFollowUps();
+
+        self::assertSame(0, $this->tester()->execute(['--force' => true]));
+
+        self::assertSame(0, $this->countProjectionRows($id));
+        self::assertSame([[StatisticsMaterializedViewGroups::OVERVIEW]], $refreshes->calls);
     }
 
     public function testRowsAreKeptWhenTheSourceFileIsMissing(): void
@@ -172,6 +205,70 @@ final class DiscardFailedImportRowsCommandTest extends KernelTestCase
         self::assertNotFalse(file_put_contents($path, "header\n"));
 
         return ltrim(substr($path, \strlen($projectDir)), '/');
+    }
+
+    private function rebuildProjection(int ...$importIds): void
+    {
+        $rebuilder = self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class);
+        foreach ($importIds as $importId) {
+            $rebuilder->rebuildForImport($importId);
+        }
+    }
+
+    /**
+     * Replaces the closure rebuild requests and the view refresher with recorders. Call before the command runs.
+     *
+     * @return array{object{calls: list<array{string, ?int}>}, object{calls: list<list<string>>}}
+     */
+    private function recordFollowUps(): array
+    {
+        $rebuildRequests = new class implements ClosureRebuildRequestInterface {
+            /** @var list<array{string, ?int}> */
+            public array $calls = [];
+
+            public function requestAnalysis(?int $hospitalId, ?\DateTimeImmutable $from = null, ?\DateTimeImmutable $to = null): bool
+            {
+                $this->calls[] = ['analysis', $hospitalId];
+
+                return true;
+            }
+
+            public function requestVolume(?int $hospitalId, ?\DateTimeImmutable $from = null, ?\DateTimeImmutable $to = null): void
+            {
+                $this->calls[] = ['volume', $hospitalId];
+            }
+
+            public function unconsumed(?int $hospitalId): array
+            {
+                return [];
+            }
+
+            public function retryFailed(?int $hospitalId): int
+            {
+                return 0;
+            }
+        };
+        $refreshes = new class implements MaterializedViewRefresherInterface {
+            /** @var list<list<string>> */
+            public array $calls = [];
+
+            public function refresh(array $groups = [], ?bool $concurrently = null): array
+            {
+                $this->calls[] = $groups;
+
+                return [];
+            }
+        };
+
+        self::getContainer()->set(ClosureRebuildRequestInterface::class, $rebuildRequests);
+        self::getContainer()->set(MaterializedViewRefresherInterface::class, $refreshes);
+
+        return [$rebuildRequests, $refreshes];
+    }
+
+    private function countProjectionRows(int $importId): int
+    {
+        return (int) $this->connection->fetchOne('SELECT COUNT(*) FROM allocation_stats_projection WHERE import_id = ?', [$importId]);
     }
 
     private function countAllocations(int $importId): int
