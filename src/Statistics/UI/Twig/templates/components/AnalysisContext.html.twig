@@ -267,12 +267,15 @@
                     </div>
 
                     <div class="modal-footer d-flex justify-content-between align-items-center">
-                        <button type="button"
-                                class="btn btn-outline-secondary"
-                                data-action="statistics-analysis-context#resetToDefault"
-                                data-testid="stats-analysis-context-reset">
-                            {{ 'stats.analysis_context.reset'|trans({}, 'statistics') }}
-                        </button>
+                        <div class="d-flex gap-2">
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    data-action="statistics-analysis-context#resetToDefault"
+                                    data-testid="stats-analysis-context-reset">
+                                {{ 'stats.analysis_context.reset'|trans({}, 'statistics') }}
+                            </button>
+                            <twig:Content:HelpLink key="statistics.filters" />
+                        </div>
                         <div class="d-flex gap-2">
                             <button type="button"
                                     class="btn btn-link link-secondary"

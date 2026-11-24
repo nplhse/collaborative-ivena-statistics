@@ -77,10 +77,27 @@ the feedback inbox as an improvement with the article as context, after its usua
 
 ## Links from the application
 
+Page headers of the application link their help article with a borderless question-mark button in the primary color (#1590):
+
 ```twig
-{% set help_url = help_link('import.rejects') %}
-{% if help_url %}<a href="{{ help_url }}">{{ 'Need help?'|trans }}</a>{% endif %}
+<twig:Content:HelpLink key="import.status" />
 ```
 
-`help_link()` returns null when the article is missing or hidden from the viewer, so templates can leave the link out.
-No template uses it yet.
+The component renders nothing when the article is missing or hidden from the viewer (`help_link()` returns null), so
+a page never shows an empty link. Extra classes are added to the button (`class="btn-sm"`); the tooltip and the accessible name say "Help for this area". Statistics pages that
+use the shared header controls pass the key as `statsHelpKey` to `@Statistics/_header_controls.html.twig`. For other
+uses, `help_link()` returns the URL or null.
+
+Help keys the application links; an article needs exactly this key to be linked:
+
+| Help key | Linked from |
+|---|---|
+| `import.status` | import list, new import, import details (except partial imports) |
+| `import.rejects` | details of a partial import |
+| `statistics.overview` | statistics overview |
+| `statistics.filters` | dialog for scope and period on statistics pages |
+| `statistics.benchmarks` | benchmarking |
+| `start.hospital_access` | My hospitals, hospital assignment request |
+| `ivena.record` | allocation details |
+
+The demo help (`DemoContentLoader`) uses the same keys where it has a matching article.
