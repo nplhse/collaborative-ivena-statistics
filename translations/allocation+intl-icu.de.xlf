@@ -1835,7 +1835,7 @@
       </trans-unit>
       <trans-unit id="dcDe066" resname="data_catalog.variable.allocation.assessment_airway.description">
         <source>data_catalog.variable.allocation.assessment_airway.description</source>
-        <target>Atemweg nach ABCDE-Einschätzung.</target>
+        <target>Atemweg nach ABCD-Einschätzung.</target>
       </trans-unit>
       <trans-unit id="dcDe067" resname="data_catalog.variable.allocation.assessment_breathing.label">
         <source>data_catalog.variable.allocation.assessment_breathing.label</source>
@@ -1843,7 +1843,7 @@
       </trans-unit>
       <trans-unit id="dcDe068" resname="data_catalog.variable.allocation.assessment_breathing.description">
         <source>data_catalog.variable.allocation.assessment_breathing.description</source>
-        <target>Atmung nach ABCDE-Einschätzung.</target>
+        <target>Atmung nach ABCD-Einschätzung.</target>
       </trans-unit>
       <trans-unit id="dcDe069" resname="data_catalog.variable.allocation.assessment_circulation.label">
         <source>data_catalog.variable.allocation.assessment_circulation.label</source>
@@ -1851,7 +1851,7 @@
       </trans-unit>
       <trans-unit id="dcDe070" resname="data_catalog.variable.allocation.assessment_circulation.description">
         <source>data_catalog.variable.allocation.assessment_circulation.description</source>
-        <target>Kreislauf nach ABCDE-Einschätzung.</target>
+        <target>Kreislauf nach ABCD-Einschätzung.</target>
       </trans-unit>
       <trans-unit id="dcDe071" resname="data_catalog.variable.allocation.assessment_disability.label">
         <source>data_catalog.variable.allocation.assessment_disability.label</source>
@@ -1859,7 +1859,7 @@
       </trans-unit>
       <trans-unit id="dcDe072" resname="data_catalog.variable.allocation.assessment_disability.description">
         <source>data_catalog.variable.allocation.assessment_disability.description</source>
-        <target>Bewusstseinslage nach ABCDE-Einschätzung.</target>
+        <target>Bewusstseinslage nach ABCD-Einschätzung.</target>
       </trans-unit>
       <trans-unit id="dcDe073" resname="data_catalog.variable.allocation.requires_resus.label">
         <source>data_catalog.variable.allocation.requires_resus.label</source>

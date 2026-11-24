@@ -24,7 +24,7 @@ the catalog, as a small code line per variable, because they describe structure,
 
 | Object | Contributor | Visible to |
 |---|---|---|
-| `allocation` (with the ABCDE assessment) | `AllocationDataCatalogContributor` | Explore users |
+| `allocation` (with the ABCD assessment) | `AllocationDataCatalogContributor` | Explore users |
 | `mci_case` | `AllocationDataCatalogContributor` | Explore users |
 | `hospital` | `AllocationDataCatalogContributor` | Explore users |
 | `dispatch_area`, `state` (regions, #1492) | `AllocationDataCatalogContributor` | Explore users |

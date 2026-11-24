@@ -1835,7 +1835,7 @@
       </trans-unit>
       <trans-unit id="dcEn066" resname="data_catalog.variable.allocation.assessment_airway.description">
         <source>data_catalog.variable.allocation.assessment_airway.description</source>
-        <target>Airway from the ABCDE assessment.</target>
+        <target>Airway from the ABCD assessment.</target>
       </trans-unit>
       <trans-unit id="dcEn067" resname="data_catalog.variable.allocation.assessment_breathing.label">
         <source>data_catalog.variable.allocation.assessment_breathing.label</source>
@@ -1843,7 +1843,7 @@
       </trans-unit>
       <trans-unit id="dcEn068" resname="data_catalog.variable.allocation.assessment_breathing.description">
         <source>data_catalog.variable.allocation.assessment_breathing.description</source>
-        <target>Breathing from the ABCDE assessment.</target>
+        <target>Breathing from the ABCD assessment.</target>
       </trans-unit>
       <trans-unit id="dcEn069" resname="data_catalog.variable.allocation.assessment_circulation.label">
         <source>data_catalog.variable.allocation.assessment_circulation.label</source>
@@ -1851,7 +1851,7 @@
       </trans-unit>
       <trans-unit id="dcEn070" resname="data_catalog.variable.allocation.assessment_circulation.description">
         <source>data_catalog.variable.allocation.assessment_circulation.description</source>
-        <target>Circulation from the ABCDE assessment.</target>
+        <target>Circulation from the ABCD assessment.</target>
       </trans-unit>
       <trans-unit id="dcEn071" resname="data_catalog.variable.allocation.assessment_disability.label">
         <source>data_catalog.variable.allocation.assessment_disability.label</source>
@@ -1859,7 +1859,7 @@
       </trans-unit>
       <trans-unit id="dcEn072" resname="data_catalog.variable.allocation.assessment_disability.description">
         <source>data_catalog.variable.allocation.assessment_disability.description</source>
-        <target>Level of consciousness from the ABCDE assessment.</target>
+        <target>Level of consciousness from the ABCD assessment.</target>
       </trans-unit>
       <trans-unit id="dcEn073" resname="data_catalog.variable.allocation.requires_resus.label">
         <source>data_catalog.variable.allocation.requires_resus.label</source>
