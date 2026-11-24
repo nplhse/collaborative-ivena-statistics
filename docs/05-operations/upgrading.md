@@ -68,8 +68,9 @@ Set up the automatic backups, which start with this release (#1568,
 
 1. On the server, run `bin/ops/scheduled-backup.sh --dry-run` once from `current`, then add the weekly crontab line
    (Wednesdays 03:00 UTC) and remove old backup cron lines.
-2. On the operator's machine, run `bin/ops/pull-backups.sh` once by hand, then install the `launchd` job for the
-   off-site copy ([off-site copy](backup-restore.md#off-site-copy)).
+2. On the operator's machine, run `bin/ops/pull-backups.sh … --delete-from-server` once by hand, then install the
+   `launchd` job for the off-site copy ([off-site copy](backup-restore.md#off-site-copy)). From then on the server
+   holds only the newest backup until it is copied.
 
 ### Check
 

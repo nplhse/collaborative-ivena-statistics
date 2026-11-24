@@ -305,29 +305,37 @@ Store backups **outside** the Deployer `releases/` tree (for example `~/backups/
 
 ### Scheduled backups
 
-The policy (#1568): one full backup **every Wednesday at 03:00 UTC**, kept for **90 days**, and a copy outside the
-server. That gives about 13 backups on the server and 13 copies off-site; with the current size of about 300 MB
-per backup this is roughly 4 GB in each place. A week of uploads can be lost when the server fails between two
-backups; participants keep their export files, so imports can be repeated.
+The policy (#1568):
 
-`bin/ops/scheduled-backup.sh` runs on the server. It runs `app:backup:create` and then `app:backup:verify` on the
-new backup. Only after both succeed does it delete backups older than the retention, and it always keeps the
-newest one. It deletes only directories named like a finished backup (`ivena-stats-full-<UTC time>`); `.partial`
-directories and files of the legacy scripts stay. Any failure ends it with a non-zero exit code, so cron mails
-the output.
+- **Server:** one full backup **every Wednesday at 03:00 UTC**. The server keeps only the newest backup, and the
+  off-site copy deletes it there once it is copied and checked. So the server holds at most one backup, for a
+  few hours.
+- **Off-site:** the copies are kept for at most **90 days**, about 13 weekly backups. With the current size of
+  about 300 MB per backup this is roughly 4 GB.
+- **Data loss:** a week of uploads can be lost when the server fails between two backups. Participants keep their
+  export files, so imports can be repeated.
+
+`bin/ops/scheduled-backup.sh` runs on the server:
+
+1. It runs `app:backup:create`, then `app:backup:verify` on the new backup.
+2. Only after both succeed does it delete older backups, so that only the newest `--keep` backups stay (default 1:
+   the new one).
+3. It deletes only directories named like a finished backup (`ivena-stats-full-<UTC time>`). `.partial`
+   directories and files of the legacy scripts stay.
+4. Any failure ends it with a non-zero exit code, so cron mails the output.
 
 ```bash
-bin/ops/scheduled-backup.sh --dry-run                   # what it would run and delete
-bin/ops/scheduled-backup.sh --target-dir=$HOME/backups  # default: BACKUP_DIR, else $HOME/backups
-bin/ops/scheduled-backup.sh --retention-days=90         # default 90
+bin/ops/scheduled-backup.sh --dry-run                  # what it would run and delete
+bin/ops/scheduled-backup.sh --target-dir $HOME/backups # default: BACKUP_DIR, else $HOME/backups
+bin/ops/scheduled-backup.sh --keep 2                   # keep the two newest backups instead of one
 ```
 
 Crontab on the server (`crontab -e` on Uberspace; cron is configured there, not in this repository):
 
 ```cron
 MAILTO=<operator mail address>
-# Weekly full backup, Wednesdays 03:00 UTC: create, verify, then delete backups older than 90 days
-0 3 * * 3 cd <deploy_path>/current && bin/ops/scheduled-backup.sh --target-dir=$HOME/backups >> $HOME/backups/backup.log 2>&1
+# Weekly full backup, Wednesdays 03:00 UTC: create, verify, then delete all older backups
+0 3 * * 3 cd <deploy_path>/current && bin/ops/scheduled-backup.sh --target-dir $HOME/backups >> $HOME/backups/backup.log 2>&1
 ```
 
 Cron runs in the server's time zone; on Uberspace that is UTC. The script uses `bin/console` of the current release
@@ -340,15 +348,22 @@ store them encrypted or offline, and keep the last four copies.
 
 `bin/ops/pull-backups.sh` runs on the operator's machine:
 
-1. It copies new full backups from the server with `rsync` over SSH.
-2. It checks every newly copied backup against the sizes and SHA-256 checksums in its manifest. This is the first
-   part of `app:backup:verify`, and it needs `php` but no database.
-3. Only if every new copy passes, it deletes local copies older than the retention, always keeping the newest one.
+1. It copies the finished full backups from the server with `rsync` over SSH.
+2. It checks every new copy against the sizes and SHA-256 checksums in its manifest. This is the first part of
+   `app:backup:verify`, and it needs `php` but no database. With `--delete-from-server` it also checks every
+   backup that is still on the server, including one copied in an earlier run.
+3. Only if all these checks pass does it delete anything. With `--delete-from-server` it first deletes those
+   backups on the server.
+4. Then it deletes local copies older than `--retention-days` (default 90) and, with `--keep N`, all but the newest
+   N copies. The newest local copy always stays.
 
 ```bash
-bin/ops/pull-backups.sh --from <user>@<host>:backups --to ~/Backups/ivena-stats --dry-run
-bin/ops/pull-backups.sh --from <user>@<host>:backups --to ~/Backups/ivena-stats   # --retention-days=90 by default
+bin/ops/pull-backups.sh --from <user>@<host>:backups --to ~/Backups/ivena-stats --delete-from-server --dry-run
+bin/ops/pull-backups.sh --from <user>@<host>:backups --to ~/Backups/ivena-stats --delete-from-server
+bin/ops/pull-backups.sh --from <user>@<host>:backups --to ~/Backups/ivena-stats --keep 4   # at most four local copies
 ```
+
+Write the server path relative to the home directory (`backups`) or absolute, not with `~`.
 
 On macOS, a `launchd` job can run it weekly, a few hours after the server backup. If the machine sleeps at that
 time, `launchd` runs the job when it wakes. The repository does not install this job. Save the following as
@@ -369,6 +384,7 @@ time, `launchd` runs the job when it wakes. The repository does not install this
         <string>user@host:backups</string>
         <string>--to</string>
         <string>/Users/you/Backups/ivena-stats</string>
+        <string>--delete-from-server</string>
     </array>
     <!-- Wednesdays 09:00 local time, after the server backup at 03:00 UTC -->
     <key>StartCalendarInterval</key>
