@@ -13,8 +13,8 @@ use Psr\Clock\ClockInterface;
 /**
  * Scheduler jobs (ADR 019): every job with an expected interval (app.job_runs.<job>.overdue_after_minutes) must have
  * finished a run within it. Overdue is degraded, overdue by more than twice the interval unhealthy; a job whose last
- * run failed is degraded. A job that never ran counts from the start of the run log, so a new job is not overdue
- * right after its deploy.
+ * run failed is degraded. A job that never ran counts from the start of the run log or from the last migration,
+ * whichever is later, so a job that a release adds is not overdue right after the deploy (#1562).
  *
  * @psalm-suppress UnusedClass Tagged via HealthCheckContributorInterface.
  */
@@ -41,14 +41,14 @@ final readonly class ScheduledJobsHealthCheck implements HealthCheckContributorI
 
         $now = $this->clock->now();
         $runs = $this->query->lastFinishedRuns(array_keys($intervals));
-        $runLogSince = $this->query->runLogSince();
+        $neverRanSince = $this->neverRanSince();
 
         $status = HealthCheckStatus::Healthy;
         $overdue = [];
         $failed = [];
         foreach ($intervals as $job => $minutes) {
             $run = $runs[$job] ?? null;
-            $since = $run['finishedAt'] ?? $runLogSince;
+            $since = $run['finishedAt'] ?? $neverRanSince;
             $age = null === $since ? 0 : intdiv(max(0, $now->getTimestamp() - $since->getTimestamp()), 60);
 
             if ($age > 2 * $minutes) {
@@ -86,6 +86,22 @@ final readonly class ScheduledJobsHealthCheck implements HealthCheckContributorI
         $shown = implode(', ', \array_slice($entries, 0, self::LISTED));
 
         return \count($entries) > self::LISTED ? \sprintf('%s +%d', $shown, \count($entries) - self::LISTED) : $shown;
+    }
+
+    /**
+     * Without a run log nothing is overdue yet. Otherwise the later of the run log's start and the last migration:
+     * a release that adds a job runs migrations, so its job is not judged by the run log of older jobs.
+     */
+    private function neverRanSince(): ?\DateTimeImmutable
+    {
+        $runLogSince = $this->query->runLogSince();
+        if (!$runLogSince instanceof \DateTimeImmutable) {
+            return null;
+        }
+
+        $lastMigrationAt = $this->query->lastMigrationAt();
+
+        return $lastMigrationAt instanceof \DateTimeImmutable && $lastMigrationAt > $runLogSince ? $lastMigrationAt : $runLogSince;
     }
 
     private function age(int $minutes): string

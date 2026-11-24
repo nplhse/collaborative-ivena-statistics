@@ -67,7 +67,7 @@ Limits are configured under `app.messenger_monitoring.health` and `app.job_runs.
 | `messenger_retries` | more than 10 % of the attempts of the last 24 h were retried (from 20 attempts on) | – |
 | `scheduled_jobs` | a job has no finished run within its interval, or its last run failed | a job has no finished run within twice its interval |
 
-The value is `ok` or a short reason, for example `oldest message waits 45 min (low)` or `overdue: kpi_daily (9 h)`. A skipped run counts as a run. A job that never ran counts from the oldest `job_run` row, so a new job is not overdue right after its deploy. Runbooks: [messenger-monitoring.md](messenger-monitoring.md#runbooks).
+The value is `ok` or a short reason, for example `oldest message waits 45 min (low)` or `overdue: kpi_daily (9 h)`. A skipped run counts as a run. A job that never ran counts from the oldest `job_run` row or from the last Doctrine migration (`doctrine_migration_versions.executed_at`), whichever is later, so a job that a release adds is not overdue right after its deploy (#1562). A release that adds a scheduled job therefore also ships a migration, or `scheduled_jobs` may be `degraded` or `unhealthy` until the new job first runs. Runbooks: [messenger-monitoring.md](messenger-monitoring.md#runbooks).
 
 ## Uptime monitoring
 
