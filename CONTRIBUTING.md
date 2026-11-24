@@ -23,6 +23,8 @@ However, you should follow the following simple guidelines for your contribution
     [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/), for example
     `fix(import): skip empty rows (#123)`. Details are in [AGENTS.md](AGENTS.md#language-commits-and-pull-requests).
 -   The project language is English: code, comments, documentation, commits, issues and pull requests.
+-   Give new issues a type, labels, a milestone and the project, and give pull requests the labels, milestone and
+    project of their issue. See [classifying issues and pull requests](AGENTS.md#classifying-issues-and-pull-requests).
 -   If you notice a bug or another problem outside the scope of your change, open an issue for it instead of
     fixing it in passing.
 -   You should make sure to follow the [PHP Standards Recommendations](http://www.php-fig.org/psr/) and the
