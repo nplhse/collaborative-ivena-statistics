@@ -58,6 +58,7 @@ Each ADR includes:
 | [040](040-two-factor-authentication.md) | Two-factor authentication with an authenticator app (TOTP) | accepted |
 | [041](041-dispatch-area-geography-as-master-data.md) | Dispatch-area geography as master data | accepted |
 | [042](042-glossary-and-data-catalog-in-help.md) | Glossary and data catalog in the help section | accepted |
+| [043](043-terms-of-use-version-by-configuration.md) | Terms of use version by configuration | accepted |
 
 ## Template
 

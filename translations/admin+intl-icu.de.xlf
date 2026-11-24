@@ -3321,6 +3321,30 @@
         <source>admin.user.action.reset_two_factor.confirm</source>
         <target>Zwei-Faktor-Authentifizierung von {username} zurücksetzen? Das Konto meldet sich danach ohne Code an und erhält darüber eine E-Mail.</target>
       </trans-unit>
+      <trans-unit id="adminTermsAcceptance00De" resname="admin.user.field.terms_acceptance">
+        <source>admin.user.field.terms_acceptance</source>
+        <target>Nutzungsbedingungen</target>
+      </trans-unit>
+      <trans-unit id="adminTermsAcceptance01De" resname="admin.terms_acceptance.none">
+        <source>admin.terms_acceptance.none</source>
+        <target>Keine Zustimmung gespeichert</target>
+      </trans-unit>
+      <trans-unit id="adminTermsAcceptance02De" resname="admin.terms_acceptance.accepted">
+        <source>admin.terms_acceptance.accepted</source>
+        <target>Fassung {version} am {date}</target>
+      </trans-unit>
+      <trans-unit id="adminTermsAcceptance05De" resname="admin.terms_acceptance.accepted_without_version">
+        <source>admin.terms_acceptance.accepted_without_version</source>
+        <target>Ohne Fassung am {date}</target>
+      </trans-unit>
+      <trans-unit id="adminTermsAcceptance03De" resname="admin.terms_acceptance.not_current">
+        <source>admin.terms_acceptance.not_current</source>
+        <target>nicht die aktuelle Fassung</target>
+      </trans-unit>
+      <trans-unit id="adminTermsAcceptance04De" resname="admin.terms_acceptance.current_summary">
+        <source>admin.terms_acceptance.current_summary</source>
+        <target>Aktueller Fassung {version} zugestimmt: {accepted} von {total}</target>
+      </trans-unit>
       <trans-unit id="adminUserTwoFactor03De" resname="flash.admin.user.two_factor_reset.done">
         <source>flash.admin.user.two_factor_reset.done</source>
         <target>Die Zwei-Faktor-Authentifizierung von {username} wurde zurückgesetzt.</target>

@@ -38,6 +38,9 @@ final class AppExtension extends Extension
             $config['registration']['blocked_email_domains'],
         );
 
+        $container->setParameter('app.terms.version', null === $config['terms']['version'] ? null : (string) $config['terms']['version']);
+        $container->setParameter('app.terms.published_at', null === $config['terms']['published_at'] ? null : (string) $config['terms']['published_at']);
+
         $container->setParameter('app.security.two_factor.required_for_admins', $config['security']['two_factor']['required_for_admins']);
 
         $container->setParameter('app.closure_volume.reference_weeks_before', $config['closure_volume']['reference_weeks_before']);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\UI\Http\Controller\User;
 
 use App\Admin\Application\Service\HospitalPermissionLabelFormatter;
+use App\Admin\Application\Service\TermsAcceptanceLabelFormatter;
 use App\Admin\UI\Filter\IdSetFilter;
 use App\Admin\UI\Http\Controller\Hospital\HospitalAccessGrantCrudController;
 use App\Admin\UI\Http\Controller\Hospital\HospitalCrudController;
@@ -88,6 +89,7 @@ final class UserCrudController extends AbstractCrudController
         private readonly HospitalAccessGrantRepository $hospitalAccessGrantRepository,
         private readonly UserIdsWithEffectiveRoleQuery $userIdsWithEffectiveRole,
         private readonly TwoFactorReset $twoFactorReset,
+        private readonly TermsAcceptanceLabelFormatter $termsAcceptanceLabels,
     ) {
     }
 
@@ -398,6 +400,13 @@ final class UserCrudController extends AbstractCrudController
             ->hideOnIndex();
         yield BooleanField::new('totpAuthenticationEnabled', new TranslatableMessage('admin.user.field.two_factor', domain: 'admin'))
             ->onlyOnDetail();
+        yield TextField::new('termsAcceptance', new TranslatableMessage('admin.user.field.terms_acceptance', domain: 'admin'))
+            ->onlyOnDetail()
+            ->setVirtual(true)
+            ->setSortable(false)
+            ->renderAsHtml()
+            ->setValue('')
+            ->formatValue(fn (mixed $_, User $user): string => $this->termsAcceptanceLabels->forUser($user));
         yield DateTimeField::new('createdAt', new TranslatableMessage('admin.user.field.created_at', domain: 'admin'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->onlyOnIndex();

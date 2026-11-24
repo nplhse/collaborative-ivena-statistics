@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\UI\Http\Controller\Hospital;
 
 use App\Admin\Application\Service\HospitalPermissionLabelFormatter;
+use App\Admin\Application\Service\TermsAcceptanceLabelFormatter;
 use App\Admin\UI\Http\Controller\Engagement\MonthlyReminderDispatchCrudController;
 use App\Admin\UI\Http\Controller\TranslatedEnumChoices;
 use App\Admin\UI\Http\Controller\User\UserCrudController;
@@ -53,6 +54,7 @@ final class HospitalCrudController extends AbstractCrudController
         private readonly TranslatorInterface $translator,
         private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly HospitalRelationNotifier $hospitalRelationNotifier,
+        private readonly TermsAcceptanceLabelFormatter $termsAcceptanceLabels,
     ) {
     }
 
@@ -232,6 +234,7 @@ final class HospitalCrudController extends AbstractCrudController
     private function formatAccessGrantsHtml(Hospital $hospital): string
     {
         $parts = [];
+        $users = [];
         foreach ($hospital->getAccessGrants() as $grant) {
             $user = $grant->getUser();
             $userId = $user?->getId();
@@ -247,9 +250,18 @@ final class HospitalCrudController extends AbstractCrudController
                 ->generateUrl();
             $name = htmlspecialchars((string) $user->getUsername(), ENT_QUOTES);
             $permissions = htmlspecialchars(HospitalPermissionLabelFormatter::formatMask($grant->getPermissions()), ENT_QUOTES);
-            $parts[] = sprintf('<a href="%s">%s</a> (%s)', htmlspecialchars($url, ENT_QUOTES), $name, $permissions);
+            // Terms of use accepted by each person with access (#1564).
+            $terms = $this->termsAcceptanceLabels->forUser($user);
+            $parts[] = sprintf('<a href="%s">%s</a> (%s) · %s', htmlspecialchars($url, ENT_QUOTES), $name, $permissions, $terms);
+            $users[] = $user;
         }
 
-        return [] === $parts ? '—' : implode('<br>', $parts);
+        if ([] === $parts) {
+            return '—';
+        }
+
+        $summary = $this->termsAcceptanceLabels->currentVersionSummary($users);
+
+        return (null === $summary ? '' : $summary.'<br>').implode('<br>', $parts);
     }
 }

@@ -101,6 +101,18 @@ Users can protect their account with a six-digit code from an authenticator app 
   (`TwoFactorAvailability`). If accounts use it and the key is missing or wrong, codes fail and only backup codes work;
   the `two_factor` health check reports it ([health-check.md](../../05-operations/health-check.md)).
 
+## Terms of use acceptance
+
+Registration requires accepting the terms of use (#1564, [ADR 043](../../02-architecture/decisions/043-terms-of-use-version-by-configuration.md)).
+`RegistrationController` stores the acceptance as a `TermsAcceptance` row in the same flush as the account:
+kind `terms`, the configured `app.terms.version` (empty while none is set), the time, the language of the shown terms
+page and the SHA-256 of its published content. The page comes from Content through `TermsDocumentProviderInterface`,
+with the same language fallback as the page itself; without a published terms page the hash stays empty.
+
+Rows are only added and are deleted with the account. Admins see the latest acceptance on the user detail page and,
+per person with access, on the hospital detail page, together with how many of them accepted the current version.
+Accounts created by an administrator or before #1564 have no row.
+
 ## Account checks
 
 `UserAccountStatusChecker` rejects disabled and unverified accounts before the password is checked, with the same

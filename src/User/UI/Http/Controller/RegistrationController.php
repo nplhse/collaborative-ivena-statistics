@@ -11,6 +11,7 @@ use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\User\Application\Event\UserRegistered;
 use App\User\Application\Registration\RegistrationEmailSuppressionLogger;
 use App\User\Application\Registration\RegistrationEmailSuppressionPolicy;
+use App\User\Application\Terms\TermsAcceptanceFactory;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Registration\RegistrationIdentityGuard;
 use App\User\Infrastructure\Security\EmailVerifier;
@@ -43,6 +44,7 @@ final class RegistrationController extends AbstractController
         private readonly RegistrationIdentityGuard $registrationIdentityChecker,
         private readonly RegistrationEmailSuppressionPolicy $registrationEmailSuppressionPolicy,
         private readonly RegistrationEmailSuppressionLogger $registrationEmailSuppressionLogger,
+        private readonly TermsAcceptanceFactory $termsAcceptanceFactory,
     ) {
     }
 
@@ -95,6 +97,8 @@ final class RegistrationController extends AbstractController
             $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
 
             $this->entityManager->persist($user);
+            // The form requires the terms checkbox; store that acceptance with the account (#1564).
+            $this->entityManager->persist($this->termsAcceptanceFactory->forCurrentTerms($user, $request->getLocale()));
             $this->auditContext->beginIntent(AuditEntry::INTENT_USER_REGISTERED, []);
             try {
                 $this->entityManager->flush();
