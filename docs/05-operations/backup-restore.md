@@ -73,7 +73,7 @@ make backup-verify                                                    # newest; 
 
 The archives are read and hashed in PHP while they are streamed; nothing is extracted. All checks run even when
 one fails, and the command lists every problem at the end. It exits with `1` when the backup has a problem or
-cannot be read, so it can follow the backup in cron (see [Cron](#cron-operator-managed)). It needs
+cannot be read, so it can follow the backup in cron (see [scheduled backups](#scheduled-backups)). It needs
 `pg_restore` (same `BACKUP_PG_TOOLS` switch as the backup) but no database connection.
 
 ## Restore command
@@ -145,7 +145,8 @@ php bin/console app:media:check --full
 
 ## Scripts (legacy)
 
-The scripts below predate the backup command. `backup-database.sh` and `backup-files.sh` write backups without
+Not to be confused with `bin/ops/scheduled-backup.sh` and `bin/ops/pull-backups.sh`, which run the backup command
+on a schedule ([scheduled backups](#scheduled-backups)). The scripts below predate the backup command. `backup-database.sh` and `backup-files.sh` write backups without
 a manifest; `restore-database.sh` restores any custom-format dump, including `database.dump` of the new format.
 
 | Script | Purpose |
@@ -302,27 +303,114 @@ chmod 600 ~/backups/env-local-*.bak
 
 Store backups **outside** the Deployer `releases/` tree (for example `~/backups/`) so deploys cannot delete them.
 
-### Cron (operator-managed)
+### Scheduled backups
 
-Schedule regular backups on the server (example — adjust paths and times):
+The policy (#1568):
 
-```cron
-# Daily full backup at 03:00 UTC (set BACKUP_DIR=$HOME/backups in shared/.env.local, or pass --target-dir)
-0 3 * * * cd <deploy_path>/current && php bin/console app:backup:create --no-interaction --env=prod >> ~/backups/backup.log 2>&1 && php bin/console app:backup:verify --env=prod >> ~/backups/backup.log 2>&1
+- **Server:** one full backup **every Wednesday at 03:00 UTC**. The server keeps only the newest backup, and the
+  off-site copy deletes it there once it is copied and checked. So the server holds at most one backup, for a
+  few hours.
+- **Off-site:** the copies are kept for at most **90 days**, about 13 weekly backups. With the current size of
+  about 300 MB per backup this is roughly 4 GB.
+- **Data loss:** a week of uploads can be lost when the server fails between two backups. Participants keep their
+  export files, so imports can be repeated.
 
-# Retention: delete backups older than 30 days (directories of the new format, files of the legacy scripts)
-15 5 * * * find ~/backups -maxdepth 1 -name 'ivena-stats-*' -mtime +30 -exec rm -rf {} +
+`bin/ops/scheduled-backup.sh` runs on the server:
+
+1. It runs `app:backup:create`, then `app:backup:verify` on the new backup.
+2. Only after both succeed does it delete older backups, so that only the newest `--keep` backups stay (default 1:
+   the new one).
+3. It deletes only directories named like a finished backup (`ivena-stats-full-<UTC time>`). `.partial`
+   directories and files of the legacy scripts stay.
+4. Any failure ends it with a non-zero exit code, so cron mails the output.
+
+```bash
+bin/ops/scheduled-backup.sh --dry-run                  # what it would run and delete
+bin/ops/scheduled-backup.sh --target-dir $HOME/backups # default: BACKUP_DIR, else $HOME/backups
+bin/ops/scheduled-backup.sh --keep 2                   # keep the two newest backups instead of one
 ```
 
-Cron is configured on Uberspace outside this repository.
+Crontab on the server (`crontab -e` on Uberspace; cron is configured there, not in this repository):
 
-### Suggested retention
+```cron
+MAILTO=<operator mail address>
+# Weekly full backup, Wednesdays 03:00 UTC: create, verify, then delete all older backups
+0 3 * * 3 cd <deploy_path>/current && bin/ops/scheduled-backup.sh --target-dir $HOME/backups >> $HOME/backups/backup.log 2>&1
+```
 
-| Type | Suggestion |
-|------|------------|
-| Daily full backups | keep 7 |
-| Weekly full backups | keep 4 |
-| `.env.local` copies | keep 4 (secure storage) |
+Cron runs in the server's time zone; on Uberspace that is UTC. The script uses `bin/console` of the current release
+with `APP_ENV=prod`, and needs `pg_dump` and `pg_restore` on cron's `PATH`.
+
+The `.env.local` secrets are not part of the backup (see [scope](#scope)). Copy them by hand after every change,
+store them encrypted or offline, and keep the last four copies.
+
+### Off-site copy
+
+`bin/ops/pull-backups.sh` runs on the operator's machine:
+
+1. It copies the finished full backups from the server with `rsync` over SSH.
+2. It checks every new copy against the sizes and SHA-256 checksums in its manifest. This is the first part of
+   `app:backup:verify`, and it needs `php` but no database. With `--delete-from-server` it also checks every
+   backup that is still on the server, including one copied in an earlier run.
+3. Only if all these checks pass does it delete anything. With `--delete-from-server` it first deletes those
+   backups on the server.
+4. Then it deletes local copies older than `--retention-days` (default 90) and, with `--keep N`, all but the newest
+   N copies. The newest local copy always stays.
+
+```bash
+bin/ops/pull-backups.sh --from <user>@<host>:backups --to ~/Backups/ivena-stats --delete-from-server --dry-run
+bin/ops/pull-backups.sh --from <user>@<host>:backups --to ~/Backups/ivena-stats --delete-from-server
+bin/ops/pull-backups.sh --from <user>@<host>:backups --to ~/Backups/ivena-stats --keep 4   # at most four local copies
+```
+
+Write the server path relative to the home directory (`backups`) or absolute, not with `~`.
+
+On macOS, a `launchd` job can run it weekly, a few hours after the server backup. If the machine sleeps at that
+time, `launchd` runs the job when it wakes. The repository does not install this job. Save the following as
+`~/Library/LaunchAgents/io.versorgungsforschung.pull-backups.plist`, adjust the paths, then run
+`launchctl load ~/Library/LaunchAgents/io.versorgungsforschung.pull-backups.plist`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>io.versorgungsforschung.pull-backups</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/path/to/collaborative-ivena-statistics/bin/ops/pull-backups.sh</string>
+        <string>--from</string>
+        <string>user@host:backups</string>
+        <string>--to</string>
+        <string>/Users/you/Backups/ivena-stats</string>
+        <string>--delete-from-server</string>
+    </array>
+    <!-- Wednesdays 09:00 local time, after the server backup at 03:00 UTC -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Weekday</key>
+        <integer>3</integer>
+        <key>Hour</key>
+        <integer>9</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>/Users/you/Backups/ivena-stats/pull.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/you/Backups/ivena-stats/pull.log</string>
+</dict>
+</plist>
+```
+
+The SSH key for the server must work without a prompt (an agent or a key without a passphrase that is limited to
+this host). Check `pull.log` from time to time, or after a failed run, which `launchd` does not report.
 
 ## Restore runbook
 
