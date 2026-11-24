@@ -12,7 +12,7 @@ cd <deploy_path>/current
 
 Commands that write data preview by default. Run them without `--apply` first, read the output, then apply. A command that finds nothing to do can be skipped.
 
-## v0.2.4-beta → v0.3-beta
+## v0.2.5-beta → v0.3-beta
 
 Media files move from `public/uploads/media` into the media storage `var/media` (#489,
 [ADR 039](../02-architecture/decisions/039-managed-media-storage.md)). The deploy moves them itself; one command
@@ -66,6 +66,41 @@ Media items whose file was already missing before the deploy stay outside the st
 
 Open a page and a blog post with images: the images load from `/media/…`. An old link `/uploads/media/<file>`
 redirects to the new URL.
+
+## v0.2.4-beta → v0.2.5-beta
+
+Security hotfix: symfony/ux-icons and symfony/ux-live-component 3.8.1 for the advisories of 2026-11-24. No configuration changes, no migrations and no one-time commands.
+
+### Before the deploy
+
+**Back up** the database and files ([backup-restore.md](backup-restore.md)).
+
+### Deploy
+
+Deploy as usual.
+
+### Check
+
+- `GET /health` reports `ok` and the footer shows `v0.2.5-beta`.
+- The icons in the navigation show.
+- The selection forms of the Analysis Explorer and of Benchmarking update after a change.
+
+## v0.2.3-beta → v0.2.4-beta
+
+Security hotfix: EasyAdmin 5.10.2 for the advisories of 2026-11-17. No configuration changes, no migrations and no one-time commands. The admin backend has EasyAdmin's refreshed design from 5.9.
+
+### Before the deploy
+
+**Back up** the database and files ([backup-restore.md](backup-restore.md)).
+
+### Deploy
+
+Deploy as usual. The deploy installs the new EasyAdmin assets into `public/bundles`.
+
+### Check
+
+- `GET /health` reports `ok` and the footer shows `v0.2.4-beta`.
+- `/admin` and `/admin/user` open for an administrator.
 
 ## v0.2.2-beta → v0.2.3-beta
 

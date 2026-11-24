@@ -54,13 +54,14 @@ final readonly class RequireTwoFactorListener
 
     public function __invoke(RequestEvent $event): void
     {
-        // Reading the token starts the session and makes the response private (e.g. public media files), so it is read
-        // only when the obligation is on and the visitor already has a session.
-        if (!$event->isMainRequest() || !$this->availability->isRequiredForAdmins() || !$event->getRequest()->hasPreviousSession()) {
+        $request = $event->getRequest();
+        // Reading the token starts the session and makes the response private, so it is read only when the obligation
+        // is on, the visitor already has a session and the route is not stateless (public media files, #1570).
+        if (!$event->isMainRequest() || !$this->availability->isRequiredForAdmins() || !$request->hasPreviousSession()
+            || true === $request->attributes->get('_stateless')) {
             return;
         }
 
-        $request = $event->getRequest();
         $route = $request->attributes->get('_route');
         // Profiler, error pages and other internal routes start with an underscore.
         if (!\is_string($route) || \in_array($route, self::ALLOWED_ROUTES, true) || str_starts_with($route, '_')) {
