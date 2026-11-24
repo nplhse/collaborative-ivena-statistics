@@ -4,7 +4,8 @@
 
 `<twig:Content:PageNavigation />` lists the published pages a viewer may open, as the full tree or as the
 subtree below one page (#965). It replaces the former page tree partial in the page sidebar and on the
-signed-in dashboard.
+signed-in dashboard. The help sidebar (#1582) and the blog sidebar (#1584) show it as well, so editorial pages stay
+reachable from there.
 
 | Part | Where |
 |---|---|
@@ -47,7 +48,7 @@ false). Callers do not need an empty check.
 ### Examples
 
 ```twig
-{# Full tree, as in the page sidebar and on the dashboard #}
+{# Full tree, as in the page, help and blog sidebars and on the dashboard #}
 <twig:Content:PageNavigation />
 
 {# Section below a known page, heading is the page title #}
