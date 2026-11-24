@@ -17,7 +17,7 @@ Existing installations: no extra steps, see the [upgrade guide](docs/05-operatio
 
 ### Dependencies
 
-- **deps:** Update twig/twig and twig/html-extra to 3.31.1 for the security advisories of 2026-11-23 and 2026-11-24
+- **deps:** Update twig/twig and twig/html-extra to 3.31.1 for the security advisories of 2026-11-23 and 2026-11-24 ([#1598](https://github.com/nplhse/collaborative-ivena-statistics/pull/1598))
 
 ## [0.2.5-beta] - 2026-11-24
 
