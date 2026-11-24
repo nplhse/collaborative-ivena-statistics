@@ -107,6 +107,28 @@ Details and the single check targets: [development-workflow.md](docs/03-developm
 - One logical change per commit; the pull request title summarises the whole change in the same
   format.
 
+## Classifying issues and pull requests
+
+Set the classification when you create an issue or a pull request, so nobody has to add it by hand.
+Look the values up instead of guessing (`gh label list`, `gh api repos/{owner}/{repo}/milestones`,
+`gh project list --owner <owner>`); use only values that exist.
+
+- **Issues:**
+  - **Type:** `Task`, `Bug` or `Feature`. `gh issue create` has no flag for it; set it afterwards with
+    the GraphQL mutation `updateIssue` (`issueTypeId`, ids from `repository { issueTypes }`).
+  - **Labels:** one kind label (`bug`, `enhancement`, `documentation`, `refactoring`, …) and the
+    `area: …` label of the affected context. Add `statistics-impact` when the change can alter a number
+    shown to users, and `security` for security fixes.
+  - **Milestone:** the one the work is meant for. If that is unclear, propose one and ask.
+  - **Project:** add the issue to the project *Collaborative IVENA statistics*, the only one in use.
+  - **Assignee:** assign a person only when the conversation makes clear who does the work; usually the
+    maintainer. Leave it empty otherwise.
+- **Pull requests:** copy labels, milestone, project and assignee from the linked issue(s)
+  (`gh pr create --label … --milestone … --project … --assignee …`). With several issues, combine the
+  labels; if their milestones differ, ask. Pull requests have no type. Without a linked issue, classify
+  the pull request like an issue.
+- Say in your report what you set.
+
 ## Branches and releases
 
 The project follows Gitflow with `main` as the default branch (ADR 024). Steps and checklists:
