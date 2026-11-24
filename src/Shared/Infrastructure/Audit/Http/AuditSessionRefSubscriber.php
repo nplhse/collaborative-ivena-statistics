@@ -73,8 +73,9 @@ final readonly class AuditSessionRefSubscriber
         }
 
         $request = $event->getRequest();
-        // Never start a session for anonymous visitors.
-        if (!$request->hasPreviousSession()) {
+        // Never start a session for anonymous visitors. Stateless routes (media files) must not touch the session
+        // either, even with a session cookie (#1570): reading the user would load the token from it.
+        if (!$request->hasPreviousSession() || true === $request->attributes->get('_stateless')) {
             return;
         }
 
