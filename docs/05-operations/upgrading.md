@@ -12,6 +12,23 @@ cd <deploy_path>/current
 
 Commands that write data preview by default. Run them without `--apply` first, read the output, then apply. A command that finds nothing to do can be skipped.
 
+## v0.2.5-beta → v0.2.6-beta
+
+Security hotfix: twig/twig and twig/html-extra 3.31.1 for the advisories of 2026-11-23 and 2026-11-24. No configuration changes, no migrations and no one-time commands.
+
+### Before the deploy
+
+**Back up** the database and files ([backup-restore.md](backup-restore.md)).
+
+### Deploy
+
+Deploy as usual.
+
+### Check
+
+- `GET /health` reports `ok` and the footer shows `v0.2.6-beta`.
+- The start page, a blog post and the statistics overview open without errors.
+
 ## v0.2.4-beta → v0.2.5-beta
 
 Security hotfix: symfony/ux-icons and symfony/ux-live-component 3.8.1 for the advisories of 2026-11-24. No configuration changes, no migrations and no one-time commands.
