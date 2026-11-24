@@ -34,9 +34,9 @@
                             <div class="card-header">
                                 <h2 class="card-title">{{ 'help.search.results'|trans({count: hits|length, query: help_query}, 'content') }}</h2>
                             </div>
-                            <div class="list-group list-group-flush">
+                            <div class="list-group list-group-flush" data-controller="help-search-results">
                                 {% for hit in hits %}
-                                    <a class="list-group-item list-group-item-action" href="{{ path('app_page_show', {path: hit.path|trim('/')}) }}" data-testid="help-search-hit">
+                                    <a class="list-group-item list-group-item-action help-search-hit" id="help-search-hit-{{ hit.pageId }}" data-help-search-results-target="hit" href="{{ path('app_page_show', {path: hit.path|trim('/'), q: help_query}) }}" data-testid="help-search-hit">
                                         <div class="fw-medium">{{ hit.title }}</div>
                                         {% if hit.summary %}
                                             <div class="text-secondary small help-search-summary">{{ hit.summary }}</div>
