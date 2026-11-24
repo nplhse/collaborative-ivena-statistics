@@ -67,6 +67,13 @@ Characters other than letters and digits are dropped, so the terms cannot carry 
 The help holds tens to a few hundred articles, so the search builds its vectors per query; an index can follow when
 it grows.
 
+A hit links its article with the search as `?q=…` (#1590). On a help article with `q`, a bar above the text names the
+search, links back to the result list at that hit (`/help/search?q=…#help-search-hit-<page id>`; the controller
+`help-search-results` marks that hit, as Turbo does not set `:target`) and removes the marks. The Stimulus controller `help-search-terms` marks the words in the article text
+the same way the search matches them (letters and digits, case-insensitive, as the start of a word) and scrolls to the
+first one; words found only through German stemming stay unmarked. Other pages ignore `q`. Page views store only the
+path, not the search.
+
 ## Was this article helpful?
 
 Only signed-in users answer; visitors do not see the question. The question loads after the article in a Turbo Frame

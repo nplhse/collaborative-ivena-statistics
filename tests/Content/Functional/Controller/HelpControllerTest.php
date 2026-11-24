@@ -138,7 +138,8 @@ final class HelpControllerTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, '/help/search?q=plausib');
 
         self::assertResponseIsSuccessful();
-        self::assertSame(['/help/importing/rejected-rows'], $crawler->filter('[data-testid="help-search-hit"]')->each(static fn (Crawler $hit): string => (string) $hit->attr('href')));
+        self::assertSame(['/help/importing/rejected-rows?q=plausib'], $crawler->filter('[data-testid="help-search-hit"]')->each(static fn (Crawler $hit): string => (string) $hit->attr('href')), 'the hit carries the search terms to the article');
+        self::assertSame('help-search-hit-'.$this->rejects->getId(), $crawler->filter('[data-testid="help-search-hit"]')->attr('id'), 'the article links back to this anchor');
         self::assertSelectorTextContains('[data-testid="help-search-hit"]', 'Rejected rows');
         self::assertSame('plausib', $crawler->filter('[data-testid="help-search"] input[name="q"]')->attr('value'));
 
@@ -148,6 +149,41 @@ final class HelpControllerTest extends WebTestCase
         $client->loginUser(UserFactory::createOne());
         $crawler = $client->request(Request::METHOD_GET, '/help/search?q=members');
         self::assertCount(1, $crawler->filter('[data-testid="help-search-hit"]'));
+    }
+
+    public function testArticleOpenedFromTheSearchShowsTheTermsAndLinksBackToTheHit(): void
+    {
+        $client = self::createClient();
+        $this->fixture();
+
+        $crawler = $client->request(Request::METHOD_GET, '/help/importing/rejected-rows?q='.rawurlencode(' plausib check '));
+
+        self::assertResponseIsSuccessful();
+        self::assertSame('plausib check', $crawler->filter('[data-controller="help-search-terms"]')->attr('data-help-search-terms-terms-value'));
+        self::assertCount(1, $crawler->filter('[data-help-search-terms-target="content"]'));
+        self::assertSelectorTextContains('[data-testid="help-search-terms-bar"]', 'plausib check');
+        self::assertSame(
+            '/help/search?q=plausib%20check#help-search-hit-'.$this->rejects->getId(),
+            $crawler->filter('[data-testid="help-search-terms-back"]')->attr('href'),
+        );
+        self::assertSame('/help/importing/rejected-rows', $crawler->filter('[data-testid="help-search-terms-clear"]')->attr('href'), 'without JavaScript the link opens the article without terms');
+    }
+
+    public function testTermsBarOnlyAppearsOnHelpArticlesWithSearchTerms(): void
+    {
+        $client = self::createClient();
+        $this->fixture();
+
+        $crawler = $client->request(Request::METHOD_GET, '/help/importing/rejected-rows');
+        self::assertResponseIsSuccessful();
+        self::assertCount(0, $crawler->filter('[data-testid="help-search-terms-bar"], [data-controller="help-search-terms"]'), 'no search, no bar');
+
+        $crawler = $client->request(Request::METHOD_GET, '/help/importing/rejected-rows?q=%20%20');
+        self::assertCount(0, $crawler->filter('[data-testid="help-search-terms-bar"]'), 'blank terms');
+
+        $crawler = $client->request(Request::METHOD_GET, '/guide?q=guide');
+        self::assertResponseIsSuccessful();
+        self::assertCount(0, $crawler->filter('[data-testid="help-search-terms-bar"]'), 'ordinary pages ignore the parameter');
     }
 
     public function testSearchWithoutHelpSectionIsNotFound(): void
