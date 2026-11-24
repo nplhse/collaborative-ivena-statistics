@@ -19,6 +19,12 @@ security:
             pattern: ^/data-prep/
             stateless: true
             security: false
+        # Media files (ADR 039) are public and served without a session: no authenticator may read the token, not even
+        # the remember-me authenticator when its cookie is sent (#1595). Restricted media (#580) need access control here.
+        media:
+            pattern: ^/(media|uploads/media)/
+            stateless: true
+            security: false
         main:
             lazy: true
             provider: app_user_provider

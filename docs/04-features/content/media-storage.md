@@ -37,10 +37,12 @@ media item with an existing file. `MediaPublicUrlResolver` builds the URL of a m
 old file name back from a URL found in content; the snippets of the media library and the page image analysis
 (`app:content:analyze-page-images`) use it for both URL forms.
 
-Stateless also applies when the browser sends a session cookie, as it does for every signed-in user. A request
-listener that reads the user, the token or the session therefore skips requests with the `_stateless` attribute, as
-the audit session reference and the two-factor obligation do (#1570). Otherwise Symfony throws in debug mode, and in
-production the file loses its public caching.
+Stateless also applies when the browser sends a session cookie, as it does for every signed-in user. Both paths have
+their own firewall `media` (`stateless: true`, `security: false`) before `main`, so no authenticator reads the token;
+the remember-me authenticator would otherwise read it from the session whenever its cookie is sent (#1595). A request
+listener that reads the user, the token or the session also skips requests with the `_stateless` attribute, as the
+audit session reference and the two-factor obligation do (#1570). Otherwise Symfony throws in debug mode, and in
+production the file loses its public caching. Restricted media (#580) will need access control on these paths again.
 
 ## Moving files from `public/uploads/media` (v0.3)
 
