@@ -72,6 +72,11 @@ Set up the automatic backups, which start with this release (#1568,
    `launchd` job for the off-site copy ([off-site copy](backup-restore.md#off-site-copy)). From then on the server
    holds only the newest backup until it is copied.
 
+New registrations store their acceptance of the terms of use from now on (#1564,
+[ADR 043](../02-architecture/decisions/043-terms-of-use-version-by-configuration.md)). Leave `app.terms.version` empty
+for this release. Once the revised terms are published on the terms page, set `version` and `published_at` in
+`config/packages/app.yaml` and deploy; everyone is then asked to accept at the next login.
+
 ### Check
 
 ```bash

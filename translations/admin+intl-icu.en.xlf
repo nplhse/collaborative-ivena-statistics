@@ -3321,6 +3321,30 @@
         <source>admin.user.action.reset_two_factor.confirm</source>
         <target>Reset two-factor authentication of {username}? The account then signs in without a code and gets an email about it.</target>
       </trans-unit>
+      <trans-unit id="adminTermsAcceptance00" resname="admin.user.field.terms_acceptance">
+        <source>admin.user.field.terms_acceptance</source>
+        <target>Terms of use</target>
+      </trans-unit>
+      <trans-unit id="adminTermsAcceptance01" resname="admin.terms_acceptance.none">
+        <source>admin.terms_acceptance.none</source>
+        <target>No acceptance stored</target>
+      </trans-unit>
+      <trans-unit id="adminTermsAcceptance02" resname="admin.terms_acceptance.accepted">
+        <source>admin.terms_acceptance.accepted</source>
+        <target>Version {version} on {date}</target>
+      </trans-unit>
+      <trans-unit id="adminTermsAcceptance05" resname="admin.terms_acceptance.accepted_without_version">
+        <source>admin.terms_acceptance.accepted_without_version</source>
+        <target>Without version on {date}</target>
+      </trans-unit>
+      <trans-unit id="adminTermsAcceptance03" resname="admin.terms_acceptance.not_current">
+        <source>admin.terms_acceptance.not_current</source>
+        <target>not the current version</target>
+      </trans-unit>
+      <trans-unit id="adminTermsAcceptance04" resname="admin.terms_acceptance.current_summary">
+        <source>admin.terms_acceptance.current_summary</source>
+        <target>Accepted the current version {version}: {accepted} of {total}</target>
+      </trans-unit>
       <trans-unit id="adminUserTwoFactor03" resname="flash.admin.user.two_factor_reset.done">
         <source>flash.admin.user.two_factor_reset.done</source>
         <target>Two-factor authentication of {username} was reset.</target>
