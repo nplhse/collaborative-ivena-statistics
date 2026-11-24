@@ -134,7 +134,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 |---|---|
 | `app:content:analyze-page-images` | Analyze CMS page images; optional dimension backfill and layout migration. Runs on deploy via Deployer. |
 | `app:media:migrate-storage` | Move media files that are still in the old upload directory into the media storage, verified by SHA-256 (`--dry-run`, `--legacy-dir`). Runs on every deploy via Deployer; does nothing once every file has moved. Exit code `1` only when a copy failed. See [../04-features/content/media-storage.md](../04-features/content/media-storage.md). |
-| `app:media:rewrite-content-urls` | Replace old `/uploads/media/…` URLs in posts and pages with the URLs of the moved media. Previews by default; `--apply` writes. Run once after the v0.3 deploy ([upgrading](../05-operations/upgrading.md#v025-beta--v03-beta)). |
+| `app:media:rewrite-content-urls` | Replace old `/uploads/media/…` URLs in posts and pages with the URLs of the moved media. Previews by default; `--apply` writes. Run once after the v0.3 deploy ([upgrading](../05-operations/upgrading.md#v026-beta--v03-beta)). |
 | `app:media:check` | Check the media files against the media library (existence, size, rolling SHA-256; `--full` hashes all) and delete files no media item refers to after 24 hours (`--dry-run` only reports). Exit code `1` when files are missing or damaged. The scheduler runs it daily. |
 
 ### User

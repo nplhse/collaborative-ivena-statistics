@@ -12,7 +12,7 @@ cd <deploy_path>/current
 
 Commands that write data preview by default. Run them without `--apply` first, read the output, then apply. A command that finds nothing to do can be skipped.
 
-## v0.2.5-beta → v0.3-beta
+## v0.2.6-beta → v0.3-beta
 
 Media files move from `public/uploads/media` into the media storage `var/media` (#489,
 [ADR 039](../02-architecture/decisions/039-managed-media-storage.md)). The deploy moves them itself; one command
@@ -79,6 +79,23 @@ redirects to the new URL.
 
 The `two_factor` health check reports `ok` (not `disabled`), and every administrator has two-factor authentication
 switched on (user list in the admin).
+
+## v0.2.5-beta → v0.2.6-beta
+
+Security hotfix: twig/twig and twig/html-extra 3.31.1 for the advisories of 2026-11-23 and 2026-11-24. No configuration changes, no migrations and no one-time commands.
+
+### Before the deploy
+
+**Back up** the database and files ([backup-restore.md](backup-restore.md)).
+
+### Deploy
+
+Deploy as usual.
+
+### Check
+
+- `GET /health` reports `ok` and the footer shows `v0.2.6-beta`.
+- The start page, a blog post and the statistics overview open without errors.
 
 ## v0.2.4-beta → v0.2.5-beta
 
