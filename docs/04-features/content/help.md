@@ -16,6 +16,7 @@ translations, the block editor, drafts and the audit log:
 | Help start page | a page with the key `help` (`PageKey::Help`) and type `page` |
 | Help article | a page with type `help` (`PageType::Help`) below the start page or another article |
 | Help key | optional, unique `page.help_key`, e.g. `import.rejects`, for links from the application |
+| Icon | optional `page.icon`, e.g. `tabler:file-import` (#1590): shown on the topic cards of the start page and on subpage cards like the icons of the card block; checked against the icon set when saving (`KnownIcon`) |
 | Search text | `page_translation.search_text`: plain text of the saved content (`PageContentText`), set whenever the content is saved; drafts are not searched |
 | Answers | `help_feedback`: one helpful / not helpful answer per signed-in user and article |
 
@@ -29,10 +30,10 @@ a page with that path would be hidden behind it. The same holds for `/help/gloss
 ## Pages
 
 - **Start page:** any blocks plus two help blocks without settings: *Help search* (`help_search`, the large search
-  field) and *Help topics* (`help_topics`, one card per main topic with its short description and first five
-  articles). The *Cards* block suits entry points such as "Where to start" ([page-translations.md](page-translations.md#blocks)).
-- **Topic:** an article with subpages lists them as cards below its text: title, short description and reading time
-  (#1578). Placing the *Subpages* block in the content moves the cards there instead, for example to number them as
+  field) and *Help topics* (`help_topics`, one card per main topic with its icon, short description and first
+  five articles). The *Cards* block suits entry points such as "Where to start" ([page-translations.md](page-translations.md#blocks)).
+- **Topic:** an article with subpages lists them as cards below its text: icon, title, short description and reading
+  time (#1578, #1590). Placing the *Subpages* block in the content moves the cards there instead, for example to number them as
   steps.
 - **Article:** the page template with the help sidebar: search, *On this page* (always shown for help pages, built by
   `PageTableOfContentsBuilder` from the headings) and the help tree (`<twig:Content:PageNavigation>` below the start page,

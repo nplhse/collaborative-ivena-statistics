@@ -1333,6 +1333,14 @@
         <source>label.help_key_help</source>
         <target>Optional stable name for links from the application, e.g. import.rejects. Lowercase letters, digits, dots and hyphens.</target>
       </trans-unit>
+      <trans-unit id="label_page_icon" resname="label.page_icon">
+        <source>label.page_icon</source>
+        <target>Icon</target>
+      </trans-unit>
+      <trans-unit id="label_page_icon_help" resname="label.page_icon_help">
+        <source>label.page_icon_help</source>
+        <target>Optional Tabler icon for topic and subpage cards, e.g. tabler:upload.</target>
+      </trans-unit>
       <trans-unit id="help_label_help_feedback" resname="label.help_feedback">
         <source>label.help_feedback</source>
         <target>Helpful?</target>

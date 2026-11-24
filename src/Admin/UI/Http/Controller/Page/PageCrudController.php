@@ -23,6 +23,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
@@ -107,6 +108,10 @@ final class PageCrudController extends AbstractCrudController
             ->allowMultipleChoices(false)
             ->setFormTypeOption('placeholder', '—');
         yield AssociationField::new('parent', 'label.parent_page')->autocomplete();
+        yield TextField::new('icon', new TranslatableMessage('label.page_icon', domain: 'content'))
+            ->setRequired(false)
+            ->hideOnIndex()
+            ->setHelp(new TranslatableMessage('label.page_icon_help', domain: 'content'));
         yield ChoiceField::new('visibility', 'label.visibility')
             ->setChoices([
                 'label.public' => Page::VISIBILITY_PUBLIC,

@@ -965,6 +965,10 @@
         <source>page.validation.cards_unknown_icon</source>
         <target>Das Symbol „{icon}“ gibt es nicht.</target>
       </trans-unit>
+      <trans-unit id="cms1590iconde" resname="page.validation.icon_format">
+        <source>page.validation.icon_format</source>
+        <target>Geben Sie ein Symbol wie tabler:upload an.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

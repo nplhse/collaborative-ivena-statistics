@@ -13,6 +13,11 @@
                                 <span class="badge bg-primary-lt">{{ 'page.child_pages.step'|trans({number: loop.index}, 'content') }}</span>
                             </div>
                         {% endif %}
+                        {% if node.icon %}
+                            <span class="avatar bg-primary-lt mb-3" aria-hidden="true" data-testid="page-child-card-icon">
+                                <twig:ux:icon name="{{ node.icon }}" class="w-4 h-4" />
+                            </span>
+                        {% endif %}
                         <h3 class="card-title mb-1">{{ node.title }}</h3>
                         {% if node.summary %}
                             <p class="text-secondary mb-0">{{ node.summary }}</p>

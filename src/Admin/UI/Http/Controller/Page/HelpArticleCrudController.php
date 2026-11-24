@@ -120,6 +120,10 @@ final class HelpArticleCrudController extends AbstractCrudController
         yield TextField::new('helpKey', new TranslatableMessage('label.help_key', domain: 'content'))
             ->setRequired(false)
             ->setHelp(new TranslatableMessage('label.help_key_help', domain: 'content'));
+        yield TextField::new('icon', new TranslatableMessage('label.page_icon', domain: 'content'))
+            ->setRequired(false)
+            ->hideOnIndex()
+            ->setHelp(new TranslatableMessage('label.page_icon_help', domain: 'content'));
         yield ChoiceField::new('visibility', 'label.visibility')
             ->setChoices([
                 'label.public' => Page::VISIBILITY_PUBLIC,
