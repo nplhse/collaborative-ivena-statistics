@@ -1489,6 +1489,78 @@
         <source>flash.admin.post.invalid_token</source>
         <target>The request has expired. Please try again.</target>
       </trans-unit>
+      <trans-unit id="cms1578c01en" resname="label.block_type.cards">
+        <source>label.block_type.cards</source>
+        <target>Cards</target>
+      </trans-unit>
+      <trans-unit id="cms1578c02en" resname="label.block_type.child_pages">
+        <source>label.block_type.child_pages</source>
+        <target>Subpages</target>
+      </trans-unit>
+      <trans-unit id="cms1578c03en" resname="label.cards_items">
+        <source>label.cards_items</source>
+        <target>Cards</target>
+      </trans-unit>
+      <trans-unit id="cms1578c04en" resname="help.page.cards_items">
+        <source>help.page.cards_items</source>
+        <target>One to four cards side by side.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c05en" resname="label.child_pages_numbered">
+        <source>label.child_pages_numbered</source>
+        <target>Number as steps</target>
+      </trans-unit>
+      <trans-unit id="cms1578c06en" resname="help.page.child_pages_numbered">
+        <source>help.page.child_pages_numbered</source>
+        <target>Shows “Step 1”, “Step 2” and so on for subpages that describe a sequence.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c07en" resname="label.card_icon">
+        <source>label.card_icon</source>
+        <target>Icon</target>
+      </trans-unit>
+      <trans-unit id="cms1578c08en" resname="label.card_title">
+        <source>label.card_title</source>
+        <target>Title</target>
+      </trans-unit>
+      <trans-unit id="cms1578c09en" resname="label.card_link_url">
+        <source>label.card_link_url</source>
+        <target>Link</target>
+      </trans-unit>
+      <trans-unit id="cms1578c10en" resname="help.page.card_link_url">
+        <source>help.page.card_link_url</source>
+        <target>Path on this site, e.g. /help/getting-started, or an https address.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c11en" resname="label.card_link_label">
+        <source>label.card_link_label</source>
+        <target>Link text</target>
+      </trans-unit>
+      <trans-unit id="cms1578c12en" resname="help.page.card_link_label">
+        <source>help.page.card_link_label</source>
+        <target>Without a text the link reads “Read more”.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c13en" resname="label.summary">
+        <source>label.summary</source>
+        <target>Short description</target>
+      </trans-unit>
+      <trans-unit id="cms1578c14en" resname="help.page.summary">
+        <source>help.page.summary</source>
+        <target>One sentence about the page. It appears on subpage cards, in the help topics, in the help search and as description for search engines.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c15en" resname="page.child_pages.step">
+        <source>page.child_pages.step</source>
+        <target>Step {number}</target>
+      </trans-unit>
+      <trans-unit id="cms1578c16en" resname="page.child_pages.reading_time">
+        <source>page.child_pages.reading_time</source>
+        <target>{minutes, plural, one {# minute} other {# minutes}} read</target>
+      </trans-unit>
+      <trans-unit id="cms1578c17en" resname="page.child_pages.read">
+        <source>page.child_pages.read</source>
+        <target>Read</target>
+      </trans-unit>
+      <trans-unit id="cms1578c18en" resname="page.cards.read_more">
+        <source>page.cards.read_more</source>
+        <target>Read more</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

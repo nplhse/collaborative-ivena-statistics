@@ -86,4 +86,9 @@ final class PageExtensionTest extends KernelTestCase
 
         self::assertStringContainsString('page-content-image--size-auto', $html);
     }
+
+    public function testPageChildrenIsEmptyOutsideAPageView(): void
+    {
+        self::assertSame('0', $this->twig->createTemplate('{{ page_children()|length }}')->render());
+    }
 }

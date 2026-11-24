@@ -6,6 +6,7 @@ Multilingual static pages in the Content bounded context. Architecture decision:
 
 - **Page** — shared identity, hierarchy, `PageKey`, visibility, sort order
 - **PageTranslation** — locale-specific `title`, `slug`, `path`, `content` (block JSON), publication `status`
+  and an optional short description `summary` (one sentence, at most 300 characters, #1578)
 
 URLs remain `/{path}` (no locale prefix). Paths are unique across all locales.
 
@@ -23,6 +24,25 @@ Independent of Symfony UI `default_locale`.
 2. Open page detail → manage **translations** per locale (edit or add)
 3. Edit content in **Page translation** CRUD (reuses the existing block editor)
 4. On translation **detail**, use the relations panel for links to the parent page and sibling locales (edit / create missing)
+
+## Short description
+
+The short description (`summary`) is edited with the title, outside the draft. It is shown on the subpage cards and the
+help topic cards, in the help search instead of the text excerpt, and as the page's `<meta name="description">`.
+Subpage cards also show an estimated reading time, from the words of the saved content at 200 words per minute
+(`PageTranslation::getReadingMinutes()`).
+
+## Blocks
+
+| Block | Content |
+|---|---|
+| Rich text, image, call to action, quote, headline, highlight, accordion | editorial content |
+| Cards (`cards`, #1578) | one to four cards, each with an optional icon (`tabler:…`), title, short rich text and an optional link (a path on this site, an anchor or an http(s) address; label defaults to "Read more") |
+| Subpages (`child_pages`, #1578) | cards for the visible subpages of the page with title, short description and reading time; optionally numbered as steps |
+| Help search, help topics | see [help.md](help.md) |
+
+The admin checks card icons against the icon set when saving, because an unknown icon would fail when the page is
+shown. Rich text in cards and accordion items passes the same sanitizer as rich-text blocks.
 
 ## Block editor
 

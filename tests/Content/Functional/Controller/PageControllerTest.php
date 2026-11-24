@@ -11,6 +11,7 @@ use App\Content\Infrastructure\Factory\PageTranslationFactory;
 use App\Shared\Application\Locale\SupportedLocales;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -147,6 +148,43 @@ final class PageControllerTest extends WebTestCase
         self::assertSelectorExists('.page-content-image--size-md');
         self::assertSelectorExists('.page-content-image--float-left');
         self::assertSelectorExists('.page-content-accordion .accordion-button');
+    }
+
+    public function testCardBlockAndNumberedSubpagesBlock(): void
+    {
+        $client = self::createClient();
+
+        $guide = PageFactory::createOne([
+            'title' => 'Guide',
+            'slug' => 'guide',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'content' => [
+                ['type' => 'cards', 'data' => ['items' => [
+                    ['icon' => 'tabler:user', 'title' => 'Hospital staff', 'html' => '<p>Start with your account.</p>', 'linkUrl' => '/guide/account', 'linkLabel' => 'Create an account'],
+                    ['title' => 'Researchers', 'html' => '<p>Read about the data.</p>', 'linkUrl' => '/guide/data'],
+                    ['title' => 'Everyone', 'html' => '<p>No link here.</p>'],
+                ]]],
+                ['type' => 'child_pages', 'data' => ['numbered' => true]],
+            ],
+        ]);
+        PageFactory::createOne(['title' => 'Account', 'slug' => 'account', 'path' => '/guide/account', 'parent' => $guide, 'sortOrder' => 0, 'status' => PageTranslation::STATUS_PUBLISHED, 'summary' => 'Register first.']);
+        PageFactory::createOne(['title' => 'Data', 'slug' => 'data', 'path' => '/guide/data', 'parent' => $guide, 'sortOrder' => 1, 'status' => PageTranslation::STATUS_PUBLISHED]);
+        PageFactory::createOne(['title' => 'Members', 'slug' => 'members', 'path' => '/guide/members', 'parent' => $guide, 'sortOrder' => 2, 'status' => PageTranslation::STATUS_PUBLISHED, 'visibility' => Page::VISIBILITY_AUTHENTICATED]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/guide');
+
+        self::assertResponseIsSuccessful();
+        $cards = $crawler->filter('[data-testid="page-content-card"]');
+        self::assertSame(['Hospital staff', 'Researchers', 'Everyone'], $cards->filter('.card-title')->each(static fn (Crawler $title): string => trim($title->text())));
+        self::assertCount(1, $cards->first()->filter('.avatar svg'), 'icon');
+        self::assertSame(['Create an account →', 'Read more →'], $cards->filter('a')->each(static fn (Crawler $link): string => trim($link->text())));
+        self::assertCount(3, $crawler->filter('[data-testid="page-content-cards"] .col-md-4'));
+
+        $children = $crawler->filter('[data-testid="page-child-card"]');
+        self::assertSame(['Account', 'Data'], $children->filter('.card-title')->each(static fn (Crawler $title): string => trim($title->text())), 'pages for signed-in users stay hidden');
+        self::assertSame(['Step 1', 'Step 2'], $children->filter('.badge')->each(static fn (Crawler $badge): string => trim($badge->text())));
+        self::assertStringContainsString('Register first.', $children->first()->text());
     }
 
     public function testImageBlockWithAutoSizeRendersNaturalWidthClass(): void

@@ -67,6 +67,51 @@ final class PageTranslationEditorControllerTest extends WebTestCase
         self::assertSame('Renamed intro', $this->reloadTranslation($translation)->getContent()[0]['data']['text'] ?? null);
     }
 
+    public function testSummaryCardsAndHelpBlocksAreSaved(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createTranslation([
+            ['type' => 'help_search', 'enabled' => true, 'data' => []],
+            ['type' => 'help_topics', 'enabled' => true, 'data' => []],
+            ['type' => 'cards', 'enabled' => true, 'data' => ['items' => [
+                ['icon' => 'tabler:user', 'title' => 'Staff', 'html' => '<p>Start</p>', 'linkUrl' => '/help', 'linkLabel' => ''],
+            ]]],
+            ['type' => 'child_pages', 'enabled' => true, 'data' => ['numbered' => true]],
+        ]);
+
+        $crawler = $this->openEditor($client, $translation);
+        $form = $crawler->selectButton('Save changes')->form();
+        $form['PageTranslation[summary]'] = '  Where to start.  ';
+        $form['PageTranslation[content][2][data][items][0][title]'] = 'Hospital staff';
+        $client->submit($form);
+
+        self::assertResponseRedirects();
+        $saved = $this->reloadTranslation($translation);
+        self::assertSame('Where to start.', $saved->getSummary());
+        self::assertSame(['help_search', 'help_topics', 'cards', 'child_pages'], array_column($saved->getContent(), 'type'));
+        self::assertSame('Hospital staff', $saved->getContent()[2]['data']['items'][0]['title'] ?? null);
+        self::assertTrue($saved->getContent()[3]['data']['numbered'] ?? null);
+    }
+
+    public function testUnknownCardIconIsReportedAtTheBlock(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createTranslation([
+            ['type' => 'cards', 'enabled' => true, 'data' => ['items' => [
+                ['icon' => 'tabler:user', 'title' => 'Staff', 'html' => '<p>Start</p>'],
+            ]]],
+        ]);
+
+        $crawler = $this->openEditor($client, $translation);
+        $form = $crawler->selectButton('Save changes')->form();
+        $form['PageTranslation[content][0][data][items][0][icon]'] = 'tabler:does-not-exist-anywhere';
+        $client->submit($form);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('body', 'The icon “tabler:does-not-exist-anywhere” does not exist.');
+        self::assertSame('tabler:user', $this->reloadTranslation($translation)->getContent()[0]['data']['items'][0]['icon'] ?? null);
+    }
+
     public function testNewBlockPrototypeIsEnabledRichText(): void
     {
         $client = $this->createAdminClient();
@@ -143,7 +188,7 @@ final class PageTranslationEditorControllerTest extends WebTestCase
         $templates = $crawler->filter('[data-page-block-type-templates] template');
 
         self::assertSame(
-            ['richtext', 'image', 'cta', 'quote', 'headline', 'highlight', 'accordion', 'help_search', 'help_topics'],
+            ['richtext', 'image', 'cta', 'quote', 'headline', 'highlight', 'accordion', 'help_search', 'help_topics', 'cards', 'child_pages'],
             $templates->each(static fn (Crawler $template): string => (string) $template->attr('data-block-type')),
         );
         self::assertStringContainsString(

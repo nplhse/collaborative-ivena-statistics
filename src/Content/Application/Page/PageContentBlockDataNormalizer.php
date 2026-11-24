@@ -27,7 +27,12 @@ final readonly class PageContentBlockDataNormalizer
         PageContentBlockType::Accordion->value => ['items'],
         PageContentBlockType::HelpSearch->value => [],
         PageContentBlockType::HelpTopics->value => [],
+        PageContentBlockType::Cards->value => ['items'],
+        PageContentBlockType::ChildPages->value => ['numbered'],
     ];
+
+    /** @var list<string> */
+    private const array CARD_ITEM_TEXT_FIELDS = ['icon', 'title', 'html', 'linkUrl', 'linkLabel'];
 
     /**
      * @param list<mixed> $content
@@ -60,6 +65,14 @@ final readonly class PageContentBlockDataNormalizer
 
             if (PageContentBlockType::Accordion->value === $type) {
                 $filteredData['items'] = $this->normalizeAccordionItems($data['items'] ?? []);
+            }
+
+            if (PageContentBlockType::Cards->value === $type) {
+                $filteredData['items'] = $this->normalizeCardItems($data['items'] ?? []);
+            }
+
+            if (PageContentBlockType::ChildPages->value === $type) {
+                $filteredData['numbered'] = (bool) ($data['numbered'] ?? false);
             }
 
             if (PageContentBlockType::Image->value === $type) {
@@ -112,6 +125,37 @@ final readonly class PageContentBlockDataNormalizer
             }
 
             if ([] !== $normalizedItem) {
+                $normalized[] = $normalizedItem;
+            }
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @return list<array<string, string>>
+     */
+    private function normalizeCardItems(mixed $items): array
+    {
+        if (!is_array($items)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($items as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $normalizedItem = [];
+            foreach (self::CARD_ITEM_TEXT_FIELDS as $field) {
+                if (array_key_exists($field, $item) && is_string($item[$field])) {
+                    $normalizedItem[$field] = trim($item[$field]);
+                }
+            }
+
+            if ([] !== array_filter($normalizedItem, static fn (string $value): bool => '' !== $value)) {
                 $normalized[] = $normalizedItem;
             }
         }

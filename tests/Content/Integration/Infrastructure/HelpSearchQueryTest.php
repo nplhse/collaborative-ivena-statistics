@@ -27,7 +27,7 @@ final class HelpSearchQueryTest extends DatabaseKernelTestCase
     {
         self::bootKernel();
         $root = HelpPages::root();
-        $this->export = HelpPages::article($root, 'Preparing the IVENA export', '/help/export', '<p>Choose one quarter at a time.</p>');
+        $this->export = HelpPages::article($root, 'Preparing the IVENA export', '/help/export', '<p>Choose one quarter at a time.</p>', 0, ['summary' => 'Create the CSV file in IVENA, not in a spreadsheet.']);
         $this->rejects = HelpPages::article($root, 'Understanding rejected rows', '/help/rejected-rows', '<p>Rows that fail the plausibility checks are rejected.</p>');
         HelpPages::german($this->rejects, 'Abgelehnte Zeilen verstehen', '/hilfe/abgelehnte-zeilen', '<p>Zeilen, die die Plausibilitätsprüfung nicht bestehen, werden abgelehnt.</p>');
         $this->limits = HelpPages::article($root, 'File size limits', '/help/limits', '<p>Large files take longer; split the export by quarter.</p>');
@@ -77,6 +77,15 @@ final class HelpSearchQueryTest extends DatabaseKernelTestCase
         self::assertSame(['Understanding rejected rows'], $this->titles($hits));
         self::assertSame('/help/rejected-rows', $hits[0]->path);
         self::assertStringContainsString('<mark>Rows</mark>', $hits[0]->excerptHtml());
+    }
+
+    public function testTheSummaryIsSearchedAndReturned(): void
+    {
+        $hits = $this->search('spreadsheet', 'en');
+
+        self::assertSame(['Preparing the IVENA export'], $this->titles($hits), 'the word only occurs in the summary');
+        self::assertSame('Create the CSV file in IVENA, not in a spreadsheet.', $hits[0]->summary);
+        self::assertNull($this->search('plausibility', 'en')[0]->summary);
     }
 
     /**

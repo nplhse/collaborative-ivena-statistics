@@ -8,6 +8,9 @@
                 <div class="card h-100" data-testid="help-topic">
                     <div class="card-body">
                         <h3 class="card-title mb-2"><a href="{{ topic.url }}">{{ topic.title }}</a></h3>
+                        {% if topic.summary %}
+                            <p class="text-secondary small mb-2">{{ topic.summary }}</p>
+                        {% endif %}
                         {% if topic.children is not empty %}
                             <ul class="list-unstyled mb-0">
                                 {% for article in topic.children|slice(0, max_articles) %}

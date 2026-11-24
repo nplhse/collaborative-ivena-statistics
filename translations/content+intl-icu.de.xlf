@@ -1489,6 +1489,78 @@
         <source>flash.admin.post.invalid_token</source>
         <target>Die Anfrage ist abgelaufen. Bitte versuchen Sie es erneut.</target>
       </trans-unit>
+      <trans-unit id="cms1578c01de" resname="label.block_type.cards">
+        <source>label.block_type.cards</source>
+        <target>Karten</target>
+      </trans-unit>
+      <trans-unit id="cms1578c02de" resname="label.block_type.child_pages">
+        <source>label.block_type.child_pages</source>
+        <target>Unterseiten</target>
+      </trans-unit>
+      <trans-unit id="cms1578c03de" resname="label.cards_items">
+        <source>label.cards_items</source>
+        <target>Karten</target>
+      </trans-unit>
+      <trans-unit id="cms1578c04de" resname="help.page.cards_items">
+        <source>help.page.cards_items</source>
+        <target>Eine bis vier Karten nebeneinander.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c05de" resname="label.child_pages_numbered">
+        <source>label.child_pages_numbered</source>
+        <target>Als Schritte nummerieren</target>
+      </trans-unit>
+      <trans-unit id="cms1578c06de" resname="help.page.child_pages_numbered">
+        <source>help.page.child_pages_numbered</source>
+        <target>Zeigt „Schritt 1“, „Schritt 2“ usw. für Unterseiten, die einen Ablauf beschreiben.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c07de" resname="label.card_icon">
+        <source>label.card_icon</source>
+        <target>Symbol</target>
+      </trans-unit>
+      <trans-unit id="cms1578c08de" resname="label.card_title">
+        <source>label.card_title</source>
+        <target>Titel</target>
+      </trans-unit>
+      <trans-unit id="cms1578c09de" resname="label.card_link_url">
+        <source>label.card_link_url</source>
+        <target>Link</target>
+      </trans-unit>
+      <trans-unit id="cms1578c10de" resname="help.page.card_link_url">
+        <source>help.page.card_link_url</source>
+        <target>Pfad auf dieser Website, z. B. /hilfe/erste-schritte, oder eine https-Adresse.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c11de" resname="label.card_link_label">
+        <source>label.card_link_label</source>
+        <target>Linktext</target>
+      </trans-unit>
+      <trans-unit id="cms1578c12de" resname="help.page.card_link_label">
+        <source>help.page.card_link_label</source>
+        <target>Ohne Angabe lautet der Link „Weiterlesen“.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c13de" resname="label.summary">
+        <source>label.summary</source>
+        <target>Kurzbeschreibung</target>
+      </trans-unit>
+      <trans-unit id="cms1578c14de" resname="help.page.summary">
+        <source>help.page.summary</source>
+        <target>Ein Satz über die Seite. Er erscheint auf Karten für Unterseiten, in der Hilfe-Themenübersicht, in der Hilfe-Suche und als Beschreibung für Suchmaschinen.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c15de" resname="page.child_pages.step">
+        <source>page.child_pages.step</source>
+        <target>Schritt {number}</target>
+      </trans-unit>
+      <trans-unit id="cms1578c16de" resname="page.child_pages.reading_time">
+        <source>page.child_pages.reading_time</source>
+        <target>{minutes, plural, one {# Minute} other {# Minuten}} Lesezeit</target>
+      </trans-unit>
+      <trans-unit id="cms1578c17de" resname="page.child_pages.read">
+        <source>page.child_pages.read</source>
+        <target>Lesen</target>
+      </trans-unit>
+      <trans-unit id="cms1578c18de" resname="page.cards.read_more">
+        <source>page.cards.read_more</source>
+        <target>Weiterlesen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

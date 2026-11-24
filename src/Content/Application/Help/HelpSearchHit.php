@@ -20,6 +20,8 @@ final readonly class HelpSearchHit
         public string $title,
         public string $path,
         public string $excerpt,
+        /** Short description of the page (#1578); shown instead of the excerpt when there is one. */
+        public ?string $summary = null,
     ) {
     }
 

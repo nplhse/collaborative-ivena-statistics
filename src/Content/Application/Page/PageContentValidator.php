@@ -24,6 +24,24 @@ final readonly class PageContentValidator
         PageContentBlockType::Highlight->value => ['html'],
     ];
 
+    /**
+     * Blocks without settings: their content comes from the page tree when the page is shown.
+     *
+     * @var list<string>
+     */
+    private const array BLOCKS_WITHOUT_FIELDS = [
+        PageContentBlockType::HelpSearch->value,
+        PageContentBlockType::HelpTopics->value,
+    ];
+
+    public const int MAX_CARDS = 4;
+
+    /** Icon names as the highlight block uses them, e.g. tabler:info-circle. */
+    private const string ICON_PATTERN = '/^[a-z0-9]+(?:-[a-z0-9]+)*:[a-z0-9]+(?:-[a-z0-9]+)*$/';
+
+    /** Card links: a path on this site (also with anchor or query) or an http(s) address. */
+    private const string LINK_PATTERN = '~^(?:/(?!/)\S*|#\S+|https?://\S+)$~i';
+
     /** @var list<string> */
     private const array HEADLINE_LEVELS = ['h1', 'h2', 'h3', 'h4'];
 
@@ -122,6 +140,20 @@ final readonly class PageContentValidator
 
         if (PageContentBlockType::Accordion->value === $type) {
             return $this->validateAccordionBlock($prefix, $data);
+        }
+
+        if (PageContentBlockType::Cards->value === $type) {
+            return $this->validateCardsBlock($prefix, $data);
+        }
+
+        if (PageContentBlockType::ChildPages->value === $type) {
+            return array_key_exists('numbered', $data) && !is_bool($data['numbered'])
+                ? [sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.child_pages_numbered_must_be_bool', [], 'validators'))]
+                : [];
+        }
+
+        if (in_array($type, self::BLOCKS_WITHOUT_FIELDS, true)) {
+            return [];
         }
 
         if (!array_key_exists($type, self::REQUIRED_FIELDS)) {
@@ -311,6 +343,56 @@ final readonly class PageContentValidator
 
             if (!$this->isNonEmptyString($item['html'] ?? null)) {
                 $errors[] = sprintf('%s: %s', $itemPrefix, $this->translator->trans('page.validation.block_required_field', ['{field}' => 'html'], 'validators'));
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return list<string>
+     */
+    private function validateCardsBlock(string $prefix, array $data): array
+    {
+        $items = $data['items'] ?? null;
+
+        if (!is_array($items) || [] === $items) {
+            return [sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.cards_items_required', [], 'validators'))];
+        }
+
+        $errors = [];
+        if (count($items) > self::MAX_CARDS) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.cards_too_many', ['{max}' => self::MAX_CARDS], 'validators'));
+        }
+
+        foreach (array_values($items) as $itemIndex => $item) {
+            $itemPrefix = sprintf('%s card %d', $prefix, $itemIndex + 1);
+
+            if (!is_array($item)) {
+                $errors[] = sprintf('%s: %s', $itemPrefix, $this->translator->trans('page.validation.accordion_item_must_be_object', [], 'validators'));
+                continue;
+            }
+
+            foreach (['title', 'html'] as $fieldName) {
+                if (!$this->isNonEmptyString($item[$fieldName] ?? null)) {
+                    $errors[] = sprintf('%s: %s', $itemPrefix, $this->translator->trans('page.validation.block_required_field', ['{field}' => $fieldName], 'validators'));
+                }
+            }
+
+            $icon = $item['icon'] ?? '';
+            if ($this->isNonEmptyString($icon) && 1 !== preg_match(self::ICON_PATTERN, (string) $icon)) {
+                $errors[] = sprintf('%s: %s', $itemPrefix, $this->translator->trans('page.validation.cards_invalid_icon', [], 'validators'));
+            }
+
+            $linkUrl = $item['linkUrl'] ?? '';
+            if ($this->isNonEmptyString($linkUrl) && 1 !== preg_match(self::LINK_PATTERN, (string) $linkUrl)) {
+                $errors[] = sprintf('%s: %s', $itemPrefix, $this->translator->trans('page.validation.cards_invalid_link', [], 'validators'));
+            }
+
+            if ($this->isNonEmptyString($item['linkLabel'] ?? null) && !$this->isNonEmptyString($item['linkUrl'] ?? null)) {
+                $errors[] = sprintf('%s: %s', $itemPrefix, $this->translator->trans('page.validation.block_required_field', ['{field}' => 'linkUrl'], 'validators'));
             }
         }
 
