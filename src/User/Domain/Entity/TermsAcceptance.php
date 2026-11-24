@@ -72,6 +72,11 @@ class TermsAcceptance
         return $this->user;
     }
 
+    public function getKind(): TermsAcceptanceKind
+    {
+        return $this->kind;
+    }
+
     public function getTermsVersion(): ?string
     {
         return $this->termsVersion;
