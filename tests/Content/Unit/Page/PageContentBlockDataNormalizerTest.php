@@ -328,4 +328,12 @@ final class PageContentBlockDataNormalizerTest extends TestCase
             ['type' => 'child_pages', 'data' => ['numbered' => false]],
         ], $normalized);
     }
+
+    public function testCardItemsThatAreNotAListBecomeEmpty(): void
+    {
+        self::assertSame(
+            [['type' => 'cards', 'data' => ['items' => []]]],
+            new PageContentBlockDataNormalizer()->normalize([['type' => 'cards', 'data' => ['items' => 'not a list']]]),
+        );
+    }
 }

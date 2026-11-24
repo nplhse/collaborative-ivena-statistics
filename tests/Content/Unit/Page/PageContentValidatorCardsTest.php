@@ -81,4 +81,11 @@ final class PageContentValidatorCardsTest extends PageContentValidatorTestCase
             ]],
         ]]));
     }
+
+    public function testACardMustBeAnObject(): void
+    {
+        self::assertSame(['Block 1 card 1: must be an object.'], new PageContentValidator($this->translator())->validate([
+            ['type' => 'cards', 'data' => ['items' => ['not a card']]],
+        ]));
+    }
 }
