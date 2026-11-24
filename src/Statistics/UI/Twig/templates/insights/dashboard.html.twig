@@ -69,7 +69,8 @@
     {% endif %}
 
     <div data-controller="indication-dashboard-charts"
-         data-indication-dashboard-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">
+         data-indication-dashboard-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}"
+         data-indication-dashboard-charts-cases-label-value="{{ 'stats.chart.series.cases'|trans({}, 'statistics') }}">
 
         {{ include('@Statistics/indication_dashboard/_summary_deck.html.twig') }}
         {{ include('@Statistics/indication_dashboard/_dashboard_charts.html.twig') }}
