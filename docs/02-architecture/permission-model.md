@@ -62,6 +62,8 @@ The request adds no permission of its own. See [hospital-assignment-requests.md]
 | `IndicationRawReviewVoter` | `VIEW`, `EDIT_MATCH`, `REVIEW` | `IndicationRaw` |
 | `EncounterVoter` | `EncounterAttribute::*` (see [Encounter grants](#encounter-grants)) | `Hospital` |
 
+`ImportVoter::DOWNLOAD_SOURCE` grants the source file of an allocation or closure import only to administrators and the hospital owner (`HospitalPermissionAccess::isOwner()`, #1569), not to the creator or other grantees. Source files contain the IVENA free text and the case number in clear. Encounter imports decide this through their type extension (ADR 028).
+
 `AllocationVoter::VIEW` requires `ROLE_PARTICIPANT` (not merely `ROLE_USER`) and applies to **any** allocation — it does **not** check `HospitalPermission::View`. Path `access_control` on `/explore` also requires `ROLE_PARTICIPANT`.
 
 `ImportCreateVoter::IMPORT_CREATE` (#1351) asks `ImportUploadTargets`, the one place that says where a user may upload which import type: allocation and closure lists to hospitals with `HospitalPermission::Import` (owners and admins included), types of other contexts to the hospitals of their `import.type_extension` (for example the encounter grant `UPLOAD`), all only with `ROLE_PARTICIPANT`. Without a subject it grants when the user may upload at least one type to at least one hospital; with a `Hospital` it grants when they may upload at least one type there. It adds no rights of its own. `/import/new` redirects to the import list with a notice when it is denied, and on submit the chosen type and hospital must match.

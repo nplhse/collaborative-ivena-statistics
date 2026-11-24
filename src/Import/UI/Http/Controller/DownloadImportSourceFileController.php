@@ -12,14 +12,16 @@ use App\Import\Infrastructure\Security\Voter\ImportVoter;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
- * Downloads the stored source file of an import. ImportVoter::DOWNLOAD_SOURCE decides: administrators for
- * allocation and closure imports; encounter imports with the encounter grant UPLOAD while the file is kept
- * (ADR 028, #1049).
+ * Downloads the stored source file of an import. ImportVoter::DOWNLOAD_SOURCE decides: administrators and the
+ * hospital owner for allocation and closure imports (#1569); encounter imports with the encounter grant UPLOAD while
+ * the file is kept (ADR 028, #1049). Every download is written to the audit log.
  */
 final class DownloadImportSourceFileController extends AbstractController
 {
@@ -31,7 +33,7 @@ final class DownloadImportSourceFileController extends AbstractController
 
     #[Route('/import/{id}/source-file', name: 'app_import_source_file_download', methods: ['GET'])]
     #[IsGranted(ImportVoter::DOWNLOAD_SOURCE, subject: 'import')]
-    public function __invoke(Import $import): BinaryFileResponse
+    public function __invoke(Import $import): BinaryFileResponse|RedirectResponse
     {
         $importId = $import->getId();
         if (null === $importId) {
@@ -41,7 +43,10 @@ final class DownloadImportSourceFileController extends AbstractController
         try {
             $response = $this->downloadService->createDownloadResponse($import);
         } catch (ImportSourceFileNotFoundException) {
-            throw new NotFoundHttpException();
+            // A removed file is an expected state, not an error: back to the import with a message.
+            $this->addFlash('warning', new TranslatableMessage('import.source_file.missing', domain: 'import'));
+
+            return $this->redirectToRoute('app_import_show', ['id' => $importId]);
         }
 
         $actor = $this->getUser();

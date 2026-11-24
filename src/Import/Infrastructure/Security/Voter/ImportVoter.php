@@ -77,15 +77,7 @@ final class ImportVoter extends Voter
         }
 
         if (self::DOWNLOAD_SOURCE === $attribute) {
-            if (!\in_array(UserRole::ADMIN, $user->getRoles(), true)) {
-                return false;
-            }
-
-            if (null === $hospitalId) {
-                return false;
-            }
-
-            return $this->importListAccess->canAccessImportHospital($user, $hospitalId);
+            return $this->canDownloadSource($subject, $user, $hospitalId);
         }
 
         if (self::REPROCESS === $attribute) {
@@ -96,6 +88,24 @@ final class ImportVoter extends Voter
         }
 
         return $this->canManage($subject, $user, $hospitalId);
+    }
+
+    /**
+     * Source files hold the IVENA free text and the case number in clear, so only administrators and the owner of
+     * the import's hospital may download them (#1569), not the creator or other grantees.
+     */
+    private function canDownloadSource(Import $subject, User $user, ?int $hospitalId): bool
+    {
+        $hospital = $subject->getHospital();
+        if (!$hospital instanceof \App\Allocation\Domain\Entity\Hospital || null === $hospitalId) {
+            return false;
+        }
+
+        if (\in_array(UserRole::ADMIN, $user->getRoles(), true)) {
+            return $this->importListAccess->canAccessImportHospital($user, $hospitalId);
+        }
+
+        return $this->hospitalPermissionAccess->isOwner($user, $hospital);
     }
 
     /**

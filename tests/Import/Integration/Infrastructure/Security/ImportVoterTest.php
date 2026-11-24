@@ -101,6 +101,18 @@ final class ImportVoterTest extends KernelTestCase
         );
     }
 
+    public function testDownloadSourceDeniedWhenImportHasNoHospital(): void
+    {
+        $admin = UserFactory::new()->asAdmin()->create();
+        $import = $this->createStub(Import::class);
+        $import->method('getHospital')->willReturn(null);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($admin), $import, [ImportVoter::DOWNLOAD_SOURCE]),
+        );
+    }
+
     public function testDeleteGrantedForHospitalOwner(): void
     {
         $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
@@ -155,14 +167,56 @@ final class ImportVoterTest extends KernelTestCase
         );
     }
 
-    public function testDownloadSourceDeniedForHospitalOwner(): void
+    public function testDownloadSourceGrantedForHospitalOwner(): void
     {
         $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $import = $this->createImportForOwner($owner);
 
         self::assertSame(
-            Voter::ACCESS_DENIED,
+            Voter::ACCESS_GRANTED,
             $this->voter->vote($this->createToken($owner), $import, [ImportVoter::DOWNLOAD_SOURCE]),
+        );
+    }
+
+    public function testDownloadSourceGrantedForHospitalOwnerOfAClosureImport(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner, type: ImportType::CLOSURE);
+
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($owner), $import, [ImportVoter::DOWNLOAD_SOURCE]),
+        );
+    }
+
+    public function testDownloadSourceDeniedForTheCreatorWithAnImportGrantWhoIsNotTheOwner(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $creator = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner, $creator);
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $import->getHospital(),
+            'user' => $creator,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::Import]),
+            'createdBy' => $owner,
+        ]);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($creator), $import, [ImportVoter::DOWNLOAD_SOURCE]),
+        );
+    }
+
+    public function testDownloadSourceDeniedForTheOwnerOfAnotherHospital(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $otherOwner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner);
+        $this->createImportForOwner($otherOwner);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($otherOwner), $import, [ImportVoter::DOWNLOAD_SOURCE]),
         );
     }
 
