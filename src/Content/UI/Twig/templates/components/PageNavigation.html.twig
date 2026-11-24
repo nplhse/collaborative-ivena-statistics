@@ -11,9 +11,9 @@
                 {{ heading }}
             </h3>
         </twig:block>
-        <nav class="card-body py-2" aria-labelledby="{{ headingId }}" data-controller="page-navigation">
+        <nav aria-labelledby="{{ headingId }}" data-controller="page-navigation">
             <ul class="page-nav-list list-unstyled mb-0">
-                {{ include('@Content/components/_page_navigation_nodes.html.twig', {nodes: nodes, navId: navId}, with_context: false) }}
+                {{ include('@Content/components/_page_navigation_nodes.html.twig', {nodes: nodes, navId: navId, depth: 0}, with_context: false) }}
             </ul>
         </nav>
     </twig:Card>

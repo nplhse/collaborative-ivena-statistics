@@ -14,6 +14,9 @@ use App\Content\Domain\Enum\PageKey;
  */
 final class PageNavigationTree
 {
+    /** Legal pages: linked in the footer, so the full tree leaves them out (#1582). */
+    private const array FOOTER_ONLY_KEYS = [PageKey::Imprint, PageKey::Privacy, PageKey::Terms];
+
     /**
      * @param list<PageNavigationNode> $nodes
      */
@@ -55,8 +58,8 @@ final class PageNavigationTree
     /**
      * Returns the entries of one navigation.
      *
-     * - Without a root: the full tree without help articles (#596); the help start page stays, its articles are
-     *   shown by the help navigation.
+     * - Without a root: the full tree without help articles (#596) and without the legal pages of the footer
+     *   (#1582); the help start page stays, its articles are shown by the help navigation.
      * - With a root: its children, or the root itself as the only (expanded) entry when $includeRoot is true.
      *   A root that is not in $nodes gives an empty list.
      *
@@ -70,7 +73,7 @@ final class PageNavigationTree
     public function select(array $nodes, ?int $rootPageId, bool $includeRoot, ?int $currentPageId): array
     {
         if (null === $rootPageId) {
-            $selected = $this->withoutHelpArticles($nodes);
+            $selected = $this->withoutHelpArticlesAndFooterPages($nodes);
         } else {
             $root = $this->find($nodes, $rootPageId);
             if (!$root instanceof PageNavigationNode) {
@@ -121,15 +124,15 @@ final class PageNavigationTree
      *
      * @return list<PageNavigationNode>
      */
-    private function withoutHelpArticles(array $nodes): array
+    private function withoutHelpArticlesAndFooterPages(array $nodes): array
     {
         $kept = [];
         foreach ($nodes as $node) {
-            if ($node->help) {
+            if ($node->help || \in_array($node->key, self::FOOTER_ONLY_KEYS, true)) {
                 continue;
             }
 
-            $kept[] = $node->withState($this->withoutHelpArticles($node->children), $node->current, $node->ancestor, $node->expanded);
+            $kept[] = $node->withState($this->withoutHelpArticlesAndFooterPages($node->children), $node->current, $node->ancestor, $node->expanded);
         }
 
         return $kept;

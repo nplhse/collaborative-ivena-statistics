@@ -40,6 +40,19 @@ final class PageNavigationTreeTest extends TestCase
         self::assertSame([], $this->flagged($nodes, 'ancestor'));
     }
 
+    public function testFullTreeLeavesOutTheLegalPagesOfTheFooter(): void
+    {
+        $nodes = [
+            $this->node(1, 'About', PageKey::About, [$this->node(2, 'Team')]),
+            $this->node(3, 'Imprint', PageKey::Imprint),
+            $this->node(4, 'Privacy', PageKey::Privacy, [$this->node(5, 'Cookies')]),
+            $this->node(6, 'Terms', PageKey::Terms),
+        ];
+
+        self::assertSame(['About'], $this->titles($this->tree->select($nodes, null, false, null)));
+        self::assertSame(['Cookies'], $this->titles($this->tree->select($nodes, 4, false, null)), 'a subtree below a legal page still works');
+    }
+
     public function testCurrentLeafMarksAndExpandsItsAncestorsOnly(): void
     {
         $nodes = $this->tree->select($this->fixture(), null, false, 4);

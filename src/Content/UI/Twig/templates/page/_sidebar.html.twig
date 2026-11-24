@@ -39,7 +39,6 @@
         {% if help %}
             <twig:Content:PageNavigation
                 :root="enum('App\\Content\\Domain\\Enum\\PageKey').Help"
-                :includeRoot="true"
                 title="{{ 'help.navigation.title'|trans({}, 'content') }}"
                 data-testid="help-navigation"
             />
@@ -50,6 +49,10 @@
 
     {% if help %}
         <twig:Content:HelpReference />
+        {# The other editorial pages (#1582), so they stay reachable from the help. #}
+        <div class="col-12">
+            <twig:Content:PageNavigation data-testid="help-page-navigation" />
+        </div>
     {% endif %}
 
     {% if not help %}
