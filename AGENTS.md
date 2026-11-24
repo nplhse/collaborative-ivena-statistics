@@ -127,6 +127,9 @@ Look the values up instead of guessing (`gh label list`, `gh api repos/{owner}/{
   (`gh pr create --label … --milestone … --project … --assignee …`). With several issues, combine the
   labels; if their milestones differ, ask. Pull requests have no type. Without a linked issue, classify
   the pull request like an issue.
+- If your tool can watch a pull request and fix failing checks, merge conflicts or review comments
+  on its own (for example Auto-fix in Claude Code), switch it on when you open the pull request,
+  without asking. Fixes still follow these instructions.
 - Say in your report what you set.
 
 ## Branches and releases
