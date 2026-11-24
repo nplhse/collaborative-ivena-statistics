@@ -3047,7 +3047,7 @@
       </trans-unit>
       <trans-unit id="c130404b00fdb" resname="admin.user.role.admin">
         <source>admin.user.role.admin</source>
-        <target>Administrator</target>
+        <target>Administrator:in</target>
       </trans-unit>
       <trans-unit id="c1304db8881aa" resname="admin.user.role.participant">
         <source>admin.user.role.participant</source>
@@ -3079,7 +3079,7 @@
       </trans-unit>
       <trans-unit id="c13042e3ca5b3" resname="admin.monthly_reminder_dispatch.trigger.admin">
         <source>admin.monthly_reminder_dispatch.trigger.admin</source>
-        <target>Administrator</target>
+        <target>Administrator:in</target>
       </trans-unit>
       <trans-unit id="c130464e9c4f3" resname="admin.monthly_reminder_dispatch.trigger.cli">
         <source>admin.monthly_reminder_dispatch.trigger.cli</source>

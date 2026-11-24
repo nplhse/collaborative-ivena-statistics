@@ -23,11 +23,11 @@
       </trans-unit>
       <trans-unit id="EncDD77428C" resname="encounter.grant.intro">
         <source>encounter.grant.intro</source>
-        <target>Der Zugriff auf Behandlungsdaten wird ausdrücklich pro Person erteilt. Krankenhaus-Eigentum und Krankenhausberechtigungen schließen ihn nicht ein. Nur Personen mit Zugang zu diesem Krankenhaus können ihn erhalten. Administratorinnen und Administratoren haben ohne Berechtigung Zugriff auf die Behandlungsdaten aller Krankenhäuser.</target>
+        <target>Der Zugriff auf Behandlungsdaten wird ausdrücklich pro Person erteilt. Krankenhaus-Eigentum und Krankenhausberechtigungen schließen ihn nicht ein. Nur Personen mit Zugang zu diesem Krankenhaus können ihn erhalten. Administrator:innen haben ohne Berechtigung Zugriff auf die Behandlungsdaten aller Krankenhäuser.</target>
       </trans-unit>
       <trans-unit id="EncA13402E6" resname="encounter.grant.empty">
         <source>encounter.grant.empty</source>
-        <target>Bisher hat niemand Zugriff auf die Behandlungsdaten dieses Krankenhauses. Administratorinnen und Administratoren haben ihn ohne Berechtigung.</target>
+        <target>Bisher hat niemand Zugriff auf die Behandlungsdaten dieses Krankenhauses. Administrator:innen haben ihn ohne Berechtigung.</target>
       </trans-unit>
       <trans-unit id="Enc5769743C" resname="encounter.grant.edit_title">
         <source>encounter.grant.edit_title</source>
@@ -67,7 +67,7 @@
       </trans-unit>
       <trans-unit id="EncCA963B15" resname="encounter.grant.key_change_hint">
         <source>encounter.grant.key_change_hint</source>
-        <target>Keine dieser Aktionen erlaubt den Wechsel des Pseudonymisierungsschlüssels. Nur der Krankenhaus-Eigentümer oder eine Administratorin bzw. ein Administrator kann ihn wechseln.</target>
+        <target>Keine dieser Aktionen erlaubt den Wechsel des Pseudonymisierungsschlüssels. Nur der Krankenhaus-Eigentümer oder ein:e Administrator:in kann ihn wechseln.</target>
       </trans-unit>
       <trans-unit id="Enc31EF4F08" resname="encounter.grant.field.user">
         <source>encounter.grant.field.user</source>
@@ -1699,7 +1699,7 @@
       </trans-unit>
       <trans-unit id="Enc629391ED" resname="encounter.mts.counts.scope_all">
         <source>encounter.mts.counts.scope_all</source>
-        <target>Anzahlen: Behandlungsfälle aller Kliniken, da Administratoren alle Behandlungsdaten sehen dürfen (Ersteinschätzung). Werte unter {threshold} werden nicht angezeigt.</target>
+        <target>Anzahlen: Behandlungsfälle aller Kliniken, da Administrator:innen alle Behandlungsdaten sehen dürfen (Ersteinschätzung). Werte unter {threshold} werden nicht angezeigt.</target>
       </trans-unit>
       <trans-unit id="Enc26995604" resname="encounter.mts.counts.none">
         <source>encounter.mts.counts.none</source>
@@ -2711,11 +2711,11 @@
       </trans-unit>
       <trans-unit id="EncEB6DFE02" resname="encounter.data_prep.guide.key.admin">
         <source>encounter.data_prep.guide.key.admin</source>
-        <target>Als Administratorin oder Administrator können Sie den Schlüssel jeder Klinik über deren Bearbeitungsseiten wechseln.</target>
+        <target>Als Administrator:in können Sie den Schlüssel jeder Klinik über deren Bearbeitungsseiten wechseln.</target>
       </trans-unit>
       <trans-unit id="EncD2CDF89B" resname="encounter.data_prep.guide.key.who">
         <source>encounter.data_prep.guide.key.who</source>
-        <target>Nur die Inhaberin oder der Inhaber der Klinik oder eine Administratorin oder ein Administrator kann den Schlüssel wechseln. Wenden Sie sich an sie, wenn die Schlüsseldatei verloren ist.</target>
+        <target>Nur die Inhaberin oder der Inhaber der Klinik oder ein:e Administrator:in kann den Schlüssel wechseln. Wenden Sie sich an sie, wenn die Schlüsseldatei verloren ist.</target>
       </trans-unit>
       <trans-unit id="Enc93E93C06" resname="encounter.data_prep.guide.map.title">
         <source>encounter.data_prep.guide.map.title</source>

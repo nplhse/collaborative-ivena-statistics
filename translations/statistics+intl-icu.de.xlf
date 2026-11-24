@@ -4399,7 +4399,7 @@
       </trans-unit>
       <trans-unit id="De8773fe41" resname="stats.indication.group.picker_empty">
         <source>stats.indication.group.picker_empty</source>
-        <target>Es wurden noch keine Indikationsgruppen eingerichtet. Administratoren können Gruppen im Admin-Bereich anlegen.</target>
+        <target>Es wurden noch keine Indikationsgruppen eingerichtet. Administrator:innen können Gruppen im Admin-Bereich anlegen.</target>
       </trans-unit>
       <trans-unit id="Dee113936d" resname="stats.indication.group.picker_label">
         <source>stats.indication.group.picker_label</source>

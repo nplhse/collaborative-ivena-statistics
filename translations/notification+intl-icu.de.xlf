@@ -595,7 +595,7 @@
       </trans-unit>
       <trans-unit id="NtfHarDeHospitalAssignmentDecidedMessage" resname="hospital_assignment.decided.message">
         <source>hospital_assignment.decided.message</source>
-        <target>{decision, select, approved {{outcome, select, ownership {Sie sind jetzt Eigentümerin oder Eigentümer von {hospitalName}.} other {Sie haben jetzt Zugang zu {hospitalName}.}}} other {Die Administration hat Ihren Antrag für {hospitalName} abgelehnt. Ihre Anträge zeigen die Begründung, falls eine angegeben wurde.}}</target>
+        <target>{decision, select, approved {{outcome, select, ownership {Sie sind jetzt Eigentümerin oder Eigentümer von {hospitalName}.} other {Sie haben jetzt Zugang zu {hospitalName}.}}} other {Ein:e Administrator:in hat Ihren Antrag für {hospitalName} abgelehnt. Ihre Anträge zeigen die Begründung, falls eine angegeben wurde.}}</target>
       </trans-unit>
       <trans-unit id="NtfHarDeHospitalAssignmentDecidedLabel" resname="hospital_assignment.decided.label">
         <source>hospital_assignment.decided.label</source>
@@ -607,7 +607,7 @@
       </trans-unit>
       <trans-unit id="NtfHarDeHospitalAssignmentOwnershipTransferredMessage" resname="hospital_assignment.ownership_transferred.message">
         <source>hospital_assignment.ownership_transferred.message</source>
-        <target>Die Administration hat {newOwner} zur Eigentümerschaft von {hospitalName} gemacht. {access, select, keep_full_access {Sie behalten vollen Zugang zur Klinik.} other {Sie haben keinen Zugang mehr zur Klinik.}}</target>
+        <target>Ein:e Administrator:in hat {newOwner} zur Eigentümerschaft von {hospitalName} gemacht. {access, select, keep_full_access {Sie behalten vollen Zugang zur Klinik.} other {Sie haben keinen Zugang mehr zur Klinik.}}</target>
       </trans-unit>
       <trans-unit id="NtfHarDeHospitalAssignmentOwnershipTransferredLabel" resname="hospital_assignment.ownership_transferred.label">
         <source>hospital_assignment.ownership_transferred.label</source>
@@ -643,7 +643,7 @@
       </trans-unit>
       <trans-unit id="NtfTwoFactorResetMessage" resname="security.two_factor_reset.message">
         <source>security.two_factor_reset.message</source>
-        <target>Ihr Konto fragt keinen Code aus einer Authenticator-App mehr ab. Wenn Sie das nicht veranlasst haben, ändern Sie Ihr Passwort und wenden Sie sich an die Administration. In Ihren Einstellungen können Sie die Zwei-Faktor-Authentifizierung wieder einrichten.</target>
+        <target>Ihr Konto fragt keinen Code aus einer Authenticator-App mehr ab. Wenn Sie das nicht veranlasst haben, ändern Sie Ihr Passwort und wenden Sie sich an die Administrator:innen. In Ihren Einstellungen können Sie die Zwei-Faktor-Authentifizierung wieder einrichten.</target>
       </trans-unit>
       <trans-unit id="NtfTwoFactorResetLabel" resname="security.two_factor_reset.label">
         <source>security.two_factor_reset.label</source>

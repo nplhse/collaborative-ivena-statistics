@@ -1207,7 +1207,7 @@
       </trans-unit>
       <trans-unit id="emptyOwnDeDe" resname="empty.owned.description">
         <source>empty.owned.description</source>
-        <target>Beantragen Sie die Zuordnung zu der Klinik, für die Sie arbeiten. Die Administration entscheidet, welchen Zugang Sie erhalten.</target>
+        <target>Beantragen Sie die Zuordnung zu der Klinik, für die Sie arbeiten. Ein:e Administrator:in entscheidet, welchen Zugang Sie erhalten.</target>
       </trans-unit>
       <trans-unit id="emptyOwnCtaDe" resname="empty.owned.cta">
         <source>empty.owned.cta</source>
@@ -2783,7 +2783,7 @@
       </trans-unit>
       <trans-unit id="harIntroDe" resname="hospital_assignment_request.intro">
         <source>hospital_assignment_request.intro</source>
-        <target>Beantragen Sie die Zuordnung zu einer Klinik, für die Sie arbeiten. Eine Administratorin oder ein Administrator prüft den Antrag und entscheidet, welchen Zugang Sie erhalten.</target>
+        <target>Beantragen Sie die Zuordnung zu einer Klinik, für die Sie arbeiten. Ein:e Administrator:in prüft den Antrag und entscheidet, welchen Zugang Sie erhalten.</target>
       </trans-unit>
       <trans-unit id="harFieldHospitalDe" resname="hospital_assignment_request.field.hospital">
         <source>hospital_assignment_request.field.hospital</source>
@@ -2791,7 +2791,7 @@
       </trans-unit>
       <trans-unit id="harFieldHospitalHelpDe" resname="hospital_assignment_request.field.hospital_help">
         <source>hospital_assignment_request.field.hospital_help</source>
-        <target>Wählen Sie Ihre Klinik aus der Liste. Ist sie nicht aufgeführt, geben Sie ihren Namen ein: Die Administration ordnet ihn zu.</target>
+        <target>Wählen Sie Ihre Klinik aus der Liste. Ist sie nicht aufgeführt, geben Sie ihren Namen ein: Ein:e Administrator:in ordnet ihn zu.</target>
       </trans-unit>
       <trans-unit id="harFieldHospitalPlaceholderDe" resname="hospital_assignment_request.field.hospital_placeholder">
         <source>hospital_assignment_request.field.hospital_placeholder</source>
@@ -2811,7 +2811,7 @@
       </trans-unit>
       <trans-unit id="harFieldCommentDe" resname="hospital_assignment_request.field.comment">
         <source>hospital_assignment_request.field.comment</source>
-        <target>Kommentar an die Administration (optional)</target>
+        <target>Kommentar an die Administrator:innen (optional)</target>
       </trans-unit>
       <trans-unit id="harReasonEdLeadershipDe" resname="hospital_assignment_request.reason.ed_leadership">
         <source>hospital_assignment_request.reason.ed_leadership</source>
@@ -2859,7 +2859,7 @@
       </trans-unit>
       <trans-unit id="harWhatHappensTextDe" resname="hospital_assignment_request.what_happens.text">
         <source>hospital_assignment_request.what_happens.text</source>
-        <target>Die Administration erhält Ihren Antrag und prüft ihn. Sie werden über die Entscheidung benachrichtigt und sehen den Stand unter „Meine Zuordnungsanträge“. Ein Antrag allein gibt Ihnen noch keinen Zugang.</target>
+        <target>Ein:e Administrator:in prüft Ihren Antrag. Sie werden über die Entscheidung benachrichtigt und sehen den Stand unter „Meine Zuordnungsanträge“. Ein Antrag allein gibt Ihnen noch keinen Zugang.</target>
       </trans-unit>
       <trans-unit id="harStatusPendingDe" resname="hospital_assignment_request.status.pending">
         <source>hospital_assignment_request.status.pending</source>
@@ -2891,7 +2891,7 @@
       </trans-unit>
       <trans-unit id="harDecisionMessageDe" resname="hospital_assignment_request.decision_message">
         <source>hospital_assignment_request.decision_message</source>
-        <target>Nachricht der Administration</target>
+        <target>Nachricht der Administrator:innen</target>
       </trans-unit>
       <trans-unit id="harCardMenuDe" resname="hospital_assignment_request.card.menu">
         <source>hospital_assignment_request.card.menu</source>

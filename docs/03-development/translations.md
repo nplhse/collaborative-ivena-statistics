@@ -168,6 +168,9 @@ When a prefix could belong to two domains, choose the domain of the **controller
 3. Always pass the domain explicitly in PHP, Twig, and forms.
 4. Use `TranslatableMessage` when a DTO or flash carries a key for deferred rendering in Twig.
 5. Add EN and DE in the same change; run `make lint-trans` before pushing.
+6. German texts name the people who administer the platform with the gender colon: "Administrator:in",
+   "ein:e Administrator:in", "Administrator:innen". Do not write "die Administration" for them; that word is
+   only the name of the area (for example the notification category). Other roles are not gendered yet.
 
 ## Usage examples
 
