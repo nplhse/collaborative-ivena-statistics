@@ -41,6 +41,10 @@
         <source>import.action.download_source_file</source>
         <target>Download original file</target>
       </trans-unit>
+      <trans-unit id="impSrcFileMissing" resname="import.source_file.missing">
+        <source>import.source_file.missing</source>
+        <target>The original file of this import is no longer stored.</target>
+      </trans-unit>
       <trans-unit id="impDelTit" resname="import.delete.modal.title">
         <source>import.delete.modal.title</source>
         <target>Delete import?</target>

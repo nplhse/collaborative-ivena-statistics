@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Import\UI\Http\Controller;
 
+use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Security\Voter\ImportVoter;
 use App\Import\UI\Http\Presenter\ImportDetailViewFactory;
@@ -17,6 +18,7 @@ final class ShowImportController extends AbstractController
 {
     public function __construct(
         private readonly ImportDetailViewFactory $detailViewFactory,
+        private readonly ImportFileStorage $fileStorage,
     ) {
     }
 
@@ -27,6 +29,7 @@ final class ShowImportController extends AbstractController
         return $this->render('@Import/show.html.twig', [
             'import' => $import,
             'detail' => $this->detailViewFactory->create($import),
+            'source_file_available' => $this->fileStorage->exists($import->getFilePath()),
         ]);
     }
 }

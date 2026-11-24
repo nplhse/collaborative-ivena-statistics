@@ -163,12 +163,12 @@ At the end of each run the import stores which days its records cover, shown on 
 
 ## Source file download
 
-Administrators can download the original uploaded CSV from the import detail page (`/import/{id}`). The file is served through `DownloadImportSourceFileController` at `/import/{id}/source-file` — not via a public path under `var/imports/`.
+Administrators and the owner of the import's hospital can download the original uploaded file from the import detail page (`/import/{id}`), for example to keep a copy before the hospital leaves the platform (#1569). The file is served through `DownloadImportSourceFileController` at `/import/{id}/source-file` — not via a public path under `var/imports/`.
 
-- Access requires `ImportVoter::DOWNLOAD_SOURCE`: `ROLE_ADMIN` for allocation and closure imports; for encounter imports the encounter grant `UPLOAD` (or `ROLE_ADMIN`) while the file is kept ([encounter README](../encounter/README.md#upload-file-retention))
-- The download link is shown only when the voter grants access
-- Missing or deleted source files return HTTP 404
-- Downloads are recorded with audit intent `import.source_file.downloaded`
+- Access requires `ImportVoter::DOWNLOAD_SOURCE`. For allocation and closure imports it is granted to `ROLE_ADMIN` and to the hospital owner. It is not granted to the creator of the import or to other users with grants, because source files hold the IVENA free text and the case number in clear. For encounter imports it is granted to users with the encounter grant `UPLOAD` (or `ROLE_ADMIN`) while the file is kept ([encounter README](../encounter/README.md#upload-file-retention)).
+- The download link is shown only when the voter grants access and the file is still stored; otherwise the card says that the original file is no longer stored.
+- Requesting the download of a missing file redirects to the import detail page with the same message.
+- Downloads are recorded with audit intent `import.source_file.downloaded`.
 
 ## Test locally
 
