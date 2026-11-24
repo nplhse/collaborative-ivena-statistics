@@ -1039,7 +1039,7 @@
       </trans-unit>
       <trans-unit id="termsAccept01" resname="text.terms.accept_intro">
         <source>text.terms.accept_intro</source>
-        <target>The terms of use have changed. Please read version {version} of {date} and accept it to continue using the platform.</target>
+        <target>The terms of use have changed. Please read version {version} and accept it to continue using the platform.</target>
       </trans-unit>
       <trans-unit id="termsAccept02" resname="link.terms.read">
         <source>link.terms.read</source>

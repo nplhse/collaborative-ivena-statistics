@@ -7,7 +7,7 @@
         <twig:Card size="md">
             <h2 class="text-center mb-3">{{ 'title.terms.accept'|trans({}, 'user') }}</h2>
             <p class="text-secondary mb-3">
-                {{ 'text.terms.accept_intro'|trans({version: version, date: publishedAt ? publishedAt|date('d.m.Y') : ''}, 'user') }}
+                {{ 'text.terms.accept_intro'|trans({version: version}, 'user') }}
             </p>
             {% set termsPageUrl = page_url_by_key('terms') %}
             {% if termsPageUrl %}

@@ -105,7 +105,7 @@ Users can protect their account with a six-digit code from an authenticator app 
 
 Registration requires accepting the terms of use (#1564, [ADR 043](../../02-architecture/decisions/043-terms-of-use-version-by-configuration.md)).
 `RegistrationController` stores the acceptance as a `TermsAcceptance` row in the same flush as the account:
-kind `terms`, the configured `app.terms.version` (empty while none is set), the time, the language of the shown terms
+kind `terms`, the version from `APP_TERMS_VERSION` (empty while none is set), the time, the language of the shown terms
 page and the SHA-256 of its published content. The page comes from Content through `TermsDocumentProviderInterface`,
 with the same language fallback as the page itself; without a published terms page the hash stays empty.
 
@@ -113,9 +113,9 @@ Rows are only added and are deleted with the account. Admins see the latest acce
 per person with access, on the hospital detail page, together with how many of them accepted the current version.
 Accounts created by an administrator or before #1564 have no row.
 
-**Login prompt.** While `app.terms.version` is set, `RequireTermsAcceptanceListener` (request listener, priority 1,
+**Login prompt.** While `APP_TERMS_VERSION` is set, `RequireTermsAcceptanceListener` (request listener, priority 1,
 after the firewall) sends signed-in users without a row for that version to `/terms/accept` (`app_terms_accept`). The
-page names version and date, links the terms page and asks for a checkbox; accepting stores a row and returns to the
+page names the version, links the terms page and asks for a checkbox; accepting stores a row and returns to the
 page the user asked for. Until then:
 
 - Only the acceptance page, logout, the language and cookie choice and the CMS pages with the keys `terms`, `imprint`
@@ -127,7 +127,7 @@ page the user asked for. Until then:
 - `TermsAcceptanceStatus` remembers account and accepted version in the session, so the table is read once per
   session and again after the version changes.
 
-Raising the version asks everyone again at their next request; editing the terms page does not. The demo and the test
+Raising the version asks everyone again at their next request (the variable is read at runtime); editing the terms page does not. The demo and the test
 environment have no version; tests of the prompt set one (`TermsAcceptanceAtLoginTest`).
 
 ## Account checks

@@ -64,7 +64,7 @@ final class TermsAcceptanceAtLoginTest extends WebTestCase
         $this->client->followRedirect();
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h2', 'Accept the terms of use');
-        self::assertSelectorTextContains('body', 'Please read version 2026-12 of 01.12.2026');
+        self::assertSelectorTextContains('body', 'Please read version 2026-12 and accept it');
 
         $this->client->submitForm('Accept and continue', []);
         self::assertResponseStatusCodeSame(422);
@@ -204,7 +204,7 @@ final class TermsAcceptanceAtLoginTest extends WebTestCase
 
     private function configureVersion(string $version): void
     {
-        self::getContainer()->set(TermsVersion::class, new TermsVersion($version, '2026-12-01'));
+        self::getContainer()->set(TermsVersion::class, new TermsVersion($version));
     }
 
     private function accept(User $user, string $version): void

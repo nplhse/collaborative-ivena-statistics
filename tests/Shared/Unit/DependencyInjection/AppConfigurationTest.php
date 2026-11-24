@@ -278,40 +278,16 @@ final class AppConfigurationTest extends TestCase
     {
         $processed = new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig()]);
 
-        self::assertSame(['version' => null, 'published_at' => null], $processed['terms']);
+        self::assertSame(['version' => null], $processed['terms']);
     }
 
-    public function testTermsVersionAndDateAreAccepted(): void
+    public function testTermsVersionIsAccepted(): void
     {
         $processed = new Processor()->processConfiguration(new AppConfiguration(), [[
             ...$this->minimalConfig(),
-            'terms' => ['version' => '2026-12', 'published_at' => '2026-12-01'],
+            'terms' => ['version' => '2026-12'],
         ]]);
 
-        self::assertSame(['version' => '2026-12', 'published_at' => '2026-12-01'], $processed['terms']);
-    }
-
-    /**
-     * @param array<string, mixed> $terms
-     */
-    #[DataProvider('invalidTermsVersions')]
-    public function testTermsVersionIsValidated(array $terms): void
-    {
-        $this->expectException(InvalidConfigurationException::class);
-
-        new Processor()->processConfiguration(new AppConfiguration(), [[...$this->minimalConfig(), 'terms' => $terms]]);
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function invalidTermsVersions(): iterable
-    {
-        yield 'version without date' => [['version' => '2026-12']];
-        yield 'date without version' => [['published_at' => '2026-12-01']];
-        yield 'version with spaces' => [['version' => 'new terms', 'published_at' => '2026-12-01']];
-        yield 'version too long' => [['version' => str_repeat('a', 33), 'published_at' => '2026-12-01']];
-        yield 'German date' => [['version' => '2026-12', 'published_at' => '01.12.2026']];
-        yield 'unquoted YAML date' => [['version' => '2026-12', 'published_at' => 1796083200]];
+        self::assertSame(['version' => '2026-12'], $processed['terms']);
     }
 }

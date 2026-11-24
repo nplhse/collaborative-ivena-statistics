@@ -59,7 +59,6 @@ final class TermsAcceptanceController extends AbstractController
         return $this->render('@User/terms/accept.html.twig', [
             'form' => $form,
             'version' => $this->termsVersion->current(),
-            'publishedAt' => $this->termsVersion->publishedAt(),
         ], new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
     }
 
