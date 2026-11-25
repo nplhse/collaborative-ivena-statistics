@@ -46,8 +46,10 @@ final class DataRequestRoundTest extends TestCase
 
         $round->castVote($board[0], VoteChoice::Reject, null, new \DateTimeImmutable('2026-12-02 09:00'));
 
-        self::assertFalse($round->voteOf($board[0])?->isCarriedOver());
-        self::assertSame(VoteChoice::Reject, $round->voteOf($board[0])?->getChoice());
+        $vote = $round->voteOf($board[0]);
+        self::assertNotNull($vote);
+        self::assertFalse($vote->isCarriedOver());
+        self::assertSame(VoteChoice::Reject, $vote->getChoice());
     }
 
     public function testOnlyEligibleMembersVoteInAnOpenRoundAndAVetoNeedsAReason(): void
@@ -69,7 +71,7 @@ final class DataRequestRoundTest extends TestCase
     {
         $at = new \DateTimeImmutable('2026-12-01 09:00');
         $draft = new DataRequest($this->user(1), $this->content(), $at);
-        $this->assertRefused(static fn (): \App\Research\Domain\Entity\DataRequestRound => $draft->openRound(RoundKind::Initial, [2], null, $at, $at), 'The Board votes only on a submitted version.');
+        $this->assertRefused(static fn (): DataRequestRound => $draft->openRound(RoundKind::Initial, [2], null, $at, $at), 'The Board votes only on a submitted version.');
 
         [$request] = $this->submitted(1);
         $this->assertRefused(static fn () => $request->openRound(RoundKind::Initial, [], null, $at, $at), 'A voting round needs at least one eligible member.');
