@@ -87,6 +87,7 @@ final class ListImportController extends AbstractController
             'hospitals' => $this->hospitalRepository->findAccessibleHospitalSummaries($user),
             'owners' => $this->importListAccess->resolveOwnerChoices($user),
             'statuses' => ImportStatus::cases(),
+            'types' => $this->listImportsQuery->visibleTypes($user),
             // Same check as the upload form (#1351): at least one type for at least one hospital.
             'canImport' => $this->isGranted(ImportCreateVoter::CREATE),
             'bulkActions' => [] === $bulkSelectableIds ? [] : $this->bulkActions(),
@@ -160,7 +161,7 @@ final class ListImportController extends AbstractController
     private function countActiveFilters(ListImportQueryParametersDTO $query): int
     {
         $count = 0;
-        $filterFields = ['search', 'hospitalId', 'ownerId', 'status'];
+        $filterFields = ['search', 'hospitalId', 'ownerId', 'status', 'type', 'periodFrom', 'periodUntil'];
 
         foreach ($filterFields as $field) {
             $value = $query->{$field} ?? null;
