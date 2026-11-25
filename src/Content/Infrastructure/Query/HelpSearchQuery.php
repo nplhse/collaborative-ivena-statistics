@@ -38,9 +38,10 @@ final readonly class HelpSearchQuery implements HelpSearchQueryInterface
 
         $document = "setweight(to_tsvector(d.cfg, d.title), 'A') || setweight(to_tsvector(d.cfg, coalesce(d.summary, '')), 'A') || setweight(to_tsvector(d.cfg, d.search_text), 'B')";
         $headlineOptions = \sprintf(
-            'StartSel=%s, StopSel=%s, MaxWords=35, MinWords=15, MaxFragments=2, FragmentDelimiter=" … "',
+            'StartSel=%s, StopSel=%s, MaxWords=30, MinWords=15, MaxFragments=2, FragmentDelimiter="%s"',
             HelpSearchHit::MATCH_START,
             HelpSearchHit::MATCH_END,
+            HelpSearchHit::PASSAGE_BREAK,
         );
 
         $rows = $this->connection->fetchAllAssociative(
@@ -53,7 +54,7 @@ final readonly class HelpSearchQuery implements HelpSearchQueryInterface
                 SELECT s.*, CAST(CASE WHEN s.locale = \'de\' THEN \'german\' ELSE \'english\' END AS regconfig) AS cfg
                 FROM shown s
             )
-            SELECT d.page_id, d.title, d.path, d.summary,
+            SELECT d.page_id, d.title, d.path, d.summary, d.search_text,
                    ts_headline(d.cfg, d.search_text, to_tsquery(d.cfg, :query), :headline) AS excerpt
             FROM docs d
             WHERE ('.$document.') @@ to_tsquery(d.cfg, :query)
@@ -77,6 +78,7 @@ final readonly class HelpSearchQuery implements HelpSearchQueryInterface
                 (string) $row['path'],
                 (string) $row['excerpt'],
                 null !== $row['summary'] ? (string) $row['summary'] : null,
+                (string) $row['search_text'],
             ),
             $rows,
         );

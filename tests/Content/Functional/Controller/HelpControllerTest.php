@@ -119,7 +119,7 @@ final class HelpControllerTest extends WebTestCase
         self::assertStringContainsString('Create the CSV file in IVENA, not in a spreadsheet.', $crawler->filter('[data-testid="page-read-more-link"]')->first()->text(), 'with the short description');
     }
 
-    public function testSearchShowsTheSummaryInsteadOfTheExcerpt(): void
+    public function testSearchShowsTheSummaryAndWhereTheTermsOccur(): void
     {
         $client = self::createClient();
         $this->fixture();
@@ -128,7 +128,11 @@ final class HelpControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSame('Create the CSV file in IVENA, not in a spreadsheet.', trim($crawler->filter('[data-testid="help-search-hit"] .help-search-summary')->text()));
-        self::assertCount(0, $crawler->filter('[data-testid="help-search-hit"] .help-search-excerpt'));
+        self::assertSame('quarter', $crawler->filter('[data-testid="help-search-hit"] .help-search-excerpt mark')->text(), 'the excerpt shows the match in the text');
+
+        $crawler = $client->request(Request::METHOD_GET, '/help/search?q=spreadsheet');
+        self::assertCount(1, $crawler->filter('[data-testid="help-search-hit"] .help-search-summary'));
+        self::assertCount(0, $crawler->filter('[data-testid="help-search-hit"] .help-search-excerpt'), 'a match only in the short description shows no excerpt');
     }
 
     public function testOtherPagesAndTheSitemapLeaveOutTheArticles(): void
