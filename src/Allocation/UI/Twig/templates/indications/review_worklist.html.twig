@@ -70,9 +70,7 @@
 {% endblock %}
 
 {% block page_content %}
-    <div class="container-xl">
-        {{ include('@Allocation/catalog/_quality_warnings.html.twig', {qualityWarnings: qualityWarnings|default([])}) }}
-    </div>
+    {{ include('@Allocation/catalog/_quality_warnings.html.twig', {qualityWarnings: qualityWarnings|default([])}) }}
 
     <turbo-frame id="indication-review-list" data-turbo-action="advance">
         {% if query.search is not empty %}
