@@ -76,6 +76,7 @@
         "symfony/ux-twig-component": "^3.2",
         "symfony/validator": "8.1.*",
         "symfony/web-link": "8.1.*",
+        "symfony/workflow": "8.1.*",
         "symfony/yaml": "8.1.*",
         "symfonycasts/reset-password-bundle": "^1.25",
         "symfonycasts/verify-email-bundle": "^1.18",
