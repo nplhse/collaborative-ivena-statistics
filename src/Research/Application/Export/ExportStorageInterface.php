@@ -25,4 +25,14 @@ interface ExportStorageInterface
     public function path(string $archiveFile): ?string;
 
     public function discard(string $key): void;
+
+    public function remove(string $archiveFile): void;
+
+    /**
+     * Removes archives that no run refers to and working directories left by an interrupted run, both older than
+     * $before. Returns how many were removed.
+     *
+     * @param list<string> $archivesInUse
+     */
+    public function removeOrphans(array $archivesInUse, \DateTimeImmutable $before): int;
 }

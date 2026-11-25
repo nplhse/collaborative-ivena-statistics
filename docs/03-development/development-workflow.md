@@ -11,6 +11,10 @@ make upgrade-dev  # update deps/schema; keeps existing DB (e.g. mirror DB)
 
 First-time setup details: [../01-getting-started/local-setup.md](../01-getting-started/local-setup.md)
 
+Data extract exports need the read-only role `app_ro`: a fresh database volume gets it, an existing one with
+`make db-readonly-role`; then set `RESEARCH_DATABASE_URL` in `.env.local`
+([export connection](../04-features/research/README.md#export-connection)).
+
 ### Work in a git worktree
 
 A new worktree has no `vendor/`, no `node_modules/`, no local env files and cold caches for the code checks. `bin/worktree-init` takes all of that from an existing checkout, so checks and tests run right away:

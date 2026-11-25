@@ -11,6 +11,7 @@ use App\Research\Domain\Entity\DataRequest;
 use App\Research\Domain\Entity\DataRequestExportRun;
 use App\Research\Domain\Entity\DataRequestRelease;
 use App\Research\Domain\Enum\Visibility;
+use App\Research\Infrastructure\Export\ExportConnection;
 use App\Research\Infrastructure\Repository\DataRequestRepository;
 use App\Research\Infrastructure\Security\Voter\DataRequestVoter;
 use App\User\Domain\Entity\User;
@@ -35,6 +36,7 @@ final class ShowDataRequestController extends AbstractController
         private readonly UserRepository $users,
         private readonly DataRequestCommentService $comments,
         private readonly DataRequestReleaseService $releases,
+        private readonly ExportConnection $exportConnection,
     ) {
     }
 
@@ -59,6 +61,7 @@ final class ShowDataRequestController extends AbstractController
             'canRelease' => $this->isGranted(DataRequestVoter::RELEASE, $dataRequest),
             'needsSingleCaseConfirmation' => $this->releases->needsSingleCaseConfirmation($dataRequest),
             'releases' => $this->releaseActions($dataRequest),
+            'exportConnectionState' => $this->isGranted(DataRequestVoter::MANAGE_QUERIES, $dataRequest) ? $this->exportConnection->state() : null,
         ]);
     }
 

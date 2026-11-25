@@ -145,6 +145,7 @@ final class DataRequestReleaseTest extends TestCase
         self::assertTrue($release->isOpenAt(new \DateTimeImmutable('2026-12-05')));
         self::assertFalse($release->isOpenAt(new \DateTimeImmutable('2026-12-09')));
 
+        $this->assertRefused(static fn (): ?string => $run->expire(new \DateTimeImmutable('2026-12-08 10:01')), 'the period has not ended');
         $run->recordDownload($applicant, new \DateTimeImmutable('2026-12-02'));
         $download = $run->getDownloads()[0];
         self::assertSame($run, $download->getRun());
@@ -152,6 +153,19 @@ final class DataRequestReleaseTest extends TestCase
         self::assertEquals(new \DateTimeImmutable('2026-12-02'), $download->getDownloadedAt());
         self::assertNull($download->getId());
         self::assertNull($run->getId());
+    }
+
+    public function testAnAvailableRunExpiresAfterItsPeriod(): void
+    {
+        [$request, $applicant] = $this->approved();
+        $run = $request->release(null, false, null, new \DateTimeImmutable(self::AT))->startExport($applicant, new \DateTimeImmutable(self::AT), 'de');
+        $run->start(new \DateTimeImmutable(self::AT));
+        $run->provide('0123456789abcdef0123456789abcdef.tar.gz', 1, 'x', [], new \DateTimeImmutable(self::AT));
+
+        self::assertSame('0123456789abcdef0123456789abcdef.tar.gz', $run->expire(new \DateTimeImmutable('2026-12-08 09:00')));
+        self::assertSame(ExportRunStatus::Expired, $run->getStatus());
+        self::assertNull($run->getArchiveFile());
+        $this->assertRefused(static fn (): ?string => $run->expire(new \DateTimeImmutable('2026-12-09')), 'already expired');
     }
 
     public function testABlockedRunProvidesNothing(): void

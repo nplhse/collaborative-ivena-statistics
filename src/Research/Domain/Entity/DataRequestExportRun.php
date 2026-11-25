@@ -168,6 +168,24 @@ class DataRequestExportRun
         $this->finishedAt = null;
     }
 
+    /**
+     * The download period ended: no more downloads, the archive goes. Returns the archive's file name to remove.
+     *
+     * @throws DataRequestException when the run is not available or its period has not ended
+     */
+    public function expire(\DateTimeImmutable $at): ?string
+    {
+        if (ExportRunStatus::Available !== $this->status || !$this->availableUntil instanceof \DateTimeImmutable || $at < $this->availableUntil) {
+            throw new DataRequestException('Only an available export whose download period ended expires.');
+        }
+
+        $archive = $this->archiveFile;
+        $this->status = ExportRunStatus::Expired;
+        $this->archiveFile = null;
+
+        return $archive;
+    }
+
     public function isDownloadableAt(\DateTimeImmutable $at): bool
     {
         return ExportRunStatus::Available === $this->status && null !== $this->archiveFile

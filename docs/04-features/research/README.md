@@ -169,8 +169,22 @@ description; check results, dry runs and the forms are for administrators. The t
 `RESEARCH_DATABASE_URL` configures the Doctrine connection `research`. Empty (the default) keeps checks, dry runs and
 exports disabled; nothing falls back to the application user. In production it is the hosting's read-only user, on
 Uberspace `<account>_ro` with the password from `~/.pgpass`. In the test environment it points to the test database,
-and DAMA shares the test transaction with it (`connection_keys` in `dama_doctrine_test_bundle.yaml`); a dedicated
-read-only role for local development and CI follows in the next step.
+and DAMA shares the test transaction with it (`connection_keys` in `dama_doctrine_test_bundle.yaml`), so the tests run as
+the application user.
+
+- **Local development:** the role `app_ro` stands in for the hosting's `_ro` user. `docker/db/init/10-research-readonly.sql`
+  creates it on a fresh database volume (mounted into `docker-entrypoint-initdb.d`); for an existing volume run
+  `make db-readonly-role`. It reads every table of `public`, also those of later migrations (default privileges), and
+  writes nothing. Then set
+  `RESEARCH_DATABASE_URL="postgresql://app_ro:password@127.0.0.1:5432/app?serverVersion=18&charset=utf8"` in
+  `.env.local`.
+- **State** (`ExportConnection::state()`): `disabled` without the variable, `unreachable` when the connection fails,
+  `writable` when its role is a superuser, may create objects in `public` or change any of its tables, else
+  `read_only`. Administrators see every state except `read_only` on the queries of an approved request; Application
+  Health reports it as `research_export` ([health check](../../05-operations/health-check.md#checks)).
+- **Tests and CI:** the suite shares the application user, which counts as `writable`. `ExportConnectionTest` creates a
+  role inside the test transaction, switches to it with `SET LOCAL ROLE` and checks that a read-only role counts as
+  `read_only` and one writable table makes it `writable`; the rollback removes the role. CI needs no extra setup.
 
 ## Release and export run
 
@@ -204,7 +218,11 @@ worker does nothing.
   import as data state, hospitals per file, the minimum, the pseudonymisation note and a citation). Neither names a
   person. The archive lies in `var/research/exports` under a random name, is served only by the download route, and is
   downloadable for seven days by the recipient and by administrators; each download is recorded
-  (`DataRequestExportDownload`). Removing the file after the period follows with the cleanup job.
+  (`DataRequestExportDownload`).
+- **Cleanup** (scheduler job `research_export_cleanup`, daily at 04:50 Europe/Berlin): marks exports whose seven days
+  ended as `expired` and removes their archives; then removes archives no run refers to and working directories of
+  interrupted runs, both older than a day. The download route refuses an expired export on its own, so a late job
+  only delays freeing the space.
 - **Internal record** (on the run, administrators only): settings (isolation, timeout, limits, minimum), application
   and allowlist version (`ExportAllowlist::VERSION`), time and duration, the finished imports at the time of the run,
   the query versions with their SQL checksum, per file rows, hospitals, SHA-256 and the number of groups per count of
@@ -238,5 +256,5 @@ Timeline: `released`, `export_requested` and `export_provided` are private (Boar
 Every entity is audited. The services record the intents `research.data_request.drafted`, `.updated`, `.submitted`,
 `.withdrawn`, `.commented`, `.round_opened`, `.returned`, `.voted`, `.vetoed`, `.member_excluded`, `.veto_resolved`, `.round_closed`,
 `.expired`, `.query_added`, `.query_revised`, `.query_checked`, `.query_dry_run`, `.released`, `.export_requested`,
-`.export_started`, `.export_finished`, `.export_retried` and `.export_downloaded`. A request, its votes and rounds stay when an account is deleted (the user reference becomes null);
+`.export_started`, `.export_finished`, `.export_retried`, `.export_downloaded` and `.export_expired`. A request, its votes and rounds stay when an account is deleted (the user reference becomes null);
 an exclusion is deleted with the member's account.

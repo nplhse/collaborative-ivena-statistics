@@ -12,6 +12,11 @@
             </div>
         </div>
         <div class="card-body">
+            {% if exportConnectionState is defined and exportConnectionState and exportConnectionState != 'read_only' %}
+                <div class="alert alert-{{ exportConnectionState == 'disabled' ? 'secondary' : 'danger' }} mb-3" data-testid="data-request-export-connection" data-state="{{ exportConnectionState }}">
+                    {{ ('data_request.export.connection.' ~ exportConnectionState)|trans({}, 'research') }}
+                </div>
+            {% endif %}
             {% for query in dataRequest.queries %}
                 {% set current = query.currentVersion %}
                 <div class="mb-4" data-testid="data-request-query" data-query="{{ query.name }}">

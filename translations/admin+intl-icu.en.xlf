@@ -589,6 +589,10 @@
         <source>ops.health.check.two_factor</source>
         <target>Two-factor key</target>
       </trans-unit>
+      <trans-unit id="opsHlthResearchExport" resname="ops.health.check.research_export">
+        <source>ops.health.check.research_export</source>
+        <target>Data export connection</target>
+      </trans-unit>
       <trans-unit id="opsHlthMsg00" resname="ops.health.check.messenger">
         <source>ops.health.check.messenger</source>
         <target>Messenger</target>

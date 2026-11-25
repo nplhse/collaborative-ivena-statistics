@@ -99,6 +99,8 @@ app:
             overdue_after_minutes: 1500
         research_data_request_deadlines:
             overdue_after_minutes: 60
+        research_export_cleanup:
+            overdue_after_minutes: 1500
         messenger_queue_sample:
             overdue_after_minutes: 120
         monitoring_retention:

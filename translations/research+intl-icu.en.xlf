@@ -1253,6 +1253,18 @@
         <source>data_request.export.readme.citation</source>
         <target>{source}, data extract for request no. {number}, data as of {data_as_of}, retrieved {retrieved}. {url}</target>
       </trans-unit>
+      <trans-unit id="RscE97B7293" resname="data_request.export.connection.disabled">
+        <source>data_request.export.connection.disabled</source>
+        <target>The export connection is not set up (RESEARCH_DATABASE_URL): checks, dry runs and exports are disabled.</target>
+      </trans-unit>
+      <trans-unit id="Rsc52BEB519" resname="data_request.export.connection.writable">
+        <source>data_request.export.connection.writable</source>
+        <target>The export connection could change data. Set RESEARCH_DATABASE_URL to the read-only user of the hosting.</target>
+      </trans-unit>
+      <trans-unit id="RscBF21F670" resname="data_request.export.connection.unreachable">
+        <source>data_request.export.connection.unreachable</source>
+        <target>The export connection does not answer. Check RESEARCH_DATABASE_URL and the database user.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

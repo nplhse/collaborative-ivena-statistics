@@ -56,6 +56,7 @@ Every scheduler job writes a `job_run` row, with the trigger `scheduler`. Jobs w
 | `feedback_quarantine_summary` | `SendFeedbackQuarantineSummaryMessage` | Mondays 08:00 | 10140 | `reported`; `skip_reason: nothing_to_report` without new quarantined feedback |
 | `feedback_quarantine_purge` | `PurgeQuarantinedFeedbackMessage` | daily 04:10 | 1500 | `deleted` |
 | `research_data_request_deadlines` | `EvaluateDataRequestDeadlinesMessage` | every 15 min | 60 | `rounds_closed`, `revisions_expired`, `skipped`; `skip_reason: nothing_due` ([data extract requests](../04-features/research/README.md#voting-rounds)) |
+| `research_export_cleanup` | `CleanUpDataExportsMessage` | daily 04:50 | 1500 | `exports_expired`, `files_removed`; `skip_reason: nothing_due` ([data extract requests](../04-features/research/README.md#release-and-export-run)) |
 | `messenger_queue_sample` | `SampleMessengerQueuesMessage` | hourly :05 | 120 | `pending`, `waiting`, `failed`, `oldest_pending_age_seconds` |
 | `monitoring_retention` | `CleanUpMonitoringMessage` | daily 03:50 | 1500 | `folded_daily_rows`, `deleted_hourly_rows`, `deleted_failures`, `deleted_queue_samples`, `deleted_job_runs` |
 | `encounter_source_file_retention` | `DeleteExpiredEncounterSourceFilesMessage` | daily 03:10 | 1500 | `deleted_files`, `missing_files`, `failed_deletions`, `retention_days` ([encounter README](../04-features/encounter/README.md#upload-file-retention)) |
