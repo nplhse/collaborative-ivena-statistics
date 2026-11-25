@@ -22,7 +22,10 @@ clarifies and documents it before the first real upload.
 1. Export from the HIS on a hospital computer.
 2. Preparation in the browser tool on the same computer, offline except for one update check. The
    original export and the key file never leave the computer.
-3. Upload of the canonical file by a person with the upload grant, with confirmation.
+3. Upload of the canonical file by a person with the upload grant. One required confirmation per upload: the
+   file comes from the tool, holds no direct identifiers, and the participation is agreed with the hospital's
+   data protection and the data may be used on this platform. Stored with person, time and terms version, visible
+   to the operator in the admin backend (#1563).
 4. Storage of the file for at most 30 days; storage of the imported encounters on the platform.
 5. Access in the application according to the encounter grants.
 

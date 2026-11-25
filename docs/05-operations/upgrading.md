@@ -78,6 +78,10 @@ for this release. Once the revised terms are published on the terms page, set `A
 `2026-12`) in `shared/.env.local`; everyone is then asked to accept at their next login. Neither a release nor a cache
 clear is needed for a new version.
 
+Encounter uploads ask for one extended confirmation from now on: tool, no direct identifiers, and the participation
+agreed with the hospital's data protection, so the data may be used on the platform (#1563). Each upload stores it
+with the terms version in force; the import detail page of the admin backend shows it. Earlier uploads show "No" for the data protection agreement.
+
 ### Check
 
 ```bash

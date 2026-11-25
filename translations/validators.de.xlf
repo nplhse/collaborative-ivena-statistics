@@ -899,7 +899,7 @@
       </trans-unit>
       <trans-unit id="EncValD6EF1558" resname="validation.encounter.import.confirmation_required">
         <source>validation.encounter.import.confirmation_required</source>
-        <target>Bestätigen Sie, dass die Datei mit dem Datenaufbereitungs-Werkzeug erstellt wurde und keine direkten Identifikatoren enthält.</target>
+        <target>Bestätigen Sie, dass die Datei aus dem Datenaufbereitungs-Werkzeug stammt, keine direkten Identifikatoren enthält, die Teilnahme mit dem Datenschutz Ihrer Klinik abgestimmt ist und die Daten auf dieser Plattform verwendet werden dürfen.</target>
       </trans-unit>
       <trans-unit id="EncVal796CE2AF" resname="validation.encounter.import.schema_required">
         <source>validation.encounter.import.schema_required</source>

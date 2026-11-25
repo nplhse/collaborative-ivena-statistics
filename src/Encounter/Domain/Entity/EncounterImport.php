@@ -15,7 +15,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Encounter-specific state of one import of type ENCOUNTER (#1048), next to the generic `Import`.
  *
- * - The upload confirmation (file produced with the tool, no direct identifiers) with user and time.
+ * - The upload confirmation (file produced with the tool, no direct identifiers; since #1563 also that the
+ *   participation is agreed with the hospital's data protection) with user, time and terms version.
  * - The key generation of the hospital at upload (ADR 027); every commit of a run checks it again.
  * - What the last run read from the manifest, why it rejected the file, and its row counts.
  * - Whether and when the uploaded file was deleted: at once for a file that may hold direct
@@ -51,6 +52,14 @@ class EncounterImport
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $confirmedAt;
+
+    /** The confirmation included the agreement with the hospital's data protection (#1563); false for older uploads. */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $dataProtectionConfirmed;
+
+    /** Terms of use version in force at upload (ADR 043); null while none is configured and for older uploads. */
+    #[ORM\Column(length: 32, nullable: true)]
+    private ?string $termsVersion;
 
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $schemaVersion = null;
@@ -103,8 +112,15 @@ class EncounterImport
     #[ORM\Column(nullable: true)]
     private ?int $conflicts = null;
 
-    public function __construct(Import $import, string $schema, int $keyGeneration, ?User $confirmedBy, \DateTimeImmutable $confirmedAt)
-    {
+    public function __construct(
+        Import $import,
+        string $schema,
+        int $keyGeneration,
+        ?User $confirmedBy,
+        \DateTimeImmutable $confirmedAt,
+        bool $dataProtectionConfirmed = false,
+        ?string $termsVersion = null,
+    ) {
         if ($keyGeneration < 1) {
             throw new \InvalidArgumentException(sprintf('The key generation starts at 1, got %d.', $keyGeneration));
         }
@@ -114,6 +130,8 @@ class EncounterImport
         $this->keyGeneration = $keyGeneration;
         $this->confirmedBy = $confirmedBy;
         $this->confirmedAt = $confirmedAt;
+        $this->dataProtectionConfirmed = $dataProtectionConfirmed;
+        $this->termsVersion = $termsVersion;
     }
 
     /**
@@ -218,6 +236,16 @@ class EncounterImport
     public function getConfirmedAt(): \DateTimeImmutable
     {
         return $this->confirmedAt;
+    }
+
+    public function isDataProtectionConfirmed(): bool
+    {
+        return $this->dataProtectionConfirmed;
+    }
+
+    public function getTermsVersion(): ?string
+    {
+        return $this->termsVersion;
     }
 
     public function getSchemaVersion(): ?int

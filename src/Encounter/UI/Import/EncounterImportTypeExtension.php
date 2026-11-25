@@ -17,11 +17,13 @@ use App\Encounter\Contract\Display\ImportRecordsLinkProviderInterface;
 use App\Encounter\Contract\Import\SuspectedDuplicateReaderInterface;
 use App\Encounter\Domain\Entity\EncounterImport;
 use App\Import\Application\Contracts\ImportTypeExtensionInterface;
+use App\Import\Application\DTO\ImportTypeAdminDetail;
 use App\Import\Application\DTO\ImportTypeDetailSection;
 use App\Import\Application\DTO\ImportTypeRecordAction;
 use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
+use App\User\Application\Terms\TermsVersion;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
@@ -45,15 +47,17 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * Encounter imports on the generic import pages (#1048, `import.type_extension`).
  *
  * - Upload: type "Encounter data (beta)" for users with the beta role; hospitals with the encounter
- *   grant UPLOAD (or all for ROLE_ADMIN); schema and the required confirmation that the file was
- *   produced with the data preparation tool and holds no direct identifiers, stored with user and
- *   time on `encounter_import` (audited) together with the key generation at upload. Refused while
- *   the hospital's key change is in progress (ADR 027).
+ *   grant UPLOAD (or all for ROLE_ADMIN); schema and one required confirmation that the file was
+ *   produced with the data preparation tool, holds no direct identifiers and that the participation is
+ *   agreed with the hospital's data protection (#1563). Stored with user, time and the terms version in
+ *   force (ADR 043) on `encounter_import` (audited) together with the key generation at upload. Refused
+ *   while the hospital's key change is in progress (ADR 027).
  * - List and detail: only for UPLOAD on the hospital (ADR 028); reprocess, download and delete as well.
  *   Reprocess and download only while the upload file is kept (ADR 026, #1049).
  * - Detail page section: counts, file rejection, until when the file is kept or when it was deleted; row
  *   rejects and suspected duplicates only for ROLE_ADMIN (#1413); never file content or cell values. With
  *   VIEW_CASES on the hospital, the schema's link to the imported records (`encounter.import_records_link`).
+ * - Admin backend: the upload confirmation (who, when, data protection agreed, terms version), #1563.
  *
  * @psalm-suppress UnusedClass Tagged via ImportTypeExtensionInterface.
  */
@@ -84,6 +88,7 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
         private UrlGeneratorInterface $urlGenerator,
         private ClockInterface $clock,
         private Security $security,
+        private TermsVersion $termsVersion,
         #[Autowire(param: 'app.encounter.source_file_retention_days')]
         private int $sourceFileRetentionDays,
         #[AutowireIterator(ImportRecordsLinkProviderInterface::TAG)]
@@ -139,7 +144,6 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
                 'mapped' => false,
                 'required' => false,
                 'label' => 'encounter.import.field.schema',
-                'help' => 'encounter.import.field.schema_help',
                 'translation_domain' => 'encounter',
                 'choices' => array_combine($schemas, $schemas),
                 'choice_label' => fn (string $schema): TranslatableInterface => $this->dimensions->get($schema)->label(),
@@ -151,9 +155,8 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
                 'required' => false,
                 'label' => 'encounter.import.field.confirmation',
                 'translation_domain' => 'encounter',
-                'help' => 'encounter.import.field.confirmation_help',
-                'help_html' => true,
-                'help_translation_parameters' => ['url' => $this->urlGenerator->generate('app_tools_data_prep')],
+                'label_html' => true,
+                'label_translation_parameters' => ['url' => $this->urlGenerator->generate('app_tools_data_prep')],
             ]);
     }
 
@@ -196,6 +199,8 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
             $this->keyStates->currentState($hospitalId)['generation'],
             $confirmedBy,
             $this->clock->now(),
+            dataProtectionConfirmed: true,
+            termsVersion: $this->termsVersion->current(),
         ));
     }
 
@@ -246,6 +251,25 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
             'suspected_duplicates' => $isAdmin ? $this->suspectedDuplicates($schema, $importId) : [],
             'list_limit' => self::LIST_LIMIT,
         ], $this->recordActions($import, $schema), $encounterImport->getInserted());
+    }
+
+    #[\Override]
+    public function adminDetails(Import $import): array
+    {
+        $encounterImport = $this->encounterImports->findForImportId((int) $import->getId());
+        if (!$encounterImport instanceof EncounterImport) {
+            return [];
+        }
+
+        $label = static fn (string $key): TranslatableMessage => new TranslatableMessage('encounter.import.confirmation.'.$key, domain: 'encounter');
+        $text = fn (string $key): string => $this->translator->trans('encounter.import.confirmation.'.$key, [], 'encounter');
+
+        return [
+            new ImportTypeAdminDetail($label('confirmed_by'), $encounterImport->getConfirmedBy()?->getUserIdentifier() ?? $text('deleted_user')),
+            new ImportTypeAdminDetail($label('confirmed_at'), $encounterImport->getConfirmedAt()->format('d.m.Y H:i')),
+            new ImportTypeAdminDetail($label('data_protection'), $text($encounterImport->isDataProtectionConfirmed() ? 'yes' : 'no')),
+            new ImportTypeAdminDetail($label('terms_version'), $encounterImport->getTermsVersion() ?? $text('no_version')),
+        ];
     }
 
     /**
