@@ -749,6 +749,10 @@
         <source>validation.registration.accept_terms_required</source>
         <target>Sie müssen die Nutzungsbedingungen akzeptieren, um sich zu registrieren.</target>
       </trans-unit>
+      <trans-unit id="termsv001" resname="validation.terms.accept_required">
+        <source>validation.terms.accept_required</source>
+        <target>Sie müssen den Nutzungsbedingungen zustimmen, um fortzufahren.</target>
+      </trans-unit>
       <trans-unit id="regv002" resname="validation.registration.identity_taken">
         <source>validation.registration.identity_taken</source>
         <target>Dieser Benutzername oder diese E-Mail-Adresse ist bereits vergeben.</target>

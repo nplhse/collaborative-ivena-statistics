@@ -33,12 +33,10 @@ app:
             - .ru
 
     terms:
-        # Version and date of the terms of use (#1564, ADR 043). Raise both by hand when the terms change materially;
-        # everyone then accepts the new version at their next login. Editorial edits of the terms page change nothing.
-        # Empty: acceptance is stored at registration, but nobody is asked again at login.
-        # Quote both values, e.g. version: '2026-12' and published_at: '2026-12-01' (unquoted, YAML reads a date as a number).
-        version: ~
-        published_at: ~
+        # Version of the terms of use (#1564, ADR 043), set with APP_TERMS_VERSION in .env.local. Raise it when the terms
+        # change materially; everyone then accepts the new version at their next login. Editorial edits of the terms page
+        # change nothing. Empty: acceptance is stored at registration, but nobody is asked at login.
+        version: '%env(default::APP_TERMS_VERSION)%'
 
     security:
         two_factor:
@@ -190,13 +188,19 @@ when@dev:
 
 when@demo:
     app:
+        # Demo accounts are shared (ADR 023); nobody accepts the terms for them at login (#1564).
+        terms:
+            version: ~
         security:
             two_factor:
                 required_for_admins: false
 
 # Tests sign in administrators without two-factor authentication; tests of the obligation switch it on themselves (#1567).
+# The same holds for the terms of use: tests of the login prompt set a version themselves (#1564).
 when@test:
     app:
+        terms:
+            version: ~
         security:
             two_factor:
                 required_for_admins: false

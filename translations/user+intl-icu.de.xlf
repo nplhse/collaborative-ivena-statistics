@@ -1033,6 +1033,30 @@
         <source>label.settings.two_factor_recommended</source>
         <target>Empfohlen</target>
       </trans-unit>
+      <trans-unit id="termsAccept00De" resname="title.terms.accept">
+        <source>title.terms.accept</source>
+        <target>Nutzungsbedingungen zustimmen</target>
+      </trans-unit>
+      <trans-unit id="termsAccept01De" resname="text.terms.accept_intro">
+        <source>text.terms.accept_intro</source>
+        <target>Die Nutzungsbedingungen haben sich geändert. Bitte lesen Sie die Fassung {version} und stimmen Sie ihr zu, um die Plattform weiter zu nutzen.</target>
+      </trans-unit>
+      <trans-unit id="termsAccept02De" resname="link.terms.read">
+        <source>link.terms.read</source>
+        <target>Nutzungsbedingungen lesen (öffnet in neuem Tab)</target>
+      </trans-unit>
+      <trans-unit id="termsAccept03De" resname="label.terms.accept">
+        <source>label.terms.accept</source>
+        <target>Ich habe die Nutzungsbedingungen gelesen und stimme ihnen zu.</target>
+      </trans-unit>
+      <trans-unit id="termsAccept04De" resname="label.terms.submit">
+        <source>label.terms.submit</source>
+        <target>Zustimmen und weiter</target>
+      </trans-unit>
+      <trans-unit id="termsAccept05De" resname="text.terms.decline">
+        <source>text.terms.decline</source>
+        <target>Ohne Ihre Zustimmung ruht Ihr Zugang.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

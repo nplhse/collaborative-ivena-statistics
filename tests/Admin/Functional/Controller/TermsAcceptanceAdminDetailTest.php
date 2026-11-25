@@ -31,7 +31,10 @@ final class TermsAcceptanceAdminDetailTest extends WebTestCase
         $this->client = self::createClient();
         $this->client->disableReboot();
         self::getContainer()->set(TermsVersion::class, new TermsVersion('2026-12'));
-        $this->client->loginUser(UserFactory::new()->asAdmin()->create(['username' => 'terms-admin']));
+        $admin = UserFactory::new()->asAdmin()->create(['username' => 'terms-admin']);
+        // The administrator accepted the current version; otherwise the login prompt would come first.
+        $this->accept($admin, '2026-12', '2026-12-02 08:00:00');
+        $this->client->loginUser($admin);
     }
 
     public function testUserDetailShowsTheLatestAcceptedVersion(): void

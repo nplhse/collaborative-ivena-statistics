@@ -38,6 +38,8 @@ final readonly class RequireTwoFactorListener
         'app_settings_two_factor_enable',
         'app_settings_two_factor_backup_codes',
         'app_confirm_password',
+        // The terms of use come first (#1564); otherwise the two pages would send each other back and forth.
+        'app_terms_accept',
         'app_logout',
         'app_locale_switch',
         'app_cookie_banner',
