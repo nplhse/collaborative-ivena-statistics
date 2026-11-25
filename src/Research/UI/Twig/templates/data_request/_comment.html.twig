@@ -3,7 +3,8 @@
     <div class="card-header py-2 d-flex justify-content-between align-items-center gap-2 flex-wrap">
         <div class="d-flex align-items-center gap-2 min-w-0 flex-wrap">
             {{ include('@Research/data_request/_user.html.twig', {person: comment.author}) }}
-            <span class="text-secondary small">{{ comment.createdAt|format_datetime('medium', 'short') }} · {{ 'data_request.comment.version'|trans({version: comment.version.number}, 'research') }}</span>
+            <twig:RelativeTimestamp :datetime="comment.createdAt" />
+            <span class="text-secondary small">· {{ 'data_request.comment.version'|trans({version: comment.version.number}, 'research') }}</span>
             {% if comment.vote %}
                 <twig:Badge variant="blue">{{ 'data_request.comment.vote_badge'|trans({choice: comment.vote.choice.labelKey|trans({}, 'research')}, 'research') }}</twig:Badge>
             {% endif %}

@@ -27,6 +27,12 @@ enum DataRequestStatus: string
     }
 
     /** The applicant may change the current version: a draft, or a request handed back for changes. */
+    /** Submitted and not decided yet: the formal check, a vote, a requested revision or a stop by veto. */
+    public function isUnderReview(): bool
+    {
+        return \in_array($this, [self::Submitted, self::Returned, self::InReview, self::RevisionRequested, self::Stalled], true);
+    }
+
     public function isEditable(): bool
     {
         return \in_array($this, [self::Draft, self::Returned, self::RevisionRequested], true);

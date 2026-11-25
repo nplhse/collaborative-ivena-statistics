@@ -6,7 +6,6 @@ namespace App\Research\UI\Http\Controller\DataRequest;
 
 use App\Research\Application\DataRequest\VersionComparison;
 use App\Research\Domain\Entity\DataRequest;
-use App\Research\Domain\Entity\DataRequestVersion;
 use App\Research\Infrastructure\Repository\DataRequestRepository;
 use App\Research\Infrastructure\Security\Voter\DataRequestVoter;
 use App\User\Domain\Entity\User;
@@ -39,29 +38,12 @@ final class CompareDataRequestVersionsController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $versions = array_values(array_filter(
-            $dataRequest->getVersions(),
-            static fn (DataRequestVersion $version): bool => $version->isSubmitted() || $dataRequest->isRequestedBy($user),
-        ));
-        $byNumber = [];
-        foreach ($versions as $version) {
-            $byNumber[$version->getNumber()] = $version;
-        }
-
-        $to = $byNumber[$request->query->getInt('to')] ?? ([] !== $versions ? $versions[\count($versions) - 1] : null);
-        $from = $byNumber[$request->query->getInt('from')] ?? ($to instanceof DataRequestVersion ? ($byNumber[$to->getNumber() - 1] ?? null) : null);
-
-        $changes = $from instanceof DataRequestVersion && $to instanceof DataRequestVersion && $from !== $to
-            ? VersionComparison::compare($from, $to, $this->isGranted(DataRequestVoter::VIEW_INTERNAL, $dataRequest))
-            : null;
+        $comparison = VersionComparison::forReader($dataRequest, $user, $request->query->getInt('from'), $request->query->getInt('to'), $this->isGranted(DataRequestVoter::VIEW_INTERNAL, $dataRequest));
 
         return $this->render('@Research/data_request/compare.html.twig', [
             'dataRequest' => $dataRequest,
             'version' => $dataRequest->getCurrentVersion(),
-            'versions' => $versions,
-            'from' => $from,
-            'to' => $to,
-            'changes' => $changes,
+            'comparison' => $comparison,
         ]);
     }
 }

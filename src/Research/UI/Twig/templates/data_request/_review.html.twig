@@ -9,6 +9,9 @@
 {% set canExcludeOthers = is_granted('DATA_REQUEST_RECORD_EXCLUSION', dataRequest) and boardMembers|filter(member => member.id != app.user.id) is not empty %}
 {% set ownActions = own and (is_granted('DATA_REQUEST_EDIT', dataRequest) or is_granted('DATA_REQUEST_SUBMIT', dataRequest) or is_granted('DATA_REQUEST_WITHDRAW', dataRequest)) %}
 {% set token = 'data_request_review_' %}
+{% set canManageQueries = is_granted('DATA_REQUEST_MANAGE_QUERIES', dataRequest) %}
+{% set revocable = releases|filter(entry => entry.canRevoke) %}
+{% import '@Shared/_macros/users.html.twig' as users %}
 
 {% if dataRequest.wasSubmitted %}
     <div class="card mb-3" data-testid="data-request-review">
@@ -29,16 +32,24 @@
             {% endif %}
 
             {% for round in dataRequest.rounds|reverse %}
-                <div class="border rounded p-2 mb-2" data-testid="data-request-round">
+                {% set outcome = round.outcome ? round.outcome.value : 'open' %}
+                {% set look = {
+                    open: ['blue', 'tabler:clock'],
+                    approved: ['green', 'tabler:circle-check'],
+                    revision_requested: ['yellow', 'tabler:alert-circle'],
+                    rejected: ['red', 'tabler:circle-x'],
+                    quorum_missed: ['secondary', 'tabler:circle-x'],
+                    vetoed: ['red', 'tabler:ban'],
+                    cancelled: ['secondary', 'tabler:x'],
+                }[outcome] %}
+                <div class="{{ not loop.first ? 'border-top pt-3 mt-3' }}" data-testid="data-request-round">
                     <div class="d-flex justify-content-between align-items-center gap-2">
-                        <strong>{{ 'data_request.round.title'|trans({number: round.number, version: round.version.number}, 'research') }}</strong>
-                        {% if round.outcome %}
-                            <twig:Badge variant="{{ round.outcome.value == 'approved' ? 'green' : (round.outcome.value in ['revision_requested', 'vetoed'] ? 'yellow' : 'secondary') }}" data-testid="data-request-round-outcome">{{ round.outcome.labelKey|trans({}, 'research') }}</twig:Badge>
-                        {% else %}
-                            <twig:Badge variant="blue">{{ 'data_request.round.open'|trans({}, 'research') }}</twig:Badge>
-                        {% endif %}
+                        <twig:Badge :variant="look[0]" data-testid="data-request-round-outcome" data-outcome="{{ outcome }}">
+                            <twig:ux:icon name="{{ look[1] }}" class="icon me-1" />{{ round.outcome ? round.outcome.labelKey|trans({}, 'research') : 'data_request.round.open'|trans({}, 'research') }}
+                        </twig:Badge>
+                        <span class="text-secondary small">{{ 'data_request.round.title'|trans({number: round.number, version: round.version.number}, 'research') }}</span>
                     </div>
-                    <div class="small text-body-secondary mt-1">
+                    <div class="small text-body-secondary mt-2">
                         {{ 'data_request.round.summary'|trans({
                             cast: round.choices|length,
                             eligible: round.eligibleCount,
@@ -52,16 +63,22 @@
                             {{ 'data_request.round.closed_at'|trans({date: round.closedAt|format_datetime('medium', 'short')}, 'research') }}
                         {% endif %}
                     </div>
-                    {% if canSeeVotes %}
+                    {% if round.votes is not empty %}
                         <ul class="list-unstyled small mt-2 mb-0" data-testid="data-request-votes">
                             {% for vote in round.votes %}
-                                <li class="mb-1">
-                                    <strong>{{ vote.voter ? vote.voter.username : 'data_request.deleted_account'|trans({}, 'research') }}</strong>:
-                                    {{ vote.choice.labelKey|trans({}, 'research') }}
-                                    {% if vote.carriedOver %}<span class="text-body-secondary">({{ 'data_request.vote.carried_over'|trans({}, 'research') }})</span>{% endif %}
+                                {% set choiceLook = {
+                                    approve: ['text-success', 'tabler:circle-check'],
+                                    revision: ['text-warning', 'tabler:alert-circle'],
+                                    reject: ['text-danger', 'tabler:circle-x'],
+                                    veto: ['text-danger', 'tabler:ban'],
+                                }[vote.choice.value] %}
+                                <li class="d-flex align-items-center gap-1 mb-1" data-testid="data-request-voter"{% if canSeeVotes %} data-choice="{{ vote.choice.value }}"{% endif %}>
+                                    {% if canSeeVotes %}
+                                        <twig:ux:icon name="{{ choiceLook[1] }}" class="icon {{ choiceLook[0] }}" title="{{ vote.choice.labelKey|trans({}, 'research') }}" aria-label="{{ vote.choice.labelKey|trans({}, 'research') }}" />
+                                    {% endif %}
+                                    {{ users.link(vote.voter, {avatar: 'inline'}) }}
+                                    {% if canSeeVotes and vote.carriedOver %}<span class="text-body-secondary">({{ 'data_request.vote.carried_over'|trans({}, 'research') }})</span>{% endif %}
                                 </li>
-                            {% else %}
-                                <li class="text-body-secondary">{{ 'data_request.vote.none'|trans({}, 'research') }}</li>
                             {% endfor %}
                         </ul>
                     {% endif %}
@@ -82,8 +99,10 @@
     </div>
 {% endif %}
 
-{% if canVote or canCheck or canResolve or ownActions or canExcludeSelf or canExcludeOthers %}
-    <div class="card mb-3" data-testid="data-request-actions">
+{% if canVote or canCheck or canResolve or ownActions or canExcludeSelf or canExcludeOthers or canManageQueries or canRelease or revocable is not empty %}
+    {% set fixedActions = canVote or canCheck or canResolve or ownActions or canExcludeSelf or canExcludeOthers %}
+    {# Actions that belong to one tab show only with it; without any other action the card shows only then too. #}
+    <div class="card mb-3{{ fixedActions ? '' : ' d-none' }}" data-testid="data-request-actions" data-data-request-tabs-target="actionsCard" data-fixed-actions="{{ fixedActions ? 1 : 0 }}">
         <div class="card-header"><h3 class="card-title">{{ 'data_request.actions.title'|trans({}, 'research') }}</h3></div>
         <div class="card-body">
             {% if canVote %}
@@ -147,6 +166,27 @@
                         </button>
                     {% endif %}
                 {% endfor %}
+            {% endif %}
+            {% if canManageQueries %}
+                <div class="d-none" data-data-request-tabs-target="action" data-tab="tab-queries" data-testid="data-request-query-actions">
+                    <button type="button" class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#data-request-query-add-modal" data-testid="data-request-query-add-open">
+                        <twig:ux:icon name="tabler:plus" class="icon" /> {{ 'data_request.query.action.add'|trans({}, 'research') }}
+                    </button>
+                </div>
+            {% endif %}
+            {% if canRelease or revocable is not empty %}
+                <div class="d-none" data-data-request-tabs-target="action" data-tab="tab-release" data-testid="data-request-release-actions">
+                    {% if canRelease %}
+                        <button type="button" class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#data-request-release-modal" data-testid="data-request-release-open">
+                            <twig:ux:icon name="tabler:key" class="icon" /> {{ 'data_request.release.action'|trans({}, 'research') }}
+                        </button>
+                    {% endif %}
+                    {% for entry in revocable %}
+                        <button type="button" class="btn btn-outline-danger w-100 mb-2" data-bs-toggle="modal" data-bs-target="#data-request-release-{{ entry.release.number }}-revoke-modal" data-testid="data-request-release-revoke-open">
+                            <twig:ux:icon name="tabler:key-off" class="icon" /> {{ 'data_request.release.revoke_number'|trans({number: entry.release.number}, 'research') }}
+                        </button>
+                    {% endfor %}
+                </div>
             {% endif %}
             {% if canExcludeSelf %}
                 <button type="button" class="btn btn-outline-danger w-100 mb-2" data-bs-toggle="modal" data-bs-target="#data-request-exclude-self-modal" data-testid="data-request-exclude-self-open">

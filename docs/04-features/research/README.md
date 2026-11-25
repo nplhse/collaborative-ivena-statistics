@@ -115,6 +115,8 @@ In the actions card, "Declare own conflict of interest" opens a dialog in which 
 administrators also have "Exclude a Board member" with a dialog to choose the member (`DataRequestExclusion`, one per
 member and request). The exclusion cannot be undone. An excluded member leaves an open round together with their vote,
 does not count for the quorum, cannot vote and cannot do the formal check. The round may be complete afterwards.
+Exclusions are possible only while the request is under review; once it is decided (approved, rejected, expired or
+withdrawn) both actions disappear.
 
 ## Timeline and comments
 
@@ -259,8 +261,8 @@ Timeline: `released`, `export_requested`, `export_provided`, `release_revoked`, 
 | `DATA_REQUEST_CHECK` | Board members and administrators who are neither the applicant nor excluded, while `submitted` |
 | `DATA_REQUEST_VOTE` | eligible, not excluded Board members while a round is open |
 | `DATA_REQUEST_VIEW_VOTES` | Board members who are neither the applicant nor excluded, and administrators |
-| `DATA_REQUEST_EXCLUDE_SELF` | Board members except the applicant, on a submitted, not final request |
-| `DATA_REQUEST_RECORD_EXCLUSION`, `DATA_REQUEST_RESOLVE` | administrators; resolving only while `stalled` |
+| `DATA_REQUEST_EXCLUDE_SELF` | Board members except the applicant, while the request is under review (submitted, returned, in review, revision requested or stalled) |
+| `DATA_REQUEST_RECORD_EXCLUSION`, `DATA_REQUEST_RESOLVE` | administrators; exclusions only while the request is under review, resolving only while `stalled` |
 | `DATA_REQUEST_COMMENT` | whoever may write at least one level (see above), on a submitted request |
 | `DATA_REQUEST_MANAGE_QUERIES` | administrators, once the request is approved |
 | `DATA_REQUEST_RELEASE` | administrators, once every query passes the check and no other release is open |

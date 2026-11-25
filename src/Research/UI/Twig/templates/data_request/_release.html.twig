@@ -5,7 +5,7 @@
 {% set releaseToken = csrf_token('data_request_release_' ~ dataRequest.publicIdString) %}
 
 {% if canRelease or releases is not empty %}
-    <div class="card mt-3" id="release" data-testid="data-request-release">
+    <div class="card" id="release" data-testid="data-request-release">
         <div class="card-header">
             <div>
                 <h3 class="card-title">{{ 'data_request.release.title'|trans({}, 'research') }}</h3>
@@ -13,46 +13,8 @@
             </div>
         </div>
         <div class="card-body">
-            {% if canRelease %}
-                <form method="post" action="{{ path('app_data_requests_release', {publicId: dataRequest.publicIdString}) }}" class="mb-4" data-testid="data-request-release-form">
-                    <input type="hidden" name="_token" value="{{ releaseToken }}">
-                    <p class="mb-2">{{ 'data_request.release.choose'|trans({}, 'research') }}</p>
-                    <div class="mb-3" data-testid="data-request-release-queries">
-                        {% for query in dataRequest.queries %}
-                            {% set current = query.currentVersion %}
-                            {% set dryRun = current.dryRun %}
-                            <label class="form-check mb-1">
-                                <input class="form-check-input" type="checkbox" name="queries[]" value="{{ query.name }}"{{ current.passesCheck ? ' checked' : ' disabled' }} data-testid="data-request-release-query" data-query="{{ query.name }}">
-                                <span class="form-check-label">
-                                    <span class="font-monospace">{{ query.name }}.csv</span>
-                                    <span class="text-secondary">{{ 'data_request.release.query_version'|trans({number: current.number}, 'research') }}</span>
-                                    {% if not current.passesCheck %}
-                                        <span class="text-danger small">· {{ 'data_request.release.query_unchecked'|trans({}, 'research') }}</span>
-                                    {% elseif dryRun is null %}
-                                        <span class="text-secondary small">· {{ 'data_request.release.query_no_dry_run'|trans({}, 'research') }}</span>
-                                    {% elseif dryRun.error %}
-                                        <span class="text-danger small">· {{ 'data_request.release.query_dry_run_error'|trans({}, 'research') }}</span>
-                                    {% elseif query.kind.value == 'aggregated' and dryRun.below_minimum > 0 %}
-                                        <span class="text-danger small">· {{ 'data_request.release.query_below_minimum'|trans({count: dryRun.below_minimum}, 'research') }}</span>
-                                    {% endif %}
-                                </span>
-                            </label>
-                        {% endfor %}
-                        <div class="form-hint">{{ 'data_request.release.choose_help'|trans({}, 'research') }}</div>
-                    </div>
-                    <label class="form-label" for="release-conditions">{{ 'data_request.release.conditions'|trans({}, 'research') }}</label>
-                    <textarea class="form-control mb-1" id="release-conditions" name="conditions" rows="7" maxlength="5000" data-testid="data-request-release-conditions">{{ 'data_request.release.conditions_default'|trans({}, 'research') }}</textarea>
-                    <div class="form-hint mb-3">{{ 'data_request.release.conditions_help'|trans({}, 'research') }}</div>
-                    {% if needsSingleCaseConfirmation %}
-                        <label class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" name="single_cases_confirmed" value="1" data-testid="data-request-release-single-cases">
-                            <span class="form-check-label">{{ 'data_request.release.single_cases_confirm'|trans({}, 'research') }}</span>
-                        </label>
-                    {% endif %}
-                    <button type="submit" class="btn btn-primary" data-testid="data-request-release-submit">
-                        <twig:ux:icon name="tabler:key" class="icon" /> {{ 'data_request.release.action'|trans({}, 'research') }}
-                    </button>
-                </form>
+            {% if releases is empty %}
+                <p class="text-body-secondary mb-0" data-testid="data-request-release-empty">{{ 'data_request.release.empty'|trans({}, 'research') }}</p>
             {% endif %}
 
             {% for entry in releases %}
@@ -119,25 +81,6 @@
                             {% endif %}
                             <button type="submit" class="btn btn-primary" data-testid="data-request-export-start">{{ 'data_request.export.action.start'|trans({}, 'research') }}</button>
                         </form>
-                    {% endif %}
-
-                    {% if entry.canRevoke %}
-                        <button type="button" class="btn btn-outline-danger mt-2" data-bs-toggle="modal" data-bs-target="#data-request-release-{{ release.number }}-revoke-modal" data-testid="data-request-release-revoke-open">
-                            <twig:ux:icon name="tabler:key-off" class="icon" /> {{ 'data_request.release.revoke'|trans({}, 'research') }}
-                        </button>
-                        <twig:Modal id="data-request-release-{{ release.number }}-revoke-modal" :title="'data_request.release.revoke_title'|trans({number: release.number}, 'research')" :scrollable="false">
-                            <form method="post" action="{{ path('app_data_requests_export', {publicId: dataRequest.publicIdString, number: release.number, action: 'revoke'}) }}" data-testid="data-request-release-revoke-form">
-                                <input type="hidden" name="_token" value="{{ releaseToken }}">
-                                <div class="modal-body">
-                                    <label class="form-label" for="release-{{ release.number }}-reason">{{ 'data_request.release.revoke_reason'|trans({}, 'research') }}</label>
-                                    <textarea class="form-control" id="release-{{ release.number }}-reason" name="reason" rows="3" required maxlength="2000"></textarea>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">{{ 'action.cancel'|trans({}, 'messages') }}</button>
-                                    <button type="submit" class="btn btn-danger" data-testid="data-request-release-revoke">{{ 'data_request.release.revoke'|trans({}, 'research') }}</button>
-                                </div>
-                            </form>
-                        </twig:Modal>
                     {% endif %}
 
                     {% if run %}

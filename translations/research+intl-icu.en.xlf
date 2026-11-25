@@ -1339,6 +1339,54 @@ Only aggregated results are published, and every group they show is based on at 
         <source>data_request.modal.withdraw.message_released</source>
         <target>Withdrawing ends the request for good. Open releases end, and exports that are running or ready can no longer be downloaded. Copies already downloaded cannot be recalled.</target>
       </trans-unit>
+      <trans-unit id="Rsc3E99A184" resname="data_request.tab.summary">
+        <source>data_request.tab.summary</source>
+        <target>Summary</target>
+      </trans-unit>
+      <trans-unit id="RscAA340BD7" resname="data_request.tab.details">
+        <source>data_request.tab.details</source>
+        <target>Details</target>
+      </trans-unit>
+      <trans-unit id="RscD29F137D" resname="data_request.tab.queries">
+        <source>data_request.tab.queries</source>
+        <target>Queries</target>
+      </trans-unit>
+      <trans-unit id="Rsc39A12B2F" resname="data_request.tab.release">
+        <source>data_request.tab.release</source>
+        <target>Release</target>
+      </trans-unit>
+      <trans-unit id="RscC8554AA9" resname="data_request.basics.submitted_at">
+        <source>data_request.basics.submitted_at</source>
+        <target>Submitted on</target>
+      </trans-unit>
+      <trans-unit id="Rsc63D694A6" resname="data_request.basics.closed_at">
+        <source>data_request.basics.closed_at</source>
+        <target>Closed on</target>
+      </trans-unit>
+      <trans-unit id="RscE03938E8" resname="data_request.query.revise_title">
+        <source>data_request.query.revise_title</source>
+        <target>Change {file}</target>
+      </trans-unit>
+      <trans-unit id="RscBBDB504F" resname="data_request.query.action.revise_file">
+        <source>data_request.query.action.revise_file</source>
+        <target>Change {file}</target>
+      </trans-unit>
+      <trans-unit id="Rsc8B5C3CEE" resname="data_request.release.revoke_number">
+        <source>data_request.release.revoke_number</source>
+        <target>Revoke release {number}</target>
+      </trans-unit>
+      <trans-unit id="RscF1CDC7F8" resname="data_request.release.empty">
+        <source>data_request.release.empty</source>
+        <target>No release yet.</target>
+      </trans-unit>
+      <trans-unit id="Rsc3F48FF64" resname="data_request.tab.versions">
+        <source>data_request.tab.versions</source>
+        <target>Versions</target>
+      </trans-unit>
+      <trans-unit id="RscD315D147" resname="data_request.compare.version_option">
+        <source>data_request.compare.version_option</source>
+        <target>Version {number} of {date}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

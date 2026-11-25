@@ -7,6 +7,7 @@ namespace App\Research\UI\Http\Controller\DataRequest;
 use App\Research\Application\DataRequest\DataRequestCommentService;
 use App\Research\Application\DataRequest\DataRequestReleaseService;
 use App\Research\Application\DataRequest\DataRequestTimeline;
+use App\Research\Application\DataRequest\VersionComparison;
 use App\Research\Domain\Entity\DataRequest;
 use App\Research\Domain\Entity\DataRequestExportRun;
 use App\Research\Domain\Entity\DataRequestRelease;
@@ -18,6 +19,7 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use App\User\Infrastructure\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -41,7 +43,7 @@ final class ShowDataRequestController extends AbstractController
     }
 
     #[Route('/requests/data/{publicId}', name: 'app_data_requests_show', requirements: ['publicId' => Requirement::UUID], methods: ['GET'])]
-    public function __invoke(string $publicId): Response
+    public function __invoke(Request $request, string $publicId): Response
     {
         $dataRequest = $this->requests->findOneByPublicId($publicId);
         if (!$dataRequest instanceof DataRequest || !$this->isGranted(DataRequestVoter::VIEW, $dataRequest)) {
@@ -49,6 +51,7 @@ final class ShowDataRequestController extends AbstractController
         }
 
         $readable = $this->readable($dataRequest);
+        $user = $this->getUser();
 
         return $this->render('@Research/data_request/show.html.twig', [
             'dataRequest' => $dataRequest,
@@ -61,6 +64,9 @@ final class ShowDataRequestController extends AbstractController
             'canRelease' => $this->isGranted(DataRequestVoter::RELEASE, $dataRequest),
             'needsSingleCaseConfirmation' => $this->releases->needsSingleCaseConfirmation($dataRequest),
             'releases' => $this->releaseActions($dataRequest),
+            'comparison' => $user instanceof User
+                ? VersionComparison::forReader($dataRequest, $user, $request->query->getInt('from'), $request->query->getInt('to'), $this->isGranted(DataRequestVoter::VIEW_INTERNAL, $dataRequest))
+                : null,
             'exportConnectionState' => $this->isGranted(DataRequestVoter::MANAGE_QUERIES, $dataRequest) ? $this->exportConnection->state() : null,
         ]);
     }

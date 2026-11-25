@@ -26,6 +26,13 @@ final class DataRequestStatusTest extends TestCase
         self::assertSame([DataRequestStatus::Draft, DataRequestStatus::Returned, DataRequestStatus::RevisionRequested], $editable);
     }
 
+    public function testARequestIsUnderReviewFromSubmissionToTheDecision(): void
+    {
+        $underReview = array_values(array_filter(DataRequestStatus::cases(), static fn (DataRequestStatus $status): bool => $status->isUnderReview()));
+
+        self::assertSame([DataRequestStatus::Submitted, DataRequestStatus::Returned, DataRequestStatus::InReview, DataRequestStatus::RevisionRequested, DataRequestStatus::Stalled], $underReview);
+    }
+
     public function testEveryStatusHasALabelAndABadgeColour(): void
     {
         $variants = [];

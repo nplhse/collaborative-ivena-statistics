@@ -1,0 +1,71 @@
+{# Comparison of two versions of a data extract request (ADR 045), on its own page and in the versions tab. #}
+{% import _self as compare %}
+
+{% macro value(change, text) %}
+    {% if text is null or text == '' %}
+        <span class="text-body-secondary">–</span>
+    {% elseif change.kind == 'flag' %}
+        {{ (text == '1' ? 'label.yes' : 'label.no')|trans({}, 'messages') }}
+    {% elseif change.kind == 'date' %}
+        {{ date(text)|format_date('medium') }}
+    {% else %}
+        {{ text }}
+    {% endif %}
+{% endmacro %}
+
+{% set versions = comparison.versions %}
+{% set from = comparison.from %}
+{% set to = comparison.to %}
+{% set changes = comparison.changes %}
+{% if versions|length < 2 %}
+    <div class="card"><div class="card-body text-body-secondary" data-testid="data-request-compare-single">{{ 'data_request.compare.single'|trans({}, 'research') }}</div></div>
+{% else %}
+    <form method="get" action="{{ action }}" class="card mb-3" data-testid="data-request-compare-form">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                {% for name, selected in {from: from, to: to} %}
+                    <div class="col-md-5">
+                        <label class="form-label" for="compare-{{ name }}">{{ ('data_request.compare.' ~ name)|trans({}, 'research') }}</label>
+                        <select class="form-select" id="compare-{{ name }}" name="{{ name }}">
+                            {% for candidate in versions %}
+                                <option value="{{ candidate.number }}"{{ selected and selected.number == candidate.number ? ' selected' }}>
+                                    {{ 'data_request.compare.version_option'|trans({number: candidate.number, date: (candidate.submittedAt ?? candidate.createdAt)|format_date('short')}, 'research') }}{% if not candidate.submitted %} ({{ 'data_request.compare.not_submitted'|trans({}, 'research') }}){% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                {% endfor %}
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">{{ 'data_request.compare.submit'|trans({}, 'research') }}</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    {% if changes is null %}
+        <div class="card"><div class="card-body text-body-secondary">{{ 'data_request.compare.same_version'|trans({}, 'research') }}</div></div>
+    {% elseif changes is empty %}
+        <div class="card"><div class="card-body text-body-secondary" data-testid="data-request-compare-none">{{ 'data_request.compare.none'|trans({}, 'research') }}</div></div>
+    {% else %}
+        {% for change in changes %}
+            <div class="card mb-3" data-testid="data-request-change" data-field="{{ change.field }}">
+                <div class="card-header py-2"><h3 class="card-title">{{ change.labelKey|trans({}, 'research') }}</h3></div>
+                {% if change.kind == 'text' %}
+                    <div class="font-monospace small">
+                        {% for line in change.lines %}
+                            <div class="px-3 py-1 text-break{{ line.type == 'added' ? ' bg-green-lt' : (line.type == 'removed' ? ' bg-red-lt text-decoration-line-through' : '') }}" data-line="{{ line.type }}">
+                                <span class="text-body-secondary me-2" aria-hidden="true">{{ line.type == 'added' ? '+' : (line.type == 'removed' ? '−' : ' ') }}</span>{{ line.text }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="card-body py-2 d-flex align-items-center gap-2 flex-wrap">
+                        <span class="bg-red-lt px-2 py-1 rounded text-decoration-line-through">{{ compare.value(change, change.before) }}</span>
+                        <twig:ux:icon name="tabler:arrow-right" class="icon" />
+                        <span class="bg-green-lt px-2 py-1 rounded">{{ compare.value(change, change.after) }}</span>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endif %}
