@@ -68,7 +68,8 @@ local map, and the local map editor in the tool (1.1.0). #1157 added the public 
   fingerprint, unique per hospital and key generation.
 - Each ED visit belongs to the import that created it. Deleting that import removes the visit with its ED
   matching history, suspected duplicates and validation items; the encounter stays with its assignment and
-  the records of other imports, until the cleanup of encounters without records.
+  the records of other imports. An encounter left without any record goes right away, with its assignment
+  (#1644).
 - The administrative case number is carried as a pseudonym only to report suspected duplicates; it
   does not group encounters. No patient-level key.
 - `Allocation` is not changed and has no reference to encounter data.
@@ -234,14 +235,18 @@ transaction.
 **Delete** (`/import/{id}/delete`, `UPLOAD` via `EncounterAttribute::DELETE_IMPORT`): goes through
 `ImportDeletionService` like every import deletion and removes the import's visits with their ED matching
 history (candidates, links, review decisions in `encounter_match`), suspected duplicates and validation
-items, its rejects, report and source file. The encounters stay with their effective IVENA assignment and
-the records of other imports (#1300). Visits of other imports stay (ADR 029). The confirmation dialog says so; the deletion is audited like every import
+items, its rejects, report and source file. Encounters with records of other imports or schemas stay with their
+effective IVENA assignment (#1300); encounters of the hospital that are left without any record are removed
+in the same transaction, with their assignment (#1644, `EncounterImportDataRemover` runs the cleanup below for
+the import's hospital). Without that, the matcher rerun after the deletion would still treat those
+allocations as linked, and a corrected file uploaded the same day would match only the rest. Visits of other
+imports stay (ADR 029). The confirmation dialog says so; the deletion is audited like every import
 deletion.
 
 **Attached records** (ADR 037, #1274): records of attaching schemas reference the encounter with ON DELETE
 RESTRICT; `ed_visit.encounter_id` has no delete action (checked at the end of the statement). Since #1300
-deleting or reprocessing an ED import no longer touches encounters, so it is never refused because of
-attached records. Attaching schemas count their records as assigned, unassigned (no candidate) and
+deleting or reprocessing an ED import no longer deletes encounters that still have records, so it is never
+refused because of attached records. Attaching schemas count their records as assigned, unassigned (no candidate) and
 conflicts in the report (`encounter_import.assigned / unassigned / conflicts`, null for `ed_visit`), and
 keep unassigned records in `encounter_pending_assignment`
 ([extension point](../../02-architecture/extension-points.md#encounter-assignments)).
@@ -292,17 +297,19 @@ waiting records when left out).
 
 The **encounter hospital lock** (`EncounterHospitalLockInterface`, a transaction-level advisory lock per
 hospital) is taken by the decisions, the retries, the encounter import write (also a reprocess), the
-matcher and the match review (#1300). Decisions and retries still re-check the record and rely on the
-foreign keys, because an import deletion runs without it.
+matcher, the match review (#1300) and the deletion of an encounter import, before its records go (#1644).
+Decisions and retries still re-check the record and rely on the foreign keys, because deleting an allocation
+import runs without it.
 
 **Removing an assignment by hand** (#1300): when the allocation's encounter has no ED visit any more, a
 reviewer (`REVIEW`) sees "Remove assignment" on the case card (`POST
 /explore/allocation/{publicId}/encounter/unassign`). The encounter and its records stay; a later record
 naming the allocation or a matcher run can assign it again. With an ED visit the match review decides.
 
-**Cleanup of encounters without records** (#1300, ADR 037): a daily job (`encounter_cleanup`, 03:30)
-removes encounters that no clinical record references any more, for example after an ED import was
-deleted. A clinical record is a row of any table whose foreign key to `encounter` refuses the deletion
+**Cleanup of encounters without records** (#1300, ADR 037): runs for the import's hospital when an encounter
+import is deleted (#1644), and as a daily job (`encounter_cleanup`, 03:30) for encounters that became empty in
+other ways, for example during a reassignment. It removes encounters that no clinical record references any
+more. A clinical record is a row of any table whose foreign key to `encounter` refuses the deletion
 (`RESTRICT` or no action), read from the database catalog, so tables of disabled schema bundles count too.
 Rows that cascade with the encounter (ED matching history, suspected duplicates, validation items) are no
 records and go with it. An encounter with an IVENA assignment is removed as well; the allocation stays and

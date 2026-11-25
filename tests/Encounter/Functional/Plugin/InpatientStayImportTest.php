@@ -216,14 +216,14 @@ final class InpatientStayImportTest extends WebTestCase
         self::assertNull($this->connection()->fetchOne('SELECT allocation_id FROM encounter WHERE id = ?', [$this->visits['A']]));
         self::assertSame($this->visits['A'], (int) $this->connection()->fetchOne('SELECT encounter_id FROM test_inpatient_stay WHERE import_id = ? AND discharge_diagnosis = ?', [$stayImportId, 'I21.4']), 'The stay stays with its encounter.');
 
-        // 9. Deleting the inpatient_stay import removes its stays and pending records; the encounters stay until the
-        // cleanup of encounters without records.
+        // 9. Deleting the inpatient_stay import removes its stays and pending records, and the encounters left without
+        // any record go with it (#1644): A, B and C had only stays after the ED import was deleted in step 8.
         $crawler = $this->client->request(Request::METHOD_GET, '/import/'.$stayImportId);
         $this->client->request(Request::METHOD_POST, '/import/'.$stayImportId.'/delete', ['_token' => $crawler->filter('#import-delete-modal input[name="_token"]')->attr('value')]);
         self::assertResponseRedirects('/import');
         self::assertSame(0, $this->stayCount($stayImportId));
         self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter_pending_assignment WHERE import_id = ?', [$stayImportId]));
-        self::assertSame(3, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter WHERE id IN (?, ?, ?)', [$this->visits['A'], $this->visits['B'], $this->visits['C']]));
+        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter WHERE id IN (?, ?, ?)', [$this->visits['A'], $this->visits['B'], $this->visits['C']]));
     }
 
     public function testStaysTriggerNoEncounterMatchingWhileVisitsStillDo(): void

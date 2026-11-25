@@ -177,7 +177,8 @@ final readonly class EdVisitSchemaHandler implements ReprocessingSchemaHandlerIn
     /**
      * Removes ED visits with their ED matching history, the suspected duplicates and validation items that
      * name them (their encounter stays, so the foreign keys no longer cascade). The encounters keep their
-     * effective IVENA assignment and the records of other imports (#1300).
+     * effective IVENA assignment and the records of other imports (#1300); when the import is deleted,
+     * EncounterImportDataRemover then removes the encounters left without records (#1644).
      *
      * @param list<int> $encounterIds
      */
