@@ -18,6 +18,7 @@ use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Tests\Support\Content\HelpPages;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -75,6 +76,23 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
         $this->assertSelectorExists('[data-testid="stats-data-quality-indicator"]');
         $this->assertSelectorExists('[data-testid="stats-data-quality-drawer"]');
         $this->assertSelectorNotExists('[data-testid="stats-data-quality-dimensions-table"]');
+    }
+
+    public function testHelpLinkComesBeforeThePrintButton(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        HelpPages::article(HelpPages::root(), 'Statistics overview', '/help/statistics-overview', '<p>Text</p>', 0, ['helpKey' => 'statistics.overview']);
+
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/');
+
+        $this->assertResponseIsSuccessful();
+        $actions = $crawler->filter('.btn-list')->reduce(
+            static fn ($list): bool => $list->filter('[data-testid="print-action"]')->count() > 0,
+        );
+        self::assertCount(1, $actions);
+        // Help is always the leftmost header action.
+        self::assertSame('help-link', $actions->children()->first()->attr('data-testid'));
+        self::assertSame('print-action', $actions->children()->eq(1)->attr('data-testid'));
     }
 
     public function testOverviewRendersHospitalInsightsWhenBenchmarkDataIsSufficient(): void
