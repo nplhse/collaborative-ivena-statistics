@@ -969,6 +969,14 @@
         <source>page.validation.cards_unknown_icon</source>
         <target>Das Symbol „{icon}“ gibt es nicht.</target>
       </trans-unit>
+      <trans-unit id="cms1590v01de" resname="page.validation.read_more_items_required">
+        <source>page.validation.read_more_items_required</source>
+        <target>Mindestens ein Link ist erforderlich.</target>
+      </trans-unit>
+      <trans-unit id="cms1590v02de" resname="page.validation.read_more_too_many">
+        <source>page.validation.read_more_too_many</source>
+        <target>Höchstens {max} Links sind möglich.</target>
+      </trans-unit>
       <trans-unit id="cms1590iconde" resname="page.validation.icon_format">
         <source>page.validation.icon_format</source>
         <target>Geben Sie ein Symbol wie tabler:file-import an.</target>

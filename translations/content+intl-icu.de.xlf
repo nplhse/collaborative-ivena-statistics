@@ -1585,6 +1585,38 @@
         <source>page.cards.read_more</source>
         <target>Weiterlesen</target>
       </trans-unit>
+      <trans-unit id="cms1590r01de" resname="label.block_type.read_more">
+        <source>label.block_type.read_more</source>
+        <target>Weiterlesen</target>
+      </trans-unit>
+      <trans-unit id="cms1590r02de" resname="label.read_more_title">
+        <source>label.read_more_title</source>
+        <target>Überschrift</target>
+      </trans-unit>
+      <trans-unit id="cms1590r03de" resname="help.page.read_more_title">
+        <source>help.page.read_more_title</source>
+        <target>Ohne Angabe lautet die Überschrift „Weiterlesen“.</target>
+      </trans-unit>
+      <trans-unit id="cms1590r04de" resname="label.read_more_items">
+        <source>label.read_more_items</source>
+        <target>Links</target>
+      </trans-unit>
+      <trans-unit id="cms1590r05de" resname="help.page.read_more_items">
+        <source>help.page.read_more_items</source>
+        <target>Ein bis acht Links auf passende Artikel oder Seiten.</target>
+      </trans-unit>
+      <trans-unit id="cms1590r06de" resname="help.page.read_more_link_url">
+        <source>help.page.read_more_link_url</source>
+        <target>Pfad einer Seite auf dieser Website, z. B. /hilfe/erste-schritte, oder eine https-Adresse.</target>
+      </trans-unit>
+      <trans-unit id="cms1590r07de" resname="help.page.read_more_link_label">
+        <source>help.page.read_more_link_label</source>
+        <target>Bei Seiten dieser Website optional: ohne Angabe erscheinen Titel und Kurzbeschreibung der Seite. Für andere Adressen erforderlich.</target>
+      </trans-unit>
+      <trans-unit id="cms1590r08de" resname="page.read_more.title">
+        <source>page.read_more.title</source>
+        <target>Weiterlesen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -118,6 +118,15 @@ final class PageNavigationTreeTest extends TestCase
         self::assertSame([], $this->tree->select($this->fixture(), 7, false, null));
     }
 
+    public function testFindByUrlIgnoresQueryAnchorAndTrailingSlash(): void
+    {
+        self::assertSame(4, $this->tree->findByUrl($this->fixture(), '/a2a')?->pageId, 'nested page');
+        self::assertSame(6, $this->tree->findByUrl($this->fixture(), '/b1/?tab=1#part')?->pageId);
+        self::assertNull($this->tree->findByUrl($this->fixture(), '/missing'));
+        self::assertNull($this->tree->findByUrl($this->fixture(), 'https://example.org/a'));
+        self::assertNull($this->tree->findByUrl($this->fixture(), '#a'), 'only an anchor');
+    }
+
     public function testFindByKeySearchesNestedNodes(): void
     {
         self::assertSame(5, $this->tree->findByKey($this->fixture(), PageKey::Faq)?->pageId);

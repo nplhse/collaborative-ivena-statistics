@@ -29,10 +29,14 @@ final readonly class PageContentBlockDataNormalizer
         PageContentBlockType::HelpTopics->value => [],
         PageContentBlockType::Cards->value => ['items'],
         PageContentBlockType::ChildPages->value => ['numbered'],
+        PageContentBlockType::ReadMore->value => ['title', 'items'],
     ];
 
     /** @var list<string> */
     private const array CARD_ITEM_TEXT_FIELDS = ['icon', 'title', 'html', 'linkUrl', 'linkLabel'];
+
+    /** @var list<string> */
+    private const array READ_MORE_ITEM_TEXT_FIELDS = ['linkUrl', 'linkLabel'];
 
     /**
      * @param list<mixed> $content
@@ -68,7 +72,11 @@ final readonly class PageContentBlockDataNormalizer
             }
 
             if (PageContentBlockType::Cards->value === $type) {
-                $filteredData['items'] = $this->normalizeCardItems($data['items'] ?? []);
+                $filteredData['items'] = $this->normalizeTextItems($data['items'] ?? [], self::CARD_ITEM_TEXT_FIELDS);
+            }
+
+            if (PageContentBlockType::ReadMore->value === $type) {
+                $filteredData['items'] = $this->normalizeTextItems($data['items'] ?? [], self::READ_MORE_ITEM_TEXT_FIELDS);
             }
 
             if (PageContentBlockType::ChildPages->value === $type) {
@@ -133,9 +141,13 @@ final readonly class PageContentBlockDataNormalizer
     }
 
     /**
+     * Keeps the trimmed text fields of each item and drops items without any text.
+     *
+     * @param list<string> $fields
+     *
      * @return list<array<string, string>>
      */
-    private function normalizeCardItems(mixed $items): array
+    private function normalizeTextItems(mixed $items, array $fields): array
     {
         if (!is_array($items)) {
             return [];
@@ -149,7 +161,7 @@ final readonly class PageContentBlockDataNormalizer
             }
 
             $normalizedItem = [];
-            foreach (self::CARD_ITEM_TEXT_FIELDS as $field) {
+            foreach ($fields as $field) {
                 if (array_key_exists($field, $item) && is_string($item[$field])) {
                     $normalizedItem[$field] = trim($item[$field]);
                 }

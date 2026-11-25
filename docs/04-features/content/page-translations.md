@@ -39,6 +39,7 @@ Subpage cards also show an estimated reading time, from the words of the saved c
 | Rich text, image, call to action, quote, headline, highlight, accordion | editorial content |
 | Cards (`cards`, #1578) | one to four cards, each with an optional icon (`tabler:…`), title, short rich text and an optional link (a path on this site, an anchor or an http(s) address; label defaults to "Read more") |
 | Subpages (`child_pages`, #1578) | cards for the visible subpages of the page with title, short description and reading time; optionally numbered as steps |
+| Learn more (`read_more`, #1590) | an optional heading (default "Learn more") and one to eight curated links, usually at the end of the content. A link to a page on this site shows the page title and short description in the shown language unless a link text is given; any other address, and a page the viewer cannot see, is shown only with a link text |
 | Help search, help topics | see [help.md](help.md) |
 
 The admin checks card icons against the icon set when saving, because an unknown icon would fail when the page is

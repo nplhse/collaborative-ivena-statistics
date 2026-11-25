@@ -36,6 +36,8 @@ final readonly class PageContentValidator
 
     public const int MAX_CARDS = 4;
 
+    public const int MAX_READ_MORE_LINKS = 8;
+
     /** Icon names as the highlight block uses them, e.g. tabler:info-circle. */
     private const string ICON_PATTERN = '/^[a-z0-9]+(?:-[a-z0-9]+)*:[a-z0-9]+(?:-[a-z0-9]+)*$/';
 
@@ -144,6 +146,10 @@ final readonly class PageContentValidator
 
         if (PageContentBlockType::Cards->value === $type) {
             return $this->validateCardsBlock($prefix, $data);
+        }
+
+        if (PageContentBlockType::ReadMore->value === $type) {
+            return $this->validateReadMoreBlock($prefix, $data);
         }
 
         if (PageContentBlockType::ChildPages->value === $type) {
@@ -424,5 +430,50 @@ final readonly class PageContentValidator
         if ([] !== $errors) {
             throw new \InvalidArgumentException(implode(' ', $errors));
         }
+    }
+
+    /**
+     * "Learn more" block (#1590): an optional heading and one to eight links, each a path on this site or an
+     * http(s) address with an optional link text.
+     *
+     * @param array<string, mixed> $data
+     *
+     * @return list<string>
+     */
+    private function validateReadMoreBlock(string $prefix, array $data): array
+    {
+        $errors = [];
+        if (array_key_exists('title', $data) && !is_string($data['title'])) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.block_required_field', ['{field}' => 'title'], 'validators'));
+        }
+
+        $items = $data['items'] ?? null;
+        if (!is_array($items) || [] === $items) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.read_more_items_required', [], 'validators'));
+
+            return $errors;
+        }
+
+        if (count($items) > self::MAX_READ_MORE_LINKS) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.read_more_too_many', ['{max}' => self::MAX_READ_MORE_LINKS], 'validators'));
+        }
+
+        foreach (array_values($items) as $itemIndex => $item) {
+            $itemPrefix = sprintf('%s link %d', $prefix, $itemIndex + 1);
+
+            if (!is_array($item)) {
+                $errors[] = sprintf('%s: %s', $itemPrefix, $this->translator->trans('page.validation.accordion_item_must_be_object', [], 'validators'));
+                continue;
+            }
+
+            $linkUrl = $item['linkUrl'] ?? null;
+            if (!$this->isNonEmptyString($linkUrl)) {
+                $errors[] = sprintf('%s: %s', $itemPrefix, $this->translator->trans('page.validation.block_required_field', ['{field}' => 'linkUrl'], 'validators'));
+            } elseif (1 !== preg_match(self::LINK_PATTERN, (string) $linkUrl)) {
+                $errors[] = sprintf('%s: %s', $itemPrefix, $this->translator->trans('page.validation.cards_invalid_link', [], 'validators'));
+            }
+        }
+
+        return $errors;
     }
 }

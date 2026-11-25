@@ -1585,6 +1585,38 @@
         <source>page.cards.read_more</source>
         <target>Read more</target>
       </trans-unit>
+      <trans-unit id="cms1590r01en" resname="label.block_type.read_more">
+        <source>label.block_type.read_more</source>
+        <target>Learn more</target>
+      </trans-unit>
+      <trans-unit id="cms1590r02en" resname="label.read_more_title">
+        <source>label.read_more_title</source>
+        <target>Heading</target>
+      </trans-unit>
+      <trans-unit id="cms1590r03en" resname="help.page.read_more_title">
+        <source>help.page.read_more_title</source>
+        <target>Defaults to “Learn more”.</target>
+      </trans-unit>
+      <trans-unit id="cms1590r04en" resname="label.read_more_items">
+        <source>label.read_more_items</source>
+        <target>Links</target>
+      </trans-unit>
+      <trans-unit id="cms1590r05en" resname="help.page.read_more_items">
+        <source>help.page.read_more_items</source>
+        <target>One to eight links to related articles or pages.</target>
+      </trans-unit>
+      <trans-unit id="cms1590r06en" resname="help.page.read_more_link_url">
+        <source>help.page.read_more_link_url</source>
+        <target>Path of a page on this site, e.g. /help/getting-started, or an https address.</target>
+      </trans-unit>
+      <trans-unit id="cms1590r07en" resname="help.page.read_more_link_label">
+        <source>help.page.read_more_link_label</source>
+        <target>Optional for pages on this site: without it, the page title and short description are shown. Required for other addresses.</target>
+      </trans-unit>
+      <trans-unit id="cms1590r08en" resname="page.read_more.title">
+        <source>page.read_more.title</source>
+        <target>Learn more</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

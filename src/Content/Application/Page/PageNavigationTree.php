@@ -56,6 +56,32 @@ final class PageNavigationTree
     }
 
     /**
+     * The page shown at $url (#1590), ignoring query, anchor and a trailing slash; null for other addresses.
+     *
+     * @param list<PageNavigationNode> $nodes
+     */
+    public function findByUrl(array $nodes, string $url): ?PageNavigationNode
+    {
+        $path = rtrim((string) strtok($url, '?#'), '/');
+        if ('' === $path) {
+            return null;
+        }
+
+        foreach ($nodes as $node) {
+            if (rtrim($node->url, '/') === $path) {
+                return $node;
+            }
+
+            $found = $this->findByUrl($node->children, $url);
+            if ($found instanceof PageNavigationNode) {
+                return $found;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Returns the entries of one navigation.
      *
      * - Without a root: the full tree without help articles (#596) and without the legal pages of the footer

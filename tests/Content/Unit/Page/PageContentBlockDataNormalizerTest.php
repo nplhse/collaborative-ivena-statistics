@@ -336,4 +336,25 @@ final class PageContentBlockDataNormalizerTest extends TestCase
             new PageContentBlockDataNormalizer()->normalize([['type' => 'cards', 'data' => ['items' => 'not a list']]]),
         );
     }
+
+    public function testNormalizesReadMoreLinks(): void
+    {
+        $normalized = new PageContentBlockDataNormalizer()->normalize([[
+            'type' => 'read_more',
+            'data' => [
+                'title' => ' More ',
+                'html' => '<p>dropped</p>',
+                'items' => [
+                    ['linkUrl' => ' /help/importing ', 'linkLabel' => '', 'icon' => 'dropped'],
+                    ['linkUrl' => '', 'linkLabel' => ''],
+                    'not a link',
+                ],
+            ],
+        ]]);
+
+        self::assertSame([[
+            'type' => 'read_more',
+            'data' => ['title' => ' More ', 'items' => [['linkUrl' => '/help/importing', 'linkLabel' => '']]],
+        ]], $normalized);
+    }
 }
