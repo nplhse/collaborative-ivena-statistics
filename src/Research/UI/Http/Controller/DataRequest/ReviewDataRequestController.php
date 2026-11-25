@@ -34,8 +34,6 @@ final class ReviewDataRequestController extends AbstractController
         'open' => DataRequestVoter::CHECK,
         'return' => DataRequestVoter::CHECK,
         'vote' => DataRequestVoter::VOTE,
-        'exclude' => DataRequestVoter::EXCLUDE_SELF,
-        'record-exclusion' => DataRequestVoter::RECORD_EXCLUSION,
         'resolve' => DataRequestVoter::RESOLVE,
     ];
 
@@ -46,7 +44,7 @@ final class ReviewDataRequestController extends AbstractController
     ) {
     }
 
-    #[Route('/requests/data/{publicId}/review/{action}', name: 'app_data_requests_review', requirements: ['publicId' => Requirement::UUID, 'action' => 'open|return|vote|exclude|record-exclusion|resolve'], methods: ['POST'])]
+    #[Route('/requests/data/{publicId}/review/{action}', name: 'app_data_requests_review', requirements: ['publicId' => Requirement::UUID, 'action' => 'open|return|vote|exclude|resolve'], methods: ['POST'])]
     public function __invoke(Request $request, string $publicId, string $action): RedirectResponse
     {
         $user = $this->getUser();
@@ -55,11 +53,12 @@ final class ReviewDataRequestController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        if (!$this->isGranted(self::ATTRIBUTES[$action], $dataRequest)) {
+        $payload = $request->getPayload();
+        $member = 'exclude' === $action ? $this->users->find($payload->getInt('member')) : null;
+        if (!$this->isGranted($this->attributeFor($action, $user, $member), $dataRequest)) {
             throw $this->createAccessDeniedException();
         }
 
-        $payload = $request->getPayload();
         if (!$this->isCsrfTokenValid(self::CSRF_PREFIX.$action.'_'.$publicId, $payload->getString('_token'))) {
             throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
@@ -70,8 +69,7 @@ final class ReviewDataRequestController extends AbstractController
                 'open' => $this->review->openRound($user, $dataRequest),
                 'return' => $this->review->returnRequest($user, $dataRequest, $message),
                 'vote' => $this->review->castVote($user, $dataRequest, $this->choice($payload->getString('choice')), $message),
-                'exclude' => $this->review->declareExclusion($user, $dataRequest, $user, $message),
-                'record-exclusion' => $this->review->declareExclusion($user, $dataRequest, $this->member($payload->getInt('member')), $message),
+                'exclude' => $this->review->declareExclusion($user, $dataRequest, $member instanceof User ? $member : $user, $message),
                 'resolve' => $this->review->resolveStall($user, $dataRequest, $payload->getString('resolution'), $message),
                 default => throw $this->createNotFoundException(),
             };
@@ -92,12 +90,14 @@ final class ReviewDataRequestController extends AbstractController
     }
 
     /**
-     * @throws DataRequestRefused
+     * Declaring one's own conflict of interest needs EXCLUDE_SELF, excluding someone else RECORD_EXCLUSION.
      */
-    private function member(int $id): User
+    private function attributeFor(string $action, User $user, ?User $member): string
     {
-        $member = $this->users->find($id);
+        if ('exclude' !== $action) {
+            return self::ATTRIBUTES[$action] ?? DataRequestVoter::RESOLVE;
+        }
 
-        return $member instanceof User ? $member : throw new DataRequestRefused(DataRequestRefused::NOT_ALLOWED);
+        return $member instanceof User && $member->getId() !== $user->getId() ? DataRequestVoter::RECORD_EXCLUSION : DataRequestVoter::EXCLUDE_SELF;
     }
 }

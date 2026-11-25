@@ -489,37 +489,37 @@
         <source>data_request.exclusion.list</source>
         <target>Excluded for a conflict of interest</target>
       </trans-unit>
-      <trans-unit id="RscE99F9194" resname="data_request.exclusion.self.title">
-        <source>data_request.exclusion.self.title</source>
-        <target>Declare your own conflict of interest</target>
+      <trans-unit id="RscD2BF305A" resname="data_request.exclusion.open">
+        <source>data_request.exclusion.open</source>
+        <target>Report a conflict of interest</target>
       </trans-unit>
-      <trans-unit id="RscC26FD033" resname="data_request.exclusion.self.reason">
-        <source>data_request.exclusion.self.reason</source>
-        <target>Reason for your conflict of interest</target>
+      <trans-unit id="Rsc804FA593" resname="data_request.exclusion.title">
+        <source>data_request.exclusion.title</source>
+        <target>Conflict of interest</target>
       </trans-unit>
-      <trans-unit id="Rsc4FEA1F12" resname="data_request.exclusion.self.help">
-        <source>data_request.exclusion.self.help</source>
-        <target>You then no longer vote on this request and do not count for the quorum.</target>
+      <trans-unit id="Rsc2716BAC0" resname="data_request.exclusion.member">
+        <source>data_request.exclusion.member</source>
+        <target>Who has a conflict of interest?</target>
       </trans-unit>
-      <trans-unit id="Rsc6CA21191" resname="data_request.exclusion.self.submit">
-        <source>data_request.exclusion.self.submit</source>
-        <target>Declare conflict of interest</target>
+      <trans-unit id="RscC8D3EF9D" resname="data_request.exclusion.myself">
+        <source>data_request.exclusion.myself</source>
+        <target>Myself</target>
       </trans-unit>
-      <trans-unit id="RscF3AF4F1D" resname="data_request.exclusion.record.title">
-        <source>data_request.exclusion.record.title</source>
-        <target>Exclude a Board member for a conflict of interest</target>
+      <trans-unit id="RscEAEDF679" resname="data_request.exclusion.reason">
+        <source>data_request.exclusion.reason</source>
+        <target>Reason</target>
       </trans-unit>
-      <trans-unit id="Rsc2F34BE8A" resname="data_request.exclusion.record.member">
-        <source>data_request.exclusion.record.member</source>
-        <target>Board member</target>
+      <trans-unit id="Rsc53DAC790" resname="data_request.exclusion.help">
+        <source>data_request.exclusion.help</source>
+        <target>The member then no longer votes on this request, does not count for the quorum and cannot do the formal check. The exclusion cannot be undone.</target>
       </trans-unit>
-      <trans-unit id="RscC75E248F" resname="data_request.exclusion.record.reason">
-        <source>data_request.exclusion.record.reason</source>
-        <target>Reason for the conflict of interest</target>
+      <trans-unit id="Rsc8BAA962D" resname="data_request.exclusion.submit">
+        <source>data_request.exclusion.submit</source>
+        <target>Exclude for a conflict of interest</target>
       </trans-unit>
-      <trans-unit id="Rsc7D64D844" resname="data_request.exclusion.record.submit">
-        <source>data_request.exclusion.record.submit</source>
-        <target>Exclude member</target>
+      <trans-unit id="RscDEA72392" resname="data_request.flash.review.exclude">
+        <source>data_request.flash.review.exclude</source>
+        <target>The exclusion for a conflict of interest is saved.</target>
       </trans-unit>
       <trans-unit id="RscECA4893B" resname="data_request.flash.review.open">
         <source>data_request.flash.review.open</source>
@@ -532,14 +532,6 @@
       <trans-unit id="Rsc6673E2A7" resname="data_request.flash.review.vote">
         <source>data_request.flash.review.vote</source>
         <target>Your vote is saved.</target>
-      </trans-unit>
-      <trans-unit id="RscDEA72392" resname="data_request.flash.review.exclude">
-        <source>data_request.flash.review.exclude</source>
-        <target>You are excluded from this request.</target>
-      </trans-unit>
-      <trans-unit id="RscC879EFCF" resname="data_request.flash.review.record-exclusion">
-        <source>data_request.flash.review.record-exclusion</source>
-        <target>The Board member is excluded from this request.</target>
       </trans-unit>
       <trans-unit id="Rsc2E87342B" resname="data_request.flash.review.resolve">
         <source>data_request.flash.review.resolve</source>

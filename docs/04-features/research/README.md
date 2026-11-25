@@ -18,7 +18,7 @@ extended with every step of #1635.
 | `app_data_requests_show` | `/requests/data/{publicId}` | `DataRequestVoter::VIEW` |
 | `app_data_requests_edit` | `/requests/data/{publicId}/edit` | the applicant, while the current version is not submitted |
 | `app_data_requests_transition` | `POST /requests/data/{publicId}/{submit\|withdraw}` | the applicant |
-| `app_data_requests_review` | `POST /requests/data/{publicId}/review/{open\|return\|vote\|exclude\|record-exclusion\|resolve}` | Board members and administrators, per voter attribute |
+| `app_data_requests_review` | `POST /requests/data/{publicId}/review/{open\|return\|vote\|exclude\|resolve}` | Board members and administrators, per voter attribute |
 | `app_my_requests` | `/requests` | participants: "My requests" with hospital assignment requests and data extract requests |
 
 The pages sit under "My requests", the shared roof for every kind of request (`/requests`, user menu). They are
@@ -96,8 +96,9 @@ applicant and without excluded members. A round cannot open without an eligible 
 
 ## Exclusions
 
-A Board member declares a conflict of interest with a reason, or an administrator records one for a member
-(`DataRequestExclusion`, one per member and request). An excluded member leaves an open round together with their vote,
+"Report a conflict of interest" opens a dialog: a Board member declares their own conflict of interest with a
+reason, an administrator can also choose another Board member (`DataRequestExclusion`, one per member and request).
+The exclusion cannot be undone. An excluded member leaves an open round together with their vote,
 does not count for the quorum, cannot vote and cannot do the formal check. The round may be complete afterwards.
 
 ## Permissions
