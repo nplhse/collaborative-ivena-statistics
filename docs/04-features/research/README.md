@@ -19,6 +19,7 @@ extended with every step of #1635.
 | `app_data_requests_edit` | `/requests/data/{publicId}/edit` | the applicant, while the current version is not submitted |
 | `app_data_requests_transition` | `POST /requests/data/{publicId}/{submit\|withdraw}` | the applicant |
 | `app_data_requests_review` | `POST /requests/data/{publicId}/review/{open\|return\|vote\|exclude\|resolve}` | Board members and administrators, per voter attribute |
+| `app_data_requests_comment` | `POST /requests/data/{publicId}/comments` | `DATA_REQUEST_COMMENT` |
 | `app_my_requests` | `/requests` | participants: "My requests" with hospital assignment requests and data extract requests |
 
 The pages sit under "My requests", the shared roof for every kind of request (`/requests`, user menu). They are
@@ -101,6 +102,19 @@ administrators also have "Exclude a Board member" with a dialog to choose the me
 member and request). The exclusion cannot be undone. An excluded member leaves an open round together with their vote,
 does not count for the quorum, cannot vote and cannot do the formal check. The round may be complete afterwards.
 
+## Comments
+
+`DataRequestComment` holds the discussion on a submitted request, nested like blog comments, with the version that
+was current when it was written.
+
+- **Who writes:** the applicant, Board members and administrators. Other participants read the public comments.
+- **Private comments:** written and read only by Board members who are neither the applicant nor excluded;
+  administrators without the Board role do not see them. A reply to a private comment is always private, a public
+  comment may get a private reply. The form always shows who will read the comment; the visibility cannot change
+  after posting, and comments are not edited.
+- **Vote reasons:** a reason stays on the vote (Board only) unless the member chooses "also as a public comment" or
+  "also as a private comment" when voting; the comment then refers to the vote.
+
 ## Permissions
 
 `DataRequestVoter` decides what the pages offer; the services check the rules again.
@@ -117,10 +131,12 @@ does not count for the quorum, cannot vote and cannot do the formal check. The r
 | `DATA_REQUEST_VIEW_VOTES` | Board members except the applicant |
 | `DATA_REQUEST_EXCLUDE_SELF` | Board members except the applicant, on a submitted, not final request |
 | `DATA_REQUEST_RECORD_EXCLUSION`, `DATA_REQUEST_RESOLVE` | administrators; resolving only while `stalled` |
+| `DATA_REQUEST_COMMENT` | the applicant, Board members and administrators, on a submitted request |
+| `DATA_REQUEST_VIEW_PRIVATE_COMMENTS` | Board members who are neither the applicant nor excluded |
 
 ## Audit
 
 Every entity is audited. The services record the intents `research.data_request.drafted`, `.updated`, `.submitted`,
-`.withdrawn`, `.round_opened`, `.returned`, `.voted`, `.vetoed`, `.member_excluded`, `.veto_resolved`, `.round_closed`
+`.withdrawn`, `.commented`, `.commented_privately`, `.round_opened`, `.returned`, `.voted`, `.vetoed`, `.member_excluded`, `.veto_resolved`, `.round_closed`
 and `.expired`. A request, its votes and rounds stay when an account is deleted (the user reference becomes null);
 an exclusion is deleted with the member's account.

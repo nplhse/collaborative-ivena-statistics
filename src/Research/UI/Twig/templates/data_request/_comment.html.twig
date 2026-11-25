@@ -1,0 +1,42 @@
+{# One comment with its visible replies (ADR 045). Private comments are marked; a reply to them is always private. #}
+<div class="border rounded p-3 mb-2{{ comment.private ? ' bg-yellow-lt' }}" style="margin-left: {{ min(level, 4) * 1.5 }}rem;" data-testid="data-request-comment" id="comment-{{ comment.id }}">
+    <div class="d-flex justify-content-between align-items-start gap-2 mb-2 flex-wrap">
+        <div class="d-flex align-items-center gap-2 min-w-0">
+            {{ include('@Research/data_request/_user.html.twig', {person: comment.author}) }}
+            {% if comment.private %}
+                <twig:Badge variant="orange" data-testid="data-request-comment-private">{{ 'data_request.comment.private_badge'|trans({}, 'research') }}</twig:Badge>
+            {% endif %}
+            {% if comment.vote %}
+                <twig:Badge variant="secondary">{{ 'data_request.comment.vote_badge'|trans({choice: comment.vote.choice.labelKey|trans({}, 'research')}, 'research') }}</twig:Badge>
+            {% endif %}
+        </div>
+        <span class="text-secondary small">{{ 'data_request.comment.meta'|trans({date: comment.createdAt|format_datetime('medium', 'short'), version: comment.version.number}, 'research') }}</span>
+    </div>
+    <div class="text-break mb-2">{{ comment.body|nl2br }}</div>
+
+    {% if canComment %}
+        <details class="mb-2">
+            <summary class="small">{{ 'data_request.comment.reply'|trans({}, 'research') }}</summary>
+            <form method="post" action="{{ path('app_data_requests_comment', {publicId: dataRequest.publicIdString}) }}" class="mt-2" data-testid="data-request-reply-form">
+                <input type="hidden" name="_token" value="{{ csrf_token('data_request_comment_' ~ dataRequest.publicIdString) }}">
+                <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                <textarea name="body" class="form-control mb-2" rows="3" required maxlength="5000" aria-label="{{ 'data_request.comment.reply'|trans({}, 'research') }}"></textarea>
+                {% if comment.private %}
+                    <input type="hidden" name="visibility" value="private">
+                    <div class="form-hint mb-2" data-testid="data-request-reply-private-hint">
+                        <twig:ux:icon name="tabler:lock" class="icon" /> {{ 'data_request.comment.reply_private'|trans({}, 'research') }}
+                    </div>
+                {% else %}
+                    {{ include('@Research/data_request/_comment_visibility.html.twig', {fieldId: 'reply-' ~ comment.id}) }}
+                {% endif %}
+                <button type="submit" class="btn btn-sm btn-primary">{{ 'data_request.comment.reply_submit'|trans({}, 'research') }}</button>
+            </form>
+        </details>
+    {% endif %}
+
+    {% for child in comment.children %}
+        {% if canSeePrivate or not child.private %}
+            {{ include('@Research/data_request/_comment.html.twig', {comment: child, level: level + 1}) }}
+        {% endif %}
+    {% endfor %}
+</div>

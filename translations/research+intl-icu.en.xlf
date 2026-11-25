@@ -467,7 +467,7 @@
       </trans-unit>
       <trans-unit id="Rsc363D70F0" resname="data_request.vote.reason_help">
         <source>data_request.vote.reason_help</source>
-        <target>Required for a veto. Only the Board sees it.</target>
+        <target>Required for a veto.</target>
       </trans-unit>
       <trans-unit id="Rsc1E2D15B6" resname="data_request.vote.cast">
         <source>data_request.vote.cast</source>
@@ -484,6 +484,86 @@
       <trans-unit id="Rsc86FE3BE9" resname="data_request.vote.none">
         <source>data_request.vote.none</source>
         <target>No votes yet.</target>
+      </trans-unit>
+      <trans-unit id="Rsc4EFFA480" resname="data_request.vote.reason_visibility">
+        <source>data_request.vote.reason_visibility</source>
+        <target>Who sees the reason</target>
+      </trans-unit>
+      <trans-unit id="Rsc30C4BB10" resname="data_request.vote.reason_visibility_vote">
+        <source>data_request.vote.reason_visibility_vote</source>
+        <target>Only the Board, with the vote</target>
+      </trans-unit>
+      <trans-unit id="Rsc2F4F5C87" resname="data_request.vote.reason_visibility_public">
+        <source>data_request.vote.reason_visibility_public</source>
+        <target>Also as a public comment</target>
+      </trans-unit>
+      <trans-unit id="Rsc7330CDD9" resname="data_request.vote.reason_visibility_private">
+        <source>data_request.vote.reason_visibility_private</source>
+        <target>Also as a private comment for the Board</target>
+      </trans-unit>
+      <trans-unit id="RscED87B776" resname="data_request.comment.title">
+        <source>data_request.comment.title</source>
+        <target>Discussion</target>
+      </trans-unit>
+      <trans-unit id="Rsc87D4225C" resname="data_request.comment.new">
+        <source>data_request.comment.new</source>
+        <target>Write a comment</target>
+      </trans-unit>
+      <trans-unit id="Rsc6FB96F99" resname="data_request.comment.submit">
+        <source>data_request.comment.submit</source>
+        <target>Post comment</target>
+      </trans-unit>
+      <trans-unit id="Rsc3D18916F" resname="data_request.comment.empty">
+        <source>data_request.comment.empty</source>
+        <target>No comments yet.</target>
+      </trans-unit>
+      <trans-unit id="RscC9C6D45E" resname="data_request.comment.visibility">
+        <source>data_request.comment.visibility</source>
+        <target>Visibility</target>
+      </trans-unit>
+      <trans-unit id="Rsc3BD11034" resname="data_request.comment.public">
+        <source>data_request.comment.public</source>
+        <target>Public: every participant sees it</target>
+      </trans-unit>
+      <trans-unit id="RscD87A0EDD" resname="data_request.comment.private">
+        <source>data_request.comment.private</source>
+        <target>Private: only the Board sees it</target>
+      </trans-unit>
+      <trans-unit id="Rsc00C68E76" resname="data_request.comment.public_only">
+        <source>data_request.comment.public_only</source>
+        <target>Your comment is public: every participant who can see the request reads it.</target>
+      </trans-unit>
+      <trans-unit id="Rsc39A41E3C" resname="data_request.comment.reply">
+        <source>data_request.comment.reply</source>
+        <target>Reply</target>
+      </trans-unit>
+      <trans-unit id="RscD220DAB3" resname="data_request.comment.reply_submit">
+        <source>data_request.comment.reply_submit</source>
+        <target>Post reply</target>
+      </trans-unit>
+      <trans-unit id="Rsc17A72F3D" resname="data_request.comment.reply_private">
+        <source>data_request.comment.reply_private</source>
+        <target>The reply to a private comment is private as well: only the Board sees it.</target>
+      </trans-unit>
+      <trans-unit id="Rsc6CADA942" resname="data_request.comment.private_badge">
+        <source>data_request.comment.private_badge</source>
+        <target>Private</target>
+      </trans-unit>
+      <trans-unit id="Rsc4B9A2DAC" resname="data_request.comment.vote_badge">
+        <source>data_request.comment.vote_badge</source>
+        <target>Reason for the vote: {choice}</target>
+      </trans-unit>
+      <trans-unit id="RscBCE3DB25" resname="data_request.comment.meta">
+        <source>data_request.comment.meta</source>
+        <target>{date} · version {version}</target>
+      </trans-unit>
+      <trans-unit id="RscA43DFACD" resname="data_request.flash.commented">
+        <source>data_request.flash.commented</source>
+        <target>Your comment is posted.</target>
+      </trans-unit>
+      <trans-unit id="Rsc5316B8D1" resname="data_request.refused.comment_invalid">
+        <source>data_request.refused.comment_invalid</source>
+        <target>A comment needs between 1 and 5000 characters.</target>
       </trans-unit>
       <trans-unit id="Rsc624A79EC" resname="data_request.resolve.title">
         <source>data_request.resolve.title</source>

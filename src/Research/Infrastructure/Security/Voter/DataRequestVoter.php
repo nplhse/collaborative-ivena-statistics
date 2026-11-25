@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Research\Infrastructure\Security\Voter;
 
+use App\Research\Application\DataRequest\DataRequestCommentService;
 use App\Research\Application\DataRequest\DataRequestReviewService;
 use App\Research\Application\DataRequest\DataRequestService;
 use App\Research\Domain\Entity\DataRequest;
@@ -30,6 +31,8 @@ use Symfony\Component\Workflow\WorkflowInterface;
  * - VOTE: eligible Board members while a round is open. VIEW_VOTES: single votes, only for Board members;
  *   administrators see the reason of a veto they have to resolve.
  * - EXCLUDE_SELF: a Board member declares a conflict of interest. RECORD_EXCLUSION, RESOLVE: administrators.
+ * - COMMENT: the applicant, Board members and administrators on a submitted request. VIEW_PRIVATE_COMMENTS: Board
+ *   members who are neither the applicant nor excluded; they also write private comments.
  *
  * @extends Voter<string, DataRequest>
  */
@@ -46,10 +49,13 @@ final class DataRequestVoter extends Voter
     public const string EXCLUDE_SELF = 'DATA_REQUEST_EXCLUDE_SELF';
     public const string RECORD_EXCLUSION = 'DATA_REQUEST_RECORD_EXCLUSION';
     public const string RESOLVE = 'DATA_REQUEST_RESOLVE';
+    public const string COMMENT = 'DATA_REQUEST_COMMENT';
+    public const string VIEW_PRIVATE_COMMENTS = 'DATA_REQUEST_VIEW_PRIVATE_COMMENTS';
 
     private const array ATTRIBUTES = [
         self::VIEW, self::VIEW_INTERNAL, self::EDIT, self::SUBMIT, self::WITHDRAW, self::CHECK, self::VOTE,
-        self::VIEW_VOTES, self::EXCLUDE_SELF, self::RECORD_EXCLUSION, self::RESOLVE,
+        self::VIEW_VOTES, self::EXCLUDE_SELF, self::RECORD_EXCLUSION, self::RESOLVE, self::COMMENT,
+        self::VIEW_PRIVATE_COMMENTS,
     ];
 
     /** @psalm-suppress PossiblyUnusedMethod */
@@ -58,6 +64,7 @@ final class DataRequestVoter extends Voter
         #[Target('data_request.state_machine')]
         private readonly WorkflowInterface $stateMachine,
         private readonly DataRequestReviewService $review,
+        private readonly DataRequestCommentService $comments,
     ) {
     }
 
@@ -105,6 +112,8 @@ final class DataRequestVoter extends Voter
             self::EXCLUDE_SELF => $board && !$own && !$status->isFinal() && $subject->wasSubmitted() && !$subject->isExcluded($user),
             self::RECORD_EXCLUSION => $admin && !$status->isFinal() && $subject->wasSubmitted(),
             self::RESOLVE => $admin && DataRequestStatus::Stalled === $status,
+            self::COMMENT => $this->comments->canComment($user, $subject),
+            self::VIEW_PRIVATE_COMMENTS => $this->comments->canSeePrivate($user, $subject),
             default => false,
         };
     }

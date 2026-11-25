@@ -103,6 +103,12 @@
                     <label class="form-label mt-2" for="data-request-vote-reason">{{ 'data_request.vote.reason'|trans({}, 'research') }}</label>
                     <textarea class="form-control mb-1" id="data-request-vote-reason" name="message" rows="3">{{ ownVote ? ownVote.reason }}</textarea>
                     <div class="form-hint mb-2">{{ 'data_request.vote.reason_help'|trans({}, 'research') }}</div>
+                    <label class="form-label" for="data-request-vote-reason-visibility">{{ 'data_request.vote.reason_visibility'|trans({}, 'research') }}</label>
+                    <select class="form-select mb-2" id="data-request-vote-reason-visibility" name="reason_visibility">
+                        {% for option in ['vote', 'public', 'private'] %}
+                            <option value="{{ option }}">{{ ('data_request.vote.reason_visibility_' ~ option)|trans({}, 'research') }}</option>
+                        {% endfor %}
+                    </select>
                     <button type="submit" class="btn btn-primary w-100" data-testid="data-request-vote">{{ (ownVote ? 'data_request.vote.change' : 'data_request.vote.cast')|trans({}, 'research') }}</button>
                 </form>
             {% endif %}

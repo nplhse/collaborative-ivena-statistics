@@ -33,6 +33,11 @@ final readonly class DataRequestReviewService
     public const string RESOLVE_RESTART = 'restart';
     public const string RESOLVE_REVISION = 'revision';
 
+    /** Where the reason of a vote goes: only on the vote (Board), or also as a public or private comment. */
+    public const string REASON_ON_VOTE = 'vote';
+    public const string REASON_PUBLIC = 'public';
+    public const string REASON_PRIVATE = 'private';
+
     /** @psalm-suppress PossiblyUnusedMethod Autowired. */
     public function __construct(
         private EntityManagerInterface $entityManager,
@@ -85,7 +90,7 @@ final readonly class DataRequestReviewService
     /**
      * @throws DataRequestRefused
      */
-    public function castVote(User $member, DataRequest $request, VoteChoice $choice, ?string $reason): void
+    public function castVote(User $member, DataRequest $request, VoteChoice $choice, ?string $reason, string $reasonVisibility = self::REASON_ON_VOTE): void
     {
         $round = $request->getOpenRound();
         if (!$round instanceof DataRequestRound || DataRequestStatus::InReview !== $request->getStatus()) {
@@ -103,6 +108,10 @@ final readonly class DataRequestReviewService
         $now = $this->clock->now();
         try {
             $round->castVote($member, $choice, $reason, $now);
+            // The reason becomes a comment only when the member chose its visibility explicitly.
+            if (self::REASON_ON_VOTE !== $reasonVisibility && '' !== trim((string) $reason)) {
+                $request->addComment($member, (string) $reason, self::REASON_PRIVATE === $reasonVisibility, null, $now, $round->voteOf($member));
+            }
         } catch (DataRequestException $exception) {
             throw new DataRequestRefused(DataRequestRefused::NOT_ELIGIBLE, $exception);
         }

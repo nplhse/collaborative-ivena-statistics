@@ -78,6 +78,11 @@ class DataRequest
     #[ORM\OrderBy(['id' => 'ASC'])]
     private Collection $exclusions;
 
+    /** @var Collection<int, DataRequestComment> */
+    #[ORM\OneToMany(targetEntity: DataRequestComment::class, mappedBy: 'request', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OrderBy(['createdAt' => 'ASC', 'id' => 'ASC'])]
+    private Collection $comments;
+
     /** The version the Board approved; with its export scope it is the decision. */
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
@@ -98,6 +103,7 @@ class DataRequest
         $this->versions = new ArrayCollection([new DataRequestVersion($this, 1, $content, $requester, $at)]);
         $this->rounds = new ArrayCollection();
         $this->exclusions = new ArrayCollection();
+        $this->comments = new ArrayCollection();
     }
 
     /**
@@ -189,6 +195,14 @@ class DataRequest
         }
 
         return false;
+    }
+
+    /**
+     * @throws DataRequestException when the comment breaks the rules of DataRequestComment
+     */
+    public function addComment(?User $author, string $body, bool $private, ?DataRequestComment $parent, \DateTimeImmutable $at, ?DataRequestVote $vote = null): void
+    {
+        $this->comments->add(new DataRequestComment($this, $author, $body, $private, $parent, $at, $vote));
     }
 
     public function recordApproval(DataRequestVersion $version, \DateTimeImmutable $at): void
@@ -296,6 +310,23 @@ class DataRequest
         $last = $this->rounds->last();
 
         return $last instanceof DataRequestRound ? $last : null;
+    }
+
+    /** @return list<DataRequestComment> comments without a parent, oldest first; replies hang below them */
+    public function getTopLevelComments(): array
+    {
+        return array_values(array_filter($this->comments->toArray(), static fn (DataRequestComment $comment): bool => !$comment->getParent() instanceof DataRequestComment));
+    }
+
+    public function findComment(int $id): ?DataRequestComment
+    {
+        foreach ($this->comments as $comment) {
+            if ($comment->getId() === $id) {
+                return $comment;
+            }
+        }
+
+        return null;
     }
 
     /** @return list<DataRequestExclusion> */

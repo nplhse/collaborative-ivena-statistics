@@ -1,0 +1,17 @@
+{# Visibility choice of a new comment: always shown, so it is clear who will read it. Board members choose; everyone
+   else writes public comments. #}
+{% if canSeePrivate %}
+    <div class="mb-2" role="radiogroup" aria-label="{{ 'data_request.comment.visibility'|trans({}, 'research') }}">
+        <label class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="visibility" value="public" checked id="{{ fieldId }}-public">
+            <span class="form-check-label"><twig:ux:icon name="tabler:world" class="icon" /> {{ 'data_request.comment.public'|trans({}, 'research') }}</span>
+        </label>
+        <label class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="visibility" value="private" id="{{ fieldId }}-private">
+            <span class="form-check-label"><twig:ux:icon name="tabler:lock" class="icon" /> {{ 'data_request.comment.private'|trans({}, 'research') }}</span>
+        </label>
+    </div>
+{% else %}
+    <input type="hidden" name="visibility" value="public">
+    <div class="form-hint mb-2"><twig:ux:icon name="tabler:world" class="icon" /> {{ 'data_request.comment.public_only'|trans({}, 'research') }}</div>
+{% endif %}
