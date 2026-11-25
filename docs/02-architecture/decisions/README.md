@@ -26,7 +26,7 @@ Each ADR includes:
 | [008](008-shared-platform-and-domain-framework-coupling.md) | Shared platform role and domain framework coupling | accepted |
 | [009](009-ports-repositories-query-objects-and-naming.md) | Ports, repositories, query objects, and naming | accepted |
 | [010](010-architecture-guardrails-and-beta-scope.md) | Architecture guardrails and beta complexity scope | accepted |
-| [011](011-collaborative-explore-allocation-visibility.md) | Collaborative Explore allocation visibility (corrected: free text, #1548) | accepted |
+| [011](011-collaborative-explore-allocation-visibility.md) | Collaborative Explore allocation visibility (corrected: free text, #1548) | superseded by 044 |
 | [012](012-explore-data-catalog.md) | Explore data catalog | accepted |
 | [013](013-page-multilingual-content.md) | Multilingual CMS page content via PageTranslation | accepted |
 | [014](014-persisted-user-activity-projection.md) | Persistierte User-Activity-Projektion | accepted |
@@ -59,6 +59,7 @@ Each ADR includes:
 | [041](041-dispatch-area-geography-as-master-data.md) | Dispatch-area geography as master data | accepted |
 | [042](042-glossary-and-data-catalog-in-help.md) | Glossary and data catalog in the help section | accepted |
 | [043](043-terms-of-use-version-by-configuration.md) | Terms of use version by configuration | accepted |
+| [044](044-explore-restricted-to-own-hospitals.md) | Explore restricted to the viewer's own hospitals | accepted |
 
 ## Template
 

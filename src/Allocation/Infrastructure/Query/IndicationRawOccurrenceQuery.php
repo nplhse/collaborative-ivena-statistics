@@ -91,25 +91,43 @@ SQL,
     }
 
     /**
+     * Sample allocations of the given hospitals; null means all hospitals (administrators, #1566).
+     *
+     * @param list<int>|null $hospitalIds
+     *
      * @return list<array{id: int, public_id: string, created_at: string, hospital_name: string|null}>
      */
-    public function fetchSampleAllocations(int $rawId, int $limit = 5): array
+    public function fetchSampleAllocations(int $rawId, ?array $hospitalIds, int $limit = 5): array
     {
+        if ([] === $hospitalIds) {
+            return [];
+        }
+
+        $hospitalCondition = null === $hospitalIds ? '' : 'AND a.hospital_id IN (:hospitalIds)';
+        $parameters = ['rawId' => $rawId, 'limit' => $limit];
+        $types = [];
+        if (null !== $hospitalIds) {
+            $parameters['hospitalIds'] = $hospitalIds;
+            $types['hospitalIds'] = ArrayParameterType::INTEGER;
+        }
+
         /** @var list<array{id: int|string, public_id: string, created_at: string, hospital_name: string|null}> $rows */
         $rows = $this->connection->executeQuery(
-            <<<'SQL'
+            <<<SQL
 SELECT a.id,
        a.public_id,
        a.created_at,
        h.name AS hospital_name
 FROM allocation a
 LEFT JOIN hospital h ON h.id = a.hospital_id
-WHERE a.indication_raw_id = :rawId
-   OR a.secondary_indication_raw_id = :rawId
+WHERE (a.indication_raw_id = :rawId
+   OR a.secondary_indication_raw_id = :rawId)
+  {$hospitalCondition}
 ORDER BY a.created_at DESC
 LIMIT :limit
 SQL,
-            ['rawId' => $rawId, 'limit' => $limit],
+            $parameters,
+            $types,
         )->fetchAllAssociative();
 
         return array_map(static fn (array $row): array => [

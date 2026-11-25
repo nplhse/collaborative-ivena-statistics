@@ -108,7 +108,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
         self::ensureKernelShutdown();
 
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         // Count only the request: the profiler would otherwise include creating the logged-in user.
         $client->getContainer()->get('doctrine.debug_data_holder')->reset();
         $client->enableProfiler();
@@ -133,7 +133,7 @@ final class ShowAllocationControllerTest extends WebTestCase
     public function testShowDisplaysHospitalDetails(): void
     {
         // Arrange
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -249,7 +249,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowLinksOptionalRelatedExplorerEntities(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -297,7 +297,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowDisplaysDepartmentWasClosedIndicator(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -341,7 +341,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowHandlesMissingTransportType(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -379,7 +379,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowOmitsDestinationAddressLineWhenHospitalHasNoAddress(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
         $state = StateFactory::createOne(['name' => 'Hessen']);
@@ -413,7 +413,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowOnlyJoinsPresentAddressParts(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
         $state = StateFactory::createOne(['name' => 'Hessen']);
@@ -487,7 +487,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowRejectsPostMethod(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $client->request(Request::METHOD_POST, '/explore/allocation/00000000-0000-4000-8000-000000000000');
 
         self::assertResponseStatusCodeSame(405);
@@ -495,7 +495,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowDisplaysOriginDestinationMapForMappedHessenDispatchArea(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -554,7 +554,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowDisplaysOtherHospitalsOnMapForSecondaryTransport(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -634,7 +634,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowDisplaysOriginMapWithoutRouteWhenHospitalHasNoCoordinates(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -683,7 +683,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowOmitsOrientationMapWhenOriginDispatchAreaIsUnmapped(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -724,7 +724,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowHighlightsCrossDistrictOriginOnOrientationMap(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -773,7 +773,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowRendersIsochroneBandFromStoredFileForRecordedDuration(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $geojson = [
             'type' => 'FeatureCollection',
@@ -857,7 +857,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShow404ForUnknownAllocation(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $client->request(Request::METHOD_GET, '/explore/allocation/00000000-0000-4000-8000-000000000000');
         self::assertResponseStatusCodeSame(404);
     }

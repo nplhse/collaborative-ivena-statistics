@@ -146,6 +146,7 @@ final class HospitalCourseCardTest extends WebTestCase
         // The core asks the course providers (#1375): while the ED visit returns a course, its review decides.
         $reviewer = $this->user();
         $this->encounterGrant($this->hospital, $reviewer, [EncounterGrantAction::Review, EncounterGrantAction::ViewCases]);
+        $this->hospitalGrant($this->hospital, $reviewer);
         $allocationId = (int) $this->linked->getId();
         $encounterId = $this->entityManager()->getConnection()->fetchOne('SELECT id FROM encounter WHERE allocation_id = ?', [$allocationId]);
         self::assertNotFalse($encounterId, 'The linked allocation is assigned to the visit\'s encounter.');
@@ -183,12 +184,14 @@ final class HospitalCourseCardTest extends WebTestCase
 
         $otherHospitalViewer = $this->user();
         $this->encounterGrant($this->hospital($this->user()), $otherHospitalViewer, [EncounterGrantAction::ViewCases]);
+        $this->hospitalGrant($this->hospital, $otherHospitalViewer);
         $this->client->loginUser($otherHospitalViewer);
         $this->caseFile($this->linked);
         self::assertSelectorNotExists(self::CARD, 'VIEW_CASES on another hospital.');
 
         $withoutBeta = $this->user(['ROLE_USER', 'ROLE_PARTICIPANT']);
         $this->encounterGrant($this->hospital, $withoutBeta, [EncounterGrantAction::ViewCases]);
+        $this->hospitalGrant($this->hospital, $withoutBeta);
         $this->client->loginUser($withoutBeta);
         $this->caseFile($this->linked);
         self::assertSelectorNotExists(self::CARD, 'The grant needs the beta role.');
@@ -198,6 +201,7 @@ final class HospitalCourseCardTest extends WebTestCase
     {
         $reviewer = $this->user();
         $this->encounterGrant($this->hospital, $reviewer, [EncounterGrantAction::Review]);
+        $this->hospitalGrant($this->hospital, $reviewer);
         $this->client->loginUser($reviewer);
         $this->caseFile($this->linked);
         self::assertSelectorExists('[data-testid="encounter-course-origin"]', 'REVIEW implies VIEW_CASES.');
@@ -223,6 +227,8 @@ final class HospitalCourseCardTest extends WebTestCase
     {
         $viewer = $this->user();
         $this->encounterGrant($this->hospital, $viewer, [EncounterGrantAction::ViewCases]);
+        // The allocation case file in Explore needs access to the hospital as well (#1566).
+        $this->hospitalGrant($this->hospital, $viewer);
 
         return $viewer;
     }

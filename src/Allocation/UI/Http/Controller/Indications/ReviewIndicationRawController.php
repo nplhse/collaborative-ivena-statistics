@@ -7,8 +7,10 @@ namespace App\Allocation\UI\Http\Controller\Indications;
 use App\Allocation\Application\Indication\IndicationMatchSuggestionService;
 use App\Allocation\Application\Indication\IndicationRawReviewNavigator;
 use App\Allocation\Application\Indication\IndicationRawReviewService;
+use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\Domain\Entity\IndicationRaw;
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\Enum\IndicationRawReviewStatus;
 use App\Allocation\Domain\Enum\IndicationRawReviewWorklistSegment;
 use App\Allocation\Infrastructure\Query\IndicationRawOccurrenceQuery;
@@ -39,6 +41,7 @@ final class ReviewIndicationRawController extends AbstractController
         private readonly IndicationRawOccurrenceQuery $occurrenceQuery,
         private readonly IndicationMatchSuggestionService $suggestionService,
         private readonly TranslatorInterface $translator,
+        private readonly HospitalPermissionAccess $hospitalPermissionAccess,
     ) {
     }
 
@@ -89,7 +92,7 @@ final class ReviewIndicationRawController extends AbstractController
             'initial_label' => $initialLabel,
             'context' => $context,
             'occurrence_count' => $this->occurrenceQuery->fetchOccurrenceCount((int) $raw->getId()),
-            'sample_allocations' => $this->occurrenceQuery->fetchSampleAllocations((int) $raw->getId()),
+            'sample_allocations' => $this->occurrenceQuery->fetchSampleAllocations((int) $raw->getId(), $user instanceof User ? $this->sampleHospitalIds($user) : []),
             'suggestions' => $this->suggestionService->suggest($raw),
             'other_user_activities' => $this->resolveOtherUserActivities(
                 $raw,
@@ -367,5 +370,19 @@ final class ReviewIndicationRawController extends AbstractController
         $button = $form->get($name);
 
         return $button instanceof ClickableInterface && $button->isClicked();
+    }
+
+    /**
+     * Sample allocations link to Explore, which shows only the viewer's own hospitals (#1566).
+     *
+     * @return list<int>|null null = all hospitals
+     */
+    private function sampleHospitalIds(User $user): ?array
+    {
+        if ($this->hospitalPermissionAccess->isAdministrator($user)) {
+            return null;
+        }
+
+        return $this->hospitalPermissionAccess->resolveHospitalIdsWithPermission($user, HospitalPermission::View);
     }
 }

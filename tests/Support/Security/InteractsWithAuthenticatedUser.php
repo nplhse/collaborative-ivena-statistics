@@ -47,6 +47,18 @@ trait InteractsWithAuthenticatedUser
         return $user;
     }
 
+    /**
+     * Explore shows a participant only their own hospitals (#1566); tests about the list or case file itself use an
+     * administrator, who sees every hospital.
+     */
+    protected function createClientAsAdministrator(): KernelBrowser
+    {
+        $client = static::createClient();
+        $client->loginUser(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]));
+
+        return $client;
+    }
+
     protected function createClientAsParticipant(): KernelBrowser
     {
         $client = static::createClient();

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Allocation\Functional\Controller\Allocations;
 
+use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\User\Domain\Factory\UserFactory;
@@ -14,7 +17,14 @@ final class ListAllocationsEmptyStateTest extends ListAllocationsControllerTestC
 {
     public function testEmptyListWithoutImportPermissionExplainsAssociation(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = self::createClient();
+        $viewer = $this->loginAsParticipant($client);
+        // A view-only grant: the viewer has a hospital (#1566) but may not import for it.
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => HospitalFactory::createOne(['name' => 'Viewed Hospital', 'owner' => UserFactory::createOne()]),
+            'user' => $viewer,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View]),
+        ]);
 
         $client->request(Request::METHOD_GET, '/explore/allocation');
 

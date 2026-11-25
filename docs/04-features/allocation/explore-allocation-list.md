@@ -4,7 +4,7 @@ Route: `/explore/allocation` (`app_explore_allocation_list`)
 
 Requires `ROLE_PARTICIPANT` (`access_control` on `/explore`). Cursor-paginated list of allocation records with a filter drawer (hospital attributes, geography, clinical flags, and more).
 
-**Collaborative by design** ([ADR 011](../../02-architecture/decisions/011-collaborative-explore-allocation-visibility.md)): the default “All hospitals” scope shows allocations across centers. That is intentional; hospital filters are UX, not an authorization boundary. `ROLE_USER` alone cannot access Explore.
+**Own hospitals only** (#1566, [ADR 044](../../02-architecture/decisions/044-explore-restricted-to-own-hospitals.md)): the list shows allocations of the hospitals the viewer owns or holds a grant for (`HospitalPermission::View`); administrators see all hospitals. Without a hospital filter the list applies all accessible hospitals; the filter offers "My hospitals" and each own hospital, and "All hospitals" only to administrators. A filter on another hospital returns no rows. Participants without a hospital see an empty state that links to the hospital access request. `ROLE_USER` alone cannot access Explore.
 
 ## My hospitals filter
 
@@ -35,7 +35,7 @@ Explorer catalog detail pages (occasions, indications, hospitals, dispatch areas
 
 `createdFrom={year}-01-01` and `createdUntil={year}-12-31`
 
-The linked list is the same unscoped collaborative population as the catalog coverage cell (no extra user Scope). Hospital year cells additionally set `hospitalFilter={id}` and are only linked when the viewer has `HospitalPermission::View`. Indication groups have coverage years but no allocation-list filter, so those cells stay unlinked.
+The coverage cell counts all hospitals; the linked list shows only the viewer's own part of it (#1566), so the two can differ. Hospital year cells additionally set `hospitalFilter={id}` and are only linked when the viewer has `HospitalPermission::View`. Indication groups have coverage years but no allocation-list filter, so those cells stay unlinked.
 
 ## Optional relation filters
 

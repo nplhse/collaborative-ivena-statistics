@@ -13,7 +13,7 @@ final class ListAllocationsPaginationTest extends ListAllocationsControllerTestC
 {
     public function testFirstPageAndNextCursorWork(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
         $base = new \DateTimeImmutable('2026-01-01 12:00:00');
         AllocationFactory::createMany(5, static fn (): array => [
@@ -44,7 +44,7 @@ final class ListAllocationsPaginationTest extends ListAllocationsControllerTestC
 
     public function testStableTieBreakerWithSameArrivalAtAvoidsDuplicates(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
         $arrival = new \DateTimeImmutable('2026-02-01 10:00:00');
 
@@ -77,7 +77,7 @@ final class ListAllocationsPaginationTest extends ListAllocationsControllerTestC
 
     public function testPreviousLinkWalksBackPageByPageWithEqualTimestamps(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
         $arrival = new \DateTimeImmutable('2026-03-01 08:00:00');
         // Equal sort values force every page boundary onto the id tie-breaker.
@@ -116,7 +116,7 @@ final class ListAllocationsPaginationTest extends ListAllocationsControllerTestC
 
     public function testPreviousLinkWorksForAscendingAgeSort(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
         foreach ([30, 30, 41, 52, 52] as $age) {
             AllocationFactory::createOne(['age' => $age]);
@@ -137,7 +137,7 @@ final class ListAllocationsPaginationTest extends ListAllocationsControllerTestC
 
     public function testPagingBackAfterDeletionsShowsAFullFirstPage(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
         $base = new \DateTimeImmutable('2026-04-01 12:00:00');
         $allocations = [];
@@ -165,7 +165,7 @@ final class ListAllocationsPaginationTest extends ListAllocationsControllerTestC
 
     public function testInvalidCursorFallsBackToFirstPage(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
         AllocationFactory::createMany(4);
 
@@ -181,7 +181,7 @@ final class ListAllocationsPaginationTest extends ListAllocationsControllerTestC
 
     public function testLimitPlusOneBehaviourAndFilterPersistence(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
         $importOne = ImportFactory::createOne(['name' => 'Filtered Import']);
         $importTwo = ImportFactory::createOne(['name' => 'Other Import']);

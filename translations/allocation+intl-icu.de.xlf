@@ -1189,6 +1189,18 @@
         <source>empty.allocation.no_permission.description</source>
         <target>Zuweisungen erscheinen, nachdem ein IVENA-Datensatz importiert wurde. Die Importberechtigung wird je Klinik vergeben.</target>
       </trans-unit>
+      <trans-unit id="emptyAlcNhTiDe" resname="empty.allocation.no_hospital.title">
+        <source>empty.allocation.no_hospital.title</source>
+        <target>Keine eigene Klinik</target>
+      </trans-unit>
+      <trans-unit id="emptyAlcNhDeDe" resname="empty.allocation.no_hospital.description">
+        <source>empty.allocation.no_hospital.description</source>
+        <target>Unter Erkunden sehen Sie nur die Zuweisungen der Kliniken, für die Sie Zugang haben. Beantragen Sie den Zugang zu Ihrer Klinik, um deren Zuweisungen zu sehen.</target>
+      </trans-unit>
+      <trans-unit id="emptyAlcNhCtaDe" resname="empty.allocation.no_hospital.cta">
+        <source>empty.allocation.no_hospital.cta</source>
+        <target>Klinikzugang beantragen</target>
+      </trans-unit>
       <trans-unit id="emptyCovTiDe" resname="empty.hospital.coverage.title">
         <source>empty.hospital.coverage.title</source>
         <target>Noch keine Zuweisungen für diese Klinik</target>

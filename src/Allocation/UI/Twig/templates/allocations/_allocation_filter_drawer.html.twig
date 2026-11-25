@@ -57,10 +57,12 @@
                                     <div class="col-12">
                                         <label class="form-label" for="allocation-filter-hospital">{{ 'label.hospital'|trans({}, 'messages') }}</label>
                                         <select name="hospitalFilter" id="allocation-filter-hospital" class="form-select" data-testid="allocation-filter-hospital">
-                                            <option value="" {{ selectedHospitalFilter == '' ? 'selected' }}>
-                                                {{ hospitalScopeOptions.allClinicsLabel }}
-                                            </option>
-                                            <option value="my_hospitals" {{ selectedHospitalFilter == 'my_hospitals' ? 'selected' }}>
+                                            {% if hospitalScopeOptions.allHospitalsAllowed %}
+                                                <option value="" {{ selectedHospitalFilter == '' ? 'selected' }}>
+                                                    {{ hospitalScopeOptions.allClinicsLabel }}
+                                                </option>
+                                            {% endif %}
+                                            <option value="my_hospitals" {{ selectedHospitalFilter == 'my_hospitals' or (selectedHospitalFilter == '' and not hospitalScopeOptions.allHospitalsAllowed) ? 'selected' }}>
                                                 {{ hospitalScopeOptions.scopeLabel }}
                                             </option>
                                             {% if hospitalScopeOptions.hospitals is not empty %}

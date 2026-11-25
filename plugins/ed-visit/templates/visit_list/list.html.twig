@@ -99,6 +99,7 @@
             emptyTitle="{{ (filter.activeCount > 0 ? 'empty.filtered.title' : 'encounter.visit_list.empty.title')|trans({}, filter.activeCount > 0 ? 'shared' : d) }}"
             emptyDescription="{{ (filter.activeCount > 0 ? 'empty.filtered.description' : 'encounter.visit_list.empty.description')|trans({}, filter.activeCount > 0 ? 'shared' : d) }}"
             emptyIcon="{{ filter.activeCount > 0 ? 'tabler:filter-off' : 'tabler:stethoscope' }}"
+            :cellContext="{ allocation_links: is_granted('ROLE_PARTICIPANT') and is_granted('ACCESS', hospital) }"
             :columns="columns"
             columnVisibilityEnabled
             columnOrderingEnabled
