@@ -467,7 +467,7 @@
       </trans-unit>
       <trans-unit id="Rsc363D70F0" resname="data_request.vote.reason_help">
         <source>data_request.vote.reason_help</source>
-        <target>Pflicht bei einem Veto. Nur das Board sieht sie.</target>
+        <target>Pflicht bei einem Veto. Die Begründung erscheint in der Timeline als interner Kommentar; bei „Nachbesserung nötig“ sieht sie auch die antragstellende Person.</target>
       </trans-unit>
       <trans-unit id="Rsc1E2D15B6" resname="data_request.vote.cast">
         <source>data_request.vote.cast</source>
@@ -484,6 +484,110 @@
       <trans-unit id="Rsc86FE3BE9" resname="data_request.vote.none">
         <source>data_request.vote.none</source>
         <target>Noch keine Stimmen.</target>
+      </trans-unit>
+      <trans-unit id="Rsc0B25DC1F" resname="data_request.visibility.internal">
+        <source>data_request.visibility.internal</source>
+        <target>Intern</target>
+      </trans-unit>
+      <trans-unit id="Rsc363C8EDA" resname="data_request.visibility.private">
+        <source>data_request.visibility.private</source>
+        <target>Privat</target>
+      </trans-unit>
+      <trans-unit id="Rsc097E7292" resname="data_request.visibility.public">
+        <source>data_request.visibility.public</source>
+        <target>Öffentlich</target>
+      </trans-unit>
+      <trans-unit id="RscDB5156DF" resname="data_request.visibility.internal_choice">
+        <source>data_request.visibility.internal_choice</source>
+        <target>Intern: nur das Board</target>
+      </trans-unit>
+      <trans-unit id="RscB1ED6E27" resname="data_request.visibility.private_choice">
+        <source>data_request.visibility.private_choice</source>
+        <target>Privat: das Board und die antragstellende Person</target>
+      </trans-unit>
+      <trans-unit id="Rsc555FA847" resname="data_request.visibility.public_choice">
+        <source>data_request.visibility.public_choice</source>
+        <target>Öffentlich: alle, die den Antrag sehen</target>
+      </trans-unit>
+      <trans-unit id="RscC41714AF" resname="data_request.timeline.title">
+        <source>data_request.timeline.title</source>
+        <target>Verlauf</target>
+      </trans-unit>
+      <trans-unit id="RscBF2E2560" resname="data_request.timeline.empty">
+        <source>data_request.timeline.empty</source>
+        <target>Bisher ist nichts passiert.</target>
+      </trans-unit>
+      <trans-unit id="RscDA1FB5CB" resname="data_request.timeline.event.submitted">
+        <source>data_request.timeline.event.submitted</source>
+        <target>hat Fassung {version} eingereicht</target>
+      </trans-unit>
+      <trans-unit id="RscB42D498E" resname="data_request.timeline.event.returned">
+        <source>data_request.timeline.event.returned</source>
+        <target>hat den Antrag zurückgegeben</target>
+      </trans-unit>
+      <trans-unit id="RscA1180574" resname="data_request.timeline.event.round_opened">
+        <source>data_request.timeline.event.round_opened</source>
+        <target>Abstimmung geöffnet: Runde {round} über Fassung {version}</target>
+      </trans-unit>
+      <trans-unit id="Rsc314EAA5D" resname="data_request.timeline.event.voted">
+        <source>data_request.timeline.event.voted</source>
+        <target>hat abgestimmt: {choice}</target>
+      </trans-unit>
+      <trans-unit id="Rsc0EE19D6E" resname="data_request.timeline.event.round_closed">
+        <source>data_request.timeline.event.round_closed</source>
+        <target>Runde {round} beendet: {outcome}</target>
+      </trans-unit>
+      <trans-unit id="RscDD6BF2E0" resname="data_request.timeline.event.member_excluded">
+        <source>data_request.timeline.event.member_excluded</source>
+        <target>hat {member} wegen Befangenheit ausgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="Rsc5658FE49" resname="data_request.timeline.event.veto_resolved">
+        <source>data_request.timeline.event.veto_resolved</source>
+        <target>hat das Veto aufgelöst: {resolution}</target>
+      </trans-unit>
+      <trans-unit id="Rsc670EDD9F" resname="data_request.timeline.event.expired">
+        <source>data_request.timeline.event.expired</source>
+        <target>Abgelaufen: die Nachbesserung kam nicht rechtzeitig</target>
+      </trans-unit>
+      <trans-unit id="Rsc76DA4824" resname="data_request.timeline.event.withdrawn">
+        <source>data_request.timeline.event.withdrawn</source>
+        <target>hat den Antrag zurückgezogen</target>
+      </trans-unit>
+      <trans-unit id="Rsc5401848E" resname="data_request.comment.version">
+        <source>data_request.comment.version</source>
+        <target>Fassung {version}</target>
+      </trans-unit>
+      <trans-unit id="Rsc87D4225C" resname="data_request.comment.new">
+        <source>data_request.comment.new</source>
+        <target>Kommentar schreiben</target>
+      </trans-unit>
+      <trans-unit id="Rsc6FB96F99" resname="data_request.comment.submit">
+        <source>data_request.comment.submit</source>
+        <target>Kommentar veröffentlichen</target>
+      </trans-unit>
+      <trans-unit id="RscC9C6D45E" resname="data_request.comment.visibility">
+        <source>data_request.comment.visibility</source>
+        <target>Sichtbarkeit</target>
+      </trans-unit>
+      <trans-unit id="Rsc39A41E3C" resname="data_request.comment.reply">
+        <source>data_request.comment.reply</source>
+        <target>Antworten</target>
+      </trans-unit>
+      <trans-unit id="RscD220DAB3" resname="data_request.comment.reply_submit">
+        <source>data_request.comment.reply_submit</source>
+        <target>Antwort veröffentlichen</target>
+      </trans-unit>
+      <trans-unit id="Rsc4B9A2DAC" resname="data_request.comment.vote_badge">
+        <source>data_request.comment.vote_badge</source>
+        <target>Begründung zur Stimme: {choice}</target>
+      </trans-unit>
+      <trans-unit id="RscA43DFACD" resname="data_request.flash.commented">
+        <source>data_request.flash.commented</source>
+        <target>Ihr Kommentar ist veröffentlicht.</target>
+      </trans-unit>
+      <trans-unit id="Rsc5316B8D1" resname="data_request.refused.comment_invalid">
+        <source>data_request.refused.comment_invalid</source>
+        <target>Ein Kommentar braucht zwischen 1 und 5000 Zeichen.</target>
       </trans-unit>
       <trans-unit id="Rsc624A79EC" resname="data_request.resolve.title">
         <source>data_request.resolve.title</source>

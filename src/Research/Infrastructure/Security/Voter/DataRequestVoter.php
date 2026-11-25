@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Research\Infrastructure\Security\Voter;
 
+use App\Research\Application\DataRequest\DataRequestCommentService;
 use App\Research\Application\DataRequest\DataRequestReviewService;
 use App\Research\Application\DataRequest\DataRequestService;
 use App\Research\Domain\Entity\DataRequest;
@@ -27,9 +28,10 @@ use Symfony\Component\Workflow\WorkflowInterface;
  *   requested revision, editing creates the next version, which the applicant then submits.
  * - CHECK: the formal check of a submitted request, by Board members and administrators who are neither the
  *   applicant nor excluded.
- * - VOTE: eligible Board members while a round is open. VIEW_VOTES: single votes, only for Board members;
- *   administrators see the reason of a veto they have to resolve.
+ * - VOTE: eligible Board members while a round is open. VIEW_VOTES: single votes, for Board members who are neither
+ *   the applicant nor excluded, and for administrators.
  * - EXCLUDE_SELF: a Board member declares a conflict of interest. RECORD_EXCLUSION, RESOLVE: administrators.
+ * - COMMENT: who may write at least one visibility level (DataRequestCommentService).
  *
  * @extends Voter<string, DataRequest>
  */
@@ -46,10 +48,11 @@ final class DataRequestVoter extends Voter
     public const string EXCLUDE_SELF = 'DATA_REQUEST_EXCLUDE_SELF';
     public const string RECORD_EXCLUSION = 'DATA_REQUEST_RECORD_EXCLUSION';
     public const string RESOLVE = 'DATA_REQUEST_RESOLVE';
+    public const string COMMENT = 'DATA_REQUEST_COMMENT';
 
     private const array ATTRIBUTES = [
         self::VIEW, self::VIEW_INTERNAL, self::EDIT, self::SUBMIT, self::WITHDRAW, self::CHECK, self::VOTE,
-        self::VIEW_VOTES, self::EXCLUDE_SELF, self::RECORD_EXCLUSION, self::RESOLVE,
+        self::VIEW_VOTES, self::EXCLUDE_SELF, self::RECORD_EXCLUSION, self::RESOLVE, self::COMMENT,
     ];
 
     /** @psalm-suppress PossiblyUnusedMethod */
@@ -58,6 +61,7 @@ final class DataRequestVoter extends Voter
         #[Target('data_request.state_machine')]
         private readonly WorkflowInterface $stateMachine,
         private readonly DataRequestReviewService $review,
+        private readonly DataRequestCommentService $comments,
     ) {
     }
 
@@ -101,10 +105,11 @@ final class DataRequestVoter extends Voter
             self::CHECK => DataRequestStatus::Submitted === $status && $this->review->canCheck($user, $subject),
             self::VOTE => $board && DataRequestStatus::InReview === $status && !$subject->isExcluded($user)
                 && true === $subject->getOpenRound()?->isEligible($user),
-            self::VIEW_VOTES => $board && !$own,
+            self::VIEW_VOTES => ($board && !$own && !$subject->isExcluded($user)) || $admin,
             self::EXCLUDE_SELF => $board && !$own && !$status->isFinal() && $subject->wasSubmitted() && !$subject->isExcluded($user),
             self::RECORD_EXCLUSION => $admin && !$status->isFinal() && $subject->wasSubmitted(),
             self::RESOLVE => $admin && DataRequestStatus::Stalled === $status,
+            self::COMMENT => $this->comments->canComment($user, $subject),
             default => false,
         };
     }

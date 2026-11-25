@@ -9,6 +9,8 @@ use App\Research\Domain\Entity\DataRequestRound;
 use App\Research\Domain\Enum\DataRequestStatus;
 use App\Research\Domain\Enum\RoundKind;
 use App\Research\Domain\Enum\RoundOutcome;
+use App\Research\Domain\Enum\TimelineEventType;
+use App\Research\Domain\Enum\Visibility;
 use App\Research\Domain\Enum\VoteChoice;
 use App\Research\Domain\Exception\DataRequestException;
 use App\Research\Domain\Service\RoundEvaluator;
@@ -79,6 +81,7 @@ final readonly class DataRequestReviewService
         $this->assertMessage($message);
         $this->apply($request, 'return');
         $request->handBack($message);
+        $request->recordEvent(TimelineEventType::Returned, $actor, Visibility::Private, $this->clock->now(), ['message' => trim($message)]);
         $this->flush('research.data_request.returned', $request);
     }
 
@@ -102,7 +105,14 @@ final readonly class DataRequestReviewService
 
         $now = $this->clock->now();
         try {
-            $round->castVote($member, $choice, $reason, $now);
+            $round->castVote($member, $choice, $now);
+            $request->recordEvent(TimelineEventType::Voted, $member, Visibility::Internal, $now, ['round' => $round->getNumber(), 'choice' => $choice->value]);
+            // A reason is always a comment on the vote: internal, but private when it asks for a revision, so that the
+            // applicant reads what to change.
+            if ('' !== trim((string) $reason)) {
+                $visibility = VoteChoice::Revision === $choice ? Visibility::Private : Visibility::Internal;
+                $request->addComment($member, (string) $reason, $visibility, null, $now, $round->voteOf($member));
+            }
         } catch (DataRequestException $exception) {
             throw new DataRequestRefused(DataRequestRefused::NOT_ELIGIBLE, $exception);
         }
@@ -131,6 +141,7 @@ final readonly class DataRequestReviewService
         $this->assertMessage($reason);
         try {
             $request->exclude($member, $reason, $actor, $this->clock->now());
+            $request->recordEvent(TimelineEventType::MemberExcluded, $actor, Visibility::Internal, $this->clock->now(), ['member' => (string) $member->getUsername(), 'reason' => trim($reason)]);
         } catch (DataRequestException $exception) {
             throw new DataRequestRefused(DataRequestRefused::ALREADY_EXCLUDED, $exception);
         }
@@ -173,6 +184,7 @@ final readonly class DataRequestReviewService
                 throw new DataRequestRefused(DataRequestRefused::NOT_ALLOWED);
         }
 
+        $request->recordEvent(TimelineEventType::VetoResolved, $admin, Visibility::Private, $now, array_filter(['resolution' => $action, 'message' => trim((string) $message)], static fn (string $value): bool => '' !== $value));
         $this->flush('research.data_request.veto_resolved', $request);
     }
 
@@ -192,7 +204,7 @@ final readonly class DataRequestReviewService
             foreach ($previous->getVotes() as $vote) {
                 $voter = $vote->getVoter();
                 if (VoteChoice::Approve === $vote->getChoice() && $voter instanceof User && $round->isEligible($voter)) {
-                    $round->castVote($voter, VoteChoice::Approve, $vote->getReason(), $now, carriedOver: true);
+                    $round->castVote($voter, VoteChoice::Approve, $now, carriedOver: true);
                 }
             }
         }
@@ -236,6 +248,7 @@ final readonly class DataRequestReviewService
 
         $this->stateMachine->apply($request, 'expire');
         $request->recordClosing($this->clock->now());
+        $request->recordEvent(TimelineEventType::Expired, null, Visibility::Public, $this->clock->now());
         $this->flush('research.data_request.expired', $request);
 
         return true;
@@ -260,8 +273,10 @@ final readonly class DataRequestReviewService
 
         $this->apply($request, $transition);
         $now = $this->clock->now();
+        $round = $request->openRound($kind, $eligible, $actor, $now, $this->deadlineFrom($now));
+        $request->recordEvent(TimelineEventType::RoundOpened, $actor, Visibility::Public, $now, ['round' => $round->getNumber(), 'version' => $round->getVersion()->getNumber(), 'kind' => $kind->value]);
 
-        return $request->openRound($kind, $eligible, $actor, $now, $this->deadlineFrom($now));
+        return $round;
     }
 
     /** Closes the round when the rules say so and moves the request on. */
@@ -280,6 +295,7 @@ final readonly class DataRequestReviewService
 
         $now = $this->clock->now();
         $round->close($outcome, $now);
+        $request->recordEvent(TimelineEventType::RoundClosed, null, Visibility::Public, $now, ['round' => $round->getNumber(), 'outcome' => $outcome->value]);
         match ($outcome) {
             RoundOutcome::Approved => $this->approve($request, $round, $now),
             RoundOutcome::RevisionRequested => $this->askForRevision($request, $now),

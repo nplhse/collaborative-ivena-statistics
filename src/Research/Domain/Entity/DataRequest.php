@@ -6,6 +6,8 @@ namespace App\Research\Domain\Entity;
 
 use App\Research\Domain\Enum\DataRequestStatus;
 use App\Research\Domain\Enum\RoundKind;
+use App\Research\Domain\Enum\TimelineEventType;
+use App\Research\Domain\Enum\Visibility;
 use App\Research\Domain\Exception\DataRequestException;
 use App\Research\Domain\ValueObject\DataRequestContent;
 use App\Shared\Domain\Traits\HasRequiredPublicId;
@@ -78,6 +80,16 @@ class DataRequest
     #[ORM\OrderBy(['id' => 'ASC'])]
     private Collection $exclusions;
 
+    /** @var Collection<int, DataRequestComment> */
+    #[ORM\OneToMany(targetEntity: DataRequestComment::class, mappedBy: 'request', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OrderBy(['createdAt' => 'ASC', 'id' => 'ASC'])]
+    private Collection $comments;
+
+    /** @var Collection<int, DataRequestEvent> */
+    #[ORM\OneToMany(targetEntity: DataRequestEvent::class, mappedBy: 'request', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OrderBy(['occurredAt' => 'ASC', 'id' => 'ASC'])]
+    private Collection $events;
+
     /** The version the Board approved; with its export scope it is the decision. */
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
@@ -98,6 +110,8 @@ class DataRequest
         $this->versions = new ArrayCollection([new DataRequestVersion($this, 1, $content, $requester, $at)]);
         $this->rounds = new ArrayCollection();
         $this->exclusions = new ArrayCollection();
+        $this->comments = new ArrayCollection();
+        $this->events = new ArrayCollection();
     }
 
     /**
@@ -189,6 +203,28 @@ class DataRequest
         }
 
         return false;
+    }
+
+    /**
+     * @throws DataRequestException when the comment breaks the rules of DataRequestComment
+     */
+    public function addComment(?User $author, string $body, Visibility $visibility, ?DataRequestComment $parent, \DateTimeImmutable $at, ?DataRequestVote $vote = null): void
+    {
+        $this->comments->add(new DataRequestComment($this, $author, $body, $visibility, $parent, $at, $vote));
+    }
+
+    /**
+     * @param array<string, int|string> $details
+     */
+    public function recordEvent(TimelineEventType $type, ?User $actor, Visibility $visibility, \DateTimeImmutable $at, array $details = []): void
+    {
+        $this->events->add(new DataRequestEvent($this, $type, $actor, $visibility, $at, $details));
+    }
+
+    /** @return list<DataRequestEvent> */
+    public function getEvents(): array
+    {
+        return array_values($this->events->toArray());
     }
 
     public function recordApproval(DataRequestVersion $version, \DateTimeImmutable $at): void
@@ -296,6 +332,23 @@ class DataRequest
         $last = $this->rounds->last();
 
         return $last instanceof DataRequestRound ? $last : null;
+    }
+
+    /** @return list<DataRequestComment> comments without a parent, oldest first; replies hang below them */
+    public function getTopLevelComments(): array
+    {
+        return array_values(array_filter($this->comments->toArray(), static fn (DataRequestComment $comment): bool => !$comment->getParent() instanceof DataRequestComment));
+    }
+
+    public function findComment(int $id): ?DataRequestComment
+    {
+        foreach ($this->comments as $comment) {
+            if ($comment->getId() === $id) {
+                return $comment;
+            }
+        }
+
+        return null;
     }
 
     /** @return list<DataRequestExclusion> */

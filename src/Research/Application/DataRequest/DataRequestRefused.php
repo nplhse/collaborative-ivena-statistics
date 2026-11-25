@@ -20,6 +20,7 @@ final class DataRequestRefused extends \RuntimeException
     public const string NO_ELIGIBLE_MEMBERS = 'data_request.refused.no_eligible_members';
     public const string ALREADY_EXCLUDED = 'data_request.refused.already_excluded';
     public const string NEW_VERSION_NEEDED = 'data_request.refused.new_version_needed';
+    public const string COMMENT_INVALID = 'data_request.refused.comment_invalid';
 
     public function __construct(
         public readonly string $reason,

@@ -134,6 +134,10 @@
                     {% endif %}
                 </div>
             </div>
+
+            {% if dataRequest.wasSubmitted %}
+                {{ include('@Research/data_request/_timeline.html.twig') }}
+            {% endif %}
         </div>
 
         <div class="col-lg-4">

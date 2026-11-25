@@ -48,7 +48,8 @@ final class DataRequestReviewControllerTest extends WebTestCase
         $form['message']->setValue('Coarser age groups, please.');
         $client->submit($form);
         $client->followRedirect();
-        self::assertSelectorTextContains('[data-testid="data-request-votes"]', 'Coarser age groups, please.');
+        self::assertSelectorTextContains('[data-testid="data-request-votes"]', 'Needs revision');
+        self::assertSelectorTextContains('[data-testid="data-request-timeline"]', 'Coarser age groups, please.');
         self::assertSelectorTextContains('[data-testid="data-request-vote"]', 'Change vote');
 
         $client->loginUser($other);
@@ -152,7 +153,7 @@ final class DataRequestReviewControllerTest extends WebTestCase
 
         $client->loginUser($admin);
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
-        self::assertSelectorTextContains('[data-testid="data-request-votes"]', 'The ethics vote is missing.');
+        self::assertSelectorTextContains('[data-testid="data-request-timeline"]', 'The ethics vote is missing.');
         $form = $crawler->filter('[data-testid="data-request-resolve"]')->form();
         $form['resolution']->setValue('restart');
         $client->submit($form);
@@ -179,7 +180,7 @@ final class DataRequestReviewControllerTest extends WebTestCase
         $client->submit($form);
         $crawler = $client->followRedirect();
 
-        self::assertSelectorTextContains('[data-testid="data-request-exclusions"]', 'I co-author the project.');
+        self::assertSelectorTextContains('.messages', 'The exclusion for a conflict of interest is saved.');
         self::assertSelectorNotExists('[data-testid="data-request-check"]', 'an excluded member does not do the formal check');
         self::assertTrue($this->reload($request)->isExcluded($member));
     }

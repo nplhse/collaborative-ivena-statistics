@@ -25,7 +25,7 @@ final class DataRequestRoundTest extends TestCase
         $opener = $board[0];
         $round = $request->openRound(RoundKind::Initial, [1, 2], $opener, new \DateTimeImmutable('2026-12-01 09:00'), new \DateTimeImmutable('2026-12-15 09:00'));
 
-        $round->castVote($board[0], VoteChoice::Approve, null, new \DateTimeImmutable('2026-12-01 10:00'));
+        $round->castVote($board[0], VoteChoice::Approve, new \DateTimeImmutable('2026-12-01 10:00'));
         $vote = $round->voteOf($board[0]);
 
         self::assertSame($request, $round->getRequest());
@@ -41,10 +41,10 @@ final class DataRequestRoundTest extends TestCase
     {
         [$request, $board] = $this->submitted(1);
         $round = $request->openRound(RoundKind::AfterRevision, [1], null, new \DateTimeImmutable('2026-12-01 09:00'), new \DateTimeImmutable('2026-12-15 09:00'));
-        $round->castVote($board[0], VoteChoice::Approve, null, new \DateTimeImmutable('2026-12-01 09:00'), carriedOver: true);
+        $round->castVote($board[0], VoteChoice::Approve, new \DateTimeImmutable('2026-12-01 09:00'), carriedOver: true);
         self::assertTrue($round->voteOf($board[0])?->isCarriedOver());
 
-        $round->castVote($board[0], VoteChoice::Reject, null, new \DateTimeImmutable('2026-12-02 09:00'));
+        $round->castVote($board[0], VoteChoice::Reject, new \DateTimeImmutable('2026-12-02 09:00'));
 
         $vote = $round->voteOf($board[0]);
         self::assertNotNull($vote);
@@ -52,17 +52,16 @@ final class DataRequestRoundTest extends TestCase
         self::assertSame(VoteChoice::Reject, $vote->getChoice());
     }
 
-    public function testOnlyEligibleMembersVoteInAnOpenRoundAndAVetoNeedsAReason(): void
+    public function testOnlyEligibleMembersVoteInAnOpenRound(): void
     {
         [$request, $board] = $this->submitted(2);
         $round = $request->openRound(RoundKind::Initial, [1], null, new \DateTimeImmutable('2026-12-01 09:00'), new \DateTimeImmutable('2026-12-15 09:00'));
         $at = new \DateTimeImmutable('2026-12-01 10:00');
 
-        $this->assertRefused(static fn () => $round->castVote($board[1], VoteChoice::Approve, null, $at), 'Only eligible members vote in this round.');
-        $this->assertRefused(static fn () => $round->castVote($board[0], VoteChoice::Veto, ' ', $at), 'A veto needs a reason.');
+        $this->assertRefused(static fn () => $round->castVote($board[1], VoteChoice::Approve, $at), 'Only eligible members vote in this round.');
 
         $round->close(RoundOutcome::Rejected, $at);
-        $this->assertRefused(static fn () => $round->castVote($board[0], VoteChoice::Approve, null, $at), 'The voting round is closed.');
+        $this->assertRefused(static fn () => $round->castVote($board[0], VoteChoice::Approve, $at), 'The voting round is closed.');
         $round->removeMember($board[0]);
         self::assertSame(1, $round->getEligibleCount(), 'a closed round keeps its members');
     }

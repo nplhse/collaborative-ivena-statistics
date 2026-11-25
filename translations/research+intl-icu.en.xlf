@@ -467,7 +467,7 @@
       </trans-unit>
       <trans-unit id="Rsc363D70F0" resname="data_request.vote.reason_help">
         <source>data_request.vote.reason_help</source>
-        <target>Required for a veto. Only the Board sees it.</target>
+        <target>Required for a veto. The reason appears in the timeline as an internal comment; for "Needs revision" the applicant sees it as well.</target>
       </trans-unit>
       <trans-unit id="Rsc1E2D15B6" resname="data_request.vote.cast">
         <source>data_request.vote.cast</source>
@@ -484,6 +484,110 @@
       <trans-unit id="Rsc86FE3BE9" resname="data_request.vote.none">
         <source>data_request.vote.none</source>
         <target>No votes yet.</target>
+      </trans-unit>
+      <trans-unit id="Rsc0B25DC1F" resname="data_request.visibility.internal">
+        <source>data_request.visibility.internal</source>
+        <target>Internal</target>
+      </trans-unit>
+      <trans-unit id="Rsc363C8EDA" resname="data_request.visibility.private">
+        <source>data_request.visibility.private</source>
+        <target>Private</target>
+      </trans-unit>
+      <trans-unit id="Rsc097E7292" resname="data_request.visibility.public">
+        <source>data_request.visibility.public</source>
+        <target>Public</target>
+      </trans-unit>
+      <trans-unit id="RscDB5156DF" resname="data_request.visibility.internal_choice">
+        <source>data_request.visibility.internal_choice</source>
+        <target>Internal: only the Board</target>
+      </trans-unit>
+      <trans-unit id="RscB1ED6E27" resname="data_request.visibility.private_choice">
+        <source>data_request.visibility.private_choice</source>
+        <target>Private: the Board and the applicant</target>
+      </trans-unit>
+      <trans-unit id="Rsc555FA847" resname="data_request.visibility.public_choice">
+        <source>data_request.visibility.public_choice</source>
+        <target>Public: everyone who can see the request</target>
+      </trans-unit>
+      <trans-unit id="RscC41714AF" resname="data_request.timeline.title">
+        <source>data_request.timeline.title</source>
+        <target>Timeline</target>
+      </trans-unit>
+      <trans-unit id="RscBF2E2560" resname="data_request.timeline.empty">
+        <source>data_request.timeline.empty</source>
+        <target>Nothing has happened yet.</target>
+      </trans-unit>
+      <trans-unit id="RscDA1FB5CB" resname="data_request.timeline.event.submitted">
+        <source>data_request.timeline.event.submitted</source>
+        <target>submitted version {version}</target>
+      </trans-unit>
+      <trans-unit id="RscB42D498E" resname="data_request.timeline.event.returned">
+        <source>data_request.timeline.event.returned</source>
+        <target>returned the request</target>
+      </trans-unit>
+      <trans-unit id="RscA1180574" resname="data_request.timeline.event.round_opened">
+        <source>data_request.timeline.event.round_opened</source>
+        <target>Vote opened: round {round} on version {version}</target>
+      </trans-unit>
+      <trans-unit id="Rsc314EAA5D" resname="data_request.timeline.event.voted">
+        <source>data_request.timeline.event.voted</source>
+        <target>voted: {choice}</target>
+      </trans-unit>
+      <trans-unit id="Rsc0EE19D6E" resname="data_request.timeline.event.round_closed">
+        <source>data_request.timeline.event.round_closed</source>
+        <target>Round {round} ended: {outcome}</target>
+      </trans-unit>
+      <trans-unit id="RscDD6BF2E0" resname="data_request.timeline.event.member_excluded">
+        <source>data_request.timeline.event.member_excluded</source>
+        <target>excluded {member} for a conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="Rsc5658FE49" resname="data_request.timeline.event.veto_resolved">
+        <source>data_request.timeline.event.veto_resolved</source>
+        <target>resolved the veto: {resolution}</target>
+      </trans-unit>
+      <trans-unit id="Rsc670EDD9F" resname="data_request.timeline.event.expired">
+        <source>data_request.timeline.event.expired</source>
+        <target>Expired: the revision was not submitted in time</target>
+      </trans-unit>
+      <trans-unit id="Rsc76DA4824" resname="data_request.timeline.event.withdrawn">
+        <source>data_request.timeline.event.withdrawn</source>
+        <target>withdrew the request</target>
+      </trans-unit>
+      <trans-unit id="Rsc5401848E" resname="data_request.comment.version">
+        <source>data_request.comment.version</source>
+        <target>version {version}</target>
+      </trans-unit>
+      <trans-unit id="Rsc87D4225C" resname="data_request.comment.new">
+        <source>data_request.comment.new</source>
+        <target>Write a comment</target>
+      </trans-unit>
+      <trans-unit id="Rsc6FB96F99" resname="data_request.comment.submit">
+        <source>data_request.comment.submit</source>
+        <target>Post comment</target>
+      </trans-unit>
+      <trans-unit id="RscC9C6D45E" resname="data_request.comment.visibility">
+        <source>data_request.comment.visibility</source>
+        <target>Visibility</target>
+      </trans-unit>
+      <trans-unit id="Rsc39A41E3C" resname="data_request.comment.reply">
+        <source>data_request.comment.reply</source>
+        <target>Reply</target>
+      </trans-unit>
+      <trans-unit id="RscD220DAB3" resname="data_request.comment.reply_submit">
+        <source>data_request.comment.reply_submit</source>
+        <target>Post reply</target>
+      </trans-unit>
+      <trans-unit id="Rsc4B9A2DAC" resname="data_request.comment.vote_badge">
+        <source>data_request.comment.vote_badge</source>
+        <target>Reason for the vote: {choice}</target>
+      </trans-unit>
+      <trans-unit id="RscA43DFACD" resname="data_request.flash.commented">
+        <source>data_request.flash.commented</source>
+        <target>Your comment is posted.</target>
+      </trans-unit>
+      <trans-unit id="Rsc5316B8D1" resname="data_request.refused.comment_invalid">
+        <source>data_request.refused.comment_invalid</source>
+        <target>A comment needs between 1 and 5000 characters.</target>
       </trans-unit>
       <trans-unit id="Rsc624A79EC" resname="data_request.resolve.title">
         <source>data_request.resolve.title</source>

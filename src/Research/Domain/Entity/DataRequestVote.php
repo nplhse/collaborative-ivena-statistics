@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace App\Research\Domain\Entity;
 
 use App\Research\Domain\Enum\VoteChoice;
-use App\Research\Domain\Exception\DataRequestException;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Entity\User;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * A Board member's vote in one round (ADR 045). Members may change it until the round ends. Only the Board sees
- * single votes; the reason stays with the vote unless the member publishes it as a comment (step 3 of #1635).
+ * single votes; a reason is an internal comment that refers to the vote (private for a requested revision).
  */
 #[Audit\Audited]
 #[ORM\Entity]
@@ -38,9 +36,6 @@ class DataRequestVote
     #[ORM\Column(length: 16, enumType: VoteChoice::class)]
     private VoteChoice $choice;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $reason = null;
-
     #[ORM\Column]
     private \DateTimeImmutable $castAt;
 
@@ -51,27 +46,18 @@ class DataRequestVote
     #[ORM\Column]
     private bool $carriedOver;
 
-    public function __construct(DataRequestRound $round, User $voter, VoteChoice $choice, ?string $reason, \DateTimeImmutable $at, bool $carriedOver = false)
+    public function __construct(DataRequestRound $round, User $voter, VoteChoice $choice, \DateTimeImmutable $at, bool $carriedOver = false)
     {
         $this->round = $round;
         $this->voter = $voter;
         $this->castAt = $at;
         $this->carriedOver = $carriedOver;
-        $this->change($choice, $reason, $at);
+        $this->change($choice, $at);
     }
 
-    /**
-     * @throws DataRequestException when a veto has no reason
-     */
-    public function change(VoteChoice $choice, ?string $reason, \DateTimeImmutable $at): void
+    public function change(VoteChoice $choice, \DateTimeImmutable $at): void
     {
-        $reason = null === $reason ? '' : trim($reason);
-        if ($choice->requiresReason() && '' === $reason) {
-            throw new DataRequestException('A veto needs a reason.');
-        }
-
         $this->choice = $choice;
-        $this->reason = '' === $reason ? null : $reason;
         $this->updatedAt = $at;
         if ($at > $this->castAt) {
             $this->carriedOver = false;
@@ -101,11 +87,6 @@ class DataRequestVote
     public function getChoice(): VoteChoice
     {
         return $this->choice;
-    }
-
-    public function getReason(): ?string
-    {
-        return $this->reason;
     }
 
     public function getCastAt(): \DateTimeImmutable

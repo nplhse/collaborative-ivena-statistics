@@ -1,0 +1,61 @@
+{# Timeline of a data extract request (ADR 045): events and comments in the order they happened, like a GitHub issue.
+   Each reader sees only the levels they may read; the form offers only the levels they may write. #}
+{% set newLevels = writableLevels|sort((a, b) => b.reach <=> a.reach) %}
+
+<div class="mt-3" id="comments" data-testid="data-request-timeline">
+    <h3 class="mb-3">{{ 'data_request.timeline.title'|trans({}, 'research') }}</h3>
+    <ul class="timeline" data-testid="data-request-timeline-entries">
+        {% for entry in timeline %}
+            {% if entry.event %}
+                {% set event = entry.event %}
+                <li class="timeline-event" data-testid="data-request-event" data-event="{{ event.type.value }}">
+                    <div class="timeline-event-icon bg-secondary-lt"><twig:ux:icon name="{{ event.type.icon }}" class="icon" /></div>
+                    <div class="timeline-event-card card card-sm">
+                        <div class="card-body py-2">
+                            <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    {% if event.actor %}{{ include('@Research/data_request/_user.html.twig', {person: event.actor}) }}{% endif %}
+                                    <span>{{ event.type.labelKey|trans(event.details|merge({
+                                        outcome: event.details.outcome is defined ? ('data_request.round.outcome.' ~ event.details.outcome)|trans({}, 'research') : '',
+                                        choice: event.details.choice is defined ? ('data_request.vote.choice.' ~ event.details.choice)|trans({}, 'research') : '',
+                                        resolution: event.details.resolution is defined ? ('data_request.resolve.' ~ event.details.resolution)|trans({}, 'research') : '',
+                                    }), 'research') }}</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if event.visibility.value != 'public' %}{{ include('@Research/data_request/_visibility_badge.html.twig', {visibility: event.visibility}) }}{% endif %}
+                                    <span class="text-secondary small">{{ event.occurredAt|format_datetime('medium', 'short') }}</span>
+                                </div>
+                            </div>
+                            {% if event.details.message is defined or event.details.reason is defined %}
+                                <div class="text-body-secondary text-break mt-1">{{ (event.details.message ?? event.details.reason)|nl2br }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+            {% else %}
+                <li class="timeline-event" data-testid="data-request-timeline-comment">
+                    <div class="timeline-event-icon bg-primary-lt"><twig:ux:icon name="tabler:message-circle" class="icon" /></div>
+                    <div class="timeline-event-card">
+                        {{ include('@Research/data_request/_comment.html.twig', {comment: entry.comment}) }}
+                    </div>
+                </li>
+            {% endif %}
+        {% else %}
+            <li class="text-body-secondary" data-testid="data-request-timeline-empty">{{ 'data_request.timeline.empty'|trans({}, 'research') }}</li>
+        {% endfor %}
+    </ul>
+
+    {% if newLevels is not empty %}
+        <div class="card mt-3">
+            <div class="card-body">
+                <form method="post" action="{{ path('app_data_requests_comment', {publicId: dataRequest.publicIdString}) }}" data-testid="data-request-comment-form">
+                    <input type="hidden" name="_token" value="{{ csrf_token('data_request_comment_' ~ dataRequest.publicIdString) }}">
+                    <label class="form-label" for="data-request-comment-body">{{ 'data_request.comment.new'|trans({}, 'research') }}</label>
+                    <textarea id="data-request-comment-body" name="body" class="form-control mb-2" rows="3" required maxlength="5000"></textarea>
+                    {{ include('@Research/data_request/_comment_visibility.html.twig', {levels: newLevels, fieldId: 'comment'}) }}
+                    <button type="submit" class="btn btn-primary" data-testid="data-request-comment-submit">{{ 'data_request.comment.submit'|trans({}, 'research') }}</button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+</div>

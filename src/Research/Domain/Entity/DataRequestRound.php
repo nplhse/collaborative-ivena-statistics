@@ -95,9 +95,9 @@ class DataRequestRound
     /**
      * Casts or changes the member's vote while the round is open.
      *
-     * @throws DataRequestException when the round is closed, the member is not eligible or a veto has no reason
+     * @throws DataRequestException when the round is closed or the member is not eligible
      */
-    public function castVote(User $member, VoteChoice $choice, ?string $reason, \DateTimeImmutable $at, bool $carriedOver = false): void
+    public function castVote(User $member, VoteChoice $choice, \DateTimeImmutable $at, bool $carriedOver = false): void
     {
         $this->assertOpen();
         if (!$this->isEligible($member)) {
@@ -106,12 +106,12 @@ class DataRequestRound
 
         $vote = $this->voteOf($member);
         if ($vote instanceof DataRequestVote) {
-            $vote->change($choice, $reason, $at);
+            $vote->change($choice, $at);
 
             return;
         }
 
-        $this->votes->add(new DataRequestVote($this, $member, $choice, $reason, $at, $carriedOver));
+        $this->votes->add(new DataRequestVote($this, $member, $choice, $at, $carriedOver));
     }
 
     /** Removes an excluded member and their vote from the open round. */

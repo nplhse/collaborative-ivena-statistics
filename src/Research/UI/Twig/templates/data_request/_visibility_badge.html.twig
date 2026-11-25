@@ -1,0 +1,3 @@
+{% set variant = {internal: 'red', private: 'orange', public: 'secondary'}[visibility.value] %}
+{% set icon = {internal: 'tabler:lock', private: 'tabler:users', public: 'tabler:world'}[visibility.value] %}
+<twig:Badge :variant="variant" data-testid="data-request-visibility" data-visibility="{{ visibility.value }}"><twig:ux:icon name="{{ icon }}" class="icon" /> {{ visibility.labelKey|trans({}, 'research') }}</twig:Badge>
