@@ -88,6 +88,11 @@ confirms at their next upload; administrators are not asked. The hospital detail
 confirmed. After a new terms version, the acceptance page at login renews it for the hospitals confirmed before.
 Hospital assignment requests offer the same sentence; an approval with the import permission stores it.
 
+Explore shows individual allocations only for the viewer's own hospitals from now on (#1566, ADR 044): owner or any
+hospital grant; administrators still see all. Participants without a hospital see an empty list with a link to the
+hospital access request. MCI cases and the data catalog's coverage figures stay visible across hospitals. Nothing
+needs to be migrated; announce the change to participants with the release.
+
 ### Check
 
 ```bash

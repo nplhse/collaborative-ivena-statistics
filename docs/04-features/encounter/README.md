@@ -812,8 +812,9 @@ and enables only the decisions that apply to the chosen visit; the server checks
 **Case file link** (#1177): the page header has a button "View allocation" ("Zuweisung ansehen") before
 "Leave open"; it opens the allocation case file in Explore (`app_explore_allocation_show`), with the
 [hospital course card](#case-card-hospital-course) and the full IVENA data, in a new tab, so the review
-keeps its choice and position. It is shown only with `ROLE_PARTICIPANT`, which the case file requires
-(`AllocationVoter`, ADR 011) and the review does not; the case file applies its own rules to the card. The
+keeps its choice and position. It is shown only with `ROLE_PARTICIPANT` and access to the hospital, which the case file requires
+(`AllocationVoter`, ADR 044) and the review does not; the case file applies its own rules to the card. The link
+from the visit list to the allocation follows the same rule (#1566). The
 validation item page has the same button before "Open in review"; for a visit without link each offered
 allocation links to its case file in its comparison instead.
 

@@ -1189,6 +1189,18 @@
         <source>empty.allocation.no_permission.description</source>
         <target>Allocations appear after an IVENA dataset is imported. Import access is granted per hospital.</target>
       </trans-unit>
+      <trans-unit id="emptyAlcNhTiEn" resname="empty.allocation.no_hospital.title">
+        <source>empty.allocation.no_hospital.title</source>
+        <target>No hospital of your own</target>
+      </trans-unit>
+      <trans-unit id="emptyAlcNhDeEn" resname="empty.allocation.no_hospital.description">
+        <source>empty.allocation.no_hospital.description</source>
+        <target>Explore shows only the allocations of hospitals you have access to. Request access to your hospital to see its allocations.</target>
+      </trans-unit>
+      <trans-unit id="emptyAlcNhCtaEn" resname="empty.allocation.no_hospital.cta">
+        <source>empty.allocation.no_hospital.cta</source>
+        <target>Request hospital access</target>
+      </trans-unit>
       <trans-unit id="emptyCovTiEn" resname="empty.hospital.coverage.title">
         <source>empty.hospital.coverage.title</source>
         <target>No allocations for this hospital yet</target>

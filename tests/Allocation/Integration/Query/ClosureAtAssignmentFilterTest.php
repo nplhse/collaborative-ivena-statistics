@@ -25,6 +25,7 @@ use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -47,6 +48,7 @@ use Zenstruck\Foundry\Test\Factories;
 final class ClosureAtAssignmentFilterTest extends KernelTestCase
 {
     use Factories;
+    private ?User $administrator = null;
 
     /** @var array<string, int> */
     private array $ids = [];
@@ -63,7 +65,7 @@ final class ClosureAtAssignmentFilterTest extends KernelTestCase
         $query = self::getContainer()->get(ListAllocationsQuery::class);
 
         $names = function (ClosureAtAssignment $state) use ($query): array {
-            $rows = $query->getPaginator(new AllocationQueryParametersDTO(closureAtAssignment: $state->value))->getItems();
+            $rows = $query->getPaginator(new AllocationQueryParametersDTO(closureAtAssignment: $state->value), $this->administrator())->getItems();
             $byId = array_flip($this->ids);
             $names = array_map(static fn (array $row): string => $byId[(int) $row['id']], $rows);
             sort($names);
@@ -200,5 +202,13 @@ final class ClosureAtAssignmentFilterTest extends KernelTestCase
         ] + $shared);
 
         $this->ids[$name] = (int) $allocation->getId();
+    }
+
+    /**
+     * Explore lists only the viewer's own hospitals (#1566); an administrator sees all of them.
+     */
+    private function administrator(): User
+    {
+        return $this->administrator ??= UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
     }
 }

@@ -71,6 +71,10 @@ final class SchemaContributionsControllerTest extends WebTestCase
         $this->withoutGrant = $this->user();
         $this->encounterGrant($this->hospital, $this->reviewer, [EncounterGrantAction::Upload, EncounterGrantAction::Review]);
         $this->encounterGrant($this->hospital, $this->viewer, [EncounterGrantAction::ViewCases]);
+        // The case file in Explore needs access to the hospital (#1566); the encounter grants decide the rest.
+        foreach ([$this->reviewer, $this->viewer, $this->withoutGrant] as $user) {
+            $this->hospitalGrant($this->hospital, $user);
+        }
         $allocations = $this->encounterImport($this->hospital, 'allocations', ImportType::ALLOCATION);
         $this->allocationX = $this->allocationAt($this->hospital, $allocations, '08:30');
         $this->allocationY = $this->allocationAt($this->hospital, $allocations, '09:30');

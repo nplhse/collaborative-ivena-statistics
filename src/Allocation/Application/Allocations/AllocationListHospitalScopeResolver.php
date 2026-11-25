@@ -40,23 +40,33 @@ final readonly class AllocationListHospitalScopeResolver
                 return $this->resolveHospitalIds($user, self::SCOPE_MY_HOSPITALS, (int) $hospitalFilter);
             }
 
-            return null;
+            return $this->resolveHospitalIds($user, null, null);
         }
 
         return $this->resolveHospitalIds($user, $hospitalScope, $hospitalId);
     }
 
     /**
+     * Administrators may list all hospitals; everyone else sees only their own (#1566, ADR 044).
+     */
+    public function canSeeAllHospitals(?User $user): bool
+    {
+        return $user instanceof User && $this->hospitalPermissionAccess->isAdministrator($user);
+    }
+
+    /**
+     * Without a scope, administrators get no restriction and everyone else their own hospitals (#1566).
+     *
      * @return list<int>|null null = no hospital scope filter
      */
     public function resolveHospitalIds(?User $user, ?string $hospitalScope, ?int $hospitalId): ?array
     {
-        if (self::SCOPE_MY_HOSPITALS !== $hospitalScope) {
-            return null;
-        }
-
         if (!$user instanceof User) {
             return [];
+        }
+
+        if (self::SCOPE_MY_HOSPITALS !== $hospitalScope) {
+            return $this->canSeeAllHospitals($user) ? null : $this->accessibleHospitalIds($user);
         }
 
         $accessibleIds = $this->accessibleHospitalIds($user);

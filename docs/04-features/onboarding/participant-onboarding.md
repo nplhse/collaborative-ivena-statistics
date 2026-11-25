@@ -10,7 +10,7 @@ Alpha onboarding for users with `ROLE_PARTICIPANT`: a dashboard card guides new 
 4. Browse imported allocations in Explore (links to `/explore/allocation?hospitalFilter=my_hospitals`)
 5. Open statistics overview
 
-Explore requires `ROLE_PARTICIPANT`. By design, participants can also see allocations from other clinics (collaborative overview — see [ADR 011](../../02-architecture/decisions/011-collaborative-explore-allocation-visibility.md)); the onboarding link prefers “My hospitals” as a starting filter only.
+Explore requires `ROLE_PARTICIPANT` and shows only allocations of the participant's own hospitals ([ADR 044](../../02-architecture/decisions/044-explore-restricted-to-own-hospitals.md)); the onboarding link opens it with “My hospitals”.
 
 Step availability is **strictly sequential**: a step becomes actionable only after all previous steps are completed. Users unlock the next step by marking the current one complete on the dashboard card; there is no automatic check yet for whether an import actually exists.
 

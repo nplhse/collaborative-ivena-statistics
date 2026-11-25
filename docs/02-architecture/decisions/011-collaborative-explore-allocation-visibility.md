@@ -1,6 +1,6 @@
 # ADR 011: Collaborative Explore allocation visibility
 
-**Status:** accepted
+**Status:** superseded by [ADR 044](044-explore-restricted-to-own-hospitals.md) (#1566)
 
 ## Context
 

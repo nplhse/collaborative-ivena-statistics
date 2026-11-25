@@ -23,7 +23,7 @@ final class ListAllocationsFilterEdgesTest extends ListAllocationsControllerTest
 {
     public function testHospitalAttributeFiltersOnlyReturnMatchingAllocations(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $matchingHospital = HospitalFactory::createOne([
@@ -70,7 +70,7 @@ final class ListAllocationsFilterEdgesTest extends ListAllocationsControllerTest
 
     public function testUrgencyAndGeographyFiltersOnlyReturnMatchingAllocations(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $targetState = StateFactory::createOne(['name' => 'Urgency State']);
@@ -132,7 +132,7 @@ final class ListAllocationsFilterEdgesTest extends ListAllocationsControllerTest
 
     public function testClinicalFlagFiltersOnlyReturnMatchingAllocations(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $matchingAllocation = AllocationFactory::createOne([
@@ -164,7 +164,7 @@ final class ListAllocationsFilterEdgesTest extends ListAllocationsControllerTest
 
     public function testIndicationAndSecondaryTransportFiltersOnlyReturnMatchingAllocations(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $targetIndication = IndicationNormalizedFactory::createOne([
@@ -202,7 +202,7 @@ final class ListAllocationsFilterEdgesTest extends ListAllocationsControllerTest
 
     public function testSecondaryTransportNoneAndAnyDistinguishAbsenceFromPresence(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $transport = SecondaryTransportFactory::createOne(['name' => 'Presence Secondary']);
@@ -230,7 +230,7 @@ final class ListAllocationsFilterEdgesTest extends ListAllocationsControllerTest
 
     public function testOccasionNoneFilterOnlyReturnsAllocationsWithoutOccasion(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $occasion = OccasionFactory::createOne(['name' => 'Present Occasion']);
@@ -249,7 +249,7 @@ final class ListAllocationsFilterEdgesTest extends ListAllocationsControllerTest
 
     public function testSecondaryIndicationNoneAndIdFiltersDistinguishAbsenceFromConcreteValue(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $targetIndication = IndicationNormalizedFactory::createOne([
@@ -303,7 +303,7 @@ final class ListAllocationsFilterEdgesTest extends ListAllocationsControllerTest
 
     public function testSecondaryIndicationSelectKeepsSelectedCatalogIdThatIsNotInOccurrenceList(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $unusedIndication = IndicationNormalizedFactory::createOne([
@@ -326,7 +326,7 @@ final class ListAllocationsFilterEdgesTest extends ListAllocationsControllerTest
 
     public function testSortByAgeOrdersAllocationsAscending(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $older = AllocationFactory::createOne(['age' => 72]);

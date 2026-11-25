@@ -26,4 +26,4 @@ Search stays in the page header (`search`, case-insensitive substring on `mci_id
 
 Opening the list without these parameters shows every accessible MCI case.
 
-**Collaborative by design** ([ADR 011](../../02-architecture/decisions/011-collaborative-explore-allocation-visibility.md)): a participant sees MCI cases for every hospital already in the dataset. The hospital select lists that catalog. The ID filter keeps that visibility model.
+**Visible across hospitals by design** ([ADR 044](../../02-architecture/decisions/044-explore-restricted-to-own-hospitals.md), decision 4): unlike allocations, a participant sees MCI cases for every hospital already in the dataset. An MCI only makes sense across all receiving hospitals, and its cases carry very little information beyond the incident itself. The hospital select lists that catalog. The ID filter keeps that visibility model.

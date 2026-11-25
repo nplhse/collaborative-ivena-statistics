@@ -102,7 +102,8 @@ final class EncounterAllocationListTest extends WebTestCase
 
         $crawler = $this->list('?encounter=with&columns=timestamps,encounter');
 
-        self::assertCount(4, $this->listedIds($crawler));
+        // The hospital grant for A shows A1 and A2 only; Explore lists no other hospital (#1566).
+        self::assertCount(2, $this->listedIds($crawler));
         self::assertSelectorNotExists('[data-testid="allocation-filter-encounter"]');
         self::assertCount(0, $crawler->filter('[data-testid^="allocation-list-encounter-"]'));
     }
@@ -115,7 +116,8 @@ final class EncounterAllocationListTest extends WebTestCase
         $this->encounterGrant($this->hospitalOf('A1'), $user, [EncounterGrantAction::ViewCases]);
         $this->loginAs($user);
 
-        self::assertCount(4, $this->listedIds($this->list('?encounter=with')));
+        // The parameter is ignored: A1 and A2 of the granted hospital, no other hospital (#1566).
+        self::assertCount(2, $this->listedIds($this->list('?encounter=with')));
         self::assertSelectorNotExists('[data-testid="allocation-filter-encounter"]');
     }
 

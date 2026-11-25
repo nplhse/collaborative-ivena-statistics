@@ -108,6 +108,8 @@ final class ListAllocationsController extends AbstractController
             'transportTypes' => AllocationTransportType::cases(),
             'closureAtAssignmentStates' => ClosureAtAssignment::cases(),
             'hospitalScopeOptions' => $hospitalScopeOptions,
+            // Explore lists only the viewer's own hospitals (#1566); without one the empty state says so.
+            'hasOwnHospital' => null !== $hospitalScopeOptions,
             // The empty state offers an allocation import (#1351).
             'canImport' => $participant instanceof User && $this->uploadTargets->canUpload($participant, ImportType::ALLOCATION),
         ]);

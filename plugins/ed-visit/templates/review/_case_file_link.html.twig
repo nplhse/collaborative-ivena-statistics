@@ -1,8 +1,9 @@
 {# Link to the allocation case file in Explore (#1177). Expects `allocation` with `public_id`; `class` styles it (default: a button).
    As a header button (`compact`) it shows only its icon on small screens, so the page title keeps its room.
-   The case file needs ROLE_PARTICIPANT (AllocationVoter, ADR 011), which the review does not; without it the link is hidden.
+   The case file needs ROLE_PARTICIPANT and access to the hospital (AllocationVoter, ADR 044), which the review does not;
+   without them the link is hidden. Expects the reviewed `hospital` in the context.
    Opens in a new tab so the review keeps its selection and position. #}
-{% if is_granted('ROLE_PARTICIPANT') %}
+{% if is_granted('ROLE_PARTICIPANT') and is_granted('ACCESS', hospital) %}
     {% set label = 'encounter.review.action.view_allocation'|trans({}, 'encounter') %}
     {% set compact = compact|default(false) %}
     <a href="{{ path('app_explore_allocation_show', {publicId: allocation.public_id}) }}" target="_blank" rel="noopener" class="{{ class|default('btn') }}" title="{{ label }}" aria-label="{{ label }}" data-test="encounter-review-case-file">

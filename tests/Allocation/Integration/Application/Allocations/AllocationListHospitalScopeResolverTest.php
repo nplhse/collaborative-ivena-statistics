@@ -25,21 +25,27 @@ final class AllocationListHospitalScopeResolverTest extends DatabaseKernelTestCa
         $this->resolver = self::getContainer()->get(AllocationListHospitalScopeResolver::class);
     }
 
-    public function testNoScopeReturnsNull(): void
+    /**
+     * Without a scope, a participant still sees only their own hospitals and an administrator all of them (#1566).
+     */
+    public function testNoScopeRestrictsParticipantsToTheirHospitalsButNotAdministrators(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $state = StateFactory::createOne(['createdBy' => $user]);
         $dispatchArea = DispatchAreaFactory::createOne(['createdBy' => $user, 'state' => $state]);
-        HospitalFactory::createOne([
+        $hospital = HospitalFactory::createOne([
             'createdBy' => $user,
             'owner' => $user,
             'dispatchArea' => $dispatchArea,
             'state' => $state,
         ]);
+        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
 
-        self::assertNull($this->resolver->resolveHospitalIds($user, null, null));
-        self::assertNull($this->resolver->resolveHospitalIds($user, '', 5));
-        self::assertNull($this->resolver->resolveHospitalIds($user, null, 5));
+        self::assertSame([(int) $hospital->getId()], $this->resolver->resolveHospitalIds($user, null, null));
+        self::assertSame([(int) $hospital->getId()], $this->resolver->resolveHospitalIds($user, '', 5));
+        self::assertSame([(int) $hospital->getId()], $this->resolver->resolveHospitalIds($user, null, 5));
+        self::assertNull($this->resolver->resolveHospitalIds($admin, null, null));
+        self::assertSame([], $this->resolver->resolveHospitalIds(null, null, null));
     }
 
     public function testMyHospitalsWithoutDetailReturnsAccessibleIds(): void

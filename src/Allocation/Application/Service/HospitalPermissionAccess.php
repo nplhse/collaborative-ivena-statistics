@@ -21,9 +21,17 @@ final readonly class HospitalPermissionAccess
     ) {
     }
 
+    /**
+     * Administrators hold every hospital permission and see all hospitals.
+     */
+    public function isAdministrator(User $user): bool
+    {
+        return \in_array(UserRole::ADMIN, $user->getRoles(), true);
+    }
+
     public function hasPermission(User $user, int $hospitalId, HospitalPermission $permission): bool
     {
-        if (\in_array(UserRole::ADMIN, $user->getRoles(), true)) {
+        if ($this->isAdministrator($user)) {
             return true;
         }
 

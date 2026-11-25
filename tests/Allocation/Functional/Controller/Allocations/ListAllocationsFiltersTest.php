@@ -18,7 +18,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 {
     public function testIsInfectiousAndInfectionFiltersOnlyReturnMatchingAllocations(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $targetInfection = InfectionFactory::createOne(['name' => 'Influenza']);
@@ -44,7 +44,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testSpecificInfectionFilterWorksWithoutInfectiousPresenceParam(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $targetInfection = InfectionFactory::createOne(['name' => 'Influenza']);
@@ -69,7 +69,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testIsInfectiousZeroReturnsAllocationsWithoutInfection(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $infection = InfectionFactory::createOne(['name' => 'MRSA']);
@@ -92,7 +92,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testInfectionAnyReturnsAllocationsWithAnyInfection(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $infection = InfectionFactory::createOne(['name' => 'MRSA']);
@@ -111,7 +111,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testIsVentilatedFilterOnlyReturnsVentilatedAllocations(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $ventilatedAllocation = AllocationFactory::createOne(['isVentilated' => true]);
@@ -129,7 +129,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testDepartmentSpecialityAndTransportTypeFilters(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $department = DepartmentFactory::find(['name' => 'Kardiologie']);
@@ -172,7 +172,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testAssignmentOccasionAndDepartmentWasClosedFilters(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $assignment = AssignmentFactory::find(['name' => 'Test Assignment']);
@@ -209,7 +209,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testCreatedAtDateFilterShowsInclusiveRangeAndFiltersList(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $matchingAllocation = AllocationFactory::createOne([
@@ -240,7 +240,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testDepartmentWasClosedAllocationShowsRowHighlightAndIndicator(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         AllocationFactory::createOne(['departmentWasClosed' => true]);
@@ -264,7 +264,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testTransportTypeAndImportBadgesShowTranslatedLabels(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
         $import = ImportFactory::createOne(['name' => 'Badge import']);
         AllocationFactory::createOne(['import' => $import, 'transportType' => AllocationTransportType::GROUND]);
@@ -284,7 +284,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testClosureAtAssignmentFilterShowsActiveBadge(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
         AllocationFactory::createOne();
 

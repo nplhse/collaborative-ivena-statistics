@@ -285,6 +285,8 @@ final class ListVisitsControllerTest extends WebTestCase
     {
         $user = $this->user();
         $this->encounterGrant($this->hospital, $user, $actions);
+        // The link to the allocation case file needs access to the hospital as well (#1566).
+        $this->hospitalGrant($this->hospital, $user);
 
         return $user;
     }

@@ -29,6 +29,7 @@ final readonly class AllocationListHospitalScopeOptionsProvider
      *     scopeLabel: string,
      *     hospitals: list<array{id: int, name: string}>,
      *     allClinicsLabel: string,
+     *     allHospitalsAllowed: bool,
      * }
      */
     public function optionsFor(User $user, ?string $locale = null): array
@@ -39,6 +40,8 @@ final readonly class AllocationListHospitalScopeOptionsProvider
             'scopeLabel' => $this->hospitalScopeLabelResolver->groupLabel($user, $locale),
             'hospitals' => $hospitals,
             'allClinicsLabel' => $this->translator->trans('label.import.filter.all_hospitals', [], 'import', $locale),
+            // Only administrators may list all hospitals (#1566); for everyone else "my hospitals" is the default.
+            'allHospitalsAllowed' => $this->hospitalScopeResolver->canSeeAllHospitals($user),
         ];
     }
 }

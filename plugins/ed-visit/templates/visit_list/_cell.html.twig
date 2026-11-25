@@ -27,7 +27,8 @@
     <span data-testid="encounter-visit-list-state" data-state="{{ row.link_state }}">
         {% if row.link_state == 'linked' %}
             <span class="badge bg-green-lt">{{ 'encounter.visit.link.linked'|trans({}, d) }}</span>
-            {% if row.allocation_public_id and is_granted('ROLE_PARTICIPANT') %}
+            {# The case file in Explore needs access to the hospital (ADR 044), which encounter grants do not imply. #}
+            {% if row.allocation_public_id and (context.allocation_links ?? false) %}
                 <a class="small d-block" href="{{ path('app_explore_allocation_show', {publicId: row.allocation_public_id}) }}" target="_top" data-testid="encounter-visit-list-allocation-link">{{ 'encounter.visit.link.allocation'|trans({id: row.allocation_id}, d) }}</a>
             {% endif %}
         {% elseif row.link_state == 'pending' %}

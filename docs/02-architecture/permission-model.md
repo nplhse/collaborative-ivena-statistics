@@ -2,7 +2,7 @@
 
 The application uses Symfony roles for global access and hospital-scoped permission grants for participants.
 
-Related: [decisions/002-hospital-permission-bitmask.md](decisions/002-hospital-permission-bitmask.md), [decisions/011-collaborative-explore-allocation-visibility.md](decisions/011-collaborative-explore-allocation-visibility.md)
+Related: [decisions/002-hospital-permission-bitmask.md](decisions/002-hospital-permission-bitmask.md), [decisions/044-explore-restricted-to-own-hospitals.md](decisions/044-explore-restricted-to-own-hospitals.md)
 
 How users sign in (identifiers, throttling, sessions) is described in
 [authentication.md](../04-features/user/authentication.md).
@@ -72,9 +72,14 @@ Use `$this->denyAccessUnlessGranted()` in controllers and `#[IsGranted]` attribu
 
 `MANAGE_ACCESS_GRANTS` also decides who sees the **Access** card on the hospital detail page (`/explore/hospital/{publicId}`, #1240): stacked avatars of the users with a grant (at most five plus "+N"), their count and a link to the access matrix. Other participants do not see who has access.
 
-## Explore collaboration
+## Explore visibility
 
-Explore is a **collaborative** overview: participants may list and open allocations from other hospitals. Hospital filters (including “My hospitals”) are optional UX, not an authz boundary. See [ADR 011](decisions/011-collaborative-explore-allocation-visibility.md).
+Explore shows individual allocations only for the viewer's own hospitals (#1566, [ADR 044](decisions/044-explore-restricted-to-own-hospitals.md), superseding the collaborative view of ADR 011). Own means owner or any grant (`HospitalPermission::View`); `ROLE_ADMIN` sees all hospitals.
+
+- `AllocationVoter::VIEW` decides the case file: `ROLE_PARTICIPANT` and `View` on the allocation's hospital.
+- The allocation list always applies the accessible hospitals (`AllocationListHospitalScopeResolver`), also without a hospital filter. "All hospitals" is offered to administrators only.
+- The sample allocations in the indication review follow the same rule.
+- Exceptions by design: MCI cases stay visible across hospitals ([explore-mci-cases.md](../04-features/allocation/explore-mci-cases.md)), and the data catalog's coverage figures stay aggregates across hospitals with small-cell suppression.
 
 Import, export, clinic management, and hospital-scoped statistics filters remain grant-based via `HospitalPermissionAccess`.
 
@@ -91,8 +96,7 @@ its own: the person also confirms once per hospital and terms version that they 
 
 Decided in [ADR 028](decisions/028-encounter-access-grants.md), implemented in #1046.
 
-Encounter data (hospital ED visits) does not follow the collaborative Explore rule and is not covered
-by the hospital bitmask:
+Encounter data (hospital ED visits) is not covered by the hospital bitmask:
 
 - `ROLE_ENCOUNTER_BETA` controls the pilot pages; `ROLE_ADMIN` inherits it. The role itself grants no case access.
 - A separate encounter grant per user and hospital with the actions `UPLOAD`, `REVIEW` (implies

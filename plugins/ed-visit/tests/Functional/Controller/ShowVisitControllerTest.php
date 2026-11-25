@@ -307,6 +307,7 @@ final class ShowVisitControllerTest extends WebTestCase
     {
         $reviewer = $this->user();
         $this->encounterGrant($this->hospital, $reviewer, [EncounterGrantAction::Review]);
+        $this->hospitalGrant($this->hospital, $reviewer);
         $this->client->loginUser($reviewer);
 
         $crawler = $this->client->request(Request::METHOD_GET, '/explore/allocation/'.$this->linkedAllocation->getPublicId(), server: ['HTTP_Accept-Language' => 'en']);
@@ -379,6 +380,8 @@ final class ShowVisitControllerTest extends WebTestCase
     {
         $viewer = $this->user();
         $this->encounterGrant($this->hospital, $viewer, [EncounterGrantAction::ViewCases]);
+        // The allocation case file in Explore needs access to the hospital as well (#1566).
+        $this->hospitalGrant($this->hospital, $viewer);
 
         return $viewer;
     }

@@ -16,6 +16,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Query\ListAllocationsQuery;
 use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -25,6 +26,7 @@ use Zenstruck\Foundry\Test\Factories;
 final class ListAllocationsSecondaryIndicationFilterTest extends KernelTestCase
 {
     use Factories;
+    private ?User $administrator = null;
 
     private ListAllocationsQuery $query;
 
@@ -54,19 +56,19 @@ final class ListAllocationsSecondaryIndicationFilterTest extends KernelTestCase
 
         $noneResults = $this->query->getPaginator(new AllocationQueryParametersDTO(
             secondaryIndication: 'none',
-        ))->getItems();
+        ), $this->administrator())->getItems();
         self::assertCount(1, $noneResults);
         self::assertNull($noneResults[0]['secondaryIndicationNormalizedName']);
 
         $idResults = $this->query->getPaginator(new AllocationQueryParametersDTO(
             secondaryIndication: (string) $target->getId(),
-        ))->getItems();
+        ), $this->administrator())->getItems();
         self::assertCount(1, $idResults);
         self::assertSame('Target Secondary', $idResults[0]['secondaryIndicationNormalizedName']);
 
         $ignoredAny = $this->query->getPaginator(new AllocationQueryParametersDTO(
             secondaryIndication: 'any',
-        ))->getItems();
+        ), $this->administrator())->getItems();
         self::assertCount(3, $ignoredAny);
     }
 
@@ -91,5 +93,13 @@ final class ListAllocationsSecondaryIndicationFilterTest extends KernelTestCase
             'state' => $state,
             'dispatchArea' => $dispatchArea,
         ];
+    }
+
+    /**
+     * Explore lists only the viewer's own hospitals (#1566); an administrator sees all of them.
+     */
+    private function administrator(): User
+    {
+        return $this->administrator ??= UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
     }
 }

@@ -74,10 +74,11 @@ final class AllocationListResultCountQueryTest extends KernelTestCase
     {
         $owner = $this->seedThreeHospitals([1, 1, 1]);
 
-        // No closure imports: every allocation is "unknown" (closure-architecture.md).
+        // No closure imports: every allocation is "unknown" (closure-architecture.md). The third hospital belongs to
+        // someone else, so the owner counts only their own two (#1566).
         $paginator = $this->listQuery()->getPaginator(new AllocationQueryParametersDTO(closureAtAssignment: 'unknown'), $owner);
 
-        self::assertEquals(ResultCount::exact(3), $paginator->getResultCount());
+        self::assertEquals(ResultCount::exact(2), $paginator->getResultCount());
     }
 
     public function testANewAllocationChangesTheCachedCount(): void
