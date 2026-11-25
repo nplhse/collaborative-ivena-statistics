@@ -27,7 +27,7 @@
       </trans-unit>
       <trans-unit id="RscF10076F6" resname="data_request.intro">
         <source>data_request.intro</source>
-        <target>Hier beantragen Forschungsprojekte beim Board Auszüge aus der Datenbank. Alle Teilnehmenden sehen die eingereichten Anträge; interne Angaben sehen nur die antragstellende Person, das Board und die Administration.</target>
+        <target>Hier beantragen Forschungsprojekte beim Board Auszüge aus der Datenbank. Alle Teilnehmenden sehen die eingereichten Anträge; interne Angaben sehen nur die antragstellende Person, das Board und die Administrator:innen.</target>
       </trans-unit>
       <trans-unit id="Rsc1D796589" resname="data_request.empty.title">
         <source>data_request.empty.title</source>
@@ -87,7 +87,7 @@
       </trans-unit>
       <trans-unit id="RscA7943C17" resname="data_request.what_happens.text">
         <source>data_request.what_happens.text</source>
-        <target>Nach dem Einreichen prüft ein Board-Mitglied oder die Administration den Antrag formal und öffnet die Abstimmung. Bewilligt das Board den Antrag, bereitet die Administration die Abfragen vor und schaltet den Export für Sie frei.</target>
+        <target>Nach dem Einreichen prüft ein Board-Mitglied oder ein:e Administrator:in den Antrag formal und öffnet die Abstimmung. Bewilligt das Board den Antrag, bereitet ein:e Administrator:in die Abfragen vor und schaltet den Export für Sie frei.</target>
       </trans-unit>
       <trans-unit id="Rsc8F4098A4" resname="data_request.group.public">
         <source>data_request.group.public</source>
@@ -103,7 +103,7 @@
       </trans-unit>
       <trans-unit id="Rsc6484F1D0" resname="data_request.group.scope_help">
         <source>data_request.group.scope_help</source>
-        <target>Das bewilligt das Board. Teilnehmende sehen ihn ohne Empfänger und ohne die Einzelheiten einer Anreicherung.</target>
+        <target>Das bewilligt das Board. Teilnehmende sehen ihn ohne Empfänger:innen und ohne die Einzelheiten einer Anreicherung.</target>
       </trans-unit>
       <trans-unit id="RscDFD3E971" resname="data_request.group.internal">
         <source>data_request.group.internal</source>
@@ -111,7 +111,7 @@
       </trans-unit>
       <trans-unit id="Rsc236B611A" resname="data_request.group.internal_help">
         <source>data_request.group.internal_help</source>
-        <target>Diese Angaben sehen nur Sie, das Board und die Administration.</target>
+        <target>Diese Angaben sehen nur Sie, das Board und die Administrator:innen.</target>
       </trans-unit>
       <trans-unit id="RscFBACFDBA" resname="data_request.field.title">
         <source>data_request.field.title</source>
@@ -195,7 +195,7 @@
       </trans-unit>
       <trans-unit id="RscEDB82EBD" resname="data_request.field.recipients">
         <source>data_request.field.recipients</source>
-        <target>Empfänger</target>
+        <target>Empfänger:innen</target>
       </trans-unit>
       <trans-unit id="RscDC6636A9" resname="data_request.field.recipients_help">
         <source>data_request.field.recipients_help</source>
@@ -319,7 +319,7 @@
       </trans-unit>
       <trans-unit id="Rsc6A4C06CD" resname="data_request.modal.submit.message">
         <source>data_request.modal.submit.message</source>
-        <target>Nach dem Einreichen lässt sich der Antrag nicht mehr ändern. Alle Teilnehmenden sehen ihn, und ein Board-Mitglied oder die Administration prüft ihn formal. Bearbeiten können Sie ihn erst wieder, wenn er zurückgegeben wird oder das Board eine Nachbesserung verlangt.</target>
+        <target>Nach dem Einreichen lässt sich der Antrag nicht mehr ändern. Alle Teilnehmenden sehen ihn, und ein Board-Mitglied oder ein:e Administrator:in prüft ihn formal. Bearbeiten können Sie ihn erst wieder, wenn er zurückgegeben wird oder das Board eine Nachbesserung verlangt.</target>
       </trans-unit>
       <trans-unit id="Rsc8193D0DF" resname="data_request.modal.withdraw.title">
         <source>data_request.modal.withdraw.title</source>
