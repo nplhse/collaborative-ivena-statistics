@@ -139,7 +139,11 @@ final class EffectiveAssignmentTest extends KernelTestCase
         self::assertSame([$visit => (int) $allocation->getId()], $this->assignments());
     }
 
-    public function testAfterTheEdImportIsDeletedAFurtherRecordOfTheAllocationFindsTheSameEncounter(): void
+    /**
+     * Deleting the ED import leaves the encounter without records, so it goes right away with its assignment (#1644):
+     * the allocation is free again for the matcher and a further record of it gets no stale encounter.
+     */
+    public function testAfterTheEdImportIsDeletedItsEmptyEncounterGoesWithTheAssignment(): void
     {
         $allocation = (int) $this->allocationAt($this->hospital, $this->ivena, '10:00')->getId();
         $visit = $this->visitAt($this->hospital, $this->ed, '10:05');
@@ -147,13 +151,11 @@ final class EffectiveAssignmentTest extends KernelTestCase
 
         $this->deletionService()->delete($this->ed);
 
-        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM ed_visit WHERE encounter_id = ?', [$visit]));
-        self::assertSame([$visit => $allocation], $this->assignments(), 'The effective assignment stays on the encounter.');
+        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM encounter WHERE id = ?', [$visit]));
+        self::assertSame([], $this->assignments(), 'No encounter holds the allocation any more.');
         $assignments = self::getContainer()->get(EncounterAssignmentsInterface::class);
         self::assertInstanceOf(EncounterAssignmentsInterface::class, $assignments);
-        $result = $assignments->find(new AssignmentRequest((int) $this->hospital->getId(), 1, $allocation));
-        self::assertSame(AssignmentKind::Assigned, $result->kind);
-        self::assertSame($visit, $result->encounterId);
+        self::assertSame(AssignmentKind::NoCandidate, $assignments->find(new AssignmentRequest((int) $this->hospital->getId(), 1, $allocation))->kind);
     }
 
     public function testARecordOfAnAllocationGetsTheAllocationsEncounterOrANewOne(): void

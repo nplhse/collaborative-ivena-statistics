@@ -300,7 +300,8 @@ The export of the own hospital's allocations does not apply extension filters.
 before a reprocess or a redelivered run
 
 **Implementations:** `EncounterImportDataRemover` (the records every encounter schema handler created for the
-import, their pending assignments and decisions, #1047, #1274, #1307; the encounters stay, #1300),
+import, their pending assignments and decisions, #1047, #1274, #1307; encounters with other records stay, #1300;
+for an encounter import, the encounters left without records go with their assignment, #1644),
 `EncounterMatchDataRemover` (links, proposals and decisions of the import's allocations or
 visits, then a matcher rerun for the freed hospital-days, #1053; priority 10, so it runs while the visits
 still exist)

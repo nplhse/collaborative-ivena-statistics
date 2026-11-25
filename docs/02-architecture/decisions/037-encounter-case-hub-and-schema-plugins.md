@@ -127,8 +127,9 @@ time, or by creating a new encounter. The core answers with one of four results 
 - The reference is `ON DELETE RESTRICT`: the database refuses to remove an encounter that a record still
   references, also when the record belongs to a schema whose bundle is disabled but whose tables remain.
 - **Deleting or reprocessing an import** removes exactly the records of that import, through its schema,
-  with the cleanup of ADR 029. Records of other imports at the same encounter stay. An encounter can be
-  left without records for a while, for example during a reassignment.
+  with the cleanup of ADR 029. Records of other imports at the same encounter stay. Deleting an encounter
+  import also removes the encounters it leaves without records (#1644); otherwise an encounter can be left
+  without records for a while, for example during a reassignment.
 - **Cleanup of encounters without records** is a separate, central step of the core. It removes encounters that no record
   references, after checking every table that references `encounter`, including tables of disabled
   bundles. It can be started by hand, on a schedule or after defined events; a bundle can request it.
@@ -272,7 +273,7 @@ ED import deletion removes the visits only.
 
 - Splitting the ED visit out of the `encounter` table needs a data migration on pilot data
 - Unassigned records and conflicts need a review page and people with the `REVIEW` grant
-- Encounters without records exist until the cleanup runs
+- Encounters without records exist until the cleanup runs (since #1644 not after deleting an encounter import)
 - Until the split, deleting an `ed_visit` import fails completely while records of another schema are
   attached
 - A record that names an allocation is not retried when a later matcher run links that allocation, only
