@@ -513,6 +513,8 @@ Not a Live Component: sort, page size, and page links are GET URLs so list state
 
 `property + label + type + options`. Types: `text`, `number`, `datetime`, `link`, `user`, `badge`, `boolean`, `actions`, `custom` (`cellTemplate` with `row` / `column` / `context`).
 
+`user` renders [`users.link()`](#useravatar) with an `xs` avatar before the name, in the table and in the card layout (#1666).
+
 Available vs visible columns: each column has a stable `key` and `visible` (default
 true). Set `columnVisibilityEnabled` on the table and `configurable: true` on the
 columns a user may toggle. `required: true` keeps an essential column visible.
