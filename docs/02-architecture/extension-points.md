@@ -590,9 +590,9 @@ records rejects, counts, coverage and file rejections, and owns the transaction.
 - `createsEncounters()` tells whether the schema creates encounters (`ed_visit`) or attaches records to
   existing ones; the deletion after an encounter key change deletes imports of attaching schemas first.
 
-A handler that also implements `SuspectedDuplicateReaderInterface` lists the records it flagged as possible
-duplicates (`SchemaWriteResult::$suspectedDuplicates`) for the encounter section of the import detail page
-(`ed_visit`, ADR 029); the core shows no list for other schemas (#1375).
+A handler reports the records it flagged as possible duplicates as a count
+(`SchemaWriteResult::$suspectedDuplicates`, `ed_visit`, ADR 029); the import detail page shows only that count
+(#1622).
 
 A schema can be uploaded only when it has a field contract and a handler; without any such schema the
 encounter import type is not offered. A file whose schema has no handler (for example after its bundle

@@ -188,18 +188,20 @@ triage and retriage) of the new visits that resolve to nothing become provisiona
 
 **Suspected duplicates**: a new visit with the same `case_key` as another visit of the hospital and key
 generation (earlier, or earlier in the same file) and a time anchor at most 15 minutes away is inserted
-and recorded in `encounter_suspected_duplicate` (line, minutes, anchor sources, both visits). The report
-page lists them for `ROLE_ADMIN` only (#1413), without case keys or timestamps. They are never merged.
+and recorded in `encounter_suspected_duplicate` (line, minutes, anchor sources, both visits). The import detail
+page shows their number only, like the deduplication counts of other imports; there is no list (#1622). They are
+never merged.
 
 **List and detail page** (`/import`, `/import/{id}`): encounter imports are listed and opened only with
 `UPLOAD` on their hospital (or `ROLE_ADMIN`); hospital ownership or hospital grants alone do not show them
-(ADR 028). The detail page adds an encounter section: new visits, rows without time anchor, schema,
-profile, tool version, file rejection, and until when the upload file is kept or when it was deleted.
+(ADR 028). The detail page adds an encounter section: new visits, rows without time anchor, suspected duplicates
+(count), schema, profile, tool version, file rejection, and until when the upload file is kept or when it was deleted.
 Rejected rows and known visits (deduplicated) are counted in the run card of the page only; the key
 generation and the upload confirmation are stored and audited but not shown there; the upload confirmation (who,
 when, data protection agreed, terms version) is operator information on the import detail page of the admin backend
-(`ImportTypeExtensionInterface::adminDetails()`, #1563). The suspected-duplicate count, the suspected-duplicate list
-and the reject list are admin information and shown only to `ROLE_ADMIN` (#1413). With `VIEW_CASES` on the hospital the actions offer the records of the import in Explore, if the
+(`ImportTypeExtensionInterface::adminDetails()`, #1563). The page lists neither rejected rows nor suspected
+duplicates (#1622); administrators find the rejected rows in the admin backend (import detail, action
+"Rejects"). With `VIEW_CASES` on the hospital the actions offer the records of the import in Explore, if the
 schema contributes the link ([extension point](../../02-architecture/extension-points.md#encounter-import-record-links));
 for ED visits that is the visit list filtered to the import. No file content. **Download** (`/import/{id}/source-file`) with `UPLOAD` on the hospital (or
 `ROLE_ADMIN`), only while the file is kept; downloads are audited (`import.source_file.downloaded`).
