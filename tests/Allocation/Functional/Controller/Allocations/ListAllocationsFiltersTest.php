@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Functional\Controller\Allocations;
 
 use App\Allocation\Domain\Enum\AllocationTransportType;
+use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
@@ -294,5 +295,45 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
         $badges = $crawler->filter('.badge.bg-blue-lt')->each(static fn ($badge): string => trim((string) preg_replace('/\s+/', ' ', $badge->text())));
         self::assertContains('According to closure data: No closure data', $badges);
         self::assertStringNotContainsString('closure_at_assignment', $crawler->text());
+    }
+
+    /**
+     * The drawer submits every field, empty ones as '' (closureAtAssignment included): two allocations of
+     * one urgency, one of another; filtering by the second urgency through the form must return that one.
+     */
+    public function testSubmittingTheFilterFormWithEmptyFieldsFiltersTheList(): void
+    {
+        $client = $this->createClientAsAdministrator();
+        $this->seedDependencies();
+        AllocationFactory::createMany(2, ['urgency' => AllocationUrgency::EMERGENCY]);
+        $matching = AllocationFactory::createOne(['urgency' => AllocationUrgency::INPATIENT]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/allocation?limit=50');
+        $form = $crawler->filter('#allocation-filter-form')->form();
+        self::assertSame('', $form->getValues()['closureAtAssignment']);
+
+        $crawler = $client->submit($form, ['urgency' => (string) AllocationUrgency::INPATIENT->value]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSame([$matching->getPublicIdString()], $this->extractAllocationIds($crawler));
+    }
+
+    /**
+     * An empty legacy hospitalScope means no scope: the administrator still sees both allocations.
+     */
+    public function testEmptyHospitalScopeIsTreatedAsNoScope(): void
+    {
+        $client = $this->createClientAsAdministrator();
+        $this->seedDependencies();
+        $allocations = AllocationFactory::createMany(2);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/allocation?hospitalScope=&limit=50');
+
+        self::assertResponseIsSuccessful();
+        $ids = $this->extractAllocationIds($crawler);
+        sort($ids);
+        $expected = array_map(static fn ($allocation): string => $allocation->getPublicIdString(), $allocations);
+        sort($expected);
+        self::assertSame($expected, $ids);
     }
 }

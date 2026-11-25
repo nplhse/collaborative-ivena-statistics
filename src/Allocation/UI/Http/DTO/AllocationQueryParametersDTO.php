@@ -85,12 +85,14 @@ final readonly class AllocationQueryParametersDTO
 
         public ?int $departmentWasClosed = null,
 
-        #[Assert\Choice(choices: [ClosureAtAssignment::CLOSED->value, ClosureAtAssignment::OPEN->value, ClosureAtAssignment::UNKNOWN->value])]
+        // The filter form submits '' for "all"; Choice only skips null, so '' must be listed.
+        #[Assert\Choice(choices: ['', ClosureAtAssignment::CLOSED->value, ClosureAtAssignment::OPEN->value, ClosureAtAssignment::UNKNOWN->value])]
         public ?string $closureAtAssignment = null,
 
         public ?string $transportType = null,
 
-        #[Assert\Choice(choices: [AllocationListHospitalScopeResolver::SCOPE_MY_HOSPITALS])]
+        // Legacy parameter; an empty value means no scope, like a missing one.
+        #[Assert\Choice(choices: ['', AllocationListHospitalScopeResolver::SCOPE_MY_HOSPITALS])]
         public ?string $hospitalScope = null,
 
         #[Assert\GreaterThan(0)]
