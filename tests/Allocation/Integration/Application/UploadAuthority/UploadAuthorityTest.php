@@ -12,6 +12,7 @@ use App\User\Domain\Entity\TermsAcceptance;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Enum\TermsAcceptanceKind;
 use App\User\Domain\Factory\UserFactory;
+use App\User\Infrastructure\Repository\TermsAcceptanceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
@@ -91,6 +92,14 @@ final class UploadAuthorityTest extends KernelTestCase
         self::assertSame('2026-12-05 08:00', $now->getAcceptedAt()->format('Y-m-d H:i'));
         self::assertSame('2026-11', $earlier->getTermsVersion());
         self::assertSame('2026-11-20 09:00', $earlier->getAcceptedAt()->format('Y-m-d H:i'));
+    }
+
+    public function testAnEmptyHospitalListNeedsNoQuery(): void
+    {
+        $repository = self::getContainer()->get(TermsAcceptanceRepository::class);
+        self::assertInstanceOf(TermsAcceptanceRepository::class, $repository);
+
+        self::assertSame([], $repository->hospitalIdsWithUploadAuthority($this->user, [], '2026-12'));
     }
 
     private function authority(?string $version): UploadAuthority

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\User\Functional\Controller;
 
+use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
@@ -83,6 +85,54 @@ final class TermsAcceptanceAtLoginTest extends WebTestCase
 
         $this->client->request(Request::METHOD_GET, '/terms/accept');
         self::assertResponseRedirects('/', message: 'nothing left to accept');
+    }
+
+    public function testANewVersionRenewsTheUploadAuthorityInTheSameStep(): void
+    {
+        // Confirmed for Klinikum Nord and Klinikum Süd under 2026-11 and for Klinikum Ost already under 2026-12 (#1565).
+        $this->configureVersion('2026-12');
+        $user = UserFactory::createOne(['username' => 'uploader']);
+        $north = HospitalFactory::createOne(['name' => 'Klinikum Nord']);
+        $south = HospitalFactory::createOne(['name' => 'Klinikum Süd']);
+        $east = HospitalFactory::createOne(['name' => 'Klinikum Ost']);
+        $this->confirmUploadAuthority($user, $north, '2026-11');
+        $this->confirmUploadAuthority($user, $south, '2026-11');
+        $this->confirmUploadAuthority($user, $east, '2026-12');
+        $this->client->loginUser($user);
+
+        $this->client->request(Request::METHOD_GET, '/terms/accept');
+        self::assertSelectorTextContains('label[for="terms_acceptance_uploadAuthority"]', 'I am still authorised to upload data for Klinikum Nord, Klinikum Süd.');
+
+        $this->client->submitForm('Accept and continue', ['terms_acceptance[accept]' => true, 'terms_acceptance[uploadAuthority]' => true]);
+        self::assertResponseRedirects();
+
+        $renewed = $this->acceptances()->findBy(['user' => $user->getId(), 'kind' => TermsAcceptanceKind::UploadAuthority, 'termsVersion' => '2026-12']);
+        self::assertSame(['Klinikum Nord', 'Klinikum Ost', 'Klinikum Süd'], $this->hospitalNames($renewed));
+    }
+
+    public function testTheUploadAuthorityIsOptionalWhenAcceptingANewVersion(): void
+    {
+        $this->configureVersion('2026-12');
+        $user = UserFactory::createOne(['username' => 'uploader']);
+        $this->confirmUploadAuthority($user, HospitalFactory::createOne(['name' => 'Klinikum Nord']), '2026-11');
+        $this->client->loginUser($user);
+
+        $this->client->request(Request::METHOD_GET, '/terms/accept');
+        $this->client->submitForm('Accept and continue', ['terms_acceptance[accept]' => true]);
+
+        self::assertResponseRedirects();
+        self::assertSame('2026-12', $this->acceptances()->latestFor($this->reload($user))?->getTermsVersion());
+        self::assertCount(0, $this->acceptances()->findBy(['user' => $user->getId(), 'kind' => TermsAcceptanceKind::UploadAuthority, 'termsVersion' => '2026-12']));
+    }
+
+    public function testWithoutAnEarlierUploadAuthorityThePageAsksOnlyForTheTerms(): void
+    {
+        $this->configureVersion('2026-12');
+        $this->client->loginUser(UserFactory::createOne());
+
+        $this->client->request(Request::METHOD_GET, '/terms/accept');
+
+        self::assertSelectorNotExists('input[name="terms_acceptance[uploadAuthority]"]');
     }
 
     public function testTheAcceptancePageHasNoMissingTranslationsInGerman(): void
@@ -212,6 +262,26 @@ final class TermsAcceptanceAtLoginTest extends WebTestCase
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist(new TermsAcceptance($this->reload($user), TermsAcceptanceKind::Terms, $version, 'en', null));
         $entityManager->flush();
+    }
+
+    private function confirmUploadAuthority(User $user, Hospital $hospital, string $version): void
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->persist(new TermsAcceptance($this->reload($user), TermsAcceptanceKind::UploadAuthority, $version, 'en', null, null, $entityManager->find(Hospital::class, $hospital->getId())));
+        $entityManager->flush();
+    }
+
+    /**
+     * @param list<TermsAcceptance> $acceptances
+     *
+     * @return list<string>
+     */
+    private function hospitalNames(array $acceptances): array
+    {
+        $names = array_map(static fn (TermsAcceptance $acceptance): string => (string) $acceptance->getHospital()?->getName(), $acceptances);
+        sort($names);
+
+        return $names;
     }
 
     private function reload(User $user): User

@@ -30,8 +30,8 @@ permission already stores it when the requester ticked the same sentence in the 
 ([hospital-assignment-requests.md](../allocation/hospital-assignment-requests.md)). The confirmation is stored in the same flush as the
 import as a `TermsAcceptance` of kind `upload_authority` with the hospital and the terms version in force
 (`UploadAuthority` in `Allocation/Application/Hospital/UploadAuthority`, called by Import because Import may not use
-User). It is asked again per hospital after `APP_TERMS_VERSION` is raised; while the variable is empty any stored
-confirmation counts. Administrators upload as operators and are never asked. It applies to every import type; the
+User). It is asked again per hospital after `APP_TERMS_VERSION` is raised, unless the person renewed it on the terms
+acceptance page at login; while the variable is empty any stored confirmation counts. Administrators upload as operators and are never asked. It applies to every import type; the
 encounter checkbox of #1563 still comes on every encounter upload.
 
 Links to the form use the same source: the import list and the dashboard ask `IMPORT_CREATE` (any type); the empty states of the allocation list, the Analysis Explorer and the reports, and the onboarding step "Start your first import", ask `ImportUploadTargets::canUpload($user, ImportType::ALLOCATION)` because they offer an allocation import; the data preparation guide asks for `ImportType::ENCOUNTER`. My Hospitals and the hospital detail page show the upload link per hospital with `HospitalPermission::Import`, which is the same rule for allocation imports. The welcome mail and the monthly reminder link the form only for hospital owners, who always have that permission. Rules: [permission-model.md](../../02-architecture/permission-model.md#voters).

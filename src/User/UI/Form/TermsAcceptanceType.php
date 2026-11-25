@@ -27,6 +27,19 @@ final class TermsAcceptanceType extends AbstractType
                 new IsTrue(message: 'validation.terms.accept_required'),
             ],
         ]);
+
+        // Upload authority confirmed under an earlier version (#1565): renewed here, optional.
+        /** @var list<string> $hospitalNames */
+        $hospitalNames = $options['upload_authority_hospitals'];
+        if ([] !== $hospitalNames) {
+            $builder->add('uploadAuthority', CheckboxType::class, [
+                'mapped' => false,
+                'required' => false,
+                'label' => 'label.terms.upload_authority',
+                'label_translation_parameters' => ['hospitals' => implode(', ', $hospitalNames)],
+                'help' => 'help.terms.upload_authority',
+            ]);
+        }
     }
 
     #[\Override]
@@ -35,6 +48,8 @@ final class TermsAcceptanceType extends AbstractType
         $resolver->setDefaults([
             'translation_domain' => 'user',
             'data_class' => null,
+            'upload_authority_hospitals' => [],
         ]);
+        $resolver->setAllowedTypes('upload_authority_hospitals', 'array');
     }
 }
