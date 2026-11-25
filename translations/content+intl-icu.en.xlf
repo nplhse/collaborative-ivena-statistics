@@ -299,15 +299,15 @@
       </trans-unit>
       <trans-unit id="HpScrn01" resname="public.home.screenshots.analytics.alt">
         <source>public.home.screenshots.analytics.alt</source>
-        <target>Custom analytics view showing gender distribution by urgency with analysis options</target>
+        <target>Analysis explorer with the monthly allocations of one year</target>
       </trans-unit>
       <trans-unit id="HpScrn01c" resname="public.home.screenshots.analytics.caption">
         <source>public.home.screenshots.analytics.caption</source>
-        <target>Customize analyses by urgency, gender and other clinical dimensions.</target>
+        <target>Build your own analyses from rows, columns and metrics.</target>
       </trans-unit>
       <trans-unit id="HpScrn02" resname="public.home.screenshots.benchmarking.alt">
         <source>public.home.screenshots.benchmarking.alt</source>
-        <target>Benchmarking view comparing primary and comparison cohorts across key metrics</target>
+        <target>Benchmarking: your own hospitals compared with a comparison group in the same year</target>
       </trans-unit>
       <trans-unit id="HpScrn02c" resname="public.home.screenshots.benchmarking.caption">
         <source>public.home.screenshots.benchmarking.caption</source>
@@ -319,19 +319,19 @@
       </trans-unit>
       <trans-unit id="HpScrn04" resname="public.home.screenshots.dashboard.alt">
         <source>public.home.screenshots.dashboard.alt</source>
-        <target>Statistics overview dashboard with allocation trends and clinical distributions</target>
+        <target>Statistics overview with key figures, distributions and two years of allocations over time</target>
       </trans-unit>
       <trans-unit id="HpScrn04c" resname="public.home.screenshots.dashboard.caption">
         <source>public.home.screenshots.dashboard.caption</source>
         <target>Shared overview of allocations, trends and clinical distributions across the network.</target>
       </trans-unit>
-      <trans-unit id="HpScrn05" resname="public.home.screenshots.indication_insights.alt">
-        <source>public.home.screenshots.indication_insights.alt</source>
-        <target>Indication profile with cases over time, distribution heatmap and clinical features</target>
+      <trans-unit id="HpScrn05" resname="public.home.screenshots.closure_analysis.alt">
+        <source>public.home.screenshots.closure_analysis.alt</source>
+        <target>Closure analytics with closure time over the year, event types and reasons</target>
       </trans-unit>
-      <trans-unit id="HpScrn05c" resname="public.home.screenshots.indication_insights.caption">
-        <source>public.home.screenshots.indication_insights.caption</source>
-        <target>Explore indication profiles with time trends and case distributions.</target>
+      <trans-unit id="HpScrn05c" resname="public.home.screenshots.closure_analysis.caption">
+        <source>public.home.screenshots.closure_analysis.caption</source>
+        <target>See when and why departments were closed in IVENA.</target>
       </trans-unit>
       <trans-unit id="HpScrn06" resname="public.home.screenshots.next">
         <source>public.home.screenshots.next</source>

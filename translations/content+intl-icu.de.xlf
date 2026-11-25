@@ -971,15 +971,15 @@
       </trans-unit>
       <trans-unit id="De4ebb8c8d" resname="public.home.screenshots.analytics.alt">
         <source>public.home.screenshots.analytics.alt</source>
-        <target>Benutzerdefinierte Analyseansicht mit Geschlechterverteilung nach Dringlichkeit und Analyseoptionen</target>
+        <target>Analyse-Explorer mit den monatlichen Zuweisungen eines Jahres</target>
       </trans-unit>
       <trans-unit id="De75b8109e" resname="public.home.screenshots.analytics.caption">
         <source>public.home.screenshots.analytics.caption</source>
-        <target>Passen Sie Analysen nach Dringlichkeit, Geschlecht und weiteren klinischen Dimensionen an.</target>
+        <target>Stellen Sie eigene Auswertungen aus Zeilen, Spalten und Metriken zusammen.</target>
       </trans-unit>
       <trans-unit id="De6a6aefea" resname="public.home.screenshots.benchmarking.alt">
         <source>public.home.screenshots.benchmarking.alt</source>
-        <target>Benchmarking-Ansicht mit Vergleich von Primär- und Vergleichskohorte über zentrale Kennzahlen</target>
+        <target>Benchmarking: die eigenen Krankenhäuser im Vergleich mit einer Vergleichsgruppe im selben Jahr</target>
       </trans-unit>
       <trans-unit id="De3df8bad2" resname="public.home.screenshots.benchmarking.caption">
         <source>public.home.screenshots.benchmarking.caption</source>
@@ -991,19 +991,19 @@
       </trans-unit>
       <trans-unit id="Def8905885" resname="public.home.screenshots.dashboard.alt">
         <source>public.home.screenshots.dashboard.alt</source>
-        <target>Statistik-Übersicht mit Zuweisungstrends und klinischen Verteilungen</target>
+        <target>Statistik-Übersicht mit Kennzahlen, Verteilungen und dem Verlauf der Zuweisungen über zwei Jahre</target>
       </trans-unit>
       <trans-unit id="De6efe4e4d" resname="public.home.screenshots.dashboard.caption">
         <source>public.home.screenshots.dashboard.caption</source>
         <target>Gemeinsame Übersicht über Zuweisungen, Trends und klinische Verteilungen im Netzwerk.</target>
       </trans-unit>
-      <trans-unit id="De43610015" resname="public.home.screenshots.indication_insights.alt">
-        <source>public.home.screenshots.indication_insights.alt</source>
-        <target>Indikationsprofil mit Fällen über die Zeit, Verteilungs-Heatmap und klinischen Merkmalen</target>
+      <trans-unit id="De43610015" resname="public.home.screenshots.closure_analysis.alt">
+        <source>public.home.screenshots.closure_analysis.alt</source>
+        <target>Schließungsanalyse mit der Schließungszeit im Jahresverlauf, Ereignistypen und Gründen</target>
       </trans-unit>
-      <trans-unit id="Dee0056a19" resname="public.home.screenshots.indication_insights.caption">
-        <source>public.home.screenshots.indication_insights.caption</source>
-        <target>Erkunden Sie Indikationsprofile mit Zeitverläufen und Fallverteilungen.</target>
+      <trans-unit id="Dee0056a19" resname="public.home.screenshots.closure_analysis.caption">
+        <source>public.home.screenshots.closure_analysis.caption</source>
+        <target>Sehen Sie, wann und warum Fachbereiche in IVENA geschlossen waren.</target>
       </trans-unit>
       <trans-unit id="Dea31e0948" resname="public.home.screenshots.next">
         <source>public.home.screenshots.next</source>

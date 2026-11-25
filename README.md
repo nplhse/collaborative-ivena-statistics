@@ -12,7 +12,7 @@ Developed as a collaborative initiative in Hesse, Germany, the project brings to
 
 **[Explore the platform](https://versorgungsforschung.io)** (login required) - **[Documentation](docs/README.md)** - **[Roadmap](docs/roadmap.md)** - **[Contributing](CONTRIBUTING.md)**
 
-![IVENA Statistics Dashboard](assets/images/home/dashboard.png)
+![Statistics overview of Collaborative IVENA Statistics with synthetic demo data](assets/images/home/overview.en.png)
 
 ## Why this project exists
 
