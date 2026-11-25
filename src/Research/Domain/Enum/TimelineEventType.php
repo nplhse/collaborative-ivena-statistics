@@ -18,6 +18,7 @@ enum TimelineEventType: string
     case VetoResolved = 'veto_resolved';
     case Expired = 'expired';
     case Withdrawn = 'withdrawn';
+    case QuerySaved = 'query_saved';
 
     public function labelKey(): string
     {
@@ -33,6 +34,7 @@ enum TimelineEventType: string
             self::MemberExcluded => 'tabler:ban',
             self::Expired => 'tabler:clock',
             self::Withdrawn => 'tabler:x',
+            self::QuerySaved => 'tabler:database',
         };
     }
 }

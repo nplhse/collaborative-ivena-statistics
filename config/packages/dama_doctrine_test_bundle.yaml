@@ -3,3 +3,7 @@ when@test:
         enable_static_connection: true
         enable_static_meta_data_cache: true
         enable_static_query_cache: true
+        # The export connection of data extract requests (#1635) reads the same test database; sharing the static
+        # connection lets it see the fixtures of the test's transaction.
+        connection_keys:
+            research: default
