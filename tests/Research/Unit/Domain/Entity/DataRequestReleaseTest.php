@@ -28,7 +28,7 @@ final class DataRequestReleaseTest extends TestCase
         [$request, $applicant] = $this->approved();
         $admin = $this->user(2);
 
-        $release = $request->release(false, $admin, new \DateTimeImmutable(self::AT));
+        $release = $request->release(null, false, $admin, new \DateTimeImmutable(self::AT));
 
         self::assertSame(1, $release->getNumber());
         self::assertSame($request, $release->getRequest());
@@ -46,32 +46,52 @@ final class DataRequestReleaseTest extends TestCase
         self::assertNull($release->getRun());
     }
 
+    public function testTheAdministratorChoosesTheQueriesAndTheOthersAreNamed(): void
+    {
+        [$request] = $this->approved();
+        $at = new \DateTimeImmutable(self::AT);
+        $request->addQuery('small_groups', 'Groups below the minimum', QueryKind::Aggregated, 'SELECT 2', null, $at)->getCurrentVersion()->recordCheck([], $at);
+        $request->addQuery('unchecked', 'Not checked', QueryKind::Aggregated, 'SELECT 3', null, $at);
+
+        $this->assertRefused(static fn () => $request->release(['q', 'unchecked'], false, null, $at), 'a chosen version is not checked');
+        $this->assertRefused(static fn () => $request->release(['q', 'other'], false, null, $at), 'an unknown name');
+        $this->assertRefused(static fn () => $request->release([], false, null, $at), 'nothing chosen');
+
+        $release = $request->release(['q'], false, null, $at);
+        self::assertSame(['q'], array_map(static fn (\App\Research\Domain\Entity\DataRequestQueryVersion $version): string => $version->getQuery()->getName(), $release->getQueryVersions()));
+        self::assertSame(['small_groups', 'unchecked'], $release->getExcludedQueries());
+
+        [$byDefault] = $this->approved();
+        $byDefault->addQuery('unchecked', 'Not checked', QueryKind::Aggregated, 'SELECT 3', null, $at);
+        self::assertSame(['unchecked'], $byDefault->release(null, false, null, $at)->getExcludedQueries(), 'by default every checked query');
+    }
+
     public function testAReleaseIsRefusedWhileAnotherIsOpenOrAQueryIsNotChecked(): void
     {
         [$request] = $this->approved();
         $at = new \DateTimeImmutable(self::AT);
-        $request->release(false, null, $at);
-        $this->assertRefused(static fn () => $request->release(false, null, $at), 'another release is open');
+        $request->release(null, false, null, $at);
+        $this->assertRefused(static fn () => $request->release(null, false, null, $at), 'another release is open');
         self::assertCount(1, $request->getReleases(), 'the first release stays');
 
         [$unchecked] = $this->approved(checked: false);
-        $this->assertRefused(static fn () => $unchecked->release(false, null, $at), 'the version is not checked');
+        $this->assertRefused(static fn () => $unchecked->release(null, false, null, $at), 'the version is not checked');
 
         [$cases] = $this->approved(kind: QueryKind::SingleCases);
-        $this->assertRefused(static fn () => $cases->release(false, null, $at), 'single cases without confirmation');
-        self::assertTrue($cases->release(true, null, $at)->isSingleCasesConfirmed());
+        $this->assertRefused(static fn () => $cases->release(null, false, null, $at), 'single cases without confirmation');
+        self::assertTrue($cases->release(null, true, null, $at)->isSingleCasesConfirmed());
 
         $draft = new DataRequest($this->user(1), $this->content(), $at);
-        $this->assertRefused(static fn (): \App\Research\Domain\Entity\DataRequestRelease => $draft->release(false, null, $at), 'the request is not approved');
+        $this->assertRefused(static fn (): \App\Research\Domain\Entity\DataRequestRelease => $draft->release(null, false, null, $at), 'the request is not approved');
 
         [$empty] = $this->approved(withQuery: false);
-        $this->assertRefused(static fn () => $empty->release(false, null, $at), 'there is no query');
+        $this->assertRefused(static fn () => $empty->release(null, false, null, $at), 'there is no query');
     }
 
     public function testOnlyTheRecipientStartsTheOneRunBeforeTheReleaseExpires(): void
     {
         [$request, $applicant] = $this->approved();
-        $release = $request->release(false, null, new \DateTimeImmutable(self::AT));
+        $release = $request->release(null, false, null, new \DateTimeImmutable(self::AT));
         $at = new \DateTimeImmutable('2026-12-02 09:00');
 
         self::assertFalse($release->isStartableBy($this->user(3), $at));
@@ -92,7 +112,7 @@ final class DataRequestReleaseTest extends TestCase
     public function testARunMovesThroughItsStates(): void
     {
         [$request, $applicant] = $this->approved();
-        $release = $request->release(false, null, new \DateTimeImmutable(self::AT));
+        $release = $request->release(null, false, null, new \DateTimeImmutable(self::AT));
         $run = $release->startExport($applicant, new \DateTimeImmutable(self::AT), 'de');
         $this->assertRefused(static fn () => $run->provide('a.tar.gz', 1, 'x', [], new \DateTimeImmutable(self::AT)), 'not running yet');
         $this->assertRefused(static fn () => $run->retry(new \DateTimeImmutable(self::AT)), 'not failed');
@@ -137,7 +157,7 @@ final class DataRequestReleaseTest extends TestCase
     public function testABlockedRunProvidesNothing(): void
     {
         [$request, $applicant] = $this->approved();
-        $run = $request->release(false, null, new \DateTimeImmutable(self::AT))->startExport($applicant, new \DateTimeImmutable(self::AT), 'de');
+        $run = $request->release(null, false, null, new \DateTimeImmutable(self::AT))->startExport($applicant, new \DateTimeImmutable(self::AT), 'de');
         $run->start(new \DateTimeImmutable(self::AT));
         $run->block(['files' => []], new \DateTimeImmutable(self::AT));
 

@@ -29,6 +29,7 @@ final class DataRequestReleaseControllerTest extends WebTestCase
     use Factories;
 
     private const string TOTAL = 'SELECT count(*) AS allocations, array_agg(DISTINCT a.hospital_id) AS _hospital_ids FROM allocation a';
+    private const string BY_LOCATION = 'SELECT h.location, count(*) AS allocations, array_agg(DISTINCT a.hospital_id) AS _hospital_ids FROM allocation a JOIN hospital h ON h.id = a.hospital_id GROUP BY h.location';
 
     public function testAnAdministratorReleasesAndTheApplicantDownloadsTheExport(): void
     {
@@ -40,15 +41,19 @@ final class DataRequestReleaseControllerTest extends WebTestCase
 
         $client->loginUser($admin);
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
-        $client->submit($crawler->filter('[data-testid="data-request-release-submit"]')->form());
+        self::assertSelectorTextContains('[data-testid="data-request-release-queries"]', '1 group below the minimum');
+        $form = $crawler->filter('[data-testid="data-request-release-submit"]')->form();
+        $form['queries'][1]->untick();
+        $client->submit($form);
         self::assertResponseRedirects($this->url($request).'#release');
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
+        self::assertSelectorTextContains('[data-testid="data-request-release-excluded"]', 'by_location.csv');
         self::assertSelectorNotExists('[data-testid="data-request-release-form"]', 'one open release at a time');
         self::assertSelectorNotExists('[data-testid="data-request-export-start"]', 'only the recipient starts the export');
 
         $client->loginUser($applicant);
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
-        self::assertSelectorTextContains('[data-testid="data-request-event"][data-event="released"]', 'release 1');
+        self::assertSelectorTextContains('[data-testid="data-request-event"][data-event="released"]', 'left out: by_location');
         $client->submit($crawler->filter('[data-testid="data-request-export-start"]')->form());
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
         self::assertSelectorExists('[data-testid="data-request-export-status"][data-status="available"]');
@@ -118,6 +123,12 @@ final class DataRequestReleaseControllerTest extends WebTestCase
         $review->openRound($member, $request);
         $review->castVote($member, $request, VoteChoice::Approve, null);
         self::getContainer()->get(DataRequestQueryService::class)->add($admin, $request, 'total', 'All allocations.', QueryKind::Aggregated, self::TOTAL);
+        $queries = self::getContainer()->get(DataRequestQueryService::class);
+        $queries->add($admin, $request, 'by_location', 'Allocations per location.', QueryKind::Aggregated, self::BY_LOCATION);
+        $by = $request->findQuery('by_location');
+        if (null !== $by) {
+            $queries->dryRun($admin, $by);
+        }
 
         return $request;
     }

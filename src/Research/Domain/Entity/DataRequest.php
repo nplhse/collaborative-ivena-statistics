@@ -250,12 +250,15 @@ class DataRequest
     }
 
     /**
-     * Releases the current version of every query for the applicant (ADR 045).
+     * Releases the current version of the chosen queries for the applicant (ADR 045). Queries left out stay with the
+     * request and are named in the release, so it shows they were left out on purpose.
+     *
+     * @param list<string>|null $queryNames the queries to release; null for every query that passes the check
      *
      * @throws DataRequestException when the request is not approved, has no applicant any more, a release is still
-     *                              open or a query version is not checked
+     *                              open, a name is unknown or a chosen version is not checked
      */
-    public function release(bool $singleCasesConfirmed, ?User $by, \DateTimeImmutable $at): DataRequestRelease
+    public function release(?array $queryNames, bool $singleCasesConfirmed, ?User $by, \DateTimeImmutable $at): DataRequestRelease
     {
         if (DataRequestStatus::Approved !== $this->status || !$this->requester instanceof User) {
             throw new DataRequestException('Only an approved request with an applicant is released.');
@@ -267,8 +270,25 @@ class DataRequest
             }
         }
 
-        $versions = array_map(static fn (DataRequestQuery $query): DataRequestQueryVersion => $query->getCurrentVersion(), $this->getQueries());
-        $release = new DataRequestRelease($this, $this->releases->count() + 1, $this->requester, $versions, $singleCasesConfirmed, $by, $at);
+        $queryNames ??= array_map(
+            static fn (DataRequestQuery $query): string => $query->getName(),
+            array_values(array_filter($this->getQueries(), static fn (DataRequestQuery $query): bool => $query->getCurrentVersion()->passesCheck())),
+        );
+        $versions = [];
+        $excluded = [];
+        foreach ($this->getQueries() as $query) {
+            if (\in_array($query->getName(), $queryNames, true)) {
+                $versions[] = $query->getCurrentVersion();
+            } else {
+                $excluded[] = $query->getName();
+            }
+        }
+
+        if (\count($versions) !== \count(array_unique($queryNames))) {
+            throw new DataRequestException('A chosen query does not belong to this request.');
+        }
+
+        $release = new DataRequestRelease($this, $this->releases->count() + 1, $this->requester, $versions, $excluded, $singleCasesConfirmed, $by, $at);
         $this->releases->add($release);
 
         return $release;

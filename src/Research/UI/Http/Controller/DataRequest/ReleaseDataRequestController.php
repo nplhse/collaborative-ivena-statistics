@@ -47,7 +47,12 @@ final class ReleaseDataRequestController extends AbstractController
 
         $this->assertToken($request, $publicId);
 
-        return $this->attempt($publicId, 'released', fn (): DataRequestRelease => $this->releases->release($user, $dataRequest, $request->getPayload()->getBoolean('single_cases_confirmed')));
+        return $this->attempt($publicId, 'released', fn (): DataRequestRelease => $this->releases->release(
+            $user,
+            $dataRequest,
+            $request->getPayload()->getBoolean('single_cases_confirmed'),
+            array_values(array_filter($request->getPayload()->all('queries'), is_string(...))),
+        ));
     }
 
     #[Route('/requests/data/{publicId}/releases/{number}/{action}', name: 'app_data_requests_export', requirements: ['publicId' => Requirement::UUID, 'number' => Requirement::POSITIVE_INT, 'action' => 'start|retry'], methods: ['POST'])]

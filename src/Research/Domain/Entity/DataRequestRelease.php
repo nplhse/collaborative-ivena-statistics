@@ -61,6 +61,10 @@ class DataRequestRelease
     #[ORM\Column]
     private bool $singleCasesConfirmed;
 
+    /** @var list<string> names of the request's queries this release leaves out on purpose */
+    #[ORM\Column(type: Types::JSON)]
+    private array $excludedQueries;
+
     /** @var Collection<int, DataRequestQueryVersion> */
     #[ORM\ManyToMany(targetEntity: DataRequestQueryVersion::class)]
     #[ORM\JoinTable(name: 'data_request_release_query_version')]
@@ -73,11 +77,12 @@ class DataRequestRelease
 
     /**
      * @param list<DataRequestQueryVersion> $queryVersions
+     * @param list<string>                  $excludedQueries
      *
      * @throws DataRequestException without queries, with a version that did not pass the check, or with single cases
      *                              the administrator did not confirm
      */
-    public function __construct(DataRequest $request, int $number, User $recipient, array $queryVersions, bool $singleCasesConfirmed, ?User $createdBy, \DateTimeImmutable $at)
+    public function __construct(DataRequest $request, int $number, User $recipient, array $queryVersions, array $excludedQueries, bool $singleCasesConfirmed, ?User $createdBy, \DateTimeImmutable $at)
     {
         if ([] === $queryVersions) {
             throw new DataRequestException('A release needs at least one query.');
@@ -97,6 +102,7 @@ class DataRequestRelease
         $this->number = $number;
         $this->recipient = $recipient;
         $this->queryVersions = new ArrayCollection($queryVersions);
+        $this->excludedQueries = $excludedQueries;
         $this->singleCasesConfirmed = $singleCasesConfirmed;
         $this->createdBy = $createdBy;
         $this->createdAt = $at;
@@ -196,6 +202,12 @@ class DataRequestRelease
         usort($versions, static fn (DataRequestQueryVersion $a, DataRequestQueryVersion $b): int => [$a->getQuery()->getId(), $a->getQuery()->getName()] <=> [$b->getQuery()->getId(), $b->getQuery()->getName()]);
 
         return $versions;
+    }
+
+    /** @return list<string> */
+    public function getExcludedQueries(): array
+    {
+        return $this->excludedQueries;
     }
 
     public function getRun(): ?DataRequestExportRun

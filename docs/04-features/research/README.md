@@ -174,9 +174,13 @@ read-only role for local development and CI follows in the next step.
 
 ## Release and export run
 
-Once every query has a checked current version, an administrator releases the request (`DataRequestRelease`). The
-release binds the applicant as recipient, the current version of every query and, for single-case queries, the
-administrator's confirmation that timestamps are at most hourly and ages only in groups. It is valid for three
+Once at least one query has a checked current version, an administrator releases the request
+(`DataRequestRelease`). The administrator chooses the queries; by default every query that passes the check. The
+release binds the applicant as recipient, the current version of each chosen query and, for chosen single-case
+queries, the administrator's confirmation that timestamps are at most hourly and ages only in groups. Queries left out
+stay with the request and are named in the release and its timeline entry, so it shows they were left out on purpose.
+The usual case: the dry run of one query shows groups below the minimum; the administrator agrees with the applicant
+in a private comment to leave it out (or to change it) and releases the others. It is valid for three
 months; a new release is possible once the previous one is neither active nor has an export that is queued, running
 or still downloadable. Expiry, revocation and conditions follow in the next steps.
 

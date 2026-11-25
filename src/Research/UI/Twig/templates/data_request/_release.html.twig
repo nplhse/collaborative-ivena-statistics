@@ -16,10 +16,33 @@
             {% if canRelease %}
                 <form method="post" action="{{ path('app_data_requests_release', {publicId: dataRequest.publicIdString}) }}" class="mb-4" data-testid="data-request-release-form">
                     <input type="hidden" name="_token" value="{{ releaseToken }}">
-                    <p class="mb-2">{{ 'data_request.release.binds'|trans({count: dataRequest.queries|length}, 'research') }}</p>
+                    <p class="mb-2">{{ 'data_request.release.choose'|trans({}, 'research') }}</p>
+                    <div class="mb-3" data-testid="data-request-release-queries">
+                        {% for query in dataRequest.queries %}
+                            {% set current = query.currentVersion %}
+                            {% set dryRun = current.dryRun %}
+                            <label class="form-check mb-1">
+                                <input class="form-check-input" type="checkbox" name="queries[]" value="{{ query.name }}"{{ current.passesCheck ? ' checked' : ' disabled' }} data-testid="data-request-release-query" data-query="{{ query.name }}">
+                                <span class="form-check-label">
+                                    <span class="font-monospace">{{ query.name }}.csv</span>
+                                    <span class="text-secondary">{{ 'data_request.release.query_version'|trans({number: current.number}, 'research') }}</span>
+                                    {% if not current.passesCheck %}
+                                        <span class="text-danger small">· {{ 'data_request.release.query_unchecked'|trans({}, 'research') }}</span>
+                                    {% elseif dryRun is null %}
+                                        <span class="text-secondary small">· {{ 'data_request.release.query_no_dry_run'|trans({}, 'research') }}</span>
+                                    {% elseif dryRun.error %}
+                                        <span class="text-danger small">· {{ 'data_request.release.query_dry_run_error'|trans({}, 'research') }}</span>
+                                    {% elseif query.kind.value == 'aggregated' and dryRun.below_minimum > 0 %}
+                                        <span class="text-danger small">· {{ 'data_request.release.query_below_minimum'|trans({count: dryRun.below_minimum}, 'research') }}</span>
+                                    {% endif %}
+                                </span>
+                            </label>
+                        {% endfor %}
+                        <div class="form-hint">{{ 'data_request.release.choose_help'|trans({}, 'research') }}</div>
+                    </div>
                     {% if needsSingleCaseConfirmation %}
                         <label class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" name="single_cases_confirmed" value="1" required data-testid="data-request-release-single-cases">
+                            <input class="form-check-input" type="checkbox" name="single_cases_confirmed" value="1" data-testid="data-request-release-single-cases">
                             <span class="form-check-label">{{ 'data_request.release.single_cases_confirm'|trans({}, 'research') }}</span>
                         </label>
                     {% endif %}
@@ -54,6 +77,12 @@
                                 <span class="font-monospace">{{ version.query.name }}.csv</span> <span class="text-secondary">{{ 'data_request.release.query_version'|trans({number: version.number}, 'research') }}</span>{{ not loop.last ? ', ' }}
                             {% endfor %}
                         </dd>
+                        {% if release.excludedQueries is not empty %}
+                            <dt class="col-sm-4">{{ 'data_request.release.excluded'|trans({}, 'research') }}</dt>
+                            <dd class="col-sm-8" data-testid="data-request-release-excluded">
+                                {% for name in release.excludedQueries %}<span class="font-monospace">{{ name }}.csv</span>{{ not loop.last ? ', ' }}{% endfor %}
+                            </dd>
+                        {% endif %}
                         {% if not run %}
                             <dt class="col-sm-4">{{ 'data_request.release.valid_until'|trans({}, 'research') }}</dt>
                             <dd class="col-sm-8">{{ release.validUntil|format_datetime('medium', 'short') }}</dd>

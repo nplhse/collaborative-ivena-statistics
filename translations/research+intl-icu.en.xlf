@@ -987,7 +987,7 @@
       </trans-unit>
       <trans-unit id="RscE9113A03" resname="data_request.timeline.event.released">
         <source>data_request.timeline.event.released</source>
-        <target>created release {release}, valid until {until}</target>
+        <target>created release {release}, valid until {until}{excluded, select, none {} other {; left out: {excluded}}}</target>
       </trans-unit>
       <trans-unit id="Rsc6D9865D8" resname="data_request.timeline.event.export_requested">
         <source>data_request.timeline.event.export_requested</source>
@@ -1033,9 +1033,33 @@
         <source>data_request.release.intro</source>
         <target>An administrator releases the approved queries for the applicant. The applicant then creates the export and downloads it within seven days.</target>
       </trans-unit>
-      <trans-unit id="Rsc64EE011D" resname="data_request.release.binds">
-        <source>data_request.release.binds</source>
-        <target>The release binds the current version of {count, plural, one {the query} other {all # queries}} and is valid for three months.</target>
+      <trans-unit id="RscB688FBC9" resname="data_request.release.choose">
+        <source>data_request.release.choose</source>
+        <target>The release binds the current version of the chosen queries and is valid for three months. Only these files are part of the export.</target>
+      </trans-unit>
+      <trans-unit id="Rsc51BE353F" resname="data_request.release.choose_help">
+        <source>data_request.release.choose_help</source>
+        <target>Leave out a query whose dry run shows groups below the minimum, after agreeing on it with the applicant in a comment. It stays with the request and can be released later.</target>
+      </trans-unit>
+      <trans-unit id="Rsc92414059" resname="data_request.release.query_unchecked">
+        <source>data_request.release.query_unchecked</source>
+        <target>check not passed</target>
+      </trans-unit>
+      <trans-unit id="RscF29BFA98" resname="data_request.release.query_no_dry_run">
+        <source>data_request.release.query_no_dry_run</source>
+        <target>no dry run yet</target>
+      </trans-unit>
+      <trans-unit id="RscB2678C12" resname="data_request.release.query_dry_run_error">
+        <source>data_request.release.query_dry_run_error</source>
+        <target>dry run failed</target>
+      </trans-unit>
+      <trans-unit id="Rsc3F5E8EE2" resname="data_request.release.query_below_minimum">
+        <source>data_request.release.query_below_minimum</source>
+        <target>dry run: {count, plural, one {# group} other {# groups}} below the minimum</target>
+      </trans-unit>
+      <trans-unit id="RscCD5B28A8" resname="data_request.release.excluded">
+        <source>data_request.release.excluded</source>
+        <target>Left out</target>
       </trans-unit>
       <trans-unit id="RscC362F493" resname="data_request.release.single_cases_confirm">
         <source>data_request.release.single_cases_confirm</source>

@@ -987,7 +987,7 @@
       </trans-unit>
       <trans-unit id="RscE9113A03" resname="data_request.timeline.event.released">
         <source>data_request.timeline.event.released</source>
-        <target>hat Freischaltung {release} erstellt, gültig bis {until}</target>
+        <target>hat Freischaltung {release} erstellt, gültig bis {until}{excluded, select, none {} other {; nicht enthalten: {excluded}}}</target>
       </trans-unit>
       <trans-unit id="Rsc6D9865D8" resname="data_request.timeline.event.export_requested">
         <source>data_request.timeline.event.export_requested</source>
@@ -1033,9 +1033,33 @@
         <source>data_request.release.intro</source>
         <target>Ein:e Administrator:in schaltet die bewilligten Abfragen für die antragstellende Person frei. Diese erstellt dann den Auszug und kann ihn sieben Tage lang herunterladen.</target>
       </trans-unit>
-      <trans-unit id="Rsc64EE011D" resname="data_request.release.binds">
-        <source>data_request.release.binds</source>
-        <target>Die Freischaltung bindet die aktuelle Fassung {count, plural, one {der Abfrage} other {aller # Abfragen}} und gilt drei Monate.</target>
+      <trans-unit id="RscB688FBC9" resname="data_request.release.choose">
+        <source>data_request.release.choose</source>
+        <target>Die Freischaltung bindet die aktuelle Fassung der gewählten Abfragen und gilt drei Monate. Nur diese Dateien gehören zum Auszug.</target>
+      </trans-unit>
+      <trans-unit id="Rsc51BE353F" resname="data_request.release.choose_help">
+        <source>data_request.release.choose_help</source>
+        <target>Lassen Sie eine Abfrage weg, deren Probelauf Gruppen unter der Mindestzahl zeigt, nachdem Sie das per Kommentar mit der antragstellenden Person abgesprochen haben. Sie bleibt am Antrag und kann später freigeschaltet werden.</target>
+      </trans-unit>
+      <trans-unit id="Rsc92414059" resname="data_request.release.query_unchecked">
+        <source>data_request.release.query_unchecked</source>
+        <target>Prüfung nicht bestanden</target>
+      </trans-unit>
+      <trans-unit id="RscF29BFA98" resname="data_request.release.query_no_dry_run">
+        <source>data_request.release.query_no_dry_run</source>
+        <target>noch kein Probelauf</target>
+      </trans-unit>
+      <trans-unit id="RscB2678C12" resname="data_request.release.query_dry_run_error">
+        <source>data_request.release.query_dry_run_error</source>
+        <target>Probelauf fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="Rsc3F5E8EE2" resname="data_request.release.query_below_minimum">
+        <source>data_request.release.query_below_minimum</source>
+        <target>Probelauf: {count, plural, one {# Gruppe} other {# Gruppen}} unter der Mindestzahl</target>
+      </trans-unit>
+      <trans-unit id="RscCD5B28A8" resname="data_request.release.excluded">
+        <source>data_request.release.excluded</source>
+        <target>Nicht enthalten</target>
       </trans-unit>
       <trans-unit id="RscC362F493" resname="data_request.release.single_cases_confirm">
         <source>data_request.release.single_cases_confirm</source>

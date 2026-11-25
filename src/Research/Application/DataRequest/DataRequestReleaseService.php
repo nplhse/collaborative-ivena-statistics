@@ -71,8 +71,7 @@ final readonly class DataRequestReleaseService
         $queries = $request->getQueries();
         $now = $this->clock->now();
 
-        return [] !== $queries
-            && array_all($queries, static fn (DataRequestQuery $query): bool => $query->getCurrentVersion()->passesCheck())
+        return array_any($queries, static fn (DataRequestQuery $query): bool => $query->getCurrentVersion()->passesCheck())
             && array_all($request->getReleases(), static fn (DataRequestRelease $release): bool => !$release->isOpenAt($now));
     }
 
@@ -82,9 +81,11 @@ final readonly class DataRequestReleaseService
     }
 
     /**
+     * @param list<string>|null $queryNames the queries to release; null for every query that passes the check
+     *
      * @throws DataRequestRefused
      */
-    public function release(User $admin, DataRequest $request, bool $singleCasesConfirmed): DataRequestRelease
+    public function release(User $admin, DataRequest $request, bool $singleCasesConfirmed, ?array $queryNames = null): DataRequestRelease
     {
         if (!$this->canRelease($admin, $request)) {
             throw new DataRequestRefused(DataRequestRefused::NOT_ALLOWED);
@@ -92,7 +93,7 @@ final readonly class DataRequestReleaseService
 
         $now = $this->clock->now();
         try {
-            $release = $request->release($singleCasesConfirmed, $admin, $now);
+            $release = $request->release($queryNames, $singleCasesConfirmed, $admin, $now);
         } catch (DataRequestException $exception) {
             throw new DataRequestRefused(DataRequestRefused::RELEASE_INVALID, $exception);
         }
@@ -100,6 +101,7 @@ final readonly class DataRequestReleaseService
         $request->recordEvent(TimelineEventType::Released, $admin, Visibility::Private, $now, [
             'release' => $release->getNumber(),
             'until' => $release->getValidUntil()->format(\DATE_ATOM),
+            'excluded' => implode(', ', $release->getExcludedQueries()),
         ]);
         $this->flush('research.data_request.released', $request);
 

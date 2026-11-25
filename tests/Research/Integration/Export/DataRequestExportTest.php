@@ -115,6 +115,26 @@ final class DataRequestExportTest extends KernelTestCase
         self::assertTrue($this->releases()->canRelease($admin, $request), 'a blocked run does not hold the next release');
     }
 
+    public function testAQueryLeftOutOfTheReleaseIsNotExported(): void
+    {
+        self::mockTime('2026-12-01 09:00');
+        $this->seedHospitals();
+        $applicant = UserFactory::new()->asParticipant()->create();
+        $admin = UserFactory::new()->asAdmin()->create();
+        $request = $this->approved($applicant, ['urban' => self::URBAN, 'by_location' => self::BY_LOCATION], $admin);
+
+        self::assertSame(DataRequestRefused::RELEASE_INVALID, $this->refusal(fn (): DataRequestRelease => $this->releases()->release($admin, $request, false, [])), 'a release needs a query');
+        $release = $this->releases()->release($admin, $request, false, ['urban']);
+        $this->releases()->start($applicant, $release);
+        $run = $this->exportRun($release);
+
+        self::assertSame(ExportRunStatus::Available, $run->getStatus(), 'the query with the small group is not part of it');
+        self::assertSame(['urban.csv'], array_column($run->getRecord()['files'], 'file'));
+        self::assertSame(['by_location'], $release->getExcludedQueries());
+        $events = array_values(array_filter($request->getEvents(), static fn (DataRequestEvent $event): bool => 'released' === $event->getType()->value));
+        self::assertSame('by_location', $events[0]->getDetails()['excluded']);
+    }
+
     public function testAFailedRunIsTriedAgainInTheSameRun(): void
     {
         self::mockTime('2026-12-01 09:00');
