@@ -496,6 +496,8 @@ final class PageControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="page-toc"]');
         self::assertSelectorExists('[data-testid="page-toc"] a[href="#getting-started"]');
         self::assertSelectorExists('[data-testid="page-toc"] a[href="#first-steps"]');
+        self::assertSelectorExists('[data-testid="page-toc"] .page-nav-row:not(.page-nav-row--sub) a[href="#getting-started"]', 'the top heading level is a main row');
+        self::assertSelectorExists('[data-testid="page-toc"] .page-nav-row--sub[style*="--page-nav-depth: 1"] a[href="#first-steps"]', 'deeper headings are indented sub-rows');
         self::assertSelectorExists('h2#getting-started.page-content-headline');
         self::assertSelectorExists('h3#first-steps');
     }

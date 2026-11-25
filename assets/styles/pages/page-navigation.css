@@ -2,6 +2,7 @@
  * Page navigation component (@Content/components/PageNavigation.html.twig).
  * One row per page like the list-group cards in the same sidebar (latest posts, reference, #1582); subpages are
  * indented rows below their page and can be expanded and collapsed.
+ * The outline "On this page" (#1590) uses the same rows; its deeper headings are flat sub-rows (.page-nav-row--sub).
  */
 
 .page-navigation .page-nav-row {
@@ -33,12 +34,14 @@
 }
 
 /* Subpages are a step quieter than their page: smaller rows, separated only by a faint line from their indent. */
-.page-navigation .page-nav-branch .page-nav-row {
+.page-navigation .page-nav-branch .page-nav-row,
+.page-navigation .page-nav-row--sub {
     position: relative;
     border-top: 0;
 }
 
-.page-navigation .page-nav-branch .page-nav-row::before {
+.page-navigation .page-nav-branch .page-nav-row::before,
+.page-navigation .page-nav-row--sub::before {
     position: absolute;
     top: 0;
     right: 1rem;
@@ -47,13 +50,15 @@
     content: '';
 }
 
-.page-navigation .page-nav-branch .page-nav-link {
+.page-navigation .page-nav-branch .page-nav-link,
+.page-navigation .page-nav-row--sub .page-nav-link {
     padding: 0.4375rem 0;
     color: var(--tblr-secondary);
     font-size: 0.875em;
 }
 
 .page-navigation .page-nav-branch .page-nav-link:hover,
+.page-navigation .page-nav-row--sub .page-nav-link:hover,
 .page-navigation .page-nav-item.is-ancestor > .page-nav-row > .page-nav-link {
     color: var(--tblr-body-color);
 }
@@ -107,7 +112,8 @@
 /* Larger touch targets on touch screens only. */
 @media (pointer: coarse) {
     .page-navigation .page-nav-link,
-    .page-navigation .page-nav-branch .page-nav-link {
+    .page-navigation .page-nav-branch .page-nav-link,
+    .page-navigation .page-nav-row--sub .page-nav-link {
         padding: 0.75rem 0;
     }
 
