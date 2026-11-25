@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+# Captures the screenshots of the public home page and the README from the running demo
+# (docs/03-development/help-screenshots.md#home-page-screenshots).
+#
+# Usage: bin/homepage-screenshots [--base-url=http://127.0.0.1:8001] [--only=overview.de,...]
+#
+# Uses the capture script of the help with its own list of pages (resources/home/screenshots.json) and writes the
+# images straight into assets/images/home/, one file per page and language.
+set -eu
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+exec node "$root/bin/help-screenshots-app" --config="$root/resources/home/screenshots.json" --out="$root/assets/images/home" "$@"

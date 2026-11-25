@@ -71,10 +71,10 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorExists('#home-screenshots-carousel .carousel-indicators button');
         self::assertSelectorExists('#home-screenshots-carousel .carousel-control-prev');
         self::assertSelectorExists('#home-screenshots-carousel .carousel-control-next');
-        self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/dashboard"]');
-        self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/benchmarking"]');
-        self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/indication-insights"]');
-        self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/analytics"]');
+        self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/overview.en"]');
+        self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/benchmarking.en"]');
+        self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/closure-analysis.en"]');
+        self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/analysis-explorer.en"]');
         self::assertSelectorExists('.home-screenshot-carousel .carousel-caption-background');
         self::assertSelectorExists('.home-screenshot-carousel .carousel-caption[data-testid="home-screenshot-caption"]');
         self::assertSelectorTextContains('body', 'Shared overview of allocations, trends and clinical distributions across the network.');
@@ -83,6 +83,18 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'Allocations');
         self::assertSelectorTextContains('body', 'Imports');
         self::assertSelectorNotExists('[data-testid="footer-nav-activity"]');
+    }
+
+    public function testGermanVisitorsSeeTheGermanScreenshots(): void
+    {
+        $client = self::createClient();
+
+        $client->request(Request::METHOD_GET, '/', server: ['HTTP_ACCEPT_LANGUAGE' => 'de']);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/overview.de"]');
+        self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/closure-analysis.de"]');
+        self::assertSelectorNotExists('a[data-fslightbox="home-screenshots"][href*=".en"]');
     }
 
     public function testAuthenticatedUsersSeeDashboardOnHomepage(): void

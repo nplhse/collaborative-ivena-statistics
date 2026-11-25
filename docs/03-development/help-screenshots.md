@@ -107,3 +107,29 @@ so a partly filled current month does not show up as a drop.
 | `app-fehlende-werte.png` | One distribution card | Fehlende Werte |
 | `app-zuweisung-erkunden.png` | One allocation in Explore | Was steht in einem Datensatz |
 | `app-analyse-explorer.png` | Analysis explorer, monthly allocations of a year | Zusammenarbeit |
+
+## Home page screenshots
+
+The carousel on the public home page and the image in the README show the whole application, with navigation, in the
+demo. `bin/homepage-screenshots` captures them with the same script and its own list of pages,
+`resources/home/screenshots.json`, and writes them straight into `assets/images/home/`:
+
+```bash
+make demo-start
+bin/homepage-screenshots                    # all images
+bin/homepage-screenshots --only=overview.de # one image
+```
+
+Each view is captured once per language (`overview.de.png`, `overview.en.png`); the carousel picks the file of the
+request language and falls back to English, the README uses the English one. The viewport is 1400 × 1120 (5:4, the
+frame of the carousel), so the key figure tiles do not wrap, and the sidebar is folded to its icon rail (the
+script sets the stored state `tabler-sidebar` before each page). Every chart shows at least a full year: the overview uses
+the whole period, the other views the complete year 2025 of the demo data. Pick a complete year again when the demo
+data moves on.
+
+| File | View |
+|---|---|
+| `overview.*.png` | Statistics overview, all allocations, whole period |
+| `benchmarking.*.png` | Benchmarking of the demo hospital against its cohort, both 2025 |
+| `closure-analysis.*.png` | Closure analytics of the demo hospital, 2025 |
+| `analysis-explorer.*.png` | Analysis explorer, monthly allocations of all hospitals in 2025 |

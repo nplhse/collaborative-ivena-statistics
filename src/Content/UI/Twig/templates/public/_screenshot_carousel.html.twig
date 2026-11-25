@@ -1,21 +1,23 @@
+{# Captured from the demo by bin/homepage-screenshots, one file per language; other languages get the English images. #}
+{% set screenshotLocale = app.request.locale in ['de', 'en'] ? app.request.locale : 'en' %}
 {% set homeScreenshots = [
     {
-        src: 'images/home/dashboard.png',
+        src: 'images/home/overview.' ~ screenshotLocale ~ '.png',
         alt: 'public.home.screenshots.dashboard.alt'|trans({}, 'content'),
         caption: 'public.home.screenshots.dashboard.caption'|trans({}, 'content'),
     },
     {
-        src: 'images/home/benchmarking.png',
+        src: 'images/home/benchmarking.' ~ screenshotLocale ~ '.png',
         alt: 'public.home.screenshots.benchmarking.alt'|trans({}, 'content'),
         caption: 'public.home.screenshots.benchmarking.caption'|trans({}, 'content'),
     },
     {
-        src: 'images/home/indication-insights.png',
-        alt: 'public.home.screenshots.indication_insights.alt'|trans({}, 'content'),
-        caption: 'public.home.screenshots.indication_insights.caption'|trans({}, 'content'),
+        src: 'images/home/closure-analysis.' ~ screenshotLocale ~ '.png',
+        alt: 'public.home.screenshots.closure_analysis.alt'|trans({}, 'content'),
+        caption: 'public.home.screenshots.closure_analysis.caption'|trans({}, 'content'),
     },
     {
-        src: 'images/home/analytics.png',
+        src: 'images/home/analysis-explorer.' ~ screenshotLocale ~ '.png',
         alt: 'public.home.screenshots.analytics.alt'|trans({}, 'content'),
         caption: 'public.home.screenshots.analytics.caption'|trans({}, 'content'),
     },
