@@ -801,4 +801,22 @@ final class BlogControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'Michael Müller');
         self::assertSelectorTextSame('.avatar[data-avatar="initials"]', 'MM');
     }
+
+    public function testCommentMarksBoardMembersWithABadge(): void
+    {
+        $client = self::createClient();
+        $post = PostFactory::createOne([
+            'title' => 'Board comments',
+            'slug' => 'board-comments',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+        ]);
+        PostCommentFactory::createOne(['post' => $post, 'author' => UserFactory::new()->asBoardMember()->create(), 'content' => 'From the board']);
+        PostCommentFactory::createOne(['post' => $post, 'author' => UserFactory::new()->asParticipant()->create(), 'content' => 'From a participant']);
+
+        $client->request(Request::METHOD_GET, '/blog/board-comments');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(1, '[data-testid="comment-author-board-member"]');
+    }
 }

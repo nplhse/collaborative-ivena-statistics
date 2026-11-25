@@ -12,6 +12,9 @@
                         {{ authorName }}
                     {%- endif -%}
                 </strong>
+                {% if 'ROLE_BOARD_MEMBER' in comment.author.roles %}
+                    <span class="badge bg-purple-lt flex-shrink-0" data-testid="comment-author-board-member">{{ 'label.user.badge.board_member'|trans({}, 'user') }}</span>
+                {% endif %}
             {% else %}
                 <strong>{{ users.link(null, {requireParticipant: true}) }}</strong>
             {% endif %}
