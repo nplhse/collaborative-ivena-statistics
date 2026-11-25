@@ -28,35 +28,11 @@
             ]"
         />
         <div class="page-header d-print-none">
-            <div class="row g-2 align-items-center">
-                <div class="col-12 col-md">
-                    <h2 class="page-title d-flex align-items-center gap-2 flex-wrap">
-                        <span data-testid="data-request-title">{{ version.title }}</span>
-                        {{ include('@Research/data_request/_status_badge.html.twig') }}
-                    </h2>
-                    <div class="text-body-secondary mt-1">
-                        {{ 'data_request.show.byline'|trans({
-                            applicant: dataRequest.requester ? dataRequest.requester.username : 'data_request.deleted_account'|trans({}, 'research'),
-                            version: version.number,
-                        }, 'research') }}
-                    </div>
-                </div>
-                {% if own %}
-                    <div class="col-12 col-md-auto ms-md-auto d-flex gap-2 flex-wrap">
-                        {% if is_granted('DATA_REQUEST_EDIT', dataRequest) %}
-                            <a class="btn btn-outline-secondary" href="{{ path('app_data_requests_edit', {publicId: dataRequest.publicIdString}) }}" data-testid="data-request-edit">
-                                <twig:ux:icon name="tabler:pencil" width="1em" height="1em" />&nbsp;{{ 'data_request.action.edit'|trans({}, 'research') }}
-                            </a>
-                        {% endif %}
-                        {% for transition in ['withdraw', 'submit'] %}
-                            {% if is_granted('DATA_REQUEST_' ~ transition|upper, dataRequest) %}
-                                <button type="button" class="btn {{ transition == 'submit' ? 'btn-primary' : 'btn-outline-danger' }}" data-bs-toggle="modal" data-bs-target="#data-request-{{ transition }}-modal" data-testid="data-request-{{ transition }}">
-                                    {{ ('data_request.action.' ~ transition)|trans({}, 'research') }}
-                                </button>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                {% endif %}
+            <h2 class="page-title" data-testid="data-request-title">{{ version.title }}</h2>
+            <div class="list-inline list-inline-dots text-secondary mt-1" data-testid="data-request-meta">
+                <twig:AdminObjectId :id="dataRequest.id" />
+                <div class="list-inline-item">{{ include('@Research/data_request/_status_badge.html.twig') }}</div>
+                <div class="list-inline-item" data-testid="data-request-applicant">{{ include('@Research/data_request/_user.html.twig', {person: dataRequest.requester}) }}</div>
             </div>
         </div>
     </div>
@@ -161,26 +137,8 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="datagrid">
-                        <div class="datagrid-item">
-                            <div class="datagrid-title">{{ 'data_request.show.created'|trans({}, 'research') }}</div>
-                            <div class="datagrid-content">{{ dataRequest.createdAt|format_datetime('medium', 'short') }}</div>
-                        </div>
-                        <div class="datagrid-item">
-                            <div class="datagrid-title">{{ 'data_request.list.submitted'|trans({}, 'research') }}</div>
-                            <div class="datagrid-content">{{ dataRequest.submittedAt ? dataRequest.submittedAt|format_datetime('medium', 'short') : '–' }}</div>
-                        </div>
-                        {% if dataRequest.closedAt %}
-                            <div class="datagrid-item">
-                                <div class="datagrid-title">{{ 'data_request.show.closed'|trans({}, 'research') }}</div>
-                                <div class="datagrid-content">{{ dataRequest.closedAt|format_datetime('medium', 'short') }}</div>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+            {{ include('@Research/data_request/_basics.html.twig') }}
+            {{ include('@Research/data_request/_review.html.twig') }}
         </div>
     </div>
 

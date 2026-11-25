@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Research\Infrastructure\Repository;
 
 use App\Research\Domain\Entity\DataRequest;
+use App\Research\Domain\Enum\DataRequestStatus;
 use App\User\Domain\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
@@ -66,6 +67,48 @@ final class DataRequestRepository extends ServiceEntityRepository
             ->setParameter('requester', $requester->getId(), Types::INTEGER)
             ->orderBy('r.createdAt', 'DESC')
             ->addOrderBy('r.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $requests;
+    }
+
+    /**
+     * Requests in a vote whose open round reached its deadline (scheduler job, ADR 045).
+     *
+     * @return list<DataRequest>
+     */
+    public function findWithRoundDueBy(\DateTimeImmutable $now): array
+    {
+        /** @var list<DataRequest> $requests */
+        $requests = $this->createQueryBuilder('r')
+            ->join('r.rounds', 'round')
+            ->where('r.status = :status')
+            ->andWhere('round.closedAt IS NULL')
+            ->andWhere('round.deadline <= :now')
+            ->setParameter('status', DataRequestStatus::InReview->value)
+            ->setParameter('now', $now, Types::DATETIME_IMMUTABLE)
+            ->orderBy('r.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $requests;
+    }
+
+    /**
+     * Requests whose time for a requested revision ran out (scheduler job, ADR 045).
+     *
+     * @return list<DataRequest>
+     */
+    public function findWithRevisionDueBy(\DateTimeImmutable $now): array
+    {
+        /** @var list<DataRequest> $requests */
+        $requests = $this->createQueryBuilder('r')
+            ->where('r.status = :status')
+            ->andWhere('r.revisionDeadline <= :now')
+            ->setParameter('status', DataRequestStatus::RevisionRequested->value)
+            ->setParameter('now', $now, Types::DATETIME_IMMUTABLE)
+            ->orderBy('r.id', 'ASC')
             ->getQuery()
             ->getResult();
 

@@ -1,0 +1,39 @@
+{# Basic information about the request: times, versions, who changed it last. #}
+<div class="card mb-3" data-testid="data-request-basics">
+    <div class="card-header"><h3 class="card-title">{{ 'data_request.basics.title'|trans({}, 'research') }}</h3></div>
+    <div class="card-body">
+        <div class="datagrid">
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'data_request.show.created'|trans({}, 'research') }}</div>
+                <div class="datagrid-content">{{ dataRequest.createdAt|format_datetime('medium', 'short') }}</div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'data_request.list.submitted'|trans({}, 'research') }}</div>
+                <div class="datagrid-content">{{ dataRequest.submittedAt ? dataRequest.submittedAt|format_datetime('medium', 'short') : '–' }}</div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'data_request.basics.version'|trans({}, 'research') }}</div>
+                <div class="datagrid-content" data-testid="data-request-version">{{ 'data_request.basics.version_of'|trans({number: version.number, count: dataRequest.versions|length}, 'research') }}</div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'data_request.basics.updated'|trans({}, 'research') }}</div>
+                <div class="datagrid-content">
+                    {{ version.updatedAt|format_datetime('medium', 'short') }}
+                    <div>{{ include('@Research/data_request/_user.html.twig', {person: version.createdBy}) }}</div>
+                </div>
+            </div>
+            {% if dataRequest.approvedVersion %}
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'data_request.basics.approved_version'|trans({}, 'research') }}</div>
+                    <div class="datagrid-content">{{ 'data_request.basics.version_number'|trans({number: dataRequest.approvedVersion.number}, 'research') }}</div>
+                </div>
+            {% endif %}
+            {% if dataRequest.closedAt %}
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'data_request.show.closed'|trans({}, 'research') }}</div>
+                    <div class="datagrid-content">{{ dataRequest.closedAt|format_datetime('medium', 'short') }}</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

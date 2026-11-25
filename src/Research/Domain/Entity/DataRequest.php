@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Research\Domain\Entity;
 
 use App\Research\Domain\Enum\DataRequestStatus;
+use App\Research\Domain\Enum\RoundKind;
 use App\Research\Domain\Exception\DataRequestException;
 use App\Research\Domain\ValueObject\DataRequestContent;
 use App\Shared\Domain\Traits\HasRequiredPublicId;
@@ -67,11 +68,36 @@ class DataRequest
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $closedAt = null;
 
+    /** @var Collection<int, DataRequestRound> */
+    #[ORM\OneToMany(targetEntity: DataRequestRound::class, mappedBy: 'request', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OrderBy(['number' => 'ASC'])]
+    private Collection $rounds;
+
+    /** @var Collection<int, DataRequestExclusion> */
+    #[ORM\OneToMany(targetEntity: DataRequestExclusion::class, mappedBy: 'request', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OrderBy(['id' => 'ASC'])]
+    private Collection $exclusions;
+
+    /** The version the Board approved; with its export scope it is the decision. */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?DataRequestVersion $approvedVersion = null;
+
+    /** Until when the applicant may submit a revision the Board asked for. */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $revisionDeadline = null;
+
+    /** Message to the applicant from the formal check or from an administrator resolving a veto. */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $handbackMessage = null;
+
     public function __construct(User $requester, DataRequestContent $content, \DateTimeImmutable $at)
     {
         $this->requester = $requester;
         $this->createdAt = $at;
         $this->versions = new ArrayCollection([new DataRequestVersion($this, 1, $content, $requester, $at)]);
+        $this->rounds = new ArrayCollection();
+        $this->exclusions = new ArrayCollection();
     }
 
     /**
@@ -104,6 +130,82 @@ class DataRequest
     public function updateCurrentVersion(DataRequestContent $content, \DateTimeImmutable $at): void
     {
         $this->getCurrentVersion()->replaceContent($content, $at);
+    }
+
+    /** Starts the next version after the formal check returned the request or the Board asked for a revision. */
+    public function addVersion(DataRequestContent $content, ?User $by, \DateTimeImmutable $at): void
+    {
+        if (!$this->getCurrentVersion()->isSubmitted()) {
+            throw new DataRequestException('The current version is still open; change it instead.');
+        }
+
+        $this->versions->add(new DataRequestVersion($this, $this->getCurrentVersion()->getNumber() + 1, $content, $by, $at));
+    }
+
+    /**
+     * Opens a voting round on the current, submitted version.
+     *
+     * @param list<int> $eligibleMemberIds
+     *
+     * @throws DataRequestException when a round is still open or the version is not submitted
+     */
+    public function openRound(RoundKind $kind, array $eligibleMemberIds, ?User $openedBy, \DateTimeImmutable $at, \DateTimeImmutable $deadline): DataRequestRound
+    {
+        if ($this->getOpenRound() instanceof DataRequestRound) {
+            throw new DataRequestException('A voting round is still open.');
+        }
+
+        if (!$this->getCurrentVersion()->isSubmitted()) {
+            throw new DataRequestException('The Board votes only on a submitted version.');
+        }
+
+        $round = new DataRequestRound($this, \count($this->rounds) + 1, $this->getCurrentVersion(), $kind, $eligibleMemberIds, $openedBy, $at, $deadline);
+        $this->rounds->add($round);
+        $this->revisionDeadline = null;
+        $this->handbackMessage = null;
+
+        return $round;
+    }
+
+    /**
+     * @throws DataRequestException when the member is already excluded
+     */
+    public function exclude(User $member, string $reason, ?User $recordedBy, \DateTimeImmutable $at): void
+    {
+        if ($this->isExcluded($member)) {
+            throw new DataRequestException('The member is already excluded.');
+        }
+
+        $this->exclusions->add(new DataRequestExclusion($this, $member, $reason, $recordedBy, $at));
+        $this->getOpenRound()?->removeMember($member);
+    }
+
+    public function isExcluded(User $member): bool
+    {
+        foreach ($this->exclusions as $exclusion) {
+            if (null !== $member->getId() && $exclusion->getMember()->getId() === $member->getId()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function recordApproval(DataRequestVersion $version, \DateTimeImmutable $at): void
+    {
+        $this->approvedVersion = $version;
+        $this->closedAt = $at;
+    }
+
+    public function requestRevisionUntil(\DateTimeImmutable $deadline, ?string $message = null): void
+    {
+        $this->revisionDeadline = $deadline;
+        $this->handbackMessage = $this->clean($message);
+    }
+
+    public function handBack(?string $message): void
+    {
+        $this->handbackMessage = $this->clean($message);
     }
 
     /** Freezes the current version after the `submit` transition. */
@@ -174,5 +276,53 @@ class DataRequest
     public function getClosedAt(): ?\DateTimeImmutable
     {
         return $this->closedAt;
+    }
+
+    /** @return list<DataRequestRound> */
+    public function getRounds(): array
+    {
+        return array_values($this->rounds->toArray());
+    }
+
+    public function getOpenRound(): ?DataRequestRound
+    {
+        $last = $this->rounds->last();
+
+        return $last instanceof DataRequestRound && $last->isOpen() ? $last : null;
+    }
+
+    public function getLastRound(): ?DataRequestRound
+    {
+        $last = $this->rounds->last();
+
+        return $last instanceof DataRequestRound ? $last : null;
+    }
+
+    /** @return list<DataRequestExclusion> */
+    public function getExclusions(): array
+    {
+        return array_values($this->exclusions->toArray());
+    }
+
+    public function getApprovedVersion(): ?DataRequestVersion
+    {
+        return $this->approvedVersion;
+    }
+
+    public function getRevisionDeadline(): ?\DateTimeImmutable
+    {
+        return $this->revisionDeadline;
+    }
+
+    public function getHandbackMessage(): ?string
+    {
+        return $this->handbackMessage;
+    }
+
+    private function clean(?string $text): ?string
+    {
+        $text = null === $text ? '' : trim($text);
+
+        return '' === $text ? null : $text;
     }
 }

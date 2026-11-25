@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Research\Infrastructure\Security\Voter;
 
+use App\Research\Application\DataRequest\DataRequestReviewService;
+use App\Research\Application\DataRequest\DataRequestService;
 use App\Research\Domain\Entity\DataRequest;
+use App\Research\Domain\Enum\DataRequestStatus;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Symfony\Component\DependencyInjection\Attribute\Target;
@@ -20,7 +23,13 @@ use Symfony\Component\Workflow\WorkflowInterface;
  * - VIEW: participants see every request that was submitted at least once; a draft only its applicant.
  * - VIEW_INTERNAL: the internal details and the recipients: the applicant, Board members and administrators, the
  *   latter two only once the request was submitted.
- * - EDIT, SUBMIT, WITHDRAW: only the applicant, and only where the state machine allows it.
+ * - EDIT, SUBMIT, WITHDRAW: only the applicant, and only where the state machine allows it. After a return or a
+ *   requested revision, editing creates the next version, which the applicant then submits.
+ * - CHECK: the formal check of a submitted request, by Board members and administrators who are neither the
+ *   applicant nor excluded.
+ * - VOTE: eligible Board members while a round is open. VIEW_VOTES: single votes, only for Board members;
+ *   administrators see the reason of a veto they have to resolve.
+ * - EXCLUDE_SELF: a Board member declares a conflict of interest. RECORD_EXCLUSION, RESOLVE: administrators.
  *
  * @extends Voter<string, DataRequest>
  */
@@ -31,14 +40,24 @@ final class DataRequestVoter extends Voter
     public const string EDIT = 'DATA_REQUEST_EDIT';
     public const string SUBMIT = 'DATA_REQUEST_SUBMIT';
     public const string WITHDRAW = 'DATA_REQUEST_WITHDRAW';
+    public const string CHECK = 'DATA_REQUEST_CHECK';
+    public const string VOTE = 'DATA_REQUEST_VOTE';
+    public const string VIEW_VOTES = 'DATA_REQUEST_VIEW_VOTES';
+    public const string EXCLUDE_SELF = 'DATA_REQUEST_EXCLUDE_SELF';
+    public const string RECORD_EXCLUSION = 'DATA_REQUEST_RECORD_EXCLUSION';
+    public const string RESOLVE = 'DATA_REQUEST_RESOLVE';
 
-    private const array ATTRIBUTES = [self::VIEW, self::VIEW_INTERNAL, self::EDIT, self::SUBMIT, self::WITHDRAW];
+    private const array ATTRIBUTES = [
+        self::VIEW, self::VIEW_INTERNAL, self::EDIT, self::SUBMIT, self::WITHDRAW, self::CHECK, self::VOTE,
+        self::VIEW_VOTES, self::EXCLUDE_SELF, self::RECORD_EXCLUSION, self::RESOLVE,
+    ];
 
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private readonly AccessDecisionManagerInterface $accessDecisionManager,
         #[Target('data_request.state_machine')]
         private readonly WorkflowInterface $stateMachine,
+        private readonly DataRequestReviewService $review,
     ) {
     }
 
@@ -69,20 +88,31 @@ final class DataRequestVoter extends Voter
         }
 
         $own = $subject->isRequestedBy($user);
+        $status = $subject->getStatus();
+        $board = $this->accessDecisionManager->decide($token, [UserRole::BOARD_MEMBER]);
+        $admin = $this->accessDecisionManager->decide($token, [UserRole::ADMIN]);
 
         return match ($attribute) {
             self::VIEW => $own || ($subject->wasSubmitted() && $this->accessDecisionManager->decide($token, [UserRole::PARTICIPANT])),
-            self::VIEW_INTERNAL => $own || ($subject->wasSubmitted() && $this->isBoardOrAdmin($token)),
-            self::EDIT => $own && $subject->getStatus()->isEditable() && !$subject->getCurrentVersion()->isSubmitted(),
-            self::SUBMIT => $own && $this->stateMachine->can($subject, 'submit'),
+            self::VIEW_INTERNAL => $own || ($subject->wasSubmitted() && ($board || $admin)),
+            self::EDIT => $own && $status->isEditable(),
+            self::SUBMIT => $own && !$subject->getCurrentVersion()->isSubmitted() && $this->canSubmit($subject),
             self::WITHDRAW => $own && $this->stateMachine->can($subject, 'withdraw'),
+            self::CHECK => DataRequestStatus::Submitted === $status && $this->review->canCheck($user, $subject),
+            self::VOTE => $board && DataRequestStatus::InReview === $status && !$subject->isExcluded($user)
+                && true === $subject->getOpenRound()?->isEligible($user),
+            self::VIEW_VOTES => $board && !$own,
+            self::EXCLUDE_SELF => $board && !$own && !$status->isFinal() && $subject->wasSubmitted() && !$subject->isExcluded($user),
+            self::RECORD_EXCLUSION => $admin && !$status->isFinal() && $subject->wasSubmitted(),
+            self::RESOLVE => $admin && DataRequestStatus::Stalled === $status,
             default => false,
         };
     }
 
-    private function isBoardOrAdmin(TokenInterface $token): bool
+    private function canSubmit(DataRequest $request): bool
     {
-        return $this->accessDecisionManager->decide($token, [UserRole::BOARD_MEMBER])
-            || $this->accessDecisionManager->decide($token, [UserRole::ADMIN]);
+        $transition = DataRequestService::submitTransition($request->getStatus());
+
+        return null !== $transition && $this->stateMachine->can($request, $transition);
     }
 }

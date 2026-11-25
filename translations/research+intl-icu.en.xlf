@@ -293,10 +293,6 @@
         <source>data_request.hidden.empty</source>
         <target>Not given</target>
       </trans-unit>
-      <trans-unit id="RscDD0BAF47" resname="data_request.show.byline">
-        <source>data_request.show.byline</source>
-        <target>By {applicant} · version {version}</target>
-      </trans-unit>
       <trans-unit id="RscCFD67B31" resname="data_request.show.period">
         <source>data_request.show.period</source>
         <target>Period</target>
@@ -332,6 +328,282 @@
       <trans-unit id="RscF9914D8A" resname="data_request.show.withdrawn_note">
         <source>data_request.show.withdrawn_note</source>
         <target>You withdrew this request. Copies already downloaded cannot be recalled.</target>
+      </trans-unit>
+      <trans-unit id="Rsc2987895B" resname="data_request.basics.title">
+        <source>data_request.basics.title</source>
+        <target>Basic information</target>
+      </trans-unit>
+      <trans-unit id="Rsc54569AF7" resname="data_request.basics.version">
+        <source>data_request.basics.version</source>
+        <target>Version</target>
+      </trans-unit>
+      <trans-unit id="Rsc7442EA53" resname="data_request.basics.version_of">
+        <source>data_request.basics.version_of</source>
+        <target>{number} of {count}</target>
+      </trans-unit>
+      <trans-unit id="RscC52AF0AC" resname="data_request.basics.updated">
+        <source>data_request.basics.updated</source>
+        <target>Last changed</target>
+      </trans-unit>
+      <trans-unit id="Rsc33ED36F3" resname="data_request.basics.approved_version">
+        <source>data_request.basics.approved_version</source>
+        <target>Approved version</target>
+      </trans-unit>
+      <trans-unit id="RscB3ADF9A9" resname="data_request.basics.version_number">
+        <source>data_request.basics.version_number</source>
+        <target>Version {number}</target>
+      </trans-unit>
+      <trans-unit id="RscA5DD4B30" resname="data_request.actions.title">
+        <source>data_request.actions.title</source>
+        <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="Rsc0784E844" resname="data_request.review.title">
+        <source>data_request.review.title</source>
+        <target>Formal check and vote</target>
+      </trans-unit>
+      <trans-unit id="Rsc90073EBC" resname="data_request.review.handback.returned">
+        <source>data_request.review.handback.returned</source>
+        <target>Returned by the formal check</target>
+      </trans-unit>
+      <trans-unit id="Rsc9FAB577A" resname="data_request.review.handback.revision_requested">
+        <source>data_request.review.handback.revision_requested</source>
+        <target>Revision requested</target>
+      </trans-unit>
+      <trans-unit id="Rsc1A073FD3" resname="data_request.review.handback.rejected">
+        <source>data_request.review.handback.rejected</source>
+        <target>Closed</target>
+      </trans-unit>
+      <trans-unit id="Rsc72924FA3" resname="data_request.review.revision_until">
+        <source>data_request.review.revision_until</source>
+        <target>Submit the revised version by {date}; otherwise the request expires.</target>
+      </trans-unit>
+      <trans-unit id="RscFA699F88" resname="data_request.review.awaiting_check">
+        <source>data_request.review.awaiting_check</source>
+        <target>Waiting for the formal check by a Board member or an administrator.</target>
+      </trans-unit>
+      <trans-unit id="Rsc7F8C9976" resname="data_request.review.action.open">
+        <source>data_request.review.action.open</source>
+        <target>Accept and open the vote</target>
+      </trans-unit>
+      <trans-unit id="Rsc254A9AAF" resname="data_request.review.action.return">
+        <source>data_request.review.action.return</source>
+        <target>Return to the applicant</target>
+      </trans-unit>
+      <trans-unit id="RscF0EC39A7" resname="data_request.review.return_message">
+        <source>data_request.review.return_message</source>
+        <target>What is missing or unclear</target>
+      </trans-unit>
+      <trans-unit id="Rsc445744C8" resname="data_request.round.title">
+        <source>data_request.round.title</source>
+        <target>Round {number} · version {version}</target>
+      </trans-unit>
+      <trans-unit id="Rsc050D543C" resname="data_request.round.open">
+        <source>data_request.round.open</source>
+        <target>Vote running</target>
+      </trans-unit>
+      <trans-unit id="Rsc292B9144" resname="data_request.round.summary">
+        <source>data_request.round.summary</source>
+        <target>{cast} of {eligible} votes cast, at least {quorum} needed</target>
+      </trans-unit>
+      <trans-unit id="Rsc123EABD2" resname="data_request.round.deadline">
+        <source>data_request.round.deadline</source>
+        <target>Deadline: {date}</target>
+      </trans-unit>
+      <trans-unit id="Rsc30F08F25" resname="data_request.round.after_revision">
+        <source>data_request.round.after_revision</source>
+        <target>After a revision, the round is evaluated only at its deadline.</target>
+      </trans-unit>
+      <trans-unit id="Rsc8AA57EB2" resname="data_request.round.closed_at">
+        <source>data_request.round.closed_at</source>
+        <target>Ended {date}</target>
+      </trans-unit>
+      <trans-unit id="Rsc8958EA67" resname="data_request.round.outcome.approved">
+        <source>data_request.round.outcome.approved</source>
+        <target>Approved</target>
+      </trans-unit>
+      <trans-unit id="Rsc0BA5A410" resname="data_request.round.outcome.revision_requested">
+        <source>data_request.round.outcome.revision_requested</source>
+        <target>Revision requested</target>
+      </trans-unit>
+      <trans-unit id="Rsc1DA8182D" resname="data_request.round.outcome.rejected">
+        <source>data_request.round.outcome.rejected</source>
+        <target>Rejected</target>
+      </trans-unit>
+      <trans-unit id="Rsc7006F450" resname="data_request.round.outcome.quorum_missed">
+        <source>data_request.round.outcome.quorum_missed</source>
+        <target>Quorum missed</target>
+      </trans-unit>
+      <trans-unit id="Rsc9E0391D1" resname="data_request.round.outcome.vetoed">
+        <source>data_request.round.outcome.vetoed</source>
+        <target>Veto</target>
+      </trans-unit>
+      <trans-unit id="Rsc58370BD6" resname="data_request.round.outcome.cancelled">
+        <source>data_request.round.outcome.cancelled</source>
+        <target>Ended by withdrawal</target>
+      </trans-unit>
+      <trans-unit id="RscCAC0A893" resname="data_request.vote.title">
+        <source>data_request.vote.title</source>
+        <target>Your vote</target>
+      </trans-unit>
+      <trans-unit id="Rsc64081A2B" resname="data_request.vote.choice.approve">
+        <source>data_request.vote.choice.approve</source>
+        <target>Approve</target>
+      </trans-unit>
+      <trans-unit id="Rsc565DA7C7" resname="data_request.vote.choice.revision">
+        <source>data_request.vote.choice.revision</source>
+        <target>Needs revision</target>
+      </trans-unit>
+      <trans-unit id="Rsc6FD2F2FF" resname="data_request.vote.choice.reject">
+        <source>data_request.vote.choice.reject</source>
+        <target>Reject</target>
+      </trans-unit>
+      <trans-unit id="Rsc462265A4" resname="data_request.vote.choice.veto">
+        <source>data_request.vote.choice.veto</source>
+        <target>Veto</target>
+      </trans-unit>
+      <trans-unit id="RscC41C4CE8" resname="data_request.vote.reason">
+        <source>data_request.vote.reason</source>
+        <target>Reason</target>
+      </trans-unit>
+      <trans-unit id="Rsc363D70F0" resname="data_request.vote.reason_help">
+        <source>data_request.vote.reason_help</source>
+        <target>Required for a veto. Only the Board sees it.</target>
+      </trans-unit>
+      <trans-unit id="Rsc1E2D15B6" resname="data_request.vote.cast">
+        <source>data_request.vote.cast</source>
+        <target>Cast vote</target>
+      </trans-unit>
+      <trans-unit id="Rsc3DCE92F3" resname="data_request.vote.change">
+        <source>data_request.vote.change</source>
+        <target>Change vote</target>
+      </trans-unit>
+      <trans-unit id="Rsc771C188B" resname="data_request.vote.carried_over">
+        <source>data_request.vote.carried_over</source>
+        <target>carried over from the previous round</target>
+      </trans-unit>
+      <trans-unit id="Rsc86FE3BE9" resname="data_request.vote.none">
+        <source>data_request.vote.none</source>
+        <target>No votes yet.</target>
+      </trans-unit>
+      <trans-unit id="Rsc624A79EC" resname="data_request.resolve.title">
+        <source>data_request.resolve.title</source>
+        <target>Resolve the veto</target>
+      </trans-unit>
+      <trans-unit id="RscA3D6F682" resname="data_request.resolve.restart">
+        <source>data_request.resolve.restart</source>
+        <target>Restart the vote</target>
+      </trans-unit>
+      <trans-unit id="RscBB143C01" resname="data_request.resolve.revision">
+        <source>data_request.resolve.revision</source>
+        <target>Ask for a revision</target>
+      </trans-unit>
+      <trans-unit id="Rsc8F1C93B8" resname="data_request.resolve.close">
+        <source>data_request.resolve.close</source>
+        <target>Close the request</target>
+      </trans-unit>
+      <trans-unit id="Rsc77E0F3AA" resname="data_request.resolve.message">
+        <source>data_request.resolve.message</source>
+        <target>Message to the applicant (required for a revision)</target>
+      </trans-unit>
+      <trans-unit id="RscC1F4B399" resname="data_request.resolve.submit">
+        <source>data_request.resolve.submit</source>
+        <target>Resolve</target>
+      </trans-unit>
+      <trans-unit id="RscB81A4F26" resname="data_request.exclusion.list">
+        <source>data_request.exclusion.list</source>
+        <target>Excluded for a conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="Rsc7D486DE6" resname="data_request.exclusion.self.open">
+        <source>data_request.exclusion.self.open</source>
+        <target>Declare own conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="RscE99F9194" resname="data_request.exclusion.self.title">
+        <source>data_request.exclusion.self.title</source>
+        <target>Declare your own conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="RscC26FD033" resname="data_request.exclusion.self.reason">
+        <source>data_request.exclusion.self.reason</source>
+        <target>Reason for your conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="Rsc4FEA1F12" resname="data_request.exclusion.self.help">
+        <source>data_request.exclusion.self.help</source>
+        <target>You then no longer vote on this request, do not count for the quorum and cannot do the formal check. This cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="Rsc6CA21191" resname="data_request.exclusion.self.submit">
+        <source>data_request.exclusion.self.submit</source>
+        <target>Declare conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="Rsc83B86419" resname="data_request.exclusion.member.open">
+        <source>data_request.exclusion.member.open</source>
+        <target>Exclude a Board member</target>
+      </trans-unit>
+      <trans-unit id="Rsc10887F9F" resname="data_request.exclusion.member.title">
+        <source>data_request.exclusion.member.title</source>
+        <target>Exclude a Board member for a conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="Rsc9E31ADEE" resname="data_request.exclusion.member.member">
+        <source>data_request.exclusion.member.member</source>
+        <target>Board member</target>
+      </trans-unit>
+      <trans-unit id="Rsc7D64E44F" resname="data_request.exclusion.member.reason">
+        <source>data_request.exclusion.member.reason</source>
+        <target>Reason for the conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="Rsc246109E9" resname="data_request.exclusion.member.help">
+        <source>data_request.exclusion.member.help</source>
+        <target>The member then no longer votes on this request, does not count for the quorum and cannot do the formal check. This cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="RscF504B69A" resname="data_request.exclusion.member.submit">
+        <source>data_request.exclusion.member.submit</source>
+        <target>Exclude member</target>
+      </trans-unit>
+      <trans-unit id="RscDEA72392" resname="data_request.flash.review.exclude">
+        <source>data_request.flash.review.exclude</source>
+        <target>The exclusion for a conflict of interest is saved.</target>
+      </trans-unit>
+      <trans-unit id="RscECA4893B" resname="data_request.flash.review.open">
+        <source>data_request.flash.review.open</source>
+        <target>The vote is open.</target>
+      </trans-unit>
+      <trans-unit id="RscB0B2E2CE" resname="data_request.flash.review.return">
+        <source>data_request.flash.review.return</source>
+        <target>The request was returned to the applicant.</target>
+      </trans-unit>
+      <trans-unit id="Rsc6673E2A7" resname="data_request.flash.review.vote">
+        <source>data_request.flash.review.vote</source>
+        <target>Your vote is saved.</target>
+      </trans-unit>
+      <trans-unit id="Rsc2E87342B" resname="data_request.flash.review.resolve">
+        <source>data_request.flash.review.resolve</source>
+        <target>The veto is resolved.</target>
+      </trans-unit>
+      <trans-unit id="Rsc45B62218" resname="data_request.refused.not_allowed">
+        <source>data_request.refused.not_allowed</source>
+        <target>You may not take this step.</target>
+      </trans-unit>
+      <trans-unit id="RscD7C201D1" resname="data_request.refused.no_open_round">
+        <source>data_request.refused.no_open_round</source>
+        <target>There is no open vote.</target>
+      </trans-unit>
+      <trans-unit id="RscEF4A8EFA" resname="data_request.refused.not_eligible">
+        <source>data_request.refused.not_eligible</source>
+        <target>You are not eligible to vote in this round.</target>
+      </trans-unit>
+      <trans-unit id="RscDE1A831B" resname="data_request.refused.reason_required">
+        <source>data_request.refused.reason_required</source>
+        <target>Please give a reason.</target>
+      </trans-unit>
+      <trans-unit id="Rsc75E6EDFD" resname="data_request.refused.no_eligible_members">
+        <source>data_request.refused.no_eligible_members</source>
+        <target>No Board member is eligible to vote on this request.</target>
+      </trans-unit>
+      <trans-unit id="Rsc7293725C" resname="data_request.refused.already_excluded">
+        <source>data_request.refused.already_excluded</source>
+        <target>This member is already excluded.</target>
+      </trans-unit>
+      <trans-unit id="RscFEE9DE18" resname="data_request.refused.new_version_needed">
+        <source>data_request.refused.new_version_needed</source>
+        <target>Edit the request first; your changes become the next version.</target>
       </trans-unit>
       <trans-unit id="RscCFE2A9E0" resname="data_request.status.draft">
         <source>data_request.status.draft</source>

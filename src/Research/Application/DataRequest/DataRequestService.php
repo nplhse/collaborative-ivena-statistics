@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Research\Application\DataRequest;
 
 use App\Research\Domain\Entity\DataRequest;
+use App\Research\Domain\Enum\DataRequestStatus;
 use App\Research\Domain\Exception\DataRequestException;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
@@ -28,6 +29,7 @@ final readonly class DataRequestService
         private ClockInterface $clock,
         #[Target('data_request.state_machine')]
         private WorkflowInterface $stateMachine,
+        private DataRequestReviewService $review,
     ) {
     }
 
@@ -51,7 +53,12 @@ final readonly class DataRequestService
         }
 
         try {
-            $request->updateCurrentVersion($draft->toContent(), $this->clock->now());
+            if ($request->getCurrentVersion()->isSubmitted()) {
+                // Returned by the formal check or sent back for a revision: the change is the next version.
+                $request->addVersion($draft->toContent(), $applicant, $this->clock->now());
+            } else {
+                $request->updateCurrentVersion($draft->toContent(), $this->clock->now());
+            }
         } catch (DataRequestException $exception) {
             throw new DataRequestRefused(DataRequestRefused::NOT_EDITABLE, $exception);
         }
@@ -65,13 +72,41 @@ final readonly class DataRequestService
     public function submit(User $applicant, DataRequest $request): void
     {
         $this->assertOwn($applicant, $request);
-        $this->apply($request, 'submit');
+        if ($request->getCurrentVersion()->isSubmitted()) {
+            throw new DataRequestRefused(DataRequestRefused::NEW_VERSION_NEEDED);
+        }
+
+        $transition = self::submitTransition($request->getStatus());
+        if (null === $transition) {
+            throw new DataRequestRefused(DataRequestRefused::TRANSITION_BLOCKED);
+        }
+
         $request->recordSubmission($this->clock->now());
+        $request->handBack(null);
+        if ('submit_revision' === $transition) {
+            // A submitted revision goes straight into a new round, without a formal check.
+            $this->review->openRoundAfterRevision($request);
+        } else {
+            $this->apply($request, $transition);
+        }
+
         $this->flush('research.data_request.submitted', $request);
     }
 
+    /** The transition that submits the current version: first submission, after a return, or a revision. */
+    public static function submitTransition(DataRequestStatus $status): ?string
+    {
+        return match ($status) {
+            DataRequestStatus::Draft => 'submit',
+            DataRequestStatus::Returned => 'resubmit',
+            DataRequestStatus::RevisionRequested => 'submit_revision',
+            default => null,
+        };
+    }
+
     /**
-     * Ends the request on the applicant's wish. Later steps (#1635) also end a running vote and revoke open releases.
+     * Ends the request on the applicant's wish and a running vote with it. Later steps (#1635) also revoke open
+     * releases.
      *
      * @throws DataRequestRefused
      */
@@ -79,6 +114,7 @@ final readonly class DataRequestService
     {
         $this->assertOwn($applicant, $request);
         $this->apply($request, 'withdraw');
+        $this->review->cancelOpenRound($request);
         $request->recordClosing($this->clock->now());
         $this->flush('research.data_request.withdrawn', $request);
     }
