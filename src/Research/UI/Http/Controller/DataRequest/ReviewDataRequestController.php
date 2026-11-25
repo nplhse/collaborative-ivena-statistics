@@ -68,7 +68,7 @@ final class ReviewDataRequestController extends AbstractController
             match ($action) {
                 'open' => $this->review->openRound($user, $dataRequest),
                 'return' => $this->review->returnRequest($user, $dataRequest, $message),
-                'vote' => $this->review->castVote($user, $dataRequest, $this->choice($payload->getString('choice')), $message, $this->reasonVisibility($payload->getString('reason_visibility'))),
+                'vote' => $this->review->castVote($user, $dataRequest, $this->choice($payload->getString('choice')), $message),
                 'exclude' => $this->review->declareExclusion($user, $dataRequest, $member instanceof User ? $member : $user, $message),
                 'resolve' => $this->review->resolveStall($user, $dataRequest, $payload->getString('resolution'), $message),
                 default => throw $this->createNotFoundException(),
@@ -87,11 +87,6 @@ final class ReviewDataRequestController extends AbstractController
     private function choice(string $value): VoteChoice
     {
         return VoteChoice::tryFrom($value) ?? throw new DataRequestRefused(DataRequestRefused::NOT_ALLOWED);
-    }
-
-    private function reasonVisibility(string $value): string
-    {
-        return \in_array($value, [DataRequestReviewService::REASON_PUBLIC, DataRequestReviewService::REASON_PRIVATE], true) ? $value : DataRequestReviewService::REASON_ON_VOTE;
     }
 
     /**

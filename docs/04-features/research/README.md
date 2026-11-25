@@ -102,18 +102,30 @@ administrators also have "Exclude a Board member" with a dialog to choose the me
 member and request). The exclusion cannot be undone. An excluded member leaves an open round together with their vote,
 does not count for the quorum, cannot vote and cannot do the formal check. The round may be complete afterwards.
 
-## Comments
+## Timeline and comments
 
-`DataRequestComment` holds the discussion on a submitted request, nested like blog comments, with the version that
-was current when it was written.
+The request page shows a timeline like a GitHub issue: events and comments in the order they happened.
+`DataRequestEvent` rows are added by the services (submitted, returned, vote opened, voted, round ended, member
+excluded, veto resolved, expired, withdrawn); `DataRequestComment` holds comments, nested once, with the version that
+was current when it was written. `DataRequestTimeline` mixes both for one reader; within the same second a vote comes
+first, then the comment with its reason, then the end of the round.
 
-- **Who writes:** the applicant, Board members and administrators. Other participants read the public comments.
-- **Private comments:** written and read only by Board members who are neither the applicant nor excluded;
-  administrators without the Board role do not see them. A reply to a private comment is always private, a public
-  comment may get a private reply. The form always shows who will read the comment; the visibility cannot change
-  after posting, and comments are not edited.
-- **Vote reasons:** a reason stays on the vote (Board only) unless the member chooses "also as a public comment" or
-  "also as a private comment" when voting; the comment then refers to the vote.
+Every entry has one of three visibility levels (`Visibility`):
+
+| Level | Who reads it | Examples |
+|---|---|---|
+| `internal` | Board members | votes, their reasons, exclusions |
+| `private` | Board members and the applicant | the return message, the reason for "Needs revision", veto resolution |
+| `public` | everyone who may see the request | submissions, opened and ended rounds, normal comments |
+
+- **Readers:** administrators read every level, as do Board members who are neither the applicant nor excluded. The
+  applicant reads private and public entries, everyone else public ones. An excluded member reads public entries only.
+- **Writers:** administrators and active Board members write every level, the applicant private and public comments,
+  other participants nothing. The form always shows the levels the writer may choose; public is preselected.
+- **Replies:** a reply never reaches more readers than the comment it answers; a broader choice is narrowed. The
+  visibility is fixed once posted, and comments are not edited.
+- **Vote reasons:** a reason is always and only a comment on the vote: internal, or private for "Needs revision", so
+  the applicant reads what to change. Votes themselves no longer store a reason.
 
 ## Permissions
 
@@ -128,15 +140,14 @@ was current when it was written.
 | `DATA_REQUEST_WITHDRAW` | the applicant, from every non-final status |
 | `DATA_REQUEST_CHECK` | Board members and administrators who are neither the applicant nor excluded, while `submitted` |
 | `DATA_REQUEST_VOTE` | eligible, not excluded Board members while a round is open |
-| `DATA_REQUEST_VIEW_VOTES` | Board members except the applicant |
+| `DATA_REQUEST_VIEW_VOTES` | Board members who are neither the applicant nor excluded, and administrators |
 | `DATA_REQUEST_EXCLUDE_SELF` | Board members except the applicant, on a submitted, not final request |
 | `DATA_REQUEST_RECORD_EXCLUSION`, `DATA_REQUEST_RESOLVE` | administrators; resolving only while `stalled` |
-| `DATA_REQUEST_COMMENT` | the applicant, Board members and administrators, on a submitted request |
-| `DATA_REQUEST_VIEW_PRIVATE_COMMENTS` | Board members who are neither the applicant nor excluded |
+| `DATA_REQUEST_COMMENT` | whoever may write at least one level (see above), on a submitted request |
 
 ## Audit
 
 Every entity is audited. The services record the intents `research.data_request.drafted`, `.updated`, `.submitted`,
-`.withdrawn`, `.commented`, `.commented_privately`, `.round_opened`, `.returned`, `.voted`, `.vetoed`, `.member_excluded`, `.veto_resolved`, `.round_closed`
+`.withdrawn`, `.commented`, `.round_opened`, `.returned`, `.voted`, `.vetoed`, `.member_excluded`, `.veto_resolved`, `.round_closed`
 and `.expired`. A request, its votes and rounds stay when an account is deleted (the user reference becomes null);
 an exclusion is deleted with the member's account.

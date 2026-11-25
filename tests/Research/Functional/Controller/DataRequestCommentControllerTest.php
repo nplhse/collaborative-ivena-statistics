@@ -10,19 +10,20 @@ use App\Research\Domain\Entity\DataRequest;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * The discussion on the request page (#1635, ADR 045): who writes, who sees private comments, how replies inherit it.
+ * The timeline on the request page (#1635, ADR 045): events and comments in order, the visibility levels and replies.
  */
 #[ResetDatabase]
 final class DataRequestCommentControllerTest extends WebTestCase
 {
     use Factories;
 
-    public function testBoardMembersChooseTheVisibilityAndOthersOnlySeePublicComments(): void
+    public function testEachReaderSeesTheLevelsTheyMayRead(): void
     {
         $client = self::createClient();
         $applicant = UserFactory::new()->asParticipant()->create();
@@ -30,37 +31,35 @@ final class DataRequestCommentControllerTest extends WebTestCase
         $request = $this->submittedRequest($applicant);
 
         $client->loginUser($member);
-        $crawler = $client->request(Request::METHOD_GET, $this->url($request));
-        $form = $crawler->filter('[data-testid="data-request-comment-submit"]')->form();
-        self::assertSame('public', $form['visibility']->getValue(), 'public is preselected');
-        $form['body']->setValue('Public question about the period.');
-        $client->submit($form);
-        self::assertResponseRedirects($this->url($request).'#comments');
+        foreach (['public' => 'Public question.', 'private' => 'Question to the applicant.', 'internal' => 'Board only.'] as $level => $body) {
+            $crawler = $client->request(Request::METHOD_GET, $this->url($request));
+            $form = $crawler->filter('[data-testid="data-request-comment-submit"]')->form();
+            $form['body']->setValue($body);
+            $form['visibility']->setValue($level);
+            $client->submit($form);
+            self::assertResponseRedirects($this->url($request).'#comments');
+        }
 
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
-        $form = $crawler->filter('[data-testid="data-request-comment-submit"]')->form();
-        $form['body']->setValue('Board only: looks fine.');
-        $form['visibility']->setValue('private');
-        $client->submit($form);
-
-        $crawler = $client->request(Request::METHOD_GET, $this->url($request));
-        self::assertCount(2, $crawler->filter('[data-testid="data-request-comment"]'));
-        self::assertCount(1, $crawler->filter('[data-testid="data-request-comment-private"]'));
+        self::assertSame(['public', 'private', 'internal'], $this->levels($crawler));
 
         $client->loginUser($applicant);
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
-        $comments = $crawler->filter('[data-testid="data-request-comments"]')->text();
-        self::assertStringContainsString('Public question about the period.', $comments);
-        self::assertStringNotContainsString('Board only', $comments);
-        self::assertCount(0, $crawler->filter('input[name="visibility"][value="private"]'), 'the applicant writes public comments only');
+        self::assertSame(['public', 'private'], $this->levels($crawler));
+        self::assertSame(['public', 'private'], $crawler->filter('[data-testid="data-request-comment-form"] input[name="visibility"]')->each(static fn (Crawler $input): string => (string) $input->attr('value')));
 
         $client->loginUser(UserFactory::new()->asParticipant()->create());
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
-        self::assertStringContainsString('Public question about the period.', $crawler->filter('[data-testid="data-request-comments"]')->text());
+        self::assertSame(['public'], $this->levels($crawler));
         self::assertSelectorNotExists('[data-testid="data-request-comment-form"]', 'other participants only read');
+        self::assertSelectorExists('[data-testid="data-request-event"][data-event="submitted"]');
+
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+        $crawler = $client->request(Request::METHOD_GET, $this->url($request));
+        self::assertSame(['public', 'private', 'internal'], $this->levels($crawler), 'administrators see everything');
     }
 
-    public function testTheApplicantRepliesToAPublicComment(): void
+    public function testAReplyOffersOnlyLevelsUpToItsComment(): void
     {
         $client = self::createClient();
         $applicant = UserFactory::new()->asParticipant()->create();
@@ -70,35 +69,19 @@ final class DataRequestCommentControllerTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
         $form = $crawler->filter('[data-testid="data-request-comment-submit"]')->form();
         $form['body']->setValue('Which hospitals?');
+        $form['visibility']->setValue('private');
         $client->submit($form);
 
         $client->loginUser($applicant);
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
-        $form = $crawler->filter('[data-testid="data-request-reply-form"]')->form();
+        $reply = $crawler->filter('[data-testid="data-request-reply-form"]');
+        self::assertSame('private', $reply->filter('input[name="visibility"]')->attr('value'), 'only private is left for the applicant');
+        $form = $reply->form();
         $form['body']->setValue('All participating ones.');
         $client->submit($form);
 
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
-        self::assertCount(2, $crawler->filter('[data-testid="data-request-comment"]'));
         self::assertStringContainsString('All participating ones.', $crawler->filter('[data-testid="data-request-comment"] [data-testid="data-request-comment"]')->text());
-    }
-
-    public function testAReplyToAPrivateCommentShowsItIsPrivate(): void
-    {
-        $client = self::createClient();
-        $member = UserFactory::new()->asBoardMember()->create();
-        $request = $this->submittedRequest(UserFactory::new()->asParticipant()->create());
-        $client->loginUser($member);
-        $crawler = $client->request(Request::METHOD_GET, $this->url($request));
-        $form = $crawler->filter('[data-testid="data-request-comment-submit"]')->form();
-        $form['body']->setValue('Board only.');
-        $form['visibility']->setValue('private');
-        $client->submit($form);
-
-        $crawler = $client->request(Request::METHOD_GET, $this->url($request));
-
-        self::assertSelectorExists('[data-testid="data-request-reply-private-hint"]');
-        self::assertSame('private', $crawler->filter('[data-testid="data-request-reply-form"] input[name="visibility"]')->attr('value'));
     }
 
     public function testCommentsNeedTheRightAndAValidToken(): void
@@ -107,15 +90,23 @@ final class DataRequestCommentControllerTest extends WebTestCase
         $request = $this->submittedRequest(UserFactory::new()->asParticipant()->create());
 
         $client->loginUser(UserFactory::new()->asParticipant()->create());
-        $client->request(Request::METHOD_POST, $this->url($request).'/comments', ['body' => 'Hi', '_token' => 'x']);
+        $client->request(Request::METHOD_POST, $this->url($request).'/comments', ['body' => 'Hi', 'visibility' => 'public', '_token' => 'x']);
         self::assertResponseStatusCodeSame(403);
 
         $client->loginUser(UserFactory::new()->asBoardMember()->create());
-        $client->request(Request::METHOD_POST, $this->url($request).'/comments', ['body' => 'Hi', '_token' => 'wrong']);
+        $client->request(Request::METHOD_POST, $this->url($request).'/comments', ['body' => 'Hi', 'visibility' => 'public', '_token' => 'wrong']);
         self::assertResponseStatusCodeSame(403);
 
         $client->request(Request::METHOD_POST, '/requests/data/00000000-0000-4000-8000-000000000000/comments', ['body' => 'Hi', '_token' => 'x']);
         self::assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function levels(Crawler $crawler): array
+    {
+        return $crawler->filter('[data-testid="data-request-comment"] [data-testid="data-request-visibility"]')->each(static fn (Crawler $badge): string => (string) $badge->attr('data-visibility'));
     }
 
     private function submittedRequest(User $applicant): DataRequest

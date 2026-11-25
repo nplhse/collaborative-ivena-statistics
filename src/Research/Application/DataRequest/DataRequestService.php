@@ -6,6 +6,8 @@ namespace App\Research\Application\DataRequest;
 
 use App\Research\Domain\Entity\DataRequest;
 use App\Research\Domain\Enum\DataRequestStatus;
+use App\Research\Domain\Enum\TimelineEventType;
+use App\Research\Domain\Enum\Visibility;
 use App\Research\Domain\Exception\DataRequestException;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
@@ -83,6 +85,7 @@ final readonly class DataRequestService
 
         $request->recordSubmission($this->clock->now());
         $request->handBack(null);
+        $request->recordEvent(TimelineEventType::Submitted, $applicant, Visibility::Public, $this->clock->now(), ['version' => $request->getCurrentVersion()->getNumber()]);
         if ('submit_revision' === $transition) {
             // A submitted revision goes straight into a new round, without a formal check.
             $this->review->openRoundAfterRevision($request);
@@ -116,6 +119,9 @@ final readonly class DataRequestService
         $this->apply($request, 'withdraw');
         $this->review->cancelOpenRound($request);
         $request->recordClosing($this->clock->now());
+        if ($request->wasSubmitted()) {
+            $request->recordEvent(TimelineEventType::Withdrawn, $applicant, Visibility::Public, $this->clock->now());
+        }
         $this->flush('research.data_request.withdrawn', $request);
     }
 

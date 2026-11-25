@@ -7,6 +7,7 @@ namespace App\Research\UI\Http\Controller\DataRequest;
 use App\Research\Application\DataRequest\DataRequestCommentService;
 use App\Research\Application\DataRequest\DataRequestRefused;
 use App\Research\Domain\Entity\DataRequest;
+use App\Research\Domain\Enum\Visibility;
 use App\Research\Infrastructure\Repository\DataRequestRepository;
 use App\Research\Infrastructure\Security\Voter\DataRequestVoter;
 use App\User\Domain\Entity\User;
@@ -53,7 +54,8 @@ final class CommentDataRequestController extends AbstractController
 
         $parentId = $payload->getInt('parent_id');
         try {
-            $this->comments->post($user, $dataRequest, $payload->getString('body'), 'private' === $payload->getString('visibility'), $parentId > 0 ? $parentId : null);
+            $visibility = Visibility::tryFrom($payload->getString('visibility')) ?? throw new DataRequestRefused(DataRequestRefused::NOT_ALLOWED);
+            $this->comments->post($user, $dataRequest, $payload->getString('body'), $visibility, $parentId > 0 ? $parentId : null);
             $this->addFlash('success', new TranslatableMessage('data_request.flash.commented', domain: 'research'));
         } catch (DataRequestRefused $refused) {
             $this->addFlash('error', new TranslatableMessage($refused->reason, domain: 'research'));

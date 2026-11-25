@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Research\Domain\Entity;
 
+use App\Research\Domain\Enum\Visibility;
 use App\Research\Domain\Exception\DataRequestException;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Entity\User;
@@ -13,9 +14,9 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * A comment on a data extract request (ADR 045), nested like blog comments. A private comment is for the Board only;
- * a reply to a private comment is always private. The visibility is fixed when the comment is posted. A comment
- * refers to the version that was current when it was written, and to the vote whose reason it publishes, if any.
+ * A comment on a data extract request (ADR 045), shown in its timeline. The visibility (internal, private, public) is
+ * fixed when the comment is posted; a reply never reaches more readers than the comment it answers. A comment refers to
+ * the version that was current when it was written, and to the vote whose reason it is, if any.
  */
 #[Audit\Audited]
 #[ORM\Entity]
@@ -55,8 +56,8 @@ class DataRequestComment
     #[ORM\Column(type: Types::TEXT)]
     private string $body;
 
-    #[ORM\Column]
-    private bool $private;
+    #[ORM\Column(length: 16, enumType: Visibility::class)]
+    private Visibility $visibility;
 
     /** The vote whose reason this comment publishes. */
     #[ORM\ManyToOne]
@@ -67,17 +68,17 @@ class DataRequestComment
     private \DateTimeImmutable $createdAt;
 
     /**
-     * @throws DataRequestException when the body is empty or too long, or a reply to a private comment is public
+     * @throws DataRequestException when the body is empty or too long, or a reply reaches more readers than its parent
      */
-    public function __construct(DataRequest $request, ?User $author, string $body, bool $private, ?self $parent, \DateTimeImmutable $createdAt, ?DataRequestVote $vote = null)
+    public function __construct(DataRequest $request, ?User $author, string $body, Visibility $visibility, ?self $parent, \DateTimeImmutable $createdAt, ?DataRequestVote $vote = null)
     {
         $body = trim($body);
         if ('' === $body || mb_strlen($body) > self::MAX_LENGTH) {
             throw new DataRequestException('A comment needs between 1 and 5000 characters.');
         }
 
-        if ($parent instanceof self && $parent->isPrivate() && !$private) {
-            throw new DataRequestException('A reply to a private comment is private.');
+        if ($parent instanceof self && $parent->getVisibility()->isNarrowerThan($visibility)) {
+            throw new DataRequestException('A reply cannot reach more readers than the comment it answers.');
         }
 
         if ($parent instanceof self && $parent->getRequest() !== $request) {
@@ -88,7 +89,7 @@ class DataRequestComment
         $this->version = $request->getCurrentVersion();
         $this->author = $author;
         $this->body = $body;
-        $this->private = $private;
+        $this->visibility = $visibility;
         $this->parent = $parent;
         $this->createdAt = $createdAt;
         $this->vote = $vote;
@@ -132,9 +133,9 @@ class DataRequestComment
         return $this->body;
     }
 
-    public function isPrivate(): bool
+    public function getVisibility(): Visibility
     {
-        return $this->private;
+        return $this->visibility;
     }
 
     public function getVote(): ?DataRequestVote

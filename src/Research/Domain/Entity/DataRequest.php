@@ -6,6 +6,8 @@ namespace App\Research\Domain\Entity;
 
 use App\Research\Domain\Enum\DataRequestStatus;
 use App\Research\Domain\Enum\RoundKind;
+use App\Research\Domain\Enum\TimelineEventType;
+use App\Research\Domain\Enum\Visibility;
 use App\Research\Domain\Exception\DataRequestException;
 use App\Research\Domain\ValueObject\DataRequestContent;
 use App\Shared\Domain\Traits\HasRequiredPublicId;
@@ -83,6 +85,11 @@ class DataRequest
     #[ORM\OrderBy(['createdAt' => 'ASC', 'id' => 'ASC'])]
     private Collection $comments;
 
+    /** @var Collection<int, DataRequestEvent> */
+    #[ORM\OneToMany(targetEntity: DataRequestEvent::class, mappedBy: 'request', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OrderBy(['occurredAt' => 'ASC', 'id' => 'ASC'])]
+    private Collection $events;
+
     /** The version the Board approved; with its export scope it is the decision. */
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
@@ -104,6 +111,7 @@ class DataRequest
         $this->rounds = new ArrayCollection();
         $this->exclusions = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        $this->events = new ArrayCollection();
     }
 
     /**
@@ -200,9 +208,23 @@ class DataRequest
     /**
      * @throws DataRequestException when the comment breaks the rules of DataRequestComment
      */
-    public function addComment(?User $author, string $body, bool $private, ?DataRequestComment $parent, \DateTimeImmutable $at, ?DataRequestVote $vote = null): void
+    public function addComment(?User $author, string $body, Visibility $visibility, ?DataRequestComment $parent, \DateTimeImmutable $at, ?DataRequestVote $vote = null): void
     {
-        $this->comments->add(new DataRequestComment($this, $author, $body, $private, $parent, $at, $vote));
+        $this->comments->add(new DataRequestComment($this, $author, $body, $visibility, $parent, $at, $vote));
+    }
+
+    /**
+     * @param array<string, int|string> $details
+     */
+    public function recordEvent(TimelineEventType $type, ?User $actor, Visibility $visibility, \DateTimeImmutable $at, array $details = []): void
+    {
+        $this->events->add(new DataRequestEvent($this, $type, $actor, $visibility, $at, $details));
+    }
+
+    /** @return list<DataRequestEvent> */
+    public function getEvents(): array
+    {
+        return array_values($this->events->toArray());
     }
 
     public function recordApproval(DataRequestVersion $version, \DateTimeImmutable $at): void

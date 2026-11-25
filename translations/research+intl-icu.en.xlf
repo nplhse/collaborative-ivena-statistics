@@ -467,7 +467,7 @@
       </trans-unit>
       <trans-unit id="Rsc363D70F0" resname="data_request.vote.reason_help">
         <source>data_request.vote.reason_help</source>
-        <target>Required for a veto.</target>
+        <target>Required for a veto. The reason appears in the timeline as an internal comment; for "Needs revision" the applicant sees it as well.</target>
       </trans-unit>
       <trans-unit id="Rsc1E2D15B6" resname="data_request.vote.cast">
         <source>data_request.vote.cast</source>
@@ -485,25 +485,77 @@
         <source>data_request.vote.none</source>
         <target>No votes yet.</target>
       </trans-unit>
-      <trans-unit id="Rsc4EFFA480" resname="data_request.vote.reason_visibility">
-        <source>data_request.vote.reason_visibility</source>
-        <target>Who sees the reason</target>
+      <trans-unit id="Rsc0B25DC1F" resname="data_request.visibility.internal">
+        <source>data_request.visibility.internal</source>
+        <target>Internal</target>
       </trans-unit>
-      <trans-unit id="Rsc30C4BB10" resname="data_request.vote.reason_visibility_vote">
-        <source>data_request.vote.reason_visibility_vote</source>
-        <target>Only the Board, with the vote</target>
+      <trans-unit id="Rsc363C8EDA" resname="data_request.visibility.private">
+        <source>data_request.visibility.private</source>
+        <target>Private</target>
       </trans-unit>
-      <trans-unit id="Rsc2F4F5C87" resname="data_request.vote.reason_visibility_public">
-        <source>data_request.vote.reason_visibility_public</source>
-        <target>Also as a public comment</target>
+      <trans-unit id="Rsc097E7292" resname="data_request.visibility.public">
+        <source>data_request.visibility.public</source>
+        <target>Public</target>
       </trans-unit>
-      <trans-unit id="Rsc7330CDD9" resname="data_request.vote.reason_visibility_private">
-        <source>data_request.vote.reason_visibility_private</source>
-        <target>Also as a private comment for the Board</target>
+      <trans-unit id="RscDB5156DF" resname="data_request.visibility.internal_choice">
+        <source>data_request.visibility.internal_choice</source>
+        <target>Internal: only the Board</target>
       </trans-unit>
-      <trans-unit id="RscED87B776" resname="data_request.comment.title">
-        <source>data_request.comment.title</source>
-        <target>Discussion</target>
+      <trans-unit id="RscB1ED6E27" resname="data_request.visibility.private_choice">
+        <source>data_request.visibility.private_choice</source>
+        <target>Private: the Board and the applicant</target>
+      </trans-unit>
+      <trans-unit id="Rsc555FA847" resname="data_request.visibility.public_choice">
+        <source>data_request.visibility.public_choice</source>
+        <target>Public: everyone who can see the request</target>
+      </trans-unit>
+      <trans-unit id="RscC41714AF" resname="data_request.timeline.title">
+        <source>data_request.timeline.title</source>
+        <target>Timeline</target>
+      </trans-unit>
+      <trans-unit id="RscBF2E2560" resname="data_request.timeline.empty">
+        <source>data_request.timeline.empty</source>
+        <target>Nothing has happened yet.</target>
+      </trans-unit>
+      <trans-unit id="RscDA1FB5CB" resname="data_request.timeline.event.submitted">
+        <source>data_request.timeline.event.submitted</source>
+        <target>submitted version {version}</target>
+      </trans-unit>
+      <trans-unit id="RscB42D498E" resname="data_request.timeline.event.returned">
+        <source>data_request.timeline.event.returned</source>
+        <target>returned the request</target>
+      </trans-unit>
+      <trans-unit id="RscA1180574" resname="data_request.timeline.event.round_opened">
+        <source>data_request.timeline.event.round_opened</source>
+        <target>Vote opened: round {round} on version {version}</target>
+      </trans-unit>
+      <trans-unit id="Rsc314EAA5D" resname="data_request.timeline.event.voted">
+        <source>data_request.timeline.event.voted</source>
+        <target>voted: {choice}</target>
+      </trans-unit>
+      <trans-unit id="Rsc0EE19D6E" resname="data_request.timeline.event.round_closed">
+        <source>data_request.timeline.event.round_closed</source>
+        <target>Round {round} ended: {outcome}</target>
+      </trans-unit>
+      <trans-unit id="RscDD6BF2E0" resname="data_request.timeline.event.member_excluded">
+        <source>data_request.timeline.event.member_excluded</source>
+        <target>excluded {member} for a conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="Rsc5658FE49" resname="data_request.timeline.event.veto_resolved">
+        <source>data_request.timeline.event.veto_resolved</source>
+        <target>resolved the veto: {resolution}</target>
+      </trans-unit>
+      <trans-unit id="Rsc670EDD9F" resname="data_request.timeline.event.expired">
+        <source>data_request.timeline.event.expired</source>
+        <target>Expired: the revision was not submitted in time</target>
+      </trans-unit>
+      <trans-unit id="Rsc76DA4824" resname="data_request.timeline.event.withdrawn">
+        <source>data_request.timeline.event.withdrawn</source>
+        <target>withdrew the request</target>
+      </trans-unit>
+      <trans-unit id="Rsc5401848E" resname="data_request.comment.version">
+        <source>data_request.comment.version</source>
+        <target>version {version}</target>
       </trans-unit>
       <trans-unit id="Rsc87D4225C" resname="data_request.comment.new">
         <source>data_request.comment.new</source>
@@ -513,25 +565,9 @@
         <source>data_request.comment.submit</source>
         <target>Post comment</target>
       </trans-unit>
-      <trans-unit id="Rsc3D18916F" resname="data_request.comment.empty">
-        <source>data_request.comment.empty</source>
-        <target>No comments yet.</target>
-      </trans-unit>
       <trans-unit id="RscC9C6D45E" resname="data_request.comment.visibility">
         <source>data_request.comment.visibility</source>
         <target>Visibility</target>
-      </trans-unit>
-      <trans-unit id="Rsc3BD11034" resname="data_request.comment.public">
-        <source>data_request.comment.public</source>
-        <target>Public: every participant sees it</target>
-      </trans-unit>
-      <trans-unit id="RscD87A0EDD" resname="data_request.comment.private">
-        <source>data_request.comment.private</source>
-        <target>Private: only the Board sees it</target>
-      </trans-unit>
-      <trans-unit id="Rsc00C68E76" resname="data_request.comment.public_only">
-        <source>data_request.comment.public_only</source>
-        <target>Your comment is public: every participant who can see the request reads it.</target>
       </trans-unit>
       <trans-unit id="Rsc39A41E3C" resname="data_request.comment.reply">
         <source>data_request.comment.reply</source>
@@ -541,21 +577,9 @@
         <source>data_request.comment.reply_submit</source>
         <target>Post reply</target>
       </trans-unit>
-      <trans-unit id="Rsc17A72F3D" resname="data_request.comment.reply_private">
-        <source>data_request.comment.reply_private</source>
-        <target>The reply to a private comment is private as well: only the Board sees it.</target>
-      </trans-unit>
-      <trans-unit id="Rsc6CADA942" resname="data_request.comment.private_badge">
-        <source>data_request.comment.private_badge</source>
-        <target>Private</target>
-      </trans-unit>
       <trans-unit id="Rsc4B9A2DAC" resname="data_request.comment.vote_badge">
         <source>data_request.comment.vote_badge</source>
         <target>Reason for the vote: {choice}</target>
-      </trans-unit>
-      <trans-unit id="RscBCE3DB25" resname="data_request.comment.meta">
-        <source>data_request.comment.meta</source>
-        <target>{date} · version {version}</target>
       </trans-unit>
       <trans-unit id="RscA43DFACD" resname="data_request.flash.commented">
         <source>data_request.flash.commented</source>

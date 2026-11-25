@@ -1,17 +1,15 @@
-{# Visibility choice of a new comment: always shown, so it is clear who will read it. Board members choose; everyone
-   else writes public comments. #}
-{% if canSeePrivate %}
+{# Visibility choice for a new comment or reply: always shown, so it is clear who will read it. `levels` are the levels
+   the writer may choose here, broadest first; the first is preselected. #}
+{% if levels|length > 1 %}
     <div class="mb-2" role="radiogroup" aria-label="{{ 'data_request.comment.visibility'|trans({}, 'research') }}">
-        <label class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="visibility" value="public" checked id="{{ fieldId }}-public">
-            <span class="form-check-label"><twig:ux:icon name="tabler:world" class="icon" /> {{ 'data_request.comment.public'|trans({}, 'research') }}</span>
-        </label>
-        <label class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="visibility" value="private" id="{{ fieldId }}-private">
-            <span class="form-check-label"><twig:ux:icon name="tabler:lock" class="icon" /> {{ 'data_request.comment.private'|trans({}, 'research') }}</span>
-        </label>
+        {% for level in levels %}
+            <label class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="visibility" value="{{ level.value }}" id="{{ fieldId }}-{{ level.value }}"{{ loop.first ? ' checked' }}>
+                <span class="form-check-label">{{ ('data_request.visibility.' ~ level.value ~ '_choice')|trans({}, 'research') }}</span>
+            </label>
+        {% endfor %}
     </div>
 {% else %}
-    <input type="hidden" name="visibility" value="public">
-    <div class="form-hint mb-2"><twig:ux:icon name="tabler:world" class="icon" /> {{ 'data_request.comment.public_only'|trans({}, 'research') }}</div>
+    <input type="hidden" name="visibility" value="{{ levels|first.value }}">
+    <div class="form-hint mb-2">{{ ('data_request.visibility.' ~ (levels|first).value ~ '_choice')|trans({}, 'research') }}</div>
 {% endif %}

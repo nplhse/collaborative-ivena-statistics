@@ -6,6 +6,7 @@ namespace App\Research\Application\DataRequest;
 
 use App\Research\Domain\Entity\DataRequest;
 use App\Research\Domain\Entity\DataRequestComment;
+use App\Research\Domain\Enum\Visibility;
 use App\Research\Domain\Exception\DataRequestException;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
@@ -14,13 +15,15 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 
 /**
- * Comments on a data extract request (ADR 045).
+ * Who reads and writes which entries of a data extract request's timeline (ADR 045).
  *
- * - The applicant, Board members and administrators comment on a submitted request; every participant who can see the
- *   request reads the public comments.
- * - Private comments are for Board members only, without the applicant and without members excluded for a conflict of
- *   interest. A reply to a private comment is always private; a public comment may get a private reply.
- * - The visibility is fixed when a comment is posted; comments are not edited.
+ * - Administrators read and write every level.
+ * - Board members who are neither the applicant nor excluded read and write every level.
+ * - The applicant reads and writes private and public entries.
+ * - Everyone else who may see the request reads public entries and writes nothing.
+ *
+ * A reply never reaches more readers than the comment it answers; a broader choice is narrowed to the parent's level.
+ * The visibility is fixed once a comment is posted; comments are not edited.
  */
 final readonly class DataRequestCommentService
 {
@@ -32,49 +35,63 @@ final readonly class DataRequestCommentService
     ) {
     }
 
-    public function canComment(User $user, DataRequest $request): bool
+    /** @return list<Visibility> */
+    public function readableLevels(User $user, DataRequest $request): array
     {
-        return $request->wasSubmitted()
-            && ($request->isRequestedBy($user) || $this->has($user, UserRole::BOARD_MEMBER) || $this->has($user, UserRole::ADMIN));
+        if ($this->isAdmin($user) || $this->isActiveBoardMember($user, $request)) {
+            return Visibility::cases();
+        }
+
+        return $request->isRequestedBy($user) ? [Visibility::Private, Visibility::Public] : [Visibility::Public];
     }
 
-    /** Writes and reads private comments. */
-    public function canSeePrivate(User $user, DataRequest $request): bool
+    /** @return list<Visibility> */
+    public function writableLevels(User $user, DataRequest $request): array
     {
-        return $this->has($user, UserRole::BOARD_MEMBER) && !$request->isRequestedBy($user) && !$request->isExcluded($user);
+        if (!$request->wasSubmitted()) {
+            return [];
+        }
+
+        if ($this->isAdmin($user) || $this->isActiveBoardMember($user, $request)) {
+            return Visibility::cases();
+        }
+
+        return $request->isRequestedBy($user) ? [Visibility::Private, Visibility::Public] : [];
+    }
+
+    public function canComment(User $user, DataRequest $request): bool
+    {
+        return [] !== $this->writableLevels($user, $request);
     }
 
     /**
      * @throws DataRequestRefused
      */
-    public function post(User $author, DataRequest $request, string $body, bool $private, ?int $parentId): void
+    public function post(User $author, DataRequest $request, string $body, Visibility $visibility, ?int $parentId): void
     {
-        if (!$this->canComment($author, $request)) {
+        if (!\in_array($visibility, $this->writableLevels($author, $request), true)) {
             throw new DataRequestRefused(DataRequestRefused::NOT_ALLOWED);
         }
 
         $parent = null;
         if (null !== $parentId) {
             $parent = $request->findComment($parentId);
-            if (!$parent instanceof DataRequestComment || ($parent->isPrivate() && !$this->canSeePrivate($author, $request))) {
+            if (!$parent instanceof DataRequestComment || !\in_array($parent->getVisibility(), $this->readableLevels($author, $request), true)) {
                 throw new DataRequestRefused(DataRequestRefused::NOT_ALLOWED);
             }
 
-            // A reply to a private comment stays private, whatever the form sent.
-            $private = $private || $parent->isPrivate();
-        }
-
-        if ($private && !$this->canSeePrivate($author, $request)) {
-            throw new DataRequestRefused(DataRequestRefused::NOT_ALLOWED);
+            if ($parent->getVisibility()->isNarrowerThan($visibility)) {
+                $visibility = $parent->getVisibility();
+            }
         }
 
         try {
-            $request->addComment($author, $body, $private, $parent, $this->clock->now());
+            $request->addComment($author, $body, $visibility, $parent, $this->clock->now());
         } catch (DataRequestException $exception) {
             throw new DataRequestRefused(DataRequestRefused::COMMENT_INVALID, $exception);
         }
 
-        $this->auditContext->beginIntent($private ? 'research.data_request.commented_privately' : 'research.data_request.commented', ['data_request_id' => $request->getId()]);
+        $this->auditContext->beginIntent('research.data_request.commented', ['data_request_id' => $request->getId(), 'visibility' => $visibility->value]);
         try {
             $this->entityManager->flush();
         } finally {
@@ -82,8 +99,13 @@ final readonly class DataRequestCommentService
         }
     }
 
-    private function has(User $user, string $role): bool
+    private function isActiveBoardMember(User $user, DataRequest $request): bool
     {
-        return \in_array($role, $user->getRoles(), true);
+        return \in_array(UserRole::BOARD_MEMBER, $user->getRoles(), true) && !$request->isRequestedBy($user) && !$request->isExcluded($user);
+    }
+
+    private function isAdmin(User $user): bool
+    {
+        return \in_array(UserRole::ADMIN, $user->getRoles(), true);
     }
 }

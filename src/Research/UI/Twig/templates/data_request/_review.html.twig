@@ -52,17 +52,14 @@
                             {{ 'data_request.round.closed_at'|trans({date: round.closedAt|format_datetime('medium', 'short')}, 'research') }}
                         {% endif %}
                     </div>
-                    {% if canSeeVotes or (canResolve and round.outcome and round.outcome.value == 'vetoed') %}
+                    {% if canSeeVotes %}
                         <ul class="list-unstyled small mt-2 mb-0" data-testid="data-request-votes">
                             {% for vote in round.votes %}
-                                {% if canSeeVotes or vote.choice.value == 'veto' %}
-                                    <li class="mb-1">
-                                        <strong>{{ vote.voter ? vote.voter.username : 'data_request.deleted_account'|trans({}, 'research') }}</strong>:
-                                        {{ vote.choice.labelKey|trans({}, 'research') }}
-                                        {% if vote.carriedOver %}<span class="text-body-secondary">({{ 'data_request.vote.carried_over'|trans({}, 'research') }})</span>{% endif %}
-                                        {% if vote.reason %}<div class="text-body-secondary text-break">{{ vote.reason|nl2br }}</div>{% endif %}
-                                    </li>
-                                {% endif %}
+                                <li class="mb-1">
+                                    <strong>{{ vote.voter ? vote.voter.username : 'data_request.deleted_account'|trans({}, 'research') }}</strong>:
+                                    {{ vote.choice.labelKey|trans({}, 'research') }}
+                                    {% if vote.carriedOver %}<span class="text-body-secondary">({{ 'data_request.vote.carried_over'|trans({}, 'research') }})</span>{% endif %}
+                                </li>
                             {% else %}
                                 <li class="text-body-secondary">{{ 'data_request.vote.none'|trans({}, 'research') }}</li>
                             {% endfor %}
@@ -101,14 +98,8 @@
                         </label>
                     {% endfor %}
                     <label class="form-label mt-2" for="data-request-vote-reason">{{ 'data_request.vote.reason'|trans({}, 'research') }}</label>
-                    <textarea class="form-control mb-1" id="data-request-vote-reason" name="message" rows="3">{{ ownVote ? ownVote.reason }}</textarea>
+                    <textarea class="form-control mb-1" id="data-request-vote-reason" name="message" rows="3"></textarea>
                     <div class="form-hint mb-2">{{ 'data_request.vote.reason_help'|trans({}, 'research') }}</div>
-                    <label class="form-label" for="data-request-vote-reason-visibility">{{ 'data_request.vote.reason_visibility'|trans({}, 'research') }}</label>
-                    <select class="form-select mb-2" id="data-request-vote-reason-visibility" name="reason_visibility">
-                        {% for option in ['vote', 'public', 'private'] %}
-                            <option value="{{ option }}">{{ ('data_request.vote.reason_visibility_' ~ option)|trans({}, 'research') }}</option>
-                        {% endfor %}
-                    </select>
                     <button type="submit" class="btn btn-primary w-100" data-testid="data-request-vote">{{ (ownVote ? 'data_request.vote.change' : 'data_request.vote.cast')|trans({}, 'research') }}</button>
                 </form>
             {% endif %}
