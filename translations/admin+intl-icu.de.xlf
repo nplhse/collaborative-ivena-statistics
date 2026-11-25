@@ -589,6 +589,10 @@
         <source>ops.health.check.two_factor</source>
         <target>2FA-Schlüssel</target>
       </trans-unit>
+      <trans-unit id="opsHlthResearchExportDe" resname="ops.health.check.research_export">
+        <source>ops.health.check.research_export</source>
+        <target>Exportverbindung Datenauszüge</target>
+      </trans-unit>
       <trans-unit id="opsHlthMsg00de" resname="ops.health.check.messenger">
         <source>ops.health.check.messenger</source>
         <target>Messenger</target>

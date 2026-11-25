@@ -249,6 +249,35 @@ final readonly class DataRequestReleaseService
         return $path;
     }
 
+    /**
+     * Ends the download period of a run and removes its archive (cleanup job).
+     *
+     * @throws DataRequestRefused when the run is not due
+     */
+    public function expire(DataRequestExportRun $run): void
+    {
+        try {
+            $archive = $run->expire($this->clock->now());
+        } catch (DataRequestException $exception) {
+            throw new DataRequestRefused(DataRequestRefused::NOT_ALLOWED, $exception);
+        }
+
+        $this->flush('research.data_request.export_expired', $run->getRelease()->getRequest());
+        if (null !== $archive) {
+            $this->storage->remove($archive);
+        }
+    }
+
+    /**
+     * Removes archives no run refers to and leftover working directories older than a day (cleanup job).
+     *
+     * @param list<string> $archivesInUse
+     */
+    public function removeOrphans(array $archivesInUse): int
+    {
+        return $this->storage->removeOrphans($archivesInUse, $this->clock->now()->modify('-1 day'));
+    }
+
     public static function archiveName(DataRequestExportRun $run): string
     {
         return ExportPackage::folder($run).'.tar.gz';

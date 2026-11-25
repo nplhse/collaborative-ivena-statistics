@@ -78,6 +78,36 @@ final readonly class ExportStorage implements ExportStorageInterface
         $this->filesystem->remove($this->workPath($key));
     }
 
+    #[\Override]
+    public function remove(string $archiveFile): void
+    {
+        $path = $this->path($archiveFile);
+        if (null !== $path) {
+            $this->filesystem->remove($path);
+        }
+    }
+
+    #[\Override]
+    public function removeOrphans(array $archivesInUse, \DateTimeImmutable $before): int
+    {
+        $removed = 0;
+        foreach (glob($this->directory.'/*.tar.gz') ?: [] as $path) {
+            if (!\in_array(basename($path), $archivesInUse, true) && (int) filemtime($path) < $before->getTimestamp()) {
+                $this->filesystem->remove($path);
+                ++$removed;
+            }
+        }
+
+        foreach (glob($this->directory.'/work/*', \GLOB_ONLYDIR) ?: [] as $path) {
+            if ((int) filemtime($path) < $before->getTimestamp()) {
+                $this->filesystem->remove($path);
+                ++$removed;
+            }
+        }
+
+        return $removed;
+    }
+
     private function workPath(string $key): string
     {
         return $this->directory.'/work/'.preg_replace('/[^a-z0-9_-]/i', '', $key);

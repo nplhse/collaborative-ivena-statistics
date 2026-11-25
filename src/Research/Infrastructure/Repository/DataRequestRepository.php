@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Research\Infrastructure\Repository;
 
 use App\Research\Domain\Entity\DataRequest;
+use App\Research\Domain\Entity\DataRequestExportRun;
 use App\Research\Domain\Enum\DataRequestStatus;
+use App\Research\Domain\Enum\ExportRunStatus;
 use App\User\Domain\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
@@ -113,5 +115,45 @@ final class DataRequestRepository extends ServiceEntityRepository
             ->getResult();
 
         return $requests;
+    }
+
+    /**
+     * Export runs whose download period ended and that still count as available (cleanup job, ADR 045).
+     *
+     * @return list<DataRequestExportRun>
+     */
+    public function findExportRunsExpiredBy(\DateTimeImmutable $now): array
+    {
+        /** @var list<DataRequestExportRun> $runs */
+        $runs = $this->getEntityManager()->createQueryBuilder()
+            ->select('run')
+            ->from(DataRequestExportRun::class, 'run')
+            ->where('run.status = :status')
+            ->andWhere('run.availableUntil <= :now')
+            ->setParameter('status', ExportRunStatus::Available->value)
+            ->setParameter('now', $now, Types::DATETIME_IMMUTABLE)
+            ->orderBy('run.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $runs;
+    }
+
+    /**
+     * File names of the archives that runs still refer to.
+     *
+     * @return list<string>
+     */
+    public function findArchiveFilesInUse(): array
+    {
+        /** @var list<string> $files */
+        $files = $this->getEntityManager()->createQueryBuilder()
+            ->select('run.archiveFile')
+            ->from(DataRequestExportRun::class, 'run')
+            ->where('run.archiveFile IS NOT NULL')
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $files;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Research\Infrastructure\Scheduler;
 
+use App\Research\Application\Message\CleanUpDataExportsMessage;
 use App\Research\Application\Message\EvaluateDataRequestDeadlinesMessage;
 use App\Shared\Infrastructure\Monitoring\JobRun\RecordedJobsInterface;
 use App\Shared\Infrastructure\Scheduler\ScheduleContributionInterface;
@@ -17,6 +18,7 @@ use Symfony\Component\Scheduler\RecurringMessage;
 final readonly class ResearchScheduleContribution implements ScheduleContributionInterface, RecordedJobsInterface
 {
     public const string DEADLINES_JOB = 'research_data_request_deadlines';
+    public const string EXPORT_CLEANUP_JOB = 'research_export_cleanup';
 
     private const string TIMEZONE = 'Europe/Berlin';
 
@@ -26,6 +28,8 @@ final readonly class ResearchScheduleContribution implements ScheduleContributio
         return [
             // Every 15 minutes: deadlines are days long, a quarter of an hour late is fine.
             RecurringMessage::cron('*/15 * * * *', new EvaluateDataRequestDeadlinesMessage(), self::TIMEZONE),
+            // Daily at 04:50: the download route already refuses expired exports; this only frees the space.
+            RecurringMessage::cron('50 4 * * *', new CleanUpDataExportsMessage(), self::TIMEZONE),
         ];
     }
 
@@ -34,6 +38,7 @@ final readonly class ResearchScheduleContribution implements ScheduleContributio
     {
         return [
             EvaluateDataRequestDeadlinesMessage::class => self::DEADLINES_JOB,
+            CleanUpDataExportsMessage::class => self::EXPORT_CLEANUP_JOB,
         ];
     }
 }

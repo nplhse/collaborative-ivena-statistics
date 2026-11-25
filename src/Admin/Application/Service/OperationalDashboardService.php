@@ -149,6 +149,8 @@ final readonly class OperationalDashboardService
                 'media' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-photo-film', $this->adminUrlGenerator->setRoute('app_admin_dashboard_media_index')->generateUrl()),
                 // Two-factor key (#1357, ADR 040): no page of its own; the value names the problem.
                 'two_factor' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-key', null),
+                // Export connection of data extract requests (#1635, ADR 045): no page of its own; the value names the state.
+                'research_export' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-file-export', null),
                 'scheduled_jobs' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-stopwatch', $this->adminUrlGenerator->setController(self::JOB_RUN_CONTROLLER)->setAction('index')->generateUrl()),
                 default => new HealthCheckItemDto(
                     key: $key,

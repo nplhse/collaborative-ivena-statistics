@@ -41,6 +41,7 @@ final class DataRequestReleaseControllerTest extends WebTestCase
 
         $client->loginUser($admin);
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
+        self::assertSelectorExists('[data-testid="data-request-export-connection"][data-state="writable"]', 'the test connection uses the application user');
         self::assertSelectorTextContains('[data-testid="data-request-release-queries"]', '1 group below the minimum');
         $form = $crawler->filter('[data-testid="data-request-release-submit"]')->form();
         $form['queries'][1]->untick();
@@ -58,6 +59,7 @@ final class DataRequestReleaseControllerTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
         self::assertSelectorExists('[data-testid="data-request-export-status"][data-status="available"]');
         self::assertSelectorNotExists('[data-testid="data-request-export-record"]', 'the internal record is for administrators');
+        self::assertSelectorNotExists('[data-testid="data-request-export-connection"]');
 
         $client->request(Request::METHOD_GET, (string) $crawler->filter('[data-testid="data-request-export-download"]')->attr('href'));
         self::assertResponseIsSuccessful();

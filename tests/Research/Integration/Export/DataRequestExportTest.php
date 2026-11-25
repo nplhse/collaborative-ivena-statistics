@@ -11,6 +11,7 @@ use App\Research\Application\DataRequest\DataRequestReleaseService;
 use App\Research\Application\DataRequest\DataRequestReviewService;
 use App\Research\Application\DataRequest\DataRequestService;
 use App\Research\Application\Export\ExportStorageInterface;
+use App\Research\Application\Message\CleanUpDataExportsMessage;
 use App\Research\Domain\Entity\DataRequest;
 use App\Research\Domain\Entity\DataRequestEvent;
 use App\Research\Domain\Entity\DataRequestExportRun;
@@ -18,6 +19,7 @@ use App\Research\Domain\Entity\DataRequestRelease;
 use App\Research\Domain\Enum\ExportRunStatus;
 use App\Research\Domain\Enum\QueryKind;
 use App\Research\Domain\Enum\VoteChoice;
+use App\Research\Infrastructure\Scheduler\CleanUpDataExportsMessageHandler;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -90,6 +92,39 @@ final class DataRequestExportTest extends KernelTestCase
         self::mockTime('2026-12-08 09:00');
         self::assertSame(DataRequestRefused::NOT_ALLOWED, $this->refusal(fn (): string => $this->releases()->download($applicant, $run)), 'the download period ended');
         self::assertTrue($this->releases()->canRelease($admin, $request), 'a new release is possible after the period');
+    }
+
+    public function testTheCleanupExpiresExportsAndRemovesTheirFiles(): void
+    {
+        self::mockTime('2026-12-01 09:00');
+        $this->seedHospitals();
+        $applicant = UserFactory::new()->asParticipant()->create();
+        $admin = UserFactory::new()->asAdmin()->create();
+        $request = $this->approved($applicant, ['total' => self::TOTAL], $admin);
+        $release = $this->releases()->release($admin, $request, false);
+        $this->releases()->start($applicant, $release);
+        $run = $this->exportRun($release);
+        $storage = self::getContainer()->get(ExportStorageInterface::class);
+        $archive = (string) $run->getArchiveFile();
+        self::assertNotNull($storage->path($archive));
+
+        $directory = (string) self::getContainer()->getParameter('app.research.exports_dir');
+        $orphan = $directory.'/ffffffffffffffffffffffffffffffff.tar.gz';
+        file_put_contents($orphan, 'x');
+        touch($orphan, new \DateTimeImmutable('2026-12-07 09:00')->getTimestamp());
+        $cleanup = self::getContainer()->get(CleanUpDataExportsMessageHandler::class);
+
+        self::mockTime('2026-12-08 08:59');
+        $cleanup(new CleanUpDataExportsMessage());
+        self::assertSame(ExportRunStatus::Available, $run->getStatus(), 'still within the seven days');
+        self::assertFileExists($orphan, 'an orphan younger than a day stays');
+
+        self::mockTime('2026-12-08 09:30');
+        $cleanup(new CleanUpDataExportsMessage());
+        self::assertSame(ExportRunStatus::Expired, $run->getStatus());
+        self::assertNull($run->getArchiveFile());
+        self::assertNull($storage->path($archive), 'the archive is removed');
+        self::assertFileDoesNotExist($orphan, 'an archive no run refers to is removed');
     }
 
     public function testAGroupBelowTheMinimumBlocksTheExport(): void
