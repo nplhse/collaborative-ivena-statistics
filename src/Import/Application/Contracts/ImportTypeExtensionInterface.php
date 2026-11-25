@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\Application\Contracts;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Import\Application\DTO\ImportTypeAdminDetail;
 use App\Import\Application\DTO\ImportTypeDetailSection;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
@@ -17,8 +18,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 /**
  * An import type that another context owns but that uses the generic import pages (extension point
  * `import.type_extension`): upload form, list, detail page, reprocess and delete. The extension decides
- * access, adds its form fields and its own state, and contributes a section to the detail page, so
- * `Import` does not depend on that context.
+ * access, adds its form fields and its own state, and contributes a section to the detail page and lines to the
+ * admin backend's import detail page, so `Import` and `Admin` do not depend on that context.
  *
  * Processing goes through the workflow dispatcher of the same type (`import.workflow_dispatcher`).
  */
@@ -93,4 +94,11 @@ interface ImportTypeExtensionInterface
      * Section of the type on the import detail page, or null.
      */
     public function detailSection(Import $import): ?ImportTypeDetailSection;
+
+    /**
+     * Lines for the import detail page of the admin backend (operator information, #1563); empty for none.
+     *
+     * @return list<ImportTypeAdminDetail>
+     */
+    public function adminDetails(Import $import): array;
 }

@@ -19,11 +19,15 @@ use App\Tests\Support\Encounter\EncounterFileBuilder;
 use App\Tests\Support\Encounter\EncounterImportRunner;
 use App\Tests\Support\Encounter\EncounterTestFixtures;
 use App\Tests\Support\Encounter\Probe\ProbeDimension;
+use App\User\Application\Terms\TermsVersion;
+use App\User\Domain\Entity\TermsAcceptance;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Enum\TermsAcceptanceKind;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\DomCrawler\Field\ChoiceFormField;
 use Symfony\Component\DomCrawler\Field\FileFormField;
 use Symfony\Component\DomCrawler\Form;
@@ -89,6 +93,9 @@ final class EncounterImportControllerTest extends WebTestCase
 
         $encounterImport = $this->encounterImportOf((int) $import->getId());
         self::assertSame($this->uploader->getId(), $encounterImport->getConfirmedBy()?->getId());
+        // One checkbox covers the tool, the identifiers and the data protection agreement (#1563).
+        self::assertTrue($encounterImport->isDataProtectionConfirmed());
+        self::assertNull($encounterImport->getTermsVersion(), 'no terms version configured in test');
         self::assertSame(1, $encounterImport->getKeyGeneration());
         self::assertSame(2, $encounterImport->getInserted());
 
@@ -102,7 +109,7 @@ final class EncounterImportControllerTest extends WebTestCase
         $this->client->request(Request::METHOD_GET, '/import/'.$import->getId());
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-test="count-inserted"]', '2');
-        // Rejected rows and known visits are in the run card only; the confirmation is audited, not shown (#1413).
+        // Rejected rows and known visits are in the run card only; the confirmation is for administrators (#1413, #1563).
         self::assertSelectorNotExists('[data-test="count-rejected"]');
         self::assertSelectorNotExists('[data-test="count-duplicates"]');
         self::assertSelectorNotExists('[data-test="encounter-confirmation"]');
@@ -128,6 +135,51 @@ final class EncounterImportControllerTest extends WebTestCase
         $schemas = $crawler->filter('select[name="import_create[encounterSchema]"] option');
         self::assertSame(['ed_visit', 'inpatient_stay', 'probe'], $schemas->each(static fn ($option): string => (string) $option->attr('value')));
         self::assertSame(['ED visits (MTS)', 'Inpatient stays (test)', 'Probe records (test)'], $schemas->each(static fn ($option): string => trim($option->text())));
+    }
+
+    public function testUploadStoresTheTermsVersionInForceAndTheAdminBackendShowsTheConfirmation(): void
+    {
+        $this->client->disableReboot();
+        self::getContainer()->set(TermsVersion::class, new TermsVersion('2026-12'));
+        self::mockTime(new \DateTimeImmutable('2026-12-02 09:30:00'));
+        // With a version configured, the login prompt asks first (ADR 043); the uploader accepted already.
+        $this->entityManager()->persist(new TermsAcceptance($this->uploader, TermsAcceptanceKind::Terms, '2026-12', 'en', null));
+        $admin = $this->admin();
+        $this->entityManager()->persist(new TermsAcceptance($admin, TermsAcceptanceKind::Terms, '2026-12', 'en', null));
+        $this->entityManager()->flush();
+
+        $this->submitUpload('December visits', EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build());
+
+        $import = $this->entityManager()->getRepository(Import::class)->findOneBy(['name' => 'December visits']);
+        self::assertInstanceOf(Import::class, $import);
+        $encounterImport = $this->encounterImportOf((int) $import->getId());
+        self::assertTrue($encounterImport->isDataProtectionConfirmed());
+        self::assertSame('2026-12', $encounterImport->getTermsVersion());
+
+        $this->client->loginUser($admin);
+        // Operator information: in the admin backend only, not on the import page (#1563).
+        $this->client->request(Request::METHOD_GET, '/import/'.$import->getId());
+        self::assertResponseIsSuccessful();
+        self::assertStringNotContainsString('Upload confirmed by', (string) $this->client->getResponse()->getContent());
+
+        $crawler = $this->client->request(Request::METHOD_GET, '/admin/import/'.$import->getId());
+        self::assertResponseIsSuccessful();
+        self::assertSame((string) $this->uploader->getUsername(), $this->adminDetail($crawler, 'Upload confirmed by'));
+        self::assertSame('02.12.2026 09:30', $this->adminDetail($crawler, 'Upload confirmed at'));
+        self::assertSame('Yes', $this->adminDetail($crawler, 'Data protection agreed'));
+        self::assertSame('2026-12', $this->adminDetail($crawler, 'Terms of use'));
+    }
+
+    public function testAdminBackendShowsThatAnOlderUploadDidNotConfirmTheDataProtection(): void
+    {
+        // Uploads before #1563 confirmed only the tool and the identifiers; the migration keeps them at false.
+        $importId = $this->uploadEncounterFile($this->hospital, $this->uploader, EdVisitFileBuilder::create()->visit('a', '2026-10-01T08:15')->build(), 'older');
+
+        $this->client->loginUser($this->admin());
+        $crawler = $this->client->request(Request::METHOD_GET, '/admin/import/'.$importId);
+        self::assertResponseIsSuccessful();
+        self::assertSame('No (upload before this confirmation existed)', $this->adminDetail($crawler, 'Data protection agreed'));
+        self::assertSame('Not recorded', $this->adminDetail($crawler, 'Terms of use'));
     }
 
     public function testUploadWithoutConfirmationIsRefused(): void
@@ -472,6 +524,15 @@ final class EncounterImportControllerTest extends WebTestCase
 
         $this->fileField($form, 'import_create[file]')->upload($this->file($content));
         $this->client->submit($form);
+    }
+
+    /** Value of the admin detail field with this label (EasyAdmin detail page). */
+    private function adminDetail(Crawler $crawler, string $label): string
+    {
+        $field = $crawler->filter('.field-group')->reduce(static fn (Crawler $group): bool => 1 === $group->filter('.field-label')->count() && $label === trim($group->filter('.field-label')->text()));
+        self::assertCount(1, $field, $label);
+
+        return trim($field->filter('.field-value')->text());
     }
 
     private function owner(): User

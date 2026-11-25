@@ -92,4 +92,10 @@ final readonly class StubImportTypeExtension implements ImportTypeExtensionInter
     {
         return $this->detailSection;
     }
+
+    #[\Override]
+    public function adminDetails(Import $import): array
+    {
+        return [];
+    }
 }

@@ -38,7 +38,8 @@ the plugin ([plugin README](../../../plugins/ed-visit/README.md#installation)).
 2. In the browser, the tool reads the vendor export and the hospital's key file, drops identifying
    columns, computes the visit fingerprint and writes a canonical `ed_visit` file
    ([exchange-format.md](exchange-format.md)).
-3. A user with the upload grant uploads that file and confirms that it was produced with the tool.
+3. A user with the upload grant uploads that file and confirms that it was produced with the tool and that
+   the participation is agreed with the hospital's data protection and the data may be used on the platform.
 4. The server validates manifest, header, key check value and content, skips known visits (counted
    as duplicates) and inserts new ones.
 5. Matching links encounters with IVENA allocations; automatic links are effective, people review
@@ -136,10 +137,14 @@ on it.
 **Upload** (`/import/new`, type "Encounter data (beta)"): offered to users with the beta role and
 `UPLOAD` on at least one hospital (or `ROLE_ADMIN`); the hospital list then also contains the hospitals
 with `UPLOAD`, even without the hospital permission `Import`. For this type the form has a schema
-(`ed_visit`) and a required confirmation that the file was produced with the data preparation tool and
-contains no direct identifiers; its help links to the tool's landing page `/tools/data-prep` (#1051, #1130). The
-confirmation is stored on `encounter_import` (`confirmed_by`, `confirmed_at`, audited with the import
-creation), together with the hospital's key generation at upload. Uploads are refused while the
+(`ed_visit`) and one required confirmation: the file was produced with the data preparation tool, contains no
+direct identifiers, and the participation is agreed with the hospital's data protection and the data may be used on
+this platform (#1563, one checkbox for all of it on purpose, without a help text: raw exports are rejected with their
+own reason). The checkbox text links to the tool's landing page `/tools/data-prep` (#1051, #1130). The confirmation is stored per upload on `encounter_import`
+(`confirmed_by`, `confirmed_at`, `data_protection_confirmed`, and `terms_version`, the terms version in force
+from `APP_TERMS_VERSION`, [ADR 043](../../02-architecture/decisions/043-terms-of-use-version-by-configuration.md);
+audited with the import creation), together with the hospital's key generation at upload. Uploads from before
+#1563 keep `data_protection_confirmed = false` and no terms version. Uploads are refused while the
 hospital's key change is in progress.
 
 **File checks** (`EncounterFileReader`, `EncounterFileValidator`), each rejecting the whole file; the run
@@ -191,9 +196,10 @@ page lists them for `ROLE_ADMIN` only (#1413), without case keys or timestamps. 
 (ADR 028). The detail page adds an encounter section: new visits, rows without time anchor, schema,
 profile, tool version, file rejection, and until when the upload file is kept or when it was deleted.
 Rejected rows and known visits (deduplicated) are counted in the run card of the page only; the key
-generation and the upload confirmation are stored and audited but not shown. The suspected-duplicate count,
-the suspected-duplicate list and the reject list are admin information and shown only to `ROLE_ADMIN`
-(#1413). With `VIEW_CASES` on the hospital the actions offer the records of the import in Explore, if the
+generation and the upload confirmation are stored and audited but not shown there; the upload confirmation (who,
+when, data protection agreed, terms version) is operator information on the import detail page of the admin backend
+(`ImportTypeExtensionInterface::adminDetails()`, #1563). The suspected-duplicate count, the suspected-duplicate list
+and the reject list are admin information and shown only to `ROLE_ADMIN` (#1413). With `VIEW_CASES` on the hospital the actions offer the records of the import in Explore, if the
 schema contributes the link ([extension point](../../02-architecture/extension-points.md#encounter-import-record-links));
 for ED visits that is the visit list filtered to the import. No file content. **Download** (`/import/{id}/source-file`) with `UPLOAD` on the hospital (or
 `ROLE_ADMIN`), only while the file is kept; downloads are audited (`import.source_file.downloaded`).

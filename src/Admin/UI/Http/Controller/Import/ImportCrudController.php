@@ -10,6 +10,7 @@ use App\Admin\UI\Http\Controller\TranslatedEnumChoices;
 use App\Import\Application\Contracts\ImportDeletionRefusedException;
 use App\Import\Application\Service\ImportDeletionService;
 use App\Import\Application\Service\ImportExportPeriodDeriver;
+use App\Import\Application\Service\ImportTypeExtensionRegistry;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportExportPeriodSource;
 use App\Import\Domain\Enum\ImportStatus;
@@ -51,6 +52,7 @@ final class ImportCrudController extends AbstractCrudController
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly ImportExportPeriodDeriver $exportPeriodDeriver,
         private readonly ManagerRegistry $managerRegistry,
+        private readonly ImportTypeExtensionRegistry $typeExtensions,
     ) {
     }
 
@@ -227,6 +229,8 @@ final class ImportCrudController extends AbstractCrudController
         yield TextField::new('fileChecksum', new TranslatableMessage('admin.import.field.checksum', domain: 'admin'))
             ->onlyOnDetail();
 
+        yield from $this->typeExtensionFields($pageName);
+
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
         yield IdField::new('id')
             ->onlyOnDetail();
@@ -237,6 +241,41 @@ final class ImportCrudController extends AbstractCrudController
             ->onlyOnDetail();
         yield AssociationField::new('updatedBy', new TranslatableMessage('label.updated_by', domain: 'messages'))
             ->onlyOnDetail();
+    }
+
+    /**
+     * Lines that the extension of the import's type adds to the detail page (`adminDetails()`, #1563), in a
+     * fieldset named after the type; nothing for types without lines.
+     *
+     * @return iterable<FormField|TextField>
+     */
+    private function typeExtensionFields(string $pageName): iterable
+    {
+        if (Crud::PAGE_DETAIL !== $pageName) {
+            return;
+        }
+        $import = $this->getContext()?->getEntity()->getInstance();
+        $type = $import instanceof Import ? $import->getType() : null;
+        if (!$import instanceof Import || !$type instanceof ImportType) {
+            return;
+        }
+        $details = $this->typeExtensions->for($type)?->adminDetails($import) ?? [];
+        if ([] === $details) {
+            return;
+        }
+
+        yield FormField::addFieldset(new TranslatableMessage('import.type.label.'.strtolower($type->value), domain: 'import'));
+        foreach ($details as $index => $detail) {
+            $value = htmlspecialchars($detail->value, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
+            // formatValue() output is rendered unescaped; the value is escaped above.
+            yield TextField::new('typeExtensionDetail'.$index, $detail->label)
+                ->onlyOnDetail()
+                ->setVirtual(true)
+                ->setSortable(false)
+                ->renderAsHtml()
+                ->setValue('')
+                ->formatValue(static fn (): string => $value);
+        }
     }
 
     /**
