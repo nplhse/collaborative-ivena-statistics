@@ -6,7 +6,7 @@
 {% set canResolve = is_granted('DATA_REQUEST_RESOLVE', dataRequest) %}
 {% set canCheck = dataRequest.status.value == 'submitted' and is_granted('DATA_REQUEST_CHECK', dataRequest) %}
 {% set canExcludeSelf = is_granted('DATA_REQUEST_EXCLUDE_SELF', dataRequest) %}
-{% set canExcludeOthers = is_granted('DATA_REQUEST_RECORD_EXCLUSION', dataRequest) and boardMembers is not empty %}
+{% set canExcludeOthers = is_granted('DATA_REQUEST_RECORD_EXCLUSION', dataRequest) and boardMembers|filter(member => member.id != app.user.id) is not empty %}
 {% set ownActions = own and (is_granted('DATA_REQUEST_EDIT', dataRequest) or is_granted('DATA_REQUEST_SUBMIT', dataRequest) or is_granted('DATA_REQUEST_WITHDRAW', dataRequest)) %}
 {% set token = 'data_request_review_' %}
 
@@ -151,38 +151,56 @@
                     {% endif %}
                 {% endfor %}
             {% endif %}
-            {% if canExcludeSelf or canExcludeOthers %}
-                <button type="button" class="btn btn-link btn-sm px-0" data-bs-toggle="modal" data-bs-target="#data-request-exclusion-modal" data-testid="data-request-exclusion-open">
-                    {{ 'data_request.exclusion.open'|trans({}, 'research') }}
+            {% if canExcludeSelf %}
+                <button type="button" class="btn btn-outline-danger w-100 mb-2" data-bs-toggle="modal" data-bs-target="#data-request-exclude-self-modal" data-testid="data-request-exclude-self-open">
+                    {{ 'data_request.exclusion.self.open'|trans({}, 'research') }}
+                </button>
+            {% endif %}
+            {% if canExcludeOthers %}
+                <button type="button" class="btn btn-outline-danger w-100 mb-2" data-bs-toggle="modal" data-bs-target="#data-request-exclude-member-modal" data-testid="data-request-exclude-member-open">
+                    {{ 'data_request.exclusion.member.open'|trans({}, 'research') }}
                 </button>
             {% endif %}
         </div>
     </div>
 {% endif %}
 
-{% if canExcludeSelf or canExcludeOthers %}
-    <twig:Modal id="data-request-exclusion-modal" :title="'data_request.exclusion.title'|trans({}, 'research')" :scrollable="false">
-        <form method="post" action="{{ path('app_data_requests_review', {publicId: dataRequest.publicIdString, action: 'exclude'}) }}" data-testid="data-request-exclusion-form">
+{% if canExcludeSelf %}
+    <twig:Modal id="data-request-exclude-self-modal" :title="'data_request.exclusion.self.title'|trans({}, 'research')" :scrollable="false">
+        <form method="post" action="{{ path('app_data_requests_review', {publicId: dataRequest.publicIdString, action: 'exclude'}) }}" data-testid="data-request-exclude-self-form">
             <input type="hidden" name="_token" value="{{ csrf_token(token ~ 'exclude_' ~ dataRequest.publicIdString) }}">
+            <input type="hidden" name="member" value="{{ app.user.id }}">
             <div class="modal-body">
-                <label class="form-label" for="data-request-exclusion-member">{{ 'data_request.exclusion.member'|trans({}, 'research') }}</label>
-                <select class="form-select mb-3" id="data-request-exclusion-member" name="member" required>
-                    {% if canExcludeSelf %}
-                        <option value="{{ app.user.id }}">{{ 'data_request.exclusion.myself'|trans({}, 'research') }}</option>
-                    {% endif %}
-                    {% if canExcludeOthers %}
-                        {% for member in boardMembers|filter(member => member.id != app.user.id) %}
-                            <option value="{{ member.id }}">{{ member.username }}</option>
-                        {% endfor %}
-                    {% endif %}
-                </select>
-                <label class="form-label" for="data-request-exclusion-reason">{{ 'data_request.exclusion.reason'|trans({}, 'research') }}</label>
-                <textarea class="form-control mb-1" id="data-request-exclusion-reason" name="message" rows="3" required></textarea>
-                <div class="form-hint">{{ 'data_request.exclusion.help'|trans({}, 'research') }}</div>
+                <label class="form-label" for="data-request-exclude-self-reason">{{ 'data_request.exclusion.self.reason'|trans({}, 'research') }}</label>
+                <textarea class="form-control mb-1" id="data-request-exclude-self-reason" name="message" rows="3" required></textarea>
+                <div class="form-hint">{{ 'data_request.exclusion.self.help'|trans({}, 'research') }}</div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">{{ 'action.cancel'|trans({}, 'messages') }}</button>
-                <button type="submit" class="btn btn-primary" data-testid="data-request-exclude">{{ 'data_request.exclusion.submit'|trans({}, 'research') }}</button>
+                <button type="submit" class="btn btn-danger" data-testid="data-request-exclude-self">{{ 'data_request.exclusion.self.submit'|trans({}, 'research') }}</button>
+            </div>
+        </form>
+    </twig:Modal>
+{% endif %}
+
+{% if canExcludeOthers %}
+    <twig:Modal id="data-request-exclude-member-modal" :title="'data_request.exclusion.member.title'|trans({}, 'research')" :scrollable="false">
+        <form method="post" action="{{ path('app_data_requests_review', {publicId: dataRequest.publicIdString, action: 'exclude'}) }}" data-testid="data-request-exclude-member-form">
+            <input type="hidden" name="_token" value="{{ csrf_token(token ~ 'exclude_' ~ dataRequest.publicIdString) }}">
+            <div class="modal-body">
+                <label class="form-label" for="data-request-exclude-member">{{ 'data_request.exclusion.member.member'|trans({}, 'research') }}</label>
+                <select class="form-select mb-3" id="data-request-exclude-member" name="member" required>
+                    {% for member in boardMembers|filter(member => member.id != app.user.id) %}
+                        <option value="{{ member.id }}">{{ member.username }}</option>
+                    {% endfor %}
+                </select>
+                <label class="form-label" for="data-request-exclude-member-reason">{{ 'data_request.exclusion.member.reason'|trans({}, 'research') }}</label>
+                <textarea class="form-control mb-1" id="data-request-exclude-member-reason" name="message" rows="3" required></textarea>
+                <div class="form-hint">{{ 'data_request.exclusion.member.help'|trans({}, 'research') }}</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">{{ 'action.cancel'|trans({}, 'messages') }}</button>
+                <button type="submit" class="btn btn-danger" data-testid="data-request-exclude-member">{{ 'data_request.exclusion.member.submit'|trans({}, 'research') }}</button>
             </div>
         </form>
     </twig:Modal>

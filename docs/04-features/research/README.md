@@ -96,9 +96,9 @@ applicant and without excluded members. A round cannot open without an eligible 
 
 ## Exclusions
 
-"Report a conflict of interest" opens a dialog: a Board member declares their own conflict of interest with a
-reason, an administrator can also choose another Board member (`DataRequestExclusion`, one per member and request).
-The exclusion cannot be undone. An excluded member leaves an open round together with their vote,
+In the actions card, "Declare own conflict of interest" opens a dialog in which a Board member gives the reason;
+administrators also have "Exclude a Board member" with a dialog to choose the member (`DataRequestExclusion`, one per
+member and request). The exclusion cannot be undone. An excluded member leaves an open round together with their vote,
 does not count for the quorum, cannot vote and cannot do the formal check. The round may be complete afterwards.
 
 ## Permissions

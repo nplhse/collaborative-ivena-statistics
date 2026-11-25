@@ -97,7 +97,7 @@ final class DataRequestReviewControllerTest extends WebTestCase
         $client->loginUser($applicant);
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
         self::assertSelectorNotExists('[data-testid="data-request-check"]');
-        self::assertSelectorNotExists('[data-testid="data-request-exclusion-form"]');
+        self::assertSelectorNotExists('[data-testid="data-request-exclude-self-form"]');
         self::assertStringContainsString('Waiting for the formal check', $crawler->filter('[data-testid="data-request-review"]')->text());
 
         $client->request(Request::METHOD_POST, $this->url($request).'/review/open', ['_token' => 'x']);
@@ -171,10 +171,10 @@ final class DataRequestReviewControllerTest extends WebTestCase
 
         $client->loginUser($member);
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
-        self::assertSelectorExists('[data-testid="data-request-exclusion-open"]');
-        $form = $crawler->filter('[data-testid="data-request-exclude"]')->form();
-        self::assertSame((string) $member->getId(), $form['member']->getValue(), 'a Board member can only name themselves');
-        self::assertCount(1, $crawler->filter('#data-request-exclusion-member option'));
+        self::assertSelectorExists('[data-testid="data-request-exclude-self-open"]');
+        self::assertSelectorNotExists('[data-testid="data-request-exclude-member-open"]', 'only administrators exclude others');
+        $form = $crawler->filter('[data-testid="data-request-exclude-self"]')->form();
+        self::assertSame((string) $member->getId(), $form['member']->getValue());
         $form['message']->setValue('I co-author the project.');
         $client->submit($form);
         $crawler = $client->followRedirect();
@@ -194,7 +194,8 @@ final class DataRequestReviewControllerTest extends WebTestCase
 
         $client->loginUser($admin);
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
-        $form = $crawler->filter('[data-testid="data-request-exclude"]')->form();
+        self::assertSelectorExists('[data-testid="data-request-exclude-member-open"]');
+        $form = $crawler->filter('[data-testid="data-request-exclude-member"]')->form();
         $form['member']->setValue((string) $member->getId());
         $form['message']->setValue('Same department as the applicant.');
         $client->submit($form);
