@@ -309,10 +309,6 @@
         <source>data_request.show.closed</source>
         <target>Beendet</target>
       </trans-unit>
-      <trans-unit id="RscD0DDA3DA" resname="data_request.show.draft_note">
-        <source>data_request.show.draft_note</source>
-        <target>Das ist ein Entwurf. Bis zum Einreichen sehen nur Sie ihn. Nach dem Einreichen lässt er sich nicht mehr ändern; erst wenn die formale Prüfung ihn zurückgibt oder das Board eine Nachbesserung verlangt, können Sie ihn wieder bearbeiten und eine neue Fassung einreichen.</target>
-      </trans-unit>
       <trans-unit id="Rsc4641CE9F" resname="data_request.modal.submit.title">
         <source>data_request.modal.submit.title</source>
         <target>Antrag einreichen?</target>

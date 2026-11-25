@@ -309,10 +309,6 @@
         <source>data_request.show.closed</source>
         <target>Closed</target>
       </trans-unit>
-      <trans-unit id="RscD0DDA3DA" resname="data_request.show.draft_note">
-        <source>data_request.show.draft_note</source>
-        <target>This is a draft. Only you see it until you submit it. After submitting, it can no longer be changed; only when the formal check returns it or the Board asks for a revision can you edit it again and submit a new version.</target>
-      </trans-unit>
       <trans-unit id="Rsc4641CE9F" resname="data_request.modal.submit.title">
         <source>data_request.modal.submit.title</source>
         <target>Submit the request?</target>

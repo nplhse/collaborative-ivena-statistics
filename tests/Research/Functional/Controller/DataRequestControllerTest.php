@@ -63,10 +63,8 @@ final class DataRequestControllerTest extends WebTestCase
         self::assertTrue($request->isRequestedBy($applicant));
 
         $crawler = $client->followRedirect();
-        self::assertSelectorExists('[data-testid="data-request-draft-note"]');
         self::assertSelectorNotExists('[data-testid="data-request-frozen-note"]');
         self::assertSelectorExists('[data-testid="data-request-submit"]');
-        self::assertSelectorTextContains('[data-testid="data-request-draft-note"]', 'After submitting, it can no longer be changed');
         self::assertSelectorTextContains('#data-request-submit-modal', 'After submitting, the request can no longer be changed.');
         self::assertStringContainsString('Dr. Secret Recipient', $crawler->filter('[data-testid="data-request-scope"]')->text());
 
