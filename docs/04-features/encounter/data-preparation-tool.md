@@ -4,7 +4,7 @@
 support hospitals.
 
 **Status:** v1 with the ORBIS MTS profile (#1051), 1.1.0 with the local map editor and the landing
-page (#1130), 1.2.0 with the MTS catalog from the server (#1157), part of the encounter data pilot (#1043). What changed per version: `DataPrepChangelog`,
+page (#1130), 1.2.0 with the MTS catalog from the server (#1157), 1.4.0 with the department names as a selection (#1638), part of the encounter data pilot (#1043). What changed per version: `DataPrepChangelog`,
 shown on the landing page.
 
 Decisions: [ADR 026](../../02-architecture/decisions/026-encounter-data-context-and-exchange-format.md)
@@ -29,6 +29,7 @@ never leave the computer.
 | Contributions | `DataPrepContributionInterface` (`src/Encounter/Contract/DataPrep/`), registry `DataPrepContributions`; `EdVisitDataPrepContribution` (`plugins/ed-visit/src/UI/DataPrep/`), in tests `InpatientStayDataPrepContribution` |
 | Public profiles (declarative JSON) | `plugins/ed-visit/data-prep/profiles/` (`ed_visit`) |
 | MTS catalog: loaded at start from `GET /data-prep/mts-catalog.json` (the database catalog, ADR 032); bundled copy as offline fallback | endpoint `MtsCatalogForDataPrepController` (`MtsCatalog::toolCatalog()`); bundled `plugins/ed-visit/src/Application/Catalog/mts-de.json` (`MtsCatalog::bundledToolCatalog()`) |
+| Department names the import resolves (#1638): bundled when the tool is downloaded, no public endpoint (private reference data, ADR 020) | `EdVisitDataPrepContribution::catalogs()` (catalog `department-names`, format `encounter-name-list`, `DepartmentCatalogInterface::uniqueNames()`) |
 | `ed_visit` v1 field contract for the tool | `plugins/ed-visit/data-prep/schema/ed_visit.v1.json` (must equal `EdVisitDimension::fields(1)`, checked by `DataPrepContractTest`; no key rules, see [key rules](#key-rules)) |
 | Template | `src/Encounter/UI/Twig/templates/data_prep/tool.html.twig` |
 | Renderer, version, changelog | `DataPrepToolRenderer`, `DataPrepRelease`, `DataPrepChangelog` in `src/Encounter/UI/DataPrep/` |
@@ -167,7 +168,7 @@ JSON file next to the key file and loads it per run (optional):
 | Key | Effect |
 |---|---|
 | `profile` | optional; a map for another profile is rejected |
-| `departments` | source department code (`Stat_Fachrichtung`, else `Med. Fachabteilungskürzel`) → `admitting_department`: the name of a department of the reference catalog as the import resolves it (case-insensitive); 1–64 characters, no `;`, `"`, control characters or surrounding spaces, and nothing the import's content check would take for a person's name (`Word, Word`, a title like `Dr.` or `Herr` before a capitalised word) or a date; such a value would reject the whole file on the server. The tool cannot check the catalog offline; the import rejects rows with an unknown or ambiguous name |
+| `departments` | source department code (`Stat_Fachrichtung`, else `Med. Fachabteilungskürzel`) → `admitting_department`: the name of a department of the reference catalog as the import resolves it (case-insensitive); 1–64 characters, no `;`, `"`, control characters or surrounding spaces, and nothing the import's content check would take for a person's name (`Word, Word`, a title like `Dr.` or `Herr` before a capitalised word) or a date; such a value would reject the whole file on the server. Since 1.4.0 the tool carries the names the import resolves (`department-names`, as of the download): a loaded map lists entries with another name as a warning in the map status ("Not in the department catalog …") but stays usable; the import still rejects rows with an unknown or ambiguous name, also when the catalog changed after the download |
 | `stations` | `Stat_Station` → `care_level` (`ward`, `monitoring`, `icu`, `or`, `unknown`) for `admitted` |
 | `dispositions` | additional or overriding `Entlassung` texts → `disposition` and optional `careLevel` (only with `admitted` or `transferred_external`) |
 
@@ -179,8 +180,9 @@ and listed in the tool's report ("Unmapped values"); the report shows them only 
 The hospital fills the map in the tool, offline; the server never sees the codes (ADR 026/027):
 
 - After a run, the "Unmapped values" of `admitting_department` (map section `departments`), `care_level`
-  (`stations`) and `disposition` (`dispositions`) get an input: a department name (marked while it breaks
-  the name rules), a care level, or a disposition with an optional care level (only for `admitted` and
+  (`stations`) and `disposition` (`dispositions`) get an input: a department chosen from the bundled names
+  the import resolves (since 1.4.0, #1638; a free-text field marked while it breaks the name rules only when the
+  tool has no name list), a care level, or a disposition with an optional care level (only for `admitted` and
   `transferred_external`). Which report fields are editable follows from the profile's `department` and
   `disposition` rules (`localMapSections`). Other unmapped fields need a new profile version.
 - "Add to map and run again" adds the filled-in entries to the loaded map (or a new one for the
@@ -317,7 +319,7 @@ A schema joins the tool through a service implementing `DataPrepContributionInte
 | `schemaFile()` | schema file (`schema`, `version`, `fields`; no `keys`) |
 | `profileFiles()` | source profiles; each names the schema |
 | `scriptFile()` | optional script module that calls `EncounterDataPrep.registerSchema()` with its rule types and hooks (`beforeKeys`, `afterRow`, `columnPlan`, local map sections, catalog format); null for a schema the generic rule types cover |
-| `catalogs()` | `DataPrepCatalog`: id, bundled payload (offline fallback) and the public route the tool refreshes it from (allowed in the CSP) |
+| `catalogs()` | `DataPrepCatalog`: id, bundled payload (offline fallback) and the public route the tool refreshes it from (allowed in the CSP); without a route the payload is only bundled at download (#1638). A payload in the core's format `encounter-name-list` (`id`, `names`) is parsed by the core; a local map section with `catalog: '<id>'` then offers those names in the editor and warns about other names in a loaded map |
 | `localMap()` | `DataPrepLocalMap`: template and example files and the values of the local map page; at most one contribution may have one |
 
 Paths are absolute and must resolve from the installed package (bundle path or project directory).

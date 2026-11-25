@@ -325,6 +325,10 @@
         <source>encounter.data_prep.js.map_invalid</source>
         <target>The local map is invalid</target>
       </trans-unit>
+      <trans-unit id="EncMapUnknownNames" resname="encounter.data_prep.js.map_unknown_names">
+        <source>encounter.data_prep.js.map_unknown_names</source>
+        <target>Not in the department catalog, the import would reject these rows</target>
+      </trans-unit>
       <trans-unit id="Enc34B81E82" resname="encounter.data_prep.js.map_departments">
         <source>encounter.data_prep.js.map_departments</source>
         <target>departments</target>
@@ -2831,7 +2835,7 @@
       </trans-unit>
       <trans-unit id="Enc677E8DBC" resname="encounter.data_prep.js.map_edit_hint">
         <source>encounter.data_prep.js.map_edit_hint</source>
-        <target>Department: a name of the reference catalog (list on the tool's page on the server). Empty fields are left out.</target>
+        <target>Department: a name of the reference catalog, as of the tool's download. Empty fields are left out.</target>
       </trans-unit>
       <trans-unit id="Enc57E088DF" resname="encounter.data_prep.js.map_edit_nothing">
         <source>encounter.data_prep.js.map_edit_nothing</source>
@@ -3436,6 +3440,14 @@
       <trans-unit id="Enc521607A3" resname="tools.encounter_plausibility.description">
         <source>tools.encounter_plausibility.description</source>
         <target>Define which combinations of indication (PZC) and MTS chart count as plausible in the matching, and activate snapshots.</target>
+      </trans-unit>
+      <trans-unit id="EncDp140DeptSelect" resname="encounter.data_prep.changelog.1_4_0.department_select">
+        <source>encounter.data_prep.changelog.1_4_0.department_select</source>
+        <target>In the local map editor, departments are chosen from the names the import resolves, as of the tool's download.</target>
+      </trans-unit>
+      <trans-unit id="EncDp140DeptUnknown" resname="encounter.data_prep.changelog.1_4_0.unknown_departments">
+        <source>encounter.data_prep.changelog.1_4_0.unknown_departments</source>
+        <target>A loaded local map marks departments the import does not know, before the upload.</target>
       </trans-unit>
       <trans-unit id="Enc1A3C0F51" resname="encounter.data_prep.changelog.1_3_0.schemas">
         <source>encounter.data_prep.changelog.1_3_0.schemas</source>

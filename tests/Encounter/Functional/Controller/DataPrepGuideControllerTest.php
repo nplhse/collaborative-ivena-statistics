@@ -48,17 +48,18 @@ final class DataPrepGuideControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSame('Encounter data preparation', trim($crawler->filter('.breadcrumb-item.active')->text()));
-        self::assertSame('1.3.0', trim($crawler->filter('[data-test="data-prep-version"]')->text()));
-        self::assertSame('2026-11-17', trim($crawler->filter('[data-test="data-prep-released-at"]')->text()));
+        self::assertSame('1.4.0', trim($crawler->filter('[data-test="data-prep-version"]')->text()));
+        self::assertSame('2026-11-25', trim($crawler->filter('[data-test="data-prep-released-at"]')->text()));
         self::assertSame('1.0.0', trim($crawler->filter('[data-test="data-prep-min-version"]')->text()));
         $download = $crawler->filter('[data-test="data-prep-download"]');
         self::assertSame('/tools/data-prep/download', $download->attr('href'));
-        self::assertSame('encounter-data-prep-1.3.0.html', $download->attr('download'));
+        self::assertSame('encounter-data-prep-1.4.0.html', $download->attr('download'));
 
         $entries = $crawler->filter('[data-test="data-prep-changelog-entry"]');
-        self::assertSame(['1.3.0', '1.2.0', '1.1.0', '1.0.2', '1.0.1', '1.0.0'], $entries->each(static fn ($entry): ?string => $entry->attr('data-version')));
-        self::assertStringContainsString('built from the schemas the server offers', $entries->first()->text());
-        self::assertStringContainsString('loads the maintained MTS catalog from the server', $entries->eq(1)->text());
+        self::assertSame(['1.4.0', '1.3.0', '1.2.0', '1.1.0', '1.0.2', '1.0.1', '1.0.0'], $entries->each(static fn ($entry): ?string => $entry->attr('data-version')));
+        self::assertStringContainsString('chosen from the names the import resolves', $entries->first()->text());
+        self::assertStringContainsString('built from the schemas the server offers', $entries->eq(1)->text());
+        self::assertStringContainsString('loads the maintained MTS catalog from the server', $entries->eq(2)->text());
         self::assertStringContainsString('ORBIS MTS export', $crawler->filter('[data-test="data-prep-profile"]')->text());
         self::assertSelectorExists('[data-test="data-prep-no-hospitals"]');
         self::assertSame('/tools/data-prep/key', $crawler->filter('[data-test="data-prep-key-link"]')->attr('href'));

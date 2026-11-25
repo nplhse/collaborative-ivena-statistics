@@ -345,7 +345,7 @@
     function useLocalMap(data, { name, statusId = 'map-status' } = {}) {
         let loaded;
         try {
-            loaded = prep.loadLocalMap(data, mapProfile());
+            loaded = prep.loadLocalMap(data, mapProfile(), state.catalogs);
         } catch (error) {
             const details = error.entries ? ` (${error.entries.join(', ')})` : '';
             status(statusId, `${t('mapInvalid')}${details}`, 'error');
@@ -365,13 +365,16 @@
             refresh();
             return;
         }
-        const { counts, label } = state.localMap;
-        const text = `${t('mapLoaded')}: ${label || state.localMapName || '—'} — ${t('mapDepartments')} ${counts.departments}, ${t('mapStations')} ${counts.stations}, ${t('mapDispositions')} ${counts.dispositions}`;
-        status(
-            'map-status',
-            state.mapDirty ? `${text}. ${t('mapUnsaved')}` : text,
-            state.mapDirty ? 'warning' : 'success',
-        );
+        const { counts, label, warnings } = state.localMap;
+        let text = `${t('mapLoaded')}: ${label || state.localMapName || '—'} — ${t('mapDepartments')} ${counts.departments}, ${t('mapStations')} ${counts.stations}, ${t('mapDispositions')} ${counts.dispositions}`;
+        if (state.mapDirty) {
+            text = `${text}. ${t('mapUnsaved')}`;
+        }
+        // Names the import does not know: the map stays usable, those rows would be rejected (#1638).
+        if (warnings.length > 0) {
+            text = `${text}. ${t('mapUnknownNames')} (${warnings.join(', ')})`;
+        }
+        status('map-status', text, state.mapDirty || warnings.length > 0 ? 'warning' : 'success');
         refresh();
     }
 
@@ -463,6 +466,18 @@
     function mapEditor(section, value) {
         const attrs = { 'data-section': section, 'data-value': value };
         const option = (code, label) => element('option', { text: label, attrs: { value: code } });
+        const names = prep.localMapNames(mapProfile(), section, state.catalogs);
+        if (names !== null) {
+            // Only names the import resolves can be chosen (#1638).
+            return element(
+                'select',
+                {
+                    className: 'map-edit',
+                    attrs: { ...attrs, 'aria-label': `${t('mapEditDepartment')}: ${value}` },
+                },
+                [option('', '—'), ...names.map((name) => option(name, name))],
+            );
+        }
         if (section === 'departments') {
             const input = element('input', {
                 className: 'map-edit',

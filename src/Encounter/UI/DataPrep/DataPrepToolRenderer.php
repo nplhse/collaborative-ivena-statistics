@@ -47,10 +47,12 @@ final readonly class DataPrepToolRenderer
             $this->contributions->read($this->sourceDirectory.'/'.self::APP),
         ]);
         $catalogs = $this->contributions->catalogs();
-        $catalogUrls = array_combine(
-            array_map(static fn (DataPrepCatalog $catalog): string => $catalog->id, $catalogs),
-            array_map(fn (DataPrepCatalog $catalog): string => $this->urlGenerator->generate($catalog->route, [], UrlGeneratorInterface::ABSOLUTE_URL), $catalogs),
-        );
+        $catalogUrls = [];
+        foreach ($catalogs as $catalog) {
+            if (null !== $catalog->route) {
+                $catalogUrls[$catalog->id] = $this->urlGenerator->generate($catalog->route, [], UrlGeneratorInterface::ABSOLUTE_URL);
+            }
+        }
 
         return $this->twig->render('@Encounter/data_prep/tool.html.twig', [
             'release' => $this->release,
@@ -60,7 +62,7 @@ final readonly class DataPrepToolRenderer
             'profiles' => $this->contributions->profiles(),
             'catalog_urls' => $catalogUrls,
             'catalogs' => array_combine(
-                array_keys($catalogUrls),
+                array_map(static fn (DataPrepCatalog $catalog): string => $catalog->id, $catalogs),
                 array_map(static fn (DataPrepCatalog $catalog): array => $catalog->payload, $catalogs),
             ),
         ]);
