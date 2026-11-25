@@ -127,24 +127,27 @@
         {% if is_granted('DATA_REQUEST_EXCLUDE_SELF', dataRequest) %}
             <form method="post" action="{{ path('app_data_requests_review', {publicId: dataRequest.publicIdString, action: 'exclude'}) }}" class="mt-3" data-testid="data-request-exclude-form">
                 <input type="hidden" name="_token" value="{{ csrf_token(token ~ 'exclude_' ~ dataRequest.publicIdString) }}">
-                <label class="form-label" for="data-request-exclude-reason">{{ 'data_request.exclusion.self'|trans({}, 'research') }}</label>
+                <div class="fw-bold mb-1">{{ 'data_request.exclusion.self.title'|trans({}, 'research') }}</div>
+                <label class="form-label" for="data-request-exclude-reason">{{ 'data_request.exclusion.self.reason'|trans({}, 'research') }}</label>
                 <textarea class="form-control mb-1" id="data-request-exclude-reason" name="message" rows="2" required></textarea>
-                <div class="form-hint mb-2">{{ 'data_request.exclusion.self_help'|trans({}, 'research') }}</div>
-                <button type="submit" class="btn btn-outline-secondary w-100" data-testid="data-request-exclude">{{ 'data_request.exclusion.declare'|trans({}, 'research') }}</button>
+                <div class="form-hint mb-2">{{ 'data_request.exclusion.self.help'|trans({}, 'research') }}</div>
+                <button type="submit" class="btn btn-outline-secondary w-100" data-testid="data-request-exclude">{{ 'data_request.exclusion.self.submit'|trans({}, 'research') }}</button>
             </form>
         {% endif %}
 
         {% if is_granted('DATA_REQUEST_RECORD_EXCLUSION', dataRequest) and boardMembers is not empty %}
             <form method="post" action="{{ path('app_data_requests_review', {publicId: dataRequest.publicIdString, action: 'record-exclusion'}) }}" class="mt-3" data-testid="data-request-record-exclusion-form">
                 <input type="hidden" name="_token" value="{{ csrf_token(token ~ 'record-exclusion_' ~ dataRequest.publicIdString) }}">
-                <label class="form-label" for="data-request-exclusion-member">{{ 'data_request.exclusion.record'|trans({}, 'research') }}</label>
+                <div class="fw-bold mb-1">{{ 'data_request.exclusion.record.title'|trans({}, 'research') }}</div>
+                <label class="form-label" for="data-request-exclusion-member">{{ 'data_request.exclusion.record.member'|trans({}, 'research') }}</label>
                 <select class="form-select mb-2" id="data-request-exclusion-member" name="member" required>
                     {% for member in boardMembers %}
                         <option value="{{ member.id }}">{{ member.username }}</option>
                     {% endfor %}
                 </select>
-                <textarea class="form-control mb-2" name="message" rows="2" required aria-label="{{ 'data_request.exclusion.reason'|trans({}, 'research') }}" placeholder="{{ 'data_request.exclusion.reason'|trans({}, 'research') }}"></textarea>
-                <button type="submit" class="btn btn-outline-secondary w-100" data-testid="data-request-record-exclusion">{{ 'data_request.exclusion.declare'|trans({}, 'research') }}</button>
+                <label class="form-label" for="data-request-exclusion-reason">{{ 'data_request.exclusion.record.reason'|trans({}, 'research') }}</label>
+                <textarea class="form-control mb-2" id="data-request-exclusion-reason" name="message" rows="2" required></textarea>
+                <button type="submit" class="btn btn-outline-secondary w-100" data-testid="data-request-record-exclusion">{{ 'data_request.exclusion.record.submit'|trans({}, 'research') }}</button>
             </form>
         {% endif %}
     </div>

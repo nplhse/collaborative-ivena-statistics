@@ -489,25 +489,37 @@
         <source>data_request.exclusion.list</source>
         <target>Wegen Befangenheit ausgeschlossen</target>
       </trans-unit>
-      <trans-unit id="Rsc3FA4C2B8" resname="data_request.exclusion.self">
-        <source>data_request.exclusion.self</source>
-        <target>Befangenheit erklären</target>
+      <trans-unit id="RscE99F9194" resname="data_request.exclusion.self.title">
+        <source>data_request.exclusion.self.title</source>
+        <target>Eigene Befangenheit erklären</target>
       </trans-unit>
-      <trans-unit id="RscAE2C5BD7" resname="data_request.exclusion.self_help">
-        <source>data_request.exclusion.self_help</source>
+      <trans-unit id="RscC26FD033" resname="data_request.exclusion.self.reason">
+        <source>data_request.exclusion.self.reason</source>
+        <target>Grund Ihrer Befangenheit</target>
+      </trans-unit>
+      <trans-unit id="Rsc4FEA1F12" resname="data_request.exclusion.self.help">
+        <source>data_request.exclusion.self.help</source>
         <target>Sie stimmen dann über diesen Antrag nicht mehr ab und zählen nicht zum Quorum.</target>
       </trans-unit>
-      <trans-unit id="Rsc7B76A72E" resname="data_request.exclusion.declare">
-        <source>data_request.exclusion.declare</source>
-        <target>Ausschließen</target>
+      <trans-unit id="Rsc6CA21191" resname="data_request.exclusion.self.submit">
+        <source>data_request.exclusion.self.submit</source>
+        <target>Befangenheit erklären</target>
       </trans-unit>
-      <trans-unit id="Rsc264D815E" resname="data_request.exclusion.record">
-        <source>data_request.exclusion.record</source>
+      <trans-unit id="RscF3AF4F1D" resname="data_request.exclusion.record.title">
+        <source>data_request.exclusion.record.title</source>
         <target>Board-Mitglied wegen Befangenheit ausschließen</target>
       </trans-unit>
-      <trans-unit id="RscEAEDF679" resname="data_request.exclusion.reason">
-        <source>data_request.exclusion.reason</source>
-        <target>Begründung</target>
+      <trans-unit id="Rsc2F34BE8A" resname="data_request.exclusion.record.member">
+        <source>data_request.exclusion.record.member</source>
+        <target>Board-Mitglied</target>
+      </trans-unit>
+      <trans-unit id="RscC75E248F" resname="data_request.exclusion.record.reason">
+        <source>data_request.exclusion.record.reason</source>
+        <target>Grund der Befangenheit</target>
+      </trans-unit>
+      <trans-unit id="Rsc7D64D844" resname="data_request.exclusion.record.submit">
+        <source>data_request.exclusion.record.submit</source>
+        <target>Mitglied ausschließen</target>
       </trans-unit>
       <trans-unit id="RscECA4893B" resname="data_request.flash.review.open">
         <source>data_request.flash.review.open</source>
