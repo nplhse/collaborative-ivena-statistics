@@ -54,7 +54,8 @@ Existing data is skipped unless `--force` is passed. Runs are idempotent: re-run
 
 - `OPENROUTESERVICE_API_KEY` in `.env.local` (dev) or `shared/.env.local` (production). Empty key: `--apply` exits 1; dry-run still works.
 - Public OpenRouteService allows **at most 10 ranges** per isochrone request (we send 5–50 minutes). Stay below ~20 requests/minute; default `--delay-ms=3500`.
-- Geocoding uses `/geocode/search/structured`, country Germany, usable layers `address` / `venue` / `street` only (`locality` is rejected so city centroids are not stored again).
+- Requests go to the HeiGIT API host `api.heigit.org` (`/pelias/v1/search/structured` for geocoding, `/openrouteservice/v2/isochrones/driving-car` for isochrones). The former host `api.openrouteservice.org` was switched off on 2026-11-24 and answers `410 Gone`; existing API keys work on the new host.
+- Geocoding uses Pelias structured search, country Germany, usable layers `address` / `venue` / `street` only (`locality` is rejected so city centroids are not stored again).
 - HTTP **429** and **403 quota/limit** responses abort the run after one retry (`Retry-After`, capped at 60 seconds, or `--delay-ms` if the header is missing). Already written coordinates/files are kept. Re-run later to resume. Other HTTP errors mark that hospital `failed` and continue.
 
 ## Look up IDs
