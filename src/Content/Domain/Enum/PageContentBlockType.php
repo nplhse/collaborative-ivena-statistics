@@ -23,6 +23,8 @@ enum PageContentBlockType: string
     case ChildPages = 'child_pages';
     /** "Learn more" (#1590): a heading and a curated list of links, usually at the end of the content. */
     case ReadMore = 'read_more';
+    /** Board members: everyone with the board member role, taken from the user accounts when the page is shown. */
+    case BoardMembers = 'board_members';
 
     public function translationKey(): string
     {
@@ -45,7 +47,7 @@ enum PageContentBlockType: string
             self::Headline => ['text'],
             self::Highlight => ['title', 'html', 'icon'],
             self::Accordion, self::Cards, self::ReadMore => ['items'],
-            self::HelpSearch, self::HelpTopics, self::ChildPages => [],
+            self::HelpSearch, self::HelpTopics, self::ChildPages, self::BoardMembers => [],
         };
     }
 

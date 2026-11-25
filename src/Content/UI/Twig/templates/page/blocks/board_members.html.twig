@@ -1,0 +1,36 @@
+{#
+    Board members block: everyone with the board member role, taken from the user accounts.
+    Anonymous visitors see avatar and username only (see UserDisplayNameExtension); participants also
+    see the display name, the hospitals and a link to the profile, as in blog comments.
+#}
+{% set members = board_members() %}
+{% if members is not empty %}
+    {% set show_details = is_granted('ROLE_PARTICIPANT') %}
+    <div class="row row-cards" data-testid="board-members">
+        {% for member in members %}
+            <div class="col-md-6">
+                <div class="card h-100" data-testid="board-member">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <span class="flex-shrink-0">
+                            <twig:UserAvatar :userId="member.userId" :displayName="member.displayName" :username="member.username" size="md" />
+                        </span>
+                        <div class="min-w-0">
+                            <div class="fw-bold">
+                                {%- if show_details -%}
+                                    <a href="{{ path('app_explore_user_show', {username: member.username}) }}">{{ user_display_name(member.displayName, member.username) }}</a>
+                                {%- else -%}
+                                    {{ user_display_name(member.displayName, member.username) }}
+                                {%- endif -%}
+                            </div>
+                            {% if show_details and member.hospitals is not empty %}
+                                <div class="text-secondary small" data-testid="board-member-hospitals">
+                                    {{ member.hospitals|map(h => h.name)|join('; ') }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

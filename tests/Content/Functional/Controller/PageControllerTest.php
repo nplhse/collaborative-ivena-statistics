@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Content\Functional\Controller;
 
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Infrastructure\Factory\PageFactory;
@@ -185,6 +186,45 @@ final class PageControllerTest extends WebTestCase
         self::assertSame(['Account', 'Data'], $children->filter('.card-title')->each(static fn (Crawler $title): string => trim($title->text())), 'pages for signed-in users stay hidden');
         self::assertSame(['Step 1', 'Step 2'], $children->filter('.badge')->each(static fn (Crawler $badge): string => trim($badge->text())));
         self::assertStringContainsString('Register first.', $children->first()->text());
+    }
+
+    public function testBoardMembersBlockListsEnabledBoardMembersByName(): void
+    {
+        $client = self::createClient();
+
+        $erika = UserFactory::new()->asBoardMember()->create(['username' => 'erika', 'displayName' => 'Erika Muster']);
+        UserFactory::new()->asBoardMember()->create(['username' => 'bert', 'displayName' => 'Bert Beispiel']);
+        UserFactory::new()->asBoardMember()->create(['username' => 'carla']);
+        UserFactory::new()->asBoardMember()->create(['username' => 'disabled', 'isEnabled' => false]);
+        UserFactory::new()->asAdmin()->create(['username' => 'admin-only']);
+        HospitalFactory::createOne(['name' => 'Klinikum Süd', 'owner' => $erika]);
+        HospitalFactory::createOne(['name' => 'Klinikum Nord', 'owner' => $erika]);
+
+        PageFactory::createOne([
+            'title' => 'About us',
+            'slug' => 'about-us',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'content' => [['type' => 'board_members', 'data' => []]],
+        ]);
+
+        $names = static fn (Crawler $crawler): array => $crawler->filter('[data-testid="board-member"] .fw-bold')
+            ->each(static fn (Crawler $name): string => trim($name->text()));
+
+        $crawler = $client->request(Request::METHOD_GET, '/about-us');
+
+        self::assertResponseIsSuccessful();
+        // Sorted by display name (Bert, carla, Erika); anonymous visitors only see usernames, no links or hospitals.
+        self::assertSame(['bert', 'carla', 'erika'], $names($crawler));
+        self::assertCount(0, $crawler->filter('[data-testid="board-member"] a'));
+        self::assertCount(0, $crawler->filter('[data-testid="board-member-hospitals"]'));
+
+        $client->loginUser(UserFactory::new()->asParticipant()->create());
+        $crawler = $client->request(Request::METHOD_GET, '/about-us');
+
+        self::assertSame(['Bert Beispiel', 'carla', 'Erika Muster'], $names($crawler));
+        self::assertSame('/explore/user/bert', $crawler->filter('[data-testid="board-member"] a')->first()->attr('href'));
+        self::assertSame(['Klinikum Nord; Klinikum Süd'], $crawler->filter('[data-testid="board-member-hospitals"]')->each(static fn (Crawler $h): string => trim($h->text())));
     }
 
     public function testImageBlockWithAutoSizeRendersNaturalWidthClass(): void
