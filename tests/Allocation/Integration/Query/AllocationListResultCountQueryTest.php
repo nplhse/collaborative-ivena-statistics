@@ -88,7 +88,8 @@ final class AllocationListResultCountQueryTest extends KernelTestCase
 
         self::assertEquals(ResultCount::exact(2), $this->listQuery()->getPaginator($query, $owner)->getResultCount());
 
-        AllocationFactory::createOne();
+        // In one of the owner's hospitals: the owner counts only their own (#1566).
+        AllocationFactory::createOne(['hospital' => HospitalFactory::findBy(['owner' => $owner])[0]]);
 
         self::assertEquals(ResultCount::exact(3), $this->listQuery()->getPaginator($query, $owner)->getResultCount());
     }
