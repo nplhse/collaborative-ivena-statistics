@@ -17,6 +17,14 @@ final class DataPrepChangelog
      */
     private const array ENTRIES = [
         [
+            'version' => '1.4.0',
+            'released_at' => '2026-11-25',
+            'notes' => [
+                'encounter.data_prep.changelog.1_4_0.department_select',
+                'encounter.data_prep.changelog.1_4_0.unknown_departments',
+            ],
+        ],
+        [
             'version' => '1.3.0',
             'released_at' => '2026-11-17',
             'notes' => [

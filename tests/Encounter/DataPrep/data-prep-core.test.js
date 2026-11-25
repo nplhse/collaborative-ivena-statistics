@@ -534,6 +534,65 @@ describe('local map', () => {
         }
     });
 
+    it('warns about department names the bundled name list does not contain (#1638)', () => {
+        const catalogs = {
+            'department-names': prep.parseCatalog({
+                format: 'encounter-name-list',
+                version: 1,
+                id: 'department-names',
+                names: ['Allgemeine Innere Medizin', 'Allgemein- und Viszeralchirurgie'],
+            }),
+        };
+        const map = {
+            format: 'encounter-local-map',
+            version: 1,
+            departments: {
+                INN: 'Innere',
+                ACH: 'allgemein- und viszeralchirurgie',
+                AIM: 'Allgemeine Innere Medizin',
+            },
+        };
+
+        // Case-insensitive like the import: only "Innere" is unknown; the map stays usable.
+        const loaded = prep.loadLocalMap(map, profile, catalogs);
+        assert.deepEqual(loaded.warnings, ['departments.INN']);
+        assert.equal(loaded.departments.get('inn'), 'Innere');
+
+        // Without a name list nothing is checked, as before 1.4.0.
+        assert.deepEqual(prep.loadLocalMap(map, profile).warnings, []);
+
+        assert.deepEqual(prep.localMapNames(profile, 'departments', catalogs), [
+            'Allgemeine Innere Medizin',
+            'Allgemein- und Viszeralchirurgie',
+        ]);
+        assert.equal(prep.localMapNames(profile, 'departments', {}), null);
+        assert.equal(prep.localMapNames(profile, 'stations', catalogs), null);
+    });
+
+    it('accepts only valid name lists', () => {
+        const list = (data) => ({
+            format: 'encounter-name-list',
+            version: 1,
+            id: 'x',
+            names: [],
+            ...data,
+        });
+        assert.equal(prep.parseCatalog(list({ names: ['A'] })).names[0], 'A');
+        for (const invalid of [
+            { version: 2 },
+            { id: '' },
+            { names: 'A' },
+            { names: [''] },
+            { names: [1] },
+        ]) {
+            assert.throws(
+                () => prep.parseCatalog(list(invalid)),
+                /name list/,
+                JSON.stringify(invalid),
+            );
+        }
+    });
+
     it('rejects unknown care levels, invalid department names and dispositions', () => {
         const map = (data) => ({ format: 'encounter-local-map', version: 1, ...data });
         assert.throws(

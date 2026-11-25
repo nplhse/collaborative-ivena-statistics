@@ -75,7 +75,7 @@ final class ShippedDataPrepToolTest extends WebTestCase
         file_put_contents($this->directory.'/key.json', json_encode(['format' => 'encounter-key', 'version' => 1, 'label' => 'Test', 'created' => '2026-11-12', 'key' => $vectors['key'], 'check' => $vectors['keyCheck']], \JSON_THROW_ON_ERROR));
 
         $orbis = $this->runTool($node, $html, self::FIXTURES.'/orbis-mts-sample.csv', 'orbis.csv', self::FIXTURES.'/local-map.sample.json');
-        self::assertSame(['profile' => 'orbis-mts', 'schema' => 'ed_visit', 'rows' => 6, 'scripts' => 3, 'external' => false, 'catalogs' => ['mts-de']], array_intersect_key($orbis['summary'], array_flip(['profile', 'schema', 'rows', 'scripts', 'external', 'catalogs'])));
+        self::assertSame(['profile' => 'orbis-mts', 'schema' => 'ed_visit', 'rows' => 6, 'scripts' => 3, 'external' => false, 'catalogs' => ['mts-de', 'department-names']], array_intersect_key($orbis['summary'], array_flip(['profile', 'schema', 'rows', 'scripts', 'external', 'catalogs'])));
         self::assertSame("default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src http://localhost/data-prep/latest.json http://localhost/data-prep/mts-catalog.json; base-uri 'none'; form-action 'none'", str_replace('&#039;', "'", $orbis['summary']['csp']));
         $reference = (string) file_get_contents(self::FIXTURES.'/orbis-mts-sample.ed_visit.csv');
         self::assertSame($reference, $orbis['file'], 'ORBIS rows, fingerprints and manifest equal the tool core\'s reference file');
