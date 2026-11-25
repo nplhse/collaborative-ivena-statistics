@@ -21,7 +21,7 @@ final class DataSourceCatalogTest extends TestCase
             ['provider' => 'bkg', 'licence' => 'dl-de/by-2-0', 'attribution' => '© BKG (2025) dl-de/by-2-0'],
         ], '', '');
 
-        self::assertCount(2, $sources, 'boundaries and openrouteservice');
+        self::assertCount(3, $sources, 'boundaries, geocoding and isochrones');
         self::assertSame('BKG, Verwaltungsgebiete 1:250 000 (VG250)', $sources[0]->name);
         self::assertSame(['data_sources.use.boundaries'], $sources[0]->uses);
         self::assertSame('https://www.govdata.de/dl-de/by-2-0', $sources[0]->licenceUrl);
@@ -40,17 +40,31 @@ final class DataSourceCatalogTest extends TestCase
         self::assertNull($source->licenceUrl);
     }
 
-    public function testWithoutBoundariesAndTilesOnlyOpenrouteserviceRemains(): void
+    public function testWithoutBoundariesAndTilesOnlyTheHeigitServicesRemain(): void
     {
         $sources = new DataSourceCatalog()->all([], '', '');
 
-        self::assertSame(['openrouteservice (HeiGIT)'], array_map(static fn (DataSource $source): ?string => $source->name, $sources));
-        self::assertSame(['data_sources.use.geocoding', 'data_sources.use.isochrones'], $sources[0]->uses);
+        self::assertSame(['HeiGIT geocoding', 'openrouteservice (HeiGIT)'], array_map(static fn (DataSource $source): ?string => $source->name, $sources));
+    }
+
+    public function testGeocodingAndIsochronesCarryTheLicencesOfTheHeigitTerms(): void
+    {
+        [$geocoding, $isochrones] = new DataSourceCatalog()->all([], '', '');
+
+        self::assertSame(['data_sources.use.geocoding'], $geocoding->uses);
+        self::assertSame('ODbL 1.0', $geocoding->licence);
+        self::assertSame('© OpenStreetMap contributors', $geocoding->attributions[0]);
+
+        self::assertSame(['data_sources.use.isochrones'], $isochrones->uses);
+        self::assertSame('CC BY-SA 4.0', $isochrones->licence);
+        self::assertSame('https://creativecommons.org/licenses/by-sa/4.0/', $isochrones->licenceUrl);
+        self::assertSame(['© openrouteservice by HeiGIT | Data from OpenStreetMap'], $isochrones->attributions);
+        self::assertSame('https://account.heigit.org/info/tos', $isochrones->url);
     }
 
     public function testOpenStreetMapTilesHavePlainSourceNote(): void
     {
-        $tiles = new DataSourceCatalog()->all([], self::OSM_URL, self::OSM_NOTE)[1];
+        $tiles = new DataSourceCatalog()->all([], self::OSM_URL, self::OSM_NOTE)[2];
 
         self::assertSame('OpenStreetMap', $tiles->name);
         self::assertSame('ODbL 1.0', $tiles->licence);
@@ -59,7 +73,7 @@ final class DataSourceCatalogTest extends TestCase
 
     public function testAConfiguredTileServerKeepsItsAddressOffThePage(): void
     {
-        $tiles = new DataSourceCatalog()->all([], 'https://tiles.internal.example/{z}/{x}/{y}.png?key=secret', '<b>Own</b> tiles')[1];
+        $tiles = new DataSourceCatalog()->all([], 'https://tiles.internal.example/{z}/{x}/{y}.png?key=secret', '<b>Own</b> tiles')[2];
 
         self::assertNull($tiles->name);
         self::assertNull($tiles->url);

@@ -35,7 +35,7 @@ The hospital-population statistics map uses a separate city/PLZ centroid YAML fo
 
 ## Data sources page
 
-The public page `/data-sources` (footer, legal column) lists the geographic sources with their use, licence and source note. District boundaries come from the provenance stored in `district_geometry`. The map tile entry follows `MAP_TILE_URL` and `MAP_TILE_ATTRIBUTION`, without showing the address. When you add another external source without stored provenance, add it to `DataSourceCatalog`.
+The public page `/data-sources` (footer, legal column) lists the geographic sources with their use, licence and source note. District boundaries come from the provenance stored in `district_geometry`. The map tile entry follows `MAP_TILE_URL` and `MAP_TILE_ATTRIBUTION`, without showing the address. Geocoding and isochrones are two entries, because the [HeiGIT terms of service](https://account.heigit.org/info/tos) license them differently: geocoding results rest on OpenStreetMap (ODbL) and further sources, isochrone results are CC BY-SA 4.0 with the note `© openrouteservice by HeiGIT | Data from OpenStreetMap`. When you add another external source without stored provenance, add it to `DataSourceCatalog`.
 
 ## Command scopes
 
