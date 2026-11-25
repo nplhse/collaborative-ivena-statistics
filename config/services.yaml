@@ -17,6 +17,8 @@ parameters:
     app.media_max_size: '10M'
     # Media storage (ADR 039); the old upload directory is read until the move of every file (removed in v0.4).
     app.media_storage_dir: '%kernel.project_dir%/var/media'
+    # Archives of data extract exports (ADR 045), kept for the download period, served only through the controller.
+    app.research.exports_dir: '%kernel.project_dir%/var/research/exports'
     app.media_legacy_dir: '%kernel.project_dir%/public/uploads/media'
     # Integrity check (ADR 039): bytes hashed per daily run, and the age before an orphaned file is deleted.
     app.media_check_hash_budget_bytes: 268435456
@@ -179,6 +181,7 @@ when@demo:
         app.imports_base_dir: '%kernel.project_dir%/var/demo/imports'
         app.rejects_base_dir: '%kernel.project_dir%/var/demo/imports/rejects'
         app.media_storage_dir: '%kernel.project_dir%/var/demo/media'
+        app.research.exports_dir: '%kernel.project_dir%/var/demo/research/exports'
         app.media_legacy_dir: '%kernel.project_dir%/public/uploads/demo/media'
         app.hospital_isochrones_dir: '%kernel.project_dir%/var/demo/geo/hospital-isochrones'
         app.prepared_locations_dir: '%kernel.project_dir%/var/demo/geo/prepared-locations'
@@ -189,6 +192,7 @@ when@test:
         # integrity check tests empty the storage root, which must not remove files another worker is writing.
         app.media_storage_dir: '%kernel.cache_dir%/media%env(default::TEST_TOKEN)%'
         app.media_legacy_dir: '%kernel.cache_dir%/legacy-media%env(default::TEST_TOKEN)%'
+        app.research.exports_dir: '%kernel.cache_dir%/research-exports%env(default::TEST_TOKEN)%'
 
     services:
         # One lock directory per ParaTest worker, like its test database (dbname_suffix with TEST_TOKEN):

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Research\Infrastructure\Security\Voter;
 
 use App\Research\Application\DataRequest\DataRequestCommentService;
+use App\Research\Application\DataRequest\DataRequestReleaseService;
 use App\Research\Application\DataRequest\DataRequestReviewService;
 use App\Research\Application\DataRequest\DataRequestService;
 use App\Research\Domain\Entity\DataRequest;
@@ -33,6 +34,8 @@ use Symfony\Component\Workflow\WorkflowInterface;
  * - EXCLUDE_SELF: a Board member declares a conflict of interest. RECORD_EXCLUSION, RESOLVE: administrators.
  * - COMMENT: who may write at least one visibility level (DataRequestCommentService).
  * - MANAGE_QUERIES: administrators, once the request is approved.
+ * - RELEASE: administrators, once every query passes the check and no other release is open
+ *   (DataRequestReleaseService); starting and downloading the export the service decides per release.
  *
  * @extends Voter<string, DataRequest>
  */
@@ -51,10 +54,12 @@ final class DataRequestVoter extends Voter
     public const string RESOLVE = 'DATA_REQUEST_RESOLVE';
     public const string COMMENT = 'DATA_REQUEST_COMMENT';
     public const string MANAGE_QUERIES = 'DATA_REQUEST_MANAGE_QUERIES';
+    public const string RELEASE = 'DATA_REQUEST_RELEASE';
 
     private const array ATTRIBUTES = [
         self::VIEW, self::VIEW_INTERNAL, self::EDIT, self::SUBMIT, self::WITHDRAW, self::CHECK, self::VOTE,
         self::VIEW_VOTES, self::EXCLUDE_SELF, self::RECORD_EXCLUSION, self::RESOLVE, self::COMMENT, self::MANAGE_QUERIES,
+        self::RELEASE,
     ];
 
     /** @psalm-suppress PossiblyUnusedMethod */
@@ -64,6 +69,7 @@ final class DataRequestVoter extends Voter
         private readonly WorkflowInterface $stateMachine,
         private readonly DataRequestReviewService $review,
         private readonly DataRequestCommentService $comments,
+        private readonly DataRequestReleaseService $releases,
     ) {
     }
 
@@ -113,6 +119,7 @@ final class DataRequestVoter extends Voter
             self::RESOLVE => $admin && DataRequestStatus::Stalled === $status,
             self::COMMENT => $this->comments->canComment($user, $subject),
             self::MANAGE_QUERIES => $admin && DataRequestStatus::Approved === $status,
+            self::RELEASE => $admin && $this->releases->canRelease($user, $subject),
             default => false,
         };
     }

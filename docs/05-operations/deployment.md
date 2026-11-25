@@ -55,6 +55,13 @@ vendor/bin/dep content:analyze-page-images coishub.uber.space
 vendor/bin/dep content:analyze-page-images coishub.uber.space -o content_analyze_page_images_options="--dry-run"
 ```
 
+### Data extract archives (shared across releases)
+
+Export runs of data extract requests write their `.tar.gz` archives to `var/research/exports`, which Deployer keeps in
+`shared/var/research/exports`, so an archive stays downloadable for its seven days across deploys
+([data extract requests](../04-features/research/README.md#release-and-export-run)). The archives hold pseudonymised
+data; they are not part of the backups.
+
 ### Hospital isochrones (shared across releases)
 
 Destination isochrones live in `var/geo/hospital-isochrones`, which Deployer keeps in

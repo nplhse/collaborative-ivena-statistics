@@ -136,6 +136,7 @@
             </div>
 
             {{ include('@Research/data_request/_queries.html.twig') }}
+            {{ include('@Research/data_request/_release.html.twig') }}
 
             {% if dataRequest.wasSubmitted %}
                 {{ include('@Research/data_request/_timeline.html.twig') }}

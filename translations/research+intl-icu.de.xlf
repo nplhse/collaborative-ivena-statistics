@@ -985,6 +985,274 @@
         <source>data_request.refused.changed_meanwhile</source>
         <target>Der Antrag wurde inzwischen geändert. Bitte laden Sie die Seite neu.</target>
       </trans-unit>
+      <trans-unit id="RscE9113A03" resname="data_request.timeline.event.released">
+        <source>data_request.timeline.event.released</source>
+        <target>hat Freischaltung {release} erstellt, gültig bis {until}{excluded, select, none {} other {; nicht enthalten: {excluded}}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc6D9865D8" resname="data_request.timeline.event.export_requested">
+        <source>data_request.timeline.event.export_requested</source>
+        <target>hat den Auszug zu Freischaltung {release} gestartet</target>
+      </trans-unit>
+      <trans-unit id="Rsc30AE94B3" resname="data_request.timeline.event.export_provided">
+        <source>data_request.timeline.event.export_provided</source>
+        <target>Auszug zu Freischaltung {release} bereitgestellt, abrufbar bis {until}</target>
+      </trans-unit>
+      <trans-unit id="Rsc418D41AD" resname="data_request.timeline.event.export_blocked">
+        <source>data_request.timeline.event.export_blocked</source>
+        <target>Auszug zu Freischaltung {release} blockiert: eine Gruppe hat zu wenige Kliniken</target>
+      </trans-unit>
+      <trans-unit id="Rsc8ADC22FD" resname="data_request.timeline.event.export_failed">
+        <source>data_request.timeline.event.export_failed</source>
+        <target>Auszug zu Freischaltung {release} fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="RscCF3DB5FF" resname="data_request.timeline.event.export_retried">
+        <source>data_request.timeline.event.export_retried</source>
+        <target>hat den Auszug zu Freischaltung {release} erneut gestartet</target>
+      </trans-unit>
+      <trans-unit id="Rsc5C8F816B" resname="data_request.refused.release_invalid">
+        <source>data_request.refused.release_invalid</source>
+        <target>Der Antrag lässt sich nicht freischalten: Jede Abfrage braucht eine geprüfte Fassung, und Einzelfälle brauchen die Bestätigung.</target>
+      </trans-unit>
+      <trans-unit id="RscB1D85363" resname="data_request.flash.released">
+        <source>data_request.flash.released</source>
+        <target>Der Antrag ist für die antragstellende Person freigeschaltet.</target>
+      </trans-unit>
+      <trans-unit id="RscF75D5C64" resname="data_request.flash.export_start">
+        <source>data_request.flash.export_start</source>
+        <target>Der Auszug wird erstellt. Diese Seite zeigt, wenn er bereitsteht.</target>
+      </trans-unit>
+      <trans-unit id="Rsc269B3BCF" resname="data_request.flash.export_retry">
+        <source>data_request.flash.export_retry</source>
+        <target>Der Auszug wird erneut erstellt.</target>
+      </trans-unit>
+      <trans-unit id="RscD2784D64" resname="data_request.release.title">
+        <source>data_request.release.title</source>
+        <target>Freischaltung und Auszug</target>
+      </trans-unit>
+      <trans-unit id="Rsc9C660584" resname="data_request.release.intro">
+        <source>data_request.release.intro</source>
+        <target>Ein:e Administrator:in schaltet die bewilligten Abfragen für die antragstellende Person frei. Diese erstellt dann den Auszug und kann ihn sieben Tage lang herunterladen.</target>
+      </trans-unit>
+      <trans-unit id="RscB688FBC9" resname="data_request.release.choose">
+        <source>data_request.release.choose</source>
+        <target>Die Freischaltung bindet die aktuelle Fassung der gewählten Abfragen und gilt drei Monate. Nur diese Dateien gehören zum Auszug.</target>
+      </trans-unit>
+      <trans-unit id="Rsc51BE353F" resname="data_request.release.choose_help">
+        <source>data_request.release.choose_help</source>
+        <target>Lassen Sie eine Abfrage weg, deren Probelauf Gruppen unter der Mindestzahl zeigt, nachdem Sie das per Kommentar mit der antragstellenden Person abgesprochen haben. Sie bleibt am Antrag und kann später freigeschaltet werden.</target>
+      </trans-unit>
+      <trans-unit id="Rsc92414059" resname="data_request.release.query_unchecked">
+        <source>data_request.release.query_unchecked</source>
+        <target>Prüfung nicht bestanden</target>
+      </trans-unit>
+      <trans-unit id="RscF29BFA98" resname="data_request.release.query_no_dry_run">
+        <source>data_request.release.query_no_dry_run</source>
+        <target>noch kein Probelauf</target>
+      </trans-unit>
+      <trans-unit id="RscB2678C12" resname="data_request.release.query_dry_run_error">
+        <source>data_request.release.query_dry_run_error</source>
+        <target>Probelauf fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="Rsc3F5E8EE2" resname="data_request.release.query_below_minimum">
+        <source>data_request.release.query_below_minimum</source>
+        <target>Probelauf: {count, plural, one {# Gruppe} other {# Gruppen}} unter der Mindestzahl</target>
+      </trans-unit>
+      <trans-unit id="RscCD5B28A8" resname="data_request.release.excluded">
+        <source>data_request.release.excluded</source>
+        <target>Nicht enthalten</target>
+      </trans-unit>
+      <trans-unit id="RscC362F493" resname="data_request.release.single_cases_confirm">
+        <source>data_request.release.single_cases_confirm</source>
+        <target>Ich bestätige, dass die Einzelfall-Abfragen Zeitstempel höchstens auf die Stunde und das Alter nur in Gruppen ausgeben, wie bewilligt.</target>
+      </trans-unit>
+      <trans-unit id="Rsc33B1A6A0" resname="data_request.release.action">
+        <source>data_request.release.action</source>
+        <target>Freischalten</target>
+      </trans-unit>
+      <trans-unit id="Rsc4DD6D670" resname="data_request.release.number">
+        <source>data_request.release.number</source>
+        <target>Freischaltung {number}</target>
+      </trans-unit>
+      <trans-unit id="Rsc0098441E" resname="data_request.release.created">
+        <source>data_request.release.created</source>
+        <target>erstellt am {date}</target>
+      </trans-unit>
+      <trans-unit id="Rsc26E6FB24" resname="data_request.release.recipient">
+        <source>data_request.release.recipient</source>
+        <target>Empfänger:in</target>
+      </trans-unit>
+      <trans-unit id="RscF82E6DAB" resname="data_request.release.queries">
+        <source>data_request.release.queries</source>
+        <target>Abfragen</target>
+      </trans-unit>
+      <trans-unit id="RscB04947AC" resname="data_request.release.query_version">
+        <source>data_request.release.query_version</source>
+        <target>Fassung {number}</target>
+      </trans-unit>
+      <trans-unit id="RscD8CCDCFA" resname="data_request.release.valid_until">
+        <source>data_request.release.valid_until</source>
+        <target>Gültig bis</target>
+      </trans-unit>
+      <trans-unit id="Rsc3729D547" resname="data_request.release.status.active">
+        <source>data_request.release.status.active</source>
+        <target>Freigeschaltet</target>
+      </trans-unit>
+      <trans-unit id="Rsc3B07A933" resname="data_request.release.status.used">
+        <source>data_request.release.status.used</source>
+        <target>Abgerufen</target>
+      </trans-unit>
+      <trans-unit id="Rsc8901B9E6" resname="data_request.release.status.expired">
+        <source>data_request.release.status.expired</source>
+        <target>Abgelaufen</target>
+      </trans-unit>
+      <trans-unit id="RscC1BCA933" resname="data_request.release.status.revoked">
+        <source>data_request.release.status.revoked</source>
+        <target>Widerrufen</target>
+      </trans-unit>
+      <trans-unit id="Rsc49922940" resname="data_request.export.status.queued">
+        <source>data_request.export.status.queued</source>
+        <target>In der Warteschlange</target>
+      </trans-unit>
+      <trans-unit id="RscA7462523" resname="data_request.export.status.running">
+        <source>data_request.export.status.running</source>
+        <target>Wird erstellt</target>
+      </trans-unit>
+      <trans-unit id="Rsc768250AE" resname="data_request.export.status.available">
+        <source>data_request.export.status.available</source>
+        <target>Bereitgestellt</target>
+      </trans-unit>
+      <trans-unit id="Rsc756E456E" resname="data_request.export.status.blocked">
+        <source>data_request.export.status.blocked</source>
+        <target>Blockiert</target>
+      </trans-unit>
+      <trans-unit id="Rsc6CA1F641" resname="data_request.export.status.failed">
+        <source>data_request.export.status.failed</source>
+        <target>Fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="Rsc68D0EC5C" resname="data_request.export.status.expired">
+        <source>data_request.export.status.expired</source>
+        <target>Abgelaufen</target>
+      </trans-unit>
+      <trans-unit id="Rsc1ACEB8B7" resname="data_request.export.status.cancelled">
+        <source>data_request.export.status.cancelled</source>
+        <target>Abgebrochen</target>
+      </trans-unit>
+      <trans-unit id="Rsc8A340ECC" resname="data_request.export.start_help">
+        <source>data_request.export.start_help</source>
+        <target>Der Auszug führt alle freigeschalteten Abfragen auf dem aktuellen Datenstand aus. Sie können ihn einmal starten und das Archiv danach sieben Tage lang herunterladen.</target>
+      </trans-unit>
+      <trans-unit id="Rsc53C402F1" resname="data_request.export.action.start">
+        <source>data_request.export.action.start</source>
+        <target>Auszug erstellen</target>
+      </trans-unit>
+      <trans-unit id="Rsc3E8F439A" resname="data_request.export.action.download">
+        <source>data_request.export.action.download</source>
+        <target>Archiv herunterladen</target>
+      </trans-unit>
+      <trans-unit id="RscBF24C62C" resname="data_request.export.action.retry">
+        <source>data_request.export.action.retry</source>
+        <target>Erneut versuchen</target>
+      </trans-unit>
+      <trans-unit id="RscAA20C2A6" resname="data_request.export.pending">
+        <source>data_request.export.pending</source>
+        <target>Der Auszug wird erstellt. Das kann einige Minuten dauern; laden Sie die Seite später neu.</target>
+      </trans-unit>
+      <trans-unit id="Rsc75A0B317" resname="data_request.export.available">
+        <source>data_request.export.available</source>
+        <target>Das Archiv kann bis {date} heruntergeladen werden.</target>
+      </trans-unit>
+      <trans-unit id="RscB075C4FD" resname="data_request.export.problem">
+        <source>data_request.export.problem</source>
+        <target>Der Auszug konnte nicht erstellt werden. Ein:e Administrator:in kümmert sich darum.</target>
+      </trans-unit>
+      <trans-unit id="RscC06C5626" resname="data_request.export.expired">
+        <source>data_request.export.expired</source>
+        <target>Die Abruffrist ist abgelaufen. Ein neuer Auszug braucht eine neue Freischaltung.</target>
+      </trans-unit>
+      <trans-unit id="Rsc2B4D6124" resname="data_request.export.blocked">
+        <source>data_request.export.blocked</source>
+        <target>Nichts wurde bereitgestellt: Mindestens eine Gruppe hat weniger als {minimum} Kliniken. Ändern Sie die Abfrage in einer neuen Fassung und schalten Sie erneut frei.</target>
+      </trans-unit>
+      <trans-unit id="Rsc274A55E7" resname="data_request.export.record.file">
+        <source>data_request.export.record.file</source>
+        <target>Datei</target>
+      </trans-unit>
+      <trans-unit id="RscE7163AA3" resname="data_request.export.record.rows">
+        <source>data_request.export.record.rows</source>
+        <target>Zeilen</target>
+      </trans-unit>
+      <trans-unit id="Rsc7EBCC662" resname="data_request.export.record.hospitals">
+        <source>data_request.export.record.hospitals</source>
+        <target>Kliniken</target>
+      </trans-unit>
+      <trans-unit id="Rsc3B19A992" resname="data_request.export.record.smallest_group">
+        <source>data_request.export.record.smallest_group</source>
+        <target>Wenigste Kliniken je Gruppe</target>
+      </trans-unit>
+      <trans-unit id="RscBCC2BD9C" resname="data_request.export.record.below">
+        <source>data_request.export.record.below</source>
+        <target>{count, plural, one {# Gruppe} other {# Gruppen}} unter der Mindestzahl, die ersten:</target>
+      </trans-unit>
+      <trans-unit id="Rsc75E8018D" resname="data_request.export.record.data_state">
+        <source>data_request.export.record.data_state</source>
+        <target>Datenstand {date}, {imports} abgeschlossene Importe</target>
+      </trans-unit>
+      <trans-unit id="RscF3FE6267" resname="data_request.export.record.duration">
+        <source>data_request.export.record.duration</source>
+        <target>{ms} ms, Versuch {attempts}</target>
+      </trans-unit>
+      <trans-unit id="Rsc053912D9" resname="data_request.export.record.archive">
+        <source>data_request.export.record.archive</source>
+        <target>Archiv {bytes} Bytes, SHA-256 {checksum}…</target>
+      </trans-unit>
+      <trans-unit id="Rsc5D02892D" resname="data_request.export.record.downloads">
+        <source>data_request.export.record.downloads</source>
+        <target>Downloads</target>
+      </trans-unit>
+      <trans-unit id="Rsc911DD650" resname="data_request.export.readme.heading">
+        <source>data_request.export.readme.heading</source>
+        <target>Datenauszug aus {source}</target>
+      </trans-unit>
+      <trans-unit id="RscEF866D15" resname="data_request.export.readme.request">
+        <source>data_request.export.readme.request</source>
+        <target>Antrag Nr. {number}: {title} (Fassung {version})</target>
+      </trans-unit>
+      <trans-unit id="Rsc03C9534A" resname="data_request.export.readme.executed">
+        <source>data_request.export.readme.executed</source>
+        <target>Erstellt am {date}</target>
+      </trans-unit>
+      <trans-unit id="Rsc7F588455" resname="data_request.export.readme.data_as_of">
+        <source>data_request.export.readme.data_as_of</source>
+        <target>Datenstand {date} (jüngster abgeschlossener Import)</target>
+      </trans-unit>
+      <trans-unit id="Rsc37BC7241" resname="data_request.export.readme.no_data_state">
+        <source>data_request.export.readme.no_data_state</source>
+        <target>unbekannt</target>
+      </trans-unit>
+      <trans-unit id="RscEF568071" resname="data_request.export.readme.files">
+        <source>data_request.export.readme.files</source>
+        <target>Dateien:</target>
+      </trans-unit>
+      <trans-unit id="Rsc78ABA624" resname="data_request.export.readme.file_counts">
+        <source>data_request.export.readme.file_counts</source>
+        <target>{rows, plural, one {# Zeile} other {# Zeilen}} aus {hospitals, plural, one {# Klinik} other {# Kliniken}}</target>
+      </trans-unit>
+      <trans-unit id="RscBB9DAADC" resname="data_request.export.readme.minimum">
+        <source>data_request.export.readme.minimum</source>
+        <target>Jede Zeile einer aggregierten Datei beruht auf mindestens {minimum} Kliniken.</target>
+      </trans-unit>
+      <trans-unit id="Rsc9F5AA2A0" resname="data_request.export.readme.format">
+        <source>data_request.export.readme.format</source>
+        <target>Die Dateien sind CSV in UTF-8 mit Kopfzeile; manifest.json nennt Zeilen und SHA-256-Prüfsummen je Datei. Die Daten sind pseudonymisiert und dürfen nur für den bewilligten Zweck verwendet werden.</target>
+      </trans-unit>
+      <trans-unit id="RscEBD723F5" resname="data_request.export.readme.citation_heading">
+        <source>data_request.export.readme.citation_heading</source>
+        <target>Zitiervorschlag:</target>
+      </trans-unit>
+      <trans-unit id="Rsc00BD1097" resname="data_request.export.readme.citation">
+        <source>data_request.export.readme.citation</source>
+        <target>{source}, Datenauszug zu Antrag Nr. {number}, Datenstand {data_as_of}, abgerufen am {retrieved}. {url}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

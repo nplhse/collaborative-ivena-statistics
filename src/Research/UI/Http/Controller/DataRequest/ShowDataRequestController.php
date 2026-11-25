@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Research\UI\Http\Controller\DataRequest;
 
 use App\Research\Application\DataRequest\DataRequestCommentService;
+use App\Research\Application\DataRequest\DataRequestReleaseService;
 use App\Research\Application\DataRequest\DataRequestTimeline;
 use App\Research\Domain\Entity\DataRequest;
+use App\Research\Domain\Entity\DataRequestExportRun;
+use App\Research\Domain\Entity\DataRequestRelease;
 use App\Research\Domain\Enum\Visibility;
 use App\Research\Infrastructure\Repository\DataRequestRepository;
 use App\Research\Infrastructure\Security\Voter\DataRequestVoter;
@@ -31,6 +34,7 @@ final class ShowDataRequestController extends AbstractController
         private readonly DataRequestRepository $requests,
         private readonly UserRepository $users,
         private readonly DataRequestCommentService $comments,
+        private readonly DataRequestReleaseService $releases,
     ) {
     }
 
@@ -52,6 +56,9 @@ final class ShowDataRequestController extends AbstractController
             'readableLevels' => $readable,
             'writableLevels' => $this->writable($dataRequest),
             'boardMembers' => $this->isGranted(DataRequestVoter::RECORD_EXCLUSION, $dataRequest) ? $this->excludableMembers($dataRequest) : [],
+            'canRelease' => $this->isGranted(DataRequestVoter::RELEASE, $dataRequest),
+            'needsSingleCaseConfirmation' => $this->releases->needsSingleCaseConfirmation($dataRequest),
+            'releases' => $this->releaseActions($dataRequest),
         ]);
     }
 
@@ -66,6 +73,29 @@ final class ShowDataRequestController extends AbstractController
             $this->users->findEnabledVerifiedUsersWithRoles([UserRole::BOARD_MEMBER]),
             static fn (User $member): bool => !$dataRequest->isRequestedBy($member) && !$dataRequest->isExcluded($member),
         ));
+    }
+
+    /**
+     * Newest first, with what the viewer may do on each.
+     *
+     * @return list<array{release: DataRequestRelease, canStart: bool, canDownload: bool}>
+     */
+    private function releaseActions(DataRequest $dataRequest): array
+    {
+        $user = $this->getUser();
+        if (!$user instanceof User || !$this->isGranted(DataRequestVoter::VIEW_INTERNAL, $dataRequest)) {
+            return [];
+        }
+
+        return array_map(function (DataRequestRelease $release) use ($user): array {
+            $run = $release->getRun();
+
+            return [
+                'release' => $release,
+                'canStart' => $this->releases->canStart($user, $release),
+                'canDownload' => $run instanceof DataRequestExportRun && $this->releases->canDownload($user, $run),
+            ];
+        }, array_reverse($dataRequest->getReleases()));
     }
 
     /** @return list<Visibility> */

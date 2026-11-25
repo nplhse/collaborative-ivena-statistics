@@ -54,12 +54,15 @@ add('shared_dirs', [
     // Media storage (ADR 039). shared/public/uploads/media of older releases stays until v0.4: the previous release
     // still serves it, and media:migrate-storage copies from it.
     'var/media',
+    // Archives of data extract exports (ADR 045): downloadable for seven days, across deploys.
+    'var/research/exports',
 ]);
 add('writable_dirs', [
     'var/imports',
     'var/reference',
     'var/geo/hospital-isochrones',
     'var/media',
+    'var/research/exports',
 ]);
 
 /*

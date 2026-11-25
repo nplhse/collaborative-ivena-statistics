@@ -11,6 +11,9 @@ namespace App\Research\Application\Export;
 final class ExportAllowlist
 {
     /** Allocations and their reference tables. MCI cases and closures stay out (#1637). */
+    /** Raise with every change of the lists below; the internal record of an export keeps it. */
+    public const int VERSION = 1;
+
     public const array TABLES = [
         'allocation', 'hospital', 'dispatch_area', 'state', 'district', 'speciality', 'department', 'occasion',
         'assignment', 'infection', 'secondary_transport', 'assessment', 'indication_raw', 'indication_normalized',

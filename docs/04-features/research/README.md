@@ -22,6 +22,9 @@ extended with every step of #1635.
 | `app_data_requests_query` | `POST /requests/data/{publicId}/queries/{add\|revise\|dry-run}` | `DATA_REQUEST_MANAGE_QUERIES` |
 | `app_data_requests_compare` | `/requests/data/{publicId}/compare` | `DATA_REQUEST_VIEW` |
 | `app_data_requests_comment` | `POST /requests/data/{publicId}/comments` | `DATA_REQUEST_COMMENT` |
+| `app_data_requests_release` | `POST /requests/data/{publicId}/releases` | `DATA_REQUEST_RELEASE` |
+| `app_data_requests_export` | `POST /requests/data/{publicId}/releases/{number}/{start\|retry}` | start: the recipient of an active release; retry: administrators |
+| `app_data_requests_export_download` | `/requests/data/{publicId}/releases/{number}/download` | the recipient and administrators, for seven days |
 | `app_my_requests` | `/requests` | participants: "My requests" with hospital assignment requests and data extract requests |
 
 The pages sit under "My requests", the shared roof for every kind of request (`/requests`, user menu). They are
@@ -167,7 +170,48 @@ description; check results, dry runs and the forms are for administrators. The t
 exports disabled; nothing falls back to the application user. In production it is the hosting's read-only user, on
 Uberspace `<account>_ro` with the password from `~/.pgpass`. In the test environment it points to the test database,
 and DAMA shares the test transaction with it (`connection_keys` in `dama_doctrine_test_bundle.yaml`); a dedicated
-read-only role for local development and CI follows with the export runs.
+read-only role for local development and CI follows in the next step.
+
+## Release and export run
+
+Once at least one query has a checked current version, an administrator releases the request
+(`DataRequestRelease`). The administrator chooses the queries; by default every query that passes the check. The
+release binds the applicant as recipient, the current version of each chosen query and, for chosen single-case
+queries, the administrator's confirmation that timestamps are at most hourly and ages only in groups. Queries left out
+stay with the request and are named in the release and its timeline entry, so it shows they were left out on purpose.
+The usual case: the dry run of one query shows groups below the minimum; the administrator agrees with the applicant
+in a private comment to leave it out (or to change it) and releases the others. It is valid for three
+months; a new release is possible once the previous one is neither active nor has an export that is queued, running
+or still downloadable. Expiry, revocation and conditions follow in the next steps.
+
+The recipient starts the export once. `DataRequestRelease::startExport()` creates the release's only
+`DataRequestExportRun` (unique key on the release) and `RunDataExportMessage` goes to `async_priority_low`. The worker
+(`RunDataExportMessageHandler`) takes over only a queued run (optimistic lock), so a redelivered message or a second
+worker does nothing.
+
+- **Run** (`ExportRunner`): all query versions in one read-only `REPEATABLE READ` transaction on the export connection,
+  so every file sees the same data; per query a 120 s statement timeout, at most 1,000,000 rows and 200 MB. Each query
+  becomes one CSV file (UTF-8, header row, comma); the reserved hospital column is counted and dropped before a row is
+  written, and the IDs are not kept.
+- **Minimum:** an aggregated file with a group of fewer than three hospitals blocks the run (`blocked`); nothing is
+  provided, and the administrator sees the first such groups without IDs. A changed query needs a new version and a
+  new release.
+- **Failure:** a technical error or an exceeded limit ends in `failed` with the error for administrators; they may queue
+  the same run again.
+- **Archive** (`ExportStorage`, `ExportPackage`): `data-request-<number>-release-<n>/` with the CSV files,
+  `manifest.json` (request number and URL, data state, rows, hospitals and SHA-256 per file) and `LIESMICH.txt` or
+  `README.txt` in the recipient's language (title and version, query descriptions, creation date, latest finished
+  import as data state, hospitals per file, the minimum, the pseudonymisation note and a citation). Neither names a
+  person. The archive lies in `var/research/exports` under a random name, is served only by the download route, and is
+  downloadable for seven days by the recipient and by administrators; each download is recorded
+  (`DataRequestExportDownload`). Removing the file after the period follows with the cleanup job.
+- **Internal record** (on the run, administrators only): settings (isolation, timeout, limits, minimum), application
+  and allowlist version (`ExportAllowlist::VERSION`), time and duration, the finished imports at the time of the run,
+  the query versions with their SQL checksum, per file rows, hospitals, SHA-256 and the number of groups per count of
+  hospitals, the archive's SHA-256 and size, and the recipient's user name.
+
+Timeline: `released`, `export_requested` and `export_provided` are private (Board, applicant, administrators);
+`export_blocked`, `export_failed` and `export_retried` are internal.
 
 ## Permissions
 
@@ -187,10 +231,12 @@ read-only role for local development and CI follows with the export runs.
 | `DATA_REQUEST_RECORD_EXCLUSION`, `DATA_REQUEST_RESOLVE` | administrators; resolving only while `stalled` |
 | `DATA_REQUEST_COMMENT` | whoever may write at least one level (see above), on a submitted request |
 | `DATA_REQUEST_MANAGE_QUERIES` | administrators, once the request is approved |
+| `DATA_REQUEST_RELEASE` | administrators, once every query passes the check and no other release is open |
 
 ## Audit
 
 Every entity is audited. The services record the intents `research.data_request.drafted`, `.updated`, `.submitted`,
 `.withdrawn`, `.commented`, `.round_opened`, `.returned`, `.voted`, `.vetoed`, `.member_excluded`, `.veto_resolved`, `.round_closed`,
-`.expired`, `.query_added`, `.query_revised`, `.query_checked` and `.query_dry_run`. A request, its votes and rounds stay when an account is deleted (the user reference becomes null);
+`.expired`, `.query_added`, `.query_revised`, `.query_checked`, `.query_dry_run`, `.released`, `.export_requested`,
+`.export_started`, `.export_finished`, `.export_retried` and `.export_downloaded`. A request, its votes and rounds stay when an account is deleted (the user reference becomes null);
 an exclusion is deleted with the member's account.
