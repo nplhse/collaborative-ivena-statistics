@@ -64,6 +64,7 @@ final class DataRequestControllerTest extends WebTestCase
 
         $crawler = $client->followRedirect();
         self::assertSelectorExists('[data-testid="data-request-draft-note"]');
+        self::assertSelectorNotExists('[data-testid="data-request-frozen-note"]');
         self::assertSelectorExists('[data-testid="data-request-submit"]');
         self::assertStringContainsString('Dr. Secret Recipient', $crawler->filter('[data-testid="data-request-scope"]')->text());
 
@@ -100,6 +101,7 @@ final class DataRequestControllerTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/requests/data/'.$request->getPublicIdString());
         self::assertSelectorNotExists('[data-testid="data-request-edit"]', 'a submitted version cannot change');
+        self::assertSelectorTextContains('[data-testid="data-request-frozen-note"]', 'A submitted version can no longer be changed.');
 
         $participant = $this->clientFor($viewer, $client);
         $crawler = $participant->request(Request::METHOD_GET, '/requests/data');

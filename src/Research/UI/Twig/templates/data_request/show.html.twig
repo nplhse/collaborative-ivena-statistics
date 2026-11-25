@@ -69,6 +69,9 @@
     {% if own and dataRequest.status.value == 'draft' %}
         <div class="alert alert-info" role="note" data-testid="data-request-draft-note">{{ 'data_request.show.draft_note'|trans({}, 'research') }}</div>
     {% endif %}
+    {% if own and dataRequest.status.value in ['submitted', 'in_review', 'stalled'] %}
+        <div class="alert alert-info" role="note" data-testid="data-request-frozen-note">{{ 'data_request.show.frozen_note'|trans({}, 'research') }}</div>
+    {% endif %}
     {% if own and dataRequest.status.value == 'withdrawn' %}
         <div class="alert alert-secondary" role="note">{{ 'data_request.show.withdrawn_note'|trans({}, 'research') }}</div>
     {% endif %}

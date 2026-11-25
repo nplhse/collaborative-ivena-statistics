@@ -321,6 +321,10 @@
         <source>data_request.show.draft_note</source>
         <target>This is a draft. Only you see it until you submit it.</target>
       </trans-unit>
+      <trans-unit id="Rsc5E9217D9" resname="data_request.show.frozen_note">
+        <source>data_request.show.frozen_note</source>
+        <target>A submitted version can no longer be changed. If the formal check returns the request or the Board asks for a revision, you can edit it again and submit a new version.</target>
+      </trans-unit>
       <trans-unit id="RscF9914D8A" resname="data_request.show.withdrawn_note">
         <source>data_request.show.withdrawn_note</source>
         <target>You withdrew this request. Copies already downloaded cannot be recalled.</target>

@@ -321,6 +321,10 @@
         <source>data_request.show.draft_note</source>
         <target>Das ist ein Entwurf. Bis zum Einreichen sehen nur Sie ihn.</target>
       </trans-unit>
+      <trans-unit id="Rsc5E9217D9" resname="data_request.show.frozen_note">
+        <source>data_request.show.frozen_note</source>
+        <target>Eine eingereichte Fassung lässt sich nicht mehr ändern. Gibt die formale Prüfung den Antrag zurück oder verlangt das Board eine Nachbesserung, können Sie ihn wieder bearbeiten und eine neue Fassung einreichen.</target>
+      </trans-unit>
       <trans-unit id="RscF9914D8A" resname="data_request.show.withdrawn_note">
         <source>data_request.show.withdrawn_note</source>
         <target>Sie haben diesen Antrag zurückgezogen. Bereits heruntergeladene Kopien lassen sich nicht zurückholen.</target>
