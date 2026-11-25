@@ -168,6 +168,64 @@ final class DataRequestReleaseTest extends TestCase
         $this->assertRefused(static fn (): ?string => $run->expire(new \DateTimeImmutable('2026-12-09')), 'already expired');
     }
 
+    public function testTheRecipientAcceptsTheConditionsWhenStarting(): void
+    {
+        [$request, $applicant] = $this->approved();
+        $release = $request->release(null, false, null, new \DateTimeImmutable(self::AT), "  Purpose only.\r\nNo sharing.  ");
+        self::assertSame("Purpose only.\nNo sharing.", $release->getConditions());
+
+        $this->assertRefused(static fn () => $release->startExport($applicant, new \DateTimeImmutable(self::AT), 'de'), 'not accepted');
+        $release->startExport($applicant, new \DateTimeImmutable('2026-12-02 09:00'), 'de', true);
+
+        self::assertEquals(new \DateTimeImmutable('2026-12-02 09:00'), $release->getConditionsAcceptedAt());
+        self::assertSame(hash('sha256', "Purpose only.\nNo sharing."), $release->getConditionsAcceptedChecksum());
+
+        [$without] = $this->approved();
+        self::assertNull($without->release(null, false, null, new \DateTimeImmutable(self::AT), "  \n ")->getConditions(), 'blank means none');
+    }
+
+    public function testAReleaseIsRevokedOrExpiresOnlyWhileActive(): void
+    {
+        [$request, $applicant] = $this->approved();
+        $release = $request->release(null, false, null, new \DateTimeImmutable(self::AT));
+        $this->assertRefused(static fn () => $release->revoke('  ', new \DateTimeImmutable(self::AT)), 'a reason is needed');
+        $this->assertRefused(static fn () => $release->expire(new \DateTimeImmutable('2027-02-28')), 'still valid');
+
+        $release->revoke('Wrong query version.', new \DateTimeImmutable('2026-12-03 09:00'));
+        self::assertSame(ReleaseStatus::Revoked, $release->getStatus());
+        self::assertSame('Wrong query version.', $release->getRevocationReason());
+        self::assertEquals(new \DateTimeImmutable('2026-12-03 09:00'), $release->getEndedAt());
+        self::assertFalse($release->isStartableBy($applicant, new \DateTimeImmutable('2026-12-04')));
+        self::assertFalse($release->isOpenAt(new \DateTimeImmutable('2026-12-04')), 'a new release is possible');
+        $this->assertRefused(static fn () => $release->revoke('Again.', new \DateTimeImmutable(self::AT)), 'already revoked');
+
+        $second = $request->release(null, false, null, new \DateTimeImmutable('2026-12-04 09:00'));
+        $second->expire(new \DateTimeImmutable('2027-03-04 09:00'));
+        self::assertSame(ReleaseStatus::Expired, $second->getStatus());
+        self::assertNull($second->getRevocationReason());
+        $this->assertRefused(static fn () => $second->expire(new \DateTimeImmutable('2027-03-05')), 'already expired');
+    }
+
+    public function testTheWithdrawalEndsOpenReleasesAndCancelsExports(): void
+    {
+        [$request, $applicant] = $this->approved();
+        $at = new \DateTimeImmutable(self::AT);
+        $active = $request->release(null, false, null, $at);
+        self::assertNull($active->endWithWithdrawal($at));
+        self::assertSame(ReleaseStatus::Revoked, $active->getStatus());
+        self::assertNull($active->getRevocationReason(), 'no reason of an administrator');
+
+        $used = $request->release(null, false, null, $at);
+        $run = $used->startExport($applicant, $at, 'de');
+        $run->start($at);
+        $run->provide('0123456789abcdef0123456789abcdef.tar.gz', 1, 'x', [], $at);
+        self::assertSame('0123456789abcdef0123456789abcdef.tar.gz', $used->endWithWithdrawal(new \DateTimeImmutable('2026-12-02')));
+        self::assertSame(ExportRunStatus::Cancelled, $run->getStatus());
+        self::assertNull($run->getArchiveFile());
+        self::assertFalse($run->isDownloadableAt(new \DateTimeImmutable('2026-12-02')));
+        self::assertNull($run->cancel(new \DateTimeImmutable('2026-12-03')), 'a cancelled run stays cancelled');
+    }
+
     public function testABlockedRunProvidesNothing(): void
     {
         [$request, $applicant] = $this->approved();

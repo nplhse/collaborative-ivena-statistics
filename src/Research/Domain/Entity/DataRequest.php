@@ -258,7 +258,7 @@ class DataRequest
      * @throws DataRequestException when the request is not approved, has no applicant any more, a release is still
      *                              open, a name is unknown or a chosen version is not checked
      */
-    public function release(?array $queryNames, bool $singleCasesConfirmed, ?User $by, \DateTimeImmutable $at): DataRequestRelease
+    public function release(?array $queryNames, bool $singleCasesConfirmed, ?User $by, \DateTimeImmutable $at, ?string $conditions = null): DataRequestRelease
     {
         if (DataRequestStatus::Approved !== $this->status || !$this->requester instanceof User) {
             throw new DataRequestException('Only an approved request with an applicant is released.');
@@ -288,7 +288,7 @@ class DataRequest
             throw new DataRequestException('A chosen query does not belong to this request.');
         }
 
-        $release = new DataRequestRelease($this, $this->releases->count() + 1, $this->requester, $versions, $excluded, $singleCasesConfirmed, $by, $at);
+        $release = new DataRequestRelease($this, $this->releases->count() + 1, $this->requester, $versions, $excluded, $singleCasesConfirmed, $by, $at, $conditions);
         $this->releases->add($release);
 
         return $release;

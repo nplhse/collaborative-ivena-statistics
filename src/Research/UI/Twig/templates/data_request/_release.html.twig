@@ -40,6 +40,9 @@
                         {% endfor %}
                         <div class="form-hint">{{ 'data_request.release.choose_help'|trans({}, 'research') }}</div>
                     </div>
+                    <label class="form-label" for="release-conditions">{{ 'data_request.release.conditions'|trans({}, 'research') }}</label>
+                    <textarea class="form-control mb-1" id="release-conditions" name="conditions" rows="7" maxlength="5000" data-testid="data-request-release-conditions">{{ 'data_request.release.conditions_default'|trans({}, 'research') }}</textarea>
+                    <div class="form-hint mb-3">{{ 'data_request.release.conditions_help'|trans({}, 'research') }}</div>
                     {% if needsSingleCaseConfirmation %}
                         <label class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" name="single_cases_confirmed" value="1" data-testid="data-request-release-single-cases">
@@ -62,7 +65,7 @@
                             {% if run %}
                                 <twig:Badge :variant="run.status.badgeVariant" data-testid="data-request-export-status" data-status="{{ run.status.value }}">{{ run.status.labelKey|trans({}, 'research') }}</twig:Badge>
                             {% else %}
-                                <twig:Badge variant="secondary" data-testid="data-request-release-status" data-status="{{ release.status.value }}">{{ release.status.labelKey|trans({}, 'research') }}</twig:Badge>
+                                <twig:Badge :variant="release.status.badgeVariant" data-testid="data-request-release-status" data-status="{{ release.status.value }}">{{ release.status.labelKey|trans({}, 'research') }}</twig:Badge>
                             {% endif %}
                         </div>
                         <span class="text-secondary small">{{ 'data_request.release.created'|trans({date: release.createdAt|format_datetime('medium', 'short')}, 'research') }}</span>
@@ -83,9 +86,24 @@
                                 {% for name in release.excludedQueries %}<span class="font-monospace">{{ name }}.csv</span>{{ not loop.last ? ', ' }}{% endfor %}
                             </dd>
                         {% endif %}
-                        {% if not run %}
+                        {% if release.conditions %}
+                            <dt class="col-sm-4">{{ 'data_request.release.conditions'|trans({}, 'research') }}</dt>
+                            <dd class="col-sm-8" data-testid="data-request-release-conditions-text">
+                                <div class="text-break" style="white-space: pre-line">{{ release.conditions }}</div>
+                                {% if release.conditionsAcceptedAt %}
+                                    <div class="text-secondary" data-testid="data-request-release-conditions-accepted">{{ 'data_request.release.conditions_accepted'|trans({date: release.conditionsAcceptedAt|format_datetime('medium', 'short')}, 'research') }}</div>
+                                {% endif %}
+                            </dd>
+                        {% endif %}
+                        {% if release.status.value == 'active' %}
                             <dt class="col-sm-4">{{ 'data_request.release.valid_until'|trans({}, 'research') }}</dt>
                             <dd class="col-sm-8">{{ release.validUntil|format_datetime('medium', 'short') }}</dd>
+                        {% elseif release.status.value in ['expired', 'revoked'] and release.endedAt %}
+                            <dt class="col-sm-4">{{ ('data_request.release.ended.' ~ release.status.value)|trans({}, 'research') }}</dt>
+                            <dd class="col-sm-8" data-testid="data-request-release-ended">
+                                {{ release.endedAt|format_datetime('medium', 'short') }}
+                                {% if release.revocationReason %}<div class="text-break" style="white-space: pre-line">{{ release.revocationReason }}</div>{% endif %}
+                            </dd>
                         {% endif %}
                     </dl>
 
@@ -93,8 +111,33 @@
                         <form method="post" action="{{ path('app_data_requests_export', {publicId: dataRequest.publicIdString, number: release.number, action: 'start'}) }}" data-testid="data-request-export-start-form">
                             <input type="hidden" name="_token" value="{{ releaseToken }}">
                             <p class="mb-2">{{ 'data_request.export.start_help'|trans({}, 'research') }}</p>
+                            {% if release.conditions %}
+                                <label class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="accept_conditions" value="1" required data-testid="data-request-export-accept-conditions">
+                                    <span class="form-check-label">{{ 'data_request.export.accept_conditions'|trans({}, 'research') }}</span>
+                                </label>
+                            {% endif %}
                             <button type="submit" class="btn btn-primary" data-testid="data-request-export-start">{{ 'data_request.export.action.start'|trans({}, 'research') }}</button>
                         </form>
+                    {% endif %}
+
+                    {% if entry.canRevoke %}
+                        <button type="button" class="btn btn-outline-danger mt-2" data-bs-toggle="modal" data-bs-target="#data-request-release-{{ release.number }}-revoke-modal" data-testid="data-request-release-revoke-open">
+                            <twig:ux:icon name="tabler:key-off" class="icon" /> {{ 'data_request.release.revoke'|trans({}, 'research') }}
+                        </button>
+                        <twig:Modal id="data-request-release-{{ release.number }}-revoke-modal" :title="'data_request.release.revoke_title'|trans({number: release.number}, 'research')" :scrollable="false">
+                            <form method="post" action="{{ path('app_data_requests_export', {publicId: dataRequest.publicIdString, number: release.number, action: 'revoke'}) }}" data-testid="data-request-release-revoke-form">
+                                <input type="hidden" name="_token" value="{{ releaseToken }}">
+                                <div class="modal-body">
+                                    <label class="form-label" for="release-{{ release.number }}-reason">{{ 'data_request.release.revoke_reason'|trans({}, 'research') }}</label>
+                                    <textarea class="form-control" id="release-{{ release.number }}-reason" name="reason" rows="3" required maxlength="2000"></textarea>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">{{ 'action.cancel'|trans({}, 'messages') }}</button>
+                                    <button type="submit" class="btn btn-danger" data-testid="data-request-release-revoke">{{ 'data_request.release.revoke'|trans({}, 'research') }}</button>
+                                </div>
+                            </form>
+                        </twig:Modal>
                     {% endif %}
 
                     {% if run %}
@@ -105,6 +148,8 @@
                             <p class="mb-2">{{ 'data_request.export.available'|trans({date: run.availableUntil|format_datetime('medium', 'short')}, 'research') }}</p>
                         {% elseif run.status.value in ['blocked', 'failed'] and not isAdmin %}
                             <p class="text-secondary mb-2">{{ 'data_request.export.problem'|trans({}, 'research') }}</p>
+                        {% elseif run.status.value == 'cancelled' %}
+                            <p class="text-secondary mb-2">{{ 'data_request.export.cancelled'|trans({}, 'research') }}</p>
                         {% elseif run.status.value == 'expired' %}
                             <p class="text-secondary mb-2">{{ 'data_request.export.expired'|trans({}, 'research') }}</p>
                         {% endif %}

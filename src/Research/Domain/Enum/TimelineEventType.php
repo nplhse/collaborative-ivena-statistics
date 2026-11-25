@@ -25,6 +25,9 @@ enum TimelineEventType: string
     case ExportBlocked = 'export_blocked';
     case ExportFailed = 'export_failed';
     case ExportRetried = 'export_retried';
+    case ReleaseRevoked = 'release_revoked';
+    case ReleaseExpired = 'release_expired';
+    case ExportCancelled = 'export_cancelled';
 
     public function labelKey(): string
     {
@@ -45,6 +48,9 @@ enum TimelineEventType: string
             self::ExportRequested, self::ExportRetried => 'tabler:refresh',
             self::ExportProvided => 'tabler:download',
             self::ExportBlocked, self::ExportFailed => 'tabler:alert-triangle',
+            self::ReleaseRevoked => 'tabler:key-off',
+            self::ReleaseExpired => 'tabler:clock',
+            self::ExportCancelled => 'tabler:x',
         };
     }
 }

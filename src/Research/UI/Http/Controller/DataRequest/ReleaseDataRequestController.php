@@ -52,27 +52,33 @@ final class ReleaseDataRequestController extends AbstractController
             $dataRequest,
             $request->getPayload()->getBoolean('single_cases_confirmed'),
             array_values(array_filter($request->getPayload()->all('queries'), is_string(...))),
+            $request->getPayload()->getString('conditions'),
         ));
     }
 
-    #[Route('/requests/data/{publicId}/releases/{number}/{action}', name: 'app_data_requests_export', requirements: ['publicId' => Requirement::UUID, 'number' => Requirement::POSITIVE_INT, 'action' => 'start|retry'], methods: ['POST'])]
+    #[Route('/requests/data/{publicId}/releases/{number}/{action}', name: 'app_data_requests_export', requirements: ['publicId' => Requirement::UUID, 'number' => Requirement::POSITIVE_INT, 'action' => 'start|retry|revoke'], methods: ['POST'])]
     public function export(Request $request, string $publicId, int $number, string $action): RedirectResponse
     {
         [$user, $dataRequest] = $this->load($publicId);
         $release = $this->findRelease($dataRequest, $number);
         $run = $release->getRun();
-        $allowed = 'start' === $action
-            ? $this->releases->canStart($user, $release)
-            : $this->isGranted('ROLE_ADMIN') && $run instanceof DataRequestExportRun;
+        $allowed = match ($action) {
+            'start' => $this->releases->canStart($user, $release),
+            'revoke' => $this->releases->canRevoke($user, $release),
+            default => $this->isGranted('ROLE_ADMIN') && $run instanceof DataRequestExportRun,
+        };
         if (!$allowed) {
             throw $this->createAccessDeniedException();
         }
 
         $this->assertToken($request, $publicId);
+        $payload = $request->getPayload();
 
-        return $this->attempt($publicId, 'export_'.$action, fn () => 'start' === $action
-            ? $this->releases->start($user, $release, $request->getLocale())
-            : $this->releases->retry($user, $this->run($release)));
+        return $this->attempt($publicId, 'export_'.$action, fn () => match ($action) {
+            'start' => $this->releases->start($user, $release, $request->getLocale(), $payload->getBoolean('accept_conditions')),
+            'revoke' => $this->releases->revoke($user, $release, $payload->getString('reason')),
+            default => $this->releases->retry($user, $this->run($release)),
+        });
     }
 
     #[Route('/requests/data/{publicId}/releases/{number}/download', name: 'app_data_requests_export_download', requirements: ['publicId' => Requirement::UUID, 'number' => Requirement::POSITIVE_INT], methods: ['GET'])]

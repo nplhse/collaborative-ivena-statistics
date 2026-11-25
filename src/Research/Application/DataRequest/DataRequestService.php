@@ -32,6 +32,7 @@ final readonly class DataRequestService
         #[Target('data_request.state_machine')]
         private WorkflowInterface $stateMachine,
         private DataRequestReviewService $review,
+        private DataRequestReleaseService $releases,
     ) {
     }
 
@@ -108,8 +109,9 @@ final readonly class DataRequestService
     }
 
     /**
-     * Ends the request on the applicant's wish and a running vote with it. Later steps (#1635) also revoke open
-     * releases.
+     * Ends the request on the applicant's wish and a running vote with it. Open releases are revoked; exports that are
+     * queued, running or downloadable are cancelled and their archives removed (ADR 045). Copies downloaded before
+     * cannot be called back; the page says so.
      *
      * @throws DataRequestRefused
      */
@@ -122,7 +124,9 @@ final readonly class DataRequestService
         if ($request->wasSubmitted()) {
             $request->recordEvent(TimelineEventType::Withdrawn, $applicant, Visibility::Public, $this->clock->now());
         }
+        $archives = $this->releases->endWithWithdrawal($request);
         $this->flush('research.data_request.withdrawn', $request);
+        $this->releases->removeArchives($archives);
     }
 
     /**

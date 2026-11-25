@@ -15,6 +15,7 @@ use App\Tests\Research\Integration\Export\ExportFixtureTrait;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Field\ChoiceFormField;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -45,6 +46,8 @@ final class DataRequestReleaseControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-testid="data-request-release-queries"]', '1 group below the minimum');
         $form = $crawler->filter('[data-testid="data-request-release-submit"]')->form();
         $form['queries'][1]->untick();
+        self::assertStringContainsString('pseudonymised', $form['conditions']->getValue(), 'pre-filled with the usual rules');
+        $form['conditions']->setValue('Only for the approved purpose.');
         $client->submit($form);
         self::assertResponseRedirects($this->url($request).'#release');
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
@@ -55,9 +58,22 @@ final class DataRequestReleaseControllerTest extends WebTestCase
         $client->loginUser($applicant);
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
         self::assertSelectorTextContains('[data-testid="data-request-event"][data-event="released"]', 'left out: by_location');
-        $client->submit($crawler->filter('[data-testid="data-request-export-start"]')->form());
+        $start = $crawler->filter('[data-testid="data-request-export-start"]')->form();
+        $accept = $start['accept_conditions'];
+        self::assertInstanceOf(ChoiceFormField::class, $accept);
+        $accept->untick();
+        $client->submit($start);
+        $crawler = $client->request(Request::METHOD_GET, $this->url($request));
+        self::assertSelectorExists('[data-testid="data-request-export-start"]', 'nothing starts without accepting the conditions');
+        $start = $crawler->filter('[data-testid="data-request-export-start"]')->form();
+        $accept = $start['accept_conditions'];
+        self::assertInstanceOf(ChoiceFormField::class, $accept);
+        $accept->tick();
+        $client->submit($start);
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
         self::assertSelectorExists('[data-testid="data-request-export-status"][data-status="available"]');
+        self::assertSelectorTextContains('[data-testid="data-request-release-conditions-text"]', 'Only for the approved purpose.');
+        self::assertSelectorExists('[data-testid="data-request-release-conditions-accepted"]');
         self::assertSelectorNotExists('[data-testid="data-request-export-record"]', 'the internal record is for administrators');
         self::assertSelectorNotExists('[data-testid="data-request-export-connection"]');
 
@@ -96,6 +112,29 @@ final class DataRequestReleaseControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(403);
         $client->request(Request::METHOD_POST, $this->url($request).'/releases/1/start', ['_token' => 'x']);
         self::assertResponseStatusCodeSame(404, 'no such release');
+    }
+
+    public function testAnAdministratorRevokesARelease(): void
+    {
+        $client = self::createClient();
+        $applicant = UserFactory::new()->asParticipant()->create();
+        $admin = UserFactory::new()->asAdmin()->create();
+        $request = $this->approvedWithQuery($applicant, $admin);
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, $this->url($request));
+        $client->submit($crawler->filter('[data-testid="data-request-release-submit"]')->form());
+
+        $crawler = $client->request(Request::METHOD_GET, $this->url($request));
+        $form = $crawler->filter('[data-testid="data-request-release-revoke"]')->form();
+        $form['reason']->setValue('Released too early.');
+        $client->submit($form);
+
+        $client->loginUser($applicant);
+        $client->request(Request::METHOD_GET, $this->url($request));
+        self::assertSelectorExists('[data-testid="data-request-release-status"][data-status="revoked"]');
+        self::assertSelectorTextContains('[data-testid="data-request-release-ended"]', 'Released too early.');
+        self::assertSelectorNotExists('[data-testid="data-request-export-start"]');
+        self::assertSelectorNotExists('[data-testid="data-request-release-revoke-form"]', 'only administrators revoke');
     }
 
     private function approvedWithQuery(User $applicant, User $admin): DataRequest

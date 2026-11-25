@@ -991,7 +991,7 @@
       </trans-unit>
       <trans-unit id="Rsc6D9865D8" resname="data_request.timeline.event.export_requested">
         <source>data_request.timeline.event.export_requested</source>
-        <target>hat den Auszug zu Freischaltung {release} gestartet</target>
+        <target>hat {accepted, select, 1 {die Auflagen angenommen und } other {}}den Auszug zu Freischaltung {release} gestartet</target>
       </trans-unit>
       <trans-unit id="Rsc30AE94B3" resname="data_request.timeline.event.export_provided">
         <source>data_request.timeline.event.export_provided</source>
@@ -1264,6 +1264,80 @@
       <trans-unit id="RscBF21F670" resname="data_request.export.connection.unreachable">
         <source>data_request.export.connection.unreachable</source>
         <target>Die Exportverbindung antwortet nicht. Prüfen Sie RESEARCH_DATABASE_URL und den Datenbanknutzer.</target>
+      </trans-unit>
+      <trans-unit id="Rsc34C19D94" resname="data_request.timeline.event.release_revoked">
+        <source>data_request.timeline.event.release_revoked</source>
+        <target>hat Freischaltung {release} widerrufen</target>
+      </trans-unit>
+      <trans-unit id="RscEFF8B011" resname="data_request.timeline.event.release_expired">
+        <source>data_request.timeline.event.release_expired</source>
+        <target>Freischaltung {release} abgelaufen: kein Auszug innerhalb von drei Monaten</target>
+      </trans-unit>
+      <trans-unit id="Rsc7920CB25" resname="data_request.timeline.event.export_cancelled">
+        <source>data_request.timeline.event.export_cancelled</source>
+        <target>Auszug zu Freischaltung {release} mit der Rücknahme abgebrochen</target>
+      </trans-unit>
+      <trans-unit id="RscC4207817" resname="data_request.release.conditions">
+        <source>data_request.release.conditions</source>
+        <target>Auflagen</target>
+      </trans-unit>
+      <trans-unit id="Rsc53D80AEC" resname="data_request.release.conditions_default">
+        <source>data_request.release.conditions_default</source>
+        <target>Die Daten dürfen ausschließlich für den bewilligten Zweck und innerhalb des bewilligten Projekts verwendet werden. Zugriff darauf haben nur die im Antrag genannten Empfänger:innen, eine Weitergabe an Dritte ist nicht erlaubt. Die Daten sind pseudonymisiert. Es ist nicht gestattet, einzelne Kliniken oder Personen zu identifizieren oder die Daten zu diesem Zweck mit anderen Quellen zu verknüpfen.
+
+Veröffentlicht werden nur zusammengefasste Ergebnisse, in denen jede ausgewiesene Gruppe auf mindestens drei Kliniken beruht. Veröffentlichungen nennen die Quelle so, wie es der Zitiervorschlag in der Lies-mich-Datei vorsieht. Nach Abschluss des Projekts werden die Daten gelöscht.</target>
+      </trans-unit>
+      <trans-unit id="Rsc3008DA98" resname="data_request.release.conditions_help">
+        <source>data_request.release.conditions_help</source>
+        <target>Vorbelegt mit den üblichen Regeln; ergänzen Sie, was das Board beschlossen hat, oder leeren Sie das Feld für keine Auflagen. Die Empfänger:in nimmt sie vor dem Auszug an, und sie stehen in der Lies-mich-Datei.</target>
+      </trans-unit>
+      <trans-unit id="Rsc2E52F0A0" resname="data_request.release.conditions_accepted">
+        <source>data_request.release.conditions_accepted</source>
+        <target>Von der Empfänger:in angenommen am {date}</target>
+      </trans-unit>
+      <trans-unit id="Rsc6B32BDAF" resname="data_request.release.ended.expired">
+        <source>data_request.release.ended.expired</source>
+        <target>Abgelaufen</target>
+      </trans-unit>
+      <trans-unit id="RscD1E5E8C3" resname="data_request.release.ended.revoked">
+        <source>data_request.release.ended.revoked</source>
+        <target>Widerrufen</target>
+      </trans-unit>
+      <trans-unit id="Rsc1C5C0F74" resname="data_request.release.revoke">
+        <source>data_request.release.revoke</source>
+        <target>Freischaltung widerrufen</target>
+      </trans-unit>
+      <trans-unit id="RscDAA8460D" resname="data_request.release.revoke_title">
+        <source>data_request.release.revoke_title</source>
+        <target>Freischaltung {number} widerrufen?</target>
+      </trans-unit>
+      <trans-unit id="Rsc2E5EAAC5" resname="data_request.release.revoke_reason">
+        <source>data_request.release.revoke_reason</source>
+        <target>Begründung, sichtbar für die antragstellende Person</target>
+      </trans-unit>
+      <trans-unit id="RscC163E4C2" resname="data_request.export.accept_conditions">
+        <source>data_request.export.accept_conditions</source>
+        <target>Ich nehme die oben genannten Auflagen an.</target>
+      </trans-unit>
+      <trans-unit id="Rsc4472C73D" resname="data_request.export.cancelled">
+        <source>data_request.export.cancelled</source>
+        <target>Der Auszug endete mit der Rücknahme des Antrags und kann nicht mehr heruntergeladen werden.</target>
+      </trans-unit>
+      <trans-unit id="RscD595890D" resname="data_request.export.readme.conditions">
+        <source>data_request.export.readme.conditions</source>
+        <target>Von der Empfänger:in angenommene Auflagen:</target>
+      </trans-unit>
+      <trans-unit id="RscA82D3962" resname="data_request.refused.conditions_not_accepted">
+        <source>data_request.refused.conditions_not_accepted</source>
+        <target>Bitte nehmen Sie die Auflagen an, bevor Sie den Auszug erstellen.</target>
+      </trans-unit>
+      <trans-unit id="Rsc4846FD2C" resname="data_request.flash.export_revoke">
+        <source>data_request.flash.export_revoke</source>
+        <target>Die Freischaltung ist widerrufen.</target>
+      </trans-unit>
+      <trans-unit id="Rsc8CE8B3F8" resname="data_request.modal.withdraw.message_released">
+        <source>data_request.modal.withdraw.message_released</source>
+        <target>Mit dem Zurückziehen ist der Antrag endgültig beendet. Offene Freischaltungen enden, laufende oder bereitgestellte Auszüge lassen sich nicht mehr herunterladen. Bereits heruntergeladene Kopien lassen sich nicht zurückholen.</target>
       </trans-unit>
     </body>
   </file>

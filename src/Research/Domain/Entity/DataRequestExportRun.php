@@ -186,6 +186,24 @@ class DataRequestExportRun
         return $archive;
     }
 
+    /**
+     * The request was withdrawn: a queued, running or available export ends without (further) result. Returns the
+     * archive to remove, if there is one.
+     */
+    public function cancel(\DateTimeImmutable $at): ?string
+    {
+        if (!$this->status->isPending() && ExportRunStatus::Available !== $this->status) {
+            return null;
+        }
+
+        $archive = $this->archiveFile;
+        $this->status = ExportRunStatus::Cancelled;
+        $this->archiveFile = null;
+        $this->finishedAt ??= $at;
+
+        return $archive;
+    }
+
     public function isDownloadableAt(\DateTimeImmutable $at): bool
     {
         return ExportRunStatus::Available === $this->status && null !== $this->archiveFile

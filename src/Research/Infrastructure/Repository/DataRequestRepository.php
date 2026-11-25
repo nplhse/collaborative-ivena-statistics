@@ -6,8 +6,10 @@ namespace App\Research\Infrastructure\Repository;
 
 use App\Research\Domain\Entity\DataRequest;
 use App\Research\Domain\Entity\DataRequestExportRun;
+use App\Research\Domain\Entity\DataRequestRelease;
 use App\Research\Domain\Enum\DataRequestStatus;
 use App\Research\Domain\Enum\ExportRunStatus;
+use App\Research\Domain\Enum\ReleaseStatus;
 use App\User\Domain\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
@@ -155,5 +157,27 @@ final class DataRequestRepository extends ServiceEntityRepository
             ->getSingleColumnResult();
 
         return $files;
+    }
+
+    /**
+     * Releases whose three months passed without an export (cleanup job, ADR 045).
+     *
+     * @return list<DataRequestRelease>
+     */
+    public function findReleasesExpiredBy(\DateTimeImmutable $now): array
+    {
+        /** @var list<DataRequestRelease> $releases */
+        $releases = $this->getEntityManager()->createQueryBuilder()
+            ->select('release')
+            ->from(DataRequestRelease::class, 'release')
+            ->where('release.status = :status')
+            ->andWhere('release.validUntil <= :now')
+            ->setParameter('status', ReleaseStatus::Active->value)
+            ->setParameter('now', $now, Types::DATETIME_IMMUTABLE)
+            ->orderBy('release.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $releases;
     }
 }

@@ -135,6 +135,80 @@ final class DataRequestExportTest extends KernelTestCase
         self::assertSame([], glob($directory.'/*.tar.gz') ?: [], 'nothing is due any more');
     }
 
+    public function testTheRecipientAcceptsTheConditionsAndTheArchiveNamesThem(): void
+    {
+        self::mockTime('2026-12-01 09:00');
+        $this->seedHospitals();
+        $applicant = UserFactory::new()->asParticipant()->create(['locale' => 'de']);
+        $admin = UserFactory::new()->asAdmin()->create();
+        $request = $this->approved($applicant, ['total' => self::TOTAL], $admin);
+        $release = $this->releases()->release($admin, $request, false, null, "Nur für den bewilligten Zweck.\nKeine Weitergabe.");
+
+        self::assertSame(DataRequestRefused::CONDITIONS_NOT_ACCEPTED, $this->refusal(fn () => $this->releases()->start($applicant, $release)));
+        self::assertNull($release->getRun());
+        $this->releases()->start($applicant, $release, null, true);
+
+        $run = $this->exportRun($release);
+        self::assertSame(ExportRunStatus::Available, $run->getStatus());
+        self::assertEquals(new \DateTimeImmutable('2026-12-01 09:00'), $release->getConditionsAcceptedAt());
+        $folder = 'data-request-'.$request->getId().'-release-1';
+        $archive = new \PharData($this->releases()->download($applicant, $run));
+        $readme = (string) file_get_contents($archive[$folder.'/LIESMICH.txt']->getPathname());
+        self::assertStringContainsString("Von der Empfänger:in angenommene Auflagen:\n  Nur für den bewilligten Zweck.\n  Keine Weitergabe.", $readme);
+        $manifest = json_decode((string) file_get_contents($archive[$folder.'/manifest.json']->getPathname()), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertSame("Nur für den bewilligten Zweck.\nKeine Weitergabe.", $manifest['conditions']);
+    }
+
+    public function testTheWithdrawalCancelsTheExportAndRemovesTheArchive(): void
+    {
+        self::mockTime('2026-12-01 09:00');
+        $this->seedHospitals();
+        $applicant = UserFactory::new()->asParticipant()->create();
+        $admin = UserFactory::new()->asAdmin()->create();
+        $request = $this->approved($applicant, ['total' => self::TOTAL], $admin);
+        $release = $this->releases()->release($admin, $request, false);
+        $this->releases()->start($applicant, $release);
+        $run = $this->exportRun($release);
+        $archive = (string) $run->getArchiveFile();
+        $storage = self::getContainer()->get(ExportStorageInterface::class);
+        $this->releases()->download($applicant, $run);
+
+        self::getContainer()->get(DataRequestService::class)->withdraw($applicant, $request);
+
+        self::assertSame(ExportRunStatus::Cancelled, $run->getStatus());
+        self::assertNull($storage->path($archive), 'the archive is removed');
+        self::assertFalse($this->releases()->canDownload($applicant, $run));
+        self::assertFalse($this->releases()->canDownload($admin, $run));
+        self::assertSame('export_cancelled', $this->lastEvent($request)->getType()->value);
+        self::assertCount(1, $run->getDownloads(), 'earlier downloads stay recorded');
+    }
+
+    public function testAnAdministratorRevokesAReleaseAndUnusedOnesExpire(): void
+    {
+        self::mockTime('2026-12-01 09:00');
+        $this->seedHospitals();
+        $applicant = UserFactory::new()->asParticipant()->create();
+        $admin = UserFactory::new()->asAdmin()->create();
+        $request = $this->approved($applicant, ['total' => self::TOTAL], $admin);
+        $first = $this->releases()->release($admin, $request, false);
+
+        self::assertFalse($this->releases()->canRevoke($applicant, $first));
+        self::assertSame(DataRequestRefused::NOT_ALLOWED, $this->refusal(fn () => $this->releases()->revoke($applicant, $first, 'Mine.')));
+        self::assertSame(DataRequestRefused::REASON_REQUIRED, $this->refusal(fn () => $this->releases()->revoke($admin, $first, ' ')));
+        $this->releases()->revoke($admin, $first, 'The wrong query version was released.');
+        self::assertSame('release_revoked', $this->lastEvent($request)->getType()->value);
+        self::assertSame('The wrong query version was released.', $this->lastEvent($request)->getDetails()['reason']);
+        self::assertFalse($this->releases()->canStart($applicant, $first));
+
+        $second = $this->releases()->release($admin, $request, false);
+        self::mockTime('2027-03-01 09:00');
+        self::getContainer()->get(CleanUpDataExportsMessageHandler::class)(new CleanUpDataExportsMessage());
+
+        self::assertSame('expired', $second->getStatus()->value);
+        self::assertSame('release_expired', $this->lastEvent($request)->getType()->value);
+        self::assertTrue($this->releases()->canRelease($admin, $request), 'a new release is possible');
+    }
+
     public function testAGroupBelowTheMinimumBlocksTheExport(): void
     {
         self::mockTime('2026-12-01 09:00');

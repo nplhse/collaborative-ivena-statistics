@@ -16,8 +16,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * An administrator releases an approved data extract request for its applicant (ADR 045). The release binds the
- * recipient, the approved version and the exact query versions; it is valid for three months and leads to exactly one
- * export run once the recipient starts it.
+ * recipient, the approved version, the exact query versions and the conditions; it is valid for three months and leads
+ * to exactly one export run once the recipient accepts the conditions and starts it. It ends as used, expired after
+ * three months, or revoked by an administrator or by the withdrawal of the request.
  */
 #[Audit\Audited]
 #[ORM\Entity]
@@ -72,6 +73,24 @@ class DataRequestRelease
     #[ORM\InverseJoinColumn(name: 'query_version_id', nullable: false)]
     private Collection $queryVersions;
 
+    /** Conditions the recipient accepts before starting the export; null for none. */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $conditions = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $conditionsAcceptedAt = null;
+
+    /** SHA-256 of the conditions as accepted, like the version of accepted terms of use. */
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $conditionsAcceptedChecksum = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $endedAt = null;
+
+    /** Why an administrator revoked the release; null when it expired or ended with the withdrawal. */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $revocationReason = null;
+
     #[ORM\OneToOne(targetEntity: DataRequestExportRun::class, mappedBy: 'release', cascade: ['persist'])]
     private ?DataRequestExportRun $run = null;
 
@@ -82,7 +101,7 @@ class DataRequestRelease
      * @throws DataRequestException without queries, with a version that did not pass the check, or with single cases
      *                              the administrator did not confirm
      */
-    public function __construct(DataRequest $request, int $number, User $recipient, array $queryVersions, array $excludedQueries, bool $singleCasesConfirmed, ?User $createdBy, \DateTimeImmutable $at)
+    public function __construct(DataRequest $request, int $number, User $recipient, array $queryVersions, array $excludedQueries, bool $singleCasesConfirmed, ?User $createdBy, \DateTimeImmutable $at, ?string $conditions = null)
     {
         if ([] === $queryVersions) {
             throw new DataRequestException('A release needs at least one query.');
@@ -107,23 +126,82 @@ class DataRequestRelease
         $this->createdBy = $createdBy;
         $this->createdAt = $at;
         $this->validUntil = $at->modify(self::VALIDITY);
+        $conditions = null === $conditions ? '' : trim(str_replace("\r\n", "\n", $conditions));
+        $this->conditions = '' === $conditions ? null : $conditions;
     }
 
     /**
-     * The recipient starts the export; the release is used and gets its one run.
+     * The recipient starts the export; the release is used and gets its one run. With conditions the recipient
+     * accepts them in the same step; their checksum records the wording accepted.
      *
-     * @throws DataRequestException when the release is not active, expired or not the recipient's
+     * @throws DataRequestException when the release is not active, expired or not the recipient's, or the conditions
+     *                              are not accepted
      */
-    public function startExport(User $user, \DateTimeImmutable $at, string $locale): DataRequestExportRun
+    public function startExport(User $user, \DateTimeImmutable $at, string $locale, bool $acceptsConditions = false): DataRequestExportRun
     {
         if (!$this->isStartableBy($user, $at)) {
             throw new DataRequestException('Only the recipient starts the export of an active release.');
+        }
+
+        if (null !== $this->conditions) {
+            if (!$acceptsConditions) {
+                throw new DataRequestException('The recipient accepts the conditions before the export starts.');
+            }
+
+            $this->conditionsAcceptedAt = $at;
+            $this->conditionsAcceptedChecksum = hash('sha256', $this->conditions);
         }
 
         $this->status = ReleaseStatus::Used;
         $this->run = new DataRequestExportRun($this, $at, $locale);
 
         return $this->run;
+    }
+
+    /**
+     * An administrator revokes a release whose export was not started, for example after a mistake.
+     *
+     * @throws DataRequestException when the release is not active or the reason is empty
+     */
+    public function revoke(string $reason, \DateTimeImmutable $at): void
+    {
+        $reason = trim($reason);
+        if (ReleaseStatus::Active !== $this->status || '' === $reason) {
+            throw new DataRequestException('Only an active release is revoked, with a reason.');
+        }
+
+        $this->status = ReleaseStatus::Revoked;
+        $this->revocationReason = $reason;
+        $this->endedAt = $at;
+    }
+
+    /**
+     * Three months passed without an export.
+     *
+     * @throws DataRequestException when the release is not active or still valid
+     */
+    public function expire(\DateTimeImmutable $at): void
+    {
+        if (ReleaseStatus::Active !== $this->status || $at < $this->validUntil) {
+            throw new DataRequestException('Only an active release whose three months passed expires.');
+        }
+
+        $this->status = ReleaseStatus::Expired;
+        $this->endedAt = $at;
+    }
+
+    /**
+     * The applicant withdrew the request: an active release is revoked, an export that is queued, running or
+     * downloadable is cancelled. Returns the archive to remove, if there is one.
+     */
+    public function endWithWithdrawal(\DateTimeImmutable $at): ?string
+    {
+        if (ReleaseStatus::Active === $this->status) {
+            $this->status = ReleaseStatus::Revoked;
+            $this->endedAt = $at;
+        }
+
+        return $this->run?->cancel($at);
     }
 
     public function isStartableBy(User $user, \DateTimeImmutable $at): bool
@@ -208,6 +286,31 @@ class DataRequestRelease
     public function getExcludedQueries(): array
     {
         return $this->excludedQueries;
+    }
+
+    public function getConditions(): ?string
+    {
+        return $this->conditions;
+    }
+
+    public function getConditionsAcceptedAt(): ?\DateTimeImmutable
+    {
+        return $this->conditionsAcceptedAt;
+    }
+
+    public function getConditionsAcceptedChecksum(): ?string
+    {
+        return $this->conditionsAcceptedChecksum;
+    }
+
+    public function getEndedAt(): ?\DateTimeImmutable
+    {
+        return $this->endedAt;
+    }
+
+    public function getRevocationReason(): ?string
+    {
+        return $this->revocationReason;
     }
 
     public function getRun(): ?DataRequestExportRun
