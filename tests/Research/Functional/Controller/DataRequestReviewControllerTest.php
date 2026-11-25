@@ -129,7 +129,7 @@ final class DataRequestReviewControllerTest extends WebTestCase
         $form['data_request[variables]']->setValue('Month, PZC, age group');
         $client->submit($form);
         $client->followRedirect();
-        self::assertSelectorTextContains('body', 'version 2');
+        self::assertSelectorTextContains('[data-testid="data-request-version"]', '2 of 2');
         self::assertSelectorExists('[data-testid="data-request-submit"]');
     }
 
@@ -214,6 +214,26 @@ final class DataRequestReviewControllerTest extends WebTestCase
 
         self::assertResponseStatusCodeSame(403);
         self::assertFalse($this->reload($request)->isExcluded($other));
+    }
+
+    public function testTheHeaderShowsStatusApplicantAndTheIdOnlyToAdministrators(): void
+    {
+        $client = self::createClient();
+        $applicant = UserFactory::new()->asParticipant()->create(['username' => 'stroke-researcher']);
+        $request = $this->submittedRequest($applicant);
+
+        $client->loginUser(UserFactory::new()->asParticipant()->create());
+        $client->request(Request::METHOD_GET, $this->url($request));
+        self::assertSelectorTextContains('[data-testid="data-request-meta"]', 'Submitted');
+        self::assertSelectorTextContains('[data-testid="data-request-applicant"]', 'stroke-researcher');
+        self::assertSelectorNotExists('[data-testid="admin-object-id"]');
+        self::assertSelectorExists('[data-testid="data-request-basics"]');
+        self::assertSelectorNotExists('[data-testid="data-request-actions"]', 'a participant has nothing to do here');
+
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+        $client->request(Request::METHOD_GET, $this->url($request));
+        self::assertSelectorTextContains('[data-testid="admin-object-id"]', (string) $request->getId());
+        self::assertSelectorExists('[data-testid="data-request-actions"] [data-testid="data-request-check"]');
     }
 
     private function submittedRequest(?User $applicant = null): DataRequest

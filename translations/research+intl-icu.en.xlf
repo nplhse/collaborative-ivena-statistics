@@ -293,10 +293,6 @@
         <source>data_request.hidden.empty</source>
         <target>Not given</target>
       </trans-unit>
-      <trans-unit id="RscDD0BAF47" resname="data_request.show.byline">
-        <source>data_request.show.byline</source>
-        <target>By {applicant} · version {version}</target>
-      </trans-unit>
       <trans-unit id="RscCFD67B31" resname="data_request.show.period">
         <source>data_request.show.period</source>
         <target>Period</target>
@@ -332,6 +328,34 @@
       <trans-unit id="RscF9914D8A" resname="data_request.show.withdrawn_note">
         <source>data_request.show.withdrawn_note</source>
         <target>You withdrew this request. Copies already downloaded cannot be recalled.</target>
+      </trans-unit>
+      <trans-unit id="Rsc2987895B" resname="data_request.basics.title">
+        <source>data_request.basics.title</source>
+        <target>Basic information</target>
+      </trans-unit>
+      <trans-unit id="Rsc54569AF7" resname="data_request.basics.version">
+        <source>data_request.basics.version</source>
+        <target>Version</target>
+      </trans-unit>
+      <trans-unit id="Rsc7442EA53" resname="data_request.basics.version_of">
+        <source>data_request.basics.version_of</source>
+        <target>{number} of {count}</target>
+      </trans-unit>
+      <trans-unit id="RscC52AF0AC" resname="data_request.basics.updated">
+        <source>data_request.basics.updated</source>
+        <target>Last changed</target>
+      </trans-unit>
+      <trans-unit id="Rsc33ED36F3" resname="data_request.basics.approved_version">
+        <source>data_request.basics.approved_version</source>
+        <target>Approved version</target>
+      </trans-unit>
+      <trans-unit id="RscB3ADF9A9" resname="data_request.basics.version_number">
+        <source>data_request.basics.version_number</source>
+        <target>Version {number}</target>
+      </trans-unit>
+      <trans-unit id="RscA5DD4B30" resname="data_request.actions.title">
+        <source>data_request.actions.title</source>
+        <target>Actions</target>
       </trans-unit>
       <trans-unit id="Rsc0784E844" resname="data_request.review.title">
         <source>data_request.review.title</source>
