@@ -96,6 +96,11 @@ class DataRequest
     #[ORM\OrderBy(['id' => 'ASC'])]
     private Collection $queries;
 
+    /** @var Collection<int, DataRequestRelease> */
+    #[ORM\OneToMany(targetEntity: DataRequestRelease::class, mappedBy: 'request', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OrderBy(['number' => 'ASC'])]
+    private Collection $releases;
+
     /** The version the Board approved; with its export scope it is the decision. */
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
@@ -119,6 +124,7 @@ class DataRequest
         $this->comments = new ArrayCollection();
         $this->events = new ArrayCollection();
         $this->queries = new ArrayCollection();
+        $this->releases = new ArrayCollection();
     }
 
     /**
@@ -241,6 +247,55 @@ class DataRequest
         $this->queries->add($query);
 
         return $query;
+    }
+
+    /**
+     * Releases the current version of every query for the applicant (ADR 045).
+     *
+     * @throws DataRequestException when the request is not approved, has no applicant any more, a release is still
+     *                              open or a query version is not checked
+     */
+    public function release(bool $singleCasesConfirmed, ?User $by, \DateTimeImmutable $at): DataRequestRelease
+    {
+        if (DataRequestStatus::Approved !== $this->status || !$this->requester instanceof User) {
+            throw new DataRequestException('Only an approved request with an applicant is released.');
+        }
+
+        foreach ($this->releases as $release) {
+            if ($release->isOpenAt($at)) {
+                throw new DataRequestException('Another release of this request is still open.');
+            }
+        }
+
+        $versions = array_map(static fn (DataRequestQuery $query): DataRequestQueryVersion => $query->getCurrentVersion(), $this->getQueries());
+        $release = new DataRequestRelease($this, $this->releases->count() + 1, $this->requester, $versions, $singleCasesConfirmed, $by, $at);
+        $this->releases->add($release);
+
+        return $release;
+    }
+
+    /** @return list<DataRequestRelease> */
+    public function getReleases(): array
+    {
+        return array_values($this->releases->toArray());
+    }
+
+    public function getLatestRelease(): ?DataRequestRelease
+    {
+        $release = $this->releases->last();
+
+        return $release instanceof DataRequestRelease ? $release : null;
+    }
+
+    public function findRelease(int $number): ?DataRequestRelease
+    {
+        foreach ($this->releases as $release) {
+            if ($release->getNumber() === $number) {
+                return $release;
+            }
+        }
+
+        return null;
     }
 
     public function findQuery(string $name): ?DataRequestQuery

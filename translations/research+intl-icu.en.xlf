@@ -985,6 +985,250 @@
         <source>data_request.refused.changed_meanwhile</source>
         <target>The request was changed in the meantime. Please reload the page.</target>
       </trans-unit>
+      <trans-unit id="RscE9113A03" resname="data_request.timeline.event.released">
+        <source>data_request.timeline.event.released</source>
+        <target>created release {release}, valid until {until}</target>
+      </trans-unit>
+      <trans-unit id="Rsc6D9865D8" resname="data_request.timeline.event.export_requested">
+        <source>data_request.timeline.event.export_requested</source>
+        <target>started the export of release {release}</target>
+      </trans-unit>
+      <trans-unit id="Rsc30AE94B3" resname="data_request.timeline.event.export_provided">
+        <source>data_request.timeline.event.export_provided</source>
+        <target>Export of release {release} provided, downloadable until {until}</target>
+      </trans-unit>
+      <trans-unit id="Rsc418D41AD" resname="data_request.timeline.event.export_blocked">
+        <source>data_request.timeline.event.export_blocked</source>
+        <target>Export of release {release} blocked: a group has too few hospitals</target>
+      </trans-unit>
+      <trans-unit id="Rsc8ADC22FD" resname="data_request.timeline.event.export_failed">
+        <source>data_request.timeline.event.export_failed</source>
+        <target>Export of release {release} failed</target>
+      </trans-unit>
+      <trans-unit id="RscCF3DB5FF" resname="data_request.timeline.event.export_retried">
+        <source>data_request.timeline.event.export_retried</source>
+        <target>tried the export of release {release} again</target>
+      </trans-unit>
+      <trans-unit id="Rsc5C8F816B" resname="data_request.refused.release_invalid">
+        <source>data_request.refused.release_invalid</source>
+        <target>The request cannot be released: every query needs a checked version, and single cases need the confirmation.</target>
+      </trans-unit>
+      <trans-unit id="RscB1D85363" resname="data_request.flash.released">
+        <source>data_request.flash.released</source>
+        <target>The request is released for the applicant.</target>
+      </trans-unit>
+      <trans-unit id="RscF75D5C64" resname="data_request.flash.export_start">
+        <source>data_request.flash.export_start</source>
+        <target>The export is being created. This page shows when it is ready.</target>
+      </trans-unit>
+      <trans-unit id="Rsc269B3BCF" resname="data_request.flash.export_retry">
+        <source>data_request.flash.export_retry</source>
+        <target>The export is being created again.</target>
+      </trans-unit>
+      <trans-unit id="RscD2784D64" resname="data_request.release.title">
+        <source>data_request.release.title</source>
+        <target>Release and export</target>
+      </trans-unit>
+      <trans-unit id="Rsc9C660584" resname="data_request.release.intro">
+        <source>data_request.release.intro</source>
+        <target>An administrator releases the approved queries for the applicant. The applicant then creates the export and downloads it within seven days.</target>
+      </trans-unit>
+      <trans-unit id="Rsc64EE011D" resname="data_request.release.binds">
+        <source>data_request.release.binds</source>
+        <target>The release binds the current version of {count, plural, one {the query} other {all # queries}} and is valid for three months.</target>
+      </trans-unit>
+      <trans-unit id="RscC362F493" resname="data_request.release.single_cases_confirm">
+        <source>data_request.release.single_cases_confirm</source>
+        <target>I confirm that the single-case queries give timestamps at most to the hour and ages only in groups, as approved.</target>
+      </trans-unit>
+      <trans-unit id="Rsc33B1A6A0" resname="data_request.release.action">
+        <source>data_request.release.action</source>
+        <target>Release</target>
+      </trans-unit>
+      <trans-unit id="Rsc4DD6D670" resname="data_request.release.number">
+        <source>data_request.release.number</source>
+        <target>Release {number}</target>
+      </trans-unit>
+      <trans-unit id="Rsc0098441E" resname="data_request.release.created">
+        <source>data_request.release.created</source>
+        <target>created {date}</target>
+      </trans-unit>
+      <trans-unit id="Rsc26E6FB24" resname="data_request.release.recipient">
+        <source>data_request.release.recipient</source>
+        <target>Recipient</target>
+      </trans-unit>
+      <trans-unit id="RscF82E6DAB" resname="data_request.release.queries">
+        <source>data_request.release.queries</source>
+        <target>Queries</target>
+      </trans-unit>
+      <trans-unit id="RscB04947AC" resname="data_request.release.query_version">
+        <source>data_request.release.query_version</source>
+        <target>version {number}</target>
+      </trans-unit>
+      <trans-unit id="RscD8CCDCFA" resname="data_request.release.valid_until">
+        <source>data_request.release.valid_until</source>
+        <target>Valid until</target>
+      </trans-unit>
+      <trans-unit id="Rsc3729D547" resname="data_request.release.status.active">
+        <source>data_request.release.status.active</source>
+        <target>Released</target>
+      </trans-unit>
+      <trans-unit id="Rsc3B07A933" resname="data_request.release.status.used">
+        <source>data_request.release.status.used</source>
+        <target>Used</target>
+      </trans-unit>
+      <trans-unit id="Rsc8901B9E6" resname="data_request.release.status.expired">
+        <source>data_request.release.status.expired</source>
+        <target>Expired</target>
+      </trans-unit>
+      <trans-unit id="RscC1BCA933" resname="data_request.release.status.revoked">
+        <source>data_request.release.status.revoked</source>
+        <target>Revoked</target>
+      </trans-unit>
+      <trans-unit id="Rsc49922940" resname="data_request.export.status.queued">
+        <source>data_request.export.status.queued</source>
+        <target>Queued</target>
+      </trans-unit>
+      <trans-unit id="RscA7462523" resname="data_request.export.status.running">
+        <source>data_request.export.status.running</source>
+        <target>Running</target>
+      </trans-unit>
+      <trans-unit id="Rsc768250AE" resname="data_request.export.status.available">
+        <source>data_request.export.status.available</source>
+        <target>Ready</target>
+      </trans-unit>
+      <trans-unit id="Rsc756E456E" resname="data_request.export.status.blocked">
+        <source>data_request.export.status.blocked</source>
+        <target>Blocked</target>
+      </trans-unit>
+      <trans-unit id="Rsc6CA1F641" resname="data_request.export.status.failed">
+        <source>data_request.export.status.failed</source>
+        <target>Failed</target>
+      </trans-unit>
+      <trans-unit id="Rsc68D0EC5C" resname="data_request.export.status.expired">
+        <source>data_request.export.status.expired</source>
+        <target>Expired</target>
+      </trans-unit>
+      <trans-unit id="Rsc1ACEB8B7" resname="data_request.export.status.cancelled">
+        <source>data_request.export.status.cancelled</source>
+        <target>Cancelled</target>
+      </trans-unit>
+      <trans-unit id="Rsc8A340ECC" resname="data_request.export.start_help">
+        <source>data_request.export.start_help</source>
+        <target>The export runs all released queries on the current data. You can start it once; afterwards you download the archive for seven days.</target>
+      </trans-unit>
+      <trans-unit id="Rsc53C402F1" resname="data_request.export.action.start">
+        <source>data_request.export.action.start</source>
+        <target>Create export</target>
+      </trans-unit>
+      <trans-unit id="Rsc3E8F439A" resname="data_request.export.action.download">
+        <source>data_request.export.action.download</source>
+        <target>Download archive</target>
+      </trans-unit>
+      <trans-unit id="RscBF24C62C" resname="data_request.export.action.retry">
+        <source>data_request.export.action.retry</source>
+        <target>Try again</target>
+      </trans-unit>
+      <trans-unit id="RscAA20C2A6" resname="data_request.export.pending">
+        <source>data_request.export.pending</source>
+        <target>The export is being created. This can take a few minutes; reload the page later.</target>
+      </trans-unit>
+      <trans-unit id="Rsc75A0B317" resname="data_request.export.available">
+        <source>data_request.export.available</source>
+        <target>The archive can be downloaded until {date}.</target>
+      </trans-unit>
+      <trans-unit id="RscB075C4FD" resname="data_request.export.problem">
+        <source>data_request.export.problem</source>
+        <target>The export could not be created. An administrator takes care of it.</target>
+      </trans-unit>
+      <trans-unit id="RscC06C5626" resname="data_request.export.expired">
+        <source>data_request.export.expired</source>
+        <target>The download period has ended. A new export needs a new release.</target>
+      </trans-unit>
+      <trans-unit id="Rsc2B4D6124" resname="data_request.export.blocked">
+        <source>data_request.export.blocked</source>
+        <target>Nothing was provided: at least one group has fewer than {minimum} hospitals. Change the query in a new version and release again.</target>
+      </trans-unit>
+      <trans-unit id="Rsc274A55E7" resname="data_request.export.record.file">
+        <source>data_request.export.record.file</source>
+        <target>File</target>
+      </trans-unit>
+      <trans-unit id="RscE7163AA3" resname="data_request.export.record.rows">
+        <source>data_request.export.record.rows</source>
+        <target>Rows</target>
+      </trans-unit>
+      <trans-unit id="Rsc7EBCC662" resname="data_request.export.record.hospitals">
+        <source>data_request.export.record.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="Rsc3B19A992" resname="data_request.export.record.smallest_group">
+        <source>data_request.export.record.smallest_group</source>
+        <target>Fewest hospitals per group</target>
+      </trans-unit>
+      <trans-unit id="RscBCC2BD9C" resname="data_request.export.record.below">
+        <source>data_request.export.record.below</source>
+        <target>{count, plural, one {# group} other {# groups}} below the minimum, the first ones:</target>
+      </trans-unit>
+      <trans-unit id="Rsc75E8018D" resname="data_request.export.record.data_state">
+        <source>data_request.export.record.data_state</source>
+        <target>Data as of {date}, {imports} finished imports</target>
+      </trans-unit>
+      <trans-unit id="RscF3FE6267" resname="data_request.export.record.duration">
+        <source>data_request.export.record.duration</source>
+        <target>{ms} ms, attempt {attempts}</target>
+      </trans-unit>
+      <trans-unit id="Rsc053912D9" resname="data_request.export.record.archive">
+        <source>data_request.export.record.archive</source>
+        <target>archive {bytes} bytes, SHA-256 {checksum}…</target>
+      </trans-unit>
+      <trans-unit id="Rsc5D02892D" resname="data_request.export.record.downloads">
+        <source>data_request.export.record.downloads</source>
+        <target>Downloads</target>
+      </trans-unit>
+      <trans-unit id="Rsc911DD650" resname="data_request.export.readme.heading">
+        <source>data_request.export.readme.heading</source>
+        <target>Data extract from {source}</target>
+      </trans-unit>
+      <trans-unit id="RscEF866D15" resname="data_request.export.readme.request">
+        <source>data_request.export.readme.request</source>
+        <target>Request no. {number}: {title} (version {version})</target>
+      </trans-unit>
+      <trans-unit id="Rsc03C9534A" resname="data_request.export.readme.executed">
+        <source>data_request.export.readme.executed</source>
+        <target>Created on {date}</target>
+      </trans-unit>
+      <trans-unit id="Rsc7F588455" resname="data_request.export.readme.data_as_of">
+        <source>data_request.export.readme.data_as_of</source>
+        <target>Data as of {date} (latest finished import)</target>
+      </trans-unit>
+      <trans-unit id="Rsc37BC7241" resname="data_request.export.readme.no_data_state">
+        <source>data_request.export.readme.no_data_state</source>
+        <target>unknown</target>
+      </trans-unit>
+      <trans-unit id="RscEF568071" resname="data_request.export.readme.files">
+        <source>data_request.export.readme.files</source>
+        <target>Files:</target>
+      </trans-unit>
+      <trans-unit id="Rsc78ABA624" resname="data_request.export.readme.file_counts">
+        <source>data_request.export.readme.file_counts</source>
+        <target>{rows, plural, one {# row} other {# rows}} from {hospitals, plural, one {# hospital} other {# hospitals}}</target>
+      </trans-unit>
+      <trans-unit id="RscBB9DAADC" resname="data_request.export.readme.minimum">
+        <source>data_request.export.readme.minimum</source>
+        <target>Every row of an aggregated file is based on at least {minimum} hospitals.</target>
+      </trans-unit>
+      <trans-unit id="Rsc9F5AA2A0" resname="data_request.export.readme.format">
+        <source>data_request.export.readme.format</source>
+        <target>The files are CSV in UTF-8 with a header row; manifest.json lists rows and SHA-256 checksums per file. The data is pseudonymised and may only be used for the approved purpose.</target>
+      </trans-unit>
+      <trans-unit id="RscEBD723F5" resname="data_request.export.readme.citation_heading">
+        <source>data_request.export.readme.citation_heading</source>
+        <target>Suggested citation:</target>
+      </trans-unit>
+      <trans-unit id="Rsc00BD1097" resname="data_request.export.readme.citation">
+        <source>data_request.export.readme.citation</source>
+        <target>{source}, data extract for request no. {number}, data as of {data_as_of}, retrieved {retrieved}. {url}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
