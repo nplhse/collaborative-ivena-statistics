@@ -144,17 +144,23 @@ final class SitemapProviderTest extends KernelTestCase
         );
     }
 
-    public function testExportIsListedOnlyWhenTheUserCanExport(): void
+    /**
+     * The export is a tool in its own category since #1633, not a section of its own.
+     */
+    public function testExportIsListedAsToolOnlyWhenTheUserCanExport(): void
     {
         $this->seedContentPages();
 
         $this->authenticate(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]));
         self::assertNotContains('export', $this->sectionKeys());
+        self::assertSame([['Indication review']], $this->toolLabels());
 
         $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         HospitalFactory::createOne(['owner' => $owner]);
         $this->authenticate($owner);
-        self::assertSame($this->url('app_hospitals_export_allocations'), $this->findSection('export')->url);
+        self::assertNotContains('export', $this->sectionKeys());
+        self::assertSame([['Indication review'], ['Export allocations']], $this->toolLabels());
+        self::assertSame($this->url('app_tools_allocation_export'), $this->findSection('tools')->groups[1]->entries[0]->url);
 
         $grantee = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         HospitalAccessGrantFactory::createOne([
@@ -166,7 +172,15 @@ final class SitemapProviderTest extends KernelTestCase
             ]),
         ]);
         $this->authenticate($grantee);
-        self::assertContains('export', $this->sectionKeys());
+        self::assertSame([['Indication review'], ['Export allocations']], $this->toolLabels());
+    }
+
+    /**
+     * @return list<list<string>>
+     */
+    private function toolLabels(): array
+    {
+        return array_map(fn (SitemapGroup $group): array => $this->labels($group->entries), $this->findSection('tools')->groups);
     }
 
     public function testAccountAdminAndLoginPagesAreNotListed(): void

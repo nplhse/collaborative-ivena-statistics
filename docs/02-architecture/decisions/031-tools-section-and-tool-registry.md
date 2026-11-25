@@ -69,3 +69,14 @@ tools is ignored). Topics are a fixed enum in `Shared`, like `ToolCategory`, so 
 are translated in one place; a plugin chooses from them and a new topic is a change in `Shared`. Free
 topic strings per provider were rejected because spelling variants would split the filter.
 
+## Amendment (November 2026, #1633): data export as a tool
+
+The decision above kept exports out of the Tools section. The allocation export of the own hospitals is the
+exception: it was the only page behind its own "Export" entry of the header, is rarely used, and the header had
+become too full. It is now the tool "Export allocations" ("Zuweisungen exportieren") in the new category
+`ToolCategory::DataExport` ("Export data", "Daten exportieren"), visible to users who may export
+(`ExportVoter::EXPORT`). Its routes moved from `/hospitals/export/allocations*` to `/tools/allocation-export*`
+(`app_tools_allocation_export*`); the old names and paths redirect permanently (308) until v0.4-beta (#1160).
+`AllocationExportToolProvider` asks `ExportVoter`, which reads the user's hospitals with the export permission;
+the former header entry ran the same check on every page, so the cost is unchanged. In-page CSV downloads of
+statistics and analyses stay where they are.

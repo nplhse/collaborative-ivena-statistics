@@ -39,7 +39,8 @@ content pages should not look like an admin tool.
 ### Layout: hybrid, sidebar only where there are many views
 
 - **Top navbar = areas.** It keeps Explore, Statistics, Import, Export, Tools, Blog, the content pages and
-  the user menu. Its entries do not change.
+  the user menu. Its entries do not change. (Since #1633 the export is a tool and Export left the navbar, see
+  the amendment of ADR 031.)
 - **Contextual sidebar = views of the area.** Statistics and Explore get a left sidebar with grouped
   sections. All other pages (content, blog, import, settings, admin) keep the current single-navbar
   layout; guests see no change.

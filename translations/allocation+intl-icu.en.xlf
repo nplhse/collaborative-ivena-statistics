@@ -169,6 +169,14 @@
         <source>tools.indication_review.title</source>
         <target>Indication review</target>
       </trans-unit>
+      <trans-unit id="ToolsAlcExpTiEn" resname="tools.allocation_export.title">
+        <source>tools.allocation_export.title</source>
+        <target>Export allocations</target>
+      </trans-unit>
+      <trans-unit id="ToolsAlcExpDescEn" resname="tools.allocation_export.description">
+        <source>tools.allocation_export.description</source>
+        <target>Download the allocations of your hospitals for a period as a CSV file.</target>
+      </trans-unit>
       <trans-unit id="ToolsIndRevDesc" resname="tools.indication_review.description">
         <source>tools.indication_review.description</source>
         <target>Check raw indications from the imports and assign them to the indication catalogue.</target>

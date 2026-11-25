@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Integration\Navigation;
 
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Shared\Application\Navigation\Menu\Menu;
 use App\Shared\Application\Navigation\Menu\NavigationBuilder;
 use App\Shared\Application\Navigation\Menu\NavigationMenu;
 use App\Tests\Shared\Support\AssertsUniqueNavigationRoutes;
+use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -46,8 +48,19 @@ final class PrimaryNavigationTest extends KernelTestCase
         self::assertSame(
             ['explore', 'statistics', 'import', 'tools', 'blog'],
             $this->entryIds($this->builder()->build(Menu::Primary)),
-            'Export needs the export voter, which a user without hospital is not granted.',
         );
+    }
+
+    /**
+     * The export is a tool since #1633: a hospital owner, who may export, gets no Export entry in the header.
+     */
+    public function testAHospitalOwnerSeesNoExportEntry(): void
+    {
+        self::bootKernel();
+        $owner = $this->signIn(['ROLE_USER', 'ROLE_PARTICIPANT']);
+        HospitalFactory::createOne(['owner' => $owner]);
+
+        self::assertSame(['explore', 'statistics', 'import', 'tools', 'blog'], $this->entryIds($this->builder()->build(Menu::Primary)));
     }
 
     public function testEveryPageOfAnAreaMarksItsEntry(): void
@@ -72,10 +85,12 @@ final class PrimaryNavigationTest extends KernelTestCase
     /**
      * @param list<string> $roles
      */
-    private function signIn(array $roles): void
+    private function signIn(array $roles): User
     {
         $user = UserFactory::createOne(['username' => 'primary-nav-user', 'roles' => $roles]);
         self::getContainer()->get(TokenStorageInterface::class)->setToken(new UsernamePasswordToken($user, 'main', $user->getRoles()));
+
+        return $user;
     }
 
     /**

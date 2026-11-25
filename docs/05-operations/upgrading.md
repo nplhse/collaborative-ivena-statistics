@@ -93,6 +93,10 @@ hospital grant; administrators still see all. Participants without a hospital se
 hospital access request. MCI cases and the data catalog's coverage figures stay visible across hospitals. Nothing
 needs to be migrated; announce the change to participants with the release.
 
+The top navigation no longer has an "Export" entry (#1633): the export of the own hospitals' allocations is now the
+tool "Zuweisungen exportieren" in the Tools category "Daten exportieren", at `/tools/allocation-export`. The old URLs
+under `/hospitals/export/allocations` redirect until v0.4-beta.
+
 ### Check
 
 ```bash

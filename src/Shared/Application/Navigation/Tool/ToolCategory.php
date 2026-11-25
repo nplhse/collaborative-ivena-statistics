@@ -11,6 +11,7 @@ enum ToolCategory: string
 {
     case Matching = 'matching';
     case DataPreparation = 'data_preparation';
+    case DataExport = 'data_export';
 
     public function labelKey(): string
     {
