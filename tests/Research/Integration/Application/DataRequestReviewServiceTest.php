@@ -274,6 +274,31 @@ final class DataRequestReviewServiceTest extends KernelTestCase
         self::assertSame(DataRequestStatus::Submitted, $request->getStatus());
     }
 
+    public function testRefusedStepsLeaveTheRequestAsItWas(): void
+    {
+        $request = $this->inReview();
+        $participant = UserFactory::new()->asParticipant()->create();
+
+        self::assertSame(DataRequestRefused::TRANSITION_BLOCKED, $this->refusal(fn () => $this->review()->returnRequest($this->admin, $request, 'Too late for a return.')));
+        self::assertSame(DataRequestRefused::NOT_ALLOWED, $this->refusal(fn () => $this->review()->declareExclusion($this->admin, $request, $participant, 'Not a Board member.')));
+        $this->review()->declareExclusion($this->admin, $request, $this->board[0], 'Advises the applicant.');
+        self::assertSame(DataRequestRefused::ALREADY_EXCLUDED, $this->refusal(fn () => $this->review()->declareExclusion($this->admin, $request, $this->board[0], 'Again.')));
+        self::assertSame(DataRequestStatus::InReview, $request->getStatus());
+
+        $this->review()->castVote($this->board[1], $request, VoteChoice::Veto, 'Stop.');
+        self::assertSame(DataRequestRefused::NOT_ALLOWED, $this->refusal(fn () => $this->review()->resolveStall($this->admin, $request, 'archive', null)));
+        self::assertSame(DataRequestStatus::Stalled, $request->getStatus());
+    }
+
+    public function testTheSchedulerLeavesRequestsThatAreNotDueAlone(): void
+    {
+        $request = $this->inReview();
+
+        self::assertFalse($this->review()->closeDueRound($request), 'the deadline is two weeks away');
+        self::assertFalse($this->review()->expireRevision($request), 'no revision was asked for');
+        self::assertSame(DataRequestStatus::InReview, $request->getStatus());
+    }
+
     private function runScheduler(): void
     {
         self::getContainer()->get(EvaluateDataRequestDeadlinesMessageHandler::class)(new EvaluateDataRequestDeadlinesMessage());

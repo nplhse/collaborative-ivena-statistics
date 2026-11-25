@@ -237,6 +237,31 @@ final class DataRequestReviewControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="data-request-actions"] [data-testid="data-request-check"]');
     }
 
+    public function testReviewStepsNeedAVisibleRequestAValidTokenAndAReasonForAVeto(): void
+    {
+        $client = self::createClient();
+        $member = UserFactory::new()->asBoardMember()->create();
+        UserFactory::new()->asBoardMember()->create();
+        $request = $this->submittedRequest();
+        $client->loginUser($member);
+
+        $client->request(Request::METHOD_POST, '/requests/data/00000000-0000-4000-8000-000000000000/review/open', ['_token' => 'x']);
+        self::assertResponseStatusCodeSame(404);
+        $client->request(Request::METHOD_POST, $this->url($request).'/review/open', ['_token' => 'wrong']);
+        self::assertResponseStatusCodeSame(403);
+
+        $crawler = $client->request(Request::METHOD_GET, $this->url($request));
+        $client->submit($crawler->filter('[data-testid="data-request-open-round"]')->form());
+        $crawler = $client->request(Request::METHOD_GET, $this->url($request));
+        $form = $crawler->filter('[data-testid="data-request-vote"]')->form();
+        $form['choice']->setValue(VoteChoice::Veto->value);
+        $client->submit($form);
+        $client->followRedirect();
+
+        self::assertSelectorTextContains('.messages', 'Please give a reason.');
+        self::assertSame(DataRequestStatus::InReview, $this->reload($request)->getStatus());
+    }
+
     private function submittedRequest(?User $applicant = null): DataRequest
     {
         $applicant ??= UserFactory::new()->asParticipant()->create();
