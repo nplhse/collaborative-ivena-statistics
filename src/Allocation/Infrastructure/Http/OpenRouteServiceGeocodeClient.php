@@ -21,7 +21,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  */
 final readonly class OpenRouteServiceGeocodeClient implements HospitalGeocodeClientInterface
 {
-    private const string ENDPOINT = 'https://api.openrouteservice.org/geocode/search/structured';
+    private const string ENDPOINT = 'https://api.heigit.org/pelias/v1/search/structured';
     private const int REQUEST_TIMEOUT_SECONDS = 20;
     /** @var list<string> */
     private const array USABLE_LAYERS = ['address', 'venue', 'street'];

@@ -29,7 +29,7 @@ final class OpenRouteServiceGeocodeClientTest extends TestCase
     {
         $httpClient = new MockHttpClient(function (string $method, string $url, array $options): MockResponse {
             self::assertSame('GET', $method);
-            self::assertStringContainsString('/geocode/search/structured', $url);
+            self::assertStringContainsString('https://api.heigit.org/pelias/v1/search/structured', $url);
             $query = $options['query'] ?? [];
             self::assertSame('Mönchebergstraße 41-43', $query['address'] ?? null);
             self::assertSame('34125', $query['postalcode'] ?? null);
