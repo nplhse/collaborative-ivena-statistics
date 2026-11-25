@@ -985,6 +985,14 @@
         <source>page.validation.icon_format</source>
         <target>Enter an icon such as tabler:file-import.</target>
       </trans-unit>
+      <trans-unit id="Rsc4DCBEDF9" resname="data_request.field.required">
+        <source>data_request.field.required</source>
+        <target>Please fill in this field.</target>
+      </trans-unit>
+      <trans-unit id="RscC7E2C706" resname="data_request.period.order">
+        <source>data_request.period.order</source>
+        <target>The period ends before it starts.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

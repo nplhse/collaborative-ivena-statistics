@@ -1,0 +1,204 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set own = app.user and dataRequest.requestedBy(app.user) %}
+
+{% block title %}{{ version.title }} - {{ parent() }}{% endblock %}
+
+{% macro text_row(label, value) %}
+    <div class="mb-3">
+        <div class="datagrid-title">{{ label|trans({}, 'research') }}</div>
+        <div class="text-break">{{ value|nl2br }}</div>
+    </div>
+{% endmacro %}
+
+{% macro hidden_row(label, value) %}
+    <div class="d-flex justify-content-between gap-3 py-2 border-bottom" data-testid="data-request-hidden-field">
+        <span>{{ label|trans({}, 'research') }}</span>
+        <span class="text-body-secondary">{{ (value is same as(null) or value is same as('') ? 'data_request.hidden.empty' : 'data_request.hidden.provided')|trans({}, 'research') }}</span>
+    </div>
+{% endmacro %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'my_requests.title', path: path('app_my_requests'), label_domain: 'shared' },
+                { label: 'data_request.title.list', path: path('app_data_requests'), label_domain: 'research' },
+                { label: 'data_request.title.show', label_domain: 'research' }
+            ]"
+        />
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-md">
+                    <h2 class="page-title d-flex align-items-center gap-2 flex-wrap">
+                        <span data-testid="data-request-title">{{ version.title }}</span>
+                        {{ include('@Research/data_request/_status_badge.html.twig') }}
+                    </h2>
+                    <div class="text-body-secondary mt-1">
+                        {{ 'data_request.show.byline'|trans({
+                            applicant: dataRequest.requester ? dataRequest.requester.username : 'data_request.deleted_account'|trans({}, 'research'),
+                            version: version.number,
+                        }, 'research') }}
+                    </div>
+                </div>
+                {% if own %}
+                    <div class="col-12 col-md-auto ms-md-auto d-flex gap-2 flex-wrap">
+                        {% if is_granted('DATA_REQUEST_EDIT', dataRequest) %}
+                            <a class="btn btn-outline-secondary" href="{{ path('app_data_requests_edit', {publicId: dataRequest.publicIdString}) }}" data-testid="data-request-edit">
+                                <twig:ux:icon name="tabler:pencil" width="1em" height="1em" />&nbsp;{{ 'data_request.action.edit'|trans({}, 'research') }}
+                            </a>
+                        {% endif %}
+                        {% for transition in ['withdraw', 'submit'] %}
+                            {% if is_granted('DATA_REQUEST_' ~ transition|upper, dataRequest) %}
+                                <button type="button" class="btn {{ transition == 'submit' ? 'btn-primary' : 'btn-outline-danger' }}" data-bs-toggle="modal" data-bs-target="#data-request-{{ transition }}-modal" data-testid="data-request-{{ transition }}">
+                                    {{ ('data_request.action.' ~ transition)|trans({}, 'research') }}
+                                </button>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {% if own and dataRequest.status.value in ['submitted', 'in_review', 'stalled'] %}
+        <div class="alert alert-info" role="note" data-testid="data-request-frozen-note">{{ 'data_request.show.frozen_note'|trans({}, 'research') }}</div>
+    {% endif %}
+    {% if own and dataRequest.status.value == 'withdrawn' %}
+        <div class="alert alert-secondary" role="note">{{ 'data_request.show.withdrawn_note'|trans({}, 'research') }}</div>
+    {% endif %}
+
+    <div class="row row-cards">
+        <div class="col-lg-8">
+            <div class="card mb-3" data-testid="data-request-public">
+                <div class="card-header"><h3 class="card-title">{{ 'data_request.group.public'|trans({}, 'research') }}</h3></div>
+                <div class="card-body">
+                    {{ _self.text_row('data_request.field.summary', version.summary) }}
+                    <div class="datagrid">
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'data_request.field.institution'|trans({}, 'research') }}</div>
+                            <div class="datagrid-content">{{ version.institution }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'data_request.field.enrichment_planned'|trans({}, 'research') }}</div>
+                            <div class="datagrid-content">{{ (version.enrichmentPlanned ? 'label.yes' : 'label.no')|trans({}, 'messages') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3" data-testid="data-request-scope">
+                <div class="card-header"><h3 class="card-title">{{ 'data_request.group.scope'|trans({}, 'research') }}</h3></div>
+                <div class="card-body">
+                    {{ _self.text_row('data_request.field.purpose', version.purpose) }}
+                    <div class="datagrid mb-3">
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'data_request.show.period'|trans({}, 'research') }}</div>
+                            <div class="datagrid-content">{{ version.periodFrom|format_date('medium') }} – {{ version.periodTo|format_date('medium') }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'data_request.field.single_cases'|trans({}, 'research') }}</div>
+                            <div class="datagrid-content">{{ (version.singleCases ? 'label.yes' : 'label.no')|trans({}, 'messages') }}</div>
+                        </div>
+                    </div>
+                    {{ _self.text_row('data_request.field.population', version.population) }}
+                    {{ _self.text_row('data_request.field.variables', version.variables) }}
+                    {{ _self.text_row('data_request.field.granularity', version.granularity) }}
+                    {% if canViewInternal %}
+                        {{ _self.text_row('data_request.field.recipients', version.recipients) }}
+                        {% if version.enrichmentDetails %}
+                            {{ _self.text_row('data_request.field.enrichment_details', version.enrichmentDetails) }}
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card" data-testid="data-request-internal">
+                <div class="card-header">
+                    <div>
+                        <h3 class="card-title">{{ 'data_request.group.internal'|trans({}, 'research') }}</h3>
+                        {% if not canViewInternal %}
+                            <div class="card-subtitle">{{ 'data_request.hidden.intro'|trans({}, 'research') }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if canViewInternal %}
+                        {{ _self.text_row('data_request.field.description', version.description) }}
+                        {{ _self.text_row('data_request.field.data_needs', version.dataNeeds) }}
+                        {{ _self.text_row('data_request.field.responsible_persons', version.responsiblePersons) }}
+                        {{ _self.text_row('data_request.field.conflicts_of_interest', version.conflictsOfInterest) }}
+                        {{ _self.text_row('data_request.field.ethics', version.ethics) }}
+                        <div class="datagrid mb-3">
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'data_request.field.planned_end'|trans({}, 'research') }}</div>
+                                <div class="datagrid-content">{{ version.plannedEnd ? version.plannedEnd|format_date('medium') : '–' }}</div>
+                            </div>
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'data_request.field.planned_deletion'|trans({}, 'research') }}</div>
+                                <div class="datagrid-content">{{ version.plannedDeletion ? version.plannedDeletion|format_date('medium') : '–' }}</div>
+                            </div>
+                        </div>
+                        {% if version.plannedPublication %}
+                            {{ _self.text_row('data_request.field.planned_publication', version.plannedPublication) }}
+                        {% endif %}
+                    {% else %}
+                        {{ _self.hidden_row('data_request.field.recipients', version.recipients) }}
+                        {{ _self.hidden_row('data_request.field.enrichment_details', version.enrichmentDetails) }}
+                        {{ _self.hidden_row('data_request.field.description', version.description) }}
+                        {{ _self.hidden_row('data_request.field.data_needs', version.dataNeeds) }}
+                        {{ _self.hidden_row('data_request.field.responsible_persons', version.responsiblePersons) }}
+                        {{ _self.hidden_row('data_request.field.conflicts_of_interest', version.conflictsOfInterest) }}
+                        {{ _self.hidden_row('data_request.field.ethics', version.ethics) }}
+                        {{ _self.hidden_row('data_request.field.planned_end', version.plannedEnd) }}
+                        {{ _self.hidden_row('data_request.field.planned_deletion', version.plannedDeletion) }}
+                        {{ _self.hidden_row('data_request.field.planned_publication', version.plannedPublication) }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="datagrid">
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'data_request.show.created'|trans({}, 'research') }}</div>
+                            <div class="datagrid-content">{{ dataRequest.createdAt|format_datetime('medium', 'short') }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'data_request.list.submitted'|trans({}, 'research') }}</div>
+                            <div class="datagrid-content">{{ dataRequest.submittedAt ? dataRequest.submittedAt|format_datetime('medium', 'short') : '–' }}</div>
+                        </div>
+                        {% if dataRequest.closedAt %}
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'data_request.show.closed'|trans({}, 'research') }}</div>
+                                <div class="datagrid-content">{{ dataRequest.closedAt|format_datetime('medium', 'short') }}</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if own %}
+        {% for transition in ['withdraw', 'submit'] %}
+            {% if is_granted('DATA_REQUEST_' ~ transition|upper, dataRequest) %}
+                <twig:ConfirmModal
+                    id="data-request-{{ transition }}-modal"
+                    :title="('data_request.modal.' ~ transition ~ '.title')|trans({}, 'research')"
+                    :message="('data_request.modal.' ~ transition ~ '.message')|trans({}, 'research')"
+                    :action="path('app_data_requests_transition', {publicId: dataRequest.publicIdString, transition: transition})"
+                    :csrfToken="csrf_token('data_request_' ~ transition ~ '_' ~ dataRequest.publicIdString)"
+                    :confirmLabel="('data_request.action.' ~ transition)|trans({}, 'research')"
+                    :cancelLabel="'action.cancel'|trans({}, 'messages')"
+                    :confirmVariant="transition == 'submit' ? 'primary' : 'danger'"
+                    size="md"
+                />
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endblock %}

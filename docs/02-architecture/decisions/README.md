@@ -60,6 +60,7 @@ Each ADR includes:
 | [042](042-glossary-and-data-catalog-in-help.md) | Glossary and data catalog in the help section | accepted |
 | [043](043-terms-of-use-version-by-configuration.md) | Terms of use version by configuration | accepted |
 | [044](044-explore-restricted-to-own-hospitals.md) | Explore restricted to the viewer's own hospitals | accepted |
+| [045](045-data-extract-requests.md) | Data extract requests with Board vote, admin SQL and time-limited export | accepted |
 
 ## Template
 

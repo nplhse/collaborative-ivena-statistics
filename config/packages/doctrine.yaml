@@ -41,6 +41,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Feedback/Domain/Entity'
                 prefix: 'App\Feedback\Domain\Entity'
+            Research:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Research/Domain/Entity'
+                prefix: 'App\Research\Domain\Entity'
             Shared:
                 type: attribute
                 is_bundle: false

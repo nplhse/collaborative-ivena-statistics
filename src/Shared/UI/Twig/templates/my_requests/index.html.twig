@@ -1,0 +1,62 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'my_requests.title'|trans({}, 'shared') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[{ label: 'my_requests.title', label_domain: 'shared' }]" />
+        <div class="page-header d-print-none">
+            <h2 class="page-title">{{ 'my_requests.title'|trans({}, 'shared') }}</h2>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="row row-cards" data-testid="my-requests">
+        {% for section in sections %}
+            <div class="col-12">
+                <div class="card" data-testid="my-requests-section" data-section="{{ section.key }}">
+                    <div class="card-header">
+                        <h3 class="card-title d-flex align-items-center gap-2">
+                            <twig:ux:icon name="{{ section.icon }}" class="icon" />
+                            {{ section.titleKey|trans({}, section.translationDomain) }}
+                        </h3>
+                        <div class="card-actions d-flex gap-2">
+                            {% if section.overviewRoute %}
+                                <a class="btn btn-outline-secondary btn-sm" href="{{ path(section.overviewRoute) }}">{{ section.overviewLabelKey|trans({}, section.translationDomain) }}</a>
+                            {% endif %}
+                            {% if section.newRoute %}
+                                <a class="btn btn-primary btn-sm" href="{{ path(section.newRoute) }}" data-testid="my-requests-new">
+                                    <twig:ux:icon name="tabler:plus" width="1em" height="1em" />&nbsp;{{ section.newLabelKey|trans({}, section.translationDomain) }}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if section.entries is empty %}
+                        <div class="card-body text-body-secondary" data-testid="my-requests-empty">
+                            {{ 'my_requests.empty'|trans({}, 'shared') }}
+                        </div>
+                    {% else %}
+                        <div class="list-group list-group-flush">
+                            {% for entry in section.entries %}
+                                <a href="{{ entry.url }}" class="list-group-item list-group-item-action" data-testid="my-requests-entry">
+                                    <div class="row align-items-center g-2">
+                                        <div class="col text-truncate">
+                                            <div class="text-body text-truncate">{{ entry.title }}</div>
+                                            <div class="text-body-secondary small text-truncate">
+                                                {{ entry.createdAt|format_date('medium') }}{% if entry.subtitle %} · {{ entry.subtitle }}{% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <twig:Badge :variant="entry.statusVariant">{{ entry.status|trans }}</twig:Badge>
+                                        </div>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
