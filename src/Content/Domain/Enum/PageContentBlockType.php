@@ -21,6 +21,8 @@ enum PageContentBlockType: string
     case Cards = 'cards';
     /** Cards for the visible subpages of the page (#1578), taken from the page tree when the page is shown. */
     case ChildPages = 'child_pages';
+    /** "Learn more" (#1590): a heading and a curated list of links, usually at the end of the content. */
+    case ReadMore = 'read_more';
 
     public function translationKey(): string
     {
@@ -42,7 +44,7 @@ enum PageContentBlockType: string
             self::Quote => ['text'],
             self::Headline => ['text'],
             self::Highlight => ['title', 'html', 'icon'],
-            self::Accordion, self::Cards => ['items'],
+            self::Accordion, self::Cards, self::ReadMore => ['items'],
             self::HelpSearch, self::HelpTopics, self::ChildPages => [],
         };
     }

@@ -62,6 +62,7 @@ final readonly class PageContentBlockDataFieldsConfigurator
             PageContentBlockType::Accordion->value => $this->addAccordionFields($dataForm),
             PageContentBlockType::Cards->value => $this->addCardsFields($dataForm),
             PageContentBlockType::ChildPages->value => $this->addChildPagesFields($dataForm),
+            PageContentBlockType::ReadMore->value => $this->addReadMoreFields($dataForm),
             // Help blocks (#596) have no settings; their content comes from the help tree.
             PageContentBlockType::HelpSearch->value, PageContentBlockType::HelpTopics->value => null,
             default => $this->addRichtextFields($dataForm),
@@ -362,5 +363,29 @@ final readonly class PageContentBlockDataFieldsConfigurator
             'required' => false,
             'help' => 'help.page.child_pages_numbered',
         ]);
+    }
+
+    /**
+     * @param FormInterface<array<string, mixed>> $dataForm
+     */
+    private function addReadMoreFields(FormInterface $dataForm): void
+    {
+        $dataForm
+            ->add('title', TextType::class, [
+                'label' => 'label.read_more_title',
+                'required' => false,
+                'help' => 'help.page.read_more_title',
+            ])
+            ->add('items', CollectionType::class, [
+                'label' => 'label.read_more_items',
+                'entry_type' => PageContentReadMoreItemType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'prototype' => true,
+                'required' => true,
+                'help' => 'help.page.read_more_items',
+            ])
+        ;
     }
 }

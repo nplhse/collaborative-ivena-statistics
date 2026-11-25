@@ -1,0 +1,29 @@
+{#
+    "Learn more" block (#1590): a heading and a curated list of links. A link to a page takes the page's title
+    and short description in the shown language, unless the editor entered a link text. Any other address,
+    including a page the viewer cannot see, is shown only with a link text and left out without one.
+#}
+{% set links = [] %}
+{% for item in block.data.items|default([]) %}
+    {% set url = item.linkUrl|default('') %}
+    {% set target = url is not empty ? page_at_url(url) : null %}
+    {% set label = item.linkLabel|default('') is not empty ? item.linkLabel : (target ? target.title : '') %}
+    {% if url is not empty and label is not empty %}
+        {% set links = links|merge([{url: url, label: label, summary: target ? target.summary : null}]) %}
+    {% endif %}
+{% endfor %}
+{% if links is not empty %}
+    <section class="page-read-more border-top pt-3 mt-4" data-testid="page-read-more">
+        <h2 class="mb-3">{{ block.data.title|default('') is not empty ? block.data.title : 'page.read_more.title'|trans({}, 'content') }}</h2>
+        <ul class="mb-0">
+            {% for link in links %}
+                <li class="mb-2" data-testid="page-read-more-link">
+                    <a href="{{ link.url }}" class="fw-medium">{{ link.label }}</a>
+                    {% if link.summary %}
+                        <div class="text-secondary small">{{ link.summary }}</div>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+{% endif %}

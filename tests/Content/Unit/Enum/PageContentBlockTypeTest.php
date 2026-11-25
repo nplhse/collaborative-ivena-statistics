@@ -17,7 +17,7 @@ final class PageContentBlockTypeTest extends TestCase
     public function testValuesReturnsAllCaseValues(): void
     {
         self::assertSame(
-            ['richtext', 'image', 'cta', 'quote', 'headline', 'highlight', 'accordion', 'help_search', 'help_topics', 'cards', 'child_pages'],
+            ['richtext', 'image', 'cta', 'quote', 'headline', 'highlight', 'accordion', 'help_search', 'help_topics', 'cards', 'child_pages', 'read_more'],
             PageContentBlockType::values(),
         );
     }

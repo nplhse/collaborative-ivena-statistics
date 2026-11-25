@@ -7,7 +7,7 @@ namespace App\Tests\Content\Unit\Page;
 use App\Content\Application\Page\PageContentValidator;
 
 /**
- * Card block, subpages block and the help blocks without settings (#1578).
+ * Card block, subpages block and the help blocks without settings (#1578); "Learn more" block (#1590).
  */
 final class PageContentValidatorCardsTest extends PageContentValidatorTestCase
 {
@@ -87,5 +87,33 @@ final class PageContentValidatorCardsTest extends PageContentValidatorTestCase
         self::assertSame(['Block 1 card 1: must be an object.'], new PageContentValidator($this->translator())->validate([
             ['type' => 'cards', 'data' => ['items' => ['not a card']]],
         ]));
+    }
+
+    public function testReadMoreNeedsOneToEightLinksWithAValidAddress(): void
+    {
+        $validator = new PageContentValidator($this->translator());
+
+        self::assertSame([], $validator->validate([[
+            'type' => 'read_more',
+            'data' => ['title' => '', 'items' => [
+                ['linkUrl' => '/help/importing'],
+                ['linkUrl' => 'https://example.org/paper', 'linkLabel' => 'Paper'],
+            ]],
+        ]]));
+        self::assertSame(['Block 1: page.validation.read_more_items_required'], $validator->validate([
+            ['type' => 'read_more', 'data' => []],
+        ]));
+        self::assertSame(['Block 1: page.validation.read_more_too_many'], $validator->validate([
+            ['type' => 'read_more', 'data' => ['items' => array_fill(0, 9, ['linkUrl' => '/help'])]],
+        ]));
+        self::assertSame([
+            'Block 1: data.title is required.',
+            'Block 1 link 1: data.linkUrl is required.',
+            'Block 1 link 2: page.validation.cards_invalid_link',
+            'Block 1 link 3: must be an object.',
+        ], $validator->validate([[
+            'type' => 'read_more',
+            'data' => ['title' => 5, 'items' => [['linkLabel' => 'No address'], ['linkUrl' => 'javascript:alert(1)'], 'not a link']],
+        ]]));
     }
 }

@@ -251,7 +251,8 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             .'<h2>Keep the default columns</h2><p>The import expects the default column set of the IVENA allocation export as a CSV file.</p>');
         $this->helpArticle($import, 'Understanding rejected rows', 'rejected-rows', 1, 'import.rejects',
             '<h2>Why rows are rejected</h2><p>Rows that fail the plausibility checks are rejected, for example a missing arrival time or an unknown department code.</p>'
-            .'<h2>Fixing rejected rows</h2><p>Correct the rows in IVENA and import the file again. The import report lists every rejected row with its reason.</p>');
+            .'<h2>Fixing rejected rows</h2><p>Correct the rows in IVENA and import the file again. The import report lists every rejected row with its reason.</p>',
+            readMore: ['/help/importing-data/preparing-the-export', '/help/statistics/analysis-explorer']);
 
         $statistics = $this->helpArticle($help, 'Statistics and benchmarking', 'statistics', 2, null,
             '<p>Explore your allocations and compare them with aggregated peer groups.</p>', 'tabler:chart-bar');
@@ -262,7 +263,10 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             '<h2>Comparison groups</h2><p>Each chart shows your hospital next to the median of its comparison group by state, dispatch area or cohort.</p>');
     }
 
-    private function helpArticle(Page $parent, string $title, string $slug, int $sortOrder, ?string $helpKey, string $html, ?string $icon = null): Page
+    /**
+     * @param list<string> $readMore paths for a "Learn more" block at the end (#1590)
+     */
+    private function helpArticle(Page $parent, string $title, string $slug, int $sortOrder, ?string $helpKey, string $html, ?string $icon = null, array $readMore = []): Page
     {
         $parentPath = $this->helpPaths[spl_object_id($parent)] ?? '/help';
         $path = $parentPath.'/'.$slug;
@@ -278,7 +282,11 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => $sortOrder,
-            'content' => $this->richtext($html),
+            'content' => [] === $readMore ? $this->richtext($html) : [...$this->richtext($html), [
+                'type' => 'read_more',
+                'enabled' => true,
+                'data' => ['items' => array_map(static fn (string $url): array => ['linkUrl' => $url], $readMore)],
+            ]],
         ]);
         $this->helpPaths[spl_object_id($article)] = $path;
 

@@ -93,6 +93,35 @@ final class PageTranslationEditorControllerTest extends WebTestCase
         self::assertTrue($saved->getContent()[3]['data']['numbered'] ?? null);
     }
 
+    public function testLearnMoreLinksAreSavedAndChecked(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createTranslation([
+            ['type' => 'read_more', 'enabled' => true, 'data' => ['title' => '', 'items' => [
+                ['linkUrl' => '/help', 'linkLabel' => ''],
+            ]]],
+        ]);
+
+        $crawler = $this->openEditor($client, $translation);
+        $form = $crawler->selectButton('Save changes')->form();
+        $form['PageTranslation[content][0][data][title]'] = 'Related';
+        $form['PageTranslation[content][0][data][items][0][linkUrl]'] = ' /help/importing ';
+        $client->submit($form);
+
+        self::assertResponseRedirects();
+        $saved = $this->reloadTranslation($translation)->getContent()[0]['data'] ?? [];
+        self::assertSame('Related', $saved['title'] ?? null);
+        self::assertSame([['linkUrl' => '/help/importing']], $saved['items'] ?? null, 'trimmed, the empty link text left out');
+
+        $crawler = $this->openEditor($client, $translation);
+        $form = $crawler->selectButton('Save changes')->form();
+        $form['PageTranslation[content][0][data][items][0][linkUrl]'] = 'javascript:alert(1)';
+        $client->submit($form);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSame('/help/importing', $this->reloadTranslation($translation)->getContent()[0]['data']['items'][0]['linkUrl'] ?? null);
+    }
+
     public function testUnknownCardIconIsReportedAtTheBlock(): void
     {
         $client = $this->createAdminClient();
@@ -188,7 +217,7 @@ final class PageTranslationEditorControllerTest extends WebTestCase
         $templates = $crawler->filter('[data-page-block-type-templates] template');
 
         self::assertSame(
-            ['richtext', 'image', 'cta', 'quote', 'headline', 'highlight', 'accordion', 'help_search', 'help_topics', 'cards', 'child_pages'],
+            ['richtext', 'image', 'cta', 'quote', 'headline', 'highlight', 'accordion', 'help_search', 'help_topics', 'cards', 'child_pages', 'read_more'],
             $templates->each(static fn (Crawler $template): string => (string) $template->attr('data-block-type')),
         );
         self::assertStringContainsString(

@@ -39,7 +39,8 @@ a page with that path would be hidden behind it. The same holds for `/help/gloss
   `PageTableOfContentsBuilder` from the headings) and the help tree (`<twig:Content:PageNavigation>` below the start page,
   which itself is not listed, #1582), followed by the reference card and the page navigation with the other editorial pages (#1582). Below the
   article: *Was this article helpful?* and the previous and next article in reading order
-  (depth first, `HelpNavigation::neighbours()`). The start page has no sidebar search, its search block is enough.
+  (depth first, `HelpNavigation::neighbours()`). Curated links to related articles go into a *Learn more* block at
+  the end of the content ([page-translations.md](page-translations.md#blocks), #1590). The start page has no sidebar search, its search block is enough.
 - **Search results:** same layout; titles and short descriptions weigh more than text. A hit shows its short
   description, or without one the excerpt with the matched words marked.
 

@@ -93,6 +93,32 @@ final class HelpControllerTest extends WebTestCase
         self::assertCount(0, $crawler->filter('[data-testid="page-child-cards"]'), 'the start page has its topic overview');
     }
 
+    public function testLearnMoreBlockListsCuratedLinksTheViewerCanOpen(): void
+    {
+        $client = self::createClient();
+        $this->fixture();
+        HelpPages::article($this->importing, 'Checklist', '/help/importing/checklist', '', 2, ['content' => [
+            ['type' => 'richtext', 'enabled' => true, 'data' => ['html' => '<p>Before the import.</p>']],
+            ['type' => 'read_more', 'enabled' => true, 'data' => ['title' => '', 'items' => [
+                ['linkUrl' => '/help/importing/export', 'linkLabel' => ''],
+                ['linkUrl' => '/help/statistics#charts', 'linkLabel' => 'Reading the charts'],
+                ['linkUrl' => '/help/members', 'linkLabel' => ''],
+                ['linkUrl' => 'https://example.org/ivena', 'linkLabel' => 'IVENA manual'],
+                ['linkUrl' => 'https://example.org/unnamed', 'linkLabel' => ''],
+            ]]],
+        ]]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/help/importing/checklist');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame('Learn more', trim($crawler->filter('[data-testid="page-read-more"] h2')->text()));
+        $links = $crawler->filter('[data-testid="page-read-more-link"] a');
+        self::assertSame(['Export', 'Reading the charts', 'IVENA manual'], $links->each(static fn (Crawler $link): string => trim($link->text())),
+            'page title by default, the link text when given; the members-only page and the unnamed address drop out');
+        self::assertSame(['/help/importing/export', '/help/statistics#charts', 'https://example.org/ivena'], $links->each(static fn (Crawler $link): string => (string) $link->attr('href')));
+        self::assertStringContainsString('Create the CSV file in IVENA, not in a spreadsheet.', $crawler->filter('[data-testid="page-read-more-link"]')->first()->text(), 'with the short description');
+    }
+
     public function testSearchShowsTheSummaryInsteadOfTheExcerpt(): void
     {
         $client = self::createClient();

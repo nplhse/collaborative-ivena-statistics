@@ -969,6 +969,14 @@
         <source>page.validation.cards_unknown_icon</source>
         <target>The icon “{icon}” does not exist.</target>
       </trans-unit>
+      <trans-unit id="cms1590v01en" resname="page.validation.read_more_items_required">
+        <source>page.validation.read_more_items_required</source>
+        <target>At least one link is required.</target>
+      </trans-unit>
+      <trans-unit id="cms1590v02en" resname="page.validation.read_more_too_many">
+        <source>page.validation.read_more_too_many</source>
+        <target>At most {max} links are allowed.</target>
+      </trans-unit>
       <trans-unit id="cms1590iconen" resname="page.validation.icon_format">
         <source>page.validation.icon_format</source>
         <target>Enter an icon such as tabler:file-import.</target>

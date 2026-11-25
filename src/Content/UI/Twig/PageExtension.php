@@ -41,6 +41,13 @@ final readonly class PageExtension
         return $this->pageNavigationTree->find($this->pageNavigationTreeProvider->visibleTree(), $pageId)->children ?? [];
     }
 
+    /** The visible page a link of the "Learn more" block points to (#1590), or null for other addresses. */
+    #[\Twig\Attribute\AsTwigFunction(name: 'page_at_url')]
+    public function pageAtUrl(string $url): ?PageNavigationNode
+    {
+        return $this->pageNavigationTree->findByUrl($this->pageNavigationTreeProvider->visibleTree(), $url);
+    }
+
     /**
      * @param array<string, mixed> $data
      */
