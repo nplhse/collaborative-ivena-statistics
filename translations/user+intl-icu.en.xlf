@@ -1057,6 +1057,14 @@
         <source>text.terms.decline</source>
         <target>Without your acceptance your access rests.</target>
       </trans-unit>
+      <trans-unit id="termsAcceptAuthority0En" resname="label.terms.upload_authority">
+        <source>label.terms.upload_authority</source>
+        <target>I am still authorised to upload data for {hospitals}.</target>
+      </trans-unit>
+      <trans-unit id="termsAcceptAuthority1En" resname="help.terms.upload_authority">
+        <source>help.terms.upload_authority</source>
+        <target>Otherwise you confirm it again before your next upload.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

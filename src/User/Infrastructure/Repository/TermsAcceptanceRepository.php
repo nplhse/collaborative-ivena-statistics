@@ -67,6 +67,40 @@ final class TermsAcceptanceRepository extends ServiceEntityRepository
         return array_map(static fn (array $row): int => (int) $row['hospitalId'], $rows);
     }
 
+    /**
+     * Hospitals for which the account confirmed the upload authority under an earlier version but not under this one
+     * (#1565): renewed together with the terms at login, so nobody confirms twice.
+     *
+     * @return list<Hospital>
+     */
+    public function hospitalsWithUploadAuthorityToRenew(User $user, string $termsVersion): array
+    {
+        $earlier = $this->createQueryBuilder('a')
+            ->select('DISTINCT IDENTITY(a.hospital)')
+            ->where('a.user = :user')
+            ->andWhere('a.kind = :kind');
+        $current = $this->createQueryBuilder('c')
+            ->select('IDENTITY(c.hospital)')
+            ->where('c.user = :user')
+            ->andWhere('c.kind = :kind')
+            ->andWhere('c.termsVersion = :version');
+
+        /** @var list<Hospital> $hospitals */
+        $hospitals = $this->getEntityManager()->createQueryBuilder()
+            ->select('h')
+            ->from(Hospital::class, 'h')
+            ->where('h.id IN ('.$earlier->getDQL().')')
+            ->andWhere('h.id NOT IN ('.$current->getDQL().')')
+            ->orderBy('h.name', 'ASC')
+            ->setParameter('user', (int) $user->getId(), Types::INTEGER)
+            ->setParameter('kind', TermsAcceptanceKind::UploadAuthority->value, Types::STRING)
+            ->setParameter('version', $termsVersion, Types::STRING)
+            ->getQuery()
+            ->getResult();
+
+        return $hospitals;
+    }
+
     /** Whether the account ever accepted this version. */
     public function hasAccepted(User $user, string $version, TermsAcceptanceKind $kind = TermsAcceptanceKind::Terms): bool
     {

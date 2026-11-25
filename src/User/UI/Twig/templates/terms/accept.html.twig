@@ -17,6 +17,9 @@
             {% endif %}
             {{ form_start(form) }}
                 {{ form_row(form.accept) }}
+                {% if form.uploadAuthority is defined %}
+                    {{ form_row(form.uploadAuthority) }}
+                {% endif %}
                 <div class="form-footer">
                     <button class="btn btn-primary w-100" type="submit">{{ 'label.terms.submit'|trans({}, 'user') }}</button>
                 </div>
