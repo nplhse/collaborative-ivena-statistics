@@ -81,7 +81,7 @@ final class ShowDataRequestController extends AbstractController
     /**
      * Newest first, with what the viewer may do on each.
      *
-     * @return list<array{release: DataRequestRelease, canStart: bool, canDownload: bool}>
+     * @return list<array{release: DataRequestRelease, canStart: bool, canRevoke: bool, canDownload: bool}>
      */
     private function releaseActions(DataRequest $dataRequest): array
     {
@@ -96,6 +96,7 @@ final class ShowDataRequestController extends AbstractController
             return [
                 'release' => $release,
                 'canStart' => $this->releases->canStart($user, $release),
+                'canRevoke' => $this->releases->canRevoke($user, $release),
                 'canDownload' => $run instanceof DataRequestExportRun && $this->releases->canDownload($user, $run),
             ];
         }, array_reverse($dataRequest->getReleases()));

@@ -59,6 +59,7 @@ final readonly class ExportPackage
             'executed_at' => $executedAt->format(\DATE_ATOM),
             'data_as_of' => $dataState['latest_import_at'],
             'minimum_hospitals_per_group' => HospitalMinimum::MIN_HOSPITALS,
+            'conditions' => $release->getConditions(),
             'files' => array_map(static function (ExportFile $file) use ($versions): array {
                 $version = $versions[$file->name] ?? null;
 
@@ -103,6 +104,14 @@ final readonly class ExportPackage
             $lines[] = '  '.$this->trans('data_request.export.readme.file_counts', ['rows' => $file['rows'], 'hospitals' => $file['hospitals']], $locale);
             foreach (explode("\n", trim((string) $file['description'])) as $line) {
                 $lines[] = '  '.trim($line);
+            }
+        }
+
+        if (\is_string($manifest['conditions'] ?? null)) {
+            $lines[] = '';
+            $lines[] = $this->trans('data_request.export.readme.conditions', [], $locale);
+            foreach (explode("\n", $manifest['conditions']) as $line) {
+                $lines[] = '  '.rtrim($line);
             }
         }
 

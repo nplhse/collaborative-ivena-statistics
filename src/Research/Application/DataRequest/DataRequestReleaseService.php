@@ -17,7 +17,9 @@ use App\Research\Domain\Entity\DataRequestQuery;
 use App\Research\Domain\Entity\DataRequestQueryVersion;
 use App\Research\Domain\Entity\DataRequestRelease;
 use App\Research\Domain\Enum\DataRequestStatus;
+use App\Research\Domain\Enum\ExportRunStatus;
 use App\Research\Domain\Enum\QueryKind;
+use App\Research\Domain\Enum\ReleaseStatus;
 use App\Research\Domain\Enum\TimelineEventType;
 use App\Research\Domain\Enum\Visibility;
 use App\Research\Domain\Exception\DataRequestException;
@@ -82,10 +84,11 @@ final readonly class DataRequestReleaseService
 
     /**
      * @param list<string>|null $queryNames the queries to release; null for every query that passes the check
+     * @param string|null       $conditions what the recipient accepts before the export; empty for none
      *
      * @throws DataRequestRefused
      */
-    public function release(User $admin, DataRequest $request, bool $singleCasesConfirmed, ?array $queryNames = null): DataRequestRelease
+    public function release(User $admin, DataRequest $request, bool $singleCasesConfirmed, ?array $queryNames = null, ?string $conditions = null): DataRequestRelease
     {
         if (!$this->canRelease($admin, $request)) {
             throw new DataRequestRefused(DataRequestRefused::NOT_ALLOWED);
@@ -93,7 +96,7 @@ final readonly class DataRequestReleaseService
 
         $now = $this->clock->now();
         try {
-            $release = $request->release($queryNames, $singleCasesConfirmed, $admin, $now);
+            $release = $request->release($queryNames, $singleCasesConfirmed, $admin, $now, $conditions);
         } catch (DataRequestException $exception) {
             throw new DataRequestRefused(DataRequestRefused::RELEASE_INVALID, $exception);
         }
@@ -115,20 +118,28 @@ final readonly class DataRequestReleaseService
 
     /**
      * The read-me is written in the recipient's saved language, else in the language of the session that starts it.
+     * A release with conditions starts only when the recipient accepts them.
      *
      * @throws DataRequestRefused
      */
-    public function start(User $recipient, DataRequestRelease $release, ?string $sessionLocale = null): void
+    public function start(User $recipient, DataRequestRelease $release, ?string $sessionLocale = null, bool $acceptsConditions = false): void
     {
         $now = $this->clock->now();
+        if (null !== $release->getConditions() && !$acceptsConditions) {
+            throw new DataRequestRefused(DataRequestRefused::CONDITIONS_NOT_ACCEPTED);
+        }
+
         $locale = SupportedLocales::normalize($recipient->getLocale()) ?? SupportedLocales::normalize($sessionLocale) ?? $this->defaultLocale;
         try {
-            $run = $release->startExport($recipient, $now, $locale);
+            $run = $release->startExport($recipient, $now, $locale, $acceptsConditions);
         } catch (DataRequestException $exception) {
             throw new DataRequestRefused(DataRequestRefused::NOT_ALLOWED, $exception);
         }
 
-        $release->getRequest()->recordEvent(TimelineEventType::ExportRequested, $recipient, Visibility::Private, $now, ['release' => $release->getNumber()]);
+        $release->getRequest()->recordEvent(TimelineEventType::ExportRequested, $recipient, Visibility::Private, $now, array_filter([
+            'release' => $release->getNumber(),
+            'accepted' => null !== $release->getConditions() ? 1 : 0,
+        ]));
         try {
             $this->flush('research.data_request.export_requested', $release->getRequest());
         } catch (UniqueConstraintViolationException $exception) {
@@ -137,6 +148,92 @@ final readonly class DataRequestReleaseService
         }
 
         $this->bus->dispatch(new RunDataExportMessage((int) $run->getId()));
+    }
+
+    public function canRevoke(User $user, DataRequestRelease $release): bool
+    {
+        return $this->isAdmin($user) && ReleaseStatus::Active === $release->getStatus();
+    }
+
+    /**
+     * An administrator revokes a release whose export was not started; the reason goes into the timeline.
+     *
+     * @throws DataRequestRefused
+     */
+    public function revoke(User $admin, DataRequestRelease $release, string $reason): void
+    {
+        if (!$this->canRevoke($admin, $release)) {
+            throw new DataRequestRefused(DataRequestRefused::NOT_ALLOWED);
+        }
+
+        $now = $this->clock->now();
+        try {
+            $release->revoke($reason, $now);
+        } catch (DataRequestException $exception) {
+            throw new DataRequestRefused(DataRequestRefused::REASON_REQUIRED, $exception);
+        }
+
+        $request = $release->getRequest();
+        $request->recordEvent(TimelineEventType::ReleaseRevoked, $admin, Visibility::Private, $now, [
+            'release' => $release->getNumber(),
+            'reason' => (string) $release->getRevocationReason(),
+        ]);
+        $this->flush('research.data_request.release_revoked', $request);
+    }
+
+    /**
+     * A release whose three months passed without an export expires (cleanup job).
+     *
+     * @throws DataRequestRefused when it is not due
+     */
+    public function expireRelease(DataRequestRelease $release): void
+    {
+        $now = $this->clock->now();
+        try {
+            $release->expire($now);
+        } catch (DataRequestException $exception) {
+            throw new DataRequestRefused(DataRequestRefused::NOT_ALLOWED, $exception);
+        }
+
+        $request = $release->getRequest();
+        $request->recordEvent(TimelineEventType::ReleaseExpired, null, Visibility::Private, $now, ['release' => $release->getNumber()]);
+        $this->flush('research.data_request.release_expired', $request);
+    }
+
+    /**
+     * The applicant withdrew the request: open releases are revoked, exports that are queued, running or downloadable
+     * are cancelled. The caller flushes; the returned archives are removed after that with removeArchives().
+     *
+     * @return list<string> archives to remove
+     */
+    public function endWithWithdrawal(DataRequest $request): array
+    {
+        $now = $this->clock->now();
+        $archives = [];
+        foreach ($request->getReleases() as $release) {
+            $run = $release->getRun();
+            $wasOpen = $run instanceof DataRequestExportRun && ($run->getStatus()->isPending() || ExportRunStatus::Available === $run->getStatus());
+            $archive = $release->endWithWithdrawal($now);
+            if (null !== $archive) {
+                $archives[] = $archive;
+            }
+
+            if ($wasOpen) {
+                $request->recordEvent(TimelineEventType::ExportCancelled, null, Visibility::Private, $now, ['release' => $release->getNumber()]);
+            }
+        }
+
+        return $archives;
+    }
+
+    /**
+     * @param list<string> $archives
+     */
+    public function removeArchives(array $archives): void
+    {
+        foreach ($archives as $archive) {
+            $this->storage->remove($archive);
+        }
     }
 
     /**
@@ -223,7 +320,15 @@ final readonly class DataRequestReleaseService
             $this->finishFailed($run, $exception::class.': '.$exception->getMessage(), $record);
         }
 
-        $this->flush('research.data_request.export_finished', $request);
+        try {
+            $this->flush('research.data_request.export_finished', $request);
+        } catch (OptimisticLockException) {
+            // The request was withdrawn while the export ran: nothing is provided, the archive goes.
+            $archive = $run->getArchiveFile();
+            if (null !== $archive) {
+                $this->storage->remove($archive);
+            }
+        }
     }
 
     public function canDownload(User $user, DataRequestExportRun $run): bool

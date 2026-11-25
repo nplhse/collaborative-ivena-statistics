@@ -991,7 +991,7 @@
       </trans-unit>
       <trans-unit id="Rsc6D9865D8" resname="data_request.timeline.event.export_requested">
         <source>data_request.timeline.event.export_requested</source>
-        <target>started the export of release {release}</target>
+        <target>{accepted, select, 1 {accepted the conditions and started} other {started}} the export of release {release}</target>
       </trans-unit>
       <trans-unit id="Rsc30AE94B3" resname="data_request.timeline.event.export_provided">
         <source>data_request.timeline.event.export_provided</source>
@@ -1264,6 +1264,80 @@
       <trans-unit id="RscBF21F670" resname="data_request.export.connection.unreachable">
         <source>data_request.export.connection.unreachable</source>
         <target>The export connection does not answer. Check RESEARCH_DATABASE_URL and the database user.</target>
+      </trans-unit>
+      <trans-unit id="Rsc34C19D94" resname="data_request.timeline.event.release_revoked">
+        <source>data_request.timeline.event.release_revoked</source>
+        <target>revoked release {release}</target>
+      </trans-unit>
+      <trans-unit id="RscEFF8B011" resname="data_request.timeline.event.release_expired">
+        <source>data_request.timeline.event.release_expired</source>
+        <target>Release {release} expired: no export within three months</target>
+      </trans-unit>
+      <trans-unit id="Rsc7920CB25" resname="data_request.timeline.event.export_cancelled">
+        <source>data_request.timeline.event.export_cancelled</source>
+        <target>Export of release {release} cancelled with the withdrawal</target>
+      </trans-unit>
+      <trans-unit id="RscC4207817" resname="data_request.release.conditions">
+        <source>data_request.release.conditions</source>
+        <target>Conditions</target>
+      </trans-unit>
+      <trans-unit id="Rsc53D80AEC" resname="data_request.release.conditions_default">
+        <source>data_request.release.conditions_default</source>
+        <target>The data may only be used for the approved purpose and within the approved project. Only the recipients named in the request have access to it, and passing it on to others is not allowed. The data is pseudonymised. Identifying single hospitals or persons, or linking the data with other sources for that purpose, is not permitted.
+
+Only aggregated results are published, and every group they show is based on at least three hospitals. Publications name the source as the citation in the read-me suggests. Once the project is completed, the data is deleted.</target>
+      </trans-unit>
+      <trans-unit id="Rsc3008DA98" resname="data_request.release.conditions_help">
+        <source>data_request.release.conditions_help</source>
+        <target>Pre-filled with the usual rules; add what the Board decided, or empty the field for no conditions. The recipient accepts them before the export, and they appear in the read-me.</target>
+      </trans-unit>
+      <trans-unit id="Rsc2E52F0A0" resname="data_request.release.conditions_accepted">
+        <source>data_request.release.conditions_accepted</source>
+        <target>Accepted by the recipient on {date}</target>
+      </trans-unit>
+      <trans-unit id="Rsc6B32BDAF" resname="data_request.release.ended.expired">
+        <source>data_request.release.ended.expired</source>
+        <target>Expired</target>
+      </trans-unit>
+      <trans-unit id="RscD1E5E8C3" resname="data_request.release.ended.revoked">
+        <source>data_request.release.ended.revoked</source>
+        <target>Revoked</target>
+      </trans-unit>
+      <trans-unit id="Rsc1C5C0F74" resname="data_request.release.revoke">
+        <source>data_request.release.revoke</source>
+        <target>Revoke release</target>
+      </trans-unit>
+      <trans-unit id="RscDAA8460D" resname="data_request.release.revoke_title">
+        <source>data_request.release.revoke_title</source>
+        <target>Revoke release {number}?</target>
+      </trans-unit>
+      <trans-unit id="Rsc2E5EAAC5" resname="data_request.release.revoke_reason">
+        <source>data_request.release.revoke_reason</source>
+        <target>Reason, visible to the applicant</target>
+      </trans-unit>
+      <trans-unit id="RscC163E4C2" resname="data_request.export.accept_conditions">
+        <source>data_request.export.accept_conditions</source>
+        <target>I accept the conditions above.</target>
+      </trans-unit>
+      <trans-unit id="Rsc4472C73D" resname="data_request.export.cancelled">
+        <source>data_request.export.cancelled</source>
+        <target>The export ended with the withdrawal of the request and can no longer be downloaded.</target>
+      </trans-unit>
+      <trans-unit id="RscD595890D" resname="data_request.export.readme.conditions">
+        <source>data_request.export.readme.conditions</source>
+        <target>Conditions accepted by the recipient:</target>
+      </trans-unit>
+      <trans-unit id="RscA82D3962" resname="data_request.refused.conditions_not_accepted">
+        <source>data_request.refused.conditions_not_accepted</source>
+        <target>Please accept the conditions before you create the export.</target>
+      </trans-unit>
+      <trans-unit id="Rsc4846FD2C" resname="data_request.flash.export_revoke">
+        <source>data_request.flash.export_revoke</source>
+        <target>The release is revoked.</target>
+      </trans-unit>
+      <trans-unit id="Rsc8CE8B3F8" resname="data_request.modal.withdraw.message_released">
+        <source>data_request.modal.withdraw.message_released</source>
+        <target>Withdrawing ends the request for good. Open releases end, and exports that are running or ready can no longer be downloaded. Copies already downloaded cannot be recalled.</target>
       </trans-unit>
     </body>
   </file>

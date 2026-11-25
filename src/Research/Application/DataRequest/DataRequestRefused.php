@@ -24,6 +24,7 @@ final class DataRequestRefused extends \RuntimeException
     public const string QUERY_INVALID = 'data_request.refused.query_invalid';
     public const string QUERY_CHECK_FAILED = 'data_request.refused.query_check_failed';
     public const string RELEASE_INVALID = 'data_request.refused.release_invalid';
+    public const string CONDITIONS_NOT_ACCEPTED = 'data_request.refused.conditions_not_accepted';
 
     public function __construct(
         public readonly string $reason,

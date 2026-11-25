@@ -23,7 +23,7 @@ extended with every step of #1635.
 | `app_data_requests_compare` | `/requests/data/{publicId}/compare` | `DATA_REQUEST_VIEW` |
 | `app_data_requests_comment` | `POST /requests/data/{publicId}/comments` | `DATA_REQUEST_COMMENT` |
 | `app_data_requests_release` | `POST /requests/data/{publicId}/releases` | `DATA_REQUEST_RELEASE` |
-| `app_data_requests_export` | `POST /requests/data/{publicId}/releases/{number}/{start\|retry}` | start: the recipient of an active release; retry: administrators |
+| `app_data_requests_export` | `POST /requests/data/{publicId}/releases/{number}/{start\|retry\|revoke}` | start: the recipient of an active release; retry and revoke: administrators |
 | `app_data_requests_export_download` | `/requests/data/{publicId}/releases/{number}/download` | the recipient and administrators, for seven days |
 | `app_my_requests` | `/requests` | participants: "My requests" with hospital assignment requests and data extract requests |
 
@@ -71,8 +71,11 @@ and the deadlines; both apply the transitions and record the times.
 | `approved` | approved and closed | `withdrawn` |
 | `rejected`, `expired`, `withdrawn` | final | – |
 
-A withdrawal ends the request for good and an open round with it (outcome `cancelled`). Later steps also revoke open
-releases and cancel running exports.
+A withdrawal ends the request for good and an open round with it (outcome `cancelled`). Active releases are revoked;
+exports that are queued, running or downloadable are cancelled (`export_cancelled`) and their archives removed, so
+nothing can be downloaded any more. An export the worker finishes after the withdrawal meets the optimistic lock and
+provides nothing. Earlier versions, decisions and downloads stay in the timeline and the audit log; the confirmation
+says that copies already downloaded cannot be recalled.
 
 ## Formal check
 
@@ -196,7 +199,17 @@ stay with the request and are named in the release and its timeline entry, so it
 The usual case: the dry run of one query shows groups below the minimum; the administrator agrees with the applicant
 in a private comment to leave it out (or to change it) and releases the others. It is valid for three
 months; a new release is possible once the previous one is neither active nor has an export that is queued, running
-or still downloadable. Expiry, revocation and conditions follow in the next steps.
+or still downloadable.
+
+- **Conditions:** the administrator enters them with the release; the field is pre-filled with the usual rules
+  (purpose, no passing on, no re-identification, aggregated publication, citation, deletion) and may be changed or
+  emptied. The recipient accepts them with a checkbox when starting the export; the release stores the time and the
+  SHA-256 of the wording accepted, like the version of accepted terms of use. The conditions appear on the release, in
+  `manifest.json` and in the read-me.
+- **Revocation:** an administrator revokes an active release (no export started yet) with a reason, which the
+  timeline shows privately (`release_revoked`). A new release is possible afterwards.
+- **Expiry:** an active release ends after three months without an export; starting is refused from then on, and the
+  cleanup job records the state (`release_expired`).
 
 The recipient starts the export once. `DataRequestRelease::startExport()` creates the release's only
 `DataRequestExportRun` (unique key on the release) and `RunDataExportMessage` goes to `async_priority_low`. The worker
@@ -219,8 +232,8 @@ worker does nothing.
   person. The archive lies in `var/research/exports` under a random name, is served only by the download route, and is
   downloadable for seven days by the recipient and by administrators; each download is recorded
   (`DataRequestExportDownload`).
-- **Cleanup** (scheduler job `research_export_cleanup`, daily at 04:50 Europe/Berlin): marks exports whose seven days
-  ended as `expired` and removes their archives; then removes archives no run refers to and working directories of
+- **Cleanup** (scheduler job `research_export_cleanup`, daily at 04:50 Europe/Berlin): lets active releases expire
+  whose three months passed, marks exports whose seven days ended as `expired` and removes their archives; then removes archives no run refers to and working directories of
   interrupted runs, both older than a day. The download route refuses an expired export on its own, so a late job
   only delays freeing the space.
 - **Internal record** (on the run, administrators only): settings (isolation, timeout, limits, minimum), application
@@ -228,8 +241,9 @@ worker does nothing.
   the query versions with their SQL checksum, per file rows, hospitals, SHA-256 and the number of groups per count of
   hospitals, the archive's SHA-256 and size, and the recipient's user name.
 
-Timeline: `released`, `export_requested` and `export_provided` are private (Board, applicant, administrators);
-`export_blocked`, `export_failed` and `export_retried` are internal.
+Timeline: `released`, `export_requested`, `export_provided`, `release_revoked`, `release_expired` and
+`export_cancelled` are private (Board, applicant, administrators); `export_blocked`, `export_failed` and
+`export_retried` are internal.
 
 ## Permissions
 
@@ -256,5 +270,6 @@ Timeline: `released`, `export_requested` and `export_provided` are private (Boar
 Every entity is audited. The services record the intents `research.data_request.drafted`, `.updated`, `.submitted`,
 `.withdrawn`, `.commented`, `.round_opened`, `.returned`, `.voted`, `.vetoed`, `.member_excluded`, `.veto_resolved`, `.round_closed`,
 `.expired`, `.query_added`, `.query_revised`, `.query_checked`, `.query_dry_run`, `.released`, `.export_requested`,
-`.export_started`, `.export_finished`, `.export_retried`, `.export_downloaded` and `.export_expired`. A request, its votes and rounds stay when an account is deleted (the user reference becomes null);
+`.export_started`, `.export_finished`, `.export_retried`, `.export_downloaded`, `.export_expired`, `.release_revoked`
+and `.release_expired`. A request, its votes and rounds stay when an account is deleted (the user reference becomes null);
 an exclusion is deleted with the member's account.
