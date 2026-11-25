@@ -19,6 +19,7 @@ extended with every step of #1635.
 | `app_data_requests_edit` | `/requests/data/{publicId}/edit` | the applicant, while the current version is not submitted |
 | `app_data_requests_transition` | `POST /requests/data/{publicId}/{submit\|withdraw}` | the applicant |
 | `app_data_requests_review` | `POST /requests/data/{publicId}/review/{open\|return\|vote\|exclude\|resolve}` | Board members and administrators, per voter attribute |
+| `app_data_requests_query` | `POST /requests/data/{publicId}/queries/{add\|revise\|dry-run}` | `DATA_REQUEST_MANAGE_QUERIES` |
 | `app_data_requests_compare` | `/requests/data/{publicId}/compare` | `DATA_REQUEST_VIEW` |
 | `app_data_requests_comment` | `POST /requests/data/{publicId}/comments` | `DATA_REQUEST_COMMENT` |
 | `app_my_requests` | `/requests` | participants: "My requests" with hospital assignment requests and data extract requests |
@@ -134,6 +135,40 @@ Every entry has one of three visibility levels (`Visibility`):
 - **Vote reasons:** a reason is always and only a comment on the vote: internal, or private for "Needs revision", so
   the applicant reads what to change. Votes themselves no longer store a reason.
 
+## Export queries
+
+After the approval an administrator writes one or more export queries (`DataRequestQuery`, versions in
+`DataRequestQueryVersion`). The name becomes the CSV file name; each change of the SQL is a new version with its
+SHA-256. Everyone who may see the request reads the SQL (formatted with `doctrine/sql-formatter`) and its plain-language
+description; check results, dry runs and the forms are for administrators. The timeline records each saved version
+(`query_saved`, public).
+
+- **Allowlist check** (`QueryGuard`, rules in `PlanInspector`, lists in `ExportAllowlist`), on every save and before a
+  dry run, on the export connection in a read-only transaction; the query itself does not run:
+  - one SELECT or WITH statement, no denied function (functions that run SQL of their own, read files or settings,
+    or reach other databases);
+  - every table from `EXPLAIN (VERBOSE, FORMAT JSON)` on the allowlist (allocations and their reference tables);
+  - no blocked column anywhere in the plan, not even in a filter: free text, case ID hash, import, public IDs,
+    hospital name, address, coordinates, beds, participation dates and timestamps, references to user accounts,
+    review comments;
+  - hospital and allocation IDs only to join and count, never as a result column;
+  - the reserved column: `_hospital_ids` (`array_agg(DISTINCT a.hospital_id)` in the same grouping) for aggregated
+    queries, `_hospital_id` for single cases.
+  With a single table Postgres prints bare column names; they count as that table's columns. String literals are
+  ignored. The check is a plausibility check; #1636 makes the limit technical.
+- **Dry run** (`QueryDryRunner`): read-only `REPEATABLE READ` transaction, 30 s statement timeout, at most 50,000 rows.
+  It reports the result columns, the first rows, the hospitals involved and the groups with fewer than three
+  contributing hospitals (`HospitalMinimum`); the reserved column never leaves the runner. The summary is stored with
+  the version.
+
+### Export connection
+
+`RESEARCH_DATABASE_URL` configures the Doctrine connection `research`. Empty (the default) keeps checks, dry runs and
+exports disabled; nothing falls back to the application user. In production it is the hosting's read-only user, on
+Uberspace `<account>_ro` with the password from `~/.pgpass`. In the test environment it points to the test database,
+and DAMA shares the test transaction with it (`connection_keys` in `dama_doctrine_test_bundle.yaml`); a dedicated
+read-only role for local development and CI follows with the export runs.
+
 ## Permissions
 
 `DataRequestVoter` decides what the pages offer; the services check the rules again.
@@ -151,10 +186,11 @@ Every entry has one of three visibility levels (`Visibility`):
 | `DATA_REQUEST_EXCLUDE_SELF` | Board members except the applicant, on a submitted, not final request |
 | `DATA_REQUEST_RECORD_EXCLUSION`, `DATA_REQUEST_RESOLVE` | administrators; resolving only while `stalled` |
 | `DATA_REQUEST_COMMENT` | whoever may write at least one level (see above), on a submitted request |
+| `DATA_REQUEST_MANAGE_QUERIES` | administrators, once the request is approved |
 
 ## Audit
 
 Every entity is audited. The services record the intents `research.data_request.drafted`, `.updated`, `.submitted`,
-`.withdrawn`, `.commented`, `.round_opened`, `.returned`, `.voted`, `.vetoed`, `.member_excluded`, `.veto_resolved`, `.round_closed`
-and `.expired`. A request, its votes and rounds stay when an account is deleted (the user reference becomes null);
+`.withdrawn`, `.commented`, `.round_opened`, `.returned`, `.voted`, `.vetoed`, `.member_excluded`, `.veto_resolved`, `.round_closed`,
+`.expired`, `.query_added`, `.query_revised`, `.query_checked` and `.query_dry_run`. A request, its votes and rounds stay when an account is deleted (the user reference becomes null);
 an exclusion is deleted with the member's account.

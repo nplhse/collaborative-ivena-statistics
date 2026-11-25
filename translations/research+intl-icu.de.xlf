@@ -393,6 +393,170 @@
         <source>data_request.compare.none</source>
         <target>Die Fassungen unterscheiden sich in den Feldern, die Sie sehen können, nicht.</target>
       </trans-unit>
+      <trans-unit id="RscA9D2AF5E" resname="data_request.query.title">
+        <source>data_request.query.title</source>
+        <target>Abfragen für den Export</target>
+      </trans-unit>
+      <trans-unit id="Rsc089E17C8" resname="data_request.query.intro">
+        <source>data_request.query.intro</source>
+        <target>Das SQL, das ein:e Administrator:in für diesen Antrag geschrieben hat. Alle Teilnehmenden können es lesen; jede Abfrage wird eine CSV-Datei im Export.</target>
+      </trans-unit>
+      <trans-unit id="RscC1A093A0" resname="data_request.query.empty">
+        <source>data_request.query.empty</source>
+        <target>Noch keine Abfragen.</target>
+      </trans-unit>
+      <trans-unit id="Rsc7D1202A1" resname="data_request.query.version">
+        <source>data_request.query.version</source>
+        <target>Fassung {number} · {checksum}</target>
+      </trans-unit>
+      <trans-unit id="RscBDD52660" resname="data_request.query.kind.aggregated">
+        <source>data_request.query.kind.aggregated</source>
+        <target>Zusammengefasst</target>
+      </trans-unit>
+      <trans-unit id="Rsc0931E87A" resname="data_request.query.kind.single_cases">
+        <source>data_request.query.kind.single_cases</source>
+        <target>Einzelfälle</target>
+      </trans-unit>
+      <trans-unit id="RscAC578804" resname="data_request.query.field.name">
+        <source>data_request.query.field.name</source>
+        <target>Dateiname</target>
+      </trans-unit>
+      <trans-unit id="Rsc626DE52E" resname="data_request.query.field.name_help">
+        <source>data_request.query.field.name_help</source>
+        <target>Kleinbuchstaben, Ziffern und Unterstriche; wird zum Namen der CSV-Datei.</target>
+      </trans-unit>
+      <trans-unit id="Rsc3FAED6C8" resname="data_request.query.field.kind">
+        <source>data_request.query.field.kind</source>
+        <target>Art</target>
+      </trans-unit>
+      <trans-unit id="Rsc5EEE037E" resname="data_request.query.field.description">
+        <source>data_request.query.field.description</source>
+        <target>Beschreibung in Alltagssprache</target>
+      </trans-unit>
+      <trans-unit id="Rsc86521909" resname="data_request.query.field.sql">
+        <source>data_request.query.field.sql</source>
+        <target>SQL</target>
+      </trans-unit>
+      <trans-unit id="RscFF369901" resname="data_request.query.field.sql_help">
+        <source>data_request.query.field.sql_help</source>
+        <target>Eine SELECT-Anweisung. Zusammengefasste Abfragen liefern die Spalte _hospital_ids (array_agg(DISTINCT a.hospital_id)) in derselben Gruppierung, Einzelfall-Abfragen _hospital_id; der Export entfernt sie.</target>
+      </trans-unit>
+      <trans-unit id="RscEB5954D4" resname="data_request.query.action.add">
+        <source>data_request.query.action.add</source>
+        <target>Abfrage hinzufügen</target>
+      </trans-unit>
+      <trans-unit id="Rsc3E1F963C" resname="data_request.query.action.add_submit">
+        <source>data_request.query.action.add_submit</source>
+        <target>Speichern und prüfen</target>
+      </trans-unit>
+      <trans-unit id="Rsc0B4D9A09" resname="data_request.query.action.revise">
+        <source>data_request.query.action.revise</source>
+        <target>Abfrage ändern</target>
+      </trans-unit>
+      <trans-unit id="Rsc2B8F9BBD" resname="data_request.query.action.save_version">
+        <source>data_request.query.action.save_version</source>
+        <target>Als neue Fassung speichern</target>
+      </trans-unit>
+      <trans-unit id="RscA058C37A" resname="data_request.query.action.dry_run">
+        <source>data_request.query.action.dry_run</source>
+        <target>Probelauf</target>
+      </trans-unit>
+      <trans-unit id="Rsc77C16C46" resname="data_request.query.check.passed">
+        <source>data_request.query.check.passed</source>
+        <target>Prüfung gegen die Positivliste bestanden.</target>
+      </trans-unit>
+      <trans-unit id="Rsc6E375D08" resname="data_request.query.check.failed">
+        <source>data_request.query.check.failed</source>
+        <target>Die Abfrage kann so nicht freigegeben werden:</target>
+      </trans-unit>
+      <trans-unit id="RscCE4F6766" resname="data_request.query.violation.not_select">
+        <source>data_request.query.violation.not_select</source>
+        <target>Es muss eine einzelne SELECT- (oder WITH-)Anweisung sein.</target>
+      </trans-unit>
+      <trans-unit id="RscA4195E20" resname="data_request.query.violation.several_statements">
+        <source>data_request.query.violation.several_statements</source>
+        <target>Nur eine Anweisung ist erlaubt; bitte die Semikolons entfernen.</target>
+      </trans-unit>
+      <trans-unit id="Rsc7BE00093" resname="data_request.query.violation.denied_function">
+        <source>data_request.query.violation.denied_function</source>
+        <target>Die Funktion {function} ist nicht erlaubt.</target>
+      </trans-unit>
+      <trans-unit id="Rsc9341F8E7" resname="data_request.query.violation.table">
+        <source>data_request.query.violation.table</source>
+        <target>Die Tabelle {table} steht nicht auf der Positivliste.</target>
+      </trans-unit>
+      <trans-unit id="Rsc73446771" resname="data_request.query.violation.column">
+        <source>data_request.query.violation.column</source>
+        <target>Die Spalte {column} ist gesperrt.</target>
+      </trans-unit>
+      <trans-unit id="Rsc4F044E29" resname="data_request.query.violation.internal_output">
+        <source>data_request.query.violation.internal_output</source>
+        <target>Die Spalte {column} gibt eine interne ID aus; sie darf nur zum Verknüpfen oder Zählen dienen.</target>
+      </trans-unit>
+      <trans-unit id="Rsc460F0F11" resname="data_request.query.violation.reserved_missing">
+        <source>data_request.query.violation.reserved_missing</source>
+        <target>Die reservierte Spalte {column} fehlt.</target>
+      </trans-unit>
+      <trans-unit id="Rsc8FDB1F84" resname="data_request.query.violation.sql_error">
+        <source>data_request.query.violation.sql_error</source>
+        <target>Die Datenbank hat die Abfrage abgelehnt: {message}</target>
+      </trans-unit>
+      <trans-unit id="Rsc62B496D0" resname="data_request.query.violation.connection_missing">
+        <source>data_request.query.violation.connection_missing</source>
+        <target>Die Exportverbindung ist nicht eingerichtet (RESEARCH_DATABASE_URL), deshalb lassen sich Abfragen weder prüfen noch ausführen.</target>
+      </trans-unit>
+      <trans-unit id="Rsc60872DE5" resname="data_request.query.dry_run.title">
+        <source>data_request.query.dry_run.title</source>
+        <target>Probelauf vom {date}</target>
+      </trans-unit>
+      <trans-unit id="RscE98CF47D" resname="data_request.query.dry_run.summary">
+        <source>data_request.query.dry_run.summary</source>
+        <target>{rows} Zeilen aus {hospitals} Kliniken in {ms} ms.</target>
+      </trans-unit>
+      <trans-unit id="Rsc9953948A" resname="data_request.query.dry_run.truncated">
+        <source>data_request.query.dry_run.truncated</source>
+        <target>Mehr als {max} Zeilen; die Abfrage muss eingegrenzt werden.</target>
+      </trans-unit>
+      <trans-unit id="RscDB569C2E" resname="data_request.query.dry_run.below_minimum">
+        <source>data_request.query.dry_run.below_minimum</source>
+        <target>{count} Gruppen haben weniger als {minimum} beitragende Kliniken; der Export würde blockiert.</target>
+      </trans-unit>
+      <trans-unit id="RscDEA81763" resname="data_request.query.dry_run.minimum_met">
+        <source>data_request.query.dry_run.minimum_met</source>
+        <target>Jede Gruppe hat mindestens {minimum} beitragende Kliniken.</target>
+      </trans-unit>
+      <trans-unit id="RscB3E4E5B3" resname="data_request.query.dry_run.sample">
+        <source>data_request.query.dry_run.sample</source>
+        <target>Erste Zeilen</target>
+      </trans-unit>
+      <trans-unit id="Rsc1108BA6A" resname="data_request.query.dry_run.below">
+        <source>data_request.query.dry_run.below</source>
+        <target>Gruppen unter der Mindestzahl</target>
+      </trans-unit>
+      <trans-unit id="Rsc0996C48F" resname="data_request.flash.query.add">
+        <source>data_request.flash.query.add</source>
+        <target>Die Abfrage ist gespeichert und geprüft.</target>
+      </trans-unit>
+      <trans-unit id="Rsc0C9B8C0B" resname="data_request.flash.query.revise">
+        <source>data_request.flash.query.revise</source>
+        <target>Die Abfrage ist gespeichert.</target>
+      </trans-unit>
+      <trans-unit id="RscEECC45C7" resname="data_request.flash.query.dry-run">
+        <source>data_request.flash.query.dry-run</source>
+        <target>Der Probelauf ist abgeschlossen.</target>
+      </trans-unit>
+      <trans-unit id="RscE7C24EF1" resname="data_request.refused.query_invalid">
+        <source>data_request.refused.query_invalid</source>
+        <target>Die Abfrage ließ sich nicht speichern: bitte Dateiname, Beschreibung und SQL prüfen.</target>
+      </trans-unit>
+      <trans-unit id="RscA65DEF99" resname="data_request.refused.query_check_failed">
+        <source>data_request.refused.query_check_failed</source>
+        <target>Die Abfrage besteht die Prüfung gegen die Positivliste nicht und kann deshalb nicht laufen.</target>
+      </trans-unit>
+      <trans-unit id="Rsc49F28EB9" resname="data_request.timeline.event.query_saved">
+        <source>data_request.timeline.event.query_saved</source>
+        <target>hat die Abfrage {query} als Fassung {version} gespeichert</target>
+      </trans-unit>
       <trans-unit id="RscA5DD4B30" resname="data_request.actions.title">
         <source>data_request.actions.title</source>
         <target>Aktionen</target>

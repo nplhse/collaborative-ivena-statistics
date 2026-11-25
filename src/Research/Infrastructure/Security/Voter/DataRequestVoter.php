@@ -32,6 +32,7 @@ use Symfony\Component\Workflow\WorkflowInterface;
  *   the applicant nor excluded, and for administrators.
  * - EXCLUDE_SELF: a Board member declares a conflict of interest. RECORD_EXCLUSION, RESOLVE: administrators.
  * - COMMENT: who may write at least one visibility level (DataRequestCommentService).
+ * - MANAGE_QUERIES: administrators, once the request is approved.
  *
  * @extends Voter<string, DataRequest>
  */
@@ -49,10 +50,11 @@ final class DataRequestVoter extends Voter
     public const string RECORD_EXCLUSION = 'DATA_REQUEST_RECORD_EXCLUSION';
     public const string RESOLVE = 'DATA_REQUEST_RESOLVE';
     public const string COMMENT = 'DATA_REQUEST_COMMENT';
+    public const string MANAGE_QUERIES = 'DATA_REQUEST_MANAGE_QUERIES';
 
     private const array ATTRIBUTES = [
         self::VIEW, self::VIEW_INTERNAL, self::EDIT, self::SUBMIT, self::WITHDRAW, self::CHECK, self::VOTE,
-        self::VIEW_VOTES, self::EXCLUDE_SELF, self::RECORD_EXCLUSION, self::RESOLVE, self::COMMENT,
+        self::VIEW_VOTES, self::EXCLUDE_SELF, self::RECORD_EXCLUSION, self::RESOLVE, self::COMMENT, self::MANAGE_QUERIES,
     ];
 
     /** @psalm-suppress PossiblyUnusedMethod */
@@ -110,6 +112,7 @@ final class DataRequestVoter extends Voter
             self::RECORD_EXCLUSION => $admin && !$status->isFinal() && $subject->wasSubmitted(),
             self::RESOLVE => $admin && DataRequestStatus::Stalled === $status,
             self::COMMENT => $this->comments->canComment($user, $subject),
+            self::MANAGE_QUERIES => $admin && DataRequestStatus::Approved === $status,
             default => false,
         };
     }

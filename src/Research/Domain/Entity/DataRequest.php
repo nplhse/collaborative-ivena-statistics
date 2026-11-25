@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Research\Domain\Entity;
 
 use App\Research\Domain\Enum\DataRequestStatus;
+use App\Research\Domain\Enum\QueryKind;
 use App\Research\Domain\Enum\RoundKind;
 use App\Research\Domain\Enum\TimelineEventType;
 use App\Research\Domain\Enum\Visibility;
@@ -90,6 +91,11 @@ class DataRequest
     #[ORM\OrderBy(['occurredAt' => 'ASC', 'id' => 'ASC'])]
     private Collection $events;
 
+    /** @var Collection<int, DataRequestQuery> */
+    #[ORM\OneToMany(targetEntity: DataRequestQuery::class, mappedBy: 'request', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OrderBy(['id' => 'ASC'])]
+    private Collection $queries;
+
     /** The version the Board approved; with its export scope it is the decision. */
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
@@ -112,6 +118,7 @@ class DataRequest
         $this->exclusions = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->events = new ArrayCollection();
+        $this->queries = new ArrayCollection();
     }
 
     /**
@@ -219,6 +226,38 @@ class DataRequest
     public function recordEvent(TimelineEventType $type, ?User $actor, Visibility $visibility, \DateTimeImmutable $at, array $details = []): void
     {
         $this->events->add(new DataRequestEvent($this, $type, $actor, $visibility, $at, $details));
+    }
+
+    /**
+     * @throws DataRequestException when the name is taken or the query is invalid
+     */
+    public function addQuery(string $name, string $description, QueryKind $kind, string $sql, ?User $author, \DateTimeImmutable $at): DataRequestQuery
+    {
+        if ($this->findQuery($name) instanceof DataRequestQuery) {
+            throw new DataRequestException('Another query of this request has that name.');
+        }
+
+        $query = new DataRequestQuery($this, $name, $description, $kind, $sql, $author, $at);
+        $this->queries->add($query);
+
+        return $query;
+    }
+
+    public function findQuery(string $name): ?DataRequestQuery
+    {
+        foreach ($this->queries as $query) {
+            if ($query->getName() === $name) {
+                return $query;
+            }
+        }
+
+        return null;
+    }
+
+    /** @return list<DataRequestQuery> */
+    public function getQueries(): array
+    {
+        return array_values($this->queries->toArray());
     }
 
     /** @return list<DataRequestEvent> */

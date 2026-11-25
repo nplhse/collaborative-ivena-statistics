@@ -21,6 +21,8 @@ final class DataRequestRefused extends \RuntimeException
     public const string ALREADY_EXCLUDED = 'data_request.refused.already_excluded';
     public const string NEW_VERSION_NEEDED = 'data_request.refused.new_version_needed';
     public const string COMMENT_INVALID = 'data_request.refused.comment_invalid';
+    public const string QUERY_INVALID = 'data_request.refused.query_invalid';
+    public const string QUERY_CHECK_FAILED = 'data_request.refused.query_check_failed';
 
     public function __construct(
         public readonly string $reason,
