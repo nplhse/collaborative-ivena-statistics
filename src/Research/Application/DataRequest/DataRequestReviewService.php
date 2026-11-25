@@ -38,6 +38,7 @@ final readonly class DataRequestReviewService
     /** @psalm-suppress PossiblyUnusedMethod Autowired. */
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private DataRequestChangeAnnouncer $changes,
         private AuditContext $auditContext,
         private ClockInterface $clock,
         #[Target('data_request.state_machine')]
@@ -375,6 +376,7 @@ final readonly class DataRequestReviewService
      */
     private function flush(string $intent, DataRequest $request): void
     {
+        $pending = $this->changes->pending($request);
         $this->auditContext->beginIntent($intent, ['data_request_id' => $request->getId()]);
         try {
             $this->entityManager->flush();
@@ -383,5 +385,7 @@ final readonly class DataRequestReviewService
         } finally {
             $this->auditContext->endIntent();
         }
+
+        $this->changes->announce($request, $pending);
     }
 }

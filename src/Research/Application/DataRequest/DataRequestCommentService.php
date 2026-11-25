@@ -30,6 +30,7 @@ final readonly class DataRequestCommentService
     /** @psalm-suppress PossiblyUnusedMethod Autowired. */
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private DataRequestChangeAnnouncer $changes,
         private AuditContext $auditContext,
         private ClockInterface $clock,
     ) {
@@ -91,12 +92,15 @@ final readonly class DataRequestCommentService
             throw new DataRequestRefused(DataRequestRefused::COMMENT_INVALID, $exception);
         }
 
+        $pending = $this->changes->pending($request);
         $this->auditContext->beginIntent('research.data_request.commented', ['data_request_id' => $request->getId(), 'visibility' => $visibility->value]);
         try {
             $this->entityManager->flush();
         } finally {
             $this->auditContext->endIntent();
         }
+
+        $this->changes->announce($request, $pending);
     }
 
     private function isActiveBoardMember(User $user, DataRequest $request): bool

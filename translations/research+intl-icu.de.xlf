@@ -1387,6 +1387,90 @@ Veröffentlicht werden nur zusammengefasste Ergebnisse, in denen jede ausgewiese
         <source>data_request.compare.version_option</source>
         <target>Version {number} vom {date}</target>
       </trans-unit>
+      <trans-unit id="RscF6D4472A" resname="research.decided.title">
+        <source>research.decided.title</source>
+        <target>{outcome, select, returned {Antrag zurückgegeben} revision_requested {Nachbesserung verlangt} approved {Antrag bewilligt} rejected {Antrag abgelehnt} stalled {Antrag angehalten} expired {Antrag abgelaufen} other {Antrag aktualisiert}}</target>
+      </trans-unit>
+      <trans-unit id="RscA36DFB9A" resname="research.decided.message">
+        <source>research.decided.message</source>
+        <target>{outcome, select, returned {Die formale Prüfung hat Ihren Antrag Nr. {number} „{title}“ zurückgegeben. Bitte lesen Sie den Hinweis und reichen Sie ihn erneut ein.} revision_requested {Das Board verlangt eine Nachbesserung Ihres Antrags Nr. {number} „{title}“.} approved {Das Board hat Ihren Antrag Nr. {number} „{title}“ bewilligt. Ein:e Administrator:in bereitet nun die Abfragen und die Freischaltung vor.} rejected {Ihr Antrag Nr. {number} „{title}“ wurde abgelehnt.} stalled {Ein Veto hat Ihren Antrag Nr. {number} „{title}“ angehalten. Ein:e Administrator:in entscheidet, wie es weitergeht.} expired {Ihr Antrag Nr. {number} „{title}“ ist abgelaufen, weil die Nachbesserung nicht rechtzeitig eingereicht wurde.} other {Ihr Antrag Nr. {number} „{title}“ hat sich geändert.}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc1FEC7BE4" resname="research.decided.label">
+        <source>research.decided.label</source>
+        <target>Entscheidungen zu meinen Anträgen</target>
+      </trans-unit>
+      <trans-unit id="RscFC562E80" resname="research.request_submitted.title">
+        <source>research.request_submitted.title</source>
+        <target>Antrag eingereicht</target>
+      </trans-unit>
+      <trans-unit id="RscD5E782B9" resname="research.request_submitted.message">
+        <source>research.request_submitted.message</source>
+        <target>Antrag Nr. {number} „{title}“ wurde eingereicht und wartet auf die formale Prüfung.</target>
+      </trans-unit>
+      <trans-unit id="Rsc821FE562" resname="research.request_submitted.label">
+        <source>research.request_submitted.label</source>
+        <target>Antrag zur formalen Prüfung eingereicht</target>
+      </trans-unit>
+      <trans-unit id="Rsc8EE27442" resname="research.board_vote.title">
+        <source>research.board_vote.title</source>
+        <target>{kind, select, revision {Neue Version nach Nachbesserung} reminder {Abstimmung endet bald} other {Abstimmung geöffnet}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc3D0F34C8" resname="research.board_vote.message">
+        <source>research.board_vote.message</source>
+        <target>{kind, select, revision {Antrag Nr. {number} „{title}“ liegt in überarbeiteter Version {version} vor. Ihre Zustimmung wurde übernommen; Sie können Ihre Stimme bis zum Ende der Runde ändern.} reminder {Runde {round} über Antrag Nr. {number} „{title}“ endet in weniger als 48 Stunden, und Sie haben noch nicht abgestimmt.} other {Die Abstimmung über Antrag Nr. {number} „{title}“ ist geöffnet: Runde {round} über Version {version}.}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc3ECD7AE6" resname="research.board_vote.label">
+        <source>research.board_vote.label</source>
+        <target>Abstimmungen: geöffnet, neue Version nach Nachbesserung, Erinnerung vor dem Ende</target>
+      </trans-unit>
+      <trans-unit id="Rsc7B595E11" resname="research.board_status.title">
+        <source>research.board_status.title</source>
+        <target>{kind, select, vetoed {Veto eingelegt} other {Antrag zurückgezogen}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc5293EE3F" resname="research.board_status.message">
+        <source>research.board_status.message</source>
+        <target>{kind, select, vetoed {Ein Veto hat Antrag Nr. {number} „{title}“ angehalten. Ein:e Administrator:in entscheidet, wie es weitergeht.} other {Die antragstellende Person hat Antrag Nr. {number} „{title}“ zurückgezogen.}}</target>
+      </trans-unit>
+      <trans-unit id="RscF85FBE6A" resname="research.board_status.label">
+        <source>research.board_status.label</source>
+        <target>Verlauf der Anträge: Veto, Rücknahme</target>
+      </trans-unit>
+      <trans-unit id="Rsc0C842E71" resname="research.commented.title">
+        <source>research.commented.title</source>
+        <target>{own, select, 1 {Neuer Kommentar zu Ihrem Antrag} other {Neuer Kommentar}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc189A9DB0" resname="research.commented.message">
+        <source>research.commented.message</source>
+        <target>{own, select, 1 {Es gibt einen neuen Kommentar zu Ihrem Antrag Nr. {number} „{title}“.} other {Es gibt einen neuen Kommentar zu Antrag Nr. {number} „{title}“, an dem Sie beteiligt sind.}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc1D895133" resname="research.commented.label">
+        <source>research.commented.label</source>
+        <target>Kommentare zu meinen Anträgen und zu Anträgen, an denen ich beteiligt bin</target>
+      </trans-unit>
+      <trans-unit id="Rsc23CA96E9" resname="research.export.title">
+        <source>research.export.title</source>
+        <target>{kind, select, released {Freischaltung erstellt} release_expiring {Freischaltung endet bald} provided {Auszug bereitgestellt} other {Abruffrist endet bald}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc78078F43" resname="research.export.message">
+        <source>research.export.message</source>
+        <target>{kind, select, released {Ihr Antrag Nr. {number} „{title}“ ist freigeschaltet (Freischaltung {release}). Sie können den Auszug innerhalb von drei Monaten erstellen.} release_expiring {Freischaltung {release} Ihres Antrags Nr. {number} „{title}“ endet in weniger als 14 Tagen, und es wurde noch kein Auszug erstellt.} provided {Der Auszug zu Ihrem Antrag Nr. {number} „{title}“ ist bereitgestellt. Sie können ihn sieben Tage lang herunterladen.} other {Der Auszug zu Ihrem Antrag Nr. {number} „{title}“ kann nur noch weniger als 24 Stunden heruntergeladen werden.}}</target>
+      </trans-unit>
+      <trans-unit id="RscC6E25115" resname="research.export.label">
+        <source>research.export.label</source>
+        <target>Freischaltung und Auszug: erstellt, bereitgestellt, Erinnerungen vor Fristende</target>
+      </trans-unit>
+      <trans-unit id="Rsc20C52CA5" resname="research.admin.title">
+        <source>research.admin.title</source>
+        <target>{kind, select, approved {Antrag bewilligt} vetoed {Veto eingelegt} blocked {Auszug blockiert} other {Auszug fehlgeschlagen}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc5774442B" resname="research.admin.message">
+        <source>research.admin.message</source>
+        <target>{kind, select, approved {Das Board hat Antrag Nr. {number} „{title}“ bewilligt. Bitte bereiten Sie die Abfragen und die Freischaltung vor.} vetoed {Ein Veto hat Antrag Nr. {number} „{title}“ angehalten. Bitte entscheiden Sie, wie es weitergeht.} blocked {Der Auszug zu Freischaltung {release} von Antrag Nr. {number} „{title}“ wurde blockiert: Eine Gruppe hat zu wenige Kliniken.} other {Der Auszug zu Freischaltung {release} von Antrag Nr. {number} „{title}“ ist fehlgeschlagen.}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc481C67DA" resname="research.admin.label">
+        <source>research.admin.label</source>
+        <target>Datenauszüge vorbereiten: bewilligt, Veto, fehlgeschlagene oder blockierte Auszüge</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

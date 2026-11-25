@@ -1387,6 +1387,90 @@ Only aggregated results are published, and every group they show is based on at 
         <source>data_request.compare.version_option</source>
         <target>Version {number} of {date}</target>
       </trans-unit>
+      <trans-unit id="RscF6D4472A" resname="research.decided.title">
+        <source>research.decided.title</source>
+        <target>{outcome, select, returned {Request returned} revision_requested {Revision requested} approved {Request approved} rejected {Request rejected} stalled {Request stopped} expired {Request expired} other {Request updated}}</target>
+      </trans-unit>
+      <trans-unit id="RscA36DFB9A" resname="research.decided.message">
+        <source>research.decided.message</source>
+        <target>{outcome, select, returned {The formal check returned your request no. {number} "{title}". Please look at the message and submit it again.} revision_requested {The Board asks for a revision of your request no. {number} "{title}".} approved {The Board approved your request no. {number} "{title}". An administrator now prepares the queries and the release.} rejected {Your request no. {number} "{title}" was rejected.} stalled {A veto stopped your request no. {number} "{title}". An administrator decides how it goes on.} expired {Your request no. {number} "{title}" expired because the revision was not submitted in time.} other {Your request no. {number} "{title}" changed.}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc1FEC7BE4" resname="research.decided.label">
+        <source>research.decided.label</source>
+        <target>Decisions on my requests</target>
+      </trans-unit>
+      <trans-unit id="RscFC562E80" resname="research.request_submitted.title">
+        <source>research.request_submitted.title</source>
+        <target>Request submitted</target>
+      </trans-unit>
+      <trans-unit id="RscD5E782B9" resname="research.request_submitted.message">
+        <source>research.request_submitted.message</source>
+        <target>Request no. {number} "{title}" was submitted and waits for the formal check.</target>
+      </trans-unit>
+      <trans-unit id="Rsc821FE562" resname="research.request_submitted.label">
+        <source>research.request_submitted.label</source>
+        <target>Request submitted for the formal check</target>
+      </trans-unit>
+      <trans-unit id="Rsc8EE27442" resname="research.board_vote.title">
+        <source>research.board_vote.title</source>
+        <target>{kind, select, revision {New version after a revision} reminder {Vote ends soon} other {Vote opened}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc3D0F34C8" resname="research.board_vote.message">
+        <source>research.board_vote.message</source>
+        <target>{kind, select, revision {Request no. {number} "{title}" has a revised version {version}. Your approval was carried over; you may change your vote until the round ends.} reminder {Round {round} on request no. {number} "{title}" ends within 48 hours, and you have not voted yet.} other {The vote on request no. {number} "{title}" is open: round {round} on version {version}.}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc3ECD7AE6" resname="research.board_vote.label">
+        <source>research.board_vote.label</source>
+        <target>Votes: opened, new version after a revision, reminder before the end</target>
+      </trans-unit>
+      <trans-unit id="Rsc7B595E11" resname="research.board_status.title">
+        <source>research.board_status.title</source>
+        <target>{kind, select, vetoed {Veto} other {Request withdrawn}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc5293EE3F" resname="research.board_status.message">
+        <source>research.board_status.message</source>
+        <target>{kind, select, vetoed {A veto stopped request no. {number} "{title}". An administrator decides how it goes on.} other {The applicant withdrew request no. {number} "{title}".}}</target>
+      </trans-unit>
+      <trans-unit id="RscF85FBE6A" resname="research.board_status.label">
+        <source>research.board_status.label</source>
+        <target>Course of requests: veto, withdrawal</target>
+      </trans-unit>
+      <trans-unit id="Rsc0C842E71" resname="research.commented.title">
+        <source>research.commented.title</source>
+        <target>{own, select, 1 {New comment on your request} other {New comment}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc189A9DB0" resname="research.commented.message">
+        <source>research.commented.message</source>
+        <target>{own, select, 1 {There is a new comment on your request no. {number} "{title}".} other {There is a new comment on request no. {number} "{title}", which you took part in.}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc1D895133" resname="research.commented.label">
+        <source>research.commented.label</source>
+        <target>Comments on my requests and on requests I take part in</target>
+      </trans-unit>
+      <trans-unit id="Rsc23CA96E9" resname="research.export.title">
+        <source>research.export.title</source>
+        <target>{kind, select, released {Release created} release_expiring {Release ends soon} provided {Export ready} other {Download ends soon}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc78078F43" resname="research.export.message">
+        <source>research.export.message</source>
+        <target>{kind, select, released {Your request no. {number} "{title}" is released (release {release}). You can create the export within three months.} release_expiring {Release {release} of your request no. {number} "{title}" ends within 14 days, and no export was created yet.} provided {The export of your request no. {number} "{title}" is ready. You can download it for seven days.} other {The export of your request no. {number} "{title}" can be downloaded for less than 24 hours.}}</target>
+      </trans-unit>
+      <trans-unit id="RscC6E25115" resname="research.export.label">
+        <source>research.export.label</source>
+        <target>Release and export: created, ready, reminders before the periods end</target>
+      </trans-unit>
+      <trans-unit id="Rsc20C52CA5" resname="research.admin.title">
+        <source>research.admin.title</source>
+        <target>{kind, select, approved {Request approved} vetoed {Veto} blocked {Export blocked} other {Export failed}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc5774442B" resname="research.admin.message">
+        <source>research.admin.message</source>
+        <target>{kind, select, approved {The Board approved request no. {number} "{title}". Please prepare the queries and the release.} vetoed {A veto stopped request no. {number} "{title}". Please decide how it goes on.} blocked {The export of release {release} of request no. {number} "{title}" was blocked: a group has too few hospitals.} other {The export of release {release} of request no. {number} "{title}" failed.}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc481C67DA" resname="research.admin.label">
+        <source>research.admin.label</source>
+        <target>Preparing data extracts: approved, veto, failed or blocked exports</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

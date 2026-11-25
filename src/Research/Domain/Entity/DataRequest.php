@@ -448,6 +448,12 @@ class DataRequest
         return $last instanceof DataRequestRound ? $last : null;
     }
 
+    /** @return list<DataRequestComment> every comment, replies included */
+    public function getComments(): array
+    {
+        return array_values($this->comments->toArray());
+    }
+
     /** @return list<DataRequestComment> comments without a parent, oldest first; replies hang below them */
     public function getTopLevelComments(): array
     {

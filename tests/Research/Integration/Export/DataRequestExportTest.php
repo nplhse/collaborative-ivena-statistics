@@ -12,6 +12,7 @@ use App\Research\Application\DataRequest\DataRequestReviewService;
 use App\Research\Application\DataRequest\DataRequestService;
 use App\Research\Application\Export\ExportStorageInterface;
 use App\Research\Application\Message\CleanUpDataExportsMessage;
+use App\Research\Application\Message\EvaluateDataRequestDeadlinesMessage;
 use App\Research\Domain\Entity\DataRequest;
 use App\Research\Domain\Entity\DataRequestEvent;
 use App\Research\Domain\Entity\DataRequestExportRun;
@@ -20,8 +21,10 @@ use App\Research\Domain\Enum\ExportRunStatus;
 use App\Research\Domain\Enum\QueryKind;
 use App\Research\Domain\Enum\VoteChoice;
 use App\Research\Infrastructure\Scheduler\CleanUpDataExportsMessageHandler;
+use App\Research\Infrastructure\Scheduler\EvaluateDataRequestDeadlinesMessageHandler;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
@@ -234,6 +237,32 @@ final class DataRequestExportTest extends KernelTestCase
         self::assertTrue($this->releases()->canRelease($admin, $request), 'a new release is possible');
     }
 
+    public function testTheRecipientHearsOfReleaseExportAndDeadlinesAndAdministratorsOfProblems(): void
+    {
+        self::mockTime('2026-12-01 09:00');
+        $this->seedHospitals();
+        $applicant = UserFactory::new()->asParticipant()->create();
+        $admin = UserFactory::new()->asAdmin()->create();
+        $request = $this->approved($applicant, ['total' => self::TOTAL, 'broken' => self::FAILING], $admin);
+
+        $failing = $this->releases()->release($admin, $request, false, ['broken']);
+        self::assertContains('research.export:released', $this->notificationTypes($applicant));
+        $this->releases()->start($applicant, $failing);
+        self::assertContains('research.admin:failed', $this->notificationTypes($admin));
+
+        $release = $this->releases()->release($admin, $request, false, ['total']);
+        self::mockTime('2027-02-15 10:00');
+        $this->runDeadlines();
+        self::assertContains('research.export:release_expiring', $this->notificationTypes($applicant), 'less than 14 days before the release ends');
+
+        $this->releases()->start($applicant, $release);
+        self::assertContains('research.export:provided', $this->notificationTypes($applicant));
+        self::mockTime('2027-02-21 11:00');
+        $this->runDeadlines();
+        $this->runDeadlines();
+        self::assertSame(1, array_count_values($this->notificationTypes($applicant))['research.export:download_expiring'] ?? 0, 'once, less than a day before the download ends');
+    }
+
     public function testAGroupBelowTheMinimumBlocksTheExport(): void
     {
         self::mockTime('2026-12-01 09:00');
@@ -358,6 +387,28 @@ final class DataRequestExportTest extends KernelTestCase
         }
 
         return $request;
+    }
+
+    private function runDeadlines(): void
+    {
+        self::getContainer()->get(EvaluateDataRequestDeadlinesMessageHandler::class)(new EvaluateDataRequestDeadlinesMessage());
+    }
+
+    /**
+     * Type and occasion of each notification, for example "research.export:provided".
+     *
+     * @return list<string>
+     */
+    private function notificationTypes(User $recipient): array
+    {
+        $rows = self::getContainer()->get(Connection::class)->fetchAllAssociative('SELECT type, parameters FROM notification WHERE recipient_id = ? ORDER BY id', [$recipient->getId()]);
+
+        return array_map(static function (array $row): string {
+            /** @var array<string, mixed> $parameters */
+            $parameters = json_decode((string) $row['parameters'], true, flags: \JSON_THROW_ON_ERROR);
+
+            return (string) $row['type'].(isset($parameters['kind']) ? ':'.(string) $parameters['kind'] : '');
+        }, $rows);
     }
 
     private function exportRun(DataRequestRelease $release): DataRequestExportRun
