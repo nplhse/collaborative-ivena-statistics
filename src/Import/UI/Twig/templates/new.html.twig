@@ -132,6 +132,12 @@
                             </div>
                         </div>
                     {% endif %}
+                    {# Upload authority (#1565): shown for a selected hospital that still needs it; without JS always. #}
+                    {% if form.uploadAuthority is defined %}
+                        <div data-import-type-fields-target="authority" data-test="import-upload-authority">
+                            {{ form_row(form.uploadAuthority) }}
+                        </div>
+                    {% endif %}
                     {{ form_row(form.submit, {attr: {'data-import-upload-target': 'submit'}}) }}
                 {{ form_end(form) }}
             </twig:Card>

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Admin\Functional\Controller;
 
+use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\User\Application\Terms\TermsVersion;
@@ -18,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
-/** Admins see per user and per hospital which version of the terms was accepted (#1564). */
+/** Admins see per user and per hospital which version of the terms was accepted (#1564) and the upload authority (#1565). */
 #[ResetDatabase]
 final class TermsAcceptanceAdminDetailTest extends WebTestCase
 {
@@ -81,6 +84,35 @@ final class TermsAcceptanceAdminDetailTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertStringContainsString('Accepted the current version 2026-12: 1 of 3', $text);
         self::assertStringContainsString('No acceptance stored', $text);
+    }
+
+    public function testHospitalDetailShowsTheUploadAuthorityOfTheOwnerAndOfPeopleWhoMayImport(): void
+    {
+        $owner = UserFactory::createOne(['username' => 'authority-owner']);
+        $hospital = HospitalFactory::createOne(['owner' => $owner]);
+        $importer = UserFactory::createOne(['username' => 'authority-importer']);
+        $viewer = UserFactory::createOne(['username' => 'authority-viewer']);
+        HospitalAccessGrantFactory::createOne(['user' => $importer, 'hospital' => $hospital, 'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View, HospitalPermission::Import])]);
+        HospitalAccessGrantFactory::createOne(['user' => $viewer, 'hospital' => $hospital, 'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View])]);
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->persist(new TermsAcceptance(
+            $entityManager->getReference(User::class, $importer->getId()),
+            TermsAcceptanceKind::UploadAuthority,
+            '2026-12',
+            'en',
+            null,
+            new \DateTimeImmutable('2026-12-03 11:00:00'),
+            $entityManager->getReference(Hospital::class, $hospital->getId()),
+        ));
+        $entityManager->flush();
+
+        $lines = $this->client->request(Request::METHOD_GET, '/admin/hospital/'.$hospital->getId())->filter('body')->text();
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Owner: authority-owner · Upload authority: not confirmed', $lines);
+        self::assertStringContainsString('Upload authority: Version 2026-12 on 03.12.2026 11:00', $lines);
+        // Without the import permission the line names no upload authority.
+        self::assertSame(2, substr_count($lines, 'Upload authority:'));
     }
 
     private function accept(User $user, ?string $version, string $acceptedAt): void

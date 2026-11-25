@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Import\UI\Http\Controller;
 
+use App\Allocation\Application\Hospital\UploadAuthority\UploadAuthority;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Import\Application\Contracts\ImportTypeExtensionInterface;
 use App\Import\Application\Message\ImportAllocationsMessage;
@@ -59,6 +60,7 @@ final class NewImportController extends AbstractController
         private readonly ImportTypeExtensionRegistry $typeExtensions,
         private readonly ImportStartDispatcher $startDispatcher,
         private readonly PendingImportUploadStore $pendingUploads,
+        private readonly UploadAuthority $uploadAuthority,
     ) {
     }
 
@@ -114,6 +116,15 @@ final class NewImportController extends AbstractController
         // Hospital and type are each valid choices, but the user may not upload this type there.
         if (!$this->uploadTargets->canUpload($user, $importType, $hospitalId)) {
             $form->get('hospital')->addError(new FormError($this->translator->trans('validation.import.hospital_type_not_allowed', [], 'validators')));
+
+            return $this->renderUploadForm($form, $extensions);
+        }
+
+        // The authority to upload for this hospital, once per hospital and terms version (#1565).
+        $confirmsAuthority = $this->uploadAuthority->isRequired($user, $hospital);
+        if ($confirmsAuthority && (!$form->has(ImportCreateType::FIELD_UPLOAD_AUTHORITY) || true !== $form->get(ImportCreateType::FIELD_UPLOAD_AUTHORITY)->getData())) {
+            $form->get($form->has(ImportCreateType::FIELD_UPLOAD_AUTHORITY) ? ImportCreateType::FIELD_UPLOAD_AUTHORITY : 'hospital')
+                ->addError(new FormError($this->translator->trans('validation.import.upload_authority_required', [], 'validators')));
 
             return $this->renderUploadForm($form, $extensions);
         }
@@ -199,6 +210,9 @@ final class NewImportController extends AbstractController
         $import->setFileChecksum($checksum);
 
         $this->em->persist($import);
+        if ($confirmsAuthority) {
+            $this->uploadAuthority->confirm($createdBy, $managedHospital, $request->getLocale());
+        }
         $extension?->onImportCreated($import, $form, $user);
         $this->auditContext->beginIntent('import.created', []);
         try {

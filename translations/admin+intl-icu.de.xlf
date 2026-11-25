@@ -3345,6 +3345,14 @@
         <source>admin.terms_acceptance.current_summary</source>
         <target>Aktueller Fassung {version} zugestimmt: {accepted} von {total}</target>
       </trans-unit>
+      <trans-unit id="adminUploadAuthority0De" resname="admin.upload_authority.label">
+        <source>admin.upload_authority.label</source>
+        <target>Upload-Berechtigung</target>
+      </trans-unit>
+      <trans-unit id="adminUploadAuthority1De" resname="admin.upload_authority.missing">
+        <source>admin.upload_authority.missing</source>
+        <target>nicht bestätigt</target>
+      </trans-unit>
       <trans-unit id="adminUserTwoFactor03De" resname="flash.admin.user.two_factor_reset.done">
         <source>flash.admin.user.two_factor_reset.done</source>
         <target>Die Zwei-Faktor-Authentifizierung von {username} wurde zurückgesetzt.</target>

@@ -526,6 +526,10 @@ final class EncounterImportControllerTest extends WebTestCase
         if ($confirm) {
             $this->checkbox($form, 'import_create[encounterConfirmation]')->tick();
         }
+        // The first upload for a hospital confirms the authority to upload (#1565).
+        if ($form->has('import_create[uploadAuthority]')) {
+            $this->checkbox($form, 'import_create[uploadAuthority]')->tick();
+        }
 
         $this->fileField($form, 'import_create[file]')->upload($this->file($content));
         $this->client->submit($form);

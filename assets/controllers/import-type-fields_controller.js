@@ -7,11 +7,13 @@ import { Controller } from '@hotwired/stimulus';
  *   Without a hospital all types stay available. The server checks the combination again.
  * - shows the extra fields of an import type (`import.type_extension`, for example encounter data)
  *   only while that type is selected.
+ * - shows the upload authority checkbox (#1565) only for a hospital whose option has
+ *   `data-needs-upload-authority="1"`; the server requires it for exactly those hospitals.
  * Without JavaScript every type and all fields stay visible.
  */
 /* stimulusFetch: 'lazy' */
 export default class extends Controller {
-    static targets = ['hospital', 'type', 'section'];
+    static targets = ['hospital', 'type', 'section', 'authority'];
 
     static values = { types: Array };
 
@@ -39,7 +41,18 @@ export default class extends Controller {
             }
         }
 
+        this.toggleAuthority();
         this.toggle();
+    }
+
+    toggleAuthority() {
+        const needed =
+            this.hasHospitalTarget &&
+            this.hospitalTarget.selectedOptions[0]?.dataset.needsUploadAuthority === '1';
+
+        this.authorityTargets.forEach((authority) => {
+            authority.hidden = !needed;
+        });
     }
 
     toggle() {

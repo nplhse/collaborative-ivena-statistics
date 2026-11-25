@@ -717,6 +717,10 @@
         <source>validation.import.upload_failed</source>
         <target>The file could not be uploaded. Please choose it again.</target>
       </trans-unit>
+      <trans-unit id="impValUploadAuthorityEn" resname="validation.import.upload_authority_required">
+        <source>validation.import.upload_authority_required</source>
+        <target>Confirm that you are authorised to upload data for this hospital.</target>
+      </trans-unit>
       <trans-unit id="impValUploadEnConsumed" resname="validation.import.upload_consumed">
         <source>validation.import.upload_consumed</source>
         <target>This file has already been used for an import. Please choose the file again.</target>

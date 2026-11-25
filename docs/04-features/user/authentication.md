@@ -127,6 +127,11 @@ page the user asked for. Until then:
 - `TermsAcceptanceStatus` remembers account and accepted version in the session, so the table is read once per
   session and again after the version changes.
 
+**Upload authority** (#1565): the same table holds the confirmation that a person may upload data for a hospital,
+kind `upload_authority` with the hospital (deleted with the hospital as well). It is asked in the upload form, once
+per hospital and terms version ([import-pipeline.md](../import/import-pipeline.md#who-may-upload)); the hospital
+detail page in the admin backend shows it for the owner and for every grant with the import permission.
+
 Raising the version asks everyone again at their next request (the variable is read at runtime); editing the terms page does not. The demo and the test
 environment have no version; tests of the prompt set one (`TermsAcceptanceAtLoginTest`).
 

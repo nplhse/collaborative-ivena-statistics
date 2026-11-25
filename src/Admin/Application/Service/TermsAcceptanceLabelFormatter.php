@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\Application\Service;
 
+use App\Allocation\Domain\Entity\Hospital;
 use App\User\Application\Terms\TermsVersion;
 use App\User\Domain\Entity\TermsAcceptance;
 use App\User\Domain\Entity\User;
@@ -11,8 +12,9 @@ use App\User\Infrastructure\Repository\TermsAcceptanceRepository;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * Admin labels for the latest acceptance of the terms of use (#1564): the accepted version and when, and whether it is
- * the configured current version. Returns escaped HTML for EasyAdmin `formatValue()`.
+ * Admin labels for the latest acceptance of the terms of use (#1564) and of the upload authority for a hospital
+ * (#1565): the accepted version and when, and whether it is the configured current version. Returns escaped HTML for
+ * EasyAdmin `formatValue()`.
  */
 final readonly class TermsAcceptanceLabelFormatter
 {
@@ -26,6 +28,18 @@ final readonly class TermsAcceptanceLabelFormatter
     public function forUser(User $user): string
     {
         return $this->label($this->acceptances->latestFor($user));
+    }
+
+    /** The upload authority of the user for this hospital (#1565), for people who may upload there. */
+    public function uploadAuthorityFor(User $user, Hospital $hospital): string
+    {
+        $acceptance = $this->acceptances->latestUploadAuthorityFor($user, $hospital);
+        $prefix = htmlspecialchars($this->translator->trans('admin.upload_authority.label', [], 'admin'), \ENT_QUOTES).': ';
+        if (!$acceptance instanceof TermsAcceptance) {
+            return $prefix.'<span class="badge badge-warning">'.htmlspecialchars($this->translator->trans('admin.upload_authority.missing', [], 'admin'), \ENT_QUOTES).'</span>';
+        }
+
+        return $prefix.$this->label($acceptance);
     }
 
     /**

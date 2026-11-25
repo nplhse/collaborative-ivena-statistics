@@ -717,6 +717,10 @@
         <source>validation.import.upload_failed</source>
         <target>Die Datei konnte nicht hochgeladen werden. Bitte wählen Sie sie erneut aus.</target>
       </trans-unit>
+      <trans-unit id="impValUploadAuthorityDe" resname="validation.import.upload_authority_required">
+        <source>validation.import.upload_authority_required</source>
+        <target>Bestätigen Sie, dass Sie berechtigt sind, für diese Klinik Daten hochzuladen.</target>
+      </trans-unit>
       <trans-unit id="impValUploadDeConsumed" resname="validation.import.upload_consumed">
         <source>validation.import.upload_consumed</source>
         <target>Diese Datei wurde bereits für einen Import verwendet. Bitte wählen Sie die Datei erneut aus.</target>

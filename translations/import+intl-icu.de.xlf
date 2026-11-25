@@ -381,6 +381,10 @@
         <source>label.import.type.encounter</source>
         <target>Behandlungsdaten (Beta)</target>
       </trans-unit>
+      <trans-unit id="impUploadAuthorityDe" resname="label.import.upload_authority">
+        <source>label.import.upload_authority</source>
+        <target>Ich bin berechtigt, für diese Klinik Daten hochzuladen.</target>
+      </trans-unit>
       <trans-unit id="impHospOverrideDe" resname="label.import.hospitalOverride">
         <source>label.import.hospitalOverride</source>
         <target>Zielklinik überschreiben</target>

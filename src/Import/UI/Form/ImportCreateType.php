@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Import\UI\Form;
 
+use App\Allocation\Application\Hospital\UploadAuthority\UploadAuthority;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Import\Application\Contracts\ImportTypeExtensionInterface;
@@ -40,6 +41,9 @@ use Symfony\Component\Validator\Constraints\File as FileConstraint;
  */
 final class ImportCreateType extends AbstractType
 {
+    /** Confirmation of the authority to upload for the selected hospital (#1565); only while one still needs it. */
+    public const string FIELD_UPLOAD_AUTHORITY = 'uploadAuthority';
+
     /**
      * Import options (#1352): unmapped checkboxes shown in the upload form's Options section. Each one exists
      * only for users the voter attribute grants it to, in the environments where it applies; the controller
@@ -60,6 +64,7 @@ final class ImportCreateType extends AbstractType
         private readonly HospitalRepository $hospitalRepository,
         private readonly Security $security,
         private readonly PendingImportUploadStore $pendingUploads,
+        private readonly UploadAuthority $uploadAuthority,
         #[Autowire(param: 'app.imports_max_size')]
         private readonly string $maxSize = '5M',
     ) {
@@ -77,6 +82,7 @@ final class ImportCreateType extends AbstractType
         $uploadTargets = $options['upload_targets'];
         /** @var list<ImportTypeExtensionInterface> $extensions */
         $extensions = $options['type_extensions'];
+        $needsAuthority = $this->uploadAuthority->hospitalIdsRequiringConfirmation($user, array_values(array_unique(array_merge(...array_values($uploadTargets)))));
 
         $builder
             ->add('name', TextType::class, [
@@ -91,8 +97,10 @@ final class ImportCreateType extends AbstractType
                 'placeholder' => 'label.import.selectHospital',
                 'query_builder' => fn (): QueryBuilder => $this->hospitalQueryBuilder($uploadTargets),
                 // The types allowed per hospital; the `import-type-fields` controller offers only those (#1351).
+                // and shows the upload authority checkbox for hospitals that still need it (#1565).
                 'choice_attr' => static fn (Hospital $hospital): array => [
                     'data-import-types' => json_encode(self::typesForHospital($uploadTargets, (int) $hospital->getId()), \JSON_THROW_ON_ERROR),
+                    'data-needs-upload-authority' => \in_array((int) $hospital->getId(), $needsAuthority, true) ? '1' : '0',
                 ],
                 'constraints' => [new Assert\NotNull()],
             ]);
@@ -125,6 +133,15 @@ final class ImportCreateType extends AbstractType
 
         foreach ($extensions as $extension) {
             $extension->buildForm($builder);
+        }
+
+        // Required by the controller only for a hospital that needs it; without such a hospital the field does not exist.
+        if ([] !== $needsAuthority) {
+            $builder->add(self::FIELD_UPLOAD_AUTHORITY, CheckboxType::class, [
+                'mapped' => false,
+                'required' => false,
+                'label' => 'label.import.upload_authority',
+            ]);
         }
 
         $builder
