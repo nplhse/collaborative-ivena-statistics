@@ -33,7 +33,10 @@ if [ "$target" = "$main" ]; then
     exit 1
 fi
 
-suffix=$(sed -n 's/^TEST_DATABASE_SUFFIX=//p' "$target/.env.test.local" 2>/dev/null | tail -n 1)
+suffix=""
+if [ -f "$target/.env.test.local" ]; then
+    suffix=$(sed -n 's/^TEST_DATABASE_SUFFIX=//p' "$target/.env.test.local" 2>/dev/null | tail -n 1)
+fi
 if [ -z "$suffix" ]; then
     echo "No TEST_DATABASE_SUFFIX in $target/.env.test.local: this worktree uses the shared test databases." >&2
     echo "Nothing dropped. Remove it with: git worktree remove $target" >&2
