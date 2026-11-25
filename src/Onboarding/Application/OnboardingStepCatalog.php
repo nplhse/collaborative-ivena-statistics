@@ -104,6 +104,14 @@ final readonly class OnboardingStepCatalog
         );
     }
 
+    public function hasExportPermission(User $user): bool
+    {
+        return [] !== $this->hospitalPermissionAccess->resolveHospitalIdsWithPermission(
+            $user,
+            HospitalPermission::Export,
+        );
+    }
+
     public function hasStatisticsPermission(User $user): bool
     {
         return [] !== $this->hospitalPermissionAccess->resolveHospitalIdsWithPermission(
