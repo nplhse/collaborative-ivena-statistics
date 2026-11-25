@@ -161,6 +161,42 @@
         <source>whats_new.items.my_hospitals.action</source>
         <target>Open My Hospitals</target>
       </trans-unit>
+      <trans-unit id="WhatsNewEn16" resname="whats_new.items.allocation_export.title">
+        <source>whats_new.items.allocation_export.title</source>
+        <target>Export allocations in Tools</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn17" resname="whats_new.items.allocation_export.description">
+        <source>whats_new.items.allocation_export.description</source>
+        <target>Exporting your allocations as a CSV file has left the top navigation and is now in Tools under "Export data".</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn18" resname="whats_new.items.allocation_export.action">
+        <source>whats_new.items.allocation_export.action</source>
+        <target>Open export</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn19" resname="whats_new.items.help_glossary.title">
+        <source>whats_new.items.help_glossary.title</source>
+        <target>Glossary and data catalog in Help</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn20" resname="whats_new.items.help_glossary.description">
+        <source>whats_new.items.help_glossary.description</source>
+        <target>Look up terms, codes and catalogues in Help, for example what an indication or a care level means.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn21" resname="whats_new.items.help_glossary.action">
+        <source>whats_new.items.help_glossary.action</source>
+        <target>Open glossary</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn22" resname="whats_new.items.two_factor.title">
+        <source>whats_new.items.two_factor.title</source>
+        <target>Sign-in with a second factor</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn23" resname="whats_new.items.two_factor.description">
+        <source>whats_new.items.two_factor.description</source>
+        <target>Protect your account with an additional code from an authenticator app.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn24" resname="whats_new.items.two_factor.action">
+        <source>whats_new.items.two_factor.action</source>
+        <target>Set up two-factor sign-in</target>
+      </trans-unit>
       <trans-unit id="WhatsNewEn13" resname="whats_new.items.settings_overview.title">
         <source>whats_new.items.settings_overview.title</source>
         <target>All settings in one place</target>

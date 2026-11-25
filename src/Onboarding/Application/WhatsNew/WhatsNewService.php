@@ -13,9 +13,12 @@ use App\Onboarding\Domain\Enum\WhatsNewItemKey;
 use App\Onboarding\Infrastructure\Repository\UserWhatsNewDismissalRepository;
 use App\Onboarding\Infrastructure\Repository\WhatsNewReleaseRepository;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
+use App\User\Infrastructure\Security\TwoFactor\TwoFactorAvailability;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 use Symfony\Component\Translation\TranslatableMessage;
 
 /**
@@ -34,6 +37,9 @@ final readonly class WhatsNewService
         'v0.3' => [
             WhatsNewItemKey::DisplayName,
             WhatsNewItemKey::MyHospitals,
+            WhatsNewItemKey::AllocationExport,
+            WhatsNewItemKey::HelpGlossary,
+            WhatsNewItemKey::TwoFactor,
             WhatsNewItemKey::SettingsOverview,
         ],
     ];
@@ -47,6 +53,8 @@ final readonly class WhatsNewService
         private OnboardingStepCatalog $stepCatalog,
         private UrlGeneratorInterface $urlGenerator,
         private ClockInterface $clock,
+        private RoleHierarchyInterface $roleHierarchy,
+        private TwoFactorAvailability $twoFactorAvailability,
     ) {
     }
 
@@ -113,8 +121,25 @@ final readonly class WhatsNewService
             WhatsNewItemKey::MyHospitals => $this->stepCatalog->hasClinicAccess($user)
                 ? $this->item($itemKey, 'my_hospitals', 'app_hospitals_index')
                 : null,
+            // The export moved from the header into Tools (#1633); only for users who may export.
+            WhatsNewItemKey::AllocationExport => $this->stepCatalog->hasExportPermission($user)
+                ? $this->item($itemKey, 'allocation_export', 'app_tools_allocation_export')
+                : null,
+            // Glossary and data catalog in the help section (#1529) need the participant role.
+            WhatsNewItemKey::HelpGlossary => $this->isParticipant($user)
+                ? $this->item($itemKey, 'help_glossary', 'app_help_glossary_index')
+                : null,
+            // Two-factor sign-in (#1357), only where it can be set up and is not in use yet.
+            WhatsNewItemKey::TwoFactor => $this->twoFactorAvailability->isAvailable() && !$user->isTotpAuthenticationEnabled()
+                ? $this->item($itemKey, 'two_factor', 'app_settings_two_factor')
+                : null,
             WhatsNewItemKey::SettingsOverview => $this->item($itemKey, 'settings_overview', 'app_settings_index'),
         };
+    }
+
+    private function isParticipant(User $user): bool
+    {
+        return \in_array(UserRole::PARTICIPANT, $this->roleHierarchy->getReachableRoleNames($user->getRoles()), true);
     }
 
     private function displayNameItem(User $user): WhatsNewItemView

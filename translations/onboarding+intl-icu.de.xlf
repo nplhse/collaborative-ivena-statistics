@@ -161,6 +161,42 @@
         <source>whats_new.items.my_hospitals.action</source>
         <target>Meine Krankenhäuser öffnen</target>
       </trans-unit>
+      <trans-unit id="WhatsNewDe16" resname="whats_new.items.allocation_export.title">
+        <source>whats_new.items.allocation_export.title</source>
+        <target>Zuweisungen exportieren unter Tools</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe17" resname="whats_new.items.allocation_export.description">
+        <source>whats_new.items.allocation_export.description</source>
+        <target>Der Export Ihrer Zuweisungen als CSV-Datei hat die obere Navigation verlassen und liegt jetzt unter Tools in „Daten exportieren“.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe18" resname="whats_new.items.allocation_export.action">
+        <source>whats_new.items.allocation_export.action</source>
+        <target>Export öffnen</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe19" resname="whats_new.items.help_glossary.title">
+        <source>whats_new.items.help_glossary.title</source>
+        <target>Glossar und Datenkatalog in der Hilfe</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe20" resname="whats_new.items.help_glossary.description">
+        <source>whats_new.items.help_glossary.description</source>
+        <target>Begriffe, Codes und Kataloge schlagen Sie jetzt in der Hilfe nach, zum Beispiel was eine Indikation oder eine Versorgungsstufe bedeutet.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe21" resname="whats_new.items.help_glossary.action">
+        <source>whats_new.items.help_glossary.action</source>
+        <target>Glossar öffnen</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe22" resname="whats_new.items.two_factor.title">
+        <source>whats_new.items.two_factor.title</source>
+        <target>Anmeldung mit zweitem Faktor</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe23" resname="whats_new.items.two_factor.description">
+        <source>whats_new.items.two_factor.description</source>
+        <target>Schützen Sie Ihr Konto zusätzlich mit einem Code aus einer Authenticator-App.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe24" resname="whats_new.items.two_factor.action">
+        <source>whats_new.items.two_factor.action</source>
+        <target>Zwei-Faktor-Anmeldung einrichten</target>
+      </trans-unit>
       <trans-unit id="WhatsNewDe13" resname="whats_new.items.settings_overview.title">
         <source>whats_new.items.settings_overview.title</source>
         <target>Alle Einstellungen an einem Ort</target>
