@@ -22,6 +22,7 @@ use App\Research\Domain\Enum\VoteChoice;
 use App\Research\Infrastructure\Scheduler\CleanUpDataExportsMessageHandler;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -181,6 +182,30 @@ final class DataRequestExportTest extends KernelTestCase
         self::assertFalse($this->releases()->canDownload($admin, $run));
         self::assertSame('export_cancelled', $this->lastEvent($request)->getType()->value);
         self::assertCount(1, $run->getDownloads(), 'earlier downloads stay recorded');
+    }
+
+    public function testAnExportFinishedAfterAChangeElsewhereProvidesNothing(): void
+    {
+        self::mockTime('2026-12-01 09:00');
+        $this->seedHospitals();
+        $applicant = UserFactory::new()->asParticipant()->create();
+        $admin = UserFactory::new()->asAdmin()->create();
+        $request = $this->approved($applicant, ['total' => self::TOTAL], $admin);
+        $release = $this->releases()->release($admin, $request, false);
+        $run = $release->startExport($applicant, new \DateTimeImmutable('2026-12-01 09:00'), 'en');
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->flush();
+        self::assertTrue($this->releases()->claim($run));
+
+        // Another process, for example the withdrawal, changed the run while it was running.
+        $entityManager->getConnection()->executeStatement('UPDATE data_request_export_run SET lock_version = lock_version + 1 WHERE id = ?', [$run->getId()]);
+        $directory = (string) self::getContainer()->getParameter('app.research.exports_dir');
+        $before = glob($directory.'/*.tar.gz') ?: [];
+        $this->releases()->execute($run);
+
+        self::assertSame($before, glob($directory.'/*.tar.gz') ?: [], 'the packed archive is removed again');
+        self::assertSame('running', $entityManager->getConnection()->fetchOne('SELECT status FROM data_request_export_run WHERE id = ?', [$run->getId()]), 'nothing was provided');
+        self::assertSame(DataRequestRefused::NOT_ALLOWED, $this->refusal(fn () => $this->releases()->expireRelease($release)), 'a used release does not expire');
     }
 
     public function testAnAdministratorRevokesAReleaseAndUnusedOnesExpire(): void
