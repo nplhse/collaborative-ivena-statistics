@@ -42,7 +42,7 @@ final class UserMenuTest extends DatabaseWebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSame(
-            ['user-menu-profile', 'user-menu-hospitals', 'user-menu-notifications', 'user-menu-settings', 'user-menu-logout'],
+            ['user-menu-profile', 'user-menu-hospitals', 'user-menu-requests', 'user-menu-notifications', 'user-menu-settings', 'user-menu-logout'],
             $this->menuEntries($crawler),
         );
     }
@@ -56,7 +56,7 @@ final class UserMenuTest extends DatabaseWebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSame(
-            ['user-menu-profile', 'user-menu-hospitals', 'user-menu-notifications', 'user-menu-settings', 'user-menu-backend', 'user-menu-logout'],
+            ['user-menu-profile', 'user-menu-hospitals', 'user-menu-requests', 'user-menu-notifications', 'user-menu-settings', 'user-menu-backend', 'user-menu-logout'],
             $this->menuEntries($crawler),
         );
     }

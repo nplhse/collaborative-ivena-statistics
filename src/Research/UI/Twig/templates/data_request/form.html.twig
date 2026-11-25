@@ -1,0 +1,62 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set titleKey = dataRequest ? 'data_request.title.edit' : 'data_request.title.new' %}
+{% set groups = {
+    public: constant('App\\Research\\UI\\Form\\DataRequestType::PUBLIC_FIELDS'),
+    scope: constant('App\\Research\\UI\\Form\\DataRequestType::SCOPE_FIELDS'),
+    internal: constant('App\\Research\\UI\\Form\\DataRequestType::INTERNAL_FIELDS'),
+} %}
+
+{% block title %}{{ titleKey|trans({}, 'research') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'my_requests.title', path: path('app_my_requests'), label_domain: 'shared' },
+                { label: 'data_request.title.list', path: path('app_data_requests'), label_domain: 'research' },
+                { label: titleKey, label_domain: 'research' }
+            ]"
+        />
+        <div class="page-header d-print-none">
+            <h2 class="page-title">{{ titleKey|trans({}, 'research') }}</h2>
+            <div class="text-body-secondary mt-1">{{ 'data_request.form.intro'|trans({}, 'research') }}</div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {{ form_start(form, {attr: {'data-testid': 'data-request-form'}}) }}
+    <div class="row row-cards">
+        <div class="col-lg-8">
+            {% for group, fields in groups %}
+                <div class="card mb-3" data-testid="data-request-form-{{ group }}">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">{{ ('data_request.group.' ~ group)|trans({}, 'research') }}</h3>
+                            <div class="card-subtitle">{{ ('data_request.group.' ~ group ~ '_help')|trans({}, 'research') }}</div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% for field in fields %}
+                            {{ form_row(form[field]) }}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="d-flex justify-content-end gap-2">
+                <a class="btn btn-link" href="{{ dataRequest ? path('app_data_requests_show', {publicId: dataRequest.publicIdString}) : path('app_data_requests') }}">{{ 'action.cancel'|trans({}, 'messages') }}</a>
+                <button type="submit" class="btn btn-primary" data-testid="data-request-save">{{ 'data_request.action.save_draft'|trans({}, 'research') }}</button>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">{{ 'data_request.what_happens.title'|trans({}, 'research') }}</h3>
+                    <p class="text-body-secondary mb-0">{{ 'data_request.what_happens.text'|trans({}, 'research') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ form_end(form) }}
+{% endblock %}

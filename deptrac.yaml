@@ -307,6 +307,30 @@ deptrac:
                     type: directory
                     value: src/Feedback/UI/.*
         -
+            name: Research_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/Research/Domain/.*
+        -
+            name: Research_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Research/Application/.*
+        -
+            name: Research_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Research/Infrastructure/.*
+        -
+            name: Research_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Research/UI/.*
+        -
             name: Shared_Domain
             collectors:
                 -
@@ -1166,6 +1190,48 @@ deptrac:
         Onboarding_UI:
             - Onboarding_Application
             - Onboarding_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Research_Application:
+            - Research_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Research_Domain:
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Research_Infrastructure:
+            - Research_Application
+            - Research_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Research_UI:
+            - Research_Application
+            - Research_Domain
+            - Research_Infrastructure
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure

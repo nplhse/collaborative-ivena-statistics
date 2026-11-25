@@ -1,0 +1,67 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'data_request.title.list'|trans({}, 'research') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'my_requests.title', path: path('app_my_requests'), label_domain: 'shared' },
+                { label: 'data_request.title.list', label_domain: 'research' }
+            ]"
+        />
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-md">
+                    <h2 class="page-title">{{ 'data_request.title.list'|trans({}, 'research') }}</h2>
+                    <div class="text-body-secondary mt-1">{{ 'data_request.intro'|trans({}, 'research') }}</div>
+                </div>
+                <div class="col-12 col-md-auto ms-md-auto">
+                    <a class="btn btn-primary" href="{{ path('app_data_requests_new') }}" data-testid="data-request-new">
+                        <twig:ux:icon name="tabler:plus" width="1em" height="1em" />&nbsp;{{ 'data_request.action.new'|trans({}, 'research') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="card">
+        {% if requests is empty %}
+            <div class="card-body">
+                <twig:EmptyState
+                    title="{{ 'data_request.empty.title'|trans({}, 'research') }}"
+                    description="{{ 'data_request.empty.description'|trans({}, 'research') }}"
+                    icon="tabler:clipboard-list"
+                />
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table" data-testid="data-requests">
+                    <thead>
+                        <tr>
+                            <th>{{ 'data_request.field.title'|trans({}, 'research') }}</th>
+                            <th>{{ 'data_request.field.institution'|trans({}, 'research') }}</th>
+                            <th>{{ 'data_request.list.applicant'|trans({}, 'research') }}</th>
+                            <th>{{ 'data_request.list.submitted'|trans({}, 'research') }}</th>
+                            <th>{{ 'data_request.list.status'|trans({}, 'research') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dataRequest in requests %}
+                            {% set version = dataRequest.currentVersion %}
+                            <tr data-testid="data-request-row">
+                                <td><a href="{{ path('app_data_requests_show', {publicId: dataRequest.publicIdString}) }}">{{ version.title }}</a></td>
+                                <td class="text-body-secondary">{{ version.institution }}</td>
+                                <td class="text-body-secondary">{{ dataRequest.requester ? dataRequest.requester.username : 'data_request.deleted_account'|trans({}, 'research') }}</td>
+                                <td class="text-body-secondary">{{ dataRequest.submittedAt ? dataRequest.submittedAt|format_date('medium') : '–' }}</td>
+                                <td>{{ include('@Research/data_request/_status_badge.html.twig') }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

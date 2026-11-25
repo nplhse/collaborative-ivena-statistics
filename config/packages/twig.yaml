@@ -31,6 +31,7 @@ twig:
         '%kernel.project_dir%/src/Import/UI/Twig/templates': Import
         '%kernel.project_dir%/src/Notification/UI/Twig/templates': Notification
         '%kernel.project_dir%/src/User/UI/Twig/templates': User
+        '%kernel.project_dir%/src/Research/UI/Twig/templates': Research
         '%kernel.project_dir%/src/Shared/UI/Twig/templates': Shared
         '%kernel.project_dir%/src/Statistics/UI/Twig/templates': Statistics
         '%kernel.project_dir%/src/Storage/UI/Twig/templates': Storage

@@ -38,6 +38,7 @@
             <directory>tests/Notification/Unit</directory>
             <directory>tests/Onboarding/Unit</directory>
             <directory>tests/PHPStan/Unit</directory>
+            <directory>tests/Research/Unit</directory>
             <directory>tests/Shared/Unit</directory>
             <directory>tests/Statistics/Unit</directory>
             <directory>tests/Storage/Unit</directory>
@@ -57,6 +58,7 @@
             <directory>tests/Kpi/Integration</directory>
             <directory>tests/Notification/Integration</directory>
             <directory>tests/Onboarding/Integration</directory>
+            <directory>tests/Research/Integration</directory>
             <directory>tests/Shared/Integration</directory>
             <directory>tests/Statistics/Integration</directory>
             <directory>tests/Storage/Integration</directory>
@@ -77,6 +79,7 @@
             <directory>tests/Kpi/Functional</directory>
             <directory>tests/Notification/Functional</directory>
             <directory>tests/Onboarding/Functional</directory>
+            <directory>tests/Research/Functional</directory>
             <directory>tests/Shared/Functional</directory>
             <directory>tests/Statistics/Functional</directory>
             <directory>tests/Storage/Functional</directory>
