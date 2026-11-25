@@ -75,6 +75,16 @@ final class AllocationVoterTest extends KernelTestCase
         self::assertSame(Voter::ACCESS_DENIED, $this->vote($user, $hospital));
     }
 
+    public function testAnAllocationWithoutHospitalIsForAdministratorsOnly(): void
+    {
+        $allocation = $this->createStub(Allocation::class);
+        $allocation->method('getHospital')->willReturn(null);
+        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
+
+        self::assertSame(Voter::ACCESS_DENIED, $this->voter()->vote(new UsernamePasswordToken($this->participant, 'main', $this->participant->getRoles()), $allocation, [AllocationVoter::VIEW]));
+        self::assertSame(Voter::ACCESS_GRANTED, $this->voter()->vote(new UsernamePasswordToken($admin, 'main', $admin->getRoles()), $allocation, [AllocationVoter::VIEW]));
+    }
+
     public function testAnonymousIsDenied(): void
     {
         self::assertSame(Voter::ACCESS_DENIED, $this->voter()->vote(new NullToken(), $this->allocationOf($this->own), [AllocationVoter::VIEW]));

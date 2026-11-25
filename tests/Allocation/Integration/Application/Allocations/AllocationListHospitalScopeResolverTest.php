@@ -46,6 +46,9 @@ final class AllocationListHospitalScopeResolverTest extends DatabaseKernelTestCa
         self::assertSame([(int) $hospital->getId()], $this->resolver->resolveHospitalIds($user, null, 5));
         self::assertNull($this->resolver->resolveHospitalIds($admin, null, null));
         self::assertSame([], $this->resolver->resolveHospitalIds(null, null, null));
+        // An unknown filter value falls back to the default scope instead of lifting the restriction.
+        self::assertSame([(int) $hospital->getId()], $this->resolver->resolveHospitalIdsFromQuery($user, 'unknown', null, null));
+        self::assertNull($this->resolver->resolveHospitalIdsFromQuery($admin, 'unknown', null, null));
     }
 
     public function testMyHospitalsWithoutDetailReturnsAccessibleIds(): void

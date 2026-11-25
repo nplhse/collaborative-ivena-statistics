@@ -92,7 +92,7 @@ final class ReviewIndicationRawController extends AbstractController
             'initial_label' => $initialLabel,
             'context' => $context,
             'occurrence_count' => $this->occurrenceQuery->fetchOccurrenceCount((int) $raw->getId()),
-            'sample_allocations' => $this->occurrenceQuery->fetchSampleAllocations((int) $raw->getId(), $this->sampleHospitalIds($user)),
+            'sample_allocations' => $this->occurrenceQuery->fetchSampleAllocations((int) $raw->getId(), $user instanceof User ? $this->sampleHospitalIds($user) : []),
             'suggestions' => $this->suggestionService->suggest($raw),
             'other_user_activities' => $this->resolveOtherUserActivities(
                 $raw,
@@ -377,12 +377,8 @@ final class ReviewIndicationRawController extends AbstractController
      *
      * @return list<int>|null null = all hospitals
      */
-    private function sampleHospitalIds(mixed $user): ?array
+    private function sampleHospitalIds(User $user): ?array
     {
-        if (!$user instanceof User) {
-            return [];
-        }
-
         if ($this->hospitalPermissionAccess->isAdministrator($user)) {
             return null;
         }
