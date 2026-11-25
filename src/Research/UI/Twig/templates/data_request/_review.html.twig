@@ -1,0 +1,151 @@
+{# Formal check and Board vote (ADR 045). Single votes only for Board members; counts and results for everyone. #}
+{% set openRound = dataRequest.getOpenRound() %}
+{% set canVote = is_granted('DATA_REQUEST_VOTE', dataRequest) %}
+{% set canSeeVotes = is_granted('DATA_REQUEST_VIEW_VOTES', dataRequest) %}
+{% set canResolve = is_granted('DATA_REQUEST_RESOLVE', dataRequest) %}
+{% set token = 'data_request_review_' %}
+
+<div class="card mb-3" data-testid="data-request-review">
+    <div class="card-header"><h3 class="card-title">{{ 'data_request.review.title'|trans({}, 'research') }}</h3></div>
+    <div class="card-body">
+        {% if dataRequest.handbackMessage and (own or canResolve or canSeeVotes) %}
+            <div class="alert alert-warning" role="note" data-testid="data-request-handback">
+                <div class="fw-bold">{{ ('data_request.review.handback.' ~ dataRequest.status.value)|trans({}, 'research') }}</div>
+                <div class="text-break">{{ dataRequest.handbackMessage|nl2br }}</div>
+            </div>
+        {% endif %}
+        {% if dataRequest.revisionDeadline and dataRequest.status.value == 'revision_requested' %}
+            <p data-testid="data-request-revision-deadline">{{ 'data_request.review.revision_until'|trans({date: dataRequest.revisionDeadline|format_datetime('medium', 'short')}, 'research') }}</p>
+        {% endif %}
+
+        {% if dataRequest.status.value == 'submitted' %}
+            <p class="text-body-secondary">{{ 'data_request.review.awaiting_check'|trans({}, 'research') }}</p>
+            {% if is_granted('DATA_REQUEST_CHECK', dataRequest) %}
+                <div data-testid="data-request-check">
+                    <form method="post" action="{{ path('app_data_requests_review', {publicId: dataRequest.publicIdString, action: 'open'}) }}" class="mb-3">
+                        <input type="hidden" name="_token" value="{{ csrf_token(token ~ 'open_' ~ dataRequest.publicIdString) }}">
+                        <button type="submit" class="btn btn-primary w-100" data-testid="data-request-open-round">{{ 'data_request.review.action.open'|trans({}, 'research') }}</button>
+                    </form>
+                    <form method="post" action="{{ path('app_data_requests_review', {publicId: dataRequest.publicIdString, action: 'return'}) }}" data-testid="data-request-return-form">
+                        <input type="hidden" name="_token" value="{{ csrf_token(token ~ 'return_' ~ dataRequest.publicIdString) }}">
+                        <label class="form-label" for="data-request-return-message">{{ 'data_request.review.return_message'|trans({}, 'research') }}</label>
+                        <textarea class="form-control mb-2" id="data-request-return-message" name="message" rows="3" required></textarea>
+                        <button type="submit" class="btn btn-outline-secondary w-100" data-testid="data-request-return">{{ 'data_request.review.action.return'|trans({}, 'research') }}</button>
+                    </form>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        {% for round in dataRequest.rounds|reverse %}
+            <div class="border rounded p-2 mb-2" data-testid="data-request-round">
+                <div class="d-flex justify-content-between align-items-center gap-2">
+                    <strong>{{ 'data_request.round.title'|trans({number: round.number, version: round.version.number}, 'research') }}</strong>
+                    {% if round.outcome %}
+                        <twig:Badge variant="{{ round.outcome.value == 'approved' ? 'green' : (round.outcome.value in ['revision_requested', 'vetoed'] ? 'yellow' : 'secondary') }}" data-testid="data-request-round-outcome">{{ round.outcome.labelKey|trans({}, 'research') }}</twig:Badge>
+                    {% else %}
+                        <twig:Badge variant="blue">{{ 'data_request.round.open'|trans({}, 'research') }}</twig:Badge>
+                    {% endif %}
+                </div>
+                <div class="small text-body-secondary mt-1">
+                    {{ 'data_request.round.summary'|trans({
+                        cast: round.choices|length,
+                        eligible: round.eligibleCount,
+                        quorum: round.quorum,
+                    }, 'research') }}
+                    <br>
+                    {% if round.open %}
+                        {{ 'data_request.round.deadline'|trans({date: round.deadline|format_datetime('medium', 'short')}, 'research') }}
+                        {% if round.kind.value == 'after_revision' %}<br>{{ 'data_request.round.after_revision'|trans({}, 'research') }}{% endif %}
+                    {% else %}
+                        {{ 'data_request.round.closed_at'|trans({date: round.closedAt|format_datetime('medium', 'short')}, 'research') }}
+                    {% endif %}
+                </div>
+                {% if canSeeVotes or (canResolve and round.outcome and round.outcome.value == 'vetoed') %}
+                    <ul class="list-unstyled small mt-2 mb-0" data-testid="data-request-votes">
+                        {% for vote in round.votes %}
+                            {% if canSeeVotes or vote.choice.value == 'veto' %}
+                                <li class="mb-1">
+                                    <strong>{{ vote.voter ? vote.voter.username : 'data_request.deleted_account'|trans({}, 'research') }}</strong>:
+                                    {{ vote.choice.labelKey|trans({}, 'research') }}
+                                    {% if vote.carriedOver %}<span class="text-body-secondary">({{ 'data_request.vote.carried_over'|trans({}, 'research') }})</span>{% endif %}
+                                    {% if vote.reason %}<div class="text-body-secondary text-break">{{ vote.reason|nl2br }}</div>{% endif %}
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="text-body-secondary">{{ 'data_request.vote.none'|trans({}, 'research') }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        {% if canVote %}
+            {% set ownVote = openRound.voteOf(app.user) %}
+            <form method="post" action="{{ path('app_data_requests_review', {publicId: dataRequest.publicIdString, action: 'vote'}) }}" class="mt-3" data-testid="data-request-vote-form">
+                <input type="hidden" name="_token" value="{{ csrf_token(token ~ 'vote_' ~ dataRequest.publicIdString) }}">
+                <div class="form-label">{{ 'data_request.vote.title'|trans({}, 'research') }}</div>
+                {% for choice in enum_cases('App\\Research\\Domain\\Enum\\VoteChoice') %}
+                    <label class="form-check">
+                        <input class="form-check-input" type="radio" name="choice" value="{{ choice.value }}" {{ ownVote and ownVote.choice == choice ? 'checked' }} required>
+                        <span class="form-check-label">{{ choice.labelKey|trans({}, 'research') }}</span>
+                    </label>
+                {% endfor %}
+                <label class="form-label mt-2" for="data-request-vote-reason">{{ 'data_request.vote.reason'|trans({}, 'research') }}</label>
+                <textarea class="form-control mb-1" id="data-request-vote-reason" name="message" rows="3">{{ ownVote ? ownVote.reason }}</textarea>
+                <div class="form-hint mb-2">{{ 'data_request.vote.reason_help'|trans({}, 'research') }}</div>
+                <button type="submit" class="btn btn-primary w-100" data-testid="data-request-vote">{{ (ownVote ? 'data_request.vote.change' : 'data_request.vote.cast')|trans({}, 'research') }}</button>
+            </form>
+        {% endif %}
+
+        {% if canResolve %}
+            <form method="post" action="{{ path('app_data_requests_review', {publicId: dataRequest.publicIdString, action: 'resolve'}) }}" class="mt-3" data-testid="data-request-resolve-form">
+                <input type="hidden" name="_token" value="{{ csrf_token(token ~ 'resolve_' ~ dataRequest.publicIdString) }}">
+                <div class="form-label">{{ 'data_request.resolve.title'|trans({}, 'research') }}</div>
+                {% for resolution in ['restart', 'revision', 'close'] %}
+                    <label class="form-check">
+                        <input class="form-check-input" type="radio" name="resolution" value="{{ resolution }}" required>
+                        <span class="form-check-label">{{ ('data_request.resolve.' ~ resolution)|trans({}, 'research') }}</span>
+                    </label>
+                {% endfor %}
+                <label class="form-label mt-2" for="data-request-resolve-message">{{ 'data_request.resolve.message'|trans({}, 'research') }}</label>
+                <textarea class="form-control mb-2" id="data-request-resolve-message" name="message" rows="3"></textarea>
+                <button type="submit" class="btn btn-primary w-100" data-testid="data-request-resolve">{{ 'data_request.resolve.submit'|trans({}, 'research') }}</button>
+            </form>
+        {% endif %}
+
+        {% if dataRequest.exclusions is not empty and (canSeeVotes or canResolve or is_granted('ROLE_ADMIN')) %}
+            <div class="mt-3" data-testid="data-request-exclusions">
+                <div class="form-label">{{ 'data_request.exclusion.list'|trans({}, 'research') }}</div>
+                <ul class="list-unstyled small mb-0">
+                    {% for exclusion in dataRequest.exclusions %}
+                        <li class="mb-1"><strong>{{ exclusion.member.username }}</strong>: <span class="text-break">{{ exclusion.reason }}</span></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        {% if is_granted('DATA_REQUEST_EXCLUDE_SELF', dataRequest) %}
+            <form method="post" action="{{ path('app_data_requests_review', {publicId: dataRequest.publicIdString, action: 'exclude'}) }}" class="mt-3" data-testid="data-request-exclude-form">
+                <input type="hidden" name="_token" value="{{ csrf_token(token ~ 'exclude_' ~ dataRequest.publicIdString) }}">
+                <label class="form-label" for="data-request-exclude-reason">{{ 'data_request.exclusion.self'|trans({}, 'research') }}</label>
+                <textarea class="form-control mb-1" id="data-request-exclude-reason" name="message" rows="2" required></textarea>
+                <div class="form-hint mb-2">{{ 'data_request.exclusion.self_help'|trans({}, 'research') }}</div>
+                <button type="submit" class="btn btn-outline-secondary w-100" data-testid="data-request-exclude">{{ 'data_request.exclusion.declare'|trans({}, 'research') }}</button>
+            </form>
+        {% endif %}
+
+        {% if is_granted('DATA_REQUEST_RECORD_EXCLUSION', dataRequest) and boardMembers is not empty %}
+            <form method="post" action="{{ path('app_data_requests_review', {publicId: dataRequest.publicIdString, action: 'record-exclusion'}) }}" class="mt-3" data-testid="data-request-record-exclusion-form">
+                <input type="hidden" name="_token" value="{{ csrf_token(token ~ 'record-exclusion_' ~ dataRequest.publicIdString) }}">
+                <label class="form-label" for="data-request-exclusion-member">{{ 'data_request.exclusion.record'|trans({}, 'research') }}</label>
+                <select class="form-select mb-2" id="data-request-exclusion-member" name="member" required>
+                    {% for member in boardMembers %}
+                        <option value="{{ member.id }}">{{ member.username }}</option>
+                    {% endfor %}
+                </select>
+                <textarea class="form-control mb-2" name="message" rows="2" required aria-label="{{ 'data_request.exclusion.reason'|trans({}, 'research') }}" placeholder="{{ 'data_request.exclusion.reason'|trans({}, 'research') }}"></textarea>
+                <button type="submit" class="btn btn-outline-secondary w-100" data-testid="data-request-record-exclusion">{{ 'data_request.exclusion.declare'|trans({}, 'research') }}</button>
+            </form>
+        {% endif %}
+    </div>
+</div>

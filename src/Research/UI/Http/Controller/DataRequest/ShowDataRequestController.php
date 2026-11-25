@@ -7,6 +7,9 @@ namespace App\Research\UI\Http\Controller\DataRequest;
 use App\Research\Domain\Entity\DataRequest;
 use App\Research\Infrastructure\Repository\DataRequestRepository;
 use App\Research\Infrastructure\Security\Voter\DataRequestVoter;
+use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
+use App\User\Infrastructure\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -23,6 +26,7 @@ final class ShowDataRequestController extends AbstractController
 {
     public function __construct(
         private readonly DataRequestRepository $requests,
+        private readonly UserRepository $users,
     ) {
     }
 
@@ -38,6 +42,20 @@ final class ShowDataRequestController extends AbstractController
             'dataRequest' => $dataRequest,
             'version' => $dataRequest->getCurrentVersion(),
             'canViewInternal' => $this->isGranted(DataRequestVoter::VIEW_INTERNAL, $dataRequest),
+            'boardMembers' => $this->isGranted(DataRequestVoter::RECORD_EXCLUSION, $dataRequest) ? $this->excludableMembers($dataRequest) : [],
         ]);
+    }
+
+    /**
+     * Board members an administrator may record an exclusion for: not the applicant, not excluded yet.
+     *
+     * @return list<User>
+     */
+    private function excludableMembers(DataRequest $dataRequest): array
+    {
+        return array_values(array_filter(
+            $this->users->findEnabledVerifiedUsersWithRoles([UserRole::BOARD_MEMBER]),
+            static fn (User $member): bool => !$dataRequest->isRequestedBy($member) && !$dataRequest->isExcluded($member),
+        ));
     }
 }

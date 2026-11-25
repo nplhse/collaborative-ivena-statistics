@@ -66,15 +66,21 @@ final class DataRequestServiceTest extends KernelTestCase
         self::assertSame(DataRequestRefused::NOT_EDITABLE, $this->refusal(fn () => $this->service()->updateDraft($applicant, $request, $this->draft('Changed'))));
     }
 
-    public function testARequestHandedBackStillRefusesChangesToItsSubmittedVersion(): void
+    public function testAChangeToAReturnedRequestBecomesTheNextVersion(): void
     {
         $applicant = UserFactory::new()->asParticipant()->create();
         $request = $this->service()->createDraft($applicant, $this->draft('Title'));
         $this->service()->submit($applicant, $request);
-        // Returned by the formal check (step 2 of #1635); a new version is not created yet.
+        // Returned by the formal check.
         $request->setMarking('returned');
 
-        self::assertSame(DataRequestRefused::NOT_EDITABLE, $this->refusal(fn () => $this->service()->updateDraft($applicant, $request, $this->draft('Changed'))));
+        self::assertSame(DataRequestRefused::NEW_VERSION_NEEDED, $this->refusal(fn () => $this->service()->submit($applicant, $request)));
+        $this->service()->updateDraft($applicant, $request, $this->draft('Changed'));
+        $this->service()->updateDraft($applicant, $request, $this->draft('Changed again'));
+
+        self::assertCount(2, $request->getVersions(), 'the first change starts version 2, later ones change it');
+        self::assertSame('Title', $request->getVersions()[0]->getTitle());
+        self::assertSame('Changed again', $request->getCurrentVersion()->getTitle());
     }
 
     public function testAWithdrawnRequestTakesNoFurtherStep(): void

@@ -161,6 +161,9 @@
         </div>
 
         <div class="col-lg-4">
+            {% if dataRequest.wasSubmitted %}
+                {{ include('@Research/data_request/_review.html.twig') }}
+            {% endif %}
             <div class="card">
                 <div class="card-body">
                     <div class="datagrid">

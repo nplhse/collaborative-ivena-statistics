@@ -13,6 +13,13 @@ final class DataRequestRefused extends \RuntimeException
     public const string NOT_EDITABLE = 'data_request.refused.not_editable';
     public const string TRANSITION_BLOCKED = 'data_request.refused.transition_blocked';
     public const string CHANGED_MEANWHILE = 'data_request.refused.changed_meanwhile';
+    public const string NOT_ALLOWED = 'data_request.refused.not_allowed';
+    public const string NO_OPEN_ROUND = 'data_request.refused.no_open_round';
+    public const string NOT_ELIGIBLE = 'data_request.refused.not_eligible';
+    public const string REASON_REQUIRED = 'data_request.refused.reason_required';
+    public const string NO_ELIGIBLE_MEMBERS = 'data_request.refused.no_eligible_members';
+    public const string ALREADY_EXCLUDED = 'data_request.refused.already_excluded';
+    public const string NEW_VERSION_NEEDED = 'data_request.refused.new_version_needed';
 
     public function __construct(
         public readonly string $reason,
