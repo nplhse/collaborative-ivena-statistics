@@ -353,6 +353,46 @@
         <source>data_request.basics.version_number</source>
         <target>Fassung {number}</target>
       </trans-unit>
+      <trans-unit id="Rsc1D0AAE83" resname="data_request.compare.title">
+        <source>data_request.compare.title</source>
+        <target>Fassungen vergleichen</target>
+      </trans-unit>
+      <trans-unit id="Rsc99F0E0AD" resname="data_request.compare.link">
+        <source>data_request.compare.link</source>
+        <target>Fassungen vergleichen</target>
+      </trans-unit>
+      <trans-unit id="Rsc5CC38FBC" resname="data_request.compare.changes">
+        <source>data_request.compare.changes</source>
+        <target>Änderungen ansehen</target>
+      </trans-unit>
+      <trans-unit id="RscEFC008D7" resname="data_request.compare.from">
+        <source>data_request.compare.from</source>
+        <target>Von</target>
+      </trans-unit>
+      <trans-unit id="Rsc66197B55" resname="data_request.compare.to">
+        <source>data_request.compare.to</source>
+        <target>Bis</target>
+      </trans-unit>
+      <trans-unit id="Rsc8BED1A6F" resname="data_request.compare.submit">
+        <source>data_request.compare.submit</source>
+        <target>Vergleichen</target>
+      </trans-unit>
+      <trans-unit id="RscE8FB7463" resname="data_request.compare.not_submitted">
+        <source>data_request.compare.not_submitted</source>
+        <target>nicht eingereicht</target>
+      </trans-unit>
+      <trans-unit id="Rsc50867195" resname="data_request.compare.single">
+        <source>data_request.compare.single</source>
+        <target>Dieser Antrag hat bisher nur eine Fassung.</target>
+      </trans-unit>
+      <trans-unit id="RscB693B09B" resname="data_request.compare.same_version">
+        <source>data_request.compare.same_version</source>
+        <target>Bitte wählen Sie zwei verschiedene Fassungen.</target>
+      </trans-unit>
+      <trans-unit id="RscCE02437B" resname="data_request.compare.none">
+        <source>data_request.compare.none</source>
+        <target>Die Fassungen unterscheiden sich in den Feldern, die Sie sehen können, nicht.</target>
+      </trans-unit>
       <trans-unit id="RscA5DD4B30" resname="data_request.actions.title">
         <source>data_request.actions.title</source>
         <target>Aktionen</target>

@@ -36,6 +36,7 @@
         "scheb/2fa-backup-code": "^8.8",
         "scheb/2fa-bundle": "^8.8",
         "scheb/2fa-totp": "^8.8",
+        "sebastian/diff": "^7.0",
         "sentry/sentry-symfony": "^5.10",
         "symfony/asset": "8.1.*",
         "symfony/asset-mapper": "8.1.*",

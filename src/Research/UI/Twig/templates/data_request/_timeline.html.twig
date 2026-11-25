@@ -26,6 +26,9 @@
                                     <span class="text-secondary small">{{ event.occurredAt|format_datetime('medium', 'short') }}</span>
                                 </div>
                             </div>
+                            {% if event.type.value == 'submitted' and event.details.version is defined and event.details.version > 1 %}
+                                <a class="small" href="{{ path('app_data_requests_compare', {publicId: dataRequest.publicIdString, from: event.details.version - 1, to: event.details.version}) }}" data-testid="data-request-event-compare">{{ 'data_request.compare.changes'|trans({}, 'research') }}</a>
+                            {% endif %}
                             {% if event.details.message is defined or event.details.reason is defined %}
                                 <div class="text-body-secondary text-break mt-1">{{ (event.details.message ?? event.details.reason)|nl2br }}</div>
                             {% endif %}

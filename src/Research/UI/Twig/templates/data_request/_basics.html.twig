@@ -13,7 +13,12 @@
             </div>
             <div class="datagrid-item">
                 <div class="datagrid-title">{{ 'data_request.basics.version'|trans({}, 'research') }}</div>
-                <div class="datagrid-content" data-testid="data-request-version">{{ 'data_request.basics.version_of'|trans({number: version.number, count: dataRequest.versions|length}, 'research') }}</div>
+                <div class="datagrid-content" data-testid="data-request-version">
+                    {{ 'data_request.basics.version_of'|trans({number: version.number, count: dataRequest.versions|length}, 'research') }}
+                    {% if dataRequest.versions|length > 1 %}
+                        <div><a href="{{ path('app_data_requests_compare', {publicId: dataRequest.publicIdString}) }}" data-testid="data-request-compare-link">{{ 'data_request.compare.link'|trans({}, 'research') }}</a></div>
+                    {% endif %}
+                </div>
             </div>
             <div class="datagrid-item">
                 <div class="datagrid-title">{{ 'data_request.basics.updated'|trans({}, 'research') }}</div>
