@@ -6,6 +6,7 @@ namespace App\Content\Domain\Entity;
 
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Domain\Enum\PageType;
+use App\Content\Domain\Validation\Constraints\KnownIcon;
 use App\Content\Infrastructure\Repository\PageRepository;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -30,6 +31,7 @@ class Page implements \Stringable
     public const string VISIBILITY_PUBLIC = 'public';
     public const string VISIBILITY_AUTHENTICATED = 'authenticated';
     public const int MAX_HELP_KEY_LENGTH = 100;
+    public const int MAX_ICON_LENGTH = 64;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -65,6 +67,12 @@ class Page implements \Stringable
     #[Assert\Regex(pattern: '/^[a-z0-9]+(?:[._-][a-z0-9]+)*$/', message: 'page.validation.help_key_format')]
     #[ORM\Column(length: self::MAX_HELP_KEY_LENGTH, nullable: true)]
     private ?string $helpKey = null;
+
+    /** Optional icon (#1590), e.g. `tabler:file-import`: shown on help topic cards and subpage cards. */
+    #[KnownIcon]
+    #[Assert\Length(max: self::MAX_ICON_LENGTH)]
+    #[ORM\Column(length: self::MAX_ICON_LENGTH, nullable: true)]
+    private ?string $icon = null;
 
     #[Assert\Choice(choices: [self::VISIBILITY_PUBLIC, self::VISIBILITY_AUTHENTICATED])]
     #[ORM\Column(length: 32)]
@@ -207,6 +215,19 @@ class Page implements \Stringable
     public function getHelpKey(): ?string
     {
         return $this->helpKey;
+    }
+
+    public function getIcon(): ?string
+    {
+        return $this->icon;
+    }
+
+    public function setIcon(?string $icon): self
+    {
+        $icon = null === $icon ? null : trim($icon);
+        $this->icon = '' === $icon ? null : $icon;
+
+        return $this;
     }
 
     public function setHelpKey(?string $helpKey): self

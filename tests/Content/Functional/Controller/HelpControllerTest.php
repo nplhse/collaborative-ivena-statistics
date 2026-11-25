@@ -79,6 +79,8 @@ final class HelpControllerTest extends WebTestCase
         self::assertStringContainsString('Create the CSV file in IVENA, not in a spreadsheet.', $cards->first()->text());
         self::assertStringContainsString('1 minute read', $cards->first()->text());
         self::assertCount(0, $crawler->filter('[data-testid="page-child-cards"] .badge'), 'not numbered');
+        self::assertCount(1, $cards->first()->filter('[data-testid="page-child-card-icon"] svg'), 'the export article has an icon');
+        self::assertCount(0, $cards->last()->filter('[data-testid="page-child-card-icon"]'), 'rejected rows has none');
         self::assertSame('How IVENA exports get into the application.', $crawler->filter('meta[name="description"]')->attr('content'));
 
         $crawler = $client->request(Request::METHOD_GET, '/help/importing/export');
@@ -86,6 +88,8 @@ final class HelpControllerTest extends WebTestCase
 
         $crawler = $client->request(Request::METHOD_GET, '/help');
         self::assertStringContainsString('How IVENA exports get into the application.', $crawler->filter('[data-testid="help-topic"]')->first()->text());
+        self::assertCount(1, $crawler->filter('[data-testid="help-topic"]')->first()->filter('[data-testid="help-topic-icon"] svg'), 'the importing topic has an icon');
+        self::assertCount(0, $crawler->filter('[data-testid="help-topic"]')->last()->filter('[data-testid="help-topic-icon"]'), 'topics without icon show none');
         self::assertCount(0, $crawler->filter('[data-testid="page-child-cards"]'), 'the start page has its topic overview');
     }
 
@@ -258,8 +262,8 @@ final class HelpControllerTest extends WebTestCase
     {
         PageFactory::createOne(['title' => 'Guide', 'slug' => 'guide', 'path' => '/guide', 'status' => 'published']);
         $root = HelpPages::root();
-        $this->importing = HelpPages::article($root, 'Importing', '/help/importing', '<p>About imports.</p>', 0, ['summary' => 'How IVENA exports get into the application.']);
-        HelpPages::article($this->importing, 'Export', '/help/importing/export', '<p>Export by quarter.</p>', 0, ['summary' => 'Create the CSV file in IVENA, not in a spreadsheet.']);
+        $this->importing = HelpPages::article($root, 'Importing', '/help/importing', '<p>About imports.</p>', 0, ['summary' => 'How IVENA exports get into the application.', 'icon' => 'tabler:file-import']);
+        HelpPages::article($this->importing, 'Export', '/help/importing/export', '<p>Export by quarter.</p>', 0, ['summary' => 'Create the CSV file in IVENA, not in a spreadsheet.', 'icon' => 'tabler:file-export']);
         $this->rejects = HelpPages::article($this->importing, 'Rejected rows', '/help/importing/rejected-rows',
             '<h2>Why rows are rejected</h2><p>Rows that fail the plausibility checks.</p><h2>Fixing them</h2><p>Import again.</p>', 1, ['helpKey' => 'import.rejects']);
         HelpPages::article($root, 'Statistics', '/help/statistics', '<p>About statistics.</p>', 1);

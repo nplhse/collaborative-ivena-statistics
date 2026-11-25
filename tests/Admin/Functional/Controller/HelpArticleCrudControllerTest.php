@@ -68,4 +68,38 @@ final class HelpArticleCrudControllerTest extends WebTestCase
         self::assertSame(PageType::Help, $page->getType());
         self::assertSame($root->getId(), $page->getParent()?->getId());
     }
+
+    public function testTheIconIsCheckedWhenSaving(): void
+    {
+        $client = self::createClient();
+        HelpPages::root();
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/help-article/new');
+        $client->submit($crawler->filter('form[name="Page"]')->form([
+            'Page[helpKey]' => 'import.unknown_icon',
+            'Page[icon]' => 'tabler:does-not-exist-anywhere',
+        ]));
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('form[name="Page"]', 'The icon “tabler:does-not-exist-anywhere” does not exist.');
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/help-article/new');
+        $client->submit($crawler->filter('form[name="Page"]')->form([
+            'Page[helpKey]' => 'import.bad_format',
+            'Page[icon]' => 'upload',
+        ]));
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('form[name="Page"]', 'Enter an icon such as tabler:file-import.');
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/help-article/new');
+        $client->submit($crawler->filter('form[name="Page"]')->form([
+            'Page[helpKey]' => 'import.with_icon',
+            'Page[icon]' => ' tabler:file-import ',
+        ]));
+        self::assertResponseRedirects();
+
+        $page = self::getContainer()->get(EntityManagerInterface::class)->getRepository(Page::class)->findOneBy(['helpKey' => 'import.with_icon']);
+        self::assertInstanceOf(Page::class, $page);
+        self::assertSame('tabler:file-import', $page->getIcon());
+    }
 }

@@ -236,7 +236,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
         ]);
 
         $start = $this->helpArticle($help, 'Getting started', 'getting-started', 0, null,
-            '<p>Everything you need before your first import.</p>');
+            '<p>Everything you need before your first import.</p>', 'tabler:compass');
         $this->helpArticle($start, 'Creating your account', 'creating-your-account', 0, 'start.account',
             '<h2>Register</h2><p>Open the registration page, enter your work email address and choose a password. Confirm the email we send you.</p>'
             .'<h2>Complete your profile</h2><p>Add your name and your role in the emergency department so other participants know who you are.</p>');
@@ -245,7 +245,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             .'<h2>What happens next</h2><p>An administrator reviews the request and grants access or ownership. You get a notification with the decision.</p>');
 
         $import = $this->helpArticle($help, 'Importing data', 'importing-data', 1, null,
-            '<p>How IVENA exports become statistics.</p>');
+            '<p>How IVENA exports become statistics.</p>', 'tabler:file-import');
         $this->helpArticle($import, 'Preparing the IVENA export', 'preparing-the-export', 0, 'import.export',
             '<h2>Choose the period</h2><p>Export one quarter at a time; larger periods may time out in IVENA.</p>'
             .'<h2>Keep the default columns</h2><p>The import expects the default column set of the IVENA allocation export as a CSV file.</p>');
@@ -254,7 +254,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             .'<h2>Fixing rejected rows</h2><p>Correct the rows in IVENA and import the file again. The import report lists every rejected row with its reason.</p>');
 
         $statistics = $this->helpArticle($help, 'Statistics and benchmarking', 'statistics', 2, null,
-            '<p>Explore your allocations and compare them with aggregated peer groups.</p>');
+            '<p>Explore your allocations and compare them with aggregated peer groups.</p>', 'tabler:chart-bar');
         $this->helpArticle($statistics, 'Using the analysis explorer', 'analysis-explorer', 0, 'statistics.explorer',
             '<h2>Filters and scope</h2><p>Choose the period, the hospitals and the dimension you want to analyse. Saved views keep your settings.</p>'
             .'<h2>Reading the results</h2><p>Tables and charts show counts and shares; missing values are listed separately.</p>');
@@ -262,7 +262,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             '<h2>Comparison groups</h2><p>Each chart shows your hospital next to the median of its comparison group by state, dispatch area or cohort.</p>');
     }
 
-    private function helpArticle(Page $parent, string $title, string $slug, int $sortOrder, ?string $helpKey, string $html): Page
+    private function helpArticle(Page $parent, string $title, string $slug, int $sortOrder, ?string $helpKey, string $html, ?string $icon = null): Page
     {
         $parentPath = $this->helpPaths[spl_object_id($parent)] ?? '/help';
         $path = $parentPath.'/'.$slug;
@@ -274,6 +274,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             'parent' => $parent,
             'type' => PageType::Help,
             'helpKey' => $helpKey,
+            'icon' => $icon,
             'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => $sortOrder,

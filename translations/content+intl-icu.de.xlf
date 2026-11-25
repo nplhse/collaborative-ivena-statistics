@@ -1333,6 +1333,14 @@
         <source>label.help_key_help</source>
         <target>Optionaler fester Name für Links aus der Anwendung, z. B. import.rejects. Kleinbuchstaben, Ziffern, Punkte und Bindestriche.</target>
       </trans-unit>
+      <trans-unit id="label_page_icon_de" resname="label.page_icon">
+        <source>label.page_icon</source>
+        <target>Symbol</target>
+      </trans-unit>
+      <trans-unit id="label_page_icon_help_de" resname="label.page_icon_help">
+        <source>label.page_icon_help</source>
+        <target>Optionales Tabler-Symbol für Themen- und Unterseiten-Karten, z. B. tabler:file-import.</target>
+      </trans-unit>
       <trans-unit id="help_label_help_feedback_de" resname="label.help_feedback">
         <source>label.help_feedback</source>
         <target>Hilfreich?</target>

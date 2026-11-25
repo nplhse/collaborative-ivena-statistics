@@ -142,6 +142,7 @@ final class PageNavigationTreeProvider implements ResetInterface
                 help: $node['page']->isHelpArticle(),
                 summary: $translationByPageId[$pageId]->getSummary(),
                 readingMinutes: $translationByPageId[$pageId]->getReadingMinutes(),
+                icon: $node['page']->getIcon(),
             );
         }
 

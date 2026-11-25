@@ -965,6 +965,10 @@
         <source>page.validation.cards_unknown_icon</source>
         <target>The icon “{icon}” does not exist.</target>
       </trans-unit>
+      <trans-unit id="cms1590iconen" resname="page.validation.icon_format">
+        <source>page.validation.icon_format</source>
+        <target>Enter an icon such as tabler:file-import.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
