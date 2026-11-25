@@ -129,10 +129,6 @@
         <source>link.import</source>
         <target>Import</target>
       </trans-unit>
-      <trans-unit id="ExpLnkEn01" resname="link.export">
-        <source>link.export</source>
-        <target>Export</target>
-      </trans-unit>
       <trans-unit id="4wLkxRO" resname="link.imports">
         <source>link.imports</source>
         <target>Imports</target>
@@ -412,6 +408,10 @@
       <trans-unit id="ToolsCatMatchEn" resname="tools.category.matching">
         <source>tools.category.matching</source>
         <target>Matching and review</target>
+      </trans-unit>
+      <trans-unit id="ToolsCatExpEn" resname="tools.category.data_export">
+        <source>tools.category.data_export</source>
+        <target>Export data</target>
       </trans-unit>
       <trans-unit id="ToolsCatPrepEn" resname="tools.category.data_preparation">
         <source>tools.category.data_preparation</source>

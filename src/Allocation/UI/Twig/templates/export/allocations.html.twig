@@ -6,6 +6,7 @@
     <div class="container-xl">
         <twig:Breadcrumbs
             :items="[
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
                 { label: 'title.export.allocations' }
             ]"
         />
@@ -28,7 +29,7 @@
         <div class="card">
             <div class="card-body">
                 {{ form_start(form, {
-                    action: path('app_hospitals_export_allocations_estimate'),
+                    action: path('app_tools_allocation_export_estimate'),
                     method: 'POST',
                     attr: {
                         id: 'export-allocations-form',

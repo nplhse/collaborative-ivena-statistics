@@ -36,7 +36,7 @@ final class FeatureAreaResolverTest extends TestCase
         yield 'statistics' => ['app_stats_benchmarking', FeatureArea::Statistics];
         yield 'explore' => ['app_explore_allocation_list', FeatureArea::Explore];
         yield 'import' => ['app_import_new', FeatureArea::Import];
-        yield 'export' => ['app_hospitals_export_allocations', FeatureArea::Export];
+        yield 'export' => ['app_tools_allocation_export', FeatureArea::Export];
         yield 'admin' => ['app_admin_dashboard', FeatureArea::Admin];
         yield 'blog' => ['app_blog_show', FeatureArea::Blog];
         yield 'pages' => ['app_page_show', FeatureArea::Pages];

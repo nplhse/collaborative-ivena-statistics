@@ -16,7 +16,7 @@ use Symfony\Component\Translation\TranslatableMessage;
  * (ADR 031), the four footer columns and the footer links to its own pages (sitemap, cookie settings).
  *
  * Weights of the primary entries, kept in steps of ten across contexts: Explore 10, Statistics 20,
- * Import 30, Export 40, Tools 50, Blog 60, content pages from 70. Footer columns: project 10, help 20,
+ * Import 30, Tools 50 (40 was Export, now a tool, #1633), Blog 60, content pages from 70. Footer columns: project 10, help 20,
  * legal 30, more 40.
  *
  * @psalm-suppress UnusedClass Tagged via NavigationProviderInterface.

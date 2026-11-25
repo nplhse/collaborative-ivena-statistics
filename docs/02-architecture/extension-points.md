@@ -609,6 +609,7 @@ was removed) is rejected as `schema_unsupported`. Plugins only use the types und
 the main navigation entry (`SharedNavigationProvider`) and the Tools section of the sitemap
 
 **Implementations:** `IndicationReviewToolProvider` (Allocation, indication matching review),
+`AllocationExportToolProvider` (Allocation, export of the own hospitals' allocations, #1633),
 `EncounterToolProvider` (ED visit plugin: match review, match validation, plausibility table; beta),
 `AssignmentConflictToolProvider` and `DataPrepToolProvider` (Encounter: assignment conflicts, data preparation tool;
 beta)
@@ -621,7 +622,8 @@ filter `/tools?topic=`; choose from the enum, a new topic is a change in `Shared
 in the order of `ToolCategory` and the tools inside a category alphabetically by their translated title in
 the current locale (`\Collator`). Providers check access themselves and return no tool for users who may
 not open it; the main navigation asks the providers (`ToolRegistry::hasTools()`) on every page, so decide
-from roles and voters without database queries.
+from roles and voters without database queries. Exception: the allocation export asks `ExportVoter`, which
+reads the user's hospitals with the export permission, as the former Export entry of the header did (#1633).
 Routes of a tool are named `app_tools_*` and live under `/tools/…`, so the area prefix `app_tools` of the
 Tools entry marks it as active.
 Path `access_control` on `/tools` only requires `ROLE_USER`; every tool route needs its own guard
@@ -641,7 +643,7 @@ area; [ADR 035](decisions/035-navigation-tree-and-contextual-sidebar.md)) and th
 (`SitemapProvider`, `/sitemap`, see below)
 
 **Implementations:** `SharedNavigationProvider` (Shared: primary group, Tools; footer columns `project`,
-`help`, `legal`, `more` with sitemap and cookie settings), `AllocationNavigationProvider` (Explore, Export;
+`help`, `legal`, `more` with sitemap and cookie settings), `AllocationNavigationProvider` (Explore;
 the explore sidebar with its groups, glossary routes from `CatalogGlossaryEntryRegistry`),
 `UserNavigationProvider` (Users in the explore group `Menu::EXPLORE_GROUP_ORGANISATION`),
 `EncounterNavigationProvider` of the ED visit plugin (ED visits in the explore group `Menu::EXPLORE_GROUP_CASES`,
@@ -668,7 +670,7 @@ Lets a context add groups and entries to the named menus of `Menu` (`primary`, `
   when no own entry matches: a route of a sidebar menu, then the sidebar menu of the page (`$area`), marks
   that menu's primary entry (`Menu::primaryEntryId()`); then the entry with the longest `areaRoutePrefix`
   the route starts with. Primary entries attach to `Menu::PRIMARY_GROUP` and use weights in steps of ten
-  (Explore 10, Statistics 20, Import 30, Export 40, Tools 50, Blog 60, CMS pages from 70).
+  (Explore 10, Statistics 20, Import 30, Tools 50, Blog 60, CMS pages from 70; 40 was Export until #1633).
 - A route name may mark at most one entry per menu, and area prefixes must not overlap:
   `AssertsUniqueNavigationRoutes` (`tests/Shared/Support/`) checks both; `PrimaryNavigationTest` runs it
   with all real providers.

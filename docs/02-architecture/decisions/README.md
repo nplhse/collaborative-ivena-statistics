@@ -46,7 +46,7 @@ Each ADR includes:
 | [028](028-encounter-access-grants.md) | Encounter access grants independent of hospital permissions | accepted |
 | [029](029-encounter-import-lifecycle.md) | Encounter import lifecycle: one visit, one owning import (amended: ADR 037) | accepted |
 | [030](030-encounter-allocation-matching.md) | Matching ED visits with IVENA allocations (amended: matcher 1.2.0, ADR 037) | accepted |
-| [031](031-tools-section-and-tool-registry.md) | Tools section and tool registry | accepted |
+| [031](031-tools-section-and-tool-registry.md) | Tools section and tool registry (amended: topics #1201, data export #1633) | accepted |
 | [032](032-mts-catalog-as-maintained-data.md) | MTS catalog as maintained data | accepted |
 | [033](033-learning-plausibility-table.md) | Learning plausibility table for PZC and MTS diagram | accepted |
 | [034](034-performance-monitoring-in-sentry.md) | Performance monitoring in Sentry, usage analytics without APM | accepted |

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Allocation\Infrastructure\Navigation;
 
 use App\Allocation\Application\Explore\Catalog\CatalogGlossaryEntryRegistry;
-use App\Allocation\Infrastructure\Security\Voter\ExportVoter;
 use App\Shared\Application\Navigation\Menu\Menu;
 use App\Shared\Application\Navigation\Menu\NavGroup;
 use App\Shared\Application\Navigation\Menu\NavigationProviderInterface;
@@ -13,7 +12,7 @@ use App\Shared\Application\Navigation\Menu\NavItem;
 use Symfony\Component\Translation\TranslatableMessage;
 
 /**
- * Explore and Export in the primary menu, the explore sidebar (ADR 035), and the reference entries of the
+ * Explore in the primary menu, the explore sidebar (ADR 035), and the reference entries of the
  * help column in the footer (ADR 042).
  *
  * Allocation owns the explore menu: its groups follow the former Explore dropdowns (cases, organisation,
@@ -74,16 +73,6 @@ final readonly class AllocationNavigationProvider implements NavigationProviderI
                 grantedAttribute: self::PARTICIPANT,
                 weight: 10,
                 areaRoutePrefix: 'app_explore',
-            ),
-            new NavItem(
-                id: 'export',
-                parentId: Menu::PRIMARY_GROUP,
-                label: $this->label('link.export'),
-                route: 'app_hospitals_export_allocations',
-                icon: 'tabler:database-export',
-                grantedAttribute: ExportVoter::EXPORT,
-                weight: 40,
-                areaRoutePrefix: 'app_hospitals_export',
             ),
         ];
     }

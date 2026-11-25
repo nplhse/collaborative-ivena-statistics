@@ -117,10 +117,6 @@
         <source>link.explore</source>
         <target>Erkunden</target>
       </trans-unit>
-      <trans-unit id="ExpLnkDe01" resname="link.export">
-        <source>link.export</source>
-        <target>Export</target>
-      </trans-unit>
       <trans-unit id="lnkFeaturesDe" resname="link.features">
         <source>link.features</source>
         <target>Funktionen</target>
@@ -412,6 +408,10 @@
       <trans-unit id="ToolsCatMatchDe" resname="tools.category.matching">
         <source>tools.category.matching</source>
         <target>Abgleich und Prüfung</target>
+      </trans-unit>
+      <trans-unit id="ToolsCatExpDe" resname="tools.category.data_export">
+        <source>tools.category.data_export</source>
+        <target>Daten exportieren</target>
       </trans-unit>
       <trans-unit id="ToolsCatPrepDe" resname="tools.category.data_preparation">
         <source>tools.category.data_preparation</source>

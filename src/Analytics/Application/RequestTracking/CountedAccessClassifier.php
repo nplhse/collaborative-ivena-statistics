@@ -51,7 +51,7 @@ final class CountedAccessClassifier
         'app_stats_closed_department_assignments_rankings',
         // Downloads
         'app_import_source_file_download',
-        'app_hospitals_export_allocations_download',
+        'app_tools_allocation_export_download',
     ];
 
     /** @var list<string> */
