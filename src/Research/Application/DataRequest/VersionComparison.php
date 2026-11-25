@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Research\Application\DataRequest;
 
+use App\Research\Domain\Entity\DataRequest;
 use App\Research\Domain\Entity\DataRequestVersion;
+use App\User\Domain\Entity\User;
 use SebastianBergmann\Diff\Differ;
 use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
 
@@ -39,6 +41,32 @@ final class VersionComparison
         'plannedDeletion' => ['planned_deletion', FieldChange::DATE, true],
         'plannedPublication' => ['planned_publication', FieldChange::TEXT, true],
     ];
+
+    /**
+     * What a reader compares (ADR 045): the versions they may see (the applicant also one not submitted yet), the chosen
+     * pair, by default the latest with the one before, and the changes between them; null when there is no pair.
+     *
+     * @return array{versions: list<DataRequestVersion>, from: ?DataRequestVersion, to: ?DataRequestVersion, changes: list<FieldChange>|null}
+     */
+    public static function forReader(DataRequest $request, User $reader, int $from, int $to, bool $withInternal): array
+    {
+        $versions = array_values(array_filter(
+            $request->getVersions(),
+            static fn (DataRequestVersion $version): bool => $version->isSubmitted() || $request->isRequestedBy($reader),
+        ));
+        $byNumber = [];
+        foreach ($versions as $version) {
+            $byNumber[$version->getNumber()] = $version;
+        }
+
+        $toVersion = $byNumber[$to] ?? ([] !== $versions ? $versions[\count($versions) - 1] : null);
+        $fromVersion = $byNumber[$from] ?? ($toVersion instanceof DataRequestVersion ? ($byNumber[$toVersion->getNumber() - 1] ?? null) : null);
+        $changes = $fromVersion instanceof DataRequestVersion && $toVersion instanceof DataRequestVersion && $fromVersion !== $toVersion
+            ? self::compare($fromVersion, $toVersion, $withInternal)
+            : null;
+
+        return ['versions' => $versions, 'from' => $fromVersion, 'to' => $toVersion, 'changes' => $changes];
+    }
 
     /**
      * @return list<FieldChange> only the fields that differ

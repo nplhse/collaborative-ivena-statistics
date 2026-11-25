@@ -57,7 +57,7 @@ final class DataRequestCompareControllerTest extends WebTestCase
         self::assertSame(['variables', 'recipients'], $this->fields($crawler));
     }
 
-    public function testTheTimelineAndTheBasicsLinkToTheComparison(): void
+    public function testTheTimelineAndTheBasicsLinkToTheVersionsTab(): void
     {
         $client = self::createClient();
         $applicant = UserFactory::new()->asParticipant()->create();
@@ -66,8 +66,10 @@ final class DataRequestCompareControllerTest extends WebTestCase
         $client->loginUser($applicant);
         $crawler = $client->request(Request::METHOD_GET, $this->url($request));
 
-        self::assertStringEndsWith('/compare', (string) $crawler->filter('[data-testid="data-request-compare-link"]')->attr('href'));
-        self::assertStringEndsWith('/compare?from=1&to=2', (string) $crawler->filter('[data-testid="data-request-event-compare"]')->attr('href'));
+        self::assertSame('#tab-versions', $crawler->filter('[data-testid="data-request-compare-link"]')->attr('href'));
+        self::assertStringEndsWith('?from=1&to=2#tab-versions', (string) $crawler->filter('[data-testid="data-request-event-compare"]')->attr('href'));
+        self::assertSame(['variables', 'recipients'], $crawler->filter('[data-testid="data-request-versions"] [data-testid="data-request-change"]')->each(static fn (Crawler $card): string => (string) $card->attr('data-field')), 'the versions tab compares the latest with the one before');
+        self::assertSame('2', $crawler->filter('[data-tab="tab-versions"] [data-testid="data-request-tab-count"]')->text());
     }
 
     /**

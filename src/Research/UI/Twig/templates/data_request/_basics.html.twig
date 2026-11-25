@@ -1,44 +1,43 @@
-{# Basic information about the request: times, versions, who changed it last. #}
-<div class="card mb-3" data-testid="data-request-basics">
-    <div class="card-header"><h3 class="card-title">{{ 'data_request.basics.title'|trans({}, 'research') }}</h3></div>
-    <div class="card-body">
-        <div class="datagrid">
-            <div class="datagrid-item">
-                <div class="datagrid-title">{{ 'data_request.show.created'|trans({}, 'research') }}</div>
-                <div class="datagrid-content">{{ dataRequest.createdAt|format_datetime('medium', 'short') }}</div>
+{# Basic information about the request, like on other detail pages: icon, label, value. #}
+<div class="mb-3" data-testid="data-request-basics">
+    <twig:Card title="{{ 'label.basic_info'|trans({}, 'messages') }}">
+        {% import '@Shared/_macros/users.html.twig' as users %}
+        <div class="mb-2" id="data-request-created-at">
+            <twig:ux:icon name="tabler:clock-play" class="w-3 h-3" />
+            {{ 'label.created_at'|trans({}, 'messages') }} <strong>{{ dataRequest.createdAt|format_datetime('medium', 'short') }}</strong>
+        </div>
+        {% if dataRequest.submittedAt %}
+            <div class="mb-2" id="data-request-submitted-at">
+                <twig:ux:icon name="tabler:send" class="w-3 h-3" />
+                {{ 'data_request.basics.submitted_at'|trans({}, 'research') }} <strong>{{ dataRequest.submittedAt|format_datetime('medium', 'short') }}</strong>
             </div>
-            <div class="datagrid-item">
-                <div class="datagrid-title">{{ 'data_request.list.submitted'|trans({}, 'research') }}</div>
-                <div class="datagrid-content">{{ dataRequest.submittedAt ? dataRequest.submittedAt|format_datetime('medium', 'short') : '–' }}</div>
-            </div>
-            <div class="datagrid-item">
-                <div class="datagrid-title">{{ 'data_request.basics.version'|trans({}, 'research') }}</div>
-                <div class="datagrid-content" data-testid="data-request-version">
-                    {{ 'data_request.basics.version_of'|trans({number: version.number, count: dataRequest.versions|length}, 'research') }}
-                    {% if dataRequest.versions|length > 1 %}
-                        <div><a href="{{ path('app_data_requests_compare', {publicId: dataRequest.publicIdString}) }}" data-testid="data-request-compare-link">{{ 'data_request.compare.link'|trans({}, 'research') }}</a></div>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="datagrid-item">
-                <div class="datagrid-title">{{ 'data_request.basics.updated'|trans({}, 'research') }}</div>
-                <div class="datagrid-content">
-                    {{ version.updatedAt|format_datetime('medium', 'short') }}
-                    <div>{{ include('@Research/data_request/_user.html.twig', {person: version.createdBy}) }}</div>
-                </div>
-            </div>
-            {% if dataRequest.approvedVersion %}
-                <div class="datagrid-item">
-                    <div class="datagrid-title">{{ 'data_request.basics.approved_version'|trans({}, 'research') }}</div>
-                    <div class="datagrid-content">{{ 'data_request.basics.version_number'|trans({number: dataRequest.approvedVersion.number}, 'research') }}</div>
-                </div>
-            {% endif %}
-            {% if dataRequest.closedAt %}
-                <div class="datagrid-item">
-                    <div class="datagrid-title">{{ 'data_request.show.closed'|trans({}, 'research') }}</div>
-                    <div class="datagrid-content">{{ dataRequest.closedAt|format_datetime('medium', 'short') }}</div>
-                </div>
+        {% endif %}
+        <div class="mb-2" data-testid="data-request-version">
+            <twig:ux:icon name="tabler:git-compare" class="w-3 h-3" />
+            {{ 'data_request.basics.version'|trans({}, 'research') }} <strong>{{ 'data_request.basics.version_of'|trans({number: version.number, count: dataRequest.versions|length}, 'research') }}</strong>
+            {% if dataRequest.versions|length > 1 %}
+                · <a href="#tab-versions" data-testid="data-request-compare-link">{{ 'data_request.compare.link'|trans({}, 'research') }}</a>
             {% endif %}
         </div>
-    </div>
+        <div class="mb-2">
+            <twig:ux:icon name="tabler:clock-edit" class="w-3 h-3" />
+            {{ 'label.updated_at'|trans({}, 'messages') }} <strong>{{ version.updatedAt|format_datetime('medium', 'short') }}</strong>
+        </div>
+        <div class="mb-2">
+            <twig:ux:icon name="tabler:user-edit" class="w-3 h-3" />
+            {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ users.link(version.createdBy, {avatar: 'inline'}) }}</strong>
+        </div>
+        {% if dataRequest.approvedVersion %}
+            <div class="mb-2">
+                <twig:ux:icon name="tabler:circle-check" class="w-3 h-3" />
+                {{ 'data_request.basics.approved_version'|trans({}, 'research') }} <strong>{{ 'data_request.basics.version_number'|trans({number: dataRequest.approvedVersion.number}, 'research') }}</strong>
+            </div>
+        {% endif %}
+        {% if dataRequest.closedAt %}
+            <div>
+                <twig:ux:icon name="tabler:flag" class="w-3 h-3" />
+                {{ 'data_request.basics.closed_at'|trans({}, 'research') }} <strong>{{ dataRequest.closedAt|format_datetime('medium', 'short') }}</strong>
+            </div>
+        {% endif %}
+    </twig:Card>
 </div>

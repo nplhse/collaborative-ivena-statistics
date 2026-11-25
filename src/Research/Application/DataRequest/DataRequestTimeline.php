@@ -13,9 +13,14 @@ use App\Research\Domain\Enum\Visibility;
  * Builds the timeline of a data extract request for one reader (ADR 045): events and top-level comments in the order
  * they happened, without entries above the reader's visibility levels. Replies stay below their comment; the template
  * filters them with the same levels.
+ *
+ * Events that follow each other by the same person (or the system), with the same visibility and at most ten minutes
+ * apart, become one entry, for example a saved query and its release. A comment in between ends the group.
  */
 final class DataRequestTimeline
 {
+    public const int GROUP_GAP_SECONDS = 600;
+
     /**
      * @param list<Visibility> $readable
      *
@@ -40,7 +45,41 @@ final class DataRequestTimeline
         // from it (for example the end of the round).
         usort($entries, static fn (TimelineEntry $a, TimelineEntry $b): int => [$a->at, self::rank($a)] <=> [$b->at, self::rank($b)]);
 
-        return $entries;
+        return self::group($entries);
+    }
+
+    /**
+     * @param list<TimelineEntry> $entries
+     *
+     * @return list<TimelineEntry>
+     */
+    private static function group(array $entries): array
+    {
+        $grouped = [];
+        foreach ($entries as $entry) {
+            $last = array_pop($grouped);
+            $previous = $last?->lastEvent();
+            if ($last instanceof TimelineEntry && $entry->event instanceof DataRequestEvent && $previous instanceof DataRequestEvent && self::belongTogether($previous, $entry->event)) {
+                $grouped[] = $last->with($entry->event);
+
+                continue;
+            }
+
+            if ($last instanceof TimelineEntry) {
+                $grouped[] = $last;
+            }
+
+            $grouped[] = $entry;
+        }
+
+        return $grouped;
+    }
+
+    private static function belongTogether(DataRequestEvent $previous, DataRequestEvent $next): bool
+    {
+        return $previous->getActor()?->getId() === $next->getActor()?->getId()
+            && $previous->getVisibility() === $next->getVisibility()
+            && $next->getOccurredAt()->getTimestamp() - $previous->getOccurredAt()->getTimestamp() <= self::GROUP_GAP_SECONDS;
     }
 
     private static function rank(TimelineEntry $entry): int

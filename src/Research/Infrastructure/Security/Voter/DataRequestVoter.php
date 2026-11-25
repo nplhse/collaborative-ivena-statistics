@@ -32,6 +32,7 @@ use Symfony\Component\Workflow\WorkflowInterface;
  * - VOTE: eligible Board members while a round is open. VIEW_VOTES: single votes, for Board members who are neither
  *   the applicant nor excluded, and for administrators.
  * - EXCLUDE_SELF: a Board member declares a conflict of interest. RECORD_EXCLUSION, RESOLVE: administrators.
+ *   Exclusions only while the request is under review, that is submitted and not yet decided.
  * - COMMENT: who may write at least one visibility level (DataRequestCommentService).
  * - MANAGE_QUERIES: administrators, once the request is approved.
  * - RELEASE: administrators, once every query passes the check and no other release is open
@@ -114,8 +115,8 @@ final class DataRequestVoter extends Voter
             self::VOTE => $board && DataRequestStatus::InReview === $status && !$subject->isExcluded($user)
                 && true === $subject->getOpenRound()?->isEligible($user),
             self::VIEW_VOTES => ($board && !$own && !$subject->isExcluded($user)) || $admin,
-            self::EXCLUDE_SELF => $board && !$own && !$status->isFinal() && $subject->wasSubmitted() && !$subject->isExcluded($user),
-            self::RECORD_EXCLUSION => $admin && !$status->isFinal() && $subject->wasSubmitted(),
+            self::EXCLUDE_SELF => $board && !$own && $status->isUnderReview() && !$subject->isExcluded($user),
+            self::RECORD_EXCLUSION => $admin && $status->isUnderReview(),
             self::RESOLVE => $admin && DataRequestStatus::Stalled === $status,
             self::COMMENT => $this->comments->canComment($user, $subject),
             self::MANAGE_QUERIES => $admin && DataRequestStatus::Approved === $status,

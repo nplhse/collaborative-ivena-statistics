@@ -115,6 +115,7 @@ final class DataRequestReviewServiceTest extends KernelTestCase
         self::assertSame(RoundOutcome::Approved, $request->getLastRound()?->getOutcome());
         self::assertSame($request->getCurrentVersion(), $request->getApprovedVersion());
         self::assertEquals(new \DateTimeImmutable('2026-12-02 10:00:00'), $request->getClosedAt());
+        self::assertSame(DataRequestRefused::NOT_ALLOWED, $this->refusal(fn () => $this->review()->declareExclusion($this->board[0], $request, $this->board[0], 'Too late.')), 'no exclusions once decided');
     }
 
     public function testOnlyEligibleMembersVoteAndAVetoNeedsAReason(): void

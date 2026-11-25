@@ -4,7 +4,7 @@
 {% set queryToken = csrf_token('data_request_query_' ~ dataRequest.publicIdString) %}
 
 {% if dataRequest.queries is not empty or canManageQueries %}
-    <div class="card mt-3" id="queries" data-testid="data-request-queries">
+    <div class="card" id="queries" data-testid="data-request-queries">
         <div class="card-header">
             <div>
                 <h3 class="card-title">{{ 'data_request.query.title'|trans({}, 'research') }}</h3>
@@ -85,54 +85,16 @@
                                 <input type="hidden" name="name" value="{{ query.name }}">
                                 <button type="submit" class="btn btn-sm btn-outline-primary" data-testid="data-request-query-dry-run"{{ current.passesCheck ? '' : ' disabled' }}>{{ 'data_request.query.action.dry_run'|trans({}, 'research') }}</button>
                             </form>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#data-request-query-{{ query.name }}-modal" data-testid="data-request-query-revise-open" data-query="{{ query.name }}">
+                                <twig:ux:icon name="tabler:pencil" class="icon" /> {{ 'data_request.query.action.revise'|trans({}, 'research') }}
+                            </button>
                         </div>
-                        <details class="mt-2">
-                            <summary class="small">{{ 'data_request.query.action.revise'|trans({}, 'research') }}</summary>
-                            <form method="post" action="{{ path('app_data_requests_query', {publicId: dataRequest.publicIdString, action: 'revise'}) }}" class="mt-2" data-testid="data-request-query-revise-form">
-                                <input type="hidden" name="_token" value="{{ queryToken }}">
-                                <input type="hidden" name="name" value="{{ query.name }}">
-                                <label class="form-label" for="query-{{ query.name }}-description">{{ 'data_request.query.field.description'|trans({}, 'research') }}</label>
-                                <textarea class="form-control mb-2" id="query-{{ query.name }}-description" name="description" rows="2" required>{{ query.description }}</textarea>
-                                <label class="form-label" for="query-{{ query.name }}-sql">{{ 'data_request.query.field.sql'|trans({}, 'research') }}</label>
-                                <textarea class="form-control font-monospace mb-2" id="query-{{ query.name }}-sql" name="sql" rows="8" required>{{ current.sql }}</textarea>
-                                <button type="submit" class="btn btn-sm btn-primary">{{ 'data_request.query.action.save_version'|trans({}, 'research') }}</button>
-                            </form>
-                        </details>
                     {% endif %}
                 </div>
             {% else %}
                 <p class="text-body-secondary">{{ 'data_request.query.empty'|trans({}, 'research') }}</p>
             {% endfor %}
 
-            {% if canManageQueries %}
-                <details{{ dataRequest.queries is empty ? ' open' }}>
-                    <summary>{{ 'data_request.query.action.add'|trans({}, 'research') }}</summary>
-                    <form method="post" action="{{ path('app_data_requests_query', {publicId: dataRequest.publicIdString, action: 'add'}) }}" class="mt-2" data-testid="data-request-query-add-form">
-                        <input type="hidden" name="_token" value="{{ queryToken }}">
-                        <div class="row g-2">
-                            <div class="col-md-6">
-                                <label class="form-label" for="query-new-name">{{ 'data_request.query.field.name'|trans({}, 'research') }}</label>
-                                <input class="form-control font-monospace" id="query-new-name" name="name" required pattern="[a-z][a-z0-9_]{0,62}" placeholder="allocations_by_month">
-                                <div class="form-hint">{{ 'data_request.query.field.name_help'|trans({}, 'research') }}</div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="query-new-kind">{{ 'data_request.query.field.kind'|trans({}, 'research') }}</label>
-                                <select class="form-select" id="query-new-kind" name="kind">
-                                    {% for kind in enum_cases('App\\Research\\Domain\\Enum\\QueryKind') %}
-                                        <option value="{{ kind.value }}">{{ kind.labelKey|trans({}, 'research') }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <label class="form-label mt-2" for="query-new-description">{{ 'data_request.query.field.description'|trans({}, 'research') }}</label>
-                        <textarea class="form-control mb-2" id="query-new-description" name="description" rows="2" required></textarea>
-                        <label class="form-label" for="query-new-sql">{{ 'data_request.query.field.sql'|trans({}, 'research') }}</label>
-                        <textarea class="form-control font-monospace mb-1" id="query-new-sql" name="sql" rows="8" required></textarea>
-                        <div class="form-hint mb-2">{{ 'data_request.query.field.sql_help'|trans({}, 'research') }}</div>
-                        <button type="submit" class="btn btn-primary" data-testid="data-request-query-add">{{ 'data_request.query.action.add_submit'|trans({}, 'research') }}</button>
-                    </form>
-                </details>
-            {% endif %}
         </div>
     </div>
 {% endif %}

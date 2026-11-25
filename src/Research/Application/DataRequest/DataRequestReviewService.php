@@ -123,7 +123,7 @@ final readonly class DataRequestReviewService
 
     /**
      * A Board member declares a conflict of interest, or an administrator records one for a member. The member leaves
-     * an open round together with their vote; the round may then be complete.
+     * an open round together with their vote; the round may then be complete. Only while the request is under review.
      *
      * @throws DataRequestRefused
      */
@@ -134,7 +134,7 @@ final readonly class DataRequestReviewService
             throw new DataRequestRefused(DataRequestRefused::NOT_ALLOWED);
         }
 
-        if (!$this->isBoardMember($member) || $request->getStatus()->isFinal()) {
+        if (!$this->isBoardMember($member) || !$request->getStatus()->isUnderReview()) {
             throw new DataRequestRefused(DataRequestRefused::NOT_ALLOWED);
         }
 

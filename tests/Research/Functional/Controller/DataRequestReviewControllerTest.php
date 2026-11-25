@@ -48,7 +48,7 @@ final class DataRequestReviewControllerTest extends WebTestCase
         $form['message']->setValue('Coarser age groups, please.');
         $client->submit($form);
         $client->followRedirect();
-        self::assertSelectorTextContains('[data-testid="data-request-votes"]', 'Needs revision');
+        self::assertSelectorExists('[data-testid="data-request-voter"][data-choice="revision"]', 'the Board sees each choice');
         self::assertSelectorTextContains('[data-testid="data-request-timeline"]', 'Coarser age groups, please.');
         self::assertSelectorTextContains('[data-testid="data-request-vote"]', 'Change vote');
 
@@ -82,7 +82,8 @@ final class DataRequestReviewControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertStringContainsString('1 of 2 votes cast', $crawler->filter('[data-testid="data-request-round"]')->text());
-        self::assertSelectorNotExists('[data-testid="data-request-votes"]');
+        self::assertCount(1, $crawler->filter('[data-testid="data-request-voter"]'), 'participants see who voted');
+        self::assertSelectorNotExists('[data-testid="data-request-voter"][data-choice]', 'but not how');
         self::assertSelectorNotExists('[data-testid="data-request-vote-form"]');
         self::assertSelectorNotExists('[data-testid="data-request-check"]');
         self::assertStringNotContainsString('Secret board reasoning', $crawler->filter('body')->text());
