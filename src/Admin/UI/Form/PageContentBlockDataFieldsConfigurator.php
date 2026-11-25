@@ -63,8 +63,10 @@ final readonly class PageContentBlockDataFieldsConfigurator
             PageContentBlockType::Cards->value => $this->addCardsFields($dataForm),
             PageContentBlockType::ChildPages->value => $this->addChildPagesFields($dataForm),
             PageContentBlockType::ReadMore->value => $this->addReadMoreFields($dataForm),
-            // Help blocks (#596) have no settings; their content comes from the help tree.
-            PageContentBlockType::HelpSearch->value, PageContentBlockType::HelpTopics->value => null,
+            // Help blocks (#596) and the board members block have no settings; their content comes from the help
+            // tree or the user accounts.
+            PageContentBlockType::HelpSearch->value, PageContentBlockType::HelpTopics->value,
+            PageContentBlockType::BoardMembers->value => null,
             default => $this->addRichtextFields($dataForm),
         };
     }

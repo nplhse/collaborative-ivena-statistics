@@ -25,13 +25,14 @@ final readonly class PageContentValidator
     ];
 
     /**
-     * Blocks without settings: their content comes from the page tree when the page is shown.
+     * Blocks without settings: their content comes from the page tree or the user accounts when the page is shown.
      *
      * @var list<string>
      */
     private const array BLOCKS_WITHOUT_FIELDS = [
         PageContentBlockType::HelpSearch->value,
         PageContentBlockType::HelpTopics->value,
+        PageContentBlockType::BoardMembers->value,
     ];
 
     public const int MAX_CARDS = 4;
