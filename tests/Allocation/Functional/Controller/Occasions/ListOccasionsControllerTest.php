@@ -45,8 +45,10 @@ final class ListOccasionsControllerTest extends WebTestCase
         $nameRowText = $rows->eq(0)->filter('td')->eq(0)->filter('.data-table-cell__value')->text();
         self::assertSame('Test Occasion', trim($nameRowText));
 
-        $userRow = $rows->eq(0)->filter('td')->eq(2)->filter('.data-table-cell__value')->text();
-        self::assertSame('area-user', trim($userRow));
+        $userCell = $rows->eq(0)->filter('td')->eq(2)->filter('.data-table-cell__value');
+        self::assertSame('area-user', trim($userCell->text()));
+        // Without a display name the avatar falls back to the neutral icon (#1666).
+        self::assertCount(1, $userCell->filter('.user-link > .avatar.avatar-xs[data-avatar="fallback"]'));
     }
 
     public function testTableCanBeSorted(): void
