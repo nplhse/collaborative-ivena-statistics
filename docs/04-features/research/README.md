@@ -19,6 +19,7 @@ extended with every step of #1635.
 | `app_data_requests_edit` | `/requests/data/{publicId}/edit` | the applicant, while the current version is not submitted |
 | `app_data_requests_transition` | `POST /requests/data/{publicId}/{submit\|withdraw}` | the applicant |
 | `app_data_requests_review` | `POST /requests/data/{publicId}/review/{open\|return\|vote\|exclude\|resolve}` | Board members and administrators, per voter attribute |
+| `app_data_requests_compare` | `/requests/data/{publicId}/compare` | `DATA_REQUEST_VIEW` |
 | `app_data_requests_comment` | `POST /requests/data/{publicId}/comments` | `DATA_REQUEST_COMMENT` |
 | `app_my_requests` | `/requests` | participants: "My requests" with hospital assignment requests and data extract requests |
 
@@ -42,6 +43,12 @@ Participants without access to the internal fields see for each one whether it w
 request or the Board asked for a revision, the applicant's first change starts the next version, later changes edit
 it until it is submitted. The approved version, with its export scope, is the Board's decision
 (`DataRequest::approvedVersion`).
+
+**Comparing versions:** `/requests/data/{publicId}/compare` (`app_data_requests_compare`, optional `from` and `to`
+version numbers) compares two versions field by field, by default the latest with the one before
+(`VersionComparison`, line diff with `sebastian/diff`). Only changed fields are listed. Readers without the internal
+details compare only the fields they can see; only the applicant sees a version that is not submitted yet. The basic
+information links to the page, and each "submitted version N" event in the timeline links to the changes from N-1.
 
 ## Status
 
