@@ -62,7 +62,7 @@ final class HospitalListColumns implements DataTablePreferenceDefinitionInterfac
             DataTableColumns::sortable('postalCode', 'label.address.postal_code', 'text', ['property' => 'address.postalCode', 'visible' => false, 'nowrap' => true]),
             DataTableColumns::sortable('city', 'label.address.city', 'text', ['property' => 'address.city', 'visible' => false]),
             DataTableColumns::sortable('participatingSince', 'label.participating_since', 'datetime', ['property' => 'participatingSince', 'visible' => false, 'format' => 'd.m.Y', 'nowrap' => true]),
-            DataTableColumns::sortable('lastChange', 'label.last_change', 'custom', ['cellTemplate' => '@Allocation/hospitals/_cell_last_change.html.twig', 'nowrap' => true]),
+            DataTableColumns::sortable('lastChange', 'label.last_change', 'custom', ['cellTemplate' => '@Allocation/hospitals/_cell_last_change.html.twig']),
         ];
     }
 
