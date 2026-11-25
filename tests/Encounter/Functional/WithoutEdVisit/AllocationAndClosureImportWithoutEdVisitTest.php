@@ -25,6 +25,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\DomCrawler\Field\ChoiceFormField;
 use Symfony\Component\DomCrawler\Field\FileFormField;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
@@ -134,6 +135,12 @@ final class AllocationAndClosureImportWithoutEdVisitTest extends WebTestCase
         $form['import_create[type]'] = (string) $crawler->filter('select[name="import_create[type]"] option')
             ->reduce(static fn (Crawler $option): bool => str_contains($option->text(), $type))
             ->attr('value');
+        // The first upload for a hospital confirms the authority to upload (#1565); later ones need no checkbox.
+        if ($form->has('import_create[uploadAuthority]')) {
+            $authority = $form['import_create[uploadAuthority]'];
+            self::assertInstanceOf(ChoiceFormField::class, $authority);
+            $authority->tick();
+        }
         $file = $form['import_create[file]'];
         self::assertInstanceOf(FileFormField::class, $file);
         $file->upload($path);

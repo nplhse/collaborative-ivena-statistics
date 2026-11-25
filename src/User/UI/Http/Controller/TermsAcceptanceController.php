@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\User\UI\Http\Controller;
 
+use App\Allocation\Domain\Entity\Hospital;
 use App\User\Application\Terms\TermsAcceptanceFactory;
 use App\User\Application\Terms\TermsVersion;
 use App\User\Domain\Entity\User;
+use App\User\Infrastructure\Repository\TermsAcceptanceRepository;
 use App\User\Infrastructure\Security\Terms\RequireTermsAcceptanceListener;
 use App\User\Infrastructure\Security\Terms\TermsAcceptanceStatus;
 use App\User\UI\Form\TermsAcceptanceType;
@@ -20,7 +22,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Acceptance of a new version of the terms of use (#1564, ADR 043). `RequireTermsAcceptanceListener` sends users here
- * until they accept; afterwards they return to the page they asked for.
+ * until they accept; afterwards they return to the page they asked for. Whoever confirmed the upload authority for
+ * hospitals under an earlier version can renew it here in the same step (#1565).
  */
 #[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
 final class TermsAcceptanceController extends AbstractController
@@ -30,6 +33,7 @@ final class TermsAcceptanceController extends AbstractController
         private readonly TermsAcceptanceStatus $status,
         private readonly TermsAcceptanceFactory $acceptanceFactory,
         private readonly EntityManagerInterface $entityManager,
+        private readonly TermsAcceptanceRepository $acceptances,
     ) {
     }
 
@@ -41,11 +45,21 @@ final class TermsAcceptanceController extends AbstractController
             return $this->redirect($this->targetPath($request));
         }
 
-        $form = $this->createForm(TermsAcceptanceType::class);
+        $version = $this->termsVersion->current();
+        $renewable = null === $version ? [] : $this->acceptances->hospitalsWithUploadAuthorityToRenew($user, $version);
+        $form = $this->createForm(TermsAcceptanceType::class, null, [
+            'upload_authority_hospitals' => array_map(static fn (Hospital $hospital): string => (string) $hospital->getName(), $renewable),
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->persist($this->acceptanceFactory->forCurrentTerms($user, $request->getLocale()));
+            // Renews the upload authority for the new version in the same step (#1565); otherwise asked at the next upload.
+            if ($form->has('uploadAuthority') && true === $form->get('uploadAuthority')->getData()) {
+                foreach ($renewable as $hospital) {
+                    $this->entityManager->persist($this->acceptanceFactory->forUploadAuthority($user, $hospital, $request->getLocale()));
+                }
+            }
             $this->entityManager->flush();
             $this->status->remember($user, $session);
 
@@ -54,7 +68,7 @@ final class TermsAcceptanceController extends AbstractController
 
         return $this->render('@User/terms/accept.html.twig', [
             'form' => $form,
-            'version' => $this->termsVersion->current(),
+            'version' => $version,
         ], new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
     }
 

@@ -82,6 +82,11 @@ Encounter uploads ask for one extended confirmation from now on: tool, no direct
 agreed with the hospital's data protection, so the data may be used on the platform (#1563). Each upload stores it
 with the terms version in force; the import detail page of the admin backend shows it. Earlier uploads show "No" for the data protection agreement.
 
+Every upload for a hospital now needs a stored upload authority of the person (#1565): the upload form asks once per
+hospital "I am authorised to upload data for this hospital." Nothing is backfilled, so everyone who uploads today
+confirms at their next upload; administrators are not asked. The hospital detail page in the admin backend shows who
+confirmed. After a new terms version, the acceptance page at login renews it for the hospitals confirmed before.
+
 ### Check
 
 ```bash

@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\User\Unit\Domain\Entity;
 
+use App\Allocation\Domain\Entity\Hospital;
 use App\User\Domain\Entity\TermsAcceptance;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Enum\TermsAcceptanceKind;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 
-/** An acceptance keeps what was accepted, by whom and when (#1564). */
+/** An acceptance keeps what was accepted, by whom and when (#1564), and for which hospital (#1565). */
 final class TermsAcceptanceTest extends TestCase
 {
     use ClockSensitiveTrait;
@@ -39,5 +40,28 @@ final class TermsAcceptanceTest extends TestCase
         self::assertSame('2026-12-03 08:15:00', $acceptance->getAcceptedAt()->format('Y-m-d H:i:s'));
         self::assertNull($acceptance->getTermsVersion());
         self::assertNull($acceptance->getContentHash());
+        self::assertNull($acceptance->getHospital());
+    }
+
+    public function testAnUploadAuthorityNamesItsHospital(): void
+    {
+        $hospital = new Hospital();
+        $acceptance = new TermsAcceptance(new User(), TermsAcceptanceKind::UploadAuthority, '2026-12', 'de', null, null, $hospital);
+
+        self::assertSame($hospital, $acceptance->getHospital());
+    }
+
+    public function testAnUploadAuthorityWithoutHospitalIsRefused(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new TermsAcceptance(new User(), TermsAcceptanceKind::UploadAuthority, '2026-12', 'de', null);
+    }
+
+    public function testTheTermsOfUseTakeNoHospital(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new TermsAcceptance(new User(), TermsAcceptanceKind::Terms, '2026-12', 'de', null, null, new Hospital());
     }
 }

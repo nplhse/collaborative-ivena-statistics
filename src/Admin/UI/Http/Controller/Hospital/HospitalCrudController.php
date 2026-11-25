@@ -12,12 +12,15 @@ use App\Admin\UI\Http\Controller\User\UserCrudController;
 use App\Allocation\Application\Hospital\HospitalRelationNotifier;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalLocation;
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
+use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Doctrine\OriginalEntityUser;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Application\MonthlyReminderSender;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -117,7 +120,7 @@ final class HospitalCrudController extends AbstractCrudController
                 ->setEntityId($hospital->getId())
                 ->set('requestId', Uuid::v4()->toRfc4122())
                 ->generateUrl())
-            ->displayIf(static fn (Hospital $hospital): bool => $hospital->isParticipating() && $hospital->getOwner() instanceof \App\User\Domain\Entity\User)
+            ->displayIf(static fn (Hospital $hospital): bool => $hospital->isParticipating() && $hospital->getOwner() instanceof User)
             ->askConfirmation(MonthlyReminderDispatchCrudController::sendReminderConfirmation(...));
 
         $reminderHistory = Action::new(
@@ -250,10 +253,24 @@ final class HospitalCrudController extends AbstractCrudController
                 ->generateUrl();
             $name = htmlspecialchars((string) $user->getUsername(), ENT_QUOTES);
             $permissions = htmlspecialchars(HospitalPermissionLabelFormatter::formatMask($grant->getPermissions()), ENT_QUOTES);
-            // Terms of use accepted by each person with access (#1564).
+            // Terms of use accepted by each person with access (#1564); the upload authority for those who may import (#1565).
             $terms = $this->termsAcceptanceLabels->forUser($user);
-            $parts[] = sprintf('<a href="%s">%s</a> (%s) · %s', htmlspecialchars($url, ENT_QUOTES), $name, $permissions, $terms);
+            $authority = HospitalPermissionMask::has($grant->getPermissions(), HospitalPermission::Import)
+                ? ' · '.$this->termsAcceptanceLabels->uploadAuthorityFor($user, $hospital)
+                : '';
+            $parts[] = sprintf('<a href="%s">%s</a> (%s) · %s%s', htmlspecialchars($url, ENT_QUOTES), $name, $permissions, $terms, $authority);
             $users[] = $user;
+        }
+
+        // The owner may import as well; their upload authority stands first (#1565).
+        $owner = $hospital->getOwner();
+        if ($owner instanceof User) {
+            array_unshift($parts, sprintf(
+                '%s: %s · %s',
+                htmlspecialchars($this->translator->trans('admin.hospital.field.owner', [], 'admin'), ENT_QUOTES),
+                htmlspecialchars((string) $owner->getUsername(), ENT_QUOTES),
+                $this->termsAcceptanceLabels->uploadAuthorityFor($owner, $hospital),
+            ));
         }
 
         if ([] === $parts) {

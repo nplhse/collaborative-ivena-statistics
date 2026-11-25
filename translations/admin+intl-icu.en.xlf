@@ -3345,6 +3345,14 @@
         <source>admin.terms_acceptance.current_summary</source>
         <target>Accepted the current version {version}: {accepted} of {total}</target>
       </trans-unit>
+      <trans-unit id="adminUploadAuthority0En" resname="admin.upload_authority.label">
+        <source>admin.upload_authority.label</source>
+        <target>Upload authority</target>
+      </trans-unit>
+      <trans-unit id="adminUploadAuthority1En" resname="admin.upload_authority.missing">
+        <source>admin.upload_authority.missing</source>
+        <target>not confirmed</target>
+      </trans-unit>
       <trans-unit id="adminUserTwoFactor03" resname="flash.admin.user.two_factor_reset.done">
         <source>flash.admin.user.two_factor_reset.done</source>
         <target>Two-factor authentication of {username} was reset.</target>

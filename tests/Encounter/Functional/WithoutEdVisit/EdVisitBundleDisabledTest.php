@@ -254,6 +254,10 @@ final class EdVisitBundleDisabledTest extends WebTestCase
         $confirmation = $form['import_create[encounterConfirmation]'];
         self::assertInstanceOf(ChoiceFormField::class, $confirmation);
         $confirmation->tick();
+        // The first upload for a hospital confirms the authority to upload (#1565).
+        $authority = $form['import_create[uploadAuthority]'];
+        self::assertInstanceOf(ChoiceFormField::class, $authority);
+        $authority->tick();
         $file = $form['import_create[file]'];
         self::assertInstanceOf(FileFormField::class, $file);
         $file->upload($this->tempFile(InpatientStayPoc::stays()));

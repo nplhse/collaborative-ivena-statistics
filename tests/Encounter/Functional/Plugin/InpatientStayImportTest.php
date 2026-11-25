@@ -270,6 +270,10 @@ final class InpatientStayImportTest extends WebTestCase
         $confirmation = $form['import_create[encounterConfirmation]'];
         self::assertInstanceOf(ChoiceFormField::class, $confirmation);
         $confirmation->tick();
+        // The first upload for a hospital confirms the authority to upload (#1565).
+        $authority = $form['import_create[uploadAuthority]'];
+        self::assertInstanceOf(ChoiceFormField::class, $authority);
+        $authority->tick();
         $path = sys_get_temp_dir().'/inpatient-stays-'.bin2hex(random_bytes(6)).'.csv';
         file_put_contents($path, InpatientStayPoc::stays());
         $this->uploads[] = $path;

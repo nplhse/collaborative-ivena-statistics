@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Functional\Controller;
 
+use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
@@ -22,7 +23,9 @@ use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Infrastructure\Repository\ImportRunRepository;
 use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\Tests\Support\RateLimit\DeniesRateLimiter;
+use App\User\Domain\Entity\TermsAcceptance;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Enum\TermsAcceptanceKind;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -73,6 +76,8 @@ final class NewImportControllerTest extends WebTestCase
         ]);
         SpecialityFactory::new()->withoutAutorefresh()->create(['name' => 'Innere Medizin']);
         DepartmentFactory::new()->withoutAutorefresh()->create(['name' => 'Kardiologie']);
+
+        $this->confirmUploadAuthority('closure-owner', (int) $hospital->getId());
 
         /** @var EntityManagerInterface $em */
         $em = self::getContainer()->get(EntityManagerInterface::class);
@@ -280,6 +285,54 @@ final class NewImportControllerTest extends WebTestCase
         $import = $em->getRepository(Import::class)->findOneBy(['name' => 'Remember Me Import']);
         self::assertNotNull($import, 'Import has been persisted.');
         @\unlink($import->getFilePath());
+    }
+
+    public function testTheFirstUploadForAHospitalConfirmsTheUploadAuthorityOnce(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        [$owner, $hospitalId] = $this->createOwnerWithHospital(confirmUploadAuthority: false);
+        $client->loginUser($owner);
+
+        // Owners need it too (#1565); the hospital option tells the form to show the checkbox.
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('input[name="import_create[uploadAuthority]"]');
+        self::assertSame('1', $crawler->filter('select[name="import_create[hospital]"] option[value="'.$hospitalId.'"]')->attr('data-needs-upload-authority'));
+
+        $this->postAllocationUpload($client, $crawler, 'Without authority', $hospitalId);
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('form[name="import_create"]', 'Confirm that you are authorised to upload data for this hospital.');
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        self::assertNull($em->getRepository(Import::class)->findOneBy(['name' => 'Without authority']));
+
+        $this->postAllocationUpload($client, $crawler, 'With authority', $hospitalId, ['uploadAuthority' => '1']);
+        $import = $em->getRepository(Import::class)->findOneBy(['name' => 'With authority']);
+        self::assertInstanceOf(Import::class, $import);
+        self::assertResponseRedirects('/import/'.$import->getId().'/processing');
+        $acceptances = $em->getRepository(TermsAcceptance::class)->findBy(['user' => $owner, 'kind' => TermsAcceptanceKind::UploadAuthority]);
+        self::assertCount(1, $acceptances);
+        self::assertSame($hospitalId, $acceptances[0]->getHospital()?->getId());
+        self::assertNull($acceptances[0]->getTermsVersion(), 'no terms version configured in test');
+        @\unlink($import->getFilePath());
+
+        // Confirmed once for this hospital: the form no longer asks.
+        $client->request(Request::METHOD_GET, '/import/new');
+        self::assertSelectorNotExists('input[name="import_create[uploadAuthority]"]');
+    }
+
+    public function testAdministratorsUploadWithoutConfirmingTheUploadAuthority(): void
+    {
+        $client = self::createClient();
+        [, $hospitalId] = $this->createOwnerWithHospital(confirmUploadAuthority: false);
+        $admin = UserFactory::createOne(['username' => 'upload-admin', 'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_ADMIN']]);
+        $client->loginUser($admin);
+
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('input[name="import_create[uploadAuthority]"]');
+        self::assertSame('0', $crawler->filter('select[name="import_create[hospital]"] option[value="'.$hospitalId.'"]')->attr('data-needs-upload-authority'));
     }
 
     public function testSubmitIsRateLimited(): void
@@ -617,7 +670,7 @@ final class NewImportControllerTest extends WebTestCase
     /**
      * @return array{0:User,1:int} [Owner, HospitalId]
      */
-    private function createOwnerWithHospital(): array
+    private function createOwnerWithHospital(bool $confirmUploadAuthority = true): array
     {
         $owner = UserFactory::new()->withoutAutorefresh()->create([
             'username' => 'owner-user',
@@ -649,6 +702,10 @@ final class NewImportControllerTest extends WebTestCase
         InfectionFactory::new()->withoutAutorefresh()->create(['name' => 'V.a. COVID']);
         IndicationRawFactory::new()->withoutAutorefresh()->create(['name' => 'Test Indication', 'code' => 123, 'hash' => '070f5e78cc3ce4b3c3378aeaa0a304a4']);
 
+        if ($confirmUploadAuthority) {
+            $this->confirmUploadAuthority('owner-user', (int) $hospital->getId());
+        }
+
         /** @var EntityManagerInterface $em */
         $em = self::getContainer()->get(EntityManagerInterface::class);
         $em->clear();
@@ -657,6 +714,18 @@ final class NewImportControllerTest extends WebTestCase
         self::assertNotNull($freshOwner);
 
         return [$freshOwner, (int) $hospital->getId()];
+    }
+
+    /** A stored upload authority (#1565), so tests of other behaviour upload without the checkbox. */
+    private function confirmUploadAuthority(string $username, int $hospitalId): void
+    {
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $user = $em->getRepository(User::class)->findOneBy(['username' => $username]);
+        self::assertInstanceOf(User::class, $user);
+        $hospital = $em->getReference(Hospital::class, $hospitalId);
+        $em->persist(new TermsAcceptance($user, TermsAcceptanceKind::UploadAuthority, null, 'en', null, null, $hospital));
+        $em->flush();
     }
 
     public function testOptionsSectionOpensWhenAnOptionIsSetAndTheFormIsShownAgain(): void

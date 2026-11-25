@@ -1057,6 +1057,14 @@
         <source>text.terms.decline</source>
         <target>Ohne Ihre Zustimmung ruht Ihr Zugang.</target>
       </trans-unit>
+      <trans-unit id="termsAcceptAuthority0De" resname="label.terms.upload_authority">
+        <source>label.terms.upload_authority</source>
+        <target>Ich bin weiterhin berechtigt, für {hospitals} Daten hochzuladen.</target>
+      </trans-unit>
+      <trans-unit id="termsAcceptAuthority1De" resname="help.terms.upload_authority">
+        <source>help.terms.upload_authority</source>
+        <target>Andernfalls bestätigen Sie es vor Ihrem nächsten Upload erneut.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

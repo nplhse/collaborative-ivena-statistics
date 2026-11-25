@@ -37,7 +37,9 @@ field or revision history. Editors change the page for typos and wording as well
 - An invalid version (spaces, more than 32 characters) stops the application with an error naming `APP_TERMS_VERSION`.
 - Accounts created before #1564 or by an administrator have no row and are asked at their first login once a version is
   set.
-- Kinds other than `terms` (the upload authority per hospital, #1565) are added to the same table.
+- Kinds other than `terms` are added to the same table: the upload authority per hospital (#1565, kind
+  `upload_authority`, with a hospital column) follows the same version: raising the version also asks again, per
+  hospital, at the next upload.
 - The rows are not audited separately; they are themselves the record.
 
 ## Alternatives
