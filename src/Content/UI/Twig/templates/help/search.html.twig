@@ -38,10 +38,21 @@
                                 {% for hit in hits %}
                                     <a class="list-group-item list-group-item-action help-search-hit" id="help-search-hit-{{ hit.pageId }}" data-help-search-results-target="hit" href="{{ path('app_page_show', {path: hit.path|trim('/'), q: help_query}) }}" data-testid="help-search-hit">
                                         <div class="fw-medium">{{ hit.title }}</div>
+                                        {# Short description for what the article is about, the excerpt for where the terms occur. #}
                                         {% if hit.summary %}
                                             <div class="text-secondary small help-search-summary">{{ hit.summary }}</div>
-                                        {% elseif hit.excerpt %}
-                                            <div class="text-secondary small help-search-excerpt">{{ hit.excerptHtml|raw }}</div>
+                                        {% endif %}
+                                        {% if hit.excerpt and (hit.excerptHasMatch or not hit.summary) %}
+                                            {# Each passage is a paragraph; […] marks where it starts or ends inside the text. #}
+                                            <div class="text-secondary small help-search-excerpt{{ hit.summary ? ' mt-1 fst-italic' }}">
+                                                {% for passage in hit.passages %}
+                                                    <p class="mb-{{ loop.last ? 0 : 1 }}">
+                                                        {%- if passage.cutBefore %}<span class="text-body fst-normal help-search-gap">[…]</span> {% endif -%}
+                                                        {{ passage.html|raw }}
+                                                        {%- if passage.cutAfter %} <span class="text-body fst-normal help-search-gap">[…]</span>{% endif -%}
+                                                    </p>
+                                                {% endfor %}
+                                            </div>
                                         {% endif %}
                                     </a>
                                 {% endfor %}

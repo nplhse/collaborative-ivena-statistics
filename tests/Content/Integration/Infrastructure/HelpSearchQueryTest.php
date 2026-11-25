@@ -76,7 +76,23 @@ final class HelpSearchQueryTest extends DatabaseKernelTestCase
         $hits = $this->search("rows' & !", 'en');
         self::assertSame(['Understanding rejected rows'], $this->titles($hits));
         self::assertSame('/help/rejected-rows', $hits[0]->path);
-        self::assertStringContainsString('<mark>Rows</mark>', $hits[0]->excerptHtml());
+        self::assertStringContainsString('<mark>Rows</mark>', $hits[0]->passages()[0]['html']);
+    }
+
+    public function testDistantMatchesBecomeSeparatePassages(): void
+    {
+        $filler = implode(' ', array_fill(0, 60, 'unrelated words in between'));
+        $long = HelpPages::article($this->export->getParent() ?? self::fail('no root'), 'Long article', '/help/long', '<p>Checklist first. '.$filler.' At the end the checklist again.</p>');
+
+        $hits = self::getContainer()->get(HelpSearchQueryInterface::class)->search('checklist', [(int) $long->getId()], 'en', 'en');
+        $passages = $hits[0]->passages();
+
+        self::assertCount(2, $passages, 'one passage per place in the text');
+        self::assertStringStartsWith('<mark>Checklist</mark>', $passages[0]['html']);
+        self::assertStringContainsString('<mark>checklist</mark>', $passages[1]['html']);
+        self::assertSame([false, true], [$passages[0]['cutBefore'], $passages[0]['cutAfter']], 'the first passage starts at the beginning');
+        self::assertSame([true, false], [$passages[1]['cutBefore'], $passages[1]['cutAfter']], 'the second ends with the text, without its full stop');
+        self::assertSame([false, false], [$this->search('plausibility', 'en')[0]->passages()[0]['cutBefore'], $this->search('plausibility', 'en')[0]->passages()[0]['cutAfter']], 'a short text is shown whole');
     }
 
     public function testTheSummaryIsSearchedAndReturned(): void

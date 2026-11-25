@@ -42,7 +42,11 @@ a page with that path would be hidden behind it. The same holds for `/help/gloss
   (depth first, `HelpNavigation::neighbours()`). Curated links to related articles go into a *Learn more* block at
   the end of the content ([page-translations.md](page-translations.md#blocks), #1590). The start page has no sidebar search, its search block is enough.
 - **Search results:** same layout; titles and short descriptions weigh more than text. A hit shows its short
-  description, or without one the excerpt with the matched words marked.
+  description and below it an excerpt with the matched words marked: up to two passages of up to 30 words from different places in the text,
+  shown as separate paragraphs. "[…]" marks where a passage starts or ends inside the text (`HelpSearchHit::passages()`
+  compares it with the searched text). The
+  excerpt is left out when the words occur only in the title or short description, because it would only show the
+  start of the text.
 
 Which articles a viewer sees follows the page rules: published translation in the request locale or the content
 default locale, and visibility (`public` or `authenticated`). Navigation, neighbours, topics, search and
