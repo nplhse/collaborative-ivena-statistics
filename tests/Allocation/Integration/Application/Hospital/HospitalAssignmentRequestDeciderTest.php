@@ -15,7 +15,9 @@ use App\Allocation\Domain\Enum\HospitalAssignmentRequestStatus;
 use App\Allocation\Domain\Enum\PreviousOwnerAccess;
 use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\User\Domain\Entity\TermsAcceptance;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Enum\TermsAcceptanceKind;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -62,6 +64,42 @@ final class HospitalAssignmentRequestDeciderTest extends KernelTestCase
         self::assertSame(7, $request->getGrantedPermissions());
         self::assertSame($this->reviewer->getId(), $request->getDecidedBy()?->getId());
         self::assertSame($this->previousOwner->getId(), $this->ownerId(), 'a grant leaves the owner alone');
+    }
+
+    public function testAnApprovalWithImportStoresTheUploadAuthorityOfTheRequest(): void
+    {
+        $request = $this->request(uploadAuthority: true);
+
+        $this->decider()->approveAsAccessGrant($request, $this->reviewer, 5, null, 1);
+
+        $authority = $this->uploadAuthorityOf($this->requester);
+        self::assertInstanceOf(TermsAcceptance::class, $authority);
+        self::assertSame($this->hospital->getId(), $authority->getHospital()?->getId());
+        self::assertSame('2026-11', $authority->getTermsVersion(), 'the version of the request');
+        self::assertSame('2026-11-21 00:00', $authority->getAcceptedAt()->format('Y-m-d H:i'), 'the time of the request');
+    }
+
+    public function testAnApprovalWithoutImportStoresNoUploadAuthority(): void
+    {
+        $this->decider()->approveAsAccessGrant($this->request(uploadAuthority: true), $this->reviewer, 3, null, 1);
+
+        self::assertNull($this->uploadAuthorityOf($this->requester));
+    }
+
+    public function testAnApprovalOfARequestWithoutConfirmationStoresNoUploadAuthority(): void
+    {
+        $this->decider()->approveAsAccessGrant($this->request(), $this->reviewer, 7, null, 1);
+
+        self::assertNull($this->uploadAuthorityOf($this->requester));
+    }
+
+    public function testAnOwnershipApprovalStoresTheUploadAuthorityOfTheRequest(): void
+    {
+        $request = $this->request(uploadAuthority: true);
+
+        $this->decider()->approveAsOwnership($request, $this->reviewer, $this->previousOwner->getId(), PreviousOwnerAccess::RemoveAccess, null, 1);
+
+        self::assertSame($this->hospital->getId(), $this->uploadAuthorityOf($this->requester)?->getHospital()?->getId());
     }
 
     public function testPermissionsAreCompletedWithTheirRequirements(): void
@@ -195,9 +233,12 @@ final class HospitalAssignmentRequestDeciderTest extends KernelTestCase
         self::assertSame('Klinikum Nord', $this->reload($request)->getRequestedHospitalName());
     }
 
-    private function request(?Hospital $hospital = null): HospitalAssignmentRequest
+    private function request(?Hospital $hospital = null, bool $uploadAuthority = false): HospitalAssignmentRequest
     {
         $request = new HospitalAssignmentRequest($this->requester, $hospital ?? $this->hospital, null, HospitalAssignmentReason::DataSubmission, null, null, new \DateTimeImmutable('2026-11-21'));
+        if ($uploadAuthority) {
+            $request->confirmUploadAuthority($request->getCreatedAt(), '2026-11');
+        }
         $this->store($request);
 
         return $request;
@@ -230,6 +271,13 @@ final class HospitalAssignmentRequestDeciderTest extends KernelTestCase
         $this->entityManager()->clear();
 
         return $this->entityManager()->getRepository(HospitalAccessGrant::class)->findOneBy(['user' => $user->getId(), 'hospital' => $this->hospital->getId()]);
+    }
+
+    private function uploadAuthorityOf(User $user): ?TermsAcceptance
+    {
+        $this->entityManager()->clear();
+
+        return $this->entityManager()->getRepository(TermsAcceptance::class)->findOneBy(['user' => $user->getId(), 'kind' => TermsAcceptanceKind::UploadAuthority]);
     }
 
     private function ownerId(): ?int

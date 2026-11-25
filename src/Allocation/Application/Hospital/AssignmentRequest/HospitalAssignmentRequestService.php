@@ -13,6 +13,7 @@ use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\Exception\HospitalAssignmentRequestException;
 use App\Allocation\Infrastructure\Repository\HospitalAssignmentRequestRepository;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\User\Application\Terms\TermsVersion;
 use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -33,6 +34,7 @@ final readonly class HospitalAssignmentRequestService
         private AuditContext $auditContext,
         private EventDispatcherInterface $eventDispatcher,
         private ClockInterface $clock,
+        private TermsVersion $termsVersion,
     ) {
     }
 
@@ -60,6 +62,9 @@ final readonly class HospitalAssignmentRequestService
                 $submission->comment,
                 $this->clock->now(),
             );
+            if ($submission->uploadAuthority) {
+                $request->confirmUploadAuthority($request->getCreatedAt(), $this->termsVersion->current());
+            }
         } catch (HospitalAssignmentRequestException $exception) {
             throw new \InvalidArgumentException('A validated submission is a valid request.', 0, $exception);
         }

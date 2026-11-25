@@ -10,6 +10,7 @@ use App\Allocation\Domain\Enum\HospitalAssignmentReason;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Allocation\UI\Form\Transformer\HospitalToPublicIdTransformer;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -69,6 +70,11 @@ final class HospitalAssignmentRequestType extends AbstractType
                 'required' => false,
                 'label' => 'hospital_assignment_request.field.comment',
                 'attr' => ['rows' => 3],
+            ])
+            ->add('uploadAuthority', CheckboxType::class, [
+                'required' => false,
+                'label' => 'hospital_assignment_request.field.upload_authority',
+                'help' => 'hospital_assignment_request.field.upload_authority_help',
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'hospital_assignment_request.action.submit',

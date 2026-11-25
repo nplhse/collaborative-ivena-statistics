@@ -65,6 +65,19 @@ final class HospitalAssignmentRequestCrudControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
+    public function testTheDetailShowsWhetherTheRequesterConfirmedTheUploadAuthority(): void
+    {
+        $without = $this->detail($this->request());
+        self::assertStringContainsString('Not confirmed in the request', $without->filter('[data-testid="assignment-request-upload-authority"]')->text());
+
+        $request = $this->request(HospitalFactory::createOne(['name' => 'Klinikum Ost']));
+        $request->confirmUploadAuthority(new \DateTimeImmutable('2026-11-21 10:00'), null);
+        self::getContainer()->get(EntityManagerInterface::class)->flush();
+
+        $with = $this->detail($request);
+        self::assertStringContainsString('Confirmed in the request on 21.11.2026 10:00', $with->filter('[data-testid="assignment-request-upload-authority"]')->text());
+    }
+
     public function testTheDetailShowsTheOwnerTheTransferWarningAndThePresetPermissions(): void
     {
         $crawler = $this->detail($this->request());
