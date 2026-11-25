@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Tests\Research\Functional\Controller;
 
+use App\Allocation\Domain\Entity\HospitalAssignmentRequest;
+use App\Allocation\Domain\Enum\HospitalAssignmentReason;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Research\Domain\Entity\DataRequest;
 use App\Research\Domain\Enum\DataRequestStatus;
 use App\Research\Infrastructure\Repository\DataRequestRepository;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
@@ -189,6 +193,67 @@ final class DataRequestControllerTest extends WebTestCase
         self::assertSame(['hospital_assignment', 'data_request'], $sections);
         self::assertStringContainsString('Stroke pathways in 2024', $crawler->filter('[data-section="data_request"]')->text());
         self::assertCount(1, $crawler->filter('[data-section="hospital_assignment"] [data-testid="my-requests-empty"]'));
+    }
+
+    public function testMyRequestsListsHospitalAssignmentRequestsWithTheirStatus(): void
+    {
+        $client = $this->clientFor($applicant);
+        $hospital = HospitalFactory::createOne(['name' => 'Klinikum Süd']);
+        $assignment = new HospitalAssignmentRequest($applicant, $hospital, null, HospitalAssignmentReason::DataSubmission, null, null, new \DateTimeImmutable('2026-11-20 09:00'));
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->persist($assignment);
+        $entityManager->flush();
+
+        $crawler = $client->request(Request::METHOD_GET, '/requests');
+
+        $entry = $crawler->filter('[data-section="hospital_assignment"] [data-testid="my-requests-entry"]');
+        self::assertCount(1, $entry);
+        self::assertStringContainsString('Klinikum Süd', $entry->text());
+        self::assertStringContainsString('/hospitals/requests#request-'.$assignment->getPublicIdString(), (string) $entry->attr('href'));
+    }
+
+    public function testTheApplicantEditsADraftButNotASubmittedVersion(): void
+    {
+        $client = $this->clientFor($applicant);
+        $this->saveDraft($client);
+        $request = $this->onlyRequest();
+
+        $crawler = $client->request(Request::METHOD_GET, '/requests/data/'.$request->getPublicIdString().'/edit');
+        self::assertResponseIsSuccessful();
+        $form = $crawler->filter('[data-testid="data-request-save"]')->form();
+        self::assertSame('Stroke pathways in 2024', $form['data_request[title]']->getValue(), 'the form starts with the stored version');
+        $form['data_request[title]']->setValue('Stroke pathways in 2024 and 2025');
+        $form['data_request[periodTo]']->setValue('2025-12-31');
+        $client->submit($form);
+
+        self::assertResponseRedirects('/requests/data/'.$request->getPublicIdString());
+        $version = $this->onlyRequest()->getCurrentVersion();
+        self::assertSame('Stroke pathways in 2024 and 2025', $version->getTitle());
+        self::assertEquals(new \DateTimeImmutable('2025-12-31'), $version->getPeriodTo());
+        self::assertSame(1, $version->getNumber(), 'a draft changes in place');
+
+        $this->transition($client, $request, 'submit');
+        $client->request(Request::METHOD_GET, '/requests/data/'.$request->getPublicIdString().'/edit');
+        self::assertResponseRedirects('/requests/data/'.$request->getPublicIdString());
+        $client->followRedirect();
+        self::assertSelectorTextContains('.messages', 'This version can no longer be changed.');
+    }
+
+    public function testARepeatedWithdrawalIsRefusedWithAMessage(): void
+    {
+        $client = $this->clientFor($applicant);
+        $this->saveDraft($client);
+        $request = $this->onlyRequest();
+
+        $crawler = $client->request(Request::METHOD_GET, '/requests/data/'.$request->getPublicIdString());
+        $withdraw = $crawler->filter('[data-testid="data-request-withdraw"]')->form();
+        $client->submit($withdraw);
+        $client->submit($withdraw);
+
+        self::assertResponseRedirects('/requests/data/'.$request->getPublicIdString());
+        $client->followRedirect();
+        self::assertSelectorTextContains('.messages', 'This step is not possible in the current state of the request.');
+        self::assertSame(DataRequestStatus::Withdrawn, $this->onlyRequest()->getStatus());
     }
 
     /**
