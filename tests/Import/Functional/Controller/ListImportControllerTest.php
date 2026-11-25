@@ -106,6 +106,22 @@ final class ListImportControllerTest extends WebTestCase
         self::assertStringNotContainsString('label.import.filter', $crawler->text());
     }
 
+    public function testTypeAndDataPeriodFilterBadgesShowTranslatedLabels(): void
+    {
+        $client = self::createClient();
+        [$owner] = $this->seedBaseActors();
+        $owner->setLocale('de');
+
+        $crawler = $this->requestAsUser($client, $owner, '/import?type=Closure&periodFrom=2025-03-01&periodUntil=2025-03-31');
+
+        $badges = $crawler->filter('.badge.bg-blue-lt')->each(static fn ($badge): string => trim((string) preg_replace('/\s+/', ' ', $badge->text())));
+        self::assertContains('Typ: Schließung', $badges);
+        self::assertContains('Daten ab: 01.03.2025', $badges);
+        self::assertContains('Daten bis: 31.03.2025', $badges);
+        self::assertSame('Closure', $crawler->filter('#import-filter-type option[selected]')->attr('value'));
+        self::assertStringNotContainsString('label.import.filter', $crawler->text());
+    }
+
     public function testTableWithResultsIsShown(): void
     {
         $client = self::createClient();

@@ -381,6 +381,13 @@
         }]) %}
     {% endif %}
 
+    {% if filters.type is not empty %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.type',
+            value: ('import.type.label.' ~ filters.type|lower)|trans({}, 'import'),
+        }]) %}
+    {% endif %}
+
     {% if filters.createdFrom is not empty and not filters.isDefaultCreatedFrom %}
         {% set rawFilters = rawFilters|merge([{
             key: 'label.import.filter.created_from',
@@ -394,6 +401,22 @@
             key: 'label.import.filter.created_until',
             domain: 'import',
             value: filters.createdUntil|date('d.m.Y'),
+        }]) %}
+    {% endif %}
+
+    {% if filters.periodFrom is not empty %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.import.filter.period_from',
+            domain: 'import',
+            value: filters.periodFrom|date('d.m.Y'),
+        }]) %}
+    {% endif %}
+
+    {% if filters.periodUntil is not empty %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.import.filter.period_until',
+            domain: 'import',
+            value: filters.periodUntil|date('d.m.Y'),
         }]) %}
     {% endif %}
 
