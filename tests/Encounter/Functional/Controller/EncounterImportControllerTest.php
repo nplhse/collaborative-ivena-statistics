@@ -270,18 +270,23 @@ final class EncounterImportControllerTest extends WebTestCase
         self::assertSelectorTextSame('[data-test="encounter-schema"]', 'ED visits (MTS)');
         // ed_visit does not assign records to encounters, so the report has no assignment counts (ADR 037).
         self::assertSelectorNotExists('[data-test="count-assigned"]');
-        // Row rejects and suspected duplicates are admin information (#1413).
+        // Suspected duplicates are a count for everyone, like the deduplication counts of other imports; no
+        // list of suspected duplicates or rejected rows on the page (#1622).
+        self::assertSelectorTextSame('[data-test="count-suspectedDuplicates"]', '0');
         self::assertSelectorNotExists('[data-test="encounter-rejects"]');
         self::assertSelectorNotExists('[data-test="encounter-suspected-duplicates"]');
-        self::assertSelectorNotExists('[data-test="count-suspectedDuplicates"]');
+        self::assertStringNotContainsString('98765', (string) $this->client->getResponse()->getContent());
 
         $this->client->loginUser($this->admin());
         $this->client->request(Request::METHOD_GET, '/import/'.$importId);
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('[data-test="reject-row"]', 'heart_rate: out_of_range');
-        self::assertSelectorExists('[data-test="encounter-suspected-duplicates"]');
-        self::assertSelectorTextSame('[data-test="count-suspectedDuplicates"]', '0');
+        self::assertSelectorNotExists('[data-test="encounter-rejects"]');
+        self::assertSelectorNotExists('[data-test="encounter-suspected-duplicates"]');
         self::assertStringNotContainsString('98765', (string) $this->client->getResponse()->getContent());
+        // Administrators find the rejected row in the admin backend's reject list.
+        $rejects = $this->client->request(Request::METHOD_GET, '/admin/import-reject', ['query' => 'with reject']);
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $rejects->filter('table.datagrid tbody tr[data-id]'));
 
         // The hospital owner has hospital access but no encounter grant (ADR 028).
         $this->client->loginUser($this->owner());

@@ -6,7 +6,6 @@ namespace App\Encounter\UI\Import;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Encounter\Application\Contract\EncounterImportReaderInterface;
-use App\Encounter\Application\Contract\EncounterImportReportInterface;
 use App\Encounter\Application\Contract\EncounterKeyStateReaderInterface;
 use App\Encounter\Application\Contract\EncounterUploadHospitalsInterface;
 use App\Encounter\Application\Dimension\EncounterDimensionRegistry;
@@ -14,7 +13,6 @@ use App\Encounter\Application\Import\EncounterSchemaHandlerRegistry;
 use App\Encounter\Application\Security\EncounterAttribute;
 use App\Encounter\Contract\Display\ImportRecordsLink;
 use App\Encounter\Contract\Display\ImportRecordsLinkProviderInterface;
-use App\Encounter\Contract\Import\SuspectedDuplicateReaderInterface;
 use App\Encounter\Domain\Entity\EncounterImport;
 use App\Import\Application\Contracts\ImportTypeExtensionInterface;
 use App\Import\Application\DTO\ImportTypeAdminDetail;
@@ -54,8 +52,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *   while the hospital's key change is in progress (ADR 027).
  * - List and detail: only for UPLOAD on the hospital (ADR 028); reprocess, download and delete as well.
  *   Reprocess and download only while the upload file is kept (ADR 026, #1049).
- * - Detail page section: counts, file rejection, until when the file is kept or when it was deleted; row
- *   rejects and suspected duplicates only for ROLE_ADMIN (#1413); never file content or cell values. With
+ * - Detail page section: counts (suspected duplicates as a count only, #1622), file rejection, until when the
+ *   file is kept or when it was deleted; never file content or cell values. With
  *   VIEW_CASES on the hospital, the schema's link to the imported records (`encounter.import_records_link`).
  * - Admin backend: the upload confirmation (who, when, data protection agreed, terms version), #1563.
  *
@@ -65,8 +63,6 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
 {
     public const string FIELD_SCHEMA = 'encounterSchema';
     public const string FIELD_CONFIRMATION = 'encounterConfirmation';
-
-    private const int LIST_LIMIT = 200;
 
     /**
      * @param iterable<ImportRecordsLinkProviderInterface> $recordsLinks
@@ -81,7 +77,6 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
         private EncounterSchemaHandlerRegistry $handlers,
         private EncounterKeyStateReaderInterface $keyStates,
         private EncounterImportReaderInterface $encounterImports,
-        private EncounterImportReportInterface $report,
         private ImportFileStorage $fileStorage,
         private EntityManagerInterface $entityManager,
         private TranslatorInterface $translator,
@@ -233,12 +228,9 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
         }
 
         $schema = $encounterImport->getSchema();
-        // Row rejects and suspected duplicates are admin information (#1413); not loaded for anyone else.
-        $isAdmin = $this->security->isGranted(UserRole::ADMIN);
 
         return new ImportTypeDetailSection('@Encounter/imports/_import_section.html.twig', [
             'encounter_import' => $encounterImport,
-            'show_admin_details' => $isAdmin,
             // A schema whose bundle is no longer installed is shown by its name.
             'schema_label' => $this->dimensions->has($schema)
                 ? $this->dimensions->get($schema)->label()
@@ -247,9 +239,6 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
             'source_file_kept_until' => $encounterImport->isSourceFileDeleted()
                 ? null
                 : $import->getCreatedAt()->modify(\sprintf('+%d days', $this->sourceFileRetentionDays)),
-            'rejects' => $isAdmin ? $this->report->rejects($importId, self::LIST_LIMIT) : [],
-            'suspected_duplicates' => $isAdmin ? $this->suspectedDuplicates($schema, $importId) : [],
-            'list_limit' => self::LIST_LIMIT,
         ], $this->recordActions($import, $schema), $encounterImport->getInserted());
     }
 
@@ -292,18 +281,6 @@ final readonly class EncounterImportTypeExtension implements ImportTypeExtension
         }
 
         return [];
-    }
-
-    /**
-     * Suspected duplicates from the import's schema, if it flags any (SuspectedDuplicateReaderInterface, #1375).
-     *
-     * @return list<array{line: int, difference_minutes: int, anchor_source: string, existing_anchor_source: string, existing_import_id: int, existing_import_name: string}>
-     */
-    private function suspectedDuplicates(string $schema, int $importId): array
-    {
-        $handler = $this->handlers->find($schema);
-
-        return $handler instanceof SuspectedDuplicateReaderInterface ? $handler->suspectedDuplicates($importId, self::LIST_LIMIT) : [];
     }
 
     /**

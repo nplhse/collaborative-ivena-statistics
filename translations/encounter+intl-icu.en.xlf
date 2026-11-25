@@ -877,62 +877,6 @@
         <source>encounter.import.rejection.key_check_mismatch</source>
         <target>The file was prepared with a different key file than the hospital's earlier uploads.</target>
       </trans-unit>
-      <trans-unit id="EncI23544636" resname="encounter.import.suspected.title">
-        <source>encounter.import.suspected.title</source>
-        <target>Suspected duplicates</target>
-      </trans-unit>
-      <trans-unit id="EncI0BD12C6A" resname="encounter.import.suspected.intro">
-        <source>encounter.import.suspected.intro</source>
-        <target>New visits with the same case pseudonym as an existing visit and a time anchor within 15 minutes. They were imported, not merged.</target>
-      </trans-unit>
-      <trans-unit id="EncIA5C8B36D" resname="encounter.import.suspected.empty">
-        <source>encounter.import.suspected.empty</source>
-        <target>No suspected duplicates.</target>
-      </trans-unit>
-      <trans-unit id="EncIF1D0CA39" resname="encounter.import.rejects.title">
-        <source>encounter.import.rejects.title</source>
-        <target>Rejected rows</target>
-      </trans-unit>
-      <trans-unit id="EncI50A086AA" resname="encounter.import.rejects.empty">
-        <source>encounter.import.rejects.empty</source>
-        <target>No rejected rows.</target>
-      </trans-unit>
-      <trans-unit id="EncI63666C2F" resname="encounter.import.column.line">
-        <source>encounter.import.column.line</source>
-        <target>Line</target>
-      </trans-unit>
-      <trans-unit id="EncI022908E5" resname="encounter.import.column.errors">
-        <source>encounter.import.column.errors</source>
-        <target>Field and error</target>
-      </trans-unit>
-      <trans-unit id="EncI9CEA6D84" resname="encounter.import.column.profile_version">
-        <source>encounter.import.column.profile_version</source>
-        <target>Profile version</target>
-      </trans-unit>
-      <trans-unit id="EncIE06A1A64" resname="encounter.import.column.difference_minutes">
-        <source>encounter.import.column.difference_minutes</source>
-        <target>Difference (min)</target>
-      </trans-unit>
-      <trans-unit id="EncI5D45C437" resname="encounter.import.column.anchor">
-        <source>encounter.import.column.anchor</source>
-        <target>Time anchor (new / existing)</target>
-      </trans-unit>
-      <trans-unit id="EncI77DACD50" resname="encounter.import.column.existing_import">
-        <source>encounter.import.column.existing_import</source>
-        <target>Import of the existing visit</target>
-      </trans-unit>
-      <trans-unit id="EncI5DF27660" resname="encounter.import.anchor.assessment">
-        <source>encounter.import.anchor.assessment</source>
-        <target>first assessment contact</target>
-      </trans-unit>
-      <trans-unit id="EncI942247EC" resname="encounter.import.anchor.admission">
-        <source>encounter.import.anchor.admission</source>
-        <target>ED admission</target>
-      </trans-unit>
-      <trans-unit id="EncIA19F3E1E" resname="encounter.import.list_limited">
-        <source>encounter.import.list_limited</source>
-        <target>Only the first {limit} entries are shown.</target>
-      </trans-unit>
       <trans-unit id="EncK8C1F12FD" resname="encounter.hospital_edit.key_change">
         <source>encounter.hospital_edit.key_change</source>
         <target>Change pseudonym key</target>
