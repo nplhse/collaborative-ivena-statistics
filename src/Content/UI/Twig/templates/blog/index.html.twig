@@ -61,7 +61,7 @@
                                                     avatar: 'inline',
                                                 }) }}
                                             </span>
-                                            <span>| {{ 'blog.comments.count'|trans(({count: post.comments|length}), 'content') }}</span>
+                                            <span>| {{ 'blog.comments.count'|trans(({count: comment_counts[post.id]|default(0)}), 'content') }}</span>
                                         </div>
                                         <div>
                                             {{ previews[post.id]|default('')|raw }}

@@ -7,6 +7,7 @@ namespace App\Content\Infrastructure\Repository;
 use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Entity\PostComment;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -49,5 +50,36 @@ final class PostCommentRepository extends ServiceEntityRepository
             ->setParameter('postId', $post->getId(), Types::INTEGER)
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    /**
+     * Comment counts of several posts in one query, replies included as in countForPost(); posts without
+     * comments are missing from the result.
+     *
+     * @param list<int> $postIds
+     *
+     * @return array<int, int> comment count by post id
+     */
+    public function countByPostIds(array $postIds): array
+    {
+        if ([] === $postIds) {
+            return [];
+        }
+
+        /** @var list<array{postId: int|string, commentCount: int|string}> $rows */
+        $rows = $this->createQueryBuilder('c')
+            ->select('IDENTITY(c.post) AS postId', 'COUNT(c.id) AS commentCount')
+            ->andWhere('IDENTITY(c.post) IN (:postIds)')
+            ->setParameter('postIds', $postIds, ArrayParameterType::INTEGER)
+            ->groupBy('c.post')
+            ->getQuery()
+            ->getArrayResult();
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[(int) $row['postId']] = (int) $row['commentCount'];
+        }
+
+        return $counts;
     }
 }
