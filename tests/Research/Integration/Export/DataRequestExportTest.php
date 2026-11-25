@@ -112,6 +112,10 @@ final class DataRequestExportTest extends KernelTestCase
         $orphan = $directory.'/ffffffffffffffffffffffffffffffff.tar.gz';
         file_put_contents($orphan, 'x');
         touch($orphan, new \DateTimeImmutable('2026-12-07 09:00')->getTimestamp());
+        $leftover = $directory.'/work/run-999-1';
+        mkdir($leftover, 0o700, true);
+        touch($leftover, new \DateTimeImmutable('2026-12-07 09:00')->getTimestamp());
+        self::assertSame(DataRequestRefused::NOT_ALLOWED, $this->refusal(fn () => $this->releases()->expire($run)), 'not due yet');
         $cleanup = self::getContainer()->get(CleanUpDataExportsMessageHandler::class);
 
         self::mockTime('2026-12-08 08:59');
@@ -125,6 +129,10 @@ final class DataRequestExportTest extends KernelTestCase
         self::assertNull($run->getArchiveFile());
         self::assertNull($storage->path($archive), 'the archive is removed');
         self::assertFileDoesNotExist($orphan, 'an archive no run refers to is removed');
+        self::assertDirectoryDoesNotExist($leftover, 'a working directory of an interrupted run is removed');
+
+        $cleanup(new CleanUpDataExportsMessage());
+        self::assertSame([], glob($directory.'/*.tar.gz') ?: [], 'nothing is due any more');
     }
 
     public function testAGroupBelowTheMinimumBlocksTheExport(): void

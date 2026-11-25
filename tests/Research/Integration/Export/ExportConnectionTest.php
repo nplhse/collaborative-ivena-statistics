@@ -8,6 +8,10 @@ use App\Research\Infrastructure\Export\ExportConnection;
 use App\Research\Infrastructure\Health\ExportConnectionHealthCheck;
 use App\Shared\Application\Health\HealthCheckStatus;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\Persistence\AbstractManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\Proxy;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
@@ -27,6 +31,33 @@ final class ExportConnectionTest extends KernelTestCase
 
         $production = new ExportConnectionHealthCheck(self::getContainer()->get(ExportConnection::class), null);
         self::assertSame(HealthCheckStatus::Degraded, $production->check()->status, 'in production a writable connection is degraded');
+    }
+
+    public function testAMissingOrFailingConnectionIsReported(): void
+    {
+        $registry = self::getContainer()->get(ManagerRegistry::class);
+        self::assertSame(ExportConnection::DISABLED, new ExportConnection($registry, '')->state());
+        self::assertNull(new ExportConnection($registry, null)->get());
+
+        $failing = DriverManager::getConnection(['driver' => 'pdo_pgsql', 'host' => '127.0.0.1', 'port' => 1, 'user' => 'nobody', 'dbname' => 'nothing']);
+        $unreachable = new ExportConnection(new class($failing) extends AbstractManagerRegistry {
+            public function __construct(private readonly Connection $failing)
+            {
+                parent::__construct('test', ['research' => 'research'], [], 'research', 'default', Proxy::class);
+            }
+
+            #[\Override]
+            protected function getService(string $name): Connection
+            {
+                return $this->failing;
+            }
+
+            #[\Override]
+            protected function resetService(string $name): void
+            {
+            }
+        }, 'postgresql://nobody@127.0.0.1:1/nothing');
+        self::assertSame(ExportConnection::UNREACHABLE, $unreachable->state());
     }
 
     public function testARoleThatOnlyReadsCountsAsReadOnly(): void
