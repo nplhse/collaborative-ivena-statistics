@@ -2817,6 +2817,14 @@
         <source>hospital_assignment_request.field.comment</source>
         <target>Comment for the administrators (optional)</target>
       </trans-unit>
+      <trans-unit id="uploadAuthAllocation0En" resname="hospital_assignment_request.field.upload_authority">
+        <source>hospital_assignment_request.field.upload_authority</source>
+        <target>I am authorised to upload data for this hospital.</target>
+      </trans-unit>
+      <trans-unit id="uploadAuthAllocation1En" resname="hospital_assignment_request.field.upload_authority_help">
+        <source>hospital_assignment_request.field.upload_authority_help</source>
+        <target>Only if you will upload data. Otherwise you confirm it before your first upload.</target>
+      </trans-unit>
       <trans-unit id="harReasonEdLeadership" resname="hospital_assignment_request.reason.ed_leadership">
         <source>hospital_assignment_request.reason.ed_leadership</source>
         <target>Emergency department leadership</target>

@@ -6,6 +6,7 @@ namespace App\Allocation\Application\Hospital\AssignmentRequest;
 
 use App\Allocation\Application\Event\HospitalAssignmentRequestDecided;
 use App\Allocation\Application\Hospital\HospitalRelationNotifier;
+use App\Allocation\Application\Hospital\UploadAuthority\UploadAuthority;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\HospitalAccessGrant;
 use App\Allocation\Domain\Entity\HospitalAssignmentRequest;
@@ -26,7 +27,9 @@ use Psr\EventDispatcher\EventDispatcherInterface;
  *
  * Every decision runs in one transaction: the request and the hospital are locked, the request must still have the
  * version the reviewer saw, and a transfer the owner the reviewer saw. Then the access grant is created, or the
- * ownership is transferred and the previous owner's access handled as chosen, and the decision is recorded. Any
+ * ownership is transferred and the previous owner's access handled as chosen, and the decision is recorded. An upload
+ * authority the requester confirmed in the request is stored when the approval includes the import permission (#1565).
+ * Any
  * failure leaves everything as it was and the request pending. Notifications follow the commit.
  */
 final readonly class HospitalAssignmentRequestDecider
@@ -38,6 +41,7 @@ final readonly class HospitalAssignmentRequestDecider
         private HospitalRelationNotifier $relationNotifier,
         private EventDispatcherInterface $eventDispatcher,
         private ClockInterface $clock,
+        private UploadAuthority $uploadAuthority,
     ) {
     }
 
@@ -91,6 +95,9 @@ final readonly class HospitalAssignmentRequestDecider
                 ->setPermissions($permissions)
                 ->setCreatedBy($reviewer);
             $this->entityManager->persist($grant);
+            if (HospitalPermissionMask::has($permissions, HospitalPermission::Import)) {
+                $this->storeUploadAuthority($request, $hospital);
+            }
             $request->approveAsAccessGrant($reviewer, $permissions, $message, $this->clock->now());
         });
 
@@ -134,6 +141,8 @@ final readonly class HospitalAssignmentRequestDecider
             }
 
             $hospital->setOwner($requester);
+            // An owner holds every permission, the import permission included.
+            $this->storeUploadAuthority($request, $hospital);
             if ($previousOwner instanceof User) {
                 $keptGrant = $this->applyPreviousOwnerAccess($hospital, $previousOwner, $previousOwnerAccess, $reviewer);
             }
@@ -148,6 +157,18 @@ final readonly class HospitalAssignmentRequestDecider
             $this->relationNotifier->associated($keptGrant);
         }
         $this->eventDispatcher->dispatch(new HospitalAssignmentRequestDecided((int) $request->getId(), $previousOwner?->getId()));
+    }
+
+    /** The upload authority from the request (#1565), with the time and terms version of the request. */
+    private function storeUploadAuthority(HospitalAssignmentRequest $request, Hospital $hospital): void
+    {
+        $confirmedAt = $request->getUploadAuthorityConfirmedAt();
+        if (!$confirmedAt instanceof \DateTimeImmutable) {
+            return;
+        }
+
+        $requester = $request->getRequester();
+        $this->uploadAuthority->confirm($requester, $hospital, $requester->getLocale() ?? 'de', $confirmedAt, $request->getUploadAuthorityTermsVersion());
     }
 
     /**

@@ -16,6 +16,7 @@ use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -26,6 +27,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class HospitalAssignmentRequestControllerTest extends WebTestCase
 {
+    use ClockSensitiveTrait;
     use Factories;
 
     public function testMyHospitalsWithoutHospitalLeadsToTheRequestForm(): void
@@ -56,9 +58,29 @@ final class HospitalAssignmentRequestControllerTest extends WebTestCase
         self::assertSame($hospital->getId(), $requests[0]->getHospital()?->getId());
         self::assertSame(HospitalAssignmentRequestStatus::Pending, $requests[0]->getStatus());
         self::assertSame('I upload the monthly exports.', $requests[0]->getComment());
+        self::assertNull($requests[0]->getUploadAuthorityConfirmedAt(), 'the upload authority is optional');
 
         $crawler = $client->followRedirect();
         self::assertStringContainsString('Klinikum Süd', $crawler->filter('[data-testid="hospital-assignment-request"]')->text());
+    }
+
+    public function testTheRequesterCanConfirmTheUploadAuthority(): void
+    {
+        self::mockTime(new \DateTimeImmutable('2026-12-04 10:15:00'));
+        $client = $this->participantClient($user);
+        $hospital = $this->hospital(['name' => 'Klinikum West']);
+
+        $this->submit($client, [
+            'hospital_assignment_request[hospitalName]' => 'Klinikum West',
+            'hospital_assignment_request[hospital]' => $hospital->getPublicIdString(),
+            'hospital_assignment_request[reason]' => HospitalAssignmentReason::DataSubmission->value,
+            'hospital_assignment_request[uploadAuthority]' => '1',
+        ]);
+
+        self::assertResponseRedirects('/hospitals/requests');
+        $requests = $this->requests()->findForRequester($user);
+        self::assertSame('2026-12-04 10:15', $requests[0]->getUploadAuthorityConfirmedAt()?->format('Y-m-d H:i'));
+        self::assertNull($requests[0]->getUploadAuthorityTermsVersion(), 'no terms version configured in test');
     }
 
     public function testAHospitalThatIsNotListedIsRequestedByName(): void

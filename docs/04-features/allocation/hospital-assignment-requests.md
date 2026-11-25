@@ -22,6 +22,8 @@ the permission model: an approval creates an ordinary hospital access grant or m
   exact label still selects the hospital.
 - Reasons: emergency department leadership, hospital management, data submission, other (with a required
   explanation); a comment is optional (both at most 2000 characters).
+- Optional checkbox "I am authorised to upload data for this hospital." (#1565): stored on the request with the time
+  and the terms version in force (`upload_authority_confirmed_at`, `upload_authority_terms_version`).
 - Refused: hospitals the participant can already see (`HospitalPermission::View`, so also hospitals they own) and a
   second pending request for the same hospital (also enforced by a partial unique index).
 - Users without participation cannot request; participant approval and hospital assignment stay separate.
@@ -45,6 +47,12 @@ and users with access, reason, explanation and comment, and the decision forms:
 | Approve as access | Creates an access grant. The permissions are preset by the reason (ED leadership and hospital management: all; data submission: VIEW, STATISTICS, IMPORT; other: VIEW, STATISTICS) and normalised (BENCHMARKING adds STATISTICS and VIEW). |
 | Approve as ownership | Makes the requester owner. With an owner the page shows them, the transfer must be confirmed, and the reviewer chooses: the previous owner **keeps full access** (an access grant with all permissions) or **loses access**. A grant the requester held is removed. |
 | Reject | Closes the request with an optional message shown to the requester. |
+
+The detail page also shows whether the requester confirmed the upload authority. An approval with the import permission
+(an access grant whose mask contains IMPORT, or ownership) stores that confirmation as the requester's upload
+authority for the hospital, with the time and terms version of the request; the upload form then does not ask again
+([import-pipeline.md](../import/import-pipeline.md#who-may-upload)). Without the checkbox, or with an approval without
+IMPORT, nothing is stored and the person confirms before their first upload.
 
 `HospitalAssignmentRequestDecider` runs every decision in one transaction: request and hospital are locked, the
 request must still have the version shown to the reviewer and a transfer the owner shown to the reviewer; otherwise

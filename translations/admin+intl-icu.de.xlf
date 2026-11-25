@@ -3141,6 +3141,14 @@
         <source>admin.hospital_assignment_request.field.comment</source>
         <target>Kommentar</target>
       </trans-unit>
+      <trans-unit id="uploadAuthAdmin0De" resname="admin.hospital_assignment_request.upload_authority.confirmed">
+        <source>admin.hospital_assignment_request.upload_authority.confirmed</source>
+        <target>Im Antrag bestätigt am {date}; wird bei Freigabe mit Importrecht gespeichert</target>
+      </trans-unit>
+      <trans-unit id="uploadAuthAdmin1De" resname="admin.hospital_assignment_request.upload_authority.not_confirmed">
+        <source>admin.hospital_assignment_request.upload_authority.not_confirmed</source>
+        <target>Im Antrag nicht bestätigt; wird vor dem ersten Upload abgefragt</target>
+      </trans-unit>
       <trans-unit id="admHarDeAdminHospitalAssignmentRequestFieldCreatedAt" resname="admin.hospital_assignment_request.field.created_at">
         <source>admin.hospital_assignment_request.field.created_at</source>
         <target>Gestellt</target>

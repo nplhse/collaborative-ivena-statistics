@@ -30,6 +30,9 @@ final class HospitalAssignmentRequestSubmission
     #[Assert\Length(max: HospitalAssignmentRequest::MAX_TEXT_LENGTH)]
     public ?string $comment = null;
 
+    /** Optional: the requester is authorised to upload data for the hospital (#1565). */
+    public bool $uploadAuthority = false;
+
     #[Assert\Callback]
     public function validate(ExecutionContextInterface $context): void
     {

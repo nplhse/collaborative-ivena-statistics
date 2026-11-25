@@ -101,6 +101,14 @@ class HospitalAssignmentRequest
     #[ORM\Column(length: 32, nullable: true, enumType: PreviousOwnerAccess::class)]
     private ?PreviousOwnerAccess $previousOwnerAccess = null;
 
+    /** When the requester confirmed the authority to upload for this hospital (#1565); null without. */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $uploadAuthorityConfirmedAt = null;
+
+    /** Terms version in force at that confirmation; null while none was configured. */
+    #[ORM\Column(length: 32, nullable: true)]
+    private ?string $uploadAuthorityTermsVersion = null;
+
     /**
      * @throws HospitalAssignmentRequestException when neither a hospital nor a name is given, or a reason that needs
      *                                            an explanation has none
@@ -131,6 +139,26 @@ class HospitalAssignmentRequest
         $this->explanation = $explanation;
         $this->comment = $this->clean($comment);
         $this->createdAt = $createdAt;
+    }
+
+    /**
+     * The requester confirms being authorised to upload data for the requested hospital (#1565). An approval with the
+     * import permission stores it as the upload authority, with this time and version.
+     */
+    public function confirmUploadAuthority(\DateTimeImmutable $at, ?string $termsVersion): void
+    {
+        $this->uploadAuthorityConfirmedAt = $at;
+        $this->uploadAuthorityTermsVersion = $termsVersion;
+    }
+
+    public function getUploadAuthorityConfirmedAt(): ?\DateTimeImmutable
+    {
+        return $this->uploadAuthorityConfirmedAt;
+    }
+
+    public function getUploadAuthorityTermsVersion(): ?string
+    {
+        return $this->uploadAuthorityTermsVersion;
     }
 
     public function getId(): ?int

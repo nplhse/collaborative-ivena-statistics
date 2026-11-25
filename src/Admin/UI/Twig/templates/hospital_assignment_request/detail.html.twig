@@ -52,6 +52,15 @@
                                 <dt>{{ 'admin.hospital_assignment_request.field.comment'|trans({}, 'admin') }}</dt>
                                 <dd class="text-break">{{ request.comment }}</dd>
                             {% endif %}
+                            {# Upload authority from the request (#1565); stored when the approval includes the import permission. #}
+                            <dt>{{ 'admin.upload_authority.label'|trans({}, 'admin') }}</dt>
+                            <dd data-testid="assignment-request-upload-authority">
+                                {% if request.uploadAuthorityConfirmedAt %}
+                                    {{ 'admin.hospital_assignment_request.upload_authority.confirmed'|trans({date: request.uploadAuthorityConfirmedAt|date('d.m.Y H:i')}, 'admin') }}
+                                {% else %}
+                                    <span class="text-muted">{{ 'admin.hospital_assignment_request.upload_authority.not_confirmed'|trans({}, 'admin') }}</span>
+                                {% endif %}
+                            </dd>
                             {% if hospital %}
                                 <dt>{{ 'admin.hospital_assignment_request.field.owner'|trans({}, 'admin') }}</dt>
                                 <dd data-testid="assignment-request-owner">{% if hospital.owner %}{{ _self.user_line(hospital.owner) }}{% else %}<span class="text-muted">{{ 'admin.hospital_assignment_request.label.none'|trans({}, 'admin') }}</span>{% endif %}</dd>

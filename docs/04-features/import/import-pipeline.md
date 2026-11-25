@@ -25,7 +25,9 @@ The upload form (`/import/new`) is only offered to users who can submit it (#135
 **Upload authority** (#1565, key points A1/A2): before the first upload for a hospital the person confirms "I am
 authorised to upload data for this hospital." The checkbox appears only for a selected hospital without a stored
 confirmation (option attribute `data-needs-upload-authority`, shown by `import-type-fields`; without JavaScript it is
-always shown) and the controller refuses the upload without it. The confirmation is stored in the same flush as the
+always shown) and the controller refuses the upload without it. A hospital assignment request approved with the import
+permission already stores it when the requester ticked the same sentence in the request
+([hospital-assignment-requests.md](../allocation/hospital-assignment-requests.md)). The confirmation is stored in the same flush as the
 import as a `TermsAcceptance` of kind `upload_authority` with the hospital and the terms version in force
 (`UploadAuthority` in `Allocation/Application/Hospital/UploadAuthority`, called by Import because Import may not use
 User). It is asked again per hospital after `APP_TERMS_VERSION` is raised; while the variable is empty any stored

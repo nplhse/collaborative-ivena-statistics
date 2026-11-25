@@ -85,7 +85,7 @@ with the terms version in force; the import detail page of the admin backend sho
 Every upload for a hospital now needs a stored upload authority of the person (#1565): the upload form asks once per
 hospital "I am authorised to upload data for this hospital." Nothing is backfilled, so everyone who uploads today
 confirms at their next upload; administrators are not asked. The hospital detail page in the admin backend shows who
-confirmed.
+confirmed. Hospital assignment requests offer the same sentence; an approval with the import permission stores it.
 
 ### Check
 
