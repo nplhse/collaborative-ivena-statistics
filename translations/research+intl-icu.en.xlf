@@ -73,17 +73,9 @@
         <source>data_request.action.submit</source>
         <target>Submit</target>
       </trans-unit>
-      <trans-unit id="RscE616D1BB" resname="data_request.action.submit_confirm">
-        <source>data_request.action.submit_confirm</source>
-        <target>Submit this request? Every participant will see it, and it can no longer be changed without a new version.</target>
-      </trans-unit>
       <trans-unit id="Rsc7E80F6CD" resname="data_request.action.withdraw">
         <source>data_request.action.withdraw</source>
         <target>Withdraw</target>
-      </trans-unit>
-      <trans-unit id="RscB417A92F" resname="data_request.action.withdraw_confirm">
-        <source>data_request.action.withdraw_confirm</source>
-        <target>Withdraw this request? This ends it for good.</target>
       </trans-unit>
       <trans-unit id="RscC0673973" resname="data_request.form.intro">
         <source>data_request.form.intro</source>
@@ -319,7 +311,23 @@
       </trans-unit>
       <trans-unit id="RscD0DDA3DA" resname="data_request.show.draft_note">
         <source>data_request.show.draft_note</source>
-        <target>This is a draft. Only you see it until you submit it.</target>
+        <target>This is a draft. Only you see it until you submit it. After submitting, it can no longer be changed; only when the formal check returns it or the Board asks for a revision can you edit it again and submit a new version.</target>
+      </trans-unit>
+      <trans-unit id="Rsc4641CE9F" resname="data_request.modal.submit.title">
+        <source>data_request.modal.submit.title</source>
+        <target>Submit the request?</target>
+      </trans-unit>
+      <trans-unit id="Rsc6A4C06CD" resname="data_request.modal.submit.message">
+        <source>data_request.modal.submit.message</source>
+        <target>After submitting, the request can no longer be changed. Every participant sees it, and a Board member or an administrator checks it formally. You can only edit it again if it is returned or the Board asks for a revision.</target>
+      </trans-unit>
+      <trans-unit id="Rsc8193D0DF" resname="data_request.modal.withdraw.title">
+        <source>data_request.modal.withdraw.title</source>
+        <target>Withdraw the request?</target>
+      </trans-unit>
+      <trans-unit id="Rsc8515D026" resname="data_request.modal.withdraw.message">
+        <source>data_request.modal.withdraw.message</source>
+        <target>Withdrawing ends the request for good. It cannot be reopened; for the same project you would have to submit a new request.</target>
       </trans-unit>
       <trans-unit id="Rsc5E9217D9" resname="data_request.show.frozen_note">
         <source>data_request.show.frozen_note</source>

@@ -50,12 +50,9 @@
                         {% endif %}
                         {% for transition in ['withdraw', 'submit'] %}
                             {% if is_granted('DATA_REQUEST_' ~ transition|upper, dataRequest) %}
-                                <form method="post" action="{{ path('app_data_requests_transition', {publicId: dataRequest.publicIdString, transition: transition}) }}" data-controller="confirm-submit" data-action="submit->confirm-submit#confirm" data-confirm-submit-message-value="{{ ('data_request.action.' ~ transition ~ '_confirm')|trans({}, 'research') }}">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('data_request_' ~ transition ~ '_' ~ dataRequest.publicIdString) }}">
-                                    <button type="submit" class="btn {{ transition == 'submit' ? 'btn-primary' : 'btn-outline-danger' }}" data-testid="data-request-{{ transition }}">
-                                        {{ ('data_request.action.' ~ transition)|trans({}, 'research') }}
-                                    </button>
-                                </form>
+                                <button type="button" class="btn {{ transition == 'submit' ? 'btn-primary' : 'btn-outline-danger' }}" data-bs-toggle="modal" data-bs-target="#data-request-{{ transition }}-modal" data-testid="data-request-{{ transition }}">
+                                    {{ ('data_request.action.' ~ transition)|trans({}, 'research') }}
+                                </button>
                             {% endif %}
                         {% endfor %}
                     </div>
@@ -189,4 +186,22 @@
             </div>
         </div>
     </div>
+
+    {% if own %}
+        {% for transition in ['withdraw', 'submit'] %}
+            {% if is_granted('DATA_REQUEST_' ~ transition|upper, dataRequest) %}
+                <twig:ConfirmModal
+                    id="data-request-{{ transition }}-modal"
+                    :title="('data_request.modal.' ~ transition ~ '.title')|trans({}, 'research')"
+                    :message="('data_request.modal.' ~ transition ~ '.message')|trans({}, 'research')"
+                    :action="path('app_data_requests_transition', {publicId: dataRequest.publicIdString, transition: transition})"
+                    :csrfToken="csrf_token('data_request_' ~ transition ~ '_' ~ dataRequest.publicIdString)"
+                    :confirmLabel="('data_request.action.' ~ transition)|trans({}, 'research')"
+                    :cancelLabel="'action.cancel'|trans({}, 'messages')"
+                    :confirmVariant="transition == 'submit' ? 'primary' : 'danger'"
+                    size="md"
+                />
+            {% endif %}
+        {% endfor %}
+    {% endif %}
 {% endblock %}

@@ -66,6 +66,8 @@ final class DataRequestControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="data-request-draft-note"]');
         self::assertSelectorNotExists('[data-testid="data-request-frozen-note"]');
         self::assertSelectorExists('[data-testid="data-request-submit"]');
+        self::assertSelectorTextContains('[data-testid="data-request-draft-note"]', 'After submitting, it can no longer be changed');
+        self::assertSelectorTextContains('#data-request-submit-modal', 'After submitting, the request can no longer be changed.');
         self::assertStringContainsString('Dr. Secret Recipient', $crawler->filter('[data-testid="data-request-scope"]')->text());
 
         $other = $this->clientFor($otherUser, $client);
@@ -248,7 +250,7 @@ final class DataRequestControllerTest extends WebTestCase
         $request = $this->onlyRequest();
 
         $crawler = $client->request(Request::METHOD_GET, '/requests/data/'.$request->getPublicIdString());
-        $withdraw = $crawler->filter('[data-testid="data-request-withdraw"]')->form();
+        $withdraw = $crawler->filter('#data-request-withdraw-modal form')->form();
         $client->submit($withdraw);
         $client->submit($withdraw);
 
@@ -282,7 +284,8 @@ final class DataRequestControllerTest extends WebTestCase
     private function transition(KernelBrowser $client, DataRequest $request, string $transition): void
     {
         $crawler = $client->request(Request::METHOD_GET, '/requests/data/'.$request->getPublicIdString());
-        $client->submit($crawler->filter('[data-testid="data-request-'.$transition.'"]')->form());
+        self::assertCount(1, $crawler->filter('[data-testid="data-request-'.$transition.'"]'), 'the page offers the step');
+        $client->submit($crawler->filter('#data-request-'.$transition.'-modal form')->form());
     }
 
     private function onlyRequest(): DataRequest

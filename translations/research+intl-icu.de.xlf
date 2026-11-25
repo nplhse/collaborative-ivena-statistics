@@ -73,17 +73,9 @@
         <source>data_request.action.submit</source>
         <target>Einreichen</target>
       </trans-unit>
-      <trans-unit id="RscE616D1BB" resname="data_request.action.submit_confirm">
-        <source>data_request.action.submit_confirm</source>
-        <target>Antrag einreichen? Danach sehen ihn alle Teilnehmenden, und er lässt sich nur noch über eine neue Fassung ändern.</target>
-      </trans-unit>
       <trans-unit id="Rsc7E80F6CD" resname="data_request.action.withdraw">
         <source>data_request.action.withdraw</source>
         <target>Zurückziehen</target>
-      </trans-unit>
-      <trans-unit id="RscB417A92F" resname="data_request.action.withdraw_confirm">
-        <source>data_request.action.withdraw_confirm</source>
-        <target>Antrag zurückziehen? Damit ist er endgültig beendet.</target>
       </trans-unit>
       <trans-unit id="RscC0673973" resname="data_request.form.intro">
         <source>data_request.form.intro</source>
@@ -319,7 +311,23 @@
       </trans-unit>
       <trans-unit id="RscD0DDA3DA" resname="data_request.show.draft_note">
         <source>data_request.show.draft_note</source>
-        <target>Das ist ein Entwurf. Bis zum Einreichen sehen nur Sie ihn.</target>
+        <target>Das ist ein Entwurf. Bis zum Einreichen sehen nur Sie ihn. Nach dem Einreichen lässt er sich nicht mehr ändern; erst wenn die formale Prüfung ihn zurückgibt oder das Board eine Nachbesserung verlangt, können Sie ihn wieder bearbeiten und eine neue Fassung einreichen.</target>
+      </trans-unit>
+      <trans-unit id="Rsc4641CE9F" resname="data_request.modal.submit.title">
+        <source>data_request.modal.submit.title</source>
+        <target>Antrag einreichen?</target>
+      </trans-unit>
+      <trans-unit id="Rsc6A4C06CD" resname="data_request.modal.submit.message">
+        <source>data_request.modal.submit.message</source>
+        <target>Nach dem Einreichen lässt sich der Antrag nicht mehr ändern. Alle Teilnehmenden sehen ihn, und ein Board-Mitglied oder die Administration prüft ihn formal. Bearbeiten können Sie ihn erst wieder, wenn er zurückgegeben wird oder das Board eine Nachbesserung verlangt.</target>
+      </trans-unit>
+      <trans-unit id="Rsc8193D0DF" resname="data_request.modal.withdraw.title">
+        <source>data_request.modal.withdraw.title</source>
+        <target>Antrag zurückziehen?</target>
+      </trans-unit>
+      <trans-unit id="Rsc8515D026" resname="data_request.modal.withdraw.message">
+        <source>data_request.modal.withdraw.message</source>
+        <target>Mit dem Zurückziehen ist der Antrag endgültig beendet. Er lässt sich nicht wieder öffnen; für dasselbe Projekt müssten Sie einen neuen Antrag stellen.</target>
       </trans-unit>
       <trans-unit id="Rsc5E9217D9" resname="data_request.show.frozen_note">
         <source>data_request.show.frozen_note</source>
