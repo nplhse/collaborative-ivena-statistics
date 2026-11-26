@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Maintenance;
 
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Maintenance mode (#1680, ADR 046): on while the flag file exists. The file lies in a directory that Deployer shares
@@ -40,24 +41,13 @@ final readonly class MaintenanceMode
     /** Keeps the time of an earlier switch-on, so "since" stays the start of the maintenance. */
     public function enable(): void
     {
-        if ($this->isEnabled()) {
-            return;
-        }
-
-        $directory = \dirname($this->flagFile);
-        if (!is_dir($directory) && !mkdir($directory, 0o775, true) && !is_dir($directory)) {
-            throw new \RuntimeException(\sprintf('Cannot create the directory "%s".', $directory));
-        }
-
-        if (false === file_put_contents($this->flagFile, '')) {
-            throw new \RuntimeException(\sprintf('Cannot write the maintenance flag "%s".', $this->flagFile));
+        if (!$this->isEnabled()) {
+            new Filesystem()->dumpFile($this->flagFile, '');
         }
     }
 
     public function disable(): void
     {
-        if ($this->isEnabled() && !unlink($this->flagFile)) {
-            throw new \RuntimeException(\sprintf('Cannot remove the maintenance flag "%s".', $this->flagFile));
-        }
+        new Filesystem()->remove($this->flagFile);
     }
 }
