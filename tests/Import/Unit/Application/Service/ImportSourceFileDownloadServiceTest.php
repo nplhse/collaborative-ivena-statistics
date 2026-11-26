@@ -117,4 +117,15 @@ final class ImportSourceFileDownloadServiceTest extends TestCase
 
         return $import;
     }
+
+    public function testCreateDownloadResponseSendsUnknownTypesAsBinaryWithoutSniffing(): void
+    {
+        $relativePath = 'var/imports/page.csv';
+        new Filesystem()->dumpFile(Path::join($this->projectDir, $relativePath), "a;b\n");
+
+        $response = $this->service->createDownloadResponse($this->createImport($relativePath, 'Upload', 'csv', 'text/html'));
+
+        self::assertSame('application/octet-stream', $response->headers->get('Content-Type'));
+        self::assertSame('nosniff', $response->headers->get('X-Content-Type-Options'));
+    }
 }

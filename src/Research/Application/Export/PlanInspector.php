@@ -39,7 +39,14 @@ final class PlanInspector
             $violations[] = new QueryViolation(QueryViolation::SEVERAL_STATEMENTS);
         }
 
-        if (preg_match_all(ExportAllowlist::DENIED_FUNCTIONS, $sql, $matches) > 0) {
+        // Function names are matched on the code alone: without comments and string literals, with quoted identifiers
+        // unquoted, so `name/**/(` or `"name"(` cannot hide a call (#1690).
+        [$code, $unicodeEscapes] = self::code($sql);
+        if ($unicodeEscapes) {
+            $violations[] = new QueryViolation(QueryViolation::UNICODE_ESCAPE);
+        }
+
+        if (preg_match_all(ExportAllowlist::DENIED_FUNCTIONS, $code, $matches) > 0) {
             foreach (array_unique(array_map(strtolower(...), $matches[1])) as $function) {
                 $violations[] = new QueryViolation(QueryViolation::DENIED_FUNCTION, ['function' => $function]);
             }
@@ -105,6 +112,106 @@ final class PlanInspector
     public static function normalize(string $sql): string
     {
         return rtrim(trim($sql), "; \t\n\r");
+    }
+
+    /**
+     * The SQL as PostgreSQL reads its names: comments become a space, string literals (also E'…' and dollar-quoted)
+     * become '', and quoted identifiers lose their quotes. The flag reports Unicode escapes (U&"…", U&'…'), which can
+     * spell any name and are refused.
+     *
+     * @return array{0: string, 1: bool}
+     */
+    public static function code(string $sql): array
+    {
+        $code = '';
+        $unicode = false;
+        $length = \strlen($sql);
+        $i = 0;
+        while ($i < $length) {
+            $char = $sql[$i];
+            $next = $sql[$i + 1] ?? '';
+
+            if ('-' === $char && '-' === $next) {
+                $end = strpos($sql, "\n", $i);
+                $i = false === $end ? $length : $end;
+                $code .= ' ';
+                continue;
+            }
+
+            if ('/' === $char && '*' === $next) {
+                $depth = 1;
+                $i += 2;
+                while ($i < $length && $depth > 0) {
+                    if ('/' === $sql[$i] && '*' === ($sql[$i + 1] ?? '')) {
+                        ++$depth;
+                        $i += 2;
+                    } elseif ('*' === $sql[$i] && '/' === ($sql[$i + 1] ?? '')) {
+                        --$depth;
+                        $i += 2;
+                    } else {
+                        ++$i;
+                    }
+                }
+                $code .= ' ';
+                continue;
+            }
+
+            if (('u' === $char || 'U' === $char) && '&' === $next && \in_array($sql[$i + 2] ?? '', ['"', "'"], true)) {
+                $unicode = true;
+                $i += 2;
+                continue;
+            }
+
+            if ("'" === $char) {
+                $backslash = $i > 0 && \in_array($sql[$i - 1], ['e', 'E'], true);
+                ++$i;
+                while ($i < $length) {
+                    if ($backslash && '\\' === $sql[$i]) {
+                        $i += 2;
+                    } elseif ("'" === $sql[$i] && "'" === ($sql[$i + 1] ?? '')) {
+                        $i += 2;
+                    } elseif ("'" === $sql[$i]) {
+                        ++$i;
+                        break;
+                    } else {
+                        ++$i;
+                    }
+                }
+                $code .= "''";
+                continue;
+            }
+
+            if ('$' === $char && 1 === preg_match('/\G\$([A-Za-z_][A-Za-z0-9_]*)?\$/', $sql, $tag, 0, $i)) {
+                $end = strpos($sql, $tag[0], $i + \strlen($tag[0]));
+                $i = false === $end ? $length : $end + \strlen($tag[0]);
+                $code .= "''";
+                continue;
+            }
+
+            if ('"' === $char) {
+                ++$i;
+                $identifier = '';
+                while ($i < $length) {
+                    if ('"' === $sql[$i] && '"' === ($sql[$i + 1] ?? '')) {
+                        $identifier .= '"';
+                        $i += 2;
+                    } elseif ('"' === $sql[$i]) {
+                        ++$i;
+                        break;
+                    } else {
+                        $identifier .= $sql[$i];
+                        ++$i;
+                    }
+                }
+                $code .= ' '.$identifier.' ';
+                continue;
+            }
+
+            $code .= $char;
+            ++$i;
+        }
+
+        return [$code, $unicode];
     }
 
     /**

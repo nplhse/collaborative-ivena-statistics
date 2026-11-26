@@ -44,6 +44,10 @@ final readonly class QueryGuard implements QueryCheckerInterface
 
         $sql = PlanInspector::normalize($sql);
         try {
+            if ($this->exportConnection->refusesWriting($connection)) {
+                return [new QueryViolation(QueryViolation::CONNECTION_WRITABLE)];
+            }
+
             return ExportConnection::readOnly($connection, self::TIMEOUT_SECONDS, static function (Connection $connection) use ($sql, $kind): array {
                 $explained = $connection->fetchOne('EXPLAIN (VERBOSE, FORMAT JSON) '.$sql);
                 $decoded = json_decode(\is_string($explained) ? $explained : 'null', true);

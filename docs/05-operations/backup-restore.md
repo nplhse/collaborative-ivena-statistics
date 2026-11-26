@@ -501,15 +501,25 @@ tar -xzf files/media.tar.gz -C <deploy_path>/shared/var/media
 ```
 
 Do the same for `imports` (`shared/var/imports`), `geo` (`shared/var/geo/hospital-isochrones`) and `reference`
-(`shared/var/reference`). Legacy file archives:
+(`shared/var/reference`). Legacy file archives of `bin/ops/backup-files.sh` hold the two directories by their last path component only:
+`imports/` and `media/`. Extract them into an empty directory and copy each one to its place:
 
 ```bash
-cd <deploy_path>
-tar -xzf ~/backups/ivena-stats-files-YYYYMMDD-HHMMSS.tar.gz -C <deploy_path>/shared
-# archives contain paths relative to their source roots (var/imports, and for media public/uploads/media before v0.3, var/media since)
+mkdir -p ~/restore-files && tar -xzf ~/backups/ivena-stats-files-YYYYMMDD-HHMMSS.tar.gz -C ~/restore-files
+rsync -a ~/restore-files/imports/ <deploy_path>/shared/var/imports/
+rsync -a ~/restore-files/media/ <deploy_path>/shared/var/media/   # archive made with v0.3 or later
 ```
 
-Verify permissions on `shared/var/imports` and `shared/var/media` (writable by the web user). A restored media archive from before v0.3 needs the extra step in [Backups from before v0.3](#backups-from-before-v03).
+An archive made before v0.3 holds the media of `public/uploads/media` as flat files in `media/`. On v0.3 or later,
+copy them to `<deploy_path>/shared/public/uploads/media/` instead and move them into the media storage:
+
+```bash
+rsync -a ~/restore-files/media/ <deploy_path>/shared/public/uploads/media/
+php bin/console app:media:migrate-storage --legacy-dir=<deploy_path>/shared/public/uploads/media
+php bin/console app:media:rewrite-content-urls --apply
+```
+
+Verify permissions on `shared/var/imports` and `shared/var/media` (writable by the web user). A media archive of the backup command from before v0.3 needs the extra step in [Backups from before v0.3](#backups-from-before-v03).
 
 ### 3. Secrets (`.env.local`)
 

@@ -35,8 +35,16 @@ jobs:
                       echo "code=true" >> "$GITHUB_OUTPUT"
                       exit 0
                   fi
+                  changed=$(gh api "repos/$REPOSITORY/pulls/$PR_NUMBER" --jq '.changed_files')
                   files=$(gh api "repos/$REPOSITORY/pulls/$PR_NUMBER/files" --paginate --jq '.[].filename')
-                  if printf '%s\n' "$files" | grep -qvE '^docs/|\.md$'; then
+                  listed=$(printf '%s\n' "$files" | grep -c . || true)
+                  # The files endpoint lists at most 3000 files; a longer pull request counts as a code change.
+                  # grep without -q reads the whole list: with -q it stops early, printf gets SIGPIPE, and pipefail
+                  # turned a code change into "docs only" for large pull requests (#1698).
+                  if [ "$listed" -lt "$changed" ]; then
+                      echo "The file list is incomplete ($listed of $changed files); the code checks run."
+                      echo "code=true" >> "$GITHUB_OUTPUT"
+                  elif printf '%s\n' "$files" | grep -vE '^docs/|\.md$' > /dev/null; then
                       echo "code=true" >> "$GITHUB_OUTPUT"
                   else
                       echo "Only docs/** and Markdown files changed; the code checks are skipped."

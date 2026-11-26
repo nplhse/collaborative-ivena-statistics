@@ -69,6 +69,8 @@ security:
                 path: /
                 # REMEMBERME, with the demo prefix in the demo environment (ADR 023).
                 name: '%app.cookie_prefix%REMEMBERME'
+                # Switching two-factor authentication on, off or resetting it ends remember-me sessions (#1689).
+                signature_properties: ['password', 'totpEnabledAt']
                 # by default, the feature is enabled by checking a checkbox in the
                 # login form, uncomment the following line to always enable it.
                 #always_remember_me: true

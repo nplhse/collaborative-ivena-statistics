@@ -51,7 +51,7 @@
                             <div class="border rounded p-2 mt-2 small" data-testid="data-request-dry-run">
                                 <div class="fw-bold mb-1">{{ 'data_request.query.dry_run.title'|trans({date: date(run.ran_at)|format_datetime('medium', 'short')}, 'research') }}</div>
                                 {% if run.error %}
-                                    <div class="text-danger text-break">{{ run.error == 'connection_missing' ? 'data_request.query.violation.connection_missing'|trans({}, 'research') : run.error }}</div>
+                                    <div class="text-danger text-break">{{ run.error in ['connection_missing', 'connection_writable'] ? ('data_request.query.violation.' ~ run.error)|trans({}, 'research') : run.error }}</div>
                                 {% else %}
                                     <div>{{ 'data_request.query.dry_run.summary'|trans({rows: run.rows, hospitals: run.hospitals, ms: run.duration_ms}, 'research') }}</div>
                                     {% if run.truncated %}<div class="text-danger">{{ 'data_request.query.dry_run.truncated'|trans({max: constant('App\\Research\\Infrastructure\\Export\\QueryDryRunner::MAX_ROWS')}, 'research') }}</div>{% endif %}

@@ -204,4 +204,36 @@ final class PageContentValidatorBlockFieldsTest extends PageContentValidatorTest
         self::assertStringContainsString('data.title is required', implode(' ', $errors));
         self::assertStringContainsString('data.html is required', implode(' ', $errors));
     }
+
+    public function testCtaButtonUrlMustBeAPathAnAddressOrAnEmail(): void
+    {
+        $validator = new PageContentValidator($this->translator());
+        $cta = static fn (string $url): array => [
+            'type' => 'cta',
+            'data' => ['headline' => 'More', 'buttonLabel' => 'Go', 'linkType' => 'url', 'buttonUrl' => $url],
+        ];
+
+        foreach (['/contact', '#top', 'https://example.org/x', 'mailto:team@example.org'] as $valid) {
+            self::assertSame([], $validator->validate([$cta($valid)]), $valid);
+        }
+        foreach (['javascript:alert(1)', ' JAVASCRIPT:alert(1)', 'data:text/html,x', '//evil.example', 'contact'] as $invalid) {
+            self::assertCount(1, $validator->validate([$cta($invalid)]), $invalid);
+        }
+    }
+
+    public function testImageSrcMustBeAPathOrAnAddress(): void
+    {
+        $validator = new PageContentValidator($this->translator());
+        $image = static fn (string $src): array => [
+            'type' => 'image',
+            'data' => ['src' => $src, 'alt' => 'Alt', 'size' => 'auto', 'float' => 'none'],
+        ];
+
+        foreach (['/img.jpg', 'https://example.org/a.png'] as $valid) {
+            self::assertSame([], $validator->validate([$image($valid)]), $valid);
+        }
+        foreach (['javascript:alert(1)', 'data:image/svg+xml,x', '//evil.example/a.png'] as $invalid) {
+            self::assertCount(1, $validator->validate([$image($invalid)]), $invalid);
+        }
+    }
 }

@@ -20,6 +20,8 @@ final readonly class QueryViolation
     public const string RESERVED_MISSING = 'reserved_missing';
     public const string SQL_ERROR = 'sql_error';
     public const string CONNECTION_MISSING = 'connection_missing';
+    public const string CONNECTION_WRITABLE = 'connection_writable';
+    public const string UNICODE_ESCAPE = 'unicode_escape';
 
     /**
      * @param array<string, string> $parameters

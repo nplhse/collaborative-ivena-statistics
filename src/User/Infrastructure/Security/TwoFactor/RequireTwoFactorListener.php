@@ -6,6 +6,7 @@ namespace App\User\Infrastructure\Security\TwoFactor;
 
 use App\User\Domain\Entity\User;
 use Scheb\TwoFactorBundle\Security\Authentication\Token\TwoFactorTokenInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,6 +52,8 @@ final readonly class RequireTwoFactorListener
         private TokenStorageInterface $tokenStorage,
         private TwoFactorAvailability $availability,
         private UrlGeneratorInterface $urlGenerator,
+        #[Autowire('%app.cookie_prefix%REMEMBERME')]
+        private string $rememberMeCookie,
     ) {
     }
 
@@ -58,8 +61,10 @@ final readonly class RequireTwoFactorListener
     {
         $request = $event->getRequest();
         // Reading the token starts the session and makes the response private, so it is read only when the obligation
-        // is on, the visitor already has a session and the route is not stateless (public media files, #1570).
-        if (!$event->isMainRequest() || !$this->availability->isRequiredForAdmins() || !$request->hasPreviousSession()
+        // is on, the visitor is signed in (a session or a remember-me cookie, which signs in within this request, #1689)
+        // and the route is not stateless (public media files, #1570).
+        if (!$event->isMainRequest() || !$this->availability->isRequiredForAdmins()
+            || (!$request->hasPreviousSession() && !$request->cookies->has($this->rememberMeCookie))
             || true === $request->attributes->get('_stateless')) {
             return;
         }
@@ -71,11 +76,14 @@ final readonly class RequireTwoFactorListener
         }
 
         $token = $this->tokenStorage->getToken();
-        if (!$token instanceof TokenInterface || $token instanceof TwoFactorTokenInterface || $token instanceof SwitchUserToken) {
+        if (!$token instanceof TokenInterface || $token instanceof TwoFactorTokenInterface) {
             return;
         }
 
-        $user = $token->getUser();
+        // An administrator who impersonates someone is checked as themselves (#1689): without two-factor authentication
+        // they leave the impersonation first and are then sent to the setup.
+        $impersonating = $token instanceof SwitchUserToken;
+        $user = $token instanceof SwitchUserToken ? $token->getOriginalToken()->getUser() : $token->getUser();
         if (!$user instanceof User || $user->isTotpAuthenticationEnabled() || !$this->availability->isRequiredFor($user)) {
             return;
         }
@@ -91,6 +99,8 @@ final readonly class RequireTwoFactorListener
             $session->getFlashBag()->add('warning', new TranslatableMessage('flash.settings.two_factor.required', domain: 'user'));
         }
 
-        $event->setResponse(new RedirectResponse($this->urlGenerator->generate(self::SETUP_ROUTE)));
+        $event->setResponse(new RedirectResponse($impersonating
+            ? $this->urlGenerator->generate('app_default', ['_switch_user' => '_exit'])
+            : $this->urlGenerator->generate(self::SETUP_ROUTE)));
     }
 }

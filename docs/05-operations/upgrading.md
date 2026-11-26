@@ -14,145 +14,229 @@ Commands that write data preview by default. Run them without `--apply` first, r
 
 ## v0.2.7-beta → v0.3-beta
 
-Media files move from `public/uploads/media` into the media storage `var/media` (#489,
-[ADR 039](../02-architecture/decisions/039-managed-media-storage.md)). The deploy moves them itself; one command
-afterwards replaces the old URLs in the content.
+This release contains 59 database migrations, some of which remove data for good. It moves the media files into a new
+storage, takes the dispatch-area geography over into the database, requires two-factor authentication for
+administrators and needs a few one-time commands. Plan a maintenance window of about an hour: the migrations, the media
+copy and the geography takeover take seconds (about four seconds on a copy of the production database with 2.3 million allocations), the one-time commands
+and checks the rest. From the switch to the new release on, the [maintenance mode](deployment.md#maintenance-mode)
+keeps everyone but administrators out.
+
+Run the deploy from an up-to-date checkout of `main`: Deployer uses the `deploy.php` of the local checkout. An installation still on v0.2.6-beta follows the same steps; v0.2.7-beta changed no schema or configuration.
 
 ### Before the deploy
 
-- Make a backup (`app:backup:create`) and check that `shared/public/uploads/media` holds the media files.
-- The deploy copies every media file once more into `shared/var/media`: free space for a second copy of the media is
-  needed until v0.4 removes the old directory.
-- Cron jobs that call `bin/ops/backup-files.sh` back up `var/media` from now on; replace them with the weekly
-  scheduled backup after the deploy (below).
-- **Two-factor authentication** is new and **required for administrators** (#1357, #1567,
-  [ADR 040](../02-architecture/decisions/040-two-factor-authentication.md)). Set `APP_TWO_FACTOR_KEY` in
-  `shared/.env.local` (64 hex characters: `php -r 'echo bin2hex(random_bytes(32)), PHP_EOL;'`) and keep a copy with
-  the other secrets ([configuration.md](../06-reference/configuration.md)). Without the key two-factor authentication
-  is not offered and the obligation has no effect. Tell the administrators to have an authenticator app at hand.
-- **Data extract requests** need the export connection: set `RESEARCH_DATABASE_URL` in `shared/.env.local` to the
-  read-only user `<account>_ro` (details [below](#data-extract-requests)).
+**1. Check the requirements**, from `<deploy_path>/current`:
+
+```bash
+php -m | grep pcntl                  # without it, stopping the worker interrupts the running message
+systemctl --user cat messenger       # must consume async_priority_high async_priority_low async_mail scheduler_default
+php bin/console messenger:stats --env=prod
+php -m | grep -E '^(phar|zlib)$'     # data extract archives
+grep _ro ~/.pgpass                   # read-only database user for data extract requests (Uberspace)
+```
+
+Reaction notifications, boundary fetches, data extract exports and several background jobs need a worker on
+`async_priority_low`.
+
+**2. Resolve data that would block or break the upgrade:**
+
+```bash
+# Must be empty, otherwise a migration stops the deploy. Rename the affected users.
+php bin/console dbal:run-sql --env=prod "SELECT lower(username), count(*) FROM \"user\" GROUP BY 1 HAVING count(*) > 1"
+# Must be 0, otherwise these users cannot sign in with their email address.
+php bin/console dbal:run-sql --env=prod "SELECT count(*) FROM \"user\" WHERE email <> lower(email)"
+# Rename these users: profiles of digits-only usernames return 404.
+php bin/console dbal:run-sql --env=prod "SELECT id, username FROM \"user\" WHERE username ~ '^[0-9]+$'"
+# Must be 0, otherwise the new help section hides these pages.
+php bin/console dbal:run-sql --env=prod "SELECT id, slug FROM page_translation WHERE slug IN ('help','glossary','data-catalog')"
+```
+
+**3. Back up.** `app:backup:create` is only available from v0.3 on. For this upgrade, stop the worker and use the
+database script plus an archive of all data directories:
+
+```bash
+systemctl --user stop messenger
+mkdir -p ~/backups/v0.3-pre && chmod 700 ~/backups/v0.3-pre
+cd <deploy_path>/current
+BACKUP_DIR=~/backups/v0.3-pre ./bin/ops/backup-database.sh
+tar -czf ~/backups/v0.3-pre/ivena-stats-files.tar.gz -C <deploy_path>/shared var/imports var/reference var/geo/hospital-isochrones public/uploads/media
+cp <deploy_path>/shared/.env.local ~/backups/v0.3-pre/env-local.bak && chmod 600 ~/backups/v0.3-pre/env-local.bak
+```
+
+The deploy starts the worker again.
+
+**4. Know what is removed.** If you still need any of this, export it now:
+
+- Analytics of the removed Filters, Adoption, Journeys and Performance pages, including request durations.
+- The role `ROLE_CLOSURE_BETA`. Closure Analytics and closure imports are available to everyone with the matching
+  hospital grants.
+
+Saved Explorer views are rewritten: the period `all` becomes `last_12_months` with the same numbers. The age groups
+`0_18` and `19_29` become `0_17` and `18_29`, so their numbers change by the 18-year-olds.
+
+**5. Configuration** in `shared/.env.local`:
+
+- **`APP_TWO_FACTOR_KEY`** (required in practice): two-factor authentication is new and required for administrators
+  (#1357, #1567, [ADR 040](../02-architecture/decisions/040-two-factor-authentication.md)). Create the key with
+  `php -r 'echo bin2hex(random_bytes(32)), PHP_EOL;'` and keep a copy with the other secrets. Without it two-factor
+  authentication is not offered and the obligation has no effect. Tell the administrators to have an authenticator app
+  at hand.
+- **`RESEARCH_DATABASE_URL`**: the read-only user for data extract requests, on Uberspace `<account>_ro` with its
+  password from `~/.pgpass` (not the password of the normal user):
+  `postgresql://<account>_ro:<password>@127.0.0.1:5432/<account>?serverVersion=18&charset=utf8`. Without it the
+  extract queries cannot run; the rest of the application works. Leave `RESEARCH_EXPECT_READ_ONLY` at its default `1`.
+- **`APP_TERMS_VERSION`**: leave it empty for this release (see after the deploy).
+- Not hosted on Uberspace: set `APP_UBERSPACE_CREDIT=false`.
+- Optional: `SENTRY_DATA_LOCATION` (`eu`, `us`, `self_hosted`). If you use Sentry, name it as a processor in your
+  privacy policy; the consent text is now version `v2`.
+- A local configuration that still sets `app.meta.hoster` must drop it, or the container build fails.
+
+**6. Free space** for a second copy of the media files. The old directory stays until v0.4.
+
+**7. Announce** a short maintenance window to the users.
 
 ### Deploy
-
-Deploy with the maintenance mode kept on, so only administrators use the application while the steps after the
-deploy run ([maintenance mode](deployment.md#maintenance-mode), #1680):
 
 ```bash
 vendor/bin/dep deploy -o keep_maintenance=true
 ```
 
-v0.2.7-beta does not know the mode: during the migrations themselves (a few seconds) requests still reach the old
-release and may fail. From the switch to v0.3-beta on, users see the maintenance page. Switch it off after the checks below.
+Besides the usual steps, the deploy switches the maintenance mode on, stops the worker, runs the migrations, copies the
+media into `shared/var/media`, takes over the district geography and verifies it
+([ADR 041](../02-architecture/decisions/041-dispatch-area-geography-as-master-data.md)), then switches to the new
+release and starts the worker. The maintenance mode stays on.
 
-`vendor/bin/dep deploy` runs `app:media:migrate-storage` after the database migrations and before the switch. Its
-output lists media items whose file was missing already and files without media item; neither stops the deploy. A copy
-that fails stops the deploy before the switch, and the previous release keeps running. `vendor/bin/dep rollback` works
-until the next step.
+v0.2.7-beta does not know the maintenance mode: during the migrations themselves requests still reach the old release
+and may fail. From the switch to v0.3-beta on, users see the maintenance page and administrators can work alone.
 
-The deploy also runs `app:geo:import-legacy-districts` and its `--verify` before the switch: it takes the existing
-district assignments and boundaries over into the database, without network access
-([ADR 041](../02-architecture/decisions/041-dispatch-area-geography-as-master-data.md)). If a check fails, the deploy
-stops, the previous release keeps running and the output names the dispatch areas. Fix the cause and deploy again; the
-takeover continues where it stopped and keeps existing data. An installation with none of the 29 existing areas has
-nothing to take over. Without Deployer, run both commands after the migrations and before activating the new code.
+If the media copy or the geography check fails, the deploy stops before the switch and the worker starts again. The
+previous release then runs on the **already migrated** database, where parts of it no longer work. Fix the cause and
+deploy again; both steps continue where they stopped. If you cannot fix it soon, go back as described below.
 
 ### After the deploy
 
-Once the release works, replace the old URLs in posts and pages:
+Sign in as an administrator. You are sent to `/settings/two-factor` and set up two-factor authentication first; keep
+the backup codes. Then run from `<deploy_path>/current`, in this order, with `--env=prod`. Commands with `--apply`
+preview without it.
+
+**1. Configuration:** `php bin/console app:env:check --check-profile=prod`.
+
+**2. Access statistics**, on the day of the deploy. Raw data past the retention is deleted every night and cannot be
+counted afterwards:
 
 ```bash
-php bin/console app:media:rewrite-content-urls              # preview
+php bin/console app:analytics:classify-accesses
+php bin/console app:analytics:classify-accesses --apply
+php bin/console app:analytics:aggregate --days=31 --no-cleanup
+```
+
+**3. Audit log:**
+
+```bash
+php bin/console app:audit:backfill-derived
+php bin/console app:audit:backfill-derived --apply
+```
+
+**4. Feedback quarantine.** Review the listed entries in the admin area before applying:
+
+```bash
+php bin/console app:feedback:reclassify
+php bin/console app:feedback:reclassify --apply
+```
+
+**5. Closure imports** rejected for the removed beta role, if there are any:
+
+```bash
+php bin/console dbal:run-sql "SELECT DISTINCT import_id FROM import_run WHERE reason_code = 'missing_closure_role'"
+php bin/console app:import:start <import id>
+```
+
+**6. Rows of failed imports.** Review the dry run first. It lists hospitals that leave the comparison groups. Rows are
+kept when the source file is missing or when they belong to the last successful run. The numbers of the listed hospitals
+go down, so tell their users. Run this before any reprocessing:
+
+```bash
+php bin/console app:import:discard-failed-rows
+php bin/console app:import:discard-failed-rows --force
+```
+
+If the command lists older imports to reprocess, run them afterwards, one by one:
+
+```bash
+php bin/console app:import:start <import id>
+```
+
+**7. Content URLs**, only once the release works. After this step a return to v0.2 shows broken images in the
+rewritten content:
+
+```bash
+php bin/console app:media:rewrite-content-urls
 php bin/console app:media:rewrite-content-urls --apply
 ```
 
-or `vendor/bin/dep media:rewrite-content-urls <host>`. Old file names listed by the preview have no moved media item;
-their URLs keep working through the redirect until v0.4. After this step a rollback to v0.2 shows broken images in the
-rewritten content.
+Old file names listed by the preview have no moved media item; their URLs keep working through the redirect until v0.4.
 
-Every administrator is sent to `/settings/two-factor` on the next page load and sets up two-factor authentication
-there; until then other pages are not reachable. Keep the backup codes. If an administrator loses both, another
-administrator resets it on the user's detail page; for the last administrator run
-`php bin/console app:user:reset-two-factor <username>`.
+**8. Data extract requests** (#1635, [ADR 045](../02-architecture/decisions/045-data-extract-requests.md),
+[feature docs](../04-features/research/README.md)): give the Board members the role "Board member" on their user page
+in the admin backend. Only they vote; administrators do the formal check and write the queries. Deployer created
+`shared/var/research/exports` for the archives (seven days each); it holds pseudonymised data and is not part of the
+backups. The new notification category "Data extract requests" has seven types; "Request submitted" is off by default.
 
-Set up the automatic backups, which start with this release (#1568,
+**9. Backups**, which run automatically from this release on (#1568,
 [scheduled backups](backup-restore.md#scheduled-backups)):
 
 1. On the server, run `bin/ops/scheduled-backup.sh --dry-run` once from `current`, then add the weekly crontab line
-   (Wednesdays 03:00 UTC) and remove old backup cron lines.
+   (Wednesdays 03:00 UTC) and remove old cron lines that call `bin/ops/backup-*.sh`.
 2. On the operator's machine, run `bin/ops/pull-backups.sh … --delete-from-server` once by hand, then install the
    `launchd` job for the off-site copy ([off-site copy](backup-restore.md#off-site-copy)). From then on the server
    holds only the newest backup until it is copied.
 
-New registrations store their acceptance of the terms of use from now on (#1564,
-[ADR 043](../02-architecture/decisions/043-terms-of-use-version-by-configuration.md)). Leave `APP_TERMS_VERSION` empty
-for this release. Once the revised terms are published on the terms page, set `APP_TERMS_VERSION` (for example
-`2026-12`) in `shared/.env.local`; everyone is then asked to accept at their next login. Neither a release nor a cache
-clear is needed for a new version.
+**10. Your own content pages.** The texts of the application now call the allocation data pseudonymised and comparisons
+aggregated. Check that your terms of use, privacy policy and other CMS pages do not promise anonymised data. Publish the
+help article on data extract requests and the terms section on research and data extracts with this release.
 
-Encounter uploads ask for one extended confirmation from now on: tool, no direct identifiers, and the participation
-agreed with the hospital's data protection, so the data may be used on the platform (#1563). Each upload stores it
-with the terms version in force; the import detail page of the admin backend shows it. Earlier uploads show "No" for the data protection agreement.
+### What changes for users
 
-Every upload for a hospital now needs a stored upload authority of the person (#1565): the upload form asks once per
-hospital "I am authorised to upload data for this hospital." Nothing is backfilled, so everyone who uploads today
-confirms at their next upload; administrators are not asked. The hospital detail page in the admin backend shows who
-confirmed. After a new terms version, the acceptance page at login renews it for the hospitals confirmed before.
-Hospital assignment requests offer the same sentence; an approval with the import permission stores it.
-
-Explore shows individual allocations only for the viewer's own hospitals from now on (#1566, ADR 044): owner or any
-hospital grant; administrators still see all. Participants without a hospital see an empty list with a link to the
-hospital access request. MCI cases and the data catalog's coverage figures stay visible across hospitals. Nothing
-needs to be migrated; announce the change to participants with the release.
-
-The top navigation no longer has an "Export" entry (#1633): the export of the own hospitals' allocations is now the
-tool "Zuweisungen exportieren" in the Tools category "Daten exportieren", at `/tools/allocation-export`. The old URLs
-under `/hospitals/export/allocations` redirect until v0.4-beta.
-
-#### Data extract requests
-
-Research projects request extracts from the database in the application (#1635,
-[ADR 045](../02-architecture/decisions/045-data-extract-requests.md),
-[feature docs](../04-features/research/README.md)): request, formal check, Board vote, admin-written queries, release
-and a time-limited download. The migrations of this release create the tables; nothing is backfilled.
-
-- **Export connection:** set `RESEARCH_DATABASE_URL` in `shared/.env.local` to the hosting's read-only user, on
-  Uberspace `<account>_ro` with its password from `~/.pgpass` (not the password of the normal user):
-  `postgresql://<account>_ro:<password>@127.0.0.1:5432/<account>?serverVersion=18&charset=utf8`. Without it the queries
-  cannot be checked or run and no export starts; the rest of the feature works. Leave `RESEARCH_EXPECT_READ_ONLY` at
-  its default `1`.
-- **Board:** give the Board members the role "Board member" on their user page in the admin backend. Only they vote;
-  administrators do the formal check and write the queries.
-- **Storage:** Deployer creates the shared directory `shared/var/research/exports` for the archives (seven days each).
-  It holds pseudonymised data and is not part of the backups.
-- **Worker and scheduler:** the worker on `async_priority_low` runs the exports. Two scheduler jobs are new:
-  `research_data_request_deadlines` (every 15 minutes: round deadlines, expired revisions, reminders) and
-  `research_export_cleanup` (daily 04:50: expired releases and downloads, archives).
-- **Notifications:** the new category "Data extract requests" has seven types; "Request submitted" is off by default.
-- **Help and terms:** publish the help article on data extract requests and the terms section on research and data
-  extracts with this release; raise `APP_TERMS_VERSION` when the terms change (see above).
+- **Terms of use** (#1564, [ADR 043](../02-architecture/decisions/043-terms-of-use-version-by-configuration.md)): new
+  registrations store their acceptance. Once the revised terms are published on the terms page, set
+  `APP_TERMS_VERSION` (for example `2026-12`) in `shared/.env.local`; everyone is then asked to accept at their next
+  login. Neither a release nor a cache clear is needed.
+- **Upload authority** (#1565): every upload for a hospital needs a stored confirmation "I am authorised to upload data
+  for this hospital", asked once per hospital at the next upload. Nothing is backfilled; administrators are not asked.
+  After a new terms version, the acceptance page at login renews it. Hospital assignment requests offer the same
+  sentence; an approval with the import permission stores it.
+- **Encounter uploads** ask for one extended confirmation (tool, no direct identifiers, participation agreed with the
+  hospital's data protection) and store it with the terms version (#1563). Earlier uploads show "No".
+- **Explore** shows individual allocations only for the viewer's own hospitals (#1566, ADR 044): owner or any hospital
+  grant; administrators still see all. MCI cases and the data catalog's coverage figures stay visible across
+  hospitals. Announce this to participants.
+- **Remembered sign-ins** end once: the remember-me cookie now also covers the state of two-factor authentication
+  (#1695), so every cookie issued before the upgrade is invalid and users sign in again.
+- **Export** moved from the top navigation into Tools ("Zuweisungen exportieren", `/tools/allocation-export`); the old
+  URLs under `/hospitals/export/allocations` redirect until v0.4-beta (#1633).
 
 ### Check
 
 ```bash
+php bin/console doctrine:migrations:status
 php bin/console app:media:migrate-storage --dry-run   # "Every media item is in the media storage."
-php bin/console app:media:check --full                # exit code 0, no missing or damaged files
+php bin/console app:media:check --full                # exit code 0
+php bin/console app:geo:check-dispatch-areas
+php bin/console debug:scheduler                       # 18 recurring jobs
+php bin/console messenger:failed:show
 ```
 
-Media items whose file was already missing before the deploy stay outside the storage. The dry run then says
-"No file left to move, but N media item(s) have no file", and `app:media:check` reports them as missing
-(`uploads/media/<filename>`): restore their files from a backup into `shared/public/uploads/media` and deploy or run
+`GET /health` answers 200 and the footer shows `v0.3-beta`; while the maintenance mode is on, the status is `degraded`.
+On the admin dashboard, `two_factor` reports `ok` (not `disabled`), `research_export` reports `read_only` (`writable`
+means the URL uses a user that can change data, `disabled` that it is empty), and `maintenance` reports `on`. Every
+administrator has two-factor authentication switched on (user list in the admin).
+
+Open a page and a blog post with images: they load from `/media/…`, and an old `/uploads/media/<file>` link redirects.
+The dispatch-area maps show their areas with the BKG attribution.
+
+Media items whose file was already missing before the deploy stay outside the storage. The dry run then says "No file
+left to move, but N media item(s) have no file". Restore their files into `shared/public/uploads/media` and run
 `app:media:migrate-storage --legacy-dir=<deploy_path>/shared/public/uploads/media` again, or delete the media items.
-
-Open a page and a blog post with images: the images load from `/media/…`. An old link `/uploads/media/<file>`
-redirects to the new URL.
-
-The `two_factor` health check reports `ok` (not `disabled`), and every administrator has two-factor authentication
-switched on (user list in the admin).
-
-The `research_export` health check reports `read_only` (admin dashboard, "Data export connection"). `writable` means
-`RESEARCH_DATABASE_URL` uses a user that can change data: switch to the `_ro` user. `disabled` means the variable is
-empty. The scheduler jobs `research_data_request_deadlines` and `research_export_cleanup` show runs in the job run log.
 
 When every check passes, switch the maintenance mode off and open a page as a regular user:
 
@@ -160,7 +244,26 @@ When every check passes, switch the maintenance mode off and open a page as a re
 vendor/bin/dep maintenance:off      # or on the server: php bin/console app:maintenance off
 ```
 
-The `maintenance` health check then reports `off`.
+`/health` then reports `healthy` and the `maintenance` check `off`. The job run log shows the first runs of the new
+scheduler jobs over the next day.
+
+### Going back
+
+`vendor/bin/dep rollback` alone is not enough, because v0.2.7 needs the columns the migrations removed. v0.2.7 ignores
+the maintenance mode. Stop the worker, roll back, restore the database from the backup and start the worker:
+
+```bash
+systemctl --user stop messenger
+vendor/bin/dep rollback                # on your machine
+cd <deploy_path>/current
+RESTORE_CONFIRM=yes BACKUP_FILE=~/backups/v0.3-pre/ivena-stats-db-<time>.dump ./bin/ops/restore-database.sh
+php bin/console cache:clear --env=prod
+rm -f <deploy_path>/shared/var/maintenance/enabled
+systemctl --user start messenger
+```
+
+Data written after the backup is lost. If the content URLs were already rewritten (step 7), restore the files archive as
+well.
 
 ## v0.2.6-beta → v0.2.7-beta
 
@@ -322,7 +425,7 @@ Allocation imports do not need to run again. Text fields stored before the hotfi
 2. **Move the storage budget** in `shared/.env.local` from `APP_ADMIN_STORAGE_LIMIT_BYTES` to `STORAGE_BUDGET_BYTES` (same value in bytes). v0.2 still reads the old name as a fallback; a later release drops it ([ADR 017](../02-architecture/decisions/017-storage-monitoring.md)).
 3. **Remove `MAILER_BULK_DELAY_MS`** from `shared/.env.local` if it is set. It is no longer read; the rate limiter of the `async_mail` transport spaces emails ([notification README](../04-features/notification/README.md#email-delivery)).
 4. **Review the new optional variables** in [configuration.md](../06-reference/configuration.md): `ANALYTICS_RAW_RETENTION_DAYS` (default 30), `STORAGE_CAPACITY_SOURCE`, `OPENROUTESERVICE_API_KEY` (only for geocoding and isochrones, see step 8 after the deploy), `MAP_TILE_URL` / `MAP_TILE_ATTRIBUTION` / `MAP_TILE_MAX_ZOOM`, `SENTRY_TRACES_SAMPLE_RATE`, `SENTRY_CSP_REPORT_URI`. The defaults work without changes.
-5. **Let the import queue run empty.** Import messages queued before the deploy carry no import run and are processed without run history and without notifications ([ADR 016](../02-architecture/decisions/016-notification-system.md#transition-for-queued-import-messages)). Wait until `php bin/console messenger:stats` shows no pending messages in `async_priority_high`, then deploy. Deployer stops the worker before the migrations.
+5. **Let the import queue run empty.** Import messages queued before the deploy carry no import run and are processed without run history and without notifications ([ADR 016](../02-architecture/decisions/016-notification-system.md#transition-for-queued-import-messages)). Wait until `php bin/console messenger:stats` shows no pending messages in `async_priority_high`, then deploy. The v0.2 deploy only asks the worker to stop right before the switch, after the migrations, and systemd starts it again; to keep the worker away from the migrations, stop it yourself first (`systemctl --user stop messenger`; the deploy starts it again). From v0.3 on the deploy stops the service before the migrations (#1544).
 
 The worker command line and the systemd unit are unchanged ([messenger-workers.md](messenger-workers.md)). The new Deployer shared directories `var/reference` and `var/geo/hospital-isochrones` are created by the deploy.
 

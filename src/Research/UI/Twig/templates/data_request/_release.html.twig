@@ -106,7 +106,7 @@
                         {% if isAdmin %}
                             <div class="mt-2" data-testid="data-request-export-record">
                                 {% if run.status.value == 'failed' %}
-                                    <div class="text-danger text-break mb-2" data-testid="data-request-export-error">{{ run.error == 'connection_missing' ? 'data_request.query.violation.connection_missing'|trans({}, 'research') : run.error }}</div>
+                                    <div class="text-danger text-break mb-2" data-testid="data-request-export-error">{{ run.error in ['connection_missing', 'connection_writable'] ? ('data_request.query.violation.' ~ run.error)|trans({}, 'research') : run.error }}</div>
                                     <form method="post" action="{{ path('app_data_requests_export', {publicId: dataRequest.publicIdString, number: release.number, action: 'retry'}) }}" class="mb-2">
                                         <input type="hidden" name="_token" value="{{ releaseToken }}">
                                         <button type="submit" class="btn btn-sm btn-outline-primary" data-testid="data-request-export-retry"><twig:ux:icon name="tabler:refresh" class="icon" /> {{ 'data_request.export.action.retry'|trans({}, 'research') }}</button>
