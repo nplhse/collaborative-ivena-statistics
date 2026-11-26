@@ -589,6 +589,10 @@
         <source>ops.health.check.two_factor</source>
         <target>2FA-Schlüssel</target>
       </trans-unit>
+      <trans-unit id="opsHlthMaintenanceDe" resname="ops.health.check.maintenance">
+        <source>ops.health.check.maintenance</source>
+        <target>Wartungsmodus</target>
+      </trans-unit>
       <trans-unit id="opsHlthResearchExportDe" resname="ops.health.check.research_export">
         <source>ops.health.check.research_export</source>
         <target>Exportverbindung Datenauszüge</target>

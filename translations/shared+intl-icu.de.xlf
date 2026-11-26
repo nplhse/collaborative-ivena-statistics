@@ -289,6 +289,22 @@
         <source>locale.switch</source>
         <target>Sprache wechseln</target>
       </trans-unit>
+      <trans-unit id="oXcqIp." resname="maintenance.banner.text">
+        <source>maintenance.banner.text</source>
+        <target>Wartungsmodus aktiv seit {since}</target>
+      </trans-unit>
+      <trans-unit id="DTlK4ob" resname="maintenance.page.retry">
+        <source>maintenance.page.retry</source>
+        <target>Erneut versuchen</target>
+      </trans-unit>
+      <trans-unit id="M2ieWzt" resname="maintenance.page.text">
+        <source>maintenance.page.text</source>
+        <target>Wegen Wartungsarbeiten ist die Plattform gerade nicht erreichbar. Bitte versuchen Sie es später noch einmal.</target>
+      </trans-unit>
+      <trans-unit id="1uG449r" resname="maintenance.page.title">
+        <source>maintenance.page.title</source>
+        <target>Wartungsarbeiten</target>
+      </trans-unit>
       <trans-unit id="Deae8de51e" resname="menu.blog.categories">
         <source>menu.blog.categories</source>
         <target>Kategorien</target>

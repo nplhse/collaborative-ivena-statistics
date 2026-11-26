@@ -253,6 +253,22 @@
         <source>link.terms</source>
         <target>terms and conditions</target>
       </trans-unit>
+      <trans-unit id="oXcqIp." resname="maintenance.banner.text">
+        <source>maintenance.banner.text</source>
+        <target>Maintenance mode on since {since}</target>
+      </trans-unit>
+      <trans-unit id="DTlK4ob" resname="maintenance.page.retry">
+        <source>maintenance.page.retry</source>
+        <target>Try again</target>
+      </trans-unit>
+      <trans-unit id="M2ieWzt" resname="maintenance.page.text">
+        <source>maintenance.page.text</source>
+        <target>The platform is not available while maintenance work is being carried out. Please try again later.</target>
+      </trans-unit>
+      <trans-unit id="1uG449r" resname="maintenance.page.title">
+        <source>maintenance.page.title</source>
+        <target>Maintenance in progress</target>
+      </trans-unit>
       <trans-unit id="menuBlgCt" resname="menu.blog.categories">
         <source>menu.blog.categories</source>
         <target>Categories</target>

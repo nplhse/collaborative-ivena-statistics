@@ -35,6 +35,16 @@ afterwards replaces the old URLs in the content.
 
 ### Deploy
 
+Deploy with the maintenance mode kept on, so only administrators use the application while the steps after the
+deploy run ([maintenance mode](deployment.md#maintenance-mode), #1680):
+
+```bash
+vendor/bin/dep deploy -o keep_maintenance=true
+```
+
+v0.2.6-beta does not know the mode: during the migrations themselves (a few seconds) requests still reach the old
+release and may fail. From the switch to v0.3-beta on, users see the maintenance page. Switch it off after the checks below.
+
 `vendor/bin/dep deploy` runs `app:media:migrate-storage` after the database migrations and before the switch. Its
 output lists media items whose file was missing already and files without media item; neither stops the deploy. A copy
 that fails stops the deploy before the switch, and the previous release keeps running. `vendor/bin/dep rollback` works
@@ -143,6 +153,14 @@ switched on (user list in the admin).
 The `research_export` health check reports `read_only` (admin dashboard, "Data export connection"). `writable` means
 `RESEARCH_DATABASE_URL` uses a user that can change data: switch to the `_ro` user. `disabled` means the variable is
 empty. The scheduler jobs `research_data_request_deadlines` and `research_export_cleanup` show runs in the job run log.
+
+When every check passes, switch the maintenance mode off and open a page as a regular user:
+
+```bash
+vendor/bin/dep maintenance:off      # or on the server: php bin/console app:maintenance off
+```
+
+The `maintenance` health check then reports `off`.
 
 ## v0.2.5-beta → v0.2.6-beta
 

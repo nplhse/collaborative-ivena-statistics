@@ -9,7 +9,7 @@ Related: [observability-sentry.md](observability-sentry.md), [deployment.md](dep
 | `status` | HTTP | Meaning |
 |--------|------|---------|
 | `healthy` | 200 | Database reachable, no failed Messenger messages, queues and scheduler jobs fine, storage fine |
-| `degraded` | 200 | Database OK, but the failed queue has messages, a queue falls behind, many messages are retried, a scheduler job is overdue or its last run failed, or storage is at `warning`, `stale`, `unavailable` or `incomplete`. Check the Admin ops dashboard |
+| `degraded` | 200 | Database OK, but the failed queue has messages, a queue falls behind, many messages are retried, a scheduler job is overdue or its last run failed, or storage is at `warning`, `stale`, `unavailable` or `incomplete`, or the maintenance mode is on. Check the Admin ops dashboard |
 | `unhealthy` | 503 | Database unreachable, processing stalled, a queue far behind, a scheduler job overdue by more than twice its interval, or storage `critical` / `exceeded` |
 
 The overall status is the worst of all checks. Public JSON includes only `status`, `checks.database` and `checks.storage` (no app `version`, no Messenger or scheduler details, no sizes or paths). Full details remain available in the Admin ops dashboard.
@@ -35,6 +35,7 @@ curl -sS https://<host>/health | jq
 | `media` | no | Latest stored media integrity check (ADR 039), one query: `ok`, `unchecked` before the first run (healthy), or `missing=<n> damaged=<n>` (degraded). Details: `php bin/console app:media:check` ([media storage](../04-features/content/media-storage.md#integrity-check)) |
 
 | `two_factor` | no | Two-factor key (ADR 040), at most two queries: `ok`, `disabled` without `APP_TWO_FACTOR_KEY` and without users of it (healthy), `missing_key users=<n>` or `key_mismatch` when accounts use two-factor authentication but their secrets cannot be decrypted (degraded; their codes fail, backup codes work) |
+| `maintenance` | no | Maintenance mode flag (#1680, [ADR 046](../02-architecture/decisions/046-maintenance-mode-by-flag-file.md)), no query: `off` (healthy) or `on` (degraded), so a mode left on after a deploy shows up. `/health` stays reachable during the maintenance ([maintenance mode](deployment.md#maintenance-mode)) |
 | `research_export` | no | Export connection of data extract requests (ADR 045), one query: `read_only` or `disabled` without `RESEARCH_DATABASE_URL` (healthy), `writable` when its role could change data or `unreachable` when it fails (degraded). Details: [data extract requests](../04-features/research/README.md#export-connection) |
 
 Further checks come from services implementing `App\Shared\Application\Health\HealthCheckContributorInterface` (autoconfigured tag `app.health_check_contributor`). They run after the database check, in container order, and only mark themselves public when their value is a plain status string.

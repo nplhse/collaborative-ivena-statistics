@@ -295,7 +295,7 @@ final class DashboardOperationsTest extends WebTestCase
             self::assertCount(0, $crawler->filter(\sprintf('[data-health-check="%s"]', $key)), $key);
         }
         self::assertSame(
-            ['database', 'messenger', 'media', 'research_export', 'scheduled_jobs', 'storage', 'two_factor'],
+            ['database', 'messenger', 'media', 'research_export', 'maintenance', 'scheduled_jobs', 'storage', 'two_factor'],
             $crawler->filter('[data-health-check]')->each(static fn (Crawler $item): string => (string) $item->attr('data-health-check')),
             'the Messenger item takes the place of the first Messenger check',
         );

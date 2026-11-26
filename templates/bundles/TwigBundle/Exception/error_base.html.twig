@@ -28,7 +28,7 @@
                 {% block error_content %}{% endblock %}
             </div>
         </div>
-        {{ include('@Twig/Exception/_footer_include.html.twig') }}
+        {% block footer %}{{ include('@Twig/Exception/_footer_include.html.twig') }}{% endblock %}
     </div>
 </div>
 </body>

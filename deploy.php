@@ -56,6 +56,8 @@ add('shared_dirs', [
     'var/media',
     // Archives of data extract exports (ADR 045): downloadable for seven days, across deploys.
     'var/research/exports',
+    // Maintenance flag (#1680, ADR 046): the old and the new release must see the same switch.
+    'var/maintenance',
 ]);
 add('writable_dirs', [
     'var/imports',
@@ -63,6 +65,7 @@ add('writable_dirs', [
     'var/geo/hospital-isochrones',
     'var/media',
     'var/research/exports',
+    'var/maintenance',
 ]);
 
 /*
@@ -118,6 +121,40 @@ task('messenger:restart-after-failure', function () {
     invoke('messenger:restart');
 });
 
+// Maintenance mode (#1680, ADR 046): on before the migrations, off after the switch to the new release.
+// `dep deploy -o keep_maintenance=true` keeps it on for one-time commands; switch it off with `dep maintenance:off`.
+// A failed deploy leaves it on: the old release then keeps users away from a half-migrated schema.
+set('keep_maintenance', false);
+
+desc('Switch the maintenance mode on: only administrators can use the application');
+task('maintenance:on', function () {
+    run('cd {{release_or_current_path}} && {{bin/console}} app:maintenance on {{console_options}}');
+    set('maintenance_switched_on_by_deploy', true);
+});
+
+desc('Switch the maintenance mode off');
+task('maintenance:off', function () {
+    run('cd {{release_or_current_path}} && {{bin/console}} app:maintenance off {{console_options}}');
+});
+
+desc('Switch the maintenance mode off after the deploy, unless -o keep_maintenance=true');
+task('maintenance:off-after-deploy', function () {
+    if (filter_var(get('keep_maintenance'), \FILTER_VALIDATE_BOOL)) {
+        warning('Maintenance mode stays on. Run the one-time commands, check the application, then: dep maintenance:off');
+
+        return;
+    }
+    invoke('maintenance:off');
+});
+
+desc('Point out that a failed deploy left the maintenance mode on');
+task('maintenance:report-after-failure', function () {
+    if (!get('maintenance_switched_on_by_deploy', false)) {
+        return;
+    }
+    warning('The deploy failed and the maintenance mode stays on. Fix and deploy again, or switch it off: dep maintenance:off');
+});
+
 desc('Reset OPcache after deploy');
 task('deploy:cache:opcache', function () {
     if (test('command -v uberspace >/dev/null 2>&1')) {
@@ -135,9 +172,12 @@ after('deploy:uberspace:webroot', 'deploy:cache:opcache');
 
 before('deploy:publish', 'database:migrate');
 before('database:migrate', 'messenger:stop');
+before('database:migrate', 'maintenance:on');
 after('deploy:publish', 'messenger:restart');
+after('deploy:publish', 'maintenance:off-after-deploy');
 
 after('deploy:failed', 'messenger:restart-after-failure');
+after('deploy:failed', 'maintenance:report-after-failure');
 after('deploy:failed', 'deploy:unlock');
 
 desc('Move media files from the old upload directory into the media storage (ADR 039)');

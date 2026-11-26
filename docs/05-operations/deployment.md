@@ -16,6 +16,7 @@ Most common commands:
 
 ```bash
 vendor/bin/dep deploy
+cd <deploy_path>/current && php bin/console app:maintenance
 systemctl --user status messenger
 systemctl --user restart messenger
 cd <deploy_path>/current && php bin/console messenger:stats
@@ -197,13 +198,15 @@ Typical order (Symfony recipe plus project tasks):
 
 1. New release is prepared and vendors installed (`composer install --no-dev`; its Composer `auto-scripts` also run `assets:install`, which copies bundle assets such as EasyAdmin to `public/bundles/`)
 2. Asset map compile and cache warmup
-3. **`messenger:stop`** — `systemctl --user stop messenger.service`, so no worker or scheduler runs during the migrations. With the PHP extension `pcntl` the worker finishes its current message first (up to `TimeoutStopSec`); without it the message is interrupted and delivered again. If the deploy fails after this step, the worker is started again on the previous release
-4. Database migrations
-5. **`media:migrate-storage`** — moves media files that are still in the old upload directory into `shared/var/media` ([media files](#media-files-shared-across-releases))
-6. **`geo:import-legacy-districts`** (temporary, v0.3) — takes the legacy district geography over into the database and verifies it. A failed check stops the deploy before the switch; a completed takeover is skipped ([ADR 041](../02-architecture/decisions/041-dispatch-area-geography-as-master-data.md))
-7. Symlink switch to the new release (`current`)
-8. **`messenger:restart`** — `systemctl --user restart messenger.service`
-9. Cleanup: releases beyond `keep_releases` (2) are deleted. Files that must survive a release change belong in `shared/`.
+3. **`maintenance:on`** — `app:maintenance on` of the new release: from now on only administrators can use the application ([maintenance mode](#maintenance-mode))
+4. **`messenger:stop`** — `systemctl --user stop messenger.service`, so no worker or scheduler runs during the migrations. With the PHP extension `pcntl` the worker finishes its current message first (up to `TimeoutStopSec`); without it the message is interrupted and delivered again. If the deploy fails after this step, the worker is started again on the previous release
+5. Database migrations
+6. **`media:migrate-storage`** — moves media files that are still in the old upload directory into `shared/var/media` ([media files](#media-files-shared-across-releases))
+7. **`geo:import-legacy-districts`** (temporary, v0.3) — takes the legacy district geography over into the database and verifies it. A failed check stops the deploy before the switch; a completed takeover is skipped ([ADR 041](../02-architecture/decisions/041-dispatch-area-geography-as-master-data.md))
+8. Symlink switch to the new release (`current`)
+9. **`messenger:restart`** — `systemctl --user restart messenger.service`
+10. **`maintenance:off-after-deploy`** — `app:maintenance off`, unless the deploy runs with `-o keep_maintenance=true`. A failed deploy leaves the maintenance mode on
+11. Cleanup: releases beyond `keep_releases` (2) are deleted. Files that must survive a release change belong in `shared/`.
 
 **First deploy:** If the systemd unit does not exist yet, `messenger:restart` fails. Either create the unit first (see [messenger-workers.md](messenger-workers.md)) or set `messenger_restart_on_deploy: false` in `hosts.yaml` until the worker is ready.
 
@@ -218,6 +221,33 @@ Typical order (Symfony recipe plus project tasks):
 | Retry failed | `php bin/console messenger:failed:retry` |
 
 See [health-check.md](health-check.md) for the `/health` endpoint and [backup-restore.md](backup-restore.md) for backups.
+
+### Maintenance mode
+
+While the maintenance mode is on, only signed-in administrators can use the application, also when they impersonate
+another user (#1680, [ADR 046](../02-architecture/decisions/046-maintenance-mode-by-flag-file.md)). Everyone else gets
+a 503 with `Retry-After: 300` and a short page that maintenance work is in progress. `/health`, the sign-in with its
+second factor, logout, the cookie and language choice and media files stay reachable. Administrators see a red banner
+with the start time in the application; in the admin, the health check `maintenance` shows `on`, and `/health`
+reports `degraded`.
+
+The switch is the file `shared/var/maintenance/enabled`, shared between releases, so the old and the new release see
+it at the same time. Console commands and the Messenger worker are not affected.
+
+| Task | Command |
+|------|---------|
+| Status | `php bin/console app:maintenance` |
+| On / off on the server | `php bin/console app:maintenance on` / `off` |
+| On / off from the local machine | `vendor/bin/dep maintenance:on` / `maintenance:off` |
+| Deploy and keep it on for one-time commands | `vendor/bin/dep deploy -o keep_maintenance=true` |
+
+A regular deploy switches it on before the migrations and off after the switch, so users are kept out only for the
+migrations and the data steps. Keep it on when an upgrade guide lists one-time commands: run them, check the
+application as an administrator, then switch it off. If the deploy fails, the mode stays on and the previous release
+shows the maintenance page; fix and deploy again, or switch it off.
+
+The previous release must know the flag: a deploy from a release without it (v0.2.x to v0.3-beta) leaves the
+migrations unprotected, and the mode takes effect with the switch to the new release.
 
 ### Usage analytics rollout
 

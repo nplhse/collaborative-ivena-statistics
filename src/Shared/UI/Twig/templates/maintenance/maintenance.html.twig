@@ -1,0 +1,22 @@
+{# Maintenance page (#1680, ADR 046). It reads nothing from the database: no navigation, no footer from the CMS. #}
+{% extends '@Twig/Exception/error_base.html.twig' %}
+
+{% block title %}{{ 'maintenance.page.title'|trans({}, 'shared') }} — {{ app_title }}{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block error_content %}
+    <div class="empty" data-testid="maintenance-page">
+        <div class="empty-img mb-3">
+            <twig:ux:icon name="tabler:tool" width="4rem" height="4rem" class="text-primary" aria-hidden="true" />
+        </div>
+        <p class="empty-title">{{ 'maintenance.page.title'|trans({}, 'shared') }}</p>
+        <p class="empty-subtitle text-secondary">{{ 'maintenance.page.text'|trans({}, 'shared') }}</p>
+        <div class="empty-action">
+            <a href="{{ app.request.requestUri }}" class="btn btn-primary d-inline-flex align-items-center">
+                <twig:ux:icon name="tabler:refresh" class="icon icon-2" aria-hidden="true" />
+                {{ 'maintenance.page.retry'|trans({}, 'shared') }}
+            </a>
+        </div>
+    </div>
+{% endblock %}
