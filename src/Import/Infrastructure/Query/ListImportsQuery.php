@@ -27,6 +27,32 @@ final readonly class ListImportsQuery
     ) {
     }
 
+    /**
+     * The import types the list can show this user, for the type filter. Same visibility rule as the list.
+     *
+     * @return list<ImportType>
+     */
+    public function visibleTypes(User $user): array
+    {
+        $extensionTypes = [];
+        $visibleExtensionTypes = [];
+        foreach ($this->typeExtensions->all() as $extension) {
+            $extensionTypes[] = $extension::importType();
+            if ([] !== $extension->visibleHospitalIds($user)) {
+                $visibleExtensionTypes[] = $extension::importType();
+            }
+        }
+
+        $hasRegularAccess = [] !== $this->importListAccess->resolveAccessibleHospitalIds($user);
+
+        return array_values(array_filter(
+            ImportType::cases(),
+            static fn (ImportType $type): bool => \in_array($type, $extensionTypes, true)
+                ? \in_array($type, $visibleExtensionTypes, true)
+                : $hasRegularAccess,
+        ));
+    }
+
     public function listQuery(User $user, ListImportQueryParametersDTO $query): QueryBuilder
     {
         $accessibleHospitalIds = $this->importListAccess->resolveAccessibleHospitalIds($user);
@@ -104,6 +130,32 @@ final readonly class ListImportsQuery
                 $untilExclusive = $until->modify('+1 day');
                 $qb->andWhere('i.createdAt < :createdUntilExclusive')
                     ->setParameter('createdUntilExclusive', $untilExclusive, Types::DATETIME_IMMUTABLE);
+            }
+        }
+
+        if (null !== $query->type) {
+            $type = ImportType::tryFrom($query->type);
+            if (null !== $type) {
+                $qb->andWhere('i.type = :type')
+                    ->setParameter('type', $type->value, Types::STRING);
+            }
+        }
+
+        // Data period: imports whose export period overlaps the selected days. Imports without a known
+        // export period (for example most closure lists) do not match once a bound is set.
+        if (null !== $query->periodFrom) {
+            $from = \DateTimeImmutable::createFromFormat('!Y-m-d', $query->periodFrom);
+            if (false !== $from) {
+                $qb->andWhere('i.exportEndsAt >= :periodFrom')
+                    ->setParameter('periodFrom', $from, Types::DATETIME_IMMUTABLE);
+            }
+        }
+
+        if (null !== $query->periodUntil) {
+            $until = \DateTimeImmutable::createFromFormat('!Y-m-d', $query->periodUntil);
+            if (false !== $until) {
+                $qb->andWhere('i.exportStartsAt < :periodUntilExclusive')
+                    ->setParameter('periodUntilExclusive', $until->modify('+1 day'), Types::DATETIME_IMMUTABLE);
             }
         }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Cois\Plugin\EdVisit\UI\DataPrep;
 
+use App\Encounter\Application\Contract\DepartmentCatalogInterface;
 use App\Encounter\Contract\DataPrep\DataPrepCatalog;
 use App\Encounter\Contract\DataPrep\DataPrepContributionInterface;
 use App\Encounter\Contract\DataPrep\DataPrepLocalMap;
@@ -15,7 +16,8 @@ use Cois\Plugin\EdVisit\Domain\Enum\Disposition;
 /**
  * The `ed_visit` part of the data preparation tool (#1301): schema file, the ORBIS MTS profile, the schema module
  * (vitals, dispositions, care levels, departments, MTS catalog format), the bundled MTS catalog with its public
- * endpoint and the local map of departments, stations and dispositions.
+ * endpoint, the department names the import resolves (bundled at download only, #1638) and the local map of departments,
+ * stations and dispositions.
  *
  * The files live in the plugin's `data-prep/` folder (step 4h of #1300); their paths are built from the bundle
  * directory, so they resolve wherever the package is installed.
@@ -26,9 +28,13 @@ final readonly class EdVisitDataPrepContribution implements DataPrepContribution
 {
     private const string ASSETS = '/data-prep';
 
+    /** Catalog id of the department names; the `departments` section of the local map refers to it (ed-visit.js). */
+    public const string DEPARTMENT_NAMES = 'department-names';
+
     /** @psalm-suppress PossiblyUnusedMethod Autowired. */
     public function __construct(
         private MtsCatalog $mtsCatalog,
+        private DepartmentCatalogInterface $departmentCatalog,
     ) {
     }
 
@@ -59,7 +65,17 @@ final readonly class EdVisitDataPrepContribution implements DataPrepContribution
     #[\Override]
     public function catalogs(): array
     {
-        return [new DataPrepCatalog(MtsCatalog::ID, $this->mtsCatalog->bundledToolCatalog(), 'app_encounter_data_prep_mts_catalog')];
+        return [
+            new DataPrepCatalog(MtsCatalog::ID, $this->mtsCatalog->bundledToolCatalog(), 'app_encounter_data_prep_mts_catalog'),
+            // The department catalog is private reference data (ADR 020): bundled when a beta user downloads the tool,
+            // without a public endpoint. The import stays authoritative if the catalog changes later (#1638).
+            new DataPrepCatalog(self::DEPARTMENT_NAMES, [
+                'format' => 'encounter-name-list',
+                'version' => 1,
+                'id' => self::DEPARTMENT_NAMES,
+                'names' => $this->departmentCatalog->uniqueNames(),
+            ]),
+        ];
     }
 
     #[\Override]

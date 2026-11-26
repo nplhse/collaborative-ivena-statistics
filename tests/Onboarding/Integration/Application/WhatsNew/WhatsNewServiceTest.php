@@ -13,6 +13,7 @@ use App\Onboarding\Infrastructure\Repository\UserWhatsNewDismissalRepository;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
+use App\User\Infrastructure\Security\TwoFactor\TwoFactorSecretCipher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -40,7 +41,8 @@ final class WhatsNewServiceTest extends DatabaseKernelTestCase
 
         self::assertNotNull($card);
         self::assertSame('v0.3', $card->releaseKey);
-        self::assertSame([WhatsNewItemKey::DisplayName, WhatsNewItemKey::SettingsOverview], $this->itemKeys($card->items));
+        // The test environment has a two-factor key, so the two-factor item applies to an account without it.
+        self::assertSame([WhatsNewItemKey::DisplayName, WhatsNewItemKey::TwoFactor, WhatsNewItemKey::SettingsOverview], $this->itemKeys($card->items));
     }
 
     public function testAccountCreatedAtOrAfterTheUpdateDoesNotSeeTheCard(): void
@@ -106,7 +108,10 @@ final class WhatsNewServiceTest extends DatabaseKernelTestCase
         self::assertSame('whats_new.items.display_name.missing.title', $item?->title->getMessage());
     }
 
-    public function testMyHospitalsItemNeedsClinicAccess(): void
+    /**
+     * A hospital owner has clinic access and the export permission; as a participant they also get the glossary.
+     */
+    public function testHospitalOwnerSeesMyHospitalsExportAndGlossary(): void
     {
         $user = $this->userCreatedAt('2026-01-01 00:00:00', ['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         HospitalFactory::createOne(['owner' => $user]);
@@ -114,8 +119,38 @@ final class WhatsNewServiceTest extends DatabaseKernelTestCase
         $card = $this->service()->buildCardForUser($user);
 
         self::assertSame(
-            [WhatsNewItemKey::DisplayName, WhatsNewItemKey::MyHospitals, WhatsNewItemKey::SettingsOverview],
+            [WhatsNewItemKey::DisplayName, WhatsNewItemKey::MyHospitals, WhatsNewItemKey::AllocationExport, WhatsNewItemKey::HelpGlossary, WhatsNewItemKey::TwoFactor, WhatsNewItemKey::SettingsOverview],
             $this->itemKeys($card->items ?? []),
+        );
+    }
+
+    /**
+     * A participant without a hospital gets the glossary but neither My Hospitals nor the export (#1642).
+     */
+    public function testParticipantWithoutHospitalGetsTheGlossaryButNoExport(): void
+    {
+        $card = $this->service()->buildCardForUser($this->userCreatedAt('2026-01-01 00:00:00', ['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]));
+
+        self::assertSame(
+            [WhatsNewItemKey::DisplayName, WhatsNewItemKey::HelpGlossary, WhatsNewItemKey::TwoFactor, WhatsNewItemKey::SettingsOverview],
+            $this->itemKeys($card->items ?? []),
+        );
+    }
+
+    public function testTwoFactorItemDisappearsOnceItIsSetUp(): void
+    {
+        $user = $this->userCreatedAt('2026-01-01 00:00:00');
+        $user->enableTotpAuthentication(
+            self::getContainer()->get(TwoFactorSecretCipher::class)->encrypt('JBSWY3DPEHPK3PXP'),
+            'JBSWY3DPEHPK3PXP',
+            [],
+            new \DateTimeImmutable('2026-11-20 12:00:00'),
+        );
+        self::getContainer()->get(EntityManagerInterface::class)->flush();
+
+        self::assertSame(
+            [WhatsNewItemKey::DisplayName, WhatsNewItemKey::SettingsOverview],
+            $this->itemKeys($this->service()->buildCardForUser($user)->items ?? []),
         );
     }
 

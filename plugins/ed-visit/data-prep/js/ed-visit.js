@@ -333,7 +333,8 @@
 
         localMap: {
             sections: [
-                { name: 'departments', valid: isDepartmentName },
+                // Names the import resolves, bundled into the tool at download (#1638).
+                { name: 'departments', valid: isDepartmentName, catalog: 'department-names' },
                 { name: 'stations', valid: (level) => CARE_LEVELS.includes(level) },
                 { name: 'dispositions', valid: isValidDispositionTarget },
             ],

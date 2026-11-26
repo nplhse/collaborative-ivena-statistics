@@ -650,6 +650,69 @@ final class BlogControllerTest extends WebTestCase
         self::assertStringNotContainsString('Untagged Post', $this->postCard($crawler, 'Multi Tag Post')->text());
     }
 
+    public function testListsCountCommentsOfAllPostsInOneQuery(): void
+    {
+        $client = self::createClient();
+        $category = PostCategoryFactory::createOne(['name' => 'News', 'slug' => 'news']);
+        $tag = PostTagFactory::createOne(['name' => 'PHP', 'slug' => 'php']);
+
+        $twoComments = PostFactory::createOne([
+            'title' => 'Post with reply',
+            'slug' => 'post-with-reply',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+            'category' => $category,
+            'tags' => [$tag],
+        ]);
+        $root = PostCommentFactory::createOne(['post' => $twoComments, 'content' => 'Root']);
+        PostCommentFactory::createOne(['post' => $twoComments, 'parent' => $root, 'content' => 'Reply']);
+
+        $oneComment = PostFactory::createOne([
+            'title' => 'Post with one comment',
+            'slug' => 'post-with-one-comment',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-2 hours'),
+            'category' => $category,
+            'tags' => [$tag],
+        ]);
+        PostCommentFactory::createOne(['post' => $oneComment, 'content' => 'Only']);
+
+        PostFactory::createOne([
+            'title' => 'Post without comments',
+            'slug' => 'post-without-comments',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-3 hours'),
+            'category' => $category,
+            'tags' => [$tag],
+        ]);
+
+        foreach (['/blog', '/blog/category/news', '/blog/tag/php'] as $uri) {
+            $this->clearIdentityMap();
+            $client->enableProfiler();
+            $crawler = $client->request(Request::METHOD_GET, $uri);
+            self::assertResponseIsSuccessful();
+
+            self::assertStringContainsString('2 comments', $this->postCard($crawler, 'Post with reply')->text(), $uri.': replies count (#1456)');
+            self::assertStringContainsString('1 comment', $this->postCard($crawler, 'Post with one comment')->text(), $uri);
+            self::assertStringContainsString('no comments', $this->postCard($crawler, 'Post without comments')->text(), $uri);
+
+            $profile = $client->getProfile();
+            self::assertNotFalse($profile);
+            $collector = $profile->getCollector('db');
+            self::assertInstanceOf(DoctrineDataCollector::class, $collector);
+
+            $commentQueries = 0;
+            foreach ($collector->getQueries() as $queries) {
+                foreach ($queries as $query) {
+                    if (1 === preg_match('/\bFROM post_comment\b/i', (string) ($query['sql'] ?? ''))) {
+                        ++$commentQueries;
+                    }
+                }
+            }
+            self::assertSame(1, $commentQueries, $uri.': one grouped count instead of one query per post (#1655)');
+        }
+    }
+
     private function clearIdentityMap(): void
     {
         /** @var EntityManagerInterface $entityManager */
@@ -737,5 +800,23 @@ final class BlogControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('body', 'Michael Müller');
         self::assertSelectorTextSame('.avatar[data-avatar="initials"]', 'MM');
+    }
+
+    public function testCommentMarksBoardMembersWithABadge(): void
+    {
+        $client = self::createClient();
+        $post = PostFactory::createOne([
+            'title' => 'Board comments',
+            'slug' => 'board-comments',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+        ]);
+        PostCommentFactory::createOne(['post' => $post, 'author' => UserFactory::new()->asBoardMember()->create(), 'content' => 'From the board']);
+        PostCommentFactory::createOne(['post' => $post, 'author' => UserFactory::new()->asParticipant()->create(), 'content' => 'From a participant']);
+
+        $client->request(Request::METHOD_GET, '/blog/board-comments');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(1, '[data-testid="comment-author-board-member"]');
     }
 }

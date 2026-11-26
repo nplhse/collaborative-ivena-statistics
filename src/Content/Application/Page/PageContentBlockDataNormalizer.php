@@ -30,6 +30,7 @@ final readonly class PageContentBlockDataNormalizer
         PageContentBlockType::Cards->value => ['items'],
         PageContentBlockType::ChildPages->value => ['numbered'],
         PageContentBlockType::ReadMore->value => ['title', 'items'],
+        PageContentBlockType::BoardMembers->value => [],
     ];
 
     /** @var list<string> */

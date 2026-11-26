@@ -16,6 +16,9 @@ final class DataSourceCatalog
 
     private const string ODBL = 'ODbL 1.0';
     private const string ODBL_URL = 'https://opendatacommons.org/licenses/odbl/1-0/';
+    private const string CC_BY_SA = 'CC BY-SA 4.0';
+    private const string CC_BY_SA_URL = 'https://creativecommons.org/licenses/by-sa/4.0/';
+    private const string HEIGIT_TERMS_URL = 'https://account.heigit.org/info/tos';
     private const array LICENCE_URLS = ['dl-de/by-2-0' => 'https://www.govdata.de/dl-de/by-2-0', self::ODBL => self::ODBL_URL];
 
     private const string OSM_TILE_HOST = 'tile.openstreetmap.org';
@@ -28,13 +31,22 @@ final class DataSourceCatalog
     public function all(array $boundaries, string $tileUrl, string $tileAttribution): array
     {
         $sources = $this->boundarySources($boundaries);
+        // Licences and source notes as required by the HeiGIT terms of service (#1649).
         $sources[] = new DataSource(
-            'openrouteservice (HeiGIT)',
-            'https://openrouteservice.org/',
-            ['data_sources.use.geocoding', 'data_sources.use.isochrones'],
+            'HeiGIT geocoding',
+            self::HEIGIT_TERMS_URL,
+            ['data_sources.use.geocoding'],
             self::ODBL,
             self::ODBL_URL,
-            ['© openrouteservice.org by HeiGIT | Map data © OpenStreetMap contributors'],
+            ['© OpenStreetMap contributors', 'OpenAddresses, GeoNames (CC BY 4.0), Who’s On First'],
+        );
+        $sources[] = new DataSource(
+            'openrouteservice (HeiGIT)',
+            self::HEIGIT_TERMS_URL,
+            ['data_sources.use.isochrones'],
+            self::CC_BY_SA,
+            self::CC_BY_SA_URL,
+            ['© openrouteservice by HeiGIT | Data from OpenStreetMap'],
         );
 
         $tiles = $this->tileSource($tileUrl, $tileAttribution);

@@ -325,6 +325,10 @@
         <source>encounter.data_prep.js.map_invalid</source>
         <target>Die lokale Zuordnung ist ungültig</target>
       </trans-unit>
+      <trans-unit id="EncMapUnknownNames" resname="encounter.data_prep.js.map_unknown_names">
+        <source>encounter.data_prep.js.map_unknown_names</source>
+        <target>Nicht im Abteilungskatalog, diese Zeilen würde der Import ablehnen</target>
+      </trans-unit>
       <trans-unit id="Enc34B81E82" resname="encounter.data_prep.js.map_departments">
         <source>encounter.data_prep.js.map_departments</source>
         <target>Fachabteilungen</target>
@@ -2831,7 +2835,7 @@
       </trans-unit>
       <trans-unit id="Enc677E8DBC" resname="encounter.data_prep.js.map_edit_hint">
         <source>encounter.data_prep.js.map_edit_hint</source>
-        <target>Fachabteilung: ein Name aus dem Referenzkatalog (Liste auf der Seite des Tools auf dem Server). Leere Felder werden übergangen.</target>
+        <target>Fachabteilung: ein Name aus dem Referenzkatalog, Stand beim Herunterladen des Tools. Leere Felder werden übergangen.</target>
       </trans-unit>
       <trans-unit id="Enc57E088DF" resname="encounter.data_prep.js.map_edit_nothing">
         <source>encounter.data_prep.js.map_edit_nothing</source>
@@ -3436,6 +3440,14 @@
       <trans-unit id="Enc521607A3" resname="tools.encounter_plausibility.description">
         <source>tools.encounter_plausibility.description</source>
         <target>Festlegen, welche Kombinationen aus Indikation (PZC) und MTS-Diagramm beim Abgleich als plausibel gelten, und Snapshots aktivieren.</target>
+      </trans-unit>
+      <trans-unit id="EncDp140DeptSelect" resname="encounter.data_prep.changelog.1_4_0.department_select">
+        <source>encounter.data_prep.changelog.1_4_0.department_select</source>
+        <target>Im Editor der lokalen Zuordnung wählen Sie Fachabteilungen aus den Namen, die der Import kennt, Stand beim Herunterladen des Tools.</target>
+      </trans-unit>
+      <trans-unit id="EncDp140DeptUnknown" resname="encounter.data_prep.changelog.1_4_0.unknown_departments">
+        <source>encounter.data_prep.changelog.1_4_0.unknown_departments</source>
+        <target>Eine geladene lokale Zuordnung markiert Fachabteilungen, die der Import nicht kennt, schon vor dem Upload.</target>
       </trans-unit>
       <trans-unit id="Enc1A3C0F51" resname="encounter.data_prep.changelog.1_3_0.schemas">
         <source>encounter.data_prep.changelog.1_3_0.schemas</source>

@@ -217,7 +217,7 @@ final class PageTranslationEditorControllerTest extends WebTestCase
         $templates = $crawler->filter('[data-page-block-type-templates] template');
 
         self::assertSame(
-            ['richtext', 'image', 'cta', 'quote', 'headline', 'highlight', 'accordion', 'help_search', 'help_topics', 'cards', 'child_pages', 'read_more'],
+            ['richtext', 'image', 'cta', 'quote', 'headline', 'highlight', 'accordion', 'help_search', 'help_topics', 'cards', 'child_pages', 'read_more', 'board_members'],
             $templates->each(static fn (Crawler $template): string => (string) $template->attr('data-block-type')),
         );
         self::assertStringContainsString(

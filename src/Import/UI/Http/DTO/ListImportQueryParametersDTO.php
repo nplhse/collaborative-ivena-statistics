@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\UI\Http\DTO;
 
 use App\Import\Domain\Enum\ImportStatus;
+use App\Import\Domain\Enum\ImportType;
 use App\Import\UI\Twig\ImportListColumns;
 use Symfony\Component\Clock\Clock;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -34,6 +35,12 @@ final readonly class ListImportQueryParametersDTO
     public ?string $status;
 
     #[Assert\When(
+        expression: 'this.type !== null',
+        constraints: [new Assert\Choice(callback: [ImportType::class, 'getValues'])],
+    )]
+    public ?string $type;
+
+    #[Assert\When(
         expression: 'this.createdFrom !== null',
         constraints: [new Assert\Regex(pattern: '/^\d{4}-\d{2}-\d{2}$/')],
     )]
@@ -44,6 +51,20 @@ final readonly class ListImportQueryParametersDTO
         constraints: [new Assert\Regex(pattern: '/^\d{4}-\d{2}-\d{2}$/')],
     )]
     public ?string $createdUntil;
+
+    /** Imports whose data period (export period) reaches this day or later. */
+    #[Assert\When(
+        expression: 'this.periodFrom !== null',
+        constraints: [new Assert\Regex(pattern: '/^\d{4}-\d{2}-\d{2}$/')],
+    )]
+    public ?string $periodFrom;
+
+    /** Imports whose data period (export period) starts on this day or earlier. */
+    #[Assert\When(
+        expression: 'this.periodUntil !== null',
+        constraints: [new Assert\Regex(pattern: '/^\d{4}-\d{2}-\d{2}$/')],
+    )]
+    public ?string $periodUntil;
 
     /** Only the imports of this bulk reprocess batch. */
     #[Assert\When(
@@ -78,6 +99,12 @@ final readonly class ListImportQueryParametersDTO
         ?string $createdUntil = null,
 
         int|string|null $batch = null,
+
+        ?string $type = null,
+
+        ?string $periodFrom = null,
+
+        ?string $periodUntil = null,
     ) {
         $this->search = $this->emptyStringToNull($search);
         $this->hospitalId = $this->normalizePositiveInt($hospitalId);
@@ -86,6 +113,9 @@ final readonly class ListImportQueryParametersDTO
         $this->createdFrom = $this->emptyStringToNull($createdFrom) ?? self::DEFAULT_CREATED_FROM;
         $this->createdUntil = $this->emptyStringToNull($createdUntil) ?? self::defaultCreatedUntil();
         $this->batch = $this->normalizePositiveInt($batch);
+        $this->type = $this->emptyStringToNull($type);
+        $this->periodFrom = $this->emptyStringToNull($periodFrom);
+        $this->periodUntil = $this->emptyStringToNull($periodUntil);
     }
 
     public static function defaultCreatedUntil(): string

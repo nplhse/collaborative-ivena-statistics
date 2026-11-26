@@ -20,7 +20,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  */
 final readonly class OpenRouteServiceIsochroneClient implements HospitalIsochroneClientInterface
 {
-    private const string ENDPOINT = 'https://api.openrouteservice.org/v2/isochrones/driving-car';
+    private const string ENDPOINT = 'https://api.heigit.org/openrouteservice/v2/isochrones/driving-car';
     /** @var list<int> Five-minute bands; public ORS allows at most 10 ranges per request. */
     private const array RANGE_SECONDS = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000];
     private const int REQUEST_TIMEOUT_SECONDS = 20;

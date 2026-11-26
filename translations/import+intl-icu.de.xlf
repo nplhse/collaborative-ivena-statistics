@@ -245,6 +245,18 @@
         <source>label.import.filter.all_statuses</source>
         <target>Jeder Status</target>
       </trans-unit>
+      <trans-unit id="DeImpFltAllType" resname="label.import.filter.all_types">
+        <source>label.import.filter.all_types</source>
+        <target>Jeder Typ</target>
+      </trans-unit>
+      <trans-unit id="DeImpFltPerFrm" resname="label.import.filter.period_from">
+        <source>label.import.filter.period_from</source>
+        <target>Daten ab</target>
+      </trans-unit>
+      <trans-unit id="DeImpFltPerTil" resname="label.import.filter.period_until">
+        <source>label.import.filter.period_until</source>
+        <target>Daten bis</target>
+      </trans-unit>
       <trans-unit id="De1dfdd53e" resname="label.import.filter.created_from">
         <source>label.import.filter.created_from</source>
         <target>Erstellt ab</target>

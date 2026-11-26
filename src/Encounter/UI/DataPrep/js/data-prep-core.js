@@ -13,6 +13,8 @@
     const KEY_CHECK_INPUT = 'encounter-key-check';
     const KEY_FILE_FORMAT = 'encounter-key';
     const LOCAL_MAP_FORMAT = 'encounter-local-map';
+    /** A list of names the import resolves, bundled into the tool when it is downloaded (#1638). */
+    const NAME_LIST_FORMAT = 'encounter-name-list';
     // ------------------------------------------------------------------ schema modules
 
     /**
@@ -422,8 +424,12 @@
 
     // ------------------------------------------------------------------ local map
 
-    /** Validated private local map of a hospital (format: data-preparation-tool.md); sections from the schema. */
-    function loadLocalMap(content, profile) {
+    /**
+     * Validated private local map of a hospital (format: data-preparation-tool.md); sections from the schema.
+     * A section with a `catalog` (a name list in `catalogs`) also lists the entries whose target is not one of its
+     * names in `warnings`: the map stays usable, but the import would reject those rows (#1638).
+     */
+    function loadLocalMap(content, profile, catalogs = {}) {
         const data = typeof content === 'string' ? JSON.parse(content) : content;
         if (data?.format !== LOCAL_MAP_FORMAT || data.version !== 1) {
             throw new Error('not-a-local-map');
@@ -455,7 +461,34 @@
         loaded.counts = Object.fromEntries(
             sections.map((section) => [section.name, Object.keys(data[section.name] ?? {}).length]),
         );
+        loaded.warnings = [];
+        for (const section of sections) {
+            const names = sectionNames(section, catalogs);
+            if (names === null) {
+                continue;
+            }
+            const known = new Set(names.map(lookupKey));
+            for (const [source, target] of Object.entries(data[section.name] ?? {})) {
+                if (!known.has(lookupKey(target))) {
+                    loaded.warnings.push(`${section.name}.${source}`);
+                }
+            }
+        }
         return loaded;
+    }
+
+    /** Names a local map section may assign, from its name-list catalog; null without such a catalog. */
+    function sectionNames(section, catalogs) {
+        const catalog = section.catalog === undefined ? undefined : catalogs[section.catalog];
+        return catalog?.format === NAME_LIST_FORMAT ? catalog.names : null;
+    }
+
+    /** The names of a map section of the profile's schema (#1638), or null when the tool has no list for it. */
+    function localMapNames(profile, sectionName, catalogs) {
+        const section = schemaModule(profile.schema).localMap.sections.find(
+            ({ name }) => name === sectionName,
+        );
+        return section === undefined ? null : sectionNames(section, catalogs);
     }
 
     /** Plain copy of a map in the file format, as the editor changes and saves it (#1130). */
@@ -517,7 +550,7 @@
     /** A map without entries; with a profile, with the sections of its schema. */
     function emptyLocalMap(profile = null) {
         const sections = profile === null ? [] : schemaModule(profile.schema).localMap.sections;
-        const map = { label: '' };
+        const map = { label: '', warnings: [] };
         for (const { name } of sections) {
             map[name] = new Map();
         }
@@ -923,6 +956,9 @@
     function catalogLookups(catalogs) {
         const tables = new Map();
         for (const [id, catalog] of Object.entries(catalogs)) {
+            if (catalog.format === NAME_LIST_FORMAT) {
+                continue;
+            }
             const lists = Object.keys(catalog).filter((list) => Array.isArray(catalog[list]));
             for (const list of lists) {
                 const aliases = new Map(Object.entries(catalog.aliases?.[list] ?? {}));
@@ -941,12 +977,30 @@
      * endpoint and bundled as offline fallback: the schema module that knows the format checks it.
      */
     function parseCatalog(payload) {
+        if (payload?.format === NAME_LIST_FORMAT) {
+            return parseNameList(payload);
+        }
         for (const module of schemaModules.values()) {
             if (module.catalogFormat !== undefined && payload?.format === module.catalogFormat) {
                 return module.parseCatalog(payload);
             }
         }
         throw new Error('Not a catalog of a supported format.');
+    }
+
+    /** A name list as written by the server (`id`, `names`: distinct strings), see NAME_LIST_FORMAT. */
+    function parseNameList(payload) {
+        const { id, names } = payload;
+        if (
+            payload.version !== 1 ||
+            typeof id !== 'string' ||
+            id === '' ||
+            !Array.isArray(names) ||
+            names.some((name) => typeof name !== 'string' || name === '')
+        ) {
+            throw new Error('Not a valid name list.');
+        }
+        return Object.freeze({ format: NAME_LIST_FORMAT, id, names: Object.freeze([...names]) });
     }
 
     // ------------------------------------------------------------------ output
@@ -1047,6 +1101,7 @@
         schemaModule,
         exportFields,
         loadLocalMap,
+        localMapNames,
         emptyLocalMap,
         newLocalMapData,
         localMapSections,

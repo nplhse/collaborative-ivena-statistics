@@ -22,29 +22,27 @@
 {% endblock %}
 
 {% block page_content %}
-    <div class="container-xl">
-        <div class="row g-3" data-testid="data-catalog-index">
-            {% for object in objects %}
-                <div class="col-12 col-md-6">
-                    <a href="{{ path('app_help_data_catalog_show', {objectKey: object.key}) }}" class="card card-link h-100" data-testid="data-catalog-object" data-object-key="{{ object.key }}">
-                        <div class="card-body d-flex align-items-start gap-3">
-                            <span class="text-primary">
-                                <twig:ux:icon name="{{ object.icon }}" width="2.5em" height="2.5em" />
-                            </span>
-                            <div class="flex-fill">
-                                <div class="h3 mb-1">{{ object.titleKey|trans({}, object.domain) }}</div>
-                                <div class="text-secondary">{{ object.descriptionKey|trans({}, object.domain) }}</div>
-                                <div class="mt-2 d-flex flex-wrap gap-2 small">
-                                    <span class="badge bg-secondary-lt">{{ 'data_catalog.variable_count'|trans({count: object.variableCount}, 'allocation') }}</span>
-                                    <span class="badge {{ object.contributedByPlugin ? 'bg-purple-lt' : 'bg-blue-lt' }}">
-                                        {{ (object.contributedByPlugin ? 'data_catalog.origin.plugin' : 'data_catalog.origin.core')|trans({}, 'allocation') }}
-                                    </span>
-                                </div>
+    <div class="row g-3" data-testid="data-catalog-index">
+        {% for object in objects %}
+            <div class="col-12 col-md-6">
+                <a href="{{ path('app_help_data_catalog_show', {objectKey: object.key}) }}" class="card card-link h-100" data-testid="data-catalog-object" data-object-key="{{ object.key }}">
+                    <div class="card-body d-flex align-items-start gap-3">
+                        <span class="text-primary">
+                            <twig:ux:icon name="{{ object.icon }}" width="2.5em" height="2.5em" />
+                        </span>
+                        <div class="flex-fill">
+                            <div class="h3 mb-1">{{ object.titleKey|trans({}, object.domain) }}</div>
+                            <div class="text-secondary">{{ object.descriptionKey|trans({}, object.domain) }}</div>
+                            <div class="mt-2 d-flex flex-wrap gap-2 small">
+                                <span class="badge bg-secondary-lt">{{ 'data_catalog.variable_count'|trans({count: object.variableCount}, 'allocation') }}</span>
+                                <span class="badge {{ object.contributedByPlugin ? 'bg-purple-lt' : 'bg-blue-lt' }}">
+                                    {{ (object.contributedByPlugin ? 'data_catalog.origin.plugin' : 'data_catalog.origin.core')|trans({}, 'allocation') }}
+                                </span>
                             </div>
                         </div>
-                    </a>
-                </div>
-            {% endfor %}
-        </div>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
     </div>
 {% endblock %}

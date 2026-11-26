@@ -7,15 +7,19 @@ namespace App\Tests\Import\Integration\Query;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Import\Application\Service\ImportListAccess;
+use App\Import\Application\Service\ImportTypeExtensionRegistry;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Import\Infrastructure\Query\ListImportsQuery;
 use App\Import\UI\Http\DTO\ListImportQueryParametersDTO;
+use App\Tests\Import\Doubles\Service\StubImportTypeExtension;
 use App\Tests\Support\Pagination\PaginatesQueries;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\UX\Pagination\NumberedPaginationInterface;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -149,6 +153,68 @@ final class ListImportsQueryTest extends KernelTestCase
 
         $names = $this->extractImportNames($paginator);
         self::assertSame(['In range'], $names);
+    }
+
+    public function testTypeFilterShowsOnlyThatType(): void
+    {
+        [$owner, $hospital, $createdBy] = $this->seedOwnHospital();
+        $this->createImport('Allocation import', $hospital, $createdBy);
+        $this->createImport('Closure import', $hospital, $createdBy, ['type' => ImportType::CLOSURE]);
+
+        $names = $this->extractImportNames($this->paginateImports($owner, new ListImportQueryParametersDTO(
+            type: ImportType::CLOSURE->value,
+        )));
+
+        self::assertSame(['Closure import'], $names);
+    }
+
+    /**
+     * Data period 2025-03-10 – 2025-03-20 overlaps the selected days unless it ends before them or starts after them.
+     */
+    public function testDataPeriodFilterMatchesOverlappingExportPeriods(): void
+    {
+        [$owner, $hospital, $createdBy] = $this->seedOwnHospital();
+        $this->createImport('Before', $hospital, $createdBy, $this->period('2025-03-01 00:00', '2025-03-09 23:59'));
+        $this->createImport('Ends on first day', $hospital, $createdBy, $this->period('2025-03-01 00:00', '2025-03-10 08:00'));
+        $this->createImport('Inside', $hospital, $createdBy, $this->period('2025-03-12 00:00', '2025-03-15 23:59'));
+        $this->createImport('Starts on last day', $hospital, $createdBy, $this->period('2025-03-20 23:00', '2025-03-31 23:59'));
+        $this->createImport('After', $hospital, $createdBy, $this->period('2025-03-21 00:00', '2025-03-31 23:59'));
+        $this->createImport('Without period', $hospital, $createdBy);
+
+        $names = $this->extractImportNames($this->paginateImports($owner, new ListImportQueryParametersDTO(
+            orderBy: 'asc',
+            sortBy: 'name',
+            periodFrom: '2025-03-10',
+            periodUntil: '2025-03-20',
+        )));
+
+        self::assertSame(['Ends on first day', 'Inside', 'Starts on last day'], $names);
+    }
+
+    public function testDataPeriodFilterWorksWithOneBound(): void
+    {
+        [$owner, $hospital, $createdBy] = $this->seedOwnHospital();
+        $this->createImport('Old', $hospital, $createdBy, $this->period('2024-01-01 00:00', '2024-12-31 23:59'));
+        $this->createImport('New', $hospital, $createdBy, $this->period('2025-01-01 00:00', '2025-01-31 23:59'));
+
+        $from = $this->extractImportNames($this->paginateImports($owner, new ListImportQueryParametersDTO(periodFrom: '2025-01-01')));
+        $until = $this->extractImportNames($this->paginateImports($owner, new ListImportQueryParametersDTO(periodUntil: '2024-12-31')));
+
+        self::assertSame(['New'], $from);
+        self::assertSame(['Old'], $until);
+    }
+
+    public function testTypeChoicesFollowTheListVisibility(): void
+    {
+        [$owner] = $this->seedOwnHospital();
+        $withoutAccess = UserFactory::createOne(['username' => 'nobody-'.bin2hex(random_bytes(4))]);
+
+        $withoutEncounter = $this->queryWithEncounterHospitals([]);
+        $withEncounter = $this->queryWithEncounterHospitals([42]);
+
+        self::assertSame([ImportType::ALLOCATION, ImportType::CLOSURE], $withoutEncounter->visibleTypes($owner));
+        self::assertSame([ImportType::ALLOCATION, ImportType::CLOSURE, ImportType::ENCOUNTER], $withEncounter->visibleTypes($owner));
+        self::assertSame([], $withoutEncounter->visibleTypes($withoutAccess));
     }
 
     public function testStatusFilterUsesEnumValue(): void
@@ -285,5 +351,44 @@ final class ListImportsQueryTest extends KernelTestCase
     private function paginateImports(User $user, ListImportQueryParametersDTO $query): NumberedPaginationInterface
     {
         return $this->paginateQuery($this->query->listQuery($user, $query));
+    }
+
+    /**
+     * @return array{User, object, User}
+     */
+    private function seedOwnHospital(): array
+    {
+        $owner = UserFactory::createOne(['username' => 'owner-'.bin2hex(random_bytes(4))]);
+        $createdBy = UserFactory::createOne(['username' => 'creator-'.bin2hex(random_bytes(4))]);
+        $hospital = HospitalFactory::createOne([
+            'owner' => $owner,
+            'createdBy' => $createdBy,
+            'state' => StateFactory::createOne(),
+            'dispatchArea' => DispatchAreaFactory::createOne(),
+        ]);
+
+        return [$owner, $hospital, $createdBy];
+    }
+
+    /**
+     * @return array{exportStartsAt: \DateTimeImmutable, exportEndsAt: \DateTimeImmutable}
+     */
+    private function period(string $startsAt, string $endsAt): array
+    {
+        return ['exportStartsAt' => new \DateTimeImmutable($startsAt), 'exportEndsAt' => new \DateTimeImmutable($endsAt)];
+    }
+
+    /**
+     * @param list<int> $encounterHospitalIds
+     */
+    private function queryWithEncounterHospitals(array $encounterHospitalIds): ListImportsQuery
+    {
+        $container = self::getContainer();
+
+        return new ListImportsQuery(
+            $container->get(EntityManagerInterface::class),
+            $container->get(ImportListAccess::class),
+            new ImportTypeExtensionRegistry([new StubImportTypeExtension(true, $encounterHospitalIds)]),
+        );
     }
 }

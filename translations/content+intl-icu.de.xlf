@@ -1617,6 +1617,10 @@
         <source>page.read_more.title</source>
         <target>Weiterlesen</target>
       </trans-unit>
+      <trans-unit id="cmsBoardMembers01de" resname="label.block_type.board_members">
+        <source>label.block_type.board_members</source>
+        <target>Board-Mitglieder</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

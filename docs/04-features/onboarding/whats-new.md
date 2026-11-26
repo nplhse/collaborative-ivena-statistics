@@ -27,7 +27,13 @@ Of several releases, the newest one that is visible is shown.
 |---|---|---|
 | Display name: "Choose a display name", or "Your display name: *name*" when one is set (by the user, an administrator or the system) | every user | account settings |
 | My Hospitals as an overview | users with clinic access (owner or access grant) | My Hospitals |
+| Export allocations in Tools (#1633) | users with the export permission (owner or grant with `Export`, administrators) | the export tool |
+| Glossary and data catalog in Help (#1529) | participants (the glossary needs `ROLE_PARTICIPANT`) | glossary |
+| Sign-in with a second factor (#1357) | users without two-factor sign-in, when it is available (`TwoFactorAvailability::isAvailable()`) | two-factor settings |
 | All settings in one place (incl. notification settings) | every user | settings overview |
+
+Items are listed in this order. Explore showing only the own hospitals (#1566) is not an item; it is announced in
+the release notes.
 
 Requesting hospital access is not an item: participants without access already see it in the first dashboard tile
 and in onboarding step 1 ([participant onboarding](participant-onboarding.md#step-1-and-the-assignment-request)).

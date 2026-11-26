@@ -32,7 +32,7 @@
 {% endblock %}
 
 {% block page_content %}
-    <div class="container-xl" data-testid="data-catalog-object-detail" data-object-key="{{ object.key }}">
+    <div data-testid="data-catalog-object-detail" data-object-key="{{ object.key }}">
         <nav class="d-flex flex-wrap gap-2 mb-3" aria-label="{{ 'data_catalog.groups'|trans({}, 'allocation') }}" data-testid="data-catalog-group-nav">
             {% for group in object.groups %}
                 <a href="#{{ group.anchor }}" class="btn btn-sm btn-outline-secondary">{{ group.labelKey|trans({}, object.domain) }}</a>

@@ -334,3 +334,11 @@ body.page-content .content-body > .row:first-child {
 body.page-content .content-body > .row:first-child > :first-child {
     margin-top: var(--bs-gutter-y);
 }
+
+/* EasyAdmin 5.10 lets an open form fieldset clip only horizontally (overflow-x: clip, overflow-y: visible). Safari
+   clips both axes with this combination, so the option list of a multi-select (Tom Select), e.g. the user roles, is
+   cut off at the bottom of the fieldset card and cannot be used (#1632). An open fieldset shows its overflow; the
+   collapse transition keeps EasyAdmin's clipping because it has the class "collapsing" instead of "show". */
+.form-fieldset-body.show:not(.collapsing) {
+    overflow: visible;
+}
