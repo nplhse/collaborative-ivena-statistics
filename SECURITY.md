@@ -7,13 +7,16 @@ and appreciate any reports of vulnerabilities.
 
 The project is in its beta phase. During the beta only the latest released beta
 receives hotfixes, for security problems as well as critical bugs. Hotfixes are
-released as patch versions of that beta (for example `v0.2.1-beta`).
+released as patch versions of that beta (for example `v0.2.1-beta`). Only the
+newest patch version is supported: install it to receive a fix. Earlier betas
+and earlier patch versions get no fixes.
 
-| Version        | Supported                                                         |
-| -------------- | ----------------------------------------------------------------- |
-| v0.2.7-beta    | :white_check_mark: security and critical bug fixes                |
-| v0.1-beta      | :warning: security fixes until v0.3-beta (planned for 2026-12-31) |
-| alpha (v0.0.x) | :x:                                                               |
+| Version                              | Supported                                          |
+| ------------------------------------ | -------------------------------------------------- |
+| v0.2-beta, newest patch (`v0.2.x`)   | :white_check_mark: security and critical bug fixes |
+| earlier v0.2 patch versions          | :x: upgrade to the newest patch version            |
+| v0.1-beta                            | :x:                                                |
+| alpha (v0.0.x)                       | :x:                                                |
 
 When v0.3-beta is released, it becomes the only supported version. The support
 policy for v1.0 and later will be defined before the v1.0 release.
