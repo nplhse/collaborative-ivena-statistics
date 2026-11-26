@@ -155,7 +155,8 @@ description; check results, dry runs and the forms are for administrators. The t
 - **Allowlist check** (`QueryGuard`, rules in `PlanInspector`, lists in `ExportAllowlist`), on every save and before a
   dry run, on the export connection in a read-only transaction; the query itself does not run:
   - one SELECT or WITH statement, no denied function (functions that run SQL of their own, read files or settings,
-    or reach other databases);
+    or reach other databases). Names are matched on the code alone: comments and string literals are removed and
+    quoted identifiers unquoted first, and Unicode escapes (`U&"…"`, `U&'…'`) are refused (#1690);
   - every table from `EXPLAIN (VERBOSE, FORMAT JSON)` on the allowlist (allocations and their reference tables);
   - no blocked column anywhere in the plan, not even in a filter: free text, case ID hash, import, public IDs,
     hospital name, address, coordinates, beds, participation dates and timestamps, references to user accounts,
@@ -187,7 +188,9 @@ the application user.
 - **State** (`ExportConnection::state()`): `disabled` without the variable, `unreachable` when the connection fails,
   `writable` when its role is a superuser, may create objects in `public` or change any of its tables, else
   `read_only`. Administrators see every state except `read_only` on the queries of an approved request; Application
-  Health reports it as `research_export` ([health check](../../05-operations/health-check.md#checks)).
+  Health reports it as `research_export` ([health check](../../05-operations/health-check.md#checks)). Checks, dry runs
+  and exports refuse a connection that is not `read_only` (`connection_writable`, #1690), unless
+  `RESEARCH_EXPECT_READ_ONLY=0`.
 - **Tests and CI:** the suite shares the application user, which counts as `writable`. `ExportConnectionTest` creates a
   role inside the test transaction, switches to it with `SET LOCAL ROLE` and checks that a read-only role counts as
   `read_only` and one writable table makes it `writable`; the rollback removes the role. CI needs no extra setup.
@@ -220,9 +223,10 @@ The recipient starts the export once. `DataRequestRelease::startExport()` create
 worker does nothing.
 
 - **Run** (`ExportRunner`): all query versions in one read-only `REPEATABLE READ` transaction on the export connection,
-  so every file sees the same data; per query a 120 s statement timeout, at most 1,000,000 rows and 200 MB. Each query
-  becomes one CSV file (UTF-8, header row, comma); the reserved hospital column is counted and dropped before a row is
-  written, and the IDs are not kept.
+  so every file sees the same data; per query a 120 s statement timeout, at most 1,000,000 rows (limited in the SQL, so
+  a larger result is never fetched) and 200 MB. Each query becomes one CSV file (UTF-8, header row, comma); the
+  reserved hospital column is counted and dropped before a row is written, and the IDs are not kept. Text cells that
+  could start a spreadsheet formula get a leading `'` (`CsvFormulaEscaper`); numbers stay as they are (#1690).
 - **Minimum:** an aggregated file with a group of fewer than three hospitals blocks the run (`blocked`); nothing is
   provided, and the administrator sees the first such groups without IDs. A changed query needs a new version and a
   new release.

@@ -121,4 +121,37 @@ final class PlanInspectorTest extends TestCase
     {
         return array_map(static fn (QueryViolation $violation): array => [$violation->code, $violation->parameters], $violations);
     }
+
+    public function testDeniedFunctionsAreFoundBehindCommentsAndQuotes(): void
+    {
+        foreach ([
+            "SELECT query_to_xml/**/('select 1', true, true, '') AS x",
+            "SELECT \"query_to_xml\"('select 1', true, true, '') AS x",
+            "SELECT pg_catalog.\"pg_read_file\"('x') AS x",
+            "SELECT set_config -- comment\n ('statement_timeout', '0', true) AS x",
+            "SELECT query_to_xml/* a /* nested */ comment */('select 1', true, true, '') AS x",
+        ] as $sql) {
+            self::assertContains('denied_function', array_map(static fn (QueryViolation $violation): string => $violation->code, PlanInspector::inspectText($sql)), $sql);
+        }
+    }
+
+    public function testUnicodeEscapesAreRefused(): void
+    {
+        self::assertSame(
+            ['unicode_escape'],
+            array_map(static fn (QueryViolation $violation): string => $violation->code, PlanInspector::inspectText('SELECT U&"\0070g_sleep"(1) AS x')),
+        );
+    }
+
+    public function testNamesInsideStringLiteralsAreNotCalls(): void
+    {
+        self::assertSame([], PlanInspector::inspectText("SELECT 'pg_read_file(' AS a, \$tag\$set_config(\$tag\$ AS b, E'it\\'s query_to_xml(' AS c"));
+    }
+
+    public function testTheLexerKeepsEscapedQuotesInsideLiteralsAndIdentifiers(): void
+    {
+        self::assertSame(['SELECT \'\' AS a,  b"c  AS d', false], PlanInspector::code('SELECT \'it\'\'s pg_read_file(\' AS a, "b""c" AS d'));
+        self::assertSame(['SELECT  ', false], PlanInspector::code('SELECT /* never closed pg_read_file('));
+        self::assertSame(["SELECT ''", false], PlanInspector::code('SELECT $x$ never closed pg_read_file('));
+    }
 }

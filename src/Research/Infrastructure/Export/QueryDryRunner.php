@@ -8,6 +8,7 @@ use App\Research\Application\Export\DryRunResult;
 use App\Research\Application\Export\HospitalMinimum;
 use App\Research\Application\Export\PlanInspector;
 use App\Research\Application\Export\QueryDryRunnerInterface;
+use App\Research\Application\Export\QueryViolation;
 use App\Research\Domain\Enum\QueryKind;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DbalException;
@@ -44,6 +45,10 @@ final readonly class QueryDryRunner implements QueryDryRunnerInterface
         $sql = PlanInspector::normalize($sql);
         $reserved = $kind->reservedColumn();
         try {
+            if ($this->exportConnection->refusesWriting($connection)) {
+                return new DryRunResult($started, 0, error: QueryViolation::CONNECTION_WRITABLE);
+            }
+
             return ExportConnection::readOnly($connection, self::TIMEOUT_SECONDS, function (Connection $connection) use ($sql, $kind, $reserved, $started): DryRunResult {
                 $result = $connection->executeQuery('SELECT * FROM ('.$sql.') AS dry_run LIMIT '.(self::MAX_ROWS + 1));
                 $rows = 0;
