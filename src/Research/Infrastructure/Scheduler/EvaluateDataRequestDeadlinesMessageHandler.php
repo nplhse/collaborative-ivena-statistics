@@ -7,6 +7,7 @@ namespace App\Research\Infrastructure\Scheduler;
 use App\Research\Application\DataRequest\DataRequestRefused;
 use App\Research\Application\DataRequest\DataRequestReviewService;
 use App\Research\Application\Message\EvaluateDataRequestDeadlinesMessage;
+use App\Research\Infrastructure\Notification\DataRequestReminders;
 use App\Research\Infrastructure\Repository\DataRequestRepository;
 use App\Shared\Application\JobRun\CurrentJobRunInterface;
 use Psr\Clock\ClockInterface;
@@ -14,7 +15,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Scheduler job `research_data_request_deadlines` (ADR 019 job run log): evaluates voting rounds whose deadline
- * passed and lets requested revisions expire that were not submitted in time (ADR 045).
+ * passed, lets requested revisions expire that were not submitted in time and sends the reminders before deadlines
+ * (ADR 045).
  *
  * @psalm-suppress UnusedClass Registered via #[AsMessageHandler].
  */
@@ -26,6 +28,7 @@ final readonly class EvaluateDataRequestDeadlinesMessageHandler
         private DataRequestReviewService $review,
         private ClockInterface $clock,
         private CurrentJobRunInterface $jobRun,
+        private DataRequestReminders $reminders,
     ) {
     }
 
@@ -54,12 +57,14 @@ final readonly class EvaluateDataRequestDeadlinesMessageHandler
             }
         }
 
-        if (0 === $rounds + $expired + $skipped) {
+        $reminders = $this->reminders->send($now);
+
+        if (0 === $rounds + $expired + $skipped + $reminders) {
             $this->jobRun->markSkipped('nothing_due');
 
             return;
         }
 
-        $this->jobRun->addMetrics(['rounds_closed' => $rounds, 'revisions_expired' => $expired, 'skipped' => $skipped]);
+        $this->jobRun->addMetrics(['rounds_closed' => $rounds, 'revisions_expired' => $expired, 'skipped' => $skipped, 'reminders_due' => $reminders]);
     }
 }

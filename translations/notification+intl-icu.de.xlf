@@ -325,6 +325,10 @@
         <source>notification.category.community</source>
         <target>Community</target>
       </trans-unit>
+      <trans-unit id="NtfCategoryResearch" resname="notification.category.research">
+        <source>notification.category.research</source>
+        <target>Anträge auf Datenauszüge</target>
+      </trans-unit>
       <trans-unit id="Ntf162B4673" resname="notification.category.administration">
         <source>notification.category.administration</source>
         <target>Administration</target>

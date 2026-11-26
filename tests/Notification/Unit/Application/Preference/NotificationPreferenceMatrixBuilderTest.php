@@ -19,6 +19,7 @@ use App\Tests\Support\Notification\Type\FixedTestNotification;
 use App\Tests\Support\Notification\Type\InAppTestNotification;
 use App\Tests\Support\Notification\Type\MandatoryInAppTestNotification;
 use App\Tests\Support\Notification\Type\OptInTestNotification;
+use App\Tests\Support\Notification\Type\PositionedTestNotification;
 use App\Tests\Support\Notification\Type\RoleScopedTestNotification;
 use App\Tests\Support\Notification\Type\ToastTestNotification;
 use App\User\Domain\Entity\User;
@@ -116,6 +117,25 @@ final class NotificationPreferenceMatrixBuilderTest extends TestCase
 
         self::assertSame(NotificationCategory::Administration, $matrix->categories[2]->category);
         self::assertSame('test.role_scoped', $matrix->categories[2]->types[0]->definition->type);
+    }
+
+    public function testATypeWithAPositionComesFirstAndTheOthersKeepTheirOrder(): void
+    {
+        $builder = new NotificationPreferenceMatrixBuilder(
+            new NotificationRegistry([
+                'test.in_app' => InAppTestNotification::class,
+                'test.toast' => ToastTestNotification::class,
+                'test.positioned' => PositionedTestNotification::class,
+            ]),
+            new RoleHierarchy([]),
+        );
+        $user = new User();
+        $user->setRoles(['ROLE_USER']);
+
+        self::assertSame(['test.positioned', 'test.in_app', 'test.toast'], array_map(
+            static fn (\App\Notification\Application\Preference\NotificationTypePreferences $type): string => $type->definition->type,
+            $builder->build($user, NotificationPreferenceSet::fromOverrides([]))->categories[0]->types,
+        ));
     }
 
     /**

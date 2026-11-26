@@ -1218,6 +1218,9 @@ deptrac:
             - User_Infrastructure
             - User_UI
         Research_Infrastructure:
+            - Notification_Application
+            # Notification definitions of data extract requests (#1635) use its enums.
+            - Notification_Domain
             - Research_Application
             - Research_Domain
             - Shared_Application

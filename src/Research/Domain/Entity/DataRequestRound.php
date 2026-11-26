@@ -205,6 +205,12 @@ class DataRequestRound
         return $this->openedBy;
     }
 
+    /** @return list<int> */
+    public function getEligibleMemberIds(): array
+    {
+        return $this->eligibleMemberIds;
+    }
+
     public function getEligibleCount(): int
     {
         return \count($this->eligibleMemberIds);

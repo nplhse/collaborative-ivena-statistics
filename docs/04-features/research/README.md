@@ -247,6 +247,33 @@ Timeline: `released`, `export_requested`, `export_provided`, `release_revoked`, 
 `export_cancelled` are private (Board, applicant, administrators); `export_blocked`, `export_failed` and
 `export_retried` are internal.
 
+## Notifications
+
+The category "Data extract requests" (`NotificationCategory::Research`) holds seven types, grouped by role and occasion;
+the parameter `kind` names the event within a group, and title and text follow it. The table is in the
+[notification docs](../notification/README.md#notification-types). Texts are in the `research` translation domain.
+Board types are role-scoped (`ROLE_BOARD_MEMBER`) and admin types to `ROLE_ADMIN`, so other users do not see them on
+the settings page; comments, decisions and the export reach any applicant.
+
+- **Announcing:** each service notes the timeline events and comments it adds and, after a successful flush,
+  dispatches `DataRequestChanged` with their ids (`DataRequestChangeAnnouncer`). `DataRequestNotificationSubscriber`
+  reads the stored rows and publishes. Deduplication keys name the request and the event or comment, so a repeated
+  announcement notifies once. Parameters hold the request number and title only, never comment texts or reasons; the
+  link opens the request page.
+- **Defaults:** decisions, deadlines, release and export in-app and by email; comments in-app only; "request submitted"
+  is off. Everyone changes this on the notification settings page.
+- **Within a group** the settings apply together, for example the vote reminder with the opened rounds. A veto has
+  normal priority, like the other events of its group.
+- **Recipients:** "Board members" means enabled, verified users with `ROLE_BOARD_MEMBER`, without the applicant and
+  excluded members. "Took part" means voted in a round or commented (Board members and administrators). The applicant
+  hears of comments of others they may read, public and private, not of internal ones.
+- **Reminders** (`DataRequestReminders`, in the job `research_data_request_deadlines` every 15 minutes): eligible members
+  without a vote 48 hours before a round ends, the recipient 14 days before a release without an export ends and 24
+  hours before the download period ends. The job metric `reminders_due` counts the recipients due in a run; the
+  deduplication sends each reminder once.
+- **Not reconciled:** like the admin types, the notifications are published after the commit without a reconciler; a
+  crash in between loses them (ADR 016).
+
 ## Permissions
 
 `DataRequestVoter` decides what the pages offer; the services check the rules again.
