@@ -28,7 +28,7 @@
         "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/orm": "^3.6.7",
         "dragonmantank/cron-expression": "^3.6",
-        "easycorp/easyadmin-bundle": "^5.10.2",
+        "easycorp/easyadmin-bundle": "^5.10.4",
         "nelmio/security-bundle": "^3.9",
         "nplhse/cois-ed-visit": "dev-main",
         "phpdocumentor/reflection-docblock": "^6.0.3",
