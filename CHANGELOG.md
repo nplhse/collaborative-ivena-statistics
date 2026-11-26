@@ -17,7 +17,7 @@ Existing installations: no extra steps, see the [upgrade guide](docs/05-operatio
 
 ### Bug fixes
 
-- **user:** Hide board member usernames from visitors without the participant role (#1711) ([#PR](https://github.com/nplhse/collaborative-ivena-statistics/pull/PR))
+- **user:** Hide board member usernames from visitors without the participant role (#1711) ([#1712](https://github.com/nplhse/collaborative-ivena-statistics/pull/1712))
 
 ## [0.3.1-beta] - 2026-11-26
 
