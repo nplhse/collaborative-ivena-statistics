@@ -50,11 +50,17 @@
                         "selector": "[name='hospital_assignment_request[explanation]']",
                         "value": "Ich leite die Zentrale Notaufnahme und möchte die Zuweisungen unserer Klinik hochladen."
                     }
+                },
+                {
+                    "click": {
+                        "selector": "[name='hospital_assignment_request[uploadAuthority]']"
+                    }
                 }
             ],
             "clip": {
                 "selector": "[data-testid='hospital-assignment-request-form']"
             },
+            "padding": 22,
             "markers": [
                 {
                     "step": 1,
@@ -71,6 +77,11 @@
                 },
                 {
                     "step": 4,
+                    "selector": ".form-check",
+                    "text": "Ich bin berechtigt"
+                },
+                {
+                    "step": 5,
                     "selector": "[data-testid='hospital-assignment-request-form'] button[type=submit]"
                 }
             ]
@@ -91,6 +102,11 @@
                     "select": {
                         "selector": "[name='import_create[hospital]']",
                         "option": "Klinikum Musterstadt"
+                    }
+                },
+                {
+                    "click": {
+                        "selector": "[name='import_create[uploadAuthority]']"
                     }
                 }
             ],
@@ -117,6 +133,11 @@
                 },
                 {
                     "step": 5,
+                    "selector": ".form-check",
+                    "text": "Ich bin berechtigt"
+                },
+                {
+                    "step": 6,
                     "selector": "[name='import_create[submit]']"
                 }
             ]
@@ -141,6 +162,11 @@
                 {
                     "step": 3,
                     "selector": "[data-testid='import-data-coverage']"
+                },
+                {
+                    "step": 4,
+                    "selector": "a.btn",
+                    "text": "Originaldatei herunterladen"
                 }
             ]
         },
