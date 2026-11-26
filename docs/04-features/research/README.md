@@ -2,12 +2,13 @@
 
 **Audience:** Developers working on the Research context.
 
-**Status:** in development on the integration branch `feature/data-requests` (#1635). Decisions:
-[ADR 045](../../02-architecture/decisions/045-data-extract-requests.md). Rules for extracts: #1540.
+**Status:** available from v0.3-beta (#1635). Decisions:
+[ADR 045](../../02-architecture/decisions/045-data-extract-requests.md). Rules for extracts: #1540. Rollout:
+[upgrading.md](../../05-operations/upgrading.md#data-extract-requests). Follow-ups: #1636 (enforce the readable data
+set technically), #1637 (MCI cases in extracts).
 
 Research projects ask the Board for an extract from the database. The request, the Board's vote, the admin-written
-queries, the release and the export all happen in the application. This page describes what exists so far and is
-extended with every step of #1635.
+queries, the release and the export all happen in the application.
 
 ## Pages
 
