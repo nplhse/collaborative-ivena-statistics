@@ -40,6 +40,10 @@
                         </svg>
                         {{ 'label.my_hospitals'|trans({}, 'messages') }}
                     </a>
+                    <a href="{{ path('app_my_requests') }}" class="dropdown-item" data-testid="user-menu-requests">
+                        <twig:ux:icon name="tabler:file-text" class="icon dropdown-item-icon" />
+                        {{ 'my_requests.title'|trans({}, 'shared') }}
+                    </a>
                 {% endif %}
                 <div class="dropdown-divider mt-1 mb-1"></div>
                 <twig:NotificationMenuItem />

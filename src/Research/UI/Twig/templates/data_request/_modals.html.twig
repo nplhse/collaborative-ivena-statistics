@@ -1,0 +1,123 @@
+{# Forms of the data extract request page that open from the actions card (ADR 045): add and change export queries,
+   release the request, revoke a release. They live outside the tabs, so a hidden tab does not hide them. #}
+{% set queryToken = csrf_token('data_request_query_' ~ dataRequest.publicIdString) %}
+{% set releaseToken = csrf_token('data_request_release_' ~ dataRequest.publicIdString) %}
+
+{% if is_granted('DATA_REQUEST_MANAGE_QUERIES', dataRequest) %}
+    <twig:Modal id="data-request-query-add-modal" :title="'data_request.query.action.add'|trans({}, 'research')" size="lg">
+        <form method="post" action="{{ path('app_data_requests_query', {publicId: dataRequest.publicIdString, action: 'add'}) }}" data-testid="data-request-query-add-form">
+            <input type="hidden" name="_token" value="{{ queryToken }}">
+            <div class="modal-body">
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label class="form-label" for="query-new-name">{{ 'data_request.query.field.name'|trans({}, 'research') }}</label>
+                        <input class="form-control font-monospace" id="query-new-name" name="name" required pattern="[a-z][a-z0-9_]{0,62}" placeholder="allocations_by_month">
+                        <div class="form-hint">{{ 'data_request.query.field.name_help'|trans({}, 'research') }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="query-new-kind">{{ 'data_request.query.field.kind'|trans({}, 'research') }}</label>
+                        <select class="form-select" id="query-new-kind" name="kind">
+                            {% for kind in enum_cases('App\\Research\\Domain\\Enum\\QueryKind') %}
+                                <option value="{{ kind.value }}">{{ kind.labelKey|trans({}, 'research') }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <label class="form-label mt-2" for="query-new-description">{{ 'data_request.query.field.description'|trans({}, 'research') }}</label>
+                <textarea class="form-control mb-2" id="query-new-description" name="description" rows="2" required></textarea>
+                <label class="form-label" for="query-new-sql">{{ 'data_request.query.field.sql'|trans({}, 'research') }}</label>
+                <textarea class="form-control font-monospace mb-1" id="query-new-sql" name="sql" rows="10" required></textarea>
+                <div class="form-hint">{{ 'data_request.query.field.sql_help'|trans({}, 'research') }}</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">{{ 'action.cancel'|trans({}, 'messages') }}</button>
+                <button type="submit" class="btn btn-primary" data-testid="data-request-query-add">{{ 'data_request.query.action.add_submit'|trans({}, 'research') }}</button>
+            </div>
+        </form>
+    </twig:Modal>
+
+    {% for query in dataRequest.queries %}
+        <twig:Modal id="data-request-query-{{ query.name }}-modal" :title="'data_request.query.revise_title'|trans({file: query.name ~ '.csv'}, 'research')" size="lg">
+            <form method="post" action="{{ path('app_data_requests_query', {publicId: dataRequest.publicIdString, action: 'revise'}) }}" data-testid="data-request-query-revise-form" data-query="{{ query.name }}">
+                <input type="hidden" name="_token" value="{{ queryToken }}">
+                <input type="hidden" name="name" value="{{ query.name }}">
+                <div class="modal-body">
+                    <label class="form-label" for="query-{{ query.name }}-description">{{ 'data_request.query.field.description'|trans({}, 'research') }}</label>
+                    <textarea class="form-control mb-2" id="query-{{ query.name }}-description" name="description" rows="2" required>{{ query.description }}</textarea>
+                    <label class="form-label" for="query-{{ query.name }}-sql">{{ 'data_request.query.field.sql'|trans({}, 'research') }}</label>
+                    <textarea class="form-control font-monospace" id="query-{{ query.name }}-sql" name="sql" rows="12" required>{{ query.currentVersion.sql }}</textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">{{ 'action.cancel'|trans({}, 'messages') }}</button>
+                    <button type="submit" class="btn btn-primary" data-testid="data-request-query-revise">{{ 'data_request.query.action.save_version'|trans({}, 'research') }}</button>
+                </div>
+            </form>
+        </twig:Modal>
+    {% endfor %}
+{% endif %}
+
+{% if canRelease %}
+    <twig:Modal id="data-request-release-modal" :title="'data_request.release.action'|trans({}, 'research')" size="lg">
+        <form method="post" action="{{ path('app_data_requests_release', {publicId: dataRequest.publicIdString}) }}" data-testid="data-request-release-form">
+            <input type="hidden" name="_token" value="{{ releaseToken }}">
+            <div class="modal-body">
+                <p class="mb-2">{{ 'data_request.release.choose'|trans({}, 'research') }}</p>
+                <div class="mb-3" data-testid="data-request-release-queries">
+                    {% for query in dataRequest.queries %}
+                        {% set current = query.currentVersion %}
+                        {% set dryRun = current.dryRun %}
+                        <label class="form-check mb-1">
+                            <input class="form-check-input" type="checkbox" name="queries[]" value="{{ query.name }}"{{ current.passesCheck ? ' checked' : ' disabled' }} data-testid="data-request-release-query" data-query="{{ query.name }}">
+                            <span class="form-check-label">
+                                <span class="font-monospace">{{ query.name }}.csv</span>
+                                <span class="text-secondary">{{ 'data_request.release.query_version'|trans({number: current.number}, 'research') }}</span>
+                                {% if not current.passesCheck %}
+                                    <span class="text-danger small">· {{ 'data_request.release.query_unchecked'|trans({}, 'research') }}</span>
+                                {% elseif dryRun is null %}
+                                    <span class="text-secondary small">· {{ 'data_request.release.query_no_dry_run'|trans({}, 'research') }}</span>
+                                {% elseif dryRun.error %}
+                                    <span class="text-danger small">· {{ 'data_request.release.query_dry_run_error'|trans({}, 'research') }}</span>
+                                {% elseif query.kind.value == 'aggregated' and dryRun.below_minimum > 0 %}
+                                    <span class="text-danger small">· {{ 'data_request.release.query_below_minimum'|trans({count: dryRun.below_minimum}, 'research') }}</span>
+                                {% endif %}
+                            </span>
+                        </label>
+                    {% endfor %}
+                    <div class="form-hint">{{ 'data_request.release.choose_help'|trans({}, 'research') }}</div>
+                </div>
+                <label class="form-label" for="release-conditions">{{ 'data_request.release.conditions'|trans({}, 'research') }}</label>
+                <textarea class="form-control mb-1" id="release-conditions" name="conditions" rows="8" maxlength="5000" data-testid="data-request-release-conditions">{{ 'data_request.release.conditions_default'|trans({}, 'research') }}</textarea>
+                <div class="form-hint">{{ 'data_request.release.conditions_help'|trans({}, 'research') }}</div>
+                {% if needsSingleCaseConfirmation %}
+                    <label class="form-check mt-3 mb-0">
+                        <input class="form-check-input" type="checkbox" name="single_cases_confirmed" value="1" data-testid="data-request-release-single-cases">
+                        <span class="form-check-label">{{ 'data_request.release.single_cases_confirm'|trans({}, 'research') }}</span>
+                    </label>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">{{ 'action.cancel'|trans({}, 'messages') }}</button>
+                <button type="submit" class="btn btn-primary" data-testid="data-request-release-submit">
+                    <twig:ux:icon name="tabler:key" class="icon" /> {{ 'data_request.release.action'|trans({}, 'research') }}
+                </button>
+            </div>
+        </form>
+    </twig:Modal>
+{% endif %}
+
+{% for entry in releases|filter(entry => entry.canRevoke) %}
+    {% set release = entry.release %}
+    <twig:Modal id="data-request-release-{{ release.number }}-revoke-modal" :title="'data_request.release.revoke_title'|trans({number: release.number}, 'research')" :scrollable="false">
+        <form method="post" action="{{ path('app_data_requests_export', {publicId: dataRequest.publicIdString, number: release.number, action: 'revoke'}) }}" data-testid="data-request-release-revoke-form">
+            <input type="hidden" name="_token" value="{{ releaseToken }}">
+            <div class="modal-body">
+                <label class="form-label" for="release-{{ release.number }}-reason">{{ 'data_request.release.revoke_reason'|trans({}, 'research') }}</label>
+                <textarea class="form-control" id="release-{{ release.number }}-reason" name="reason" rows="3" required maxlength="2000"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">{{ 'action.cancel'|trans({}, 'messages') }}</button>
+                <button type="submit" class="btn btn-danger" data-testid="data-request-release-revoke">{{ 'data_request.release.revoke'|trans({}, 'research') }}</button>
+            </div>
+        </form>
+    </twig:Modal>
+{% endfor %}

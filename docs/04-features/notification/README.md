@@ -37,6 +37,13 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | `hospital_assignment.ownership_transferred` | Account | in-app, email | the previous owner | an approved request transfers the ownership of their hospital; says whether they keep full access |
 | `participation.activated` | Account | in-app, toast, email (mandatory: the welcome mail) | the activated user | an administrator activates participation |
 | `security.two_factor_reset` | Account | in-app, email (mandatory) | the user | an administrator or an operator resets two-factor authentication (#1357) |
+| `research.request_submitted` | Data extract requests | none (opt-in: in-app, email, toast) | Board members (role-scoped, not the applicant, not excluded) | a request is submitted for the formal check ([details](../research/README.md#notifications)) |
+| `research.board_vote` | Data extract requests | in-app, email | eligible Board members (role-scoped) | `kind`: `opened` (a round opens), `revision` (to members whose approval was carried over), `reminder` (48 hours before the end, to those who have not voted) |
+| `research.board_status` | Data extract requests | in-app, email | Board members (role-scoped) | `kind`: `vetoed` (not to the member who vetoed), `withdrawn` |
+| `research.commented` | Data extract requests | in-app | Board members and admins who voted or commented; the applicant for comments of others they may read | a new comment (`own`: 1 for the applicant) |
+| `research.decided` | Data extract requests | in-app, email | the applicant | `outcome`: returned, revision requested, approved, rejected, stopped or expired |
+| `research.export` | Data extract requests | in-app, email | the recipient | `kind`: `released`, `release_expiring` (14 days before, without an export), `provided`, `download_expiring` (24 hours before) |
+| `research.admin` | Data extract requests | in-app, email | all admins (role-scoped) | `kind`: `approved` (prepare queries and release), `vetoed` (admins who are not Board members), `failed`, `blocked` |
 | `admin.user_registered` | Administration | in-app, email | all admins (each chooses in the settings) | a user registers |
 | `admin.import_failed` | Administration | in-app, email | all admins (each chooses in the settings) | an import run ends as failed (text from the reason code) |
 | `admin.feedback_received` | Administration | in-app, email | all admins (each chooses in the settings) | someone sends feedback that is not quarantined ([feedback](../feedback/README.md#submission-flow)) |
@@ -189,7 +196,7 @@ Hospital access comes from `NotificationHospitalAccessInterface`, implemented in
 
 Users choose how they want to be notified on **Settings → Notifications** (`/settings/notifications`, `NotificationSettingsController` in the Notification context; the page uses the settings layout of the User context and is one of the areas listed in `SettingsNavigationExtension`, which feeds the tiles of the settings overview `/settings` and the section navigation of every settings page).
 
-- **Layout:** one table per category with a column per channel (labelled *Web*, *E-Mail*, *Toast*; the in-app channel is called "Web" on the page; only channels some offered type has). The first row sets the whole category; *Set n notifications individually* expands the rows of its types. Categories with type overrides start expanded.
+- **Layout:** one table per category with a column per channel (labelled *Web*, *E-Mail*, *Toast*; the in-app channel is called "Web" on the page; only channels some offered type has). The first row sets the whole category; *Set n notifications individually* expands the rows of its types. Categories with type overrides start expanded. Within a category the types follow their `position` (optional in `#[NotificationDefinition]`, default 0), then their type name.
 - **One checkbox per channel** shows whether the channel is used now: for a type its own override, else the category override, else the type's default; for a category its override, else the common default of its types. When the configurable types of a category are currently set differently for a channel, the category checkbox is shown partly ticked (indeterminate), also right after loading the page.
 - **Saving stores only differences** (`NotificationPreferenceMatrix::changesFor()`):
   - a category checkbox stores an override, or removes it when it matches the common default of its types;

@@ -1,0 +1,186 @@
+{# Release and export of an approved request (ADR 045), for the applicant, the Board and administrators. The applicant
+   starts the export and downloads it; the internal record, failed and blocked details and retries are for
+   administrators. #}
+{% set isAdmin = is_granted('ROLE_ADMIN') %}
+{% set releaseToken = csrf_token('data_request_release_' ~ dataRequest.publicIdString) %}
+
+{% if canRelease or releases is not empty %}
+    <div class="card" id="release" data-testid="data-request-release">
+        <div class="card-header">
+            <div>
+                <h3 class="card-title">{{ 'data_request.release.title'|trans({}, 'research') }}</h3>
+                <div class="card-subtitle">{{ 'data_request.release.intro'|trans({}, 'research') }}</div>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if releases is empty %}
+                <p class="text-body-secondary mb-0" data-testid="data-request-release-empty">{{ 'data_request.release.empty'|trans({}, 'research') }}</p>
+            {% endif %}
+
+            {% for entry in releases %}
+                {% set release = entry.release %}
+                {% set run = release.run %}
+                <div class="{{ not loop.last ? 'mb-4 pb-3 border-bottom' }}" data-testid="data-request-release-entry" data-release="{{ release.number }}">
+                    <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap mb-2">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <span class="fw-bold">{{ 'data_request.release.number'|trans({number: release.number}, 'research') }}</span>
+                            {% if run %}
+                                <twig:Badge :variant="run.status.badgeVariant" data-testid="data-request-export-status" data-status="{{ run.status.value }}">{{ run.status.labelKey|trans({}, 'research') }}</twig:Badge>
+                            {% else %}
+                                <twig:Badge :variant="release.status.badgeVariant" data-testid="data-request-release-status" data-status="{{ release.status.value }}">{{ release.status.labelKey|trans({}, 'research') }}</twig:Badge>
+                            {% endif %}
+                        </div>
+                        <span class="text-secondary small">{{ 'data_request.release.created'|trans({date: release.createdAt|format_datetime('medium', 'short')}, 'research') }}</span>
+                    </div>
+
+                    <dl class="row mb-2 small">
+                        <dt class="col-sm-4">{{ 'data_request.release.recipient'|trans({}, 'research') }}</dt>
+                        <dd class="col-sm-8">{{ include('@Research/data_request/_user.html.twig', {person: release.recipient}) }}</dd>
+                        <dt class="col-sm-4">{{ 'data_request.release.queries'|trans({}, 'research') }}</dt>
+                        <dd class="col-sm-8">
+                            {% for version in release.queryVersions %}
+                                <span class="font-monospace">{{ version.query.name }}.csv</span> <span class="text-secondary">{{ 'data_request.release.query_version'|trans({number: version.number}, 'research') }}</span>{{ not loop.last ? ', ' }}
+                            {% endfor %}
+                        </dd>
+                        {% if release.excludedQueries is not empty %}
+                            <dt class="col-sm-4">{{ 'data_request.release.excluded'|trans({}, 'research') }}</dt>
+                            <dd class="col-sm-8" data-testid="data-request-release-excluded">
+                                {% for name in release.excludedQueries %}<span class="font-monospace">{{ name }}.csv</span>{{ not loop.last ? ', ' }}{% endfor %}
+                            </dd>
+                        {% endif %}
+                        {% if release.conditions %}
+                            <dt class="col-sm-4">{{ 'data_request.release.conditions'|trans({}, 'research') }}</dt>
+                            <dd class="col-sm-8" data-testid="data-request-release-conditions-text">
+                                <div class="text-break" style="white-space: pre-line">{{ release.conditions }}</div>
+                                {% if release.conditionsAcceptedAt %}
+                                    <div class="text-secondary" data-testid="data-request-release-conditions-accepted">{{ 'data_request.release.conditions_accepted'|trans({date: release.conditionsAcceptedAt|format_datetime('medium', 'short')}, 'research') }}</div>
+                                {% endif %}
+                            </dd>
+                        {% endif %}
+                        {% if release.status.value == 'active' %}
+                            <dt class="col-sm-4">{{ 'data_request.release.valid_until'|trans({}, 'research') }}</dt>
+                            <dd class="col-sm-8">{{ release.validUntil|format_datetime('medium', 'short') }}</dd>
+                        {% elseif release.status.value in ['expired', 'revoked'] and release.endedAt %}
+                            <dt class="col-sm-4">{{ ('data_request.release.ended.' ~ release.status.value)|trans({}, 'research') }}</dt>
+                            <dd class="col-sm-8" data-testid="data-request-release-ended">
+                                {{ release.endedAt|format_datetime('medium', 'short') }}
+                                {% if release.revocationReason %}<div class="text-break" style="white-space: pre-line">{{ release.revocationReason }}</div>{% endif %}
+                            </dd>
+                        {% endif %}
+                    </dl>
+
+                    {% if entry.canStart %}
+                        <form method="post" action="{{ path('app_data_requests_export', {publicId: dataRequest.publicIdString, number: release.number, action: 'start'}) }}" data-testid="data-request-export-start-form">
+                            <input type="hidden" name="_token" value="{{ releaseToken }}">
+                            <p class="mb-2">{{ 'data_request.export.start_help'|trans({}, 'research') }}</p>
+                            {% if release.conditions %}
+                                <label class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="accept_conditions" value="1" required data-testid="data-request-export-accept-conditions">
+                                    <span class="form-check-label">{{ 'data_request.export.accept_conditions'|trans({}, 'research') }}</span>
+                                </label>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary" data-testid="data-request-export-start">{{ 'data_request.export.action.start'|trans({}, 'research') }}</button>
+                        </form>
+                    {% endif %}
+
+                    {% if run %}
+                        {% set record = run.record %}
+                        {% if run.status.pending %}
+                            <p class="text-secondary mb-2">{{ 'data_request.export.pending'|trans({}, 'research') }}</p>
+                        {% elseif run.status.value == 'available' %}
+                            <p class="mb-2">{{ 'data_request.export.available'|trans({date: run.availableUntil|format_datetime('medium', 'short')}, 'research') }}</p>
+                        {% elseif run.status.value in ['blocked', 'failed'] and not isAdmin %}
+                            <p class="text-secondary mb-2">{{ 'data_request.export.problem'|trans({}, 'research') }}</p>
+                        {% elseif run.status.value == 'cancelled' %}
+                            <p class="text-secondary mb-2">{{ 'data_request.export.cancelled'|trans({}, 'research') }}</p>
+                        {% elseif run.status.value == 'expired' %}
+                            <p class="text-secondary mb-2">{{ 'data_request.export.expired'|trans({}, 'research') }}</p>
+                        {% endif %}
+
+                        {% if entry.canDownload %}
+                            <a class="btn btn-success mb-2" href="{{ path('app_data_requests_export_download', {publicId: dataRequest.publicIdString, number: release.number}) }}" data-testid="data-request-export-download">
+                                <twig:ux:icon name="tabler:download" class="icon" /> {{ 'data_request.export.action.download'|trans({}, 'research') }}
+                            </a>
+                        {% endif %}
+
+                        {% if isAdmin %}
+                            <div class="mt-2" data-testid="data-request-export-record">
+                                {% if run.status.value == 'failed' %}
+                                    <div class="text-danger text-break mb-2" data-testid="data-request-export-error">{{ run.error == 'connection_missing' ? 'data_request.query.violation.connection_missing'|trans({}, 'research') : run.error }}</div>
+                                    <form method="post" action="{{ path('app_data_requests_export', {publicId: dataRequest.publicIdString, number: release.number, action: 'retry'}) }}" class="mb-2">
+                                        <input type="hidden" name="_token" value="{{ releaseToken }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-primary" data-testid="data-request-export-retry"><twig:ux:icon name="tabler:refresh" class="icon" /> {{ 'data_request.export.action.retry'|trans({}, 'research') }}</button>
+                                    </form>
+                                {% elseif run.status.value == 'blocked' %}
+                                    <div class="text-danger mb-2" data-testid="data-request-export-blocked">{{ 'data_request.export.blocked'|trans({minimum: record.settings.minimum_hospitals ?? 3}, 'research') }}</div>
+                                {% endif %}
+
+                                {% if record.files is defined and record.files is not empty %}
+                                    <div class="table-responsive">
+                                        <table class="table table-sm mb-2">
+                                            <thead>
+                                                <tr>
+                                                    <th>{{ 'data_request.export.record.file'|trans({}, 'research') }}</th>
+                                                    <th class="text-end">{{ 'data_request.export.record.rows'|trans({}, 'research') }}</th>
+                                                    <th class="text-end">{{ 'data_request.export.record.hospitals'|trans({}, 'research') }}</th>
+                                                    <th class="text-end">{{ 'data_request.export.record.smallest_group'|trans({}, 'research') }}</th>
+                                                    <th>SHA-256</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for file in record.files %}
+                                                    <tr data-testid="data-request-export-file" data-file="{{ file.file }}">
+                                                        <td class="font-monospace">{{ file.file }}</td>
+                                                        <td class="text-end">{{ file.rows|format_number }}</td>
+                                                        <td class="text-end">{{ file.hospitals|format_number }}</td>
+                                                        <td class="text-end">{{ file.groups_by_hospitals is not empty ? (file.groups_by_hospitals|first).hospitals : '–' }}</td>
+                                                        <td class="font-monospace small" title="{{ file.sha256 }}">{{ file.sha256|slice(0, 12) }}</td>
+                                                    </tr>
+                                                    {% if file.below_minimum_rows is not empty %}
+                                                        {% set columns = (file.below_minimum_rows|first)|keys %}
+                                                        <tr>
+                                                            <td colspan="5">
+                                                                <div class="text-secondary small">{{ 'data_request.export.record.below'|trans({count: file.below_minimum}, 'research') }}</div>
+                                                                <table class="table table-sm mb-0">
+                                                                    <thead><tr>{% for column in columns %}<th class="font-monospace">{{ column }}</th>{% endfor %}</tr></thead>
+                                                                    <tbody>
+                                                                        {% for row in file.below_minimum_rows %}
+                                                                            <tr>{% for column in columns %}<td>{{ row[column] ?? '' }}</td>{% endfor %}</tr>
+                                                                        {% endfor %}
+                                                                    </tbody>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {% endif %}
+
+                                <div class="text-secondary small">
+                                    {% if record.data_state is defined %}
+                                        {{ 'data_request.export.record.data_state'|trans({date: record.data_state.latest_import_at ? record.data_state.latest_import_at|format_datetime('medium', 'short') : '–', imports: record.data_state.imports}, 'research') }}
+                                    {% endif %}
+                                    {% if record.duration_ms is defined %} · {{ 'data_request.export.record.duration'|trans({ms: record.duration_ms, attempts: run.attempts}, 'research') }}{% endif %}
+                                    {% if run.archiveChecksum %} · {{ 'data_request.export.record.archive'|trans({bytes: run.archiveBytes|format_number, checksum: run.archiveChecksum|slice(0, 12)}, 'research') }}{% endif %}
+                                </div>
+
+                                {% if run.downloads is not empty %}
+                                    <div class="mt-2 small" data-testid="data-request-export-downloads">
+                                        <div class="text-secondary">{{ 'data_request.export.record.downloads'|trans({}, 'research') }}</div>
+                                        <ul class="list-unstyled mb-0">
+                                            {% for download in run.downloads %}
+                                                <li>{{ download.downloadedAt|format_datetime('medium', 'short') }} · {{ include('@Research/data_request/_user.html.twig', {person: download.user}) }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

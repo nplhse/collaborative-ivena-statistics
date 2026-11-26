@@ -20,6 +20,7 @@
 | [storage/](storage/) | Storage monitoring: daily measurement, Disk Usage page, capacity alerts |
 | [user/authentication.md](user/authentication.md) | Sign-in with username or email, login link, account checks, throttling, sessions |
 | [tools.md](tools.md) | Tools section: inventory, naming rules |
+| [research/](research/) | Data extract requests for research projects (in development, #1635) |
 | [encounter/](encounter/) | Encounter data pilot (in development): hospital ED data linked with allocations |
 
 ## Reading order

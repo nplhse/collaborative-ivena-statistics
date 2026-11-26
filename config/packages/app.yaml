@@ -45,6 +45,11 @@ app:
             # demo and test (below). Needs APP_TWO_FACTOR_KEY, without it the obligation has no effect.
             required_for_admins: true
 
+    research:
+        # Days of a Board voting round on a data extract request, and the time an applicant has for a requested
+        # revision (#1635, ADR 045).
+        vote_period_days: 14
+
     closure_volume:
         reference_weeks_before: 4
         reference_weeks_after: 4
@@ -91,6 +96,10 @@ app:
         feedback_quarantine_summary:
             overdue_after_minutes: 10140
         feedback_quarantine_purge:
+            overdue_after_minutes: 1500
+        research_data_request_deadlines:
+            overdue_after_minutes: 60
+        research_export_cleanup:
             overdue_after_minutes: 1500
         messenger_queue_sample:
             overdue_after_minutes: 120

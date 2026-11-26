@@ -1,6 +1,6 @@
 .DEFAULT_GOAL = help
 .PHONY: help install install-dev install-guard setup-dev setup-prod prod upgrade-dev upgrade-prod \
-        upgrade warmup update-security-advisories start build up down logs compile consume asset \
+        upgrade warmup update-security-advisories start build up down logs db-readonly-role compile consume asset \
         backup-db backup-files backup backup-verify backup-restore restore-db verify-restore-baseline verify-restore env-check \
         fixtures trans trans-de trans-all trans-de-all lint analyse check fix ci ci-full cs \
         static-analysis audit security check-phpunit-suite-dirs composer-validate check-conflicts \
@@ -129,6 +129,9 @@ down: ## Stop the docker hub
 
 logs: ## Show live logs
 	@$(DOCKER) compose logs --tail=0 --follow
+
+db-readonly-role: ## Create or update the read-only role app_ro for the export connection (data extract requests)
+	@$(DOCKER) compose exec -T database sh -c 'psql -v ON_ERROR_STOP=1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"' < docker/db/init/10-research-readonly.sql
 
 ## —— Symfony 🎵 ———————————————————————————————————————————————————————————————
 compile: ## Execute some tasks before deployment

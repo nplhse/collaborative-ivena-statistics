@@ -16,6 +16,9 @@ services:
     volumes:
       # Postgres 18+ images expect the mount at /var/lib/postgresql (not .../data)
       - database_data:/var/lib/postgresql:rw
+      # Read-only role for the export connection of data extract requests (ADR 045); runs on a fresh volume only,
+      # an existing one gets it with `make db-readonly-role`.
+      - ./docker/db/init:/docker-entrypoint-initdb.d:ro
       # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       # - ./docker/db/data:/var/lib/postgresql:rw
 ###< doctrine/doctrine-bundle ###

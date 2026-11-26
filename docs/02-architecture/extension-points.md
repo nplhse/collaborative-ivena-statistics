@@ -630,6 +630,24 @@ Tools entry marks it as active.
 Path `access_control` on `/tools` only requires `ROLE_USER`; every tool route needs its own guard
 (`#[IsGranted]` or a voter) for anything stricter.
 
+## My requests
+
+**Tag:** `shared.my_requests`
+
+**Interface:** `MyRequestsProviderInterface` (`src/Shared/Application/MyRequests/`)
+
+**Consumer:** `MyRequestsController` (`GET /requests`, `@Shared/my_requests/index.html.twig`), linked from the user menu
+
+**Implementations:** `HospitalAssignmentMyRequestsProvider` (Allocation, hospital assignment requests),
+`DataRequestMyRequestsProvider` (Research, data extract requests, #1635)
+
+Lets a context list the requests the signed-in participant made there on one "My requests" page without a
+dependency from `Shared` on it. A provider returns one `MyRequestsSection` (title key and domain, icon, weight for
+the order, optional routes for a new request and an overview) with `MyRequestEntry` rows (title as entered,
+translated status, badge variant, date, link). It reads the current user itself and returns null when the user
+may not make that kind of request. The page is the only caller, so providers may query the database. Actions such
+as withdrawing stay on the context's own pages.
+
 ## Navigation tree
 
 **Tag:** `shared.navigation`

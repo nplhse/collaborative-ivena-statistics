@@ -689,6 +689,14 @@
         <source>link.data_sources</source>
         <target>Datenquellen und Lizenzen</target>
       </trans-unit>
+      <trans-unit id="Rsc38CA6015" resname="my_requests.title">
+        <source>my_requests.title</source>
+        <target>Meine Anträge</target>
+      </trans-unit>
+      <trans-unit id="RscB6654397" resname="my_requests.empty">
+        <source>my_requests.empty</source>
+        <target>Noch keine Anträge.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

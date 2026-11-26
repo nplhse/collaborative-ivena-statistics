@@ -13,6 +13,7 @@ Each bounded context under `src/` follows the layered structure described in [ov
 | `Kpi` | Daily KPI aggregation into `kpi_daily` |
 | `Analytics` | Server-side usage analytics (request tracking, consent-gated visitor keys) |
 | `Install` | `app:env:check` |
+| `Research` | Data extract requests for research projects (#1635, ADR 045): requests with versions, Board vote, admin-written queries, releases and export runs. Depends on `Shared` and `User`, its infrastructure also on `Notification` (notifications of requests, releases and exports); it reads allocation data only through its own read-only export connection |
 | `Shared` | Cross-cutting concerns (audit, monitoring, mail, infrastructure) |
 | `Content` | Content pages, blog, the media library with its storage and integrity check (ADR 039), reactions to posts, comments and activities (#467), the help section (#596), and the authenticated home dashboard (composition of project metrics and activity). Its infrastructure may depend on `Notification` (admin notification about missing or damaged media files) |
 | `Onboarding` | Participant dashboard onboarding steps and progress, and the "What's new for you" card for accounts older than an update (#1485) |

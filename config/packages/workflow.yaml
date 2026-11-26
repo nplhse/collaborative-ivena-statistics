@@ -1,0 +1,62 @@
+framework:
+    workflows:
+        # Data extract requests (#1635, ADR 045). The marking mirrors DataRequest::$status; the service applies the
+        # transitions and records times, the voter decides who may trigger them.
+        data_request:
+            type: state_machine
+            audit_trail:
+                enabled: false
+            marking_store:
+                type: method
+                property: marking
+            supports:
+                - App\Research\Domain\Entity\DataRequest
+            initial_marking: draft
+            places:
+                - draft
+                - submitted
+                - returned
+                - in_review
+                - revision_requested
+                - stalled
+                - approved
+                - rejected
+                - expired
+                - withdrawn
+            transitions:
+                submit:
+                    from: draft
+                    to: submitted
+                open_round:
+                    from: submitted
+                    to: in_review
+                return:
+                    from: submitted
+                    to: returned
+                resubmit:
+                    from: returned
+                    to: submitted
+                approve:
+                    from: in_review
+                    to: approved
+                reject:
+                    from: [in_review, stalled]
+                    to: rejected
+                request_revision:
+                    from: [in_review, stalled]
+                    to: revision_requested
+                veto:
+                    from: in_review
+                    to: stalled
+                restart_round:
+                    from: stalled
+                    to: in_review
+                submit_revision:
+                    from: revision_requested
+                    to: in_review
+                expire:
+                    from: revision_requested
+                    to: expired
+                withdraw:
+                    from: [draft, submitted, returned, in_review, revision_requested, stalled, approved]
+                    to: withdrawn

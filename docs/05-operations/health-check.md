@@ -35,6 +35,7 @@ curl -sS https://<host>/health | jq
 | `media` | no | Latest stored media integrity check (ADR 039), one query: `ok`, `unchecked` before the first run (healthy), or `missing=<n> damaged=<n>` (degraded). Details: `php bin/console app:media:check` ([media storage](../04-features/content/media-storage.md#integrity-check)) |
 
 | `two_factor` | no | Two-factor key (ADR 040), at most two queries: `ok`, `disabled` without `APP_TWO_FACTOR_KEY` and without users of it (healthy), `missing_key users=<n>` or `key_mismatch` when accounts use two-factor authentication but their secrets cannot be decrypted (degraded; their codes fail, backup codes work) |
+| `research_export` | no | Export connection of data extract requests (ADR 045), one query: `read_only` or `disabled` without `RESEARCH_DATABASE_URL` (healthy), `writable` when its role could change data or `unreachable` when it fails (degraded). Details: [data extract requests](../04-features/research/README.md#export-connection) |
 
 Further checks come from services implementing `App\Shared\Application\Health\HealthCheckContributorInterface` (autoconfigured tag `app.health_check_contributor`). They run after the database check, in container order, and only mark themselves public when their value is a plain status string.
 

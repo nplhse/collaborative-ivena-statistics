@@ -16,6 +16,8 @@ use App\Import\Application\Message\PurgePendingImportUploadsMessage;
 use App\Kpi\Application\Message\GenerateDailyKpisMessage;
 use App\Notification\Application\Message\CleanUpNotificationsMessage;
 use App\Notification\Application\Message\ReconcileNotificationsMessage;
+use App\Research\Application\Message\CleanUpDataExportsMessage;
+use App\Research\Application\Message\EvaluateDataRequestDeadlinesMessage;
 use App\Shared\Application\Monitoring\Message\CleanUpMonitoringMessage;
 use App\Shared\Application\Monitoring\Message\SampleMessengerQueuesMessage;
 use App\Shared\Infrastructure\Scheduler\DefaultScheduleProvider;
@@ -34,7 +36,7 @@ final class DefaultScheduleProviderKernelTest extends KernelTestCase
         self::bootKernel();
         $provider = self::getContainer()->get(DefaultScheduleProvider::class);
         $recurringMessages = $provider->getSchedule()->getRecurringMessages();
-        self::assertCount(16, $recurringMessages);
+        self::assertCount(18, $recurringMessages);
 
         $classes = [];
         foreach ($recurringMessages as $recurringMessage) {
@@ -60,6 +62,8 @@ final class DefaultScheduleProviderKernelTest extends KernelTestCase
         self::assertContains(CleanUpNotificationsMessage::class, $classes);
         self::assertContains(ReconcileNotificationsMessage::class, $classes);
         self::assertContains(MeasureStorageMessage::class, $classes);
+        self::assertContains(EvaluateDataRequestDeadlinesMessage::class, $classes);
+        self::assertContains(CleanUpDataExportsMessage::class, $classes);
         self::assertContains(SampleMessengerQueuesMessage::class, $classes);
         self::assertContains(CleanUpMonitoringMessage::class, $classes);
         self::assertContains(DeleteExpiredEncounterSourceFilesMessage::class, $classes);

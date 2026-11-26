@@ -1,0 +1,1476 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="Rsc4AF38534" resname="data_request.title.list">
+        <source>data_request.title.list</source>
+        <target>Data extract requests</target>
+      </trans-unit>
+      <trans-unit id="Rsc32DF0D12" resname="data_request.title.mine">
+        <source>data_request.title.mine</source>
+        <target>My data extract requests</target>
+      </trans-unit>
+      <trans-unit id="Rsc654DBC2B" resname="data_request.title.new">
+        <source>data_request.title.new</source>
+        <target>New data extract request</target>
+      </trans-unit>
+      <trans-unit id="RscD5DB809D" resname="data_request.title.edit">
+        <source>data_request.title.edit</source>
+        <target>Edit data extract request</target>
+      </trans-unit>
+      <trans-unit id="RscDC482B70" resname="data_request.title.show">
+        <source>data_request.title.show</source>
+        <target>Request</target>
+      </trans-unit>
+      <trans-unit id="RscF10076F6" resname="data_request.intro">
+        <source>data_request.intro</source>
+        <target>Research projects ask the Board for extracts from the database here. Every participant sees the submitted requests; internal details stay with the applicant, the Board and the administrators.</target>
+      </trans-unit>
+      <trans-unit id="Rsc1D796589" resname="data_request.empty.title">
+        <source>data_request.empty.title</source>
+        <target>No requests yet</target>
+      </trans-unit>
+      <trans-unit id="Rsc5017C33F" resname="data_request.empty.description">
+        <source>data_request.empty.description</source>
+        <target>Submitted data extract requests appear here.</target>
+      </trans-unit>
+      <trans-unit id="Rsc71188036" resname="data_request.list.applicant">
+        <source>data_request.list.applicant</source>
+        <target>Applicant</target>
+      </trans-unit>
+      <trans-unit id="Rsc5187CEF3" resname="data_request.list.submitted">
+        <source>data_request.list.submitted</source>
+        <target>Submitted</target>
+      </trans-unit>
+      <trans-unit id="RscEA34E00E" resname="data_request.list.status">
+        <source>data_request.list.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="Rsc3FDD35DD" resname="data_request.deleted_account">
+        <source>data_request.deleted_account</source>
+        <target>Deleted account</target>
+      </trans-unit>
+      <trans-unit id="Rsc44FFCAFB" resname="data_request.action.new">
+        <source>data_request.action.new</source>
+        <target>New request</target>
+      </trans-unit>
+      <trans-unit id="Rsc46EA558D" resname="data_request.action.all">
+        <source>data_request.action.all</source>
+        <target>All requests</target>
+      </trans-unit>
+      <trans-unit id="Rsc6994B9EC" resname="data_request.action.edit">
+        <source>data_request.action.edit</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="RscAC726ED3" resname="data_request.action.save_draft">
+        <source>data_request.action.save_draft</source>
+        <target>Save draft</target>
+      </trans-unit>
+      <trans-unit id="Rsc8DF5D1DC" resname="data_request.action.submit">
+        <source>data_request.action.submit</source>
+        <target>Submit</target>
+      </trans-unit>
+      <trans-unit id="Rsc7E80F6CD" resname="data_request.action.withdraw">
+        <source>data_request.action.withdraw</source>
+        <target>Withdraw</target>
+      </trans-unit>
+      <trans-unit id="RscC0673973" resname="data_request.form.intro">
+        <source>data_request.form.intro</source>
+        <target>Fill in every field except the optional dates and the publication. Saving keeps the request as a draft that only you see; you submit it on the next page.</target>
+      </trans-unit>
+      <trans-unit id="RscA9528C8B" resname="data_request.what_happens.title">
+        <source>data_request.what_happens.title</source>
+        <target>What happens next</target>
+      </trans-unit>
+      <trans-unit id="RscA7943C17" resname="data_request.what_happens.text">
+        <source>data_request.what_happens.text</source>
+        <target>After you submit, a Board member or an administrator checks the request formally and opens the vote. If the Board approves it, an administrator prepares the queries and releases the export for you.</target>
+      </trans-unit>
+      <trans-unit id="Rsc8F4098A4" resname="data_request.group.public">
+        <source>data_request.group.public</source>
+        <target>Visible to participants</target>
+      </trans-unit>
+      <trans-unit id="RscC5301C64" resname="data_request.group.public_help">
+        <source>data_request.group.public_help</source>
+        <target>Every participant sees these fields once the request is submitted.</target>
+      </trans-unit>
+      <trans-unit id="Rsc00609B85" resname="data_request.group.scope">
+        <source>data_request.group.scope</source>
+        <target>Export scope</target>
+      </trans-unit>
+      <trans-unit id="Rsc6484F1D0" resname="data_request.group.scope_help">
+        <source>data_request.group.scope_help</source>
+        <target>What the Board approves. Participants see it without the recipients and the details of an enrichment.</target>
+      </trans-unit>
+      <trans-unit id="RscDFD3E971" resname="data_request.group.internal">
+        <source>data_request.group.internal</source>
+        <target>Internal details</target>
+      </trans-unit>
+      <trans-unit id="Rsc236B611A" resname="data_request.group.internal_help">
+        <source>data_request.group.internal_help</source>
+        <target>Only you, the Board and the administrators see these fields.</target>
+      </trans-unit>
+      <trans-unit id="RscFBACFDBA" resname="data_request.field.title">
+        <source>data_request.field.title</source>
+        <target>Title</target>
+      </trans-unit>
+      <trans-unit id="RscEBD86D65" resname="data_request.field.title_help">
+        <source>data_request.field.title_help</source>
+        <target>A short name of the project.</target>
+      </trans-unit>
+      <trans-unit id="Rsc4A2AB26D" resname="data_request.field.summary">
+        <source>data_request.field.summary</source>
+        <target>Summary</target>
+      </trans-unit>
+      <trans-unit id="Rsc723F8167" resname="data_request.field.summary_help">
+        <source>data_request.field.summary_help</source>
+        <target>A few sentences for participants: what the project wants to find out and why it needs the data.</target>
+      </trans-unit>
+      <trans-unit id="Rsc31B77492" resname="data_request.field.institution">
+        <source>data_request.field.institution</source>
+        <target>Institution</target>
+      </trans-unit>
+      <trans-unit id="Rsc00ABC8F4" resname="data_request.field.institution_help">
+        <source>data_request.field.institution_help</source>
+        <target>The institution that carries the project.</target>
+      </trans-unit>
+      <trans-unit id="Rsc06864243" resname="data_request.field.enrichment_planned">
+        <source>data_request.field.enrichment_planned</source>
+        <target>Enrichment with local data planned</target>
+      </trans-unit>
+      <trans-unit id="Rsc7B8DFE12" resname="data_request.field.enrichment_planned_help">
+        <source>data_request.field.enrichment_planned_help</source>
+        <target>The extract will be linked with data of your own. Then all votes of the Board must be in favour.</target>
+      </trans-unit>
+      <trans-unit id="RscA3751BA8" resname="data_request.field.purpose">
+        <source>data_request.field.purpose</source>
+        <target>Purpose</target>
+      </trans-unit>
+      <trans-unit id="Rsc69917A7E" resname="data_request.field.purpose_help">
+        <source>data_request.field.purpose_help</source>
+        <target>The question the extract is used for. The data may only be used for it.</target>
+      </trans-unit>
+      <trans-unit id="Rsc7020A29E" resname="data_request.field.period_from">
+        <source>data_request.field.period_from</source>
+        <target>Period from</target>
+      </trans-unit>
+      <trans-unit id="RscD77B7810" resname="data_request.field.period_from_help">
+        <source>data_request.field.period_from_help</source>
+        <target>First day of the allocations in the extract.</target>
+      </trans-unit>
+      <trans-unit id="RscDC992F54" resname="data_request.field.period_to">
+        <source>data_request.field.period_to</source>
+        <target>Period to</target>
+      </trans-unit>
+      <trans-unit id="Rsc672F938B" resname="data_request.field.period_to_help">
+        <source>data_request.field.period_to_help</source>
+        <target>Last day of the allocations in the extract.</target>
+      </trans-unit>
+      <trans-unit id="RscADC1EFD6" resname="data_request.field.population">
+        <source>data_request.field.population</source>
+        <target>Population</target>
+      </trans-unit>
+      <trans-unit id="Rsc60F0D911" resname="data_request.field.population_help">
+        <source>data_request.field.population_help</source>
+        <target>Which allocations belong to the extract, for example by indication, age or hospital group.</target>
+      </trans-unit>
+      <trans-unit id="RscFB1FCBFB" resname="data_request.field.variables">
+        <source>data_request.field.variables</source>
+        <target>Variables</target>
+      </trans-unit>
+      <trans-unit id="RscD0D0824C" resname="data_request.field.variables_help">
+        <source>data_request.field.variables_help</source>
+        <target>The fields the extract should contain.</target>
+      </trans-unit>
+      <trans-unit id="RscE7D02713" resname="data_request.field.granularity">
+        <source>data_request.field.granularity</source>
+        <target>Granularity</target>
+      </trans-unit>
+      <trans-unit id="Rsc81D8944E" resname="data_request.field.granularity_help">
+        <source>data_request.field.granularity_help</source>
+        <target>How finely the data is grouped, for example by month and hospital group. Groups always contain at least three hospitals.</target>
+      </trans-unit>
+      <trans-unit id="RscEDB82EBD" resname="data_request.field.recipients">
+        <source>data_request.field.recipients</source>
+        <target>Recipients</target>
+      </trans-unit>
+      <trans-unit id="RscDC6636A9" resname="data_request.field.recipients_help">
+        <source>data_request.field.recipients_help</source>
+        <target>Who receives and works with the data. Not shown to participants.</target>
+      </trans-unit>
+      <trans-unit id="Rsc24E53F59" resname="data_request.field.enrichment_details">
+        <source>data_request.field.enrichment_details</source>
+        <target>Details of the enrichment</target>
+      </trans-unit>
+      <trans-unit id="Rsc18D3D4B7" resname="data_request.field.enrichment_details_help">
+        <source>data_request.field.enrichment_details_help</source>
+        <target>Required when an enrichment is planned: which local data and how it is linked.</target>
+      </trans-unit>
+      <trans-unit id="Rsc943DDDC3" resname="data_request.field.single_cases">
+        <source>data_request.field.single_cases</source>
+        <target>Single cases needed</target>
+      </trans-unit>
+      <trans-unit id="Rsc6A39190D" resname="data_request.field.single_cases_help">
+        <source>data_request.field.single_cases_help</source>
+        <target>Only as a justified exception, when the question cannot be answered with aggregated values.</target>
+      </trans-unit>
+      <trans-unit id="Rsc5617C8BB" resname="data_request.field.description">
+        <source>data_request.field.description</source>
+        <target>Project description</target>
+      </trans-unit>
+      <trans-unit id="RscCF704151" resname="data_request.field.description_help">
+        <source>data_request.field.description_help</source>
+        <target>Background, method and expected result of the project.</target>
+      </trans-unit>
+      <trans-unit id="Rsc91BC6185" resname="data_request.field.data_needs">
+        <source>data_request.field.data_needs</source>
+        <target>Data needed and justification</target>
+      </trans-unit>
+      <trans-unit id="RscCEF78ABB" resname="data_request.field.data_needs_help">
+        <source>data_request.field.data_needs_help</source>
+        <target>Why the project needs these fields and this level of aggregation.</target>
+      </trans-unit>
+      <trans-unit id="Rsc70B06B4E" resname="data_request.field.responsible_persons">
+        <source>data_request.field.responsible_persons</source>
+        <target>Responsible persons</target>
+      </trans-unit>
+      <trans-unit id="Rsc06F5F6C9" resname="data_request.field.responsible_persons_help">
+        <source>data_request.field.responsible_persons_help</source>
+        <target>Who is responsible for the project and the data.</target>
+      </trans-unit>
+      <trans-unit id="RscECBDAB68" resname="data_request.field.conflicts_of_interest">
+        <source>data_request.field.conflicts_of_interest</source>
+        <target>Conflicts of interest</target>
+      </trans-unit>
+      <trans-unit id="Rsc5AD97172" resname="data_request.field.conflicts_of_interest_help">
+        <source>data_request.field.conflicts_of_interest_help</source>
+        <target>Name any conflicts of interest, or write "none".</target>
+      </trans-unit>
+      <trans-unit id="Rsc04CB9B82" resname="data_request.field.ethics">
+        <source>data_request.field.ethics</source>
+        <target>Ethics vote</target>
+      </trans-unit>
+      <trans-unit id="RscFF551913" resname="data_request.field.ethics_help">
+        <source>data_request.field.ethics_help</source>
+        <target>Whether the project has an ethics vote or similar, or why it needs none.</target>
+      </trans-unit>
+      <trans-unit id="RscE0A31622" resname="data_request.field.planned_end">
+        <source>data_request.field.planned_end</source>
+        <target>Planned end of the project</target>
+      </trans-unit>
+      <trans-unit id="Rsc7E426081" resname="data_request.field.planned_end_help">
+        <source>data_request.field.planned_end_help</source>
+        <target>Optional.</target>
+      </trans-unit>
+      <trans-unit id="Rsc2665557E" resname="data_request.field.planned_deletion">
+        <source>data_request.field.planned_deletion</source>
+        <target>Planned deletion of the data</target>
+      </trans-unit>
+      <trans-unit id="Rsc1B2D965E" resname="data_request.field.planned_deletion_help">
+        <source>data_request.field.planned_deletion_help</source>
+        <target>Optional.</target>
+      </trans-unit>
+      <trans-unit id="RscFCB22BE6" resname="data_request.field.planned_publication">
+        <source>data_request.field.planned_publication</source>
+        <target>Planned publication</target>
+      </trans-unit>
+      <trans-unit id="RscC5FA1516" resname="data_request.field.planned_publication_help">
+        <source>data_request.field.planned_publication_help</source>
+        <target>Optional: where and when results are to be published.</target>
+      </trans-unit>
+      <trans-unit id="Rsc90E2CE2A" resname="data_request.hidden.intro">
+        <source>data_request.hidden.intro</source>
+        <target>These details are deliberately hidden. You only see whether they were given.</target>
+      </trans-unit>
+      <trans-unit id="RscE7760D74" resname="data_request.hidden.provided">
+        <source>data_request.hidden.provided</source>
+        <target>Given, not public</target>
+      </trans-unit>
+      <trans-unit id="Rsc18F6DAC0" resname="data_request.hidden.empty">
+        <source>data_request.hidden.empty</source>
+        <target>Not given</target>
+      </trans-unit>
+      <trans-unit id="RscCFD67B31" resname="data_request.show.period">
+        <source>data_request.show.period</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="RscCCF550AD" resname="data_request.show.created">
+        <source>data_request.show.created</source>
+        <target>Created</target>
+      </trans-unit>
+      <trans-unit id="Rsc9E9041B1" resname="data_request.show.closed">
+        <source>data_request.show.closed</source>
+        <target>Closed</target>
+      </trans-unit>
+      <trans-unit id="Rsc4641CE9F" resname="data_request.modal.submit.title">
+        <source>data_request.modal.submit.title</source>
+        <target>Submit the request?</target>
+      </trans-unit>
+      <trans-unit id="Rsc6A4C06CD" resname="data_request.modal.submit.message">
+        <source>data_request.modal.submit.message</source>
+        <target>After submitting, the request can no longer be changed. Every participant sees it, and a Board member or an administrator checks it formally. You can only edit it again if it is returned or the Board asks for a revision.</target>
+      </trans-unit>
+      <trans-unit id="Rsc8193D0DF" resname="data_request.modal.withdraw.title">
+        <source>data_request.modal.withdraw.title</source>
+        <target>Withdraw the request?</target>
+      </trans-unit>
+      <trans-unit id="Rsc8515D026" resname="data_request.modal.withdraw.message">
+        <source>data_request.modal.withdraw.message</source>
+        <target>Withdrawing ends the request for good. It cannot be reopened; for the same project you would have to submit a new request.</target>
+      </trans-unit>
+      <trans-unit id="Rsc5E9217D9" resname="data_request.show.frozen_note">
+        <source>data_request.show.frozen_note</source>
+        <target>A submitted version can no longer be changed. If the formal check returns the request or the Board asks for a revision, you can edit it again and submit a new version.</target>
+      </trans-unit>
+      <trans-unit id="RscF9914D8A" resname="data_request.show.withdrawn_note">
+        <source>data_request.show.withdrawn_note</source>
+        <target>You withdrew this request. Copies already downloaded cannot be recalled.</target>
+      </trans-unit>
+      <trans-unit id="Rsc2987895B" resname="data_request.basics.title">
+        <source>data_request.basics.title</source>
+        <target>Basic information</target>
+      </trans-unit>
+      <trans-unit id="Rsc54569AF7" resname="data_request.basics.version">
+        <source>data_request.basics.version</source>
+        <target>Version</target>
+      </trans-unit>
+      <trans-unit id="Rsc7442EA53" resname="data_request.basics.version_of">
+        <source>data_request.basics.version_of</source>
+        <target>{number} of {count}</target>
+      </trans-unit>
+      <trans-unit id="RscC52AF0AC" resname="data_request.basics.updated">
+        <source>data_request.basics.updated</source>
+        <target>Last changed</target>
+      </trans-unit>
+      <trans-unit id="Rsc33ED36F3" resname="data_request.basics.approved_version">
+        <source>data_request.basics.approved_version</source>
+        <target>Approved version</target>
+      </trans-unit>
+      <trans-unit id="RscB3ADF9A9" resname="data_request.basics.version_number">
+        <source>data_request.basics.version_number</source>
+        <target>Version {number}</target>
+      </trans-unit>
+      <trans-unit id="Rsc1D0AAE83" resname="data_request.compare.title">
+        <source>data_request.compare.title</source>
+        <target>Compare versions</target>
+      </trans-unit>
+      <trans-unit id="Rsc99F0E0AD" resname="data_request.compare.link">
+        <source>data_request.compare.link</source>
+        <target>Compare versions</target>
+      </trans-unit>
+      <trans-unit id="Rsc5CC38FBC" resname="data_request.compare.changes">
+        <source>data_request.compare.changes</source>
+        <target>Show changes</target>
+      </trans-unit>
+      <trans-unit id="RscEFC008D7" resname="data_request.compare.from">
+        <source>data_request.compare.from</source>
+        <target>From</target>
+      </trans-unit>
+      <trans-unit id="Rsc66197B55" resname="data_request.compare.to">
+        <source>data_request.compare.to</source>
+        <target>To</target>
+      </trans-unit>
+      <trans-unit id="Rsc8BED1A6F" resname="data_request.compare.submit">
+        <source>data_request.compare.submit</source>
+        <target>Compare</target>
+      </trans-unit>
+      <trans-unit id="RscE8FB7463" resname="data_request.compare.not_submitted">
+        <source>data_request.compare.not_submitted</source>
+        <target>not submitted</target>
+      </trans-unit>
+      <trans-unit id="Rsc50867195" resname="data_request.compare.single">
+        <source>data_request.compare.single</source>
+        <target>This request has only one version so far.</target>
+      </trans-unit>
+      <trans-unit id="RscB693B09B" resname="data_request.compare.same_version">
+        <source>data_request.compare.same_version</source>
+        <target>Choose two different versions.</target>
+      </trans-unit>
+      <trans-unit id="RscCE02437B" resname="data_request.compare.none">
+        <source>data_request.compare.none</source>
+        <target>The versions do not differ in the fields you can see.</target>
+      </trans-unit>
+      <trans-unit id="RscA9D2AF5E" resname="data_request.query.title">
+        <source>data_request.query.title</source>
+        <target>Export queries</target>
+      </trans-unit>
+      <trans-unit id="Rsc089E17C8" resname="data_request.query.intro">
+        <source>data_request.query.intro</source>
+        <target>The SQL an administrator wrote for this request. Every participant can read it; each file becomes a CSV in the export.</target>
+      </trans-unit>
+      <trans-unit id="RscC1A093A0" resname="data_request.query.empty">
+        <source>data_request.query.empty</source>
+        <target>No queries yet.</target>
+      </trans-unit>
+      <trans-unit id="Rsc7D1202A1" resname="data_request.query.version">
+        <source>data_request.query.version</source>
+        <target>Version {number} · {checksum}</target>
+      </trans-unit>
+      <trans-unit id="RscBDD52660" resname="data_request.query.kind.aggregated">
+        <source>data_request.query.kind.aggregated</source>
+        <target>Aggregated</target>
+      </trans-unit>
+      <trans-unit id="Rsc0931E87A" resname="data_request.query.kind.single_cases">
+        <source>data_request.query.kind.single_cases</source>
+        <target>Single cases</target>
+      </trans-unit>
+      <trans-unit id="RscAC578804" resname="data_request.query.field.name">
+        <source>data_request.query.field.name</source>
+        <target>File name</target>
+      </trans-unit>
+      <trans-unit id="Rsc626DE52E" resname="data_request.query.field.name_help">
+        <source>data_request.query.field.name_help</source>
+        <target>Lowercase letters, digits and underscores; becomes the name of the CSV file.</target>
+      </trans-unit>
+      <trans-unit id="Rsc3FAED6C8" resname="data_request.query.field.kind">
+        <source>data_request.query.field.kind</source>
+        <target>Kind</target>
+      </trans-unit>
+      <trans-unit id="Rsc5EEE037E" resname="data_request.query.field.description">
+        <source>data_request.query.field.description</source>
+        <target>Description in plain language</target>
+      </trans-unit>
+      <trans-unit id="Rsc86521909" resname="data_request.query.field.sql">
+        <source>data_request.query.field.sql</source>
+        <target>SQL</target>
+      </trans-unit>
+      <trans-unit id="RscFF369901" resname="data_request.query.field.sql_help">
+        <source>data_request.query.field.sql_help</source>
+        <target>One SELECT statement. Aggregated queries return the column _hospital_ids (array_agg(DISTINCT a.hospital_id)) in the same grouping, single-case queries _hospital_id; the export removes it.</target>
+      </trans-unit>
+      <trans-unit id="RscEB5954D4" resname="data_request.query.action.add">
+        <source>data_request.query.action.add</source>
+        <target>Add a query</target>
+      </trans-unit>
+      <trans-unit id="Rsc3E1F963C" resname="data_request.query.action.add_submit">
+        <source>data_request.query.action.add_submit</source>
+        <target>Save and check</target>
+      </trans-unit>
+      <trans-unit id="Rsc0B4D9A09" resname="data_request.query.action.revise">
+        <source>data_request.query.action.revise</source>
+        <target>Change query</target>
+      </trans-unit>
+      <trans-unit id="Rsc2B8F9BBD" resname="data_request.query.action.save_version">
+        <source>data_request.query.action.save_version</source>
+        <target>Save as new version</target>
+      </trans-unit>
+      <trans-unit id="RscA058C37A" resname="data_request.query.action.dry_run">
+        <source>data_request.query.action.dry_run</source>
+        <target>Dry run</target>
+      </trans-unit>
+      <trans-unit id="Rsc77C16C46" resname="data_request.query.check.passed">
+        <source>data_request.query.check.passed</source>
+        <target>Allowlist check passed.</target>
+      </trans-unit>
+      <trans-unit id="Rsc6E375D08" resname="data_request.query.check.failed">
+        <source>data_request.query.check.failed</source>
+        <target>The query cannot be released yet:</target>
+      </trans-unit>
+      <trans-unit id="RscCE4F6766" resname="data_request.query.violation.not_select">
+        <source>data_request.query.violation.not_select</source>
+        <target>It must be a single SELECT (or WITH) statement.</target>
+      </trans-unit>
+      <trans-unit id="RscA4195E20" resname="data_request.query.violation.several_statements">
+        <source>data_request.query.violation.several_statements</source>
+        <target>Only one statement is allowed; remove the semicolons.</target>
+      </trans-unit>
+      <trans-unit id="Rsc7BE00093" resname="data_request.query.violation.denied_function">
+        <source>data_request.query.violation.denied_function</source>
+        <target>The function {function} is not allowed.</target>
+      </trans-unit>
+      <trans-unit id="Rsc9341F8E7" resname="data_request.query.violation.table">
+        <source>data_request.query.violation.table</source>
+        <target>The table {table} is not on the allowlist.</target>
+      </trans-unit>
+      <trans-unit id="Rsc73446771" resname="data_request.query.violation.column">
+        <source>data_request.query.violation.column</source>
+        <target>The column {column} is blocked.</target>
+      </trans-unit>
+      <trans-unit id="Rsc4F044E29" resname="data_request.query.violation.internal_output">
+        <source>data_request.query.violation.internal_output</source>
+        <target>The column {column} returns an internal ID; use it only to join or count.</target>
+      </trans-unit>
+      <trans-unit id="Rsc460F0F11" resname="data_request.query.violation.reserved_missing">
+        <source>data_request.query.violation.reserved_missing</source>
+        <target>The reserved column {column} is missing.</target>
+      </trans-unit>
+      <trans-unit id="Rsc8FDB1F84" resname="data_request.query.violation.sql_error">
+        <source>data_request.query.violation.sql_error</source>
+        <target>The database refused the query: {message}</target>
+      </trans-unit>
+      <trans-unit id="Rsc62B496D0" resname="data_request.query.violation.connection_missing">
+        <source>data_request.query.violation.connection_missing</source>
+        <target>The export connection is not set up (RESEARCH_DATABASE_URL), so queries cannot be checked or run.</target>
+      </trans-unit>
+      <trans-unit id="Rsc60872DE5" resname="data_request.query.dry_run.title">
+        <source>data_request.query.dry_run.title</source>
+        <target>Dry run of {date}</target>
+      </trans-unit>
+      <trans-unit id="RscE98CF47D" resname="data_request.query.dry_run.summary">
+        <source>data_request.query.dry_run.summary</source>
+        <target>{rows} rows from {hospitals} hospitals in {ms} ms.</target>
+      </trans-unit>
+      <trans-unit id="Rsc9953948A" resname="data_request.query.dry_run.truncated">
+        <source>data_request.query.dry_run.truncated</source>
+        <target>More than {max} rows; the query needs to be narrowed.</target>
+      </trans-unit>
+      <trans-unit id="RscDB569C2E" resname="data_request.query.dry_run.below_minimum">
+        <source>data_request.query.dry_run.below_minimum</source>
+        <target>{count} groups have fewer than {minimum} contributing hospitals; the export would be blocked.</target>
+      </trans-unit>
+      <trans-unit id="RscDEA81763" resname="data_request.query.dry_run.minimum_met">
+        <source>data_request.query.dry_run.minimum_met</source>
+        <target>Every group has at least {minimum} contributing hospitals.</target>
+      </trans-unit>
+      <trans-unit id="RscB3E4E5B3" resname="data_request.query.dry_run.sample">
+        <source>data_request.query.dry_run.sample</source>
+        <target>First rows</target>
+      </trans-unit>
+      <trans-unit id="Rsc1108BA6A" resname="data_request.query.dry_run.below">
+        <source>data_request.query.dry_run.below</source>
+        <target>Groups below the minimum</target>
+      </trans-unit>
+      <trans-unit id="Rsc0996C48F" resname="data_request.flash.query.add">
+        <source>data_request.flash.query.add</source>
+        <target>The query is saved and checked.</target>
+      </trans-unit>
+      <trans-unit id="Rsc0C9B8C0B" resname="data_request.flash.query.revise">
+        <source>data_request.flash.query.revise</source>
+        <target>The query is saved.</target>
+      </trans-unit>
+      <trans-unit id="RscEECC45C7" resname="data_request.flash.query.dry-run">
+        <source>data_request.flash.query.dry-run</source>
+        <target>The dry run is done.</target>
+      </trans-unit>
+      <trans-unit id="RscE7C24EF1" resname="data_request.refused.query_invalid">
+        <source>data_request.refused.query_invalid</source>
+        <target>The query could not be saved: check the file name, the description and the SQL.</target>
+      </trans-unit>
+      <trans-unit id="RscA65DEF99" resname="data_request.refused.query_check_failed">
+        <source>data_request.refused.query_check_failed</source>
+        <target>The query does not pass the allowlist check, so it cannot run.</target>
+      </trans-unit>
+      <trans-unit id="Rsc49F28EB9" resname="data_request.timeline.event.query_saved">
+        <source>data_request.timeline.event.query_saved</source>
+        <target>saved query {query} as version {version}</target>
+      </trans-unit>
+      <trans-unit id="RscA5DD4B30" resname="data_request.actions.title">
+        <source>data_request.actions.title</source>
+        <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="Rsc0784E844" resname="data_request.review.title">
+        <source>data_request.review.title</source>
+        <target>Formal check and vote</target>
+      </trans-unit>
+      <trans-unit id="Rsc90073EBC" resname="data_request.review.handback.returned">
+        <source>data_request.review.handback.returned</source>
+        <target>Returned by the formal check</target>
+      </trans-unit>
+      <trans-unit id="Rsc9FAB577A" resname="data_request.review.handback.revision_requested">
+        <source>data_request.review.handback.revision_requested</source>
+        <target>Revision requested</target>
+      </trans-unit>
+      <trans-unit id="Rsc1A073FD3" resname="data_request.review.handback.rejected">
+        <source>data_request.review.handback.rejected</source>
+        <target>Closed</target>
+      </trans-unit>
+      <trans-unit id="Rsc72924FA3" resname="data_request.review.revision_until">
+        <source>data_request.review.revision_until</source>
+        <target>Submit the revised version by {date}; otherwise the request expires.</target>
+      </trans-unit>
+      <trans-unit id="RscFA699F88" resname="data_request.review.awaiting_check">
+        <source>data_request.review.awaiting_check</source>
+        <target>Waiting for the formal check by a Board member or an administrator.</target>
+      </trans-unit>
+      <trans-unit id="Rsc7F8C9976" resname="data_request.review.action.open">
+        <source>data_request.review.action.open</source>
+        <target>Accept and open the vote</target>
+      </trans-unit>
+      <trans-unit id="Rsc254A9AAF" resname="data_request.review.action.return">
+        <source>data_request.review.action.return</source>
+        <target>Return to the applicant</target>
+      </trans-unit>
+      <trans-unit id="RscF0EC39A7" resname="data_request.review.return_message">
+        <source>data_request.review.return_message</source>
+        <target>What is missing or unclear</target>
+      </trans-unit>
+      <trans-unit id="Rsc445744C8" resname="data_request.round.title">
+        <source>data_request.round.title</source>
+        <target>Round {number} · version {version}</target>
+      </trans-unit>
+      <trans-unit id="Rsc050D543C" resname="data_request.round.open">
+        <source>data_request.round.open</source>
+        <target>Vote running</target>
+      </trans-unit>
+      <trans-unit id="Rsc292B9144" resname="data_request.round.summary">
+        <source>data_request.round.summary</source>
+        <target>{cast} of {eligible} votes cast, at least {quorum} needed</target>
+      </trans-unit>
+      <trans-unit id="Rsc123EABD2" resname="data_request.round.deadline">
+        <source>data_request.round.deadline</source>
+        <target>Deadline: {date}</target>
+      </trans-unit>
+      <trans-unit id="Rsc30F08F25" resname="data_request.round.after_revision">
+        <source>data_request.round.after_revision</source>
+        <target>After a revision, the round is evaluated only at its deadline.</target>
+      </trans-unit>
+      <trans-unit id="Rsc8AA57EB2" resname="data_request.round.closed_at">
+        <source>data_request.round.closed_at</source>
+        <target>Ended {date}</target>
+      </trans-unit>
+      <trans-unit id="Rsc8958EA67" resname="data_request.round.outcome.approved">
+        <source>data_request.round.outcome.approved</source>
+        <target>Approved</target>
+      </trans-unit>
+      <trans-unit id="Rsc0BA5A410" resname="data_request.round.outcome.revision_requested">
+        <source>data_request.round.outcome.revision_requested</source>
+        <target>Revision requested</target>
+      </trans-unit>
+      <trans-unit id="Rsc1DA8182D" resname="data_request.round.outcome.rejected">
+        <source>data_request.round.outcome.rejected</source>
+        <target>Rejected</target>
+      </trans-unit>
+      <trans-unit id="Rsc7006F450" resname="data_request.round.outcome.quorum_missed">
+        <source>data_request.round.outcome.quorum_missed</source>
+        <target>Quorum missed</target>
+      </trans-unit>
+      <trans-unit id="Rsc9E0391D1" resname="data_request.round.outcome.vetoed">
+        <source>data_request.round.outcome.vetoed</source>
+        <target>Veto</target>
+      </trans-unit>
+      <trans-unit id="Rsc58370BD6" resname="data_request.round.outcome.cancelled">
+        <source>data_request.round.outcome.cancelled</source>
+        <target>Ended by withdrawal</target>
+      </trans-unit>
+      <trans-unit id="RscCAC0A893" resname="data_request.vote.title">
+        <source>data_request.vote.title</source>
+        <target>Your vote</target>
+      </trans-unit>
+      <trans-unit id="Rsc64081A2B" resname="data_request.vote.choice.approve">
+        <source>data_request.vote.choice.approve</source>
+        <target>Approve</target>
+      </trans-unit>
+      <trans-unit id="Rsc565DA7C7" resname="data_request.vote.choice.revision">
+        <source>data_request.vote.choice.revision</source>
+        <target>Needs revision</target>
+      </trans-unit>
+      <trans-unit id="Rsc6FD2F2FF" resname="data_request.vote.choice.reject">
+        <source>data_request.vote.choice.reject</source>
+        <target>Reject</target>
+      </trans-unit>
+      <trans-unit id="Rsc462265A4" resname="data_request.vote.choice.veto">
+        <source>data_request.vote.choice.veto</source>
+        <target>Veto</target>
+      </trans-unit>
+      <trans-unit id="RscC41C4CE8" resname="data_request.vote.reason">
+        <source>data_request.vote.reason</source>
+        <target>Reason</target>
+      </trans-unit>
+      <trans-unit id="Rsc363D70F0" resname="data_request.vote.reason_help">
+        <source>data_request.vote.reason_help</source>
+        <target>Required for a veto. The reason appears in the timeline as an internal comment; for "Needs revision" the applicant sees it as well.</target>
+      </trans-unit>
+      <trans-unit id="Rsc1E2D15B6" resname="data_request.vote.cast">
+        <source>data_request.vote.cast</source>
+        <target>Cast vote</target>
+      </trans-unit>
+      <trans-unit id="Rsc3DCE92F3" resname="data_request.vote.change">
+        <source>data_request.vote.change</source>
+        <target>Change vote</target>
+      </trans-unit>
+      <trans-unit id="Rsc771C188B" resname="data_request.vote.carried_over">
+        <source>data_request.vote.carried_over</source>
+        <target>carried over from the previous round</target>
+      </trans-unit>
+      <trans-unit id="Rsc86FE3BE9" resname="data_request.vote.none">
+        <source>data_request.vote.none</source>
+        <target>No votes yet.</target>
+      </trans-unit>
+      <trans-unit id="Rsc0B25DC1F" resname="data_request.visibility.internal">
+        <source>data_request.visibility.internal</source>
+        <target>Internal</target>
+      </trans-unit>
+      <trans-unit id="Rsc363C8EDA" resname="data_request.visibility.private">
+        <source>data_request.visibility.private</source>
+        <target>Private</target>
+      </trans-unit>
+      <trans-unit id="Rsc097E7292" resname="data_request.visibility.public">
+        <source>data_request.visibility.public</source>
+        <target>Public</target>
+      </trans-unit>
+      <trans-unit id="RscDB5156DF" resname="data_request.visibility.internal_choice">
+        <source>data_request.visibility.internal_choice</source>
+        <target>Internal: only the Board</target>
+      </trans-unit>
+      <trans-unit id="RscB1ED6E27" resname="data_request.visibility.private_choice">
+        <source>data_request.visibility.private_choice</source>
+        <target>Private: the Board and the applicant</target>
+      </trans-unit>
+      <trans-unit id="Rsc555FA847" resname="data_request.visibility.public_choice">
+        <source>data_request.visibility.public_choice</source>
+        <target>Public: everyone who can see the request</target>
+      </trans-unit>
+      <trans-unit id="RscC41714AF" resname="data_request.timeline.title">
+        <source>data_request.timeline.title</source>
+        <target>Timeline</target>
+      </trans-unit>
+      <trans-unit id="RscBF2E2560" resname="data_request.timeline.empty">
+        <source>data_request.timeline.empty</source>
+        <target>Nothing has happened yet.</target>
+      </trans-unit>
+      <trans-unit id="RscDA1FB5CB" resname="data_request.timeline.event.submitted">
+        <source>data_request.timeline.event.submitted</source>
+        <target>submitted version {version}</target>
+      </trans-unit>
+      <trans-unit id="RscB42D498E" resname="data_request.timeline.event.returned">
+        <source>data_request.timeline.event.returned</source>
+        <target>returned the request</target>
+      </trans-unit>
+      <trans-unit id="RscA1180574" resname="data_request.timeline.event.round_opened">
+        <source>data_request.timeline.event.round_opened</source>
+        <target>Vote opened: round {round} on version {version}</target>
+      </trans-unit>
+      <trans-unit id="Rsc314EAA5D" resname="data_request.timeline.event.voted">
+        <source>data_request.timeline.event.voted</source>
+        <target>voted: {choice}</target>
+      </trans-unit>
+      <trans-unit id="Rsc0EE19D6E" resname="data_request.timeline.event.round_closed">
+        <source>data_request.timeline.event.round_closed</source>
+        <target>Round {round} ended: {outcome}</target>
+      </trans-unit>
+      <trans-unit id="RscDD6BF2E0" resname="data_request.timeline.event.member_excluded">
+        <source>data_request.timeline.event.member_excluded</source>
+        <target>excluded {member} for a conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="Rsc5658FE49" resname="data_request.timeline.event.veto_resolved">
+        <source>data_request.timeline.event.veto_resolved</source>
+        <target>resolved the veto: {resolution}</target>
+      </trans-unit>
+      <trans-unit id="Rsc670EDD9F" resname="data_request.timeline.event.expired">
+        <source>data_request.timeline.event.expired</source>
+        <target>Expired: the revision was not submitted in time</target>
+      </trans-unit>
+      <trans-unit id="Rsc76DA4824" resname="data_request.timeline.event.withdrawn">
+        <source>data_request.timeline.event.withdrawn</source>
+        <target>withdrew the request</target>
+      </trans-unit>
+      <trans-unit id="Rsc5401848E" resname="data_request.comment.version">
+        <source>data_request.comment.version</source>
+        <target>version {version}</target>
+      </trans-unit>
+      <trans-unit id="Rsc87D4225C" resname="data_request.comment.new">
+        <source>data_request.comment.new</source>
+        <target>Write a comment</target>
+      </trans-unit>
+      <trans-unit id="Rsc6FB96F99" resname="data_request.comment.submit">
+        <source>data_request.comment.submit</source>
+        <target>Post comment</target>
+      </trans-unit>
+      <trans-unit id="RscC9C6D45E" resname="data_request.comment.visibility">
+        <source>data_request.comment.visibility</source>
+        <target>Visibility</target>
+      </trans-unit>
+      <trans-unit id="Rsc39A41E3C" resname="data_request.comment.reply">
+        <source>data_request.comment.reply</source>
+        <target>Reply</target>
+      </trans-unit>
+      <trans-unit id="RscD220DAB3" resname="data_request.comment.reply_submit">
+        <source>data_request.comment.reply_submit</source>
+        <target>Post reply</target>
+      </trans-unit>
+      <trans-unit id="Rsc4B9A2DAC" resname="data_request.comment.vote_badge">
+        <source>data_request.comment.vote_badge</source>
+        <target>Reason for the vote: {choice}</target>
+      </trans-unit>
+      <trans-unit id="RscA43DFACD" resname="data_request.flash.commented">
+        <source>data_request.flash.commented</source>
+        <target>Your comment is posted.</target>
+      </trans-unit>
+      <trans-unit id="Rsc5316B8D1" resname="data_request.refused.comment_invalid">
+        <source>data_request.refused.comment_invalid</source>
+        <target>A comment needs between 1 and 5000 characters.</target>
+      </trans-unit>
+      <trans-unit id="Rsc624A79EC" resname="data_request.resolve.title">
+        <source>data_request.resolve.title</source>
+        <target>Resolve the veto</target>
+      </trans-unit>
+      <trans-unit id="RscA3D6F682" resname="data_request.resolve.restart">
+        <source>data_request.resolve.restart</source>
+        <target>Restart the vote</target>
+      </trans-unit>
+      <trans-unit id="RscBB143C01" resname="data_request.resolve.revision">
+        <source>data_request.resolve.revision</source>
+        <target>Ask for a revision</target>
+      </trans-unit>
+      <trans-unit id="Rsc8F1C93B8" resname="data_request.resolve.close">
+        <source>data_request.resolve.close</source>
+        <target>Close the request</target>
+      </trans-unit>
+      <trans-unit id="Rsc77E0F3AA" resname="data_request.resolve.message">
+        <source>data_request.resolve.message</source>
+        <target>Message to the applicant (required for a revision)</target>
+      </trans-unit>
+      <trans-unit id="RscC1F4B399" resname="data_request.resolve.submit">
+        <source>data_request.resolve.submit</source>
+        <target>Resolve</target>
+      </trans-unit>
+      <trans-unit id="RscB81A4F26" resname="data_request.exclusion.list">
+        <source>data_request.exclusion.list</source>
+        <target>Excluded for a conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="Rsc7D486DE6" resname="data_request.exclusion.self.open">
+        <source>data_request.exclusion.self.open</source>
+        <target>Declare own conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="RscE99F9194" resname="data_request.exclusion.self.title">
+        <source>data_request.exclusion.self.title</source>
+        <target>Declare your own conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="RscC26FD033" resname="data_request.exclusion.self.reason">
+        <source>data_request.exclusion.self.reason</source>
+        <target>Reason for your conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="Rsc4FEA1F12" resname="data_request.exclusion.self.help">
+        <source>data_request.exclusion.self.help</source>
+        <target>You then no longer vote on this request, do not count for the quorum and cannot do the formal check. This cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="Rsc6CA21191" resname="data_request.exclusion.self.submit">
+        <source>data_request.exclusion.self.submit</source>
+        <target>Declare conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="Rsc83B86419" resname="data_request.exclusion.member.open">
+        <source>data_request.exclusion.member.open</source>
+        <target>Exclude a Board member</target>
+      </trans-unit>
+      <trans-unit id="Rsc10887F9F" resname="data_request.exclusion.member.title">
+        <source>data_request.exclusion.member.title</source>
+        <target>Exclude a Board member for a conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="Rsc9E31ADEE" resname="data_request.exclusion.member.member">
+        <source>data_request.exclusion.member.member</source>
+        <target>Board member</target>
+      </trans-unit>
+      <trans-unit id="Rsc7D64E44F" resname="data_request.exclusion.member.reason">
+        <source>data_request.exclusion.member.reason</source>
+        <target>Reason for the conflict of interest</target>
+      </trans-unit>
+      <trans-unit id="Rsc246109E9" resname="data_request.exclusion.member.help">
+        <source>data_request.exclusion.member.help</source>
+        <target>The member then no longer votes on this request, does not count for the quorum and cannot do the formal check. This cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="RscF504B69A" resname="data_request.exclusion.member.submit">
+        <source>data_request.exclusion.member.submit</source>
+        <target>Exclude member</target>
+      </trans-unit>
+      <trans-unit id="RscDEA72392" resname="data_request.flash.review.exclude">
+        <source>data_request.flash.review.exclude</source>
+        <target>The exclusion for a conflict of interest is saved.</target>
+      </trans-unit>
+      <trans-unit id="RscECA4893B" resname="data_request.flash.review.open">
+        <source>data_request.flash.review.open</source>
+        <target>The vote is open.</target>
+      </trans-unit>
+      <trans-unit id="RscB0B2E2CE" resname="data_request.flash.review.return">
+        <source>data_request.flash.review.return</source>
+        <target>The request was returned to the applicant.</target>
+      </trans-unit>
+      <trans-unit id="Rsc6673E2A7" resname="data_request.flash.review.vote">
+        <source>data_request.flash.review.vote</source>
+        <target>Your vote is saved.</target>
+      </trans-unit>
+      <trans-unit id="Rsc2E87342B" resname="data_request.flash.review.resolve">
+        <source>data_request.flash.review.resolve</source>
+        <target>The veto is resolved.</target>
+      </trans-unit>
+      <trans-unit id="Rsc45B62218" resname="data_request.refused.not_allowed">
+        <source>data_request.refused.not_allowed</source>
+        <target>You may not take this step.</target>
+      </trans-unit>
+      <trans-unit id="RscD7C201D1" resname="data_request.refused.no_open_round">
+        <source>data_request.refused.no_open_round</source>
+        <target>There is no open vote.</target>
+      </trans-unit>
+      <trans-unit id="RscEF4A8EFA" resname="data_request.refused.not_eligible">
+        <source>data_request.refused.not_eligible</source>
+        <target>You are not eligible to vote in this round.</target>
+      </trans-unit>
+      <trans-unit id="RscDE1A831B" resname="data_request.refused.reason_required">
+        <source>data_request.refused.reason_required</source>
+        <target>Please give a reason.</target>
+      </trans-unit>
+      <trans-unit id="Rsc75E6EDFD" resname="data_request.refused.no_eligible_members">
+        <source>data_request.refused.no_eligible_members</source>
+        <target>No Board member is eligible to vote on this request.</target>
+      </trans-unit>
+      <trans-unit id="Rsc7293725C" resname="data_request.refused.already_excluded">
+        <source>data_request.refused.already_excluded</source>
+        <target>This member is already excluded.</target>
+      </trans-unit>
+      <trans-unit id="RscFEE9DE18" resname="data_request.refused.new_version_needed">
+        <source>data_request.refused.new_version_needed</source>
+        <target>Edit the request first; your changes become the next version.</target>
+      </trans-unit>
+      <trans-unit id="RscCFE2A9E0" resname="data_request.status.draft">
+        <source>data_request.status.draft</source>
+        <target>Draft</target>
+      </trans-unit>
+      <trans-unit id="RscCE5258B2" resname="data_request.status.submitted">
+        <source>data_request.status.submitted</source>
+        <target>Submitted</target>
+      </trans-unit>
+      <trans-unit id="RscA9445035" resname="data_request.status.returned">
+        <source>data_request.status.returned</source>
+        <target>Returned</target>
+      </trans-unit>
+      <trans-unit id="Rsc8A5718E2" resname="data_request.status.in_review">
+        <source>data_request.status.in_review</source>
+        <target>Vote running</target>
+      </trans-unit>
+      <trans-unit id="RscCC92EDDE" resname="data_request.status.revision_requested">
+        <source>data_request.status.revision_requested</source>
+        <target>Revision requested</target>
+      </trans-unit>
+      <trans-unit id="Rsc760B71A6" resname="data_request.status.stalled">
+        <source>data_request.status.stalled</source>
+        <target>Stopped</target>
+      </trans-unit>
+      <trans-unit id="Rsc3AA9EF99" resname="data_request.status.approved">
+        <source>data_request.status.approved</source>
+        <target>Approved</target>
+      </trans-unit>
+      <trans-unit id="RscD6A4C6BC" resname="data_request.status.rejected">
+        <source>data_request.status.rejected</source>
+        <target>Rejected</target>
+      </trans-unit>
+      <trans-unit id="Rsc4B7CEEA7" resname="data_request.status.expired">
+        <source>data_request.status.expired</source>
+        <target>Expired</target>
+      </trans-unit>
+      <trans-unit id="RscFB23C4C2" resname="data_request.status.withdrawn">
+        <source>data_request.status.withdrawn</source>
+        <target>Withdrawn</target>
+      </trans-unit>
+      <trans-unit id="RscDCB549D4" resname="data_request.flash.drafted">
+        <source>data_request.flash.drafted</source>
+        <target>The draft is saved. Check it and submit it when it is complete.</target>
+      </trans-unit>
+      <trans-unit id="Rsc962D0687" resname="data_request.flash.updated">
+        <source>data_request.flash.updated</source>
+        <target>The request is saved.</target>
+      </trans-unit>
+      <trans-unit id="RscB988D983" resname="data_request.flash.submit">
+        <source>data_request.flash.submit</source>
+        <target>The request is submitted.</target>
+      </trans-unit>
+      <trans-unit id="RscD5D79746" resname="data_request.flash.withdraw">
+        <source>data_request.flash.withdraw</source>
+        <target>The request is withdrawn.</target>
+      </trans-unit>
+      <trans-unit id="RscF700248B" resname="data_request.refused.not_own">
+        <source>data_request.refused.not_own</source>
+        <target>This is not your request.</target>
+      </trans-unit>
+      <trans-unit id="RscF3D4C213" resname="data_request.refused.not_editable">
+        <source>data_request.refused.not_editable</source>
+        <target>This version can no longer be changed.</target>
+      </trans-unit>
+      <trans-unit id="Rsc3EDA26E1" resname="data_request.refused.transition_blocked">
+        <source>data_request.refused.transition_blocked</source>
+        <target>This step is not possible in the current state of the request.</target>
+      </trans-unit>
+      <trans-unit id="RscEA0E6C7D" resname="data_request.refused.changed_meanwhile">
+        <source>data_request.refused.changed_meanwhile</source>
+        <target>The request was changed in the meantime. Please reload the page.</target>
+      </trans-unit>
+      <trans-unit id="RscE9113A03" resname="data_request.timeline.event.released">
+        <source>data_request.timeline.event.released</source>
+        <target>created release {release}, valid until {until}{excluded, select, none {} other {; left out: {excluded}}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc6D9865D8" resname="data_request.timeline.event.export_requested">
+        <source>data_request.timeline.event.export_requested</source>
+        <target>{accepted, select, 1 {accepted the conditions and started} other {started}} the export of release {release}</target>
+      </trans-unit>
+      <trans-unit id="Rsc30AE94B3" resname="data_request.timeline.event.export_provided">
+        <source>data_request.timeline.event.export_provided</source>
+        <target>Export of release {release} provided, downloadable until {until}</target>
+      </trans-unit>
+      <trans-unit id="Rsc418D41AD" resname="data_request.timeline.event.export_blocked">
+        <source>data_request.timeline.event.export_blocked</source>
+        <target>Export of release {release} blocked: a group has too few hospitals</target>
+      </trans-unit>
+      <trans-unit id="Rsc8ADC22FD" resname="data_request.timeline.event.export_failed">
+        <source>data_request.timeline.event.export_failed</source>
+        <target>Export of release {release} failed</target>
+      </trans-unit>
+      <trans-unit id="RscCF3DB5FF" resname="data_request.timeline.event.export_retried">
+        <source>data_request.timeline.event.export_retried</source>
+        <target>tried the export of release {release} again</target>
+      </trans-unit>
+      <trans-unit id="Rsc5C8F816B" resname="data_request.refused.release_invalid">
+        <source>data_request.refused.release_invalid</source>
+        <target>The request cannot be released: every query needs a checked version, and single cases need the confirmation.</target>
+      </trans-unit>
+      <trans-unit id="RscB1D85363" resname="data_request.flash.released">
+        <source>data_request.flash.released</source>
+        <target>The request is released for the applicant.</target>
+      </trans-unit>
+      <trans-unit id="RscF75D5C64" resname="data_request.flash.export_start">
+        <source>data_request.flash.export_start</source>
+        <target>The export is being created. This page shows when it is ready.</target>
+      </trans-unit>
+      <trans-unit id="Rsc269B3BCF" resname="data_request.flash.export_retry">
+        <source>data_request.flash.export_retry</source>
+        <target>The export is being created again.</target>
+      </trans-unit>
+      <trans-unit id="RscD2784D64" resname="data_request.release.title">
+        <source>data_request.release.title</source>
+        <target>Release and export</target>
+      </trans-unit>
+      <trans-unit id="Rsc9C660584" resname="data_request.release.intro">
+        <source>data_request.release.intro</source>
+        <target>An administrator releases the approved queries for the applicant. The applicant then creates the export and downloads it within seven days.</target>
+      </trans-unit>
+      <trans-unit id="RscB688FBC9" resname="data_request.release.choose">
+        <source>data_request.release.choose</source>
+        <target>The release binds the current version of the chosen queries and is valid for three months. Only these files are part of the export.</target>
+      </trans-unit>
+      <trans-unit id="Rsc51BE353F" resname="data_request.release.choose_help">
+        <source>data_request.release.choose_help</source>
+        <target>Leave out a query whose dry run shows groups below the minimum, after agreeing on it with the applicant in a comment. It stays with the request and can be released later.</target>
+      </trans-unit>
+      <trans-unit id="Rsc92414059" resname="data_request.release.query_unchecked">
+        <source>data_request.release.query_unchecked</source>
+        <target>check not passed</target>
+      </trans-unit>
+      <trans-unit id="RscF29BFA98" resname="data_request.release.query_no_dry_run">
+        <source>data_request.release.query_no_dry_run</source>
+        <target>no dry run yet</target>
+      </trans-unit>
+      <trans-unit id="RscB2678C12" resname="data_request.release.query_dry_run_error">
+        <source>data_request.release.query_dry_run_error</source>
+        <target>dry run failed</target>
+      </trans-unit>
+      <trans-unit id="Rsc3F5E8EE2" resname="data_request.release.query_below_minimum">
+        <source>data_request.release.query_below_minimum</source>
+        <target>dry run: {count, plural, one {# group} other {# groups}} below the minimum</target>
+      </trans-unit>
+      <trans-unit id="RscCD5B28A8" resname="data_request.release.excluded">
+        <source>data_request.release.excluded</source>
+        <target>Left out</target>
+      </trans-unit>
+      <trans-unit id="RscC362F493" resname="data_request.release.single_cases_confirm">
+        <source>data_request.release.single_cases_confirm</source>
+        <target>I confirm that the single-case queries give timestamps at most to the hour and ages only in groups, as approved.</target>
+      </trans-unit>
+      <trans-unit id="Rsc33B1A6A0" resname="data_request.release.action">
+        <source>data_request.release.action</source>
+        <target>Release</target>
+      </trans-unit>
+      <trans-unit id="Rsc4DD6D670" resname="data_request.release.number">
+        <source>data_request.release.number</source>
+        <target>Release {number}</target>
+      </trans-unit>
+      <trans-unit id="Rsc0098441E" resname="data_request.release.created">
+        <source>data_request.release.created</source>
+        <target>created {date}</target>
+      </trans-unit>
+      <trans-unit id="Rsc26E6FB24" resname="data_request.release.recipient">
+        <source>data_request.release.recipient</source>
+        <target>Recipient</target>
+      </trans-unit>
+      <trans-unit id="RscF82E6DAB" resname="data_request.release.queries">
+        <source>data_request.release.queries</source>
+        <target>Queries</target>
+      </trans-unit>
+      <trans-unit id="RscB04947AC" resname="data_request.release.query_version">
+        <source>data_request.release.query_version</source>
+        <target>version {number}</target>
+      </trans-unit>
+      <trans-unit id="RscD8CCDCFA" resname="data_request.release.valid_until">
+        <source>data_request.release.valid_until</source>
+        <target>Valid until</target>
+      </trans-unit>
+      <trans-unit id="Rsc3729D547" resname="data_request.release.status.active">
+        <source>data_request.release.status.active</source>
+        <target>Released</target>
+      </trans-unit>
+      <trans-unit id="Rsc3B07A933" resname="data_request.release.status.used">
+        <source>data_request.release.status.used</source>
+        <target>Used</target>
+      </trans-unit>
+      <trans-unit id="Rsc8901B9E6" resname="data_request.release.status.expired">
+        <source>data_request.release.status.expired</source>
+        <target>Expired</target>
+      </trans-unit>
+      <trans-unit id="RscC1BCA933" resname="data_request.release.status.revoked">
+        <source>data_request.release.status.revoked</source>
+        <target>Revoked</target>
+      </trans-unit>
+      <trans-unit id="Rsc49922940" resname="data_request.export.status.queued">
+        <source>data_request.export.status.queued</source>
+        <target>Queued</target>
+      </trans-unit>
+      <trans-unit id="RscA7462523" resname="data_request.export.status.running">
+        <source>data_request.export.status.running</source>
+        <target>Running</target>
+      </trans-unit>
+      <trans-unit id="Rsc768250AE" resname="data_request.export.status.available">
+        <source>data_request.export.status.available</source>
+        <target>Ready</target>
+      </trans-unit>
+      <trans-unit id="Rsc756E456E" resname="data_request.export.status.blocked">
+        <source>data_request.export.status.blocked</source>
+        <target>Blocked</target>
+      </trans-unit>
+      <trans-unit id="Rsc6CA1F641" resname="data_request.export.status.failed">
+        <source>data_request.export.status.failed</source>
+        <target>Failed</target>
+      </trans-unit>
+      <trans-unit id="Rsc68D0EC5C" resname="data_request.export.status.expired">
+        <source>data_request.export.status.expired</source>
+        <target>Expired</target>
+      </trans-unit>
+      <trans-unit id="Rsc1ACEB8B7" resname="data_request.export.status.cancelled">
+        <source>data_request.export.status.cancelled</source>
+        <target>Cancelled</target>
+      </trans-unit>
+      <trans-unit id="Rsc8A340ECC" resname="data_request.export.start_help">
+        <source>data_request.export.start_help</source>
+        <target>The export runs all released queries on the current data. You can start it once; afterwards you download the archive for seven days.</target>
+      </trans-unit>
+      <trans-unit id="Rsc53C402F1" resname="data_request.export.action.start">
+        <source>data_request.export.action.start</source>
+        <target>Create export</target>
+      </trans-unit>
+      <trans-unit id="Rsc3E8F439A" resname="data_request.export.action.download">
+        <source>data_request.export.action.download</source>
+        <target>Download archive</target>
+      </trans-unit>
+      <trans-unit id="RscBF24C62C" resname="data_request.export.action.retry">
+        <source>data_request.export.action.retry</source>
+        <target>Try again</target>
+      </trans-unit>
+      <trans-unit id="RscAA20C2A6" resname="data_request.export.pending">
+        <source>data_request.export.pending</source>
+        <target>The export is being created. This can take a few minutes; reload the page later.</target>
+      </trans-unit>
+      <trans-unit id="Rsc75A0B317" resname="data_request.export.available">
+        <source>data_request.export.available</source>
+        <target>The archive can be downloaded until {date}.</target>
+      </trans-unit>
+      <trans-unit id="RscB075C4FD" resname="data_request.export.problem">
+        <source>data_request.export.problem</source>
+        <target>The export could not be created. An administrator takes care of it.</target>
+      </trans-unit>
+      <trans-unit id="RscC06C5626" resname="data_request.export.expired">
+        <source>data_request.export.expired</source>
+        <target>The download period has ended. A new export needs a new release.</target>
+      </trans-unit>
+      <trans-unit id="Rsc2B4D6124" resname="data_request.export.blocked">
+        <source>data_request.export.blocked</source>
+        <target>Nothing was provided: at least one group has fewer than {minimum} hospitals. Change the query in a new version and release again.</target>
+      </trans-unit>
+      <trans-unit id="Rsc274A55E7" resname="data_request.export.record.file">
+        <source>data_request.export.record.file</source>
+        <target>File</target>
+      </trans-unit>
+      <trans-unit id="RscE7163AA3" resname="data_request.export.record.rows">
+        <source>data_request.export.record.rows</source>
+        <target>Rows</target>
+      </trans-unit>
+      <trans-unit id="Rsc7EBCC662" resname="data_request.export.record.hospitals">
+        <source>data_request.export.record.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="Rsc3B19A992" resname="data_request.export.record.smallest_group">
+        <source>data_request.export.record.smallest_group</source>
+        <target>Fewest hospitals per group</target>
+      </trans-unit>
+      <trans-unit id="RscBCC2BD9C" resname="data_request.export.record.below">
+        <source>data_request.export.record.below</source>
+        <target>{count, plural, one {# group} other {# groups}} below the minimum, the first ones:</target>
+      </trans-unit>
+      <trans-unit id="Rsc75E8018D" resname="data_request.export.record.data_state">
+        <source>data_request.export.record.data_state</source>
+        <target>Data as of {date}, {imports} finished imports</target>
+      </trans-unit>
+      <trans-unit id="RscF3FE6267" resname="data_request.export.record.duration">
+        <source>data_request.export.record.duration</source>
+        <target>{ms} ms, attempt {attempts}</target>
+      </trans-unit>
+      <trans-unit id="Rsc053912D9" resname="data_request.export.record.archive">
+        <source>data_request.export.record.archive</source>
+        <target>archive {bytes} bytes, SHA-256 {checksum}…</target>
+      </trans-unit>
+      <trans-unit id="Rsc5D02892D" resname="data_request.export.record.downloads">
+        <source>data_request.export.record.downloads</source>
+        <target>Downloads</target>
+      </trans-unit>
+      <trans-unit id="Rsc911DD650" resname="data_request.export.readme.heading">
+        <source>data_request.export.readme.heading</source>
+        <target>Data extract from {source}</target>
+      </trans-unit>
+      <trans-unit id="RscEF866D15" resname="data_request.export.readme.request">
+        <source>data_request.export.readme.request</source>
+        <target>Request no. {number}: {title} (version {version})</target>
+      </trans-unit>
+      <trans-unit id="Rsc03C9534A" resname="data_request.export.readme.executed">
+        <source>data_request.export.readme.executed</source>
+        <target>Created on {date}</target>
+      </trans-unit>
+      <trans-unit id="Rsc7F588455" resname="data_request.export.readme.data_as_of">
+        <source>data_request.export.readme.data_as_of</source>
+        <target>Data as of {date} (latest finished import)</target>
+      </trans-unit>
+      <trans-unit id="Rsc37BC7241" resname="data_request.export.readme.no_data_state">
+        <source>data_request.export.readme.no_data_state</source>
+        <target>unknown</target>
+      </trans-unit>
+      <trans-unit id="RscEF568071" resname="data_request.export.readme.files">
+        <source>data_request.export.readme.files</source>
+        <target>Files:</target>
+      </trans-unit>
+      <trans-unit id="Rsc78ABA624" resname="data_request.export.readme.file_counts">
+        <source>data_request.export.readme.file_counts</source>
+        <target>{rows, plural, one {# row} other {# rows}} from {hospitals, plural, one {# hospital} other {# hospitals}}</target>
+      </trans-unit>
+      <trans-unit id="RscBB9DAADC" resname="data_request.export.readme.minimum">
+        <source>data_request.export.readme.minimum</source>
+        <target>Every row of an aggregated file is based on at least {minimum} hospitals.</target>
+      </trans-unit>
+      <trans-unit id="Rsc9F5AA2A0" resname="data_request.export.readme.format">
+        <source>data_request.export.readme.format</source>
+        <target>The files are CSV in UTF-8 with a header row; manifest.json lists rows and SHA-256 checksums per file. The data is pseudonymised and may only be used for the approved purpose.</target>
+      </trans-unit>
+      <trans-unit id="RscEBD723F5" resname="data_request.export.readme.citation_heading">
+        <source>data_request.export.readme.citation_heading</source>
+        <target>Suggested citation:</target>
+      </trans-unit>
+      <trans-unit id="Rsc00BD1097" resname="data_request.export.readme.citation">
+        <source>data_request.export.readme.citation</source>
+        <target>{source}, data extract for request no. {number}, data as of {data_as_of}, retrieved {retrieved}. {url}</target>
+      </trans-unit>
+      <trans-unit id="RscE97B7293" resname="data_request.export.connection.disabled">
+        <source>data_request.export.connection.disabled</source>
+        <target>The export connection is not set up (RESEARCH_DATABASE_URL): checks, dry runs and exports are disabled.</target>
+      </trans-unit>
+      <trans-unit id="Rsc52BEB519" resname="data_request.export.connection.writable">
+        <source>data_request.export.connection.writable</source>
+        <target>The export connection could change data. Set RESEARCH_DATABASE_URL to the read-only user of the hosting.</target>
+      </trans-unit>
+      <trans-unit id="RscBF21F670" resname="data_request.export.connection.unreachable">
+        <source>data_request.export.connection.unreachable</source>
+        <target>The export connection does not answer. Check RESEARCH_DATABASE_URL and the database user.</target>
+      </trans-unit>
+      <trans-unit id="Rsc34C19D94" resname="data_request.timeline.event.release_revoked">
+        <source>data_request.timeline.event.release_revoked</source>
+        <target>revoked release {release}</target>
+      </trans-unit>
+      <trans-unit id="RscEFF8B011" resname="data_request.timeline.event.release_expired">
+        <source>data_request.timeline.event.release_expired</source>
+        <target>Release {release} expired: no export within three months</target>
+      </trans-unit>
+      <trans-unit id="Rsc7920CB25" resname="data_request.timeline.event.export_cancelled">
+        <source>data_request.timeline.event.export_cancelled</source>
+        <target>Export of release {release} cancelled with the withdrawal</target>
+      </trans-unit>
+      <trans-unit id="RscC4207817" resname="data_request.release.conditions">
+        <source>data_request.release.conditions</source>
+        <target>Conditions</target>
+      </trans-unit>
+      <trans-unit id="Rsc53D80AEC" resname="data_request.release.conditions_default">
+        <source>data_request.release.conditions_default</source>
+        <target>The data may only be used for the approved purpose and within the approved project. Only the recipients named in the request have access to it, and passing it on to others is not allowed. The data is pseudonymised. Identifying single hospitals or persons, or linking the data with other sources for that purpose, is not permitted.
+
+Only aggregated results are published, and every group they show is based on at least three hospitals. Publications name the source as the citation in the read-me suggests. Once the project is completed, the data is deleted.</target>
+      </trans-unit>
+      <trans-unit id="Rsc3008DA98" resname="data_request.release.conditions_help">
+        <source>data_request.release.conditions_help</source>
+        <target>Pre-filled with the usual rules; add what the Board decided, or empty the field for no conditions. The recipient accepts them before the export, and they appear in the read-me.</target>
+      </trans-unit>
+      <trans-unit id="Rsc2E52F0A0" resname="data_request.release.conditions_accepted">
+        <source>data_request.release.conditions_accepted</source>
+        <target>Accepted by the recipient on {date}</target>
+      </trans-unit>
+      <trans-unit id="Rsc6B32BDAF" resname="data_request.release.ended.expired">
+        <source>data_request.release.ended.expired</source>
+        <target>Expired</target>
+      </trans-unit>
+      <trans-unit id="RscD1E5E8C3" resname="data_request.release.ended.revoked">
+        <source>data_request.release.ended.revoked</source>
+        <target>Revoked</target>
+      </trans-unit>
+      <trans-unit id="Rsc1C5C0F74" resname="data_request.release.revoke">
+        <source>data_request.release.revoke</source>
+        <target>Revoke release</target>
+      </trans-unit>
+      <trans-unit id="RscDAA8460D" resname="data_request.release.revoke_title">
+        <source>data_request.release.revoke_title</source>
+        <target>Revoke release {number}?</target>
+      </trans-unit>
+      <trans-unit id="Rsc2E5EAAC5" resname="data_request.release.revoke_reason">
+        <source>data_request.release.revoke_reason</source>
+        <target>Reason, visible to the applicant</target>
+      </trans-unit>
+      <trans-unit id="RscC163E4C2" resname="data_request.export.accept_conditions">
+        <source>data_request.export.accept_conditions</source>
+        <target>I accept the conditions above.</target>
+      </trans-unit>
+      <trans-unit id="Rsc4472C73D" resname="data_request.export.cancelled">
+        <source>data_request.export.cancelled</source>
+        <target>The export ended with the withdrawal of the request and can no longer be downloaded.</target>
+      </trans-unit>
+      <trans-unit id="RscD595890D" resname="data_request.export.readme.conditions">
+        <source>data_request.export.readme.conditions</source>
+        <target>Conditions accepted by the recipient:</target>
+      </trans-unit>
+      <trans-unit id="RscA82D3962" resname="data_request.refused.conditions_not_accepted">
+        <source>data_request.refused.conditions_not_accepted</source>
+        <target>Please accept the conditions before you create the export.</target>
+      </trans-unit>
+      <trans-unit id="Rsc4846FD2C" resname="data_request.flash.export_revoke">
+        <source>data_request.flash.export_revoke</source>
+        <target>The release is revoked.</target>
+      </trans-unit>
+      <trans-unit id="Rsc8CE8B3F8" resname="data_request.modal.withdraw.message_released">
+        <source>data_request.modal.withdraw.message_released</source>
+        <target>Withdrawing ends the request for good. Open releases end, and exports that are running or ready can no longer be downloaded. Copies already downloaded cannot be recalled.</target>
+      </trans-unit>
+      <trans-unit id="Rsc3E99A184" resname="data_request.tab.summary">
+        <source>data_request.tab.summary</source>
+        <target>Summary</target>
+      </trans-unit>
+      <trans-unit id="RscAA340BD7" resname="data_request.tab.details">
+        <source>data_request.tab.details</source>
+        <target>Details</target>
+      </trans-unit>
+      <trans-unit id="RscD29F137D" resname="data_request.tab.queries">
+        <source>data_request.tab.queries</source>
+        <target>Queries</target>
+      </trans-unit>
+      <trans-unit id="Rsc39A12B2F" resname="data_request.tab.release">
+        <source>data_request.tab.release</source>
+        <target>Release</target>
+      </trans-unit>
+      <trans-unit id="RscC8554AA9" resname="data_request.basics.submitted_at">
+        <source>data_request.basics.submitted_at</source>
+        <target>Submitted on</target>
+      </trans-unit>
+      <trans-unit id="Rsc63D694A6" resname="data_request.basics.closed_at">
+        <source>data_request.basics.closed_at</source>
+        <target>Closed on</target>
+      </trans-unit>
+      <trans-unit id="RscE03938E8" resname="data_request.query.revise_title">
+        <source>data_request.query.revise_title</source>
+        <target>Change {file}</target>
+      </trans-unit>
+      <trans-unit id="RscBBDB504F" resname="data_request.query.action.revise_file">
+        <source>data_request.query.action.revise_file</source>
+        <target>Change {file}</target>
+      </trans-unit>
+      <trans-unit id="Rsc8B5C3CEE" resname="data_request.release.revoke_number">
+        <source>data_request.release.revoke_number</source>
+        <target>Revoke release {number}</target>
+      </trans-unit>
+      <trans-unit id="RscF1CDC7F8" resname="data_request.release.empty">
+        <source>data_request.release.empty</source>
+        <target>No release yet.</target>
+      </trans-unit>
+      <trans-unit id="Rsc3F48FF64" resname="data_request.tab.versions">
+        <source>data_request.tab.versions</source>
+        <target>Versions</target>
+      </trans-unit>
+      <trans-unit id="RscD315D147" resname="data_request.compare.version_option">
+        <source>data_request.compare.version_option</source>
+        <target>Version {number} of {date}</target>
+      </trans-unit>
+      <trans-unit id="RscF6D4472A" resname="research.decided.title">
+        <source>research.decided.title</source>
+        <target>{outcome, select, returned {Request returned} revision_requested {Revision requested} approved {Request approved} rejected {Request rejected} stalled {Request stopped} expired {Request expired} other {Request updated}}</target>
+      </trans-unit>
+      <trans-unit id="RscA36DFB9A" resname="research.decided.message">
+        <source>research.decided.message</source>
+        <target>{outcome, select, returned {The formal check returned your request no. {number} "{title}". Please look at the message and submit it again.} revision_requested {The Board asks for a revision of your request no. {number} "{title}".} approved {The Board approved your request no. {number} "{title}". An administrator now prepares the queries and the release.} rejected {Your request no. {number} "{title}" was rejected.} stalled {A veto stopped your request no. {number} "{title}". An administrator decides how it goes on.} expired {Your request no. {number} "{title}" expired because the revision was not submitted in time.} other {Your request no. {number} "{title}" changed.}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc1FEC7BE4" resname="research.decided.label">
+        <source>research.decided.label</source>
+        <target>Decisions on my requests</target>
+      </trans-unit>
+      <trans-unit id="RscFC562E80" resname="research.request_submitted.title">
+        <source>research.request_submitted.title</source>
+        <target>Request submitted</target>
+      </trans-unit>
+      <trans-unit id="RscD5E782B9" resname="research.request_submitted.message">
+        <source>research.request_submitted.message</source>
+        <target>Request no. {number} "{title}" was submitted and waits for the formal check.</target>
+      </trans-unit>
+      <trans-unit id="Rsc821FE562" resname="research.request_submitted.label">
+        <source>research.request_submitted.label</source>
+        <target>Request submitted for the formal check</target>
+      </trans-unit>
+      <trans-unit id="Rsc8EE27442" resname="research.board_vote.title">
+        <source>research.board_vote.title</source>
+        <target>{kind, select, revision {New version after a revision} reminder {Vote ends soon} other {Vote opened}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc3D0F34C8" resname="research.board_vote.message">
+        <source>research.board_vote.message</source>
+        <target>{kind, select, revision {Request no. {number} "{title}" has a revised version {version}. Your approval was carried over; you may change your vote until the round ends.} reminder {Round {round} on request no. {number} "{title}" ends within 48 hours, and you have not voted yet.} other {The vote on request no. {number} "{title}" is open: round {round} on version {version}.}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc3ECD7AE6" resname="research.board_vote.label">
+        <source>research.board_vote.label</source>
+        <target>Votes: opened, new version after a revision, reminder before the end</target>
+      </trans-unit>
+      <trans-unit id="Rsc7B595E11" resname="research.board_status.title">
+        <source>research.board_status.title</source>
+        <target>{kind, select, vetoed {Veto} other {Request withdrawn}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc5293EE3F" resname="research.board_status.message">
+        <source>research.board_status.message</source>
+        <target>{kind, select, vetoed {A veto stopped request no. {number} "{title}". An administrator decides how it goes on.} other {The applicant withdrew request no. {number} "{title}".}}</target>
+      </trans-unit>
+      <trans-unit id="RscF85FBE6A" resname="research.board_status.label">
+        <source>research.board_status.label</source>
+        <target>Course of requests: veto, withdrawal</target>
+      </trans-unit>
+      <trans-unit id="Rsc0C842E71" resname="research.commented.title">
+        <source>research.commented.title</source>
+        <target>{own, select, 1 {New comment on your request} other {New comment}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc189A9DB0" resname="research.commented.message">
+        <source>research.commented.message</source>
+        <target>{own, select, 1 {There is a new comment on your request no. {number} "{title}".} other {There is a new comment on request no. {number} "{title}", which you took part in.}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc1D895133" resname="research.commented.label">
+        <source>research.commented.label</source>
+        <target>Comments on my requests and on requests I take part in</target>
+      </trans-unit>
+      <trans-unit id="Rsc23CA96E9" resname="research.export.title">
+        <source>research.export.title</source>
+        <target>{kind, select, released {Release created} release_expiring {Release ends soon} provided {Export ready} other {Download ends soon}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc78078F43" resname="research.export.message">
+        <source>research.export.message</source>
+        <target>{kind, select, released {Your request no. {number} "{title}" is released (release {release}). You can create the export within three months.} release_expiring {Release {release} of your request no. {number} "{title}" ends within 14 days, and no export was created yet.} provided {The export of your request no. {number} "{title}" is ready. You can download it for seven days.} other {The export of your request no. {number} "{title}" can be downloaded for less than 24 hours.}}</target>
+      </trans-unit>
+      <trans-unit id="RscC6E25115" resname="research.export.label">
+        <source>research.export.label</source>
+        <target>Release and export: created, ready, reminders before the periods end</target>
+      </trans-unit>
+      <trans-unit id="Rsc20C52CA5" resname="research.admin.title">
+        <source>research.admin.title</source>
+        <target>{kind, select, approved {Request approved} vetoed {Veto} blocked {Export blocked} other {Export failed}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc5774442B" resname="research.admin.message">
+        <source>research.admin.message</source>
+        <target>{kind, select, approved {The Board approved request no. {number} "{title}". Please prepare the queries and the release.} vetoed {A veto stopped request no. {number} "{title}". Please decide how it goes on.} blocked {The export of release {release} of request no. {number} "{title}" was blocked: a group has too few hospitals.} other {The export of release {release} of request no. {number} "{title}" failed.}}</target>
+      </trans-unit>
+      <trans-unit id="Rsc481C67DA" resname="research.admin.label">
+        <source>research.admin.label</source>
+        <target>Preparing data extracts: approved, veto, failed or blocked exports</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

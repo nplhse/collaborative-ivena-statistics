@@ -55,6 +55,10 @@ final readonly class NotificationPreferenceMatrixBuilder
                 continue;
             }
 
+            // The settings page lists a category's types by their position; equal positions keep the registry order
+            // (by type name), as the sort is stable.
+            usort($definitions, static fn (NotificationDefinition $a, NotificationDefinition $b): int => $a->position <=> $b->position);
+
             $categories[] = $this->buildCategory($category, $definitions, $channels, $preferences);
         }
 

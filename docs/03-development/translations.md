@@ -15,6 +15,7 @@ Symfony native translation with XLIFF files under `translations/`. No custom wra
 | `onboarding` | Participant onboarding checklist | `onboarding+intl-icu.{en,de}.xlf` |
 | `feedback` | Feedback widget and notifications | `feedback+intl-icu.{en,de}.xlf` |
 | `engagement` | Monthly submission reminders | `engagement+intl-icu.{en,de}.xlf` |
+| `research` | Data extract requests (ADR 045) | `research+intl-icu.{en,de}.xlf` |
 | `admin` | Custom admin dashboard (not EasyAdmin bundle defaults) | `admin+intl-icu.{en,de}.xlf` |
 | `shared` | Cookies, locale switcher, global navigation links | `shared+intl-icu.{en,de}.xlf` |
 | `validators` | Validation messages | `validators.{en,de}.xlf` |

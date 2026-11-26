@@ -1,0 +1,100 @@
+{# Export queries of an approved request (ADR 045). Everyone who may see the request reads the SQL; check results,
+   dry runs and the forms are for administrators. #}
+{% set canManageQueries = is_granted('DATA_REQUEST_MANAGE_QUERIES', dataRequest) %}
+{% set queryToken = csrf_token('data_request_query_' ~ dataRequest.publicIdString) %}
+
+{% if dataRequest.queries is not empty or canManageQueries %}
+    <div class="card" id="queries" data-testid="data-request-queries">
+        <div class="card-header">
+            <div>
+                <h3 class="card-title">{{ 'data_request.query.title'|trans({}, 'research') }}</h3>
+                <div class="card-subtitle">{{ 'data_request.query.intro'|trans({}, 'research') }}</div>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if exportConnectionState is defined and exportConnectionState and exportConnectionState != 'read_only' %}
+                <div class="alert alert-{{ exportConnectionState == 'disabled' ? 'secondary' : 'danger' }} mb-3" data-testid="data-request-export-connection" data-state="{{ exportConnectionState }}">
+                    {{ ('data_request.export.connection.' ~ exportConnectionState)|trans({}, 'research') }}
+                </div>
+            {% endif %}
+            {% for query in dataRequest.queries %}
+                {% set current = query.currentVersion %}
+                <div class="mb-4" data-testid="data-request-query" data-query="{{ query.name }}">
+                    <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap mb-1">
+                        <div>
+                            <span class="font-monospace fw-bold">{{ query.name }}.csv</span>
+                            <twig:Badge variant="secondary">{{ query.kind.labelKey|trans({}, 'research') }}</twig:Badge>
+                        </div>
+                        <span class="text-secondary small" title="SHA-256 {{ current.checksum }}">{{ 'data_request.query.version'|trans({number: current.number, checksum: current.checksum|slice(0, 8)}, 'research') }}</span>
+                    </div>
+                    <p class="text-break mb-2">{{ query.description|nl2br }}</p>
+                    {{ current.sql|research_sql }}
+
+                    {% if canManageQueries %}
+                        <div class="mt-2" data-testid="data-request-query-check">
+                            {% if current.passesCheck %}
+                                <div class="text-success small"><twig:ux:icon name="tabler:circle-check" class="icon" /> {{ 'data_request.query.check.passed'|trans({}, 'research') }}</div>
+                            {% else %}
+                                <div class="alert alert-danger mb-2 py-2" role="alert">
+                                    <div class="fw-bold">{{ 'data_request.query.check.failed'|trans({}, 'research') }}</div>
+                                    <ul class="mb-0">
+                                        {% for violation in current.violations %}
+                                            <li>{{ ('data_request.query.violation.' ~ violation.code)|trans(violation.parameters, 'research') }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {% set run = current.dryRun %}
+                        {% if run %}
+                            <div class="border rounded p-2 mt-2 small" data-testid="data-request-dry-run">
+                                <div class="fw-bold mb-1">{{ 'data_request.query.dry_run.title'|trans({date: date(run.ran_at)|format_datetime('medium', 'short')}, 'research') }}</div>
+                                {% if run.error %}
+                                    <div class="text-danger text-break">{{ run.error == 'connection_missing' ? 'data_request.query.violation.connection_missing'|trans({}, 'research') : run.error }}</div>
+                                {% else %}
+                                    <div>{{ 'data_request.query.dry_run.summary'|trans({rows: run.rows, hospitals: run.hospitals, ms: run.duration_ms}, 'research') }}</div>
+                                    {% if run.truncated %}<div class="text-danger">{{ 'data_request.query.dry_run.truncated'|trans({max: constant('App\\Research\\Infrastructure\\Export\\QueryDryRunner::MAX_ROWS')}, 'research') }}</div>{% endif %}
+                                    {% if run.below_minimum > 0 %}
+                                        <div class="text-danger" data-testid="data-request-dry-run-below">{{ 'data_request.query.dry_run.below_minimum'|trans({count: run.below_minimum, minimum: constant('App\\Research\\Application\\Export\\HospitalMinimum::MIN_HOSPITALS')}, 'research') }}</div>
+                                    {% elseif query.kind.value == 'aggregated' and run.rows > 0 %}
+                                        <div class="text-success">{{ 'data_request.query.dry_run.minimum_met'|trans({minimum: constant('App\\Research\\Application\\Export\\HospitalMinimum::MIN_HOSPITALS')}, 'research') }}</div>
+                                    {% endif %}
+                                    {% for label, rows in {sample: run.sample, below: run.below_minimum_rows} %}
+                                        {% if rows is not empty %}
+                                            <div class="mt-2 text-secondary">{{ ('data_request.query.dry_run.' ~ label)|trans({}, 'research') }}</div>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm mb-0">
+                                                    <thead><tr>{% for column in run.columns %}<th class="font-monospace">{{ column }}</th>{% endfor %}</tr></thead>
+                                                    <tbody>
+                                                        {% for row in rows %}
+                                                            <tr>{% for column in run.columns %}<td>{{ row[column] ?? '' }}</td>{% endfor %}</tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <div class="d-flex gap-2 mt-2 flex-wrap">
+                            <form method="post" action="{{ path('app_data_requests_query', {publicId: dataRequest.publicIdString, action: 'dry-run'}) }}">
+                                <input type="hidden" name="_token" value="{{ queryToken }}">
+                                <input type="hidden" name="name" value="{{ query.name }}">
+                                <button type="submit" class="btn btn-sm btn-outline-primary" data-testid="data-request-query-dry-run"{{ current.passesCheck ? '' : ' disabled' }}>{{ 'data_request.query.action.dry_run'|trans({}, 'research') }}</button>
+                            </form>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#data-request-query-{{ query.name }}-modal" data-testid="data-request-query-revise-open" data-query="{{ query.name }}">
+                                <twig:ux:icon name="tabler:pencil" class="icon" /> {{ 'data_request.query.action.revise'|trans({}, 'research') }}
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p class="text-body-secondary">{{ 'data_request.query.empty'|trans({}, 'research') }}</p>
+            {% endfor %}
+
+        </div>
+    </div>
+{% endif %}

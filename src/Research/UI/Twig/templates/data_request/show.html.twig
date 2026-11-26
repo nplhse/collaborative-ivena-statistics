@@ -1,0 +1,211 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set own = app.user and dataRequest.requestedBy(app.user) %}
+
+{% block title %}{{ version.title }} - {{ parent() }}{% endblock %}
+
+{% macro field(label, value, class = 'col-12') %}
+    {% set empty = value is same as(null) or value is same as('') %}
+    <div class="{{ class }}{{ empty ? ' opacity-50' }}" data-testid="data-request-field"{% if empty %} data-empty="1"{% endif %}>
+        <div class="datagrid-title">{{ label|trans({}, 'research') }}</div>
+        <div class="text-break{{ empty ? ' text-body-secondary' }}">{{ empty ? '–' : value|nl2br }}</div>
+    </div>
+{% endmacro %}
+
+{% macro hidden_field(label, value, class = 'col-12') %}
+    <div class="{{ class }} opacity-50" data-testid="data-request-hidden-field">
+        <div class="datagrid-title">{{ label|trans({}, 'research') }}</div>
+        <div class="text-body-secondary">{{ (value is same as(null) or value is same as('') ? 'data_request.hidden.empty' : 'data_request.hidden.provided')|trans({}, 'research') }}</div>
+    </div>
+{% endmacro %}
+
+{% macro hidden_row(label, value) %}
+    <div class="d-flex justify-content-between gap-3 py-2 border-bottom" data-testid="data-request-hidden-field">
+        <span>{{ label|trans({}, 'research') }}</span>
+        <span class="text-body-secondary">{{ (value is same as(null) or value is same as('') ? 'data_request.hidden.empty' : 'data_request.hidden.provided')|trans({}, 'research') }}</span>
+    </div>
+{% endmacro %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'my_requests.title', path: path('app_my_requests'), label_domain: 'shared' },
+                { label: 'data_request.title.list', path: path('app_data_requests'), label_domain: 'research' },
+                { label: 'data_request.title.show', label_domain: 'research' }
+            ]"
+        />
+        <div class="page-header d-print-none">
+            <h2 class="page-title" data-testid="data-request-title">{{ version.title }}</h2>
+            <div class="list-inline list-inline-dots text-secondary mt-1" data-testid="data-request-meta">
+                <twig:AdminObjectId :id="dataRequest.id" />
+                <div class="list-inline-item">{{ include('@Research/data_request/_status_badge.html.twig') }}</div>
+                <div class="list-inline-item" data-testid="data-request-applicant">{{ include('@Research/data_request/_user.html.twig', {person: dataRequest.requester}) }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {% if own and dataRequest.status.value in ['submitted', 'in_review', 'stalled'] %}
+        <div class="alert alert-info" role="note" data-testid="data-request-frozen-note">{{ 'data_request.show.frozen_note'|trans({}, 'research') }}</div>
+    {% endif %}
+    {% if own and dataRequest.status.value == 'withdrawn' %}
+        <div class="alert alert-secondary" role="note">{{ 'data_request.show.withdrawn_note'|trans({}, 'research') }}</div>
+    {% endif %}
+
+    {% set showQueries = dataRequest.queries is not empty or is_granted('DATA_REQUEST_MANAGE_QUERIES', dataRequest) %}
+    {% set showRelease = canRelease or releases is not empty %}
+    {% set tabs = {
+        'tab-summary': {label: 'data_request.tab.summary', count: null},
+        'tab-details': {label: 'data_request.tab.details', count: null},
+        'tab-versions': {label: 'data_request.tab.versions', count: comparison ? comparison.versions|length : dataRequest.versions|length},
+    }
+        |merge(showQueries ? {'tab-queries': {label: 'data_request.tab.queries', count: dataRequest.queries|length}} : {})
+        |merge(showRelease ? {'tab-release': {label: 'data_request.tab.release', count: releases|length}} : {}) %}
+
+    <div class="row row-cards" data-controller="data-request-tabs">
+        <div class="col-lg-8">
+            <nav class="overflow-x-auto mb-3">
+                <ul class="nav nav-tabs analytics-library-tabs flex-nowrap" role="tablist" data-testid="data-request-tabs">
+                    {% for pane, tab in tabs %}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-nowrap{{ loop.first ? ' active' }}" id="{{ pane }}-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#{{ pane }}" aria-controls="{{ pane }}" aria-selected="{{ loop.first ? 'true' : 'false' }}" data-data-request-tabs-target="tab" data-action="shown.bs.tab->data-request-tabs#shown" data-testid="data-request-tab" data-tab="{{ pane }}">
+                                {{ tab.label|trans({}, 'research') }}{% if tab.count is not null %}<span class="badge rounded-pill analytics-library-tab-count ms-1" data-testid="data-request-tab-count">{{ tab.count }}</span>{% endif %}
+                            </button>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="tab-summary" role="tabpanel" aria-labelledby="tab-summary-link">
+                    <div class="card mb-3" data-testid="data-request-public">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                {{ _self.field('data_request.field.summary', version.summary) }}
+                                {{ _self.field('data_request.field.institution', version.institution) }}
+                            </div>
+                        </div>
+                    </div>
+                    {% if dataRequest.wasSubmitted %}
+                        {{ include('@Research/data_request/_timeline.html.twig') }}
+                    {% endif %}
+                </div>
+
+                <div class="tab-pane fade" id="tab-details" role="tabpanel" aria-labelledby="tab-details-link">
+                    <div class="card mb-3" data-testid="data-request-scope">
+                        <div class="card-header"><h3 class="card-title">{{ 'data_request.group.scope'|trans({}, 'research') }}</h3></div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="datagrid-title">{{ 'data_request.show.period'|trans({}, 'research') }}</div>
+                                    <div>{{ version.periodFrom|format_date('medium') }} – {{ version.periodTo|format_date('medium') }}</div>
+                                </div>
+                                {% if canViewInternal %}
+                                    {{ _self.field('data_request.field.recipients', version.recipients, 'col-md-6') }}
+                                {% else %}
+                                    {{ _self.hidden_field('data_request.field.recipients', version.recipients, 'col-md-6') }}
+                                {% endif %}
+                                {{ _self.field('data_request.field.purpose', version.purpose) }}
+                                {{ _self.field('data_request.field.population', version.population, 'col-md-6') }}
+                                {{ _self.field('data_request.field.granularity', version.granularity, 'col-md-6') }}
+                                {{ _self.field('data_request.field.variables', version.variables) }}
+                                <div class="col-md-6">
+                                    <div class="datagrid-title">{{ 'data_request.field.single_cases'|trans({}, 'research') }}</div>
+                                    <div>{{ (version.singleCases ? 'label.yes' : 'label.no')|trans({}, 'messages') }}</div>
+                                </div>
+                                {% if canViewInternal %}
+                                    {{ _self.field('data_request.field.enrichment_details', version.enrichmentDetails, 'col-md-6') }}
+                                {% else %}
+                                    {{ _self.hidden_field('data_request.field.enrichment_details', version.enrichmentDetails, 'col-md-6') }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3" data-testid="data-request-internal">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">{{ 'data_request.group.internal'|trans({}, 'research') }}</h3>
+                                {% if not canViewInternal %}
+                                    <div class="card-subtitle">{{ 'data_request.hidden.intro'|trans({}, 'research') }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <label class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" disabled{{ version.enrichmentPlanned ? ' checked' }} data-testid="data-request-enrichment-planned">
+                                <span class="form-check-label">{{ 'data_request.field.enrichment_planned'|trans({}, 'research') }}</span>
+                            </label>
+                            {% if canViewInternal %}
+                                <div class="row g-3">
+                                    {{ _self.field('data_request.field.description', version.description) }}
+                                    {{ _self.field('data_request.field.data_needs', version.dataNeeds) }}
+                                    {{ _self.field('data_request.field.responsible_persons', version.responsiblePersons, 'col-md-4') }}
+                                    {{ _self.field('data_request.field.conflicts_of_interest', version.conflictsOfInterest, 'col-md-4') }}
+                                    {{ _self.field('data_request.field.ethics', version.ethics, 'col-md-4') }}
+                                    {{ _self.field('data_request.field.planned_end', version.plannedEnd ? version.plannedEnd|format_date('medium') : null, 'col-md-4') }}
+                                    {{ _self.field('data_request.field.planned_deletion', version.plannedDeletion ? version.plannedDeletion|format_date('medium') : null, 'col-md-4') }}
+                                    {{ _self.field('data_request.field.planned_publication', version.plannedPublication, 'col-md-4') }}
+                                </div>
+                            {% else %}
+                                {{ _self.hidden_row('data_request.field.description', version.description) }}
+                                {{ _self.hidden_row('data_request.field.data_needs', version.dataNeeds) }}
+                                {{ _self.hidden_row('data_request.field.responsible_persons', version.responsiblePersons) }}
+                                {{ _self.hidden_row('data_request.field.conflicts_of_interest', version.conflictsOfInterest) }}
+                                {{ _self.hidden_row('data_request.field.ethics', version.ethics) }}
+                                {{ _self.hidden_row('data_request.field.planned_end', version.plannedEnd) }}
+                                {{ _self.hidden_row('data_request.field.planned_deletion', version.plannedDeletion) }}
+                                {{ _self.hidden_row('data_request.field.planned_publication', version.plannedPublication) }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-versions" role="tabpanel" aria-labelledby="tab-versions-link" data-testid="data-request-versions">
+                    {% if comparison %}
+                        {{ include('@Research/data_request/_compare.html.twig', {action: path('app_data_requests_show', {publicId: dataRequest.publicIdString}) ~ '#tab-versions'}) }}
+                    {% endif %}
+                </div>
+
+                {% if showQueries %}
+                    <div class="tab-pane fade" id="tab-queries" role="tabpanel" aria-labelledby="tab-queries-link">
+                        {{ include('@Research/data_request/_queries.html.twig') }}
+                    </div>
+                {% endif %}
+
+                {% if showRelease %}
+                    <div class="tab-pane fade" id="tab-release" role="tabpanel" aria-labelledby="tab-release-link">
+                        {{ include('@Research/data_request/_release.html.twig') }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            {{ include('@Research/data_request/_basics.html.twig') }}
+            {{ include('@Research/data_request/_review.html.twig') }}
+        </div>
+    </div>
+
+    {{ include('@Research/data_request/_modals.html.twig') }}
+
+    {% if own %}
+        {% for transition in ['withdraw', 'submit'] %}
+            {% if is_granted('DATA_REQUEST_' ~ transition|upper, dataRequest) %}
+                <twig:ConfirmModal
+                    id="data-request-{{ transition }}-modal"
+                    :title="('data_request.modal.' ~ transition ~ '.title')|trans({}, 'research')"
+                    :message="('data_request.modal.' ~ transition ~ (transition == 'withdraw' and dataRequest.releases is not empty ? '.message_released' : '.message'))|trans({}, 'research')"
+                    :action="path('app_data_requests_transition', {publicId: dataRequest.publicIdString, transition: transition})"
+                    :csrfToken="csrf_token('data_request_' ~ transition ~ '_' ~ dataRequest.publicIdString)"
+                    :confirmLabel="('data_request.action.' ~ transition)|trans({}, 'research')"
+                    :cancelLabel="'action.cancel'|trans({}, 'messages')"
+                    :confirmVariant="transition == 'submit' ? 'primary' : 'danger'"
+                    size="md"
+                />
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endblock %}
