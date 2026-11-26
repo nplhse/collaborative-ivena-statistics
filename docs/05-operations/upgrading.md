@@ -12,6 +12,25 @@ cd <deploy_path>/current
 
 Commands that write data preview by default. Run them without `--apply` first, read the output, then apply. A command that finds nothing to do can be skipped.
 
+## v0.3-beta → v0.3.1-beta
+
+Security hotfix: easycorp/easyadmin-bundle 5.10.4 for the advisories of 2026-11-25. No configuration changes, no migrations and no one-time commands.
+
+An installation still on v0.2.x follows the [v0.2.7-beta → v0.3-beta](#v027-beta--v03-beta) section and deploys v0.3.1-beta directly.
+
+### Before the deploy
+
+**Back up** the database and files ([backup-restore.md](backup-restore.md)).
+
+### Deploy
+
+Deploy as usual.
+
+### Check
+
+- `GET /health` reports `ok` and the footer shows `v0.3.1-beta`.
+- Sign in as an administrator, open the admin dashboard, a user detail page and the media library without errors.
+
 ## v0.2.7-beta → v0.3-beta
 
 This release contains 59 database migrations, some of which remove data for good. It moves the media files into a new
