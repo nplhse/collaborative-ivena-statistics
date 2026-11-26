@@ -149,4 +149,34 @@ final class ImportRejectCrudControllerTest extends WebTestCase
             'messageToken' => $messageToken,
         ];
     }
+
+    public function testRejectDetailShowsUploadedMarkupAsText(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::new()->asAdmin()->create(['username' => 'reject-xss-'.bin2hex(random_bytes(4))]);
+        $import = ImportFactory::createOne([
+            'createdBy' => $admin,
+            'hospital' => HospitalFactory::createOne(['name' => 'Klinik <i>kursiv</i>']),
+        ]);
+
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $reject = new ImportReject();
+        $reject->setImport($import);
+        $reject->setLineNumber(3);
+        $reject->setMessages(['createdAt: This value should not be blank.']);
+        $reject->setRow(['fachgebiet' => '<b id="injected">fett</b>']);
+        $em->persist($reject);
+        $em->flush();
+
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, '/admin/import-reject/'.$reject->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(0, $crawler->filter('#injected'));
+        $html = (string) $client->getResponse()->getContent();
+        self::assertStringNotContainsString('Klinik <i>kursiv</i>', $html, 'the hospital name is not rendered as markup');
+        self::assertStringContainsString('Klinik &lt;i&gt;kursiv&lt;/i&gt;', $html);
+        self::assertStringContainsString('<b id=\"injected\">fett</b>', $crawler->filter('.ea-json-pre')->text());
+        self::assertStringContainsString('&lt;b id=\\&quot;injected\\&quot;&gt;fett&lt;/b&gt;', $html);
+    }
 }

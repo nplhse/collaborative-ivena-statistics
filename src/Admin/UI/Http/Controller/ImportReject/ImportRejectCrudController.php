@@ -90,7 +90,7 @@ final class ImportRejectCrudController extends AbstractCrudController
         yield AssociationField::new('import', new TranslatableMessage('label.import', domain: 'admin'));
         yield TextField::new('import', new TranslatableMessage('admin.hospital.entity.singular', domain: 'admin'))
             ->setSortable(false)
-            ->formatValue(static fn (mixed $value, ImportReject $reject): string => $reject->getImport()?->getHospital()?->getName() ?? '—');
+            ->formatValue(static fn (mixed $value, ImportReject $reject): string => htmlspecialchars($reject->getImport()?->getHospital()?->getName() ?? '—', \ENT_QUOTES));
 
         yield IntegerField::new('lineNumber', new TranslatableMessage('admin.import_reject.field.line', domain: 'admin'));
         yield TextField::new('import', new TranslatableMessage('admin.import_reject.field.messages', domain: 'admin'))
@@ -107,10 +107,11 @@ final class ImportRejectCrudController extends AbstractCrudController
             ->onlyOnDetail()
             ->setSortable(false)
             ->setTemplatePath('@Admin/crud/field/json_pre.html.twig')
-            ->formatValue(static fn (mixed $value, ImportReject $reject): string => json_encode(
+            // formatValue() output is rendered unescaped (EasyAdmin wraps it in Markup); the row holds uploaded cell values.
+            ->formatValue(static fn (mixed $value, ImportReject $reject): string => htmlspecialchars(json_encode(
                 $reject->getRow(),
                 JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
-            ));
+            ), \ENT_QUOTES));
     }
 
     /**

@@ -108,7 +108,7 @@ final class HelpArticleCrudController extends AbstractCrudController
             ->setVirtual(true)
             ->onlyOnIndex()
             ->setSortable(false)
-            ->formatValue(static fn (mixed $value, Page $page): string => (string) $page)
+            ->formatValue(static fn (mixed $value, Page $page): string => htmlspecialchars((string) $page, \ENT_QUOTES))
             ->setTemplatePath('@Admin/help_article/_formatted_value.html.twig');
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.identity', domain: 'admin'));
         yield AssociationField::new('parent', new TranslatableMessage('label.help_parent', domain: 'content'))
